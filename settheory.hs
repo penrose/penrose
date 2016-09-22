@@ -33,7 +33,8 @@ keenanSpec = [
            BindSets ["A", "B", "C", "D"], -- A, B, C, D := Set
            Intersect (St "A") (Intersection (St "B") (St "C")) True,
                                 -- Intersect (A, B, C) = TRUE
-           Subset (St "D") (Intersection (St "A") (Intersection (St "B") (St "C")))              True,             -- Subset( D, Intersection(A,B,C) ) = TRUE 
+           Subset (St "D") (Intersection (St "A") (Intersection (St "B") (St "C")))
+              True,             -- Subset( D, Intersection(A,B,C) ) = TRUE 
            PointIn (Pt "p") (Minus (Intersection (St "A") (Intersection (St "B")
               (St "C"))) (St "D")), -- p := Point in (Intersection( A, B, C ) \ D)
            PointIn (Pt "q") (Intersection (St "B") (St "C")),
