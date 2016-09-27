@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+    "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" height="100.0000" stroke-opacity="1" viewBox="0 0 100 100" font-size="1" width="100.0000" xmlns:xlink="http://www.w3.org/1999/xlink" stroke="rgb(0,0,0)" version="1.1">
+  <defs>
+  </defs>
+  <defs>
+  </defs>
+  <g stroke-linejoin="miter" stroke-opacity="1.0" fill-opacity="1.0" opacity="0.3" stroke="rgb(0,0,0)" stroke-width="0.0" fill="rgb(255,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0">
+    <path d="M 100.0000,50.0000 c 0.0000,-18.4095 -14.9238,-33.3333 -33.3333 -33.3333c -18.4095,-0.0000 -33.3333,14.9238 -33.3333 33.3333c -0.0000,18.4095 14.9238,33.3333 33.3333 33.3333c 18.4095,0.0000 33.3333,-14.9238 33.3333 -33.3333Z"/>
+  </g>
+  <defs>
+  </defs>
+  <g stroke-linejoin="miter" stroke-opacity="1.0" fill-opacity="1.0" opacity="0.3" stroke="rgb(0,0,0)" stroke-width="0.0" fill="rgb(255,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0">
+    <path d="M 66.6667,50.0000 c 0.0000,-18.4095 -14.9238,-33.3333 -33.3333 -33.3333c -18.4095,-0.0000 -33.3333,14.9238 -33.3333 33.3333c -0.0000,18.4095 14.9238,33.3333 33.3333 33.3333c 18.4095,0.0000 33.3333,-14.9238 33.3333 -33.3333Z"/>
+  </g>
+</svg>
