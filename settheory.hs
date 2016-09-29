@@ -74,6 +74,8 @@ c = Intersection a b
 
 --------------------
 
+-- some unrelated / helpful examples from the diagrams site
+        
 andThen t1 t2 = t1 <> t2 # rotate (angleBetween d1 d2)
   where
     d1 = tangentAtEnd t1
@@ -91,29 +93,6 @@ example = foldr andThen mempty (replicate 5 armUnit)
   # rotateBy (1/20)
   # centerXY # pad 1.1 # sized (mkWidth 2)
 
---------------------
-
-vennRed :: Diagram B
-vennRed = (cir <> cir # translateX 1) # opacity 0.3
-       where cir = circle 1 # lw none # fc red
-
--- figure out how to make a "circle" loop and fill it X?
--- figure out what angle, and fill that X
--- figure out how to draw 3-arc and fill it
--- sets, parser, expression, etc.
-arctest :: Diagram B
-arctest = (arc (d angle) a <> arc (d (-(1/4 - 1/12))) a)
-        -- # lc red
-        # closeLine # strokeLoop # fc red # lw none # centerXY
-        where angle = 1/4 + 1/12 -- 1/4 of a circle + 1/12
-              d :: Double -> Direction V2 Double
-              d a1 = rotateBy a1 xDir
-              a :: Angle Double
-              a = tau / 3 @@ rad
-
-venn :: Diagram B
-venn = cir # translateX (-0.5) <> cir # translateX 0.5
-       where cir = circle 1
 ----
 
 p = pentagon 1 # onLineSegments init
@@ -122,8 +101,50 @@ example_pentagon :: Diagram B
 example_pentagon = iterateN 5 (rotateBy (1/5)) p
    # mconcat # glueLine # strokeLoop
    # fc green # centerXY # pad 1.1 # sized (mkWidth 2)
+   
+--------------------
 
-main = mainWith (venn <> arctest)
--- mainWith (armUnit # glueLine # strokeLoop # fc blue)
--- mainWith (venn <> ab)
+-- figure out how to fill 3-arc
+-- sets, parser, expression, etc.
+-- generalize to 3 sets   
+a_intersect_b :: Diagram B
+a_intersect_b = (arc (d angle) a <> arc (d (-(1/4 - 1/12))) a)
+        -- # lc red
+        # closeLine
+        -- # fromSegments
+        # strokeLoop # fc red # lw none # centerXY
+        where angle = 1/4 + 1/12 -- 1/4 of a circle + 1/12
+              d :: Double -> Direction V2 Double
+              d a1 = rotateBy a1 xDir
+              a :: Angle Double
+              a = tau / 3 @@ rad
+
+minusDiag =
+          (arc (d angle) (tau - (tau / 3) @@ rad) # translateX (-0.5)
+          <>
+          arc (d (1/4 + 1/12)) a # translateX 0.5)
+          -- fromLocSegments $ 
+          -- [(arc (d angle) (tau - (tau / 3) @@ rad) `at` p2 (-0.5, 0)),
+          -- (arc (d (1/4 + 1/12)) a `at` p2 (0.5, 0))]
+        -- # glueLine # strokeLoop
+        -- # fc blue
+        # lw 5
+        where angle = 1/6
+              d :: Double -> Direction V2 Double
+              d a1 = rotateBy a1 xDir
+              a :: Angle Double
+              a = tau / 3 @@ rad
+        
+a_minus_b :: Diagram B
+a_minus_b = minusDiag # lc blue
+
+b_minus_a :: Diagram B
+b_minus_a = minusDiag # reflectX # lc green
+
+venn :: Diagram B
+venn = cir # translateX (-0.5) <> cir # translateX 0.5
+       where cir = circle 1
+
+-- leftmost on top. TODO put venn on top
+main = mainWith (b_minus_a <> a_minus_b <> a_intersect_b <> venn)
 -- main = putStrLn (show keenanSpec)
