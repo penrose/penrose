@@ -6,17 +6,12 @@
   </defs>
   <defs>
   </defs>
-  <g stroke-linejoin="miter" stroke-opacity="1.0" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-width="0.0" fill="rgb(255,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0">
-    <path d="M 250.0000,105.6624 c -79.7154,46.0237 -107.0280,147.9555 -61.0042 227.6709c 14.6281,25.3365 35.6677,46.3762 61.0042 61.0042c 79.7154,-46.0237 107.0280,-147.9555 61.0042 -227.6709c -14.6281,-25.3365 -35.6677,-46.3762 -61.0042 -61.0042Z"/>
+  <g stroke-linejoin="miter" stroke-opacity="1.0" fill-opacity="0.0" stroke="rgb(0,0,0)" stroke-width="1.9999999999999998" fill="rgb(0,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0">
+    <path d="M 500.0000,500.0000 l -0.0000,-500.0000 h -500.0000 l -0.0000,500.0000 Z"/>
   </g>
   <defs>
   </defs>
-  <g stroke-linejoin="miter" stroke-opacity="1.0" fill-opacity="0.0" stroke="rgb(0,0,0)" stroke-width="1.632993161855452" fill="rgb(0,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0">
-    <path d="M 500.0000,250.0000 c 0.0000,-92.0475 -74.6192,-166.6667 -166.6667 -166.6667c -92.0475,-0.0000 -166.6667,74.6192 -166.6667 166.6667c -0.0000,92.0475 74.6192,166.6667 166.6667 166.6667c 92.0475,0.0000 166.6667,-74.6192 166.6667 -166.6667Z"/>
-  </g>
-  <defs>
-  </defs>
-  <g stroke-linejoin="miter" stroke-opacity="1.0" fill-opacity="0.0" stroke="rgb(0,0,0)" stroke-width="1.632993161855452" fill="rgb(0,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0">
-    <path d="M 333.3333,250.0000 c 0.0000,-92.0475 -74.6192,-166.6667 -166.6667 -166.6667c -92.0475,-0.0000 -166.6667,74.6192 -166.6667 166.6667c -0.0000,92.0475 74.6192,166.6667 166.6667 166.6667c 92.0475,0.0000 166.6667,-74.6192 166.6667 -166.6667Z"/>
+  <g stroke-linejoin="miter" stroke-opacity="1.0" fill-opacity="0.0" stroke="rgb(0,0,0)" stroke-width="1.9999999999999998" fill="rgb(0,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0">
+    <path d="M 450.0000,150.0000 c 0.0000,-55.2285 -44.7715,-100.0000 -100.0000 -100.0000c -55.2285,-0.0000 -100.0000,44.7715 -100.0000 100.0000c -0.0000,55.2285 44.7715,100.0000 100.0000 100.0000c 55.2285,0.0000 100.0000,-44.7715 100.0000 -100.0000Z"/>
   </g>
 </svg>
