@@ -24,11 +24,13 @@ import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 import Diagrams.BoundingBox
 import System.Random
-import Control.Arrow
+import Control.Arrow ((>>>))
 import Data.Function
 import Data.Colour (withOpacity)
 import Debug.Trace
 import Diagrams.TwoD.Text
+import Diagrams.TwoD.Layout.Grid
+
 
 data Set =
      St String
@@ -100,7 +102,7 @@ dim = 500 -- dim x dim
 
 rRange :: (Double, Double)
 -- rRange = (10, 90)
-rRange = (50, 200)
+rRange = (dim/10, dim/2)
  
 imgRange = (-dim/2, dim/2)
 
@@ -114,27 +116,26 @@ data Circle = Circle { x :: Double, y :: Double, r :: Double } deriving (Show)
 -- i wish i could have an interactive loop that would show drawUntil... maybe draw in a faded color?
 
 -- i should really pass the generator around in a monad
--- also output the circle stats
+-- draw a bunch of diagrams, threading thru the same rng
 
--- draw a single circle once until it's in a region (generalized condition check)
--- then draw another circle in a fixed place, then in a random place (using the same rng)
--- then, draw another circle until they intersect (in faded color)
 -- then generalize to "point in intersection"
 -- then actually parse basicSpec
 -- then write up some of my questions and post on slack
 
 -- & is reverse apply
-circPic :: RandomGen g => Circle -> g -> Diagram B
+circPic :: RandomGen g => Circle -> g -> (Diagram B, g)
 circPic prevCoords gen =
-        let (bads, good) = circs gen & crop (cIntersect prevCoords) in
+        let (bads, (good, gen')) = circs gen & crop (cIntersect prevCoords) in
         let badsPic = map drawBad bads & mconcat in
         let goodPic = drawGood good in
-        goodPic <> badsPic
+        (goodPic <> badsPic, gen')
 
 -- from stackoverflow. truncate to 2 points
 trunc num = (fromInteger $ round $ num * (10^2)) / (10.0^^2)
-drawBad c = draw c # fc red # opacity 0.05 <> circText c
-drawGood c = draw c # fc green # opacity 0.5 <> circText c
+-- TODO add debug flag
+drawBad c = draw c # fc red # opacity 0.15 # lw none -- <> circText c
+drawGood c = draw c # fc green # opacity 0.4 # lw none -- <> circText c
+drawFirst c = draw c # fc blue # opacity 0.4 # lw none -- <> circText c
 circText c = alignedText cx cy textC # scale 20
          where cx = x c
                cy = y c
@@ -144,23 +145,23 @@ draw :: Circle -> Diagram B
 draw randC = circle (r randC) # translateX (x randC) # translateY (y randC)
 
 -- not the most efficient impl. also assumes infinite list s.t. head always exists
-crop :: (a -> Bool) -> [a] -> ([a], a)
-crop cond xs = (takeWhile (not . cond) xs, head $ dropWhile (not . cond) xs)
+crop :: RandomGen g => (a -> Bool) -> [(a, g)] -> ([a], (a, g))
+crop cond xs = (takeWhile (not . cond) (map fst xs), -- drop gens
+                head $ dropWhile (\(x, _) -> not $ cond x) xs) -- keep good's gen
 
 -- eventually conditions will have to refer to prev results
 -- note: circle values are doubles. so, choose a condition that will eventually be true, and not cause an infinite list
 -- circles intersect iff the distance b/t their centers < the sum of their radii
 cIntersect :: Circle -> Circle -> Bool
-cIntersect c1 c2 = traceShowId $ distance (p2 (x c1, y c1)) (p2 (x c2, y c2)) < r c1 + r c2
+cIntersect c1 c2 = {- traceShowId $ -} distance (p2 (x c1, y c1)) (p2 (x c2, y c2)) < r c1 + r c2
 
 inBox :: Circle -> Bool
 inBox c = x c >= -len && x c <= len && y c >= -len && y c <= len
           where len = 10
 
--- TODO keep the last generator for the "good" element?
-circs :: RandomGen g => g -> [Circle]
-circs gen = map fst circgens -- throw the intermediate generators away
-        where circgens = iterate (\(c, g) -> cirCoords g) (cirCoords gen)
+-- keep the last generator for the "good" element
+circs :: RandomGen g => g -> [(Circle, g)]
+circs gen = iterate (\(c, g) -> cirCoords g) (cirCoords gen)
 
 cirCoords :: RandomGen g => g -> (Circle, g)
 cirCoords gen = (Circle { x = randX, y = randY, r = randR }, gen3)
@@ -169,9 +170,31 @@ cirCoords gen = (Circle { x = randX, y = randY, r = randR }, gen3)
               (randR, gen3) = randomR rRange gen2
         
 box :: Diagram B
-box = rect 500 500
+box = rect dim dim
+
+rowSize = 5
+numRows = 5
+horizSep = 50
+vertSep = horizSep -- TODO put all params together
+
+-- TODO same pattern as circs, factor out? 
+diags :: RandomGen g => g -> [(Diagram B, g)]
+diags gen = iterate (\(c, g) -> boxedDiagram g) (boxedDiagram gen)
+
+-- assume infinite list. also why isn't this in the std lib? also n > 0
+breakInto :: Int -> [a] -> [[a]]
+breakInto n l = (take n l) : (breakInto n (drop n l))
+
+boxedDiagram :: RandomGen g => g -> (Diagram B, g)
+boxedDiagram gen = ((circ1coords & drawFirst) <> circ2pic <>
+                    box {-# lw none # fc grey-} # lw 0.8 # opacity 0.2,
+                   gen'')
+                   where (circ1coords, gen') = cirCoords gen
+                         (circ2pic, gen'') = circPic circ1coords gen'
 
 -- TODO figure out how to interpret basicSpec, keenanSpec
-main = mainWith (box # opacity 0.5 <>
-     (circ1coords & drawGood) <> circPic circ1coords rng')
-     where (circ1coords, rng') = cirCoords rng
+-- TODO pass in size as command line args
+-- note diags is infinite list
+main = mainWith (diags rng & map fst & take (rowSize * numRows) & gridCat)
+     -- breakInto rowSize
+     --             & map (hsep horizSep) & take numRows & vsep vertSep)
