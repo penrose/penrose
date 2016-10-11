@@ -27,6 +27,8 @@ import System.Random
 import Control.Arrow
 import Data.Function
 import Data.Colour (withOpacity)
+import Debug.Trace
+import Diagrams.TwoD.Text
 
 data Set =
      St String
@@ -87,15 +89,17 @@ basicSpec = [BindSets ["A", "B"], -- A, B := Set
           -- TODO: sets are nonempty
            Intersect (St "A") (St "B") True]
                                 -- Intersect (A, B) = TRUE
+                     -- TODO: bind a set to intersection, and have a pt in it
 
 rng :: StdGen
 rng = mkStdGen seed
-    where seed = 5 -- deterministic RNG with seed
+    where seed = 12 -- deterministic RNG with seed
 
 dim :: Double
 dim = 500 -- dim x dim
 
 rRange :: (Double, Double)
+-- rRange = (10, 90)
 rRange = (50, 200)
  
 imgRange = (-dim/2, dim/2)
@@ -113,34 +117,47 @@ data Circle = Circle { x :: Double, y :: Double, r :: Double } deriving (Show)
 -- also output the circle stats
 
 -- draw a single circle once until it's in a region (generalized condition check)
--- then, to satisfy basicSpec: draw a circle, then draw another circle until they intersect (in faded color)
+-- then draw another circle in a fixed place, then in a random place (using the same rng)
+-- then, draw another circle until they intersect (in faded color)
 -- then generalize to "point in intersection"
+-- then actually parse basicSpec
 -- then write up some of my questions and post on slack
-(|>) :: a -> (a -> b) -> b
-a |> b = b a
 
-circPic :: Diagram B
-circPic = let (bads, good) = circs rng & crop condition in
-          let badsPic = map drawBad bads & mconcat in
-          let goodPic = drawGood good in
-          goodPic <> badsPic
+-- & is reverse apply
+circPic :: RandomGen g => Circle -> g -> Diagram B
+circPic prevCoords gen =
+        let (bads, good) = circs gen & crop (cIntersect prevCoords) in
+        let badsPic = map drawBad bads & mconcat in
+        let goodPic = drawGood good in
+        goodPic <> badsPic
 
-drawBad p = draw p # fc red # opacity 0.05
-drawGood p = draw p # fc green # opacity 0.5
+-- from stackoverflow. truncate to 2 points
+trunc num = (fromInteger $ round $ num * (10^2)) / (10.0^^2)
+drawBad c = draw c # fc red # opacity 0.05 <> circText c
+drawGood c = draw c # fc green # opacity 0.5 <> circText c
+circText c = alignedText cx cy textC # scale 20
+         where cx = x c
+               cy = y c
+               textC = "x = " ++ (show $ trunc cx) ++ ", y = " ++ (show $ trunc cy) ++ ", r = " ++ (show $ trunc $ r c)
 
 draw :: Circle -> Diagram B
 draw randC = circle (r randC) # translateX (x randC) # translateY (y randC)
 
 -- not the most efficient impl. also assumes infinite list s.t. head always exists
 crop :: (a -> Bool) -> [a] -> ([a], a)
-crop cond xs = (takeWhile (not . cond) xs, head $ dropWhile cond xs)
+crop cond xs = (takeWhile (not . cond) xs, head $ dropWhile (not . cond) xs)
 
 -- eventually conditions will have to refer to prev results
 -- note: circle values are doubles. so, choose a condition that will eventually be true, and not cause an infinite list
-condition :: Circle -> Bool
-condition c = x c >= -len && x c <= len && y c >= -len && y c <= len
+-- circles intersect iff the distance b/t their centers < the sum of their radii
+cIntersect :: Circle -> Circle -> Bool
+cIntersect c1 c2 = traceShowId $ distance (p2 (x c1, y c1)) (p2 (x c2, y c2)) < r c1 + r c2
+
+inBox :: Circle -> Bool
+inBox c = x c >= -len && x c <= len && y c >= -len && y c <= len
           where len = 10
 
+-- TODO keep the last generator for the "good" element?
 circs :: RandomGen g => g -> [Circle]
 circs gen = map fst circgens -- throw the intermediate generators away
         where circgens = iterate (\(c, g) -> cirCoords g) (cirCoords gen)
@@ -154,4 +171,7 @@ cirCoords gen = (Circle { x = randX, y = randY, r = randR }, gen3)
 box :: Diagram B
 box = rect 500 500
 
-main = mainWith (box # opacity 0.5 <> circPic)
+-- TODO figure out how to interpret basicSpec, keenanSpec
+main = mainWith (box # opacity 0.5 <>
+     (circ1coords & drawGood) <> circPic circ1coords rng')
+     where (circ1coords, rng') = cirCoords rng
