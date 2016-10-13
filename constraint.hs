@@ -31,6 +31,7 @@ import Debug.Trace
 import Diagrams.TwoD.Text
 import Diagrams.TwoD.Layout.Grid
 import Data.Colour.Palette.BrewerSet
+import Graphics.SVGFonts
 
 data Set =
      St String
@@ -107,22 +108,18 @@ rRange = (dim/10, dim/2)
  
 imgRange = (-dim/2, dim/2)
 
-data Circle = Circle { x :: Double, y :: Double, r :: Double } deriving (Show)
-type LocPt = (Double, Double) 
+data Circle = Circle { x :: Double, y :: Double, r :: Double, nm :: Char } deriving (Show) 
+type LocPt = (Double, Double) -- todo name
 
--- assuming the picture is 500x500
--- v-- some issues with scaling--the pictures all look the same if the rectangle isn't there
+-- some issues with scaling--the pictures all look the same if the rectangle isn't there
 -- the circle starts at (0,0) and it's actually hard to ensure that it doesn't leave the bounding box...   
 -- i should pass the generator around in a monad
 
 -- TODO
--- generalize to intersection of arbitrary numbers of sets
--- then label points and sets locally
--- then label points and sets globally
-
--- then deal with subset (and any other constraints) individually
+-- deal with subset (and any other constraints) individually
 -- then figure out how to bind/label/have constraints with regions (e.g. point in region, region intersection, and region subset region) 
 -- also distinguish between "base sets" and regions in types?
+-- label points and sets globally
 
 -- then deal with two constraints
 -- then deal with multiple sets
@@ -146,8 +143,9 @@ badsAndGoodPts prevCirs gen =
 
 drawBadsCir bads = map drawBadCir bads & mconcat
 drawGoodsCir :: [Circle] -> Diagram B
-drawGoodsCir goods = map (\c -> draw c # opacity 0.4 # lw none) goods & zipWith fc (brewerSet Set2 8) & mconcat
+drawGoodsCir goods = zipWith (\l c -> c { nm = l }) ['A', 'B'..] goods & map (\c -> cName c [nm c] <> (draw c # opacity 0.4 # lw none)) & zipWith fc (brewerSet Set2 8) & mconcat
 -- note palette above from http://hackage.haskell.org/package/palette-0.1.0.4/docs/Data-Colour-Palette-BrewerSet.html
+-- also: factor the zipWith out into calling drawGoodCir!
 
 drawBadsPt bads = map drawBadPt bads & mconcat
 drawGoodsPt goods = map drawGoodPt goods & mconcat
@@ -163,12 +161,27 @@ drawGoodsPt goods = map drawGoodPt goods & mconcat
 trunc num = (fromInteger $ round $ num * (10^2)) / (10.0^^2)
 -- TODO add debug flag
 drawBadCir c = draw c # fc red # opacity 0.15 # lw none -- <> circText c
-drawGoodCir c = draw c # fc green # opacity 0.4 # lw none -- <> circText c
+drawGoodCir c = cName c [nm c] <> draw c # fc green # opacity 0.4 # lw none
 
 pointR = 10
-drawBadPt (px, py) = drawBadCir $ Circle {x = px, y = py, r = pointR}
-drawGoodPt (px, py) = circle pointR # translateX px # translateY py # fc black # lw none # opacity 0.7
-drawFirst c = draw c # fc blue # opacity 0.4 # lw none -- <> circText c
+drawBadPt (px, py) = drawBadCir $ Circle {x = px, y = py, r = pointR, nm = 'X'}
+drawGoodPt (px, py) = pName (px, py) "p" <> circle pointR # translateX px # translateY py # fc black # lw none # opacity 0.7 
+
+fontSize = 40
+padC = 0
+cName c textC = alignedText 0.5 0.5 textC # scale 60 # translateX (cx + padC) # translateY (cy + padC)
+      -- # translateX (cx + padP) # translateY (cy + padP)
+      where cx = x c
+            cy = y c
+
+padP = 40
+-- TODO actually give points names / take as input. the types should have a name param
+pName :: LocPt -> String -> Diagram B
+pName (x,y) textC =
+      alignedText 0.5 0.5 textC # scale 60
+      -- stroke (textSVG textC 1) # fc purple # fillRule EvenOdd -- doesn't work
+            # translateX (x + padP) # translateY (y + padP)
+
 circText c = alignedText cx cy textC # scale 20
          where cx = x c
                cy = y c
@@ -208,7 +221,7 @@ genMany :: RandomGen g => g -> (g -> (a, g)) -> [(a, g)]
 genMany gen genOne = iterate (\(c, g) -> genOne g) (genOne gen)
 
 cirCoords :: RandomGen g => g -> (Circle, g)
-cirCoords gen = (Circle { x = randX, y = randY, r = randR }, gen3)
+cirCoords gen = (Circle { x = randX, y = randY, r = randR, nm = 'X' }, gen3)
         where (randX, gen1) = randomR imgRange gen
               (randY, gen2) = randomR imgRange gen1
               (randR, gen3) = randomR rRange gen2
@@ -221,8 +234,9 @@ ptCoords gen = ((randX, randY), gen2)
 box :: Diagram B
 box = rect dim dim
 
-rowSize = 5
-numRows = 5
+numSets = 4
+rowSize = 3
+numRows = rowSize
 horizSep = 50
 vertSep = horizSep -- TODO put all params together
 
@@ -273,7 +287,7 @@ genUnstyledShapes gen (NSetIntersect n) = (res, gen'') -- recursive case
                res = Shapes { goodPts = [], goodCirs = goodCircN:circsSoFar,
                               badPts = [], badCirs = badCirsRes }
 genUnstyledShapes gen PtIn = (res, gen'')
-         where (intersecting, gen') = genUnstyledShapes gen (NSetIntersect 3)
+         where (intersecting, gen') = genUnstyledShapes gen (NSetIntersect numSets)
                ((badPtsRes, goodPt), gen'') = badsAndGoodPts (goodCirs intersecting) gen'
                res = Shapes { goodPts = [goodPt], goodCirs = goodCirs intersecting,
                               badPts = badPtsRes, badCirs = [] }
