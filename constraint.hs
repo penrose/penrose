@@ -134,25 +134,24 @@ type LocPt = (Double, Double)
 
 -- & is reverse apply
 -- need to make a list of prevCoords and deal w each
+-- horrible hack to deal w lack of dynamic typing or typeclasses
 badsAndGoodPic :: RandomGen g => DiagramType -> Circle -> g -> (Diagram B, g)
-badsAndGoodPic dtype prevCoords gen =
-        let (bads, (good, gen')) = genMany gen genOneF & crop cropF in
-        let badsPic = map drawBadF bads & mconcat in
-        let goodPic = drawGoodF good in
+badsAndGoodPic TwoSetIntersect prevCoords gen =
+        let (bads, (good, gen')) = genMany gen cirCoords & crop (cIntersect prevCoords) in
+        let badsPic = map drawBad bads & mconcat in
+        let goodPic = drawGood good in
         (goodPic <> badsPic, gen')
-        where (genOneF, cropF, drawBadF, drawGoodF) = case dtype of
-                   TwoSetIntersect -> (cirCoords, cIntersect prevCoords,
-                                       drawBad, drawGood)
-                   PtIn -> (cirCoords, cIntersect prevCoords,
-                                       drawBad, drawGood)
-        -- (ptCoords, ptIn prevCoords, drawBadPt, drawGoodPt)
+badsAndGoodPic PtIn prevCoords gen =
+        let (bads, (good, gen')) = genMany gen ptCoords & crop (ptIn prevCoords) in
+        let badsPic = map drawBadPt bads & mconcat in
+        let goodPic = drawGoodPt good in
+        (goodPic <> badsPic, gen')
 
+-- typeclass tests
 -- tctest :: Num a => (a -> a) -> a -> a
 -- tctest f x = f x
-
 -- test2 :: Int -> Int
 -- test2 x = -x
-
 -- test3 = tctest test2
 
 -- from stackoverflow. truncate to 2 points
@@ -185,7 +184,7 @@ cIntersect :: Circle -> Circle -> Bool
 cIntersect c1 c2 = {- traceShowId $ -} distance (p2 (x c1, y c1)) (p2 (x c2, y c2)) < r c1 + r c2
 
 ptIn :: Circle -> LocPt -> Bool
-ptIn c (x, y) = True
+ptIn c p = distance (p2 p) (p2 (x c, y c)) < r c
 
 inBox :: LocPt -> Bool
 inBox (x, y) = x >= -len && x <= len && y >= -len && y <= len
