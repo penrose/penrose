@@ -116,10 +116,9 @@ type LocPt = (Double, Double)
 -- i should pass the generator around in a monad
 
 -- TODO
--- should i start by drawing a random point until it meets a condition?
-  -- do this by generalizing the machinery for circles
--- generalize to "point in intersection" (already requires changing types, changing shapes)
--- then label points and sets
+-- generalize to intersection of arbitrary numbers of sets
+-- then label points and sets locally
+-- then label points and sets globally
 
 -- then deal with subset (and any other constraints) individually
 -- then figure out how to bind/label/have constraints with regions (e.g. point in region, region intersection, and region subset region) 
@@ -136,14 +135,14 @@ type LocPt = (Double, Double)
 -- need to make a list of prevCoords and deal w each
 -- also, to deal w 3 -> arbitrary sets, i should be able to loop genMany and crop
 -- horrible hack to deal w lack of dynamic typing or typeclasses
-badsAndGoodCirs :: RandomGen g => Circle -> g -> (([Circle], Circle), g)
-badsAndGoodCirs prevCoords gen =
-                let (bads, (good, gen')) = genMany gen cirCoords & crop (cIntersect prevCoords) in ((bads, good), gen')
+badsAndGoodCirs :: RandomGen g => [Circle] -> g -> (([Circle], Circle), g)
+badsAndGoodCirs prevCirs gen =
+                let (bads, (good, gen')) = genMany gen cirCoords & crop (cIntersectAll prevCirs) in ((bads, good), gen')
 
 -- hardcoded intersection
 badsAndGoodPts :: RandomGen g => [Circle] -> g -> (([LocPt], LocPt), g)
-badsAndGoodPts prevCoords gen =
-               let (bads, (good, gen')) = genMany gen ptCoords & crop (ptInAll prevCoords) in ((bads, good), gen')
+badsAndGoodPts prevCirs gen =
+               let (bads, (good, gen')) = genMany gen ptCoords & crop (ptInAll prevCirs) in ((bads, good), gen')
 
 drawBadsCir bads = map drawBadCir bads & mconcat
 drawGoodsCir :: [Circle] -> Diagram B
@@ -190,6 +189,10 @@ crop cond xs = (takeWhile (not . cond) (map fst xs), -- drop gens
 cIntersect :: Circle -> Circle -> Bool
 cIntersect c1 c2 = {- traceShowId $ -} distance (p2 (x c1, y c1)) (p2 (x c2, y c2)) < r c1 + r c2
 
+-- TODO factor out common code
+cIntersectAll :: [Circle] -> Circle -> Bool
+cIntersectAll cs c = and $ map (cIntersect c) cs
+
 ptIn :: LocPt -> Circle -> Bool
 ptIn p c = distance (p2 p) (p2 (x c, y c)) < r c
 
@@ -225,7 +228,7 @@ vertSep = horizSep -- TODO put all params together
 
 -- TODO generalize this to handle Spec type, also you can have PtIn and CircleInter.
 -- TODO generalize to handle lists
-data DiagramType = PtIn | TwoSetIntersect deriving (Eq, Show)
+data DiagramType = PtIn | NSetIntersect Int deriving (Eq, Show)
 -- | Subset, 
 
 -- TODO same pattern as circs, factor out? 
@@ -255,15 +258,22 @@ data UnstyledShapes = Shapes { goodPts :: [LocPt], goodCirs :: [Circle],
                                badPts :: [LocPt], badCirs :: [Circle] }
                       deriving (Show)
 
+-- TODO factor out common code?
+-- TODO deal with n = 0, 1. also this could be made more efficient by sampling all circles at once?? vs getting 2 to intersect then sampling the third?
 genUnstyledShapes :: RandomGen g => g -> DiagramType -> (UnstyledShapes, g)
-genUnstyledShapes gen TwoSetIntersect = (res, gen'')
+genUnstyledShapes gen (NSetIntersect 2) = (res, gen'') -- base case
          where (circ1, gen') = cirCoords gen
-               ((badCirsRes, goodCirc2), gen'') = badsAndGoodCirs circ1 gen'
+               ((badCirsRes, goodCirc2), gen'') = badsAndGoodCirs [circ1] gen'
                res = Shapes { goodPts = [], goodCirs = [circ1, goodCirc2],
                               badPts = [], badCirs = badCirsRes }
-         -- TODO gradient of color for newer good circles
+genUnstyledShapes gen (NSetIntersect n) = (res, gen'') -- recursive case
+         where (nmoIntersect, gen') = genUnstyledShapes gen (NSetIntersect (n-1))
+               circsSoFar = goodCirs nmoIntersect
+               ((badCirsRes, goodCircN), gen'') = badsAndGoodCirs circsSoFar gen'
+               res = Shapes { goodPts = [], goodCirs = goodCircN:circsSoFar,
+                              badPts = [], badCirs = badCirsRes }
 genUnstyledShapes gen PtIn = (res, gen'')
-         where (intersecting, gen') = genUnstyledShapes gen TwoSetIntersect
+         where (intersecting, gen') = genUnstyledShapes gen (NSetIntersect 3)
                ((badPtsRes, goodPt), gen'') = badsAndGoodPts (goodCirs intersecting) gen'
                res = Shapes { goodPts = [goodPt], goodCirs = goodCirs intersecting,
                               badPts = badPtsRes, badCirs = [] }
