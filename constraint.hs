@@ -30,7 +30,7 @@ import Data.Colour (withOpacity)
 import Debug.Trace
 import Diagrams.TwoD.Text
 import Diagrams.TwoD.Layout.Grid
-
+import Data.Colour.Palette.BrewerSet
 
 data Set =
      St String
@@ -111,7 +111,7 @@ data Circle = Circle { x :: Double, y :: Double, r :: Double } deriving (Show)
 type LocPt = (Double, Double) 
 
 -- assuming the picture is 500x500
--- some issues with scaling--the pictures all look the same if the rectangle isn't there
+-- v-- some issues with scaling--the pictures all look the same if the rectangle isn't there
 -- the circle starts at (0,0) and it's actually hard to ensure that it doesn't leave the bounding box...   
 -- i should pass the generator around in a monad
 
@@ -134,18 +134,24 @@ type LocPt = (Double, Double)
 
 -- & is reverse apply
 -- need to make a list of prevCoords and deal w each
+-- also, to deal w 3 -> arbitrary sets, i should be able to loop genMany and crop
 -- horrible hack to deal w lack of dynamic typing or typeclasses
-badsAndGoodPic :: RandomGen g => DiagramType -> Circle -> g -> (Diagram B, g)
-badsAndGoodPic TwoSetIntersect prevCoords gen =
-        let (bads, (good, gen')) = genMany gen cirCoords & crop (cIntersect prevCoords) in
-        let badsPic = map drawBad bads & mconcat in
-        let goodPic = drawGood good in
-        (goodPic <> badsPic, gen')
-badsAndGoodPic PtIn prevCoords gen =
-        let (bads, (good, gen')) = genMany gen ptCoords & crop (ptIn prevCoords) in
-        let badsPic = map drawBadPt bads & mconcat in
-        let goodPic = drawGoodPt good in
-        (goodPic <> badsPic, gen')
+badsAndGoodCirs :: RandomGen g => Circle -> g -> (([Circle], Circle), g)
+badsAndGoodCirs prevCoords gen =
+                let (bads, (good, gen')) = genMany gen cirCoords & crop (cIntersect prevCoords) in ((bads, good), gen')
+
+-- hardcoded intersection
+badsAndGoodPts :: RandomGen g => [Circle] -> g -> (([LocPt], LocPt), g)
+badsAndGoodPts prevCoords gen =
+               let (bads, (good, gen')) = genMany gen ptCoords & crop (ptInAll prevCoords) in ((bads, good), gen')
+
+drawBadsCir bads = map drawBadCir bads & mconcat
+drawGoodsCir :: [Circle] -> Diagram B
+drawGoodsCir goods = map (\c -> draw c # opacity 0.4 # lw none) goods & zipWith fc (brewerSet Set2 8) & mconcat
+-- note palette above from http://hackage.haskell.org/package/palette-0.1.0.4/docs/Data-Colour-Palette-BrewerSet.html
+
+drawBadsPt bads = map drawBadPt bads & mconcat
+drawGoodsPt goods = map drawGoodPt goods & mconcat
 
 -- typeclass tests
 -- tctest :: Num a => (a -> a) -> a -> a
@@ -157,11 +163,12 @@ badsAndGoodPic PtIn prevCoords gen =
 -- from stackoverflow. truncate to 2 points
 trunc num = (fromInteger $ round $ num * (10^2)) / (10.0^^2)
 -- TODO add debug flag
-drawBad c = draw c # fc red # opacity 0.15 # lw none -- <> circText c
-drawGood c = draw c # fc green # opacity 0.4 # lw none -- <> circText c
+drawBadCir c = draw c # fc red # opacity 0.15 # lw none -- <> circText c
+drawGoodCir c = draw c # fc green # opacity 0.4 # lw none -- <> circText c
 
-drawBadPt (px, py) = drawBad $ Circle {x = px, y = py, r = 10}
-drawGoodPt (px, py) = drawGood $ Circle {x = px, y = py, r = 10}
+pointR = 10
+drawBadPt (px, py) = drawBadCir $ Circle {x = px, y = py, r = pointR}
+drawGoodPt (px, py) = circle pointR # translateX px # translateY py # fc black # lw none # opacity 0.7
 drawFirst c = draw c # fc blue # opacity 0.4 # lw none -- <> circText c
 circText c = alignedText cx cy textC # scale 20
          where cx = x c
@@ -183,8 +190,11 @@ crop cond xs = (takeWhile (not . cond) (map fst xs), -- drop gens
 cIntersect :: Circle -> Circle -> Bool
 cIntersect c1 c2 = {- traceShowId $ -} distance (p2 (x c1, y c1)) (p2 (x c2, y c2)) < r c1 + r c2
 
-ptIn :: Circle -> LocPt -> Bool
-ptIn c p = distance (p2 p) (p2 (x c, y c)) < r c
+ptIn :: LocPt -> Circle -> Bool
+ptIn p c = distance (p2 p) (p2 (x c, y c)) < r c
+
+ptInAll :: [Circle] -> LocPt -> Bool
+ptInAll cs p = and $ map (ptIn p) cs
 
 inBox :: LocPt -> Bool
 inBox (x, y) = x >= -len && x <= len && y >= -len && y <= len
@@ -204,7 +214,7 @@ ptCoords :: RandomGen g => g -> (LocPt, g)
 ptCoords gen = ((randX, randY), gen2)
         where (randX, gen1) = randomR imgRange gen
               (randY, gen2) = randomR imgRange gen1
-        
+
 box :: Diagram B
 box = rect dim dim
 
@@ -214,6 +224,7 @@ horizSep = 50
 vertSep = horizSep -- TODO put all params together
 
 -- TODO generalize this to handle Spec type, also you can have PtIn and CircleInter.
+-- TODO generalize to handle lists
 data DiagramType = PtIn | TwoSetIntersect deriving (Eq, Show)
 -- | Subset, 
 
@@ -227,7 +238,8 @@ breakInto n l = (take n l) : (breakInto n (drop n l))
 
 boxedDiagram :: RandomGen g => g -> DiagramType -> (Diagram B, g)
 boxedDiagram gen dtype = (pic <> box # lw 0.8 # opacity 0.2, gen')
-             where (pic, gen') = drawType gen dtype
+             where pic = drawGoodsPt (goodPts r) <> drawGoodsCir (goodCirs r) <> drawBadsCir (badCirs r) <> drawBadsPt (badPts r)
+                   (r, gen') = genUnstyledShapes gen dtype
 
 -- test :: DiagramType -> String
 -- test dtype = show dtype ++ depending
@@ -236,16 +248,30 @@ boxedDiagram gen dtype = (pic <> box # lw 0.8 # opacity 0.2, gen')
 --                        PtIn -> "pi"
 
 -- draw one picture of multiple attempts to satisfy the constraint until one succeeds. include all preceding failures and one success
-drawType :: RandomGen g => g -> DiagramType -> (Diagram B, g)
-drawType gen dtype = ((circ1coords & drawFirst) <> pic2, gen'')
-         where (circ1coords, gen') = cirCoords gen
-               (pic2, gen'') = badsAndGoodPic dtype circ1coords gen'
--- pt in intersection needs to take a list of sets
--- actually how about pt in circle first?
+-- bit confusing bc some functions are polymorphic and some aren't
+
+-- TODO organize all types together
+data UnstyledShapes = Shapes { goodPts :: [LocPt], goodCirs :: [Circle],
+                               badPts :: [LocPt], badCirs :: [Circle] }
+                      deriving (Show)
+
+genUnstyledShapes :: RandomGen g => g -> DiagramType -> (UnstyledShapes, g)
+genUnstyledShapes gen TwoSetIntersect = (res, gen'')
+         where (circ1, gen') = cirCoords gen
+               ((badCirsRes, goodCirc2), gen'') = badsAndGoodCirs circ1 gen'
+               res = Shapes { goodPts = [], goodCirs = [circ1, goodCirc2],
+                              badPts = [], badCirs = badCirsRes }
+         -- TODO gradient of color for newer good circles
+genUnstyledShapes gen PtIn = (res, gen'')
+         where (intersecting, gen') = genUnstyledShapes gen TwoSetIntersect
+               ((badPtsRes, goodPt), gen'') = badsAndGoodPts (goodCirs intersecting) gen'
+               res = Shapes { goodPts = [goodPt], goodCirs = goodCirs intersecting,
+                              badPts = badPtsRes, badCirs = [] }
 
 -- TODO figure out how to interpret basicSpec, keenanSpec
 -- TODO pass in size as command line args
 -- note diags is infinite list
+-- TODO use monad / diagram queries as here? http://projects.haskell.org/diagrams/doc/manual.html#using-queries
 main = mainWith (diags rng PtIn
                  & map fst & take (rowSize * numRows) & gridCat)
      -- breakInto rowSize
