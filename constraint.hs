@@ -46,6 +46,7 @@ data Set =
 data Pt = MkPt String -- TODO location?
      deriving (Show, Eq)
 
+
 data Spec =
      LetSet String Set
      | BindSets [String]
@@ -108,9 +109,6 @@ rRange = (dim/10, dim/2)
  
 imgRange = (-dim/2, dim/2)
 
-data Circle = Circle { x :: Double, y :: Double, r :: Double, nm :: Char } deriving (Show) 
-type LocPt = (Double, Double) -- todo name
-
 -- some issues with scaling--the pictures all look the same if the rectangle isn't there
 -- the circle starts at (0,0) and it's actually hard to ensure that it doesn't leave the bounding box...   
 -- i should pass the generator around in a monad
@@ -143,7 +141,7 @@ badsAndGoodPts prevCirs gen =
 
 drawBadsCir bads = map drawBadCir bads & mconcat
 drawGoodsCir :: [Circle] -> Diagram B
-drawGoodsCir goods = zipWith (\l c -> c { nm = l }) ['A', 'B'..] goods & map (\c -> cName c [nm c] <> (draw c # opacity 0.4 # lw none)) & zipWith fc (brewerSet Set2 8) & mconcat
+drawGoodsCir goods = zipWith (\l c -> c { nmc = l }) ['A', 'B'..] goods & map (\c -> cName c [nmc c] <> (draw c # opacity 0.4 # lw none)) & zipWith fc (brewerSet Set2 8) & mconcat
 -- note palette above from http://hackage.haskell.org/package/palette-0.1.0.4/docs/Data-Colour-Palette-BrewerSet.html
 -- also: factor the zipWith out into calling drawGoodCir!
 
@@ -161,10 +159,10 @@ drawGoodsPt goods = map drawGoodPt goods & mconcat
 trunc num = (fromInteger $ round $ num * (10^2)) / (10.0^^2)
 -- TODO add debug flag
 drawBadCir c = draw c # fc red # opacity 0.15 # lw none -- <> circText c
-drawGoodCir c = cName c [nm c] <> draw c # fc green # opacity 0.4 # lw none
+drawGoodCir c = cName c [nmc c] <> draw c # fc green # opacity 0.4 # lw none
 
 pointR = 10
-drawBadPt (px, py) = drawBadCir $ Circle {x = px, y = py, r = pointR, nm = 'X'}
+drawBadPt (px, py) = drawBadCir $ Circle {x = px, y = py, r = pointR, nmc = 'X'}
 drawGoodPt (px, py) = pName (px, py) "p" <> circle pointR # translateX px # translateY py # fc black # lw none # opacity 0.7 
 
 fontSize = 40
@@ -221,7 +219,7 @@ genMany :: RandomGen g => g -> (g -> (a, g)) -> [(a, g)]
 genMany gen genOne = iterate (\(c, g) -> genOne g) (genOne gen)
 
 cirCoords :: RandomGen g => g -> (Circle, g)
-cirCoords gen = (Circle { x = randX, y = randY, r = randR, nm = 'X' }, gen3)
+cirCoords gen = (Circle { x = randX, y = randY, r = randR, nmc = 'X' }, gen3) -- hacky name
         where (randX, gen1) = randomR imgRange gen
               (randY, gen2) = randomR imgRange gen1
               (randR, gen3) = randomR rRange gen2
@@ -234,16 +232,26 @@ ptCoords gen = ((randX, randY), gen2)
 box :: Diagram B
 box = rect dim dim
 
-numSets = 4
-rowSize = 3
+numSets = 2
+rowSize = 2
 numRows = rowSize
 horizSep = 50
 vertSep = horizSep -- TODO put all params together
 
--- TODO generalize this to handle Spec type, also you can have PtIn and CircleInter.
--- TODO generalize to handle lists
-data DiagramType = PtIn | NSetIntersect Int deriving (Eq, Show)
--- | Subset, 
+
+-- slowly building up to handle the entirety of Substance??
+-- TODO also handle maps between objects
+data DiagramType = PtIn | NSetIntersect Int deriving (Eq, Show) -- | Subset, 
+
+-- this name might be a hack?
+data Circle = Circle { x :: Double, y :: Double, r :: Double, nmc :: Char } deriving (Eq, Show)
+-- cx, cy = center
+data Rect = Rect { cx :: Double, cy :: Double, w :: Double, h :: Double, nmr :: Char } deriving (Eq, Show) 
+type LocPt = (Double, Double) -- TODO point name
+
+-- another type specifying set rendering: Style??
+-- also one for point rendering?
+data SetStyle = CircleStyle | RectStyle -- | Graph
 
 -- TODO same pattern as circs, factor out? 
 diags :: RandomGen g => g -> DiagramType -> [(Diagram B, g)]
