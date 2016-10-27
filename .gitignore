@@ -3,3 +3,11 @@
 *.o
 settheory
 constraint
+*.el
+*.aux
+*.fdb.latexmk
+*.fls
+*.log
+*.synctex.gz
+auto/
+.#*
