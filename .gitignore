@@ -5,7 +5,7 @@ settheory
 constraint
 *.el
 *.aux
-*.fdb.latexmk
+*.fdb_latexmk
 *.fls
 *.log
 *.synctex.gz

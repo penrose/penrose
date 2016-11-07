@@ -97,7 +97,7 @@ basicSpec = [BindSets ["A", "B"], -- A, B := Set
 
 rng :: StdGen
 rng = mkStdGen seed
-    where seed = 12 -- deterministic RNG with seed
+    where seed = 13 -- deterministic RNG with seed
 
 dim :: Double
 dim = 500 -- dim x dim
@@ -161,9 +161,10 @@ trunc num = (fromInteger $ round $ num * (10^2)) / (10.0^^2)
 drawBadCir c = draw c # fc red # opacity 0.15 # lw none -- <> circText c
 drawGoodCir c = cName c [nmc c] <> draw c # fc green # opacity 0.4 # lw none
 
-pointR = 10
-drawBadPt (px, py) = drawBadCir $ Circle {x = px, y = py, r = pointR, nmc = 'X'}
-drawGoodPt (px, py) = pName (px, py) "p" <> circle pointR # translateX px # translateY py # fc black # lw none # opacity 0.7 
+badPointR = 4
+goodPointR = 10
+drawBadPt (px, py) = drawBadCir $ Circle {x = px, y = py, r = badPointR, nmc = 'X'}
+drawGoodPt (px, py) = pName (px, py) "p" <> circle goodPointR # translateX px # translateY py # fc black # lw none # opacity 0.7 
 
 fontSize = 40
 padC = 0
@@ -232,7 +233,7 @@ ptCoords gen = ((randX, randY), gen2)
 box :: Diagram B
 box = rect dim dim
 
-numSets = 2
+numSets = 3
 rowSize = 2
 numRows = rowSize
 horizSep = 50
