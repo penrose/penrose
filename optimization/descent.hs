@@ -1,6 +1,7 @@
 import Graphics.Gloss
 import Data.Function
 import Graphics.Gloss.Interface.Pure.Game
+import System.Random
 
 main = play                    -- TODO change to play
        (InWindow "optimization-based layout" -- display mode, window name
@@ -25,9 +26,15 @@ class Located a where
       setX :: Float -> a -> a
       setY :: Float -> a -> a
 
+class Selectable a where
+      select :: a -> a
+      deselect :: a -> a
+      selected :: a -> Bool
+
 data Circ = Circ { xc :: Float
                  , yc :: Float
-                 , r :: Float } 
+                 , r :: Float
+                 , selc :: Bool } 
 
 instance Located Circ where
          getX c = xc c
@@ -35,16 +42,27 @@ instance Located Circ where
          setX x c = c { xc = x }
          setY y c = c { yc = y }         
 
+instance Selectable Circ where
+         select x = x { selc = True }
+         deselect x = x { selc = False }
+         selected x = selc x
+
 data Label = Label { xl :: Float
                    , yl :: Float
                    , textl :: String
-                   , scalel :: Float } -- calculate h,w from it
+                   , scalel :: Float  -- calculate h,w from it
+                   , sell :: Bool } -- selected label
 
 instance Located Label where
          getX l = xl l
          getY l = yl l
          setX x l = l { xl = x }
-         setY y l = l { yl = y }         
+         setY y l = l { yl = y }
+
+instance Selectable Label where
+         select x = x { sell = True }
+         deselect x = x { sell = False }
+         selected x = sell x         
 
 data Obj = C Circ | L Label -- | Label | Point | Line // is there a better way to do this?
 -- instance Located Obj
@@ -64,14 +82,31 @@ instance Located Obj where
                 C c -> C $ setY y c
                 L l -> L $ setY y l
 
+instance Selectable Obj where
+         select x = case x of
+                C c -> C $ select c
+                L l -> L $ select l
+         deselect x = case x of
+                C c -> C $ deselect c
+                L l -> L $ deselect l
+         selected x = case x of
+                C c -> selected c
+                L l -> selected l
+
 data State = State { objs :: [Obj]
-                   , down :: Bool } -- left mouse button is down (dragging)
+                   , down :: Bool -- left mouse button is down (dragging)
+                   , rng :: StdGen } 
+
+initRng :: StdGen
+initRng = mkStdGen seed
+    where seed = 11 -- deterministic RNG with seed
 
 -- TODO randomly sample s0
 initState :: State
-initState = State { objs = objsInit, down = False }
-          where objsInit = [C $ Circ { xc = -300, yc = 300, r = 30 },
-                            L $ Label { xl = 500, yl = -500, textl = "CircLabel", scalel = 0.2 } ]
+initState = State { objs = objsInit, down = False, rng = initRng }
+          where objsInit = [c1, l1]
+                c1 = C $ Circ { xc = -300, yc = 300, r = 30, selc = False }
+                l1 = L $ Label { xl = 10, yl = -1, textl = "CircLabel", scalel = 0.2, sell = False }
 
 -- divide two integers to obtain a float
 divf :: Int -> Int -> Float
@@ -79,12 +114,14 @@ divf a b = (fromIntegral a) / (fromIntegral b)
 
 pw2 = picWidth `divf` 2
 ph2 = picHeight `divf` 2
+widthRange = (-pw2, pw2)
+heightRange = (-ph2, ph2)
 
 renderCirc :: Circ -> Picture
 renderCirc c = color (light violet) $ translate (xc c) (yc c) $ circle (r c)
 
 renderLabel :: Label -> Picture
-renderLabel l = color azure $ scale 0.2 0.2 $ translate (xl l) (yl l) $ text (textl l)
+renderLabel l = color azure $ translate (xl l) (yl l) $ scale 0.2 0.2 $ text (textl l)
 
 renderObj :: Obj -> Picture
 renderObj (C circ) = renderCirc circ
@@ -100,17 +137,38 @@ picOf s = Pictures [lineX, lineY, picOfState s, objectiveTxt]
           objectiveTxt = translate (-pw2+50) (ph2-100) $ scale 0.2 0.2 
                          $ text "objective function: f(x, y) = x^2 + y^2"
 
+sample :: RandomGen g => g -> Obj -> (Obj, g)
+sample gen o = (setX x' $ setY y' o, gen'')
+       where (x', gen') = randomR widthRange gen
+             (y', gen'') = randomR heightRange gen'
+
+stateMap :: RandomGen g => g -> (g -> a -> (b, g)) -> [a] -> ([b], g)
+stateMap gen f [] = ([], gen)
+stateMap gen f (x:xs) = let (x', gen') = f gen x in
+                        let (xs', gen'') = stateMap gen' f xs in
+                        (x' : xs', gen'')
+
+bbox = 60
+
 -- TODO "in object" tests
 -- TODO what if you press a key while down? then reset the entire state (then Up will just reset again)
 handler :: Event -> State -> State
-handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s = 
-        State { objs = objs s, down = True }
+handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
+        s { objs = map (selectIfContains (xm, ym)) (objs s), down = True }
+        -- hardcode bbox of 100x100 px at the center
+        -- text is centered at bottom left
+        where selectIfContains (xm, ym) o = if abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox
+                                            then select o else o
 -- dragging mouse when down
-handler (EventMotion (xm, ym)) s = 
-        if down s then State { objs = objs s, down = down s }
+handler (EventMotion (xm, ym)) s =
+        if down s then s { objs = map (ifSelectedMoveTo (xm, ym)) (objs s), down = down s }
         else s
-handler (EventKey (MouseButton LeftButton) Up _ (xm, ym)) s = 
-        State { objs = objs s, down = False }
+        where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY ym o else o
+handler (EventKey (MouseButton LeftButton) Up _ _) s =
+        s { objs = map deselect $ objs s, down = False }
+handler (EventKey (Char 'r') Up _ _) s =
+        State { objs = objs', down = False, rng = rng' }
+        where (objs', rng') = stateMap (rng s) sample (objs s)
 handler _ s = s
 
 -- TODO clamp needs to take into account bbox
@@ -125,7 +183,7 @@ clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 -- TODO: step state
 step :: Float -> State -> State
 step t s = if down s then s -- don't step when dragging
-           else State { objs = map (stepObj t) (objs s), down = down s}
+           else s { objs = map (stepObj t) (objs s), down = down s}
 
 -- currently ignores rest of state 
 -- TODO differentiate type-level b/t timestep and coord
