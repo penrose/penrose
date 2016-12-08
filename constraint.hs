@@ -97,7 +97,7 @@ basicSpec = [BindSets ["A", "B"], -- A, B := Set
 
 rng :: StdGen
 rng = mkStdGen seed
-    where seed = 13 -- deterministic RNG with seed
+    where seed = 17 -- deterministic RNG with seed
 
 dim :: Double
 dim = 500 -- dim x dim
@@ -158,7 +158,7 @@ drawGoodsPt goods = map drawGoodPt goods & mconcat
 -- from stackoverflow. truncate to 2 points
 trunc num = (fromInteger $ round $ num * (10^2)) / (10.0^^2)
 -- TODO add debug flag
-drawBadCir c = draw c # fc red # opacity 0.15 # lw none -- <> circText c
+drawBadCir c = draw c # fc red # opacity 0.0 # lw none -- <> circText c -- TODO don't display failed attempts
 drawGoodCir c = cName c [nmc c] <> draw c # fc green # opacity 0.4 # lw none
 
 badPointR = 4
@@ -234,8 +234,8 @@ box :: Diagram B
 box = rect dim dim
 
 numSets = 3
-rowSize = 2
-numRows = rowSize
+rowSize = 3
+numRows = 3
 horizSep = 50
 vertSep = horizSep -- TODO put all params together
 
@@ -263,7 +263,7 @@ breakInto :: Int -> [a] -> [[a]]
 breakInto n l = (take n l) : (breakInto n (drop n l))
 
 boxedDiagram :: RandomGen g => g -> DiagramType -> (Diagram B, g)
-boxedDiagram gen dtype = (pic <> box # lw 0.8 # opacity 0.2, gen')
+boxedDiagram gen dtype = (pic {-<> box # lw 0.8 # opacity 0.2-}, gen') -- remove box
              where pic = drawGoodsPt (goodPts r) <> drawGoodsCir (goodCirs r) <> drawBadsCir (badCirs r) <> drawBadsPt (badPts r)
                    (r, gen') = genUnstyledShapes gen dtype
 

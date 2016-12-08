@@ -11,3 +11,4 @@ constraint
 *.synctex.gz
 auto/
 .#*
+.DS_STORE

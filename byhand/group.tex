@@ -41,6 +41,35 @@ circ/.style={circle, draw=black!60, fill=green!10, minimum size=7mm}
 
 % ---------
 
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[
+% node style 
+circ/.style={circle, draw=black!60, fill=green!10, minimum size=7mm}
+],
+
+% nodes
+\node[circ] (gen_bl) {};
+\node[circ] (gen_tl) [above=of gen_bl] {};
+\node[circ] (gen_br) [right=of gen_bl] {};
+\node[circ] (gen_tr) [above=of gen_br, right=of gen_tl] {};
+
+% \node[circ] (gen_bl);
+% \node[circ] (gen_tl) [above=of gen_bl]; % {2} label
+% \node[circ] (gen_tr) [above=of gen_br, right=of gen_tl];
+% \node[circ] (gen_br) [right=of gen_bl];
+
+% draw lines between nodes
+\draw[-][red, thick] (gen_tl.south) -- (gen_bl.north);
+\draw[-][blue, thick] (gen_tl.east) -- (gen_tr.west);
+\draw[-][blue, thick] (gen_bl.east) -- (gen_br.west);
+\draw[-][red, thick] (gen_tr.south) -- (gen_br.north);
+
+\end{tikzpicture}
+\caption{Instantiation of the Klein 4-group}
+\end{figure}
+
+% ---------
 
 \begin{figure}[p]
 \centering
