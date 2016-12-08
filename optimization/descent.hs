@@ -8,7 +8,7 @@ main = play                    -- TODO change to play
                   (picWidth, picHeight)   -- size
                   (10, 10))    -- position
        white                   -- background color
-       100                     -- number of simulation steps to take for each second of real time
+       50                     -- number of simulation steps to take for each second of real time
        initState                   -- the initial world
        picOf                   -- fn to convert world to a pic
        handler                 -- fn to handle input events
@@ -104,9 +104,10 @@ initRng = mkStdGen seed
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
-          where objsInit = [c1, l1]
-                c1 = C $ Circ { xc = -300, yc = 300, r = 30, selc = False }
-                l1 = L $ Label { xl = 10, yl = -1, textl = "CircLabel", scalel = 0.2, sell = False }
+          where objsInit = [c1, c2]
+                c1 = C $ Circ { xc = -300, yc = 0, r = 30, selc = False }
+                c2 = C $ Circ { xc = 300, yc = 0, r = 50, selc = False }          
+                l1 = L $ Label { xl = 10, yl = 0, textl = "CircLabel", scalel = 0.2, sell = False }
 
 -- divide two integers to obtain a float
 divf :: Int -> Int -> Float
@@ -135,10 +136,10 @@ picOf s = Pictures [lineX, lineY, picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)]
           lineY = Line [(0, -ph2), (0, ph2)]
           objectiveTxt = translate (-pw2+50) (ph2-100) $ scale 0.2 0.2 
-                         $ text "objective function: f(x, y) = x^2 + y^2"
+                         $ text "objective function: f(x1, x2) = -(x1-x2)^2"
 
 sample :: RandomGen g => g -> Obj -> (Obj, g)
-sample gen o = (setX x' $ setY y' o, gen'')
+sample gen o = (setX x' {-$ setY y' -} o, gen'')
        where (x', gen') = randomR widthRange gen
              (y', gen'') = randomR heightRange gen'
 
@@ -163,7 +164,7 @@ handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
 handler (EventMotion (xm, ym)) s =
         if down s then s { objs = map (ifSelectedMoveTo (xm, ym)) (objs s), down = down s }
         else s
-        where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY ym o else o
+        where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm o {-$ setY ym o-} else o
 handler (EventKey (MouseButton LeftButton) Up _ _) s =
         s { objs = map deselect $ objs s, down = False }
 handler (EventKey (Char 'r') Up _ _) s =
@@ -178,28 +179,39 @@ clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 clampY :: Float -> Float
 clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 
+-- TODO hack so i don't have to deal with pairwise derivatives of an arbitrary-length list
+firstTwo :: [a] -> (a, a)
+firstTwo (x1 : x2 : _) = (x1, x2)
+
 -- implement gradient descent
 -- TODO: is there a haskell autodifferentiator?
 -- TODO: step state
-step :: Float -> State -> State
+type Time = Float
+   
+step :: Time -> State -> State
 step t s = if down s then s -- don't step when dragging
-           else s { objs = map (stepObj t) (objs s), down = down s}
+           else s { objs = stepObjs t $ firstTwo (objs s), down = down s}
 
--- currently ignores rest of state 
--- TODO differentiate type-level b/t timestep and coord
-stepObj :: Located a => Float -> a -> a
-stepObj t o = setX x' $ setY y' o
-        where (x', y') = gradDescent t (getX o) (getY o)
-
-gradDescent :: Float -> Float -> Float -> (Float, Float)
-gradDescent t x y = (clampX x', clampY y')
-            where x' = parabola' t x
-                  y' = parabola' t y
+stepObjs :: Located a => Time -> (a, a) -> [a]
+stepObjs t (o1, o2) = [setX x1'c o1, setX x2'c o2] -- $ setY y1' o1
+        where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
+              (x1', x2') = negdistance1d t x1 x2
+              (x1'c, x2'c) = (clampX x1', clampY x2')
 
 -- objective function, differentiated and discretized
+-- attract: f(x1, x2) = (x1-x2)^2
+-- df/dx1 = 2(x1-x2), df/dx2 = -2(x1-x2)
+distance1d :: Time -> Float -> Float -> (Float, Float)
+distance1d t x1 x2 = (x1 - t * 2 * (x1 - x2), x2 + t * 2 * (x1 - x2))
+-- x2 does not use the updated x1
+
+-- repel
+negdistance1d :: Time -> Float -> Float -> (Float, Float)
+negdistance1d t x1 x2 = (x1 + t * 2 * (x1 - x2), x2 - t * 2 * (x1 - x2))   
+
 -- f(x) = x^2
-parabola' :: Float -> Float -> Float
+parabola' :: Time -> Float -> Float
 parabola' t x = x - t * 2 * x
 
-neg_parabola' :: Float -> Float -> Float
+neg_parabola' :: Time -> Float -> Float
 neg_parabola' t x = x + t * 2 * x
