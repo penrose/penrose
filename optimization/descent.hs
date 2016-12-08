@@ -105,8 +105,8 @@ initRng = mkStdGen seed
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
           where objsInit = [c1, c2]
-                c1 = C $ Circ { xc = -300, yc = 0, r = 30, selc = False }
-                c2 = C $ Circ { xc = 300, yc = 0, r = 50, selc = False }          
+                c1 = C $ Circ { xc = -300, yc = 200, r = 30, selc = False }
+                c2 = C $ Circ { xc = 300, yc = -200, r = 50, selc = False }          
                 l1 = L $ Label { xl = 10, yl = 0, textl = "CircLabel", scalel = 0.2, sell = False }
 
 -- divide two integers to obtain a float
@@ -119,10 +119,12 @@ widthRange = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 
 renderCirc :: Circ -> Picture
-renderCirc c = color (light violet) $ translate (xc c) (yc c) $ circle (r c)
+renderCirc c = color scolor $ translate (xc c) (yc c) $ circle (r c)
+           where scolor = if selected c then green else light violet
 
 renderLabel :: Label -> Picture
-renderLabel l = color azure $ translate (xl l) (yl l) $ scale 0.2 0.2 $ text (textl l)
+renderLabel l = color scolor $ translate (xl l) (yl l) $ scale 0.2 0.2 $ text (textl l)
+            where scolor = if selected l then green else light violet
 
 renderObj :: Obj -> Picture
 renderObj (C circ) = renderCirc circ
@@ -135,11 +137,12 @@ picOf :: State -> Picture
 picOf s = Pictures [lineX, lineY, picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)]
           lineY = Line [(0, -ph2), (0, ph2)]
-          objectiveTxt = translate (-pw2+50) (ph2-100) $ scale 0.2 0.2 
-                         $ text "objective function: f(x1, x2) = -(x1-x2)^2"
+          objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
+                         $ text "objective function: f(x1, x2) = (x1-x2)^2, f(y1, y2) = (y1-y2)^2"
 
+-- TODO 1D clamp flag
 sample :: RandomGen g => g -> Obj -> (Obj, g)
-sample gen o = (setX x' {-$ setY y' -} o, gen'')
+sample gen o = (setX x' $ setY y' o, gen'')
        where (x', gen') = randomR widthRange gen
              (y', gen'') = randomR heightRange gen'
 
@@ -151,20 +154,26 @@ stateMap gen f (x:xs) = let (x', gen') = f gen x in
 
 bbox = 60
 
+-- hardcode bbox of 100x100 px at the center
+-- text is centered at bottom left
+inObj :: Located a => (Float, Float) -> a -> Bool
+inObj (xm, ym) o = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox
+
 -- TODO "in object" tests
 -- TODO what if you press a key while down? then reset the entire state (then Up will just reset again)
 handler :: Event -> State -> State
 handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
-        s { objs = map (selectIfContains (xm, ym)) (objs s), down = True }
-        -- hardcode bbox of 100x100 px at the center
-        -- text is centered at bottom left
-        where selectIfContains (xm, ym) o = if abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox
-                                            then select o else o
+        s { objs = objsFirstSelected, down = True }
+        -- so that clicking doesn't select all overlapping objects in bbox
+        where (objsFirstSelected, _) = foldl (selectFirstIfContains (xm, ym)) ([], False) (objs s)
+              selectFirstIfContains (x, y) (xs, alreadySelected) o =
+                                    if alreadySelected || (not $ inObj (x, y) o) then (o : xs, alreadySelected)
+                                    else (select (setX xm $ setY ym o) : xs, True)
 -- dragging mouse when down
 handler (EventMotion (xm, ym)) s =
         if down s then s { objs = map (ifSelectedMoveTo (xm, ym)) (objs s), down = down s }
         else s
-        where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm o {-$ setY ym o-} else o
+        where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY ym o else o
 handler (EventKey (MouseButton LeftButton) Up _ _) s =
         s { objs = map deselect $ objs s, down = False }
 handler (EventKey (Char 'r') Up _ _) s =
@@ -189,14 +198,15 @@ firstTwo (x1 : x2 : _) = (x1, x2)
 type Time = Float
    
 step :: Time -> State -> State
-step t s = if down s then s -- don't step when dragging
-           else s { objs = stepObjs t $ firstTwo (objs s), down = down s}
+step t s = -- if down s then s -- don't step when dragging 
+            s { objs = stepObjs t $ firstTwo (objs s), down = down s}
 
 stepObjs :: Located a => Time -> (a, a) -> [a]
-stepObjs t (o1, o2) = [setX x1'c o1, setX x2'c o2] -- $ setY y1' o1
+stepObjs t (o1, o2) = [setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2]
         where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
-              (x1', x2') = negdistance1d t x1 x2
-              (x1'c, x2'c) = (clampX x1', clampY x2')
+              (x1', x2') = distance1d t x1 x2
+              (y1', y2') = distance1d t y1 y2
+              (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
 
 -- objective function, differentiated and discretized
 -- attract: f(x1, x2) = (x1-x2)^2
