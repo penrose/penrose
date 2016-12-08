@@ -11,7 +11,7 @@ main = play                    -- TODO change to play
        initState                   -- the initial world
        picOf                   -- fn to convert world to a pic
        handler                 -- fn to handle input events
-       step                    -- step the world one iteration; is passed period of time (in secs) to be advanced
+       step                    -- step the world one iteration; passed period of time (in secs) to be advanced
 
 picWidth :: Int 
 picWidth = 800
@@ -19,17 +19,50 @@ picWidth = 800
 picHeight :: Int
 picHeight = 700
 
--- gonna need typeclasses...
+class Located a where
+      getX :: a -> Float
+      getY :: a -> Float
+      setX :: Float -> a -> a
+      setY :: Float -> a -> a
+
 data Circ = Circ { xc :: Float
-                     , yc :: Float
-                     , r :: Float }
+                 , yc :: Float
+                 , r :: Float } 
+
+instance Located Circ where
+         getX c = xc c
+         getY c = yc c
+         setX x c = c { xc = x }
+         setY y c = c { yc = y }         
 
 data Label = Label { xl :: Float
                    , yl :: Float
                    , textl :: String
                    , scalel :: Float } -- calculate h,w from it
 
-data Obj = C Circ | L Label -- | Label | Point | Line
+instance Located Label where
+         getX l = xl l
+         getY l = yl l
+         setX x l = l { xl = x }
+         setY y l = l { yl = y }         
+
+data Obj = C Circ | L Label -- | Label | Point | Line // is there a better way to do this?
+-- instance Located Obj
+
+-- is there some way to reduce the top-level boilerplate?
+instance Located Obj where
+         getX o = case o of
+                 C c -> getX c
+                 L l -> getX l
+         getY o = case o of
+                 C c -> getY c
+                 L l -> getY l
+         setX x o = case o of
+                C c -> C $ setX x c 
+                L l -> L $ setX x l
+         setY y o = case o of
+                C c -> C $ setY y c
+                L l -> L $ setY y l
 
 data State = State { objs :: [Obj]
                    , down :: Bool } -- left mouse button is down (dragging)
@@ -95,13 +128,10 @@ step t s = if down s then s -- don't step when dragging
            else State { objs = map (stepObj t) (objs s), down = down s}
 
 -- currently ignores rest of state 
--- TODO typeclasses???
 -- TODO differentiate type-level b/t timestep and coord
-stepObj :: Float -> Obj -> Obj
-stepObj t (C c) = C $ Circ { xc = x', yc = y', r = r c }
-        where (x', y') = gradDescent t (xc c) (yc c)
-stepObj t (L l) = L $ Label { xl = x', yl = y', textl = textl l, scalel = scalel l }
-        where (x', y') = gradDescent t (xl l) (yl l)
+stepObj :: Located a => Float -> a -> a
+stepObj t o = setX x' $ setY y' o
+        where (x', y') = gradDescent t (getX o) (getY o)
 
 gradDescent :: Float -> Float -> Float -> (Float, Float)
 gradDescent t x y = (clampX x', clampY y')
