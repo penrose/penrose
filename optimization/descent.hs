@@ -101,13 +101,15 @@ initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
+rad = 100 -- TODO don't hardcode into constant
+
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
-          where objsInit = [c1, c2]
-                c1 = C $ Circ { xc = -300, yc = 200, r = 30, selc = False }
+          where objsInit = [c1, l1] -- only handles two objects!
+                c1 = C $ Circ { xc = -300, yc = 200, r = rad, selc = False }
                 c2 = C $ Circ { xc = 300, yc = -200, r = 50, selc = False }          
-                l1 = L $ Label { xl = 10, yl = 0, textl = "CircLabel", scalel = 0.2, sell = False }
+                l1 = L $ Label { xl = 10, yl = 0, textl = "B1", scalel = 0.2, sell = False }
 
 -- divide two integers to obtain a float
 divf :: Int -> Int -> Float
@@ -134,8 +136,8 @@ picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
-picOf s = Pictures [lineX, lineY, picOfState s, objectiveTxt]
-    where lineX = Line [(-pw2, 0), (pw2, 0)]
+picOf s = Pictures [picOfState s, objectiveTxt]
+    where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
                          $ text "objective function: f(x1, x2) = (x1-x2)^2, f(y1, y2) = (y1-y2)^2"
@@ -204,11 +206,34 @@ step t s = -- if down s then s -- don't step when dragging
 stepObjs :: Located a => Time -> (a, a) -> [a]
 stepObjs t (o1, o2) = [setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2]
         where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
-              (x1', x2') = distance1d t x1 x2
-              (y1', y2') = distance1d t y1 y2
+              (x1', x2', y1', y2') = cubicCenterOrRadius t x1 x2 y1 y2
               (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
 
--- objective function, differentiated and discretized
+eps :: Float
+eps = 100
+
+c1 :: Float
+c1 = rad - eps -- both need to be non-neg
+
+c2 :: Float
+c2 = rad + eps
+
+stepT :: Time -> Float -> Float -> Float
+stepT t x dx = x + t * dx
+
+-- objective functions, differentiated and discretized
+-- attract label to center of circle or to outside of circle
+-- MAKE SURE x1 is the circle?? TODO
+cubicCenterOrRadius :: Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+cubicCenterOrRadius t x1 x2 y1 y2 = (stepT t x1 dx1, stepT t x2 dx2,
+                                     stepT t y1 dy1, stepT t y2 dy2)
+                    -- TODO factor out common parts and t
+                    -- should these all be the same?
+              where dx1 = c1 * c2 * ((x1 - x2)^2 + (y1 - y2)^2) - (c1 + c2) * ((x1 - x2)^2 + (y1 - y2)^2)^2 + ((x1 - x2)^2 + (y1 - y2)^2)^3
+                    dx2 = c1 * c2 * ((x1 - x2)^2 + (y1 - y2)^2) - (c1 + c2) * ((x1 - x2)^2 + (y1 - y2)^2)^2 + ((x1 - x2)^2 + (y1 - y2)^2)^3
+                    dy1 = c1 * c2 * ((x1 - x2)^2 + (y1 - y2)^2) - (c1 + c2) * ((x1 - x2)^2 + (y1 - y2)^2)^2 + ((x1 - x2)^2 + (y1 - y2)^2)^3
+                    dy2 = c1 * c2 * ((x1 - x2)^2 + (y1 - y2)^2) - (c1 + c2) * ((x1 - x2)^2 + (y1 - y2)^2)^2 + ((x1 - x2)^2 + (y1 - y2)^2)^3
+
 -- attract: f(x1, x2) = (x1-x2)^2
 -- df/dx1 = 2(x1-x2), df/dx2 = -2(x1-x2)
 distance1d :: Time -> Float -> Float -> (Float, Float)
