@@ -2,6 +2,7 @@ import Graphics.Gloss
 import Data.Function
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
+import Debug.Trace
 
 main = play                    -- TODO change to play
        (InWindow "optimization-based layout" -- display mode, window name
@@ -101,15 +102,15 @@ initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
-rad = 100 -- TODO don't hardcode into constant
+rad = 150 -- TODO don't hardcode into constant
 
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
-          where objsInit = [c1, l1] -- only handles two objects!
+          where objsInit = [l1, c1] -- only handles two objects!
                 c1 = C $ Circ { xc = -300, yc = 200, r = rad, selc = False }
-                c2 = C $ Circ { xc = 300, yc = -200, r = 50, selc = False }          
-                l1 = L $ Label { xl = 10, yl = 0, textl = "B1", scalel = 0.2, sell = False }
+                c2 = C $ Circ { xc = 300, yc = -200, r = rad, selc = False }          
+                l1 = L $ Label { xl = -100, yl = 200, textl = "B1", scalel = 0.2, sell = False }
 
 -- divide two integers to obtain a float
 divf :: Int -> Int -> Float
@@ -140,7 +141,7 @@ picOf s = Pictures [picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
-                         $ text "objective function: f(x1, x2) = (x1-x2)^2, f(y1, y2) = (y1-y2)^2"
+                         $ text "objective: settle in center of set or right outside of it"
 
 -- TODO 1D clamp flag
 sample :: RandomGen g => g -> Obj -> (Obj, g)
@@ -156,17 +157,20 @@ stateMap gen f (x:xs) = let (x', gen') = f gen x in
 
 bbox = 60
 
--- hardcode bbox of 100x100 px at the center
--- text is centered at bottom left
-inObj :: Located a => (Float, Float) -> a -> Bool
-inObj (xm, ym) o = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox
+-- hardcode bbox of at the center
+-- TODO properly get bbox; rn text is centered at bottom left
+inObj :: (Float, Float) -> Obj -> Bool
+inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
+inObj (xm, ym) (C o) = sqrt ((xc o - xm)^2 + (yc o - ym)^2) <= r o -- is circle
 
 -- TODO "in object" tests
--- TODO what if you press a key while down? then reset the entire state (then Up will just reset again)
+-- TODO press key to GD step
 handler :: Event -> State -> State
 handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
         s { objs = objsFirstSelected, down = True }
         -- so that clicking doesn't select all overlapping objects in bbox
+        -- foldl will reverse the list each time, so a diff obj can be selected
+        -- foldr will preserve the list order, so objects are stepped consistently
         where (objsFirstSelected, _) = foldl (selectFirstIfContains (xm, ym)) ([], False) (objs s)
               selectFirstIfContains (x, y) (xs, alreadySelected) o =
                                     if alreadySelected || (not $ inObj (x, y) o) then (o : xs, alreadySelected)
@@ -178,12 +182,14 @@ handler (EventMotion (xm, ym)) s =
         where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY ym o else o
 handler (EventKey (MouseButton LeftButton) Up _ _) s =
         s { objs = map deselect $ objs s, down = False }
+
+-- if you press a key while down, then the handler resets the entire state (then Up will just reset again)
 handler (EventKey (Char 'r') Up _ _) s =
         State { objs = objs', down = False, rng = rng' }
         where (objs', rng') = stateMap (rng s) sample (objs s)
 handler _ s = s
 
--- TODO clamp needs to take into account bbox
+-- TODO clamp needs to take into account bbox of object
 clampX :: Float -> Float
 clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 
@@ -210,29 +216,62 @@ stepObjs t (o1, o2) = [setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2]
               (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
 
 eps :: Float
-eps = 100
+eps = 60 -- why is this 100??
 
 c1 :: Float
-c1 = rad - eps -- both need to be non-neg
+c1 = rad -- both need to be non-neg
 
 c2 :: Float
 c2 = rad + eps
 
+tFactor :: Float
+tFactor = 5 * 10^3
+
+maxGrad :: Float
+maxGrad = 10^7
+
+minGrad :: Float
+minGrad = 10^6
+
+zeroClamp :: Float
+zeroClamp = 5 * 10^3
+
+-- clamp abs val of grad within [minGrad, maxGrad]
+-- TODO clamp so small gradient = 0 movement, so no jitter
+gradClamp :: Float -> Float
+gradClamp g = if abs g < zeroClamp then 0 -- clamp down
+              else if abs g < minGrad then sign * minGrad -- clamp up
+              else if abs g > maxGrad then sign * maxGrad -- clamp down
+              else g
+              where sign = if g < 0 then -1 else 1
+
 stepT :: Time -> Float -> Float -> Float
-stepT t x dx = x + t * dx
+stepT t x dx = x - t * dx
 
 -- objective functions, differentiated and discretized
 -- attract label to center of circle or to outside of circle
--- MAKE SURE x1 is the circle?? TODO
+-- wolframalpha: derivative with respect to x1 of f(x1, y1, x2, y2) = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1 + c2) (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1 * c2 * (sqrt((x1-x2)^2 + (y1-y2)^2))
+-- to debug, use traceShowId :: Show a => a -> a
 cubicCenterOrRadius :: Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-cubicCenterOrRadius t x1 x2 y1 y2 = (stepT t x1 dx1, stepT t x2 dx2,
-                                     stepT t y1 dy1, stepT t y2 dy2)
-                    -- TODO factor out common parts and t
-                    -- should these all be the same?
-              where dx1 = c1 * c2 * ((x1 - x2)^2 + (y1 - y2)^2) - (c1 + c2) * ((x1 - x2)^2 + (y1 - y2)^2)^2 + ((x1 - x2)^2 + (y1 - y2)^2)^3
-                    dx2 = c1 * c2 * ((x1 - x2)^2 + (y1 - y2)^2) - (c1 + c2) * ((x1 - x2)^2 + (y1 - y2)^2)^2 + ((x1 - x2)^2 + (y1 - y2)^2)^3
-                    dy1 = c1 * c2 * ((x1 - x2)^2 + (y1 - y2)^2) - (c1 + c2) * ((x1 - x2)^2 + (y1 - y2)^2)^2 + ((x1 - x2)^2 + (y1 - y2)^2)^3
-                    dy2 = c1 * c2 * ((x1 - x2)^2 + (y1 - y2)^2) - (c1 + c2) * ((x1 - x2)^2 + (y1 - y2)^2)^2 + ((x1 - x2)^2 + (y1 - y2)^2)^3
+cubicCenterOrRadius t x1 x2 y1 y2 = ({-traceShowId $ -}stepT t' x1 dx1, stepT t' x2 dx2,
+                                     stepT t' y1 dy1, stepT t' y2 dy2)
+                    -- TODO factor out common parts
+                    -- should these all be the same? oh, they were all the function--i didn't run the code
+              where t' = t/tFactor -- otherwise it jitters b/t -inf and inf, doesn't reach zeroes
+                    -- also: doesn't settle in the outside correctly
+                    -- instantly jumps to inside bc grad is probably very large, but slow inside...
+                    -- and if too far away, jitters between -bigval and bigval until clicked/dragged
+                    -- also, these are in fact dx1/dt (etc.)
+                    -- bug: needed sqrt for distance, otherwise zeros misplaced. type the fn properly
+                    -- need to hand-calibrate timestepping and clamping...
+                    -- don't know if different grad fns will play well
+                    -- TODO if x1 = x2 and y1 = y2, then NaN
+                    -- TODO step each one WRT the already-stepped ones to reduce jitter?
+                    dx1 = gradClamp $ traceShowId $ (-2)*(c1 + c2)*(x1 - x2) + (c1*c2*(x1 - x2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*(x1 - x2)*sqrt((x1 - x2)^2 + (y1 - y2)^2)
+                    dy1 = gradClamp $ (-2)*(c1 + c2)*(y1 - y2) + (c1*c2*(y1 - y2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*sqrt((x1 - x2)^2 + (y1 - y2)^2)*(y1 - y2)
+                    -- same as dx1 and dy1 except moving toward each other
+                    dx2 = -1 * (gradClamp $ traceShowId $ (-2)*(c1 + c2)*(x1 - x2) + (c1*c2*(x1 - x2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*(x1 - x2)*sqrt((x1 - x2)^2 + (y1 - y2)^2))
+                    dy2 = -1 * (gradClamp $ (-2)*(c1 + c2)*(y1 - y2) + (c1*c2*(y1 - y2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*sqrt((x1 - x2)^2 + (y1 - y2)^2)*(y1 - y2))
 
 -- attract: f(x1, x2) = (x1-x2)^2
 -- df/dx1 = 2(x1-x2), df/dx2 = -2(x1-x2)
