@@ -102,7 +102,7 @@ initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
-rad = 150 -- TODO don't hardcode into constant
+rad = 100 -- TODO don't hardcode into constant
 
 clamp1D y = if clampflag then 0 else y
 
@@ -145,25 +145,55 @@ picOf s = Pictures [picOfState s, objectiveTxt]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
                          $ text "objective: stay close to the center but away from other set"
 
--- TODO 1D clamp flag
-sample :: RandomGen g => g -> Obj -> (Obj, g)
-sample gen o = (setX x' $ setY (clamp1D y') o, gen'')
-       where (x', gen') = randomR widthRange gen
-             (y', gen'') = randomR heightRange gen'
+---- sampling
+-- generate an infinite list of sampled elements
+-- keep the last generator for the "good" element
+genMany :: RandomGen g => g -> (g -> (a, g)) -> [(a, g)]
+genMany gen genOne = iterate (\(c, g) -> genOne g) (genOne gen)
 
+-- take the first element that satisfies the condition
+-- not the most efficient impl. also assumes infinite list s.t. head always exists
+crop :: RandomGen g => (a -> Bool) -> [(a, g)] -> (a, g)
+crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drop gens
+                head $ dropWhile (\(x, _) -> not $ cond x) xs -- keep good's gen
+
+-- randomly sample location
+-- TODO deal with circle and label separately, and take into account bbox
+sampleCoord :: Located a => RandomGen g => g -> a -> (a, g)
+sampleCoord gen o = (setX x' $ setY (clamp1D y') o, gen2)
+        where (x', gen1) = randomR widthRange gen
+              (y', gen2) = randomR heightRange gen1
+
+-- sample each object independently, threading thru gen
 stateMap :: RandomGen g => g -> (g -> a -> (b, g)) -> [a] -> ([b], g)
 stateMap gen f [] = ([], gen)
 stateMap gen f (x:xs) = let (x', gen') = f gen x in
                         let (xs', gen'') = stateMap gen' f xs in
                         (x' : xs', gen'')
 
-bbox = 60
+-- sample a state
+genState :: RandomGen g => [Obj] -> g -> ([Obj], g)
+genState shapes gen = stateMap gen sampleCoord shapes
+
+-- sample entire state at once until constraint is satisfied
+-- TODO doesn't take into account pairwise constraints or results from objects sampled first, sequentially
+sampleConstrainedState :: RandomGen g => g -> [Obj] -> ([Obj], g)
+sampleConstrainedState gen shapes = (state', gen')
+       where (state', gen') = crop constraint states
+             states = genMany gen (genState shapes)
+             -- init state params are ignored; we just need to know what kinds of objects are in it
+----
+
+bbox = 60 -- TODO put all flags and consts together
+
+dist :: Point -> Point -> Float
+dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
 
 -- hardcode bbox of at the center
 -- TODO properly get bbox; rn text is centered at bottom left
 inObj :: (Float, Float) -> Obj -> Bool
 inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
-inObj (xm, ym) (C o) = sqrt ((xc o - xm)^2 + (yc o - ym)^2) <= r o -- is circle
+inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 
 -- TODO "in object" tests
 -- TODO press key to GD step
@@ -177,12 +207,18 @@ handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
               selectFirstIfContains (x, y) (xs, alreadySelected) o =
                                     if alreadySelected || (not $ inObj (x, y) o) then (o : xs, alreadySelected)
                                     else (select (setX xm $ setY ym o) : xs, True)
--- dragging mouse when down
+-- dragging mouse when down 
+-- if an object is selected, then if the collection of objects with the object moved satisfies the constraint, 
+-- then move the object to mouse position
+-- TODO there's probably a better way to implement that
 handler (EventMotion (xm, ym)) s =
-        if down s then s { objs = map (ifSelectedMoveTo (xm, ym)) (objs s), down = down s }
-        else s
-        where ifSelectedMoveTo (xm, ym) o = if selected o
-                                            then setX xm $ setY (clamp1D ym) o else o
+        if down s then s { objs = map (ifSelectedMoveToConstrained (xm, ym)) (objs s), down = down s }
+        else s 
+        where ifSelectedMoveToConstrained (xm, ym) o = if selected o && constraint objsWithSelectedMoved
+                                               -- the constraint would be satisfied on the new mouse position
+                                                      then setX xm $ setY (clamp1D ym) o else o
+              objsWithSelectedMoved = map (ifSelectedMoveTo (xm, ym)) (objs s)
+              ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY (clamp1D ym) o else o
 
 handler (EventKey (MouseButton LeftButton) Up _ _) s =
         s { objs = map deselect $ objs s, down = False }
@@ -190,7 +226,7 @@ handler (EventKey (MouseButton LeftButton) Up _ _) s =
 -- if you press a key while down, then the handler resets the entire state (then Up will just reset again)
 handler (EventKey (Char 'r') Up _ _) s =
         State { objs = objs', down = False, rng = rng' }
-        where (objs', rng') = stateMap (rng s) sample (objs s)
+        where (objs', rng') = sampleConstrainedState (rng s) (objs s)
 handler _ s = s
 
 -- TODO clamp needs to take into account bbox of object
@@ -213,28 +249,46 @@ step :: Time -> State -> State
 step t s = -- if down s then s -- don't step when dragging 
             if stepFlag then s { objs = stepObjs t $ firstTwo (objs s), down = down s} else s
 
-stepObjs :: Located a => Time -> (a, a) -> [a]
-stepObjs t (o1, o2) = [setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2]
-        where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
-              (x1', x2', y1', y2') = centerAndRepel t x1 x2 y1 y2
-              (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
-
 stepT :: Time -> Float -> Float -> Float
 stepT t x dxdt = x - t * dxdt
 
 stepFlag = True
 clampflag = False
-debug = False
-
+debug = True
 debugF = if debug then traceShowId else id
+constraint = noOverlap
+objFn = centerAndRepel
+type ObjFn = Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 
+-- return true iff satisfied
+-- TODO deal with labels and more than two objects
+noOverlap :: [Obj] -> Bool
+noOverlap ((C c1) : (C c2) : _) = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
+-- noOverlap _ _ = True
+
+-- layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
+-- step only if the constraint on the state is satisfied
+-- the state will be stuck if the constraint starts out unsatisfied. TODO let GD attempt to satisfy constraint
+-- TODO: also enforce for mouse dragging and initial sampling
+stepObjs :: Time -> (Obj, Obj) -> [Obj]
+stepObjs t (o1, o2) = if constraint objs' then objs' else [o1, o2]
+        where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
+              (x1', x2', y1', y2') = stepWithObjective objFn t x1 x2 y1 y2
+              (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
+              objs' = [setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2]
+              
+-- calculates the new state
+stepWithObjective :: ObjFn -> Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+stepWithObjective f t x1 x2 y1 y2 = (stepT t' x1 dx1dt, stepT t' x2 dx2dt,
+                                     stepT t' y1 dy1dt, stepT t' y2 dy2dt)
+                  where t' = t/10000
+                        (dx1dt, dx2dt, dy1dt, dy2dt) = f x1 x2 y1 y2
+                  
 -- TODO factor out the stepT
 -- TODO can't figure out how to get the repelling behavior as optimization; may have to be a constraint
-centerAndRepel :: Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-centerAndRepel t x1 x2 y1 y2 = ({-traceShowId $ -}stepT t' x1 dx1dt, stepT t' x2 dx2dt,
-                                     stepT t' y1 dy1dt, stepT t' y2 dy2dt)
-              where t' = t/10000
-                    -- first two terms repel from other circle; last term attracts to center
+centerAndRepel :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+centerAndRepel x1 x2 y1 y2 = (dx1dt, dx2dt, dy1dt, dy2dt)
+              where -- first two terms repel from other circle; last term attracts to center
                     dx1dt = debugF $ -2*x1^3 + 2*x2^3 + 4*x1^3
                     dx2dt = 2*x1^3 - 2*x2^3 + 4*x2^3
                    -- TODO not correct wrt minimizing 2d distance, but it works well enough
