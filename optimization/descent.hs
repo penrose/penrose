@@ -109,9 +109,10 @@ clamp1D y = if clampflag then 0 else y
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
-          where objsInit = [c1, c2] -- only handles two objects!
+          where objsInit = [c1, c2, c3] -- only handles two objects!
                 c1 = C $ Circ { xc = -300, yc = clamp1D 200, r = rad, selc = False }
-                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-50, selc = False }          
+                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-50, selc = False }
+                c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad+50, selc = False }                    
                 l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
 
 -- divide two integers to obtain a float
@@ -247,7 +248,7 @@ type Time = Float
 
 step :: Time -> State -> State
 step t s = -- if down s then s -- don't step when dragging 
-            if stepFlag then s { objs = stepObjs t $ firstTwo (objs s), down = down s} else s
+            if stepFlag then s { objs = stepObjs t (objs s), down = down s} else s
 
 stepT :: Time -> Float -> Float -> Float
 stepT dt x dfdx = x - dt * dfdx
@@ -258,31 +259,43 @@ debug = True
 constraintFlag = True
 debugF = if debug then traceShowId else id
 constraint = if constraintFlag then noOverlap else \x -> True
-objFn = repel'
+objFn = centerObjs
 type ObjFn = Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+
+noOverlapPair :: Circ -> Circ -> Bool
+noOverlapPair c1 c2 = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2 
 
 -- return true iff satisfied
 -- TODO deal with labels and more than two objects
 noOverlap :: [Obj] -> Bool
-noOverlap ((C c1) : (C c2) : _) = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
+noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair c2 c3 && noOverlapPair c1 c3
 -- noOverlap _ _ = True
 
--- layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
+-- TODO assuming all objs are the same and have same obj function, apply obj pairwise step function
+-- TODO generalize
+stepObjs :: Time -> [Obj] -> [Obj]
+stepObjs t objs@(o1 : o2 : o3 : _) = if constraint objs' then objs' else objs
+         where (o1', _) = stepObjsPairwise t (o1, o2) -- uses already stepped objs, not original state
+               (o2', _) = stepObjsPairwise t (o2, o3) -- TODO ^ hack bc the gradients aren't fns of the others
+               (_, o3') = stepObjsPairwise t (o1, o3)
+               objs' = [o1', o2', o3']
+
+-- Layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
 -- step only if the constraint on the state is satisfied
 -- the state will be stuck if the constraint starts out unsatisfied. TODO let GD attempt to satisfy constraint
 -- TODO: also enforce for mouse dragging and initial sampling
-stepObjs :: Time -> (Obj, Obj) -> [Obj]
-stepObjs t (o1, o2) = if constraint objs' then objs' else [o1, o2]
+stepObjsPairwise :: Time -> (Obj, Obj) -> (Obj, Obj)
+stepObjsPairwise t (o1, o2) = objs'
         where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
               (x1', x2', y1', y2') = stepWithObjective objFn t x1 x2 y1 y2
               (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
-              objs' = [setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2]
+              objs' = (setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2)
               
 -- calculates the new state
 stepWithObjective :: ObjFn -> Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 stepWithObjective f t x1 x2 y1 y2 = (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                      stepT t' y1 dfdy1, stepT t' y2 dfdy2)
-                  where t' = t/10
+                  where t' = t * 200
                         (dfdx1, dfdx2, dfdy1, dfdy2) = f x1 x2 y1 y2
 
 debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
