@@ -277,7 +277,7 @@ stepObjs :: Time -> [Obj] -> [Obj]
 stepObjs t objs@(o1 : o2 : o3 : _) = if constraint objs' then objs' else objs
          where (o1', _) = stepObjsPairwise t (o1, o2) -- uses already stepped objs, not original state
                (o2', _) = stepObjsPairwise t (o2, o3) -- TODO ^ hack bc the gradients aren't fns of the others
-               (_, o3') = stepObjsPairwise t (o1, o3)
+               (o3', _) = stepObjsPairwise t (o3, o1) -- TODO order matters!
                objs' = [o1', o2', o3']
 
 -- Layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
