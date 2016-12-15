@@ -144,7 +144,7 @@ picOf s = Pictures [picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
-                         $ text "objective: stay close to the center but away from other set"
+                         $ text "objective: get close to the center. constraint: no overlapping other sets"
 
 ---- sampling
 -- generate an infinite list of sampled elements
