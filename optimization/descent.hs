@@ -203,7 +203,7 @@ handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
         -- so that clicking doesn't select all overlapping objects in bbox
         -- foldl will reverse the list each time, so a diff obj can be selected
         -- foldr will preserve the list order, so objects are stepped consistently
-        where (objsFirstSelected, _) = foldl (selectFirstIfContains (xm, ym)) ([], False) (objs s)
+        where (objsFirstSelected, _) = foldr (flip $ selectFirstIfContains (xm, ym)) ([], False) (objs s)
               selectFirstIfContains (x, y) (xs, alreadySelected) o =
                                     if alreadySelected || (not $ inObj (x, y) o) then (o : xs, alreadySelected)
                                     else (select (setX xm $ setY ym o) : xs, True)
@@ -250,14 +250,15 @@ step t s = -- if down s then s -- don't step when dragging
             if stepFlag then s { objs = stepObjs t $ firstTwo (objs s), down = down s} else s
 
 stepT :: Time -> Float -> Float -> Float
-stepT t x dxdt = x - t * dxdt
+stepT dt x dfdx = x - dt * dfdx
 
 stepFlag = True
 clampflag = False
 debug = True
 debugF = if debug then traceShowId else id
-constraint = noOverlap
-objFn = centerAndRepel
+-- constraint = noOverlap
+constraint = \x -> True
+objFn = centerAndRepel'
 type ObjFn = Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 
 -- return true iff satisfied
@@ -279,21 +280,30 @@ stepObjs t (o1, o2) = if constraint objs' then objs' else [o1, o2]
               
 -- calculates the new state
 stepWithObjective :: ObjFn -> Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-stepWithObjective f t x1 x2 y1 y2 = (stepT t' x1 dx1dt, stepT t' x2 dx2dt,
-                                     stepT t' y1 dy1dt, stepT t' y2 dy2dt)
-                  where t' = t/10000
-                        (dx1dt, dx2dt, dy1dt, dy2dt) = f x1 x2 y1 y2
+stepWithObjective f t x1 x2 y1 y2 = (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
+                                     stepT t' y1 dfdy1, stepT t' y2 dfdy2)
+                  where t' = t * 10
+                        (dfdx1, dfdx2, dfdy1, dfdy2) = f x1 x2 y1 y2
+
+centerAndRepel' :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+centerAndRepel' x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
+              where -- TODO NaNs galore
+                    dfdx1 = traceShowId $
+                            sqrt(x1^2 + y1^2) - (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
+                    dfdx2 = trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") $
+                            (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2) + x2/sqrt(x2^2 + y2^2)
+                    dfdy1 = y1/sqrt(x1^2 + y1^2) - (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
+                    dfdy2 = (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2) + y2/sqrt(x2^2 + y2^2)
                   
--- TODO factor out the stepT
 -- TODO can't figure out how to get the repelling behavior as optimization; may have to be a constraint
 centerAndRepel :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-centerAndRepel x1 x2 y1 y2 = (dx1dt, dx2dt, dy1dt, dy2dt)
+centerAndRepel x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
               where -- first two terms repel from other circle; last term attracts to center
-                    dx1dt = debugF $ -2*x1^3 + 2*x2^3 + 4*x1^3
-                    dx2dt = 2*x1^3 - 2*x2^3 + 4*x2^3
+                    dfdx1 = debugF $ -2*x1^3 + 2*x2^3 + 4*x1^3
+                    dfdx2 = 2*x1^3 - 2*x2^3 + 4*x2^3
                    -- TODO not correct wrt minimizing 2d distance, but it works well enough
-                    dy1dt = -2*y1^3 + 2*y2^3 + 4*y1^3 
-                    dy2dt = 2*y1^3 - 2*y2^3 + 4*y2^3
+                    dfdy1 = -2*y1^3 + 2*y2^3 + 4*y1^3 
+                    dfdy2 = 2*y1^3 - 2*y2^3 + 4*y2^3
 
 ------- parameters specific to cubicCenterOrRadius
 
