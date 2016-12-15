@@ -255,10 +255,10 @@ stepT dt x dfdx = x - dt * dfdx
 stepFlag = True
 clampflag = False
 debug = True
+constraintFlag = True
 debugF = if debug then traceShowId else id
--- constraint = noOverlap
-constraint = \x -> True
-objFn = centerAndRepel'
+constraint = if constraintFlag then noOverlap else \x -> True
+objFn = repel'
 type ObjFn = Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 
 -- return true iff satisfied
@@ -282,15 +282,46 @@ stepObjs t (o1, o2) = if constraint objs' then objs' else [o1, o2]
 stepWithObjective :: ObjFn -> Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 stepWithObjective f t x1 x2 y1 y2 = (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                      stepT t' y1 dfdy1, stepT t' y2 dfdy2)
-                  where t' = t * 10
+                  where t' = t/10
                         (dfdx1, dfdx2, dfdy1, dfdy2) = f x1 x2 y1 y2
 
+debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
+
+-- derivative with respect to x1 of f(x1, x2, y1, y2) =  sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)
+centerObjs :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+centerObjs x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
+              where -- TODO NaNs galore
+                    dfdx1 = debugF $ x1 / sqrt(x1^2 + y1^2)
+                    dfdx2 = debugXY x1 x2 y1 y2 $ x2 / sqrt(x2^2 + y2^2)
+                    dfdy1 = y1 / sqrt(x1^2 + y1^2)
+                    dfdy2 = y2 / sqrt(x2^2 + y2^2)
+
+-- derivative with respect to x1 of f(x1, x2, y1, y2) = -sqrt((x1-x2)^2+(y1-y2)^2) 
+repel :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+repel x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
+              where -- TODO NaNs galore
+                    dfdx1 = debugF $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
+                    dfdx2 = debugXY x1 x2 y1 y2 $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
+                    dfdy1 = - (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
+                    dfdy2 = (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
+
+repel' :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+repel' x1 x2 y1 y2 = (dfdx1 + fac * dfdx1', dfdx2 + fac * dfdx2', dfdy1 + fac * dfdy1', dfdy2 + fac * dfdy2')
+              where -- TODO NaNs galore
+                    dfdx1 = debugF $ -x1 + x2
+                    dfdx2 = debugXY x1 x2 y1 y2 $ -x2 + x1
+                    dfdy1 = -y1 + y2
+                    dfdy2 = -y2 + y1
+                    (dfdx1', dfdx2', dfdy1', dfdy2') = centerObjs x1 x2 y1 y2
+                    fac = 10000
+
+-- derivative with respect to x1 of f(x1, x2, y1, y2) = -sqrt((x1-x2)^2+(y1-y2)^2) + sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)
 centerAndRepel' :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 centerAndRepel' x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
               where -- TODO NaNs galore
-                    dfdx1 = traceShowId $
+                    dfdx1 = debugF $
                             sqrt(x1^2 + y1^2) - (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdx2 = trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") $
+                    dfdx2 = debugXY x1 x2 y1 y2 $
                             (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2) + x2/sqrt(x2^2 + y2^2)
                     dfdy1 = y1/sqrt(x1^2 + y1^2) - (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
                     dfdy2 = (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2) + y2/sqrt(x2^2 + y2^2)
