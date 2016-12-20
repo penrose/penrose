@@ -144,7 +144,7 @@ picOf s = Pictures [picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
-                         $ text "objective: get close to the center. constraint: no overlapping other sets"
+                         $ text "objective: get close to the center without overlapping other sets"
 
 ---- sampling
 -- generate an infinite list of sampled elements
@@ -253,13 +253,9 @@ step t s = -- if down s then s -- don't step when dragging
 stepT :: Time -> Float -> Float -> Float
 stepT dt x dfdx = x - dt * dfdx
 
-stepFlag = True
-clampflag = False
-debug = False
-constraintFlag = False
 debugF = if debug then traceShowId else id
+debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
 constraint = if constraintFlag then noOverlap else \x -> True
-objFn = centerObjs
 type ObjFn = Time -> Float -> Float -> Float -> Float -> (Time, Float, Float, Float, Float)
 
 -- this are now obsolete, since we aren't doing constrained optimization
@@ -291,33 +287,68 @@ stepObjs t objs@(o1 : o2 : o3 : _) = if constraint objs' then objs' else objs
 stepObjsPairwise :: Time -> (Obj, Obj) -> (Obj, Obj)
 stepObjsPairwise t (o1, o2) = objs'
         where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
-              (x1', x2', y1', y2') = stepWithObjective objFn t x1 x2 y1 y2
+              (x1', x2', y1', y2') = stepWithObjFns objFn1 objFn2 t x1 x2 y1 y2
               (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
               objs' = (setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2)
-              
+
+stepFlag = True
+clampflag = False
+debug = True
+constraintFlag = False
+objFn1 = repelInverse
+objFn2 = centerObjs
+
 -- calculates the new state
 stepWithObjective :: ObjFn -> Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 stepWithObjective f t x1 x2 y1 y2 = (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                      stepT t' y1 dfdy1, stepT t' y2 dfdy2)
                   where (t', dfdx1, dfdx2, dfdy1, dfdy2) = f t x1 x2 y1 y2 -- obj fn chooses the timestep
 
-debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
+-- compose :: (a -> b) -> (b -> c) -> a -> c
+-- compose f g = \x -> g $ f $ x
 
--- derivative with respect to x1 of f(x1, x2, y1, y2) =  sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)
+-- generalized version of above that adds the above. need to generalize to arbirary #s of obj fns
+-- could two objective functions be working on different timesteps??
+-- should each take into account the dx, dy from the previous?
+stepWithObjFns :: ObjFn -> ObjFn -> Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+stepWithObjFns f1 f2 t x1 x2 y1 y2 = (x1'', x2'', y1'', y2'')
+             where (t1, dfdx1_1, dfdx2_1, dfdy1_1, dfdy2_1) = f1 t x1 x2 y1 y2 
+                   (t2, dfdx1_2, dfdx2_2, dfdy1_2, dfdy2_2) = f2 t x1 x2 y1 y2 
+                   (x1', x2', y1', y2') = (stepT t1 x1 dfdx1_1, stepT t1 x2 dfdx2_1,
+                                           stepT t1 y1 dfdy1_1, stepT t1 y2 dfdy2_1)
+                   (x1'', x2'', y1'', y2'') = (stepT t2 x1' dfdx1_2, stepT t2 x2' dfdx2_2,
+                                               stepT t2 y1' dfdy1_2, stepT t2 y2' dfdy2_2)
+
+-- derivative with respect to x1 of 'f(x1, x2, y1, y2) = 1/((x1 - x2)^2 + (y1 - y2)^2)'
+-- mimics electrostatic force (1/dx^2)
+repelInverse :: ObjFn
+repelInverse t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
+              where -- TODO NaNs galore
+                    t' = t * 10^10
+                    dfdx1 = debugF $ -((2*(x1 - x2))/((x1 - x2)^2 + (y1 - y2)^2)^2)
+                    dfdx2 = debugXY x1 x2 y1 y2 $ (2 * (x1-x2))/((x1-x2)^2+(y1-y2)^2)^2
+                    dfdy1 = -((2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2)
+                    dfdy2 = (2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2
+
+-- derivative with respect to x1 of 'f(x1, x2, y1, y2) =  sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)'
 centerObjs :: ObjFn
 centerObjs t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
               where -- TODO NaNs galore
-                    t' = t * 500
+                    t' = t * 10^3
                     dfdx1 = debugF $ x1 / sqrt(x1^2 + y1^2)
                     dfdx2 = debugXY x1 x2 y1 y2 $ x2 / sqrt(x2^2 + y2^2)
                     dfdy1 = y1 / sqrt(x1^2 + y1^2)
                     dfdy2 = y2 / sqrt(x2^2 + y2^2)
 
--- derivative with respect to x1 of f(x1, x2, y1, y2) = -sqrt((x1-x2)^2+(y1-y2)^2) 
-repel :: ObjFn
-repel t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
+doNothing :: ObjFn
+doNothing t x1 x2 y1 y2 = (t, 0, 0, 0, 0)
+
+-- derivative with respect to x1 of 'f(x1, x2, y1, y2) = -sqrt((x1-x2)^2+(y1-y2)^2)'
+-- mimics spring force (-k dx^2) but doesn't work well w the current center fn
+repelSpring :: ObjFn
+repelSpring t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
               where -- TODO NaNs galore
-                    t' = t / 200
+                    t' = t * 1000
                     dfdx1 = debugF $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
                     dfdx2 = debugXY x1 x2 y1 y2 $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
                     dfdy1 = - (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
