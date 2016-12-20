@@ -109,7 +109,7 @@ clamp1D y = if clampflag then 0 else y
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
-          where objsInit = [c1, c2, c3] -- only handles two objects!
+          where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
                 c1 = C $ Circ { xc = -300, yc = clamp1D 200, r = rad, selc = False }
                 c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-50, selc = False }
                 c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad+50, selc = False }                    
@@ -255,13 +255,14 @@ stepT dt x dfdx = x - dt * dfdx
 
 stepFlag = True
 clampflag = False
-debug = True
-constraintFlag = True
+debug = False
+constraintFlag = False
 debugF = if debug then traceShowId else id
 constraint = if constraintFlag then noOverlap else \x -> True
 objFn = centerObjs
-type ObjFn = Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+type ObjFn = Time -> Float -> Float -> Float -> Float -> (Time, Float, Float, Float, Float)
 
+-- this are now obsolete, since we aren't doing constrained optimization
 noOverlapPair :: Circ -> Circ -> Bool
 noOverlapPair c1 c2 = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2 
 
@@ -274,6 +275,9 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 -- TODO assuming all objs are the same and have same obj function, apply obj pairwise step function
 -- TODO generalize
 stepObjs :: Time -> [Obj] -> [Obj]
+stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
+         where (o1', o2') = stepObjsPairwise t (o1, o2)
+               objs' = [o1', o2']
 stepObjs t objs@(o1 : o2 : o3 : _) = if constraint objs' then objs' else objs
          where (o1', _) = stepObjsPairwise t (o1, o2) -- uses already stepped objs, not original state
                (o2', _) = stepObjsPairwise t (o2, o3) -- TODO ^ hack bc the gradients aren't fns of the others
@@ -295,54 +299,35 @@ stepObjsPairwise t (o1, o2) = objs'
 stepWithObjective :: ObjFn -> Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 stepWithObjective f t x1 x2 y1 y2 = (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                      stepT t' y1 dfdy1, stepT t' y2 dfdy2)
-                  where t' = t * 200
-                        (dfdx1, dfdx2, dfdy1, dfdy2) = f x1 x2 y1 y2
+                  where (t', dfdx1, dfdx2, dfdy1, dfdy2) = f t x1 x2 y1 y2 -- obj fn chooses the timestep
 
 debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
 
 -- derivative with respect to x1 of f(x1, x2, y1, y2) =  sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)
-centerObjs :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-centerObjs x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
+centerObjs :: ObjFn
+centerObjs t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
               where -- TODO NaNs galore
+                    t' = t * 500
                     dfdx1 = debugF $ x1 / sqrt(x1^2 + y1^2)
                     dfdx2 = debugXY x1 x2 y1 y2 $ x2 / sqrt(x2^2 + y2^2)
                     dfdy1 = y1 / sqrt(x1^2 + y1^2)
                     dfdy2 = y2 / sqrt(x2^2 + y2^2)
 
 -- derivative with respect to x1 of f(x1, x2, y1, y2) = -sqrt((x1-x2)^2+(y1-y2)^2) 
-repel :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-repel x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
+repel :: ObjFn
+repel t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
               where -- TODO NaNs galore
+                    t' = t / 200
                     dfdx1 = debugF $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
                     dfdx2 = debugXY x1 x2 y1 y2 $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
                     dfdy1 = - (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
                     dfdy2 = (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
 
-repel' :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-repel' x1 x2 y1 y2 = (dfdx1 + fac * dfdx1', dfdx2 + fac * dfdx2', dfdy1 + fac * dfdy1', dfdy2 + fac * dfdy2')
-              where -- TODO NaNs galore
-                    dfdx1 = debugF $ -x1 + x2
-                    dfdx2 = debugXY x1 x2 y1 y2 $ -x2 + x1
-                    dfdy1 = -y1 + y2
-                    dfdy2 = -y2 + y1
-                    (dfdx1', dfdx2', dfdy1', dfdy2') = centerObjs x1 x2 y1 y2
-                    fac = 10000
-
--- derivative with respect to x1 of f(x1, x2, y1, y2) = -sqrt((x1-x2)^2+(y1-y2)^2) + sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)
-centerAndRepel' :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-centerAndRepel' x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
-              where -- TODO NaNs galore
-                    dfdx1 = debugF $
-                            sqrt(x1^2 + y1^2) - (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdx2 = debugXY x1 x2 y1 y2 $
-                            (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2) + x2/sqrt(x2^2 + y2^2)
-                    dfdy1 = y1/sqrt(x1^2 + y1^2) - (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdy2 = (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2) + y2/sqrt(x2^2 + y2^2)
-                  
 -- TODO can't figure out how to get the repelling behavior as optimization; may have to be a constraint
-centerAndRepel :: Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-centerAndRepel x1 x2 y1 y2 = (dfdx1, dfdx2, dfdy1, dfdy2)
-              where -- first two terms repel from other circle; last term attracts to center
+centerAndRepel :: ObjFn
+centerAndRepel t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
+              where t' = t / 200
+                    -- first two terms repel from other circle; last term attracts to center
                     dfdx1 = debugF $ -2*x1^3 + 2*x2^3 + 4*x1^3
                     dfdx2 = 2*x1^3 - 2*x2^3 + 4*x2^3
                    -- TODO not correct wrt minimizing 2d distance, but it works well enough
@@ -385,9 +370,8 @@ gradClamp g = if abs g < zeroClamp then 0 -- clamp down
 -- attract label to center of circle or to outside of circle
 -- wolframalpha: derivative with respect to x1 of f(x1, y1, x2, y2) = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1 + c2) (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1 * c2 * (sqrt((x1-x2)^2 + (y1-y2)^2))
 -- to debug, use traceShowId :: Show a => a -> a
-cubicCenterOrRadius :: Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
-cubicCenterOrRadius t x1 x2 y1 y2 = ({-traceShowId $ -}stepT t' x1 dx1, stepT t' x2 dx2,
-                                     stepT t' y1 dy1, stepT t' y2 dy2)
+cubicCenterOrRadius :: Time -> Float -> Float -> Float -> Float -> (Time, Float, Float, Float, Float)
+cubicCenterOrRadius t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
               where t' = t/tFactor -- otherwise it jitters b/t -inf and inf, doesn't reach zeroes
                     -- doesn't settle in the outside correctly
                     -- instantly jumps to inside bc grad is probably very large, but slow inside
@@ -396,12 +380,13 @@ cubicCenterOrRadius t x1 x2 y1 y2 = ({-traceShowId $ -}stepT t' x1 dx1, stepT t'
                     -- need to hand-calibrate timestepping and clamping
                     -- TODO if x1 = x2 and y1 = y2, then NaN
                     -- TODO step each one WRT the already-stepped ones to reduce jitter?
-                    dx1 = gradClamp $ {-traceShowId $-} (-2)*(c1 + c2)*(x1 - x2) + (c1*c2*(x1 - x2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*(x1 - x2)*sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dy1 = gradClamp $ (-2)*(c1 + c2)*(y1 - y2) + (c1*c2*(y1 - y2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*sqrt((x1 - x2)^2 + (y1 - y2)^2)*(y1 - y2)
+                    dfdx1 = gradClamp $ {-traceShowId $-} (-2)*(c1 + c2)*(x1 - x2) + (c1*c2*(x1 - x2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*(x1 - x2)*sqrt((x1 - x2)^2 + (y1 - y2)^2)
+                    dfdy1 = gradClamp $ (-2)*(c1 + c2)*(y1 - y2) + (c1*c2*(y1 - y2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*sqrt((x1 - x2)^2 + (y1 - y2)^2)*(y1 - y2)
                     -- same as dx1 and dy1 except moving toward each other
-                    dx2 = -1 * (gradClamp $ traceShowId $ (-2)*(c1 + c2)*(x1 - x2) + (c1*c2*(x1 - x2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*(x1 - x2)*sqrt((x1 - x2)^2 + (y1 - y2)^2))
-                    dy2 = -1 * (gradClamp $ (-2)*(c1 + c2)*(y1 - y2) + (c1*c2*(y1 - y2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*sqrt((x1 - x2)^2 + (y1 - y2)^2)*(y1 - y2))
+                    dfdx2 = -1 * (gradClamp $ (-2)*(c1 + c2)*(x1 - x2) + (c1*c2*(x1 - x2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*(x1 - x2)*sqrt((x1 - x2)^2 + (y1 - y2)^2))
+                    dfdy2 = -1 * (gradClamp $ (-2)*(c1 + c2)*(y1 - y2) + (c1*c2*(y1 - y2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*sqrt((x1 - x2)^2 + (y1 - y2)^2)*(y1 - y2))
 
+-- these functions' types are old and don't match the current step fn
 -- attract: f(x1, x2) = (x1-x2)^2
 -- df/dx1 = 2(x1-x2), df/dx2 = -2(x1-x2)
 distance1d :: Time -> Float -> Float -> (Float, Float)
