@@ -115,7 +115,7 @@ initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
           where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
                 -- TODO handle one obj...
-                c1 = C $ Circ { xc = -200, yc = clamp1D 100, r = rad, selc = False }
+                c1 = C $ Circ { xc = -100, yc = clamp1D 100, r = rad, selc = False }
                 c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-50, selc = False }
                 c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad+50, selc = False }                    
                 l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
@@ -277,12 +277,15 @@ stepObjs :: Time -> [Obj] -> [Obj]
 stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
          where (o1', o2') = stepObjsPairwise t (o1, o2)
                objs' = [o1', o2']
-stepObjs t objs@(o1 : o2 : o3 : _) = if constraint objs' then objs' else objs
-         where (o1', _) = stepObjsPairwise t (o1, o2) -- uses already stepped objs, not original state
-               (o2', _) = stepObjsPairwise t (o2, o3) -- TODO ^ hack bc the gradients aren't fns of the others
-               (o3', _) = stepObjsPairwise t (o3, o1) -- TODO order matters!
-               objs' = [o1', o2', o3']
+-- stepObjs t objs@(o1 : o2 : o3 : _) = if constraint objs' then objs' else objs
+--          where (o1', _) = stepObjsPairwise t (o1, o2) -- uses already stepped objs, not original state
+--                (o2', _) = stepObjsPairwise t (o2, o3) -- TODO ^ hack bc the gradients aren't fns of the others
+--                (o3', _) = stepObjsPairwise t (o3, o1) -- TODO order matters!
+--                objs' = [o1', o2', o3']
 
+-- TODO step one object. problem is that pairwise stepping is hardcoded everywhere
+-- stepObj :: Time -> Obj -> Obj
+         
 -- Layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
 -- step only if the constraint on the state is satisfied
 -- the state will be stuck if the constraint starts out unsatisfied. TODO let GD attempt to satisfy constraint
@@ -298,25 +301,26 @@ stepFlag = True
 clampflag = False
 debug = True
 constraintFlag = False
-objFn1 = centerObjs
+objFn1 = centerObj
 objFn2 = doNothing -- TODO repelInverse
-gradFn1 = gradCenterObjs
+gradFn1 = gradCenterObj
 btls = True
 
 stopEps :: Float
-stopEps = 10 ** (-10)
+stopEps = 0.4
+--10 ** (-10) -- TODO magnitude of gradient is ~0.13 when x,y ~ 0.08... still large
 
 -- calculates the new state
--- TODO: stopping criterion on the returned gradient
+-- TODO why isn't the magnitude of the gradient changing?
 stepWithObjective :: Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfdy2) then
                                      trace "STOP" (x1, x2, y1, y2) 
                                   else (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                         stepT t' y1 dfdy1, stepT t' y2 dfdy2)
                   where (t', (dfdx1, dfdx2, dfdy1, dfdy2)) =
-                                     timeAndGrad centerObjs gradCenterObjs t (x1, x2, y1, y2)
+                                     timeAndGrad objFn1 gradFn1 t (x1, x2, y1, y2)
                         -- choose the timestep via backtracking (for now) line search
-                        stoppingCriterion gradEval = (debugF $ norm gradEval) <= stopEps
+                        stoppingCriterion gradEval = (msgTrace "gradient: " $ norm $ msgTrace "grad comp:" $ gradEval) <= stopEps
 
 -- TODO generalize to add line search to this later
 -- generalized version of above that adds the obj fns. need to generalize to arbirary #s of obj fns
@@ -347,7 +351,7 @@ timeAndGrad :: ObjFn -> GradFn -> Time -> Vec4 -> (Time, Vec4)
 timeAndGrad f gradF t (x1, x2, y1, y2) = (timestep, gradEval)
             where gradEval = gradF (x1, x2, y1, y2)
                   gradEvalV = toV gradEval
-                  timestep = if not btls then t else -- default for debugging
+                  timestep = if not btls then t/10 else -- default for debugging
                              backtrackingLineSearch f gradEvalV (negated gradEvalV) (V4 x1 x2 y1 y2)
             -- hardcodes descent direction to be the negated evaluated gradient vector
 
@@ -356,16 +360,31 @@ alpha :: Float
 alpha = 0.4 -- \in (0, 0.5): fraction of decrease in f predicted by lin. extrapolation that we will accept
   -- or, increase in shallowness of slope
 beta :: Float
-beta = 0.9 -- \in (0, 1): btls reduces step size by beta for each failed iteration
+beta = 0.3 -- \in (0, 1): btls reduces step size by beta for each failed iteration
+
+msgTrace :: Show a => String -> a -> a
+msgTrace s x = trace "---" $ trace s $ traceShowId x -- prints in left to right order
 
 -- TODO doNothing btls
 backtrackingLineSearch :: ObjFn -> V4' -> V4' -> V4' -> Float
-backtrackingLineSearch f gradEval descentDir x0 = debugF $
+backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                        head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
                        where t0 = 1 -- inital t specified by algo, decreases by beta each iteration
                              -- f(x + tu) still lies above the shallow line specified by alpha
-                             timestepTooLarge t = (f $ fromV ((x0) ^+^ (t *^ descentDir))) <= minFnVal
+                             timestepTooLarge t = traceShowId $ ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir))))> (debugF $ minFnVal))
                              minFnVal = f (fromV x0) + alpha * (gradEval `dot` descentDir)
+
+-- f paired with its gradient (below)
+centerObj :: Vec4 -> Float
+centerObj (x1, x2, y1, y2) = x1^2 + y1^2
+
+gradCenterObj :: Vec4 -> Vec4
+gradCenterObj (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
+              where dfdx1 = 2 * x1
+                    dfdx2 = 0
+                    dfdy1 = 2 * y2
+                    dfdy2 = 0
+              -- TODO just step one object for now
 
 -- f paired with its gradient (below)
 centerObjs :: Vec4 -> Float
@@ -376,10 +395,11 @@ centerObjs (x1, x2, y1, y2) = sqrt (x1^2 + y1^2) + sqrt (x2^2 + y2^2)
 -- TODO use autodiff
 gradCenterObjs :: Vec4 -> Vec4
 gradCenterObjs (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
-              where dfdx1 = {-debugF $-} x1 / sqrt(x1^2 + y1^2)
+              where dfdx1 = x1 / sqrt(x1^2 + y1^2)
                     dfdx2 = {-debugXY x1 x2 y1 y2 $-} x2 / sqrt(x2^2 + y2^2)
                     dfdy1 = y1 / sqrt(x1^2 + y1^2)
                     dfdy2 = y2 / sqrt(x2^2 + y2^2)
+              -- TODO just step one object for now
 
 -- TODO only the centerObjs fn is ported to have the right types + pair f with f'. port the rest too
 -- derivative with respect to x1 of 'f(x1, x2, y1, y2) = 1/((x1 - x2)^2 + (y1 - y2)^2)'
