@@ -149,7 +149,7 @@ picOf s = Pictures [picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
-                         $ text "objective: get close to the center without overlapping other sets"
+                         $ text "objective: get close to the center"
 
 ---- sampling
 -- generate an infinite list of sampled elements
@@ -301,9 +301,9 @@ stepFlag = True
 clampflag = False
 debug = True
 constraintFlag = False
-objFn1 = centerObj
+objFn1 = centerObjs
 objFn2 = doNothing -- TODO repelInverse
-gradFn1 = gradCenterObj
+gradFn1 = gradCenterObjs
 btls = True
 
 stopEps :: Float
