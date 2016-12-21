@@ -371,8 +371,8 @@ backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                        head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
                        where t0 = 1 -- inital t specified by algo, decreases by beta each iteration
                              -- f(x + tu) still lies above the shallow line specified by alpha
-                             timestepTooLarge t = traceShowId $ ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir))))> (debugF $ minFnVal))
-                             minFnVal = f (fromV x0) + alpha * (gradEval `dot` descentDir)
+                             timestepTooLarge t = traceShowId $ ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir))))> (debugF $ minFnVal t))
+                             minFnVal t = f (fromV x0) + alpha * t * (gradEval `dot` descentDir)
 
 -- f paired with its gradient (below)
 centerObj :: Vec4 -> Float
