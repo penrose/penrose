@@ -7,6 +7,9 @@ import Linear.V2 -- vectors
 import Linear.V4
 import Linear.Metric
 import Linear.Vector
+import Numeric.AD -- autodiff
+import Numeric.AD.Internal.Reverse 
+-- deal with conversion to/from float and the weird ad internal type Reverse s a
 
 main = play                    -- TODO change to play
        (InWindow "optimization-based layout" -- display mode, window name
@@ -246,11 +249,12 @@ clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 firstTwo :: [a] -> (a, a)
 firstTwo (x1 : x2 : _) = (x1, x2)
 
-debugF = if debug then traceShowId else id
+debugF :: (Show a) => a -> a
+debugF x = if debug then traceShowId x else x
 debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
 constraint = if constraintFlag then noOverlap else \x -> True
-type GradFn' = Time -> Float -> Float -> Float -> Float -> (Time, Float, Float, Float, Float)
-type Time = Float
+type GradFn' a = Time a -> Float -> Float -> Float -> Float -> (Time a, Float, Float, Float, Float) -- TODO remove; old
+type Time a = a
 
 -- this are now obsolete, since we aren't doing constrained optimization
 noOverlapPair :: Circ -> Circ -> Bool
@@ -264,16 +268,16 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 
 -- implement gradient descent
 -- TODO: is there a haskell autodifferentiator?
-step :: Time -> State -> State
+-- step :: Time a -> State -> State
 step t s = -- if down s then s -- don't step when dragging 
             if stepFlag then s { objs = stepObjs t (objs s), down = down s} else s
 
-stepT :: Time -> Float -> Float -> Float
+-- stepT :: Time a -> Float -> Float -> Float
 stepT dt x dfdx = x - dt * dfdx
 
 -- TODO assuming all objs are the same and have same obj function, apply obj pairwise step function
 -- TODO generalize
-stepObjs :: Time -> [Obj] -> [Obj]
+-- stepObjs :: Time a -> [Obj] -> [Obj]
 stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
          where (o1', o2') = stepObjsPairwise t (o1, o2)
                objs' = [o1', o2']
@@ -284,13 +288,13 @@ stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
 --                objs' = [o1', o2', o3']
 
 -- TODO step one object. problem is that pairwise stepping is hardcoded everywhere
--- stepObj :: Time -> Obj -> Obj
+-- stepObj :: Time a -> Obj -> Obj
          
 -- Layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
 -- step only if the constraint on the state is satisfied
 -- the state will be stuck if the constraint starts out unsatisfied. TODO let GD attempt to satisfy constraint
 -- TODO: also enforce for mouse dragging and initial sampling
-stepObjsPairwise :: Time -> (Obj, Obj) -> (Obj, Obj)
+-- stepObjsPairwise :: Time a -> (Obj, Obj) -> (Obj, Obj)
 stepObjsPairwise t (o1, o2) = objs'
         where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
               (x1', x2', y1', y2') = stepWithObjective t x1 x2 y1 y2 -- obj and gradient are global params
@@ -302,23 +306,23 @@ clampflag = False
 debug = True
 constraintFlag = False
 objFn1 = centerObjs
-objFn2 = doNothing -- TODO repelInverse
-gradFn1 = gradCenterObjs
-btls = True
+-- objFn2 = doNothing -- TODO repelInverse
+-- gradFn1 = gradCenterObjs
+btls = False
 
 stopEps :: Float
-stopEps = 0.4
+stopEps = 10**(-3)
 --10 ** (-10) -- TODO magnitude of gradient is ~0.13 when x,y ~ 0.08... still large
 
 -- calculates the new state
 -- TODO why isn't the magnitude of the gradient changing?
-stepWithObjective :: Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+-- stepWithObjective :: Time a -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfdy2) then
                                      trace "STOP" (x1, x2, y1, y2) 
                                   else (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                         stepT t' y1 dfdy1, stepT t' y2 dfdy2)
-                  where (t', (dfdx1, dfdx2, dfdy1, dfdy2)) =
-                                     timeAndGrad objFn1 gradFn1 t (x1, x2, y1, y2)
+                  where (t', [dfdx1, dfdx2, dfdy1, dfdy2]) =
+                                     timeAndGrad centerObjs t (x1, x2, y1, y2)
                         -- choose the timestep via backtracking (for now) line search
                         stoppingCriterion gradEval = (msgTrace "gradient: " $ norm $ msgTrace "grad comp:" $ gradEval) <= stopEps
 
@@ -326,7 +330,7 @@ stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfd
 -- generalized version of above that adds the obj fns. need to generalize to arbirary #s of obj fns
 -- could two objective functions be working on different timesteps??
 -- should each take into account the dx, dy from the previous?
-stepWithGradFns :: GradFn' -> GradFn' -> Time -> Float -> Float -> Float -> Float -> Vec4
+-- stepWithGradFns :: GradFn' a -> GradFn' a -> Time a -> Float -> Float -> Float -> Float -> Vec4 a
 stepWithGradFns f1 f2 t x1 x2 y1 y2 = (x1'', x2'', y1'', y2'')
              where (t1, dfdx1_1, dfdx2_1, dfdy1_1, dfdy2_1) = f1 t x1 x2 y1 y2 
                    (t2, dfdx1_2, dfdx2_2, dfdy1_2, dfdy2_2) = f2 t x1 x2 y1 y2 
@@ -335,38 +339,80 @@ stepWithGradFns f1 f2 t x1 x2 y1 y2 = (x1'', x2'', y1'', y2'')
                    (x1'', x2'', y1'', y2'') = (stepT t2 x1' dfdx1_2, stepT t2 x2' dfdx2_2,
                                                stepT t2 y1' dfdy1_2, stepT t2 y2' dfdy2_2)
 
-toV :: Vec4 -> V4'
+toV :: Vec4 a -> V4 a
 toV (x1, x2, y1, y2) = V4 x1 x2 y1 y2
 
-fromV :: V4' -> Vec4
+fromV :: V4 a -> Vec4 a
 fromV (V4 x1 x2 y1 y2) = (x1, x2, y1, y2)
 
-type Vec4 = (Float, Float, Float, Float) -- TODO use V4
-type V4' = V4 Float
-type ObjFn = Vec4 -> Float
-type GradFn = Vec4 -> Vec4 -- TODO clean up input types
+-- TODO generalize to a list of inputs instead of a vector
+type Vec4 a = (a, a, a, a) -- TODO use V4
+-- type V4 a = V4 Float
+type ObjFn a = Vec4 a -> a
+type GradFn a = Vec4 a -> Vec4 a -- TODO clean up input types
+-- type ObjFn2 a = (a, a, a, a) -> a 
+-- type GradFn2 a = (a, a, a, a) -> (a, a, a, a)
+type GradFn2 a = [a] -> [a]
+
+-- note: unsafe pattern match
+-- list4toTup :: [t] -> (t, t, t, t)
+list4toTup [a, b, c, d] = (a, b, c, d)
+
+-- extract floats etc from ad library's weird wrapper type
+extractAll :: [Reverse t a] -> [a]
+extractAll xs = map extract xs
+         where extract (Lift x) = x -- non-exhaustive pattern match
+
+-- uses grad (a function from autodiff library) which takes f (as a function that takes a list of inputs)
+-- a list of inputs, and produces the evaluated gradient (list of partial derivatives)
+-- gradF :: (Num t, Fractional t, Floating t) => ObjFn2 t -> GradFn2 t
+-- gradF f (a, b, c, d) = grad f [a, b, c, d]
+
+      -- where fListOfWrapped = f . list4toTup 
+      -- convert f from :: Vec4 a -> Float to 
+      -- :: [Reverse s Float] -> Reverse s Float (weird internal type in ad lib.)
+
+type ObjFn2 a = [a] -> a -- TODO unsafe pattern matches for now, and Vec4 obsolete
 
 -- TODO change stepWithGradFn(s) to use this fn and its type
-timeAndGrad :: ObjFn -> GradFn -> Time -> Vec4 -> (Time, Vec4)
-timeAndGrad f gradF t (x1, x2, y1, y2) = (timestep, gradEval)
-            where gradEval = gradF (x1, x2, y1, y2)
-                  gradEvalV = toV gradEval
-                  timestep = if not btls then t/10 else -- default for debugging
-                             backtrackingLineSearch f gradEvalV (negated gradEvalV) (V4 x1 x2 y1 y2)
-            -- hardcodes descent direction to be the negated evaluated gradient vector
+timeAndGrad :: (Ord a, Show a, Num a, Fractional a, Floating a) => ObjFn2 a -> Time a -> Vec4 a -> (Time a, [a])
+timeAndGrad f t (x1, x2, y1, y2) = (timestep, gradEval)
+            where
+                  gradEval = grad f [x1, x2, y1, y2] -- can partially eval, too
+                  timestep = 100
+                  -- gradEval = gradCenterObjs (x1, x2, y1, y2) -- TODO remove
 
--- TODO why is the step size always the same except for the end, where it's 1 (1 makes sense--at minimum)
-alpha :: Float
-alpha = 0.4 -- \in (0, 0.5): fraction of decrease in f predicted by lin. extrapolation that we will accept
-  -- or, increase in shallowness of slope
-beta :: Float
-beta = 0.3 -- \in (0, 1): btls reduces step size by beta for each failed iteration
+-- f paired with its gradient (below)
+centerObjs :: (Num a, Fractional a, Floating a) => ObjFn2 a
+centerObjs [x1, x2, y1, y2] = sqrt (x1^2 + y1^2) + sqrt (x2^2 + y2^2)
 
 msgTrace :: Show a => String -> a -> a
 msgTrace s x = trace "---" $ trace s $ traceShowId x -- prints in left to right order
 
+--everything else commented out for debugging purposes
+{-                  gradEvalV = toV gradEval
+                  timestep = if not btls then t * 100 else -- default for debugging
+                             backtrackingLineSearch f gradEvalV (negated gradEvalV) (V4 x1 x2 y1 y2)
+            -- hardcodes descent direction to be the negated evaluated gradient vector
+
+-- TODO why is the step size always the same except for the end, where it's 1 (1 makes sense--at minimum)
+-- alpha :: Float
+alpha :: (Num a, Fractional a, Floating a) => a
+alpha = 0.4 -- \in (0, 0.5): fraction of decrease in f predicted by lin. extrapolation that we will accept
+  -- or, increase in shallowness of slope
+-- beta :: Float
+beta :: (Num a, Fractional a, Floating a) => a
+beta = 0.3 -- \in (0, 1): btls reduces step size by beta for each failed iteration
+
 -- TODO doNothing btls
-backtrackingLineSearch :: ObjFn -> V4' -> V4' -> V4' -> Float
+-- current issues: NaN after both reach center; only tested with one objective function
+-- sometimes after one object reaches the center, the other will continue moving there really slowly
+-- and sometimes dragging an object after one has reached the center will cause it to pause
+  -- dragging the other causes them to start moving again?
+  -- and sometimes they will halt not in the center??
+
+-- TODO reimplement the vector operations here on lists
+backtrackingLineSearch :: (Ord a, Show a, Num a, Fractional a, Floating a) => ObjFn2 a -> V4 a -> V4 a -> V4 a -> a
 backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                        head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
                        where t0 = 1 -- inital t specified by algo, decreases by beta each iteration
@@ -375,135 +421,25 @@ backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                              minFnVal t = f (fromV x0) + alpha * t * (gradEval `dot` descentDir)
 
 -- f paired with its gradient (below)
-centerObj :: Vec4 -> Float
-centerObj (x1, x2, y1, y2) = x1^2 + y1^2
+centerObj :: (Num a, Fractional a, Floating a) => ObjFn2 a
+centerObj [x1, x2, y1, y2] = x1^2 + y1^2
 
-gradCenterObj :: Vec4 -> Vec4
-gradCenterObj (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
+gradCenterObj :: (Num a, Fractional a, Floating a) => [a] -> [a]
+gradCenterObj [x1, x2, y1, y2] = [dfdx1, dfdx2, dfdy1, dfdy2]
               where dfdx1 = 2 * x1
                     dfdx2 = 0
                     dfdy1 = 2 * y2
                     dfdy2 = 0
               -- TODO just step one object for now
 
--- f paired with its gradient (below)
-centerObjs :: Vec4 -> Float
-centerObjs (x1, x2, y1, y2) = sqrt (x1^2 + y1^2) + sqrt (x2^2 + y2^2)
-
 -- derivative with respect to x1 of 'f(x1, x2, y1, y2) =  sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)'
 -- evaluated at x1 x2 y1 y2
 -- TODO use autodiff
-gradCenterObjs :: Vec4 -> Vec4
-gradCenterObjs (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
+gradCenterObjs :: (Num a, Fractional a, Floating a) => [a] -> [a]
+gradCenterObjs [x1, x2, y1, y2] = [dfdx1, dfdx2, dfdy1, dfdy2]
               where dfdx1 = x1 / sqrt(x1^2 + y1^2)
                     dfdx2 = {-debugXY x1 x2 y1 y2 $-} x2 / sqrt(x2^2 + y2^2)
                     dfdy1 = y1 / sqrt(x1^2 + y1^2)
                     dfdy2 = y2 / sqrt(x2^2 + y2^2)
               -- TODO just step one object for now
-
--- TODO only the centerObjs fn is ported to have the right types + pair f with f'. port the rest too
--- derivative with respect to x1 of 'f(x1, x2, y1, y2) = 1/((x1 - x2)^2 + (y1 - y2)^2)'
--- mimics electrostatic force (1/dx^2)
-repelInverse :: GradFn'
-repelInverse t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
-              where -- TODO NaNs galore
-                    t' = t * 10^10
-                    dfdx1 = debugF $ -((2*(x1 - x2))/((x1 - x2)^2 + (y1 - y2)^2)^2)
-                    dfdx2 = debugXY x1 x2 y1 y2 $ (2 * (x1-x2))/((x1-x2)^2+(y1-y2)^2)^2
-                    dfdy1 = -((2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2)
-                    dfdy2 = (2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2
-
-doNothing :: GradFn'
-doNothing t x1 x2 y1 y2 = (t, 0, 0, 0, 0)
-
--- derivative with respect to x1 of 'f(x1, x2, y1, y2) = -sqrt((x1-x2)^2+(y1-y2)^2)'
--- mimics spring force (-k dx^2) but doesn't work well w the current center fn
-repelSpring :: GradFn'
-repelSpring t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
-              where -- TODO NaNs galore
-                    t' = t * 1000
-                    dfdx1 = debugF $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdx2 = debugXY x1 x2 y1 y2 $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdy1 = - (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdy2 = (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-
--- TODO can't figure out how to get the repelling behavior as optimization; may have to be a constraint
-centerAndRepel :: GradFn'
-centerAndRepel t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
-              where t' = t / 200
-                    -- first two terms repel from other circle; last term attracts to center
-                    dfdx1 = debugF $ -2*x1^3 + 2*x2^3 + 4*x1^3
-                    dfdx2 = 2*x1^3 - 2*x2^3 + 4*x2^3
-                   -- TODO not correct wrt minimizing 2d distance, but it works well enough
-                    dfdy1 = -2*y1^3 + 2*y2^3 + 4*y1^3 
-                    dfdy2 = 2*y1^3 - 2*y2^3 + 4*y2^3
-
-------- parameters specific to cubicCenterOrRadius
-
-eps :: Float
-eps = 60 -- why is this 100??
-
-c1 :: Float
-c1 = rad -- both need to be non-neg
-
-c2 :: Float
-c2 = rad + eps
-
-tFactor :: Float
-tFactor = 5 * 10^3
-
-maxGrad :: Float
-maxGrad = 10^7
-
-minGrad :: Float
-minGrad = 10^6
-
-zeroClamp :: Float
-zeroClamp = 5 * 10^3
-
--- clamp abs val of grad within [minGrad, maxGrad]
--- TODO clamp so small gradient = 0 movement, so no jitter
-gradClamp :: Float -> Float
-gradClamp g = if abs g < zeroClamp then 0 -- clamp down
-              else if abs g < minGrad then sign * minGrad -- clamp up
-              else if abs g > maxGrad then sign * maxGrad -- clamp down
-              else g
-              where sign = if g < 0 then -1 else 1
-
--- objective functions, differentiated and discretized
--- attract label to center of circle or to outside of circle
--- wolframalpha: derivative with respect to x1 of f(x1, y1, x2, y2) = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1 + c2) (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1 * c2 * (sqrt((x1-x2)^2 + (y1-y2)^2))
--- to debug, use traceShowId :: Show a => a -> a
-cubicCenterOrRadius :: Time -> Float -> Float -> Float -> Float -> (Time, Float, Float, Float, Float)
-cubicCenterOrRadius t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
-              where t' = t/tFactor -- otherwise it jitters b/t -inf and inf, doesn't reach zeroes
-                    -- doesn't settle in the outside correctly
-                    -- instantly jumps to inside bc grad is probably very large, but slow inside
-                    -- and if too far away, jitters between -bigval and bigval until clicked/dragged
-                    -- also, these are in fact dx1/dt (etc.)
-                    -- need to hand-calibrate timestepping and clamping
-                    -- TODO if x1 = x2 and y1 = y2, then NaN
-                    -- TODO step each one WRT the already-stepped ones to reduce jitter?
-                    dfdx1 = gradClamp $ {-traceShowId $-} (-2)*(c1 + c2)*(x1 - x2) + (c1*c2*(x1 - x2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*(x1 - x2)*sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdy1 = gradClamp $ (-2)*(c1 + c2)*(y1 - y2) + (c1*c2*(y1 - y2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*sqrt((x1 - x2)^2 + (y1 - y2)^2)*(y1 - y2)
-                    -- same as dx1 and dy1 except moving toward each other
-                    dfdx2 = -1 * (gradClamp $ (-2)*(c1 + c2)*(x1 - x2) + (c1*c2*(x1 - x2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*(x1 - x2)*sqrt((x1 - x2)^2 + (y1 - y2)^2))
-                    dfdy2 = -1 * (gradClamp $ (-2)*(c1 + c2)*(y1 - y2) + (c1*c2*(y1 - y2))/sqrt((x1 - x2)^2 + (y1 - y2)^2) + 3*sqrt((x1 - x2)^2 + (y1 - y2)^2)*(y1 - y2))
-
--- these functions' types are old and don't match the current step fn
--- attract: f(x1, x2) = (x1-x2)^2
--- df/dx1 = 2(x1-x2), df/dx2 = -2(x1-x2)
-distance1d :: Time -> Float -> Float -> (Float, Float)
-distance1d t x1 x2 = (x1 - t * 2 * (x1 - x2), x2 + t * 2 * (x1 - x2))
--- x2 does not use the updated x1
-
--- repel
-negdistance1d :: Time -> Float -> Float -> (Float, Float)
-negdistance1d t x1 x2 = (x1 + t * 2 * (x1 - x2), x2 - t * 2 * (x1 - x2))   
-
--- f(x) = x^2
-parabola' :: Time -> Float -> Float
-parabola' t x = x - t * 2 * x
-
-neg_parabola' :: Time -> Float -> Float
-neg_parabola' t x = x + t * 2 * x
+-}
