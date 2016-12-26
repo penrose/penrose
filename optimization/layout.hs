@@ -8,13 +8,13 @@ import Linear.V4
 import Linear.Metric
 import Linear.Vector
 
-main = play                    -- TODO change to play
+main = play
        (InWindow "optimization-based layout" -- display mode, window name
                   (picWidth, picHeight)   -- size
                   (10, 10))    -- position
        white                   -- background color
        50                     -- number of simulation steps to take for each second of real time
-       initState                   -- the initial world
+       initState                   -- the initial world, defined as a type below
        picOf                   -- fn to convert world to a pic
        handler                 -- fn to handle input events
        step                    -- step the world one iteration; passed period of time (in secs) to be advanced
@@ -25,6 +25,13 @@ picWidth = 800
 picHeight :: Int
 picHeight = 700
 
+----------- Defining types for the state of the world.
+-- Objects can be Circs (circles) or Labels. Each has a size and position. 
+-- The state of the world is simply a list of Objects.
+
+-- Circs and Labels satisfy the Located and Selectable typeclasses. So does Obj.
+-- So you can do something like `getX o` on any o (an object) without having to worry
+-- unpacking it as a circle or label.
 class Located a where
       getX :: a -> Float
       getY :: a -> Float
@@ -39,7 +46,7 @@ class Selectable a where
 data Circ = Circ { xc :: Float
                  , yc :: Float
                  , r :: Float
-                 , selc :: Bool } 
+                 , selc :: Bool } -- is the circle currently selected? (mouse is dragging it)
 
 instance Located Circ where
          getX c = xc c
@@ -70,7 +77,6 @@ instance Selectable Label where
          selected x = sell x         
 
 data Obj = C Circ | L Label -- | Label | Point | Line // is there a better way to do this?
--- instance Located Obj
 
 -- is there some way to reduce the top-level boilerplate?
 instance Located Obj where
@@ -98,18 +104,19 @@ instance Selectable Obj where
                 C c -> selected c
                 L l -> selected l
 
+-- State of the world
 data State = State { objs :: [Obj]
                    , down :: Bool -- left mouse button is down (dragging)
-                   , rng :: StdGen } 
+                   , rng :: StdGen } -- random number benerator
 
 initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
 rad = 100 -- TODO don't hardcode into constant
-
 clamp1D y = if clampflag then 0 else y
 
+-- Initial state of the world.
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
@@ -129,6 +136,7 @@ ph2 = picHeight `divf` 2
 widthRange = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 
+------------- The "Style" layer: render the state of the world.
 renderCirc :: Circ -> Picture
 renderCirc c = color scolor $ translate (xc c) (yc c) $ circle (r c)
            where scolor = if selected c then green else light violet
@@ -151,7 +159,8 @@ picOf s = Pictures [picOfState s, objectiveTxt]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
                          $ text "objective: get close to the center"
 
----- sampling
+------- Sampling the state subject to a constraint. Currently not used since we are doing unconstrained optimization.
+
 -- generate an infinite list of sampled elements
 -- keep the last generator for the "good" element
 genMany :: RandomGen g => g -> (g -> (a, g)) -> [(a, g)]
@@ -188,21 +197,25 @@ sampleConstrainedState gen shapes = (state', gen')
        where (state', gen') = crop constraint states
              states = genMany gen (genState shapes)
              -- init state params are ignored; we just need to know what kinds of objects are in it
-----
+--------------- Handle user input. "handler" is the main function here.
+-- Whenever the library receives an input event, it calls "handler" with that event
+-- and the current state of the world to handle it.
 
 bbox = 60 -- TODO put all flags and consts together
+-- hacky bounding box of label
 
-dist :: Point -> Point -> Float
+dist :: Point -> Point -> Float -- distance
 dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
 
--- hardcode bbox of at the center
+-- hardcode bbox of label at the center
 -- TODO properly get bbox; rn text is centered at bottom left
 inObj :: (Float, Float) -> Obj -> Bool
 inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 
 -- TODO "in object" tests
--- TODO press key to GD step
+-- TODO press key to gradient descent step
+-- for more on these constructors, see docs: https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html
 handler :: Event -> State -> State
 handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
         s { objs = objsFirstSelected, down = True }
@@ -226,6 +239,7 @@ handler (EventMotion (xm, ym)) s =
               objsWithSelectedMoved = map (ifSelectedMoveTo (xm, ym)) (objs s)
               ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY (clamp1D ym) o else o
 
+-- button released, so deselect all objects
 handler (EventKey (MouseButton LeftButton) Up _ _) s =
         s { objs = map deselect $ objs s, down = False }
 
@@ -235,6 +249,10 @@ handler (EventKey (Char 'r') Up _ _) s =
         where (objs', rng') = sampleConstrainedState (rng s) (objs s)
 handler _ s = s
 
+----------- Stepping the state the world via gradient descent.
+-- First, miscellaneous helper functions.
+
+-- Clamp objects' positions so they don't go offscreen.
 -- TODO clamp needs to take into account bbox of object
 clampX :: Float -> Float
 clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
@@ -242,17 +260,20 @@ clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 clampY :: Float -> Float
 clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 
--- TODO hack so i don't have to deal with pairwise derivatives of an arbitrary-length list
+-- TODO hack so I don't have to deal with pairwise derivatives of an arbitrary-length list. 
 firstTwo :: [a] -> (a, a)
-firstTwo (x1 : x2 : _) = (x1, x2)
+firstTwo (x1 : x2 : _) = (x1, x2) -- Unsafe pattern-match.
 
+-- Some debugging functions.
 debugF = if debug then traceShowId else id
 debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
-constraint = if constraintFlag then noOverlap else \x -> True
-type GradFn' = Time -> Float -> Float -> Float -> Float -> (Time, Float, Float, Float, Float)
-type Time = Float
 
--- this are now obsolete, since we aren't doing constrained optimization
+msgTrace :: Show a => String -> a -> a
+msgTrace s x = trace "---" $ trace s $ traceShowId x -- prints in left to right order
+
+-- These functions are now obsolete, since we aren't doing constrained optimization.
+-- Still, they might be useful later.
+constraint = if constraintFlag then noOverlap else \x -> True
 noOverlapPair :: Circ -> Circ -> Bool
 noOverlapPair c1 c2 = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2 
 
@@ -262,41 +283,57 @@ noOverlap :: [Obj] -> Bool
 noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair c2 c3 && noOverlapPair c1 c3
 -- noOverlap _ _ = True
 
--- implement gradient descent
--- TODO: is there a haskell autodifferentiator?
+-- Type aliases for shorter type signatures.
+type GradFn' = Time -> Float -> Float -> Float -> Float -> (Time, Float, Float, Float, Float) -- old type
+type Time = Float
+type Vec4 = (Float, Float, Float, Float) -- TODO use V4
+type V4' = V4 Float
+type ObjFn = Vec4 -> Float
+type GradFn = Vec4 -> Vec4 -- TODO clean up input types
+
+toV :: Vec4 -> V4'
+toV (x1, x2, y1, y2) = V4 x1 x2 y1 y2
+
+fromV :: V4' -> Vec4
+fromV (V4 x1 x2 y1 y2) = (x1, x2, y1, y2)
+
+-------- Step the world by one timestep (provided by the library).
 step :: Time -> State -> State
 step t s = -- if down s then s -- don't step when dragging 
             if stepFlag then s { objs = stepObjs t (objs s), down = down s} else s
 
+-- Given the time, position, and evaluated directional derivative at the point, return the new position.
 stepT :: Time -> Float -> Float -> Float
 stepT dt x dfdx = x - dt * dfdx
 
+-- This function is here to remind me to generalize the objects (currently hard-coded to 2 objects)
+-- to a list of them. Otherwise, this function doesn't do anything.
 -- TODO assuming all objs are the same and have same obj function, apply obj pairwise step function
 -- TODO generalize
+-- TODO step one object. problem is that pairwise stepping is hardcoded everywhere
 stepObjs :: Time -> [Obj] -> [Obj]
 stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
          where (o1', o2') = stepObjsPairwise t (o1, o2)
                objs' = [o1', o2']
+-- Old code for three objects.
 -- stepObjs t objs@(o1 : o2 : o3 : _) = if constraint objs' then objs' else objs
 --          where (o1', _) = stepObjsPairwise t (o1, o2) -- uses already stepped objs, not original state
 --                (o2', _) = stepObjsPairwise t (o2, o3) -- TODO ^ hack bc the gradients aren't fns of the others
 --                (o3', _) = stepObjsPairwise t (o3, o1) -- TODO order matters!
 --                objs' = [o1', o2', o3']
 
--- TODO step one object. problem is that pairwise stepping is hardcoded everywhere
--- stepObj :: Time -> Obj -> Obj
-         
 -- Layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
 -- step only if the constraint on the state is satisfied
--- the state will be stuck if the constraint starts out unsatisfied. TODO let GD attempt to satisfy constraint
--- TODO: also enforce for mouse dragging and initial sampling
+-- the state will be stuck if the constraint starts out unsatisfied. 
+-- TODO let GD attempt to satisfy constraint
 stepObjsPairwise :: Time -> (Obj, Obj) -> (Obj, Obj)
 stepObjsPairwise t (o1, o2) = objs'
-        where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
-              (x1', x2', y1', y2') = stepWithObjective t x1 x2 y1 y2 -- obj and gradient are global params
-              (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
-              objs' = (setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2)
+        where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2) -- extract the locations of the two objs, ignoring size
+              (x1', x2', y1', y2') = stepWithObjective t x1 x2 y1 y2 -- get new positions. objective function is a global param
+              (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2') -- keep objects on canvas
+              objs' = (setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2) -- update object positions
 
+-- Flags for debugging the surrounding functions.
 stepFlag = True
 clampflag = False
 debug = True
@@ -310,8 +347,9 @@ stopEps :: Float
 stopEps = 0.4
 --10 ** (-10) -- TODO magnitude of gradient is ~0.13 when x,y ~ 0.08... still large
 
--- calculates the new state
--- TODO why isn't the magnitude of the gradient changing?
+-- Calculates the new state by calculating the directional derivatives (via autodiff) 
+-- and timestep (via line search), then using them to step the current state.
+-- TODO why isn't the magnitude of the gradient changing with btls?
 stepWithObjective :: Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
 stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfdy2) then
                                      trace "STOP" (x1, x2, y1, y2) 
@@ -322,9 +360,9 @@ stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfd
                         -- choose the timestep via backtracking (for now) line search
                         stoppingCriterion gradEval = (msgTrace "gradient: " $ norm $ msgTrace "grad comp:" $ gradEval) <= stopEps
 
+-- Generalized version of above that adds the obj fns. (Currently unused.) Need to generalize to arbirary #s of obj fns.
 -- TODO generalize to add line search to this later
--- generalized version of above that adds the obj fns. need to generalize to arbirary #s of obj fns
--- could two objective functions be working on different timesteps??
+-- could two objective functions be working on different timesteps?
 -- should each take into account the dx, dy from the previous?
 stepWithGradFns :: GradFn' -> GradFn' -> Time -> Float -> Float -> Float -> Float -> Vec4
 stepWithGradFns f1 f2 t x1 x2 y1 y2 = (x1'', x2'', y1'', y2'')
@@ -335,37 +373,29 @@ stepWithGradFns f1 f2 t x1 x2 y1 y2 = (x1'', x2'', y1'', y2'')
                    (x1'', x2'', y1'', y2'') = (stepT t2 x1' dfdx1_2, stepT t2 x2' dfdx2_2,
                                                stepT t2 y1' dfdy1_2, stepT t2 y2' dfdy2_2)
 
-toV :: Vec4 -> V4'
-toV (x1, x2, y1, y2) = V4 x1 x2 y1 y2
-
-fromV :: V4' -> Vec4
-fromV (V4 x1 x2 y1 y2) = (x1, x2, y1, y2)
-
-type Vec4 = (Float, Float, Float, Float) -- TODO use V4
-type V4' = V4 Float
-type ObjFn = Vec4 -> Float
-type GradFn = Vec4 -> Vec4 -- TODO clean up input types
-
+-- Given the objective function, gradient function, timestep, and current state,
+-- return the timestep (found via line search) and evaluated gradient at the current state.
 -- TODO change stepWithGradFn(s) to use this fn and its type
 timeAndGrad :: ObjFn -> GradFn -> Time -> Vec4 -> (Time, Vec4)
 timeAndGrad f gradF t (x1, x2, y1, y2) = (timestep, gradEval)
             where gradEval = gradF (x1, x2, y1, y2)
                   gradEvalV = toV gradEval
-                  timestep = if not btls then t/10 else -- default for debugging
+                  -- Use line search to find a good timestep.
+                  timestep = if not btls then t/10 else -- use a fixed timestep for debugging
                              backtrackingLineSearch f gradEvalV (negated gradEvalV) (V4 x1 x2 y1 y2)
-            -- hardcodes descent direction to be the negated evaluated gradient vector
+                  -- hardcodes descent direction to be the negated evaluated gradient vector
+                  -- but we could use a different descent direction if desired
 
--- TODO why is the step size always the same except for the end, where it's 1 (1 makes sense--at minimum)
+-- Parameters for line search
 alpha :: Float
 alpha = 0.4 -- \in (0, 0.5): fraction of decrease in f predicted by lin. extrapolation that we will accept
   -- or, increase in shallowness of slope
 beta :: Float
 beta = 0.3 -- \in (0, 1): btls reduces step size by beta for each failed iteration
+-- TODO why is the step size always the same except for the end, where it's 1 (1 makes sense--at minimum)
 
-msgTrace :: Show a => String -> a -> a
-msgTrace s x = trace "---" $ trace s $ traceShowId x -- prints in left to right order
-
--- TODO doNothing btls
+-- Implements algorithm specified in Boyd. Only works for convex functions (e.g. centerObjs is convex)
+-- TODO fix the conversions between Vec4 and V4' 
 backtrackingLineSearch :: ObjFn -> V4' -> V4' -> V4' -> Float
 backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                        head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
@@ -374,6 +404,9 @@ backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                              timestepTooLarge t = traceShowId $ ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir))))> (debugF $ minFnVal t))
                              minFnVal t = f (fromV x0) + alpha * t * (gradEval `dot` descentDir)
 
+------------- Some sample objective functions.
+
+-- only center the first object (for debugging)
 -- f paired with its gradient (below)
 centerObj :: Vec4 -> Float
 centerObj (x1, x2, y1, y2) = x1^2 + y1^2
@@ -384,15 +417,13 @@ gradCenterObj (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
                     dfdx2 = 0
                     dfdy1 = 2 * y2
                     dfdy2 = 0
-              -- TODO just step one object for now
 
--- f paired with its gradient (below)
+-- center both objects (2 objects hardcoded; TODO handle arbitrary numbers of them)
 centerObjs :: Vec4 -> Float
 centerObjs (x1, x2, y1, y2) = sqrt (x1^2 + y1^2) + sqrt (x2^2 + y2^2)
 
--- derivative with respect to x1 of 'f(x1, x2, y1, y2) =  sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)'
+-- gradient of 'f(x1, x2, y1, y2) =  sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)'
 -- evaluated at x1 x2 y1 y2
--- TODO use autodiff
 gradCenterObjs :: Vec4 -> Vec4
 gradCenterObjs (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
               where dfdx1 = x1 / sqrt(x1^2 + y1^2)
@@ -401,11 +432,15 @@ gradCenterObjs (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
                     dfdy2 = y2 / sqrt(x2^2 + y2^2)
               -- TODO just step one object for now
 
--- TODO only the centerObjs fn is ported to have the right types + pair f with f'. port the rest too
--- derivative with respect to x1 of 'f(x1, x2, y1, y2) = 1/((x1 - x2)^2 + (y1 - y2)^2)'
+-- repel two objects
+repelInverse :: Vec4 -> Float
+repelInverse (x1, x2, y1, y2) = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
+
+-- gradient of 'f(x1, x2, y1, y2) = 1/((x1 - x2)^2 + (y1 - y2)^2)'
 -- mimics electrostatic force (1/dx^2)
-repelInverse :: GradFn'
-repelInverse t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
+-- TODO only the centerObjs fn is ported to have the right types + pair f with f'. port the rest too
+gradRepelInverse :: GradFn'
+gradRepelInverse t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
               where -- TODO NaNs galore
                     t' = t * 10^10
                     dfdx1 = debugF $ -((2*(x1 - x2))/((x1 - x2)^2 + (y1 - y2)^2)^2)
@@ -413,33 +448,16 @@ repelInverse t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
                     dfdy1 = -((2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2)
                     dfdy2 = (2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2
 
-doNothing :: GradFn'
+-- The "center and repel" function from earlier summed the centerObjs function and the repelInverse
+-- function above using stepObjFns. I'm still debugging BTLS for one objective function, so
+-- I rolled the obj-fn-adding functionality back. TODO reimplement it
+
+doNothing :: GradFn' -- for debugging
 doNothing t x1 x2 y1 y2 = (t, 0, 0, 0, 0)
 
--- derivative with respect to x1 of 'f(x1, x2, y1, y2) = -sqrt((x1-x2)^2+(y1-y2)^2)'
--- mimics spring force (-k dx^2) but doesn't work well w the current center fn
-repelSpring :: GradFn'
-repelSpring t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
-              where -- TODO NaNs galore
-                    t' = t * 1000
-                    dfdx1 = debugF $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdx2 = debugXY x1 x2 y1 y2 $ (x1 - x2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdy1 = - (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-                    dfdy2 = (y1 - y2)/sqrt((x1 - x2)^2 + (y1 - y2)^2)
-
--- TODO can't figure out how to get the repelling behavior as optimization; may have to be a constraint
-centerAndRepel :: GradFn'
-centerAndRepel t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
-              where t' = t / 200
-                    -- first two terms repel from other circle; last term attracts to center
-                    dfdx1 = debugF $ -2*x1^3 + 2*x2^3 + 4*x1^3
-                    dfdx2 = 2*x1^3 - 2*x2^3 + 4*x2^3
-                   -- TODO not correct wrt minimizing 2d distance, but it works well enough
-                    dfdy1 = -2*y1^3 + 2*y2^3 + 4*y1^3 
-                    dfdy2 = 2*y1^3 - 2*y2^3 + 4*y2^3
-
-------- parameters specific to cubicCenterOrRadius
-
+------ Old code relating to the objective function to either center a label 
+-- or position it right outside a set. (The types are obsolete.)
+--- Parameters specific to cubicCenterOrRadius
 eps :: Float
 eps = 60 -- why is this 100??
 
