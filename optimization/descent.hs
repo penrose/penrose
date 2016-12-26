@@ -7,8 +7,9 @@ import Linear.V2 -- vectors
 import Linear.V4
 import Linear.Metric
 import Linear.Vector
-import Numeric.AD -- autodiff
-import Numeric.AD.Internal.Reverse 
+import Numeric.AD.Rank1.Forward -- autodiff, with possible infinitesimal confusion
+-- Numeric.AD is the real version but requires RankN types
+-- import Numeric.AD.Internal.Reverse 
 -- deal with conversion to/from float and the weird ad internal type Reverse s a
 
 main = play                    -- TODO change to play
@@ -359,9 +360,9 @@ type GradFn2 a = [a] -> [a]
 list4toTup [a, b, c, d] = (a, b, c, d)
 
 -- extract floats etc from ad library's weird wrapper type
-extractAll :: [Reverse t a] -> [a]
-extractAll xs = map extract xs
-         where extract (Lift x) = x -- non-exhaustive pattern match
+-- extractAll :: [Reverse t a] -> [a]
+-- extractAll xs = map extract xs
+--          where extract (Lift x) = x -- non-exhaustive pattern match
 
 -- uses grad (a function from autodiff library) which takes f (as a function that takes a list of inputs)
 -- a list of inputs, and produces the evaluated gradient (list of partial derivatives)
@@ -375,7 +376,10 @@ extractAll xs = map extract xs
 type ObjFn2 a = [a] -> a -- TODO unsafe pattern matches for now, and Vec4 obsolete
 
 -- TODO change stepWithGradFn(s) to use this fn and its type
-timeAndGrad :: (Ord a, Show a, Num a, Fractional a, Floating a) => ObjFn2 a -> Time a -> Vec4 a -> (Time a, [a])
+-- timeAndGrad :: (Ord a, Show a, Num a, Fractional a, Floating a) => ObjFn2 a -> Time a -> Vec4 a -> (Time a, [a])
+timeAndGrad
+  :: (Num t1, Num t2) => 
+     ([Forward t1] -> Forward t1) -> t -> (t1, t1, t1, t1) -> (t2, [t1])
 timeAndGrad f t (x1, x2, y1, y2) = (timestep, gradEval)
             where
                   gradEval = grad f [x1, x2, y1, y2] -- can partially eval, too
