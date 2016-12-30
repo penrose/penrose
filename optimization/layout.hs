@@ -1,4 +1,4 @@
-{-# LANGUAGE Rank2Types, UnicodeSyntax #-} 
+{-# LANGUAGE Rank2Types, UnicodeSyntax, MultiParamTypeClasses #-} 
 -- for autodiff, requires passing in a polymorphic fn
 
 import Graphics.Gloss
@@ -12,6 +12,7 @@ import Linear.Metric
 import Linear.Vector
 -- import Numeric.AD
 
+{-
 main = play
        (InWindow "optimization-based layout" -- display mode, window name
                   (picWidth, picHeight)   -- size
@@ -22,6 +23,8 @@ main = play
        picOf                   -- fn to convert world to a pic
        handler                 -- fn to handle input events
        step                    -- step the world one iteration; passed period of time (in secs) to be advanced
+-}
+main = print "hello"
 
 picWidth :: Int 
 picWidth = 800
@@ -36,20 +39,24 @@ picHeight = 700
 -- Circs and Labels satisfy the Located and Selectable typeclasses. So does Obj.
 -- So you can do something like `getX o` on any o (an object) without having to worry
 -- unpacking it as a circle or label.
-class Located a where
-      getX :: a -> Float
-      getY :: a -> Float
-      setX :: Float -> a -> a
-      setY :: Float -> a -> a
+class Located b where
+      getX :: b a -> a
+      getY :: b a -> a
+      setX :: a -> b a -> b a
+      setY :: a -> b a -> b a
 
-class Selectable a where
-      select :: a -> a
-      deselect :: a -> a
-      selected :: a -> Bool
+class Selectable b where
+      select :: b a -> b a
+      deselect :: b a -> b a
+      selected :: b a -> Bool
 
-data Circ = Circ { xc :: Float
-                 , yc :: Float
-                 , r :: Float
+-- The coords of a circle actually are members of the the typeclass Floating, but the norm is not
+-- to have typeclass declarations in a data declaration.
+-- We can't use Float because the `ad` library requires functions to be polymorphic,
+-- and adding a `Floating a` to a `Float` returns a `Float`.
+data Circ a = Circ { xc :: a
+                 , yc :: a
+                 , r :: a
                  , selc :: Bool } -- is the circle currently selected? (mouse is dragging it)
 
 instance Located Circ where
@@ -63,10 +70,10 @@ instance Selectable Circ where
          deselect x = x { selc = False }
          selected x = selc x
 
-data Label = Label { xl :: Float
-                   , yl :: Float
+data Label a = Label { xl :: a -- same deal as with Circ a
+                   , yl :: a
                    , textl :: String
-                   , scalel :: Float  -- calculate h,w from it
+                   , scalel :: a  -- calculate h,w from it
                    , sell :: Bool } -- selected label
 
 instance Located Label where
@@ -80,7 +87,7 @@ instance Selectable Label where
          deselect x = x { sell = False }
          selected x = sell x         
 
-data Obj = C Circ | L Label -- | Label | Point | Line // is there a better way to do this?
+data Obj a = C (Circ a) | L (Label a) -- | Label a | Point | Line // is there a better way to do this?
 
 -- is there some way to reduce the top-level boilerplate?
 instance Located Obj where
@@ -109,7 +116,7 @@ instance Selectable Obj where
                 L l -> selected l
 
 -- State of the world
-data State = State { objs :: [Obj]
+data State a = State { objs :: [Obj a]
                    , down :: Bool -- left mouse button is down (dragging)
                    , rng :: StdGen } -- random number benerator
 
@@ -123,7 +130,7 @@ clamp1D y = if clampflag then 0 else y
 
 -- Initial state of the world.
 -- TODO randomly sample s0
-initState :: State
+initState :: State a
 initState = State { objs = objsInit, down = False, rng = initRng }
           where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
                 -- TODO handle one obj...
@@ -142,22 +149,22 @@ widthRange = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 
 ------------- The "Style" layer: render the state of the world.
-renderCirc :: Circ -> Picture
+renderCirc :: Circ a -> Picture
 renderCirc c = color scolor $ translate (xc c) (yc c) $ circle (r c)
            where scolor = if selected c then green else light violet
 
-renderLabel :: Label -> Picture
+renderLabel :: Label a -> Picture
 renderLabel l = color scolor $ translate (xl l) (yl l) $ scale 0.2 0.2 $ text (textl l)
             where scolor = if selected l then green else light violet
 
-renderObj :: Obj -> Picture
+renderObj :: Obj a -> Picture
 renderObj (C circ) = renderCirc circ
 renderObj (L label) = renderLabel label
 
-picOfState :: State -> Picture
+picOfState :: State a -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
-picOf :: State -> Picture
+picOf :: State a -> Picture
 picOf s = Pictures [picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
@@ -179,7 +186,7 @@ crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drop gens
 
 -- randomly sample location
 -- TODO deal with circle and label separately, and take into account bbox
-sampleCoord :: Located a => RandomGen g => g -> a -> (a, g)
+sampleCoord :: Located b => RandomGen g => g -> b a -> (a, g)
 sampleCoord gen o = (setX x' $ setY (clamp1D y') o, gen2)
         where (x', gen1) = randomR widthRange gen
               (y', gen2) = randomR heightRange gen1
@@ -192,12 +199,12 @@ stateMap gen f (x:xs) = let (x', gen') = f gen x in
                         (x' : xs', gen'')
 
 -- sample a state
-genState :: RandomGen g => [Obj] -> g -> ([Obj], g)
+genState :: RandomGen g => [Obj a] -> g -> ([Obj a], g)
 genState shapes gen = stateMap gen sampleCoord shapes
 
 -- sample entire state at once until constraint is satisfied
 -- TODO doesn't take into account pairwise constraints or results from objects sampled first, sequentially
-sampleConstrainedState :: RandomGen g => g -> [Obj] -> ([Obj], g)
+sampleConstrainedState :: RandomGen g => g -> [Obj a] -> ([Obj a], g)
 sampleConstrainedState gen shapes = (state', gen')
        where (state', gen') = crop constraint states
              states = genMany gen (genState shapes)
@@ -214,14 +221,14 @@ dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
 
 -- hardcode bbox of label at the center
 -- TODO properly get bbox; rn text is centered at bottom left
-inObj :: (Float, Float) -> Obj -> Bool
+inObj :: (Float, Float) -> Obj a -> Bool
 inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 
 -- TODO "in object" tests
 -- TODO press key to gradient descent step
 -- for more on these constructors, see docs: https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html
-handler :: Event -> State -> State
+handler :: Event -> State a -> State a
 handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
         s { objs = objsFirstSelected, down = True }
         -- so that clicking doesn't select all overlapping objects in bbox
@@ -280,17 +287,17 @@ msgTrace s x = trace "---" $ trace s $ traceShowId x -- prints in left to right 
 -- These functions are now obsolete, since we aren't doing constrained optimization.
 -- Still, they might be useful later.
 constraint = if constraintFlag then noOverlap else \x -> True
-noOverlapPair :: Circ -> Circ -> Bool
+noOverlapPair :: Circ a -> Circ a -> Bool
 noOverlapPair c1 c2 = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2 
 
 -- return true iff satisfied
 -- TODO deal with labels and more than two objects
-noOverlap :: [Obj] -> Bool
+noOverlap :: [Obj a] -> Bool
 noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair c2 c3 && noOverlapPair c1 c3
 -- noOverlap _ _ = True
 
 -- Type aliases for shorter type signatures.
-type GradFn' a = Time a -> a -> a -> a -> a -> (Time a, a, a, a, a) -- old type
+-- type GradFn' a = Time -> a -> a -> a -> a -> (Time, a, a, a, a) -- old type
 type Time a = a
 type Vec4 a = (a, a, a, a) -- TODO use V4
 type V4' a = V4 a
@@ -304,7 +311,7 @@ fromV :: V4' a -> Vec4 a
 fromV (V4 x1 x2 y1 y2) = (x1, x2, y1, y2)
 
 -------- Step the world by one timestep (provided by the library).
-step :: Floating a => Time a -> State -> State
+step :: Floating a => Time a -> State a -> State a
 step t s = -- if down s then s -- don't step when dragging 
             if stepFlag then s { objs = stepObjs t (objs s), down = down s} else s
 
@@ -317,7 +324,7 @@ stepT dt x dfdx = x - dt * dfdx
 -- TODO assuming all objs are the same and have same obj function, apply obj pairwise step function
 -- TODO generalize
 -- TODO step one object. problem is that pairwise stepping is hardcoded everywhere
-stepObjs :: Floating a => Time a -> [Obj] -> [Obj]
+stepObjs :: Floating a => Time a -> [Obj a] -> [Obj a]
 stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
          where (o1', o2') = stepObjsPairwise t (o1, o2)
                objs' = [o1', o2']
@@ -332,7 +339,7 @@ stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
 -- step only if the constraint on the state is satisfied
 -- the state will be stuck if the constraint starts out unsatisfied. 
 -- TODO let GD attempt to satisfy constraint
-stepObjsPairwise :: Floating a => Time a -> (Obj, Obj) -> (Obj, Obj)
+stepObjsPairwise :: Floating a => Time a -> (Obj a, Obj a) -> (Obj a, Obj a)
 stepObjsPairwise t (o1, o2) = objs'
         where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
               -- extract the locations of the two objs, ignoring size
@@ -360,13 +367,13 @@ stopEps = 0.4
 -- Calculates the new state by calculating the directional derivatives (via autodiff) 
 -- and timestep (via line search), then using them to step the current state.
 -- TODO why isn't the magnitude of the gradient changing with btls?
-stepWithObjective :: Floating a => Time a -> a -> a -> a -> a -> (a, a, a, a)
+stepWithObjective :: (Ord a, Floating a, Show a) => Time a -> a -> a -> a -> a -> (a, a, a, a)
 stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfdy2) then
                                      trace "STOP" (x1, x2, y1, y2) 
                                   else (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                         stepT t' y1 dfdy1, stepT t' y2 dfdy2)
-                  where (t', (dfdx1, dfdx2, dfdy1, dfdy2)) =
-                                     timeAndGrad objFn1 gradFn1 t (x1, x2, y1, y2)
+                  where (t', (dfdx1, dfdx2, dfdy1, dfdy2)) = (0, (0, 0, 0, 0))
+                                     --TODO* timeAndGrad objFn1 gradFn1 t (x1, x2, y1, y2)
                         -- choose the timestep via backtracking (for now) line search
                         stoppingCriterion gradEval = (msgTrace "gradient: " $ norm $ msgTrace "grad comp:" $ gradEval) <= stopEps
 
@@ -374,6 +381,7 @@ stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfd
 -- TODO generalize to add line search to this later
 -- could two objective functions be working on different timesteps?
 -- should each take into account the dx, dy from the previous?
+{-
 stepWithGradFns :: Floating a => GradFn' a -> GradFn' a -> Time a -> a -> a -> a -> a -> Vec4 a
 stepWithGradFns f1 f2 t x1 x2 y1 y2 = (x1'', x2'', y1'', y2'')
              where (t1, dfdx1_1, dfdx2_1, dfdy1_1, dfdy2_1) = f1 t x1 x2 y1 y2 
@@ -381,7 +389,7 @@ stepWithGradFns f1 f2 t x1 x2 y1 y2 = (x1'', x2'', y1'', y2'')
                    (x1', x2', y1', y2') = (stepT t1 x1 dfdx1_1, stepT t1 x2 dfdx2_1,
                                            stepT t1 y1 dfdy1_1, stepT t1 y2 dfdy2_1)
                    (x1'', x2'', y1'', y2'') = (stepT t2 x1' dfdx1_2, stepT t2 x2' dfdx2_2,
-                                               stepT t2 y1' dfdy1_2, stepT t2 y2' dfdy2_2)
+                                               stepT t2 y1' dfdy1_2, stepT t2 y2' dfdy2_2) -}
 
 -- TODO try it with list <-> vector conversion
 -- timeAndGrad' :: Floating a => (forall a . Floating a => [a] -> a) -> [a] -> [a]
@@ -408,14 +416,16 @@ beta :: Floating a => a
 beta = 0.3 -- \in (0, 1): btls reduces step size by beta for each failed iteration
 -- TODO why is the step size always the same except for the end, where it's 1 (1 makes sense--at minimum)
 
+t0 :: Floating a => a
+t0 = 1 -- inital t specified by algo, decreases by beta each iteration
+
 -- Implements algorithm specified in Boyd. Only works for convex functions (e.g. centerObjs is convex)
 -- TODO fix the conversions between Vec4 a and V4' a 
 backtrackingLineSearch :: (Show a, Floating a, Ord a) => ObjFn a -> V4' a -> V4' a -> V4' a -> a
 backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                        head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
-                       where t0 = 1 -- inital t specified by algo, decreases by beta each iteration
+                       where timestepTooLarge t = traceShowId $ ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir))))> (debugF $ minFnVal t))
                              -- f(x + tu) still lies above the shallow line specified by alpha
-                             timestepTooLarge t = traceShowId $ ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir))))> (debugF $ minFnVal t))
                              minFnVal t = f (fromV x0) + alpha * t * (gradEval `dot` descentDir)
 
 ------------- Some sample objective functions.
@@ -453,6 +463,7 @@ repelInverse (x1, x2, y1, y2) = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
 -- gradient of 'f(x1, x2, y1, y2) = 1/((x1 - x2)^2 + (y1 - y2)^2)'
 -- mimics electrostatic force (1/dx^2)
 -- TODO only the centerObjs fn is ported to have the right types + pair f with f'. port the rest too
+{-
 gradRepelInverse :: (Show a, Floating a, Fractional a) => GradFn' a
 gradRepelInverse t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
               where -- TODO NaNs galore
@@ -460,16 +471,17 @@ gradRepelInverse t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
                     dfdx1 = debugF $ -((2*(x1 - x2))/((x1 - x2)^2 + (y1 - y2)^2)^2)
                     dfdx2 = debugXY x1 x2 y1 y2 $ (2 * (x1-x2))/((x1-x2)^2+(y1-y2)^2)^2
                     dfdy1 = -((2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2)
-                    dfdy2 = (2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2
+                    dfdy2 = (2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2 -}
 
 -- The "center and repel" function from earlier summed the centerObjs function and the repelInverse
--- function above using stepObjFn as. I'm still debugging BTLS for one objective function, so
+-- function above using stepObj Fn as. I'm still debugging BTLS for one objective function, so
 -- I rolled the obj-fn-adding functionality back. TODO reimplement it
 
-doNothing :: Floating a => GradFn' a -- for debugging
-doNothing t x1 x2 y1 y2 = (t, 0, 0, 0, 0)
+doNothing :: Floating a => Vec4 a -> a
+doNothing (x1, x2, y1, y2) = 0
 
 ------ Old code relating to the objective function to either center a label 
+{-
 -- or position it right outside a set. (The types are obsolete.)
 --- Parameters specific to cubicCenterOrRadius
 eps :: Floating a => a
@@ -539,3 +551,4 @@ parabola' t x = x - t * 2 * x
 
 neg_parabola' :: Floating a => Time a -> a -> a
 neg_parabola' t x = x + t * 2 * x
+-}
