@@ -370,8 +370,8 @@ objFn1 :: Floating a => Vec4 a -> a
 objFn1 = centerObjs
 
 objFn2 = doNothing -- TODO repelInverse
-gradFn1 = gradCenterObjs
-btls = False -- TODO test
+-- gradFn1 = gradCenterObjs
+btls = True
 
 stopEps :: Floating a => a
 stopEps = 0.4
@@ -426,29 +426,83 @@ timeAndGrad f t (x1, x2, y1, y2) = (timestep, gradEval)
                   gradEvalV = toV gradEval
                   -- Use line search to find a good timestep.
                   timestep = if not btls then 100 * t else -- use a fixed timestep for debugging
+                                    -- centerObjs uses 100 * t
                              backtrackingLineSearch f gradEvalV (negated gradEvalV) (V4 x1 x2 y1 y2)
                   -- Hardcodes descent direction to be the negated evaluated gradient vector
                   -- but we could use a different descent direction if desired
+                         -- note: descent direction need not have unit norm
                          -- TODO are we using the timestep?
-                         -- TODO normalize the gradient
 
--- Parameters for line search
+-- Parameters for Armijo-Wolfe line search
+-- NOTE: must maintain 0 < c1 < c2 < 1
+c1 :: Floating a => a
+c1 = 0.3 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
+-- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
+
+c2 :: Floating a => a
+c2 = 0.5 -- for Wolfe, is the factor decrease needed in derivative value
+-- new directional derivative value / old DD value <= c2
+-- smaller c2 = smaller new derivative value = harder to satisfy
+
+{-
+awls f duf x0 u =
+     head $ dropWhile (not $ armijoAndWolfeSatisfied) $ iterate update (a0, b0, t0)
+          where (a0, b0, t0) = (0, infinity, 1)
+                update (a, b, t) =
+                       let (a', b', t') = if not $ armijo t then (a, b, b)  
+                                          else if not $ wolfe t then (a, b, a)
+                                          else (a, b, t) in -- TODO is this ok?
+                       if b != infinity then (a, b, a + b / 2)
+                       else (a, b, 2 * a)
+                armijoAndWolfeSatisfied (a, b, t) = armijo t && wolfe t
+                -- TODO factor out armijo from btls too? they don't need a and b, i think
+                -- TODO how to compute f? if u = gradient, then du = grad^2, and duf = gradient?
+                -- TODO fix vectors
+                armijo a b t = f (x0 +. t *. u) <= f x0 + c1 * t * duf x0 -- uses: f, x0, u, duf; c1
+                wolfe a b t = norm (duf (x0 + t * u) < c2 * norm (duf x0) -- uses: duf, x0, u; c2
+-}
+
+-- Implements Armijo-Wolfe line search as specified in Keenan's notes, converges on nonconvex fns as well
+-- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods", page TODO
+-- TODO summarize algorithm
+awLineSearch :: (Show a, Floating a, Ord a) => (forall a . Floating a => Vec4 a -> a)
+                                            -> V4' Double -> V4' Double -> V4' Double -> Double
+awLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
+                       head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
+                       where -- f(x + tu) still lies above the shallow line specified by alpha
+                             timestepTooLarge t = traceShowId $
+                                  ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir)))) > (debugF $ minFnVal t))
+                             minFnVal t = f (fromV x0) + alpha * t * (gradEval `dot` descentDir)
+
+-- TODO
+  -- port Vec4a to V4' or to List
+  -- implement new line search and
+  -- add new objective function and test it
+  -- respond in slack
+------
+
+-- Parameters for backtracking line search
 alpha :: Floating a => a
 alpha = 0.4 -- \in (0, 0.5): fraction of decrease in f predicted by lin. extrapolation that we will accept
-  -- or, increase in shallowness of slope
+  -- or, fraction by which we multiply the original slope (gradient)
 beta :: Floating a => a
 beta = 0.3 -- \in (0, 1): btls reduces step size by beta for each failed iteration
+           -- higher beta = more granular and slower search
 -- TODO why is the step size always the same except for the end, where it's 1 (1 makes sense--at minimum)
+t0 :: Floating a => a
+t0 = 1  -- inital t specified by algo, decreases by beta each iteration
 
 -- Implements algorithm specified in Boyd. Only works for convex functions (e.g. centerObjs is convex)
+-- This is line search with only the Armijo condition.
 -- TODO fix the conversions between Vec4 a and V4' a 
+-- vector docs: https://hackage.haskell.org/package/linear-1.20.5/docs/Linear-Vector.html
 backtrackingLineSearch :: (Show a, Floating a, Ord a) => (forall a . Floating a => Vec4 a -> a)
                                             -> V4' Double -> V4' Double -> V4' Double -> Double
 backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                        head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
-                       where t0 = 1 -- inital t specified by algo, decreases by beta each iteration
-                             -- f(x + tu) still lies above the shallow line specified by alpha
-                             timestepTooLarge t = traceShowId $ ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir))))> (debugF $ minFnVal t))
+                       where -- f(x + tu) still lies above the shallow line specified by alpha
+                             timestepTooLarge t = traceShowId $
+                                  ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir)))) > (debugF $ minFnVal t))
                              minFnVal t = f (fromV x0) + alpha * t * (gradEval `dot` descentDir)
 
 ------------- Some sample objective functions.
