@@ -5,6 +5,12 @@
 
 type Time a = a
 
+-- g :: Floating a => a -> Float
+-- g x = x
+
+g' :: Floating a => Float -> a
+g' x = x  
+
 -- f :: (Floating a, Eq a, Ord a, Show a) => Time a -> Float -> Float
 f x y = sqrt $ x^2 + y^2
 

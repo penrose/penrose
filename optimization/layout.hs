@@ -126,11 +126,12 @@ initRng = mkStdGen seed
 
 rad :: Floating a => a
 rad = 100 -- TODO don't hardcode into constant
+clampflag = True -- TODO remove
 clamp1D y = if clampflag then 0 else y
 
 -- Initial state of the world.
 -- TODO randomly sample s0
-initState :: State a
+initState :: (Floating a) => State a
 initState = State { objs = objsInit, down = False, rng = initRng }
           where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
                 -- TODO handle one obj...
@@ -140,7 +141,7 @@ initState = State { objs = objsInit, down = False, rng = initRng }
                 l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
 
 -- divide two integers to obtain a float
-divf :: Int -> Int -> Float
+-- divf :: Int -> Int -> Float
 divf a b = (fromIntegral a) / (fromIntegral b)
 
 pw2 = picWidth `divf` 2
@@ -149,22 +150,23 @@ widthRange = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 
 ------------- The "Style" layer: render the state of the world.
-renderCirc :: Circ a -> Picture
+renderCirc :: (Floating a) => Circ a -> Picture
 renderCirc c = color scolor $ translate (xc c) (yc c) $ circle (r c)
            where scolor = if selected c then green else light violet
 
-renderLabel :: Label a -> Picture
+{-
+renderLabel :: (Floating a) => Label a -> Picture
 renderLabel l = color scolor $ translate (xl l) (yl l) $ scale 0.2 0.2 $ text (textl l)
             where scolor = if selected l then green else light violet
 
-renderObj :: Obj a -> Picture
+renderObj :: (Floating a) => Obj a -> Picture
 renderObj (C circ) = renderCirc circ
 renderObj (L label) = renderLabel label
 
-picOfState :: State a -> Picture
+picOfState :: (Floating a) => State a -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
-picOf :: State a -> Picture
+picOf :: (Floating a) => State a -> Picture
 picOf s = Pictures [picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
@@ -186,7 +188,7 @@ crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drop gens
 
 -- randomly sample location
 -- TODO deal with circle and label separately, and take into account bbox
-sampleCoord :: Located b => RandomGen g => g -> b a -> (a, g)
+sampleCoord :: (Floating a, Located b) => RandomGen g => g -> b a -> (a, g)
 sampleCoord gen o = (setX x' $ setY (clamp1D y') o, gen2)
         where (x', gen1) = randomR widthRange gen
               (y', gen2) = randomR heightRange gen1
@@ -199,12 +201,12 @@ stateMap gen f (x:xs) = let (x', gen') = f gen x in
                         (x' : xs', gen'')
 
 -- sample a state
-genState :: RandomGen g => [Obj a] -> g -> ([Obj a], g)
+genState :: (Floating a, RandomGen g) => [Obj a] -> g -> ([Obj a], g)
 genState shapes gen = stateMap gen sampleCoord shapes
 
 -- sample entire state at once until constraint is satisfied
 -- TODO doesn't take into account pairwise constraints or results from objects sampled first, sequentially
-sampleConstrainedState :: RandomGen g => g -> [Obj a] -> ([Obj a], g)
+sampleConstrainedState :: (Floating a, RandomGen g) => g -> [Obj a] -> ([Obj a], g)
 sampleConstrainedState gen shapes = (state', gen')
        where (state', gen') = crop constraint states
              states = genMany gen (genState shapes)
@@ -213,22 +215,23 @@ sampleConstrainedState gen shapes = (state', gen')
 -- Whenever the library receives an input event, it calls "handler" with that event
 -- and the current state of the world to handle it.
 
+bbox :: Floating a => a
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
-dist :: Point -> Point -> Float -- distance
+-- dist :: Point -> Point -> Float -- distance
 dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
 
 -- hardcode bbox of label at the center
 -- TODO properly get bbox; rn text is centered at bottom left
-inObj :: (Float, Float) -> Obj a -> Bool
+-- inObj :: (Floating a) => (Float, Float) -> Obj a -> Bool
 inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 
 -- TODO "in object" tests
 -- TODO press key to gradient descent step
 -- for more on these constructors, see docs: https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html
-handler :: Event -> State a -> State a
+handler :: (Floating a) => Event -> State a -> State a
 handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
         s { objs = objsFirstSelected, down = True }
         -- so that clicking doesn't select all overlapping objects in bbox
@@ -266,10 +269,10 @@ handler _ s = s
 
 -- Clamp objects' positions so they don't go offscreen.
 -- TODO clamp needs to take into account bbox of object
-clampX :: Float -> Float
+-- clampX :: Float -> Float
 clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 
-clampY :: Float -> Float
+-- clampY :: Float -> Float
 clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 
 -- TODO hack so I don't have to deal with pairwise derivatives of an arbitrary-length list. 
@@ -292,7 +295,7 @@ noOverlapPair c1 c2 = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
 
 -- return true iff satisfied
 -- TODO deal with labels and more than two objects
-noOverlap :: [Obj a] -> Bool
+noOverlap :: (Floating a) => [Obj a] -> Bool
 noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair c2 c3 && noOverlapPair c1 c3
 -- noOverlap _ _ = True
 
@@ -309,6 +312,19 @@ toV (x1, x2, y1, y2) = V4 x1 x2 y1 y2
 
 fromV :: V4' a -> Vec4 a
 fromV (V4 x1 x2 y1 y2) = (x1, x2, y1, y2)
+
+-- Flags for debugging the surrounding functions.
+stepFlag = True
+clampflag = False
+debug = True
+constraintFlag = False
+btls = True
+
+{-
+-- TODO put these back together with the above
+objFn1 = centerObjs
+objFn2 = doNothing -- TODO repelInverse
+gradFn1 = gradCenterObjs
 
 -------- Step the world by one timestep (provided by the library).
 step :: Floating a => Time a -> State a -> State a
@@ -349,16 +365,6 @@ stepObjsPairwise t (o1, o2) = objs'
               -- keep objects on canvas
               objs' = (setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2)
               -- update object positions
-
--- Flags for debugging the surrounding functions.
-stepFlag = True
-clampflag = False
-debug = True
-constraintFlag = False
-objFn1 = centerObjs
-objFn2 = doNothing -- TODO repelInverse
-gradFn1 = gradCenterObjs
-btls = True
 
 stopEps :: Floating a => a
 stopEps = 0.4
@@ -551,4 +557,6 @@ parabola' t x = x - t * 2 * x
 
 neg_parabola' :: Floating a => Time a -> a -> a
 neg_parabola' t x = x + t * 2 * x
+-}
+-}
 -}
