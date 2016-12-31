@@ -11,6 +11,7 @@ import Linear.V4
 import Linear.Metric
 import Linear.Vector
 import Numeric.AD
+import GHC.Float -- float <-> double conversions
 
 main = play
        (InWindow "optimization-based layout" -- display mode, window name
@@ -23,7 +24,7 @@ main = play
        handler                 -- fn to handle input events
        step                    -- step the world one iteration; passed period of time (in secs) to be advanced
 
-picWidth :: Int 
+picWidth :: Int
 picWidth = 800
 
 picHeight :: Int
@@ -136,8 +137,12 @@ initState = State { objs = objsInit, down = False, rng = initRng }
 divf :: Int -> Int -> Float
 divf a b = (fromIntegral a) / (fromIntegral b)
 
+pw2 :: Float
 pw2 = picWidth `divf` 2
+
+ph2 :: Float
 ph2 = picHeight `divf` 2
+
 widthRange = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 
@@ -255,15 +260,17 @@ handler (EventKey (Char 'r') Up _ _) s =
 handler _ s = s
 
 ----------- Stepping the state the world via gradient descent.
--- First, miscellaneous helper functions.
+ -- First, miscellaneous helper functions.
 
 -- Clamp objects' positions so they don't go offscreen.
 -- TODO clamp needs to take into account bbox of object
-clampX :: Float -> Float
-clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
+clampX :: Double -> Double
+clampX x = if x < -pw2' then -pw2' else if x > pw2' then pw2' else x
+           where pw2' = float2Double pw2
 
-clampY :: Float -> Float
-clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
+clampY :: Double -> Double
+clampY y = if y < -ph2' then -ph2' else if y > ph2' then ph2' else y
+           where ph2' = float2Double ph2
 
 -- TODO hack so I don't have to deal with pairwise derivatives of an arbitrary-length list. 
 firstTwo :: [a] -> (a, a)
@@ -291,7 +298,8 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 
 -- Type aliases for shorter type signatures.
 type GradFn' a = Time -> a -> a -> a -> a -> (Time, a, a, a, a) -- old type
-type Time = Float
+type TimeInit = Float
+type Time = Double
 type Vec4 a = (a, a, a, a) -- TODO use V4
 type V4' a = V4 a
 type ObjFn a = Vec4 a -> a
@@ -306,13 +314,17 @@ fromV (V4 x1 x2 y1 y2) = (x1, x2, y1, y2)
 listOf (a, b, c, d) = [a, b, c, d]
 vecOf [a, b, c, d] = (a, b, c, d) -- incomplete pattern match
 
+tupMap f (a, b, c, d) = (f a, f b, f c, f d) 
+
 -------- Step the world by one timestep (provided by the library).
-step :: Floating a => Time -> State -> State
+-- gloss operates on floats, but the optimization code should be done with doubles, so we
+-- convert float to double for the input and convert double to float for the output.
+step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging 
-            if stepFlag then s { objs = stepObjs t (objs s), down = down s} else s
+            if stepFlag then s { objs = stepObjs (float2Double t) (objs s), down = down s} else s
 
 -- Given the time, position, and evaluated directional derivative at the point, return the new position.
-stepT :: Time -> Float -> Float -> Float
+stepT :: Time -> Double -> Double -> Double
 stepT dt x dfdx = x - dt * dfdx
 
 -- This function is here to remind me to generalize the objects (currently hard-coded to 2 objects)
@@ -335,13 +347,14 @@ stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
 -- step only if the constraint on the state is satisfied
 -- the state will be stuck if the constraint starts out unsatisfied. 
 -- TODO let GD attempt to satisfy constraint
+-- note the float <-> double conversions
 stepObjsPairwise :: Time -> (Obj, Obj) -> (Obj, Obj)
 stepObjsPairwise t (o1, o2) = objs'
-        where (x1, y1, x2, y2) = (getX o1, getY o1, getX o2, getY o2)
+        where (x1, y1, x2, y2) = tupMap float2Double (getX o1, getY o1, getX o2, getY o2)
               -- extract the locations of the two objs, ignoring size
               (x1', x2', y1', y2') = stepWithObjective t x1 x2 y1 y2
               -- get new positions. objective function is a global param
-              (x1'c, x2'c, y1'c, y2'c) = (clampX x1', clampX x2', clampY y1', clampY y2')
+              (x1'c, x2'c, y1'c, y2'c) = tupMap double2Float (clampX x1', clampX x2', clampY y1', clampY y2')
               -- keep objects on canvas
               objs' = (setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2)
               -- update object positions
@@ -367,8 +380,7 @@ stopEps = 0.4
 -- Calculates the new state by calculating the directional derivatives (via autodiff) 
 -- and timestep (via line search), then using them to step the current state.
 -- TODO why isn't the magnitude of the gradient changing with btls?
-
-stepWithObjective :: Time -> Float -> Float -> Float -> Float -> (Float, Float, Float, Float)
+stepWithObjective :: Time -> Double -> Double -> Double -> Double -> Vec4 Double
 stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfdy2) then
                                      trace "STOP" (x1, x2, y1, y2) 
                                   else (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
@@ -407,14 +419,15 @@ appGradV f v = vecOf $ appGrad (listVersionOf f) (listOf v)
 -- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 timeAndGrad :: (Show a, Ord a, Floating a) => (forall a . Floating a => Vec4 a -> a)
-                     -> Time -> (Float, Float, Float, Float) -> (Time, (Float, Float, Float, Float))
+                     -> Time -> Vec4 Double -> (Time, Vec4 Double)
+                     -- TODO type synonym for 4-tuples
 timeAndGrad f t (x1, x2, y1, y2) = (timestep, gradEval)
             where gradEval = appGradV f (x1, x2, y1, y2)
                   gradEvalV = toV gradEval
                   -- Use line search to find a good timestep.
                   timestep = if not btls then 100 * t else -- use a fixed timestep for debugging
                              backtrackingLineSearch f gradEvalV (negated gradEvalV) (V4 x1 x2 y1 y2)
-                  -- hardcodes descent direction to be the negated evaluated gradient vector
+                  -- Hardcodes descent direction to be the negated evaluated gradient vector
                   -- but we could use a different descent direction if desired
                          -- TODO are we using the timestep?
                          -- TODO normalize the gradient
@@ -430,7 +443,7 @@ beta = 0.3 -- \in (0, 1): btls reduces step size by beta for each failed iterati
 -- Implements algorithm specified in Boyd. Only works for convex functions (e.g. centerObjs is convex)
 -- TODO fix the conversions between Vec4 a and V4' a 
 backtrackingLineSearch :: (Show a, Floating a, Ord a) => (forall a . Floating a => Vec4 a -> a)
-                                            -> V4' Float -> V4' Float -> V4' Float -> Float
+                                            -> V4' Double -> V4' Double -> V4' Double -> Double
 backtrackingLineSearch f gradEval descentDir x0 = msgTrace "timestep: " $
                        head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
                        where t0 = 1 -- inital t specified by algo, decreases by beta each iteration
