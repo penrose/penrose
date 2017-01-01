@@ -128,7 +128,7 @@ initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
           where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
                 -- TODO handle one obj...
-                c1 = C $ Circ { xc = -100, yc = clamp1D 100, r = rad, selc = False }
+                c1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
                 c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-50, selc = False }
                 c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad+50, selc = False }
                 l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
@@ -460,27 +460,28 @@ isInfinity x = (x == infinity)
 -- duf = D_u(f), the directional derivative of f at descent direction u
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
--- TODO input duf from timeAndGrad
 awLineSearch :: ObjFn a -> (forall a . Floating a => V4 a -> a) -> V4 Double -> V4 Double -> Double
 awLineSearch f duf descentDir x0 = -- results after a&w are satisfied are junk and can be discarded
      let (af, bf, tf) = head $ dropWhile (not . armijoAndWolfeSatisfied) $ iterate update (a0, b0, t0) in
      tf
           where (a0, b0, t0) = (0, infinity, 1)
                 update (a, b, t) =
-                       let (a', b') = if not $ armijo t then (a, t)
-                                      else if not $ wolfe t then (t, b)
+                       let (a', b') = if not $ armijo t then msgTrace "not armijo" (a, t)
+                                      else if not $ weakWolfe t then msgTrace "not wolfe" (t, b)
+                                       -- remember to change both wolfes
                                       else (a, b) in -- the first time a&w are sat, we use that (a,b,t)
-                       if b' < infinity then (a', b', a' + b' / 2)
-                       else (a', b', 2 * a')
-                armijoAndWolfeSatisfied (a, b, t) = armijo t && wolfe t
+                       if b' < infinity then msgTrace "b < infinity" (a', b', (a' + b') / 2)
+                       else msgTrace "b = infinity" (a', b', 2 * a')
+                armijoAndWolfeSatisfied (a, b, t) = armijo t && weakWolfe t
                 -- TODO factor out armijo from btls too? they don't need a and b, i think
                 armijo t = (f $ fromV (x0 ^+^ t *^ descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
-                wolfe t = abs (duf (x0 ^+^ t *^ descentDir)) <= c2 * abs dufAtx0 -- strong wolfe condition
+                strongWolfe t = abs (duf (x0 ^+^ t *^ descentDir)) <= c2 * abs dufAtx0
+                weakWolfe t = duf (x0 ^+^ t *^ descentDir) >= c2 * dufAtx0
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
                 fAtx0 = f (fromV x0)
 
 -- TODO
-  -- debug current non-termination
+  -- debug current non-termination (a,b,t converge to same number?)
   -- weak or strong wolfe? ask on slack
   -- port Vec4a to V4 or to List
   -- add new objective functions (repel, centerAndRepel, cubicCenter) and test them
