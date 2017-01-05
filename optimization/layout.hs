@@ -500,9 +500,9 @@ awLineSearch f duf_noU descentDir x0 =
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => Vec4 a -> a
-objFn1 = centerAndRepelAdd
+objFn1 = centerObjsNoSqrt
 
-objText = "objective: center each + repel from each other (repel weighted with 10^10)"
+objText = "objective: center both (no sqrt used)"
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
