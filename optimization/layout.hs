@@ -119,7 +119,7 @@ initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
 rad :: Floating a => a
-rad = 100 -- TODO don't hardcode into constant
+rad = 200 -- TODO don't hardcode into constant
 clamp1D y = if clampflag then 0 else y
 
 -- Initial state of the world.
@@ -129,7 +129,7 @@ initState = State { objs = objsInit, down = False, rng = initRng }
           where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
                 -- TODO handle one obj...
                 c1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
-                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-50, selc = False }
+                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-100, selc = False }
                 c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad+50, selc = False }
                 l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
 
@@ -298,6 +298,7 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 -- noOverlap _ _ = True
 
 -- Type aliases for shorter type signatures.
+-- TODO: port Vec4a to V4 or to List
 type GradFn' a = Time -> a -> a -> a -> a -> (Time, a, a, a, a) -- old type
 type TimeInit = Float
 type Time = Double
@@ -409,8 +410,10 @@ appGradV :: Floating a => (forall a . Floating a => Vec4 a -> a) -> Vec4 a -> Ve
 appGradV f v = vecOf $ appGrad (listVersionOf f) (listOf v)
          where listVersionOf f = f . vecOf
 
+removeNaN' :: (RealFloat a, Floating a) => a -> a
 removeNaN' x = if isNaN x then 0 else x
 
+removeNaN :: (RealFloat a, Floating a) => Vec4 a -> Vec4 a
 removeNaN = tupMap removeNaN'
 
 -- Given the objective function, gradient function, timestep, and current state,
@@ -419,7 +422,7 @@ removeNaN = tupMap removeNaN'
 -- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
-timeAndGrad :: ObjFn a -> Time -> Vec4 Double -> (Time, Vec4 Double)
+timeAndGrad :: Floating a => ObjFn a -> Time -> Vec4 Double -> (Time, Vec4 Double)
 timeAndGrad f t (x1, x2, y1, y2) = (timestep, gradEval)
             where gradF :: Floating a => Vec4 a -> Vec4 a
                   gradF = appGradV f
@@ -427,70 +430,29 @@ timeAndGrad f t (x1, x2, y1, y2) = (timestep, gradEval)
                   gradEvalV = toV gradEval
                   -- Use line search to find a good timestep.
                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
+                  descentDir = negated gradEvalV
+                  timestep :: Time
                   timestep = if not linesearch then t / 100 else -- use a fixed timestep for debugging
-                             let resT = awLineSearch f duf (negated gradEvalV) (V4 x1 x2 y1 y2) in
+                             let resT = awLineSearch f duf descentDir (V4 x1 x2 y1 y2) in
                              if isNaN resT then tr "t returned NaN" 0 else resT
-                  -- directional derivative at u, where u is the gradient (see desc. of awLineSearch)
-                  duf :: Floating a => V4 a -> a
-                  duf (V4 a b c d) = - ((toV $ gradF (a, b, c, d)) `dot` (toV $ gradF (a, b, c, d)))
-                  -- Hardcodes descent direction to be the negated evaluated gradient vector
-                  -- but we could use a different descent direction if desired
-                         -- note: descent direction need not have unit norm
-                         -- TODO are we using the timestep?
-
----------- Debugging A-W line search
-{- Results
-- for obj fns minx1, centerObjnoSqrt, and centerObjsNoSqrt, gradient descent seems to work instantly WITH dragging. it even works for repelInverse WITH 2 objs and dragging and clamping
-- WITHOUT adjusting timestep for any of them!
-- same problem for sqrt $ x1^2
-- does it work for centerAndRepelAdd? with weight=0, it only centers, and when resampled, can freeze. with weight=1000 (for example), it freezes
-  - w/o linesearch: NaN problems and with weight=0 just centers them (how to weight?)
-- or cubicCenterAndRadius? does work w/o linesearch
-  - w/o linesearch: works some of the time, but some of the time freezes
-- with interval discarding and ls: cubicCenterOrRadius seems to work
-  - actually, all functions seem to work "most" of the time--objs are not getting stuck--but they are disappearing?? replaced NaN with 0 and things seem okay visually
-
-Questions
-- Why are (a,b,t) converging to the same number? (Interval shrinking to 0--can't satisfy conditions?)
-- Why that number? 
-- Does it do that over all parameters?
-- Why does it start with armijo and not wolfe, boomerang between the two, and get stuck on not wolfe?
-- Can I use a library to do this?
-- Can I compare to someone else's implementation? 
-  This looks almost exactly the same as https://hackage.haskell.org/package/optimization-0.1.7/docs/src/Optimization-LineSearch.html#wolfeSearch
-  But the update function is different (they only iterate (* gamma) on t)
-
-Things that could be going wrong:
-- weak Wolfe vs. strong Wolfe
-- choice of parameters c1, c2
-- choice of function (center two objects)
-- choice of initial state x0
-- arithmetic mistyped or logic error
-- error in choice of directional derivative or search direction
-- no implementation error; math is just wrong
-
--- Things to try: 
-- print the state, duf, descent direction, and state at each iteration
-- and hand-evaluate it
-- compare to output from normal gradient descent?
-- reread the algorithm and try to understand weak Wolfe
-- get f, df, armijo, wolfe in the REPL
-- try finding a point on the function where A&W are already satisfied and seeing how the code responds
-- also try the simpler functions (centerObj, or even simpler ones like minimizing x) X
-- failure due to sqrt? no, fails on other fns too sometimes
-- hardcode stopping if failed to find point
--}
+                  -- directional derivative at u, where u is the negated gradient in awLineSearch
+                  -- descent direction need not have unit norm
+                  -- we could also use a different descent direction if desired
+                  duf :: Floating a => V4 a -> V4 a -> a
+                  duf u (V4 a b c d) = (toV $ gradF (a, b, c, d)) `dot` u
 
 -- Parameters for Armijo-Wolfe line search
 -- NOTE: must maintain 0 < c1 < c2 < 1
 c1 :: Floating a => a
-c1 = 0.3 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
+c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
 -- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
+-- turn Armijo off: c1 = 0
 
 c2 :: Floating a => a
-c2 = 0.5 -- for Wolfe, is the factor decrease needed in derivative value
+c2 = 0.6 -- for Wolfe, is the factor decrease needed in derivative value
 -- new directional derivative value / old DD value <= c2
 -- smaller c2 = smaller new derivative value = harder to satisfy
+-- turn Wolfe off: c1 = 1 (basically backatracking line search onlyl
 
 infinity :: Floating a => a
 infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
@@ -503,16 +465,17 @@ isInfinity x = (x == infinity)
 -- duf = D_u(f), the directional derivative of f at descent direction u
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
-awLineSearch :: ObjFn a -> (forall a . Floating a => V4 a -> a) -> V4 Double -> V4 Double -> Double
-awLineSearch f duf descentDir x0 =
+awLineSearch :: ObjFn a -> (forall a . Floating a => V4 a -> V4 a -> a) -> V4 Double -> V4 Double -> Double
+awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
      let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
                               $ iterate update (a0, b0, t0) in tf
           where (a0, b0, t0) = (0, infinity, 1)
+                duf = duf_noU descentDir
                 update (a, b, t) =
-                       let (a', b', sat) = if not $ armijo t then tr "** not armijo" (a, t, False)
-                                           else if not $ weakWolfe t then tr "** not wolfe" (t, b, False)
+                       let (a', b', sat) = if not $ armijo t then tr "not armijo" (a, t, False)
+                                           else if not $ weakWolfe t then tr "not wolfe" (t, b, False)
                                            -- remember to change both wolfes
                                            else (a, b, True) in
                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
@@ -520,53 +483,27 @@ awLineSearch f duf descentDir x0 =
                        else tr "b' = infinity" (a', b', 2 * a')
                 intervalOK_or_notArmijoAndWolfe (a, b, t) = not $
                       if armijo t && weakWolfe t then tr "stop: both sat" True -- takes precedence
-                      else tr "stop: interval too small" (abs (b - a) < minInterval) -- stop
-                -- TODO factor out armijo from btls too? they don't need a and b, i think
+                      else if abs (b - a) < minInterval then tr "stop: interval too small" True
+                      else False -- could be shorter; long for debugging purposes
                 armijo t = (f $ fromV ((tr "** x0" x0) ^+^ t *^ descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
                 strongWolfe t = abs (duf (x0 ^+^ t *^ descentDir)) <= c2 * abs dufAtx0
-                weakWolfe t = duf ((tr "**x0" x0) ^+^ t *^ (tr "descentDir" descentDir)) >= c2 * dufAtx0          
+                weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
+                          where duf_x_tu = tr "Duf(x + tu)" (duf (x0 ^+^ t' *^ descentDir'))
+                                t' = tr "t" t
+                                descentDir' = tr "descentDir" descentDir
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
                 fAtx0 = f (fromV x0)
-                minInterval = 10 ** (-5) -- stop if the interval gets too small; might not terminate
-
--- TODO
-  -- debug current non-termination (a,b,t converge to same number?)
-  -- weak or strong wolfe? ask on slack
-  -- port Vec4a to V4 or to List
-  -- add new objective functions (repel, centerAndRepel, cubicCenter) and test them
-  -- standardize btls to have the same type signature
-------
-
--- Parameters for backtracking line search
-alpha :: Floating a => a
-alpha = 0.4 -- \in (0, 0.5): fraction of decrease in f predicted by lin. extrapolation that we will accept
-  -- or, fraction by which we multiply the original slope (gradient)
-beta :: Floating a => a
-beta = 0.3 -- \in (0, 1): btls reduces step size by beta for each failed iteration
-           -- higher beta = more granular and slower search
--- TODO why is the step size always the same except for the end, where it's 1 (1 makes sense--at minimum)
-t0 :: Floating a => a
-t0 = 1  -- inital t specified by algo, decreases by beta each iteration
-
--- Implements algorithm specified in Boyd. Only works for convex functions (e.g. centerObjs is convex)
--- This is line search with only the Armijo condition.
--- TODO fix the conversions between Vec4 a and V4 a
--- vector docs: https://hackage.haskell.org/package/linear-1.20.5/docs/Linear-Vector.html
-backtrackingLineSearch :: ObjFn a -> V4 Double -> V4 Double -> V4 Double -> Double
-backtrackingLineSearch f gradEval descentDir x0 = tr "timestep: " $
-                       head $ dropWhile timestepTooLarge $ iterate ((*) beta) t0 -- infinite list
-                       where -- f(x + tu) still lies above the shallow line specified by alpha
-                             timestepTooLarge t = traceShowId $
-                                  ((debugF (f $ fromV ((x0) ^+^ (t *^ descentDir)))) > (debugF $ minFnVal t))
-                             minFnVal t = f (fromV x0) + alpha * t * (gradEval `dot` descentDir)
+                minInterval = if intervalMin then 10 ** (-5) else 0 
+                -- stop if the interval gets too small; might not terminate
 
 ------------- Objective functions.
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => Vec4 a -> a
-objFn1 = centerAndRepelAdd
+objFn1 = cubicCenterOrRadius
 
 linesearch = True -- TODO move these parameters back
+intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
 
 -- simple test function
 minx1 :: ObjFn a -- timestep t
@@ -586,51 +523,17 @@ centerx1Sqrt (x1, x2, y1, y2) = sqrt $ x1^2
 centerObj :: ObjFn a -- with sqrt
 centerObj (x1, x2, y1, y2) = sqrt $ x1^2 + y1^2
 
--- TODO: gradients are now obsolete
-gradCenterObj :: GradFn a
-gradCenterObj (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
-              where dfdx1 = 2 * x1
-                    dfdx2 = 0
-                    dfdy1 = 2 * y2
-                    dfdy2 = 0
-
 -- center both objects (2 objects hardcoded; TODO handle arbitrary numbers of them)
 centerObjs :: ObjFn a -- timestep 100 * t
 centerObjs (x1, x2, y1, y2) = sqrt (x1^2 + y1^2) + sqrt (x2^2 + y2^2)
 
--- gradient of 'f(x1, x2, y1, y2) =  sqrt(x1^2 + y1^2) + sqrt(x2^2+y2^2)'
--- evaluated at x1 x2 y1 y2
-gradCenterObjs :: GradFn a
-gradCenterObjs (x1, x2, y1, y2) = (dfdx1, dfdx2, dfdy1, dfdy2)
-              where dfdx1 = x1 / sqrt(x1^2 + y1^2)
-                    dfdx2 = {-debugXY x1 x2 y1 y2 $-} x2 / sqrt(x2^2 + y2^2)
-                    dfdy1 = y1 / sqrt(x1^2 + y1^2)
-                    dfdy2 = y2 / sqrt(x2^2 + y2^2)
-              -- TODO just step one object for now
-
 -- repel two objects
-repelInverse :: ObjFn a -- line search seems okay with asymptotes
+repelInverse :: ObjFn a
 repelInverse (x1, x2, y1, y2) = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
 
--- TODO how to weight this properly?
+-- this works really nicely with A-W line search!
 centerAndRepelAdd :: ObjFn a -- timestep t
-centerAndRepelAdd s = centerObjsNoSqrt s + 10000000 * repelInverse s
-
--- gradient of 'f(x1, x2, y1, y2) = 1/((x1 - x2)^2 + (y1 - y2)^2)'
--- mimics electrostatic force (1/dx^2)
--- TODO only the centerObjs fn is ported to have the right types + pair f with f'. port the rest too
-gradRepelInverse :: (Show a, Floating a, Fractional a) => GradFn' a
-gradRepelInverse t x1 x2 y1 y2 = (t', dfdx1, dfdx2, dfdy1, dfdy2)
-              where -- TODO NaNs galore
-                    t' = t * 10^10
-                    dfdx1 = debugF $ -((2*(x1 - x2))/((x1 - x2)^2 + (y1 - y2)^2)^2)
-                    dfdx2 = debugXY x1 x2 y1 y2 $ (2 * (x1-x2))/((x1-x2)^2+(y1-y2)^2)^2
-                    dfdy1 = -((2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2)
-                    dfdy2 = (2 * (y1-y2))/((x1-x2)^2+(y1-y2)^2)^2
-
--- The "center and repel" function from earlier summed the centerObjs function and the repelInverse
--- function above using stepObjFn as. I'm still debugging BTLS for one objective function, so
--- I rolled the obj-fn-adding functionality back. TODO reimplement it
+centerAndRepelAdd s = centerObjsNoSqrt s + (10 ** 10) * repelInverse s
 
 doNothing :: ObjFn a -- for debugging
 doNothing (x1, x2, y1, y2) = 0
@@ -646,5 +549,6 @@ c2' = rad + eps'
 eps' :: Floating a => a
 eps' = 60 -- why is this 100??
 
-cubicCenterOrRadius :: ObjFn a
+-- TODO still some nontermination in A-W ls when circles to corner/side
+cubicCenterOrRadius :: ObjFn a 
 cubicCenterOrRadius (x1, x2, y1, y2) = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
