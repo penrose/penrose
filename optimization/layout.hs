@@ -167,7 +167,7 @@ picOf s = Pictures [picOfState s, objectiveTxt]
     where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
-                         $ text "objective: get close to the center"
+                         $ text objText
 
 ------- Sampling the state subject to a constraint. Currently not used since we are doing unconstrained optimization.
 
@@ -283,7 +283,7 @@ debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ s
 
 -- To send output to a file, do ./EXECUTABLE 2> FILE.txt
 tr :: Show a => String -> a -> a
-tr s x = trace "---" $ trace s $ traceShowId x -- prints in left to right order
+tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 -- These functions are now obsolete, since we aren't doing constrained optimization.
 -- Still, they might be useful later.
@@ -364,7 +364,7 @@ stepObjsPairwise t (o1, o2) = objs'
 -- Flags for debugging the surrounding functions.
 stepFlag = True
 clampflag = False
-debug = True
+debug = False
 constraintFlag = False
 
 objFn2 = doNothing -- TODO repelInverse
@@ -500,7 +500,9 @@ awLineSearch f duf_noU descentDir x0 =
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => Vec4 a -> a
-objFn1 = cubicCenterOrRadius
+objFn1 = centerAndRepelAdd
+
+objText = "objective: center each + repel from each other (repel weighted with 10^10)"
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
@@ -533,7 +535,8 @@ repelInverse (x1, x2, y1, y2) = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
 
 -- this works really nicely with A-W line search!
 centerAndRepelAdd :: ObjFn a -- timestep t
-centerAndRepelAdd s = centerObjsNoSqrt s + (10 ** 10) * repelInverse s
+centerAndRepelAdd s = centerObjsNoSqrt s + weight * repelInverse s
+                   where weight = 10 ** 10
 
 doNothing :: ObjFn a -- for debugging
 doNothing (x1, x2, y1, y2) = 0
