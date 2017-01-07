@@ -106,16 +106,41 @@ subValidate s = (s == (subPrettyPrint $ subParse s))
 subValidateAll :: [String] -> Bool
 subValidateAll = all subValidate
 
+-- Substance typechecker TODO
+
+-- Substance reference checker
+
 ---------------------------------------
 
 -- Style grammar (relies on the Substance grammar...)
 
 -- Style parser
 
--- Sample Style programs
+-- Sample Style programs and tests
 sty1 = "Line Set Solid 2\nShape Set Circle"
 
--- Pretty-printer for Style AST (TODO)
+-- Pretty-printer for Style AST
+
+-- Style validater
+
+-- Style typechecker
+
+-- Style reference checker
+
+---------------------------------------
+
+-- Take a Substance and Style program, and produce the abstract layout representation
+-- TODO try doing this w/o Style first?
+
+-- Also produce the constraints and objective function
+
+-- Add rendering and interaction info to produce a world state for gloss
+
+---------------------------------------
+
+-- Runtime: layout algorithm picks a smart initial state
+-- then tries to satisfy constraints and minimize objective function, live and interactively
+-- TODO make module for this and optimization code
 
 ---------------------------------------
 
