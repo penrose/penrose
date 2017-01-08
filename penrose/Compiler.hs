@@ -1,4 +1,4 @@
-module Compiler where 
+ module Compiler where 
 -- TODO split this up + do selective export
 
 import System.IO -- read/write to file
@@ -328,10 +328,99 @@ styPrettyPrint s = concat $ intersperse nl $ map styPrettyPrintLine s
   -- e.g. map requires me to draw arrows, don't support direction and priority for now
 -- how many objects I can support, e.g. A -> B -> C -> D requires scaling the size of each obj to fit on canvas
 -- how the optimization code needs to scale up to meet the needs of multiple objects (labels only?)
+-- also, optimization on multiple layouts
 -- how to lay things out w/ constraints only (maybe)
 -- how to apply optimization to the labels & what their obj functions should be
 
 -- TODO finish parser for both, put into Slack tonight w/ description of override, continuousmap1.sub/sty
+
+-- Substance only, circular sets only -> world state
+-- then scale up optimization code to handle any number of sets
+-- then support the Subset constraint only
+-- then add labels and set styles
+subt1 = "Set A"
+subt2 = "Set A\nSet B"
+subt2a = "Set A\nSet B\nSubset A B"
+subt3 = "Set A\nSet B\nSet C"
+subt4 = "Set A\nSet B\nSet C"
+subt4a = "Set A\nSet B\nOpenSet C"
+subt5 = "Set A\nSet B\nOpenSet C\nSubset B C"
+styt1 = "Color Set Blue 50"
+styt2 = "Color Set Blue 50\nLine OpenSet Dotted 1"
+
+-- New type: inner join (?) of Decl with relevant constraint lines and relevant style lines
+-- (only the ones that apply; not the ones that are overridden)
+-- Type: Map Var (Decl, [SubConstraint], [StyLine]) <-- the Var is the object's name (string) in Substance
+-- does this include labels?? it includes overridden labels in StyLine but not labels like Set A -> "A"
+-- for now, assume what about labels? -- are they separate? should they be linked? they all get default style
+  -- make a separate Map Label ObjName ? no, assuming no renaming for now
+-- then we need to write a renderer type: Decl -> (Position, Size) -> [StyLine] -> Picture)
+  -- also (Label -> (Position, Size) -> [StyLine] -> Picture)
+
+-- if we do a demo entirely w/o optimization... is that easier? and how would I do it?
+  -- layout algo (for initial state, at least): randomly place objs (sets, points) w/ no constraints
+  -- or place aligned horizontally so they don't intersect, choose radius as fn of # unconstrained objs?
+  -- for constraints: for any set that's a subset of another, pick a smaller radius & place it inside that set. 
+  -- constraints: same for points (in fact, easier for points)--place it (at r/2, 45 degrees) inside that set
+  -- there's no validation... a point/set could be in multiple sets?? assume not
+  -- at this point we're almost hardcoding the diagram? not necessarily
+  -- TODO actually hardcode the diagram in gloss; seeing the final representation will help
+  -- add'l constraint: all other objects should not intersect. use optimization to maintain exclusion? 
+-- it seems likely that i'll get rid of the opt part for diagrams--might rewrite code instead of using opt code
+
+-- BUT can I use opt for labels, given a fixed diagram state? 
+  -- put all labels in center. set label is attracted to center or just-outside-or-inside border of set,
+  -- point label is attracted to just-outside-point, map label attracted to center
+  -- all labels repulsed from other objects and labels.
+  -- would hardcoding label locations be a bad thing to do?
+  -- creating unconstrained objective fn: f :: DiagramInfo -> LabelInfo -> Label Positions -> Label Positions
+  -- where f info pos = f_attract info pos + f_repel info pos, and each includes the pairwise interactions
+  -- can autodiff deal with this? does this preserve the (forall a. Floating a => [a] -> a) type?
+  -- is the function too complicated for autodiff?
+
+-- TODO simple optimizer type, using state (Position and Size): ??
+  -- optimization fn: put all sets at the center, then use centerAndRepel. how to maintain subset?
+-- the things the optimizer needs to know are Name, Position, Size, SubObjType (which includes names of other objects that this one is linked to, e.g. Map)... (later: needs to know Direction Label Scale AbsPos)
+-- and it updates the Position and possibly the Size
+
+-- TODO how to synthesize the objective functions and constraint functions and implicit constraints?
+-- pairwise interactions? see above
+
+-- Since the compiler and the runtime share the layout representation,
+-- I'm going to re-type it here since the rep may change.
+-- Runtime imports Compiler as qualified anyway, so I can just convert the types again there.
+-- Here: removing selc / sell (selected). Don't forget they should satisfy Located typeclass
+data Circ = Circ { namec :: Float
+                 , xc :: Float
+                 , yc :: Float
+                 , r :: Float
+                 , 
+     }
+
+data Label = Label { xl :: Float
+                   , yl :: Float
+                   , textl :: String
+                   , scalel :: Float }  -- calculate h,w from it
+
+data Obj = C Circ | L Label
+
+defaultRad = 100
+
+declToShape :: SubDecl -> Obj
+declToShape Decl (OS (Set' name setType)) =
+            case setType of
+            Open -> Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
+            Closed -> Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
+            Unspecified -> Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
+declToShape Decl (OP (Pt' name)) = error "Substance -> Layout doesn't support points yet"
+declToShape Decl (OP (Map mapName fromSet toSet)) = error "Substance -> Layout doesn't support maps yet"
+
+toStateWithDefaultStyle :: [SubDecl] -> [Obj]
+toStateWithDefaultStyle decls = map declToShape decls -- should use style
+
+subToLayoutRep :: String -> [Obj] -- this needs to know about the Obj type??
+subToLayoutRep s = let (decls, constrs) = subParse s in
+                   toStateWithDefaultStyle decls
 
 -- Substance + Style typechecker
 

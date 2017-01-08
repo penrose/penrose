@@ -14,16 +14,20 @@ import Linear.Metric
 import Linear.Vector
 import Numeric.AD
 import GHC.Float -- float <-> double conversions
-import Compiler -- TODO limit export/import
+import System.IO
+import System.Environment
+import qualified Compiler as C
+       -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
+       -- TODO limit export/import
 
 main = do
        args <- getArgs
        let (subFile, styFile) = (head args, args !! 1) -- TODO usage
        subIn <- readFile subFile
        styIn <- readFile styFile
-       putStrLn $ subPrettyPrint $ subParse subIn
+       putStrLn $ C.subPrettyPrint $ C.subParse subIn
        putStrLn "--------"
-       putStrLn $ styPrettyPrint $ styParse styIn
+       putStrLn $ C.styPrettyPrint $ C.styParse styIn
 
        (play
         (InWindow "optimization-based layout" -- display mode, window name
@@ -402,7 +406,7 @@ stopEps = 10 ** (-10)
 -- TODO why isn't the magnitude of the gradient changing with btls?
 stepWithObjective :: Time -> Double -> Double -> Double -> Double -> Vec4 Double
 stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfdy2) then
-                                     trace "STOP" (x1, x2, y1, y2)
+                                     tr "STOP" (x1, x2, y1, y2)
                                   else (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                         stepT t' y1 dfdy1, stepT t' y2 dfdy2)
                   where (t', (dfdx1, dfdx2, dfdy1, dfdy2)) =
