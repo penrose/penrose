@@ -88,20 +88,20 @@ subToLine s@[w, x, y, z] = LD $ Decl $
 subToLine s = error $ "Substance spec line '" ++ show s ++ "' is not 2, 3, or 4 tokens"
 
 -- Pretty-printer for Substance AST
-subToProg :: SubLine -> String
-subToProg (LD (Decl decl)) = case decl of
+subPrettyPrintLine :: SubLine -> String
+subPrettyPrintLine (LD (Decl decl)) = case decl of
                    OS (Set' name stype) -> case stype of
                                           Open -> "OpenSet " ++ name
                                           Closed -> "ClosedSet " ++ name
                                           Unspecified -> "Set " ++ name
                    OP (Pt' name) -> "Point " ++ name
                    OM (Map' x y z) -> "Map " ++ x ++ " " ++ y ++ " " ++ z
-subToProg (LC constr) = case constr of
+subPrettyPrintLine (LC constr) = case constr of
                      Subset s1 s2 -> "Subset " ++ s1 ++ " " ++ s2
                      PointIn p s -> "In " ++ p ++ " " ++ s
 
 subPrettyPrint :: SubSpec -> String
-subPrettyPrint s = concat $ intersperse "\n" $ map subToProg s
+subPrettyPrint s = concat $ intersperse nl $ map subPrettyPrintLine s
 
 -- if a well-formed program is parsed, its output should equal the original
 subValidate :: String -> Bool
@@ -135,17 +135,17 @@ data PtShape = SolidCirc
 data MapShape = LeftArr | RightArr | DoubleArr
      deriving (Show, Eq)
 
-data Direction = Horiz | Vert | Angle
+data Direction = Horiz | Vert | Angle Float
      deriving (Show, Eq)
 
 data SubShape = SS SetShape | SP PtShape | SM MapShape
      deriving (Show, Eq)
 
 data LineType = Solid | Dotted 
-     deriving (Show, Eq)
+     deriving (Show, Eq, Read)
 
 data Color = Red | Blue | Black | Yellow -- idk
-     deriving (Show, Eq)
+     deriving (Show, Eq, Read)
 
 data M a = Auto | Override a -- short for Maybe (option type)
      deriving (Show, Eq)
@@ -156,9 +156,8 @@ data StyLevel = SubVal String | LabelOfSubVal String | SubType SubObjType | Glob
 -- e.g. it could be named "hello" with Label (SubValue "A") (Override "Hello"). (don't label labels)
 -- then do (Position (LabelOfSubObj "A") 100 200)
 
-type Opacity = Float -- 0 to 100%
+type Opacity = Float -- 0 to 100%, TODO validate
 type Priority' = Float -- higher = higher priority
-type Angle = Float
 
 -- There are three different layers of Style: global setting (over all types), 
 -- type setting (over all values of that type), and value setting. 
@@ -177,8 +176,8 @@ data StyLine = Shape StyLevel (M SubShape) -- implicitly solid unless line is sp
                | Priority StyLevel (M Priority') -- for line breaking
                | Dir StyLevel (M Direction)
                | Label StyLevel (M String)
-               | Size StyLevel (M Float) -- size and position in pixels
-               | AbsPos StyLevel (M Float) (M Float) -- TODO relative positions
+               | Scale StyLevel (M Float) -- scale factor
+               | AbsPos StyLevel (M (Float, Float)) -- in pixels; TODO relative positions
      deriving (Show, Eq)
 
 type StySpec = [StyLine]
@@ -193,14 +192,21 @@ sty1 = "Shape Set Box"
 sty2 = "Shape A Circle"
 sty3 = together [sty0, sty1, sty2] -- test overrides
 sty4 = "Shape Set Circle\nShape Map RightArr\nLine Map Solid"
+sty5 = "Line Map Dotted 5.01"
+sty6 = "Color All Red 66.7"
+sty7 = "Priority Label_AB 10.1"
+sty8 = "Label All hithere"
+sty9 = "Label Label_AB oh_no" -- TODO don't label labels. also allow spaces in labels (strings)
+sty10 = "Direction Map Horizontal"
 -- test all
-sty_all = "Shape Set Circle\nShape Map RightArr\nLine Map Solid\nColor Global Blue 100\nPriority Map 100\nPriority Set 50\nDir Map Horiz\nDir A Vert\nLabel A NewA\nSize A 100\nPosition A -100 501\nColor Label_A Blue 100"
+sty_all = "Shape Set Circle\nShape Map RightArrow\nLine Map Solid Auto\nColor Global Blue 100\nPriority Map 100\nPriority Set 50\nDirection Map Horizontal\nDirection A Vertical\nLabel A NewA\nScale A 100\nPosition A -100 501\nColor Label_A Blue 100"
 -- TODO deal with OpenSet, ClosedSet
 -- TODO write tests of substance working *with* style
 
--- TODO add tests that it should fail
+-- TODO add tests that should fail
 styf1 = "Shape"
 styf2 = "Shape Label_A"
+styf3 = "Line Dotted 5.01"
 
 -- TODO syntactically valid but semantically invalid programs
 styfs1 = "Shape Map Circle"
@@ -236,22 +242,75 @@ getShape [x] = if x == "Auto" then Auto
                else error $ "Invalid shape param '" ++ show x ++ "'"
 getShape s = error $ "Too many style shape params in '" ++ show s ++ "'"
 
+handleAuto :: String -> (String -> a) -> M a
+handleAuto v f = if v == "Auto" then Auto else Override (f v)
+
+readFloat :: String -> Float
+readFloat x = read x :: Float
+
 styToLine :: [String] -> StyLine
 styToLine [] = error "Style spec line is empty"
 styToLine s@[x] = error $ "Style spec line '" ++ show s ++ "' is only 1 token"
-styToLine s@(x : y : xs) = let level = getLevel y in -- throws its own errors
-                           if x == "Shape" then
-                              let shp = getShape xs in
-                              Shape level shp
-                           -- TODO write out the rest of this
-                           else error $ "Style spec line: '" ++ show s
-                                ++ "' does not begin with Shape/Line/Color/Priority/Direction/Label/Size/Position"
+styToLine s@(x : y : xs) =
+          let level = getLevel y in -- throws its own errors
+          if x == "Shape" then
+             let shp = getShape xs in -- TODO handleAuto
+             Shape level shp
+          else if x == "Line" then
+             case xs of
+             [a, b] -> let ltype = handleAuto a (\x -> read x :: LineType) in -- TODO read is hacky, bad errorsn
+                       let lthick = handleAuto b readFloat in
+                       Line level ltype lthick
+             _ -> error $ "Incorrect number of params (not 3) for Line: '" ++ show xs ++ "'"
+          else if x == "Color" then
+               case xs of
+               [a, b] -> let ctype = handleAuto a (\x -> read x :: Color) in
+                         let opacity = handleAuto b readFloat in
+                         Color level ctype opacity
+               _ -> error $ "Incorrect # of params (not 3) for Color: '" ++ show xs ++ "'"
+          else if x == "Priority" then
+               case xs of
+               [a] -> let priority = handleAuto a readFloat in
+                      Priority level priority
+               _  -> error $ "Incorrect number of params (not 2) for Priority: '" ++ show xs ++ "'"
+          else if x == "Direction" then
+               case xs of
+               [a] -> let dir = handleAuto a (\x -> if x == "Horizontal" then Horiz
+                                                    else if x == "Vertical" then Vert
+                                                    else Angle (read x :: Float)) in
+                      Dir level dir
+               _  -> error $ "Incorrect number of params (not 2) for Direction: '" ++ show xs ++ "'"
+          else if x == "Label" then
+               case xs of
+               [a] -> Label level (handleAuto a id) -- label name is a string
+               _  -> error $ "Incorrect number of params (not 2) for Label: '" ++ show xs ++ "'"
+          else if x == "Scale" then
+               case xs of
+               [a] -> let scale = handleAuto a readFloat in
+                      Scale level scale
+               _  -> error $ "Incorrect number of params (not 2) for Scale: '" ++ show xs ++ "'"
+          else if x == "Position" then
+               case xs of
+               [a] -> if a == "Auto" then AbsPos level Auto
+                      else error $ "Only 1 param, but it is not Auto: '" ++ show a ++ "'"
+               [a, b] -> let x' = readFloat a in -- no Auto allowed if two params
+                         let y' = readFloat b in
+                         AbsPos level (Override (x', y'))
+               _  -> error $ "Incorrect number of params (not 2) for Position: '" ++ show xs ++ "'"
+          else error $ "Style spec line: '" ++ show s
+               ++ "' does not begin with Shape/Line/Color/Priority/Direction/Label/Scale/Position"
 
 -- Pretty-printer for Style AST
+-- TODO write the full pretty-printer
+styPrettyPrintLine :: StyLine -> String
+styPrettyPrintLine = show
+
+styPrettyPrint :: StySpec -> String
+styPrettyPrint s = concat $ intersperse nl $ map styPrettyPrintLine s
 
 -- Style validater
 
--- Style typechecker
+-- Style typechecker TODO
 
 -- Style reference checker
 
@@ -295,4 +354,10 @@ subContMapTest = do
        putStrLn $ show $ subParse program
        putStrLn $ show $ subValidate program
 
-main = subContMapTest
+styContMapTest = do
+       args <- getArgs
+       let fileIn = head args
+       program <- readFile fileIn
+       putStrLn $ styPrettyPrint $ styParse program
+
+main = styContMapTest
