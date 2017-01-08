@@ -25,9 +25,21 @@ main = do
        let (subFile, styFile) = (head args, args !! 1) -- TODO usage
        subIn <- readFile subFile
        styIn <- readFile styFile
-       putStrLn $ C.subPrettyPrint $ C.subParse subIn
+
+       let subParsed = C.subParse subIn
+       putStrLn "Parsed Substance program:"
+       putStrLn $ C.subPrettyPrint' subParsed
+
+       let styParsed = C.styParse styIn
        putStrLn "--------"
-       putStrLn $ C.styPrettyPrint $ C.styParse styIn
+       putStrLn "Parsed Style program:"
+       putStrLn $ C.styPrettyPrint styParsed
+
+       let initState = compilerToRuntimeTypes $ C.subToLayoutRep subParsed
+       putStrLn "--------"
+       putStrLn "Intermediate layout representation: TODO"
+       putStrLn "Optimization representation:"
+       putStrLn $ show initState
 
        (play
         (InWindow "optimization-based layout" -- display mode, window name
@@ -79,6 +91,7 @@ data Circ = Circ { xc :: Float
                  , yc :: Float
                  , r :: Float
                  , selc :: Bool } -- is the circle currently selected? (mouse is dragging it)
+     deriving (Eq, Show)
 
 instance Located Circ where
          getX c = xc c
@@ -96,6 +109,7 @@ data Label = Label { xl :: Float
                    , textl :: String
                    , scalel :: Float  -- calculate h,w from it
                    , sell :: Bool } -- selected label
+     deriving (Eq, Show)
 
 instance Located Label where
          getX l = xl l
@@ -108,7 +122,7 @@ instance Selectable Label where
          deselect x = x { sell = False }
          selected x = sell x
 
-data Obj = C Circ | L Label -- | Label | Point | Line // is there a better way to do this?
+data Obj = C Circ | L Label deriving (Eq, Show)
 
 -- is there some way to reduce the top-level boilerplate?
 instance Located Obj where
@@ -140,19 +154,43 @@ instance Selectable Obj where
 data State = State { objs :: [Obj]
                    , down :: Bool -- left mouse button is down (dragging)
                    , rng :: StdGen } -- random number benerator
+     deriving (Show)
+
+------
 
 initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
+objOf :: C.Obj -> Obj
+objOf (C.C circ) = C $ Circ { xc = C.xc circ, yc = C.yc circ, r = C.r circ, selc = False }
+objOf (C.L label) = error "Layout -> Opt doesn't support labels yet"
+
+-- Convert Compiler's abstract layout representation to the types that the optimization code needs.
+compilerToRuntimeTypes :: [C.Obj] -> State
+compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng'}
+                       where (runtimeState', initRng') = genState runtimeState initRng
+                             runtimeState = map objOf compileState
+
 rad :: Floating a => a
 rad = 200 -- TODO don't hardcode into constant
 clamp1D y = if clampflag then 0 else y
 
--- Initial state of the world.
+-- Initial state of the world, reading from Substance/Style input
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
+          where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
+                -- TODO handle one obj... 
+                c1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
+                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-100, selc = False }
+                c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad+50, selc = False }
+                l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
+
+-- Initial state of the world. Hardcoded for testing.
+-- TODO randomly sample s0
+initStateHardcode :: State
+initStateHardcode = State { objs = objsInit, down = False, rng = initRng }
           where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
                 -- TODO handle one obj...
                 c1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
@@ -172,6 +210,7 @@ ph2 = picHeight `divf` 2
 
 widthRange = (-pw2, pw2)
 heightRange = (-ph2, ph2)
+radiusRange = (0, picWidth `divf` 4)
 
 ------------- The "Style" layer: render the state of the world.
 renderCirc :: Circ -> Picture
@@ -209,10 +248,13 @@ crop :: RandomGen g => (a -> Bool) -> [(a, g)] -> (a, g)
 crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drop gens
                 head $ dropWhile (\(x, _) -> not $ cond x) xs -- keep good's gen
 
--- randomly sample location
--- TODO deal with circle and label separately, and take into account bbox
-sampleCoord :: Located a => RandomGen g => g -> a -> (a, g)
-sampleCoord gen o = (setX x' $ setY (clamp1D y') o, gen2)
+-- randomly sample location (for circles and labels) and radius (for circles)
+sampleCoord :: RandomGen g => g -> Obj -> (Obj, g)
+sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
+                    case o of
+                    C circ -> let (r', gen3) = randomR radiusRange gen2 in
+                              (C $ circ { r = r'}, gen3)
+                    L lab -> (o_loc, gen2) -- only sample location
         where (x', gen1) = randomR widthRange gen
               (y', gen2) = randomR heightRange gen1
 
@@ -234,6 +276,7 @@ sampleConstrainedState gen shapes = (state', gen')
        where (state', gen') = crop constraint states
              states = genMany gen (genState shapes)
              -- init state params are ignored; we just need to know what kinds of objects are in it
+
 --------------- Handle user input. "handler" is the main function here.
 -- Whenever the library receives an input event, it calls "handler" with that event
 -- and the current state of the world to handle it.

@@ -106,6 +106,13 @@ subPrettyPrintLine (LC constr) = case constr of
 subPrettyPrint :: SubSpec -> String
 subPrettyPrint s = concat $ intersperse nl $ map subPrettyPrintLine s
 
+-- Ugly pretty-printer for Substance
+subPrettyPrintLine' :: SubLine -> String
+subPrettyPrintLine' = show
+
+subPrettyPrint' :: SubSpec -> String
+subPrettyPrint' s = concat $ intersperse nl $ map subPrettyPrintLine' s
+
 -- if a well-formed program is parsed, its output should equal the original
 subValidate :: String -> Bool
 subValidate s = (s == (subPrettyPrint $ subParse s))
@@ -178,7 +185,7 @@ data StyLine = Shape StyLevel (M SubShape) -- implicitly solid unless line is sp
                | Color StyLevel (M Color) (M Opacity)
                | Priority StyLevel (M Priority') -- for line breaking
                | Dir StyLevel (M Direction)
-               | Label StyLevel (M String)
+               | Label StyLevel (M String) -- TODO add ability to turn off labeling
                | Scale StyLevel (M Float) -- scale factor
                | AbsPos StyLevel (M (Float, Float)) -- in pixels; TODO relative positions
      deriving (Show, Eq)
@@ -390,36 +397,36 @@ styt2 = "Color Set Blue 50\nLine OpenSet Dotted 1"
 -- I'm going to re-type it here since the rep may change.
 -- Runtime imports Compiler as qualified anyway, so I can just convert the types again there.
 -- Here: removing selc / sell (selected). Don't forget they should satisfy Located typeclass
-data Circ = Circ { namec :: Float
+data Circ = Circ { namec :: String
                  , xc :: Float
                  , yc :: Float
-                 , r :: Float
-                 , 
-     }
+                 , r :: Float } 
+     deriving (Eq, Show)
 
-data Label = Label { xl :: Float
+data Label' = Label' { xl :: Float
                    , yl :: Float
                    , textl :: String
                    , scalel :: Float }  -- calculate h,w from it
+     deriving (Eq, Show)
 
-data Obj = C Circ | L Label
+data Obj = C Circ | L Label' deriving (Eq, Show)
 
 defaultRad = 100
 
 declToShape :: SubDecl -> Obj
-declToShape Decl (OS (Set' name setType)) =
+declToShape (Decl (OS (Set' name setType))) =
             case setType of
-            Open -> Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
-            Closed -> Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
-            Unspecified -> Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
-declToShape Decl (OP (Pt' name)) = error "Substance -> Layout doesn't support points yet"
-declToShape Decl (OP (Map mapName fromSet toSet)) = error "Substance -> Layout doesn't support maps yet"
+            Open -> C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
+            Closed -> C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
+            Unspecified -> C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
+declToShape (Decl (OP (Pt' name))) = error "Substance -> Layout doesn't support points yet"
+declToShape (Decl (OM (Map' mapName fromSet toSet))) = error "Substance -> Layout doesn't support maps yet"
 
 toStateWithDefaultStyle :: [SubDecl] -> [Obj]
 toStateWithDefaultStyle decls = map declToShape decls -- should use style
 
-subToLayoutRep :: String -> [Obj] -- this needs to know about the Obj type??
-subToLayoutRep s = let (decls, constrs) = subParse s in
+subToLayoutRep :: SubSpec -> [Obj] -- this needs to know about the Obj type??
+subToLayoutRep spec = let (decls, constrs) = subSeparate spec in
                    toStateWithDefaultStyle decls
 
 -- Substance + Style typechecker
