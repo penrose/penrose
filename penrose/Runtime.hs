@@ -20,26 +20,39 @@ import qualified Compiler as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
 
+divLine = putStr "\n--------\n\n"
+
 main = do
        args <- getArgs
        let (subFile, styFile) = (head args, args !! 1) -- TODO usage
        subIn <- readFile subFile
        styIn <- readFile styFile
+       putStrLn "\nSubstance program:\n"
+       putStrLn subIn
+       divLine
+       putStrLn "Style program:\n"
+       putStrLn styIn
+       divLine
 
        let subParsed = C.subParse subIn
-       putStrLn "Parsed Substance program:"
+       putStrLn "Parsed Substance program:\n"
        putStrLn $ C.subPrettyPrint' subParsed
 
        let styParsed = C.styParse styIn
-       putStrLn "--------"
-       putStrLn "Parsed Style program:"
+       divLine
+       putStrLn "Parsed Style program:\n"
        putStrLn $ C.styPrettyPrint styParsed
 
+       divLine
+       putStrLn "Intermediate layout representation: TODO\n"
+
        let initState = compilerToRuntimeTypes $ C.subToLayoutRep subParsed
-       putStrLn "--------"
-       putStrLn "Intermediate layout representation: TODO"
-       putStrLn "Optimization representation:"
+       divLine
+       putStrLn "Optimization representation:\n"
        putStrLn $ show initState
+
+       divLine
+       putStrLn "Visualizing notation:\n"
 
        (play
         (InWindow "optimization-based layout" -- display mode, window name
