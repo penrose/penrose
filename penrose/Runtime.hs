@@ -23,58 +23,50 @@ import qualified Compiler as C
 divLine = putStr "\n--------\n\n"
 
 main = do
-       args <- getArgs
-       let (subFile, styFile) = (head args, args !! 1) -- TODO usage
-       subIn <- readFile subFile
-       styIn <- readFile styFile
-       putStrLn "\nSubstance program:\n"
-       putStrLn subIn
-       divLine
-       putStrLn "Style program:\n"
-       putStrLn styIn
-       divLine
+     -- Reading in from file
+     -- Objective function is currently hard-coded
+       -- args <- getArgs
+       -- let (subFile, styFile) = (head args, args !! 1) -- TODO usage
+       -- subIn <- readFile subFile
+       -- styIn <- readFile styFile
+       -- putStrLn "\nSubstance program:\n"
+       -- putStrLn subIn
+       -- divLine
+       -- putStrLn "Style program:\n"
+       -- putStrLn styIn
+       -- divLine
 
-       let subParsed = C.subParse subIn
-       putStrLn "Parsed Substance program:\n"
-       putStrLn $ C.subPrettyPrint' subParsed
+       -- let subParsed = C.subParse subIn
+       -- putStrLn "Parsed Substance program:\n"
+       -- putStrLn $ C.subPrettyPrint' subParsed
 
-       let styParsed = C.styParse styIn
-       divLine
-       putStrLn "Parsed Style program:\n"
-       putStrLn $ C.styPrettyPrint styParsed
+       -- let styParsed = C.styParse styIn
+       -- divLine
+       -- putStrLn "Parsed Style program:\n"
+       -- putStrLn $ C.styPrettyPrint styParsed
 
-       divLine
-       putStrLn "Intermediate layout representation: TODO\n"
+       -- divLine
+       -- putStrLn "Intermediate layout representation: TODO\n"
 
-       let initState = compilerToRuntimeTypes $ C.subToLayoutRep subParsed
-       divLine
-       putStrLn "Optimization representation:\n"
-       putStrLn $ show initState
+       -- let initState = compilerToRuntimeTypes $ C.subToLayoutRep subParsed
+       -- divLine
+       -- putStrLn "Optimization representation:\n"
+       -- putStrLn $ show initState
 
-       divLine
-       putStrLn "Visualizing notation:\n"
+       -- divLine
+       -- putStrLn "Visualizing notation:\n"
 
+       -- Running with hardcoded parameters
        (play
         (InWindow "optimization-based layout" -- display mode, window name
-        (picWidth, picHeight)   -- size
-        (10, 10))    -- position
+                  (picWidth, picHeight)   -- size
+                  (10, 10))    -- position
         white                   -- background color
         50                     -- number of simulation steps to take for each second of real time
         initState                   -- the initial world, defined as a type below
         picOf                   -- fn to convert world to a pic
         handler                 -- fn to handle input events
         step)                    -- step the world one iteration; passed period of time (in secs) to be advanced
-
-       -- (play
-       -- (InWindow "optimization-based layout" -- display mode, window name
-       --            (picWidth, picHeight)   -- size
-       --            (10, 10))    -- position
-       -- white                   -- background color
-       -- 50                     -- number of simulation steps to take for each second of real time
-       -- initState                   -- the initial world, defined as a type below
-       -- picOf                   -- fn to convert world to a pic
-       -- handler                 -- fn to handle input events
-       -- step)                    -- step the world one iteration; passed period of time (in secs) to be advanced
 
 picWidth :: Int
 picWidth = 800
@@ -189,6 +181,12 @@ rad :: Floating a => a
 rad = 200 -- TODO don't hardcode into constant
 clamp1D y = if clampflag then 0 else y
 
+rad1 :: Floating a => a
+rad1 = rad-100
+
+rad2 :: Floating a => a
+rad2 = rad+50
+
 -- Initial state of the world, reading from Substance/Style input
 -- TODO randomly sample s0
 initState :: State
@@ -196,8 +194,8 @@ initState = State { objs = objsInit, down = False, rng = initRng }
           where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
                 -- TODO handle one obj... 
                 c1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
-                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-100, selc = False }
-                c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad+50, selc = False }
+                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False }
+                c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
                 l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
 
 -- Initial state of the world. Hardcoded for testing.
@@ -297,7 +295,7 @@ sampleConstrainedState gen shapes = (state', gen')
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
-dist :: Point -> Point -> Float -- distance
+dist :: Floating a => (a, a) -> (a, a) -> a -- distance
 dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
 
 -- hardcode bbox of label at the center
@@ -408,7 +406,7 @@ step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
             if stepFlag then s { objs = stepObjs (float2Double t) (objs s), down = down s} else s
 
--- Given the time, position, and evaluated directional derivative at the point, return the new position.
+-- Given the time, position, and evaluated gradient (or other search direction) at the point, return the new position.
 stepT :: Time -> Double -> Double -> Double
 stepT dt x dfdx = x - dt * dfdx
 
@@ -447,11 +445,10 @@ stepObjsPairwise t (o1, o2) = objs'
 -- Flags for debugging the surrounding functions.
 stepFlag = True
 clampflag = False
-debug = False
+debug = True
 constraintFlag = False
 
 objFn2 = doNothing -- TODO repelInverse
--- gradFn1 = gradCenterObjs
 
 stopEps :: Floating a => a
 stopEps = 10 ** (-10)
@@ -462,13 +459,14 @@ stopEps = 10 ** (-10)
 -- TODO why isn't the magnitude of the gradient changing with btls?
 stepWithObjective :: Time -> Double -> Double -> Double -> Double -> Vec4 Double
 stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfdy2) then
-                                     tr "STOP" (x1, x2, y1, y2)
+                                     tr "STOP. position:" (x1, x2, y1, y2)
                                   else (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
                                         stepT t' y1 dfdy1, stepT t' y2 dfdy2)
                   where (t', (dfdx1, dfdx2, dfdy1, dfdy2)) =
                                      timeAndGrad objFn1 t (x1, x2, y1, y2)
                         -- choose the timestep via backtracking (for now) line search
-                        stoppingCriterion gradEval = (tr "gradient: " $ norm $ tr "grad comp:" $ gradEval) <= stopEps
+                        stoppingCriterion gradEval =
+                                          (tr "gradient norm: " $ norm $ tr "evaluated gradient:" $ gradEval) <= stopEps
 
 -- Generalized version of above that adds the gradient fns. (Currently unused.) Need to generalize to arbirary #s of obj fns.
 -- TODO generalize to add line search to this later
@@ -517,7 +515,7 @@ timeAndGrad f t (x1, x2, y1, y2) = (timestep, gradEval)
                   timestep :: Time
                   timestep = if not linesearch then t / 100 else -- use a fixed timestep for debugging
                              let resT = awLineSearch f duf descentDir (V4 x1 x2 y1 y2) in
-                             if isNaN resT then tr "t returned NaN" 0 else resT
+                             if isNaN resT then tr "returned timestep is NaN" 0 else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
@@ -583,7 +581,7 @@ awLineSearch f duf_noU descentDir x0 =
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => Vec4 a -> a
-objFn1 = centerObjsNoSqrt
+objFn1 = setsIntersect
 
 objText = "objective: center both (no sqrt used)"
 
@@ -623,6 +621,15 @@ centerAndRepelAdd s = centerObjsNoSqrt s + weight * repelInverse s
 
 doNothing :: ObjFn a -- for debugging
 doNothing (x1, x2, y1, y2) = 0
+
+-- TODO this needs the set size info. hardcode radii for now
+-- TODO to use "min rad rad1" we need to add "Ord a" to the type signatures everywhere
+-- we want the distance between the sets to be <overlap> less than having them just touch
+-- this isn't working? and isn't resampling?
+-- also i'm getting interval shrinking problems just with this function (using 'distance' only)
+setsIntersect :: ObjFn a
+setsIntersect (x1, x2, y1, y2) = (dist (x1, y1) (x2, y2) - overlap)^2
+              where overlap = rad + rad1 - 0.5 * rad1 -- should be "min rad rad1"
 
 ------ Objective function to place a label either inside of or right outside of a set
 
