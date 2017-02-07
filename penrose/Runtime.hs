@@ -8,10 +8,6 @@ import Data.Function
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
--- import Linear.V2 -- vectors
--- import Linear.V4
--- import Linear.Metric
--- import Linear.Vector -- TODO remove
 import Numeric.AD
 import GHC.Float -- float <-> double conversions
 import System.IO
@@ -187,17 +183,25 @@ rad1 = rad-100
 rad2 :: Floating a => a
 rad2 = rad+50
 
+s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
+s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False }
+s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
+s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False }
+l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
+
+state0 = []
+state1 = [s1]
+state2 = [s1, s2]
+state3 = [s1, s2, s3]
+state4 = [s1, s2, s3]
+staten n = take n $ repeat s3 -- they're all the same size on the first sampling, so it looks like one circle
+
 -- Initial state of the world, reading from Substance/Style input
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
-          where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
-                -- TODO handle one obj... 
-                c1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
-                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False }
-                c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
-                l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
-
+          where objsInit = state4
+                
 -- Initial state of the world. Hardcoded for testing.
 -- TODO randomly sample s0
 initStateHardcode :: State
@@ -345,17 +349,11 @@ handler _ s = s
 
 -- Clamp objects' positions so they don't go offscreen.
 -- TODO clamp needs to take into account bbox of object
-clampX :: Double -> Double
-clampX x = if x < -pw2' then -pw2' else if x > pw2' then pw2' else x
-           where pw2' = float2Double pw2
+clampX :: Float -> Float
+clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 
-clampY :: Double -> Double
-clampY y = if y < -ph2' then -ph2' else if y > ph2' then ph2' else y
-           where ph2' = float2Double ph2
-
--- TODO hack so I don't have to deal with pairwise derivatives of an arbitrary-length list.
-firstTwo :: [a] -> (a, a)
-firstTwo (x1 : x2 : _) = (x1, x2) -- Unsafe pattern-match.
+clampY :: Float -> Float
+clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 
 -- Some debugging functions.
 debugF :: (Show a) => a -> a
@@ -379,10 +377,8 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 -- noOverlap _ _ = True
 
 -- Type aliases for shorter type signatures.
--- TODO: port Vec4a to V4 or to List
 type TimeInit = Float
 type Time = Double
-type Vec4 a = (a, a, a, a) -- TODO use V4
 type ObjFn a = forall a . Floating a => [a] -> a -- the new type we're trying to convert to
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
@@ -394,23 +390,39 @@ step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
             if stepFlag then s { objs = stepObjs (float2Double t) (objs s), down = down s} else s
 
--- Layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
--- step only if the constraint on the state is satisfied
--- the state will be stuck if the constraint starts out unsatisfied.
--- TODO let GD attempt to satisfy constraint
--- note the float <-> double conversions
-stepObjs :: Time -> [Obj] -> [Obj]
-stepObjs t objs@[o1, o2] = if not $ length objs == 2 then error "not exactly two objects"
-                           else if constraint objs' then objs' else objs
-        where [x1, y1, x2, y2] = map float2Double [getX o1, getY o1, getX o2, getY o2]
-              -- extract the locations of the two objs, ignoring size
-              [x1', x2', y1', y2'] = stepWithObjective t [x1, x2, y1, y2]
-              -- get new positions. objective function is a global param
-              [x1'c, x2'c, y1'c, y2'c] = map double2Float [clampX x1', clampX x2', clampY y1', clampY y2']
-              -- keep objects on canvas
-              objs' = [setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2]
-              -- update object positions
+-- may differ between different kinds of objs: circles may have a size param but points may not.
+-- how should the gradient function distinguish? all objs need to have a return list of the same size
+-- with Infinity as the value if the attribute is missing?
+-- or "hooks" to info outside of the function?
+objInfo :: Obj -> [Float]
+objInfo o = [getX o, getY o] -- TODO add size
 
+stateSize :: Int
+stateSize = 2
+
+chunksOf :: Int -> [a] -> [[a]]
+chunksOf _ [] = []
+chunksOf n l = take n l : chunksOf n (drop n l)
+
+updateObj :: (Obj, [Float]) -> Obj
+updateObj (obj, l) = if not $ length l == stateSize then error "input obj list wrong size"
+                     else let [x', y'] = l in -- update obj's position while keeping it on canvas 
+                     setY (clampY y') $ setX (clampX x') obj
+
+-- unpacks all objects into a big state vector, steps that state, and repacks the new state into the objects
+-- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
+-- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
+stepObjs :: Time -> [Obj] -> [Obj]
+stepObjs t objs = if constraint objs' then objs' else objs
+        where state = map float2Double $ concatMap objInfo objs -- extract locations of objs, ignoring size
+              -- get new positions. objective function is a global param
+              state' = map double2Float $ stepWithObjective t state
+              -- break state list into chunks corresponding to new state for each obj
+              stateLists = chunksOf stateSize state' 
+              -- re-pack each object's state list into object, assuming the zipped lists are the same size
+              objs' = map updateObj ((\ (a, b) -> zip a b) $ checkSizesMatch objs stateLists)
+              checkSizesMatch a b = if not $ length a == length b then error "length mismatch" else (a, b)
+                    
 -- Flags for debugging the surrounding functions.
 stepFlag = True
 clampflag = False
@@ -429,11 +441,12 @@ stepT dt x dfdx = x - dt * dfdx
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 stepWithObjective :: Time -> [Double] -> [Double]
-stepWithObjective t [x1, x2, y1, y2] =
-                  -- TODO get rid of explicit refs to list elems
-                  if stoppingCriterion [dfdx1, dfdx2, dfdy1, dfdy2] then tr "STOP. position:" [x1, x2, y1, y2]
-                  else [stepT t' x1 dfdx1, stepT t' x2 dfdx2, stepT t' y1 dfdy1, stepT t' y2 dfdy2]
-                  where (t', [dfdx1, dfdx2, dfdy1, dfdy2]) = timeAndGrad objFn1 t [x1, x2, y1, y2]
+stepWithObjective t state =
+                  if stoppingCriterion gradEval then tr "STOP. position:" state
+                  -- [stepT t' x1 dfdx1, stepT t' y1 dfdy1, ...]
+                  else map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval)
+                  where (t', gradEval) = timeAndGrad objFn1 t state
+                  -- gradEval = [dfdx1, dfdy1, dfdsize1, ...]
                   -- choose the timestep via backtracking (for now) line search
                         stoppingCriterion gradEval =
                                     (tr "gradient norm: " $ norm $ tr "evaluated gradient:" $ gradEval) <= stopEps
@@ -481,16 +494,16 @@ norm = sqrt . sum . map (^ 2)
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
 timeAndGrad :: Floating a => ObjFn a -> Time -> [Double] -> (Time, [Double])
-timeAndGrad f t [x1, x2, y1, y2] = (timestep, gradEval)
+timeAndGrad f t state = (timestep, gradEval)
             where gradF :: Floating a => [a] -> [a]
                   gradF = appGrad f
-                  gradEval = removeNaN $ gradF [x1, x2, y1, y2]
+                  gradEval = removeNaN $ gradF state
                   -- Use line search to find a good timestep.
                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
                   descentDir = negL gradEval
                   timestep :: Time
                   timestep = if not linesearch then t / 100 else -- use a fixed timestep for debugging
-                             let resT = awLineSearch f duf descentDir [x1, x2, y1, y2] in
+                             let resT = awLineSearch f duf descentDir state in
                              if isNaN resT then tr "returned timestep is NaN" 0 else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
@@ -557,7 +570,7 @@ awLineSearch f duf_noU descentDir x0 =
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => [a] -> a
-objFn1 = cubicCenterOrRadius
+objFn1 = centerObjs
 
 objText = "objective: center both (no sqrt used)"
 
@@ -566,45 +579,48 @@ intervalMin = True -- true = force halt if interval gets too small; false = no f
 
 -- simple test function
 minx1 :: ObjFn a -- timestep t
-minx1 [x1, x2, y1, y2] = x1^2
+minx1 xs = if length xs == 0 then error "minx1 empty list" else (head xs)^2
 
--- only center the first object (for debugging)
+-- only center the first object (for debugging). NOTE: need to pass in parameters in the right order
 centerObjNoSqrt :: ObjFn a
-centerObjNoSqrt [x1, x2, y1, y2] = x1^2 + y1^2
+centerObjNoSqrt (x1 : y1 : x2 : y2 : _) = x1^2 + y1^2 -- sum $
 
 -- center both objects without sqrt
 centerObjsNoSqrt :: ObjFn a
-centerObjsNoSqrt [x1, x2, y1, y2] = x1^2 + y1^2 + x2^2 + y2^2
+centerObjsNoSqrt = sum . map (^2)
 
 centerx1Sqrt :: ObjFn a -- discontinuous, timestep = 100 * t. autodiff behaves differently for this vs abs
-centerx1Sqrt [x1, x2, y1, y2] = sqrt $ x1^2
+centerx1Sqrt (x1 : _) = sqrt $ x1^2
 
-centerObj :: ObjFn a -- with sqrt
-centerObj [x1, x2, y1, y2] = sqrt $ x1^2 + y1^2
-
--- center both objects (2 objects hardcoded; TODO handle arbitrary numbers of them)
-centerObjs :: ObjFn a -- timestep 100 * t
-centerObjs [x1, x2, y1, y2] = sqrt (x1^2 + y1^2) + sqrt (x2^2 + y2^2)
+-- lot of "interval too small"s happening with the objfns on lists now
+centerObjs :: ObjFn a -- with sqrt
+centerObjs = sqrt . centerObjsNoSqrt
 
 -- repel two objects
-repelInverse :: ObjFn a
-repelInverse [x1, x2, y1, y2] = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
+repelInverse2 :: ObjFn a
+repelInverse2 [x1, y1, x2, y2] = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
+
+-- pairwise repel on a list of objects
+-- repelInverse :: ObjFn a
+-- repelInverse l = let objs = chunksOf stateSize l in
+                 -- 1/denom1 + ... + 1/denom_{n choose 2}
+                 -- TODO abstract out this general pattern
 
 -- this works really nicely with A-W line search!
 centerAndRepelAdd :: ObjFn a -- timestep t
-centerAndRepelAdd s = centerObjsNoSqrt s + weight * repelInverse s
+centerAndRepelAdd s = centerObjsNoSqrt s + weight * repelInverse2 s -- doesn't work for all lists currently
                    where weight = 10 ** 10
 
 doNothing :: ObjFn a -- for debugging
-doNothing [x1, x2, y1, y2] = 0
+doNothing _ = 0
 
 -- TODO this needs the set size info. hardcode radii for now
 -- TODO to use "min rad rad1" we need to add "Ord a" to the type signatures everywhere
 -- we want the distance between the sets to be <overlap> less than having them just touch
 -- this isn't working? and isn't resampling?
 -- also i'm getting interval shrinking problems just with this function (using 'distance' only)
-setsIntersect :: ObjFn a
-setsIntersect [x1, x2, y1, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
+setsIntersect2 :: ObjFn a
+setsIntersect2 [x1, y1, x2, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
               where overlap = rad + rad1 - 0.5 * rad1 -- should be "min rad rad1"
 
 ------ Objective function to place a label either inside of or right outside of a set
@@ -620,5 +636,6 @@ eps' = 60 -- why is this 100??
 
 -- TODO still some nontermination in A-W ls when circles to corner/side
 -- TODO I still can't get it to settle in the center
-cubicCenterOrRadius :: ObjFn a 
-cubicCenterOrRadius [x1, x2, y1, y2] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
+-- TODO this expression can be simplified--see slides
+cubicCenterOrRadius2 :: ObjFn a 
+cubicCenterOrRadius2 [x1, y1, x2, y2] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
