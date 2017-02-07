@@ -12,6 +12,7 @@ import Numeric.AD
 import GHC.Float -- float <-> double conversions
 import System.IO
 import System.Environment
+import Data.List
 import qualified Compiler as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
@@ -183,24 +184,11 @@ rad1 = rad-100
 rad2 :: Floating a => a
 rad2 = rad+50
 
-s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
-s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False }
-s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
-s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False }
-l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
-
-state0 = []
-state1 = [s1]
-state2 = [s1, s2]
-state3 = [s1, s2, s3]
-state4 = [s1, s2, s3]
-staten n = take n $ repeat s3 -- they're all the same size on the first sampling, so it looks like one circle
-
 -- Initial state of the world, reading from Substance/Style input
 -- TODO randomly sample s0
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng }
-          where objsInit = state4
+          -- where objsInit = state4
                 
 -- Initial state of the world. Hardcoded for testing.
 -- TODO randomly sample s0
@@ -455,8 +443,11 @@ stepWithObjective t state =
 appGrad :: Floating a => (forall a . Floating a => [a] -> a) -> [a] -> [a]
 appGrad f l = grad f l
 
+nanSub :: (RealFloat a, Floating a) => a
+nanSub = 9999
+
 removeNaN' :: (RealFloat a, Floating a) => a -> a
-removeNaN' x = if isNaN x then 0 else x
+removeNaN' x = if isNaN x then nanSub else x
 
 removeNaN :: (RealFloat a, Floating a) => [a] -> [a]
 removeNaN = map removeNaN'
@@ -485,6 +476,9 @@ negL = map negate
 norm :: Floating a => [a] -> a
 norm = sqrt . sum . map (^ 2)
 
+normsq :: Floating a => [a] -> a
+normsq = sum . map (^ 2)
+
 -----
 
 -- Given the objective function, gradient function, timestep, and current state,
@@ -504,7 +498,7 @@ timeAndGrad f t state = (timestep, gradEval)
                   timestep :: Time
                   timestep = if not linesearch then t / 100 else -- use a fixed timestep for debugging
                              let resT = awLineSearch f duf descentDir state in
-                             if isNaN resT then tr "returned timestep is NaN" 0 else resT
+                             if isNaN resT then tr "returned timestep is NaN" nanSub else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
@@ -535,6 +529,7 @@ isInfinity x = (x == infinity)
 -- duf = D_u(f), the directional derivative of f at descent direction u
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
+-- TODO what happens if there are NaNs in awLineSearch?
 awLineSearch :: ObjFn a -> (forall a . Floating a => [a] -> [a] -> a) -> [Double] -> [Double] -> Double
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
@@ -568,11 +563,28 @@ awLineSearch f duf_noU descentDir x0 =
 
 ------------- Objective functions.
 
+-- initial states
+s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
+s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False }
+s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
+s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False }
+l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
+
+state0 = []
+state1 = [s1]
+state2 = [s1, s2]
+state3 = [s1, s2, s3]
+state4 = [s1, s2, s3, s4]
+staten n = take n $ repeat s3 -- they're all the same size on the first sampling, so it looks like one circle
+
+objsInit = staten 7
+------
+
+objText = "objective: center all objects + pairwise repel each other"
+
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => [a] -> a
-objFn1 = centerObjs
-
-objText = "objective: center both (no sqrt used)"
+objFn1 = centerAndRepelAdd
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
@@ -598,17 +610,24 @@ centerObjs = sqrt . centerObjsNoSqrt
 
 -- repel two objects
 repelInverse2 :: ObjFn a
-repelInverse2 [x1, y1, x2, y2] = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
+repelInverse2 [x1, y1, x2, y2] = 1 / ((x1 - x2)^2 + (y1 - y2)^2)
 
 -- pairwise repel on a list of objects
--- repelInverse :: ObjFn a
--- repelInverse l = let objs = chunksOf stateSize l in
-                 -- 1/denom1 + ... + 1/denom_{n choose 2}
-                 -- TODO abstract out this general pattern
+-- TODO abstract out this general pattern (and make the function more readable)
+repelInverse :: ObjFn a
+repelInverse l = sum $ map (1 /) denoms
+                 where denoms = map diffSq allPairs
+                       diffSq [[x1, y1], [x2, y2]] = (x1 - x2)^2 + (y1 - y2)^2
+                       allPairs = filter (\x -> length x == 2) $ subsequences objs
+                       -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
+                       objs = chunksOf stateSize l 
 
 -- this works really nicely with A-W line search!
+-- TODO debug: with line search, optimizer finds NaN state (all at exactly same pos in top right)
+-- and even when re-sampling, they end up centered there??
+-- but when dragged a bit, they find the local minima
 centerAndRepelAdd :: ObjFn a -- timestep t
-centerAndRepelAdd s = centerObjsNoSqrt s + weight * repelInverse2 s -- doesn't work for all lists currently
+centerAndRepelAdd s = centerObjsNoSqrt s + weight * repelInverse s
                    where weight = 10 ** 10
 
 doNothing :: ObjFn a -- for debugging
