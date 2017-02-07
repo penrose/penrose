@@ -8,10 +8,10 @@ import Data.Function
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import Debug.Trace
-import Linear.V2 -- vectors
-import Linear.V4
-import Linear.Metric
-import Linear.Vector
+-- import Linear.V2 -- vectors
+-- import Linear.V4
+-- import Linear.Metric
+-- import Linear.Vector -- TODO remove
 import Numeric.AD
 import GHC.Float -- float <-> double conversions
 import System.IO
@@ -380,24 +380,12 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 
 -- Type aliases for shorter type signatures.
 -- TODO: port Vec4a to V4 or to List
-type GradFn' a = Time -> a -> a -> a -> a -> (Time, a, a, a, a) -- old type
 type TimeInit = Float
 type Time = Double
 type Vec4 a = (a, a, a, a) -- TODO use V4
-type ObjFn a = forall a . Floating a => Vec4 a -> a
-type GradFn a = forall a . Floating a => Vec4 a -> Vec4 a -- TODO clean up input types
-
-toV :: Vec4 a -> V4 a
-toV (x1, x2, y1, y2) = V4 x1 x2 y1 y2
-
-fromV :: V4 a -> Vec4 a
-fromV (V4 x1 x2 y1 y2) = (x1, x2, y1, y2)
-
-listOf (a, b, c, d) = [a, b, c, d]
-vecOf [a, b, c, d] = (a, b, c, d) -- incomplete pattern match
-
-tupMap f (a, b, c, d) = (f a, f b, f c, f d)
-vMap f (V4 a b c d) = V4 (f a) (f b) (f c) (f d)
+type ObjFn a = forall a . Floating a => [a] -> a -- the new type we're trying to convert to
+     -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
+     -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
 
 -------- Step the world by one timestep (provided by the library).
 -- gloss operates on floats, but the optimization code should be done with doubles, so we
@@ -406,40 +394,21 @@ step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
             if stepFlag then s { objs = stepObjs (float2Double t) (objs s), down = down s} else s
 
--- Given the time, position, and evaluated gradient (or other search direction) at the point, return the new position.
-stepT :: Time -> Double -> Double -> Double
-stepT dt x dfdx = x - dt * dfdx
-
--- This function is here to remind me to generalize the objects (currently hard-coded to 2 objects)
--- to a list of them. Otherwise, this function doesn't do anything.
--- TODO assuming all objs are the same and have same obj function, apply obj pairwise step function
--- TODO generalize
--- TODO step one object. problem is that pairwise stepping is hardcoded everywhere
-stepObjs :: Time -> [Obj] -> [Obj]
-stepObjs t objs@(o1 : o2 : _) = if constraint objs' then objs' else objs
-         where (o1', o2') = stepObjsPairwise t (o1, o2)
-               objs' = [o1', o2']
--- Old code for three objects.
--- stepObjs t objs@(o1 : o2 : o3 : _) = if constraint objs' then objs' else objs
---          where (o1', _) = stepObjsPairwise t (o1, o2) -- uses already stepped objs, not original state
---                (o2', _) = stepObjsPairwise t (o2, o3) -- TODO ^ hack bc the gradients aren't fns of the others
---                (o3', _) = stepObjsPairwise t (o3, o1) -- TODO order matters!
---                objs' = [o1', o2', o3']
-
 -- Layer of stepping relative to actual objects (their sizes, properties, bbox) and top-level bbox
 -- step only if the constraint on the state is satisfied
 -- the state will be stuck if the constraint starts out unsatisfied.
 -- TODO let GD attempt to satisfy constraint
 -- note the float <-> double conversions
-stepObjsPairwise :: Time -> (Obj, Obj) -> (Obj, Obj)
-stepObjsPairwise t (o1, o2) = objs'
-        where (x1, y1, x2, y2) = tupMap float2Double (getX o1, getY o1, getX o2, getY o2)
+stepObjs :: Time -> [Obj] -> [Obj]
+stepObjs t objs@[o1, o2] = if not $ length objs == 2 then error "not exactly two objects"
+                           else if constraint objs' then objs' else objs
+        where [x1, y1, x2, y2] = map float2Double [getX o1, getY o1, getX o2, getY o2]
               -- extract the locations of the two objs, ignoring size
-              (x1', x2', y1', y2') = stepWithObjective t x1 x2 y1 y2
+              [x1', x2', y1', y2'] = stepWithObjective t [x1, x2, y1, y2]
               -- get new positions. objective function is a global param
-              (x1'c, x2'c, y1'c, y2'c) = tupMap double2Float (clampX x1', clampX x2', clampY y1', clampY y2')
+              [x1'c, x2'c, y1'c, y2'c] = map double2Float [clampX x1', clampX x2', clampY y1', clampY y2']
               -- keep objects on canvas
-              objs' = (setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2)
+              objs' = [setX x1'c $ setY y1'c o1, setX x2'c $ setY y2'c o2]
               -- update object positions
 
 -- Flags for debugging the surrounding functions.
@@ -447,55 +416,63 @@ stepFlag = True
 clampflag = False
 debug = True
 constraintFlag = False
-
 objFn2 = doNothing -- TODO repelInverse
 
 stopEps :: Floating a => a
 stopEps = 10 ** (-10)
---10 ** (-10) -- TODO magnitude of gradient is ~0.13 when x,y ~ 0.08... still large
+
+-- Given the time, position, and evaluated gradient (or other search direction) at the point, 
+-- return the new position.
+stepT :: Time -> Double -> Double -> Double
+stepT dt x dfdx = x - dt * dfdx
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
--- TODO why isn't the magnitude of the gradient changing with btls?
-stepWithObjective :: Time -> Double -> Double -> Double -> Double -> Vec4 Double
-stepWithObjective t x1 x2 y1 y2 = if stoppingCriterion (V4 dfdx1 dfdx2 dfdy1 dfdy2) then
-                                     tr "STOP. position:" (x1, x2, y1, y2)
-                                  else (stepT t' x1 dfdx1, stepT t' x2 dfdx2,
-                                        stepT t' y1 dfdy1, stepT t' y2 dfdy2)
-                  where (t', (dfdx1, dfdx2, dfdy1, dfdy2)) =
-                                     timeAndGrad objFn1 t (x1, x2, y1, y2)
-                        -- choose the timestep via backtracking (for now) line search
+stepWithObjective :: Time -> [Double] -> [Double]
+stepWithObjective t [x1, x2, y1, y2] =
+                  -- TODO get rid of explicit refs to list elems
+                  if stoppingCriterion [dfdx1, dfdx2, dfdy1, dfdy2] then tr "STOP. position:" [x1, x2, y1, y2]
+                  else [stepT t' x1 dfdx1, stepT t' x2 dfdx2, stepT t' y1 dfdy1, stepT t' y2 dfdy2]
+                  where (t', [dfdx1, dfdx2, dfdy1, dfdy2]) = timeAndGrad objFn1 t [x1, x2, y1, y2]
+                  -- choose the timestep via backtracking (for now) line search
                         stoppingCriterion gradEval =
-                                          (tr "gradient norm: " $ norm $ tr "evaluated gradient:" $ gradEval) <= stopEps
-
--- Generalized version of above that adds the gradient fns. (Currently unused.) Need to generalize to arbirary #s of obj fns.
--- TODO generalize to add line search to this later
--- could two objective functions be working on different timesteps?
--- should each take into account the dx, dy from the previous?
-{- stepWithGradFns :: Floating a => GradFn' a -> GradFn' a -> Time -> a -> a -> a -> a -> Vec4 a
-stepWithGradFns f1 f2 t x1 x2 y1 y2 = (x1'', x2'', y1'', y2'')
-             where (t1, dfdx1_1, dfdx2_1, dfdy1_1, dfdy2_1) = f1 t x1 x2 y1 y2
-                   (t2, dfdx1_2, dfdx2_2, dfdy1_2, dfdy2_2) = f2 t x1 x2 y1 y2
-                   (x1', x2', y1', y2') = (stepT t1 x1 dfdx1_1, stepT t1 x2 dfdx2_1,
-                                           stepT t1 y1 dfdy1_1, stepT t1 y2 dfdy2_1)
-                   (x1'', x2'', y1'', y2'') = (stepT t2 x1' dfdx1_2, stepT t2 x2' dfdx2_2,
-                                               stepT t2 y1' dfdy1_2, stepT t2 y2' dfdy2_2)-}
+                                    (tr "gradient norm: " $ norm $ tr "evaluated gradient:" $ gradEval) <= stopEps
 
 -- a version of grad with a clearer type signature
 appGrad :: Floating a => (forall a . Floating a => [a] -> a) -> [a] -> [a]
 appGrad f l = grad f l
 
--- a version of appGrad with lists converted to 4-vectors
--- TODO generalize functions from 4-vectors
-appGradV :: Floating a => (forall a . Floating a => Vec4 a -> a) -> Vec4 a -> Vec4 a
-appGradV f v = vecOf $ appGrad (listVersionOf f) (listOf v)
-         where listVersionOf f = f . vecOf
-
 removeNaN' :: (RealFloat a, Floating a) => a -> a
 removeNaN' x = if isNaN x then 0 else x
 
-removeNaN :: (RealFloat a, Floating a) => Vec4 a -> Vec4 a
-removeNaN = tupMap removeNaN'
+removeNaN :: (RealFloat a, Floating a) => [a] -> [a]
+removeNaN = map removeNaN'
+
+----- Lists-as-vectors utility functions, TODO split out of file
+
+-- define operator precedence: higher precedence = evaluated earlier
+infixl 6 +. --, -.
+infixl 7 *. -- .*, /.
+
+-- assumes lists are of the same length
+dotL :: Floating a => [a] -> [a] -> a
+dotL u v = if not $ length u == length v then error "cannot take dot product of different-length lists"
+           else sum $ zipWith (*) u v
+
+(+.) :: Floating a => [a] -> [a] -> [a] -- add two vectors
+(+.) u v = if not $ length u == length v then error "cannot add different-length lists"
+           else zipWith (+) u v
+
+negL :: Floating a => [a] -> [a]
+negL = map negate
+
+(*.) :: Floating a => a -> [a] -> [a] -- multiply by a constant
+(*.) c v = map ((*) c) v
+
+norm :: Floating a => [a] -> a
+norm = sqrt . sum . map (^ 2)
+
+-----
 
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
@@ -503,24 +480,23 @@ removeNaN = tupMap removeNaN'
 -- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
-timeAndGrad :: Floating a => ObjFn a -> Time -> Vec4 Double -> (Time, Vec4 Double)
-timeAndGrad f t (x1, x2, y1, y2) = (timestep, gradEval)
-            where gradF :: Floating a => Vec4 a -> Vec4 a
-                  gradF = appGradV f
-                  gradEval = removeNaN $ gradF (x1, x2, y1, y2)
-                  gradEvalV = toV gradEval
+timeAndGrad :: Floating a => ObjFn a -> Time -> [Double] -> (Time, [Double])
+timeAndGrad f t [x1, x2, y1, y2] = (timestep, gradEval)
+            where gradF :: Floating a => [a] -> [a]
+                  gradF = appGrad f
+                  gradEval = removeNaN $ gradF [x1, x2, y1, y2]
                   -- Use line search to find a good timestep.
                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
-                  descentDir = negated gradEvalV
+                  descentDir = negL gradEval
                   timestep :: Time
                   timestep = if not linesearch then t / 100 else -- use a fixed timestep for debugging
-                             let resT = awLineSearch f duf descentDir (V4 x1 x2 y1 y2) in
+                             let resT = awLineSearch f duf descentDir [x1, x2, y1, y2] in
                              if isNaN resT then tr "returned timestep is NaN" 0 else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
-                  duf :: Floating a => V4 a -> V4 a -> a
-                  duf u (V4 a b c d) = (toV $ gradF (a, b, c, d)) `dot` u
+                  duf :: Floating a => [a] -> [a] -> a
+                  duf u x = gradF x `dotL` u
 
 -- Parameters for Armijo-Wolfe line search
 -- NOTE: must maintain 0 < c1 < c2 < 1
@@ -546,7 +522,7 @@ isInfinity x = (x == infinity)
 -- duf = D_u(f), the directional derivative of f at descent direction u
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
-awLineSearch :: ObjFn a -> (forall a . Floating a => V4 a -> V4 a -> a) -> V4 Double -> V4 Double -> Double
+awLineSearch :: ObjFn a -> (forall a . Floating a => [a] -> [a] -> a) -> [Double] -> [Double] -> Double
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
@@ -566,22 +542,22 @@ awLineSearch f duf_noU descentDir x0 =
                       if armijo t && weakWolfe t then tr "stop: both sat" True -- takes precedence
                       else if abs (b - a) < minInterval then tr "stop: interval too small" True
                       else False -- could be shorter; long for debugging purposes
-                armijo t = (f $ fromV ((tr "** x0" x0) ^+^ t *^ descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
-                strongWolfe t = abs (duf (x0 ^+^ t *^ descentDir)) <= c2 * abs dufAtx0
+                armijo t = (f ((tr "** x0" x0) +. t *. descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
+                strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
                 weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
-                          where duf_x_tu = tr "Duf(x + tu)" (duf (x0 ^+^ t' *^ descentDir'))
+                          where duf_x_tu = tr "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
                                 t' = tr "t" t
                                 descentDir' = tr "descentDir" descentDir
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
-                fAtx0 = f (fromV x0)
+                fAtx0 = f x0
                 minInterval = if intervalMin then 10 ** (-5) else 0 
                 -- stop if the interval gets too small; might not terminate
 
 ------------- Objective functions.
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
-objFn1 :: Floating a => Vec4 a -> a
-objFn1 = setsIntersect
+objFn1 :: Floating a => [a] -> a
+objFn1 = cubicCenterOrRadius
 
 objText = "objective: center both (no sqrt used)"
 
@@ -590,29 +566,29 @@ intervalMin = True -- true = force halt if interval gets too small; false = no f
 
 -- simple test function
 minx1 :: ObjFn a -- timestep t
-minx1 (x1, x2, y1, y2) = x1^2
+minx1 [x1, x2, y1, y2] = x1^2
 
 -- only center the first object (for debugging)
 centerObjNoSqrt :: ObjFn a
-centerObjNoSqrt (x1, x2, y1, y2) = x1^2 + y1^2
+centerObjNoSqrt [x1, x2, y1, y2] = x1^2 + y1^2
 
 -- center both objects without sqrt
 centerObjsNoSqrt :: ObjFn a
-centerObjsNoSqrt (x1, x2, y1, y2) = x1^2 + y1^2 + x2^2 + y2^2
+centerObjsNoSqrt [x1, x2, y1, y2] = x1^2 + y1^2 + x2^2 + y2^2
 
 centerx1Sqrt :: ObjFn a -- discontinuous, timestep = 100 * t. autodiff behaves differently for this vs abs
-centerx1Sqrt (x1, x2, y1, y2) = sqrt $ x1^2
+centerx1Sqrt [x1, x2, y1, y2] = sqrt $ x1^2
 
 centerObj :: ObjFn a -- with sqrt
-centerObj (x1, x2, y1, y2) = sqrt $ x1^2 + y1^2
+centerObj [x1, x2, y1, y2] = sqrt $ x1^2 + y1^2
 
 -- center both objects (2 objects hardcoded; TODO handle arbitrary numbers of them)
 centerObjs :: ObjFn a -- timestep 100 * t
-centerObjs (x1, x2, y1, y2) = sqrt (x1^2 + y1^2) + sqrt (x2^2 + y2^2)
+centerObjs [x1, x2, y1, y2] = sqrt (x1^2 + y1^2) + sqrt (x2^2 + y2^2)
 
 -- repel two objects
 repelInverse :: ObjFn a
-repelInverse (x1, x2, y1, y2) = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
+repelInverse [x1, x2, y1, y2] = 1 / (((x1 - x2)^2 + (y1 - y2)^2))
 
 -- this works really nicely with A-W line search!
 centerAndRepelAdd :: ObjFn a -- timestep t
@@ -620,7 +596,7 @@ centerAndRepelAdd s = centerObjsNoSqrt s + weight * repelInverse s
                    where weight = 10 ** 10
 
 doNothing :: ObjFn a -- for debugging
-doNothing (x1, x2, y1, y2) = 0
+doNothing [x1, x2, y1, y2] = 0
 
 -- TODO this needs the set size info. hardcode radii for now
 -- TODO to use "min rad rad1" we need to add "Ord a" to the type signatures everywhere
@@ -628,7 +604,7 @@ doNothing (x1, x2, y1, y2) = 0
 -- this isn't working? and isn't resampling?
 -- also i'm getting interval shrinking problems just with this function (using 'distance' only)
 setsIntersect :: ObjFn a
-setsIntersect (x1, x2, y1, y2) = (dist (x1, y1) (x2, y2) - overlap)^2
+setsIntersect [x1, x2, y1, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
               where overlap = rad + rad1 - 0.5 * rad1 -- should be "min rad rad1"
 
 ------ Objective function to place a label either inside of or right outside of a set
@@ -643,5 +619,6 @@ eps' :: Floating a => a
 eps' = 60 -- why is this 100??
 
 -- TODO still some nontermination in A-W ls when circles to corner/side
+-- TODO I still can't get it to settle in the center
 cubicCenterOrRadius :: ObjFn a 
-cubicCenterOrRadius (x1, x2, y1, y2) = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
+cubicCenterOrRadius [x1, x2, y1, y2] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
