@@ -59,8 +59,8 @@ main = do
                   (picWidth, picHeight)   -- size
                   (10, 10))    -- position
         white                   -- background color
-        50                     -- number of simulation steps to take for each second of real time
-        initState                   -- the initial world, defined as a type below
+        stepsPerSecond         -- number of simulation steps to take for each second of real time
+        initState               -- the initial world, defined as a type below
         picOf                   -- fn to convert world to a pic
         handler                 -- fn to handle input events
         step)                    -- step the world one iteration; passed period of time (in secs) to be advanced
@@ -70,6 +70,13 @@ picWidth = 800
 
 picHeight :: Int
 picHeight = 700
+
+stepsPerSecond :: Int
+stepsPerSecond = 50
+
+calcTimestep :: Float -- for use in forcing stepping in handler
+calcTimestep = 1 / (int2Float stepsPerSecond)
+-- 5 steps per second -> each step is 1/5 of a second
 
 ----------- Defining types for the state of the world.
 -- Objects can be Circs (circles) or Labels. Each has a size and position.
@@ -155,8 +162,9 @@ instance Selectable Obj where
 -- State of the world
 data State = State { objs :: [Obj]
                    , down :: Bool -- left mouse button is down (dragging)
-                   , rng :: StdGen } -- random number benerator
-     deriving (Show)
+                   , rng :: StdGen -- random number generator
+                   , autostep :: Bool -- automatically step optimization or not
+                   } deriving (Show)
 
 ------
 
@@ -170,7 +178,7 @@ objOf (C.L label) = error "Layout -> Opt doesn't support labels yet"
 
 -- Convert Compiler's abstract layout representation to the types that the optimization code needs.
 compilerToRuntimeTypes :: [C.Obj] -> State
-compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng'}
+compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng', autostep = True }
                        where (runtimeState', initRng') = genState runtimeState initRng
                              runtimeState = map objOf compileState
 
@@ -185,21 +193,9 @@ rad2 :: Floating a => a
 rad2 = rad+50
 
 -- Initial state of the world, reading from Substance/Style input
--- TODO randomly sample s0
 initState :: State
-initState = State { objs = objsInit, down = False, rng = initRng }
+initState = State { objs = objsInit, down = False, rng = initRng, autostep = False }
           -- where objsInit = state4
-                
--- Initial state of the world. Hardcoded for testing.
--- TODO randomly sample s0
-initStateHardcode :: State
-initStateHardcode = State { objs = objsInit, down = False, rng = initRng }
-          where objsInit = [c1, c2] -- only handles two objects, with a non-working case for three
-                -- TODO handle one obj...
-                c1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
-                c2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad-100, selc = False }
-                c3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad+50, selc = False }
-                l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
 
 -- divide two integers to obtain a float
 divf :: Int -> Int -> Float
@@ -232,11 +228,14 @@ picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveTxt]
+picOf s = Pictures [picOfState s, objectiveTxt, stateText]
     where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
           lineY = Line [(0, -ph2), (0, ph2)]
           objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
                          $ text objText
+          stateText = let res = if autostep s then "on" else "off" in
+                      translate (-pw2+50) (ph2-80) $ scale 0.1 0.1
+                      $ text ("autostep: " ++ res)
 
 ------- Sampling the state subject to a constraint. Currently not used since we are doing unconstrained optimization.
 
@@ -248,13 +247,13 @@ genMany gen genOne = iterate (\(c, g) -> genOne g) (genOne gen)
 -- take the first element that satisfies the condition
 -- not the most efficient impl. also assumes infinite list s.t. head always exists
 crop :: RandomGen g => (a -> Bool) -> [(a, g)] -> (a, g)
-crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drop gens
-                head $ dropWhile (\(x, _) -> not $ cond x) xs -- keep good's gen
+crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drops gens
+                head $ dropWhile (\(x, _) -> not $ cond x) xs -- drops while top-level condition true. keeps good's gen
 
 -- randomly sample location (for circles and labels) and radius (for circles)
 sampleCoord :: RandomGen g => g -> Obj -> (Obj, g)
 sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
-                    case o of
+                    case o_loc of
                     C circ -> let (r', gen3) = randomR radiusRange gen2 in
                               (C $ circ { r = r'}, gen3)
                     L lab -> (o_loc, gen2) -- only sample location
@@ -296,9 +295,14 @@ inObj :: (Float, Float) -> Obj -> Bool
 inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 
--- TODO "in object" tests
--- TODO press key to gradient descent step
+-- UI so far: pressing and releasing 'r' will re-sample all objects' sizes and positions within some preset range
+-- if autostep is set, then dragging will move an object while optimization continues
+-- if autostep is not set, then optimization will only step when 's' is pressed. dragging will move an object while optimization is not happening
+
 -- for more on these constructors, see docs: https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html
+-- pattern matches not fully fuzzed--assume that user only performs one action at once
+-- (e.g. not left-clicking while stepping the optimization)
+-- TODO "in object" tests
 handler :: Event -> State -> State
 handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
         s { objs = objsFirstSelected, down = True }
@@ -328,8 +332,19 @@ handler (EventKey (MouseButton LeftButton) Up _ _) s =
 
 -- if you press a key while down, then the handler resets the entire state (then Up will just reset again)
 handler (EventKey (Char 'r') Up _ _) s =
-        State { objs = objs', down = False, rng = rng' }
+        s { objs = objs', down = False, rng = rng' }
         where (objs', rng') = sampleConstrainedState (rng s) (objs s)
+
+-- turn autostep on or off (press same button to turn on or off)
+handler (EventKey (Char 'a') Up _ _) s = if autostep s then s { autostep = False }
+                                         else s { autostep = True }
+
+-- pressing 's' (down) while autostep is off will step the optimization once, overriding the step function 
+-- (which doesn't step if autostep is off). this is the same code as the step function but with reverse condition
+-- if autostep is on, this does nothing
+handler (EventKey (Char 's') Down _ _) s =
+        if not $ autostep s then s { objs = stepObjs (float2Double calcTimestep) (objs s) } else s
+
 handler _ s = s
 
 ----------- Stepping the state the world via gradient descent.
@@ -371,12 +386,14 @@ type ObjFn a = forall a . Floating a => [a] -> a -- the new type we're trying to
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
 
--------- Step the world by one timestep (provided by the library).
+-------- Step the world by one timestep (provided by the library). 
+-- this function actually ignores the input timestep, because line search calculates the appropriate timestep to use,
+-- but it's left in, in case we want to debug the line search.
 -- gloss operates on floats, but the optimization code should be done with doubles, so we
 -- convert float to double for the input and convert double to float for the output.
 step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
-            if stepFlag then s { objs = stepObjs (float2Double t) (objs s), down = down s} else s
+            if autostep s then s { objs = stepObjs (float2Double t) (objs s) } else s 
 
 -- may differ between different kinds of objs: circles may have a size param but points may not.
 -- how should the gradient function distinguish? all objs need to have a return list of the same size
@@ -412,7 +429,6 @@ stepObjs t objs = if constraint objs' then objs' else objs
               checkSizesMatch a b = if not $ length a == length b then error "length mismatch" else (a, b)
                     
 -- Flags for debugging the surrounding functions.
-stepFlag = True
 clampflag = False
 debug = True
 constraintFlag = False
@@ -570,21 +586,30 @@ s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
 s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False }
 l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
 
+initStateRng :: StdGen
+initStateRng = mkStdGen seed
+    where seed = 3 -- deterministic RNG with seed
+
 state0 = []
 state1 = [s1]
 state2 = [s1, s2]
 state3 = [s1, s2, s3]
 state4 = [s1, s2, s3, s4]
-staten n = take n $ repeat s3 -- they're all the same size on the first sampling, so it looks like one circle
+-- they're all the same size and in the same place for this state generator, so it looks like one circle
+staten n = take n $ repeat s3 
+statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) in objs'
 
-objsInit = staten 7
+objsInit = statenRand 5
 ------
+
+epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
+epsd = 10 ** (-10)
 
 objText = "objective: center all objects + pairwise repel each other"
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => [a] -> a
-objFn1 = centerAndRepelAdd
+objFn1 = repel
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
@@ -609,15 +634,15 @@ centerObjs :: ObjFn a -- with sqrt
 centerObjs = sqrt . centerObjsNoSqrt
 
 -- repel two objects
-repelInverse2 :: ObjFn a
-repelInverse2 [x1, y1, x2, y2] = 1 / ((x1 - x2)^2 + (y1 - y2)^2)
+repel2 :: ObjFn a
+repel2 [x1, y1, x2, y2] = 1 / ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 
 -- pairwise repel on a list of objects
 -- TODO abstract out this general pattern (and make the function more readable)
-repelInverse :: ObjFn a
-repelInverse l = sum $ map (1 /) denoms
+repel :: ObjFn a
+repel l = sum $ map (1 /) denoms
                  where denoms = map diffSq allPairs
-                       diffSq [[x1, y1], [x2, y2]] = (x1 - x2)^2 + (y1 - y2)^2
+                       diffSq [[x1, y1], [x2, y2]] = (x1 - x2)^2 + (y1 - y2)^2 + epsd
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
                        objs = chunksOf stateSize l 
@@ -626,8 +651,8 @@ repelInverse l = sum $ map (1 /) denoms
 -- TODO debug: with line search, optimizer finds NaN state (all at exactly same pos in top right)
 -- and even when re-sampling, they end up centered there??
 -- but when dragged a bit, they find the local minima
-centerAndRepelAdd :: ObjFn a -- timestep t
-centerAndRepelAdd s = centerObjsNoSqrt s + weight * repelInverse s
+centerAndRepel :: ObjFn a -- timestep t
+centerAndRepel s = centerObjsNoSqrt s + weight * repel s
                    where weight = 10 ** 10
 
 doNothing :: ObjFn a -- for debugging
