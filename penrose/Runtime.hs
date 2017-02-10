@@ -76,7 +76,6 @@ stepsPerSecond = 50
 
 calcTimestep :: Float -- for use in forcing stepping in handler
 calcTimestep = 1 / (int2Float stepsPerSecond)
--- 5 steps per second -> each step is 1/5 of a second
 
 ----------- Defining types for the state of the world.
 -- Objects can be Circs (circles) or Labels. Each has a size and position.
@@ -96,6 +95,10 @@ class Selectable a where
       deselect :: a -> a
       selected :: a -> Bool
 
+class Sized a where
+      getSize :: a -> Float
+      setSize :: Float -> a -> a
+
 data Circ = Circ { xc :: Float
                  , yc :: Float
                  , r :: Float
@@ -112,6 +115,10 @@ instance Selectable Circ where
          select x = x { selc = True }
          deselect x = x { selc = False }
          selected x = selc x
+
+instance Sized Circ where
+         getSize x = r x
+         setSize size x = x { r = size }
 
 data Label = Label { xl :: Float
                    , yl :: Float
@@ -130,6 +137,12 @@ instance Selectable Label where
          select x = x { sell = True }
          deselect x = x { sell = False }
          selected x = sell x
+
+instance Sized Label where
+         getSize x = xl x -- TODO generalize label size, distance to corner? ignores scale
+         setSize size x = x { xl = size, yl = size } -- TODO currently sets both of them, ignores scale
+                 -- changing a label's size doesn't actually do anything right now, but should use the scale
+                 -- and the base font size
 
 data Obj = C Circ | L Label deriving (Eq, Show)
 
@@ -158,6 +171,14 @@ instance Selectable Obj where
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
+
+instance Sized Obj where
+         getSize o = case o of
+                 C c -> getSize c
+                 L l -> getSize l
+         setSize x o = case o of
+                C c -> C $ setSize x c
+                L l -> L $ setSize x l
 
 -- State of the world
 data State = State { objs :: [Obj]
@@ -358,6 +379,13 @@ clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 clampY :: Float -> Float
 clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 
+minSize :: Float 
+minSize = 5
+
+clampSize :: Float -> Float -- TODO assumes the size is a radius
+clampSize s = if s < minSize then minSize
+              else if s > ph2 || s > pw2 then min pw2 ph2 else s
+
 -- Some debugging functions.
 debugF :: (Show a) => a -> a
 debugF x = if debug then traceShowId x else x
@@ -382,7 +410,7 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 -- Type aliases for shorter type signatures.
 type TimeInit = Float
 type Time = Double
-type ObjFn a = forall a . Floating a => [a] -> a -- the new type we're trying to convert to
+type ObjFn a = forall a . Floating a => [a] -> a
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
 
@@ -395,24 +423,41 @@ step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
             if autostep s then s { objs = stepObjs (float2Double t) (objs s) } else s 
 
+-- Any time a new attribute is added to objective functions, the object packing/unpacking needs to be changed,
+-- and the objective functions need to be changed.
+
 -- may differ between different kinds of objs: circles may have a size param but points may not.
 -- how should the gradient function distinguish? all objs need to have a return list of the same size
 -- with Infinity as the value if the attribute is missing?
 -- or "hooks" to info outside of the function?
 objInfo :: Obj -> [Float]
-objInfo o = [getX o, getY o] -- TODO add size
+objInfo o = [getX o, getY o, getSize o] -- TODO deal with labels, also do stuff at type level
 
 stateSize :: Int
-stateSize = 2
+stateSize = 3
 
 chunksOf :: Int -> [a] -> [[a]]
 chunksOf _ [] = []
 chunksOf n l = take n l : chunksOf n (drop n l)
 
-updateObj :: (Obj, [Float]) -> Obj
+objsInfo :: [a] -> [[a]]
+objsInfo = chunksOf stateSize
+
+-- from [x,y,s] over all objs, return [x,y] over all
+objsCoords :: [a] -> [a]
+objsCoords = concatMap (\[x, y, s] -> [x, y]) . objsInfo
+
+-- from [x,y,s] over all objs, return [s] over all
+objsSizes :: [a] -> [a]
+objsSizes = map (\[x, y, s] -> s) . objsInfo
+
+-- input list l should have size stateSize, should contain relevant object info
+updateObj :: (Obj, [Float]) -> Obj 
 updateObj (obj, l) = if not $ length l == stateSize then error "input obj list wrong size"
-                     else let [x', y'] = l in -- update obj's position while keeping it on canvas 
-                     setY (clampY y') $ setX (clampX x') obj
+                     else let [x', y', size] = l in
+                     setY (clampY y') $ setX (clampX x') $ setSize (clampSize size) obj
+                     -- update obj's position while keeping it on canvas 
+----
 
 -- unpacks all objects into a big state vector, steps that state, and repacks the new state into the objects
 -- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
@@ -599,7 +644,7 @@ state4 = [s1, s2, s3, s4]
 staten n = take n $ repeat s3 
 statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) in objs'
 
-objsInit = statenRand 5
+objsInit = statenRand 2
 ------
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
@@ -609,7 +654,7 @@ objText = "objective: center all objects + pairwise repel each other"
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => [a] -> a
-objFn1 = repel
+objFn1 = updateSize
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
@@ -620,11 +665,11 @@ minx1 xs = if length xs == 0 then error "minx1 empty list" else (head xs)^2
 
 -- only center the first object (for debugging). NOTE: need to pass in parameters in the right order
 centerObjNoSqrt :: ObjFn a
-centerObjNoSqrt (x1 : y1 : x2 : y2 : _) = x1^2 + y1^2 -- sum $
+centerObjNoSqrt (x1 : y1 : _) = x1^2 + y1^2 -- sum $
 
 -- center both objects without sqrt
 centerObjsNoSqrt :: ObjFn a
-centerObjsNoSqrt = sum . map (^2)
+centerObjsNoSqrt = sum . map (^2) . objsCoords
 
 centerx1Sqrt :: ObjFn a -- discontinuous, timestep = 100 * t. autodiff behaves differently for this vs abs
 centerx1Sqrt (x1 : _) = sqrt $ x1^2
@@ -635,14 +680,14 @@ centerObjs = sqrt . centerObjsNoSqrt
 
 -- repel two objects
 repel2 :: ObjFn a
-repel2 [x1, y1, x2, y2] = 1 / ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
+repel2 [x1, y1, _, x2, y2, _] = 1 / ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 
 -- pairwise repel on a list of objects
 -- TODO abstract out this general pattern (and make the function more readable)
 repel :: ObjFn a
 repel l = sum $ map (1 /) denoms
                  where denoms = map diffSq allPairs
-                       diffSq [[x1, y1], [x2, y2]] = (x1 - x2)^2 + (y1 - y2)^2 + epsd
+                       diffSq [[x1, y1, _], [x2, y2, _]] = (x1 - x2)^2 + (y1 - y2)^2 + epsd
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
                        objs = chunksOf stateSize l 
@@ -658,13 +703,18 @@ centerAndRepel s = centerObjsNoSqrt s + weight * repel s
 doNothing :: ObjFn a -- for debugging
 doNothing _ = 0
 
+-- TODO generalize and give a better name
+grow2 :: ObjFn a
+grow2 [_, _, s1, _, _, s2] = 1 / (s1 + epsd) + 1 / (s2 + epsd)
+-- objsSizes l
+
 -- TODO this needs the set size info. hardcode radii for now
 -- TODO to use "min rad rad1" we need to add "Ord a" to the type signatures everywhere
 -- we want the distance between the sets to be <overlap> less than having them just touch
 -- this isn't working? and isn't resampling?
 -- also i'm getting interval shrinking problems just with this function (using 'distance' only)
 setsIntersect2 :: ObjFn a
-setsIntersect2 [x1, y1, x2, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
+setsIntersect2 [x1, y1, _, x2, y2, _] = (dist (x1, y1) (x2, y2) - overlap)^2
               where overlap = rad + rad1 - 0.5 * rad1 -- should be "min rad rad1"
 
 ------ Objective function to place a label either inside of or right outside of a set
@@ -681,5 +731,6 @@ eps' = 60 -- why is this 100??
 -- TODO still some nontermination in A-W ls when circles to corner/side
 -- TODO I still can't get it to settle in the center
 -- TODO this expression can be simplified--see slides
+-- TODO generalize to list for use in labeling
 cubicCenterOrRadius2 :: ObjFn a 
-cubicCenterOrRadius2 [x1, y1, x2, y2] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
+cubicCenterOrRadius2 [x1, y1, _, x2, y2, _] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
