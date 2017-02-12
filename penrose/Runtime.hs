@@ -633,7 +633,7 @@ l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell =
 
 initStateRng :: StdGen
 initStateRng = mkStdGen seed
-    where seed = 3 -- deterministic RNG with seed
+    where seed = 4 -- deterministic RNG with seed
 
 state0 = []
 state1 = [s1]
@@ -644,7 +644,7 @@ state4 = [s1, s2, s3, s4]
 staten n = take n $ repeat s3 
 statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) in objs'
 
-objsInit = statenRand 2
+objsInit = statenRand 6
 ------
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
@@ -654,10 +654,13 @@ objText = "objective: center all objects + pairwise repel each other"
 
 -- needed to give this a type signature, otherwise inferred that `a = Double`
 objFn1 :: Floating a => [a] -> a
-objFn1 = updateSize
+objFn1 = centerAndRepel
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
+
+sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
+sumMap f l = sum $ map f l
 
 -- simple test function
 minx1 :: ObjFn a -- timestep t
@@ -669,7 +672,7 @@ centerObjNoSqrt (x1 : y1 : _) = x1^2 + y1^2 -- sum $
 
 -- center both objects without sqrt
 centerObjsNoSqrt :: ObjFn a
-centerObjsNoSqrt = sum . map (^2) . objsCoords
+centerObjsNoSqrt = sumMap (^2) . objsCoords
 
 centerx1Sqrt :: ObjFn a -- discontinuous, timestep = 100 * t. autodiff behaves differently for this vs abs
 centerx1Sqrt (x1 : _) = sqrt $ x1^2
@@ -682,31 +685,77 @@ centerObjs = sqrt . centerObjsNoSqrt
 repel2 :: ObjFn a
 repel2 [x1, y1, _, x2, y2, _] = 1 / ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 
--- pairwise repel on a list of objects
--- TODO abstract out this general pattern (and make the function more readable)
-repel :: ObjFn a
-repel l = sum $ map (1 /) denoms
+-- pairwise repel on a list of objects (by distance b/t their centers)
+repelCenter :: ObjFn a
+repelCenter l = sumMap (\x -> 1 / (x + epsd)) denoms
                  where denoms = map diffSq allPairs
-                       diffSq [[x1, y1, _], [x2, y2, _]] = (x1 - x2)^2 + (y1 - y2)^2 + epsd
+                       diffSq [[x1, y1, _], [x2, y2, _]] = (x1 - x2)^2 + (y1 - y2)^2 
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
                        objs = chunksOf stateSize l 
 
--- this works really nicely with A-W line search!
--- TODO debug: with line search, optimizer finds NaN state (all at exactly same pos in top right)
--- and even when re-sampling, they end up centered there??
--- but when dragged a bit, they find the local minima
+-- pairwise repel on a list of objects (by distance between their borders)
+-- TODO does not deal with labels!
+repelRadius :: ObjFn a
+repelRadius l = sumMap (\x -> 1 / (x + epsd)) denoms
+                 where denoms = map diffSq allPairs
+                       diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
+                       allPairs = filter (\x -> length x == 2) $ subsequences objs
+                       -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
+                       objs = chunksOf stateSize l 
+
+-- test function that separates fixed parameters (size) from varying parameters (location). 
+-- just ignores the fixed params
+type ObjFn1 a = forall a . Floating a => [a] -> [a] -> a
+type ObjFn2 a = forall a . Floating a => [a] -> (forall a . Floating a => [a] -> a)
+type ObjFn3 a = forall a . Floating a => [a] -> (forall b . Floating a => [b] -> b)
+
+testFV :: ObjFn2 a
+testFV fixed varying = sumMap (\x -> 1 / x) varying -- this probably doesn't work
+
+-- pairwise repel on a list of objects (by distance b/t their centers)
+-- TODO: version of above function that separates fixed parameters (size) from varying parameters (location)
+-- assuming 1 size for each two locs, and s1 corresponds to x1, y1 (and so on)
+repelCenterFixed :: ObjFn1 a
+repelCenterFixed sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
+                 where denoms = map diffSq allPairs
+                       diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
+                       allPairs = filter (\x -> length x == 2) $ subsequences objs
+                       objs = zipWith (++) locPairs sizes'
+                       (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
+
+type Fixed = [Float]
+type Varying = [Float]
+
+-- the types can't be polymorphic here
+repelCenterFixed_unpack :: [Obj] -> (Fixed, Varying)
+repelCenterFixed_unpack objs = (map getSize objs, concatMap (\o -> [getX o, getY o]) objs)
+
+repelCenterFixed_pack :: [Obj] -> Varying -> [Obj]
+repelCenterFixed_pack objs varying = let positions = chunksOf 2 varying in
+                                     map (\(o, [x, y]) -> setX x $ setY y o) (zip objs positions)
+
+repelCenterFixed' :: ObjFn a
+repelCenterFixed' = repelCenterFixed [1.0]
+
+-- objFn3 :: Floating a => [a] -> ObjFn a
+objFn3 :: forall a . Floating a => [a] -> [a] -> a
+objFn3 fixed = repelCenterFixed fixed
+
+-----
+
 centerAndRepel :: ObjFn a -- timestep t
-centerAndRepel s = centerObjsNoSqrt s + weight * repel s
-                   where weight = 10 ** 10
+centerAndRepel s = centerObjsNoSqrt s + weight * repelRadius s
+                   where weight = 10 ** 9
 
 doNothing :: ObjFn a -- for debugging
 doNothing _ = 0
 
--- TODO generalize and give a better name
 grow2 :: ObjFn a
 grow2 [_, _, s1, _, _, s2] = 1 / (s1 + epsd) + 1 / (s2 + epsd)
--- objsSizes l
+
+grow :: ObjFn a
+grow l = sumMap (\x -> 1 / (x + epsd)) $ objsSizes l
 
 -- TODO this needs the set size info. hardcode radii for now
 -- TODO to use "min rad rad1" we need to add "Ord a" to the type signatures everywhere
