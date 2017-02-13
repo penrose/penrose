@@ -1,4 +1,4 @@
-{-# LANGUAGE Rank2Types, UnicodeSyntax #-}
+{-# LANGUAGE RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
 -- for autodiff, requires passing in a polymorphic fn
 
 -- module Runtime where
@@ -13,6 +13,7 @@ import GHC.Float -- float <-> double conversions
 import System.IO
 import System.Environment
 import Data.List
+import Unsafe.Coerce -- sorry!!!
 import qualified Compiler as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
@@ -464,15 +465,16 @@ updateObj (obj, l) = if not $ length l == stateSize then error "input obj list w
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
 stepObjs :: Time -> [Obj] -> [Obj]
 stepObjs t objs = if constraint objs' then objs' else objs
-        where state = map float2Double $ concatMap objInfo objs -- extract locations of objs, ignoring size
+        where (fixed, stateVarying) = tupMap (map float2Double) $ unpackFn objs
               -- get new positions. objective function is a global param
-              state' = map double2Float $ stepWithObjective t state
-              -- break state list into chunks corresponding to new state for each obj
-              stateLists = chunksOf stateSize state' 
-              -- re-pack each object's state list into object, assuming the zipped lists are the same size
-              objs' = map updateObj ((\ (a, b) -> zip a b) $ checkSizesMatch objs stateLists)
+              stateVarying' = map double2Float $ stepWithObjective fixed t stateVarying
+              -- re-pack each object's state list into object
+              objs' = packFn objs stateVarying'
               checkSizesMatch a b = if not $ length a == length b then error "length mismatch" else (a, b)
-                    
+       
+tupMap :: (a -> b) -> (a, a) -> (b, b)
+tupMap f (a, b) = (f a, f b)
+             
 -- Flags for debugging the surrounding functions.
 clampflag = False
 debug = True
@@ -489,12 +491,12 @@ stepT dt x dfdx = x - dt * dfdx
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
-stepWithObjective :: Time -> [Double] -> [Double]
-stepWithObjective t state =
+stepWithObjective :: Floating a => [a] -> Time -> [Double] -> [Double]
+stepWithObjective fixed t state =
                   if stoppingCriterion gradEval then tr "STOP. position:" state
                   -- [stepT t' x1 dfdx1, stepT t' y1 dfdy1, ...]
                   else map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval)
-                  where (t', gradEval) = timeAndGrad objFn1 t state
+                  where (t', gradEval) = timeAndGrad (objFn' fixed) t state
                   -- gradEval = [dfdx1, dfdy1, dfdsize1, ...]
                   -- choose the timestep via backtracking (for now) line search
                         stoppingCriterion gradEval =
@@ -549,6 +551,7 @@ normsq = sum . map (^ 2)
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
 timeAndGrad :: Floating a => ObjFn a -> Time -> [Double] -> (Time, [Double])
+-- timeAndGrad :: Floating a => ([a] -> a) -> Time -> [Double] -> (Time, [Double])
 timeAndGrad f t state = (timestep, gradEval)
             where gradF :: Floating a => [a] -> [a]
                   gradF = appGrad f
@@ -716,12 +719,14 @@ testFV fixed varying = sumMap (\x -> 1 / x) varying -- this probably doesn't wor
 -- pairwise repel on a list of objects (by distance b/t their centers)
 -- TODO: version of above function that separates fixed parameters (size) from varying parameters (location)
 -- assuming 1 size for each two locs, and s1 corresponds to x1, y1 (and so on)
-repelCenterFixed :: ObjFn1 a
+-- repelCenterFixed :: ObjFn1 a
+-- repelCenterFixed :: 
+repelCenterFixed :: forall a . Floating a => [a] -> (forall b . Floating b => [b] -> b)
 repelCenterFixed sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
                  where denoms = map diffSq allPairs
                        diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
-                       objs = zipWith (++) locPairs sizes'
+                       objs = zipWith (++) locPairs (map unsafeCoerce sizes') -- TODO. sorry!!! we know the a and b will always be doubles
                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
 
 type Fixed = [Float]
@@ -733,14 +738,29 @@ repelCenterFixed_unpack objs = (map getSize objs, concatMap (\o -> [getX o, getY
 
 repelCenterFixed_pack :: [Obj] -> Varying -> [Obj]
 repelCenterFixed_pack objs varying = let positions = chunksOf 2 varying in
-                                     map (\(o, [x, y]) -> setX x $ setY y o) (zip objs positions)
+                                     map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
+                                         (zip objs positions)
 
 repelCenterFixed' :: ObjFn a
 repelCenterFixed' = repelCenterFixed [1.0]
 
--- objFn3 :: Floating a => [a] -> ObjFn a
-objFn3 :: forall a . Floating a => [a] -> [a] -> a
-objFn3 fixed = repelCenterFixed fixed
+objFn'' :: forall a . Floating a => [a] -> (forall b . Floating b => [b] -> b)
+objFn'' fixed varying = centerObjsNoSqrt varying + weight * repelRadius varying
+       -- TODO need to use the right pack/unpack functions, the above ones expect [x,y,s]
+       where weight = 10 ** 9
+
+objFn' :: forall a . Floating a => [a] -> (forall b . Floating b => [b] -> b)
+objFn' fixed varying = unsafeCoerce (centerObjsNoSqrt_coords varying) + weight * (repelCenterFixed fixed varying)
+       -- doesn't work 
+       where weight = 10 ** 10
+             centerObjsNoSqrt_coords :: ObjFn a
+             centerObjsNoSqrt_coords coords = sumMap (^2) coords
+
+unpackFn :: [Obj] -> (Fixed, Varying)
+unpackFn = repelCenterFixed_unpack
+
+packFn :: [Obj] -> Varying -> [Obj]
+packFn = repelCenterFixed_pack
 
 -----
 
