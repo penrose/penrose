@@ -13,7 +13,6 @@ import GHC.Float -- float <-> double conversions
 import System.IO
 import System.Environment
 import Data.List
-import Unsafe.Coerce -- sorry!!!
 import qualified Compiler as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
@@ -411,7 +410,7 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 -- Type aliases for shorter type signatures.
 type TimeInit = Float
 type Time = Double
-type ObjFn a = forall a . Floating a => [a] -> a
+type ObjFn1 a = forall a . Floating a => [a] -> a
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
 
@@ -424,13 +423,7 @@ step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
             if autostep s then s { objs = stepObjs (float2Double t) (objs s) } else s 
 
--- Any time a new attribute is added to objective functions, the object packing/unpacking needs to be changed,
--- and the objective functions need to be changed.
-
--- may differ between different kinds of objs: circles may have a size param but points may not.
--- how should the gradient function distinguish? all objs need to have a return list of the same size
--- with Infinity as the value if the attribute is missing?
--- or "hooks" to info outside of the function?
+-- Utility functions for getting object info (currently unused)
 objInfo :: Obj -> [Float]
 objInfo o = [getX o, getY o, getSize o] -- TODO deal with labels, also do stuff at type level
 
@@ -451,13 +444,6 @@ objsCoords = concatMap (\[x, y, s] -> [x, y]) . objsInfo
 -- from [x,y,s] over all objs, return [s] over all
 objsSizes :: [a] -> [a]
 objsSizes = map (\[x, y, s] -> s) . objsInfo
-
--- input list l should have size stateSize, should contain relevant object info
-updateObj :: (Obj, [Float]) -> Obj 
-updateObj (obj, l) = if not $ length l == stateSize then error "input obj list wrong size"
-                     else let [x', y', size] = l in
-                     setY (clampY y') $ setX (clampX x') $ setSize (clampSize size) obj
-                     -- update obj's position while keeping it on canvas 
 ----
 
 -- unpacks all objects into a big state vector, steps that state, and repacks the new state into the objects
@@ -491,12 +477,12 @@ stepT dt x dfdx = x - dt * dfdx
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
-stepWithObjective :: Floating a => [a] -> Time -> [Double] -> [Double]
+stepWithObjective :: Real a => [a] -> Time -> [Double] -> [Double]
 stepWithObjective fixed t state =
                   if stoppingCriterion gradEval then tr "STOP. position:" state
                   -- [stepT t' x1 dfdx1, stepT t' y1 dfdy1, ...]
                   else map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval)
-                  where (t', gradEval) = timeAndGrad (objFn' fixed) t state
+                  where (t', gradEval) = timeAndGrad (objFn (map realToFrac fixed)) t state
                   -- gradEval = [dfdx1, dfdy1, dfdsize1, ...]
                   -- choose the timestep via backtracking (for now) line search
                         stoppingCriterion gradEval =
@@ -550,7 +536,7 @@ normsq = sum . map (^ 2)
 -- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
-timeAndGrad :: Floating a => ObjFn a -> Time -> [Double] -> (Time, [Double])
+timeAndGrad :: Floating a => ObjFn1 a -> Time -> [Double] -> (Time, [Double])
 -- timeAndGrad :: Floating a => ([a] -> a) -> Time -> [Double] -> (Time, [Double])
 timeAndGrad f t state = (timestep, gradEval)
             where gradF :: Floating a => [a] -> [a]
@@ -594,7 +580,7 @@ isInfinity x = (x == infinity)
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
 -- TODO what happens if there are NaNs in awLineSearch?
-awLineSearch :: ObjFn a -> (forall a . Floating a => [a] -> [a] -> a) -> [Double] -> [Double] -> Double
+awLineSearch :: ObjFn1 a -> (forall a . Floating a => [a] -> [a] -> a) -> [Double] -> [Double] -> Double
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
@@ -625,7 +611,7 @@ awLineSearch f duf_noU descentDir x0 =
                 minInterval = if intervalMin then 10 ** (-5) else 0 
                 -- stop if the interval gets too small; might not terminate
 
-------------- Objective functions.
+------------- Initial states
 
 -- initial states
 s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
@@ -648,16 +634,29 @@ staten n = take n $ repeat s3
 statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) in objs'
 
 objsInit = statenRand 6
-------
+
+------------ Various constants and helper functions related to objective functions
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
 objText = "objective: center all objects + pairwise repel each other"
 
--- needed to give this a type signature, otherwise inferred that `a = Double`
-objFn1 :: Floating a => [a] -> a
-objFn1 = centerAndRepel
+-- separates fixed parameters (here, size) from varying parameters (here, location)
+-- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
+type ObjFn2 a = forall a . Floating a => [a] -> [a] -> a
+type Fixed = [Float]
+type Varying = [Float]
+
+objFn :: ObjFn2 a
+objFn = centerAndRepel_dist
+
+-- all objective functions so far use these two pack/unpack functions
+unpackFn :: [Obj] -> (Fixed, Varying)
+unpackFn = sizeLoc_unpack
+
+packFn :: [Obj] -> Varying -> [Obj]
+packFn = sizeLoc_pack
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
@@ -665,125 +664,90 @@ intervalMin = True -- true = force halt if interval gets too small; false = no f
 sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
 sumMap f l = sum $ map f l
 
+-- fixed parameters = sizes (in a list); varying parameters = locations (in a list of [x,y])
+-- if you want the sizes to vary, you'll have to write different objective functions and pack/unpack functions
+-- including size clamping
+sizeLoc_unpack :: [Obj] -> (Fixed, Varying)
+sizeLoc_unpack objs = (map getSize objs, concatMap (\o -> [getX o, getY o]) objs)
+
+sizeLoc_pack :: [Obj] -> Varying -> [Obj]
+sizeLoc_pack objs varying = let positions = chunksOf 2 varying in
+                                     map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
+                                         (zip objs positions)
+
+-------------- Objective functions
+
 -- simple test function
-minx1 :: ObjFn a -- timestep t
-minx1 xs = if length xs == 0 then error "minx1 empty list" else (head xs)^2
+minx1 :: ObjFn2 a -- timestep t
+minx1 _ xs = if length xs == 0 then error "minx1 empty list" else (head xs)^2
 
 -- only center the first object (for debugging). NOTE: need to pass in parameters in the right order
-centerObjNoSqrt :: ObjFn a
-centerObjNoSqrt (x1 : y1 : _) = x1^2 + y1^2 -- sum $
+centerObjNoSqrt :: ObjFn2 a
+centerObjNoSqrt _ (x1 : y1 : _) = x1^2 + y1^2 -- sum $
 
 -- center both objects without sqrt
-centerObjsNoSqrt :: ObjFn a
-centerObjsNoSqrt = sumMap (^2) . objsCoords
+centerObjsNoSqrt :: ObjFn2 a
+centerObjsNoSqrt _ = sumMap (^2) 
 
-centerx1Sqrt :: ObjFn a -- discontinuous, timestep = 100 * t. autodiff behaves differently for this vs abs
-centerx1Sqrt (x1 : _) = sqrt $ x1^2
+centerx1Sqrt :: ObjFn2 a -- discontinuous, timestep = 100 * t. autodiff behaves differently for this vs abs
+centerx1Sqrt _ (x1 : _) = sqrt $ x1^2
 
 -- lot of "interval too small"s happening with the objfns on lists now
-centerObjs :: ObjFn a -- with sqrt
-centerObjs = sqrt . centerObjsNoSqrt
+centerObjs :: ObjFn2 a -- with sqrt
+centerObjs fixed = sqrt . (centerObjsNoSqrt fixed)
 
--- repel two objects
-repel2 :: ObjFn a
-repel2 [x1, y1, _, x2, y2, _] = 1 / ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
+-- Repel two objects
+repel2 :: ObjFn2 a
+repel2 _ [x1, y1, x2, y2] = 1 / ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 
 -- pairwise repel on a list of objects (by distance b/t their centers)
-repelCenter :: ObjFn a
-repelCenter l = sumMap (\x -> 1 / (x + epsd)) denoms
+repelCenter :: ObjFn2 a
+repelCenter _ locs = sumMap (\x -> 1 / (x + epsd)) denoms
                  where denoms = map diffSq allPairs
-                       diffSq [[x1, y1, _], [x2, y2, _]] = (x1 - x2)^2 + (y1 - y2)^2 
+                       diffSq [[x1, y1], [x2, y2]] = (x1 - x2)^2 + (y1 - y2)^2 
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
-                       objs = chunksOf stateSize l 
-
--- pairwise repel on a list of objects (by distance between their borders)
--- TODO does not deal with labels!
-repelRadius :: ObjFn a
-repelRadius l = sumMap (\x -> 1 / (x + epsd)) denoms
-                 where denoms = map diffSq allPairs
-                       diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
-                       allPairs = filter (\x -> length x == 2) $ subsequences objs
-                       -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
-                       objs = chunksOf stateSize l 
-
--- test function that separates fixed parameters (size) from varying parameters (location). 
--- just ignores the fixed params
-type ObjFn1 a = forall a . Floating a => [a] -> [a] -> a
-type ObjFn2 a = forall a . Floating a => [a] -> (forall a . Floating a => [a] -> a)
-type ObjFn3 a = forall a . Floating a => [a] -> (forall b . Floating a => [b] -> b)
-
-testFV :: ObjFn2 a
-testFV fixed varying = sumMap (\x -> 1 / x) varying -- this probably doesn't work
+                       objs = chunksOf 2 locs
 
 -- pairwise repel on a list of objects (by distance b/t their centers)
 -- TODO: version of above function that separates fixed parameters (size) from varying parameters (location)
 -- assuming 1 size for each two locs, and s1 corresponds to x1, y1 (and so on)
--- repelCenterFixed :: ObjFn1 a
--- repelCenterFixed :: 
-repelCenterFixed :: forall a . Floating a => [a] -> (forall b . Floating b => [b] -> b)
-repelCenterFixed sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
+repelDist :: ObjFn2 a
+repelDist sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
                  where denoms = map diffSq allPairs
                        diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
-                       objs = zipWith (++) locPairs (map unsafeCoerce sizes') -- TODO. sorry!!! we know the a and b will always be doubles
+                       objs = zipWith (++) locPairs sizes'
                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
 
-type Fixed = [Float]
-type Varying = [Float]
+centerAndRepel :: ObjFn2 a -- timestep t
+centerAndRepel fixed varying = centerObjsNoSqrt fixed varying + weight * repelCenter fixed varying
+                   where weight = 10 ** 10
 
--- the types can't be polymorphic here
-repelCenterFixed_unpack :: [Obj] -> (Fixed, Varying)
-repelCenterFixed_unpack objs = (map getSize objs, concatMap (\o -> [getX o, getY o]) objs)
-
-repelCenterFixed_pack :: [Obj] -> Varying -> [Obj]
-repelCenterFixed_pack objs varying = let positions = chunksOf 2 varying in
-                                     map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
-                                         (zip objs positions)
-
-repelCenterFixed' :: ObjFn a
-repelCenterFixed' = repelCenterFixed [1.0]
-
-objFn'' :: forall a . Floating a => [a] -> (forall b . Floating b => [b] -> b)
-objFn'' fixed varying = centerObjsNoSqrt varying + weight * repelRadius varying
-       -- TODO need to use the right pack/unpack functions, the above ones expect [x,y,s]
-       where weight = 10 ** 9
-
-objFn' :: forall a . Floating a => [a] -> (forall b . Floating b => [b] -> b)
-objFn' fixed varying = unsafeCoerce (centerObjsNoSqrt_coords varying) + weight * (repelCenterFixed fixed varying)
-       -- doesn't work 
+centerAndRepel_dist :: ObjFn2 a
+centerAndRepel_dist fixed varying = centerObjsNoSqrt fixed varying + weight * (repelDist fixed varying)
+       -- works, but doesn't take the sizes into account correctly
+       -- the sum of squares should have a sqrt, but if i do that, the function will become negative
+       -- should really be doing min _ 0 (need to add ord)
        where weight = 10 ** 10
-             centerObjsNoSqrt_coords :: ObjFn a
-             centerObjsNoSqrt_coords coords = sumMap (^2) coords
 
-unpackFn :: [Obj] -> (Fixed, Varying)
-unpackFn = repelCenterFixed_unpack
+doNothing :: ObjFn2 a -- for debugging
+doNothing _ _ = 0
 
-packFn :: [Obj] -> Varying -> [Obj]
-packFn = repelCenterFixed_pack
+-- TODO these need separate pack/unpack functions because they change the sizes. these don't currently work
+grow2 :: ObjFn2 a
+grow2 _ [_, _, s1, _, _, s2] = 1 / (s1 + epsd) + 1 / (s2 + epsd)
 
------
+grow :: ObjFn2 a
+grow _ varying = sumMap (\x -> 1 / (x + epsd)) $ varying
 
-centerAndRepel :: ObjFn a -- timestep t
-centerAndRepel s = centerObjsNoSqrt s + weight * repelRadius s
-                   where weight = 10 ** 9
-
-doNothing :: ObjFn a -- for debugging
-doNothing _ = 0
-
-grow2 :: ObjFn a
-grow2 [_, _, s1, _, _, s2] = 1 / (s1 + epsd) + 1 / (s2 + epsd)
-
-grow :: ObjFn a
-grow l = sumMap (\x -> 1 / (x + epsd)) $ objsSizes l
-
--- TODO this needs the set size info. hardcode radii for now
+-- TODO this needs to use the set size info. hardcode radii for now
 -- TODO to use "min rad rad1" we need to add "Ord a" to the type signatures everywhere
 -- we want the distance between the sets to be <overlap> less than having them just touch
 -- this isn't working? and isn't resampling?
 -- also i'm getting interval shrinking problems just with this function (using 'distance' only)
-setsIntersect2 :: ObjFn a
-setsIntersect2 [x1, y1, _, x2, y2, _] = (dist (x1, y1) (x2, y2) - overlap)^2
+setsIntersect2 :: ObjFn2 a
+setsIntersect2 sizes [x1, y1, x2, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
               where overlap = rad + rad1 - 0.5 * rad1 -- should be "min rad rad1"
 
 ------ Objective function to place a label either inside of or right outside of a set
@@ -801,5 +765,5 @@ eps' = 60 -- why is this 100??
 -- TODO I still can't get it to settle in the center
 -- TODO this expression can be simplified--see slides
 -- TODO generalize to list for use in labeling
-cubicCenterOrRadius2 :: ObjFn a 
-cubicCenterOrRadius2 [x1, y1, _, x2, y2, _] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
+cubicCenterOrRadius2 :: ObjFn2 a 
+cubicCenterOrRadius2 _ [x1, y1, x2, y2] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
