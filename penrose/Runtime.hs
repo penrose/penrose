@@ -619,6 +619,7 @@ s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False }
 s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
 s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False }
 l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
+l2 = L $ Label { xl = 100, yl = clamp1D (-200), textl = "B2", scalel = 0.2, sell = False }
 
 initStateRng :: StdGen
 initStateRng = mkStdGen seed
@@ -633,14 +634,18 @@ state4 = [s1, s2, s3, s4]
 staten n = take n $ repeat s3 
 statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) in objs'
 
-objsInit = statenRand 6
+-- TODO gen state with more labels
+state1lab = [s1, l1]
+state2lab = [s1, l1, s2, l2]
+
+objsInit = state2lab
 
 ------------ Various constants and helper functions related to objective functions
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: center all objects + pairwise repel each other"
+objText = "objective: place labels close to objects (in center or just outside)"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -649,7 +654,7 @@ type Fixed = [Float]
 type Varying = [Float]
 
 objFn :: ObjFn2 a
-objFn = centerAndRepel_dist
+objFn = cubicCenterOrRadius4 --centerAndRepel_dist
 
 -- all objective functions so far use these two pack/unpack functions
 unpackFn :: [Obj] -> (Fixed, Varying)
@@ -767,3 +772,17 @@ eps' = 60 -- why is this 100??
 -- TODO generalize to list for use in labeling
 cubicCenterOrRadius2 :: ObjFn2 a 
 cubicCenterOrRadius2 _ [x1, y1, x2, y2] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
+
+-- implicit assumption about (obj, label)
+-- TODO interval shrinking problems, but no denominator?
+cubicCenterOrRadius4 :: ObjFn2 a -- TODO
+cubicCenterOrRadius4 sizes [x1, y1, x2, y2, x1', y1', x2', y2'] =
+                   cubicCenterOrRadius2 sizes [x1, y1, x2, y2] + cubicCenterOrRadius2 sizes [x1', y1', x2', y2'] 
+
+-- centerOrRadSum :: ObjFn2 a      -- TODO
+-- centerOrRadSum sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
+--                  where denoms = map diffSq allPairs
+--                        diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
+--                        allPairs = filter (\x -> length x == 2) $ subsequences objs
+--                        objs = zipWith (++) locPairs sizes'
+--                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
