@@ -757,11 +757,11 @@ setsIntersect2 sizes [x1, y1, x2, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
 
 ------ Objective function to place a label either inside of or right outside of a set
 
-c1' :: Floating a => a
-c1' = rad -- both need to be non-neg
+-- c1' :: Floating a => a
+-- c1' = rad -- both need to be non-neg
 
-c2' :: Floating a => a
-c2' = rad + eps'
+-- c2' :: Floating a => a
+-- c2' = rad + eps'
 
 eps' :: Floating a => a
 eps' = 60 -- why is this 100??
@@ -771,13 +771,16 @@ eps' = 60 -- why is this 100??
 -- TODO this expression can be simplified--see slides
 -- TODO generalize to list for use in labeling
 cubicCenterOrRadius2 :: ObjFn2 a 
-cubicCenterOrRadius2 _ [x1, y1, x2, y2] = (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
+cubicCenterOrRadius2 [c1', _] [x1, y1, x2, y2] = 
+                     (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
+                     where c2' = c1' + eps'
+                     -- (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
 
 -- implicit assumption about (obj, label)
 -- TODO interval shrinking problems, but no denominator?
 cubicCenterOrRadius4 :: ObjFn2 a -- TODO
-cubicCenterOrRadius4 sizes [x1, y1, x2, y2, x1', y1', x2', y2'] =
-                   cubicCenterOrRadius2 sizes [x1, y1, x2, y2] + cubicCenterOrRadius2 sizes [x1', y1', x2', y2'] 
+cubicCenterOrRadius4 [rad1, l1, rad2, l2] [x1, y1, x2, y2, x1', y1', x2', y2'] =
+                   cubicCenterOrRadius2 [rad1, l1] [x1, y1, x2, y2] + cubicCenterOrRadius2 [rad2, l2] [x1', y1', x2', y2'] 
 
 -- centerOrRadSum :: ObjFn2 a      -- TODO
 -- centerOrRadSum sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
