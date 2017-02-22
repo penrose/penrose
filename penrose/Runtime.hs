@@ -410,7 +410,7 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 -- Type aliases for shorter type signatures.
 type TimeInit = Float
 type Time = Double
-type ObjFn1 a = forall a . Floating a => [a] -> a
+type ObjFn1 a = forall a . (Floating a, Ord a) => [a] -> a
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
 
@@ -489,7 +489,7 @@ stepWithObjective fixed t state =
                                     (tr "gradient norm: " $ norm $ tr "evaluated gradient:" $ gradEval) <= stopEps
 
 -- a version of grad with a clearer type signature
-appGrad :: Floating a => (forall a . Floating a => [a] -> a) -> [a] -> [a]
+appGrad :: (Ord a, Floating a) => (forall a . (Ord a, Floating a) => [a] -> a) -> [a] -> [a]
 appGrad f l = grad f l
 
 nanSub :: (RealFloat a, Floating a) => a
@@ -536,10 +536,10 @@ normsq = sum . map (^ 2)
 -- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
-timeAndGrad :: Floating a => ObjFn1 a -> Time -> [Double] -> (Time, [Double])
+timeAndGrad :: ObjFn1 a -> Time -> [Double] -> (Time, [Double])
 -- timeAndGrad :: Floating a => ([a] -> a) -> Time -> [Double] -> (Time, [Double])
 timeAndGrad f t state = (timestep, gradEval)
-            where gradF :: Floating a => [a] -> [a]
+            where gradF :: (Ord a, Floating a) => [a] -> [a]
                   gradF = appGrad f
                   gradEval = removeNaN $ gradF state
                   -- Use line search to find a good timestep.
@@ -552,7 +552,7 @@ timeAndGrad f t state = (timestep, gradEval)
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
-                  duf :: Floating a => [a] -> [a] -> a
+                  duf :: (Ord a, Floating a) => [a] -> [a] -> a
                   duf u x = gradF x `dotL` u
 
 -- Parameters for Armijo-Wolfe line search
@@ -580,7 +580,7 @@ isInfinity x = (x == infinity)
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
 -- TODO what happens if there are NaNs in awLineSearch?
-awLineSearch :: ObjFn1 a -> (forall a . Floating a => [a] -> [a] -> a) -> [Double] -> [Double] -> Double
+awLineSearch :: ObjFn1 a -> (forall a . (Ord a, Floating a) => [a] -> [a] -> a) -> [Double] -> [Double] -> Double
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
@@ -640,6 +640,9 @@ state2lab = [s1, l1, s2, l2]
 
 objsInit = state2lab
 
+objFn :: ObjFn2 a
+objFn = centerOrRadParabola4 --centerAndRepel_dist
+
 ------------ Various constants and helper functions related to objective functions
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
@@ -649,12 +652,9 @@ objText = "objective: place labels close to objects (in center or just outside)"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
-type ObjFn2 a = forall a . Floating a => [a] -> [a] -> a
+type ObjFn2 a = forall a . (Ord a, Floating a) => [a] -> [a] -> a
 type Fixed = [Float]
 type Varying = [Float]
-
-objFn :: ObjFn2 a
-objFn = cubicCenterOrRadius4 --centerAndRepel_dist
 
 -- all objective functions so far use these two pack/unpack functions
 unpackFn :: [Obj] -> (Fixed, Varying)
@@ -766,21 +766,31 @@ setsIntersect2 sizes [x1, y1, x2, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
 eps' :: Floating a => a
 eps' = 60 -- why is this 100??
 
+centerOrRadParabola2 :: ObjFn2 a 
+centerOrRadParabola2 [r_set, _] [x1, y1, x2, y2] =
+                     if d <= (r_set/2) then d^2 else (d - (r_set + margin))^2
+                     where d = dist (x1, y1) (x2, y2)
+                           margin :: Floating a => a
+                           margin = 60
+
 -- TODO still some nontermination in A-W ls when circles to corner/side
 -- TODO I still can't get it to settle in the center
--- TODO this expression can be simplified--see slides
 -- TODO generalize to list for use in labeling
 cubicCenterOrRadius2 :: ObjFn2 a 
 cubicCenterOrRadius2 [c1', _] [x1, y1, x2, y2] = 
-                     (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
+                     (dist (x1, y1) (x2, y2))^3 - (c1' + c2') * (dist (x1, y1) (x2, y2))^2
+                     + c1' * c2' * (dist (x1, y1) (x2, y2))
                      where c2' = c1' + eps'
-                     -- (sqrt((x1-x2)^2 + (y1-y2)^2))^3 - (c1' + c2') * (sqrt((x1-x2)^2 + (y1-y2)^2))^2 + c1' * c2' * (sqrt((x1-x2)^2 + (y1-y2)^2))
 
 -- implicit assumption about (obj, label)
 -- TODO interval shrinking problems, but no denominator?
 cubicCenterOrRadius4 :: ObjFn2 a -- TODO
 cubicCenterOrRadius4 [rad1, l1, rad2, l2] [x1, y1, x2, y2, x1', y1', x2', y2'] =
-                   cubicCenterOrRadius2 [rad1, l1] [x1, y1, x2, y2] + cubicCenterOrRadius2 [rad2, l2] [x1', y1', x2', y2'] 
+                   cubicCenterOrRadius2 [rad1, l1] [x1, y1, x2, y2] + cubicCenterOrRadius2 [rad2, l2] [x1', y1', x2', y2']
+
+centerOrRadParabola4 :: ObjFn2 a -- TODO
+centerOrRadParabola4 [rad1, l1, rad2, l2] [x1, y1, x2, y2, x1', y1', x2', y2'] =
+                   centerOrRadParabola2 [rad1, l1] [x1, y1, x2, y2] + centerOrRadParabola2 [rad2, l2] [x1', y1', x2', y2']
 
 -- centerOrRadSum :: ObjFn2 a      -- TODO
 -- centerOrRadSum sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
@@ -789,3 +799,4 @@ cubicCenterOrRadius4 [rad1, l1, rad2, l2] [x1, y1, x2, y2, x1', y1', x2', y2'] =
 --                        allPairs = filter (\x -> length x == 2) $ subsequences objs
 --                        objs = zipWith (++) locPairs sizes'
 --                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
+
