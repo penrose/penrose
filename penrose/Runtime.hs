@@ -310,7 +310,10 @@ bbox = 60 -- TODO put all flags and consts together
 dist :: Floating a => (a, a) -> (a, a) -> a -- distance
 dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
 
--- hardcode bbox of label at the center
+distsq :: Floating a => (a, a) -> (a, a) -> a -- distance
+distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
+
+-- Hardcode bbox of label at the center
 -- TODO properly get bbox; rn text is centered at bottom left
 inObj :: (Float, Float) -> Obj -> Bool
 inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
@@ -411,6 +414,7 @@ noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair 
 type TimeInit = Float
 type Time = Double
 type ObjFn1 a = forall a . (Floating a, Ord a) => [a] -> a
+type GradFn a = forall a . (Ord a, Floating a) => [a] -> [a]
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
 
@@ -539,7 +543,7 @@ normsq = sum . map (^ 2)
 timeAndGrad :: ObjFn1 a -> Time -> [Double] -> (Time, [Double])
 -- timeAndGrad :: Floating a => ([a] -> a) -> Time -> [Double] -> (Time, [Double])
 timeAndGrad f t state = (timestep, gradEval)
-            where gradF :: (Ord a, Floating a) => [a] -> [a]
+            where gradF :: GradFn a
                   gradF = appGrad f
                   gradEval = removeNaN $ gradF state
                   -- Use line search to find a good timestep.
@@ -580,7 +584,7 @@ isInfinity x = (x == infinity)
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
 -- TODO what happens if there are NaNs in awLineSearch?
-awLineSearch :: ObjFn1 a -> (forall a . (Ord a, Floating a) => [a] -> [a] -> a) -> [Double] -> [Double] -> Double
+awLineSearch :: ObjFn1 a -> ObjFn2 a -> [Double] -> [Double] -> Double
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
@@ -597,8 +601,10 @@ awLineSearch f duf_noU descentDir x0 =
                        else if b' < infinity then tr "b' < infinity" (a', b', (a' + b') / 2)
                        else tr "b' = infinity" (a', b', 2 * a')
                 intervalOK_or_notArmijoAndWolfe (a, b, t) = not $
-                      if armijo t && weakWolfe t then tr "stop: both sat" True -- takes precedence
-                      else if abs (b - a) < minInterval then tr "stop: interval too small" True
+                      if armijo t && weakWolfe t then -- takes precedence
+                           tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True 
+                      else if abs (b - a) < minInterval then
+                           tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
                       else False -- could be shorter; long for debugging purposes
                 armijo t = (f ((tr "** x0" x0) +. t *. descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
                 strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
@@ -618,8 +624,10 @@ s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
 s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False }
 s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
 s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False }
-l1 = L $ Label { xl = -100, yl = clamp1D 200, textl = "B1", scalel = 0.2, sell = False }
-l2 = L $ Label { xl = 100, yl = clamp1D (-200), textl = "B2", scalel = 0.2, sell = False }
+
+-- if objects start at exactly the same position, there may be problems
+l1 = L $ Label { xl = 50, yl = clamp1D (-300), textl = "B1", scalel = 0.2, sell = False }
+l2 = L $ Label { xl = -300, yl = clamp1D (-200), textl = "B2", scalel = 0.2, sell = False }
 
 initStateRng :: StdGen
 initStateRng = mkStdGen seed
@@ -638,10 +646,16 @@ statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) i
 state1lab = [s1, l1]
 state2lab = [s1, l1, s2, l2]
 
-objsInit = state2lab
+-- TODO change label text
+staten_label n = concat $ map labelN $ take n $ zip [1..] (repeat state1lab)
+             where labelN (x, [obj, L lab]) = [obj, L $ lab { textl = ("B" ++ show x) }]
+staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (staten_label n) in objs'
+
+-- ### frequently-changed params
+objsInit = staten_label_rand 6
 
 objFn :: ObjFn2 a
-objFn = centerOrRadParabola4 --centerAndRepel_dist
+objFn = centerOrRadSum --centerAndRepel_dist
 
 ------------ Various constants and helper functions related to objective functions
 
@@ -709,7 +723,7 @@ repel2 _ [x1, y1, x2, y2] = 1 / ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 repelCenter :: ObjFn2 a
 repelCenter _ locs = sumMap (\x -> 1 / (x + epsd)) denoms
                  where denoms = map diffSq allPairs
-                       diffSq [[x1, y1], [x2, y2]] = (x1 - x2)^2 + (y1 - y2)^2 
+                       diffSq [[x1, y1], [x2, y2]] = (x1 - x2)^2 + (y1 - y2)^2
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
                        objs = chunksOf 2 locs
@@ -766,16 +780,26 @@ setsIntersect2 sizes [x1, y1, x2, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
 eps' :: Floating a => a
 eps' = 60 -- why is this 100??
 
+-- note: whenever an objective function has a partial derivative that might be fractional, 
+-- and vary in the denominator, need to add epsilon to denominator to avoid 1/0
+-- e.g. f(x) = sqrt(x) -> f'(x) = 1/(2sqrt(x))
 centerOrRadParabola2 :: ObjFn2 a 
 centerOrRadParabola2 [r_set, _] [x1, y1, x2, y2] =
-                     if d <= (r_set/2) then d^2 else (d - (r_set + margin))^2
-                     where d = dist (x1, y1) (x2, y2)
+                     if d <= (r_set/2) then d^2 else (d - (r_set + margin))^2 -- discontinuous
+                     where d = dist (x1, y1) (x2, y2) + epsd
                            margin :: Floating a => a
                            margin = 60
 
--- TODO still some nontermination in A-W ls when circles to corner/side
--- TODO I still can't get it to settle in the center
--- TODO generalize to list for use in labeling
+-- try to fix centering shrinking by pre-emptively squaring the distance
+-- should i expand the second term too?
+centerOrRadParabola2' :: ObjFn2 a 
+centerOrRadParabola2' [r_set, _] [x1, y1, x2, y2] =
+                     if d <= ((r_set + margin)/2) then (distsq (x1, y1) (x2, y2)) else (d - (r_set + margin))^2 
+                     where d = dist (x1, y1) (x2, y2) + epsd
+                           margin :: Floating a => a
+                           margin = 60
+
+-- doesn't work as well as centerOrRadParabola2
 cubicCenterOrRadius2 :: ObjFn2 a 
 cubicCenterOrRadius2 [c1', _] [x1, y1, x2, y2] = 
                      (dist (x1, y1) (x2, y2))^3 - (c1' + c2') * (dist (x1, y1) (x2, y2))^2
@@ -783,7 +807,6 @@ cubicCenterOrRadius2 [c1', _] [x1, y1, x2, y2] =
                      where c2' = c1' + eps'
 
 -- implicit assumption about (obj, label)
--- TODO interval shrinking problems, but no denominator?
 cubicCenterOrRadius4 :: ObjFn2 a -- TODO
 cubicCenterOrRadius4 [rad1, l1, rad2, l2] [x1, y1, x2, y2, x1', y1', x2', y2'] =
                    cubicCenterOrRadius2 [rad1, l1] [x1, y1, x2, y2] + cubicCenterOrRadius2 [rad2, l2] [x1', y1', x2', y2']
@@ -792,11 +815,11 @@ centerOrRadParabola4 :: ObjFn2 a -- TODO
 centerOrRadParabola4 [rad1, l1, rad2, l2] [x1, y1, x2, y2, x1', y1', x2', y2'] =
                    centerOrRadParabola2 [rad1, l1] [x1, y1, x2, y2] + centerOrRadParabola2 [rad2, l2] [x1', y1', x2', y2']
 
--- centerOrRadSum :: ObjFn2 a      -- TODO
--- centerOrRadSum sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
---                  where denoms = map diffSq allPairs
---                        diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
---                        allPairs = filter (\x -> length x == 2) $ subsequences objs
---                        objs = zipWith (++) locPairs sizes'
---                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
-
+-- NOTE: assumes that object and label are exactly contiguous in list: sizes of [o1, l1, o2, l2...]
+-- and locs: [x_o1, y_o1, x_l1, y_l1, x_o2, y_o2, x_l2, y_l2...]
+-- TODO abstract out repelDist / centerOrRadSum pattern 
+centerOrRadSum :: ObjFn2 a
+centerOrRadSum objLabelSizes objLabelLocs = 
+               let objLabelSizes' = chunksOf 2 objLabelSizes in
+               let objLabelLocs' = chunksOf 4 objLabelLocs in
+               sumMap (\(sizes, locs) -> centerOrRadParabola2' sizes locs) (zip objLabelSizes' objLabelLocs')
