@@ -562,12 +562,12 @@ timeAndGrad f t state = (timestep, gradEval)
 -- Parameters for Armijo-Wolfe line search
 -- NOTE: must maintain 0 < c1 < c2 < 1
 c1 :: Floating a => a
-c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
+c1 = 0.6 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
 -- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
 -- turn Armijo off: c1 = 0
 
 c2 :: Floating a => a
-c2 = 0.6 -- for Wolfe, is the factor decrease needed in derivative value
+c2 = 0.3 -- for Wolfe, is the factor decrease needed in derivative value
 -- new directional derivative value / old DD value <= c2
 -- smaller c2 = smaller new derivative value = harder to satisfy
 -- turn Wolfe off: c1 = 1 (basically backatracking line search onlyl
@@ -614,7 +614,7 @@ awLineSearch f duf_noU descentDir x0 =
                                 descentDir' = descentDir --tr "descentDir" descentDir
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
                 fAtx0 = f x0
-                minInterval = if intervalMin then 10 ** (-20) else 0 
+                minInterval = if intervalMin then 10 ** (-10) else 0 
                 -- stop if the interval gets too small; might not terminate
 
 ------------- Initial states
@@ -652,10 +652,10 @@ staten_label n = concat $ map labelN $ take n $ zip [1..] (repeat state1lab)
 staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (staten_label n) in objs'
 
 -- ### frequently-changed params
-objsInit = staten_label_rand 10
+objsInit = staten_label_rand 5
 
 objFn :: ObjFn2 a
-objFn = centerOrRadSum --centerAndRepel_dist
+objFn = centerRepelLabel
 
 ------------ Various constants and helper functions related to objective functions
 
@@ -741,7 +741,7 @@ repelDist sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
 
 centerAndRepel :: ObjFn2 a -- timestep t
 centerAndRepel fixed varying = centerObjsNoSqrt fixed varying + weight * repelCenter fixed varying
-                   where weight = 10 ** 10
+                   where weight = 10 ** (9.8) -- TODO calculate this weight as a function of radii and bbox
 
 centerAndRepel_dist :: ObjFn2 a
 centerAndRepel_dist fixed varying = centerObjsNoSqrt fixed varying + weight * (repelDist fixed varying)
@@ -771,12 +771,6 @@ setsIntersect2 sizes [x1, y1, x2, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
 
 ------ Objective function to place a label either inside of or right outside of a set
 
--- c1' :: Floating a => a
--- c1' = rad -- both need to be non-neg
-
--- c2' :: Floating a => a
--- c2' = rad + eps'
-
 eps' :: Floating a => a
 eps' = 60 -- why is this 100??
 
@@ -789,36 +783,38 @@ eps' = 60 -- why is this 100??
 -- e.g. f(x) = sqrt(x) -> f'(x) = 1/(2sqrt(x))
 -- in the first branch, we square the distance, because the objective there is to minimize the distance (resulting in 1/0). 
 -- in the second branch, the objective is to keep the distance at (r_set + margin), not at 0--so there’s no NaN in the denominator
-centerOrRadParabola2 :: ObjFn2 a 
-centerOrRadParabola2 [r_set, _] [x1, y1, x2, y2] =
-                     if dsq <= ((r_set + margin)/2)^2 then dsq
-                     else (d - (r_set + margin))^2 
+centerOrRadParabola2 :: Bool -> ObjFn2 a 
+centerOrRadParabola2 inSet [r_set, _] [x1, y1, x2, y2] =
+                     if dsq <= r_set^2 then dsq
+                     else (if inSet then dsq else coeff * (d - const)^2) -- false -> can lay it outside as well
                      where d = dist (x1, y1) (x2, y2) -- + epsd
                            dsq = distsq (x1, y1) (x2, y2) -- + epsd
-                           margin :: Floating a => a
-                           margin = 60
-
--- doesn't work as well as centerOrRadParabola2
-cubicCenterOrRadius2 :: ObjFn2 a 
-cubicCenterOrRadius2 [c1', _] [x1, y1, x2, y2] = 
-                     (dist (x1, y1) (x2, y2))^3 - (c1' + c2') * (dist (x1, y1) (x2, y2))^2
-                     + c1' * c2' * (dist (x1, y1) (x2, y2))
-                     where c2' = c1' + eps'
-
--- implicit assumption about (obj, label)
-cubicCenterOrRadius4 :: ObjFn2 a -- TODO
-cubicCenterOrRadius4 [rad1, l1, rad2, l2] [x1, y1, x2, y2, x1', y1', x2', y2'] =
-                   cubicCenterOrRadius2 [rad1, l1] [x1, y1, x2, y2] + cubicCenterOrRadius2 [rad2, l2] [x1', y1', x2', y2']
-
-centerOrRadParabola4 :: ObjFn2 a -- TODO
-centerOrRadParabola4 [rad1, l1, rad2, l2] [x1, y1, x2, y2, x1', y1', x2', y2'] =
-                   centerOrRadParabola2 [rad1, l1] [x1, y1, x2, y2] + centerOrRadParabola2 [rad2, l2] [x1', y1', x2', y2']
+                           coeff = r_set^2 / (r_set - const)^2 -- chosen s.t. parabolas intersect at r
+                           const = r_set + margin -- second parabola's zero
+                           margin = if r_set <= 30 then 30 else 60  -- distance from edge of set (as a fn of r)
 
 -- NOTE: assumes that object and label are exactly contiguous in list: sizes of [o1, l1, o2, l2...]
 -- and locs: [x_o1, y_o1, x_l1, y_l1, x_o2, y_o2, x_l2, y_l2...]
--- TODO abstract out repelDist / centerOrRadSum pattern 
-centerOrRadSum :: ObjFn2 a
-centerOrRadSum objLabelSizes objLabelLocs = 
+-- TODO abstract out repelDist / labelSum pattern 
+labelSum :: Bool -> ObjFn2 a
+labelSum inSet objLabelSizes objLabelLocs = 
                let objLabelSizes' = chunksOf 2 objLabelSizes in
                let objLabelLocs' = chunksOf 4 objLabelLocs in
-               sumMap (\(sizes, locs) -> centerOrRadParabola2 sizes locs) (zip objLabelSizes' objLabelLocs')
+               sumMap (\(sizes, locs) -> centerOrRadParabola2 inSet sizes locs) (zip objLabelSizes' objLabelLocs')
+
+------
+
+-- Start composing set-wise functions (centerAndRepel) with set-label functions (labelSum)
+-- Sets repel each other, labels repel each other, and sets are labeled
+-- TODO non-label sets should repel those labels
+-- TODO resample initial state s.t. labels start inside the set (the centerOrRad is mostly useful if there are other objects inside the set that might repel the label)
+-- TODO abstract out the unpacking functions here and factor out the weights
+centerRepelLabel :: ObjFn2 a
+centerRepelLabel olSizes olLocs =
+                 centerAndRepel oSizes oLocs + weight * repelCenter lSizes lLocs + labelSum inSet olSizes olLocs
+                 where (oSizes, lSizes) = (map fst zippedSizes, map snd zippedSizes)
+                       zippedSizes = map (\[obj, lab] -> (obj, lab)) $ chunksOf 2 olSizes
+                       (oLocs, lLocs) = (concatMap fst zippedLocs, concatMap snd zippedLocs)
+                       zippedLocs = map (\[xo, yo, xl, yl] -> ([xo, yo], [xl, yl])) $ chunksOf 4 olLocs
+                       weight = 10 ** 6
+                       inSet = False -- label only in set vs. in or at radius
