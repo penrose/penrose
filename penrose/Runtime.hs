@@ -611,10 +611,10 @@ awLineSearch f duf_noU descentDir x0 =
                 weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
                           where duf_x_tu = tr "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
                                 t' = tr "t" t
-                                descentDir' = tr "descentDir" descentDir
+                                descentDir' = descentDir --tr "descentDir" descentDir
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
                 fAtx0 = f x0
-                minInterval = if intervalMin then 10 ** (-5) else 0 
+                minInterval = if intervalMin then 10 ** (-20) else 0 
                 -- stop if the interval gets too small; might not terminate
 
 ------------- Initial states
@@ -652,7 +652,7 @@ staten_label n = concat $ map labelN $ take n $ zip [1..] (repeat state1lab)
 staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (staten_label n) in objs'
 
 -- ### frequently-changed params
-objsInit = staten_label_rand 6
+objsInit = staten_label_rand 10
 
 objFn :: ObjFn2 a
 objFn = centerOrRadSum --centerAndRepel_dist
@@ -780,22 +780,21 @@ setsIntersect2 sizes [x1, y1, x2, y2] = (dist (x1, y1) (x2, y2) - overlap)^2
 eps' :: Floating a => a
 eps' = 60 -- why is this 100??
 
+-- two parabolas, one at f(d) = d^2 and one at f(d) = (d-c)^2, intersecting at c/2
+-- (i could try making the first one bigger and solving for the new intersection pt if i want the threshold
+-- to be greater than (r + margin)/2
+
 -- note: whenever an objective function has a partial derivative that might be fractional, 
--- and vary in the denominator, need to add epsilon to denominator to avoid 1/0
+-- and vary in the denominator, need to add epsilon to denominator to avoid 1/0, or avoid it altogether
 -- e.g. f(x) = sqrt(x) -> f'(x) = 1/(2sqrt(x))
+-- in the first branch, we square the distance, because the objective there is to minimize the distance (resulting in 1/0). 
+-- in the second branch, the objective is to keep the distance at (r_set + margin), not at 0--so there’s no NaN in the denominator
 centerOrRadParabola2 :: ObjFn2 a 
 centerOrRadParabola2 [r_set, _] [x1, y1, x2, y2] =
-                     if d <= (r_set/2) then d^2 else (d - (r_set + margin))^2 -- discontinuous
-                     where d = dist (x1, y1) (x2, y2) + epsd
-                           margin :: Floating a => a
-                           margin = 60
-
--- try to fix centering shrinking by pre-emptively squaring the distance
--- should i expand the second term too?
-centerOrRadParabola2' :: ObjFn2 a 
-centerOrRadParabola2' [r_set, _] [x1, y1, x2, y2] =
-                     if d <= ((r_set + margin)/2) then (distsq (x1, y1) (x2, y2)) else (d - (r_set + margin))^2 
-                     where d = dist (x1, y1) (x2, y2) + epsd
+                     if dsq <= ((r_set + margin)/2)^2 then dsq
+                     else (d - (r_set + margin))^2 
+                     where d = dist (x1, y1) (x2, y2) -- + epsd
+                           dsq = distsq (x1, y1) (x2, y2) -- + epsd
                            margin :: Floating a => a
                            margin = 60
 
@@ -822,4 +821,4 @@ centerOrRadSum :: ObjFn2 a
 centerOrRadSum objLabelSizes objLabelLocs = 
                let objLabelSizes' = chunksOf 2 objLabelSizes in
                let objLabelLocs' = chunksOf 4 objLabelLocs in
-               sumMap (\(sizes, locs) -> centerOrRadParabola2' sizes locs) (zip objLabelSizes' objLabelLocs')
+               sumMap (\(sizes, locs) -> centerOrRadParabola2 sizes locs) (zip objLabelSizes' objLabelLocs')
