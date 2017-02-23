@@ -662,7 +662,7 @@ objFn = centerRepelLabel
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: place labels close to objects (in center or just outside)"
+objText = "objective: label objects inside only, center sets, sets repel, labels repel"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -792,6 +792,7 @@ centerOrRadParabola2 inSet [r_set, _] [x1, y1, x2, y2] =
                            coeff = r_set^2 / (r_set - const)^2 -- chosen s.t. parabolas intersect at r
                            const = r_set + margin -- second parabola's zero
                            margin = if r_set <= 30 then 30 else 60  -- distance from edge of set (as a fn of r)
+                           -- we want r to be close to r_set+margin, otherwise if r is small it converges slowly?
 
 -- NOTE: assumes that object and label are exactly contiguous in list: sizes of [o1, l1, o2, l2...]
 -- and locs: [x_o1, y_o1, x_l1, y_l1, x_o2, y_o2, x_l2, y_l2...]
@@ -817,4 +818,4 @@ centerRepelLabel olSizes olLocs =
                        (oLocs, lLocs) = (concatMap fst zippedLocs, concatMap snd zippedLocs)
                        zippedLocs = map (\[xo, yo, xl, yl] -> ([xo, yo], [xl, yl])) $ chunksOf 4 olLocs
                        weight = 10 ** 6
-                       inSet = False -- label only in set vs. in or at radius
+                       inSet = True -- label only in set vs. in or at radius
