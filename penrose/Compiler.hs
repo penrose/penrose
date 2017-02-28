@@ -413,17 +413,17 @@ data Obj = C Circ | L Label' deriving (Eq, Show)
 
 defaultRad = 100
 
-declToShape :: SubDecl -> Obj
+declToShape :: SubDecl -> [Obj]
 declToShape (Decl (OS (Set' name setType))) =
             case setType of
-            Open -> C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
-            Closed -> C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
-            Unspecified -> C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }
+            Open -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
+            Closed -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
+            Unspecified -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
 declToShape (Decl (OP (Pt' name))) = error "Substance -> Layout doesn't support points yet"
 declToShape (Decl (OM (Map' mapName fromSet toSet))) = error "Substance -> Layout doesn't support maps yet"
 
 toStateWithDefaultStyle :: [SubDecl] -> [Obj]
-toStateWithDefaultStyle decls = map declToShape decls -- should use style
+toStateWithDefaultStyle decls = concatMap declToShape decls -- should use style
 
 subToLayoutRep :: SubSpec -> [Obj] -- this needs to know about the Obj type??
 subToLayoutRep spec = let (decls, constrs) = subSeparate spec in

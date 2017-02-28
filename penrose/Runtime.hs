@@ -22,36 +22,38 @@ divLine = putStr "\n--------\n\n"
 main = do
      -- Reading in from file
      -- Objective function is currently hard-coded
-       -- args <- getArgs
-       -- let (subFile, styFile) = (head args, args !! 1) -- TODO usage
-       -- subIn <- readFile subFile
-       -- styIn <- readFile styFile
-       -- putStrLn "\nSubstance program:\n"
-       -- putStrLn subIn
-       -- divLine
-       -- putStrLn "Style program:\n"
-       -- putStrLn styIn
-       -- divLine
+       args <- getArgs
+       let (subFile, styFile) = (head args, args !! 1) -- TODO usage
+       subIn <- readFile subFile
+       styIn <- readFile styFile
+       putStrLn "\nSubstance program:\n"
+       putStrLn subIn
+       divLine
+       putStrLn "Style program:\n"
+       putStrLn styIn
+       divLine
 
-       -- let subParsed = C.subParse subIn
-       -- putStrLn "Parsed Substance program:\n"
-       -- putStrLn $ C.subPrettyPrint' subParsed
+       let subParsed = C.subParse subIn
+       putStrLn "Parsed Substance program:\n"
+       putStrLn $ C.subPrettyPrint' subParsed
 
-       -- let styParsed = C.styParse styIn
-       -- divLine
-       -- putStrLn "Parsed Style program:\n"
-       -- putStrLn $ C.styPrettyPrint styParsed
+       let styParsed = C.styParse styIn
+       divLine
+       putStrLn "Parsed Style program:\n"
+       putStrLn $ C.styPrettyPrint styParsed
 
-       -- divLine
-       -- putStrLn "Intermediate layout representation: TODO\n"
+       divLine
+       putStrLn "Intermediate layout representation:\n"
+       let intermediateRep = C.subToLayoutRep subParsed
+       putStrLn $ show intermediateRep
 
-       -- let initState = compilerToRuntimeTypes $ C.subToLayoutRep subParsed
-       -- divLine
-       -- putStrLn "Optimization representation:\n"
-       -- putStrLn $ show initState
+       let initState = compilerToRuntimeTypes intermediateRep
+       divLine
+       putStrLn "Optimization representation:\n"
+       putStrLn $ show initState
 
-       -- divLine
-       -- putStrLn "Visualizing notation:\n"
+       divLine
+       putStrLn "Visualizing notation:\n"
 
        -- Running with hardcoded parameters
        (play
@@ -193,9 +195,16 @@ initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
+-- data Label = Label { xl :: Float
+--                    , yl :: Float
+--                    , textl :: String
+--                    , scalel :: Float  -- calculate h,w from it
+--                    , sell :: Bool } -- selected label
+
 objOf :: C.Obj -> Obj
 objOf (C.C circ) = C $ Circ { xc = C.xc circ, yc = C.yc circ, r = C.r circ, selc = False }
-objOf (C.L label) = error "Layout -> Opt doesn't support labels yet"
+objOf (C.L label) = L $ Label { xl = C.xl label, yl = C.yl label, textl = C.textl label,
+                                scalel = C.scalel label, sell = False }
 
 -- Convert Compiler's abstract layout representation to the types that the optimization code needs.
 compilerToRuntimeTypes :: [C.Obj] -> State
@@ -562,12 +571,12 @@ timeAndGrad f t state = (timestep, gradEval)
 -- Parameters for Armijo-Wolfe line search
 -- NOTE: must maintain 0 < c1 < c2 < 1
 c1 :: Floating a => a
-c1 = 0.6 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
+c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
 -- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
 -- turn Armijo off: c1 = 0
 
 c2 :: Floating a => a
-c2 = 0.3 -- for Wolfe, is the factor decrease needed in derivative value
+c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
 -- new directional derivative value / old DD value <= c2
 -- smaller c2 = smaller new derivative value = harder to satisfy
 -- turn Wolfe off: c1 = 1 (basically backatracking line search onlyl
@@ -662,7 +671,7 @@ objFn = centerRepelLabel
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: label objects inside only, center sets, sets repel, labels repel"
+objText = "objective: label objects inside or outside, center sets, sets repel, labels repel"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -818,4 +827,4 @@ centerRepelLabel olSizes olLocs =
                        (oLocs, lLocs) = (concatMap fst zippedLocs, concatMap snd zippedLocs)
                        zippedLocs = map (\[xo, yo, xl, yl] -> ([xo, yo], [xl, yl])) $ chunksOf 4 olLocs
                        weight = 10 ** 6
-                       inSet = True -- label only in set vs. in or at radius
+                       inSet = False -- label only in set vs. in or at radius
