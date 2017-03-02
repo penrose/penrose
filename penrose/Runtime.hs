@@ -13,6 +13,7 @@ import GHC.Float -- float <-> double conversions
 import System.IO
 import System.Environment
 import Data.List
+import qualified Data.Map as Map
 import qualified Compiler as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
@@ -258,13 +259,20 @@ picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveTxt, stateText]
-    where lineX = Line [(-pw2, 0), (pw2, 0)] -- unused
-          lineY = Line [(0, -ph2), (0, ph2)]
-          objectiveTxt = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
+picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText,
+                    lineXbot, lineXtop, lineYbot, lineYtop]
+    where -- TODO display constraint instead of hardcoding
+          -- first_obj_in_box = [(0, (-300, -100)), (1, (0, 200))] 
+          lineXbot = color red $ Line [(-300, 0), (-100, 0)] 
+          lineXtop = color red $ Line [(-300, 200), (-100, 200)] 
+          lineYbot = color red $ Line [(-300, 0), (-300, 200)]
+          lineYtop = color red $ Line [(-100, 0), (-100, 200)]
+          objectiveText = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
                          $ text objText
+          constraintText = translate (-pw2+50) (ph2-80) $ scale 0.1 0.1
+                         $ text constrText
           stateText = let res = if autostep s then "on" else "off" in
-                      translate (-pw2+50) (ph2-80) $ scale 0.1 0.1
+                      translate (-pw2+50) (ph2-110) $ scale 0.1 0.1
                       $ text ("autostep: " ++ res)
 
 ------- Sampling the state subject to a constraint. Currently not used since we are doing unconstrained optimization.
@@ -424,6 +432,7 @@ type TimeInit = Float
 type Time = Double
 type ObjFn1 a = forall a . (Floating a, Ord a) => [a] -> a
 type GradFn a = forall a . (Ord a, Floating a) => [a] -> [a]
+type Constraints = [(Int, (Double, Double))]
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
 
@@ -488,16 +497,36 @@ stopEps = 10 ** (-10)
 stepT :: Time -> Double -> Double -> Double
 stepT dt x dfdx = x - dt * dfdx
 
+-- does not project onto an arbitrary set, only intervals
+projCoordInterval :: (Double, Double) -> Double -> Double
+projCoordInterval (lower, upper) x = (sort [lower, upper, x]) !! 1 -- median of the list
+
+-- for each element, if there's a constraint on it (by index), project it onto the interval
+lookInAndProj :: Constraints -> (Int, Double) -> [Double] -> [Double]
+lookInAndProj constraints (index, x) acc = 
+              case (Map.lookup index constraintsMap) of
+              Just bounds -> projCoordInterval bounds x : acc
+              Nothing     -> x : acc
+              where constraintsMap = Map.fromList constraints
+
+-- don't change the order of elements in the state!! use foldr, not foldl
+projectOnto :: Constraints -> [Double] -> [Double]
+projectOnto constraints state =
+            let indexedState = zip [0..] state in
+            foldr (lookInAndProj constraints) [] indexedState
+
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 stepWithObjective :: Real a => [a] -> Time -> [Double] -> [Double]
 stepWithObjective fixed t state =
                   if stoppingCriterion gradEval then tr "STOP. position:" state
-                  -- [stepT t' x1 dfdx1, stepT t' y1 dfdy1, ...]
-                  else map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval)
+                  -- project onto constraints (each coordinate may lie within a region)
+                  else projectOnto constraints steppedState
                   where (t', gradEval) = timeAndGrad (objFn (map realToFrac fixed)) t state
-                  -- gradEval = [dfdx1, dfdy1, dfdsize1, ...]
-                  -- choose the timestep via backtracking (for now) line search
+                        -- get timestep via line search, and evaluated gradient at the state
+                        -- step each parameter of the state with the time and gradient
+                        -- gradEval :: [Double]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
+                        steppedState = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval)
                         stoppingCriterion gradEval =
                                     (tr "gradient norm: " $ norm $ tr "evaluated gradient:" $ gradEval) <= stopEps
 
@@ -666,12 +695,16 @@ objsInit = staten_label_rand 5
 objFn :: ObjFn2 a
 objFn = centerRepelLabel
 
+constraints :: Constraints
+constraints = first_obj_in_box
+
 ------------ Various constants and helper functions related to objective functions
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
 objText = "objective: label objects inside or outside, center sets, sets repel, labels repel"
+constrText = "constraint: first object lies within box"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -702,6 +735,14 @@ sizeLoc_pack :: [Obj] -> Varying -> [Obj]
 sizeLoc_pack objs varying = let positions = chunksOf 2 varying in
                                      map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
                                          (zip objs positions)
+
+-------------- Sample constraints
+
+-- x-coord of first object's center in [-300,-200], y-coord of first object's center in [0, 200]
+first_obj_in_box :: Constraints
+first_obj_in_box = [(0, (-300, -100)), (1, (0, 200))] 
+
+-- TODO add more constraints
 
 -------------- Objective functions
 
@@ -827,4 +868,4 @@ centerRepelLabel olSizes olLocs =
                        (oLocs, lLocs) = (concatMap fst zippedLocs, concatMap snd zippedLocs)
                        zippedLocs = map (\[xo, yo, xl, yl] -> ([xo, yo], [xl, yl])) $ chunksOf 4 olLocs
                        weight = 10 ** 6
-                       inSet = False -- label only in set vs. in or at radius
+                       inSet = True -- label only in set vs. in or at radius
