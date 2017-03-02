@@ -260,13 +260,19 @@ picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
 picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText,
-                    lineXbot, lineXtop, lineYbot, lineYtop]
+                    lineXbot, lineXtop, lineYbot, lineYtop,
+                    lineXbot', lineXtop', lineYbot', lineYtop']
     where -- TODO display constraint instead of hardcoding
-          -- first_obj_in_box = [(0, (-300, -100)), (1, (0, 200))] 
+-- first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))] 
           lineXbot = color red $ Line [(-300, 0), (-100, 0)] 
           lineXtop = color red $ Line [(-300, 200), (-100, 200)] 
           lineYbot = color red $ Line [(-300, 0), (-300, 200)]
           lineYtop = color red $ Line [(-100, 0), (-100, 200)]
+
+          lineXbot' = color red $ Line [(100, -100), (300, -100)] 
+          lineXtop' = color red $ Line [(100, -400), (300, -400)] 
+          lineYbot' = color red $ Line [(100, -100), (100, -400)]
+          lineYtop' = color red $ Line [(300, -100), (300, -400)]
           objectiveText = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
                          $ text objText
           constraintText = translate (-pw2+50) (ph2-80) $ scale 0.1 0.1
@@ -696,7 +702,7 @@ objFn :: ObjFn2 a
 objFn = centerRepelLabel
 
 constraints :: Constraints
-constraints = first_obj_in_box
+constraints = first_two_objs_box
 
 ------------ Various constants and helper functions related to objective functions
 
@@ -704,7 +710,7 @@ epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
 objText = "objective: label objects inside or outside, center sets, sets repel, labels repel"
-constrText = "constraint: first object lies within box"
+constrText = "constraint: first two objects lie within boxes"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -739,8 +745,8 @@ sizeLoc_pack objs varying = let positions = chunksOf 2 varying in
 -------------- Sample constraints
 
 -- x-coord of first object's center in [-300,-200], y-coord of first object's center in [0, 200]
-first_obj_in_box :: Constraints
-first_obj_in_box = [(0, (-300, -100)), (1, (0, 200))] 
+first_two_objs_box :: Constraints
+first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))] 
 
 -- TODO add more constraints
 
