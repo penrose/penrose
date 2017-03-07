@@ -241,7 +241,7 @@ ph2 = picHeight `divf` 2
 
 widthRange = (-pw2, pw2)
 heightRange = (-ph2, ph2)
-radiusRange = (0, picWidth `divf` 4)
+radiusRange = (0, picWidth `divf` 6)
 
 ------------- The "Style" layer: render the state of the world.
 renderCirc :: Circ -> Picture
@@ -366,13 +366,8 @@ handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
 -- then move the object to mouse position
 -- TODO there's probably a better way to implement that
 handler (EventMotion (xm, ym)) s =
-        if down s then s { objs = map (ifSelectedMoveToConstrained (xm, ym)) (objs s), down = down s }
-        else s
-        where ifSelectedMoveToConstrained (xm, ym) o = if selected o && constraint objsWithSelectedMoved
-                                               -- the constraint would be satisfied on the new mouse position
-                                                      then setX xm $ setY (clamp1D ym) o else o
-              objsWithSelectedMoved = map (ifSelectedMoveTo (xm, ym)) (objs s)
-              ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY (clamp1D ym) o else o
+        if down s then s { objs = map (ifSelectedMoveTo (xm, ym)) (objs s), down = down s } else s
+        where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY (clamp1D ym) o else o
 
 -- button released, so deselect all objects
 handler (EventKey (MouseButton LeftButton) Up _ _) s =
@@ -422,7 +417,7 @@ debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ s
 tr :: Show a => String -> a -> a
 tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
-constraint = if constraintFlag then noOverlap else \x -> True
+constraint = if constraintFlag then allOverlap else \x -> True
 noOverlapPair :: Obj -> Obj -> Bool
 noOverlapPair (C c1) (C c2) = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
 noOverlapPair _ _ = True -- TODO, ignores labels
@@ -435,6 +430,11 @@ noOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences objs
 -- noOverlap (c1 : c2 : []) = noOverlapPair c1 c2
 -- noOverlap (c1 : c2 : c3 : _) = noOverlapPair c1 c2 && noOverlapPair c2 c3 && noOverlapPair c1 c3 -- TODO
 -- noOverlap _ _ = True
+
+-- allOverlap vs. not noOverlap--they're different!
+allOverlap :: [Obj] -> Bool
+allOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences objs in -- TODO factor out
+                 all id $ map (\[o1, o2] -> not $ noOverlapPair o1 o2) allPairs
 
 -- Type aliases for shorter type signatures.
 type TimeInit = Float
@@ -714,7 +714,7 @@ staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (stat
 
 -- ### frequently-changed params
 -- objsInit = staten_label_rand 5
-objsInit = statenRand 3
+objsInit = statenRand 5
 
 objFn :: ObjFn2 a
 objFn = centerAndRepel_dist
@@ -730,7 +730,7 @@ epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
 objText = "objective: center all objects"
-constrText = "constraint: no objects intersect (interior point method, log barrier, c = 0.01)"
+constrText = "constraint: no objects intersect (exterior point method, max/exp penalty, q = 3, c = 10)"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -808,11 +808,11 @@ repelCenter _ locs = sumMap (\x -> 1 / (x + epsd)) denoms
 -- TODO: version of above function that separates fixed parameters (size) from varying parameters (location)
 -- assuming 1 size for each two locs, and s1 corresponds to x1, y1 (and so on)
 
--- TODO clean this up, there's some interior point method stuff not cleanly split out in here
+-- TODO clean this up, there's some interior/exterior point method stuff not cleanly split out in here
 repelDist :: ObjFn2 a
-repelDist sizes locs = sumMap barrierFnLog denoms
+repelDist sizes locs = sumMap penaltyFn denoms
                  where denoms = map diffSq allPairs
-                       diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - (s1 + s2)^2
+                       diffSq [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
                               -- avoid NaN (log of a negative number) and inf (log 0)--breaks interior method
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        objs = zipWith (++) locPairs sizes'
@@ -821,6 +821,9 @@ repelDist sizes locs = sumMap barrierFnLog denoms
                        barrierFnLog = (\x -> - (log x)) -- the negative sign is why it works??
                        -- doesn't work if i flip the negatives between log and diffSq...
                        -- i wonder if autodiff is having trouble with the dlog? 1/x -> -inf -> always the min
+
+                       penaltyFn = (\x -> (max x 0)^q) -- weights should get progressively larger in cr_dist
+                       q = 3 -- also, may need to sample OUTSIDE feasible set
 
 -- does not deal with labels
 centerAndRepel :: ObjFn2 a -- timestep t
@@ -837,7 +840,7 @@ centerAndRepel_dist fixed varying = centerObjsNoSqrt fixed varying + weight * (r
        -- works, but doesn't take the sizes into account correctly
        -- the sum of squares should have a sqrt, but if i do that, the function will become negative
        -- should really be doing min _ 0 (need to add ord)
-       where weight = 0.01
+       where weight = 10 -- TODO test with more objects
 -- but with the NaNs removed, now the log barrier function doesn't work??
 
 doNothing :: ObjFn2 a -- for debugging
