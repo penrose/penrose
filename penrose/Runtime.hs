@@ -23,38 +23,39 @@ divLine = putStr "\n--------\n\n"
 main = do
      -- Reading in from file
      -- Objective function is currently hard-coded
-       args <- getArgs
-       let (subFile, styFile) = (head args, args !! 1) -- TODO usage
-       subIn <- readFile subFile
-       styIn <- readFile styFile
-       putStrLn "\nSubstance program:\n"
-       putStrLn subIn
-       divLine
-       putStrLn "Style program:\n"
-       putStrLn styIn
-       divLine
+     -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
+       -- args <- getArgs
+       -- let (subFile, styFile) = (head args, args !! 1) -- TODO usage
+       -- subIn <- readFile subFile
+       -- styIn <- readFile styFile
+       -- putStrLn "\nSubstance program:\n"
+       -- putStrLn subIn
+       -- divLine
+       -- putStrLn "Style program:\n"
+       -- putStrLn styIn
+       -- divLine
 
-       let subParsed = C.subParse subIn
-       putStrLn "Parsed Substance program:\n"
-       putStrLn $ C.subPrettyPrint' subParsed
+       -- let subParsed = C.subParse subIn
+       -- putStrLn "Parsed Substance program:\n"
+       -- putStrLn $ C.subPrettyPrint' subParsed
 
-       let styParsed = C.styParse styIn
-       divLine
-       putStrLn "Parsed Style program:\n"
-       putStrLn $ C.styPrettyPrint styParsed
+       -- let styParsed = C.styParse styIn
+       -- divLine
+       -- putStrLn "Parsed Style program:\n"
+       -- putStrLn $ C.styPrettyPrint styParsed
 
-       divLine
-       putStrLn "Intermediate layout representation:\n"
-       let intermediateRep = C.subToLayoutRep subParsed
-       putStrLn $ show intermediateRep
+       -- divLine
+       -- putStrLn "Intermediate layout representation:\n"
+       -- let intermediateRep = C.subToLayoutRep subParsed
+       -- putStrLn $ show intermediateRep
 
-       let initState = compilerToRuntimeTypes intermediateRep
-       divLine
-       putStrLn "Optimization representation:\n"
-       putStrLn $ show initState
+       -- let initState = compilerToRuntimeTypes intermediateRep
+       -- divLine
+       -- putStrLn "Optimization representation:\n"
+       -- putStrLn $ show initState
 
-       divLine
-       putStrLn "Visualizing notation:\n"
+       -- divLine
+       -- putStrLn "Visualizing notation:\n"
 
        -- Running with hardcoded parameters
        (play
@@ -259,20 +260,20 @@ picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText,
-                    lineXbot, lineXtop, lineYbot, lineYtop,
-                    lineXbot', lineXtop', lineYbot', lineYtop']
+picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText]
+                    -- lineXbot, lineXtop, lineYbot, lineYtop,
+                    -- lineXbot', lineXtop', lineYbot', lineYtop']
     where -- TODO display constraint instead of hardcoding
 -- first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))] 
-          lineXbot = color red $ Line [(-300, 0), (-100, 0)] 
-          lineXtop = color red $ Line [(-300, 200), (-100, 200)] 
-          lineYbot = color red $ Line [(-300, 0), (-300, 200)]
-          lineYtop = color red $ Line [(-100, 0), (-100, 200)]
+          -- lineXbot = color red $ Line [(-300, 0), (-100, 0)] 
+          -- lineXtop = color red $ Line [(-300, 200), (-100, 200)] 
+          -- lineYbot = color red $ Line [(-300, 0), (-300, 200)]
+          -- lineYtop = color red $ Line [(-100, 0), (-100, 200)]
 
-          lineXbot' = color red $ Line [(100, -100), (300, -100)] 
-          lineXtop' = color red $ Line [(100, -400), (300, -400)] 
-          lineYbot' = color red $ Line [(100, -100), (100, -400)]
-          lineYtop' = color red $ Line [(300, -100), (300, -400)]
+          -- lineXbot' = color red $ Line [(100, -100), (300, -100)] 
+          -- lineXtop' = color red $ Line [(100, -400), (300, -400)] 
+          -- lineYbot' = color red $ Line [(100, -100), (100, -400)]
+          -- lineYtop' = color red $ Line [(300, -100), (300, -400)]
           objectiveText = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
                          $ text objText
           constraintText = translate (-pw2+50) (ph2-80) $ scale 0.1 0.1
@@ -421,16 +422,18 @@ debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ s
 tr :: Show a => String -> a -> a
 tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
--- These functions are now obsolete, since we aren't doing constrained optimization.
--- Still, they might be useful later.
 constraint = if constraintFlag then noOverlap else \x -> True
-noOverlapPair :: Circ -> Circ -> Bool
-noOverlapPair c1 c2 = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
+noOverlapPair :: Obj -> Obj -> Bool
+noOverlapPair (C c1) (C c2) = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
+noOverlapPair _ _ = True -- TODO, ignores labels
 
 -- return true iff satisfied
 -- TODO deal with labels and more than two objects
 noOverlap :: [Obj] -> Bool
-noOverlap ((C c1) : (C c2) : (C c3) : _) = noOverlapPair c1 c2 && noOverlapPair c2 c3 && noOverlapPair c1 c3
+noOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences objs in -- TODO factor out
+                 all id $ map (\[o1, o2] -> noOverlapPair o1 o2) allPairs
+-- noOverlap (c1 : c2 : []) = noOverlapPair c1 c2
+-- noOverlap (c1 : c2 : c3 : _) = noOverlapPair c1 c2 && noOverlapPair c2 c3 && noOverlapPair c1 c3 -- TODO
 -- noOverlap _ _ = True
 
 -- Type aliases for shorter type signatures.
@@ -478,7 +481,7 @@ objsSizes = map (\[x, y, s] -> s) . objsInfo
 -- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
 stepObjs :: Time -> [Obj] -> [Obj]
-stepObjs t objs = if constraint objs' then objs' else objs
+stepObjs t objs = objs' --if constraint objs' then objs' else objs
         where (fixed, stateVarying) = tupMap (map float2Double) $ unpackFn objs
               -- get new positions. objective function is a global param
               stateVarying' = map double2Float $ stepWithObjective fixed t stateVarying
@@ -492,7 +495,7 @@ tupMap f (a, b) = (f a, f b)
 -- Flags for debugging the surrounding functions.
 clampflag = False
 debug = True
-constraintFlag = False
+constraintFlag = True
 objFn2 = doNothing -- TODO repelInverse
 
 stopEps :: Floating a => a
@@ -527,7 +530,7 @@ stepWithObjective :: Real a => [a] -> Time -> [Double] -> [Double]
 stepWithObjective fixed t state =
                   if stoppingCriterion gradEval then tr "STOP. position:" state
                   -- project onto constraints (each coordinate may lie within a region)
-                  else projectOnto constraints steppedState
+                  else projectOnto boundConstraints steppedState
                   where (t', gradEval) = timeAndGrad (objFn (map realToFrac fixed)) t state
                         -- get timestep via line search, and evaluated gradient at the state
                         -- step each parameter of the state with the time and gradient
@@ -541,13 +544,20 @@ appGrad :: (Ord a, Floating a) => (forall a . (Ord a, Floating a) => [a] -> a) -
 appGrad f l = grad f l
 
 nanSub :: (RealFloat a, Floating a) => a
-nanSub = 9999
+nanSub = 0
 
 removeNaN' :: (RealFloat a, Floating a) => a -> a
 removeNaN' x = if isNaN x then nanSub else x
 
 removeNaN :: (RealFloat a, Floating a) => [a] -> [a]
 removeNaN = map removeNaN'
+
+removeInf' :: (RealFloat a, Floating a) => a -> a
+removeInf' x = if isInfinity x then bignum else if isNegInfinity x then (-bignum) else x
+           where bignum = 10**10
+
+removeInf :: (RealFloat a, Floating a) => [a] -> [a]
+removeInf = map removeInf'
 
 ----- Lists-as-vectors utility functions, TODO split out of file
 
@@ -589,12 +599,12 @@ timeAndGrad :: ObjFn1 a -> Time -> [Double] -> (Time, [Double])
 timeAndGrad f t state = (timestep, gradEval)
             where gradF :: GradFn a
                   gradF = appGrad f
-                  gradEval = removeNaN $ gradF state
+                  gradEval = gradF state
                   -- Use line search to find a good timestep.
                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
                   descentDir = negL gradEval
                   timestep :: Time
-                  timestep = if not linesearch then t / 100 else -- use a fixed timestep for debugging
+                  timestep = if not linesearch then t else -- use a fixed timestep for debugging
                              let resT = awLineSearch f duf descentDir state in
                              if isNaN resT then tr "returned timestep is NaN" nanSub else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
@@ -620,14 +630,18 @@ infinity :: Floating a => a
 infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
 -- all numbers are smaller than infinity except infinity, to which it's equal
 
+negInfinity :: Floating a => a
+negInfinity = -infinity
+
 isInfinity x = (x == infinity)
+isNegInfinity x = (x == negInfinity)
 
 -- Implements Armijo-Wolfe line search as specified in Keenan's notes, converges on nonconvex fns as well
 -- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods", page TODO
 -- duf = D_u(f), the directional derivative of f at descent direction u
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
--- TODO what happens if there are NaNs in awLineSearch?
+-- TODO what happens if there are NaNs in awLineSearch? or infinities
 awLineSearch :: ObjFn1 a -> ObjFn2 a -> [Double] -> [Double] -> Double
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
@@ -650,14 +664,14 @@ awLineSearch f duf_noU descentDir x0 =
                       else if abs (b - a) < minInterval then
                            tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
                       else False -- could be shorter; long for debugging purposes
-                armijo t = (f ((tr "** x0" x0) +. t *. descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
+                armijo t = (f ((tr "** x0" x0) +. t *. (tr "descentDir" descentDir))) <= ((tr "fAtX0"fAtx0) + c1 * t * (tr "dufAtX0" dufAtx0))
                 strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
                 weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
                           where duf_x_tu = tr "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
                                 t' = tr "t" t
                                 descentDir' = descentDir --tr "descentDir" descentDir
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
-                fAtx0 = f x0
+                fAtx0 =f x0 -- TODO debug why NaN. even using removeNaN' didn't help
                 minInterval = if intervalMin then 10 ** (-10) else 0 
                 -- stop if the interval gets too small; might not terminate
 
@@ -687,30 +701,36 @@ staten n = take n $ repeat s3
 statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) in objs'
 
 -- TODO gen state with more labels
+-- TODO port existing objective functions to deal with labels (or not)
 state1lab = [s1, l1]
 state2lab = [s1, l1, s2, l2]
 
 -- TODO change label text
+-- state may not satisify constraint
 staten_label n = concat $ map labelN $ take n $ zip [1..] (repeat state1lab)
              where labelN (x, [obj, L lab]) = [obj, L $ lab { textl = ("B" ++ show x) }]
+-- samples a state that satisfies the constraint
 staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (staten_label n) in objs'
 
 -- ### frequently-changed params
-objsInit = staten_label_rand 5
+-- objsInit = staten_label_rand 5
+objsInit = statenRand 3
 
 objFn :: ObjFn2 a
-objFn = centerRepelLabel
+objFn = centerAndRepel_dist
+-- objFn = centerRepelLabel
 
-constraints :: Constraints
-constraints = first_two_objs_box
+-- if the list of constraints is empty, it behaves as unconstrained optimization
+boundConstraints :: Constraints
+boundConstraints = [] -- first_two_objs_box
 
 ------------ Various constants and helper functions related to objective functions
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: label objects inside or outside, center sets, sets repel, labels repel"
-constrText = "constraint: first two objects lie within boxes"
+objText = "objective: center all objects"
+constrText = "constraint: no objects intersect (interior point method, log barrier, c = 0.01)"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -787,24 +807,38 @@ repelCenter _ locs = sumMap (\x -> 1 / (x + epsd)) denoms
 -- pairwise repel on a list of objects (by distance b/t their centers)
 -- TODO: version of above function that separates fixed parameters (size) from varying parameters (location)
 -- assuming 1 size for each two locs, and s1 corresponds to x1, y1 (and so on)
+
+-- TODO clean this up, there's some interior point method stuff not cleanly split out in here
 repelDist :: ObjFn2 a
-repelDist sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
+repelDist sizes locs = sumMap barrierFnLog denoms
                  where denoms = map diffSq allPairs
-                       diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
+                       diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - (s1 + s2)^2
+                              -- avoid NaN (log of a negative number) and inf (log 0)--breaks interior method
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        objs = zipWith (++) locPairs sizes'
                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
+                       barrierFnInv = (\x -> 1 / (x + epsd))
+                       barrierFnLog = (\x -> - (log x)) -- the negative sign is why it works??
+                       -- doesn't work if i flip the negatives between log and diffSq...
+                       -- i wonder if autodiff is having trouble with the dlog? 1/x -> -inf -> always the min
 
+-- does not deal with labels
 centerAndRepel :: ObjFn2 a -- timestep t
 centerAndRepel fixed varying = centerObjsNoSqrt fixed varying + weight * repelCenter fixed varying
                    where weight = 10 ** (9.8) -- TODO calculate this weight as a function of radii and bbox
 
+-- attempts to account for the radii of the objects
+-- modified to try to be an interior point method with repel
+-- currently, they repel each other "too much"--want them to be as centered as possible
+-- not sure whether to use sqrt or not
+-- try multiple objects?
 centerAndRepel_dist :: ObjFn2 a
 centerAndRepel_dist fixed varying = centerObjsNoSqrt fixed varying + weight * (repelDist fixed varying)
        -- works, but doesn't take the sizes into account correctly
        -- the sum of squares should have a sqrt, but if i do that, the function will become negative
        -- should really be doing min _ 0 (need to add ord)
-       where weight = 10 ** 10
+       where weight = 0.01
+-- but with the NaNs removed, now the log barrier function doesn't work??
 
 doNothing :: ObjFn2 a -- for debugging
 doNothing _ _ = 0
