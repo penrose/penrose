@@ -184,11 +184,15 @@ instance Sized Obj where
                 C c -> C $ setSize x c
                 L l -> L $ setSize x l
 
+data Params = Params { weight :: Float
+                     } deriving (Show)
+
 -- State of the world
 data State = State { objs :: [Obj]
                    , down :: Bool -- left mouse button is down (dragging)
                    , rng :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
+                   , params :: Params
                    } deriving (Show)
 
 ------
@@ -210,7 +214,8 @@ objOf (C.L label) = L $ Label { xl = C.xl label, yl = C.yl label, textl = C.text
 
 -- Convert Compiler's abstract layout representation to the types that the optimization code needs.
 compilerToRuntimeTypes :: [C.Obj] -> State
-compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng', autostep = True }
+compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng',
+                       autostep = True, params = Params { weight = constraintWeight } }
                        where (runtimeState', initRng') = genState runtimeState initRng
                              runtimeState = map objOf compileState
 
@@ -226,7 +231,8 @@ rad2 = rad+50
 
 -- Initial state of the world, reading from Substance/Style input
 initState :: State
-initState = State { objs = objsInit, down = False, rng = initRng, autostep = False }
+initState = State { objs = objsInit, down = False, rng = initRng, autostep = False,
+                    params = Params { weight = constraintWeight } }
           -- where objsInit = state4
 
 -- divide two integers to obtain a float
@@ -386,7 +392,18 @@ handler (EventKey (Char 'a') Up _ _) s = if autostep s then s { autostep = False
 -- (which doesn't step if autostep is off). this is the same code as the step function but with reverse condition
 -- if autostep is on, this does nothing
 handler (EventKey (Char 's') Down _ _) s =
-        if not $ autostep s then s { objs = stepObjs (float2Double calcTimestep) (objs s) } else s
+        if not $ autostep s then s { objs = stepObjs (float2Double calcTimestep) (params s) (objs s) } else s
+
+-- change the weights in the barrier/penalty method (scale by 10). don't step objects
+handler (EventKey (SpecialKey KeyUp) Down _ _) s =
+        trace ("weight: " ++ show currWeight) $ -- TODO print on screen
+              s { params = Params { weight = currWeight * 10 } } -- should modify params
+        where currWeight = weight $ params s
+
+handler (EventKey (SpecialKey KeyDown) Down _ _) s =
+        trace ("weight: " ++ show currWeight) $ -- TODO print on screen
+              s { params = Params { weight = currWeight / 10 } } -- should modify params
+        where currWeight = weight $ params s
 
 handler _ s = s
 
@@ -451,7 +468,7 @@ type Constraints = [(Int, (Double, Double))]
 -- convert float to double for the input and convert double to float for the output.
 step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
-            if autostep s then s { objs = stepObjs (float2Double t) (objs s) } else s 
+            if autostep s then s { objs = stepObjs (float2Double t) (params s) (objs s) } else s 
 
 -- Utility functions for getting object info (currently unused)
 objInfo :: Obj -> [Float]
@@ -479,11 +496,11 @@ objsSizes = map (\[x, y, s] -> s) . objsInfo
 -- unpacks all objects into a big state vector, steps that state, and repacks the new state into the objects
 -- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
-stepObjs :: Time -> [Obj] -> [Obj]
-stepObjs t objs = objs' --if constraint objs' then objs' else objs
+stepObjs :: Time -> Params -> [Obj] -> [Obj]
+stepObjs t stateParams objs = objs' --if constraint objs' then objs' else objs
         where (fixed, stateVarying) = tupMap (map float2Double) $ unpackFn objs
               -- get new positions. objective function is a global param
-              stateVarying' = map double2Float $ stepWithObjective fixed t stateVarying
+              stateVarying' = map double2Float $ stepWithObjective fixed stateParams t stateVarying
               -- re-pack each object's state list into object
               objs' = packFn objs stateVarying'
               checkSizesMatch a b = if not $ length a == length b then error "length mismatch" else (a, b)
@@ -493,7 +510,7 @@ tupMap f (a, b) = (f a, f b)
              
 -- Flags for debugging the surrounding functions.
 clampflag = False
-debug = True
+debug = False
 constraintFlag = True
 objFn2 = doNothing -- TODO repelInverse
 
@@ -525,18 +542,20 @@ projectOnto constraints state =
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
-stepWithObjective :: Real a => [a] -> Time -> [Double] -> [Double]
-stepWithObjective fixed t state =
+stepWithObjective :: Real a => [a] -> Params -> Time -> [Double] -> [Double]
+stepWithObjective fixed stateParams t state =
                   if stoppingCriterion gradEval then tr "STOP. position:" state
                   -- project onto constraints (each coordinate may lie within a region)
                   else projectOnto boundConstraints steppedState
-                  where (t', gradEval) = timeAndGrad (objFn (map realToFrac fixed)) t state
+                  where (t', gradEval) = timeAndGrad objFnApplied t state
                         -- get timestep via line search, and evaluated gradient at the state
                         -- step each parameter of the state with the time and gradient
                         -- gradEval :: [Double]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
                         steppedState = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval)
                         stoppingCriterion gradEval =
                                     (tr "gradient norm: " $ norm $ tr "evaluated gradient:" $ gradEval) <= stopEps
+                        objFnApplied = objFn (realToFrac cWeight) (map realToFrac fixed)
+                        cWeight = weight stateParams
 
 -- a version of grad with a clearer type signature
 appGrad :: (Ord a, Floating a) => (forall a . (Ord a, Floating a) => [a] -> a) -> [a] -> [a]
@@ -715,15 +734,23 @@ staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (stat
 -- objsInit = staten_label_rand 5
 objsInit = statenRand 5
 
-objFn :: ObjFn2 a
-objFn = centerAndRepel_dist
+-- now all other obj fns need to have this type
+-- objFn :: Floating a => a -> ObjFn2 a
+objFn :: (Floating a, Ord a) => a -> [a] -> [a] -> a
+objFn weight = centerAndRepel_dist weight
 -- objFn = centerRepelLabel
 
 -- if the list of constraints is empty, it behaves as unconstrained optimization
 boundConstraints :: Constraints
 boundConstraints = [] -- first_two_objs_box
 
-constraint = if constraintFlag then noneOverlap else \x -> True
+constraint = if constraintFlag then allOverlap else \x -> True
+
+-- for use in barrier/penalty method (interior/exterior point method)
+-- seems if the point starts in interior + weight starts v small and increases, then it converges
+-- not quite... if the weight is too small then the constraint will be violated
+constraintWeight :: Floating a => a
+constraintWeight = 10 ** (-3)
 
 ------------ Various constants and helper functions related to objective functions
 
@@ -805,16 +832,21 @@ repelCenter _ locs = sumMap (\x -> 1 / (x + epsd)) denoms
                        -- TODO implement more efficient version. also, subseq only returns *unique* subseqs
                        objs = chunksOf 2 locs
 
+-- does not deal with labels
+centerAndRepel :: ObjFn2 a -- timestep t
+centerAndRepel fixed varying = centerObjsNoSqrt fixed varying + weight * repelCenter fixed varying
+                   where weight = 10 ** (9.8) -- TODO calculate this weight as a function of radii and bbox
+
 -- pairwise repel on a list of objects (by distance b/t their centers)
 -- TODO: version of above function that separates fixed parameters (size) from varying parameters (location)
 -- assuming 1 size for each two locs, and s1 corresponds to x1, y1 (and so on)
 
 -- TODO clean this up, there's some interior/exterior point method stuff not cleanly split out in here
 repelDist :: ObjFn2 a
-repelDist sizes locs = sumMap barrierFnLog denoms
+repelDist sizes locs = sumMap penaltyFn denoms
                  where denoms = map diffSq allPairs
-                       -- diffSq [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
-                       diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - (s1 + s2)^2
+                       diffSq [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
+                       -- diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - (s1 + s2)^2
                               -- avoid NaN (log of a negative number) and inf (log 0)--breaks interior method
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        objs = zipWith (++) locPairs sizes'
@@ -827,22 +859,17 @@ repelDist sizes locs = sumMap barrierFnLog denoms
                        penaltyFn = (\x -> (max x 0)^q) -- weights should get progressively larger in cr_dist
                        q = 2 -- also, may need to sample OUTSIDE feasible set
 
--- does not deal with labels
-centerAndRepel :: ObjFn2 a -- timestep t
-centerAndRepel fixed varying = centerObjsNoSqrt fixed varying + weight * repelCenter fixed varying
-                   where weight = 10 ** (9.8) -- TODO calculate this weight as a function of radii and bbox
-
 -- attempts to account for the radii of the objects
 -- modified to try to be an interior point method with repel
 -- currently, they repel each other "too much"--want them to be as centered as possible
 -- not sure whether to use sqrt or not
 -- try multiple objects?
-centerAndRepel_dist :: ObjFn2 a
-centerAndRepel_dist fixed varying = centerObjsNoSqrt fixed varying + weight * (repelDist fixed varying)
+centerAndRepel_dist :: (Floating a, Ord a) => a -> [a] -> [a] -> a
+centerAndRepel_dist weight fixed varying = centerObjsNoSqrt fixed varying + weight * (repelDist fixed varying)
        -- works, but doesn't take the sizes into account correctly
        -- the sum of squares should have a sqrt, but if i do that, the function will become negative
        -- should really be doing min _ 0 (need to add ord)
-       where weight = 0.1 -- TODO factor out weight into config
+       -- where weight = 100 -- TODO factor out weight into config
 -- but with the NaNs removed, now the log barrier function doesn't work??
 
 doNothing :: ObjFn2 a -- for debugging
