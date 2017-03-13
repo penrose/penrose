@@ -266,11 +266,12 @@ picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText]
+picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText]
                     -- lineXbot, lineXtop, lineYbot, lineYtop,
                     -- lineXbot', lineXtop', lineYbot', lineYtop']
     where -- TODO display constraint instead of hardcoding
--- first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))] 
+          -- (picture for bounding box for bound constraints)
+          -- first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))] 
           -- lineXbot = color red $ Line [(-300, 0), (-100, 0)] 
           -- lineXtop = color red $ Line [(-300, 200), (-100, 200)] 
           -- lineYbot = color red $ Line [(-300, 0), (-300, 200)]
@@ -280,13 +281,21 @@ picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText]
           -- lineXtop' = color red $ Line [(100, -400), (300, -400)] 
           -- lineYbot' = color red $ Line [(100, -100), (100, -400)]
           -- lineYtop' = color red $ Line [(300, -100), (300, -400)]
-          objectiveText = translate (-pw2+50) (ph2-50) $ scale 0.1 0.1
+
+          -- TODO generate this text more programmatically
+          objectiveText = translate xInit yInit $ scale sc sc
                          $ text objText
-          constraintText = translate (-pw2+50) (ph2-80) $ scale 0.1 0.1
+          constraintText = translate xInit (yInit - yConst) $ scale sc sc
                          $ text constrText
           stateText = let res = if autostep s then "on" else "off" in
-                      translate (-pw2+50) (ph2-110) $ scale 0.1 0.1
+                      translate xInit (yInit - 2 * yConst) $ scale sc sc
                       $ text ("autostep: " ++ res)
+          paramText = translate xInit (yInit - 3 * yConst) $ scale sc sc
+                      $ text ("penalty function weight: " ++ show (weight $ params s))
+          xInit = -pw2+50
+          yInit = ph2-50
+          yConst = 30
+          sc = 0.1
 
 ------- Sampling the state subject to a constraint. Currently not used since we are doing unconstrained optimization.
 
@@ -750,7 +759,7 @@ constraint = if constraintFlag then allOverlap else \x -> True
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
 constraintWeight :: Floating a => a
-constraintWeight = 10 ** (-3)
+constraintWeight = 10 ** (-5)
 
 ------------ Various constants and helper functions related to objective functions
 
@@ -843,19 +852,52 @@ centerAndRepel fixed varying = centerObjsNoSqrt fixed varying + weight * repelCe
 
 -- TODO clean this up, there's some interior/exterior point method stuff not cleanly split out in here
 repelDist :: ObjFn2 a
-repelDist sizes locs = sumMap penaltyFn denoms
-                 where denoms = map diffSq allPairs
-                       diffSq [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
-                       -- diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - (s1 + s2)^2
-                              -- avoid NaN (log of a negative number) and inf (log 0)--breaks interior method
+repelDist sizes locs = sumMap pairToPenalties allPairs
+          -- the overall penalty function is the sum (unweighted)
+                 where -- for each pair, for each constraint on that pair, compose w/ penalty function and sum
+                       -- TODO generalize to arbitrary number of constraints and different pairwise, n-wise
+                       -- TODO need to add Show to the typeclasses everywhere so I can debug w/ traceShow...
+                       pairToPenalties :: (Ord a, Floating a) => [[a]] -> a
+                       pairToPenalties pair = sum $ [ (penaltyFn . pairwiseConstraint1) pair,
+                                                      (penaltyFn . pairwiseConstraint2) pair]
+                       pairwiseConstraint1 = noConstraint
+                       pairwiseConstraint2 = noSubset
+                       -- generates all unique pairs
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        objs = zipWith (++) locPairs sizes'
                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
+
+                       noConstraint x = 0 :: Floating a => a -- dummy constraint
+
+                       -- exterior point method constraint: all sets must pairwise-strict-intersect
+                       -- is this possible with n sets? try it with 2, 3 sets first. yes but only 1 config
+                       -- multiple constraints = sum the penalty functions
+                       -- looseIntersect just turns into subset... TODO write one 
+                       looseIntersect [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - (s1 + s2)^2
+                       -- is it a problem because it is pairwise? c1 -> c2 and c2 -> c1
+                       -- oh wait this only generates all unique pairs and it's not clear which is max
+                       -- so there's only one unique constraint on the pair
+                       -- hm, the energy actually increases so it always settles around the offset
+                       -- oh that's bc i am centering all of them--test w/objective off
+                       -- TODO flatten energy afterward, or get it to be *far* from the other set
+                       noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
+                                -((x1 - x2)^2 + (y1 - y2)^2) + ((max s2 s1) - (min s2 s1) + offset)^2
+                       strictSubset [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2)
+                                                                   - ((max s2 s1) - (min s2 s1))^2
+
+                       -- exterior point method constraint: no intersection
+                       noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
+                       -- interior point method constraint: no intersection
+                       -- avoid NaN (log of a negative number) and inf (log 0)--breaks interior method
+                       noIntersectInt [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - (s1 + s2)^2
+
+                       -- interior point method: barrier functions
                        barrierFnInv = (\x -> 1 / (x + epsd))
                        barrierFnLog = (\x -> - (log (x + epsd))) -- the negative sign is why it works??
-                       -- doesn't work if i flip the negatives between log and diffSq...
+                       -- doesn't work if i flip the negatives between log and noIntersect...
                        -- i wonder if autodiff is having trouble with the dlog? 1/x -> -inf -> always the min
 
+                       -- exterior point method: penalty function
                        penaltyFn = (\x -> (max x 0)^q) -- weights should get progressively larger in cr_dist
                        q = 2 -- also, may need to sample OUTSIDE feasible set
 
@@ -865,7 +907,9 @@ repelDist sizes locs = sumMap penaltyFn denoms
 -- not sure whether to use sqrt or not
 -- try multiple objects?
 centerAndRepel_dist :: (Floating a, Ord a) => a -> [a] -> [a] -> a
-centerAndRepel_dist weight fixed varying = centerObjsNoSqrt fixed varying + weight * (repelDist fixed varying)
+centerAndRepel_dist weight fixed varying =
+                    -- centerObjsNoSqrt fixed varying +
+                    weight * (repelDist fixed varying)
        -- works, but doesn't take the sizes into account correctly
        -- the sum of squares should have a sqrt, but if i do that, the function will become negative
        -- should really be doing min _ 0 (need to add ord)
