@@ -766,8 +766,8 @@ constraintWeight = 10 ** (-5)
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: center all objects"
-constrText = "constraint: no objects intersect (exterior point method, max/exp penalty, q = 3, c = 10)"
+objText = "objective: none"
+constrText = "constraint: no set is a subset of another (exterior point method, max/exp penalty, exponent = 2)"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
