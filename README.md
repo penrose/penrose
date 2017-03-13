@@ -1,4 +1,8 @@
-# diagrams
+# Penrose
+
+Note: this README is obsolete! 
+
+TODO: redocument the code after the dust settles.
 
 ### Directories
 
