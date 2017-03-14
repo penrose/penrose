@@ -76,7 +76,7 @@ picHeight :: Int
 picHeight = 700
 
 stepsPerSecond :: Int
-stepsPerSecond = 50
+stepsPerSecond = 100
 
 calcTimestep :: Float -- for use in forcing stepping in handler
 calcTimestep = 1 / (int2Float stepsPerSecond)
@@ -449,6 +449,9 @@ trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to ri
 tr' :: Show a => String -> a -> a
 tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
+tro :: Show a => String -> a -> a
+tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+
 noOverlapPair :: Obj -> Obj -> Bool
 noOverlapPair (C c1) (C c2) = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
 noOverlapPair _ _ = True -- TODO, ignores labels
@@ -470,8 +473,8 @@ allOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences obj
 -- Type aliases for shorter type signatures.
 type TimeInit = Float
 type Time = Double
-type ObjFn1 a = forall a . (Floating a, Ord a) => [a] -> a
-type GradFn a = forall a . (Ord a, Floating a) => [a] -> [a]
+type ObjFn1 a = forall a . (Show a, Ord a, Floating a) => [a] -> a
+type GradFn a = forall a . (Show a, Ord a, Floating a) => [a] -> [a]
 type Constraints = [(Int, (Double, Double))]
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
@@ -548,13 +551,13 @@ projectOnto constraints state =
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
-stepWithObjective :: Real a => [a] -> Params -> Time -> [Double] -> [Double]
+stepWithObjective :: (Show a, Real a) => [a] -> Params -> Time -> [Double] -> [Double]
 stepWithObjective fixed stateParams t state =
-                  if stoppingCriterion (tr "evaluated gradient:" gradEval) then trStr "STOP" state
-                  -- project onto constraints (each coordinate may lie within a region)
+                  -- TODO: stop on new grad or old grad? and if we stop, return new state or old state?
+                  if stoppingCriterion (tr "evaluated gradient:" gradEval') then trStr "STOP" steppedState
                   else steppedState
                   -- TODO generalize bound constraint projection into EP method
-                  where (t', gradEval) = trStr "objFn" $ timeAndGrad objFnApplied t state
+                  where (t', gradEval) = timeAndGrad objFnApplied t state
                         -- get timestep via line search, and evaluated gradient at the state
                         -- step each parameter of the state with the time and gradient
                         -- gradEval :: [Double]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
@@ -564,11 +567,15 @@ stepWithObjective fixed stateParams t state =
                                              (show $ abs (objFnApplied state - objFnApplied state')))
                                        state'
                         stoppingCriterion gradEval = (norm gradEval <= stopEps)
+                        objFnApplied :: ObjFn1 a
                         objFnApplied = objFn (realToFrac cWeight) (map realToFrac fixed)
                         cWeight = weight stateParams
+                        gradF :: GradFn a
+                        gradF = appGrad objFnApplied
+                        gradEval' = gradF steppedState
 
 -- a version of grad with a clearer type signature
-appGrad :: (Ord a, Floating a) => (forall a . (Ord a, Floating a) => [a] -> a) -> [a] -> [a]
+appGrad :: (Show a, Ord a, Floating a) => (forall a . (Show a, Ord a, Floating a) => [a] -> a) -> [a] -> [a]
 appGrad f l = grad f l
 
 nanSub :: (RealFloat a, Floating a) => a
@@ -627,7 +634,6 @@ normsq = sum . map (^ 2)
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
 timeAndGrad :: ObjFn1 a -> Time -> [Double] -> (Time, [Double])
--- timeAndGrad :: Floating a => ([a] -> a) -> Time -> [Double] -> (Time, [Double])
 timeAndGrad f t state = (timestep, gradEval)
             where gradF :: GradFn a
                   gradF = appGrad f
@@ -642,7 +648,7 @@ timeAndGrad f t state = (timestep, gradEval)
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
-                  duf :: (Ord a, Floating a) => [a] -> [a] -> a
+                  duf :: (Show a, Ord a, Floating a) => [a] -> [a] -> a
                   duf u x = gradF x `dotL` u
 
 -- Parameters for Armijo-Wolfe line search
@@ -746,11 +752,11 @@ staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (stat
 
 ------------------------ ### frequently-changed params for debugging
 -- objsInit = staten_label_rand 5
-objsInit = statenRand 8
+objsInit = statenRand 2
 
 -- now all other obj fns need to have this type
 -- objFn :: Floating a => a -> ObjFn2 a
-objFn :: (Floating a, Ord a) => a -> [a] -> [a] -> a
+objFn :: (Show a, Floating a, Ord a) => a -> [a] -> [a] -> a
 objFn weight = centerAndRepel_dist weight
 -- objFn = centerRepelLabel
 
@@ -758,21 +764,22 @@ objFn weight = centerAndRepel_dist weight
 boundConstraints :: Constraints
 boundConstraints = [] -- first_two_objs_box
 
-constraint = if constraintFlag then allOverlap else \x -> True
+constraint = if constraintFlag then (not . noneOverlap) else \x -> True
 
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
 constraintWeight :: Floating a => a
-constraintWeight = 10 ** (-5)
+constraintWeight = 10
 
 -- Flags for debugging the surrounding functions.
 clampflag = False
 debug = True
 debugLineSearch = False
-constraintFlag = False
+debugObj = True -- turn on/off output in obj fn or constraint
+constraintFlag = True
 objFnOn = True -- in centerRepel_dist, turns obj function on or off (for debugging constraints only)
-constraintFnOn = False
+constraintFnOn = True
 
 stopEps :: Floating a => a
 stopEps = 10 ** (-10)
@@ -787,7 +794,7 @@ constrText = "constraint: no set is a subset of another (exterior point method, 
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
-type ObjFn2 a = forall a . (Ord a, Floating a) => [a] -> [a] -> a
+type ObjFn2 a = forall a . (Show a, Ord a, Floating a) => [a] -> [a] -> a
 type Fixed = [Float]
 type Varying = [Float]
 
@@ -876,8 +883,8 @@ repelDist sizes locs = sumMap pairToPenalties allPairs
                        pairToPenalties :: (Ord a, Floating a) => [[a]] -> a
                        pairToPenalties pair = sum $ [ (penaltyFn . pairwiseConstraint1) pair,
                                                       (penaltyFn . pairwiseConstraint2) pair]
-                       pairwiseConstraint1 = noConstraint
-                       pairwiseConstraint2 = noSubset
+                       pairwiseConstraint1 = noSubset
+                       pairwiseConstraint2 = noConstraint
                        -- generates all unique pairs
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        objs = zipWith (++) locPairs sizes'
@@ -920,7 +927,7 @@ repelDist sizes locs = sumMap pairToPenalties allPairs
 nonDifferentiable :: ObjFn2 a
 nonDifferentiable sizes locs = let q = head locs in
                   -- max q 0
-                  abs q
+                  abs q -- actually works fine with the line search
 
 -- attempts to account for the radii of the objects
 -- modified to try to be an interior point method with repel
@@ -928,15 +935,15 @@ nonDifferentiable sizes locs = let q = head locs in
 -- not sure whether to use sqrt or not
 -- try multiple objects?
 -- TODO clean up this structure, which I've appropriated as a penalty function compiler...
-centerAndRepel_dist :: (Floating a, Ord a) => a -> [a] -> [a] -> a
+centerAndRepel_dist :: (Show a, Floating a, Ord a) => a -> [a] -> [a] -> a
 centerAndRepel_dist weight fixed varying =
                     (if objFnOn then
-                        -- centerObjsNoSqrt fixed varying
+                        tro "obj val" $ centerObjsNoSqrt fixed varying
                         -- repelCenter fixed varying
                         -- centerAndRepel fixed varying
-                        nonDifferentiable fixed varying
+                        -- nonDifferentiable fixed varying
                     else 0) 
-                    + (if constraintFnOn then weight * (repelDist fixed varying) else 0)
+                    + (if constraintFnOn then tro "penalty val" $ weight * (repelDist fixed varying) else 0)
        -- works, but doesn't take the sizes into account correctly
        -- the sum of squares should have a sqrt, but if i do that, the function will become negative
        -- should really be doing min _ 0 (need to add ord)
