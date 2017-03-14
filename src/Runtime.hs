@@ -434,7 +434,7 @@ clampSize :: Float -> Float -- TODO assumes the size is a radius
 clampSize s = if s < minSize then minSize
               else if s > ph2 || s > pw2 then min pw2 ph2 else s
 
--- Some debugging functions.
+-- Some debugging functions. @@@
 debugF :: (Show a) => a -> a
 debugF x = if debug then traceShowId x else x
 debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
@@ -442,6 +442,12 @@ debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ s
 -- To send output to a file, do ./EXECUTABLE 2> FILE.txt
 tr :: Show a => String -> a -> a
 tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+
+trStr :: String -> a -> a
+trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
+
+tr' :: Show a => String -> a -> a
+tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 noOverlapPair :: Obj -> Obj -> Bool
 noOverlapPair (C c1) (C c2) = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
@@ -517,15 +523,6 @@ stepObjs t stateParams objs = objs' --if constraint objs' then objs' else objs
 tupMap :: (a -> b) -> (a, a) -> (b, b)
 tupMap f (a, b) = (f a, f b)
              
--- Flags for debugging the surrounding functions.
-clampflag = False
-debug = False
-constraintFlag = True
-objFn2 = doNothing -- TODO repelInverse
-
-stopEps :: Floating a => a
-stopEps = 10 ** (-10)
-
 -- Given the time, position, and evaluated gradient (or other search direction) at the point, 
 -- return the new position.
 stepT :: Time -> Double -> Double -> Double
@@ -553,16 +550,20 @@ projectOnto constraints state =
 -- and timestep (via line search), then using them to step the current state.
 stepWithObjective :: Real a => [a] -> Params -> Time -> [Double] -> [Double]
 stepWithObjective fixed stateParams t state =
-                  if stoppingCriterion gradEval then tr "STOP. position:" state
+                  if stoppingCriterion (tr "evaluated gradient:" gradEval) then trStr "STOP" state
                   -- project onto constraints (each coordinate may lie within a region)
-                  else projectOnto boundConstraints steppedState
-                  where (t', gradEval) = timeAndGrad objFnApplied t state
+                  else steppedState
+                  -- TODO generalize bound constraint projection into EP method
+                  where (t', gradEval) = trStr "objFn" $ timeAndGrad objFnApplied t state
                         -- get timestep via line search, and evaluated gradient at the state
                         -- step each parameter of the state with the time and gradient
                         -- gradEval :: [Double]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
-                        steppedState = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval)
-                        stoppingCriterion gradEval =
-                                    (tr "gradient norm: " $ norm $ tr "evaluated gradient:" $ gradEval) <= stopEps
+                        steppedState = let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
+                                       trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
+                                              ++ "\n|f(x') - f(x)|: " ++
+                                             (show $ abs (objFnApplied state - objFnApplied state')))
+                                       state'
+                        stoppingCriterion gradEval = (norm gradEval <= stopEps)
                         objFnApplied = objFn (realToFrac cWeight) (map realToFrac fixed)
                         cWeight = weight stateParams
 
@@ -589,7 +590,7 @@ removeInf = map removeInf'
 ----- Lists-as-vectors utility functions, TODO split out of file
 
 -- define operator precedence: higher precedence = evaluated earlier
-infixl 6 +. --, -.
+infixl 6 +., -.
 infixl 7 *. -- .*, /.
 
 -- assumes lists are of the same length
@@ -600,6 +601,10 @@ dotL u v = if not $ length u == length v then error "cannot take dot product of 
 (+.) :: Floating a => [a] -> [a] -> [a] -- add two vectors
 (+.) u v = if not $ length u == length v then error "cannot add different-length lists"
            else zipWith (+) u v
+
+(-.) :: Floating a => [a] -> [a] -> [a] -- subtract two vectors
+(-.) u v = if not $ length u == length v then error "cannot subtract different-length lists"
+           else zipWith (-) u v
 
 negL :: Floating a => [a] -> [a]
 negL = map negate
@@ -678,25 +683,25 @@ awLineSearch f duf_noU descentDir x0 =
           where (a0, b0, t0) = (0, infinity, 1)
                 duf = duf_noU descentDir
                 update (a, b, t) =
-                       let (a', b', sat) = if not $ armijo t then tr "not armijo" (a, t, False)
-                                           else if not $ weakWolfe t then tr "not wolfe" (t, b, False)
+                       let (a', b', sat) = if not $ armijo t then tr' "not armijo" (a, t, False)
+                                           else if not $ weakWolfe t then tr' "not wolfe" (t, b, False)
                                            -- remember to change both wolfes
                                            else (a, b, True) in
                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
-                       else if b' < infinity then tr "b' < infinity" (a', b', (a' + b') / 2)
-                       else tr "b' = infinity" (a', b', 2 * a')
+                       else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
+                       else tr' "b' = infinity" (a', b', 2 * a')
                 intervalOK_or_notArmijoAndWolfe (a, b, t) = not $
                       if armijo t && weakWolfe t then -- takes precedence
                            tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True 
                       else if abs (b - a) < minInterval then
                            tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
                       else False -- could be shorter; long for debugging purposes
-                armijo t = (f ((tr "** x0" x0) +. t *. (tr "descentDir" descentDir))) <= ((tr "fAtX0"fAtx0) + c1 * t * (tr "dufAtX0" dufAtx0))
+                armijo t = (f ((tr' "** x0" x0) +. t *. (tr' "descentDir" descentDir))) <= ((tr' "fAtX0"fAtx0) + c1 * t * (tr' "dufAtX0" dufAtx0))
                 strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
                 weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
-                          where duf_x_tu = tr "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
-                                t' = tr "t" t
-                                descentDir' = descentDir --tr "descentDir" descentDir
+                          where duf_x_tu = tr' "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
+                                t' = tr' "t" t
+                                descentDir' = descentDir --tr' "descentDir" descentDir
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
                 fAtx0 =f x0 -- TODO debug why NaN. even using removeNaN' didn't help
                 minInterval = if intervalMin then 10 ** (-10) else 0 
@@ -739,9 +744,9 @@ staten_label n = concat $ map labelN $ take n $ zip [1..] (repeat state1lab)
 -- samples a state that satisfies the constraint
 staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (staten_label n) in objs'
 
--- ### frequently-changed params
+------------------------ ### frequently-changed params for debugging
 -- objsInit = staten_label_rand 5
-objsInit = statenRand 5
+objsInit = statenRand 8
 
 -- now all other obj fns need to have this type
 -- objFn :: Floating a => a -> ObjFn2 a
@@ -760,6 +765,17 @@ constraint = if constraintFlag then allOverlap else \x -> True
 -- not quite... if the weight is too small then the constraint will be violated
 constraintWeight :: Floating a => a
 constraintWeight = 10 ** (-5)
+
+-- Flags for debugging the surrounding functions.
+clampflag = False
+debug = True
+debugLineSearch = False
+constraintFlag = False
+objFnOn = True -- in centerRepel_dist, turns obj function on or off (for debugging constraints only)
+constraintFnOn = False
+
+stopEps :: Floating a => a
+stopEps = 10 ** (-10)
 
 ------------ Various constants and helper functions related to objective functions
 
@@ -901,15 +917,26 @@ repelDist sizes locs = sumMap pairToPenalties allPairs
                        penaltyFn = (\x -> (max x 0)^q) -- weights should get progressively larger in cr_dist
                        q = 2 -- also, may need to sample OUTSIDE feasible set
 
+nonDifferentiable :: ObjFn2 a
+nonDifferentiable sizes locs = let q = head locs in
+                  -- max q 0
+                  abs q
+
 -- attempts to account for the radii of the objects
 -- modified to try to be an interior point method with repel
 -- currently, they repel each other "too much"--want them to be as centered as possible
 -- not sure whether to use sqrt or not
 -- try multiple objects?
+-- TODO clean up this structure, which I've appropriated as a penalty function compiler...
 centerAndRepel_dist :: (Floating a, Ord a) => a -> [a] -> [a] -> a
 centerAndRepel_dist weight fixed varying =
-                    -- centerObjsNoSqrt fixed varying +
-                    weight * (repelDist fixed varying)
+                    (if objFnOn then
+                        -- centerObjsNoSqrt fixed varying
+                        -- repelCenter fixed varying
+                        -- centerAndRepel fixed varying
+                        nonDifferentiable fixed varying
+                    else 0) 
+                    + (if constraintFnOn then weight * (repelDist fixed varying) else 0)
        -- works, but doesn't take the sizes into account correctly
        -- the sum of squares should have a sqrt, but if i do that, the function will become negative
        -- should really be doing min _ 0 (need to add ord)
