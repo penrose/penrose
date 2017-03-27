@@ -568,7 +568,7 @@ stepWithObjective fixed stateParams t state =
                                        state'
                         stoppingCriterion gradEval = (norm gradEval <= stopEps)
                         objFnApplied :: ObjFn1 a
-                        objFnApplied = objFn (realToFrac cWeight) (map realToFrac fixed)
+                        objFnApplied = objFnPenalty (realToFrac cWeight) (map realToFrac fixed)
                         cWeight = weight stateParams
                         gradF :: GradFn a
                         gradF = appGrad objFnApplied
@@ -754,11 +754,13 @@ staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (stat
 -- objsInit = staten_label_rand 5
 objsInit = statenRand 2
 
--- now all other obj fns need to have this type
--- objFn :: Floating a => a -> ObjFn2 a
-objFn :: (Show a, Floating a, Ord a) => a -> [a] -> [a] -> a
-objFn weight = centerAndRepel_dist weight
--- objFn = centerRepelLabel
+type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a) => a -> [a] -> [a] -> a
+
+-- TODO should use objFn as a parameter
+objFnPenalty :: ObjFnPenalty a
+objFnPenalty weight = combineObjfns objFnUnconstrained weight
+             where objFnUnconstrained :: Floating a => ObjFn2 a
+                   objFnUnconstrained = centerObjs -- inner objfn
 
 -- if the list of constraints is empty, it behaves as unconstrained optimization
 boundConstraints :: Constraints
@@ -776,9 +778,9 @@ constraintWeight = 10
 clampflag = False
 debug = True
 debugLineSearch = False
-debugObj = True -- turn on/off output in obj fn or constraint
+debugObj = False -- turn on/off output in obj fn or constraint
 constraintFlag = True
-objFnOn = True -- in centerRepel_dist, turns obj function on or off (for debugging constraints only)
+objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = True
 
 stopEps :: Floating a => a
@@ -798,7 +800,7 @@ type ObjFn2 a = forall a . (Show a, Ord a, Floating a) => [a] -> [a] -> a
 type Fixed = [Float]
 type Varying = [Float]
 
--- all objective functions so far use these two pack/unpack functions
+-- all objective functions so far use these two pack/unpack functions, except the ones with sets and labels
 unpackFn :: [Obj] -> (Fixed, Varying)
 unpackFn = sizeLoc_unpack
 
@@ -806,7 +808,7 @@ packFn :: [Obj] -> Varying -> [Obj]
 packFn = sizeLoc_pack
 
 linesearch = True -- TODO move these parameters back
-intervalMin = True -- true = force halt if interval gets too small; false = no forced halt
+intervalMin = True -- true = force linesearch halt if interval gets too small; false = no forced halt
 
 sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
 sumMap f l = sum $ map f l
@@ -822,13 +824,14 @@ sizeLoc_pack objs varying = let positions = chunksOf 2 varying in
                                      map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
                                          (zip objs positions)
 
--------------- Sample constraints
+-------------- Sample bound constraints
+
+-- TODO test bound constraints with EP, keep separate and formally build in if it doesn't work
+-- TODO add more constraints for testing
 
 -- x-coord of first object's center in [-300,-200], y-coord of first object's center in [0, 200]
 first_two_objs_box :: Constraints
 first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))] 
-
--- TODO add more constraints
 
 -------------- Objective functions
 
@@ -872,86 +875,31 @@ centerAndRepel fixed varying = centerObjsNoSqrt fixed varying + weight * repelCe
 -- pairwise repel on a list of objects (by distance b/t their centers)
 -- TODO: version of above function that separates fixed parameters (size) from varying parameters (location)
 -- assuming 1 size for each two locs, and s1 corresponds to x1, y1 (and so on)
-
--- TODO clean this up, there's some interior/exterior point method stuff not cleanly split out in here
 repelDist :: ObjFn2 a
-repelDist sizes locs = sumMap pairToPenalties allPairs
-          -- the overall penalty function is the sum (unweighted)
-                 where -- for each pair, for each constraint on that pair, compose w/ penalty function and sum
-                       -- TODO generalize to arbitrary number of constraints and different pairwise, n-wise
-                       -- TODO need to add Show to the typeclasses everywhere so I can debug w/ traceShow...
-                       pairToPenalties :: (Ord a, Floating a) => [[a]] -> a
-                       pairToPenalties pair = sum $ [ (penaltyFn . pairwiseConstraint1) pair,
-                                                      (penaltyFn . pairwiseConstraint2) pair]
-                       pairwiseConstraint1 = noSubset
-                       pairwiseConstraint2 = noConstraint
-                       -- generates all unique pairs
+repelDist sizes locs = sumMap (\x -> 1 / (x + epsd)) denoms
+                 where denoms = map diffSq allPairs
+                       diffSq [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - s1 - s2
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        objs = zipWith (++) locPairs sizes'
                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
 
-                       noConstraint x = 0 :: Floating a => a -- dummy constraint
+-- attempts to account for the radii of the objects
+-- currently, they repel each other "too much"--want them to be as centered as possible
+-- not sure whether to use sqrt or not
+-- try multiple objects?
+centerAndRepel_dist :: ObjFn2 a
+centerAndRepel_dist fixed varying = centerObjsNoSqrt fixed varying + weight * (repelDist fixed varying)
+       where weight = 10 ** 10
 
-                       -- exterior point method constraint: all sets must pairwise-strict-intersect
-                       -- is this possible with n sets? try it with 2, 3 sets first. yes but only 1 config
-                       -- multiple constraints = sum the penalty functions
-                       -- looseIntersect just turns into subset... TODO write one 
-                       looseIntersect [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - (s1 + s2)^2
-                       -- is it a problem because it is pairwise? c1 -> c2 and c2 -> c1
-                       -- oh wait this only generates all unique pairs and it's not clear which is max
-                       -- so there's only one unique constraint on the pair
-                       -- hm, the energy actually increases so it always settles around the offset
-                       -- oh that's bc i am centering all of them--test w/objective off
-                       -- TODO flatten energy afterward, or get it to be *far* from the other set
-                       noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
-                                -((x1 - x2)^2 + (y1 - y2)^2) + ((max s2 s1) - (min s2 s1) + offset)^2
-                       strictSubset [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2)
-                                                                   - ((max s2 s1) - (min s2 s1))^2
+-----
 
-                       -- exterior point method constraint: no intersection
-                       noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
-                       -- interior point method constraint: no intersection
-                       -- avoid NaN (log of a negative number) and inf (log 0)--breaks interior method
-                       noIntersectInt [[x1, y1, s1], [x2, y2, s2]] = (x1 - x2)^2 + (y1 - y2)^2 - (s1 + s2)^2
-
-                       -- interior point method: barrier functions
-                       barrierFnInv = (\x -> 1 / (x + epsd))
-                       barrierFnLog = (\x -> - (log (x + epsd))) -- the negative sign is why it works??
-                       -- doesn't work if i flip the negatives between log and noIntersect...
-                       -- i wonder if autodiff is having trouble with the dlog? 1/x -> -inf -> always the min
-
-                       -- exterior point method: penalty function
-                       penaltyFn = (\x -> (max x 0)^q) -- weights should get progressively larger in cr_dist
-                       q = 2 -- also, may need to sample OUTSIDE feasible set
+doNothing :: ObjFn2 a -- for debugging
+doNothing _ _ = 0
 
 nonDifferentiable :: ObjFn2 a
 nonDifferentiable sizes locs = let q = head locs in
                   -- max q 0
                   abs q -- actually works fine with the line search
-
--- attempts to account for the radii of the objects
--- modified to try to be an interior point method with repel
--- currently, they repel each other "too much"--want them to be as centered as possible
--- not sure whether to use sqrt or not
--- try multiple objects?
--- TODO clean up this structure, which I've appropriated as a penalty function compiler...
-centerAndRepel_dist :: (Show a, Floating a, Ord a) => a -> [a] -> [a] -> a
-centerAndRepel_dist weight fixed varying =
-                    (if objFnOn then
-                        tro "obj val" $ centerObjsNoSqrt fixed varying
-                        -- repelCenter fixed varying
-                        -- centerAndRepel fixed varying
-                        -- nonDifferentiable fixed varying
-                    else 0) 
-                    + (if constraintFnOn then tro "penalty val" $ weight * (repelDist fixed varying) else 0)
-       -- works, but doesn't take the sizes into account correctly
-       -- the sum of squares should have a sqrt, but if i do that, the function will become negative
-       -- should really be doing min _ 0 (need to add ord)
-       -- where weight = 100 -- TODO factor out weight into config
--- but with the NaNs removed, now the log barrier function doesn't work??
-
-doNothing :: ObjFn2 a -- for debugging
-doNothing _ _ = 0
 
 -- TODO these need separate pack/unpack functions because they change the sizes. these don't currently work
 grow2 :: ObjFn2 a
@@ -1005,6 +953,8 @@ labelSum inSet objLabelSizes objLabelLocs =
 
 ------
 
+-- TODO: label-only obj fns don't work out-of-the-box with set-only obj fns since they do unpacking differently
+
 -- Start composing set-wise functions (centerAndRepel) with set-label functions (labelSum)
 -- Sets repel each other, labels repel each other, and sets are labeled
 -- TODO non-label sets should repel those labels
@@ -1019,3 +969,57 @@ centerRepelLabel olSizes olLocs =
                        zippedLocs = map (\[xo, yo, xl, yl] -> ([xo, yo], [xl, yl])) $ chunksOf 4 olLocs
                        weight = 10 ** 6
                        inSet = True -- label only in set vs. in or at radius
+
+
+---------------- Exterior point method functions
+-- Given an objective function and a list of constraints (phrased in terms of violations on a list of floats),
+-- combines them using the penalty method (parametrized by a constraint weight over the sum of the constraints,
+-- & individual normalizing weights on each constraint). Returns the corresponding unconstrained objective fn,
+-- for use in unconstrained opt with line search.
+
+constraintsToObjfn :: ObjFn2 a
+constraintsToObjfn sizes locs = sumMap pairToPenalties allPairs
+          -- the overall penalty function is the sum (unweighted)
+                 where -- for each pair, for each constraint on that pair, compose w/ penalty function and sum
+                       -- TODO add vector of normalization constants for each constraint
+                       -- TODO generalize to arbitrary number of constraints and different pairwise, n-wise
+                       -- TODO need to add Show to the typeclasses everywhere so I can debug w/ traceShow...
+                       pairToPenalties :: (Ord a, Floating a) => [[a]] -> a
+                       pairToPenalties pair = sum $ [ (penaltyFn . pairwiseConstraint1) pair,
+                                                      (penaltyFn . pairwiseConstraint2) pair]
+                       pairwiseConstraint1 = noSubset
+                       pairwiseConstraint2 = noConstraint
+                       -- generates all *unique* pairs (does not generate e.g. (o1, o2) and (o2, o1))
+                       allPairs = filter (\x -> length x == 2) $ subsequences objs
+                       objs = zipWith (++) locPairs sizes'
+                       (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
+
+                       noConstraint x = 0 :: Floating a => a -- dummy constraint
+
+                       -- exterior point method constraint: all sets must pairwise-strict-intersect
+                       looseIntersect [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - (s1 + s2)^2
+                       -- the energy actually increases so it always settles around the offset
+                       -- oh that's bc i am centering all of them--test w/objective off
+                       -- TODO flatten energy afterward, or get it to be *far* from the other set
+                       noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
+                                -((x1 - x2)^2 + (y1 - y2)^2) + ((max s2 s1) - (min s2 s1) + offset)^2
+                       strictSubset [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2)
+                                                                   - ((max s2 s1) - (min s2 s1))^2
+
+                       -- exterior point method constraint: no intersection
+                       noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
+
+                       -- exterior point method: penalty function
+                       penaltyFn = (\x -> (max x 0)^q) -- weights should get progressively larger in cr_dist
+                       q = 2 -- also, may need to sample OUTSIDE feasible set
+
+combineObjfns :: ObjFn2 a -> ObjFnPenalty a
+combineObjfns objfn weight fixed varying = -- input objfn is unconstrained
+                    (if objFnOn then tro "obj val" $ objfn fixed varying else 0) 
+                    + (if constraintFnOn then tro "penalty val" $
+                                              weight * (constraintsToObjfn fixed varying) else 0)
+       -- works, but doesn't take the sizes into account correctly
+       -- the sum of squares should have a sqrt, but if i do that, the function will become negative
+       -- should really be doing min _ 0 (need to add ord)
+       -- where weight = 100 -- TODO factor out weight into config
+-- but with the NaNs removed, now the log barrier function doesn't work??
