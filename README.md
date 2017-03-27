@@ -1,8 +1,8 @@
 # Penrose
 
-Note: this README is obsolete! 
+We're currently building a prototype for set theory. Not ready for contributions or public use yet, but hopefully will be by the summer!
 
-TODO: redocument the code after the dust settles.
+This README is obsolete! TODO: redocument the code after the dust settles.
 
 ### Directories
 
