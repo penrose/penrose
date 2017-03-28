@@ -184,8 +184,17 @@ instance Sized Obj where
                 C c -> C $ setSize x c
                 L l -> L $ setSize x l
 
-data Params = Params { weight :: Float
-                     } deriving (Show)
+data LastState = LastState { lastUnconstrainedState :: [Double],
+                             lastEPstate :: [Double] } deriving (Eq, Show) -- TODO should this be Floating?
+data OptStatus = NewIter -- TODO should this be init with a state?
+               | UnconstrainedRunning LastState
+               | UnconstrainedConverged LastState -- check EP weight and stop or up EP weight
+               | EPConverged
+               deriving (Eq, Show)
+
+data Params = Params { weight :: Double,
+                       optStatus :: OptStatus
+                     } deriving (Eq, Show)
 
 -- State of the world
 data State = State { objs :: [Obj]
@@ -215,7 +224,7 @@ objOf (C.L label) = L $ Label { xl = C.xl label, yl = C.yl label, textl = C.text
 -- Convert Compiler's abstract layout representation to the types that the optimization code needs.
 compilerToRuntimeTypes :: [C.Obj] -> State
 compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng',
-                       autostep = True, params = Params { weight = constraintWeight } }
+                       autostep = True, params = Params { weight = initWeight, optStatus = NewIter } }
                        where (runtimeState', initRng') = genState runtimeState initRng
                              runtimeState = map objOf compileState
 
@@ -232,7 +241,7 @@ rad2 = rad+50
 -- Initial state of the world, reading from Substance/Style input
 initState :: State
 initState = State { objs = objsInit, down = False, rng = initRng, autostep = False,
-                    params = Params { weight = constraintWeight } }
+                    params = Params { weight = initWeight, optStatus = NewIter } }
           -- where objsInit = state4
 
 -- divide two integers to obtain a float
@@ -272,7 +281,7 @@ picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText,
+picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText, optText,
                     lineXbot, lineXtop, lineYbot, lineYtop]
     where -- TODO display constraint instead of hardcoding
           -- (picture for bounding box for bound constraints)
@@ -292,6 +301,13 @@ picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, para
                       $ text ("autostep: " ++ res)
           paramText = translate xInit (yInit - 3 * yConst) $ scale sc sc
                       $ text ("penalty function weight: " ++ show (weight $ params s))
+          optText = translate xInit (yInit - 4 * yConst) $ scale sc sc
+                    $ text ("optimization status: " ++ (statusTextOf $ optStatus $ params s))
+          statusTextOf val = case val of
+                           NewIter -> "opt started; new iteration"
+                           UnconstrainedRunning lastState -> "unconstrained running"
+                           UnconstrainedConverged lastState -> "unconstrained converged"
+                           EPConverged -> "EP converged" -- TODO record num iterations
           xInit = -pw2+50
           yInit = ph2-50
           yConst = 30
@@ -405,14 +421,18 @@ handler (EventKey (Char 's') Down _ _) s =
 
 -- change the weights in the barrier/penalty method (scale by 10). don't step objects
 handler (EventKey (SpecialKey KeyUp) Down _ _) s =
-        trace ("weight: " ++ show currWeight) $ -- TODO print on screen
-              s { params = Params { weight = currWeight * 10 } } -- should modify params
-        where currWeight = weight $ params s
+        trace ("weight: " ++ show currWeight) $ 
+              s { params = p { weight = currWeight * weightGrowth } }
+        -- TODO what should the opt status be? should user be allowed to change the weight now?
+        where p = params s
+              currWeight = weight p
 
 handler (EventKey (SpecialKey KeyDown) Down _ _) s =
-        trace ("weight: " ++ show currWeight) $ -- TODO print on screen
-              s { params = Params { weight = currWeight / 10 } } -- should modify params
-        where currWeight = weight $ params s
+        trace ("weight: " ++ show currWeight) $ 
+              s { params = p { weight = currWeight / weightGrowth } }
+        -- TODO what should the opt status be?
+        where p = params s
+              currWeight = weight $ params s
 
 handler _ s = s
 
@@ -770,11 +790,17 @@ boundConstraints = [] -- first_two_objs_box
 -- needs constr to be violated
 constraint = if constraintFlag then (not . noneOverlap) else \x -> True
 
+weightGrowth :: Floating a => a -- for EP weight
+weightGrowth = 10
+
+epStop :: Floating a => a -- for EP diff
+epStop = 10 ** (-5)
+
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
-constraintWeight :: Floating a => a
-constraintWeight = 10 ** (-5)
+initWeight :: Floating a => a
+initWeight = 10 ** (-5)
 
 -- Flags for debugging the surrounding functions.
 clampflag = False
