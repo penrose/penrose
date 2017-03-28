@@ -242,8 +242,14 @@ divf a b = (fromIntegral a) / (fromIntegral b)
 pw2 :: Float
 pw2 = picWidth `divf` 2
 
+pw2' :: Floating a => a
+pw2' = realToFrac pw2
+
 ph2 :: Float
 ph2 = picHeight `divf` 2
+
+ph2' :: Floating a => a
+ph2' = realToFrac ph2
 
 widthRange = (-pw2, pw2)
 heightRange = (-ph2, ph2)
@@ -266,21 +272,15 @@ picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText]
-                    -- lineXbot, lineXtop, lineYbot, lineYtop,
-                    -- lineXbot', lineXtop', lineYbot', lineYtop']
+picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText,
+                    lineXbot, lineXtop, lineYbot, lineYtop]
     where -- TODO display constraint instead of hardcoding
           -- (picture for bounding box for bound constraints)
-          -- first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))] 
-          -- lineXbot = color red $ Line [(-300, 0), (-100, 0)] 
-          -- lineXtop = color red $ Line [(-300, 200), (-100, 200)] 
-          -- lineYbot = color red $ Line [(-300, 0), (-300, 200)]
-          -- lineYtop = color red $ Line [(-100, 0), (-100, 200)]
-
-          -- lineXbot' = color red $ Line [(100, -100), (300, -100)] 
-          -- lineXtop' = color red $ Line [(100, -400), (300, -400)] 
-          -- lineYbot' = color red $ Line [(100, -100), (100, -400)]
-          -- lineYtop' = color red $ Line [(300, -100), (300, -400)]
+          -- constraints are currently global params
+          lineXbot = color red $ Line [(leftb, botb), (rightb, botb)] 
+          lineXtop = color red $ Line [(leftb, topb), (rightb, topb)] 
+          lineYbot = color red $ Line [(leftb, botb), (leftb, topb)]
+          lineYtop = color red $ Line [(rightb, botb), (rightb, topb)]
 
           -- TODO generate this text more programmatically
           objectiveText = translate xInit yInit $ scale sc sc
@@ -766,13 +766,15 @@ objFnPenalty weight = combineObjfns objFnUnconstrained weight
 boundConstraints :: Constraints
 boundConstraints = [] -- first_two_objs_box
 
+-- TODO: **must** manually change this constraint if you change the constr function for EP
+-- needs constr to be violated
 constraint = if constraintFlag then (not . noneOverlap) else \x -> True
 
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
 constraintWeight :: Floating a => a
-constraintWeight = 10
+constraintWeight = 10 ** (-5)
 
 -- Flags for debugging the surrounding functions.
 clampflag = False
@@ -791,8 +793,8 @@ stopEps = 10 ** (-10)
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: none"
-constrText = "constraint: no set is a subset of another (exterior point method, max/exp penalty, exponent = 2)"
+objText = "objective: center both"
+constrText = "constraint: first set's center in bbox + no set is a subset of another. (EP method)"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -822,6 +824,8 @@ sizeLoc_unpack objs = (map getSize objs, concatMap (\o -> [getX o, getY o]) objs
 sizeLoc_pack :: [Obj] -> Varying -> [Obj]
 sizeLoc_pack objs varying = let positions = chunksOf 2 varying in
                                      map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
+             -- setX x $ setY y o)
+             -- TODO turn off clamping; add constraints for in bbox in EP method to ALL objects
                                          (zip objs positions)
 
 -------------- Sample bound constraints
@@ -977,49 +981,98 @@ centerRepelLabel olSizes olLocs =
 -- & individual normalizing weights on each constraint). Returns the corresponding unconstrained objective fn,
 -- for use in unconstrained opt with line search.
 
-constraintsToObjfn :: ObjFn2 a
-constraintsToObjfn sizes locs = sumMap pairToPenalties allPairs
-          -- the overall penalty function is the sum (unweighted)
-                 where -- for each pair, for each constraint on that pair, compose w/ penalty function and sum
-                       -- TODO add vector of normalization constants for each constraint
-                       -- TODO generalize to arbitrary number of constraints and different pairwise, n-wise
-                       -- TODO need to add Show to the typeclasses everywhere so I can debug w/ traceShow...
-                       pairToPenalties :: (Ord a, Floating a) => [[a]] -> a
-                       pairToPenalties pair = sum $ [ (penaltyFn . pairwiseConstraint1) pair,
-                                                      (penaltyFn . pairwiseConstraint2) pair]
-                       pairwiseConstraint1 = noSubset
-                       pairwiseConstraint2 = noConstraint
-                       -- generates all *unique* pairs (does not generate e.g. (o1, o2) and (o2, o1))
+-- PAIRWISE constraint functions that return the magnitude of violation
+-- same type as ObjFn2; more general than PairConstrV
+type StateConstrV a = forall a . (Floating a, Ord a, Show a) => [a] -> [a] -> a 
+type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
+
+noConstraint :: PairConstrV a
+noConstraint _ = 0
+
+-- To convert your inequality constraint into a violation to be penalized:
+-- it needs to be in the form "c < 0" and c is the violation penalized if > 0
+-- so e.g. if you want "x < -100" then you would convert it to "x + 100 < 0" with c = x + 100
+-- if you want "f x > -100" then you would convert it to "-(f x + 100) < 0" with c = -(f x + 100)"
+
+-- all sets must pairwise-strict-intersect
+looseIntersect :: PairConstrV a
+looseIntersect [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - (s1 + s2)^2
+
+-- the energy actually increases so it always settles around the offset
+-- oh that's bc i am centering all of them--test w/objective off
+-- TODO flatten energy afterward, or get it to be *far* from the other set
+noSubset :: PairConstrV a
+noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
+         -((x1 - x2)^2 + (y1 - y2)^2) + ((max s2 s1) - (min s2 s1) + offset)^2
+
+strictSubset :: PairConstrV a
+strictSubset [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - ((max s2 s1) - (min s2 s1))^2
+
+-- exterior point method constraint: no intersection
+noIntersectExt :: PairConstrV a
+noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
+
+-- exterior point method: penalty function
+penalty :: (Ord a, Floating a, Show a) => a -> a
+penalty x = (max x 0) ^ q -- weights should get progressively larger in cr_dist
+            where q = 2 -- also, may need to sample OUTSIDE feasible set
+
+-- for each pair, for each constraint on that pair, compose w/ penalty function and sum
+-- TODO add vector of normalization constants for each constraint
+pairToPenalties :: PairConstrV a
+pairToPenalties pair = sum $ map (\((f, w), p) -> w * (penalty $ f p)) $ zip pairConstrVs (repeat pair)
+
+-- sum penalized violations of each constraint on the whole state
+stateConstrsToObjfn :: ObjFn2 a
+stateConstrsToObjfn fixed varying = sum $ map (\((f, w), (fix, vary)) -> w * (penalty $ f fix vary))
+                    $ zip stateConstrVs (repeat (fixed, varying))
+
+-- the overall penalty function is the sum m (unweighted)
+-- generate all unique pairs of objs and sum the penalized violation on each pair
+pairConstrsToObjfn :: ObjFn2 a
+pairConstrsToObjfn sizes locs = sumMap pairToPenalties allPairs
+                 where -- generates all *unique* pairs (does not generate e.g. (o1, o2) and (o2, o1))
                        allPairs = filter (\x -> length x == 2) $ subsequences objs
                        objs = zipWith (++) locPairs sizes'
                        (sizes', locPairs) = (map (\x -> [x]) sizes, chunksOf 2 locs)
 
-                       noConstraint x = 0 :: Floating a => a -- dummy constraint
-
-                       -- exterior point method constraint: all sets must pairwise-strict-intersect
-                       looseIntersect [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - (s1 + s2)^2
-                       -- the energy actually increases so it always settles around the offset
-                       -- oh that's bc i am centering all of them--test w/objective off
-                       -- TODO flatten energy afterward, or get it to be *far* from the other set
-                       noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
-                                -((x1 - x2)^2 + (y1 - y2)^2) + ((max s2 s1) - (min s2 s1) + offset)^2
-                       strictSubset [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2)
-                                                                   - ((max s2 s1) - (min s2 s1))^2
-
-                       -- exterior point method constraint: no intersection
-                       noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
-
-                       -- exterior point method: penalty function
-                       penaltyFn = (\x -> (max x 0)^q) -- weights should get progressively larger in cr_dist
-                       q = 2 -- also, may need to sample OUTSIDE feasible set
-
+-- add the obj fn value to all penalized violations of constraints
 combineObjfns :: ObjFn2 a -> ObjFnPenalty a
 combineObjfns objfn weight fixed varying = -- input objfn is unconstrained
-                    (if objFnOn then tro "obj val" $ objfn fixed varying else 0) 
-                    + (if constraintFnOn then tro "penalty val" $
-                                              weight * (constraintsToObjfn fixed varying) else 0)
-       -- works, but doesn't take the sizes into account correctly
-       -- the sum of squares should have a sqrt, but if i do that, the function will become negative
-       -- should really be doing min _ 0 (need to add ord)
-       -- where weight = 100 -- TODO factor out weight into config
--- but with the NaNs removed, now the log barrier function doesn't work??
+             (if objFnOn then tro "obj val" $ objWeight * objfn fixed varying else 0) 
+             + (if constraintFnOn then tro "penalty val" $
+                   weight * (pairConstrsToObjfn fixed varying + stateConstrsToObjfn fixed varying)
+                else 0)
+             where objWeight = 1
+
+-- constraint functions that act on the entire state 
+-- this one just acts on the first object and ignores the fixed params
+firstObjInBbox :: (Floating a, Ord a, Show a) => (a, a, a, a) -> [([a] -> [a] -> a, a)]
+firstObjInBbox (l, r, b, t) = [(leftBound, 1), (rightBound, 1), (botBound, 1), (topBound, 1)]
+               where leftBound fixed (x1 : _ : _) = -(x1 - l)
+                     leftBound _ _ = error "not enough floats in state to apply constr function firstObjInBbox"
+                     rightBound fixed (x1 : _ : _) = x1 - r
+                     botBound fixed (_ : y1 : _) = -(y1 - b)
+                     topBound fixed (_ : y1 : _) = y1 - t
+
+stateConstrVs :: (Floating a, Ord a, Show a) => [([a] -> [a] -> a, a)] -- constr, constr weight
+stateConstrVs = firstObjInBbox (leftb, rightb, botb, topb)
+                ++ firstObjInBbox (-pw2', pw2', -ph2', ph2') -- first object in viewport, TODO make for all objs
+                ++ [] -- TODO add more
+
+-- Parameter to modify (TODO move it to other section)
+-- [PairConstrV a] is not allowed b/c impredicative types
+pairConstrVs :: (Floating a, Ord a, Show a) => [([[a]] -> a, a)] -- constr, constr weight
+pairConstrVs = [(noSubset, 1)]
+
+leftb :: Floating a => a
+leftb = -200
+
+rightb :: Floating a => a
+rightb = 100
+
+botb :: Floating a => a
+botb = 0
+
+topb :: Floating a => a
+topb = 200
