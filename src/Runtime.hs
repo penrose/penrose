@@ -184,11 +184,11 @@ instance Sized Obj where
                 C c -> C $ setSize x c
                 L l -> L $ setSize x l
 
-data LastState = LastState { lastUnconstrainedState :: [Double],
-                             lastEPstate :: [Double] } deriving (Eq, Show) -- TODO should this be Floating?
+data LastEPstate = EPstate [Obj] deriving (Eq, Show)
+
 data OptStatus = NewIter -- TODO should this be init with a state?
-               | UnconstrainedRunning LastState
-               | UnconstrainedConverged LastState -- check EP weight and stop or up EP weight
+               | UnconstrainedRunning LastEPstate -- [Obj] stores last EP state
+               | UnconstrainedConverged LastEPstate -- [Obj] stores last EP state
                | EPConverged
                deriving (Eq, Show)
 
@@ -417,7 +417,8 @@ handler (EventKey (Char 'a') Up _ _) s = if autostep s then s { autostep = False
 -- (which doesn't step if autostep is off). this is the same code as the step function but with reverse condition
 -- if autostep is on, this does nothing
 handler (EventKey (Char 's') Down _ _) s =
-        if not $ autostep s then s { objs = stepObjs (float2Double calcTimestep) (params s) (objs s) } else s
+        if not $ autostep s then s { objs = objs', params = params' } else s
+        where (objs', params') = stepObjs (float2Double calcTimestep) (params s) (objs s)
 
 -- change the weights in the barrier/penalty method (scale by 10). don't step objects
 handler (EventKey (SpecialKey KeyUp) Down _ _) s =
@@ -506,7 +507,8 @@ type Constraints = [(Int, (Double, Double))]
 -- convert float to double for the input and convert double to float for the output.
 step :: Floating a => TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
-            if autostep s then s { objs = stepObjs (float2Double t) (params s) (objs s) } else s 
+           if autostep s then s { objs = objs', params = params' } else s
+           where (objs', params') = stepObjs (float2Double t) (params s) (objs s)
 
 -- Utility functions for getting object info (currently unused)
 objInfo :: Obj -> [Float]
@@ -534,14 +536,58 @@ objsSizes = map (\[x, y, s] -> s) . objsInfo
 -- unpacks all objects into a big state vector, steps that state, and repacks the new state into the objects
 -- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
-stepObjs :: Time -> Params -> [Obj] -> [Obj]
-stepObjs t stateParams objs = objs' --if constraint objs' then objs' else objs
-        where (fixed, stateVarying) = tupMap (map float2Double) $ unpackFn objs
+
+-- implements exterior point algo as described on page 6 here:
+-- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
+-- the initial state (WRT violating constraints), initial weight, params, constraint normalization, etc.
+-- have all been initialized or set earlier
+stepObjs :: Time -> Params -> [Obj] -> ([Obj], Params)
+stepObjs t sParams objs =
+         case epStatus of
+
+         -- start the outer EP optimization and the inner unconstrained optimization, recording initial EPstate
+         NewIter -> let status' = UnconstrainedRunning $ EPstate objs in
+                    (objs', sParams { weight = initWeight, optStatus = status'} )
+
+         -- TODO: stepWithObjective should also return objFnApplied? or I should do it here and pass in.
+         -- the stopping criteria should be factored out into here / just absorb stepWithObjective?
+
+         -- check inner unconstrained opt convergence. if not, keep running UO (inner state implicitly stored)
+         -- if converged, set opt state to converged and update last EP state
+         -- note convergence checks are only on the varying part of the state
+         UnconstrainedRunning lastEPstate ->
+           let unconstrConverged = weakStopCond stateVarying stateVaryingF'
+                                   (objFnApplied stateVarying) (objFnApplied stateVaryingF') in
+           if unconstrConverged then 
+              let status' = UnconstrainedConverged $ EPstate objs' in -- update UO state and EP state
+              (objs', sParams { optStatus = status'})
+           else (objs', sParams) -- update UO state but not EP state; UO still running
+
+         -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
+         -- TODO some trickiness about whether unconstrained-converged has updated the correct state
+         -- and whether i should check WRT the updated state or not
+         UnconstrainedConverged lastEPstate -> 
+           let epConverged = weakStopCond lastEPstate stateVarying -- state = last state for UO, which converged
+                                   (objFnApplied lastEPstate) (objFnApplied stateVarying) in
+           if epConverged then 
+              let status' = EPConverged in -- no more EP state
+              (objs, sParams { optStatus = status'}) -- do not update UO state
+           else let status' = UnconstrainedRunning $ EPstate objs in -- update EP state to be newest UO converged state
+                -- increase weight
+                (objs, Params { weight = weightGrowth (weight sParams), optStatus = status' })
+
+         -- done; don't update obj state or params; user can now manipulate
+         EPConverged -> (objs, sParams) 
+
+         -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
+        where (epWeight, epStatus) = (weight sParams, optStatus sParams)
+              (fixed, stateVarying) = tupMap (map float2Double) $ unpackFn objs
               -- get new positions. objective function is a global param
-              stateVarying' = map double2Float $ stepWithObjective fixed stateParams t stateVarying
+              stateVaryingF' = map double2Float $ stateVarying'
+              (stateVarying', objFnApplied) = stepWithObjective fixed sParams t stateVarying
               -- re-pack each object's state list into object
-              objs' = packFn objs stateVarying'
-              checkSizesMatch a b = if not $ length a == length b then error "length mismatch" else (a, b)
+              objs' = packFn objs stateVaryingF'
+
        
 tupMap :: (a -> b) -> (a, a) -> (b, b)
 tupMap f (a, b) = (f a, f b)
@@ -569,15 +615,25 @@ projectOnto constraints state =
             let indexedState = zip [0..] state in
             foldr (lookInAndProj constraints) [] indexedState
 
+-- convergence criterion for EP and unconstrained opt
+weakStopCond :: (Floating a, Ord a, Show a) => [a] -> [a] -> [a] -> [a] -> Bool
+weakStopCond x x' fx fx' = (norm (x -. x') <= epStop) || (norm (fx -. fx') <= epStop)
+
+-- just for unconstrained opt, not EP
+-- TODO currently unused because it doesn't strongly converge
+strongStopCond :: (Floating a, Ord a, Show a) => [a] -> Bool
+strongStopCond gradEval = (norm gradEval <= stopEps)
+
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
-stepWithObjective :: (Show a, Real a) => [a] -> Params -> Time -> [Double] -> [Double]
+stepWithObjective :: (Show a, Real a) => [a] -> Params -> Time -> [Double] -> [Double] -> ([Double], ObjFn1 a)
 stepWithObjective fixed stateParams t state =
                   -- TODO: stop on new grad or old grad? and if we stop, return new state or old state?
-                  if stoppingCriterion (tr "evaluated gradient:" gradEval') then trStr "STOP" steppedState
-                  else steppedState
-                  -- TODO generalize bound constraint projection into EP method
-                  where (t', gradEval) = timeAndGrad objFnApplied t state
+                  -- TODO should really check if *prev* state had converged... add back to type?
+                  -- if strongStopCond (tr "evaluated gradient:" gradEval') then trStr "STOP" steppedState
+                  (steppedState, objFnApplied)
+                  where 
+                        (t', gradEval) = timeAndGrad objFnApplied t state
                         -- get timestep via line search, and evaluated gradient at the state
                         -- step each parameter of the state with the time and gradient
                         -- gradEval :: [Double]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
@@ -586,7 +642,6 @@ stepWithObjective fixed stateParams t state =
                                               ++ "\n|f(x') - f(x)|: " ++
                                              (show $ abs (objFnApplied state - objFnApplied state')))
                                        state'
-                        stoppingCriterion gradEval = (norm gradEval <= stopEps)
                         objFnApplied :: ObjFn1 a
                         objFnApplied = objFnPenalty (realToFrac cWeight) (map realToFrac fixed)
                         cWeight = weight stateParams
