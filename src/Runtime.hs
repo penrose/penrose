@@ -213,18 +213,12 @@ initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
--- data Label = Label { xl :: Float
---                    , yl :: Float
---                    , textl :: String
---                    , scalel :: Float  -- calculate h,w from it
---                    , sell :: Bool } -- selected label
-
+-- Convert Compiler's abstract layout representation to the types that the optimization code needs.
 objOf :: C.Obj -> Obj
 objOf (C.C circ) = C $ Circ { xc = C.xc circ, yc = C.yc circ, r = C.r circ, selc = False }
 objOf (C.L label) = L $ Label { xl = C.xl label, yl = C.yl label, textl = C.textl label,
                                 scalel = C.scalel label, sell = False }
 
--- Convert Compiler's abstract layout representation to the types that the optimization code needs.
 compilerToRuntimeTypes :: [C.Obj] -> State
 compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng',
                        autostep = True, params = initParams }
@@ -282,15 +276,15 @@ picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText, optText,
-                    lineXbot, lineXtop, lineYbot, lineYtop]
+picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText, optText]
+                    -- lineXbot, lineXtop, lineYbot, lineYtop]
     where -- TODO display constraint instead of hardcoding
           -- (picture for bounding box for bound constraints)
           -- constraints are currently global params
-          lineXbot = color red $ Line [(leftb, botb), (rightb, botb)] 
-          lineXtop = color red $ Line [(leftb, topb), (rightb, topb)] 
-          lineYbot = color red $ Line [(leftb, botb), (leftb, topb)]
-          lineYtop = color red $ Line [(rightb, botb), (rightb, topb)]
+          -- lineXbot = color red $ Line [(leftb, botb), (rightb, botb)] 
+          -- lineXtop = color red $ Line [(leftb, topb), (rightb, topb)] 
+          -- lineYbot = color red $ Line [(leftb, botb), (leftb, topb)]
+          -- lineYtop = color red $ Line [(rightb, botb), (rightb, topb)]
 
           -- TODO generate this text more programmatically
           objectiveText = translate xInit yInit $ scale sc sc
@@ -423,6 +417,7 @@ handler (EventKey (Char 'a') Up _ _) s = if autostep s then s { autostep = False
 -- pressing 's' (down) while autostep is off will step the optimization once, overriding the step function 
 -- (which doesn't step if autostep is off). this is the same code as the step function but with reverse condition
 -- if autostep is on, this does nothing
+-- also overrides EP done: forces a step (might want this to test if there substantial steps left after convergence, e.g. if magnitude of gradient is still large)
 handler (EventKey (Char 's') Down _ _) s =
         if not $ autostep s then s { objs = objs', params = params' } else s
         where (objs', params') = stepObjs (float2Double calcTimestep) (params s) (objs s)
@@ -619,6 +614,8 @@ stepObjs t sParams objs =
 
          -- done; don't update obj state or params; user can now manipulate
          EPConverged -> (objs, sParams) 
+
+         -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
         where (fixed, stateVarying) = tupMap (map float2Double) $ unpackFn objs
@@ -834,7 +831,7 @@ staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (stat
 
 ------------------------ ### frequently-changed params for debugging
 -- objsInit = staten_label_rand 5
-objsInit = statenRand 2
+objsInit = statenRand 5
 
 type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a) => a -> [a] -> [a] -> a
 
@@ -842,7 +839,7 @@ type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a) => a -> [a] -> [a] 
 objFnPenalty :: ObjFnPenalty a
 objFnPenalty weight = combineObjfns objFnUnconstrained weight
              where objFnUnconstrained :: Floating a => ObjFn2 a
-                   objFnUnconstrained = centerObjs -- inner objfn
+                   objFnUnconstrained = centerAndRepel -- centerObjs
 
 -- if the list of constraints is empty, it behaves as unconstrained optimization
 boundConstraints :: Constraints
@@ -1096,7 +1093,7 @@ noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
 strictSubset :: PairConstrV a
 strictSubset [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - ((max s2 s1) - (min s2 s1))^2
 
--- exterior point method constraint: no intersection
+-- exterior point method constraint: no intersection (meaning also no subset)
 noIntersectExt :: PairConstrV a
 noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
 
@@ -1147,15 +1144,20 @@ firstObjInBbox (l, r, b, t) = [(leftBound, 1), (rightBound, 1), (botBound, 1), (
                      topBound fixed (_ : y1 : _) = y1 - t
 
 stateConstrVs :: (Floating a, Ord a, Show a) => [([a] -> [a] -> a, a)] -- constr, constr weight
-stateConstrVs = firstObjInBbox (leftb, rightb, botb, topb)
-                ++ firstObjInBbox (-pw2', pw2', -ph2', ph2') -- first object in viewport, TODO make for all objs
-                ++ [] -- TODO add more
+stateConstrVs = -- firstObjInBbox (leftb, rightb, botb, topb)
+                -- ++ firstObjInBbox (-pw2', pw2', -ph2', ph2') ++ -- first object in viewport, TODO for all objs
+                [] -- TODO add more
 
 -- Parameter to modify (TODO move it to other section)
 -- [PairConstrV a] is not allowed b/c impredicative types
 pairConstrVs :: (Floating a, Ord a, Show a) => [([[a]] -> a, a)] -- constr, constr weight
-pairConstrVs = [(noSubset, 1000)]
+pairConstrVs = [(looseIntersect, 1)]
 
+-- It's not clear what happens with contradictory constraints like these:
+-- It looks like one pair satisfies strict subset, and the other pairs all intersect
+-- pairConstrVs = [(strictSubset, 1), (noIntersectExt, 1)]
+
+-- Corners for hard-coded bounding box constraint.
 leftb :: Floating a => a
 leftb = -200
 
