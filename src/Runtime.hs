@@ -281,10 +281,10 @@ picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, para
     where -- TODO display constraint instead of hardcoding
           -- (picture for bounding box for bound constraints)
           -- constraints are currently global params
-          -- lineXbot = color red $ Line [(leftb, botb), (rightb, botb)] 
-          -- lineXtop = color red $ Line [(leftb, topb), (rightb, topb)] 
-          -- lineYbot = color red $ Line [(leftb, botb), (leftb, topb)]
-          -- lineYtop = color red $ Line [(rightb, botb), (rightb, topb)]
+          lineXbot = color red $ Line [(leftb, botb), (rightb, botb)] 
+          lineXtop = color red $ Line [(leftb, topb), (rightb, topb)] 
+          lineYbot = color red $ Line [(leftb, botb), (leftb, topb)]
+          lineYtop = color red $ Line [(rightb, botb), (rightb, topb)]
 
           -- TODO generate this text more programmatically
           objectiveText = translate xInit yInit $ scale sc sc
@@ -831,7 +831,7 @@ staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (stat
 
 ------------------------ ### frequently-changed params for debugging
 -- objsInit = staten_label_rand 5
-objsInit = statenRand 5
+objsInit = statenRand 6
 
 type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a) => a -> [a] -> [a] -> a
 
@@ -839,7 +839,7 @@ type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a) => a -> [a] -> [a] 
 objFnPenalty :: ObjFnPenalty a
 objFnPenalty weight = combineObjfns objFnUnconstrained weight
              where objFnUnconstrained :: Floating a => ObjFn2 a
-                   objFnUnconstrained = centerAndRepel -- centerObjs
+                   objFnUnconstrained = centerObjs -- centerAndRepel
 
 -- if the list of constraints is empty, it behaves as unconstrained optimization
 boundConstraints :: Constraints
@@ -878,8 +878,8 @@ stopEps = 10 ** (-1)
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: center both"
-constrText = "constraint: first set's center in bbox + no set is a subset of another. (EP method)"
+objText = "objective: center all"
+constrText = "constraint: all sets intersect but are NOT subsets of each other"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -1145,13 +1145,13 @@ firstObjInBbox (l, r, b, t) = [(leftBound, 1), (rightBound, 1), (botBound, 1), (
 
 stateConstrVs :: (Floating a, Ord a, Show a) => [([a] -> [a] -> a, a)] -- constr, constr weight
 stateConstrVs = -- firstObjInBbox (leftb, rightb, botb, topb)
-                -- ++ firstObjInBbox (-pw2', pw2', -ph2', ph2') ++ -- first object in viewport, TODO for all objs
+                -- ++ firstObjInBbox (-pw2', pw2', -ph2', ph2') -- first object in viewport, TODO for all objs
                 [] -- TODO add more
 
 -- Parameter to modify (TODO move it to other section)
 -- [PairConstrV a] is not allowed b/c impredicative types
 pairConstrVs :: (Floating a, Ord a, Show a) => [([[a]] -> a, a)] -- constr, constr weight
-pairConstrVs = [(looseIntersect, 1)]
+pairConstrVs = [(noSubset, 1)]
 
 -- It's not clear what happens with contradictory constraints like these:
 -- It looks like one pair satisfies strict subset, and the other pairs all intersect
