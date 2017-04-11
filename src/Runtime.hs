@@ -298,9 +298,12 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 pack :: [(Obj, [Annotation])] -> Fixed -> Varying -> [Obj]
 pack zipped fixed varying = []
 
------------------------ Generating objects and objective functions
--- sample objective functions go here: centerCirc, labelFn, and their types
+----------------------- Sample objective functions that operate on objects (given names)
+-- TODO write about expectations for the objective function writer
 
+-- type ObjFnPacked = Map Name Obj -> Float -- TODO polymorphism
+
+-- maybe the typechecking should be done elsewhere...
 -- centerCirc :: Name -> Map Name Obj -> Float
 -- centerCirc sname objMap = case (get sname objMap) of
 --                           Just (C c) -> (xc c)^2 + (yc c)^2
@@ -315,18 +318,75 @@ pack zipped fixed varying = []
 
 ------- Ambient objective functions and ambient constraints: TODO
 
+-- type AmbientObjFn = [Obj] -> Float -- TODO polymorphism
+
+-- pairwiseRepel :: [Obj] -> Float
+-- pairwiseRepel objs = sumMap pairRepel $ allPairs objs
+
+-- pairRepel :: Obj -> Obj -> Float
+-- pairRepel c d = 1 / (distsq c d)
+--           where distsq c d = (getX c - getX d)^2 + (getY c - getY c)^2
+
+-- -- returns a list of ambient constraint fns--4 for each object
+-- -- i guess i don’t NEED to weight each individually. just sum them and weight the whole thing
+-- allInBbox :: [Obj] -> Float
+-- allInBbox objs = sum $ concatMap inBbox objs
+--           where inBbox o = [boxleft o, boxright o, boxup o, boxdown o]
+--                 boxleft o = getX o - leftline -- magnitude of violation
+
 ------- Constraints: TODO, operates on constraints
+
+-- type ConstraintFnPacked = Map Name Obj -> Float -- TODO
+
+-- subsetApp :: Name -> Name -> Map Name Obj -> Float
+-- subsetApp iname oname dict =
+--           case (lookup iname dict) (lookup oname dict) of
+--             C inner, C outer -> <written WRT magnitude of violation> 
+--             -- TODO metaprogramming for boolean constraints
+--             _, _ -> error “subsetApp objs wrong”
+
+-- Generate constraints (returns no objects)
+-- maybe the prev one should only be on decl and it should build the dict
+-- some kind of typechecking should happen before obj fns are synthesized
+-- genConstrFns :: SubConstraint -> [ ([Obj] -> Float], Weight) ]
+-- genConstrFns (Subset iname oname) = [ (subsetApp iname oname, defaultConstrWeight) ]
+-- genConstrFns (PointIn pname pname) = error "constraints on points in spec not yet supported"
+
+------- Generate objective functions
+
+defaultWeight :: Floating a => a
+defaultWeight = 1
 
 -- genObjsAndFns :: ?
 genObjsAndFns decl = ([], [])
+-- genObjsAndFns :: SubDecl -> ([Obj], [([Obj] -> Float], Weight)])
+-- genObjsAndFns line@(Decl (OS( Set sname))) = (objs, weightedFns)
+-- where circ1 = Circle {xc = 0, yc = 0, r = 0, namec =circname }
+--       lab1 = Label {xl = 0, yl = 0, wl = ?, hl = ?, namel = labname }
+--       objs = [circ1, lab1]
+--       weightedFns = [ (centerCirc circname, defaultWeight), (labelFn circname labname, defaultWeight) ]
+-- genObjsAndFns (Decl (OP (PT’ _)) = error "points not yet supported"
+-- genObjsAndFns (Decl (OM (Map’ _ _ _)) = error "maps not yet supported"
 
 -- genAllObjsAndFns :: [C.SubDecl] -> ([Obj], [(ObjFnPenalty a, Weight)])
 -- TODO figure out how the types work. also add weights
 genAllObjsAndFns decls = ([], [])
                  -- tupMap concatMap $ unzip $ map genObjsAndFns decls
 
+-- TODO should take list of current objects as parameter, and be partially applied with that
 -- genObjFn :: ?
 genObjFn objsAnnotated objFns ambientObjFns constrObjFns weight fixed varying = 0
+         -- let objs :: [Obj] = pack objsAnnotated fixed varying in 
+         -- let objDict :: Map Name Obj = dictOf objs in 
+         -- -- note: CANNOT do dict -> list because that destroys the order
+         -- sumMap (\(f, w) -> w * f objDict) objFns
+         -- + sumMap (\(f, w) -> w * f objs) ambientObjFns
+         -- + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrFns 
+-- factor out weight application?
+
+-- dictOf :: [Obj] -> Map Name Obj
+-- dictOf = foldr addObj Map.empty 
+--        where addObj dict o = Map.add (getName o) o dict
 
 -- generate all objects and the overall objective function
 -- style program is currently unused
@@ -356,18 +416,7 @@ genInitState (decls, constrs) stys =
              State { objs = initStateConstr, params = initParams { objFn = objFnOverall },
                      down = False, rng = initRng', autostep = False }
 
--- TODO this function and the next are now unused
--- Convert Compiler's abstract layout representation to the types that the optimization code needs.
--- objOf :: C.Obj -> Obj
--- objOf (C.C circ) = C $ Circ { xc = C.xc circ, yc = C.yc circ, r = C.r circ, selc = False }
--- objOf (C.L label) = L $ Label { xl = C.xl label, yl = C.yl label, textl = C.textl label,
---                                 scalel = C.scalel label, sell = False }
-
--- compilerToRuntimeTypes :: [C.Obj] -> State
--- compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng',
---                        autostep = True, params = initParams }
---                        where (runtimeState', initRng') = genState runtimeState initRng
---                              runtimeState = map objOf compileState
+--------------- end object / objfn generation
 
 rad :: Floating a => a
 rad = 200 -- TODO don't hardcode into constant
