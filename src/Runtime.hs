@@ -24,38 +24,42 @@ main = do
      -- Reading in from file
      -- Objective function is currently hard-coded
      -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
-       -- args <- getArgs
-       -- let (subFile, styFile) = (head args, args !! 1) -- TODO usage
-       -- subIn <- readFile subFile
-       -- styIn <- readFile styFile
-       -- putStrLn "\nSubstance program:\n"
-       -- putStrLn subIn
-       -- divLine
-       -- putStrLn "Style program:\n"
-       -- putStrLn styIn
-       -- divLine
+       args <- getArgs
+       putStrLn $ if not $ length args == 2 then "Usage: ./Runtime prog1.sub prog2.sty" else "" -- TODO exit
+       let (subFile, styFile) = (head args, args !! 1)
+       subIn <- readFile subFile
+       styIn <- readFile styFile
+       putStrLn "\nSubstance program:\n"
+       putStrLn subIn
+       divLine
+       putStrLn "Style program:\n"
+       putStrLn styIn
+       divLine
 
-       -- let subParsed = C.subParse subIn
-       -- putStrLn "Parsed Substance program:\n"
-       -- putStrLn $ C.subPrettyPrint' subParsed
+       let subParsed = C.subParse subIn
+       putStrLn "Parsed Substance program:\n"
+       putStrLn $ C.subPrettyPrint' subParsed
 
-       -- let styParsed = C.styParse styIn
-       -- divLine
-       -- putStrLn "Parsed Style program:\n"
-       -- putStrLn $ C.styPrettyPrint styParsed
+       let styParsed = C.styParse styIn
+       divLine
+       putStrLn "Parsed Style program:\n"
+       putStrLn $ C.styPrettyPrint styParsed
 
-       -- divLine
+       divLine
+       let initState = genInitState (C.subSeparate subParsed) styParsed
+       putStrLn "Synthesizing objects and objective functions"
        -- putStrLn "Intermediate layout representation:\n"
        -- let intermediateRep = C.subToLayoutRep subParsed
        -- putStrLn $ show intermediateRep
 
        -- let initState = compilerToRuntimeTypes intermediateRep
        -- divLine
-       -- putStrLn "Optimization representation:\n"
+       -- putStrLn "Initial state, optimization representation:\n"
+       -- putStrLn "TODO derive Show"
        -- putStrLn $ show initState
 
-       -- divLine
-       -- putStrLn "Visualizing notation:\n"
+       divLine
+       putStrLn "Visualizing notation:\n"
 
        -- Running with hardcoded parameters
        (play
@@ -106,7 +110,8 @@ class Sized a where
 data Circ = Circ { xc :: Float
                  , yc :: Float
                  , r :: Float
-                 , selc :: Bool } -- is the circle currently selected? (mouse is dragging it)
+                 , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
+                 , namec :: String }
      deriving (Eq, Show)
 
 instance Located Circ where
@@ -126,9 +131,12 @@ instance Sized Circ where
 
 data Label = Label { xl :: Float
                    , yl :: Float
+                   , wl :: Float
+                   , hl :: Float
                    , textl :: String
-                   , scalel :: Float  -- calculate h,w from it
-                   , sell :: Bool } -- selected label
+                   -- , scalel :: Float  -- calculate h,w from it
+                   , sell :: Bool -- selected label
+                   , namel :: String }
      deriving (Eq, Show)
 
 instance Located Label where
@@ -193,8 +201,9 @@ data OptStatus = NewIter -- TODO should this be init with a state?
                deriving (Eq, Show)
 
 data Params = Params { weight :: Double,
-                       optStatus :: OptStatus
-                     } deriving (Eq, Show)
+                       optStatus :: OptStatus,
+                       objFn :: forall a. ObjFnPenalty a
+                     } -- deriving (Eq, Show) -- TODO derive Show instance
 
 -- State of the world
 data State = State { objs :: [Obj]
@@ -202,28 +211,163 @@ data State = State { objs :: [Obj]
                    , rng :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
                    , params :: Params
-                   } deriving (Show)
+                   } -- deriving (Show)
 
 ------
-
-initParams :: Params
-initParams = Params { weight = initWeight, optStatus = NewIter }
 
 initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
--- Convert Compiler's abstract layout representation to the types that the optimization code needs.
-objOf :: C.Obj -> Obj
-objOf (C.C circ) = C $ Circ { xc = C.xc circ, yc = C.yc circ, r = C.r circ, selc = False }
-objOf (C.L label) = L $ Label { xl = C.xl label, yl = C.yl label, textl = C.textl label,
-                                scalel = C.scalel label, sell = False }
+objFnNone :: ObjFnPenalty a
+objFnNone w f v = 0
 
-compilerToRuntimeTypes :: [C.Obj] -> State
-compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng',
-                       autostep = True, params = initParams }
-                       where (runtimeState', initRng') = genState runtimeState initRng
-                             runtimeState = map objOf compileState
+initParams :: Params
+initParams = Params { weight = initWeight, optStatus = NewIter, objFn = objFnNone }
+
+----------------------- Unpacking
+data Annotation = Fix | Vary deriving (Eq, Show)
+type Fixed = [Float]
+type Varying = [Float]
+
+-- make sure this matches circPack and labelPack
+-- annotations are specified inline here. this is per type, not per value (i.e. all circles have the same fixed parameters). but you could generalize it to per-value by adding or overriding annotations globally after the unpacking
+-- does not unpack names
+unpackObj :: Obj -> [(Float, Annotation)]
+unpackObj (C c) = [(xc c, Vary), (yc c, Vary), (r c, Fix)]
+unpackObj (L l) = [(xl l, Vary), (yl l, Vary)]
+
+-- split out because pack needs this annotated list of lists
+unpackAnnotate :: [Obj] -> [[(Float, Annotation)]]
+unpackAnnotate objs = map unpackObj objs 
+
+-- TODO check it preserves order
+splitFV :: [ (Float, Annotation) ] -> (Fixed, Varying)
+splitFV annotated = foldr chooseList ([], []) annotated
+        where chooseList :: (Float, Annotation) -> (Fixed, Varying) -> (Fixed, Varying)
+              chooseList (x, Fix) (f, v) = (x : f, v)
+              chooseList (x, Vary) (f, v) = (f, x : v)
+
+-- optimizer should use this unpack function
+-- preserves the order of the objects’ parameters
+-- e.g. unpackSplit [Circ {xc varying, r fixed}, Label {xl varying, h fixed} ] = ( [r, h], [xc, xl] )
+unpackSplit :: [Obj] -> (Fixed, Varying)
+unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
+                   splitFV annotatedList
+
+---------------------- Packing
+
+-- TODO: pack needs the current list of objects for selection
+-- circPack :: Name -> [Float] -> Circle -- and analogously for labels
+-- circPack cname params = Circle { xc = xc', yc = yc', r = r', namec = cname, selc = False }
+--          where (xc', yc', r') = (params !! 0, params !! 1, params !! 2) 
+
+-- labelPack :: Name -> String -> [Float] -> Label
+-- labelPack namel textl params = Label { … namel = … textl = ... }
+--           where (xl…) = (params !! 0…)
+
+-- does a right fold on `annotations` to preserve order of output list
+-- returns remaining (fixed, varying) that were not part of the object
+-- e.g. yoink [Fixed, Varying, Fixed] [1, 2, 3] [4, 5] = ([1, 4, 2], [3], [5])
+-- yoink :: [Annotation] -> Fixed -> Varying -> ([Float], Fixed, Varying)
+-- yoink annotations fixed varying =
+--       case annotations of
+--        nil -> ([], [], []) 
+--        Fix :: annotations' -> let (params, fixed', varying') = yoink annotations' (tail fixed) varying in
+--                                (head fixed : params, fixed', varying')
+--        Vary :: annotations' -> let (params, fixed', varying') = yoink annotations' fixed (tail varying) in
+--                                 (head varying : params, fixed', varying')
+
+-- used inside overall objective fn to turn (fixed, varying) back into a list of objects
+-- for inner objective fns to operate on
+-- pack :: [(Obj, [Annotation])] -> Fixed -> Varying -> [Obj]
+-- pack zipped fixed varying =
+--      case zipped of
+--       [] -> []
+--       (obj, annotations) :: zips -> res :: pack zips (fixed’, varying’) -- preserve order
+--      -- use obj, annotations, fixed, and varying to create the object
+--      where res = case obj of
+--                  -- pack objects using the names, text params carried from initial state
+--                  -- assuming names do not change during opt
+--                  C circ -> C $ circPack (namec circ) flatParams 
+--                  L label -> L $ labPack (namel label) (textl label) flatParams
+--                  -- use annotations, fixed, and varying to yoink the right params out of f/v in the right order
+--                  (flatParams, fixed’, varying’) = yoink annotations fixed varying
+--                  -- are flatParams in the right order?
+
+pack :: [(Obj, [Annotation])] -> Fixed -> Varying -> [Obj]
+pack zipped fixed varying = []
+
+----------------------- Generating objects and objective functions
+-- sample objective functions go here: centerCirc, labelFn, and their types
+
+-- centerCirc :: Name -> Map Name Obj -> Float
+-- centerCirc sname objMap = case (get sname objMap) of
+--                           Just (C c) -> (xc c)^2 + (yc c)^2
+--                           Just (L _) -> 0
+--                           None -> error "invalid selectors in centerCirc"
+
+-- labelFn :: Name -> Name -> Map Name Obj -> Float
+-- labelFn main label objMap = case (get main objMap, get label objMap) of
+--                             -- have the label near main’s border
+--                             Just (C c), Just (L l) -> (some math on xc c, yc c, r c, xl l…) 
+--                             _, _ -> error "invalid selectors in labelFn"
+
+------- Ambient objective functions and ambient constraints: TODO
+
+------- Constraints: TODO, operates on constraints
+
+-- genObjsAndFns :: ?
+genObjsAndFns decl = ([], [])
+
+-- genAllObjsAndFns :: [C.SubDecl] -> ([Obj], [(ObjFnPenalty a, Weight)])
+-- TODO figure out how the types work. also add weights
+genAllObjsAndFns decls = ([], [])
+                 -- tupMap concatMap $ unzip $ map genObjsAndFns decls
+
+-- genObjFn :: ?
+genObjFn objsAnnotated objFns ambientObjFns constrObjFns weight fixed varying = 0
+
+-- generate all objects and the overall objective function
+-- style program is currently unused
+genInitState :: ([C.SubDecl], [C.SubConstr]) -> [C.StyLine] -> State
+genInitState (decls, constrs) stys =
+             -- objects and objectives (without ambient objfns or constrs)
+             let (initState, objFns) = genAllObjsAndFns decls in -- TODO
+
+             -- ambient objectives
+             let ambientObjFns = [] in -- [pairwiseRepel, allInBbox]
+
+             -- constraints
+             -- let constrFns = genConstrFns constrs in
+             -- let constrObjFns = map toPenalty constrFns in -- returns each penalty fn with a weight
+             let constrObjFns = [] in
+
+             -- object annotations
+             -- let (initStateConstr, initRng') = genState initState initRng in -- resample state w/ constrs
+             let (initStateConstr, initRng') = (initState, initRng) in
+             -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
+             let flatObjsAnnotated = unpackAnnotate initStateConstr in
+             let objsAnnotated = zip initState flatObjsAnnotated in -- order matters
+
+             -- overall objective function
+             let objFnOverall = genObjFn objsAnnotated objFns ambientObjFns constrObjFns in
+
+             State { objs = initStateConstr, params = initParams { objFn = objFnOverall },
+                     down = False, rng = initRng', autostep = False }
+
+-- TODO this function and the next are now unused
+-- Convert Compiler's abstract layout representation to the types that the optimization code needs.
+-- objOf :: C.Obj -> Obj
+-- objOf (C.C circ) = C $ Circ { xc = C.xc circ, yc = C.yc circ, r = C.r circ, selc = False }
+-- objOf (C.L label) = L $ Label { xl = C.xl label, yl = C.yl label, textl = C.textl label,
+--                                 scalel = C.scalel label, sell = False }
+
+-- compilerToRuntimeTypes :: [C.Obj] -> State
+-- compilerToRuntimeTypes compileState = State { objs = runtimeState', down = False, rng = initRng',
+--                        autostep = True, params = initParams }
+--                        where (runtimeState', initRng') = genState runtimeState initRng
+--                              runtimeState = map objOf compileState
 
 rad :: Floating a => a
 rad = 200 -- TODO don't hardcode into constant
@@ -427,13 +571,13 @@ handler (EventKey (Char 's') Down _ _) s =
 -- (doesn't seem to make a difference, though...)
 -- in that case, start re-running UO with the last EP state as the current (converged) EP state
 handler (EventKey (SpecialKey KeyUp) Down _ _) s =
-        if epDone s then s { params = Params { weight = weight', optStatus = status' }} else s
+        if epDone s then s { params = (params s) { weight = weight', optStatus = status' }} else s
         where currWeight = weight (params s)
               weight' = currWeight * weightGrowth
               status' = UnconstrainedRunning $ EPstate (objs s)
 
 handler (EventKey (SpecialKey KeyDown) Down _ _) s =
-        if epDone s then s { params = Params { weight = weight', optStatus = status' }} else s
+        if epDone s then s { params = (params s) { weight = weight', optStatus = status' }} else s
         where currWeight = weight (params s)
               weight' = currWeight / weightGrowth
               status' = UnconstrainedRunning $ EPstate (objs s)
@@ -610,7 +754,7 @@ stepObjs t sParams objs =
               (objs, sParams { optStatus = status'}) -- do not update UO state
            -- update EP state: to be the converged state from the most recent UO
            else let status' = UnconstrainedRunning $ EPstate objs in 
-                (objs, Params { weight = weightGrowth * epWeight, optStatus = status' }) -- increase weight
+                (objs, sParams { weight = weightGrowth * epWeight, optStatus = status' }) -- increase weight
 
          -- done; don't update obj state or params; user can now manipulate
          EPConverged -> (objs, sParams) 
@@ -647,7 +791,7 @@ stepWithObjective fixed stateParams t state = (steppedState, objFnApplied, gradE
                                              (show $ abs (objFnApplied state - objFnApplied state')))
                                        state'
                         objFnApplied :: ObjFn1 a
-                        objFnApplied = objFnPenalty (realToFrac cWeight) (map realToFrac fixed)
+                        objFnApplied = (objFn stateParams) (realToFrac cWeight) (map realToFrac fixed)
                         cWeight = weight stateParams
 
 -- a version of grad with a clearer type signature
@@ -795,14 +939,16 @@ awLineSearch f duf_noU descentDir x0 =
 ------------- Initial states
 
 -- initial states
-s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False }
-s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False }
-s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False }
-s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False }
+s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False, namec = "A" }
+s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False, namec = "A" }
+s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False, namec = "A" }
+s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False, namec = "A" }
 
 -- if objects start at exactly the same position, there may be problems
-l1 = L $ Label { xl = 50, yl = clamp1D (-300), textl = "B1", scalel = 0.2, sell = False }
-l2 = L $ Label { xl = -300, yl = clamp1D (-200), textl = "B2", scalel = 0.2, sell = False }
+-- note: widths, heights, and names of labels below are not accurate b/c not generated by compiler
+-- may cause problems!
+l1 = L $ Label { xl = 50, yl = clamp1D (-300), wl = 100, hl = 100, namel = "Label_A", textl = "A", sell = False }
+l2 = L $ Label { xl = -300, yl = clamp1D (-200), wl = 100, hl = 100, namel = "Label_B", textl = "B2", sell = False }
 
 initStateRng :: StdGen
 initStateRng = mkStdGen seed
@@ -863,12 +1009,12 @@ initWeight = 10 ** (-5)
 
 -- Flags for debugging the surrounding functions.
 clampflag = False
-debug = True
+debug = False
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
 constraintFlag = True
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
-constraintFnOn = True
+constraintFnOn = False -- TODO need to implement constraint fn synthesis
 
 stopEps :: Floating a => a
 stopEps = 10 ** (-1)
@@ -884,8 +1030,6 @@ constrText = "constraint: all sets intersect but are NOT subsets of each other"
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
 type ObjFn2 a = forall a . (Show a, Ord a, Floating a) => [a] -> [a] -> a
-type Fixed = [Float]
-type Varying = [Float]
 
 -- all objective functions so far use these two pack/unpack functions, except the ones with sets and labels
 unpackFn :: [Obj] -> (Fixed, Varying)

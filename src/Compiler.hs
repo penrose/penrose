@@ -34,16 +34,16 @@ data SubDecl = Decl SubObj
 
 -- TODO vs. Set Set. user only specifies names
 -- TODO we assume that non-subset sets must not overlap (implicit constraint)
-data SubConstraint = Subset String String | PointIn String String
+data SubConstr = Subset String String | PointIn String String
      deriving (Show, Eq)
 
-data SubLine = LD SubDecl | LC SubConstraint
+data SubLine = LD SubDecl | LC SubConstr
      deriving (Show, Eq)
 -- TODO do some program analysis to split the decls and constraints, which refer to things in the decls
 -- and validate that the things they refer to are the right type (inline at some point??)
 
 type SubSpec = [SubLine]
-type SubSpecDiv = ([SubDecl], [SubConstraint])
+type SubSpecDiv = ([SubDecl], [SubConstr])
 
 -- Sample Substance programs (more in file)
 sub0 = "Set A"
@@ -357,7 +357,7 @@ styt2 = "Color Set Blue 50\nLine OpenSet Dotted 1"
 
 -- New type: inner join (?) of Decl with relevant constraint lines and relevant style lines
 -- (only the ones that apply; not the ones that are overridden)
--- Type: Map Var (Decl, [SubConstraint], [StyLine]) <-- the Var is the object's name (string) in Substance
+-- Type: Map Var (Decl, [SubConstr], [StyLine]) <-- the Var is the object's name (string) in Substance
 -- does this include labels?? it includes overridden labels in StyLine but not labels like Set A -> "A"
 -- for now, assume what about labels? -- are they separate? should they be linked? they all get default style
   -- make a separate Map Label ObjName ? no, assuming no renaming for now
@@ -413,21 +413,22 @@ data Obj = C Circ | L Label' deriving (Eq, Show)
 
 defaultRad = 100
 
-declToShape :: SubDecl -> [Obj]
-declToShape (Decl (OS (Set' name setType))) =
-            case setType of
-            Open -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
-            Closed -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
-            Unspecified -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
-declToShape (Decl (OP (Pt' name))) = error "Substance -> Layout doesn't support points yet"
-declToShape (Decl (OM (Map' mapName fromSet toSet))) = error "Substance -> Layout doesn't support maps yet"
+-- TODO these functions are now unused
+-- declToShape :: SubDecl -> [Obj]
+-- declToShape (Decl (OS (Set' name setType))) =
+--             case setType of
+--             Open -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
+--             Closed -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
+--             Unspecified -> [C $ Circ { namec = name, xc = 0, yc = 0, r = defaultRad }, L $ Label' { xl = 0, yl = 0, textl = name, scalel = 1 }]
+-- declToShape (Decl (OP (Pt' name))) = error "Substance -> Layout doesn't support points yet"
+-- declToShape (Decl (OM (Map' mapName fromSet toSet))) = error "Substance -> Layout doesn't support maps yet"
 
-toStateWithDefaultStyle :: [SubDecl] -> [Obj]
-toStateWithDefaultStyle decls = concatMap declToShape decls -- should use style
+-- toStateWithDefaultStyle :: [SubDecl] -> [Obj]
+-- toStateWithDefaultStyle decls = concatMap declToShape decls -- should use style
 
-subToLayoutRep :: SubSpec -> [Obj] -- this needs to know about the Obj type??
-subToLayoutRep spec = let (decls, constrs) = subSeparate spec in
-                   toStateWithDefaultStyle decls
+-- subToLayoutRep :: SubSpec -> [Obj] -- this needs to know about the Obj type??
+-- subToLayoutRep spec = let (decls, constrs) = subSeparate spec in
+--                    toStateWithDefaultStyle decls
 
 -- Substance + Style typechecker
 
