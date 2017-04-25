@@ -13,7 +13,7 @@ import GHC.Float -- float <-> double conversions
 import System.IO
 import System.Environment
 import Data.List
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as M
 import qualified Compiler as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
@@ -107,6 +107,10 @@ class Sized a where
       getSize :: a -> Float
       setSize :: Float -> a -> a
 
+class Named a where
+      getName :: a -> Name
+      setName :: Name -> a -> a
+
 data Circ = Circ { xc :: Float
                  , yc :: Float
                  , r :: Float
@@ -128,6 +132,12 @@ instance Selectable Circ where
 instance Sized Circ where
          getSize x = r x
          setSize size x = x { r = size }
+
+instance Named Circ where
+         getName c = namec c
+         setName x c = c { namec = x }
+
+-------
 
 data Label = Label { xl :: Float
                    , yl :: Float
@@ -155,6 +165,10 @@ instance Sized Label where
          setSize size x = x { xl = size, yl = size } -- TODO currently sets both of them, ignores scale
                  -- changing a label's size doesn't actually do anything right now, but should use the scale
                  -- and the base font size
+
+instance Named Label where
+         getName l = namel l
+         setName x l = l { namel = x }
 
 data Obj = C Circ | L Label deriving (Eq, Show)
 
@@ -191,6 +205,14 @@ instance Sized Obj where
          setSize x o = case o of
                 C c -> C $ setSize x c
                 L l -> L $ setSize x l
+
+instance Named Obj where
+         getName o = case o of
+                 C c -> getName c
+                 L l -> getName l
+         setName x o = case o of
+                C c -> C $ setName x c
+                L l -> L $ setName x l
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show)
 
@@ -257,64 +279,73 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 
 ---------------------- Packing
 
--- TODO: pack needs the current list of objects for selection
--- circPack :: Name -> [Float] -> Circle -- and analogously for labels
--- circPack cname params = Circle { xc = xc', yc = yc', r = r', namec = cname, selc = False }
---          where (xc', yc', r') = (params !! 0, params !! 1, params !! 2) 
+-- TODO fix selection
+-- TODO comment packing these functions defining conventions
+circPack :: Name -> [Float] -> Circ
+circPack cname params = Circ { xc = xc', yc = yc', r = r', namec = cname, selc = False }
+         where (xc', yc', r') = if not $ length params == 3 then error "not enough params to pack circle"
+                                else (params !! 0, params !! 1, params !! 2) 
 
--- labelPack :: Name -> String -> [Float] -> Label
--- labelPack namel textl params = Label { … namel = … textl = ... }
---           where (xl…) = (params !! 0…)
+labelPack :: Name -> String -> [Float] -> Label
+labelPack namel' textl' params = Label { xl = xl', yl = yl', wl = wl', hl = hl',
+                                       textl = textl', sell = False, namel = namel' }
+          where (xl', yl', wl', hl') = if not $ length params == 4 then error "not enough params to pack label"
+                                   else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 -- does a right fold on `annotations` to preserve order of output list
 -- returns remaining (fixed, varying) that were not part of the object
 -- e.g. yoink [Fixed, Varying, Fixed] [1, 2, 3] [4, 5] = ([1, 4, 2], [3], [5])
--- yoink :: [Annotation] -> Fixed -> Varying -> ([Float], Fixed, Varying)
--- yoink annotations fixed varying =
---       case annotations of
---        nil -> ([], [], []) 
---        Fix :: annotations' -> let (params, fixed', varying') = yoink annotations' (tail fixed) varying in
---                                (head fixed : params, fixed', varying')
---        Vary :: annotations' -> let (params, fixed', varying') = yoink annotations' fixed (tail varying) in
---                                 (head varying : params, fixed', varying')
+yoink :: [Annotation] -> Fixed -> Varying -> ([Float], Fixed, Varying)
+yoink annotations fixed varying =
+      case annotations of
+       [] -> ([], [], []) 
+       (Fix : annotations') -> let (params, fixed', varying') = yoink annotations' (tail fixed) varying in
+                               (head fixed : params, fixed', varying')
+       (Vary : annotations') -> let (params, fixed', varying') = yoink annotations' fixed (tail varying) in
+                                (head varying : params, fixed', varying')
 
 -- used inside overall objective fn to turn (fixed, varying) back into a list of objects
 -- for inner objective fns to operate on
--- pack :: [(Obj, [Annotation])] -> Fixed -> Varying -> [Obj]
--- pack zipped fixed varying =
---      case zipped of
---       [] -> []
---       (obj, annotations) :: zips -> res :: pack zips (fixed’, varying’) -- preserve order
---      -- use obj, annotations, fixed, and varying to create the object
---      where res = case obj of
---                  -- pack objects using the names, text params carried from initial state
---                  -- assuming names do not change during opt
---                  C circ -> C $ circPack (namec circ) flatParams 
---                  L label -> L $ labPack (namel label) (textl label) flatParams
---                  -- use annotations, fixed, and varying to yoink the right params out of f/v in the right order
---                  (flatParams, fixed’, varying’) = yoink annotations fixed varying
---                  -- are flatParams in the right order?
-
+-- TODO: pack needs the current list of objects for selection
 pack :: [(Obj, [Annotation])] -> Fixed -> Varying -> [Obj]
-pack zipped fixed varying = []
+pack zipped fixed varying =
+     case zipped of
+      [] -> []
+      ((obj, annotations) : zips) -> res : pack zips fixed' varying' -- preserve order
+     -- use obj, annotations, fixed, and varying to create the object
+     -- by yoinking the right params out of f/v in the right order
+        where (flatParams, fixed', varying') = yoink annotations fixed varying
+           -- is flatParams in the right order?
+              res = case obj of
+                 -- pack objects using the names, text params carried from initial state
+                 -- assuming names do not change during opt
+                    C circ -> C $ circPack (namec circ) flatParams 
+                    L label -> L $ labelPack (namel label) (textl label) flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
 
--- type ObjFnPacked = Map Name Obj -> Float -- TODO polymorphism
+-- TODO polymorphism?
+type ObjFnOn = [Name] -> M.Map Name Obj -> Float
+type ObjFnNamed = M.Map Name Obj -> Float
+type Name = String
+type Weight = Float
 
+-- TODO deal with lists in a more principled way
 -- maybe the typechecking should be done elsewhere...
--- centerCirc :: Name -> Map Name Obj -> Float
--- centerCirc sname objMap = case (get sname objMap) of
---                           Just (C c) -> (xc c)^2 + (yc c)^2
---                           Just (L _) -> 0
---                           None -> error "invalid selectors in centerCirc"
+centerCirc :: ObjFnOn
+centerCirc [sname] objMap = case (M.lookup sname objMap) of
+                          Just (C c) -> (xc c)^2 + (yc c)^2
+                          Just (L _) -> error "misnamed label"
+                          Nothing -> error "invalid selectors in centerCirc"
+centerCirc _ _ = error "centerCirc not called with 1 arg"
 
--- labelFn :: Name -> Name -> Map Name Obj -> Float
--- labelFn main label objMap = case (get main objMap, get label objMap) of
---                             -- have the label near main’s border
---                             Just (C c), Just (L l) -> (some math on xc c, yc c, r c, xl l…) 
---                             _, _ -> error "invalid selectors in labelFn"
+labelFn :: ObjFnOn
+labelFn [main, label] objMap = case (M.lookup main objMap, M.lookup label objMap) of
+                            -- have the label near main’s border
+                            (Just (C c), Just (L l)) -> 0 -- TODO add math
+                            (_, _) -> error "invalid selectors in labelFn"
+labelFn _ _ = error "labelFn not called with 1 arg"
 
 ------- Ambient objective functions and ambient constraints: TODO
 
@@ -357,36 +388,48 @@ pack zipped fixed varying = []
 defaultWeight :: Floating a => a
 defaultWeight = 1
 
--- genObjsAndFns :: ?
-genObjsAndFns decl = ([], [])
--- genObjsAndFns :: SubDecl -> ([Obj], [([Obj] -> Float], Weight)])
--- genObjsAndFns line@(Decl (OS( Set sname))) = (objs, weightedFns)
--- where circ1 = Circle {xc = 0, yc = 0, r = 0, namec =circname }
---       lab1 = Label {xl = 0, yl = 0, wl = ?, hl = ?, namel = labname }
---       objs = [circ1, lab1]
---       weightedFns = [ (centerCirc circname, defaultWeight), (labelFn circname labname, defaultWeight) ]
--- genObjsAndFns (Decl (OP (PT’ _)) = error "points not yet supported"
--- genObjsAndFns (Decl (OM (Map’ _ _ _)) = error "maps not yet supported"
+labelName :: String -> String
+labelName name = "Label_" ++ name
 
--- genAllObjsAndFns :: [C.SubDecl] -> ([Obj], [(ObjFnPenalty a, Weight)])
+-- TODO do something with stype
+genObjsAndFns :: C.SubDecl -> ([Obj], [(ObjFnNamed, Weight)])
+genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
+              where (c1name, l1name) = (sname, labelName sname)
+                    c1 = C $ Circ { xc = 0, yc = 0, r = 0, selc = False, namec = c1name }
+              -- TODO proper dimensions for labels
+                    l1 = L $ Label { xl = 0, yl = 0, wl = 50, hl = 50, textl = sname,
+                                 sell = False, namel = l1name }
+                    objs = [c1, l1]
+                    weightedFns = [ (centerCirc [c1name], defaultWeight),
+                                    (labelFn [c1name, l1name], defaultWeight) ]
+genObjsAndFns (C.Decl (C.OP (C.Pt' _))) = error "points not yet supported"
+genObjsAndFns (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
+
+genAllObjsAndFns :: [C.SubDecl] -> ([Obj], [(ObjFnNamed, Weight)])
 -- TODO figure out how the types work. also add weights
-genAllObjsAndFns decls = ([], [])
-                 -- tupMap concatMap $ unzip $ map genObjsAndFns decls
+genAllObjsAndFns decls = let (objss, fnss) = unzip $ map genObjsAndFns decls in
+                         (concat objss, concat fnss)
+
+dictOf :: [Obj] -> M.Map Name Obj
+dictOf = foldr addObj M.empty 
+       where addObj o dict = M.insert (getName o) o dict
 
 -- TODO should take list of current objects as parameter, and be partially applied with that
--- genObjFn :: ?
-genObjFn objsAnnotated objFns ambientObjFns constrObjFns weight fixed varying = 0
-         -- let objs :: [Obj] = pack objsAnnotated fixed varying in 
-         -- let objDict :: Map Name Obj = dictOf objs in 
+-- TODO parametrize object type and float type
+-- TODO (fixed, varying) and weight `need to be parametrized too
+genObjFn :: Floating a => [(Obj, [Annotation])] -> [(ObjFnNamed, Weight)]
+                          -> [(ObjFnNamed, Weight)] -> [(ObjFnNamed, Weight)]
+                          -- -> Float -> [Float] -> [Float] -> Float
+                          -> a -> [a] -> [a] -> a
+genObjFn objsAnnotated objFns ambientObjFns constrObjFns penaltyWeight fixed varying =
+         0
+         -- let objs = pack objsAnnotated fixed varying :: [Obj] in 
+         -- let objDict = dictOf objs :: M.Map Name Obj in 
          -- -- note: CANNOT do dict -> list because that destroys the order
          -- sumMap (\(f, w) -> w * f objDict) objFns
-         -- + sumMap (\(f, w) -> w * f objs) ambientObjFns
-         -- + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrFns 
--- factor out weight application?
-
--- dictOf :: [Obj] -> Map Name Obj
--- dictOf = foldr addObj Map.empty 
---        where addObj dict o = Map.add (getName o) o dict
+         -- + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`
+         -- + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
+         -- factor out weight application?
 
 -- generate all objects and the overall objective function
 -- style program is currently unused
@@ -408,11 +451,13 @@ genInitState (decls, constrs) stys =
              let (initStateConstr, initRng') = (initState, initRng) in
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
              let flatObjsAnnotated = unpackAnnotate initStateConstr in
-             let objsAnnotated = zip initState flatObjsAnnotated in -- order matters
+             let objsAnnotated = zip initState (map (map snd) flatObjsAnnotated) in -- order matters
+                               -- `map snd` throws away the initial floats
 
              -- overall objective function
              let objFnOverall = genObjFn objsAnnotated objFns ambientObjFns constrObjFns in
 
+                 -- should
              State { objs = initStateConstr, params = initParams { objFn = objFnOverall },
                      down = False, rng = initRng', autostep = False }
 
