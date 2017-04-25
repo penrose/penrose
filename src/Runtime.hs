@@ -414,6 +414,27 @@ dictOf :: [Obj] -> M.Map Name Obj
 dictOf = foldr addObj M.empty 
        where addObj o dict = M.insert (getName o) o dict
 
+-------
+
+-- hack: generic version of the two types. do I have to manually rederive all the typeclasses and instances??
+
+data Circ' a = Circ' { xc' :: a
+                 , yc' :: a
+                 , r' :: a
+                 , selc' :: Bool -- is the circle currently selected? (mouse is dragging it)
+                 , namec' :: String }
+     deriving (Eq, Show)
+
+data Label' a = Label' { xl' :: a
+                   , yl' :: a
+                   , wl' :: a
+                   , hl' :: a
+                   , textl' :: String
+                   -- , scalel :: a  -- calculate h,w from it
+                   , sell' :: Bool -- selected label
+                   , namel' :: String }
+     deriving (Eq, Show)
+
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- TODO parametrize object type and float type
 -- TODO (fixed, varying) and weight `need to be parametrized too
@@ -429,6 +450,27 @@ genObjFn objsAnnotated objFns ambientObjFns constrObjFns penaltyWeight fixed var
          -- sumMap (\(f, w) -> w * f objDict) objFns
          -- + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`
          -- + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
+         -- factor out weight application?
+
+----
+
+-- float verssion of genObjFn for typechecking purposes
+
+-- TODO should take list of current objects as parameter, and be partially applied with that
+-- TODO parametrize object type and float type
+-- TODO (fixed, varying) and weight `need to be parametrized too
+genObjFnFloat :: [(Obj, [Annotation])] -> [(ObjFnNamed, Weight)]
+                          -> [(ObjFnNamed, Weight)] -> [(ObjFnNamed, Weight)]
+                          -> Float -> [Float] -> [Float] -> Float
+                          -- -> a -> [a] -> [a] -> a
+genObjFnFloat objsAnnotated objFns ambientObjFns constrObjFns penaltyWeight fixed varying =
+         -- 0
+         let objs = pack objsAnnotated fixed varying :: [Obj] in 
+         let objDict = dictOf objs :: M.Map Name Obj in 
+         -- note: CANNOT do dict -> list because that destroys the order
+         sumMap (\(f, w) -> w * f objDict) objFns
+         + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`
+         + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
          -- factor out weight application?
 
 -- generate all objects and the overall objective function
