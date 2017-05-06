@@ -807,7 +807,7 @@ type Constraints = [(Int, (Double, Double))]
 -- but it's left in, in case we want to debug the line search.
 -- gloss operates on floats, but the optimization code should be done with doubles, so we
 -- convert float to double for the input and convert double to float for the output.
-step :: Floating a => TimeInit -> State -> State
+step :: TimeInit -> State -> State
 step t s = -- if down s then s -- don't step when dragging
            if autostep s then s { objs = objs', params = params' } else s
            where (objs', params') = stepObjs (float2Double t) (params s) (objs s)
@@ -856,7 +856,7 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
 -- the initial state (WRT violating constraints), initial weight, params, constraint normalization, etc.
 -- have all been initialized or set earlier
-stepObjs :: Time -> Params -> [Obj] -> ([Obj], Params)
+stepObjs :: (Real a, Floating a) => a -> Params -> [Obj] -> ([Obj], Params)
 stepObjs t sParams objs =
          let (epWeight, epStatus) = (weight sParams, optStatus sParams) in
          case epStatus of
@@ -899,23 +899,24 @@ stepObjs t sParams objs =
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
         where (fixed, stateVarying) = tupMap (map float2Double) $ unpackFn objs
-              (stateVarying', objFnApplied, gradEval) = stepWithObjective fixed sParams t stateVarying
-              -- get new positions. objective function is a global param
+                      -- realToFrac used because `t` output is a Float? I don't really know why this works
+              (stateVarying', objFnApplied, gradEval) = stepWithObjective fixed sParams (realToFrac t) stateVarying
+              -- get new positions objective function is a global param
               stateVaryingF' = map double2Float $ stateVarying'
               -- re-pack each object's state list into object
               objs' = packFn objs stateVaryingF'
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point, 
--- return the new state.
-stepT :: Time -> Double -> Double -> Double
+-- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
+-- not gloss's `Float`
+stepT :: Floating a => a -> a -> a -> a
 stepT dt x dfdx = x - dt * dfdx
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state. 
 -- Also partially applies the objective function.
--- stepWithObjective :: (Show a, Real a) => [a] -> Params -> Time -> [Double] -> [Double] -> ([Double], ObjFn1 a)
-stepWithObjective :: (Floating a, Ord a, Real a1, Show a) =>
-                  [a1] -> Params -> Time -> [Double] -> ([Double], [a] -> a, [Double])
+stepWithObjective :: (RealFloat a, Real a, Floating a, Ord a, Show a) =>
+                  [a] -> Params -> a -> [a] -> ([a], [a] -> a, [a])
 stepWithObjective fixed stateParams t state = (steppedState, objFnApplied, gradEval)
                   where (t', gradEval) = timeAndGrad objFnApplied t state
                         -- get timestep via line search, and evaluated gradient at the state
@@ -926,7 +927,8 @@ stepWithObjective fixed stateParams t state = (steppedState, objFnApplied, gradE
                                               ++ "\n|f(x') - f(x)|: " ++
                                              (show $ abs (objFnApplied state - objFnApplied state')))
                                        state'
-                        objFnApplied :: ObjFn1 a
+                        objFnApplied :: ObjFn1 a -- i'm not clear on why realToFrac is needed here either
+                                     -- since everything should already be polymorphic
                         objFnApplied = (objFn stateParams) (realToFrac cWeight) (map realToFrac fixed)
                         cWeight = weight stateParams
 
@@ -992,7 +994,7 @@ normsq = sum . map (^ 2)
 -- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
-timeAndGrad :: ObjFn1 a -> Time -> [Double] -> (Time, [Double])
+timeAndGrad :: (Show b, Ord b, RealFloat b, Floating b) => ObjFn1 a -> b -> [b] -> (b, [b])
 timeAndGrad f t state = (timestep, gradEval)
             where gradF :: GradFn a
                   gradF = appGrad f
@@ -1000,7 +1002,7 @@ timeAndGrad f t state = (timestep, gradEval)
                   -- Use line search to find a good timestep.
                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
                   descentDir = negL gradEval
-                  timestep :: Time
+                  -- timestep :: Floating c => c
                   timestep = if not linesearch then t else -- use a fixed timestep for debugging
                              let resT = awLineSearch f duf descentDir state in
                              if isNaN resT then tr "returned timestep is NaN" nanSub else resT
@@ -1039,7 +1041,7 @@ isNegInfinity x = (x == negInfinity)
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
 -- TODO what happens if there are NaNs in awLineSearch? or infinities
-awLineSearch :: ObjFn1 a -> ObjFn2 a -> [Double] -> [Double] -> Double
+awLineSearch :: (Floating b, Ord b, Show b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
