@@ -435,6 +435,8 @@ data Label' a = Label' { xl' :: a
                    , namel' :: String }
      deriving (Eq, Show)
 
+data Obj' a = C' (Circ' a) | L' (Label' a) deriving (Eq, Show)
+
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- TODO parametrize object type and float type
 -- TODO (fixed, varying) and weight `need to be parametrized too
@@ -443,18 +445,18 @@ genObjFn :: Floating a => [(Obj, [Annotation])] -> [(ObjFnNamed, Weight)]
                           -- -> Float -> [Float] -> [Float] -> Float
                           -> a -> [a] -> [a] -> a
 genObjFn objsAnnotated objFns ambientObjFns constrObjFns penaltyWeight fixed varying =
-         0
-         -- let objs = pack objsAnnotated fixed varying :: [Obj] in 
-         -- let objDict = dictOf objs :: M.Map Name Obj in 
-         -- -- note: CANNOT do dict -> list because that destroys the order
-         -- sumMap (\(f, w) -> w * f objDict) objFns
-         -- + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`
-         -- + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
-         -- factor out weight application?
+         -- 0
+       let objs = pack objsAnnotated fixed varying :: [Obj] in 
+       let objDict = dictOf objs :: M.Map Name Obj in
+       -- note: CANNOT do dict -> list because that destroys the order
+       sumMap (\(f, w) -> w * f objDict) objFns
+       + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`
+       + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
+       -- factor out weight application?
 
 ----
 
--- float verssion of genObjFn for typechecking purposes
+-- float version of genObjFn for typechecking purposes
 
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- TODO parametrize object type and float type
@@ -499,7 +501,7 @@ genInitState (decls, constrs) stys =
              -- overall objective function
              let objFnOverall = genObjFn objsAnnotated objFns ambientObjFns constrObjFns in
 
-                 -- should
+                 -- TODO use objFnOverall when it has the right type
              State { objs = initStateConstr, params = initParams { objFn = objFnOverall },
                      down = False, rng = initRng', autostep = False }
 
