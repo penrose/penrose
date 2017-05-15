@@ -261,7 +261,7 @@ r2f = realToFrac
 -- does not unpack names
 unpackObj :: (Floating a, Real a) => Obj -> [(a, Annotation)]
 unpackObj (C c) = [(r2f $ xc c, Vary), (r2f $ yc c, Vary), (r2f $ r c, Fix)]
-unpackObj (L l) = [(r2f $ xl l, Vary), (r2f $ yl l, Vary)]
+unpackObj (L l) = [(r2f $ xl l, Vary), (r2f $ yl l, Vary), (r2f $ wl l, Fix), (r2f $ hl l, Fix)]
 
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Floating a, Real a) => [Obj] -> [[(a, Annotation)]]
@@ -286,24 +286,24 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 -- use r2f to put polymorphic floating things into floats
 -- TODO fix selection
 -- TODO comment packing these functions defining conventions
-circPack :: (Real a, Floating a) => Circ -> [a] -> Circ
+circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ
 circPack cir params = Circ { xc = r2f xc', yc = r2f yc', r = r2f r', namec = namec cir, selc = selc cir }
-         where (xc', yc', r') = if not $ length params == 3 then error "not enough params to pack circle"
+         where (xc', yc', r') = if not $ length params == 3 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2) 
 
-labelPack :: (Real a, Floating a) => Label -> [a] -> Label
+labelPack :: (Real a, Floating a, Show a, Ord a) => Label -> [a] -> Label
 labelPack lab params = Label { xl = r2f xl', yl = r2f yl', wl = r2f wl', hl = r2f hl',
                              textl = textl lab, sell = sell lab, namel = namel lab }
-          where (xl', yl', wl', hl') = if not $ length params == 4 then error "not enough params to pack label"
+          where (xl', yl', wl', hl') = if not $ length params == 4 then error "wrong # params to pack label"
                                    else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 -- does a right fold on `annotations` to preserve order of output list
 -- returns remaining (fixed, varying) that were not part of the object
 -- e.g. yoink [Fixed, Varying, Fixed] [1, 2, 3] [4, 5] = ([1, 4, 2], [3], [5])
-yoink :: [Annotation] -> Fixed a -> Varying a -> ([a], Fixed a, Varying a)
-yoink annotations fixed varying =
+yoink :: (Show a) => [Annotation] -> Fixed a -> Varying a -> ([a], Fixed a, Varying a)
+yoink annotations fixed varying = trace ("yoink " ++ (show annotations) ++ (show fixed) ++ (show varying)) $
       case annotations of
-       [] -> ([], [], []) 
+       [] -> ([], fixed, varying) 
        (Fix : annotations') -> let (params, fixed', varying') = yoink annotations' (tail fixed) varying in
                                (head fixed : params, fixed', varying')
        (Vary : annotations') -> let (params, fixed', varying') = yoink annotations' fixed (tail varying) in
@@ -313,10 +313,10 @@ yoink annotations fixed varying =
 -- for inner objective fns to operate on
 -- pack is partially applied with the annotations, which never change 
 -- (the annotations assume the state never changes size or order)
-pack :: (Real a, Floating a) => [[Annotation]] -> [Obj] -> Fixed a -> Varying a -> [Obj]
+pack :: (Real a, Floating a, Show a, Ord a) => [[Annotation]] -> [Obj] -> Fixed a -> Varying a -> [Obj]
 pack annotations objs = pack' (zip objs annotations) 
 
-pack' :: (Real a, Floating a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj]
+pack' :: (Real a, Floating a, Show a, Ord a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj]
 pack' zipped fixed varying =
      case zipped of
       [] -> []
@@ -328,8 +328,10 @@ pack' zipped fixed varying =
               res = case obj of
                  -- pack objects using the names, text params carried from initial state
                  -- assuming names do not change during opt
-                    C circ -> C $ circPack circ flatParams 
-                    L label -> L $ labelPack label flatParams
+                    C circ -> trace ("circ: " ++ (show $ length flatParams)) $
+                              C $ circPack circ flatParams 
+                    L label -> trace ("label: " ++ (show $ length flatParams)) $
+                              L $ labelPack label flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
@@ -350,12 +352,14 @@ centerCirc [sname] objMap = case (M.lookup sname objMap) of
                           Nothing -> error "invalid selectors in centerCirc"
 centerCirc _ _ = error "centerCirc not called with 1 arg"
 
-labelFn :: ObjFnOn a
-labelFn [main, label] objMap = case (M.lookup main objMap, M.lookup label objMap) of
+centerLabel :: ObjFnOn a
+centerLabel [main, label] objMap = case (M.lookup main objMap, M.lookup label objMap) of
                             -- have the label near main’s border
-                            (Just (C c), Just (L l)) -> 0 -- TODO add math
-                            (_, _) -> error "invalid selectors in labelFn"
-labelFn _ _ = error "labelFn not called with 1 arg"
+                            (Just (C c), Just (L l)) ->
+                                    let [cx, cy, lx, ly] = map r2f [xc c, yc c, xl l, yl l] in
+                                    (cx - lx)^2 + (cy - ly)^2
+                            (_, _) -> error "invalid selectors in centerLabel"
+centerLabel _ _ = error "centerLabel not called with 1 arg"
 
 ------- Ambient objective functions and ambient constraints: TODO
 
@@ -398,6 +402,16 @@ labelFn _ _ = error "labelFn not called with 1 arg"
 defaultWeight :: Floating a => a
 defaultWeight = 1
 
+defaultRad :: Floating a => a
+defaultRad = 100
+
+-- Parameters to change
+declSetObjfn :: ObjFnOn a
+declSetObjfn = centerCirc
+
+declLabelObjfn :: ObjFnOn a
+declLabelObjfn = centerLabel
+
 labelName :: String -> String
 labelName name = "Label_" ++ name
 
@@ -405,13 +419,13 @@ labelName name = "Label_" ++ name
 genObjsAndFns :: (Floating a, Real a, Show a, Ord a) => C.SubDecl -> ([Obj], [(M.Map Name Obj -> a, Weight a)])
 genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
               where (c1name, l1name) = (sname, labelName sname)
-                    c1 = C $ Circ { xc = 0, yc = 0, r = 0, selc = False, namec = c1name }
-              -- TODO proper dimensions for labels
+                    c1 = C $ Circ { xc = 0, yc = 0, r = defaultRad, selc = False, namec = c1name }
+                    -- TODO proper dimensions for labels
                     l1 = L $ Label { xl = 0, yl = 0, wl = 50, hl = 50, textl = sname,
                                  sell = False, namel = l1name }
                     objs = [c1, l1]
-                    weightedFns = [ (centerCirc [c1name], defaultWeight),
-                                    (labelFn [c1name, l1name], defaultWeight) ]
+                    weightedFns = [ (declSetObjfn [c1name], defaultWeight),
+                                    (declLabelObjfn [c1name, l1name], defaultWeight) ]
 genObjsAndFns (C.Decl (C.OP (C.Pt' _))) = error "points not yet supported"
 genObjsAndFns (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
 
@@ -826,7 +840,7 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
 -- the initial state (WRT violating constraints), initial weight, params, constraint normalization, etc.
 -- have all been initialized or set earlier
-stepObjs :: (Real a, Floating a) => a -> Params -> [Obj] -> ([Obj], Params)
+stepObjs :: (Real a, Floating a, Show a, Ord a) => a -> Params -> [Obj] -> ([Obj], Params)
 stepObjs t sParams objs =
          let (epWeight, epStatus) = (weight sParams, optStatus sParams) in
          case epStatus of
@@ -935,15 +949,18 @@ infixl 7 *. -- .*, /.
 
 -- assumes lists are of the same length
 dotL :: Floating a => [a] -> [a] -> a
-dotL u v = if not $ length u == length v then error "cannot take dot product of different-length lists"
+dotL u v = if not $ length u == length v
+           then error $ "can't dot-prod different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
            else sum $ zipWith (*) u v
 
 (+.) :: Floating a => [a] -> [a] -> [a] -- add two vectors
-(+.) u v = if not $ length u == length v then error "cannot add different-length lists"
+(+.) u v = if not $ length u == length v
+           then error $ "can't add different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
            else zipWith (+) u v
 
 (-.) :: Floating a => [a] -> [a] -> [a] -- subtract two vectors
-(-.) u v = if not $ length u == length v then error "cannot subtract different-length lists"
+(-.) u v = if not $ length u == length v
+           then error $ "can't subtract different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
            else zipWith (-) u v
 
 negL :: Floating a => [a] -> [a]
@@ -1133,16 +1150,6 @@ stopEps = 10 ** (-1)
 
 ------------ Various constants and helper functions related to objective functions
 
-epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
-epsd = 10 ** (-10)
-
-objText = "objective: center all"
-constrText = "constraint: all sets intersect but are NOT subsets of each other"
-
--- separates fixed parameters (here, size) from varying parameters (here, location)
--- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
-type ObjFn2 a = forall a . (Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
-
 -- TODO delete these deprecated pack/unpack functions
 -- type Fixed' = [Float]
 -- type Varying' = [Float]
@@ -1154,24 +1161,34 @@ type ObjFn2 a = forall a . (Show a, Ord a, Floating a, Real a) => [a] -> [a] -> 
 -- packFn :: [Obj] -> Varying' -> [Obj]
 -- packFn = sizeLoc_pack
 
+-- fixed parameters = sizes (in a list); varying parameters = locations (in a list of [x,y])
+-- if you want the sizes to vary, you'll have to write different objective functions and pack/unpack functions
+-- including size clamping
+-- sizeLoc_unpack :: [Obj] -> (Fixed', Varying')
+-- sizeLoc_unpack objs = (map getSize objs, concatMap (\o -> [getX o, getY o]) objs)
+
+-- sizeLoc_pack :: [Obj] -> Varying' -> [Obj]
+-- sizeLoc_pack objs varying = let positions = chunksOf 2 varying in
+--                                      map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
+--              -- setX x $ setY y o)
+--              -- TODO turn off clamping; add constraints for in bbox in EP method to ALL objects
+--                                          (zip objs positions)
+
+epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
+epsd = 10 ** (-10)
+
+objText = "objective: center all"
+constrText = "constraint: all sets intersect but are NOT subsets of each other"
+
+-- separates fixed parameters (here, size) from varying parameters (here, location)
+-- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
+type ObjFn2 a = forall a . (Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
+
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force linesearch halt if interval gets too small; false = no forced halt
 
 sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
 sumMap f l = sum $ map f l
-
--- fixed parameters = sizes (in a list); varying parameters = locations (in a list of [x,y])
--- if you want the sizes to vary, you'll have to write different objective functions and pack/unpack functions
--- including size clamping
-sizeLoc_unpack :: [Obj] -> (Fixed', Varying')
-sizeLoc_unpack objs = (map getSize objs, concatMap (\o -> [getX o, getY o]) objs)
-
-sizeLoc_pack :: [Obj] -> Varying' -> [Obj]
-sizeLoc_pack objs varying = let positions = chunksOf 2 varying in
-                                     map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
-             -- setX x $ setY y o)
-             -- TODO turn off clamping; add constraints for in bbox in EP method to ALL objects
-                                         (zip objs positions)
 
 -------------- Sample bound constraints
 
