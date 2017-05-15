@@ -224,7 +224,8 @@ data OptStatus = NewIter -- TODO should this be init with a state?
 
 data Params = Params { weight :: Double,
                        optStatus :: OptStatus,
-                       objFn :: forall a. ObjFnPenalty a
+                       objFn :: forall a. ObjFnPenaltyState a,
+                       annotations :: [[Annotation]]
                      } -- deriving (Eq, Show) -- TODO derive Show instance
 
 -- State of the world
@@ -241,11 +242,11 @@ initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 11 -- deterministic RNG with seed
 
-objFnNone :: ObjFnPenalty a
-objFnNone w f v = 0
+objFnNone :: ObjFnPenaltyState a
+objFnNone objs w f v = 0
 
 initParams :: Params
-initParams = Params { weight = initWeight, optStatus = NewIter, objFn = objFnNone }
+initParams = Params { weight = initWeight, optStatus = NewIter, objFn = objFnNone, annotations = [] }
 
 ----------------------- Unpacking
 data Annotation = Fix | Vary deriving (Eq, Show)
@@ -285,14 +286,14 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 -- use r2f to put polymorphic floating things into floats
 -- TODO fix selection
 -- TODO comment packing these functions defining conventions
-circPack :: (Real a, Floating a) => Name -> [a] -> Circ
-circPack cname params = Circ { xc = r2f xc', yc = r2f yc', r = r2f r', namec = cname, selc = False }
+circPack :: (Real a, Floating a) => Circ -> [a] -> Circ
+circPack cir params = Circ { xc = r2f xc', yc = r2f yc', r = r2f r', namec = namec cir, selc = selc cir }
          where (xc', yc', r') = if not $ length params == 3 then error "not enough params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2) 
 
-labelPack :: (Real a, Floating a) => Name -> String -> [a] -> Label
-labelPack namel' textl' params = Label { xl = r2f xl', yl = r2f yl', wl = r2f wl', hl = r2f hl',
-                                       textl = textl', sell = False, namel = namel' }
+labelPack :: (Real a, Floating a) => Label -> [a] -> Label
+labelPack lab params = Label { xl = r2f xl', yl = r2f yl', wl = r2f wl', hl = r2f hl',
+                             textl = textl lab, sell = sell lab, namel = namel lab }
           where (xl', yl', wl', hl') = if not $ length params == 4 then error "not enough params to pack label"
                                    else (params !! 0, params !! 1, params !! 2, params !! 3)
 
@@ -310,12 +311,16 @@ yoink annotations fixed varying =
 
 -- used inside overall objective fn to turn (fixed, varying) back into a list of objects
 -- for inner objective fns to operate on
--- TODO: pack needs the current list of objects for selection
-pack :: (Real a, Floating a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj]
-pack zipped fixed varying =
+-- pack is partially applied with the annotations, which never change 
+-- (the annotations assume the state never changes size or order)
+pack :: (Real a, Floating a) => [[Annotation]] -> [Obj] -> Fixed a -> Varying a -> [Obj]
+pack annotations objs = pack' (zip objs annotations) 
+
+pack' :: (Real a, Floating a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj]
+pack' zipped fixed varying =
      case zipped of
       [] -> []
-      ((obj, annotations) : zips) -> res : pack zips fixed' varying' -- preserve order
+      ((obj, annotations) : zips) -> res : pack' zips fixed' varying' -- preserve order
      -- use obj, annotations, fixed, and varying to create the object
      -- by yoinking the right params out of f/v in the right order
         where (flatParams, fixed', varying') = yoink annotations fixed varying
@@ -323,15 +328,15 @@ pack zipped fixed varying =
               res = case obj of
                  -- pack objects using the names, text params carried from initial state
                  -- assuming names do not change during opt
-                    C circ -> C $ circPack (namec circ) flatParams 
-                    L label -> L $ labelPack (namel label) (textl label) flatParams
+                    C circ -> C $ circPack circ flatParams 
+                    L label -> L $ labelPack label flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
 
 -- TODO polymorphism?
 type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name Obj -> a
--- illegal ipolymorphic or qualified type--can't return a forall?
+-- illegal polymorphic or qualified type--can't return a forall?
 type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name Obj -> a
 type Name = String
 type Weight a = a
@@ -421,20 +426,23 @@ dictOf = foldr addObj M.empty
        where addObj o dict = M.insert (getName o) o dict
 
 -- TODO should take list of current objects as parameter, and be partially applied with that
+-- first param: list of parameter annotations for each object in the state 
+-- assumes that the state's SIZE and ORDER never change
 genObjFn :: (Real a, Floating a, Show a, Ord a) =>
-            [(Obj, [Annotation])]
+         [[Annotation]] 
          -> [(M.Map Name Obj -> a, Weight a)]
          -> [(M.Map Name Obj -> a, Weight a)]
          -> [(M.Map Name Obj -> a, Weight a)]
-         -> a -> [a] -> [a] -> a
-genObjFn objsAnnotated objFns ambientObjFns constrObjFns penaltyWeight fixed varying =
-       let objs = pack objsAnnotated fixed varying :: [Obj] in 
-       -- note: CANNOT do dict -> list because that destroys the order
-       let objDict = dictOf objs :: M.Map Name Obj in
-       sumMap (\(f, w) -> w * f objDict) objFns
-       + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`
-       + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
-       -- factor out weight application?
+         -> [Obj] -> a -> [a] -> [a] -> a
+genObjFn annotations objFns ambientObjFns constrObjFns =
+         \currObjs penaltyWeight fixed varying ->
+         let objs = pack annotations objs fixed varying :: [Obj] in 
+         -- note: CANNOT do dict -> list because that destroys the order
+         let objDict = dictOf currObjs :: M.Map Name Obj in
+         sumMap (\(f, w) -> w * f objDict) objFns
+         + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`?
+         + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
+         -- factor out weight application?
 
 -- generate all objects and the overall objective function
 -- style program is currently unused
@@ -456,13 +464,13 @@ genInitState (decls, constrs) stys =
              let (initStateConstr, initRng') = (initState, initRng) in
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
              let flatObjsAnnotated = unpackAnnotate initStateConstr in
-             let objsAnnotated = zip initState (map (map snd) flatObjsAnnotated) in -- order matters
-                               -- `map snd` throws away the initial floats
+             let annotationsCalc = map (map snd) flatObjsAnnotated in -- `map snd` throws away initial floats
 
              -- overall objective function
-             let objFnOverall = genObjFn objsAnnotated objFns ambientObjFns constrObjFns in
+             let objFnOverall = genObjFn annotationsCalc objFns ambientObjFns constrObjFns in
 
-             State { objs = initStateConstr, params = initParams { objFn = objFnOverall },
+             State { objs = initStateConstr,
+                     params = initParams { objFn = objFnOverall, annotations = annotationsCalc },
                      down = False, rng = initRng', autostep = False }
 
 --------------- end object / objfn generation
@@ -844,7 +852,7 @@ stepObjs t sParams objs =
          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
          -- and whether i should check WRT the updated state or not
          UnconstrainedConverged (EPstate lastEPstate) ->
-           let (_, epStateVarying) = tupMap (map float2Double) $ unpackFn lastEPstate in -- TODO factor out
+           let (_, epStateVarying) = tupMap (map float2Double) $ unpackSplit lastEPstate in -- TODO factor out
            let epConverged = epStopCond epStateVarying stateVarying -- stateV is last state for converged UO
                                    (objFnApplied epStateVarying) (objFnApplied stateVarying) in
            if epConverged then 
@@ -860,14 +868,12 @@ stepObjs t sParams objs =
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
-        where (fixed, stateVarying) = tupMap (map float2Double) $ unpackFn objs
+        where (fixed, stateVarying) = tupMap (map float2Double) $ unpackSplit objs
                       -- realToFrac used because `t` output is a Float? I don't really know why this works
-              (stateVarying', objFnApplied, gradEval) = stepWithObjective fixed sParams
+              (stateVarying', objFnApplied, gradEval) = stepWithObjective objs fixed sParams
                                                              (realToFrac t) stateVarying
-              -- get new positions
-              stateVaryingF' = map double2Float $ stateVarying'
               -- re-pack each object's state list into object
-              objs' = packFn objs stateVaryingF'
+              objs' = pack (annotations sParams) objs fixed stateVarying'
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point, 
 -- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
@@ -879,8 +885,8 @@ stepT dt x dfdx = x - dt * dfdx
 -- and timestep (via line search), then using them to step the current state. 
 -- Also partially applies the objective function.
 stepWithObjective :: (RealFloat a, Real a, Floating a, Ord a, Show a) =>
-                  [a] -> Params -> a -> [a] -> ([a], [a] -> a, [a])
-stepWithObjective fixed stateParams t state = (steppedState, objFnApplied, gradEval)
+                  [Obj] -> [a] -> Params -> a -> [a] -> ([a], [a] -> a, [a])
+stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, gradEval)
                   where (t', gradEval) = timeAndGrad objFnApplied t state
                         -- get timestep via line search, and evaluated gradient at the state
                         -- step each parameter of the state with the time and gradient
@@ -892,12 +898,14 @@ stepWithObjective fixed stateParams t state = (steppedState, objFnApplied, gradE
                                        state'
                         objFnApplied :: ObjFn1 a -- i'm not clear on why realToFrac is needed here either
                                      -- since everything should already be polymorphic
-                        objFnApplied = (objFn stateParams) (realToFrac cWeight) (map realToFrac fixed)
+                        -- here, objFn is a function that gets the objective function from stateParams
+                        -- note that the objective function is partially applied w/ current list of objects
+                        objFnApplied = (objFn stateParams) objs (realToFrac cWeight) (map realToFrac fixed)
                         cWeight = weight stateParams
 
 -- a version of grad with a clearer type signature
-appGrad :: (Show a, Ord a, Floating a, Real a) => (forall a . (Show a, Ord a, Floating a, Real a) => [a] -> a)
-        -> [a] -> [a]
+appGrad :: (Show a, Ord a, Floating a, Real a) =>
+        (forall a . (Show a, Ord a, Floating a, Real a) => [a] -> a) -> [a] -> [a]
 appGrad f l = grad f l
 
 nanSub :: (RealFloat a, Floating a) => a
@@ -1082,6 +1090,8 @@ staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (stat
 objsInit = statenRand 6
 
 type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a, Real a) => a -> [a] -> [a] -> a
+-- needs to be partially applied with the current list of objects
+type ObjFnPenaltyState a = forall a . (Show a, Floating a, Ord a, Real a) => [Obj] -> a -> [a] -> [a] -> a
 
 -- TODO should use objFn as a parameter
 objFnPenalty :: ObjFnPenalty a
@@ -1133,15 +1143,16 @@ constrText = "constraint: all sets intersect but are NOT subsets of each other"
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
 type ObjFn2 a = forall a . (Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
 
-type Fixed' = [Float]
-type Varying' = [Float]
+-- TODO delete these deprecated pack/unpack functions
+-- type Fixed' = [Float]
+-- type Varying' = [Float]
 
 -- all objective functions so far use these two pack/unpack functions, except the ones with sets and labels
-unpackFn :: [Obj] -> (Fixed', Varying')
-unpackFn = sizeLoc_unpack
+-- unpackFn :: [Obj] -> (Fixed', Varying')
+-- unpackFn = sizeLoc_unpack
 
-packFn :: [Obj] -> Varying' -> [Obj]
-packFn = sizeLoc_pack
+-- packFn :: [Obj] -> Varying' -> [Obj]
+-- packFn = sizeLoc_pack
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force linesearch halt if interval gets too small; false = no forced halt
