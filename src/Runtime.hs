@@ -384,14 +384,14 @@ type Weight a = a
 -- maybe the typechecking should be done elsewhere...
 -- shouldn't these two be parametric over objects?
 centerCirc :: ObjFnOn a
-centerCirc [sname] objMap = case (M.lookup sname objMap) of
+centerCirc [sname] dict = case (M.lookup sname dict) of
                           Just (C' c) -> (xc' c)^2 + (yc' c)^2
                           Just (L' _) -> error "misnamed label"
                           Nothing -> error "invalid selectors in centerCirc"
 centerCirc _ _ = error "centerCirc not called with 1 arg"
 
 centerLabel :: ObjFnOn a
-centerLabel [main, label] objMap = case (M.lookup main objMap, M.lookup label objMap) of
+centerLabel [main, label] dict = case (M.lookup main dict, M.lookup label dict) of
                             -- have the label near main’s border
                             (Just (C' c), Just (L' l)) ->
                                     let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
@@ -399,11 +399,13 @@ centerLabel [main, label] objMap = case (M.lookup main objMap, M.lookup label ob
                             (_, _) -> error "invalid selectors in centerLabel"
 centerLabel _ _ = error "centerLabel not called with 1 arg"
 
-------- Ambient objective functions and ambient constraints
+------- Ambient objective functions 
 
 -- no names specified; can apply to any combination of objects in M.Map
 type AmbientObjFn a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a 
 
+-- if there are no circles, doesn't do anything
+-- TODO fix in case there's only 1 circle?
 circParams :: (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> ([a], [a])
 circParams m = unpackSplit $ tr "circ" (filter isCirc $ M.elems m)
            where isCirc (C' _) = True
@@ -428,23 +430,52 @@ circlesCenterAndRepel objMap = let (fix, vary) = circParams objMap in
 --           where inBbox o = [boxleft o, boxright o, boxup o, boxdown o]
 --                 boxleft o = getX o - leftline -- magnitude of violation
 
-------- Constraints: TODO, operates on constraints
+------- Constraints
+-- Constraints are written WRT magnitude of violation
+-- TODO metaprogramming for boolean constraints
+-- TODO factor out lookup boilerplate?
 
--- type ConstraintFnPacked = Map Name Obj -> Float -- TODO
+type ConstraintFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
 
--- subsetApp :: Name -> Name -> Map Name Obj -> Float
--- subsetApp iname oname dict =
---           case (lookup iname dict) (lookup oname dict) of
---             C inner, C outer -> <written WRT magnitude of violation> 
---             -- TODO metaprogramming for boolean constraints
---             _, _ -> error “subsetApp objs wrong”
+defaultCWeight :: Floating a => a
+defaultCWeight = 1
 
--- Generate constraints (returns no objects)
--- maybe the prev one should only be on decl and it should build the dict
--- some kind of typechecking should happen before obj fns are synthesized
--- genConstrFns :: SubConstraint -> [ ([Obj] -> Float], Weight a) ]
--- genConstrFns (Subset iname oname) = [ (subsetApp iname oname, defaultConstrWeight) ]
--- genConstrFns (PointIn pname pname) = error "constraints on points in spec not yet supported"
+subsetFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+subsetFn names@[inName, outName] dict =
+          case (M.lookup inName dict, M.lookup outName dict) of
+            (Just (C' inc), Just (C' outc)) ->
+                  strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+                  -- noConstraint [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+            (_, _) -> error "subset not called on two sets"
+subsetFn _ _ = error "subset not called with 2 args"
+
+-- TODO loose or strict?
+intersectFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+intersectFn names@[xname, yname] dict =
+          case (M.lookup xname dict, M.lookup yname dict) of
+            (Just (C' xset), Just (C' yset)) ->
+                  tr "intersect val: " $
+                  looseIntersect [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
+                  -- noConstraint [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
+            (_, _) -> error "intersect not called on two sets"
+intersectFn _ _ = error "intersect not called with 2 args"
+
+toPenalty :: (Floating a, Real a, Show a, Ord a) => (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
+toPenalty f = \dict -> penalty $ f dict
+
+-- TODO unify with the existing constraint code and penalties
+-- TODO pull out penalty exponent?
+-- TODO penalty is causing NaNs
+-- Generate constraints on names (returns no objects)
+genConstrFn :: (Floating a, Real a, Show a, Ord a) =>
+                C.SubConstr -> [(M.Map Name (Obj' a) -> a, Weight a)]
+genConstrFn (C.Intersect xname yname) = [ (toPenalty $ intersectFn [xname, yname], defaultCWeight) ]
+genConstrFn (C.Subset inName outName) = [ (toPenalty $ subsetFn [inName, outName], defaultCWeight) ]
+genConstrFn (C.PointIn pname sname) = error "constraints on points in spec not yet supported"
+
+genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
+                [C.SubConstr] -> [(M.Map Name (Obj' a) -> a, Weight a)]
+genConstrFns = concatMap genConstrFn
 
 ------- Generate objective functions
 
@@ -467,7 +498,7 @@ declLabelObjfn = centerLabel -- objFnOnNone
 labelName :: String -> String
 labelName name = "Label_" ++ name
 
--- TODO do something with stype
+-- TODO do something with style
 genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
                   C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
@@ -513,6 +544,7 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
 
 -- generate all objects and the overall objective function
 -- style program is currently unused
+-- TODO adjust weights of all functions
 genInitState :: ([C.SubDecl], [C.SubConstr]) -> [C.StyLine] -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
@@ -524,10 +556,10 @@ genInitState (decls, constrs) stys =
              -- let ambientObjFns = [] in
 
              -- constraints
-             -- let constrFns = genConstrFns constrs in
+             let constrFns = genConstrFns constrs in
              -- let constrObjFns = map toPenalty constrFns in -- returns each penalty fn with a weight
-             -- TODO: genAllObjsAndFns should return constraints also, and these below should be ambient contrs
-             let constrObjFns = [] in
+             let ambientConstrFns = [] in -- TODO add
+             let constrObjFns = constrFns ++ ambientConstrFns in
 
              let (initStateConstr, initRng') = genState initState initRng in -- resample state w/ constrs
 
@@ -1190,6 +1222,7 @@ objsInit = statenRand 6
 
 type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a, Real a) => a -> [a] -> [a] -> a
 -- needs to be partially applied with the current list of objects
+-- this type is only for the TOP-LEVEL synthesized objective function, not for any of the ones that people write
 type ObjFnPenaltyState a = forall a . (Show a, Floating a, Ord a, Real a) => [Obj] -> a -> [a] -> [a] -> a
 
 -- TODO should use objFn as a parameter

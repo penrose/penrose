@@ -34,7 +34,9 @@ data SubDecl = Decl SubObj
 
 -- TODO vs. Set Set. user only specifies names
 -- TODO we assume that non-subset sets must not overlap (implicit constraint)
-data SubConstr = Subset String String | PointIn String String
+data SubConstr = Intersect String String
+               | Subset String String
+               | PointIn String String 
      deriving (Show, Eq)
 
 data SubLine = LD SubDecl | LC SubConstr
@@ -77,11 +79,13 @@ subToLine s@[x, y] = LD $ Decl $
                   else error $ "Substance spec line: 2-token line '"
                        ++ show s ++ "' does not begin with Set/OpenSet/ClosedSet"
 
+-- TODO validate names exist in decls, are of type set
 subToLine s@[x, y, z] = LC $ 
-                   if x == "Subset" then Subset y z -- TODO validate names exist in decls, are of type set
+                   if x == "Intersect" then Intersect y z  
+                   else if x == "Subset" then Subset y z
                    else if x == "In" then PointIn y z -- TODO ^
                    else error $ "Substance spec line: 3-token line '"
-                       ++ show s ++ "' does not begin with Subset/In"
+                       ++ show s ++ "' does not begin with Intersect/Subset/In"
 
 subToLine s@[w, x, y, z] = LD $ Decl $
                    if w == "Map" then OM (Map' x y z)
