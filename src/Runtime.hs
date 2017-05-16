@@ -253,22 +253,19 @@ data Annotation = Fix | Vary deriving (Eq, Show)
 type Fixed a = [a]
 type Varying a = [a]
 
-r2f :: (Fractional b, Real a) => a -> b
-r2f = realToFrac
-
 -- make sure this matches circPack and labelPack
 -- annotations are specified inline here. this is per type, not per value (i.e. all circles have the same fixed parameters). but you could generalize it to per-value by adding or overriding annotations globally after the unpacking
 -- does not unpack names
-unpackObj :: (Floating a, Real a) => Obj -> [(a, Annotation)]
-unpackObj (C c) = [(r2f $ xc c, Vary), (r2f $ yc c, Vary), (r2f $ r c, Fix)]
-unpackObj (L l) = [(r2f $ xl l, Vary), (r2f $ yl l, Vary), (r2f $ wl l, Fix), (r2f $ hl l, Fix)]
+unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
+unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
+unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 
 -- split out because pack needs this annotated list of lists
-unpackAnnotate :: (Floating a, Real a) => [Obj] -> [[(a, Annotation)]]
+unpackAnnotate :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [[(a, Annotation)]]
 unpackAnnotate objs = map unpackObj objs 
 
 -- TODO check it preserves order
-splitFV :: (Floating a, Real a) => [(a, Annotation)] -> (Fixed a, Varying a)
+splitFV :: (Floating a, Real a, Show a, Ord a) => [(a, Annotation)] -> (Fixed a, Varying a)
 splitFV annotated = foldr chooseList ([], []) annotated
         where chooseList :: (a, Annotation) -> (Fixed a, Varying a) -> (Fixed a, Varying a)
               chooseList (x, Fix) (f, v) = (x : f, v)
@@ -277,7 +274,8 @@ splitFV annotated = foldr chooseList ([], []) annotated
 -- optimizer should use this unpack function
 -- preserves the order of the objects’ parameters
 -- e.g. unpackSplit [Circ {xc varying, r fixed}, Label {xl varying, h fixed} ] = ( [r, h], [xc, xl] )
-unpackSplit :: (Floating a, Real a) => [Obj] -> (Fixed a, Varying a)
+-- crucially, this does NOT depend on the annotations, it can be used on any list of objects
+unpackSplit :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> (Fixed a, Varying a)
 unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
                    trace "unpackSplit" $ traceShow objs $ splitFV annotatedList
 
@@ -376,7 +374,6 @@ pack' zipped fixed varying =
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
 
--- TODO polymorphism?
 type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
 -- illegal polymorphic or qualified type--can't return a forall?
 type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
@@ -402,9 +399,20 @@ centerLabel [main, label] objMap = case (M.lookup main objMap, M.lookup label ob
                             (_, _) -> error "invalid selectors in centerLabel"
 centerLabel _ _ = error "centerLabel not called with 1 arg"
 
-------- Ambient objective functions and ambient constraints: TODO
+------- Ambient objective functions and ambient constraints
 
--- type AmbientObjFn = [Obj] -> Float -- TODO polymorphism
+-- no names specified; can apply to any combination of objects in M.Map
+type AmbientObjFn a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a 
+
+circParams :: (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> ([a], [a])
+circParams m = unpackSplit $ tr "circ" (filter isCirc $ M.elems m)
+           where isCirc (C' _) = True
+                 isCirc _ = False
+
+-- reuse existing objective function
+circlesCenterAndRepel :: AmbientObjFn a
+circlesCenterAndRepel objMap = let (fix, vary) = circParams objMap in
+                               centerAndRepel_dist fix vary
 
 -- pairwiseRepel :: [Obj] -> Float
 -- pairwiseRepel objs = sumMap pairRepel $ allPairs objs
@@ -446,12 +454,15 @@ defaultWeight = 1
 defaultRad :: Floating a => a
 defaultRad = 100
 
+objFnOnNone :: ObjFnOn a
+objFnOnNone names map = 0
+
 -- Parameters to change
 declSetObjfn :: ObjFnOn a
-declSetObjfn = centerCirc
+declSetObjfn = objFnOnNone -- centerCirc
 
 declLabelObjfn :: ObjFnOn a
-declLabelObjfn = centerLabel
+declLabelObjfn = centerLabel -- objFnOnNone
 
 labelName :: String -> String
 labelName name = "Label_" ++ name
@@ -495,8 +506,8 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
          let newObjs = pack annotations currObjs fixed varying in 
          -- note: CANNOT do dict -> list because that destroys the order
          let objDict = dictOf newObjs in
-         tr "obj fn value: " $ (sumMap (\(f, w) -> w * f objDict) objFns)
-         + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`?
+           sumMap (\(f, w) -> w * f objDict) objFns
+         + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
          + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
          -- factor out weight application?
 
@@ -508,18 +519,20 @@ genInitState (decls, constrs) stys =
              let (initState, objFns) = genAllObjsAndFns decls in -- TODO
 
              -- ambient objectives
-             let ambientObjFns = [] in -- [pairwiseRepel, allInBbox]
+             -- be careful with how the ambient objectives interact with the per-declaration objectives!
+             let ambientObjFns = [(circlesCenterAndRepel, defaultWeight)] in
+             -- let ambientObjFns = [] in
 
              -- constraints
              -- let constrFns = genConstrFns constrs in
              -- let constrObjFns = map toPenalty constrFns in -- returns each penalty fn with a weight
+             -- TODO: genAllObjsAndFns should return constraints also, and these below should be ambient contrs
              let constrObjFns = [] in
 
-             -- object annotations
-             -- let (initStateConstr, initRng') = genState initState initRng in -- resample state w/ constrs
-             let (initStateConstr, initRng') = (initState, initRng) in
+             let (initStateConstr, initRng') = genState initState initRng in -- resample state w/ constrs
+
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
-             let flatObjsAnnotated = unpackAnnotate initStateConstr in
+             let flatObjsAnnotated = unpackAnnotate (addGrads initStateConstr) in
              let annotationsCalc = map (map snd) flatObjsAnnotated in -- `map snd` throws away initial floats
 
              -- overall objective function
@@ -881,6 +894,9 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 -- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
 
+r2f :: (Fractional b, Real a) => a -> b
+r2f = realToFrac
+
 -- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
 zeroGrad :: (Real a, Floating a, Show a, Ord a) => Obj' a -> Obj
 zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
@@ -890,6 +906,16 @@ zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl'
 
 zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
+
+-- Add the grad info
+addGrad :: (Real a, Floating a, Show a, Ord a) => Obj -> Obj' a
+addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
+                             selc' = selc c, namec' = namec c }
+addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
+                              textl' = textl l, sell' = sell l, namel' = namel l }
+
+addGrads :: (Real a, Floating a, Show a, Ord a) => [Obj] -> [Obj' a]
+addGrads = map addGrad
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
@@ -921,7 +947,8 @@ stepObjs t sParams objs =
          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
          -- and whether i should check WRT the updated state or not
          UnconstrainedConverged (EPstate lastEPstate) ->
-           let (_, epStateVarying) = tupMap (map float2Double) $ unpackSplit lastEPstate in -- TODO factor out
+           let (_, epStateVarying) = tupMap (map float2Double) $ unpackSplit
+                                     $ addGrads lastEPstate in -- TODO factor out
            let epConverged = epStopCond epStateVarying stateVarying -- stateV is last state for converged UO
                                    (objFnApplied epStateVarying) (objFnApplied stateVarying) in
            if epConverged then 
@@ -937,7 +964,7 @@ stepObjs t sParams objs =
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
-        where (fixed, stateVarying) = tupMap (map float2Double) $ unpackSplit objs
+        where (fixed, stateVarying) = tupMap (map float2Double) $ unpackSplit $ addGrads objs
                       -- realToFrac used because `t` output is a Float? I don't really know why this works
               (stateVarying', objFnApplied, gradEval) = stepWithObjective objs fixed sParams
                                                              (realToFrac t) stateVarying
@@ -1232,8 +1259,8 @@ stopEps = 10 ** (-1)
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: center all"
-constrText = "constraint: all sets intersect but are NOT subsets of each other"
+objText = "objective: center and repel all sets; center all labels in set"
+constrText = "constraint: none"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
