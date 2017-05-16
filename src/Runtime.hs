@@ -4,8 +4,8 @@
 -- module Runtime where
 
 import Graphics.Gloss
-import Data.Function
 import Graphics.Gloss.Interface.Pure.Game
+import Data.Function
 import System.Random
 import Debug.Trace
 import Numeric.AD
@@ -279,29 +279,69 @@ splitFV annotated = foldr chooseList ([], []) annotated
 -- e.g. unpackSplit [Circ {xc varying, r fixed}, Label {xl varying, h fixed} ] = ( [r, h], [xc, xl] )
 unpackSplit :: (Floating a, Real a) => [Obj] -> (Fixed a, Varying a)
 unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
-                   splitFV annotatedList
+                   trace "unpackSplit" $ traceShow objs $ splitFV annotatedList
 
 ---------------------- Packing
+
+-- We put `Floating a` into polymorphic objects for the autodiff. 
+-- (Maybe port all objects to polymorphic at some point, but would need to zero the gradient information.)
+-- Can't use realToFrac here because it will zero the gradient information.
+-- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
+
+data Circ' a = Circ' { xc' :: a
+                     , yc' :: a
+                     , r' :: a
+                     , selc' :: Bool -- is the circle currently selected? (mouse is dragging it)
+                     , namec' :: String }
+                     deriving (Eq, Show)
+
+data Label' a = Label' { xl' :: a
+                       , yl' :: a
+                       , wl' :: a
+                       , hl' :: a
+                       , textl' :: String
+                   --     , scalel :: Float  -- calculate h,w from it
+                       , sell' :: Bool -- selected label
+                       , namel' :: String }
+                       deriving (Eq, Show)
+
+instance Named (Circ' a) where
+         getName c = namec' c
+         setName x c = c { namec' = x }
+
+instance Named (Label' a) where
+         getName l = namel' l
+         setName x l = l { namel' = x }
+
+instance Named (Obj' a) where
+         getName o = case o of
+                 C' c -> getName c
+                 L' l -> getName l
+         setName x o = case o of
+                C' c -> C' $ setName x c
+                L' l -> L' $ setName x l
+
+data Obj' a = C' (Circ' a) | L' (Label' a) deriving (Eq, Show)
 
 -- use r2f to put polymorphic floating things into floats
 -- TODO fix selection
 -- TODO comment packing these functions defining conventions
-circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ
-circPack cir params = Circ { xc = r2f xc', yc = r2f yc', r = r2f r', namec = namec cir, selc = selc cir }
-         where (xc', yc', r') = if not $ length params == 3 then error "wrong # params to pack circle"
+circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
+circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir }
+         where (xc1, yc1, r1) = if not $ length params == 3 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2) 
 
-labelPack :: (Real a, Floating a, Show a, Ord a) => Label -> [a] -> Label
-labelPack lab params = Label { xl = r2f xl', yl = r2f yl', wl = r2f wl', hl = r2f hl',
-                             textl = textl lab, sell = sell lab, namel = namel lab }
-          where (xl', yl', wl', hl') = if not $ length params == 4 then error "wrong # params to pack label"
+labelPack :: (Real a, Floating a, Show a, Ord a) => Label -> [a] -> Label' a
+labelPack lab params = Label' { xl' = xl1, yl' = yl1, wl' = wl1, hl' = hl1,
+                             textl' = textl lab, sell' = sell lab, namel' = namel lab }
+          where (xl1, yl1, wl1, hl1) = if not $ length params == 4 then error "wrong # params to pack label"
                                    else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 -- does a right fold on `annotations` to preserve order of output list
 -- returns remaining (fixed, varying) that were not part of the object
 -- e.g. yoink [Fixed, Varying, Fixed] [1, 2, 3] [4, 5] = ([1, 4, 2], [3], [5])
 yoink :: (Show a) => [Annotation] -> Fixed a -> Varying a -> ([a], Fixed a, Varying a)
-yoink annotations fixed varying = trace ("yoink " ++ (show annotations) ++ (show fixed) ++ (show varying)) $
+yoink annotations fixed varying = --trace ("yoink " ++ (show annotations) ++ (show fixed) ++ (show varying)) $
       case annotations of
        [] -> ([], fixed, varying) 
        (Fix : annotations') -> let (params, fixed', varying') = yoink annotations' (tail fixed) varying in
@@ -313,10 +353,10 @@ yoink annotations fixed varying = trace ("yoink " ++ (show annotations) ++ (show
 -- for inner objective fns to operate on
 -- pack is partially applied with the annotations, which never change 
 -- (the annotations assume the state never changes size or order)
-pack :: (Real a, Floating a, Show a, Ord a) => [[Annotation]] -> [Obj] -> Fixed a -> Varying a -> [Obj]
+pack :: (Real a, Floating a, Show a, Ord a) => [[Annotation]] -> [Obj] -> Fixed a -> Varying a -> [Obj' a]
 pack annotations objs = pack' (zip objs annotations) 
 
-pack' :: (Real a, Floating a, Show a, Ord a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj]
+pack' :: (Real a, Floating a, Show a, Ord a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj' a]
 pack' zipped fixed varying =
      case zipped of
       [] -> []
@@ -328,35 +368,36 @@ pack' zipped fixed varying =
               res = case obj of
                  -- pack objects using the names, text params carried from initial state
                  -- assuming names do not change during opt
-                    C circ -> trace ("circ: " ++ (show $ length flatParams)) $
-                              C $ circPack circ flatParams 
-                    L label -> trace ("label: " ++ (show $ length flatParams)) $
-                              L $ labelPack label flatParams
+                    C circ -> -- trace ("circ: " ++ (show $ length flatParams)) $
+                              C' $ circPack circ flatParams 
+                    L label -> -- trace ("label: " ++ (show $ length flatParams)) $
+                              L' $ labelPack label flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
 
 -- TODO polymorphism?
-type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name Obj -> a
+type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
 -- illegal polymorphic or qualified type--can't return a forall?
-type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name Obj -> a
+type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
 type Name = String
 type Weight a = a
 
 -- TODO deal with lists in a more principled way
 -- maybe the typechecking should be done elsewhere...
+-- shouldn't these two be parametric over objects?
 centerCirc :: ObjFnOn a
 centerCirc [sname] objMap = case (M.lookup sname objMap) of
-                          Just (C c) -> (r2f $ xc c)^2 + (r2f $ yc c)^2
-                          Just (L _) -> error "misnamed label"
+                          Just (C' c) -> (xc' c)^2 + (yc' c)^2
+                          Just (L' _) -> error "misnamed label"
                           Nothing -> error "invalid selectors in centerCirc"
 centerCirc _ _ = error "centerCirc not called with 1 arg"
 
 centerLabel :: ObjFnOn a
 centerLabel [main, label] objMap = case (M.lookup main objMap, M.lookup label objMap) of
                             -- have the label near main’s border
-                            (Just (C c), Just (L l)) ->
-                                    let [cx, cy, lx, ly] = map r2f [xc c, yc c, xl l, yl l] in
+                            (Just (C' c), Just (L' l)) ->
+                                    let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
                                     (cx - lx)^2 + (cy - ly)^2
                             (_, _) -> error "invalid selectors in centerLabel"
 centerLabel _ _ = error "centerLabel not called with 1 arg"
@@ -416,12 +457,13 @@ labelName :: String -> String
 labelName name = "Label_" ++ name
 
 -- TODO do something with stype
-genObjsAndFns :: (Floating a, Real a, Show a, Ord a) => C.SubDecl -> ([Obj], [(M.Map Name Obj -> a, Weight a)])
+genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
+                  C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
               where (c1name, l1name) = (sname, labelName sname)
-                    c1 = C $ Circ { xc = 0, yc = 0, r = defaultRad, selc = False, namec = c1name }
+                    c1 = C $ Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = c1name }
                     -- TODO proper dimensions for labels
-                    l1 = L $ Label { xl = 0, yl = 0, wl = 50, hl = 50, textl = sname,
+                    l1 = L $ Label { xl = -100, yl = -100, wl = 50, hl = 50, textl = sname,
                                  sell = False, namel = l1name }
                     objs = [c1, l1]
                     weightedFns = [ (declSetObjfn [c1name], defaultWeight),
@@ -430,12 +472,12 @@ genObjsAndFns (C.Decl (C.OP (C.Pt' _))) = error "points not yet supported"
 genObjsAndFns (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
 
 genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
-                 [C.SubDecl] -> ([Obj], [(M.Map Name Obj -> a, Weight a)])
+                 [C.SubDecl] -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 -- TODO figure out how the types work. also add weights
 genAllObjsAndFns decls = let (objss, fnss) = unzip $ map genObjsAndFns decls in
                          (concat objss, concat fnss)
 
-dictOf :: [Obj] -> M.Map Name Obj
+dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
 dictOf = foldr addObj M.empty 
        where addObj o dict = M.insert (getName o) o dict
 
@@ -444,16 +486,16 @@ dictOf = foldr addObj M.empty
 -- assumes that the state's SIZE and ORDER never change
 genObjFn :: (Real a, Floating a, Show a, Ord a) =>
          [[Annotation]] 
-         -> [(M.Map Name Obj -> a, Weight a)]
-         -> [(M.Map Name Obj -> a, Weight a)]
-         -> [(M.Map Name Obj -> a, Weight a)]
+         -> [(M.Map Name (Obj' a) -> a, Weight a)]
+         -> [(M.Map Name (Obj' a) -> a, Weight a)]
+         -> [(M.Map Name (Obj' a) -> a, Weight a)]
          -> [Obj] -> a -> [a] -> [a] -> a
 genObjFn annotations objFns ambientObjFns constrObjFns =
          \currObjs penaltyWeight fixed varying ->
-         let objs = pack annotations objs fixed varying :: [Obj] in 
+         let newObjs = pack annotations currObjs fixed varying in 
          -- note: CANNOT do dict -> list because that destroys the order
-         let objDict = dictOf currObjs :: M.Map Name Obj in
-         sumMap (\(f, w) -> w * f objDict) objFns
+         let objDict = dictOf newObjs in
+         tr "obj fn value: " $ (sumMap (\(f, w) -> w * f objDict) objFns)
          + sumMap (\(f, w) -> w * f objDict) ambientObjFns -- TODO change to `f objs` not `f objDict`?
          + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
          -- factor out weight application?
@@ -666,12 +708,15 @@ handler (EventMotion (xm, ym)) s =
         where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY (clamp1D ym) o else o
 
 -- button released, so deselect all objects AND restart the optimization
+-- keep the annotations and obj fn, otherwise state will be erased
 handler (EventKey (MouseButton LeftButton) Up _ _) s =
-        s { objs = map deselect $ objs s, down = False, params = initParams }
+        s { objs = map deselect $ objs s, down = False,
+            params = (params s) { weight = initWeight, optStatus = NewIter } }
 
 -- if you press a key while down, then the handler resets the entire state (then Up will just reset again)
 handler (EventKey (Char 'r') Up _ _) s =
-        s { objs = objs', down = False, rng = rng', params = initParams }
+        s { objs = objs', down = False, rng = rng',
+        params = (params s) { weight = initWeight, optStatus = NewIter } }
         where (objs', rng') = sampleConstrainedState (rng s) (objs s)
 
 -- turn autostep on or off (press same button to turn on or off)
@@ -836,6 +881,16 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 -- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
 
+-- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
+zeroGrad :: (Real a, Floating a, Show a, Ord a) => Obj' a -> Obj
+zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
+                             selc = selc' c, namec = namec' c }
+zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
+                              textl = textl' l, sell = sell' l, namel = namel' l }
+
+zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
+zeroGrads = map zeroGrad
+
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
 -- the initial state (WRT violating constraints), initial weight, params, constraint normalization, etc.
@@ -887,7 +942,7 @@ stepObjs t sParams objs =
               (stateVarying', objFnApplied, gradEval) = stepWithObjective objs fixed sParams
                                                              (realToFrac t) stateVarying
               -- re-pack each object's state list into object
-              objs' = pack (annotations sParams) objs fixed stateVarying'
+              objs' = zeroGrads $ pack (annotations sParams) objs fixed stateVarying'
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point, 
 -- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
@@ -984,7 +1039,7 @@ normsq = sum . map (^ 2)
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 -- M-^ = delete indentation
 timeAndGrad :: (Show b, Ord b, RealFloat b, Floating b, Real b) => ObjFn1 a -> b -> [b] -> (b, [b])
-timeAndGrad f t state = (timestep, gradEval)
+timeAndGrad f t state = tr "timeAndGrad: " (timestep, gradEval)
             where gradF :: GradFn a
                   gradF = appGrad f
                   gradEval = gradF state
@@ -1138,8 +1193,8 @@ initWeight = 10 ** (-5)
 
 -- Flags for debugging the surrounding functions.
 clampflag = False
-debug = False
-debugLineSearch = False
+debug = True
+debugLineSearch = True
 debugObj = False -- turn on/off output in obj fn or constraint
 constraintFlag = True
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
