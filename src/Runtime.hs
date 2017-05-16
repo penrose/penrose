@@ -557,7 +557,6 @@ genInitState (decls, constrs) stys =
 
              -- constraints
              let constrFns = genConstrFns constrs in
-             -- let constrObjFns = map toPenalty constrFns in -- returns each penalty fn with a weight
              let ambientConstrFns = [] in -- TODO add
              let constrObjFns = constrFns ++ ambientConstrFns in
 
