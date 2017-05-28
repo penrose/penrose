@@ -80,7 +80,8 @@ picHeight :: Int
 picHeight = 700
 
 stepsPerSecond :: Int
-stepsPerSecond = 10000
+-- stepsPerSecond = 10000
+stepsPerSecond = 1000
 
 calcTimestep :: Float -- for use in forcing stepping in handler
 calcTimestep = 1 / (int2Float stepsPerSecond)
@@ -257,7 +258,9 @@ type Varying a = [a]
 -- annotations are specified inline here. this is per type, not per value (i.e. all circles have the same fixed parameters). but you could generalize it to per-value by adding or overriding annotations globally after the unpacking
 -- does not unpack names
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
+-- the location of a circle can vary, but not its radius
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
+-- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 
 -- split out because pack needs this annotated list of lists
@@ -277,7 +280,7 @@ splitFV annotated = foldr chooseList ([], []) annotated
 -- crucially, this does NOT depend on the annotations, it can be used on any list of objects
 unpackSplit :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> (Fixed a, Varying a)
 unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
-                   trace "unpackSplit" $ traceShow objs $ splitFV annotatedList
+                   splitFV annotatedList
 
 ---------------------- Packing
 
@@ -321,8 +324,6 @@ instance Named (Obj' a) where
 
 data Obj' a = C' (Circ' a) | L' (Label' a) deriving (Eq, Show)
 
--- use r2f to put polymorphic floating things into floats
--- TODO fix selection
 -- TODO comment packing these functions defining conventions
 circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
 circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir }
@@ -407,7 +408,7 @@ type AmbientObjFn a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Nam
 -- if there are no circles, doesn't do anything
 -- TODO fix in case there's only 1 circle?
 circParams :: (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> ([a], [a])
-circParams m = unpackSplit $ tr "circ" (filter isCirc $ M.elems m)
+circParams m = unpackSplit $ filter isCirc $ M.elems m
            where isCirc (C' _) = True
                  isCirc _ = False
 
@@ -415,6 +416,10 @@ circParams m = unpackSplit $ tr "circ" (filter isCirc $ M.elems m)
 circlesCenterAndRepel :: AmbientObjFn a
 circlesCenterAndRepel objMap = let (fix, vary) = circParams objMap in
                                centerAndRepel_dist fix vary
+
+circlesCenter :: AmbientObjFn a
+circlesCenter objMap = let (fix, vary) = circParams objMap in
+                       centerObjs fix vary                      
 
 -- pairwiseRepel :: [Obj] -> Float
 -- pairwiseRepel objs = sumMap pairRepel $ allPairs objs
@@ -433,12 +438,13 @@ circlesCenterAndRepel objMap = let (fix, vary) = circParams objMap in
 ------- Constraints
 -- Constraints are written WRT magnitude of violation
 -- TODO metaprogramming for boolean constraints
--- TODO factor out lookup boilerplate?
-
+-- TODO use these types?
 type ConstraintFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
 
 defaultCWeight :: Floating a => a
 defaultCWeight = 1
+
+-- TODO get rid of lookup boilerplate
 
 subsetFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
 subsetFn names@[inName, outName] dict =
@@ -446,8 +452,16 @@ subsetFn names@[inName, outName] dict =
             (Just (C' inc), Just (C' outc)) ->
                   strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
                   -- noConstraint [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-            (_, _) -> error "subset not called on two sets"
+            (_, _) -> error "subset not called on two sets, or 1+ doesn't exist"
 subsetFn _ _ = error "subset not called with 2 args"
+
+noSubsetFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+noSubsetFn names@[inName, outName] dict =
+          case (M.lookup inName dict, M.lookup outName dict) of
+            (Just (C' inc), Just (C' outc)) ->
+                  noSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+            (_, _) -> error "noSubset not called on two sets, or 1+ doesn't exist"
+noSubsetFn _ _ = error "noSubset not called with 2 args"
 
 -- TODO loose or strict?
 intersectFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
@@ -456,10 +470,18 @@ intersectFn names@[xname, yname] dict =
             (Just (C' xset), Just (C' yset)) ->
                   tr "intersect val: " $
                   looseIntersect [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
-                  -- noConstraint [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
-            (_, _) -> error "intersect not called on two sets"
+            (_, _) -> error "intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
 intersectFn _ _ = error "intersect not called with 2 args"
 
+noIntersectFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+noIntersectFn names@[xname, yname] dict =
+          case (M.lookup xname dict, M.lookup yname dict) of
+            (Just (C' xset), Just (C' yset)) ->
+                  tr "no intersect val: " $
+                  noIntersectExt [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
+            (_, _) -> error "no intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
+noIntersectFn _ _ = error "no intersect not called with 2 args"
+         
 toPenalty :: (Floating a, Real a, Show a, Ord a) => (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
 toPenalty f = \dict -> penalty $ f dict
 
@@ -470,7 +492,9 @@ toPenalty f = \dict -> penalty $ f dict
 genConstrFn :: (Floating a, Real a, Show a, Ord a) =>
                 C.SubConstr -> [(M.Map Name (Obj' a) -> a, Weight a)]
 genConstrFn (C.Intersect xname yname) = [ (toPenalty $ intersectFn [xname, yname], defaultCWeight) ]
+genConstrFn (C.NoIntersect xname yname) = [ (toPenalty $ noIntersectFn [xname, yname], defaultCWeight) ]
 genConstrFn (C.Subset inName outName) = [ (toPenalty $ subsetFn [inName, outName], defaultCWeight) ]
+genConstrFn (C.NoSubset inName outName) = [ (toPenalty $ noSubsetFn [inName, outName], defaultCWeight) ]
 genConstrFn (C.PointIn pname sname) = error "constraints on points in spec not yet supported"
 
 genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
@@ -523,6 +547,10 @@ dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
 dictOf = foldr addObj M.empty 
        where addObj o dict = M.insert (getName o) o dict
 
+-- constant b/c ambient fn value seems to be 10^4 and constr value seems to reach only 10, 10^2
+constrWeight :: Floating a => a
+constrWeight = 10 ^ 5
+       
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- first param: list of parameter annotations for each object in the state 
 -- assumes that the state's SIZE and ORDER never change
@@ -539,20 +567,28 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
          let objDict = dictOf newObjs in
            sumMap (\(f, w) -> w * f objDict) objFns
          + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
-         + penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns 
+         + (tr "constr fn value: " 
+               (constrWeight * penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns))
          -- factor out weight application?
 
+
+-- TODO: **must** manually change this constraint if you change the constr function for EP
+-- needs constr to be violated
+constraint = if constraintFlag then (not . noneOverlap) else \x -> True
+         
 -- generate all objects and the overall objective function
 -- style program is currently unused
 -- TODO adjust weights of all functions
 genInitState :: ([C.SubDecl], [C.SubConstr]) -> [C.StyLine] -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
-             let (initState, objFns) = genAllObjsAndFns decls in -- TODO
+             let (initState, objFns) = genAllObjsAndFns decls in
+             -- let objFns = [] in -- TODO removed only for debugging constraints
 
              -- ambient objectives
              -- be careful with how the ambient objectives interact with the per-declaration objectives!
-             let ambientObjFns = [(circlesCenterAndRepel, defaultWeight)] in
+             -- e.g. the repel objective conflicts with a subset/intersect constraint -> nonconvergence!
+             let ambientObjFns = [(circlesCenter, defaultWeight)] in
              -- let ambientObjFns = [] in
 
              -- constraints
@@ -560,7 +596,9 @@ genInitState (decls, constrs) stys =
              let ambientConstrFns = [] in -- TODO add
              let constrObjFns = constrFns ++ ambientConstrFns in
 
-             let (initStateConstr, initRng') = genState initState initRng in -- resample state w/ constrs
+             -- resample state w/ constrs. TODO how to deal with `Subset A B` -> `r A < r B`?
+             -- let boolConstr = \x -> True in // TODO needs to take this as a param
+             let (initStateConstr, initRng') = sampleConstrainedState initRng initState in
 
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
              let flatObjsAnnotated = unpackAnnotate (addGrads initStateConstr) in
@@ -925,6 +963,7 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 -- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
 
+-- don't use r2f outside of zeroGrad or addGrad, since it doesn't interact well w/ autodiff
 r2f :: (Fractional b, Real a) => a -> b
 r2f = realToFrac
 
@@ -938,7 +977,7 @@ zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl'
 zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
 
--- Add the grad info
+-- Add the grad info by generalizing Obj (on Floats) to polymorphic objects (for autodiff to use)
 addGrad :: (Real a, Floating a, Show a, Ord a) => Obj -> Obj' a
 addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
                              selc' = selc c, namec' = namec c }
@@ -1234,10 +1273,6 @@ objFnPenalty weight = combineObjfns objFnUnconstrained weight
 boundConstraints :: Constraints
 boundConstraints = [] -- first_two_objs_box
 
--- TODO: **must** manually change this constraint if you change the constr function for EP
--- needs constr to be violated
-constraint = if constraintFlag then (not . noneOverlap) else \x -> True
-
 weightGrowth :: Floating a => a -- for EP weight
 weightGrowth = 10
 
@@ -1291,8 +1326,8 @@ stopEps = 10 ** (-1)
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
-objText = "objective: center and repel all sets; center all labels in set"
-constrText = "constraint: none"
+objText = "objective: center all sets; center all labels in set"
+constrText = "constraint: satisfy constraints specified in Substance program"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
@@ -1471,22 +1506,26 @@ noConstraint _ = 0
 -- if you want "f x > -100" then you would convert it to "-(f x + 100) < 0" with c = -(f x + 100)"
 
 -- all sets must pairwise-strict-intersect
+-- plus an offset so they overlap by a visible amount (perhaps this should be an optimization parameter?)
 looseIntersect :: PairConstrV a
-looseIntersect [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - (s1 + s2)^2
+looseIntersect [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
+        if s1 + s2 < offset then error "radii too small"
+        else dist (x1, y1) (x2, y2) - (s1 + s2 - offset)
 
 -- the energy actually increases so it always settles around the offset
--- oh that's bc i am centering all of them--test w/objective off
+-- that's because i am centering all of them--test w/objective off
 -- TODO flatten energy afterward, or get it to be *far* from the other set
+-- offset so the sets differ by a visible amount
 noSubset :: PairConstrV a
-noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
-         -((x1 - x2)^2 + (y1 - y2)^2) + ((max s2 s1) - (min s2 s1) + offset)^2
+noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing with s1 > s2 or s2 < s1
+         -(dist (x1, y1) (x2, y2)) + max s2 s1 - min s2 s1 + offset
 
 strictSubset :: PairConstrV a
-strictSubset [[x1, y1, s1], [x2, y2, s2]] = ((x1 - x2)^2 + (y1 - y2)^2) - ((max s2 s1) - (min s2 s1))^2
+strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (max s2 s1 - min s2 s1)
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersectExt :: PairConstrV a
-noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -((x1 - x2)^2 + (y1 - y2)^2) + (s1 + s2)^2
+noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2
 
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a
