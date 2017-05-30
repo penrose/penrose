@@ -81,7 +81,7 @@ picHeight = 700
 
 stepsPerSecond :: Int
 -- stepsPerSecond = 10000
-stepsPerSecond = 1000
+stepsPerSecond = 10000
 
 calcTimestep :: Float -- for use in forcing stepping in handler
 calcTimestep = 1 / (int2Float stepsPerSecond)
@@ -549,7 +549,7 @@ dictOf = foldr addObj M.empty
 
 -- constant b/c ambient fn value seems to be 10^4 and constr value seems to reach only 10, 10^2
 constrWeight :: Floating a => a
-constrWeight = 10 ^ 5
+constrWeight = 10 ^ 4
        
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- first param: list of parameter annotations for each object in the state 
