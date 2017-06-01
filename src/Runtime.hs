@@ -116,7 +116,8 @@ data Circ = Circ { xc :: Float
                  , yc :: Float
                  , r :: Float
                  , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
-                 , namec :: String }
+                 , namec :: String
+                 , colorc :: Color }
      deriving (Eq, Show)
 
 instance Located Circ where
@@ -293,7 +294,8 @@ data Circ' a = Circ' { xc' :: a
                      , yc' :: a
                      , r' :: a
                      , selc' :: Bool -- is the circle currently selected? (mouse is dragging it)
-                     , namec' :: String }
+                     , namec' :: String
+                     , colorc' :: Color }
                      deriving (Eq, Show)
 
 data Label' a = Label' { xl' :: a
@@ -326,7 +328,7 @@ data Obj' a = C' (Circ' a) | L' (Label' a) deriving (Eq, Show)
 
 -- TODO comment packing these functions defining conventions
 circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
-circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir }
+circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
          where (xc1, yc1, r1) = if not $ length params == 3 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2)
 
@@ -527,7 +529,7 @@ genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
                   C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
               where (c1name, l1name) = (sname, labelName sname)
-                    c1 = C $ Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = c1name }
+                    c1 = C $ Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = c1name, colorc = black }
                     -- TODO proper dimensions for labels
                     l1 = L $ Label { xl = -100, yl = -100, wl = 50, hl = 50, textl = sname,
                                  sell = False, namel = l1name }
@@ -643,16 +645,26 @@ ph2 = picHeight `divf` 2
 ph2' :: Floating a => a
 ph2' = realToFrac ph2
 
-widthRange = (-pw2, pw2)
+cmax, cmin :: Float
+cmax = 1.0
+cmin = 0.0
+
+widthRange  = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 radiusRange = (0, picWidth `divf` 6)
+colorRange  = (cmin, cmax)
 
 ------------- The "Style" layer: render the state of the world.
 renderCirc :: Circ -> Picture
-renderCirc c = color scolor $ translate (xc c) (yc c) $ circle (r c)
-           where scolor = if selected c then green else light violet
+renderCirc c = color scolor $ translate (xc c) (yc c) $
+        -- circle (r c)
+        thickCircle (0.5 * (r c)) $ (r c)
+        where scolor = colorc c
+        -- where scolor = makeColor 1 0.5 0.5 0.5
+            -- if selected l then green else light violet
 
--- hacky fix to the centering problem of labels, assumeing (1) monospaced font; (2) at least a chracter of max height is in the label string
+-- fix to the centering problem of labels, assumeing:
+-- (1) monospaced font; (2) at least a chracter of max height is in the label string
 labelScale, textWidth, textHeight :: Float
 textWidth  = 104.76
 textHeight = 119.05
@@ -727,10 +739,16 @@ crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drops gens
 sampleCoord :: RandomGen g => g -> Obj -> (Obj, g)
 sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                     case o_loc of
-                    C circ -> let (r', gen3) = randomR radiusRange gen2 in
-                              (C $ circ { r = r'}, gen3)
+                    C circ -> let (r',  gen3) = randomR radiusRange gen2
+                                  (cr', gen4) = randomR colorRange  gen3
+                                  (cg', gen5) = randomR colorRange  gen4
+                                  (cb', gen6) = randomR colorRange  gen5
+                                  in
+                              (C $ circ { r = r', colorc = makeColor cr' cg' cb' 0.5 }, gen6)
+                            --   (C $ circ { r = r'}, gen3)
                     L lab -> (o_loc, gen2) -- only sample location
-        where (x', gen1) = randomR widthRange gen
+
+        where (x', gen1) = randomR widthRange  gen
               (y', gen2) = randomR heightRange gen1
 
 -- sample each object independently, threading thru gen
@@ -984,7 +1002,7 @@ r2f = realToFrac
 -- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
 zeroGrad :: (Real a, Floating a, Show a, Ord a) => Obj' a -> Obj
 zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
-                             selc = selc' c, namec = namec' c }
+                             selc = selc' c, namec = namec' c, colorc = colorc' c }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
                               textl = textl' l, sell = sell' l, namel = namel' l }
 
@@ -994,7 +1012,7 @@ zeroGrads = map zeroGrad
 -- Add the grad info by generalizing Obj (on Floats) to polymorphic objects (for autodiff to use)
 addGrad :: (Real a, Floating a, Show a, Ord a) => Obj -> Obj' a
 addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
-                             selc' = selc c, namec' = namec c }
+                             selc' = selc c, namec' = namec c, colorc' = colorc c }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
 
@@ -1232,10 +1250,10 @@ awLineSearch f duf_noU descentDir x0 =
 ------------- Initial states
 
 -- initial states
-s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False, namec = "A" }
-s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False, namec = "A" }
-s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False, namec = "A" }
-s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False, namec = "A" }
+s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False, namec = "A" , colorc = black }
+s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False, namec = "A", colorc = black }
+s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False, namec = "A" , colorc = black}
+s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False, namec = "A", colorc = black }
 
 -- if objects start at exactly the same position, there may be problems
 -- note: widths, heights, and names of labels below are not accurate b/c not generated by compiler
