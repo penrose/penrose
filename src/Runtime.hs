@@ -544,15 +544,24 @@ noIntersectFn names@[xname, yname] dict =
             (_, _) -> error "no intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
 noIntersectFn _ _ = error "no intersect not called with 2 args"
 
+-- TODO: consider refactoring here
 pointInFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
 pointInFn names@[xname, yname] dict =
           case (M.lookup xname dict, M.lookup yname dict) of
             (Just (P' pt), Just (C' set)) ->
                   tr "point in val: " $
-                  noConstraint [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
-                --   pointInExt [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
+                  pointInExt [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
             (_, _) -> error "point in not called on a point and a set, or 1+ doesn't exist" -- TODO check for None
 pointInFn _ _ = error "point in not called with 2 args"
+
+pointNotInFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+pointNotInFn names@[xname, yname] dict =
+          case (M.lookup xname dict, M.lookup yname dict) of
+            (Just (P' pt), Just (C' set)) ->
+                  tr "point in val: " $
+                  pointNotInExt [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
+            (_, _) -> error "point in not called on a point and a set, or 1+ doesn't exist" -- TODO check for None
+pointNotInFn _ _ = error "point in not called with 2 args"
 
 toPenalty :: (Floating a, Real a, Show a, Ord a) => (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
 toPenalty f = \dict -> penalty $ f dict
@@ -568,8 +577,8 @@ genConstrFn (C.NoIntersect xname yname) = [ (toPenalty $ noIntersectFn [xname, y
 genConstrFn (C.Subset inName outName) = [ (toPenalty $ subsetFn [inName, outName], defaultCWeight) ]
 genConstrFn (C.NoSubset inName outName) = [ (toPenalty $ noSubsetFn [inName, outName], defaultCWeight) ]
 -- genConstrFn (C.PointIn pname sname) = error "constraints on points in spec not yet supported"
-genConstrFn (C.PointIn pname sname) = [  (toPenalty $ pointInFn [pname, sname], defaultPWeight )]
-genConstrFn (C.PointNotIn pname sname) = error "constraints on points in spec not yet supported"
+genConstrFn (C.PointIn pname sname) = [ (toPenalty $ pointInFn [pname, sname], defaultPWeight) ]
+genConstrFn (C.PointNotIn pname sname) = [ (toPenalty $ pointNotInFn [pname, sname], defaultPWeight) ]
 
 genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
                 [C.SubConstr] -> [(M.Map Name (Obj' a) -> a, Weight a)]
@@ -1408,8 +1417,8 @@ type ObjFnPenaltyState a = forall a . (Show a, Floating a, Ord a, Real a) => [Ob
 objFnPenalty :: ObjFnPenalty a
 objFnPenalty weight = combineObjfns objFnUnconstrained weight
              where objFnUnconstrained :: Floating a => ObjFn2 a
-                   objFnUnconstrained = centerObjs -- centerAndRepel
-                --    objFnUnconstrained = centerAndRepel
+                --    objFnUnconstrained = centerObjs -- centerAndRepel
+                   objFnUnconstrained = centerAndRepel
 
 -- if the list of constraints is empty, it behaves as unconstrained optimization
 boundConstraints :: Constraints
@@ -1670,7 +1679,10 @@ noIntersectExt :: PairConstrV a
 noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2
 
 pointInExt :: PairConstrV a
-pointInExt [[x1, y1], [x2, y2, r]] = max 0 $ dist (x1, y1) (x2, y2) - r
+pointInExt [[x1, y1], [x2, y2, r]] = dist (x1, y1) (x2, y2) - 0.5 * r
+
+pointNotInExt :: PairConstrV a
+pointNotInExt [[x1, y1], [x2, y2, r]] = - dist (x1, y1) (x2, y2) + r
 
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a

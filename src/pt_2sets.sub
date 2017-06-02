@@ -2,5 +2,5 @@ Set A
 Set B
 Point C
 NoIntersect A B
-In C A
+NotIn C A
 In C B
