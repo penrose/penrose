@@ -80,7 +80,6 @@ picHeight :: Int
 picHeight = 700
 
 stepsPerSecond :: Int
--- stepsPerSecond = 10000
 stepsPerSecond = 10000
 
 calcTimestep :: Float -- for use in forcing stepping in handler
@@ -454,9 +453,10 @@ centerLabel [main, label] dict = case (M.lookup main dict, M.lookup label dict) 
                                     (cx - lx)^2 + (cy - ly)^2
                             (Just (P' p), Just (L' l)) ->
                                     let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
-                                    (px - lx)^2 + (py - ly)^2
+                                    (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
                             (_, _) -> error "invalid selectors in centerLabel"
 centerLabel _ _ = error "centerLabel not called with 1 arg"
+
 
 ------- Ambient objective functions
 
@@ -894,11 +894,12 @@ distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
 -- TODO properly get bbox; rn text is centered at bottom left
 inObj :: (Float, Float) -> Obj -> Bool
 
+-- TODO: this is NOT an accurate BBox at all. Good for selection though
 inObj (xm, ym) (L o) =
-    -- abs (xm - (label_offset_x (textl o) (xl o))) <= 0.5 * (wl o) &&
-    -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.5 * (hl o) -- is label
-    abs (xm - (xl o)) <= 0.5 * (wl o) &&
-    abs (ym - (yl o)) <= 0.5 * (hl o) -- is label
+    abs (xm - (xl o)) <= 0.1 * (wl o) &&
+    abs (ym - (yl o)) <= 0.1 * (hl o) -- is label
+    -- abs (xm - (label_offset_x (textl o) (xl o))) <= 0.25 * (wl o) &&
+    -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
 
@@ -1438,10 +1439,10 @@ initWeight = 10 ** (-5)
 
 -- Flags for debugging the surrounding functions.
 clampflag = False
-debug = True
+debug = False
 debugLineSearch = True
 debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = True
+constraintFlag = False
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = False -- TODO need to implement constraint fn synthesis
 
