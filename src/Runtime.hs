@@ -172,33 +172,63 @@ instance Named Label where
          getName l = namel l
          setName x l = l { namel = x }
 
-data Obj = C Circ | L Label deriving (Eq, Show)
+------
+
+data Pt = Pt { xp :: Float
+             , yp :: Float
+             , selp :: Bool
+             , namep :: String }
+     deriving (Eq, Show)
+
+instance Located Pt where
+         getX p = xp p
+         getY p = yp p
+         setX x p = p { xp = x }
+         setY y p = p { yp = y }
+
+instance Selectable Pt where
+         select   x = x { selp = True }
+         deselect x = x { selp = False }
+         selected x = selp x
+
+instance Named Pt where
+         getName p   = namep p
+         setName x p = p { namep = x }
+
+data Obj = C Circ | L Label | P Pt deriving (Eq, Show)
 
 -- is there some way to reduce the top-level boilerplate?
 instance Located Obj where
          getX o = case o of
                  C c -> getX c
                  L l -> getX l
+                 P p -> getX p
          getY o = case o of
                  C c -> getY c
                  L l -> getY l
+                 P p -> getY p
          setX x o = case o of
                 C c -> C $ setX x c
                 L l -> L $ setX x l
+                P p -> P $ setX x p
          setY y o = case o of
                 C c -> C $ setY y c
                 L l -> L $ setY y l
+                P p -> P $ setY y p
 
 instance Selectable Obj where
          select x = case x of
                 C c -> C $ select c
                 L l -> L $ select l
+                P p -> P $ select p
          deselect x = case x of
                 C c -> C $ deselect c
                 L l -> L $ deselect l
+                P p -> P $ deselect p
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
+                P p -> selected p
 
 instance Sized Obj where
          getSize o = case o of
@@ -212,9 +242,11 @@ instance Named Obj where
          getName o = case o of
                  C c -> getName c
                  L l -> getName l
+                 P p -> getName p
          setName x o = case o of
                 C c -> C $ setName x c
                 L l -> L $ setName x l
+                P p -> P $ setName x p
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show)
 
@@ -263,6 +295,8 @@ unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
+-- the location of a point varies
+unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
 
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [[(a, Annotation)]]
@@ -308,6 +342,12 @@ data Label' a = Label' { xl' :: a
                        , namel' :: String }
                        deriving (Eq, Show)
 
+data Pt' a = Pt' { xp' :: a
+                 , yp' :: a
+                 , selp' :: Bool
+                 , namep' :: String }
+                 deriving (Eq, Show)
+
 instance Named (Circ' a) where
          getName c = namec' c
          setName x c = c { namec' = x }
@@ -316,21 +356,32 @@ instance Named (Label' a) where
          getName l = namel' l
          setName x l = l { namel' = x }
 
+instance Named (Pt' a) where
+         getName p = namep' p
+         setName x p = p { namep' = x }
+
 instance Named (Obj' a) where
          getName o = case o of
                  C' c -> getName c
                  L' l -> getName l
+                 P' p -> getName p
          setName x o = case o of
                 C' c -> C' $ setName x c
                 L' l -> L' $ setName x l
+                P' p -> P' $ setName x p
 
-data Obj' a = C' (Circ' a) | L' (Label' a) deriving (Eq, Show)
+data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) deriving (Eq, Show)
 
 -- TODO comment packing these functions defining conventions
 circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
 circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
          where (xc1, yc1, r1) = if not $ length params == 3 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2)
+
+ptPack :: (Real a, Floating a, Show a, Ord a) => Pt -> [a] -> Pt' a
+ptPack pt params = Pt' { xp' = xp1, yp' = yp1, namep' = namep pt, selp' = selp pt }
+        where (xp1, yp1) = if not $ length params == 2 then error "Wrong # of params to pack point"
+                           else (params !! 0, params !! 1)
 
 labelPack :: (Real a, Floating a, Show a, Ord a) => Label -> [a] -> Label' a
 labelPack lab params = Label' { xl' = xl1, yl' = yl1, wl' = wl1, hl' = hl1,
@@ -373,6 +424,8 @@ pack' zipped fixed varying =
                               C' $ circPack circ flatParams
                     L label -> -- trace ("label: " ++ (show $ length flatParams)) $
                               L' $ labelPack label flatParams
+                    P pt ->
+                              P' $ ptPack pt flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
@@ -399,6 +452,9 @@ centerLabel [main, label] dict = case (M.lookup main dict, M.lookup label dict) 
                             (Just (C' c), Just (L' l)) ->
                                     let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
                                     (cx - lx)^2 + (cy - ly)^2
+                            (Just (P' p), Just (L' l)) ->
+                                    let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
+                                    (px - lx)^2 + (py - ly)^2
                             (_, _) -> error "invalid selectors in centerLabel"
 centerLabel _ _ = error "centerLabel not called with 1 arg"
 
@@ -446,6 +502,10 @@ type ConstraintFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] ->
 defaultCWeight :: Floating a => a
 defaultCWeight = 1
 
+-- TODO: should points also have a weight of 1?
+defaultPWeight :: Floating a => a
+defaultPWeight = 1
+
 -- TODO get rid of lookup boilerplate
 
 subsetFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
@@ -484,6 +544,15 @@ noIntersectFn names@[xname, yname] dict =
             (_, _) -> error "no intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
 noIntersectFn _ _ = error "no intersect not called with 2 args"
 
+pointInFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+pointInFn names@[xname, yname] dict =
+          case (M.lookup xname dict, M.lookup yname dict) of
+            (Just (P' pt), Just (C' set)) ->
+                  tr "point in val: " $
+                  noConstraint [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
+            (_, _) -> error "point in not called on a point and a set, or 1+ doesn't exist" -- TODO check for None
+pointInFn _ _ = error "point in not called with 2 args"
+
 toPenalty :: (Floating a, Real a, Show a, Ord a) => (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
 toPenalty f = \dict -> penalty $ f dict
 
@@ -497,7 +566,9 @@ genConstrFn (C.Intersect xname yname) = [ (toPenalty $ intersectFn [xname, yname
 genConstrFn (C.NoIntersect xname yname) = [ (toPenalty $ noIntersectFn [xname, yname], defaultCWeight) ]
 genConstrFn (C.Subset inName outName) = [ (toPenalty $ subsetFn [inName, outName], defaultCWeight) ]
 genConstrFn (C.NoSubset inName outName) = [ (toPenalty $ noSubsetFn [inName, outName], defaultCWeight) ]
-genConstrFn (C.PointIn pname sname) = error "constraints on points in spec not yet supported"
+-- genConstrFn (C.PointIn pname sname) = error "constraints on points in spec not yet supported"
+genConstrFn (C.PointIn pname sname) = [  (toPenalty $ pointInFn [pname, sname], defaultPWeight )]
+genConstrFn (C.PointNotIn pname sname) = error "constraints on points in spec not yet supported"
 
 genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
                 [C.SubConstr] -> [(M.Map Name (Obj' a) -> a, Weight a)]
@@ -518,6 +589,9 @@ objFnOnNone names map = 0
 declSetObjfn :: ObjFnOn a
 declSetObjfn = objFnOnNone -- centerCirc
 
+declPtObjfn :: ObjFnOn a
+declPtObjfn = objFnOnNone -- centerCirc
+
 declLabelObjfn :: ObjFnOn a
 declLabelObjfn = centerLabel -- objFnOnNone
 
@@ -531,12 +605,24 @@ genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
               where (c1name, l1name) = (sname, labelName sname)
                     c1 = C $ Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = c1name, colorc = black }
                     -- TODO proper dimensions for labels
-                    l1 = L $ Label { xl = -100, yl = -100, wl = 50, hl = 50, textl = sname,
-                                 sell = False, namel = l1name }
+                    l1 = L $ Label { xl = -100, yl = -100,
+                                 wl = fromIntegral $ length sname, hl = textHeight,
+                                 textl = sname, sell = False, namel = l1name }
                     objs = [c1, l1]
                     weightedFns = [ (declSetObjfn [c1name], defaultWeight),
                                     (declLabelObjfn [c1name, l1name], defaultWeight) ]
-genObjsAndFns (C.Decl (C.OP (C.Pt' _))) = error "points not yet supported"
+-- TODO: consider refactoring the code using case?
+genObjsAndFns (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
+              where (p1name, l1name) = (pname, labelName pname)
+                    p1 = P $ Pt { xp = 100, yp = 100, selp = False, namep = p1name }
+                    l1 = L $ Label { xl = -100, yl = -100,
+                                 wl = fromIntegral $ length pname, hl = textHeight,
+                                 textl = pname, sell = False, namel = l1name }
+                    objs = [p1, l1]
+                    weightedFns = [ (declPtObjfn [p1name], defaultWeight),
+                                    (declLabelObjfn [p1name, l1name], defaultWeight) ]
+
+    -- error "points not yet supported"
 genObjsAndFns (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
 
 genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
@@ -666,7 +752,7 @@ renderCirc c = color scolor $ translate (xc c) (yc c) $
 -- fix to the centering problem of labels, assumeing:
 -- (1) monospaced font; (2) at least a chracter of max height is in the label string
 labelScale, textWidth, textHeight :: Float
-textWidth  = 104.76
+textWidth  = 104.76 * 0.5 -- Half of that of the monospaced version
 textHeight = 119.05
 labelScale = 0.2
 label_offset_x, label_offset_y :: String -> Float -> Float
@@ -682,9 +768,15 @@ renderLabel l = color scolor $
             text (textl l)
             where scolor = if selected l then green else light violet
 
+renderPt :: Pt -> Picture
+renderPt p = color scalar $ translate (xp p) (yp p)
+             $ thickCircle 2 4
+             where scalar = if selected p then green else black
+
 renderObj :: Obj -> Picture
-renderObj (C circ) = renderCirc circ
+renderObj (C circ)  = renderCirc circ
 renderObj (L label) = renderLabel label
+renderObj (P pt)    = renderPt pt
 
 picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
@@ -747,6 +839,7 @@ sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                               (C $ circ { r = r', colorc = makeColor cr' cg' cb' 0.5 }, gen6)
                             --   (C $ circ { r = r'}, gen3)
                     L lab -> (o_loc, gen2) -- only sample location
+                    P pt  -> (o_loc, gen2)
 
         where (x', gen1) = randomR widthRange  gen
               (y', gen2) = randomR heightRange gen1
@@ -1005,6 +1098,8 @@ zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
                              selc = selc' c, namec = namec' c, colorc = colorc' c }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
                               textl = textl' l, sell = sell' l, namel = namel' l }
+zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
+                           namep = namep' p }
 
 zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
@@ -1015,6 +1110,8 @@ addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
                              selc' = selc c, namec' = namec c, colorc' = colorc c }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
+addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
+                           namep' = namep p }
 
 addGrads :: (Real a, Floating a, Show a, Ord a) => [Obj] -> [Obj' a]
 addGrads = map addGrad
@@ -1300,6 +1397,7 @@ objFnPenalty :: ObjFnPenalty a
 objFnPenalty weight = combineObjfns objFnUnconstrained weight
              where objFnUnconstrained :: Floating a => ObjFn2 a
                    objFnUnconstrained = centerObjs -- centerAndRepel
+                --    objFnUnconstrained = centerAndRepel
 
 -- if the list of constraints is empty, it behaves as unconstrained optimization
 boundConstraints :: Constraints

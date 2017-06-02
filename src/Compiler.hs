@@ -1,4 +1,4 @@
- module Compiler where 
+ module Compiler where
 -- TODO split this up + do selective export
 
 import System.IO -- read/write to file
@@ -10,7 +10,7 @@ import Data.List
 
 -- Substance grammar
 
-data SetType = Open | Closed | Unspecified 
+data SetType = Open | Closed | Unspecified
      deriving (Show, Eq)
 
 data Set = Set' String SetType
@@ -37,8 +37,9 @@ data SubDecl = Decl SubObj
 data SubConstr = Intersect String String
                | NoIntersect String String
                | Subset String String
-               | NoSubset String String     
-               | PointIn String String 
+               | NoSubset String String
+               | PointIn String String
+               | PointNotIn String String
      deriving (Show, Eq)
 
 data SubLine = LD SubDecl | LC SubConstr
@@ -51,19 +52,19 @@ type SubSpecDiv = ([SubDecl], [SubConstr])
 
 -- Sample Substance programs (more in file)
 sub0 = "Set A"
-sub1 = "OpenSet A"     
+sub1 = "OpenSet A"
 sub2 = "Set A\nOpenSet B"
 sub3 = "Set A\nOpenSet B\nSubset A B"
 
 -- test
 subSpecs = [sub0, sub1, sub2, sub3]
 subTest = subValidateAll subSpecs
-  
+
 -- specs for 3 continuous map diagrams can be found in continuousmap1.sub, etc.
 
 -- Substance parser
 -- TODO divide into decls and constraints for typechecking and reference checking
--- parsing human-written programs: extra spaces ok (words removes them). 
+-- parsing human-written programs: extra spaces ok (words removes them).
 -- extra newlines ok (filter empty lines out). HOWEVER, this is not ok for validation, as
 -- the pretty-printer does not add additional whitespace.
 subParse :: String -> SubSpec
@@ -83,12 +84,13 @@ subToLine s@[x, y] = LD $ Decl $
 
 -- TODO validate names exist in decls, are of type set
 -- TODO auto-gen parser from grammar
-subToLine s@[x, y, z] = LC $ 
+subToLine s@[x, y, z] = LC $
                    if x == "Intersect" then Intersect y z
                    else if x == "NoIntersect" then NoIntersect y z
                    else if x == "Subset" then Subset y z
                    else if x == "NoSubset" then NoSubset y z
                    else if x == "In" then PointIn y z -- TODO ^
+                   else if x == "NotIn" then PointNotIn y z
                    else error $ "Substance spec line: 3-token line '"
                      ++ show s ++ "' does not begin with (No)Intersect/Subset/In"
 
@@ -96,7 +98,7 @@ subToLine s@[w, x, y, z] = LD $ Decl $
                    if w == "Map" then OM (Map' x y z)
                    else error $ "Substance spec line: 4-token line '"
                        ++ show s ++ "' does not begin with Map"
-                   
+
 subToLine s = error $ "Substance spec line '" ++ show s ++ "' is not 2, 3, or 4 tokens"
 
 -- Pretty-printer for Substance AST
@@ -109,8 +111,9 @@ subPrettyPrintLine (LD (Decl decl)) = case decl of
                    OP (Pt' name) -> "Point " ++ name
                    OM (Map' x y z) -> "Map " ++ x ++ " " ++ y ++ " " ++ z
 subPrettyPrintLine (LC constr) = case constr of
-                     Subset s1 s2 -> "Subset " ++ s1 ++ " " ++ s2
-                     PointIn p s -> "In " ++ p ++ " " ++ s
+                     Subset s1 s2   -> "Subset " ++ s1 ++ " " ++ s2
+                     PointIn p s    -> "In " ++ p ++ " " ++ s
+                     PointNotIn p s -> "NotIn " ++ p ++ " " ++ s
 
 subPrettyPrint :: SubSpec -> String
 subPrettyPrint s = concat $ intersperse nl $ map subPrettyPrintLine s
@@ -160,7 +163,7 @@ data Direction = Horiz | Vert | Angle Float
 data SubShape = SS SetShape | SP PtShape | SM MapShape
      deriving (Show, Eq)
 
-data LineType = Solid | Dotted 
+data LineType = Solid | Dotted
      deriving (Show, Eq, Read)
 
 data Color = Red | Blue | Black | Yellow -- idk
@@ -178,8 +181,8 @@ data StyLevel = SubVal String | LabelOfSubVal String | SubType SubObjType | Glob
 type Opacity = Float -- 0 to 100%, TODO validate
 type Priority' = Float -- higher = higher priority
 
--- There are three different layers of Style: global setting (over all types), 
--- type setting (over all values of that type), and value setting. 
+-- There are three different layers of Style: global setting (over all types),
+-- type setting (over all values of that type), and value setting.
 -- The more specific ones implicitly override the more general ones.
 -- If there are two conflicting ones at the same level, the more recent one will be used for "everything"
 -- TODO more sophisticated system with scope
@@ -340,7 +343,7 @@ styPrettyPrint s = concat $ intersperse nl $ map styPrettyPrintLine s
 -- TODO try doing this w/o Style first? everything is compiled to a default style with default labels
 -- write out applying Style on top: applying global overrides, then by type, then by name
 -- going to need some kind of abstract intermediate type
--- figure out the intermediate subsets of the language I can support 
+-- figure out the intermediate subsets of the language I can support
   -- e.g. map requires me to draw arrows, don't support direction and priority for now
 -- how many objects I can support, e.g. A -> B -> C -> D requires scaling the size of each obj to fit on canvas
 -- how the optimization code needs to scale up to meet the needs of multiple objects (labels only?)
@@ -376,15 +379,15 @@ styt2 = "Color Set Blue 50\nLine OpenSet Dotted 1"
 -- if we do a demo entirely w/o optimization... is that easier? and how would I do it?
   -- layout algo (for initial state, at least): randomly place objs (sets, points) w/ no constraints
   -- or place aligned horizontally so they don't intersect, choose radius as fn of # unconstrained objs?
-  -- for constraints: for any set that's a subset of another, pick a smaller radius & place it inside that set. 
+  -- for constraints: for any set that's a subset of another, pick a smaller radius & place it inside that set.
   -- constraints: same for points (in fact, easier for points)--place it (at r/2, 45 degrees) inside that set
   -- there's no validation... a point/set could be in multiple sets?? assume not
   -- at this point we're almost hardcoding the diagram? not necessarily
   -- TODO actually hardcode the diagram in gloss; seeing the final representation will help
-  -- add'l constraint: all other objects should not intersect. use optimization to maintain exclusion? 
+  -- add'l constraint: all other objects should not intersect. use optimization to maintain exclusion?
 -- it seems likely that i'll get rid of the opt part for diagrams--might rewrite code instead of using opt code
 
--- BUT can I use opt for labels, given a fixed diagram state? 
+-- BUT can I use opt for labels, given a fixed diagram state?
   -- put all labels in center. set label is attracted to center or just-outside-or-inside border of set,
   -- point label is attracted to just-outside-point, map label attracted to center
   -- all labels repulsed from other objects and labels.
@@ -409,7 +412,7 @@ styt2 = "Color Set Blue 50\nLine OpenSet Dotted 1"
 data Circ = Circ { namec :: String
                  , xc :: Float
                  , yc :: Float
-                 , r :: Float } 
+                 , r :: Float }
      deriving (Eq, Show)
 
 data Label' = Label' { xl :: Float
