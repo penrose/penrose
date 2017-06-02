@@ -550,6 +550,7 @@ pointInFn names@[xname, yname] dict =
             (Just (P' pt), Just (C' set)) ->
                   tr "point in val: " $
                   noConstraint [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
+                --   pointInExt [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
             (_, _) -> error "point in not called on a point and a set, or 1+ doesn't exist" -- TODO check for None
 pointInFn _ _ = error "point in not called with 2 args"
 
@@ -606,8 +607,9 @@ genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
                     c1 = C $ Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = c1name, colorc = black }
                     -- TODO proper dimensions for labels
                     l1 = L $ Label { xl = -100, yl = -100,
-                                 wl = fromIntegral $ length sname, hl = textHeight,
-                                 textl = sname, sell = False, namel = l1name }
+                                     wl = textWidth * (fromIntegral (length sname)),
+                                     hl = textHeight,
+                                     textl = sname, sell = False, namel = l1name }
                     objs = [c1, l1]
                     weightedFns = [ (declSetObjfn [c1name], defaultWeight),
                                     (declLabelObjfn [c1name, l1name], defaultWeight) ]
@@ -616,8 +618,9 @@ genObjsAndFns (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
               where (p1name, l1name) = (pname, labelName pname)
                     p1 = P $ Pt { xp = 100, yp = 100, selp = False, namep = p1name }
                     l1 = L $ Label { xl = -100, yl = -100,
-                                 wl = fromIntegral $ length pname, hl = textHeight,
-                                 textl = pname, sell = False, namel = l1name }
+                                     wl = textWidth * (fromIntegral (length pname)),
+                                     hl = textHeight,
+                                     textl = pname, sell = False, namel = l1name }
                     objs = [p1, l1]
                     weightedFns = [ (declPtObjfn [p1name], defaultWeight),
                                     (declLabelObjfn [p1name, l1name], defaultWeight) ]
@@ -742,12 +745,13 @@ colorRange  = (cmin, cmax)
 
 ------------- The "Style" layer: render the state of the world.
 renderCirc :: Circ -> Picture
-renderCirc c = color scolor $ translate (xc c) (yc c) $
-        -- circle (r c)
-        thickCircle (0.5 * (r c)) $ (r c)
-        where scolor = colorc c
-        -- where scolor = makeColor 1 0.5 0.5 0.5
-            -- if selected l then green else light violet
+renderCirc c = if selected c
+               then let (r', g', b', a') = rgbaOfColor $ colorc c in
+                    color (makeColor r' g' b' (a' / 2)) $ translate (xc c) (yc c) $
+                    circleSolid (r c)
+               else color (colorc c) $ translate (xc c) (yc c) $
+                    circleSolid (r c)
+
 
 -- fix to the centering problem of labels, assumeing:
 -- (1) monospaced font; (2) at least a chracter of max height is in the label string
@@ -755,9 +759,10 @@ labelScale, textWidth, textHeight :: Float
 textWidth  = 104.76 * 0.5 -- Half of that of the monospaced version
 textHeight = 119.05
 labelScale = 0.2
+
 label_offset_x, label_offset_y :: String -> Float -> Float
-label_offset_x str x = (x - (textWidth*labelScale*0.5*(fromIntegral (length str))))
-label_offset_y str y = (y - labelScale*textHeight/2)
+label_offset_x str x = x - (textWidth * labelScale * 0.5 * (fromIntegral (length str)))
+label_offset_y str y = y - labelScale * textHeight * 0.5
 
 renderLabel :: Label -> Picture
 renderLabel l = color scolor $
@@ -766,12 +771,12 @@ renderLabel l = color scolor $
             (label_offset_y (textl l) (yl l)) $
             scale labelScale labelScale $
             text (textl l)
-            where scolor = if selected l then green else light violet
+            where scolor = if selected l then red else light black
 
 renderPt :: Pt -> Picture
 renderPt p = color scalar $ translate (xp p) (yp p)
-             $ thickCircle 2 4
-             where scalar = if selected p then green else black
+             $ circleSolid ptRadius
+             where scalar = if selected p then red else black
 
 renderObj :: Obj -> Picture
 renderObj (C circ)  = renderCirc circ
@@ -837,7 +842,6 @@ sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                                   (cb', gen6) = randomR colorRange  gen5
                                   in
                               (C $ circ { r = r', colorc = makeColor cr' cg' cb' 0.5 }, gen6)
-                            --   (C $ circ { r = r'}, gen3)
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
 
@@ -867,6 +871,7 @@ sampleConstrainedState gen shapes = (state', gen')
 -- Whenever the library receives an input event, it calls "handler" with that event
 -- and the current state of the world to handle it.
 
+ptRadius = 4 -- The size of a point on canvas
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
@@ -879,8 +884,15 @@ distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
 -- Hardcode bbox of label at the center
 -- TODO properly get bbox; rn text is centered at bottom left
 inObj :: (Float, Float) -> Obj -> Bool
-inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
+
+inObj (xm, ym) (L o) =
+    -- abs (xm - (label_offset_x (textl o) (xl o))) <= 0.5 * (wl o) &&
+    -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.5 * (hl o) -- is label
+    abs (xm - (xl o)) <= 0.5 * (wl o) &&
+    abs (ym - (yl o)) <= 0.5 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
+inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
+
 
 -- check convergence of EP method
 epDone :: State -> Bool
@@ -1656,6 +1668,9 @@ strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (max s2 s1 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersectExt :: PairConstrV a
 noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2
+
+pointInExt :: PairConstrV a
+pointInExt [[x1, y1], [x2, y2, r]] = max 0 $ dist (x1, y1) (x2, y2) - r
 
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a
