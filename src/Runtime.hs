@@ -1,4 +1,4 @@
-{-# LANGUAGE RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
 -- for autodiff, requires passing in a polymorphic fn
 
 -- module Runtime where
@@ -80,7 +80,6 @@ picHeight :: Int
 picHeight = 700
 
 stepsPerSecond :: Int
--- stepsPerSecond = 10000
 stepsPerSecond = 10000
 
 calcTimestep :: Float -- for use in forcing stepping in handler
@@ -116,7 +115,8 @@ data Circ = Circ { xc :: Float
                  , yc :: Float
                  , r :: Float
                  , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
-                 , namec :: String }
+                 , namec :: String
+                 , colorc :: Color }
      deriving (Eq, Show)
 
 instance Located Circ where
@@ -171,33 +171,63 @@ instance Named Label where
          getName l = namel l
          setName x l = l { namel = x }
 
-data Obj = C Circ | L Label deriving (Eq, Show)
+------
+
+data Pt = Pt { xp :: Float
+             , yp :: Float
+             , selp :: Bool
+             , namep :: String }
+     deriving (Eq, Show)
+
+instance Located Pt where
+         getX p = xp p
+         getY p = yp p
+         setX x p = p { xp = x }
+         setY y p = p { yp = y }
+
+instance Selectable Pt where
+         select   x = x { selp = True }
+         deselect x = x { selp = False }
+         selected x = selp x
+
+instance Named Pt where
+         getName p   = namep p
+         setName x p = p { namep = x }
+
+data Obj = C Circ | L Label | P Pt deriving (Eq, Show)
 
 -- is there some way to reduce the top-level boilerplate?
 instance Located Obj where
          getX o = case o of
                  C c -> getX c
                  L l -> getX l
+                 P p -> getX p
          getY o = case o of
                  C c -> getY c
                  L l -> getY l
+                 P p -> getY p
          setX x o = case o of
                 C c -> C $ setX x c
                 L l -> L $ setX x l
+                P p -> P $ setX x p
          setY y o = case o of
                 C c -> C $ setY y c
                 L l -> L $ setY y l
+                P p -> P $ setY y p
 
 instance Selectable Obj where
          select x = case x of
                 C c -> C $ select c
                 L l -> L $ select l
+                P p -> P $ select p
          deselect x = case x of
                 C c -> C $ deselect c
                 L l -> L $ deselect l
+                P p -> P $ deselect p
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
+                P p -> selected p
 
 instance Sized Obj where
          getSize o = case o of
@@ -211,9 +241,11 @@ instance Named Obj where
          getName o = case o of
                  C c -> getName c
                  L l -> getName l
+                 P p -> getName p
          setName x o = case o of
                 C c -> C $ setName x c
                 L l -> L $ setName x l
+                P p -> P $ setName x p
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show)
 
@@ -262,10 +294,12 @@ unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
+-- the location of a point varies
+unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
 
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [[(a, Annotation)]]
-unpackAnnotate objs = map unpackObj objs 
+unpackAnnotate objs = map unpackObj objs
 
 -- TODO check it preserves order
 splitFV :: (Floating a, Real a, Show a, Ord a) => [(a, Annotation)] -> (Fixed a, Varying a)
@@ -284,7 +318,7 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 
 ---------------------- Packing
 
--- We put `Floating a` into polymorphic objects for the autodiff. 
+-- We put `Floating a` into polymorphic objects for the autodiff.
 -- (Maybe port all objects to polymorphic at some point, but would need to zero the gradient information.)
 -- Can't use realToFrac here because it will zero the gradient information.
 -- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
@@ -293,7 +327,8 @@ data Circ' a = Circ' { xc' :: a
                      , yc' :: a
                      , r' :: a
                      , selc' :: Bool -- is the circle currently selected? (mouse is dragging it)
-                     , namec' :: String }
+                     , namec' :: String
+                     , colorc' :: Color }
                      deriving (Eq, Show)
 
 data Label' a = Label' { xl' :: a
@@ -306,6 +341,12 @@ data Label' a = Label' { xl' :: a
                        , namel' :: String }
                        deriving (Eq, Show)
 
+data Pt' a = Pt' { xp' :: a
+                 , yp' :: a
+                 , selp' :: Bool
+                 , namep' :: String }
+                 deriving (Eq, Show)
+
 instance Named (Circ' a) where
          getName c = namec' c
          setName x c = c { namec' = x }
@@ -314,21 +355,32 @@ instance Named (Label' a) where
          getName l = namel' l
          setName x l = l { namel' = x }
 
+instance Named (Pt' a) where
+         getName p = namep' p
+         setName x p = p { namep' = x }
+
 instance Named (Obj' a) where
          getName o = case o of
                  C' c -> getName c
                  L' l -> getName l
+                 P' p -> getName p
          setName x o = case o of
                 C' c -> C' $ setName x c
                 L' l -> L' $ setName x l
+                P' p -> P' $ setName x p
 
-data Obj' a = C' (Circ' a) | L' (Label' a) deriving (Eq, Show)
+data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) deriving (Eq, Show)
 
 -- TODO comment packing these functions defining conventions
 circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
-circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir }
+circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
          where (xc1, yc1, r1) = if not $ length params == 3 then error "wrong # params to pack circle"
-                                else (params !! 0, params !! 1, params !! 2) 
+                                else (params !! 0, params !! 1, params !! 2)
+
+ptPack :: (Real a, Floating a, Show a, Ord a) => Pt -> [a] -> Pt' a
+ptPack pt params = Pt' { xp' = xp1, yp' = yp1, namep' = namep pt, selp' = selp pt }
+        where (xp1, yp1) = if not $ length params == 2 then error "Wrong # of params to pack point"
+                           else (params !! 0, params !! 1)
 
 labelPack :: (Real a, Floating a, Show a, Ord a) => Label -> [a] -> Label' a
 labelPack lab params = Label' { xl' = xl1, yl' = yl1, wl' = wl1, hl' = hl1,
@@ -342,7 +394,7 @@ labelPack lab params = Label' { xl' = xl1, yl' = yl1, wl' = wl1, hl' = hl1,
 yoink :: (Show a) => [Annotation] -> Fixed a -> Varying a -> ([a], Fixed a, Varying a)
 yoink annotations fixed varying = --trace ("yoink " ++ (show annotations) ++ (show fixed) ++ (show varying)) $
       case annotations of
-       [] -> ([], fixed, varying) 
+       [] -> ([], fixed, varying)
        (Fix : annotations') -> let (params, fixed', varying') = yoink annotations' (tail fixed) varying in
                                (head fixed : params, fixed', varying')
        (Vary : annotations') -> let (params, fixed', varying') = yoink annotations' fixed (tail varying) in
@@ -350,10 +402,10 @@ yoink annotations fixed varying = --trace ("yoink " ++ (show annotations) ++ (sh
 
 -- used inside overall objective fn to turn (fixed, varying) back into a list of objects
 -- for inner objective fns to operate on
--- pack is partially applied with the annotations, which never change 
+-- pack is partially applied with the annotations, which never change
 -- (the annotations assume the state never changes size or order)
 pack :: (Real a, Floating a, Show a, Ord a) => [[Annotation]] -> [Obj] -> Fixed a -> Varying a -> [Obj' a]
-pack annotations objs = pack' (zip objs annotations) 
+pack annotations objs = pack' (zip objs annotations)
 
 pack' :: (Real a, Floating a, Show a, Ord a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj' a]
 pack' zipped fixed varying =
@@ -368,9 +420,11 @@ pack' zipped fixed varying =
                  -- pack objects using the names, text params carried from initial state
                  -- assuming names do not change during opt
                     C circ -> -- trace ("circ: " ++ (show $ length flatParams)) $
-                              C' $ circPack circ flatParams 
+                              C' $ circPack circ flatParams
                     L label -> -- trace ("label: " ++ (show $ length flatParams)) $
                               L' $ labelPack label flatParams
+                    P pt ->
+                              P' $ ptPack pt flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
@@ -397,13 +451,17 @@ centerLabel [main, label] dict = case (M.lookup main dict, M.lookup label dict) 
                             (Just (C' c), Just (L' l)) ->
                                     let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
                                     (cx - lx)^2 + (cy - ly)^2
+                            (Just (P' p), Just (L' l)) ->
+                                    let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
+                                    (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
                             (_, _) -> error "invalid selectors in centerLabel"
 centerLabel _ _ = error "centerLabel not called with 1 arg"
 
-------- Ambient objective functions 
+
+------- Ambient objective functions
 
 -- no names specified; can apply to any combination of objects in M.Map
-type AmbientObjFn a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a 
+type AmbientObjFn a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
 
 -- if there are no circles, doesn't do anything
 -- TODO fix in case there's only 1 circle?
@@ -419,7 +477,7 @@ circlesCenterAndRepel objMap = let (fix, vary) = circParams objMap in
 
 circlesCenter :: AmbientObjFn a
 circlesCenter objMap = let (fix, vary) = circParams objMap in
-                       centerObjs fix vary                      
+                       centerObjs fix vary
 
 -- pairwiseRepel :: [Obj] -> Float
 -- pairwiseRepel objs = sumMap pairRepel $ allPairs objs
@@ -443,6 +501,10 @@ type ConstraintFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] ->
 
 defaultCWeight :: Floating a => a
 defaultCWeight = 1
+
+-- TODO: should points also have a weight of 1?
+defaultPWeight :: Floating a => a
+defaultPWeight = 1
 
 -- TODO get rid of lookup boilerplate
 
@@ -481,7 +543,26 @@ noIntersectFn names@[xname, yname] dict =
                   noIntersectExt [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
             (_, _) -> error "no intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
 noIntersectFn _ _ = error "no intersect not called with 2 args"
-         
+
+-- TODO: consider refactoring here
+pointInFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+pointInFn names@[xname, yname] dict =
+          case (M.lookup xname dict, M.lookup yname dict) of
+            (Just (P' pt), Just (C' set)) ->
+                  tr "point in val: " $
+                  pointInExt [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
+            (_, _) -> error "point in not called on a point and a set, or 1+ doesn't exist" -- TODO check for None
+pointInFn _ _ = error "point in not called with 2 args"
+
+pointNotInFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+pointNotInFn names@[xname, yname] dict =
+          case (M.lookup xname dict, M.lookup yname dict) of
+            (Just (P' pt), Just (C' set)) ->
+                  tr "point in val: " $
+                  pointNotInExt [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
+            (_, _) -> error "point in not called on a point and a set, or 1+ doesn't exist" -- TODO check for None
+pointNotInFn _ _ = error "point in not called with 2 args"
+
 toPenalty :: (Floating a, Real a, Show a, Ord a) => (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
 toPenalty f = \dict -> penalty $ f dict
 
@@ -495,7 +576,9 @@ genConstrFn (C.Intersect xname yname) = [ (toPenalty $ intersectFn [xname, yname
 genConstrFn (C.NoIntersect xname yname) = [ (toPenalty $ noIntersectFn [xname, yname], defaultCWeight) ]
 genConstrFn (C.Subset inName outName) = [ (toPenalty $ subsetFn [inName, outName], defaultCWeight) ]
 genConstrFn (C.NoSubset inName outName) = [ (toPenalty $ noSubsetFn [inName, outName], defaultCWeight) ]
-genConstrFn (C.PointIn pname sname) = error "constraints on points in spec not yet supported"
+-- genConstrFn (C.PointIn pname sname) = error "constraints on points in spec not yet supported"
+genConstrFn (C.PointIn pname sname) = [ (toPenalty $ pointInFn [pname, sname], defaultPWeight) ]
+genConstrFn (C.PointNotIn pname sname) = [ (toPenalty $ pointNotInFn [pname, sname], defaultPWeight) ]
 
 genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
                 [C.SubConstr] -> [(M.Map Name (Obj' a) -> a, Weight a)]
@@ -516,6 +599,9 @@ objFnOnNone names map = 0
 declSetObjfn :: ObjFnOn a
 declSetObjfn = objFnOnNone -- centerCirc
 
+declPtObjfn :: ObjFnOn a
+declPtObjfn = objFnOnNone -- centerCirc
+
 declLabelObjfn :: ObjFnOn a
 declLabelObjfn = centerLabel -- objFnOnNone
 
@@ -527,14 +613,28 @@ genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
                   C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
               where (c1name, l1name) = (sname, labelName sname)
-                    c1 = C $ Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = c1name }
+                    c1 = C $ Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = c1name, colorc = black }
                     -- TODO proper dimensions for labels
-                    l1 = L $ Label { xl = -100, yl = -100, wl = 50, hl = 50, textl = sname,
-                                 sell = False, namel = l1name }
+                    l1 = L $ Label { xl = -100, yl = -100,
+                                     wl = textWidth * (fromIntegral (length sname)),
+                                     hl = textHeight,
+                                     textl = sname, sell = False, namel = l1name }
                     objs = [c1, l1]
                     weightedFns = [ (declSetObjfn [c1name], defaultWeight),
                                     (declLabelObjfn [c1name, l1name], defaultWeight) ]
-genObjsAndFns (C.Decl (C.OP (C.Pt' _))) = error "points not yet supported"
+-- TODO: consider refactoring the code using case?
+genObjsAndFns (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
+              where (p1name, l1name) = (pname, labelName pname)
+                    p1 = P $ Pt { xp = 100, yp = 100, selp = False, namep = p1name }
+                    l1 = L $ Label { xl = -100, yl = -100,
+                                     wl = textWidth * (fromIntegral (length pname)),
+                                     hl = textHeight,
+                                     textl = pname, sell = False, namel = l1name }
+                    objs = [p1, l1]
+                    weightedFns = [ (declPtObjfn [p1name], defaultWeight),
+                                    (declLabelObjfn [p1name, l1name], defaultWeight) ]
+
+    -- error "points not yet supported"
 genObjsAndFns (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
 
 genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
@@ -544,30 +644,30 @@ genAllObjsAndFns decls = let (objss, fnss) = unzip $ map genObjsAndFns decls in
                          (concat objss, concat fnss)
 
 dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
-dictOf = foldr addObj M.empty 
+dictOf = foldr addObj M.empty
        where addObj o dict = M.insert (getName o) o dict
 
 -- constant b/c ambient fn value seems to be 10^4 and constr value seems to reach only 10, 10^2
 constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
-       
+
 -- TODO should take list of current objects as parameter, and be partially applied with that
--- first param: list of parameter annotations for each object in the state 
+-- first param: list of parameter annotations for each object in the state
 -- assumes that the state's SIZE and ORDER never change
 genObjFn :: (Real a, Floating a, Show a, Ord a) =>
-         [[Annotation]] 
+         [[Annotation]]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
          -> [Obj] -> a -> [a] -> [a] -> a
 genObjFn annotations objFns ambientObjFns constrObjFns =
          \currObjs penaltyWeight fixed varying ->
-         let newObjs = pack annotations currObjs fixed varying in 
+         let newObjs = pack annotations currObjs fixed varying in
          -- note: CANNOT do dict -> list because that destroys the order
          let objDict = dictOf newObjs in
            sumMap (\(f, w) -> w * f objDict) objFns
          + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
-         + (tr "constr fn value: " 
+         + (tr "constr fn value: "
                (constrWeight * penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns))
          -- factor out weight application?
 
@@ -575,7 +675,7 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
 -- TODO: **must** manually change this constraint if you change the constr function for EP
 -- needs constr to be violated
 constraint = if constraintFlag then (not . noneOverlap) else \x -> True
-         
+
 -- generate all objects and the overall objective function
 -- style program is currently unused
 -- TODO adjust weights of all functions
@@ -643,22 +743,54 @@ ph2 = picHeight `divf` 2
 ph2' :: Floating a => a
 ph2' = realToFrac ph2
 
-widthRange = (-pw2, pw2)
+cmax, cmin :: Float
+cmax = 1.0
+cmin = 0.0
+
+widthRange  = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 radiusRange = (0, picWidth `divf` 6)
+colorRange  = (cmin, cmax)
 
 ------------- The "Style" layer: render the state of the world.
 renderCirc :: Circ -> Picture
-renderCirc c = color scolor $ translate (xc c) (yc c) $ circle (r c)
-           where scolor = if selected c then green else light violet
+renderCirc c = if selected c
+               then let (r', g', b', a') = rgbaOfColor $ colorc c in
+                    color (makeColor r' g' b' (a' / 2)) $ translate (xc c) (yc c) $
+                    circleSolid (r c)
+               else color (colorc c) $ translate (xc c) (yc c) $
+                    circleSolid (r c)
+
+
+-- fix to the centering problem of labels, assumeing:
+-- (1) monospaced font; (2) at least a chracter of max height is in the label string
+labelScale, textWidth, textHeight :: Float
+textWidth  = 104.76 * 0.5 -- Half of that of the monospaced version
+textHeight = 119.05
+labelScale = 0.2
+
+label_offset_x, label_offset_y :: String -> Float -> Float
+label_offset_x str x = x - (textWidth * labelScale * 0.5 * (fromIntegral (length str)))
+label_offset_y str y = y - labelScale * textHeight * 0.5
 
 renderLabel :: Label -> Picture
-renderLabel l = color scolor $ translate (xl l) (yl l) $ scale 0.2 0.2 $ text (textl l)
-            where scolor = if selected l then green else light violet
+renderLabel l = color scolor $
+            translate
+            (label_offset_x (textl l) (xl l))
+            (label_offset_y (textl l) (yl l)) $
+            scale labelScale labelScale $
+            text (textl l)
+            where scolor = if selected l then red else light black
+
+renderPt :: Pt -> Picture
+renderPt p = color scalar $ translate (xp p) (yp p)
+             $ circleSolid ptRadius
+             where scalar = if selected p then red else black
 
 renderObj :: Obj -> Picture
-renderObj (C circ) = renderCirc circ
+renderObj (C circ)  = renderCirc circ
 renderObj (L label) = renderLabel label
+renderObj (P pt)    = renderPt pt
 
 picOfState :: State -> Picture
 picOfState s = Pictures $ map renderObj (objs s)
@@ -669,8 +801,8 @@ picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, para
     where -- TODO display constraint instead of hardcoding
           -- (picture for bounding box for bound constraints)
           -- constraints are currently global params
-          lineXbot = color red $ Line [(leftb, botb), (rightb, botb)] 
-          lineXtop = color red $ Line [(leftb, topb), (rightb, topb)] 
+          lineXbot = color red $ Line [(leftb, botb), (rightb, botb)]
+          lineXtop = color red $ Line [(leftb, topb), (rightb, topb)]
           lineYbot = color red $ Line [(leftb, botb), (leftb, topb)]
           lineYtop = color red $ Line [(rightb, botb), (rightb, topb)]
 
@@ -713,10 +845,16 @@ crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drops gens
 sampleCoord :: RandomGen g => g -> Obj -> (Obj, g)
 sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                     case o_loc of
-                    C circ -> let (r', gen3) = randomR radiusRange gen2 in
-                              (C $ circ { r = r'}, gen3)
+                    C circ -> let (r',  gen3) = randomR radiusRange gen2
+                                  (cr', gen4) = randomR colorRange  gen3
+                                  (cg', gen5) = randomR colorRange  gen4
+                                  (cb', gen6) = randomR colorRange  gen5
+                                  in
+                              (C $ circ { r = r', colorc = makeColor cr' cg' cb' 0.5 }, gen6)
                     L lab -> (o_loc, gen2) -- only sample location
-        where (x', gen1) = randomR widthRange gen
+                    P pt  -> (o_loc, gen2)
+
+        where (x', gen1) = randomR widthRange  gen
               (y', gen2) = randomR heightRange gen1
 
 -- sample each object independently, threading thru gen
@@ -742,6 +880,7 @@ sampleConstrainedState gen shapes = (state', gen')
 -- Whenever the library receives an input event, it calls "handler" with that event
 -- and the current state of the world to handle it.
 
+ptRadius = 4 -- The size of a point on canvas
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
@@ -754,8 +893,16 @@ distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
 -- Hardcode bbox of label at the center
 -- TODO properly get bbox; rn text is centered at bottom left
 inObj :: (Float, Float) -> Obj -> Bool
-inObj (xm, ym) (L o) = abs (xm - getX o) <= bbox && abs (ym - getY o) <= bbox -- is label
+
+-- TODO: this is NOT an accurate BBox at all. Good for selection though
+inObj (xm, ym) (L o) =
+    abs (xm - (xl o)) <= 0.1 * (wl o) &&
+    abs (ym - (yl o)) <= 0.1 * (hl o) -- is label
+    -- abs (xm - (label_offset_x (textl o) (xl o))) <= 0.25 * (wl o) &&
+    -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
+inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
+
 
 -- check convergence of EP method
 epDone :: State -> Bool
@@ -805,7 +952,7 @@ handler (EventKey (Char 'r') Up _ _) s =
 handler (EventKey (Char 'a') Up _ _) s = if autostep s then s { autostep = False }
                                          else s { autostep = True }
 
--- pressing 's' (down) while autostep is off will step the optimization once, overriding the step function 
+-- pressing 's' (down) while autostep is off will step the optimization once, overriding the step function
 -- (which doesn't step if autostep is off). this is the same code as the step function but with reverse condition
 -- if autostep is on, this does nothing
 -- also overrides EP done: forces a step (might want this to test if there substantial steps left after convergence, e.g. if magnitude of gradient is still large)
@@ -842,7 +989,7 @@ clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 clampY :: Float -> Float
 clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 
-minSize :: Float 
+minSize :: Float
 minSize = 5
 
 clampSize :: Float -> Float -- TODO assumes the size is a radius
@@ -901,7 +1048,7 @@ type Constraints = [(Int, (Double, Double))]
 
 -- for each element, if there's a constraint on it (by index), project it onto the interval
 -- lookInAndProj :: Constraints -> (Int, Double) -> [Double] -> [Double]
--- lookInAndProj constraints (index, x) acc = 
+-- lookInAndProj constraints (index, x) acc =
 --               case (Map.lookup index constraintsMap) of
 --               Just bounds -> projCoordInterval bounds x : acc
 --               Nothing     -> x : acc
@@ -913,7 +1060,7 @@ type Constraints = [(Int, (Double, Double))]
 --             let indexedState = zip [0..] state in
 --             foldr (lookInAndProj constraints) [] indexedState
 
--------- Step the world by one timestep (provided by the library). 
+-------- Step the world by one timestep (provided by the library).
 -- this function actually ignores the input timestep, because line search calculates the appropriate timestep to use,
 -- but it's left in, in case we want to debug the line search.
 -- gloss operates on floats, but the optimization code should be done with doubles, so we
@@ -944,7 +1091,7 @@ objsSizes :: [a] -> [a]
 objsSizes = map (\[x, y, s] -> s) . objsInfo
 ----
 
--- convergence criterion for EP 
+-- convergence criterion for EP
 -- if you want to use it for UO, needs a different epsilon
 epStopCond :: (Floating a, Ord a, Show a) => [a] -> [a] -> a -> a -> Bool
 epStopCond x x' fx fx' =
@@ -960,7 +1107,7 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
             (norm gradEval <= stopEps)
 
 -- unpacks all objects into a big state vector, steps that state, and repacks the new state into the objects
--- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of 
+-- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
 
 -- don't use r2f outside of zeroGrad or addGrad, since it doesn't interact well w/ autodiff
@@ -970,9 +1117,11 @@ r2f = realToFrac
 -- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
 zeroGrad :: (Real a, Floating a, Show a, Ord a) => Obj' a -> Obj
 zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
-                             selc = selc' c, namec = namec' c }
+                             selc = selc' c, namec = namec' c, colorc = colorc' c }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
                               textl = textl' l, sell = sell' l, namel = namel' l }
+zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
+                           namep = namep' p }
 
 zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
@@ -980,9 +1129,11 @@ zeroGrads = map zeroGrad
 -- Add the grad info by generalizing Obj (on Floats) to polymorphic objects (for autodiff to use)
 addGrad :: (Real a, Floating a, Show a, Ord a) => Obj -> Obj' a
 addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
-                             selc' = selc c, namec' = namec c }
+                             selc' = selc c, namec' = namec c, colorc' = colorc c }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
+addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
+                           namep' = namep p }
 
 addGrads :: (Real a, Floating a, Show a, Ord a) => [Obj] -> [Obj' a]
 addGrads = map addGrad
@@ -1008,7 +1159,7 @@ stepObjs t sParams objs =
            -- let unconstrConverged = optStopCond gradEval in
            let unconstrConverged = epStopCond stateVarying stateVarying'
                                    (objFnApplied stateVarying) (objFnApplied stateVarying') in
-           if unconstrConverged then 
+           if unconstrConverged then
               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
               (objs', sParams { optStatus = status'}) -- note objs' (UO converged), not objs
            else (objs', sParams) -- update UO state but not EP state; UO still running
@@ -1021,15 +1172,15 @@ stepObjs t sParams objs =
                                      $ addGrads lastEPstate in -- TODO factor out
            let epConverged = epStopCond epStateVarying stateVarying -- stateV is last state for converged UO
                                    (objFnApplied epStateVarying) (objFnApplied stateVarying) in
-           if epConverged then 
+           if epConverged then
               let status' = EPConverged in -- no more EP state
               (objs, sParams { optStatus = status'}) -- do not update UO state
            -- update EP state: to be the converged state from the most recent UO
            else let status' = UnconstrainedRunning $ EPstate objs in -- increase weight
-                (objs, sParams { weight = weightGrowth * epWeight, optStatus = status' }) 
+                (objs, sParams { weight = weightGrowth * epWeight, optStatus = status' })
 
          -- done; don't update obj state or params; user can now manipulate
-         EPConverged -> (objs, sParams) 
+         EPConverged -> (objs, sParams)
 
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
@@ -1041,14 +1192,14 @@ stepObjs t sParams objs =
               -- re-pack each object's state list into object
               objs' = zeroGrads $ pack (annotations sParams) objs fixed stateVarying'
 
--- Given the time, state, and evaluated gradient (or other search direction) at the point, 
+-- Given the time, state, and evaluated gradient (or other search direction) at the point,
 -- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
 -- not gloss's `Float`
 stepT :: Floating a => a -> a -> a -> a
 stepT dt x dfdx = x - dt * dfdx
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
--- and timestep (via line search), then using them to step the current state. 
+-- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
 stepWithObjective :: (RealFloat a, Real a, Floating a, Ord a, Show a) =>
                   [Obj] -> [a] -> Params -> a -> [a] -> ([a], [a] -> a, [a])
@@ -1092,7 +1243,7 @@ removeInf = map removeInf'
 
 tupMap :: (a -> b) -> (a, a) -> (b, b)
 tupMap f (a, b) = (f a, f b)
-             
+
 ----- Lists-as-vectors utility functions, TODO split out of file
 
 -- define operator precedence: higher precedence = evaluated earlier
@@ -1200,7 +1351,7 @@ awLineSearch f duf_noU descentDir x0 =
                        else tr' "b' = infinity" (a', b', 2 * a')
                 intervalOK_or_notArmijoAndWolfe (a, b, t) = not $
                       if armijo t && weakWolfe t then -- takes precedence
-                           tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True 
+                           tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True
                       else if abs (b - a) < minInterval then
                            tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
                       else False -- could be shorter; long for debugging purposes
@@ -1212,16 +1363,16 @@ awLineSearch f duf_noU descentDir x0 =
                                 descentDir' = descentDir --tr' "descentDir" descentDir
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
                 fAtx0 =f x0 -- TODO debug why NaN. even using removeNaN' didn't help
-                minInterval = if intervalMin then 10 ** (-10) else 0 
+                minInterval = if intervalMin then 10 ** (-10) else 0
                 -- stop if the interval gets too small; might not terminate
 
 ------------- Initial states
 
 -- initial states
-s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False, namec = "A" }
-s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False, namec = "A" }
-s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False, namec = "A" }
-s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False, namec = "A" }
+s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False, namec = "A" , colorc = black }
+s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False, namec = "A", colorc = black }
+s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False, namec = "A" , colorc = black}
+s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False, namec = "A", colorc = black }
 
 -- if objects start at exactly the same position, there may be problems
 -- note: widths, heights, and names of labels below are not accurate b/c not generated by compiler
@@ -1239,7 +1390,7 @@ state2 = [s1, s2]
 state3 = [s1, s2, s3]
 state4 = [s1, s2, s3, s4]
 -- they're all the same size and in the same place for this state generator, so it looks like one circle
-staten n = take n $ repeat s3 
+staten n = take n $ repeat s3
 statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) in objs'
 
 -- TODO gen state with more labels
@@ -1267,7 +1418,8 @@ type ObjFnPenaltyState a = forall a . (Show a, Floating a, Ord a, Real a) => [Ob
 objFnPenalty :: ObjFnPenalty a
 objFnPenalty weight = combineObjfns objFnUnconstrained weight
              where objFnUnconstrained :: Floating a => ObjFn2 a
-                   objFnUnconstrained = centerObjs -- centerAndRepel
+                --    objFnUnconstrained = centerObjs -- centerAndRepel
+                   objFnUnconstrained = centerAndRepel
 
 -- if the list of constraints is empty, it behaves as unconstrained optimization
 boundConstraints :: Constraints
@@ -1287,10 +1439,10 @@ initWeight = 10 ** (-5)
 
 -- Flags for debugging the surrounding functions.
 clampflag = False
-debug = True
+debug = False
 debugLineSearch = True
 debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = True
+constraintFlag = False
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = False -- TODO need to implement constraint fn synthesis
 
@@ -1346,7 +1498,7 @@ sumMap f l = sum $ map f l
 
 -- x-coord of first object's center in [-300,-200], y-coord of first object's center in [0, 200]
 first_two_objs_box :: Constraints
-first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))] 
+first_two_objs_box = [(0, (-300, -100)), (1, (0, 200)), (4, (100, 300)), (5, (-100, -400))]
 
 -------------- Objective functions
 
@@ -1360,7 +1512,7 @@ centerObjNoSqrt _ (x1 : y1 : _) = x1^2 + y1^2 -- sum $
 
 -- center both objects without sqrt
 centerObjsNoSqrt :: ObjFn2 a
-centerObjsNoSqrt _ = sumMap (^2) 
+centerObjsNoSqrt _ = sumMap (^2)
 
 centerx1Sqrt :: ObjFn2 a -- discontinuous, timestep = 100 * t. autodiff behaves differently for this vs abs
 centerx1Sqrt _ (x1 : _) = sqrt $ x1^2
@@ -1441,12 +1593,12 @@ eps' = 60 -- why is this 100??
 -- (i could try making the first one bigger and solving for the new intersection pt if i want the threshold
 -- to be greater than (r + margin)/2
 
--- note: whenever an objective function has a partial derivative that might be fractional, 
+-- note: whenever an objective function has a partial derivative that might be fractional,
 -- and vary in the denominator, need to add epsilon to denominator to avoid 1/0, or avoid it altogether
 -- e.g. f(x) = sqrt(x) -> f'(x) = 1/(2sqrt(x))
--- in the first branch, we square the distance, because the objective there is to minimize the distance (resulting in 1/0). 
+-- in the first branch, we square the distance, because the objective there is to minimize the distance (resulting in 1/0).
 -- in the second branch, the objective is to keep the distance at (r_set + margin), not at 0--so there’s no NaN in the denominator
-centerOrRadParabola2 :: Bool -> ObjFn2 a 
+centerOrRadParabola2 :: Bool -> ObjFn2 a
 centerOrRadParabola2 inSet [r_set, _] [x1, y1, x2, y2] =
                      if dsq <= r_set^2 then dsq
                      else (if inSet then dsq else coeff * (d - const)^2) -- false -> can lay it outside as well
@@ -1459,9 +1611,9 @@ centerOrRadParabola2 inSet [r_set, _] [x1, y1, x2, y2] =
 
 -- NOTE: assumes that object and label are exactly contiguous in list: sizes of [o1, l1, o2, l2...]
 -- and locs: [x_o1, y_o1, x_l1, y_l1, x_o2, y_o2, x_l2, y_l2...]
--- TODO abstract out repelDist / labelSum pattern 
+-- TODO abstract out repelDist / labelSum pattern
 labelSum :: Bool -> ObjFn2 a
-labelSum inSet objLabelSizes objLabelLocs = 
+labelSum inSet objLabelSizes objLabelLocs =
                let objLabelSizes' = chunksOf 2 objLabelSizes in
                let objLabelLocs' = chunksOf 4 objLabelLocs in
                sumMap (\(sizes, locs) -> centerOrRadParabola2 inSet sizes locs) (zip objLabelSizes' objLabelLocs')
@@ -1494,7 +1646,7 @@ centerRepelLabel olSizes olLocs =
 
 -- PAIRWISE constraint functions that return the magnitude of violation
 -- same type as ObjFn2; more general than PairConstrV
-type StateConstrV a = forall a . (Floating a, Ord a, Show a) => [a] -> [a] -> a 
+type StateConstrV a = forall a . (Floating a, Ord a, Show a) => [a] -> [a] -> a
 type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
 
 noConstraint :: PairConstrV a
@@ -1527,6 +1679,12 @@ strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (max s2 s1 
 noIntersectExt :: PairConstrV a
 noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2
 
+pointInExt :: PairConstrV a
+pointInExt [[x1, y1], [x2, y2, r]] = dist (x1, y1) (x2, y2) - 0.5 * r
+
+pointNotInExt :: PairConstrV a
+pointNotInExt [[x1, y1], [x2, y2, r]] = - dist (x1, y1) (x2, y2) + r
+
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a
 penalty x = (max x 0) ^ q -- weights should get progressively larger in cr_dist
@@ -1557,13 +1715,13 @@ pairConstrsToObjfn sizes locs = sumMap pairToPenalties allPairs
 -- https://www.researchgate.net/post/What_is_stopping_criteria_of_any_optimization_algorithm
 combineObjfns :: ObjFn2 a -> ObjFnPenalty a
 combineObjfns objfn weight fixed varying = -- input objfn is unconstrained
-             (if objFnOn then tro "obj val" $ objWeight * objfn fixed varying else 0) 
+             (if objFnOn then tro "obj val" $ objWeight * objfn fixed varying else 0)
              + (if constraintFnOn then tro "penalty val" $
                    weight * (pairConstrsToObjfn fixed varying + stateConstrsToObjfn fixed varying)
                 else 0)
              where objWeight = 1
 
--- constraint functions that act on the entire state 
+-- constraint functions that act on the entire state
 -- this one just acts on the first object and ignores the fixed params
 firstObjInBbox :: (Floating a, Ord a, Show a) => (a, a, a, a) -> [([a] -> [a] -> a, a)]
 firstObjInBbox (l, r, b, t) = [(leftBound, 1), (rightBound, 1), (botBound, 1), (topBound, 1)]
