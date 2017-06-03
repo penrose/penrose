@@ -43,7 +43,7 @@ Other directories in the root contain documentation and old parts of the system.
 
 ### More information
 
-I use the following library for the graphics/animation/input: https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html) to handle graphics, animation, and user input. 
+I use the following library to handle the graphics, animation, and user input: [gloss](https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html).
 
 Functionality of the current code:
 
