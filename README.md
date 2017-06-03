@@ -32,8 +32,11 @@ Examples of existing pairs:
 ### Organization
 
 `src` contains the compiler and runtime.
+
 `src/GC-slides` contains slides from weekly group meetings.
+
 `src/gifs` and `src/pictures` contain GIFs and pictures documenting new features in the system.
+
 Other directories in the root contain documentation and old parts of the system.
 
 ----
