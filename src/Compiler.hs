@@ -151,7 +151,7 @@ subSeparate = foldr separate ([], [])
 data SetShape = SetCircle | Box
      deriving (Show, Eq)
 
-data PtShape = SolidCirc
+data PtShape = SolidDot | HollowDot | Cross
      deriving (Show, Eq)
 
 data MapShape = LeftArr | RightArr | DoubleArr
@@ -257,7 +257,9 @@ getShape [] = error "No Style shape param"
 getShape [x] = if x == "Auto" then Auto
                else if x == "Circle" then Override (SS SetCircle)
                else if x == "Box" then Override (SS Box)
-               else if x == "SolidCircle" then Override (SP SolidCirc)
+               else if x == "SolidDot" then Override (SP SolidDot)
+               else if x == "HollowDot" then Override (SP HollowDot)
+               else if x == "Cross" then Override (SP Cross)
                else if x == "LeftArrow" then Override (SM LeftArr)
                else if x == "RightArrow" then Override (SM RightArr)
                else if x == "DoubleArrow" then Override (SM DoubleArr)
@@ -276,7 +278,7 @@ styToLine s@[x] = error $ "Style spec line '" ++ show s ++ "' is only 1 token"
 styToLine s@(x : y : xs) =
           let level = getLevel y in -- throws its own errors
           if x == "Shape" then
-             let shp = getShape xs in -- TODO handleAuto
+             let shp = getShape xs in -- TODO handle Auto
              Shape level shp
           else if x == "Line" then
              case xs of
