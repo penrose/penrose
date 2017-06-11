@@ -263,6 +263,8 @@ data Params = Params { weight :: Double,
 
 -- State of the world
 data State = State { objs :: [Obj]
+                --    , stys :: [C.StyLine]
+                   , constrs :: [C.SubConstr]
                    , down :: Bool -- left mouse button is down (dragging)
                    , rng :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
@@ -576,7 +578,6 @@ genConstrFn (C.Intersect xname yname) = [ (toPenalty $ intersectFn [xname, yname
 genConstrFn (C.NoIntersect xname yname) = [ (toPenalty $ noIntersectFn [xname, yname], defaultCWeight) ]
 genConstrFn (C.Subset inName outName) = [ (toPenalty $ subsetFn [inName, outName], defaultCWeight) ]
 genConstrFn (C.NoSubset inName outName) = [ (toPenalty $ noSubsetFn [inName, outName], defaultCWeight) ]
--- genConstrFn (C.PointIn pname sname) = error "constraints on points in spec not yet supported"
 genConstrFn (C.PointIn pname sname) = [ (toPenalty $ pointInFn [pname, sname], defaultPWeight) ]
 genConstrFn (C.PointNotIn pname sname) = [ (toPenalty $ pointNotInFn [pname, sname], defaultPWeight) ]
 
@@ -622,7 +623,6 @@ genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
                     objs = [c1, l1]
                     weightedFns = [ (declSetObjfn [c1name], defaultWeight),
                                     (declLabelObjfn [c1name, l1name], defaultWeight) ]
--- TODO: consider refactoring the code using case?
 genObjsAndFns (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
               where (p1name, l1name) = (pname, labelName pname)
                     p1 = P $ Pt { xp = 100, yp = 100, selp = False, namep = p1name }
@@ -645,6 +645,10 @@ genAllObjsAndFns decls = let (objss, fnss) = unzip $ map genObjsAndFns decls in
 
 dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
 dictOf = foldr addObj M.empty
+       where addObj o dict = M.insert (getName o) o dict
+
+dictOfObjs :: [Obj] -> M.Map Name Obj
+dictOfObjs = foldr addObj M.empty
        where addObj o dict = M.insert (getName o) o dict
 
 -- constant b/c ambient fn value seems to be 10^4 and constr value seems to reach only 10, 10^2
@@ -674,7 +678,13 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
 
 -- TODO: **must** manually change this constraint if you change the constr function for EP
 -- needs constr to be violated
-constraint = if constraintFlag then (not . noneOverlap) else \x -> True
+constraint :: [C.SubConstr] -> [Obj] -> Bool
+constraint constrs = if constraintFlag
+                    then \x ->
+                        let b1 = noneOverlap x
+                            b2 = consistentSizes constrs x in
+                        (not b1) && b2
+                    else \x -> True
 
 -- generate all objects and the overall objective function
 -- style program is currently unused
@@ -683,7 +693,7 @@ genInitState :: ([C.SubDecl], [C.SubConstr]) -> [C.StyLine] -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
              let (initState, objFns) = genAllObjsAndFns decls in
-             -- let objFns = [] in -- TODO removed only for debugging constraints
+            --  let objFns = [] in -- TODO removed only for debugging constraints
 
              -- ambient objectives
              -- be careful with how the ambient objectives interact with the per-declaration objectives!
@@ -698,7 +708,7 @@ genInitState (decls, constrs) stys =
 
              -- resample state w/ constrs. TODO how to deal with `Subset A B` -> `r A < r B`?
              -- let boolConstr = \x -> True in // TODO needs to take this as a param
-             let (initStateConstr, initRng') = sampleConstrainedState initRng initState in
+             let (initStateConstr, initRng') = sampleConstrainedState initRng initState constrs in
 
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
              let flatObjsAnnotated = unpackAnnotate (addGrads initStateConstr) in
@@ -708,6 +718,7 @@ genInitState (decls, constrs) stys =
              let objFnOverall = genObjFn annotationsCalc objFns ambientObjFns constrObjFns in
 
              State { objs = initStateConstr,
+                     constrs = constrs,
                      params = initParams { objFn = objFnOverall, annotations = annotationsCalc },
                      down = False, rng = initRng', autostep = False }
 
@@ -725,7 +736,7 @@ rad2 = rad+50
 
 -- Initial state of the world, reading from Substance/Style input
 initState :: State
-initState = State { objs = objsInit, down = False, rng = initRng, autostep = False, params = initParams }
+initState = State { objs = objsInit, constrs = [], down = False, rng = initRng, autostep = False, params = initParams }
 
 -- divide two integers to obtain a float
 divf :: Int -> Int -> Float
@@ -743,13 +754,14 @@ ph2 = picHeight `divf` 2
 ph2' :: Floating a => a
 ph2' = realToFrac ph2
 
+-- avoid having black and white to ensure the visibility of objects
 cmax, cmin :: Float
-cmax = 1.0
-cmin = 0.0
+cmax = 0.1
+cmin = 0.9
 
 widthRange  = (-pw2, pw2)
 heightRange = (-ph2, ph2)
-radiusRange = (0, picWidth `divf` 6)
+radiusRange = (20, picWidth `divf` 6)
 colorRange  = (cmin, cmax)
 
 ------------- The "Style" layer: render the state of the world.
@@ -786,6 +798,13 @@ renderPt :: Pt -> Picture
 renderPt p = color scalar $ translate (xp p) (yp p)
              $ circleSolid ptRadius
              where scalar = if selected p then red else black
+-- renderPt p = color scalar $ translate (xp p) (yp p)
+--              $ circle ptRadius
+--              where scalar = if selected p then red else black
+-- renderPt p = let l1 = line [(-ptRadius, -ptRadius), (ptRadius,  ptRadius)]
+--                  l2 = line [(-ptRadius,  ptRadius), (ptRadius, -ptRadius)]
+--              in color scalar $ translate (xp p) (yp p) $ Pictures [l1, l2]
+--              where scalar = if selected p then red else black
 
 renderObj :: Obj -> Picture
 renderObj (C circ)  = renderCirc circ
@@ -870,9 +889,9 @@ genState shapes gen = stateMap gen sampleCoord shapes
 
 -- sample entire state at once until constraint is satisfied
 -- TODO doesn't take into account pairwise constraints or results from objects sampled first, sequentially
-sampleConstrainedState :: RandomGen g => g -> [Obj] -> ([Obj], g)
-sampleConstrainedState gen shapes = (state', gen')
-       where (state', gen') = crop constraint states
+sampleConstrainedState :: RandomGen g => g -> [Obj] -> [C.SubConstr] -> ([Obj], g)
+sampleConstrainedState gen shapes constrs = (state', gen')
+       where (state', gen') = crop (constraint constrs) states
              states = genMany gen (genState shapes)
              -- init state params are ignored; we just need to know what kinds of objects are in it
 
@@ -946,7 +965,7 @@ handler (EventKey (MouseButton LeftButton) Up _ _) s =
 handler (EventKey (Char 'r') Up _ _) s =
         s { objs = objs', down = False, rng = rng',
         params = (params s) { weight = initWeight, optStatus = NewIter } }
-        where (objs', rng') = sampleConstrainedState (rng s) (objs s)
+        where (objs', rng') = sampleConstrainedState (rng s) (objs s) (constrs s)
 
 -- turn autostep on or off (press same button to turn on or off)
 handler (EventKey (Char 'a') Up _ _) s = if autostep s then s { autostep = False }
@@ -1031,6 +1050,17 @@ noneOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences ob
 allOverlap :: [Obj] -> Bool
 allOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences objs in -- TODO factor out
                  all id $ map (\[o1, o2] -> not $ noOverlapPair o1 o2) allPairs
+
+consistentSizes :: [C.SubConstr] -> [Obj] -> Bool
+consistentSizes constrs objs = all id $ map (checkSubsetSize dict) constrs
+                            where dict = dictOfObjs objs
+checkSubsetSize dict constr@(C.Subset inName outName) =
+    case (M.lookup inName dict, M.lookup outName dict) of
+        (Just (C inc), Just (C outc)) ->
+            (r outc) - (r inc) > 10 -- TODO: taking this as a parameter?
+        (_, _) -> error "checkSubsetSize not called on two sets, or 1+ doesn't exist"
+checkSubsetSize _ _ = True
+
 
 -- Type aliases for shorter type signatures.
 type TimeInit = Float
@@ -1368,46 +1398,48 @@ awLineSearch f duf_noU descentDir x0 =
 
 ------------- Initial states
 
--- initial states
-s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False, namec = "A" , colorc = black }
-s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False, namec = "A", colorc = black }
-s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False, namec = "A" , colorc = black}
-s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False, namec = "A", colorc = black }
-
--- if objects start at exactly the same position, there may be problems
--- note: widths, heights, and names of labels below are not accurate b/c not generated by compiler
--- may cause problems!
-l1 = L $ Label { xl = 50, yl = clamp1D (-300), wl = 100, hl = 100, namel = "Label_A", textl = "A", sell = False }
-l2 = L $ Label { xl = -300, yl = clamp1D (-200), wl = 100, hl = 100, namel = "Label_B", textl = "B2", sell = False }
-
-initStateRng :: StdGen
-initStateRng = mkStdGen seed
-    where seed = 4 -- deterministic RNG with seed
-
-state0 = []
-state1 = [s1]
-state2 = [s1, s2]
-state3 = [s1, s2, s3]
-state4 = [s1, s2, s3, s4]
--- they're all the same size and in the same place for this state generator, so it looks like one circle
-staten n = take n $ repeat s3
-statenRand n = let (objs', _) = sampleConstrainedState initStateRng (staten n) in objs'
-
--- TODO gen state with more labels
--- TODO port existing objective functions to deal with labels (or not)
-state1lab = [s1, l1]
-state2lab = [s1, l1, s2, l2]
-
--- TODO change label text
--- state may not satisify constraint
-staten_label n = concat $ map labelN $ take n $ zip [1..] (repeat state1lab)
-             where labelN (x, [obj, L lab]) = [obj, L $ lab { textl = ("B" ++ show x) }]
--- samples a state that satisfies the constraint
-staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (staten_label n) in objs'
+-- -- initial states
+-- s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False, namec = "A" , colorc = black }
+-- s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False, namec = "A", colorc = black }
+-- s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False, namec = "A" , colorc = black}
+-- s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False, namec = "A", colorc = black }
+--
+-- -- if objects start at exactly the same position, there may be problems
+-- -- note: widths, heights, and names of labels below are not accurate b/c not generated by compiler
+-- -- may cause problems!
+-- l1 = L $ Label { xl = 50, yl = clamp1D (-300), wl = 100, hl = 100, namel = "Label_A", textl = "A", sell = False }
+-- l2 = L $ Label { xl = -300, yl = clamp1D (-200), wl = 100, hl = 100, namel = "Label_B", textl = "B2", sell = False }
+--
+-- initStateRng :: StdGen
+-- initStateRng = mkStdGen seed
+--     where seed = 4 -- deterministic RNG with seed
+--
+-- state0 = []
+-- state1 = [s1]
+-- state2 = [s1, s2]
+-- state3 = [s1, s2, s3]
+-- state4 = [s1, s2, s3, s4]
+-- -- they're all the same size and in the same place for this state generator, so it looks like one circle
+-- staten n = take n $ repeat s3
+-- statenRand n = let (objs', _) = constrs initStateRng (staten n) in objs'
+--
+-- -- TODO gen state with more labels
+-- -- TODO port existing objective functions to deal with labels (or not)
+-- state1lab = [s1, l1]
+-- state2lab = [s1, l1, s2, l2]
+--
+-- -- TODO change label text
+-- -- state may not satisify constraint
+-- staten_label n = concat $ map labelN $ take n $ zip [1..] (repeat state1lab)
+--              where labelN (x, [obj, L lab]) = [obj, L $ lab { textl = ("B" ++ show x) }]
+-- -- samples a state that satisfies the constraint
+-- staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (staten_label n) in objs'
 
 ------------------------ ### frequently-changed params for debugging
 -- objsInit = staten_label_rand 5
-objsInit = statenRand 6
+-- objsInit = statenRand
+-- TODO: when exactly is this used??
+objsInit = []
 
 type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a, Real a) => a -> [a] -> [a] -> a
 -- needs to be partially applied with the current list of objects
@@ -1442,9 +1474,9 @@ clampflag = False
 debug = False
 debugLineSearch = True
 debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = False
+constraintFlag = True
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
-constraintFnOn = False -- TODO need to implement constraint fn synthesis
+constraintFnOn = True -- TODO need to implement constraint fn synthesis
 
 stopEps :: Floating a => a
 stopEps = 10 ** (-1)
@@ -1672,8 +1704,12 @@ noSubset :: PairConstrV a
 noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing with s1 > s2 or s2 < s1
          -(dist (x1, y1) (x2, y2)) + max s2 s1 - min s2 s1 + offset
 
+-- the first set is the subset of the second, and thus smaller than the second in size.
+-- TODO: test for equal sets
 strictSubset :: PairConstrV a
-strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (max s2 s1 - min s2 s1)
+strictSubset [[x1, y1, s1], [x2, y2, s2]] =
+    -- dist (x1, y1) (x2, y2) - (max s2 s1 - min s2 s1)
+    dist (x1, y1) (x2, y2) - (s2 - s1)
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersectExt :: PairConstrV a
