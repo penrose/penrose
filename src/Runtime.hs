@@ -2,6 +2,7 @@
 -- for autodiff, requires passing in a polymorphic fn
 
 -- module Runtime where
+import Data.Maybe (mapMaybe)
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
@@ -138,6 +139,36 @@ instance Named Circ where
          getName c = namec c
          setName x c = c { namec = x }
 
+----------------------
+
+data Square = Square { xs :: Float
+                     , ys :: Float
+                     , side :: Float
+                     , ang  :: Float -- angle for which the obj is rotated
+                     , sels :: Bool -- is the circle currently selected? (mouse is dragging it)
+                     , names :: String
+                     , colors :: Color }
+     deriving (Eq, Show)
+
+instance Located Square where
+         getX s = xs s
+         getY s = ys s
+         setX x s = s { xs = x }
+         setY y s = s { ys = y }
+
+instance Selectable Square where
+         select x = x { sels = True }
+         deselect x = x { sels = False }
+         selected x = sels x
+
+instance Sized Square where
+         getSize x = side x
+         setSize size x = x { side = size }
+
+instance Named Square where
+         getName s = names s
+         setName x s = s { names = x }
+
 -------
 
 data Label = Label { xl :: Float
@@ -194,58 +225,69 @@ instance Named Pt where
          getName p   = namep p
          setName x p = p { namep = x }
 
-data Obj = C Circ | L Label | P Pt deriving (Eq, Show)
+data Obj = S Square | C Circ | L Label | P Pt deriving (Eq, Show)
 
--- is there some way to reduce the top-level boilerplate?
+-- TODO: is there some way to reduce the top-level boilerplate?
 instance Located Obj where
          getX o = case o of
                  C c -> getX c
                  L l -> getX l
                  P p -> getX p
+                 S s -> getX s
          getY o = case o of
                  C c -> getY c
                  L l -> getY l
                  P p -> getY p
+                 S s -> getY s
          setX x o = case o of
                 C c -> C $ setX x c
                 L l -> L $ setX x l
                 P p -> P $ setX x p
+                S s -> S $ setX x s
          setY y o = case o of
                 C c -> C $ setY y c
                 L l -> L $ setY y l
                 P p -> P $ setY y p
+                S s -> S $ setY y s
 
 instance Selectable Obj where
          select x = case x of
                 C c -> C $ select c
                 L l -> L $ select l
                 P p -> P $ select p
+                S s -> S $ select s
          deselect x = case x of
                 C c -> C $ deselect c
                 L l -> L $ deselect l
                 P p -> P $ deselect p
+                S s -> S $ deselect s
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
                 P p -> selected p
+                S s -> selected s
 
 instance Sized Obj where
          getSize o = case o of
                  C c -> getSize c
+                 S s -> getSize s
                  L l -> getSize l
          setSize x o = case o of
                 C c -> C $ setSize x c
                 L l -> L $ setSize x l
+                S s -> S $ setSize x s
 
 instance Named Obj where
          getName o = case o of
                  C c -> getName c
                  L l -> getName l
                  P p -> getName p
+                 S s -> getName s
          setName x o = case o of
                 C c -> C $ setName x c
                 L l -> L $ setName x l
                 P p -> P $ setName x p
+                S s -> S $ setName x s
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show)
 
@@ -294,6 +336,7 @@ type Varying a = [a]
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle can vary, but not its radius
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
+unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Fix)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
@@ -349,9 +392,23 @@ data Pt' a = Pt' { xp' :: a
                  , namep' :: String }
                  deriving (Eq, Show)
 
+data Square' a  = Square' { xs' :: a
+                     , ys' :: a
+                     , side' :: a
+                     , ang'  :: Float -- angle for which the obj is rotated
+                     , sels' :: Bool
+                     , names' :: String
+                     , colors' :: Color }
+                     deriving (Eq, Show)
+
+
 instance Named (Circ' a) where
          getName c = namec' c
          setName x c = c { namec' = x }
+
+instance Named (Square' a) where
+         getName s = names' s
+         setName x s = s { names' = x }
 
 instance Named (Label' a) where
          getName l = namel' l
@@ -366,17 +423,24 @@ instance Named (Obj' a) where
                  C' c -> getName c
                  L' l -> getName l
                  P' p -> getName p
+                 S' s -> getName s
          setName x o = case o of
                 C' c -> C' $ setName x c
+                S' s -> S' $ setName x s
                 L' l -> L' $ setName x l
                 P' p -> P' $ setName x p
 
-data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) deriving (Eq, Show)
+data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a) deriving (Eq, Show)
 
 -- TODO comment packing these functions defining conventions
 circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
 circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
          where (xc1, yc1, r1) = if not $ length params == 3 then error "wrong # params to pack circle"
+                                else (params !! 0, params !! 1, params !! 2)
+
+sqPack :: (Real a, Floating a, Show a, Ord a) => Square -> [a] -> Square' a
+sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, sels' = sels sq, colors' = colors sq, ang' = ang sq}
+         where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
 
 ptPack :: (Real a, Floating a, Show a, Ord a) => Pt -> [a] -> Pt' a
@@ -425,8 +489,8 @@ pack' zipped fixed varying =
                               C' $ circPack circ flatParams
                     L label -> -- trace ("label: " ++ (show $ length flatParams)) $
                               L' $ labelPack label flatParams
-                    P pt ->
-                              P' $ ptPack pt flatParams
+                    P pt -> P' $ ptPack pt flatParams
+                    S sq -> S' $ sqPack sq flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
@@ -452,6 +516,9 @@ centerLabel [main, label] dict = case (M.lookup main dict, M.lookup label dict) 
                             -- have the label near main’s border
                             (Just (C' c), Just (L' l)) ->
                                     let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
+                                    (cx - lx)^2 + (cy - ly)^2
+                            (Just (S' s), Just (L' l)) ->
+                                    let [cx, cy, lx, ly] = [xs' s, ys' s, xl' l, yl' l] in
                                     (cx - lx)^2 + (cy - ly)^2
                             (Just (P' p), Just (L' l)) ->
                                     let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
@@ -516,6 +583,15 @@ subsetFn names@[inName, outName] dict =
             (Just (C' inc), Just (C' outc)) ->
                   strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
                   -- noConstraint [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+            -- TODO: square
+            (Just (S' inc), Just (S' outc)) ->
+                  strictSubset [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
+            (Just (C' inc), Just (S' outc)) ->
+                  strictSubset [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
+                --   cir_sq_strictSubset [[xs' inc, ys' inc, r' inc], [xs' outc, ys' outc, side' outc]]
+            (Just (S' inc), Just (C' outc)) ->
+                  strictSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
+                --   sq_cir_strictSubset [[xs' inc, ys' inc, side' inc], [xs' outc, ys' outc, r' outc]]
             (_, _) -> error "subset not called on two sets, or 1+ doesn't exist"
 subsetFn _ _ = error "subset not called with 2 args"
 
@@ -585,6 +661,46 @@ genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
                 [C.SubConstr] -> [(M.Map Name (Obj' a) -> a, Weight a)]
 genConstrFns = concatMap genConstrFn
 
+------- Style related functions
+
+-- default shapes
+defaultPt, defaultSquare, defaultLabel, defaultCirc :: String -> Obj
+defaultPt name = C $ Circ { xc = 100, yc = 100, r = defaultRad,
+        selc = False, namec = name, colorc = black }
+defaultSquare name = S $ Square { xs = 100, ys = 100, side = defaultRad,
+        sels = False, names = name, colors = black, ang = 0.0}
+defaultLabel text = L $ Label { xl = -100, yl = -100,
+                                wl = textWidth * (fromIntegral (length text)),
+                                hl = textHeight,
+                                textl = text, sell = False, namel = labelName text }
+defaultCirc name = C $ Circ { xc = 100, yc = 100, r = defaultRad,
+        selc = False, namec = name, colorc = black }
+--
+-- TODO: C.SubShape should not be the only type that got mapped to, we will need a overarching type that is Substance object centered.
+dictOfShapes :: [C.SubDecl] -> [C.StyLine] -> M.Map String C.SubShape
+dictOfShapes objs stys = foldr (processLine objs) M.empty stys
+
+processLine :: [C.SubDecl] -> C.StyLine -> M.Map Name C.SubShape -> M.Map Name C.SubShape
+processLine objs s dict = case s of
+    (C.Shape (C.SubType (C.Set _)) (C.Override s)) -> foldr (setTypeShape s) dict objs
+    (C.Shape (C.SubVal v) (C.Override s)) -> M.insert v s dict
+    otherwise -> error "shape not known"
+    where setTypeShape s (C.Decl (C.OS (C.Set' name _))) d =
+            case (M.lookup name dict) of
+                Nothing -> M.insert name s d
+                _ -> d
+
+
+-- Generates an object depending on the style specification
+shapeOf :: String -> M.Map String C.SubShape -> Obj
+shapeOf name dict  =
+    case (M.lookup name dict) of
+        Just (C.SS C.SetCircle) -> defaultCirc name
+        Just (C.SS C.Box) -> defaultSquare name
+        _ -> error ("Cannot find style info for " ++ name)
+-- shapeOf name shape@(C.SS C.SetCircle)  = defaultCirc name
+-- shapeOf name shape@(C.SS C.Box)  = defaultSquare name
+
 ------- Generate objective functions
 
 defaultWeight :: Floating a => a
@@ -609,38 +725,31 @@ declLabelObjfn = centerLabel -- objFnOnNone
 labelName :: String -> String
 labelName name = "Label_" ++ name
 
--- TODO do something with style
 genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
-                  C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
-genObjsAndFns line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
-              where (c1name, l1name) = (sname, labelName sname)
-                    c1 = C $ Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = c1name, colorc = black }
+                  M.Map String C.SubShape -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
+genObjsAndFns stys line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
+              where
+                    c1 = shapeOf sname stys
                     -- TODO proper dimensions for labels
-                    l1 = L $ Label { xl = -100, yl = -100,
-                                     wl = textWidth * (fromIntegral (length sname)),
-                                     hl = textHeight,
-                                     textl = sname, sell = False, namel = l1name }
+                    l1 = defaultLabel sname
                     objs = [c1, l1]
-                    weightedFns = [ (declSetObjfn [c1name], defaultWeight),
-                                    (declLabelObjfn [c1name, l1name], defaultWeight) ]
-genObjsAndFns (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
-              where (p1name, l1name) = (pname, labelName pname)
-                    p1 = P $ Pt { xp = 100, yp = 100, selp = False, namep = p1name }
-                    l1 = L $ Label { xl = -100, yl = -100,
-                                     wl = textWidth * (fromIntegral (length pname)),
-                                     hl = textHeight,
-                                     textl = pname, sell = False, namel = l1name }
+                    weightedFns = [ (declSetObjfn [sname], defaultWeight),
+                                    (declLabelObjfn [sname, labelName sname], defaultWeight) ]
+genObjsAndFns stys (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
+              where
+                    p1 = P $ Pt { xp = 100, yp = 100, selp = False, namep = pname }
+                    l1 = defaultLabel pname
                     objs = [p1, l1]
-                    weightedFns = [ (declPtObjfn [p1name], defaultWeight),
-                                    (declLabelObjfn [p1name, l1name], defaultWeight) ]
+                    weightedFns = [ (declPtObjfn [pname], defaultWeight),
+                                    (declLabelObjfn [pname, labelName pname], defaultWeight) ]
 
     -- error "points not yet supported"
-genObjsAndFns (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
+genObjsAndFns _ (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
 
 genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
-                 [C.SubDecl] -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
+                 [C.SubDecl] -> M.Map String C.SubShape -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 -- TODO figure out how the types work. also add weights
-genAllObjsAndFns decls = let (objss, fnss) = unzip $ map genObjsAndFns decls in
+genAllObjsAndFns decls stys = let (objss, fnss) = unzip $ map (genObjsAndFns stys) decls in
                          (concat objss, concat fnss)
 
 dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
@@ -692,14 +801,14 @@ constraint constrs = if constraintFlag
 genInitState :: ([C.SubDecl], [C.SubConstr]) -> [C.StyLine] -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
-             let (initState, objFns) = genAllObjsAndFns decls in
+             let (initState, objFns) = genAllObjsAndFns decls (dictOfShapes decls stys) in
             --  let objFns = [] in -- TODO removed only for debugging constraints
 
              -- ambient objectives
              -- be careful with how the ambient objectives interact with the per-declaration objectives!
              -- e.g. the repel objective conflicts with a subset/intersect constraint -> nonconvergence!
-             let ambientObjFns = [(circlesCenter, defaultWeight)] in
-             -- let ambientObjFns = [] in
+            --  let ambientObjFns = [(circlesCenter, defaultWeight)] in
+             let ambientObjFns = [] in
 
              -- constraints
              let constrFns = genConstrFns constrs in
@@ -755,13 +864,15 @@ ph2' :: Floating a => a
 ph2' = realToFrac ph2
 
 -- avoid having black and white to ensure the visibility of objects
-cmax, cmin :: Float
+opacity, cmax, cmin :: Float
+opacity = 0.5
 cmax = 0.1
 cmin = 0.9
 
 widthRange  = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 radiusRange = (20, picWidth `divf` 6)
+sideRange = (20, picWidth `divf` 3)
 colorRange  = (cmin, cmax)
 
 ------------- The "Style" layer: render the state of the world.
@@ -772,7 +883,6 @@ renderCirc c = if selected c
                     circleSolid (r c)
                else color (colorc c) $ translate (xc c) (yc c) $
                     circleSolid (r c)
-
 
 -- fix to the centering problem of labels, assumeing:
 -- (1) monospaced font; (2) at least a chracter of max height is in the label string
@@ -806,13 +916,34 @@ renderPt p = color scalar $ translate (xp p) (yp p)
 --              in color scalar $ translate (xp p) (yp p) $ Pictures [l1, l2]
 --              where scalar = if selected p then red else black
 
+renderSquare :: Square -> Picture
+renderSquare s = if selected s
+            then let (r', g', b', a') = rgbaOfColor $ colors s in
+            color (makeColor r' g' b' (a' / 2)) $ translate (xs s) (ys s) $
+            rectangleSolid (side s) (side s)
+            else color (colors s) $ translate (xs s) (ys s) $
+            rectangleSolid (side s) (side s)
+
 renderObj :: Obj -> Picture
 renderObj (C circ)  = renderCirc circ
 renderObj (L label) = renderLabel label
 renderObj (P pt)    = renderPt pt
+renderObj (S sq)    = renderSquare sq
+
+isLabel :: Obj -> Bool
+isLabel (L l) = True
+isLabel _     = False
+
+splitLabels :: [Obj] -> ([Obj], [Obj])
+splitLabels objs = (filter isLabel objs, filter (not . isLabel) objs)
 
 picOfState :: State -> Picture
-picOfState s = Pictures $ map renderObj (objs s)
+picOfState s =
+    let (labels, others) = splitLabels (objs s)
+    in
+    -- currently not putting labels at the top level because the control is not ready
+    -- Pictures $ map renderObj others ++ map renderObj labels
+    Pictures $ map renderObj (objs s)
 
 picOf :: State -> Picture
 picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText, optText]
@@ -869,7 +1000,13 @@ sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                                   (cg', gen5) = randomR colorRange  gen4
                                   (cb', gen6) = randomR colorRange  gen5
                                   in
-                              (C $ circ { r = r', colorc = makeColor cr' cg' cb' 0.5 }, gen6)
+                              (C $ circ { r = r', colorc = makeColor cr' cg' cb' opacity }, gen6)
+                    S sq   -> let (side', gen3) = randomR sideRange gen2
+                                  (cr', gen4) = randomR colorRange  gen3
+                                  (cg', gen5) = randomR colorRange  gen4
+                                  (cb', gen6) = randomR colorRange  gen5
+                                  in
+                              (S $ sq { side = side', colors = makeColor cr' cg' cb' opacity }, gen6)
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
 
@@ -920,6 +1057,7 @@ inObj (xm, ym) (L o) =
     -- abs (xm - (label_offset_x (textl o) (xl o))) <= 0.25 * (wl o) &&
     -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
+inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is squar   e
 inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
 
 
@@ -1034,7 +1172,11 @@ tro :: Show a => String -> a -> a
 tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 noOverlapPair :: Obj -> Obj -> Bool
-noOverlapPair (C c1) (C c2) = dist (xc c1, yc c1) (xc c2, yc c2) > r c1 + r c2
+noOverlapPair (C c1) (C c) = dist (xc c1, yc c1) (xc c, yc c) > r c1 + r c
+noOverlapPair (S s1) (S s2) = dist (xs s1, ys s1) (xs s2, ys s2) > side s1 + side s2
+-- TODO: factor out this
+noOverlapPair (C c) (S s) = dist (xc c, yc c) (xs s, ys s) > (halfDiagonal .  side) s + r c
+noOverlapPair (S s) (C c) = dist (xs s, ys s) (xc c, yc c) > (halfDiagonal . side) s + r c
 noOverlapPair _ _ = True -- TODO, ignores labels
 
 -- return true iff satisfied
@@ -1042,8 +1184,8 @@ noOverlapPair _ _ = True -- TODO, ignores labels
 noneOverlap :: [Obj] -> Bool
 noneOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences objs in -- TODO factor out
                  all id $ map (\[o1, o2] -> noOverlapPair o1 o2) allPairs
--- noOverlap (c1 : c2 : []) = noOverlapPair c1 c2
--- noOverlap (c1 : c2 : c3 : _) = noOverlapPair c1 c2 && noOverlapPair c2 c3 && noOverlapPair c1 c3 -- TODO
+-- noOverlap (c1 : c : []) = noOverlapPair c1 c
+-- noOverlap (c1 : c : c3 : _) = noOverlapPair c1 c && noOverlapPair c c3 && noOverlapPair c1 c3 -- TODO
 -- noOverlap _ _ = True
 
 -- allOverlap vs. not noOverlap--they're different!
@@ -1051,13 +1193,25 @@ allOverlap :: [Obj] -> Bool
 allOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences objs in -- TODO factor out
                  all id $ map (\[o1, o2] -> not $ noOverlapPair o1 o2) allPairs
 
+-- used when sampling the inital state, make sure sizes satisfy subset constraints
+subsetSizeDiff :: Float
+subsetSizeDiff = 10.0
+
+halfDiagonal :: (Floating a) => a -> a
+halfDiagonal side = 0.5 * dist (0, 0) (side, side)
+
+-- TODO: do we want strict subset or loose subset here? Now it is strict
 consistentSizes :: [C.SubConstr] -> [Obj] -> Bool
 consistentSizes constrs objs = all id $ map (checkSubsetSize dict) constrs
                             where dict = dictOfObjs objs
 checkSubsetSize dict constr@(C.Subset inName outName) =
     case (M.lookup inName dict, M.lookup outName dict) of
         (Just (C inc), Just (C outc)) ->
-            (r outc) - (r inc) > 10 -- TODO: taking this as a parameter?
+            (r outc) - (r inc) > subsetSizeDiff -- TODO: taking this as a parameter?
+        (Just (S inc), Just (S outc)) -> (side outc) - (side inc) > subsetSizeDiff
+        -- TODO: this does not scale, general way?
+        (Just (C c), Just (S s)) -> r c < 0.5 * side s
+        (Just (S s), Just (C c)) -> (halfDiagonal . side) s < r c
         (_, _) -> error "checkSubsetSize not called on two sets, or 1+ doesn't exist"
 checkSubsetSize _ _ = True
 
@@ -1148,6 +1302,8 @@ r2f = realToFrac
 zeroGrad :: (Real a, Floating a, Show a, Ord a) => Obj' a -> Obj
 zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
                              selc = selc' c, namec = namec' c, colorc = colorc' c }
+zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s, names = names' s, colors = colors' s, ang = ang' s }
+
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
                               textl = textl' l, sell = sell' l, namel = namel' l }
 zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
@@ -1160,6 +1316,7 @@ zeroGrads = map zeroGrad
 addGrad :: (Real a, Floating a, Show a, Ord a) => Obj -> Obj' a
 addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
                              selc' = selc c, namec' = namec c, colorc' = colorc c }
+addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s, names' = names s, colors' = colors s, ang' = ang s }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
 addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
@@ -1335,16 +1492,16 @@ timeAndGrad f t state = tr "timeAndGrad: " (timestep, gradEval)
                   duf u x = gradF x `dotL` u
 
 -- Parameters for Armijo-Wolfe line search
--- NOTE: must maintain 0 < c1 < c2 < 1
+-- NOTE: must maintain 0 < c1 < c < 1
 c1 :: Floating a => a
 c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
 -- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
 -- turn Armijo off: c1 = 0
 
-c2 :: Floating a => a
-c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
--- new directional derivative value / old DD value <= c2
--- smaller c2 = smaller new derivative value = harder to satisfy
+c :: Floating a => a
+c = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
+-- new directional derivative value / old DD value <= c
+-- smaller c = smaller new derivative value = harder to satisfy
 -- turn Wolfe off: c1 = 1 (basically backatracking line search onlyl
 
 infinity :: Floating a => a
@@ -1386,8 +1543,8 @@ awLineSearch f duf_noU descentDir x0 =
                            tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
                       else False -- could be shorter; long for debugging purposes
                 armijo t = (f ((tr' "** x0" x0) +. t *. (tr' "descentDir" descentDir))) <= ((tr' "fAtX0"fAtx0) + c1 * t * (tr' "dufAtX0" dufAtx0))
-                strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
-                weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
+                strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c * abs dufAtx0
+                weakWolfe t = duf_x_tu >= (c * dufAtx0) -- split up for debugging purposes
                           where duf_x_tu = tr' "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
                                 t' = tr' "t" t
                                 descentDir' = descentDir --tr' "descentDir" descentDir
@@ -1472,7 +1629,7 @@ initWeight = 10 ** (-5)
 -- Flags for debugging the surrounding functions.
 clampflag = False
 debug = False
-debugLineSearch = True
+debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
 constraintFlag = True
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
@@ -1706,10 +1863,12 @@ noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing wi
 
 -- the first set is the subset of the second, and thus smaller than the second in size.
 -- TODO: test for equal sets
-strictSubset :: PairConstrV a
-strictSubset [[x1, y1, s1], [x2, y2, s2]] =
-    -- dist (x1, y1) (x2, y2) - (max s2 s1 - min s2 s1)
-    dist (x1, y1) (x2, y2) - (s2 - s1)
+-- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
+sq_strictSubset, strictSubset, cir_sq_strictSubset, sq_cir_strictSubset :: PairConstrV a
+strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
+sq_strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
+cir_sq_strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
+sq_cir_strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersectExt :: PairConstrV a

@@ -92,7 +92,7 @@ subToLine s@[x, y, z] = LC $
                    else if x == "In" then PointIn y z -- TODO ^
                    else if x == "NotIn" then PointNotIn y z
                    else error $ "Substance spec line: 3-token line '"
-                     ++ show s ++ "' does not begin with (No)Intersect/Subset/In"
+                     ++ show s ++ "' does not begin with (No)Intersect/Subset/(Not)In"
 
 subToLine s@[w, x, y, z] = LD $ Decl $
                    if w == "Map" then OM (Map' x y z)
