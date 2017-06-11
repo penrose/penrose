@@ -2,8 +2,6 @@
 -- for autodiff, requires passing in a polymorphic fn
 
 -- module Runtime where
-import Data.Maybe (mapMaybe)
-
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import Data.Function
@@ -111,6 +109,36 @@ class Sized a where
 class Named a where
       getName :: a -> Name
       setName :: Name -> a -> a
+-------
+data SolidArrow = SolidArrow { startx :: Float
+                             , starty :: Float
+                             , endx :: Float
+                             , endy :: Float
+                             , thickness :: Float -- the maximum thickness, i.e. the thickness of the head
+                             , selsa :: Bool -- is the circle currently selected? (mouse is dragging it)
+                             , namesa :: String
+                             , colorsa :: Color }
+
+-- instance Located SolidArrow where
+--          getX a = endx a - startx a
+--          getY a = endy a - starty a
+--          setX x c = c { xc = x } -- TODO
+--          setY y c = c { yc = y }
+
+instance Selectable Circ where
+         select x = x { selsa = True }
+         deselect x = x { selsa = False }
+         selected x = selsa x
+
+-- instance Sized SolidArrow where
+--          getSize x = dist (startx, starty) (endx, endy)
+--          setSize size x = x { r = size } -- TODO
+
+instance Named  where
+         getName a = namesa a
+         setName x a = a { namesa = x }
+
+-------
 
 data Circ = Circ { xc :: Float
                  , yc :: Float
@@ -225,7 +253,7 @@ instance Named Pt where
          getName p   = namep p
          setName x p = p { namep = x }
 
-data Obj = S Square | C Circ | L Label | P Pt deriving (Eq, Show)
+data Obj = S Square | C Circ | L Label | P Pt | A SolidArrow deriving (Eq, Show)
 
 -- TODO: is there some way to reduce the top-level boilerplate?
 instance Located Obj where
@@ -234,21 +262,25 @@ instance Located Obj where
                  L l -> getX l
                  P p -> getX p
                  S s -> getX s
+                --  A a -> getX a
          getY o = case o of
                  C c -> getY c
                  L l -> getY l
                  P p -> getY p
                  S s -> getY s
+                --  A a -> getY a
          setX x o = case o of
                 C c -> C $ setX x c
                 L l -> L $ setX x l
                 P p -> P $ setX x p
                 S s -> S $ setX x s
+                -- A a -> A $ setX x a
          setY y o = case o of
                 C c -> C $ setY y c
                 L l -> L $ setY y l
                 P p -> P $ setY y p
                 S s -> S $ setY y s
+                -- A a -> A $ setY x a
 
 instance Selectable Obj where
          select x = case x of
@@ -256,16 +288,19 @@ instance Selectable Obj where
                 L l -> L $ select l
                 P p -> P $ select p
                 S s -> S $ select s
+                A s -> A $ select a
          deselect x = case x of
                 C c -> C $ deselect c
                 L l -> L $ deselect l
                 P p -> P $ deselect p
                 S s -> S $ deselect s
+                A s -> A $ deselect a
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
                 P p -> selected p
                 S s -> selected s
+                A s -> selected a
 
 instance Sized Obj where
          getSize o = case o of
@@ -283,11 +318,13 @@ instance Named Obj where
                  L l -> getName l
                  P p -> getName p
                  S s -> getName s
+                 A a -> getName a
          setName x o = case o of
                 C c -> C $ setName x c
                 L l -> L $ setName x l
                 P p -> P $ setName x p
                 S s -> S $ setName x s
+                A a -> A $ setName x a
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show)
 
@@ -341,6 +378,8 @@ unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Fix)]
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
+unpackObj (A' a) = [(startx a, Vary), (starty a, Vary), (endx a, Vary), (endy a, Vary),
+                    (thickness a, Fix)]
 
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [[(a, Annotation)]]
@@ -367,6 +406,15 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 -- (Maybe port all objects to polymorphic at some point, but would need to zero the gradient information.)
 -- Can't use realToFrac here because it will zero the gradient information.
 -- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
+
+data SolidArrow' = SolidArrow' { startx' :: a
+                               , starty' :: a
+                               , endx' :: a
+                               , endy' :: a
+                               , thickness' :: a -- the maximum thickness, i.e. the thickness of the head
+                               , selsa' :: Bool -- is the circle currently selected? (mouse is dragging it)
+                               , namesa' :: String
+                               , colorsa' :: Color }
 
 data Circ' a = Circ' { xc' :: a
                      , yc' :: a
@@ -402,6 +450,10 @@ data Square' a  = Square' { xs' :: a
                      deriving (Eq, Show)
 
 
+instance Named (SolidArrow' a) where
+         getName a = namesa' a
+         setName x a = a { namesa' = a }
+
 instance Named (Circ' a) where
          getName c = namec' c
          setName x c = c { namec' = x }
@@ -424,15 +476,24 @@ instance Named (Obj' a) where
                  L' l -> getName l
                  P' p -> getName p
                  S' s -> getName s
+                 A' a -> getName a
          setName x o = case o of
                 C' c -> C' $ setName x c
                 S' s -> S' $ setName x s
                 L' l -> L' $ setName x l
                 P' p -> P' $ setName x p
+                A' a -> A' $ setName x a
 
-data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a) deriving (Eq, Show)
+data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a)
+            | A' (SolidArrow' a) deriving (Eq, Show)
 
 -- TODO comment packing these functions defining conventions
+solidArrowPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
+solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex, endy' = ey, thickness' = t
+                namesa' = namesa arr, selsa' = selsa arr, colorsa' = colorsa arr }
+         where (sx, sy, ex, ey, t) = if not $ length params == 5 then error "wrong # params to pack solid arrow"
+                            else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4, params !! 5)
+
 circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
 circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
          where (xc1, yc1, r1) = if not $ length params == 3 then error "wrong # params to pack circle"
@@ -491,6 +552,7 @@ pack' zipped fixed varying =
                               L' $ labelPack label flatParams
                     P pt -> P' $ ptPack pt flatParams
                     S sq -> S' $ sqPack sq flatParams
+                    A ar -> A' $ solidArrowPack ar flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
@@ -588,10 +650,8 @@ subsetFn names@[inName, outName] dict =
                   strictSubset [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
             (Just (C' inc), Just (S' outc)) ->
                   strictSubset [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-                --   cir_sq_strictSubset [[xs' inc, ys' inc, r' inc], [xs' outc, ys' outc, side' outc]]
             (Just (S' inc), Just (C' outc)) ->
                   strictSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
-                --   sq_cir_strictSubset [[xs' inc, ys' inc, side' inc], [xs' outc, ys' outc, r' outc]]
             (_, _) -> error "subset not called on two sets, or 1+ doesn't exist"
 subsetFn _ _ = error "subset not called with 2 args"
 
@@ -610,6 +670,10 @@ intersectFn names@[xname, yname] dict =
             (Just (C' xset), Just (C' yset)) ->
                   tr "intersect val: " $
                   looseIntersect [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
+            (Just (S' xset), Just (C' yset)) ->
+                  looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xc' yset, yc' yset, r' yset]]
+            (Just (C' xset), Just (S' yset)) ->
+                  looseIntersect [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
             (_, _) -> error "intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
 intersectFn _ _ = error "intersect not called with 2 args"
 
@@ -619,6 +683,10 @@ noIntersectFn names@[xname, yname] dict =
             (Just (C' xset), Just (C' yset)) ->
                   tr "no intersect val: " $
                   noIntersectExt [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
+            (Just (S' xset), Just (C' yset)) ->
+                  noIntersectExt [[xs' xset, ys' xset, (halfDiagonal . side') xset], [xc' yset, yc' yset, r' yset]]
+            (Just (C' xset), Just (S' yset)) ->
+                  noIntersectExt [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, (halfDiagonal . side') yset]]
             (_, _) -> error "no intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
 noIntersectFn _ _ = error "no intersect not called with 2 args"
 
@@ -665,8 +733,7 @@ genConstrFns = concatMap genConstrFn
 
 -- default shapes
 defaultPt, defaultSquare, defaultLabel, defaultCirc :: String -> Obj
-defaultPt name = C $ Circ { xc = 100, yc = 100, r = defaultRad,
-        selc = False, namec = name, colorc = black }
+defaultPt name = P $ Pt { xp = 100, yp = 100, selp = False, namep = name, colorp = black }
 defaultSquare name = S $ Square { xs = 100, ys = 100, side = defaultRad,
         sels = False, names = name, colors = black, ang = 0.0}
 defaultLabel text = L $ Label { xl = -100, yl = -100,
@@ -677,7 +744,7 @@ defaultCirc name = C $ Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
 --
 -- TODO: C.SubShape should not be the only type that got mapped to, we will need a overarching type that is Substance object centered.
-dictOfShapes :: [C.SubDecl] -> [C.StyLine] -> M.Map String C.SubShape
+dictOfShapes :: [C.SubDecl] -> [C.StyLine] -> M.Map Name C.SubShape
 dictOfShapes objs stys = foldr (processLine objs) M.empty stys
 
 processLine :: [C.SubDecl] -> C.StyLine -> M.Map Name C.SubShape -> M.Map Name C.SubShape
@@ -788,12 +855,9 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
 -- TODO: **must** manually change this constraint if you change the constr function for EP
 -- needs constr to be violated
 constraint :: [C.SubConstr] -> [Obj] -> Bool
-constraint constrs = if constraintFlag
-                    then \x ->
-                        let b1 = noneOverlap x
-                            b2 = consistentSizes constrs x in
-                        (not b1) && b2
-                    else \x -> True
+constraint constrs = if constraintFlag then \x ->
+                        let res = [consistentSizes constrs x] in and res
+                     else \x -> True
 
 -- generate all objects and the overall objective function
 -- style program is currently unused
@@ -923,6 +987,18 @@ renderSquare s = if selected s
             rectangleSolid (side s) (side s)
             else color (colors s) $ translate (xs s) (ys s) $
             rectangleSolid (side s) (side s)
+
+renderArrow :: SolidArrow -> Picture
+renderArrow a = color scalar $ translate sx sy $ pictures $
+                map polygon [ head_path, body_path ]
+                where scalar = if selected p then red else black
+                (sx, sy, ex, ey, t) = (startx sa, starty sa, endx sa, endy sa, thickness sa / 6)
+                len = (toDegree . atan) $ (ey - sy) / (ex - sx)
+                body_path = [ (sx, sy + t), (sx + len - t, sy + t),
+                    (sx + len - t, sy - t), (sx, sy - t) ]
+                head_path = [(sx + len - t, sy + 3*t), (sx + len + 6*t, sy),
+                    (sx + len - t, sy - 3*t)]
+toDegree   rad = rad * 180 / pi
 
 renderObj :: Obj -> Picture
 renderObj (C circ)  = renderCirc circ
@@ -1058,6 +1134,7 @@ inObj (xm, ym) (L o) =
     -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is squar   e
+inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
 inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
 
 
@@ -1492,16 +1569,16 @@ timeAndGrad f t state = tr "timeAndGrad: " (timestep, gradEval)
                   duf u x = gradF x `dotL` u
 
 -- Parameters for Armijo-Wolfe line search
--- NOTE: must maintain 0 < c1 < c < 1
+-- NOTE: must maintain 0 < c1 < c2 < 1
 c1 :: Floating a => a
 c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
 -- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
 -- turn Armijo off: c1 = 0
 
-c :: Floating a => a
-c = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
--- new directional derivative value / old DD value <= c
--- smaller c = smaller new derivative value = harder to satisfy
+c2 :: Floating a => a
+c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
+-- new directional derivative value / old DD value <= c2
+-- smaller c2 = smaller new derivative value = harder to satisfy
 -- turn Wolfe off: c1 = 1 (basically backatracking line search onlyl
 
 infinity :: Floating a => a
@@ -1543,8 +1620,8 @@ awLineSearch f duf_noU descentDir x0 =
                            tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
                       else False -- could be shorter; long for debugging purposes
                 armijo t = (f ((tr' "** x0" x0) +. t *. (tr' "descentDir" descentDir))) <= ((tr' "fAtX0"fAtx0) + c1 * t * (tr' "dufAtX0" dufAtx0))
-                strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c * abs dufAtx0
-                weakWolfe t = duf_x_tu >= (c * dufAtx0) -- split up for debugging purposes
+                strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
+                weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
                           where duf_x_tu = tr' "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
                                 t' = tr' "t" t
                                 descentDir' = descentDir --tr' "descentDir" descentDir
@@ -1850,7 +1927,7 @@ noConstraint _ = 0
 -- plus an offset so they overlap by a visible amount (perhaps this should be an optimization parameter?)
 looseIntersect :: PairConstrV a
 looseIntersect [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
-        if s1 + s2 < offset then error "radii too small"
+        if s1 + s2 < offset then error "radii too small"  --TODO: make it const
         else dist (x1, y1) (x2, y2) - (s1 + s2 - offset)
 
 -- the energy actually increases so it always settles around the offset
@@ -1864,11 +1941,8 @@ noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing wi
 -- the first set is the subset of the second, and thus smaller than the second in size.
 -- TODO: test for equal sets
 -- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
-sq_strictSubset, strictSubset, cir_sq_strictSubset, sq_cir_strictSubset :: PairConstrV a
+strictSubset :: PairConstrV a
 strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
-sq_strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
-cir_sq_strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
-sq_cir_strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersectExt :: PairConstrV a
