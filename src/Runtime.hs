@@ -118,14 +118,17 @@ data SolidArrow = SolidArrow { startx :: Float
                              , selsa :: Bool -- is the circle currently selected? (mouse is dragging it)
                              , namesa :: String
                              , colorsa :: Color }
+         deriving (Eq, Show)
 
--- instance Located SolidArrow where
---          getX a = endx a - startx a
---          getY a = endy a - starty a
---          setX x c = c { xc = x } -- TODO
---          setY y c = c { yc = y }
+instance Located SolidArrow where
+        --  getX a = endx a - startx a
+        --  getY a = endy a - starty a
+         getX a   = startx a
+         getY a   = starty a
+         setX x c = c { startx = x } -- TODO
+         setY y c = c { starty = y }
 
-instance Selectable Circ where
+instance Selectable SolidArrow where
          select x = x { selsa = True }
          deselect x = x { selsa = False }
          selected x = selsa x
@@ -134,7 +137,7 @@ instance Selectable Circ where
 --          getSize x = dist (startx, starty) (endx, endy)
 --          setSize size x = x { r = size } -- TODO
 
-instance Named  where
+instance Named SolidArrow where
          getName a = namesa a
          setName x a = a { namesa = x }
 
@@ -262,25 +265,25 @@ instance Located Obj where
                  L l -> getX l
                  P p -> getX p
                  S s -> getX s
-                --  A a -> getX a
+                 A a -> getX a
          getY o = case o of
                  C c -> getY c
                  L l -> getY l
                  P p -> getY p
                  S s -> getY s
-                --  A a -> getY a
+                 A a -> getY a
          setX x o = case o of
                 C c -> C $ setX x c
                 L l -> L $ setX x l
                 P p -> P $ setX x p
                 S s -> S $ setX x s
-                -- A a -> A $ setX x a
+                A a -> A $ setX x a
          setY y o = case o of
                 C c -> C $ setY y c
                 L l -> L $ setY y l
                 P p -> P $ setY y p
                 S s -> S $ setY y s
-                -- A a -> A $ setY x a
+                A a -> A $ setY y a
 
 instance Selectable Obj where
          select x = case x of
@@ -288,19 +291,19 @@ instance Selectable Obj where
                 L l -> L $ select l
                 P p -> P $ select p
                 S s -> S $ select s
-                A s -> A $ select a
+                A a -> A $ select a
          deselect x = case x of
                 C c -> C $ deselect c
                 L l -> L $ deselect l
                 P p -> P $ deselect p
                 S s -> S $ deselect s
-                A s -> A $ deselect a
+                A a -> A $ deselect a
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
                 P p -> selected p
                 S s -> selected s
-                A s -> selected a
+                A a -> selected a
 
 instance Sized Obj where
          getSize o = case o of
@@ -378,8 +381,8 @@ unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Fix)]
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
-unpackObj (A' a) = [(startx a, Vary), (starty a, Vary), (endx a, Vary), (endy a, Vary),
-                    (thickness a, Fix)]
+unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), (endx' a, Vary),
+    (endy' a, Vary), (thickness' a, Fix)]
 
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [[(a, Annotation)]]
@@ -407,7 +410,7 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 -- Can't use realToFrac here because it will zero the gradient information.
 -- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
 
-data SolidArrow' = SolidArrow' { startx' :: a
+data SolidArrow' a = SolidArrow' { startx' :: a
                                , starty' :: a
                                , endx' :: a
                                , endy' :: a
@@ -415,6 +418,7 @@ data SolidArrow' = SolidArrow' { startx' :: a
                                , selsa' :: Bool -- is the circle currently selected? (mouse is dragging it)
                                , namesa' :: String
                                , colorsa' :: Color }
+                               deriving (Eq, Show)
 
 data Circ' a = Circ' { xc' :: a
                      , yc' :: a
@@ -451,8 +455,8 @@ data Square' a  = Square' { xs' :: a
 
 
 instance Named (SolidArrow' a) where
-         getName a = namesa' a
-         setName x a = a { namesa' = a }
+         getName sa = namesa' sa
+         setName x sa = sa { namesa' = x }
 
 instance Named (Circ' a) where
          getName c = namec' c
@@ -488,11 +492,11 @@ data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a)
             | A' (SolidArrow' a) deriving (Eq, Show)
 
 -- TODO comment packing these functions defining conventions
-solidArrowPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
-solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex, endy' = ey, thickness' = t
+solidArrowPack :: (Real a, Floating a, Show a, Ord a) => SolidArrow -> [a] -> SolidArrow' a
+solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex, endy' = ey, thickness' = t,
                 namesa' = namesa arr, selsa' = selsa arr, colorsa' = colorsa arr }
          where (sx, sy, ex, ey, t) = if not $ length params == 5 then error "wrong # params to pack solid arrow"
-                            else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4, params !! 5)
+                            else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
 
 circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
 circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
@@ -573,19 +577,36 @@ centerCirc [sname] dict = case (M.lookup sname dict) of
                           Nothing -> error "invalid selectors in centerCirc"
 centerCirc _ _ = error "centerCirc not called with 1 arg"
 
+centerMap :: ObjFnOn a
+centerMap [mapname, fromname, toname] dict =
+    case (M.lookup mapname dict, M.lookup fromname dict, M.lookup toname dict) of
+        (Just (A' a), Just (C' s), Just (C' e)) ->
+            -- FIXME: I'm assuming from-to are left to right relationship
+            let [sx, sy, ex, ey] = [xc' s + r' s + 10, yc' s, xc' e - r' e - 10, yc' e]
+                (fromx, fromy, tox, toy) = (startx' a, starty' a, endx' a, endy' a) in
+            -- distsq (sx, sy) (fromx, fromy) + distsq (ex, ey) (tox, toy)--TODO: squared??
+            (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
+centerMap _ _ = error "centerMap not called with 1 arg"
+
 centerLabel :: ObjFnOn a
-centerLabel [main, label] dict = case (M.lookup main dict, M.lookup label dict) of
-                            -- have the label near main’s border
-                            (Just (C' c), Just (L' l)) ->
-                                    let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
-                                    (cx - lx)^2 + (cy - ly)^2
-                            (Just (S' s), Just (L' l)) ->
-                                    let [cx, cy, lx, ly] = [xs' s, ys' s, xl' l, yl' l] in
-                                    (cx - lx)^2 + (cy - ly)^2
-                            (Just (P' p), Just (L' l)) ->
-                                    let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
-                                    (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
-                            (_, _) -> error "invalid selectors in centerLabel"
+centerLabel [main, label] dict =
+    case (M.lookup main dict, M.lookup label dict) of
+        -- have the label near main’s border
+        (Just (C' c), Just (L' l)) ->
+                let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
+                (cx - lx)^2 + (cy - ly)^2
+        (Just (S' s), Just (L' l)) ->
+                let [cx, cy, lx, ly] = [xs' s, ys' s, xl' l, yl' l] in
+                (cx - lx)^2 + (cy - ly)^2
+        (Just (P' p), Just (L' l)) ->
+                let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
+                (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
+        (Just (A' a), Just (L' l)) ->
+                let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
+                    (mx, my) = midpoint (sx, sy) (ex, ey)
+                    (lx, ly) = (xl' l, yl' l) in
+                (mx - lx)^2 + (my + (textHeight * 0.25) - ly)^2 -- Top right from the point
+        (_, _) -> error "invalid selectors in centerLabel"
 centerLabel _ _ = error "centerLabel not called with 1 arg"
 
 
@@ -732,8 +753,10 @@ genConstrFns = concatMap genConstrFn
 ------- Style related functions
 
 -- default shapes
-defaultPt, defaultSquare, defaultLabel, defaultCirc :: String -> Obj
-defaultPt name = P $ Pt { xp = 100, yp = 100, selp = False, namep = name, colorp = black }
+defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc :: String -> Obj
+defaultSolidArrow name = A $ SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, thickness = 10,
+                            selsa = False, namesa = name }
+defaultPt name = P $ Pt { xp = 100, yp = 100, selp = False, namep = name }
 defaultSquare name = S $ Square { xs = 100, ys = 100, side = defaultRad,
         sels = False, names = name, colors = black, ang = 0.0}
 defaultLabel text = L $ Label { xl = -100, yl = -100,
@@ -742,6 +765,7 @@ defaultLabel text = L $ Label { xl = -100, yl = -100,
                                 textl = text, sell = False, namel = labelName text }
 defaultCirc name = C $ Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
+-- defaultSolidArrow name = A $ SolidArrow { startx = 100, starty = 100, endx = 100, }
 --
 -- TODO: C.SubShape should not be the only type that got mapped to, we will need a overarching type that is Substance object centered.
 dictOfShapes :: [C.SubDecl] -> [C.StyLine] -> M.Map Name C.SubShape
@@ -751,11 +775,19 @@ processLine :: [C.SubDecl] -> C.StyLine -> M.Map Name C.SubShape -> M.Map Name C
 processLine objs s dict = case s of
     (C.Shape (C.SubType (C.Set _)) (C.Override s)) -> foldr (setTypeShape s) dict objs
     (C.Shape (C.SubVal v) (C.Override s)) -> M.insert v s dict
+    (C.Shape (C.SubType (C.Map)) (C.Override s)) -> foldr (mapTypeShape s) dict objs
     otherwise -> error "shape not known"
-    where setTypeShape s (C.Decl (C.OS (C.Set' name _))) d =
+    where
+        mapTypeShape s (C.Decl (C.OM (C.Map' name _ _))) d =
             case (M.lookup name dict) of
                 Nothing -> M.insert name s d
                 _ -> d
+        mapTypeShape _ _ d = d
+        setTypeShape s (C.Decl (C.OS (C.Set' name _))) d =
+            case (M.lookup name dict) of
+                Nothing -> M.insert name s d
+                _ -> d
+        setTypeShape _ _ d = d
 
 
 -- Generates an object depending on the style specification
@@ -789,29 +821,37 @@ declPtObjfn = objFnOnNone -- centerCirc
 declLabelObjfn :: ObjFnOn a
 declLabelObjfn = centerLabel -- objFnOnNone
 
+declMapObjfn :: ObjFnOn a
+declMapObjfn = centerMap
+
 labelName :: String -> String
 labelName name = "Label_" ++ name
 
 genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
                   M.Map String C.SubShape -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 genObjsAndFns stys line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
-              where
-                    c1 = shapeOf sname stys
-                    -- TODO proper dimensions for labels
-                    l1 = defaultLabel sname
-                    objs = [c1, l1]
-                    weightedFns = [ (declSetObjfn [sname], defaultWeight),
-                                    (declLabelObjfn [sname, labelName sname], defaultWeight) ]
+            where
+                c1 = shapeOf sname stys
+                -- TODO proper dimensions for labels
+                l1 = defaultLabel sname
+                objs = [c1, l1]
+                weightedFns = [ (declSetObjfn [sname], defaultWeight),
+                    (declLabelObjfn [sname, labelName sname], defaultWeight) ]
 genObjsAndFns stys (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
-              where
-                    p1 = P $ Pt { xp = 100, yp = 100, selp = False, namep = pname }
-                    l1 = defaultLabel pname
-                    objs = [p1, l1]
-                    weightedFns = [ (declPtObjfn [pname], defaultWeight),
-                                    (declLabelObjfn [pname, labelName pname], defaultWeight) ]
-
-    -- error "points not yet supported"
-genObjsAndFns _ (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
+            where
+                p1 = defaultPt pname
+                l1 = defaultLabel pname
+                objs = [p1, l1]
+                weightedFns = [ (declPtObjfn [pname], defaultWeight),
+                    (declLabelObjfn [pname, labelName pname], defaultWeight) ]
+-- genObjsAndFns _ (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
+genObjsAndFns stys (C.Decl (C.OM (C.Map' name from to))) = (objs, weightedFns)
+            where
+                a = defaultSolidArrow name
+                l1 = defaultLabel name
+                objs = [a, l1]
+                weightedFns = [ (declMapObjfn [name, from, to],   defaultWeight), -- TODO: a different obj function
+                    (declLabelObjfn [name, labelName name], defaultWeight)]
 
 genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
                  [C.SubDecl] -> M.Map String C.SubShape -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
@@ -950,7 +990,7 @@ renderCirc c = if selected c
 
 -- fix to the centering problem of labels, assumeing:
 -- (1) monospaced font; (2) at least a chracter of max height is in the label string
-labelScale, textWidth, textHeight :: Float
+labelScale, textWidth, textHeight :: Floating a => a
 textWidth  = 104.76 * 0.5 -- Half of that of the monospaced version
 textHeight = 119.05
 labelScale = 0.2
@@ -989,15 +1029,19 @@ renderSquare s = if selected s
             rectangleSolid (side s) (side s)
 
 renderArrow :: SolidArrow -> Picture
-renderArrow a = color scalar $ translate sx sy $ pictures $
+-- renderArrow sa = color black $  line [(startx sa, starty sa), (endx sa, endy sa)]
+renderArrow sa = color scalar $ translate sx sy $ rotate (-angle) $ pictures $
                 map polygon [ head_path, body_path ]
-                where scalar = if selected p then red else black
-                (sx, sy, ex, ey, t) = (startx sa, starty sa, endx sa, endy sa, thickness sa / 6)
-                len = (toDegree . atan) $ (ey - sy) / (ex - sx)
-                body_path = [ (sx, sy + t), (sx + len - t, sy + t),
-                    (sx + len - t, sy - t), (sx, sy - t) ]
-                head_path = [(sx + len - t, sy + 3*t), (sx + len + 6*t, sy),
-                    (sx + len - t, sy - 3*t)]
+                where
+                    scalar = if selected sa then red else black
+                    (sx, sy, ex, ey, t) = (startx sa, starty sa, endx sa, endy sa, thickness sa / 6)
+                    len = dist (sx, sy) (ex, ey)
+                    angle = (toDegree . atan) $ (ey - sy) / (ex - sx)
+                    -- len = 200
+                    body_path = [ (0, 0 + t), (len - 5*t, t),
+                        (len - 5*t, -1*t), (0, -1*t) ]
+                    head_path = [(len - 5*t, 3*t), (len, 0),
+                        (len - 5*t, -3*t)]
 toDegree   rad = rad * 180 / pi
 
 renderObj :: Obj -> Picture
@@ -1005,6 +1049,7 @@ renderObj (C circ)  = renderCirc circ
 renderObj (L label) = renderLabel label
 renderObj (P pt)    = renderPt pt
 renderObj (S sq)    = renderSquare sq
+renderObj (A ar)    = renderArrow ar
 
 isLabel :: Obj -> Bool
 isLabel (L l) = True
@@ -1085,6 +1130,7 @@ sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                               (S $ sq { side = side', colors = makeColor cr' cg' cb' opacity }, gen6)
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
+                    A a   -> (o_loc, gen2) -- TODO
 
         where (x', gen1) = randomR widthRange  gen
               (y', gen2) = randomR heightRange gen1
@@ -1116,6 +1162,9 @@ ptRadius = 4 -- The size of a point on canvas
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
+midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
+midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
+
 dist :: Floating a => (a, a) -> (a, a) -> a -- distance
 dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
 
@@ -1135,7 +1184,8 @@ inObj (xm, ym) (L o) =
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is squar   e
 inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
-inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
+inObj (xm, ym) (A o) = False -- TODO
+    -- dist (xm, ym) (xp o, yp o) <= thickness o + &&  -- is Point, where we arbitrarily define the "radius" of a point
 
 
 -- check convergence of EP method
@@ -1385,6 +1435,9 @@ zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl'
                               textl = textl' l, sell = sell' l, namel = namel' l }
 zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
                            namep = namep' p }
+zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ starty' a,
+                            endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
+                            selsa = selsa' a, namesa = namesa' a }
 
 zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
@@ -1393,11 +1446,16 @@ zeroGrads = map zeroGrad
 addGrad :: (Real a, Floating a, Show a, Ord a) => Obj -> Obj' a
 addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
                              selc' = selc c, namec' = namec c, colorc' = colorc c }
-addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s, names' = names s, colors' = colors s, ang' = ang s }
+addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
+                            names' = names s, colors' = colors s, ang' = ang s }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
 addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
                            namep' = namep p }
+addGrad (A a) = A' $ SolidArrow' { startx' = r2f $ startx a, starty' = r2f $ starty a,
+                            endx' = r2f $ endx a, endy' = r2f $ endy a, thickness' = r2f $ thickness a,
+                            selsa' = selsa a, namesa' = namesa a }
+
 
 addGrads :: (Real a, Floating a, Show a, Ord a) => [Obj] -> [Obj' a]
 addGrads = map addGrad

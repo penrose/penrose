@@ -262,7 +262,7 @@ getShape [x] = if x == "Auto" then Auto
                else if x == "SolidDot" then Override (SP SolidDot)
                else if x == "HollowDot" then Override (SP HollowDot)
                else if x == "Cross" then Override (SP Cross)
-               else if x == "Arrow" then Override (SM SolidArrow)
+               else if x == "SolidArrow" then Override (SM SolidArrow)
             --    else if x == "LeftArrow" then Override (SM LeftArr)
             --    else if x == "RightArrow" then Override (SM RightArr)
             --    else if x == "DoubleArrow" then Override (SM DoubleArr)
