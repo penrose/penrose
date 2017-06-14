@@ -3,6 +3,7 @@
 
 -- module Runtime where
 import Graphics.Gloss
+import Graphics.Gloss.Data.Vector
 import Graphics.Gloss.Interface.Pure.Game
 import Data.Function
 import System.Random
@@ -577,16 +578,54 @@ centerCirc [sname] dict = case (M.lookup sname dict) of
                           Nothing -> error "invalid selectors in centerCirc"
 centerCirc _ _ = error "centerCirc not called with 1 arg"
 
+
+-- distanceOf :: ObjFnOn a
+-- toLeft [fromname, toname] dict =
+--     case (M.lookup fromname dict, M.lookup toname dict) of
+--         -- (Just (A' a), Just (S' s), Just (S' e)) ->
+--         -- (Just (A' a), Just (S' s), Just (C' e)) ->
+--         -- (Just (A' a), Just (C' s), Just (S' e)) ->
+--         (Just (C' s), Just (C' e)) ->
+--             -- (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
+--             (xc' s - xc' e + 400)^2
+toLeft :: ObjFnOn a
+toLeft [fromname, toname] dict =
+    case (M.lookup fromname dict, M.lookup toname dict) of
+        -- (Just (A' a), Just (S' s), Just (S' e)) ->
+        -- (Just (A' a), Just (S' s), Just (C' e)) ->
+        -- (Just (A' a), Just (C' s), Just (S' e)) ->
+        (Just (C' s), Just (C' e)) ->
+            -- (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
+            (xc' s - xc' e + 400)^2
+
+
 centerMap :: ObjFnOn a
 centerMap [mapname, fromname, toname] dict =
+    let spacing = 10 in -- TODO: arbitrary
     case (M.lookup mapname dict, M.lookup fromname dict, M.lookup toname dict) of
+        (Just (A' a), Just (S' s), Just (S' e)) ->
+            _centerMap a [xs' s, ys' s] [xs' e, ys' e]
+                [spacing + (halfDiagonal . side') s, negate $ spacing + (halfDiagonal . side') e]
+        (Just (A' a), Just (S' s), Just (C' e)) ->
+            _centerMap a [xs' s, ys' s] [xc' e, yc' e]
+                [spacing + (halfDiagonal . side') s, negate $ spacing + r' e]
+        (Just (A' a), Just (C' s), Just (S' e)) ->
+            _centerMap a [xc' s, yc' s] [xs' e, ys' e]
+                [spacing + r' s, negate $ spacing + (halfDiagonal . side') e]
         (Just (A' a), Just (C' s), Just (C' e)) ->
-            -- FIXME: I'm assuming from-to are left to right relationship
-            let [sx, sy, ex, ey] = [xc' s + r' s + 10, yc' s, xc' e - r' e - 10, yc' e]
-                (fromx, fromy, tox, toy) = (startx' a, starty' a, endx' a, endy' a) in
-            -- distsq (sx, sy) (fromx, fromy) + distsq (ex, ey) (tox, toy)--TODO: squared??
-            (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
+            _centerMap a [xc' s, yc' s] [xc' e, yc' e]
+                [spacing + r' s, negate $ spacing + r' e]
 centerMap _ _ = error "centerMap not called with 1 arg"
+
+_centerMap :: forall a. (Floating a, Real a, Show a, Ord a) =>
+                SolidArrow' a -> [a] -> [a] -> [a] -> a
+_centerMap a s1@[x1, y1] s2@[x2, y2] [o1, o2] =
+    let vec  = [x2 - x1, y2 - y1] -- direction the arrow should point to
+        dir = normalize vec -- direction the arrow should point to
+        [sx, sy, ex, ey] = if norm vec > o1 + abs o2
+                then (s1 +. o1 *. dir) ++ (s2 +. o2 *. dir) else s1 ++ s2
+        [fromx, fromy, tox, toy] = [startx' a, starty' a, endx' a, endy' a] in
+    (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 
 centerLabel :: ObjFnOn a
 centerLabel [main, label] dict =
@@ -770,9 +809,12 @@ defaultCirc name = C $ Circ { xc = 100, yc = 100, r = defaultRad,
 -- TODO: C.SubShape should not be the only type that got mapped to, we will need a overarching type that is Substance object centered.
 dictOfShapes :: [C.SubDecl] -> [C.StyLine] -> M.Map Name C.SubShape
 dictOfShapes objs stys = foldr (processLine objs) M.empty stys
+-- dictOfShapes :: [C.SubDecl] -> [C.StyLine] -> M.Map Name [C.SubLine]
+-- dictOfStys objs stys = foldr (processLine objs) M.empty stys
 
 processLine :: [C.SubDecl] -> C.StyLine -> M.Map Name C.SubShape -> M.Map Name C.SubShape
-processLine objs s dict = case s of
+processLine objs s dict =
+    case s of
     (C.Shape (C.SubType (C.Set _)) (C.Override s)) -> foldr (setTypeShape s) dict objs
     (C.Shape (C.SubVal v) (C.Override s)) -> M.insert v s dict
     (C.Shape (C.SubType (C.Map)) (C.Override s)) -> foldr (mapTypeShape s) dict objs
@@ -850,7 +892,9 @@ genObjsAndFns stys (C.Decl (C.OM (C.Map' name from to))) = (objs, weightedFns)
                 a = defaultSolidArrow name
                 l1 = defaultLabel name
                 objs = [a, l1]
-                weightedFns = [ (declMapObjfn [name, from, to],   defaultWeight), -- TODO: a different obj function
+                weightedFns = [
+                    -- (toLeft [from, to], defaultWeight),
+                    (declMapObjfn [name, from, to], defaultWeight), -- TODO: a different obj function
                     (declLabelObjfn [name, labelName name], defaultWeight)]
 
 genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
@@ -1030,19 +1074,21 @@ renderSquare s = if selected s
 
 renderArrow :: SolidArrow -> Picture
 -- renderArrow sa = color black $  line [(startx sa, starty sa), (endx sa, endy sa)]
-renderArrow sa = color scalar $ translate sx sy $ rotate (-angle) $ pictures $
+renderArrow sa = color scalar $ translate sx sy $ rotate (negate $ toDegree $ argV dir) $ pictures $
                 map polygon [ head_path, body_path ]
                 where
                     scalar = if selected sa then red else black
                     (sx, sy, ex, ey, t) = (startx sa, starty sa, endx sa, endy sa, thickness sa / 6)
-                    len = dist (sx, sy) (ex, ey)
-                    angle = (toDegree . atan) $ (ey - sy) / (ex - sx)
-                    -- len = 200
+                    dir = (ex - sx, ey - sy) -- direction the arrow should point to
+                    len = magV dir
                     body_path = [ (0, 0 + t), (len - 5*t, t),
                         (len - 5*t, -1*t), (0, -1*t) ]
                     head_path = [(len - 5*t, 3*t), (len, 0),
                         (len - 5*t, -3*t)]
-toDegree   rad = rad * 180 / pi
+
+toDegree, toRadian :: Floating a => a -> a
+toDegree rad = rad * 180 / pi
+toRadian deg = deg * pi / 180
 
 renderObj :: Obj -> Picture
 renderObj (C circ)  = renderCirc circ
@@ -1162,6 +1208,10 @@ ptRadius = 4 -- The size of a point on canvas
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
+-- Find the angle between x-axis and a line passing points, reporting in radians
+findAngle :: Floating a => (a, a) -> (a, a) -> a
+findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
+
 midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
 midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
 
@@ -1184,8 +1234,12 @@ inObj (xm, ym) (L o) =
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is squar   e
 inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
-inObj (xm, ym) (A o) = False -- TODO
-    -- dist (xm, ym) (xp o, yp o) <= thickness o + &&  -- is Point, where we arbitrarily define the "radius" of a point
+-- TODO: due to the way Located is defined, we can only drag the starting pt here
+inObj (xm, ym) (A a) =
+    let (sx, sy, ex, ey, t) = (startx a, starty a, endx a, endy a, thickness a)
+        (x, y) = midpoint (sx, sy) (ex, ey)
+        len = 0.5 * dist (sx, sy) (ex, ey)
+    in abs (x - xm) <= len && abs (y - ym) <= t
 
 
 -- check convergence of EP method
@@ -1288,6 +1342,9 @@ debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ s
 -- To send output to a file, do ./EXECUTABLE 2> FILE.txt
 tr :: Show a => String -> a -> a
 tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+
+trRaw :: Show a => String -> a -> a
+trRaw s x = trace "---" $ trace s $ traceShowId x -- prints in left to right order
 
 trStr :: String -> a -> a
 trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
@@ -1599,6 +1656,9 @@ norm = sqrt . sum . map (^ 2)
 
 normsq :: Floating a => [a] -> a
 normsq = sum . map (^ 2)
+
+normalize :: Floating a => [a] -> [a]
+normalize v = (1 / norm v) *. v
 
 -----
 
