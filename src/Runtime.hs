@@ -591,12 +591,10 @@ centerCirc _ _ = error "centerCirc not called with 1 arg"
 toLeft :: ObjFnOn a
 toLeft [fromname, toname] dict =
     case (M.lookup fromname dict, M.lookup toname dict) of
-        -- (Just (A' a), Just (S' s), Just (S' e)) ->
-        -- (Just (A' a), Just (S' s), Just (C' e)) ->
-        -- (Just (A' a), Just (C' s), Just (S' e)) ->
-        (Just (C' s), Just (C' e)) ->
-            -- (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
-            (xc' s - xc' e + 400)^2
+        (Just (C' s), Just (S' e)) -> (xc' s - xs' e + 400)^2
+        (Just (S' s), Just (C' e)) -> (xs' s - xc' e + 400)^2
+        (Just (C' s), Just (C' e)) -> (xc' s - xc' e + 400)^2
+        (Just (S' s), Just (S' e)) -> (xs' s - xs' e + 400)^2
 
 
 centerMap :: ObjFnOn a
@@ -794,7 +792,7 @@ genConstrFns = concatMap genConstrFn
 -- default shapes
 defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc :: String -> Obj
 defaultSolidArrow name = A $ SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, thickness = 10,
-                            selsa = False, namesa = name }
+                            selsa = False, namesa = name, colorsa = black }
 defaultPt name = P $ Pt { xp = 100, yp = 100, selp = False, namep = name }
 defaultSquare name = S $ Square { xs = 100, ys = 100, side = defaultRad,
         sels = False, names = name, colors = black, ang = 0.0}
@@ -893,7 +891,7 @@ genObjsAndFns stys (C.Decl (C.OM (C.Map' name from to))) = (objs, weightedFns)
                 l1 = defaultLabel name
                 objs = [a, l1]
                 weightedFns = [
-                    -- (toLeft [from, to], defaultWeight),
+                    (toLeft [from, to], defaultWeight),
                     (declMapObjfn [name, from, to], defaultWeight), -- TODO: a different obj function
                     (declLabelObjfn [name, labelName name], defaultWeight)]
 
@@ -1035,7 +1033,7 @@ renderCirc c = if selected c
 -- fix to the centering problem of labels, assumeing:
 -- (1) monospaced font; (2) at least a chracter of max height is in the label string
 labelScale, textWidth, textHeight :: Floating a => a
-textWidth  = 104.76 * 0.5 -- Half of that of the monospaced version
+textWidth  = 104.76 -- Half of that of the monospaced version
 textHeight = 119.05
 labelScale = 0.2
 
@@ -1044,13 +1042,24 @@ label_offset_x str x = x - (textWidth * labelScale * 0.5 * (fromIntegral (length
 label_offset_y str y = y - labelScale * textHeight * 0.5
 
 renderLabel :: Label -> Picture
-renderLabel l = color scolor $
+renderLabel l =
+            pictures $ [
+            color scolor $
             translate
             (label_offset_x (textl l) (xl l))
             (label_offset_y (textl l) (yl l)) $
             scale labelScale labelScale $
             text (textl l)
+            -- ,
+            -- line [(x, y), (x + labelScale * w, y), (x + labelScale * w, y + labelScale * h),
+            --     (x, y + labelScale * h), (x, y)]
+            ]
             where scolor = if selected l then red else light black
+                  w = textWidth * (fromIntegral (length $ textl l))
+                  h = textHeight
+                  x = (label_offset_x (textl l) (xl l))
+                  y = (label_offset_y (textl l) (yl l))
+
 
 renderPt :: Pt -> Picture
 renderPt p = color scalar $ translate (xp p) (yp p)
@@ -1494,7 +1503,7 @@ zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
                            namep = namep' p }
 zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ starty' a,
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
-                            selsa = selsa' a, namesa = namesa' a }
+                            selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a }
 
 zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
@@ -1511,7 +1520,7 @@ addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
                            namep' = namep p }
 addGrad (A a) = A' $ SolidArrow' { startx' = r2f $ startx a, starty' = r2f $ starty a,
                             endx' = r2f $ endx a, endy' = r2f $ endy a, thickness' = r2f $ thickness a,
-                            selsa' = selsa a, namesa' = namesa a }
+                            selsa' = selsa a, namesa' = namesa a, colorsa' = colorsa a }
 
 
 addGrads :: (Real a, Floating a, Show a, Ord a) => [Obj] -> [Obj' a]
