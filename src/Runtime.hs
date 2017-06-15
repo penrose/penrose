@@ -802,43 +802,54 @@ defaultLabel text = L $ Label { xl = -100, yl = -100,
                                 textl = text, sell = False, namel = labelName text }
 defaultCirc name = C $ Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
--- defaultSolidArrow name = A $ SolidArrow { startx = 100, starty = 100, endx = 100, }
 --
--- TODO: C.SubShape should not be the only type that got mapped to, we will need a overarching type that is Substance object centered.
-dictOfShapes :: [C.SubDecl] -> [C.StyLine] -> M.Map Name C.SubShape
-dictOfShapes objs stys = foldr (processLine objs) M.empty stys
--- dictOfShapes :: [C.SubDecl] -> [C.StyLine] -> M.Map Name [C.SubLine]
--- dictOfStys objs stys = foldr (processLine objs) M.empty stys
 
-processLine :: [C.SubDecl] -> C.StyLine -> M.Map Name C.SubShape -> M.Map Name C.SubShape
+dictOfStys :: [C.SubDecl] -> [C.StyLine] -> M.Map Name [C.StyLine]
+dictOfStys objs stys = foldr (processLine objs) dict stys
+    where dict = foldr addObj M.empty objs
+          addObj (C.Decl (C.OM (C.Map' name _ _))) = M.insert name []
+          addObj (C.Decl (C.OS (C.Set' name _)))   = M.insert name []
+          addObj (C.Decl (C.OP (C.Pt' name)))      = M.insert name []
+
+-- If there is no spec associated with an obj, we should insert this obj in the dict
+insertSty :: Name -> C.StyLine -> M.Map Name [C.StyLine] -> M.Map Name [C.StyLine]
+insertSty name line dict = case (M.lookup name dict) of
+    Nothing -> M.insert name [line] dict
+    _ -> M.adjust ([line] ++) name dict
+
+processLine :: [C.SubDecl] -> C.StyLine -> M.Map Name [C.StyLine] -> M.Map Name [C.StyLine]
 processLine objs s dict =
     case s of
-    (C.Shape (C.SubType (C.Set _)) (C.Override s)) -> foldr (setTypeShape s) dict objs
-    (C.Shape (C.SubVal v) (C.Override s)) -> M.insert v s dict
-    (C.Shape (C.SubType (C.Map)) (C.Override s)) -> foldr (mapTypeShape s) dict objs
+    (C.Shape (C.SubVal v) _)  -> insertSty v s dict
+    (C.Shape C.Global _)      -> M.mapWithKey (\k stys -> s:stys) dict
+    (C.Shape (C.SubType t) _) -> M.mapWithKey (\k stys -> s:stys) dict
     otherwise -> error "shape not known"
-    where
-        mapTypeShape s (C.Decl (C.OM (C.Map' name _ _))) d =
-            case (M.lookup name dict) of
-                Nothing -> M.insert name s d
-                _ -> d
-        mapTypeShape _ _ d = d
-        setTypeShape s (C.Decl (C.OS (C.Set' name _))) d =
-            case (M.lookup name dict) of
-                Nothing -> M.insert name s d
-                _ -> d
-        setTypeShape _ _ d = d
 
+
+shapeLines :: [C.StyLine] -> [C.StyLine]
+shapeLines stys = filter isShape $ stys
+                where isShape (C.Shape  _ _) = True
+                      isShape _ = False
+
+-- Given a list of sty settings, find the most specific one
+-- The order from most specific to general: individual -> type -> global
+prioritize :: [C.StyLine] -> C.StyLine
+prioritize stys = stys !! maxIdx
+        where prios = map getPrio stys
+              Just maxIdx = elemIndex (maximum prios) prios
+              getPrio (C.Shape (C.SubVal _) _) = 3
+              getPrio (C.Shape C.Global  _) = 2
+              getPrio (C.Shape (C.SubType _) _) = 1
 
 -- Generates an object depending on the style specification
-shapeOf :: String -> M.Map String C.SubShape -> Obj
-shapeOf name dict  =
+shapeOf :: String -> M.Map Name [C.StyLine] -> Obj
+shapeOf name dict =
     case (M.lookup name dict) of
-        Just (C.SS C.SetCircle) -> defaultCirc name
-        Just (C.SS C.Box) -> defaultSquare name
-        _ -> error ("Cannot find style info for " ++ name)
--- shapeOf name shape@(C.SS C.SetCircle)  = defaultCirc name
--- shapeOf name shape@(C.SS C.Box)  = defaultSquare name
+        Nothing -> error ("Cannot find style info for " ++ name)
+        Just stys -> let (C.Shape _ (C.Override s)) = prioritize $ shapeLines stys in getShape s
+    where getShape (C.SS C.SetCircle) = defaultCirc name
+          getShape (C.SS C.Box) = defaultSquare name
+          getShape (C.SM C.SolidArrow) = defaultSolidArrow name
 
 ------- Generate objective functions
 
@@ -868,7 +879,7 @@ labelName :: String -> String
 labelName name = "Label_" ++ name
 
 genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
-                  M.Map String C.SubShape -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
+                  M.Map String [C.StyLine] -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 genObjsAndFns stys line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
             where
                 c1 = shapeOf sname stys
@@ -896,7 +907,7 @@ genObjsAndFns stys (C.Decl (C.OM (C.Map' name from to))) = (objs, weightedFns)
                     (declLabelObjfn [name, labelName name], defaultWeight)]
 
 genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
-                 [C.SubDecl] -> M.Map String C.SubShape -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
+                 [C.SubDecl] -> M.Map String [C.StyLine] -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 -- TODO figure out how the types work. also add weights
 genAllObjsAndFns decls stys = let (objss, fnss) = unzip $ map (genObjsAndFns stys) decls in
                          (concat objss, concat fnss)
@@ -947,7 +958,7 @@ constraint constrs = if constraintFlag then \x ->
 genInitState :: ([C.SubDecl], [C.SubConstr]) -> [C.StyLine] -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
-             let (initState, objFns) = genAllObjsAndFns decls (dictOfShapes decls stys) in
+             let (initState, objFns) = genAllObjsAndFns decls (dictOfStys decls stys) in
             --  let objFns = [] in -- TODO removed only for debugging constraints
 
              -- ambient objectives
