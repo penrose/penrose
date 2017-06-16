@@ -454,6 +454,31 @@ data Square' a  = Square' { xs' :: a
                      , colors' :: Color }
                      deriving (Eq, Show)
 
+-- instance Located Obj where
+--          getX o = case o of
+--                  C c -> getX' c
+--                  L l -> getX' l
+--                  P p -> getX' p
+--                  S s -> getX' s
+--                  A a -> getX' a
+--          getY o = case o of
+--                  C c -> getY' c
+--                  L l -> getY' l
+--                  P p -> getY' p
+--                  S s -> getY' s
+--                  A a -> getY' a
+--          setX x o = case o of
+--                 C c -> C $ setX' x c
+--                 L l -> L $ setX' x l
+--                 P p -> P $ setX' x p
+--                 S s -> S $ setX' x s
+--                 A a -> A $ setX' x a
+--          setY y o = case o of
+--                 C c -> C $ setY' y c
+--                 L l -> L $ setY' y l
+--                 P p -> P $ setY' y p
+--                 S s -> S $ setY' y s
+--                 A a -> A $ setY y a
 
 instance Named (SolidArrow' a) where
          getName sa = namesa' sa
@@ -578,7 +603,6 @@ centerCirc [sname] dict = case (M.lookup sname dict) of
                           Nothing -> error "invalid selectors in centerCirc"
 centerCirc _ _ = error "centerCirc not called with 1 arg"
 
-
 -- distanceOf :: ObjFnOn a
 -- toLeft [fromname, toname] dict =
 --     case (M.lookup fromname dict, M.lookup toname dict) of
@@ -695,96 +719,81 @@ defaultCWeight = 1
 defaultPWeight :: Floating a => a
 defaultPWeight = 1
 
--- TODO get rid of lookup boilerplate
 
-subsetFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-subsetFn names@[inName, outName] dict =
-          case (M.lookup inName dict, M.lookup outName dict) of
-            (Just (C' inc), Just (C' outc)) ->
-                  strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-                  -- noConstraint [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-            -- TODO: square
-            (Just (S' inc), Just (S' outc)) ->
-                  strictSubset [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-            (Just (C' inc), Just (S' outc)) ->
-                  strictSubset [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-            (Just (S' inc), Just (C' outc)) ->
-                  strictSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
-            (_, _) -> error "subset not called on two sets, or 1+ doesn't exist"
-subsetFn _ _ = error "subset not called with 2 args"
+-- Pairwise constraint functions
 
-noSubsetFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-noSubsetFn names@[inName, outName] dict =
-          case (M.lookup inName dict, M.lookup outName dict) of
-            (Just (C' inc), Just (C' outc)) ->
-                  noSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-            (_, _) -> error "noSubset not called on two sets, or 1+ doesn't exist"
-noSubsetFn _ _ = error "noSubset not called with 2 args"
+subsetFn, noSubsetFn, intersectFn, noIntersectFn, pointInFn, pointNotInFn ::
+    (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
+subsetFn [(C' inc), (C' outc)] =
+    strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+subsetFn [(S' inc), (S' outc)] = strictSubset
+    [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
+subsetFn [(C' inc), (S' outc)] = strictSubset
+    [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
+subsetFn [(S' inc), (C' outc)] = strictSubset
+    [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
+subsetFn _  = error "subset not called with 2 args"
 
--- TODO loose or strict?
-intersectFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-intersectFn names@[xname, yname] dict =
-          case (M.lookup xname dict, M.lookup yname dict) of
-            (Just (C' xset), Just (C' yset)) ->
-                  tr "intersect val: " $
-                  looseIntersect [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
-            (Just (S' xset), Just (C' yset)) ->
-                  looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xc' yset, yc' yset, r' yset]]
-            (Just (C' xset), Just (S' yset)) ->
-                  looseIntersect [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
-            (_, _) -> error "intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
-intersectFn _ _ = error "intersect not called with 2 args"
+noSubsetFn [ (C' inc),  (C' outc)] =
+    noSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+noSubsetFn [ (S' inc),  (S' outc)] =
+    noSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc],
+        [xs' outc, ys' outc, (halfDiagonal . side') outc]]
+noSubsetFn [ (C' inc),  (S' outs)] =
+    noSubset [[xc' inc, yc' inc, r' inc], [xs' outs, ys' outs, (halfDiagonal . side') outs]]
+noSubsetFn [ (S' inc),  (C' outc)] =
+    noSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
+noSubsetFn  _ = error "noSubset not called with 2 args"
 
-noIntersectFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-noIntersectFn names@[xname, yname] dict =
-          case (M.lookup xname dict, M.lookup yname dict) of
-            (Just (C' xset), Just (C' yset)) ->
-                  tr "no intersect val: " $
-                  noIntersectExt [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
-            (Just (S' xset), Just (C' yset)) ->
-                  noIntersectExt [[xs' xset, ys' xset, (halfDiagonal . side') xset], [xc' yset, yc' yset, r' yset]]
-            (Just (C' xset), Just (S' yset)) ->
-                  noIntersectExt [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, (halfDiagonal . side') yset]]
-            (_, _) -> error "no intersect not called on two sets, or 1+ doesn't exist" -- TODO check for None
-noIntersectFn _ _ = error "no intersect not called with 2 args"
+intersectFn [(C' xset), (C' yset)] =
+    looseIntersect [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
+intersectFn [(S' xset), (C' yset)] =
+    looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xc' yset, yc' yset, r' yset]]
+intersectFn [(C' xset), (S' yset)] =
+    looseIntersect [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
+intersectFn [(S' xset), (S' yset)] =
+    looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
+intersectFn _ = error "intersect not called with 2 args"
 
--- TODO: consider refactoring here
-pointInFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-pointInFn names@[xname, yname] dict =
-          case (M.lookup xname dict, M.lookup yname dict) of
-            (Just (P' pt), Just (C' set)) ->
-                  tr "point in val: " $
-                  pointInExt [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
-            (_, _) -> error "point in not called on a point and a set, or 1+ doesn't exist" -- TODO check for None
-pointInFn _ _ = error "point in not called with 2 args"
+noIntersectFn [(C' xset),  (C' yset)] = tr "no intersect val: " $
+    noIntersectExt [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
+noIntersectFn [(S' xset),  (C' yset)] =
+    noIntersectExt [[xs' xset, ys' xset, (halfDiagonal . side') xset], [xc' yset, yc' yset, r' yset]]
+noIntersectFn [(C' xset),  (S' yset)] =
+    noIntersectExt [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, (halfDiagonal . side') yset]]
+noIntersectFn [(S' xset),  (S' yset)] =
+    noIntersectExt [[xs' xset, ys' xset, (halfDiagonal . side') xset],
+        [xs' yset, ys' yset, (halfDiagonal . side') yset]]
+noIntersectFn  _ = error "no intersect not called with 2 args"
 
-pointNotInFn :: (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-pointNotInFn names@[xname, yname] dict =
-          case (M.lookup xname dict, M.lookup yname dict) of
-            (Just (P' pt), Just (C' set)) ->
-                  tr "point in val: " $
-                  pointNotInExt [[xp' pt, yp' pt], [xc' set, yc' set, r' set]]
-            (_, _) -> error "point in not called on a point and a set, or 1+ doesn't exist" -- TODO check for None
-pointNotInFn _ _ = error "point in not called with 2 args"
+pointInFn [(P' pt),  (C' set)] =
+        dist (xp' pt, yp' pt) (xc' set, yc' set) - 0.5 * r' set
+pointInFn [(P' pt),  (S' set)] =
+    dist (xp' pt, yp' pt) (xs' set, ys' set) - 0.4 * side' set
+pointInFn _ = error "point in not called with 2 args"
 
-toPenalty :: (Floating a, Real a, Show a, Ord a) => (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
+pointNotInFn [(P' pt), (C' set)] =
+    -dist (xp' pt, yp' pt) (xc' set, yc' set) + r' set
+pointNotInFn [(P' pt), (S' set)] =
+    -dist (xp' pt, yp' pt) (xs' set, ys' set) + (halfDiagonal . side') set
+pointNotInFn _ = error "point in not called with 2 args"
+
+toPenalty :: (Floating a, Real a, Show a, Ord a) =>
+    (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
 toPenalty f = \dict -> penalty $ f dict
 
--- TODO unify with the existing constraint code and penalties
--- TODO pull out penalty exponent?
--- TODO penalty is causing NaNs
 -- Generate constraints on names (returns no objects)
 genConstrFn :: (Floating a, Real a, Show a, Ord a) =>
-                C.SubConstr -> [(M.Map Name (Obj' a) -> a, Weight a)]
-genConstrFn (C.Intersect xname yname) = [ (toPenalty $ intersectFn [xname, yname], defaultCWeight) ]
-genConstrFn (C.NoIntersect xname yname) = [ (toPenalty $ noIntersectFn [xname, yname], defaultCWeight) ]
-genConstrFn (C.Subset inName outName) = [ (toPenalty $ subsetFn [inName, outName], defaultCWeight) ]
-genConstrFn (C.NoSubset inName outName) = [ (toPenalty $ noSubsetFn [inName, outName], defaultCWeight) ]
-genConstrFn (C.PointIn pname sname) = [ (toPenalty $ pointInFn [pname, sname], defaultPWeight) ]
-genConstrFn (C.PointNotIn pname sname) = [ (toPenalty $ pointNotInFn [pname, sname], defaultPWeight) ]
-
+                C.SubConstr -> [([Obj' a] -> a, Weight a, [Name])]
+genConstrFn (C.Subset inName outName)   = [ (penalty . subsetFn, defaultCWeight, [inName, outName]) ]
+genConstrFn (C.Intersect xname yname)   = [ (penalty . intersectFn, defaultCWeight, [xname, yname]) ]
+genConstrFn (C.NoIntersect xname yname) = [ (penalty . noIntersectFn, defaultCWeight, [xname, yname]) ]
+genConstrFn (C.NoSubset inName outName) = [ (penalty . noSubsetFn, defaultCWeight, [inName, outName]) ]
+genConstrFn (C.PointIn pname sname)     = [ (penalty . pointInFn, defaultPWeight, [pname, sname]) ]
+genConstrFn (C.PointNotIn pname sname)  = [ (penalty . pointNotInFn, defaultPWeight, [pname, sname]) ]
+--
 genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
-                [C.SubConstr] -> [(M.Map Name (Obj' a) -> a, Weight a)]
+                [C.SubConstr] -> [([Obj' a] -> a, Weight a, [Name])]
 genConstrFns = concatMap genConstrFn
 
 ------- Style related functions
@@ -825,7 +834,7 @@ processLine objs s dict =
     (C.Shape (C.SubType t) _) -> M.mapWithKey (\k stys -> s:stys) dict
     otherwise -> error "shape not known"
 
-
+-- Find all lines specifying shape
 shapeLines :: [C.StyLine] -> [C.StyLine]
 shapeLines stys = filter isShape $ stys
                 where isShape (C.Shape  _ _) = True
@@ -850,6 +859,7 @@ shapeOf name dict =
     where getShape (C.SS C.SetCircle) = defaultCirc name
           getShape (C.SS C.Box) = defaultSquare name
           getShape (C.SM C.SolidArrow) = defaultSolidArrow name
+          getShape _ = error ("Unknow shape for " ++ name)
 
 ------- Generate objective functions
 
@@ -895,7 +905,6 @@ genObjsAndFns stys (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
                 objs = [p1, l1]
                 weightedFns = [ (declPtObjfn [pname], defaultWeight),
                     (declLabelObjfn [pname, labelName pname], defaultWeight) ]
--- genObjsAndFns _ (C.Decl (C.OM (C.Map' _ _ _))) = error "maps not yet supported"
 genObjsAndFns stys (C.Decl (C.OM (C.Map' name from to))) = (objs, weightedFns)
             where
                 a = defaultSolidArrow name
@@ -924,24 +933,36 @@ dictOfObjs = foldr addObj M.empty
 constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
 
+lookupNames :: (Real a, Floating a, Show a, Ord a) => (M.Map Name (Obj' a)) -> [Name] -> [Obj' a]
+-- For all pairwise functions
+lookupNames dict (n1:n2:[]) = case [M.lookup n1 dict, M.lookup n2 dict] of
+        [Nothing, Nothing] -> error (n1 ++ " and " ++ n2 ++ " don't exist!")
+        [Nothing, Just _] -> error (n1 ++ " doesn't exist!")
+        [Just _, Nothing] -> error (n2 ++ " doesn't exist!")
+        [Just o1, Just o2] -> trStr ("Looking up " ++ n1 ++ " " ++ n2) [o1, o2]
+
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- first param: list of parameter annotations for each object in the state
 -- assumes that the state's SIZE and ORDER never change
+-- note: CANNOT do dict -> list because that destroys the order
 genObjFn :: (Real a, Floating a, Show a, Ord a) =>
          [[Annotation]]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
-         -> [(M.Map Name (Obj' a) -> a, Weight a)]
+         -> [([Obj' a] -> a, Weight a, [Name])]
          -> [Obj] -> a -> [a] -> [a] -> a
 genObjFn annotations objFns ambientObjFns constrObjFns =
          \currObjs penaltyWeight fixed varying ->
          let newObjs = pack annotations currObjs fixed varying in
-         -- note: CANNOT do dict -> list because that destroys the order
          let objDict = dictOf newObjs in
-           sumMap (\(f, w) -> w * f objDict) objFns
-         + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
-         + (tr "constr fn value: "
-               (constrWeight * penaltyWeight * sumMap (\(f, w) -> w * f objDict) constrObjFns))
+         sumMap (\(f, w) -> w * f objDict) objFns
+            + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
+            + (tr "constr fn value: "
+                (constrWeight * penaltyWeight * sumMap (\(f, w, n) -> w * f (lookupNames objDict n)) constrObjFns))
+        --    (sumMap (\(f, w) -> w * f objDict) objFns) +
+        --    (sumMap (\(f, w) -> w * f objDict) ambientObjFns) +
+        --    (constrWeight * penaltyWeight *
+        --         sumMap (\(f, w, n) -> w * f (lookupNames objDict n)) constrObjFns)
          -- factor out weight application?
 
 
