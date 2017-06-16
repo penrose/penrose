@@ -134,10 +134,6 @@ instance Selectable SolidArrow where
          deselect x = x { selsa = False }
          selected x = selsa x
 
--- instance Sized SolidArrow where
---          getSize x = dist (startx, starty) (endx, endy)
---          setSize size x = x { r = size } -- TODO
-
 instance Named SolidArrow where
          getName a = namesa a
          setName x a = a { namesa = x }
@@ -434,7 +430,6 @@ data Label' a = Label' { xl' :: a
                        , wl' :: a
                        , hl' :: a
                        , textl' :: String
-                   --     , scalel :: Float  -- calculate h,w from it
                        , sell' :: Bool -- selected label
                        , namel' :: String }
                        deriving (Eq, Show)
@@ -453,32 +448,6 @@ data Square' a  = Square' { xs' :: a
                      , names' :: String
                      , colors' :: Color }
                      deriving (Eq, Show)
-
--- instance Located Obj where
---          getX o = case o of
---                  C c -> getX' c
---                  L l -> getX' l
---                  P p -> getX' p
---                  S s -> getX' s
---                  A a -> getX' a
---          getY o = case o of
---                  C c -> getY' c
---                  L l -> getY' l
---                  P p -> getY' p
---                  S s -> getY' s
---                  A a -> getY' a
---          setX x o = case o of
---                 C c -> C $ setX' x c
---                 L l -> L $ setX' x l
---                 P p -> P $ setX' x p
---                 S s -> S $ setX' x s
---                 A a -> A $ setX' x a
---          setY y o = case o of
---                 C c -> C $ setY' y c
---                 L l -> L $ setY' y l
---                 P p -> P $ setY' y p
---                 S s -> S $ setY' y s
---                 A a -> A $ setY y a
 
 instance Named (SolidArrow' a) where
          getName sa = namesa' sa
@@ -576,13 +545,11 @@ pack' zipped fixed varying =
               res = case obj of
                  -- pack objects using the names, text params carried from initial state
                  -- assuming names do not change during opt
-                    C circ -> -- trace ("circ: " ++ (show $ length flatParams)) $
-                              C' $ circPack circ flatParams
-                    L label -> -- trace ("label: " ++ (show $ length flatParams)) $
-                              L' $ labelPack label flatParams
-                    P pt -> P' $ ptPack pt flatParams
-                    S sq -> S' $ sqPack sq flatParams
-                    A ar -> A' $ solidArrowPack ar flatParams
+                    C circ  -> C' $ circPack circ flatParams
+                    L label -> L' $ labelPack label flatParams
+                    P pt    -> P' $ ptPack pt flatParams
+                    S sq    -> S' $ sqPack sq flatParams
+                    A ar    -> A' $ solidArrowPack ar flatParams
 
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
@@ -612,6 +579,7 @@ centerCirc _ _ = error "centerCirc not called with 1 arg"
 --         (Just (C' s), Just (C' e)) ->
 --             -- (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 --             (xc' s - xc' e + 400)^2
+
 toLeft :: ObjFnOn a
 toLeft [fromname, toname] dict =
     case (M.lookup fromname dict, M.lookup toname dict) of
@@ -778,6 +746,13 @@ pointNotInFn [(P' pt), (S' set)] =
     -dist (xp' pt, yp' pt) (xs' set, ys' set) + (halfDiagonal . side') set
 pointNotInFn _ = error "point in not called with 2 args"
 
+avoidSubsets [(C' inset), (L' lout)] =
+    -- repelCenter [] [xc' inset, yc' inset, xl' lout, yl' lout]
+    - dist (xl' lout, yl' lout) (xc' inset, yc' inset) + 1.3 * r' inset
+avoidSubsets [(S' inset), (L' lout)] =
+    -- repelCenter [] [xc' inset, yc' inset, xl' lout, yl' lout]
+    - dist (xl' lout, yl' lout) (xs' inset, ys' inset) + 1.5 * (halfDiagonal . side') inset
+
 toPenalty :: (Floating a, Real a, Show a, Ord a) =>
     (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
 toPenalty f = \dict -> penalty $ f dict
@@ -785,12 +760,19 @@ toPenalty f = \dict -> penalty $ f dict
 -- Generate constraints on names (returns no objects)
 genConstrFn :: (Floating a, Real a, Show a, Ord a) =>
                 C.SubConstr -> [([Obj' a] -> a, Weight a, [Name])]
-genConstrFn (C.Subset inName outName)   = [ (penalty . subsetFn, defaultCWeight, [inName, outName]) ]
-genConstrFn (C.Intersect xname yname)   = [ (penalty . intersectFn, defaultCWeight, [xname, yname]) ]
-genConstrFn (C.NoIntersect xname yname) = [ (penalty . noIntersectFn, defaultCWeight, [xname, yname]) ]
-genConstrFn (C.NoSubset inName outName) = [ (penalty . noSubsetFn, defaultCWeight, [inName, outName]) ]
-genConstrFn (C.PointIn pname sname)     = [ (penalty . pointInFn, defaultPWeight, [pname, sname]) ]
-genConstrFn (C.PointNotIn pname sname)  = [ (penalty . pointNotInFn, defaultPWeight, [pname, sname]) ]
+genConstrFn (C.Intersect xname yname)   =
+    [ (penalty . intersectFn, defaultCWeight, [xname, yname]) ]
+genConstrFn (C.NoIntersect xname yname) =
+    [ (penalty . noIntersectFn, defaultCWeight, [xname, yname]) ]
+genConstrFn (C.NoSubset inName outName) =
+    [ (penalty . noSubsetFn, defaultCWeight, [inName, outName]) ]
+genConstrFn (C.PointIn pname sname)     =
+    [ (penalty . pointInFn, defaultPWeight, [pname, sname]) ]
+genConstrFn (C.PointNotIn pname sname)  =
+    [ (penalty . pointNotInFn, defaultPWeight, [pname, sname]) ]
+genConstrFn (C.Subset inName outName)   =
+    [ (penalty . subsetFn, defaultCWeight, [inName, outName]),
+      (penalty . avoidSubsets, defaultCWeight, [inName, labelName outName])]
 --
 genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
                 [C.SubConstr] -> [([Obj' a] -> a, Weight a, [Name])]
@@ -935,11 +917,17 @@ constrWeight = 10 ^ 4
 
 lookupNames :: (Real a, Floating a, Show a, Ord a) => (M.Map Name (Obj' a)) -> [Name] -> [Obj' a]
 -- For all pairwise functions
+lookupNames dict (n1:n2:n3:n4:[]) =
+    case [M.lookup n1 dict, M.lookup n2 dict, M.lookup n3 dict, M.lookup n4 dict] of
+        [Just o1, Just o2, Just o3, Just o4] -> [o1, o2, o3, o4]
+        _                  -> error ("lookupNames: at least one of the arguments don't exist!")
+lookupNames dict (n1:n2:n3:[]) = case [M.lookup n1 dict, M.lookup n2 dict, M.lookup n3 dict] of
+        [Just o1, Just o2, Just o3] -> [o1, o2, o3]
+        _                  -> error ("lookupNames: at least one of the arguments don't exist!")
 lookupNames dict (n1:n2:[]) = case [M.lookup n1 dict, M.lookup n2 dict] of
-        [Nothing, Nothing] -> error (n1 ++ " and " ++ n2 ++ " don't exist!")
-        [Nothing, Just _] -> error (n1 ++ " doesn't exist!")
-        [Just _, Nothing] -> error (n2 ++ " doesn't exist!")
-        [Just o1, Just o2] -> trStr ("Looking up " ++ n1 ++ " " ++ n2) [o1, o2]
+        [Just o1, Just o2] -> [o1, o2]
+        _                  -> error ("One of " ++ n1 ++ " or " ++ n2 ++ " don't exist!")
+lookupNames _ _ = error "lookupNames only supports 2 or 3 args"
 
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- first param: list of parameter annotations for each object in the state
@@ -1789,50 +1777,18 @@ awLineSearch f duf_noU descentDir x0 =
                 minInterval = if intervalMin then 10 ** (-10) else 0
                 -- stop if the interval gets too small; might not terminate
 
-------------- Initial states
-
--- -- initial states
--- s1 = C $ Circ { xc = -100, yc = clamp1D 200, r = rad, selc = False, namec = "A" , colorc = black }
--- s2 = C $ Circ { xc = 300, yc = clamp1D (-200), r = rad1, selc = False, namec = "A", colorc = black }
--- s3 = C $ Circ { xc = 300, yc = clamp1D 200, r = rad2, selc = False, namec = "A" , colorc = black}
--- s4 = C $ Circ { xc = -50, yc = clamp1D (-100), r = rad1 + 50, selc = False, namec = "A", colorc = black }
---
--- -- if objects start at exactly the same position, there may be problems
--- -- note: widths, heights, and names of labels below are not accurate b/c not generated by compiler
--- -- may cause problems!
--- l1 = L $ Label { xl = 50, yl = clamp1D (-300), wl = 100, hl = 100, namel = "Label_A", textl = "A", sell = False }
--- l2 = L $ Label { xl = -300, yl = clamp1D (-200), wl = 100, hl = 100, namel = "Label_B", textl = "B2", sell = False }
---
--- initStateRng :: StdGen
--- initStateRng = mkStdGen seed
---     where seed = 4 -- deterministic RNG with seed
---
--- state0 = []
--- state1 = [s1]
--- state2 = [s1, s2]
--- state3 = [s1, s2, s3]
--- state4 = [s1, s2, s3, s4]
--- -- they're all the same size and in the same place for this state generator, so it looks like one circle
--- staten n = take n $ repeat s3
--- statenRand n = let (objs', _) = constrs initStateRng (staten n) in objs'
---
--- -- TODO gen state with more labels
--- -- TODO port existing objective functions to deal with labels (or not)
--- state1lab = [s1, l1]
--- state2lab = [s1, l1, s2, l2]
---
--- -- TODO change label text
--- -- state may not satisify constraint
--- staten_label n = concat $ map labelN $ take n $ zip [1..] (repeat state1lab)
---              where labelN (x, [obj, L lab]) = [obj, L $ lab { textl = ("B" ++ show x) }]
--- -- samples a state that satisfies the constraint
--- staten_label_rand n = let (objs', _) = sampleConstrainedState initStateRng (staten_label n) in objs'
-
 ------------------------ ### frequently-changed params for debugging
--- objsInit = staten_label_rand 5
--- objsInit = statenRand
--- TODO: when exactly is this used??
+
 objsInit = []
+
+-- Flags for debugging the surrounding functions.
+clampflag = False
+debug = False
+debugLineSearch = False
+debugObj = False -- turn on/off output in obj fn or constraint
+constraintFlag = True
+objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
+constraintFnOn = True -- TODO need to implement constraint fn synthesis
 
 type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a, Real a) => a -> [a] -> [a] -> a
 -- needs to be partially applied with the current list of objects
@@ -1862,43 +1818,12 @@ epStop = 10 ** (-3)
 initWeight :: Floating a => a
 initWeight = 10 ** (-5)
 
--- Flags for debugging the surrounding functions.
-clampflag = False
-debug = False
-debugLineSearch = False
-debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = True
-objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
-constraintFnOn = True -- TODO need to implement constraint fn synthesis
+
 
 stopEps :: Floating a => a
 stopEps = 10 ** (-1)
 
 ------------ Various constants and helper functions related to objective functions
-
--- TODO delete these deprecated pack/unpack functions
--- type Fixed' = [Float]
--- type Varying' = [Float]
-
--- all objective functions so far use these two pack/unpack functions, except the ones with sets and labels
--- unpackFn :: [Obj] -> (Fixed', Varying')
--- unpackFn = sizeLoc_unpack
-
--- packFn :: [Obj] -> Varying' -> [Obj]
--- packFn = sizeLoc_pack
-
--- fixed parameters = sizes (in a list); varying parameters = locations (in a list of [x,y])
--- if you want the sizes to vary, you'll have to write different objective functions and pack/unpack functions
--- including size clamping
--- sizeLoc_unpack :: [Obj] -> (Fixed', Varying')
--- sizeLoc_unpack objs = (map getSize objs, concatMap (\o -> [getX o, getY o]) objs)
-
--- sizeLoc_pack :: [Obj] -> Varying' -> [Obj]
--- sizeLoc_pack objs varying = let positions = chunksOf 2 varying in
---                                      map (\(o, [x, y]) -> setX (clampX x) $ setY (clampY y) o)
---              -- setX x $ setY y o)
---              -- TODO turn off clamping; add constraints for in bbox in EP method to ALL objects
---                                          (zip objs positions)
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
