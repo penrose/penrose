@@ -19,6 +19,7 @@ data Set = Set' String SetType
 data Pt = Pt' String
      deriving (Show, Eq)
 
+-- Map <label> <from-set> <to-set>
 data Map = Map' String String String -- TODO needs validation vs Set Set
      deriving (Show, Eq)
 
@@ -92,7 +93,7 @@ subToLine s@[x, y, z] = LC $
                    else if x == "In" then PointIn y z -- TODO ^
                    else if x == "NotIn" then PointNotIn y z
                    else error $ "Substance spec line: 3-token line '"
-                     ++ show s ++ "' does not begin with (No)Intersect/Subset/In"
+                     ++ show s ++ "' does not begin with (No)Intersect/Subset/(Not)In"
 
 subToLine s@[w, x, y, z] = LD $ Decl $
                    if w == "Map" then OM (Map' x y z)
@@ -154,7 +155,8 @@ data SetShape = SetCircle | Box
 data PtShape = SolidDot | HollowDot | Cross
      deriving (Show, Eq)
 
-data MapShape = LeftArr | RightArr | DoubleArr
+-- data MapShape = LeftArr | RightArr | DoubleArr
+data MapShape = SolidArrow
      deriving (Show, Eq)
 
 data Direction = Horiz | Vert | Angle Float
@@ -260,9 +262,10 @@ getShape [x] = if x == "Auto" then Auto
                else if x == "SolidDot" then Override (SP SolidDot)
                else if x == "HollowDot" then Override (SP HollowDot)
                else if x == "Cross" then Override (SP Cross)
-               else if x == "LeftArrow" then Override (SM LeftArr)
-               else if x == "RightArrow" then Override (SM RightArr)
-               else if x == "DoubleArrow" then Override (SM DoubleArr)
+               else if x == "SolidArrow" then Override (SM SolidArrow)
+            --    else if x == "LeftArrow" then Override (SM LeftArr)
+            --    else if x == "RightArrow" then Override (SM RightArr)
+            --    else if x == "DoubleArrow" then Override (SM DoubleArr)
                else error $ "Invalid shape param '" ++ show x ++ "'"
 getShape s = error $ "Too many style shape params in '" ++ show s ++ "'"
 
