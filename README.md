@@ -1,6 +1,35 @@
 # Penrose
 
-We're building a prototype for set theory. Not ready for contributions or public use yet, but hopefully will be after this summer! See penrose.ink for more information.
+We're building a prototype for set theory. Not ready for contributions or public use yet, but hopefully will be after this summer! See [](penrose.ink) for more information.
+
+----
+### Example
+
+Consider the following Substance and Style program,
+- `continuousmap.sub`
+    ```
+    Set A
+    Set B
+    Set R^n
+    Set R^m
+    Subset A R^n
+    Subset B R^m
+    Map f A B
+    Set U
+    Subset U B
+    Set V
+    Subset V A
+    ```
+- `continuousmap.sty`
+    ```
+    Shape Set Circle
+    Shape Map SolidArrow
+    Shape R^n Box
+    Shape R^m Box
+    ```
+Here is how Penrose visualizes this:
+
+![](assets/WX20170618-190558.png)
 
 ----
 
@@ -19,8 +48,8 @@ To use:
 
 User interface:
 * You can click and drag the objects, including labels. The optimization will pause while dragging and re-layout when the mouse is lifted. The object on top is semi-arbitrary, decided by the order of the objects in the internal list.
-* Pressing the `R` key will resample the configuration. 
-* Pressing the `A` key will turn autostep (automatically stepping the optimization) on or off. 
+* Pressing the `R` key will resample the configuration.
+* Pressing the `A` key will turn autostep (automatically stepping the optimization) on or off.
 * Pressing the `S` key will step the optimization by one step if autostep is off. It won't do anything if autostep is on.
 
 Examples of existing pairs:
@@ -47,18 +76,18 @@ I use the following library to handle the graphics, animation, and user input: [
 
 Functionality of the current code:
 
-* gradient-descent-based layout 
-* with backtracking line search 
+* gradient-descent-based layout
+* with backtracking line search
 * for set theory with points, sets, and certain constraints on points and sets
 * with very simple objective functions provided (e.g. centering)
 * where the layout is animated and interactive (v. useful for debugging)
 
-Some limitations: 
+Some limitations:
 
 * line search sometimes doesn't terminate
 * need a better debugging interface for optimization, e.g. live parameter tuning
 
-Parameters: 
+Parameters:
 
 * stepsPerSecond: number of simulation steps for `gloss` to take for each second of real time
 * picWidth, picHeight: canvas dimensions
@@ -79,7 +108,7 @@ Debugging:
 * For printing internal values, I use the [Debug.Trace](https://hackage.haskell.org/package/base-4.9.0.0/docs/Debug-Trace.html) library.
 
 ----
- 
+
 ### Design
 
 * Compiler parses the Substance and Style programs and combines their abstract syntax trees into Layout (the intermediate layout representation).
