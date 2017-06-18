@@ -70,8 +70,11 @@ sc = L.space (void spaceChar) lineCmnt blockCmnt
 braces :: Parser a -> Parser a
 braces = between (symbol "{") (symbol "}")
 
--- noop :: Parser a
--- noop = void
+emptyProg :: Parser Block
+emptyProg = return (BlockSeq [])
+
+noStmt :: Parser Stmt
+noStmt = return (StmtSeq [])
 
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme sc
@@ -97,6 +100,7 @@ identifier = (lexeme . try) (p >>= check)
     check x = if x `elem` rws
                 then fail $ "keyword " ++ show x ++ " cannot be an identifier"
                 else return x
+
 attribute :: Parser String
 attribute = (lexeme . try) (p >>= check)
   where
@@ -118,6 +122,9 @@ getShape str = case str of
     "Circle"     -> SS SetCircle
     "Box"        -> SS Box
     "SolidArrow" -> SM SolidArrow
+    "SolidDot"   -> SP SolidDot
+    "HollowDot"  -> SP HollowDot
+    "Cross"      -> SP Cross
 
 term :: Parser Expr
 term = expr
@@ -141,8 +148,16 @@ assignStmt = do
 --   -- if there's only one stmt return it without using ‘Seq’
 --   where f l = if length l == 1 then head l else Seq l
 
+-- TODO: add sequencing for statements
 stmt :: Parser Stmt
-stmt = assignStmt
+stmt = stmtSeq
+
+stmtSeq :: Parser Stmt
+stmtSeq = f <$> sepBy1 stmt' newline
+  where f l = if length l == 1 then head l else Seq l
+  
+stmt' :: Parser Stmt
+stmt' = assignStmt
 
 globalBlock :: Parser Block
 globalBlock = do
@@ -150,8 +165,11 @@ globalBlock = do
     stmts <- braces stmt
     return $ GlobalBlock stmts
 
+-- TODO: required global and/or style block or not?
+-- TODO: How can I write something like noop???
+-- NOTE: sequence matters here
 styProg :: Parser Block
-styProg = globalBlock
+styProg = globalBlock <|> emptyProg
 
 styleParser :: Parser Block
 styleParser = between sc eof styProg
@@ -169,7 +187,7 @@ main = do
     let styFile = head args
     styIn <- readFile styFile
     -- putStrLn styIn
-    parseTest styleParser styIn
+    -- parseTest styleParser styIn
     case (runParser styleParser "" styIn) of
          Left err -> putStr (parseErrorPretty err)
          Right xs -> putStrLn $ show xs
