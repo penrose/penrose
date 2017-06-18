@@ -605,6 +605,7 @@ centerMap [mapname, fromname, toname] dict =
         (Just (A' a), Just (C' s), Just (C' e)) ->
             _centerMap a [xc' s, yc' s] [xc' e, yc' e]
                 [spacing + r' s, negate $ spacing + r' e]
+
 centerMap _ _ = error "centerMap not called with 1 arg"
 
 _centerMap :: forall a. (Floating a, Real a, Show a, Ord a) =>
@@ -771,8 +772,9 @@ genConstrFn (C.PointIn pname sname)     =
 genConstrFn (C.PointNotIn pname sname)  =
     [ (penalty . pointNotInFn, defaultPWeight, [pname, sname]) ]
 genConstrFn (C.Subset inName outName)   =
-    [ (penalty . subsetFn, defaultCWeight, [inName, outName]),
-      (penalty . avoidSubsets, defaultCWeight, [inName, labelName outName])]
+    [ (penalty . subsetFn, defaultCWeight, [inName, outName])
+    , (penalty . avoidSubsets, defaultCWeight, [inName, labelName outName])
+    ]
 --
 genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
                 [C.SubConstr] -> [([Obj' a] -> a, Weight a, [Name])]

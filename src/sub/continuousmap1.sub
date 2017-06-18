@@ -1,0 +1,11 @@
+Set A
+Set B
+Set R^n
+Set R^m
+Subset A R^n
+Subset B R^m
+Map f A B
+OpenSet U
+Subset U B
+Set f^{-1}(U)
+Subset f^{-1}(U) A

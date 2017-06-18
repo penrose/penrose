@@ -1,0 +1,51 @@
+Set D
+Set V
+Set B
+Set X
+Set A
+Set T
+Set R
+Set P
+Set Q
+Set N
+Set K
+Set F
+Set G
+Point U
+Point Z
+Point L
+Point H
+Point Y
+Point C
+Point M
+Point S
+Point O
+Point W
+Point I
+Point E
+Point J
+In E G
+NotIn U K
+NotIn L Q
+NotIn C X
+NotIn L T
+NotIn J B
+In S B
+NotIn U N
+NotIn U Q
+NotIn I D
+NotIn U T
+NotIn C F
+In H A
+In O T
+In O D
+NotIn Z G
+In W F
+In E B
+In I Q
+NotIn E X
+NoIntersect P Q
+Intersect F G
+NoIntersect X P
+Subset B X
+Intersect A P
