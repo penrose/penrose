@@ -1,5 +1,6 @@
 -- module StyAst where
-module Main (main) where
+-- module Main (main) where
+module StyAst where
 
 import Control.Monad (void)
 import Text.Megaparsec
@@ -15,32 +16,39 @@ data SubType
     = Set
     | Pt
     | Map
-    deriving (Show)
+    deriving (Show, Eq)
 
-data StyProg
-    = Block Block
-    deriving (Show)
+data StySpec = StySpec {
+    spType :: SubType,
+    spId :: String,
+    spShape :: SubShape,
+    spColor :: Color
+} deriving (Show)
+
+type StyProg = [Block]
 
 data Block
-    = BlockSeq [Block]
-    | GlobalBlock Stmt
-    | TypeBlock SubType Stmt
-    | ObjBlock String Stmt
-    | ConstraintBlock Stmt
+    = GlobalBlock [Stmt]
+    | TypeBlock SubType [Stmt]
+    | ObjBlock String [Stmt]
+    | ConstraintBlock [Stmt]
     deriving (Show)
 
 data Stmt
-    = StmtSeq [Stmt]
-    | Assign String Expr
+    = Assign String Expr
     | ConstrFn String [Expr]
     deriving (Show)
 
 data Expr
     = Id String
     | Shape SubShape
+    | Color Color
+    | Dir Direction
+    | IntLit Int
+    | FloatLit Float
     deriving (Show)
 
-data SubShape = SS SetShape | SP PtShape | SM MapShape
+data SubShape = SS SetShape | SP PtShape | SM MapShape | NoShape
      deriving (Show, Eq)
 
 data SetShape = SetCircle | Box
@@ -58,10 +66,10 @@ data Direction = Horiz | Vert | Angle Float
 data LineType = Solid | Dotted
      deriving (Show, Eq, Read)
 
-data Color = Red | Blue | Black | Yellow -- idk
+data Color = Red | Blue | Black | Yellow | Random -- idk
      deriving (Show, Eq, Read)
 
-
+-- Lexer functions
 sc :: Parser ()
 sc = L.space (void spaceChar) lineCmnt blockCmnt
   where lineCmnt  = L.skipLineComment "--"
@@ -70,14 +78,17 @@ sc = L.space (void spaceChar) lineCmnt blockCmnt
 braces :: Parser a -> Parser a
 braces = between (symbol "{") (symbol "}")
 
-emptyProg :: Parser Block
-emptyProg = return (BlockSeq [])
+emptyProg :: Parser [Block]
+emptyProg = return []
 
-noStmt :: Parser Stmt
-noStmt = return (StmtSeq [])
+-- noStmt :: Parser Stmt
+-- noStmt = return (StmtSeq [])
 
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme sc
+
+comma :: Parser String
+comma = symbol ","
 
 symbol :: String -> Parser String
 symbol = L.symbol sc
@@ -85,13 +96,43 @@ symbol = L.symbol sc
 integer :: Parser Integer
 integer = lexeme L.integer
 
+-- float :: Parser Float
+-- float = realToFrac $ lexeme L.float -- TODO: parsing without sign?
+
+-- Reserved words
 rword :: String -> Parser ()
 rword w = string w *> notFollowedBy alphaNumChar *> sc
 
-rws, attribs, shapes :: [String] -- list of reserved words
-rws = ["global"]
-attribs = ["shape"]
-shapes = ["Circle","Box","SolidArrow"]
+rws, attribs, shapes, types :: [String] -- list of reserved words
+rws =     ["global"]
+types =   ["Set", "Map", "Point"]
+attribs = ["shape", "color", "label", "scale", "position"]
+shapes =  ["None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
+colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
+
+getShape :: String -> SubShape
+getShape str = case str of
+    "None"       -> NoShape
+    "Circle"     -> SS SetCircle
+    "Box"        -> SS Box
+    "SolidArrow" -> SM SolidArrow
+    "SolidDot"   -> SP SolidDot
+    "HollowDot"  -> SP HollowDot
+    "Cross"      -> SP Cross
+
+getColor :: String -> Color
+getColor str = case str of
+    "Red"    -> Red
+    "Yellow" -> Yellow
+    "Blue"   -> Blue
+    "Black"  -> Black
+    "Random" -> Random
+
+getType :: String -> SubType
+getType str = case str of
+    "Set"   -> Set
+    "Map"   -> Map
+    "Point" -> Pt
 
 identifier :: Parser String
 identifier = (lexeme . try) (p >>= check)
@@ -117,18 +158,28 @@ subshape = (lexeme . try) (p >>= check)
                 then return (Shape $ getShape x)
                 else fail $ "Shape " ++ show x ++ " is not a valid shape"
 
-getShape :: String -> SubShape
-getShape str = case str of
-    "Circle"     -> SS SetCircle
-    "Box"        -> SS Box
-    "SolidArrow" -> SM SolidArrow
-    "SolidDot"   -> SP SolidDot
-    "HollowDot"  -> SP HollowDot
-    "Cross"      -> SP Cross
+color :: Parser Expr
+color = (lexeme . try) (p >>= check)
+  where
+    p       = some letterChar
+    check x = if x `elem` colors
+                then return (Color $ getColor x)
+                else fail $ "Color " ++ show x ++ " is not a valid color"
+
+typ :: Parser SubType
+typ = (lexeme . try) (p >>= check)
+  where
+    p       = some letterChar
+    check x = if x `elem` types
+                then return (getType x)
+                else fail $ "Type " ++ show x ++ " is not a valid type"
 
 term :: Parser Expr
 term = expr
   <|> subshape
+  <|> color
+  -- <|> integer
+  -- <|> float
 
 expr :: Parser Expr
 expr = makeExprParser term operators
@@ -140,40 +191,42 @@ assignStmt :: Parser Stmt
 assignStmt = do
   var  <- attribute
   void (symbol "=")
-  e    <- subshape
+  e    <- subshape <|> color
   return (Assign var e)
 
--- stmtSeq :: Parser Stmt
--- stmtSeq = f <$> sepBy1 stmt' semi
---   -- if there's only one stmt return it without using ‘Seq’
---   where f l = if length l == 1 then head l else Seq l
+stmtSeq :: Parser [Stmt]
+stmtSeq = sepBy1 stmt comma
 
--- TODO: add sequencing for statements
 stmt :: Parser Stmt
-stmt = stmtSeq
-
-stmtSeq :: Parser Stmt
-stmtSeq = f <$> sepBy1 stmt' newline
-  where f l = if length l == 1 then head l else Seq l
-  
-stmt' :: Parser Stmt
-stmt' = assignStmt
+stmt = assignStmt
 
 globalBlock :: Parser Block
 globalBlock = do
     void (symbol "global")
-    stmts <- braces stmt
+    stmts <- braces stmtSeq
     return $ GlobalBlock stmts
+
+typeBlock :: Parser Block
+typeBlock = do
+    t     <- typ
+    stmts <- braces stmtSeq
+    return $ TypeBlock t stmts
+
+objBlock :: Parser Block
+objBlock = do
+    i     <- identifier
+    stmts <- braces stmtSeq
+    return $ ObjBlock i stmts
 
 -- TODO: required global and/or style block or not?
 -- TODO: How can I write something like noop???
 -- NOTE: sequence matters here
-styProg :: Parser Block
-styProg = globalBlock <|> emptyProg
+styProg :: Parser [Block]
+styProg = (some $ globalBlock <|> typeBlock <|> objBlock)
+        <|> emptyProg
 
-styleParser :: Parser Block
+styleParser :: Parser [Block]
 styleParser = between sc eof styProg
--- styleParser = between (symbol "[") (symbol "]") styProg
 
 -- TODO
 styPrettyPrint :: Block -> String
@@ -188,7 +241,7 @@ main = do
     styIn <- readFile styFile
     -- putStrLn styIn
     -- parseTest styleParser styIn
-    case (runParser styleParser "" styIn) of
+    case runParser styleParser styFile styIn of
          Left err -> putStr (parseErrorPretty err)
-         Right xs -> putStrLn $ show xs
+         Right xs -> mapM_ print xs
     return ()

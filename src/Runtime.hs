@@ -15,12 +15,27 @@ import System.Environment
 import Data.List
 import qualified Data.Map.Strict as M
 import qualified Compiler as C
+import qualified StyAst as SA
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
+import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 
 divLine = putStr "\n--------\n\n"
 
 main = do
+    args <- getArgs
+    let styFile = head args
+    styIn <- readFile styFile
+    case MP.runParser SA.styleParser styFile styIn of
+         Left err -> putStr $ MP.parseErrorPretty err
+         Right xs ->
+            -- print $ getStyDict [(SA.Set, "A"), (SA.Pt, "B")] xs
+            print $ getStyDict [(SA.Set, "R1"), (SA.Pt, "R2"), (SA.Map, "R3")] xs
+            -- print $ getBlocks xs
+        --  Right xs -> print  xs
+
+
+main2 = do
      -- Reading in from file
      -- Objective function is currently hard-coded
      -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
@@ -784,18 +799,21 @@ genConstrFns = concatMap genConstrFn
 
 -- default shapes
 defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc :: String -> Obj
-defaultSolidArrow name = A $ SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, thickness = 10,
+defaultSolidArrow name = A SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, thickness = 10,
                             selsa = False, namesa = name, colorsa = black }
-defaultPt name = P $ Pt { xp = 100, yp = 100, selp = False, namep = name }
-defaultSquare name = S $ Square { xs = 100, ys = 100, side = defaultRad,
+defaultPt name = P Pt { xp = 100, yp = 100, selp = False, namep = name }
+defaultSquare name = S Square { xs = 100, ys = 100, side = defaultRad,
         sels = False, names = name, colors = black, ang = 0.0}
-defaultLabel text = L $ Label { xl = -100, yl = -100,
-                                wl = textWidth * (fromIntegral (length text)),
+defaultLabel text = L Label { xl = -100, yl = -100,
+                                wl = textWidth * fromIntegral (length text),
                                 hl = textHeight,
                                 textl = text, sell = False, namel = labelName text }
-defaultCirc name = C $ Circ { xc = 100, yc = 100, r = defaultRad,
+defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
+
+dummySpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = SA.SS SA.SetCircle, SA.spColor = SA.Blue }
 --
+------- Parsing for Old Style Design
 
 dictOfStys :: [C.SubDecl] -> [C.StyLine] -> M.Map Name [C.StyLine]
 dictOfStys objs stys = foldr (processLine objs) dict stys
@@ -844,6 +862,61 @@ shapeOf name dict =
           getShape (C.SS C.Box) = defaultSquare name
           getShape (C.SM C.SolidArrow) = defaultSolidArrow name
           getShape _ = error ("Unknow shape for " ++ name)
+
+----- Parser for the new style design
+-- Given a list of IDs, translate a raw AST of a Style program
+-- to a object-wise record
+getStyDict :: [(SA.SubType, String)] -> SA.StyProg -> M.Map Name SA.StySpec
+getStyDict ids prog = foldl loadObjConfig tConfig oBlk
+    where
+        dict = foldl (\m (t, n) ->
+                        M.insert n (dummySpec { SA.spId = n, SA.spType = t }) m) M.empty ids
+        [gBlk, tBlk, oBlk] = getBlocks prog
+        gConfig = foldl loadGlobalConfig dict gBlk
+        tConfig = foldl loadTypeConfig gConfig tBlk
+        -- applyConfig f d = foldl f d prog
+
+
+-- NOTE: assuming we process global settings FIRST. All other fields will get wiped out
+loadGlobalConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
+loadGlobalConfig dict (SA.GlobalBlock stmts) = M.mapWithKey (\k oldSpec -> newSpec { SA.spType = SA.spType oldSpec, SA.spId = SA.spId oldSpec}) dict
+    where
+        newSpec = foldl procStmt dummySpec stmts
+loadGlobalConfig dict _ = dict -- ignore all other blocks
+
+loadTypeConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
+loadTypeConfig dict (SA.TypeBlock typ stmts) = M.mapWithKey (\k s -> procSpec s) dict
+    where
+        procSpec s = if SA.spType s == typ then getSpec s else s
+        getSpec s = foldl procStmt s stmts
+loadTypeConfig dict _ = dict -- ignore all other blocks
+
+loadObjConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
+loadObjConfig dict (SA.ObjBlock name stmts) = M.mapWithKey (\k s -> procSpec s) dict
+    where
+        procSpec s = if SA.spId s == name then getSpec s else s
+        getSpec s = foldl procStmt s stmts
+loadObjConfig dict _ = dict -- ignore all other blocks
+
+procStmt :: SA.StySpec -> SA.Stmt -> SA.StySpec
+procStmt spec l@(SA.Assign a (SA.Color c)) = spec { SA.spColor = c }
+procStmt spec l@(SA.Assign a (SA.Shape s)) = spec { SA.spShape = s }
+-- loadType ::
+
+getBlocks :: SA.StyProg -> [[SA.Block]]
+getBlocks p = map (\f -> f p) filters
+    where filters = map filter [isGlobalBlock, isTypeBlock, isObjBlock]
+
+isGlobalBlock, isTypeBlock, isObjBlock :: SA.Block -> Bool
+isGlobalBlock (SA.GlobalBlock _) = True
+isGlobalBlock _ = False
+
+isTypeBlock (SA.TypeBlock _ _) = True
+isTypeBlock _ = False
+
+isObjBlock (SA.ObjBlock _ _) = True
+isObjBlock _ = False
+
 
 ------- Generate objective functions
 
