@@ -22,20 +22,20 @@ import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 
 divLine = putStr "\n--------\n\n"
 
+-- main = do
+--     args <- getArgs
+--     let styFile = head args
+--     styIn <- readFile styFile
+--     case MP.runParser SA.styleParser styFile styIn of
+--          Left err -> putStr $ MP.parseErrorPretty err
+--          Right xs ->
+--             -- print $ getStyDict [(SA.Set, "A"), (SA.Pt, "B")] xs
+--             print $ getStyDict [(SA.Set, "R1"), (SA.Pt, "R2"), (SA.Map, "R3")] xs
+--             -- print $ getBlocks xs
+--         --  Right xs -> print  xs
+
+
 main = do
-    args <- getArgs
-    let styFile = head args
-    styIn <- readFile styFile
-    case MP.runParser SA.styleParser styFile styIn of
-         Left err -> putStr $ MP.parseErrorPretty err
-         Right xs ->
-            -- print $ getStyDict [(SA.Set, "A"), (SA.Pt, "B")] xs
-            print $ getStyDict [(SA.Set, "R1"), (SA.Pt, "R2"), (SA.Map, "R3")] xs
-            -- print $ getBlocks xs
-        --  Right xs -> print  xs
-
-
-main2 = do
      -- Reading in from file
      -- Objective function is currently hard-coded
      -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
@@ -55,38 +55,41 @@ main2 = do
        putStrLn "Parsed Substance program:\n"
        putStrLn $ C.subPrettyPrint' subParsed
 
-       let styParsed = C.styParse styIn
-       divLine
-       putStrLn "Parsed Style program:\n"
-       putStrLn $ C.styPrettyPrint styParsed
+    --    let styParsed = C.styParse styIn
+       case MP.runParser SA.styleParser styFile styIn of
+           Left err -> putStr $ MP.parseErrorPretty err
+           Right styParsed -> do
+               divLine
+               putStrLn "Parsed Style program:\n"
+        --    putStrLn $ C.styPrettyPrint styParsed
+               mapM_ print styParsed
+               divLine
+               let initState = genInitState (C.subSeparate subParsed) styParsed
+               putStrLn "Synthesizing objects and objective functions"
+               -- putStrLn "Intermediate layout representation:\n"
+               -- let intermediateRep = C.subToLayoutRep subParsed
+               -- putStrLn $ show intermediateRep
 
-       divLine
-       let initState = genInitState (C.subSeparate subParsed) styParsed
-       putStrLn "Synthesizing objects and objective functions"
-       -- putStrLn "Intermediate layout representation:\n"
-       -- let intermediateRep = C.subToLayoutRep subParsed
-       -- putStrLn $ show intermediateRep
+               -- let initState = compilerToRuntimeTypes intermediateRep
+               -- divLine
+               -- putStrLn "Initial state, optimization representation:\n"
+               -- putStrLn "TODO derive Show"
+               -- putStrLn $ show initState
 
-       -- let initState = compilerToRuntimeTypes intermediateRep
-       -- divLine
-       -- putStrLn "Initial state, optimization representation:\n"
-       -- putStrLn "TODO derive Show"
-       -- putStrLn $ show initState
+               divLine
+               putStrLn "Visualizing notation:\n"
 
-       divLine
-       putStrLn "Visualizing notation:\n"
-
-       -- Running with hardcoded parameters
-       (play
-        (InWindow "optimization-based layout" -- display mode, window name
-                  (picWidth, picHeight)   -- size
-                  (10, 10))    -- position
-        white                   -- background color
-        stepsPerSecond         -- number of simulation steps to take for each second of real time
-        initState               -- the initial world, defined as a type below
-        picOf                   -- fn to convert world to a pic
-        handler                 -- fn to handle input events
-        step)                    -- step the world one iteration; passed period of time (in secs) to be advanced
+               -- Running with hardcoded parameters
+               (play
+                (InWindow "optimization-based layout" -- display mode, window name
+                          (picWidth, picHeight)   -- size
+                          (10, 10))    -- position
+                white                   -- background color
+                stepsPerSecond         -- number of simulation steps to take for each second of real time
+                initState               -- the initial world, defined as a type below
+                picOf                   -- fn to convert world to a pic
+                handler                 -- fn to handle input events
+                step)                    -- step the world one iteration; passed period of time (in secs) to be advanced
 
 picWidth :: Int
 picWidth = 800
@@ -853,28 +856,38 @@ prioritize stys = stys !! maxIdx
               getPrio (C.Shape (C.SubType _) _) = 1
 
 -- Generates an object depending on the style specification
-shapeOf :: String -> M.Map Name [C.StyLine] -> Obj
-shapeOf name dict =
-    case (M.lookup name dict) of
-        Nothing -> error ("Cannot find style info for " ++ name)
-        Just stys -> let (C.Shape _ (C.Override s)) = prioritize $ shapeLines stys in getShape s
-    where getShape (C.SS C.SetCircle) = defaultCirc name
-          getShape (C.SS C.Box) = defaultSquare name
-          getShape (C.SM C.SolidArrow) = defaultSolidArrow name
-          getShape _ = error ("Unknow shape for " ++ name)
+-- shapeOf :: String -> M.Map Name [C.StyLine] -> Obj
+-- shapeOf name dict =
+--     case (M.lookup name dict) of
+--         Nothing -> error ("Cannot find style info for " ++ name)
+--         Just stys -> let (C.Shape _ (C.Override s)) = prioritize $ shapeLines stys in getShape s
+--     where getShape (C.SS C.SetCircle) = defaultCirc name
+--           getShape (C.SS C.Box) = defaultSquare name
+--           getShape (C.SM C.SolidArrow) = defaultSolidArrow name
+--           getShape _ = error ("Unknow shape for " ++ name)
 
 ----- Parser for the new style design
 -- Given a list of IDs, translate a raw AST of a Style program
 -- to a object-wise record
-getStyDict :: [(SA.SubType, String)] -> SA.StyProg -> M.Map Name SA.StySpec
-getStyDict ids prog = foldl loadObjConfig tConfig oBlk
+getStyDict :: [C.SubDecl] -> SA.StyProg -> M.Map Name SA.StySpec
+getStyDict decls prog = foldl loadObjConfig tConfig oBlk
     where
+        ids = getSubTuples decls
         dict = foldl (\m (t, n) ->
                         M.insert n (dummySpec { SA.spId = n, SA.spType = t }) m) M.empty ids
         [gBlk, tBlk, oBlk] = getBlocks prog
         gConfig = foldl loadGlobalConfig dict gBlk
         tConfig = foldl loadTypeConfig gConfig tBlk
         -- applyConfig f d = foldl f d prog
+
+getSubTuples :: [C.SubDecl] -> [(SA.SubType, String)]
+getSubTuples decls = map getType decls
+    where
+        getType (C.Decl d) = case d of
+            C.OS (C.Set' n _) -> (SA.Set, n)
+            C.OP (C.Pt' n) -> (SA.Pt, n)
+            C.OM (C.Map' n _ _) -> (SA.Map, n)
+
 
 
 -- NOTE: assuming we process global settings FIRST. All other fields will get wiped out
@@ -917,6 +930,16 @@ isTypeBlock _ = False
 isObjBlock (SA.ObjBlock _ _) = True
 isObjBlock _ = False
 
+-- Generates an object depending on the style specification
+shapeOf :: String -> M.Map Name SA.StySpec -> Obj
+shapeOf name dict =
+    case M.lookup name dict of
+        Nothing -> error ("Cannot find style info for " ++ name)
+        Just spec -> getShape $ SA.spShape spec
+    where getShape (SA.SS SA.SetCircle) = defaultCirc name
+          getShape (SA.SS SA.Box) = defaultSquare name
+          getShape (SA.SM SA.SolidArrow) = defaultSolidArrow name
+          getShape _ = error ("Unknow shape for " ++ name)
 
 ------- Generate objective functions
 
@@ -946,7 +969,7 @@ labelName :: String -> String
 labelName name = "Label_" ++ name
 
 genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
-                  M.Map String [C.StyLine] -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
+                  M.Map String SA.StySpec -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 genObjsAndFns stys line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
             where
                 c1 = shapeOf sname stys
@@ -973,7 +996,7 @@ genObjsAndFns stys (C.Decl (C.OM (C.Map' name from to))) = (objs, weightedFns)
                     (declLabelObjfn [name, labelName name], defaultWeight)]
 
 genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
-                 [C.SubDecl] -> M.Map String [C.StyLine] -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
+                 [C.SubDecl] -> M.Map String SA.StySpec -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 -- TODO figure out how the types work. also add weights
 genAllObjsAndFns decls stys = let (objss, fnss) = unzip $ map (genObjsAndFns stys) decls in
                          (concat objss, concat fnss)
@@ -1039,10 +1062,10 @@ constraint constrs = if constraintFlag then \x ->
 -- generate all objects and the overall objective function
 -- style program is currently unused
 -- TODO adjust weights of all functions
-genInitState :: ([C.SubDecl], [C.SubConstr]) -> [C.StyLine] -> State
+genInitState :: ([C.SubDecl], [C.SubConstr]) -> SA.StyProg -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
-             let (initState, objFns) = genAllObjsAndFns decls (dictOfStys decls stys) in
+             let (initState, objFns) = genAllObjsAndFns decls (getStyDict decls stys) in
             --  let objFns = [] in -- TODO removed only for debugging constraints
 
              -- ambient objectives
