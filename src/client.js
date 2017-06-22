@@ -82,14 +82,38 @@ $.getScript('snap.svg.js', function()
         }
     }
 
+    function handle_resample(ws) {
+    }
+
     $(document).ready(function () {
         var s = Snap(800, 700);
         var ws = createSocket();
         var sampleInterval = 10
         var lastTime = new Date().getTime()
         ws.onopen = function() {
-            // ws.send('Hi! I am ' + user);
-            // alert("Hello, world!")
+            $("#resample").click(function() {
+                var dict = { "command" : "resample" }
+                var json = JSON.stringify(dict)
+                ws.send(json)
+            });
+            $("#step").click(function() {
+                var dict = { "command" : "step" }
+                var json = JSON.stringify(dict)
+                ws.send(json)
+            });
+            $("#autostep").click(function() {
+                console.log("autostep")
+                var $this = $(this);
+                $this.toggleClass('On');
+                if($this.hasClass('On')){
+                    $this.text('Disable Autostep');
+                } else {
+                    $this.text('Enable Autostep');
+                }
+                var dict = { "command" : "autostep" }
+                var json = JSON.stringify(dict)
+                ws.send(json)
+            });
         };
         ws.onmessage = function(event) {
             // console.log(event.data)
