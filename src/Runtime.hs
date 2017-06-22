@@ -1,7 +1,9 @@
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 -- for autodiff, requires passing in a polymorphic fn
 
--- module Runtime where
+module Runtime where
 import Graphics.Gloss
 import Graphics.Gloss.Data.Vector
 import Graphics.Gloss.Interface.Pure.Game
@@ -18,90 +20,82 @@ import qualified Compiler as C
 import qualified StyAst as SA
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
+-- For running the new style parser
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
+-- For porting to the web
+import Data.Monoid ((<>))
+-- import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson
+import GHC.Generics
 
 divLine = putStr "\n--------\n\n"
 
 -- main = do
---     args <- getArgs
---     let styFile = head args
---     styIn <- readFile styFile
---     case MP.runParser SA.styleParser styFile styIn of
---          Left err -> putStr $ MP.parseErrorPretty err
---          Right xs ->
---             -- print $ getStyDict [(SA.Set, "A"), (SA.Pt, "B")] xs
---             print $ getStyDict [(SA.Set, "R1"), (SA.Pt, "R2"), (SA.Map, "R3")] xs
---             -- print $ getBlocks xs
---         --  Right xs -> print  xs
+--      -- Reading in from file
+--      -- Objective function is currently hard-coded
+--      -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
+--        args <- getArgs
+--        putStrLn $ if not $ length args == 2 then "Usage: ./Runtime prog1.sub prog2.sty" else "" -- TODO exit
+--        let (subFile, styFile) = (head args, args !! 1)
+--        subIn <- readFile subFile
+--        styIn <- readFile styFile
+--        putStrLn "\nSubstance program:\n"
+--        putStrLn subIn
+--        divLine
+--        putStrLn "Style program:\n"
+--        putStrLn styIn
+--        divLine
+--
+--        let subParsed = C.subParse subIn
+--        putStrLn "Parsed Substance program:\n"
+--        putStrLn $ C.subPrettyPrint' subParsed
+--
+--     --    let styParsed = C.styParse styIn
+--        case MP.runParser SA.styleParser styFile styIn of
+--            Left err -> putStr $ MP.parseErrorPretty err
+--            Right styParsed -> do
+--                divLine
+--                putStrLn "Parsed Style program:\n"
+--         --    putStrLn $ C.styPrettyPrint styParsed
+--                mapM_ print styParsed
+--                divLine
+--                let initState = genInitState (C.subSeparate subParsed) styParsed
+--                putStrLn "Synthesizing objects and objective functions"
+--                -- putStrLn "Intermediate layout representation:\n"
+--                -- let intermediateRep = C.subToLayoutRep subParsed
+--                -- putStrLn $ show intermediateRep
+--
+--                -- let initState = compilerToRuntimeTypes intermediateRep
+--                -- divLine
+--                -- putStrLn "Initial state, optimization representation:\n"
+--                -- putStrLn "TODO derive Show"
+--                -- putStrLn $ show initState
+--
+--                divLine
+--                putStrLn "Visualizing notation:\n"
+--
+--             --    Running with hardcoded parameters
+--                (play
+--                 (InWindow "optimization-based layout" -- display mode, window name
+--                           (picWidth, picHeight)   -- size
+--                           (10, 10))    -- position
+--                 white                   -- background color
+--                 stepsPerSecond         -- number of simulation steps to take for each second of real time
+--                 initState               -- the initial world, defined as a type below
+--                 picOf                   -- fn to convert world to a pic
+--                 handler                 -- fn to handle input events
+--                 step)                    -- step the world one iteration; passed period of time (in secs) to be advanced
 
 
-main = do
-     -- Reading in from file
-     -- Objective function is currently hard-coded
-     -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
-       args <- getArgs
-       putStrLn $ if not $ length args == 2 then "Usage: ./Runtime prog1.sub prog2.sty" else "" -- TODO exit
-       let (subFile, styFile) = (head args, args !! 1)
-       subIn <- readFile subFile
-       styIn <- readFile styFile
-       putStrLn "\nSubstance program:\n"
-       putStrLn subIn
-       divLine
-       putStrLn "Style program:\n"
-       putStrLn styIn
-       divLine
-
-       let subParsed = C.subParse subIn
-       putStrLn "Parsed Substance program:\n"
-       putStrLn $ C.subPrettyPrint' subParsed
-
-    --    let styParsed = C.styParse styIn
-       case MP.runParser SA.styleParser styFile styIn of
-           Left err -> putStr $ MP.parseErrorPretty err
-           Right styParsed -> do
-               divLine
-               putStrLn "Parsed Style program:\n"
-        --    putStrLn $ C.styPrettyPrint styParsed
-               mapM_ print styParsed
-               divLine
-               let initState = genInitState (C.subSeparate subParsed) styParsed
-               putStrLn "Synthesizing objects and objective functions"
-               -- putStrLn "Intermediate layout representation:\n"
-               -- let intermediateRep = C.subToLayoutRep subParsed
-               -- putStrLn $ show intermediateRep
-
-               -- let initState = compilerToRuntimeTypes intermediateRep
-               -- divLine
-               -- putStrLn "Initial state, optimization representation:\n"
-               -- putStrLn "TODO derive Show"
-               -- putStrLn $ show initState
-
-               divLine
-               putStrLn "Visualizing notation:\n"
-
-               -- Running with hardcoded parameters
-               (play
-                (InWindow "optimization-based layout" -- display mode, window name
-                          (picWidth, picHeight)   -- size
-                          (10, 10))    -- position
-                white                   -- background color
-                stepsPerSecond         -- number of simulation steps to take for each second of real time
-                initState               -- the initial world, defined as a type below
-                picOf                   -- fn to convert world to a pic
-                handler                 -- fn to handle input events
-                step)                    -- step the world one iteration; passed period of time (in secs) to be advanced
-
-picWidth :: Int
+picWidth, picHeight :: Int
 picWidth = 800
-
-picHeight :: Int
 picHeight = 700
 
 stepsPerSecond :: Int
 stepsPerSecond = 10000
 
 calcTimestep :: Float -- for use in forcing stepping in handler
-calcTimestep = 1 / (int2Float stepsPerSecond)
+calcTimestep = 1 / int2Float stepsPerSecond
 
 ----------- Defining types for the state of the world.
 -- Objects can be Circs (circles) or Labels. Each has a size and position.
@@ -137,7 +131,7 @@ data SolidArrow = SolidArrow { startx :: Float
                              , selsa :: Bool -- is the circle currently selected? (mouse is dragging it)
                              , namesa :: String
                              , colorsa :: Color }
-         deriving (Eq, Show)
+         deriving (Eq, Show, Generic)
 
 instance Located SolidArrow where
         --  getX a = endx a - startx a
@@ -156,6 +150,9 @@ instance Named SolidArrow where
          getName a = namesa a
          setName x a = a { namesa = x }
 
+instance ToJSON SolidArrow
+instance FromJSON SolidArrow
+
 -------
 
 data Circ = Circ { xc :: Float
@@ -164,7 +161,7 @@ data Circ = Circ { xc :: Float
                  , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
                  , namec :: String
                  , colorc :: Color }
-     deriving (Eq, Show)
+     deriving (Eq, Show, Generic)
 
 instance Located Circ where
          getX c = xc c
@@ -185,6 +182,9 @@ instance Named Circ where
          getName c = namec c
          setName x c = c { namec = x }
 
+instance ToJSON Circ
+instance FromJSON Circ
+
 ----------------------
 
 data Square = Square { xs :: Float
@@ -194,7 +194,7 @@ data Square = Square { xs :: Float
                      , sels :: Bool -- is the circle currently selected? (mouse is dragging it)
                      , names :: String
                      , colors :: Color }
-     deriving (Eq, Show)
+     deriving (Eq, Show, Generic)
 
 instance Located Square where
          getX s = xs s
@@ -215,6 +215,8 @@ instance Named Square where
          getName s = names s
          setName x s = s { names = x }
 
+instance ToJSON Square
+instance FromJSON Square
 -------
 
 data Label = Label { xl :: Float
@@ -225,7 +227,7 @@ data Label = Label { xl :: Float
                    -- , scalel :: Float  -- calculate h,w from it
                    , sell :: Bool -- selected label
                    , namel :: String }
-     deriving (Eq, Show)
+     deriving (Eq, Show, Generic)
 
 instance Located Label where
          getX l = xl l
@@ -248,13 +250,15 @@ instance Named Label where
          getName l = namel l
          setName x l = l { namel = x }
 
+instance ToJSON Label
+instance FromJSON Label
 ------
 
 data Pt = Pt { xp :: Float
              , yp :: Float
              , selp :: Bool
              , namep :: String }
-     deriving (Eq, Show)
+     deriving (Eq, Show, Generic)
 
 instance Located Pt where
          getX p = xp p
@@ -271,7 +275,34 @@ instance Named Pt where
          getName p   = namep p
          setName x p = p { namep = x }
 
-data Obj = S Square | C Circ | L Label | P Pt | A SolidArrow deriving (Eq, Show)
+instance ToJSON Pt
+instance FromJSON Pt
+
+data Obj = S Square
+         | C Circ
+         | L Label
+         | P Pt
+         | A SolidArrow
+         deriving (Eq, Show, Generic)
+
+instance ToJSON Obj
+instance FromJSON Obj
+
+instance FromJSON Color where
+    parseJSON = withObject "Color" $ \v -> makeColor
+           <$> v .: "r"
+           <*> v .: "g"
+           <*> v .: "b"
+           <*> v .: "a"
+
+instance ToJSON Color where
+    -- this generates a Value
+    toJSON c =
+        let (r, g, b, a) = rgbaOfColor  c in
+        object ["r" .= r, "g" .= g, "b" .= b, "a" .= a]
+    toEncoding c =
+        let (r, g, b, a) = rgbaOfColor  c in
+        pairs ("r" .= r <> "g" .= g <> "b" .= b <> "a" .= a)
 
 -- TODO: is there some way to reduce the top-level boilerplate?
 instance Located Obj where
@@ -366,7 +397,7 @@ data State = State { objs :: [Obj]
                    , rng :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
                    , params :: Params
-                   } -- deriving (Show)
+                   }  -- deriving (Show)
 
 ------
 
@@ -377,7 +408,7 @@ initRng = mkStdGen seed
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0
 
-initParams :: Params
+
 initParams = Params { weight = initWeight, optStatus = NewIter, objFn = objFnNone, annotations = [] }
 
 ----------------------- Unpacking
@@ -697,7 +728,7 @@ circlesCenter objMap = let (fix, vary) = circParams objMap in
 -- Constraints are written WRT magnitude of violation
 -- TODO metaprogramming for boolean constraints
 -- TODO use these types?
-type ConstraintFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+-- type ConstraintFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
 
 defaultCWeight :: Floating a => a
 defaultCWeight = 1
@@ -708,19 +739,20 @@ defaultPWeight = 1
 
 
 -- Pairwise constraint functions
+type ConstraintFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
 
-subsetFn, noSubsetFn, intersectFn, noIntersectFn, pointInFn, pointNotInFn ::
-    (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
-subsetFn [(C' inc), (C' outc)] =
+subsetFn :: ConstraintFn
+subsetFn [C' inc, C' outc] =
     strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-subsetFn [(S' inc), (S' outc)] = strictSubset
+subsetFn [S' inc, S' outc] = strictSubset
     [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-subsetFn [(C' inc), (S' outc)] = strictSubset
+subsetFn [C' inc, S' outc] = strictSubset
     [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-subsetFn [(S' inc), (C' outc)] = strictSubset
+subsetFn [S' inc, C' outc] = strictSubset
     [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
 subsetFn _  = error "subset not called with 2 args"
 
+noSubsetFn :: ConstraintFn
 noSubsetFn [ (C' inc),  (C' outc)] =
     noSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
 noSubsetFn [ (S' inc),  (S' outc)] =
@@ -732,6 +764,7 @@ noSubsetFn [ (S' inc),  (C' outc)] =
     noSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
 noSubsetFn  _ = error "noSubset not called with 2 args"
 
+intersectFn :: ConstraintFn
 intersectFn [(C' xset), (C' yset)] =
     looseIntersect [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
 intersectFn [(S' xset), (C' yset)] =
@@ -742,6 +775,7 @@ intersectFn [(S' xset), (S' yset)] =
     looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
 intersectFn _ = error "intersect not called with 2 args"
 
+noIntersectFn :: ConstraintFn
 noIntersectFn [(C' xset),  (C' yset)] = tr "no intersect val: " $
     noIntersectExt [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
 noIntersectFn [(S' xset),  (C' yset)] =
@@ -753,18 +787,21 @@ noIntersectFn [(S' xset),  (S' yset)] =
         [xs' yset, ys' yset, (halfDiagonal . side') yset]]
 noIntersectFn  _ = error "no intersect not called with 2 args"
 
+pointInFn :: ConstraintFn
 pointInFn [(P' pt),  (C' set)] =
         dist (xp' pt, yp' pt) (xc' set, yc' set) - 0.5 * r' set
 pointInFn [(P' pt),  (S' set)] =
     dist (xp' pt, yp' pt) (xs' set, ys' set) - 0.4 * side' set
 pointInFn _ = error "point in not called with 2 args"
 
+pointNotInFn :: ConstraintFn
 pointNotInFn [(P' pt), (C' set)] =
     -dist (xp' pt, yp' pt) (xc' set, yc' set) + r' set
 pointNotInFn [(P' pt), (S' set)] =
     -dist (xp' pt, yp' pt) (xs' set, ys' set) + (halfDiagonal . side') set
 pointNotInFn _ = error "point in not called with 2 args"
 
+avoidSubsets :: ConstraintFn
 avoidSubsets [(C' inset), (L' lout)] =
     -- repelCenter [] [xc' inset, yc' inset, xl' lout, yl' lout]
     - dist (xl' lout, yl' lout) (xc' inset, yc' inset) + 1.3 * r' inset
@@ -892,29 +929,28 @@ getSubTuples decls = map getType decls
 
 -- NOTE: assuming we process global settings FIRST. All other fields will get wiped out
 loadGlobalConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
-loadGlobalConfig dict (SA.GlobalBlock stmts) = M.mapWithKey (\k oldSpec -> newSpec { SA.spType = SA.spType oldSpec, SA.spId = SA.spId oldSpec}) dict
+loadGlobalConfig dict (SA.GlobalBlock stmts) = M.mapWithKey (\_ oldSpec -> newSpec { SA.spType = SA.spType oldSpec, SA.spId = SA.spId oldSpec}) dict
     where
         newSpec = foldl procStmt dummySpec stmts
 loadGlobalConfig dict _ = dict -- ignore all other blocks
 
 loadTypeConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
-loadTypeConfig dict (SA.TypeBlock typ stmts) = M.mapWithKey (\k s -> procSpec s) dict
+loadTypeConfig dict (SA.TypeBlock typ stmts) = M.mapWithKey (\_ s -> procSpec s) dict
     where
         procSpec s = if SA.spType s == typ then getSpec s else s
         getSpec s = foldl procStmt s stmts
 loadTypeConfig dict _ = dict -- ignore all other blocks
 
 loadObjConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
-loadObjConfig dict (SA.ObjBlock name stmts) = M.mapWithKey (\k s -> procSpec s) dict
+loadObjConfig dict (SA.ObjBlock name stmts) = M.mapWithKey (\_ s -> procSpec s) dict
     where
         procSpec s = if SA.spId s == name then getSpec s else s
         getSpec s = foldl procStmt s stmts
 loadObjConfig dict _ = dict -- ignore all other blocks
 
 procStmt :: SA.StySpec -> SA.Stmt -> SA.StySpec
-procStmt spec l@(SA.Assign a (SA.Color c)) = spec { SA.spColor = c }
-procStmt spec l@(SA.Assign a (SA.Shape s)) = spec { SA.spShape = s }
--- loadType ::
+procStmt spec (SA.Assign _ (SA.Color c)) = spec { SA.spColor = c }
+procStmt spec (SA.Assign _ (SA.Shape s)) = spec { SA.spShape = s }
 
 getBlocks :: SA.StyProg -> [[SA.Block]]
 getBlocks p = map (\f -> f p) filters
