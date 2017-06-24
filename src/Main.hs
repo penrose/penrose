@@ -17,9 +17,8 @@ main = do
     -- Reading in from file
     -- Objective function is currently hard-coded
     -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
-    -- TODO: let user decide Gloss vs Snap
     args <- getArgs
-    when (length args /= 3) $ die "Usage: ./Runtime <snap|gloss> prog1.sub prog2.sty"
+    when (length args /= 3) $ die "Usage: ./Main <snap|gloss> prog1.sub prog2.sty"
     let (mode, subFile, styFile) = (head args, args !! 1, args !! 2)
     subIn <- readFile subFile
     styIn <- readFile styFile

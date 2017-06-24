@@ -24,68 +24,10 @@ import qualified StyAst as SA
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 -- For porting to the web
 import Data.Monoid ((<>))
--- import Data.Aeson (FromJSON, ToJSON)
 import Data.Aeson
 import GHC.Generics
 
 divLine = putStr "\n--------\n\n"
-
--- main = do
---      -- Reading in from file
---      -- Objective function is currently hard-coded
---      -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
---        args <- getArgs
---        putStrLn $ if not $ length args == 2 then "Usage: ./Runtime prog1.sub prog2.sty" else "" -- TODO exit
---        let (subFile, styFile) = (head args, args !! 1)
---        subIn <- readFile subFile
---        styIn <- readFile styFile
---        putStrLn "\nSubstance program:\n"
---        putStrLn subIn
---        divLine
---        putStrLn "Style program:\n"
---        putStrLn styIn
---        divLine
---
---        let subParsed = C.subParse subIn
---        putStrLn "Parsed Substance program:\n"
---        putStrLn $ C.subPrettyPrint' subParsed
---
---     --    let styParsed = C.styParse styIn
---        case MP.runParser SA.styleParser styFile styIn of
---            Left err -> putStr $ MP.parseErrorPretty err
---            Right styParsed -> do
---                divLine
---                putStrLn "Parsed Style program:\n"
---         --    putStrLn $ C.styPrettyPrint styParsed
---                mapM_ print styParsed
---                divLine
---                let initState = genInitState (C.subSeparate subParsed) styParsed
---                putStrLn "Synthesizing objects and objective functions"
---                -- putStrLn "Intermediate layout representation:\n"
---                -- let intermediateRep = C.subToLayoutRep subParsed
---                -- putStrLn $ show intermediateRep
---
---                -- let initState = compilerToRuntimeTypes intermediateRep
---                -- divLine
---                -- putStrLn "Initial state, optimization representation:\n"
---                -- putStrLn "TODO derive Show"
---                -- putStrLn $ show initState
---
---                divLine
---                putStrLn "Visualizing notation:\n"
---
---             --    Running with hardcoded parameters
---                (play
---                 (InWindow "optimization-based layout" -- display mode, window name
---                           (picWidth, picHeight)   -- size
---                           (10, 10))    -- position
---                 white                   -- background color
---                 stepsPerSecond         -- number of simulation steps to take for each second of real time
---                 initState               -- the initial world, defined as a type below
---                 picOf                   -- fn to convert world to a pic
---                 handler                 -- fn to handle input events
---                 step)                    -- step the world one iteration; passed period of time (in secs) to be advanced
-
 
 picWidth, picHeight :: Int
 picWidth = 800
@@ -629,6 +571,14 @@ centerCirc _ _ = error "centerCirc not called with 1 arg"
 --             -- (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 --             (xc' s - xc' e + 400)^2
 
+sameY :: ObjFnOn a
+sameY [fromname, toname] dict =
+    case (M.lookup fromname dict, M.lookup toname dict) of
+        (Just (C' s), Just (S' e)) -> (yc' s - ys' e)^2
+        (Just (S' s), Just (C' e)) -> (ys' s - yc' e)^2
+        (Just (C' s), Just (C' e)) -> (yc' s - yc' e)^2
+        (Just (S' s), Just (S' e)) -> (ys' s - ys' e)^2
+
 toLeft :: ObjFnOn a
 toLeft [fromname, toname] dict =
     case (M.lookup fromname dict, M.lookup toname dict) of
@@ -1028,6 +978,7 @@ genObjsAndFns stys (C.Decl (C.OM (C.Map' name from to))) = (objs, weightedFns)
                 objs = [a, l1]
                 weightedFns = [
                     (toLeft [from, to], defaultWeight),
+                    (sameY [from, to], defaultWeight),
                     (declMapObjfn [name, from, to], defaultWeight), -- TODO: a different obj function
                     (declLabelObjfn [name, labelName name], defaultWeight)]
 

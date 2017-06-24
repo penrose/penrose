@@ -2,11 +2,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Server where
-import Data.Aeson
 import GHC.Generics
 import Data.Monoid (mappend)
 import Data.Text (Text)
-import Control.Exception (finally)
 import Control.Monad (forM_, forever)
 import Control.Monad.IO.Class (liftIO)
 import Control.Concurrent (MVar, newMVar, modifyMVar_, modifyMVar, readMVar)
@@ -24,9 +22,10 @@ import Data.Maybe (fromMaybe)
 
 
 type ServerState = R.State
-
-data Message = Message { command :: String } deriving (Show, Generic)
-instance FromJSON Message
+data Command = Command { command :: String } deriving (Show, Generic)
+instance FromJSON Command
+data DragEvent = DragEvent { name :: String, xm :: Float, ym :: Float } deriving (Show, Generic)
+instance FromJSON DragEvent
 
 
 wsSendJSON :: ToJSON j => WS.Connection -> j -> IO ()
@@ -60,16 +59,29 @@ processCommand :: WS.Connection -> R.State -> IO ()
 processCommand conn s = do
     putStrLn "Receiving Commands"
     msg_json <- WS.receiveData conn
-    putStrLn "Command received"
-    let msg = fromMaybe Message { command = "Error reading JSON" } (decode msg_json :: Maybe Message)
-    let cmd = command msg
-    case cmd of
-        _   | cmd == "resample" -> resampleAndSend conn s
-            | cmd == "step"     -> stepAndSend conn s
-            | cmd == "autostep" -> do
-                putStrLn "AUTOSTEP"
-                loop conn (s { R.autostep = not $ R.autostep s })
-                -- | otherwise -> putStrLn ("Can't recognize command " ++ cmd)
+    case decode msg_json of
+        Just (Command cmd)  -> executeCommand cmd conn s
+        Nothing -> case decode msg_json of
+                        Just (DragEvent name xm ym)  -> updateState name xm ym conn s
+                        Nothing -> error "Error reading JSON"
+
+updateState :: String -> Float -> Float -> WS.Connection -> R.State -> IO ()
+updateState name xm ym conn s = if R.autostep s then stepAndSend conn news else loop conn news
+    where
+        newObjs = map (\x ->
+                if R.getName x == name
+                    then R.setX (xm + R.getX x) $ R.setY (-ym + R.getY x) x
+                    else x)
+            (R.objs s)
+        news = s { R.objs = newObjs, R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}
+
+executeCommand :: String -> WS.Connection -> R.State -> IO ()
+executeCommand cmd conn s
+    | cmd == "resample" = resampleAndSend conn s
+    | cmd == "step"     = stepAndSend conn s
+    | cmd == "autostep" = loop conn (s { R.autostep = not $ R.autostep s })
+    | otherwise         = putStrLn ("Can't recognize command " ++ cmd)
+
 
 resampleAndSend, stepAndSend :: WS.Connection -> R.State -> IO ()
 resampleAndSend conn s = do

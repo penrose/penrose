@@ -1,18 +1,51 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Haskell WebSockets example</title>
+        <title>Penrose on the web</title>
         <script type="text/JavaScript"
             src="https://code.jquery.com/jquery-1.6.3.min.js"></script>
         <script type="text/JavaScript" src="client.js"></script>
         <script src="snap.svg.js"></script>
-        <!-- <link rel="stylesheet" type="text/css" href="screen.css" /> -->
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <style>
+            h1 {font-family: "Raleway", sans-serif}
+            hr {
+                border: 0;
+                width: 50%;
+                max-width: 10%;
+                margin-left: 45%;
+                height: 1px;
+                background: #333;
+                background-image: linear-gradient(to right, #ccc, #333, #ccc);
+            }
+            p {
+                color: rgba(#333030, .1);
+            }
+            div{
+                text-align:center;
+            }
+            #svgdiv {
+                text-align:center;
+                width : 800px;
+                height : 700px;
+                display : block;
+                margin : auto;
+            }
+        </style>
     </head>
     <body>
-        <h1>Penrose on the Web!</h1>
-        <h2>I need a better font.<h2>
-        <button id="resample" type="button">Resample</button>
-        <button id="step" type="button">Step</button>
-        <button id="autostep" type="button">Autostep</button>
+        <div class='container'>
+            <h1>
+                Penrose
+            </h1>
+            <p class="w3-opacity"> Visualizing Mathematics </p>
+            <hr>
+            <div class="button-container">
+                <button id="resample" class="w3-button w3-black" type="button">Resample</button>
+                <button id="step" class="w3-button w3-green" type="button">Step</button>
+                <button id="autostep" class="w3-button w3-red" type="button">Autostep</button>
+            </div>
+            <svg id="svgdiv"> </svg>
+        </div>
     </body>
-</html>
+    </html>
