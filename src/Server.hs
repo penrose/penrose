@@ -48,9 +48,9 @@ application s pending = do
 
 loop :: WS.Connection -> R.State -> IO ()
 loop conn s
-    | R.epDone s = do
+    | R.optStatus ( R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
-        wsSendJSON conn (R.objs s)
+        -- wsSendJSON conn (R.objs s) -- TODO: is this necessary?
         processCommand conn s
     | R.autostep s = stepAndSend conn s
     | otherwise = processCommand conn s

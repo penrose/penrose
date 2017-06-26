@@ -34,6 +34,10 @@ data Block
     | ConstraintBlock [Stmt]
     deriving (Show)
 
+--     = GlobalBlock [Stmt]
+--     | GeneralBlock Selector [Stmt]
+-- type Selector = SubType | ID |
+
 data Stmt
     = Assign String Expr
     | ConstrFn String [Expr]

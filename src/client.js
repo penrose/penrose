@@ -69,6 +69,13 @@ $.getScript('snap.svg.js', function()
                     mat.translate(bbox.width / -2, bbox.height / 2)
                     t.transform(mat.toTransformString())
                     t.drag(move, start, stop)
+                    // render the bbox
+                    // var sq = s.path(t.getBBox().path);
+                    // sq.attr({
+                    //     "fill-opacity": 0,
+                    //     stroke: "#000",
+                    //     strokeWidth: 1, // CamelCase...
+                    // })
                 break
                 case 'P': // point
                     var pt = s.circle(dx + obj.xp, dy - obj.yp, 4);
@@ -126,6 +133,7 @@ $.getScript('snap.svg.js', function()
         // var s = Snap(800, 700);
         // TODO: set the width and height here?
         var s = Snap("#svgdiv");
+        var firstRun = true
         ws = createSocket();
         // Only sample in 10 ms intervals, regardless of Penrose's sample speed
         var sampleInterval = 20
@@ -161,11 +169,12 @@ $.getScript('snap.svg.js', function()
             // document.write(event.data)
             var now  = new Date().getTime()
             var diff = (now - lastTime);
-            if(diff > sampleInterval) {
+            if(firstRun || diff > sampleInterval) {
                 var obj = jQuery.parseJSON(event.data)
                 // console.log(obj)
                 renderScene(ws, s, obj)
                 lastTime = now
+                firstRun = false
             }
         }
     });
