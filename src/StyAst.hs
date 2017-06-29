@@ -1,5 +1,5 @@
-    -- module StyAst where
-module Main (main) where
+module StyAst where
+-- module Main (main) where
 
 import Control.Monad (void)
 import Text.Megaparsec
@@ -11,13 +11,13 @@ import qualified Text.Megaparsec.Lexer as L
 
 -- Style grammar (relies on the Substance grammar, specifically SubObj)
 
-data SubType = Set | Pt | Map | Intersect | NoIntersect | Subset | PointIn | PointNotIn
+data SubType = Set | Pt | Map | Intersect | NoIntersect | NoSubset | Subset | PointIn | PointNotIn
     deriving (Show, Eq)
 
 data StySpec = StySpec {
     spType :: SubType,
     spId :: String,
-    spShape :: StyObj,
+    spShape :: StyObjInfo,
     spColor :: Color
 } deriving (Show)
 
@@ -68,6 +68,9 @@ data StyObj
     | Color
     deriving (Show)
 
+type StyObjInfo
+    = (StyObj, [(String, Expr)])
+
 -- data Shape
 --     = Circle [(String, Expr)]
 --     | Box [(String, Expr)]
@@ -112,7 +115,7 @@ selector = do
     pat <- patterns
     -- void sc <|> void (symbol ":")
     -- ids <- many identifier
-    res <- optional $ symbol ":" *> many identifier
+    res <- optional $ symbol ":" *> some identifier
     let ids = case res of
                 Just a -> a
                 Nothing -> []
