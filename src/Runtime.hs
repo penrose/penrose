@@ -788,7 +788,7 @@ genConstrFns = concatMap genConstrFn
 ------- Style related functions
 
 -- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc :: String -> Obj
+defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc, defaultText:: String -> Obj
 defaultSolidArrow name = A SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, thickness = 10,
                             selsa = False, namesa = name, colorsa = black }
 defaultPt name = P Pt { xp = 100, yp = 100, selp = False, namep = name }
@@ -798,10 +798,14 @@ defaultLabel text = L Label { xl = -100, yl = -100,
                                 wl = textWidth * fromIntegral (length text),
                                 hl = textHeight,
                                 textl = text, sell = False, namel = labelName text }
+defaultText text = L Label { xl = -100, yl = -100,
+                                wl = textWidth * fromIntegral (length text),
+                                hl = textHeight,
+                                textl = text, sell = False, namel = text }
 defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
 
-dummySpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoShape, []), SA.spColor = SA.RndColor }
+dummySpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoShape, M.empty), SA.spColor = SA.RndColor, SA.spArgs = []}
 
 -- ------- Parsing for Old Style Design
 --
@@ -912,48 +916,93 @@ dummySpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoSha
 
 getDictAndFns :: (Floating a, Real a, Show a, Ord a) =>
                  ([C.SubDecl], [C.SubConstr]) -> SA.StyProg -> (M.Map Name SA.StySpec, [(M.Map Name (Obj' a) -> a, Weight a)])
-getDictAndFns (decls, constrs) stys = (initDict, [])
+getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, []) blocks
     where
-        ids = getSubTuples decls ++ getConstrTuples constrs
-        initDict = foldl (\m (t, n) ->
-                        M.insert n (dummySpec { SA.spId = n, SA.spType = t }) m) M.empty ids
+        res = getSubTuples decls ++ getConstrTuples constrs
+        ids = map (\(x, y, z) -> (x, y)) res
+        -- args = map (\(_, _, z) -> z) res
+        initDict = foldl (\m (t, n, a) ->
+                        M.insert n (dummySpec { SA.spId = n, SA.spType = t, SA.spArgs = a }) m) M.empty res
         -- applyConfig f d = foldl f d prog
 
 procBlock :: (Floating a, Real a, Show a, Ord a) =>
-    SA.Block -> M.Map Name SA.StySpec -> (M.Map Name SA.StySpec, [(M.Map Name (Obj' a) -> a, Weight a)])
-procBlock b dict = (dict, [])
+    (M.Map Name SA.StySpec, [(M.Map Name (Obj' a) -> a, Weight a)]) -> SA.Block
+    -> (M.Map Name SA.StySpec, [(M.Map Name (Obj' a) -> a, Weight a)])
+procBlock (dict, fns) (selector, stmts) = (newDict, [])
+    where
+        selected = M.elems $ M.filter (match selector) dict
+        update d sp = let newSpec = foldl procStmt sp stmts in
+            M.insert (SA.spId newSpec) newSpec d
+        newDict = foldl update dict (trRaw "selected: " selected)
+
     -- where newDict = foldl procAssign dict b
 
-getConstrTuples :: [C.SubConstr] -> [(SA.SubType, String)]
+-- Returns true of an object matches the selector
+match :: SA.Selector -> SA.StySpec -> Bool
+match sel spec = all test (zip args patterns) &&
+                SA.selTyp sel == SA.spType spec &&
+                length args == length patterns
+    where
+        patterns = SA.selPatterns sel
+        args = SA.spArgs spec
+        test (a, p) = case p of
+            SA.RawID i -> trRaw (a ++ " == " ++ i ++ ": ") $ a == i
+            SA.WildCard _ -> True
+
+procStmt ::  SA.StySpec -> SA.Stmt -> SA.StySpec
+procStmt spec (SA.Assign n e) = procAssign n e spec
+procStmt _ _ = error "procStmt: Unsupported Statement!"
+
+procAssign :: String -> SA.Expr -> SA.StySpec -> SA.StySpec
+procAssign n (SA.Cons typ stmts) spec = spec { SA.spShape = (typ, configs) }
+    where
+        configs = foldl addSpec (snd $ SA.spShape spec) stmts
+        addSpec dict (SA.Assign s e) = M.insert s e dict
+        addSpec _ _ = error "procAssign: only support assignments in constructors!"
+procAssign n _ spec = spec -- TODO: ignoring assignmentfor all others
+
+getConstrTuples :: [C.SubConstr] -> [(SA.SubType, String, [String])]
 getConstrTuples = map getType
     where getType c = case c of
-            C.Intersect a b -> (SA.Intersect, "Intersect" ++ a ++ b)
-            C.NoIntersect a b -> (SA.NoIntersect, "NoIntersect" ++ a ++ b)
-            C.Subset a b -> (SA.Subset, "Subset" ++ a ++ b)
-            C.NoSubset a b -> (SA.NoSubset, "NoSubset" ++ a ++ b)
-            C.PointIn a b -> (SA.PointIn, "PointIn" ++ a ++ b)
-            C.PointNotIn a b -> (SA.PointNotIn, "PointNotIn" ++ a ++ b)
+            C.Intersect a b -> (SA.Intersect, "Intersect" ++ a ++ b, [a, b])
+            C.NoIntersect a b -> (SA.NoIntersect, "NoIntersect" ++ a ++ b, [a, b])
+            C.Subset a b -> (SA.Subset, "Subset" ++ a ++ b, [a, b])
+            C.NoSubset a b -> (SA.NoSubset, "NoSubset" ++ a ++ b, [a, b])
+            C.PointIn a b -> (SA.PointIn, "PointIn" ++ a ++ b, [a, b])
+            C.PointNotIn a b -> (SA.PointNotIn, "PointNotIn" ++ a ++ b, [a, b])
 
-getSubTuples :: [C.SubDecl] -> [(SA.SubType, String)]
+getSubTuples :: [C.SubDecl] -> [(SA.SubType, String, [String])]
 getSubTuples = map getType
     where getType (C.Decl d) = case d of
-            C.OS (C.Set' n _) -> (SA.Set, n)
-            C.OP (C.Pt' n) -> (SA.Pt, n)
-            C.OM (C.Map' n _ _) -> (SA.Map, n)
+            C.OS (C.Set' n _) -> (SA.Set, n, [n])
+            C.OP (C.Pt' n) -> (SA.Pt, n, [n])
+            C.OM (C.Map' n a b) -> (SA.Map, n, [n, a, b])
 
-getSubIDs :: [C.SubDecl] -> [String]
-getSubIDs decls = map snd $ getSubTuples decls
+getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
+getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
 
 shapeAndLabel :: M.Map String SA.StySpec -> String -> [Obj]
 shapeAndLabel dict name =
     case M.lookup name dict of
         Nothing -> error ("Cannot find style info for " ++ name)
-        Just s  -> getShape s
+        Just s  -> getShape $ SA.spShape s
     where
-        -- getShape (C.SS C.SetCircle) = defaultCirc name
-        --   getShape (C.SS C.Box) = defaultSquare name
+        getShape (SA.Text, config) = initText name config
+        getShape (SA.Arrow, config) = initArrow name config
+        getShape (SA.Circle, config) = initCircle name config
+        getShape (SA.Box, config) = initSquare name config
         --   getShape (C.SM C.SolidArrow) = defaultSolidArrow name
-          getShape _ = error ("ShapeOf: Unknown shape for " ++ name)
+        getShape (SA.NoShape, _) = []
+        getShape (t, _) = error ("ShapeOf: Unknown shape " ++ (show t) ++ " for " ++ name)
+
+initText :: String -> M.Map String SA.Expr -> [Obj]
+initText n config = [defaultText n]
+initArrow :: String -> M.Map String SA.Expr -> [Obj]
+initArrow n config = [defaultSolidArrow n]
+initCircle :: String -> M.Map String SA.Expr -> [Obj]
+initCircle n config = [defaultCirc n, defaultLabel n]
+initSquare :: String -> M.Map String SA.Expr -> [Obj]
+initSquare n config = [defaultSquare n]
 
 -- Generates an object depending on the style specification
 -- shapeOf :: String -> M.Map Name SA.StySpec -> Obj
@@ -994,9 +1043,9 @@ labelName :: String -> String
 labelName name = "Label_" ++ name
 
 genAllObjs :: (Floating a, Real a, Show a, Ord a) =>
-                 [C.SubDecl] -> M.Map String SA.StySpec -> [Obj]
+                 ([C.SubDecl], [C.SubConstr]) -> M.Map String SA.StySpec -> [Obj]
 -- TODO figure out how the types work. also add weights
-genAllObjs decls stys = concatMap (shapeAndLabel stys) $ getSubIDs decls
+genAllObjs (decls, constrs) stys = concatMap (shapeAndLabel stys) $ getAllIds (decls, constrs)
 
 -- genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
 --                   M.Map String SA.StySpec -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
@@ -1098,7 +1147,7 @@ genInitState :: ([C.SubDecl], [C.SubConstr]) -> SA.StyProg -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
              let (dict, objFns) = getDictAndFns (decls, constrs) stys in
-             let initObjs = genAllObjs decls dict in
+             let initObjs = genAllObjs (decls, constrs) (trRaw "dict:" dict) in
             --  let (initState, objFns) = genAllObjsAndFns decls (getStyDict decls stys) in
             --  let objFns = [] in -- TODO removed only for debugging constraints
 
@@ -1109,13 +1158,14 @@ genInitState (decls, constrs) stys =
              let ambientObjFns = [] in
 
              -- constraints
-             let constrFns = genConstrFns constrs in
+            --  let constrFns = genConstrFns constrs in
+             let constrFns = [] in
              let ambientConstrFns = [] in -- TODO add
              let constrObjFns = constrFns ++ ambientConstrFns in
 
              -- resample state w/ constrs. TODO how to deal with `Subset A B` -> `r A < r B`?
              -- let boolConstr = \x -> True in // TODO needs to take this as a param
-             let (initStateConstr, initRng') = sampleConstrainedState initRng initObjs constrs in
+             let (initStateConstr, initRng') = sampleConstrainedState initRng (trRaw "objs " initObjs) constrs in
 
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
              let flatObjsAnnotated = unpackAnnotate (addGrads initStateConstr) in
@@ -1505,7 +1555,7 @@ tr :: Show a => String -> a -> a
 tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 trRaw :: Show a => String -> a -> a
-trRaw s x = trace "---" $ trace s $ traceShowId x -- prints in left to right order
+trRaw s x = trace "---" $ trace s $ trace (show x ++ "\n") x  -- prints in left to right order
 
 trStr :: String -> a -> a
 trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
@@ -1918,7 +1968,7 @@ clampflag = False
 debug = False
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = True
+constraintFlag = False
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = True -- TODO need to implement constraint fn synthesis
 

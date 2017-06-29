@@ -6,6 +6,7 @@ import Text.Megaparsec
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of the type ‘String’
 import System.Environment
+import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Lexer as L
 
 
@@ -14,9 +15,23 @@ import qualified Text.Megaparsec.Lexer as L
 data SubType = Set | Pt | Map | Intersect | NoIntersect | NoSubset | Subset | PointIn | PointNotIn
     deriving (Show, Eq)
 
+data StyObj
+    = Circle
+    | Box
+    | Dot
+    | Arrow
+    | NoShape
+    | Color
+    | Text
+    deriving (Show)
+
+type StyObjInfo
+    = (StyObj, M.Map String Expr)
+
 data StySpec = StySpec {
     spType :: SubType,
     spId :: String,
+    spArgs :: [String],
     spShape :: StyObjInfo,
     spColor :: Color
 } deriving (Show)
@@ -59,18 +74,6 @@ data Color = RndColor | Colo
           , a :: Float }
           deriving (Show)
 --
-data StyObj
-    = Circle
-    | Box
-    | Dot
-    | Arrow
-    | NoShape
-    | Color
-    deriving (Show)
-
-type StyObjInfo
-    = (StyObj, [(String, Expr)])
-
 -- data Shape
 --     = Circle [(String, Expr)]
 --     | Box [(String, Expr)]
@@ -96,7 +99,7 @@ block :: Parser Block
 block = do
     sel <- selector
     void (symbol "{")
-    newline'
+    try newline'
     sc
     stmts <- try stmtSeq
     -- res <- try stmtSeq
@@ -123,20 +126,34 @@ selector = do
 
 subtype :: Parser SubType
 subtype = do
-    str <- symbol "Set" <|> symbol "Point" <|> symbol "Subset"
+    str <- symbol "Set"
+       <|> symbol "Point"
+       <|> symbol "Subset"
+       <|> symbol "Map"
     return (convert str)
     where convert s
             | s == "Set" = Set
-            | s == "Point" = Subset
+            | s == "Point" = Pt
             | s == "Subset" = Subset
+            | s == "Map" = Map
 styObj :: Parser StyObj
 styObj = do
-    str <- symbol "Color" <|> symbol "None" <|> symbol "Arrow"
+    str <- symbol "Color"
+       <|> symbol "None"
+       <|> symbol "Arrow"
+       <|> symbol "Text"
+       <|> symbol "Circle"
+       <|> symbol "Box"
+       <|> symbol "Dot"
     return (convert str)
     where convert s
             | s == "Color" = Color
             | s == "Arrow" = Arrow
             | s == "None"  = NoShape
+            | s == "Text"  = Text
+            | s == "Circle"  = Circle
+            | s == "Box"  = Box
+            | s == "Dot"  = Dot
 
 patterns :: Parser [Pattern]
 patterns = many pattern
@@ -227,7 +244,7 @@ sc = L.space (void separatorChar) lineCmnt blockCmnt
         blockCmnt = L.skipBlockComment "/*" "*/" >> newline'
 
 newline' :: Parser ()
-newline' = void sc >> void (some newline) >> void sc
+newline' = void sc >> void (many newline) >> void sc
 
 braces :: Parser a -> Parser a
 braces = between (symbol "{") (symbol "}")
