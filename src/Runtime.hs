@@ -14,7 +14,10 @@ import Numeric.AD
 import GHC.Float -- float <-> double conversions
 import System.IO
 import System.Environment
+import System.Exit
+import Data.Set (fromList)
 import Data.List
+import Data.Maybe
 import qualified Data.Map.Strict as M
 import qualified Compiler as C
 import qualified StyAst as SA
@@ -364,7 +367,9 @@ type Varying a = [a]
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle can vary, but not its radius
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
+-- unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Fix)]
+-- unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
@@ -394,7 +399,7 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 ---------------------- Packing
 
 -- We put `Floating a` into polymorphic objects for the autodiff.
--- (Maybe port all objects to polymorphic at some point, but would need to zero the gradient information.)
+-- (Maybe port all objects to polymorphic at some point, but would need to zero the gradient information.)varMap
 -- Can't use realToFrac here because it will zero the gradient information.
 -- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
 
@@ -474,6 +479,33 @@ instance Named (Obj' a) where
                 P' p -> P' $ setName x p
                 A' a -> A' $ setName x a
 
+-- instance Located (Obj' a) where
+--          getX o = case o of
+--              C' c -> xc' c
+--              L' l -> xl' l
+--              P' p -> xp' p
+--              S' s -> xs' s
+--              A' a -> startx' a
+--          getY o = case o of
+--              C' c -> yc' c
+--              L' l -> yl' l
+--              P' p -> yp' p
+--              S' s -> ys' s
+--              A' a -> starty' a
+        --  setX x o = case o of
+        --      C' c -> C $ setX' x c
+        --      L' l -> L $ setX' x l
+        --      P' p -> P $ setX' x p
+        --      S' s -> S $ setX' x s
+        --      A' a -> A $ setX' x a
+        --  setY y o = case o of
+        --      C' c -> C' $ setY' y c
+        --      L' l -> L' $ setY' y l
+        --      P' p -> P' $ setY' y p
+        --      S' s -> S' $ setY' y s
+        --      A' a -> A' $ setY' y    a
+
+
 data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a)
             | A' (SolidArrow' a) deriving (Eq, Show)
 
@@ -545,7 +577,8 @@ pack' zipped fixed varying =
 ----------------------- Sample objective functions that operate on objects (given names)
 -- TODO write about expectations for the objective function writer
 
-type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+-- type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
+type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
 -- illegal polymorphic or qualified type--can't return a forall?
 type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
 type Name = String
@@ -555,11 +588,8 @@ type Weight a = a
 -- maybe the typechecking should be done elsewhere...
 -- shouldn't these two be parametric over objects?
 centerCirc :: ObjFnOn a
-centerCirc [sname] dict = case (M.lookup sname dict) of
-                          Just (C' c) -> (xc' c)^2 + (yc' c)^2
-                          Just (L' _) -> error "misnamed label"
-                          Nothing -> error "invalid selectors in centerCirc"
-centerCirc _ _ = error "centerCirc not called with 1 arg"
+centerCirc [C' c] = (xc' c)^2 + (yc' c)^2
+centerCirc [L' _] = error "misnamed label"
 
 -- distanceOf :: ObjFnOn a
 -- toLeft [fromname, toname] dict =
@@ -571,41 +601,38 @@ centerCirc _ _ = error "centerCirc not called with 1 arg"
 --             -- (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 --             (xc' s - xc' e + 400)^2
 
-sameY :: ObjFnOn a
-sameY [fromname, toname] dict =
-    case (M.lookup fromname dict, M.lookup toname dict) of
-        (Just (C' s), Just (S' e)) -> (yc' s - ys' e)^2
-        (Just (S' s), Just (C' e)) -> (ys' s - yc' e)^2
-        (Just (C' s), Just (C' e)) -> (yc' s - yc' e)^2
-        (Just (S' s), Just (S' e)) -> (ys' s - ys' e)^2
+onTop :: ObjFnOn a
+onTop [L' s, L' e] = (yl' s - yl' e - 100)^2
+
+sameHeight :: ObjFnOn a
+sameHeight [C' s, S' e] = (yc' s - ys' e)^2
+sameHeight [S' s, C' e] = (ys' s - yc' e)^2
+sameHeight [C' s, C' e] = (yc' s - yc' e)^2
+sameHeight [S' s, S' e] = (ys' s - ys' e)^2
 
 toLeft :: ObjFnOn a
-toLeft [fromname, toname] dict =
-    case (M.lookup fromname dict, M.lookup toname dict) of
-        (Just (C' s), Just (S' e)) -> (xc' s - xs' e + 400)^2
-        (Just (S' s), Just (C' e)) -> (xs' s - xc' e + 400)^2
-        (Just (C' s), Just (C' e)) -> (xc' s - xc' e + 400)^2
-        (Just (S' s), Just (S' e)) -> (xs' s - xs' e + 400)^2
+toLeft [C' s, S' e] = (xc' s - xs' e + 400)^2
+toLeft [S' s, C' e] = (xs' s - xc' e + 400)^2
+toLeft [C' s, C' e] = (xc' s - xc' e + 400)^2
+toLeft [S' s, S' e] = (xs' s - xs' e + 400)^2
+toLeft [L' s, L' e] = (xl' s - xl' e + 100)^2
 
 
 centerMap :: ObjFnOn a
-centerMap [mapname, fromname, toname] dict =
-    let spacing = 10 in -- TODO: arbitrary
-    case (M.lookup mapname dict, M.lookup fromname dict, M.lookup toname dict) of
-        (Just (A' a), Just (S' s), Just (S' e)) ->
-            _centerMap a [xs' s, ys' s] [xs' e, ys' e]
+centerMap [A' a, S' s, S' e] = _centerMap a [xs' s, ys' s] [xs' e, ys' e]
                 [spacing + (halfDiagonal . side') s, negate $ spacing + (halfDiagonal . side') e]
-        (Just (A' a), Just (S' s), Just (C' e)) ->
-            _centerMap a [xs' s, ys' s] [xc' e, yc' e]
+centerMap [A' a, S' s, C' e] = _centerMap a [xs' s, ys' s] [xc' e, yc' e]
                 [spacing + (halfDiagonal . side') s, negate $ spacing + r' e]
-        (Just (A' a), Just (C' s), Just (S' e)) ->
-            _centerMap a [xc' s, yc' s] [xs' e, ys' e]
+centerMap [A' a, C' s, S' e] = _centerMap a [xc' s, yc' s] [xs' e, ys' e]
                 [spacing + r' s, negate $ spacing + (halfDiagonal . side') e]
-        (Just (A' a), Just (C' s), Just (C' e)) ->
-            _centerMap a [xc' s, yc' s] [xc' e, yc' e]
+centerMap [A' a, C' s, C' e] = _centerMap a [xc' s, yc' s] [xc' e, yc' e]
                 [spacing + r' s, negate $ spacing + r' e]
-
-centerMap _ _ = error "centerMap not called with 1 arg"
+centerMap [A' a, L' s, L' e] = _centerMap a [xl' s, yl' s] [xl' e, yl' e]
+                [spacing, negate $ spacing]
+centerMap [A' a, L' s, C' e] = _centerMap a [xl' s, yl' s] [xc' e, yc' e]
+                [spacing, negate $ spacing + r' e]
+centerMap o = error ("CenterMap: unsupported arguments: " ++ show o)
+spacing = 10 -- TODO: arbitrary
 
 _centerMap :: forall a. (Floating a, Real a, Show a, Ord a) =>
                 SolidArrow' a -> [a] -> [a] -> [a] -> a
@@ -617,27 +644,41 @@ _centerMap a s1@[x1, y1] s2@[x2, y2] [o1, o2] =
         [fromx, fromy, tox, toy] = [startx' a, starty' a, endx' a, endy' a] in
     (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 
+repel :: ObjFnOn a
+repel [C' c, S' d] = 1 / distsq (xc' c, yc' c) (xs' d, ys' d)
+repel [S' c, C' d] = 1 / distsq (xc' d, yc' d) (xs' c, ys' c)
+repel [C' c, C' d] = 1 / distsq (xc' c, yc' c) (xc' d, yc' d)
+repel [L' c, L' d] = 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
+repel [L' c, C' d] = 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
+repel [C' c, L' d] = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
+repel _  = error "invalid selectors in repel"
+
 centerLabel :: ObjFnOn a
-centerLabel [main, label] dict =
-    case (M.lookup main dict, M.lookup label dict) of
-        -- have the label near main’s border
-        (Just (C' c), Just (L' l)) ->
+centerLabel [C' c, L' l] =
                 let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
                 (cx - lx)^2 + (cy - ly)^2
-        (Just (S' s), Just (L' l)) ->
+centerLabel [S' s, L' l] =
                 let [cx, cy, lx, ly] = [xs' s, ys' s, xl' l, yl' l] in
                 (cx - lx)^2 + (cy - ly)^2
-        (Just (P' p), Just (L' l)) ->
+centerLabel [P' p, L' l] =
                 let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
                 (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
-        (Just (A' a), Just (L' l)) ->
+centerLabel [A' a, L' l] =
                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
                     (mx, my) = midpoint (sx, sy) (ex, ey)
                     (lx, ly) = (xl' l, yl' l) in
                 (mx - lx)^2 + (my + (textHeight * 0.25) - ly)^2 -- Top right from the point
-        (_, _) -> error "invalid selectors in centerLabel"
-centerLabel _ _ = error "centerLabel not called with 1 arg"
+centerLabel o  = error ("centerLabel not called with 1 arg" ++ show o)
 
+outside :: ObjFnOn a
+outside [L' o, C' i] =
+            -- let d = dist (xl' o, yl' o) (xc' i, yc' i) in
+            -- if d > r' i  then 0 else
+            -- (dist (xl' o, yl' o) (xc' i, yc' i) - (1.2 * r' i))^2
+            -- (dist (xl' o, yl' o) (xc' i, yc' i) - (1.2 * r' i))^2
+            (dist (xl' o, yl' o) (xc' i, yc' i) - (2 * r' i))^2
+outside [L' o, S' i] =
+            (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
 
 ------- Ambient objective functions
 
@@ -690,6 +731,12 @@ defaultPWeight = 1
 
 -- Pairwise constraint functions
 type ConstraintFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
+
+smaller :: ConstraintFn
+smaller [C' inc, C' outc] =  (r' outc) - (r' inc) - 0.5 * r' outc -- TODO: taking this as a parameter?
+smaller [S' inc, S' outc] = (side' outc) - (side' inc) - subsetSizeDiff
+smaller [C' c, S' s] = 0.5 * side' s - r' c
+smaller [S' s, C' c] = r' c - (halfDiagonal . side') s
 
 subsetFn :: ConstraintFn
 subsetFn [C' inc, C' outc] =
@@ -805,7 +852,7 @@ defaultText text = L Label { xl = -100, yl = -100,
 defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
 
-dummySpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoShape, M.empty), SA.spColor = SA.RndColor, SA.spArgs = []}
+initSpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoShape, M.empty),  SA.spArgs = [], SA.spShpMap = M.empty}
 
 -- ------- Parsing for Old Style Design
 --
@@ -845,11 +892,9 @@ dummySpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoSha
 --               getPrio (C.Shape (C.SubVal _) _) = 3
 --               getPrio (C.Shape C.Global  _) = 2
 --               getPrio (C.Shape (C.SubType _) _) = 1
-
 -- Generates an object depending on the style specification
 
 ----- Parser for the new style design
-
 -- -- Given a list of IDs, translate a raw AST of a Style program
 -- -- to a object-wise record
 -- getStyDict :: [C.SubDecl] -> SA.StyProg -> M.Map Name SA.StySpec
@@ -914,28 +959,43 @@ dummySpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoSha
 
 ----- Parser for Style design
 
+-- Type aliases for readability in this section
+type StyDict = M.Map Name SA.StySpec
+-- type ObjFn a = M.Map Name (Obj' a) -> a
+type ConstrFn a = [Obj' a] -> a
+type ObjFn a    = [Obj' a] -> a
+-- A VarMap matches lambda ids in the selector to the actual selected id
+type VarMap  = M.Map Name Name
+
 getDictAndFns :: (Floating a, Real a, Show a, Ord a) =>
-                 ([C.SubDecl], [C.SubConstr]) -> SA.StyProg -> (M.Map Name SA.StySpec, [(M.Map Name (Obj' a) -> a, Weight a)])
-getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, []) blocks
+    ([C.SubDecl], [C.SubConstr]) -> SA.StyProg
+    -> (StyDict, [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
+getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, [], []) blocks
     where
         res = getSubTuples decls ++ getConstrTuples constrs
         ids = map (\(x, y, z) -> (x, y)) res
         -- args = map (\(_, _, z) -> z) res
         initDict = foldl (\m (t, n, a) ->
-                        M.insert n (dummySpec { SA.spId = n, SA.spType = t, SA.spArgs = a }) m) M.empty res
+                        M.insert n (initSpec { SA.spId = n, SA.spType = t, SA.spArgs = a }) m) M.empty res
         -- applyConfig f d = foldl f d prog
 
 procBlock :: (Floating a, Real a, Show a, Ord a) =>
-    (M.Map Name SA.StySpec, [(M.Map Name (Obj' a) -> a, Weight a)]) -> SA.Block
-    -> (M.Map Name SA.StySpec, [(M.Map Name (Obj' a) -> a, Weight a)])
-procBlock (dict, fns) (selector, stmts) = (newDict, [])
+    (StyDict, [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
+    -> SA.Block
+    -> (StyDict, [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
+procBlock (dict, objFns, constrFns) (selector, stmts) = (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
     where
-        selected = M.elems $ M.filter (match selector) dict
-        update d sp = let newSpec = foldl procStmt sp stmts in
+        -- FIXME: get rid of head
+        selected = M.elems $ M.filter (match $ head selector) dict
+        varTups = map (\s -> zip (SA.spArgs s) (SA.selIds $ head selector)) selected
+        varMaps = map (foldl (\d s -> M.insert (snd s) (fst s) d) M.empty) varTups
+        updateSpec d (vm, sp) =
+            let newSpec = foldl (procAssign vm) sp stmts in
             M.insert (SA.spId newSpec) newSpec d
-        newDict = foldl update dict (trRaw "selected: " selected)
-
-    -- where newDict = foldl procAssign dict b
+        newDict = foldl updateSpec dict (zip varMaps selected)
+        genFns f vm = foldl (f vm) [] stmts
+        newObjFns = concatMap (genFns procObjFn) varMaps
+        newConstrFns = concatMap (genFns procConstrFn) varMaps
 
 -- Returns true of an object matches the selector
 match :: SA.Selector -> SA.StySpec -> Bool
@@ -945,21 +1005,51 @@ match sel spec = all test (zip args patterns) &&
     where
         patterns = SA.selPatterns sel
         args = SA.spArgs spec
+        dummies = SA.selIds sel
         test (a, p) = case p of
-            SA.RawID i -> trRaw (a ++ " == " ++ i ++ ": ") $ a == i
+            SA.RawID i -> a == i
             SA.WildCard _ -> True
 
-procStmt ::  SA.StySpec -> SA.Stmt -> SA.StySpec
-procStmt spec (SA.Assign n e) = procAssign n e spec
-procStmt _ _ = error "procStmt: Unsupported Statement!"
-
-procAssign :: String -> SA.Expr -> SA.StySpec -> SA.StySpec
-procAssign n (SA.Cons typ stmts) spec = spec { SA.spShape = (typ, configs) }
+procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
+    VarMap -> [(ConstrFn a, Weight a, [Name])] -> SA.Stmt
+    -> [(ConstrFn a, Weight a, [Name])]
+procConstrFn varMap fns (SA.ConstrFn fname es) =
+    trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
+    fns ++ [(func, defaultWeight, names)]
     where
-        configs = foldl addSpec (snd $ SA.spShape spec) stmts
-        addSpec dict (SA.Assign s e) = M.insert s e dict
+        (func, names) = case M.lookup fname constrFuncDict of
+            Just f -> (f, map (getIdByExpr varMap) es)
+            Nothing -> error "procConstrFn: objective function not known"
+procConstrFn varMap fns _ = fns -- TODO: avoid functions
+
+procObjFn :: (Floating a, Real a, Show a, Ord a) =>
+    VarMap -> [(ObjFn a, Weight a, [Name])] -> SA.Stmt
+    -> [(ObjFn a, Weight a, [Name])]
+procObjFn varMap fns (SA.ObjFn fname es) =
+    trStr ("New Objective function: " ++ fname) $
+    fns ++ [(func, defaultWeight, names)]
+    where
+        (func, names) = case M.lookup fname objFuncDict of
+            Just f -> (f, map (getIdByExpr varMap) es)
+            Nothing -> error "procObjFn: objective function not known"
+procObjFn varMap fns _ = fns -- TODO: avoid functions
+
+lookupVarMap s varMap= fromMaybe (error $ "lookupVarMap: incorrect variable mapping from " ++ s)         (M.lookup s varMap)
+getIdByExpr d (SA.Id s)  = lookupVarMap s d
+-- TODO: properly resolve access by doing lookups
+getIdByExpr d (SA.BinOp SA.Access (SA.Id i) (SA.Id "label"))  = labelName $ lookupVarMap i d
+getIdByExpr d (SA.BinOp SA.Access (SA.Id i) (SA.Id "shape"))  = lookupVarMap i d
+
+procAssign :: VarMap -> SA.StySpec -> SA.Stmt -> SA.StySpec
+procAssign varMap spec (SA.Assign n (SA.Cons typ stmts)) =
+    if n == "shape" then spec { SA.spShape = (typ, configs) } -- primary shape
+        else spec { SA.spShpMap = M.insert n (typ, configs) $ SA.spShpMap spec } -- secondary shapes
+    where
+        configs = foldl addSpec M.empty stmts
+        -- FIXME: this is incorrect, we should resolve the variables earlier
+        addSpec dict (SA.Assign s e) = M.insert s (SA.Id (getIdByExpr varMap e)) dict
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
-procAssign n _ spec = spec -- TODO: ignoring assignmentfor all others
+procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 
 getConstrTuples :: [C.SubConstr] -> [(SA.SubType, String, [String])]
 getConstrTuples = map getType
@@ -981,39 +1071,42 @@ getSubTuples = map getType
 getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
 
-shapeAndLabel :: M.Map String SA.StySpec -> String -> [Obj]
-shapeAndLabel dict name =
+shapeAndFn :: (Floating a, Real a, Show a, Ord a) => StyDict -> String -> ([Obj], [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
+shapeAndFn dict name =
     case M.lookup name dict of
         Nothing -> error ("Cannot find style info for " ++ name)
-        Just s  -> getShape $ SA.spShape s
+        Just s  -> concat3 $ map getShape $ (name, SA.spShape s) : map addPrefix (M.toList $ SA.spShpMap s)
     where
-        getShape (SA.Text, config) = initText name config
-        getShape (SA.Arrow, config) = initArrow name config
-        getShape (SA.Circle, config) = initCircle name config
-        getShape (SA.Box, config) = initSquare name config
-        --   getShape (C.SM C.SolidArrow) = defaultSolidArrow name
-        getShape (SA.NoShape, _) = []
-        getShape (t, _) = error ("ShapeOf: Unknown shape " ++ (show t) ++ " for " ++ name)
+        concat3 x = (concatMap fst3 x, concatMap snd3 x, concatMap thd3 x)
+        addPrefix (s, o) = (name ++ "_" ++ s, o)
+        fst3 (a, _, _) = a
+        snd3 (_, a, _) = a
+        thd3 (_, _, a) = a
+        getShape (n, (SA.Text, config)) = initText n config
+        getShape (n, (SA.Arrow, config)) = initArrow n config
+        getShape (n, (SA.Circle, config)) = initCircle n config
+        getShape (n, (SA.Box, config)) = initSquare n config
+        getShape (n, (SA.NoShape, _)) = ([], [], [])
+        getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
 
-initText :: String -> M.Map String SA.Expr -> [Obj]
-initText n config = [defaultText n]
-initArrow :: String -> M.Map String SA.Expr -> [Obj]
-initArrow n config = [defaultSolidArrow n]
-initCircle :: String -> M.Map String SA.Expr -> [Obj]
-initCircle n config = [defaultCirc n, defaultLabel n]
-initSquare :: String -> M.Map String SA.Expr -> [Obj]
-initSquare n config = [defaultSquare n]
+initText, initArrow, initCircle, initSquare ::
+    (Floating a, Real a, Show a, Ord a) =>
+    String -> M.Map String SA.Expr
+    -> ([Obj], [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
+initText n config = ([defaultText n], [], [])
+initArrow n config =
+    -- ([defaultSolidArrow n, defaultLabel n], [(centerMap [n, from, to], defaultWeight)], [])
+    ([defaultSolidArrow n], [(centerMap, defaultWeight, [n, from, to])], [])
+    where
+        from = queryConfig "start" config
+        to   = queryConfig "end" config
+initCircle n config = ([defaultCirc n, defaultLabel n], [], [])
+initSquare n config = ([defaultSquare n, defaultLabel n], [], [])
 
--- Generates an object depending on the style specification
--- shapeOf :: String -> M.Map Name SA.StySpec -> Obj
--- shapeOf name dict =
---     case M.lookup name dict of
---         Nothing -> error ("Cannot find style info for " ++ name)
---         Just spec -> getShape $ SA.spShape spec
---     where getShape (SA.SS SA.SetCircle) = defaultCirc name
---           getShape (SA.SS SA.Box) = defaultSquare name
---           getShape (SA.SM SA.SolidArrow) = defaultSolidArrow name
---           getShape _ = error ("Unknow shape for " ++ name)
+queryConfig key dict = case M.lookup key dict of
+    Just (SA.Id i) -> i
+    Just (SA.BinOp SA.Access (SA.Id i) (SA.Id "shape")) -> i
+    Nothing -> error ("queryConfig: Key " ++ key ++ " does not exist!")
 
 ------- Generate objective functions
 
@@ -1024,7 +1117,7 @@ defaultRad :: Floating a => a
 defaultRad = 100
 
 objFnOnNone :: ObjFnOn a
-objFnOnNone names map = 0
+objFnOnNone _ = 0
 
 -- Parameters to change
 declSetObjfn :: ObjFnOn a
@@ -1042,10 +1135,37 @@ declMapObjfn = centerMap
 labelName :: String -> String
 labelName name = "Label_" ++ name
 
+constrFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) =>
+    M.Map String (ConstrFn a)
+constrFuncDict = M.fromSet mapping allFns
+    where
+        allFns  = fromList ["avoidSubsets", "smaller", "subsetFn", "intersectFn", "noSubsetFn"]
+        mapping f = case f of
+            "subsetFn" -> penalty . subsetFn
+            "intersectFn" -> penalty . intersectFn
+            "noSubsetFn" -> penalty . noSubsetFn
+            "smaller" -> penalty . smaller -- TODO: should this be an objective?
+            "avoidSubsets" -> penalty . avoidSubsets
+
+objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFn a)
+objFuncDict = M.fromSet mapping allFns
+    where
+        allFns  = fromList ["sameHeight", "repel", "onTop", "toLeft", "centerLabel", "outside"]
+        mapping f = case f of
+            "centerLabel" -> centerLabel
+            "toLeft" -> toLeft
+            "onTop" -> onTop
+            "sameHeight" -> sameHeight
+            "repel" -> repel
+            "outside" -> outside
+
 genAllObjs :: (Floating a, Real a, Show a, Ord a) =>
-                 ([C.SubDecl], [C.SubConstr]) -> M.Map String SA.StySpec -> [Obj]
+             ([C.SubDecl], [C.SubConstr]) -> StyDict
+             -> ([Obj], [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
 -- TODO figure out how the types work. also add weights
-genAllObjs (decls, constrs) stys = concatMap (shapeAndLabel stys) $ getAllIds (decls, constrs)
+genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss)
+    where
+        (objss, objFnss, constrFnss) = unzip3 $ map (shapeAndFn stys) $ getAllIds (decls, constrs)
 
 -- genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
 --                   M.Map String SA.StySpec -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
@@ -1094,19 +1214,14 @@ dictOfObjs = foldr addObj M.empty
 constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
 
-lookupNames :: (Real a, Floating a, Show a, Ord a) => (M.Map Name (Obj' a)) -> [Name] -> [Obj' a]
--- For all pairwise functions
-lookupNames dict (n1:n2:n3:n4:[]) =
-    case [M.lookup n1 dict, M.lookup n2 dict, M.lookup n3 dict, M.lookup n4 dict] of
-        [Just o1, Just o2, Just o3, Just o4] -> [o1, o2, o3, o4]
-        _                  -> error ("lookupNames: at least one of the arguments don't exist!")
-lookupNames dict (n1:n2:n3:[]) = case [M.lookup n1 dict, M.lookup n2 dict, M.lookup n3 dict] of
-        [Just o1, Just o2, Just o3] -> [o1, o2, o3]
-        _                  -> error ("lookupNames: at least one of the arguments don't exist!")
-lookupNames dict (n1:n2:[]) = case [M.lookup n1 dict, M.lookup n2 dict] of
-        [Just o1, Just o2] -> [o1, o2]
-        _                  -> error ("One of " ++ n1 ++ " or " ++ n2 ++ " don't exist!")
-lookupNames _ _ = error "lookupNames only supports 2 or 3 args"
+lookupNames :: (Real a, Floating a, Show a, Ord a) => M.Map Name (Obj' a) -> [Name] -> [Obj' a]
+lookupNames dict ns = map check res
+    where
+        res = map (`M.lookup` dict) ns
+        check x = case x of
+            Just x -> x
+            _ -> error "lookupNames: at least one of the arguments don't exist!"
+
 
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- first param: list of parameter annotations for each object in the state
@@ -1114,15 +1229,15 @@ lookupNames _ _ = error "lookupNames only supports 2 or 3 args"
 -- note: CANNOT do dict -> list because that destroys the order
 genObjFn :: (Real a, Floating a, Show a, Ord a) =>
          [[Annotation]]
+         -> [(ObjFn a, Weight a, [Name])]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
-         -> [(M.Map Name (Obj' a) -> a, Weight a)]
-         -> [([Obj' a] -> a, Weight a, [Name])]
+         -> [(ConstrFn a, Weight a, [Name])]
          -> [Obj] -> a -> [a] -> [a] -> a
 genObjFn annotations objFns ambientObjFns constrObjFns =
          \currObjs penaltyWeight fixed varying ->
          let newObjs = pack annotations currObjs fixed varying in
          let objDict = dictOf newObjs in
-         sumMap (\(f, w) -> w * f objDict) objFns
+         sumMap (\(f, w, n) -> w * f (lookupNames objDict n)) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
                 (constrWeight * penaltyWeight * sumMap (\(f, w, n) -> w * f (lookupNames objDict n)) constrObjFns))
@@ -1146,8 +1261,9 @@ constraint constrs = if constraintFlag then \x ->
 genInitState :: ([C.SubDecl], [C.SubConstr]) -> SA.StyProg -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
-             let (dict, objFns) = getDictAndFns (decls, constrs) stys in
-             let initObjs = genAllObjs (decls, constrs) (trRaw "dict:" dict) in
+             let (dict, userObjFns, userConstrFns) = getDictAndFns (decls, constrs) stys in
+             let (initObjs, initObjFns, initConstrFns) = genAllObjs (decls, constrs) dict in
+             let objFns = userObjFns ++ initObjFns in
             --  let (initState, objFns) = genAllObjsAndFns decls (getStyDict decls stys) in
             --  let objFns = [] in -- TODO removed only for debugging constraints
 
@@ -1159,13 +1275,13 @@ genInitState (decls, constrs) stys =
 
              -- constraints
             --  let constrFns = genConstrFns constrs in
-             let constrFns = [] in
+            --  let constrFns = [] in
              let ambientConstrFns = [] in -- TODO add
-             let constrObjFns = constrFns ++ ambientConstrFns in
+             let constrObjFns = initConstrFns ++ userConstrFns ++ ambientConstrFns in
 
              -- resample state w/ constrs. TODO how to deal with `Subset A B` -> `r A < r B`?
              -- let boolConstr = \x -> True in // TODO needs to take this as a param
-             let (initStateConstr, initRng') = sampleConstrainedState initRng (trRaw "objs " initObjs) constrs in
+             let (initStateConstr, initRng') = sampleConstrainedState initRng initObjs constrs in
 
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
              let flatObjsAnnotated = unpackAnnotate (addGrads initStateConstr) in
@@ -1555,7 +1671,7 @@ tr :: Show a => String -> a -> a
 tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 trRaw :: Show a => String -> a -> a
-trRaw s x = trace "---" $ trace s $ trace (show x ++ "\n") x  -- prints in left to right order
+trRaw s x = if debug then  trace "---" $ trace s $ trace (show x ++ "\n") x else x-- prints in left to right order
 
 trStr :: String -> a -> a
 trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
@@ -1589,7 +1705,7 @@ allOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences obj
                  all id $ map (\[o1, o2] -> not $ noOverlapPair o1 o2) allPairs
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
-subsetSizeDiff :: Float
+subsetSizeDiff :: Floating a => a
 subsetSizeDiff = 10.0
 
 halfDiagonal :: (Floating a) => a -> a
@@ -1607,7 +1723,7 @@ checkSubsetSize dict constr@(C.Subset inName outName) =
         -- TODO: this does not scale, general way?
         (Just (C c), Just (S s)) -> r c < 0.5 * side s
         (Just (S s), Just (C c)) -> (halfDiagonal . side) s < r c
-        (_, _) -> error "checkSubsetSize not called on two sets, or 1+ doesn't exist"
+        (_, _) -> True
 checkSubsetSize _ _ = True
 
 
@@ -1968,7 +2084,7 @@ clampflag = False
 debug = False
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = False
+constraintFlag = True
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = True -- TODO need to implement constraint fn synthesis
 

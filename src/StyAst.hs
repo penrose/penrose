@@ -12,17 +12,9 @@ import qualified Text.Megaparsec.Lexer as L
 
 -- Style grammar (relies on the Substance grammar, specifically SubObj)
 
-data SubType = Set | Pt | Map | Intersect | NoIntersect | NoSubset | Subset | PointIn | PointNotIn
-    deriving (Show, Eq)
+data SubType = Set | Pt | Map | Intersect | NoIntersect | NoSubset | Subset | PointIn | PointNotIn | AllTypes deriving (Show, Eq)
 
-data StyObj
-    = Circle
-    | Box
-    | Dot
-    | Arrow
-    | NoShape
-    | Color
-    | Text
+data StyObj = Circle | Box | Dot | Arrow | NoShape | Color | Text
     deriving (Show)
 
 type StyObjInfo
@@ -33,12 +25,12 @@ data StySpec = StySpec {
     spId :: String,
     spArgs :: [String],
     spShape :: StyObjInfo,
-    spColor :: Color
+    spShpMap :: M.Map String StyObjInfo
 } deriving (Show)
 
 type StyProg = [Block]
--- type Block = (String, [Stmt])
-type Block = (Selector, [Stmt])
+
+type Block = ([Selector], [Stmt])
 
 data Selector = Selector
               { selTyp :: SubType
@@ -52,7 +44,8 @@ data Pattern
 
 data Stmt
     = Assign String Expr
-    | Fn String [Expr]
+    | ObjFn String [Expr]
+    | ConstrFn String [Expr]
     | Avoid String [Expr]
     -- | E Expr  -- TODO: is an expression a statement?
     deriving (Show)
@@ -97,7 +90,7 @@ styProg = some block
 ---- Style blocks
 block :: Parser Block
 block = do
-    sel <- selector
+    sel <- selector `sepBy1` comma
     void (symbol "{")
     try newline'
     sc
@@ -111,8 +104,13 @@ block = do
     return (sel, stmts)
     -- return (sel, [])
 
-selector :: Parser Selector
-selector = do
+globalSelect :: Parser Selector
+globalSelect = do
+    void (symbol "_")
+    return $ Selector AllTypes [] []
+
+constructorSelect :: Parser Selector
+constructorSelect = do
     typ <- subtype
     -- sc
     pat <- patterns
@@ -124,18 +122,33 @@ selector = do
                 Nothing -> []
     return $ Selector typ pat ids
 
+selector :: Parser Selector
+selector = globalSelect <|> constructorSelect
+
 subtype :: Parser SubType
 subtype = do
     str <- symbol "Set"
        <|> symbol "Point"
-       <|> symbol "Subset"
        <|> symbol "Map"
+       <|> symbol "Subset"
+       <|> symbol "NoSubset"
+       <|> symbol "Intersect"
+       <|> symbol "NoIntersect"
+       <|> symbol "PointIn"
+       <|> symbol "PointNotIn"
+
     return (convert str)
     where convert s
             | s == "Set" = Set
             | s == "Point" = Pt
-            | s == "Subset" = Subset
             | s == "Map" = Map
+            | s == "Subset" = Subset
+            | s == "NoSubset" = NoSubset
+            | s == "Intersect" = Intersect
+            | s == "NoIntersect" = NoIntersect
+            | s == "PointIn" = PointIn
+            | s == "PointNotIn" = PointNotIn
+
 styObj :: Parser StyObj
 styObj = do
     str <- symbol "Color"
@@ -169,6 +182,7 @@ stmt =
     try objFn
     <|> try assignStmt
     <|> try avoidObjFn
+    <|> try constrFn
 --
 assignStmt :: Parser Stmt
 assignStmt = do
@@ -180,12 +194,13 @@ assignStmt = do
 --
 objFn :: Parser Stmt
 objFn = do
+    rword "objective"
     fname  <- identifier
     void (symbol "(")
     params <- expr `sepBy` comma
     void (symbol ")")
     -- params <- sepBy expr comma
-    return (Fn fname params)
+    return (ObjFn fname params)
 
 avoidObjFn :: Parser Stmt
 avoidObjFn = do
@@ -195,6 +210,16 @@ avoidObjFn = do
     params <- expr `sepBy` comma
     rbrac
     return (Avoid fname params)
+
+constrFn :: Parser Stmt
+constrFn = do
+    rword "constraint"
+    fname  <- identifier
+    void (symbol "(")
+    params <- expr `sepBy` comma
+    void (symbol ")")
+    -- params <- sepBy expr comma
+    return (ConstrFn fname params)
 
 expr :: Parser Expr
 expr = try objConstructor
