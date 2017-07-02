@@ -42,6 +42,7 @@ def addEntry():
     total_lines += new_lines
 
     c.execute('insert into programs values (date(\'now\'), ?, ?)', (prog, new_lines))
+    print(logo + "Successfully added " + str(total_lines) + " lines.")
     print(logo + "You have now written " + str(total_lines) + " lines of code in Penrose!")
     conn.commit()
     conn.close()

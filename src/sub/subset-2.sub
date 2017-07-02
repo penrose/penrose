@@ -1,0 +1,12 @@
+Set A
+Set B
+Set C
+Set D
+Set E
+Point P
+Subset B A
+Subset C B
+Subset D C
+Subset E D
+In P A
+NotIn P B
