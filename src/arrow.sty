@@ -1,0 +1,20 @@
+Set _ : x {
+    objective outside(x.label, x)
+    shape = Circle { }
+    arr = Arrow {
+        start = x.label
+        end   = x
+    }
+}
+
+Intersect _ _ : x y {
+    constraint intersectFn(x, y)
+}
+Subset _ _ : x y {
+    constraint subsetFn(x, y)
+    constraint smaller(x, y)
+}
+NoSubset _ _ : x y {
+    constraint noSubsetFn(x, y)
+}
+
