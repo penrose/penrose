@@ -609,6 +609,21 @@ sameHeight [C' s, S' e] = (yc' s - ys' e)^2
 sameHeight [S' s, C' e] = (ys' s - yc' e)^2
 sameHeight [C' s, C' e] = (yc' s - yc' e)^2
 sameHeight [S' s, S' e] = (ys' s - ys' e)^2
+sameHeight [L' s, L' e] = (yl' s - yl' e)^2
+
+sameX :: ObjFnOn a
+sameX [C' s, S' e] = (xc' s - xs' e)^2
+sameX [S' s, C' e] = (xs' s - xc' e)^2
+sameX [C' s, C' e] = (xc' s - xc' e)^2
+sameX [S' s, S' e] = (xs' s - xs' e)^2
+sameX [L' s, L' e] = (xl' s - xl' e)^2
+
+sameCenter :: ObjFnOn a
+sameCenter [C' s, S' e] = (yc' s - ys' e)^2 + (xc' s - xs' e)^2
+sameCenter [S' s, C' e] = (ys' s - yc' e)^2 + (xs' s - xc' e)^2
+sameCenter [C' s, C' e] = (yc' s - yc' e)^2 + (xc' s - xc' e)^2
+sameCenter [S' s, S' e] = (ys' s - ys' e)^2 + (xs' s - xs' e)^2
+sameCenter [L' s, L' e] = (yl' s - yl' e)^2 + (xl' s - xl' e)^2
 
 toLeft :: ObjFnOn a
 toLeft [C' s, S' e] = (xc' s - xs' e + 400)^2
@@ -648,7 +663,8 @@ repel :: ObjFnOn a
 repel [C' c, S' d] = 1 / distsq (xc' c, yc' c) (xs' d, ys' d)
 repel [S' c, C' d] = 1 / distsq (xc' d, yc' d) (xs' c, ys' c)
 repel [C' c, C' d] = 1 / distsq (xc' c, yc' c) (xc' d, yc' d)
-repel [L' c, L' d] = 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
+repel [L' c, L' d] =
+    if c == d then 0 else tr "repel val:" $ 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
 repel [L' c, C' d] = 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
 repel [C' c, L' d] = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
 repel _  = error "invalid selectors in repel"
@@ -983,19 +999,40 @@ procBlock :: (Floating a, Real a, Show a, Ord a) =>
     (StyDict, [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
     -> SA.Block
     -> (StyDict, [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
-procBlock (dict, objFns, constrFns) (selector, stmts) = (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
+procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
     where
-        -- FIXME: get rid of head
-        selected = M.elems $ M.filter (match $ head selector) dict
-        varTups = map (\s -> zip (SA.spArgs s) (SA.selIds $ head selector)) selected
-        varMaps = map (foldl (\d s -> M.insert (snd s) (fst s) d) M.empty) varTups
+        select s = M.elems $ M.filter (match s) dict
+        selectedSpecs :: [[(VarMap, SA.StySpec)]]
+        selectedSpecs = map
+            (\s -> let xs = select s
+                       vs = map (getVarMap s) xs in zip vs xs) selectors
+        -- Combination of all selected (spec. varmap)
+        allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
+        mergedMaps =
+            -- let allMaps = map (map fst) allCombs in
+            -- map M.unions (tr "allMaps: " allMaps)
+            map M.unions (tr "allMaps: " allCombs)
+        -- Only process assignment statements on matched specs, not the cartesion product of them
         updateSpec d (vm, sp) =
             let newSpec = foldl (procAssign vm) sp stmts in
             M.insert (SA.spId newSpec) newSpec d
-        newDict = foldl updateSpec dict (zip varMaps selected)
+        newDict = foldl updateSpec dict $ concat selectedSpecs
+        -- (zip varMaps selected)
         genFns f vm = foldl (f vm) [] stmts
-        newObjFns = concatMap (genFns procObjFn) varMaps
-        newConstrFns = concatMap (genFns procConstrFn) varMaps
+        newObjFns    = concatMap (genFns procObjFn)  (tr "mergedMaps: "  mergedMaps)
+        newConstrFns = concatMap (genFns procConstrFn) mergedMaps
+
+cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
+
+-- Returns a map from placeholder ids to actual matched ids
+getVarMap :: SA.Selector -> SA.StySpec -> VarMap
+getVarMap sel spec = foldl add M.empty patternNamePairs
+    where
+        patternNamePairs = zip (SA.selPatterns sel) (SA.spArgs spec)
+        add d (p, n) = case p of
+            SA.RawID _    -> d
+            SA.WildCard i -> M.insert i n d
+
 
 -- Returns true of an object matches the selector
 match :: SA.Selector -> SA.StySpec -> Bool
@@ -1005,7 +1042,7 @@ match sel spec = all test (zip args patterns) &&
     where
         patterns = SA.selPatterns sel
         args = SA.spArgs spec
-        dummies = SA.selIds sel
+        -- dummies = SA.selIds sel
         test (a, p) = case p of
             SA.RawID i -> a == i
             SA.WildCard _ -> True
@@ -1026,14 +1063,16 @@ procObjFn :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> [(ObjFn a, Weight a, [Name])] -> SA.Stmt
     -> [(ObjFn a, Weight a, [Name])]
 procObjFn varMap fns (SA.ObjFn fname es) =
-    trStr ("New Objective function: " ++ fname) $
+    trStr ("New Objective function: " ++ fname ++ " " ++ (show names)) $
     fns ++ [(func, defaultWeight, names)]
     where
         (func, names) = case M.lookup fname objFuncDict of
             Just f -> (f, map (getIdByExpr varMap) es)
             Nothing -> error "procObjFn: objective function not known"
+procObjFn varMap fns (SA.Avoid fname es) = fns -- TODO: avoid functions
 procObjFn varMap fns _ = fns -- TODO: avoid functions
 
+-- TODO: Have a more principled expr look up routine
 lookupVarMap s varMap= fromMaybe (error $ "lookupVarMap: incorrect variable mapping from " ++ s)         (M.lookup s varMap)
 getIdByExpr d (SA.Id s)  = lookupVarMap s d
 -- TODO: properly resolve access by doing lookups
@@ -1150,13 +1189,16 @@ constrFuncDict = M.fromSet mapping allFns
 objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFn a)
 objFuncDict = M.fromSet mapping allFns
     where
-        allFns  = fromList ["sameHeight", "repel", "onTop", "toLeft", "centerLabel", "outside"]
+        allFns  = fromList ["sameX", "sameCenter", "sameHeight", "repel", "onTop", "toLeft", "centerLabel", "outside"]
         mapping f = case f of
             "centerLabel" -> centerLabel
             "toLeft" -> toLeft
             "onTop" -> onTop
             "sameHeight" -> sameHeight
-            "repel" -> repel
+            "sameX" -> (*) 0.2 . sameX
+            "sameCenter" -> (*) 0.01 . sameCenter
+            "repel" -> (*) 900000 . repel
+            -- "repel" -> repel
             "outside" -> outside
 
 genAllObjs :: (Floating a, Real a, Show a, Ord a) =>
@@ -2108,7 +2150,7 @@ weightGrowth :: Floating a => a -- for EP weight
 weightGrowth = 10
 
 epStop :: Floating a => a -- for EP diff
-epStop = 10 ** (-3)
+epStop = 10 ** (-2)
 
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges

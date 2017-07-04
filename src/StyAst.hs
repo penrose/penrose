@@ -35,7 +35,8 @@ type Block = ([Selector], [Stmt])
 data Selector = Selector
               { selTyp :: SubType
               , selPatterns :: [Pattern]
-              , selIds :: [String] }
+            --   , selIds :: [String]
+          }
               deriving (Show)
 data Pattern
     = RawID String
@@ -107,7 +108,8 @@ block = do
 globalSelect :: Parser Selector
 globalSelect = do
     void (symbol "_")
-    return $ Selector AllTypes [] []
+    -- return $ Selector AllTypes [] []
+    return $ Selector AllTypes []
 
 constructorSelect :: Parser Selector
 constructorSelect = do
@@ -116,11 +118,12 @@ constructorSelect = do
     pat <- patterns
     -- void sc <|> void (symbol ":")
     -- ids <- many identifier
-    res <- optional $ symbol ":" *> some identifier
-    let ids = case res of
-                Just a -> a
-                Nothing -> []
-    return $ Selector typ pat ids
+    -- res <- optional $ rword "as" *> some identifier
+    -- let ids = case res of
+    --             Just a -> a
+    --             Nothing -> []
+    -- return $ Selector typ pat ids
+    return $ Selector typ pat
 
 selector :: Parser Selector
 selector = globalSelect <|> constructorSelect
@@ -170,7 +173,7 @@ styObj = do
 
 patterns :: Parser [Pattern]
 patterns = many pattern
-    where pattern = (WildCard <$> symbol "_" <|> RawID <$> identifier)
+    where pattern = (WildCard <$> identifier <|> RawID <$> backticks identifier)
 
     -- manyTill anyChar (symbol "{")
 ---- Statements
@@ -271,6 +274,9 @@ sc = L.space (void separatorChar) lineCmnt blockCmnt
 newline' :: Parser ()
 newline' = void sc >> void (many newline) >> void sc
 
+backticks :: Parser a -> Parser a
+backticks = between (symbol "`") (symbol "`")
+
 braces :: Parser a -> Parser a
 braces = between (symbol "{") (symbol "}")
 
@@ -311,7 +317,7 @@ rword :: String -> Parser ()
 rword w = string w *> notFollowedBy alphaNumChar *> sc
 
 rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
-rws =     ["avoid", "global"]
+rws =     ["avoid", "global", "as"]
 -- ++ types ++ attribs ++ shapes ++ colors
 
 types =   ["Set", "Map", "Point"]
