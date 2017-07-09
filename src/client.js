@@ -7,6 +7,8 @@
 
 $.getScript('snap.svg.js', function()
 {
+    // Helper functions
+
     function createSocket() {
         return new WebSocket('ws://localhost:9160/');
     }
@@ -22,9 +24,10 @@ $.getScript('snap.svg.js', function()
     }
 
 
-
     // Main rendering function
-    function renderScene(ws, s, data) {
+    function renderScene(ws, s, data, firstrun) {
+        // Add in bbox data on first run
+
         // Handlers for dragging events
         var move = function(dx,dy) {
             this.attr({
@@ -47,14 +50,14 @@ $.getScript('snap.svg.js', function()
             // console.log('finished dragging');
             // console.log('distance: ' + this.data("ox") + " " + this.data("oy"));
             this.attr({opacity: 1});
-            var dict = { "name" : this.data("name"), "xm" : this.data("ox"), "ym" : this.data("oy")}
+            var dict = { "tag" : "Drag", "contents" : { "name" : this.data("name"), "xm" : this.data("ox"), "ym" : this.data("oy")}}
             var json = JSON.stringify(dict)
             // console.log(json)
             ws.send(json)
         }
         s.clear()
-        var dx = 800 / 2
-        var dy = 700 / 2
+        var dx = s.node.clientWidth  / 2
+        var dy = s.node.clientHeight / 2
         for (var key in data) {
             // console.log(data[key])
             var record = data[key]
@@ -69,13 +72,26 @@ $.getScript('snap.svg.js', function()
                     mat.translate(bbox.width / -2, bbox.height / 2)
                     t.transform(mat.toTransformString())
                     t.drag(move, start, stop)
-                    // render the bbox
+                    if(firstrun) {
+                        obj.wl = bbox.width
+                        obj.hl = bbox.height
+                    }
+                    // // render the bbox
                     // var sq = s.path(t.getBBox().path);
                     // sq.attr({
                     //     "fill-opacity": 0,
                     //     stroke: "#000",
                     //     strokeWidth: 1, // CamelCase...
                     // })
+                    // var g = s.g(sq, t)
+                    // // render Bounding circle
+                    // var circ = s.circle(dx + obj.xl, dy - obj.yl, t.getBBox().r0)
+                    // circ.attr({
+                    //     "fill-opacity": 0,
+                    //     stroke: "#000",
+                    //     strokeWidth: 1, // CamelCase...
+                    // })
+                    // circ.drag()
                 break
                 case 'P': // point
                     var pt = s.circle(dx + obj.xp, dy - obj.yp, 4);
@@ -124,11 +140,25 @@ $.getScript('snap.svg.js', function()
                     var g = s.g(line, head)
                     g.data("name", obj.namesa)
                     g.drag(move, start, stop)
+                    // // render the bbox
+                    // var sq = s.path(g.getBBox().path);
+                    // sq.attr({
+                    //     "fill-opacity": 0,
+                    //     stroke: "#000",
+                    //     strokeWidth: 1, // CamelCase...
+                    // })
                 break
             }
         }
+        // Send the bbox information to the server
+        if(firstrun) {
+            var dict = { "tag" : "Update", "contents" : { "objs" : data } }
+            var json = JSON.stringify(dict)
+            ws.send(json)
+        }
     }
 
+    // Main function
     $(document).ready(function () {
         // var s = Snap(800, 700);
         // TODO: set the width and height here?
@@ -141,17 +171,16 @@ $.getScript('snap.svg.js', function()
         ws.onopen = function() {
             // Register handlers for buttons on connection
             $("#resample").click(function() {
-                var dict = { "command" : "resample" }
+                var dict = { "tag" : "Cmd", "contents" : { "command" : "resample" } }
                 var json = JSON.stringify(dict)
                 ws.send(json)
             });
             $("#step").click(function() {
-                var dict = { "command" : "step" }
+                var dict = { "tag" : "Cmd", "contents" : { "command" : "step" } }
                 var json = JSON.stringify(dict)
                 ws.send(json)
             });
             $("#autostep").click(function() {
-                // console.log("autostep")
                 var $this = $(this);
                 $this.toggleClass('On');
                 if($this.hasClass('On')){
@@ -159,20 +188,19 @@ $.getScript('snap.svg.js', function()
                 } else {
                     $this.text('Enable Autostep');
                 }
-                var dict = { "command" : "autostep" }
+                var dict = { "tag" : "Cmd", "contents" : {"command" : "autostep" } }
                 var json = JSON.stringify(dict)
                 ws.send(json)
             });
         };
         ws.onmessage = function(event) {
             // console.log(event.data)
-            // document.write(event.data)
             var now  = new Date().getTime()
             var diff = (now - lastTime);
             if(firstRun || diff > sampleInterval) {
                 var obj = jQuery.parseJSON(event.data)
                 // console.log(obj)
-                renderScene(ws, s, obj)
+                renderScene(ws, s, obj, firstRun)
                 lastTime = now
                 firstRun = false
             }

@@ -1,3 +1,5 @@
+-- | Main module of the Penrose system
+module Main where
 import Graphics.Gloss
 import Graphics.Gloss.Data.Vector
 import Graphics.Gloss.Interface.Pure.Game
@@ -11,8 +13,11 @@ import System.IO
 import System.Exit
 import Control.Monad(when)
 
+
 divLine = putStr "\n--------\n\n"
 
+-- | `main` runs the Penrose system
+main :: IO ()
 main = do
     -- Reading in from file
     -- Objective function is currently hard-coded

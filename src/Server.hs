@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Server where
+import Shapes
 import GHC.Generics
 import Data.Monoid (mappend)
 import Data.Text (Text)
@@ -22,10 +23,14 @@ import Data.Maybe (fromMaybe)
 
 
 type ServerState = R.State
+data FeedBack = Cmd Command | Drag DragEvent | Update UpdateShapes deriving (Show, Generic)
 data Command = Command { command :: String } deriving (Show, Generic)
-instance FromJSON Command
 data DragEvent = DragEvent { name :: String, xm :: Float, ym :: Float } deriving (Show, Generic)
+data UpdateShapes = UpdateShapes { objs :: [Obj] } deriving (Show, Generic)
+instance FromJSON FeedBack
+instance FromJSON Command
 instance FromJSON DragEvent
+instance FromJSON UpdateShapes
 
 
 wsSendJSON :: ToJSON j => WS.Connection -> j -> IO ()
@@ -50,6 +55,7 @@ loop :: WS.Connection -> R.State -> IO ()
 loop conn s
     | R.optStatus ( R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
+        putStrLn ("Current weight: " ++ (show $ R.weight (R.params  s)))
         -- wsSendJSON conn (R.objs s) -- TODO: is this necessary?
         processCommand conn s
     | R.autostep s = stepAndSend conn s
@@ -57,20 +63,26 @@ loop conn s
 
 processCommand :: WS.Connection -> R.State -> IO ()
 processCommand conn s = do
-    putStrLn "Receiving Commands"
+    -- putStrLn "Receiving Commands"
     msg_json <- WS.receiveData conn
     case decode msg_json of
-        Just (Command cmd)  -> executeCommand cmd conn s
-        Nothing -> case decode msg_json of
-                        Just (DragEvent name xm ym)  -> updateState name xm ym conn s
-                        Nothing -> error "Error reading JSON"
+        Just e -> case e of
+            Cmd (Command cmd)  -> executeCommand cmd conn s
+            Drag (DragEvent name xm ym)  -> dragUpdate name xm ym conn s
+            Update (UpdateShapes objs)  -> updateShapes objs conn s
+        Nothing -> error "Error reading JSON"
 
-updateState :: String -> Float -> Float -> WS.Connection -> R.State -> IO ()
-updateState name xm ym conn s = if R.autostep s then stepAndSend conn news else loop conn news
+updateShapes :: [Obj] -> WS.Connection -> R.State -> IO ()
+updateShapes newObjs conn s = if R.autostep s then stepAndSend conn news else loop conn news
+    where
+        news = s { R.objs = newObjs, R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}
+
+dragUpdate :: String -> Float -> Float -> WS.Connection -> R.State -> IO ()
+dragUpdate name xm ym conn s = if R.autostep s then stepAndSend conn news else loop conn news
     where
         newObjs = map (\x ->
-                if R.getName x == name
-                    then R.setX (xm + R.getX x) $ R.setY (-ym + R.getY x) x
+                if getName x == name
+                    then setX (xm + getX x) $ setY (-ym + getY x) x
                     else x)
             (R.objs s)
         news = s { R.objs = newObjs, R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}

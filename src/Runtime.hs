@@ -4,12 +4,14 @@
 -- for autodiff, requires passing in a polymorphic fn
 
 module Runtime where
-import Graphics.Gloss
+import Shapes
+import Functions
+import Utils
 import Graphics.Gloss.Data.Vector
 import Graphics.Gloss.Interface.Pure.Game
 import Data.Function
 import System.Random
-import Debug.Trace
+-- import Debug.Trace
 import Numeric.AD
 import GHC.Float -- float <-> double conversions
 import System.IO
@@ -28,297 +30,16 @@ import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 -- For porting to the web
 import Data.Monoid ((<>))
 import Data.Aeson
-import GHC.Generics
 
 divLine = putStr "\n--------\n\n"
 
-picWidth, picHeight :: Int
-picWidth = 800
-picHeight = 700
 
 stepsPerSecond :: Int
-stepsPerSecond = 10000
+stepsPerSecond = 100000
 
 calcTimestep :: Float -- for use in forcing stepping in handler
 calcTimestep = 1 / int2Float stepsPerSecond
 
------------ Defining types for the state of the world.
--- Objects can be Circs (circles) or Labels. Each has a size and position.
--- The state of the world is simply a list of Objects.
-
--- Circs and Labels satisfy the Located and Selectable typeclasses. So does Obj.
--- So you can do something like `getX o` on any o (an object) without having to worry
--- unpacking it as a circle or label.
-class Located a where
-      getX :: a -> Float
-      getY :: a -> Float
-      setX :: Float -> a -> a
-      setY :: Float -> a -> a
-
-class Selectable a where
-      select :: a -> a
-      deselect :: a -> a
-      selected :: a -> Bool
-
-class Sized a where
-      getSize :: a -> Float
-      setSize :: Float -> a -> a
-
-class Named a where
-      getName :: a -> Name
-      setName :: Name -> a -> a
--------
-data SolidArrow = SolidArrow { startx :: Float
-                             , starty :: Float
-                             , endx :: Float
-                             , endy :: Float
-                             , thickness :: Float -- the maximum thickness, i.e. the thickness of the head
-                             , selsa :: Bool -- is the circle currently selected? (mouse is dragging it)
-                             , namesa :: String
-                             , colorsa :: Color }
-         deriving (Eq, Show, Generic)
-
-instance Located SolidArrow where
-        --  getX a = endx a - startx a
-        --  getY a = endy a - starty a
-         getX a   = startx a
-         getY a   = starty a
-         setX x c = c { startx = x } -- TODO
-         setY y c = c { starty = y }
-
-instance Selectable SolidArrow where
-         select x = x { selsa = True }
-         deselect x = x { selsa = False }
-         selected x = selsa x
-
-instance Named SolidArrow where
-         getName a = namesa a
-         setName x a = a { namesa = x }
-
-instance ToJSON SolidArrow
-instance FromJSON SolidArrow
-
--------
-
-data Circ = Circ { xc :: Float
-                 , yc :: Float
-                 , r :: Float
-                 , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
-                 , namec :: String
-                 , colorc :: Color }
-     deriving (Eq, Show, Generic)
-
-instance Located Circ where
-         getX c = xc c
-         getY c = yc c
-         setX x c = c { xc = x }
-         setY y c = c { yc = y }
-
-instance Selectable Circ where
-         select x = x { selc = True }
-         deselect x = x { selc = False }
-         selected x = selc x
-
-instance Sized Circ where
-         getSize x = r x
-         setSize size x = x { r = size }
-
-instance Named Circ where
-         getName c = namec c
-         setName x c = c { namec = x }
-
-instance ToJSON Circ
-instance FromJSON Circ
-
-----------------------
-
-data Square = Square { xs :: Float
-                     , ys :: Float
-                     , side :: Float
-                     , ang  :: Float -- angle for which the obj is rotated
-                     , sels :: Bool -- is the circle currently selected? (mouse is dragging it)
-                     , names :: String
-                     , colors :: Color }
-     deriving (Eq, Show, Generic)
-
-instance Located Square where
-         getX s = xs s
-         getY s = ys s
-         setX x s = s { xs = x }
-         setY y s = s { ys = y }
-
-instance Selectable Square where
-         select x = x { sels = True }
-         deselect x = x { sels = False }
-         selected x = sels x
-
-instance Sized Square where
-         getSize x = side x
-         setSize size x = x { side = size }
-
-instance Named Square where
-         getName s = names s
-         setName x s = s { names = x }
-
-instance ToJSON Square
-instance FromJSON Square
--------
-
-data Label = Label { xl :: Float
-                   , yl :: Float
-                   , wl :: Float
-                   , hl :: Float
-                   , textl :: String
-                   -- , scalel :: Float  -- calculate h,w from it
-                   , sell :: Bool -- selected label
-                   , namel :: String }
-     deriving (Eq, Show, Generic)
-
-instance Located Label where
-         getX l = xl l
-         getY l = yl l
-         setX x l = l { xl = x }
-         setY y l = l { yl = y }
-
-instance Selectable Label where
-         select x = x { sell = True }
-         deselect x = x { sell = False }
-         selected x = sell x
-
-instance Sized Label where
-         getSize x = xl x -- TODO generalize label size, distance to corner? ignores scale
-         setSize size x = x { xl = size, yl = size } -- TODO currently sets both of them, ignores scale
-                 -- changing a label's size doesn't actually do anything right now, but should use the scale
-                 -- and the base font size
-
-instance Named Label where
-         getName l = namel l
-         setName x l = l { namel = x }
-
-instance ToJSON Label
-instance FromJSON Label
-------
-
-data Pt = Pt { xp :: Float
-             , yp :: Float
-             , selp :: Bool
-             , namep :: String }
-     deriving (Eq, Show, Generic)
-
-instance Located Pt where
-         getX p = xp p
-         getY p = yp p
-         setX x p = p { xp = x }
-         setY y p = p { yp = y }
-
-instance Selectable Pt where
-         select   x = x { selp = True }
-         deselect x = x { selp = False }
-         selected x = selp x
-
-instance Named Pt where
-         getName p   = namep p
-         setName x p = p { namep = x }
-
-instance ToJSON Pt
-instance FromJSON Pt
-
-data Obj = S Square
-         | C Circ
-         | L Label
-         | P Pt
-         | A SolidArrow
-         deriving (Eq, Show, Generic)
-
-instance ToJSON Obj
-instance FromJSON Obj
-
-instance FromJSON Color where
-    parseJSON = withObject "Color" $ \v -> makeColor
-           <$> v .: "r"
-           <*> v .: "g"
-           <*> v .: "b"
-           <*> v .: "a"
-
-instance ToJSON Color where
-    -- this generates a Value
-    toJSON c =
-        let (r, g, b, a) = rgbaOfColor  c in
-        object ["r" .= r, "g" .= g, "b" .= b, "a" .= a]
-    toEncoding c =
-        let (r, g, b, a) = rgbaOfColor  c in
-        pairs ("r" .= r <> "g" .= g <> "b" .= b <> "a" .= a)
-
--- TODO: is there some way to reduce the top-level boilerplate?
-instance Located Obj where
-         getX o = case o of
-                 C c -> getX c
-                 L l -> getX l
-                 P p -> getX p
-                 S s -> getX s
-                 A a -> getX a
-         getY o = case o of
-                 C c -> getY c
-                 L l -> getY l
-                 P p -> getY p
-                 S s -> getY s
-                 A a -> getY a
-         setX x o = case o of
-                C c -> C $ setX x c
-                L l -> L $ setX x l
-                P p -> P $ setX x p
-                S s -> S $ setX x s
-                A a -> A $ setX x a
-         setY y o = case o of
-                C c -> C $ setY y c
-                L l -> L $ setY y l
-                P p -> P $ setY y p
-                S s -> S $ setY y s
-                A a -> A $ setY y a
-
-instance Selectable Obj where
-         select x = case x of
-                C c -> C $ select c
-                L l -> L $ select l
-                P p -> P $ select p
-                S s -> S $ select s
-                A a -> A $ select a
-         deselect x = case x of
-                C c -> C $ deselect c
-                L l -> L $ deselect l
-                P p -> P $ deselect p
-                S s -> S $ deselect s
-                A a -> A $ deselect a
-         selected x = case x of
-                C c -> selected c
-                L l -> selected l
-                P p -> selected p
-                S s -> selected s
-                A a -> selected a
-
-instance Sized Obj where
-         getSize o = case o of
-                 C c -> getSize c
-                 S s -> getSize s
-                 L l -> getSize l
-         setSize x o = case o of
-                C c -> C $ setSize x c
-                L l -> L $ setSize x l
-                S s -> S $ setSize x s
-
-instance Named Obj where
-         getName o = case o of
-                 C c -> getName c
-                 L l -> getName l
-                 P p -> getName p
-                 S s -> getName s
-                 A a -> getName a
-         setName x o = case o of
-                C c -> C $ setName x c
-                L l -> L $ setName x l
-                P p -> P $ setName x p
-                S s -> S $ setName x s
-                A a -> A $ setName x a
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show)
 
@@ -366,10 +87,10 @@ type Varying a = [a]
 -- does not unpack names
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle can vary, but not its radius
-unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
--- unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
-unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Fix)]
--- unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
+-- unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
+unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
+-- unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Fix)]
+unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
@@ -399,115 +120,11 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 ---------------------- Packing
 
 -- We put `Floating a` into polymorphic objects for the autodiff.
--- (Maybe port all objects to polymorphic at some point, but would need to zero the gradient information.)varMap
+-- (Maybe port all objects to polymorphic at some point, but would need to zero the gradient information.)
 -- Can't use realToFrac here because it will zero the gradient information.
 -- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
 
-data SolidArrow' a = SolidArrow' { startx' :: a
-                               , starty' :: a
-                               , endx' :: a
-                               , endy' :: a
-                               , thickness' :: a -- the maximum thickness, i.e. the thickness of the head
-                               , selsa' :: Bool -- is the circle currently selected? (mouse is dragging it)
-                               , namesa' :: String
-                               , colorsa' :: Color }
-                               deriving (Eq, Show)
 
-data Circ' a = Circ' { xc' :: a
-                     , yc' :: a
-                     , r' :: a
-                     , selc' :: Bool -- is the circle currently selected? (mouse is dragging it)
-                     , namec' :: String
-                     , colorc' :: Color }
-                     deriving (Eq, Show)
-
-data Label' a = Label' { xl' :: a
-                       , yl' :: a
-                       , wl' :: a
-                       , hl' :: a
-                       , textl' :: String
-                       , sell' :: Bool -- selected label
-                       , namel' :: String }
-                       deriving (Eq, Show)
-
-data Pt' a = Pt' { xp' :: a
-                 , yp' :: a
-                 , selp' :: Bool
-                 , namep' :: String }
-                 deriving (Eq, Show)
-
-data Square' a  = Square' { xs' :: a
-                     , ys' :: a
-                     , side' :: a
-                     , ang'  :: Float -- angle for which the obj is rotated
-                     , sels' :: Bool
-                     , names' :: String
-                     , colors' :: Color }
-                     deriving (Eq, Show)
-
-instance Named (SolidArrow' a) where
-         getName sa = namesa' sa
-         setName x sa = sa { namesa' = x }
-
-instance Named (Circ' a) where
-         getName c = namec' c
-         setName x c = c { namec' = x }
-
-instance Named (Square' a) where
-         getName s = names' s
-         setName x s = s { names' = x }
-
-instance Named (Label' a) where
-         getName l = namel' l
-         setName x l = l { namel' = x }
-
-instance Named (Pt' a) where
-         getName p = namep' p
-         setName x p = p { namep' = x }
-
-instance Named (Obj' a) where
-         getName o = case o of
-                 C' c -> getName c
-                 L' l -> getName l
-                 P' p -> getName p
-                 S' s -> getName s
-                 A' a -> getName a
-         setName x o = case o of
-                C' c -> C' $ setName x c
-                S' s -> S' $ setName x s
-                L' l -> L' $ setName x l
-                P' p -> P' $ setName x p
-                A' a -> A' $ setName x a
-
--- instance Located (Obj' a) where
---          getX o = case o of
---              C' c -> xc' c
---              L' l -> xl' l
---              P' p -> xp' p
---              S' s -> xs' s
---              A' a -> startx' a
---          getY o = case o of
---              C' c -> yc' c
---              L' l -> yl' l
---              P' p -> yp' p
---              S' s -> ys' s
---              A' a -> starty' a
-        --  setX x o = case o of
-        --      C' c -> C $ setX' x c
-        --      L' l -> L $ setX' x l
-        --      P' p -> P $ setX' x p
-        --      S' s -> S $ setX' x s
-        --      A' a -> A $ setX' x a
-        --  setY y o = case o of
-        --      C' c -> C' $ setY' y c
-        --      L' l -> L' $ setY' y l
-        --      P' p -> P' $ setY' y p
-        --      S' s -> S' $ setY' y s
-        --      A' a -> A' $ setY' y    a
-
-
-data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a)
-            | A' (SolidArrow' a) deriving (Eq, Show)
 
 -- TODO comment packing these functions defining conventions
 solidArrowPack :: (Real a, Floating a, Show a, Ord a) => SolidArrow -> [a] -> SolidArrow' a
@@ -574,279 +191,6 @@ pack' zipped fixed varying =
                     S sq    -> S' $ sqPack sq flatParams
                     A ar    -> A' $ solidArrowPack ar flatParams
 
------------------------ Sample objective functions that operate on objects (given names)
--- TODO write about expectations for the objective function writer
-
--- type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
--- illegal polymorphic or qualified type--can't return a forall?
-type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
-type Name = String
-type Weight a = a
-
--- TODO deal with lists in a more principled way
--- maybe the typechecking should be done elsewhere...
--- shouldn't these two be parametric over objects?
-centerCirc :: ObjFnOn a
-centerCirc [C' c] = (xc' c)^2 + (yc' c)^2
-centerCirc [L' _] = error "misnamed label"
-
--- distanceOf :: ObjFnOn a
--- toLeft [fromname, toname] dict =
---     case (M.lookup fromname dict, M.lookup toname dict) of
---         -- (Just (A' a), Just (S' s), Just (S' e)) ->
---         -- (Just (A' a), Just (S' s), Just (C' e)) ->
---         -- (Just (A' a), Just (C' s), Just (S' e)) ->
---         (Just (C' s), Just (C' e)) ->
---             -- (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
---             (xc' s - xc' e + 400)^2
-
-onTop :: ObjFnOn a
-onTop [L' s, L' e] = (yl' s - yl' e - 100)^2
-
-sameHeight :: ObjFnOn a
-sameHeight [C' s, S' e] = (yc' s - ys' e)^2
-sameHeight [S' s, C' e] = (ys' s - yc' e)^2
-sameHeight [C' s, C' e] = (yc' s - yc' e)^2
-sameHeight [S' s, S' e] = (ys' s - ys' e)^2
-sameHeight [L' s, L' e] = (yl' s - yl' e)^2
-
-sameX :: ObjFnOn a
-sameX [C' s, S' e] = (xc' s - xs' e)^2
-sameX [S' s, C' e] = (xs' s - xc' e)^2
-sameX [C' s, C' e] = (xc' s - xc' e)^2
-sameX [S' s, S' e] = (xs' s - xs' e)^2
-sameX [L' s, L' e] = (xl' s - xl' e)^2
-
-sameCenter :: ObjFnOn a
-sameCenter [C' s, S' e] = (yc' s - ys' e)^2 + (xc' s - xs' e)^2
-sameCenter [S' s, C' e] = (ys' s - yc' e)^2 + (xs' s - xc' e)^2
-sameCenter [C' s, C' e] = (yc' s - yc' e)^2 + (xc' s - xc' e)^2
-sameCenter [S' s, S' e] = (ys' s - ys' e)^2 + (xs' s - xs' e)^2
-sameCenter [L' s, L' e] = (yl' s - yl' e)^2 + (xl' s - xl' e)^2
-
-toLeft :: ObjFnOn a
-toLeft [C' s, S' e] = (xc' s - xs' e + 400)^2
-toLeft [S' s, C' e] = (xs' s - xc' e + 400)^2
-toLeft [C' s, C' e] = (xc' s - xc' e + 400)^2
-toLeft [S' s, S' e] = (xs' s - xs' e + 400)^2
-toLeft [L' s, L' e] = (xl' s - xl' e + 100)^2
-
-
-centerMap :: ObjFnOn a
-centerMap [A' a, S' s, S' e] = _centerMap a [xs' s, ys' s] [xs' e, ys' e]
-                [spacing + (halfDiagonal . side') s, negate $ spacing + (halfDiagonal . side') e]
-centerMap [A' a, S' s, C' e] = _centerMap a [xs' s, ys' s] [xc' e, yc' e]
-                [spacing + (halfDiagonal . side') s, negate $ spacing + r' e]
-centerMap [A' a, C' s, S' e] = _centerMap a [xc' s, yc' s] [xs' e, ys' e]
-                [spacing + r' s, negate $ spacing + (halfDiagonal . side') e]
-centerMap [A' a, C' s, C' e] = _centerMap a [xc' s, yc' s] [xc' e, yc' e]
-                [spacing + r' s, negate $ spacing + r' e]
-centerMap [A' a, L' s, L' e] = _centerMap a [xl' s, yl' s] [xl' e, yl' e]
-                [spacing, negate $ spacing]
-centerMap [A' a, L' s, C' e] = _centerMap a [xl' s, yl' s] [xc' e, yc' e]
-                [spacing, negate $ spacing + r' e]
-centerMap o = error ("CenterMap: unsupported arguments: " ++ show o)
-spacing = 10 -- TODO: arbitrary
-
-_centerMap :: forall a. (Floating a, Real a, Show a, Ord a) =>
-                SolidArrow' a -> [a] -> [a] -> [a] -> a
-_centerMap a s1@[x1, y1] s2@[x2, y2] [o1, o2] =
-    let vec  = [x2 - x1, y2 - y1] -- direction the arrow should point to
-        dir = normalize vec -- direction the arrow should point to
-        [sx, sy, ex, ey] = if norm vec > o1 + abs o2
-                then (s1 +. o1 *. dir) ++ (s2 +. o2 *. dir) else s1 ++ s2
-        [fromx, fromy, tox, toy] = [startx' a, starty' a, endx' a, endy' a] in
-    (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
-
-repel :: ObjFnOn a
-repel [C' c, S' d] = 1 / distsq (xc' c, yc' c) (xs' d, ys' d)
-repel [S' c, C' d] = 1 / distsq (xc' d, yc' d) (xs' c, ys' c)
-repel [C' c, C' d] = 1 / distsq (xc' c, yc' c) (xc' d, yc' d)
-repel [L' c, L' d] =
-    if c == d then 0 else tr "repel val:" $ 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
-repel [L' c, C' d] = 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
-repel [C' c, L' d] = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
-repel _  = error "invalid selectors in repel"
-
-centerLabel :: ObjFnOn a
-centerLabel [C' c, L' l] =
-                let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
-                (cx - lx)^2 + (cy - ly)^2
-centerLabel [S' s, L' l] =
-                let [cx, cy, lx, ly] = [xs' s, ys' s, xl' l, yl' l] in
-                (cx - lx)^2 + (cy - ly)^2
-centerLabel [P' p, L' l] =
-                let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
-                (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
-centerLabel [A' a, L' l] =
-                let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
-                    (mx, my) = midpoint (sx, sy) (ex, ey)
-                    (lx, ly) = (xl' l, yl' l) in
-                (mx - lx)^2 + (my + (textHeight * 0.25) - ly)^2 -- Top right from the point
-centerLabel o  = error ("centerLabel not called with 1 arg" ++ show o)
-
-outside :: ObjFnOn a
-outside [L' o, C' i] =
-            -- let d = dist (xl' o, yl' o) (xc' i, yc' i) in
-            -- if d > r' i  then 0 else
-            -- (dist (xl' o, yl' o) (xc' i, yc' i) - (1.2 * r' i))^2
-            -- (dist (xl' o, yl' o) (xc' i, yc' i) - (1.2 * r' i))^2
-            (dist (xl' o, yl' o) (xc' i, yc' i) - (2 * r' i))^2
-outside [L' o, S' i] =
-            (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
-
-------- Ambient objective functions
-
--- no names specified; can apply to any combination of objects in M.Map
-type AmbientObjFn a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
-
--- if there are no circles, doesn't do anything
--- TODO fix in case there's only 1 circle?
-circParams :: (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> ([a], [a])
-circParams m = unpackSplit $ filter isCirc $ M.elems m
-           where isCirc (C' _) = True
-                 isCirc _ = False
-
--- reuse existing objective function
-circlesCenterAndRepel :: AmbientObjFn a
-circlesCenterAndRepel objMap = let (fix, vary) = circParams objMap in
-                               centerAndRepel_dist fix vary
-
-circlesCenter :: AmbientObjFn a
-circlesCenter objMap = let (fix, vary) = circParams objMap in
-                       centerObjs fix vary
-
--- pairwiseRepel :: [Obj] -> Float
--- pairwiseRepel objs = sumMap pairRepel $ allPairs objs
-
--- pairRepel :: Obj -> Obj -> Float
--- pairRepel c d = 1 / (distsq c d)
---           where distsq c d = (getX c - getX d)^2 + (getY c - getY c)^2
-
--- -- returns a list of ambient constraint fns--4 for each object
--- -- i guess i don’t NEED to weight each individually. just sum them and weight the whole thing
--- allInBbox :: [Obj] -> Float
--- allInBbox objs = sum $ concatMap inBbox objs
---           where inBbox o = [boxleft o, boxright o, boxup o, boxdown o]
---                 boxleft o = getX o - leftline -- magnitude of violation
-
-------- Constraints
--- Constraints are written WRT magnitude of violation
--- TODO metaprogramming for boolean constraints
--- TODO use these types?
--- type ConstraintFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-
-defaultCWeight :: Floating a => a
-defaultCWeight = 1
-
--- TODO: should points also have a weight of 1?
-defaultPWeight :: Floating a => a
-defaultPWeight = 1
-
-
--- Pairwise constraint functions
-type ConstraintFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
-
-smaller :: ConstraintFn
-smaller [C' inc, C' outc] =  (r' outc) - (r' inc) - 0.5 * r' outc -- TODO: taking this as a parameter?
-smaller [S' inc, S' outc] = (side' outc) - (side' inc) - subsetSizeDiff
-smaller [C' c, S' s] = 0.5 * side' s - r' c
-smaller [S' s, C' c] = r' c - (halfDiagonal . side') s
-
-subsetFn :: ConstraintFn
-subsetFn [C' inc, C' outc] =
-    strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-subsetFn [S' inc, S' outc] = strictSubset
-    [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-subsetFn [C' inc, S' outc] = strictSubset
-    [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-subsetFn [S' inc, C' outc] = strictSubset
-    [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
-subsetFn _  = error "subset not called with 2 args"
-
-noSubsetFn :: ConstraintFn
-noSubsetFn [ (C' inc),  (C' outc)] =
-    noSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-noSubsetFn [ (S' inc),  (S' outc)] =
-    noSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc],
-        [xs' outc, ys' outc, (halfDiagonal . side') outc]]
-noSubsetFn [ (C' inc),  (S' outs)] =
-    noSubset [[xc' inc, yc' inc, r' inc], [xs' outs, ys' outs, (halfDiagonal . side') outs]]
-noSubsetFn [ (S' inc),  (C' outc)] =
-    noSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
-noSubsetFn  _ = error "noSubset not called with 2 args"
-
-intersectFn :: ConstraintFn
-intersectFn [(C' xset), (C' yset)] =
-    looseIntersect [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
-intersectFn [(S' xset), (C' yset)] =
-    looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xc' yset, yc' yset, r' yset]]
-intersectFn [(C' xset), (S' yset)] =
-    looseIntersect [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
-intersectFn [(S' xset), (S' yset)] =
-    looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
-intersectFn _ = error "intersect not called with 2 args"
-
-noIntersectFn :: ConstraintFn
-noIntersectFn [(C' xset),  (C' yset)] = tr "no intersect val: " $
-    noIntersectExt [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
-noIntersectFn [(S' xset),  (C' yset)] =
-    noIntersectExt [[xs' xset, ys' xset, (halfDiagonal . side') xset], [xc' yset, yc' yset, r' yset]]
-noIntersectFn [(C' xset),  (S' yset)] =
-    noIntersectExt [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, (halfDiagonal . side') yset]]
-noIntersectFn [(S' xset),  (S' yset)] =
-    noIntersectExt [[xs' xset, ys' xset, (halfDiagonal . side') xset],
-        [xs' yset, ys' yset, (halfDiagonal . side') yset]]
-noIntersectFn  _ = error "no intersect not called with 2 args"
-
-pointInFn :: ConstraintFn
-pointInFn [(P' pt),  (C' set)] =
-        dist (xp' pt, yp' pt) (xc' set, yc' set) - 0.5 * r' set
-pointInFn [(P' pt),  (S' set)] =
-    dist (xp' pt, yp' pt) (xs' set, ys' set) - 0.4 * side' set
-pointInFn _ = error "point in not called with 2 args"
-
-pointNotInFn :: ConstraintFn
-pointNotInFn [(P' pt), (C' set)] =
-    -dist (xp' pt, yp' pt) (xc' set, yc' set) + r' set
-pointNotInFn [(P' pt), (S' set)] =
-    -dist (xp' pt, yp' pt) (xs' set, ys' set) + (halfDiagonal . side') set
-pointNotInFn _ = error "point in not called with 2 args"
-
-avoidSubsets :: ConstraintFn
-avoidSubsets [(C' inset), (L' lout)] =
-    -- repelCenter [] [xc' inset, yc' inset, xl' lout, yl' lout]
-    - dist (xl' lout, yl' lout) (xc' inset, yc' inset) + 1.3 * r' inset
-avoidSubsets [(S' inset), (L' lout)] =
-    -- repelCenter [] [xc' inset, yc' inset, xl' lout, yl' lout]
-    - dist (xl' lout, yl' lout) (xs' inset, ys' inset) + 1.5 * (halfDiagonal . side') inset
-
-toPenalty :: (Floating a, Real a, Show a, Ord a) =>
-    (M.Map Name (Obj' a) -> a) -> (M.Map Name (Obj' a) -> a)
-toPenalty f = \dict -> penalty $ f dict
-
--- Generate constraints on names (returns no objects)
-genConstrFn :: (Floating a, Real a, Show a, Ord a) =>
-                C.SubConstr -> [([Obj' a] -> a, Weight a, [Name])]
-genConstrFn (C.Intersect xname yname)   =
-    [ (penalty . intersectFn, defaultCWeight, [xname, yname]) ]
-genConstrFn (C.NoIntersect xname yname) =
-    [ (penalty . noIntersectFn, defaultCWeight, [xname, yname]) ]
-genConstrFn (C.NoSubset inName outName) =
-    [ (penalty . noSubsetFn, defaultCWeight, [inName, outName]) ]
-genConstrFn (C.PointIn pname sname)     =
-    [ (penalty . pointInFn, defaultPWeight, [pname, sname]) ]
-genConstrFn (C.PointNotIn pname sname)  =
-    [ (penalty . pointNotInFn, defaultPWeight, [pname, sname]) ]
-genConstrFn (C.Subset inName outName)   =
-    [ (penalty . subsetFn, defaultCWeight, [inName, outName])
-    , (penalty . avoidSubsets, defaultCWeight, [inName, labelName outName])
-    ]
---
-genConstrFns :: (Floating a, Real a, Show a, Ord a) =>
-                [C.SubConstr] -> [([Obj' a] -> a, Weight a, [Name])]
-genConstrFns = concatMap genConstrFn
 
 ------- Style related functions
 
@@ -1002,16 +346,19 @@ procBlock :: (Floating a, Real a, Show a, Ord a) =>
 procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
     where
         select s = M.elems $ M.filter (match s) dict
-        selectedSpecs :: [[(VarMap, SA.StySpec)]]
+        -- selectedSpecs :: [[(VarMap, SA.StySpec)]]
         selectedSpecs = map
             (\s -> let xs = select s
-                       vs = map (getVarMap s) xs in zip vs xs) selectors
+                       vs = map (allOtherVars . getVarMap s) xs in zip vs xs) selectors
+        -- TODO: scoping - now every block has access to everyone else
+        allOtherVars = M.union (M.fromList $ zip k k) where k = M.keys dict
         -- Combination of all selected (spec. varmap)
         allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
         mergedMaps =
             -- let allMaps = map (map fst) allCombs in
             -- map M.unions (tr "allMaps: " allMaps)
-            map M.unions (tr "allMaps: " allCombs)
+            -- tr "allmaps: " $
+            map M.unions allCombs
         -- Only process assignment statements on matched specs, not the cartesion product of them
         updateSpec d (vm, sp) =
             let newSpec = foldl (procAssign vm) sp stmts in
@@ -1019,7 +366,7 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ new
         newDict = foldl updateSpec dict $ concat selectedSpecs
         -- (zip varMaps selected)
         genFns f vm = foldl (f vm) [] stmts
-        newObjFns    = concatMap (genFns procObjFn)  (tr "mergedMaps: "  mergedMaps)
+        newObjFns    = concatMap (genFns procObjFn) mergedMaps
         newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 
 cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
@@ -1051,12 +398,12 @@ procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> [(ConstrFn a, Weight a, [Name])] -> SA.Stmt
     -> [(ConstrFn a, Weight a, [Name])]
 procConstrFn varMap fns (SA.ConstrFn fname es) =
-    trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
+    -- trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
     fns ++ [(func, defaultWeight, names)]
     where
         (func, names) = case M.lookup fname constrFuncDict of
             Just f -> (f, map (getIdByExpr varMap) es)
-            Nothing -> error "procConstrFn: objective function not known"
+            Nothing -> error "procConstrFn: constraint function not known"
 procConstrFn varMap fns _ = fns -- TODO: avoid functions
 
 procObjFn :: (Floating a, Real a, Show a, Ord a) =>
@@ -1067,17 +414,21 @@ procObjFn varMap fns (SA.ObjFn fname es) =
     fns ++ [(func, defaultWeight, names)]
     where
         (func, names) = case M.lookup fname objFuncDict of
-            Just f -> (f, map (getIdByExpr varMap) es)
+            Just f -> (f, tr "Args: " args)
             Nothing -> error "procObjFn: objective function not known"
+        args = map (getIdByExpr varMap) es
 procObjFn varMap fns (SA.Avoid fname es) = fns -- TODO: avoid functions
 procObjFn varMap fns _ = fns -- TODO: avoid functions
 
 -- TODO: Have a more principled expr look up routine
-lookupVarMap s varMap= fromMaybe (error $ "lookupVarMap: incorrect variable mapping from " ++ s)         (M.lookup s varMap)
+lookupVarMap s varMap= case M.lookup s varMap of
+    Just s -> s
+    Nothing  -> (error $ "lookupVarMap: incorrect variable mapping from " ++ s)
 getIdByExpr d (SA.Id s)  = lookupVarMap s d
 -- TODO: properly resolve access by doing lookups
 getIdByExpr d (SA.BinOp SA.Access (SA.Id i) (SA.Id "label"))  = labelName $ lookupVarMap i d
 getIdByExpr d (SA.BinOp SA.Access (SA.Id i) (SA.Id "shape"))  = lookupVarMap i d
+getIdByExpr _ _  = error "getIdByExpr: argument unsupported!"
 
 procAssign :: VarMap -> SA.StySpec -> SA.Stmt -> SA.StySpec
 procAssign varMap spec (SA.Assign n (SA.Cons typ stmts)) =
@@ -1086,6 +437,8 @@ procAssign varMap spec (SA.Assign n (SA.Cons typ stmts)) =
     where
         configs = foldl addSpec M.empty stmts
         -- FIXME: this is incorrect, we should resolve the variables earlier
+        addSpec dict (SA.Assign s e@(SA.Cons SA.NoShape _)) = M.insert s (SA.Id "None") dict
+        addSpec dict (SA.Assign s e@(SA.Cons SA.Auto _)) = M.insert s (SA.Id "Auto") dict
         addSpec dict (SA.Assign s e) = M.insert s (SA.Id (getIdByExpr varMap e)) dict
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
@@ -1134,16 +487,26 @@ initText, initArrow, initCircle, initSquare ::
     -> ([Obj], [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
 initText n config = ([defaultText n], [], [])
 initArrow n config =
-    -- ([defaultSolidArrow n, defaultLabel n], [(centerMap [n, from, to], defaultWeight)], [])
+    -- ([defaultSolidArrow n, defaultLabel n], [(centerMap, defaultWeight, [n, from, to])], [])
+    -- ([defaultSolidArrow n], [(centerMap, defaultWeight, [n, from, to])], [])
+    if lab == "None" then
     ([defaultSolidArrow n], [(centerMap, defaultWeight, [n, from, to])], [])
+    else
+    ([defaultSolidArrow n, defaultLabel n], [(centerMap, defaultWeight, [n, from, to])], [])
     where
         from = queryConfig "start" config
         to   = queryConfig "end" config
-initCircle n config = ([defaultCirc n, defaultLabel n], [], [])
-initSquare n config = ([defaultSquare n, defaultLabel n], [], [])
+        lab  = queryConfig "label" config
+initCircle n config = ([defaultCirc n, defaultLabel n], [],
+    [(penalty . maxSize, defaultWeight, [n]),
+     (penalty . minSize, defaultWeight, [n])])
+initSquare n config = ([defaultSquare n, defaultLabel n], [],
+    [(penalty . maxSize, defaultWeight, [n]),
+     (penalty . minSize, defaultWeight, [n])])
 
 queryConfig key dict = case M.lookup key dict of
     Just (SA.Id i) -> i
+    -- FIXME: get dot access to work for arbitrary input
     Just (SA.BinOp SA.Access (SA.Id i) (SA.Id "shape")) -> i
     Nothing -> error ("queryConfig: Key " ++ key ++ " does not exist!")
 
@@ -1171,20 +534,21 @@ declLabelObjfn = centerLabel -- objFnOnNone
 declMapObjfn :: ObjFnOn a
 declMapObjfn = centerMap
 
-labelName :: String -> String
-labelName name = "Label_" ++ name
 
 constrFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) =>
     M.Map String (ConstrFn a)
 constrFuncDict = M.fromSet mapping allFns
     where
-        allFns  = fromList ["avoidSubsets", "smaller", "subsetFn", "intersectFn", "noSubsetFn"]
+        allFns  = fromList ["sameSizeAs", "smallerThan", "contains", "nonOverlapping", "overlapping", "outsideOf"]
         mapping f = case f of
-            "subsetFn" -> penalty . subsetFn
-            "intersectFn" -> penalty . intersectFn
-            "noSubsetFn" -> penalty . noSubsetFn
-            "smaller" -> penalty . smaller -- TODO: should this be an objective?
-            "avoidSubsets" -> penalty . avoidSubsets
+            "sameSizeAs" -> penalty . sameSize
+            "contains" -> penalty . contains
+            "overlapping" -> penalty . overlapping
+            "nonOverlapping" -> penalty . nonOverlapping
+            "outsideOf" -> penalty . outsideOf
+            "smallerThan" -> penalty . smallerThan -- TODO: should this be an objective?
+            -- "avoidSubsets" -> penalty . avoidSubsets
+            _ -> error ("constrFuncDict: unknown function " ++ f)
 
 objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFn a)
 objFuncDict = M.fromSet mapping allFns
@@ -1197,9 +561,14 @@ objFuncDict = M.fromSet mapping allFns
             "sameHeight" -> sameHeight
             "sameX" -> (*) 0.2 . sameX
             "sameCenter" -> (*) 0.01 . sameCenter
-            "repel" -> (*) 900000 . repel
+            -- "repel" -> penalty . repel
+            -- "repel" -> (*) 100000000 . repel
+            -- "repel" -> (*) 9000  . repel
+            "repel" -> (*) 900000  . repel
+            -- "repel" -> repe  l
             -- "repel" -> repel
             "outside" -> outside
+            _ -> error ("objFuncDict: unknown function " ++ f)
 
 genAllObjs :: (Floating a, Real a, Show a, Ord a) =>
              ([C.SubDecl], [C.SubConstr]) -> StyDict
@@ -1375,6 +744,7 @@ opacity = 0.5
 cmax = 0.1
 cmin = 0.9
 
+-- radiusRange, sideRange :: Floating a => (a, a    )
 widthRange  = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 radiusRange = (20, picWidth `divf` 6)
@@ -1577,18 +947,18 @@ ptRadius = 4 -- The size of a point on canvas
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
--- Find the angle between x-axis and a line passing points, reporting in radians
-findAngle :: Floating a => (a, a) -> (a, a) -> a
-findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
-
-midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
-midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
-
-dist :: Floating a => (a, a) -> (a, a) -> a -- distance
-dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
-
-distsq :: Floating a => (a, a) -> (a, a) -> a -- distance
-distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
+-- -- Find the angle between x-axis and a line passing points, reporting in radians
+-- findAngle :: Floating a => (a, a) -> (a, a) -> a
+-- findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
+--
+-- midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
+-- midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
+--
+-- dist :: Floating a => (a, a) -> (a, a) -> a -- distance
+-- dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
+--
+-- distsq :: Floating a => (a, a) -> (a, a) -> a -- distance
+-- distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
 
 -- Hardcode bbox of label at the center
 -- TODO properly get bbox; rn text is centered at bottom left
@@ -1696,33 +1066,33 @@ clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 clampY :: Float -> Float
 clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
 
-minSize :: Float
-minSize = 5
+-- minSize :: Float
+-- minSize = 5
 
-clampSize :: Float -> Float -- TODO assumes the size is a radius
-clampSize s = if s < minSize then minSize
-              else if s > ph2 || s > pw2 then min pw2 ph2 else s
+-- clampSize :: Float -> Float -- TODO assumes the size is a radius
+-- clampSize s = if s < minSize then minSize
+--               else if s > ph2 || s > pw2 then min pw2 ph2 else s
 
--- Some debugging functions. @@@
-debugF :: (Show a) => a -> a
-debugF x = if debug then traceShowId x else x
-debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
-
--- To send output to a file, do ./EXECUTABLE 2> FILE.txt
-tr :: Show a => String -> a -> a
-tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
-
-trRaw :: Show a => String -> a -> a
-trRaw s x = if debug then  trace "---" $ trace s $ trace (show x ++ "\n") x else x-- prints in left to right order
-
-trStr :: String -> a -> a
-trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
-
-tr' :: Show a => String -> a -> a
-tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
-
-tro :: Show a => String -> a -> a
-tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+-- -- Some debugging functions. @@@
+-- debugF :: (Show a) => a -> a
+-- debugF x = if debug then traceShowId x else x
+-- debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
+--
+-- -- To send output to a file, do ./EXECUTABLE 2> FILE.txt
+-- tr :: Show a => String -> a -> a
+-- tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+--
+-- trRaw :: Show a => String -> a -> a
+-- trRaw s x = if debug then  trace "---" $ trace s $ trace (show x ++ "\n") x else x-- prints in left to right order
+--
+-- trStr :: String -> a -> a
+-- trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
+--
+-- tr' :: Show a => String -> a -> a
+-- tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+--
+-- tro :: Show a => String -> a -> a
+-- tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 noOverlapPair :: Obj -> Obj -> Bool
 noOverlapPair (C c1) (C c) = dist (xc c1, yc c1) (xc c, yc c) > r c1 + r c
@@ -1746,12 +1116,12 @@ allOverlap :: [Obj] -> Bool
 allOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences objs in -- TODO factor out
                  all id $ map (\[o1, o2] -> not $ noOverlapPair o1 o2) allPairs
 
--- used when sampling the inital state, make sure sizes satisfy subset constraints
-subsetSizeDiff :: Floating a => a
-subsetSizeDiff = 10.0
+-- -- used when sampling the inital state, make sure sizes satisfy subset constraints
+-- subsetSizeDiff :: Floating a => a
+-- subsetSizeDiff = 10.0
 
-halfDiagonal :: (Floating a) => a -> a
-halfDiagonal side = 0.5 * dist (0, 0) (side, side)
+-- halfDiagonal :: (Floating a) => a -> a
+-- halfDiagonal side = 0.5 * dist (0, 0) (side, side)
 
 -- TODO: do we want strict subset or loose subset here? Now it is strict
 consistentSizes :: [C.SubConstr] -> [Obj] -> Bool
@@ -1760,7 +1130,8 @@ consistentSizes constrs objs = all id $ map (checkSubsetSize dict) constrs
 checkSubsetSize dict constr@(C.Subset inName outName) =
     case (M.lookup inName dict, M.lookup outName dict) of
         (Just (C inc), Just (C outc)) ->
-            (r outc) - (r inc) > subsetSizeDiff -- TODO: taking this as a parameter?
+            -- (r outc) (r inc) > subsetSizeDiff -- TODO: taking this as a parameter?
+            0.7 * (r outc) > (r inc)
         (Just (S inc), Just (S outc)) -> (side outc) - (side inc) > subsetSizeDiff
         -- TODO: this does not scale, general way?
         (Just (C c), Just (S s)) -> r c < 0.5 * side s
@@ -1904,7 +1275,7 @@ stepObjs t sParams objs =
          -- if not, keep running UO (inner state implicitly stored)
          -- note convergence checks are only on the varying part of the state
          UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
-           -- let unconstrConverged = optStopCond gradEval in
+        --    let unconstrConverged = optStopCond gradEval in
            let unconstrConverged = epStopCond stateVarying stateVarying'
                                    (objFnApplied stateVarying) (objFnApplied stateVarying') in
            if unconstrConverged then
@@ -1992,42 +1363,42 @@ removeInf = map removeInf'
 tupMap :: (a -> b) -> (a, a) -> (b, b)
 tupMap f (a, b) = (f a, f b)
 
------ Lists-as-vectors utility functions, TODO split out of file
-
--- define operator precedence: higher precedence = evaluated earlier
-infixl 6 +., -.
-infixl 7 *. -- .*, /.
-
--- assumes lists are of the same length
-dotL :: Floating a => [a] -> [a] -> a
-dotL u v = if not $ length u == length v
-           then error $ "can't dot-prod different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
-           else sum $ zipWith (*) u v
-
-(+.) :: Floating a => [a] -> [a] -> [a] -- add two vectors
-(+.) u v = if not $ length u == length v
-           then error $ "can't add different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
-           else zipWith (+) u v
-
-(-.) :: Floating a => [a] -> [a] -> [a] -- subtract two vectors
-(-.) u v = if not $ length u == length v
-           then error $ "can't subtract different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
-           else zipWith (-) u v
-
-negL :: Floating a => [a] -> [a]
-negL = map negate
-
-(*.) :: Floating a => a -> [a] -> [a] -- multiply by a constant
-(*.) c v = map ((*) c) v
-
-norm :: Floating a => [a] -> a
-norm = sqrt . sum . map (^ 2)
-
-normsq :: Floating a => [a] -> a
-normsq = sum . map (^ 2)
-
-normalize :: Floating a => [a] -> [a]
-normalize v = (1 / norm v) *. v
+-- ----- Lists-as-vectors utility functions, TODO split out of file
+--
+-- -- define operator precedence: higher precedence = evaluated earlier
+-- infixl 6 +., -.
+-- infixl 7 *. -- .*, /.
+--
+-- -- assumes lists are of the same length
+-- dotL :: Floating a => [a] -> [a] -> a
+-- dotL u v = if not $ length u == length v
+--            then error $ "can't dot-prod different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
+--            else sum $ zipWith (*) u v
+--
+-- (+.) :: Floating a => [a] -> [a] -> [a] -- add two vectors
+-- (+.) u v = if not $ length u == length v
+--            then error $ "can't add different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
+--            else zipWith (+) u v
+--
+-- (-.) :: Floating a => [a] -> [a] -> [a] -- subtract two vectors
+-- (-.) u v = if not $ length u == length v
+--            then error $ "can't subtract different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
+--            else zipWith (-) u v
+--
+-- negL :: Floating a => [a] -> [a]
+-- negL = map negate
+--
+-- (*.) :: Floating a => a -> [a] -> [a] -- multiply by a constant
+-- (*.) c v = map ((*) c) v
+--
+-- norm :: Floating a => [a] -> a
+-- norm = sqrt . sum . map (^ 2)
+--
+-- normsq :: Floating a => [a] -> a
+-- normsq = sum . map (^ 2)
+--
+-- normalize :: Floating a => [a] -> [a]
+-- normalize v = (1 / norm v) *. v
 
 -----
 
@@ -2088,8 +1459,12 @@ awLineSearch :: (Floating b, Ord b, Show b, Real b) => ObjFn1 a -> ObjFn2 a -> [
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
-     let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
-                              $ iterate update (a0, b0, t0) in tf
+    --  let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
+    --                           $ iterate update (a0, b0, t0) in tf
+     let (numUpdatas, (af, bf, tf)) = head $ dropWhile (intervalOK_or_notArmijoAndWolfe . snd)
+                              $ zip [0..] $ iterate update (a0, b0, t0) in
+                            --   trRaw ("Linear search update count: " ++ show numUpdatas) $
+                              tf
           where (a0, b0, t0) = (0, infinity, 1)
                 duf = duf_noU descentDir
                 update (a, b, t) =
@@ -2123,10 +1498,11 @@ objsInit = []
 
 -- Flags for debugging the surrounding functions.
 clampflag = False
-debug = False
-debugLineSearch = False
-debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = True
+-- debug = True
+-- debug = False
+-- debugLineSearch = False
+-- debugObj = False -- turn on/off output in obj fn or constraint
+constraintFlag = False
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = True -- TODO need to implement constraint fn synthesis
 
@@ -2150,14 +1526,17 @@ weightGrowth :: Floating a => a -- for EP weight
 weightGrowth = 10
 
 epStop :: Floating a => a -- for EP diff
-epStop = 10 ** (-2)
+-- epStop = 10 ** (-3)
+-- epStop = 60 ** (-3)
+-- epStop = 10 ** (-1)
+epStop = 0.1
 
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
 initWeight :: Floating a => a
 initWeight = 10 ** (-5)
-
+-- initWeight = 10 ** (-3)
 
 
 stopEps :: Floating a => a
@@ -2165,8 +1544,8 @@ stopEps = 10 ** (-1)
 
 ------------ Various constants and helper functions related to objective functions
 
-epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
-epsd = 10 ** (-10)
+-- epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
+-- epsd = 10 ** (-10)
 
 objText = "objective: center all sets; center all labels in set"
 constrText = "constraint: satisfy constraints specified in Substance program"
@@ -2337,51 +1716,53 @@ centerRepelLabel olSizes olLocs =
 -- PAIRWISE constraint functions that return the magnitude of violation
 -- same type as ObjFn2; more general than PairConstrV
 type StateConstrV a = forall a . (Floating a, Ord a, Show a) => [a] -> [a] -> a
-type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
+-- type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
 
-noConstraint :: PairConstrV a
-noConstraint _ = 0
-
--- To convert your inequality constraint into a violation to be penalized:
--- it needs to be in the form "c < 0" and c is the violation penalized if > 0
--- so e.g. if you want "x < -100" then you would convert it to "x + 100 < 0" with c = x + 100
--- if you want "f x > -100" then you would convert it to "-(f x + 100) < 0" with c = -(f x + 100)"
-
--- all sets must pairwise-strict-intersect
--- plus an offset so they overlap by a visible amount (perhaps this should be an optimization parameter?)
-looseIntersect :: PairConstrV a
-looseIntersect [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
-        if s1 + s2 < offset then error "radii too small"  --TODO: make it const
-        else dist (x1, y1) (x2, y2) - (s1 + s2 - offset)
-
--- the energy actually increases so it always settles around the offset
--- that's because i am centering all of them--test w/objective off
--- TODO flatten energy afterward, or get it to be *far* from the other set
--- offset so the sets differ by a visible amount
-noSubset :: PairConstrV a
-noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing with s1 > s2 or s2 < s1
-         -(dist (x1, y1) (x2, y2)) + max s2 s1 - min s2 s1 + offset
-
--- the first set is the subset of the second, and thus smaller than the second in size.
--- TODO: test for equal sets
--- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
-strictSubset :: PairConstrV a
-strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
-
--- exterior point method constraint: no intersection (meaning also no subset)
-noIntersectExt :: PairConstrV a
-noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2
-
-pointInExt :: PairConstrV a
-pointInExt [[x1, y1], [x2, y2, r]] = dist (x1, y1) (x2, y2) - 0.5 * r
-
-pointNotInExt :: PairConstrV a
-pointNotInExt [[x1, y1], [x2, y2, r]] = - dist (x1, y1) (x2, y2) + r
-
--- exterior point method: penalty function
-penalty :: (Ord a, Floating a, Show a) => a -> a
-penalty x = (max x 0) ^ q -- weights should get progressively larger in cr_dist
-            where q = 2 -- also, may need to sample OUTSIDE feasible set
+-- noConstraint :: PairConstrV a
+-- noConstraint _ = 0
+--
+-- -- To convert your inequality constraint into a violation to be penalized:
+-- -- it needs to be in the form "c < 0" and c is the violation penalized if > 0
+-- -- so e.g. if you want "x < -100" then you would convert it to "x + 100 < 0" with c = x + 100
+-- -- if you want "f x > -100" then you would convert it to "-(f x + 100) < 0" with c = -(f x + 100)"
+--
+-- -- all sets must pairwise-strict-intersect
+-- -- plus an offset so they overlap by a visible amount (perhaps this should be an optimization parameter?)
+-- looseIntersect :: PairConstrV a
+-- looseIntersect [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in
+--         -- if s1 + s2 < offset then error "radii too small"  --TODO: make it const
+--         -- else
+--             dist (x1, y1) (x2, y2) - (s1 + s2 - offset)
+--
+-- -- the energy actually increases so it always settles around the offset
+-- -- that's because i am centering all of them--test w/objective off
+-- -- TODO flatten energy afterward, or get it to be *far* from the other set
+-- -- offset so the sets differ by a visible amount
+-- noSubset :: PairConstrV a
+-- noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing with s1 > s2 or s2 < s1
+--          -(dist (x1, y1) (x2, y2)) + max s2 s1 - min s2 s1 + offset
+--
+-- -- the first set is the subset of the second, and thus smaller than the second in size.
+-- -- TODO: test for equal sets
+-- -- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
+-- strictSubset :: PairConstrV a
+-- strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
+--
+-- -- exterior point method constraint: no intersection (meaning also no subset)
+-- noIntersectExt :: PairConstrV a
+-- noIntersectExt [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset where offset = 10
+--
+-- pointInExt :: PairConstrV a
+-- pointInExt [[x1, y1], [x2, y2, r]] = dist (x1, y1) (x2, y2) - 0.5 * r
+--
+-- pointNotInExt :: PairConstrV a
+-- pointNotInExt [[x1, y1], [x2, y2, r]] = - dist (x1, y1) (x2, y2) + r
+--
+-- -- exterior point method: penalty function
+-- penalty :: (Ord a, Floating a, Show a) => a -> a
+-- penalty x = (max x 0) ^ q -- weights should get progressively larger in cr_dist
+--             where  q = 2 -- also, may need to sample OUTSIDE feasible set
+--             -- where q = 3 -- also, may need to sample OUTSIDE feasible set
 
 -- for each pair, for each constraint on that pair, compose w/ penalty function and sum
 -- TODO add vector of normalization constants for each constraint

@@ -14,7 +14,7 @@ import qualified Text.Megaparsec.Lexer as L
 
 data SubType = Set | Pt | Map | Intersect | NoIntersect | NoSubset | Subset | PointIn | PointNotIn | AllTypes deriving (Show, Eq)
 
-data StyObj = Circle | Box | Dot | Arrow | NoShape | Color | Text
+data StyObj = Circle | Box | Dot | Arrow | NoShape | Color | Text | Auto
     deriving (Show)
 
 type StyObjInfo
@@ -48,7 +48,6 @@ data Stmt
     | ObjFn String [Expr]
     | ConstrFn String [Expr]
     | Avoid String [Expr]
-    -- | E Expr  -- TODO: is an expression a statement?
     deriving (Show)
 
 data Expr
@@ -107,9 +106,9 @@ block = do
 
 globalSelect :: Parser Selector
 globalSelect = do
-    void (symbol "_")
+    i <- WildCard <$> identifier
     -- return $ Selector AllTypes [] []
-    return $ Selector AllTypes []
+    return $ Selector AllTypes [i]
 
 constructorSelect :: Parser Selector
 constructorSelect = do
@@ -126,7 +125,7 @@ constructorSelect = do
     return $ Selector typ pat
 
 selector :: Parser Selector
-selector = globalSelect <|> constructorSelect
+selector = constructorSelect <|> globalSelect
 
 subtype :: Parser SubType
 subtype = do
@@ -225,15 +224,27 @@ constrFn = do
     return (ConstrFn fname params)
 
 expr :: Parser Expr
-expr = try objConstructor
+expr =  try objConstructor
     <|> makeExprParser term operators
+    <|> none
+    <|> auto
+    <|> number
 
 term :: Parser Expr
 term = Id <$> identifier
-   <|> number
 
 operators :: [[Operator Parser Expr]]
 operators = [ [ InfixL (BinOp Access <$ symbol ".")] ]
+
+none :: Parser Expr
+none = do
+    rword "None"
+    return $ Cons NoShape []
+
+auto :: Parser Expr
+auto = do
+    rword "Auto"
+    return $ Cons Auto []
 
 objConstructor :: Parser Expr
 objConstructor = do
@@ -244,7 +255,7 @@ objConstructor = do
     return $ Cons typ stmts
 
 number :: Parser Expr
-number = IntLit <$> integer <|> FloatLit <$> float
+number =  FloatLit <$> try float <|> IntLit <$> integer
 
 attribute :: Parser String
 attribute = many alphaNumChar
@@ -317,13 +328,13 @@ rword :: String -> Parser ()
 rword w = string w *> notFollowedBy alphaNumChar *> sc
 
 rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
-rws =     ["avoid", "global", "as"]
+rws =     ["avoid", "global", "as"] ++ types ++ shapes
 -- ++ types ++ attribs ++ shapes ++ colors
 
 types =   ["Set", "Map", "Point"]
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes ++ colors
-shapes =  ["None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
+shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
 colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 --
 -- getType :: String -> SubType
