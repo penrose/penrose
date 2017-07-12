@@ -9,7 +9,9 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DuplicateRecordFields  #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Shapes where
 -- module Shapes (Obj, Obj') where
@@ -20,11 +22,12 @@ import Graphics.Gloss
 
 type Name = String
 
-class Located a where
-      getX :: a -> Float
-      getY :: a -> Float
-      setX :: Float -> a -> a
-      setY :: Float -> a -> a
+
+class Located a b where
+      getX :: a -> b
+      getY :: a -> b
+      setX :: b -> a -> a
+      setY :: b -> a -> a
 
 class Selectable a where
       select :: a -> a
@@ -39,14 +42,14 @@ class Named a where
       getName :: a -> Name
       setName :: Name -> a -> a
 
--- data BBox = BBox {
---     cx :: Float,
---     cy :: Float,
---     h :: Float,
---     w :: Float
--- } deriving (Show, Eq, Generic)
--- instance ToJSON BBox
--- instance FromJSON BBox
+data BBox = BBox {
+    cx :: Float,
+    cy :: Float,
+    h :: Float,
+    w :: Float
+} deriving (Show, Eq, Generic)
+instance ToJSON BBox
+instance FromJSON BBox
 
 -------
 data SolidArrow = SolidArrow { startx :: Float
@@ -61,7 +64,7 @@ data SolidArrow = SolidArrow { startx :: Float
                          }
          deriving (Eq, Show, Generic)
 
-instance Located SolidArrow where
+instance Located SolidArrow Float where
         --  getX a = endx a - startx a
         --  getY a = endy a - starty a
          getX a   = startx a
@@ -91,7 +94,7 @@ data Circ = Circ { xc :: Float
                  , colorc :: Color }
      deriving (Eq, Show, Generic)
 
-instance Located Circ where
+instance Located Circ Float where
          getX c = xc c
          getY c = yc c
          setX x c = c { xc = x }
@@ -124,7 +127,7 @@ data Square = Square { xs :: Float
                      , colors :: Color }
      deriving (Eq, Show, Generic)
 
-instance Located Square where
+instance Located Square Float where
          getX s = xs s
          getY s = ys s
          setX x s = s { xs = x }
@@ -157,7 +160,7 @@ data Label = Label { xl :: Float
                    , namel :: String }
      deriving (Eq, Show, Generic)
 
-instance Located Label where
+instance Located Label Float where
          getX l = xl l
          getY l = yl l
          setX x l = l { xl = x }
@@ -188,7 +191,7 @@ data Pt = Pt { xp :: Float
              , namep :: String }
      deriving (Eq, Show, Generic)
 
-instance Located Pt where
+instance Located Pt Float where
          getX p = xp p
          getY p = yp p
          setX x p = p { xp = x }
@@ -233,7 +236,7 @@ instance ToJSON Color where
         pairs ("r" .= r <> "g" .= g <> "b" .= b <> "a" .= a)
 
 -- TODO: is there some way to reduce the top-level boilerplate?
-instance Located Obj where
+instance Located Obj Float where
          getX o = case o of
                  C c -> getX c
                  L l -> getX l
@@ -302,6 +305,53 @@ instance Named Obj where
                 P p -> P $ setName x p
                 S s -> S $ setName x s
                 A a -> A $ setName x a
+
+--------------------------------------------------------------------------------
+-- Polymorphic versions of the primitives
+
+-- data Obj' a =
+--     SolidArrow'
+--         { startx :: a
+--         , starty :: a
+--         , endx :: a
+--         , endy :: a
+--         , thickness :: a -- the maximum thickness, i.e. the thickness of the head
+--         , sel :: Bool -- is the circle currently selected? (mouse is dragging it)
+--         , name :: String
+--         , color :: Color }
+--     | Circ'
+--         { x :: a
+--         , y :: a
+--         , r :: a
+--         , sel :: Bool -- is the circle currently selected? (mouse is dragging it)
+--         , name :: String
+--         , color :: Color }
+--     | Label'
+--         { x :: a
+--         , y :: a
+--         , w :: a
+--         , h :: a
+--         , text :: String
+--         , sel :: Bool -- selected label
+--         , name :: String }
+--     | Pt'
+--         { x :: a
+--         , y :: a
+--         , sel :: Bool
+--         , name :: String }
+--     | Square'
+--         { x :: a
+--         , y :: a
+--         , side :: a
+--         , ang  :: Float -- angle for which the obj is rotated
+--         , sel :: Bool
+--         , name :: String
+--         , color :: Color }
+--         deriving (Eq, Show)
+
+data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a)
+            | A' (SolidArrow' a) deriving (Eq, Show)
+
 
 data SolidArrow' a = SolidArrow' { startx' :: a
                                , starty' :: a
@@ -378,33 +428,60 @@ instance Named (Obj' a) where
                 L' l -> L' $ setName x l
                 P' p -> P' $ setName x p
                 A' a -> A' $ setName x a
+--
+--
+instance Located (Circ' a) a where
+         getX c = xc' c
+         getY c = yc' c
+         setX x c = c { xc' = x }
+         setY y c = c { yc' = y }
 
--- instance Located (Obj' a) where
---          getX o = case o of
---              C' c -> xc' c
---              L' l -> xl' l
---              P' p -> xp' p
---              S' s -> xs' s
---              A' a -> startx' a
---          getY o = case o of
---              C' c -> yc' c
---              L' l -> yl' l
---              P' p -> yp' p
---              S' s -> ys' s
---              A' a -> starty' a
-        --  setX x o = case o of
-        --      C' c -> C $ setX' x c
-        --      L' l -> L $ setX' x l
-        --      P' p -> P $ setX' x p
-        --      S' s -> S $ setX' x s
-        --      A' a -> A $ setX' x a
-        --  setY y o = case o of
-        --      C' c -> C' $ setY' y c
-        --      L' l -> L' $ setY' y l
-        --      P' p -> P' $ setY' y p
-        --      S' s -> S' $ setY' y s
-        --      A' a -> A' $ setY' y    a
+instance Located (Square' a) a where
+         getX s = xs' s
+         getY s = ys' s
+         setX x s = s { xs' = x }
+         setY y s = s { ys' = y }
 
+instance Located (SolidArrow' a) a where
+         getX a   = startx' a
+         getY a   = starty' a
+         setX x c = c { startx' = x } -- TODO
+         setY y c = c { starty' = y }
 
-data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a)
-            | A' (SolidArrow' a) deriving (Eq, Show)
+instance Located (Label' a) a where
+         getX l = xl' l
+         getY l = yl' l
+         setX x l = l { xl' = x }
+         setY y l = l { yl' = y }
+
+instance Located (Pt' a) a where
+         getX p = xp' p
+         getY p = yp' p
+         setX x p = p { xp' = x }
+         setY y p = p { yp' = y }
+
+instance Located (Obj' a) a  where
+         getX o = case o of
+             C' c -> xc' c
+             L' l -> xl' l
+             P' p -> xp' p
+             S' s -> xs' s
+             A' a -> startx' a
+         getY o = case o of
+             C' c -> yc' c
+             L' l -> yl' l
+             P' p -> yp' p
+             S' s -> ys' s
+             A' a -> starty' a
+         setX x o = case o of
+             C' c -> C' $ setX x c
+             L' l -> L' $ setX x l
+             P' p -> P' $ setX x p
+             S' s -> S' $ setX x s
+             A' a -> A' $ setX x a
+         setY y o = case o of
+             C' c -> C' $ setY y c
+             L' l -> L' $ setY y l
+             P' p -> P' $ setY y p
+             S' s -> S' $ setY y s
+             A' a -> A' $ setY y a

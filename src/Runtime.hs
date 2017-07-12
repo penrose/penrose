@@ -4,42 +4,32 @@
 -- for autodiff, requires passing in a polymorphic fn
 
 module Runtime where
+import qualified Style as S
+import Utils
 import Shapes
 import Functions
-import Utils
-import Graphics.Gloss.Data.Vector
-import Graphics.Gloss.Interface.Pure.Game
-import Data.Function
-import System.Random
--- import Debug.Trace
-import Numeric.AD
-import GHC.Float -- float <-> double conversions
-import System.IO
-import System.Environment
-import System.Exit
 import Data.Set (fromList)
 import Data.List
 import Data.Maybe
-import qualified Data.Map.Strict as M
-import qualified Compiler as C
-import qualified StyAst as SA
-       -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
-       -- TODO limit export/import
--- For running the new style parser
-import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
--- For porting to the web
 import Data.Monoid ((<>))
 import Data.Aeson
-
-divLine = putStr "\n--------\n\n"
-
-
-stepsPerSecond :: Int
-stepsPerSecond = 100000
+import Data.Function
+import Graphics.Gloss.Data.Vector
+import Graphics.Gloss.Interface.Pure.Game
+import Numeric.AD
+import GHC.Float -- float <-> double conversions
+import System.IO
+import System.Exit
+import System.Environment
+import System.Random
+import qualified Data.Map.Strict as M
+import qualified Substance as C
+       -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
+       -- TODO limit export/import
+import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 
 calcTimestep :: Float -- for use in forcing stepping in handler
 calcTimestep = 1 / int2Float stepsPerSecond
-
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show)
 
@@ -57,7 +47,6 @@ data Params = Params { weight :: Double,
 
 -- State of the world
 data State = State { objs :: [Obj]
-                --    , stys :: [C.StyLine]
                    , constrs :: [C.SubConstr]
                    , down :: Bool -- left mouse button is down (dragging)
                    , rng :: StdGen -- random number generator
@@ -74,7 +63,6 @@ initRng = mkStdGen seed
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0
 
-
 initParams = Params { weight = initWeight, optStatus = NewIter, objFn = objFnNone, annotations = [] }
 
 ----------------------- Unpacking
@@ -86,10 +74,8 @@ type Varying a = [a]
 -- annotations are specified inline here. this is per type, not per value (i.e. all circles have the same fixed parameters). but you could generalize it to per-value by adding or overriding annotations globally after the unpacking
 -- does not unpack names
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
--- the location of a circle can vary, but not its radius
--- unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)]
+-- the location of a circle and square can vary
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
--- unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Fix)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
@@ -123,8 +109,6 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 -- (Maybe port all objects to polymorphic at some point, but would need to zero the gradient information.)
 -- Can't use realToFrac here because it will zero the gradient information.
 -- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
-
-
 
 -- TODO comment packing these functions defining conventions
 solidArrowPack :: (Real a, Floating a, Show a, Ord a) => SolidArrow -> [a] -> SolidArrow' a
@@ -212,7 +196,6 @@ defaultText text = L Label { xl = -100, yl = -100,
 defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
 
-initSpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoShape, M.empty),  SA.spArgs = [], SA.spShpMap = M.empty}
 
 -- ------- Parsing for Old Style Design
 --
@@ -257,329 +240,152 @@ initSpec = SA.StySpec { SA.spType = SA.Pt, SA.spId = "", SA.spShape = (SA.NoShap
 ----- Parser for the new style design
 -- -- Given a list of IDs, translate a raw AST of a Style program
 -- -- to a object-wise record
--- getStyDict :: [C.SubDecl] -> SA.StyProg -> M.Map Name SA.StySpec
+-- getStyDict :: [C.SubDecl] -> S.StyProg -> M.Map Name S.StySpec
 -- getStyDict decls prog = foldl loadObjConfig tConfig oBlk
 --     where
 --         ids = getSubTuples decls
 --         dict = foldl (\m (t, n) ->
---                         M.insert n (dummySpec { SA.spId = n, SA.spType = t }) m) M.empty ids
+--                         M.insert n (dummySpec { S.spId = n, S.spType = t }) m) M.empty ids
 --         [gBlk, tBlk, oBlk] = getBlocks prog
 --         gConfig = foldl loadGlobalConfig dict gBlk
 --         tConfig = foldl loadTypeConfig gConfig tBlk
 --         -- applyConfig f d = foldl f d prog
 --
--- getSubTuples :: [C.SubDecl] -> [(SA.SubType, String)]
+-- getSubTuples :: [C.SubDecl] -> [(S.SubType, String)]
 -- getSubTuples decls = map getType decls
 --     where
 --         getType (C.Decl d) = case d of
---             C.OS (C.Set' n _) -> (SA.Set, n)
---             C.OP (C.Pt' n) -> (SA.Pt, n)
---             C.OM (C.Map' n _ _) -> (SA.Map, n)
+--             C.OS (C.Set' n _) -> (S.Set, n)
+--             C.OP (C.Pt' n) -> (S.Pt, n)
+--             C.OM (C.Map' n _ _) -> (S.Map, n)
 --
 --
 --
 -- -- NOTE: assuming we process global settings FIRST. All other fields will get wiped out
--- loadGlobalConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
--- loadGlobalConfig dict (SA.GlobalBlock stmts) = M.mapWithKey (\_ oldSpec -> newSpec { SA.spType = SA.spType oldSpec, SA.spId = SA.spId oldSpec}) dict
+-- loadGlobalConfig :: M.Map Name S.StySpec -> S.Block -> M.Map Name S.StySpec
+-- loadGlobalConfig dict (S.GlobalBlock stmts) = M.mapWithKey (\_ oldSpec -> newSpec { S.spType = S.spType oldSpec, S.spId = S.spId oldSpec}) dict
 --     where
 --         newSpec = foldl procStmt dummySpec stmts
 -- loadGlobalConfig dict _ = dict -- ignore all other blocks
 --
--- loadTypeConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
--- loadTypeConfig dict (SA.TypeBlock typ stmts) = M.mapWithKey (\_ s -> procSpec s) dict
+-- loadTypeConfig :: M.Map Name S.StySpec -> S.Block -> M.Map Name S.StySpec
+-- loadTypeConfig dict (S.TypeBlock typ stmts) = M.mapWithKey (\_ s -> procSpec s) dict
 --     where
---         procSpec s = if SA.spType s == typ then getSpec s else s
+--         procSpec s = if S.spType s == typ then getSpec s else s
 --         getSpec s = foldl procStmt s stmts
 -- loadTypeConfig dict _ = dict -- ignore all other blocks
 --
--- loadObjConfig :: M.Map Name SA.StySpec -> SA.Block -> M.Map Name SA.StySpec
--- loadObjConfig dict (SA.ObjBlock name stmts) = M.mapWithKey (\_ s -> procSpec s) dict
+-- loadObjConfig :: M.Map Name S.StySpec -> S.Block -> M.Map Name S.StySpec
+-- loadObjConfig dict (S.ObjBlock name stmts) = M.mapWithKey (\_ s -> procSpec s) dict
 --     where
---         procSpec s = if SA.spId s == name then getSpec s else s
+--         procSpec s = if S.spId s == name then getSpec s else s
 --         getSpec s = foldl procStmt s stmts
 -- loadObjConfig dict _ = dict -- ignore all other blocks
 --
--- procStmt :: SA.StySpec -> SA.Stmt -> SA.StySpec
--- procStmt spec (SA.Assign _ (SA.Color c)) = spec { SA.spColor = c }
--- procStmt spec (SA.Assign _ (SA.Shape s)) = spec { SA.spShape = s }
+-- procStmt :: S.StySpec -> S.Stmt -> S.StySpec
+-- procStmt spec (S.Assign _ (S.Color c)) = spec { S.spColor = c }
+-- procStmt spec (S.Assign _ (S.Shape s)) = spec { S.spShape = s }
 --
--- getBlocks :: SA.StyProg -> [[SA.Block]]
+-- getBlocks :: S.StyProg -> [[S.Block]]
 -- getBlocks p = map (\f -> f p) filters
 --     where filters = map filter [isGlobalBlock, isTypeBlock, isObjBlock]
 --
--- isGlobalBlock, isTypeBlock, isObjBlock :: SA.Block -> Bool
--- isGlobalBlock (SA.GlobalBlock _) = True
+-- isGlobalBlock, isTypeBlock, isObjBlock :: S.Block -> Bool
+-- isGlobalBlock (S.GlobalBlock _) = True
 -- isGlobalBlock _ = False
 --
--- isTypeBlock (SA.TypeBlock _ _) = True
+-- isTypeBlock (S.TypeBlock _ _) = True
 -- isTypeBlock _ = False
 --
--- isObjBlock (SA.ObjBlock _ _) = True
+-- isObjBlock (S.ObjBlock _ _) = True
 -- isObjBlock _ = False
 
------ Parser for Style design
-
--- Type aliases for readability in this section
-type StyDict = M.Map Name SA.StySpec
--- type ObjFn a = M.Map Name (Obj' a) -> a
-type ConstrFn a = [Obj' a] -> a
-type ObjFn a    = [Obj' a] -> a
--- A VarMap matches lambda ids in the selector to the actual selected id
-type VarMap  = M.Map Name Name
-
-getDictAndFns :: (Floating a, Real a, Show a, Ord a) =>
-    ([C.SubDecl], [C.SubConstr]) -> SA.StyProg
-    -> (StyDict, [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
-getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, [], []) blocks
-    where
-        res = getSubTuples decls ++ getConstrTuples constrs
-        ids = map (\(x, y, z) -> (x, y)) res
-        -- args = map (\(_, _, z) -> z) res
-        initDict = foldl (\m (t, n, a) ->
-                        M.insert n (initSpec { SA.spId = n, SA.spType = t, SA.spArgs = a }) m) M.empty res
-        -- applyConfig f d = foldl f d prog
-
-procBlock :: (Floating a, Real a, Show a, Ord a) =>
-    (StyDict, [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
-    -> SA.Block
-    -> (StyDict, [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
-procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
-    where
-        select s = M.elems $ M.filter (match s) dict
-        -- selectedSpecs :: [[(VarMap, SA.StySpec)]]
-        selectedSpecs = map
-            (\s -> let xs = select s
-                       vs = map (allOtherVars . getVarMap s) xs in zip vs xs) selectors
-        -- TODO: scoping - now every block has access to everyone else
-        allOtherVars = M.union (M.fromList $ zip k k) where k = M.keys dict
-        -- Combination of all selected (spec. varmap)
-        allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
-        mergedMaps =
-            -- let allMaps = map (map fst) allCombs in
-            -- map M.unions (tr "allMaps: " allMaps)
-            -- tr "allmaps: " $
-            map M.unions allCombs
-        -- Only process assignment statements on matched specs, not the cartesion product of them
-        updateSpec d (vm, sp) =
-            let newSpec = foldl (procAssign vm) sp stmts in
-            M.insert (SA.spId newSpec) newSpec d
-        newDict = foldl updateSpec dict $ concat selectedSpecs
-        -- (zip varMaps selected)
-        genFns f vm = foldl (f vm) [] stmts
-        newObjFns    = concatMap (genFns procObjFn) mergedMaps
-        newConstrFns = concatMap (genFns procConstrFn) mergedMaps
-
-cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
-
--- Returns a map from placeholder ids to actual matched ids
-getVarMap :: SA.Selector -> SA.StySpec -> VarMap
-getVarMap sel spec = foldl add M.empty patternNamePairs
-    where
-        patternNamePairs = zip (SA.selPatterns sel) (SA.spArgs spec)
-        add d (p, n) = case p of
-            SA.RawID _    -> d
-            SA.WildCard i -> M.insert i n d
 
 
--- Returns true of an object matches the selector
-match :: SA.Selector -> SA.StySpec -> Bool
-match sel spec = all test (zip args patterns) &&
-                SA.selTyp sel == SA.spType spec &&
-                length args == length patterns
-    where
-        patterns = SA.selPatterns sel
-        args = SA.spArgs spec
-        -- dummies = SA.selIds sel
-        test (a, p) = case p of
-            SA.RawID i -> a == i
-            SA.WildCard _ -> True
-
-procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
-    VarMap -> [(ConstrFn a, Weight a, [Name])] -> SA.Stmt
-    -> [(ConstrFn a, Weight a, [Name])]
-procConstrFn varMap fns (SA.ConstrFn fname es) =
-    -- trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
-    fns ++ [(func, defaultWeight, names)]
-    where
-        (func, names) = case M.lookup fname constrFuncDict of
-            Just f -> (f, map (getIdByExpr varMap) es)
-            Nothing -> error "procConstrFn: constraint function not known"
-procConstrFn varMap fns _ = fns -- TODO: avoid functions
-
-procObjFn :: (Floating a, Real a, Show a, Ord a) =>
-    VarMap -> [(ObjFn a, Weight a, [Name])] -> SA.Stmt
-    -> [(ObjFn a, Weight a, [Name])]
-procObjFn varMap fns (SA.ObjFn fname es) =
-    trStr ("New Objective function: " ++ fname ++ " " ++ (show names)) $
-    fns ++ [(func, defaultWeight, names)]
-    where
-        (func, names) = case M.lookup fname objFuncDict of
-            Just f -> (f, tr "Args: " args)
-            Nothing -> error "procObjFn: objective function not known"
-        args = map (getIdByExpr varMap) es
-procObjFn varMap fns (SA.Avoid fname es) = fns -- TODO: avoid functions
-procObjFn varMap fns _ = fns -- TODO: avoid functions
-
--- TODO: Have a more principled expr look up routine
-lookupVarMap s varMap= case M.lookup s varMap of
-    Just s -> s
-    Nothing  -> (error $ "lookupVarMap: incorrect variable mapping from " ++ s)
-getIdByExpr d (SA.Id s)  = lookupVarMap s d
--- TODO: properly resolve access by doing lookups
-getIdByExpr d (SA.BinOp SA.Access (SA.Id i) (SA.Id "label"))  = labelName $ lookupVarMap i d
-getIdByExpr d (SA.BinOp SA.Access (SA.Id i) (SA.Id "shape"))  = lookupVarMap i d
-getIdByExpr _ _  = error "getIdByExpr: argument unsupported!"
-
-procAssign :: VarMap -> SA.StySpec -> SA.Stmt -> SA.StySpec
-procAssign varMap spec (SA.Assign n (SA.Cons typ stmts)) =
-    if n == "shape" then spec { SA.spShape = (typ, configs) } -- primary shape
-        else spec { SA.spShpMap = M.insert n (typ, configs) $ SA.spShpMap spec } -- secondary shapes
-    where
-        configs = foldl addSpec M.empty stmts
-        -- FIXME: this is incorrect, we should resolve the variables earlier
-        addSpec dict (SA.Assign s e@(SA.Cons SA.NoShape _)) = M.insert s (SA.Id "None") dict
-        addSpec dict (SA.Assign s e@(SA.Cons SA.Auto _)) = M.insert s (SA.Id "Auto") dict
-        addSpec dict (SA.Assign s e) = M.insert s (SA.Id (getIdByExpr varMap e)) dict
-        addSpec _ _ = error "procAssign: only support assignments in constructors!"
-procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
-
-getConstrTuples :: [C.SubConstr] -> [(SA.SubType, String, [String])]
-getConstrTuples = map getType
-    where getType c = case c of
-            C.Intersect a b -> (SA.Intersect, "Intersect" ++ a ++ b, [a, b])
-            C.NoIntersect a b -> (SA.NoIntersect, "NoIntersect" ++ a ++ b, [a, b])
-            C.Subset a b -> (SA.Subset, "Subset" ++ a ++ b, [a, b])
-            C.NoSubset a b -> (SA.NoSubset, "NoSubset" ++ a ++ b, [a, b])
-            C.PointIn a b -> (SA.PointIn, "PointIn" ++ a ++ b, [a, b])
-            C.PointNotIn a b -> (SA.PointNotIn, "PointNotIn" ++ a ++ b, [a, b])
-
-getSubTuples :: [C.SubDecl] -> [(SA.SubType, String, [String])]
-getSubTuples = map getType
-    where getType (C.Decl d) = case d of
-            C.OS (C.Set' n _) -> (SA.Set, n, [n])
-            C.OP (C.Pt' n) -> (SA.Pt, n, [n])
-            C.OM (C.Map' n a b) -> (SA.Map, n, [n, a, b])
-
-getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
-getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
-
-shapeAndFn :: (Floating a, Real a, Show a, Ord a) => StyDict -> String -> ([Obj], [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
+shapeAndFn :: (Floating a, Real a, Show a, Ord a) => S.StyDict -> String -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 shapeAndFn dict name =
     case M.lookup name dict of
         Nothing -> error ("Cannot find style info for " ++ name)
-        Just s  -> concat3 $ map getShape $ (name, SA.spShape s) : map addPrefix (M.toList $ SA.spShpMap s)
+        Just s  -> concat3 $ map getShape $ (name, S.spShape s) : map addPrefix (M.toList $ S.spShpMap s)
     where
         concat3 x = (concatMap fst3 x, concatMap snd3 x, concatMap thd3 x)
         addPrefix (s, o) = (name ++ "_" ++ s, o)
         fst3 (a, _, _) = a
         snd3 (_, a, _) = a
         thd3 (_, _, a) = a
-        getShape (n, (SA.Text, config)) = initText n config
-        getShape (n, (SA.Arrow, config)) = initArrow n config
-        getShape (n, (SA.Circle, config)) = initCircle n config
-        getShape (n, (SA.Box, config)) = initSquare n config
-        getShape (n, (SA.NoShape, _)) = ([], [], [])
+        getShape (n, (S.Text, config)) = initText n config
+        getShape (n, (S.Arrow, config)) = initArrow n config
+        getShape (n, (S.Circle, config)) = initCircle n config
+        getShape (n, (S.Box, config)) = initSquare n config
+        getShape (n, (S.NoShape, _)) = ([], [], [])
         getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
 
 initText, initArrow, initCircle, initSquare ::
     (Floating a, Real a, Show a, Ord a) =>
-    String -> M.Map String SA.Expr
-    -> ([Obj], [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
+    String -> M.Map String S.Expr
+    -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 initText n config = ([defaultText n], [], [])
 initArrow n config =
     -- ([defaultSolidArrow n, defaultLabel n], [(centerMap, defaultWeight, [n, from, to])], [])
     -- ([defaultSolidArrow n], [(centerMap, defaultWeight, [n, from, to])], [])
     if lab == "None" then
-    ([defaultSolidArrow n], [(centerMap, defaultWeight, [n, from, to])], [])
+    ([defaultSolidArrow n], [(centerMap, defaultWeight, [n, from, to], [])], [])
     else
-    ([defaultSolidArrow n, defaultLabel n], [(centerMap, defaultWeight, [n, from, to])], [])
+    ([defaultSolidArrow n, defaultLabel n], [(centerMap, defaultWeight, [n, from, to], [])], [])
     where
         from = queryConfig "start" config
         to   = queryConfig "end" config
         lab  = queryConfig "label" config
 initCircle n config = ([defaultCirc n, defaultLabel n], [],
-    [(penalty . maxSize, defaultWeight, [n]),
-     (penalty . minSize, defaultWeight, [n])])
+    [(penalty `compose2` maxSize, defaultWeight, [n], []),
+     (penalty `compose2` minSize, defaultWeight, [n], [])])
 initSquare n config = ([defaultSquare n, defaultLabel n], [],
-    [(penalty . maxSize, defaultWeight, [n]),
-     (penalty . minSize, defaultWeight, [n])])
+    [(penalty `compose2` maxSize, defaultWeight, [n], []),
+     (penalty `compose2` minSize, defaultWeight, [n], [])])
 
 queryConfig key dict = case M.lookup key dict of
-    Just (SA.Id i) -> i
+    Just (S.Id i) -> i
     -- FIXME: get dot access to work for arbitrary input
-    Just (SA.BinOp SA.Access (SA.Id i) (SA.Id "shape")) -> i
+    Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> i
     Nothing -> error ("queryConfig: Key " ++ key ++ " does not exist!")
 
 ------- Generate objective functions
 
-defaultWeight :: Floating a => a
-defaultWeight = 1
+-- defaultWeight :: Floating a => a
+-- defaultWeight = 1
 
 defaultRad :: Floating a => a
 defaultRad = 100
 
-objFnOnNone :: ObjFnOn a
-objFnOnNone _ = 0
+objFnOnNone :: ObjFn
+objFnOnNone _ _ = 0
 
 -- Parameters to change
-declSetObjfn :: ObjFnOn a
+declSetObjfn :: ObjFn
 declSetObjfn = objFnOnNone -- centerCirc
 
-declPtObjfn :: ObjFnOn a
+declPtObjfn :: ObjFn
 declPtObjfn = objFnOnNone -- centerCirc
 
-declLabelObjfn :: ObjFnOn a
+declLabelObjfn :: ObjFn
 declLabelObjfn = centerLabel -- objFnOnNone
 
-declMapObjfn :: ObjFnOn a
+declMapObjfn :: ObjFn
 declMapObjfn = centerMap
 
 
-constrFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) =>
-    M.Map String (ConstrFn a)
-constrFuncDict = M.fromSet mapping allFns
-    where
-        allFns  = fromList ["sameSizeAs", "smallerThan", "contains", "nonOverlapping", "overlapping", "outsideOf"]
-        mapping f = case f of
-            "sameSizeAs" -> penalty . sameSize
-            "contains" -> penalty . contains
-            "overlapping" -> penalty . overlapping
-            "nonOverlapping" -> penalty . nonOverlapping
-            "outsideOf" -> penalty . outsideOf
-            "smallerThan" -> penalty . smallerThan -- TODO: should this be an objective?
-            -- "avoidSubsets" -> penalty . avoidSubsets
-            _ -> error ("constrFuncDict: unknown function " ++ f)
-
-objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFn a)
-objFuncDict = M.fromSet mapping allFns
-    where
-        allFns  = fromList ["sameX", "sameCenter", "sameHeight", "repel", "onTop", "toLeft", "centerLabel", "outside"]
-        mapping f = case f of
-            "centerLabel" -> centerLabel
-            "toLeft" -> toLeft
-            "onTop" -> onTop
-            "sameHeight" -> sameHeight
-            "sameX" -> (*) 0.2 . sameX
-            "sameCenter" -> (*) 0.01 . sameCenter
-            -- "repel" -> penalty . repel
-            -- "repel" -> (*) 100000000 . repel
-            -- "repel" -> (*) 9000  . repel
-            "repel" -> (*) 900000  . repel
-            -- "repel" -> repe  l
-            -- "repel" -> repel
-            "outside" -> outside
-            _ -> error ("objFuncDict: unknown function " ++ f)
 
 genAllObjs :: (Floating a, Real a, Show a, Ord a) =>
-             ([C.SubDecl], [C.SubConstr]) -> StyDict
-             -> ([Obj], [(ObjFn a, Weight a, [Name])], [(ConstrFn a, Weight a, [Name])])
+             ([C.SubDecl], [C.SubConstr]) -> S.StyDict
+             -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 -- TODO figure out how the types work. also add weights
 genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss)
     where
-        (objss, objFnss, constrFnss) = unzip3 $ map (shapeAndFn stys) $ getAllIds (decls, constrs)
+        (objss, objFnss, constrFnss) = unzip3 $ map (shapeAndFn stys) $ S.getAllIds (decls, constrs)
+-- FIXME: getAllIds shouldn't be happening at all
 
 -- genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
---                   M.Map String SA.StySpec -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
+--                   M.Map String S.StySpec -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 -- genObjsAndFns stys line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
 --             where
 --                 c1 = shapeOf sname stys
@@ -608,7 +414,7 @@ genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrF
 --
 
 -- genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
---                  [C.SubDecl] -> M.Map String SA.StySpec -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
+--                  [C.SubDecl] -> M.Map String S.StySpec -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
 -- -- TODO figure out how the types work. also add weights
 -- genAllObjsAndFns decls stys = let (objss, fnss) = unzip $ map (genObjsAndFns stys) decls in
 --                          (concat objss, concat fnss)
@@ -640,18 +446,18 @@ lookupNames dict ns = map check res
 -- note: CANNOT do dict -> list because that destroys the order
 genObjFn :: (Real a, Floating a, Show a, Ord a) =>
          [[Annotation]]
-         -> [(ObjFn a, Weight a, [Name])]
+         -> [(ObjFnOn a, Weight a, [Name], [a])]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
-         -> [(ConstrFn a, Weight a, [Name])]
+         -> [(ConstrFnOn a, Weight a, [Name], [a])]
          -> [Obj] -> a -> [a] -> [a] -> a
 genObjFn annotations objFns ambientObjFns constrObjFns =
          \currObjs penaltyWeight fixed varying ->
          let newObjs = pack annotations currObjs fixed varying in
          let objDict = dictOf newObjs in
-         sumMap (\(f, w, n) -> w * f (lookupNames objDict n)) objFns
+         sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
-                (constrWeight * penaltyWeight * sumMap (\(f, w, n) -> w * f (lookupNames objDict n)) constrObjFns))
+                (constrWeight * penaltyWeight * sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) constrObjFns))
         --    (sumMap (\(f, w) -> w * f objDict) objFns) +
         --    (sumMap (\(f, w) -> w * f objDict) ambientObjFns) +
         --    (constrWeight * penaltyWeight *
@@ -669,10 +475,10 @@ constraint constrs = if constraintFlag then \x ->
 -- generate all objects and the overall objective function
 -- style program is currently unused
 -- TODO adjust weights of all functions
-genInitState :: ([C.SubDecl], [C.SubConstr]) -> SA.StyProg -> State
+genInitState :: ([C.SubDecl], [C.SubConstr]) -> S.StyProg -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
-             let (dict, userObjFns, userConstrFns) = getDictAndFns (decls, constrs) stys in
+             let (dict, userObjFns, userConstrFns) = S.getDictAndFns (decls, constrs) stys in
              let (initObjs, initObjFns, initConstrFns) = genAllObjs (decls, constrs) dict in
              let objFns = userObjFns ++ initObjFns in
             --  let (initState, objFns) = genAllObjsAndFns decls (getStyDict decls stys) in
@@ -1218,9 +1024,6 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 -- NOTE: all downstream functions (objective functions, line search, etc.) expect a state in the form of
 -- a big list of floats with the object parameters grouped together: [x1, y1, size1, ... xn, yn, sizen]
 
--- don't use r2f outside of zeroGrad or addGrad, since it doesn't interact well w/ autodiff
-r2f :: (Fractional b, Real a) => a -> b
-r2f = realToFrac
 
 -- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
 zeroGrad :: (Real a, Floating a, Show a, Ord a) => Obj' a -> Obj

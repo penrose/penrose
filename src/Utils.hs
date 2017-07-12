@@ -1,9 +1,21 @@
 module Utils where
 import Debug.Trace
 
+divLine = putStr "\n--------\n\n"
+
+-- don't use r2f outside of zeroGrad or addGrad, since it doesn't interact well w/ autodiff
+r2f :: (Fractional b, Real a) => a -> b
+r2f = realToFrac
+
+stepsPerSecond :: Int
+stepsPerSecond = 100000
+
 picWidth, picHeight :: Int
 picWidth = 800
 picHeight = 700
+
+defaultWeight :: Floating a => a
+defaultWeight = 1
 
 
 debug = False
@@ -23,6 +35,15 @@ halfDiagonal side = 0.5 * dist (0, 0) (side, side)
 labelName :: String -> String
 labelName name = "Label_" ++ name
 
+-- | `compose2` is used to compose with a function that takes in
+-- two arguments. As if now, it is used to compose `penalty` with
+-- constraint functions
+compose2:: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
+compose2 = (.) . (.)
+
+
+--------------------------------------------------------------------------------
+-- Debug Functions
 
 -- Some debugging functions. @@@
 debugF :: (Show a) => a -> a
@@ -46,7 +67,8 @@ tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -
 tro :: Show a => String -> a -> a
 tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
----- Lists-as-vectors utility functions, TODO split out of file
+--------------------------------------------------------------------------------
+-- Lists-as-vectors utility functions,
 
 -- define operator precedence: higher precedence = evaluated earlier
 infixl 6 +., -.

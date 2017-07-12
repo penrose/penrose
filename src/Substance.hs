@@ -1,4 +1,4 @@
- module Compiler where
+module Substance where
 -- TODO split this up + do selective export
 
 import System.IO -- read/write to file

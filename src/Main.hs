@@ -1,20 +1,19 @@
 -- | Main module of the Penrose system
 module Main where
+import Utils
 import Graphics.Gloss
 import Graphics.Gloss.Data.Vector
 import Graphics.Gloss.Interface.Pure.Game
 import qualified Server
 import qualified Runtime as R
-import qualified Compiler as C
-import qualified StyAst as SA
+import qualified Substance as C
+import qualified Style as S
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 import System.Environment
 import System.IO
 import System.Exit
 import Control.Monad(when)
 
-
-divLine = putStr "\n--------\n\n"
 
 -- | `main` runs the Penrose system
 main :: IO ()
@@ -38,7 +37,7 @@ main = do
     putStrLn "Parsed Substance program:\n"
     putStrLn $ C.subPrettyPrint' subParsed
 
-    case MP.runParser SA.styleParser styFile styIn of
+    case MP.runParser S.styleParser styFile styIn of
         Left err -> putStr $ MP.parseErrorPretty err
         Right styParsed -> do
             divLine
@@ -69,15 +68,15 @@ main = do
                     (picWidth, picHeight)   -- size
                     (10, 10))    -- position
                     white                   -- background color
-                    R.stepsPerSecond         -- number of simulation steps to take for each second of real time
+                    stepsPerSecond         -- number of simulation steps to take for each second of real time
                     initState               -- the initial world, defined as a type below
                     R.picOf                   -- fn to convert world to a pic
                     R.handler                 -- fn to handle input events
                     R.step                    -- step the world one iteration; passed period of time (in secs) to be advanced
 
-picWidth, picHeight :: Int
-picWidth = 800
-picHeight = 700
-
-stepsPerSecond :: Int
-stepsPerSecond = 10000
+-- picWidth, picHeight :: Int
+-- picWidth = 800
+-- picHeight = 700
+--
+-- stepsPerSecond :: Int
+-- stepsPerSecond = 10000

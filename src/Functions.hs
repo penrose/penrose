@@ -1,84 +1,141 @@
+-- | This module contains a library of objective and constraint functions, and
+-- helper functions needed to invoke them.
+
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
 module Functions where
 import Shapes
 import Utils
 import qualified Data.Map.Strict as M
 
------------------------ Sample objective functions that operate on objects (given names)
--- TODO write about expectations for the objective function writer
-
--- type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
-type ObjFnOn a = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
--- illegal polymorphic or qualified type--can't return a forall?
-type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
+-- type ObjFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
+-- type Name = String
+type ObjFnOn a =  [Obj' a] -> [a] -> a
+type ConstrFnOn a =  [Obj' a] -> [a] -> a
+type ObjFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
+type ConstrFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
 type Weight a = a
+type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
 
+-- | `constrFuncDict` stores a mapping from the name of function to the actual implementation
+constrFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) =>
+    M.Map String (ConstrFnOn a)
+-- constrFuncDict = M.fromSet mapping allFns
+--     where
+--         allFns  = fromList ["sameSizeAs", "smallerThan", "contains", "nonOverlapping", "overlapping", "outsideOf"]
+--         mapping f = case f of
+--             "sameSizeAs" -> penalty . sameSize
+--             "contains" -> penalty . contains
+--             "overlapping" -> penalty . overlapping
+--             "nonOverlapping" -> penalty . nonOverlapping
+--             "outsideOf" -> penalty . outsideOf
+--             "smallerThan" -> penalty . smallerThan -- TODO: should this be an objective?
+--             -- "avoidSubsets" -> penalty . avoidSubsets
+--             _ -> error ("constrFuncDict: unknown function " ++ f)
+constrFuncDict = M.fromList flist
+    where
+        flist :: (Floating a, Real a, Show a, Ord a) => [(String, ConstrFnOn a)]
+        flist = [
+                    ("sameSizeAs", penalty `compose2` sameSize),
+                    ("contains", penalty `compose2` contains),
+                    ("overlapping", penalty `compose2` overlapping),
+                    ("nonOverlapping",  penalty `compose2` nonOverlapping),
+                    ("outsideOf", penalty `compose2` outsideOf),
+                    ("smallerThan", penalty `compose2` smallerThan) -- TODO: should this be an objective?
+                 ]
+
+objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFnOn a)
+objFuncDict = M.fromList flist
+    where flist = [
+                    ("centerLabel", centerLabel),
+                    ("toLeft", toLeft),
+                    ("onTop", onTop),
+                    ("sameHeight", sameHeight),
+                    -- ("sameX", sameX),
+                    ("sameX", (*) 0.2 `compose2` sameX),
+                    ("sameCenter", sameCenter),
+                    -- ("sameCenter", (*) 0.01 `compose2` sameCenter),
+                    ("repel", (*)  900000  `compose2` repel),
+                    -- ("repel", repel),
+                    ("outside", outside)
+                  ]
+-- objFuncDict = M.fromSet mapping allFns
+--     where
+--         allFns  = fromList ["sameX", "sameCenter", "sameHeight", "repel", "onTop", "toLeft", "centerLabel", "outside"]
+--         mapping f = case f of
+--             "centerLabel" -> centerLabel
+--             "toLeft" -> toLeft
+--             "onTop" -> onTop
+--             "sameHeight" -> sameHeight
+--             "sameX" -> (*) 0.2 . sameX
+--             "sameCenter" -> (*) 0.01 . sameCenter
+--             -- "repel" -> penalty . repel
+--             -- "repel" -> (*) 100000000 . repel
+--             -- "repel" -> (*) 9000  . repel
+--             "repel" -> (*) 900000  . repel
+--             -- "repel" -> repe  l
+--             -- "repel" -> repel
+--             "outside" -> outside
+--             _ -> error ("objFuncDict: unknown function " ++ f)
+
+-- illegal polymorphic or qualified type--can't return a forall?
+-- type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
+
+-- data Param a = O (Obj' a) | I Int | F Float
+-- data ObjectiveFunction = ObjectiveFunction {
+--     objName    :: String,
+--     objWeight  :: forall a. (Floating a, Real a, Show a, Ord a) => Weight a,
+--     objParam   :: forall a. (Floating a, Real a, Show a, Ord a) => [Param a],
+--     objFunc    :: forall a. (Floating a, Real a, Show a, Ord a) => ObjFnOn a
+-- }
+
+--------------------------------------------------------------------------------
+-- Objective functions
+-- TODO write about expectations for the objective function writer
 -- TODO deal with lists in a more principled way
 -- maybe the typechecking should be done elsewhere...
--- shouldn't these two be parametric over objects?
-centerCirc :: ObjFnOn a
-centerCirc [C' c] = (xc' c)^2 + (yc' c)^2
-centerCirc [L' _] = error "misnamed label"
 
--- distanceOf :: ObjFnOn a
--- toLeft [fromname, toname] dict =
---     case (M.lookup fromname dict, M.lookup toname dict) of
---         -- (Just (A' a), Just (S' s), Just (S' e)) ->
---         -- (Just (A' a), Just (S' s), Just (C' e)) ->
---         -- (Just (A' a), Just (C' s), Just (S' e)) ->
---         (Just (C' s), Just (C' e)) ->
---             -- (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
---             (xc' s - xc' e + 400)^2
+-- TODO: implement all the location function using a generic version
+-- distance (x1, y1) (x2, y2) dx dy = (x1 - x2)
 
-onTop :: ObjFnOn a
-onTop [L' s, L' e] = (yl' s - yl' e - 100)^2
+-- | 'onTop' makes sure the first argument is on top of the second.
+onTop :: ObjFn
+-- onTop [L' s, L' e]  = (yl' s - yl' e - spacing)^2
+onTop [top, bottom] _ = (getY top - getY bottom - 100)^2
 
-sameHeight :: ObjFnOn a
-sameHeight [C' s, S' e] = (yc' s - ys' e)^2
-sameHeight [S' s, C' e] = (ys' s - yc' e)^2
-sameHeight [C' s, C' e] = (yc' s - yc' e)^2
-sameHeight [S' s, S' e] = (ys' s - ys' e)^2
-sameHeight [L' s, L' e] = (yl' s - yl' e)^2
+-- | 'toLeft' makes sure the first argument is to the left of the second.
+toLeft :: ObjFn
+toLeft [a, b] _ = (getX a - getX b + 400)^2
 
-sameX :: ObjFnOn a
-sameX [C' s, S' e] = (xc' s - xs' e)^2
-sameX [S' s, C' e] = (xs' s - xc' e)^2
-sameX [C' s, C' e] = (xc' s - xc' e)^2
-sameX [S' s, S' e] = (xs' s - xs' e)^2
-sameX [L' s, L' e] = (xl' s - xl' e)^2
+-- | 'sameHeight' forces two object to stay at the same height(have the same Y value)
+sameHeight :: ObjFn
+sameHeight [a, b] _ = (getY a - getY b)^2
 
-sameCenter :: ObjFnOn a
-sameCenter [C' s, S' e] = (yc' s - ys' e)^2 + (xc' s - xs' e)^2
-sameCenter [S' s, C' e] = (ys' s - yc' e)^2 + (xs' s - xc' e)^2
-sameCenter [C' s, C' e] = (yc' s - yc' e)^2 + (xc' s - xc' e)^2
-sameCenter [S' s, S' e] = (ys' s - ys' e)^2 + (xs' s - xs' e)^2
-sameCenter [L' s, L' e] = (yl' s - yl' e)^2 + (xl' s - xl' e)^2
+-- | 'sameHeight' forces two object to have the same X value
+sameX :: ObjFn
+sameX [a, b] _ = (getX a - getX b)^2
 
-toLeft :: ObjFnOn a
-toLeft [C' s, S' e] = (xc' s - xs' e + 400)^2
-toLeft [S' s, C' e] = (xs' s - xc' e + 400)^2
--- toLeft [C' s, C' e] = (xc' s - xc' e + r' s + r' e + 200)^2
-toLeft [C' s, C' e] = (xc' s - xc' e + 400)^2
-toLeft [S' s, S' e] = (xs' s - xs' e + 400)^2
-toLeft [L' s, L' e] = (xl' s - xl' e + 100)^2
+-- | 'sameCenter' forces two object to center at the same point
+sameCenter :: ObjFn
+sameCenter [a, b] _ = (getY a - getY b)^2 + (getX a - getX b)^2
 
-
-centerMap :: ObjFnOn a
-centerMap [A' a, S' s, S' e] = _centerMap a [xs' s, ys' s] [xs' e, ys' e]
+-- TODO: more reasonable name
+-- | `centerMap` positions an arrow between to objects, with some spacing
+centerMap :: ObjFn
+centerMap [A' a, S' s, S' e] _ = _centerMap a [xs' s, ys' s] [xs' e, ys' e]
                 [spacing + (halfDiagonal . side') s, negate $ spacing + (halfDiagonal . side') e]
-centerMap [A' a, S' s, C' e] = _centerMap a [xs' s, ys' s] [xc' e, yc' e]
+centerMap [A' a, S' s, C' e] _ = _centerMap a [xs' s, ys' s] [xc' e, yc' e]
                 [spacing + (halfDiagonal . side') s, negate $ spacing + r' e]
-centerMap [A' a, C' s, S' e] = _centerMap a [xc' s, yc' s] [xs' e, ys' e]
+centerMap [A' a, C' s, S' e] _ = _centerMap a [xc' s, yc' s] [xs' e, ys' e]
                 [spacing + r' s, negate $ spacing + (halfDiagonal . side') e]
-centerMap [A' a, C' s, C' e] = _centerMap a [xc' s, yc' s] [xc' e, yc' e]
+centerMap [A' a, C' s, C' e] _ = _centerMap a [xc' s, yc' s] [xc' e, yc' e]
                 [ spacing * r' s, negate $ spacing * r' e]
-centerMap [A' a, L' s, L' e] = _centerMap a [xl' s, yl' s] [xl' e, yl' e]
+centerMap [A' a, L' s, L' e] _ = _centerMap a [xl' s, yl' s] [xl' e, yl' e]
                 [spacing * hl' s, negate $ spacing * hl' e]
-centerMap [A' a, L' s, C' e] = _centerMap a [xl' s, yl' s] [xc' e, yc' e]
+centerMap [A' a, L' s, C' e] _ = _centerMap a [xl' s, yl' s] [xc' e, yc' e]
                 [spacing, negate $ spacing + r' e]
-centerMap o = error ("CenterMap: unsupported arguments: " ++ show o)
+centerMap o _ = error ("CenterMap: unsupported arguments: " ++ show o)
 spacing = 1.1 -- TODO: arbitrary
-
+--
 _centerMap :: forall a. (Floating a, Real a, Show a, Ord a) =>
                 SolidArrow' a -> [a] -> [a] -> [a] -> a
 _centerMap a s1@[x1, y1] s2@[x2, y2] [o1, o2] =
@@ -89,51 +146,40 @@ _centerMap a s1@[x1, y1] s2@[x2, y2] [o1, o2] =
         [fromx, fromy, tox, toy] = [startx' a, starty' a, endx' a, endy' a] in
     (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 
-repel :: ObjFnOn a
-repel [C' c, S' d] = 1 / distsq (xc' c, yc' c) (xs' d, ys' d) - r' c - side' d + epsd
-repel [S' c, C' d] = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c + epsd
-repel [C' c, C' d] = 1 / distsq (xc' c, yc' c) (xc' d, yc' d) - r' c - r' d + epsd
-repel [L' c, L' d] =
-    if c == d then 0 else 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
-repel [L' c, C' d] = if labelName (namec' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
-repel [C' c, L' d] = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
-repel [L' c, S' d] = if labelName (names' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xs' d, ys' d)
-repel [S' c, L' d] = 1 / distsq (xs' c, ys' c) (xl' d, yl' d)
-repel [A' c, L' d] = repel' (startx' c, starty' c) (xl' d, yl' d) +
+-- | 'repel' exert an repelling force between objects
+repel :: ObjFn
+repel [C' c, S' d] _ = 1 / distsq (xc' c, yc' c) (xs' d, ys' d) - r' c - side' d + epsd
+repel [S' c, C' d] _ = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c + epsd
+repel [C' c, C' d] _ = 1 / distsq (xc' c, yc' c) (xc' d, yc' d) - r' c - r' d + epsd
+repel [L' c, L' d] _ = if c == d then 0 else 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
+repel [L' c, C' d] _ = if labelName (namec' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
+repel [C' c, L' d] _ = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
+repel [L' c, S' d] _ = if labelName (names' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xs' d, ys' d)
+repel [S' c, L' d] _ = 1 / distsq (xs' c, ys' c) (xl' d, yl' d)
+repel [A' c, L' d] _ = repel' (startx' c, starty' c) (xl' d, yl' d) +
         repel' (endx' c, endy' c) (xl' d, yl' d)
-repel [A' c, C' d] = repel' (startx' c, starty' c) (xc' d, yc' d) +
+repel [A' c, C' d] _ = repel' (startx' c, starty' c) (xc' d, yc' d) +
         repel' (endx' c, endy' c) (xc' d, yc' d)
-repel _  = error "invalid selectors in repel"
-
+-- repel [a, b] _ = 1 / distsq (getX a, getY a) (getX b, getY b) + epsd
+-- helper for `repel`
 repel' x y = 1 / distsq x y + epsd
 
-centerLabel :: ObjFnOn a
-centerLabel [C' c, L' l] =
-                let [cx, cy, lx, ly] = [xc' c, yc' c, xl' l, yl' l] in
-                -- if dist (cx, cy) (lx, ly) > r' c then (cx - lx)^2 + (cy - ly)^2 else 0.3 *
-                     (cx - lx)^2 + (cy - ly)^2
-centerLabel [S' s, L' l] =
-                let [cx, cy, lx, ly] = [xs' s, ys' s, xl' l, yl' l] in
-                (cx - lx)^2 + (cy - ly)^2
-centerLabel [P' p, L' l] =
+-- | 'centerLabel' make labels to stay at the centers of objects.
+centerLabel :: ObjFn
+centerLabel [P' p, L' l] _ =
                 let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
                 (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
-centerLabel [A' a, L' l] =
+centerLabel [A' a, L' l] _ =
                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
                     (mx, my) = midpoint (sx, sy) (ex, ey)
                     (lx, ly) = (xl' l, yl' l) in
                 (mx - lx)^2 + (my + 1.1 * hl' l - ly)^2 -- Top right from the point
-centerLabel o  = error ("centerLabel not called with 1 arg" ++ show o)
+centerLabel [a, b] _ = sameCenter [a, b] []
 
-outside :: ObjFnOn a
-outside [L' o, C' i] =
-            -- let d = dist (xl' o, yl' o) (xc' i, yc' i) in
-            -- if d > r' i  then 0 else
-            -- (dist (xl' o, yl' o) (xc' i, yc' i) - (1.2 * r' i))^2
-            (dist (xl' o, yl' o) (xc' i, yc' i) - (1.2 * r' i))^2
-            -- (dist (xl' o, yl' o) (xc' i, yc' i) - (2 * r' i))^2
-outside [L' o, S' i] =
-            (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
+outside :: ObjFn
+outside [L' o, C' i] _ = (dist (xl' o, yl' o) (xc' i, yc' i) - (1.2 * r' i))^2
+outside [L' o, S' i] _ = (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
+-- TODO: generic version using bbox
 
 ------- Ambient objective functions
 
@@ -170,11 +216,6 @@ outside [L' o, S' i] =
 --           where inBbox o = [boxleft o, boxright o, boxup o, boxdown o]
 --                 boxleft o = getX o - leftline -- magnitude of violation
 
-------- Constraints
--- Constraints are written WRT magnitude of violation
--- TODO metaprogramming for boolean constraints
--- TODO use these types?
--- type ConstraintFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Name] -> M.Map Name (Obj' a) -> a
 
 defaultCWeight :: Floating a => a
 defaultCWeight = 1
@@ -183,113 +224,110 @@ defaultCWeight = 1
 defaultPWeight :: Floating a => a
 defaultPWeight = 1
 
-
 --------------------------------------------------------------------------------
 -- Constraint functions
+-- are written WRT magnitude of violation
 -- List: smallerThan, contains, outsideOf, overlapping, nonOverlapping, samesize, maxsize, minsize
-type ConstraintFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
+-- TODO metaprogramming for boolean constraints
 
-sameSize :: ConstraintFn
-sameSize [S' s1, S' s2] = (side' s1 - side' s2)**2
-sameSize [C' s1, C' s2] = (r' s1 - r' s2)**2
+sameSize :: ConstrFn
+sameSize [S' s1, S' s2] _ = (side' s1 - side' s2)**2
+sameSize [C' s1, C' s2] _ = (r' s1 - r' s2)**2
 
-maxSize :: ConstraintFn
-limit = max (fromIntegral 700) (fromIntegral 800)
-maxSize [C' c] = r' c -  limit / 3
-maxSize [S' s] = side' s - limit  / 3
+maxSize :: ConstrFn
+limit = max (fromIntegral picWidth) (fromIntegral picHeight)
+maxSize [C' c] _ = r' c -  limit / 3
+maxSize [S' s] _ = side' s - limit  / 3
 
-minSize :: ConstraintFn
-minSize [C' c] = 20 - r' c
-minSize [S' s] = 20 - side' s
+minSize :: ConstrFn
+minSize [C' c] _ = 20 - r' c
+minSize [S' s] _ = 20 - side' s
 
-smallerThan  :: ConstraintFn
--- smallerThan [C' inc, C' outc] =  (r' outc) - (r' inc) - 0.4 * r' outc -- TODO: taking this as a parameter?
-smallerThan [C' inc, C' outc] = (r' inc) - (r' outc)
-smallerThan [S' inc, S' outc] = (side' inc) - (side' outc) - subsetSizeDiff
-smallerThan [C' c, S' s] = 0.5 * side' s - r' c
-smallerThan [S' s, C' c] = (halfDiagonal . side') s - r' c
+smallerThan  :: ConstrFn
+smallerThan [C' inc, C' outc] _ =  (r' inc) - (r' outc) - 0.4 * r' outc -- TODO: taking this as a parameter?
+smallerThan [S' inc, S' outc] _ = (side' inc) - (side' outc) - subsetSizeDiff
+smallerThan [C' c, S' s] _ = 0.5 * side' s - r' c
+smallerThan [S' s, C' c] _ = (halfDiagonal . side') s - r' c
 
-contains :: ConstraintFn
-contains [C' outc, C' inc] =
+contains :: ConstrFn
+contains [C' outc, C' inc] _ =
     -- tr (namec' outc ++  " contains " ++ namec' inc ++ " val: ") $
-    -- strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-    let res =  dist (xc' inc, yc' inc) (xc' outc, yc' outc) - (r' outc - r' inc) in
-    if res > 0 then res else 0
-contains [S' outc, S' inc] = strictSubset
+    strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+    -- let res =  dist (xc' inc, yc' inc) (xc' outc, yc' outc) - (r' outc - r' inc) in
+    -- if res > 0 then res else 0
+contains [S' outc, S' inc] _ = strictSubset
     [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-contains [S' outc, C' inc] = strictSubset
+contains [S' outc, C' inc] _ = strictSubset
     [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-contains [C' outc, S' inc] = strictSubset
+contains [C' outc, S' inc] _ = strictSubset
     [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
-contains [C' set, P' pt] =
+contains [C' set, P' pt] _ =
         dist (xp' pt, yp' pt) (xc' set, yc' set) - 0.5 * r' set
-contains [S' set, P' pt] =
+contains [S' set, P' pt] _ =
     dist (xp' pt, yp' pt) (xs' set, ys' set) - 0.4 * side' set
-contains [C' set, L' label] =
+contains [C' set, L' label] _ =
     let res = dist (xl' label, yl' label) (xc' set, yc' set) - 0.5 * r' set in
     if res < 0 then 0 else res
-contains [S' set, L' label] =
+contains [S' set, L' label] _ =
     dist (xl' label, yl' label) (xs' set, ys' set) - (side' set) / 2 + wl' label
-contains _  = error "subset not called with 2 args"
+contains _  _ = error "subset not called with 2 args"
 
-outsideOf :: ConstraintFn
-outsideOf [C' inc, C' outc] =
+outsideOf :: ConstrFn
+outsideOf [C' inc, C' outc] _ =
     noSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
-outsideOf [S' inc, S' outc] =
+outsideOf [S' inc, S' outc] _ =
     noSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc],
         [xs' outc, ys' outc, (halfDiagonal . side') outc]]
-outsideOf [C' inc, S' outs] =
+outsideOf [C' inc, S' outs] _ =
     noSubset [[xc' inc, yc' inc, r' inc], [xs' outs, ys' outs, (halfDiagonal . side') outs]]
-outsideOf [S' inc, C' outc] =
+outsideOf [S' inc, C' outc] _ =
     noSubset [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
-outsideOf [P' pt, C' set] =
+outsideOf [P' pt, C' set] _ =
     -dist (xp' pt, yp' pt) (xc' set, yc' set) + r' set
-outsideOf [P' pt, S' set] =
+outsideOf [P' pt, S' set] _ =
     -dist (xp' pt, yp' pt) (xs' set, ys' set) + (halfDiagonal . side') set
-outsideOf [L' lout, C' inset] =
+outsideOf [L' lout, C' inset] _ =
     let labelR = max (wl' lout) (hl' lout)
         res = - dist (xl' lout, yl' lout) (xc' inset, yc' inset) + r' inset + labelR in
     if namel' lout == (labelName $ namec' inset) then 0 else res
     -- if res <= 0 then 1 / res else res
     -- - dist (xl' lout, yl' lout) (xc' inset, yc' inset) + r' inset
-outsideOf [L' lout, S' inset] =
+outsideOf [L' lout, S' inset] _ =
     - dist (xl' lout, yl' lout) (xs' inset, ys' inset) + (halfDiagonal . side') inset
-outsideOf _ = error "noSubset not called with 2 args"
+outsideOf _ _ = error "noSubset not called with 2 args"
 
-overlapping :: ConstraintFn
-overlapping [C' xset, C' yset] =
+overlapping :: ConstrFn
+overlapping [C' xset, C' yset] _ =
     looseIntersect [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
-overlapping [S' xset, C' yset] =
+overlapping [S' xset, C' yset] _ =
     looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xc' yset, yc' yset, r' yset]]
-overlapping [C' xset, S' yset] =
+overlapping [C' xset, S' yset] _ =
     looseIntersect [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
-overlapping [S' xset, S' yset] =
+overlapping [S' xset, S' yset] _ =
     looseIntersect [[xs' xset, ys' xset, 0.5 * side' xset], [xs' yset, ys' yset, 0.5 * side' yset]]
-overlapping _ = error "intersect not called with 2 args"
+overlapping _ _ = error "intersect not called with 2 args"
 
-nonOverlapping :: ConstraintFn
-nonOverlapping [C' xset, C' yset] =
+nonOverlapping :: ConstrFn
+nonOverlapping [C' xset, C' yset] _ =
     noIntersectExt [[xc' xset, yc' xset, r' xset], [xc' yset, yc' yset, r' yset]]
-nonOverlapping [S' xset, C' yset] =
+nonOverlapping [S' xset, C' yset] _ =
     noIntersectExt [[xs' xset, ys' xset, (halfDiagonal . side') xset], [xc' yset, yc' yset, r' yset]]
-nonOverlapping [C' xset, S' yset] =
+nonOverlapping [C' xset, S' yset] _ =
     noIntersectExt [[xc' xset, yc' xset, r' xset], [xs' yset, ys' yset, (halfDiagonal . side') yset]]
-nonOverlapping [S' xset, S' yset] =
+nonOverlapping [S' xset, S' yset] _ =
     noIntersectExt [[xs' xset, ys' xset, (halfDiagonal . side') xset],
         [xs' yset, ys' yset, (halfDiagonal . side') yset]]
-nonOverlapping [A' arr, L' label] =
+nonOverlapping [A' arr, L' label] _ =
     let (sx, sy, ex, ey, t) = (startx' arr, starty' arr, endx' arr, endy' arr, thickness' arr)
         (x1, y1, x2, y2) = (sx, sy - t, ex, ey + t)
         dx = maximum [x1 - xl' label, 0, xl' label - x2]
         dy = maximum [y1 - yl' label, 0, yl' label - y2] in
         tr "labelvsArr: " $ -sqrt(dx**2 + dy**2) - wl' label
-nonOverlapping  _ = error "no intersect not called with 2 args"
-
-type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
+nonOverlapping  _ _ = error "no intersect not called with 2 args"
 
 
-noConstraint :: PairConstrV a
-noConstraint _ = 0
+-- noConstraint :: PairConstrV a
+-- noConstraint _ _ = 0
 
 -- To convert your inequality constraint into a violation to be penalized:
 -- it needs to be in the form "c < 0" and c is the violation penalized if > 0

@@ -1,0 +1,19 @@
+-- Tree.sty
+Set x { 
+    shape = Text { }
+}
+
+Subset x y {
+    objective onTop(y, x)
+    objective sameX(x, y)
+    -- objective sameHeight(x, y)
+    shape =  Arrow {
+        start = x.shape
+        end   = y.shape
+        label = None
+    }
+}
+
+Set x, Set y {
+    objective repel(x, y)
+}

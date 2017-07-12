@@ -1,5 +1,3 @@
-*.hi
-*~
 *.o
 settheory
 constraint
@@ -14,3 +12,10 @@ auto/
 *#
 .DS_STORE
 #*
+.cabal-sandbox/
+cabal.sandbox.config
+dist/
+utils/add_src.sh
+utils/penrose.db
+utils/penroseDB.py
+
