@@ -42,8 +42,10 @@ $.getScript('snap.svg.js', function()
         var start = function(dx, dy) {
             this.data('origTransform', this.transform().local );
             // record the current positions
-            this.data("ox", +this.getBBox().cx );
-            this.data("oy", +this.getBBox().cy );
+            // this.data("ox", this.getBBox().cx );
+            // this.data("oy", +this.getBBox().cy );
+            this.data("ox", 0);
+            this.data("oy", 0);
             this.attr({opacity: 0.5});
         }
         var stop = function() {
