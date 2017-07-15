@@ -14,6 +14,9 @@ picWidth, picHeight :: Int
 picWidth = 800
 picHeight = 700
 
+ptRadius :: Float
+ptRadius = 4 -- The size of a point on canvas
+
 defaultWeight :: Floating a => a
 defaultWeight = 1
 

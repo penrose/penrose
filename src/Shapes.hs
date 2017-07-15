@@ -211,6 +211,7 @@ instance FromJSON Pt
 
 data Obj = S Square
          | C Circ
+         | E Ellipse
          | L Label
          | P Pt
          | A SolidArrow
@@ -218,6 +219,30 @@ data Obj = S Square
 
 instance ToJSON Obj
 instance FromJSON Obj
+
+---
+data Ellipse = Ellipse { xe :: Float
+                 , ye :: Float
+                 , rx :: Float
+                 , ry :: Float
+                 , namee :: String
+                 , colore :: Color }
+     deriving (Eq, Show, Generic)
+
+instance Located Ellipse Float where
+         getX = xe
+         getY = ye
+         setX x c = c { xe = x }
+         setY y c = c { ye = y }
+
+instance Named Ellipse where
+         getName = namee
+         setName x c = c { namee = x }
+
+instance ToJSON Ellipse
+instance FromJSON Ellipse
+
+---
 
 instance FromJSON Color where
     parseJSON = withObject "Color" $ \v -> makeColor
@@ -239,24 +264,28 @@ instance ToJSON Color where
 instance Located Obj Float where
          getX o = case o of
                  C c -> getX c
+                 E e -> getX e
                  L l -> getX l
                  P p -> getX p
                  S s -> getX s
                  A a -> getX a
          getY o = case o of
                  C c -> getY c
+                 E e -> getY e
                  L l -> getY l
                  P p -> getY p
                  S s -> getY s
                  A a -> getY a
          setX x o = case o of
                 C c -> C $ setX x c
+                E e -> E $ setX x e
                 L l -> L $ setX x l
                 P p -> P $ setX x p
                 S s -> S $ setX x s
                 A a -> A $ setX x a
          setY y o = case o of
                 C c -> C $ setY y c
+                E e -> E $ setY y e
                 L l -> L $ setY y l
                 P p -> P $ setY y p
                 S s -> S $ setY y s
@@ -295,12 +324,14 @@ instance Sized Obj where
 instance Named Obj where
          getName o = case o of
                  C c -> getName c
+                 E e -> getName e
                  L l -> getName l
                  P p -> getName p
                  S s -> getName s
                  A a -> getName a
          setName x o = case o of
                 C c -> C $ setName x c
+                E e -> E $ setName x e
                 L l -> L $ setName x l
                 P p -> P $ setName x p
                 S s -> S $ setName x s
@@ -349,10 +380,16 @@ instance Named Obj where
 --         , color :: Color }
 --         deriving (Eq, Show)
 
-data Obj' a = C' (Circ' a) | L' (Label' a) | P' (Pt' a) | S' (Square' a)
-            | A' (SolidArrow' a) deriving (Eq, Show)
+data Obj' a
+    = C' (Circ' a)
+    | E' (Ellipse' a)
+    | L' (Label' a)
+    | P' (Pt' a)
+    | S' (Square' a)
+    | A' (SolidArrow' a)
+    deriving (Eq, Show)
 
-
+-- FIXME: fix the formatting
 data SolidArrow' a = SolidArrow' { startx' :: a
                                , starty' :: a
                                , endx' :: a
@@ -369,6 +406,14 @@ data Circ' a = Circ' { xc' :: a
                      , selc' :: Bool -- is the circle currently selected? (mouse is dragging it)
                      , namec' :: String
                      , colorc' :: Color }
+                     deriving (Eq, Show)
+
+data Ellipse' a = Ellipse' { xe' :: a
+                     , ye' :: a
+                     , rx' :: a
+                     , ry' :: a
+                     , namee' :: String
+                     , colore' :: Color }
                      deriving (Eq, Show)
 
 data Label' a = Label' { xl' :: a
@@ -396,28 +441,33 @@ data Square' a  = Square' { xs' :: a
                      deriving (Eq, Show)
 
 instance Named (SolidArrow' a) where
-         getName sa = namesa' sa
+         getName = namesa'
          setName x sa = sa { namesa' = x }
 
 instance Named (Circ' a) where
-         getName c = namec' c
+         getName = namec'
          setName x c = c { namec' = x }
 
+instance Named (Ellipse' a) where
+         getName = namee'
+         setName x c = c { namee' = x }
+
 instance Named (Square' a) where
-         getName s = names' s
+         getName = names'
          setName x s = s { names' = x }
 
 instance Named (Label' a) where
-         getName l = namel' l
+         getName = namel'
          setName x l = l { namel' = x }
 
 instance Named (Pt' a) where
-         getName p = namep' p
+         getName = namep'
          setName x p = p { namep' = x }
 
 instance Named (Obj' a) where
          getName o = case o of
                  C' c -> getName c
+                 E' c -> getName c
                  L' l -> getName l
                  P' p -> getName p
                  S' s -> getName s
@@ -431,56 +481,66 @@ instance Named (Obj' a) where
 --
 --
 instance Located (Circ' a) a where
-         getX c = xc' c
-         getY c = yc' c
+         getX = xc'
+         getY = yc'
          setX x c = c { xc' = x }
          setY y c = c { yc' = y }
 
+instance Located (Ellipse' a) a where
+         getX = xe'
+         getY = ye'
+         setX x e = e { xe' = x }
+         setY y e = e { ye' = y }
+
 instance Located (Square' a) a where
-         getX s = xs' s
-         getY s = ys' s
+         getX = xs'
+         getY = ys'
          setX x s = s { xs' = x }
          setY y s = s { ys' = y }
 
 instance Located (SolidArrow' a) a where
-         getX a   = startx' a
-         getY a   = starty' a
+         getX  = startx'
+         getY  = starty'
          setX x c = c { startx' = x } -- TODO
          setY y c = c { starty' = y }
 
 instance Located (Label' a) a where
-         getX l = xl' l
-         getY l = yl' l
+         getX = xl'
+         getY = yl'
          setX x l = l { xl' = x }
          setY y l = l { yl' = y }
 
 instance Located (Pt' a) a where
-         getX p = xp' p
-         getY p = yp' p
+         getX = xp'
+         getY = yp'
          setX x p = p { xp' = x }
          setY y p = p { yp' = y }
 
 instance Located (Obj' a) a  where
          getX o = case o of
              C' c -> xc' c
+             E' e -> xe' e
              L' l -> xl' l
              P' p -> xp' p
              S' s -> xs' s
              A' a -> startx' a
          getY o = case o of
              C' c -> yc' c
+             E' e -> ye' e
              L' l -> yl' l
              P' p -> yp' p
              S' s -> ys' s
              A' a -> starty' a
          setX x o = case o of
              C' c -> C' $ setX x c
+             E' e -> E' $ setX x e
              L' l -> L' $ setX x l
              P' p -> P' $ setX x p
              S' s -> S' $ setX x s
              A' a -> A' $ setX x a
          setY y o = case o of
              C' c -> C' $ setY y c
+             E' e -> E' $ setY y e
              L' l -> L' $ setY y l
              P' p -> P' $ setY y p
              S' s -> S' $ setY y s

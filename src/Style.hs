@@ -21,7 +21,7 @@ import qualified Text.Megaparsec.Lexer as L
 
 data SubType = Set | Point | Map | Intersect | NoIntersect | NoSubset | Subset | PointIn | PointNotIn | AllTypes deriving (Show, Eq)
 
-data StyObj = Circle | Box | Dot | Arrow | NoShape | Color | Text | Auto
+data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Auto
     deriving (Show)
 
 type StyObjInfo
@@ -149,7 +149,7 @@ subtype = do
        <|> symbol "NoSubset"
        <|> symbol "Intersect"
        <|> symbol "NoIntersect"
-       <|> symbol "PointIn"
+       <|> symbol "In"
        <|> symbol "PointNotIn"
 
     return (convert str)
@@ -161,9 +161,11 @@ subtype = do
             | s == "NoSubset" = NoSubset
             | s == "Intersect" = Intersect
             | s == "NoIntersect" = NoIntersect
-            | s == "PointIn" = PointIn
+            | s == "In" = PointIn
             | s == "PointNotIn" = PointNotIn
 
+-- TODO: maybe simplify this pattern using some Monad magic? An alternative is:
+-- `try $ symbol "Color" >> return Color` to avoid this `convert` function
 styObj :: Parser StyObj
 styObj = do
     str <- symbol "Color"
@@ -171,6 +173,7 @@ styObj = do
        <|> symbol "Arrow"
        <|> symbol "Text"
        <|> symbol "Circle"
+       <|> symbol "Ellipse"
        <|> symbol "Box"
        <|> symbol "Dot"
     return (convert str)
@@ -180,6 +183,7 @@ styObj = do
             | s == "None"  = NoShape
             | s == "Text"  = Text
             | s == "Circle"  = Circle
+            | s == "Ellipse"  = Ellip
             | s == "Box"  = Box
             | s == "Dot"  = Dot
 
@@ -570,7 +574,7 @@ getConstrTuples = map getType
             C.NoIntersect a b -> (NoIntersect, "NoIntersect" ++ a ++ b, [a, b])
             C.Subset a b -> (Subset, "Subset" ++ a ++ b, [a, b])
             C.NoSubset a b -> (NoSubset, "NoSubset" ++ a ++ b, [a, b])
-            C.PointIn a b -> (PointIn, "PointIn" ++ a ++ b, [a, b])
+            C.PointIn a b -> (PointIn, "In" ++ a ++ b, [a, b])
             C.PointNotIn a b -> (PointNotIn, "PointNotIn" ++ a ++ b, [a, b])
 
 getSubTuples :: [C.SubDecl] -> [(SubType, String, [String])]

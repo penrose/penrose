@@ -20,6 +20,7 @@ import System.Time
 import Data.Char (isPunctuation, isSpace)
 import Data.Aeson
 import Data.Maybe (fromMaybe)
+import qualified Control.Exception as Exc (catch, ErrorCall)
 
 
 type ServerState = R.State
@@ -41,8 +42,11 @@ wsSendJSON conn obj = WS.sendTextData conn $ encode obj
 
 servePenrose :: String -> Int -> R.State -> IO ()
 servePenrose domain port initState = do
-    putStrLn "Starting Server..."
-    WS.runServer domain port $ application initState
+     putStrLn "Starting Server..."
+     Exc.catch (WS.runServer domain port $ application initState) handler
+     where
+        handler :: Exc.ErrorCall -> IO ()
+        handler _ = putStrLn $ "Server Error"
 
 application :: ServerState -> WS.ServerApp
 application s pending = do
@@ -56,7 +60,7 @@ loop conn s
     | R.optStatus ( R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ (show $ R.weight (R.params  s)))
-        -- wsSendJSON conn (R.objs s) -- TODO: is this necessary?
+        wsSendJSON conn (R.objs s) -- TODO: is this necessary?
         processCommand conn s
     | R.autostep s = stepAndSend conn s
     | otherwise = processCommand conn s

@@ -68,6 +68,11 @@ $.getScript('snap.svg.js', function()
                 case 'L': // label
                     var t = s.text(dx + obj.xl, dy - obj.yl, [obj.textl]);
                     t.data("name", obj.namel)
+                    t.attr({
+                        "font-style": "italic",
+                        "font-family": "Palatino"
+
+                    });
                     var bbox = t.getBBox()
                     var mat = new Snap.Matrix()
                     // Fix the center of labels
@@ -114,6 +119,16 @@ $.getScript('snap.svg.js', function()
                         "fill-opacity": color.a,
                     });
                     circ.drag(move, start, stop)
+                break
+                case 'E': // ellipse
+                    var ellip = s.ellipse(dx + obj.xe, dy - obj.ye, obj.rx, obj.ry);
+                    ellip.data("name", obj.namee)
+                    var color = obj.colore
+                    ellip.attr({
+                        fill: rgbToHex(color.r, color.g, color.b),
+                        "fill-opacity": color.a,
+                    });
+                    ellip.drag(move, start, stop)
                 break
                 case 'S': // square
                     var side = obj.side

@@ -54,7 +54,8 @@ objFuncDict = M.fromList flist
                     ("sameX", (*) 0.2 `compose2` sameX),
                     ("sameCenter", sameCenter),
                     -- ("sameCenter", (*) 0.01 `compose2` sameCenter),
-                    ("repel", (*)  900000  `compose2` repel),
+                    -- ("repel", (*)  900000  `compose2` repel),
+                    ("repel", (*)  1000000  `compose2` repel),
                     -- ("repel", repel),
                     ("outside", outside)
                   ]
@@ -129,6 +130,8 @@ centerMap [A' a, C' s, S' e] _ = _centerMap a [xc' s, yc' s] [xs' e, ys' e]
                 [spacing + r' s, negate $ spacing + (halfDiagonal . side') e]
 centerMap [A' a, C' s, C' e] _ = _centerMap a [xc' s, yc' s] [xc' e, yc' e]
                 [ spacing * r' s, negate $ spacing * r' e]
+centerMap [A' a, P' s, P' e] _ = _centerMap a [xp' s, yp' s] [xp' e, yp' e]
+                [ spacing * 2 * r2f ptRadius, negate $ spacing * 2 * r2f ptRadius]
 centerMap [A' a, L' s, L' e] _ = _centerMap a [xl' s, yl' s] [xl' e, yl' e]
                 [spacing * hl' s, negate $ spacing * hl' e]
 centerMap [A' a, L' s, C' e] _ = _centerMap a [xl' s, yl' s] [xc' e, yc' e]
@@ -151,6 +154,7 @@ repel :: ObjFn
 repel [C' c, S' d] _ = 1 / distsq (xc' c, yc' c) (xs' d, ys' d) - r' c - side' d + epsd
 repel [S' c, C' d] _ = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c + epsd
 repel [C' c, C' d] _ = 1 / distsq (xc' c, yc' c) (xc' d, yc' d) - r' c - r' d + epsd
+repel [P' c, P' d] _ = if c == d then 0 else 1 / distsq (xp' c, yp' c) (xp' d, yp' d) - 2 * r2f ptRadius + epsd
 repel [L' c, L' d] _ = if c == d then 0 else 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
 repel [L' c, C' d] _ = if labelName (namec' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
 repel [C' c, L' d] _ = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
@@ -160,7 +164,7 @@ repel [A' c, L' d] _ = repel' (startx' c, starty' c) (xl' d, yl' d) +
         repel' (endx' c, endy' c) (xl' d, yl' d)
 repel [A' c, C' d] _ = repel' (startx' c, starty' c) (xc' d, yc' d) +
         repel' (endx' c, endy' c) (xc' d, yc' d)
--- repel [a, b] _ = 1 / distsq (getX a, getY a) (getX b, getY b) + epsd
+repel [a, b] _ = 1 / distsq (getX a, getY a) (getX b, getY b) + epsd
 -- helper for `repel`
 repel' x y = 1 / distsq x y + epsd
 
@@ -232,22 +236,29 @@ defaultPWeight = 1
 
 sameSize :: ConstrFn
 sameSize [S' s1, S' s2] _ = (side' s1 - side' s2)**2
+sameSize [E' s1, E' s2] _ = (rx' s1 - rx' s2)**2 + (ry' s1 - ry' s2)**2
 sameSize [C' s1, C' s2] _ = (r' s1 - r' s2)**2
 
 maxSize :: ConstrFn
 limit = max (fromIntegral picWidth) (fromIntegral picHeight)
 maxSize [C' c] _ = r' c -  limit / 3
 maxSize [S' s] _ = side' s - limit  / 3
+maxSize [E' e] _ = max (ry' e) (rx' e) - limit  / 3
 
 minSize :: ConstrFn
 minSize [C' c] _ = 20 - r' c
 minSize [S' s] _ = 20 - side' s
+minSize [E' e] _ = 20 - min (ry' e) (rx' e)
 
 smallerThan  :: ConstrFn
 smallerThan [C' inc, C' outc] _ =  (r' inc) - (r' outc) - 0.4 * r' outc -- TODO: taking this as a parameter?
 smallerThan [S' inc, S' outc] _ = (side' inc) - (side' outc) - subsetSizeDiff
 smallerThan [C' c, S' s] _ = 0.5 * side' s - r' c
 smallerThan [S' s, C' c] _ = (halfDiagonal . side') s - r' c
+
+ellipseRatio :: ConstrFn
+ellipseRatio [E' e] _ = (rx' e / w - ry' e / l) ** 2
+    where (w, l) = (9, 16)
 
 contains :: ConstrFn
 contains [C' outc, C' inc] _ =
@@ -265,11 +276,17 @@ contains [C' set, P' pt] _ =
         dist (xp' pt, yp' pt) (xc' set, yc' set) - 0.5 * r' set
 contains [S' set, P' pt] _ =
     dist (xp' pt, yp' pt) (xs' set, ys' set) - 0.4 * side' set
+-- TODO: only approx
+contains [E' set, P' pt] _ =
+    dist (xp' pt, yp' pt) (xe' set, ye' set) - 0.4 * rx' set
 contains [C' set, L' label] _ =
     let res = dist (xl' label, yl' label) (xc' set, yc' set) - 0.5 * r' set in
     if res < 0 then 0 else res
 contains [S' set, L' label] _ =
-    dist (xl' label, yl' label) (xs' set, ys' set) - (side' set) / 2 + wl' label
+    dist (xl' label, yl' label) (xs' set, ys' set) - side' set / 2 + wl' label
+-- TODO: only approx
+contains [E' set, L' label] _ =
+    dist (xl' label, yl' label) (xe' set, ye' set) - 0.5 * rx' set + wl' label
 contains _  _ = error "subset not called with 2 args"
 
 outsideOf :: ConstrFn
@@ -294,6 +311,8 @@ outsideOf [L' lout, C' inset] _ =
     -- - dist (xl' lout, yl' lout) (xc' inset, yc' inset) + r' inset
 outsideOf [L' lout, S' inset] _ =
     - dist (xl' lout, yl' lout) (xs' inset, ys' inset) + (halfDiagonal . side') inset
+outsideOf [L' lout, E' inset] _ =
+    - dist (xl' lout, yl' lout) (xe' inset, ye' inset) + spacing * max (rx' inset) (ry' inset)
 outsideOf _ _ = error "noSubset not called with 2 args"
 
 overlapping :: ConstrFn

@@ -76,6 +76,7 @@ type Varying a = [a]
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
+unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
@@ -121,6 +122,11 @@ circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
 circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
          where (xc1, yc1, r1) = if not $ length params == 3 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2)
+
+ellipsePack :: (Real a, Floating a, Show a, Ord a) => Ellipse -> [a] -> Ellipse' a
+ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, namee' = namee e, colore' = colore e }
+         where (xe1, ye1, rx1, ry1) = if not $ length params == 4 then error "wrong # params to pack circle"
+                                else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 sqPack :: (Real a, Floating a, Show a, Ord a) => Square -> [a] -> Square' a
 sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, sels' = sels sq, colors' = colors sq, ang' = ang sq}
@@ -170,6 +176,7 @@ pack' zipped fixed varying =
                  -- pack objects using the names, text params carried from initial state
                  -- assuming names do not change during opt
                     C circ  -> C' $ circPack circ flatParams
+                    E elli  -> E' $ ellipsePack elli flatParams
                     L label -> L' $ labelPack label flatParams
                     P pt    -> P' $ ptPack pt flatParams
                     S sq    -> S' $ sqPack sq flatParams
@@ -179,22 +186,16 @@ pack' zipped fixed varying =
 ------- Style related functions
 
 -- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc, defaultText:: String -> Obj
-defaultSolidArrow name = A SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, thickness = 10,
-                            selsa = False, namesa = name, colorsa = black }
+defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc, defaultText, defaultEllipse :: String -> Obj
+defaultSolidArrow name = A SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, thickness = 10, selsa = False, namesa = name, colorsa = black }
 defaultPt name = P Pt { xp = 100, yp = 100, selp = False, namep = name }
 defaultSquare name = S Square { xs = 100, ys = 100, side = defaultRad,
         sels = False, names = name, colors = black, ang = 0.0}
-defaultLabel text = L Label { xl = -100, yl = -100,
-                                wl = textWidth * fromIntegral (length text),
-                                hl = textHeight,
-                                textl = text, sell = False, namel = labelName text }
-defaultText text = L Label { xl = -100, yl = -100,
-                                wl = textWidth * fromIntegral (length text),
-                                hl = textHeight,
-                                textl = text, sell = False, namel = text }
+defaultText text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text, sell = False, namel = text }
+defaultLabel text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text, sell = False, namel = labelName text }
 defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
+defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
 
 
 -- ------- Parsing for Old Style Design
@@ -301,7 +302,6 @@ defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
 -- isObjBlock _ = False
 
 
-
 shapeAndFn :: (Floating a, Real a, Show a, Ord a) => S.StyDict -> String -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 shapeAndFn dict name =
     case M.lookup name dict of
@@ -316,11 +316,13 @@ shapeAndFn dict name =
         getShape (n, (S.Text, config)) = initText n config
         getShape (n, (S.Arrow, config)) = initArrow n config
         getShape (n, (S.Circle, config)) = initCircle n config
+        getShape (n, (S.Ellip, config)) = initEllipse n config
         getShape (n, (S.Box, config)) = initSquare n config
+        getShape (n, (S.Dot, config)) = initDot n config
         getShape (n, (S.NoShape, _)) = ([], [], [])
         getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
 
-initText, initArrow, initCircle, initSquare ::
+initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (Floating a, Real a, Show a, Ord a) =>
     String -> M.Map String S.Expr
     -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
@@ -336,12 +338,15 @@ initArrow n config =
         from = queryConfig "start" config
         to   = queryConfig "end" config
         lab  = queryConfig "label" config
-initCircle n config = ([defaultCirc n, defaultLabel n], [],
-    [(penalty `compose2` maxSize, defaultWeight, [n], []),
-     (penalty `compose2` minSize, defaultWeight, [n], [])])
-initSquare n config = ([defaultSquare n, defaultLabel n], [],
-    [(penalty `compose2` maxSize, defaultWeight, [n], []),
-     (penalty `compose2` minSize, defaultWeight, [n], [])])
+initCircle n config = ([defaultCirc n, defaultLabel n], [], sizeFuncs n)
+initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
+    (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
+initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
+initDot n config = ([defaultPt n, defaultLabel n], [], [])
+
+sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
+sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
+              (penalty `compose2` minSize, defaultWeight, [n], [])]
 
 queryConfig key dict = case M.lookup key dict of
     Just (S.Id i) -> i
@@ -437,7 +442,7 @@ lookupNames dict ns = map check res
         res = map (`M.lookup` dict) ns
         check x = case x of
             Just x -> x
-            _ -> error "lookupNames: at least one of the arguments don't exist!"
+            _ -> error ("lookupNames: at least one of the arguments don't exist: " ++ show ns)
 
 
 -- TODO should take list of current objects as parameter, and be partially applied with that
@@ -566,6 +571,10 @@ renderCirc c = if selected c
                else color (colorc c) $ translate (xc c) (yc c) $
                     circleSolid (r c)
 
+-- TODO: this is just for debugging purposes
+renderEllipse :: Ellipse -> Picture
+renderEllipse c = color (colore c) $ translate (xe c) (ye c) $ circleSolid (rx c)
+
 -- fix to the centering problem of labels, assumeing:
 -- (1) monospaced font; (2) at least a chracter of max height is in the label string
 labelScale, textWidth, textHeight :: Floating a => a
@@ -637,6 +646,7 @@ toRadian deg = deg * pi / 180
 
 renderObj :: Obj -> Picture
 renderObj (C circ)  = renderCirc circ
+renderObj (E circ)  = renderEllipse circ
 renderObj (L label) = renderLabel label
 renderObj (P pt)    = renderPt pt
 renderObj (S sq)    = renderSquare sq
@@ -713,6 +723,13 @@ sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                                   (cb', gen6) = randomR colorRange  gen5
                                   in
                               (C $ circ { r = r', colorc = makeColor cr' cg' cb' opacity }, gen6)
+                    E elli -> let (rx', gen3) = randomR radiusRange gen2
+                                  (cr', gen4) = randomR colorRange  gen3
+                                  (cg', gen5) = randomR colorRange  gen4
+                                  (cb', gen6) = randomR colorRange  gen5
+                                  (ry', gen7) = randomR radiusRange gen6
+                                  in
+                              (E $ elli { rx = rx', ry = ry', colore = makeColor cr' cg' cb' opacity }, gen7)
                     S sq   -> let (side', gen3) = randomR sideRange gen2
                                   (cr', gen4) = randomR colorRange  gen3
                                   (cg', gen5) = randomR colorRange  gen4
@@ -749,7 +766,6 @@ sampleConstrainedState gen shapes constrs = (state', gen')
 -- Whenever the library receives an input event, it calls "handler" with that event
 -- and the current state of the world to handle it.
 
-ptRadius = 4 -- The size of a point on canvas
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
@@ -1029,6 +1045,8 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 zeroGrad :: (Real a, Floating a, Show a, Ord a) => Obj' a -> Obj
 zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
                              selc = selc' c, namec = namec' c, colorc = colorc' c }
+zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ rx' e, ry = r2f $ ry' e,
+                              namee = namee' e, colore = colore' e }
 zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s, names = names' s, colors = colors' s, ang = ang' s }
 
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
@@ -1046,6 +1064,8 @@ zeroGrads = map zeroGrad
 addGrad :: (Real a, Floating a, Show a, Ord a) => Obj -> Obj' a
 addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
                              selc' = selc c, namec' = namec c, colorc' = colorc c }
+addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ rx e, ry' = r2f $ ry e,
+                             namee' = namee e, colore' = colore e }
 addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
                             names' = names s, colors' = colors s, ang' = ang s }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
