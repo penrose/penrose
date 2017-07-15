@@ -12,6 +12,7 @@ auto/
 *#
 .DS_STORE
 #*
+*.hi
 .cabal-sandbox/
 cabal.sandbox.config
 dist/
