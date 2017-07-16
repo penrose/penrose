@@ -119,9 +119,10 @@ block = do
 
 globalSelect :: Parser Selector
 globalSelect = do
-    i <- WildCard <$> identifier
-    -- return $ Selector AllTypes [] []
-    return $ Selector AllTypes [i]
+    -- i <- WildCard <$> identifier
+    rword "global"
+    return $ Selector AllTypes []
+    -- return $ Selector AllTypes [i]
 
 constructorSelect :: Parser Selector
 constructorSelect = do
@@ -449,10 +450,8 @@ getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, [], []) block
     where
         res = getSubTuples decls ++ getConstrTuples constrs
         ids = map (\(x, y, z) -> (x, y)) res
-        -- args = map (\(_, _, z) -> z) res
         initDict = foldl (\m (t, n, a) ->
                         M.insert n (initSpec { spId = n, spType = t, spArgs = a }) m) M.empty res
-        -- applyConfig f d = foldl f d prog
 
 procBlock :: (Floating a, Real a, Show a, Ord a) =>
     (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
@@ -464,16 +463,17 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ new
         -- selectedSpecs :: [[(VarMap, StySpec)]]
         selectedSpecs = map
             (\s -> let xs = select s
-                       vs = map (allOtherVars . getVarMap s) xs in zip vs xs) selectors
+                    --    vs = map (allOtherVars . getVarMap s) xs in zip vs xs) selectors
+                       vs = map (getVarMap s) xs in zip vs xs) selectors
         -- TODO: scoping - now every block has access to everyone else
-        allOtherVars = M.union (M.fromList $ zip k k) where k = M.keys dict
+        -- allOtherVars = M.union (M.fromList $ zip k k) where k = M.keys dict
+        allVars = M.fromList $ zip k k where k = M.keys dict
         -- Combination of all selected (spec. varmap)
         allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
-        mergedMaps =
+        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == AllTypes then [allVars] else map M.unions allCombs
             -- let allMaps = map (map fst) allCombs in
             -- map M.unions (tr "allMaps: " allMaps)
             -- tr "allmaps: " $
-            map M.unions allCombs
         -- Only process assignment statements on matched specs, not the cartesion product of them
         updateSpec d (vm, sp) =
             let newSpec = foldl (procAssign vm) sp stmts in
@@ -513,7 +513,7 @@ procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> [(ConstrFnOn a, Weight a, [Name], [a])] -> Stmt
     -> [(ConstrFnOn a, Weight a, [Name], [a])]
 procConstrFn varMap fns (ConstrFn fname es) =
-    -- trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
+    trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
     fns ++ [(func, defaultWeight, names, [])]
     where
         (func, names) = case M.lookup fname constrFuncDict of

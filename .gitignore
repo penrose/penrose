@@ -1,6 +1,7 @@
 *.o
 settheory
 constraint
+Main
 *.el
 *.aux
 *.fdb_latexmk

@@ -50,12 +50,13 @@ objFuncDict = M.fromList flist
                     ("toLeft", toLeft),
                     ("onTop", onTop),
                     ("sameHeight", sameHeight),
-                    -- ("sameX", sameX),
-                    ("sameX", (*) 0.2 `compose2` sameX),
+                    ("sameX", sameX),
+                    -- ("sameX", (*) 0.2 `compose2` sameX),
                     ("sameCenter", sameCenter),
                     -- ("sameCenter", (*) 0.01 `compose2` sameCenter),
-                    -- ("repel", (*)  900000  `compose2` repel),
-                    ("repel", (*)  1000000  `compose2` repel),
+                    ("repel", (*)  900000  `compose2` repel),
+                    -- ("repel", (*)  1000000  `compose2` repel),
+                    -- ("repel", (*)  10000  `compose2` repel),
                     -- ("repel", repel),
                     ("outside", outside)
                   ]
@@ -135,7 +136,7 @@ centerMap [A' a, P' s, P' e] _ = _centerMap a [xp' s, yp' s] [xp' e, yp' e]
 centerMap [A' a, L' s, L' e] _ = _centerMap a [xl' s, yl' s] [xl' e, yl' e]
                 [spacing * hl' s, negate $ spacing * hl' e]
 centerMap [A' a, L' s, C' e] _ = _centerMap a [xl' s, yl' s] [xc' e, yc' e]
-                [spacing, negate $ spacing + r' e]
+                [1.5 * wl' s, negate $ spacing * r' e]
 centerMap o _ = error ("CenterMap: unsupported arguments: " ++ show o)
 spacing = 1.1 -- TODO: arbitrary
 --
@@ -181,7 +182,7 @@ centerLabel [A' a, L' l] _ =
 centerLabel [a, b] _ = sameCenter [a, b] []
 
 outside :: ObjFn
-outside [L' o, C' i] _ = (dist (xl' o, yl' o) (xc' i, yc' i) - (1.2 * r' i))^2
+outside [L' o, C' i] _ = (dist (xl' o, yl' o) (xc' i, yc' i) - (1.5 * r' i) - wl' o)^2
 outside [L' o, S' i] _ = (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
 -- TODO: generic version using bbox
 
@@ -241,7 +242,7 @@ sameSize [C' s1, C' s2] _ = (r' s1 - r' s2)**2
 
 maxSize :: ConstrFn
 limit = max (fromIntegral picWidth) (fromIntegral picHeight)
-maxSize [C' c] _ = r' c -  limit / 3
+maxSize [C' c] _ = r' c -  limit / 6
 maxSize [S' s] _ = side' s - limit  / 3
 maxSize [E' e] _ = max (ry' e) (rx' e) - limit  / 3
 
@@ -278,7 +279,7 @@ contains [S' set, P' pt] _ =
     dist (xp' pt, yp' pt) (xs' set, ys' set) - 0.4 * side' set
 -- TODO: only approx
 contains [E' set, P' pt] _ =
-    dist (xp' pt, yp' pt) (xe' set, ye' set) - 0.4 * rx' set
+    dist (xp' pt, yp' pt) (xe' set, ye' set) - max (rx' set) (ry' set) * 0.9
 contains [C' set, L' label] _ =
     let res = dist (xl' label, yl' label) (xc' set, yc' set) - 0.5 * r' set in
     if res < 0 then 0 else res
@@ -286,7 +287,7 @@ contains [S' set, L' label] _ =
     dist (xl' label, yl' label) (xs' set, ys' set) - side' set / 2 + wl' label
 -- TODO: only approx
 contains [E' set, L' label] _ =
-    dist (xl' label, yl' label) (xe' set, ye' set) - 0.5 * rx' set + wl' label
+    dist (xl' label, yl' label) (xe' set, ye' set) - rx' set + wl' label
 contains _  _ = error "subset not called with 2 args"
 
 outsideOf :: ConstrFn

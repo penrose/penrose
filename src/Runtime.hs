@@ -1352,7 +1352,7 @@ epStop :: Floating a => a -- for EP diff
 -- epStop = 10 ** (-3)
 -- epStop = 60 ** (-3)
 -- epStop = 10 ** (-1)
-epStop = 0.1
+epStop = 0.05
 
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
