@@ -1,11 +1,20 @@
 module Utils where
+import Control.Monad (void)
 import Debug.Trace
+import Text.Megaparsec
+import Text.Megaparsec.Expr
+import Text.Megaparsec.String -- input stream is of the type ‘String’
+import qualified Text.Megaparsec.Lexer as L
 
 divLine = putStr "\n--------\n\n"
 
 -- don't use r2f outside of zeroGrad or addGrad, since it doesn't interact well w/ autodiff
 r2f :: (Fractional b, Real a) => a -> b
 r2f = realToFrac
+
+toList :: a -> [a]
+toList x = [x]
+
 
 stepsPerSecond :: Int
 stepsPerSecond = 100000
@@ -43,6 +52,74 @@ labelName name = "Label_" ++ name
 -- constraint functions
 compose2:: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
+
+
+--------------------------------------------------------------------------------
+---- Lexer helper functions
+
+rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
+rws =     ["avoid", "global", "as"] ++ types ++ shapes
+-- ++ types ++ attribs ++ shapes ++ colors
+
+types =   ["Definition", "Set", "Map", "Point", "In", "NotIn", "Subset", "NoSubset", "Intersect", "NoIntersect"]
+attribs = ["shape", "color", "label", "scale", "position"]
+attribVs = shapes
+shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
+-- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
+
+-- TODO: should the rws for Style and Substance be separated at all?
+identifier :: Parser String
+identifier = (lexeme . try) (p >>= check)
+  where
+    p       = (:) <$> letterChar <*> many alphaNumChar
+    check x = if x `elem` rws
+                then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+                else return x
+
+sc :: Parser ()
+sc = L.space (void separatorChar) lineCmnt blockCmnt
+  where lineCmnt  = L.skipLineComment "--" >> newline'
+        blockCmnt = L.skipBlockComment "/*" "*/" >> newline'
+
+newline' :: Parser ()
+newline' = void sc >> void (many newline) >> void sc
+
+backticks :: Parser a -> Parser a
+backticks = between (symbol "`") (symbol "`")
+
+braces :: Parser a -> Parser a
+braces = between (symbol "{") (symbol "}")
+
+lparen, rparen, lbrac, rbrac, colon, arrow :: Parser ()
+lbrac = void (symbol "{")
+rbrac = void (symbol "}")
+lparen = void (symbol "(")
+rparen = void (symbol ")")
+colon = void (symbol ":")
+arrow = void (symbol "->")
+
+parens :: Parser a -> Parser a
+parens = between (symbol "(") (symbol ")")
+
+lexeme :: Parser a -> Parser a
+lexeme = L.lexeme sc
+
+comma :: Parser String
+comma = symbol ","
+
+symbol :: String -> Parser String
+symbol = L.symbol sc
+
+integer :: Parser Integer
+integer = lexeme L.integer
+
+float :: Parser Float
+float = realToFrac <$> lexeme L.float -- TODO: parsing without sign?
+
+
+-- Reserved words
+rword :: String -> Parser ()
+rword w = string w *> notFollowedBy alphaNumChar *> sc
 
 
 --------------------------------------------------------------------------------

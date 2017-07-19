@@ -2,6 +2,18 @@
  * This is the same continuous map program, written in the new syntax.
  */
 
+global {
+    constraint outsideOf(f.label, R1)
+    constraint outsideOf(f.label, R2)
+    objective repel(f, R2.label)
+    objective repel(f, R1.label)
+    objective repel(f, U)
+    objective repel(f, V)
+    objective sameHeight(R1, R2)
+    constraint sameSizeAs(R1, R2)
+    constraint sameSizeAs(U, V)
+    constraint sameSizeAs(A, B)
+}
 
 Set x {
     shape = Circle { }
@@ -27,36 +39,15 @@ Map f x y {
     objective centerLabel(f, f.label)
     objective toLeft(x, y)
     objective sameHeight(x, y)
-    objective repel(f, R2.label)
-    objective repel(f, R1.label)
-    objective repel(f, U)
-    objective repel(f, V)
-    constraint outsideOf(f.label, R1)
-    constraint outsideOf(f.label, R2)
 }
 
 Set `R1` {
     shape = Box { }
-    objective sameHeight(R1, R2)
-    constraint sameSizeAs(R1, R2)
 }
 
 Set `R2` {
     shape = Box { }
 }
 
-Set `U` {
-    constraint sameSizeAs(U, V)
-    -- constraint sameSizeAs(U, A)
-    constraint sameSizeAs(A, B)
-}
-
-
-Set x, Set y {
-    -- objective repel(x, y)
-    -- objective repel(x.label, y.label)
-    -- objective repel(y.label, x)
-    -- objective repel(x.label, y)
-}
 
 

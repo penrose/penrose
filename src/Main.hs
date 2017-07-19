@@ -33,46 +33,57 @@ main = do
     putStrLn styIn
     divLine
 
-    let subParsed = C.subParse subIn
-    putStrLn "Parsed Substance program:\n"
-    putStrLn $ C.subPrettyPrint' subParsed
-
-    case MP.runParser S.styleParser styFile styIn of
+    case MP.runParser C.substanceParser subFile subIn of
         Left err -> putStr $ MP.parseErrorPretty err
-        Right styParsed -> do
+        Right subParsed -> do
             divLine
-            putStrLn "Parsed Style program:\n"
-            --    putStrLn $ C.styPrettyPrint styParsed
-            mapM_ print styParsed
+            putStrLn "Parsed Substance program:\n"
+            mapM_ print subParsed
+            -- putStrLn $ C.subPrettyPrint' subParsed
             divLine
-            let initState = R.genInitState (C.subSeparate subParsed) styParsed
-            putStrLn "Synthesizing objects and objective functions"
-            -- let initState = compilerToRuntimeTypes intermediateRep
-            -- divLine
-            -- putStrLn "Initial state, optimization representation:\n"
-            -- putStrLn "TODO derive Show"
-            -- putStrLn $ show initState
-
+            let (os, ds, m) = C.check subParsed
+            let subSep@(decls, constrs) = C.subSeparate os
+            mapM_ print decls
             divLine
-            putStrLn "Visualizing notation:\n"
+            mapM_ print constrs
 
-            if mode == "snap" then
-            -- Starting serving penrose on the web
-                let (domain, port) = ("127.0.0.1", 9160) in
-                Server.servePenrose domain port initState
+            case MP.runParser S.styleParser styFile styIn of
+                Left err -> putStr $ MP.parseErrorPretty err
+                Right styParsed -> do
+                    divLine
+                    putStrLn "Parsed Style program:\n"
+                    --    putStrLn $ C.styPrettyPrint styParsed
+                    mapM_ print styParsed
+                    divLine
+                    -- let initState = R.genInitState (C.subSeparate subParsed) styParsed
+                    let initState = R.genInitState subSep styParsed
+                    putStrLn "Synthesizing objects and objective functions"
+                    -- let initState = compilerToRuntimeTypes intermediateRep
+                    -- divLine
+                    -- putStrLn "Initial state, optimization representation:\n"
+                    -- putStrLn "TODO derive Show"
+                    -- putStrLn $ show initState
 
-            else
-            --    Running with hardcoded parameters
-                play
-                    (InWindow "optimization-based layout" -- display mode, window name
-                    (picWidth, picHeight)   -- size
-                    (10, 10))    -- position
-                    white                   -- background color
-                    stepsPerSecond         -- number of simulation steps to take for each second of real time
-                    initState               -- the initial world, defined as a type below
-                    R.picOf                   -- fn to convert world to a pic
-                    R.handler                 -- fn to handle input events
-                    R.step                    -- step the world one iteration; passed period of time (in secs) to be advanced
+                    divLine
+                    putStrLn "Visualizing notation:\n"
+
+                    if mode == "snap" then
+                    -- Starting serving penrose on the web
+                        let (domain, port) = ("127.0.0.1", 9160) in
+                        Server.servePenrose domain port initState
+
+                    else
+                    --    Running with hardcoded parameters
+                        play
+                            (InWindow "optimization-based layout" -- display mode, window name
+                            (picWidth, picHeight)   -- size
+                            (10, 10))    -- position
+                            white                   -- background color
+                            stepsPerSecond         -- number of simulation steps to take for each second of real time
+                            initState               -- the initial world, defined as a type below
+                            R.picOf                   -- fn to convert world to a pic
+                            R.handler                 -- fn to handle input events
+                            R.step                    -- step the world one iteration; passed period of time (in secs) to be advanced
 
 -- picWidth, picHeight :: Int
 -- picWidth = 800

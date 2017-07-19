@@ -478,7 +478,6 @@ constraint constrs = if constraintFlag then \x ->
                      else \x -> True
 
 -- generate all objects and the overall objective function
--- style program is currently unused
 -- TODO adjust weights of all functions
 genInitState :: ([C.SubDecl], [C.SubConstr]) -> S.StyProg -> State
 genInitState (decls, constrs) stys =

@@ -16,10 +16,12 @@ import qualified Substance as C
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Lexer as L
 
+
+
 --------------------------------------------------------------------------------
 -- Style AST
 
-data SubType = Set | Point | Map | Intersect | NoIntersect | NoSubset | Subset | PointIn | PointNotIn | AllTypes deriving (Show, Eq)
+
 
 data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Auto
     deriving (Show)
@@ -28,7 +30,7 @@ type StyObjInfo
     = (StyObj, M.Map String Expr)
 
 data StySpec = StySpec {
-    spType :: SubType,
+    spType :: C.SubType,
     spId :: String,
     spArgs :: [String],
     spShape :: StyObjInfo,
@@ -40,7 +42,7 @@ type StyProg = [Block]
 type Block = ([Selector], [Stmt])
 
 data Selector = Selector
-              { selTyp :: SubType
+              { selTyp :: C.SubType
               , selPatterns :: [Pattern]
             --   , selIds :: [String]
           }
@@ -121,79 +123,35 @@ globalSelect :: Parser Selector
 globalSelect = do
     -- i <- WildCard <$> identifier
     rword "global"
-    return $ Selector AllTypes []
+    return $ Selector C.AllT []
     -- return $ Selector AllTypes [i]
 
 constructorSelect :: Parser Selector
 constructorSelect = do
-    typ <- subtype
-    -- sc
+    typ <- C.subtype
     pat <- patterns
-    -- void sc <|> void (symbol ":")
-    -- ids <- many identifier
-    -- res <- optional $ rword "as" *> some identifier
-    -- let ids = case res of
-    --             Just a -> a
-    --             Nothing -> []
-    -- return $ Selector typ pat ids
     return $ Selector typ pat
 
 selector :: Parser Selector
 selector = constructorSelect <|> globalSelect
 
-subtype :: Parser SubType
-subtype = do
-    str <- symbol "Set"
-       <|> symbol "Point"
-       <|> symbol "Map"
-       <|> symbol "Subset"
-       <|> symbol "NoSubset"
-       <|> symbol "Intersect"
-       <|> symbol "NoIntersect"
-       <|> symbol "In"
-       <|> symbol "PointNotIn"
 
-    return (convert str)
-    where convert s
-            | s == "Set" = Set
-            | s == "Point" = Point
-            | s == "Map" = Map
-            | s == "Subset" = Subset
-            | s == "NoSubset" = NoSubset
-            | s == "Intersect" = Intersect
-            | s == "NoIntersect" = NoIntersect
-            | s == "In" = PointIn
-            | s == "PointNotIn" = PointNotIn
-
--- TODO: maybe simplify this pattern using some Monad magic? An alternative is:
--- `try $ symbol "Color" >> return Color` to avoid this `convert` function
 styObj :: Parser StyObj
-styObj = do
-    str <- symbol "Color"
-       <|> symbol "None"
-       <|> symbol "Arrow"
-       <|> symbol "Text"
-       <|> symbol "Circle"
-       <|> symbol "Ellipse"
-       <|> symbol "Box"
-       <|> symbol "Dot"
-    return (convert str)
-    where convert s
-            | s == "Color" = Color
-            | s == "Arrow" = Arrow
-            | s == "None"  = NoShape
-            | s == "Text"  = Text
-            | s == "Circle"  = Circle
-            | s == "Ellipse"  = Ellip
-            | s == "Box"  = Box
-            | s == "Dot"  = Dot
+styObj =
+       (rword "Color"   >> return Color)   <|>
+       (rword "None"    >> return NoShape) <|>
+       (rword "Arrow"   >> return Arrow)   <|>
+       (rword "Text"    >> return Text)    <|>
+       (rword "Circle"  >> return Circle)  <|>
+       (rword "Ellipse" >> return Ellip)   <|>
+       (rword "Box"     >> return Box)     <|>
+       (rword "Dot"     >> return Dot)
 
 patterns :: Parser [Pattern]
 patterns = many pattern
     where pattern = (WildCard <$> identifier <|> RawID <$> backticks identifier)
 
-    -- manyTill anyChar (symbol "{")
----- Statements
+--- Statements
 stmtSeq :: Parser [Stmt]
 stmtSeq = endBy stmt newline'
 
@@ -278,147 +236,6 @@ number =  FloatLit <$> try float <|> IntLit <$> integer
 attribute :: Parser String
 attribute = many alphaNumChar
 
---
---
---
--- typeBlock :: Parser Block
--- typeBlock = do
---     t     <- typ
---     stmts <- braces stmtSeq
---     return $ TypeBlock t stmts
---
--- objBlock :: Parser Block
--- objBlock = do
---     i     <- identifier
---     stmts <- braces stmtSeq
---     return $ ObjBlock i stmts
-
-
----- Lexer functions
-sc :: Parser ()
-sc = L.space (void separatorChar) lineCmnt blockCmnt
-  where lineCmnt  = L.skipLineComment "--" >> newline'
-        blockCmnt = L.skipBlockComment "/*" "*/" >> newline'
-
-newline' :: Parser ()
-newline' = void sc >> void (many newline) >> void sc
-
-backticks :: Parser a -> Parser a
-backticks = between (symbol "`") (symbol "`")
-
-braces :: Parser a -> Parser a
-braces = between (symbol "{") (symbol "}")
-
-lparen, rparen, lbrac, rbrac :: Parser ()
-lbrac = void (symbol "{")
-rbrac = void (symbol "}")
-lparen = void (symbol "(")
-rparen = void (symbol ")")
-
-parens :: Parser a -> Parser a
-parens = between (symbol "(") (symbol ")")
-
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme sc
-
-comma :: Parser String
-comma = symbol ","
-
-symbol :: String -> Parser String
-symbol = L.symbol sc
-
-integer :: Parser Integer
-integer = lexeme L.integer
-
-float :: Parser Float
-float = realToFrac <$> lexeme L.float -- TODO: parsing without sign?
-
-identifier :: Parser String
-identifier = (lexeme . try) (p >>= check)
-  where
-    p       = (:) <$> letterChar <*> many alphaNumChar
-    check x = if x `elem` rws
-                then fail $ "keyword " ++ show x ++ " cannot be an identifier"
-                else return x
-
--- Reserved words
-rword :: String -> Parser ()
-rword w = string w *> notFollowedBy alphaNumChar *> sc
-
-rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
-rws =     ["avoid", "global", "as"] ++ types ++ shapes
--- ++ types ++ attribs ++ shapes ++ colors
-
-types =   ["Set", "Map", "Point"]
-attribs = ["shape", "color", "label", "scale", "position"]
-attribVs = shapes
-shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
--- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
---
--- getType :: String -> SubType
--- getType str = case str of
---     "Set"   -> Set
---     "Map"   -> Map
---     "Point" -> Point
---     "Subset" -> Subset
---
---
--- getAttribute :: String -> Attribute
--- getAttribute str = case str of
---     "shape" -> Shape
---     "color" -> Color
---     "bordor" -> LineType
---
---
--- getAttributeV :: String -> AttributeV
--- getAttributeV str = case str of
---     "None"       -> ShapeV   NoShape
---     "Circle"     -> ShapeV $ SS SetCircle
---     "Box"        -> ShapeV $ SS Box
---     "SolidArrow" -> ShapeV $ SM SolidArrow
---     "SolidDot"   -> ShapeV $ SP SolidDot
---     "HollowDot"  -> ShapeV $ SP HollowDot
---     "Cross"      -> ShapeV $ SP Cross
---     "Red"        -> ColorV Red
---     "Yellow"     -> ColorV Yellow
---     "Blue"       -> ColorV Blue
---     "Black"      -> ColorV Black
---     "Random"     -> ColorV Random
---
--- attribute :: Parser Attribute
--- attribute = (lexeme . try) (p >>= check)
---   where
---     p       = many letterChar
---     check x = if x `elem` attribs
---                 then return (getAttribute x)
---                 else fail $ "keyword " ++ show x ++ " cannot be an attribute"
---
--- attributeValue :: Parser AttributeV
--- attributeValue = (lexeme . try) (p >>= check)
---   where
---     p       = many letterChar
---     check x = if x `elem` attribVs
---                 then return (getAttributeV x)
---                 else fail $ "keyword " ++ show x ++ " cannot be an attribute value"
---
--- typ :: Parser SubType
--- typ = (lexeme . try) (p >>= check)
---   where
---     p       = some letterChar
---     check x = if x `elem` types
---                 then return (getType x)
---                 else fail $ "Type " ++ show x ++ " is not a valid type"
---
--- -- access :: Parser Expr
--- -- access = do
--- --     i <- identifier
--- --     void (symbol ".")
--- --     a <- attributeName
--- --     return (Access i a)
---
---
---
---
 
 -- -- TODO
 -- styPrettyPrint :: Block -> String
@@ -439,7 +256,7 @@ type StyDict = M.Map Name StySpec
 type VarMap  = M.Map Name Name
 
 initSpec :: StySpec
-initSpec = StySpec { spType = Point, spId = "", spShape = (NoShape, M.empty),  spArgs = [], spShpMap = M.empty}
+initSpec = StySpec { spType = C.PointT, spId = "", spShape = (NoShape, M.empty),  spArgs = [], spShpMap = M.empty}
 
 -- | `getDictAndFns` is the top-level function used by "Runtime", which returns a dictionary of Style configuration and all objective and constraint fucntions generated by Style
 -- TODO: maybe generate objects directly?
@@ -470,7 +287,7 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ new
         allVars = M.fromList $ zip k k where k = M.keys dict
         -- Combination of all selected (spec. varmap)
         allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
-        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == AllTypes then [allVars] else map M.unions allCombs
+        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT then [allVars] else map M.unions allCombs
             -- let allMaps = map (map fst) allCombs in
             -- map M.unions (tr "allMaps: " allMaps)
             -- tr "allmaps: " $
@@ -567,22 +384,23 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 
-getConstrTuples :: [C.SubConstr] -> [(SubType, String, [String])]
+getConstrTuples :: [C.SubConstr] -> [(C.SubType, String, [String])]
 getConstrTuples = map getType
     where getType c = case c of
-            C.Intersect a b -> (Intersect, "Intersect" ++ a ++ b, [a, b])
-            C.NoIntersect a b -> (NoIntersect, "NoIntersect" ++ a ++ b, [a, b])
-            C.Subset a b -> (Subset, "Subset" ++ a ++ b, [a, b])
-            C.NoSubset a b -> (NoSubset, "NoSubset" ++ a ++ b, [a, b])
-            C.PointIn a b -> (PointIn, "In" ++ a ++ b, [a, b])
-            C.PointNotIn a b -> (PointNotIn, "PointNotIn" ++ a ++ b, [a, b])
+            C.Intersect a b -> (C.IntersectT, "_Intersect" ++ a ++ b, [a, b])
+            C.NoIntersect a b -> (C.NoIntersectT, "_NoIntersect" ++ a ++ b, [a, b])
+            C.Subset a b -> (C.SubsetT, "_Subset" ++ a ++ b, [a, b])
+            C.NoSubset a b -> (C.NoSubsetT, "_NoSubset" ++ a ++ b, [a, b])
+            C.PointIn a b -> (C.PointInT, "_In" ++ a ++ b, [a, b])
+            C.PointNotIn a b -> (C.PointNotInT, "_PointNotIn" ++ a ++ b, [a, b])
 
-getSubTuples :: [C.SubDecl] -> [(SubType, String, [String])]
+getSubTuples :: [C.SubDecl] -> [(C.SubType, String, [String])]
 getSubTuples = map getType
-    where getType (C.Decl d) = case d of
-            C.OS (C.Set' n _) -> (Set, n, [n])
-            C.OP (C.Pt' n) -> (Point, n, [n])
-            C.OM (C.Map' n a b) -> (Map, n, [n, a, b])
+    where getType d = case d of
+            C.Set n -> (C.SetT, n, [n])
+            C.Point n -> (C.PointT, n, [n])
+            C.Map n a b -> (C.MapT, n, [n, a, b])
+            C.Value n a b -> (C.ValueT, "_Value" ++ n ++ a ++ b, [n, a, b])
 
 getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs

@@ -1,0 +1,51 @@
+Set s {
+    shape = Ellipse { }
+    constraint outsideOf(s.label, s)
+    objective onTop(s, s.label)
+    objective sameX(s, s.label)
+}
+
+Map f p q {
+    shape = Arrow {
+        start = p
+        end   = q
+        label = None
+    }
+}
+
+Set a, Set b {
+    objective sameX(a.label, b.label)
+}
+
+Point p {
+    shape = Dot { }
+    objective centerLabel(p, p.label)
+}
+
+In p s {
+    constraint contains(s, p)
+    -- objective sameCenter(p, s)
+    objective sameX(p, s)
+}
+
+In p `A`, In q `A` {
+    objective sameX(p, q)
+    objective repel(p, q)
+}
+
+In p `B`, In q `B` {
+    -- objective sameCenter(p, q)
+    objective sameX(p, q)
+    objective repel(p, q)
+}
+
+Set `A` {
+    objective toLeft(A, B)
+    objective sameHeight(A, B)
+    constraint sameSizeAs(A, B) 
+    objective onTop(x, y)
+} 
+
+Set `B` {
+}
+

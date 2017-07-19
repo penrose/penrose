@@ -1,0 +1,14 @@
+Set A = { a, b, c, d }
+Set B = { x, y, z}
+f: A -> B
+
+-- r in surjective
+Definition surjection:
+    all b: B | some a:A | a.f = b
+
+/* Alternative:
+f(a) = x
+f(b) = x
+f(c) = y
+f(d) = z
+*/
