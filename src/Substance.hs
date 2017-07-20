@@ -13,8 +13,8 @@ import Data.List
 import Text.Megaparsec
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of the type ‘String’
-import qualified Text.PrettyPrint
-import qualified Text.PrettyPrint.HughesPJClass
+-- import Text.PrettyPrint
+import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Lexer as L
 
@@ -169,6 +169,7 @@ checkDecls (os, ds, m) (DeclList t ss) =
 checkDecls (os, ds, m) (MapInit t f a b) =
     (os, ds, checkAndInsert f t m)
 -- TODO: assuming we ONLY have set of **points**
+checkDecls (os, ds, m) (Def n f) = (os, (n, f) : ds, m)
 checkDecls (os, ds, m) (SetInit t i ps) =
     let pts =  map (toObj PointT . toList) ps
         set = toObj t [i]
@@ -237,11 +238,13 @@ type AlProg = [AlPara]
 data AlPara
     = SigDecl String [AlDecl]
     | OneSigDecl String String
-    | PredDecl
+    | PredDecl String
     | FactDecl [AlExpr]
+    | RunCmd String (Maybe Int)
     deriving (Show, Eq)
 -- NOTE: this is okay if we model everything as the same type of relations
-type AlDecl = (String, String)
+data AlDecl = AlDecl String String
+    deriving (Show, Eq)
 -- type AlDecl = (String, (Mult, String))
 -- data Mult = LONE | SOME | ONE | NONE deriving (Show, Eq)
 -- TODO: should be using Alloy's grammar
@@ -264,10 +267,15 @@ data AlEnv = AlEnv {
 
 -- | translating a Substance program to an Alloy program
 toAlloy :: SubEnv -> AlProg
-toAlloy (objs, defs, _) = FactDecl (alFacts resEnv) : M.elems (alSigs resEnv)
+toAlloy (objs, defs, _) =  M.elems (alSigs resEnv) ++ rest
     where initEnv = AlEnv { alFacts = [], alSigs = M.empty }
           objEnv  = foldl objToAlloy initEnv objs
           resEnv  = foldl defToAlloy objEnv defs
+          rest = [FactDecl (alFacts resEnv), showPred, runNoLimit "show"]
+
+-- | default components in an Alloy program, for showing instances
+showPred = PredDecl "show"
+runNoLimit s = RunCmd s Nothing
 
 objToAlloy :: AlEnv -> SubObj -> AlEnv
 objToAlloy e (LD (Set s)) = e { alSigs = insertSig s (SigDecl s []) $ alSigs e}
@@ -276,7 +284,7 @@ objToAlloy e (LD (Value f x y)) = e { alFacts = fac : alFacts e }
     where  fac = AlFuncVal f x y
         -- fac = AlBinOp AlEq (AlBinOp AlDot x f) y
 objToAlloy e (LD (Map f x y)) = e { alSigs = newSigs }
-    where  l' = (f, y) : l
+    where  l' = AlDecl f y : l
            newSigs = M.insert x (SigDecl n l') m
            (SigDecl n l, m) = case M.lookup x $ alSigs e of
                 Nothing -> let sig = SigDecl x [] in (sig, M.insert x sig $ alSigs e)
@@ -291,6 +299,26 @@ insertSig n s e = case M.lookup n e of
 
 defToAlloy :: AlEnv -> (String, String) -> AlEnv
 defToAlloy e (_, f) =  e { alFacts = AlProp f : alFacts e }
+
+-- | pretty-printing class for Alloy AST
+-- instance P.Pretty AlProg where
+--     pPrint p = map pPrint p
+instance Pretty AlPara where
+    pPrint (SigDecl n ds) = vcat (header : map (nest 4 . pPrint) ds) $$ rbrace
+        where header = text "sig" <+> text n <+> lbrace
+    pPrint (OneSigDecl s e) = text "one sig" <+> text s <+> text "extends" <+> text e <> lbrace <+> rbrace
+    pPrint (PredDecl s) = text "pred" <+> text (s ++ "()") <+> lbrace <+> rbrace
+    pPrint (FactDecl es) = vcat (header : map (nest 2 . pPrint) es) $$ rbrace
+        where header =  text "fact" <+> lbrace
+    pPrint (RunCmd s i) = text "run" <+> text s <+> num
+        where num = case i of
+                        Nothing -> text ""
+                        Just i' -> text (show i')
+instance Pretty AlDecl where
+    pPrint (AlDecl f s) = text f <+> text ":" <+> text s
+instance Pretty AlExpr where
+    pPrint (AlFuncVal f x y) = text x <> text "." <> text f <+> text "=" <+> text y
+    pPrint (AlProp s) = text s
 
 
 --------------------------------------------------------------------------------
@@ -786,6 +814,9 @@ main = do
              let al = toAlloy c
              mapM_ print al
              divLine
+             mapM_ (putStrLn . prettyShow) al
+             let pretty_al = concatMap ((++ "\n") . prettyShow)  al
+             writeFile "./alloy/pretty.als" pretty_al
             --  mapM_ print os
             --  print m
             --  divLine
