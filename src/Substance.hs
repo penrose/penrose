@@ -10,6 +10,7 @@ import Control.Arrow ((>>>))
 import System.Random
 import Debug.Trace
 import Data.List
+import Data.Maybe (fromMaybe)
 import Text.Megaparsec
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of the type ‘String’
@@ -34,10 +35,21 @@ data SubStmt
     | SetInit SubType String [String]
     | MapInit SubType String String String -- id, from, to
     | FuncVal String String String -- function name, x, y
-    | Def String String -- id, definition string
-    | DefApp [String] -- apply definition of something on some variables
+    | Def String [(SubType, String)] FOLExpr -- id, definition string
+    | DefApp String [String] -- function id, args
     | NoStmt
     deriving (Show, Eq)
+
+-- data Prop = Prop Term deriving (Show, Eq)
+data FOLExpr
+    = QuantAssign Quant Binders FOLExpr
+    | BinaryOp Op FOLExpr FOLExpr
+    | FuncAccess String String
+    | TermID String
+    deriving (Show, Eq)
+data Op = AND | OR | NOT | IMPLIES | EQUAL | NEQ deriving (Show, Eq)
+data Quant = FORALL | EXISTS deriving (Show, Eq)
+type Binders = [(String, String)]
 
 data SubType
     = SetT
@@ -55,7 +67,6 @@ data SubType
     deriving (Show, Eq)
 
 data SubObj = LD SubDecl | LC SubConstr deriving (Show, Eq)
-    -- = Set String [String] -- A set contains a bunch of other mathemetical objects
 
 data SubDecl
     = Set String
@@ -87,7 +98,7 @@ subProg :: Parser [SubStmt]
 subProg =  endBy subStmt newline'
 
 subStmt :: Parser SubStmt
-subStmt = subDecl <|> subDef
+subStmt = try subDef <|> subDecl <|> defApp
 
 subDecl, varDecl, setInit, funcDecl :: Parser SubStmt
 -- TODO: think about why the `try` is needed here?
@@ -125,14 +136,56 @@ funcVal = do
     b <- identifier
     return (FuncVal f a b)
 
-
 subDef :: Parser SubStmt
 subDef = do
     rword "Definition"
-    i   <- identifier
+    i    <- identifier
+    args <- parens $ bindings `sepBy1` comma
     colon >> newline'
-    str <- some printChar
-    return (Def i str)
+    t     <- folExpr
+    -- str <- some printChar
+    -- return (Def i str)
+    return (Def i args t)
+    where bindings = (,) <$> subtype <*> identifier
+
+defApp :: Parser SubStmt
+defApp = do
+    n <- identifier
+    args <- parens $ identifier `sepBy1` comma
+    return (DefApp n args)
+
+folExpr :: Parser FOLExpr
+folExpr = makeExprParser folTerm folOps
+
+folOps :: [[Operator Parser FOLExpr]]
+folOps =
+    [ [ InfixL (BinaryOp EQUAL   <$ symbol "=")
+      , InfixL (BinaryOp NEQ     <$ symbol "!=") ]
+    , [ InfixL (BinaryOp AND     <$ symbol "/\\") ]
+    , [ InfixR (BinaryOp IMPLIES <$ symbol "implies" )]
+    , [ InfixL (BinaryOp OR      <$ symbol "\\/") ]
+    ]
+
+folTerm = try quantAssign <|> try funcAccess <|> TermID <$> try identifier
+
+quantAssign, funcAccess :: Parser FOLExpr
+quantAssign = do
+    q <- quant
+    bs <- binders
+    void (symbol "|")
+    e <- folExpr
+    return (QuantAssign q bs e)
+    -- return (QuantAssign q bs (TermID "ja"))
+funcAccess = do
+    t1 <- identifier
+    t2 <- parens identifier
+    return (FuncAccess t1 t2)
+
+binders :: Parser Binders
+binders = binder `sepBy1` comma
+    where binder = (,) <$> identifier <* colon <*> identifier
+quant = (symbol "forall" >> return FORALL) <|>
+        (symbol "exists" >> return EXISTS)
 
 subtype :: Parser SubType
 subtype = subObjType <|> subConstrType
@@ -153,55 +206,121 @@ subConstrType =
 --------------------------------------------------------------------------------
 -- Semantic checker and desugaring
 
-type SubEnv = ([SubObj], [(String, String)], M.Map String SubType)
+data SubEnv = SubEnv {
+    subObjs :: [SubObj],
+    subDefs :: M.Map String ([(SubType, String)], FOLExpr),
+    subApps :: [(FOLExpr, M.Map String String)],
+    subSymbols :: M.Map String SubType
+    -- subAppliedDefs :: [FOLExpr]
+} deriving (Show, Eq)
+
 -- The check is done in two passes. First check all the declarations of
 -- stand-alone objects like `Set`, and then check for all other things
 check :: SubProg -> SubEnv
-check p = let env1 = foldl checkDecls ([], [], M.empty) p
-              (os, ds, m) = foldl checkReferencess env1 p in
-          (reverse os, ds, m) -- TODO: to make sure of the ordering of objects
+check p = let env1 = foldl checkDecls initE p
+              env2 = foldl checkReferencess env1 p
+            --   defs = applyDefs env2
+              in
+            --   (os, ds, m) = foldl checkReferencess env1 p in
+            env2 { subObjs = reverse $ subObjs env2
+                    -- , subAppliedDefs = defs
+                }
+        --   (reverse os, ds, m) -- TODO: to make sure of the ordering of objects
+          where initE = SubEnv { subObjs = [], subDefs = M.empty,  subSymbols = M.empty, subApps = [] }
+
+applyDef (n, m) d = case M.lookup n d of
+    Nothing -> error "applyDef: definition not found!"
+    Just (_, e) -> e
+
         -- where checkDecls' e s = if s `elem` declStmtT then
 
 checkDecls :: SubEnv -> SubStmt -> SubEnv
-checkDecls (os, ds, m) (Decl t s)  = (toObj t [s] : os, ds, checkAndInsert s t m)
-checkDecls (os, ds, m) (DeclList t ss) =
-    (os ++ map (toObj t . toList) ss, ds, foldl (\p x -> checkAndInsert x t p) m ss)
-checkDecls (os, ds, m) (MapInit t f a b) =
-    (os, ds, checkAndInsert f t m)
--- TODO: assuming we ONLY have set of **points**
-checkDecls (os, ds, m) (Def n f) = (os, (n, f) : ds, m)
-checkDecls (os, ds, m) (SetInit t i ps) =
+checkDecls e (Decl t s)  = e { subObjs = toObj t [s] : subObjs e, subSymbols = checkAndInsert s t $ subSymbols e }
+checkDecls e (DeclList t ss) = e { subObjs = objs, subSymbols = syms }
+    where objs = subObjs e ++ map (toObj t . toList) ss
+          syms = foldl (\p x -> checkAndInsert x t p) (subSymbols e) ss
+checkDecls e (MapInit t f a b) =
+    e { subSymbols = checkAndInsert f t $ subSymbols e }
+checkDecls e (Def n a f) = e { subDefs = M.insert n (a, f) $ subDefs e }
+checkDecls e (SetInit t i ps) =
     let pts =  map (toObj PointT . toList) ps
         set = toObj t [i]
         ptConstrs = map (toConstr PointInT . (\p -> [p, i])) ps
-        m1  = foldl (\p x -> checkAndInsert x PointT p) m ps
+        m1  = foldl (\p x -> checkAndInsert x PointT p) (subSymbols e) ps
     in
-    ( pts ++ [set] ++ ptConstrs ++ os, ds, checkAndInsert i t m1)
+    e { subObjs = pts ++ [set] ++ ptConstrs ++ subObjs e, subSymbols = checkAndInsert i t m1 }
+-- checkDecls (os, ds, m) (Decl t s)  = (toObj t [s] : os, ds, checkAndInsert s t m)
+-- checkDecls (os, ds, m) (DeclList t ss) =
+--     (os ++ map (toObj t . toList) ss, ds, foldl (\p x -> checkAndInsert x t p) m ss)
+-- checkDecls (os, ds, m) (MapInit t f a b) =
+--     (os, ds, checkAndInsert f t m)
+-- TODO: assuming we ONLY have set of **points**
+-- FIXME: snd of the tuple is wrong, change to map
+-- checkDecls (os, ds, m) (Def n a f) = (os, (f, M.empty) : ds, m)
+-- checkDecls (os, ds, m) (SetInit t i ps) =
+--     let pts =  map (toObj PointT . toList) ps
+--         set = toObj t [i]
+--         ptConstrs = map (toConstr PointInT . (\p -> [p, i])) ps
+--         m1  = foldl (\p x -> checkAndInsert x PointT p) m ps
+--     in
+--     ( pts ++ [set] ++ ptConstrs ++ os, ds, checkAndInsert i t m1)
     -- TODO: making the assumption that users want the points to be on top of sets
 checkDecls e _ = e -- Ignore all other statements
 
 toObj :: SubType -> [String] -> SubObj
--- toObj SetT [i] = Set i []
 toObj SetT [i]         = LD $ Set i
 toObj PointT [i]       = LD $ Point i
 toObj MapT [i, a, b]   = LD $ Map i a b
 toObj ValueT [f, a, b] = LD $ Value f a b
 toObj t os             = error ("toObj: incorrect arguments to " ++ show t ++ " "++ show os)
 
-
 checkReferencess :: SubEnv -> SubStmt -> SubEnv
-checkReferencess (os, ds, m) (ConstrDecl t ss)  = (newConstrs : os, ds, m)
-    where newConstrs = toConstr t $ map (checkNameAndTyp m) $ zip ss ts
+checkReferencess e (ConstrDecl t ss)  = e { subObjs = newConstrs : subObjs e }
+    where newConstrs = toConstr t $ map (checkNameAndTyp $ subSymbols e) $ zip ss ts
           ts = case t of
               PointInT    -> [PointT, SetT]
               PointNotInT -> [PointT, SetT]
               _           -> [SetT, SetT]
-checkReferencess (os, ds, m) (FuncVal f a b)  = (val : os, ds, m)
-    where args = map (checkNameAndTyp m) $ zip [f, a, b] [MapT, PointT, PointT]
+checkReferencess e (FuncVal f a b)  = e { subObjs = val : subObjs e }
+    where args = map (checkNameAndTyp $ subSymbols e) $ zip [f, a, b] [MapT, PointT, PointT]
           val  = toObj ValueT args
-checkReferencess (os, ds, m) (MapInit t f a b) = (toObj t args : os, ds, m)
-    where args = map (checkNameAndTyp m) $ zip [f, a, b] [MapT, SetT, SetT]
+checkReferencess e (MapInit t f a b) = e { subObjs = toObj t args : subObjs e }
+    where args = map (checkNameAndTyp $ subSymbols e) $ zip [f, a, b] [MapT, SetT, SetT]
+checkReferencess e (DefApp n args) = e { subApps = (def, apps) : subApps e }
+    where (sigs, def)  = fromMaybe (error ("Definition " ++ n ++ " does not exist.")) (M.lookup n (subDefs e))
+          args' = map (checkNameAndTyp $ subSymbols e) $ zip args $ map fst sigs
+          apps  = M.fromList $ zip (map snd sigs) args
+
+-- TODO
+-- checkAndApplyDef :: FOLExpr -> M.Map String String -> FOLExpr
+-- checkAndApplyDef (QuantAssign q b e) m = (q, b', e')
+--     where b' =
+-- checkBinding (_, n) m =
+-- lookupVarMap e
+
+-- data FOLExpr
+--     = QuantAssign Quant Binders FOLExpr
+--     | BinaryOp Op FOLExpr FOLExpr
+--     | FuncAccess String String
+--     | TermID String
+--     deriving (Show, Eq)
+
 checkReferencess e _ = e -- Ignore all other statements
+
+
+-- checkReferencess (os, ds, m) (ConstrDecl t ss)  = (newConstrs : os, ds, m)
+--     where newConstrs = toConstr t $ map (checkNameAndTyp m) $ zip ss ts
+--           ts = case t of
+--               PointInT    -> [PointT, SetT]
+--               PointNotInT -> [PointT, SetT]
+--               _           -> [SetT, SetT]
+-- checkReferencess (os, ds, m) (FuncVal f a b)  = (val : os, ds, m)
+--     where args = map (checkNameAndTyp m) $ zip [f, a, b] [MapT, PointT, PointT]
+--           val  = toObj ValueT args
+-- checkReferencess (os, ds, m) (MapInit t f a b) = (toObj t args : os, ds, m)
+--     where args = map (checkNameAndTyp m) $ zip [f, a, b] [MapT, SetT, SetT]
+-- -- checkReferencess (os, ds, m) (DefApp n args) =
+--     -- where insertMap = case M.lookup
 
 toConstr NoIntersectT [a, b] = LC $ NoIntersect a b
 toConstr IntersectT [a, b] = LC $ Intersect a b
@@ -245,15 +364,9 @@ data AlPara
 -- NOTE: this is okay if we model everything as the same type of relations
 data AlDecl = AlDecl String String
     deriving (Show, Eq)
--- type AlDecl = (String, (Mult, String))
--- data Mult = LONE | SOME | ONE | NONE deriving (Show, Eq)
--- TODO: should be using Alloy's grammar
 data AlExpr
-    =
-        -- AlBinOp AlBinaryOp AlExpr AlExpr
-      AlFuncVal String String String
-    | AlProp String -- TODO: use the more structured one
-    -- | AlProp [(Quant, [AlDecl])] AlExpr
+    = AlFuncVal String String String
+    | AlProp FOLExpr (M.Map String String)
     deriving (Show, Eq)
     -- = AlFuncVal String String String
     -- | AlDef String
@@ -267,10 +380,10 @@ data AlEnv = AlEnv {
 
 -- | translating a Substance program to an Alloy program
 toAlloy :: SubEnv -> AlProg
-toAlloy (objs, defs, _) =  M.elems (alSigs resEnv) ++ rest
+toAlloy e =  M.elems (alSigs resEnv) ++ rest
     where initEnv = AlEnv { alFacts = [], alSigs = M.empty }
-          objEnv  = foldl objToAlloy initEnv objs
-          resEnv  = foldl defToAlloy objEnv defs
+          objEnv  = foldl objToAlloy initEnv $ subObjs e
+          resEnv  = foldl defToAlloy objEnv $ subApps e
           rest = [FactDecl (alFacts resEnv), showPred, runNoLimit "show"]
 
 -- | default components in an Alloy program, for showing instances
@@ -297,8 +410,8 @@ insertSig n s e = case M.lookup n e of
     Nothing -> M.insert n s e
     _ -> e
 
-defToAlloy :: AlEnv -> (String, String) -> AlEnv
-defToAlloy e (_, f) =  e { alFacts = AlProp f : alFacts e }
+defToAlloy :: AlEnv -> (FOLExpr, M.Map String String) -> AlEnv
+defToAlloy e (f, m) =  e { alFacts = AlProp f m : alFacts e }
 
 -- | pretty-printing class for Alloy AST
 -- instance P.Pretty AlProg where
@@ -318,8 +431,26 @@ instance Pretty AlDecl where
     pPrint (AlDecl f s) = text f <+> text ":" <+> text s
 instance Pretty AlExpr where
     pPrint (AlFuncVal f x y) = text x <> text "." <> text f <+> text "=" <+> text y
-    pPrint (AlProp s) = text s
+    pPrint (AlProp s varMap) = pPrintExpr s varMap
 
+pPrintExpr :: FOLExpr -> M.Map String String -> Doc
+pPrintExpr s varMap = case s of
+    QuantAssign q b e -> pPrint q <+> hcat (map (pBind . bind varMap) b) <+> text "|" <+> pPrintExpr e varMap
+    BinaryOp op e1 e2 -> pPrintExpr e1 varMap <+> pPrint op <+> pPrintExpr e2 varMap
+    FuncAccess f x -> text x <> text "." <> text f
+    TermID i -> text i
+    where bind m (a, s) = case M.lookup s m of
+                             Nothing -> error ("Undefined variable: " ++ s)
+                             Just s' -> (a, s')
+          pBind (a, b) = text a <+> text ":" <+> text b
+
+instance Pretty Quant where
+    pPrint FORALL = text "all"
+    pPrint EXISTS = text "some"
+
+instance Pretty Op where
+    pPrint IMPLIES = text "implies"
+    pPrint EQUAL   = text "="
 
 --------------------------------------------------------------------------------
 -- Old Substance AST
@@ -810,7 +941,7 @@ main = do
          Right xs -> do
              mapM_ print xs
              divLine
-             let c@(os, ds, m) = check xs
+             let c = check xs
              let al = toAlloy c
              mapM_ print al
              divLine
