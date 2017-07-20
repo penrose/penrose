@@ -1,5 +1,5 @@
-module Substance where
--- module Main (main) where -- for debugging purposes
+-- module Substance where
+module Main (main) where -- for debugging purposes
 -- TODO split this up + do selective export
 
 import Utils
@@ -13,6 +13,8 @@ import Data.List
 import Text.Megaparsec
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of the type ‘String’
+import qualified Text.PrettyPrint
+import qualified Text.PrettyPrint.HughesPJClass
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Lexer as L
 
@@ -155,8 +157,9 @@ type SubEnv = ([SubObj], [(String, String)], M.Map String SubType)
 -- The check is done in two passes. First check all the declarations of
 -- stand-alone objects like `Set`, and then check for all other things
 check :: SubProg -> SubEnv
-check p = let env1 = foldl checkDecls ([], [], M.empty) p in
-        foldl checkReferencess env1 p
+check p = let env1 = foldl checkDecls ([], [], M.empty) p
+              (os, ds, m) = foldl checkReferencess env1 p in
+          (reverse os, ds, m) -- TODO: to make sure of the ordering of objects
         -- where checkDecls' e s = if s `elem` declStmtT then
 
 checkDecls :: SubEnv -> SubStmt -> SubEnv
@@ -172,7 +175,8 @@ checkDecls (os, ds, m) (SetInit t i ps) =
         ptConstrs = map (toConstr PointInT . (\p -> [p, i])) ps
         m1  = foldl (\p x -> checkAndInsert x PointT p) m ps
     in
-    (set : pts ++ ptConstrs ++ os, ds, checkAndInsert i t m1)
+    ( pts ++ [set] ++ ptConstrs ++ os, ds, checkAndInsert i t m1)
+    -- TODO: making the assumption that users want the points to be on top of sets
 checkDecls e _ = e -- Ignore all other statements
 
 toObj :: SubType -> [String] -> SubObj
@@ -220,6 +224,74 @@ subSeparate = foldr separate ([], [])
                            case line of
                            (LD x) -> (x : decls, constrs)
                            (LC x) -> (decls, x : constrs)
+
+--------------------------------------------------------------------------------
+-- Simplified Alloy AST and translators
+-- See reference for the Alloy modeling language here:
+--  http://alloy.mit.edu/alloy/documentation/book-chapters/alloy-language-reference.pdf
+-- TODO: separate to another module?
+
+
+-- | each Alloy program is a collection of paragraphs
+type AlProg = [AlPara]
+data AlPara
+    = SigDecl String [AlDecl]
+    | OneSigDecl String String
+    | PredDecl
+    | FactDecl [AlExpr]
+    deriving (Show, Eq)
+-- NOTE: this is okay if we model everything as the same type of relations
+type AlDecl = (String, String)
+-- type AlDecl = (String, (Mult, String))
+-- data Mult = LONE | SOME | ONE | NONE deriving (Show, Eq)
+-- TODO: should be using Alloy's grammar
+data AlExpr
+    =
+        -- AlBinOp AlBinaryOp AlExpr AlExpr
+      AlFuncVal String String String
+    | AlProp String -- TODO: use the more structured one
+    -- | AlProp [(Quant, [AlDecl])] AlExpr
+    deriving (Show, Eq)
+    -- = AlFuncVal String String String
+    -- | AlDef String
+data AlBinaryOp = AlDot | AlEq deriving (Show, Eq)
+
+-- | Substance to Alloy translation environment:
+data AlEnv = AlEnv {
+    alFacts :: [AlExpr],
+    alSigs  :: M.Map String AlPara
+} deriving (Show, Eq)
+
+-- | translating a Substance program to an Alloy program
+toAlloy :: SubEnv -> AlProg
+toAlloy (objs, defs, _) = FactDecl (alFacts resEnv) : M.elems (alSigs resEnv)
+    where initEnv = AlEnv { alFacts = [], alSigs = M.empty }
+          objEnv  = foldl objToAlloy initEnv objs
+          resEnv  = foldl defToAlloy objEnv defs
+
+objToAlloy :: AlEnv -> SubObj -> AlEnv
+objToAlloy e (LD (Set s)) = e { alSigs = insertSig s (SigDecl s []) $ alSigs e}
+objToAlloy e (LC (PointIn p s)) = e { alSigs = M.insert p (OneSigDecl p s) $ alSigs e }
+objToAlloy e (LD (Value f x y)) = e { alFacts = fac : alFacts e }
+    where  fac = AlFuncVal f x y
+        -- fac = AlBinOp AlEq (AlBinOp AlDot x f) y
+objToAlloy e (LD (Map f x y)) = e { alSigs = newSigs }
+    where  l' = (f, y) : l
+           newSigs = M.insert x (SigDecl n l') m
+           (SigDecl n l, m) = case M.lookup x $ alSigs e of
+                Nothing -> let sig = SigDecl x [] in (sig, M.insert x sig $ alSigs e)
+                Just s -> (s, alSigs e)
+objToAlloy e _ = e -- Ignoring all other Substance objects
+
+-- To make sure the ordering doesn't matter. For example, if we have a Function
+-- declared before the sets, the translator will generate the signatures
+insertSig n s e = case M.lookup n e of
+    Nothing -> M.insert n s e
+    _ -> e
+
+defToAlloy :: AlEnv -> (String, String) -> AlEnv
+defToAlloy e (_, f) =  e { alFacts = AlProp f : alFacts e }
+
 
 --------------------------------------------------------------------------------
 -- Old Substance AST
@@ -693,6 +765,9 @@ subSeparate = foldr separate ([], [])
 -- --
 -- -- main = subAndSty
 
+--------------------------------------------------------------------------------
+-- Test driver: First uncomment the module definition to make this module the -- Main module. Usage: ghc Substance; ./Substance <substance-file>
+
 parseFromFile p file = runParser p file <$> readFile file
 
 main :: IO ()
@@ -707,12 +782,15 @@ main = do
          Right xs -> do
              mapM_ print xs
              divLine
-             let (os, ds, m) = check xs
+             let c@(os, ds, m) = check xs
+             let al = toAlloy c
+             mapM_ print al
+             divLine
             --  mapM_ print os
             --  print m
             --  divLine
-             let (decls, constrs) = subSeparate os
-             mapM_ print decls
-             divLine
-             mapM_ print constrs
+            --  let (decls, constrs) = subSeparate os
+            --  mapM_ print decls
+            --  divLine
+            --  mapM_ print constrs
     return ()
