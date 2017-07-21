@@ -49,7 +49,7 @@ data FOLExpr
     deriving (Show, Eq)
 data Op = AND | OR | NOT | IMPLIES | EQUAL | NEQ deriving (Show, Eq)
 data Quant = FORALL | EXISTS deriving (Show, Eq)
-type Binders = [(String, String)]
+type Binders = [([String], String)]
 
 data SubType
     = SetT
@@ -183,7 +183,7 @@ funcAccess = do
 
 binders :: Parser Binders
 binders = binder `sepBy1` comma
-    where binder = (,) <$> identifier <* colon <*> identifier
+    where binder = (,) <$> (identifier `sepBy1` comma) <* colon <*> identifier
 quant = (symbol "forall" >> return FORALL) <|>
         (symbol "exists" >> return EXISTS)
 
@@ -435,14 +435,14 @@ instance Pretty AlExpr where
 
 pPrintExpr :: FOLExpr -> M.Map String String -> Doc
 pPrintExpr s varMap = case s of
-    QuantAssign q b e -> pPrint q <+> hcat (map (pBind . bind varMap) b) <+> text "|" <+> pPrintExpr e varMap
+    QuantAssign q b e -> pPrint q <+> hcat (punctuate (text ", ") (map (pBind . bind varMap) b)) <+> text "|" <+> pPrintExpr e varMap
     BinaryOp op e1 e2 -> pPrintExpr e1 varMap <+> pPrint op <+> pPrintExpr e2 varMap
     FuncAccess f x -> text x <> text "." <> text f
     TermID i -> text i
     where bind m (a, s) = case M.lookup s m of
                              Nothing -> error ("Undefined variable: " ++ s)
                              Just s' -> (a, s')
-          pBind (a, b) = text a <+> text ":" <+> text b
+          pBind (a, b) = hcat (punctuate (text ",") $ map text a) <+> text ":" <+> text b
 
 instance Pretty Quant where
     pPrint FORALL = text "all"
