@@ -1,11 +1,23 @@
+global {
+    objective toLeft(A, B)
+    objective sameHeight(A, B)
+    objective sameX(A, B) 
+    constraint sameSizeAs(A, B) 
+    -- objective sameX(A.label, B.label) 
+    -- objective onTop(x, y)
+    -- objective onTop(a, b)
+    -- objective onTop(b, c)
+}
+
 Set s {
     shape = Ellipse { }
+    -- constraint contains(s, s.label)
     constraint outsideOf(s.label, s)
     objective onTop(s, s.label)
     objective sameX(s, s.label)
 }
 
-Map f p q {
+Value f p q {
     shape = Arrow {
         start = p
         end   = q
@@ -13,9 +25,6 @@ Map f p q {
     }
 }
 
-Set a, Set b {
-    objective sameX(a.label, b.label)
-}
 
 Point p {
     shape = Dot { }
@@ -24,8 +33,9 @@ Point p {
 
 In p s {
     constraint contains(s, p)
-    -- objective sameCenter(p, s)
+    -- constraint contains(s, p.label)
     objective sameX(p, s)
+    objective sameHeight(p, s)
 }
 
 In p `A`, In q `A` {
@@ -34,18 +44,7 @@ In p `A`, In q `A` {
 }
 
 In p `B`, In q `B` {
-    -- objective sameCenter(p, q)
     objective sameX(p, q)
     objective repel(p, q)
-}
-
-Set `A` {
-    objective toLeft(A, B)
-    objective sameHeight(A, B)
-    constraint sameSizeAs(A, B) 
-    objective onTop(x, y)
-} 
-
-Set `B` {
 }
 
