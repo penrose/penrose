@@ -1,8 +1,9 @@
--- module Substance where
-module Main (main) where -- for debugging purposes
+module Substance where
+-- module Main (main) where -- for debugging purposes
 -- TODO split this up + do selective export
 
 import Utils
+import System.Process
 import Control.Monad (void)
 import System.IO -- read/write to file
 import System.Environment
@@ -90,6 +91,13 @@ data SubConstr
 
 --------------------------------------------------------------------------------
 -- Parser for Substance
+
+-- parseSubstance :: String -> String -> SubProg
+-- parseSubstance subFile subIn =
+--     case MP.runParser C.substanceParser subFile subIn of
+--         Left err -> putStr $ MP.parseErrorPretty err
+--         Right subParsed -> subParsed
+--     where
 
 substanceParser :: Parser [SubStmt]
 substanceParser = between sc eof subProg
@@ -345,6 +353,33 @@ subSeparate = foldr separate ([], [])
                            (LD x) -> (x : decls, constrs)
                            (LC x) -> (decls, x : constrs)
 
+tupsToLists :: [(a, a)] -> [[a]]
+tupsToLists = map (\(x,y) -> [x,y])
+
+parseSubstance :: String -> String -> IO [SubObj]
+parseSubstance subFile subIn = case runParser substanceParser subFile subIn of
+     Left err -> error (parseErrorPretty err)
+     Right xs -> do
+         mapM_ print xs
+         divLine
+         let c = check xs
+         let al = toAlloy c
+         mapM_ print al
+         divLine
+         mapM_ (putStrLn . prettyShow) al
+         let pretty_al = concatMap ((++ "\n") . prettyShow)  al
+         writeFile  (alloyDir ++ alloyTempFile) pretty_al
+         res <- readProcess "bash" [ "runAlloy.sh", alloyTempFile, show alloyNumSamples ] ""
+         putStr res
+         case runParser fromAlloy "" res of
+             Left err -> error (parseErrorPretty err)
+             Right tuples -> do
+                                 let tups = map ("f" :) (tupsToLists tuples)
+                                 let vals = map (toObj ValueT) tups
+                                 return (subObjs $ c { subObjs =  subObjs c ++ vals })
+
+
+
 --------------------------------------------------------------------------------
 -- Simplified Alloy AST and translators
 -- See reference for the Alloy modeling language here:
@@ -435,14 +470,18 @@ instance Pretty AlExpr where
 
 pPrintExpr :: FOLExpr -> M.Map String String -> Doc
 pPrintExpr s varMap = case s of
-    QuantAssign q b e -> pPrint q <+> hcat (punctuate (text ", ") (map (pBind . bind varMap) b)) <+> text "|" <+> pPrintExpr e varMap
+    QuantAssign q b e -> let (varMap', bs) = foldl bind (varMap, []) b
+                             pBs = map pBind bs in
+                         pPrint q <+> hcat (punctuate (text ", ") pBs) <+> text "|" <+> pPrintExpr e varMap'
     BinaryOp op e1 e2 -> pPrintExpr e1 varMap <+> pPrint op <+> pPrintExpr e2 varMap
-    FuncAccess f x -> text x <> text "." <> text f
-    TermID i -> text i
-    where bind m (a, s) = case M.lookup s m of
+    FuncAccess f x -> text (r x) <> text "." <> text (r f)
+    TermID i -> text (r i)
+    where bind (m, res) (a, s) = case M.lookup s m of
                              Nothing -> error ("Undefined variable: " ++ s)
-                             Just s' -> (a, s')
+                             Just s' -> (foldl (\m x -> M.insert x x m) varMap a, (a, s') : res)
           pBind (a, b) = hcat (punctuate (text ",") $ map text a) <+> text ":" <+> text b
+          resolve m x = fromMaybe (error ("Undefined variable: " ++ x)) (M.lookup x m)
+          r = resolve varMap
 
 instance Pretty Quant where
     pPrint FORALL = text "all"
@@ -451,6 +490,18 @@ instance Pretty Quant where
 instance Pretty Op where
     pPrint IMPLIES = text "implies"
     pPrint EQUAL   = text "="
+    pPrint NEQ     = text "!="
+    pPrint AND     = text "and"
+    pPrint OR      = text "or"
+
+fromAlloy :: Parser [(String, String)]
+fromAlloy = braces (mapping `sepBy1` comma)
+    where alloyId = someTill anyChar (symbol "$") <* skipSome numberChar
+          mapping = do
+              a <- alloyId
+              arrow
+              b <- alloyId
+              return (a, b)
 
 --------------------------------------------------------------------------------
 -- Old Substance AST
@@ -936,18 +987,25 @@ main = do
     subIn <- readFile subFile
     -- putStrLn styIn
     -- parseTest styleParser styIn
-    case runParser substanceParser subFile subIn of
-         Left err -> putStr (parseErrorPretty err)
-         Right xs -> do
-             mapM_ print xs
-             divLine
-             let c = check xs
-             let al = toAlloy c
-             mapM_ print al
-             divLine
-             mapM_ (putStrLn . prettyShow) al
-             let pretty_al = concatMap ((++ "\n") . prettyShow)  al
-             writeFile "./alloy/pretty.als" pretty_al
+    -- case runParser substanceParser subFile subIn of
+    --      Left err -> putStr (parseErrorPretty err)
+    --      Right xs -> do
+    --          mapM_ print xs
+    --          divLine
+    --          let c = check xs
+    --          let al = toAlloy c
+    --          mapM_ print al
+    --          divLine
+    --          mapM_ (putStrLn . prettyShow) al
+    --          let pretty_al = concatMap ((++ "\n") . prettyShow)  al
+    --          writeFile  (alloyDir ++ alloyTempFile) pretty_al
+    --          res <- readProcess "bash" [ "runAlloy.sh", alloyTempFile, show alloyNumSamples ] ""
+    --          putStr res
+    --          case runParser fromAlloy "" res of
+    --              Left err -> putStr (parseErrorPretty err)
+    --              Right tuples -> mapM_ (putStrLn . show) tuples
+    parsed <- parseSubstance subFile subIn
+    mapM_ print parsed
             --  mapM_ print os
             --  print m
             --  divLine
@@ -955,4 +1013,10 @@ main = do
             --  mapM_ print decls
             --  divLine
             --  mapM_ print constrs
+
     return ()
+
+-- alloyDir = "./alloy/"
+alloyDir = "./"
+alloyTempFile = "__temp__.als"
+alloyNumSamples = 1
