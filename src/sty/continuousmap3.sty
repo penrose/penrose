@@ -1,24 +1,53 @@
 /*
  * This is the same continuous map program, written in the new syntax.
  */
-Set {
-    shape = Circle, 
-    color = Random 
+
+global {
+    constraint outsideOf(f.label, R1)
+    constraint outsideOf(f.label, R2)
+    objective repel(f, R2.label)
+    objective repel(f, R1.label)
+    objective repel(f, U)
+    objective repel(f, V)
+    objective sameHeight(R1, R2)
+    constraint sameSizeAs(R1, R2)
+    constraint sameSizeAs(U, V)
+    constraint sameSizeAs(A, B)
 }
 
-Map {
-    shape = SolidArrow,
-    color = Black 
+Set x {
+    shape = Circle { }
+    constraint contains(x, x.label)
+    -- objective centerLabel(x, x.label)
 }
 
-R1 {
-    shape = Box, 
-    color = Yellow 
+NoIntersect x y {
+    constraint nonOverlapping(x, y)
 }
 
-R2 {
-    shape = Box,
-    color = Red 
+Subset x y {
+    constraint contains(y, x)
+    constraint outsideOf(y.label, x)
 }
+
+Map f x y {
+    shape = Arrow {
+        start = x.shape
+        end   = y.shape
+        label = Auto
+    }
+    objective centerLabel(f, f.label)
+    objective toLeft(x, y)
+    objective sameHeight(x, y)
+}
+
+Set `R1` {
+    shape = Box { }
+}
+
+Set `R2` {
+    shape = Box { }
+}
+
 
 

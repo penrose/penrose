@@ -1,0 +1,16 @@
+Set {
+    shape  = None
+}
+
+Subset _ _ => x y {
+    shape = Arrow {
+        start   = x.shape
+        end     = y.shape
+        spacing = near
+    }
+    onTop(y, x)
+}
+
+Set x, y {
+    avoid near(x, y) 
+}

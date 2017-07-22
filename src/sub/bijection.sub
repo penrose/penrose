@@ -1,0 +1,6 @@
+Set A = { a, b, c }
+Set B = { x, y }
+f: A -> B
+f(a) = x
+f(b) = y
+f(c) = x

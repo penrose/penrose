@@ -1,0 +1,21 @@
+Set x {
+    shape = Circle { }
+    objective outside(x.label, x)
+    arr = Arrow {
+        start = x.label
+        end   = x
+        label = None
+    }
+}
+
+NoIntersect x y {
+    constraint nonOverlapping(x, y)
+}
+
+Subset x y {
+    constraint contains(y, x.label)
+    constraint contains(y, x)
+    constraint smallerThan(x, y)
+    constraint outsideOf(y.label, x)
+}
+

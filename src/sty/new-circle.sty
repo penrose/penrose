@@ -1,0 +1,11 @@
+Set _ : x {
+    shape = Circle { }
+    objective centerLabel(x)  
+}
+Intersect _ _ : x y {
+    constraint intersectFn(x, y)
+}
+Subset _ _ : x y {
+    constraint subsetFn(x, y)
+}
+

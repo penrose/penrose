@@ -1,0 +1,21 @@
+global {
+    objective toLeft(A, B)
+    objective sameHeight(A, B)
+    objective sameX(A, B) 
+    constraint sameSizeAs(A, B) 
+}
+
+Set s {
+    shape = Ellipse { }
+    objective centerLabel(s, s.label)
+}
+
+Map f p q {
+    shape = Arrow {
+        start = p
+        end   = q
+        label = Auto
+    }
+    objective centerLabel(f, f.label)
+}
+

@@ -1,8 +1,7 @@
-*.hi
-*~
 *.o
 settheory
 constraint
+Main
 *.el
 *.aux
 *.fdb_latexmk
@@ -14,3 +13,11 @@ auto/
 *#
 .DS_STORE
 #*
+*.hi
+.cabal-sandbox/
+cabal.sandbox.config
+dist/
+utils/add_src.sh
+utils/penrose.db
+utils/penroseDB.py
+

@@ -4,7 +4,8 @@ Set R1
 Set R2
 Subset A R1
 Subset B R2
-Map f A B
+NoIntersect R1 R2
+f: A -> B
 Set U
 Subset U B
 Set V
