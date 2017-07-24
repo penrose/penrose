@@ -15,6 +15,8 @@ r2f = realToFrac
 toList :: a -> [a]
 toList x = [x]
 
+trd :: (a, b, c) -> c
+trd (_, _, x) = x
 
 stepsPerSecond :: Int
 stepsPerSecond = 100000
