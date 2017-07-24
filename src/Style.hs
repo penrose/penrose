@@ -3,16 +3,17 @@
 module Style where
 -- module Main (main) where -- for debugging purposes
 
-import Functions
 import Shapes
 import Utils
 import Control.Monad (void)
 import Data.Either (partitionEithers)
+import Data.Maybe (fromMaybe)
 import Text.Megaparsec
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of the type ‘String’
 import System.Environment
 import qualified Substance as C
+import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Lexer as L
 
@@ -280,27 +281,29 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ new
         -- selectedSpecs :: [[(VarMap, StySpec)]]
         selectedSpecs = map
             (\s -> let xs = select s
-                    --    vs = map (allOtherVars . getVarMap s) xs in zip vs xs) selectors
                        vs = map (getVarMap s) xs in zip vs xs) selectors
-        -- TODO: scoping - now every block has access to everyone else
-        -- allOtherVars = M.union (M.fromList $ zip k k) where k = M.keys dict
         allVars = M.fromList $ zip k k where k = M.keys dict
         -- Combination of all selected (spec. varmap)
         allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
-        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT then [allVars] else map M.unions allCombs
-            -- let allMaps = map (map fst) allCombs in
-            -- map M.unions (tr "allMaps: " allMaps)
-            -- tr "allmaps: " $
+        -- $ trStr (concatMap (\x -> show x ++ "\n") $ map (map fst) selectedSpecs)
+        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT then [allVars] else map M.unions (filter noDup allCombs)
+        noDup ms = validMap $ concatMap M.toAscList ms
+        validMap ts = and . tr "result" . fst $ foldl
+            (\(l, m) (x, y) -> case M.lookup x m of
+                Nothing -> (True:l, M.insert x y m)
+                Just y' -> ((tr ("compare: " ++ y ++ " " ++ y' ++ ": ") $ y == y') : l, m))
+            ([], M.empty) (tr "ts" ts)
         -- Only process assignment statements on matched specs, not the cartesion product of them
         updateSpec d (vm, sp) =
             let newSpec = foldl (procAssign vm) sp stmts in
             M.insert (spId newSpec) newSpec d
         newDict = foldl updateSpec dict $ concat selectedSpecs
-        -- (zip varMaps selected)
         genFns f vm = foldl (f vm) [] stmts
-        newObjFns    = concatMap (genFns procObjFn) mergedMaps
+        newObjFns    = concatMap (genFns procObjFn) $ tr "mergedMaps: " mergedMaps
         newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 
+
+-- removeDups :: [[(VarMap, StySpec)]]
 cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
 
 -- Returns a map from placeholder ids to actual matched ids
@@ -346,7 +349,7 @@ procObjFn varMap fns (ObjFn fname es) =
     fns ++ [(func, defaultWeight, names, [])]
     where
         (func, names) = case M.lookup fname objFuncDict of
-            Just f -> (f, tr "Args: " args)
+            Just f -> (f, args)
             Nothing -> error "procObjFn: objective function not known"
         args = map (procExpr varMap) es
 procObjFn varMap fns (Avoid fname es) = fns -- TODO: avoid functions

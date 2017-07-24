@@ -36,7 +36,7 @@ public class Evaluator {
             while (sol.satisfiable() && i < numInstances) {
                 // System.out.println("[Solution]:");
                 // System.out.println(sol.toString());
-                sol.writeXML("bijection.xml");
+                // sol.writeXML("bijection.xml");
                 for(String f : targets) {
                     Expr e = CompUtil.parseOneExpression_fromString(world, f);
                     System.out.println(sol.eval(e));
@@ -53,6 +53,4 @@ public class Evaluator {
             System.exit(-1);
         }
         String[] targets = Arrays.copyOfRange(args, 2, args.length);
-        run(args[0], Integer.parseInt(args[1]), targets);
-    }
-}
+        run(args[0], Integer.parseInt(args[1]), targets); } }

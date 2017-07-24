@@ -306,6 +306,9 @@ subSeparate = foldr separate ([], [])
 tupsToLists :: [(a, a)] -> [[a]]
 tupsToLists = map (\(x,y) -> [x,y])
 
+rmdups :: (Ord a) => [a] -> [a]
+rmdups = map head . group . sort
+
 parseSubstance :: String -> String -> IO [SubObj]
 parseSubstance subFile subIn = case runParser substanceParser subFile subIn of
      Left err -> error (parseErrorPretty err)
@@ -316,7 +319,7 @@ parseSubstance subFile subIn = case runParser substanceParser subFile subIn of
          let al = toAlloy c
          -- FIXME: here we only assume each application of def will yield one
          -- id to be solved by Alloy, might not be the case in the future
-         let toSolve = concatMap trd $ subApps c
+         let toSolve = rmdups $ concatMap trd $ subApps c
          mapM_ print al
          divLine
          mapM_ (putStrLn . prettyShow) al

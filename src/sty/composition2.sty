@@ -1,20 +1,38 @@
 global {
     objective toLeft(A, B)
     objective toLeft(B, C)
+    /*
     objective sameHeight(A, B)
     objective sameHeight(B, C)
-    objective sameX(A, B) 
-    objective sameX(B, C) 
-    constraint sameSizeAs(A, B) 
-    constraint sameSizeAs(B, C) 
+    objective sameX(A, B)
+    objective sameX(B, C)
+    constraint sameSizeAs(A, B)
+    constraint sameSizeAs(B, C)
+    objective sameHeight(f, g)
+    */
+}
+
+Map g x y, Map f p q {
+    objective sameHeight(f, g)
+}
+
+Set X, Set Y {
+    objective sameHeight(X, Y)
+    constraint sameSizeAs(X, Y)
 }
 
 Set s {
     shape = Ellipse { }
-    -- constraint contains(s, s.label)
     constraint outsideOf(s.label, s)
     objective onTop(s, s.label)
     objective sameX(s, s.label)
+    objective center(s)
+}
+
+Map f x y {
+    shape = Text { }
+    objective between(f, x, y)
+    objective onTop(f, x)
 }
 
 Value f p q {
@@ -25,7 +43,6 @@ Value f p q {
     }
 }
 
-
 Point p {
     shape = Dot { }
     objective centerLabel(p, p.label)
@@ -33,23 +50,11 @@ Point p {
 
 In p s {
     constraint contains(s, p)
-    -- constraint contains(s, p.label)
     objective sameX(p, s)
     objective sameHeight(p, s)
 }
 
-In p `A`, In q `A` {
-    objective sameX(p, q)
+In p S, In q S {
     objective repel(p, q)
-}
-
-In p `B`, In q `B` {
     objective sameX(p, q)
-    objective repel(p, q)
 }
-
-In p `C`, In q `C` {
-    objective sameX(p, q)
-    objective repel(p, q)
-}
-

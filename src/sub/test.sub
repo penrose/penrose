@@ -1,51 +1,34 @@
-Set D
-Set V
-Set B
-Set X
+Definition Surjection(Map f, Set A, Set B):
+    forall b : B | exists a : A | f(a) = b
+
+/*
+-- dup symbol 1
 Set A
-Set T
-Set R
-Set P
-Set Q
-Set N
-Set K
-Set F
-Set G
-Point U
-Point Z
-Point L
-Point H
-Point Y
-Point C
-Point M
-Point S
-Point O
-Point W
-Point I
-Point E
-Point J
-In E G
-NotIn U K
-NotIn L Q
-NotIn C X
-NotIn L T
-NotIn J B
-In S B
-NotIn U N
-NotIn U Q
-NotIn I D
-NotIn U T
-NotIn C F
-In H A
-In O T
-In O D
-NotIn Z G
-In W F
-In E B
-In I Q
-NotIn E X
-NoIntersect P Q
-Intersect F G
-NoIntersect X P
-Subset B X
-Intersect A P
+Set A
+
+-- dup symbol 2
+Set A, B, C
+Set A = { a, b, c, d }
+
+-- dup symbol 2
+Set A, B, C
+Set D = { a, b, c, d }
+f: A -> B
+f(a) = b
+
+-- inval func
+f: A -> E
+f: E -> B
+
+-- inval constrs
+In
+
+Point A
+Point A, B, C
+f(a) = b
+f(c) = d
+Subset A B
+Intersect A B
+NoIntersect A B
+Set A = { a, b, c, d }
+*/
