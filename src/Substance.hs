@@ -316,26 +316,30 @@ parseSubstance subFile subIn = case runParser substanceParser subFile subIn of
          mapM_ print xs
          divLine
          let c = check xs
-         let al = toAlloy c
-         -- FIXME: here we only assume each application of def will yield one
-         -- id to be solved by Alloy, might not be the case in the future
-         let toSolve = rmdups $ concatMap trd $ subApps c
-         mapM_ print al
-         divLine
-         mapM_ (putStrLn . prettyShow) al
-         let pretty_al = concatMap ((++ "\n") . prettyShow)  al
-         writeFile  (alloyDir ++ alloyTempFile) pretty_al
-         res <- readProcess "bash" ([ "runAlloy.sh", alloyTempFile, show alloyNumSamples] ++ toSolve) ""
-         putStr res
-         case runParser fromAlloy "" res of
-             Left err -> error (parseErrorPretty err)
-             Right tupless -> do
-                                 print tupless
-                                 let tupss = concat $ zipWith (\x l -> map (x:) l) toSolve $ map tupsToLists tupless
-                                 print tupss
-                                 let vals = map (toObj ValueT) tupss
-                                 return (subObjs $ c { subObjs =  subObjs c ++ vals })
-
+         if null $ subApps c
+             then return (subObjs c)
+             else runAlloy c
+runAlloy :: SubEnv -> IO [SubObj]
+runAlloy c = do
+    let al = toAlloy c
+    -- FIXME: here we only assume each application of def will yield one
+    -- id to be solved by Alloy, might not be the case in the future
+    let toSolve = rmdups $ concatMap trd $ subApps c
+    mapM_ print al
+    divLine
+    mapM_ (putStrLn . prettyShow) al
+    let pretty_al = concatMap ((++ "\n") . prettyShow)  al
+    writeFile  (alloyDir ++ alloyTempFile) pretty_al
+    res <- readProcess "bash" ([ "runAlloy.sh", alloyTempFile, show alloyNumSamples] ++ toSolve) ""
+    putStr res
+    case runParser fromAlloy "" res of
+        Left err -> error (parseErrorPretty err)
+        Right tupless -> do
+            print tupless
+            let tupss = concat $ zipWith (\x l -> map (x:) l) toSolve $ map tupsToLists tupless
+            print tupss
+            let vals = map (toObj ValueT) tupss
+            return (subObjs $ c { subObjs =  subObjs c ++ vals })
 
 
 --------------------------------------------------------------------------------

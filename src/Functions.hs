@@ -83,6 +83,7 @@ center [o] _ = getX o ^ 2 + getY o ^ 2
 
 -- | 'onTop' makes sure the first argument is on top of the second.
 onTop :: ObjFn
+onTop [top, bottom] [offset] = (getY top - getY bottom - offset)^2
 onTop [top, bottom] _ = (getY top - getY bottom - 100)^2
 
 -- | 'toLeft' makes sure the first argument is to the left of the second.

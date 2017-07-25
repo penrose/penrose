@@ -1,12 +1,13 @@
 -- | The "Style" module contains the compiler for the Style language,
 -- and functions to traverse the Style AST, which are used by "Runtime"
-module Style where
--- module Main (main) where -- for debugging purposes
+-- module Style where
+module Main (main) where -- for debugging purposes
 
 import Shapes
 import Utils
 import Control.Monad (void)
 import Data.Either (partitionEithers)
+import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe)
 import Text.Megaparsec
 import Text.Megaparsec.Expr
@@ -162,6 +163,8 @@ stmt =
     <|> try assignStmt
     <|> try avoidObjFn
     <|> try constrFn
+    <|> try constrFnInfix
+    <|> try objFnInfix
 --
 assignStmt :: Parser Stmt
 assignStmt = do
@@ -178,8 +181,15 @@ objFn = do
     void (symbol "(")
     params <- expr `sepBy` comma
     void (symbol ")")
-    -- params <- sepBy expr comma
     return (ObjFn fname params)
+
+objFnInfix :: Parser Stmt
+objFnInfix = do
+    rword "objective"
+    arg1  <- expr
+    fname <- identifier
+    arg2  <- expr
+    return (ObjFn fname [arg1, arg2])
 
 avoidObjFn :: Parser Stmt
 avoidObjFn = do
@@ -197,8 +207,15 @@ constrFn = do
     void (symbol "(")
     params <- expr `sepBy` comma
     void (symbol ")")
-    -- params <- sepBy expr comma
     return (ConstrFn fname params)
+
+constrFnInfix :: Parser Stmt
+constrFnInfix = do
+    rword "constraint"
+    arg1  <- expr
+    fname <- identifier
+    arg2  <- expr
+    return (ConstrFn fname [arg1, arg2])
 
 expr :: Parser Expr
 expr =  try objConstructor
@@ -334,11 +351,12 @@ procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
     -> [(ConstrFnOn a, Weight a, [Name], [a])]
 procConstrFn varMap fns (ConstrFn fname es) =
     trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
-    fns ++ [(func, defaultWeight, names, [])]
+    fns ++ [(func, defaultWeight, names, nums)]
     where
-        (func, names) = case M.lookup fname constrFuncDict of
-            Just f -> (f, map (procExpr varMap) es)
+        func = case M.lookup fname constrFuncDict of
+            Just f -> f
             Nothing -> error "procConstrFn: constraint function not known"
+        (names, nums) = partitionEithers $ map (procExpr varMap) es
 procConstrFn varMap fns _ = fns -- TODO: avoid functions
 
 procObjFn :: (Floating a, Real a, Show a, Ord a) =>
@@ -346,12 +364,12 @@ procObjFn :: (Floating a, Real a, Show a, Ord a) =>
     -> [(ObjFnOn a, Weight a, [Name], [a])]
 procObjFn varMap fns (ObjFn fname es) =
     trStr ("New Objective function: " ++ fname ++ " " ++ (show names)) $
-    fns ++ [(func, defaultWeight, names, [])]
+    fns ++ [(func, defaultWeight, names, nums)]
     where
-        (func, names) = case M.lookup fname objFuncDict of
-            Just f -> (f, args)
+        func = case M.lookup fname objFuncDict of
+            Just f -> f
             Nothing -> error "procObjFn: objective function not known"
-        args = map (procExpr varMap) es
+        (names, nums) = partitionEithers $ map (procExpr varMap) es
 procObjFn varMap fns (Avoid fname es) = fns -- TODO: avoid functions
 procObjFn varMap fns _ = fns -- TODO: avoid functions
 
@@ -367,11 +385,14 @@ lookupVarMap s varMap= case M.lookup s varMap of
 -- -- FIXME: properly resolve access by doing lookups
 -- procExpr d (BinOp Access (Id i) (Id "label"))  = Left $ labelName $ lookupVarMap i d
 -- procExpr d (BinOp Access (Id i) (Id "shape"))  = Left $ lookupVarMap i d
-procExpr :: VarMap -> Expr -> String
-procExpr d (Id s)  = lookupVarMap s d
+procExpr :: (Floating a, Real a, Show a, Ord a) =>
+    VarMap -> Expr -> Either String a
+procExpr d (Id s)  = Left $ lookupVarMap s d
 -- FIXME: properly resolve access by doing lookups
-procExpr d (BinOp Access (Id i) (Id "label"))  = labelName $ lookupVarMap i d
-procExpr d (BinOp Access (Id i) (Id "shape"))  = lookupVarMap i d
+procExpr d (BinOp Access (Id i) (Id "label"))  = Left $ labelName $ lookupVarMap i d
+procExpr d (BinOp Access (Id i) (Id "shape"))  = Left $ lookupVarMap i d
+procExpr _ (IntLit i) = Right $ r2f i
+procExpr _ (FloatLit i) = Right $ r2f i
 procExpr _ _  = error "expr: argument unsupported!"
 
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
@@ -383,7 +404,8 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
         -- FIXME: this is incorrect, we should resolve the variables earlier
         addSpec dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
         addSpec dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
-        addSpec dict (Assign s e) = M.insert s (Id (procExpr varMap e)) dict
+        -- FIXME: wrap fromleft inside a function!
+        addSpec dict (Assign s e) = M.insert s (Id (fromLeft (error "Unexpected ID")$ procExpr varMap e)) dict
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 

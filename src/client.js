@@ -26,8 +26,6 @@ $.getScript('snap.svg.js', function()
 
     // Main rendering function
     function renderScene(ws, s, data, firstrun) {
-        // Add in bbox data on first run
-
         // Handlers for dragging events
         var move = function(dx,dy) {
             this.attr({
@@ -180,6 +178,7 @@ $.getScript('snap.svg.js', function()
         // var s = Snap(800, 700);
         // TODO: set the width and height here?
         var s = Snap("#svgdiv");
+
         var firstRun = true
         ws = createSocket();
         // Only sample in 10 ms intervals, regardless of Penrose's sample speed
