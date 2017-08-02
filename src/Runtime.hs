@@ -327,22 +327,20 @@ initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     String -> M.Map String S.Expr
     -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 initText n config = ([defaultText n], [], [])
-initArrow n config =
-    -- ([defaultSolidArrow n, defaultLabel n], [(centerMap, defaultWeight, [n, from, to])], [])
-    -- ([defaultSolidArrow n], [(centerMap, defaultWeight, [n, from, to])], [])
-    if lab == "None" then
-    ([defaultSolidArrow n], [(centerMap, defaultWeight, [n, from, to], [])], [])
-    else
-    ([defaultSolidArrow n, defaultLabel n], [(centerMap, defaultWeight, [n, from, to], [])], [])
+initArrow n config = (objs, oFns, [])
     where
         from = queryConfig "start" config
         to   = queryConfig "end" config
         lab  = queryConfig "label" config
+        objs = if lab == "None" then [defaultSolidArrow n] else [defaultSolidArrow n, defaultLabel n]
+        oFns = if from == "None" || to == "None" then [] else  [(centerMap, defaultWeight, [n, from, to], [])]
 initCircle n config = ([defaultCirc n, defaultLabel n], [], sizeFuncs n)
 initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
     (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
 initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
-initDot n config = ([defaultPt n, defaultLabel n], [], [])
+initDot n config = (objs, [], [])
+        where lab  = queryConfig "label" config
+              objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
 
 sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
@@ -352,7 +350,8 @@ queryConfig key dict = case M.lookup key dict of
     Just (S.Id i) -> i
     -- FIXME: get dot access to work for arbitrary input
     Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> i
-    Nothing -> error ("queryConfig: Key " ++ key ++ " does not exist!")
+    Nothing -> "None"
+    -- error ("queryConfig: Key " ++ key ++ " does not exist!")
 
 ------- Generate objective functions
 

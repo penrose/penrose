@@ -365,8 +365,6 @@ data AlExpr
     = AlFuncVal String String String
     | AlProp FOLExpr (M.Map String String)
     deriving (Show, Eq)
-    -- = AlFuncVal String String String
-    -- | AlDef String
 data AlBinaryOp = AlDot | AlEq deriving (Show, Eq)
 
 -- | Substance to Alloy translation environment:

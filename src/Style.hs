@@ -1,7 +1,7 @@
 -- | The "Style" module contains the compiler for the Style language,
 -- and functions to traverse the Style AST, which are used by "Runtime"
--- module Style where
-module Main (main) where -- for debugging purposes
+module Style where
+-- module Main (main) where -- for debugging purposes
 
 import Shapes
 import Utils
@@ -22,8 +22,6 @@ import qualified Text.Megaparsec.Lexer as L
 
 --------------------------------------------------------------------------------
 -- Style AST
-
-
 
 data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Auto
     deriving (Show)
@@ -46,9 +44,8 @@ type Block = ([Selector], [Stmt])
 data Selector = Selector
               { selTyp :: C.SubType
               , selPatterns :: [Pattern]
-            --   , selIds :: [String]
-          }
-              deriving (Show)
+          } deriving (Show)
+
 data Pattern
     = RawID String
     | WildCard String
@@ -77,17 +74,6 @@ data Color = RndColor | Colo
           , b :: Float
           , a :: Float }
           deriving (Show)
-
-data Numeric = I Integer | F Float
-
---
--- data Shape
---     = Circle [(String, Expr)]
---     | Box [(String, Expr)]
---     | Dot [(String, Expr)]
---     | Arrow [(String, Expr)]
---     | NoShape
---     deriving (Show)
 
 --------------------------------------------------------------------------------
 -- Style Parser
@@ -263,13 +249,9 @@ attribute = many alphaNumChar
 -- Functions used by "Runtime"
 
 ----- Parser for Style design
---- TODO: move these to the Style module
 
 -- Type aliases for readability in this section
 type StyDict = M.Map Name StySpec
--- type ObjFn a = M.Map Name (Obj' a) -> a
--- type ConstrFn a = [Obj' a] -> a
--- type ObjFn a    = [Obj' a] -> a
 -- A VarMap matches lambda ids in the selector to the actual selected id
 type VarMap  = M.Map Name Name
 
@@ -378,13 +360,6 @@ lookupVarMap s varMap= case M.lookup s varMap of
     Just s -> s
     Nothing  -> (error $ "lookupVarMap: incorrect variable mapping from " ++ s)
 
--- procExpr :: VarMap -> Expr -> Either String Numeric
--- procExpr d (IntLit i) = Right $ I i
--- procExpr d (FloatLit f) = Right $ F f
--- procExpr d (Id s)  = Left $ lookupVarMap s d
--- -- FIXME: properly resolve access by doing lookups
--- procExpr d (BinOp Access (Id i) (Id "label"))  = Left $ labelName $ lookupVarMap i d
--- procExpr d (BinOp Access (Id i) (Id "shape"))  = Left $ lookupVarMap i d
 procExpr :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> Expr -> Either String a
 procExpr d (Id s)  = Left $ lookupVarMap s d
@@ -409,6 +384,8 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 
+-- FIXME: make sure these names are unique and make sure users cannot start ids
+-- with underscores
 getConstrTuples :: [C.SubConstr] -> [(C.SubType, String, [String])]
 getConstrTuples = map getType
     where getType c = case c of
