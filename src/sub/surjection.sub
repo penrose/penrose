@@ -1,6 +1,6 @@
 f: A -> B
-Set A = { a, b, c }
-Set B = { w, x, y, z }
+Set A = { a, b, c, d, e }
+Set B = { y, z }
 
 Definition Surjection(Map f, Set A, Set B):
     forall b : B | exists a : A | f(a) = b
@@ -15,8 +15,8 @@ Definition DuplicateValTrivial(Map f, Set X):
 Definition DuplicateVal(Map f, Set X):
     forall x : X | exists x1 : X | x != x1 /\ f(x) = f(x1)
 
--- Surjection(f, A, B)
-Injection(f, A)
+Surjection(f, A, B)
+-- Injection(f, A)
 -- SamePoint(f, A, x)
 -- Function(f, A, B)
 -- DuplicateValTrivial(f, A)

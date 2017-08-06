@@ -218,7 +218,8 @@ data SubEnv = SubEnv {
     subObjs :: [SubObj],
     subDefs :: M.Map String ([(SubType, String)], FOLExpr),
     subApps :: [(FOLExpr, M.Map String String, [String])], -- Def, varmap, ids to be solved by alloy
-    subSymbols :: M.Map String SubType
+    subSymbols :: M.Map String SubType,
+    subArgs :: M.Map String [String]
     -- subAppliedDefs :: [FOLExpr]
 } deriving (Show, Eq)
 
@@ -229,7 +230,7 @@ check p = let env1 = foldl checkDecls initE p
               env2 = foldl checkReferencess env1 p
               in
             env2 { subObjs = reverse $ subObjs env2 }
-          where initE = SubEnv { subObjs = [], subDefs = M.empty,  subSymbols = M.empty, subApps = [] }
+          where initE = SubEnv { subObjs = [], subDefs = M.empty,  subSymbols = M.empty, subApps = [], subArgs = M.empty }
 
 applyDef (n, m) d = case M.lookup n d of
     Nothing -> error "applyDef: definition not found!"
@@ -241,7 +242,8 @@ checkDecls e (DeclList t ss) = e { subObjs = objs, subSymbols = syms }
     where objs = subObjs e ++ map (toObj t . toList) ss
           syms = foldl (\p x -> checkAndInsert x t p) (subSymbols e) ss
 checkDecls e (MapInit t f a b) =
-    e { subSymbols = checkAndInsert f t $ subSymbols e }
+    e { subSymbols = checkAndInsert f t $ subSymbols e, subArgs = a1 }
+    where a1 = M.insert f [a, b] $ subArgs e
 checkDecls e (Def n a f) = e { subDefs = M.insert n (a, f) $ subDefs e }
 checkDecls e (SetInit t i ps) =
     let pts =  map (toObj PointT . toList) ps
@@ -271,12 +273,14 @@ checkReferencess e (FuncVal f a b)  = e { subObjs = val : subObjs e }
           val  = toObj ValueT args
 checkReferencess e (MapInit t f a b) = e { subObjs = toObj t args : subObjs e }
     where args = map (checkNameAndTyp $ subSymbols e) $ zip [f, a, b] [MapT, SetT, SetT]
-checkReferencess e (DefApp n args) = e { subApps = (def, apps, toSolve) : subApps e }
+checkReferencess e (DefApp n args) = e { subApps = (def, apps, funcToSolve ++ setsToSolve) : subApps e }
     where (sigs, def)  = fromMaybe (error ("Definition " ++ n ++ " does not exist.")) (M.lookup n (subDefs e))
           argsWithTyps = zip args $ map fst sigs
           args' = map (checkNameAndTyp $ subSymbols e) argsWithTyps
           apps  = M.fromList $ zip (map snd sigs) args
-          toSolve = map fst $ filter (\(n, t) -> t == MapT) argsWithTyps
+          funcToSolve = map fst $ filter (\(n, t) -> t == MapT) argsWithTyps
+          setsToSolve =  concatMap (\x -> fromMaybe (error ("Function " ++ x ++ "does not exist.")) (M.lookup x $ subArgs e)) funcToSolve
+
 
 checkReferencess e _ = e -- Ignore all other statements
 
@@ -325,21 +329,28 @@ runAlloy c = do
     -- FIXME: here we only assume each application of def will yield one
     -- id to be solved by Alloy, might not be the case in the future
     let toSolve = rmdups $ concatMap trd $ subApps c
+    let setsToSolve = concatMap snd $ M.toList $ subArgs c
+    print setsToSolve
     mapM_ print al
     divLine
     mapM_ (putStrLn . prettyShow) al
     let pretty_al = concatMap ((++ "\n") . prettyShow)  al
     writeFile  (alloyDir ++ alloyTempFile) pretty_al
-    res <- readProcess "bash" ([ "runAlloy.sh", alloyTempFile, show alloyNumSamples] ++ toSolve) ""
+    let args = [ "runAlloy.sh", alloyTempFile, show alloyNumSamples] ++ toSolve 
+    print args
+    res <- readProcess "bash" args ""
     putStr res
     case runParser fromAlloy "" res of
         Left err -> error (parseErrorPretty err)
-        Right tupless -> do
-            print tupless
-            let tupss = concat $ zipWith (\x l -> map (x:) l) toSolve $ map tupsToLists tupless
-            print tupss
-            let vals = map (toObj ValueT) tupss
-            return (subObjs $ c { subObjs =  subObjs c ++ vals })
+        Right objs -> do
+            print objs
+            return (subObjs $ c { subObjs =  subObjs c ++ objs })
+        -- Right tupless -> do
+        --     print tupless
+        --     let tupss = concat $ zipWith (\x l -> map (x:) l) toSolve $ map tupsToLists tupless
+        --     print tupss
+        --     let vals = map (toObj ValueT) tupss
+        --     return (subObjs $ c { subObjs =  subObjs c ++ vals })
 
 
 --------------------------------------------------------------------------------
@@ -454,15 +465,34 @@ instance Pretty Op where
     pPrint AND     = text "and"
     pPrint OR      = text "or"
 
-fromAlloy :: Parser [[(String, String)]]
-fromAlloy = endBy line newline
-    where line = braces (mapping `sepBy1` comma)
-          alloyId = someTill anyChar (symbol "$") <* skipSome numberChar
-          mapping = do
+-- | "AlloyOut" represents the output of the Alloy evaluator
+
+-- fromAlloy :: Parser [[(String, String)]]
+fromAlloy :: Parser [SubObj]
+fromAlloy = concat <$> endBy line newline
+    where line = try funcLine <|> setLine
+          funcLine = do
+              f <- identifier
+              colon
+              braces (mapping f `sepBy1` comma)
+          setLine = do
+              s <- identifier
+              colon
+              concat <$> braces (point s `sepBy1` comma)
+          -- alloyId = someTill anyChar (symbol "$") <*> some numberChar
+          alloyId = do
+              a <- someTill anyChar (symbol "$")
+              b <- some numberChar
+              return (a ++ b)
+          mapping f = do
               a <- alloyId
               arrow
               b <- alloyId
-              return (a, b)
+              return (toObj ValueT [f, a, b])
+          point s = do
+              a <- alloyId
+              return [toObj PointT [a], toConstr PointInT [a, s]]
+
 
 --------------------------------------------------------------------------------
 -- Test driver: First uncomment the module definition to make this module the -- Main module. Usage: ghc Substance; ./Substance <substance-file>

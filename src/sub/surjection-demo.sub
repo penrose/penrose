@@ -1,0 +1,7 @@
+f: A -> B
+Set A 
+Set B
+Definition Surjection(Map f, Set X, Set Y):
+    forall x : X | exists y : Y | f(x) = y
+Surjection(f, A, B)
+
