@@ -29,6 +29,7 @@ data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Auto
 type StyObjInfo
     = (StyObj, M.Map String Expr)
 
+-- | Style specification for a particular object declared in Substance
 data StySpec = StySpec {
     spType :: C.SubType,
     spId :: String,
@@ -78,7 +79,7 @@ data Color = RndColor | Colo
 --------------------------------------------------------------------------------
 -- Style Parser
 
----- Style program
+-- | 'styleParser' is the top-level function that parses a Style proram
 styleParser :: Parser [Block]
 styleParser = between sc eof styProg
 
@@ -87,8 +88,6 @@ styleParser = between sc eof styProg
 -- NOTE: sequence matters here
 styProg :: Parser [Block]
 styProg = some block
--- globalBlock <|> typeBlock <|> objBlock
--- <|> emptyProg
 
 ---- Style blocks
 block :: Parser Block
@@ -98,14 +97,9 @@ block = do
     try newline'
     sc
     stmts <- try stmtSeq
-    -- res <- try stmtSeq
-    -- let stmts = case res of
-    --                 Just a -> a
-    --                 Nothing -> []
     void (symbol "}")
     newline'
     return (sel, stmts)
-    -- return (sel, [])
 
 globalSelect :: Parser Selector
 globalSelect = do
@@ -240,8 +234,7 @@ number =  FloatLit <$> try float <|> IntLit <$> integer
 attribute :: Parser String
 attribute = many alphaNumChar
 
-
--- -- TODO
+-- TODO: use the PrettyPrint library
 -- styPrettyPrint :: Block -> String
 -- styPrettyPrint b = ""
 

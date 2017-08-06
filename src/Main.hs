@@ -1,4 +1,5 @@
 -- | Main module of the Penrose system
+
 module Main where
 import Utils
 import Graphics.Gloss

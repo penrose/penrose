@@ -16,6 +16,14 @@ import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4SolutionReader;
 import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 
+
+/* TODO: Now we cannot generate mappings for known points in a set
+ * because we cannot tell of "p$0" is something new, or just an alias
+ * for an existing point "p". Find a way to figure this out. The idea 
+ * is: know what the identifiers are somehow, and do a lookup everytime
+ * outputing names. If a name exists, just throw out "$0".
+ */
+
 public class Evaluator {
 
     private static String model = "sig Point {} \n" + "\n" + "run { #Point > 1 } for 3 but 3 Int";

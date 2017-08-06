@@ -6,7 +6,6 @@ Set x {
 Subset x y {
     objective onTop(y, x)
     objective sameX(x, y)
-    -- objective sameHeight(x, y)
     shape =  Arrow {
         start = x.shape
         end   = y.shape
@@ -16,4 +15,8 @@ Subset x y {
 
 Set x, Set y {
     objective repel(x, y)
+}
+
+Subset x S, Subset y S {
+    objective sameHeight(x, y)
 }

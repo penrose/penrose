@@ -1,0 +1,6 @@
+f: A -> B
+Set A, B
+Definition Injection(Map f, Set A):
+    forall a1, a2 : A | f(a1) = f(a2) implies a1 = a2
+Injection(f, A)
+
