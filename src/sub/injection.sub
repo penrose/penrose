@@ -1,24 +1,6 @@
 f: A -> B
-Set A = { a, b, c }
-Set B = { w, x, y, z }
-
+Set A, B
 Definition Injection(Map f, Set A):
-    forall a1 : A, a2 : A | f(a1) = f(a2) implies a1 = a2
-
--- f is Surjection
+    forall a1, a2 : A | f(a1) = f(a2) implies a1 = a2
 Injection(f, A)
 
-
-/*
-f(a) = x
-f(b) = x
-f(c) = y
-f(d) = z
-*/
-
-/* Alternative:
-*/
--- Definition Surjection:
-    -- all b: B | some a:A | a.f = b
--- Definition Injection:
-    -- all a1,a2: A | a1.f = a2.f implies a1 = a2

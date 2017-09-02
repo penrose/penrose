@@ -12,5 +12,5 @@ default: classes
 classes: $(CLASSES:.java=.class)
 
 clean:
-	$(RM) *.class
+	$(RM) *.class *.hi *.o Main __temp__.als .DS_Store trace.log
 

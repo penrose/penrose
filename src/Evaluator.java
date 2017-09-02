@@ -26,8 +26,8 @@ import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
 
 public class Evaluator {
 
-    private static String model = "sig Point {} \n" + "\n" + "run { #Point > 1 } for 3 but 3 Int";
-    private static String outputfilename = "/tmp/myissue.xml";
+    // private static String model = "sig Point {} \n" + "\n" + "run { #Point > 1 } for 3 but 3 Int";
+    // private static String outputfilename = "/tmp/myissue.xml";
     // public static final int NUM_INSTANCES = 5;
     private static Random rnd;
 

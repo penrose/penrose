@@ -393,11 +393,13 @@ toAlloy e =  M.elems (alSigs resEnv) ++ rest
     where initEnv = AlEnv { alFacts = [], alSigs = M.empty }
           objEnv  = foldl objToAlloy initEnv $ subObjs e
           resEnv  = foldl defToAlloy objEnv $ subApps e
-          rest = [FactDecl (alFacts resEnv), showPred, runNoLimit "show"]
+          rest = [FactDecl (alFacts resEnv), showPred, runFor "show" 5]
+        --   rest = [FactDecl (alFacts resEnv), showPred, runNoLimit "show"]
 
 -- | default components in an Alloy program, for showing instances
 showPred = PredDecl "show"
 runNoLimit s = RunCmd s Nothing
+runFor s i = RunCmd s (Just i)
 
 objToAlloy :: AlEnv -> SubObj -> AlEnv
 objToAlloy e (LD (Set s)) = e { alSigs = insertSig s (SigDecl s []) $ alSigs e}
@@ -435,7 +437,7 @@ instance Pretty AlPara where
     pPrint (RunCmd s i) = text "run" <+> text s <+> num
         where num = case i of
                         Nothing -> text ""
-                        Just i' -> text (show i')
+                        Just i' -> text "for" <+> text (show i')
 instance Pretty AlDecl where
     pPrint (AlDecl f s) = text f <+> text ":" <+> text s
 instance Pretty AlExpr where

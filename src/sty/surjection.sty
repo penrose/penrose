@@ -3,10 +3,6 @@ global {
     objective sameHeight(A, B)
     objective sameX(A, B) 
     constraint sameSizeAs(A, B) 
-    -- objective sameX(A.label, B.label) 
-    -- objective onTop(x, y)
-    -- objective onTop(a, b)
-    -- objective onTop(b, c)
 }
 
 Set s {
@@ -28,25 +24,19 @@ Value f p q {
 
 Point p {
     shape = Dot { 
-        label = Auto 
+        label = None 
     }
-    objective centerLabel(p, p.label)
 }
 
 In p s {
     constraint contains(s, p)
-    -- constraint contains(s, p.label)
     objective sameX(p, s)
     objective sameHeight(p, s)
 }
 
-In p `A`, In q `A` {
+In p S, In q S {
     objective sameX(p, q)
     objective repel(p, q)
 }
 
-In p `B`, In q `B` {
-    objective sameX(p, q)
-    objective repel(p, q)
-}
 

@@ -1,8 +1,11 @@
 f: A -> B
 g: B -> C
+/*
 Set A = { a, b, c, d }
 Set B = { w, x, y, z }
 Set C = { p, q, r }
+*/
+Set A, B, C
 
 Definition Surjection(Map f, Set A, Set B):
     forall b : B | exists a : A | f(a) = b

@@ -1,6 +1,7 @@
 -- | "Runtime" contains the optimization algorithm for diagram layout
 --  and also the Gloss GUI, now functional bot deprecated.
 
+{-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
