@@ -1,0 +1,19 @@
+global {
+    constraint at(A, 10, 100)
+    constraint at(R.xAxis, 0, 0)
+    constraint at(R.yAxis, 0, 0)
+    constraint at(E, 200, 100)
+    objective increasingX(A, B, C, D, E)
+    -- objective increasingY(A, B, C, D, E)
+    objective horizontal(R.xAxis)
+    objective upright(R.yAxis)
+    objective yInRange(A, B, C, D, E, 0, 300)
+}
+Point x {
+    shape = Dot { }
+    -- objective centerLabel(x, x.label)
+}
+Set `R` {
+    xAxis = Arrow { }
+    yAxis = Arrow { }
+}

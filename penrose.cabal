@@ -3,7 +3,7 @@
 
 name:                penrose
 version:             0.1.0.2
-synopsis:            A system that automatically visualize mathematics
+synopsis:            A system that automatically visualizes mathematics
 -- description:
 homepage:            http://penrose.ink
 license:             MIT
@@ -35,6 +35,7 @@ executable penrose
                        websockets >= 0.11 && <0.12,
                        old-time   >= 1.1 && <1.2,
                        pretty     >= 1.1.3 && < 1.2,
+                       extra      >= 1.6 && < 1.7,
                        process    >= 1.4.3 && < 1.5
   hs-source-dirs:      src
   default-language:    Haskell2010

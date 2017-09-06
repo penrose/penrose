@@ -3,16 +3,18 @@
 module Style where
 -- module Main (main) where -- for debugging purposes
 
-import Functions
 import Shapes
 import Utils
 import Control.Monad (void)
 import Data.Either (partitionEithers)
+import Data.Either.Extra (fromLeft)
+import Data.Maybe (fromMaybe)
 import Text.Megaparsec
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of the type ‘String’
 import System.Environment
 import qualified Substance as C
+import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Lexer as L
 
@@ -21,14 +23,13 @@ import qualified Text.Megaparsec.Lexer as L
 --------------------------------------------------------------------------------
 -- Style AST
 
-
-
 data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Auto
     deriving (Show)
 
 type StyObjInfo
     = (StyObj, M.Map String Expr)
 
+-- | Style specification for a particular object declared in Substance
 data StySpec = StySpec {
     spType :: C.SubType,
     spId :: String,
@@ -44,9 +45,8 @@ type Block = ([Selector], [Stmt])
 data Selector = Selector
               { selTyp :: C.SubType
               , selPatterns :: [Pattern]
-            --   , selIds :: [String]
-          }
-              deriving (Show)
+          } deriving (Show)
+
 data Pattern
     = RawID String
     | WildCard String
@@ -76,21 +76,10 @@ data Color = RndColor | Colo
           , a :: Float }
           deriving (Show)
 
-data Numeric = I Integer | F Float
-
---
--- data Shape
---     = Circle [(String, Expr)]
---     | Box [(String, Expr)]
---     | Dot [(String, Expr)]
---     | Arrow [(String, Expr)]
---     | NoShape
---     deriving (Show)
-
 --------------------------------------------------------------------------------
 -- Style Parser
 
----- Style program
+-- | 'styleParser' is the top-level function that parses a Style proram
 styleParser :: Parser [Block]
 styleParser = between sc eof styProg
 
@@ -99,8 +88,6 @@ styleParser = between sc eof styProg
 -- NOTE: sequence matters here
 styProg :: Parser [Block]
 styProg = some block
--- globalBlock <|> typeBlock <|> objBlock
--- <|> emptyProg
 
 ---- Style blocks
 block :: Parser Block
@@ -110,14 +97,9 @@ block = do
     try newline'
     sc
     stmts <- try stmtSeq
-    -- res <- try stmtSeq
-    -- let stmts = case res of
-    --                 Just a -> a
-    --                 Nothing -> []
     void (symbol "}")
     newline'
     return (sel, stmts)
-    -- return (sel, [])
 
 globalSelect :: Parser Selector
 globalSelect = do
@@ -161,6 +143,8 @@ stmt =
     <|> try assignStmt
     <|> try avoidObjFn
     <|> try constrFn
+    <|> try constrFnInfix
+    <|> try objFnInfix
 --
 assignStmt :: Parser Stmt
 assignStmt = do
@@ -177,8 +161,15 @@ objFn = do
     void (symbol "(")
     params <- expr `sepBy` comma
     void (symbol ")")
-    -- params <- sepBy expr comma
     return (ObjFn fname params)
+
+objFnInfix :: Parser Stmt
+objFnInfix = do
+    rword "objective"
+    arg1  <- expr
+    fname <- identifier
+    arg2  <- expr
+    return (ObjFn fname [arg1, arg2])
 
 avoidObjFn :: Parser Stmt
 avoidObjFn = do
@@ -196,8 +187,15 @@ constrFn = do
     void (symbol "(")
     params <- expr `sepBy` comma
     void (symbol ")")
-    -- params <- sepBy expr comma
     return (ConstrFn fname params)
+
+constrFnInfix :: Parser Stmt
+constrFnInfix = do
+    rword "constraint"
+    arg1  <- expr
+    fname <- identifier
+    arg2  <- expr
+    return (ConstrFn fname [arg1, arg2])
 
 expr :: Parser Expr
 expr =  try objConstructor
@@ -236,8 +234,7 @@ number =  FloatLit <$> try float <|> IntLit <$> integer
 attribute :: Parser String
 attribute = many alphaNumChar
 
-
--- -- TODO
+-- TODO: use the PrettyPrint library
 -- styPrettyPrint :: Block -> String
 -- styPrettyPrint b = ""
 
@@ -245,13 +242,9 @@ attribute = many alphaNumChar
 -- Functions used by "Runtime"
 
 ----- Parser for Style design
---- TODO: move these to the Style module
 
 -- Type aliases for readability in this section
 type StyDict = M.Map Name StySpec
--- type ObjFn a = M.Map Name (Obj' a) -> a
--- type ConstrFn a = [Obj' a] -> a
--- type ObjFn a    = [Obj' a] -> a
 -- A VarMap matches lambda ids in the selector to the actual selected id
 type VarMap  = M.Map Name Name
 
@@ -280,27 +273,29 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ new
         -- selectedSpecs :: [[(VarMap, StySpec)]]
         selectedSpecs = map
             (\s -> let xs = select s
-                    --    vs = map (allOtherVars . getVarMap s) xs in zip vs xs) selectors
                        vs = map (getVarMap s) xs in zip vs xs) selectors
-        -- TODO: scoping - now every block has access to everyone else
-        -- allOtherVars = M.union (M.fromList $ zip k k) where k = M.keys dict
         allVars = M.fromList $ zip k k where k = M.keys dict
         -- Combination of all selected (spec. varmap)
         allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
-        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT then [allVars] else map M.unions allCombs
-            -- let allMaps = map (map fst) allCombs in
-            -- map M.unions (tr "allMaps: " allMaps)
-            -- tr "allmaps: " $
+        -- $ trStr (concatMap (\x -> show x ++ "\n") $ map (map fst) selectedSpecs)
+        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT then [allVars] else map M.unions (filter noDup allCombs)
+        noDup ms = validMap $ concatMap M.toAscList ms
+        validMap ts = and . tr "result" . fst $ foldl
+            (\(l, m) (x, y) -> case M.lookup x m of
+                Nothing -> (True:l, M.insert x y m)
+                Just y' -> ((tr ("compare: " ++ y ++ " " ++ y' ++ ": ") $ y == y') : l, m))
+            ([], M.empty) (tr "ts" ts)
         -- Only process assignment statements on matched specs, not the cartesion product of them
         updateSpec d (vm, sp) =
             let newSpec = foldl (procAssign vm) sp stmts in
             M.insert (spId newSpec) newSpec d
         newDict = foldl updateSpec dict $ concat selectedSpecs
-        -- (zip varMaps selected)
         genFns f vm = foldl (f vm) [] stmts
-        newObjFns    = concatMap (genFns procObjFn) mergedMaps
+        newObjFns    = concatMap (genFns procObjFn) $ tr "mergedMaps: " mergedMaps
         newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 
+
+-- removeDups :: [[(VarMap, StySpec)]]
 cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
 
 -- Returns a map from placeholder ids to actual matched ids
@@ -331,11 +326,12 @@ procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
     -> [(ConstrFnOn a, Weight a, [Name], [a])]
 procConstrFn varMap fns (ConstrFn fname es) =
     trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
-    fns ++ [(func, defaultWeight, names, [])]
+    fns ++ [(func, defaultWeight, names, nums)]
     where
-        (func, names) = case M.lookup fname constrFuncDict of
-            Just f -> (f, map (procExpr varMap) es)
+        func = case M.lookup fname constrFuncDict of
+            Just f -> f
             Nothing -> error "procConstrFn: constraint function not known"
+        (names, nums) = partitionEithers $ map (procExpr varMap) es
 procConstrFn varMap fns _ = fns -- TODO: avoid functions
 
 procObjFn :: (Floating a, Real a, Show a, Ord a) =>
@@ -343,12 +339,12 @@ procObjFn :: (Floating a, Real a, Show a, Ord a) =>
     -> [(ObjFnOn a, Weight a, [Name], [a])]
 procObjFn varMap fns (ObjFn fname es) =
     trStr ("New Objective function: " ++ fname ++ " " ++ (show names)) $
-    fns ++ [(func, defaultWeight, names, [])]
+    fns ++ [(func, defaultWeight, names, nums)]
     where
-        (func, names) = case M.lookup fname objFuncDict of
-            Just f -> (f, tr "Args: " args)
+        func = case M.lookup fname objFuncDict of
+            Just f -> f
             Nothing -> error "procObjFn: objective function not known"
-        args = map (procExpr varMap) es
+        (names, nums) = partitionEithers $ map (procExpr varMap) es
 procObjFn varMap fns (Avoid fname es) = fns -- TODO: avoid functions
 procObjFn varMap fns _ = fns -- TODO: avoid functions
 
@@ -357,18 +353,14 @@ lookupVarMap s varMap= case M.lookup s varMap of
     Just s -> s
     Nothing  -> (error $ "lookupVarMap: incorrect variable mapping from " ++ s)
 
--- procExpr :: VarMap -> Expr -> Either String Numeric
--- procExpr d (IntLit i) = Right $ I i
--- procExpr d (FloatLit f) = Right $ F f
--- procExpr d (Id s)  = Left $ lookupVarMap s d
--- -- FIXME: properly resolve access by doing lookups
--- procExpr d (BinOp Access (Id i) (Id "label"))  = Left $ labelName $ lookupVarMap i d
--- procExpr d (BinOp Access (Id i) (Id "shape"))  = Left $ lookupVarMap i d
-procExpr :: VarMap -> Expr -> String
-procExpr d (Id s)  = lookupVarMap s d
+procExpr :: (Floating a, Real a, Show a, Ord a) =>
+    VarMap -> Expr -> Either String a
+procExpr d (Id s)  = Left $ lookupVarMap s d
 -- FIXME: properly resolve access by doing lookups
-procExpr d (BinOp Access (Id i) (Id "label"))  = labelName $ lookupVarMap i d
-procExpr d (BinOp Access (Id i) (Id "shape"))  = lookupVarMap i d
+procExpr d (BinOp Access (Id i) (Id "label"))  = Left $ labelName $ lookupVarMap i d
+procExpr d (BinOp Access (Id i) (Id "shape"))  = Left $ lookupVarMap i d
+procExpr _ (IntLit i) = Right $ r2f i
+procExpr _ (FloatLit i) = Right $ r2f i
 procExpr _ _  = error "expr: argument unsupported!"
 
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
@@ -380,10 +372,13 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
         -- FIXME: this is incorrect, we should resolve the variables earlier
         addSpec dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
         addSpec dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
-        addSpec dict (Assign s e) = M.insert s (Id (procExpr varMap e)) dict
+        -- FIXME: wrap fromleft inside a function!
+        addSpec dict (Assign s e) = M.insert s (Id (fromLeft (error "Unexpected ID")$ procExpr varMap e)) dict
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 
+-- FIXME: make sure these names are unique and make sure users cannot start ids
+-- with underscores
 getConstrTuples :: [C.SubConstr] -> [(C.SubType, String, [String])]
 getConstrTuples = map getType
     where getType c = case c of

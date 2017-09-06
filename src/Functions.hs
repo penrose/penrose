@@ -16,21 +16,9 @@ type ConstrFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]
 type Weight a = a
 type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
 
--- | `constrFuncDict` stores a mapping from the name of function to the actual implementation
+-- | 'constrFuncDict' stores a mapping from the name of constraint functions to the actual implementation
 constrFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) =>
     M.Map String (ConstrFnOn a)
--- constrFuncDict = M.fromSet mapping allFns
---     where
---         allFns  = fromList ["sameSizeAs", "smallerThan", "contains", "nonOverlapping", "overlapping", "outsideOf"]
---         mapping f = case f of
---             "sameSizeAs" -> penalty . sameSize
---             "contains" -> penalty . contains
---             "overlapping" -> penalty . overlapping
---             "nonOverlapping" -> penalty . nonOverlapping
---             "outsideOf" -> penalty . outsideOf
---             "smallerThan" -> penalty . smallerThan -- TODO: should this be an objective?
---             -- "avoidSubsets" -> penalty . avoidSubsets
---             _ -> error ("constrFuncDict: unknown function " ++ f)
 constrFuncDict = M.fromList flist
     where
         flist :: (Floating a, Real a, Show a, Ord a) => [(String, ConstrFnOn a)]
@@ -43,41 +31,25 @@ constrFuncDict = M.fromList flist
                     ("smallerThan", penalty `compose2` smallerThan) -- TODO: should this be an objective?
                  ]
 
+-- | 'objFuncDict' stores a mapping from the name of objective functions to the actual implementation
 objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFnOn a)
 objFuncDict = M.fromList flist
     where flist = [
+                    ("center", center),
                     ("centerLabel", centerLabel),
                     ("toLeft", toLeft),
                     ("onTop", onTop),
+                    ("between", between),
                     ("sameHeight", sameHeight),
                     ("sameX", sameX),
                     -- ("sameX", (*) 0.2 `compose2` sameX),
                     ("sameCenter", sameCenter),
-                    -- ("sameCenter", (*) 0.01 `compose2` sameCenter),
                     ("repel", (*)  900000  `compose2` repel),
                     -- ("repel", (*)  1000000  `compose2` repel),
                     -- ("repel", (*)  10000  `compose2` repel),
                     -- ("repel", repel),
                     ("outside", outside)
                   ]
--- objFuncDict = M.fromSet mapping allFns
---     where
---         allFns  = fromList ["sameX", "sameCenter", "sameHeight", "repel", "onTop", "toLeft", "centerLabel", "outside"]
---         mapping f = case f of
---             "centerLabel" -> centerLabel
---             "toLeft" -> toLeft
---             "onTop" -> onTop
---             "sameHeight" -> sameHeight
---             "sameX" -> (*) 0.2 . sameX
---             "sameCenter" -> (*) 0.01 . sameCenter
---             -- "repel" -> penalty . repel
---             -- "repel" -> (*) 100000000 . repel
---             -- "repel" -> (*) 9000  . repel
---             "repel" -> (*) 900000  . repel
---             -- "repel" -> repe  l
---             -- "repel" -> repel
---             "outside" -> outside
---             _ -> error ("objFuncDict: unknown function " ++ f)
 
 -- illegal polymorphic or qualified type--can't return a forall?
 -- type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
@@ -99,9 +71,19 @@ objFuncDict = M.fromList flist
 -- TODO: implement all the location function using a generic version
 -- distance (x1, y1) (x2, y2) dx dy = (x1 - x2)
 
+-- | 'between' attempts to place an object at the midpoint between the cetners
+--    between two other objects
+between :: ObjFn
+between [mid, left, right] _ = (getX mid - getX left - offset)^2 + (getX right - getX mid - offset)^2
+    where offset = 100
+
+-- | 'center' puts the object at the center of the canvas
+center :: ObjFn
+center [o] _ = getX o ^ 2 + getY o ^ 2
+
 -- | 'onTop' makes sure the first argument is on top of the second.
 onTop :: ObjFn
--- onTop [L' s, L' e]  = (yl' s - yl' e - spacing)^2
+onTop [top, bottom] [offset] = (getY top - getY bottom - offset)^2
 onTop [top, bottom] _ = (getY top - getY bottom - 100)^2
 
 -- | 'toLeft' makes sure the first argument is to the left of the second.

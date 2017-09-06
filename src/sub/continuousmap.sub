@@ -1,10 +1,11 @@
 Set A
 Set B
-Set R^n
-Set R^m
-Subset A R^n
-Subset B R^m
-Map f A B
+Set R1
+Set R2
+Subset A R1
+Subset B R2
+NoIntersect R1 R2
+f: A -> B
 Set U
 Subset U B
 Set V

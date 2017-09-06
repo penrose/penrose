@@ -1,3 +1,5 @@
+-- | "Utils" contains frequently used utility function, some parameters to "Runtime", and debugging functions.
+
 module Utils where
 import Control.Monad (void)
 import Debug.Trace
@@ -15,6 +17,8 @@ r2f = realToFrac
 toList :: a -> [a]
 toList x = [x]
 
+trd :: (a, b, c) -> c
+trd (_, _, x) = x
 
 stepsPerSecond :: Int
 stepsPerSecond = 100000
@@ -56,6 +60,8 @@ compose2 = (.) . (.)
 
 --------------------------------------------------------------------------------
 ---- Lexer helper functions
+-- TODO: think about if it make sense to have the same set of reserved words
+--       in both Substance and Style.
 
 rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
 rws =     ["avoid", "global", "as"] ++ types ++ shapes

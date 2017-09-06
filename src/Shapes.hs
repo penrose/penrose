@@ -1,12 +1,5 @@
---------------------------------------------------------------------------------
--- Geometry module in Penrose
--- Currently supporting:
---    Circle
---    Square
---    Point
---    Arrow
---    Label
---------------------------------------------------------------------------------
+-- | "Shapes" contains all geometric primitives that Penrose supports
+
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DuplicateRecordFields #-}
@@ -21,7 +14,6 @@ import GHC.Generics
 import Graphics.Gloss
 
 type Name = String
-
 
 class Located a b where
       getX :: a -> b

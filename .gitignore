@@ -20,4 +20,8 @@ dist/
 utils/add_src.sh
 utils/penrose.db
 utils/penroseDB.py
+__temp__.als
+*.class
+alloy
+
 

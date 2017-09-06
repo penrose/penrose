@@ -1,3 +1,5 @@
+-- | "Server" contains functions that serves the Penrose runtime over
+--   websockets connection.
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
@@ -22,7 +24,7 @@ import Data.Aeson
 import Data.Maybe (fromMaybe)
 import qualified Control.Exception as Exc (catch, ErrorCall)
 
-
+-- Types used by the server, mainly for translation to JSON
 type ServerState = R.State
 data FeedBack = Cmd Command | Drag DragEvent | Update UpdateShapes deriving (Show, Generic)
 data Command = Command { command :: String } deriving (Show, Generic)
@@ -40,7 +42,12 @@ wsSendJSON conn obj = WS.sendTextData conn $ encode obj
 -- wsReceiveJSON :: (WS.TextProtocol p, FromJSON j) => WS.WebSockets p (Maybe j)
 -- wsReceiveJSON = fmap decode WS.receiveData
 
-servePenrose :: String -> Int -> R.State -> IO ()
+-- | 'servePenrose' is the top-level function that "Main" uses to start serving
+--   the Penrose Runtime.
+servePenrose :: String  -- the domain of the server
+             -> Int  -- port number of the server
+             -> R.State  -- initial state of Penrose Runtime
+             -> IO ()
 servePenrose domain port initState = do
      putStrLn "Starting Server..."
      Exc.catch (WS.runServer domain port $ application initState) handler
