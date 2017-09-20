@@ -1,5 +1,6 @@
 -- | The "Style" module contains the compiler for the Style language,
 -- and functions to traverse the Style AST, which are used by "Runtime"
+{-# OPTIONS_HADDOCK prune #-}
 module Style where
 -- module Main (main) where -- for debugging purposes
 
@@ -18,55 +19,69 @@ import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Lexer as L
 
-
-
 --------------------------------------------------------------------------------
 -- Style AST
 
+-- | All geometric object types supported by Style so far.
 data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Auto
     deriving (Show)
 
+-- | A type frequently used in the module. A style object such as a 'Circle' has parameters like its radius attached to it. This is a tuple associating the object with its parameters.
 type StyObjInfo
     = (StyObj, M.Map String Expr)
 
 -- | Style specification for a particular object declared in Substance
+-- (TODO: maybe this is not the best model, since we are seeing more cases where the relationship is one-to-many or vice versa)
 data StySpec = StySpec {
-    spType :: C.SubType,
-    spId :: String,
-    spArgs :: [String],
-    spShape :: StyObjInfo,
+    spType :: C.SubType, -- | The Substance type of the object
+    spId :: String, -- | The ID of the object
+    spArgs :: [String], -- | the "arguments" that the Substance object has. Maybe not the best term here. The idea is to capture @A@ and @B@ in the case of @Map f A B@
+    spShape :: StyObjInfo, -- | primary geometry associated with the Substance object, specified by @shape = Circle { }@
     spShpMap :: M.Map String StyObjInfo
 } deriving (Show)
 
+-- | A Style program is a collection blocks
 type StyProg = [Block]
 
+-- | A Style block contains a list of selectors and statements
 type Block = ([Selector], [Stmt])
 
+-- | A selector is some pattern annotated by a __Substance type__.
 data Selector = Selector
-              { selTyp :: C.SubType
-              , selPatterns :: [Pattern]
+              { selTyp :: C.SubType -- type of Substance object
+              , selPatterns :: [Pattern] -- a list of patterns: ids or wildcards
           } deriving (Show)
 
+-- | So far we have two kinds of patters:
+--
+-- * Raw IDs: 'Set `A`', referring to actual IDs from Substance
+-- * WildCard: `Set A`, which can be anything with the corresponding type
+--
+-- They can also be mixed, yielding to partial selectors like 'Subset `A` B', referring to all supersets of 'A'.
 data Pattern
     = RawID String
     | WildCard String
     deriving (Show)
 
+-- | A Style statement
 data Stmt
-    = Assign String Expr
-    | ObjFn String [Expr]
-    | ConstrFn String [Expr]
-    | Avoid String [Expr]
+    = Assign String Expr -- binding to geometric primitives: 'shape =  Circle {}'
+    | ObjFn String [Expr] -- adding an objective function
+    | ConstrFn String [Expr] -- adding a constraint function
+    | Avoid String [Expr] -- to be implemented, stating an objective that we would like to avoid
     deriving (Show)
 
+-- | A Style expression, typically appears on the righthand side of assignment statements
 data Expr
     = IntLit Integer
     | FloatLit Float
     | Id String
     | BinOp BinaryOp Expr Expr
-    | Cons StyObj [Stmt] -- Constructors for objects
+    | Cons StyObj [Stmt] -- | Constructors for objects
     deriving (Show)
 
+-- TODO: this feature is NOT fully implemented. As if now, we do not support chained dot-access to arbitrary elements in the environment.
+-- Difficulty: the return type of each access might be different. What is a good way to resolve this?
 data BinaryOp = Access deriving (Show)
 
 data Color = RndColor | Colo
@@ -83,13 +98,11 @@ data Color = RndColor | Colo
 styleParser :: Parser [Block]
 styleParser = between sc eof styProg
 
--- TODO: required global and/or style block or not?
--- TODO: How can I write something like noop???
--- NOTE: sequence matters here
+-- | `styProg` parses a Style program, consisting of a collection of blocks
 styProg :: Parser [Block]
 styProg = some block
 
----- Style blocks
+-- | Style blocks
 block :: Parser Block
 block = do
     sel <- selector `sepBy1` comma
@@ -101,23 +114,31 @@ block = do
     newline'
     return (sel, stmts)
 
+-- | a selector can be either a global selector or constructor selector
+selector :: Parser Selector
+selector = constructorSelect <|> globalSelect
+
+-- | a global selector matches on all types of objects. Normally used as the only selector in a "global block", where all Substance identifiers are visible
 globalSelect :: Parser Selector
 globalSelect = do
     -- i <- WildCard <$> identifier
     rword "global"
     return $ Selector C.AllT []
-    -- return $ Selector AllTypes [i]
 
+-- | a constructor selector selects Substance objects in a similar syntax as they were declared in Substance
+-- TODO: with the exception of some new grammars that we developed, such as 'f: A -> B'. You still have to do 'Map A B' to select this object.
 constructorSelect :: Parser Selector
 constructorSelect = do
     typ <- C.subtype
     pat <- patterns
     return $ Selector typ pat
 
-selector :: Parser Selector
-selector = constructorSelect <|> globalSelect
+-- | a pattern can be a list of the mixture of wildcard bindings and concrete IDs
+patterns :: Parser [Pattern]
+patterns = many pattern
+    where pattern = (WildCard <$> identifier <|> RawID <$> backticks identifier)
 
-
+-- | parses the type of Style object
 styObj :: Parser StyObj
 styObj =
        (rword "Color"   >> return Color)   <|>
@@ -129,14 +150,11 @@ styObj =
        (rword "Box"     >> return Box)     <|>
        (rword "Dot"     >> return Dot)
 
-patterns :: Parser [Pattern]
-patterns = many pattern
-    where pattern = (WildCard <$> identifier <|> RawID <$> backticks identifier)
-
---- Statements
+-- | a sequence of Style statements
 stmtSeq :: Parser [Stmt]
 stmtSeq = endBy stmt newline'
 
+-- | a Style statement can be objective/constraint function calls or assignment statements
 stmt :: Parser Stmt
 stmt =
     try objFn
@@ -145,7 +163,7 @@ stmt =
     <|> try constrFn
     <|> try constrFnInfix
     <|> try objFnInfix
---
+
 assignStmt :: Parser Stmt
 assignStmt = do
     var  <- attribute
@@ -153,7 +171,8 @@ assignStmt = do
     void (symbol "=")
     e    <- expr
     return (Assign var e)
---
+
+-- | objective function call
 objFn :: Parser Stmt
 objFn = do
     rword "objective"
@@ -163,6 +182,7 @@ objFn = do
     void (symbol ")")
     return (ObjFn fname params)
 
+-- | objective function call - infix version
 objFnInfix :: Parser Stmt
 objFnInfix = do
     rword "objective"
@@ -171,6 +191,7 @@ objFnInfix = do
     arg2  <- expr
     return (ObjFn fname [arg1, arg2])
 
+-- | (TODO: to be implemented) "avoid" objective function call
 avoidObjFn :: Parser Stmt
 avoidObjFn = do
     rword "avoid"
@@ -180,6 +201,7 @@ avoidObjFn = do
     rbrac
     return (Avoid fname params)
 
+-- | constraint function call
 constrFn :: Parser Stmt
 constrFn = do
     rword "constraint"
@@ -189,6 +211,7 @@ constrFn = do
     void (symbol ")")
     return (ConstrFn fname params)
 
+-- | constraint function call -- infix version
 constrFnInfix :: Parser Stmt
 constrFnInfix = do
     rword "constraint"
@@ -210,11 +233,13 @@ term = Id <$> identifier
 operators :: [[Operator Parser Expr]]
 operators = [ [ InfixL (BinOp Access <$ symbol ".")] ]
 
+-- | Special keyword @None@, normally written as @shape = None@, making the system not render the Substance object
 none :: Parser Expr
 none = do
     rword "None"
     return $ Cons NoShape []
 
+-- | Special keyword @Auto@, currently used on labels. When specified, the system automatically generates a label using the object's Substance ID.
 auto :: Parser Expr
 auto = do
     rword "Auto"
@@ -243,15 +268,15 @@ attribute = many alphaNumChar
 
 ----- Parser for Style design
 
--- Type aliases for readability in this section
+-- | Type aliases for readability in this section
 type StyDict = M.Map Name StySpec
--- A VarMap matches lambda ids in the selector to the actual selected id
+-- | A VarMap matches lambda ids in the selector to the actual selected id
 type VarMap  = M.Map Name Name
 
 initSpec :: StySpec
 initSpec = StySpec { spType = C.PointT, spId = "", spShape = (NoShape, M.empty),  spArgs = [], spShpMap = M.empty}
 
--- | `getDictAndFns` is the top-level function used by "Runtime", which returns a dictionary of Style configuration and all objective and constraint fucntions generated by Style
+-- | 'getDictAndFns' is the top-level function used by "Runtime", which returns a dictionary of Style configuration and all objective and constraint fucntions generated by Style
 -- TODO: maybe generate objects directly?
 getDictAndFns :: (Floating a, Real a, Show a, Ord a) =>
     ([C.SubDecl], [C.SubConstr]) -> StyProg
@@ -263,6 +288,7 @@ getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, [], []) block
         initDict = foldl (\m (t, n, a) ->
                         M.insert n (initSpec { spId = n, spType = t, spArgs = a }) m) M.empty res
 
+-- |  'procBlock' is called by 'getDictAndFns'. 'getDictAndFns' would fold this function on a list of blocks, a.k.a. a Style program, and accumulate objective/constraint functions, and a dictionary of geometries to be rendered.
 procBlock :: (Floating a, Real a, Show a, Ord a) =>
     (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
     -> Block
@@ -294,11 +320,11 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) = (newDict, objFns ++ new
         newObjFns    = concatMap (genFns procObjFn) $ tr "mergedMaps: " mergedMaps
         newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 
-
 -- removeDups :: [[(VarMap, StySpec)]]
+-- TODO: reaaly a helper function. consider moving to "Utils"
 cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
 
--- Returns a map from placeholder ids to actual matched ids
+-- | A helper function that returns a map from placeholder ids to actual matched ids.
 getVarMap :: Selector -> StySpec -> VarMap
 getVarMap sel spec = foldl add M.empty patternNamePairs
     where
@@ -307,8 +333,11 @@ getVarMap sel spec = foldl add M.empty patternNamePairs
             RawID _    -> d
             WildCard i -> M.insert i n d
 
-
--- Returns true of an object matches the selector
+-- | Returns true of an object matches the selector. A match is made when
+--
+-- * The types match
+-- * The number of arguments match
+-- * Identifier and arguments match. A wildcard matches with anything
 matchSel :: Selector -> StySpec -> Bool
 matchSel sel spec = all test (zip args patterns) &&
                 selTyp sel == spType spec &&
@@ -321,6 +350,7 @@ matchSel sel spec = all test (zip args patterns) &&
             RawID i -> a == i
             WildCard _ -> True
 
+-- | Called repeated by 'procBlock', 'procConstrFn' would lookup and generate constraint functions if the input is a constraint function call. It ignores all other inputs
 procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> [(ConstrFnOn a, Weight a, [Name], [a])] -> Stmt
     -> [(ConstrFnOn a, Weight a, [Name], [a])]
@@ -334,6 +364,7 @@ procConstrFn varMap fns (ConstrFn fname es) =
         (names, nums) = partitionEithers $ map (procExpr varMap) es
 procConstrFn varMap fns _ = fns -- TODO: avoid functions
 
+-- | Similar to `procConstrFn` but for objective functions
 procObjFn :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> [(ObjFnOn a, Weight a, [Name], [a])] -> Stmt
     -> [(ObjFnOn a, Weight a, [Name], [a])]
@@ -353,6 +384,7 @@ lookupVarMap s varMap= case M.lookup s varMap of
     Just s -> s
     Nothing  -> (error $ "lookupVarMap: incorrect variable mapping from " ++ s)
 
+-- | Resolve a Style expression, which could be operations among expressions such as a chained dot-access for an attribute through a couple of layers of indirection (TODO: hackiest part of the compiler, rewrite this)
 procExpr :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> Expr -> Either String a
 procExpr d (Id s)  = Left $ lookupVarMap s d
@@ -377,6 +409,7 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 
+-- | Generate a unique id for a Substance constraint
 -- FIXME: make sure these names are unique and make sure users cannot start ids
 -- with underscores
 getConstrTuples :: [C.SubConstr] -> [(C.SubType, String, [String])]

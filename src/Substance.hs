@@ -2,6 +2,7 @@
 --   the Substance language. It also contains translators to Alloy and
 --   the driver for it.
 
+{-# OPTIONS_HADDOCK prune #-}
 module Substance where
 -- module Main (main) where -- for debugging purposes
 -- TODO split this up + do selective export
@@ -104,7 +105,7 @@ data SubConstr
 substanceParser :: Parser [SubStmt]
 substanceParser = between sc eof subProg
 
--- | `subProg` parses the entire Substance program, which is a collection of statments
+-- | 'subProg' parses the entire Substance program, which is a collection of statments
 subProg :: Parser [SubStmt]
 subProg =  endBy subStmt newline'
 
@@ -160,14 +161,14 @@ subDef = do
     where bindings = (,) <$> subtype <*> identifier
 
 -- | Applying a definition to a Substance object. For example,
--- @
--- f: A -> B
--- Set A
--- Set B
--- Definition Surjection(Map f, Set X, Set Y):
---     forall y : Y | exists x : X | f(x) = y
--- Surjection(f, A, B)
--- @
+--
+-- > f: A -> B
+-- > Set A
+-- > Set B
+-- > Definition Surjection(Map f, Set X, Set Y):
+--     > forall y : Y | exists x : X | f(x) = y
+-- > Surjection(f, A, B)
+--
 -- Here the definition @Surjection@ is applied to a 'Map' with id @f@
 defApp :: Parser SubStmt
 defApp = do

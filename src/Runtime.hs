@@ -202,109 +202,6 @@ defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
 defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
 
 
--- ------- Parsing for Old Style Design
---
--- dictOfStys :: [C.SubDecl] -> [C.StyLine] -> M.Map Name [C.StyLine]
--- dictOfStys objs stys = foldr (processLine objs) dict stys
---     where dict = foldr addObj M.empty objs
---           addObj (C.Decl (C.OM (C.Map' name _ _))) = M.insert name []
---           addObj (C.Decl (C.OS (C.Set' name _)))   = M.insert name []
---           addObj (C.Decl (C.OP (C.Pt' name)))      = M.insert name []
---
--- -- If there is no spec associated with an obj, we should insert this obj in the dict
--- insertSty :: Name -> C.StyLine -> M.Map Name [C.StyLine] -> M.Map Name [C.StyLine]
--- insertSty name line dict = case (M.lookup name dict) of
---     Nothing -> M.insert name [line] dict
---     _ -> M.adjust ([line] ++) name dict
---
--- processLine :: [C.SubDecl] -> C.StyLine -> M.Map Name [C.StyLine] -> M.Map Name [C.StyLine]
--- processLine objs s dict =
---     case s of
---     (C.Shape (C.SubVal v) _)  -> insertSty v s dict
---     (C.Shape C.Global _)      -> M.mapWithKey (\k stys -> s:stys) dict
---     (C.Shape (C.SubType t) _) -> M.mapWithKey (\k stys -> s:stys) dict
---     otherwise -> error "shape not known"
---
--- -- Find all lines specifying shape
--- shapeLines :: [C.StyLine] -> [C.StyLine]
--- shapeLines stys = filter isShape $ stys
---                 where isShape (C.Shape  _ _) = True
---                       isShape _ = False
---
--- -- Given a list of sty settings, find the most specific one
--- -- The order from most specific to general: individual -> type -> global
--- prioritize :: [C.StyLine] -> C.StyLine
--- prioritize stys = stys !! maxIdx
---         where prios = map getPrio stys
---               Just maxIdx = elemIndex (maximum prios) prios
---               getPrio (C.Shape (C.SubVal _) _) = 3
---               getPrio (C.Shape C.Global  _) = 2
---               getPrio (C.Shape (C.SubType _) _) = 1
--- Generates an object depending on the style specification
-
------ Parser for the new style design
--- -- Given a list of IDs, translate a raw AST of a Style program
--- -- to a object-wise record
--- getStyDict :: [C.SubDecl] -> S.StyProg -> M.Map Name S.StySpec
--- getStyDict decls prog = foldl loadObjConfig tConfig oBlk
---     where
---         ids = getSubTuples decls
---         dict = foldl (\m (t, n) ->
---                         M.insert n (dummySpec { S.spId = n, S.spType = t }) m) M.empty ids
---         [gBlk, tBlk, oBlk] = getBlocks prog
---         gConfig = foldl loadGlobalConfig dict gBlk
---         tConfig = foldl loadTypeConfig gConfig tBlk
---         -- applyConfig f d = foldl f d prog
---
--- getSubTuples :: [C.SubDecl] -> [(S.SubType, String)]
--- getSubTuples decls = map getType decls
---     where
---         getType (C.Decl d) = case d of
---             C.OS (C.Set' n _) -> (S.Set, n)
---             C.OP (C.Pt' n) -> (S.Pt, n)
---             C.OM (C.Map' n _ _) -> (S.Map, n)
---
---
---
--- -- NOTE: assuming we process global settings FIRST. All other fields will get wiped out
--- loadGlobalConfig :: M.Map Name S.StySpec -> S.Block -> M.Map Name S.StySpec
--- loadGlobalConfig dict (S.GlobalBlock stmts) = M.mapWithKey (\_ oldSpec -> newSpec { S.spType = S.spType oldSpec, S.spId = S.spId oldSpec}) dict
---     where
---         newSpec = foldl procStmt dummySpec stmts
--- loadGlobalConfig dict _ = dict -- ignore all other blocks
---
--- loadTypeConfig :: M.Map Name S.StySpec -> S.Block -> M.Map Name S.StySpec
--- loadTypeConfig dict (S.TypeBlock typ stmts) = M.mapWithKey (\_ s -> procSpec s) dict
---     where
---         procSpec s = if S.spType s == typ then getSpec s else s
---         getSpec s = foldl procStmt s stmts
--- loadTypeConfig dict _ = dict -- ignore all other blocks
---
--- loadObjConfig :: M.Map Name S.StySpec -> S.Block -> M.Map Name S.StySpec
--- loadObjConfig dict (S.ObjBlock name stmts) = M.mapWithKey (\_ s -> procSpec s) dict
---     where
---         procSpec s = if S.spId s == name then getSpec s else s
---         getSpec s = foldl procStmt s stmts
--- loadObjConfig dict _ = dict -- ignore all other blocks
---
--- procStmt :: S.StySpec -> S.Stmt -> S.StySpec
--- procStmt spec (S.Assign _ (S.Color c)) = spec { S.spColor = c }
--- procStmt spec (S.Assign _ (S.Shape s)) = spec { S.spShape = s }
---
--- getBlocks :: S.StyProg -> [[S.Block]]
--- getBlocks p = map (\f -> f p) filters
---     where filters = map filter [isGlobalBlock, isTypeBlock, isObjBlock]
---
--- isGlobalBlock, isTypeBlock, isObjBlock :: S.Block -> Bool
--- isGlobalBlock (S.GlobalBlock _) = True
--- isGlobalBlock _ = False
---
--- isTypeBlock (S.TypeBlock _ _) = True
--- isTypeBlock _ = False
---
--- isObjBlock (S.ObjBlock _ _) = True
--- isObjBlock _ = False
-
 
 shapeAndFn :: (Floating a, Real a, Show a, Ord a) => S.StyDict -> String -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 shapeAndFn dict name =
@@ -392,41 +289,6 @@ genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrF
         (objss, objFnss, constrFnss) = unzip3 $ map (shapeAndFn stys) $ S.getAllIds (decls, constrs)
 -- FIXME: getAllIds shouldn't be happening at all
 
--- genObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
---                   M.Map String S.StySpec -> C.SubDecl -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
--- genObjsAndFns stys line@(C.Decl (C.OS (C.Set' sname stype))) = (objs, weightedFns)
---             where
---                 c1 = shapeOf sname stys
---                 -- TODO proper dimensions for labels
---                 l1 = defaultLabel sname
---                 objs = [c1, l1]
---                 weightedFns = [ (declSetObjfn [sname], defaultWeight),
---                     (declLabelObjfn [sname, labelName sname], defaultWeight) ]
--- genObjsAndFns stys (C.Decl (C.OP (C.Pt' pname))) = (objs, weightedFns)
---             where
---                 p1 = defaultPt pname
---                 l1 = defaultLabel pname
---                 objs = [p1, l1]
---                 weightedFns = [ (declPtObjfn [pname], defaultWeight),
---                     (declLabelObjfn [pname, labelName pname], defaultWeight) ]
--- genObjsAndFns stys (C.Decl (C.OM (C.Map' name from to))) = (objs, weightedFns)
---             where
---                 a = defaultSolidArrow name
---                 l1 = defaultLabel name
---                 objs = [a, l1]
---                 weightedFns = [
---                     (toLeft [from, to], defaultWeight),
---                     (sameY [from, to], defaultWeight),
---                     (declMapObjfn [name, from, to], defaultWeight), -- TODO: a different obj function
---                     (declLabelObjfn [name, labelName name], defaultWeight)]
---
-
--- genAllObjsAndFns :: (Floating a, Real a, Show a, Ord a) =>
---                  [C.SubDecl] -> M.Map String S.StySpec -> ([Obj], [(M.Map Name (Obj' a) -> a, Weight a)])
--- -- TODO figure out how the types work. also add weights
--- genAllObjsAndFns decls stys = let (objss, fnss) = unzip $ map (genObjsAndFns stys) decls in
---                          (concat objss, concat fnss)
-
 dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
 dictOf = foldr addObj M.empty
        where addObj o dict = M.insert (getName o) o dict
@@ -466,11 +328,6 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
                 (constrWeight * penaltyWeight * sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) constrObjFns))
-        --    (sumMap (\(f, w) -> w * f objDict) objFns) +
-        --    (sumMap (\(f, w) -> w * f objDict) ambientObjFns) +
-        --    (constrWeight * penaltyWeight *
-        --         sumMap (\(f, w, n) -> w * f (lookupNames objDict n)) constrObjFns)
-         -- factor out weight application?
 
 
 -- TODO: **must** manually change this constraint if you change the constr function for EP
@@ -488,7 +345,6 @@ genInitState (decls, constrs) stys =
              let (dict, userObjFns, userConstrFns) = S.getDictAndFns (decls, constrs) stys in
              let (initObjs, initObjFns, initConstrFns) = genAllObjs (decls, constrs) dict in
              let objFns = userObjFns ++ initObjFns in
-            --  let (initState, objFns) = genAllObjsAndFns decls (getStyDict decls stys) in
             --  let objFns = [] in -- TODO removed only for debugging constraints
 
              -- ambient objectives
@@ -1543,6 +1399,7 @@ centerRepelLabel olSizes olLocs =
 type StateConstrV a = forall a . (Floating a, Ord a, Show a) => [a] -> [a] -> a
 -- type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
 
+-- NOTE: some old code from Katherine here. Keeping them for reference just in case. Consider removal in the future
 -- noConstraint :: PairConstrV a
 -- noConstraint _ = 0
 --
