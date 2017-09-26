@@ -4,4 +4,3 @@ Set B
 Definition Surjection(Map f, Set X, Set Y):
     forall y : Y | exists x : X | f(x) = y
 Surjection(f, A, B)
-

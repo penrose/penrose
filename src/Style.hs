@@ -40,7 +40,7 @@ data StySpec = StySpec {
     spShpMap :: M.Map String StyObjInfo
 } deriving (Show)
 
--- | A Style program is a collection blocks
+-- | A Style program is a collection of blocks
 type StyProg = [Block]
 
 -- | A Style block contains a list of selectors and statements
@@ -360,7 +360,7 @@ procConstrFn varMap fns (ConstrFn fname es) =
     where
         func = case M.lookup fname constrFuncDict of
             Just f -> f
-            Nothing -> error "procConstrFn: constraint function not known"
+            Nothing -> error ("procConstrFn: constraint function " ++ fname ++ " not known")
         (names, nums) = partitionEithers $ map (procExpr varMap) es
 procConstrFn varMap fns _ = fns -- TODO: avoid functions
 
@@ -374,7 +374,7 @@ procObjFn varMap fns (ObjFn fname es) =
     where
         func = case M.lookup fname objFuncDict of
             Just f -> f
-            Nothing -> error "procObjFn: objective function not known"
+            Nothing -> error ("procObjFn: objective function '" ++ fname ++ "' not known")
         (names, nums) = partitionEithers $ map (procExpr varMap) es
 procObjFn varMap fns (Avoid fname es) = fns -- TODO: avoid functions
 procObjFn varMap fns _ = fns -- TODO: avoid functions
@@ -393,7 +393,7 @@ procExpr d (BinOp Access (Id i) (Id "label"))  = Left $ labelName $ lookupVarMap
 procExpr d (BinOp Access (Id i) (Id "shape"))  = Left $ lookupVarMap i d
 procExpr _ (IntLit i) = Right $ r2f i
 procExpr _ (FloatLit i) = Right $ r2f i
-procExpr _ _  = error "expr: argument unsupported!"
+procExpr v e  = error ("expr: argument unsupported! " ++ show v ++ " " ++ show e)
 
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
 procAssign varMap spec (Assign n (Cons typ stmts)) =
@@ -432,7 +432,6 @@ getSubTuples = map getType
 
 getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
-
 
 --------------------------------------------------------------------------------
 -- DEBUG: takes an input file and prints the parsed AST

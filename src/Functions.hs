@@ -1,14 +1,11 @@
--- | This module contains a library of objective and constraint functions, and
--- helper functions needed to invoke them.
-
-{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+-- | The "function" module contains a library of objective and constraint
+-- functions, and helper functions needed to invoke them.
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, FlexibleContexts #-}
 module Functions where
 import Shapes
 import Utils
 import qualified Data.Map.Strict as M
 
--- type ObjFn a = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> a
--- type Name = String
 type ObjFnOn a =  [Obj' a] -> [a] -> a
 type ConstrFnOn a =  [Obj' a] -> [a] -> a
 type ObjFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
@@ -23,6 +20,7 @@ constrFuncDict = M.fromList flist
     where
         flist :: (Floating a, Real a, Show a, Ord a) => [(String, ConstrFnOn a)]
         flist = [
+                    ("at", at),
                     ("sameSizeAs", penalty `compose2` sameSize),
                     ("contains", penalty `compose2` contains),
                     ("overlapping", penalty `compose2` overlapping),
@@ -35,13 +33,21 @@ constrFuncDict = M.fromList flist
 objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFnOn a)
 objFuncDict = M.fromList flist
     where flist = [
+                    ("increasingX", increasingX),
+                    ("increasingY", increasingY),
+                    ("horizontal", horizontal),
+                    ("upright", upright),
+                    ("xInRange", xInRange),
+                    ("yInRange", yInRange),
+                    ("orthogonal", orthogonal),
                     ("center", center),
                     ("centerLabel", centerLabel),
                     ("toLeft", toLeft),
-                    ("onTop", onTop),
+                    ("above", above),
                     ("between", between),
                     ("sameHeight", sameHeight),
                     ("sameX", sameX),
+                    -- ("sameX", (*) 0.6 `compose2` sameX),
                     -- ("sameX", (*) 0.2 `compose2` sameX),
                     ("sameCenter", sameCenter),
                     ("repel", (*)  900000  `compose2` repel),
@@ -71,6 +77,36 @@ objFuncDict = M.fromList flist
 -- TODO: implement all the location function using a generic version
 -- distance (x1, y1) (x2, y2) dx dy = (x1 - x2)
 
+
+xInRange :: ObjFn
+xInRange l [xmin, xmax] = (minimum xs - xmin)^2 + (maximum xs - xmax)^2 + sum (map f xs)
+    where xs = map getX l
+          f x = (max 0 $ xmax - x)^2 + (max 0 $ x - xmin)^2
+
+yInRange :: ObjFn
+yInRange l [ymin, ymax] = (minimum ys - ymin)^2 + (maximum ys - ymax)^2 + sum (map f ys)
+    where ys = map getY l
+          f y = (max 0 $ ymax - y)^2 + (max 0 $ y - ymin)^2
+
+orthogonal :: ObjFn
+orthogonal [A' a1, A' a2] _ = (1 - dotL [startx' a1, starty' a1] [startx' a2, starty' a2])^2
+
+horizontal :: ObjFn
+horizontal [A' a] _ = (starty' a - endy' a)^2
+
+upright :: ObjFn
+upright [A' a] _ = (startx' a - endx' a)^2
+
+increasingX :: ObjFn
+increasingX l _ = sum $ map f $ zip l' (drop 1 l')
+    where l' = map getX l
+          f (y0, y1) = (y1 - (y0 + y1) / 2)^2
+
+increasingY :: ObjFn
+increasingY l _ = sum $ map f $ zip l' (drop 1 l')
+    where l' = map getY l
+          f (x0, x1) = (x1 - (x0 + x1) / 2)^2
+
 -- | 'between' attempts to place an object at the midpoint between the cetners
 --    between two other objects
 between :: ObjFn
@@ -81,20 +117,20 @@ between [mid, left, right] _ = (getX mid - getX left - offset)^2 + (getX right -
 center :: ObjFn
 center [o] _ = getX o ^ 2 + getY o ^ 2
 
--- | 'onTop' makes sure the first argument is on top of the second.
-onTop :: ObjFn
-onTop [top, bottom] [offset] = (getY top - getY bottom - offset)^2
-onTop [top, bottom] _ = (getY top - getY bottom - 100)^2
+-- | 'above' makes sure the first argument is on top of the second.
+above :: ObjFn
+above [top, bottom] [offset] = (getY top - getY bottom - offset)^2
+above [top, bottom] _ = (getY top - getY bottom - 100)^2
 
 -- | 'toLeft' makes sure the first argument is to the left of the second.
 toLeft :: ObjFn
 toLeft [a, b] _ = (getX a - getX b + 400)^2
 
--- | 'sameHeight' forces two object to stay at the same height(have the same Y value)
+-- | 'sameHeight' forces two objects to stay at the same height (have the same Y value)
 sameHeight :: ObjFn
 sameHeight [a, b] _ = (getY a - getY b)^2
 
--- | 'sameHeight' forces two object to have the same X value
+-- | 'sameHeight' forces two objects to have the same X value
 sameX :: ObjFn
 sameX [a, b] _ = (getX a - getX b)^2
 
@@ -154,7 +190,7 @@ repel [a, b] _ = 1 / distsq (getX a, getY a) (getX b, getY b) + epsd
 -- helper for `repel`
 repel' x y = 1 / distsq x y + epsd
 
--- | 'centerLabel' make labels to stay at the centers of objects.
+-- | 'centerLabel' make labels stay at the centers of objects.
 centerLabel :: ObjFn
 centerLabel [P' p, L' l] _ =
                 let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
@@ -231,6 +267,9 @@ maxSize [C' c] _ = r' c -  limit / 6
 maxSize [S' s] _ = side' s - limit  / 3
 maxSize [E' e] _ = max (ry' e) (rx' e) - limit  / 3
 
+at :: ConstrFn
+at [o] [x, y] = (getX o - x)^2 + (getY o - y)^2
+
 minSize :: ConstrFn
 minSize [C' c] _ = 20 - r' c
 minSize [S' s] _ = 20 - side' s
@@ -270,9 +309,9 @@ contains [C' set, L' label] _ =
     if res < 0 then 0 else res
 contains [S' set, L' label] _ =
     dist (xl' label, yl' label) (xs' set, ys' set) - side' set / 2 + wl' label
--- TODO: only approx
+-- FIXME: doesn't work
 contains [E' set, L' label] _ =
-    dist (xl' label, yl' label) (xe' set, ye' set) - rx' set + wl' label
+    dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
 contains _  _ = error "subset not called with 2 args"
 
 outsideOf :: ConstrFn

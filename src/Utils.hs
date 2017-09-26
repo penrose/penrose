@@ -154,7 +154,7 @@ tro :: Show a => String -> a -> a
 tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 --------------------------------------------------------------------------------
--- Lists-as-vectors utility functions,
+-- Lists-as-vectors utility functions
 
 -- define operator precedence: higher precedence = evaluated earlier
 infixl 6 +., -.
