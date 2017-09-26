@@ -1,6 +1,19 @@
 # Penrose
 
-We're building a prototype for set theory. Not ready for contributions or public use yet, but hopefully will be after this summer! See [](penrose.ink) for more information.
+Not ready for contributions or public use yet, but hopefully will be soon! See [the site](penrose.ink) for more information.
+
+Quick start:
+
+* Navigate to `src/`
+* For Alloy support: execute `make` in `src/`
+* Compile the system: `ghc Main.hs`
+* Start a server: `python -m SimpleHTTPServer`
+* Start the Penrose runtime, providing a pair of Substance/Style programs: `./Main snap sub/surjection.sub sty/surjection.sty `
+* View the visualization with interactive optimization: in your browser, navigate to http://localhost:8000/client.html
+
+For more thorough and up-to-date documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-pub/blob/master/penrose/ramp-down.md).
+
+<img src="https://lh3.googleusercontent.com/d0Z33Xla8NHuKDIxke0TtN7YxstStGCIhS8-9NKije8ria3KwlYDKSAXcOkNhbJfh7wGqMR3=w960-h983-rw" width="500px">
 
 ----
 ### Example
