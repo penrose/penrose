@@ -4,20 +4,27 @@ global {
   constraint at(X, 0, 0)
   constraint at(Y, 0, 0)
 
-  objective xInRange(A, B, C, D, 0, 300)
-  objective yInRange(A, B, C, D, 0, 300)
+  constraint at(a, 0, 0)
+  constraint at(d, 100, 100)
+  objective increasingX(a, b, c, d)
+  objective increasingY(a, b, c, d)
+
+  -- objective xInRange(a, b, c, d, 0, 300)
+  -- objective yInRange(a, b, c, d, 0, 300)
 }
 
 Set s {
   shape = Arrow {
-    label = s.label
+    label = None -- s.label
   }
 
-  objective above(s, s.label)
+  -- objective centerLabel(s, s.label)
 }
 
 Point p {
     shape = Dot { 
-        label = None 
+        label = p.label
     }
+
+    objective centerLabel(p, p.label)
 }
