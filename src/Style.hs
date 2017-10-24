@@ -17,6 +17,7 @@ import System.Environment
 import Debug.Trace
 import qualified Substance as C
 import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn)
+import Computation
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Lexer as L
 
@@ -79,6 +80,7 @@ data Expr
     | Id String
     | BinOp BinaryOp Expr Expr
     | Cons StyObj [Stmt] -- | Constructors for objects
+    | Comp String -- TODO. should it match the type in Computation or not?
     deriving (Show)
 
 -- TODO: this feature is NOT fully implemented. As if now, we do not support chained dot-access to arbitrary elements in the environment.
@@ -390,9 +392,13 @@ procObjFn varMap fns (Avoid fname es) = fns -- TODO: avoid functions
 procObjFn varMap fns _ = fns -- TODO: avoid functions
 
 -- TODO: Have a more principled expr look up routine
+lookupVarMap :: String -> VarMap -> String
 lookupVarMap s varMap = case M.lookup s varMap of
     Just s -> s
-    Nothing  -> (error $ "lookupVarMap: incorrect variable mapping from " ++ s)
+    Nothing -> case M.lookup s computationDict of
+               Just f -> s
+               Nothing -> error $ "lookupVarMap: incorrect variable mapping from " ++ s 
+                                ++ " or no computation"
 
 -- | Resolve a Style expression, which could be operations among expressions such as a chained dot-access for an attribute through a couple of layers of indirection (TODO: hackiest part of the compiler, rewrite this)
 procExpr :: (Floating a, Real a, Show a, Ord a) =>
@@ -406,8 +412,10 @@ procExpr _ (FloatLit i) = Right $ r2f i
 procExpr v e  = error ("expr: argument unsupported! " ++ show v ++ " " ++ show e)
 
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
-procAssign varMap spec (Assign n (Cons typ stmts)) =
+procAssign varMap spec (Assign n (Cons typ stmts)) = 
+    trace ("procassign " ++ n ++ " " ++ show typ ++ " " ++ show stmts) $
     if n == "shape" then spec { spShape = (typ, configs) } -- primary shape
+    else if n == "color" then error "TEST"
         else spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec } -- secondary shapes
     where
         configs = foldl addSpec M.empty stmts
@@ -415,7 +423,8 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
         addSpec dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
         addSpec dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
         -- FIXME: wrap fromleft inside a function!
-        addSpec dict (Assign s e) = M.insert s (Id (fromLeft (error "Unexpected ID")$ procExpr varMap e)) dict
+        addSpec dict (Assign s e) = 
+                M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 

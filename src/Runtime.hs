@@ -204,11 +204,15 @@ defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
 defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
 
 
-shapeAndFn :: (Floating a, Real a, Show a, Ord a) => S.StyDict -> String -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
+shapeAndFn :: (Floating a, Real a, Show a, Ord a) => 
+           S.StyDict -> String -> 
+           ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], 
+                   [(ConstrFnOn a, Weight a, [Name], [a])])
 shapeAndFn dict name =
     case M.lookup name dict of
         Nothing -> error ("Cannot find style info for " ++ name)
-        Just s  -> concat3 $ map getShape $ (name, S.spShape s) : map addPrefix (M.toList $ S.spShpMap s)
+        Just s  -> concat3 $ map getShape $ 
+                           (name, S.spShape s) : map addPrefix (M.toList $ S.spShpMap s)
     where
         concat3 x = (concatMap fst3 x, concatMap snd3 x, concatMap thd3 x)
         addPrefix (s, o) = (name ++ "_" ++ s, o)
@@ -224,6 +228,18 @@ shapeAndFn dict name =
         getShape (n, (S.NoShape, _)) = ([], [], [])
         getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
 
+-- TODO have defaultCirc return a circ, not object? or pattern match earlier
+applyComputation :: String -> Obj -> Obj
+applyComputation fname circ = case fname of
+     "None" -> circ
+     _      -> case M.lookup fname computationDict of
+                 Just comp -> case comp of
+                              ComputeColor f -> case circ of 
+                                                C c -> C c { colorc = f () }
+                                                _   -> error "Runtime: wrong type"
+                              TestNone -> error $ "Runtime: ill-typed computation " ++ fname
+                 Nothing -> error $ "Runtime: could not find computation named " ++ fname
+
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (Floating a, Real a, Show a, Ord a) =>
@@ -232,14 +248,18 @@ initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
 initText n config = ([defaultText n], [], [])
 initArrow n config = (objs, oFns, [])
     where
-        from = trace ("arrow to config " ++ show config ++ " | " ++ to) $ queryConfig "start" config
+        from = trace ("arrow to config " ++ show config ++ " | " ++ to) 
+               $ queryConfig "start" config
         to   = queryConfig "end" config
         lab  = queryConfig "label" config
-        objs = if lab == "None" then [defaultSolidArrow n] else [defaultSolidArrow n, defaultLabel n]
-        oFns = if from == "None" || to == "None" then [] else  [(centerMap, defaultWeight, [n, from, to], [])]
+        objs = if lab == "None" then [defaultSolidArrow n] 
+               else [defaultSolidArrow n, defaultLabel n]
+        oFns = if from == "None" || to == "None" then [] 
+               else  [(centerMap, defaultWeight, [n, from, to], [])]
 initCircle n config = (objs, oFns, constrs)
     where
-        circObj = trace ("cir color: " ++ cirColor ++ " | config: " ++ show config) $ defaultCirc n
+        circObj = trace ("cir (" ++ n ++ ") color: " ++ cirColor ++ " | config: " ++ show config) $ 
+                  applyComputation cirColor (defaultCirc n)
         cirColor = queryConfig "color" config
         objs = [circObj, defaultLabel n]
         oFns = []
@@ -285,7 +305,6 @@ declLabelObjfn = centerLabel -- objFnOnNone
 
 declMapObjfn :: ObjFn
 declMapObjfn = centerMap
-
 
 
 genAllObjs :: (Floating a, Real a, Show a, Ord a) =>
@@ -434,8 +453,7 @@ renderCirc c = if selected c
                then let (r', g', b', a') = rgbaOfColor $ colorc c in
                     color (makeColor r' g' b' (a' / 2)) $ translate (xc c) (yc c) $
                     circleSolid (r c)
-               else color (colorc c) $ translate (xc c) (yc c) $
-                    circleSolid (r c)
+               else {-trace ("RENDER CIRC: " ++ show (colorc c)) $-} color (colorc c) $ translate (xc c) (yc c) $ circleSolid (r c)
 
 -- TODO: this is just for debugging purposes
 renderEllipse :: Ellipse -> Picture
@@ -588,7 +606,7 @@ sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                                   (cg', gen5) = randomR colorRange  gen4
                                   (cb', gen6) = randomR colorRange  gen5
                                   in
-                              (C $ circ { r = r', colorc = makeColor cr' cg' cb' opacity }, gen6)
+                              (C $ circ { r = r' {-, colorc = makeColor cr' cg' cb' opacity -} }, gen6)
                     E elli -> let (rx', gen3) = randomR radiusRange gen2
                                   (cr', gen4) = randomR colorRange  gen3
                                   (cg', gen5) = randomR colorRange  gen4
