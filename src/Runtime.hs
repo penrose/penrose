@@ -12,6 +12,7 @@ import qualified Style as S
 import Utils
 import Shapes
 import Functions
+import Computation
 import Data.Set (fromList)
 import Data.List
 import Data.Maybe
@@ -26,6 +27,7 @@ import System.IO
 import System.Exit
 import System.Environment
 import System.Random
+import Debug.Trace
 import qualified Data.Map.Strict as M
 import qualified Substance as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
@@ -202,7 +204,6 @@ defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
 defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
 
 
-
 shapeAndFn :: (Floating a, Real a, Show a, Ord a) => S.StyDict -> String -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 shapeAndFn dict name =
     case M.lookup name dict of
@@ -223,6 +224,7 @@ shapeAndFn dict name =
         getShape (n, (S.NoShape, _)) = ([], [], [])
         getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
 
+-- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (Floating a, Real a, Show a, Ord a) =>
     String -> M.Map String S.Expr
@@ -230,12 +232,18 @@ initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
 initText n config = ([defaultText n], [], [])
 initArrow n config = (objs, oFns, [])
     where
-        from = queryConfig "start" config
+        from = trace ("arrow to config " ++ show config ++ " | " ++ to) $ queryConfig "start" config
         to   = queryConfig "end" config
         lab  = queryConfig "label" config
         objs = if lab == "None" then [defaultSolidArrow n] else [defaultSolidArrow n, defaultLabel n]
         oFns = if from == "None" || to == "None" then [] else  [(centerMap, defaultWeight, [n, from, to], [])]
-initCircle n config = ([defaultCirc n, defaultLabel n], [], sizeFuncs n)
+initCircle n config = (objs, oFns, constrs)
+    where
+        circObj = trace ("cir color: " ++ cirColor ++ " | config: " ++ show config) $ defaultCirc n
+        cirColor = queryConfig "color" config
+        objs = [circObj, defaultLabel n]
+        oFns = []
+        constrs = sizeFuncs n
 initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
     (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
 initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)

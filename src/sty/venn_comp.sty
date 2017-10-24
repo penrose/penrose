@@ -1,6 +1,13 @@
 Set x {
-    shape = Circle { }
+    shape = Circle {
+      color = ~computeColor
+    }
+
     constraint contains(x, x.label)
+}
+
+Set A {
+  constraint at(A, 100, 100)
 }
 
 Intersect x y {

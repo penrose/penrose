@@ -49,7 +49,7 @@ data SolidArrow = SolidArrow { startx :: Float
                              , endx :: Float
                              , endy :: Float
                              , thickness :: Float -- the maximum thickness, i.e. the thickness of the head
-                             , selsa :: Bool -- is the circle currently selected? (mouse is dragging it)
+                             , selsa :: Bool -- is the arrow currently selected? (mouse is dragging it)
                              , namesa :: String
                              , colorsa :: Color
                             --  , bbox :: BBox
