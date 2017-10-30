@@ -80,7 +80,8 @@ data Expr
     | Id String
     | BinOp BinaryOp Expr Expr
     | Cons StyObj [Stmt] -- | Constructors for objects
-    | Comp String -- TODO. should it match the type in Computation or not?
+    | Comp String -- | Name of function for computation
+    | CompArgs String [Expr] -- TODO, advanced version of Comp
     deriving (Show)
 
 -- TODO: this feature is NOT fully implemented. As if now, we do not support chained dot-access to arbitrary elements in the environment.
@@ -167,16 +168,24 @@ stmt =
     <|> try constrFnInfix
     <|> try objFnInfix
 
+-- TODO: Currently, "start = p" or "color = computeColor(...)" (not sure about args yet)
+-- TODO: How does it deal with nested assignments? Also, add ~ and *
 assignStmt :: Parser Stmt
 assignStmt = do
     var  <- attribute
     sc
     void (symbol "=")
-    -- How does it deal with nested assignments?
-    -- sc
-    -- void (symbol "~")
-    e    <- expr
+    e    <- (try parseComp <|> expr) -- TODO: right order? try on which/both/neither?
     return (Assign var e)
+
+-- | modeled off of objFn
+parseComp :: Parser Expr
+parseComp = do
+  fname <- identifier
+  void (symbol "(")
+  params <- expr `sepBy` comma
+  void (symbol ")")
+  return (CompArgs fname params)
 
 -- | objective function call
 objFn :: Parser Stmt
@@ -333,7 +342,8 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) =
         newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 
 -- removeDups :: [[(VarMap, StySpec)]]
--- TODO: reaaly a helper function. consider moving to "Utils"
+-- TODO: really a helper function. consider moving to "Utils"
+cartesianProduct :: [[a]] -> [[a]]
 cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
 
 -- | A helper function that returns a map from placeholder ids to actual matched ids.

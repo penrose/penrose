@@ -4,7 +4,7 @@ Set x {
 
 Set `A` {
   shape = Circle {
-    color = computeColor
+    color = computeColor(A, B, 10)
   }
 
   -- TODO: doesn't work; can't find identifier
@@ -13,7 +13,7 @@ Set `A` {
 
 Set `B` {
   shape = Circle {
-    color = computeColor2
+    color = computeColor2()
   }
 }
 
