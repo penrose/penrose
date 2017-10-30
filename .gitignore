@@ -25,3 +25,4 @@ __temp__.als
 alloy
 node_modules/
 *~
+.stack-work/
