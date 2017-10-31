@@ -406,7 +406,7 @@ lookupVarMap :: String -> VarMap -> String
 lookupVarMap s varMap = case M.lookup s varMap of
     Just s -> s
     Nothing -> case M.lookup s computationDict of
-               Just f -> s
+               Just f -> trace ("found function named: " ++ s) $ s
                Nothing -> error $ "lookupVarMap: incorrect variable mapping from " ++ s 
                                 ++ " or no computation"
 
@@ -419,14 +419,13 @@ procExpr d (BinOp Access (Id i) (Id "label"))  = traceStack "PROC 2" $ Left $ la
 procExpr d (BinOp Access (Id i) (Id "shape"))  = traceStack "PROC 3" $ Left $ lookupVarMap i d
 procExpr _ (IntLit i) = Right $ r2f i
 procExpr _ (FloatLit i) = Right $ r2f i
-procExpr v e  = error ("expr: argument unsupported! " ++ show v ++ " " ++ show e)
+procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
 
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
 procAssign varMap spec (Assign n (Cons typ stmts)) = 
     trace ("procassign " ++ n ++ " " ++ show typ ++ " " ++ show stmts) $
     if n == "shape" then spec { spShape = (typ, configs) } -- primary shape
-    else if n == "color" then error "TEST"
-        else spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec } -- secondary shapes
+    else spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec } -- secondary shapes
     where
         configs = foldl addSpec M.empty stmts
         -- FIXME: this is incorrect, we should resolve the variables earlier
@@ -434,7 +433,10 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
         addSpec dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
         -- FIXME: wrap fromleft inside a function!
         addSpec dict (Assign s e) = 
-                M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
+                case e of
+                -- TODO: assigning computation might require looking up names, resolving pattern matched ids 
+                CompArgs fname params -> trace ("inserted computation " ++ fname) $ M.insert s e dict
+                _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 

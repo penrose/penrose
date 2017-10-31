@@ -1,0 +1,15 @@
+([Selector {selTyp = SetT, selPatterns = [WildCard ``x'']}],
+[ConstrFn ``contains''
+  [Id ``x'',BinOp Access (Id ``x'') (Id ``label'')]])
+
+([Selector {selTyp = SetT, selPatterns = [RawID ``A'']}],
+[Assign ``shape''
+  (Cons Circle [Assign ``color'' (Id ``computeColor'')])])
+
+([Selector {selTyp = SetT, selPatterns = [RawID ``B'']}],
+  [Assign ``shape'' (Cons Circle [Assign ``color'' (Id ``computeColor2'')])])
+
+([Selector {selTyp = SubsetT, selPatterns = [WildCard ``x'',WildCard ``y'']}],
+  [ConstrFn ``contains'' [Id ``y'',Id ``x''],
+  ConstrFn ``smallerThan'' [Id ``x'',Id ``y''],
+  ConstrFn ``outsideOf'' [BinOp Access (Id ``y'') (Id ``label''),Id ``x'']])

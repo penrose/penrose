@@ -229,15 +229,27 @@ shapeAndFn dict name =
         getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
 
 -- TODO have defaultCirc return a circ, not object? or pattern match earlier
-applyComputation :: String -> Obj -> Obj
-applyComputation fname circ = case fname of
+applyComputation :: CompInfo -> Obj -> Obj
+applyComputation (fname, params) circ = case fname of
      "None" -> circ
      _      -> case M.lookup fname computationDict of
                  Just comp -> case comp of
                               ComputeColor f -> case circ of 
                                                 C c -> C c { colorc = f () }
-                                                _   -> error "Runtime: wrong type"
-                              TestNone -> error $ "Runtime: ill-typed computation " ++ fname
+                                                _   -> error "Runtime: wrong type, expected circle"
+                              ComputeColorArgs f -> case circ of
+                                                C c -> case params of
+                                                       [S.Id s1, S.Id s2, S.FloatLit int] -> 
+                                                         C c { colorc = f s1 s2 int }
+                                                       _ -> error "Runtime: params don't match comp type"
+                                                _   -> error "Runtime: wrong type, expected circle"
+                              ComputeColorRGBA f -> case circ of
+                                                C c -> case params of
+                                                       [S.FloatLit r,S.FloatLit g,S.FloatLit b,S.FloatLit a] ->
+                                                         C c { colorc = f r g b a }
+                                                       _ -> error "Runtime: params don't match comp type"
+                                                _   -> error "Runtime: wrong type, expected circle"
+                              TestNone -> error $ "Runtime: untyped computation " ++ fname
                  Nothing -> error $ "Runtime: could not find computation named " ++ fname
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
@@ -249,18 +261,18 @@ initText n config = ([defaultText n], [], [])
 initArrow n config = (objs, oFns, [])
     where
         from = trace ("arrow to config " ++ show config ++ " | " ++ to) 
-               $ queryConfig "start" config
-        to   = queryConfig "end" config
-        lab  = queryConfig "label" config
+               $ queryConfig_var "start" config
+        to   = queryConfig_var "end" config
+        lab  = queryConfig_var "label" config
         objs = if lab == "None" then [defaultSolidArrow n] 
                else [defaultSolidArrow n, defaultLabel n]
         oFns = if from == "None" || to == "None" then [] 
                else  [(centerMap, defaultWeight, [n, from, to], [])]
 initCircle n config = (objs, oFns, constrs)
     where
-        circObj = trace ("cir (" ++ n ++ ") color: " ++ cirColor ++ " | config: " ++ show config) $ 
+        circObj = trace ("cir (" ++ n ++ ") color fn: " ++ fst cirColor ++ " | config: " ++ show config) $ 
                   applyComputation cirColor (defaultCirc n)
-        cirColor = queryConfig "color" config
+        cirColor = queryConfig_comp "color" config
         objs = [circObj, defaultLabel n]
         oFns = []
         constrs = sizeFuncs n
@@ -268,18 +280,37 @@ initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
     (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
 initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
 initDot n config = (objs, [], [])
-        where lab  = queryConfig "label" config
+        where lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
 
 sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
               (penalty `compose2` minSize, defaultWeight, [n], [])]
 
+type CompInfo = (String, [S.Expr]) -- fn name, list of args. TODO move this elsewhere
+
+-- TODO two placeholder wrappers with old queryConfig type 
+-- until I deal with pattern-matching on computation anywhere
+queryConfig_var :: (Show k, Ord k) => k -> M.Map k S.Expr -> String
+queryConfig_var key dict = let res = queryConfig key dict in
+                case res of
+                Left var -> var
+                Right comp -> error "query config expected var but got function (computation not implemented)"
+
+queryConfig_comp :: (Show k, Ord k) => k -> M.Map k S.Expr -> CompInfo
+queryConfig_comp key dict = let res = queryConfig key dict in
+                case res of
+                Left var -> error "query config expected var but got function (computation not implemented)"
+                Right comp -> comp
+
+queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Either String CompInfo
 queryConfig key dict = case M.lookup key dict of
-    Just (S.Id i) -> i
+    Just (S.Id i) -> Left i
+    Just (S.CompArgs fn params) -> Right (fn, params)
     -- FIXME: get dot access to work for arbitrary input
-    Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> i
-    Nothing -> "None"
+    Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Left i
+    Just x -> error $ "unsupported datatype in queryConfig in runtime: " ++ show x
+    Nothing -> Left "None"
     -- error ("queryConfig: Key " ++ key ++ " does not exist!")
 
 ------- Generate objective functions
