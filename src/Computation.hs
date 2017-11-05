@@ -15,7 +15,8 @@ import Debug.Trace
 -- Doesn't deal well with polymorphism (all type variables need to go in the datatype)
 
 data Computation = ComputeColor (() -> Color) 
-                   | ComputeColorArgs (String -> String -> Float -> Color) 
+                   | ComputeColorArgs (String -> Float -> Color) 
+                   | ComputeRadius (Obj -> Float -> Float) 
                    | ComputeColorRGBA (Float -> Float -> Float -> Float -> Color) 
                    | TestNone 
 
@@ -29,6 +30,7 @@ computationDict = M.fromList flist
                         ("computeColor", ComputeColor computeColor), -- pretty verbose 
                         ("computeColor2", ComputeColor computeColor2),
                         ("computeColorArgs", ComputeColorArgs computeColorArgs),
+                        ("computeRadius", ComputeRadius computeRadius),
                         ("computeColorRGBA", ComputeColorRGBA computeColorRGBA)
                 ]
 
@@ -41,10 +43,15 @@ computeColor () = makeColor 0.5 0.1 (0.2 / 3) 0.5
 computeColor2 :: () -> Color
 computeColor2 () = makeColor (0.1 * 0.5) 0.1 0.5 0.5
 
-computeColorArgs :: String -> String -> Float -> Color
-computeColorArgs ref1 ref2 mag = trace ("computeColorArgs " ++ ref1 ++ " " ++ ref2) $ 
+computeColorArgs :: String -> Float -> Color
+computeColorArgs ref1 mag = trace ("computeColorArgs " ++ ref1) $ 
                                  makeColor (scale mag) (scale mag) (scale mag) 0.5
                  where scale c = c * 0.1
+
+-- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
+computeRadius :: Obj -> Float -> Float
+computeRadius (C circ) mag = trace ("computeRadius") $ 0.5 * (r circ)
+computeRadius _ _ = error "computeRadius expected circle, got other obj (TODO handle cases)"
 
 computeColorRGBA :: Float -> Float -> Float -> Float -> Color
 computeColorRGBA = makeColor

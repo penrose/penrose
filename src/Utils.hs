@@ -131,7 +131,7 @@ rword w = string w *> notFollowedBy alphaNumChar *> sc
 --------------------------------------------------------------------------------
 -- Debug Functions
 
--- Some debugging functions. @@@
+-- Some debugging functions. 
 debugF :: (Show a) => a -> a
 debugF x = if debug then traceShowId x else x
 debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id

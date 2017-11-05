@@ -228,9 +228,10 @@ shapeAndFn dict name =
         getShape (n, (S.NoShape, _)) = ([], [], [])
         getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
 
+-- Apply a computation to an object, setting some fields of the object.
 -- TODO have defaultCirc return a circ, not object? or pattern match earlier
-applyComputation :: CompInfo -> Obj -> Obj
-applyComputation (fname, params) circ = case fname of
+compute :: CompInfo -> Obj -> Obj
+compute (fname, params) circ = case fname of
      "None" -> circ
      _      -> case M.lookup fname computationDict of
                  Just comp -> case comp of
@@ -239,8 +240,8 @@ applyComputation (fname, params) circ = case fname of
                                                 _   -> error "Runtime: wrong type, expected circle"
                               ComputeColorArgs f -> case circ of
                                                 C c -> case params of
-                                                       [S.Id s1, S.Id s2, S.FloatLit int] -> 
-                                                         C c { colorc = f s1 s2 int }
+                                                       [S.Id s1, S.FloatLit int] -> 
+                                                         C c { colorc = f s1 int }
                                                        _ -> error "Runtime: params don't match comp type"
                                                 _   -> error "Runtime: wrong type, expected circle"
                               ComputeColorRGBA f -> case circ of
@@ -248,6 +249,12 @@ applyComputation (fname, params) circ = case fname of
                                                        [S.FloatLit r,S.FloatLit g,S.FloatLit b,S.FloatLit a] ->
                                                          C c { colorc = f r g b a }
                                                        _ -> error "Runtime: params don't match comp type"
+                                                _   -> error "Runtime: wrong type, expected circle"
+                              ComputeRadius f -> case circ of 
+                                                C c -> case params of
+                                                       [S.Id s1, S.FloatLit int] -> 
+                                                             error $ "need to look up id " ++ s1
+                                                             -- C c { r = f s1 int }
                                                 _   -> error "Runtime: wrong type, expected circle"
                               TestNone -> error $ "Runtime: untyped computation " ++ fname
                  Nothing -> error $ "Runtime: could not find computation named " ++ fname
@@ -271,8 +278,9 @@ initArrow n config = (objs, oFns, [])
 initCircle n config = (objs, oFns, constrs)
     where
         circObj = trace ("cir (" ++ n ++ ") color fn: " ++ fst cirColor ++ " | config: " ++ show config) $ 
-                  applyComputation cirColor (defaultCirc n)
+                  compute cirRad $ compute cirColor (defaultCirc n) -- TODO define infix op?
         cirColor = queryConfig_comp "color" config
+        cirRad = queryConfig_comp "radius" config
         objs = [circObj, defaultLabel n]
         oFns = []
         constrs = sizeFuncs n
@@ -287,7 +295,8 @@ sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weig
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
               (penalty `compose2` minSize, defaultWeight, [n], [])]
 
-type CompInfo = (String, [S.Expr]) -- fn name, list of args. TODO move this elsewhere
+-- fn name, list of args. TODO move this elsewhere
+type CompInfo = (String, [S.Expr]) 
 
 -- TODO two placeholder wrappers with old queryConfig type 
 -- until I deal with pattern-matching on computation anywhere
@@ -300,7 +309,9 @@ queryConfig_var key dict = let res = queryConfig key dict in
 queryConfig_comp :: (Show k, Ord k) => k -> M.Map k S.Expr -> CompInfo
 queryConfig_comp key dict = let res = queryConfig key dict in
                 case res of
-                Left var -> error "query config expected var but got function (computation not implemented)"
+                Left var -> case var of 
+                            "None" -> (var, []) -- compute will then do nothing
+                            _ -> error $ "query config expected function but got var " ++ var
                 Right comp -> comp
 
 queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Either String CompInfo
