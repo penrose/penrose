@@ -313,59 +313,8 @@ getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, [], []) block
         initDict = foldl (\m (t, n, a) ->
                      M.insert n (initSpec { spId = n, spType = t, spArgs = a }) m) M.empty res
 
--- |  'procBlock' is called by 'getDictAndFns'. 'getDictAndFns' would fold this function on a list of blocks, a.k.a. a Style program, and accumulate objective/constraint functions, and a dictionary of geometries to be rendered.
-procBlock :: (Floating a, Real a, Show a, Ord a) =>
-    (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
-    -> Block
-    -> (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
-procBlock (dict, objFns, constrFns) (selectors, stmts) = 
-          (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
-    where
-        select :: Selector -> [StySpec]
-        select s = M.elems $ M.filter (matchSel s) dict
-
-        selectedSpecs :: [[(VarMap, StySpec)]]
-        selectedSpecs = map
-            (\s -> let xs = select s
-                       vs = map (getVarMap s) xs in zip vs xs) selectors
-
-        allVars :: M.Map Name Name
-        allVars = M.fromList $ zip k k where k = M.keys dict
-
-        -- Combination of all selected (spec. varmap)
-        allCombs :: [[VarMap]]
-        allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
-        -- $ trStr (concatMap (\x -> show x ++ "\n") $ map (map fst) selectedSpecs)
-        mergedMaps :: [M.Map Name Name]
-        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT 
-                     then [allVars] 
-                     else map M.unions (filter noDup allCombs)
-
-        noDup ms = validMap $ concatMap M.toAscList ms
-
-        validMap ts = and . tr "result" . fst $ foldl
-            (\(l, m) (x, y) -> case M.lookup x m of
-                Nothing -> (True:l, M.insert x y m)
-                Just y' -> ((tr ("compare: " ++ y ++ " " ++ y' ++ ": ") $ y == y') : l, m))
-            ([], M.empty) (tr "ts" ts)
-
-        -- Only process assignment statements on matched specs, not the cartesion product of them
-        updateSpec :: M.Map String StySpec -> (VarMap, StySpec) -> M.Map String StySpec
-        updateSpec d (varmap, sp) =
-            let newSpec = foldl (procAssign varmap) sp stmts in -- procAssign is only called here
-            M.insert (spId newSpec) newSpec d
-
-        newDict :: M.Map String StySpec
-        newDict = foldl updateSpec dict $ concat selectedSpecs
-
-        -- genFns :: (t -> [t] -> Stmt -> [t]) -> t -> [t]
-        genFns f varmap = foldl (f varmap) [] stmts
-
-        -- newObjFns :: [(ObjFnOn a, Weight a, [Name], [a])] (typeclasses get annoying)
-        newObjFns    = concatMap (genFns procObjFn) $ tr "mergedMaps: " mergedMaps
-
-        newConstrFns = concatMap (genFns procConstrFn) mergedMaps
-
+-- Helper functions for procBlock
+    
 -- removeDups :: [[(VarMap, StySpec)]]
 -- TODO: really a helper function. consider moving to "Utils"
 cartesianProduct :: [[a]] -> [[a]]
@@ -375,10 +324,17 @@ cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
 getVarMap :: Selector -> StySpec -> VarMap
 getVarMap sel spec = foldl add M.empty patternNamePairs
     where
+        patternNamePairs :: [(Pattern, String)]
         patternNamePairs = zip (selPatterns sel) (spArgs spec)
-        add d (p, n) = case p of
-            RawID _    -> d
-            WildCard i -> M.insert i n d
+
+        add :: VarMap -> (Pattern, Name) -> VarMap
+        add dict (patt, name) = case patt of
+            RawID _    -> dict
+            WildCard wc -> M.insert wc name dict
+
+-- | Returns all StySpecs in the StyDict that match a selector.
+matchingSpecs :: StyDict -> Selector -> [StySpec]
+matchingSpecs dict s = M.elems $ M.filter (matchSel s) dict
 
 -- | Returns true of an object matches the selector. A match is made when
 --
@@ -396,8 +352,69 @@ matchSel sel spec = all test (zip args patterns) &&
         test (a, p) = case p of
             RawID i -> a == i
             WildCard _ -> True
+    
+-- |  'procBlock' is called by 'getDictAndFns'. 'getDictAndFns' would fold this function on a list of blocks, a.k.a. a Style program, and accumulate objective/constraint functions, and a dictionary of geometries to be rendered.
+-- TODO refactor procBlock and factor out helper functions
+procBlock :: (Floating a, Real a, Show a, Ord a) =>
+    (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
+    -> Block
+    -> (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
+procBlock (dict, objFns, constrFns) (selectors, stmts) = 
+          (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
+    where -- Organized from used first to last
+        allVars :: M.Map Name Name
+        allVars = M.fromList $ zip k k where k = M.keys dict
+
+        -- Give specs (objects) in dict that are selected by the block's selectors
+        selectedSpecs :: [[(VarMap, StySpec)]]
+        selectedSpecs = map
+            (\sel -> let styspecs = matchingSpecs dict sel -- defined externally above procblock
+                         varmaps = map (getVarMap sel) styspecs in zip varmaps styspecs) selectors
+
+        -- For the block, add each statement to the spec and insert the spec in the overall stydict
+        -- Only process assignment statements on matched specs, not the cartesion product of them
+        updateSpec :: StyDict -> (VarMap, StySpec) -> StyDict -- stmts is only external param
+        updateSpec dct (varmap, spec) =
+            let newSpec = foldl (procAssign varmap) spec stmts in -- procAssign is only called here
+            M.insert (spId newSpec) newSpec dct
+
+        -- Add each object's spec (that has been selected by the block's selectors) to the stydict
+        newDict :: StyDict
+        newDict = foldl updateSpec dict $ concat selectedSpecs 
+
+        -- validMap :: t (k, [Char]) -> Bool
+        validMap ts = and . tr "result" . fst $ foldl
+            (\(l, m) (x, y) -> case M.lookup x m of
+                Nothing -> (True:l, M.insert x y m)
+                Just y' -> ((tr ("compare: " ++ y ++ " " ++ y' ++ ": ") $ y == y') : l, m))
+            ([], M.empty) (tr "ts" ts)
+
+        -- noDup :: t (M.Map k [Char]) -> Bool
+        noDup ms = validMap $ concatMap M.toAscList ms
+
+        -- Combination of all selected (spec. varmap) (???)
+        allCombs :: [[VarMap]]
+        allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct varmaps
+                 where varmaps :: [[VarMap]]
+                       varmaps = map (map fst) selectedSpecs
+
+        mergedMaps :: [VarMap]
+        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT 
+                     then [allVars] 
+                     else map M.unions (filter noDup allCombs)
+
+        -- Gather a list of objective or constraint functions by mapping over mergedMaps (?)
+        -- then for each statement, adding an objective or constraint if the line specifies one.
+        -- genFns :: (t -> [t] -> Stmt -> [t]) -> t -> [t]
+        genFns f varmap = foldl (f varmap) [] stmts
+
+        -- newObjFns :: [(ObjFnOn a, Weight a, [Name], [a])] (typeclasses get annoying)
+        newObjFns    = concatMap (genFns procObjFn) $ tr "mergedMaps: " mergedMaps
+
+        newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 
 -- | Called repeatedly by 'procBlock', 'procConstrFn' would look up and generate constraint functions if the input is a constraint function call. It ignores all other inputs
+-- TODO: why not cons instead of (++) here and in procObjFn? would be more efficient
 procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> [(ConstrFnOn a, Weight a, [Name], [a])] -> Stmt
     -> [(ConstrFnOn a, Weight a, [Name], [a])]
@@ -448,6 +465,9 @@ procExpr _ (FloatLit i) = Right $ r2f i
 procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
+-- Given a variable mapping and spec, if the statement is an assignment,
+-- fold over the list of statements in the assignments (e.g. shape = Circle { statements } )
+-- and add them to the configuration in the object's spec.
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
 procAssign varMap spec (Assign n (Cons typ stmts)) = 
     trace ("procassign " ++ n ++ " " ++ show typ ++ " " ++ show stmts) $
