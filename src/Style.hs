@@ -303,8 +303,13 @@ getDictAndFns :: (Floating a, Real a, Show a, Ord a) =>
     -> (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, [], []) blocks
     where
+        res :: [(C.SubType, String, [String])]
         res = getSubTuples decls ++ getConstrTuples constrs
+
+        ids :: [(C.SubType, String)]
         ids = map (\(x, y, z) -> (x, y)) res
+
+        initDict :: M.Map String StySpec
         initDict = foldl (\m (t, n, a) ->
                      M.insert n (initSpec { spId = n, spType = t, spArgs = a }) m) M.empty res
 
@@ -316,29 +321,49 @@ procBlock :: (Floating a, Real a, Show a, Ord a) =>
 procBlock (dict, objFns, constrFns) (selectors, stmts) = 
           (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
     where
+        select :: Selector -> [StySpec]
         select s = M.elems $ M.filter (matchSel s) dict
-        -- selectedSpecs :: [[(VarMap, StySpec)]]
+
+        selectedSpecs :: [[(VarMap, StySpec)]]
         selectedSpecs = map
             (\s -> let xs = select s
                        vs = map (getVarMap s) xs in zip vs xs) selectors
+
+        allVars :: M.Map Name Name
         allVars = M.fromList $ zip k k where k = M.keys dict
+
         -- Combination of all selected (spec. varmap)
+        allCombs :: [[VarMap]]
         allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct (map (map fst) selectedSpecs)
         -- $ trStr (concatMap (\x -> show x ++ "\n") $ map (map fst) selectedSpecs)
-        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT then [allVars] else map M.unions (filter noDup allCombs)
+        mergedMaps :: [M.Map Name Name]
+        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT 
+                     then [allVars] 
+                     else map M.unions (filter noDup allCombs)
+
         noDup ms = validMap $ concatMap M.toAscList ms
+
         validMap ts = and . tr "result" . fst $ foldl
             (\(l, m) (x, y) -> case M.lookup x m of
                 Nothing -> (True:l, M.insert x y m)
                 Just y' -> ((tr ("compare: " ++ y ++ " " ++ y' ++ ": ") $ y == y') : l, m))
             ([], M.empty) (tr "ts" ts)
+
         -- Only process assignment statements on matched specs, not the cartesion product of them
-        updateSpec d (vm, sp) =
-            let newSpec = foldl (procAssign vm) sp stmts in
+        updateSpec :: M.Map String StySpec -> (VarMap, StySpec) -> M.Map String StySpec
+        updateSpec d (varmap, sp) =
+            let newSpec = foldl (procAssign varmap) sp stmts in -- procAssign is only called here
             M.insert (spId newSpec) newSpec d
+
+        newDict :: M.Map String StySpec
         newDict = foldl updateSpec dict $ concat selectedSpecs
-        genFns f vm = foldl (f vm) [] stmts
+
+        -- genFns :: (t -> [t] -> Stmt -> [t]) -> t -> [t]
+        genFns f varmap = foldl (f varmap) [] stmts
+
+        -- newObjFns :: [(ObjFnOn a, Weight a, [Name], [a])] (typeclasses get annoying)
         newObjFns    = concatMap (genFns procObjFn) $ tr "mergedMaps: " mergedMaps
+
         newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 
 -- removeDups :: [[(VarMap, StySpec)]]
@@ -372,7 +397,7 @@ matchSel sel spec = all test (zip args patterns) &&
             RawID i -> a == i
             WildCard _ -> True
 
--- | Called repeated by 'procBlock', 'procConstrFn' would lookup and generate constraint functions if the input is a constraint function call. It ignores all other inputs
+-- | Called repeatedly by 'procBlock', 'procConstrFn' would look up and generate constraint functions if the input is a constraint function call. It ignores all other inputs
 procConstrFn :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> [(ConstrFnOn a, Weight a, [Name], [a])] -> Stmt
     -> [(ConstrFnOn a, Weight a, [Name], [a])]
@@ -411,6 +436,7 @@ lookupVarMap s varMap = case M.lookup s varMap of
                                 ++ " or no computation"
 
 -- | Resolve a Style expression, which could be operations among expressions such as a chained dot-access for an attribute through a couple of layers of indirection (TODO: hackiest part of the compiler, rewrite this)
+-- | An expression can be either a string (variable name) or float (literal)? Not sure
 procExpr :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> Expr -> Either String a
 procExpr d (Id s)  = traceStack ("PROC 1 | " ++ s ++ " | " ++ show d) $ Left $ lookupVarMap s d
@@ -420,6 +446,7 @@ procExpr d (BinOp Access (Id i) (Id "shape"))  = traceStack "PROC 3" $ Left $ lo
 procExpr _ (IntLit i) = Right $ r2f i
 procExpr _ (FloatLit i) = Right $ r2f i
 procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
+-- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
 procAssign varMap spec (Assign n (Cons typ stmts)) = 
@@ -427,8 +454,11 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
     if n == "shape" then spec { spShape = (typ, configs) } -- primary shape
     else spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec } -- secondary shapes
     where
+        configs :: M.Map String Expr
         configs = foldl addSpec M.empty stmts
         -- FIXME: this is incorrect, we should resolve the variables earlier
+
+        addSpec :: M.Map String Expr -> Stmt -> M.Map String Expr
         addSpec dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
         addSpec dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
         -- FIXME: wrap fromleft inside a function!

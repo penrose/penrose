@@ -378,7 +378,6 @@ lookupNames dict ns = map check res
             Just x -> x
             _ -> error ("lookupNames: at least one of the arguments don't exist: " ++ show ns)
 
-
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- first param: list of parameter annotations for each object in the state
 -- assumes that the state's SIZE and ORDER never change
@@ -397,7 +396,6 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
                 (constrWeight * penaltyWeight * sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) constrObjFns))
-
 
 -- TODO: **must** manually change this constraint if you change the constr function for EP
 -- needs constr to be violated
