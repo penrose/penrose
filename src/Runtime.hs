@@ -60,6 +60,17 @@ data State = State { objs :: [Obj]
                    , params :: Params
                    }  -- deriving (Show)
 
+-- | Datatypes for computation. ObjComp is gathered in pre-compilation and passed to functions that evaluate the computation.
+-- | object name, function name, list of args (TODO resolve them WRT pattern matching)
+data ObjComp = ObjComp { oName :: Name, -- "A"
+                     oProp :: Name, -- "radius"
+                     fnName :: Name, -- computeRadius
+                     fnParams :: [S.Expr] } -- (1.2, B)
+               deriving (Show)
+
+-- | fn name, list of args (returned by queryCondig)
+type CompInfo = (Name, [S.Expr])
+
 ------
 
 initRng :: StdGen
@@ -81,7 +92,7 @@ type Varying a = [a]
 -- does not unpack names
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
-unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
+unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)] -- TODO: changed r to Fix for testing
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
@@ -134,7 +145,8 @@ solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex
 
 circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
 circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
-         where (xc1, yc1, r1) = if not $ length params == 3 then error "wrong # params to pack circle"
+         where (xc1, yc1, r1) = if not $ length params == 3
+                                then error $ "wrong # params to pack circle: expected 3, got " ++ show (length params)
                                 else (params !! 0, params !! 1, params !! 2)
 
 ellipsePack :: (Real a, Floating a, Show a, Ord a) => Ellipse -> [a] -> Ellipse' a
@@ -219,66 +231,104 @@ defaultCurve name = CB CubicBezier { colorcb = black, pathcb = path, namecb = na
 shapeAndFn :: (Floating a, Real a, Show a, Ord a) =>
            S.StyDict -> String ->
            ([Obj], [(ObjFnOn a, Weight a, [Name], [a])],
-                   [(ConstrFnOn a, Weight a, [Name], [a])])
+                   [(ConstrFnOn a, Weight a, [Name], [a])],
+                   [ObjComp])
 shapeAndFn dict name =
     case M.lookup name dict of
         Nothing -> error ("Cannot find style info for " ++ name)
-        Just s  -> concat3 $ map getShape $
-                           (name, S.spShape s) : map addPrefix (M.toList $ S.spShpMap s)
+        Just spec  -> let config = (name, S.spShape spec) : map addPrefix (M.toList $ S.spShpMap spec) in
+                      let objs_and_functions = map getShape config in
+                      trace ("shape map: " ++ show config) $ concat4 objs_and_functions
+                      -- example config:
+                      -- shape map: [("A",(Circle,fromList [("color",
+                      -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
     where
-        concat3 x = (concatMap fst3 x, concatMap snd3 x, concatMap thd3 x)
+        concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
         addPrefix (s, o) = (name ++ "_" ++ s, o)
-        fst3 (a, _, _) = a
-        snd3 (_, a, _) = a
-        thd3 (_, _, a) = a
-        getShape (n, (S.Text, config)) = initText n config
-        getShape (n, (S.Arrow, config)) = initArrow n config
-        getShape (n, (S.Circle, config)) = initCircle n config
-        getShape (n, (S.Ellip, config)) = initEllipse n config
-        getShape (n, (S.Box, config)) = initSquare n config
-        getShape (n, (S.Dot, config)) = initDot n config
-        getShape (n, (S.Curve, config)) = initCurve n config
-        getShape (n, (S.NoShape, _)) = ([], [], [])
-        getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
+        fst4 (a, _, _, _) = a
+        snd4 (_, a, _, _) = a
+        thd4 (_, _, a, _) = a
+        frth4 (_, _, _, a) = a
 
--- Apply a computation to an object, setting some fields of the object.
--- TODO have defaultCirc return a circ, not object? or pattern match earlier
-compute :: CompInfo -> Obj -> Obj
-compute (fname, params) circ = case fname of
-     "None" -> circ
-     _      -> case M.lookup fname computationDict of
-                 Just comp -> case comp of
-                              ComputeColor f -> case circ of
-                                                C c -> C c { colorc = f () }
-                                                _   -> error "Runtime: wrong type, expected circle"
-                              ComputeColorArgs f -> case circ of
-                                                C c -> case params of
-                                                       [S.Id s1, S.FloatLit int] ->
-                                                         C c { colorc = f s1 int }
-                                                       _ -> error "Runtime: params don't match comp type"
-                                                _   -> error "Runtime: wrong type, expected circle"
-                              ComputeColorRGBA f -> case circ of
-                                                C c -> case params of
-                                                       [S.FloatLit r,S.FloatLit g,S.FloatLit b,S.FloatLit a] ->
-                                                         C c { colorc = f r g b a }
-                                                       _ -> error "Runtime: params don't match comp type"
-                                                _   -> error "Runtime: wrong type, expected circle"
-                              ComputeRadius f -> case circ of
-                                                C c -> case params of
-                                                       [S.Id s1, S.FloatLit int] ->
-                                                             error $ "need to look up id " ++ s1
-                                                             -- C c { r = f s1 int }
-                                                _   -> error "Runtime: wrong type, expected circle"
-                              TestNone -> error $ "Runtime: untyped computation " ++ fname
-                 Nothing -> error $ "Runtime: could not find computation named " ++ fname
+getShape :: (Floating a, Real a, Show a, Ord a) =>
+                      (String, (S.StyObj, M.Map String S.Expr)) ->
+                      ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], -- TODO type synonym?
+                              [(ConstrFnOn a, Weight a, [Name], [a])],
+                              [ObjComp])
+getShape (n, (S.Text, config)) = initText n config
+getShape (n, (S.Arrow, config)) = initArrow n config
+getShape (n, (S.Circle, config)) = initCircle n config
+getShape (n, (S.Ellip, config)) = initEllipse n config
+getShape (n, (S.Box, config)) = initSquare n config
+getShape (n, (S.Dot, config)) = initDot n config
+getShape (n, (S.Curve, config)) = initCurve n config
+getShape (n, (S.NoShape, _)) = ([], [], [], [])
+getShape (n, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ n)
+
+mapVals :: M.Map a b -> [b]
+mapVals = map snd . M.toList
+
+-- | Apply a computation to the relevant object in the dictionary.
+-- | This helper function first catches errors on the function name, object name, and object type
+computeOn :: M.Map Name Obj -> ObjComp -> M.Map Name Obj
+computeOn objDict comp =
+          let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
+          case fname of
+          "None" -> objDict
+          _ -> case M.lookup objName objDict of
+               Nothing -> error $ "compute: no object named " ++ objName
+               Just obj -> case M.lookup fname computationDict of
+                           Nothing -> error $ "compute: no computation named " ++ fname
+                           Just comp -> case obj of
+                                        C circ -> let circ' = computeInner fname objProperty comp
+                                                                        args circ objDict in
+                                                  M.insert objName (C circ') objDict
+                                        _ -> error "compute: wrong type, expected circle"
+
+-- TODO clean up lookup of functions in initCircle
+-- TODO generalize beyond circles
+-- TODO apply computations on resample, accounting for state order
+-- TODO standardize var names b/t here and computeOn
+-- | Apply a computation to the object and set the relevant property. Catch errors on input and output type.
+computeInner :: Name -> Name -> Computation -> [S.Expr] -> Circ -> M.Map Name Obj -> Circ
+computeInner fname property comp args c objDict =
+             case property of
+             "color" -> case comp of
+                          ComputeColor f -> c { colorc = f () }
+
+                          ComputeColorArgs f ->
+                            case args of
+                              [S.Id s1, S.FloatLit num] -> c { colorc = f s1 num }
+                              _ -> error "Runtime: args don't match comp type"
+
+                          ComputeColorRGBA f ->
+                            case args of
+                              [S.FloatLit r,S.FloatLit g,S.FloatLit b,S.FloatLit a] -> c { colorc = f r g b a }
+                              _ -> error "Runtime: args don't match comp type"
+
+                          _ -> error $ "Runtime: computation called that does not return a " ++ property
+
+             "radius" -> case comp of
+                           ComputeRadius f ->
+                             case args of
+                               [S.Id s1, S.FloatLit num] ->
+                                     case M.lookup s1 objDict of -- TODO lookup expressions beforehand?
+                                     Just (C inputCirc) -> trace ("input r: " ++ show (r inputCirc)
+                                                           ++ ", set r to " ++ show (f inputCirc num))
+                                                           $ c { r = f inputCirc num }
+                                     Just _ -> error "Runtime: computation reference arg of wrong type"
+                                     Nothing -> error "Runtime: nonexistent reference argument to computation"
+                               _ -> error "Runtime: args don't match comp type"
+
+                           _ -> error $ "Runtime: computation called that does not return a " ++ property
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (Floating a, Real a, Show a, Ord a) =>
-    String -> M.Map String S.Expr
-    -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
-initText n config = ([defaultText n], [], [])
-initArrow n config = (objs, oFns, [])
+    String -> M.Map String S.Expr -- config
+    -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])], [ObjComp])
+initText n config = ([defaultText n], [], [], [])
+initArrow n config = (objs, oFns, [], [])
     where
         from = trace ("arrow to config " ++ show config ++ " | " ++ to)
                $ queryConfig_var "start" config
@@ -288,22 +338,26 @@ initArrow n config = (objs, oFns, [])
                else [defaultSolidArrow n, defaultLabel n]
         oFns = if from == "None" || to == "None" then []
                else  [(centerMap, defaultWeight, [n, from, to], [])]
-initCircle n config = (objs, oFns, constrs)
+initCircle n config = (objs, oFns, constrs, computations)
     where
         circObj = trace ("cir (" ++ n ++ ") color fn: " ++ fst cirColor ++ " | config: " ++ show config) $
-                  compute cirRad $ compute cirColor (defaultCirc n) -- TODO define infix op?
-        cirColor = queryConfig_comp "color" config
-        cirRad = queryConfig_comp "radius" config
+                  defaultCirc n
         objs = [circObj, defaultLabel n]
         oFns = []
         constrs = sizeFuncs n
+        -- Look up computations in assignments for this shape, to be applied after initial state is created
+        -- TODO: generalize to more attributes
+        cirColor = queryConfig_comp "color" config
+        cirRad = queryConfig_comp "radius" config
+        computations = [ObjComp { oName = n, oProp = "radius", fnName = fst cirRad, fnParams = snd cirRad },
+                        ObjComp { oName = n, oProp = "color", fnName = fst cirColor, fnParams = snd cirColor }]
 initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
-    (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
-initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
-initDot n config = (objs, [], [])
+    (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n, [])
+initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n, [])
+initDot n config = (objs, [], [], [])
         where lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
-initCurve n config = ([curve], [], [])
+initCurve n config = ([curve], [], [], [])
         -- where path = [(10, 100), (300, 100)]
         where path = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
               style = trRaw "style" $ queryConfig_var "style" config
@@ -314,8 +368,8 @@ sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weig
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
               (penalty `compose2` minSize, defaultWeight, [n], [])]
 
--- fn name, list of args. TODO move this elsewhere
-type CompInfo = (String, [S.Expr])
+tupCons :: a -> (b, c) -> (a, b, c)
+tupCons a (b, c) = (a, b, c)
 
 -- TODO two placeholder wrappers with old queryConfig type
 -- until I deal with pattern-matching on computation anywhere
@@ -367,15 +421,19 @@ declLabelObjfn = centerLabel -- objFnOnNone
 declMapObjfn :: ObjFn
 declMapObjfn = centerMap
 
+map4 :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
+map4 f (w, x, y, z) = (f w, f x, f y, f z)
 
 genAllObjs :: (Floating a, Real a, Show a, Ord a) =>
              ([C.SubDecl], [C.SubConstr]) -> S.StyDict
-             -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
+             -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])],
+                        [(ConstrFnOn a, Weight a, [Name], [a])],
+                        [ObjComp])
 -- TODO figure out how the types work. also add weights
-genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss)
+genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss, concat compss)
     where
-        (objss, objFnss, constrFnss) = unzip3 $ map (shapeAndFn stys) $ S.getAllIds (decls, constrs)
--- FIXME: getAllIds shouldn't be happening at all
+        (objss, objFnss, constrFnss, compss) = unzip4 $ map (shapeAndFn stys) $ S.getAllIds (decls, constrs)
+-- FIXME: getAllIds shouldn't be happening at all (why not?)
 
 dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
 dictOf = foldr addObj M.empty
@@ -429,7 +487,7 @@ genInitState :: ([C.SubDecl], [C.SubConstr]) -> S.StyProg -> State
 genInitState (decls, constrs) stys =
              -- objects and objectives (without ambient objfns or constrs)
              let (dict, userObjFns, userConstrFns) = S.getDictAndFns (decls, constrs) stys in
-             let (initObjs, initObjFns, initConstrFns) = genAllObjs (decls, constrs) dict in
+             let (initObjs, initObjFns, initConstrFns, computations) = genAllObjs (decls, constrs) dict in
              let objFns = userObjFns ++ initObjFns in
             --  let objFns = [] in -- TODO removed only for debugging constraints
 
@@ -449,14 +507,20 @@ genInitState (decls, constrs) stys =
              -- let boolConstr = \x -> True in // TODO needs to take this as a param
              let (initStateConstr, initRng') = sampleConstrainedState initRng initObjs constrs in
 
+            -- Apply each computation to the object in the (dictionary of) state, updating the state each time.
+             let initStateComputed = trace ("| comps: " ++ show computations
+                                     {-++ "\n| objs: " ++ show initStateConstr-}) $
+                                     mapVals $ foldl computeOn (dictOfObjs initStateConstr) computations in
+
+             -- Note: after creating these annotations, we can no longer change the size or order of the state.
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
-             let flatObjsAnnotated = unpackAnnotate (addGrads initStateConstr) in
+             let flatObjsAnnotated = unpackAnnotate (addGrads initStateComputed) in
              let annotationsCalc = map (map snd) flatObjsAnnotated in -- `map snd` throws away initial floats
 
              -- overall objective function
              let objFnOverall = genObjFn annotationsCalc objFns ambientObjFns constrObjFns in
 
-             State { objs = initStateConstr,
+             State { objs = initStateComputed,
                      constrs = constrs,
                      params = initParams { objFn = objFnOverall, annotations = annotationsCalc },
                      down = False, rng = initRng', autostep = False }

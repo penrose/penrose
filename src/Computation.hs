@@ -16,7 +16,7 @@ import Debug.Trace
 
 data Computation = ComputeColor (() -> Color) 
                    | ComputeColorArgs (String -> Float -> Color) 
-                   | ComputeRadius (Obj -> Float -> Float) 
+                   | ComputeRadius (Circ -> Float -> Float) 
                    | ComputeColorRGBA (Float -> Float -> Float -> Float -> Color) 
                    | TestNone 
 
@@ -30,7 +30,7 @@ computationDict = M.fromList flist
                         ("computeColor", ComputeColor computeColor), -- pretty verbose 
                         ("computeColor2", ComputeColor computeColor2),
                         ("computeColorArgs", ComputeColorArgs computeColorArgs),
-                        ("computeRadius", ComputeRadius computeRadius),
+                        ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
                         ("computeColorRGBA", ComputeColorRGBA computeColorRGBA)
                 ]
 
@@ -49,9 +49,9 @@ computeColorArgs ref1 mag = trace ("computeColorArgs " ++ ref1) $
                  where scale c = c * 0.1
 
 -- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
-computeRadius :: Obj -> Float -> Float
-computeRadius (C circ) mag = trace ("computeRadius") $ 0.5 * (r circ)
-computeRadius _ _ = error "computeRadius expected circle, got other obj (TODO handle cases)"
+computeRadiusAsFrac :: Circ -> Float -> Float
+computeRadiusAsFrac circ mag = trace ("computeRadiusAsFrac") $ mag * (r circ)
+computeRadiusAsFrac _ _ = error "computeRadiusAsFrac expected circle, got other obj (TODO handle cases)"
 
 computeColorRGBA :: Float -> Float -> Float -> Float -> Color
 computeColorRGBA = makeColor

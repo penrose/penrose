@@ -28,7 +28,7 @@ import qualified Text.Megaparsec.Lexer as L
 data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Curve | Auto
     deriving (Show)
 
--- | A type frequently used in the module. A style object such as a 'Circle' has parameters like its radius attached to it. This is a tuple associating the object with its parameters.
+-- | A type frequently used in the module. A style object such as a 'Circle' has parameters like its radius attached to it. This is a tuple associating the object with its parameters. The latter map is the config (e.g. "radius = 5", or a computation, or some other expression).
 type StyObjInfo
     = (StyObj, M.Map String Expr)
 

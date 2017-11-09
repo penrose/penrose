@@ -5,7 +5,7 @@ Set x {
 
 Set `A` {
   shape = Circle {
-    color = computeColorRGBA(1.0, 0.2, 1.0, 0.5)
+    color = computeColorRGBA(1.0, 0.2, 1.0, 0.5) -- red
   }
 
   -- TODO: doesn't work; can't find identifier
@@ -14,7 +14,8 @@ Set `A` {
 
 Set `B` {
   shape = Circle {
-    radius = computeRadius(A, 0.1)
+    radius = computeRadiusAsFrac(A, 0.5)
+    color = computeColorRGBA(0.1, 1.0, 0.2, 0.4) -- green
   }
 }
 
