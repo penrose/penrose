@@ -39,7 +39,7 @@ data StySpec = StySpec {
     spId :: String, -- | The ID of the object
     spArgs :: [String], -- | the "arguments" that the Substance object has. Maybe not the best term here. The idea is to capture @A@ and @B@ in the case of @Map f A B@
     spShape :: StyObjInfo, -- | primary geometry associated with the Substance object, specified by @shape = Circle { }@
-    spShpMap :: M.Map String StyObjInfo
+    spShpMap :: M.Map String StyObjInfo -- | secondary shapes, specified by @shape2 = Arrow { } -- the name is arbitrary here@
 } deriving (Show)
 
 -- | A Style program is a collection of blocks
@@ -77,6 +77,7 @@ data Stmt
 data Expr
     = IntLit Integer
     | FloatLit Float
+    | StringLit String
     | Id String
     | BinOp BinaryOp Expr Expr
     | Cons StyObj [Stmt] -- | Constructors for objects
@@ -242,6 +243,7 @@ expr =  try objConstructor
     <|> none
     <|> auto
     <|> number
+    <|> stringLit
 
 term :: Parser Expr
 term = Id <$> identifier
@@ -271,6 +273,9 @@ objConstructor = do
 
 number :: Parser Expr
 number =  FloatLit <$> try float <|> IntLit <$> integer
+
+stringLit :: Parser Expr
+stringLit = StringLit <$> (char '"' >> manyTill L.charLiteral (char '"'))
 
 attribute :: Parser String
 attribute = many alphaNumChar
@@ -463,6 +468,7 @@ procExpr d (BinOp Access (Id i) (Id "label"))  = traceStack "PROC 2" $ Left $ la
 procExpr d (BinOp Access (Id i) (Id "shape"))  = traceStack "PROC 3" $ Left $ lookupVarMap i d
 procExpr _ (IntLit i) = Right $ r2f i
 procExpr _ (FloatLit i) = Right $ r2f i
+procExpr _ (StringLit s) = Left s
 procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
@@ -487,6 +493,7 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
                 case e of
                 -- TODO: assigning computation might require looking up names, resolving pattern matched ids
                 CompArgs fname params -> trace ("inserted computation " ++ fname) $ M.insert s e dict
+                StringLit p -> M.insert s (StringLit p) dict
                 _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
         addSpec _ _ = error "procAssign: only support assignments in constructors!"
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others

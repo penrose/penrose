@@ -26,12 +26,18 @@ $.getScript('snap.svg.js', function()
     /*
      * Translate a list of points ([[x1, y1], [x2, y2] ...]) to a standard
      * SVG Path String.
+     * TODO: rigorous error handling. Should this be done at the frontend or backend?
      */
     function toPathString(list) {
         var str = "";
         var chunk = 2;
         // First point is the starting point
         str += "M " + list[0][0] + " " + list[0][1] + " ";
+        // if we have only two points, simply draw a line
+        if(list.length == 2) {
+            str += "L " + list[1][0] + " " + list[1][1] + " ";
+            return str;
+        }
         // Second through fourth points are for the first Bezier Curve
         str += "C " + list[1][0] + " " + list[1][1] + ", " +
                       list[2][0] + " " + list[2][1] + ", " +
@@ -79,7 +85,7 @@ $.getScript('snap.svg.js', function()
         var dx = s.node.clientWidth  / 2
         var dy = s.node.clientHeight / 2
         for (var key in data) {
-            // console.log(data[key])
+            console.log(data[key])
             var record = data[key]
             var obj = record.contents
             switch(record.tag) {
@@ -87,11 +93,17 @@ $.getScript('snap.svg.js', function()
                     var curve = s.path(toPathString(obj.pathcb));
                     curve.data("name", obj.namecb)
                     var color = obj.colorcb;
+                    // by default, the curve should be solid
                     curve.attr({
                         fill: "transparent",
                         strokeWidth: 5,
                         stroke: rgbToHex(color.r, color.g, color.b)
                     });
+                    if(obj.stylecb == "dashed") {
+                        curve.attr({
+                            strokeDasharray: "10"
+                        });
+                    }
                     curve.drag(move, start, stop)
                 break
                 case 'L': // label

@@ -122,7 +122,7 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 -- TODO comment packing these functions defining conventions
 curvePack :: (Real a, Floating a, Show a, Ord a) => CubicBezier -> [a] -> CubicBezier' a
 -- param is an ordered list of control point coordinates: [x1, y1, x2, y2 ...]
-curvePack c params = CubicBezier' { pathcb' = path, namecb' = namecb c, colorcb' = colorcb c }
+curvePack c params = CubicBezier' { pathcb' = path, namecb' = namecb c, colorcb' = colorcb c, stylecb' = stylecb c }
          where path = map tuplify2 $ chunksOf 2 params
 
 
@@ -211,7 +211,9 @@ defaultLabel text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text
 defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
 defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
-defaultCurve name = CB CubicBezier { colorcb = black, pathcb = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)], namecb = name }
+defaultCurve name = CB CubicBezier { colorcb = black, pathcb = path, namecb = name, stylecb = "solid" }
+    -- where path = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
+    where path = [(10, 100), (300, 100)]
 
 
 shapeAndFn :: (Floating a, Real a, Show a, Ord a) =>
@@ -301,8 +303,12 @@ initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
 initDot n config = (objs, [], [])
         where lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
-initCurve n config = (curve, [], [])
-        where curve = [defaultCurve n] -- TODO: take from config
+initCurve n config = ([curve], [], [])
+        -- where path = [(10, 100), (300, 100)]
+        where path = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
+              style = trRaw "style" $ queryConfig_var "style" config
+              curve = CB CubicBezier { colorcb = black, pathcb = path, namecb = n, stylecb = style }
+
 
 sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
@@ -330,12 +336,12 @@ queryConfig_comp key dict = let res = queryConfig key dict in
 queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Either String CompInfo
 queryConfig key dict = case M.lookup key dict of
     Just (S.Id i) -> Left i
+    Just (S.StringLit s) -> Left s
     Just (S.CompArgs fn params) -> Right (fn, params)
     -- FIXME: get dot access to work for arbitrary input
     Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Left i
     Just x -> error $ "unsupported datatype in queryConfig in runtime: " ++ show x
     Nothing -> Left "None"
-    -- error ("queryConfig: Key " ++ key ++ " does not exist!")
 
 ------- Generate objective functions
 
@@ -994,7 +1000,7 @@ zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
 zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ starty' a,
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
                             selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a }
-zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namecb = namecb' c }
+zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namecb = namecb' c, stylecb = stylecb' c }
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb' c
           path      = map tuplify2 $ chunksOf 2 path_flat
 
@@ -1016,7 +1022,7 @@ addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
 addGrad (A a) = A' $ SolidArrow' { startx' = r2f $ startx a, starty' = r2f $ starty a,
                             endx' = r2f $ endx a, endy' = r2f $ endy a, thickness' = r2f $ thickness a,
                             selsa' = selsa a, namesa' = namesa a, colorsa' = colorsa a }
-addGrad (CB c) = CB' $ CubicBezier' { pathcb' = path, colorcb' = colorcb c, namecb' = namecb c }
+addGrad (CB c) = CB' $ CubicBezier' { pathcb' = path, colorcb' = colorcb c, namecb' = namecb c, stylecb' = stylecb c }
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb c
           path      = map tuplify2 $ chunksOf 2 path_flat
 

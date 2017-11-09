@@ -47,6 +47,7 @@ instance FromJSON BBox
 data CubicBezier = CubicBezier {
     pathcb           :: [(Float, Float)],
     namecb           :: String,
+    stylecb          :: String,
     colorcb          :: Color
 } deriving (Eq, Show, Generic)
 
@@ -467,9 +468,10 @@ data Square' a  = Square' { xs' :: a
                      deriving (Eq, Show)
 
 data CubicBezier' a = CubicBezier' {
-    pathcb'          :: [(a, a)],
-    namecb'          :: String,
-    colorcb'         :: Color
+    pathcb'           :: [(a, a)],
+    namecb'           :: String,
+    stylecb'          :: String,
+    colorcb'          :: Color
 } deriving (Eq, Show)
 
 instance Named (SolidArrow' a) where
