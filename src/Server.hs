@@ -8,13 +8,15 @@ import Shapes
 import GHC.Generics
 import Data.Monoid (mappend)
 import Data.Text (Text)
-import Control.Monad (forM_, forever)
+import Control.Monad (forM_, forever, void)
 import Control.Monad.IO.Class (liftIO)
-import Control.Concurrent (MVar, newMVar, modifyMVar_, modifyMVar, readMVar)
+import Control.Concurrent (MVar, newMVar, modifyMVar_, modifyMVar, readMVar, forkIOWithUnmask)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Runtime as R
 import qualified Network.WebSockets as WS
+import qualified Network.Socket     as S
+import qualified Network.WebSockets.Stream     as Stream
 import GHC.Float (float2Double)
 import Control.Exception
 import System.Time
@@ -23,6 +25,9 @@ import Data.Char (isPunctuation, isSpace)
 import Data.Aeson
 import Data.Maybe (fromMaybe)
 import qualified Control.Exception as Exc (catch, ErrorCall)
+import           Network.WebSockets.Connection
+
+-- TODO: clean up imports
 
 -- Types used by the server, mainly for translation to JSON
 type ServerState = R.State
@@ -50,10 +55,42 @@ servePenrose :: String  -- the domain of the server
              -> IO ()
 servePenrose domain port initState = do
      putStrLn "Starting Server..."
-     Exc.catch (WS.runServer domain port $ application initState) handler
+     Exc.catch (runServer domain port $ application initState) handler
      where
         handler :: Exc.ErrorCall -> IO ()
         handler _ = putStrLn $ "Server Error"
+
+runServer :: String     -- ^ Address to bind
+          -> Int        -- ^ Port to listen on
+          -> WS.ServerApp  -- ^ Application
+          -> IO ()      -- ^ Never returns
+runServer host port app = runServerWith host port WS.defaultConnectionOptions app
+
+-- | A version of 'runServer' which allows you to customize some options.
+runServerWith :: String -> Int -> WS.ConnectionOptions -> WS.ServerApp -> IO ()
+runServerWith host port opts app = S.withSocketsDo $
+  bracket
+  (WS.makeListenSocket host port)
+  S.close
+  (\sock ->
+    mask_ $ forever $ do
+      allowInterrupt
+      (conn, _) <- S.accept sock
+      void $ forkIOWithUnmask $ \unmask ->
+        finally (unmask $ runApp conn opts app) (S.close conn)
+    )
+
+runApp :: S.Socket
+       -> WS.ConnectionOptions
+       -> WS.ServerApp
+       -> IO ()
+runApp socket opts app = do
+       sock <- WS.makePendingConnection socket opts
+       -- Exc.catch (app sock) handler
+       app sock
+    where
+       handler :: Exc.ErrorCall -> IO ()
+       handler _ = putStrLn $ "Server Error"
 
 application :: ServerState -> WS.ServerApp
 application s pending = do
@@ -76,6 +113,7 @@ processCommand :: WS.Connection -> R.State -> IO ()
 processCommand conn s = do
     -- putStrLn "Receiving Commands"
     msg_json <- WS.receiveData conn
+    -- print msg_json
     case decode msg_json of
         Just e -> case e of
             Cmd (Command cmd)  -> executeCommand cmd conn s
