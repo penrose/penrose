@@ -1,4 +1,4 @@
--- | The "function" module contains a library of objective and constraint
+-- | The "Function" module contains a library of objective and constraint
 -- functions, and helper functions needed to invoke them.
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, FlexibleContexts #-}
 module Functions where

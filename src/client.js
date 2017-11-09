@@ -23,11 +23,34 @@ $.getScript('snap.svg.js', function()
         return "#" + componentToHex(Math.round(255 * r)) + componentToHex(Math.round(255 * g)) + componentToHex(Math.round(255 * b));
     }
 
+    /*
+     * Translate a list of points ([[x1, y1], [x2, y2] ...]) to a standard
+     * SVG Path String.
+     */
+    function toPathString(list) {
+        var str = "";
+        var chunk = 2;
+        // First point is the starting point
+        str += "M " + list[0][0] + " " + list[0][1] + " ";
+        // Second through fourth points are for the first Bezier Curve
+        str += "C " + list[1][0] + " " + list[1][1] + ", " +
+                      list[2][0] + " " + list[2][1] + ", " +
+                      list[3][0] + " " + list[3][1] + " ";
+        for(var i = 4; i < list.length; i += chunk) {
+            points = list.slice(i, i + chunk);
+            str += "S "
+            for(var j = 0; j < points.length; j++) {
+                str += points[j][0] + " " + points[j][1] + ", ";
+            }
+        }
+        console.log(str.substring(0, str.length - 2));
+        return str.substring(0, str.length - 2);
+    }
 
     // Main rendering function
     function renderScene(ws, s, data, firstrun) {
         // Handlers for dragging events
-        var move = function(dx,dy) {
+        var move = function(dx, dy) {
             this.attr({
                 transform: this.data('origTransform') + (this.data('origTransform') ? "T" : "t") + [dx, dy]
             });
@@ -39,9 +62,6 @@ $.getScript('snap.svg.js', function()
 
         var start = function(dx, dy) {
             this.data('origTransform', this.transform().local );
-            // record the current positions
-            // this.data("ox", this.getBBox().cx );
-            // this.data("oy", +this.getBBox().cy );
             this.data("ox", 0);
             this.data("oy", 0);
             this.attr({opacity: 0.5});
@@ -63,13 +83,23 @@ $.getScript('snap.svg.js', function()
             var record = data[key]
             var obj = record.contents
             switch(record.tag) {
+                case 'CB': // cubic bezier
+                    var curve = s.path(toPathString(obj.pathcb));
+                    curve.data("name", obj.namecb)
+                    var color = obj.colorcb;
+                    curve.attr({
+                        fill: "transparent",
+                        strokeWidth: 5,
+                        stroke: rgbToHex(color.r, color.g, color.b)
+                    });
+                    curve.drag(move, start, stop)
+                break
                 case 'L': // label
                     var t = s.text(dx + obj.xl, dy - obj.yl, [obj.textl]);
                     t.data("name", obj.namel)
                     t.attr({
                         "font-style": "italic",
                         "font-family": "Palatino"
-
                     });
                     var bbox = t.getBBox()
                     var mat = new Snap.Matrix()

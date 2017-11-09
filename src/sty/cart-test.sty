@@ -1,0 +1,29 @@
+/*
+global {
+    constraint at(a, 0, 0)
+    constraint at(e, 100, 100)
+    constraint at(f, 0, 0)
+    constraint at(g, 0, 0)
+    objective  increasingX(a, b, c, d, e)
+    objective  increasingY(a, b, c, d, e)
+    objective  upright(f)
+    objective  horizontal(g)
+}
+
+Point p {
+    shape  = Dot {
+        label = Auto
+    }
+    objective centerLabel(p, p.label)
+}
+
+Map f x y {
+    shape = Arrow {}
+}
+*/
+
+Map f x y {
+    shape = Curve {}
+}
+
+

@@ -90,6 +90,8 @@ unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
 unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), (endx' a, Vary),
     (endy' a, Vary), (thickness' a, Fix)]
+-- unpackObj (CB' c) = [(pathcb' cb, Fix)]
+unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
 
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [[(a, Annotation)]]
@@ -118,6 +120,12 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 -- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
 
 -- TODO comment packing these functions defining conventions
+curvePack :: (Real a, Floating a, Show a, Ord a) => CubicBezier -> [a] -> CubicBezier' a
+-- param is an ordered list of control point coordinates: [x1, y1, x2, y2 ...]
+curvePack c params = CubicBezier' { pathcb' = path, namecb' = namecb c, colorcb' = colorcb c }
+         where path = map tuplify2 $ chunksOf 2 params
+
+
 solidArrowPack :: (Real a, Floating a, Show a, Ord a) => SolidArrow -> [a] -> SolidArrow' a
 solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex, endy' = ey, thickness' = t,
                 namesa' = namesa arr, selsa' = selsa arr, colorsa' = colorsa arr }
@@ -187,6 +195,7 @@ pack' zipped fixed varying =
                     P pt    -> P' $ ptPack pt flatParams
                     S sq    -> S' $ sqPack sq flatParams
                     A ar    -> A' $ solidArrowPack ar flatParams
+                    CB c    -> CB' $ curvePack c flatParams
 
 
 ------- Style related functions
@@ -202,16 +211,17 @@ defaultLabel text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text
 defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
 defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
+defaultCurve name = CB CubicBezier { colorcb = black, pathcb = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)], namecb = name }
 
 
-shapeAndFn :: (Floating a, Real a, Show a, Ord a) => 
-           S.StyDict -> String -> 
-           ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], 
+shapeAndFn :: (Floating a, Real a, Show a, Ord a) =>
+           S.StyDict -> String ->
+           ([Obj], [(ObjFnOn a, Weight a, [Name], [a])],
                    [(ConstrFnOn a, Weight a, [Name], [a])])
 shapeAndFn dict name =
     case M.lookup name dict of
         Nothing -> error ("Cannot find style info for " ++ name)
-        Just s  -> concat3 $ map getShape $ 
+        Just s  -> concat3 $ map getShape $
                            (name, S.spShape s) : map addPrefix (M.toList $ S.spShpMap s)
     where
         concat3 x = (concatMap fst3 x, concatMap snd3 x, concatMap thd3 x)
@@ -225,6 +235,7 @@ shapeAndFn dict name =
         getShape (n, (S.Ellip, config)) = initEllipse n config
         getShape (n, (S.Box, config)) = initSquare n config
         getShape (n, (S.Dot, config)) = initDot n config
+        getShape (n, (S.Curve, config)) = initCurve n config
         getShape (n, (S.NoShape, _)) = ([], [], [])
         getShape (_, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ name)
 
@@ -235,12 +246,12 @@ compute (fname, params) circ = case fname of
      "None" -> circ
      _      -> case M.lookup fname computationDict of
                  Just comp -> case comp of
-                              ComputeColor f -> case circ of 
+                              ComputeColor f -> case circ of
                                                 C c -> C c { colorc = f () }
                                                 _   -> error "Runtime: wrong type, expected circle"
                               ComputeColorArgs f -> case circ of
                                                 C c -> case params of
-                                                       [S.Id s1, S.FloatLit int] -> 
+                                                       [S.Id s1, S.FloatLit int] ->
                                                          C c { colorc = f s1 int }
                                                        _ -> error "Runtime: params don't match comp type"
                                                 _   -> error "Runtime: wrong type, expected circle"
@@ -250,9 +261,9 @@ compute (fname, params) circ = case fname of
                                                          C c { colorc = f r g b a }
                                                        _ -> error "Runtime: params don't match comp type"
                                                 _   -> error "Runtime: wrong type, expected circle"
-                              ComputeRadius f -> case circ of 
+                              ComputeRadius f -> case circ of
                                                 C c -> case params of
-                                                       [S.Id s1, S.FloatLit int] -> 
+                                                       [S.Id s1, S.FloatLit int] ->
                                                              error $ "need to look up id " ++ s1
                                                              -- C c { r = f s1 int }
                                                 _   -> error "Runtime: wrong type, expected circle"
@@ -260,24 +271,24 @@ compute (fname, params) circ = case fname of
                  Nothing -> error $ "Runtime: could not find computation named " ++ fname
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
-initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
+initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (Floating a, Real a, Show a, Ord a) =>
     String -> M.Map String S.Expr
     -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
 initText n config = ([defaultText n], [], [])
 initArrow n config = (objs, oFns, [])
     where
-        from = trace ("arrow to config " ++ show config ++ " | " ++ to) 
+        from = trace ("arrow to config " ++ show config ++ " | " ++ to)
                $ queryConfig_var "start" config
         to   = queryConfig_var "end" config
         lab  = queryConfig_var "label" config
-        objs = if lab == "None" then [defaultSolidArrow n] 
+        objs = if lab == "None" then [defaultSolidArrow n]
                else [defaultSolidArrow n, defaultLabel n]
-        oFns = if from == "None" || to == "None" then [] 
+        oFns = if from == "None" || to == "None" then []
                else  [(centerMap, defaultWeight, [n, from, to], [])]
 initCircle n config = (objs, oFns, constrs)
     where
-        circObj = trace ("cir (" ++ n ++ ") color fn: " ++ fst cirColor ++ " | config: " ++ show config) $ 
+        circObj = trace ("cir (" ++ n ++ ") color fn: " ++ fst cirColor ++ " | config: " ++ show config) $
                   compute cirRad $ compute cirColor (defaultCirc n) -- TODO define infix op?
         cirColor = queryConfig_comp "color" config
         cirRad = queryConfig_comp "radius" config
@@ -290,15 +301,17 @@ initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
 initDot n config = (objs, [], [])
         where lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
+initCurve n config = (curve, [], [])
+        where curve = [defaultCurve n] -- TODO: take from config
 
 sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
               (penalty `compose2` minSize, defaultWeight, [n], [])]
 
 -- fn name, list of args. TODO move this elsewhere
-type CompInfo = (String, [S.Expr]) 
+type CompInfo = (String, [S.Expr])
 
--- TODO two placeholder wrappers with old queryConfig type 
+-- TODO two placeholder wrappers with old queryConfig type
 -- until I deal with pattern-matching on computation anywhere
 queryConfig_var :: (Show k, Ord k) => k -> M.Map k S.Expr -> String
 queryConfig_var key dict = let res = queryConfig key dict in
@@ -309,7 +322,7 @@ queryConfig_var key dict = let res = queryConfig key dict in
 queryConfig_comp :: (Show k, Ord k) => k -> M.Map k S.Expr -> CompInfo
 queryConfig_comp key dict = let res = queryConfig key dict in
                 case res of
-                Left var -> case var of 
+                Left var -> case var of
                             "None" -> (var, []) -- compute will then do nothing
                             _ -> error $ "query config expected function but got var " ++ var
                 Right comp -> comp
@@ -639,8 +652,7 @@ crop cond xs = --(takeWhile (not . cond) (map fst xs), -- drops gens
 
 -- randomly sample location (for circles and labels) and radius (for circles)
 sampleCoord :: RandomGen g => g -> Obj -> (Obj, g)
-sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
-                    case o_loc of
+sampleCoord gen o = case o of
                     C circ -> let (r',  gen3) = randomR radiusRange gen2
                                   (cr', gen4) = randomR colorRange  gen3
                                   (cg', gen5) = randomR colorRange  gen4
@@ -663,9 +675,11 @@ sampleCoord gen o = let o_loc = setX x' $ setY (clamp1D y') o in
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
                     A a   -> (o_loc, gen2) -- TODO
+                    CB c  -> (o, gen2) -- TODO: fall through
 
         where (x', gen1) = randomR widthRange  gen
               (y', gen2) = randomR heightRange gen1
+              o_loc      = setX x' $ setY (clamp1D y') o
 
 -- sample each object independently, threading thru gen
 stateMap :: RandomGen g => g -> (g -> a -> (b, g)) -> [a] -> ([b], g)
@@ -980,6 +994,9 @@ zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
 zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ starty' a,
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
                             selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a }
+zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namecb = namecb' c }
+    where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb' c
+          path      = map tuplify2 $ chunksOf 2 path_flat
 
 zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
@@ -999,7 +1016,9 @@ addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
 addGrad (A a) = A' $ SolidArrow' { startx' = r2f $ startx a, starty' = r2f $ starty a,
                             endx' = r2f $ endx a, endy' = r2f $ endy a, thickness' = r2f $ thickness a,
                             selsa' = selsa a, namesa' = namesa a, colorsa' = colorsa a }
-
+addGrad (CB c) = CB' $ CubicBezier' { pathcb' = path, colorcb' = colorcb c, namecb' = namecb c }
+    where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb c
+          path      = map tuplify2 $ chunksOf 2 path_flat
 
 addGrads :: (Real a, Floating a, Show a, Ord a) => [Obj] -> [Obj' a]
 addGrads = map addGrad
