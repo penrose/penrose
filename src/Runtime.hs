@@ -75,7 +75,7 @@ type CompInfo = (Name, [S.Expr])
 
 initRng :: StdGen
 initRng = mkStdGen seed
-    where seed = 11 -- deterministic RNG with seed
+    where seed = 18 -- deterministic RNG with seed
 
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0
@@ -274,24 +274,41 @@ computeOn :: M.Map Name Obj -> ObjComp -> M.Map Name Obj
 computeOn objDict comp =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           case fname of
-          "None" -> objDict
+          "None" -> objDict -- Style like "shape = None"
           _ -> case M.lookup objName objDict of
                Nothing -> error $ "compute: no object named " ++ objName
                Just obj -> case M.lookup fname computationDict of
                            Nothing -> error $ "compute: no computation named " ++ fname
                            Just comp -> case obj of
-                                        C circ -> let circ' = computeInner fname objProperty comp
-                                                                        args circ objDict in
+                                        C circ -> let circ' = computeInnerCirc fname objProperty comp
+                                                                               args circ objDict in
                                                   M.insert objName (C circ') objDict
+                                        CB curve -> let curve' = computeInnerCurve fname objProperty comp
+                                                                                   args curve objDict in
+                                                    M.insert objName (CB curve') objDict
                                         _ -> error "compute: wrong type, expected circle"
 
+-- TODO pass randomness around
+computeInnerCurve :: Name -> Name -> Computation -> [S.Expr] -> CubicBezier -> M.Map Name Obj -> CubicBezier
+computeInnerCurve fname property comp args curve objDict =
+             case property of
+             "path" -> case comp of
+                          ComputeSurjection f -> 
+                            case args of
+                              [S.IntLit num, S.FloatLit lx, S.FloatLit ly, 
+                               S.FloatLit tx, S.FloatLit ty] -> 
+                                  let (path, g') = computeSurjection initRng num (lx, ly) (tx, ty) in
+                                  trace ("path: " ++ (show path)) $ curve { pathcb = path }
+                              _ -> error "Runtime (curve): args don't match comp type"
+                          _ -> error $ "Runtime (curve): computation called that does not return a " ++ property
+
 -- TODO clean up lookup of functions in initCircle
--- TODO generalize beyond circles
+-- TODO generalize beyond circles, design a better mechanism for attributes that multiple objs might have (color)
 -- TODO apply computations on resample, accounting for state order
 -- TODO standardize var names b/t here and computeOn
--- | Apply a computation to the object and set the relevant property. Catch errors on input and output type.
-computeInner :: Name -> Name -> Computation -> [S.Expr] -> Circ -> M.Map Name Obj -> Circ
-computeInner fname property comp args c objDict =
+-- | Apply a computation to the circle and set the relevant property. Catch errors on input and output type.
+computeInnerCirc :: Name -> Name -> Computation -> [S.Expr] -> Circ -> M.Map Name Obj -> Circ
+computeInnerCirc fname property comp args c objDict =
              case property of
              "color" -> case comp of
                           ComputeColor f -> c { colorc = f () }
@@ -347,6 +364,7 @@ initCircle n config = (objs, oFns, constrs, computations)
         constrs = sizeFuncs n
         -- Look up computations in assignments for this shape, to be applied after initial state is created
         -- TODO: generalize to more attributes
+        -- TODO: automatically look up and add all computations for each attribute of an object
         cirColor = queryConfig_comp "color" config
         cirRad = queryConfig_comp "radius" config
         computations = [ObjComp { oName = n, oProp = "radius", fnName = fst cirRad, fnParams = snd cirRad },
@@ -357,12 +375,13 @@ initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n, [])
 initDot n config = (objs, [], [], [])
         where lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
-initCurve n config = ([curve], [], [], [])
+initCurve n config = ([curve], [], [], computations)
         -- where path = [(10, 100), (300, 100)]
-        where path = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
+        where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
+              (pathFn, pathParams) = queryConfig_comp "path" config
+              computations = [ObjComp { oName = n, oProp = "path", fnName = pathFn, fnParams = pathParams }]
               style = trRaw "style" $ queryConfig_var "style" config
-              curve = CB CubicBezier { colorcb = black, pathcb = path, namecb = n, stylecb = style }
-
+              curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
 
 sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),

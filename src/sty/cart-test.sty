@@ -1,31 +1,48 @@
-/*
 global {
-    constraint at(a, 0, 0)
-    constraint at(e, 100, 100)
-    constraint at(f, 0, 0)
-    constraint at(g, 0, 0)
-    objective  increasingX(a, b, c, d, e)
-    objective  increasingY(a, b, c, d, e)
-    objective  upright(f)
-    objective  horizontal(g)
+    constraint at(origin, 0, 0)
+    constraint at(horiz, 200, 0)
+    constraint at(vert, 0, 200)
+    constraint at(topright, 200, 200)
+
+    constraint at(domain, 0, 0)
+    constraint at(codomain, 0, 0)
+    objective horizontal(domain)
+    objective upright(codomain)
+}
+
+Set `domain` {
+  shape = Arrow {
+    -- TODO: not in scope?
+    -- start = origin
+    -- end = horiz
+    label = Auto
+  }
+}
+
+Set `codomain` {
+  shape = Arrow {
+    -- start = origin
+    -- end = vert
+    label = Auto
+  }
+}
+
+Set S {
+  objective centerLabel(S, S.label)
 }
 
 Point p {
     shape  = Dot {
         label = Auto
     }
-    objective centerLabel(p, p.label)
-}
 
-Map f x y {
-    shape = Arrow {}
-}
-*/
+    objective centerLabel(p, p.label)
+} 
 
 Map f x y {
     shape = Curve {
         style = "dashed"
+        -- TODO pass in origin, vert, horiz as args for computing bounding box
+        path = computeSurjection(10, 400.0, 150.0, 600.0, 350.0)
     }
 }
-
-

@@ -1,2 +1,3 @@
-Set A, B
-f: A -> B
+Set domain, codomain
+Point origin, vert, horiz, topright
+f: domain -> codomain

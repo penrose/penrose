@@ -7,6 +7,8 @@ import Functions
 import qualified Data.Map.Strict as M
 import Graphics.Gloss.Interface.Pure.Game
 import Debug.Trace
+import System.Random
+import Data.List (sort)
 
 -- Temporary solution: register every single different function type as you write it
 -- and pattern-match on it later.
@@ -18,6 +20,7 @@ data Computation = ComputeColor (() -> Color)
                    | ComputeColorArgs (String -> Float -> Color) 
                    | ComputeRadius (Circ -> Float -> Float) 
                    | ComputeColorRGBA (Float -> Float -> Float -> Float -> Color) 
+                   | ComputeSurjection (StdGen -> Integer -> Point -> Point -> ([Point], StdGen))
                    | TestNone 
 
 -- | 'computationDict' stores a mapping from the name of computation to the actual implementation
@@ -31,8 +34,28 @@ computationDict = M.fromList flist
                         ("computeColor2", ComputeColor computeColor2),
                         ("computeColorArgs", ComputeColorArgs computeColorArgs),
                         ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
-                        ("computeColorRGBA", ComputeColorRGBA computeColorRGBA)
+                        ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
+                        ("computeSurjection", ComputeSurjection computeSurjection)
                 ]
+
+-- Generate n random values uniformly randomly sampled from interval and return generator.
+randomsIn :: StdGen -> Integer -> (Float, Float) -> ([Float], StdGen)
+randomsIn g 0 _        =  ([], g)
+randomsIn g n interval = let (x, g') = randomR interval g in -- First value
+                         let (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
+                         (x : xs, g'')
+
+-- Given a generator, number of points, and lower left and top right of bbox, return points for a surjection.
+-- Points generated lie in the bbox given, whether in math space or screen space
+-- TODO pass randomness around in Runtime
+computeSurjection :: StdGen -> Integer -> Point -> Point -> ([Point], StdGen)
+computeSurjection g numPoints (lowerx, lowery) (topx, topy) = 
+                  if numPoints < 2 then error "Surjection needs to have >= 2 points" 
+                  else let (ys_inner, g') = randomsIn g (numPoints - 2) (lowery, topy) in 
+                       let ys = lowery : ys_inner ++ [topy] in -- Include endpts so function is onto
+                       let (xs, g'') = randomsIn g numPoints (lowerx, topx) in -- In interval but not nec. endpts
+                       let xs_increasing = sort xs in
+                       (zip xs_increasing ys, g'') -- len xs == len ys
 
 -- | No arguments for now, to avoid typechecking
 -- Does this only work in gloss?
@@ -51,7 +74,6 @@ computeColorArgs ref1 mag = trace ("computeColorArgs " ++ ref1) $
 -- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
 computeRadiusAsFrac :: Circ -> Float -> Float
 computeRadiusAsFrac circ mag = trace ("computeRadiusAsFrac") $ mag * (r circ)
-computeRadiusAsFrac _ _ = error "computeRadiusAsFrac expected circle, got other obj (TODO handle cases)"
 
 computeColorRGBA :: Float -> Float -> Float -> Float -> Color
 computeColorRGBA = makeColor
