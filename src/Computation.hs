@@ -8,6 +8,7 @@ import qualified Data.Map.Strict as M
 import Graphics.Gloss.Interface.Pure.Game
 import Debug.Trace
 import System.Random
+import System.Random.Shuffle
 import Data.List (sort)
 
 -- Temporary solution: register every single different function type as you write it
@@ -51,11 +52,14 @@ randomsIn g n interval = let (x, g') = randomR interval g in -- First value
 computeSurjection :: StdGen -> Integer -> Point -> Point -> ([Point], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) = 
                   if numPoints < 2 then error "Surjection needs to have >= 2 points" 
-                  else let (ys_inner, g') = randomsIn g (numPoints - 2) (lowery, topy) in 
-                       let ys = lowery : ys_inner ++ [topy] in -- Include endpts so function is onto
-                       let (xs, g'') = randomsIn g numPoints (lowerx, topx) in -- In interval but not nec. endpts
+                  else let (xs, g') = randomsIn g numPoints (lowerx, topx) in -- In interval, not nec endpts
                        let xs_increasing = sort xs in
-                       (zip xs_increasing ys, g'') -- len xs == len ys
+
+                       let (ys_inner, g'') = randomsIn g' (numPoints - 2) (lowery, topy) in 
+                       let ys = lowery : ys_inner ++ [topy] in -- Include endpts so function is onto
+                       let ys_perm = shuffle' ys (length ys) g'' in -- Random permutation. TODO return g3?
+
+                       (zip xs_increasing ys_perm, g'') -- len xs == len ys
 
 -- | No arguments for now, to avoid typechecking
 -- Does this only work in gloss?
