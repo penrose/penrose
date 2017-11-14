@@ -75,7 +75,7 @@ type CompInfo = (Name, [S.Expr])
 
 initRng :: StdGen
 initRng = mkStdGen seed
-    where seed = 20 -- deterministic RNG with seed
+    where seed = 18 -- deterministic RNG with seed
 
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0
@@ -293,10 +293,10 @@ computeInnerCurve :: Name -> Name -> Computation -> [S.Expr] -> CubicBezier -> M
 computeInnerCurve fname property comp args curve objDict =
              case property of
              "path" -> case comp of
-                          ComputeSurjection f -> 
+                          ComputeSurjection f ->
                             case args of
-                              [S.IntLit num, S.FloatLit lx, S.FloatLit ly, 
-                               S.FloatLit tx, S.FloatLit ty] -> 
+                              [S.IntLit num, S.FloatLit lx, S.FloatLit ly,
+                               S.FloatLit tx, S.FloatLit ty] ->
                                   let (path, g') = computeSurjection initRng num (lx, ly) (tx, ty) in
                                   trace ("path: " ++ (show path)) $ curve { pathcb = path }
                               _ -> error "Runtime (curve): args don't match comp type"
@@ -472,7 +472,7 @@ lookupNames dict ns = map check res
         res = map (`M.lookup` dict) ns
         check x = case x of
             Just x -> x
-            _ -> error ("lookupNames: at least one of the arguments don't exist: " ++ show ns)
+            _ -> error ("lookupNames: at least one of the arguments does not exist: " ++ show ns)
 
 -- TODO should take list of current objects as parameter, and be partially applied with that
 -- first param: list of parameter annotations for each object in the state
@@ -530,6 +530,7 @@ genInitState (decls, constrs) stys =
              let initStateComputed = trace ("| comps: " ++ show computations
                                      {-++ "\n| objs: " ++ show initStateConstr-}) $
                                      mapVals $ foldl computeOn (dictOfObjs initStateConstr) computations in
+                                     -- TODO: why passing initStateConstr here?
 
              -- Note: after creating these annotations, we can no longer change the size or order of the state.
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]

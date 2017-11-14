@@ -452,11 +452,12 @@ procObjFn varMap fns _ = fns -- TODO: avoid functions
 -- TODO: Have a more principled expr look up routine
 lookupVarMap :: String -> VarMap -> String
 lookupVarMap s varMap = case M.lookup s varMap of
-    Just s -> s
+    Just s' -> s'
     Nothing -> case M.lookup s computationDict of
                Just f -> trace ("found function named: " ++ s) $ s
-               Nothing -> error $ "lookupVarMap: incorrect variable mapping from " ++ s
-                                ++ " or no computation"
+               Nothing -> s
+               -- TODO: there is a possibility of accessing unselected Substance variables here. As written here, we are assuming all ids from SUbstance are accessible in Style GLOBALLY. Is this okay?
+               -- error $ "lookupVarMap: incorrect variable mapping from " ++ s ++ " or no computation"
 
 -- | Resolve a Style expression, which could be operations among expressions such as a chained dot-access for an attribute through a couple of layers of indirection (TODO: hackiest part of the compiler, rewrite this)
 -- | An expression can be either a string (variable name) or float (literal)? Not sure

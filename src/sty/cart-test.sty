@@ -3,7 +3,6 @@ global {
     constraint at(horiz, 200, 0)
     constraint at(vert, 0, 200)
     constraint at(topright, 200, 200)
-
     constraint at(domain, 0, 0)
     constraint at(codomain, 0, 0)
     objective horizontal(domain)
@@ -13,16 +12,16 @@ global {
 Set `domain` {
   shape = Arrow {
     -- TODO: not in scope?
-    -- start = origin
-    -- end = horiz
+    start = origin
+    end   = horiz
     label = Auto
   }
 }
 
 Set `codomain` {
   shape = Arrow {
-    -- start = origin
-    -- end = vert
+    start = origin
+    end   = vert
     label = Auto
   }
 }
@@ -35,7 +34,6 @@ Point p {
     shape  = Dot {
         label = Auto
     }
-
     objective centerLabel(p, p.label)
 } 
 
@@ -44,5 +42,6 @@ Map f x y {
         style = "dashed"
         -- TODO pass in origin, vert, horiz as args for computing bounding box
         path = computeSurjection(10, 400.0, 150.0, 600.0, 350.0)
+        -- path = computeSurjection(10, origin, vert, horiz)
     }
 }
