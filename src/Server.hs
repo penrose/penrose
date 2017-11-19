@@ -8,26 +8,24 @@ import Shapes
 import GHC.Generics
 import Data.Monoid (mappend)
 import Data.Text (Text)
+import Control.Exception
 import Control.Monad (forM_, forever, void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Concurrent (MVar, newMVar, modifyMVar_, modifyMVar, readMVar, forkIOWithUnmask)
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
-import qualified Runtime as R
-import qualified Network.WebSockets as WS
-import qualified Network.Socket     as S
-import qualified Network.WebSockets.Stream     as Stream
-import GHC.Float (float2Double)
-import Control.Exception
-import System.Time
--- import System.Posix.Unistd(usleep)
 import Data.Char (isPunctuation, isSpace)
 import Data.Aeson
 import Data.Maybe (fromMaybe)
-import qualified Control.Exception as Exc (catch, ErrorCall)
-import           Network.WebSockets.Connection
+import GHC.Float (float2Double)
+import Network.WebSockets.Connection
+import System.Time
+import qualified Data.Text                 as T
+import qualified Data.Text.IO              as T
+import qualified Runtime                   as R
+import qualified Network.WebSockets        as WS
+import qualified Network.Socket            as S
+import qualified Network.WebSockets.Stream as Stream
+import qualified Control.Exception         as Exc (catch, ErrorCall)
 
--- TODO: clean up imports
 
 -- Types used by the server, mainly for translation to JSON
 type ServerState = R.State
@@ -44,9 +42,6 @@ instance FromJSON UpdateShapes
 wsSendJSON :: ToJSON j => WS.Connection -> j -> IO ()
 wsSendJSON conn obj = WS.sendTextData conn $ encode obj
 
--- wsReceiveJSON :: (WS.TextProtocol p, FromJSON j) => WS.WebSockets p (Maybe j)
--- wsReceiveJSON = fmap decode WS.receiveData
-
 -- | 'servePenrose' is the top-level function that "Main" uses to start serving
 --   the Penrose Runtime.
 servePenrose :: String  -- the domain of the server
@@ -58,8 +53,9 @@ servePenrose domain port initState = do
      Exc.catch (runServer domain port $ application initState) handler
      where
         handler :: Exc.ErrorCall -> IO ()
-        handler _ = putStrLn $ "Server Error"
+        handler _ = putStrLn "Server Error"
 
+-- | This 'runServer' is exactly the same as the one in "Network.WebSocket". Duplicated for calling a customized version of 'runServerWith' with error messages enabled.
 runServer :: String     -- ^ Address to bind
           -> Int        -- ^ Port to listen on
           -> WS.ServerApp  -- ^ Application
@@ -86,11 +82,7 @@ runApp :: S.Socket
        -> IO ()
 runApp socket opts app = do
        sock <- WS.makePendingConnection socket opts
-       -- Exc.catch (app sock) handler
        app sock
-    where
-       handler :: Exc.ErrorCall -> IO ()
-       handler _ = putStrLn $ "Server Error"
 
 application :: ServerState -> WS.ServerApp
 application s pending = do
