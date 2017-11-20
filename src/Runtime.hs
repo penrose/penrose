@@ -75,7 +75,7 @@ type CompInfo = (Name, [S.Expr])
 
 initRng :: StdGen
 initRng = mkStdGen seed
-    where seed = 18 -- deterministic RNG with seed
+    where seed = 19 -- deterministic RNG with seed
 
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0

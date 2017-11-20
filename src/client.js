@@ -28,9 +28,20 @@ $.getScript('snap.svg.js', function()
      * SVG Path String.
      * TODO: rigorous error handling. Should this be done at the frontend or backend?
      */
-    function toPathString(list) {
+    function toPathString(orig_list, dx, dy) {
         var str = "";
         var chunk = 2;
+        var list = new Array(orig_list.length);
+
+        console.log("haha")
+        console.log(orig_list)
+        // transform all points to screen space
+        for(var i = 0; i < list.length; i++) {
+            list[i] = toScreen(orig_list[i], dx, dy);
+        }
+        console.log("wawa")
+        console.log(list)
+        // list = orig_list
         // First point is the starting point
         str += "M " + list[0][0] + " " + list[0][1] + " ";
         // if we have only two points, simply draw a line
@@ -49,8 +60,12 @@ $.getScript('snap.svg.js', function()
                 str += points[j][0] + " " + points[j][1] + ", ";
             }
         }
-        console.log(str.substring(0, str.length - 2));
+        // console.log(str.substring(0, str.length - 2));
         return str.substring(0, str.length - 2);
+    }
+
+    function toScreen(xy, dx, dy) {
+        return [parseInt(dx + xy[0], 10), parseInt(dy - xy[1], 10)]
     }
 
     // Main rendering function
@@ -84,13 +99,14 @@ $.getScript('snap.svg.js', function()
         s.clear()
         var dx = s.node.clientWidth  / 2
         var dy = s.node.clientHeight / 2
+
         for (var key in data) {
             console.log(data[key])
             var record = data[key]
             var obj = record.contents
             switch(record.tag) {
                 case 'CB': // cubic bezier
-                    var curve = s.path(toPathString(obj.pathcb));
+                    var curve = s.path(toPathString(obj.pathcb, dx, dy));
                     curve.data("name", obj.namecb)
                     var color = obj.colorcb;
                     // by default, the curve should be solid
