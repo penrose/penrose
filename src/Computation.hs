@@ -17,27 +17,32 @@ import Data.List (sort)
 -- TODO figure out how arguments work
 -- Doesn't deal well with polymorphism (all type variables need to go in the datatype)
 
-data Computation = ComputeColor (() -> Color) 
+data Computation a = ComputeColor (() -> Color) 
                    | ComputeColorArgs (String -> Float -> Color) 
                    | ComputeRadius (Circ -> Float -> Float) 
                    | ComputeColorRGBA (Float -> Float -> Float -> Float -> Color) 
                    | ComputeSurjection (StdGen -> Integer -> Point -> Point -> ([Point], StdGen))
+                   | TestPoly (Circ' a -> a)
                    | TestNone 
 
 -- | 'computationDict' stores a mapping from the name of computation to the actual implementation
 -- | All functions must be registered
-computationDict :: M.Map String Computation
+computationDict :: Floating a => M.Map String (Computation a)
 computationDict = M.fromList flist
     where
-        flist :: [(String, Computation)] 
+        flist :: Floating a => [(String, Computation a)] 
         flist = [
                         ("computeColor", ComputeColor computeColor), -- pretty verbose 
                         ("computeColor2", ComputeColor computeColor2),
                         ("computeColorArgs", ComputeColorArgs computeColorArgs),
                         ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
                         ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
-                        ("computeSurjection", ComputeSurjection computeSurjection)
+                        ("computeSurjection", ComputeSurjection computeSurjection),
+                        ("testPoly", TestPoly testPoly)
                 ]
+
+testPoly :: Floating a => Circ' a -> a
+testPoly c = 5.5
 
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 randomsIn :: StdGen -> Integer -> (Float, Float) -> ([Float], StdGen)
@@ -52,7 +57,8 @@ randomsIn g n interval = let (x, g') = randomR interval g in -- First value
 computeSurjection :: StdGen -> Integer -> Point -> Point -> ([Point], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) = 
                   if numPoints < 2 then error "Surjection needs to have >= 2 points" 
-                  else let (xs, g') = randomsIn g numPoints (lowerx, topx) in -- In interval, not nec endpts
+                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (lowerx, topx) in
+                       let xs = lowerx : xs_inner ++ [topx] in -- Include endpts so function covers domain
                        let xs_increasing = sort xs in
 
                        let (ys_inner, g'') = randomsIn g' (numPoints - 2) (lowery, topy) in 

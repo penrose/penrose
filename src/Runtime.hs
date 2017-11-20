@@ -75,7 +75,7 @@ type CompInfo = (Name, [S.Expr])
 
 initRng :: StdGen
 initRng = mkStdGen seed
-    where seed = 19 -- deterministic RNG with seed
+    where seed = 18 -- deterministic RNG with seed
 
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0
@@ -289,7 +289,7 @@ computeOn objDict comp =
                                         _ -> error "compute: wrong type, expected circle"
 
 -- TODO pass randomness around
-computeInnerCurve :: Name -> Name -> Computation -> [S.Expr] -> CubicBezier -> M.Map Name Obj -> CubicBezier
+computeInnerCurve :: Name -> Name -> Computation a -> [S.Expr] -> CubicBezier -> M.Map Name Obj -> CubicBezier
 computeInnerCurve fname property comp args curve objDict =
              case property of
              "path" -> case comp of
@@ -307,7 +307,7 @@ computeInnerCurve fname property comp args curve objDict =
 -- TODO apply computations on resample, accounting for state order
 -- TODO standardize var names b/t here and computeOn
 -- | Apply a computation to the circle and set the relevant property. Catch errors on input and output type.
-computeInnerCirc :: Name -> Name -> Computation -> [S.Expr] -> Circ -> M.Map Name Obj -> Circ
+computeInnerCirc :: Name -> Name -> Computation a -> [S.Expr] -> Circ -> M.Map Name Obj -> Circ
 computeInnerCirc fname property comp args c objDict =
              case property of
              "color" -> case comp of
@@ -474,7 +474,7 @@ lookupNames dict ns = map check res
             Just x -> x
             _ -> error ("lookupNames: at least one of the arguments does not exist: " ++ show ns)
 
--- TODO should take list of current objects as parameter, and be partially applied with that
+-- takes list of current objects as a parameter, and is later partially applied with that in optimization
 -- first param: list of parameter annotations for each object in the state
 -- assumes that the state's SIZE and ORDER never change
 -- note: CANNOT do dict -> list because that destroys the order
@@ -491,7 +491,8 @@ genObjFn annotations objFns ambientObjFns constrObjFns =
          sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
-                (constrWeight * penaltyWeight * sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) constrObjFns))
+                (constrWeight * penaltyWeight
+                              * sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) constrObjFns))
 
 -- TODO: **must** manually change this constraint if you change the constr function for EP
 -- needs constr to be violated
@@ -530,7 +531,6 @@ genInitState (decls, constrs) stys =
              let initStateComputed = trace ("| comps: " ++ show computations
                                      {-++ "\n| objs: " ++ show initStateConstr-}) $
                                      mapVals $ foldl computeOn (dictOfObjs initStateConstr) computations in
-                                     -- TODO: why passing initStateConstr here?
 
              -- Note: after creating these annotations, we can no longer change the size or order of the state.
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]

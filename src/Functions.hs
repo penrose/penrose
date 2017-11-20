@@ -6,8 +6,8 @@ import Shapes
 import Utils
 import qualified Data.Map.Strict as M
 
-type ObjFnOn a =  [Obj' a] -> [a] -> a
-type ConstrFnOn a =  [Obj' a] -> [a] -> a
+type ObjFnOn a = [Obj' a] -> [a] -> a
+type ConstrFnOn a = [Obj' a] -> [a] -> a
 type ObjFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
 type ConstrFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
 type Weight a = a

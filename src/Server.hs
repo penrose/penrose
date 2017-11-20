@@ -93,9 +93,9 @@ application s pending = do
 
 loop :: WS.Connection -> R.State -> IO ()
 loop conn s
-    | R.optStatus ( R.params s) == R.EPConverged = do
+    | R.optStatus (R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
-        putStrLn ("Current weight: " ++ (show $ R.weight (R.params  s)))
+        putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
         wsSendJSON conn (R.objs s) -- TODO: is this necessary?
         processCommand conn s
     | R.autostep s = stepAndSend conn s
@@ -139,7 +139,8 @@ executeCommand cmd conn s
 resampleAndSend, stepAndSend :: WS.Connection -> R.State -> IO ()
 resampleAndSend conn s = do
     let (objs', rng') = R.sampleConstrainedState (R.rng s) (R.objs s) (R.constrs s)
-    let nexts = s { R.objs = objs', R.down = False, R.rng = rng', R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter } }
+    let nexts = s { R.objs = objs', R.down = False, R.rng = rng', 
+                    R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter } }
     wsSendJSON conn (R.objs nexts)
     loop conn nexts
 stepAndSend conn s = do

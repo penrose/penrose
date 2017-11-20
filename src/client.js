@@ -49,6 +49,7 @@ $.getScript('snap.svg.js', function()
             str += "L " + list[1][0] + " " + list[1][1] + " ";
             return str;
         }
+	// TODO: does not work for curve with 3 points
         // Second through fourth points are for the first Bezier Curve
         str += "C " + list[1][0] + " " + list[1][1] + ", " +
                       list[2][0] + " " + list[2][1] + ", " +
@@ -62,6 +63,17 @@ $.getScript('snap.svg.js', function()
         }
         // console.log(str.substring(0, str.length - 2));
         return str.substring(0, str.length - 2);
+    }
+
+    function allToScreen(orig_list, dx, dy) {
+        var list = new Array(orig_list.length);
+
+	// transform all points to screen space
+        for(var i = 0; i < list.length; i++) {
+            list[i] = toScreen(orig_list[i], dx, dy);
+        }
+
+	return list;
     }
 
     function toScreen(xy, dx, dy) {
@@ -91,7 +103,10 @@ $.getScript('snap.svg.js', function()
             // console.log('finished dragging');
             // console.log('distance: ' + this.data("ox") + " " + this.data("oy"));
             this.attr({opacity: 1});
-            var dict = { "tag" : "Drag", "contents" : { "name" : this.data("name"), "xm" : this.data("ox"), "ym" : this.data("oy")}}
+            var dict = { "tag" : "Drag", 
+			 "contents" : { "name" : this.data("name"), 
+					"xm" : this.data("ox"), 
+					"ym" : this.data("oy")} }
             var json = JSON.stringify(dict)
             // console.log(json)
             ws.send(json)
@@ -106,7 +121,8 @@ $.getScript('snap.svg.js', function()
             var obj = record.contents
             switch(record.tag) {
                 case 'CB': // cubic bezier
-                    var curve = s.path(toPathString(obj.pathcb, dx, dy));
+                    // var curve = s.path(toPathString(obj.pathcb, dx, dy));
+		    var curve = s.polyline(allToScreen(obj.pathcb, dx, dy));
                     curve.data("name", obj.namecb)
                     var color = obj.colorcb;
                     // by default, the curve should be solid
