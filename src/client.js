@@ -33,14 +33,14 @@ $.getScript('snap.svg.js', function()
         var chunk = 2;
         var list = new Array(orig_list.length);
 
-        console.log("haha")
-        console.log(orig_list)
+        // console.log("haha")
+        // console.log(orig_list)
         // transform all points to screen space
         for(var i = 0; i < list.length; i++) {
             list[i] = toScreen(orig_list[i], dx, dy);
         }
-        console.log("wawa")
-        console.log(list)
+        // console.log("wawa")
+        // console.log(list)
         // list = orig_list
         // First point is the starting point
         str += "M " + list[0][0] + " " + list[0][1] + " ";
@@ -116,7 +116,7 @@ $.getScript('snap.svg.js', function()
         var dy = s.node.clientHeight / 2
 
         for (var key in data) {
-            console.log(data[key])
+            // console.log(data[key])
             var record = data[key]
             var obj = record.contents
             switch(record.tag) {

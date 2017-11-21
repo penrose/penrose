@@ -22,6 +22,7 @@ data Computation a = ComputeColor (() -> Color)
                    | ComputeRadius (Circ -> Float -> Float) 
                    | ComputeColorRGBA (Float -> Float -> Float -> Float -> Color) 
                    | ComputeSurjection (StdGen -> Integer -> Point -> Point -> ([Point], StdGen))
+                   | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow -> SolidArrow -> ([Point], StdGen))
                    | TestPoly (Circ' a -> a)
                    | TestNone 
 
@@ -38,6 +39,7 @@ computationDict = M.fromList flist
                         ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
                         ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
                         ("computeSurjection", ComputeSurjection computeSurjection),
+                        ("computeSurjectionBbox", ComputeSurjectionBbox computeSurjectionBbox),
                         ("testPoly", TestPoly testPoly)
                 ]
 
@@ -67,6 +69,15 @@ computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
 
                        (zip xs_increasing ys_perm, g'') -- len xs == len ys
 
+-- this function could be more general, taking in two objects and computing their bounding box
+computeSurjectionBbox :: StdGen -> Integer -> SolidArrow -> SolidArrow -> ([Point], StdGen)
+computeSurjectionBbox g n a1 a2 = let xs = [startx a1, endx a1, startx a2, endx a2] in
+                                  let ys = [starty a1, endy a1, starty a2, endy a2] in
+                                  let lower_left = (minimum xs, minimum ys) in
+                                  let top_right = (maximum xs, maximum ys) in
+                                  -- trace ("surjection bbox " ++ show lower_left ++ " " ++ show top_right) $
+                                  computeSurjection g n lower_left top_right
+                      
 -- | No arguments for now, to avoid typechecking
 -- Does this only work in gloss?
 computeColor :: () -> Color

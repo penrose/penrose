@@ -463,10 +463,10 @@ lookupVarMap s varMap = case M.lookup s varMap of
 -- | An expression can be either a string (variable name) or float (literal)? Not sure
 procExpr :: (Floating a, Real a, Show a, Ord a) =>
     VarMap -> Expr -> Either String a
-procExpr d (Id s)  = traceStack ("PROC 1 | " ++ s ++ " | " ++ show d) $ Left $ lookupVarMap s d
+procExpr d (Id s)  = {-traceStack ("PROC 1 | " ++ s ++ " | " ++ show d) $ -}Left $ lookupVarMap s d
 -- FIXME: properly resolve access by doing lookups
-procExpr d (BinOp Access (Id i) (Id "label"))  = traceStack "PROC 2" $ Left $ labelName $ lookupVarMap i d
-procExpr d (BinOp Access (Id i) (Id "shape"))  = traceStack "PROC 3" $ Left $ lookupVarMap i d
+procExpr d (BinOp Access (Id i) (Id "label"))  = {-traceStack "PROC 2" $-} Left $ labelName $ lookupVarMap i d
+procExpr d (BinOp Access (Id i) (Id "shape"))  = {-traceStack "PROC 3" $-} Left $ lookupVarMap i d
 procExpr _ (IntLit i) = Right $ r2f i
 procExpr _ (FloatLit i) = Right $ r2f i
 procExpr _ (StringLit s) = Left s
@@ -478,7 +478,7 @@ procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " +
 -- and add them to the configuration in the object's spec.
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
 procAssign varMap spec (Assign n (Cons typ stmts)) =
-    trace ("procassign " ++ n ++ " " ++ show typ ++ " " ++ show stmts) $
+    -- trace ("procassign " ++ n ++ " " ++ show typ ++ " " ++ show stmts) $
     if n == "shape" then spec { spShape = (typ, configs) } -- primary shape
     else spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec } -- secondary shapes
     where

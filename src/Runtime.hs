@@ -54,6 +54,7 @@ data Params = Params { weight :: Double,
 -- State of the world
 data State = State { objs :: [Obj]
                    , constrs :: [C.SubConstr]
+                   , comps :: [ObjComp]
                    , down :: Bool -- left mouse button is down (dragging)
                    , rng :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
@@ -238,7 +239,7 @@ shapeAndFn dict name =
         Nothing -> error ("Cannot find style info for " ++ name)
         Just spec  -> let config = (name, S.spShape spec) : map addPrefix (M.toList $ S.spShpMap spec) in
                       let objs_and_functions = map getShape config in
-                      trace ("shape map: " ++ show config) $ concat4 objs_and_functions
+                      {-trace ("shape map: " ++ show config) $ -} concat4 objs_and_functions
                       -- example config:
                       -- shape map: [("A",(Circle,fromList [("color",
                       -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
@@ -268,7 +269,11 @@ getShape (n, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ 
 mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
 
+computeOnObjs :: [Obj] -> [ObjComp] -> [Obj]
+computeOnObjs objs comps = mapVals $ foldl computeOn (dictOfObjs objs) comps
+
 -- | Apply a computation to the relevant object in the dictionary.
+-- | This computation model assumes that the point of all computations is to set an attribute in an object.
 -- | This helper function first catches errors on the function name, object name, and object type
 computeOn :: M.Map Name Obj -> ObjComp -> M.Map Name Obj
 computeOn objDict comp =
@@ -289,18 +294,34 @@ computeOn objDict comp =
                                         _ -> error "compute: wrong type, expected circle"
 
 -- TODO pass randomness around
+-- TODO try out pattern guards? https://downloads.haskell.org/~ghc/5.00/docs/set/pattern-guards.html
 computeInnerCurve :: Name -> Name -> Computation a -> [S.Expr] -> CubicBezier -> M.Map Name Obj -> CubicBezier
 computeInnerCurve fname property comp args curve objDict =
              case property of
-             "path" -> case comp of
-                          ComputeSurjection f ->
-                            case args of
-                              [S.IntLit num, S.FloatLit lx, S.FloatLit ly,
-                               S.FloatLit tx, S.FloatLit ty] ->
-                                  let (path, g') = computeSurjection initRng num (lx, ly) (tx, ty) in
-                                  trace ("path: " ++ (show path)) $ curve { pathcb = path }
-                              _ -> error "Runtime (curve): args don't match comp type"
-                          _ -> error $ "Runtime (curve): computation called that does not return a " ++ property
+             "path" -> 
+                 case comp of
+                    ComputeSurjection f ->
+                      case args of
+                        [S.IntLit num, S.FloatLit lx, S.FloatLit ly,
+                         S.FloatLit tx, S.FloatLit ty] ->
+                            let (path, g') = computeSurjection initRng num (lx, ly) (tx, ty) in
+                            trace ("path: " ++ (show path)) $ curve { pathcb = path }
+                        _ -> error "Runtime (curve): args don't match comp type"
+                    ComputeSurjectionBbox f ->
+                      case args of
+                        [S.IntLit num, S.Id o1, S.Id o2] ->
+                         -- TODO lookup expressions beforehand?
+                         case (M.lookup o1 objDict, M.lookup o2 objDict) of
+                               (Just (A a1), Just (A a2)) -> 
+                                     let (path, g') = computeSurjectionBbox initRng num a1 a2 in
+                                     trace ("bbox " ++ show path) $
+                                     curve { pathcb = path }
+                               (x@(Just _), y@(Just _)) -> error ("Runtime: computation ref args of wrong type:"
+                                                                  ++ " " ++ show x ++ " " ++ show y)
+                               (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
+                               (_, _) -> error "Runtime: computation ref args, general error"
+                        _ -> error "Runtime (curve): args don't match comp type"
+             _ -> error $ "Runtime (curve): computation called that does not return a " ++ property
 
 -- TODO clean up lookup of functions in initCircle
 -- TODO generalize beyond circles, design a better mechanism for attributes that multiple objs might have (color)
@@ -347,8 +368,8 @@ initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
 initText n config = ([defaultText n], [], [], [])
 initArrow n config = (objs, oFns, [], [])
     where
-        from = trace ("arrow to config " ++ show config ++ " | " ++ to)
-               $ queryConfig_var "start" config
+        from = --trace ("arrow to config " ++ show config ++ " | " ++ to) $
+               queryConfig_var "start" config
         to   = queryConfig_var "end" config
         lab  = queryConfig_var "label" config
         objs = if lab == "None" then [defaultSolidArrow n]
@@ -530,7 +551,7 @@ genInitState (decls, constrs) stys =
             -- Apply each computation to the object in the (dictionary of) state, updating the state each time.
              let initStateComputed = trace ("| comps: " ++ show computations
                                      {-++ "\n| objs: " ++ show initStateConstr-}) $
-                                     mapVals $ foldl computeOn (dictOfObjs initStateConstr) computations in
+                                     computeOnObjs initStateConstr computations in
 
              -- Note: after creating these annotations, we can no longer change the size or order of the state.
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
@@ -542,6 +563,7 @@ genInitState (decls, constrs) stys =
 
              State { objs = initStateComputed,
                      constrs = constrs,
+                     comps = computations,
                      params = initParams { objFn = objFnOverall, annotations = annotationsCalc },
                      down = False, rng = initRng', autostep = False }
 
@@ -557,9 +579,15 @@ rad1 = rad-100
 rad2 :: Floating a => a
 rad2 = rad+50
 
--- Initial state of the world, reading from Substance/Style input
+-- Initial state of the world, before including Substance/Style input
 initState :: State
-initState = State { objs = objsInit, constrs = [], down = False, rng = initRng, autostep = False, params = initParams }
+initState = State { objs = objsInit, 
+                    constrs = [], 
+                    comps = [],
+                    down = False, 
+                    rng = initRng, 
+                    autostep = False, 
+                    params = initParams }
 
 -- divide two integers to obtain a float
 divf :: Int -> Int -> Float
