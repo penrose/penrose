@@ -49,8 +49,8 @@ testPoly c = 5.5
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 randomsIn :: StdGen -> Integer -> (Float, Float) -> ([Float], StdGen)
 randomsIn g 0 _        =  ([], g)
-randomsIn g n interval = let (x, g') = randomR interval g in -- First value
-                         let (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
+randomsIn g n interval = let (x, g') = randomR interval g -- First value
+                             (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
                          (x : xs, g'')
 
 -- Given a generator, number of points, and lower left and top right of bbox, return points for a surjection.
@@ -59,22 +59,22 @@ randomsIn g n interval = let (x, g') = randomR interval g in -- First value
 computeSurjection :: StdGen -> Integer -> Point -> Point -> ([Point], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) = 
                   if numPoints < 2 then error "Surjection needs to have >= 2 points" 
-                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (lowerx, topx) in
-                       let xs = lowerx : xs_inner ++ [topx] in -- Include endpts so function covers domain
-                       let xs_increasing = sort xs in
+                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (lowerx, topx)
+                           xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
+                           xs_increasing = sort xs
 
-                       let (ys_inner, g'') = randomsIn g' (numPoints - 2) (lowery, topy) in 
-                       let ys = lowery : ys_inner ++ [topy] in -- Include endpts so function is onto
-                       let ys_perm = shuffle' ys (length ys) g'' in -- Random permutation. TODO return g3?
+                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (lowery, topy) 
+                           ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
+                           ys_perm = shuffle' ys (length ys) g'' in -- Random permutation. TODO return g3?
 
                        (zip xs_increasing ys_perm, g'') -- len xs == len ys
 
 -- this function could be more general, taking in two objects and computing their bounding box
 computeSurjectionBbox :: StdGen -> Integer -> SolidArrow -> SolidArrow -> ([Point], StdGen)
-computeSurjectionBbox g n a1 a2 = let xs = [startx a1, endx a1, startx a2, endx a2] in
-                                  let ys = [starty a1, endy a1, starty a2, endy a2] in
-                                  let lower_left = (minimum xs, minimum ys) in
-                                  let top_right = (maximum xs, maximum ys) in
+computeSurjectionBbox g n a1 a2 = let xs = [startx a1, endx a1, startx a2, endx a2]
+                                      ys = [starty a1, endy a1, starty a2, endy a2]
+                                      lower_left = (minimum xs, minimum ys)
+                                      top_right = (maximum xs, maximum ys) in
                                   -- trace ("surjection bbox " ++ show lower_left ++ " " ++ show top_right) $
                                   computeSurjection g n lower_left top_right
                       

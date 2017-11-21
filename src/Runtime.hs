@@ -314,7 +314,7 @@ computeInnerCurve fname property comp args curve objDict =
                          case (M.lookup o1 objDict, M.lookup o2 objDict) of
                                (Just (A a1), Just (A a2)) -> 
                                      let (path, g') = computeSurjectionBbox initRng num a1 a2 in
-                                     trace ("bbox " ++ show path) $
+                                     -- trace ("bbox " ++ show path) $
                                      curve { pathcb = path }
                                (x@(Just _), y@(Just _)) -> error ("Runtime: computation ref args of wrong type:"
                                                                   ++ " " ++ show x ++ " " ++ show y)
@@ -396,13 +396,15 @@ initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n, [])
 initDot n config = (objs, [], [], [])
         where lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
-initCurve n config = ([curve], [], [], computations)
+initCurve n config = (objs, [], [], computations)
         -- where path = [(10, 100), (300, 100)]
         where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
               (pathFn, pathParams) = queryConfig_comp "path" config
               computations = [ObjComp { oName = n, oProp = "path", fnName = pathFn, fnParams = pathParams }]
+              lab  = queryConfig_var "label" config
               style = trRaw "style" $ queryConfig_var "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
+              objs = if lab == "None" then [curve] else [curve, defaultLabel n]
 
 sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
@@ -492,8 +494,9 @@ lookupNames dict ns = map check res
     where
         res = map (`M.lookup` dict) ns
         check x = case x of
-            Just x -> x
-            _ -> error ("lookupNames: at least one of the arguments does not exist: " ++ show ns)
+            Just o -> o
+            _ -> error ("lookupNames: at least one of the arguments does not exist: " ++ show ns ++ 
+                         " in dict: " ++ show dict)
 
 -- takes list of current objects as a parameter, and is later partially applied with that in optimization
 -- first param: list of parameter annotations for each object in the state

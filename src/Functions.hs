@@ -4,6 +4,7 @@
 module Functions where
 import Shapes
 import Utils
+import Debug.Trace
 import qualified Data.Map.Strict as M
 
 type ObjFnOn a = [Obj' a] -> [a] -> a
@@ -119,6 +120,7 @@ center [o] _ = getX o ^ 2 + getY o ^ 2
 
 -- | 'above' makes sure the first argument is on top of the second.
 above :: ObjFn
+-- above (
 above [top, bottom] [offset] = (getY top - getY bottom - offset)^2
 above [top, bottom] _ = (getY top - getY bottom - 100)^2
 
@@ -190,8 +192,30 @@ repel [a, b] _ = 1 / distsq (getX a, getY a) (getX b, getY b) + epsd
 -- helper for `repel`
 repel' x y = 1 / distsq x y + epsd
 
--- | 'centerLabel' make labels stay at the centers of objects.
+-- TODO move this elsewhere? (also applies to polyline)
+bezierBbox :: (Floating a, Ord a) => CubicBezier' a -> ((a, a), (a, a)) -- poly Point type?
+bezierBbox cb = let path = pathcb' cb 
+                    (xs, ys) = (map fst path, map snd path) 
+                    lower_left = (minimum xs, minimum ys)
+                    top_right = (maximum xs, maximum ys) in
+                    (lower_left, top_right)
+
+-- | 'centerLabel' makes labels stay at the centers of objects.
 centerLabel :: ObjFn
+-- for now, center label in bezier's bbox
+-- TODO smarter bezier/polyline label function
+-- TODO specify rotation on labels?
+centerLabel [CB' bez, L' lab] [mag] = -- use the float input? just for testing
+            let ((lx, ly), (rx, ry)) = bezierBbox bez 
+                (xmargin, ymargin) = (-10, 30) 
+                midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
+            distsq midbez (getX lab, getY lab)
+
+-- centerLabel [CB' a, L' l] [mag] = -- use the float input?
+--                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
+--                     (mx, my) = midpoint (sx, sy) (ex, ey)
+--                     (lx, ly) = (xl' l, yl' l) in
+                -- (mx - lx)^2 + (my + 1.1 * hl' l - ly)^2 -- Top right from the point
 centerLabel [P' p, L' l] _ =
                 let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
                 (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
