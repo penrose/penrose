@@ -171,20 +171,22 @@ $.getScript('snap.svg.js', function()
                         strokeWidth: 5,
                         stroke: rgbToHex(color.r, color.g, color.b)
                     });
-                    // var polyLine = s.polyline(allToScreen(obj.pathcb, dx, dy));
-                    // var controlPts = renderPoints(s, obj.pathcb, dx, dy);
-                    // polyLine.attr({
-                    //     fill: "transparent",
-                    //     strokeWidth: 5,
-                    //     stroke: rgbToHex(color.r, color.g, color.b),
-                    //     strokeDasharray: "10"
-                    // });
                     if(obj.stylecb == "dashed") {
                         curve.attr({
                             strokeDasharray: "10"
                         });
                     }
                     curve.drag(move, start, stop)
+                    // DEBUG: showing control points and poly line
+                    var polyLine = s.polyline(allToScreen(obj.pathcb, dx, dy));
+                    var controlPts = renderPoints(s, obj.pathcb, dx, dy);
+                    polyLine.attr({
+                        fill: "transparent",
+                        strokeWidth: 5,
+                        stroke: rgbToHex(color.r, color.g, color.b),
+                        strokeDasharray: "10"
+                    });
+
                 break
                 case 'L': // label
                     var t = s.text(dx + obj.xl, dy - obj.yl, [obj.textl]);
@@ -335,12 +337,14 @@ $.getScript('snap.svg.js', function()
             // console.log(event.data)
             var now  = new Date().getTime()
             var diff = (now - lastTime);
+            var obj = jQuery.parseJSON(event.data)
             if(firstRun || diff > sampleInterval) {
-                var obj = jQuery.parseJSON(event.data)
                 // console.log(obj)
                 renderScene(ws, s, obj, firstRun)
                 lastTime = now
                 firstRun = false
+            } else if(obj.flag == "final") {
+                renderScene(ws, s, obj.objs, firstRun)
             }
         }
     });

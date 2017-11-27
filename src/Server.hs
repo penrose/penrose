@@ -2,6 +2,7 @@
 --   websockets connection.
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 
 module Server where
 import Shapes
@@ -35,10 +36,12 @@ data FeedBack = Cmd Command | Drag DragEvent | Update UpdateShapes deriving (Sho
 data Command = Command { command :: String } deriving (Show, Generic)
 data DragEvent = DragEvent { name :: String, xm :: Float, ym :: Float } deriving (Show, Generic)
 data UpdateShapes = UpdateShapes { objs :: [Obj] } deriving (Show, Generic)
+data Frame = Frame { flag :: String, objs :: [Obj] } deriving (Show, Generic)
 instance FromJSON FeedBack
 instance FromJSON Command
 instance FromJSON DragEvent
 instance FromJSON UpdateShapes
+instance ToJSON Frame
 
 
 wsSendJSON :: ToJSON j => WS.Connection -> j -> IO ()
@@ -102,7 +105,7 @@ loop conn s
         putStrLn "Applying final computations"
         let objsComputed = R.computeOnObjs (R.objs s) (R.comps s)
         putStrLn $ "Final objs" ++ show objsComputed
-        wsSendJSON conn objsComputed -- ([] :: [Obj])
+        wsSendJSON conn Frame { flag = "final", objs = objsComputed } -- ([] :: [Obj])
         processCommand conn s
         -- TODO last packet seems to be received by server, but not displayed?
     | R.autostep s = stepAndSend conn s
@@ -123,7 +126,7 @@ processCommand conn s = do
 updateShapes :: [Obj] -> WS.Connection -> R.State -> IO ()
 updateShapes newObjs conn s = if R.autostep s then stepAndSend conn news else loop conn news
     where
-        news = s { R.objs = newObjs, 
+        news = s { R.objs = newObjs,
                    R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}
 
 dragUpdate :: String -> Float -> Float -> WS.Connection -> R.State -> IO ()
@@ -134,7 +137,7 @@ dragUpdate name xm ym conn s = if R.autostep s then stepAndSend conn news else l
                     then setX (xm + getX x) $ setY (-ym + getY x) x
                     else x)
             (R.objs s)
-        news = s { R.objs = newObjs, 
+        news = s { R.objs = newObjs,
                    R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}
 
 executeCommand :: String -> WS.Connection -> R.State -> IO ()
@@ -147,7 +150,7 @@ executeCommand cmd conn s
 resampleAndSend, stepAndSend :: WS.Connection -> R.State -> IO ()
 resampleAndSend conn s = do
     let (objs', rng') = R.sampleConstrainedState (R.rng s) (R.objs s) (R.constrs s)
-    let nexts = s { R.objs = objs', R.down = False, R.rng = rng', 
+    let nexts = s { R.objs = objs', R.down = False, R.rng = rng',
                     R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter } }
     wsSendJSON conn (R.objs nexts)
     loop conn nexts
@@ -158,7 +161,8 @@ stepAndSend conn s = do
 
 -- TODO don't compute after every step (inefficient but looks cool). compute once at end?
 step :: R.State -> R.State
-step s = s { R.objs = objsComputed, R.params = params' }
+-- step s = s { R.objs = objsComputed, R.params = params' }
+step s = s { R.objs = objs', R.params = params' }
         where (objs', params') = R.stepObjs (float2Double R.calcTimestep) (R.params s) (R.objs s)
-              objsComputed = --trace ("comps " ++ show (R.comps s) ++ " \n" ++ show (R.objs s)) $ 
+              objsComputed = --trace ("comps " ++ show (R.comps s) ++ " \n" ++ show (R.objs s)) $
                              R.computeOnObjs objs' (R.comps s)
