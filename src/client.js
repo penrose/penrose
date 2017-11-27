@@ -23,6 +23,46 @@ $.getScript('snap.svg.js', function()
         return "#" + componentToHex(Math.round(255 * r)) + componentToHex(Math.round(255 * g)) + componentToHex(Math.round(255 * b));
     }
 
+    function renderPoints(canvas, point_list, dx, dy) {
+        for(var i = 0; i < point_list.length; i++) {
+            var xy = toScreen(point_list[i], dx, dy);
+            var point = canvas.circle(xy[0], xy[1], 5);
+            point.attr({
+                fill: "red"
+            })
+        }
+    }
+
+    /*
+     * Translate a list of points ([[x1, y1], [x2, y2] ...]) to a
+     * Catmull-Rom Spline curve represented as an SVG path string
+     * Adopted from: https://codepen.io/osublake/pen/BowJed
+     */
+    function catmullRomSpline(list, k) {
+        // flatten the point list for simplicity
+        var data = [].concat.apply([], list);
+        if (k == null) k = 1;
+        var size = data.length;
+        var last = size - 4;
+        var path = "M" + [data[0], data[1]];
+        for (var i = 0; i < size - 2; i += 2) {
+            var x0 = i ? data[i - 2] : data[0];
+            var y0 = i ? data[i - 1] : data[1];
+            var x1 = data[i + 0];
+            var y1 = data[i + 1];
+            var x2 = data[i + 2];
+            var y2 = data[i + 3];
+            var x3 = i !== last ? data[i + 4] : x2;
+            var y3 = i !== last ? data[i + 5] : y2;
+            var cp1x = x1 + (x2 - x0) / 6 * k;
+            var cp1y = y1 + (y2 - y0) / 6 * k;
+            var cp2x = x2 - (x3 - x1) / 6 * k;
+            var cp2y = y2 - (y3 - y1) / 6 * k;
+            path += "C" + [cp1x, cp1y, cp2x, cp2y, x2, y2];
+        }
+        return path;
+    }
+
     /*
      * Translate a list of points ([[x1, y1], [x2, y2] ...]) to a standard
      * SVG Path String.
@@ -33,47 +73,48 @@ $.getScript('snap.svg.js', function()
         var chunk = 2;
         var list = new Array(orig_list.length);
 
-        // console.log("haha")
-        // console.log(orig_list)
         // transform all points to screen space
         for(var i = 0; i < list.length; i++) {
             list[i] = toScreen(orig_list[i], dx, dy);
         }
-        // console.log("wawa")
-        // console.log(list)
-        // list = orig_list
         // First point is the starting point
         str += "M " + list[0][0] + " " + list[0][1] + " ";
         // if we have only two points, simply draw a line
         if(list.length == 2) {
             str += "L " + list[1][0] + " " + list[1][1] + " ";
             return str;
+        } else {
+            var res = catmullRomSpline(list, 1)
+            return res
         }
-	// TODO: does not work for curve with 3 points
+        // TODO: does not work for curve with 3 points
+        // NOTE: the following code treats points from Runtime as control
+        // points for a Cubic Bezier Curve, which will NOT pass through
+        // the control points
+
         // Second through fourth points are for the first Bezier Curve
-        str += "C " + list[1][0] + " " + list[1][1] + ", " +
-                      list[2][0] + " " + list[2][1] + ", " +
-                      list[3][0] + " " + list[3][1] + " ";
-        for(var i = 4; i < list.length; i += chunk) {
-            points = list.slice(i, i + chunk);
-            str += "S "
-            for(var j = 0; j < points.length; j++) {
-                str += points[j][0] + " " + points[j][1] + ", ";
-            }
-        }
-        // console.log(str.substring(0, str.length - 2));
-        return str.substring(0, str.length - 2);
+        // str += "C " + list[1][0] + " " + list[1][1] + ", " +
+        //               list[2][0] + " " + list[2][1] + ", " +
+        //               list[3][0] + " " + list[3][1] + " ";
+        // for(var i = 4; i < list.length; i += chunk) {
+        //     points = list.slice(i, i + chunk);
+        //     str += "S "
+        //     for(var j = 0; j < points.length; j++) {
+        //         str += points[j][0] + " " + points[j][1] + ", ";
+        //     }
+        // }
+        // return str.substring(0, str.length - 2);
     }
 
     function allToScreen(orig_list, dx, dy) {
         var list = new Array(orig_list.length);
 
-	// transform all points to screen space
+        // transform all points to screen space
         for(var i = 0; i < list.length; i++) {
             list[i] = toScreen(orig_list[i], dx, dy);
         }
 
-	return list;
+        return list;
     }
 
     function toScreen(xy, dx, dy) {
@@ -103,9 +144,9 @@ $.getScript('snap.svg.js', function()
             // console.log('finished dragging');
             // console.log('distance: ' + this.data("ox") + " " + this.data("oy"));
             this.attr({opacity: 1});
-            var dict = { "tag" : "Drag", 
-			 "contents" : { "name" : this.data("name"), 
-					"xm" : this.data("ox"), 
+            var dict = { "tag" : "Drag",
+			 "contents" : { "name" : this.data("name"),
+					"xm" : this.data("ox"),
 					"ym" : this.data("oy")} }
             var json = JSON.stringify(dict)
             // console.log(json)
@@ -121,8 +162,7 @@ $.getScript('snap.svg.js', function()
             var obj = record.contents
             switch(record.tag) {
                 case 'CB': // cubic bezier
-                    // var curve = s.path(toPathString(obj.pathcb, dx, dy));
-		    var curve = s.polyline(allToScreen(obj.pathcb, dx, dy));
+                    var curve = s.path(toPathString(obj.pathcb, dx, dy));
                     curve.data("name", obj.namecb)
                     var color = obj.colorcb;
                     // by default, the curve should be solid
@@ -131,6 +171,14 @@ $.getScript('snap.svg.js', function()
                         strokeWidth: 5,
                         stroke: rgbToHex(color.r, color.g, color.b)
                     });
+                    // var polyLine = s.polyline(allToScreen(obj.pathcb, dx, dy));
+                    // var controlPts = renderPoints(s, obj.pathcb, dx, dy);
+                    // polyLine.attr({
+                    //     fill: "transparent",
+                    //     strokeWidth: 5,
+                    //     stroke: rgbToHex(color.r, color.g, color.b),
+                    //     strokeDasharray: "10"
+                    // });
                     if(obj.stylecb == "dashed") {
                         curve.attr({
                             strokeDasharray: "10"
