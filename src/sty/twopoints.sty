@@ -1,0 +1,22 @@
+global {
+  -- objective sameX(a, b)
+}
+
+Point x {
+  shape = Dot {
+    label = Auto
+  }
+
+  objective centerLabel(x, x.label)
+}
+
+Point `a` {
+  objective center(a)
+}
+
+Point `b` {
+  shape = Dot {
+    location = addVector(100.0, 200.0, a)
+    label = Auto
+  }
+}

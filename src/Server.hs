@@ -159,10 +159,9 @@ stepAndSend conn s = do
     wsSendJSON conn (R.objs nexts)
     loop conn nexts
 
--- TODO don't compute after every step (inefficient but looks cool). compute once at end?
+-- TODO don't compute after every step (inefficient but looks cool). compute once in beginning and once at end
 step :: R.State -> R.State
--- step s = s { R.objs = objsComputed, R.params = params' }
-step s = s { R.objs = objs', R.params = params' }
+step s = s { R.objs = objsComputed, R.params = params' }
         where (objs', params') = R.stepObjs (float2Double R.calcTimestep) (R.params s) (R.objs s)
               objsComputed = --trace ("comps " ++ show (R.comps s) ++ " \n" ++ show (R.objs s)) $
                              R.computeOnObjs objs' (R.comps s)

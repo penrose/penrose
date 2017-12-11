@@ -24,6 +24,7 @@ data Computation a = ComputeColor (() -> Color)
                    | ComputeSurjection (StdGen -> Integer -> Point -> Point -> ([Point], StdGen))
                    | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow -> SolidArrow -> ([Point], StdGen))
                    | TestPoly (Circ' a -> a)
+                   | AddVector (Point -> Point -> Point)
                    | TestNone 
 
 -- | 'computationDict' stores a mapping from the name of computation to the actual implementation
@@ -38,10 +39,17 @@ computationDict = M.fromList flist
                         ("computeColorArgs", ComputeColorArgs computeColorArgs),
                         ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
                         ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
+
                         ("computeSurjection", ComputeSurjection computeSurjection),
                         ("computeSurjectionBbox", ComputeSurjectionBbox computeSurjectionBbox),
+
+                        ("addVector", AddVector addVector),
+
                         ("testPoly", TestPoly testPoly)
                 ]
+
+addVector :: Point -> Point -> Point
+addVector (x, y) (c, d) = (x + c, y + d)
 
 testPoly :: Floating a => Circ' a -> a
 testPoly c = 5.5

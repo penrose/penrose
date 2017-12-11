@@ -28,7 +28,7 @@ $.getScript('snap.svg.js', function()
             var xy = toScreen(point_list[i], dx, dy);
             var point = canvas.circle(xy[0], xy[1], 5);
             point.attr({
-                fill: "red"
+                fill: "none"
             })
         }
     }
@@ -168,7 +168,7 @@ $.getScript('snap.svg.js', function()
                     // by default, the curve should be solid
                     curve.attr({
                         fill: "transparent",
-                        strokeWidth: 5,
+                        strokeWidth: 3, // this should be settable in Style
                         stroke: rgbToHex(color.r, color.g, color.b)
                     });
                     if(obj.stylecb == "dashed") {
@@ -178,6 +178,8 @@ $.getScript('snap.svg.js', function()
                     }
                     curve.drag(move, start, stop)
                     // DEBUG: showing control points and poly line
+		debug_bezier = false;
+		if (debug_bezier) {
                     var polyLine = s.polyline(allToScreen(obj.pathcb, dx, dy));
                     var controlPts = renderPoints(s, obj.pathcb, dx, dy);
                     polyLine.attr({
@@ -186,6 +188,7 @@ $.getScript('snap.svg.js', function()
                         stroke: rgbToHex(color.r, color.g, color.b),
                         strokeDasharray: "10"
                     });
+		}
 
                 break
                 case 'L': // label

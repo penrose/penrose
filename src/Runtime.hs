@@ -291,7 +291,29 @@ computeOn objDict comp =
                                         CB curve -> let curve' = computeInnerCurve fname objProperty comp
                                                                                    args curve objDict in
                                                     M.insert objName (CB curve') objDict
+                                        P pt -> let pt' = computeInnerPt fname objProperty comp
+                                                                         args pt objDict in
+                                                M.insert objName (P pt') objDict
                                         _ -> error "compute: wrong type, expected circle"
+
+computeInnerPt :: Name -> Name -> Computation a -> [S.Expr] -> Pt -> M.Map Name Obj -> Pt
+computeInnerPt fname property comp args pt objDict =
+             case property of
+               "location" -> 
+                 case comp of
+                    AddVector f ->
+                      case args of
+                        [S.FloatLit x, S.FloatLit y, S.Id pt2_name] ->
+                         case (M.lookup pt2_name objDict) of
+                               Just (P pt2) -> 
+                                     let (x', y') = addVector (x, y) (xp pt2, yp pt2) in
+                                     pt { xp = x', yp = y' }
+                               Just x -> error ("Runtime (pt): computation ref args of wrong type:"
+                                               ++ " " ++ show x)
+                               Nothing -> error "Runtime (pt): computation ref args nonexistent"
+                        _ -> error "Runtime (pt): args don't match comp type"
+                    _ -> error "Runtime (pt): computation called that does not apply to pt"
+               _ -> error $ "Runtime (pt): computation called that does not return a " ++ property
 
 -- TODO pass randomness around
 -- TODO try out pattern guards? https://downloads.haskell.org/~ghc/5.00/docs/set/pattern-guards.html
@@ -321,6 +343,7 @@ computeInnerCurve fname property comp args curve objDict =
                                (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
                                (_, _) -> error "Runtime: computation ref args, general error"
                         _ -> error "Runtime (curve): args don't match comp type"
+                    _ -> error "Runtime (curve): computation called that does not apply to curve"
              _ -> error $ "Runtime (curve): computation called that does not return a " ++ property
 
 -- TODO clean up lookup of functions in initCircle
@@ -393,13 +416,17 @@ initCircle n config = (objs, oFns, constrs, computations)
 initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
     (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n, [])
 initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n, [])
-initDot n config = (objs, [], [], [])
-        where lab  = queryConfig_var "label" config
+initDot n config = (objs, [], [], computations)
+        where (locFn, locParams) = queryConfig_comp "location" config
+              computations = [ObjComp { oName = n, oProp = "location", fnName = locFn, fnParams = locParams }]
+              -- TODO: the line above assumes a computation; generalize
+              lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
 initCurve n config = (objs, [], [], computations)
         -- where path = [(10, 100), (300, 100)]
         where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
               (pathFn, pathParams) = queryConfig_comp "path" config
+              -- TODO: the line below assumes that the path will be computed; generalize to no computation
               computations = [ObjComp { oName = n, oProp = "path", fnName = pathFn, fnParams = pathParams }]
               lab  = queryConfig_var "label" config
               style = trRaw "style" $ queryConfig_var "style" config
