@@ -538,18 +538,21 @@ lookupNames dict ns = map check res
 
 -- takes list of current objects as a parameter, and is later partially applied with that in optimization
 -- first param: list of parameter annotations for each object in the state
--- assumes that the state's SIZE and ORDER never change
+-- assumes that the INPUT state's SIZE and ORDER never change (their size and order can change inside the fn)
 -- note: CANNOT do dict -> list because that destroys the order
 genObjFn :: (Real a, Floating a, Show a, Ord a) =>
          [[Annotation]]
+         -> [ObjComp]
          -> [(ObjFnOn a, Weight a, [Name], [a])]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
          -> [(ConstrFnOn a, Weight a, [Name], [a])]
          -> [Obj] -> a -> [a] -> [a] -> a
-genObjFn annotations objFns ambientObjFns constrObjFns =
+genObjFn annotations computations objFns ambientObjFns constrObjFns =
          \currObjs penaltyWeight fixed varying ->
          let newObjs = pack annotations currObjs fixed varying in
-         let objDict = dictOf newObjs in
+         -- Construct implicit computation graph (second stage), including computations as intermediate vars
+         let objsComputed = computeOnObjs newObjs computations in 
+         let objDict = dictOf objsComputed in
          sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
@@ -601,7 +604,7 @@ genInitState (decls, constrs) stys =
              let annotationsCalc = map (map snd) flatObjsAnnotated in -- `map snd` throws away initial floats
 
              -- overall objective function
-             let objFnOverall = genObjFn annotationsCalc objFns ambientObjFns constrObjFns in
+             let objFnOverall = genObjFn annotationsCalc computations objFns ambientObjFns constrObjFns in
 
              State { objs = zeroGrads initStateComputed,
                      constrs = constrs,

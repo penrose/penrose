@@ -101,13 +101,11 @@ loop conn s
     | R.optStatus (R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
-        -- putStrLn $ "State: " ++ show (R.objs s)
         putStrLn "Applying final computations"
         let objsComputed = R.computeOnObjs_noGrad (R.objs s) (R.comps s)
         putStrLn $ "Final objs" ++ show objsComputed
-        wsSendJSON conn Frame { flag = "final", objs = objsComputed } -- ([] :: [Obj])
+        wsSendJSON conn Frame { flag = "final", objs = objsComputed }
         processCommand conn s
-        -- TODO last packet seems to be received by server, but not displayed?
     | R.autostep s = stepAndSend conn s
     | otherwise = processCommand conn s
 
@@ -159,10 +157,6 @@ stepAndSend conn s = do
     wsSendJSON conn (R.objs nexts)
     loop conn nexts
 
--- TODO don't compute after every step (inefficient but looks cool). compute once in beginning and once at end
 step :: R.State -> R.State
-step s = s { R.objs = objsComputed, R.params = params' }
+step s = s { R.objs = objs', R.params = params' }
         where (objs', params') = R.stepObjs (float2Double R.calcTimestep) (R.params s) (R.objs s)
-              -- Use objs' or objsComputed depending on whether computations are applied after each step
-              objsComputed = --trace ("comps " ++ show (R.comps s) ++ " \n" ++ show (R.objs s)) $
-                             R.computeOnObjs_noGrad objs' (R.comps s)
