@@ -17,22 +17,24 @@ import Data.List (sort)
 -- TODO figure out how arguments work
 -- Doesn't deal well with polymorphism (all type variables need to go in the datatype)
 
+type Pt2 a = (a, a)
+type Interval = (Float, Float)
 data Computation a = ComputeColor (() -> Color) 
-                   | ComputeColorArgs (String -> Float -> Color) 
-                   | ComputeRadius (Circ -> Float -> Float) 
-                   | ComputeColorRGBA (Float -> Float -> Float -> Float -> Color) 
-                   | ComputeSurjection (StdGen -> Integer -> Point -> Point -> ([Point], StdGen))
-                   | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow -> SolidArrow -> ([Point], StdGen))
+                   | ComputeColorArgs (String -> a -> Color) 
+                   | ComputeRadius (Circ' a -> a -> a) 
+                   | ComputeColorRGBA (a -> a -> a -> a -> Color) 
+                   | ComputeSurjection (StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen))
+                   | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow' a -> SolidArrow' a -> ([Pt2 a], StdGen))
                    | TestPoly (Circ' a -> a)
-                   | AddVector (Point -> Point -> Point)
+                   | AddVector (Pt2 a -> Pt2 a -> Pt2 a)
                    | TestNone 
 
 -- | 'computationDict' stores a mapping from the name of computation to the actual implementation
 -- | All functions must be registered
-computationDict :: Floating a => M.Map String (Computation a)
+computationDict :: (Real a, Floating a, Ord a) => M.Map String (Computation a)
 computationDict = M.fromList flist
     where
-        flist :: Floating a => [(String, Computation a)] 
+        flist :: (Real b, Floating b, Ord b) => [(String, Computation b)] 
         flist = [
                         ("computeColor", ComputeColor computeColor), -- pretty verbose 
                         ("computeColor2", ComputeColor computeColor2),
@@ -48,39 +50,43 @@ computationDict = M.fromList flist
                         ("testPoly", TestPoly testPoly)
                 ]
 
-addVector :: Point -> Point -> Point
+addVector :: (Floating a) => Pt2 a -> Pt2 a -> Pt2 a
 addVector (x, y) (c, d) = (x + c, y + d)
 
 testPoly :: Floating a => Circ' a -> a
 testPoly c = 5.5
 
 -- Generate n random values uniformly randomly sampled from interval and return generator.
-randomsIn :: StdGen -> Integer -> (Float, Float) -> ([Float], StdGen)
+-- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
+-- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
+   -- which causes type inference problems in Style for some reason.
+randomsIn :: (Floating a) => StdGen -> Integer -> Interval -> ([a], StdGen)
 randomsIn g 0 _        =  ([], g)
 randomsIn g n interval = let (x, g') = randomR interval g -- First value
                              (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
-                         (x : xs, g'')
+                         ((r2f x) : xs, g'')
 
 -- Given a generator, number of points, and lower left and top right of bbox, return points for a surjection.
 -- Points generated lie in the bbox given, whether in math space or screen space
 -- TODO pass randomness around in Runtime
-computeSurjection :: StdGen -> Integer -> Point -> Point -> ([Point], StdGen)
+computeSurjection :: (Floating a, Real a, Ord a) => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) = 
                   if numPoints < 2 then error "Surjection needs to have >= 2 points" 
-                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (lowerx, topx)
+                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
                            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
                            xs_increasing = sort xs
 
-                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (lowery, topy) 
+                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy) 
                            ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
                            ys_perm = shuffle' ys (length ys) g'' in -- Random permutation. TODO return g3?
 
-                       (zip xs_increasing ys_perm, g'') -- len xs == len ys
+                           (zip xs_increasing ys_perm, g'') -- len xs == len ys
 
 -- this function could be more general, taking in two objects and computing their bounding box
-computeSurjectionBbox :: StdGen -> Integer -> SolidArrow -> SolidArrow -> ([Point], StdGen)
-computeSurjectionBbox g n a1 a2 = let xs = [startx a1, endx a1, startx a2, endx a2]
-                                      ys = [starty a1, endy a1, starty a2, endy a2]
+computeSurjectionBbox :: (Floating a, Real a, Ord a) => StdGen -> Integer 
+                                   -> SolidArrow' a -> SolidArrow' a -> ([Pt2 a], StdGen)
+computeSurjectionBbox g n a1 a2 = let xs = [startx' a1, endx' a1, startx' a2, endx' a2]
+                                      ys = [starty' a1, endy' a1, starty' a2, endy' a2]
                                       lower_left = (minimum xs, minimum ys)
                                       top_right = (maximum xs, maximum ys) in
                                   -- trace ("surjection bbox " ++ show lower_left ++ " " ++ show top_right) $
@@ -95,14 +101,17 @@ computeColor () = makeColor 0.5 0.1 (0.2 / 3) 0.5
 computeColor2 :: () -> Color
 computeColor2 () = makeColor (0.1 * 0.5) 0.1 0.5 0.5
 
-computeColorArgs :: String -> Float -> Color
+makeColor' :: (Real a, Floating a) => a -> a -> a -> a -> Color
+makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
+
+computeColorArgs :: (Real a, Floating a) => String -> a -> Color
 computeColorArgs ref1 mag = trace ("computeColorArgs " ++ ref1) $ 
-                                 makeColor (scale mag) (scale mag) (scale mag) 0.5
+                                 makeColor' (scale mag) (scale mag) (scale mag) 0.5
                  where scale c = c * 0.1
 
 -- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
-computeRadiusAsFrac :: Circ -> Float -> Float
-computeRadiusAsFrac circ mag = trace ("computeRadiusAsFrac") $ mag * (r circ)
+computeRadiusAsFrac :: (Num a) => Circ' a -> a -> a
+computeRadiusAsFrac circ mag = trace ("computeRadiusAsFrac") $ mag * (r' circ)
 
-computeColorRGBA :: Float -> Float -> Float -> Float -> Color
-computeColorRGBA = makeColor
+computeColorRGBA :: (Real a, Floating a) => a -> a -> a -> a -> Color
+computeColorRGBA = makeColor'

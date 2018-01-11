@@ -269,13 +269,18 @@ getShape (n, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ 
 mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
 
-computeOnObjs :: [Obj] -> [ObjComp] -> [Obj]
+computeOnObjs :: (Floating a, Real a, Ord a, Show a) => [Obj' a] -> [ObjComp] -> [Obj' a]
 computeOnObjs objs comps = mapVals $ foldl computeOn (dictOfObjs objs) comps
+
+computeOnObjs_noGrad :: (Floating a, Real a, Ord a, Show a) => [Obj] -> [ObjComp] -> [Obj]
+computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
+                                 let objsComputed = mapVals $ foldl computeOn (dictOfObjs objsG) comps in
+                                 zeroGrads objsComputed
 
 -- | Apply a computation to the relevant object in the dictionary.
 -- | This computation model assumes that the point of all computations is to set an attribute in an object.
 -- | This helper function first catches errors on the function name, object name, and object type
-computeOn :: M.Map Name Obj -> ObjComp -> M.Map Name Obj
+computeOn :: (Floating a, Real a, Ord a, Show a) => M.Map Name (Obj' a) -> ObjComp -> M.Map Name (Obj' a)
 computeOn objDict comp =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           case fname of
@@ -285,18 +290,19 @@ computeOn objDict comp =
                Just obj -> case M.lookup fname computationDict of
                            Nothing -> error $ "compute: no computation named " ++ fname
                            Just comp -> case obj of
-                                        C circ -> let circ' = computeInnerCirc fname objProperty comp
+                                        C' circ -> let circ' = computeInnerCirc fname objProperty comp
                                                                                args circ objDict in
-                                                  M.insert objName (C circ') objDict
-                                        CB curve -> let curve' = computeInnerCurve fname objProperty comp
+                                                  M.insert objName (C' circ') objDict
+                                        CB' curve -> let curve' = computeInnerCurve fname objProperty comp
                                                                                    args curve objDict in
-                                                    M.insert objName (CB curve') objDict
-                                        P pt -> let pt' = computeInnerPt fname objProperty comp
+                                                    M.insert objName (CB' curve') objDict
+                                        P' pt -> let pt' = computeInnerPt fname objProperty comp
                                                                          args pt objDict in
-                                                M.insert objName (P pt') objDict
+                                                M.insert objName (P' pt') objDict
                                         _ -> error "compute: wrong type, expected circle"
 
-computeInnerPt :: Name -> Name -> Computation a -> [S.Expr] -> Pt -> M.Map Name Obj -> Pt
+computeInnerPt :: (Floating a, Real a, Ord a, Show a) => 
+                  Name -> Name -> Computation a -> [S.Expr] -> Pt' a -> M.Map Name (Obj' a) -> Pt' a
 computeInnerPt fname property comp args pt objDict =
              case property of
                "location" -> 
@@ -305,9 +311,9 @@ computeInnerPt fname property comp args pt objDict =
                       case args of
                         [S.FloatLit x, S.FloatLit y, S.Id pt2_name] ->
                          case (M.lookup pt2_name objDict) of
-                               Just (P pt2) -> 
-                                     let (x', y') = addVector (x, y) (xp pt2, yp pt2) in
-                                     pt { xp = x', yp = y' }
+                               Just (P' pt2) -> 
+                                     let (x', y') = addVector (r2f x, r2f y) (xp' pt2, yp' pt2) in
+                                     pt { xp' = x', yp' = y' }
                                Just x -> error ("Runtime (pt): computation ref args of wrong type:"
                                                ++ " " ++ show x)
                                Nothing -> error "Runtime (pt): computation ref args nonexistent"
@@ -317,7 +323,9 @@ computeInnerPt fname property comp args pt objDict =
 
 -- TODO pass randomness around
 -- TODO try out pattern guards? https://downloads.haskell.org/~ghc/5.00/docs/set/pattern-guards.html
-computeInnerCurve :: Name -> Name -> Computation a -> [S.Expr] -> CubicBezier -> M.Map Name Obj -> CubicBezier
+computeInnerCurve :: (Floating a, Real a, Ord a, Show a) => 
+                  Name -> Name -> Computation a -> [S.Expr] -> CubicBezier' a
+                 -> M.Map Name (Obj' a) -> CubicBezier' a
 computeInnerCurve fname property comp args curve objDict =
              case property of
              "path" -> 
@@ -326,18 +334,18 @@ computeInnerCurve fname property comp args curve objDict =
                       case args of
                         [S.IntLit num, S.FloatLit lx, S.FloatLit ly,
                          S.FloatLit tx, S.FloatLit ty] ->
-                            let (path, g') = computeSurjection initRng num (lx, ly) (tx, ty) in
-                            trace ("path: " ++ (show path)) $ curve { pathcb = path }
+                            let (path, g') = computeSurjection initRng num (r2f lx, r2f ly) (r2f tx, r2f ty) in
+                            curve { pathcb' = path }
                         _ -> error "Runtime (curve): args don't match comp type"
                     ComputeSurjectionBbox f ->
                       case args of
                         [S.IntLit num, S.Id o1, S.Id o2] ->
                          -- TODO lookup expressions beforehand?
                          case (M.lookup o1 objDict, M.lookup o2 objDict) of
-                               (Just (A a1), Just (A a2)) -> 
+                               (Just (A' a1), Just (A' a2)) -> 
                                      let (path, g') = computeSurjectionBbox initRng num a1 a2 in
                                      -- trace ("bbox " ++ show path) $
-                                     curve { pathcb = path }
+                                     curve { pathcb' = path }
                                (x@(Just _), y@(Just _)) -> error ("Runtime: computation ref args of wrong type:"
                                                                   ++ " " ++ show x ++ " " ++ show y)
                                (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
@@ -351,20 +359,23 @@ computeInnerCurve fname property comp args curve objDict =
 -- TODO apply computations on resample, accounting for state order
 -- TODO standardize var names b/t here and computeOn
 -- | Apply a computation to the circle and set the relevant property. Catch errors on input and output type.
-computeInnerCirc :: Name -> Name -> Computation a -> [S.Expr] -> Circ -> M.Map Name Obj -> Circ
+computeInnerCirc :: (Floating a, Real a, Ord a, Show a) => 
+                    Name -> Name -> Computation a -> [S.Expr] -> Circ' a -> M.Map Name (Obj' a) -> Circ' a
 computeInnerCirc fname property comp args c objDict =
              case property of
              "color" -> case comp of
-                          ComputeColor f -> c { colorc = f () }
+                          ComputeColor f -> c { colorc' = f () }
 
                           ComputeColorArgs f ->
                             case args of
-                              [S.Id s1, S.FloatLit num] -> c { colorc = f s1 num }
+                              [S.Id s1, S.FloatLit num] -> c { colorc' = f s1 (r2f num) }
                               _ -> error "Runtime: args don't match comp type"
 
                           ComputeColorRGBA f ->
                             case args of
-                              [S.FloatLit r,S.FloatLit g,S.FloatLit b,S.FloatLit a] -> c { colorc = f r g b a }
+                              [S.FloatLit r,S.FloatLit g,S.FloatLit b,S.FloatLit a] -> 
+                                          c {colorc' = f (r2f r) (r2f g) (r2f b) (r2f a)}
+                                          -- don't really need two layers of r2f right? what does that do?
                               _ -> error "Runtime: args don't match comp type"
 
                           _ -> error $ "Runtime: computation called that does not return a " ++ property
@@ -374,9 +385,9 @@ computeInnerCirc fname property comp args c objDict =
                              case args of
                                [S.Id s1, S.FloatLit num] ->
                                      case M.lookup s1 objDict of -- TODO lookup expressions beforehand?
-                                     Just (C inputCirc) -> trace ("input r: " ++ show (r inputCirc)
-                                                           ++ ", set r to " ++ show (f inputCirc num))
-                                                           $ c { r = f inputCirc num }
+                                     Just (C' inputCirc) -> trace ("input r: " ++ show (r' inputCirc)
+                                                           ++ ", set r to " ++ show (f inputCirc (r2f num)))
+                                                           $ c { r' = f inputCirc (r2f num) }
                                      Just _ -> error "Runtime: computation reference arg of wrong type"
                                      Nothing -> error "Runtime: nonexistent reference argument to computation"
                                _ -> error "Runtime: args don't match comp type"
@@ -508,7 +519,7 @@ dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
 dictOf = foldr addObj M.empty
        where addObj o dict = M.insert (getName o) o dict
 
-dictOfObjs :: [Obj] -> M.Map Name Obj
+dictOfObjs :: Named a => [a] -> M.Map Name a
 dictOfObjs = foldr addObj M.empty
        where addObj o dict = M.insert (getName o) o dict
 
@@ -578,20 +589,21 @@ genInitState (decls, constrs) stys =
              -- let boolConstr = \x -> True in // TODO needs to take this as a param
              let (initStateConstr, initRng') = sampleConstrainedState initRng initObjs constrs in
 
-            -- Apply each computation to the object in the (dictionary of) state, updating the state each time.
-             let initStateComputed = trace ("| comps: " ++ show computations
-                                     {-++ "\n| objs: " ++ show initStateConstr-}) $
-                                     computeOnObjs initStateConstr computations in
+             -- Apply each computation to the object in the (dictionary of) state, updating the state each time.
+             -- Gradients are added here because applying computations and generating annotations
+                -- are polymorphic, but gradients are removed before they go into the state.
+             -- trace ("| comps: " ++ show computations) $
+             let initStateComputed = computeOnObjs (addGrads initStateConstr) computations in
 
              -- Note: after creating these annotations, we can no longer change the size or order of the state.
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
-             let flatObjsAnnotated = unpackAnnotate (addGrads initStateComputed) in
+             let flatObjsAnnotated = unpackAnnotate initStateComputed in
              let annotationsCalc = map (map snd) flatObjsAnnotated in -- `map snd` throws away initial floats
 
              -- overall objective function
              let objFnOverall = genObjFn annotationsCalc objFns ambientObjFns constrObjFns in
 
-             State { objs = initStateComputed,
+             State { objs = zeroGrads initStateComputed,
                      constrs = constrs,
                      comps = computations,
                      params = initParams { objFn = objFnOverall, annotations = annotationsCalc },

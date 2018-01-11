@@ -103,7 +103,7 @@ loop conn s
         putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
         -- putStrLn $ "State: " ++ show (R.objs s)
         putStrLn "Applying final computations"
-        let objsComputed = R.computeOnObjs (R.objs s) (R.comps s)
+        let objsComputed = R.computeOnObjs_noGrad (R.objs s) (R.comps s)
         putStrLn $ "Final objs" ++ show objsComputed
         wsSendJSON conn Frame { flag = "final", objs = objsComputed } -- ([] :: [Obj])
         processCommand conn s
@@ -163,5 +163,6 @@ stepAndSend conn s = do
 step :: R.State -> R.State
 step s = s { R.objs = objsComputed, R.params = params' }
         where (objs', params') = R.stepObjs (float2Double R.calcTimestep) (R.params s) (R.objs s)
+              -- Use objs' or objsComputed depending on whether computations are applied after each step
               objsComputed = --trace ("comps " ++ show (R.comps s) ++ " \n" ++ show (R.objs s)) $
-                             R.computeOnObjs objs' (R.comps s)
+                             R.computeOnObjs_noGrad objs' (R.comps s)
