@@ -37,6 +37,7 @@ defaultWeight :: Floating a => a
 defaultWeight = 1
 
 debug = True
+debugStyle = False
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
 
@@ -56,7 +57,7 @@ labelName name = "Label_" ++ name
 -- | `compose2` is used to compose with a function that takes in
 -- two arguments. As if now, it is used to compose `penalty` with
 -- constraint functions
-compose2:: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
+compose2 :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
 
 
@@ -139,8 +140,14 @@ debugF x = if debug then traceShowId x else x
 debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
 
 -- To send output to a file, do ./EXECUTABLE 2> FILE.txt
+
+-- For Runtime use only
 tr :: Show a => String -> a -> a
 tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+
+-- For Style use only
+trs :: Show a => String -> a -> a
+trs s x = if debugStyle then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 trRaw :: Show a => String -> a -> a
 trRaw s x = trace "---" $ trace s $ trace (show x ++ "\n") x -- prints in left to right order

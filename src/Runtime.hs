@@ -93,7 +93,7 @@ type Varying a = [a]
 -- does not unpack names
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
-unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Fix)] -- TODO: changed r to Fix for testing
+unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)] -- TODO: changed r to Fix for testing
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
@@ -552,7 +552,7 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
          let newObjs = pack annotations currObjs fixed varying in
          -- Construct implicit computation graph (second stage), including computations as intermediate vars
          let objsComputed = computeOnObjs newObjs computations in 
-         let objDict = dictOf newObjs in -- TODO revert
+         let objDict = dictOf objsComputed in -- TODO revert
          sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
@@ -595,8 +595,8 @@ genInitState (decls, constrs) stys =
              -- Apply each computation to the object in the (dictionary of) state, updating the state each time.
              -- Gradients are added here because applying computations and generating annotations
                 -- are polymorphic, but gradients are removed before they go into the state.
-             -- trace ("| comps: " ++ show computations) $
-             let initStateComputed = computeOnObjs (addGrads initStateConstr) computations in
+             let initStateComputed = trace ("initial constrained state: " ++ show initStateConstr) 
+                                     $ computeOnObjs (addGrads initStateConstr) computations in
 
              -- Note: after creating these annotations, we can no longer change the size or order of the state.
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]

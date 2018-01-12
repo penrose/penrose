@@ -422,7 +422,8 @@ noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing wi
 -- TODO: test for equal sets
 -- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
 strictSubset :: PairConstrV a
-strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
+strictSubset [[x1, y1, s1], [x2, y2, s2]] = let res = dist (x1, y1) (x2, y2) - (s2 - s1) in
+             trace ("strict subset input values: " ++ (show [x1, y1, s1, x2, y2, s2]) ++ " " ++ show res) res
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersectExt :: PairConstrV a
@@ -436,6 +437,6 @@ pointNotInExt [[x1, y1], [x2, y2, r]] = - dist (x1, y1) (x2, y2) + r
 
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a
-penalty x = (max x 0) ^ q -- weights should get progressively larger in cr_dist
+penalty x = tr "penalty" $ (max x 0) ^ q -- weights should get progressively larger in cr_dist
             where  q = 2 -- also, may need to sample OUTSIDE feasible set
-            -- where q = 3 -- also, may need to sample OUTSIDE feasible set
+            -- where q = 3

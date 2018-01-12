@@ -389,11 +389,11 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) =
         newDict = foldl updateSpec dict $ concat selectedSpecs
 
         -- validMap :: t (k, [Char]) -> Bool
-        validMap ts = and . tr "result" . fst $ foldl
+        validMap ts = and . trs "result" . fst $ foldl
             (\(l, m) (x, y) -> case M.lookup x m of
                 Nothing -> (True:l, M.insert x y m)
-                Just y' -> ((tr ("compare: " ++ y ++ " " ++ y' ++ ": ") $ y == y') : l, m))
-            ([], M.empty) (tr "ts" ts)
+                Just y' -> ((trs ("compare: " ++ y ++ " " ++ y' ++ ": ") $ y == y') : l, m))
+            ([], M.empty) (trs "ts" ts)
 
         -- noDup :: t (M.Map k [Char]) -> Bool
         noDup ms = validMap $ concatMap M.toAscList ms
@@ -415,7 +415,7 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) =
         genFns f varmap = foldl (f varmap) [] stmts
 
         -- newObjFns :: [(ObjFnOn a, Weight a, [Name], [a])] (typeclasses get annoying)
-        newObjFns    = concatMap (genFns procObjFn) $ tr "mergedMaps: " mergedMaps
+        newObjFns    = concatMap (genFns procObjFn) $ trs "mergedMaps: " mergedMaps
 
         newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 

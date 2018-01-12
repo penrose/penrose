@@ -1,26 +1,27 @@
 Set x {
-  constraint contains(x, x.label)
+  -- constraint contains(x, x.label)
 }
 
 Set `A` {
   shape = Circle {
-    color = computeColorRGBA(1.0, 0.2, 1.0, 0.5) -- red
-    label = Auto
+    -- red
+    color = computeColorRGBA(1.0, 0.2, 1.0, 0.5) 
+    label = None
   }
 }
 
 Set `B` {
   shape = Circle {
-    radius = computeRadiusAsFrac(A, 0.5)
-    color = computeColorRGBA(0.1, 1.0, 0.2, 0.4) -- green
-    label = Auto
+    -- radius = computeRadiusAsFrac(A, 0.5)
+    -- green
+    color = computeColorRGBA(0.1, 1.0, 0.2, 0.4) 
+    label = None
   }
 }
 
 Subset x y {
-    -- The first constraint is causing NaNs
-    -- not sure if it's interacting badly with r comp
+    -- The first constraint is causing NaNs by itself
     constraint contains(y, x)
-    constraint smallerThan(x, y)
-    constraint outsideOf(y.label, x)
+    -- constraint smallerThan(x, y)
+    -- constraint outsideOf(y.label, x)
 }
