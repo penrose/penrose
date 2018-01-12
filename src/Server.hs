@@ -103,7 +103,7 @@ loop conn s
         putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
         putStrLn "Applying final computations"
         let objsComputed = R.computeOnObjs_noGrad (R.objs s) (R.comps s)
-        putStrLn $ "Final objs" ++ show objsComputed
+        putStrLn $ "Final objs:\n" ++ show objsComputed
         wsSendJSON conn Frame { flag = "final", objs = objsComputed }
         processCommand conn s
     | R.autostep s = stepAndSend conn s

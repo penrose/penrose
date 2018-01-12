@@ -88,7 +88,7 @@ data Annotation = Fix | Vary deriving (Eq, Show)
 type Fixed a = [a]
 type Varying a = [a]
 
--- make sure this matches circPack and labelPack
+-- make sure the unpacking matches the object packing in terms of number and order of parameters
 -- annotations are specified inline here. this is per type, not per value (i.e. all circles have the same fixed parameters). but you could generalize it to per-value by adding or overriding annotations globally after the unpacking
 -- does not unpack names
 unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
@@ -870,19 +870,6 @@ sampleConstrainedState gen shapes constrs = (state', gen')
 bbox = 60 -- TODO put all flags and consts together
 -- hacky bounding box of label
 
--- -- Find the angle between x-axis and a line passing points, reporting in radians
--- findAngle :: Floating a => (a, a) -> (a, a) -> a
--- findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
---
--- midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
--- midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
---
--- dist :: Floating a => (a, a) -> (a, a) -> a -- distance
--- dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
---
--- distsq :: Floating a => (a, a) -> (a, a) -> a -- distance
--- distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
-
 -- Hardcode bbox of label at the center
 -- TODO properly get bbox; rn text is centered at bottom left
 inObj :: (Float, Float) -> Obj -> Bool
@@ -902,7 +889,6 @@ inObj (xm, ym) (A a) =
         (x, y) = midpoint (sx, sy) (ex, ey)
         len = 0.5 * dist (sx, sy) (ex, ey)
     in abs (x - xm) <= len && abs (y - ym) <= t
-
 
 -- check convergence of EP method
 epDone :: State -> Bool
@@ -988,34 +974,6 @@ clampX x = if x < -pw2 then -pw2 else if x > pw2 then pw2 else x
 
 clampY :: Float -> Float
 clampY y = if y < -ph2 then -ph2 else if y > ph2 then ph2 else y
-
--- minSize :: Float
--- minSize = 5
-
--- clampSize :: Float -> Float -- TODO assumes the size is a radius
--- clampSize s = if s < minSize then minSize
---               else if s > ph2 || s > pw2 then min pw2 ph2 else s
-
--- -- Some debugging functions. @@@
--- debugF :: (Show a) => a -> a
--- debugF x = if debug then traceShowId x else x
--- debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
---
--- -- To send output to a file, do ./EXECUTABLE 2> FILE.txt
--- tr :: Show a => String -> a -> a
--- tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
---
--- trRaw :: Show a => String -> a -> a
--- trRaw s x = if debug then  trace "---" $ trace s $ trace (show x ++ "\n") x else x-- prints in left to right order
---
--- trStr :: String -> a -> a
--- trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
---
--- tr' :: Show a => String -> a -> a
--- tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
---
--- tro :: Show a => String -> a -> a
--- tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 noOverlapPair :: Obj -> Obj -> Bool
 noOverlapPair (C c1) (C c) = dist (xc c1, yc c1) (xc c, yc c) > r c1 + r c
@@ -1259,7 +1217,9 @@ stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, 
                         steppedState = let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
                                        trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
                                               ++ "\n|f(x') - f(x)|: " ++
-                                             (show $ abs (objFnApplied state - objFnApplied state')))
+                                             (show $ abs (objFnApplied state - objFnApplied state')) 
+                                              ++ "\ngradEval: \n" ++ (show gradEval)
+                                              ++ "\nstate: \n" ++ (show objs) )
                                        state'
                         objFnApplied :: ObjFn1 a -- i'm not clear on why realToFrac is needed here either
                                      -- since everything should already be polymorphic
@@ -1292,45 +1252,8 @@ removeInf = map removeInf'
 tupMap :: (a -> b) -> (a, a) -> (b, b)
 tupMap f (a, b) = (f a, f b)
 
--- ----- Lists-as-vectors utility functions, TODO split out of file
---
--- -- define operator precedence: higher precedence = evaluated earlier
--- infixl 6 +., -.
--- infixl 7 *. -- .*, /.
---
--- -- assumes lists are of the same length
--- dotL :: Floating a => [a] -> [a] -> a
--- dotL u v = if not $ length u == length v
---            then error $ "can't dot-prod different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
---            else sum $ zipWith (*) u v
---
--- (+.) :: Floating a => [a] -> [a] -> [a] -- add two vectors
--- (+.) u v = if not $ length u == length v
---            then error $ "can't add different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
---            else zipWith (+) u v
---
--- (-.) :: Floating a => [a] -> [a] -> [a] -- subtract two vectors
--- (-.) u v = if not $ length u == length v
---            then error $ "can't subtract different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
---            else zipWith (-) u v
---
--- negL :: Floating a => [a] -> [a]
--- negL = map negate
---
--- (*.) :: Floating a => a -> [a] -> [a] -- multiply by a constant
--- (*.) c v = map ((*) c) v
---
--- norm :: Floating a => [a] -> a
--- norm = sqrt . sum . map (^ 2)
---
--- normsq :: Floating a => [a] -> a
--- normsq = sum . map (^ 2)
---
--- normalize :: Floating a => [a] -> [a]
--- normalize v = (1 / norm v) *. v
-
------
-
+-------------------
+        
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- TODO change stepWithGradFn(s) to use this fn and its type
