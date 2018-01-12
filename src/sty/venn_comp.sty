@@ -1,25 +1,25 @@
 Set x {
-  -- constraint contains(x, x.label, computeColorRGBA(1.0, 0.2, 1.0, 0.5))
   constraint contains(x, x.label)
 }
 
 Set `A` {
   shape = Circle {
     color = computeColorRGBA(1.0, 0.2, 1.0, 0.5) -- red
+    label = Auto
   }
-
-  -- TODO: doesn't work; can't find identifier
-  -- constraint at(A, 100, 100)
 }
 
 Set `B` {
   shape = Circle {
     radius = computeRadiusAsFrac(A, 0.5)
     color = computeColorRGBA(0.1, 1.0, 0.2, 0.4) -- green
+    label = Auto
   }
 }
 
 Subset x y {
+    -- The first constraint is causing NaNs
+    -- not sure if it's interacting badly with r comp
     constraint contains(y, x)
     constraint smallerThan(x, y)
     constraint outsideOf(y.label, x)

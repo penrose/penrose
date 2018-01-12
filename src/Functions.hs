@@ -311,7 +311,7 @@ ellipseRatio [E' e] _ = (rx' e / w - ry' e / l) ** 2
 
 contains :: ConstrFn
 contains [C' outc, C' inc] _ =
-    -- tr (namec' outc ++  " contains " ++ namec' inc ++ " val: ") $
+    tr (namec' outc ++  " contains " ++ namec' inc ++ " val: ") $
     strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
     -- let res =  dist (xc' inc, yc' inc) (xc' outc, yc' outc) - (r' outc - r' inc) in
     -- if res > 0 then res else 0

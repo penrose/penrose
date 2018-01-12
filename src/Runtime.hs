@@ -385,9 +385,9 @@ computeInnerCirc fname property comp args c objDict =
                              case args of
                                [S.Id s1, S.FloatLit num] ->
                                      case M.lookup s1 objDict of -- TODO lookup expressions beforehand?
-                                     Just (C' inputCirc) -> trace ("input r: " ++ show (r' inputCirc)
+                                     Just (C' inputCirc) -> {- trace ("input r: " ++ show (r' inputCirc)
                                                            ++ ", set r to " ++ show (f inputCirc (r2f num)))
-                                                           $ c { r' = f inputCirc (r2f num) }
+                                                           $-} c { r' = f inputCirc (r2f num) }
                                      Just _ -> error "Runtime: computation reference arg of wrong type"
                                      Nothing -> error "Runtime: nonexistent reference argument to computation"
                                _ -> error "Runtime: args don't match comp type"
@@ -552,7 +552,7 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
          let newObjs = pack annotations currObjs fixed varying in
          -- Construct implicit computation graph (second stage), including computations as intermediate vars
          let objsComputed = computeOnObjs newObjs computations in 
-         let objDict = dictOf objsComputed in
+         let objDict = dictOf newObjs in -- TODO revert
          sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "

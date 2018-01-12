@@ -111,7 +111,7 @@ computeColorArgs ref1 mag = trace ("computeColorArgs " ++ ref1) $
 
 -- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
 computeRadiusAsFrac :: (Num a) => Circ' a -> a -> a
-computeRadiusAsFrac circ mag = trace ("computeRadiusAsFrac") $ mag * (r' circ)
+computeRadiusAsFrac circ mag = {-trace ("computeRadiusAsFrac") $-} mag * (r' circ)
 
 computeColorRGBA :: (Real a, Floating a) => a -> a -> a -> a -> Color
 computeColorRGBA = makeColor'

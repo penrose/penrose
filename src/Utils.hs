@@ -37,7 +37,7 @@ defaultWeight :: Floating a => a
 defaultWeight = 1
 
 
-debug = False
+debug = True
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
 
