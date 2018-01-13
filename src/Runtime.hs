@@ -76,7 +76,7 @@ type CompInfo = (Name, [S.Expr])
 
 initRng :: StdGen
 initRng = mkStdGen seed
-    where seed = 18 -- deterministic RNG with seed
+    where seed = 20 -- deterministic RNG with seed
 
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0
@@ -1354,7 +1354,7 @@ clampflag = False
 -- debug = False
 -- debugLineSearch = False
 -- debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = False
+constraintFlag = True
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = True -- TODO need to implement constraint fn synthesis
 

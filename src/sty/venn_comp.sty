@@ -1,13 +1,17 @@
 Set x {
-  -- constraint contains(x, x.label)
+   -- objective centerLabel(x, x.label)
+   -- constraint contains(x, x.label)
 }
 
 Set `A` {
   shape = Circle {
     -- red
     color = computeColorRGBA(1.0, 0.2, 1.0, 0.5) 
-    label = None
+    label = Auto
   }
+
+  constraint nondegenerate(A)
+  -- objective centerLabel(A, A.label)
 }
 
 Set `B` {
@@ -15,13 +19,17 @@ Set `B` {
     -- radius = computeRadiusAsFrac(A, 0.5)
     -- green
     color = computeColorRGBA(0.1, 1.0, 0.2, 0.4) 
-    label = None
+    label = Auto
   }
+
+  -- objective centerLabel(B, B.label)
+  -- constraint contains(B.label, B)
 }
 
 Subset x y {
     -- The first constraint is causing NaNs by itself
     constraint contains(y, x)
+    -- constraint overlapping(x, y)
     -- constraint smallerThan(x, y)
     -- constraint outsideOf(y.label, x)
 }

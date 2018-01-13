@@ -9,8 +9,8 @@ import qualified Data.Map.Strict as M
 
 type ObjFnOn a = [Obj' a] -> [a] -> a
 type ConstrFnOn a = [Obj' a] -> [a] -> a
-type ObjFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
-type ConstrFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
+type ObjFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
+type ConstrFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
 type Weight a = a
 type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
 
@@ -27,7 +27,8 @@ constrFuncDict = M.fromList flist
                     ("overlapping", penalty `compose2` overlapping),
                     ("nonOverlapping",  penalty `compose2` nonOverlapping),
                     ("outsideOf", penalty `compose2` outsideOf),
-                    ("smallerThan", penalty `compose2` smallerThan) -- TODO: should this be an objective?
+                    ("smallerThan", penalty `compose2` smallerThan), -- TODO: should this be an objective?
+                    ("nondegenerate", penalty `compose2` nondegenerate)
                  ]
 
 -- | 'objFuncDict' stores a mapping from the name of objective functions to the actual implementation
@@ -77,7 +78,6 @@ objFuncDict = M.fromList flist
 
 -- TODO: implement all the location function using a generic version
 -- distance (x1, y1) (x2, y2) dx dy = (x1 - x2)
-
 
 xInRange :: ObjFn
 xInRange l [xmin, xmax] = (minimum xs - xmin)^2 + (maximum xs - xmax)^2 + sum (map f xs)
@@ -393,6 +393,10 @@ nonOverlapping [A' arr, L' label] _ =
         tr "labelvsArr: " $ -sqrt(dx**2 + dy**2) - wl' label
 nonOverlapping  _ _ = error "no intersect not called with 2 args"
 
+nondegenerate :: ConstrFn
+nondegenerate [C' c] _ = -(r' c)
+nondegenerate _ _ = error "nondegenerate not yet defined for this kind of object"
+
 
 -- noConstraint :: PairConstrV a
 -- noConstraint _ _ = 0
@@ -418,7 +422,9 @@ noSubset :: PairConstrV a
 noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing with s1 > s2 or s2 < s1
          -(dist (x1, y1) (x2, y2)) + max s2 s1 - min s2 s1 + offset
 
--- the first set is the subset of the second, and thus smaller than the second in size.
+-- the first (circular) set is the subset of the second (circular) set, and thus smaller than the second.
+-- The distance between the centers of the sets must be less than the difference between 
+-- the radius of the outer set and the radius of the inner set.
 -- TODO: test for equal sets
 -- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
 strictSubset :: PairConstrV a
@@ -438,5 +444,5 @@ pointNotInExt [[x1, y1], [x2, y2, r]] = - dist (x1, y1) (x2, y2) + r
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a
 penalty x = tr "penalty" $ (max x 0) ^ q -- weights should get progressively larger in cr_dist
-            where  q = 2 -- also, may need to sample OUTSIDE feasible set
+            where q = 2 -- also, may need to sample OUTSIDE feasible set
             -- where q = 3
