@@ -11,15 +11,15 @@ import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe)
 import Text.Megaparsec
+import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
-import Text.Megaparsec.String -- input stream is of the type ‘String’
 import System.Environment
 import Debug.Trace
 import qualified Substance as C
 import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn)
 import Computation
 import qualified Data.Map.Strict as M
-import qualified Text.Megaparsec.Lexer as L
+import qualified Text.Megaparsec.Char.Lexer as L
 
 --------------------------------------------------------------------------------
 -- Style AST
@@ -54,7 +54,7 @@ data Selector = Selector
               , selPatterns :: [Pattern] -- a list of patterns: ids or wildcards
           } deriving (Show)
 
--- | So far we have two kinds of patters:
+-- | So far we have two kinds of patterns:
 --
 -- * Raw IDs: 'Set `A`', referring to actual IDs from Substance
 -- * WildCard: `Set A`, which can be anything with the corresponding type
@@ -101,7 +101,7 @@ data Color = RndColor | Colo
 
 -- | 'styleParser' is the top-level function that parses a Style proram
 styleParser :: Parser [Block]
-styleParser = between sc eof styProg
+styleParser = between scn eof styProg
 
 -- | `styProg` parses a Style program, consisting of a collection of blocks
 styProg :: Parser [Block]
@@ -111,12 +111,9 @@ styProg = some block
 block :: Parser Block
 block = do
     sel <- selector `sepBy1` comma
-    void (symbol "{")
-    try newline'
-    sc
+    lbrac >> scn
     stmts <- try stmtSeq
-    void (symbol "}")
-    newline'
+    rbrac >> scn
     return (sel, stmts)
 
 -- | a selector can be either a global selector or constructor selector
@@ -126,7 +123,6 @@ selector = constructorSelect <|> globalSelect
 -- | a global selector matches on all types of objects. Normally used as the only selector in a "global block", where all Substance identifiers are visible
 globalSelect :: Parser Selector
 globalSelect = do
-    -- i <- WildCard <$> identifier
     rword "global"
     return $ Selector C.AllT []
 
@@ -158,13 +154,12 @@ styObj =
 
 -- | a sequence of Style statements
 stmtSeq :: Parser [Stmt]
-stmtSeq = endBy stmt newline'
+stmtSeq = stmt `sepEndBy` newline'
 
 -- | a Style statement can be objective/constraint function calls or assignment statements
 stmt :: Parser Stmt
-stmt =
-    try objFn
-    <|> try assignStmt
+stmt =  try objFn
+    <|> try assignStmt -- TODO: redundant `try`s?
     <|> try avoidObjFn
     <|> try constrFn
     <|> try constrFnInfix
@@ -175,7 +170,6 @@ stmt =
 assignStmt :: Parser Stmt
 assignStmt = do
     var  <- attribute
-    sc
     void (symbol "=")
     e    <- (try parseComp <|> expr) -- TODO: right order? try on which/both/neither?
     return (Assign var e)
@@ -184,9 +178,9 @@ assignStmt = do
 parseComp :: Parser Expr
 parseComp = do
   fname <- identifier
-  void (symbol "(")
+  lparen
   params <- expr `sepBy` comma
-  void (symbol ")")
+  rparen
   return (CompArgs fname params)
 
 -- | objective function call
@@ -194,9 +188,9 @@ objFn :: Parser Stmt
 objFn = do
     rword "objective"
     fname  <- identifier
-    void (symbol "(")
+    lparen
     params <- expr `sepBy` comma
-    void (symbol ")")
+    rparen
     return (ObjFn fname params)
 
 -- | objective function call - infix version
@@ -223,9 +217,9 @@ constrFn :: Parser Stmt
 constrFn = do
     rword "constraint"
     fname  <- identifier
-    void (symbol "(")
+    lparen
     params <- expr `sepBy` comma
-    void (symbol ")")
+    rparen
     return (ConstrFn fname params)
 
 -- | constraint function call -- infix version
@@ -266,9 +260,9 @@ auto = do
 objConstructor :: Parser Expr
 objConstructor = do
     typ <- styObj
-    lbrac >> newline'
-    stmts <- stmtSeq
-    rbrac  -- NOTE: not consuming the space because stmt already does
+    lbrac >> scn
+    stmts <- try stmtSeq
+    rbrac >> sc -- NOTE: does NOT consume newline because this is an expression
     return $ Cons typ stmts
 
 number :: Parser Expr
@@ -278,7 +272,8 @@ stringLit :: Parser Expr
 stringLit = StringLit <$> (char '"' >> manyTill L.charLiteral (char '"'))
 
 attribute :: Parser String
-attribute = many alphaNumChar
+-- attribute = many alphaNumChar
+attribute = identifier -- TODO: Naming convention - same as identifiers?
 
 -- TODO: use the PrettyPrint library
 -- styPrettyPrint :: Block -> String

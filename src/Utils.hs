@@ -2,11 +2,12 @@
 
 module Utils where
 import Control.Monad (void)
+import Data.Void
 import Debug.Trace
 import Text.Megaparsec
+import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
-import Text.Megaparsec.String -- input stream is of the type ‘String’
-import qualified Text.Megaparsec.Lexer as L
+import qualified Text.Megaparsec.Char.Lexer as L
 
 divLine = putStr "\n--------\n\n"
 
@@ -36,7 +37,7 @@ ptRadius = 4 -- The size of a point on canvas
 defaultWeight :: Floating a => a
 defaultWeight = 1
 
-debug = True
+debug = False
 debugStyle = False
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
@@ -66,6 +67,8 @@ compose2 = (.) . (.)
 -- TODO: think about if it make sense to have the same set of reserved words
 --       in both Substance and Style.
 
+type Parser = Parsec Void String
+
 rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
 rws =     ["avoid", "global", "as"] ++ types ++ shapes
 -- ++ types ++ attribs ++ shapes ++ colors
@@ -85,50 +88,60 @@ identifier = (lexeme . try) (p >>= check)
                 then fail $ "keyword " ++ show x ++ " cannot be an identifier"
                 else return x
 
+-- | 'lineComment' and 'blockComment' are the two styles of commenting in Penrose. Line comments start with @--@. Block comments are wrapped by @/*@ and @*/@.
+lineComment, blockComment :: Parser ()
+lineComment  = L.skipLineComment "--"
+blockComment = L.skipBlockComment "/*" "*/"
+
+-- | A strict space consumer. 'sc' only eats space and tab characters. It does __not__ eat newlines.
 sc :: Parser ()
-sc = L.space (void separatorChar) lineCmnt blockCmnt
-  where lineCmnt  = L.skipLineComment "--" >> newline'
-        blockCmnt = L.skipBlockComment "/*" "*/" >> newline'
+sc = L.space (void $ takeWhile1P Nothing f) lineComment empty
+  where
+    f x = x == ' ' || x == '\t'
+
+-- | A normal space consumer. 'scn' consumes all whitespaces __including__ newlines.
+scn :: Parser ()
+scn = L.space space1 lineComment blockComment
+
+lexeme :: Parser a -> Parser a
+lexeme = L.lexeme sc
+
+symbol :: String -> Parser String
+symbol = L.symbol sc
 
 newline' :: Parser ()
-newline' = void sc >> void (many newline) >> void sc
+-- newline' = void sc >> void (many newline) >> void sc
+newline' = newline >> scn
 
 backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 
-braces :: Parser a -> Parser a
-braces = between (symbol "{") (symbol "}")
-
-lparen, rparen, lbrac, rbrac, colon, arrow :: Parser ()
+lparen, rparen, lbrac, rbrac, colon, arrow, comma :: Parser ()
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
 lparen = void (symbol "(")
 rparen = void (symbol ")")
 colon = void (symbol ":")
 arrow = void (symbol "->")
+comma = void (symbol ",")
+
+braces :: Parser a -> Parser a
+braces = between (symbol "{") (symbol "}")
 
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
 
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme sc
-
-comma :: Parser String
-comma = symbol ","
-
-symbol :: String -> Parser String
-symbol = L.symbol sc
-
+-- | 'integer' parses an integer.
 integer :: Parser Integer
-integer = lexeme L.integer
+integer = lexeme L.decimal
 
+-- | 'float' parses a floating point number.
 float :: Parser Float
 float = realToFrac <$> lexeme L.float -- TODO: parsing without sign?
 
-
 -- Reserved words
 rword :: String -> Parser ()
-rword w = string w *> notFollowedBy alphaNumChar *> sc
+rword w = lexeme (string w *> notFollowedBy alphaNumChar)
 
 
 --------------------------------------------------------------------------------
