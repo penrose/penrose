@@ -1,6 +1,5 @@
 Set x {
-   -- objective centerLabel(x, x.label)
-   -- constraint contains(x, x.label)
+   objective centerLabel(x, x.label)
 }
 
 Set `A` {
@@ -10,8 +9,7 @@ Set `A` {
     label = Auto
   }
 
-  -- constraint nondegenerate(A)
-  objective centerLabel(A, A.label)
+  constraint nondegenerate(A)
 }
 
 Set `B` {
@@ -22,14 +20,12 @@ Set `B` {
     label = Auto
   }
 
-  -- objective centerLabel(B, B.label)
-  -- constraint contains(B.label, B)
+  constraint nondegenerate(B)
 }
 
 Subset x y {
-    -- The first constraint is causing NaNs by itself
     constraint contains(y, x)
-    -- constraint overlapping(x, y)
-    -- constraint smallerThan(x, y)
-    -- constraint outsideOf(y.label, x)
+    constraint outsideOf(y.label, x)
+    -- TODO discourage tangency:
+    -- inside contains fn or separately?
 }

@@ -36,9 +36,9 @@ ptRadius = 4 -- The size of a point on canvas
 defaultWeight :: Floating a => a
 defaultWeight = 1
 
-debug = True
+debug = False
 debugStyle = False
-debugLineSearch = True
+debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
@@ -207,8 +207,10 @@ findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
 midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
 midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
 
+-- We add epsd to avoid NaNs in the denominator of the gradient of dist.
+-- Now, grad dist (0, 0) (0, 0) is 0 instead of NaN.
 dist :: Floating a => (a, a) -> (a, a) -> a -- distance
-dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
+dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 
 distsq :: Floating a => (a, a) -> (a, a) -> a -- distance
 distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2

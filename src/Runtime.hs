@@ -76,7 +76,7 @@ type CompInfo = (Name, [S.Expr])
 
 initRng :: StdGen
 initRng = mkStdGen seed
-    where seed = 17 -- deterministic RNG with seed
+    where seed = 16 -- deterministic RNG with seed
 
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0
@@ -221,7 +221,7 @@ defaultSquare name = S Square { xs = 100, ys = 100, side = defaultRad,
         sels = False, names = name, colors = black, ang = 0.0}
 defaultText text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text, sell = False, namel = text }
 defaultLabel text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text, sell = False, namel = labelName text }
-defaultCirc name = C Circ { xc = 0, yc = 0, r = defaultRad,
+defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
         selc = False, namec = name, colorc = black }
 defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
 defaultCurve name = CB CubicBezier { colorcb = black, pathcb = path, namecb = name, stylecb = "solid" }
@@ -560,8 +560,9 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
                 (constrWeight * penaltyWeight
                               * sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) constrObjFns))
 
--- TODO: **must** manually change this constraint if you change the constr function for EP
--- needs constr to be violated
+-- TODO: In principle, the exterior point method requires the initial state to start in the exterior
+-- of the feasible region; that is, at least one of the constraints should be violated.
+-- In practice, it doesn't seem to matter for our small examples.
 constraint :: [C.SubConstr] -> [Obj] -> Bool
 constraint constrs = if constraintFlag then \x ->
                         let res = [consistentSizes constrs x] in and res
@@ -822,7 +823,7 @@ sampleCoord gen o = case o of
                                   (cg', gen5) = randomR colorRange  gen4
                                   (cb', gen6) = randomR colorRange  gen5
                                   in
-                              (C $ circ { r = r' {-, colorc = makeColor cr' cg' cb' opacity -} }, gen6)
+                              (C $ circ { r = r', colorc = makeColor cr' cg' cb' opacity }, gen6)
                     E elli -> let (rx', gen3) = randomR radiusRange gen2
                                   (cr', gen4) = randomR colorRange  gen3
                                   (cg', gen5) = randomR colorRange  gen4
@@ -1354,7 +1355,7 @@ clampflag = False
 -- debug = False
 -- debugLineSearch = False
 -- debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = False
+constraintFlag = True
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = True -- TODO need to implement constraint fn synthesis
 

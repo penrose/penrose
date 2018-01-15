@@ -311,7 +311,7 @@ ellipseRatio [E' e] _ = (rx' e / w - ry' e / l) ** 2
 
 contains :: ConstrFn
 contains [C' outc, C' inc] _ =
-    if isNaN (xc' inc) then error "NaN in contains in Functions" 
+    if isNaN (xc' inc) then error "NaN in `contains` arg in Functions" -- TODO systematize NaN checks
     else tr (namec' outc ++  " contains " ++ namec' inc ++ " val: ") $
          strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
     -- let res =  dist (xc' inc, yc' inc) (xc' outc, yc' outc) - (r' outc - r' inc) in
@@ -426,11 +426,9 @@ noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing wi
 -- the first (circular) set is the subset of the second (circular) set, and thus smaller than the second.
 -- The distance between the centers of the sets must be less than the difference between 
 -- the radius of the outer set and the radius of the inner set.
--- TODO: test for equal sets
--- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
+-- TODO: test for equal sets? (function is minimized if sets have same radii and location)
 strictSubset :: PairConstrV a
-strictSubset [[x1, y1, s1], [x2, y2, s2]] = let res = distsq (x1, y1) (x2, y2) - (s2 - s1)^2 in
-             trace ("strict subset input values: " ++ (show [x1, y1, s1, x2, y2, s2]) ++ " " ++ show res) res
+strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersectExt :: PairConstrV a
