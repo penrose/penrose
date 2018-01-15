@@ -20,6 +20,9 @@ toList x = [x]
 trd :: (a, b, c) -> c
 trd (_, _, x) = x
 
+tuplify2 :: [a] -> (a,a)
+tuplify2 [x,y] = (x,y)
+
 stepsPerSecond :: Int
 stepsPerSecond = 100000
 
@@ -33,8 +36,8 @@ ptRadius = 4 -- The size of a point on canvas
 defaultWeight :: Floating a => a
 defaultWeight = 1
 
-
 debug = False
+debugStyle = False
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
 
@@ -54,7 +57,7 @@ labelName name = "Label_" ++ name
 -- | `compose2` is used to compose with a function that takes in
 -- two arguments. As if now, it is used to compose `penalty` with
 -- constraint functions
-compose2:: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
+compose2 :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
 
 
@@ -131,14 +134,20 @@ rword w = string w *> notFollowedBy alphaNumChar *> sc
 --------------------------------------------------------------------------------
 -- Debug Functions
 
--- Some debugging functions. @@@
+-- Some debugging functions.
 debugF :: (Show a) => a -> a
 debugF x = if debug then traceShowId x else x
 debugXY x1 x2 y1 y2 = if debug then trace (show x1 ++ " " ++ show x2 ++ " " ++ show y1 ++ " " ++ show y2 ++ "\n") else id
 
 -- To send output to a file, do ./EXECUTABLE 2> FILE.txt
+
+-- For Runtime use only
 tr :: Show a => String -> a -> a
 tr s x = if debug then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+
+-- For Style use only
+trs :: Show a => String -> a -> a
+trs s x = if debugStyle then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 trRaw :: Show a => String -> a -> a
 trRaw s x = trace "---" $ trace s $ trace (show x ++ "\n") x -- prints in left to right order
@@ -161,7 +170,7 @@ infixl 6 +., -.
 infixl 7 *. -- .*, /.
 
 -- assumes lists are of the same length
-dotL :: Floating a => [a] -> [a] -> a
+dotL :: (RealFloat a, Floating a) => [a] -> [a] -> a
 dotL u v = if not $ length u == length v
            then error $ "can't dot-prod different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
            else sum $ zipWith (*) u v
@@ -198,8 +207,10 @@ findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
 midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
 midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
 
+-- We add epsd to avoid NaNs in the denominator of the gradient of dist.
+-- Now, grad dist (0, 0) (0, 0) is 0 instead of NaN.
 dist :: Floating a => (a, a) -> (a, a) -> a -- distance
-dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
+dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 
 distsq :: Floating a => (a, a) -> (a, a) -> a -- distance
 distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2

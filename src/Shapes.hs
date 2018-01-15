@@ -44,12 +44,37 @@ instance ToJSON BBox
 instance FromJSON BBox
 
 -------
+data CubicBezier = CubicBezier {
+    pathcb           :: [(Float, Float)],
+    namecb           :: String,
+    stylecb          :: String,
+    colorcb          :: Color
+} deriving (Eq, Show, Generic)
+
+instance Named CubicBezier where
+         getName = namecb
+         setName x cb = cb { namecb = x }
+
+instance Located CubicBezier Float where
+         getX c   = let xs = map fst $ pathcb c in maximum xs - minimum xs
+         getY c   = let ys = map snd $ pathcb c in maximum ys - minimum ys
+         setX x c = let xs = map fst $ pathcb c
+                        dx = x - (maximum xs - minimum xs) in
+                        c { pathcb = map (\(xx, yy) -> (xx + dx, yy)) $ pathcb c }
+         setY y c = let ys = map snd $ pathcb c
+                        dy = y - (maximum ys - minimum ys) in
+                        c { pathcb = map (\(xx, yy) -> (xx, yy - dy)) $ pathcb c }
+
+instance ToJSON CubicBezier
+instance FromJSON CubicBezier
+
+-------
 data SolidArrow = SolidArrow { startx :: Float
                              , starty :: Float
                              , endx :: Float
                              , endy :: Float
                              , thickness :: Float -- the maximum thickness, i.e. the thickness of the head
-                             , selsa :: Bool -- is the circle currently selected? (mouse is dragging it)
+                             , selsa :: Bool -- is the arrow currently selected? (mouse is dragging it)
                              , namesa :: String
                              , colorsa :: Color
                             --  , bbox :: BBox
@@ -207,6 +232,7 @@ data Obj = S Square
          | L Label
          | P Pt
          | A SolidArrow
+         | CB CubicBezier
          deriving (Eq, Show, Generic)
 
 instance ToJSON Obj
@@ -261,6 +287,7 @@ instance Located Obj Float where
                  P p -> getX p
                  S s -> getX s
                  A a -> getX a
+                 CB c -> getX c
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -268,6 +295,7 @@ instance Located Obj Float where
                  P p -> getY p
                  S s -> getY s
                  A a -> getY a
+                 CB c -> getY c
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -275,6 +303,7 @@ instance Located Obj Float where
                 P p -> P $ setX x p
                 S s -> S $ setX x s
                 A a -> A $ setX x a
+                CB c -> CB $ setX x c
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -282,6 +311,7 @@ instance Located Obj Float where
                 P p -> P $ setY y p
                 S s -> S $ setY y s
                 A a -> A $ setY y a
+                CB c -> CB $ setY y c
 
 instance Selectable Obj where
          select x = case x of
@@ -315,19 +345,21 @@ instance Sized Obj where
 
 instance Named Obj where
          getName o = case o of
-                 C c -> getName c
-                 E e -> getName e
-                 L l -> getName l
-                 P p -> getName p
-                 S s -> getName s
-                 A a -> getName a
+                 C c   -> getName c
+                 E e   -> getName e
+                 L l   -> getName l
+                 P p   -> getName p
+                 S s   -> getName s
+                 A a   -> getName a
+                 CB cb -> getName cb
          setName x o = case o of
-                C c -> C $ setName x c
-                E e -> E $ setName x e
-                L l -> L $ setName x l
-                P p -> P $ setName x p
-                S s -> S $ setName x s
-                A a -> A $ setName x a
+                C c   -> C $ setName x c
+                E e   -> E $ setName x e
+                L l   -> L $ setName x l
+                P p   -> P $ setName x p
+                S s   -> S $ setName x s
+                A a   -> A $ setName x a
+                CB cb -> CB $ setName x cb
 
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
@@ -379,34 +411,37 @@ data Obj' a
     | P' (Pt' a)
     | S' (Square' a)
     | A' (SolidArrow' a)
+    | CB' (CubicBezier' a)
     deriving (Eq, Show)
 
--- FIXME: fix the formatting
-data SolidArrow' a = SolidArrow' { startx' :: a
-                               , starty' :: a
-                               , endx' :: a
-                               , endy' :: a
-                               , thickness' :: a -- the maximum thickness, i.e. the thickness of the head
-                               , selsa' :: Bool -- is the circle currently selected? (mouse is dragging it)
-                               , namesa' :: String
-                               , colorsa' :: Color }
-                               deriving (Eq, Show)
+data SolidArrow' a = SolidArrow' {
+    startx'    :: a,
+    starty'    :: a,
+    endx'      :: a,
+    endy'      :: a,
+    thickness' :: a, -- the maximum thickness, i.e. the thickness of the head
+    selsa'     :: Bool, -- is the circle currently selected? (mouse is dragging it)
+    namesa'    :: String,
+    colorsa'   :: Color
+} deriving (Eq, Show)
 
-data Circ' a = Circ' { xc' :: a
-                     , yc' :: a
-                     , r' :: a
-                     , selc' :: Bool -- is the circle currently selected? (mouse is dragging it)
-                     , namec' :: String
-                     , colorc' :: Color }
-                     deriving (Eq, Show)
+data Circ' a = Circ' {
+    xc'     :: a,
+    yc'     :: a,
+    r'      :: a,
+    selc'   :: Bool, -- is the circle currently selected? (mouse is dragging it)
+    namec'  :: String,
+    colorc' :: Color
+} deriving (Eq, Show)
 
-data Ellipse' a = Ellipse' { xe' :: a
-                     , ye' :: a
-                     , rx' :: a
-                     , ry' :: a
-                     , namee' :: String
-                     , colore' :: Color }
-                     deriving (Eq, Show)
+data Ellipse' a = Ellipse' {
+    xe' :: a,
+    ye' :: a,
+    rx' :: a,
+    ry' :: a,
+    namee'  :: String,
+    colore' :: Color
+} deriving (Eq, Show)
 
 data Label' a = Label' { xl' :: a
                        , yl' :: a
@@ -432,6 +467,13 @@ data Square' a  = Square' { xs' :: a
                      , colors' :: Color }
                      deriving (Eq, Show)
 
+data CubicBezier' a = CubicBezier' {
+    pathcb'           :: [(a, a)],
+    namecb'           :: String,
+    stylecb'          :: String,
+    colorcb'          :: Color
+} deriving (Eq, Show)
+
 instance Named (SolidArrow' a) where
          getName = namesa'
          setName x sa = sa { namesa' = x }
@@ -456,20 +498,26 @@ instance Named (Pt' a) where
          getName = namep'
          setName x p = p { namep' = x }
 
+instance Named (CubicBezier' a) where
+         getName = namecb'
+         setName x cb = cb { namecb' = x }
+
 instance Named (Obj' a) where
          getName o = case o of
-                 C' c -> getName c
-                 E' c -> getName c
-                 L' l -> getName l
-                 P' p -> getName p
-                 S' s -> getName s
-                 A' a -> getName a
+                 C' c   -> getName c
+                 E' c   -> getName c
+                 L' l   -> getName l
+                 P' p   -> getName p
+                 S' s   -> getName s
+                 A' a   -> getName a
+                 CB' cb -> getName cb
          setName x o = case o of
-                C' c -> C' $ setName x c
-                S' s -> S' $ setName x s
-                L' l -> L' $ setName x l
-                P' p -> P' $ setName x p
-                A' a -> A' $ setName x a
+                C' c   -> C' $ setName x c
+                S' s   -> S' $ setName x s
+                L' l   -> L' $ setName x l
+                P' p   -> P' $ setName x p
+                A' a   -> A' $ setName x a
+                CB' cb -> CB' $ setName x cb
 --
 --
 instance Located (Circ' a) a where
@@ -507,6 +555,17 @@ instance Located (Pt' a) a where
          getY = yp'
          setX x p = p { xp' = x }
          setY y p = p { yp' = y }
+
+-- TODO: Added context for max and min functions. Consider rewriting the whole `Located` interface. For general shapes, simply setX and getX does NOT make sense.
+instance (Real a, Floating a, Show a, Ord a) => Located (CubicBezier' a) a where
+         getX c   = let xs = map fst $ pathcb' c in maximum xs - minimum xs
+         getY c   = let ys = map snd $ pathcb' c in maximum ys - minimum ys
+         setX x c = let xs = map fst $ pathcb' c
+                        dx = x - (maximum xs - minimum xs) in
+                        c { pathcb' = map (\(xx, yy) -> (xx + dx, yy)) $ pathcb' c }
+         setY y c = let ys = map snd $ pathcb' c
+                        dy = y - (maximum ys - minimum ys) in
+                        c { pathcb' = map (\(xx, yy) -> (xx, yy - dy)) $ pathcb' c }
 
 instance Located (Obj' a) a  where
          getX o = case o of

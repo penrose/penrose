@@ -2,27 +2,33 @@
 --   websockets connection.
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 
 module Server where
 import Shapes
+import Computation
 import GHC.Generics
 import Data.Monoid (mappend)
 import Data.Text (Text)
-import Control.Monad (forM_, forever)
-import Control.Monad.IO.Class (liftIO)
-import Control.Concurrent (MVar, newMVar, modifyMVar_, modifyMVar, readMVar)
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
-import qualified Runtime as R
-import qualified Network.WebSockets as WS
-import GHC.Float (float2Double)
 import Control.Exception
-import System.Time
--- import System.Posix.Unistd(usleep)
+import Control.Monad (forM_, forever, void)
+import Control.Monad.IO.Class (liftIO)
+import Control.Concurrent (MVar, newMVar, modifyMVar_, modifyMVar, readMVar, forkIOWithUnmask)
 import Data.Char (isPunctuation, isSpace)
 import Data.Aeson
 import Data.Maybe (fromMaybe)
-import qualified Control.Exception as Exc (catch, ErrorCall)
+import GHC.Float (float2Double)
+import Network.WebSockets.Connection
+import System.Time
+import Debug.Trace
+import qualified Data.Text                 as T
+import qualified Data.Text.IO              as T
+import qualified Runtime                   as R
+import qualified Network.WebSockets        as WS
+import qualified Network.Socket            as S
+import qualified Network.WebSockets.Stream as Stream
+import qualified Control.Exception         as Exc (catch, ErrorCall)
+
 
 -- Types used by the server, mainly for translation to JSON
 type ServerState = R.State
@@ -30,17 +36,16 @@ data FeedBack = Cmd Command | Drag DragEvent | Update UpdateShapes deriving (Sho
 data Command = Command { command :: String } deriving (Show, Generic)
 data DragEvent = DragEvent { name :: String, xm :: Float, ym :: Float } deriving (Show, Generic)
 data UpdateShapes = UpdateShapes { objs :: [Obj] } deriving (Show, Generic)
+data Frame = Frame { flag :: String, objs :: [Obj] } deriving (Show, Generic)
 instance FromJSON FeedBack
 instance FromJSON Command
 instance FromJSON DragEvent
 instance FromJSON UpdateShapes
+instance ToJSON Frame
 
 
 wsSendJSON :: ToJSON j => WS.Connection -> j -> IO ()
 wsSendJSON conn obj = WS.sendTextData conn $ encode obj
-
--- wsReceiveJSON :: (WS.TextProtocol p, FromJSON j) => WS.WebSockets p (Maybe j)
--- wsReceiveJSON = fmap decode WS.receiveData
 
 -- | 'servePenrose' is the top-level function that "Main" uses to start serving
 --   the Penrose Runtime.
@@ -50,10 +55,39 @@ servePenrose :: String  -- the domain of the server
              -> IO ()
 servePenrose domain port initState = do
      putStrLn "Starting Server..."
-     Exc.catch (WS.runServer domain port $ application initState) handler
+     Exc.catch (runServer domain port $ application initState) handler
      where
         handler :: Exc.ErrorCall -> IO ()
-        handler _ = putStrLn $ "Server Error"
+        handler _ = putStrLn "Server Error"
+
+-- | This 'runServer' is exactly the same as the one in "Network.WebSocket". Duplicated for calling a customized version of 'runServerWith' with error messages enabled.
+runServer :: String     -- ^ Address to bind
+          -> Int        -- ^ Port to listen on
+          -> WS.ServerApp  -- ^ Application
+          -> IO ()      -- ^ Never returns
+runServer host port app = runServerWith host port WS.defaultConnectionOptions app
+
+-- | A version of 'runServer' which allows you to customize some options.
+runServerWith :: String -> Int -> WS.ConnectionOptions -> WS.ServerApp -> IO ()
+runServerWith host port opts app = S.withSocketsDo $
+  bracket
+  (WS.makeListenSocket host port)
+  S.close
+  (\sock ->
+    mask_ $ forever $ do
+      allowInterrupt
+      (conn, _) <- S.accept sock
+      void $ forkIOWithUnmask $ \unmask ->
+        finally (unmask $ runApp conn opts app) (S.close conn)
+    )
+
+runApp :: S.Socket
+       -> WS.ConnectionOptions
+       -> WS.ServerApp
+       -> IO ()
+runApp socket opts app = do
+       sock <- WS.makePendingConnection socket opts
+       app sock
 
 application :: ServerState -> WS.ServerApp
 application s pending = do
@@ -64,10 +98,13 @@ application s pending = do
 
 loop :: WS.Connection -> R.State -> IO ()
 loop conn s
-    | R.optStatus ( R.params s) == R.EPConverged = do
+    | R.optStatus (R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
-        putStrLn ("Current weight: " ++ (show $ R.weight (R.params  s)))
-        wsSendJSON conn (R.objs s) -- TODO: is this necessary?
+        putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
+        putStrLn "Applying final computations"
+        let objsComputed = R.computeOnObjs_noGrad (R.objs s) (R.comps s)
+        putStrLn $ "Final objs:\n" ++ show objsComputed
+        wsSendJSON conn Frame { flag = "final", objs = objsComputed }
         processCommand conn s
     | R.autostep s = stepAndSend conn s
     | otherwise = processCommand conn s
@@ -76,6 +113,7 @@ processCommand :: WS.Connection -> R.State -> IO ()
 processCommand conn s = do
     -- putStrLn "Receiving Commands"
     msg_json <- WS.receiveData conn
+    -- print msg_json
     case decode msg_json of
         Just e -> case e of
             Cmd (Command cmd)  -> executeCommand cmd conn s
@@ -86,7 +124,8 @@ processCommand conn s = do
 updateShapes :: [Obj] -> WS.Connection -> R.State -> IO ()
 updateShapes newObjs conn s = if R.autostep s then stepAndSend conn news else loop conn news
     where
-        news = s { R.objs = newObjs, R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}
+        news = s { R.objs = newObjs,
+                   R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}
 
 dragUpdate :: String -> Float -> Float -> WS.Connection -> R.State -> IO ()
 dragUpdate name xm ym conn s = if R.autostep s then stepAndSend conn news else loop conn news
@@ -96,7 +135,8 @@ dragUpdate name xm ym conn s = if R.autostep s then stepAndSend conn news else l
                     then setX (xm + getX x) $ setY (-ym + getY x) x
                     else x)
             (R.objs s)
-        news = s { R.objs = newObjs, R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}
+        news = s { R.objs = newObjs,
+                   R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter }}
 
 executeCommand :: String -> WS.Connection -> R.State -> IO ()
 executeCommand cmd conn s
@@ -105,11 +145,11 @@ executeCommand cmd conn s
     | cmd == "autostep" = loop conn (s { R.autostep = not $ R.autostep s })
     | otherwise         = putStrLn ("Can't recognize command " ++ cmd)
 
-
 resampleAndSend, stepAndSend :: WS.Connection -> R.State -> IO ()
 resampleAndSend conn s = do
     let (objs', rng') = R.sampleConstrainedState (R.rng s) (R.objs s) (R.constrs s)
-    let nexts = s { R.objs = objs', R.down = False, R.rng = rng', R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter } }
+    let nexts = s { R.objs = objs', R.down = False, R.rng = rng',
+                    R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter } }
     wsSendJSON conn (R.objs nexts)
     loop conn nexts
 stepAndSend conn s = do

@@ -1,0 +1,31 @@
+Set x {
+   objective centerLabel(x, x.label)
+}
+
+Set `A` {
+  shape = Circle {
+    -- red
+    color = computeColorRGBA(1.0, 0.2, 1.0, 0.5) 
+    label = Auto
+  }
+
+  constraint nondegenerate(A)
+}
+
+Set `B` {
+  shape = Circle {
+    -- radius = computeRadiusAsFrac(A, 0.5)
+    -- green
+    color = computeColorRGBA(0.1, 1.0, 0.2, 0.4) 
+    label = Auto
+  }
+
+  constraint nondegenerate(B)
+}
+
+Subset x y {
+    constraint contains(y, x)
+    constraint outsideOf(y.label, x)
+    -- TODO discourage tangency:
+    -- inside contains fn or separately?
+}

@@ -6,7 +6,7 @@ Quick start:
 
 * Navigate to `src/`
 * For Alloy support: execute `make` in `src/`
-* Compile the system: `ghc Main.hs`
+* Compile the system: `stack ghc Main.hs` (with the latest GHC, 8.0.2)
 * Start a server: `python -m SimpleHTTPServer`
 * Start the Penrose runtime, providing a pair of Substance/Style programs: `./Main snap sub/surjection.sub sty/surjection.sty `
 * View the visualization with interactive optimization: in your browser, navigate to http://localhost:8000/client.html

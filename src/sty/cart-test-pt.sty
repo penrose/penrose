@@ -1,0 +1,65 @@
+global {
+    constraint at(origin, 0, 0)
+    constraint at(horiz, 200, 0)
+    constraint at(vert, 0, 200)
+    constraint at(domain, 0, 0)
+    constraint at(codomain, 0, 0)
+    objective horizontal(domain)
+    objective upright(codomain)
+}
+
+Set `domain` {
+  shape = Arrow {
+    start = origin
+    end   = horiz
+    label = Auto
+  }
+}
+
+Set `codomain` {
+  shape = Arrow {
+    start = origin
+    end   = vert
+    label = Auto
+  }
+}
+
+Set S {
+  objective centerLabel(S, S.label)
+}
+
+-- TODO: clarify the cascading order for specificity, since the orders aren't consistent
+-- TODO: fix the fact that if something doesn't have a concrete shape, you should still be able
+-- to use it as an invisible anchor
+Point p {
+    shape = Dot {
+        label = Auto
+    }
+    objective centerLabel(p, p.label)
+} 
+
+-- TODO add ability for objects to have multiple associated shapes
+-- TODO how to set radius of a circle?
+Point `special` {
+    constraint at(special, 130, 180)
+    shape = Circle {
+        -- r    = 20
+        label = Auto
+        color = computeColorRGBA(1.0, 0.25, 0.25, 0.5)
+        -- need to add computations to other shapes
+    }
+    objective centerLabel(special, special.label)
+    -- objective near(special, special.label)
+} 
+
+-- TODO global label objective function
+-- what about x and y? can we operate on them?
+Map f x y {
+    shape = Curve {
+        -- style = "dashed"
+        path = computeSurjectionBbox(10, domain, codomain)
+        label = Auto -- TODO add string literals/custom labels
+    }
+
+    objective centerLabel(f, f.label, 10)
+}

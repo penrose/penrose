@@ -1,24 +1,25 @@
--- | The "function" module contains a library of objective and constraint
+-- | The "Function" module contains a library of objective and constraint
 -- functions, and helper functions needed to invoke them.
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, FlexibleContexts #-}
 module Functions where
 import Shapes
 import Utils
+import Debug.Trace
 import qualified Data.Map.Strict as M
 
-type ObjFnOn a =  [Obj' a] -> [a] -> a
-type ConstrFnOn a =  [Obj' a] -> [a] -> a
-type ObjFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
-type ConstrFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a]-> a
+type ObjFnOn a = [Obj' a] -> [a] -> a
+type ConstrFnOn a = [Obj' a] -> [a] -> a
+type ObjFn = forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
+type ConstrFn = forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
 type Weight a = a
-type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
+type PairConstrV a = forall a . (RealFloat a, Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
 
 -- | 'constrFuncDict' stores a mapping from the name of constraint functions to the actual implementation
-constrFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) =>
+constrFuncDict :: forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) =>
     M.Map String (ConstrFnOn a)
 constrFuncDict = M.fromList flist
     where
-        flist :: (Floating a, Real a, Show a, Ord a) => [(String, ConstrFnOn a)]
+        flist :: (RealFloat a, Floating a, Real a, Show a, Ord a) => [(String, ConstrFnOn a)]
         flist = [
                     ("at", at),
                     ("sameSizeAs", penalty `compose2` sameSize),
@@ -26,11 +27,12 @@ constrFuncDict = M.fromList flist
                     ("overlapping", penalty `compose2` overlapping),
                     ("nonOverlapping",  penalty `compose2` nonOverlapping),
                     ("outsideOf", penalty `compose2` outsideOf),
-                    ("smallerThan", penalty `compose2` smallerThan) -- TODO: should this be an objective?
+                    ("smallerThan", penalty `compose2` smallerThan), -- TODO: should this be an objective?
+                    ("nondegenerate", penalty `compose2` nondegenerate)
                  ]
 
 -- | 'objFuncDict' stores a mapping from the name of objective functions to the actual implementation
-objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFnOn a)
+objFuncDict :: forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => M.Map String (ObjFnOn a)
 objFuncDict = M.fromList flist
     where flist = [
                     ("increasingX", increasingX),
@@ -77,7 +79,6 @@ objFuncDict = M.fromList flist
 -- TODO: implement all the location function using a generic version
 -- distance (x1, y1) (x2, y2) dx dy = (x1 - x2)
 
-
 xInRange :: ObjFn
 xInRange l [xmin, xmax] = (minimum xs - xmin)^2 + (maximum xs - xmax)^2 + sum (map f xs)
     where xs = map getX l
@@ -119,6 +120,7 @@ center [o] _ = getX o ^ 2 + getY o ^ 2
 
 -- | 'above' makes sure the first argument is on top of the second.
 above :: ObjFn
+-- above (
 above [top, bottom] [offset] = (getY top - getY bottom - offset)^2
 above [top, bottom] _ = (getY top - getY bottom - 100)^2
 
@@ -190,8 +192,30 @@ repel [a, b] _ = 1 / distsq (getX a, getY a) (getX b, getY b) + epsd
 -- helper for `repel`
 repel' x y = 1 / distsq x y + epsd
 
--- | 'centerLabel' make labels stay at the centers of objects.
+-- TODO move this elsewhere? (also applies to polyline)
+bezierBbox :: (Floating a, Ord a) => CubicBezier' a -> ((a, a), (a, a)) -- poly Point type?
+bezierBbox cb = let path = pathcb' cb 
+                    (xs, ys) = (map fst path, map snd path) 
+                    lower_left = (minimum xs, minimum ys)
+                    top_right = (maximum xs, maximum ys) in
+                    (lower_left, top_right)
+
+-- | 'centerLabel' makes labels stay at the centers of objects.
 centerLabel :: ObjFn
+-- for now, center label in bezier's bbox
+-- TODO smarter bezier/polyline label function
+-- TODO specify rotation on labels?
+centerLabel [CB' bez, L' lab] [mag] = -- use the float input? just for testing
+            let ((lx, ly), (rx, ry)) = bezierBbox bez 
+                (xmargin, ymargin) = (-10, 30) 
+                midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
+            distsq midbez (getX lab, getY lab)
+
+-- centerLabel [CB' a, L' l] [mag] = -- use the float input?
+--                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
+--                     (mx, my) = midpoint (sx, sy) (ex, ey)
+--                     (lx, ly) = (xl' l, yl' l) in
+                -- (mx - lx)^2 + (my + 1.1 * hl' l - ly)^2 -- Top right from the point
 centerLabel [P' p, L' l] _ =
                 let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
                 (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
@@ -287,8 +311,9 @@ ellipseRatio [E' e] _ = (rx' e / w - ry' e / l) ** 2
 
 contains :: ConstrFn
 contains [C' outc, C' inc] _ =
-    -- tr (namec' outc ++  " contains " ++ namec' inc ++ " val: ") $
-    strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+    if isNaN (xc' inc) then error "NaN in `contains` arg in Functions" -- TODO systematize NaN checks
+    else tr (namec' outc ++  " contains " ++ namec' inc ++ " val: ") $
+         strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
     -- let res =  dist (xc' inc, yc' inc) (xc' outc, yc' outc) - (r' outc - r' inc) in
     -- if res > 0 then res else 0
 contains [S' outc, S' inc] _ = strictSubset
@@ -369,6 +394,10 @@ nonOverlapping [A' arr, L' label] _ =
         tr "labelvsArr: " $ -sqrt(dx**2 + dy**2) - wl' label
 nonOverlapping  _ _ = error "no intersect not called with 2 args"
 
+nondegenerate :: ConstrFn
+nondegenerate [C' c] _ = -(r' c)
+nondegenerate _ _ = error "nondegenerate not yet defined for this kind of object"
+
 
 -- noConstraint :: PairConstrV a
 -- noConstraint _ _ = 0
@@ -394,9 +423,10 @@ noSubset :: PairConstrV a
 noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing with s1 > s2 or s2 < s1
          -(dist (x1, y1) (x2, y2)) + max s2 s1 - min s2 s1 + offset
 
--- the first set is the subset of the second, and thus smaller than the second in size.
--- TODO: test for equal sets
--- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
+-- the first (circular) set is the subset of the second (circular) set, and thus smaller than the second.
+-- The distance between the centers of the sets must be less than the difference between 
+-- the radius of the outer set and the radius of the inner set.
+-- TODO: test for equal sets? (function is minimized if sets have same radii and location)
 strictSubset :: PairConstrV a
 strictSubset [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s2 - s1)
 
@@ -412,6 +442,6 @@ pointNotInExt [[x1, y1], [x2, y2, r]] = - dist (x1, y1) (x2, y2) + r
 
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a
-penalty x = (max x 0) ^ q -- weights should get progressively larger in cr_dist
-            where  q = 2 -- also, may need to sample OUTSIDE feasible set
-            -- where q = 3 -- also, may need to sample OUTSIDE feasible set
+penalty x = tr "penalty" $ (max x 0) ^ q -- weights should get progressively larger in cr_dist
+            where q = 2 -- also, may need to sample OUTSIDE feasible set
+            -- where q = 3

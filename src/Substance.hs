@@ -110,17 +110,17 @@ subProg :: Parser [SubStmt]
 subProg =  endBy subStmt newline'
 
 subStmt :: Parser SubStmt
-subStmt = try subDef <|> subDecl <|> defApp
+subStmt = try subDef <|> try subDecl <|> defApp
 
 -- TODO: think about why the `try` is needed here?
 -- NOTE: I used `try`s because some of the sub-functions will actally consume tokens even when it fails to parse the whole thing. As a result, the next sub-function will actually starts from where the previous function left off, making it impossible to parse.
 subDecl, varDecl, setInit, funcDecl :: Parser SubStmt
-subDecl = try setInit <|> try funcVal <|>  try varDecl <|> try constrDecl <|> try funcDecl
+subDecl = try setInit <|> try funcVal <|> try varDecl <|> try constrDecl <|> try funcDecl
 constrDecl = do
     -- a <- identifier
     typ <- subConstrType
     -- b <- identifier
-    args <- someTill (try  identifier) newline
+    args <- someTill (try identifier) newline
     return (ConstrDecl typ args)
 varDecl = do
     typ <- subObjType
