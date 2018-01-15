@@ -341,13 +341,17 @@ $.getScript('snap.svg.js', function()
             var now  = new Date().getTime()
             var diff = (now - lastTime);
             var obj = jQuery.parseJSON(event.data)
-            if(firstRun || diff > sampleInterval) {
-                // console.log(obj)
-                renderScene(ws, s, obj, firstRun)
-                lastTime = now
-                firstRun = false
-            } else if(obj.flag == "final") {
+
+            // the server only sends `Frame` type data for the __last__ frame
+            if(obj.flag == "final") {
                 renderScene(ws, s, obj.objs, firstRun)
+            } else {
+                // if not the last frame, we refresh the frontend on a time interval
+                if(firstRun || diff > sampleInterval) {
+                    renderScene(ws, s, obj, firstRun)
+                    lastTime = now
+                    firstRun = false
+                }
             }
         }
     });
