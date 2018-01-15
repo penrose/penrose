@@ -73,7 +73,7 @@ Here is how Penrose visualizes this:
 
 <img src="https://i.imgur.com/3JHZeaX.png" width=300>
 
-And here's how the optimization looks [live in the UI](blob:https://imgur.com/bca78213-a3db-4ccb-8c12-b7f569edd5a4).
+And here's how the optimization looks live in the UI: blob:https://imgur.com/bca78213-a3db-4ccb-8c12-b7f569edd5a4
 
 ----
 
