@@ -1,6 +1,6 @@
 # Penrose
 
-Not ready for contributions or public use yet, but hopefully will be soon! See [the site](penrose.ink) for more information.
+Not ready for contributions or public use yet, but hopefully will be soon! See [the site](penrose.ink) for more information and examples.
 
 Quick start:
 
@@ -10,95 +10,74 @@ Quick start:
 * Start a server: `python -m SimpleHTTPServer`
 * Start the Penrose runtime, providing a pair of Substance/Style programs: `./Main snap sub/surjection.sub sty/surjection.sty `
 * View the visualization with interactive optimization: in your browser, navigate to http://localhost:8000/client.html
+* In the UI, try stepping, autostepping, and resampling the state. You can also drag objects to set a new initial state for the optimization.
 
-For more thorough and up-to-date documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-pub/blob/master/penrose/ramp-down.md).
-
-<img src="https://lh3.googleusercontent.com/d0Z33Xla8NHuKDIxke0TtN7YxstStGCIhS8-9NKije8ria3KwlYDKSAXcOkNhbJfh7wGqMR3=w960-h983-rw" width="500px">
+For more thorough documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-pub/blob/master/penrose/ramp-down.md).
 
 ----
 ### Example
 
-Consider the following Substance and Style program,
-- `continuousmap.sub`
+Consider the following Substance and Style programs for set theory:
+
+- `tree.sub`
     ```
     Set A
     Set B
-    Set R^n
-    Set R^m
-    Subset A R^n
-    Subset B R^m
-    Map f A B
-    Set U
-    Subset U B
-    Set V
-    Subset V A
+    Set C
+    Set D
+    Set E
+    Set F
+    Set G
+    Subset B A
+    Subset C A 
+    Subset D B
+    Subset E B
+    Subset F C
+    Subset G C
+    NoIntersect E D
+    NoIntersect F G
+    NoIntersect B C
     ```
-- `continuousmap.sty`
+- `venn.sty`
     ```
-    Shape Set Circle
-    Shape Map SolidArrow
-    Shape R^n Box
-    Shape R^m Box
+    Set x {
+        shape = Circle { }
+        constraint contains(x, x.label)
+    }
+
+    Intersect x y {
+        constraint overlapping(x, y)
+        constraint outsideOf(y.label, x)
+        constraint outsideOf(x.label, y)
+    }
+
+    NoIntersect x y {
+        constraint nonOverlapping(x, y)
+    }
+
+    Subset x y {
+        constraint contains(y, x)
+        constraint smallerThan(x, y)
+        constraint outsideOf(y.label, x)
+    }
+
+    NoSubset x y {
+        objective repel(x, y)
+        constraint outsideOf(x, y)
+        constraint outsideOf(y.label, x)
+        constraint outsideOf(x.label, y)
+        constraint nonOverlapping(x, y)
+    }
     ```
 Here is how Penrose visualizes this:
 
-![](assets/WX20170618-190558.png)
+<img src="https://i.imgur.com/3JHZeaX.png" width=300>
+
+And here's how the optimization looks [live in the UI](blob:https://imgur.com/bca78213-a3db-4ccb-8c12-b7f569edd5a4).
 
 ----
 
-### Usage
-
-Install any relevant packages: `cabal install $PACKAGE_NAME` (though I'm told the Haskell community has moved on to the better `stack` package manager).
-
-To compile both:
-`ghc Runtime.hs`
-
-To just compile Compiler:
-`ghc Compiler.hs`
-
-To use:
-`./Runtime <filename>.sub <filename>.sty`
-
-User interface:
-* You can click and drag the objects, including labels. The optimization will pause while dragging and re-layout when the mouse is lifted. The object on top is semi-arbitrary, decided by the order of the objects in the internal list.
-* Pressing the `R` key will resample the configuration.
-* Pressing the `A` key will turn autostep (automatically stepping the optimization) on or off.
-* Pressing the `S` key will step the optimization by one step if autostep is off. It won't do anything if autostep is on.
-
-Examples of existing pairs:
-* twosets.sub settheory.sty
-* continuousmap1.sub continuousmap1.sty (system doesn't currently handle this)
-
-----
-
-### Organization
-
-`src` contains the compiler and runtime.
-
-`src/GC-slides` contains slides from weekly group meetings.
-
-`src/gifs` and `src/pictures` contain GIFs and pictures documenting new features in the system.
-
-Other directories in the root contain documentation and old parts of the system.
-
-----
-
-### More information
-
-I use the following library to handle the graphics, animation, and user input: [gloss](https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html).
-
-Functionality of the current code:
-
-* gradient-descent-based layout
-* with backtracking line search
-* for set theory with points, sets, and certain constraints on points and sets
-* with very simple objective functions provided (e.g. centering)
-* where the layout is animated and interactive (v. useful for debugging)
-
-Some limitations:
-
-* line search sometimes doesn't terminate
-* need a better debugging interface for optimization, e.g. live parameter tuning
+### More information (possibly outdated)
 
 Parameters:
 
@@ -119,22 +98,4 @@ Debugging:
 * Use the flags above.
 * I also use `ghci`, the Haskell REPL. To load the file, do `:l filename.hs`. To import a library, paste in the normal import statement. To declare something, start with a `let` statement, e.g. `let x = 5`.
 * For printing internal values, I use the [Debug.Trace](https://hackage.haskell.org/package/base-4.9.0.0/docs/Debug-Trace.html) library.
-
-----
-
-### Design
-
-* Compiler parses the Substance and Style programs and combines their abstract syntax trees into Layout (the intermediate layout representation).
-* Runtime calls Compiler on the input files, and transforms the data in Layout to Opt (the representations used by the optimization code).
-* Runtime imports Compiler as a module.
-
-----
-
-### Usage for old code
-
-Compile: `ghc settheory.hs`
-
-Create SVG: `./settheory -w 500 -h 500 -o set.svg`
-(The parameters are the width and height of the rendered picture.)
-
-Open SVG: `chrome set.svg`
+* ghci comes with a nice [debugger](https://downloads.haskell.org/~ghc/7.4.1/docs/html/users_guide/ghci-debugger.html).
