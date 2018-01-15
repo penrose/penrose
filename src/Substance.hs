@@ -18,12 +18,12 @@ import Debug.Trace
 import Data.List
 import Data.Maybe (fromMaybe)
 import Text.Megaparsec
+import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
-import Text.Megaparsec.String -- input stream is of the type ‘String’
 -- import Text.PrettyPrint
 import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict as M
-import qualified Text.Megaparsec.Lexer as L
+import qualified Text.Megaparsec.Char.Lexer as L
 
 --------------------------------------------------------------------------------
 -- Substance AST
@@ -107,7 +107,7 @@ substanceParser = between sc eof subProg
 
 -- | 'subProg' parses the entire Substance program, which is a collection of statments
 subProg :: Parser [SubStmt]
-subProg =  endBy subStmt newline'
+subProg =  subStmt `sepEndBy` newline'
 
 subStmt :: Parser SubStmt
 subStmt = try subDef <|> try subDecl <|> defApp
@@ -120,7 +120,7 @@ constrDecl = do
     -- a <- identifier
     typ <- subConstrType
     -- b <- identifier
-    args <- someTill (try identifier) newline
+    args <- some identifier
     return (ConstrDecl typ args)
 varDecl = do
     typ <- subObjType

@@ -301,17 +301,17 @@ computeOn objDict comp =
                                                 M.insert objName (P' pt') objDict
                                         _ -> error "compute: wrong type, expected circle"
 
-computeInnerPt :: (Floating a, Real a, Ord a, Show a) => 
+computeInnerPt :: (Floating a, Real a, Ord a, Show a) =>
                   Name -> Name -> Computation a -> [S.Expr] -> Pt' a -> M.Map Name (Obj' a) -> Pt' a
 computeInnerPt fname property comp args pt objDict =
              case property of
-               "location" -> 
+               "location" ->
                  case comp of
                     AddVector f ->
                       case args of
                         [S.FloatLit x, S.FloatLit y, S.Id pt2_name] ->
                          case (M.lookup pt2_name objDict) of
-                               Just (P' pt2) -> 
+                               Just (P' pt2) ->
                                      let (x', y') = addVector (r2f x, r2f y) (xp' pt2, yp' pt2) in
                                      pt { xp' = x', yp' = y' }
                                Just x -> error ("Runtime (pt): computation ref args of wrong type:"
@@ -323,12 +323,12 @@ computeInnerPt fname property comp args pt objDict =
 
 -- TODO pass randomness around
 -- TODO try out pattern guards? https://downloads.haskell.org/~ghc/5.00/docs/set/pattern-guards.html
-computeInnerCurve :: (Floating a, Real a, Ord a, Show a) => 
+computeInnerCurve :: (Floating a, Real a, Ord a, Show a) =>
                   Name -> Name -> Computation a -> [S.Expr] -> CubicBezier' a
                  -> M.Map Name (Obj' a) -> CubicBezier' a
 computeInnerCurve fname property comp args curve objDict =
              case property of
-             "path" -> 
+             "path" ->
                  case comp of
                     ComputeSurjection f ->
                       case args of
@@ -342,7 +342,7 @@ computeInnerCurve fname property comp args curve objDict =
                         [S.IntLit num, S.Id o1, S.Id o2] ->
                          -- TODO lookup expressions beforehand?
                          case (M.lookup o1 objDict, M.lookup o2 objDict) of
-                               (Just (A' a1), Just (A' a2)) -> 
+                               (Just (A' a1), Just (A' a2)) ->
                                      let (path, g') = computeSurjectionBbox initRng num a1 a2 in
                                      -- trace ("bbox " ++ show path) $
                                      curve { pathcb' = path }
@@ -359,7 +359,7 @@ computeInnerCurve fname property comp args curve objDict =
 -- TODO apply computations on resample, accounting for state order
 -- TODO standardize var names b/t here and computeOn
 -- | Apply a computation to the circle and set the relevant property. Catch errors on input and output type.
-computeInnerCirc :: (Floating a, Real a, Ord a, Show a) => 
+computeInnerCirc :: (Floating a, Real a, Ord a, Show a) =>
                     Name -> Name -> Computation a -> [S.Expr] -> Circ' a -> M.Map Name (Obj' a) -> Circ' a
 computeInnerCirc fname property comp args c objDict =
              case property of
@@ -373,7 +373,7 @@ computeInnerCirc fname property comp args c objDict =
 
                           ComputeColorRGBA f ->
                             case args of
-                              [S.FloatLit r,S.FloatLit g,S.FloatLit b,S.FloatLit a] -> 
+                              [S.FloatLit r,S.FloatLit g,S.FloatLit b,S.FloatLit a] ->
                                           c {colorc' = f (r2f r) (r2f g) (r2f b) (r2f a)}
                                           -- don't really need two layers of r2f right? what does that do?
                               _ -> error "Runtime: args don't match comp type"
@@ -534,7 +534,7 @@ lookupNames dict ns = map check res
         res = map (`M.lookup` dict) ns
         check x = case x of
             Just o -> o
-            _ -> error ("lookupNames: at least one of the arguments does not exist: " ++ show ns ++ 
+            _ -> error ("lookupNames: at least one of the arguments does not exist: " ++ show ns ++
                          " in dict: " ++ show dict)
 
 -- takes list of current objects as a parameter, and is later partially applied with that in optimization
@@ -552,7 +552,7 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
          \currObjs penaltyWeight fixed varying ->
          let newObjs = pack annotations currObjs fixed varying in
          -- Construct implicit computation graph (second stage), including computations as intermediate vars
-         let objsComputed = computeOnObjs newObjs computations in 
+         let objsComputed = computeOnObjs newObjs computations in
          let objDict = dictOf objsComputed in -- TODO revert
          sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
@@ -597,7 +597,7 @@ genInitState (decls, constrs) stys =
              -- Apply each computation to the object in the (dictionary of) state, updating the state each time.
              -- Gradients are added here because applying computations and generating annotations
                 -- are polymorphic, but gradients are removed before they go into the state.
-             let initStateComputed = trace ("initial constrained state: " ++ show initStateConstr) 
+             let initStateComputed = trace ("initial constrained state: " ++ show initStateConstr)
                                      $ computeOnObjs (addGrads initStateConstr) computations in
 
              -- Note: after creating these annotations, we can no longer change the size or order of the state.
@@ -628,12 +628,12 @@ rad2 = rad+50
 
 -- Initial state of the world, before including Substance/Style input
 initState :: State
-initState = State { objs = objsInit, 
-                    constrs = [], 
+initState = State { objs = objsInit,
+                    constrs = [],
                     comps = [],
-                    down = False, 
-                    rng = initRng, 
-                    autostep = False, 
+                    down = False,
+                    rng = initRng,
+                    autostep = False,
                     params = initParams }
 
 -- divide two integers to obtain a float
@@ -1219,7 +1219,7 @@ stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, 
                         steppedState = let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
                                        trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
                                               ++ "\n|f(x') - f(x)|: " ++
-                                             (show $ abs (objFnApplied state - objFnApplied state')) 
+                                             (show $ abs (objFnApplied state - objFnApplied state'))
                                               ++ "\ngradEval: \n" ++ (show gradEval)
                                               ++ "\nstate: \n" ++ (show objs) )
                                        state'
@@ -1255,7 +1255,7 @@ tupMap :: (a -> b) -> (a, a) -> (b, b)
 tupMap f (a, b) = (f a, f b)
 
 -------------------
-        
+
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- TODO change stepWithGradFn(s) to use this fn and its type
