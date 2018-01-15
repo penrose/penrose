@@ -76,7 +76,7 @@ type CompInfo = (Name, [S.Expr])
 
 initRng :: StdGen
 initRng = mkStdGen seed
-    where seed = 20 -- deterministic RNG with seed
+    where seed = 17 -- deterministic RNG with seed
 
 objFnNone :: ObjFnPenaltyState a
 objFnNone objs w f v = 0
@@ -221,7 +221,7 @@ defaultSquare name = S Square { xs = 100, ys = 100, side = defaultRad,
         sels = False, names = name, colors = black, ang = 0.0}
 defaultText text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text, sell = False, namel = text }
 defaultLabel text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text, sell = False, namel = labelName text }
-defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
+defaultCirc name = C Circ { xc = 0, yc = 0, r = defaultRad,
         selc = False, namec = name, colorc = black }
 defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
 defaultCurve name = CB CubicBezier { colorcb = black, pathcb = path, namecb = name, stylecb = "solid" }
@@ -229,7 +229,7 @@ defaultCurve name = CB CubicBezier { colorcb = black, pathcb = path, namecb = na
     where path = [(10, 100), (300, 100)]
 
 
-shapeAndFn :: (Floating a, Real a, Show a, Ord a) =>
+shapeAndFn :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
            S.StyDict -> String ->
            ([Obj], [(ObjFnOn a, Weight a, [Name], [a])],
                    [(ConstrFnOn a, Weight a, [Name], [a])],
@@ -251,7 +251,7 @@ shapeAndFn dict name =
         thd4 (_, _, a, _) = a
         frth4 (_, _, _, a) = a
 
-getShape :: (Floating a, Real a, Show a, Ord a) =>
+getShape :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
                       (String, (S.StyObj, M.Map String S.Expr)) ->
                       ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], -- TODO type synonym?
                               [(ConstrFnOn a, Weight a, [Name], [a])],
@@ -396,7 +396,7 @@ computeInnerCirc fname property comp args c objDict =
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
-    (Floating a, Real a, Show a, Ord a) =>
+    (RealFloat a, Floating a, Real a, Show a, Ord a) =>
     String -> M.Map String S.Expr -- config
     -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])], [ObjComp])
 initText n config = ([defaultText n], [], [], [])
@@ -444,7 +444,8 @@ initCurve n config = (objs, [], [], computations)
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
               objs = if lab == "None" then [curve] else [curve, defaultLabel n]
 
-sizeFuncs :: (Floating a, Real a, Show a, Ord a) => Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
+sizeFuncs :: (RealFloat a, Floating a, Real a, Show a, Ord a) => 
+                        Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
               (penalty `compose2` minSize, defaultWeight, [n], [])]
 
@@ -504,7 +505,7 @@ declMapObjfn = centerMap
 map4 :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
 map4 f (w, x, y, z) = (f w, f x, f y, f z)
 
-genAllObjs :: (Floating a, Real a, Show a, Ord a) =>
+genAllObjs :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
              ([C.SubDecl], [C.SubConstr]) -> S.StyDict
              -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])],
                         [(ConstrFnOn a, Weight a, [Name], [a])],
@@ -540,7 +541,7 @@ lookupNames dict ns = map check res
 -- first param: list of parameter annotations for each object in the state
 -- assumes that the INPUT state's SIZE and ORDER never change (their size and order can change inside the fn)
 -- note: CANNOT do dict -> list because that destroys the order
-genObjFn :: (Real a, Floating a, Show a, Ord a) =>
+genObjFn :: (RealFloat a, Real a, Floating a, Show a, Ord a) =>
          [[Annotation]]
          -> [ObjComp]
          -> [(ObjFnOn a, Weight a, [Name], [a])]
@@ -1024,8 +1025,8 @@ checkSubsetSize _ _ = True
 -- Type aliases for shorter type signatures.
 type TimeInit = Float
 type Time = Double
-type ObjFn1 a = forall a . (Show a, Ord a, Floating a, Real a) => [a] -> a
-type GradFn a = forall a . (Show a, Ord a, Floating a, Real a) => [a] -> [a]
+type ObjFn1 a = forall a . (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> a
+type GradFn a = forall a . (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> [a]
 type Constraints = [(Int, (Double, Double))]
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
@@ -1229,8 +1230,8 @@ stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, 
                         cWeight = weight stateParams
 
 -- a version of grad with a clearer type signature
-appGrad :: (Show a, Ord a, Floating a, Real a) =>
-        (forall a . (Show a, Ord a, Floating a, Real a) => [a] -> a) -> [a] -> [a]
+appGrad :: (RealFloat a, Show a, Ord a, Floating a, Real a) =>
+        (forall a . (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> a) -> [a] -> [a]
 appGrad f l = grad f l
 
 nanSub :: (RealFloat a, Floating a) => a
@@ -1259,12 +1260,11 @@ tupMap f (a, b) = (f a, f b)
 -- TODO change stepWithGradFn(s) to use this fn and its type
 -- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
--- M-^ = delete indentation
-timeAndGrad :: (Show b, Ord b, RealFloat b, Floating b, Real b) => ObjFn1 a -> b -> [b] -> (b, [b])
+timeAndGrad :: (RealFloat b, Show b, Ord b, RealFloat b, Floating b, Real b) => ObjFn1 a -> b -> [b] -> (b, [b])
 timeAndGrad f t state = tr "timeAndGrad: " (timestep, gradEval)
             where gradF :: GradFn a
                   gradF = appGrad f
-                  gradEval = gradF state
+                  gradEval = gradF (tr "STATE: " state)
                   -- Use line search to find a good timestep.
                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
                   descentDir = negL gradEval
@@ -1275,7 +1275,7 @@ timeAndGrad f t state = tr "timeAndGrad: " (timestep, gradEval)
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
-                  duf :: (Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
+                  duf :: (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
                   duf u x = gradF x `dotL` u
 
 -- Parameters for Armijo-Wolfe line search
@@ -1289,7 +1289,7 @@ c2 :: Floating a => a
 c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
 -- new directional derivative value / old DD value <= c2
 -- smaller c2 = smaller new derivative value = harder to satisfy
--- turn Wolfe off: c1 = 1 (basically backatracking line search onlyl
+-- turn Wolfe off: c1 = 1 (basically backatracking line search only)
 
 infinity :: Floating a => a
 infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
@@ -1307,7 +1307,7 @@ isNegInfinity x = (x == negInfinity)
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
 -- TODO what happens if there are NaNs in awLineSearch? or infinities
-awLineSearch :: (Floating b, Ord b, Show b, Real b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
+awLineSearch :: (RealFloat b, Floating b, Ord b, Show b, Real b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
@@ -1340,7 +1340,7 @@ awLineSearch f duf_noU descentDir x0 =
                                 t' = tr' "t" t
                                 descentDir' = descentDir --tr' "descentDir" descentDir
                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
-                fAtx0 =f x0 -- TODO debug why NaN. even using removeNaN' didn't help
+                fAtx0 = f x0 -- TODO debug why NaN. even using removeNaN' didn't help
                 minInterval = if intervalMin then 10 ** (-10) else 0
                 -- stop if the interval gets too small; might not terminate
 
@@ -1354,14 +1354,14 @@ clampflag = False
 -- debug = False
 -- debugLineSearch = False
 -- debugObj = False -- turn on/off output in obj fn or constraint
-constraintFlag = True
+constraintFlag = False
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = True -- TODO need to implement constraint fn synthesis
 
-type ObjFnPenalty a = forall a . (Show a, Floating a, Ord a, Real a) => a -> [a] -> [a] -> a
+type ObjFnPenalty a = forall a . (RealFloat a, Show a, Floating a, Ord a, Real a) => a -> [a] -> [a] -> a
 -- needs to be partially applied with the current list of objects
 -- this type is only for the TOP-LEVEL synthesized objective function, not for any of the ones that people write
-type ObjFnPenaltyState a = forall a . (Show a, Floating a, Ord a, Real a) => [Obj] -> a -> [a] -> [a] -> a
+type ObjFnPenaltyState a = forall a . (RealFloat a, Show a, Floating a, Ord a, Real a) => [Obj] -> a -> [a] -> [a] -> a
 
 -- TODO should use objFn as a parameter
 objFnPenalty :: ObjFnPenalty a
@@ -1404,7 +1404,7 @@ constrText = "constraint: satisfy constraints specified in Substance program"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
-type ObjFn2 a = forall a . (Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
+type ObjFn2 a = forall a . (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force linesearch halt if interval gets too small; false = no forced halt
@@ -1665,7 +1665,7 @@ stateConstrVs = -- firstObjInBbox (leftb, rightb, botb, topb)
 
 -- Parameter to modify (TODO move it to other section)
 -- [PairConstrV a] is not allowed b/c impredicative types
-pairConstrVs :: (Floating a, Ord a, Show a) => [([[a]] -> a, a)] -- constr, constr weight
+pairConstrVs :: (RealFloat a, Floating a, Ord a, Show a) => [([[a]] -> a, a)] -- constr, constr weight
 pairConstrVs = [(noSubset, 1)]
 
 -- It's not clear what happens with contradictory constraints like these:

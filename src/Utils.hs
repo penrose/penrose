@@ -38,7 +38,7 @@ defaultWeight = 1
 
 debug = True
 debugStyle = False
-debugLineSearch = False
+debugLineSearch = True
 debugObj = False -- turn on/off output in obj fn or constraint
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
@@ -170,7 +170,7 @@ infixl 6 +., -.
 infixl 7 *. -- .*, /.
 
 -- assumes lists are of the same length
-dotL :: Floating a => [a] -> [a] -> a
+dotL :: (RealFloat a, Floating a) => [a] -> [a] -> a
 dotL u v = if not $ length u == length v
            then error $ "can't dot-prod different-len lists: " ++ (show $ length u) ++ " " ++ (show $ length v)
            else sum $ zipWith (*) u v

@@ -9,17 +9,17 @@ import qualified Data.Map.Strict as M
 
 type ObjFnOn a = [Obj' a] -> [a] -> a
 type ConstrFnOn a = [Obj' a] -> [a] -> a
-type ObjFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
-type ConstrFn = forall a. (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
+type ObjFn = forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
+type ConstrFn = forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
 type Weight a = a
-type PairConstrV a = forall a . (Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
+type PairConstrV a = forall a . (RealFloat a, Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
 
 -- | 'constrFuncDict' stores a mapping from the name of constraint functions to the actual implementation
-constrFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) =>
+constrFuncDict :: forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) =>
     M.Map String (ConstrFnOn a)
 constrFuncDict = M.fromList flist
     where
-        flist :: (Floating a, Real a, Show a, Ord a) => [(String, ConstrFnOn a)]
+        flist :: (RealFloat a, Floating a, Real a, Show a, Ord a) => [(String, ConstrFnOn a)]
         flist = [
                     ("at", at),
                     ("sameSizeAs", penalty `compose2` sameSize),
@@ -32,7 +32,7 @@ constrFuncDict = M.fromList flist
                  ]
 
 -- | 'objFuncDict' stores a mapping from the name of objective functions to the actual implementation
-objFuncDict :: forall a. (Floating a, Real a, Show a, Ord a) => M.Map String (ObjFnOn a)
+objFuncDict :: forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => M.Map String (ObjFnOn a)
 objFuncDict = M.fromList flist
     where flist = [
                     ("increasingX", increasingX),
@@ -311,8 +311,9 @@ ellipseRatio [E' e] _ = (rx' e / w - ry' e / l) ** 2
 
 contains :: ConstrFn
 contains [C' outc, C' inc] _ =
-    tr (namec' outc ++  " contains " ++ namec' inc ++ " val: ") $
-    strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
+    if isNaN (xc' inc) then error "NaN in contains in Functions" 
+    else tr (namec' outc ++  " contains " ++ namec' inc ++ " val: ") $
+         strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
     -- let res =  dist (xc' inc, yc' inc) (xc' outc, yc' outc) - (r' outc - r' inc) in
     -- if res > 0 then res else 0
 contains [S' outc, S' inc] _ = strictSubset
@@ -428,7 +429,7 @@ noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing wi
 -- TODO: test for equal sets
 -- TODO: for two primitives we have 4 functions, which is not sustainable. NOT NEEDED, remove them.
 strictSubset :: PairConstrV a
-strictSubset [[x1, y1, s1], [x2, y2, s2]] = let res = dist (x1, y1) (x2, y2) - (s2 - s1) in
+strictSubset [[x1, y1, s1], [x2, y2, s2]] = let res = distsq (x1, y1) (x2, y2) - (s2 - s1)^2 in
              trace ("strict subset input values: " ++ (show [x1, y1, s1, x2, y2, s2]) ++ " " ++ show res) res
 
 -- exterior point method constraint: no intersection (meaning also no subset)
