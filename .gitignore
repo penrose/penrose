@@ -2,6 +2,7 @@
 settheory
 constraint
 Main
+Test
 *.el
 *.aux
 *.fdb_latexmk

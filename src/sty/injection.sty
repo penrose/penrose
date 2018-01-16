@@ -9,7 +9,7 @@ Set s {
     shape = Ellipse { }
     -- constraint contains(s, s.label)
     constraint outsideOf(s.label, s)
-    objective onTop(s, s.label)
+    objective above(s, s.label)
     objective sameX(s, s.label)
 }
 
