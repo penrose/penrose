@@ -12,7 +12,7 @@ Quick start:
 * View the visualization with interactive optimization: in your browser, navigate to http://localhost:8000/client.html
 * In the UI, try stepping, autostepping, and resampling the state. You can also drag objects to set a new initial state for the optimization.
 
-For more thorough documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-pub/blob/master/penrose/ramp-down.md).
+For more thorough documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-pub/blob/master/penrose/ramp-down.md) and the [wiki](https://github.com/penrose/penrose/wiki).
 
 ----
 ### Example
