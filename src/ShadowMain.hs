@@ -13,6 +13,7 @@ import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 import System.Environment
 import System.IO
 import System.Exit
+import Debug.Trace
 import Control.Monad (when)
 
 
@@ -69,7 +70,7 @@ shadowMain = do
             -- putStrLn $ show initState
 
             divLine
-            putStrLn "Visualizing notation:\n"
+            putStrLn "Visualizing Substance program:\n"
 
             if mode == "snap" then
                 -- Starting serving penrose on the web
@@ -95,3 +96,48 @@ shadowMain = do
                     --
                     -- stepsPerSecond :: Int
                     -- stepsPerSecond = 10000
+
+-- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
+-- (extracted via unsafePerformIO)
+-- Very similar to shadowMain but does not depend on rendering (snap/gloss) so it does not return SVG
+-- TODO take initRng seed as argument
+mainRetInit :: String -> String -> IO (Maybe R.State)
+mainRetInit subFile styFile = do
+    subIn <- readFile subFile
+    styIn <- readFile styFile
+    -- putStrLn "\nSubstance program:\n"
+    -- putStrLn subIn
+    -- divLine
+    -- putStrLn "Style program:\n"
+    -- putStrLn styIn
+    -- divLine
+    objs <- C.parseSubstance subFile subIn
+    let subSep@(decls, constrs) = C.subSeparate objs
+    -- mapM_ print decls
+    -- divLine
+    -- mapM_ print constrs
+
+    case MP.runParser S.styleParser styFile styIn of
+        Left err -> do putStrLn $ MP.parseErrorPretty err
+                       return Nothing
+        Right styParsed -> do
+            -- divLine
+            -- putStrLn "Parsed Style program:\n"
+            -- mapM_ print styParsed
+            -- divLine
+            let initState = R.genInitState subSep styParsed
+            -- putStrLn "Synthesizing objects and objective functions"
+            -- divLine
+            -- putStrLn "Visualizing notation:\n"
+            return $ Just initState
+
+mainRetFinal :: R.State -> R.State
+mainRetFinal initState = 
+         let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepCount (initState, 0) in
+         let objsComputed = R.computeOnObjs_noGrad (R.objs finalState) (R.comps finalState) in
+         trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState { R.objs = objsComputed }
+         where stepCount (s, n) = (Server.step s, n + 1)
+               notConverged (s, n) = R.optStatus (R.params s) /= R.EPConverged
+                                     || n > maxSteps
+               maxSteps = 10 ** 10 -- Not sure how many steps it usually takes to converge
+               -- TODO: looks like some things rely on the front-end library to check, like label size

@@ -597,8 +597,8 @@ genInitState (decls, constrs) stys =
              -- Apply each computation to the object in the (dictionary of) state, updating the state each time.
              -- Gradients are added here because applying computations and generating annotations
                 -- are polymorphic, but gradients are removed before they go into the state.
-             let initStateComputed = trace ("initial constrained state: " ++ show initStateConstr)
-                                     $ computeOnObjs (addGrads initStateConstr) computations in
+             let initStateComputed = computeOnObjs (addGrads initStateConstr) computations in
+             let objsInit = zeroGrads initStateComputed in
 
              -- Note: after creating these annotations, we can no longer change the size or order of the state.
              -- unpackAnnotate :: [Obj] -> [ [(Float, Annotation)] ]
@@ -608,7 +608,8 @@ genInitState (decls, constrs) stys =
              -- overall objective function
              let objFnOverall = genObjFn annotationsCalc computations objFns ambientObjFns constrObjFns in
 
-             State { objs = zeroGrads initStateComputed,
+             trace ("initial constrained, computed state: \n" ++ show objsInit) $
+             State { objs = objsInit,
                      constrs = constrs,
                      comps = computations,
                      params = initParams { objFn = objFnOverall, annotations = annotationsCalc },

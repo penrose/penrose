@@ -23,7 +23,7 @@ inBbox (lowerx, lowery) (topx, topy) (x, y) = lowerx <= x && x <= topx && lowery
 -- TODO write as quickcheck
 surjection_allInBbox_unit :: Assertion
 surjection_allInBbox_unit = let (lowerLeft, topRight) = ((-10, -10), (10, 10)) in
-                           let numPoints = 10 in
+                            let numPoints = 10 in
                            let (pts, rng') = computeSurjection initRng numPoints lowerLeft topRight in
                            let check = all (inBbox lowerLeft topRight) pts in
                            check @?= True
