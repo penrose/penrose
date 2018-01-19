@@ -204,8 +204,9 @@ negL = map negate
 (*.) :: Floating a => a -> [a] -> [a] -- multiply by a constant
 (*.) c v = map ((*) c) v
 
+-- Again (see below), we add epsd to avoid NaNs. This is a general problem with using `sqrt`.
 norm :: Floating a => [a] -> a
-norm = sqrt . sum . map (^ 2)
+norm v = sqrt ((sum $ map (^ 2) v) + epsd)
 
 normsq :: Floating a => [a] -> a
 normsq = sum . map (^ 2)
