@@ -1,14 +1,18 @@
 # Penrose
 
-Not ready for contributions or public use yet, but hopefully will be soon! 
-
 * See [the site](penrose.ink) for more information and examples. 
 * See the [wiki](https://github.com/penrose/penrose/wiki) for more system-specific information on building, running, testing, and debugging the system. 
 * For even more documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-pub/blob/master/penrose/ramp-down.md).
 
+Our system is not ready for contributions or public use yet, but hopefully will be soon. Send us an email if you're interested in collaborating.
+
 ### Example
 
-Consider the following Substance and Style programs for set theory:
+Here a Penrose visualization in the domain of set theory.
+
+<img src="https://i.imgur.com/3JHZeaX.png" width=300>
+
+It's specified by the following Substance and Style programs.
 
 - `tree.sub`
     ```
@@ -60,8 +64,7 @@ Consider the following Substance and Style programs for set theory:
         constraint nonOverlapping(x, y)
     }
     ```
-Here is how Penrose visualizes this:
 
-<img src="https://i.imgur.com/3JHZeaX.png" width=300>
+Here's how the optimization looks live in the UI. 
 
-And here's how the optimization looks live in the UI: blob:https://imgur.com/bca78213-a3db-4ccb-8c12-b7f569edd5a4
+<img src="https://github.com/penrose/penrose/blob/master/assets/penrose_readme.gif?raw=true" width=500>
