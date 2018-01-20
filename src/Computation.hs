@@ -22,11 +22,14 @@ type Interval = (Float, Float)
 data Computation a = ComputeColor (() -> Color) 
                    | ComputeColorArgs (String -> a -> Color) 
                    | ComputeRadius (Circ' a -> a -> a) 
+                   | ComputeRadiusToMatch (Circ' a -> Pt' a -> a) 
                    | ComputeColorRGBA (a -> a -> a -> a -> Color) 
                    | ComputeSurjection (StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen))
                    | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow' a -> SolidArrow' a -> ([Pt2 a], StdGen))
                    | TestPoly (Circ' a -> a)
                    | AddVector (Pt2 a -> Pt2 a -> Pt2 a)
+                   | ReturnInt Int
+                   | Delay15 (a -> a)
                    | TestNone 
 
 -- | 'computationDict' stores a mapping from the name of computation to the actual implementation
@@ -40,18 +43,24 @@ computationDict = M.fromList flist
                         ("computeColor2", ComputeColor computeColor2),
                         ("computeColorArgs", ComputeColorArgs computeColorArgs),
                         ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
+                        ("computeRadiusToMatch", ComputeRadiusToMatch computeRadiusToMatch),
                         ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
-
                         ("computeSurjection", ComputeSurjection computeSurjection),
                         ("computeSurjectionBbox", ComputeSurjectionBbox computeSurjectionBbox),
-
                         ("addVector", AddVector addVector),
-
-                        ("testPoly", TestPoly testPoly)
+                        ("testPoly", TestPoly testPoly),
+                        ("delay15", Delay15 delay15)
                 ]
 
+-- Delays some number of seconds (at least in ghci) and returns 0
+-- I think the compiler is optimizing or caching the hard part though
+-- If you change the exponent, you need to change the number of 9s
+-- Why does it change the color?
+delay15 :: Floating a => a -> a
+delay15 x = trace "delay15" ((x^2 + r2f (head $ reverse $ take (10^7) [0, 1..])) - (9999999 + x * x))
+
 addVector :: (Floating a) => Pt2 a -> Pt2 a -> Pt2 a
-addVector (x, y) (c, d) = (x + c, y + d)
+addVector (x, y) (c, d) = trace "addVector" $ (x + c, y + d)
 
 testPoly :: Floating a => Circ' a -> a
 testPoly c = 5.5
@@ -113,5 +122,10 @@ computeColorArgs ref1 mag = trace ("computeColorArgs " ++ ref1) $
 computeRadiusAsFrac :: (Num a) => Circ' a -> a -> a
 computeRadiusAsFrac circ mag = {-trace ("computeRadiusAsFrac") $-} mag * (r' circ)
 
+-- Compute the radius of the circle to lie on a point
+computeRadiusToMatch :: (Floating a, Num a) => Circ' a -> Pt' a -> a
+computeRadiusToMatch c p = trace ("computeRadiusToMatch") $ 
+                           norm [getX c - getX p, getY c - getY p]
+
 computeColorRGBA :: (Real a, Floating a) => a -> a -> a -> a -> Color
-computeColorRGBA = makeColor'
+computeColorRGBA r g b a = makeColor' (delay15 r) g b a

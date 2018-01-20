@@ -392,6 +392,14 @@ computeInnerCirc fname property comp args c objDict =
                                      Nothing -> error "Runtime: nonexistent reference argument to computation"
                                _ -> error "Runtime: args don't match comp type"
 
+                           ComputeRadiusToMatch f ->
+                             case args of
+                               [S.Id s1, S.Id s2] ->
+                                     case (M.lookup s1 objDict, M.lookup s2 objDict) of
+                                     (Just (C' inputCirc), Just (P' inP)) -> c { r' = f inputCirc inP }
+                                     (_, _) -> error "Runtime: computation reference args of wrong type or nonexistent reference argument to computation"
+                               _ -> error "Runtime: args don't match comp type"
+
                            _ -> error $ "Runtime: computation called that does not return a " ++ property
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)

@@ -20,3 +20,12 @@ Point `b` {
     label = Auto
   }
 }
+
+Set `c` {
+  objective centerLabel(c, c.label)
+  shape = Circle {
+    color = computeColorRGBA(1.0, 0.2, 1.0, 0.5)
+    radius = computeRadiusToMatch(c, b)
+    label = Auto
+  }
+}
