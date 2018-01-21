@@ -1,3 +1,16 @@
-Point `A` {
-  shape = Point { }
+Point `B` {
+  shape = Dot { label = Auto }
+  objective centerLabel(B, B.label)
+}
+
+Set A {
+  shape = Circle {
+    -- green
+    color = computeColorRGBA(0.1, 1.0, 0.2, 0.4)
+  }
+  constraint contains(A, A.label)
+}
+
+In x y {
+    constraint contains(y, x)
 }
