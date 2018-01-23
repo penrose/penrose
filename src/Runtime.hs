@@ -346,7 +346,19 @@ computeInnerCurve fname property comp args curve objDict =
                                      let (path, g') = computeSurjectionBbox initRng num a1 a2 in
                                      -- trace ("bbox " ++ show path) $
                                      curve { pathcb' = path }
-                               (x@(Just _), y@(Just _)) -> error ("Runtime: computation ref args of wrong type:"
+                               (x@(Just _), y@(Just _)) -> error ("Runtime: computation ref args, wrong type:"
+                                                                  ++ " " ++ show x ++ " " ++ show y)
+                               (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
+                               (_, _) -> error "Runtime: computation ref args, general error"
+                        _ -> error "Runtime (curve): args don't match comp type"
+                    LineOf f ->
+                      case args of
+                        [S.FloatLit offset, S.Id o1, S.Id o2] ->
+                         case (M.lookup o1 objDict, M.lookup o2 objDict) of
+                               (Just (A' a1), Just (A' a2)) ->
+                                     let path = lineOf (r2f offset) a1 a2 in
+                                     curve { pathcb' = path }
+                               (x@(Just _), y@(Just _)) -> error ("Runtime: computation ref args, wrong type:"
                                                                   ++ " " ++ show x ++ " " ++ show y)
                                (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
                                (_, _) -> error "Runtime: computation ref args, general error"
@@ -442,7 +454,6 @@ initDot n config = (objs, [], [], computations)
               lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
 initCurve n config = (objs, [], [], computations)
-        -- where path = [(10, 100), (300, 100)]
         where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
               (pathFn, pathParams) = queryConfig_comp "path" config
               -- TODO: the line below assumes that the path will be computed; generalize to no computation

@@ -364,46 +364,6 @@ instance Named Obj where
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
 
--- data Obj' a =
---     SolidArrow'
---         { startx :: a
---         , starty :: a
---         , endx :: a
---         , endy :: a
---         , thickness :: a -- the maximum thickness, i.e. the thickness of the head
---         , sel :: Bool -- is the circle currently selected? (mouse is dragging it)
---         , name :: String
---         , color :: Color }
---     | Circ'
---         { x :: a
---         , y :: a
---         , r :: a
---         , sel :: Bool -- is the circle currently selected? (mouse is dragging it)
---         , name :: String
---         , color :: Color }
---     | Label'
---         { x :: a
---         , y :: a
---         , w :: a
---         , h :: a
---         , text :: String
---         , sel :: Bool -- selected label
---         , name :: String }
---     | Pt'
---         { x :: a
---         , y :: a
---         , sel :: Bool
---         , name :: String }
---     | Square'
---         { x :: a
---         , y :: a
---         , side :: a
---         , ang  :: Float -- angle for which the obj is rotated
---         , sel :: Bool
---         , name :: String
---         , color :: Color }
---         deriving (Eq, Show)
-
 data Obj' a
     = C' (Circ' a)
     | E' (Ellipse' a)

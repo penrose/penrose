@@ -26,6 +26,7 @@ data Computation a = ComputeColor (() -> Color)
                    | ComputeColorRGBA (a -> a -> a -> a -> Color) 
                    | ComputeSurjection (StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen))
                    | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow' a -> SolidArrow' a -> ([Pt2 a], StdGen))
+                   | LineOf (a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a])
                    | TestPoly (Circ' a -> a)
                    | AddVector (Pt2 a -> Pt2 a -> Pt2 a)
                    | ReturnInt Int
@@ -47,6 +48,7 @@ computationDict = M.fromList flist
                         ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
                         ("computeSurjection", ComputeSurjection computeSurjection),
                         ("computeSurjectionBbox", ComputeSurjectionBbox computeSurjectionBbox),
+                        ("lineOf", LineOf lineOf),
                         ("addVector", AddVector addVector),
                         ("testPoly", TestPoly testPoly),
                         ("delay15", Delay15 delay15)
@@ -128,4 +130,10 @@ computeRadiusToMatch c p = trace ("computeRadiusToMatch") $
                            norm [getX c - getX p, getY c - getY p]
 
 computeColorRGBA :: (Real a, Floating a) => a -> a -> a -> a -> Color
-computeColorRGBA r g b a = makeColor' (delay15 r) g b a
+computeColorRGBA r g b a = makeColor' r g b a
+
+-- TODO
+-- this is only one line for the beginning of the interval, and it would only work if the axes are perpendicular
+lineOf :: (Real a, Floating a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
+lineOf end_offset a1 a2 = let xpos = startx' a1 + end_offset in
+                          [(xpos, starty' a1), (xpos, endy' a2)]

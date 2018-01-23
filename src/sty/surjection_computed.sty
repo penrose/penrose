@@ -1,0 +1,42 @@
+Point p {
+      shape = Dot {
+            label = Auto
+      }
+}
+
+Set `domainOuter` {
+    shape = Arrow {
+          start = origin
+          end = horiz
+          label = Auto
+    }
+
+    objective centerLabel(domainOuter, domainOuter.label)
+}
+
+Set `codomain` {
+    shape = Arrow {
+          start = origin
+          end = vert
+          label = Auto
+    }
+
+    objective centerLabel(codomain, codomain.label)
+}
+
+Map f domain image {
+    shape = Curve {
+          path = computeSurjectionBbox(10, domainOuter, codomain)
+    }
+}
+
+Set `cartesianProduct` {
+     shape = Box {}
+}
+
+Subset A B {
+       shape = Curve {
+             style = dashed
+             path = lineOf(10.0, domainOuter, codomain)
+       }
+}
