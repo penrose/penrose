@@ -26,7 +26,8 @@ data Computation a = ComputeColor (() -> Color)
                    | ComputeColorRGBA (a -> a -> a -> a -> Color) 
                    | ComputeSurjection (StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen))
                    | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow' a -> SolidArrow' a -> ([Pt2 a], StdGen))
-                   | LineOf (a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a])
+                   | LineLeft (a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a])
+                   | LineRight (a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a])
                    | TestPoly (Circ' a -> a)
                    | AddVector (Pt2 a -> Pt2 a -> Pt2 a)
                    | ReturnInt Int
@@ -48,7 +49,8 @@ computationDict = M.fromList flist
                         ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
                         ("computeSurjection", ComputeSurjection computeSurjection),
                         ("computeSurjectionBbox", ComputeSurjectionBbox computeSurjectionBbox),
-                        ("lineOf", LineOf lineOf),
+                        ("lineLeft", LineLeft lineLeft),
+                        ("lineRight", LineRight lineRight),
                         ("addVector", AddVector addVector),
                         ("testPoly", TestPoly testPoly),
                         ("delay15", Delay15 delay15)
@@ -102,7 +104,14 @@ computeSurjectionBbox g n a1 a2 = let xs = [startx' a1, endx' a1, startx' a2, en
                                       top_right = (maximum xs, maximum ys) in
                                   -- trace ("surjection bbox " ++ show lower_left ++ " " ++ show top_right) $
                                   computeSurjection g n lower_left top_right
-                      
+
+-- Computes the surjection to lie inside a bounding box defined by the corners of a box 
+-- defined by four straight lines. Their intersections give the corners.
+computeSurjectionLines :: (Floating a, Real a, Ord a) => StdGen -> Integer 
+                                   -> CubicBezier' a -> CubicBezier' a 
+                                   -> CubicBezier' a -> CubicBezier' a -> ([Pt2 a], StdGen)
+computeSurjectionLines g n left right top bottom = ([], g) -- TODO
+
 -- | No arguments for now, to avoid typechecking
 -- Does this only work in gloss?
 computeColor :: () -> Color
@@ -132,8 +141,18 @@ computeRadiusToMatch c p = trace ("computeRadiusToMatch") $
 computeColorRGBA :: (Real a, Floating a) => a -> a -> a -> a -> Color
 computeColorRGBA r g b a = makeColor' r g b a
 
--- TODO
--- this is only one line for the beginning of the interval, and it would only work if the axes are perpendicular
-lineOf :: (Real a, Floating a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
-lineOf end_offset a1 a2 = let xpos = startx' a1 + end_offset in
+-- TODO rename lineLeft and lineRight
+-- assuming a1 horizontal and a2 vertical, respectively
+lineLeft :: (Real a, Floating a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
+lineLeft lineFrac a1 a2 = let a1_start = startx' a1 in
+                          let a1_len = abs (endx' a1 - a1_start) in 
+                          let xpos = a1_start + lineFrac * a1_len in
                           [(xpos, starty' a1), (xpos, endy' a2)]
+
+-- assuming a1 vert and a2 horiz, respectively
+-- can this be written in terms of lineLeft?
+lineRight :: (Real a, Floating a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
+lineRight lineFrac a1 a2 = let a1_start = starty' a1 in
+                           let a1_len = abs (endy' a1 - a1_start) in
+                           let ypos = a1_start + lineFrac * a1_len in
+                           [(startx' a2, ypos), (endx' a2, ypos)]

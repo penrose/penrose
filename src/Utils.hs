@@ -8,6 +8,8 @@ import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
 import qualified Text.Megaparsec.Char.Lexer as L
+import Data.Typeable
+import Control.Arrow
 
 divLine = putStr "\n--------\n\n"
 
@@ -228,3 +230,34 @@ dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 
 distsq :: Floating a => (a, a) -> (a, a) -> a -- distance
 distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
+
+--------------------------------------
+-- Reflection capabilities to typecheck Computation functions
+-- Typeable doesn't works with polymorphism (e.g. `id`) but works with `Floating a` by replacing it with `Double`
+-- Adapted https://stackoverflow.com/questions/5144799/reflection-on-inputs-to-a-function-in-haskell
+-- TODO unit test for function
+-- Unfortunately it's pretty slow...
+
+-- BTW, to check if something has the same type at runtime, can check equality of their typereps (or [Typerep], or [String], or String)
+fnTypes :: Typeable a => a -> [TypeRep]
+fnTypes x = split (typeOf x)
+       where split t = case first tyConName (splitTyConApp t) of
+                       (_     ,  []) -> [t] -- not an arrow
+                       ("(->)", [x]) -> [x] -- return value type
+                       ("(->)",   x) -> let current = init x
+                                            next    = last x
+                                        in current ++ split next
+                       (_     ,   _) -> [t]
+
+fnTypesStr :: Typeable a => a -> [String]
+fnTypesStr = map show . fnTypes
+
+-- Assuming we call it on an arrow type
+inputsOutput :: Typeable a => a -> ([TypeRep], TypeRep)
+inputsOutput x = let res = fnTypes x in
+                 if length res < 2 then error "types not called on a function"
+                 else (init res, last res)
+
+inputsOutputStr :: Typeable a => a -> ([String], String)
+inputsOutputStr x = let (args, val) = inputsOutput x in
+                    (map show args, show val)

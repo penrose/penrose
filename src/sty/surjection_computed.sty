@@ -1,3 +1,9 @@
+global {
+    constraint at(origin, 0, 0)
+    constraint at(horiz, 200, 0)
+    constraint at(vert, 0, 200)
+}
+
 Point p {
       shape = Dot {
             label = Auto
@@ -26,7 +32,8 @@ Set `codomain` {
 
 Map f domain image {
     shape = Curve {
-          path = computeSurjectionBbox(10, domainOuter, codomain)
+          path = computeSurjectionBbox(5, domain, image)
+          -- path = computeSurjectionBbox(5, domainOuter, codomain)
     }
 }
 
@@ -34,9 +41,26 @@ Set `cartesianProduct` {
      shape = Box {}
 }
 
-Subset A B {
+Set `domain` {
        shape = Curve {
              style = dashed
-             path = lineOf(10.0, domainOuter, codomain)
+             path = lineLeft(0.2, domainOuter, codomain)
+       }
+
+       shape2 = Curve {
+              style = dashed
+              path = lineLeft(0.8, domainOuter, codomain)
+       }
+}
+
+Set `image` {
+       shape = Curve {
+             style = dashed
+             path = lineRight(0.2, codomain, domainOuter)
+       }
+
+       shape2 = Curve {
+              style = dashed
+              path = lineRight(0.8, codomain, domainOuter)
        }
 }

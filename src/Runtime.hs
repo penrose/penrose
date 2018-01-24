@@ -351,18 +351,31 @@ computeInnerCurve fname property comp args curve objDict =
                                (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
                                (_, _) -> error "Runtime: computation ref args, general error"
                         _ -> error "Runtime (curve): args don't match comp type"
-                    LineOf f ->
+                    LineLeft f ->
                       case args of
                         [S.FloatLit offset, S.Id o1, S.Id o2] ->
                          case (M.lookup o1 objDict, M.lookup o2 objDict) of
                                (Just (A' a1), Just (A' a2)) ->
-                                     let path = lineOf (r2f offset) a1 a2 in
+                                     let path = lineLeft (r2f offset) a1 a2 in
                                      curve { pathcb' = path }
                                (x@(Just _), y@(Just _)) -> error ("Runtime: computation ref args, wrong type:"
                                                                   ++ " " ++ show x ++ " " ++ show y)
                                (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
                                (_, _) -> error "Runtime: computation ref args, general error"
                         _ -> error "Runtime (curve): args don't match comp type"
+                    LineRight f ->
+                      case args of
+                        [S.FloatLit offset, S.Id o1, S.Id o2] ->
+                         case (M.lookup o1 objDict, M.lookup o2 objDict) of
+                               (Just (A' a1), Just (A' a2)) ->
+                                     let path = lineRight (r2f offset) a1 a2 in
+                                     curve { pathcb' = path }
+                               (x@(Just _), y@(Just _)) -> error ("Runtime: computation ref args, wrong type:"
+                                                                  ++ " " ++ show x ++ " " ++ show y)
+                               (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
+                               (_, _) -> error "Runtime: computation ref args, general error"
+                        _ -> error "Runtime (curve): args don't match comp type"
+
                     _ -> error "Runtime (curve): computation called that does not apply to curve"
              _ -> error $ "Runtime (curve): computation called that does not return a " ++ property
 
