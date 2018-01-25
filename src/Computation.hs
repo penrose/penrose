@@ -26,6 +26,9 @@ data Computation a = ComputeColor (() -> Color)
                    | ComputeColorRGBA (a -> a -> a -> a -> Color) 
                    | ComputeSurjection (StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen))
                    | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow' a -> SolidArrow' a -> ([Pt2 a], StdGen))
+                   | ComputeSurjectionLines (StdGen -> Integer 
+                        -> CubicBezier' a -> CubicBezier' a 
+                        -> CubicBezier' a -> CubicBezier' a -> ([Pt2 a], StdGen))
                    | LineLeft (a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a])
                    | LineRight (a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a])
                    | TestPoly (Circ' a -> a)
@@ -53,7 +56,8 @@ computationDict = M.fromList flist
                         ("lineRight", LineRight lineRight),
                         ("addVector", AddVector addVector),
                         ("testPoly", TestPoly testPoly),
-                        ("delay15", Delay15 delay15)
+                        ("delay15", Delay15 delay15),
+                        ("computeSurjectionLines", ComputeSurjectionLines computeSurjectionLines)
                 ]
 
 -- Delays some number of seconds (at least in ghci) and returns 0
@@ -106,11 +110,17 @@ computeSurjectionBbox g n a1 a2 = let xs = [startx' a1, endx' a1, startx' a2, en
                                   computeSurjection g n lower_left top_right
 
 -- Computes the surjection to lie inside a bounding box defined by the corners of a box 
--- defined by four straight lines. Their intersections give the corners.
+-- defined by four straight lines, assuming their lower/left coordinates come first. 
+-- Their intersections give the corners.
 computeSurjectionLines :: (Floating a, Real a, Ord a) => StdGen -> Integer 
                                    -> CubicBezier' a -> CubicBezier' a 
                                    -> CubicBezier' a -> CubicBezier' a -> ([Pt2 a], StdGen)
-computeSurjectionLines g n left right top bottom = ([], g) -- TODO
+computeSurjectionLines g n left right bottom top = 
+                       if not $ all (== 2) $ map (length . pathcb') [left, right, bottom, top]
+                       then error "surjection requires straight lines" -- TODO change from cubic bezier
+                       else let lower_left = (fst $ pathcb' left !! 0, snd $ pathcb' bottom !! 0) in
+                            let top_right = (fst $ pathcb' right !! 1, snd $ pathcb' top !! 1) in
+                            computeSurjection g n lower_left top_right
 
 -- | No arguments for now, to avoid typechecking
 -- Does this only work in gloss?

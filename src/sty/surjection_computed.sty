@@ -32,13 +32,13 @@ Set `codomain` {
 
 Map f domain image {
     shape = Curve {
-          path = computeSurjectionBbox(5, domain, image)
+          path = computeSurjectionLines(5, domain, image)
           -- path = computeSurjectionBbox(5, domainOuter, codomain)
     }
 }
 
-Set `cartesianProduct` {
-     shape = Box {}
+Set `domainOuter`, Set `codomain` {
+     shape1 = Box {}
 }
 
 Set `domain` {

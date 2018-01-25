@@ -301,6 +301,15 @@ computeOn objDict comp =
                                                 M.insert objName (P' pt') objDict
                                         _ -> error "compute: wrong type, expected circle"
 
+-- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra" 
+-- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"
+-- Maybe add the ability to pass in "expected" types, or to synthesize types and then check if they match?
+lookupAll :: Name -> M.Map Name (Obj' a) -> [Obj' a]
+lookupAll name objs = map snd $ M.toList $ M.filterWithKey (objOrSecondaryShape name) objs
+           where objOrSecondaryShape name inName _ = name == inName 
+                                                    || (name ++ secondaryIndicator) `isPrefixOf` inName
+                 secondaryIndicator = "_shape"
+
 computeInnerPt :: (Floating a, Real a, Ord a, Show a) =>
                   Name -> Name -> Computation a -> [S.Expr] -> Pt' a -> M.Map Name (Obj' a) -> Pt' a
 computeInnerPt fname property comp args pt objDict =
@@ -375,6 +384,17 @@ computeInnerCurve fname property comp args curve objDict =
                                (Nothing, Nothing) -> error "Runtime: computation ref args nonexistent"
                                (_, _) -> error "Runtime: computation ref args, general error"
                         _ -> error "Runtime (curve): args don't match comp type"
+                    ComputeSurjectionLines f ->
+                      case args of
+                        [S.IntLit num, S.Id o1, S.Id o2] ->
+                         case (lookupAll o1 objDict, lookupAll o2 objDict) of
+                              ([CB' l, CB' r], [CB' b, CB' t]) ->
+                                     let (path, g') = computeSurjectionLines initRng num l r b t in
+                                     curve { pathcb' = path }
+                              res -> error ("Runtime (curve): objects looked up don't match comp type:\n"
+                                                   ++ show res)
+                        _ -> error "Runtime (curve): Style args don't match comp type"
+
 
                     _ -> error "Runtime (curve): computation called that does not apply to curve"
              _ -> error $ "Runtime (curve): computation called that does not return a " ++ property
