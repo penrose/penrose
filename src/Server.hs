@@ -121,7 +121,6 @@ processCommand conn s = do
             Update (UpdateShapes objs)  -> updateShapes objs conn s
         Nothing -> error "Error reading JSON"
 
-updateShapes :: [Obj] -> WS.Connection -> R.State -> IO ()
 updateShapes newObjs conn s = if R.autostep s then stepAndSend conn news else loop conn news
     where
         news = s { R.objs = newObjs,

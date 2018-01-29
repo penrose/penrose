@@ -2,6 +2,8 @@
 settheory
 constraint
 Main
+Style
+Substance
 Tests
 *.el
 *.aux
@@ -27,3 +29,4 @@ alloy
 node_modules/
 *~
 .stack-work/
+.tmp/
