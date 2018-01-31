@@ -28,6 +28,9 @@ import System.Exit
 import System.Environment
 import System.Random
 import Debug.Trace
+import Data.Dynamic
+import Data.Typeable
+import Data.Data
 import qualified Data.Map.Strict as M
 import qualified Substance as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
@@ -213,20 +216,34 @@ pack' zipped fixed varying =
 
 ------- Style related functions
 
+defName = "default"
+
+-- default shapes at base types (not obj)
+defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, 
+                                thickness = 10, selsa = False, namesa = defName, colorsa = black }
+defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
+defSquare = Square { xs = 100, ys = 100, side = defaultRad,
+                          sels = False, names = defName, colors = black, ang = 0.0}
+defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
+defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, 
+                        namel = labelName defName }
+defCirc = Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = defName, colorc = black }
+defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, 
+                            namee = defName, colore = black }
+defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
+    where path = [(10, 100), (300, 100)]
+
 -- default shapes
 defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc, defaultText, defaultEllipse :: String -> Obj
-defaultSolidArrow name = A SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, thickness = 10, selsa = False, namesa = name, colorsa = black }
-defaultPt name = P Pt { xp = 100, yp = 100, selp = False, namep = name }
-defaultSquare name = S Square { xs = 100, ys = 100, side = defaultRad,
-        sels = False, names = name, colors = black, ang = 0.0}
-defaultText text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text, sell = False, namel = text }
-defaultLabel text = L Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = text, sell = False, namel = labelName text }
-defaultCirc name = C Circ { xc = 100, yc = 100, r = defaultRad,
-        selc = False, namec = name, colorc = black }
-defaultEllipse name = E Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, namee = name, colore = black }
-defaultCurve name = CB CubicBezier { colorcb = black, pathcb = path, namecb = name, stylecb = "solid" }
-    -- where path = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
-    where path = [(10, 100), (300, 100)]
+defaultSolidArrow name = A $ setName name defSolidArrow
+defaultPt name = P $ setName name defPt
+defaultSquare name = S $ setName name defSquare
+-- Set both the text and name fields...
+defaultText text = L $ setName text defText { textl = text } -- ...to the same thing
+defaultLabel text = L $ setName (labelName text) defLabel { textl = text } -- ...to have a different label name
+defaultCirc name = C $ setName name defCirc
+defaultEllipse name = E $ setName name defEllipse
+defaultCurve name = CB $ setName name defCurve
 
 
 shapeAndFn :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
@@ -265,6 +282,18 @@ getShape (n, (S.Dot, config)) = initDot n config
 getShape (n, (S.Curve, config)) = initCurve n config
 getShape (n, (S.NoShape, _)) = ([], [], [], [])
 getShape (n, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ n)
+
+getShapeMap :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
+                      (String, (S.StyObj, M.Map String S.Expr)) ->
+                      ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], -- TODO type synonym?
+                              [(ConstrFnOn a, Weight a, [Name], [a])],
+                              [ObjComp])
+-- uses objProperties instead
+getShapeMap (n, (objType, config)) = 
+            case objType of
+            S.Dot -> ([], [], [], [])
+
+--------------------------------
 
 mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
@@ -446,6 +475,52 @@ computeInnerCirc fname property comp args c objDict =
                                _ -> error "Runtime: args don't match comp type"
 
                            _ -> error $ "Runtime: computation called that does not return a " ++ property
+
+--------------------------------
+-- Define data for object properties (both base properties and derived properties) and computed properties
+
+type Property = String
+
+-- varT, floatT, colorT :: TypeRep
+varT = typeOf ("s" :: String)
+floatT = typeOf (r defCirc)
+colorT = typeOf (colorc defCirc)
+pointT = typeOf ((100.0, 100.0) :: (Float, Float))
+pathT = typeOf (pathcb defCurve)
+
+-- TODO derive this automatically for base properties?
+-- TODO add derived properties like length and magnitude for arrow (and getters/setters)
+-- TODO add rest of base properties for objects like circles
+-- TODO start writing the code to replace initX
+-- TODO figure out how this works with separate label objects/properties (maybe that's just not included in this data)
+
+objProperties_list :: [(TypeRep, [(Property, TypeRep)])] 
+objProperties_list = 
+                [(typeOf defCirc, 
+                         [
+                          ("color", colorT),
+                          ("radius", floatT)
+                         ]),
+                 (typeOf defSolidArrow,
+                         [
+                          ("start", varT),
+                          ("end", varT)
+                         ]),
+                 (typeOf defCurve,
+                         [
+                          ("path", pathT),
+                          ("style", varT)
+                         ]),
+                 (typeOf defPt,
+                         [
+                          ("xp", floatT),
+                          ("yp", floatT),
+                          ("location", pointT) -- TODO computed, need getter and setter
+                         ])
+                ]
+
+objProperties :: M.Map TypeRep (M.Map Property TypeRep)
+objProperties = M.fromList $ map (\(t, l) -> (t, M.fromList l)) objProperties_list
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
