@@ -26,7 +26,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 
 -- | All geometric object types supported by Style so far.
 data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Curve | Auto
-    deriving (Show)
+    deriving (Show, Eq, Ord) -- Ord for M.toList in Runtime
 
 -- | A type frequently used in the module. A style object such as a 'Circle' has parameters like its radius attached to it. This is a tuple associating the object with its parameters. The latter map is the config (e.g. "radius = 5", or a computation, or some other expression).
 type StyObjInfo

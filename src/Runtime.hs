@@ -283,15 +283,19 @@ getShape (n, (S.Curve, config)) = initCurve n config
 getShape (n, (S.NoShape, _)) = ([], [], [], [])
 getShape (n, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ n)
 
-getShapeMap :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
+-- Replacement for the getShape and initX functions that uses the objProperties dict instead
+getShape_data :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
                       (String, (S.StyObj, M.Map String S.Expr)) ->
                       ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], -- TODO type synonym?
                               [(ConstrFnOn a, Weight a, [Name], [a])],
                               [ObjComp])
--- uses objProperties instead
-getShapeMap (n, (objType, config)) = 
-            case objType of
-            S.Dot -> ([], [], [], [])
+getShape_data (n, (objType, config)) = 
+            let properties = M.lookup objType objProperties in
+            let objs = [] in
+            let objFns = [] in
+            let constrFns = [] in
+            let computations = [] in
+            (objs, objFns, constrFns, computations)
 
 --------------------------------
 
@@ -488,30 +492,32 @@ colorT = typeOf (colorc defCirc)
 pointT = typeOf ((100.0, 100.0) :: (Float, Float))
 pathT = typeOf (pathcb defCurve)
 
--- TODO derive this automatically for base properties?
--- TODO add derived properties like length and magnitude for arrow (and getters/setters)
--- TODO add rest of base properties for objects like circles
 -- TODO start writing the code to replace initX
 -- TODO figure out how this works with separate label objects/properties (maybe that's just not included in this data)
 
-objProperties_list :: [(TypeRep, [(Property, TypeRep)])] 
+-- TODO derive this automatically for base properties?
+-- TODO add rest of objects
+-- TODO add derived properties like length and magnitude for arrow (and getters/setters)
+-- TODO add rest of base properties for objects like circles
+
+objProperties_list :: [(S.StyObj, [(Property, TypeRep)])] 
 objProperties_list = 
-                [(typeOf defCirc, 
+                [(S.Circle, -- typeOf defCircle
                          [
                           ("color", colorT),
                           ("radius", floatT)
                          ]),
-                 (typeOf defSolidArrow,
+                 (S.Arrow,
                          [
                           ("start", varT),
                           ("end", varT)
                          ]),
-                 (typeOf defCurve,
+                 (S.Curve,
                          [
                           ("path", pathT),
                           ("style", varT)
                          ]),
-                 (typeOf defPt,
+                 (S.Dot,
                          [
                           ("xp", floatT),
                           ("yp", floatT),
@@ -519,7 +525,7 @@ objProperties_list =
                          ])
                 ]
 
-objProperties :: M.Map TypeRep (M.Map Property TypeRep)
+objProperties :: M.Map S.StyObj (M.Map Property TypeRep)
 objProperties = M.fromList $ map (\(t, l) -> (t, M.fromList l)) objProperties_list
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)

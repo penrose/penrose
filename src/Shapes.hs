@@ -1,6 +1,7 @@
 -- | "Shapes" contains all geometric primitives that Penrose supports
 
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -12,6 +13,8 @@ import Data.Aeson
 import Data.Monoid ((<>))
 import GHC.Generics
 import Graphics.Gloss
+import Data.Data
+import Data.Typeable
 
 type Name = String
 
@@ -109,7 +112,7 @@ data Circ = Circ { xc :: Float
                  , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
                  , namec :: String
                  , colorc :: Color }
-     deriving (Eq, Show, Generic)
+     deriving (Eq, Show, Generic, Data, Typeable)
 
 instance Located Circ Float where
          getX c = xc c
