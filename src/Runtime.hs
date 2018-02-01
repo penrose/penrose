@@ -248,9 +248,7 @@ defaultCurve name = CB $ setName name defCurve
 
 shapeAndFn :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
            S.StyDict -> String ->
-           ([Obj], [(ObjFnOn a, Weight a, [Name], [a])],
-                   [(ConstrFnOn a, Weight a, [Name], [a])],
-                   [ObjComp])
+           ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 shapeAndFn dict name =
     case M.lookup name dict of
         Nothing -> error ("Cannot find style info for " ++ name)
@@ -269,26 +267,28 @@ shapeAndFn dict name =
         frth4 (_, _, _, a) = a
 
 getShape :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
-                      (String, (S.StyObj, M.Map String S.Expr)) ->
-                      ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], -- TODO type synonym?
-                              [(ConstrFnOn a, Weight a, [Name], [a])],
-                              [ObjComp])
-getShape (n, (S.Text, config)) = initText n config
-getShape (n, (S.Arrow, config)) = initArrow n config
-getShape (n, (S.Circle, config)) = initCircle n config
-getShape (n, (S.Ellip, config)) = initEllipse n config
-getShape (n, (S.Box, config)) = initSquare n config
-getShape (n, (S.Dot, config)) = initDot n config
-getShape (n, (S.Curve, config)) = initCurve n config
-getShape (n, (S.NoShape, _)) = ([], [], [], [])
-getShape (n, (t, _)) = error ("ShapeOf: Unknown shape " ++ show t ++ " for " ++ n)
+                      (String, (S.StyObj, Config)) ->
+                      ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 
--- Replacement for the getShape and initX functions that uses the objProperties dict instead
+getShape (n, (objType, config)) = 
+         -- TODO do we need the object type to typecheck the comp?
+         -- TODO use computations and varConfig; refactor initX below <<<
+         let (computations, varConfig) = compsAndVars n config in
+         case objType of
+         S.Text -> initText n config
+         S.Arrow -> initArrow n config
+         S.Circle -> initCircle n config
+         S.Ellip -> initEllipse n config
+         S.Box -> initSquare n config
+         S.Dot -> initDot n config
+         S.Curve -> initCurve n config
+         S.NoShape -> ([], [], [], [])
+         _ -> error ("ShapeOf: Unknown shape " ++ show objType ++ " for " ++ n)
+
+-- TODO delete?
 getShape_data :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
-                      (String, (S.StyObj, M.Map String S.Expr)) ->
-                      ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], -- TODO type synonym?
-                              [(ConstrFnOn a, Weight a, [Name], [a])],
-                              [ObjComp])
+                      (String, (S.StyObj, Config)) ->
+                      ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 getShape_data (n, (objType, config)) = 
             let properties = M.lookup objType objProperties in
             let objs = [] in
@@ -296,6 +296,25 @@ getShape_data (n, (objType, config)) =
             let constrFns = [] in
             let computations = [] in
             (objs, objFns, constrFns, computations)
+
+-- TODO: should initX get its type? should this function use objProperties?
+-- Given a config, separates the computations and the vars and returns both
+compsAndVars :: Name -> Config -> ([ObjComp], M.Map Property Name)
+compsAndVars n config = 
+         let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
+         let vars = M.mapMaybe toVar config in
+         (comps, vars)
+         where toComp :: Property -> S.Expr -> Maybe ObjComp
+               toComp propertyName expr = case expr of
+                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName, 
+                                                                    fnName = fn, fnParams = args }
+                             _                  -> Nothing
+               toVar :: S.Expr -> Maybe String
+               toVar expr = case expr of
+                             S.Id s        -> Just s
+                             S.StringLit s -> Just s
+                             _             -> Nothing
+               
 
 --------------------------------
 
@@ -482,7 +501,7 @@ computeInnerCirc fname property comp args c objDict =
 
 --------------------------------
 -- Define data for object properties (both base properties and derived properties) and computed properties
-
+-- TODO move type synonyms to top
 type Property = String
 type Config = M.Map String S.Expr
 type ObjFnInfo a = (ObjFnOn a, Weight a, [Name], [a])
@@ -503,30 +522,27 @@ pathT = typeOf (pathcb defCurve)
 -- TODO add derived properties like length and magnitude for arrow (and getters/setters)
 -- TODO add rest of base properties for objects like circles
 
+     -- a computation can feed into the properties (and use properties), and the results of the comp are then fed to objectives and constraints
+
 -- this feel like it's just reinventing grammar (more poorly)
--- objProperties_list :: [(S.StyObj, [(Property, TypeRep)])] 
-objProperties_list :: (RealFloat a, Floating a, Real a, Show a, Ord a) => M.Map S.StyObj (InitObjInfo a)
-objProperties_list = 
-     M.fromList [
+-- objProperties_list :: (RealFloat a, Floating a, Real a, Show a, Ord a) => M.Map S.StyObj (InitObjInfo a)
+                -- InitObjInfo {
+                --          iProperties = M.fromList [
+                --           ("color", colorT),
+                --           ("radius", floatT)
+                --          ],
+                --          iObjs = \n config -> [], 
+                --          iConstrFns = \n config -> [],
+                --          iComps = \n config -> []
+                --  }),
+
+objProperties_list :: [(S.StyObj, [(Property, TypeRep)])] 
+objProperties_list = [
                 (S.Circle, -- typeOf defCircle
-                InitObjInfo {
-                         iProperties = M.fromList [
+                         [
                           ("color", colorT),
                           ("radius", floatT)
-                         ],
-                         iObjs = \n config -> [], 
-                         -- these shouldn't be getting config: arrow shouldn't have to look up from/to
-                         -- should they be getting property values? but what about the default values? supply them here? and what is the type of the structure storing their values? no, something like "from" is another variable e.g. "X"-- also some of them might not be set? should i use dynamic? or get the types out of the config? should there be a maybe?
-     -- iProperties should get filled out? it seems like there's no way around having the fns query the config
-     -- i guess iProperties doesn't need to get filled out, since the list is mostly for computeOn's use?
-     -- acutally maybe we can't/shouldn't enforce the var vs. comp thing--any comp could return a valid value
-     -- e.g. "from" could be a computed object
-     -- no, there should maybe be some typechecking here too...
-     -- a computation can feed into the properties (and use properties), and the results of the comp are then fed to objectives and constraints
-                         iConstrFns = \n config -> [],
-                         iComps = \n config -> []
-                 }),
-
+                         ]),
                  (S.Arrow,
                          [
                           ("start", varT),
@@ -561,6 +577,7 @@ objProperties_list =
                  (S.NoShape, [])
                 ]
 
+-- TODO: remove this?
 -- All the info needed to initialize an object from the Style dictionary
 data InitObjInfo a = InitObjInfo { iProperties :: M.Map Property TypeRep,
                                    iObjs :: Name -> Config -> [Obj],
@@ -575,8 +592,8 @@ objProperties = M.fromList $ map (\(t, l) -> (t, M.fromList l)) objProperties_li
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (RealFloat a, Floating a, Real a, Show a, Ord a) =>
-    String -> M.Map String S.Expr -- config
-    -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])], [ObjComp])
+    String -> Config
+    -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 initText n config = ([defaultText n], [], [], [])
 initArrow n config = (objs, oFns, [], [])
     where
@@ -590,18 +607,13 @@ initArrow n config = (objs, oFns, [], [])
                else  [(centerMap, defaultWeight, [n, from, to], [])]
 initCircle n config = (objs, oFns, constrs, computations)
     where
-        circObj = trace ("cir (" ++ n ++ ") color fn: " ++ fst cirColor ++ " | config: " ++ show config) $
-                  defaultCirc n
+        circObj = defaultCirc n
         objs = [circObj, defaultLabel n]
         oFns = []
         constrs = sizeFuncs n
-        -- Look up computations in assignments for this shape, to be applied after initial state is created
-        -- TODO: generalize to more attributes
-        -- TODO: automatically look up and add all computations for each attribute of an object
-        cirColor = queryConfig_comp "color" config
-        cirRad = queryConfig_comp "radius" config
-        computations = [ObjComp { oName = n, oProp = "radius", fnName = fst cirRad, fnParams = snd cirRad },
-                        ObjComp { oName = n, oProp = "color", fnName = fst cirColor, fnParams = snd cirColor }]
+        -- TODO do this for each shape. also fix tests involving circles?
+        (computations, varConfig) = compsAndVars n config
+
 initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
     (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n, [])
 initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n, [])
@@ -622,13 +634,14 @@ initCurve n config = (objs, [], [], computations)
               objs = if lab == "None" then [curve] else [curve, defaultLabel n]
 
 sizeFuncs :: (RealFloat a, Floating a, Real a, Show a, Ord a) => 
-                        Name -> [(ConstrFnOn a, Weight a, [Name], [a])]
+                        Name -> [ConstrFnInfo a]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
               (penalty `compose2` minSize, defaultWeight, [n], [])]
 
 tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
+-- TODO: deprecate these three functions
 -- TODO two placeholder wrappers with old queryConfig type
 -- until I deal with pattern-matching on computation anywhere
 queryConfig_var :: (Show k, Ord k) => k -> M.Map k S.Expr -> String
@@ -645,6 +658,7 @@ queryConfig_comp key dict = let res = queryConfig key dict in
                             _ -> error $ "query config expected function but got var " ++ var
                 Right comp -> comp
 
+-- TODO: distinguish between variable name (id) and string literal (in types?)
 queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Either String CompInfo
 queryConfig key dict = case M.lookup key dict of
     Just (S.Id i) -> Left i
@@ -684,8 +698,8 @@ map4 f (w, x, y, z) = (f w, f x, f y, f z)
 
 genAllObjs :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
              ([C.SubDecl], [C.SubConstr]) -> S.StyDict
-             -> ([Obj], [(ObjFnOn a, Weight a, [Name], [a])],
-                        [(ConstrFnOn a, Weight a, [Name], [a])],
+             -> ([Obj], [ObjFnInfo a],
+                        [ConstrFnInfo a],
                         [ObjComp])
 -- TODO figure out how the types work. also add weights
 genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss, concat compss)
@@ -721,9 +735,9 @@ lookupNames dict ns = map check res
 genObjFn :: (RealFloat a, Real a, Floating a, Show a, Ord a) =>
          [[Annotation]]
          -> [ObjComp]
-         -> [(ObjFnOn a, Weight a, [Name], [a])]
+         -> [ObjFnInfo a]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
-         -> [(ConstrFnOn a, Weight a, [Name], [a])]
+         -> [ConstrFnInfo a]
          -> [Obj] -> a -> [a] -> [a] -> a
 genObjFn annotations computations objFns ambientObjFns constrObjFns =
          \currObjs penaltyWeight fixed varying ->

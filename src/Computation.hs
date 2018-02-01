@@ -68,7 +68,7 @@ delay15 :: Floating a => a -> a
 delay15 x = trace "delay15" ((x^2 + r2f (head $ reverse $ take (10^7) [0, 1..])) - (9999999 + x * x))
 
 addVector :: (Floating a) => Pt2 a -> Pt2 a -> Pt2 a
-addVector (x, y) (c, d) = trace "addVector" $ (x + c, y + d)
+addVector (x, y) (c, d) = {-trace "addVector" $ -}(x + c, y + d)
 
 testPoly :: Floating a => Circ' a -> a
 testPoly c = 5.5
@@ -145,7 +145,7 @@ computeRadiusAsFrac circ mag = {-trace ("computeRadiusAsFrac") $-} mag * (r' cir
 
 -- Compute the radius of the circle to lie on a point
 computeRadiusToMatch :: (Floating a, Num a) => Circ' a -> Pt' a -> a
-computeRadiusToMatch c p = trace ("computeRadiusToMatch") $ 
+computeRadiusToMatch c p = {-trace ("computeRadiusToMatch") $ -}
                            norm [getX c - getX p, getY c - getY p]
 
 computeColorRGBA :: (Real a, Floating a) => a -> a -> a -> a -> Color
