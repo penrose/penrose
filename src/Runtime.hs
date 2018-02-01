@@ -484,6 +484,9 @@ computeInnerCirc fname property comp args c objDict =
 -- Define data for object properties (both base properties and derived properties) and computed properties
 
 type Property = String
+type Config = M.Map String S.Expr
+type ObjFnInfo a = (ObjFnOn a, Weight a, [Name], [a])
+type ConstrFnInfo a = (ConstrFnOn a, Weight a, [Name], [a])
 
 -- varT, floatT, colorT :: TypeRep
 varT = typeOf ("s" :: String)
@@ -500,30 +503,71 @@ pathT = typeOf (pathcb defCurve)
 -- TODO add derived properties like length and magnitude for arrow (and getters/setters)
 -- TODO add rest of base properties for objects like circles
 
-objProperties_list :: [(S.StyObj, [(Property, TypeRep)])] 
+-- this feel like it's just reinventing grammar (more poorly)
+-- objProperties_list :: [(S.StyObj, [(Property, TypeRep)])] 
+objProperties_list :: (RealFloat a, Floating a, Real a, Show a, Ord a) => M.Map S.StyObj (InitObjInfo a)
 objProperties_list = 
-                [(S.Circle, -- typeOf defCircle
-                         [
+     M.fromList [
+                (S.Circle, -- typeOf defCircle
+                InitObjInfo {
+                         iProperties = M.fromList [
                           ("color", colorT),
                           ("radius", floatT)
-                         ]),
+                         ],
+                         iObjs = \n config -> [], 
+                         -- these shouldn't be getting config: arrow shouldn't have to look up from/to
+                         -- should they be getting property values? but what about the default values? supply them here? and what is the type of the structure storing their values? no, something like "from" is another variable e.g. "X"-- also some of them might not be set? should i use dynamic? or get the types out of the config? should there be a maybe?
+     -- iProperties should get filled out? it seems like there's no way around having the fns query the config
+     -- i guess iProperties doesn't need to get filled out, since the list is mostly for computeOn's use?
+     -- acutally maybe we can't/shouldn't enforce the var vs. comp thing--any comp could return a valid value
+     -- e.g. "from" could be a computed object
+     -- no, there should maybe be some typechecking here too...
+     -- a computation can feed into the properties (and use properties), and the results of the comp are then fed to objectives and constraints
+                         iConstrFns = \n config -> [],
+                         iComps = \n config -> []
+                 }),
+
                  (S.Arrow,
                          [
                           ("start", varT),
                           ("end", varT)
                          ]),
+
                  (S.Curve,
                          [
                           ("path", pathT),
                           ("style", varT)
                          ]),
+
                  (S.Dot,
                          [
                           ("xp", floatT),
                           ("yp", floatT),
                           ("location", pointT) -- TODO computed, need getter and setter
-                         ])
+                         ]),
+
+                 (S.Ellip,
+                         [
+                         ]),
+
+                 (S.Box,
+                         [
+                         ]),
+
+                 (S.Text,
+                         [
+                         ]),
+
+                 (S.NoShape, [])
                 ]
+
+-- All the info needed to initialize an object from the Style dictionary
+data InitObjInfo a = InitObjInfo { iProperties :: M.Map Property TypeRep,
+                                   iObjs :: Name -> Config -> [Obj],
+                                   iObjFns :: Name -> Config -> [ObjFnInfo a], 
+                                   iConstrFns :: Name -> Config -> [ConstrFnInfo a],
+                                   iComps :: Name -> Config -> [ObjComp]
+                                 }
 
 objProperties :: M.Map S.StyObj (M.Map Property TypeRep)
 objProperties = M.fromList $ map (\(t, l) -> (t, M.fromList l)) objProperties_list
