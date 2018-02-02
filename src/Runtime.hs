@@ -271,50 +271,41 @@ getShape :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
                       ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 
 getShape (n, (objType, config)) = 
-         -- TODO do we need the object type to typecheck the comp?
-         -- TODO use computations and varConfig; refactor initX below <<<
-         let (computations, varConfig) = compsAndVars n config in
-         case objType of
-         S.Text -> initText n config
-         S.Arrow -> initArrow n config
-         S.Circle -> initCircle n config
-         S.Ellip -> initEllipse n config
-         S.Box -> initSquare n config
-         S.Dot -> initDot n config
-         S.Curve -> initCurve n config
-         S.NoShape -> ([], [], [], [])
-         _ -> error ("ShapeOf: Unknown shape " ++ show objType ++ " for " ++ n)
+         -- We don't need the object type to typecheck the computation, because we have the object's name and
+         -- it's stored as an Obj (can pattern-match)
+         let (computations, config_nocomps) = compsAndVars n config in
+         let objInfo = case objType of
+              S.Text    -> initText n config_nocomps
+              S.Arrow   -> initArrow n config_nocomps
+              S.Circle  -> initCircle n config_nocomps
+              S.Ellip   -> initEllipse n config_nocomps
+              S.Box     -> initSquare n config_nocomps
+              S.Dot     -> initDot n config_nocomps
+              S.Curve   -> initCurve n config_nocomps
+              S.NoShape -> ([], [], [])
+              _         -> error ("ShapeOf: Unknown shape " ++ show objType ++ " for " ++ n) in
+         tupAppend objInfo computations
+         where tupAppend (a, b, c) d = (a, b, c, d)
 
--- TODO delete?
-getShape_data :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
-                      (String, (S.StyObj, Config)) ->
-                      ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
-getShape_data (n, (objType, config)) = 
-            let properties = M.lookup objType objProperties in
-            let objs = [] in
-            let objFns = [] in
-            let constrFns = [] in
-            let computations = [] in
-            (objs, objFns, constrFns, computations)
+-- TODO: what if a property (e.g. "r") can take either a computation or an input expr??
+-- that should be done via getters and setters (for both base and derived properties)
 
 -- TODO: should initX get its type? should this function use objProperties?
 -- Given a config, separates the computations and the vars and returns both
-compsAndVars :: Name -> Config -> ([ObjComp], M.Map Property Name)
+compsAndVars :: Name -> Config -> ([ObjComp], Config)
 compsAndVars n config = 
          let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
-         let vars = M.mapMaybe toVar config in
-         (comps, vars)
+         let config_nocomps = M.mapMaybe notComp config in -- could use M.partition
+         (comps, config_nocomps)
          where toComp :: Property -> S.Expr -> Maybe ObjComp
                toComp propertyName expr = case expr of
                              S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName, 
                                                                     fnName = fn, fnParams = args }
                              _                  -> Nothing
-               toVar :: S.Expr -> Maybe String
-               toVar expr = case expr of
-                             S.Id s        -> Just s
-                             S.StringLit s -> Just s
-                             _             -> Nothing
-               
+               notComp :: S.Expr -> Maybe S.Expr
+               notComp expr = case expr of
+                             S.CompArgs _ _  -> Nothing
+                             res             -> Just res
 
 --------------------------------
 
@@ -351,7 +342,18 @@ computeOn objDict comp =
                                         P' pt -> let pt' = computeInnerPt fname objProperty comp
                                                                          args pt objDict in
                                                 M.insert objName (P' pt') objDict
-                                        _ -> error "compute: wrong type, expected circle"
+                                        _ -> error "compute: no case to deal with this type of object"
+
+-- TODO: should the function type info go in computationDict initially?
+-- TODO: deal with multiple objects
+computeOn_auto :: (Floating a, Real a, Ord a, Show a) =>
+               M.Map Name (Obj' a) -> Name -> ObjComp -> Obj -> Obj
+computeOn_auto objDict fname comp obj = 
+          let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
+          -- deal with: case over object type, properties of object (and their types--comp return type),
+          -- function input types and output type, comp args types
+          -- object type dynamic? input types dynamic? overall function type dynamic?
+          case 
 
 -- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra" 
 -- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"
@@ -536,45 +538,39 @@ pathT = typeOf (pathcb defCurve)
                 --          iComps = \n config -> []
                 --  }),
 
-objProperties_list :: [(S.StyObj, [(Property, TypeRep)])] 
+objProperties_list :: [(TypeRep, [(Property, TypeRep)])] 
 objProperties_list = [
-                (S.Circle, -- typeOf defCircle
+                (typeOf defCirc,
                          [
                           ("color", colorT),
                           ("radius", floatT)
                          ]),
-                 (S.Arrow,
+                 (typeOf defSolidArrow,
                          [
                           ("start", varT),
                           ("end", varT)
                          ]),
-
-                 (S.Curve,
+                 (typeOf defCurve,
                          [
                           ("path", pathT),
                           ("style", varT)
                          ]),
-
-                 (S.Dot,
+                 (typeOf defPt,
                          [
                           ("xp", floatT),
                           ("yp", floatT),
                           ("location", pointT) -- TODO computed, need getter and setter
                          ]),
-
-                 (S.Ellip,
+                 (typeOf defEllipse,
                          [
                          ]),
-
-                 (S.Box,
+                 (typeOf defSquare,
                          [
                          ]),
-
-                 (S.Text,
+                 (typeOf defText,
                          [
-                         ]),
-
-                 (S.NoShape, [])
+                         ])
+                 -- (S.NoShape, [])
                 ]
 
 -- TODO: remove this?
@@ -586,77 +582,63 @@ data InitObjInfo a = InitObjInfo { iProperties :: M.Map Property TypeRep,
                                    iComps :: Name -> Config -> [ObjComp]
                                  }
 
-objProperties :: M.Map S.StyObj (M.Map Property TypeRep)
+objProperties :: M.Map TypeRep (M.Map Property TypeRep)
 objProperties = M.fromList $ map (\(t, l) -> (t, M.fromList l)) objProperties_list
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (RealFloat a, Floating a, Real a, Show a, Ord a) =>
-    String -> Config
-    -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
-initText n config = ([defaultText n], [], [], [])
-initArrow n config = (objs, oFns, [], [])
-    where
-        from = --trace ("arrow to config " ++ show config ++ " | " ++ to) $
-               queryConfig_var "start" config
-        to   = queryConfig_var "end" config
-        lab  = queryConfig_var "label" config
-        objs = if lab == "None" then [defaultSolidArrow n]
-               else [defaultSolidArrow n, defaultLabel n]
-        oFns = if from == "None" || to == "None" then []
-               else  [(centerMap, defaultWeight, [n, from, to], [])]
-initCircle n config = (objs, oFns, constrs, computations)
-    where
-        circObj = defaultCirc n
-        objs = [circObj, defaultLabel n]
-        oFns = []
-        constrs = sizeFuncs n
-        -- TODO do this for each shape. also fix tests involving circles?
-        (computations, varConfig) = compsAndVars n config
+    Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
+
+initText n config = ([defaultText n], [], [])
+
+initArrow n config = (objs, oFns, [])
+    where from = --trace ("arrow to config " ++ show config ++ " | " ++ to) $
+                 queryConfig_var "start" config
+          to   = queryConfig_var "end" config
+          lab  = queryConfig_var "label" config
+          objs = if lab == "None" then [defaultSolidArrow n]
+                 else [defaultSolidArrow n, defaultLabel n]
+          oFns = if from == "None" || to == "None" then []
+                 else  [(centerMap, defaultWeight, [n, from, to], [])]
+
+initCircle n config = (objs, oFns, constrs)
+    where circObj = defaultCirc n
+          objs = [circObj, defaultLabel n]
+          oFns = []
+          constrs = sizeFuncs n
 
 initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
-    (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n, [])
-initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n, [])
-initDot n config = (objs, [], [], computations)
-        where (locFn, locParams) = queryConfig_comp "location" config
-              computations = [ObjComp { oName = n, oProp = "location", fnName = locFn, fnParams = locParams }]
-              -- TODO: the line above assumes a computation; generalize
-              lab  = queryConfig_var "label" config
+                         (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
+
+initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
+
+initDot n config = (objs, [], [])
+        where lab  = queryConfig_var "label" config
               objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
-initCurve n config = (objs, [], [], computations)
+
+initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
-              (pathFn, pathParams) = queryConfig_comp "path" config
-              -- TODO: the line below assumes that the path will be computed; generalize to no computation
-              computations = [ObjComp { oName = n, oProp = "path", fnName = pathFn, fnParams = pathParams }]
               lab  = queryConfig_var "label" config
-              style = trRaw "style" $ queryConfig_var "style" config
+              style = queryConfig_var "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
               objs = if lab == "None" then [curve] else [curve, defaultLabel n]
 
 sizeFuncs :: (RealFloat a, Floating a, Real a, Show a, Ord a) => 
                         Name -> [ConstrFnInfo a]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
-              (penalty `compose2` minSize, defaultWeight, [n], [])]
+               (penalty `compose2` minSize, defaultWeight, [n], [])]
 
 tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
--- TODO: deprecate these three functions
--- TODO two placeholder wrappers with old queryConfig type
--- until I deal with pattern-matching on computation anywhere
+-- TODO: deprecate these two functions
+-- TODO: deal with pattern-matching on computation anywhere
 queryConfig_var :: (Show k, Ord k) => k -> M.Map k S.Expr -> String
 queryConfig_var key dict = let res = queryConfig key dict in
                 case res of
                 Left var -> var
-                Right comp -> error "query config expected var but got function (computation not implemented)"
-
-queryConfig_comp :: (Show k, Ord k) => k -> M.Map k S.Expr -> CompInfo
-queryConfig_comp key dict = let res = queryConfig key dict in
-                case res of
-                Left var -> case var of
-                            "None" -> (var, []) -- compute will then do nothing
-                            _ -> error $ "query config expected function but got var " ++ var
-                Right comp -> comp
+                Right comp -> error "query config expected var but got function"
 
 -- TODO: distinguish between variable name (id) and string literal (in types?)
 queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Either String CompInfo

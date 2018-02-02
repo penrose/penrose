@@ -39,6 +39,7 @@ data Computation a = ComputeColor (() -> Color)
 
 -- | 'computationDict' stores a mapping from the name of computation to the actual implementation
 -- | All functions must be registered
+-- These could all be stored as Dynamic
 computationDict :: (Real a, Floating a, Ord a) => M.Map String (Computation a)
 computationDict = M.fromList flist
     where
