@@ -252,11 +252,10 @@ fnTypes x = split (typeOf x)
 fnTypesStr :: Typeable a => a -> [String]
 fnTypesStr = map show . fnTypes
 
--- Assuming we call it on an arrow type
+-- If not an arrow type, then first list is empty (as expected)
 inputsOutput :: Typeable a => a -> ([TypeRep], TypeRep)
 inputsOutput x = let res = fnTypes x in
-                 if length res < 2 then error "types not called on a function"
-                 else (init res, last res)
+                 (init res, last res)
 
 inputsOutputStr :: Typeable a => a -> ([String], String)
 inputsOutputStr x = let (args, val) = inputsOutput x in

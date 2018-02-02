@@ -346,14 +346,108 @@ computeOn objDict comp =
 
 -- TODO: should the function type info go in computationDict initially?
 -- TODO: deal with multiple objects
-computeOn_auto :: (Floating a, Real a, Ord a, Show a) =>
-               M.Map Name (Obj' a) -> Name -> ObjComp -> Obj -> Obj
-computeOn_auto objDict fname comp obj = 
-          let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           -- deal with: case over object type, properties of object (and their types--comp return type),
           -- function input types and output type, comp args types
           -- object type dynamic? input types dynamic? overall function type dynamic?
-          case 
+{- need to deal with: 
+setting a property that the object doesn't have
+
+should i cast it to dynamic here? 
+not sure if i need dynamic though
+first, i can't have dynamic polymorphic functions, 
+second, i'm not sure if casting to and from dynamic erases gradient information for objects
+i feel like without dynamic, i'm back to the old verbose/manual pattern matching and there was no point in doing this rewrite
+is there a typeclass for "applyables" and "applytos" that would work to give me some kind of genericness/polymorphism??
+should i force all computations to have the same type?
+Generator, [Objects], [Doubles], [Strings], [Points]?
+that seems contrived, and the computation would have to do pattern-matching, and they would all have extra list boilerplace <<<
+
+is there some way to use template haskell instead?
+should i ask DG?
+-}
+
+-- Convert an object to its dynamic inside-specific-object
+-- TODO genericize over objects
+dynamicObj :: (Floating a, Real a, Ord a, Show a, Typeable a) => Obj' a -> (Dynamic, TypeRep)
+dynamicObj o = case o of
+             C' circ -> (toDyn circ, typeOf circ)
+             E' ell -> (toDyn ell, typeOf ell)
+             L' lab -> (toDyn lab, typeOf lab)
+             P' pt -> (toDyn pt, typeOf pt)
+             S' sq -> (toDyn sq, typeOf sq)
+             A' arr -> (toDyn arr, typeOf arr)
+             CB' bez -> (toDyn bez, typeOf bez)
+             -- _ -> error "dynamic obj case not handled"
+
+-- from Maybe with type errors
+fromMaybeT :: String -> String -> Maybe a -> a
+fromMaybeT expected given x = case x of 
+               Just x -> x
+               Nothing -> error ("cannot convert type. given: " ++ given ++ ", expected: " ++ expected)
+
+-- not sure how to generate type annotations... 
+-- TODO pass in given type
+-- TODO: what happens if we add new kinds of objects?
+fromDynCir :: (Floating a, Real a, Ord a, Show a, Typeable a) => String -> Dynamic -> Circ' a
+fromDynCir given d = fromMaybeT circName given $ fromDynamic d
+           where circName = "Circ' a"
+
+dynArgs :: (Floating a, Real a, Ord a, Show a, Typeable a) =>
+           M.Map Name (Obj' a) -> [S.Expr] -> [(Dynamic, TypeRep)]
+dynArgs objDict args = map processArg args
+            where processArg x = 
+                    case x of -- TODO genericize?
+                    S.IntLit i -> (toDyn i, typeOf i)
+                    S.FloatLit f -> (toDyn f, typeOf f)
+                    S.StringLit s -> (toDyn s, typeOf s)
+                    S.Id id -> case M.lookup id objDict of -- TODO use lookupAll??
+                               Nothing -> error "computation references an object that doesn't exist"
+                               Just res -> (toDyn res, typeOf res)
+                    _ -> error "computation has an arg of type that is not literal or variable"
+                    -- TODO what to do about the Dyn recipient expecting int, float, obj...?
+
+-- typechecks as well
+applyFn :: [(Dynamic, TypeRep)] -> [TypeRep] -> Computation a -> (Dynamic, TypeRep)
+applyFn inputs types fn = (toDyn (), typeOf ()) -- TODO >>>
+
+set :: Property -> Dynamic -> TypeRep -> Dynamic
+set property dynObj dynType = dynObj -- TODO >>>
+
+-- This function 
+-- TODO: watch out for function arg types that don't match exactly that should match
+-- like "Circ' Int" vs "Circ' Double"
+computeOn_auto :: (Floating a, Real a, Ord a, Show a, Typeable a) =>
+               M.Map Name (Obj' a) -> Name -> ObjComp -> Computation a -> Obj' a -> Obj' a
+computeOn_auto objDict fname compInfo function obj = 
+          let (objName, objProperty, fname, args) = (oName compInfo, oProp compInfo, 
+                                                    fnName compInfo, fnParams compInfo) in
+          -- Converted to Dynamic so it can work generically over objects
+          let (dynObj, dynType) = dynamicObj obj in
+
+          -- look up the objects, throw error on other args, convert to dynamic
+          let args' = dynArgs objDict args in 
+          -- TODO: >>> deal with function being wrapped in Computation--should I make them dynamic?
+          -- TODO: >>> test if i can get types of a dynamic function and get the function back out w/o a mess
+          let (fInputTypes, fOutputType) = inputsOutput function in -- TODO deal with fInputTypes empty
+          let fnResult = applyFn args' fInputTypes function in -- do something with the result
+
+          -- TODO check that typeOf and toDyn are being applied to the correct objects in general
+          let objPropsInner = M.lookup dynType objProperties in
+          case objPropsInner of
+          Nothing -> error "this type of object does not have properties described in objProperties"
+          Just propsForThisObject -> 
+              let propertyType = M.lookup objProperty propsForThisObject in
+              case propertyType of
+              Nothing -> error "computation tried to set a property that the object doesn't have"
+              Just propType -> 
+                 let argsMatch = fOutputType == propType in
+                 -- TODO find/define setter, and set the property of obj to fnResult
+                 let final_obj = set objProperty dynObj dynType  in -- TODO what type info do i need, if any?
+
+                 -- TODO constructors for all objs using dynType, just Circ for now
+                 -- this (choosing C' and fromDynCir) can be done programmatically based on dynType
+                 -- will need polymorphic comparison versions of circ, etc.
+                 C' (fromDynCir (show dynType) final_obj) -- should this be done in final_obj?
 
 -- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra" 
 -- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"

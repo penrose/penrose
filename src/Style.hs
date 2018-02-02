@@ -20,6 +20,8 @@ import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn)
 import Computation
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
+import Data.Dynamic
+import Data.Typeable
 
 --------------------------------------------------------------------------------
 -- Style AST

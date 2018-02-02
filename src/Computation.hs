@@ -10,6 +10,8 @@ import Debug.Trace
 import System.Random
 import System.Random.Shuffle
 import Data.List (sort)
+import Data.Dynamic
+import Data.Typeable
 
 -- Temporary solution: register every single different function type as you write it
 -- and pattern-match on it later.
@@ -42,24 +44,40 @@ data Computation a = ComputeColor (() -> Color)
 -- These could all be stored as Dynamic
 computationDict :: (Real a, Floating a, Ord a) => M.Map String (Computation a)
 computationDict = M.fromList flist
-    where
-        flist :: (Real b, Floating b, Ord b) => [(String, Computation b)] 
-        flist = [
-                        ("computeColor", ComputeColor computeColor), -- pretty verbose 
-                        ("computeColor2", ComputeColor computeColor2),
-                        ("computeColorArgs", ComputeColorArgs computeColorArgs),
-                        ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
-                        ("computeRadiusToMatch", ComputeRadiusToMatch computeRadiusToMatch),
-                        ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
-                        ("computeSurjection", ComputeSurjection computeSurjection),
-                        ("computeSurjectionBbox", ComputeSurjectionBbox computeSurjectionBbox),
-                        ("lineLeft", LineLeft lineLeft),
-                        ("lineRight", LineRight lineRight),
-                        ("addVector", AddVector addVector),
-                        ("testPoly", TestPoly testPoly),
-                        ("delay15", Delay15 delay15),
-                        ("computeSurjectionLines", ComputeSurjectionLines computeSurjectionLines)
-                ]
+
+flist :: (Real b, Floating b, Ord b) => [(String, Computation b)] 
+flist = [
+                ("computeColor", ComputeColor computeColor), -- pretty verbose 
+                ("computeColor2", ComputeColor computeColor2),
+                ("computeColorArgs", ComputeColorArgs computeColorArgs),
+                ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
+                ("computeRadiusToMatch", ComputeRadiusToMatch computeRadiusToMatch),
+                ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
+                ("computeSurjection", ComputeSurjection computeSurjection),
+                ("computeSurjectionBbox", ComputeSurjectionBbox computeSurjectionBbox),
+                ("lineLeft", LineLeft lineLeft),
+                ("lineRight", LineRight lineRight),
+                ("addVector", AddVector addVector),
+                ("testPoly", TestPoly testPoly),
+                ("delay15", Delay15 delay15),
+                ("computeSurjectionLines", ComputeSurjectionLines computeSurjectionLines)
+        ]
+
+-- Test version for Dynamic (if it works, get rid of the types)
+-- computationDict_dyn :: (Typeable a, Real a, Floating a, Ord a) => M.Map String (Dynamic, TypeRep)
+-- computationDict_dyn = M.fromList flist_dyn
+
+-- TODO: problems with Typeable on variable. this works in ghci but replaces `a` with Double
+flist_dyn :: (Typeable a, Real a, Floating a, Ord a) => [(String, (Dynamic, TypeRep))]
+flist_dyn = [ 
+                ("computeColorArgs'", (toDyn computeColorArgs', typeOf computeColorArgs'))
+                -- ("computeRadiusToMatch", (toDyn computeRadiusToMatch, typeOf computeRadiusToMatch))
+            ]
+
+computeColorArgs' :: (Typeable a, Real a, Floating a) => String -> a -> Color
+computeColorArgs' ref1 mag = trace ("computeColorArgs " ++ ref1) $ 
+                                 makeColor' (scale mag) (scale mag) (scale mag) 0.5
+                 where scale c = c * 0.1
 
 -- Delays some number of seconds (at least in ghci) and returns 0
 -- I think the compiler is optimizing or caching the hard part though
@@ -135,17 +153,17 @@ computeColor2 () = makeColor (0.1 * 0.5) 0.1 0.5 0.5
 makeColor' :: (Real a, Floating a) => a -> a -> a -> a -> Color
 makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
 
-computeColorArgs :: (Real a, Floating a) => String -> a -> Color
+computeColorArgs :: ({-Typeable a, -}Real a, Floating a) => String -> a -> Color
 computeColorArgs ref1 mag = trace ("computeColorArgs " ++ ref1) $ 
                                  makeColor' (scale mag) (scale mag) (scale mag) 0.5
                  where scale c = c * 0.1
 
 -- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
-computeRadiusAsFrac :: (Num a) => Circ' a -> a -> a
+computeRadiusAsFrac :: (Floating a, Num a) => Circ' a -> a -> a
 computeRadiusAsFrac circ mag = {-trace ("computeRadiusAsFrac") $-} mag * (r' circ)
 
 -- Compute the radius of the circle to lie on a point
-computeRadiusToMatch :: (Floating a, Num a) => Circ' a -> Pt' a -> a
+computeRadiusToMatch :: ({-Typeable a, -}Floating a, Num a) => Circ' a -> Pt' a -> a
 computeRadiusToMatch c p = {-trace ("computeRadiusToMatch") $ -}
                            norm [getX c - getX p, getY c - getY p]
 
