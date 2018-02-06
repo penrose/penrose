@@ -19,6 +19,7 @@ import Control.Arrow
 -- | NiceFloating :: * -> Constraint
 -- https://stackoverflow.com/questions/48631939/a-concise-way-to-factor-out-multiple-typeclasses-in-haskell/48631986#48631986
 type Autofloat a = (RealFloat a, Floating a, Real a, Show a, Ord a) -- TODO: `Typeable a`
+-- type Autofloat' a = (RealFloat a, Floating a, Real a, Show a, Ord a)
 
 divLine = putStr "\n--------\n\n"
 

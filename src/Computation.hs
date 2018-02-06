@@ -38,7 +38,7 @@ data Computation a = ComputeColor (() -> Color)
                    | ReturnInt Int
                    | Delay15 (a -> a)
                    | TestNone 
-                   deriving (Typeable)
+--                   deriving (Typeable)
 
 -- | 'computationDict' stores a mapping from the name of computation to the actual implementation
 -- | All functions must be registered
@@ -48,7 +48,7 @@ computationDict = M.fromList flist
 
 flist :: (Autofloat a) => [(String, Computation a)] 
 flist = [
-                ("computeColor", ComputeColor computeColor), -- pretty verbose 
+                ("computeColor", ComputeColor computeColor),
                 ("computeColor2", ComputeColor computeColor2),
                 ("computeColorArgs", ComputeColorArgs computeColorArgs),
                 ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
@@ -84,24 +84,34 @@ computeColorArgs' ref1 mag = trace ("computeColorArgs " ++ ref1) $
 -- I think the compiler is optimizing or caching the hard part though
 -- If you change the exponent, you need to change the number of 9s
 -- Why does it change the color?
-delay15 :: (Floating a) => a -> a
+delay15 :: (Autofloat a) => a -> a
 delay15 x = trace "delay15" ((x^2 + r2f (head $ reverse $ take (10^7) [0, 1..])) - (9999999 + x * x))
 
-addVector :: (Floating a) => Pt2 a -> Pt2 a -> Pt2 a
+addVector :: (Autofloat a) => Pt2 a -> Pt2 a -> Pt2 a
 addVector (x, y) (c, d) = {-trace "addVector" $ -}(x + c, y + d)
 
-testPoly :: Floating a => Circ' a -> a
+testPoly :: Autofloat a => Circ' a -> a
 testPoly c = 5.5
 
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
 -- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
    -- which causes type inference problems in Style for some reason.
-randomsIn :: (Floating a) => StdGen -> Integer -> Interval -> ([a], StdGen)
+-- Also apparently using Autofloat here with typeable causes problems for generality of returned StdGen.
+-- But it works fine without Typeable.
+randomsIn :: (Autofloat a) => StdGen -> Integer -> Interval -> ([a], StdGen)
 randomsIn g 0 _        =  ([], g)
 randomsIn g n interval = let (x, g') = randomR interval g -- First value
                              (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
                          ((r2f x) : xs, g'')
+
+-- Generate n random values uniformly randomly sampled from interval and DO NOT return generator.
+-- (has problems with typeable)
+randomsIn' :: (Autofloat a) => StdGen -> Integer -> Interval -> [a]
+randomsIn' g 0 _        =  []
+randomsIn' g n interval = let (x, g') = randomR interval g -- First value
+                              (xs, _) = randomsIn g' (n - 1) interval in -- Rest of values
+                          (r2f x) : xs
 
 -- Given a generator, number of points, and lower left and top right of bbox, return points for a surjection.
 -- Points generated lie in the bbox given, whether in math space or screen space
