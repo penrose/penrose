@@ -40,13 +40,13 @@ import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 calcTimestep :: Float -- for use in forcing stepping in handler
 calcTimestep = 1 / int2Float stepsPerSecond
 
-data LastEPstate = EPstate [Obj] deriving (Eq, Show)
+data LastEPstate = EPstate [Obj] deriving (Eq, Show, Typeable)
 
 data OptStatus = NewIter -- TODO should this be init with a state?
                | UnconstrainedRunning LastEPstate -- [Obj] stores last EP state
                | UnconstrainedConverged LastEPstate -- [Obj] stores last EP state
                | EPConverged
-               deriving (Eq, Show)
+               deriving (Eq, Show, Typeable)
 
 data Params = Params { weight :: Double,
                        optStatus :: OptStatus,
@@ -62,7 +62,7 @@ data State = State { objs :: [Obj]
                    , rng :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
                    , params :: Params
-                   }  -- deriving (Show)
+                   }  deriving (Typeable)
 
 -- | Datatypes for computation. ObjComp is gathered in pre-compilation and passed to functions that evaluate the computation.
 -- | object name, function name, list of args (TODO resolve them WRT pattern matching)
@@ -70,7 +70,7 @@ data ObjComp = ObjComp { oName :: Name, -- "A"
                      oProp :: Name, -- "radius"
                      fnName :: Name, -- computeRadius
                      fnParams :: [S.Expr] } -- (1.2, B)
-               deriving (Show)
+               deriving (Show, Typeable)
 
 -- | fn name, list of args (returned by queryCondig)
 type CompInfo = (Name, [S.Expr])
@@ -87,14 +87,14 @@ objFnNone objs w f v = 0
 initParams = Params { weight = initWeight, optStatus = NewIter, objFn = objFnNone, annotations = [] }
 
 ----------------------- Unpacking
-data Annotation = Fix | Vary deriving (Eq, Show)
+data Annotation = Fix | Vary deriving (Eq, Show, Typeable)
 type Fixed a = [a]
 type Varying a = [a]
 
 -- make sure the unpacking matches the object packing in terms of number and order of parameters
 -- annotations are specified inline here. this is per type, not per value (i.e. all circles have the same fixed parameters). but you could generalize it to per-value by adding or overriding annotations globally after the unpacking
 -- does not unpack names
-unpackObj :: (Floating a, Real a, Show a, Ord a) => Obj' a -> [(a, Annotation)]
+unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)] -- TODO: changed r to Fix for testing
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
@@ -109,11 +109,11 @@ unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), (endx' a, Vary),
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
 
 -- split out because pack needs this annotated list of lists
-unpackAnnotate :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> [[(a, Annotation)]]
+unpackAnnotate :: (Autofloat a) => [Obj' a] -> [[(a, Annotation)]]
 unpackAnnotate objs = map unpackObj objs
 
 -- TODO check it preserves order
-splitFV :: (Floating a, Real a, Show a, Ord a) => [(a, Annotation)] -> (Fixed a, Varying a)
+splitFV :: (Autofloat a) => [(a, Annotation)] -> (Fixed a, Varying a)
 splitFV annotated = foldr chooseList ([], []) annotated
         where chooseList :: (a, Annotation) -> (Fixed a, Varying a) -> (Fixed a, Varying a)
               chooseList (x, Fix) (f, v) = (x : f, v)
@@ -123,7 +123,7 @@ splitFV annotated = foldr chooseList ([], []) annotated
 -- preserves the order of the objects’ parameters
 -- e.g. unpackSplit [Circ {xc varying, r fixed}, Label {xl varying, h fixed} ] = ( [r, h], [xc, xl] )
 -- crucially, this does NOT depend on the annotations, it can be used on any list of objects
-unpackSplit :: (Floating a, Real a, Show a, Ord a) => [Obj' a] -> (Fixed a, Varying a)
+unpackSplit :: (Autofloat a) => [Obj' a] -> (Fixed a, Varying a)
 unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
                    splitFV annotatedList
 
@@ -135,40 +135,40 @@ unpackSplit objs = let annotatedList = concat $ unpackAnnotate objs in
 -- TODO use DuplicateRecordFields (also use `stack` and fix GLUT error)--need to upgrade GHC and gloss
 
 -- TODO comment packing these functions defining conventions
-curvePack :: (Real a, Floating a, Show a, Ord a) => CubicBezier -> [a] -> CubicBezier' a
+curvePack :: (Autofloat a) => CubicBezier -> [a] -> CubicBezier' a
 -- param is an ordered list of control point coordinates: [x1, y1, x2, y2 ...]
 curvePack c params = CubicBezier' { pathcb' = path, namecb' = namecb c, colorcb' = colorcb c, stylecb' = stylecb c }
          where path = map tuplify2 $ chunksOf 2 params
 
 
-solidArrowPack :: (Real a, Floating a, Show a, Ord a) => SolidArrow -> [a] -> SolidArrow' a
+solidArrowPack :: (Autofloat a) => SolidArrow -> [a] -> SolidArrow' a
 solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex, endy' = ey, thickness' = t,
                 namesa' = namesa arr, selsa' = selsa arr, colorsa' = colorsa arr }
          where (sx, sy, ex, ey, t) = if not $ length params == 5 then error "wrong # params to pack solid arrow"
                             else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
 
-circPack :: (Real a, Floating a, Show a, Ord a) => Circ -> [a] -> Circ' a
+circPack :: (Autofloat a) => Circ -> [a] -> Circ' a
 circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
          where (xc1, yc1, r1) = if not $ length params == 3
                                 then error $ "wrong # params to pack circle: expected 3, got " ++ show (length params)
                                 else (params !! 0, params !! 1, params !! 2)
 
-ellipsePack :: (Real a, Floating a, Show a, Ord a) => Ellipse -> [a] -> Ellipse' a
+ellipsePack :: (Autofloat a) => Ellipse -> [a] -> Ellipse' a
 ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, namee' = namee e, colore' = colore e }
          where (xe1, ye1, rx1, ry1) = if not $ length params == 4 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
 
-sqPack :: (Real a, Floating a, Show a, Ord a) => Square -> [a] -> Square' a
+sqPack :: (Autofloat a) => Square -> [a] -> Square' a
 sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, sels' = sels sq, colors' = colors sq, ang' = ang sq}
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
 
-ptPack :: (Real a, Floating a, Show a, Ord a) => Pt -> [a] -> Pt' a
+ptPack :: (Autofloat a) => Pt -> [a] -> Pt' a
 ptPack pt params = Pt' { xp' = xp1, yp' = yp1, namep' = namep pt, selp' = selp pt }
         where (xp1, yp1) = if not $ length params == 2 then error "Wrong # of params to pack point"
                            else (params !! 0, params !! 1)
 
-labelPack :: (Real a, Floating a, Show a, Ord a) => Label -> [a] -> Label' a
+labelPack :: (Autofloat a) => Label -> [a] -> Label' a
 labelPack lab params = Label' { xl' = xl1, yl' = yl1, wl' = wl1, hl' = hl1,
                              textl' = textl lab, sell' = sell lab, namel' = namel lab }
           where (xl1, yl1, wl1, hl1) = if not $ length params == 4 then error "wrong # params to pack label"
@@ -190,10 +190,10 @@ yoink annotations fixed varying = --trace ("yoink " ++ (show annotations) ++ (sh
 -- for inner objective fns to operate on
 -- pack is partially applied with the annotations, which never change
 -- (the annotations assume the state never changes size or order)
-pack :: (Real a, Floating a, Show a, Ord a) => [[Annotation]] -> [Obj] -> Fixed a -> Varying a -> [Obj' a]
+pack :: (Autofloat a) => [[Annotation]] -> [Obj] -> Fixed a -> Varying a -> [Obj' a]
 pack annotations objs = pack' (zip objs annotations)
 
-pack' :: (Real a, Floating a, Show a, Ord a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj' a]
+pack' :: (Autofloat a) => [(Obj, [Annotation])] -> Fixed a -> Varying a -> [Obj' a]
 pack' zipped fixed varying =
      case zipped of
       [] -> []
@@ -246,7 +246,7 @@ defaultEllipse name = E $ setName name defEllipse
 defaultCurve name = CB $ setName name defCurve
 
 
-shapeAndFn :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
+shapeAndFn :: (Autofloat a) =>
            S.StyDict -> String ->
            ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 shapeAndFn dict name =
@@ -266,7 +266,7 @@ shapeAndFn dict name =
         thd4 (_, _, a, _) = a
         frth4 (_, _, _, a) = a
 
-getShape :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
+getShape :: (Autofloat a) =>
                       (String, (S.StyObj, Config)) ->
                       ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 
@@ -312,10 +312,10 @@ compsAndVars n config =
 mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
 
-computeOnObjs :: (Floating a, Real a, Ord a, Show a) => [Obj' a] -> [ObjComp] -> [Obj' a]
+computeOnObjs :: (Autofloat a) => [Obj' a] -> [ObjComp] -> [Obj' a]
 computeOnObjs objs comps = mapVals $ foldl computeOn (dictOfObjs objs) comps
 
-computeOnObjs_noGrad :: (Floating a, Real a, Ord a, Show a) => [Obj] -> [ObjComp] -> [Obj]
+computeOnObjs_noGrad :: [Obj] -> [ObjComp] -> [Obj]
 computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
                                  let objsComputed = mapVals $ foldl computeOn (dictOfObjs objsG) comps in
                                  zeroGrads objsComputed
@@ -323,7 +323,7 @@ computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
 -- | Apply a computation to the relevant object in the dictionary.
 -- | This computation model assumes that the point of all computations is to set an attribute in an object.
 -- | This helper function first catches errors on the function name, object name, and object type
-computeOn :: (Floating a, Real a, Ord a, Show a) => M.Map Name (Obj' a) -> ObjComp -> M.Map Name (Obj' a)
+computeOn :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> M.Map Name (Obj' a)
 computeOn objDict comp =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           case fname of
@@ -368,7 +368,7 @@ should i ask DG?
 
 -- Convert an object to its dynamic inside-specific-object
 -- TODO genericize over objects
-dynamicObj :: (Floating a, Real a, Ord a, Show a, Typeable a) => Obj' a -> (Dynamic, TypeRep)
+dynamicObj :: (Autofloat a, Typeable a) => Obj' a -> (Dynamic, TypeRep)
 dynamicObj o = case o of
              C' circ -> (toDyn circ, typeOf circ)
              E' ell -> (toDyn ell, typeOf ell)
@@ -388,11 +388,11 @@ fromMaybeT expected given x = case x of
 -- not sure how to generate type annotations... 
 -- TODO pass in given type
 -- TODO: what happens if we add new kinds of objects?
-fromDynCir :: (Floating a, Real a, Ord a, Show a, Typeable a) => String -> Dynamic -> Circ' a
+fromDynCir :: (Autofloat a, Typeable a) => String -> Dynamic -> Circ' a
 fromDynCir given d = fromMaybeT circName given $ fromDynamic d
            where circName = "Circ' a"
 
-dynArgs :: (Floating a, Real a, Ord a, Show a, Typeable a) =>
+dynArgs :: (Autofloat a, Typeable a) =>
            M.Map Name (Obj' a) -> [S.Expr] -> [(Dynamic, TypeRep)]
 dynArgs objDict args = map processArg args
             where processArg x = 
@@ -416,7 +416,7 @@ set property dynObj dynType = dynObj -- TODO >>>
 -- This function 
 -- TODO: watch out for function arg types that don't match exactly that should match
 -- like "Circ' Int" vs "Circ' Double"
-computeOn_auto :: (Floating a, Real a, Ord a, Show a, Typeable a) =>
+computeOn_auto :: (Autofloat a, Typeable a) =>
                M.Map Name (Obj' a) -> Name -> ObjComp -> Computation a -> Obj' a -> Obj' a
 computeOn_auto objDict fname compInfo function obj = 
           let (objName, objProperty, fname, args) = (oName compInfo, oProp compInfo, 
@@ -458,7 +458,7 @@ lookupAll name objs = map snd $ M.toList $ M.filterWithKey (objOrSecondaryShape 
                                                     || (name ++ secondaryIndicator) `isPrefixOf` inName
                  secondaryIndicator = "_shape"
 
-computeInnerPt :: (Floating a, Real a, Ord a, Show a) =>
+computeInnerPt :: (Autofloat a) =>
                   Name -> Name -> Computation a -> [S.Expr] -> Pt' a -> M.Map Name (Obj' a) -> Pt' a
 computeInnerPt fname property comp args pt objDict =
              case property of
@@ -480,7 +480,7 @@ computeInnerPt fname property comp args pt objDict =
 
 -- TODO pass randomness around
 -- TODO try out pattern guards? https://downloads.haskell.org/~ghc/5.00/docs/set/pattern-guards.html
-computeInnerCurve :: (Floating a, Real a, Ord a, Show a) =>
+computeInnerCurve :: (Autofloat a) =>
                   Name -> Name -> Computation a -> [S.Expr] -> CubicBezier' a
                  -> M.Map Name (Obj' a) -> CubicBezier' a
 computeInnerCurve fname property comp args curve objDict =
@@ -552,7 +552,7 @@ computeInnerCurve fname property comp args curve objDict =
 -- TODO apply computations on resample, accounting for state order
 -- TODO standardize var names b/t here and computeOn
 -- | Apply a computation to the circle and set the relevant property. Catch errors on input and output type.
-computeInnerCirc :: (Floating a, Real a, Ord a, Show a) =>
+computeInnerCirc :: (Autofloat a) =>
                     Name -> Name -> Computation a -> [S.Expr] -> Circ' a -> M.Map Name (Obj' a) -> Circ' a
 computeInnerCirc fname property comp args c objDict =
              case property of
@@ -621,7 +621,7 @@ pathT = typeOf (pathcb defCurve)
      -- a computation can feed into the properties (and use properties), and the results of the comp are then fed to objectives and constraints
 
 -- this feel like it's just reinventing grammar (more poorly)
--- objProperties_list :: (RealFloat a, Floating a, Real a, Show a, Ord a) => M.Map S.StyObj (InitObjInfo a)
+-- objProperties_list :: (Autofloat a) => M.Map S.StyObj (InitObjInfo a)
                 -- InitObjInfo {
                 --          iProperties = M.fromList [
                 --           ("color", colorT),
@@ -681,7 +681,7 @@ objProperties = M.fromList $ map (\(t, l) -> (t, M.fromList l)) objProperties_li
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
-    (RealFloat a, Floating a, Real a, Show a, Ord a) =>
+    (Autofloat a) =>
     Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
 
 initText n config = ([defaultText n], [], [])
@@ -718,7 +718,7 @@ initCurve n config = (objs, [], [])
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
               objs = if lab == "None" then [curve] else [curve, defaultLabel n]
 
-sizeFuncs :: (RealFloat a, Floating a, Real a, Show a, Ord a) => 
+sizeFuncs :: (Autofloat a) => 
                         Name -> [ConstrFnInfo a]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
                (penalty `compose2` minSize, defaultWeight, [n], [])]
@@ -772,7 +772,7 @@ declMapObjfn = centerMap
 map4 :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
 map4 f (w, x, y, z) = (f w, f x, f y, f z)
 
-genAllObjs :: (RealFloat a, Floating a, Real a, Show a, Ord a) =>
+genAllObjs :: (Autofloat a) =>
              ([C.SubDecl], [C.SubConstr]) -> S.StyDict
              -> ([Obj], [ObjFnInfo a],
                         [ConstrFnInfo a],
@@ -783,7 +783,7 @@ genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrF
         (objss, objFnss, constrFnss, compss) = unzip4 $ map (shapeAndFn stys) $ S.getAllIds (decls, constrs)
 -- FIXME: getAllIds shouldn't be happening at all (why not?)
 
-dictOf :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> M.Map Name (Obj' a)
+dictOf :: (Autofloat a) => [Obj' a] -> M.Map Name (Obj' a)
 dictOf = foldr addObj M.empty
        where addObj o dict = M.insert (getName o) o dict
 
@@ -795,7 +795,7 @@ dictOfObjs = foldr addObj M.empty
 constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
 
-lookupNames :: (Real a, Floating a, Show a, Ord a) => M.Map Name (Obj' a) -> [Name] -> [Obj' a]
+lookupNames :: (Autofloat a) => M.Map Name (Obj' a) -> [Name] -> [Obj' a]
 lookupNames dict ns = map check res
     where
         res = map (`M.lookup` dict) ns
@@ -808,7 +808,7 @@ lookupNames dict ns = map check res
 -- first param: list of parameter annotations for each object in the state
 -- assumes that the INPUT state's SIZE and ORDER never change (their size and order can change inside the fn)
 -- note: CANNOT do dict -> list because that destroys the order
-genObjFn :: (RealFloat a, Real a, Floating a, Show a, Ord a) =>
+genObjFn :: (Autofloat a) =>
          [[Annotation]]
          -> [ObjComp]
          -> [ObjFnInfo a]
@@ -1294,8 +1294,8 @@ checkSubsetSize _ _ = True
 -- Type aliases for shorter type signatures.
 type TimeInit = Float
 type Time = Double
-type ObjFn1 a = forall a . (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> a
-type GradFn a = forall a . (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> [a]
+type ObjFn1 a = forall a . (Autofloat a) => [a] -> a
+type GradFn a = forall a . (Autofloat a) => [a] -> [a]
 type Constraints = [(Int, (Double, Double))]
      -- TODO: convert lists to lists of type-level length, and define an interface for object state (pos, size)
      -- also need to check the input length matches obj fn lengths, e.g. in awlinesearch
@@ -1352,7 +1352,7 @@ objsSizes = map (\[x, y, s] -> s) . objsInfo
 
 -- convergence criterion for EP
 -- if you want to use it for UO, needs a different epsilon
-epStopCond :: (Floating a, Ord a, Show a) => [a] -> [a] -> a -> a -> Bool
+epStopCond :: (Autofloat a) => [a] -> [a] -> a -> a -> Bool
 epStopCond x x' fx fx' =
            trStr ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
            ++ "\n|f(x') - f(x)|: " ++ (show $ abs (fx - fx'))) $
@@ -1360,7 +1360,7 @@ epStopCond x x' fx fx' =
 
 -- just for unconstrained opt, not EP
 -- stopEps large bc UO doesn't seem to strongly converge...
-optStopCond :: (Floating a, Ord a, Show a) => [a] -> Bool
+optStopCond :: (Autofloat a) => [a] -> Bool
 optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
                        ++ "\nstopEps: " ++ (show stopEps)) $
             (norm gradEval <= stopEps)
@@ -1371,7 +1371,7 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 
 
 -- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
-zeroGrad :: (Real a, Floating a, Show a, Ord a) => Obj' a -> Obj
+zeroGrad :: (Autofloat a) => Obj' a -> Obj
 zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
                              selc = selc' c, namec = namec' c, colorc = colorc' c }
 zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ rx' e, ry = r2f $ ry' e,
@@ -1389,11 +1389,11 @@ zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namec
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb' c
           path      = map tuplify2 $ chunksOf 2 path_flat
 
-zeroGrads :: (Real a, Floating a, Show a, Ord a) => [Obj' a] -> [Obj]
+zeroGrads :: (Autofloat a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
 
 -- Add the grad info by generalizing Obj (on Floats) to polymorphic objects (for autodiff to use)
-addGrad :: (Real a, Floating a, Show a, Ord a) => Obj -> Obj' a
+addGrad :: (Autofloat a) => Obj -> Obj' a
 addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
                              selc' = selc c, namec' = namec c, colorc' = colorc c }
 addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ rx e, ry' = r2f $ ry e,
@@ -1411,14 +1411,14 @@ addGrad (CB c) = CB' $ CubicBezier' { pathcb' = path, colorcb' = colorcb c, name
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb c
           path      = map tuplify2 $ chunksOf 2 path_flat
 
-addGrads :: (Real a, Floating a, Show a, Ord a) => [Obj] -> [Obj' a]
+addGrads :: (Autofloat a) => [Obj] -> [Obj' a]
 addGrads = map addGrad
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
 -- the initial state (WRT violating constraints), initial weight, params, constraint normalization, etc.
 -- have all been initialized or set earlier
-stepObjs :: (Real a, Floating a, Show a, Ord a) => a -> Params -> [Obj] -> ([Obj], Params)
+stepObjs :: (Autofloat a) => a -> Params -> [Obj] -> ([Obj], Params)
 stepObjs t sParams objs =
          let (epWeight, epStatus) = (weight sParams, optStatus sParams) in
          case epStatus of
@@ -1477,7 +1477,7 @@ stepT dt x dfdx = x - dt * dfdx
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: (RealFloat a, Real a, Floating a, Ord a, Show a) =>
+stepWithObjective :: (Autofloat a) =>
                   [Obj] -> [a] -> Params -> a -> [a] -> ([a], [a] -> a, [a])
 stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, gradEval)
                   where (t', gradEval) = timeAndGrad objFnApplied t state
@@ -1499,10 +1499,11 @@ stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, 
                         cWeight = weight stateParams
 
 -- a version of grad with a clearer type signature
-appGrad :: (RealFloat a, Show a, Ord a, Floating a, Real a) =>
-        (forall a . (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> a) -> [a] -> [a]
+appGrad :: (Autofloat a) =>
+        (forall a . (Autofloat a) => [a] -> a) -> [a] -> [a]
 appGrad f l = grad f l
 
+-- TODO: Autofloat these?
 nanSub :: (RealFloat a, Floating a) => a
 nanSub = 0
 
@@ -1529,7 +1530,7 @@ tupMap f (a, b) = (f a, f b)
 -- TODO change stepWithGradFn(s) to use this fn and its type
 -- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: (RealFloat b, Show b, Ord b, RealFloat b, Floating b, Real b) => ObjFn1 a -> b -> [b] -> (b, [b])
+timeAndGrad :: (Autofloat b) => ObjFn1 a -> b -> [b] -> (b, [b])
 timeAndGrad f t state = tr "timeAndGrad: " (timestep, gradEval)
             where gradF :: GradFn a
                   gradF = appGrad f
@@ -1544,7 +1545,7 @@ timeAndGrad f t state = tr "timeAndGrad: " (timestep, gradEval)
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
-                  duf :: (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
+                  duf :: (Autofloat a) => [a] -> [a] -> a
                   duf u x = gradF x `dotL` u
 
 -- Parameters for Armijo-Wolfe line search
@@ -1576,7 +1577,7 @@ isNegInfinity x = (x == negInfinity)
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
 -- TODO what happens if there are NaNs in awLineSearch? or infinities
-awLineSearch :: (RealFloat b, Floating b, Ord b, Show b, Real b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
+awLineSearch :: (Autofloat b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
 awLineSearch f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
@@ -1627,10 +1628,10 @@ constraintFlag = True
 objFnOn = True -- turns obj function on or off in exterior pt method (for debugging constraints only)
 constraintFnOn = True -- TODO need to implement constraint fn synthesis
 
-type ObjFnPenalty a = forall a . (RealFloat a, Show a, Floating a, Ord a, Real a) => a -> [a] -> [a] -> a
+type ObjFnPenalty a = forall a . (Autofloat a) => a -> [a] -> [a] -> a
 -- needs to be partially applied with the current list of objects
 -- this type is only for the TOP-LEVEL synthesized objective function, not for any of the ones that people write
-type ObjFnPenaltyState a = forall a . (RealFloat a, Show a, Floating a, Ord a, Real a) => [Obj] -> a -> [a] -> [a] -> a
+type ObjFnPenaltyState a = forall a . (Autofloat a) => [Obj] -> a -> [a] -> [a] -> a
 
 -- TODO should use objFn as a parameter
 objFnPenalty :: ObjFnPenalty a
@@ -1673,7 +1674,7 @@ constrText = "constraint: satisfy constraints specified in Substance program"
 
 -- separates fixed parameters (here, size) from varying parameters (here, location)
 -- ObjFn2 has two parameters, ObjFn1 has one (partially applied)
-type ObjFn2 a = forall a . (RealFloat a, Show a, Ord a, Floating a, Real a) => [a] -> [a] -> a
+type ObjFn2 a = forall a . (Autofloat a) => [a] -> [a] -> a
 
 linesearch = True -- TODO move these parameters back
 intervalMin = True -- true = force linesearch halt if interval gets too small; false = no forced halt

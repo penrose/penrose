@@ -38,14 +38,15 @@ data Computation a = ComputeColor (() -> Color)
                    | ReturnInt Int
                    | Delay15 (a -> a)
                    | TestNone 
+                   deriving (Typeable)
 
 -- | 'computationDict' stores a mapping from the name of computation to the actual implementation
 -- | All functions must be registered
 -- These could all be stored as Dynamic
-computationDict :: (Real a, Floating a, Ord a) => M.Map String (Computation a)
+computationDict :: (Autofloat a) => M.Map String (Computation a)
 computationDict = M.fromList flist
 
-flist :: (Real b, Floating b, Ord b) => [(String, Computation b)] 
+flist :: (Autofloat a) => [(String, Computation a)] 
 flist = [
                 ("computeColor", ComputeColor computeColor), -- pretty verbose 
                 ("computeColor2", ComputeColor computeColor2),
@@ -68,13 +69,13 @@ flist = [
 -- computationDict_dyn = M.fromList flist_dyn
 
 -- TODO: problems with Typeable on variable. this works in ghci but replaces `a` with Double
-flist_dyn :: (Typeable a, Real a, Floating a, Ord a) => [(String, (Dynamic, TypeRep))]
-flist_dyn = [ 
-                ("computeColorArgs'", (toDyn computeColorArgs', typeOf computeColorArgs'))
-                -- ("computeRadiusToMatch", (toDyn computeRadiusToMatch, typeOf computeRadiusToMatch))
-            ]
+-- flist_dyn :: (Typeable a, Real a, Floating a, Ord a) => [(String, (Dynamic, TypeRep))]
+-- flist_dyn = [ 
+                -- ("computeColorArgs'", (toDyn computeColorArgs', typeOf computeColorArgs'))
+            -- ]
 
-computeColorArgs' :: (Typeable a, Real a, Floating a) => String -> a -> Color
+-- TODO delete this?
+computeColorArgs' :: (Autofloat a) => String -> a -> Color
 computeColorArgs' ref1 mag = trace ("computeColorArgs " ++ ref1) $ 
                                  makeColor' (scale mag) (scale mag) (scale mag) 0.5
                  where scale c = c * 0.1
@@ -83,7 +84,7 @@ computeColorArgs' ref1 mag = trace ("computeColorArgs " ++ ref1) $
 -- I think the compiler is optimizing or caching the hard part though
 -- If you change the exponent, you need to change the number of 9s
 -- Why does it change the color?
-delay15 :: Floating a => a -> a
+delay15 :: (Floating a) => a -> a
 delay15 x = trace "delay15" ((x^2 + r2f (head $ reverse $ take (10^7) [0, 1..])) - (9999999 + x * x))
 
 addVector :: (Floating a) => Pt2 a -> Pt2 a -> Pt2 a
@@ -105,7 +106,7 @@ randomsIn g n interval = let (x, g') = randomR interval g -- First value
 -- Given a generator, number of points, and lower left and top right of bbox, return points for a surjection.
 -- Points generated lie in the bbox given, whether in math space or screen space
 -- TODO pass randomness around in Runtime
-computeSurjection :: (Floating a, Real a, Ord a) => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
+computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) = 
                   if numPoints < 2 then error "Surjection needs to have >= 2 points" 
                   else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
@@ -119,7 +120,7 @@ computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
                            (zip xs_increasing ys_perm, g'') -- len xs == len ys
 
 -- this function could be more general, taking in two objects and computing their bounding box
-computeSurjectionBbox :: (Floating a, Real a, Ord a) => StdGen -> Integer 
+computeSurjectionBbox :: (Autofloat a) => StdGen -> Integer 
                                    -> SolidArrow' a -> SolidArrow' a -> ([Pt2 a], StdGen)
 computeSurjectionBbox g n a1 a2 = let xs = [startx' a1, endx' a1, startx' a2, endx' a2]
                                       ys = [starty' a1, endy' a1, starty' a2, endy' a2]
@@ -131,7 +132,7 @@ computeSurjectionBbox g n a1 a2 = let xs = [startx' a1, endx' a1, startx' a2, en
 -- Computes the surjection to lie inside a bounding box defined by the corners of a box 
 -- defined by four straight lines, assuming their lower/left coordinates come first. 
 -- Their intersections give the corners.
-computeSurjectionLines :: (Floating a, Real a, Ord a) => StdGen -> Integer 
+computeSurjectionLines :: (Autofloat a) => StdGen -> Integer 
                                    -> CubicBezier' a -> CubicBezier' a 
                                    -> CubicBezier' a -> CubicBezier' a -> ([Pt2 a], StdGen)
 computeSurjectionLines g n left right bottom top = 
@@ -150,29 +151,29 @@ computeColor () = makeColor 0.5 0.1 (0.2 / 3) 0.5
 computeColor2 :: () -> Color
 computeColor2 () = makeColor (0.1 * 0.5) 0.1 0.5 0.5
 
-makeColor' :: (Real a, Floating a) => a -> a -> a -> a -> Color
+makeColor' :: (Autofloat a) => a -> a -> a -> a -> Color
 makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
 
-computeColorArgs :: ({-Typeable a, -}Real a, Floating a) => String -> a -> Color
+computeColorArgs :: (Autofloat a) => String -> a -> Color
 computeColorArgs ref1 mag = trace ("computeColorArgs " ++ ref1) $ 
                                  makeColor' (scale mag) (scale mag) (scale mag) 0.5
                  where scale c = c * 0.1
 
 -- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
-computeRadiusAsFrac :: (Floating a, Num a) => Circ' a -> a -> a
+computeRadiusAsFrac :: (Autofloat a) => Circ' a -> a -> a
 computeRadiusAsFrac circ mag = {-trace ("computeRadiusAsFrac") $-} mag * (r' circ)
 
 -- Compute the radius of the circle to lie on a point
-computeRadiusToMatch :: ({-Typeable a, -}Floating a, Num a) => Circ' a -> Pt' a -> a
+computeRadiusToMatch :: (Autofloat a) => Circ' a -> Pt' a -> a
 computeRadiusToMatch c p = {-trace ("computeRadiusToMatch") $ -}
                            norm [getX c - getX p, getY c - getY p]
 
-computeColorRGBA :: (Real a, Floating a) => a -> a -> a -> a -> Color
+computeColorRGBA :: (Autofloat a) => a -> a -> a -> a -> Color
 computeColorRGBA r g b a = makeColor' r g b a
 
 -- TODO rename lineLeft and lineRight
 -- assuming a1 horizontal and a2 vertical, respectively
-lineLeft :: (Real a, Floating a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
+lineLeft :: (Autofloat a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
 lineLeft lineFrac a1 a2 = let a1_start = startx' a1 in
                           let a1_len = abs (endx' a1 - a1_start) in 
                           let xpos = a1_start + lineFrac * a1_len in
@@ -180,7 +181,7 @@ lineLeft lineFrac a1 a2 = let a1_start = startx' a1 in
 
 -- assuming a1 vert and a2 horiz, respectively
 -- can this be written in terms of lineLeft?
-lineRight :: (Real a, Floating a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
+lineRight :: (Autofloat a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
 lineRight lineFrac a1 a2 = let a1_start = starty' a1 in
                            let a1_len = abs (endy' a1 - a1_start) in
                            let ypos = a1_start + lineFrac * a1_len in

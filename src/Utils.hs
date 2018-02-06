@@ -1,4 +1,8 @@
 -- | "Utils" contains frequently used utility function, some parameters to "Runtime", and debugging functions.
+-- | Utils should not import other modules of Penrose.
+
+-- This is for the "typeclass synonym"
+{-# LANGUAGE ConstraintKinds #-}
 
 module Utils where
 import Control.Monad (void)
@@ -10,6 +14,11 @@ import Text.Megaparsec.Expr
 import qualified Text.Megaparsec.Char.Lexer as L
 import Data.Typeable
 import Control.Arrow
+
+-- | A more concise typeclass for polymorphism for autodiff
+-- | NiceFloating :: * -> Constraint
+-- https://stackoverflow.com/questions/48631939/a-concise-way-to-factor-out-multiple-typeclasses-in-haskell/48631986#48631986
+type Autofloat a = (RealFloat a, Floating a, Real a, Show a, Ord a) -- TODO: `Typeable a`
 
 divLine = putStr "\n--------\n\n"
 
