@@ -1,5 +1,5 @@
 -- | The "computation" module contains a library of computations to be used in Style files.
-{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, FlexibleContexts #-}
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, FlexibleContexts, DeriveDataTypeable #-}
 module Computation where
 import Shapes
 import Utils
@@ -11,6 +11,7 @@ import System.Random
 import System.Random.Shuffle
 import Data.List (sort)
 import Data.Dynamic
+import Data.Data
 import Data.Typeable
 
 -- Temporary solution: register every single different function type as you write it
@@ -19,7 +20,6 @@ import Data.Typeable
 -- TODO figure out how arguments work
 -- Doesn't deal well with polymorphism (all type variables need to go in the datatype)
 
-type Pt2 a = (a, a)
 type Interval = (Float, Float)
 data Computation a = ComputeColor (() -> Color) 
                    | ComputeColorArgs (String -> a -> Color) 
@@ -63,22 +63,6 @@ flist = [
                 ("delay15", Delay15 delay15),
                 ("computeSurjectionLines", ComputeSurjectionLines computeSurjectionLines)
         ]
-
--- Test version for Dynamic (if it works, get rid of the types)
--- computationDict_dyn :: (Typeable a, Real a, Floating a, Ord a) => M.Map String (Dynamic, TypeRep)
--- computationDict_dyn = M.fromList flist_dyn
-
--- TODO: problems with Typeable on variable. this works in ghci but replaces `a` with Double
--- flist_dyn :: (Typeable a, Real a, Floating a, Ord a) => [(String, (Dynamic, TypeRep))]
--- flist_dyn = [ 
-                -- ("computeColorArgs'", (toDyn computeColorArgs', typeOf computeColorArgs'))
-            -- ]
-
--- TODO delete this?
-computeColorArgs' :: (Autofloat a) => String -> a -> Color
-computeColorArgs' ref1 mag = trace ("computeColorArgs " ++ ref1) $ 
-                                 makeColor' (scale mag) (scale mag) (scale mag) 0.5
-                 where scale c = c * 0.1
 
 -- Delays some number of seconds (at least in ghci) and returns 0
 -- I think the compiler is optimizing or caching the hard part though
@@ -196,3 +180,46 @@ lineRight lineFrac a1 a2 = let a1_start = starty' a1 in
                            let a1_len = abs (endy' a1 - a1_start) in
                            let ypos = a1_start + lineFrac * a1_len in
                            [(startx' a2, ypos), (endx' a2, ypos)]
+
+-------------------------------------
+-- Test computation rewrite
+
+-- | Possible computation input types (internal types)
+data TypeIn a = TNum a
+              | TBool Bool
+              | TStr String
+              | TInt Integer
+              | TPt a
+              | TPath [Pt2 a]
+              | TColor Color
+              | TStyle String -- dotted, etc.
+     deriving (Eq, Show, Data, Typeable)
+
+-- Each computation uses this rng (not super high-quality)
+compRng :: StdGen
+compRng = mkStdGen seed
+    where seed = 16 -- deterministic RNG with seed
+
+type CompFn a = (Autofloat a) => [TypeIn a] -> [Obj' a] -> TypeIn a
+type CompFnOn a = [TypeIn a] -> [Obj' a] -> TypeIn a
+
+-- | 'compFuncDict' stores a mapping from the name of computations to the actual implementation
+compFuncDict :: (Autofloat a) => M.Map String (CompFnOn a)
+compFuncDict = M.fromList flist
+    where flist = [
+                    ("computeRadiusAsFrac", computeRadiusAsFrac'), -- TODO change the primes
+                    ("computeRadiusToMatch", computeRadiusToMatch')
+                  ]
+
+-- typecheck :: [String] -> [String] -> [TypeIn a] -> [Obj' a]
+
+-- TODO Generate the typechecking with Template Haskell
+-- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
+computeRadiusAsFrac' :: CompFn a
+computeRadiusAsFrac' [TNum mag] [C' circ] = TNum $ computeRadiusAsFrac circ mag
+computeRadiusAsFrac' _ _ = error "unexpected # or type or argument in computeRadiusAsFrac"
+
+-- Compute the radius of the circle to lie on a point
+computeRadiusToMatch' :: CompFn a
+computeRadiusToMatch' [] [C' c, P' p] = TNum $ computeRadiusToMatch c p
+computeRadiusToMatch' _ _ = error "unexpected # or type or argument in computeRadiusToMatch"

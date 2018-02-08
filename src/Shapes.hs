@@ -42,7 +42,7 @@ data BBox = BBox {
     cy :: Float,
     h :: Float,
     w :: Float
-} deriving (Show, Eq, Generic, Typeable)
+} deriving (Show, Eq, Generic, Typeable, Data)
 instance ToJSON BBox
 instance FromJSON BBox
 
@@ -52,7 +52,7 @@ data CubicBezier = CubicBezier {
     namecb           :: String,
     stylecb          :: String,
     colorcb          :: Color
-} deriving (Eq, Show, Generic, Typeable)
+} deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Named CubicBezier where
          getName = namecb
@@ -82,7 +82,7 @@ data SolidArrow = SolidArrow { startx :: Float
                              , colorsa :: Color
                             --  , bbox :: BBox
                          }
-         deriving (Eq, Show, Generic, Typeable)
+         deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located SolidArrow Float where
         --  getX a = endx a - startx a
@@ -145,7 +145,7 @@ data Square = Square { xs :: Float
                      , sels :: Bool -- is the circle currently selected? (mouse is dragging it)
                      , names :: String
                      , colors :: Color }
-     deriving (Eq, Show, Generic, Typeable)
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located Square Float where
          getX s = xs s
@@ -178,7 +178,7 @@ data Label = Label { xl :: Float
                    -- , scalel :: Float  -- calculate h,w from it
                    , sell :: Bool -- selected label
                    , namel :: String }
-     deriving (Eq, Show, Generic, Typeable)
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located Label Float where
          getX l = xl l
@@ -209,7 +209,7 @@ data Pt = Pt { xp :: Float
              , yp :: Float
              , selp :: Bool
              , namep :: String }
-     deriving (Eq, Show, Generic, Typeable)
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located Pt Float where
          getX p = xp p
@@ -236,7 +236,7 @@ data Obj = S Square
          | P Pt
          | A SolidArrow
          | CB CubicBezier
-         deriving (Eq, Show, Generic, Typeable)
+         deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
 instance FromJSON Obj
@@ -248,7 +248,7 @@ data Ellipse = Ellipse { xe :: Float
                  , ry :: Float
                  , namee :: String
                  , colore :: Color }
-     deriving (Eq, Show, Generic, Typeable)
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located Ellipse Float where
          getX = xe
@@ -375,7 +375,7 @@ data Obj' a
     | S' (Square' a)
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
-    deriving (Eq, Show, Typeable)
+    deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
     startx'    :: a,
@@ -386,7 +386,7 @@ data SolidArrow' a = SolidArrow' {
     selsa'     :: Bool, -- is the circle currently selected? (mouse is dragging it)
     namesa'    :: String,
     colorsa'   :: Color
-} deriving (Eq, Show, Typeable)
+} deriving (Eq, Show, Typeable, Data)
 
 data Circ' a = Circ' {
     xc'     :: a,
@@ -395,7 +395,7 @@ data Circ' a = Circ' {
     selc'   :: Bool, -- is the circle currently selected? (mouse is dragging it)
     namec'  :: String,
     colorc' :: Color
-} deriving (Eq, Show, Typeable)
+} deriving (Eq, Show, Typeable, Data)
 
 data Ellipse' a = Ellipse' {
     xe' :: a,
@@ -404,7 +404,7 @@ data Ellipse' a = Ellipse' {
     ry' :: a,
     namee'  :: String,
     colore' :: Color
-} deriving (Eq, Show, Typeable)
+} deriving (Eq, Show, Typeable, Data)
 
 data Label' a = Label' { xl' :: a
                        , yl' :: a
@@ -413,13 +413,13 @@ data Label' a = Label' { xl' :: a
                        , textl' :: String
                        , sell' :: Bool -- selected label
                        , namel' :: String }
-                       deriving (Eq, Show, Typeable)
+                       deriving (Eq, Show, Typeable, Data)
 
 data Pt' a = Pt' { xp' :: a
                  , yp' :: a
                  , selp' :: Bool
                  , namep' :: String }
-                 deriving (Eq, Show, Typeable)
+                 deriving (Eq, Show, Typeable, Data)
 
 data Square' a  = Square' { xs' :: a
                      , ys' :: a
@@ -428,14 +428,14 @@ data Square' a  = Square' { xs' :: a
                      , sels' :: Bool
                      , names' :: String
                      , colors' :: Color }
-                     deriving (Eq, Show, Typeable)
+                     deriving (Eq, Show, Typeable, Data)
 
 data CubicBezier' a = CubicBezier' {
     pathcb'           :: [(a, a)],
     namecb'           :: String,
     stylecb'          :: String,
     colorcb'          :: Color
-} deriving (Eq, Show, Typeable)
+} deriving (Eq, Show, Typeable, Data)
 
 instance Named (SolidArrow' a) where
          getName = namesa'

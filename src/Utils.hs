@@ -21,6 +21,8 @@ import Control.Arrow
 type Autofloat a = (RealFloat a, Floating a, Real a, Show a, Ord a)
 type Autofloat' a = (RealFloat a, Floating a, Real a, Show a, Ord a, Typeable a)
 
+type Pt2 a = (a, a)
+
 divLine = putStr "\n--------\n\n"
 
 -- don't use r2f outside of zeroGrad or addGrad, since it doesn't interact well w/ autodiff

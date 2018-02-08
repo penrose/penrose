@@ -2,7 +2,7 @@
 --  and also the Gloss GUI, now functional bot deprecated.
 
 {-# OPTIONS_HADDOCK prune #-}
-{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 -- for autodiff, requires passing in a polymorphic fn
@@ -30,7 +30,8 @@ import System.Random
 import Debug.Trace
 import Data.Dynamic
 import Data.Typeable
-import Data.Data
+import Data.Data -- TODO remove extra dynamic/typeable/data imports and deriving everywhere if not used
+import Data.Either (partitionEithers)
 import qualified Data.Map.Strict as M
 import qualified Substance as C
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
@@ -74,6 +75,20 @@ data ObjComp = ObjComp { oName :: Name, -- "A"
 
 -- | fn name, list of args (returned by queryCondig)
 type CompInfo = (Name, [S.Expr])
+
+-- | Convert a style expr to an internal type (look up variable names that correspond to objects)
+-- | TODO: deal with dot accesses and get/set properties (e.g. X.radius)
+styExprToCompExpr :: (Autofloat a) => M.Map Name (Obj' a) -> S.Expr -> Either (TypeIn a) (Obj' a)
+styExprToCompExpr objs e = case e of
+                S.IntLit i     -> Left $ TInt i
+                S.FloatLit f   -> Left $ TNum $ r2f f
+                S.StringLit s  -> Left $ TStr s
+                S.Id v         -> case M.lookup v objs of
+                                 Just o -> Right o
+                                 Nothing -> error ("id '" ++ v ++ "' does not exist in object dictionary")
+                S.BinOp _ _ _  -> error "computations don't support operations"
+                S.Cons _ _     -> error "computatons don't support object constructors (?)"
+                S.CompArgs _ _ -> error "computations don't support nested computations"
 
 ------
 
@@ -313,11 +328,11 @@ mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
 
 computeOnObjs :: (Autofloat a) => [Obj' a] -> [ObjComp] -> [Obj' a]
-computeOnObjs objs comps = mapVals $ foldl computeOn (dictOfObjs objs) comps
+computeOnObjs objs comps = mapVals $ foldl computeOn' (dictOfObjs objs) comps
 
 computeOnObjs_noGrad :: [Obj] -> [ObjComp] -> [Obj]
 computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
-                                 let objsComputed = mapVals $ foldl computeOn (dictOfObjs objsG) comps in
+                                 let objsComputed = mapVals $ foldl computeOn' (dictOfObjs objsG) comps in
                                  zeroGrads objsComputed
 
 -- | Apply a computation to the relevant object in the dictionary.
@@ -345,115 +360,49 @@ computeOn objDict comp =
                                                  -- (P' $ fromDynPt "pt" $ fst $ dynamicObj $ P' pt') objDict
                                         _ -> error "compute: no case to deal with this type of object"
 
--- TODO: should the function type info go in computationDict initially?
--- TODO: deal with multiple objects
-          -- deal with: case over object type, properties of object (and their types--comp return type),
-          -- function input types and output type, comp args types
-          -- object type dynamic? input types dynamic? overall function type dynamic?
-{- need to deal with: 
-setting a property that the object doesn't have
 
-should i cast it to dynamic here? 
-not sure if i need dynamic though
-first, i can't have dynamic polymorphic functions, 
-second, i'm not sure if casting to and from dynamic erases gradient information for objects
-i feel like without dynamic, i'm back to the old verbose/manual pattern matching and there was no point in doing this rewrite
-is there a typeclass for "applyables" and "applytos" that would work to give me some kind of genericness/polymorphism??
-should i force all computations to have the same type?
-Generator, [Objects], [Doubles], [Strings], [Points]?
-that seems contrived, and the computation would have to do pattern-matching, and they would all have extra list boilerplace <<<
+------
 
-is there some way to use template haskell instead?
-should i ask DG?
--}
+-- TODO fill these in
+get :: (Autofloat a) => Property -> Obj' a -> TypeIn a
+get "radius" (C' c) = TNum $ r' c
+get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n" 
+                                   ++ show obj ++ "\n" ++ show obj)
 
--- Convert an object to its dynamic inside-specific-object
--- TODO genericize over objects
-dynamicObj :: (Autofloat a, Typeable a) => Obj' a -> (Dynamic, TypeRep)
-dynamicObj o = case o of
-             C' circ -> (toDyn circ, typeOf circ)
-             E' ell -> (toDyn ell, typeOf ell)
-             L' lab -> (toDyn lab, typeOf lab)
-             P' pt -> (toDyn pt, typeOf pt)
-             S' sq -> (toDyn sq, typeOf sq)
-             A' arr -> (toDyn arr, typeOf arr)
-             CB' bez -> (toDyn bez, typeOf bez)
-             -- _ -> error "dynamic obj case not handled"
+-- TODO fill these in
+set :: (Autofloat a) => Property -> Obj' a -> TypeIn a -> Obj' a
+set "radius" (C' c) (TNum n) = C' $ c { r' = n }
+set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n" 
+                                   ++ show obj ++ "\n" ++ show val)
 
--- from Maybe with type errors
-fromMaybeT :: String -> String -> Maybe a -> a
-fromMaybeT expected given x = case x of 
-               Just x -> x
-               Nothing -> error ("cannot convert type. given: " ++ given ++ ", expected: " ++ expected)
+-- NEW VERSION, TODO merge with below?
+-- | Apply a computation to the relevant object in the dictionary.
+-- | This computation model assumes that the point of all computations is to set an attribute in an object.
+-- | This helper function first catches errors on the function name, object name, and object type
+computeOn' :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> M.Map Name (Obj' a)
+computeOn' objDict comp =
+          let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
+          case fname of
+          "None" -> objDict -- Style like "shape = None"
+          _ -> case M.lookup objName objDict of
+               Nothing -> error $ "compute: no object named " ++ objName
+               Just obj -> case M.lookup fname compFuncDict of
+                           Nothing -> error $ "compute: no computation named " ++ fname
+                           Just function -> let objRes = computeOn_auto objDict comp function obj in
+                                            M.insert objName objRes objDict
 
--- not sure how to generate type annotations... 
--- TODO pass in given type
--- TODO: what happens if we add new kinds of objects?
--- TODO: dynamicObj takes an object and returns the inner; this takes the inner and returns inner (not obj)
-fromDynCir :: (Autofloat a, Typeable a) => String -> Dynamic -> Circ' a
-fromDynCir given d = fromMaybeT nm given $ fromDynamic d
-           where nm = "Circ' a"
-
-fromDynPt :: (Autofloat a, Typeable a) => String -> Dynamic -> Pt' a
-fromDynPt given d = fromMaybeT nm given $ fromDynamic d
-           where nm = "Pt' a"
-
-dynArgs :: (Autofloat a, Typeable a) =>
-           M.Map Name (Obj' a) -> [S.Expr] -> [(Dynamic, TypeRep)]
-dynArgs objDict args = map processArg args
-            where processArg x = 
-                    case x of -- TODO genericize?
-                    S.IntLit i -> (toDyn i, typeOf i)
-                    S.FloatLit f -> (toDyn f, typeOf f)
-                    S.StringLit s -> (toDyn s, typeOf s)
-                    S.Id id -> case M.lookup id objDict of -- TODO use lookupAll??
-                               Nothing -> error "computation references an object that doesn't exist"
-                               Just res -> (toDyn res, typeOf res)
-                    _ -> error "computation has an arg of type that is not literal or variable"
-                    -- TODO what to do about the Dyn recipient expecting int, float, obj...?
-
--- typechecks as well
-applyFn :: [(Dynamic, TypeRep)] -> [TypeRep] -> Computation a -> (Dynamic, TypeRep)
-applyFn inputs types fn = (toDyn (), typeOf ()) -- TODO >>>
-
-set :: Property -> Dynamic -> TypeRep -> Dynamic
-set property dynObj dynType = dynObj -- TODO >>>
-
--- This function 
--- TODO: watch out for function arg types that don't match exactly that should match
--- like "Circ' Int" vs "Circ' Double"
-computeOn_auto :: (Autofloat a, Typeable a) =>
-               M.Map Name (Obj' a) -> Name -> ObjComp -> Computation a -> Obj' a -> Obj' a
-computeOn_auto objDict fname compInfo function obj = 
+-- TODO integrate this function and deprecate the old ones
+computeOn_auto :: (Autofloat a) =>
+               M.Map Name (Obj' a) -> ObjComp -> CompFn a -> Obj' a -> Obj' a
+computeOn_auto objDict compInfo function obj = 
           let (objName, objProperty, fname, args) = (oName compInfo, oProp compInfo, 
                                                     fnName compInfo, fnParams compInfo) in
-          -- Converted to Dynamic so it can work generically over objects
-          let (dynObj, dynType) = dynamicObj obj in
+          let (constArgs, objectArgs) = partitionEithers $ map (styExprToCompExpr objDict) args in
+          let res = function constArgs objectArgs in
+          set objProperty obj res
+          
 
-          -- look up the objects, throw error on other args, convert to dynamic
-          let args' = dynArgs objDict args in 
-          -- TODO: >>> deal with function being wrapped in Computation--should I make them dynamic?
-          -- TODO: >>> test if i can get types of a dynamic function and get the function back out w/o a mess
-          let (fInputTypes, fOutputType) = inputsOutput function in -- TODO deal with fInputTypes empty
-          let fnResult = applyFn args' fInputTypes function in -- do something with the result
-
-          -- TODO check that typeOf and toDyn are being applied to the correct objects in general
-          let objPropsInner = M.lookup dynType objProperties in
-          case objPropsInner of
-          Nothing -> error "this type of object does not have properties described in objProperties"
-          Just propsForThisObject -> 
-              let propertyType = M.lookup objProperty propsForThisObject in
-              case propertyType of
-              Nothing -> error "computation tried to set a property that the object doesn't have"
-              Just propType -> 
-                 let argsMatch = fOutputType == propType in
-                 -- TODO find/define setter, and set the property of obj to fnResult
-                 let final_obj = set objProperty dynObj dynType  in -- TODO what type info do i need, if any?
-
-                 -- TODO constructors for all objs using dynType, just Circ for now
-                 -- this (choosing C' and fromDynCir) can be done programmatically based on dynType
-                 -- will need polymorphic comparison versions of circ, etc.
-                 C' (fromDynCir (show dynType) final_obj) -- should this be done in final_obj?
+--------
 
 -- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra" 
 -- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"
@@ -1502,9 +1451,12 @@ stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, 
                         cWeight = weight stateParams
 
 -- a version of grad with a clearer type signature
-appGrad :: (Autofloat a) =>
-        (forall a . (Autofloat a) => [a] -> a) -> [a] -> [a]
+appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
 appGrad f l = grad f l
+
+appGrad' :: (Autofloat' a) => 
+         (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
+appGrad' f l = grad f l
 
 -- TODO: Autofloat these?
 nanSub :: (RealFloat a, Floating a) => a
