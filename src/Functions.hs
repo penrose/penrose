@@ -9,17 +9,16 @@ import qualified Data.Map.Strict as M
 
 type ObjFnOn a = [Obj' a] -> [a] -> a
 type ConstrFnOn a = [Obj' a] -> [a] -> a
-type ObjFn = forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
-type ConstrFn = forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => [Obj' a] -> [a] -> a
+type ObjFn = forall a. (Autofloat a) => [Obj' a] -> [a] -> a
+type ConstrFn = forall a. (Autofloat a) => [Obj' a] -> [a] -> a
 type Weight a = a
-type PairConstrV a = forall a . (RealFloat a, Floating a, Ord a, Show a) => [[a]] -> a -- takes pairs of "packed" objs
+type PairConstrV a = forall a . (Autofloat a) => [[a]] -> a -- takes pairs of "packed" objs
 
 -- | 'constrFuncDict' stores a mapping from the name of constraint functions to the actual implementation
-constrFuncDict :: forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) =>
-    M.Map String (ConstrFnOn a)
+constrFuncDict :: forall a. (Autofloat a) => M.Map String (ConstrFnOn a)
 constrFuncDict = M.fromList flist
     where
-        flist :: (RealFloat a, Floating a, Real a, Show a, Ord a) => [(String, ConstrFnOn a)]
+        flist :: (Autofloat a) => [(String, ConstrFnOn a)]
         flist = [
                     ("at", at),
                     ("sameSizeAs", penalty `compose2` sameSize),
@@ -32,7 +31,7 @@ constrFuncDict = M.fromList flist
                  ]
 
 -- | 'objFuncDict' stores a mapping from the name of objective functions to the actual implementation
-objFuncDict :: forall a. (RealFloat a, Floating a, Real a, Show a, Ord a) => M.Map String (ObjFnOn a)
+objFuncDict :: forall a. (Autofloat a) => M.Map String (ObjFnOn a)
 objFuncDict = M.fromList flist
     where flist = [
                     ("increasingX", increasingX),

@@ -1,4 +1,8 @@
 -- | "Utils" contains frequently used utility function, some parameters to "Runtime", and debugging functions.
+-- | Utils should not import other modules of Penrose.
+
+-- This is for the "typeclass synonym"
+{-# LANGUAGE ConstraintKinds #-}
 
 module Utils where
 import Control.Monad (void)
@@ -10,6 +14,14 @@ import Text.Megaparsec.Expr
 import qualified Text.Megaparsec.Char.Lexer as L
 import Data.Typeable
 import Control.Arrow
+
+-- | A more concise typeclass for polymorphism for autodiff
+-- | NiceFloating :: * -> Constraint
+-- https://stackoverflow.com/questions/48631939/a-concise-way-to-factor-out-multiple-typeclasses-in-haskell/48631986#48631986
+type Autofloat a = (RealFloat a, Floating a, Real a, Show a, Ord a)
+type Autofloat' a = (RealFloat a, Floating a, Real a, Show a, Ord a, Typeable a)
+
+type Pt2 a = (a, a)
 
 divLine = putStr "\n--------\n\n"
 
@@ -252,11 +264,10 @@ fnTypes x = split (typeOf x)
 fnTypesStr :: Typeable a => a -> [String]
 fnTypesStr = map show . fnTypes
 
--- Assuming we call it on an arrow type
+-- If not an arrow type, then first list is empty (as expected)
 inputsOutput :: Typeable a => a -> ([TypeRep], TypeRep)
 inputsOutput x = let res = fnTypes x in
-                 if length res < 2 then error "types not called on a function"
-                 else (init res, last res)
+                 (init res, last res)
 
 inputsOutputStr :: Typeable a => a -> ([String], String)
 inputsOutputStr x = let (args, val) = inputsOutput x in

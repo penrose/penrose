@@ -15,6 +15,7 @@ import GHC.Generics
 import Graphics.Gloss
 import Data.Data
 import Data.Typeable
+import Utils
 
 type Name = String
 
@@ -42,7 +43,7 @@ data BBox = BBox {
     cy :: Float,
     h :: Float,
     w :: Float
-} deriving (Show, Eq, Generic)
+} deriving (Show, Eq, Generic, Typeable, Data)
 instance ToJSON BBox
 instance FromJSON BBox
 
@@ -52,7 +53,7 @@ data CubicBezier = CubicBezier {
     namecb           :: String,
     stylecb          :: String,
     colorcb          :: Color
-} deriving (Eq, Show, Generic)
+} deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Named CubicBezier where
          getName = namecb
@@ -82,7 +83,7 @@ data SolidArrow = SolidArrow { startx :: Float
                              , colorsa :: Color
                             --  , bbox :: BBox
                          }
-         deriving (Eq, Show, Generic)
+         deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located SolidArrow Float where
         --  getX a = endx a - startx a
@@ -145,7 +146,7 @@ data Square = Square { xs :: Float
                      , sels :: Bool -- is the circle currently selected? (mouse is dragging it)
                      , names :: String
                      , colors :: Color }
-     deriving (Eq, Show, Generic)
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located Square Float where
          getX s = xs s
@@ -178,7 +179,7 @@ data Label = Label { xl :: Float
                    -- , scalel :: Float  -- calculate h,w from it
                    , sell :: Bool -- selected label
                    , namel :: String }
-     deriving (Eq, Show, Generic)
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located Label Float where
          getX l = xl l
@@ -209,7 +210,7 @@ data Pt = Pt { xp :: Float
              , yp :: Float
              , selp :: Bool
              , namep :: String }
-     deriving (Eq, Show, Generic)
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located Pt Float where
          getX p = xp p
@@ -236,7 +237,7 @@ data Obj = S Square
          | P Pt
          | A SolidArrow
          | CB CubicBezier
-         deriving (Eq, Show, Generic)
+         deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
 instance FromJSON Obj
@@ -248,7 +249,7 @@ data Ellipse = Ellipse { xe :: Float
                  , ry :: Float
                  , namee :: String
                  , colore :: Color }
-     deriving (Eq, Show, Generic)
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Located Ellipse Float where
          getX = xe
@@ -375,7 +376,7 @@ data Obj' a
     | S' (Square' a)
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
-    deriving (Eq, Show)
+    deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
     startx'    :: a,
@@ -386,7 +387,7 @@ data SolidArrow' a = SolidArrow' {
     selsa'     :: Bool, -- is the circle currently selected? (mouse is dragging it)
     namesa'    :: String,
     colorsa'   :: Color
-} deriving (Eq, Show)
+} deriving (Eq, Show, Typeable, Data)
 
 data Circ' a = Circ' {
     xc'     :: a,
@@ -395,7 +396,7 @@ data Circ' a = Circ' {
     selc'   :: Bool, -- is the circle currently selected? (mouse is dragging it)
     namec'  :: String,
     colorc' :: Color
-} deriving (Eq, Show)
+} deriving (Eq, Show, Typeable, Data)
 
 data Ellipse' a = Ellipse' {
     xe' :: a,
@@ -404,7 +405,7 @@ data Ellipse' a = Ellipse' {
     ry' :: a,
     namee'  :: String,
     colore' :: Color
-} deriving (Eq, Show)
+} deriving (Eq, Show, Typeable, Data)
 
 data Label' a = Label' { xl' :: a
                        , yl' :: a
@@ -413,13 +414,13 @@ data Label' a = Label' { xl' :: a
                        , textl' :: String
                        , sell' :: Bool -- selected label
                        , namel' :: String }
-                       deriving (Eq, Show)
+                       deriving (Eq, Show, Typeable, Data)
 
 data Pt' a = Pt' { xp' :: a
                  , yp' :: a
                  , selp' :: Bool
                  , namep' :: String }
-                 deriving (Eq, Show)
+                 deriving (Eq, Show, Typeable, Data)
 
 data Square' a  = Square' { xs' :: a
                      , ys' :: a
@@ -428,14 +429,14 @@ data Square' a  = Square' { xs' :: a
                      , sels' :: Bool
                      , names' :: String
                      , colors' :: Color }
-                     deriving (Eq, Show)
+                     deriving (Eq, Show, Typeable, Data)
 
 data CubicBezier' a = CubicBezier' {
     pathcb'           :: [(a, a)],
     namecb'           :: String,
     stylecb'          :: String,
     colorcb'          :: Color
-} deriving (Eq, Show)
+} deriving (Eq, Show, Typeable, Data)
 
 instance Named (SolidArrow' a) where
          getName = namesa'
@@ -559,3 +560,75 @@ instance Located (Obj' a) a  where
              P' p -> P' $ setY y p
              S' s -> S' $ setY y s
              A' a -> A' $ setY y a
+
+-----------------------------------------------
+-- Defining the interface between Style types/operations and internal computation types / object properties
+
+type Property = String
+
+-- | Possible computation input types (internal types)
+data TypeIn a = TNum a
+              | TBool Bool
+              | TStr String
+              | TInt Integer
+              | TPt (Pt2 a)
+              | TPath [Pt2 a]
+              | TColor Color
+              | TStyle String -- dotted, etc.
+     deriving (Eq, Show, Data, Typeable)
+
+-- | Getters for all shapes
+-- TODO using better record fields names + template haskell, could maybe generate these "interpreter"s
+-- TODO fill these in; see if it works for dot accesses
+get :: (Autofloat a) => Property -> Obj' a -> TypeIn a
+-- Circles
+get "radius" (C' c) = TNum $ r' c
+
+get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n" 
+                                   ++ show obj ++ "\n" ++ show obj)
+
+
+-- | Setters for all shapes' properties (both "base" and "derived") for the computations to use.
+set :: (Autofloat a) => Property -> Obj' a -> TypeIn a -> Obj' a
+-- Circles
+set "radius" (C' o) (TNum n)  = C' $ o { r' = n }
+set "x" (C' o) (TNum n)       = C' $ o { xc' = n }
+set "y" (C' o) (TNum n)       = C' $ o { yc' = n }
+set "color" (C' o) (TColor n) = C' $ o { colorc' = n }
+
+-- Ellipses
+set "rx" (E' o) (TNum n)      = E' $ o { rx' = n }
+set "ry" (E' o) (TNum n)      = E' $ o { ry' = n }
+set "x" (E' o) (TNum n)       = E' $ o { xe' = n }
+set "y" (E' o) (TNum n)       = E' $ o { ye' = n }
+set "color" (E' o) (TColor n) = E' $ o { colore' = n }
+
+-- Points
+set "x" (P' o) (TNum n)            = P' $ o { xp' = n }
+set "y" (P' o) (TNum n)            = P' $ o { yp' = n }
+set "location" (P' o) (TPt (x, y)) = P' $ o { xp' = x, yp' = y }
+
+-- Squares
+set "x" (S' o) (TNum n)       = S' $ o { xs' = n }
+set "y" (S' o) (TNum n)       = S' $ o { ys' = n }
+set "side" (S' o) (TNum n)    = S' $ o { side' = n }
+set "ry" (S' o) (TNum n)      = S' $ o { ang' = r2f n }
+set "color" (S' o) (TColor n) = S' $ o { colors' = n }
+
+-- Cubic beziers
+set "path" (CB' o) (TPath n)      = CB' $ o { pathcb' = n }
+set "style" (CB' o) (TStyle n)    = CB' $ o { stylecb' = n }
+set "color" (CB' o) (TColor n)    = CB' $ o { colorcb' = n }
+
+-- Solid arrows
+set "startx" (A' o) (TNum n)     = A' $ o { startx' = n }
+set "starty" (A' o) (TNum n)     = A' $ o { starty' = n }
+set "endx" (A' o) (TNum n)       = A' $ o { endx' = n }
+set "endy" (A' o) (TNum n)       = A' $ o { endy' = n }
+set "thickness" (A' o) (TNum n)  = A' $ o { thickness' = n }
+set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
+-- TODO add angle and length properties
+
+-- Does not handle labels (yet)
+set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n" 
+                                   ++ show obj ++ "\n" ++ show val)

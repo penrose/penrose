@@ -17,6 +17,7 @@ import System.Random
 import Debug.Trace
 import Data.List
 import Data.Maybe (fromMaybe)
+import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
@@ -44,7 +45,7 @@ data SubStmt
     | Def String [(SubType, String)] FOLExpr -- id, definition string
     | DefApp String [String] -- function id, args
     | NoStmt
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 -- | A First-order logic expression models elements used in definitions of functions.
 data FOLExpr
@@ -52,9 +53,9 @@ data FOLExpr
     | BinaryOp Op FOLExpr FOLExpr
     | FuncAccess String String
     | TermID String
-    deriving (Show, Eq)
-data Op = AND | OR | NOT | IMPLIES | EQUAL | NEQ deriving (Show, Eq)
-data Quant = FORALL | EXISTS deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
+data Op = AND | OR | NOT | IMPLIES | EQUAL | NEQ deriving (Show, Eq, Typeable)
+data Quant = FORALL | EXISTS deriving (Show, Eq, Typeable)
 type Binders = [([String], String)]
 
 -- | 'SubType' contains all types in the Substance language
@@ -71,10 +72,10 @@ data SubType
     | ValueT
     | AllT  -- specifically for global selection in Style
     | DerivedType SubType -- TODO: inheritance of types? Openset
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 -- | Both declarations and constaints in Substance are regarded as objects, which is possible for Style to select later.
-data SubObj = LD SubDecl | LC SubConstr deriving (Show, Eq)
+data SubObj = LD SubDecl | LC SubConstr deriving (Show, Eq, Typeable)
 
 -- | Declaration of Substance objects
 data SubDecl
@@ -82,7 +83,7 @@ data SubDecl
     | Map String String String
     | Value String String String
     | Point String
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 -- | Declaration of Substance constaints
 data SubConstr
@@ -92,7 +93,7 @@ data SubConstr
     | NoSubset String String
     | PointIn String String
     | PointNotIn String String
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 -- objTypes = [ SetT, PointT, MapT ]
 -- constrTypes = [ IntersectT, NoIntersectT, NoSubsetT, SubsetT, PointInT,
@@ -237,7 +238,7 @@ data SubEnv = SubEnv {
     subSymbols :: M.Map String SubType, -- symbol table
     subArgs :: M.Map String [String]
     -- subAppliedDefs :: [FOLExpr]
-} deriving (Show, Eq)
+} deriving (Show, Eq, Typeable)
 
 -- | 'check' is the top-level semantic checking function. It takes a Substance
 -- program as the input, checks the validity of the program, and outputs
@@ -393,21 +394,21 @@ data AlPara
     | PredDecl String
     | FactDecl [AlExpr]
     | RunCmd String (Maybe Int) -- run command that tells Alloy to generate instances with optionally an upperbound on the number of instances
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 -- NOTE: this is okay if we model everything as the same type of relations
 data AlDecl = AlDecl String String
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 data AlExpr
     = AlFuncVal String String String
     | AlProp FOLExpr (M.Map String String)
-    deriving (Show, Eq)
-data AlBinaryOp = AlDot | AlEq deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
+data AlBinaryOp = AlDot | AlEq deriving (Show, Eq, Typeable)
 
 -- | Substance to Alloy translation environment:
 data AlEnv = AlEnv {
     alFacts :: [AlExpr],
     alSigs  :: M.Map String AlPara
-} deriving (Show, Eq)
+} deriving (Show, Eq, Typeable)
 
 -- | 'toAlloy' translates a semantically checked Substance program to an Alloy program in AST form, which can be then pretty-printed.
 toAlloy :: SubEnv -> AlProg
