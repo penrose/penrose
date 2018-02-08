@@ -14,55 +14,14 @@ import Data.Dynamic
 import Data.Data
 import Data.Typeable
 
--- Temporary solution: register every single different function type as you write it
--- and pattern-match on it later.
--- Fix typechecking: applyComputation in Runtime is essentially doing ad-hoc typechecking
--- TODO figure out how arguments work
--- Doesn't deal well with polymorphism (all type variables need to go in the datatype)
-
 type Interval = (Float, Float)
-data Computation a = ComputeColor (() -> Color) 
-                   | ComputeColorArgs (String -> a -> Color) 
-                   | ComputeRadius (Circ' a -> a -> a) 
-                   | ComputeRadiusToMatch (Circ' a -> Pt' a -> a) 
-                   | ComputeColorRGBA (a -> a -> a -> a -> Color) 
-                   | ComputeSurjection (StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen))
-                   | ComputeSurjectionBbox (StdGen -> Integer -> SolidArrow' a -> SolidArrow' a -> ([Pt2 a], StdGen))
-                   | ComputeSurjectionLines (StdGen -> Integer 
-                        -> CubicBezier' a -> CubicBezier' a 
-                        -> CubicBezier' a -> CubicBezier' a -> ([Pt2 a], StdGen))
-                   | LineLeft (a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a])
-                   | LineRight (a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a])
-                   | TestPoly (Circ' a -> a)
-                   | AddVector (Pt2 a -> Pt2 a -> Pt2 a)
-                   | ReturnInt Int
-                   | Delay15 (a -> a)
-                   | TestNone 
---                   deriving (Typeable)
 
--- | 'computationDict' stores a mapping from the name of computation to the actual implementation
--- | All functions must be registered
--- These could all be stored as Dynamic
-computationDict :: (Autofloat a) => M.Map String (Computation a)
-computationDict = M.fromList flist
+-- Each computation uses this rng (not super high-quality)
+compRng :: StdGen
+compRng = mkStdGen seed
+    where seed = 16 -- deterministic RNG with seed
 
-flist :: (Autofloat a) => [(String, Computation a)] 
-flist = [
-                ("computeColor", ComputeColor computeColor),
-                ("computeColor2", ComputeColor computeColor2),
-                ("computeColorArgs", ComputeColorArgs computeColorArgs),
-                ("computeRadiusAsFrac", ComputeRadius computeRadiusAsFrac),
-                ("computeRadiusToMatch", ComputeRadiusToMatch computeRadiusToMatch),
-                ("computeColorRGBA", ComputeColorRGBA computeColorRGBA),
-                ("computeSurjection", ComputeSurjection computeSurjection),
-                ("computeSurjectionBbox", ComputeSurjectionBbox computeSurjectionBbox),
-                ("lineLeft", LineLeft lineLeft),
-                ("lineRight", LineRight lineRight),
-                ("addVector", AddVector addVector),
-                ("testPoly", TestPoly testPoly),
-                ("delay15", Delay15 delay15),
-                ("computeSurjectionLines", ComputeSurjectionLines computeSurjectionLines)
-        ]
+--------------- Computations
 
 -- Delays some number of seconds (at least in ghci) and returns 0
 -- I think the compiler is optimizing or caching the hard part though
@@ -181,45 +140,82 @@ lineRight lineFrac a1 a2 = let a1_start = starty' a1 in
                            let ypos = a1_start + lineFrac * a1_len in
                            [(startx' a2, ypos), (endx' a2, ypos)]
 
--------------------------------------
--- Test computation rewrite
-
--- | Possible computation input types (internal types)
-data TypeIn a = TNum a
-              | TBool Bool
-              | TStr String
-              | TInt Integer
-              | TPt a
-              | TPath [Pt2 a]
-              | TColor Color
-              | TStyle String -- dotted, etc.
-     deriving (Eq, Show, Data, Typeable)
-
--- Each computation uses this rng (not super high-quality)
-compRng :: StdGen
-compRng = mkStdGen seed
-    where seed = 16 -- deterministic RNG with seed
+------------------------------------- Computation boilerplate
+-- Registration, typechecking, error handling
 
 type CompFn a = (Autofloat a) => [TypeIn a] -> [Obj' a] -> TypeIn a
 type CompFnOn a = [TypeIn a] -> [Obj' a] -> TypeIn a
 
--- | 'compFuncDict' stores a mapping from the name of computations to the actual implementation
-compFuncDict :: (Autofloat a) => M.Map String (CompFnOn a)
-compFuncDict = M.fromList flist
+-- | 'computationDict' stores a mapping from the name of computations to the actual implementation
+computationDict :: (Autofloat a) => M.Map String (CompFnOn a)
+computationDict = M.fromList flist
     where flist = [
+                    ("computeColor", computeColor'),
+                    ("computeColor2", computeColor2'),
+                    ("computeColorArgs", computeColorArgs'),
                     ("computeRadiusAsFrac", computeRadiusAsFrac'), -- TODO change the primes
-                    ("computeRadiusToMatch", computeRadiusToMatch')
+                    ("computeRadiusToMatch", computeRadiusToMatch'),
+                    ("computeColorRGBA", computeColorRGBA'),
+                    ("computeSurjection", computeSurjection'),
+                    ("computeSurjectionBbox", computeSurjectionBbox'),
+                    ("lineLeft", lineLeft'),
+                    ("lineRight", lineRight'),
+                    ("addVector", addVector'),
+                    ("computeSurjectionLines", computeSurjectionLines')
                   ]
 
+-- TODO Generate the typechecking and registration dict with Template Haskell
 -- typecheck :: [String] -> [String] -> [TypeIn a] -> [Obj' a]
 
--- TODO Generate the typechecking with Template Haskell
--- Compute the radius of the inner set to always be half the radius of the outer set, overriding optimization.
+error' :: (Autofloat a) => Name -> [TypeIn a] -> [Obj' a] -> b
+error' nm vals objs = error ("unexpected # or type or argument in `" ++ nm ++ "`'s arguments: \n"
+                                         ++ show vals ++ "\n" ++ show objs)
+
+computeColor' :: CompFn a
+computeColor' _ _ = TColor $ computeColor ()
+
+computeColor2' :: CompFn a
+computeColor2' _ _ = TColor $ computeColor2 () 
+
+computeColorArgs' :: CompFn a
+computeColorArgs' [TStr s, TNum x] _ = TColor $ computeColorArgs s x
+computeColorArgs' v o = error' "computeColorArgs" v o
+
 computeRadiusAsFrac' :: CompFn a
 computeRadiusAsFrac' [TNum mag] [C' circ] = TNum $ computeRadiusAsFrac circ mag
-computeRadiusAsFrac' _ _ = error "unexpected # or type or argument in computeRadiusAsFrac"
+computeRadiusAsFrac' v o = error' "computeRadiusAsFrac" v o
 
--- Compute the radius of the circle to lie on a point
 computeRadiusToMatch' :: CompFn a
 computeRadiusToMatch' [] [C' c, P' p] = TNum $ computeRadiusToMatch c p
-computeRadiusToMatch' _ _ = error "unexpected # or type or argument in computeRadiusToMatch"
+computeRadiusToMatch' v o = error' "computeRadiusToMatch" v o
+
+computeColorRGBA' :: CompFn a
+computeColorRGBA' [TNum x1, TNum x2, TNum x3, TNum x4] [] = TColor $ computeColorRGBA x1 x2 x3 x4
+computeColorRGBA' v o = error' "computeColorRGBA" v o
+
+computeSurjection' :: CompFn a
+computeSurjection' [TInt x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRng x p1 p2
+computeSurjection' v o = error' "computeSurjection" v o
+
+computeSurjectionBbox' :: CompFn a
+computeSurjectionBbox' [TInt x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng x a1 a2
+computeSurjectionBbox' v o = error' "computeSurjectionBbox" v o
+
+-- TODO: for multiple objects, inputs might not be in right order (depending on lookupAll)
+computeSurjectionLines' :: CompFn a
+computeSurjectionLines' [TInt x] [CB' b1, CB' b2, CB' b3, CB' b4] = 
+                        TPath $ fst $ computeSurjectionLines compRng x b1 b2 b3 b4
+computeSurjectionLines' v o = error' "computeSurjectionLines" v o
+
+lineLeft' :: CompFn a
+lineLeft' [TNum x] [A' a1, A' a2] = TPath $ lineLeft x a1 a2
+lineLeft' v o = error' "lineLeft" v o
+
+lineRight' :: CompFn a -- pretty much same as above
+lineRight' [TNum x] [A' a1, A' a2] = TPath $ lineRight x a1 a2
+lineRight' v o = error' "lineRight" v o
+
+-- TODO make this more principled?
+addVector' :: CompFn a
+addVector' [TNum n1, TNum n2] [P' p] = TPt $ addVector (n1, n2) (xp' p, yp' p)
+addVector' v o = error' "addVector" v o
