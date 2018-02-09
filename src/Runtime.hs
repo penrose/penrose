@@ -372,6 +372,10 @@ lookupAll name objs = map snd $ M.toList $ M.filterWithKey (objOrSecondaryShape 
                  secondaryIndicator = "_shape"
 
 --------------------------------
+
+noneWord :: String
+noneWord = "None"
+
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (Autofloat a) => Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
@@ -383,9 +387,9 @@ initArrow n config = (objs, oFns, [])
                  queryConfig_var "start" config
           to   = queryConfig_var "end" config
           lab  = queryConfig_var "label" config
-          objs = if lab == "None" then [defaultSolidArrow n]
+          objs = if lab == noneWord then [defaultSolidArrow n]
                  else [defaultSolidArrow n, defaultLabel n]
-          oFns = if from == "None" || to == "None" then []
+          oFns = if from == noneWord || to == noneWord then []
                  else  [(centerMap, defaultWeight, [n, from, to], [])]
 
 initCircle n config = (objs, oFns, constrs)
@@ -401,14 +405,14 @@ initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
 
 initDot n config = (objs, [], [])
         where lab  = queryConfig_var "label" config
-              objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
+              objs = if lab == noneWord then [defaultPt n] else [defaultPt n, defaultLabel n]
 
 initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
               lab  = queryConfig_var "label" config
               style = queryConfig_var "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
-              objs = if lab == "None" then [curve] else [curve, defaultLabel n]
+              objs = if lab == noneWord then [curve] else [curve, defaultLabel n]
 
 sizeFuncs :: (Autofloat a) => Name -> [ConstrFnInfo a]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
@@ -434,7 +438,7 @@ queryConfig key dict = case M.lookup key dict of
     -- FIXME: get dot access to work for arbitrary input
     Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Left i
     Just x -> error $ "unsupported datatype in queryConfig in runtime: " ++ show x
-    Nothing -> Left "None"
+    Nothing -> Left noneWord
 
 ------- Generate objective functions
 

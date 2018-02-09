@@ -2,5 +2,6 @@ Set domainOuter, codomain, domain, image, cartesianProduct
 Subset domain domainOuter
 Subset image codomain
 f: domain -> image
-Point p, origin, horiz, vert
+Point origin, horiz, vert
+-- Point p
 -- In p f

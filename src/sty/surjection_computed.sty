@@ -6,7 +6,7 @@ global {
 
 Point p {
       shape = Dot {
-            label = Auto
+            label = None
       }
 }
 
@@ -33,24 +33,28 @@ Set `codomain` {
 Map f domain image {
     shape = Curve {
           path = computeSurjectionLines(5, domain, image)
-          -- path = computeSurjectionBbox(5, domainOuter, codomain)
+          label = Auto
     }
 }
 
 -- Set `domainOuter`, Set `codomain` {
 Set `cartesianProduct` {
-     shape = Box {}
+  shape = Box {
+    label = None
+  }
 }
 
 Set `domain` {
        shape = Curve {
              style = dashed
              path = lineLeft(0.2, domainOuter, codomain)
+             label = Auto
        }
 
        shape2 = Curve {
               style = dashed
               path = lineLeft(0.8, domainOuter, codomain)
+              label = Auto
        }
 }
 
@@ -58,10 +62,12 @@ Set `image` {
        shape = Curve {
              style = dashed
              path = lineRight(0.2, codomain, domainOuter)
+             label = Auto
        }
 
        shape2 = Curve {
               style = dashed
               path = lineRight(0.8, codomain, domainOuter)
+              label = Auto
        }
 }
