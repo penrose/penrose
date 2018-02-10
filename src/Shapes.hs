@@ -531,7 +531,7 @@ instance (Real a, Floating a, Show a, Ord a) => Located (CubicBezier' a) a where
                         dy = y - (maximum ys - minimum ys) in
                         c { pathcb' = map (\(xx, yy) -> (xx, yy - dy)) $ pathcb' c }
 
-instance Located (Obj' a) a  where
+instance Located (Obj' a) a where
          getX o = case o of
              C' c -> xc' c
              E' e -> xe' e

@@ -38,8 +38,7 @@ import qualified Substance as C
        -- TODO limit export/import
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 
-calcTimestep :: Float -- for use in forcing stepping in handler
-calcTimestep = 1 / int2Float stepsPerSecond
+------ Types and type synonyms
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show, Typeable)
 
@@ -81,6 +80,9 @@ data ObjComp = ObjComp { oName :: Name, -- "A"
 type CompInfo = (Name, [S.Expr])
 
 ------
+
+calcTimestep :: Float -- for use in forcing stepping in handler
+calcTimestep = 1 / int2Float stepsPerSecond
 
 initRng :: StdGen
 initRng = mkStdGen seed
@@ -218,99 +220,7 @@ pack' zipped fixed varying =
                     A ar    -> A' $ solidArrowPack ar flatParams
                     CB c    -> CB' $ curvePack c flatParams
 
-
-------- Style related functions
-
-defName = "default"
-
--- default shapes at base types (not obj)
-defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, 
-                                thickness = 10, selsa = False, namesa = defName, colorsa = black }
-defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
-defSquare = Square { xs = 100, ys = 100, side = defaultRad,
-                          sels = False, names = defName, colors = black, ang = 0.0}
-defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
-defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, 
-                        namel = labelName defName }
-defCirc = Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = defName, colorc = black }
-defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, 
-                            namee = defName, colore = black }
-defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
-    where path = [(10, 100), (300, 100)]
-
--- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc, defaultText, defaultEllipse :: String -> Obj
-defaultSolidArrow name = A $ setName name defSolidArrow
-defaultPt name = P $ setName name defPt
-defaultSquare name = S $ setName name defSquare
--- Set both the text and name fields...
-defaultText text = L $ setName text defText { textl = text } -- ...to the same thing
-defaultLabel text = L $ setName (labelName text) defLabel { textl = text } -- ...to have a different label name
-defaultCirc name = C $ setName name defCirc
-defaultEllipse name = E $ setName name defEllipse
-defaultCurve name = CB $ setName name defCurve
-
-
-shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
-                               ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
-shapeAndFn dict name =
-    case M.lookup name dict of
-        Nothing -> error ("Cannot find style info for " ++ name)
-        Just spec  -> let config = (name, S.spShape spec) : map addPrefix (M.toList $ S.spShpMap spec) in
-                      let objs_and_functions = map getShape config in
-                      {-trace ("shape map: " ++ show config) $ -} concat4 objs_and_functions
-                      -- example config:
-                      -- shape map: [("A",(Circle,fromList [("color",
-                      -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
-    where
-        concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
-        addPrefix (s, o) = (name ++ "_" ++ s, o)
-        fst4 (a, _, _, _) = a
-        snd4 (_, a, _, _) = a
-        thd4 (_, _, a, _) = a
-        frth4 (_, _, _, a) = a
-
-getShape :: (Autofloat a) => (String, (S.StyObj, Config)) ->
-                             ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
-
-getShape (n, (objType, config)) = 
-         -- We don't need the object type to typecheck the computation, because we have the object's name and
-         -- it's stored as an Obj (can pattern-match)
-         let (computations, config_nocomps) = compsAndVars n config in
-         let objInfo = case objType of
-              S.Text    -> initText n config_nocomps
-              S.Arrow   -> initArrow n config_nocomps
-              S.Circle  -> initCircle n config_nocomps
-              S.Ellip   -> initEllipse n config_nocomps
-              S.Box     -> initSquare n config_nocomps
-              S.Dot     -> initDot n config_nocomps
-              S.Curve   -> initCurve n config_nocomps
-              S.NoShape -> ([], [], [])
-              _         -> error ("ShapeOf: Unknown shape " ++ show objType ++ " for " ++ n) in
-         tupAppend objInfo computations
-         where tupAppend (a, b, c) d = (a, b, c, d)
-
--- TODO: what if a property (e.g. "r") can take either a computation or an input expr??
--- that should be done via getters and setters (for both base and derived properties)
-
--- TODO: should initX get its type? should this function use objProperties?
--- Given a config, separates the computations and the vars and returns both
-compsAndVars :: Name -> Config -> ([ObjComp], Config)
-compsAndVars n config = 
-         let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
-         let config_nocomps = M.mapMaybe notComp config in -- could use M.partition
-         (comps, config_nocomps)
-         where toComp :: Property -> S.Expr -> Maybe ObjComp
-               toComp propertyName expr = case expr of
-                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName, 
-                                                                    fnName = fn, fnParams = args }
-                             _                  -> Nothing
-               notComp :: S.Expr -> Maybe S.Expr
-               notComp expr = case expr of
-                             S.CompArgs _ _  -> Nothing
-                             res             -> Just res
-
---------------------------------
+------- Computation related functions
 
 mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
@@ -371,48 +281,150 @@ lookupAll name objs = map snd $ M.toList $ M.filterWithKey (objOrSecondaryShape 
                                                     || (name ++ secondaryIndicator) `isPrefixOf` inName
                  secondaryIndicator = "_shape"
 
---------------------------------
+------- Style related functions
 
-noneWord :: String
+defName = "default"
+
+-- default shapes at base types (not obj)
+defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, 
+                                thickness = 10, selsa = False, namesa = defName, colorsa = black }
+defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
+defSquare = Square { xs = 100, ys = 100, side = defaultRad,
+                          sels = False, names = defName, colors = black, ang = 0.0}
+defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
+defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, 
+                        namel = labelName defName }
+defCirc = Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = defName, colorc = black }
+defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, 
+                            namee = defName, colore = black }
+defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
+    where path = [(10, 100), (300, 100)]
+
+-- default shapes
+defaultSolidArrow, defaultPt, defaultSquare, defaultCirc, defaultText, defaultEllipse :: String -> Obj
+defaultSolidArrow name = A $ setName name defSolidArrow
+defaultPt name = P $ setName name defPt
+defaultSquare name = S $ setName name defSquare
+-- Set both the text and name fields to the same thing (unlike labels)
+defaultText text = L $ setName text defText { textl = text } 
+defaultCirc name = C $ setName name defCirc
+defaultEllipse name = E $ setName name defEllipse
+defaultCurve name = CB $ setName name defCurve
+
+-- If an object's name is X and it is labeled "Set X", the label name is "Label_X" and the text is "Set X"
+-- "Auto" is reserved text that labels the object with the Substance name; in this case it would be "X"
+defaultLabel :: String -> String -> Obj
+defaultLabel objName labelText = 
+             L $ setName (labelName objName) defLabel { textl = checkAuto objName labelText }
+             where checkAuto o "Auto" = o
+                   checkAuto o t = t
+
+shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
+                               ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+shapeAndFn dict name =
+    case M.lookup name dict of
+        Nothing -> error ("Cannot find style info for " ++ name)
+        Just spec  -> let config = (name, S.spShape spec) : map addPrefix (M.toList $ S.spShpMap spec) in
+                      let objs_and_functions = map getShape config in
+                      {-trace ("shape map: " ++ show config) $ -} concat4 objs_and_functions
+                      -- example config:
+                      -- shape map: [("A",(Circle,fromList [("color",
+                      -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
+    where
+        concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
+        addPrefix (s, o) = (name ++ "_" ++ s, o)
+        fst4 (a, _, _, _) = a
+        snd4 (_, a, _, _) = a
+        thd4 (_, _, a, _) = a
+        frth4 (_, _, _, a) = a
+
+getShape :: (Autofloat a) => (String, (S.StyObj, Config)) ->
+                             ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+
+getShape (oName, (objType, config)) = 
+         -- We don't need the object type to typecheck the computation, because we have the object's name and
+         -- it's stored as an Obj (can pattern-match)
+         let (computations, config_nocomps) = compsAndVars oName config in
+         let objInfo = case objType of
+              S.Text    -> initText oName config_nocomps
+              S.Arrow   -> initArrow oName config_nocomps
+              S.Circle  -> initCircle oName config_nocomps
+              S.Ellip   -> initEllipse oName config_nocomps
+              S.Box     -> initSquare oName config_nocomps
+              S.Dot     -> initDot oName config_nocomps
+              S.Curve   -> initCurve oName config_nocomps
+              S.NoShape -> ([], [], [])
+              _         -> error ("ShapeOf: Unknown shape " ++ show objType ++ " for " ++ oName) in
+         let res = tupAppend objInfo computations in
+
+         -- TODO factor out label logic?
+         let labelRes = queryConfig "label" config in -- assuming one label per shape
+         case labelRes of
+         Nothing -> res
+         Just labelText -> addObject [defaultLabel oName labelText] res
+
+         where tupAppend (a, b, c) d = (a, b, c, d)
+               addObject l (a, b, c, d) = (a ++ l, b, c, d)
+
+-- TODO: what if a property (e.g. "r") can take either a computation or an input expr??
+-- that should be done via getters and setters (for both base and derived properties)
+
+-- TODO: should initX get its type? should this function use objProperties?
+-- Given a config, separates the computations and the vars and returns both
+compsAndVars :: Name -> Config -> ([ObjComp], Config)
+compsAndVars n config = 
+         let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
+         let config_nocomps = M.mapMaybe notComp config in -- could use M.partition
+         (comps, config_nocomps)
+         where toComp :: Property -> S.Expr -> Maybe ObjComp
+               toComp propertyName expr = case expr of
+                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName, 
+                                                                    fnName = fn, fnParams = args }
+                             _                  -> Nothing
+               notComp :: S.Expr -> Maybe S.Expr
+               notComp expr = case expr of
+                             S.CompArgs _ _  -> Nothing
+                             res             -> Just res
+
+noneWord, autoWord :: String
 noneWord = "None"
+autoWord = "None"
 
--- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
+toMaybe :: String -> Maybe String
+toMaybe s = if s == "None" then Nothing else Just s
+
+-- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
     (Autofloat a) => Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
 
 initText n config = ([defaultText n], [], [])
-
 initArrow n config = (objs, oFns, [])
-    where from = --trace ("arrow to config " ++ show config ++ " | " ++ to) $
-                 queryConfig_var "start" config
-          to   = queryConfig_var "end" config
-          lab  = queryConfig_var "label" config
-          objs = if lab == noneWord then [defaultSolidArrow n]
-                 else [defaultSolidArrow n, defaultLabel n]
-          oFns = if from == noneWord || to == noneWord then []
-                 else  [(centerMap, defaultWeight, [n, from, to], [])]
+    where from = queryConfig "start" config
+          to   = queryConfig "end" config
+          objs = [defaultSolidArrow n]
+          betweenObjFn = case (from, to) of
+                         (Nothing, Nothing) -> []
+                         (Just fromName, Just toName) -> [(centerMap, defaultWeight, [n, fromName, toName], [])]
+          oFns = betweenObjFn
 
 initCircle n config = (objs, oFns, constrs)
     where circObj = defaultCirc n
-          objs = [circObj, defaultLabel n]
+          objs = [circObj]
           oFns = []
           constrs = sizeFuncs n
 
-initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
+initEllipse n config = ([defaultEllipse n], [],
                          (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
 
-initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
+initSquare n config = ([defaultSquare n], [], sizeFuncs n)
 
-initDot n config = (objs, [], [])
-        where lab  = queryConfig_var "label" config
-              objs = if lab == noneWord then [defaultPt n] else [defaultPt n, defaultLabel n]
+initDot n config = ([defaultPt n], [], [])
 
 initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
-              lab  = queryConfig_var "label" config
-              style = queryConfig_var "style" config
+              style = fromMaybe "solid" $ queryConfig "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
-              objs = if lab == noneWord then [curve] else [curve, defaultLabel n]
+              objs = [curve]
 
 sizeFuncs :: (Autofloat a) => Name -> [ConstrFnInfo a]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
@@ -421,24 +433,18 @@ sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
 tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
--- TODO: deprecate these two functions
 -- TODO: deal with pattern-matching on computation anywhere
-queryConfig_var :: (Show k, Ord k) => k -> M.Map k S.Expr -> String
-queryConfig_var key dict = let res = queryConfig key dict in
-                case res of
-                Left var -> var
-                Right comp -> error "query config expected var but got function"
-
 -- TODO: distinguish between variable name (id) and string literal (in types?)
-queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Either String CompInfo
+queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
 queryConfig key dict = case M.lookup key dict of
-    Just (S.Id i) -> Left i
-    Just (S.StringLit s) -> Left s
-    Just (S.CompArgs fn params) -> Right (fn, params)
+    Just (S.Id i) -> toMaybe i
+    Just (S.StringLit s) -> toMaybe s
+    Just (S.CompArgs fn params) -> Nothing
     -- FIXME: get dot access to work for arbitrary input
-    Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Left i
+    -- TODO: don't hardcode "shape" and allow accessing other properties
+    Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Nothing
     Just x -> error $ "unsupported datatype in queryConfig in runtime: " ++ show x
-    Nothing -> Left noneWord
+    Nothing -> Nothing
 
 ------- Generate objective functions
 
@@ -487,14 +493,19 @@ dictOfObjs = foldr addObj M.empty
 constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
 
+-- Preserve failed keys for reporting errors
+lookupWithFail :: Ord k => M.Map k v -> k -> Either k v
+lookupWithFail dict key = case M.lookup key dict of
+                             Nothing  -> Left key
+                             Just val -> Right val
+
 lookupNames :: (Autofloat a) => M.Map Name (Obj' a) -> [Name] -> [Obj' a]
 lookupNames dict ns = map check res
     where
-        res = map (`M.lookup` dict) ns
+        res = map (lookupWithFail dict) ns
         check x = case x of
-            Just o -> o
-            _ -> error ("lookupNames: at least one of the arguments does not exist: " ++ show ns ++
-                         " in dict: " ++ show dict)
+            Right obj -> obj
+            Left key -> error ("lookupNames: key `" ++ key ++ "` does not exist in dict:\n\n" ++ show dict)
 
 -- takes list of current objects as a parameter, and is later partially applied with that in optimization
 -- first param: list of parameter annotations for each object in the state

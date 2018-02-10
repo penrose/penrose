@@ -35,6 +35,8 @@ Map f domain image {
           path = computeSurjectionLines(5, domain, image)
           label = Auto
     }
+
+    objective centerLabel(f, f.label)
 }
 
 -- Set `domainOuter`, Set `codomain` {
@@ -48,26 +50,32 @@ Set `domain` {
        shape = Curve {
              style = dashed
              path = lineLeft(0.2, domainOuter, codomain)
-             label = Auto
+             label = A0
        }
 
        shape2 = Curve {
               style = dashed
               path = lineLeft(0.8, domainOuter, codomain)
-              label = Auto
+              label = A1
        }
+
+       -- TODO deal with these dot accesses; also, is shape a keyword?
+       -- here, 'domain' should be in scope, so we should only have to type shape
+       -- TODO how to compute a label position?
+       -- objective nearEnd(domain.shape, domain.shape.label)
+       -- objective nearEnd(domain.shape2, domain.shape.label)
 }
 
 Set `image` {
        shape = Curve {
              style = dashed
              path = lineRight(0.2, codomain, domainOuter)
-             label = Auto
+             label = B0
        }
 
        shape2 = Curve {
               style = dashed
               path = lineRight(0.8, codomain, domainOuter)
-              label = Auto
+              label = B1
        }
 }

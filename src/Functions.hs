@@ -204,7 +204,7 @@ centerLabel :: ObjFn
 -- for now, center label in bezier's bbox
 -- TODO smarter bezier/polyline label function
 -- TODO specify rotation on labels?
-centerLabel [CB' bez, L' lab] [mag] = -- use the float input? just for testing
+centerLabel [CB' bez, L' lab] _ = -- use the float input? just for testing
             let ((lx, ly), (rx, ry)) = bezierBbox bez 
                 (xmargin, ymargin) = (-10, 30) 
                 midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
