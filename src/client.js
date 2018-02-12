@@ -266,6 +266,19 @@ $.getScript('snap.svg.js', function()
                     });
                     sq.drag(move, start, stop)
                 break
+                case 'R': // rectangle
+		// TODO fix this!
+                    var lenr = obj.lenr;
+		    var widthr = obj.widthr;
+                    var rect = s.rect(dx + obj.xr - lenr/2, dy - obj.yr - widthr/2, lenr, widthr); // isn't this bottom left?
+                    rect.data("name", obj.namer)
+                    var color = obj.colorr;
+                    rect.attr({
+                        fill: rgbToHex(color.r, color.g, color.b),
+                        "fill-opacity": color.a,
+                    });
+                    rect.drag(move, start, stop)
+                break
                 case 'A': // arrow
                     var sx = dx + obj.startx, sy = dy - obj.starty,
                         ex = dx + obj.endx,   ey = dy - obj.endy,

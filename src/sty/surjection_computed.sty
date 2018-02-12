@@ -1,6 +1,6 @@
 global {
     constraint at(origin, 0, 0)
-    constraint at(horiz, 200, 0)
+    constraint at(horiz, 300, 0)
     constraint at(vert, 0, 200)
 }
 
@@ -14,7 +14,7 @@ Set `domainOuter` {
     shape = Arrow {
           start = origin
           end = horiz
-          label = Auto
+          label = x
     }
 
     objective centerLabel(domainOuter, domainOuter.label)
@@ -24,7 +24,7 @@ Set `codomain` {
     shape = Arrow {
           start = origin
           end = vert
-          label = Auto
+          label = fx
     }
 
     objective centerLabel(codomain, codomain.label)
@@ -41,8 +41,9 @@ Map f domain image {
 
 -- Set `domainOuter`, Set `codomain` {
 Set `cartesianProduct` {
-  shape = Box {
+  shape = Rect {
     label = None
+    -- side = 20
   }
 }
 

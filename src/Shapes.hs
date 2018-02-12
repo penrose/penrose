@@ -139,7 +139,7 @@ instance FromJSON Circ
 
 ----------------------
 
-data Square = Square { xs :: Float
+data Square = Square { xs :: Float -- center of square
                      , ys :: Float
                      , side :: Float
                      , ang  :: Float -- angle for which the obj is rotated
@@ -169,7 +169,40 @@ instance Named Square where
 
 instance ToJSON Square
 instance FromJSON Square
--------
+
+--------------------------
+
+data Rect = Rect { xr :: Float -- center of rect
+                     , yr :: Float
+                     , lenr :: Float -- x
+                     , widthr :: Float -- y
+                     , angr :: Float -- angle for which the obj is rotated
+                     , selr :: Bool
+                     , namer :: String
+                     , colorr :: Color }
+     deriving (Eq, Show, Generic, Typeable, Data)
+
+instance Located Rect Float where
+         getX s = xr s
+         getY s = yr s
+         setX x s = s { xr = x }
+         setY y s = s { yr = y }
+
+instance Selectable Rect where
+         select x = x { selr = True }
+         deselect x = x { selr = False }
+         selected x = selr x
+
+-- NO instance for Sized
+
+instance Named Rect where
+         getName r = namer r
+         setName x r = r { namer = x }
+
+instance ToJSON Rect
+instance FromJSON Rect
+
+--------------------------
 
 data Label = Label { xl :: Float
                    , yl :: Float
@@ -231,6 +264,7 @@ instance ToJSON Pt
 instance FromJSON Pt
 
 data Obj = S Square
+         | R Rect
          | C Circ
          | E Ellipse
          | L Label
@@ -290,6 +324,7 @@ instance Located Obj Float where
                  L l -> getX l
                  P p -> getX p
                  S s -> getX s
+                 R r -> getX r
                  A a -> getX a
                  CB c -> getX c
          getY o = case o of
@@ -298,6 +333,7 @@ instance Located Obj Float where
                  L l -> getY l
                  P p -> getY p
                  S s -> getY s
+                 R r -> getY r
                  A a -> getY a
                  CB c -> getY c
          setX x o = case o of
@@ -306,6 +342,7 @@ instance Located Obj Float where
                 L l -> L $ setX x l
                 P p -> P $ setX x p
                 S s -> S $ setX x s
+                R r -> R $ setX x r
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
          setY y o = case o of
@@ -314,6 +351,7 @@ instance Located Obj Float where
                 L l -> L $ setY y l
                 P p -> P $ setY y p
                 S s -> S $ setY y s
+                R r -> R $ setY y r
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
 
@@ -323,18 +361,21 @@ instance Selectable Obj where
                 L l -> L $ select l
                 P p -> P $ select p
                 S s -> S $ select s
+                R r -> R $ select r
                 A a -> A $ select a
          deselect x = case x of
                 C c -> C $ deselect c
                 L l -> L $ deselect l
                 P p -> P $ deselect p
                 S s -> S $ deselect s
+                R r -> R $ select r
                 A a -> A $ deselect a
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
                 P p -> selected p
                 S s -> selected s
+                R r -> selected r
                 A a -> selected a
 
 instance Sized Obj where
@@ -354,6 +395,7 @@ instance Named Obj where
                  L l   -> getName l
                  P p   -> getName p
                  S s   -> getName s
+                 R r   -> getName r
                  A a   -> getName a
                  CB cb -> getName cb
          setName x o = case o of
@@ -362,6 +404,7 @@ instance Named Obj where
                 L l   -> L $ setName x l
                 P p   -> P $ setName x p
                 S s   -> S $ setName x s
+                R r   -> R $ setName x r
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
 
@@ -374,6 +417,7 @@ data Obj' a
     | L' (Label' a)
     | P' (Pt' a)
     | S' (Square' a)
+    | R' (Rect' a)
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     deriving (Eq, Show, Typeable, Data)
@@ -425,11 +469,21 @@ data Pt' a = Pt' { xp' :: a
 data Square' a  = Square' { xs' :: a
                      , ys' :: a
                      , side' :: a
-                     , ang'  :: Float -- angle for which the obj is rotated
+                     , ang'  :: Float -- angle the obj is rotated, TODO make polymorphic
                      , sels' :: Bool
                      , names' :: String
                      , colors' :: Color }
                      deriving (Eq, Show, Typeable, Data)
+
+data Rect' a = Rect' { xr' :: a -- I assume this is top left?
+                     , yr' :: a
+                     , lenr' :: a
+                     , widthr' :: a
+                     , angr' :: Float -- angle the obj is rotated, TODO make polymorphic
+                     , selr' :: Bool
+                     , namer' :: String
+                     , colorr' :: Color }
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 data CubicBezier' a = CubicBezier' {
     pathcb'           :: [(a, a)],
@@ -454,6 +508,10 @@ instance Named (Square' a) where
          getName = names'
          setName x s = s { names' = x }
 
+instance Named (Rect' a) where
+         getName = namer'
+         setName x r = r { namer' = x }
+
 instance Named (Label' a) where
          getName = namel'
          setName x l = l { namel' = x }
@@ -473,11 +531,13 @@ instance Named (Obj' a) where
                  L' l   -> getName l
                  P' p   -> getName p
                  S' s   -> getName s
+                 R' r   -> getName r
                  A' a   -> getName a
                  CB' cb -> getName cb
          setName x o = case o of
                 C' c   -> C' $ setName x c
                 S' s   -> S' $ setName x s
+                R' r   -> R' $ setName x r
                 L' l   -> L' $ setName x l
                 P' p   -> P' $ setName x p
                 A' a   -> A' $ setName x a
@@ -501,6 +561,12 @@ instance Located (Square' a) a where
          getY = ys'
          setX x s = s { xs' = x }
          setY y s = s { ys' = y }
+
+instance Located (Rect' a) a where
+         getX = xr'
+         getY = yr'
+         setX x r = r { xr' = x }
+         setY y r = r { yr' = y }
 
 instance Located (SolidArrow' a) a where
          getX  = startx'
@@ -538,6 +604,7 @@ instance Located (Obj' a) a where
              L' l -> xl' l
              P' p -> xp' p
              S' s -> xs' s
+             R' r -> xr' r
              A' a -> startx' a
          getY o = case o of
              C' c -> yc' c
@@ -545,6 +612,7 @@ instance Located (Obj' a) a where
              L' l -> yl' l
              P' p -> yp' p
              S' s -> ys' s
+             R' r -> yr' r
              A' a -> starty' a
          setX x o = case o of
              C' c -> C' $ setX x c
@@ -552,6 +620,7 @@ instance Located (Obj' a) a where
              L' l -> L' $ setX x l
              P' p -> P' $ setX x p
              S' s -> S' $ setX x s
+             R' r -> R' $ setX x r
              A' a -> A' $ setX x a
          setY y o = case o of
              C' c -> C' $ setY y c
@@ -559,6 +628,7 @@ instance Located (Obj' a) a where
              L' l -> L' $ setY y l
              P' p -> P' $ setY y p
              S' s -> S' $ setY y s
+             R' r -> R' $ setY y r
              A' a -> A' $ setY y a
 
 -----------------------------------------------
@@ -614,6 +684,14 @@ set "y" (S' o) (TNum n)       = S' $ o { ys' = n }
 set "side" (S' o) (TNum n)    = S' $ o { side' = n }
 set "ry" (S' o) (TNum n)      = S' $ o { ang' = r2f n }
 set "color" (S' o) (TColor n) = S' $ o { colors' = n }
+
+-- Rectangles
+set "x" (R' o) (TNum n)       = R' $ o { xr' = n }
+set "y" (R' o) (TNum n)       = R' $ o { yr' = n }
+set "length" (R' o) (TNum n)  = R' $ o { lenr' = n }
+set "width" (R' o) (TNum n)   = R' $ o { widthr' = n }
+set "ry" (R' o) (TNum n)      = R' $ o { angr' = r2f n }
+set "color" (R' o) (TColor n) = R' $ o { colorr' = n }
 
 -- Cubic beziers
 set "path" (CB' o) (TPath n)      = CB' $ o { pathcb' = n }

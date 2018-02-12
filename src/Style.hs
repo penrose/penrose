@@ -28,7 +28,7 @@ import Data.Typeable
 -- Style AST
 
 -- | All geometric object types supported by Style so far.
-data StyObj = Ellip | Circle | Box | Dot | Arrow | NoShape | Color | Text | Curve | Auto
+data StyObj = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto
     deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
 -- | A type frequently used in the module. A style object such as a 'Circle' has parameters like its radius attached to it. This is a tuple associating the object with its parameters. The latter map is the config (e.g. "radius = 5", or a computation, or some other expression).
@@ -152,6 +152,7 @@ styObj =
        (rword "Curve"   >> return Curve)   <|>
        (rword "Ellipse" >> return Ellip)   <|>
        (rword "Box"     >> return Box)     <|>
+       (rword "Rect"    >> return Rectangle)     <|>
        (rword "Dot"     >> return Dot)
 
 -- | a sequence of Style statements

@@ -106,6 +106,7 @@ unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)] -- TODO: changed r to Fix for testing
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
+unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (lenr' r, Vary), (widthr' r, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
@@ -161,14 +162,22 @@ circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir,
                                 else (params !! 0, params !! 1, params !! 2)
 
 ellipsePack :: (Autofloat a) => Ellipse -> [a] -> Ellipse' a
-ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, namee' = namee e, colore' = colore e }
+ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, namee' = namee e, 
+                                  colore' = colore e }
          where (xe1, ye1, rx1, ry1) = if not $ length params == 4 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 sqPack :: (Autofloat a) => Square -> [a] -> Square' a
-sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, sels' = sels sq, colors' = colors sq, ang' = ang sq}
+sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, 
+                             sels' = sels sq, colors' = colors sq, ang' = ang sq}
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
+
+rectPack :: (Autofloat a) => Rect -> [a] -> Rect' a
+rectPack rct params = Rect' { xr' = xs1, yr' = ys1, lenr' = len, widthr' = wid, namer' = namer rct, 
+                              selr' = selr rct, colorr' = colorr rct, angr' = angr rct}
+         where (xs1, ys1, len, wid) = if not $ length params == 4 then error "wrong # params to pack rect"
+                                else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 ptPack :: (Autofloat a) => Pt -> [a] -> Pt' a
 ptPack pt params = Pt' { xp' = xp1, yp' = yp1, namep' = namep pt, selp' = selp pt }
@@ -217,6 +226,7 @@ pack' zipped fixed varying =
                     L label -> L' $ labelPack label flatParams
                     P pt    -> P' $ ptPack pt flatParams
                     S sq    -> S' $ sqPack sq flatParams
+                    R rect  -> R' $ rectPack rect flatParams
                     A ar    -> A' $ solidArrowPack ar flatParams
                     CB c    -> CB' $ curvePack c flatParams
 
@@ -291,6 +301,8 @@ defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
+defRect = Rect { xr = 100, yr = 100, lenr = defaultRad, widthr = defaultRad + 200,
+                          selr = False, namer = defName, colorr = black, angr = 0.0}
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
 defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, 
                         namel = labelName defName }
@@ -301,10 +313,12 @@ defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, style
     where path = [(10, 100), (300, 100)]
 
 -- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultCirc, defaultText, defaultEllipse :: String -> Obj
+defaultSolidArrow, defaultPt, defaultSquare, defaultRect, 
+                   defaultCirc, defaultText, defaultEllipse :: String -> Obj
 defaultSolidArrow name = A $ setName name defSolidArrow
 defaultPt name = P $ setName name defPt
 defaultSquare name = S $ setName name defSquare
+defaultRect name = R $ setName name defRect
 -- Set both the text and name fields to the same thing (unlike labels)
 defaultText text = L $ setName text defText { textl = text } 
 defaultCirc name = C $ setName name defCirc
@@ -351,17 +365,20 @@ getShape (oName, (objType, config)) =
               S.Circle  -> initCircle oName config_nocomps
               S.Ellip   -> initEllipse oName config_nocomps
               S.Box     -> initSquare oName config_nocomps
+              S.Rectangle -> initRect oName config_nocomps
               S.Dot     -> initDot oName config_nocomps
               S.Curve   -> initCurve oName config_nocomps
-              S.NoShape -> ([], [], [])
-              _         -> error ("ShapeOf: Unknown shape " ++ show objType ++ " for " ++ oName) in
+              S.NoShape -> ([], [], []) in
          let res = tupAppend objInfo computations in
 
          -- TODO factor out label logic?
          let labelRes = queryConfig "label" config in -- assuming one label per shape
-         case labelRes of
-         Nothing -> res
-         Just labelText -> addObject [defaultLabel oName labelText] res
+         let labelSet = labelSetting labelRes objType oName in
+         case labelSet of
+         -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
+         NoLabel -> res
+         Default labelText -> addObject [defaultLabel oName labelText] res -- distinction for debugging
+         Custom labelText -> addObject [defaultLabel oName labelText] res
 
          where tupAppend (a, b, c) d = (a, b, c, d)
                addObject l (a, b, c, d) = (a ++ l, b, c, d)
@@ -386,12 +403,22 @@ compsAndVars n config =
                              S.CompArgs _ _  -> Nothing
                              res             -> Just res
 
+data LabelSetting = NoLabel | Default Name | Custom Name
+
 noneWord, autoWord :: String
 noneWord = "None"
-autoWord = "None"
+autoWord = "Auto"
 
-toMaybe :: String -> Maybe String
-toMaybe s = if s == "None" then Nothing else Just s
+labelSetting :: Maybe String -> S.StyObj -> Name -> LabelSetting
+labelSetting s objType objName = 
+             case objType of
+                  S.NoShape -> NoLabel
+                  _ -> case s of
+                          -- A real object with unspecified label -> autolabeled with Substance name
+                          Nothing -> Default objName
+                          Just str -> if str == noneWord then NoLabel
+                                      else if str == autoWord then Default objName
+                                      else Custom str
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
@@ -418,6 +445,8 @@ initEllipse n config = ([defaultEllipse n], [],
 
 initSquare n config = ([defaultSquare n], [], sizeFuncs n)
 
+initRect n config = ([defaultRect n], [], sizeFuncs n)
+
 initDot n config = ([defaultPt n], [], [])
 
 initCurve n config = (objs, [], [])
@@ -437,8 +466,8 @@ tupCons a (b, c) = (a, b, c)
 -- TODO: distinguish between variable name (id) and string literal (in types?)
 queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
 queryConfig key dict = case M.lookup key dict of
-    Just (S.Id i) -> toMaybe i
-    Just (S.StringLit s) -> toMaybe s
+    Just (S.Id i) -> Just i
+    Just (S.StringLit s) -> Just s
     Just (S.CompArgs fn params) -> Nothing
     -- FIXME: get dot access to work for arbitrary input
     -- TODO: don't hardcode "shape" and allow accessing other properties
@@ -699,6 +728,14 @@ renderSquare s = if selected s
             else color (colors s) $ translate (xs s) (ys s) $
             rectangleSolid (side s) (side s)
 
+renderRect :: Rect -> Picture
+renderRect s = if selected s
+            then let (r', g', b', a') = rgbaOfColor $ colorr s in
+            color (makeColor r' g' b' (a' / 2)) $ translate (xr s) (yr s) $
+            rectangleSolid (lenr s) (widthr s)
+            else color (colorr s) $ translate (xr s) (yr s) $
+            rectangleSolid (lenr s) (widthr s)
+
 renderArrow :: SolidArrow -> Picture
 -- renderArrow sa = color black $  line [(startx sa, starty sa), (endx sa, endy sa)]
 renderArrow sa = color scalar $ translate sx sy $ rotate (negate $ toDegree $ argV dir) $ pictures $
@@ -723,6 +760,7 @@ renderObj (E circ)  = renderEllipse circ
 renderObj (L label) = renderLabel label
 renderObj (P pt)    = renderPt pt
 renderObj (S sq)    = renderSquare sq
+renderObj (R rt)    = renderRect rt
 renderObj (A ar)    = renderArrow ar
 
 isLabel :: Obj -> Bool
@@ -808,6 +846,14 @@ sampleCoord gen o = case o of
                                   (cb', gen6) = randomR colorRange  gen5
                                   in
                               (S $ sq { side = side', colors = makeColor cr' cg' cb' opacity }, gen6)
+                    R rt   -> let (len', gen3) = randomR sideRange gen2
+                                  (wid', gen4) = randomR sideRange gen3
+                                  (cr', gen5) = randomR colorRange  gen4
+                                  (cg', gen6) = randomR colorRange  gen5
+                                  (cb', gen7) = randomR colorRange  gen6
+                                  in
+                              (R $ rt { lenr = len', widthr = wid',
+                                        colorr = makeColor cr' cg' cb' opacity }, gen7)
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
                     A a   -> (o_loc, gen2) -- TODO
@@ -854,7 +900,10 @@ inObj (xm, ym) (L o) =
     -- abs (xm - (label_offset_x (textl o) (xl o))) <= 0.25 * (wl o) &&
     -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
-inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is squar   e
+inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is square
+inObj (xm, ym) (R o) = let (bl_x, bl_y) = (xr o - 0.5 * lenr o, yr o - 0.5 * widthr o) in -- bottom left
+                       let (tr_x, tr_y) = (xr o + 0.5 * lenr o, yr o + 0.5 * widthr o) in -- top right
+                       bl_x < xm && xm < tr_x && bl_y < ym && ym < tr_y
 inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
 -- TODO: due to the way Located is defined, we can only drag the starting pt here
 inObj (xm, ym) (A a) =
@@ -954,7 +1003,7 @@ noOverlapPair (S s1) (S s2) = dist (xs s1, ys s1) (xs s2, ys s2) > side s1 + sid
 -- TODO: factor out this
 noOverlapPair (C c) (S s) = dist (xc c, yc c) (xs s, ys s) > (halfDiagonal .  side) s + r c
 noOverlapPair (S s) (C c) = dist (xs s, ys s) (xc c, yc c) > (halfDiagonal . side) s + r c
-noOverlapPair _ _ = True -- TODO, ignores labels
+noOverlapPair _ _ = error "no overlap case not handled"
 
 -- return true iff satisfied
 -- TODO deal with labels and more than two objects
@@ -990,8 +1039,8 @@ checkSubsetSize dict constr@(C.Subset inName outName) =
         -- TODO: this does not scale, general way?
         (Just (C c), Just (S s)) -> r c < 0.5 * side s
         (Just (S s), Just (C c)) -> (halfDiagonal . side) s < r c
-        (_, _) -> True
-checkSubsetSize _ _ = True
+        (_, _) -> True -- error "objects don't exist in check subset size"
+checkSubsetSize _ _ = True -- error "object subset sizes not handled"
 
 
 -- Type aliases for shorter type signatures.
@@ -1079,8 +1128,10 @@ zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
                              selc = selc' c, namec = namec' c, colorc = colorc' c }
 zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ rx' e, ry = r2f $ ry' e,
                               namee = namee' e, colore = colore' e }
-zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s, names = names' s, colors = colors' s, ang = ang' s }
-
+zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s, 
+                             names = names' s, colors = colors' s, ang = ang' s }
+zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, lenr = r2f $ lenr' r, widthr = r2f $ widthr' r,
+                           selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
                               textl = textl' l, sell = sell' l, namel = namel' l }
 zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
@@ -1103,6 +1154,8 @@ addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ 
                              namee' = namee e, colore' = colore e }
 addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
                             names' = names s, colors' = colors s, ang' = ang s }
+addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, lenr' = r2f $ lenr r, widthr' = r2f $ widthr r,
+                    selr' = selr r, namer' = namer r, colorr' = colorr r, angr' = angr r }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
 addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
