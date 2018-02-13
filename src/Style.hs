@@ -35,7 +35,7 @@ data StyObj = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color |
 type StyObjInfo
     = (StyObj, M.Map String Expr)
 
--- | Style specification for a particular object declared in Substance
+-- | Style specification for a particular object declared in Substance (declarations and constraints)
 -- (TODO: maybe this is not the best model, since we are seeing more cases where the relationship is one-to-many or vice versa)
 data StySpec = StySpec {
     spType :: C.SubType, -- | The Substance type of the object
@@ -340,10 +340,9 @@ getVarMap sel spec = foldl add M.empty patternNamePairs
 matchingSpecs :: StyDict -> Selector -> [StySpec]
 matchingSpecs dict s = M.elems $ M.filter (matchSel s) dict
 
--- | Returns true of an object matches the selector. A match is made when
---
--- * The types match
--- * The number of arguments match
+-- | Returns true if an object (declaration or constraint) matches the selector. A match is made when
+-- * The types match, (and?)
+-- * The number of arguments match, (and?)
 -- * Identifier and arguments match. A wildcard matches with anything
 matchSel :: Selector -> StySpec -> Bool
 matchSel sel spec = all test (zip args patterns) &&
@@ -472,7 +471,7 @@ procExpr _ (StringLit s) = Left s
 procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
--- Given a variable mapping and spec, if the statement is an assignment,
+-- | Given a variable mapping and spec, if the statement is an assignment,
 -- fold over the list of statements in the assignments (e.g. shape = Circle { statements } )
 -- and add them to the configuration in the object's spec.
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec

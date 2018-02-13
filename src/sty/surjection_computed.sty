@@ -65,9 +65,14 @@ Set `domain` {
 
        -- TODO deal with these dot accesses; also, is shape a keyword?
        -- here, 'domain' should be in scope, so we should only have to type shape
+       -- need to check for name clashes/scope between Sub/Sty/Sty blocks
        -- TODO how to compute a label position?
+       -- what does 'domain.label' currently do?
+       
        -- objective nearEnd(domain.shape, domain.shape.label)
        -- objective nearEnd(domain.shape2, domain.shape.label)
+
+       objective nearEnds(domain, domain.label)
 }
 
 Set `image` {

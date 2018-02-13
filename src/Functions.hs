@@ -55,7 +55,8 @@ objFuncDict = M.fromList flist
                     -- ("repel", (*)  1000000  `compose2` repel),
                     -- ("repel", (*)  10000  `compose2` repel),
                     -- ("repel", repel),
-                    ("outside", outside)
+                    ("outside", outside),
+                    ("nearEnds", nearEnds)
                   ]
 
 -- illegal polymorphic or qualified type--can't return a forall?
@@ -229,6 +230,9 @@ outside :: ObjFn
 outside [L' o, C' i] _ = (dist (xl' o, yl' o) (xc' i, yc' i) - (1.5 * r' i) - wl' o)^2
 outside [L' o, S' i] _ = (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
 -- TODO: generic version using bbox
+
+nearEnds :: ObjFn
+nearEnds objs consts = trace ("nearEnds objs:\n" ++ show objs) 0
 
 ------- Ambient objective functions
 

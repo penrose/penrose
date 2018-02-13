@@ -146,8 +146,7 @@ regionX bezL bezR = let (pathL, pathR) = (pathcb' bezL, pathcb' bezR) in
                     then error ("expecting line of 2 pts, got lines:\n" ++ show bezL ++ "\n" ++ show bezR)
                     -- assuming two vertical lines, not nec. in left to right order
                     else let (x1, x2) = (fst $ pathL !! 0, fst $ pathR !! 0) in
-                    trace ("regionX inputs:\n" ++ show bezL ++ "\n" ++ show bezR)
-                    $ (abs $ x2 - x1)
+                    abs $ x2 - x1
 
 regionY :: (Autofloat a) => CubicBezier' a -> CubicBezier' a -> a
 regionY bezL bezR = let (pathL, pathR) = (pathcb' bezL, pathcb' bezR) in

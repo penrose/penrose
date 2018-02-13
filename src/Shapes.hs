@@ -652,7 +652,51 @@ data TypeIn a = TNum a
 -- TODO fill these in; see if it works for dot accesses
 get :: (Autofloat a) => Property -> Obj' a -> TypeIn a
 -- Circles
-get "radius" (C' c) = TNum $ r' c
+get "radius" (C' o)        = TNum $ r' o
+get "x" (C' o)             = TNum $ xc' o
+get "y" (C' o)             = TNum $ yc' o
+get "color" (C' o)         = TColor $ colorc' o
+
+-- Ellipses
+get "rx" (E' o)            = TNum $ rx' o
+get "ry" (E' o)            = TNum $ ry' o
+get "x" (E' o)             = TNum $ xe' o
+get "y" (E' o)             = TNum $ ye' o
+get "color" (E' o)         = TColor $ colore' o
+
+-- Points
+get "x" (P' o)             = TNum $ xp' o
+get "y" (P' o)             = TNum $ yp' o
+get "location" (P' o)      = TPt (xp' o, yp' o)
+
+-- Squares
+get "x" (S' o)             = TNum $ xs' o
+get "y" (S' o)             = TNum $ ys' o
+get "side" (S' o)          = TNum $ side' o
+get "angle" (S' o)         = TNum $ r2f $ ang' o
+get "color" (S' o)         = TColor $ colors' o
+
+-- Rectangles
+get "x" (R' o)             = TNum $ xr' o
+get "y" (R' o)             = TNum $ yr' o
+get "center" (R' o)        = TPt (xr' o, yr' o)
+get "length" (R' o)        = TNum $ sizeX' o
+get "width" (R' o)         = TNum $ sizeY' o
+get "angle" (R' o)         = TNum $ r2f $ angr' o
+get "color" (R' o)         = TColor $ colorr' o
+
+-- Cubic beziers
+get "path" (CB' o)         = TPath $ pathcb' o
+get "style" (CB' o)        = TStyle $ stylecb' o
+get "color" (CB' o)        = TColor $ colorcb' o
+
+-- Solid arrows
+get "startx" (A' o)        = TNum $ startx' o
+get "starty" (A' o)        = TNum $ starty' o
+get "endx" (A' o)          = TNum $ endx' o
+get "endy" (A' o)          = TNum $ endy' o
+get "thickness" (A' o)     = TNum $ thickness' o
+get "color" (A' o)         = TColor $ colorsa' o
 
 get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n" 
                                    ++ show obj ++ "\n" ++ show obj)
@@ -682,7 +726,7 @@ set "location" (P' o) (TPt (x, y)) = P' $ o { xp' = x, yp' = y }
 set "x" (S' o) (TNum n)       = S' $ o { xs' = n }
 set "y" (S' o) (TNum n)       = S' $ o { ys' = n }
 set "side" (S' o) (TNum n)    = S' $ o { side' = n }
-set "angle" (S' o) (TNum n)      = S' $ o { ang' = r2f n }
+set "angle" (S' o) (TNum n)   = S' $ o { ang' = r2f n }
 set "color" (S' o) (TColor n) = S' $ o { colors' = n }
 
 -- Rectangles
