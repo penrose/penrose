@@ -140,29 +140,40 @@ lineRight lineFrac a1 a2 = let a1_start = starty' a1 in
                            let ypos = a1_start + lineFrac * a1_len in
                            [(startx' a2, ypos), (endx' a2, ypos)]
 
+regionX :: (Autofloat a) => CubicBezier' a -> CubicBezier' a -> a
+regionX bezL bezR = let (pathL, pathR) = (pathcb' bezL, pathcb' bezR) in
+                    if length pathL /= 2 || length pathR /= 2 
+                    then error ("expecting line of 2 pts, got lines:\n" ++ show bezL ++ "\n" ++ show bezR)
+                    -- assuming two vertical lines, not nec. in left to right order
+                    else let (x1, x2) = (fst $ pathL !! 0, fst $ pathR !! 0) in
+                    trace ("regionX inputs:\n" ++ show bezL ++ "\n" ++ show bezR)
+                    $ (abs $ x2 - x1)
+
+regionY :: (Autofloat a) => CubicBezier' a -> CubicBezier' a -> a
+regionY bezL bezR = let (pathL, pathR) = (pathcb' bezL, pathcb' bezR) in
+                    if length pathL /= 2 || length pathR /= 2
+                    then error ("expecting line of 2 pts, got lines:\n" ++ show bezL ++ "\n" ++ show bezR)
+                    -- assuming two vertical lines
+                    else let (y1, y2) = (snd $ pathL !! 0, snd $ pathR !! 0) in
+                    -- assuming two vertical lines, not nec. in left to right order
+                    abs $ y2 - y1
+
+-- TODO: a lot of code is duplicated from the above two
+regionCenter :: (Autofloat a) => CubicBezier' a -> CubicBezier' a -> CubicBezier' a -> CubicBezier' a -> (a, a)
+regionCenter left right down up = let (pathL, pathR, pathDown, pathUp) = (pathcb' left, pathcb' right, 
+                                                                    pathcb' down, pathcb' up) in
+                    if length pathL /= 2 || length pathR /= 2 || length pathDown /= 2 || length pathUp /= 2 
+                    then error "expecting line" else
+                    -- assuming two vertical /horizontal lines
+                    let (x1, x2, y1, y2) = (fst $ pathL !! 0, fst $ pathR !! 0, 
+                                        snd $ pathDown !! 0, snd $ pathUp !! 0) in
+                    ((x1 + x2) / 2, (y1 + y2) / 2)
+
 ------------------------------------- Computation boilerplate
 -- Registration, typechecking, error handling
 
 type CompFn a = (Autofloat a) => [TypeIn a] -> [Obj' a] -> TypeIn a
 type CompFnOn a = [TypeIn a] -> [Obj' a] -> TypeIn a
-
--- | 'computationDict' stores a mapping from the name of computations to the actual implementation
-computationDict :: (Autofloat a) => M.Map String (CompFnOn a)
-computationDict = M.fromList flist
-    where flist = [
-                    ("computeColor", computeColor'),
-                    ("computeColor2", computeColor2'),
-                    ("computeColorArgs", computeColorArgs'),
-                    ("computeRadiusAsFrac", computeRadiusAsFrac'), -- TODO change the primes
-                    ("computeRadiusToMatch", computeRadiusToMatch'),
-                    ("computeColorRGBA", computeColorRGBA'),
-                    ("computeSurjection", computeSurjection'),
-                    ("computeSurjectionBbox", computeSurjectionBbox'),
-                    ("lineLeft", lineLeft'),
-                    ("lineRight", lineRight'),
-                    ("addVector", addVector'),
-                    ("computeSurjectionLines", computeSurjectionLines')
-                  ]
 
 -- TODO Generate the typechecking and registration dict with Template Haskell
 -- typecheck :: [String] -> [String] -> [TypeIn a] -> [Obj' a]
@@ -219,3 +230,36 @@ lineRight' v o = error' "lineRight" v o
 addVector' :: CompFn a
 addVector' [TNum n1, TNum n2] [P' p] = TPt $ addVector (n1, n2) (xp' p, yp' p)
 addVector' v o = error' "addVector" v o
+
+regionX' :: CompFn a
+regionX' [] [CB' lineLeft, CB' lineRight] = TNum $ regionX lineLeft lineRight
+regionX' v o = error' "regionX" v o
+
+regionY' :: CompFn a
+regionY' [] [CB' down, CB' up] = TNum $ regionY down up
+regionY' v o = error' "regionY" v o
+
+regionCenter' :: CompFn a
+regionCenter' [] [CB' l, CB' r, CB' d, CB' u] = TPt $ regionCenter l r d u
+regionCenter' v o = error' "regionCenter" v o
+
+-- | 'computationDict' stores a mapping from the name of computations to the actual implementation
+computationDict :: (Autofloat a) => M.Map String (CompFnOn a)
+computationDict = M.fromList flist
+    where flist = [
+                    ("computeColor", computeColor'),
+                    ("computeColor2", computeColor2'),
+                    ("computeColorArgs", computeColorArgs'),
+                    ("computeRadiusAsFrac", computeRadiusAsFrac'), -- TODO change the primes
+                    ("computeRadiusToMatch", computeRadiusToMatch'),
+                    ("computeColorRGBA", computeColorRGBA'),
+                    ("computeSurjection", computeSurjection'),
+                    ("computeSurjectionBbox", computeSurjectionBbox'),
+                    ("lineLeft", lineLeft'),
+                    ("lineRight", lineRight'),
+                    ("addVector", addVector'),
+                    ("computeSurjectionLines", computeSurjectionLines'),
+                    ("regionX", regionX'),
+                    ("regionY", regionY'),
+                    ("regionCenter", regionCenter')
+                  ]

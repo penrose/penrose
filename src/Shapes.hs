@@ -174,8 +174,8 @@ instance FromJSON Square
 
 data Rect = Rect { xr :: Float -- center of rect
                      , yr :: Float
-                     , lenr :: Float -- x
-                     , widthr :: Float -- y
+                     , sizeX :: Float -- x
+                     , sizeY :: Float -- y
                      , angr :: Float -- angle for which the obj is rotated
                      , selr :: Bool
                      , namer :: String
@@ -477,8 +477,8 @@ data Square' a  = Square' { xs' :: a
 
 data Rect' a = Rect' { xr' :: a -- I assume this is top left?
                      , yr' :: a
-                     , lenr' :: a
-                     , widthr' :: a
+                     , sizeX' :: a
+                     , sizeY' :: a
                      , angr' :: Float -- angle the obj is rotated, TODO make polymorphic
                      , selr' :: Bool
                      , namer' :: String
@@ -682,16 +682,17 @@ set "location" (P' o) (TPt (x, y)) = P' $ o { xp' = x, yp' = y }
 set "x" (S' o) (TNum n)       = S' $ o { xs' = n }
 set "y" (S' o) (TNum n)       = S' $ o { ys' = n }
 set "side" (S' o) (TNum n)    = S' $ o { side' = n }
-set "ry" (S' o) (TNum n)      = S' $ o { ang' = r2f n }
+set "angle" (S' o) (TNum n)      = S' $ o { ang' = r2f n }
 set "color" (S' o) (TColor n) = S' $ o { colors' = n }
 
 -- Rectangles
-set "x" (R' o) (TNum n)       = R' $ o { xr' = n }
-set "y" (R' o) (TNum n)       = R' $ o { yr' = n }
-set "length" (R' o) (TNum n)  = R' $ o { lenr' = n }
-set "width" (R' o) (TNum n)   = R' $ o { widthr' = n }
-set "ry" (R' o) (TNum n)      = R' $ o { angr' = r2f n }
-set "color" (R' o) (TColor n) = R' $ o { colorr' = n }
+set "x" (R' o) (TNum n)          = R' $ o { xr' = n }
+set "y" (R' o) (TNum n)          = R' $ o { yr' = n }
+set "center" (R' o) (TPt (x, y)) = R' $ o { xr' = x, yr' = y }
+set "length" (R' o) (TNum n)     = R' $ o { sizeX' = n }
+set "width" (R' o) (TNum n)      = R' $ o { sizeY' = n }
+set "angle" (R' o) (TNum n)      = R' $ o { angr' = r2f n }
+set "color" (R' o) (TColor n)    = R' $ o { colorr' = n }
 
 -- Cubic beziers
 set "path" (CB' o) (TPath n)      = CB' $ o { pathcb' = n }

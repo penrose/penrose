@@ -43,7 +43,10 @@ Map f domain image {
 Set `cartesianProduct` {
   shape = Rect {
     label = None
-    -- side = 20
+    center = regionCenter(domain, image)
+    -- this will pass in both of domain's objects
+    length = regionX(domain)
+    width = regionY(image)
   }
 }
 

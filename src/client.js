@@ -268,9 +268,10 @@ $.getScript('snap.svg.js', function()
                 break
                 case 'R': // rectangle
 		// TODO fix this!
-                    var lenr = obj.lenr;
-		    var widthr = obj.widthr;
-                    var rect = s.rect(dx + obj.xr - lenr/2, dy - obj.yr - widthr/2, lenr, widthr); // isn't this bottom left?
+                    var sizeX = obj.sizeX;
+		    var sizeY = obj.sizeY;
+                    var rect = s.rect(dx + obj.xr - sizeX/2, dy - obj.yr - sizeY/2, sizeX, sizeY); 
+		// isn't this bottom left?
                     rect.data("name", obj.namer)
                     var color = obj.colorr;
                     rect.attr({

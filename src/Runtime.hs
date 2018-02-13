@@ -106,7 +106,7 @@ unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)] -- TODO: changed r to Fix for testing
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
-unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (lenr' r, Vary), (widthr' r, Vary)]
+unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
@@ -174,7 +174,7 @@ sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names
                                 else (params !! 0, params !! 1, params !! 2)
 
 rectPack :: (Autofloat a) => Rect -> [a] -> Rect' a
-rectPack rct params = Rect' { xr' = xs1, yr' = ys1, lenr' = len, widthr' = wid, namer' = namer rct, 
+rectPack rct params = Rect' { xr' = xs1, yr' = ys1, sizeX' = len, sizeY' = wid, namer' = namer rct, 
                               selr' = selr rct, colorr' = colorr rct, angr' = angr rct}
          where (xs1, ys1, len, wid) = if not $ length params == 4 then error "wrong # params to pack rect"
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
@@ -263,6 +263,7 @@ computeOn objDict comp =
 applyAndSet :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> CompFn a -> Obj' a -> Obj' a
 applyAndSet objDict comp function obj = 
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
+          -- Style computations rely on the order of object inputs being the same as program arguments.
           let (constArgs, objectArgs) = partitionEithers $ map (styExprToCompExpr objDict) args in
           let res = function constArgs (concat objectArgs) in 
           -- TODO: for multiple objects, might not be in right order. alphabetize?
@@ -301,7 +302,7 @@ defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
-defRect = Rect { xr = 100, yr = 100, lenr = defaultRad, widthr = defaultRad + 200,
+defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
                           selr = False, namer = defName, colorr = black, angr = 0.0}
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
 defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, 
@@ -450,7 +451,7 @@ initRect n config = ([defaultRect n], [], sizeFuncs n)
 initDot n config = ([defaultPt n], [], [])
 
 initCurve n config = (objs, [], [])
-        where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
+        where defaultPath = [(10, 100), (50, 0)] -- (60, 0), (100, 100), (250, 250), (300, 100)]
               style = fromMaybe "solid" $ queryConfig "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
               objs = [curve]
@@ -659,7 +660,7 @@ cmax = 0.1
 cmin = 0.9
 
 -- radiusRange, sideRange :: Floating a => (a, a    )
-widthRange  = (-pw2, pw2)
+sizeYange  = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 radiusRange = (20, picWidth `divf` 6)
 sideRange = (20, picWidth `divf` 3)
@@ -732,9 +733,9 @@ renderRect :: Rect -> Picture
 renderRect s = if selected s
             then let (r', g', b', a') = rgbaOfColor $ colorr s in
             color (makeColor r' g' b' (a' / 2)) $ translate (xr s) (yr s) $
-            rectangleSolid (lenr s) (widthr s)
+            rectangleSolid (sizeX s) (sizeY s)
             else color (colorr s) $ translate (xr s) (yr s) $
-            rectangleSolid (lenr s) (widthr s)
+            rectangleSolid (sizeX s) (sizeY s)
 
 renderArrow :: SolidArrow -> Picture
 -- renderArrow sa = color black $  line [(startx sa, starty sa), (endx sa, endy sa)]
@@ -852,14 +853,14 @@ sampleCoord gen o = case o of
                                   (cg', gen6) = randomR colorRange  gen5
                                   (cb', gen7) = randomR colorRange  gen6
                                   in
-                              (R $ rt { lenr = len', widthr = wid',
+                              (R $ rt { sizeX = len', sizeY = wid',
                                         colorr = makeColor cr' cg' cb' opacity }, gen7)
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
                     A a   -> (o_loc, gen2) -- TODO
                     CB c  -> (o, gen2) -- TODO: fall through
 
-        where (x', gen1) = randomR widthRange  gen
+        where (x', gen1) = randomR sizeYange  gen
               (y', gen2) = randomR heightRange gen1
               o_loc      = setX x' $ setY (clamp1D y') o
 
@@ -901,8 +902,8 @@ inObj (xm, ym) (L o) =
     -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is square
-inObj (xm, ym) (R o) = let (bl_x, bl_y) = (xr o - 0.5 * lenr o, yr o - 0.5 * widthr o) in -- bottom left
-                       let (tr_x, tr_y) = (xr o + 0.5 * lenr o, yr o + 0.5 * widthr o) in -- top right
+inObj (xm, ym) (R o) = let (bl_x, bl_y) = (xr o - 0.5 * sizeX o, yr o - 0.5 * sizeY o) in -- bottom left
+                       let (tr_x, tr_y) = (xr o + 0.5 * sizeX o, yr o + 0.5 * sizeY o) in -- top right
                        bl_x < xm && xm < tr_x && bl_y < ym && ym < tr_y
 inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
 -- TODO: due to the way Located is defined, we can only drag the starting pt here
@@ -1130,7 +1131,7 @@ zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ r
                               namee = namee' e, colore = colore' e }
 zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s, 
                              names = names' s, colors = colors' s, ang = ang' s }
-zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, lenr = r2f $ lenr' r, widthr = r2f $ widthr' r,
+zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, sizeX = r2f $ sizeX' r, sizeY = r2f $ sizeY' r,
                            selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
                               textl = textl' l, sell = sell' l, namel = namel' l }
@@ -1154,8 +1155,9 @@ addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ 
                              namee' = namee e, colore' = colore e }
 addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
                             names' = names s, colors' = colors s, ang' = ang s }
-addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, lenr' = r2f $ lenr r, widthr' = r2f $ widthr r,
-                    selr' = selr r, namer' = namer r, colorr' = colorr r, angr' = angr r }
+addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r, 
+                           sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r, 
+                           colorr' = colorr r, angr' = angr r }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
 addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
