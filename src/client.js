@@ -270,7 +270,7 @@ $.getScript('snap.svg.js', function()
 		// TODO fix this!
                     var sizeX = obj.sizeX;
 		    var sizeY = obj.sizeY;
-                    var rect = s.rect(dx + obj.xr - sizeX/2, dy - obj.yr - sizeY/2, sizeX, sizeY); 
+                    var rect = s.rect(dx + obj.xr - sizeX/2, dy - obj.yr - sizeY/2, sizeX, sizeY);
 		// isn't this bottom left?
                     rect.data("name", obj.namer)
                     var color = obj.colorr;
@@ -351,7 +351,7 @@ $.getScript('snap.svg.js', function()
             });
         };
         ws.onmessage = function(event) {
-            // console.log(event.data)
+            console.log(event.data)
             var now  = new Date().getTime()
             var diff = (now - lastTime);
             var obj = jQuery.parseJSON(event.data)

@@ -11,8 +11,12 @@ type ObjFnOn a = [Obj' a] -> [a] -> a
 type ConstrFnOn a = [Obj' a] -> [a] -> a
 type ObjFn = forall a. (Autofloat a) => [Obj' a] -> [a] -> a
 type ConstrFn = forall a. (Autofloat a) => [Obj' a] -> [a] -> a
+type ObjFnInfo a = (ObjFnOn a, Weight a, [Name], [a])
+type ConstrFnInfo a = (ConstrFnOn a, Weight a, [Name], [a])
 type Weight a = a
 type PairConstrV a = forall a . (Autofloat a) => [[a]] -> a -- takes pairs of "packed" objs
+
+data FnInfo a = ObjFnInfo a | ConstrFnInfo a
 
 -- | 'constrFuncDict' stores a mapping from the name of constraint functions to the actual implementation
 constrFuncDict :: forall a. (Autofloat a) => M.Map String (ConstrFnOn a)
@@ -194,8 +198,8 @@ repel' x y = 1 / distsq x y + epsd
 
 -- TODO move this elsewhere? (also applies to polyline)
 bezierBbox :: (Floating a, Ord a) => CubicBezier' a -> ((a, a), (a, a)) -- poly Point type?
-bezierBbox cb = let path = pathcb' cb 
-                    (xs, ys) = (map fst path, map snd path) 
+bezierBbox cb = let path = pathcb' cb
+                    (xs, ys) = (map fst path, map snd path)
                     lower_left = (minimum xs, minimum ys)
                     top_right = (maximum xs, maximum ys) in
                     (lower_left, top_right)
@@ -206,8 +210,8 @@ centerLabel :: ObjFn
 -- TODO smarter bezier/polyline label function
 -- TODO specify rotation on labels?
 centerLabel [CB' bez, L' lab] _ = -- use the float input? just for testing
-            let ((lx, ly), (rx, ry)) = bezierBbox bez 
-                (xmargin, ymargin) = (-10, 30) 
+            let ((lx, ly), (rx, ry)) = bezierBbox bez
+                (xmargin, ymargin) = (-10, 30)
                 midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
             distsq midbez (getX lab, getY lab)
 
@@ -431,7 +435,7 @@ noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing wi
          -(dist (x1, y1) (x2, y2)) + max s2 s1 - min s2 s1 + offset
 
 -- the first (circular) set is the subset of the second (circular) set, and thus smaller than the second.
--- The distance between the centers of the sets must be less than the difference between 
+-- The distance between the centers of the sets must be less than the difference between
 -- the radius of the outer set and the radius of the inner set.
 -- TODO: test for equal sets? (function is minimized if sets have same radii and location)
 strictSubset :: PairConstrV a

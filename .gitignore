@@ -27,3 +27,6 @@ alloy
 node_modules/
 *~
 .stack-work/
+Substance 
+Style
+build/

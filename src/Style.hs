@@ -17,7 +17,7 @@ import Text.Megaparsec.Expr
 import System.Environment
 import Debug.Trace
 import qualified Substance as C
-import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn)
+import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn, ConstrFnInfo, ObjFnInfo)
 import Computation
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
@@ -27,23 +27,9 @@ import Data.Typeable
 --------------------------------------------------------------------------------
 -- Style AST
 
--- | All geometric object types supported by Style so far.
-data StyObj = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto
+-- | Type annotation for all geometries supported by Style so far.
+data StyType = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto
     deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
-
--- | A type frequently used in the module. A style object such as a 'Circle' has parameters like its radius attached to it. This is a tuple associating the object with its parameters. The latter map is the config (e.g. "radius = 5", or a computation, or some other expression).
-type StyObjInfo
-    = (StyObj, M.Map String Expr)
-
--- | Style specification for a particular object declared in Substance (declarations and constraints)
--- (TODO: maybe this is not the best model, since we are seeing more cases where the relationship is one-to-many or vice versa)
-data StySpec = StySpec {
-    spType :: C.SubType, -- | The Substance type of the object
-    spId :: String, -- | The ID of the object
-    spArgs :: [String], -- | the "arguments" that the Substance object has. Maybe not the best term here. The idea is to capture @A@ and @B@ in the case of @Map f A B@
-    spShape :: StyObjInfo, -- | primary geometry associated with the Substance object, specified by @shape = Circle { }@
-    spShpMap :: M.Map String StyObjInfo -- | secondary shapes, specified by @shape2 = Arrow { } -- the name is arbitrary here@
-} deriving (Show, Typeable)
 
 -- | A Style program is a collection of blocks
 type StyProg = [Block]
@@ -83,7 +69,7 @@ data Expr
     | StringLit String
     | Id String
     | BinOp BinaryOp Expr Expr
-    | Cons StyObj [Stmt] -- | Constructors for objects
+    | Cons StyType [Stmt] -- | Constructors for objects
     | CompArgs String [Expr]
     deriving (Show, Typeable)
 
@@ -142,7 +128,7 @@ patterns = many pattern
     where pattern = (WildCard <$> identifier <|> RawID <$> backticks identifier)
 
 -- | parses the type of Style object
-styObj :: Parser StyObj
+styObj :: Parser StyType
 styObj =
        (rword "Color"   >> return Color)   <|>
        (rword "None"    >> return NoShape) <|>
@@ -283,12 +269,40 @@ attribute = identifier -- TODO: Naming convention - same as identifiers?
 -- styPrettyPrint b = ""
 
 --------------------------------------------------------------------------------
--- Functions used by "Runtime"
+-- Functions used by "Runtime" -- Style Translator
+-- Translates from a Style AST to:
+-- * a list of geometric primitives
+-- * a list of constraints
+-- * a list of objectives
 
------ Parser for Style design
+-- Type aliases for readability in this section
+-- | 'StyContext' maintains the current output of the translater
+type StyContext a =
+    (StyDict, -- | dictionary mapping Substance ID to Style objects
+    [(ObjFnOn a, Weight a, [Name], [a])],    -- | List of objective functions
+    [(ConstrFnOn a, Weight a, [Name], [a])]) -- | List of constraints
 
--- | Type aliases for readability in this section
+-- | A dictionary storing properties of a Style object, e.g. "start" for 'Arrow'
+type Properties = M.Map String Expr
+
+-- | A Style object is a type annotation ('StyType') and a collection of
+-- properties. E.g. an arrow is 'Arrow' and properties: "start", "end".
+type StyObj = (StyType, Properties)
+
+-- | a Style Dictionary maps from a Substance id to a 'StySpec' -- collection of Style objects and some metadata about the Substance object
 type StyDict = M.Map Name StySpec
+
+-- | Style specification for a particular object declared in Substance (declarations and constraints)
+-- (TODO: maybe this is not the best model, since there is no difference between "primary" and "secondary" shapes)
+-- NOTE: for Substance constraints such as `Subset A B`, the 'spId' will be '_Subset_A_B' and the 'spArgs' will be '['A', 'B']'
+data StySpec = StySpec {
+    spType   :: C.SubType,  -- | The Substance type of the object
+    spId     :: String,     -- | The Substance ID of the object
+    spArgs   :: [String],   -- | the "arguments" following the type.  The idea is to capture @f@, @A@ and @B@ in the case of @Map f A B@, which is needed for pattern matching (TODO: Maybe not the best term here.)
+    spShape  :: StyObj, -- | primary geometry associated with the Substance object, specified by @shape = Circle { }@.
+    spShpMap :: M.Map String StyObj -- | secondary shapes, specified by @shape2 = Arrow { } -- the name is arbitrary here@ (TODO: maybe this should be a general dictonary storing all Style objects)
+} deriving (Show, Typeable)
+
 -- | A VarMap matches lambda ids in the selector to the actual selected id
 type VarMap  = M.Map Name Name
 
@@ -300,130 +314,145 @@ initSpec = StySpec { spType = C.PointT,
                      spShpMap = M.empty
                    }
 
--- | 'getDictAndFns' is the top-level function used by "Runtime", which returns a dictionary of Style configuration and all objective and constraint functions generated by Style
+-- | 'getDictAndFns' is the top-level function used by "Runtime", which returns a dictionary of Style objects and all objective and constraint functions generated by Style
 -- TODO: maybe generate objects directly?
 getDictAndFns :: (Autofloat a) =>
-    ([C.SubDecl], [C.SubConstr]) -> StyProg
-    -> (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
-getDictAndFns (decls, constrs) blocks = foldl procBlock (initDict, [], []) blocks
+    ([C.SubDecl], [C.SubConstr]) -> StyProg -> StyContext a
+getDictAndFns (decls, constrs) blocks =
+    foldl procBlock (initDict, [], []) blocks
     where
-        res :: [(C.SubType, String, [String])]
-        res = getSubTuples decls ++ getConstrTuples constrs
-
-        ids :: [(C.SubType, String)]
-        ids = map (\(x, y, z) -> (x, y)) res
-
-        initDict :: M.Map String StySpec
+        -- idsWithArgs :: [(C.SubType, String, [String])]
+        idsWithArgs = getSubTuples decls ++ getConstrTuples constrs
+        -- initDict :: M.Map String StySpec
         initDict = foldl (\m (t, n, a) ->
-                     M.insert n (initSpec { spId = n, spType = t, spArgs = a }) m) M.empty res
+                     M.insert n (initSpec { spId = n, spType = t, spArgs = a }) m) M.empty idsWithArgs
 
--- Helper functions for procBlock
+--------------------------------------------------------------------------------
+-- Selector implementation
+-- GOAL: given a list of selectors and all Substance identifiers, output a
+-- variable map (from aliases to ids) and a list of selected specs
 
--- removeDups :: [[(VarMap, StySpec)]]
--- TODO: really a helper function. consider moving to "Utils"
-cartesianProduct :: [[a]] -> [[a]]
-cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
+-- | Returns true if an object (declaration or constraint) matches the selector. A match is made when all of the conditions are met:
+-- 1. The number of arguments match,
+-- 2. The types match,
+-- 3. Identifier and arguments match. A wildcard matches with anything
+matched :: StySpec -> Selector -> Bool
+matched spec selector =
+    let patterns = selPatterns selector
+        args     = spArgs spec
+    in  length args      == length patterns &&  -- 1
+        selTyp selector  == spType spec     &&  -- 2
+        all match (zip args patterns)           -- 3
+    where
+        match (a, p) = case p of
+            RawID    i -> a == i
+            WildCard _ -> True
 
--- | A helper function that returns a map from placeholder ids to actual matched ids.
+-- | Return all StySpecs and associated variable maps in the StyDict that
+-- match a selector.
+matchWith :: StyDict -> Selector -> [(VarMap, StySpec)]
+matchWith dict selector = M.foldlWithKey getSpecAndVarMap [] dict
+    where getSpecAndVarMap mapsAndSpecs name spec =
+            if spec `matched` selector
+                then (getVarMap selector spec, spec) : mapsAndSpecs
+                else mapsAndSpecs
+
+-- | Match all entries in the 'StyDict' with all selectors. Each selector can
+-- potentially have a list of (varmap, spec) pairs, and thus we have a list of
+-- list of (varmap, spec) for a list of selectors.
+matchWithAll :: StyDict -> [Selector] -> [[(VarMap, StySpec)]]
+matchWithAll dict selectors = map (matchWith dict) selectors
+
+-- | Given a selector and a Style spec that matches with it, returns a map from placeholder ids to actual matched ids.
+-- TODO: the underlying logic is the same as `matched`. Think of a cleaner way to both (1) check if there is a match and (2) collect a list of `VarMap`s
 getVarMap :: Selector -> StySpec -> VarMap
 getVarMap sel spec = foldl add M.empty patternNamePairs
     where
-        patternNamePairs :: [(Pattern, String)]
+        -- patternNamePairs :: [(Pattern, String)]
         patternNamePairs = zip (selPatterns sel) (spArgs spec)
-
-        add :: VarMap -> (Pattern, Name) -> VarMap
+        -- add :: VarMap -> (Pattern, Name) -> VarMap
         add dict (patt, name) = case patt of
             RawID _    -> dict
             WildCard wc -> M.insert wc name dict
 
--- | Returns all StySpecs in the StyDict that match a selector.
-matchingSpecs :: StyDict -> Selector -> [StySpec]
-matchingSpecs dict s = M.elems $ M.filter (matchSel s) dict
 
--- | Returns true if an object (declaration or constraint) matches the selector. A match is made when
--- * The types match, (and?)
--- * The number of arguments match, (and?)
--- * Identifier and arguments match. A wildcard matches with anything
-matchSel :: Selector -> StySpec -> Bool
-matchSel sel spec = all test (zip args patterns) &&
-                selTyp sel == spType spec &&
-                length args == length patterns
-    where
-        patterns = selPatterns sel
-        args = spArgs spec
-        -- dummies = selIds sel
-        test (a, p) = case p of
-            RawID i -> a == i
-            WildCard _ -> True
+-- Gather a list of objective or constraint functions by mapping over mergedMaps
+-- genFns :: (VarMap -> [t] -> Stmt -> [t]) -> VarMap -> [t]
+genFns f stmts varmap = foldl (f varmap) [] stmts
 
--- |  'procBlock' is called by 'getDictAndFns'. 'getDictAndFns' would fold this function on a list of blocks, a.k.a. a Style program, and accumulate objective/constraint functions, and a dictionary of geometries to be rendered.
--- TODO refactor procBlock and factor out helper functions
+-- | 'procBlock' is called by 'getDictAndFns'. 'getDictAndFns' would fold this function on a list of blocks, a.k.a. a Style program, and accumulate objective/constraint functions, and a dictionary of geometries to be rendered.
+-- TODO: first split `stmts` into assigns, objs, and contrs and call procConstrFn and procObjFn with `map`?
 procBlock :: (Autofloat a) =>
-    (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
-    -> Block
-    -> (StyDict, [(ObjFnOn a, Weight a, [Name], [a])], [(ConstrFnOn a, Weight a, [Name], [a])])
-procBlock (dict, objFns, constrFns) (selectors, stmts) =
-          (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
-    where -- Organized from used first to last
-        allVars :: M.Map Name Name
-        allVars = M.fromList $ zip k k where k = M.keys dict
+    StyContext a ->
+    Block ->
+    StyContext a
+-- Case 1: @global@ block - only objectives and constraints are allowed, and
+--- there is no need to compute any variable map
+procBlock (dict, objFns, constrFns) ((Selector C.AllT []) : [], stmts) =
+    let keys          = M.keys dict
+        identityMap   = M.fromList $ zip keys keys
+        newObjFns     = concatMap (procObjFn identityMap [])    stmts
+        newConstrFns  = concatMap (procConstrFn identityMap []) stmts
+    in (dict, objFns ++ newObjFns, constrFns ++ newConstrFns)
 
-        -- Give specs (objects) in dict that are selected by the block's selectors
-        selectedSpecs :: [[(VarMap, StySpec)]]
-        selectedSpecs = map
-            (\sel -> let styspecs = matchingSpecs dict sel -- defined externally above procblock
-                         varmaps = map (getVarMap sel) styspecs in zip varmaps styspecs) selectors
-
+-- Case 2: only one selector, no need to compute combinations.
+-- this function will process: (1) objectives, (2) constraints and (3)
+-- assignments
+procBlock (dict, objFns, constrFns) (selector : [], stmts) =
+    let mapsAndSpecs  = dict `matchWith` selector
+        newDict       = foldl (addShapes stmts) dict $ mapsAndSpecs
+        varmaps       = map fst $ mapsAndSpecs
+        newObjFns     = concatMap (genFns procObjFn stmts)    varmaps
+        newConstrFns  = concatMap (genFns procConstrFn stmts) varmaps
+    in (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
+    where
         -- For the block, add each statement to the spec and insert the spec in the overall stydict
-        -- Only process assignment statements on matched specs, not the cartesion product of them
-        updateSpec :: StyDict -> (VarMap, StySpec) -> StyDict -- stmts is only external param
-        updateSpec dct (varmap, spec) =
-            let newSpec = foldl (procAssign varmap) spec stmts in -- procAssign is only called here
-            M.insert (spId newSpec) newSpec dct
+        addShapes :: [Stmt] -> StyDict -> (VarMap, StySpec) -> StyDict
+        addShapes statements dct (varmap, spec) =
+            let newSpec = foldl (procAssign varmap) spec statements
+            in M.insert (spId newSpec) newSpec dct
 
-        -- Add each object's spec (that has been selected by the block's selectors) to the stydict
-        newDict :: StyDict
-        newDict = foldl updateSpec dict $ concat selectedSpecs
-
-        -- validMap :: t (k, [Char]) -> Bool
-        validMap ts = and . trs "result" . fst $ foldl
+-- Case 3: multiple selectors, which in the current Style languages means
+-- we would take a subset of the cartesian product among the selectors.
+-- TEMP: the system does not support assignment statements in these blocks,
+-- because it is not clear that which Substance object the shapes associate with
+procBlock (dict, objFns, constrFns) (selectors, stmts) =
+    let mapsAndSpecs  = dict `matchWithAll` selectors
+        mergedMaps    = mergeMaps $ map (map fst) $ mapsAndSpecs
+        newObjFns     = concatMap (genFns procObjFn stmts)    mergedMaps
+        newConstrFns  = concatMap (genFns procConstrFn stmts) mergedMaps
+    in (dict, objFns ++ newObjFns, constrFns ++ newConstrFns)
+    where
+        validMap :: [(Name, Name)] -> Bool
+        validMap tuples = and . fst $ foldl
             (\(l, m) (x, y) -> case M.lookup x m of
                 Nothing -> (True:l, M.insert x y m)
-                Just y' -> ((trs ("compare: " ++ y ++ " " ++ y' ++ ": ") $ y == y') : l, m))
-            ([], M.empty) (trs "ts" ts)
+                Just y' -> ((y == y') : l, m))
+            ([], M.empty) tuples
 
-        -- noDup :: t (M.Map k [Char]) -> Bool
-        noDup ms = validMap $ concatMap M.toAscList ms
+        noDup :: [(M.Map Name Name)] -> Bool
+        noDup varmaps = validMap $ concatMap M.toAscList varmaps
 
         -- Combination of all selected (spec. varmap) (???)
-        allCombs :: [[VarMap]]
-        allCombs = filter (\x -> length x == length selectedSpecs) $ cartesianProduct varmaps
-                 where varmaps :: [[VarMap]]
-                       varmaps = map (map fst) selectedSpecs
+        allCombs :: [[VarMap]] -> [[VarMap]]
+        allCombs varmaps = filter
+            (\x -> length x == length varmaps) $
+            cartesianProduct varmaps
 
-        mergedMaps :: [VarMap]
-        mergedMaps = if length selectors == 1 && (selTyp . head) selectors == C.AllT
-                     then [allVars]
-                     else map M.unions (filter noDup allCombs)
+        mergeMaps :: [[VarMap]] -> [VarMap]
+        mergeMaps varmaps =  map M.unions (filter noDup $ allCombs varmaps)
 
-        -- Gather a list of objective or constraint functions by mapping over mergedMaps (?)
-        -- then for each statement, adding an objective or constraint if the line specifies one.
-        -- genFns :: (t -> [t] -> Stmt -> [t]) -> t -> [t]
-        genFns f varmap = foldl (f varmap) [] stmts
 
-        -- newObjFns :: [(ObjFnOn a, Weight a, [Name], [a])] (typeclasses get annoying)
-        newObjFns    = concatMap (genFns procObjFn) $ trs "mergedMaps: " mergedMaps
-
-        newConstrFns = concatMap (genFns procConstrFn) mergedMaps
 
 -- | Called repeatedly by 'procBlock', 'procConstrFn' would look up and generate constraint functions if the input is a constraint function call. It ignores all other inputs
--- TODO: why not cons instead of (++) here and in procObjFn? would be more efficient
 procConstrFn :: (Autofloat a) =>
-    VarMap -> [(ConstrFnOn a, Weight a, [Name], [a])] -> Stmt
-    -> [(ConstrFnOn a, Weight a, [Name], [a])]
+    VarMap ->
+    [ConstrFnInfo a] ->
+    Stmt ->
+    [ConstrFnInfo a]
 procConstrFn varMap fns (ConstrFn fname es) =
     trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
-    fns ++ [(func, defaultWeight, names, nums)]
+    (func, defaultWeight, names, nums) : fns
     where
         func = case M.lookup fname constrFuncDict of
             Just f -> f
@@ -433,11 +462,13 @@ procConstrFn varMap fns _ = fns -- TODO: avoid functions
 
 -- | Similar to `procConstrFn` but for objective functions
 procObjFn :: (Autofloat a) =>
-    VarMap -> [(ObjFnOn a, Weight a, [Name], [a])] -> Stmt
-    -> [(ObjFnOn a, Weight a, [Name], [a])]
+    VarMap ->
+    [ObjFnInfo a] ->
+    Stmt ->
+    [ObjFnInfo a]
 procObjFn varMap fns (ObjFn fname es) =
     trStr ("New Objective function: " ++ fname ++ " " ++ (show names)) $
-    fns ++ [(func, defaultWeight, names, nums)]
+    (func, defaultWeight, names, nums) : fns
     where
         func = case M.lookup fname objFuncDict of
             Just f -> f
@@ -453,7 +484,7 @@ lookupVarMap s varMap = case M.lookup s varMap of
     Nothing -> case M.lookup s computationDict of
                Just f -> trace ("found function named: " ++ s) $ s
                Nothing -> s
-    
+
                -- TODO: there is a possibility of accessing unselected Substance variables here. As written here, we are assuming all ids from SUbstance are accessible in Style GLOBALLY. Is this okay?
                -- error $ "lookupVarMap: incorrect variable mapping from " ++ s ++ " or no computation"
 
@@ -482,20 +513,21 @@ addSpec varMap dict (Assign s e) =
         CompArgs fname params -> trace ("inserted computation " ++ fname) $ M.insert s e dict
         StringLit p -> M.insert s (StringLit p) dict
         _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
-addSpec _ _ _ = error "procAssign: only support assignments in constructors!"
+addSpec _ _ _ = error "addSpec: only support assignments in constructors!"
 
 -- | Given a variable mapping and spec, if the statement is an assignment,
--- fold over the list of statements in the assignments (e.g. shape = Circle { statements } )
--- and add them to the configuration in the object's spec.
+-- fold over the list of statements in the assignments (e.g. shape = Circle { -- statements } ) and add them to the property list in the object's spec.
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
 procAssign varMap spec (Assign n (Cons typ stmts)) =
     -- trace ("procassign " ++ n ++ " " ++ show typ ++ " " ++ show stmts) $
-    if n == "shape" then spec { spShape = (typ, configs) } -- primary shape
-    else spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec } -- secondary shapes
-    where
-        configs :: M.Map String Expr
-        configs = foldl (addSpec varMap) M.empty stmts
-procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
+    -- COMBAK: "shape" denotes primary shape. Will be changed later
+    if n == "shape"
+        then spec { spShape = (typ, properties) } -- primary shape
+        else spec { spShpMap = M.insert n (typ, properties) $
+                               spShpMap spec }     -- secondary shapes
+    where -- properties :: M.Map String Expr
+        properties = foldl (addSpec varMap) M.empty stmts
+procAssign _ spec  _  = spec -- ignoring assignment for all others
 
 -- | Generate a unique id for a Substance constraint
 -- FIXME: make sure these names are unique and make sure users cannot start ids
