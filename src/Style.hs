@@ -471,6 +471,19 @@ procExpr _ (StringLit s) = Left s
 procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
+-- FIXME: this (?) is incorrect, we should resolve the variables earlier
+addSpec :: VarMap -> M.Map String Expr -> Stmt -> M.Map String Expr
+addSpec _ dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
+addSpec _ dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
+-- FIXME: wrap fromleft inside a function!
+addSpec varMap dict (Assign s e) =
+        case e of
+        -- TODO: assigning computation might require looking up names, resolving pattern matched ids
+        CompArgs fname params -> trace ("inserted computation " ++ fname) $ M.insert s e dict
+        StringLit p -> M.insert s (StringLit p) dict
+        _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
+addSpec _ _ _ = error "procAssign: only support assignments in constructors!"
+
 -- | Given a variable mapping and spec, if the statement is an assignment,
 -- fold over the list of statements in the assignments (e.g. shape = Circle { statements } )
 -- and add them to the configuration in the object's spec.
@@ -481,20 +494,7 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
     else spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec } -- secondary shapes
     where
         configs :: M.Map String Expr
-        configs = foldl addSpec M.empty stmts
-        -- FIXME: this is incorrect, we should resolve the variables earlier
-
-        addSpec :: M.Map String Expr -> Stmt -> M.Map String Expr
-        addSpec dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
-        addSpec dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
-        -- FIXME: wrap fromleft inside a function!
-        addSpec dict (Assign s e) =
-                case e of
-                -- TODO: assigning computation might require looking up names, resolving pattern matched ids
-                CompArgs fname params -> trace ("inserted computation " ++ fname) $ M.insert s e dict
-                StringLit p -> M.insert s (StringLit p) dict
-                _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
-        addSpec _ _ = error "procAssign: only support assignments in constructors!"
+        configs = foldl (addSpec varMap) M.empty stmts
 procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
 
 -- | Generate a unique id for a Substance constraint

@@ -373,7 +373,7 @@ getShape (oName, (objType, config)) =
          let res = tupAppend objInfo computations in
 
          -- TODO factor out label logic?
-         let labelRes = queryConfig "label" config in -- assuming one label per shape
+         let labelRes = M.lookup labelWord config in -- assuming one label per shape
          let labelSet = labelSetting labelRes objType oName in
          case labelSet of
          -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
@@ -406,20 +406,22 @@ compsAndVars n config =
 
 data LabelSetting = NoLabel | Default Name | Custom Name
 
-noneWord, autoWord :: String
+noneWord, autoWord, labelWord :: String
 noneWord = "None"
 autoWord = "Auto"
+labelWord = "text"
 
-labelSetting :: Maybe String -> S.StyObj -> Name -> LabelSetting
-labelSetting s objType objName = 
+labelSetting :: Maybe S.Expr -> S.StyObj -> Name -> LabelSetting
+labelSetting s_expr objType objName = 
              case objType of
                   S.NoShape -> NoLabel
-                  _ -> case s of
+                  _ -> case s_expr of
                           -- A real object with unspecified label -> autolabeled with Substance name
                           Nothing -> Default objName
-                          Just str -> if str == noneWord then NoLabel
-                                      else if str == autoWord then Default objName
-                                      else Custom str
+                          Just (S.Id "None") -> NoLabel
+                          Just (S.Id "Auto") -> Default objName
+                          Just (S.StringLit text) -> Custom text
+                          Just res -> error ("invalid label setting:\n" ++ show res)
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
@@ -427,8 +429,8 @@ initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
 
 initText n config = ([defaultText n], [], [])
 initArrow n config = (objs, oFns, [])
-    where from = queryConfig "start" config
-          to   = queryConfig "end" config
+    where from = lookupId "start" config
+          to   = lookupId "end" config
           objs = [defaultSolidArrow n]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
@@ -452,7 +454,7 @@ initDot n config = ([defaultPt n], [], [])
 
 initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0)] -- (60, 0), (100, 100), (250, 250), (300, 100)]
-              style = fromMaybe "solid" $ queryConfig "style" config
+              style = fromMaybe "solid" $ lookupStr "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
               objs = [curve]
 
@@ -464,17 +466,22 @@ tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
 -- TODO: deal with pattern-matching on computation anywhere
--- TODO: distinguish between variable name (id) and string literal (in types?)
-queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
-queryConfig key dict = case M.lookup key dict of
-    Just (S.Id i) -> Just i
-    Just (S.StringLit s) -> Just s
-    Just (S.CompArgs fn params) -> Nothing
+lookupId :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
+lookupId key dict = case M.lookup key dict of
+    Just (S.Id i) -> Just i -- objects are looked up later
+    Just res -> error ("expecting id, got:\n" ++ show res)
+    Nothing -> Nothing
+
+lookupStr :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
+lookupStr key dict = case M.lookup key dict of
+    Just (S.StringLit i) -> Just i
+    Just res -> error ("expecting str, got:\n" ++ show res)
+    Nothing -> Nothing
+
+    -- Just (S.CompArgs fn params) -> error "not expecting a computed property"
     -- FIXME: get dot access to work for arbitrary input
     -- TODO: don't hardcode "shape" and allow accessing other properties
-    Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Nothing
-    Just x -> error $ "unsupported datatype in queryConfig in runtime: " ++ show x
-    Nothing -> Nothing
+    -- Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Nothing
 
 ------- Generate objective functions
 
