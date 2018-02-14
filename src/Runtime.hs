@@ -15,6 +15,7 @@ import Functions
 import Computation
 import Data.Set (fromList)
 import Data.List
+import Data.List.Split (splitOn)
 import Data.Maybe
 import Data.Monoid ((<>))
 import Data.Aeson
@@ -279,18 +280,22 @@ styExprToCompExpr objs e = case e of
                 S.Id v         -> case lookupAll v objs of
                                   [] -> error ("id '" ++ v ++ "' /and subobjects do(es) not exist in obj dict")
                                   xs -> Right xs
-                S.BinOp _ _ _  -> error "computations don't support operations"
-                S.Cons _ _     -> error "computatons don't support object constructors (?)"
+                S.BinOp _ _ _  -> error "computations don't support operations / TODO binops"
+                S.Cons _ _     -> error "computations don't support object constructors (?)"
                 S.CompArgs _ _ -> error "computations don't support nested computations"
 
 -- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra" 
 -- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"
 -- Maybe add the ability to pass in "expected" types, or to synthesize types and then check if they match?
 lookupAll :: Name -> M.Map Name (Obj' a) -> [Obj' a]
-lookupAll name objs = map snd $ M.toList $ M.filterWithKey (objOrSecondaryShape name) objs
-           where objOrSecondaryShape name inName _ = name == inName 
-                                                    || (name ++ secondaryIndicator) `isPrefixOf` inName
-                 secondaryIndicator = "_shape"
+lookupAll name objs = map snd $ M.toList $ M.filterWithKey (\inName _ -> objOrSecondaryShape name inName) objs
+
+objOrSecondaryShape :: Name -> Name -> Bool
+objOrSecondaryShape name inName = let inNames = splitOn nameSep inName in 
+                                  -- subobjname, styshapename, possibly label
+                                  case inNames of
+                                  [subObjName, styShapeName] -> name == subObjName
+                                  _ -> False -- excludes labels of shapes
 
 ------- Style related functions
 
@@ -336,18 +341,19 @@ defaultLabel objName labelText =
 
 shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
                                ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
-shapeAndFn dict name =
-    case M.lookup name dict of
-        Nothing -> error ("Cannot find style info for " ++ name)
-        Just spec  -> let config = (name, S.spShape spec) : map addPrefix (M.toList $ S.spShpMap spec) in
+shapeAndFn dict subObjName =
+    case M.lookup subObjName dict of
+        Nothing -> error ("Cannot find style info for " ++ subObjName)
+        Just spec  -> let config = {-TODO: remove:-} map (mkUniqueShapeName subObjName)
+                                   (M.toList $ S.spShpMap spec) in
                       let objs_and_functions = map getShape config in
-                      {-trace ("shape map: " ++ show config) $ -} concat4 objs_and_functions
+                      concat4 objs_and_functions
                       -- example config:
                       -- shape map: [("A",(Circle,fromList [("color",
                       -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
     where
+        mkUniqueShapeName name1 (name2, objInfo) = (uniqueShapeName name1 name2, objInfo)
         concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
-        addPrefix (s, o) = (name ++ "_" ++ s, o)
         fst4 (a, _, _, _) = a
         snd4 (_, a, _, _) = a
         thd4 (_, _, a, _) = a
@@ -373,7 +379,7 @@ getShape (oName, (objType, config)) =
          let res = tupAppend objInfo computations in
 
          -- TODO factor out label logic?
-         let labelRes = M.lookup labelWord config in -- assuming one label per shape
+         let labelRes = M.lookup labelTextWord config in -- assuming one label per shape
          let labelSet = labelSetting labelRes objType oName in
          case labelSet of
          -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
@@ -406,10 +412,11 @@ compsAndVars n config =
 
 data LabelSetting = NoLabel | Default Name | Custom Name
 
-noneWord, autoWord, labelWord :: String
+-- | Reserved words or special demarcators in the system
+noneWord, autoWord, labelTextWord :: String
 noneWord = "None"
 autoWord = "Auto"
-labelWord = "text"
+labelTextWord = "text"
 
 labelSetting :: Maybe S.Expr -> S.StyObj -> Name -> LabelSetting
 labelSetting s_expr objType objName = 
@@ -536,6 +543,7 @@ lookupWithFail dict key = case M.lookup key dict of
                              Nothing  -> Left key
                              Just val -> Right val
 
+-- TODO merge with lookupAll
 lookupNames :: (Autofloat a) => M.Map Name (Obj' a) -> [Name] -> [Obj' a]
 lookupNames dict ns = map check res
     where

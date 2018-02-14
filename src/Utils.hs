@@ -66,15 +66,25 @@ epsd = 10 ** (-10)
 halfDiagonal :: (Floating a) => a -> a
 halfDiagonal side = 0.5 * dist (0, 0) (side, side)
 
-labelName :: String -> String
-labelName name = "Label_" ++ name
-
 -- | `compose2` is used to compose with a function that takes in
 -- two arguments. As if now, it is used to compose `penalty` with
 -- constraint functions
 compose2 :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
 
+--------------------------------------------------------------------------------
+
+-- Code that involves naming conventions
+nameSep, labelWord :: String
+nameSep = " " -- TODO change to " "
+labelWord = "label"
+
+labelName :: String -> String
+labelName name = name ++ nameSep ++ labelWord
+
+uniqueShapeName :: String -> String -> String
+uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
+ -- e.g. "B yaxis" (the concatenation should be unique), TODO add the two names as separate obj fields
 
 --------------------------------------------------------------------------------
 ---- Lexer helper functions

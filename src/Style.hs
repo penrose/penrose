@@ -41,8 +41,8 @@ data StySpec = StySpec {
     spType :: C.SubType, -- | The Substance type of the object
     spId :: String, -- | The ID of the object
     spArgs :: [String], -- | the "arguments" that the Substance object has. Maybe not the best term here. The idea is to capture @A@ and @B@ in the case of @Map f A B@
-    spShape :: StyObjInfo, -- | primary geometry associated with the Substance object, specified by @shape = Circle { }@
-    spShpMap :: M.Map String StyObjInfo -- | secondary shapes, specified by @shape2 = Arrow { } -- the name is arbitrary here@
+    -- | Shapes are specified by "shapeName = ShapeType { key = val...}" and can be referred to by "X.shapeName"
+    spShpMap :: M.Map String StyObjInfo
 } deriving (Show, Typeable)
 
 -- | A Style program is a collection of blocks
@@ -70,7 +70,7 @@ data Pattern
 
 -- | A Style statement
 data Stmt
-    = Assign String Expr -- binding to geometric primitives: 'shape =  Circle {}'
+    = Assign String Expr -- binding to geometric primitives: 'shapeName = ShapeType { ... }'
     | ObjFn String [Expr] -- adding an objective function
     | ConstrFn String [Expr] -- adding a constraint function
     | Avoid String [Expr] -- to be implemented, stating an objective that we would like to avoid
@@ -295,7 +295,6 @@ type VarMap  = M.Map Name Name
 initSpec :: StySpec
 initSpec = StySpec { spType = C.PointT,
                      spId = "",
-                     spShape = (NoShape, M.empty),
                      spArgs = [],
                      spShpMap = M.empty
                    }
@@ -443,33 +442,63 @@ procObjFn varMap fns (ObjFn fname es) =
             Just f -> f
             Nothing -> error ("procObjFn: objective function '" ++ fname ++ "' not known")
         (names, nums) = partitionEithers $ map (procExpr varMap) es
-procObjFn varMap fns (Avoid fname es) = fns -- TODO: avoid functions
-procObjFn varMap fns _ = fns -- TODO: avoid functions
+procObjFn varMap fns (Avoid fname es) = fns -- TODO: `avoid` functions
+procObjFn varMap fns _ = fns -- TODO: `avoid` functions
 
 -- TODO: Have a more principled expr look up routine
 lookupVarMap :: String -> VarMap -> String
 lookupVarMap s varMap = case M.lookup s varMap of
     Just s' -> s'
-    Nothing -> case M.lookup s computationDict of
+    Nothing -> case M.lookup s computationDict of -- TODO remove this case
                Just f -> trace ("found function named: " ++ s) $ s
                Nothing -> s
     
                -- TODO: there is a possibility of accessing unselected Substance variables here. As written here, we are assuming all ids from SUbstance are accessible in Style GLOBALLY. Is this okay?
                -- error $ "lookupVarMap: incorrect variable mapping from " ++ s ++ " or no computation"
 
--- | Resolve a Style expression, which could be operations among expressions such as a chained dot-access for an attribute through a couple of layers of indirection (TODO: hackiest part of the compiler, rewrite this)
--- | An expression can be either a string (variable name) or float (literal)? Not sure
-procExpr :: (Autofloat a) =>
-    VarMap -> Expr -> Either String a -- TODO: revert to Either String a
-procExpr d (Id s)  = {-traceStack ("PROC 1 | " ++ s ++ " | " ++ show d) $ -}Left $ lookupVarMap s d
--- FIXME: properly resolve access by doing lookups
-procExpr d (BinOp Access (Id i) (Id "label"))  = {-traceStack "PROC 2" $-} Left $ labelName $ lookupVarMap i d
-procExpr d (BinOp Access (Id i) (Id "shape"))  = {-traceStack "PROC 3" $-} Left $ lookupVarMap i d
-procExpr _ (IntLit i) = Right $ r2f i
+-- | Resolve a Style expression, which could be operations among expressions such as a chained dot-access for an attribute through a couple of layers of indirection
+
+-- An expression can be either a string (variable name) or float (literal)? TODO revise
+-- Example: context (VarMap) [X ~> A] would arise with Sub: "Set A", Sty: "Set X { ... }"
+-- TODO: this function is not done/tested yet
+-- TODO: handle properties (e.g. `X.yaxis:length`, `X.yaxis.label:width`)
+-- TODO: replace underscores with spaces
+-- TODO: generalize this function to return Exprs? (so objectives/constraints/computations can handle gets)
+procExpr :: (Autofloat a) => VarMap -> Expr -> Either String a
+
+-- in context [X ~> A], look up "X", return "A"
+-- TODO: or a list of all shapes: "A yaxis", "A y_axis", ... (though lookupAll kind of does this)
+procExpr ctx (Id subObjPattern) = Left $ lookupVarMap subObjPattern ctx
+
+procExpr ctx r@(BinOp Access (Id _) (Id "label")) = error ("cannot access label of non-shape:\n" ++ show r)
+
+-- Shapes are given their unique names (for lookup) in Runtime (so far)
+-- in context [X ~> A], look up "X.yaxis.label", return "Label A yaxis"
+procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) = 
+             let subObjName = lookupVarMap subObjPattern ctx in
+             Left $ labelName $ uniqueShapeName subObjName styShapeName
+
+-- in context [X ~> A], look up "X.yaxis", return "A yaxis"
+procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) = 
+         let subObjName = lookupVarMap subObjPattern ctx in
+         Left $ uniqueShapeName subObjName styShapeName
+
+-- disallow deeper binops (e.g. "X.yaxis.zaxis")
+procExpr ctx r@(BinOp Access (BinOp Access _ _) _) = error ("nested non-label accesses not allowed:\n" ++ show r)
+procExpr ctx r@(BinOp Access _ _) = error ("incorrect binop access pattern:\n" ++ show r)
+
+procExpr _ (IntLit i) = Right $ r2f i -- TODO this shouldn't flatten ints for computations
 procExpr _ (FloatLit i) = Right $ r2f i
-procExpr _ (StringLit s) = Left s
+procExpr _ (StringLit s) = Left s -- TODO: distinguish strings from ids?
+
 procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
+
+
+-- temp. hack to convert procExpr output to computation input
+backToExpr :: (Autofloat a) => Either String a -> Expr
+backToExpr (Left s) = Id s -- TODO write new procExpr
+backToExpr (Right x) = FloatLit $ r2f x
 
 -- FIXME: this (?) is incorrect, we should resolve the variables earlier
 addSpec :: VarMap -> M.Map String Expr -> Stmt -> M.Map String Expr
@@ -478,24 +507,24 @@ addSpec _ dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
 -- FIXME: wrap fromleft inside a function!
 addSpec varMap dict (Assign s e) =
         case e of
-        -- TODO: assigning computation might require looking up names, resolving pattern matched ids
-        CompArgs fname params -> trace ("inserted computation " ++ fname) $ M.insert s e dict
+        CompArgs fname params -> let resolvedParams = {-map (backToExpr . procExpr varMap)-} params in
+                                 M.insert s (CompArgs fname resolvedParams) dict
         StringLit p -> M.insert s (StringLit p) dict
         _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
 addSpec _ _ _ = error "procAssign: only support assignments in constructors!"
 
 -- | Given a variable mapping and spec, if the statement is an assignment,
--- fold over the list of statements in the assignments (e.g. shape = Circle { statements } )
+-- fold over the list of statements in the assignments (e.g. shapeName = ShapeType { key = val... } )
 -- and add them to the configuration in the object's spec.
 procAssign :: VarMap -> StySpec -> Stmt -> StySpec
 procAssign varMap spec (Assign n (Cons typ stmts)) =
-    -- trace ("procassign " ++ n ++ " " ++ show typ ++ " " ++ show stmts) $
-    if n == "shape" then spec { spShape = (typ, configs) } -- primary shape
-    else spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec } -- secondary shapes
+    spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec }
     where
         configs :: M.Map String Expr
         configs = foldl (addSpec varMap) M.empty stmts
-procAssign _ spec  _  = spec -- TODO: ignoring assignment for all others
+procAssign _ spec _ = spec -- TODO: ignoring assignment for all others; what kinds are invalid?
+
+--------------------------------------------------------------------------------
 
 -- | Generate a unique id for a Substance constraint
 -- FIXME: make sure these names are unique and make sure users cannot start ids
