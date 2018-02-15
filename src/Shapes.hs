@@ -751,6 +751,8 @@ set "startx" (A' o) (TNum n)     = A' $ o { startx' = n }
 set "starty" (A' o) (TNum n)     = A' $ o { starty' = n }
 set "endx" (A' o) (TNum n)       = A' $ o { endx' = n }
 set "endy" (A' o) (TNum n)       = A' $ o { endy' = n }
+set "start" (A' o) (TPt (x, y))  = A' $ o { startx' = x, starty' = y }
+set "end" (A' o) (TPt (x, y))    = A' $ o { endx' = x, endy' = y }
 set "thickness" (A' o) (TNum n)  = A' $ o { thickness' = n }
 set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
 -- TODO add angle and length properties

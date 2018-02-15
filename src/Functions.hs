@@ -57,7 +57,8 @@ objFuncDict = M.fromList flist
                     -- ("repel", repel),
                     ("outside", outside),
                     ("nearEndVert", nearEndVert),
-                    ("nearEndHoriz", nearEndHoriz)
+                    ("nearEndHoriz", nearEndHoriz),
+                    ("nearHead", nearHead)
                   ]
 
 -- illegal polymorphic or qualified type--can't return a forall?
@@ -251,6 +252,13 @@ nearEndHoriz [CB' line, L' lab] _ = -- expects a straight horiz line
             let leftpt = if fst p1 < fst p2 then p1 else p2 in
             let xoffset = -25 in
             distsq (xl' lab, yl' lab) (fst leftpt + xoffset, snd leftpt)
+
+nearHead :: ObjFn
+nearHead [A' arr, L' lab] _ = 
+         let end = (endx' arr, endy' arr) in -- arrowhead
+         let offset = (20, 20) in -- TODO calculate based on arrow angle
+         distsq (xl' lab, yl' lab) (end `plus2` offset)
+         where plus2 (a, b) (c, d) = (a + c, b + d)
 
 ------- Ambient objective functions
 

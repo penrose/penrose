@@ -1,33 +1,27 @@
-global {
-    constraint at(origin, 0, 0)
-    constraint at(horiz, 300, 0)
-    constraint at(vert, 0, 200)
-}
-
 Point p {
-      shape = Dot {
-            text = None
-      }
+      shape = None
+      -- TODO: add an "anchor point" object class? (has an internal shape that isn't displayed)
 }
 
 Set `domainOuter` {
     shape = Arrow {
-          start = origin
-          end = horiz
+	  -- TODO: writing "start = 5" isn't treated as fixed constants, but a computation sort of is
+          start = atOrigin()
+	  end = toRight()
           text = "x"
     }
 
-    objective centerLabel(domainOuter, domainOuter.shape.label) -- formerly domainOuter.label
+    objective nearHead(domainOuter, domainOuter.shape.label) -- formerly domainOuter.label
 }
 
 Set `codomain` {
     shape = Arrow {
-          start = origin
-          end = vert
+          start = atOrigin()
+          end = toAbove()
           text = "f(x)"
     }
 
-    objective centerLabel(codomain, codomain.shape.label)
+    objective nearHead(codomain, codomain.shape.label)
 }
 
 Map f domain image {
@@ -43,10 +37,10 @@ Map f domain image {
 Set `cartesianProduct` {
   shape = Rect {
     text = None
-    center = regionCenter(domain, image)
-    -- this will pass in both of domain's objects
+    center = regionCenter(domain, image)    -- this will pass in both of domain's objects
     length = regionX(domain)
     width = regionY(image)
+    color = lightBlue()
   }
 }
 
@@ -65,8 +59,6 @@ Set `domain` {
 
        -- TODO here, 'domain' should be in scope, so we should only have to type 'left' or 'right'
        -- TODO need to check for name clashes/scope between Sub/Sty/Sty blocks
-       -- TODO how to compute a label position?
-
        objective nearEndVert(domain.left, domain.left.label)
        objective nearEndVert(domain.right, domain.right.label)
 }

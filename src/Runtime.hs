@@ -104,7 +104,7 @@ type Varying a = [a]
 -- does not unpack names
 unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
-unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)] -- TODO: changed r to Fix for testing
+unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, Vary)]
@@ -112,8 +112,9 @@ unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, V
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
-unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), (endx' a, Vary),
-    (endy' a, Vary), (thickness' a, Fix)]
+-- TODO revert this!! Hack just for surjection program
+unpackObj (A' a) = [(startx' a, Fix), (starty' a, Fix), 
+                    (endx' a, Fix), (endy' a, Fix), (thickness' a, Fix)]
 -- unpackObj (CB' c) = [(pathcb' cb, Fix)]
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
 
@@ -443,8 +444,8 @@ initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
 
 initText n config = ([defaultText n], [], [])
 initArrow n config = (objs, oFns, [])
-    where from = lookupId "start" config
-          to   = lookupId "end" config
+    where from = lookupId "startShape" config
+          to   = lookupId "endShape" config
           objs = [defaultSolidArrow n]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
