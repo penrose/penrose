@@ -17,7 +17,7 @@ Set `domainOuter` {
           text = "x"
     }
 
-    objective centerLabel(domainOuter, domainOuter.label)
+    objective centerLabel(domainOuter, domainOuter.shape.label) -- formerly domainOuter.label
 }
 
 Set `codomain` {
@@ -27,7 +27,7 @@ Set `codomain` {
           text = "f(x)"
     }
 
-    objective centerLabel(codomain, codomain.label)
+    objective centerLabel(codomain, codomain.shape.label)
 }
 
 Map f domain image {
@@ -36,7 +36,7 @@ Map f domain image {
           text = Auto
     }
 
-    objective centerLabel(f, f.label)
+    objective centerLabel(f, f.shape.label)
 }
 
 -- Set `domainOuter`, Set `codomain` {
@@ -51,41 +51,39 @@ Set `cartesianProduct` {
 }
 
 Set `domain` {
-       shape = Curve {
+       left = Curve {
              style = "dashed"
              path = lineLeft(0.2, domainOuter, codomain)
              text = "A0"
        }
 
-       shape2 = Curve {
+       right = Curve {
               style = "dashed"
               path = lineLeft(0.8, domainOuter, codomain)
               text = "A1"
        }
 
-       -- TODO deal with these dot accesses; also, is shape a keyword?
-       -- here, 'domain' should be in scope, so we should only have to type shape
-       -- need to check for name clashes/scope between Sub/Sty/Sty blocks
+       -- TODO here, 'domain' should be in scope, so we should only have to type 'left' or 'right'
+       -- TODO need to check for name clashes/scope between Sub/Sty/Sty blocks
        -- TODO how to compute a label position?
-       -- what does 'domain.label' currently do?
-       
-       -- objective nearEnd(domain.shape, domain.shape.label)
-       -- objective nearEnd(domain.shape2, domain.shape.label)
 
-       -- objective nearEnds(domain.shape.label, domain.label)
-       -- objective nearEnds(domain.shape2, domain.label)
+       objective nearEndVert(domain.left, domain.left.label)
+       objective nearEndVert(domain.right, domain.right.label)
 }
 
 Set `image` {
-       shape = Curve {
+       bottom = Curve {
              style = "dashed"
              path = lineRight(0.2, codomain, domainOuter)
              text = "B0"
        }
 
-       shape2 = Curve {
+       top = Curve {
               style = "dashed"
               path = lineRight(0.8, codomain, domainOuter)
               text = "B1"
        }
+
+       objective nearEndHoriz(image.bottom, image.bottom.label)
+       objective nearEndHoriz(image.top, image.top.label)
 }

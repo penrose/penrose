@@ -698,6 +698,9 @@ get "endy" (A' o)          = TNum $ endy' o
 get "thickness" (A' o)     = TNum $ thickness' o
 get "color" (A' o)         = TColor $ colorsa' o
 
+-- Labels
+get "location" (L' o)      = TPt (xl' o, yl' o)
+
 get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n" 
                                    ++ show obj ++ "\n" ++ show obj)
 
@@ -752,6 +755,8 @@ set "thickness" (A' o) (TNum n)  = A' $ o { thickness' = n }
 set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
 -- TODO add angle and length properties
 
--- Does not handle labels (yet)
+-- Labels
+set "location" (L' o) (TPt (x, y)) = L' $ o { xl' = x, yl' = y }
+
 set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n" 
                                    ++ show obj ++ "\n" ++ show val)

@@ -290,12 +290,18 @@ styExprToCompExpr objs e = case e of
 lookupAll :: Name -> M.Map Name (Obj' a) -> [Obj' a]
 lookupAll name objs = map snd $ M.toList $ M.filterWithKey (\inName _ -> objOrSecondaryShape name inName) objs
 
+nameParts :: String -> [String]
+nameParts = splitOn nameSep
+
+-- A name is three parts: [subobjname, possibly styshapename, possibly label]
+-- TODO rewrite, it's hacky to do name resolution in lookup vs. in procExpr
 objOrSecondaryShape :: Name -> Name -> Bool
-objOrSecondaryShape name inName = let inNames = splitOn nameSep inName in 
-                                  -- subobjname, styshapename, possibly label
-                                  case inNames of
-                                  [subObjName, styShapeName] -> name == subObjName
-                                  _ -> False -- excludes labels of shapes
+objOrSecondaryShape name inName = let (names, inNames) = (nameParts name, nameParts inName) in
+                                  case (names, inNames) of
+                                  -- Resolve e.g. "A" to "A xaxis", "A yaxis"
+                                  ([subObjName], [inSubObjName, inStyShapeName]) -> subObjName == inSubObjName
+                                                                -- excludes labels of shapes
+                                  _ -> name == inName -- Resolve e.g. "A xaxis", "A xaxis label"
 
 ------- Style related functions
 
@@ -422,11 +428,12 @@ labelSetting :: Maybe S.Expr -> S.StyObj -> Name -> LabelSetting
 labelSetting s_expr objType objName = 
              case objType of
                   S.NoShape -> NoLabel
-                  _ -> case s_expr of
+                  _ -> let subObjName = (nameParts objName) !! 0 in
+                        case s_expr of
                           -- A real object with unspecified label -> autolabeled with Substance name
-                          Nothing -> Default objName
+                          Nothing -> Default subObjName
                           Just (S.Id "None") -> NoLabel
-                          Just (S.Id "Auto") -> Default objName
+                          Just (S.Id "Auto") -> Default subObjName
                           Just (S.StringLit text) -> Custom text
                           Just res -> error ("invalid label setting:\n" ++ show res)
 
@@ -538,14 +545,13 @@ constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
 
 -- Preserve failed keys for reporting errors
-lookupWithFail :: Ord k => M.Map k v -> k -> Either k v
-lookupWithFail dict key = case M.lookup key dict of
-                             Nothing  -> Left key
-                             Just val -> Right val
+lookupWithFail :: M.Map Name (Obj' a) -> Name -> Either Name [Obj' a]
+lookupWithFail dict key = case lookupAll key dict of -- accounts for X resolving to "X shape1", "X shape2", etc
+                             []   -> Left key
+                             vals -> Right vals
 
--- TODO merge with lookupAll
 lookupNames :: (Autofloat a) => M.Map Name (Obj' a) -> [Name] -> [Obj' a]
-lookupNames dict ns = map check res
+lookupNames dict ns = concatMap check res
     where
         res = map (lookupWithFail dict) ns
         check x = case x of

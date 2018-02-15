@@ -467,13 +467,13 @@ lookupVarMap s varMap = case M.lookup s varMap of
 procExpr :: (Autofloat a) => VarMap -> Expr -> Either String a
 
 -- in context [X ~> A], look up "X", return "A"
--- TODO: or a list of all shapes: "A yaxis", "A y_axis", ... (though lookupAll kind of does this)
+-- TODO: or a list of all shapes: "A xaxis", "A yaxis", ... (lookupAll does this for now)
 procExpr ctx (Id subObjPattern) = Left $ lookupVarMap subObjPattern ctx
 
 procExpr ctx r@(BinOp Access (Id _) (Id "label")) = error ("cannot access label of non-shape:\n" ++ show r)
 
 -- Shapes are given their unique names (for lookup) in Runtime (so far)
--- in context [X ~> A], look up "X.yaxis.label", return "Label A yaxis"
+-- in context [X ~> A], look up "X.yaxis.label", return "A yaxis label"
 procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) = 
              let subObjName = lookupVarMap subObjPattern ctx in
              Left $ labelName $ uniqueShapeName subObjName styShapeName

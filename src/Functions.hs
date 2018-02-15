@@ -56,7 +56,8 @@ objFuncDict = M.fromList flist
                     -- ("repel", (*)  10000  `compose2` repel),
                     -- ("repel", repel),
                     ("outside", outside),
-                    ("nearEnds", nearEnds)
+                    ("nearEndVert", nearEndVert),
+                    ("nearEndHoriz", nearEndHoriz)
                   ]
 
 -- illegal polymorphic or qualified type--can't return a forall?
@@ -220,6 +221,8 @@ centerLabel [CB' bez, L' lab] _ = -- use the float input? just for testing
 centerLabel [P' p, L' l] _ =
                 let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
                 (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
+
+-- TODO: depends on orientation of arrow
 centerLabel [A' a, L' l] _ =
                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
                     (mx, my) = midpoint (sx, sy) (ex, ey)
@@ -232,8 +235,22 @@ outside [L' o, C' i] _ = (dist (xl' o, yl' o) (xc' i, yc' i) - (1.5 * r' i) - wl
 outside [L' o, S' i] _ = (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
 -- TODO: generic version using bbox
 
-nearEnds :: ObjFn
-nearEnds objs consts = trace ("nearEnds objs:\n" ++ show objs) 0
+-- TODO change to straight lines
+nearEndVert :: ObjFn
+nearEndVert [CB' line, L' lab] _ = -- expects a straight vertical line
+            let path = pathcb' line in
+            let (p1, p2) = (path !! 0, path !! 1) in
+            let bottompt = if snd p1 < snd p2 then p1 else p2 in
+            let yoffset = -25 in
+            distsq (xl' lab, yl' lab) (fst bottompt, snd bottompt + yoffset)
+
+nearEndHoriz :: ObjFn
+nearEndHoriz [CB' line, L' lab] _ = -- expects a straight horiz line
+            let path = pathcb' line in
+            let (p1, p2) = (path !! 0, path !! 1) in
+            let leftpt = if fst p1 < fst p2 then p1 else p2 in
+            let xoffset = -25 in
+            distsq (xl' lab, yl' lab) (fst leftpt + xoffset, snd leftpt)
 
 ------- Ambient objective functions
 
