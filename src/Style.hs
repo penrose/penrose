@@ -278,9 +278,9 @@ attribute = identifier -- TODO: Naming convention - same as identifiers?
 -- Type aliases for readability in this section
 -- | 'StyContext' maintains the current output of the translater
 type StyContext a =
-    (StyDict, -- | dictionary mapping Substance ID to Style objects
-    [(ObjFnOn a, Weight a, [Name], [a])],    -- | List of objective functions
-    [(ConstrFnOn a, Weight a, [Name], [a])]) -- | List of constraints
+    (StyDict,         -- | dictionary mapping Substance ID to Style objects
+    [ObjFnInfo a],    -- | List of objective functions
+    [ConstrFnInfo a]) -- | List of constraints
 
 -- | A dictionary storing properties of a Style object, e.g. "start" for 'Arrow'
 type Properties = M.Map String Expr
