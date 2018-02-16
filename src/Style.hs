@@ -8,9 +8,11 @@ module Style where
 import Shapes
 import Utils
 import Control.Monad (void)
+import Data.Function (on)
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe)
+import Data.List (nubBy, nub)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
@@ -166,11 +168,11 @@ assignStmt = do
 -- | modeled off of objFn
 parseComp :: Parser Expr
 parseComp = do
-  fname <- identifier
-  lparen
-  params <- expr `sepBy` comma
-  rparen
-  return (CompArgs fname params)
+    fname <- identifier
+    lparen
+    params <- expr `sepBy` comma
+    rparen
+    return (CompArgs fname params)
 
 -- | objective function call
 objFn :: Parser Stmt
@@ -364,7 +366,8 @@ matchWithAll :: StyDict -> [Selector] -> [[(VarMap, StySpec)]]
 matchWithAll dict selectors = map (matchWith dict) selectors
 
 -- | Given a selector and a Style spec that matches with it, returns a map from placeholder ids to actual matched ids.
--- TODO: the underlying logic is the same as `matched`. Think of a cleaner way to both (1) check if there is a match and (2) collect a list of `VarMap`s
+-- TODO: the underlying logic is the same as `matched`. Think of a cleaner
+-- way to both (1) check if there is a match and (2) collect a list of `VarMap`s
 getVarMap :: Selector -> StySpec -> VarMap
 getVarMap sel spec = foldl add M.empty patternNamePairs
     where
@@ -375,9 +378,9 @@ getVarMap sel spec = foldl add M.empty patternNamePairs
             RawID _    -> dict
             WildCard wc -> M.insert wc name dict
 
-
--- Gather a list of objective or constraint functions by mapping over mergedMaps
--- genFns :: (VarMap -> [t] -> Stmt -> [t]) -> VarMap -> [t]
+-- Given either 'procConstrFn' or 'procObjFn' and its arguments, returns
+-- a #map@pable function that can get @map@ped onto a list of variable maps
+genFns :: (VarMap -> [t] -> Stmt -> [t]) -> [Stmt] -> VarMap -> [t]
 genFns f stmts varmap = foldl (f varmap) [] stmts
 
 -- | 'procBlock' is called by 'getDictAndFns'. 'getDictAndFns' would fold this function on a list of blocks, a.k.a. a Style program, and accumulate objective/constraint functions, and a dictionary of geometries to be rendered.
@@ -423,25 +426,22 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) =
         newConstrFns  = concatMap (genFns procConstrFn stmts) mergedMaps
     in (dict, objFns ++ newObjFns, constrFns ++ newConstrFns)
     where
-        validMap :: [(Name, Name)] -> Bool
-        validMap tuples = and . fst $ foldl
-            (\(l, m) (x, y) -> case M.lookup x m of
-                Nothing -> (True:l, M.insert x y m)
-                Just y' -> ((y == y') : l, m))
-            ([], M.empty) tuples
+        -- makes sure we don't bind same name with multiple Substance ids
+        -- in a list of comma-separated selectors
+        isOneToOne :: [VarMap] -> Bool
+        isOneToOne validMaps varmaps =
+            let flatMap      = nub $ concatMap M.toAscList varmaps
+                bijection    = bijectify flatMap
+            in  flatMap == bijection
+            where bijectify = nubBy ((==) `on` snd) . nubBy ((==) `on` fst)
 
-        noDup :: [(M.Map Name Name)] -> Bool
-        noDup varmaps = validMap $ concatMap M.toAscList varmaps
-
-        -- Combination of all selected (spec. varmap) (???)
-        allCombs :: [[VarMap]] -> [[VarMap]]
-        allCombs varmaps = filter
+        -- allCombinationsOf :: [[VarMap]] -> [[VarMap]]
+        allCombinationsOf varmaps = filter
             (\x -> length x == length varmaps) $
             cartesianProduct varmaps
-
-        mergeMaps :: [[VarMap]] -> [VarMap]
-        mergeMaps varmaps =  map M.unions (filter noDup $ allCombs varmaps)
-
+        -- mergeMaps :: [[VarMap]] -> [VarMap]
+        mergeMaps varmaps =  map M.unions (filter isOneToOne $
+            allCombinationsOf varmaps)
 
 
 -- | Called repeatedly by 'procBlock', 'procConstrFn' would look up and generate constraint functions if the input is a constraint function call. It ignores all other inputs
@@ -491,7 +491,7 @@ lookupVarMap s varMap = case M.lookup s varMap of
 -- | Resolve a Style expression, which could be operations among expressions such as a chained dot-access for an attribute through a couple of layers of indirection (TODO: hackiest part of the compiler, rewrite this)
 -- | An expression can be either a string (variable name) or float (literal)? Not sure
 procExpr :: (Autofloat a) =>
-    VarMap -> Expr -> Either String a -- TODO: revert to Either String a
+    VarMap -> Expr -> Either String a
 procExpr d (Id s)  = {-traceStack ("PROC 1 | " ++ s ++ " | " ++ show d) $ -}Left $ lookupVarMap s d
 -- FIXME: properly resolve access by doing lookups
 procExpr d (BinOp Access (Id i) (Id "label"))  = {-traceStack "PROC 2" $-} Left $ labelName $ lookupVarMap i d
@@ -503,7 +503,7 @@ procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " +
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
 -- FIXME: this (?) is incorrect, we should resolve the variables earlier
-addSpec :: VarMap -> M.Map String Expr -> Stmt -> M.Map String Expr
+addSpec :: VarMap -> Properties -> Stmt -> Properties
 addSpec _ dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
 addSpec _ dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
 -- FIXME: wrap fromleft inside a function!
