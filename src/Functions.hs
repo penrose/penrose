@@ -46,8 +46,8 @@ objFuncDict = M.fromList flist
                     ("toLeft", toLeft),
                     ("above", above),
                     ("between", between),
-                    ("sameHeight", sameHeight),
                     ("sameX", sameX),
+                    ("sameY", sameY),
                     -- ("sameX", (*) 0.6 `compose2` sameX),
                     -- ("sameX", (*) 0.2 `compose2` sameX),
                     ("sameCenter", sameCenter),
@@ -122,7 +122,6 @@ center [o] _ = getX o ^ 2 + getY o ^ 2
 
 -- | 'above' makes sure the first argument is on top of the second.
 above :: ObjFn
--- above (
 above [top, bottom] [offset] = (getY top - getY bottom - offset)^2
 above [top, bottom] _ = (getY top - getY bottom - 100)^2
 
@@ -130,13 +129,18 @@ above [top, bottom] _ = (getY top - getY bottom - 100)^2
 toLeft :: ObjFn
 toLeft [a, b] _ = (getX a - getX b + 400)^2
 
--- | 'sameHeight' forces two objects to stay at the same height (have the same Y value)
-sameHeight :: ObjFn
-sameHeight [a, b] _ = (getY a - getY b)^2
-
--- | 'sameHeight' forces two objects to have the same X value
+-- | encourages two objects to have the same X value
 sameX :: ObjFn
+sameX [A' a, L' l] _ = -- TODO factor middle calculation out? seems like it would be used often
+      let arrMidX = (startx' a + endx' a) / 2 in
+      let labMidX = xl' l in
+      (arrMidX - labMidX) ^ 2
+
 sameX [a, b] _ = (getX a - getX b)^2
+
+-- | encourages two objects to stay at the same height (have the same Y value)
+sameY :: ObjFn
+sameY [a, b] _ = (getY a - getY b)^2
 
 -- | 'sameCenter' forces two object to center at the same point
 sameCenter :: ObjFn
@@ -254,9 +258,9 @@ nearEndHoriz [CB' line, L' lab] _ = -- expects a straight horiz line
             distsq (xl' lab, yl' lab) (fst leftpt + xoffset, snd leftpt)
 
 nearHead :: ObjFn
-nearHead [A' arr, L' lab] _ = 
+nearHead [A' arr, L' lab] [xoff, yoff] = 
          let end = (endx' arr, endy' arr) in -- arrowhead
-         let offset = (20, 20) in -- TODO calculate based on arrow angle
+         let offset = (xoff, yoff) in
          distsq (xl' lab, yl' lab) (end `plus2` offset)
          where plus2 (a, b) (c, d) = (a + c, b + d)
 

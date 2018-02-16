@@ -168,12 +168,12 @@ $.getScript('snap.svg.js', function()
                     // by default, the curve should be solid
                     curve.attr({
                         fill: "transparent",
-                        strokeWidth: 3, // this should be settable in Style
+                        strokeWidth: 2.5, // this should be settable in Style
                         stroke: rgbToHex(color.r, color.g, color.b)
                     });
                     if(obj.stylecb == "dashed") {
                         curve.attr({
-                            strokeDasharray: "10"
+                            strokeDasharray: "7, 5" // "10"
                         });
                     }
                     curve.drag(move, start, stop)

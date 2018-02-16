@@ -11,7 +11,7 @@ Set `domainOuter` {
           text = "x"
     }
 
-    objective nearHead(domainOuter, domainOuter.shape.label) -- formerly domainOuter.label
+    objective nearHead(domainOuter, domainOuter.shape.label, 15, 0) -- formerly domainOuter.label
 }
 
 Set `codomain` {
@@ -21,16 +21,18 @@ Set `codomain` {
           text = "f(x)"
     }
 
-    objective nearHead(codomain, codomain.shape.label)
+    objective nearHead(codomain, codomain.shape.label, 0, 20) -- TODO parse negative numbers
 }
 
 Map f domain image {
     shape = Curve {
           path = computeSurjectionLines(5, domain, image)
-          text = Auto
+          text = "(surjection)"
+	  color = darkBlue()
     }
-
-    objective centerLabel(f, f.shape.label)
+    
+    objective sameX(domainOuter.shape, f.shape.label, 30)
+    objective above(domainOuter.shape, f.shape.label, 30)
 }
 
 -- Set `domainOuter`, Set `codomain` {

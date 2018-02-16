@@ -451,7 +451,7 @@ data Ellipse' a = Ellipse' {
     colore' :: Color
 } deriving (Eq, Show, Typeable, Data)
 
-data Label' a = Label' { xl' :: a
+data Label' a = Label' { xl' :: a -- middle (x, y) of label
                        , yl' :: a
                        , wl' :: a
                        , hl' :: a
