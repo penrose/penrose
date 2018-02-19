@@ -104,7 +104,7 @@ data SubConstr
 
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
 substanceParser :: Parser [SubStmt]
-substanceParser = between sc eof subProg
+substanceParser = between scn eof subProg
 
 -- | 'subProg' parses the entire Substance program, which is a collection of statments
 subProg :: Parser [SubStmt]

@@ -403,8 +403,8 @@ procBlock (dict, objFns, constrFns) ((Selector C.AllT []) : [], stmts) =
 -- assignments
 procBlock (dict, objFns, constrFns) (selector : [], stmts) =
     let mapsAndSpecs  = dict `matchWith` selector
-        newDict       = foldl (addShapes stmts) dict $ mapsAndSpecs
-        varmaps       = map fst $ mapsAndSpecs
+        newDict       = foldl (addShapes stmts) dict mapsAndSpecs
+        varmaps       = map fst mapsAndSpecs
         newObjFns     = concatMap (genFns procObjFn stmts)    varmaps
         newConstrFns  = concatMap (genFns procConstrFn stmts) varmaps
     in (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
@@ -421,7 +421,7 @@ procBlock (dict, objFns, constrFns) (selector : [], stmts) =
 -- because it is not clear that which Substance object the shapes associate with
 procBlock (dict, objFns, constrFns) (selectors, stmts) =
     let mapsAndSpecs  = dict `matchWithAll` selectors
-        mergedMaps    = mergeMaps $ map (map fst) $ mapsAndSpecs
+        mergedMaps    = tr "mergedMaps: " $ mergeMaps $ map (map fst) mapsAndSpecs
         newObjFns     = concatMap (genFns procObjFn stmts)    mergedMaps
         newConstrFns  = concatMap (genFns procConstrFn stmts) mergedMaps
     in (dict, objFns ++ newObjFns, constrFns ++ newConstrFns)
@@ -429,7 +429,7 @@ procBlock (dict, objFns, constrFns) (selectors, stmts) =
         -- makes sure we don't bind same name with multiple Substance ids
         -- in a list of comma-separated selectors
         isOneToOne :: [VarMap] -> Bool
-        isOneToOne validMaps varmaps =
+        isOneToOne varmaps =
             let flatMap      = nub $ concatMap M.toAscList varmaps
                 bijection    = bijectify flatMap
             in  flatMap == bijection
