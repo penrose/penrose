@@ -1,6 +1,6 @@
 # Penrose
 
-* See [the site](penrose.ink) for more information and examples. 
+* See [the site](http://www.penrose.ink/) for more information and examples. 
 * See the [wiki](https://github.com/penrose/penrose/wiki) for more system-specific information on building, running, testing, and debugging the system. 
 * For even more documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-pub/blob/master/penrose/ramp-down.md).
 
