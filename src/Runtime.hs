@@ -429,6 +429,7 @@ labelSetting :: Maybe S.Expr -> S.StyObj -> Name -> LabelSetting
 labelSetting s_expr objType objName = 
              case objType of
                   S.NoShape -> NoLabel
+                  -- S.Text -> NoLabel
                   _ -> let subObjName = (nameParts objName) !! 0 in
                         case s_expr of
                           -- A real object with unspecified label -> autolabeled with Substance name

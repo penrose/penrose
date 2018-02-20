@@ -374,7 +374,8 @@ contains [S' set, L' label] _ =
 -- FIXME: doesn't work
 contains [E' set, L' label] _ =
     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
-contains _  _ = error "subset not called with 2 args"
+contains [L' lab1, L' lab2] _ = 0 -- TODO: hack for venn_subset.sty for talk
+contains objs consts = error ("subset: maybe not called with 2 args?\n" ++ show objs ++ "\n" ++ show consts)
 
 outsideOf :: ConstrFn
 outsideOf [C' inc, C' outc] _ =

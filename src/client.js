@@ -191,7 +191,7 @@ $.getScript('snap.svg.js', function()
 		}
 
                 break
-                case 'L': // label
+                case 'L': // label (TODO: don't display Text shape? need to distinguish b/t text and label)
                     var t = s.text(dx + obj.xl, dy - obj.yl, [obj.textl]);
                     t.data("name", obj.namel)
                     t.attr({
