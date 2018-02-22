@@ -23,20 +23,8 @@ type Autofloat' a = (RealFloat a, Floating a, Real a, Show a, Ord a, Typeable a)
 
 type Pt2 a = (a, a)
 
-divLine = putStr "\n--------\n\n"
-
--- don't use r2f outside of zeroGrad or addGrad, since it doesn't interact well w/ autodiff
-r2f :: (Fractional b, Real a) => a -> b
-r2f = realToFrac
-
-toList :: a -> [a]
-toList x = [x]
-
-trd :: (a, b, c) -> c
-trd (_, _, x) = x
-
-tuplify2 :: [a] -> (a,a)
-tuplify2 [x,y] = (x,y)
+--------------------------------------------------------------------------------
+-- Parameters of the system
 
 stepsPerSecond :: Int
 stepsPerSecond = 100000
@@ -51,8 +39,9 @@ ptRadius = 4 -- The size of a point on canvas
 defaultWeight :: Floating a => a
 defaultWeight = 1
 
-debug = False
-debugStyle = False
+-- Debug flags
+debug = True
+debugStyle = True
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
 
@@ -63,6 +52,37 @@ subsetSizeDiff = 10.0
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
+-- TODO: check naming convention of this
+labelName :: String -> String
+labelName name = "_Label_" ++ name
+
+--------------------------------------------------------------------------------
+-- General helper functions
+
+divLine :: IO ()
+divLine = putStr "\n--------\n\n"
+
+-- don't use r2f outside of zeroGrad or addGrad, since it doesn't interact well w/ autodiff
+r2f :: (Fractional b, Real a) => a -> b
+r2f = realToFrac
+
+-- | Wrap a list around anything
+toList :: a -> [a]
+toList x = [x]
+
+-- | similar to fst and snd, get the third element in a tuple
+trd :: (a, b, c) -> c
+trd (_, _, x) = x
+
+-- | transform from a 2-element list to a 2-tuple
+tuplify2 :: [a] -> (a,a)
+tuplify2 [x,y] = (x,y)
+
+-- | generic cartesian product of elements in a list
+cartesianProduct :: [[a]] -> [[a]]
+cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]
+
+-- | given a side of a rectangle, compute the length of the half half diagonal
 halfDiagonal :: (Floating a) => a -> a
 halfDiagonal side = 0.5 * dist (0, 0) (side, side)
 

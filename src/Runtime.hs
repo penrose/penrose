@@ -66,8 +66,6 @@ data State = State { objs :: [Obj]
                    }  deriving (Typeable)
 
 type Config = M.Map String S.Expr
-type ObjFnInfo a = (ObjFnOn a, Weight a, [Name], [a])
-type ConstrFnInfo a = (ConstrFnOn a, Weight a, [Name], [a])
 
 -- | Datatypes for computation. ObjComp is gathered in pre-compilation and passed to functions that evaluate the computation.
 -- | object name, function name, list of args (TODO resolve them WRT pattern matching)
@@ -164,19 +162,19 @@ circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir,
                                 else (params !! 0, params !! 1, params !! 2)
 
 ellipsePack :: (Autofloat a) => Ellipse -> [a] -> Ellipse' a
-ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, namee' = namee e, 
+ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, namee' = namee e,
                                   colore' = colore e }
          where (xe1, ye1, rx1, ry1) = if not $ length params == 4 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 sqPack :: (Autofloat a) => Square -> [a] -> Square' a
-sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, 
+sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq,
                              sels' = sels sq, colors' = colors sq, ang' = ang sq}
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
 
 rectPack :: (Autofloat a) => Rect -> [a] -> Rect' a
-rectPack rct params = Rect' { xr' = xs1, yr' = ys1, sizeX' = len, sizeY' = wid, namer' = namer rct, 
+rectPack rct params = Rect' { xr' = xs1, yr' = ys1, sizeX' = len, sizeY' = wid, namer' = namer rct,
                               selr' = selr rct, colorr' = colorr rct, angr' = angr rct}
          where (xs1, ys1, len, wid) = if not $ length params == 4 then error "wrong # params to pack rect"
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
@@ -260,14 +258,14 @@ computeOn objDict comp =
                            Just function -> let objRes = applyAndSet objDict comp function obj in
                                             M.insert objName objRes objDict
 
--- | Look up the arguments to a computation, apply the computation, 
+-- | Look up the arguments to a computation, apply the computation,
 -- | and set the property in the object to the result.
 applyAndSet :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> CompFn a -> Obj' a -> Obj' a
-applyAndSet objDict comp function obj = 
+applyAndSet objDict comp function obj =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           -- Style computations rely on the order of object inputs being the same as program arguments.
           let (constArgs, objectArgs) = partitionEithers $ map (styExprToCompExpr objDict) args in
-          let res = function constArgs (concat objectArgs) in 
+          let res = function constArgs (concat objectArgs) in
           -- TODO: for multiple objects, might not be in right order. alphabetize?
           set objProperty obj res
 
@@ -285,7 +283,7 @@ styExprToCompExpr objs e = case e of
                 S.Cons _ _     -> error "computations don't support object constructors (?)"
                 S.CompArgs _ _ -> error "computations don't support nested computations"
 
--- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra" 
+-- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra"
 -- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"
 -- Maybe add the ability to pass in "expected" types, or to synthesize types and then check if they match?
 lookupAll :: Name -> M.Map Name (Obj' a) -> [Obj' a]
@@ -309,7 +307,7 @@ objOrSecondaryShape name inName = let (names, inNames) = (nameParts name, namePa
 defName = "default"
 
 -- default shapes at base types (not obj)
-defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, 
+defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
                                 thickness = 10, selsa = False, namesa = defName, colorsa = black }
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
@@ -317,23 +315,23 @@ defSquare = Square { xs = 100, ys = 100, side = defaultRad,
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
                           selr = False, namer = defName, colorr = black, angr = 0.0}
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
-defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, 
+defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False,
                         namel = labelName defName }
 defCirc = Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = defName, colorc = black }
-defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, 
+defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad,
                             namee = defName, colore = black }
 defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
     where path = [(10, 100), (300, 100)]
 
 -- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultRect, 
+defaultSolidArrow, defaultPt, defaultSquare, defaultRect,
                    defaultCirc, defaultText, defaultEllipse :: String -> Obj
 defaultSolidArrow name = A $ setName name defSolidArrow
 defaultPt name = P $ setName name defPt
 defaultSquare name = S $ setName name defSquare
 defaultRect name = R $ setName name defRect
 -- Set both the text and name fields to the same thing (unlike labels)
-defaultText text = L $ setName text defText { textl = text } 
+defaultText text = L $ setName text defText { textl = text }
 defaultCirc name = C $ setName name defCirc
 defaultEllipse name = E $ setName name defEllipse
 defaultCurve name = CB $ setName name defCurve
@@ -341,7 +339,7 @@ defaultCurve name = CB $ setName name defCurve
 -- If an object's name is X and it is labeled "Set X", the label name is "Label_X" and the text is "Set X"
 -- "Auto" is reserved text that labels the object with the Substance name; in this case it would be "X"
 defaultLabel :: String -> String -> Obj
-defaultLabel objName labelText = 
+defaultLabel objName labelText =
              L $ setName (labelName objName) defLabel { textl = checkAuto objName labelText }
              where checkAuto o "Auto" = o
                    checkAuto o t = t
@@ -366,10 +364,10 @@ shapeAndFn dict subObjName =
         thd4 (_, _, a, _) = a
         frth4 (_, _, _, a) = a
 
-getShape :: (Autofloat a) => (String, (S.StyObj, Config)) ->
+getShape :: (Autofloat a) => (String, (S.StyType, Config)) ->
                              ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 
-getShape (oName, (objType, config)) = 
+getShape (oName, (objType, config)) =
          -- We don't need the object type to typecheck the computation, because we have the object's name and
          -- it's stored as an Obj (can pattern-match)
          let (computations, config_nocomps) = compsAndVars oName config in
@@ -403,13 +401,13 @@ getShape (oName, (objType, config)) =
 -- TODO: should initX get its type? should this function use objProperties?
 -- Given a config, separates the computations and the vars and returns both
 compsAndVars :: Name -> Config -> ([ObjComp], Config)
-compsAndVars n config = 
+compsAndVars n config =
          let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
          let config_nocomps = M.mapMaybe notComp config in -- could use M.partition
          (comps, config_nocomps)
          where toComp :: Property -> S.Expr -> Maybe ObjComp
                toComp propertyName expr = case expr of
-                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName, 
+                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName,
                                                                     fnName = fn, fnParams = args }
                              _                  -> Nothing
                notComp :: S.Expr -> Maybe S.Expr
@@ -425,8 +423,8 @@ noneWord = "None"
 autoWord = "Auto"
 labelTextWord = "text"
 
-labelSetting :: Maybe S.Expr -> S.StyObj -> Name -> LabelSetting
-labelSetting s_expr objType objName = 
+labelSetting :: Maybe S.Expr -> S.StyType -> Name -> LabelSetting
+labelSetting s_expr objType objName =
              case objType of
                   S.NoShape -> NoLabel
                   -- S.Text -> NoLabel
@@ -526,7 +524,7 @@ declMapObjfn = centerMap
 map4 :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
 map4 f (w, x, y, z) = (f w, f x, f y, f z)
 
-genAllObjs :: (Autofloat a) => ([C.SubDecl], [C.SubConstr]) -> S.StyDict 
+genAllObjs :: (Autofloat a) => ([C.SubDecl], [C.SubConstr]) -> S.StyDict
                                -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 -- TODO figure out how the types work. also add weights
 genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss, concat compss)
@@ -1152,7 +1150,7 @@ zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
                              selc = selc' c, namec = namec' c, colorc = colorc' c }
 zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ rx' e, ry = r2f $ ry' e,
                               namee = namee' e, colore = colore' e }
-zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s, 
+zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s,
                              names = names' s, colors = colors' s, ang = ang' s }
 zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, sizeX = r2f $ sizeX' r, sizeY = r2f $ sizeY' r,
                            selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
@@ -1178,8 +1176,8 @@ addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ 
                              namee' = namee e, colore' = colore e }
 addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
                             names' = names s, colors' = colors s, ang' = ang s }
-addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r, 
-                           sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r, 
+addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r,
+                           sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r,
                            colorr' = colorr r, angr' = angr r }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
@@ -1283,7 +1281,7 @@ stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, 
 appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
 appGrad f l = grad f l
 
-appGrad' :: (Autofloat' a) => 
+appGrad' :: (Autofloat' a) =>
          (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
 appGrad' f l = grad f l
 
