@@ -301,8 +301,7 @@ data StySpec = StySpec {
     spType   :: C.SubType,  -- | The Substance type of the object
     spId     :: String,     -- | The Substance ID of the object
     spArgs   :: [String],   -- | the "arguments" following the type.  The idea is to capture @f@, @A@ and @B@ in the case of @Map f A B@, which is needed for pattern matching (TODO: Maybe not the best term here.)
-    spShape  :: StyObj, -- | primary geometry associated with the Substance object, specified by @shape = Circle { }@.
-    spShpMap :: M.Map String StyObj -- | secondary shapes, specified by @shape2 = Arrow { } -- the name is arbitrary here@ (TODO: maybe this should be a general dictonary storing all Style objects)
+    spShpMap :: M.Map String StyObj -- | shapes associated with the substance object, e.g. "shapeName = shapeType { ... }; otherShape = otherType { ... }"
 } deriving (Show, Typeable)
 
 -- | A VarMap matches lambda ids in the selector to the actual selected id

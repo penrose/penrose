@@ -40,7 +40,7 @@ defaultWeight :: Floating a => a
 defaultWeight = 1
 
 -- Debug flags
-debug = True
+debug = False
 debugStyle = True
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
@@ -51,10 +51,6 @@ subsetSizeDiff = 10.0
 
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
-
--- TODO: check naming convention of this
-labelName :: String -> String
-labelName name = "_Label_" ++ name
 
 --------------------------------------------------------------------------------
 -- General helper functions
@@ -98,6 +94,10 @@ compose2 = (.) . (.)
 nameSep, labelWord :: String
 nameSep = " " -- TODO change to " "
 labelWord = "label"
+
+-- TODO: check that these definitions of labelName don't clash
+-- labelName :: String -> String
+-- labelName name = "_Label_" ++ name
 
 labelName :: String -> String
 labelName name = name ++ nameSep ++ labelWord
