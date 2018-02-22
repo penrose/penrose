@@ -451,7 +451,7 @@ data Ellipse' a = Ellipse' {
     colore' :: Color
 } deriving (Eq, Show, Typeable, Data)
 
-data Label' a = Label' { xl' :: a
+data Label' a = Label' { xl' :: a -- middle (x, y) of label
                        , yl' :: a
                        , wl' :: a
                        , hl' :: a
@@ -698,6 +698,9 @@ get "endy" (A' o)          = TNum $ endy' o
 get "thickness" (A' o)     = TNum $ thickness' o
 get "color" (A' o)         = TColor $ colorsa' o
 
+-- Labels
+get "location" (L' o)      = TPt (xl' o, yl' o)
+
 get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n" 
                                    ++ show obj ++ "\n" ++ show obj)
 
@@ -748,10 +751,14 @@ set "startx" (A' o) (TNum n)     = A' $ o { startx' = n }
 set "starty" (A' o) (TNum n)     = A' $ o { starty' = n }
 set "endx" (A' o) (TNum n)       = A' $ o { endx' = n }
 set "endy" (A' o) (TNum n)       = A' $ o { endy' = n }
+set "start" (A' o) (TPt (x, y))  = A' $ o { startx' = x, starty' = y }
+set "end" (A' o) (TPt (x, y))    = A' $ o { endx' = x, endy' = y }
 set "thickness" (A' o) (TNum n)  = A' $ o { thickness' = n }
 set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
 -- TODO add angle and length properties
 
--- Does not handle labels (yet)
+-- Labels
+set "location" (L' o) (TPt (x, y)) = L' $ o { xl' = x, yl' = y }
+
 set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n" 
                                    ++ show obj ++ "\n" ++ show val)

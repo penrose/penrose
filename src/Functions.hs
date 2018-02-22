@@ -50,8 +50,8 @@ objFuncDict = M.fromList flist
                     ("toLeft", toLeft),
                     ("above", above),
                     ("between", between),
-                    ("sameHeight", sameHeight),
                     ("sameX", sameX),
+                    ("sameY", sameY),
                     -- ("sameX", (*) 0.6 `compose2` sameX),
                     -- ("sameX", (*) 0.2 `compose2` sameX),
                     ("sameCenter", sameCenter),
@@ -60,7 +60,9 @@ objFuncDict = M.fromList flist
                     -- ("repel", (*)  10000  `compose2` repel),
                     -- ("repel", repel),
                     ("outside", outside),
-                    ("nearEnds", nearEnds)
+                    ("nearEndVert", nearEndVert),
+                    ("nearEndHoriz", nearEndHoriz),
+                    ("nearHead", nearHead)
                   ]
 
 -- illegal polymorphic or qualified type--can't return a forall?
@@ -124,7 +126,6 @@ center [o] _ = getX o ^ 2 + getY o ^ 2
 
 -- | 'above' makes sure the first argument is on top of the second.
 above :: ObjFn
--- above (
 above [top, bottom] [offset] = (getY top - getY bottom - offset)^2
 above [top, bottom] _ = (getY top - getY bottom - 100)^2
 
@@ -132,13 +133,18 @@ above [top, bottom] _ = (getY top - getY bottom - 100)^2
 toLeft :: ObjFn
 toLeft [a, b] _ = (getX a - getX b + 400)^2
 
--- | 'sameHeight' forces two objects to stay at the same height (have the same Y value)
-sameHeight :: ObjFn
-sameHeight [a, b] _ = (getY a - getY b)^2
-
--- | 'sameHeight' forces two objects to have the same X value
+-- | encourages two objects to have the same X value
 sameX :: ObjFn
+sameX [A' a, L' l] _ = -- TODO factor middle calculation out? seems like it would be used often
+      let arrMidX = (startx' a + endx' a) / 2 in
+      let labMidX = xl' l in
+      (arrMidX - labMidX) ^ 2
+
 sameX [a, b] _ = (getX a - getX b)^2
+
+-- | encourages two objects to stay at the same height (have the same Y value)
+sameY :: ObjFn
+sameY [a, b] _ = (getY a - getY b)^2
 
 -- | 'sameCenter' forces two object to center at the same point
 sameCenter :: ObjFn
@@ -184,6 +190,7 @@ repel [S' c, C' d] _ = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c
 repel [C' c, C' d] _ = 1 / distsq (xc' c, yc' c) (xc' d, yc' d) - r' c - r' d + epsd
 repel [P' c, P' d] _ = if c == d then 0 else 1 / distsq (xp' c, yp' c) (xp' d, yp' d) - 2 * r2f ptRadius + epsd
 repel [L' c, L' d] _ = if c == d then 0 else 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
+-- TODO: why are there references to labelName in Functions?
 repel [L' c, C' d] _ = if labelName (namec' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
 repel [C' c, L' d] _ = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
 repel [L' c, S' d] _ = if labelName (names' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xs' d, ys' d)
@@ -223,6 +230,8 @@ centerLabel [CB' bez, L' lab] _ = -- use the float input? just for testing
 centerLabel [P' p, L' l] _ =
                 let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
                 (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
+
+-- TODO: depends on orientation of arrow
 centerLabel [A' a, L' l] _ =
                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
                     (mx, my) = midpoint (sx, sy) (ex, ey)
@@ -235,8 +244,29 @@ outside [L' o, C' i] _ = (dist (xl' o, yl' o) (xc' i, yc' i) - (1.5 * r' i) - wl
 outside [L' o, S' i] _ = (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
 -- TODO: generic version using bbox
 
-nearEnds :: ObjFn
-nearEnds objs consts = trace ("nearEnds objs:\n" ++ show objs) 0
+-- TODO change to straight lines
+nearEndVert :: ObjFn
+nearEndVert [CB' line, L' lab] _ = -- expects a straight vertical line
+            let path = pathcb' line in
+            let (p1, p2) = (path !! 0, path !! 1) in
+            let bottompt = if snd p1 < snd p2 then p1 else p2 in
+            let yoffset = -25 in
+            distsq (xl' lab, yl' lab) (fst bottompt, snd bottompt + yoffset)
+
+nearEndHoriz :: ObjFn
+nearEndHoriz [CB' line, L' lab] _ = -- expects a straight horiz line
+            let path = pathcb' line in
+            let (p1, p2) = (path !! 0, path !! 1) in
+            let leftpt = if fst p1 < fst p2 then p1 else p2 in
+            let xoffset = -25 in
+            distsq (xl' lab, yl' lab) (fst leftpt + xoffset, snd leftpt)
+
+nearHead :: ObjFn
+nearHead [A' arr, L' lab] [xoff, yoff] = 
+         let end = (endx' arr, endy' arr) in -- arrowhead
+         let offset = (xoff, yoff) in
+         distsq (xl' lab, yl' lab) (end `plus2` offset)
+         where plus2 (a, b) (c, d) = (a + c, b + d)
 
 ------- Ambient objective functions
 
@@ -348,7 +378,8 @@ contains [S' set, L' label] _ =
 -- FIXME: doesn't work
 contains [E' set, L' label] _ =
     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
-contains _  _ = error "subset not called with 2 args"
+contains [L' lab1, L' lab2] _ = 0 -- TODO: hack for venn_subset.sty for talk
+contains objs consts = error ("subset: maybe not called with 2 args?\n" ++ show objs ++ "\n" ++ show consts)
 
 outsideOf :: ConstrFn
 outsideOf [C' inc, C' outc] _ =

@@ -168,12 +168,12 @@ $.getScript('snap.svg.js', function()
                     // by default, the curve should be solid
                     curve.attr({
                         fill: "transparent",
-                        strokeWidth: 3, // this should be settable in Style
+                        strokeWidth: 2.5, // this should be settable in Style
                         stroke: rgbToHex(color.r, color.g, color.b)
                     });
                     if(obj.stylecb == "dashed") {
                         curve.attr({
-                            strokeDasharray: "10"
+                            strokeDasharray: "7, 5" // "10"
                         });
                     }
                     curve.drag(move, start, stop)
@@ -191,7 +191,7 @@ $.getScript('snap.svg.js', function()
 		}
 
                 break
-                case 'L': // label
+                case 'L': // label (TODO: don't display Text shape? need to distinguish b/t text and label)
                     var t = s.text(dx + obj.xl, dy - obj.yl, [obj.textl]);
                     t.data("name", obj.namel)
                     t.attr({

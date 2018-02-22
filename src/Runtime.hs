@@ -15,6 +15,7 @@ import Functions
 import Computation
 import Data.Set (fromList)
 import Data.List
+import Data.List.Split (splitOn)
 import Data.Maybe
 import Data.Monoid ((<>))
 import Data.Aeson
@@ -101,7 +102,7 @@ type Varying a = [a]
 -- does not unpack names
 unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
-unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)] -- TODO: changed r to Fix for testing
+unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, Vary)]
@@ -109,8 +110,9 @@ unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, V
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
-unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), (endx' a, Vary),
-    (endy' a, Vary), (thickness' a, Fix)]
+-- TODO revert this!! Hack just for surjection program
+unpackObj (A' a) = [(startx' a, Fix), (starty' a, Fix), 
+                    (endx' a, Fix), (endy' a, Fix), (thickness' a, Fix)]
 -- unpackObj (CB' c) = [(pathcb' cb, Fix)]
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
 
@@ -277,18 +279,28 @@ styExprToCompExpr objs e = case e of
                 S.Id v         -> case lookupAll v objs of
                                   [] -> error ("id '" ++ v ++ "' /and subobjects do(es) not exist in obj dict")
                                   xs -> Right xs
-                S.BinOp _ _ _  -> error "computations don't support operations"
-                S.Cons _ _     -> error "computatons don't support object constructors (?)"
+                S.BinOp _ _ _  -> error "computations don't support operations / TODO binops"
+                S.Cons _ _     -> error "computations don't support object constructors (?)"
                 S.CompArgs _ _ -> error "computations don't support nested computations"
 
 -- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra"
 -- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"
 -- Maybe add the ability to pass in "expected" types, or to synthesize types and then check if they match?
 lookupAll :: Name -> M.Map Name (Obj' a) -> [Obj' a]
-lookupAll name objs = map snd $ M.toList $ M.filterWithKey (objOrSecondaryShape name) objs
-           where objOrSecondaryShape name inName _ = name == inName
-                                                    || (name ++ secondaryIndicator) `isPrefixOf` inName
-                 secondaryIndicator = "_shape"
+lookupAll name objs = map snd $ M.toList $ M.filterWithKey (\inName _ -> objOrSecondaryShape name inName) objs
+
+nameParts :: String -> [String]
+nameParts = splitOn nameSep
+
+-- A name is three parts: [subobjname, possibly styshapename, possibly label]
+-- TODO rewrite, it's hacky to do name resolution in lookup vs. in procExpr
+objOrSecondaryShape :: Name -> Name -> Bool
+objOrSecondaryShape name inName = let (names, inNames) = (nameParts name, nameParts inName) in
+                                  case (names, inNames) of
+                                  -- Resolve e.g. "A" to "A xaxis", "A yaxis"
+                                  ([subObjName], [inSubObjName, inStyShapeName]) -> subObjName == inSubObjName
+                                                                -- excludes labels of shapes
+                                  _ -> name == inName -- Resolve e.g. "A xaxis", "A xaxis label"
 
 ------- Style related functions
 
@@ -334,18 +346,19 @@ defaultLabel objName labelText =
 
 shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
                                ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
-shapeAndFn dict name =
-    case M.lookup name dict of
-        Nothing -> error ("Cannot find style info for " ++ name)
-        Just spec  -> let config = (name, S.spShape spec) : map addPrefix (M.toList $ S.spShpMap spec) in
+shapeAndFn dict subObjName =
+    case M.lookup subObjName dict of
+        Nothing -> error ("Cannot find style info for " ++ subObjName)
+        Just spec  -> let config = {-TODO: remove:-} map (mkUniqueShapeName subObjName)
+                                   (M.toList $ S.spShpMap spec) in
                       let objs_and_functions = map getShape config in
-                      {-trace ("shape map: " ++ show config) $ -} concat4 objs_and_functions
+                      concat4 objs_and_functions
                       -- example config:
                       -- shape map: [("A",(Circle,fromList [("color",
                       -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
     where
+        mkUniqueShapeName name1 (name2, objInfo) = (uniqueShapeName name1 name2, objInfo)
         concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
-        addPrefix (s, o) = (name ++ "_" ++ s, o)
         fst4 (a, _, _, _) = a
         snd4 (_, a, _, _) = a
         thd4 (_, _, a, _) = a
@@ -371,7 +384,7 @@ getShape (oName, (objType, config)) =
          let res = tupAppend objInfo computations in
 
          -- TODO factor out label logic?
-         let labelRes = M.lookup labelWord config in -- assuming one label per shape
+         let labelRes = M.lookup labelTextWord config in -- assuming one label per shape
          let labelSet = labelSetting labelRes objType oName in
          case labelSet of
          -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
@@ -404,20 +417,23 @@ compsAndVars n config =
 
 data LabelSetting = NoLabel | Default Name | Custom Name
 
-noneWord, autoWord, labelWord :: String
+-- | Reserved words or special demarcators in the system
+noneWord, autoWord, labelTextWord :: String
 noneWord = "None"
 autoWord = "Auto"
-labelWord = "text"
+labelTextWord = "text"
 
 labelSetting :: Maybe S.Expr -> S.StyType -> Name -> LabelSetting
 labelSetting s_expr objType objName =
              case objType of
                   S.NoShape -> NoLabel
-                  _ -> case s_expr of
+                  -- S.Text -> NoLabel
+                  _ -> let subObjName = (nameParts objName) !! 0 in
+                        case s_expr of
                           -- A real object with unspecified label -> autolabeled with Substance name
-                          Nothing -> Default objName
+                          Nothing -> Default subObjName
                           Just (S.Id "None") -> NoLabel
-                          Just (S.Id "Auto") -> Default objName
+                          Just (S.Id "Auto") -> Default subObjName
                           Just (S.StringLit text) -> Custom text
                           Just res -> error ("invalid label setting:\n" ++ show res)
 
@@ -427,8 +443,8 @@ initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
 
 initText n config = ([defaultText n], [], [])
 initArrow n config = (objs, oFns, [])
-    where from = lookupId "start" config
-          to   = lookupId "end" config
+    where from = lookupId "startShape" config
+          to   = lookupId "endShape" config
           objs = [defaultSolidArrow n]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
@@ -529,13 +545,13 @@ constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
 
 -- Preserve failed keys for reporting errors
-lookupWithFail :: Ord k => M.Map k v -> k -> Either k v
-lookupWithFail dict key = case M.lookup key dict of
-                             Nothing  -> Left key
-                             Just val -> Right val
+lookupWithFail :: M.Map Name (Obj' a) -> Name -> Either Name [Obj' a]
+lookupWithFail dict key = case lookupAll key dict of -- accounts for X resolving to "X shape1", "X shape2", etc
+                             []   -> Left key
+                             vals -> Right vals
 
 lookupNames :: (Autofloat a) => M.Map Name (Obj' a) -> [Name] -> [Obj' a]
-lookupNames dict ns = map check res
+lookupNames dict ns = concatMap check res
     where
         res = map (lookupWithFail dict) ns
         check x = case x of

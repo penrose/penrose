@@ -242,6 +242,22 @@ regionCenter' :: CompFn a
 regionCenter' [] [CB' l, CB' r, CB' d, CB' u] = TPt $ regionCenter l r d u
 regionCenter' v o = error' "regionCenter" v o
 
+-- TODO parse these at runtime
+atOrigin' :: CompFn a
+atOrigin' _ _ = TPt (-100, 0)
+
+toRight' :: CompFn a
+toRight' _ _ = TPt (325, 0)
+
+toAbove' :: CompFn a
+toAbove' _ _ = TPt (-100, 200)
+
+lightBlue' :: CompFn a
+lightBlue' _ _ = TColor $ makeColor 0.1 0.1 0.9 0.2
+
+darkBlue' :: CompFn a
+darkBlue' _ _ = TColor $ makeColor 0.05 0.05 0.6 1
+
 -- | 'computationDict' stores a mapping from the name of computations to the actual implementation
 computationDict :: (Autofloat a) => M.Map String (CompFnOn a)
 computationDict = M.fromList flist
@@ -260,5 +276,10 @@ computationDict = M.fromList flist
                     ("computeSurjectionLines", computeSurjectionLines'),
                     ("regionX", regionX'),
                     ("regionY", regionY'),
-                    ("regionCenter", regionCenter')
+                    ("regionCenter", regionCenter'),
+                    ("atOrigin", atOrigin'),
+                    ("toRight", toRight'),
+                    ("toAbove", toAbove'),
+                    ("lightBlue", lightBlue'),
+                    ("darkBlue", darkBlue')
                   ]
