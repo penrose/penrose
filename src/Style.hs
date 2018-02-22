@@ -537,7 +537,7 @@ addSpec _ dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
 -- FIXME: wrap fromleft inside a function!
 addSpec varMap dict (Assign s e) =
         case e of
-        CompArgs fname params -> let resolvedParams = {-map (backToExpr . procExpr varMap)-} params in
+        CompArgs fname params -> let resolvedParams = map (backToExpr . procExpr varMap) params in
                                  M.insert s (CompArgs fname resolvedParams) dict
         StringLit p -> M.insert s (StringLit p) dict
         _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict

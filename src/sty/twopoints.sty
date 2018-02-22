@@ -7,7 +7,7 @@ Point x {
     label = Auto
   }
 
-  objective centerLabel(x, x.label)
+  objective centerLabel(x, x.shape.label)
 }
 
 Point `a` {
@@ -21,11 +21,12 @@ Point `b` {
   }
 }
 
-Set `c` {
-  objective centerLabel(c, c.label)
+Set X {
   shape = Circle {
     color = computeColorRGBA(1.0, 0.2, 1.0, 0.5)
-    radius = computeRadiusToMatch(c, b)
+    radius = computeRadiusToMatch(X, b)
     label = Auto
   }
+  
+  objective centerLabel(X, X.shape.label)
 }
