@@ -1,2 +1,11 @@
-Shape Set Circle
-Shape A Box
+Set x {
+    shape = Circle { }
+    constraint contains(x, x.label)
+}
+
+Set A {
+    arr = Arrow {
+        start = A.shape
+        end   = B
+    }
+}

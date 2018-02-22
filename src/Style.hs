@@ -105,7 +105,8 @@ data Color = RndColor | Colo
 styleParser :: Parser [Block]
 styleParser = between scn eof styProg
 
--- | `styProg` parses a Style program, consisting of a collection of blocks
+-- | `styProg` parses a Style program, consisting of a collection of one or
+-- more blocks
 styProg :: Parser [Block]
 styProg = some block
 

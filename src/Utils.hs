@@ -124,7 +124,6 @@ symbol :: String -> Parser String
 symbol = L.symbol sc
 
 newline' :: Parser ()
--- newline' = void sc >> void (many newline) >> void sc
 newline' = newline >> scn
 
 backticks :: Parser a -> Parser a
