@@ -30,7 +30,8 @@ import Data.Typeable
 -- Style AST
 
 -- | Type annotation for all geometries supported by Style so far.
-data StyType = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto
+data StyType = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto 
+               | Line2 -- two points
     deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
 -- | A Style program is a collection of blocks
@@ -141,7 +142,8 @@ styObj =
        (rword "Ellipse" >> return Ellip)   <|>
        (rword "Box"     >> return Box)     <|>
        (rword "Rect"    >> return Rectangle)     <|>
-       (rword "Dot"     >> return Dot)
+       (rword "Dot"     >> return Dot) <|>
+       (rword "Line"     >> return Line2)
 
 -- | a sequence of Style statements
 stmtSeq :: Parser [Stmt]

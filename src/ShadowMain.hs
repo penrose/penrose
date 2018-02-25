@@ -77,25 +77,7 @@ shadowMain = do
                 let (domain, port) = ("127.0.0.1", 9160) in
                 Server.servePenrose domain port initState
 
-                else
-                    --    Running with hardcoded parameters
-                    play
-                    (InWindow "optimization-based layout" -- display mode, window name
-                    (picWidth, picHeight)   -- size
-                    (10, 10))    -- position
-                    white                   -- background color
-                    stepsPerSecond         -- number of simulation steps to take for each second of real time
-                    initState               -- the initial world, defined as a type below
-                    R.picOf                   -- fn to convert world to a pic
-                    R.handler                 -- fn to handle input events
-                    R.step                    -- step the world one iteration; passed period of time (in secs) to be advanced
-
-                    -- picWidth, picHeight :: Int
-                    -- picWidth = 800
-                    -- picHeight = 700
-                    --
-                    -- stepsPerSecond :: Int
-                    -- stepsPerSecond = 10000
+                else error "only snap is supported as a frontend\n"
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
 -- (extracted via unsafePerformIO)

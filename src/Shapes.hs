@@ -44,6 +44,7 @@ data BBox = BBox {
     h :: Float,
     w :: Float
 } deriving (Show, Eq, Generic, Typeable, Data)
+
 instance ToJSON BBox
 instance FromJSON BBox
 
@@ -71,6 +72,32 @@ instance Located CubicBezier Float where
 
 instance ToJSON CubicBezier
 instance FromJSON CubicBezier
+
+-------
+data Line = Line {
+    startx_l           :: Float,
+    starty_l           :: Float,
+    thickness_l          :: Float,
+    endx_l           :: Float,
+    endy_l           :: Float,
+    name_l           :: String,
+    style_l          :: String,
+    color_l          :: Color
+} deriving (Eq, Show, Generic, Typeable, Data)
+
+instance Named Line where
+         getName = name_l
+         setName x l = l { name_l = x }
+
+instance Located Line Float where
+         getX l = (startx_l l + endx_l l) / 2
+         getY l = (starty_l l + endy_l l) / 2
+
+         setX x l = l { startx_l = x } -- only sets start
+         setY y l = l { starty_l = y }
+
+instance ToJSON Line
+instance FromJSON Line
 
 -------
 data SolidArrow = SolidArrow { startx :: Float
@@ -271,6 +298,7 @@ data Obj = S Square
          | P Pt
          | A SolidArrow
          | CB CubicBezier
+         | LN Line
          deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
@@ -327,6 +355,7 @@ instance Located Obj Float where
                  R r -> getX r
                  A a -> getX a
                  CB c -> getX c
+                 LN l -> getX l
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -336,6 +365,7 @@ instance Located Obj Float where
                  R r -> getY r
                  A a -> getY a
                  CB c -> getY c
+                 LN l -> getY l
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -345,6 +375,7 @@ instance Located Obj Float where
                 R r -> R $ setX x r
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
+                LN l -> LN $ setX x l
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -354,7 +385,9 @@ instance Located Obj Float where
                 R r -> R $ setY y r
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
+                LN l -> LN $ setY y l
 
+-- I believe this typeclass is no longer used in the snap frontend
 instance Selectable Obj where
          select x = case x of
                 C c -> C $ select c
@@ -398,6 +431,7 @@ instance Named Obj where
                  R r   -> getName r
                  A a   -> getName a
                  CB cb -> getName cb
+                 LN l -> getName l
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
@@ -407,6 +441,7 @@ instance Named Obj where
                 R r   -> R $ setName x r
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
+                LN l -> LN $ setName x l
 
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
@@ -420,6 +455,7 @@ data Obj' a
     | R' (Rect' a)
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
+    | LN' (Line' a)
     deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
@@ -492,6 +528,17 @@ data CubicBezier' a = CubicBezier' {
     colorcb'          :: Color
 } deriving (Eq, Show, Typeable, Data)
 
+data Line' a = Line' {
+    startx_l'           :: a,
+    starty_l'           :: a,
+    thickness_l'         :: a,
+    endx_l'           :: a,
+    endy_l'           :: a,
+    name_l'           :: String,
+    style_l'          :: String,
+    color_l'          :: Color
+} deriving (Eq, Show, Generic, Typeable, Data)
+
 instance Named (SolidArrow' a) where
          getName = namesa'
          setName x sa = sa { namesa' = x }
@@ -524,6 +571,10 @@ instance Named (CubicBezier' a) where
          getName = namecb'
          setName x cb = cb { namecb' = x }
 
+instance Named (Line' a) where
+         getName = name_l'
+         setName x l = l { name_l' = x }
+
 instance Named (Obj' a) where
          getName o = case o of
                  C' c   -> getName c
@@ -534,6 +585,7 @@ instance Named (Obj' a) where
                  R' r   -> getName r
                  A' a   -> getName a
                  CB' cb -> getName cb
+                 LN' ln -> getName ln
          setName x o = case o of
                 C' c   -> C' $ setName x c
                 S' s   -> S' $ setName x s
@@ -542,7 +594,7 @@ instance Named (Obj' a) where
                 P' p   -> P' $ setName x p
                 A' a   -> A' $ setName x a
                 CB' cb -> CB' $ setName x cb
---
+                LN' ln -> LN' $ setName x ln
 --
 instance Located (Circ' a) a where
          getX = xc'
@@ -597,7 +649,14 @@ instance (Real a, Floating a, Show a, Ord a) => Located (CubicBezier' a) a where
                         dy = y - (maximum ys - minimum ys) in
                         c { pathcb' = map (\(xx, yy) -> (xx, yy - dy)) $ pathcb' c }
 
-instance Located (Obj' a) a where
+instance (Num a, Fractional a) => Located (Line' a) a where
+         getX l = (startx_l' l + endx_l' l) / 2
+         getY l = (starty_l' l + endy_l' l) / 2
+
+         setX x l = l { startx_l' = x } -- only sets start
+         setY y l = l { starty_l' = y }
+
+instance (Num a, Fractional a) => Located (Obj' a) a where
          getX o = case o of
              C' c -> xc' c
              E' e -> xe' e
@@ -606,6 +665,7 @@ instance Located (Obj' a) a where
              S' s -> xs' s
              R' r -> xr' r
              A' a -> startx' a
+             LN' l -> getX l
          getY o = case o of
              C' c -> yc' c
              E' e -> ye' e
@@ -614,6 +674,7 @@ instance Located (Obj' a) a where
              S' s -> ys' s
              R' r -> yr' r
              A' a -> starty' a
+             LN' l -> getY l
          setX x o = case o of
              C' c -> C' $ setX x c
              E' e -> E' $ setX x e
@@ -622,6 +683,7 @@ instance Located (Obj' a) a where
              S' s -> S' $ setX x s
              R' r -> R' $ setX x r
              A' a -> A' $ setX x a
+             LN' l -> LN' $ setX x l
          setY y o = case o of
              C' c -> C' $ setY y c
              E' e -> E' $ setY y e
@@ -630,6 +692,7 @@ instance Located (Obj' a) a where
              S' s -> S' $ setY y s
              R' r -> R' $ setY y r
              A' a -> A' $ setY y a
+             LN' l -> LN' $ setY y l
 
 -----------------------------------------------
 -- Defining the interface between Style types/operations and internal computation types / object properties
@@ -698,6 +761,16 @@ get "endy" (A' o)          = TNum $ endy' o
 get "thickness" (A' o)     = TNum $ thickness' o
 get "color" (A' o)         = TColor $ colorsa' o
 
+-- Lines
+get "startx" (LN' o)        = TNum $ startx_l' o
+get "starty" (LN' o)        = TNum $ starty_l' o
+get "endx" (LN' o)          = TNum $ endx_l' o
+get "endy" (LN' o)          = TNum $ endy_l' o
+get "thickness" (LN' o)     = TNum $ thickness_l' o
+get "style" (LN' o)         = TStyle $ style_l' o
+get "color" (LN' o)         = TColor $ color_l' o
+get "path" (LN' o)          = TPath [(startx_l' o, starty_l' o), (endx_l' o, endy_l' o)]
+
 -- Labels
 get "location" (L' o)      = TPt (xl' o, yl' o)
 
@@ -757,6 +830,20 @@ set "thickness" (A' o) (TNum n)  = A' $ o { thickness' = n }
 set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
 -- TODO add angle and length properties
 
+-- Lines
+set "startx" (LN' o) (TNum n)     = LN' $ o { startx_l' = n }
+set "starty" (LN' o) (TNum n)     = LN' $ o { starty_l' = n }
+set "endx" (LN' o) (TNum n)       = LN' $ o { endx_l' = n }
+set "endy" (LN' o) (TNum n)       = LN' $ o { endy_l' = n }
+set "start" (LN' o) (TPt (x, y))  = LN' $ o { startx_l' = x, starty_l' = y }
+set "end" (LN' o) (TPt (x, y))    = LN' $ o { endx_l' = x, endy_l' = y }
+set "thickness" (LN' o) (TNum n)  = LN' $ o { thickness_l' = n }
+set "color" (LN' o) (TColor n)    = LN' $ o { color_l' = n }
+set "style" (LN' o) (TStyle n)    = LN' $ o { style_l' = n }
+set "path" (LN' o) (TPath [(sx, sy), (ex, ey)])      = LN' $ o { startx_l' = sx, starty_l' = sy, 
+                                                                 endx_l' = ex, endy_l' = ey }
+set "path" (LN' o) (TPath p)      = error ("line expects two points on a path; got: " ++ show p)
+    
 -- Labels
 set "location" (L' o) (TPt (x, y)) = L' $ o { xl' = x, yl' = y }
 

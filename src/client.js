@@ -189,8 +189,43 @@ $.getScript('snap.svg.js', function()
                         strokeDasharray: "10"
                     });
 		}
-
                 break
+
+                case 'LN': // line (modified from arrow/bezier)
+		    var path = [[obj.startx_l, obj.starty_l], [obj.endx_l, obj.endy_l]];
+                    var curve = s.path(toPathString(path, dx, dy));
+                    curve.data("name", obj.name_l)
+                    var color = obj.color_l;
+                    // by default, the curve should be solid
+                    curve.attr({
+                        fill: "transparent",
+                        strokeWidth: obj.thickness_l,
+                        stroke: rgbToHex(color.r, color.g, color.b)
+                    });
+                    if(obj.style_l == "dashed") {
+                        curve.attr({
+                            strokeDasharray: "7, 5" // "10"
+                        });
+                    }
+                    curve.drag(move, start, stop)
+		break
+		   // var sx = dx + obj.startx_l, sy = dy - obj.starty_l,
+                   //      ex = dx + obj.endx_l,   ey = dy - obj.endy_l,
+                   //      t  = obj.thickness_l / 12
+                   //  var len = Snap.len(ex, ey, sx, sy)
+                   //  var body_path = [0, 0 + t, len - 5*t, t, len - 5*t, -1*t, 0, -1*t]
+
+                   //  var angle = Snap.angle(ex, ey, sx, sy)
+                   //  var myMatrix = new Snap.Matrix();
+                   //  myMatrix.translate(sx, sy);
+                   //  myMatrix.rotate(angle, 0, 0);
+                   //  var line = s.polygon(body_path).transform(myMatrix.toTransformString())
+
+                   //  var g = s.g(line)
+                   //  g.data("name", obj.name_l)
+                   //  g.drag(move, start, stop)
+
+
                 case 'L': // label (TODO: don't display Text shape? need to distinguish b/t text and label)
                     var t = s.text(dx + obj.xl, dy - obj.yl, [obj.textl]);
                     t.data("name", obj.namel)

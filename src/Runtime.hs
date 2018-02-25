@@ -20,8 +20,7 @@ import Data.Maybe
 import Data.Monoid ((<>))
 import Data.Aeson
 import Data.Function
-import Graphics.Gloss.Data.Vector
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Data.Color -- TODO: remove this dependency
 import Numeric.AD
 import GHC.Float -- float <-> double conversions
 import System.IO
@@ -115,6 +114,8 @@ unpackObj (A' a) = [(startx' a, Fix), (starty' a, Fix),
                     (endx' a, Fix), (endy' a, Fix), (thickness' a, Fix)]
 -- unpackObj (CB' c) = [(pathcb' cb, Fix)]
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
+unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix), 
+                    (endx_l' a, Fix), (endy_l' a, Fix), (thickness_l' a, Fix)]
 
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Autofloat a) => [Obj' a] -> [[(a, Annotation)]]
@@ -148,11 +149,16 @@ curvePack :: (Autofloat a) => CubicBezier -> [a] -> CubicBezier' a
 curvePack c params = CubicBezier' { pathcb' = path, namecb' = namecb c, colorcb' = colorcb c, stylecb' = stylecb c }
          where path = map tuplify2 $ chunksOf 2 params
 
-
 solidArrowPack :: (Autofloat a) => SolidArrow -> [a] -> SolidArrow' a
 solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex, endy' = ey, thickness' = t,
                 namesa' = namesa arr, selsa' = selsa arr, colorsa' = colorsa arr }
          where (sx, sy, ex, ey, t) = if not $ length params == 5 then error "wrong # params to pack solid arrow"
+                            else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
+
+linePack :: (Autofloat a) => Line -> [a] -> Line' a
+linePack ln params = Line' { startx_l' = sx, starty_l' = sy, endx_l' = ex, endy_l' = ey, thickness_l' = t,
+                name_l' = name_l ln, color_l' = color_l ln, style_l' = style_l ln }
+         where (sx, sy, ex, ey, t) = if not $ length params == 5 then error "wrong # params to pack line"
                             else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
 
 circPack :: (Autofloat a) => Circ -> [a] -> Circ' a
@@ -229,6 +235,7 @@ pack' zipped fixed varying =
                     R rect  -> R' $ rectPack rect flatParams
                     A ar    -> A' $ solidArrowPack ar flatParams
                     CB c    -> CB' $ curvePack c flatParams
+                    LN c    -> LN' $ linePack c flatParams
 
 ------- Computation related functions
 
@@ -322,11 +329,14 @@ defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad,
                             namee = defName, colore = black }
 defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
     where path = [(10, 100), (300, 100)]
+defLine = Line { startx_l = -100, starty_l = -100, endx_l = 300, endy_l = 300,
+                                thickness_l = 2, name_l = defName, color_l = black, style_l = "solid" }
 
 -- default shapes
 defaultSolidArrow, defaultPt, defaultSquare, defaultRect,
                    defaultCirc, defaultText, defaultEllipse :: String -> Obj
 defaultSolidArrow name = A $ setName name defSolidArrow
+defaultLine name = LN $ setName name defLine
 defaultPt name = P $ setName name defPt
 defaultSquare name = S $ setName name defSquare
 defaultRect name = R $ setName name defRect
@@ -380,6 +390,7 @@ getShape (oName, (objType, config)) =
               S.Rectangle -> initRect oName config_nocomps
               S.Dot     -> initDot oName config_nocomps
               S.Curve   -> initCurve oName config_nocomps
+              S.Line2    -> initLine oName config_nocomps
               S.NoShape -> ([], [], []) in
          let res = tupAppend objInfo computations in
 
@@ -438,10 +449,20 @@ labelSetting s_expr objType objName =
                           Just res -> error ("invalid label setting:\n" ++ show res)
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
-initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
+initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse, initLine ::
     (Autofloat a) => Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
 
 initText n config = ([defaultText n], [], [])
+
+initSquare n config = ([defaultSquare n], [], sizeFuncs n)
+
+initRect n config = ([defaultRect n], [], sizeFuncs n)
+
+initDot n config = ([defaultPt n], [], [])
+
+initEllipse n config = ([defaultEllipse n], [],
+                         (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
+
 initArrow n config = (objs, oFns, [])
     where from = lookupId "startShape" config
           to   = lookupId "endShape" config
@@ -451,26 +472,30 @@ initArrow n config = (objs, oFns, [])
                          (Just fromName, Just toName) -> [(centerMap, defaultWeight, [n, fromName, toName], [])]
           oFns = betweenObjFn
 
+-- very similar to arrow and curve
+initLine n config = (objs, oFns, [])
+    where from = lookupId "startShape" config
+          to   = lookupId "endShape" config
+          style = fromMaybe "solid" $ lookupStr "style" config
+          setStyle (LN l) s = LN $ l { style_l = s } -- TODO: refactor defaultX vs defX
+          objs = [setStyle (defaultLine n) style]
+          betweenObjFn = case (from, to) of
+                         (Nothing, Nothing) -> []
+                         (Just fromNm, Just toNm) -> [(centerLine, defaultWeight, [n, fromNm, toNm], [])]
+          oFns = betweenObjFn
+
 initCircle n config = (objs, oFns, constrs)
     where circObj = defaultCirc n
           objs = [circObj]
           oFns = []
           constrs = sizeFuncs n
 
-initEllipse n config = ([defaultEllipse n], [],
-                         (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
-
-initSquare n config = ([defaultSquare n], [], sizeFuncs n)
-
-initRect n config = ([defaultRect n], [], sizeFuncs n)
-
-initDot n config = ([defaultPt n], [], [])
-
 initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0)] -- (60, 0), (100, 100), (250, 250), (300, 100)]
               style = fromMaybe "solid" $ lookupStr "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
               objs = [curve]
+
 
 sizeFuncs :: (Autofloat a) => Name -> [ConstrFnInfo a]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
@@ -687,152 +712,6 @@ radiusRange = (20, picWidth `divf` 6)
 sideRange = (20, picWidth `divf` 3)
 colorRange  = (cmin, cmax)
 
-------------- The "Style" layer: render the state of the world.
-renderCirc :: Circ -> Picture
-renderCirc c = if selected c
-               then let (r', g', b', a') = rgbaOfColor $ colorc c in
-                    color (makeColor r' g' b' (a' / 2)) $ translate (xc c) (yc c) $
-                    circleSolid (r c)
-               else {-trace ("RENDER CIRC: " ++ show (colorc c)) $-} color (colorc c) $ translate (xc c) (yc c) $ circleSolid (r c)
-
--- TODO: this is just for debugging purposes
-renderEllipse :: Ellipse -> Picture
-renderEllipse c = color (colore c) $ translate (xe c) (ye c) $ circleSolid (rx c)
-
--- fix to the centering problem of labels, assumeing:
--- (1) monospaced font; (2) at least a chracter of max height is in the label string
-labelScale, textWidth, textHeight :: Floating a => a
-textWidth  = 104.76 -- Half of that of the monospaced version
-textHeight = 119.05
-labelScale = 0.2
-
-label_offset_x, label_offset_y :: String -> Float -> Float
-label_offset_x str x = x - (textWidth * labelScale * 0.5 * (fromIntegral (length str)))
-label_offset_y str y = y - labelScale * textHeight * 0.5
-
-renderLabel :: Label -> Picture
-renderLabel l =
-            pictures $ [
-            color scolor $
-            translate
-            (label_offset_x (textl l) (xl l))
-            (label_offset_y (textl l) (yl l)) $
-            scale labelScale labelScale $
-            text (textl l)
-            -- ,
-            -- line [(x, y), (x + labelScale * w, y), (x + labelScale * w, y + labelScale * h),
-            --     (x, y + labelScale * h), (x, y)]
-            ]
-            where scolor = if selected l then red else light black
-                  w = textWidth * (fromIntegral (length $ textl l))
-                  h = textHeight
-                  x = (label_offset_x (textl l) (xl l))
-                  y = (label_offset_y (textl l) (yl l))
-
-
-renderPt :: Pt -> Picture
-renderPt p = color scalar $ translate (xp p) (yp p)
-             $ circleSolid ptRadius
-             where scalar = if selected p then red else black
--- renderPt p = color scalar $ translate (xp p) (yp p)
---              $ circle ptRadius
---              where scalar = if selected p then red else black
--- renderPt p = let l1 = line [(-ptRadius, -ptRadius), (ptRadius,  ptRadius)]
---                  l2 = line [(-ptRadius,  ptRadius), (ptRadius, -ptRadius)]
---              in color scalar $ translate (xp p) (yp p) $ Pictures [l1, l2]
---              where scalar = if selected p then red else black
-
-renderSquare :: Square -> Picture
-renderSquare s = if selected s
-            then let (r', g', b', a') = rgbaOfColor $ colors s in
-            color (makeColor r' g' b' (a' / 2)) $ translate (xs s) (ys s) $
-            rectangleSolid (side s) (side s)
-            else color (colors s) $ translate (xs s) (ys s) $
-            rectangleSolid (side s) (side s)
-
-renderRect :: Rect -> Picture
-renderRect s = if selected s
-            then let (r', g', b', a') = rgbaOfColor $ colorr s in
-            color (makeColor r' g' b' (a' / 2)) $ translate (xr s) (yr s) $
-            rectangleSolid (sizeX s) (sizeY s)
-            else color (colorr s) $ translate (xr s) (yr s) $
-            rectangleSolid (sizeX s) (sizeY s)
-
-renderArrow :: SolidArrow -> Picture
--- renderArrow sa = color black $  line [(startx sa, starty sa), (endx sa, endy sa)]
-renderArrow sa = color scalar $ translate sx sy $ rotate (negate $ toDegree $ argV dir) $ pictures $
-                map polygon [ head_path, body_path ]
-                where
-                    scalar = if selected sa then red else black
-                    (sx, sy, ex, ey, t) = (startx sa, starty sa, endx sa, endy sa, thickness sa / 6)
-                    dir = (ex - sx, ey - sy) -- direction the arrow should point to
-                    len = magV dir
-                    body_path = [ (0, 0 + t), (len - 5*t, t),
-                        (len - 5*t, -1*t), (0, -1*t) ]
-                    head_path = [(len - 5*t, 3*t), (len, 0),
-                        (len - 5*t, -3*t)]
-
-toDegree, toRadian :: Floating a => a -> a
-toDegree rad = rad * 180 / pi
-toRadian deg = deg * pi / 180
-
-renderObj :: Obj -> Picture
-renderObj (C circ)  = renderCirc circ
-renderObj (E circ)  = renderEllipse circ
-renderObj (L label) = renderLabel label
-renderObj (P pt)    = renderPt pt
-renderObj (S sq)    = renderSquare sq
-renderObj (R rt)    = renderRect rt
-renderObj (A ar)    = renderArrow ar
-
-isLabel :: Obj -> Bool
-isLabel (L l) = True
-isLabel _     = False
-
-splitLabels :: [Obj] -> ([Obj], [Obj])
-splitLabels objs = (filter isLabel objs, filter (not . isLabel) objs)
-
-picOfState :: State -> Picture
-picOfState s =
-    let (labels, others) = splitLabels (objs s)
-    in
-    -- currently not putting labels at the top level because the control is not ready
-    -- Pictures $ map renderObj others ++ map renderObj labels
-    Pictures $ map renderObj (objs s)
-
-picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText, optText]
-                    -- lineXbot, lineXtop, lineYbot, lineYtop]
-    where -- TODO display constraint instead of hardcoding
-          -- (picture for bounding box for bound constraints)
-          -- constraints are currently global params
-          lineXbot = color red $ Line [(leftb, botb), (rightb, botb)]
-          lineXtop = color red $ Line [(leftb, topb), (rightb, topb)]
-          lineYbot = color red $ Line [(leftb, botb), (leftb, topb)]
-          lineYtop = color red $ Line [(rightb, botb), (rightb, topb)]
-
-          -- TODO generate this text more programmatically
-          objectiveText = translate xInit yInit $ scale sc sc
-                         $ text objText
-          constraintText = translate xInit (yInit - yConst) $ scale sc sc
-                         $ text constrText
-          stateText = let res = if autostep s then "on" else "off" in
-                      translate xInit (yInit - 2 * yConst) $ scale sc sc
-                      $ text ("autostep: " ++ res)
-          paramText = translate xInit (yInit - 3 * yConst) $ scale sc sc
-                      $ text ("penalty function weight: " ++ show (weight $ params s))
-          optText = translate xInit (yInit - 4 * yConst) $ scale sc sc
-                    $ text ("optimization status: " ++ (statusTextOf $ optStatus $ params s))
-          statusTextOf val = case val of
-                           NewIter -> "opt started; new iteration"
-                           UnconstrainedRunning lastState -> "unconstrained running"
-                           UnconstrainedConverged lastState -> "unconstrained converged"
-                           EPConverged -> "EP converged" -- TODO record num iterations
-          xInit = -pw2+50
-          yInit = ph2-50
-          yConst = 30
-          sc = 0.1
-
 ------- Sampling the state subject to a constraint. Currently not used since we are doing unconstrained optimization.
 
 -- generate an infinite list of sampled elements
@@ -879,6 +758,7 @@ sampleCoord gen o = case o of
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
                     A a   -> (o_loc, gen2) -- TODO
+                    LN a   -> (o_loc, gen2) -- TODO
                     CB c  -> (o, gen2) -- TODO: fall through
 
         where (x', gen1) = randomR sizeYange  gen
@@ -937,76 +817,6 @@ inObj (xm, ym) (A a) =
 -- check convergence of EP method
 epDone :: State -> Bool
 epDone s = ((optStatus $ params s) == EPConverged) || ((optStatus $ params s) == NewIter)
-
--- UI so far: pressing and releasing 'r' will re-sample all objects' sizes and positions within some preset range
--- if autostep is set, then dragging will move an object while optimization continues
--- if autostep is not set, then optimization will only step when 's' is pressed. dragging will move an object while optimization is not happening
-
--- for more on these constructors, see docs: https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html
--- pattern matches not fully fuzzed--assume that user only performs one action at once
--- (e.g. not left-clicking while stepping the optimization)
--- TODO "in object" tests
--- prevents user from manipulating objects until EP is done, unless objects are re-sampled
-
-handler :: Event -> State -> State
-handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
-        if epDone s then s { objs = objsFirstSelected, down = True } else s
-        -- so that clicking doesn't select all overlapping objects in bbox
-        -- foldl will reverse the list each time, so a diff obj can be selected
-        -- foldr will preserve the list order, so objects are stepped consistently
-        where (objsFirstSelected, _) = foldr (flip $ selectFirstIfContains (xm, ym)) ([], False) (objs s)
-              selectFirstIfContains (x, y) (xs, alreadySelected) o =
-                                    if alreadySelected || (not $ inObj (x, y) o) then (o : xs, alreadySelected)
-                                    else (select (setX xm $ setY ym o) : xs, True)
--- dragging mouse when down
--- if an object is selected, then if the collection of objects with the object moved satisfies the constraint,
--- then move the object to mouse position
--- TODO there's probably a better way to implement that
-handler (EventMotion (xm, ym)) s =
-        if down s && epDone s then s { objs = map (ifSelectedMoveTo (xm, ym)) (objs s), down = down s } else s
-        where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY (clamp1D ym) o else o
-
--- button released, so deselect all objects AND restart the optimization
--- keep the annotations and obj fn, otherwise state will be erased
-handler (EventKey (MouseButton LeftButton) Up _ _) s =
-        s { objs = map deselect $ objs s, down = False,
-            params = (params s) { weight = initWeight, optStatus = NewIter } }
-
--- if you press a key while down, then the handler resets the entire state (then Up will just reset again)
-handler (EventKey (Char 'r') Up _ _) s =
-        s { objs = objs', down = False, rng = rng',
-        params = (params s) { weight = initWeight, optStatus = NewIter } }
-        where (objs', rng') = sampleConstrainedState (rng s) (objs s) (constrs s)
-
--- turn autostep on or off (press same button to turn on or off)
-handler (EventKey (Char 'a') Up _ _) s = if autostep s then s { autostep = False }
-                                         else s { autostep = True }
-
--- pressing 's' (down) while autostep is off will step the optimization once, overriding the step function
--- (which doesn't step if autostep is off). this is the same code as the step function but with reverse condition
--- if autostep is on, this does nothing
--- also overrides EP done: forces a step (might want this to test if there substantial steps left after convergence, e.g. if magnitude of gradient is still large)
-handler (EventKey (Char 's') Down _ _) s =
-        if not $ autostep s then s { objs = objs', params = params' } else s
-        where (objs', params') = stepObjs (float2Double calcTimestep) (params s) (objs s)
-
--- change the weights in the barrier/penalty method (scale by 10). don't step objects
--- only allow the user to change the weights if EP has converged (just make the constraints sharper)
--- (doesn't seem to make a difference, though...)
--- in that case, start re-running UO with the last EP state as the current (converged) EP state
-handler (EventKey (SpecialKey KeyUp) Down _ _) s =
-        if epDone s then s { params = (params s) { weight = weight', optStatus = status' }} else s
-        where currWeight = weight (params s)
-              weight' = currWeight * weightGrowth
-              status' = UnconstrainedRunning $ EPstate (objs s)
-
-handler (EventKey (SpecialKey KeyDown) Down _ _) s =
-        if epDone s then s { params = (params s) { weight = weight', optStatus = status' }} else s
-        where currWeight = weight (params s)
-              weight' = currWeight / weightGrowth
-              status' = UnconstrainedRunning $ EPstate (objs s)
-
-handler _ s = s
 
 ----------- Stepping the state the world via gradient descent.
  -- First, miscellaneous helper functions.
@@ -1161,6 +971,10 @@ zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
 zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ starty' a,
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
                             selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a }
+zeroGrad (LN' a) = LN $ Line { startx_l = r2f $ startx_l' a, starty_l = r2f $ starty_l' a,
+                            endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a, 
+                            thickness_l = r2f $ thickness_l' a, name_l = name_l' a, color_l = color_l' a,
+                            style_l = style_l' a }
 zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namecb = namecb' c, stylecb = stylecb' c }
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb' c
           path      = map tuplify2 $ chunksOf 2 path_flat
@@ -1186,6 +1000,9 @@ addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
 addGrad (A a) = A' $ SolidArrow' { startx' = r2f $ startx a, starty' = r2f $ starty a,
                             endx' = r2f $ endx a, endy' = r2f $ endy a, thickness' = r2f $ thickness a,
                             selsa' = selsa a, namesa' = namesa a, colorsa' = colorsa a }
+addGrad (LN a) = LN' $ Line' { startx_l' = r2f $ startx_l a, starty_l' = r2f $ starty_l a,
+                            endx_l' = r2f $ endx_l a, endy_l' = r2f $ endy_l a, style_l' = style_l a,
+                            thickness_l' = r2f $ thickness_l a, name_l' = name_l a, color_l' = color_l a }
 addGrad (CB c) = CB' $ CubicBezier' { pathcb' = path, colorcb' = colorcb c, namecb' = namecb c, stylecb' = stylecb c }
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb c
           path      = map tuplify2 $ chunksOf 2 path_flat

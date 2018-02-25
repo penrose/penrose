@@ -86,14 +86,11 @@ computeSurjectionBbox g n a1 a2 = let xs = [startx' a1, endx' a1, startx' a2, en
 -- defined by four straight lines, assuming their lower/left coordinates come first. 
 -- Their intersections give the corners.
 computeSurjectionLines :: (Autofloat a) => StdGen -> Integer 
-                                   -> CubicBezier' a -> CubicBezier' a 
-                                   -> CubicBezier' a -> CubicBezier' a -> ([Pt2 a], StdGen)
+                                   -> Line' a -> Line' a -> Line' a -> Line' a -> ([Pt2 a], StdGen)
 computeSurjectionLines g n left right bottom top = 
-                       if not $ all (== 2) $ map (length . pathcb') [left, right, bottom, top]
-                       then error "surjection requires straight lines" -- TODO change from cubic bezier
-                       else let lower_left = (fst $ pathcb' left !! 0, snd $ pathcb' bottom !! 0) in
-                            let top_right = (fst $ pathcb' right !! 1, snd $ pathcb' top !! 1) in
-                            computeSurjection g n lower_left top_right
+                       let lower_left = (startx_l' left, starty_l' bottom) in
+                       let top_right = (startx_l' right, starty_l' top) in
+                       computeSurjection g n lower_left top_right
 
 -- | No arguments for now, to avoid typechecking
 -- Does this only work in gloss?
@@ -124,6 +121,7 @@ computeRadiusToMatch c p = {-trace ("computeRadiusToMatch") $ -}
 computeColorRGBA :: (Autofloat a) => a -> a -> a -> a -> Color
 computeColorRGBA r g b a = makeColor' r g b a
 
+-- calculates a line (of two points) intersecting the first axis, stopping before it leaves bbox of second axis
 -- TODO rename lineLeft and lineRight
 -- assuming a1 horizontal and a2 vertical, respectively
 lineLeft :: (Autofloat a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
@@ -140,33 +138,24 @@ lineRight lineFrac a1 a2 = let a1_start = starty' a1 in
                            let ypos = a1_start + lineFrac * a1_len in
                            [(startx' a2, ypos), (endx' a2, ypos)]
 
-regionX :: (Autofloat a) => CubicBezier' a -> CubicBezier' a -> a
-regionX bezL bezR = let (pathL, pathR) = (pathcb' bezL, pathcb' bezR) in
-                    if length pathL /= 2 || length pathR /= 2 
-                    then error ("expecting line of 2 pts, got lines:\n" ++ show bezL ++ "\n" ++ show bezR)
-                    -- assuming two vertical lines, not nec. in left to right order
-                    else let (x1, x2) = (fst $ pathL !! 0, fst $ pathR !! 0) in
-                    abs $ x2 - x1
+-- calculates the width (or height) of a region defined by two vert (or horiz) lines
+regionX :: (Autofloat a) => Line' a -> Line' a -> a
+regionX lineL lineR = -- assuming two vertical lines (left, right)
+                    let (xl, xr) = (startx_l' lineL, startx_l' lineR) in
+                    abs $ xr - xl
 
-regionY :: (Autofloat a) => CubicBezier' a -> CubicBezier' a -> a
-regionY bezL bezR = let (pathL, pathR) = (pathcb' bezL, pathcb' bezR) in
-                    if length pathL /= 2 || length pathR /= 2
-                    then error ("expecting line of 2 pts, got lines:\n" ++ show bezL ++ "\n" ++ show bezR)
-                    -- assuming two vertical lines
-                    else let (y1, y2) = (snd $ pathL !! 0, snd $ pathR !! 0) in
-                    -- assuming two vertical lines, not nec. in left to right order
-                    abs $ y2 - y1
+regionY :: (Autofloat a) => Line' a -> Line' a -> a
+regionY lineB lineT = -- assuming two horiz lines (bottom, top)
+                    let (yb, yt) = (starty_l' lineB, starty_l' lineT) in
+                    abs $ yb - yt
 
+-- Calculates the center of a rectangular region defined by the intersection of four lines
 -- TODO: a lot of code is duplicated from the above two
-regionCenter :: (Autofloat a) => CubicBezier' a -> CubicBezier' a -> CubicBezier' a -> CubicBezier' a -> (a, a)
-regionCenter left right down up = let (pathL, pathR, pathDown, pathUp) = (pathcb' left, pathcb' right, 
-                                                                    pathcb' down, pathcb' up) in
-                    if length pathL /= 2 || length pathR /= 2 || length pathDown /= 2 || length pathUp /= 2 
-                    then error "expecting line" else
-                    -- assuming two vertical /horizontal lines
-                    let (x1, x2, y1, y2) = (fst $ pathL !! 0, fst $ pathR !! 0, 
-                                        snd $ pathDown !! 0, snd $ pathUp !! 0) in
-                    ((x1 + x2) / 2, (y1 + y2) / 2)
+regionCenter :: (Autofloat a) => Line' a -> Line' a -> Line' a -> Line' a -> (a, a)
+regionCenter left right down up = -- expects input lines to be left, right, etc. in a rectangle
+                    -- assuming two vertical / and horizontal lines , calculates x left, x right, etc.
+                    let (xl, xr, yl, yr) = (startx_l' left, startx_l' right, starty_l' down, starty_l' up) in
+                    ((xl + xr) / 2, (yl + yr) / 2)
 
 ------------------------------------- Computation boilerplate
 -- Registration, typechecking, error handling
@@ -203,18 +192,19 @@ computeColorRGBA' :: CompFn a
 computeColorRGBA' [TNum x1, TNum x2, TNum x3, TNum x4] [] = TColor $ computeColorRGBA x1 x2 x3 x4
 computeColorRGBA' v o = error' "computeColorRGBA" v o
 
+-- TODO: revert the next three "x"s to TInt
 computeSurjection' :: CompFn a
-computeSurjection' [TInt x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRng x p1 p2
+computeSurjection' [TNum x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRng (floor x) p1 p2
 computeSurjection' v o = error' "computeSurjection" v o
 
 computeSurjectionBbox' :: CompFn a
-computeSurjectionBbox' [TInt x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng x a1 a2
+computeSurjectionBbox' [TNum x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng (floor x) a1 a2
 computeSurjectionBbox' v o = error' "computeSurjectionBbox" v o
 
 -- TODO: for multiple objects, inputs might not be in right order (depending on lookupAll)
 computeSurjectionLines' :: CompFn a
-computeSurjectionLines' [TInt x] [CB' b1, CB' b2, CB' b3, CB' b4] = 
-                        TPath $ fst $ computeSurjectionLines compRng x b1 b2 b3 b4
+computeSurjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] = 
+                        TPath $ fst $ computeSurjectionLines compRng (floor x) l1 l2 l3 l4
 computeSurjectionLines' v o = error' "computeSurjectionLines" v o
 
 lineLeft' :: CompFn a
@@ -231,15 +221,15 @@ addVector' [TNum n1, TNum n2] [P' p] = TPt $ addVector (n1, n2) (xp' p, yp' p)
 addVector' v o = error' "addVector" v o
 
 regionX' :: CompFn a
-regionX' [] [CB' lineLeft, CB' lineRight] = TNum $ regionX lineLeft lineRight
+regionX' [] [LN' lineLeft, LN' lineRight] = TNum $ regionX lineLeft lineRight
 regionX' v o = error' "regionX" v o
 
 regionY' :: CompFn a
-regionY' [] [CB' down, CB' up] = TNum $ regionY down up
+regionY' [] [LN' down, LN' up] = TNum $ regionY down up
 regionY' v o = error' "regionY" v o
 
 regionCenter' :: CompFn a
-regionCenter' [] [CB' l, CB' r, CB' d, CB' u] = TPt $ regionCenter l r d u
+regionCenter' [] [LN' l, LN' r, LN' d, LN' u] = TPt $ regionCenter l r d u
 regionCenter' v o = error' "regionCenter" v o
 
 -- TODO parse these at runtime

@@ -47,6 +47,8 @@ objFuncDict = M.fromList flist
                     ("orthogonal", orthogonal),
                     ("center", center),
                     ("centerLabel", centerLabel),
+                    ("centerMap", centerMap),
+                    ("centerLine", centerLine),
                     ("toLeft", toLeft),
                     ("above", above),
                     ("between", between),
@@ -146,12 +148,12 @@ sameX [a, b] _ = (getX a - getX b)^2
 sameY :: ObjFn
 sameY [a, b] _ = (getY a - getY b)^2
 
--- | 'sameCenter' forces two object to center at the same point
+-- | 'sameCenter' encourages two objects to center at the same point
 sameCenter :: ObjFn
 sameCenter [a, b] _ = (getY a - getY b)^2 + (getX a - getX b)^2
 
 -- TODO: more reasonable name
--- | `centerMap` positions an arrow between to objects, with some spacing
+-- | `centerMap` positions an arrow between two objects, with some spacing
 centerMap :: ObjFn
 centerMap [A' a, S' s, S' e] _ = _centerMap a [xs' s, ys' s] [xs' e, ys' e]
                 [spacing + (halfDiagonal . side') s, negate $ spacing + (halfDiagonal . side') e]
@@ -182,6 +184,13 @@ _centerMap a s1@[x1, y1] s2@[x2, y2] [o1, o2] =
                 then (s1 +. o1 *. dir) ++ (s2 +. o2 *. dir) else s1 ++ s2
         [fromx, fromy, tox, toy] = [startx' a, starty' a, endx' a, endy' a] in
     (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
+
+centerLine :: ObjFn
+centerLine [LN' l, P' p1, P' p2] _ = 
+           let p1_distsq = (startx_l' l - xp' p1)^2 + (starty_l' l - yp' p1)^2 in
+           let p2_distsq = (endx_l' l - xp' p2)^2 + (endy_l' l - yp' p2)^2 in
+           p1_distsq + p2_distsq
+centerLine o _ = error ("center line: unsupported args: " ++ show o)
 
 -- | 'repel' exert an repelling force between objects
 repel :: ObjFn
@@ -244,20 +253,19 @@ outside [L' o, C' i] _ = (dist (xl' o, yl' o) (xc' i, yc' i) - (1.5 * r' i) - wl
 outside [L' o, S' i] _ = (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
 -- TODO: generic version using bbox
 
--- TODO change to straight lines
 nearEndVert :: ObjFn
-nearEndVert [CB' line, L' lab] _ = -- expects a straight vertical line
-            let path = pathcb' line in
-            let (p1, p2) = (path !! 0, path !! 1) in
-            let bottompt = if snd p1 < snd p2 then p1 else p2 in
+nearEndVert [LN' line, L' lab] _ = -- expects a vertical line
+            let (sx, sy, ex, ey) = {-trace ("inputs: " ++ show line ++ "\n" ++ show lab) $-}
+                                   (startx_l' line, starty_l' line, endx_l' line, endy_l' line) in
+            let bottompt = if sy < ey then (sx, sy) else (ex, ey) in
             let yoffset = -25 in
-            distsq (xl' lab, yl' lab) (fst bottompt, snd bottompt + yoffset)
+            let res = distsq (xl' lab, yl' lab) (fst bottompt, snd bottompt + yoffset) in
+            trace ("nearEndVert energy for label " ++ namel' lab ++ " : " ++ show res) res
 
 nearEndHoriz :: ObjFn
-nearEndHoriz [CB' line, L' lab] _ = -- expects a straight horiz line
-            let path = pathcb' line in
-            let (p1, p2) = (path !! 0, path !! 1) in
-            let leftpt = if fst p1 < fst p2 then p1 else p2 in
+nearEndHoriz [LN' line, L' lab] _ = -- expects a horiz line
+            let (sx, sy, ex, ey) = (startx_l' line, starty_l' line, endx_l' line, endx_l' line) in
+            let leftpt = if sx < ex then (sx, sy) else (ex, ey) in
             let xoffset = -25 in
             distsq (xl' lab, yl' lab) (fst leftpt + xoffset, snd leftpt)
 
