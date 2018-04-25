@@ -1,5 +1,5 @@
 Set x {
-    constraint contains(x, x.label)
+    constraint contains(x, x.shape.label)
 }
 
 Set `A` {
@@ -20,5 +20,5 @@ Set `B` {
 Subset x y {
     constraint contains(y, x)
     constraint smallerThan(x, y)
-    constraint outsideOf(y.label, x)
+    constraint outsideOf(y.shape.label, x)
 }

@@ -110,8 +110,8 @@ unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
 -- TODO revert this!! Hack just for surjection program
-unpackObj (A' a) = [(startx' a, Fix), (starty' a, Fix), 
-                    (endx' a, Fix), (endy' a, Fix), (thickness' a, Fix)]
+unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), 
+                    (endx' a, Vary), (endy' a, Vary), (thickness' a, Vary)]
 -- unpackObj (CB' c) = [(pathcb' cb, Fix)]
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
 unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix), 
@@ -290,8 +290,8 @@ styExprToCompExpr objs e = case e of
                 S.Cons _ _     -> error "computations don't support object constructors (?)"
                 S.CompArgs _ _ -> error "computations don't support nested computations"
 
--- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra"
--- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"
+-- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain shape", "domain xaxis", etc.
+   -- but not "domain shape label"
 -- Maybe add the ability to pass in "expected" types, or to synthesize types and then check if they match?
 lookupAll :: Name -> M.Map Name (Obj' a) -> [Obj' a]
 lookupAll name objs = map snd $ M.toList $ M.filterWithKey (\inName _ -> objOrSecondaryShape name inName) objs
@@ -334,25 +334,33 @@ defLine = Line { startx_l = -100, starty_l = -100, endx_l = 300, endy_l = 300,
 
 -- default shapes
 defaultSolidArrow, defaultPt, defaultSquare, defaultRect,
-                   defaultCirc, defaultText, defaultEllipse :: String -> Obj
+                   defaultCirc, defaultEllipse :: String -> Obj
 defaultSolidArrow name = A $ setName name defSolidArrow
 defaultLine name = LN $ setName name defLine
 defaultPt name = P $ setName name defPt
 defaultSquare name = S $ setName name defSquare
 defaultRect name = R $ setName name defRect
--- Set both the text and name fields to the same thing (unlike labels)
-defaultText text = L $ setName text defText { textl = text }
 defaultCirc name = C $ setName name defCirc
 defaultEllipse name = E $ setName name defEllipse
 defaultCurve name = CB $ setName name defCurve
+
+-- Set the text field to just the Substance object name (e.g. "A")
+-- and name to the internal name, e.g. "A shape"
+defaultText :: String -> String -> Obj
+defaultText text name = L $ setName name defText { textl = text }
 
 -- If an object's name is X and it is labeled "Set X", the label name is "Label_X" and the text is "Set X"
 -- "Auto" is reserved text that labels the object with the Substance name; in this case it would be "X"
 defaultLabel :: String -> String -> Obj
 defaultLabel objName labelText =
              L $ setName (labelName objName) defLabel { textl = checkAuto objName labelText }
-             where checkAuto o "Auto" = o
-                   checkAuto o t = t
+
+checkAuto :: String -> String -> String
+checkAuto objName labelText =  -- TODO: should this use labelSetting?
+          if labelText == autoWord then 
+             let subObjName = (nameParts objName) !! 0 
+             in subObjName
+          else labelText
 
 shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
                                ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
@@ -438,13 +446,13 @@ labelSetting :: Maybe S.Expr -> S.StyType -> Name -> LabelSetting
 labelSetting s_expr objType objName =
              case objType of
                   S.NoShape -> NoLabel
-                  -- S.Text -> NoLabel
+                  S.Text -> NoLabel
                   _ -> let subObjName = (nameParts objName) !! 0 in
                         case s_expr of
                           -- A real object with unspecified label -> autolabeled with Substance name
                           Nothing -> Default subObjName
                           Just (S.Id "None") -> NoLabel
-                          Just (S.Id "Auto") -> Default subObjName
+                          Just (S.Id "Auto") -> Default subObjName -- should this use autoWord?
                           Just (S.StringLit text) -> Custom text
                           Just res -> error ("invalid label setting:\n" ++ show res)
 
@@ -452,7 +460,10 @@ labelSetting s_expr objType objName =
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse, initLine ::
     (Autofloat a) => Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
 
-initText n config = ([defaultText n], [], [])
+initText n config = ([defaultText text n], [], [])
+         where text = checkAuto n (fromMaybe n $ lookupId "text" config)
+               -- For text objects, use the normal label "text" attribute to set the text
+               -- of the text object (handling Auto in the same way, not allowing None)
 
 initSquare n config = ([defaultSquare n], [], sizeFuncs n)
 
@@ -464,8 +475,8 @@ initEllipse n config = ([defaultEllipse n], [],
                          (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
 
 initArrow n config = (objs, oFns, [])
-    where from = lookupId "startShape" config
-          to   = lookupId "endShape" config
+    where from = lookupId "start" config
+          to   = lookupId "end" config
           objs = [defaultSolidArrow n]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
@@ -474,8 +485,8 @@ initArrow n config = (objs, oFns, [])
 
 -- very similar to arrow and curve
 initLine n config = (objs, oFns, [])
-    where from = lookupId "startShape" config
-          to   = lookupId "endShape" config
+    where from = lookupId "start" config
+          to   = lookupId "end" config
           style = fromMaybe "solid" $ lookupStr "style" config
           setStyle (LN l) s = LN $ l { style_l = s } -- TODO: refactor defaultX vs defX
           objs = [setStyle (defaultLine n) style]

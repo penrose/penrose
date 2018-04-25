@@ -12,7 +12,7 @@ Set `domain` {
   shape = Arrow {
     start = origin
     end   = horiz
-    label = Auto
+    text = Auto
   }
 }
 
@@ -20,12 +20,12 @@ Set `codomain` {
   shape = Arrow {
     start = origin
     end   = vert
-    label = Auto
+    text = Auto
   }
 }
 
 Set S {
-  objective centerLabel(S, S.label)
+  objective centerLabel(S, S.shape.label)
 }
 
 -- TODO: clarify the cascading order for specificity, since the orders aren't consistent
@@ -33,9 +33,9 @@ Set S {
 -- to use it as an invisible anchor
 Point p {
     shape = Dot {
-        label = Auto
+        text = Auto
     }
-    objective centerLabel(p, p.label)
+    objective centerLabel(p, p.shape.label)
 } 
 
 -- TODO add ability for objects to have multiple associated shapes
@@ -44,12 +44,12 @@ Point `special` {
     constraint at(special, 130, 180)
     shape = Circle {
         -- r    = 20
-        label = Auto
+        text = Auto
         color = computeColorRGBA(1.0, 0.25, 0.25, 0.5)
         -- need to add computations to other shapes
     }
-    objective centerLabel(special, special.label)
-    -- objective near(special, special.label)
+    objective centerLabel(special, special.shape.label)
+    -- objective near(special, special.shape.label)
 } 
 
 -- TODO global label objective function
@@ -58,8 +58,8 @@ Map f x y {
     shape = Curve {
         -- style = "dashed"
         path = computeSurjectionBbox(10, domain, codomain)
-        label = Auto -- TODO add string literals/custom labels
+        text = Auto -- TODO add string literals/custom labels
     }
 
-    objective centerLabel(f, f.label, 10)
+    objective centerLabel(f, f.shape.label, 10)
 }

@@ -4,7 +4,7 @@ global {
 
 Point x {
   shape = Dot {
-    label = Auto
+    text = Auto
   }
 
   objective centerLabel(x, x.shape.label)
@@ -17,7 +17,7 @@ Point `a` {
 Point `b` {
   shape = Dot {
     location = addVector(100.0, 200.0, a)
-    label = Auto
+    text = Auto
   }
 }
 
@@ -25,7 +25,7 @@ Set X {
   shape = Circle {
     color = computeColorRGBA(1.0, 0.2, 1.0, 0.5)
     radius = computeRadiusToMatch(X, b)
-    label = Auto
+    text = Auto
   }
   
   objective centerLabel(X, X.shape.label)

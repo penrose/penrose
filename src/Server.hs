@@ -107,7 +107,7 @@ loop conn s
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
         putStrLn "Applying final computations"
-        let objsComputed = computeN 2 (R.objs s) (R.comps s)
+        let objsComputed = computeN 5 (R.objs s) (R.comps s)
         putStrLn $ "Final objs:\n" ++ show objsComputed
         wsSendJSON conn Frame { flag = "final", objs = objsComputed }
         processCommand conn s

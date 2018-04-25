@@ -1,5 +1,5 @@
 Set x {
-   objective centerLabel(x, x.label)
+   objective centerLabel(x, x.shape.label)
 }
 
 Set `A` {
@@ -25,7 +25,7 @@ Set `B` {
 
 Subset x y {
     constraint contains(y, x)
-    constraint outsideOf(y.label, x)
+    constraint outsideOf(y.shape.label, x)
     -- TODO discourage tangency:
     -- inside contains fn or separately?
 }

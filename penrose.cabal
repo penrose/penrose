@@ -40,7 +40,7 @@ executable penrose
                        extra               >= 1.6 && < 1.7,
                        process             >= 1.4.3 && < 1.5,
                        network              >= 2.6.3 && < 2.7,
-                       split
+                       split,
                        directory
   hs-source-dirs:      src
   default-language:    Haskell2010

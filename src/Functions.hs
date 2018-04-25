@@ -52,6 +52,7 @@ objFuncDict = M.fromList flist
                     ("toLeft", toLeft),
                     ("above", above),
                     ("between", between),
+                    ("sameHeight", sameHeight),
                     ("sameX", sameX),
                     ("sameY", sameY),
                     -- ("sameX", (*) 0.6 `compose2` sameX),
@@ -134,6 +135,10 @@ above [top, bottom] _ = (getY top - getY bottom - 100)^2
 -- | 'toLeft' makes sure the first argument is to the left of the second.
 toLeft :: ObjFn
 toLeft [a, b] _ = (getX a - getX b + 400)^2
+
+-- | 'sameHeight' forces two objects to stay at the same height (have the same Y value)
+sameHeight :: ObjFn
+sameHeight [a, b] _ = (getY a - getY b)^2
 
 -- | encourages two objects to have the same X value
 sameX :: ObjFn

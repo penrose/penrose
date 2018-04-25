@@ -1,6 +1,9 @@
 -- Tree.sty
 Set x { 
-    shape = Text { text = None }
+    shape = Text { 
+      text = Auto
+      -- for text objects, the "text" param refers to the object and not its label
+    }
 }
 
 Subset x y {

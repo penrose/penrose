@@ -485,8 +485,7 @@ lookupVarMap s varMap = case M.lookup s varMap of
     Nothing -> case M.lookup s computationDict of -- TODO remove this case
                Just f -> trace ("found function named: " ++ s) $ s
                Nothing -> s
-
-               -- TODO: there is a possibility of accessing unselected Substance variables here. As written here, we are assuming all ids from SUbstance are accessible in Style GLOBALLY. Is this okay?
+               -- TODO: there is a possibility of accessing unselected Substance variables here. As written here, we are assuming all ids from Substance are accessible in Style GLOBALLY. Is this okay?
                -- error $ "lookupVarMap: incorrect variable mapping from " ++ s ++ " or no computation"
 
 -- | Resolve a Style expression, which could be operations among expressions such as a chained dot-access for an attribute through a couple of layers of indirection
@@ -503,7 +502,8 @@ procExpr :: (Autofloat a) => VarMap -> Expr -> Either String a
 -- TODO: or a list of all shapes: "A xaxis", "A yaxis", ... (lookupAll does this for now)
 procExpr ctx (Id subObjPattern) = Left $ lookupVarMap subObjPattern ctx
 
-procExpr ctx r@(BinOp Access (Id _) (Id "label")) = error ("cannot access label of non-shape:\n" ++ show r)
+-- "ID.label" is a synonym for "ID.shape.label"
+procExpr ctx r@(BinOp Access (Id subObjName) (Id "label")) = error ("cannot access label of non-shape:\n" ++ show r)
 
 -- Shapes are given their unique names (for lookup) in Runtime (so far)
 -- in context [X ~> A], look up "X.yaxis.label", return "A yaxis label"
