@@ -216,10 +216,10 @@ subObjType =
         (rword "Set"         >> return SetT)               <|>
         -- (rword "OpenSet"     >> return (DerivedType SetT)) <|>
         (rword "Point"       >> return PointT)             <|>
-        (rword "Map"         >> return MapT)               <|>
         (rword "Value"       >> return ValueT)
 subConstrType =
         (rword "Subset"      >> return SubsetT)      <|>
+        (rword "Map"         >> return MapT)         <|>
         (rword "NoSubset"    >> return NoSubsetT)    <|>
         (rword "Intersect"   >> return IntersectT)   <|>
         (rword "NoIntersect" >> return NoIntersectT) <|>
