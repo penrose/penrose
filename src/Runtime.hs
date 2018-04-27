@@ -15,12 +15,12 @@ import Functions
 import Computation
 import Data.Set (fromList)
 import Data.List
+import Data.List.Split (splitOn)
 import Data.Maybe
 import Data.Monoid ((<>))
 import Data.Aeson
 import Data.Function
-import Graphics.Gloss.Data.Vector
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Data.Color -- TODO: remove this dependency
 import Numeric.AD
 import GHC.Float -- float <-> double conversions
 import System.IO
@@ -38,8 +38,7 @@ import qualified Substance as C
        -- TODO limit export/import
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 
-calcTimestep :: Float -- for use in forcing stepping in handler
-calcTimestep = 1 / int2Float stepsPerSecond
+------ Types and type synonyms
 
 data LastEPstate = EPstate [Obj] deriving (Eq, Show, Typeable)
 
@@ -66,8 +65,6 @@ data State = State { objs :: [Obj]
                    }  deriving (Typeable)
 
 type Config = M.Map String S.Expr
-type ObjFnInfo a = (ObjFnOn a, Weight a, [Name], [a])
-type ConstrFnInfo a = (ConstrFnOn a, Weight a, [Name], [a])
 
 -- | Datatypes for computation. ObjComp is gathered in pre-compilation and passed to functions that evaluate the computation.
 -- | object name, function name, list of args (TODO resolve them WRT pattern matching)
@@ -81,6 +78,9 @@ data ObjComp = ObjComp { oName :: Name, -- "A"
 type CompInfo = (Name, [S.Expr])
 
 ------
+
+calcTimestep :: Float -- for use in forcing stepping in handler
+calcTimestep = 1 / int2Float stepsPerSecond
 
 initRng :: StdGen
 initRng = mkStdGen seed
@@ -101,17 +101,21 @@ type Varying a = [a]
 -- does not unpack names
 unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
-unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)] -- TODO: changed r to Fix for testing
+unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
+unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
-unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), (endx' a, Vary),
-    (endy' a, Vary), (thickness' a, Fix)]
+-- TODO revert this!! Hack just for surjection program
+unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), 
+                    (endx' a, Vary), (endy' a, Vary), (thickness' a, Vary)]
 -- unpackObj (CB' c) = [(pathcb' cb, Fix)]
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
+unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix), 
+                    (endx_l' a, Fix), (endy_l' a, Fix), (thickness_l' a, Fix)]
 
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Autofloat a) => [Obj' a] -> [[(a, Annotation)]]
@@ -145,11 +149,16 @@ curvePack :: (Autofloat a) => CubicBezier -> [a] -> CubicBezier' a
 curvePack c params = CubicBezier' { pathcb' = path, namecb' = namecb c, colorcb' = colorcb c, stylecb' = stylecb c }
          where path = map tuplify2 $ chunksOf 2 params
 
-
 solidArrowPack :: (Autofloat a) => SolidArrow -> [a] -> SolidArrow' a
 solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex, endy' = ey, thickness' = t,
                 namesa' = namesa arr, selsa' = selsa arr, colorsa' = colorsa arr }
          where (sx, sy, ex, ey, t) = if not $ length params == 5 then error "wrong # params to pack solid arrow"
+                            else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
+
+linePack :: (Autofloat a) => Line -> [a] -> Line' a
+linePack ln params = Line' { startx_l' = sx, starty_l' = sy, endx_l' = ex, endy_l' = ey, thickness_l' = t,
+                name_l' = name_l ln, color_l' = color_l ln, style_l' = style_l ln }
+         where (sx, sy, ex, ey, t) = if not $ length params == 5 then error "wrong # params to pack line"
                             else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
 
 circPack :: (Autofloat a) => Circ -> [a] -> Circ' a
@@ -159,14 +168,22 @@ circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir,
                                 else (params !! 0, params !! 1, params !! 2)
 
 ellipsePack :: (Autofloat a) => Ellipse -> [a] -> Ellipse' a
-ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, namee' = namee e, colore' = colore e }
+ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, namee' = namee e,
+                                  colore' = colore e }
          where (xe1, ye1, rx1, ry1) = if not $ length params == 4 then error "wrong # params to pack circle"
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 sqPack :: (Autofloat a) => Square -> [a] -> Square' a
-sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, sels' = sels sq, colors' = colors sq, ang' = ang sq}
+sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq,
+                             sels' = sels sq, colors' = colors sq, ang' = ang sq}
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
+
+rectPack :: (Autofloat a) => Rect -> [a] -> Rect' a
+rectPack rct params = Rect' { xr' = xs1, yr' = ys1, sizeX' = len, sizeY' = wid, namer' = namer rct,
+                              selr' = selr rct, colorr' = colorr rct, angr' = angr rct}
+         where (xs1, ys1, len, wid) = if not $ length params == 4 then error "wrong # params to pack rect"
+                                else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 ptPack :: (Autofloat a) => Pt -> [a] -> Pt' a
 ptPack pt params = Pt' { xp' = xp1, yp' = yp1, namep' = namep pt, selp' = selp pt }
@@ -215,102 +232,12 @@ pack' zipped fixed varying =
                     L label -> L' $ labelPack label flatParams
                     P pt    -> P' $ ptPack pt flatParams
                     S sq    -> S' $ sqPack sq flatParams
+                    R rect  -> R' $ rectPack rect flatParams
                     A ar    -> A' $ solidArrowPack ar flatParams
                     CB c    -> CB' $ curvePack c flatParams
+                    LN c    -> LN' $ linePack c flatParams
 
-
-------- Style related functions
-
-defName = "default"
-
--- default shapes at base types (not obj)
-defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200, 
-                                thickness = 10, selsa = False, namesa = defName, colorsa = black }
-defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
-defSquare = Square { xs = 100, ys = 100, side = defaultRad,
-                          sels = False, names = defName, colors = black, ang = 0.0}
-defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
-defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, 
-                        namel = labelName defName }
-defCirc = Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = defName, colorc = black }
-defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad, 
-                            namee = defName, colore = black }
-defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
-    where path = [(10, 100), (300, 100)]
-
--- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultLabel, defaultCirc, defaultText, defaultEllipse :: String -> Obj
-defaultSolidArrow name = A $ setName name defSolidArrow
-defaultPt name = P $ setName name defPt
-defaultSquare name = S $ setName name defSquare
--- Set both the text and name fields...
-defaultText text = L $ setName text defText { textl = text } -- ...to the same thing
-defaultLabel text = L $ setName (labelName text) defLabel { textl = text } -- ...to have a different label name
-defaultCirc name = C $ setName name defCirc
-defaultEllipse name = E $ setName name defEllipse
-defaultCurve name = CB $ setName name defCurve
-
-
-shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
-                               ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
-shapeAndFn dict name =
-    case M.lookup name dict of
-        Nothing -> error ("Cannot find style info for " ++ name)
-        Just spec  -> let config = (name, S.spShape spec) : map addPrefix (M.toList $ S.spShpMap spec) in
-                      let objs_and_functions = map getShape config in
-                      {-trace ("shape map: " ++ show config) $ -} concat4 objs_and_functions
-                      -- example config:
-                      -- shape map: [("A",(Circle,fromList [("color",
-                      -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
-    where
-        concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
-        addPrefix (s, o) = (name ++ "_" ++ s, o)
-        fst4 (a, _, _, _) = a
-        snd4 (_, a, _, _) = a
-        thd4 (_, _, a, _) = a
-        frth4 (_, _, _, a) = a
-
-getShape :: (Autofloat a) => (String, (S.StyObj, Config)) ->
-                             ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
-
-getShape (n, (objType, config)) = 
-         -- We don't need the object type to typecheck the computation, because we have the object's name and
-         -- it's stored as an Obj (can pattern-match)
-         let (computations, config_nocomps) = compsAndVars n config in
-         let objInfo = case objType of
-              S.Text    -> initText n config_nocomps
-              S.Arrow   -> initArrow n config_nocomps
-              S.Circle  -> initCircle n config_nocomps
-              S.Ellip   -> initEllipse n config_nocomps
-              S.Box     -> initSquare n config_nocomps
-              S.Dot     -> initDot n config_nocomps
-              S.Curve   -> initCurve n config_nocomps
-              S.NoShape -> ([], [], [])
-              _         -> error ("ShapeOf: Unknown shape " ++ show objType ++ " for " ++ n) in
-         tupAppend objInfo computations
-         where tupAppend (a, b, c) d = (a, b, c, d)
-
--- TODO: what if a property (e.g. "r") can take either a computation or an input expr??
--- that should be done via getters and setters (for both base and derived properties)
-
--- TODO: should initX get its type? should this function use objProperties?
--- Given a config, separates the computations and the vars and returns both
-compsAndVars :: Name -> Config -> ([ObjComp], Config)
-compsAndVars n config = 
-         let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
-         let config_nocomps = M.mapMaybe notComp config in -- could use M.partition
-         (comps, config_nocomps)
-         where toComp :: Property -> S.Expr -> Maybe ObjComp
-               toComp propertyName expr = case expr of
-                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName, 
-                                                                    fnName = fn, fnParams = args }
-                             _                  -> Nothing
-               notComp :: S.Expr -> Maybe S.Expr
-               notComp expr = case expr of
-                             S.CompArgs _ _  -> Nothing
-                             res             -> Just res
-
---------------------------------
+------- Computation related functions
 
 mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
@@ -338,13 +265,14 @@ computeOn objDict comp =
                            Just function -> let objRes = applyAndSet objDict comp function obj in
                                             M.insert objName objRes objDict
 
--- | Look up the arguments to a computation, apply the computation, 
+-- | Look up the arguments to a computation, apply the computation,
 -- | and set the property in the object to the result.
 applyAndSet :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> CompFn a -> Obj' a -> Obj' a
-applyAndSet objDict comp function obj = 
+applyAndSet objDict comp function obj =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
+          -- Style computations rely on the order of object inputs being the same as program arguments.
           let (constArgs, objectArgs) = partitionEithers $ map (styExprToCompExpr objDict) args in
-          let res = function constArgs (concat objectArgs) in 
+          let res = function constArgs (concat objectArgs) in
           -- TODO: for multiple objects, might not be in right order. alphabetize?
           set objProperty obj res
 
@@ -358,57 +286,227 @@ styExprToCompExpr objs e = case e of
                 S.Id v         -> case lookupAll v objs of
                                   [] -> error ("id '" ++ v ++ "' /and subobjects do(es) not exist in obj dict")
                                   xs -> Right xs
-                S.BinOp _ _ _  -> error "computations don't support operations"
-                S.Cons _ _     -> error "computatons don't support object constructors (?)"
+                S.BinOp _ _ _  -> error "computations don't support operations / TODO binops"
+                S.Cons _ _     -> error "computations don't support object constructors (?)"
                 S.CompArgs _ _ -> error "computations don't support nested computations"
 
--- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain_shape1", "domain_shape100", etc. will also return things like "domain_shape1_extra" 
--- TODO: assumes secondary objects are named in Style with "shape.*" and assigned internal names "$Substanceidentifier_shape.*"
+-- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain shape", "domain xaxis", etc.
+   -- but not "domain shape label"
 -- Maybe add the ability to pass in "expected" types, or to synthesize types and then check if they match?
 lookupAll :: Name -> M.Map Name (Obj' a) -> [Obj' a]
-lookupAll name objs = map snd $ M.toList $ M.filterWithKey (objOrSecondaryShape name) objs
-           where objOrSecondaryShape name inName _ = name == inName 
-                                                    || (name ++ secondaryIndicator) `isPrefixOf` inName
-                 secondaryIndicator = "_shape"
+lookupAll name objs = map snd $ M.toList $ M.filterWithKey (\inName _ -> objOrSecondaryShape name inName) objs
 
---------------------------------
--- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info)
-initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse ::
+nameParts :: String -> [String]
+nameParts = splitOn nameSep
+
+-- A name is three parts: [subobjname, possibly styshapename, possibly label]
+-- TODO rewrite, it's hacky to do name resolution in lookup vs. in procExpr
+objOrSecondaryShape :: Name -> Name -> Bool
+objOrSecondaryShape name inName = let (names, inNames) = (nameParts name, nameParts inName) in
+                                  case (names, inNames) of
+                                  -- Resolve e.g. "A" to "A xaxis", "A yaxis"
+                                  ([subObjName], [inSubObjName, inStyShapeName]) -> subObjName == inSubObjName
+                                                                -- excludes labels of shapes
+                                  _ -> name == inName -- Resolve e.g. "A xaxis", "A xaxis label"
+
+------- Style related functions
+
+defName = "default"
+
+-- default shapes at base types (not obj)
+defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
+                                thickness = 10, selsa = False, namesa = defName, colorsa = black }
+defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
+defSquare = Square { xs = 100, ys = 100, side = defaultRad,
+                          sels = False, names = defName, colors = black, ang = 0.0}
+defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
+                          selr = False, namer = defName, colorr = black, angr = 0.0}
+defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
+defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False,
+                        namel = labelName defName }
+defCirc = Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = defName, colorc = black }
+defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad,
+                            namee = defName, colore = black }
+defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
+    where path = [(10, 100), (300, 100)]
+defLine = Line { startx_l = -100, starty_l = -100, endx_l = 300, endy_l = 300,
+                                thickness_l = 2, name_l = defName, color_l = black, style_l = "solid" }
+
+-- default shapes
+defaultSolidArrow, defaultPt, defaultSquare, defaultRect,
+                   defaultCirc, defaultEllipse :: String -> Obj
+defaultSolidArrow name = A $ setName name defSolidArrow
+defaultLine name = LN $ setName name defLine
+defaultPt name = P $ setName name defPt
+defaultSquare name = S $ setName name defSquare
+defaultRect name = R $ setName name defRect
+defaultCirc name = C $ setName name defCirc
+defaultEllipse name = E $ setName name defEllipse
+defaultCurve name = CB $ setName name defCurve
+
+-- Set the text field to just the Substance object name (e.g. "A")
+-- and name to the internal name, e.g. "A shape"
+defaultText :: String -> String -> Obj
+defaultText text name = L $ setName name defText { textl = text }
+
+-- If an object's name is X and it is labeled "Set X", the label name is "Label_X" and the text is "Set X"
+-- "Auto" is reserved text that labels the object with the Substance name; in this case it would be "X"
+defaultLabel :: String -> String -> Obj
+defaultLabel objName labelText =
+             L $ setName (labelName objName) defLabel { textl = checkAuto objName labelText }
+
+checkAuto :: String -> String -> String
+checkAuto objName labelText =  -- TODO: should this use labelSetting?
+          if labelText == autoWord then 
+             let subObjName = (nameParts objName) !! 0 
+             in subObjName
+          else labelText
+
+shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
+                               ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+shapeAndFn dict subObjName =
+    case M.lookup subObjName dict of
+        Nothing -> error ("Cannot find style info for " ++ subObjName)
+        Just spec  -> let config = {-TODO: remove:-} map (mkUniqueShapeName subObjName)
+                                   (M.toList $ S.spShpMap spec) in
+                      let objs_and_functions = map getShape config in
+                      concat4 objs_and_functions
+                      -- example config:
+                      -- shape map: [("A",(Circle,fromList [("color",
+                      -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
+    where
+        mkUniqueShapeName name1 (name2, objInfo) = (uniqueShapeName name1 name2, objInfo)
+        concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
+        fst4 (a, _, _, _) = a
+        snd4 (_, a, _, _) = a
+        thd4 (_, _, a, _) = a
+        frth4 (_, _, _, a) = a
+
+getShape :: (Autofloat a) => (String, (S.StyType, Config)) ->
+                             ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+
+getShape (oName, (objType, config)) =
+         -- We don't need the object type to typecheck the computation, because we have the object's name and
+         -- it's stored as an Obj (can pattern-match)
+         let (computations, config_nocomps) = compsAndVars oName config in
+         let objInfo = case objType of
+              S.Text    -> initText oName config_nocomps
+              S.Arrow   -> initArrow oName config_nocomps
+              S.Circle  -> initCircle oName config_nocomps
+              S.Ellip   -> initEllipse oName config_nocomps
+              S.Box     -> initSquare oName config_nocomps
+              S.Rectangle -> initRect oName config_nocomps
+              S.Dot     -> initDot oName config_nocomps
+              S.Curve   -> initCurve oName config_nocomps
+              S.Line2    -> initLine oName config_nocomps
+              S.NoShape -> ([], [], []) in
+         let res = tupAppend objInfo computations in
+
+         -- TODO factor out label logic?
+         let labelRes = M.lookup labelTextWord config in -- assuming one label per shape
+         let labelSet = labelSetting labelRes objType oName in
+         case labelSet of
+         -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
+         NoLabel -> res
+         Default labelText -> addObject [defaultLabel oName labelText] res -- distinction for debugging
+         Custom labelText -> addObject [defaultLabel oName labelText] res
+
+         where tupAppend (a, b, c) d = (a, b, c, d)
+               addObject l (a, b, c, d) = (a ++ l, b, c, d)
+
+-- TODO: what if a property (e.g. "r") can take either a computation or an input expr??
+-- that should be done via getters and setters (for both base and derived properties)
+
+-- TODO: should initX get its type? should this function use objProperties?
+-- Given a config, separates the computations and the vars and returns both
+compsAndVars :: Name -> Config -> ([ObjComp], Config)
+compsAndVars n config =
+         let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
+         let config_nocomps = M.mapMaybe notComp config in -- could use M.partition
+         (comps, config_nocomps)
+         where toComp :: Property -> S.Expr -> Maybe ObjComp
+               toComp propertyName expr = case expr of
+                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName,
+                                                                    fnName = fn, fnParams = args }
+                             _                  -> Nothing
+               notComp :: S.Expr -> Maybe S.Expr
+               notComp expr = case expr of
+                             S.CompArgs _ _  -> Nothing
+                             res             -> Just res
+
+data LabelSetting = NoLabel | Default Name | Custom Name
+
+-- | Reserved words or special demarcators in the system
+noneWord, autoWord, labelTextWord :: String
+noneWord = "None"
+autoWord = "Auto"
+labelTextWord = "text"
+
+labelSetting :: Maybe S.Expr -> S.StyType -> Name -> LabelSetting
+labelSetting s_expr objType objName =
+             case objType of
+                  S.NoShape -> NoLabel
+                  S.Text -> NoLabel
+                  _ -> let subObjName = (nameParts objName) !! 0 in
+                        case s_expr of
+                          -- A real object with unspecified label -> autolabeled with Substance name
+                          Nothing -> Default subObjName
+                          Just (S.Id "None") -> NoLabel
+                          Just (S.Id "Auto") -> Default subObjName -- should this use autoWord?
+                          Just (S.StringLit text) -> Custom text
+                          Just res -> error ("invalid label setting:\n" ++ show res)
+
+-- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
+initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse, initLine ::
     (Autofloat a) => Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
 
-initText n config = ([defaultText n], [], [])
+initText n config = ([defaultText text n], [], [])
+         where text = checkAuto n (fromMaybe n $ lookupId "text" config)
+               -- For text objects, use the normal label "text" attribute to set the text
+               -- of the text object (handling Auto in the same way, not allowing None)
+
+initSquare n config = ([defaultSquare n], [], sizeFuncs n)
+
+initRect n config = ([defaultRect n], [], sizeFuncs n)
+
+initDot n config = ([defaultPt n], [], [])
+
+initEllipse n config = ([defaultEllipse n], [],
+                         (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
 
 initArrow n config = (objs, oFns, [])
-    where from = --trace ("arrow to config " ++ show config ++ " | " ++ to) $
-                 queryConfig_var "start" config
-          to   = queryConfig_var "end" config
-          lab  = queryConfig_var "label" config
-          objs = if lab == "None" then [defaultSolidArrow n]
-                 else [defaultSolidArrow n, defaultLabel n]
-          oFns = if from == "None" || to == "None" then []
-                 else  [(centerMap, defaultWeight, [n, from, to], [])]
+    where from = lookupId "start" config
+          to   = lookupId "end" config
+          objs = [defaultSolidArrow n]
+          betweenObjFn = case (from, to) of
+                         (Nothing, Nothing) -> []
+                         (Just fromName, Just toName) -> [(centerMap, defaultWeight, [n, fromName, toName], [])]
+          oFns = betweenObjFn
+
+-- very similar to arrow and curve
+initLine n config = (objs, oFns, [])
+    where from = lookupId "start" config
+          to   = lookupId "end" config
+          style = fromMaybe "solid" $ lookupStr "style" config
+          setStyle (LN l) s = LN $ l { style_l = s } -- TODO: refactor defaultX vs defX
+          objs = [setStyle (defaultLine n) style]
+          betweenObjFn = case (from, to) of
+                         (Nothing, Nothing) -> []
+                         (Just fromNm, Just toNm) -> [(centerLine, defaultWeight, [n, fromNm, toNm], [])]
+          oFns = betweenObjFn
 
 initCircle n config = (objs, oFns, constrs)
     where circObj = defaultCirc n
-          objs = [circObj, defaultLabel n]
+          objs = [circObj]
           oFns = []
           constrs = sizeFuncs n
 
-initEllipse n config = ([defaultEllipse n, defaultLabel n], [],
-                         (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
-
-initSquare n config = ([defaultSquare n, defaultLabel n], [], sizeFuncs n)
-
-initDot n config = (objs, [], [])
-        where lab  = queryConfig_var "label" config
-              objs = if lab == "None" then [defaultPt n] else [defaultPt n, defaultLabel n]
-
 initCurve n config = (objs, [], [])
-        where defaultPath = [(10, 100), (50, 0), (60, 0), (100, 100), (250, 250), (300, 100)]
-              lab  = queryConfig_var "label" config
-              style = queryConfig_var "style" config
+        where defaultPath = [(10, 100), (50, 0)] -- (60, 0), (100, 100), (250, 250), (300, 100)]
+              style = fromMaybe "solid" $ lookupStr "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
-              objs = if lab == "None" then [curve] else [curve, defaultLabel n]
+              objs = [curve]
+
 
 sizeFuncs :: (Autofloat a) => Name -> [ConstrFnInfo a]
 sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
@@ -417,24 +515,23 @@ sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
 tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
--- TODO: deprecate these two functions
 -- TODO: deal with pattern-matching on computation anywhere
-queryConfig_var :: (Show k, Ord k) => k -> M.Map k S.Expr -> String
-queryConfig_var key dict = let res = queryConfig key dict in
-                case res of
-                Left var -> var
-                Right comp -> error "query config expected var but got function"
+lookupId :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
+lookupId key dict = case M.lookup key dict of
+    Just (S.Id i) -> Just i -- objects are looked up later
+    Just res -> error ("expecting id, got:\n" ++ show res)
+    Nothing -> Nothing
 
--- TODO: distinguish between variable name (id) and string literal (in types?)
-queryConfig :: (Show k, Ord k) => k -> M.Map k S.Expr -> Either String CompInfo
-queryConfig key dict = case M.lookup key dict of
-    Just (S.Id i) -> Left i
-    Just (S.StringLit s) -> Left s
-    Just (S.CompArgs fn params) -> Right (fn, params)
+lookupStr :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
+lookupStr key dict = case M.lookup key dict of
+    Just (S.StringLit i) -> Just i
+    Just res -> error ("expecting str, got:\n" ++ show res)
+    Nothing -> Nothing
+
+    -- Just (S.CompArgs fn params) -> error "not expecting a computed property"
     -- FIXME: get dot access to work for arbitrary input
-    Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Left i
-    Just x -> error $ "unsupported datatype in queryConfig in runtime: " ++ show x
-    Nothing -> Left "None"
+    -- TODO: don't hardcode "shape" and allow accessing other properties
+    -- Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Nothing
 
 ------- Generate objective functions
 
@@ -463,7 +560,7 @@ declMapObjfn = centerMap
 map4 :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
 map4 f (w, x, y, z) = (f w, f x, f y, f z)
 
-genAllObjs :: (Autofloat a) => ([C.SubDecl], [C.SubConstr]) -> S.StyDict 
+genAllObjs :: (Autofloat a) => ([C.SubDecl], [C.SubConstr]) -> S.StyDict
                                -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
 -- TODO figure out how the types work. also add weights
 genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss, concat compss)
@@ -483,14 +580,19 @@ dictOfObjs = foldr addObj M.empty
 constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
 
+-- Preserve failed keys for reporting errors
+lookupWithFail :: M.Map Name (Obj' a) -> Name -> Either Name [Obj' a]
+lookupWithFail dict key = case lookupAll key dict of -- accounts for X resolving to "X shape1", "X shape2", etc
+                             []   -> Left key
+                             vals -> Right vals
+
 lookupNames :: (Autofloat a) => M.Map Name (Obj' a) -> [Name] -> [Obj' a]
-lookupNames dict ns = map check res
+lookupNames dict ns = concatMap check res
     where
-        res = map (`M.lookup` dict) ns
+        res = map (lookupWithFail dict) ns
         check x = case x of
-            Just o -> o
-            _ -> error ("lookupNames: at least one of the arguments does not exist: " ++ show ns ++
-                         " in dict: " ++ show dict)
+            Right obj -> obj
+            Left key -> error ("lookupNames: key `" ++ key ++ "` does not exist in dict:\n\n" ++ show dict)
 
 -- takes list of current objects as a parameter, and is later partially applied with that in optimization
 -- first param: list of parameter annotations for each object in the state
@@ -615,148 +717,11 @@ cmax = 0.1
 cmin = 0.9
 
 -- radiusRange, sideRange :: Floating a => (a, a    )
-widthRange  = (-pw2, pw2)
+sizeYange  = (-pw2, pw2)
 heightRange = (-ph2, ph2)
 radiusRange = (20, picWidth `divf` 6)
 sideRange = (20, picWidth `divf` 3)
 colorRange  = (cmin, cmax)
-
-------------- The "Style" layer: render the state of the world.
-renderCirc :: Circ -> Picture
-renderCirc c = if selected c
-               then let (r', g', b', a') = rgbaOfColor $ colorc c in
-                    color (makeColor r' g' b' (a' / 2)) $ translate (xc c) (yc c) $
-                    circleSolid (r c)
-               else {-trace ("RENDER CIRC: " ++ show (colorc c)) $-} color (colorc c) $ translate (xc c) (yc c) $ circleSolid (r c)
-
--- TODO: this is just for debugging purposes
-renderEllipse :: Ellipse -> Picture
-renderEllipse c = color (colore c) $ translate (xe c) (ye c) $ circleSolid (rx c)
-
--- fix to the centering problem of labels, assumeing:
--- (1) monospaced font; (2) at least a chracter of max height is in the label string
-labelScale, textWidth, textHeight :: Floating a => a
-textWidth  = 104.76 -- Half of that of the monospaced version
-textHeight = 119.05
-labelScale = 0.2
-
-label_offset_x, label_offset_y :: String -> Float -> Float
-label_offset_x str x = x - (textWidth * labelScale * 0.5 * (fromIntegral (length str)))
-label_offset_y str y = y - labelScale * textHeight * 0.5
-
-renderLabel :: Label -> Picture
-renderLabel l =
-            pictures $ [
-            color scolor $
-            translate
-            (label_offset_x (textl l) (xl l))
-            (label_offset_y (textl l) (yl l)) $
-            scale labelScale labelScale $
-            text (textl l)
-            -- ,
-            -- line [(x, y), (x + labelScale * w, y), (x + labelScale * w, y + labelScale * h),
-            --     (x, y + labelScale * h), (x, y)]
-            ]
-            where scolor = if selected l then red else light black
-                  w = textWidth * (fromIntegral (length $ textl l))
-                  h = textHeight
-                  x = (label_offset_x (textl l) (xl l))
-                  y = (label_offset_y (textl l) (yl l))
-
-
-renderPt :: Pt -> Picture
-renderPt p = color scalar $ translate (xp p) (yp p)
-             $ circleSolid ptRadius
-             where scalar = if selected p then red else black
--- renderPt p = color scalar $ translate (xp p) (yp p)
---              $ circle ptRadius
---              where scalar = if selected p then red else black
--- renderPt p = let l1 = line [(-ptRadius, -ptRadius), (ptRadius,  ptRadius)]
---                  l2 = line [(-ptRadius,  ptRadius), (ptRadius, -ptRadius)]
---              in color scalar $ translate (xp p) (yp p) $ Pictures [l1, l2]
---              where scalar = if selected p then red else black
-
-renderSquare :: Square -> Picture
-renderSquare s = if selected s
-            then let (r', g', b', a') = rgbaOfColor $ colors s in
-            color (makeColor r' g' b' (a' / 2)) $ translate (xs s) (ys s) $
-            rectangleSolid (side s) (side s)
-            else color (colors s) $ translate (xs s) (ys s) $
-            rectangleSolid (side s) (side s)
-
-renderArrow :: SolidArrow -> Picture
--- renderArrow sa = color black $  line [(startx sa, starty sa), (endx sa, endy sa)]
-renderArrow sa = color scalar $ translate sx sy $ rotate (negate $ toDegree $ argV dir) $ pictures $
-                map polygon [ head_path, body_path ]
-                where
-                    scalar = if selected sa then red else black
-                    (sx, sy, ex, ey, t) = (startx sa, starty sa, endx sa, endy sa, thickness sa / 6)
-                    dir = (ex - sx, ey - sy) -- direction the arrow should point to
-                    len = magV dir
-                    body_path = [ (0, 0 + t), (len - 5*t, t),
-                        (len - 5*t, -1*t), (0, -1*t) ]
-                    head_path = [(len - 5*t, 3*t), (len, 0),
-                        (len - 5*t, -3*t)]
-
-toDegree, toRadian :: Floating a => a -> a
-toDegree rad = rad * 180 / pi
-toRadian deg = deg * pi / 180
-
-renderObj :: Obj -> Picture
-renderObj (C circ)  = renderCirc circ
-renderObj (E circ)  = renderEllipse circ
-renderObj (L label) = renderLabel label
-renderObj (P pt)    = renderPt pt
-renderObj (S sq)    = renderSquare sq
-renderObj (A ar)    = renderArrow ar
-
-isLabel :: Obj -> Bool
-isLabel (L l) = True
-isLabel _     = False
-
-splitLabels :: [Obj] -> ([Obj], [Obj])
-splitLabels objs = (filter isLabel objs, filter (not . isLabel) objs)
-
-picOfState :: State -> Picture
-picOfState s =
-    let (labels, others) = splitLabels (objs s)
-    in
-    -- currently not putting labels at the top level because the control is not ready
-    -- Pictures $ map renderObj others ++ map renderObj labels
-    Pictures $ map renderObj (objs s)
-
-picOf :: State -> Picture
-picOf s = Pictures [picOfState s, objectiveText, constraintText, stateText, paramText, optText]
-                    -- lineXbot, lineXtop, lineYbot, lineYtop]
-    where -- TODO display constraint instead of hardcoding
-          -- (picture for bounding box for bound constraints)
-          -- constraints are currently global params
-          lineXbot = color red $ Line [(leftb, botb), (rightb, botb)]
-          lineXtop = color red $ Line [(leftb, topb), (rightb, topb)]
-          lineYbot = color red $ Line [(leftb, botb), (leftb, topb)]
-          lineYtop = color red $ Line [(rightb, botb), (rightb, topb)]
-
-          -- TODO generate this text more programmatically
-          objectiveText = translate xInit yInit $ scale sc sc
-                         $ text objText
-          constraintText = translate xInit (yInit - yConst) $ scale sc sc
-                         $ text constrText
-          stateText = let res = if autostep s then "on" else "off" in
-                      translate xInit (yInit - 2 * yConst) $ scale sc sc
-                      $ text ("autostep: " ++ res)
-          paramText = translate xInit (yInit - 3 * yConst) $ scale sc sc
-                      $ text ("penalty function weight: " ++ show (weight $ params s))
-          optText = translate xInit (yInit - 4 * yConst) $ scale sc sc
-                    $ text ("optimization status: " ++ (statusTextOf $ optStatus $ params s))
-          statusTextOf val = case val of
-                           NewIter -> "opt started; new iteration"
-                           UnconstrainedRunning lastState -> "unconstrained running"
-                           UnconstrainedConverged lastState -> "unconstrained converged"
-                           EPConverged -> "EP converged" -- TODO record num iterations
-          xInit = -pw2+50
-          yInit = ph2-50
-          yConst = 30
-          sc = 0.1
 
 ------- Sampling the state subject to a constraint. Currently not used since we are doing unconstrained optimization.
 
@@ -793,12 +758,21 @@ sampleCoord gen o = case o of
                                   (cb', gen6) = randomR colorRange  gen5
                                   in
                               (S $ sq { side = side', colors = makeColor cr' cg' cb' opacity }, gen6)
+                    R rt   -> let (len', gen3) = randomR sideRange gen2
+                                  (wid', gen4) = randomR sideRange gen3
+                                  (cr', gen5) = randomR colorRange  gen4
+                                  (cg', gen6) = randomR colorRange  gen5
+                                  (cb', gen7) = randomR colorRange  gen6
+                                  in
+                              (R $ rt { sizeX = len', sizeY = wid',
+                                        colorr = makeColor cr' cg' cb' opacity }, gen7)
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
                     A a   -> (o_loc, gen2) -- TODO
+                    LN a   -> (o_loc, gen2) -- TODO
                     CB c  -> (o, gen2) -- TODO: fall through
 
-        where (x', gen1) = randomR widthRange  gen
+        where (x', gen1) = randomR sizeYange  gen
               (y', gen2) = randomR heightRange gen1
               o_loc      = setX x' $ setY (clamp1D y') o
 
@@ -839,7 +813,10 @@ inObj (xm, ym) (L o) =
     -- abs (xm - (label_offset_x (textl o) (xl o))) <= 0.25 * (wl o) &&
     -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
-inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is squar   e
+inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is square
+inObj (xm, ym) (R o) = let (bl_x, bl_y) = (xr o - 0.5 * sizeX o, yr o - 0.5 * sizeY o) in -- bottom left
+                       let (tr_x, tr_y) = (xr o + 0.5 * sizeX o, yr o + 0.5 * sizeY o) in -- top right
+                       bl_x < xm && xm < tr_x && bl_y < ym && ym < tr_y
 inObj (xm, ym) (P o) = dist (xm, ym) (xp o, yp o) <= ptRadius -- is Point, where we arbitrarily define the "radius" of a point
 -- TODO: due to the way Located is defined, we can only drag the starting pt here
 inObj (xm, ym) (A a) =
@@ -851,76 +828,6 @@ inObj (xm, ym) (A a) =
 -- check convergence of EP method
 epDone :: State -> Bool
 epDone s = ((optStatus $ params s) == EPConverged) || ((optStatus $ params s) == NewIter)
-
--- UI so far: pressing and releasing 'r' will re-sample all objects' sizes and positions within some preset range
--- if autostep is set, then dragging will move an object while optimization continues
--- if autostep is not set, then optimization will only step when 's' is pressed. dragging will move an object while optimization is not happening
-
--- for more on these constructors, see docs: https://hackage.haskell.org/package/gloss-1.10.2.3/docs/Graphics-Gloss-Interface-Pure-Game.html
--- pattern matches not fully fuzzed--assume that user only performs one action at once
--- (e.g. not left-clicking while stepping the optimization)
--- TODO "in object" tests
--- prevents user from manipulating objects until EP is done, unless objects are re-sampled
-
-handler :: Event -> State -> State
-handler (EventKey (MouseButton LeftButton) Down _ (xm, ym)) s =
-        if epDone s then s { objs = objsFirstSelected, down = True } else s
-        -- so that clicking doesn't select all overlapping objects in bbox
-        -- foldl will reverse the list each time, so a diff obj can be selected
-        -- foldr will preserve the list order, so objects are stepped consistently
-        where (objsFirstSelected, _) = foldr (flip $ selectFirstIfContains (xm, ym)) ([], False) (objs s)
-              selectFirstIfContains (x, y) (xs, alreadySelected) o =
-                                    if alreadySelected || (not $ inObj (x, y) o) then (o : xs, alreadySelected)
-                                    else (select (setX xm $ setY ym o) : xs, True)
--- dragging mouse when down
--- if an object is selected, then if the collection of objects with the object moved satisfies the constraint,
--- then move the object to mouse position
--- TODO there's probably a better way to implement that
-handler (EventMotion (xm, ym)) s =
-        if down s && epDone s then s { objs = map (ifSelectedMoveTo (xm, ym)) (objs s), down = down s } else s
-        where ifSelectedMoveTo (xm, ym) o = if selected o then setX xm $ setY (clamp1D ym) o else o
-
--- button released, so deselect all objects AND restart the optimization
--- keep the annotations and obj fn, otherwise state will be erased
-handler (EventKey (MouseButton LeftButton) Up _ _) s =
-        s { objs = map deselect $ objs s, down = False,
-            params = (params s) { weight = initWeight, optStatus = NewIter } }
-
--- if you press a key while down, then the handler resets the entire state (then Up will just reset again)
-handler (EventKey (Char 'r') Up _ _) s =
-        s { objs = objs', down = False, rng = rng',
-        params = (params s) { weight = initWeight, optStatus = NewIter } }
-        where (objs', rng') = sampleConstrainedState (rng s) (objs s) (constrs s)
-
--- turn autostep on or off (press same button to turn on or off)
-handler (EventKey (Char 'a') Up _ _) s = if autostep s then s { autostep = False }
-                                         else s { autostep = True }
-
--- pressing 's' (down) while autostep is off will step the optimization once, overriding the step function
--- (which doesn't step if autostep is off). this is the same code as the step function but with reverse condition
--- if autostep is on, this does nothing
--- also overrides EP done: forces a step (might want this to test if there substantial steps left after convergence, e.g. if magnitude of gradient is still large)
-handler (EventKey (Char 's') Down _ _) s =
-        if not $ autostep s then s { objs = objs', params = params' } else s
-        where (objs', params') = stepObjs (float2Double calcTimestep) (params s) (objs s)
-
--- change the weights in the barrier/penalty method (scale by 10). don't step objects
--- only allow the user to change the weights if EP has converged (just make the constraints sharper)
--- (doesn't seem to make a difference, though...)
--- in that case, start re-running UO with the last EP state as the current (converged) EP state
-handler (EventKey (SpecialKey KeyUp) Down _ _) s =
-        if epDone s then s { params = (params s) { weight = weight', optStatus = status' }} else s
-        where currWeight = weight (params s)
-              weight' = currWeight * weightGrowth
-              status' = UnconstrainedRunning $ EPstate (objs s)
-
-handler (EventKey (SpecialKey KeyDown) Down _ _) s =
-        if epDone s then s { params = (params s) { weight = weight', optStatus = status' }} else s
-        where currWeight = weight (params s)
-              weight' = currWeight / weightGrowth
-              status' = UnconstrainedRunning $ EPstate (objs s)
-
-handler _ s = s
 
 ----------- Stepping the state the world via gradient descent.
  -- First, miscellaneous helper functions.
@@ -939,7 +846,7 @@ noOverlapPair (S s1) (S s2) = dist (xs s1, ys s1) (xs s2, ys s2) > side s1 + sid
 -- TODO: factor out this
 noOverlapPair (C c) (S s) = dist (xc c, yc c) (xs s, ys s) > (halfDiagonal .  side) s + r c
 noOverlapPair (S s) (C c) = dist (xs s, ys s) (xc c, yc c) > (halfDiagonal . side) s + r c
-noOverlapPair _ _ = True -- TODO, ignores labels
+noOverlapPair _ _ = error "no overlap case not handled"
 
 -- return true iff satisfied
 -- TODO deal with labels and more than two objects
@@ -975,8 +882,8 @@ checkSubsetSize dict constr@(C.Subset inName outName) =
         -- TODO: this does not scale, general way?
         (Just (C c), Just (S s)) -> r c < 0.5 * side s
         (Just (S s), Just (C c)) -> (halfDiagonal . side) s < r c
-        (_, _) -> True
-checkSubsetSize _ _ = True
+        (_, _) -> True -- error "objects don't exist in check subset size"
+checkSubsetSize _ _ = True -- error "object subset sizes not handled"
 
 
 -- Type aliases for shorter type signatures.
@@ -1064,8 +971,10 @@ zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
                              selc = selc' c, namec = namec' c, colorc = colorc' c }
 zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ rx' e, ry = r2f $ ry' e,
                               namee = namee' e, colore = colore' e }
-zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s, names = names' s, colors = colors' s, ang = ang' s }
-
+zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s,
+                             names = names' s, colors = colors' s, ang = ang' s }
+zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, sizeX = r2f $ sizeX' r, sizeY = r2f $ sizeY' r,
+                           selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
                               textl = textl' l, sell = sell' l, namel = namel' l }
 zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
@@ -1073,6 +982,10 @@ zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
 zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ starty' a,
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
                             selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a }
+zeroGrad (LN' a) = LN $ Line { startx_l = r2f $ startx_l' a, starty_l = r2f $ starty_l' a,
+                            endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a, 
+                            thickness_l = r2f $ thickness_l' a, name_l = name_l' a, color_l = color_l' a,
+                            style_l = style_l' a }
 zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namecb = namecb' c, stylecb = stylecb' c }
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb' c
           path      = map tuplify2 $ chunksOf 2 path_flat
@@ -1088,6 +1001,9 @@ addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ 
                              namee' = namee e, colore' = colore e }
 addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
                             names' = names s, colors' = colors s, ang' = ang s }
+addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r,
+                           sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r,
+                           colorr' = colorr r, angr' = angr r }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
 addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
@@ -1095,6 +1011,9 @@ addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
 addGrad (A a) = A' $ SolidArrow' { startx' = r2f $ startx a, starty' = r2f $ starty a,
                             endx' = r2f $ endx a, endy' = r2f $ endy a, thickness' = r2f $ thickness a,
                             selsa' = selsa a, namesa' = namesa a, colorsa' = colorsa a }
+addGrad (LN a) = LN' $ Line' { startx_l' = r2f $ startx_l a, starty_l' = r2f $ starty_l a,
+                            endx_l' = r2f $ endx_l a, endy_l' = r2f $ endy_l a, style_l' = style_l a,
+                            thickness_l' = r2f $ thickness_l a, name_l' = name_l a, color_l' = color_l a }
 addGrad (CB c) = CB' $ CubicBezier' { pathcb' = path, colorcb' = colorcb c, namecb' = namecb c, stylecb' = stylecb c }
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb c
           path      = map tuplify2 $ chunksOf 2 path_flat
@@ -1190,7 +1109,7 @@ stepWithObjective objs fixed stateParams t state = (steppedState, objFnApplied, 
 appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
 appGrad f l = grad f l
 
-appGrad' :: (Autofloat' a) => 
+appGrad' :: (Autofloat' a) =>
          (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
 appGrad' f l = grad f l
 

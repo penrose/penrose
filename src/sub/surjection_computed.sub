@@ -1,6 +1,9 @@
-Set domainOuter, codomain, domain, image, cartesianProduct
+Set domainOuter, codomain, domain, image, cartesianProduct 
+-- `CartesianProduct domain image`?
 Subset domain domainOuter
 Subset image codomain
-f: domain -> image
-Point p, origin, horiz, vert
+f: domain -> image 
+-- TODO `Surjection f`? Would need to rewrite the Style
+
+-- Point p
 -- In p f

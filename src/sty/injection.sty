@@ -6,25 +6,28 @@ global {
 }
 
 Set s {
-    shape = Ellipse { }
-    -- constraint contains(s, s.label)
-    constraint outsideOf(s.label, s)
-    objective above(s, s.label)
-    objective sameX(s, s.label)
+    shape = Ellipse { 
+      text = Auto
+    }
+
+    -- constraint contains(s, s.shape.label)
+    constraint outsideOf(s.shape.label, s)
+    objective above(s, s.shape.label)
+    objective sameX(s, s.shape.label)
 }
 
 Value f p q {
     shape = Arrow {
         start = p
         end   = q
-        label = None
+        text = None
     }
 }
 
 
 Point p {
     shape = Dot { 
-        label = None 
+        text = None 
     }
 }
 
@@ -38,5 +41,3 @@ In p S, In q S {
     objective sameX(p, q)
     objective repel(p, q)
 }
-
-

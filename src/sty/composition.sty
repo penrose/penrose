@@ -13,15 +13,21 @@ Set X, Set Y {
 }
 
 Set s {
-    shape = Ellipse { }
-    constraint outsideOf(s.label, s)
-    objective above(s, s.label)
-    objective sameX(s, s.label)
+    shape = Ellipse { 
+      text = Auto
+    }
+
+    constraint outsideOf(s.shape.label, s)
+    objective above(s, s.shape.label)
+    objective sameX(s, s.shape.label)
     objective center(s)
 }
 
 Map f x y {
-    shape = Text { }
+    shape = Text { 
+      text = Auto
+    }
+
     objective between(f, x, y)
     objective above(f, x)
 }
@@ -30,13 +36,16 @@ Value f p q {
     shape = Arrow {
         start = p
         end   = q
+        text = None
     }
 }
 
 Point p {
-    shape = Dot { }
-    label = None
-    -- objective centerLabel(p, p.label)
+    shape = Dot { 
+      text = None
+    }
+
+    -- objective centerLabel(p, p.shape.label)
 }
 
 In p s {

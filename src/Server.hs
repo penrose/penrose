@@ -96,13 +96,18 @@ application s pending = do
     wsSendJSON conn (R.objs s)
     loop conn (step s)
 
+-- Apply computations N times post-optimization (TODO: just a terrible hack until explicit comp graph is built)
+computeN :: Int -> [Obj] -> [R.ObjComp] -> [Obj]
+computeN n objs comps = let res = iterate (flip R.computeOnObjs_noGrad comps) objs in
+                        res !! n -- hopefully doesn't use too much space
+
 loop :: WS.Connection -> R.State -> IO ()
 loop conn s
     | R.optStatus (R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
         putStrLn "Applying final computations"
-        let objsComputed = R.computeOnObjs_noGrad (R.objs s) (R.comps s)
+        let objsComputed = computeN 5 (R.objs s) (R.comps s)
         putStrLn $ "Final objs:\n" ++ show objsComputed
         wsSendJSON conn Frame { flag = "final", objs = objsComputed }
         processCommand conn s

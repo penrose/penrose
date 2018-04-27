@@ -44,6 +44,7 @@ data BBox = BBox {
     h :: Float,
     w :: Float
 } deriving (Show, Eq, Generic, Typeable, Data)
+
 instance ToJSON BBox
 instance FromJSON BBox
 
@@ -71,6 +72,32 @@ instance Located CubicBezier Float where
 
 instance ToJSON CubicBezier
 instance FromJSON CubicBezier
+
+-------
+data Line = Line {
+    startx_l           :: Float,
+    starty_l           :: Float,
+    thickness_l          :: Float,
+    endx_l           :: Float,
+    endy_l           :: Float,
+    name_l           :: String,
+    style_l          :: String,
+    color_l          :: Color
+} deriving (Eq, Show, Generic, Typeable, Data)
+
+instance Named Line where
+         getName = name_l
+         setName x l = l { name_l = x }
+
+instance Located Line Float where
+         getX l = (startx_l l + endx_l l) / 2
+         getY l = (starty_l l + endy_l l) / 2
+
+         setX x l = l { startx_l = x } -- only sets start
+         setY y l = l { starty_l = y }
+
+instance ToJSON Line
+instance FromJSON Line
 
 -------
 data SolidArrow = SolidArrow { startx :: Float
@@ -139,7 +166,7 @@ instance FromJSON Circ
 
 ----------------------
 
-data Square = Square { xs :: Float
+data Square = Square { xs :: Float -- center of square
                      , ys :: Float
                      , side :: Float
                      , ang  :: Float -- angle for which the obj is rotated
@@ -169,7 +196,40 @@ instance Named Square where
 
 instance ToJSON Square
 instance FromJSON Square
--------
+
+--------------------------
+
+data Rect = Rect { xr :: Float -- center of rect
+                     , yr :: Float
+                     , sizeX :: Float -- x
+                     , sizeY :: Float -- y
+                     , angr :: Float -- angle for which the obj is rotated
+                     , selr :: Bool
+                     , namer :: String
+                     , colorr :: Color }
+     deriving (Eq, Show, Generic, Typeable, Data)
+
+instance Located Rect Float where
+         getX s = xr s
+         getY s = yr s
+         setX x s = s { xr = x }
+         setY y s = s { yr = y }
+
+instance Selectable Rect where
+         select x = x { selr = True }
+         deselect x = x { selr = False }
+         selected x = selr x
+
+-- NO instance for Sized
+
+instance Named Rect where
+         getName r = namer r
+         setName x r = r { namer = x }
+
+instance ToJSON Rect
+instance FromJSON Rect
+
+--------------------------
 
 data Label = Label { xl :: Float
                    , yl :: Float
@@ -231,12 +291,14 @@ instance ToJSON Pt
 instance FromJSON Pt
 
 data Obj = S Square
+         | R Rect
          | C Circ
          | E Ellipse
          | L Label
          | P Pt
          | A SolidArrow
          | CB CubicBezier
+         | LN Line
          deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
@@ -290,51 +352,63 @@ instance Located Obj Float where
                  L l -> getX l
                  P p -> getX p
                  S s -> getX s
+                 R r -> getX r
                  A a -> getX a
                  CB c -> getX c
+                 LN l -> getX l
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
                  L l -> getY l
                  P p -> getY p
                  S s -> getY s
+                 R r -> getY r
                  A a -> getY a
                  CB c -> getY c
+                 LN l -> getY l
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
                 L l -> L $ setX x l
                 P p -> P $ setX x p
                 S s -> S $ setX x s
+                R r -> R $ setX x r
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
+                LN l -> LN $ setX x l
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
                 L l -> L $ setY y l
                 P p -> P $ setY y p
                 S s -> S $ setY y s
+                R r -> R $ setY y r
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
+                LN l -> LN $ setY y l
 
+-- I believe this typeclass is no longer used in the snap frontend
 instance Selectable Obj where
          select x = case x of
                 C c -> C $ select c
                 L l -> L $ select l
                 P p -> P $ select p
                 S s -> S $ select s
+                R r -> R $ select r
                 A a -> A $ select a
          deselect x = case x of
                 C c -> C $ deselect c
                 L l -> L $ deselect l
                 P p -> P $ deselect p
                 S s -> S $ deselect s
+                R r -> R $ select r
                 A a -> A $ deselect a
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
                 P p -> selected p
                 S s -> selected s
+                R r -> selected r
                 A a -> selected a
 
 instance Sized Obj where
@@ -354,16 +428,20 @@ instance Named Obj where
                  L l   -> getName l
                  P p   -> getName p
                  S s   -> getName s
+                 R r   -> getName r
                  A a   -> getName a
                  CB cb -> getName cb
+                 LN l -> getName l
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
                 L l   -> L $ setName x l
                 P p   -> P $ setName x p
                 S s   -> S $ setName x s
+                R r   -> R $ setName x r
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
+                LN l -> LN $ setName x l
 
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
@@ -374,8 +452,10 @@ data Obj' a
     | L' (Label' a)
     | P' (Pt' a)
     | S' (Square' a)
+    | R' (Rect' a)
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
+    | LN' (Line' a)
     deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
@@ -407,7 +487,7 @@ data Ellipse' a = Ellipse' {
     colore' :: Color
 } deriving (Eq, Show, Typeable, Data)
 
-data Label' a = Label' { xl' :: a
+data Label' a = Label' { xl' :: a -- middle (x, y) of label
                        , yl' :: a
                        , wl' :: a
                        , hl' :: a
@@ -425,11 +505,21 @@ data Pt' a = Pt' { xp' :: a
 data Square' a  = Square' { xs' :: a
                      , ys' :: a
                      , side' :: a
-                     , ang'  :: Float -- angle for which the obj is rotated
+                     , ang'  :: Float -- angle the obj is rotated, TODO make polymorphic
                      , sels' :: Bool
                      , names' :: String
                      , colors' :: Color }
                      deriving (Eq, Show, Typeable, Data)
+
+data Rect' a = Rect' { xr' :: a -- I assume this is top left?
+                     , yr' :: a
+                     , sizeX' :: a
+                     , sizeY' :: a
+                     , angr' :: Float -- angle the obj is rotated, TODO make polymorphic
+                     , selr' :: Bool
+                     , namer' :: String
+                     , colorr' :: Color }
+     deriving (Eq, Show, Generic, Typeable, Data)
 
 data CubicBezier' a = CubicBezier' {
     pathcb'           :: [(a, a)],
@@ -437,6 +527,17 @@ data CubicBezier' a = CubicBezier' {
     stylecb'          :: String,
     colorcb'          :: Color
 } deriving (Eq, Show, Typeable, Data)
+
+data Line' a = Line' {
+    startx_l'           :: a,
+    starty_l'           :: a,
+    thickness_l'         :: a,
+    endx_l'           :: a,
+    endy_l'           :: a,
+    name_l'           :: String,
+    style_l'          :: String,
+    color_l'          :: Color
+} deriving (Eq, Show, Generic, Typeable, Data)
 
 instance Named (SolidArrow' a) where
          getName = namesa'
@@ -454,6 +555,10 @@ instance Named (Square' a) where
          getName = names'
          setName x s = s { names' = x }
 
+instance Named (Rect' a) where
+         getName = namer'
+         setName x r = r { namer' = x }
+
 instance Named (Label' a) where
          getName = namel'
          setName x l = l { namel' = x }
@@ -466,6 +571,10 @@ instance Named (CubicBezier' a) where
          getName = namecb'
          setName x cb = cb { namecb' = x }
 
+instance Named (Line' a) where
+         getName = name_l'
+         setName x l = l { name_l' = x }
+
 instance Named (Obj' a) where
          getName o = case o of
                  C' c   -> getName c
@@ -473,16 +582,19 @@ instance Named (Obj' a) where
                  L' l   -> getName l
                  P' p   -> getName p
                  S' s   -> getName s
+                 R' r   -> getName r
                  A' a   -> getName a
                  CB' cb -> getName cb
+                 LN' ln -> getName ln
          setName x o = case o of
                 C' c   -> C' $ setName x c
                 S' s   -> S' $ setName x s
+                R' r   -> R' $ setName x r
                 L' l   -> L' $ setName x l
                 P' p   -> P' $ setName x p
                 A' a   -> A' $ setName x a
                 CB' cb -> CB' $ setName x cb
---
+                LN' ln -> LN' $ setName x ln
 --
 instance Located (Circ' a) a where
          getX = xc'
@@ -501,6 +613,12 @@ instance Located (Square' a) a where
          getY = ys'
          setX x s = s { xs' = x }
          setY y s = s { ys' = y }
+
+instance Located (Rect' a) a where
+         getX = xr'
+         getY = yr'
+         setX x r = r { xr' = x }
+         setY y r = r { yr' = y }
 
 instance Located (SolidArrow' a) a where
          getX  = startx'
@@ -531,35 +649,50 @@ instance (Real a, Floating a, Show a, Ord a) => Located (CubicBezier' a) a where
                         dy = y - (maximum ys - minimum ys) in
                         c { pathcb' = map (\(xx, yy) -> (xx, yy - dy)) $ pathcb' c }
 
-instance Located (Obj' a) a  where
+instance (Num a, Fractional a) => Located (Line' a) a where
+         getX l = (startx_l' l + endx_l' l) / 2
+         getY l = (starty_l' l + endy_l' l) / 2
+
+         setX x l = l { startx_l' = x } -- only sets start
+         setY y l = l { starty_l' = y }
+
+instance (Num a, Fractional a) => Located (Obj' a) a where
          getX o = case o of
              C' c -> xc' c
              E' e -> xe' e
              L' l -> xl' l
              P' p -> xp' p
              S' s -> xs' s
+             R' r -> xr' r
              A' a -> startx' a
+             LN' l -> getX l
          getY o = case o of
              C' c -> yc' c
              E' e -> ye' e
              L' l -> yl' l
              P' p -> yp' p
              S' s -> ys' s
+             R' r -> yr' r
              A' a -> starty' a
+             LN' l -> getY l
          setX x o = case o of
              C' c -> C' $ setX x c
              E' e -> E' $ setX x e
              L' l -> L' $ setX x l
              P' p -> P' $ setX x p
              S' s -> S' $ setX x s
+             R' r -> R' $ setX x r
              A' a -> A' $ setX x a
+             LN' l -> LN' $ setX x l
          setY y o = case o of
              C' c -> C' $ setY y c
              E' e -> E' $ setY y e
              L' l -> L' $ setY y l
              P' p -> P' $ setY y p
              S' s -> S' $ setY y s
+             R' r -> R' $ setY y r
              A' a -> A' $ setY y a
+             LN' l -> LN' $ setY y l
 
 -----------------------------------------------
 -- Defining the interface between Style types/operations and internal computation types / object properties
@@ -582,7 +715,64 @@ data TypeIn a = TNum a
 -- TODO fill these in; see if it works for dot accesses
 get :: (Autofloat a) => Property -> Obj' a -> TypeIn a
 -- Circles
-get "radius" (C' c) = TNum $ r' c
+get "radius" (C' o)        = TNum $ r' o
+get "x" (C' o)             = TNum $ xc' o
+get "y" (C' o)             = TNum $ yc' o
+get "color" (C' o)         = TColor $ colorc' o
+
+-- Ellipses
+get "rx" (E' o)            = TNum $ rx' o
+get "ry" (E' o)            = TNum $ ry' o
+get "x" (E' o)             = TNum $ xe' o
+get "y" (E' o)             = TNum $ ye' o
+get "color" (E' o)         = TColor $ colore' o
+
+-- Points
+get "x" (P' o)             = TNum $ xp' o
+get "y" (P' o)             = TNum $ yp' o
+get "location" (P' o)      = TPt (xp' o, yp' o)
+
+-- Squares
+get "x" (S' o)             = TNum $ xs' o
+get "y" (S' o)             = TNum $ ys' o
+get "side" (S' o)          = TNum $ side' o
+get "angle" (S' o)         = TNum $ r2f $ ang' o
+get "color" (S' o)         = TColor $ colors' o
+
+-- Rectangles
+get "x" (R' o)             = TNum $ xr' o
+get "y" (R' o)             = TNum $ yr' o
+get "center" (R' o)        = TPt (xr' o, yr' o)
+get "length" (R' o)        = TNum $ sizeX' o
+get "width" (R' o)         = TNum $ sizeY' o
+get "angle" (R' o)         = TNum $ r2f $ angr' o
+get "color" (R' o)         = TColor $ colorr' o
+
+-- Cubic beziers
+get "path" (CB' o)         = TPath $ pathcb' o
+get "style" (CB' o)        = TStyle $ stylecb' o
+get "color" (CB' o)        = TColor $ colorcb' o
+
+-- Solid arrows
+get "startx" (A' o)        = TNum $ startx' o
+get "starty" (A' o)        = TNum $ starty' o
+get "endx" (A' o)          = TNum $ endx' o
+get "endy" (A' o)          = TNum $ endy' o
+get "thickness" (A' o)     = TNum $ thickness' o
+get "color" (A' o)         = TColor $ colorsa' o
+
+-- Lines
+get "startx" (LN' o)        = TNum $ startx_l' o
+get "starty" (LN' o)        = TNum $ starty_l' o
+get "endx" (LN' o)          = TNum $ endx_l' o
+get "endy" (LN' o)          = TNum $ endy_l' o
+get "thickness" (LN' o)     = TNum $ thickness_l' o
+get "style" (LN' o)         = TStyle $ style_l' o
+get "color" (LN' o)         = TColor $ color_l' o
+get "path" (LN' o)          = TPath [(startx_l' o, starty_l' o), (endx_l' o, endy_l' o)]
+
+-- Labels
+get "location" (L' o)      = TPt (xl' o, yl' o)
 
 get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n" 
                                    ++ show obj ++ "\n" ++ show obj)
@@ -612,8 +802,17 @@ set "location" (P' o) (TPt (x, y)) = P' $ o { xp' = x, yp' = y }
 set "x" (S' o) (TNum n)       = S' $ o { xs' = n }
 set "y" (S' o) (TNum n)       = S' $ o { ys' = n }
 set "side" (S' o) (TNum n)    = S' $ o { side' = n }
-set "ry" (S' o) (TNum n)      = S' $ o { ang' = r2f n }
+set "angle" (S' o) (TNum n)   = S' $ o { ang' = r2f n }
 set "color" (S' o) (TColor n) = S' $ o { colors' = n }
+
+-- Rectangles
+set "x" (R' o) (TNum n)          = R' $ o { xr' = n }
+set "y" (R' o) (TNum n)          = R' $ o { yr' = n }
+set "center" (R' o) (TPt (x, y)) = R' $ o { xr' = x, yr' = y }
+set "length" (R' o) (TNum n)     = R' $ o { sizeX' = n }
+set "width" (R' o) (TNum n)      = R' $ o { sizeY' = n }
+set "angle" (R' o) (TNum n)      = R' $ o { angr' = r2f n }
+set "color" (R' o) (TColor n)    = R' $ o { colorr' = n }
 
 -- Cubic beziers
 set "path" (CB' o) (TPath n)      = CB' $ o { pathcb' = n }
@@ -625,10 +824,28 @@ set "startx" (A' o) (TNum n)     = A' $ o { startx' = n }
 set "starty" (A' o) (TNum n)     = A' $ o { starty' = n }
 set "endx" (A' o) (TNum n)       = A' $ o { endx' = n }
 set "endy" (A' o) (TNum n)       = A' $ o { endy' = n }
+set "start" (A' o) (TPt (x, y))  = A' $ o { startx' = x, starty' = y }
+set "end" (A' o) (TPt (x, y))    = A' $ o { endx' = x, endy' = y }
 set "thickness" (A' o) (TNum n)  = A' $ o { thickness' = n }
 set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
 -- TODO add angle and length properties
 
--- Does not handle labels (yet)
+-- Lines
+set "startx" (LN' o) (TNum n)     = LN' $ o { startx_l' = n }
+set "starty" (LN' o) (TNum n)     = LN' $ o { starty_l' = n }
+set "endx" (LN' o) (TNum n)       = LN' $ o { endx_l' = n }
+set "endy" (LN' o) (TNum n)       = LN' $ o { endy_l' = n }
+set "start" (LN' o) (TPt (x, y))  = LN' $ o { startx_l' = x, starty_l' = y }
+set "end" (LN' o) (TPt (x, y))    = LN' $ o { endx_l' = x, endy_l' = y }
+set "thickness" (LN' o) (TNum n)  = LN' $ o { thickness_l' = n }
+set "color" (LN' o) (TColor n)    = LN' $ o { color_l' = n }
+set "style" (LN' o) (TStyle n)    = LN' $ o { style_l' = n }
+set "path" (LN' o) (TPath [(sx, sy), (ex, ey)])      = LN' $ o { startx_l' = sx, starty_l' = sy, 
+                                                                 endx_l' = ex, endy_l' = ey }
+set "path" (LN' o) (TPath p)      = error ("line expects two points on a path; got: " ++ show p)
+    
+-- Labels
+set "location" (L' o) (TPt (x, y)) = L' $ o { xl' = x, yl' = y }
+
 set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n" 
                                    ++ show obj ++ "\n" ++ show val)

@@ -86,14 +86,11 @@ computeSurjectionBbox g n a1 a2 = let xs = [startx' a1, endx' a1, startx' a2, en
 -- defined by four straight lines, assuming their lower/left coordinates come first. 
 -- Their intersections give the corners.
 computeSurjectionLines :: (Autofloat a) => StdGen -> Integer 
-                                   -> CubicBezier' a -> CubicBezier' a 
-                                   -> CubicBezier' a -> CubicBezier' a -> ([Pt2 a], StdGen)
+                                   -> Line' a -> Line' a -> Line' a -> Line' a -> ([Pt2 a], StdGen)
 computeSurjectionLines g n left right bottom top = 
-                       if not $ all (== 2) $ map (length . pathcb') [left, right, bottom, top]
-                       then error "surjection requires straight lines" -- TODO change from cubic bezier
-                       else let lower_left = (fst $ pathcb' left !! 0, snd $ pathcb' bottom !! 0) in
-                            let top_right = (fst $ pathcb' right !! 1, snd $ pathcb' top !! 1) in
-                            computeSurjection g n lower_left top_right
+                       let lower_left = (startx_l' left, starty_l' bottom) in
+                       let top_right = (startx_l' right, starty_l' top) in
+                       computeSurjection g n lower_left top_right
 
 -- | No arguments for now, to avoid typechecking
 -- Does this only work in gloss?
@@ -124,6 +121,7 @@ computeRadiusToMatch c p = {-trace ("computeRadiusToMatch") $ -}
 computeColorRGBA :: (Autofloat a) => a -> a -> a -> a -> Color
 computeColorRGBA r g b a = makeColor' r g b a
 
+-- calculates a line (of two points) intersecting the first axis, stopping before it leaves bbox of second axis
 -- TODO rename lineLeft and lineRight
 -- assuming a1 horizontal and a2 vertical, respectively
 lineLeft :: (Autofloat a) => a -> SolidArrow' a -> SolidArrow' a -> [Pt2 a]
@@ -140,29 +138,30 @@ lineRight lineFrac a1 a2 = let a1_start = starty' a1 in
                            let ypos = a1_start + lineFrac * a1_len in
                            [(startx' a2, ypos), (endx' a2, ypos)]
 
+-- calculates the width (or height) of a region defined by two vert (or horiz) lines
+regionX :: (Autofloat a) => Line' a -> Line' a -> a
+regionX lineL lineR = -- assuming two vertical lines (left, right)
+                    let (xl, xr) = (startx_l' lineL, startx_l' lineR) in
+                    abs $ xr - xl
+
+regionY :: (Autofloat a) => Line' a -> Line' a -> a
+regionY lineB lineT = -- assuming two horiz lines (bottom, top)
+                    let (yb, yt) = (starty_l' lineB, starty_l' lineT) in
+                    abs $ yb - yt
+
+-- Calculates the center of a rectangular region defined by the intersection of four lines
+-- TODO: a lot of code is duplicated from the above two
+regionCenter :: (Autofloat a) => Line' a -> Line' a -> Line' a -> Line' a -> (a, a)
+regionCenter left right down up = -- expects input lines to be left, right, etc. in a rectangle
+                    -- assuming two vertical / and horizontal lines , calculates x left, x right, etc.
+                    let (xl, xr, yl, yr) = (startx_l' left, startx_l' right, starty_l' down, starty_l' up) in
+                    ((xl + xr) / 2, (yl + yr) / 2)
+
 ------------------------------------- Computation boilerplate
 -- Registration, typechecking, error handling
 
 type CompFn a = (Autofloat a) => [TypeIn a] -> [Obj' a] -> TypeIn a
 type CompFnOn a = [TypeIn a] -> [Obj' a] -> TypeIn a
-
--- | 'computationDict' stores a mapping from the name of computations to the actual implementation
-computationDict :: (Autofloat a) => M.Map String (CompFnOn a)
-computationDict = M.fromList flist
-    where flist = [
-                    ("computeColor", computeColor'),
-                    ("computeColor2", computeColor2'),
-                    ("computeColorArgs", computeColorArgs'),
-                    ("computeRadiusAsFrac", computeRadiusAsFrac'), -- TODO change the primes
-                    ("computeRadiusToMatch", computeRadiusToMatch'),
-                    ("computeColorRGBA", computeColorRGBA'),
-                    ("computeSurjection", computeSurjection'),
-                    ("computeSurjectionBbox", computeSurjectionBbox'),
-                    ("lineLeft", lineLeft'),
-                    ("lineRight", lineRight'),
-                    ("addVector", addVector'),
-                    ("computeSurjectionLines", computeSurjectionLines')
-                  ]
 
 -- TODO Generate the typechecking and registration dict with Template Haskell
 -- typecheck :: [String] -> [String] -> [TypeIn a] -> [Obj' a]
@@ -193,18 +192,19 @@ computeColorRGBA' :: CompFn a
 computeColorRGBA' [TNum x1, TNum x2, TNum x3, TNum x4] [] = TColor $ computeColorRGBA x1 x2 x3 x4
 computeColorRGBA' v o = error' "computeColorRGBA" v o
 
+-- TODO: revert the next three "x"s to TInt
 computeSurjection' :: CompFn a
-computeSurjection' [TInt x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRng x p1 p2
+computeSurjection' [TNum x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRng (floor x) p1 p2
 computeSurjection' v o = error' "computeSurjection" v o
 
 computeSurjectionBbox' :: CompFn a
-computeSurjectionBbox' [TInt x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng x a1 a2
+computeSurjectionBbox' [TNum x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng (floor x) a1 a2
 computeSurjectionBbox' v o = error' "computeSurjectionBbox" v o
 
 -- TODO: for multiple objects, inputs might not be in right order (depending on lookupAll)
 computeSurjectionLines' :: CompFn a
-computeSurjectionLines' [TInt x] [CB' b1, CB' b2, CB' b3, CB' b4] = 
-                        TPath $ fst $ computeSurjectionLines compRng x b1 b2 b3 b4
+computeSurjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] = 
+                        TPath $ fst $ computeSurjectionLines compRng (floor x) l1 l2 l3 l4
 computeSurjectionLines' v o = error' "computeSurjectionLines" v o
 
 lineLeft' :: CompFn a
@@ -219,3 +219,57 @@ lineRight' v o = error' "lineRight" v o
 addVector' :: CompFn a
 addVector' [TNum n1, TNum n2] [P' p] = TPt $ addVector (n1, n2) (xp' p, yp' p)
 addVector' v o = error' "addVector" v o
+
+regionX' :: CompFn a
+regionX' [] [LN' lineLeft, LN' lineRight] = TNum $ regionX lineLeft lineRight
+regionX' v o = error' "regionX" v o
+
+regionY' :: CompFn a
+regionY' [] [LN' down, LN' up] = TNum $ regionY down up
+regionY' v o = error' "regionY" v o
+
+regionCenter' :: CompFn a
+regionCenter' [] [LN' l, LN' r, LN' d, LN' u] = TPt $ regionCenter l r d u
+regionCenter' v o = error' "regionCenter" v o
+
+-- TODO parse these at runtime
+atOrigin' :: CompFn a
+atOrigin' _ _ = TPt (-100, 0)
+
+toRight' :: CompFn a
+toRight' _ _ = TPt (325, 0)
+
+toAbove' :: CompFn a
+toAbove' _ _ = TPt (-100, 200)
+
+lightBlue' :: CompFn a
+lightBlue' _ _ = TColor $ makeColor 0.1 0.1 0.9 0.2
+
+darkBlue' :: CompFn a
+darkBlue' _ _ = TColor $ makeColor 0.05 0.05 0.6 1
+
+-- | 'computationDict' stores a mapping from the name of computations to the actual implementation
+computationDict :: (Autofloat a) => M.Map String (CompFnOn a)
+computationDict = M.fromList flist
+    where flist = [
+                    ("computeColor", computeColor'),
+                    ("computeColor2", computeColor2'),
+                    ("computeColorArgs", computeColorArgs'),
+                    ("computeRadiusAsFrac", computeRadiusAsFrac'), -- TODO change the primes
+                    ("computeRadiusToMatch", computeRadiusToMatch'),
+                    ("computeColorRGBA", computeColorRGBA'),
+                    ("computeSurjection", computeSurjection'),
+                    ("computeSurjectionBbox", computeSurjectionBbox'),
+                    ("lineLeft", lineLeft'),
+                    ("lineRight", lineRight'),
+                    ("addVector", addVector'),
+                    ("computeSurjectionLines", computeSurjectionLines'),
+                    ("regionX", regionX'),
+                    ("regionY", regionY'),
+                    ("regionCenter", regionCenter'),
+                    ("atOrigin", atOrigin'),
+                    ("toRight", toRight'),
+                    ("toAbove", toAbove'),
+                    ("lightBlue", lightBlue'),
+                    ("darkBlue", darkBlue')
+                  ]

@@ -11,8 +11,12 @@ type ObjFnOn a = [Obj' a] -> [a] -> a
 type ConstrFnOn a = [Obj' a] -> [a] -> a
 type ObjFn = forall a. (Autofloat a) => [Obj' a] -> [a] -> a
 type ConstrFn = forall a. (Autofloat a) => [Obj' a] -> [a] -> a
+type ObjFnInfo a = (ObjFnOn a, Weight a, [Name], [a])
+type ConstrFnInfo a = (ConstrFnOn a, Weight a, [Name], [a])
 type Weight a = a
 type PairConstrV a = forall a . (Autofloat a) => [[a]] -> a -- takes pairs of "packed" objs
+
+data FnInfo a = ObjFnInfo a | ConstrFnInfo a
 
 -- | 'constrFuncDict' stores a mapping from the name of constraint functions to the actual implementation
 constrFuncDict :: forall a. (Autofloat a) => M.Map String (ConstrFnOn a)
@@ -43,11 +47,14 @@ objFuncDict = M.fromList flist
                     ("orthogonal", orthogonal),
                     ("center", center),
                     ("centerLabel", centerLabel),
+                    ("centerMap", centerMap),
+                    ("centerLine", centerLine),
                     ("toLeft", toLeft),
                     ("above", above),
                     ("between", between),
                     ("sameHeight", sameHeight),
                     ("sameX", sameX),
+                    ("sameY", sameY),
                     -- ("sameX", (*) 0.6 `compose2` sameX),
                     -- ("sameX", (*) 0.2 `compose2` sameX),
                     ("sameCenter", sameCenter),
@@ -55,7 +62,10 @@ objFuncDict = M.fromList flist
                     -- ("repel", (*)  1000000  `compose2` repel),
                     -- ("repel", (*)  10000  `compose2` repel),
                     -- ("repel", repel),
-                    ("outside", outside)
+                    ("outside", outside),
+                    ("nearEndVert", nearEndVert),
+                    ("nearEndHoriz", nearEndHoriz),
+                    ("nearHead", nearHead)
                   ]
 
 -- illegal polymorphic or qualified type--can't return a forall?
@@ -119,7 +129,6 @@ center [o] _ = getX o ^ 2 + getY o ^ 2
 
 -- | 'above' makes sure the first argument is on top of the second.
 above :: ObjFn
--- above (
 above [top, bottom] [offset] = (getY top - getY bottom - offset)^2
 above [top, bottom] _ = (getY top - getY bottom - 100)^2
 
@@ -131,16 +140,25 @@ toLeft [a, b] _ = (getX a - getX b + 400)^2
 sameHeight :: ObjFn
 sameHeight [a, b] _ = (getY a - getY b)^2
 
--- | 'sameHeight' forces two objects to have the same X value
+-- | encourages two objects to have the same X value
 sameX :: ObjFn
+sameX [A' a, L' l] _ = -- TODO factor middle calculation out? seems like it would be used often
+      let arrMidX = (startx' a + endx' a) / 2 in
+      let labMidX = xl' l in
+      (arrMidX - labMidX) ^ 2
+
 sameX [a, b] _ = (getX a - getX b)^2
 
--- | 'sameCenter' forces two object to center at the same point
+-- | encourages two objects to stay at the same height (have the same Y value)
+sameY :: ObjFn
+sameY [a, b] _ = (getY a - getY b)^2
+
+-- | 'sameCenter' encourages two objects to center at the same point
 sameCenter :: ObjFn
 sameCenter [a, b] _ = (getY a - getY b)^2 + (getX a - getX b)^2
 
 -- TODO: more reasonable name
--- | `centerMap` positions an arrow between to objects, with some spacing
+-- | `centerMap` positions an arrow between two objects, with some spacing
 centerMap :: ObjFn
 centerMap [A' a, S' s, S' e] _ = _centerMap a [xs' s, ys' s] [xs' e, ys' e]
                 [spacing + (halfDiagonal . side') s, negate $ spacing + (halfDiagonal . side') e]
@@ -172,6 +190,13 @@ _centerMap a s1@[x1, y1] s2@[x2, y2] [o1, o2] =
         [fromx, fromy, tox, toy] = [startx' a, starty' a, endx' a, endy' a] in
     (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 
+centerLine :: ObjFn
+centerLine [LN' l, P' p1, P' p2] _ = 
+           let p1_distsq = (startx_l' l - xp' p1)^2 + (starty_l' l - yp' p1)^2 in
+           let p2_distsq = (endx_l' l - xp' p2)^2 + (endy_l' l - yp' p2)^2 in
+           p1_distsq + p2_distsq
+centerLine o _ = error ("center line: unsupported args: " ++ show o)
+
 -- | 'repel' exert an repelling force between objects
 repel :: ObjFn
 repel [C' c, S' d] _ = 1 / distsq (xc' c, yc' c) (xs' d, ys' d) - r' c - side' d + epsd
@@ -179,6 +204,7 @@ repel [S' c, C' d] _ = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c
 repel [C' c, C' d] _ = 1 / distsq (xc' c, yc' c) (xc' d, yc' d) - r' c - r' d + epsd
 repel [P' c, P' d] _ = if c == d then 0 else 1 / distsq (xp' c, yp' c) (xp' d, yp' d) - 2 * r2f ptRadius + epsd
 repel [L' c, L' d] _ = if c == d then 0 else 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
+-- TODO: why are there references to labelName in Functions?
 repel [L' c, C' d] _ = if labelName (namec' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
 repel [C' c, L' d] _ = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
 repel [L' c, S' d] _ = if labelName (names' d) == namel' c then 0 else 1 / distsq (xl' c, yl' c) (xs' d, ys' d)
@@ -193,8 +219,8 @@ repel' x y = 1 / distsq x y + epsd
 
 -- TODO move this elsewhere? (also applies to polyline)
 bezierBbox :: (Floating a, Ord a) => CubicBezier' a -> ((a, a), (a, a)) -- poly Point type?
-bezierBbox cb = let path = pathcb' cb 
-                    (xs, ys) = (map fst path, map snd path) 
+bezierBbox cb = let path = pathcb' cb
+                    (xs, ys) = (map fst path, map snd path)
                     lower_left = (minimum xs, minimum ys)
                     top_right = (maximum xs, maximum ys) in
                     (lower_left, top_right)
@@ -204,9 +230,9 @@ centerLabel :: ObjFn
 -- for now, center label in bezier's bbox
 -- TODO smarter bezier/polyline label function
 -- TODO specify rotation on labels?
-centerLabel [CB' bez, L' lab] [mag] = -- use the float input? just for testing
-            let ((lx, ly), (rx, ry)) = bezierBbox bez 
-                (xmargin, ymargin) = (-10, 30) 
+centerLabel [CB' bez, L' lab] _ = -- use the float input? just for testing
+            let ((lx, ly), (rx, ry)) = bezierBbox bez
+                (xmargin, ymargin) = (-10, 30)
                 midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
             distsq midbez (getX lab, getY lab)
 
@@ -218,6 +244,8 @@ centerLabel [CB' bez, L' lab] [mag] = -- use the float input? just for testing
 centerLabel [P' p, L' l] _ =
                 let [px, py, lx, ly] = [xp' p, yp' p, xl' l, yl' l] in
                 (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
+
+-- TODO: depends on orientation of arrow
 centerLabel [A' a, L' l] _ =
                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
                     (mx, my) = midpoint (sx, sy) (ex, ey)
@@ -229,6 +257,29 @@ outside :: ObjFn
 outside [L' o, C' i] _ = (dist (xl' o, yl' o) (xc' i, yc' i) - (1.5 * r' i) - wl' o)^2
 outside [L' o, S' i] _ = (dist (xl' o, yl' o) (xs' i, ys' i) - 2 * (halfDiagonal . side') i)^2
 -- TODO: generic version using bbox
+
+nearEndVert :: ObjFn
+nearEndVert [LN' line, L' lab] _ = -- expects a vertical line
+            let (sx, sy, ex, ey) = {-trace ("inputs: " ++ show line ++ "\n" ++ show lab) $-}
+                                   (startx_l' line, starty_l' line, endx_l' line, endy_l' line) in
+            let bottompt = if sy < ey then (sx, sy) else (ex, ey) in
+            let yoffset = -25 in
+            let res = distsq (xl' lab, yl' lab) (fst bottompt, snd bottompt + yoffset) in
+            trace ("nearEndVert energy for label " ++ namel' lab ++ " : " ++ show res) res
+
+nearEndHoriz :: ObjFn
+nearEndHoriz [LN' line, L' lab] _ = -- expects a horiz line
+            let (sx, sy, ex, ey) = (startx_l' line, starty_l' line, endx_l' line, endx_l' line) in
+            let leftpt = if sx < ex then (sx, sy) else (ex, ey) in
+            let xoffset = -25 in
+            distsq (xl' lab, yl' lab) (fst leftpt + xoffset, snd leftpt)
+
+nearHead :: ObjFn
+nearHead [A' arr, L' lab] [xoff, yoff] = 
+         let end = (endx' arr, endy' arr) in -- arrowhead
+         let offset = (xoff, yoff) in
+         distsq (xl' lab, yl' lab) (end `plus2` offset)
+         where plus2 (a, b) (c, d) = (a + c, b + d)
 
 ------- Ambient objective functions
 
@@ -288,6 +339,8 @@ maxSize :: ConstrFn
 limit = max (fromIntegral picWidth) (fromIntegral picHeight)
 maxSize [C' c] _ = r' c -  limit / 6
 maxSize [S' s] _ = side' s - limit  / 3
+maxSize [R' r] _ = let max_side = max (sizeX' r) (sizeY' r) in
+                   max_side - limit  / 3
 maxSize [E' e] _ = max (ry' e) (rx' e) - limit  / 3
 
 at :: ConstrFn
@@ -296,6 +349,8 @@ at [o] [x, y] = (getX o - x)^2 + (getY o - y)^2
 minSize :: ConstrFn
 minSize [C' c] _ = 20 - r' c
 minSize [S' s] _ = 20 - side' s
+minSize [R' r] _ = let min_side = min (sizeX' r) (sizeY' r) in
+                   20 - min_side
 minSize [E' e] _ = 20 - min (ry' e) (rx' e)
 
 smallerThan  :: ConstrFn
@@ -336,7 +391,8 @@ contains [S' set, L' label] _ =
 -- FIXME: doesn't work
 contains [E' set, L' label] _ =
     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
-contains _  _ = error "subset not called with 2 args"
+contains [L' lab1, L' lab2] _ = 0 -- TODO: hack for venn_subset.sty for talk
+contains objs consts = error ("subset: maybe not called with 2 args?\n" ++ show objs ++ "\n" ++ show consts)
 
 outsideOf :: ConstrFn
 outsideOf [C' inc, C' outc] _ =
@@ -423,7 +479,7 @@ noSubset [[x1, y1, s1], [x2, y2, s2]] = let offset = 10 in -- max/min dealing wi
          -(dist (x1, y1) (x2, y2)) + max s2 s1 - min s2 s1 + offset
 
 -- the first (circular) set is the subset of the second (circular) set, and thus smaller than the second.
--- The distance between the centers of the sets must be less than the difference between 
+-- The distance between the centers of the sets must be less than the difference between
 -- the radius of the outer set and the radius of the inner set.
 -- TODO: test for equal sets? (function is minimized if sets have same radii and location)
 strictSubset :: PairConstrV a

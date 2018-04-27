@@ -6,16 +6,20 @@ global {
 }
 
 Set s {
-    shape = Ellipse { }
-    objective centerLabel(s, s.label)
+    shape = Ellipse { 
+      text = Auto
+    }
+
+    objective centerLabel(s, s.shape.label)
 }
 
 Map f p q {
     shape = Arrow {
         start = p
         end   = q
-        label = Auto
+        text = Auto
     }
-    objective centerLabel(f, f.label)
+
+    objective centerLabel(f, f.shape.label)
 }
 

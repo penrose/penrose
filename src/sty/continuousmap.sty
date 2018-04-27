@@ -3,10 +3,10 @@
  */
 
 global {
-    constraint outsideOf(f.label, R1)
-    constraint outsideOf(f.label, R2)
-    objective repel(f, R2.label)
-    objective repel(f, R1.label)
+    constraint outsideOf(f.shape.label, R1)
+    constraint outsideOf(f.shape.label, R2)
+    objective repel(f, R2.shape.label)
+    objective repel(f, R1.shape.label)
     objective repel(f, U)
     objective repel(f, V)
     objective sameHeight(R1, R2)
@@ -17,8 +17,8 @@ global {
 
 Set x {
     shape = Circle { }
-    constraint contains(x, x.label)
-    -- objective centerLabel(x, x.label)
+    constraint contains(x, x.shape.label)
+    -- objective centerLabel(x, x.shape.label)
 }
 
 NoIntersect x y {
@@ -27,16 +27,16 @@ NoIntersect x y {
 
 Subset x y {
     constraint contains(y, x)
-    constraint outsideOf(y.label, x)
+    constraint outsideOf(y.shape.label, x)
 }
 
 Map f x y {
     shape = Arrow {
         start = x.shape
         end   = y.shape
-        label = Auto
+        text = Auto
     }
-    objective centerLabel(f, f.label)
+    objective centerLabel(f, f.shape.label)
     objective toLeft(x, y)
     objective sameHeight(x, y)
 }

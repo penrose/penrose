@@ -29,4 +29,5 @@ alloy
 node_modules/
 *~
 .stack-work/
+build/
 .tmp/
