@@ -301,6 +301,18 @@ $.getScript('snap.svg.js', function()
                     });
                     sq.drag(move, start, stop)
                 break
+
+                case 'PM': // square
+                    var sizepm = obj.sizepm
+                    var sq = s.rect(dx + obj.xpm - sizepm/2, dy - obj.ypm - sizepm/2, sizepm, sizepm);
+                    sq.data("name", obj.namepm)
+                    var color = obj.colorpm
+                    sq.attr({
+                        fill: rgbToHex(color.r, color.g, color.b),
+                        "fill-opacity": color.a,
+                    });
+                    sq.drag(move, start, stop)
+                break
                 case 'R': // rectangle
 		// TODO fix this!
                     var sizeX = obj.sizeX;

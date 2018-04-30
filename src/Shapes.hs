@@ -201,7 +201,6 @@ instance FromJSON Square
 data PerpMark = PerpMark { xpm :: Float -- center of PerpMark
                      , ypm :: Float
                      , sizepm :: Float
-                     , selpm :: Bool -- is the PerpMark currently selected? (mouse is dragging it)
                      , namepm :: String
                      , colorpm :: Color }
      deriving (Eq, Show, Generic, Typeable, Data)

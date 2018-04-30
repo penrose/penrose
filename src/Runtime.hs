@@ -97,13 +97,15 @@ type Fixed a = [a]
 type Varying a = [a]
 
 -- make sure the unpacking matches the object packing in terms of number and order of parameters
--- annotations are specified inline here. this is per type, not per value (i.e. all circles have the same fixed parameters). but you could generalize it to per-value by adding or overriding annotations globally after the unpacking
--- does not unpack names
+-- annotations are specified inline here. this is per type, not per value (i.e. all circles have the
+-- same fixed parameters). but you could generalize it to per-value by adding or overriding 
+--annotations globally after the unpacking does not unpack names
 unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
+unpackObj (PM' pm) = [(xpm' pm, Fix), (ypm' pm, Fix) , (sizepm' pm, Fix)]
 unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
@@ -177,6 +179,12 @@ sqPack :: (Autofloat a) => Square -> [a] -> Square' a
 sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq,
                              sels' = sels sq, colors' = colors sq, ang' = ang sq}
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
+                                else (params !! 0, params !! 1, params !! 2)
+
+pmPack :: (Autofloat a) => PerpMark -> [a] -> PerpMark' a
+pmPack pm params = PerpMark' { xpm' = xpm1, ypm' = ypm1, sizepm' = sizepm1, namepm' = namepm pm,
+                              colorpm' = colorpm pm}
+         where (xpm1, ypm1, sizepm1) = if not $ length params == 2 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
 
 rectPack :: (Autofloat a) => Rect -> [a] -> Rect' a
@@ -319,6 +327,7 @@ defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
+defPrepMark = PerpMark { xpm = 1, ypm = 1, sizepm = defaultRad, namepm = defName, colorpm = black}
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
                           selr = False, namer = defName, colorr = black, angr = 0.0}
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
@@ -814,6 +823,7 @@ inObj (xm, ym) (L o) =
     -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is square
+inObj (xm, ym) (PM o) = abs (xm - xpm o) <= 0.5 * sizepm o && abs (ym - ypm o) <= 0.5 * sizepm o -- is PrepMark
 inObj (xm, ym) (R o) = let (bl_x, bl_y) = (xr o - 0.5 * sizeX o, yr o - 0.5 * sizeY o) in -- bottom left
                        let (tr_x, tr_y) = (xr o + 0.5 * sizeX o, yr o + 0.5 * sizeY o) in -- top right
                        bl_x < xm && xm < tr_x && bl_y < ym && ym < tr_y
@@ -973,6 +983,8 @@ zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ r
                               namee = namee' e, colore = colore' e }
 zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s,
                              names = names' s, colors = colors' s, ang = ang' s }
+zeroGrad (PM' pm) = PM $ PerpMark { xpm = r2f $ xpm' pm, ypm = r2f $ ypm' pm, sizepm = r2f $ sizepm' pm,
+                             namepm = namepm' pm, colorpm = colorpm' pm}
 zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, sizeX = r2f $ sizeX' r, sizeY = r2f $ sizeY' r,
                            selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
@@ -999,8 +1011,13 @@ addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
                              selc' = selc c, namec' = namec c, colorc' = colorc c }
 addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ rx e, ry' = r2f $ ry e,
                              namee' = namee e, colore' = colore e }
+
 addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
                             names' = names s, colors' = colors s, ang' = ang s }
+
+addGrad (PM pm) = PM' $ PerpMark' { xpm' = r2f $ xpm pm, ypm' = r2f $ ypm pm, sizepm' = r2f $ sizepm pm,
+                            namepm' = namepm pm, colorpm' = colorpm pm }
+
 addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r,
                            sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r,
                            colorr' = colorr r, angr' = angr r }
