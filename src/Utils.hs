@@ -176,11 +176,13 @@ parens = between (symbol "(") (symbol ")")
 
 -- | 'integer' parses an integer.
 integer :: Parser Integer
-integer = lexeme L.decimal
+unsignedInteger       = lexeme L.decimal
+integer = L.signed sc unsignedInteger
 
 -- | 'float' parses a floating point number.
 float :: Parser Float
-float = realToFrac <$> lexeme L.float -- TODO: parsing without sign?
+unsignedFloat = lexeme L.float
+float = L.signed sc unsignedFloat
 
 -- Reserved words
 rword :: String -> Parser ()
