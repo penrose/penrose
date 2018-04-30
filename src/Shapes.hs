@@ -198,6 +198,32 @@ instance ToJSON Square
 instance FromJSON Square
 
 --------------------------
+data PerpMark = PerpMark { xpm :: Float -- center of PerpMark
+                     , ypm :: Float
+                     , sizepm :: Float
+                     , selpm :: Bool -- is the PerpMark currently selected? (mouse is dragging it)
+                     , namepm :: String
+                     , colorpm :: Color }
+     deriving (Eq, Show, Generic, Typeable, Data)
+
+instance Located PerpMark Float where
+         getX pm = xpm pm
+         getY pm = ypm pm
+         setX x pm = pm { xpm = x }
+         setY y pm = pm { ypm = y }
+
+instance Sized PerpMark where
+         getSize x = sizepm x
+         setSize size x = x { sizepm = size }
+
+instance Named PerpMark where
+         getName pm = namepm pm
+         setName x pm = pm { namepm = x }
+
+instance ToJSON PerpMark
+instance FromJSON PerpMark
+
+--------------------------
 
 data Rect = Rect { xr :: Float -- center of rect
                      , yr :: Float
@@ -299,6 +325,7 @@ data Obj = S Square
          | A SolidArrow
          | CB CubicBezier
          | LN Line
+         | PM PerpMark
          deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
@@ -356,6 +383,7 @@ instance Located Obj Float where
                  A a -> getX a
                  CB c -> getX c
                  LN l -> getX l
+                 PM pm -> getX pm
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -366,6 +394,7 @@ instance Located Obj Float where
                  A a -> getY a
                  CB c -> getY c
                  LN l -> getY l
+                 PM pm -> getY pm
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -376,6 +405,7 @@ instance Located Obj Float where
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
                 LN l -> LN $ setX x l
+                PM pm -> PM $ setX x pm
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -386,6 +416,8 @@ instance Located Obj Float where
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
                 LN l -> LN $ setY y l
+                PM pm -> PM $ setY y pm
+
 
 -- I believe this typeclass is no longer used in the snap frontend
 instance Selectable Obj where
@@ -416,10 +448,12 @@ instance Sized Obj where
                  C c -> getSize c
                  S s -> getSize s
                  L l -> getSize l
+                 PM pm -> getSize pm
          setSize x o = case o of
                 C c -> C $ setSize x c
                 L l -> L $ setSize x l
                 S s -> S $ setSize x s
+                PM pm -> PM $ setSize x pm
 
 instance Named Obj where
          getName o = case o of
@@ -432,6 +466,7 @@ instance Named Obj where
                  A a   -> getName a
                  CB cb -> getName cb
                  LN l -> getName l
+                 PM pm -> getName pm
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
@@ -442,7 +477,7 @@ instance Named Obj where
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
                 LN l -> LN $ setName x l
-
+                PM pm -> PM $ setName x pm
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
 
@@ -456,6 +491,7 @@ data Obj' a
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     | LN' (Line' a)
+    | PM' (PerpMark' a)
     deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
@@ -511,6 +547,15 @@ data Square' a  = Square' { xs' :: a
                      , colors' :: Color }
                      deriving (Eq, Show, Typeable, Data)
 
+
+data PerpMark' a  = PerpMark' { xpm' :: a
+                     , ypm' :: a
+                     , sizepm' :: a
+                     , namepm' :: String
+                     , colorpm' :: Color }
+                     deriving (Eq, Show, Typeable, Data)
+
+
 data Rect' a = Rect' { xr' :: a -- I assume this is top left?
                      , yr' :: a
                      , sizeX' :: a
@@ -554,6 +599,10 @@ instance Named (Ellipse' a) where
 instance Named (Square' a) where
          getName = names'
          setName x s = s { names' = x }
+
+instance Named (PerpMark' a) where
+         getName = namepm'
+         setName x pm = pm { namepm' = x }
 
 instance Named (Rect' a) where
          getName = namer'
@@ -613,6 +662,12 @@ instance Located (Square' a) a where
          getY = ys'
          setX x s = s { xs' = x }
          setY y s = s { ys' = y }
+
+instance Located (PerpMark' a) a where
+         getX = xpm'
+         getY = ypm'
+         setX x pm = pm { xpm' = x }
+         setY y pm = pm { ypm' = y }
 
 instance Located (Rect' a) a where
          getX = xr'
@@ -739,6 +794,12 @@ get "side" (S' o)          = TNum $ side' o
 get "angle" (S' o)         = TNum $ r2f $ ang' o
 get "color" (S' o)         = TColor $ colors' o
 
+-- PerpMarks
+get "x" (PM' o)             = TNum $ xpm' o
+get "y" (PM' o)             = TNum $ ypm' o
+get "size" (PM' o)          = TNum $ sizepm' o
+get "color" (PM' o)         = TColor $ colorpm' o
+
 -- Rectangles
 get "x" (R' o)             = TNum $ xr' o
 get "y" (R' o)             = TNum $ yr' o
@@ -804,6 +865,12 @@ set "y" (S' o) (TNum n)       = S' $ o { ys' = n }
 set "side" (S' o) (TNum n)    = S' $ o { side' = n }
 set "angle" (S' o) (TNum n)   = S' $ o { ang' = r2f n }
 set "color" (S' o) (TColor n) = S' $ o { colors' = n }
+
+-- PerpMarks
+set "x" (PM' o) (TNum n)       = PM' $ o { xpm' = n }
+set "y" (PM' o) (TNum n)       = PM' $ o { ypm' = n }
+set "size" (PM' o) (TNum n)    = PM' $ o { sizepm' = n }
+set "color" (PM' o) (TColor n) = PM' $ o { colorpm' = n }
 
 -- Rectangles
 set "x" (R' o) (TNum n)          = R' $ o { xr' = n }
