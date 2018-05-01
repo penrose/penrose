@@ -177,6 +177,8 @@ centerMap [A' a, L' s, L' e] _ = _centerMap a [xl' s, yl' s] [xl' e, yl' e]
                 [spacing * hl' s, negate $ spacing * hl' e]
 centerMap [A' a, L' s, C' e] _ = _centerMap a [xl' s, yl' s] [xc' e, yc' e]
                 [1.5 * wl' s, negate $ spacing * r' e]
+centerMap [A' a, L' s, A' a1, C' e] _ = _centerMap a [xl' s, yl' s] [xc' e, yc' e]
+                [1.5 * wl' s, negate $ spacing * r' e]
 centerMap o _ = error ("CenterMap: unsupported arguments: " ++ show o)
 spacing = 1.1 -- TODO: arbitrary
 --
