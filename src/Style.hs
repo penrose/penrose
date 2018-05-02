@@ -31,7 +31,7 @@ import Data.Typeable
 
 -- | Type annotation for all geometries supported by Style so far.
 data StyType = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto 
-               | RightAngle | Line2 -- two points
+               | Angle | Line2 -- two points
     deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
 -- | A Style program is a collection of blocks
@@ -142,7 +142,7 @@ styObj =
        (rword "Curve"   >> return Curve)   <|>
        (rword "Ellipse" >> return Ellip)   <|>
        (rword "Box"     >> return Box)     <|>
-       (rword "RightAngle"     >> return RightAngle)     <|>
+       (rword "AngleMark"     >> return Angle)     <|>
        (rword "Rect"    >> return Rectangle)     <|>
        (rword "Dot"     >> return Dot) <|>
        (rword "Line"     >> return Line2)
@@ -544,6 +544,7 @@ addSpec varMap dict (Assign s e) =
         CompArgs fname params -> let resolvedParams = map (backToExpr . procExpr varMap) params in
                                  M.insert s (CompArgs fname resolvedParams) dict
         StringLit p -> M.insert s (StringLit p) dict
+        FloatLit p -> M.insert s (FloatLit p) dict
         _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
 addSpec _ _ _ = error "addSpec: only support assignments in constructors!"
 

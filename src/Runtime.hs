@@ -105,7 +105,8 @@ unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
-unpackObj (PM' pm) = [(xpm' pm, Fix), (ypm' pm, Fix) , (sizepm' pm, Fix)]
+unpackObj (AM' am) = [(xam' am, Vary), (yam' am, Vary) , (sizeam' am, Vary),
+                      (radiusam' am, Vary), (rotationam' am, Vary), (angleam' am, Fix)]
 unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
@@ -181,11 +182,13 @@ sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
 
-pmPack :: (Autofloat a) => PerpMark -> [a] -> PerpMark' a
-pmPack pm params = PerpMark' { xpm' = xpm1, ypm' = ypm1, sizepm' = sizepm1, namepm' = namepm pm,
-                              colorpm' = colorpm pm}
-         where (xpm1, ypm1, sizepm1) = if not $ length params == 2 then error "wrong # params to pack square"
-                                else (params !! 0, params !! 1, params !! 2)
+amPack :: (Autofloat a) => AngleMark -> [a] -> AngleMark' a
+amPack am params = AngleMark' { xam' = xam1, yam' = yam1, sizeam' = sizeam1,
+                                radiusam' = radiusam1, rotationam' = rotationam1,
+                                 angleam' = angleam1, nameam' = nameam am, coloram' = coloram am,
+                                 isRightam' = isRightam am}
+         where (xam1, yam1, sizeam1, radiusam1, rotationam1, angleam1) = if not $ length params == 6 then error "wrong # params to pack angleMark"
+                                else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4, params !! 5)
 
 rectPack :: (Autofloat a) => Rect -> [a] -> Rect' a
 rectPack rct params = Rect' { xr' = xs1, yr' = ys1, sizeX' = len, sizeY' = wid, namer' = namer rct,
@@ -240,6 +243,7 @@ pack' zipped fixed varying =
                     L label -> L' $ labelPack label flatParams
                     P pt    -> P' $ ptPack pt flatParams
                     S sq    -> S' $ sqPack sq flatParams
+                    AM am    -> AM' $ amPack am flatParams
                     R rect  -> R' $ rectPack rect flatParams
                     A ar    -> A' $ solidArrowPack ar flatParams
                     CB c    -> CB' $ curvePack c flatParams
@@ -327,7 +331,8 @@ defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
-defPrepMark = PerpMark { xpm = 1, ypm = 1, sizepm = defaultRad, namepm = defName, colorpm = black}
+defAngleMark = AngleMark { xam = 100, yam = 100, sizeam = defaultRad/6, nameam = defName, coloram = black
+                          , isRightam = "false", rotationam = 0.0, angleam = 60.0, radiusam = 12.0 }
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
                           selr = False, namer = defName, colorr = black, angr = 0.0}
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
@@ -342,12 +347,13 @@ defLine = Line { startx_l = -100, starty_l = -100, endx_l = 300, endy_l = 300,
                                 thickness_l = 2, name_l = defName, color_l = black, style_l = "solid" }
 
 -- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultRect,
+defaultSolidArrow, defaultPt, defaultSquare, defaultAngleMark, defaultRect,
                    defaultCirc, defaultEllipse :: String -> Obj
 defaultSolidArrow name = A $ setName name defSolidArrow
 defaultLine name = LN $ setName name defLine
 defaultPt name = P $ setName name defPt
 defaultSquare name = S $ setName name defSquare
+defaultAngleMark name = AM $ setName name defAngleMark
 defaultRect name = R $ setName name defRect
 defaultCirc name = C $ setName name defCirc
 defaultEllipse name = E $ setName name defEllipse
@@ -404,6 +410,7 @@ getShape (oName, (objType, config)) =
               S.Circle  -> initCircle oName config_nocomps
               S.Ellip   -> initEllipse oName config_nocomps
               S.Box     -> initSquare oName config_nocomps
+              S.Angle -> initAngleMark oName config_nocomps
               S.Rectangle -> initRect oName config_nocomps
               S.Dot     -> initDot oName config_nocomps
               S.Curve   -> initCurve oName config_nocomps
@@ -476,6 +483,15 @@ initText n config = ([defaultText text n], [], [])
 
 initSquare n config = ([defaultSquare n], [], sizeFuncs n)
 
+
+initAngleMark n config = (objs, [],sizeFuncs n)
+    where style = fromMaybe "true" $ lookupStr "isRight" config
+          radius =  fromMaybe 10.0 $ lookupFloat "radius" config
+          angle =  fromMaybe 30.0 $ lookupFloat "angle" config 
+          rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config 
+          setStyle (AM am) s ra a ro = AM $ am { isRightam =  s, radiusam = ra, rotationam = ro, angleam = a} 
+          objs = [setStyle (defaultAngleMark n) style radius angle rotation]
+
 initRect n config = ([defaultRect n], [], sizeFuncs n)
 
 initDot n config = ([defaultPt n], [], [])
@@ -530,6 +546,14 @@ lookupId key dict = case M.lookup key dict of
     Just (S.Id i) -> Just i -- objects are looked up later
     Just res -> error ("expecting id, got:\n" ++ show res)
     Nothing -> Nothing
+
+
+lookupFloat :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe Float
+lookupFloat key dict = case M.lookup key dict of
+    Just (S.FloatLit i) -> Just i -- objects are looked up later
+    Just res -> error ("expecting float, got:\n" ++ show res)
+    Nothing -> Nothing
+
 
 lookupStr :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
 lookupStr key dict = case M.lookup key dict of
@@ -778,6 +802,7 @@ sampleCoord gen o = case o of
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
                     A a   -> (o_loc, gen2) -- TODO
+                    AM am -> (o_loc, gen2)
                     LN a   -> (o_loc, gen2) -- TODO
                     CB c  -> (o, gen2) -- TODO: fall through
 
@@ -823,7 +848,7 @@ inObj (xm, ym) (L o) =
     -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is square
-inObj (xm, ym) (PM o) = abs (xm - xpm o) <= 0.5 * sizepm o && abs (ym - ypm o) <= 0.5 * sizepm o -- is PrepMark
+inObj (xm, ym) (AM o) = abs (xm - xam o) <= 0.5 * sizeam o && abs (ym - yam o) <= 0.5 * sizeam o -- is AngleMark
 inObj (xm, ym) (R o) = let (bl_x, bl_y) = (xr o - 0.5 * sizeX o, yr o - 0.5 * sizeY o) in -- bottom left
                        let (tr_x, tr_y) = (xr o + 0.5 * sizeX o, yr o + 0.5 * sizeY o) in -- top right
                        bl_x < xm && xm < tr_x && bl_y < ym && ym < tr_y
@@ -983,8 +1008,10 @@ zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ r
                               namee = namee' e, colore = colore' e }
 zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s,
                              names = names' s, colors = colors' s, ang = ang' s }
-zeroGrad (PM' pm) = PM $ PerpMark { xpm = r2f $ xpm' pm, ypm = r2f $ ypm' pm, sizepm = r2f $ sizepm' pm,
-                             namepm = namepm' pm, colorpm = colorpm' pm}
+zeroGrad (AM' am) = AM $ AngleMark { xam = r2f $ xam' am, yam = r2f $ yam' am, sizeam = r2f $ sizeam' am,
+                                      isRightam = isRightam' am, radiusam = r2f $ radiusam' am
+                                      , rotationam = r2f $ rotationam' am, angleam = r2f $ angleam' am
+                                      ,nameam = nameam' am, coloram = coloram' am }
 zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, sizeX = r2f $ sizeX' r, sizeY = r2f $ sizeY' r,
                            selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
@@ -1015,8 +1042,10 @@ addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ 
 addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
                             names' = names s, colors' = colors s, ang' = ang s }
 
-addGrad (PM pm) = PM' $ PerpMark' { xpm' = r2f $ xpm pm, ypm' = r2f $ ypm pm, sizepm' = r2f $ sizepm pm,
-                            namepm' = namepm pm, colorpm' = colorpm pm }
+addGrad (AM am) = AM' $ AngleMark' { xam' = r2f $ xam am, yam' = r2f $ yam am, sizeam' = r2f $ sizeam am,
+                                      isRightam' = isRightam am, radiusam' = r2f $ radiusam am
+                                      , rotationam' = r2f $ rotationam am, angleam' = r2f $ angleam am
+                                      ,nameam' = nameam am, coloram' = coloram am }
 
 addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r,
                            sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r,

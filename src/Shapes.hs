@@ -197,30 +197,35 @@ instance Named Square where
 instance ToJSON Square
 instance FromJSON Square
 
---------------------------
-data PerpMark = PerpMark { xpm :: Float -- center of PerpMark
-                     , ypm :: Float
-                     , sizepm :: Float
-                     , namepm :: String
-                     , colorpm :: Color }
+-------------------------- (Angle Mark, added by Dor)
+data AngleMark = AngleMark { xam :: Float -- Starting point for angle mark
+                     , yam :: Float
+                     , radiusam :: Float -- The radius of the angle mark
+                     , sizeam :: Float
+                     , nameam :: String
+                     , coloram :: Color
+                     , angleam :: Float -- The angle that the angle mark specifies
+                     , rotationam :: Float -- The rotation angle of amgle mark
+                     , isRightam :: String -- Is this a right angle or not 
+                 }
      deriving (Eq, Show, Generic, Typeable, Data)
 
-instance Located PerpMark Float where
-         getX pm = xpm pm
-         getY pm = ypm pm
-         setX x pm = pm { xpm = x }
-         setY y pm = pm { ypm = y }
+instance Located AngleMark Float where
+         getX am = xam am
+         getY am = yam am
+         setX x am = am { xam = x }
+         setY y am = am { yam = y }
 
-instance Sized PerpMark where
-         getSize x = sizepm x
-         setSize size x = x { sizepm = size }
+instance Sized AngleMark where
+         getSize x = sizeam x
+         setSize size x = x { sizeam = size }
 
-instance Named PerpMark where
-         getName pm = namepm pm
-         setName x pm = pm { namepm = x }
+instance Named AngleMark where
+         getName am = nameam am
+         setName x am = am { nameam = x }
 
-instance ToJSON PerpMark
-instance FromJSON PerpMark
+instance ToJSON AngleMark
+instance FromJSON AngleMark
 
 --------------------------
 
@@ -324,7 +329,7 @@ data Obj = S Square
          | A SolidArrow
          | CB CubicBezier
          | LN Line
-         | PM PerpMark
+         | AM AngleMark
          deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
@@ -382,7 +387,7 @@ instance Located Obj Float where
                  A a -> getX a
                  CB c -> getX c
                  LN l -> getX l
-                 PM pm -> getX pm
+                 AM am -> getX am
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -393,7 +398,7 @@ instance Located Obj Float where
                  A a -> getY a
                  CB c -> getY c
                  LN l -> getY l
-                 PM pm -> getY pm
+                 AM am -> getY am
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -404,7 +409,7 @@ instance Located Obj Float where
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
                 LN l -> LN $ setX x l
-                PM pm -> PM $ setX x pm
+                AM am -> AM $ setX x am
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -415,7 +420,7 @@ instance Located Obj Float where
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
                 LN l -> LN $ setY y l
-                PM pm -> PM $ setY y pm
+                AM am -> AM $ setY y am
 
 
 -- I believe this typeclass is no longer used in the snap frontend
@@ -447,12 +452,12 @@ instance Sized Obj where
                  C c -> getSize c
                  S s -> getSize s
                  L l -> getSize l
-                 PM pm -> getSize pm
+                 AM am -> getSize am
          setSize x o = case o of
                 C c -> C $ setSize x c
                 L l -> L $ setSize x l
                 S s -> S $ setSize x s
-                PM pm -> PM $ setSize x pm
+                AM am -> AM $ setSize x am
 
 instance Named Obj where
          getName o = case o of
@@ -465,7 +470,7 @@ instance Named Obj where
                  A a   -> getName a
                  CB cb -> getName cb
                  LN l -> getName l
-                 PM pm -> getName pm
+                 AM am -> getName am
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
@@ -476,7 +481,7 @@ instance Named Obj where
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
                 LN l -> LN $ setName x l
-                PM pm -> PM $ setName x pm
+                AM am -> AM $ setName x am
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
 
@@ -490,7 +495,7 @@ data Obj' a
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     | LN' (Line' a)
-    | PM' (PerpMark' a)
+    | AM' (AngleMark' a)
     deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
@@ -547,11 +552,15 @@ data Square' a  = Square' { xs' :: a
                      deriving (Eq, Show, Typeable, Data)
 
 
-data PerpMark' a  = PerpMark' { xpm' :: a
-                     , ypm' :: a
-                     , sizepm' :: a
-                     , namepm' :: String
-                     , colorpm' :: Color }
+data AngleMark' a  = AngleMark' { xam' :: a
+                     , yam' :: a
+                     , radiusam' :: a
+                     , rotationam' :: a
+                     , angleam' :: a
+                     , isRightam' :: String
+                     , sizeam' :: a
+                     , nameam' :: String
+                     , coloram' :: Color }
                      deriving (Eq, Show, Typeable, Data)
 
 
@@ -599,9 +608,9 @@ instance Named (Square' a) where
          getName = names'
          setName x s = s { names' = x }
 
-instance Named (PerpMark' a) where
-         getName = namepm'
-         setName x pm = pm { namepm' = x }
+instance Named (AngleMark' a) where
+         getName = nameam'
+         setName x am = am { nameam' = x }
 
 instance Named (Rect' a) where
          getName = namer'
@@ -634,6 +643,7 @@ instance Named (Obj' a) where
                  A' a   -> getName a
                  CB' cb -> getName cb
                  LN' ln -> getName ln
+                 AM' am -> getName am
          setName x o = case o of
                 C' c   -> C' $ setName x c
                 S' s   -> S' $ setName x s
@@ -643,6 +653,7 @@ instance Named (Obj' a) where
                 A' a   -> A' $ setName x a
                 CB' cb -> CB' $ setName x cb
                 LN' ln -> LN' $ setName x ln
+                AM' am -> AM' $ setName x am
 --
 instance Located (Circ' a) a where
          getX = xc'
@@ -662,11 +673,11 @@ instance Located (Square' a) a where
          setX x s = s { xs' = x }
          setY y s = s { ys' = y }
 
-instance Located (PerpMark' a) a where
-         getX = xpm'
-         getY = ypm'
-         setX x pm = pm { xpm' = x }
-         setY y pm = pm { ypm' = y }
+instance Located (AngleMark' a) a where
+         getX = xam'
+         getY = yam'
+         setX x am = am { xam' = x }
+         setY y am = am { yam' = y }
 
 instance Located (Rect' a) a where
          getX = xr'
@@ -717,6 +728,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> xl' l
              P' p -> xp' p
              S' s -> xs' s
+             AM' am -> xam' am
              R' r -> xr' r
              A' a -> startx' a
              LN' l -> getX l
@@ -726,6 +738,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> yl' l
              P' p -> yp' p
              S' s -> ys' s
+             AM' am -> yam' am
              R' r -> yr' r
              A' a -> starty' a
              LN' l -> getY l
@@ -735,6 +748,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> L' $ setX x l
              P' p -> P' $ setX x p
              S' s -> S' $ setX x s
+             AM' am -> AM' $ setX x am
              R' r -> R' $ setX x r
              A' a -> A' $ setX x a
              LN' l -> LN' $ setX x l
@@ -744,6 +758,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> L' $ setY y l
              P' p -> P' $ setY y p
              S' s -> S' $ setY y s
+             AM' am -> AM' $ setY y am
              R' r -> R' $ setY y r
              A' a -> A' $ setY y a
              LN' l -> LN' $ setY y l
@@ -793,11 +808,16 @@ get "side" (S' o)          = TNum $ side' o
 get "angle" (S' o)         = TNum $ r2f $ ang' o
 get "color" (S' o)         = TColor $ colors' o
 
--- PerpMarks
-get "x" (PM' o)             = TNum $ xpm' o
-get "y" (PM' o)             = TNum $ ypm' o
-get "size" (PM' o)          = TNum $ sizepm' o
-get "color" (PM' o)         = TColor $ colorpm' o
+-- AngleMarks
+              
+get "radius" (AM' o)        = TNum $ radiusam' o
+get "rotation" (AM' o)      = TNum $ rotationam' o
+get "angle" (AM' o)         = TNum $ angleam' o
+get "isRight" (AM' o)       = TStyle $ isRightam' o
+get "x" (AM' o)             = TNum $ xam' o
+get "y" (AM' o)             = TNum $ yam' o
+get "size" (AM' o)          = TNum $ sizeam' o
+get "color" (AM' o)         = TColor $ coloram' o
 
 -- Rectangles
 get "x" (R' o)             = TNum $ xr' o
@@ -865,11 +885,16 @@ set "side" (S' o) (TNum n)    = S' $ o { side' = n }
 set "angle" (S' o) (TNum n)   = S' $ o { ang' = r2f n }
 set "color" (S' o) (TColor n) = S' $ o { colors' = n }
 
--- PerpMarks
-set "x" (PM' o) (TNum n)       = PM' $ o { xpm' = n }
-set "y" (PM' o) (TNum n)       = PM' $ o { ypm' = n }
-set "size" (PM' o) (TNum n)    = PM' $ o { sizepm' = n }
-set "color" (PM' o) (TColor n) = PM' $ o { colorpm' = n }
+-- AngleMarks
+set "x" (AM' o) (TNum n)            = AM' $ o { xam' = n }
+set "y" (AM' o) (TNum n)            = AM' $ o { yam' = n }
+set "radius" (AM' o) (TNum n)       = AM' $ o { radiusam' = n }
+set "rotation" (AM' o) (TNum n)     = AM' $ o { rotationam' = r2f n }
+set "angle" (AM' o) (TNum n)        = AM' $ o { angleam' = r2f n }
+set "isRight" (AM' o) (TStyle n)    = AM' $ o { isRightam' = n }
+set "start" (AM' o) (TPt (x, y))    = AM' $ o { xam' = x, yam' = y }
+set "size" (AM' o) (TNum n)         = AM' $ o { sizeam' = n }
+set "color" (AM' o) (TColor n)      = AM' $ o { coloram' = n }
 
 -- Rectangles
 set "x" (R' o) (TNum n)          = R' $ o { xr' = n }

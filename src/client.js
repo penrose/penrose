@@ -33,6 +33,39 @@ $.getScript('snap.svg.js', function()
         }
     }
 
+
+    /*
+     * Translate coordinates from polar to cartesian
+     * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+     * (Added by Dor)
+    */
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+    return {
+         x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians))
+        };
+    }
+
+    /*
+     * Given center point, radius, and angels return an arc path
+     * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+     * (Added by Dor)
+    */
+    function describeArc(x, y, radius, startAngle, endAngle) {
+        var start = polarToCartesian(x, y, radius, endAngle);
+        var end = polarToCartesian(x, y, radius, startAngle);
+        var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+        return [
+            "M", start.x, start.y,
+            "A", radius, radius, 0, arcSweep, 0, end.x, end.y,
+            "L", x, y,
+            "L", start.x, start.y
+        ].join(" ");
+    }
+
+
+
     /*
      * Translate a list of points ([[x1, y1], [x2, y2] ...]) to a
      * Catmull-Rom Spline curve represented as an SVG path string
@@ -302,16 +335,54 @@ $.getScript('snap.svg.js', function()
                     sq.drag(move, start, stop)
                 break
 
-                case 'PM': // square
-                    var sizepm = obj.sizepm
-                    var sq = s.rect(dx + obj.xpm - sizepm/2, dy - obj.ypm - sizepm/2, sizepm, sizepm);
-                    sq.data("name", obj.namepm)
-                    var color = obj.colorpm
-                    sq.attr({
-                        fill: rgbToHex(color.r, color.g, color.b),
-                        "fill-opacity": color.a,
-                    });
-                    sq.drag(move, start, stop)
+                case 'AM': // Angle Mark
+                    var sizeam = obj.sizeam
+                    var rotataionam = obj.rotataionam
+                    var angleam = obj.angleam
+                    var radiusam = obj.radiusam
+
+                    var isRightam = obj.isRightam
+                    
+                    if(isRightam == "true"){
+                        //Draw PrepMark (for right angle)
+                        var p1 = s.path(toPathString([[obj.xam, obj.yam + sizeam],
+                            [ obj.xam + sizeam, obj.yam + sizeam]],dx,dy));
+                        var p2 = s.path(toPathString([[ obj.xam + sizeam, obj.yam + sizeam],
+                            [ obj.xam + sizeam, obj.yam]],dx,dy));
+                        
+                        var color = obj.coloram
+                        p1.attr({
+                            "fill-opacity": 0,
+                            stroke: rgbToHex(color.r, color.g, color.b),
+                            strokeWidth: 2
+                         });
+
+                        p2.attr({
+                            "fill-opacity": 0,
+                            stroke: rgbToHex(color.r, color.g, color.b),
+                            strokeWidth: 2
+                         });
+                        var g = s.g(p1,p2)
+                        g.drag(move, start, stop)
+                    }
+
+                    if(isRightam == "false"){
+                        //Draw arc (for regular angles)
+                        var arcPath = describeArc(dx + obj.xam, dy + obj.yam,obj.radiusam,obj.rotationam, 
+                            obj.rotationam + obj.angleam);   
+
+                        // var arcPath = describeArc(200, 200,100,20, 
+                        //     60);                         
+                        var arc = s.path(arcPath);
+                        var color = obj.coloram
+                        arc.attr({
+                            fill: rgbToHex(0, 0, 0),
+                            "fill-opacity": 0,
+                            stroke: rgbToHex(color.r, color.g, color.b),
+                            strokeWidth: 2
+                        });
+                        arc.drag(move, start, stop)
+                    }
                 break
                 case 'R': // rectangle
 		// TODO fix this!
