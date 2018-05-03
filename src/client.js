@@ -58,9 +58,7 @@ $.getScript('snap.svg.js', function()
         var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
         return [
             "M", start.x, start.y,
-            "A", radius, radius, 0, arcSweep, 0, end.x, end.y,
-            "L", x, y,
-            "L", start.x, start.y
+            "A", radius, radius, 0, arcSweep, 0, end.x, end.y
         ].join(" ");
     }
 
@@ -335,48 +333,41 @@ $.getScript('snap.svg.js', function()
                     sq.drag(move, start, stop)
                 break
 
-                case 'AM': // Angle Mark
-                    var sizeam = obj.sizeam
-                    var rotataionam = obj.rotataionam
-                    var angleam = obj.angleam
-                    var radiusam = obj.radiusam
-
-                    var isRightam = obj.isRightam
+                case 'AR': // Angle Mark
+                    var isRightar = obj.isRightar
+                    var sizear = obj.sizear
+                    var color = obj.colorar
+                    var xar = obj.xar
+                    var yar = obj.yar
                     
-                    if(isRightam == "true"){
-                        //Draw PrepMark (for right angle)
-                        var p1 = s.path(toPathString([[obj.xam, obj.yam + sizeam],
-                            [ obj.xam + sizeam, obj.yam + sizeam]],dx,dy));
-                        var p2 = s.path(toPathString([[ obj.xam + sizeam, obj.yam + sizeam],
-                            [ obj.xam + sizeam, obj.yam]],dx,dy));
-                        
-                        var color = obj.coloram
-                        p1.attr({
+                    if(isRightar == "true"){
+                        //Draw PrepMark (for right angle)                        
+                        var path = "M " + (dx + xar) + " " + (dy + yar - sizear)+ " L "
+                                + (dx + xar + sizear) + " " +  (dy + yar - sizear) + " L " 
+                                + (dx + xar + sizear) + " " + (dy + yar)
+                        var p = s.path(path);
+                        p.data("name", obj.namear)
+                        p.attr({
+                            fill: rgbToHex(color.r, color.g, color.b),
                             "fill-opacity": 0,
                             stroke: rgbToHex(color.r, color.g, color.b),
                             strokeWidth: 2
                          });
-
-                        p2.attr({
-                            "fill-opacity": 0,
-                            stroke: rgbToHex(color.r, color.g, color.b),
-                            strokeWidth: 2
-                         });
-                        var g = s.g(p1,p2)
-                        g.drag(move, start, stop)
+                        p.drag(move, start, stop)
                     }
 
-                    if(isRightam == "false"){
+                    if(isRightar == "false"){
                         //Draw arc (for regular angles)
-                        var arcPath = describeArc(dx + obj.xam, dy + obj.yam,obj.radiusam,obj.rotationam, 
-                            obj.rotationam + obj.angleam);   
-
-                        // var arcPath = describeArc(200, 200,100,20, 
-                        //     60);                         
+                        var anglear = obj.anglear > 360.0 ? 360.0 - obj.anglear : obj.anglear
+                        anglear = anglear < 0 ? 360 + anglear : anglear
+                        var radiusar = obj.radiusar
+                        var rotationar = obj.rotationar
+                        var arcPath = describeArc(dx + xar, dy + yar, radiusar, rotationar, 
+                                                    anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));                          
                         var arc = s.path(arcPath);
-                        var color = obj.coloram
+                        arc.data("name", obj.namear)
                         arc.attr({
-                            fill: rgbToHex(0, 0, 0),
+                            fill: rgbToHex(color.r, color.g, color.b),
                             "fill-opacity": 0,
                             stroke: rgbToHex(color.r, color.g, color.b),
                             strokeWidth: 2

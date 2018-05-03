@@ -198,34 +198,40 @@ instance ToJSON Square
 instance FromJSON Square
 
 -------------------------- (Angle Mark, added by Dor)
-data AngleMark = AngleMark { xam :: Float -- Starting point for angle mark
-                     , yam :: Float
-                     , radiusam :: Float -- The radius of the angle mark
-                     , sizeam :: Float
-                     , nameam :: String
-                     , coloram :: Color
-                     , angleam :: Float -- The angle that the angle mark specifies
-                     , rotationam :: Float -- The rotation angle of amgle mark
-                     , isRightam :: String -- Is this a right angle or not 
+data Arc = Arc { xar:: Float -- Starting point for angle mark
+                     , yar:: Float
+                     , radiusar:: Float -- The radius of the angle mark
+                     , sizear:: Float
+                     , namear:: String
+                     , colorar:: Color
+                     , selar :: Bool -- is the arc currently selected? (mouse is dragging it)
+                     , anglear:: Float -- The angle that the angle mark specifies
+                     , rotationar:: Float -- The rotation angle of argle mark
+                     , isRightar:: String -- Is this a right angle or not 
                  }
      deriving (Eq, Show, Generic, Typeable, Data)
 
-instance Located AngleMark Float where
-         getX am = xam am
-         getY am = yam am
-         setX x am = am { xam = x }
-         setY y am = am { yam = y }
+instance Located Arc Float where
+         getX ar= xar ar
+         getY ar= yar ar
+         setX x ar= ar{ xar= x }
+         setY y ar= ar{ yar= y }
 
-instance Sized AngleMark where
-         getSize x = sizeam x
-         setSize size x = x { sizeam = size }
+instance Selectable Arc where
+         select x = x { selar = True }
+         deselect x = x { selar = False }
+         selected x = selar x
 
-instance Named AngleMark where
-         getName am = nameam am
-         setName x am = am { nameam = x }
+instance Sized Arc where
+         getSize x = sizear x
+         setSize size x = x { sizear = size }
 
-instance ToJSON AngleMark
-instance FromJSON AngleMark
+instance Named Arc where
+         getName ar= namear ar
+         setName x ar= ar{ namear= x }
+
+instance ToJSON Arc
+instance FromJSON Arc
 
 --------------------------
 
@@ -329,7 +335,7 @@ data Obj = S Square
          | A SolidArrow
          | CB CubicBezier
          | LN Line
-         | AM AngleMark
+         | AR Arc
          deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
@@ -387,7 +393,7 @@ instance Located Obj Float where
                  A a -> getX a
                  CB c -> getX c
                  LN l -> getX l
-                 AM am -> getX am
+                 AR ar -> getX ar
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -398,7 +404,7 @@ instance Located Obj Float where
                  A a -> getY a
                  CB c -> getY c
                  LN l -> getY l
-                 AM am -> getY am
+                 AR ar -> getY ar
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -409,7 +415,7 @@ instance Located Obj Float where
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
                 LN l -> LN $ setX x l
-                AM am -> AM $ setX x am
+                AR ar -> AR $ setX x ar
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -420,7 +426,7 @@ instance Located Obj Float where
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
                 LN l -> LN $ setY y l
-                AM am -> AM $ setY y am
+                AR ar -> AR $ setY y ar
 
 
 -- I believe this typeclass is no longer used in the snap frontend
@@ -452,12 +458,12 @@ instance Sized Obj where
                  C c -> getSize c
                  S s -> getSize s
                  L l -> getSize l
-                 AM am -> getSize am
+                 AR ar -> getSize ar
          setSize x o = case o of
                 C c -> C $ setSize x c
                 L l -> L $ setSize x l
                 S s -> S $ setSize x s
-                AM am -> AM $ setSize x am
+                AR ar -> AR $ setSize x ar
 
 instance Named Obj where
          getName o = case o of
@@ -470,7 +476,7 @@ instance Named Obj where
                  A a   -> getName a
                  CB cb -> getName cb
                  LN l -> getName l
-                 AM am -> getName am
+                 AR ar -> getName ar
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
@@ -481,7 +487,7 @@ instance Named Obj where
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
                 LN l -> LN $ setName x l
-                AM am -> AM $ setName x am
+                AR ar -> AR $ setName x ar
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
 
@@ -495,7 +501,7 @@ data Obj' a
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     | LN' (Line' a)
-    | AM' (AngleMark' a)
+    | AR' (Arc' a)
     deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
@@ -552,15 +558,16 @@ data Square' a  = Square' { xs' :: a
                      deriving (Eq, Show, Typeable, Data)
 
 
-data AngleMark' a  = AngleMark' { xam' :: a
-                     , yam' :: a
-                     , radiusam' :: a
-                     , rotationam' :: a
-                     , angleam' :: a
-                     , isRightam' :: String
-                     , sizeam' :: a
-                     , nameam' :: String
-                     , coloram' :: Color }
+data Arc' a  = Arc' { xar' :: a
+                     , yar' :: a
+                     , radiusar' :: a
+                     , rotationar' :: a
+                     , anglear' :: a
+                     , selar' :: Bool
+                     , isRightar' :: String
+                     , sizear' :: a
+                     , namear' :: String
+                     , colorar' :: Color }
                      deriving (Eq, Show, Typeable, Data)
 
 
@@ -608,9 +615,9 @@ instance Named (Square' a) where
          getName = names'
          setName x s = s { names' = x }
 
-instance Named (AngleMark' a) where
-         getName = nameam'
-         setName x am = am { nameam' = x }
+instance Named (Arc' a) where
+         getName = namear'
+         setName x ar= ar{ namear' = x }
 
 instance Named (Rect' a) where
          getName = namer'
@@ -643,7 +650,7 @@ instance Named (Obj' a) where
                  A' a   -> getName a
                  CB' cb -> getName cb
                  LN' ln -> getName ln
-                 AM' am -> getName am
+                 AR' ar-> getName ar
          setName x o = case o of
                 C' c   -> C' $ setName x c
                 S' s   -> S' $ setName x s
@@ -653,7 +660,7 @@ instance Named (Obj' a) where
                 A' a   -> A' $ setName x a
                 CB' cb -> CB' $ setName x cb
                 LN' ln -> LN' $ setName x ln
-                AM' am -> AM' $ setName x am
+                AR' ar-> AR' $ setName x ar
 --
 instance Located (Circ' a) a where
          getX = xc'
@@ -673,11 +680,11 @@ instance Located (Square' a) a where
          setX x s = s { xs' = x }
          setY y s = s { ys' = y }
 
-instance Located (AngleMark' a) a where
-         getX = xam'
-         getY = yam'
-         setX x am = am { xam' = x }
-         setY y am = am { yam' = y }
+instance Located (Arc' a) a where
+         getX = xar'
+         getY = yar'
+         setX x ar= ar{ xar' = x }
+         setY y ar= ar{ yar' = y }
 
 instance Located (Rect' a) a where
          getX = xr'
@@ -728,7 +735,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> xl' l
              P' p -> xp' p
              S' s -> xs' s
-             AM' am -> xam' am
+             AR' ar-> xar' ar
              R' r -> xr' r
              A' a -> startx' a
              LN' l -> getX l
@@ -738,7 +745,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> yl' l
              P' p -> yp' p
              S' s -> ys' s
-             AM' am -> yam' am
+             AR' ar-> yar' ar
              R' r -> yr' r
              A' a -> starty' a
              LN' l -> getY l
@@ -748,7 +755,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> L' $ setX x l
              P' p -> P' $ setX x p
              S' s -> S' $ setX x s
-             AM' am -> AM' $ setX x am
+             AR' ar-> AR' $ setX x ar
              R' r -> R' $ setX x r
              A' a -> A' $ setX x a
              LN' l -> LN' $ setX x l
@@ -758,7 +765,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> L' $ setY y l
              P' p -> P' $ setY y p
              S' s -> S' $ setY y s
-             AM' am -> AM' $ setY y am
+             AR' ar-> AR' $ setY y ar
              R' r -> R' $ setY y r
              A' a -> A' $ setY y a
              LN' l -> LN' $ setY y l
@@ -808,16 +815,16 @@ get "side" (S' o)          = TNum $ side' o
 get "angle" (S' o)         = TNum $ r2f $ ang' o
 get "color" (S' o)         = TColor $ colors' o
 
--- AngleMarks
+-- Arcs
               
-get "radius" (AM' o)        = TNum $ radiusam' o
-get "rotation" (AM' o)      = TNum $ rotationam' o
-get "angle" (AM' o)         = TNum $ angleam' o
-get "isRight" (AM' o)       = TStyle $ isRightam' o
-get "x" (AM' o)             = TNum $ xam' o
-get "y" (AM' o)             = TNum $ yam' o
-get "size" (AM' o)          = TNum $ sizeam' o
-get "color" (AM' o)         = TColor $ coloram' o
+get "radius" (AR' o)        = TNum $ radiusar' o
+get "rotation" (AR' o)      = TNum $ rotationar' o
+get "angle" (AR' o)         = TNum $ anglear' o
+get "isRight" (AR' o)       = TStyle $ isRightar' o
+get "x" (AR' o)             = TNum $ xar' o
+get "y" (AR' o)             = TNum $ yar' o
+get "size" (AR' o)          = TNum $ sizear' o
+get "color" (AR' o)         = TColor $ colorar' o
 
 -- Rectangles
 get "x" (R' o)             = TNum $ xr' o
@@ -885,16 +892,16 @@ set "side" (S' o) (TNum n)    = S' $ o { side' = n }
 set "angle" (S' o) (TNum n)   = S' $ o { ang' = r2f n }
 set "color" (S' o) (TColor n) = S' $ o { colors' = n }
 
--- AngleMarks
-set "x" (AM' o) (TNum n)            = AM' $ o { xam' = n }
-set "y" (AM' o) (TNum n)            = AM' $ o { yam' = n }
-set "radius" (AM' o) (TNum n)       = AM' $ o { radiusam' = n }
-set "rotation" (AM' o) (TNum n)     = AM' $ o { rotationam' = r2f n }
-set "angle" (AM' o) (TNum n)        = AM' $ o { angleam' = r2f n }
-set "isRight" (AM' o) (TStyle n)    = AM' $ o { isRightam' = n }
-set "start" (AM' o) (TPt (x, y))    = AM' $ o { xam' = x, yam' = y }
-set "size" (AM' o) (TNum n)         = AM' $ o { sizeam' = n }
-set "color" (AM' o) (TColor n)      = AM' $ o { coloram' = n }
+-- Arcs
+set "x" (AR' o) (TNum n)            = AR' $ o { xar' = n }
+set "y" (AR' o) (TNum n)            = AR' $ o { yar' = n }
+set "radius" (AR' o) (TNum n)       = AR' $ o { radiusar' = n }
+set "rotation" (AR' o) (TNum n)     = AR' $ o { rotationar' = r2f n }
+set "angle" (AR' o) (TNum n)        = AR' $ o { anglear' = r2f n }
+set "isRight" (AR' o) (TStyle n)    = AR' $ o { isRightar' = n }
+set "start" (AR' o) (TPt (x, y))    = AR' $ o { xar' = x, yar' = y }
+set "size" (AR' o) (TNum n)         = AR' $ o { sizear' = n }
+set "color" (AR' o) (TColor n)      = AR' $ o { colorar' = n }
 
 -- Rectangles
 set "x" (R' o) (TNum n)          = R' $ o { xr' = n }

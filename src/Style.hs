@@ -31,7 +31,7 @@ import Data.Typeable
 
 -- | Type annotation for all geometries supported by Style so far.
 data StyType = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto 
-               | Angle | Line2 -- two points
+               | Arc2 | Line2 -- two points
     deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
 -- | A Style program is a collection of blocks
@@ -142,7 +142,7 @@ styObj =
        (rword "Curve"   >> return Curve)   <|>
        (rword "Ellipse" >> return Ellip)   <|>
        (rword "Box"     >> return Box)     <|>
-       (rword "AngleMark"     >> return Angle)     <|>
+       (rword "Arc"     >> return Arc2)     <|>
        (rword "Rect"    >> return Rectangle)     <|>
        (rword "Dot"     >> return Dot) <|>
        (rword "Line"     >> return Line2)

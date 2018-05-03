@@ -21,7 +21,7 @@ Set `codomain` {
           text = "f(x)"
     }
 
-    angleNotation = AngleMark {
+    angleNotation = Arc {
       start = atOrigin()
       isRight = "true"
     }
@@ -35,7 +35,6 @@ Map f domain image {
           text = "(surjection)"
 	  color = darkBlue()
     }
-    
     objective sameX(domainOuter.shape, f.shape.label, 30)
     objective above(domainOuter.shape, f.shape.label, 30)
 }
