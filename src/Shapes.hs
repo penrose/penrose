@@ -204,6 +204,7 @@ data Arc = Arc { xar:: Float -- Starting point for angle mark
                      , sizear:: Float
                      , namear:: String
                      , colorar:: Color
+                     , stylear :: String
                      , selar :: Bool -- is the arc currently selected? (mouse is dragging it)
                      , anglear:: Float -- The angle that the angle mark specifies
                      , rotationar:: Float -- The rotation angle of argle mark
@@ -564,6 +565,7 @@ data Arc' a  = Arc' { xar' :: a
                      , rotationar' :: a
                      , anglear' :: a
                      , selar' :: Bool
+                     , stylear' :: String
                      , isRightar' :: String
                      , sizear' :: a
                      , namear' :: String
@@ -822,6 +824,7 @@ get "rotation" (AR' o)      = TNum $ rotationar' o
 get "angle" (AR' o)         = TNum $ anglear' o
 get "isRight" (AR' o)       = TStyle $ isRightar' o
 get "x" (AR' o)             = TNum $ xar' o
+get "style" (AR' o)         = TStyle $ stylear' o
 get "y" (AR' o)             = TNum $ yar' o
 get "size" (AR' o)          = TNum $ sizear' o
 get "color" (AR' o)         = TColor $ colorar' o
@@ -899,6 +902,7 @@ set "radius" (AR' o) (TNum n)       = AR' $ o { radiusar' = n }
 set "rotation" (AR' o) (TNum n)     = AR' $ o { rotationar' = r2f n }
 set "angle" (AR' o) (TNum n)        = AR' $ o { anglear' = r2f n }
 set "isRight" (AR' o) (TStyle n)    = AR' $ o { isRightar' = n }
+set "style" (AR' o) (TStyle n)    = AR' $ o { stylear' = n }
 set "start" (AR' o) (TPt (x, y))    = AR' $ o { xar' = x, yar' = y }
 set "size" (AR' o) (TNum n)         = AR' $ o { sizear' = n }
 set "color" (AR' o) (TColor n)      = AR' $ o { colorar' = n }

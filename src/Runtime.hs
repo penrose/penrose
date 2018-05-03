@@ -186,7 +186,7 @@ arPack :: (Autofloat a) => Arc -> [a] -> Arc' a
 arPack ar params = Arc' { xar' = xar1, yar' = yar1, sizear' = sizear1,
                                 radiusar' = radiusar1, rotationar' = rotationar1,
                                  anglear' = anglear1, namear' = namear ar, selar' = selar ar, colorar' = colorar ar,
-                                 isRightar' = isRightar ar}
+                                 isRightar' = isRightar ar, stylear' = stylear ar}
          where (xar1, yar1, sizear1, radiusar1, rotationar1, anglear1) = if not $ length params == 6 then error "wrong # params to pack angleMark"
                                 else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4, params !! 5)
 
@@ -332,7 +332,7 @@ defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
 defArc = Arc { xar = 100, yar = 100, sizear = defaultRad/6, namear = defName, colorar = black
-                          , isRightar = "false", selar = False, rotationar = 0.0, anglear = 60.0, radiusar = 12.0 }
+                          , isRightar = "false", selar = False, rotationar = 0.0, anglear = 60.0, radiusar = 12.0, stylear = "line" }
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
                           selr = False, namer = defName, colorr = black, angr = 0.0}
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
@@ -485,12 +485,13 @@ initSquare n config = ([defaultSquare n], [], sizeFuncs n)
 
 
 initArc n config = (objs, [],sizeFuncs n)
-    where style = fromMaybe "true" $ lookupStr "isRight" config
+    where right = fromMaybe "true" $ lookupStr "isRight" config
           radius =  fromMaybe 10.0 $ lookupFloat "radius" config
           angle =  fromMaybe 30.0 $ lookupFloat "angle" config 
-          rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config 
-          setStyle (AR ar) s ra a ro = AR $ ar { isRightar =  s, radiusar = ra, rotationar = ro, anglear = a} 
-          objs = [setStyle (defaultArc n) style radius angle rotation]
+          rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config
+          style = fromMaybe "line" $ lookupStr "style" config
+          setStyle (AR ar) s ra a ro st = AR $ ar { isRightar =  s, radiusar = ra, rotationar = ro, anglear = a, stylear = st} 
+          objs = [setStyle (defaultArc n) right radius angle rotation style]
 
 initRect n config = ([defaultRect n], [], sizeFuncs n)
 
@@ -1011,7 +1012,7 @@ zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ 
 zeroGrad (AR' ar) = AR $ Arc { xar = r2f $ xar' ar, yar = r2f $ yar' ar, sizear = r2f $ sizear' ar,
                                       isRightar = isRightar' ar, radiusar = r2f $ radiusar' ar,
                                       selar = selar' ar, rotationar = r2f $ rotationar' ar, anglear = r2f $ anglear' ar
-                                      ,namear = namear' ar, colorar = colorar' ar }
+                                      ,namear = namear' ar, colorar = colorar' ar, stylear = stylear' ar}
 zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, sizeX = r2f $ sizeX' r, sizeY = r2f $ sizeY' r,
                            selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
@@ -1045,7 +1046,7 @@ addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $
 addGrad (AR ar) = AR' $ Arc' { xar' = r2f $ xar ar, yar' = r2f $ yar ar, sizear' = r2f $ sizear ar,
                                       isRightar' = isRightar ar, radiusar' = r2f $ radiusar ar,
                                       selar' = selar ar, rotationar' = r2f $ rotationar ar, anglear' = r2f $ anglear ar
-                                      ,namear' = namear ar, colorar' = colorar ar }
+                                      ,namear' = namear ar, colorar' = colorar ar , stylear' = stylear ar}
 
 addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r,
                            sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r,

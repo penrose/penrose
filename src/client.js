@@ -5,8 +5,8 @@
  */
 
 
-$.getScript('snap.svg.js', function()
-{
+ $.getScript('snap.svg.js', function()
+ {
     // Helper functions
 
     function createSocket() {
@@ -38,29 +38,51 @@ $.getScript('snap.svg.js', function()
      * Translate coordinates from polar to cartesian
      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
      * (Added by Dor)
-    */
-    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-    var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-    return {
+     */
+     function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+        return {
          x: centerX + (radius * Math.cos(angleInRadians)),
-            y: centerY + (radius * Math.sin(angleInRadians))
-        };
+         y: centerY + (radius * Math.sin(angleInRadians))
+     };
+ }
+
+    /*
+     * Given center point, radius, and angels return an arc path
+     * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+     * (Added by Dor)
+     * Contaikns only the arc
+     */
+     function describeArc(x, y, radius, startAngle, endAngle) {
+        var start = polarToCartesian(x, y, radius, endAngle);
+        var end = polarToCartesian(x, y, radius, startAngle);
+        var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+        return [
+        "M", start.x, start.y,
+        "A", radius, radius, 0, arcSweep, 0, end.x, end.y
+        ].join(" ");
     }
 
     /*
      * Given center point, radius, and angels return an arc path
      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
      * (Added by Dor)
-    */
-    function describeArc(x, y, radius, startAngle, endAngle) {
+     * Returns the full "pie wedge" path
+     */
+    function describeFullArc(x, y, radius, startAngle, endAngle) {
         var start = polarToCartesian(x, y, radius, endAngle);
         var end = polarToCartesian(x, y, radius, startAngle);
         var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
         return [
-            "M", start.x, start.y,
-            "A", radius, radius, 0, arcSweep, 0, end.x, end.y
+        "M", start.x, start.y,
+        "A", radius, radius, 0, arcSweep, 0, end.x, end.y,
+        "L", x, y,
+        "L", start.x, start.y
         ].join(" ");
     }
+
+
+    
 
 
 
@@ -69,7 +91,7 @@ $.getScript('snap.svg.js', function()
      * Catmull-Rom Spline curve represented as an SVG path string
      * Adopted from: https://codepen.io/osublake/pen/BowJed
      */
-    function catmullRomSpline(list, k) {
+     function catmullRomSpline(list, k) {
         // flatten the point list for simplicity
         var data = [].concat.apply([], list);
         if (k == null) k = 1;
@@ -99,7 +121,7 @@ $.getScript('snap.svg.js', function()
      * SVG Path String.
      * TODO: rigorous error handling. Should this be done at the frontend or backend?
      */
-    function toPathString(orig_list, dx, dy) {
+     function toPathString(orig_list, dx, dy) {
         var str = "";
         var chunk = 2;
         var list = new Array(orig_list.length);
@@ -176,9 +198,9 @@ $.getScript('snap.svg.js', function()
             // console.log('distance: ' + this.data("ox") + " " + this.data("oy"));
             this.attr({opacity: 1});
             var dict = { "tag" : "Drag",
-			 "contents" : { "name" : this.data("name"),
-					"xm" : this.data("ox"),
-					"ym" : this.data("oy")} }
+            "contents" : { "name" : this.data("name"),
+            "xm" : this.data("ox"),
+            "ym" : this.data("oy")} }
             var json = JSON.stringify(dict)
             // console.log(json)
             ws.send(json)
@@ -193,9 +215,9 @@ $.getScript('snap.svg.js', function()
             var obj = record.contents
             switch(record.tag) {
                 case 'CB': // cubic bezier
-                    var curve = s.path(toPathString(obj.pathcb, dx, dy));
-                    curve.data("name", obj.namecb)
-                    var color = obj.colorcb;
+                var curve = s.path(toPathString(obj.pathcb, dx, dy));
+                curve.data("name", obj.namecb)
+                var color = obj.colorcb;
                     // by default, the curve should be solid
                     curve.attr({
                         fill: "transparent",
@@ -209,24 +231,24 @@ $.getScript('snap.svg.js', function()
                     }
                     curve.drag(move, start, stop)
                     // DEBUG: showing control points and poly line
-		debug_bezier = false;
-		if (debug_bezier) {
-                    var polyLine = s.polyline(allToScreen(obj.pathcb, dx, dy));
-                    var controlPts = renderPoints(s, obj.pathcb, dx, dy);
-                    polyLine.attr({
-                        fill: "transparent",
-                        strokeWidth: 5,
-                        stroke: rgbToHex(color.r, color.g, color.b),
-                        strokeDasharray: "10"
-                    });
-		}
-                break
+                    debug_bezier = false;
+                    if (debug_bezier) {
+                        var polyLine = s.polyline(allToScreen(obj.pathcb, dx, dy));
+                        var controlPts = renderPoints(s, obj.pathcb, dx, dy);
+                        polyLine.attr({
+                            fill: "transparent",
+                            strokeWidth: 5,
+                            stroke: rgbToHex(color.r, color.g, color.b),
+                            strokeDasharray: "10"
+                        });
+                    }
+                    break
 
                 case 'LN': // line (modified from arrow/bezier)
-		    var path = [[obj.startx_l, obj.starty_l], [obj.endx_l, obj.endy_l]];
-                    var curve = s.path(toPathString(path, dx, dy));
-                    curve.data("name", obj.name_l)
-                    var color = obj.color_l;
+                var path = [[obj.startx_l, obj.starty_l], [obj.endx_l, obj.endy_l]];
+                var curve = s.path(toPathString(path, dx, dy));
+                curve.data("name", obj.name_l)
+                var color = obj.color_l;
                     // by default, the curve should be solid
                     curve.attr({
                         fill: "transparent",
@@ -239,7 +261,7 @@ $.getScript('snap.svg.js', function()
                         });
                     }
                     curve.drag(move, start, stop)
-		break
+                    break
 		   // var sx = dx + obj.startx_l, sy = dy - obj.starty_l,
                    //      ex = dx + obj.endx_l,   ey = dy - obj.endy_l,
                    //      t  = obj.thickness_l / 12
@@ -258,14 +280,14 @@ $.getScript('snap.svg.js', function()
 
 
                 case 'L': // label (TODO: don't display Text shape? need to distinguish b/t text and label)
-                    var t = s.text(dx + obj.xl, dy - obj.yl, [obj.textl]);
-                    t.data("name", obj.namel)
-                    t.attr({
-                        "font-style": "italic",
-                        "font-family": "Palatino"
-                    });
-                    var bbox = t.getBBox()
-                    var mat = new Snap.Matrix()
+                var t = s.text(dx + obj.xl, dy - obj.yl, [obj.textl]);
+                t.data("name", obj.namel)
+                t.attr({
+                    "font-style": "italic",
+                    "font-family": "Palatino"
+                });
+                var bbox = t.getBBox()
+                var mat = new Snap.Matrix()
                     // Fix the center of labels
                     mat.translate(bbox.width / -2, bbox.height / 2)
                     t.transform(mat.toTransformString())
@@ -290,70 +312,84 @@ $.getScript('snap.svg.js', function()
                     //     strokeWidth: 1, // CamelCase...
                     // })
                     // circ.drag()
-                break
+                    break
                 case 'P': // point
-                    var pt = s.circle(dx + obj.xp, dy - obj.yp, 4);
-                    pt.data("name", obj.namep)
-                    var color = obj.colorp
-                    pt.attr({
-                        fill: "#000000",
-                        "fill-opacity": 1
-                    });
-                    pt.drag(move, start, stop)
+                var pt = s.circle(dx + obj.xp, dy - obj.yp, 4);
+                pt.data("name", obj.namep)
+                var color = obj.colorp
+                pt.attr({
+                    fill: "#000000",
+                    "fill-opacity": 1
+                });
+                pt.drag(move, start, stop)
                 break
                 case 'C': // circle
-                    var circ = s.circle(dx + obj.xc, dy - obj.yc, obj.r);
-                    circ.data("name", obj.namec)
-                    var color = obj.colorc
-                    circ.attr({
-                        fill: rgbToHex(color.r, color.g, color.b),
-                        "fill-opacity": color.a,
-                    });
-                    circ.drag(move, start, stop)
+                var circ = s.circle(dx + obj.xc, dy - obj.yc, obj.r);
+                circ.data("name", obj.namec)
+                var color = obj.colorc
+                circ.attr({
+                    fill: rgbToHex(color.r, color.g, color.b),
+                    "fill-opacity": color.a,
+                });
+                circ.drag(move, start, stop)
                 break
                 case 'E': // ellipse
-                    var ellip = s.ellipse(dx + obj.xe, dy - obj.ye, obj.rx, obj.ry);
-                    ellip.data("name", obj.namee)
-                    var color = obj.colore
-                    ellip.attr({
-                        fill: rgbToHex(color.r, color.g, color.b),
-                        "fill-opacity": color.a,
-                    });
-                    ellip.drag(move, start, stop)
+                var ellip = s.ellipse(dx + obj.xe, dy - obj.ye, obj.rx, obj.ry);
+                ellip.data("name", obj.namee)
+                var color = obj.colore
+                ellip.attr({
+                    fill: rgbToHex(color.r, color.g, color.b),
+                    "fill-opacity": color.a,
+                });
+                ellip.drag(move, start, stop)
                 break
                 case 'S': // square
-                    var side = obj.side
-                    var sq = s.rect(dx + obj.xs - side/2, dy - obj.ys - side/2, side, side);
-                    sq.data("name", obj.names)
-                    var color = obj.colors
-                    sq.attr({
-                        fill: rgbToHex(color.r, color.g, color.b),
-                        "fill-opacity": color.a,
-                    });
-                    sq.drag(move, start, stop)
+                var side = obj.side
+                var sq = s.rect(dx + obj.xs - side/2, dy - obj.ys - side/2, side, side);
+                sq.data("name", obj.names)
+                var color = obj.colors
+                sq.attr({
+                    fill: rgbToHex(color.r, color.g, color.b),
+                    "fill-opacity": color.a,
+                });
+                sq.drag(move, start, stop)
                 break
 
                 case 'AR': // Angle Mark
-                    var isRightar = obj.isRightar
-                    var sizear = obj.sizear
-                    var color = obj.colorar
-                    var xar = obj.xar
-                    var yar = obj.yar
-                    
-                    if(isRightar == "true"){
+                var isRightar = obj.isRightar
+                var sizear = obj.sizear
+                var color = obj.colorar
+                var xar = obj.xar
+                var yar = obj.yar
+                var style = obj.stylear
+
+                if(isRightar == "true"){
                         //Draw PrepMark (for right angle)                        
                         var path = "M " + (dx + xar) + " " + (dy + yar - sizear)+ " L "
-                                + (dx + xar + sizear) + " " +  (dy + yar - sizear) + " L " 
-                                + (dx + xar + sizear) + " " + (dy + yar)
+                        + (dx + xar + sizear) + " " +  (dy + yar - sizear) + " L " 
+                        + (dx + xar + sizear) + " " + (dy + yar)
                         var p = s.path(path);
-                        p.data("name", obj.namear)
+                        
                         p.attr({
                             fill: rgbToHex(color.r, color.g, color.b),
                             "fill-opacity": 0,
                             stroke: rgbToHex(color.r, color.g, color.b),
                             strokeWidth: 2
-                         });
-                        p.drag(move, start, stop)
+                        });
+                        if(style == "line"){
+                            p.data("name", obj.namear)
+                            p.drag(move, start, stop)
+
+                        } else if (style == "wedge") {
+                            var f = s.rect(dx + xar, dy - yar - sizear, sizear, sizear);
+                            f.attr({
+                                fill: rgbToHex(0, 0, 205),
+                                "fill-opacity": 0.6,
+                            });
+                            var g = s.g(p,f)
+                            g.data("name", obj.namear)
+                            g.drag(move, start, stop)
+                        }
                     }
 
                     if(isRightar == "false"){
@@ -363,48 +399,61 @@ $.getScript('snap.svg.js', function()
                         var radiusar = obj.radiusar
                         var rotationar = obj.rotationar
                         var arcPath = describeArc(dx + xar, dy + yar, radiusar, rotationar, 
-                                                    anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));                          
+                            anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));                          
                         var arc = s.path(arcPath);
-                        arc.data("name", obj.namear)
                         arc.attr({
-                            fill: rgbToHex(color.r, color.g, color.b),
                             "fill-opacity": 0,
                             stroke: rgbToHex(color.r, color.g, color.b),
                             strokeWidth: 2
                         });
-                        arc.drag(move, start, stop)
+                        if(style == "line"){
+                            arc.data("name", obj.namear)
+                            arc.drag(move, start, stop)
+                        } else if (style == "wedge") {
+                            var pf = describeFullArc(dx + xar, dy + yar, radiusar, rotationar, 
+                                anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));                          
+                            var f = s.path(pf);
+                            f.attr({
+                                fill: rgbToHex(0, 0, 205),
+                                "fill-opacity": 0.6,
+                            });
+                            var g = s.g(arc,f)
+                            g.data("name", obj.namear)
+                            g.drag(move, start, stop)
+                        }
+
                     }
-                break
+                    break
                 case 'R': // rectangle
 		// TODO fix this!
-                    var sizeX = obj.sizeX;
-		    var sizeY = obj.sizeY;
-                    var rect = s.rect(dx + obj.xr - sizeX/2, dy - obj.yr - sizeY/2, sizeX, sizeY);
+        var sizeX = obj.sizeX;
+        var sizeY = obj.sizeY;
+        var rect = s.rect(dx + obj.xr - sizeX/2, dy - obj.yr - sizeY/2, sizeX, sizeY);
 		// isn't this bottom left?
-                    rect.data("name", obj.namer)
-                    var color = obj.colorr;
-                    rect.attr({
-                        fill: rgbToHex(color.r, color.g, color.b),
-                        "fill-opacity": color.a,
-                    });
-                    rect.drag(move, start, stop)
-                break
+        rect.data("name", obj.namer)
+        var color = obj.colorr;
+        rect.attr({
+            fill: rgbToHex(color.r, color.g, color.b),
+            "fill-opacity": color.a,
+        });
+        rect.drag(move, start, stop)
+        break
                 case 'A': // arrow
-                    var sx = dx + obj.startx, sy = dy - obj.starty,
-                        ex = dx + obj.endx,   ey = dy - obj.endy,
-                        t  = obj.thickness / 6
-                    var len = Snap.len(ex, ey, sx, sy)
-                    var body_path = [0, 0 + t, len - 5*t, t, len - 5*t, -1*t, 0, -1*t]
-                    var head_path = [len - 5*t, 3*t, len, 0, len - 5*t, -3*t]
-                    var angle = Snap.angle(ex, ey, sx, sy)
-                    var myMatrix = new Snap.Matrix();
-                    myMatrix.translate(sx, sy);
-                    myMatrix.rotate(angle, 0, 0);
-                    var line = s.polygon(body_path).transform(myMatrix.toTransformString())
-                    var head = s.polygon(head_path).transform(myMatrix.toTransformString())
-                    var g = s.g(line, head)
-                    g.data("name", obj.namesa)
-                    g.drag(move, start, stop)
+                var sx = dx + obj.startx, sy = dy - obj.starty,
+                ex = dx + obj.endx,   ey = dy - obj.endy,
+                t  = obj.thickness / 6
+                var len = Snap.len(ex, ey, sx, sy)
+                var body_path = [0, 0 + t, len - 5*t, t, len - 5*t, -1*t, 0, -1*t]
+                var head_path = [len - 5*t, 3*t, len, 0, len - 5*t, -3*t]
+                var angle = Snap.angle(ex, ey, sx, sy)
+                var myMatrix = new Snap.Matrix();
+                myMatrix.translate(sx, sy);
+                myMatrix.rotate(angle, 0, 0);
+                var line = s.polygon(body_path).transform(myMatrix.toTransformString())
+                var head = s.polygon(head_path).transform(myMatrix.toTransformString())
+                var g = s.g(line, head)
+                g.data("name", obj.namesa)
+                g.drag(move, start, stop)
                     // // render the bbox
                     // var sq = s.path(g.getBBox().path);
                     // sq.attr({
@@ -412,9 +461,9 @@ $.getScript('snap.svg.js', function()
                     //     stroke: "#000",
                     //     strokeWidth: 1, // CamelCase...
                     // })
-                break
+                    break
+                }
             }
-        }
         // Send the bbox information to the server
         if(firstrun) {
             var dict = { "tag" : "Update", "contents" : { "objs" : data } }
