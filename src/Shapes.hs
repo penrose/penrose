@@ -107,6 +107,7 @@ data SolidArrow = SolidArrow { startx :: Float
                              , thickness :: Float -- the maximum thickness, i.e. the thickness of the head
                              , selsa :: Bool -- is the arrow currently selected? (mouse is dragging it)
                              , namesa :: String
+                             , stylesa :: String -- curved or straight arrow, the default will be straight
                              , colorsa :: Color
                             --  , bbox :: BBox
                          }
@@ -466,6 +467,7 @@ data SolidArrow' a = SolidArrow' {
     thickness' :: a, -- the maximum thickness, i.e. the thickness of the head
     selsa'     :: Bool, -- is the circle currently selected? (mouse is dragging it)
     namesa'    :: String,
+    stylesa'    :: String,
     colorsa'   :: Color
 } deriving (Eq, Show, Typeable, Data)
 
@@ -760,6 +762,8 @@ get "endx" (A' o)          = TNum $ endx' o
 get "endy" (A' o)          = TNum $ endy' o
 get "thickness" (A' o)     = TNum $ thickness' o
 get "color" (A' o)         = TColor $ colorsa' o
+get "style" (A' o)         = TStyle $ stylesa' o
+
 
 -- Lines
 get "startx" (LN' o)        = TNum $ startx_l' o
@@ -828,6 +832,8 @@ set "start" (A' o) (TPt (x, y))  = A' $ o { startx' = x, starty' = y }
 set "end" (A' o) (TPt (x, y))    = A' $ o { endx' = x, endy' = y }
 set "thickness" (A' o) (TNum n)  = A' $ o { thickness' = n }
 set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
+set "style" (A' o) (TStyle n)    = A' $ o { stylesa' = n }
+
 -- TODO add angle and length properties
 
 -- Lines

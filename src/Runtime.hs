@@ -151,7 +151,7 @@ curvePack c params = CubicBezier' { pathcb' = path, namecb' = namecb c, colorcb'
 
 solidArrowPack :: (Autofloat a) => SolidArrow -> [a] -> SolidArrow' a
 solidArrowPack arr params = SolidArrow' { startx' = sx, starty' = sy, endx' = ex, endy' = ey, thickness' = t,
-                namesa' = namesa arr, selsa' = selsa arr, colorsa' = colorsa arr }
+                namesa' = namesa arr, selsa' = selsa arr, colorsa' = colorsa arr, stylesa' = stylesa arr }
          where (sx, sy, ex, ey, t) = if not $ length params == 5 then error "wrong # params to pack solid arrow"
                             else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
 
@@ -315,7 +315,7 @@ defName = "default"
 
 -- default shapes at base types (not obj)
 defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
-                                thickness = 10, selsa = False, namesa = defName, colorsa = black }
+                                thickness = 10, selsa = False, namesa = defName, colorsa = black, stylesa = "straight" }
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
@@ -477,7 +477,9 @@ initEllipse n config = ([defaultEllipse n], [],
 initArrow n config = (objs, oFns, [])
     where from = lookupId "start" config
           to   = lookupId "end" config
-          objs = [defaultSolidArrow n]
+          style = fromMaybe "straight" $ lookupStr "style" config
+          setStyle (A a) s = A $ a { stylesa = s } -- TODO: refactor defaultX vs defX
+          objs = [setStyle (defaultSolidArrow n) style]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
                          (Just fromName, Just toName) -> [(centerMap, defaultWeight, [n, fromName, toName], [])]
@@ -981,7 +983,7 @@ zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
                            namep = namep' p }
 zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ starty' a,
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
-                            selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a }
+                            selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a, stylesa = stylesa' a }
 zeroGrad (LN' a) = LN $ Line { startx_l = r2f $ startx_l' a, starty_l = r2f $ starty_l' a,
                             endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a, 
                             thickness_l = r2f $ thickness_l' a, name_l = name_l' a, color_l = color_l' a,
@@ -1010,7 +1012,7 @@ addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
                            namep' = namep p }
 addGrad (A a) = A' $ SolidArrow' { startx' = r2f $ startx a, starty' = r2f $ starty a,
                             endx' = r2f $ endx a, endy' = r2f $ endy a, thickness' = r2f $ thickness a,
-                            selsa' = selsa a, namesa' = namesa a, colorsa' = colorsa a }
+                            selsa' = selsa a, namesa' = namesa a, colorsa' = colorsa a, stylesa' = stylesa a}
 addGrad (LN a) = LN' $ Line' { startx_l' = r2f $ startx_l a, starty_l' = r2f $ starty_l a,
                             endx_l' = r2f $ endx_l a, endy_l' = r2f $ endy_l a, style_l' = style_l a,
                             thickness_l' = r2f $ thickness_l a, name_l' = name_l a, color_l' = color_l a }
