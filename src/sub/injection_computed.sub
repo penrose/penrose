@@ -2,4 +2,4 @@ Set domainOuter, codomain, domain, image, cartesianProduct
 -- `CartesianProduct domain image`?
 Subset domain domainOuter
 Subset image codomain
-Surjection q domain image
+Injection q domain image
