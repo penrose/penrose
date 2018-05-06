@@ -105,6 +105,7 @@ unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
 unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, Vary)]
+unpackObj (PA' pa) = [(xpa' pa, Vary), (ypa' pa, Vary), (sizeXpa' pa, Vary), (sizeYpa' pa, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
 unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
@@ -185,6 +186,12 @@ rectPack rct params = Rect' { xr' = xs1, yr' = ys1, sizeX' = len, sizeY' = wid, 
          where (xs1, ys1, len, wid) = if not $ length params == 4 then error "wrong # params to pack rect"
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
 
+parallelogramPack :: (Autofloat a) => Parallelogram -> [a] -> Parallelogram' a
+parallelogramPack pa params = Parallelogram' { xpa' = xpa1, ypa' = ypa1, sizeXpa' = len, sizeYpa' = wid, namepa' = namepa pa,
+                              selpa' = selpa pa, colorpa' = colorpa pa, anglepa' = anglepa pa, rotationpa' = rotationpa pa}
+         where (xpa1, ypa1, len, wid) = if not $ length params == 4 then error "wrong # params to pack parallelogram"
+                                else (params !! 0, params !! 1, params !! 2, params !! 3)
+
 ptPack :: (Autofloat a) => Pt -> [a] -> Pt' a
 ptPack pt params = Pt' { xp' = xp1, yp' = yp1, namep' = namep pt, selp' = selp pt }
         where (xp1, yp1) = if not $ length params == 2 then error "Wrong # of params to pack point"
@@ -233,6 +240,7 @@ pack' zipped fixed varying =
                     P pt    -> P' $ ptPack pt flatParams
                     S sq    -> S' $ sqPack sq flatParams
                     R rect  -> R' $ rectPack rect flatParams
+                    PA parallelogram  -> PA' $ parallelogramPack parallelogram flatParams
                     A ar    -> A' $ solidArrowPack ar flatParams
                     CB c    -> CB' $ curvePack c flatParams
                     LN c    -> LN' $ linePack c flatParams
@@ -321,6 +329,8 @@ defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
                           selr = False, namer = defName, colorr = black, angr = 0.0}
+defParellelogram = Parallelogram { xpa = 100, ypa = 100, sizeXpa = defaultRad, sizeYpa = defaultRad + 200,
+                          selpa = False, namepa = defName, colorpa = black, anglepa = 0.0, rotationpa = 30.0}
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
 defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False,
                         namel = labelName defName }
@@ -333,13 +343,15 @@ defLine = Line { startx_l = -100, starty_l = -100, endx_l = 300, endy_l = 300,
                                 thickness_l = 2, name_l = defName, color_l = black, style_l = "solid" }
 
 -- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultRect,
+defaultSolidArrow, defaultPt, defaultSquare, defaultRect, defaultParellelogram,
                    defaultCirc, defaultEllipse :: String -> Obj
 defaultSolidArrow name = A $ setName name defSolidArrow
 defaultLine name = LN $ setName name defLine
 defaultPt name = P $ setName name defPt
 defaultSquare name = S $ setName name defSquare
 defaultRect name = R $ setName name defRect
+defaultParellelogram name = PA $ setName name defParellelogram
+
 defaultCirc name = C $ setName name defCirc
 defaultEllipse name = E $ setName name defEllipse
 defaultCurve name = CB $ setName name defCurve
@@ -396,6 +408,7 @@ getShape (oName, (objType, config)) =
               S.Ellip   -> initEllipse oName config_nocomps
               S.Box     -> initSquare oName config_nocomps
               S.Rectangle -> initRect oName config_nocomps
+              S.Parallel -> initParallelogram oName config_nocomps
               S.Dot     -> initDot oName config_nocomps
               S.Curve   -> initCurve oName config_nocomps
               S.Line2    -> initLine oName config_nocomps
@@ -469,6 +482,14 @@ initSquare n config = ([defaultSquare n], [], sizeFuncs n)
 
 initRect n config = ([defaultRect n], [], sizeFuncs n)
 
+initParallelogram n config = (objs, [],sizeFuncs n)
+     where 
+           angle =  fromMaybe 30.0 $ lookupFloat "angle" config 
+           rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config
+           setStyle (PA pa) a ro = PA $ pa {rotationpa = ro, anglepa = a} 
+           objs = [setStyle (defaultParellelogram n) angle rotation]
+
+
 initDot n config = ([defaultPt n], [], [])
 
 initEllipse n config = ([defaultEllipse n], [],
@@ -529,6 +550,12 @@ lookupStr key dict = case M.lookup key dict of
     Just (S.StringLit i) -> Just i
     Just res -> error ("expecting str, got:\n" ++ show res)
     Nothing -> Nothing
+
+lookupFloat :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe Float
+lookupFloat key dict = case M.lookup key dict of
+     Just (S.FloatLit i) -> Just i -- objects are looked up later
+     Just res -> error ("expecting float, got:\n" ++ show res)
+     Nothing -> Nothing
 
     -- Just (S.CompArgs fn params) -> error "not expecting a computed property"
     -- FIXME: get dot access to work for arbitrary input
@@ -768,6 +795,12 @@ sampleCoord gen o = case o of
                                   in
                               (R $ rt { sizeX = len', sizeY = wid',
                                         colorr = makeColor cr' cg' cb' opacity }, gen7)
+                    PA pa   -> let 
+                                  (cr', gen3) = randomR colorRange  gen2
+                                  (cg', gen4) = randomR colorRange  gen3
+                                  (cb', gen5) = randomR colorRange  gen4
+                                  in
+                              (PA $ pa { colorpa = makeColor cr' cg' cb' opacity }, gen5)
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
                     A a   -> (o_loc, gen2) -- TODO
@@ -977,6 +1010,8 @@ zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ 
                              names = names' s, colors = colors' s, ang = ang' s }
 zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, sizeX = r2f $ sizeX' r, sizeY = r2f $ sizeY' r,
                            selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
+zeroGrad (PA' pa) = PA $ Parallelogram { xpa = r2f $ xpa' pa, ypa = r2f $ ypa' pa, sizeXpa = r2f $ sizeXpa' pa, sizeYpa = r2f $ sizeYpa' pa,
+                           selpa = selpa' pa, namepa = namepa' pa, colorpa = colorpa' pa, anglepa = anglepa' pa, rotationpa = rotationpa' pa}
 zeroGrad (L' l) = L $ Label { xl = r2f $ xl' l, yl = r2f $ yl' l, wl = r2f $ wl' l, hl = r2f $ hl' l,
                               textl = textl' l, sell = sell' l, namel = namel' l }
 zeroGrad (P' p) = P $ Pt { xp = r2f $ xp' p, yp = r2f $ yp' p, selp = selp' p,
@@ -1006,6 +1041,9 @@ addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $
 addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r,
                            sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r,
                            colorr' = colorr r, angr' = angr r }
+addGrad (PA pa) = PA' $ Parallelogram' { xpa' = r2f $ xpa pa, ypa' = r2f $ ypa pa, sizeXpa' = r2f $ sizeXpa pa,
+                           sizeYpa' = r2f $ sizeYpa pa, selpa' = selpa pa, namepa' = namepa pa,
+                           colorpa' = colorpa pa, anglepa' = anglepa pa, rotationpa' = rotationpa pa }
 addGrad (L l) = L' $ Label' { xl' = r2f $ xl l, yl' = r2f $ yl l, wl' = r2f $ wl l, hl' = r2f $ hl l,
                               textl' = textl l, sell' = sell l, namel' = namel l }
 addGrad (P p) = P' $ Pt' { xp' = r2f $ xp p, yp' = r2f $ yp p, selp' = selp p,
