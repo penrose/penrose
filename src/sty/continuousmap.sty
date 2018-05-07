@@ -38,7 +38,7 @@ Map f x y {
         text = Auto
     }
     
-    --objective above(f, f.shape.label)
+    --objective above(f.shape.label, f.shape)
     objective centerLabel(f, f.shape.label)
     objective toLeft(x, y)
     objective sameHeight(x, y)

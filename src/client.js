@@ -113,8 +113,37 @@
         // return str.substring(0, str.length - 2);
     }
 
-    function allToScreen(orig_list, dx, dy) {
-        var list = new Array(orig_list.length);
+
+    /*
+      * Translate coordinates from polar to cartesian
+      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+      * (Added by Dor)
+      */
+      function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+       var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+       return {
+          x: centerX + (radius * Math.cos(angleInRadians)),
+          y: centerY + (radius * Math.sin(angleInRadians))
+      };
+  }
+     /*
+      * Given center point, radius, and angels return an arc path
+      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+      * (Added by Dor)
+      * Contaikns only the arc
+      */
+      function describeArc(x, y, radius, startAngle, endAngle) {
+       var start = polarToCartesian(x, y, radius, endAngle);
+       var end = polarToCartesian(x, y, radius, startAngle);
+       var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+       return [
+       "M", start.x, start.y,
+       "A", radius, radius, 0, arcSweep, 0, end.x, end.y
+       ].join(" ");
+   }
+
+   function allToScreen(orig_list, dx, dy) {
+    var list = new Array(orig_list.length);
 
         // transform all points to screen space
         for(var i = 0; i < list.length; i++) {
@@ -332,29 +361,29 @@
         var rotation = obj.rotationpa
         var path = ""
         if(angle <= 90.0){
-              path = "M " + (-(sizeX/2) - sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2)) +  " L " + 
-                   (-(sizeX/2)) + " " + (sizeY/2) +  " L " +  (sizeX/2) + " " + (sizeY/2) +  " L " +
-                   ((sizeX/2) - (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
-         }
-        else{
-              path = "M " + (-(sizeX/2)) + " " + (sizeY/2) +  " L " + 
-                   (sizeX/2) + " " + (sizeY/2) +  " L " + ((sizeX/2) + sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2))
-                      +  " L " + (-(sizeX/2) + (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
-        }
+          path = "M " + (-(sizeX/2) - sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2)) +  " L " + 
+          (-(sizeX/2)) + " " + (sizeY/2) +  " L " +  (sizeX/2) + " " + (sizeY/2) +  " L " +
+          ((sizeX/2) - (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
+      }
+      else{
+          path = "M " + (-(sizeX/2)) + " " + (sizeY/2) +  " L " + 
+          (sizeX/2) + " " + (sizeY/2) +  " L " + ((sizeX/2) + sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2))
+          +  " L " + (-(sizeX/2) + (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
+      }
 
-        var myMatrix = new Snap.Matrix();
-        myMatrix.translate(sx, sy);
-        myMatrix.rotate(rotation, 0, 0);
-        var parallelogram = s.path(path).transform(myMatrix.toTransformString())
-        parallelogram.data("name", obj.namepa)
-        var color = obj.colorpa;
-        parallelogram.attr({
-            
-            fill: rgbToHex(color.r, color.g, color.b),
-            "fill-opacity": color.a,
-        });
-        parallelogram.drag(move, start, stop)
-        break
+      var myMatrix = new Snap.Matrix();
+      myMatrix.translate(sx, sy);
+      myMatrix.rotate(rotation, 0, 0);
+      var parallelogram = s.path(path).transform(myMatrix.toTransformString())
+      parallelogram.data("name", obj.namepa)
+      var color = obj.colorpa;
+      parallelogram.attr({
+
+        fill: rgbToHex(color.r, color.g, color.b),
+        "fill-opacity": color.a,
+    });
+      parallelogram.drag(move, start, stop)
+      break
                 case 'A': // arrow
                 var style = obj.stylesa
                 var sx = dx + obj.startx, sy = dy - obj.starty,
@@ -365,25 +394,47 @@
                 var head_path = [len - 5*t, 3*t, len, 0, len - 5*t, -3*t]
                 var angle = Snap.angle(ex, ey, sx, sy)
                 var myMatrix = new Snap.Matrix();
-                myMatrix.translate(sx, sy);
+                myMatrix.translate(sx , sy);
                 myMatrix.rotate(angle, 0, 0);
                 var color = obj.colorsa
                 if(style == "straight"){
                     var line = s.polygon(body_path).transform(myMatrix.toTransformString())
                 }                    
                 if(style == "curved"){
-                    line = s.path(toPathString([[0,0],[len/2-2*t,len/4],[len - 4 *t,0]],0,0)).transform(myMatrix.toTransformString())
+                    line = s.path(describeArc(len/2-2.4*t,0,len/2,-90,90)).transform(myMatrix.toTransformString())
                     line.attr({
                         "fill-opacity" : 0,
                         stroke: rgbToHex(color.r, color.g, color.b),
                         strokeWidth: 2
                     })
                 }
-                var head = s.polygon(head_path).transform(myMatrix.toTransformString())
-                var g = s.g(line, head)
-                g.data("name", obj.namesa)
-                g.drag(move, start, stop)
                 
+                if(style == "length"){
+                    //document.write(toPathString([[0,(-(4*t))],[0,(4*t)]],0,0))
+                    var p = "M " + 0 + " " + (-(4*t)) + " L " + 0 + " " + (4*t) +  " L " + 0 + " " + 0 + " L " + (len-(5*t)) + " " + 0;
+                    var tail1 = s.path(p)
+                        .transform(myMatrix.toTransformString())
+                    tail1.attr({
+                        "fill-opacity" : 0,
+                        stroke: rgbToHex(color.r, color.g, color.b),
+                        strokeWidth: 2
+                    })
+                    var head1 = s.path(toPathString([[(len-(5*t)),(-(4*t))],[len-(5*t),(4*t)]],0,0)).transform(myMatrix.toTransformString())
+                    head1.attr({
+                        "fill-opacity" : 0,
+                        stroke: rgbToHex(color.r, color.g, color.b),
+                        strokeWidth: 2
+                    })
+                    var g1 = s.g(head1, tail1)
+                    g1.data("name", obj.namesa)
+                    g1.drag(move, start, stop)
+                }
+                else{
+                    var head = s.polyline(head_path).transform(myMatrix.toTransformString())
+                    var g = s.g(line, head)
+                    g.data("name", obj.namesa)
+                    g.drag(move, start, stop)
+                }
                 break
             }
         }

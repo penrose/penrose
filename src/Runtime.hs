@@ -329,7 +329,7 @@ defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
                           selr = False, namer = defName, colorr = black, angr = 0.0}
-defParellelogram = Parallelogram { xpa = 500, ypa = 0, sizeXpa = defaultRad, sizeYpa = defaultRad + 200,
+defParellelogram = Parallelogram { xpa = 100, ypa = 100, sizeXpa = defaultRad, sizeYpa = defaultRad + 200,
                           selpa = False, namepa = defName, colorpa = black, anglepa = 30.0, rotationpa = 0.0}
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
 defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False,
