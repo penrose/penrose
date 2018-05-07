@@ -362,14 +362,22 @@
                 var xar = obj.xar
                 var yar = obj.yar
                 var style = obj.stylear
+                var rotationar = obj.rotationar
 
                 if(isRightar == "true"){
                         //Draw PrepMark (for right angle)                        
-                        var path = "M " + (dx + xar) + " " + (dy + yar - sizear)+ " L "
-                        + (dx + xar + sizear) + " " +  (dy + yar - sizear) + " L " 
-                        + (dx + xar + sizear) + " " + (dy + yar)
-                        var p = s.path(path);
+
+                        var myMatrix = new Snap.Matrix();
+                        var origX = dx + xar, origY = dy + yar
                         
+                        myMatrix.translate(origX, origY);
+                        myMatrix.rotate(rotationar, 0, 0);
+                        
+                        var path = "M " + 0 + " " + (-sizear)+ " L "
+                        + sizear + " " +  (-sizear) + " L " 
+                        + sizear + " " + yar
+                        var p = s.path(path).transform(myMatrix.toTransformString())
+
                         p.attr({
                             fill: rgbToHex(color.r, color.g, color.b),
                             "fill-opacity": 0,
@@ -381,7 +389,12 @@
                             p.drag(move, start, stop)
 
                         } else if (style == "wedge") {
-                            var f = s.rect(dx + xar, dy - yar - sizear, sizear, sizear);
+                            
+                            var rectPpath = "M " + 0 + " " + (-sizear)+ " L "
+                            + sizear + " " +  (-sizear) + " L " 
+                            + sizear + " " + 0 + " L " + 0 + " " + 0
+                            
+                            var f = s.path(rectPpath).transform(myMatrix.toTransformString());
                             f.attr({
                                 fill: rgbToHex(0, 0, 205),
                                 "fill-opacity": 0.6,
@@ -397,7 +410,6 @@
                         var anglear = obj.anglear > 360.0 ? 360.0 - obj.anglear : obj.anglear
                         anglear = anglear < 0 ? 360 + anglear : anglear
                         var radiusar = obj.radiusar
-                        var rotationar = obj.rotationar
                         var arcPath = describeArc(dx + xar, dy + yar, radiusar, rotationar, 
                             anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));                          
                         var arc = s.path(arcPath);
