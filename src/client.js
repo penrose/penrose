@@ -33,6 +33,13 @@
         }
     }
 
+    /**
+    Calculate Tangence from degrees
+    **/
+    function getTanFromDegrees(degrees) {
+        return Math.tan(degrees * Math.PI/180);
+    }
+
     /*
      * Translate a list of points ([[x1, y1], [x2, y2] ...]) to a
      * Catmull-Rom Spline curve represented as an SVG path string
@@ -314,6 +321,39 @@
             "fill-opacity": color.a,
         });
         rect.drag(move, start, stop)
+        break
+
+        case 'PA': // parallelogram
+        // TODO fix this!
+        var sx = dx + obj.xpa, sy = dy - obj.ypa
+        var sizeX = obj.sizeXpa;
+        var sizeY = obj.sizeYpa;
+        var angle = obj.anglepa;
+        var rotation = obj.rotationpa
+        var path = ""
+        if(angle <= 90.0){
+              path = "M " + (-(sizeX/2) - sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2)) +  " L " + 
+                   (-(sizeX/2)) + " " + (sizeY/2) +  " L " +  (sizeX/2) + " " + (sizeY/2) +  " L " +
+                   ((sizeX/2) - (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
+         }
+        else{
+              path = "M " + (-(sizeX/2)) + " " + (sizeY/2) +  " L " + 
+                   (sizeX/2) + " " + (sizeY/2) +  " L " + ((sizeX/2) + sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2))
+                      +  " L " + (-(sizeX/2) + (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
+        }
+
+        var myMatrix = new Snap.Matrix();
+        myMatrix.translate(sx, sy);
+        myMatrix.rotate(rotation, 0, 0);
+        var parallelogram = s.path(path).transform(myMatrix.toTransformString())
+        parallelogram.data("name", obj.namepa)
+        var color = obj.colorpa;
+        parallelogram.attr({
+            
+            fill: rgbToHex(color.r, color.g, color.b),
+            "fill-opacity": color.a,
+        });
+        parallelogram.drag(move, start, stop)
         break
                 case 'A': // arrow
                 var style = obj.stylesa

@@ -391,6 +391,7 @@ instance Located Obj Float where
                  A a -> getX a
                  CB c -> getX c
                  LN l -> getX l
+                 PA pa -> getX pa
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -401,6 +402,7 @@ instance Located Obj Float where
                  A a -> getY a
                  CB c -> getY c
                  LN l -> getY l
+                 PA pa -> getY pa
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -411,6 +413,7 @@ instance Located Obj Float where
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
                 LN l -> LN $ setX x l
+                PA pa -> PA $ setX x pa
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -421,6 +424,8 @@ instance Located Obj Float where
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
                 LN l -> LN $ setY y l
+                PA pa -> PA $ setY y pa
+
 
 -- I believe this typeclass is no longer used in the snap frontend
 instance Selectable Obj where
@@ -431,6 +436,7 @@ instance Selectable Obj where
                 S s -> S $ select s
                 R r -> R $ select r
                 A a -> A $ select a
+                PA pa -> PA $ select pa
          deselect x = case x of
                 C c -> C $ deselect c
                 L l -> L $ deselect l
@@ -438,6 +444,7 @@ instance Selectable Obj where
                 S s -> S $ deselect s
                 R r -> R $ select r
                 A a -> A $ deselect a
+                PA pa -> PA $ deselect pa
          selected x = case x of
                 C c -> selected c
                 L l -> selected l
@@ -445,6 +452,7 @@ instance Selectable Obj where
                 S s -> selected s
                 R r -> selected r
                 A a -> selected a
+                PA pa -> selected pa
 
 instance Sized Obj where
          getSize o = case o of
@@ -467,6 +475,7 @@ instance Named Obj where
                  A a   -> getName a
                  CB cb -> getName cb
                  LN l -> getName l
+                 PA pa -> getName pa
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
@@ -477,6 +486,8 @@ instance Named Obj where
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
                 LN l -> LN $ setName x l
+                PA pa -> PA $ setName x pa
+
 
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives

@@ -544,6 +544,7 @@ addSpec varMap dict (Assign s e) =
         CompArgs fname params -> let resolvedParams = map (backToExpr . procExpr varMap) params in
                                  M.insert s (CompArgs fname resolvedParams) dict
         StringLit p -> M.insert s (StringLit p) dict
+        FloatLit p -> M.insert s (FloatLit p) dict
         _ -> M.insert s (Id (fromLeft (error "Unexpected ID") $ procExpr varMap e)) dict
 addSpec _ _ _ = error "addSpec: only support assignments in constructors!"
 
