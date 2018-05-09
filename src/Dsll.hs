@@ -171,7 +171,7 @@ tParser, tConstructorInvokerParser, typeVarParser' :: Parser T
 tParser = try tConstructorInvokerParser <|> typeVarParser'
 tConstructorInvokerParser = do
     i         <- identifier
-    arguments <- parens  ( argParser `sepBy1` comma)
+    arguments <- parens ( argParser `sepBy1` comma)
     return (TConstr (i,arguments))
 typeVarParser' = do
     i <- typeVarParser
@@ -180,7 +180,7 @@ typeVarParser' = do
 
 
 argParser, varParser', tParser'  :: Parser Arg
-argParser = try varParser' <|> try tParser'
+argParser = try tParser' <|> varParser'
 varParser' = do
      i <- varParser
      return (AVar i)
@@ -198,18 +198,26 @@ tParser'' = do
     t <- tParser
     return (KT t)
 
-cdParser :: Parser Cd
-cdParser = do
+cdParser, cd1, cd2 :: Parser Cd
+cdParser = try cd1 <|> cd2
+cd1= do
     rword "constructor"
     name <- identifier
     colon
-    k' <- listOut( kParser `sepBy1` comma)
+    k' <- listOut (kParser `sepBy1` comma)
     arrow
     t' <- typeParser
     return (Constructor name k' t')
+cd2 = do
+    rword "constructor"
+    name <- identifier
+    colon
+    t' <- typeParser
+    return (Constructor name [] t')
 
-odParser :: Parser Od
-odParser = do
+odParser, od1, od2, od3, od4 :: Parser Od
+odParser = try od1 <|> try od2 <|> try od3 <|> od4
+od1 =  do
   rword "operator"
   name <- identifier
   colon
@@ -227,10 +235,44 @@ odParser = do
   arrow
   t <- tParser
   return (Operator name varsList tList typeVarList typeList outerTList t)
+od2 =  do
+  rword "operator"
+  name <- identifier
+  colon
+  rword "fortypes"
+  typeVarList <- listOut (typeVarParser `sepBy1` comma)
+  colon
+  typeList <- listOut (typeParser `sepBy1` comma)
+  comma
+  outerTList <- listOut (tParser `sepBy1` comma)
+  arrow
+  t <- tParser
+  return (Operator name [] [] typeVarList typeList outerTList t)
+od3 =  do
+  rword "operator"
+  name <- identifier
+  colon
+  outerTList <- listOut (tParser `sepBy1` comma)
+  arrow
+  t <- tParser
+  return (Operator name [] [] [] [] outerTList t)
+od4 =  do
+  rword "operator"
+  name <- identifier
+  colon
+  rword "forvars"
+  varsList <- listOut (varParser `sepBy1` comma)
+  colon
+  tList <- listOut (tParser `sepBy1` comma)
+  comma
+  outerTList <- listOut (tParser `sepBy1` comma)
+  arrow
+  t <- tParser
+  return (Operator name varsList tList [] [] outerTList t)
 
 
-pdParser, pd1, pd2 :: Parser Pd
-pdParser = try pd1 <|> pd2
+pdParser, pd1, pd2, pd3, pd4, pd5 :: Parser Pd
+pdParser = try pd1 <|> try pd2 <|> try pd3 <|> try pd4 <|> pd5
 pd1 = do
   rword "predicate"
   name <- identifier
@@ -257,18 +299,56 @@ pd2 = do
   arrow
   prop <- propParser 
   return (Predicate name varsList tList typeVarList typeList outerTList [] prop)
+pd3 = do
+  rword "predicate"
+  name <- identifier
+  colon
+  rword "fortypes"
+  typeVarList <- listOut (typeVarParser `sepBy1` comma)
+  colon
+  typeList <- listOut (typeParser `sepBy1` comma)
+  comma
+  outerTList <- listOut (tParser `sepBy1` comma)
+  arrow
+  prop <- propParser 
+  return (Predicate name [] [] typeVarList typeList outerTList [] prop)
+pd4 = do
+  rword "predicate"
+  name <- identifier
+  colon
+  rword "forvars"
+  varsList <- listOut (varParser `sepBy1` comma)
+  colon
+  tList <- listOut (tParser `sepBy1` comma)
+  comma
+  outerTList <- listOut (tParser `sepBy1` comma)
+  arrow
+  prop <- propParser 
+  return (Predicate name varsList tList [] [] outerTList [] prop)
+pd5 = do
+  rword "predicate"
+  name <- identifier
+  colon
+  outerTList <- listOut (tParser `sepBy1` comma)
+  arrow
+  prop <- propParser 
+  return (Predicate name [] [] [] [] outerTList [] prop)
+
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc Dsll.hs; ./Substance <substance-file>
 
-parseFromFile p file = runParser p file <$> readFile file
+--parseFromFile p file = parseTest p file <$> readFile file
 
 main :: IO ()
 main = do
     args <- getArgs
     let dsllFile = head args
     dsllIn <- readFile dsllFile
+    --parseFromFile dsllParser dsllFile
+    parseTest dsllParser dsllIn
+    putStrLn "Done!"  
     --parsed <- parseSubstance subFile subIn
     --mapM_ print parsed
     return ()
