@@ -41,6 +41,9 @@ data SubStmt
     | ConstrDecl SubType [String] -- type, arguments
     | SetInit SubType String [String]
     | MapInit SubType String String String -- id, from, to
+    | SurjectionInit SubType String String String -- id, from, to
+    | BijectionInit SubType String String String -- id, from, to
+    | InjectionInit SubType String String String -- id, from, to
     | FuncVal String String String -- function name, x, y
     | Def String [(SubType, String)] FOLExpr -- id, definition string
     | DefApp String [String] -- function id, args
@@ -63,6 +66,9 @@ data SubType
     = SetT
     | PointT
     | MapT
+    | SurjectionT
+    | BijectionT
+    | InjectionT
     | IntersectT
     | NoIntersectT
     | NoSubsetT
@@ -81,6 +87,9 @@ data SubObj = LD SubDecl | LC SubConstr deriving (Show, Eq, Typeable)
 data SubDecl
     = Set String
     | Map String String String
+    | Surjection String String String
+    | Injection String String String
+    | Bijection String String String
     | Value String String String
     | Point String
     deriving (Show, Eq, Typeable)
@@ -115,8 +124,8 @@ subStmt = try subDef <|> try subDecl <|> defApp
 
 -- TODO: think about why the `try` is needed here?
 -- NOTE: I used `try`s because some of the sub-functions will actally consume tokens even when it fails to parse the whole thing. As a result, the next sub-function will actually starts from where the previous function left off, making it impossible to parse.
-subDecl, varDecl, setInit, funcDecl :: Parser SubStmt
-subDecl = try setInit <|> try funcVal <|> try varDecl <|> try constrDecl <|> try funcDecl
+subDecl, varDecl, setInit, funcDecl, surjectionDecl, bijectionDecl, injectionDecl :: Parser SubStmt
+subDecl = try setInit <|> try funcVal <|> try surjectionDecl <|> try bijectionDecl <|> try injectionDecl <|> try varDecl <|> try constrDecl <|> try funcDecl
 constrDecl = do
     -- a <- identifier
     typ <- subConstrType
@@ -142,6 +151,24 @@ funcDecl = do
     arrow
     b <- identifier
     return (MapInit MapT i a b)
+surjectionDecl = do
+    rword "Surjection"
+    i <- identifier
+    a <- identifier
+    b <- identifier
+    return (SurjectionInit SurjectionT i a b)
+injectionDecl = do
+    rword "Injection"
+    i <- identifier
+    a <- identifier
+    b <- identifier
+    return (InjectionInit InjectionT i a b)
+bijectionDecl = do
+    rword "Bijection"
+    i <- identifier
+    a <- identifier
+    b <- identifier
+    return (BijectionInit BijectionT i a b)
 funcVal = do
     f <- some alphaNumChar
     a <- parens identifier
@@ -220,6 +247,9 @@ subObjType =
 subConstrType =
         (rword "Subset"      >> return SubsetT)      <|>
         (rword "Map"         >> return MapT)         <|>
+        (rword "Surjection"  >> return SurjectionT)  <|>
+        (rword "Bijection"  >> return BijectionT)    <|>
+        (rword "Injection"  >> return InjectionT)    <|>
         (rword "NoSubset"    >> return NoSubsetT)    <|>
         (rword "Intersect"   >> return IntersectT)   <|>
         (rword "NoIntersect" >> return NoIntersectT) <|>
@@ -265,6 +295,15 @@ checkDecls e (DeclList t ss) = e { subObjs = objs, subSymbols = syms }
 checkDecls e (MapInit t f a b) =
     e { subSymbols = checkAndInsert f t $ subSymbols e, subArgs = a1 }
     where a1 = M.insert f [a, b] $ subArgs e
+checkDecls e (SurjectionInit t f a b) =
+    e { subSymbols = checkAndInsert f t $ subSymbols e, subArgs = a1 }
+    where a1 = M.insert f [a, b] $ subArgs e
+checkDecls e (BijectionInit t f a b) =
+    e { subSymbols = checkAndInsert f t $ subSymbols e, subArgs = a1 }
+    where a1 = M.insert f [a, b] $ subArgs e
+checkDecls e (InjectionInit t f a b) =
+    e { subSymbols = checkAndInsert f t $ subSymbols e, subArgs = a1 }
+    where a1 = M.insert f [a, b] $ subArgs e
 checkDecls e (Def n a f) = e { subDefs = M.insert n (a, f) $ subDefs e }
 checkDecls e (SetInit t i ps) =
     let pts =  map (toObj PointT . toList) ps
@@ -280,6 +319,9 @@ toObj :: SubType -> [String] -> SubObj
 toObj SetT [i]         = LD $ Set i
 toObj PointT [i]       = LD $ Point i
 toObj MapT [i, a, b]   = LD $ Map i a b
+toObj SurjectionT [i, a, b]   = LD $ Surjection i a b
+toObj BijectionT [i, a, b]   = LD $ Bijection i a b
+toObj InjectionT [i, a, b]   = LD $ Injection i a b
 toObj ValueT [f, a, b] = LD $ Value f a b
 toObj t os             = error ("toObj: incorrect arguments to " ++ show t ++ " "++ show os)
 
@@ -296,8 +338,19 @@ checkReferencess e (ConstrDecl t ss)  = e { subObjs = newConstrs : subObjs e }
 checkReferencess e (FuncVal f a b)  = e { subObjs = val : subObjs e }
     where args = map (checkNameAndTyp $ subSymbols e) $ zip [f, a, b] [MapT, PointT, PointT]
           val  = toObj ValueT args
+
 checkReferencess e (MapInit t f a b) = e { subObjs = toObj t args : subObjs e }
     where args = map (checkNameAndTyp $ subSymbols e) $ zip [f, a, b] [MapT, SetT, SetT]
+
+checkReferencess e (SurjectionInit t f a b) = e { subObjs = toObj t args : subObjs e }
+    where args = map (checkNameAndTyp $ subSymbols e) $ zip [f, a, b] [SurjectionT, SetT, SetT]
+
+checkReferencess e (InjectionInit t f a b) = e { subObjs = toObj t args : subObjs e }
+    where args = map (checkNameAndTyp $ subSymbols e) $ zip [f, a, b] [InjectionT, SetT, SetT]
+
+checkReferencess e (BijectionInit t f a b) = e { subObjs = toObj t args : subObjs e }
+    where args = map (checkNameAndTyp $ subSymbols e) $ zip [f, a, b] [BijectionT, SetT, SetT]
+
 checkReferencess e (DefApp n args) = e { subApps = (def, apps, funcToSolve ++ setsToSolve) : subApps e }
     where (sigs, def)  = fromMaybe (error ("Definition " ++ n ++ " does not exist.")) (M.lookup n (subDefs e))
           argsWithTyps = zip args $ map fst sigs
@@ -437,6 +490,8 @@ objToAlloy e (LD (Map f x y)) = e { alSigs = newSigs }
            (SigDecl n l, m) = case M.lookup x $ alSigs e of
                 Nothing -> let sig = SigDecl x [] in (sig, M.insert x sig $ alSigs e)
                 Just s -> (s, alSigs e)
+
+
 objToAlloy e _ = e -- Ignoring all other Substance objects
 
 -- To make sure the ordering doesn't matter. For example, if we have a Function

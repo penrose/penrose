@@ -12,14 +12,19 @@ import System.Random.Shuffle
 import Data.List (sort)
 import Data.Dynamic
 import Data.Data
+import Data.List
 import Data.Typeable
 
 type Interval = (Float, Float)
 
 -- Each computation uses this rng (not super high-quality)
+compRngSur :: StdGen
+compRngSur = mkStdGen seed
+    where seed = 16 -- deterministic RNG with seed
+
 compRng :: StdGen
 compRng = mkStdGen seed
-    where seed = 16 -- deterministic RNG with seed
+    where seed = 15 -- deterministic RNG with seed
 
 --------------- Computations
 
@@ -65,12 +70,42 @@ computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
                   else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
                            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
                            xs_increasing = sort xs
-
                            (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy) 
                            ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
                            ys_perm = shuffle' ys (length ys) g'' in -- Random permutation. TODO return g3?
-
                            (zip xs_increasing ys_perm, g'') -- len xs == len ys
+
+
+-- Given a generator, number of points, and lower left and top right of bbox, return points for a bijection.
+-- Points generated lie in the bbox given, whether in math space or screen space
+-- TODO pass randomness around in Runtime
+computeBijection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
+computeBijection g numPoints (lowerx, lowery) (topx, topy) = 
+                  if numPoints < 2 then error "Bijection needs to have >= 2 points" 
+                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
+                           xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
+                           xs_plot = nub (reverse (sort xs))
+                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy) 
+                           ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
+                           ys_plot = (nub (sort ys)) in -- Random permutation. TODO return g3?
+                           (zip xs_plot ys_plot, g'') -- len xs == len ys
+
+
+-- Given a generator, number of points, and lower left and top right of bbox, return points for a injection.
+-- Points generated lie in the bbox given, whether in math space or screen space
+-- TODO pass randomness around in Runtime
+computeInjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
+computeInjection g numPoints (lowerx, lowery) (topx, topy) = 
+                  if numPoints < 2 then error "Injection needs to have >= 2 points" 
+                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
+                           xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
+                           xs_plot = nub (reverse (sort xs))
+                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f (lowery + (topy - lowery)/4), r2f (topy - (topy - lowery)/4)) 
+                           ys = (lowery + (topy - lowery)/4) : ys_inner ++ [topy - (topy - lowery)/4] --clude endpts so function is onto
+                           ys_plot = (nub (sort ys)) in -- Random permutation. TODO return g3?
+                           (zip xs_plot ys_plot, g'') -- len xs == len ys
+
+
 
 -- this function could be more general, taking in two objects and computing their bounding box
 computeSurjectionBbox :: (Autofloat a) => StdGen -> Integer 
@@ -91,6 +126,27 @@ computeSurjectionLines g n left right bottom top =
                        let lower_left = (startx_l' left, starty_l' bottom) in
                        let top_right = (startx_l' right, starty_l' top) in
                        computeSurjection g n lower_left top_right
+
+
+-- Computes the bijection to lie inside a bounding box defined by the corners of a box 
+-- defined by four straight lines, assuming their lower/left coordinates come first. 
+-- Their intersections give the corners.
+computeBijectionLines :: (Autofloat a) => StdGen -> Integer 
+                                   -> Line' a -> Line' a -> Line' a -> Line' a -> ([Pt2 a], StdGen)
+computeBijectionLines g n left right bottom top = 
+                       let lower_left = (startx_l' left, starty_l' bottom) in
+                       let top_right = (startx_l' right, starty_l' top) in
+                       computeBijection g n lower_left top_right
+
+-- Computes the injection to lie inside a bounding box defined by the corners of a box 
+-- defined by four straight lines, assuming their lower/left coordinates come first. 
+-- Their intersections give the corners.
+computeInjectionLines :: (Autofloat a) => StdGen -> Integer 
+                                   -> Line' a -> Line' a -> Line' a -> Line' a -> ([Pt2 a], StdGen)
+computeInjectionLines g n left right bottom top = 
+                       let lower_left = (startx_l' left, starty_l' bottom) in
+                       let top_right = (startx_l' right, starty_l' top) in
+                       computeInjection g n lower_left top_right
 
 -- | No arguments for now, to avoid typechecking
 -- Does this only work in gloss?
@@ -194,18 +250,28 @@ computeColorRGBA' v o = error' "computeColorRGBA" v o
 
 -- TODO: revert the next three "x"s to TInt
 computeSurjection' :: CompFn a
-computeSurjection' [TNum x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRng (floor x) p1 p2
+computeSurjection' [TNum x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRngSur (floor x) p1 p2
 computeSurjection' v o = error' "computeSurjection" v o
 
 computeSurjectionBbox' :: CompFn a
-computeSurjectionBbox' [TNum x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng (floor x) a1 a2
+computeSurjectionBbox' [TNum x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRngSur (floor x) a1 a2
 computeSurjectionBbox' v o = error' "computeSurjectionBbox" v o
 
 -- TODO: for multiple objects, inputs might not be in right order (depending on lookupAll)
 computeSurjectionLines' :: CompFn a
 computeSurjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] = 
-                        TPath $ fst $ computeSurjectionLines compRng (floor x) l1 l2 l3 l4
+                        TPath $ fst $ computeSurjectionLines compRngSur (floor x) l1 l2 l3 l4
 computeSurjectionLines' v o = error' "computeSurjectionLines" v o
+
+computeBijectionLines' :: CompFn a
+computeBijectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] = 
+                        TPath $ fst $ computeBijectionLines compRng (floor x) l1 l2 l3 l4
+computeBijectionLines' v o = error' "computeBijectionLines" v o
+
+computeInjectionLines' :: CompFn a
+computeInjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] = 
+                        TPath $ fst $ computeInjectionLines compRng (floor x) l1 l2 l3 l4
+computeInjectionLines' v o = error' "computeInjectionLines" v o
 
 lineLeft' :: CompFn a
 lineLeft' [TNum x] [A' a1, A' a2] = TPath $ lineLeft x a1 a2
@@ -264,6 +330,8 @@ computationDict = M.fromList flist
                     ("lineRight", lineRight'),
                     ("addVector", addVector'),
                     ("computeSurjectionLines", computeSurjectionLines'),
+                    ("computeBijectionLines", computeBijectionLines'),
+                    ("computeInjectionLines", computeInjectionLines'),
                     ("regionX", regionX'),
                     ("regionY", regionY'),
                     ("regionCenter", regionCenter'),

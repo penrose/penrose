@@ -578,6 +578,9 @@ getSubTuples = map getType
             C.Set n -> (C.SetT, n, [n])
             C.Point n -> (C.PointT, n, [n])
             C.Map n a b -> (C.MapT, n, [n, a, b])
+            C.Surjection n a b -> (C.SurjectionT, n, [n, a, b])
+            C.Bijection n a b -> (C.BijectionT, n, [n, a, b])
+            C.Injection n a b -> (C.InjectionT, n, [n, a, b])
             C.Value n a b -> (C.ValueT, "_Value" ++ n ++ a ++ b, [n, a, b])
 
 getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
