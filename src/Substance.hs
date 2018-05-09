@@ -491,26 +491,6 @@ objToAlloy e (LD (Map f x y)) = e { alSigs = newSigs }
                 Nothing -> let sig = SigDecl x [] in (sig, M.insert x sig $ alSigs e)
                 Just s -> (s, alSigs e)
 
-objToAlloy e (LD (Surjection f x y)) = e { alSigs = newSigs }
-    where  l' = AlDecl f y : l
-           newSigs = M.insert x (SigDecl n l') m
-           (SigDecl n l, m) = case M.lookup x $ alSigs e of
-                Nothing -> let sig = SigDecl x [] in (sig, M.insert x sig $ alSigs e)
-                Just s -> (s, alSigs e)
-
-objToAlloy e (LD (Injection f x y)) = e { alSigs = newSigs }
-    where  l' = AlDecl f y : l
-           newSigs = M.insert x (SigDecl n l') m
-           (SigDecl n l, m) = case M.lookup x $ alSigs e of
-                Nothing -> let sig = SigDecl x [] in (sig, M.insert x sig $ alSigs e)
-                Just s -> (s, alSigs e)
-
-objToAlloy e (LD (Bijection f x y)) = e { alSigs = newSigs }
-    where  l' = AlDecl f y : l
-           newSigs = M.insert x (SigDecl n l') m
-           (SigDecl n l, m) = case M.lookup x $ alSigs e of
-                Nothing -> let sig = SigDecl x [] in (sig, M.insert x sig $ alSigs e)
-                Just s -> (s, alSigs e)
 
 objToAlloy e _ = e -- Ignoring all other Substance objects
 

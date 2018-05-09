@@ -18,9 +18,13 @@ import Data.Typeable
 type Interval = (Float, Float)
 
 -- Each computation uses this rng (not super high-quality)
+compRngSur :: StdGen
+compRngSur = mkStdGen seed
+    where seed = 16 -- deterministic RNG with seed
+
 compRng :: StdGen
 compRng = mkStdGen seed
-    where seed = 16 -- deterministic RNG with seed
+    where seed = 15 -- deterministic RNG with seed
 
 --------------- Computations
 
@@ -80,11 +84,11 @@ computeBijection g numPoints (lowerx, lowery) (topx, topy) =
                   if numPoints < 2 then error "Bijection needs to have >= 2 points" 
                   else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
                            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
-                           xs_increasing = nub (sort xs)
+                           xs_plot = nub (reverse (sort xs))
                            (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy) 
                            ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
-                           ys_increasing = nub (sort ys) in -- Random permutation. TODO return g3?
-                           (zip xs_increasing ys_increasing, g'') -- len xs == len ys
+                           ys_plot = (nub (sort ys)) in -- Random permutation. TODO return g3?
+                           (zip xs_plot ys_plot, g'') -- len xs == len ys
 
 
 -- Given a generator, number of points, and lower left and top right of bbox, return points for a injection.
@@ -95,11 +99,11 @@ computeInjection g numPoints (lowerx, lowery) (topx, topy) =
                   if numPoints < 2 then error "Injection needs to have >= 2 points" 
                   else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
                            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
-                           xs_increasing = nub (sort xs)
+                           xs_plot = nub (reverse (sort xs))
                            (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f (lowery + (topy - lowery)/4), r2f (topy - (topy - lowery)/4)) 
                            ys = (lowery + (topy - lowery)/4) : ys_inner ++ [topy - (topy - lowery)/4] --clude endpts so function is onto
-                           ys_increasing = nub (sort ys) in -- Random permutation. TODO return g3?
-                           (zip xs_increasing ys_increasing, g'') -- len xs == len ys
+                           ys_plot = (nub (sort ys)) in -- Random permutation. TODO return g3?
+                           (zip xs_plot ys_plot, g'') -- len xs == len ys
 
 
 
@@ -246,17 +250,17 @@ computeColorRGBA' v o = error' "computeColorRGBA" v o
 
 -- TODO: revert the next three "x"s to TInt
 computeSurjection' :: CompFn a
-computeSurjection' [TNum x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRng (floor x) p1 p2
+computeSurjection' [TNum x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection compRngSur (floor x) p1 p2
 computeSurjection' v o = error' "computeSurjection" v o
 
 computeSurjectionBbox' :: CompFn a
-computeSurjectionBbox' [TNum x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng (floor x) a1 a2
+computeSurjectionBbox' [TNum x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRngSur (floor x) a1 a2
 computeSurjectionBbox' v o = error' "computeSurjectionBbox" v o
 
 -- TODO: for multiple objects, inputs might not be in right order (depending on lookupAll)
 computeSurjectionLines' :: CompFn a
 computeSurjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] = 
-                        TPath $ fst $ computeSurjectionLines compRng (floor x) l1 l2 l3 l4
+                        TPath $ fst $ computeSurjectionLines compRngSur (floor x) l1 l2 l3 l4
 computeSurjectionLines' v o = error' "computeSurjectionLines" v o
 
 computeBijectionLines' :: CompFn a
