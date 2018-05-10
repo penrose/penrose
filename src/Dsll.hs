@@ -15,6 +15,7 @@ import System.Environment
 import Control.Arrow ((>>>))
 import System.Random
 import Debug.Trace
+import Data.Functor.Classes
 import Data.List
 import Data.Maybe (fromMaybe)
 import Data.Typeable
@@ -34,7 +35,13 @@ type Prop = String
 
 type Type = String
 
-type ConstructorInvoker = (String,[Arg])
+
+data ConstructorInvoker = ConstructorInvoker { nameCons :: String, argCons:: [Arg]}
+    deriving (Eq, Typeable)
+instance Show ConstructorInvoker where
+    show (ConstructorInvoker nameCons argCons) = nString ++ "(" ++ aString ++ ")"
+        where nString = show nameCons
+              aString = show argCons
 
 
 data T = TTypeVar TypeVar --TODO: figure out a better name for that...
@@ -49,16 +56,44 @@ data K = Ktype Type --TODO: figure out a better name for that...
     | KT T
     deriving (Show, Eq, Typeable)
 
-data Cd = Constructor String [K] Type 
-    deriving (Show, Eq, Typeable)
+data Cd = Cd{nameCd :: String, inputCd::[K], outputCd::Type}
+    deriving (Eq, Typeable)
+
+instance Show Cd where
+    show (Cd nameCd inputCd outputCd) = "(TCon, " ++ nString ++ " ,ValOfType " ++ iString ++ "Output " ++ oString ++")"
+        where nString = show nameCd
+              iString = show inputCd
+              oString = show outputCd
+        
 
 data Od = Operator String [Var] [T] [TypeVar] [Type] [T] T 
     deriving (Show, Eq, Typeable)
+    
+-- data Od = Od{ nameOd :: String, forVarsoD :: [Var], typesForVarsOd :: [T], forTypesOd :: [TypeVar], typeForTypesOd :: [Type]
+--               ,fromOd:: [T], toOd:: T}
+--     deriving (Show,Eq, Typeable)
+
+-- -- instance Show Od where
+-- --     show (Od nameOd forVarsoD typesForVarsOd forTypesOd typeForTypesOd fromOd toOd) = 
+-- --     	"(Op, " ++ nString ++ " ,ValOfType " ++ iString ++ "Output " ++ oString ++")"
+-- --         where aString = show nameOd
+-- --               bString = show inputCd
+-- --               cString = show outputCd
+-- --               dString = 
+-- --               eString = 
+
 
 data Pd = Predicate String [Var] [T] [TypeVar] [Type] [T] [Prop] Prop 
     deriving (Show, Eq, Typeable)
 
-type DSLLProg = ([Cd], [Od], [Pd]) 
+data DSLLProg = DSLLProg{ cd :: [Cd], od :: [Od], pd :: [Pd]} 
+    deriving (Eq, Typeable)
+
+instance Show DSLLProg where
+    show (DSLLProg cd od pd) = "types = " ++ cdString ++ "\n \n" ++ "operations = " ++ odString ++ "\n \n" ++ "predicates = " ++ pdString ++ "\n \n"
+        where cdString = show cd
+              odString = show od
+              pdString = show pd
 
 -- --------------------------------------- DSLL Lexer -------------------------------------
 
@@ -133,17 +168,17 @@ identifier = (lexeme . try) (p >>= check)
 
 -- | 'DSLLParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
-dsllParser :: Parser ([Cd], [Od], [Pd])
+dsllParser :: Parser DSLLProg
 dsllParser = between scn eof dsllProg -- Parse all the statemnts between the spaces to the end of the input file
 
 -- |'dsllProg' parses the entire actual DSLL program which is a collection of constructors followed by a collection of
 --   operations followed by a collection of predicates
-dsllProg :: Parser ([Cd],[Od],[Pd])
+dsllProg :: Parser DSLLProg
 dsllProg = do
     listCd <- cdParser `sepEndBy` newline'
     listOd <- odParser `sepEndBy` newline'
     listPd <- pdParser `sepEndBy` newline'
-    return (listCd, listOd, listPd)
+    return DSLLProg {cd = listCd, od =  listOd, pd =  listPd}
 
 
 typeParser :: Parser Type
@@ -172,7 +207,7 @@ tParser = try tConstructorInvokerParser <|> typeVarParser'
 tConstructorInvokerParser = do
     i         <- identifier
     arguments <- parens ( argParser `sepBy1` comma)
-    return (TConstr (i,arguments))
+    return (TConstr (ConstructorInvoker {nameCons = i, argCons = arguments}))
 typeVarParser' = do
     i <- typeVarParser
     return (TTypeVar i)
@@ -207,13 +242,13 @@ cd1= do
     k' <- listOut (kParser `sepBy1` comma)
     arrow
     t' <- typeParser
-    return (Constructor name k' t')
+    return Cd {nameCd = name, inputCd =  k', outputCd =  t'}
 cd2 = do
     rword "constructor"
     name <- identifier
     colon
     t' <- typeParser
-    return (Constructor name [] t')
+    return Cd {nameCd = name, inputCd =  [], outputCd =  t'}
 
 odParser, od1, od2, od3, od4 :: Parser Od
 odParser = try od1 <|> try od2 <|> try od3 <|> od4
@@ -343,19 +378,17 @@ pd5 = do
 
 main :: IO ()
 main = do
-    args <- getArgs
-    let dsllFile = head args
+    [dsllFile, outputFile] <- getArgs
     dsllIn <- readFile dsllFile
-    --parseFromFile dsllParser dsllFile
-    parseTest dsllParser dsllIn
-    putStrLn "Done!"  
-    --parsed <- parseSubstance subFile subIn
+    case (parse dsllParser dsllFile dsllIn) of
+        Left err -> putStr (parseErrorPretty err)
+        Right xs -> writeFile outputFile (show xs)
+    putStrLn "Parsing Done!"  
     --mapM_ print parsed
     return ()
 
 
-
-
+    
 
 
 
