@@ -60,31 +60,54 @@ data Cd = Cd{nameCd :: String, inputCd::[K], outputCd::Type}
     deriving (Eq, Typeable)
 
 instance Show Cd where
-    show (Cd nameCd inputCd outputCd) = "(TCon, " ++ nString ++ " ,ValOfType " ++ iString ++ "Output " ++ oString ++")"
+    show (Cd nameCd inputCd outputCd) = "(TCon, " ++ nString ++ ", ValOfType " ++ iString ++ ", Output " ++ oString ++")"
         where nString = show nameCd
               iString = show inputCd
               oString = show outputCd
         
 
-data Od = Operator String [Var] [T] [TypeVar] [Type] [T] T 
-    deriving (Show, Eq, Typeable)
-    
--- data Od = Od{ nameOd :: String, forVarsoD :: [Var], typesForVarsOd :: [T], forTypesOd :: [TypeVar], typeForTypesOd :: [Type]
---               ,fromOd:: [T], toOd:: T}
---     deriving (Show,Eq, Typeable)
+-- data Od = Operator String [Var] [T] [TypeVar] [Type] [T] T 
+--     deriving (Show, Eq, Typeable)
 
--- -- instance Show Od where
--- --     show (Od nameOd forVarsoD typesForVarsOd forTypesOd typeForTypesOd fromOd toOd) = 
--- --     	"(Op, " ++ nString ++ " ,ValOfType " ++ iString ++ "Output " ++ oString ++")"
--- --         where aString = show nameOd
--- --               bString = show inputCd
--- --               cString = show outputCd
--- --               dString = 
--- --               eString = 
+data Od = Od{ nameOd :: String, forVarsOd :: [Var], typesForVarsOd :: [T], forTypesOd :: [TypeVar], typeForTypesOd :: [Type]
+              ,fromOd:: [T], toOd:: T}
+    deriving (Eq, Typeable)
+
+instance Show Od where
+    show (Od nameOd forVarsOd typesForVarsOd forTypesOd typeForTypesOd fromOd toOd) =
+     "(Op, " ++ aString ++ ", forvars " ++ bString ++ ":" ++ cString ++ ", fortypes " ++ dString 
+     ++ ":" ++ eString ++ ", inputT " ++ fString ++ ", outputT " ++ gString ++ ")"
+        where aString = show nameOd
+              bString = show forVarsOd
+              cString = show typesForVarsOd
+              dString = show forTypesOd
+              eString = show typeForTypesOd
+              fString = show fromOd
+              gString = show toOd
 
 
-data Pd = Predicate String [Var] [T] [TypeVar] [Type] [T] [Prop] Prop 
-    deriving (Show, Eq, Typeable)
+
+data Pd = Pd{ namePd :: String, forVarsPd :: [Var], typesForVarsPd :: [T], forTypesPd :: [TypeVar], typeForTypesPd :: [Type]
+              ,fromTPd:: [T], fromPropPd :: [Prop], toPd:: Prop}
+    deriving (Eq, Typeable)
+
+instance Show Pd where
+    show (Pd namePd forVarsPd typesForVarsPd forTypesPd typeForTypesPd fromTPd fromPropPd toPd) =
+     "(Pd, " ++ aString ++ ", forvars " ++ bString ++ ":" ++ cString ++ ", fortypes " ++ dString 
+     ++ ":" ++ eString ++ ", inputT " ++ fString ++ " , " ++ gString ++ ", outputT " ++ hString ++ ")"
+        where aString = show namePd
+              bString = show forVarsPd
+              cString = show typesForVarsPd
+              dString = show forTypesPd
+              eString = show typeForTypesPd
+              fString = show fromTPd
+              gString = show fromPropPd
+              hString = show toPd
+
+
+
+-- data Pd = Predicate String [Var] [T] [TypeVar] [Type] [T] [Prop] Prop 
+--     deriving (Show, Eq, Typeable)
 
 data DSLLProg = DSLLProg{ cd :: [Cd], od :: [Od], pd :: [Pd]} 
     deriving (Eq, Typeable)
@@ -269,7 +292,8 @@ od1 =  do
   outerTList <- listOut (tParser `sepBy1` comma)
   arrow
   t <- tParser
-  return (Operator name varsList tList typeVarList typeList outerTList t)
+  return Od{nameOd  = name ,  forVarsOd  = varsList, typesForVarsOd  = tList, forTypesOd  = typeVarList , typeForTypesOd  = typeList 
+              ,fromOd = outerTList , toOd = t }
 od2 =  do
   rword "operator"
   name <- identifier
@@ -282,7 +306,8 @@ od2 =  do
   outerTList <- listOut (tParser `sepBy1` comma)
   arrow
   t <- tParser
-  return (Operator name [] [] typeVarList typeList outerTList t)
+  return Od{nameOd  = name ,  forVarsOd  = [], typesForVarsOd  = [], forTypesOd  = typeVarList , typeForTypesOd  = typeList 
+              ,fromOd = outerTList , toOd = t }
 od3 =  do
   rword "operator"
   name <- identifier
@@ -290,7 +315,8 @@ od3 =  do
   outerTList <- listOut (tParser `sepBy1` comma)
   arrow
   t <- tParser
-  return (Operator name [] [] [] [] outerTList t)
+  return Od{nameOd  = name ,  forVarsOd  = [], typesForVarsOd  = [], forTypesOd  = [] , typeForTypesOd  = [] 
+              ,fromOd = outerTList , toOd = t }
 od4 =  do
   rword "operator"
   name <- identifier
@@ -303,7 +329,10 @@ od4 =  do
   outerTList <- listOut (tParser `sepBy1` comma)
   arrow
   t <- tParser
-  return (Operator name varsList tList [] [] outerTList t)
+  return Od{nameOd  = name ,  forVarsOd  = varsList, typesForVarsOd  = tList, forTypesOd  = [] , typeForTypesOd  = [] 
+              ,fromOd = outerTList , toOd = t }
+
+  
 
 
 pdParser, pd1, pd2, pd3, pd4, pd5 :: Parser Pd
@@ -315,7 +344,8 @@ pd1 = do
   propList <- listOut (propParser `sepBy1` comma)
   arrow
   prop <- propParser 
-  return (Predicate name [] [] [] [] [] propList prop)
+  return Pd{ namePd = name, forVarsPd = [], typesForVarsPd =[], forTypesPd = [], typeForTypesPd = []
+              ,fromTPd = [], fromPropPd = propList, toPd =  prop}
 pd2 = do
   rword "predicate"
   name <- identifier
@@ -333,7 +363,8 @@ pd2 = do
   outerTList <- listOut (tParser `sepBy1` comma)
   arrow
   prop <- propParser 
-  return (Predicate name varsList tList typeVarList typeList outerTList [] prop)
+  return Pd{ namePd = name, forVarsPd = varsList, typesForVarsPd =tList, forTypesPd = typeVarList, typeForTypesPd = typeList
+              ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
 pd3 = do
   rword "predicate"
   name <- identifier
@@ -345,8 +376,9 @@ pd3 = do
   comma
   outerTList <- listOut (tParser `sepBy1` comma)
   arrow
-  prop <- propParser 
-  return (Predicate name [] [] typeVarList typeList outerTList [] prop)
+  prop <- propParser
+  return Pd{ namePd = name, forVarsPd = [], typesForVarsPd = [], forTypesPd = typeVarList, typeForTypesPd = typeList
+              ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
 pd4 = do
   rword "predicate"
   name <- identifier
@@ -358,8 +390,9 @@ pd4 = do
   comma
   outerTList <- listOut (tParser `sepBy1` comma)
   arrow
-  prop <- propParser 
-  return (Predicate name varsList tList [] [] outerTList [] prop)
+  prop <- propParser
+  return Pd{ namePd = name, forVarsPd = varsList, typesForVarsPd =tList, forTypesPd = [], typeForTypesPd = []
+              ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
 pd5 = do
   rword "predicate"
   name <- identifier
@@ -367,8 +400,8 @@ pd5 = do
   outerTList <- listOut (tParser `sepBy1` comma)
   arrow
   prop <- propParser 
-  return (Predicate name [] [] [] [] outerTList [] prop)
-
+  return Pd{ namePd = name, forVarsPd = [], typesForVarsPd = [], forTypesPd = [], typeForTypesPd = []
+              ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
