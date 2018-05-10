@@ -405,9 +405,7 @@ pd5 = do
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
--- Main module. Usage: ghc Dsll.hs; ./Substance <substance-file>
-
---parseFromFile p file = parseTest p file <$> readFile file
+-- Main module. Usage: ghc Dsll.hs; ./Dsll <dsll-file> <output-file>
 
 main :: IO ()
 main = do
