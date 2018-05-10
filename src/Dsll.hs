@@ -27,13 +27,17 @@ import Text.Megaparsec.Expr
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 --------------------------------------- DSLL AST ---------------------------------------
-type TypeVar = String
+data TypeVar = TypeVarConst String
+    deriving (Show, Eq, Typeable)
 
-type Var = String
+data Var = VarConst String
+    deriving (Show, Eq, Typeable)
 
-type Prop = String
+data Prop = PropConst String
+    deriving (Show, Eq, Typeable)
 
-type Type = String
+data Type = TypeConst String
+    deriving (Show, Eq, Typeable)
 
 
 data ConstructorInvoker = ConstructorInvoker { nameCons :: String, argCons:: [Arg]}
@@ -104,10 +108,6 @@ instance Show Pd where
               gString = show fromPropPd
               hString = show toPd
 
-
-
--- data Pd = Predicate String [Var] [T] [TypeVar] [Type] [T] [Prop] Prop 
---     deriving (Show, Eq, Typeable)
 
 data DSLLProg = DSLLProg{ cd :: [Cd], od :: [Od], pd :: [Pd]} 
     deriving (Eq, Typeable)
@@ -207,22 +207,22 @@ dsllProg = do
 typeParser :: Parser Type
 typeParser = do
     i <- identifier
-    return i
+    return (TypeConst i)
 
 varParser :: Parser Var
 varParser = do
     i <- identifier
-    return i
+    return (VarConst i)
 
 typeVarParser :: Parser TypeVar
 typeVarParser = do
     i <- identifier
-    return i
+    return (TypeVarConst i)
 
 propParser :: Parser Prop
 propParser = do
     i <- identifier
-    return i
+    return (PropConst i)
 
 
 tParser, tConstructorInvokerParser, typeVarParser' :: Parser T

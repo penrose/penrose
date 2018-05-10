@@ -28,12 +28,25 @@ import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 --------------------------------------- DSLL AST ---------------------------------------
 
-type TypeConstructor = String -- these are all names, e.g. “Set”
-type ValConstructor = String    -- “Cons”, “Times”
-type Operator' = String             -- “Intersection” 
-type Predicate = String            -- “Intersect”
-type TypeVar = String
-type Var = String
+data TypeConstructor = TypeConst String -- these are all names, e.g. “Set”
+    deriving (Show, Eq, Typeable)
+
+data ValConstructor = ValConst String    -- “Cons”, “Times”
+    deriving (Show, Eq, Typeable)
+
+data Operator' = OperatorConst String             -- “Intersection” 
+    deriving (Show, Eq, Typeable)
+
+data Predicate = PredicateConst String            -- “Intersect”
+    deriving (Show, Eq, Typeable)
+
+data TypeVar = TypeVarConst String
+    deriving (Show, Eq, Typeable)
+
+data Var = VarConst String
+    deriving (Show, Eq, Typeable)
+
+
 
 data Type = ApplyT TypeConstructor [Arg] | TypeT TypeVar
 data Arg = VarA Var | TypeA Type
@@ -41,7 +54,7 @@ data Expr = VarE Var | ApplyV Operator' [Expr] | ApplyC ValConstructor [Expr]
 data Statement = Decl Type Var | Bind Var Expr | ApplyP Predicate [Var]
 
 -- | Program is a sequence of statements
-type SubProgram = [Statement]
+data SubProgram = SubProgramConstr [Statement]
 
 -- --------------------------------------- DSLL Lexer -------------------------------------
 -- | TODO: Some of the lexing functions are alreadt implemented at Utils.hs, Merge it and avoid duplications!
@@ -120,37 +133,39 @@ subCoreParser = between scn eof subCoreProg -- Parse all the statemnts between t
 
 -- |'subCoreProg' parses the entire actual Substance Core language program which is a collection of statements
 subCoreProg :: Parser SubProgram
-subCoreProg = do statementParser `sepEndBy` newline'
+subCoreProg = do 
+  stml <- statementParser `sepEndBy` newline'
+  return (SubProgramConstr stml)
 
 typeVarParser :: Parser TypeVar
 typeVarParser = do
     i <- identifier
-    return i
+    return (TypeVarConst i)
 
 varParser :: Parser Var
 varParser = do
     i <- identifier
-    return i
+    return (VarConst i)
 
 typeConstructorParser :: Parser TypeConstructor
 typeConstructorParser = do
     i <- identifier
-    return i
+    return (TypeConst i)
 
 valConstructorParser :: Parser ValConstructor
 valConstructorParser = do
     i <- identifier
-    return i
+    return (ValConst i)
 
 operatorParser :: Parser Operator'
 operatorParser = do
     i <- identifier
-    return i
+    return (OperatorConst i)
 
 predicateParser :: Parser Predicate
 predicateParser = do
     i <- identifier
-    return i
+    return (PredicateConst i)
 
 
 typeParser, applyT, typeT :: Parser Type
