@@ -28,7 +28,7 @@ import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 --------------------------------------- DSLL AST ---------------------------------------
 
-data TypeConstructor = TypeConst String -- these are all names, e.g. “Set”
+data SubType = TypeConst String -- these are all names, e.g. “Set”
     deriving (Show, Eq, Typeable)
 
 data ValConstructor = ValConst String    -- “Cons”, “Times”
@@ -48,13 +48,32 @@ data Var = VarConst String
 
 
 
-data Type = ApplyT TypeConstructor [Arg] | TypeT TypeVar
+data Type = ApplyT SubType [Arg] | TypeT TypeVar
+    deriving (Show, Eq, Typeable)
+
 data Arg = VarA Var | TypeA Type
+    deriving (Show, Eq, Typeable)
+
 data Expr = VarE Var | ApplyV Operator' [Expr] | ApplyC ValConstructor [Expr]
-data Statement = Decl Type Var | Bind Var Expr | ApplyP Predicate [Var]
+    deriving (Show, Eq, Typeable)
+
+data SubStmt = Decl Type Var | Bind Var Expr | ApplyP Predicate [Var]
+    deriving (Show, Eq, Typeable)
+
 
 -- | Program is a sequence of statements
-data SubProgram = SubProgramConstr [Statement]
+type SubProg = [SubStmt]
+type SubObjDiv = ([SubDecl], [SubConstr])
+
+-- | Declaration of Substance objects
+data SubDecl
+    = SubDeclConst Type Var
+    deriving (Show, Eq, Typeable)
+
+-- | Declaration of Substance constaints
+data SubConstr
+    = SubConstrConst Predicate [Var]
+    deriving (Show, Eq, Typeable)
 
 -- --------------------------------------- DSLL Lexer -------------------------------------
 -- | TODO: Some of the lexing functions are alreadt implemented at Utils.hs, Merge it and avoid duplications!
@@ -126,16 +145,16 @@ identifier = (lexeme . try) (p >>= check)
 
 
 --------------------------------------- DSLL Parser -------------------------------------
--- | 'subCore' is the top-level parser function. The parser contains a list of functions
+-- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
-subCoreParser :: Parser SubProgram
-subCoreParser = between scn eof subCoreProg -- Parse all the statemnts between the spaces to the end of the input file
+substanceParser :: Parser [SubStmt]
+substanceParser = between scn eof subProg -- Parse all the statemnts between the spaces to the end of the input file
 
--- |'subCoreProg' parses the entire actual Substance Core language program which is a collection of statements
-subCoreProg :: Parser SubProgram
-subCoreProg = do 
-  stml <- statementParser `sepEndBy` newline'
-  return (SubProgramConstr stml)
+-- |'subProg' parses the entire actual Substance Core language program which is a collection of statements
+subProg :: Parser [SubStmt]
+subProg = do 
+  stml <- subStmt `sepEndBy` newline'
+  return stml
 
 typeVarParser :: Parser TypeVar
 typeVarParser = do
@@ -147,7 +166,7 @@ varParser = do
     i <- identifier
     return (VarConst i)
 
-typeConstructorParser :: Parser TypeConstructor
+typeConstructorParser :: Parser SubType
 typeConstructorParser = do
     i <- identifier
     return (TypeConst i)
@@ -194,15 +213,15 @@ varE = do
   return (VarE i)
 applyV = do
   tc <- operatorParser
-  args <- listOut (exprParser `sepBy1` comma)
+  args <- parens (exprParser `sepBy1` comma)
   return (ApplyV tc args)
 applyC = do
   tc <- valConstructorParser
-  args <- listOut (exprParser `sepBy1` comma)
+  args <- parens (exprParser `sepBy1` comma)
   return (ApplyC tc args)
 
-statementParser, decl, bind, applyP :: Parser Statement
-statementParser = try decl <|> try bind <|> applyP
+subStmt, decl, bind, applyP :: Parser SubStmt
+subStmt = try decl <|> try bind <|> applyP
 decl = do
   t' <- typeParser
   v' <- varParser
@@ -214,7 +233,7 @@ bind = do
   return (Bind v' e')
 applyP = do
   p <- predicateParser
-  v' <- listOut (varParser `sepBy1` comma)
+  v' <- parens (varParser `sepBy1` comma)
   return (ApplyP p v')
 
 -- --------------------------------------- Test Driver -------------------------------------
@@ -225,8 +244,9 @@ applyP = do
 
 main :: IO ()
 main = do
-    [substanceCoreFile, outputFile] <- getArgs
+    [substanceCoreFile] <- getArgs
     substanceCoreIn <- readFile substanceCoreFile
+    parseTest substanceParser substanceCoreIn
     --case (parse dsllParser dsllFile dsllIn) of
     --    Left err -> putStr (parseErrorPretty err)
     --    Right xs -> writeFile outputFile (show xs)
