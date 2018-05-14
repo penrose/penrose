@@ -26,7 +26,7 @@ import Text.Megaparsec.Expr
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
---------------------------------------- DSLL AST ---------------------------------------
+--------------------------------------- Substance AST ---------------------------------------
 
 data SubType = TypeConst String -- these are all names, e.g. “Set”
     deriving (Show, Eq, Typeable)
@@ -75,7 +75,7 @@ data SubConstr
     = SubConstrConst Predicate [Var]
     deriving (Show, Eq, Typeable)
 
--- --------------------------------------- DSLL Lexer -------------------------------------
+-- --------------------------------------- Substance Lexer -------------------------------------
 -- | TODO: Some of the lexing functions are alreadt implemented at Utils.hs, Merge it and avoid duplications!
 type Parser = Parsec Void String
 

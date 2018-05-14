@@ -122,7 +122,7 @@ globalSelect = do
 -- TODO: with the exception of some new grammars that we developed, such as 'f: A -> B'. You still have to do 'Map A B' to select this object.
 constructorSelect :: Parser Selector
 constructorSelect = do
-    typ <- C.subtype
+    typ <- C.subType
     pat <- patterns
     return $ Selector typ pat
 
@@ -311,7 +311,7 @@ data StySpec = StySpec {
 type VarMap  = M.Map Name Name
 
 initSpec :: StySpec
-initSpec = StySpec { spType = C.PointT,
+initSpec = StySpec { spType = C.AllT,
                      spId = "",
                      spArgs = [],
                      spShpMap = M.empty
@@ -562,23 +562,25 @@ procAssign _ spec _ = spec -- TODO: ignoring assignment for all others; what kin
 -- | Generate a unique id for a Substance constraint
 -- FIXME: make sure these names are unique and make sure users cannot start ids
 -- with underscores
+
+varListToString :: [C.Var] -> [String]
+varListToString = map conv
+    where conv (C.VarConst s)  = s 
+
 getConstrTuples :: [C.SubConstr] -> [(C.SubType, String, [String])]
 getConstrTuples = map getType
-    where getType c = case c of
-            C.Intersect a b -> (C.IntersectT, "_Intersect" ++ a ++ b, [a, b])
-            C.NoIntersect a b -> (C.NoIntersectT, "_NoIntersect" ++ a ++ b, [a, b])
-            C.Subset a b -> (C.SubsetT, "_Subset" ++ a ++ b, [a, b])
-            C.NoSubset a b -> (C.NoSubsetT, "_NoSubset" ++ a ++ b, [a, b])
-            C.PointIn a b -> (C.PointInT, "_In" ++ a ++ b, [a, b])
-            C.PointNotIn a b -> (C.PointNotInT, "_PointNotIn" ++ a ++ b, [a, b])
+    where getType (C.SubConstrConst (C.PredicateConst p) vs)  = ((C.TypeConst (p ++ "T")), "_"++ p ++ (show vs), (varListToString vs))
 
 getSubTuples :: [C.SubDecl] -> [(C.SubType, String, [String])]
 getSubTuples = map getType
     where getType d = case d of
-            C.Set n -> (C.SetT, n, [n])
-            C.Point n -> (C.PointT, n, [n])
-            C.Map n a b -> (C.MapT, n, [n, a, b])
-            C.Value n a b -> (C.ValueT, "_Value" ++ n ++ a ++ b, [n, a, b])
+            C.SubDeclConst (C.ApplyT t xls) (C.VarConst v) -> (t, "_"++ (show t) ++ v , [v])
+            C.SubDeclConst (C.TypeT (C.TypeVarConst t)) (C.VarConst v)     -> ((C.TypeConst t), v , [v])
+
+
+
+
+           
 
 getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs

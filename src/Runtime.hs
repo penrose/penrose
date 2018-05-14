@@ -871,18 +871,19 @@ allOverlap objs = let allPairs = filter (\x -> length x == 2) $ subsequences obj
 
 -- TODO: do we want strict subset or loose subset here? Now it is strict
 consistentSizes :: [C.SubConstr] -> [Obj] -> Bool
-consistentSizes constrs objs = all id $ map (checkSubsetSize dict) constrs
-                            where dict = dictOfObjs objs
-checkSubsetSize dict constr@(C.Subset inName outName) =
-    case (M.lookup inName dict, M.lookup outName dict) of
-        (Just (C inc), Just (C outc)) ->
-            -- (r outc) (r inc) > subsetSizeDiff -- TODO: taking this as a parameter?
-            0.7 * (r outc) > (r inc)
-        (Just (S inc), Just (S outc)) -> (side outc) - (side inc) > subsetSizeDiff
-        -- TODO: this does not scale, general way?
-        (Just (C c), Just (S s)) -> r c < 0.5 * side s
-        (Just (S s), Just (C c)) -> (halfDiagonal . side) s < r c
-        (_, _) -> True -- error "objects don't exist in check subset size"
+consistentSizes constrs objs = True
+--   all id $ map (checkSubsetSize dict) constrs
+--                             where dict = dictOfObjs objs
+-- checkSubsetSize dict constr@(C.SubConstrConst (C.PredicateConst "Subset") [inName,outName]) =
+--     case (M.lookup inName dict, M.lookup outName dict) of
+--         (Just (C inc), Just (C outc)) ->
+--             -- (r outc) (r inc) > subsetSizeDiff -- TODO: taking this as a parameter?
+--             0.7 * (r outc) > (r inc)
+--         (Just (S inc), Just (S outc)) -> (side outc) - (side inc) > subsetSizeDiff
+--         -- TODO: this does not scale, general way?
+--         (Just (C c), Just (S s)) -> r c < 0.5 * side s
+--         (Just (S s), Just (C c)) -> (halfDiagonal . side) s < r c
+--         (_, _) -> True -- error "objects don't exist in check subset size"
 checkSubsetSize _ _ = True -- error "object subset sizes not handled"
 
 
