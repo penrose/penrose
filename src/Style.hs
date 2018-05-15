@@ -12,7 +12,7 @@ import Data.Function (on)
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe)
-import Data.List (nubBy, nub)
+import Data.List (nubBy, nub, intercalate)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
@@ -575,7 +575,7 @@ varArgsToString = map conv
 
 getConstrTuples :: [C.SubConstr] -> [(C.SubType, String, [String])]
 getConstrTuples = map getType
-    where getType (C.SubConstrConst (C.PredicateConst p) vs)  = ((C.TypeConst p), p, (varListToString vs))
+    where getType (C.SubConstrConst (C.PredicateConst p) vs)  = ((C.TypeConst p), "_" ++ p ++ (intercalate "" (varListToString vs)), (varListToString vs))
 
 getSubTuples :: [C.SubDecl] -> [(C.SubType, String, [String])]
 getSubTuples = map getType

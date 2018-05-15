@@ -6,7 +6,7 @@ Set E
 Set F
 Set G
 Subset(B,A)
-Subset(C,B) 
+Subset(C,A) 
 Subset(D,B)
 Subset(E,B)
 Subset(F,C)
