@@ -5,12 +5,12 @@ Set D
 Set E
 Set F
 Set G
-Subset B A
-Subset C A 
-Subset D B
-Subset E B
-Subset F C
-Subset G C
-NoIntersect E D
-NoIntersect F G
-NoIntersect B C
+Subset(B,A)
+Subset(C,B) 
+Subset(D,B)
+Subset(E,B)
+Subset(F,C)
+Subset(G,C)
+NoIntersect(E,D)
+NoIntersect(F,G)
+NoIntersect(B,C)

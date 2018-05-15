@@ -198,7 +198,7 @@ typeParser, applyT, typeT :: Parser Type
 typeParser = try applyT <|> typeT
 applyT = do
   tc <- subType
-  args <- listOut (argParser `sepBy1` comma)
+  args <- parens (argParser `sepBy1` comma)
   return (ApplyT tc args)
 typeT = do
   i <- typeVarParser

@@ -634,7 +634,6 @@ genInitState (decls, constrs) stys =
              let (initObjs, initObjFns, initConstrFns, computations) = genAllObjs (decls, constrs) dict in
              let objFns = userObjFns ++ initObjFns in
             --  let objFns = [] in -- TODO removed only for debugging constraints
-
              -- ambient objectives
              -- be careful with how the ambient objectives interact with the per-declaration objectives!
              -- e.g. the repel objective conflicts with a subset/intersect constraint -> nonconvergence!
@@ -664,8 +663,7 @@ genInitState (decls, constrs) stys =
 
              -- overall objective function
              let objFnOverall = genObjFn annotationsCalc computations objFns ambientObjFns constrObjFns in
-
-             trace ("initial constrained, computed state: \n" ++ show objsInit) $
+             trace ("initial constrained, computed state: \n" ++ show objsInit ++ "\n and Constraints: \n " ++ show constrs) $
              State { objs = objsInit,
                      constrs = constrs,
                      comps = computations,
@@ -874,7 +872,7 @@ consistentSizes :: [C.SubConstr] -> [Obj] -> Bool
 consistentSizes constrs objs = True
 --   all id $ map (checkSubsetSize dict) constrs
 --                             where dict = dictOfObjs objs
--- checkSubsetSize dict constr@(C.SubConstrConst (C.PredicateConst "Subset") [inName,outName]) =
+-- checkSubsetSize dict constr@((C.PredicateConst "Subset") inName outName) =
 --     case (M.lookup inName dict, M.lookup outName dict) of
 --         (Just (C inc), Just (C outc)) ->
 --             -- (r outc) (r inc) > subsetSizeDiff -- TODO: taking this as a parameter?

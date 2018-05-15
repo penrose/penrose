@@ -567,14 +567,20 @@ varListToString :: [C.Var] -> [String]
 varListToString = map conv
     where conv (C.VarConst s)  = s 
 
+varArgsToString :: [C.Arg] -> [String]
+varArgsToString = map conv
+    where conv c = case c of
+            C.VarA (C.VarConst s) -> s
+            _ -> ""
+
 getConstrTuples :: [C.SubConstr] -> [(C.SubType, String, [String])]
 getConstrTuples = map getType
-    where getType (C.SubConstrConst (C.PredicateConst p) vs)  = ((C.TypeConst (p ++ "T")), "_"++ p ++ (show vs), (varListToString vs))
+    where getType (C.SubConstrConst (C.PredicateConst p) vs)  = ((C.TypeConst p), p, (varListToString vs))
 
 getSubTuples :: [C.SubDecl] -> [(C.SubType, String, [String])]
 getSubTuples = map getType
     where getType d = case d of
-            C.SubDeclConst (C.ApplyT t xls) (C.VarConst v) -> (t, "_"++ (show t) ++ v , [v])
+            C.SubDeclConst (C.ApplyT t xls) (C.VarConst v) -> (t, v , (v : (varArgsToString xls)))
             C.SubDeclConst (C.TypeT (C.TypeVarConst t)) (C.VarConst v)     -> ((C.TypeConst t), v , [v])
 
 
