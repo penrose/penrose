@@ -110,7 +110,7 @@ block = do
 
 -- | a selector can be either a global selector or constructor selector
 selector :: Parser Selector
-selector = constructorSelect <|> globalSelect
+selector =  globalSelect <|> constructorSelect
 
 -- | a global selector matches on all types of objects. Normally used as the only selector in a "global block", where all Substance identifiers are visible
 globalSelect :: Parser Selector
