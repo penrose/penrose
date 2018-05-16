@@ -40,7 +40,7 @@ defaultWeight :: Floating a => a
 defaultWeight = 1
 
 -- Debug flags
-debug = True
+debug = False
 debugStyle = False
 debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
@@ -106,6 +106,7 @@ uniqueShapeName :: String -> String -> String
 uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
  -- e.g. "B yaxis" (the concatenation should be unique), TODO add the two names as separate obj fields
 
+
 --------------------------------------------------------------------------------
 ---- Lexer helper functions
 -- TODO: think about if it make sense to have the same set of reserved words
@@ -114,13 +115,13 @@ uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
 type Parser = Parsec Void String
 
 rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
-rws =     ["avoid", "global", "as"] ++ types ++ shapes
+rws =     ["avoid", "global", "as"] ++ types ++ shapes ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
-
-types =   ["Definition", "Set", "Map", "Point", "In", "NotIn", "Subset", "NoSubset", "Intersect", "NoIntersect"]
+types =   [] --TODO, maybe ren=move now when we have generic substance(?)
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
+dsll = ["constructor","operator","forvars","fortypes","predicate"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
 -- TODO: should the rws for Style and Substance be separated at all?
@@ -167,12 +168,17 @@ rparen = void (symbol ")")
 colon = void (symbol ":")
 arrow = void (symbol "->")
 comma = void (symbol ",")
+eq = void (symbol "=")
+
 
 braces :: Parser a -> Parser a
 braces = between (symbol "{") (symbol "}")
 
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
+
+listOut :: Parser a -> Parser a
+listOut = between (symbol "[") (symbol "]")
 
 -- | 'integer' parses an integer.
 integer :: Parser Integer

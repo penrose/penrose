@@ -6,6 +6,7 @@
 --module DSLL where
 module Main (main) where -- for debugging purposes
 
+import Utils
 import System.Process
 import Control.Monad (void)
 import Data.Void
@@ -117,74 +118,6 @@ instance Show DSLLProg where
         where cdString = show cd
               odString = show od
               pdString = show pd
-
--- --------------------------------------- DSLL Lexer -------------------------------------
-
-type Parser = Parsec Void String
-
--- | 'lineComment' and 'blockComment' are the two styles of commenting in Penrose and in the DSLL
-lineComment, blockComment :: Parser ()
-lineComment  = L.skipLineComment "--"
-blockComment = L.skipBlockComment "/*" "*/"
-
-
--- | A strict space consumer. 'sc' only eats space and tab characters. It does __not__ eat newlines.
-sc :: Parser ()
-sc = L.space (void $ takeWhile1P Nothing f) lineComment empty
-  where
-    f x = x == ' ' || x == '\t'
-
--- | A normal space consumer. 'scn' consumes all whitespaces __including__ newlines.
-scn :: Parser ()
-scn = L.space space1 lineComment blockComment
-
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme sc
-
--- A warper to make sure that we comsume whitespace after every lexeme
-symbol :: String -> Parser String
-symbol = L.symbol sc
-
-
-newline' :: Parser ()
-newline' = newline >> scn
-
--- Pill out the left and right parens from the input and roll-out the parsing
-parens :: Parser a -> Parser a
-parens = between (symbol "(") (symbol ")")
-
-listOut :: Parser a -> Parser a
-listOut = between (symbol "[") (symbol "]")
-
-
-
--- Define characters wich are part of the syntax
-colon, arrow, comma, rsbrac, lsbrac, lparen, rparen :: Parser ()
-colon  = void (symbol ":")
-comma  = void (symbol ",")
-arrow  = void (symbol "->")
-lsbrac = void (symbol "[")
-rsbrac = void (symbol "]")
-lparen = void (symbol "(")
-rparen = void (symbol ")")
-
-
--- Reserverd word handling
-rword :: String -> Parser()
-rword w = (lexeme . try) (string w *> notFollowedBy alphaNumChar) -- make sure that reserved words stands alone
-
-rws :: [String] -- The list of reserved words in DSLL
-rws = ["constructor","operator","forvars","fortypes","predicate"]
-
---Identifiers handling
-identifier :: Parser String
-identifier = (lexeme . try) (p >>= check)
-  where
-    p       = (:) <$> letterChar <*> many alphaNumChar
-    check x = if x `elem` rws
-                then fail $ "keyword " ++ show x ++ " cannot be an identifier"
-                else return x
-
 
 -- --------------------------------------- DSLL Parser -------------------------------------
 
@@ -402,6 +335,13 @@ pd5 = do
   prop <- propParser 
   return Pd{ namePd = name, forVarsPd = [], typesForVarsPd = [], forTypesPd = [], typeForTypesPd = []
               ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
+
+-- --------------------------------------- DSLL Semantic Checker ---------------------------
+
+-- | Environment for the dsll semantic checker. As the 'check' function executes, it
+-- accumulate information such as symbol tables in the environment.
+
+-- TODO
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the

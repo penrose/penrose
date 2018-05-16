@@ -7,7 +7,7 @@ module Substance where
 -- module Main (main) where -- for debugging purposes
 -- TODO split this up + do selective export
 
---import Utils
+import Utils
 import System.Process
 import Data.Void
 import Control.Monad (void)
@@ -35,7 +35,7 @@ data SubType = TypeConst String -- these are all names, e.g. “Set”
         | AllT -- specifically for global selection in Style
     deriving (Show, Eq, Typeable)
 
-data ValConstructor = ValConst String    -- “Cons”, “Times”
+data ValConstructor = ValConst String             -- “Cons”, “Times”
     deriving (Show, Eq, Typeable)
 
 data Operator' = OperatorConst String             -- “Intersection” 
@@ -81,74 +81,6 @@ data SubConstr
 
 -- | Both declarations and constaints in Substance are regarded as objects, which is possible for Style to select later.
 data SubObj = LD SubDecl | LC SubConstr deriving (Show, Eq, Typeable)
-
--- --------------------------------------- Substance Lexer -------------------------------------
--- | TODO: Some of the lexing functions are alreadt implemented at Utils.hs, Merge it and avoid duplications!
-type Parser = Parsec Void String
-
--- | 'lineComment' and 'blockComment' are the two styles of commenting in Penrose and in the DSLL
-lineComment, blockComment :: Parser ()
-lineComment  = L.skipLineComment "--"
-blockComment = L.skipBlockComment "/*" "*/"
-
-
--- | A strict space consumer. 'sc' only eats space and tab characters. It does __not__ eat newlines.
-sc :: Parser ()
-sc = L.space (void $ takeWhile1P Nothing f) lineComment empty
-  where
-    f x = x == ' ' || x == '\t'
-
--- | A normal space consumer. 'scn' consumes all whitespaces __including__ newlines.
-scn :: Parser ()
-scn = L.space space1 lineComment blockComment
-
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme sc
-
--- A warper to make sure that we comsume whitespace after every lexeme
-symbol :: String -> Parser String
-symbol = L.symbol sc
-
-
-newline' :: Parser ()
-newline' = newline >> scn
-
--- Pill out the left and right parens from the input and roll-out the parsing
-parens :: Parser a -> Parser a
-parens = between (symbol "(") (symbol ")")
-
-listOut :: Parser a -> Parser a
-listOut = between (symbol "[") (symbol "]")
-
-
-
--- Define characters wich are part of the syntax
-colon, arrow, comma, rsbrac, lsbrac, lparen, rparen,eq :: Parser ()
-colon  = void (symbol ":")
-comma  = void (symbol ",")
-arrow  = void (symbol "->")
-lsbrac = void (symbol "[")
-rsbrac = void (symbol "]")
-lparen = void (symbol "(")
-rparen = void (symbol ")")
-eq  = void (symbol "=")
-
-
-
---Reserverd word handling
-rword :: String -> Parser()
-rword w = (lexeme . try) (string w *> notFollowedBy alphaNumChar)
-rws :: [String] -- The list of reserved words in DSLL
-rws = [] -- TODO: Doesn't seems like there is any reserved word here, should seperate reserved words in Utils.hs for each PL
-
---Identifiers handling
-identifier :: Parser String
-identifier = (lexeme . try) (p >>= check)
-  where
-    p       = (:) <$> letterChar <*> many alphaNumChar
-    check x = if x `elem` rws
-                then fail $ "keyword " ++ show x ++ " cannot be an identifier"
-                else return x
 
 
 --------------------------------------- Substance Parser -------------------------------------
