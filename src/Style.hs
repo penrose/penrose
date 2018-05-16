@@ -311,7 +311,7 @@ data StySpec = StySpec {
 type VarMap  = M.Map Name Name
 
 initSpec :: StySpec
-initSpec = StySpec { spType = C.AllT,
+initSpec = StySpec { spType = (C.TypeConst "PointT" ),
                      spId = "",
                      spArgs = [],
                      spShpMap = M.empty
