@@ -29,17 +29,16 @@ import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 --------------------------------------- DSLL AST ---------------------------------------
 data TypeVar = TypeVarConst String
-    deriving (Show, Eq, Typeable)
+     deriving (Show, Eq, Typeable)
+
+data StringLit = StringLitConst String
+     deriving (Show, Eq, Typeable)
 
 data Var = VarConst String
-    deriving (Show, Eq, Typeable)
+     deriving (Show, Eq, Typeable)
 
-data Prop = PropConst String
-    deriving (Show, Eq, Typeable)
-
-data Type = TypeConst String
-    deriving (Show, Eq, Typeable)
-
+data Y = TypeVarY TypeVar | VarY Var
+     deriving (Show, Eq, Typeable)
 
 data ConstructorInvoker = ConstructorInvoker { nameCons :: String, argCons:: [Arg]}
     deriving (Eq, Typeable)
@@ -48,8 +47,7 @@ instance Show ConstructorInvoker where
         where nString = show nameCons
               aString = show argCons
 
-
-data T = TTypeVar TypeVar --TODO: figure out a better name for that...
+data T = TTypeVar TypeVar
     | TConstr ConstructorInvoker
     deriving (Show, Eq, Typeable)
 
@@ -57,11 +55,18 @@ data Arg = AVar Var
     | AT T
     deriving (Show, Eq, Typeable)
 
-data K = Ktype Type --TODO: figure out a better name for that...
-    | KT T
-    deriving (Show, Eq, Typeable)
+data K = Ktype Type
+     | KT T
+     deriving (Show, Eq, Typeable)
 
-data Cd = Cd{nameCd :: String, inputCd::[K], outputCd::Type}
+data Prop = PropConst String
+     deriving (Show, Eq, Typeable)
+
+data Type = TypeConst String
+     deriving (Show, Eq, Typeable)
+
+-- | tconstructor
+data Cd = Cd{nameCd :: String, inputCd::[(StringLit,K)], outputCd::Type}
     deriving (Eq, Typeable)
 
 instance Show Cd where
@@ -69,53 +74,52 @@ instance Show Cd where
         where nString = show nameCd
               iString = show inputCd
               oString = show outputCd
-        
 
--- data Od = Operator String [Var] [T] [TypeVar] [Type] [T] T 
---     deriving (Show, Eq, Typeable)
 
-data Od = Od{ nameOd :: String, forVarsOd :: [Var], typesForVarsOd :: [T], forTypesOd :: [TypeVar], typeForTypesOd :: [Type]
-              ,fromOd:: [T], toOd:: T}
+-- | vconstructor
+data Vd = Vd{ nameVd :: String, varsVd :: [(Y,K)], typesVd :: [(StringLit,T)], toVd:: T}
+    deriving (Eq, Typeable)
+
+instance Show Vd where
+    show (Vd nameVd varsVd typesVd toVd) =
+     "(VCon, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString ++ ", outputT " ++ dString ++ ")"
+        where aString = show nameVd
+              bString = show varsVd
+              cString = show typesVd
+              dString = show toVd
+
+-- | predicates
+data Od = Od{ nameOd :: String, varsOd :: [(Y,K)], typesOd :: [(StringLit,T)], toOd:: T}
     deriving (Eq, Typeable)
 
 instance Show Od where
-    show (Od nameOd forVarsOd typesForVarsOd forTypesOd typeForTypesOd fromOd toOd) =
-     "(Op, " ++ aString ++ ", forvars " ++ bString ++ ":" ++ cString ++ ", fortypes " ++ dString 
-     ++ ":" ++ eString ++ ", inputT " ++ fString ++ ", outputT " ++ gString ++ ")"
+    show (Od nameOd varsOd typesOd toOd) =
+     "(Op, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString ++ ", outputT " ++ dString ++ ")"
         where aString = show nameOd
-              bString = show forVarsOd
-              cString = show typesForVarsOd
-              dString = show forTypesOd
-              eString = show typeForTypesOd
-              fString = show fromOd
-              gString = show toOd
+              bString = show varsOd
+              cString = show typesOd
+              dString = show toOd
 
-
-
-data Pd = Pd{ namePd :: String, forVarsPd :: [Var], typesForVarsPd :: [T], forTypesPd :: [TypeVar], typeForTypesPd :: [Type]
-              ,fromTPd:: [T], fromPropPd :: [Prop], toPd:: Prop}
+-- | predicates
+data Pd = Pd{ namePd :: String, varsPd :: [(Y,K)], typesPd :: [(StringLit,T)], propsPd :: [(StringLit, Prop)], toPd:: Prop}
     deriving (Eq, Typeable)
 
 instance Show Pd where
-    show (Pd namePd forVarsPd typesForVarsPd forTypesPd typeForTypesPd fromTPd fromPropPd toPd) =
-     "(Pd, " ++ aString ++ ", forvars " ++ bString ++ ":" ++ cString ++ ", fortypes " ++ dString 
-     ++ ":" ++ eString ++ ", inputT " ++ fString ++ " , " ++ gString ++ ", outputT " ++ hString ++ ")"
+    show (Pd namePd varsPd typesPd propsPd toPd) =
+     "(Pred, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString ++ ", forProps " ++ dString ++ ", outputT " ++ eString ++ ")"
         where aString = show namePd
-              bString = show forVarsPd
-              cString = show typesForVarsPd
-              dString = show forTypesPd
-              eString = show typeForTypesPd
-              fString = show fromTPd
-              gString = show fromPropPd
-              hString = show toPd
+              bString = show varsPd
+              cString = show typesPd
+              dString = show propsPd
+              eString = show toPd
 
-
-data DSLLProg = DSLLProg{ cd :: [Cd], od :: [Od], pd :: [Pd]} 
+data DSLLProg = DSLLProg{cd :: [Cd], vd :: [Vd], od :: [Od], pd :: [Pd]} 
     deriving (Eq, Typeable)
 
 instance Show DSLLProg where
-    show (DSLLProg cd od pd) = "types = " ++ cdString ++ "\n \n" ++ "operations = " ++ odString ++ "\n \n" ++ "predicates = " ++ pdString ++ "\n \n"
+    show (DSLLProg cd vd od pd) = "types = " ++ cdString ++ "\n \n" ++ "vars = " ++ vdString ++ "\n \n" ++ "operations = " ++ odString ++ "\n \n" ++ "predicates = " ++ pdString ++ "\n \n"
         where cdString = show cd
+              vdString = show vd
               odString = show od
               pdString = show pd
 
@@ -132,15 +136,16 @@ dsllParser = between scn eof dsllProg -- Parse all the statemnts between the spa
 dsllProg :: Parser DSLLProg
 dsllProg = do
     listCd <- cdParser `sepEndBy` newline'
+    listVd <- vdParser `sepEndBy` newline'
     listOd <- odParser `sepEndBy` newline'
     listPd <- pdParser `sepEndBy` newline'
-    return DSLLProg {cd = listCd, od =  listOd, pd =  listPd}
+    return DSLLProg {cd = listCd, vd = listVd, od =  listOd, pd =  listPd}
 
 
 typeParser :: Parser Type
 typeParser = do
-    i <- identifier
-    return (TypeConst i)
+    rword "type"
+    return (TypeConst "type")
 
 varParser :: Parser Var
 varParser = do
@@ -152,10 +157,24 @@ typeVarParser = do
     i <- identifier
     return (TypeVarConst i)
 
+yParser, y1, y2 :: Parser Y
+yParser = try y1 <|> y2
+y1 = do
+  i <- varParser
+  return (VarY i)
+y2 = do
+  i <- typeVarParser
+  return (TypeVarY i)
+
 propParser :: Parser Prop
 propParser = do
+    rword "Prop"
+    return (PropConst "Prop")
+
+stringLitParser :: Parser StringLit
+stringLitParser = do
     i <- identifier
-    return (PropConst i)
+    return (StringLitConst i)
 
 
 tParser, tConstructorInvokerParser, typeVarParser' :: Parser T
@@ -168,8 +187,6 @@ typeVarParser' = do
     i <- typeVarParser
     return (TTypeVar i)
 
-
-
 argParser, varParser', tParser'  :: Parser Arg
 argParser = try tParser' <|> varParser'
 varParser' = do
@@ -179,169 +196,146 @@ tParser' = do
     t <- tParser
     return (AT t)
 
-
 kParser, kTypeParser, tParser'' :: Parser K
 kParser = try kTypeParser <|> try tParser''
 kTypeParser = do
-     i <- typeParser
-     return (Ktype i)
+     rword "type"
+     return (Ktype (TypeConst "type"))
 tParser'' = do
     t <- tParser
     return (KT t)
 
+-- | type constructor parser
 cdParser, cd1, cd2 :: Parser Cd
 cdParser = try cd1 <|> cd2
 cd1= do
-    rword "constructor"
+    rword "tconstructor"
     name <- identifier
+    lparen
+    b' <- listOut (stringLitParser `sepBy1` comma)
     colon
     k' <- listOut (kParser `sepBy1` comma)
-    arrow
+    rparen
+    colon
     t' <- typeParser
-    return Cd {nameCd = name, inputCd =  k', outputCd =  t'}
+    return Cd {nameCd = name, inputCd =  (zip b' k'), outputCd =  t'}
 cd2 = do
-    rword "constructor"
+    rword "tconstructor"
     name <- identifier
     colon
     t' <- typeParser
     return Cd {nameCd = name, inputCd =  [], outputCd =  t'}
 
-odParser, od1, od2, od3, od4 :: Parser Od
-odParser = try od1 <|> try od2 <|> try od3 <|> od4
-od1 =  do
-  rword "operator"
-  name <- identifier
-  colon
-  rword "forvars"
-  varsList <- listOut (varParser `sepBy1` comma)
-  colon
-  tList <- listOut (tParser `sepBy1` comma)
-  comma
-  rword "fortypes"
-  typeVarList <- listOut (typeVarParser `sepBy1` comma)
-  colon
-  typeList <- listOut (typeParser `sepBy1` comma)
-  comma
-  outerTList <- listOut (tParser `sepBy1` comma)
-  arrow
-  t <- tParser
-  return Od{nameOd  = name ,  forVarsOd  = varsList, typesForVarsOd  = tList, forTypesOd  = typeVarList , typeForTypesOd  = typeList 
-              ,fromOd = outerTList , toOd = t }
-od2 =  do
-  rword "operator"
-  name <- identifier
-  colon
-  rword "fortypes"
-  typeVarList <- listOut (typeVarParser `sepBy1` comma)
-  colon
-  typeList <- listOut (typeParser `sepBy1` comma)
-  comma
-  outerTList <- listOut (tParser `sepBy1` comma)
-  arrow
-  t <- tParser
-  return Od{nameOd  = name ,  forVarsOd  = [], typesForVarsOd  = [], forTypesOd  = typeVarList , typeForTypesOd  = typeList 
-              ,fromOd = outerTList , toOd = t }
-od3 =  do
-  rword "operator"
-  name <- identifier
-  colon
-  outerTList <- listOut (tParser `sepBy1` comma)
-  arrow
-  t <- tParser
-  return Od{nameOd  = name ,  forVarsOd  = [], typesForVarsOd  = [], forTypesOd  = [] , typeForTypesOd  = [] 
-              ,fromOd = outerTList , toOd = t }
-od4 =  do
-  rword "operator"
-  name <- identifier
-  colon
-  rword "forvars"
-  varsList <- listOut (varParser `sepBy1` comma)
-  colon
-  tList <- listOut (tParser `sepBy1` comma)
-  comma
-  outerTList <- listOut (tParser `sepBy1` comma)
-  arrow
-  t <- tParser
-  return Od{nameOd  = name ,  forVarsOd  = varsList, typesForVarsOd  = tList, forTypesOd  = [] , typeForTypesOd  = [] 
-              ,fromOd = outerTList , toOd = t }
 
-  
+-- | parser for the (y,k) list, refactored out to prevent duplication
+ykParser :: Parser ([Y],[K])
+ykParser = do
+  slparen
+  y' <- listOut (yParser `sepBy1` comma)
+  colon
+  k' <- listOut (kParser `sepBy1` comma)
+  srparen
+  return (y',k')
+
+-- | for the cases we do not have (y,k) list 
+emptyykParser :: Parser ([Y],[K])
+emptyykParser = return ([],[])
+
+-- | parser for the (b,t) list, refactored out to prevent duplication
+btParser :: Parser ([StringLit],[T])
+btParser = do
+  lparen
+  b' <- listOut (stringLitParser `sepBy1` comma)
+  colon
+  t' <- listOut (tParser `sepBy1` comma)
+  rparen
+  return (b',t')
+
+-- | for the cases we do not have (b,t) list 
+emptybtParser :: Parser ([StringLit],[T])
+emptybtParser = return ([],[])
 
 
-pdParser, pd1, pd2, pd3, pd4, pd5 :: Parser Pd
-pdParser = try pd1 <|> try pd2 <|> try pd3 <|> try pd4 <|> pd5
+-- | var constructor parser
+vdParser :: Parser Vd
+vdParser = do
+  rword "vconstructor"
+  name <- identifier
+  (y',k') <- try ykParser <|> emptyykParser
+  (b',t') <- try btParser <|> emptybtParser
+  colon
+  t'' <- tParser
+  return Vd{nameVd = name, varsVd = (zip y' k'), typesVd  =  (zip b' t'), toVd = t''}
+
+
+
+  -- | operation parser
+odParser :: Parser Od
+odParser = do
+  rword "operator"
+  name <- identifier
+  (y',k') <- try ykParser <|> emptyykParser
+  (b',t') <- try btParser <|> emptybtParser
+  colon
+  t'' <- tParser
+  return Od{nameOd = name, varsOd = (zip y' k'), typesOd  =  (zip b' t'), toOd = t''}
+
+
+-- | predicate parser
+pdParser, pd1, pd2 :: Parser Pd
+pdParser = try pd1 <|> pd2 
 pd1 = do
   rword "predicate"
   name <- identifier
+  (y',k') <- try ykParser <|> emptyykParser
+  (b',t') <- try btParser <|> emptybtParser
   colon
-  propList <- listOut (propParser `sepBy1` comma)
-  arrow
-  prop <- propParser 
-  return Pd{ namePd = name, forVarsPd = [], typesForVarsPd =[], forTypesPd = [], typeForTypesPd = []
-              ,fromTPd = [], fromPropPd = propList, toPd =  prop}
+  p' <- propParser
+  return Pd{namePd = name, varsPd = (zip y' k'), typesPd  =  (zip b' t'), propsPd = [], toPd = p'}
 pd2 = do
   rword "predicate"
   name <- identifier
+  lparen
+  b' <- listOut (stringLitParser `sepBy1` comma)
   colon
-  rword "forvars"
-  varsList <- listOut (varParser `sepBy1` comma)
+  prop' <- listOut (propParser `sepBy1` comma)
+  rparen
   colon
-  tList <- listOut (tParser `sepBy1` comma)
-  comma
-  rword "fortypes"
-  typeVarList <- listOut (typeVarParser `sepBy1` comma)
-  colon
-  typeList <- listOut (typeParser `sepBy1` comma)
-  comma
-  outerTList <- listOut (tParser `sepBy1` comma)
-  arrow
-  prop <- propParser 
-  return Pd{ namePd = name, forVarsPd = varsList, typesForVarsPd =tList, forTypesPd = typeVarList, typeForTypesPd = typeList
-              ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
-pd3 = do
-  rword "predicate"
-  name <- identifier
-  colon
-  rword "fortypes"
-  typeVarList <- listOut (typeVarParser `sepBy1` comma)
-  colon
-  typeList <- listOut (typeParser `sepBy1` comma)
-  comma
-  outerTList <- listOut (tParser `sepBy1` comma)
-  arrow
-  prop <- propParser
-  return Pd{ namePd = name, forVarsPd = [], typesForVarsPd = [], forTypesPd = typeVarList, typeForTypesPd = typeList
-              ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
-pd4 = do
-  rword "predicate"
-  name <- identifier
-  colon
-  rword "forvars"
-  varsList <- listOut (varParser `sepBy1` comma)
-  colon
-  tList <- listOut (tParser `sepBy1` comma)
-  comma
-  outerTList <- listOut (tParser `sepBy1` comma)
-  arrow
-  prop <- propParser
-  return Pd{ namePd = name, forVarsPd = varsList, typesForVarsPd =tList, forTypesPd = [], typeForTypesPd = []
-              ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
-pd5 = do
-  rword "predicate"
-  name <- identifier
-  colon
-  outerTList <- listOut (tParser `sepBy1` comma)
-  arrow
-  prop <- propParser 
-  return Pd{ namePd = name, forVarsPd = [], typesForVarsPd = [], forTypesPd = [], typeForTypesPd = []
-              ,fromTPd = outerTList, fromPropPd = [], toPd =  prop}
+  p' <- propParser
+  return Pd{namePd = name, varsPd = [], typesPd  =  [], propsPd = (zip b' prop'), toPd = p'}
 
--- --------------------------------------- DSLL Semantic Checker ---------------------------
 
--- | Environment for the dsll semantic checker. As the 'check' function executes, it
--- accumulate information such as symbol tables in the environment.
+-- -- --------------------------------------- DSLL Semantic Checker ---------------------------
 
--- TODO
+-- -- -- | Environment for the dsll semantic checker. As the 'check' function executes, it
+-- -- -- accumulate information such as symbol tables in the environment.
+
+-- -- -- Specify the possible context elements
+-- -- data ContextElement = TypeContext T
+-- --              | TContext Var
+-- --              | CContext Cd
+-- --              | EmptyContext
+-- --     deriving(Show, Eq, Typeable)
+
+-- -- -- Currently, the environment contains the context, i.e. a list of context elements
+-- -- -- might be extended in the future.
+-- -- data DsllEnv = DsllEnv{
+-- --   context :: [ContextElement]
+-- -- } deriving(Show, Eq, Typeable)
+
+-- -- -- | 'check' is the top-level semantic checking function. It takes a DSLL
+-- -- -- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
+-- -- -- a collection of information.
+
+-- -- check :: DSLLProg -> DsllEnv
+-- -- check p = let env1  = foldl loadContext initE p
+-- --           in env1 { context = reverse $ context env1}
+-- --           where initE = DsllEnv {context = [TContext (VarConst "type")]}
+
+
+-- -- -- | 'loadContext' loads the context of the DSLL program from the given AST representation
+-- -- loadContext : DsllEnv -> 
+
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
@@ -351,11 +345,11 @@ main :: IO ()
 main = do
     [dsllFile, outputFile] <- getArgs
     dsllIn <- readFile dsllFile
-    case (parse dsllParser dsllFile dsllIn) of
-        Left err -> putStr (parseErrorPretty err)
-        Right xs -> writeFile outputFile (show xs)
-    putStrLn "Parsing Done!"  
-    --mapM_ print parsed
+    parseTest dsllParser dsllIn
+    -- case (parse dsllParser dsllFile dsllIn) of
+    --     Left err -> putStr (parseErrorPretty err)
+    --     Right xs -> writeFile outputFile (show xs)
+    -- putStrLn "Parsing Done!"  
     return ()
 
 

@@ -121,7 +121,7 @@ types =   [] --TODO, maybe ren=move now when we have generic substance(?)
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
-dsll = ["constructor","operator","forvars","fortypes","predicate"]
+dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
 -- TODO: should the rws for Style and Substance be separated at all?
@@ -165,6 +165,8 @@ lbrac = void (symbol "{")
 rbrac = void (symbol "}")
 lparen = void (symbol "(")
 rparen = void (symbol ")")
+slparen = void (symbol "[")
+srparen = void (symbol "]")
 colon = void (symbol ":")
 arrow = void (symbol "->")
 comma = void (symbol ",")
