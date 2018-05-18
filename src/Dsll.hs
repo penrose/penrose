@@ -101,18 +101,31 @@ instance Show Od where
               dString = show toOd
 
 -- | predicates
-data Pd = Pd{ namePd :: String, varsPd :: [(Y,K)], typesPd :: [(StringLit,T)], propsPd :: [(StringLit, Prop)], toPd:: Prop}
+data Pd = Pd1Const Pd1 | Pd2Const Pd2 deriving (Show, Eq, Typeable)
+
+data Pd1 = Pd1 { namePd1 :: String, varsPd1 :: [(Y,K)], typesPd1 :: [(StringLit,T)], toPd1:: Prop}
     deriving (Eq, Typeable)
 
-instance Show Pd where
-    show (Pd namePd varsPd typesPd propsPd toPd) =
-     "(Pred, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString ++ ", forProps " ++ dString ++ ", outputT " ++ eString ++ ")"
-        where aString = show namePd
-              bString = show varsPd
-              cString = show typesPd
-              dString = show propsPd
-              eString = show toPd
+instance Show Pd1 where
+    show (Pd1 namePd1 varsPd1 typesPd1 toPd1) =
+     "(Pred, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString ++ ", outputT " ++ dString ++ ")"
+        where aString = show namePd1
+              bString = show varsPd1
+              cString = show typesPd1
+              dString = show toPd1
 
+data Pd2 = Pd2 { namePd2 :: String, propsPd2 :: [(StringLit, Prop)], toPd2:: Prop}
+    deriving (Eq, Typeable)
+
+instance Show Pd2 where
+    show (Pd2 namePd2 propsPd2 toPd2) =
+     "(Pred, " ++ aString ++ ", forProps " ++ bString ++ ", outputT " ++ cString ++ ")"
+        where aString = show namePd2
+              bString = show propsPd2
+              cString = show toPd2
+
+
+-- | DSLL program composed out of type constructors followed by ar declarations, operations and predicates
 data DSLLProg = DSLLProg{cd :: [Cd], vd :: [Vd], od :: [Od], pd :: [Pd]} 
     deriving (Eq, Typeable)
 
@@ -291,7 +304,7 @@ pd1 = do
   (b',t') <- try btParser <|> emptybtParser
   colon
   p' <- propParser
-  return Pd{namePd = name, varsPd = (zip y' k'), typesPd  =  (zip b' t'), propsPd = [], toPd = p'}
+  return (Pd1Const (Pd1{namePd1 = name, varsPd1 = (zip y' k'), typesPd1  =  (zip b' t'), toPd1 = p'}))
 pd2 = do
   rword "predicate"
   name <- identifier
@@ -302,39 +315,111 @@ pd2 = do
   rparen
   colon
   p' <- propParser
-  return Pd{namePd = name, varsPd = [], typesPd  =  [], propsPd = (zip b' prop'), toPd = p'}
+  return (Pd2Const (Pd2{namePd2 = name, propsPd2 = (zip b' prop'), toPd2 = p'}))
 
 
--- -- --------------------------------------- DSLL Semantic Checker ---------------------------
+-- --------------------------------------- DSLL Semantic Checker ---------------------------
+-- | Environment for the dsll semantic checker. As the 'check' function executes, it
+-- accumulate information such as symbol tables in the environment.
 
--- -- -- | Environment for the dsll semantic checker. As the 'check' function executes, it
--- -- -- accumulate information such as symbol tables in the environment.
+-- | list of elements that might appear in the global context
 
--- -- -- Specify the possible context elements
--- -- data ContextElement = TypeContext T
--- --              | TContext Var
--- --              | CContext Cd
--- --              | EmptyContext
--- --     deriving(Show, Eq, Typeable)
-
--- -- -- Currently, the environment contains the context, i.e. a list of context elements
--- -- -- might be extended in the future.
--- -- data DsllEnv = DsllEnv{
--- --   context :: [ContextElement]
--- -- } deriving(Show, Eq, Typeable)
-
--- -- -- | 'check' is the top-level semantic checking function. It takes a DSLL
--- -- -- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
--- -- -- a collection of information.
-
--- -- check :: DSLLProg -> DsllEnv
--- -- check p = let env1  = foldl loadContext initE p
--- --           in env1 { context = reverse $ context env1}
--- --           where initE = DsllEnv {context = [TContext (VarConst "type")]}
+data Ttype = Ttype {yt :: Y, kt :: K}  deriving (Show, Eq, Typeable)
+data TypeConstructor = TypeConstructor {nametc :: String, klstc :: [K], typtc :: Type} deriving (Show, Eq, Typeable)
+data VarConstructor = VarConstructor {namevc :: String, ylsvc :: [Y], klsvc :: [K], tlsvc :: [T], tvc :: T} deriving (Show, Eq, Typeable)
+data Operation = Operation {nameop :: String, ylsop :: [Y], klsop :: [K], tlsop :: [T], top :: T} deriving (Show, Eq, Typeable)
+data Predicate = Pred1 Predicate1 | Pred2 Predicate2 deriving (Show, Eq, Typeable)
+data Predicate1 = Predicate1 {namepred1 :: String, ylspred1 :: [Y], klspred1 :: [K], tlspred1 :: [T], ppred1 :: Prop} deriving (Show, Eq, Typeable)
+data Predicate2 = Predicate2 {namepred2 :: String, plspred2 :: [Prop], ppred2 :: Prop} deriving (Show, Eq, Typeable)
 
 
--- -- -- | 'loadContext' loads the context of the DSLL program from the given AST representation
--- -- loadContext : DsllEnv -> 
+data ContextElement = TypeContructorContext TypeConstructor
+  | VarConstructorContext VarConstructor
+  | OperationContext Operation
+  | PredicateContext1 Predicate1
+  | PredicateContext2 Predicate2
+  | Empty
+  deriving (Show, Eq, Typeable)
+
+
+data DsllEnv = DsllEnv{
+  --context :: [ContextElement], -- The program context is a list of context elements
+  typeContructors :: M.Map String TypeConstructor,
+  varConstructors :: M.Map String VarConstructor,
+  operations :: M.Map String Operation,
+  predicats :: M.Map String Predicate
+  --innerEnv = [] -- TODO: Work with an inner env as well
+} deriving(Show, Eq, Typeable)
+
+
+firsts :: [(a,b)] -> [a]
+firsts xs = [x | (x,_) <- xs]
+
+seconds :: [(a,b)] -> [b]
+seconds xs = [x | (_,x) <- xs]
+
+-- | 'check' is the top-level semantic checking function. It takes a DSLL
+-- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
+-- a collection of information.
+check :: DSLLProg -> DsllEnv
+check p =  let env1  = foldl checkTypeConstructors initE (cd p)
+               env2  = foldl checkVarConstructors env1 (vd p)
+               env3  = foldl checkOperations env2 (od p)
+               env4  = foldl checkPredicates env3 (pd p)
+           in env4 { typeContructors =  typeContructors env4}
+           where initE = DsllEnv {typeContructors = M.empty, varConstructors = M.empty,
+            operations = M.empty, predicats = M.empty}
+
+checkTypeVar :: DsllEnv -> TypeVar -> DsllEnv
+checkTypeVar e v = e
+
+checkVar :: DsllEnv -> Var -> DsllEnv
+checkVar e v = e
+
+checkY :: DsllEnv -> Y -> DsllEnv
+checkY e (TypeVarY y) = checkTypeVar e y
+checkY e (VarY y) = checkVar e y
+
+checkArg :: DsllEnv -> Arg -> DsllEnv
+checkArg e (AVar v) = checkVar e v
+checkArg e (AT t) = checkT e t
+
+checkT :: DsllEnv -> T -> DsllEnv
+checkT e (TTypeVar t) = checkTypeVar e t
+checkT e (TConstr c) = checkConstructorInvoker e c
+
+checkConstructorInvoker :: DsllEnv -> ConstructorInvoker -> DsllEnv
+checkConstructorInvoker e const = e
+
+-- checkK :: DsllEnv -> K -> DsllEnv
+-- checkK e (TypeConst type) = e
+
+
+checkTypeConstructors :: DsllEnv -> Cd -> DsllEnv
+checkTypeConstructors e c = let tc = TypeConstructor {nametc = nameCd c, klstc = (seconds (inputCd c))
+                                                       , typtc = outputCd c}
+                        in e {typeContructors = M.insert (nameCd c) tc $ typeContructors e }
+
+checkVarConstructors :: DsllEnv -> Vd -> DsllEnv
+checkVarConstructors e v = let vc = VarConstructor {namevc = nameVd v,  ylsvc = (firsts (varsVd v))
+                                    , klsvc = (seconds (varsVd v)) , tlsvc = (seconds (typesVd v)), tvc = (toVd v)}
+                        in e {varConstructors = M.insert (nameVd v) vc $ varConstructors e }
+
+checkOperations :: DsllEnv -> Od -> DsllEnv
+checkOperations e v = let op = Operation {nameop = nameOd v,  ylsop = (firsts (varsOd v))
+                                    , klsop = (seconds (varsOd v)) , tlsop = (seconds (typesOd v)), top = (toOd v)}
+                        in e {operations = M.insert (nameOd v) op $ operations e }
+
+checkPredicates :: DsllEnv -> Pd -> DsllEnv
+checkPredicates e (Pd1Const v) = let pd = Pred1 Predicate1 {namepred1 = namePd1 v,  ylspred1 = (firsts (varsPd1 v))
+                                    , klspred1 = (seconds (varsPd1 v)) , tlspred1 = (seconds (typesPd1 v)), ppred1 = (toPd1 v)}
+                        in e {predicats = M.insert (namePd1 v) pd $ predicats e }
+checkPredicates e (Pd2Const v) = let pd = Pred2 Predicate2 {namepred2 = namePd2 v, plspred2 = (seconds (propsPd2 v)) , ppred2 = (toPd2 v)}
+                        in e {predicats = M.insert (namePd2 v) pd $ predicats e }
+
+
+-- -- | 'loadContext' loads the context of the DSLL program from the given AST representation
+-- loadContext : DsllEnv ->  
 
 
 -- --------------------------------------- Test Driver -------------------------------------
@@ -343,14 +428,16 @@ pd2 = do
 
 main :: IO ()
 main = do
-    [dsllFile, outputFile] <- getArgs
-    dsllIn <- readFile dsllFile
-    parseTest dsllParser dsllIn
-    -- case (parse dsllParser dsllFile dsllIn) of
-    --     Left err -> putStr (parseErrorPretty err)
-    --     Right xs -> writeFile outputFile (show xs)
-    -- putStrLn "Parsing Done!"  
-    return ()
+  [dsllFile, outputFile] <- getArgs
+  dsllIn <- readFile dsllFile
+  case (parse dsllParser dsllFile dsllIn) of
+    Left err -> putStr (parseErrorPretty err)
+    Right xs -> do
+      writeFile outputFile (show xs)
+      let o = check xs
+      putStrLn (show o)
+  putStrLn "Parsing Done!"  
+  return ()
 
 
     
