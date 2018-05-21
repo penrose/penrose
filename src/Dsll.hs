@@ -29,13 +29,10 @@ import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 --------------------------------------- DSLL AST ---------------------------------------
 data TypeVar = TypeVarConst String
-     deriving (Show, Eq, Typeable)
-
-data StringLit = StringLitConst String
-     deriving (Show, Eq, Typeable)
+     deriving (Show, Eq, Typeable, Ord)
 
 data Var = VarConst String
-     deriving (Show, Eq, Typeable)
+     deriving (Show, Eq, Typeable, Ord)
 
 data Y = TypeVarY TypeVar | VarY Var
      deriving (Show, Eq, Typeable)
@@ -66,7 +63,7 @@ data Type = TypeConst String
      deriving (Show, Eq, Typeable)
 
 -- | tconstructor
-data Cd = Cd{nameCd :: String, inputCd::[(StringLit,K)], outputCd::Type}
+data Cd = Cd{nameCd :: String, inputCd::[(Y,K)], outputCd::Type}
     deriving (Eq, Typeable)
 
 instance Show Cd where
@@ -77,7 +74,7 @@ instance Show Cd where
 
 
 -- | vconstructor
-data Vd = Vd{ nameVd :: String, varsVd :: [(Y,K)], typesVd :: [(StringLit,T)], toVd:: T}
+data Vd = Vd{ nameVd :: String, varsVd :: [(Y,K)], typesVd :: [(Var,T)], toVd:: T}
     deriving (Eq, Typeable)
 
 instance Show Vd where
@@ -89,7 +86,7 @@ instance Show Vd where
               dString = show toVd
 
 -- | predicates
-data Od = Od{ nameOd :: String, varsOd :: [(Y,K)], typesOd :: [(StringLit,T)], toOd:: T}
+data Od = Od{ nameOd :: String, varsOd :: [(Y,K)], typesOd :: [(Var,T)], toOd:: T}
     deriving (Eq, Typeable)
 
 instance Show Od where
@@ -103,7 +100,7 @@ instance Show Od where
 -- | predicates
 data Pd = Pd1Const Pd1 | Pd2Const Pd2 deriving (Show, Eq, Typeable)
 
-data Pd1 = Pd1 { namePd1 :: String, varsPd1 :: [(Y,K)], typesPd1 :: [(StringLit,T)], toPd1:: Prop}
+data Pd1 = Pd1 { namePd1 :: String, varsPd1 :: [(Y,K)], typesPd1 :: [(Var,T)], toPd1:: Prop}
     deriving (Eq, Typeable)
 
 instance Show Pd1 where
@@ -114,7 +111,7 @@ instance Show Pd1 where
               cString = show typesPd1
               dString = show toPd1
 
-data Pd2 = Pd2 { namePd2 :: String, propsPd2 :: [(StringLit, Prop)], toPd2:: Prop}
+data Pd2 = Pd2 { namePd2 :: String, propsPd2 :: [(Var, Prop)], toPd2:: Prop}
     deriving (Eq, Typeable)
 
 instance Show Pd2 where
@@ -167,6 +164,7 @@ varParser = do
 
 typeVarParser :: Parser TypeVar
 typeVarParser = do
+    aps
     i <- identifier
     return (TypeVarConst i)
 
@@ -184,17 +182,17 @@ propParser = do
     rword "Prop"
     return (PropConst "Prop")
 
-stringLitParser :: Parser StringLit
-stringLitParser = do
-    i <- identifier
-    return (StringLitConst i)
-
+emptyArgList :: Parser [Arg]
+emptyArgList = do
+  lparen
+  rparen
+  return []
 
 tParser, tConstructorInvokerParser, typeVarParser' :: Parser T
 tParser = try tConstructorInvokerParser <|> typeVarParser'
 tConstructorInvokerParser = do
     i         <- identifier
-    arguments <- parens ( argParser `sepBy1` comma)
+    arguments <- try (parens (argParser `sepBy1` comma)) <|> emptyArgList
     return (TConstr (ConstructorInvoker {nameCons = i, argCons = arguments}))
 typeVarParser' = do
     i <- typeVarParser
@@ -208,6 +206,7 @@ varParser' = do
 tParser' = do
     t <- tParser
     return (AT t)
+
 
 kParser, kTypeParser, tParser'' :: Parser K
 kParser = try kTypeParser <|> try tParser''
@@ -225,7 +224,7 @@ cd1= do
     rword "tconstructor"
     name <- identifier
     lparen
-    b' <- listOut (stringLitParser `sepBy1` comma)
+    b' <- listOut (yParser `sepBy1` comma)
     colon
     k' <- listOut (kParser `sepBy1` comma)
     rparen
@@ -255,18 +254,18 @@ emptyykParser :: Parser ([Y],[K])
 emptyykParser = return ([],[])
 
 -- | parser for the (b,t) list, refactored out to prevent duplication
-btParser :: Parser ([StringLit],[T])
-btParser = do
+xtParser :: Parser ([Var],[T])
+xtParser = do
   lparen
-  b' <- listOut (stringLitParser `sepBy1` comma)
+  x' <- listOut (varParser `sepBy1` comma)
   colon
   t' <- listOut (tParser `sepBy1` comma)
   rparen
-  return (b',t')
+  return (x',t')
 
 -- | for the cases we do not have (b,t) list 
-emptybtParser :: Parser ([StringLit],[T])
-emptybtParser = return ([],[])
+emptyxtParser :: Parser ([Var],[T])
+emptyxtParser = return ([],[])
 
 
 -- | var constructor parser
@@ -275,7 +274,7 @@ vdParser = do
   rword "vconstructor"
   name <- identifier
   (y',k') <- try ykParser <|> emptyykParser
-  (b',t') <- try btParser <|> emptybtParser
+  (b',t') <- try xtParser <|> emptyxtParser
   colon
   t'' <- tParser
   return Vd{nameVd = name, varsVd = (zip y' k'), typesVd  =  (zip b' t'), toVd = t''}
@@ -288,7 +287,7 @@ odParser = do
   rword "operator"
   name <- identifier
   (y',k') <- try ykParser <|> emptyykParser
-  (b',t') <- try btParser <|> emptybtParser
+  (b',t') <- try xtParser <|> emptyxtParser
   colon
   t'' <- tParser
   return Od{nameOd = name, varsOd = (zip y' k'), typesOd  =  (zip b' t'), toOd = t''}
@@ -301,7 +300,7 @@ pd1 = do
   rword "predicate"
   name <- identifier
   (y',k') <- try ykParser <|> emptyykParser
-  (b',t') <- try btParser <|> emptybtParser
+  (b',t') <- try xtParser <|> emptyxtParser
   colon
   p' <- propParser
   return (Pd1Const (Pd1{namePd1 = name, varsPd1 = (zip y' k'), typesPd1  =  (zip b' t'), toPd1 = p'}))
@@ -309,7 +308,7 @@ pd2 = do
   rword "predicate"
   name <- identifier
   lparen
-  b' <- listOut (stringLitParser `sepBy1` comma)
+  b' <- listOut (varParser `sepBy1` comma)
   colon
   prop' <- listOut (propParser `sepBy1` comma)
   rparen
@@ -333,30 +332,46 @@ data Predicate1 = Predicate1 {namepred1 :: String, ylspred1 :: [Y], klspred1 :: 
 data Predicate2 = Predicate2 {namepred2 :: String, plspred2 :: [Prop], ppred2 :: Prop} deriving (Show, Eq, Typeable)
 
 
-data ContextElement = TypeContructorContext TypeConstructor
-  | VarConstructorContext VarConstructor
-  | OperationContext Operation
-  | PredicateContext1 Predicate1
-  | PredicateContext2 Predicate2
-  | Empty
-  deriving (Show, Eq, Typeable)
-
-
 data DsllEnv = DsllEnv{
-  --context :: [ContextElement], -- The program context is a list of context elements
   typeContructors :: M.Map String TypeConstructor,
   varConstructors :: M.Map String VarConstructor,
   operations :: M.Map String Operation,
-  predicats :: M.Map String Predicate
-  --innerEnv = [] -- TODO: Work with an inner env as well
+  predicates :: M.Map String Predicate,
+  typeVarMap :: M.Map TypeVar Type,
+  varMap :: M.Map Var T
+  --localEnv = [] -- TODO: Work with an inner env as well
 } deriving(Show, Eq, Typeable)
 
+
+-- | helper functions for the dsll typechecking
 
 firsts :: [(a,b)] -> [a]
 firsts xs = [x | (x,_) <- xs]
 
 seconds :: [(a,b)] -> [b]
 seconds xs = [x | (_,x) <- xs]
+
+second :: (a,b) -> b
+second (a,b) = b
+
+checkAndGet k m = case M.lookup k m of
+  Nothing -> error ("Type " ++ k ++ " Doesn't exsist in the context")
+  Just v -> v
+
+
+lookUpK :: DsllEnv -> Arg -> K
+lookUpK e (AT  t)  = (Ktype (TypeConst "type")) --error("the env is: " ++ (show e))--(Ktype (TypeConst "type"))
+lookUpK e (AVar v) = (KT ((varMap e) M.! v))
+
+
+getTypesOfArgs :: DsllEnv -> [Arg] -> [K]
+getTypesOfArgs e args = map (lookUpK e) args
+
+updateEnv :: DsllEnv -> (Y,K) -> DsllEnv
+updateEnv e (TypeVarY y, Ktype t) = e {typeVarMap = M.insert y t $ typeVarMap e}
+updateEnv e (VarY y, KT t) = e {varMap = M.insert y t $ varMap e}
+updateEnv e err = error("Problem in update: " ++ (show err))
+
 
 -- | 'check' is the top-level semantic checking function. It takes a DSLL
 -- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
@@ -368,13 +383,15 @@ check p =  let env1  = foldl checkTypeConstructors initE (cd p)
                env4  = foldl checkPredicates env3 (pd p)
            in env4 { typeContructors =  typeContructors env4}
            where initE = DsllEnv {typeContructors = M.empty, varConstructors = M.empty,
-            operations = M.empty, predicats = M.empty}
+            operations = M.empty, predicates = M.empty, typeVarMap = M.empty, varMap = M.empty}
 
 checkTypeVar :: DsllEnv -> TypeVar -> DsllEnv
-checkTypeVar e v = e
+checkTypeVar e v = if (M.member v (typeVarMap e)) then e
+                else error ("TypeVar " ++ (show v) ++ "is not in scope")
 
 checkVar :: DsllEnv -> Var -> DsllEnv
-checkVar e v = e
+checkVar e v = if (M.member v (varMap e)) then e
+                else error ("Var " ++ (show v) ++ "is not in scope")
 
 checkY :: DsllEnv -> Y -> DsllEnv
 checkY e (TypeVarY y) = checkTypeVar e y
@@ -388,34 +405,69 @@ checkT :: DsllEnv -> T -> DsllEnv
 checkT e (TTypeVar t) = checkTypeVar e t
 checkT e (TConstr c) = checkConstructorInvoker e c
 
-checkConstructorInvoker :: DsllEnv -> ConstructorInvoker -> DsllEnv
-checkConstructorInvoker e const = e
+checkType :: DsllEnv -> Type -> DsllEnv
+checkType e t = e
 
--- checkK :: DsllEnv -> K -> DsllEnv
--- checkK e (TypeConst type) = e
+
+checkConstructorInvoker :: DsllEnv -> ConstructorInvoker -> DsllEnv
+checkConstructorInvoker e const = let name = (nameCons const)
+                                      args = (argCons const)
+                                      env1 = foldl checkArg e args
+                                      kls1 = getTypesOfArgs e args 
+                                      kls2 = klstc (checkAndGet name (typeContructors e))
+                                      in if kls1 /= kls2 then error("Args does not match: " ++ (show kls1) ++ " != " ++ (show kls2)) else env1
+
+checkK :: DsllEnv -> K -> DsllEnv
+checkK e (Ktype t) = (checkType e t)
+checkK e (KT t) = (checkT e t)
 
 
 checkTypeConstructors :: DsllEnv -> Cd -> DsllEnv
-checkTypeConstructors e c = let tc = TypeConstructor {nametc = nameCd c, klstc = (seconds (inputCd c))
+checkTypeConstructors e c = let kls = (seconds (inputCd c))
+                                env1 = foldl checkK e kls
+                                tc = TypeConstructor {nametc = nameCd c, klstc = (seconds (inputCd c))
                                                        , typtc = outputCd c}
-                        in e {typeContructors = M.insert (nameCd c) tc $ typeContructors e }
+                        in env1 {typeContructors = M.insert (nameCd c) tc $ typeContructors env1 }
+
 
 checkVarConstructors :: DsllEnv -> Vd -> DsllEnv
-checkVarConstructors e v = let vc = VarConstructor {namevc = nameVd v,  ylsvc = (firsts (varsVd v))
-                                    , klsvc = (seconds (varsVd v)) , tlsvc = (seconds (typesVd v)), tvc = (toVd v)}
-                        in e {varConstructors = M.insert (nameVd v) vc $ varConstructors e }
+checkVarConstructors e v = let kls = (seconds (varsVd v))
+                               env1 = foldl checkK e kls
+                               localEnv = foldl updateEnv env1 (varsVd v)
+                               args = (seconds (typesVd v))
+                               res = (toVd v)
+                               env2 = foldl checkT localEnv args
+                               temp = checkT localEnv res
+                               vc = VarConstructor {namevc = nameVd v,  ylsvc = (firsts (varsVd v))
+                                         , klsvc = (seconds (varsVd v)) , tlsvc = (seconds (typesVd v)), tvc = (toVd v)}
+                            in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then e{varConstructors = M.insert (nameVd v) vc $ varConstructors e} else error ("Error!")
+
 
 checkOperations :: DsllEnv -> Od -> DsllEnv
-checkOperations e v = let op = Operation {nameop = nameOd v,  ylsop = (firsts (varsOd v))
+checkOperations e v = let kls = (seconds (varsOd v))
+                          env1 = foldl checkK e kls
+                          localEnv = foldl updateEnv env1 (varsOd v)
+                          args = (seconds (typesOd v))
+                          res = (toOd v)
+                          env2 = foldl checkT localEnv args
+                          temp = checkT localEnv res
+                          op = Operation {nameop = nameOd v,  ylsop = (firsts (varsOd v))
                                     , klsop = (seconds (varsOd v)) , tlsop = (seconds (typesOd v)), top = (toOd v)}
-                        in e {operations = M.insert (nameOd v) op $ operations e }
+                        in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then e{operations = M.insert (nameOd v) op $ operations e} else error ("Error!")
+
 
 checkPredicates :: DsllEnv -> Pd -> DsllEnv
-checkPredicates e (Pd1Const v) = let pd = Pred1 Predicate1 {namepred1 = namePd1 v,  ylspred1 = (firsts (varsPd1 v))
-                                    , klspred1 = (seconds (varsPd1 v)) , tlspred1 = (seconds (typesPd1 v)), ppred1 = (toPd1 v)}
-                        in e {predicats = M.insert (namePd1 v) pd $ predicats e }
+checkPredicates e (Pd1Const v) = let kls = (seconds (varsPd1 v))
+                                     env1 = foldl checkK e kls
+                                     localEnv = foldl updateEnv env1 (varsPd1 v)
+                                     args = (seconds (typesPd1 v))
+                                     env2 = foldl checkT localEnv args
+                                     pd1 = Pred1 Predicate1 {namepred1 = namePd1 v,  ylspred1 = (firsts (varsPd1 v))
+                                         , klspred1 = (seconds (varsPd1 v)) , tlspred1 = (seconds (typesPd1 v)), ppred1 = (toPd1 v)}
+                                  in if ((env2 == e || env2 /= e)) then e{predicates = M.insert (namePd1 v) pd1 $ predicates e} else error ("Error!")
+
 checkPredicates e (Pd2Const v) = let pd = Pred2 Predicate2 {namepred2 = namePd2 v, plspred2 = (seconds (propsPd2 v)) , ppred2 = (toPd2 v)}
-                        in e {predicats = M.insert (namePd2 v) pd $ predicats e }
+                        in e {predicates = M.insert (namePd2 v) pd $ predicates e }
 
 
 -- -- | 'loadContext' loads the context of the DSLL program from the given AST representation

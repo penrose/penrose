@@ -1,25 +1,25 @@
-constructor Set: type 				-- Declaration “Set A”
-constructor Map: [type,type] -> type 	-- Declaration “Map f domain codomain”
-constructor Point: type			-- Declaration “Point p”
+tconstructor Set: type 				
+tconstructor Map(['A,'B] : [type,type]) : type 	
+tconstructor Point: type
 
-operator Intersection: [Set,Set] -> Set
-operator Union: [Set,Set] -> Set
-operator Subtraction: [Set,Set] -> Set
-operator CartesianProduct: [Set,Set] -> Set
-operator Complement: [Set,Set] -> Set
-operator Difference: [Set,Set] -> Set
-operator Subset: [Set,Set] -> Set
-operator AddPoint: [Point,Set] -> Set
-operator Apply: fortypes [A,B]: [type], [Map(A,B), A] -> B
+operator Intersection ([a,b] : [Set(),Set()]) : Set()
+operator Union ([a,b] : [Set(),Set()]) : Set()
+operator Substraciton ([a,b] : [Set(),Set()]) : Set()
+operator CartesianProduct ([a,b] : [Set(),Set()]) : Set()
+operator Difference ([a,b] : [Set(),Set()]) : Set()
+operator Subset ([a,b] : [Set(),Set()]) : Set()
+operator AddPoint ([p1,s1] : [Point(),Set()]) : Set()
+operator Apply [['A,'B] : [type,type]] ([m1,s1] : [Map('A,'B), 'A]) : 'B
  
-predicate Empty: [Set] -> Prop
-predicate NonEmpty: [Set] -> Prop
-predicate Intersect: [Set,Set] -> Prop
-predicate NoIntersect: [Set,Set] -> Prop
-predicate IsSubset: [Set,Set] -> Prop
-predicate NoSubset: [Set,Set] -> Prop
-predicate PointIn: [Set,Point] -> Prop
-predicate PointNotIn: [Set,Point] -> Prop
-predicate Injection: fortypes [A,B]: [type], [Map(A,B)] -> Prop
-predicate Surjection: fortypes [A,B]: [type], [Map(A,B)] -> Prop
-predicate Bijection: fortypes [A,B]: [type], [Map(A,B)] -> Prop
+predicate Empty ([s] : [Set()]) : Prop
+predicate NonEmpty ([s] : [Set()]) : Prop
+predicate Intersect ([s1,s2] : [Set(),Set()]) : Prop
+predicate NonIntersect ([s1,s2] : [Set(),Set()]) : Prop
+predicate IsSubset ([s1,s2] : [Set(),Set()]) : Prop
+predicate NoSubset ([s1,s2] : [Set(),Set()]) : Prop
+predicate PointIn ([s1, p1] : [Set(),Point()]) : Prop
+predicate PointNotIn ([s1, p1] : [Set(),Point()]) : Prop
+predicate Injection [['A,'B] : [type,type]] ([m] : [Map('A,'B)]) : Prop
+predicate Surjection [['A,'B] : [type,type]] ([m] : [Map('A,'B)]) : Prop
+predicate Bijection [['A,'B] : [type,type]] ([m] : [Map('A,'B)]) : Prop
+

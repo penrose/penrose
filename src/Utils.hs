@@ -161,6 +161,7 @@ backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 
 lparen, rparen, lbrac, rbrac, colon, arrow, comma :: Parser ()
+aps = void (symbol "'")
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
 lparen = void (symbol "(")
