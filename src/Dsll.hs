@@ -3,8 +3,8 @@
 --    Author: Dor Ma'ayan, May 2018
 
 {-# OPTIONS_HADDOCK prune #-}
---module DSLL where
-module Main (main) where -- for debugging purposes
+module Dsll where
+--module Main (main) where -- for debugging purposes
 
 import Utils
 import System.Process
@@ -338,8 +338,8 @@ data DsllEnv = DsllEnv{
   operations :: M.Map String Operation,
   predicates :: M.Map String Predicate,
   typeVarMap :: M.Map TypeVar Type,
-  varMap :: M.Map Var T
-  --localEnv = [] -- TODO: Work with an inner env as well
+  varMap :: M.Map Var T,
+  names :: [String] -- a global list which contains all the names declared in that env
 } deriving(Show, Eq, Typeable)
 
 
@@ -372,6 +372,9 @@ updateEnv e (TypeVarY y, Ktype t) = e {typeVarMap = M.insert y t $ typeVarMap e}
 updateEnv e (VarY y, KT t) = e {varMap = M.insert y t $ varMap e}
 updateEnv e err = error("Problem in update: " ++ (show err))
 
+addName :: String -> [String] -> [String]
+addName a lst = if (a `elem` lst) then error("Name already exsist in the context") else a : lst
+
 
 -- | 'check' is the top-level semantic checking function. It takes a DSLL
 -- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
@@ -383,7 +386,7 @@ check p =  let env1  = foldl checkTypeConstructors initE (cd p)
                env4  = foldl checkPredicates env3 (pd p)
            in env4 { typeContructors =  typeContructors env4}
            where initE = DsllEnv {typeContructors = M.empty, varConstructors = M.empty,
-            operations = M.empty, predicates = M.empty, typeVarMap = M.empty, varMap = M.empty}
+            operations = M.empty, predicates = M.empty, typeVarMap = M.empty, varMap = M.empty, names = []}
 
 checkTypeVar :: DsllEnv -> TypeVar -> DsllEnv
 checkTypeVar e v = if (M.member v (typeVarMap e)) then e
@@ -427,7 +430,7 @@ checkTypeConstructors e c = let kls = (seconds (inputCd c))
                                 env1 = foldl checkK e kls
                                 tc = TypeConstructor {nametc = nameCd c, klstc = (seconds (inputCd c))
                                                        , typtc = outputCd c}
-                        in env1 {typeContructors = M.insert (nameCd c) tc $ typeContructors env1 }
+                        in env1 {typeContructors = M.insert (nameCd c) tc $ typeContructors env1, names = (addName (nameCd c) (names env1))}
 
 
 checkVarConstructors :: DsllEnv -> Vd -> DsllEnv
@@ -440,7 +443,7 @@ checkVarConstructors e v = let kls = (seconds (varsVd v))
                                temp = checkT localEnv res
                                vc = VarConstructor {namevc = nameVd v,  ylsvc = (firsts (varsVd v))
                                          , klsvc = (seconds (varsVd v)) , tlsvc = (seconds (typesVd v)), tvc = (toVd v)}
-                            in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then e{varConstructors = M.insert (nameVd v) vc $ varConstructors e} else error ("Error!")
+                            in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then e{varConstructors = M.insert (nameVd v) vc $ varConstructors e, names = (addName (nameVd v) (names e))} else error ("Error!")
 
 
 checkOperations :: DsllEnv -> Od -> DsllEnv
@@ -453,7 +456,7 @@ checkOperations e v = let kls = (seconds (varsOd v))
                           temp = checkT localEnv res
                           op = Operation {nameop = nameOd v,  ylsop = (firsts (varsOd v))
                                     , klsop = (seconds (varsOd v)) , tlsop = (seconds (typesOd v)), top = (toOd v)}
-                        in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then e{operations = M.insert (nameOd v) op $ operations e} else error ("Error!")
+                        in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then e{operations = M.insert (nameOd v) op $ operations e, names = (addName (nameOd v) (names e))} else error ("Error!")
 
 
 checkPredicates :: DsllEnv -> Pd -> DsllEnv
@@ -464,14 +467,20 @@ checkPredicates e (Pd1Const v) = let kls = (seconds (varsPd1 v))
                                      env2 = foldl checkT localEnv args
                                      pd1 = Pred1 Predicate1 {namepred1 = namePd1 v,  ylspred1 = (firsts (varsPd1 v))
                                          , klspred1 = (seconds (varsPd1 v)) , tlspred1 = (seconds (typesPd1 v)), ppred1 = (toPd1 v)}
-                                  in if ((env2 == e || env2 /= e)) then e{predicates = M.insert (namePd1 v) pd1 $ predicates e} else error ("Error!")
+                                  in if ((env2 == e || env2 /= e)) then e{predicates = M.insert (namePd1 v) pd1 $ predicates e, names = (addName (namePd1 v) (names e))} else error ("Error!")
 
 checkPredicates e (Pd2Const v) = let pd = Pred2 Predicate2 {namepred2 = namePd2 v, plspred2 = (seconds (propsPd2 v)) , ppred2 = (toPd2 v)}
-                        in e {predicates = M.insert (namePd2 v) pd $ predicates e }
+                        in e {predicates = M.insert (namePd2 v) pd $ predicates e , names = (addName (namePd2 v) (names e))}
 
 
--- -- | 'loadContext' loads the context of the DSLL program from the given AST representation
--- loadContext : DsllEnv ->  
+-- | 'parseDsll' runs the actual parser function: 'dsllParser', taking in a program String, parses it and
+-- | semantically checks it. It outputs the environement as returned from the dsll typechecker
+parseDsll :: String -> String -> IO DsllEnv
+parseDsll dsllFile dsllIn = case runParser dsllParser dsllFile dsllIn of
+     Left err -> error (parseErrorPretty err)
+     Right xs -> do
+         let env = check xs
+         return (env)
 
 
 -- --------------------------------------- Test Driver -------------------------------------

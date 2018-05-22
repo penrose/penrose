@@ -4,7 +4,7 @@
 
 {-# OPTIONS_HADDOCK prune #-}
 module Substance where
--- module Main (main) where -- for debugging purposes
+--module Main (main) where -- for debugging purposes
 -- TODO split this up + do selective export
 
 import Utils
@@ -24,24 +24,27 @@ import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
 -- import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
+import qualified Dsll as D
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 
 
 
+
 --------------------------------------- Substance AST ---------------------------------------
 
-data SubType = TypeConst String -- these are all names, e.g. “Set”
+
+data SubTypeName = TypeConst String -- these are all names, e.g. “Set”
         | AllT -- specifically for global selection in Style
     deriving (Show, Eq, Typeable)
 
-data ValConstructor = ValConst String             -- “Cons”, “Times”
+data ValConstructorName = ValConst String             -- “Cons”, “Times”
     deriving (Show, Eq, Typeable)
 
-data Operator' = OperatorConst String             -- “Intersection” 
+data OperatorName = OperatorConst String             -- “Intersection” 
     deriving (Show, Eq, Typeable)
 
-data Predicate = PredicateConst String            -- “Intersect”
+data PredicateName = PredicateConst String            -- “Intersect”
     deriving (Show, Eq, Typeable)
 
 data TypeVar = TypeVarConst String
@@ -50,18 +53,48 @@ data TypeVar = TypeVarConst String
 data Var = VarConst String
     deriving (Show, Eq, Typeable)
 
-
-
-data Type = ApplyT SubType [Arg] | TypeT TypeVar
+data T = TConstr ConstructorInvoker | TypeVarT TypeVar
     deriving (Show, Eq, Typeable)
 
-data Arg = VarA Var | TypeA Type
+
+data ConstructorInvoker = ConstructorInvoker { nameCons :: SubTypeName, argCons:: [Arg]}
+    deriving (Eq, Typeable)
+instance Show ConstructorInvoker where
+    show (ConstructorInvoker nameCons argCons) = nString ++ "(" ++ aString ++ ")"
+        where nString = show nameCons
+              aString = show argCons
+
+data Arg = AVar Var
+    | AT T
     deriving (Show, Eq, Typeable)
 
-data Expr = VarE Var | ApplyV Operator' [Expr] | ApplyC ValConstructor [Expr]
+
+data Func = Func { nameFunc :: String, argFunc:: [Expr]}
+    deriving (Eq, Typeable)
+instance Show Func where
+    show (Func nameFunc argFunc) = nString ++ "(" ++ aString ++ ")"
+        where nString = show nameFunc
+              aString = show argFunc
+
+
+data Expr = VarE Var | ApplyExpr Func
     deriving (Show, Eq, Typeable)
 
-data SubStmt = Decl Type Var | Bind Var Expr | ApplyP Predicate [Var]
+
+data PredArg = PE Expr | PP Predicate
+    deriving (Show, Eq, Typeable)
+
+
+data Predicate = Predicate { predicateName :: PredicateName, predicateArgs:: [PredArg]}
+    deriving (Eq, Typeable)
+instance Show Predicate where
+    show (Predicate predicateName predicateArgs) = nString ++ "(" ++ aString ++ ")"
+        where nString = show predicateName
+              aString = show predicateArgs
+
+
+
+data SubStmt = Decl T Var | Bind Var Expr | ApplyP Predicate
     deriving (Show, Eq, Typeable)
 
 
@@ -69,21 +102,25 @@ data SubStmt = Decl Type Var | Bind Var Expr | ApplyP Predicate [Var]
 type SubProg = [SubStmt]
 type SubObjDiv = ([SubDecl], [SubConstr])
 
+
+
+-- | Special data types for passing on to the style parser ------------------------------------
+
 -- | Declaration of Substance objects
 data SubDecl
-    = SubDeclConst Type Var
+    = SubDeclConst T Var
     deriving (Show, Eq, Typeable)
 
 -- | Declaration of Substance constaints
 data SubConstr
-    = SubConstrConst Predicate [Var]
+    = SubConstrConst String [PredArg]
     deriving (Show, Eq, Typeable)
 
 -- | Both declarations and constaints in Substance are regarded as objects, which is possible for Style to select later.
 data SubObj = LD SubDecl | LC SubConstr deriving (Show, Eq, Typeable)
 
 
---------------------------------------- Substance Parser -------------------------------------
+--------------------------------------- Substance Parser --------------------------------------
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
 substanceParser :: Parser [SubStmt]
@@ -105,64 +142,79 @@ varParser = do
     i <- identifier
     return (VarConst i)
 
-subType :: Parser SubType
-subType = do
+subTypeNameParser :: Parser SubTypeName
+subTypeNameParser = do
     i <- identifier
     return (TypeConst i)
 
-valConstructorParser :: Parser ValConstructor
-valConstructorParser = do
-    i <- identifier
-    return (ValConst i)
-
-operatorParser :: Parser Operator'
-operatorParser = do
-    i <- identifier
-    return (OperatorConst i)
-
-predicateParser :: Parser Predicate
-predicateParser = do
+predicateNameParser ::Parser PredicateName
+predicateNameParser = do
     i <- identifier
     return (PredicateConst i)
 
-
-typeParser, applyT, typeT :: Parser Type
-typeParser = try applyT <|> typeT
-applyT = do
-  tc <- subType
-  args <- parens (argParser `sepBy1` comma)
-  return (ApplyT tc args)
-typeT = do
-  i <- typeVarParser
-  return (TypeT i)
 
 argParser, varA , typeA :: Parser Arg
 argParser = try varA <|> typeA
 varA  = do
   i <- varParser
-  return (VarA i)
+  return (AVar i)
 typeA = do
-  i <- typeParser
-  return (TypeA i)
+  i <- tParser
+  return (AT i)
 
-exprParser, varE, applyV, applyC :: Parser Expr
-exprParser = try varE <|> try applyV <|> applyC
+constructorInvoker :: Parser ConstructorInvoker
+constructorInvoker = do
+  n <- subTypeNameParser
+  args <- parens (argParser `sepBy1` comma)
+  return (ConstructorInvoker{nameCons = n, argCons = args })
+
+
+tParser, constructorInvokerT, tT :: Parser T
+tParser = try constructorInvokerT <|> tT
+constructorInvokerT = do
+  ci <- constructorInvoker
+  return (TConstr ci)
+tT = do
+  i <- typeVarParser
+  return (TypeVarT i)
+
+
+functionParser :: Parser Func
+functionParser = do
+  n <- identifier
+  args <- parens (exprParser `sepBy1` comma) 
+  return (Func {nameFunc = n, argFunc = args})
+
+
+exprParser, varE, applyF :: Parser Expr
+exprParser = try varE <|> try applyF
 varE = do
   i <- varParser
   return (VarE i)
-applyV = do
-  tc <- operatorParser
-  args <- parens (exprParser `sepBy1` comma)
-  return (ApplyV tc args)
-applyC = do
-  tc <- valConstructorParser
-  args <- parens (exprParser `sepBy1` comma)
-  return (ApplyC tc args)
+applyF = do
+  f <- functionParser
+  return (ApplyExpr f)
+
+
+predicateArgParser, predicateArgParserE, predicateArgParserP  :: Parser PredArg
+predicateArgParser = try predicateArgParserE <|> predicateArgParserP
+predicateArgParserE = do
+  e <- exprParser
+  return (PE e)
+predicateArgParserP = do
+  p <- predicateParser
+  return (PP p)
+
+predicateParser :: Parser Predicate
+predicateParser = do
+  n <- predicateNameParser
+  args <- parens (predicateArgParser `sepBy1` comma) 
+  return (Predicate {predicateName = n, predicateArgs = args})
 
 subStmt, decl, bind, applyP :: Parser SubStmt
 subStmt = try decl <|> try bind <|> applyP
 decl = do
-  t' <- typeParser
+  t' <- tParser
   v' <- varParser
   return (Decl t' v')
 bind = do
@@ -172,59 +224,74 @@ bind = do
   return (Bind v' e')
 applyP = do
   p <- predicateParser
-  v' <- parens (varParser `sepBy1` comma)
-  return (ApplyP p v')
+  return (ApplyP p)
 
---------------------------------------------------------------------------------
--- Semantic checker and desugaring
-
--- | Environment for the semantic checker. As the 'check' function executes, it
--- accumulate information such as symbol tables in the environment.
+-- --------------------------------------- Substance TypeChecker ---------------------------
 data SubEnv = SubEnv {
-    subObjs :: [SubObj] --,  -- declared Substance objects(including constraints, which is, again, viewed also as objects)
-    --subDefs :: M.Map String ([(SubType, String)], FOLExpr), -- all definitions
-    --subApps :: [(FOLExpr, M.Map String String, [String])], -- Def, varmap, ids to be solved by alloy
-    --subSymbols :: M.Map String SubType, -- symbol table
-    --subArgs :: M.Map String [String]
-    -- subAppliedDefs :: [FOLExpr]
+   a :: String
 } deriving (Show, Eq, Typeable)
 
--- | 'check' is the top-level semantic checking function. It takes a Substance
--- program as the input, checks the validity of the program, and outputs
--- a collection of information.
--- The check is done in two passes. First check all the declarations of
--- stand-alone objects like `Set`, and then check for all other things
-check :: SubProg -> SubEnv
-check p = let env1 = foldl checkDecls initE p
-              env2 = foldl checkReferencess env1 p
-              in
-            env2 { subObjs = reverse $ subObjs env2 }
-          where initE = SubEnv { subObjs = []}--, subDefs = M.empty,  subSymbols = M.empty, subApps = [], subArgs = M.empty }
+check :: SubProg -> D.DsllEnv -> SubEnv
+check p dsll = SubEnv{a = "hi"}
+
+
+checkTypeVar :: SubEnv -> TypeVar -> SubEnv
+checkTypeVar e v = e
+
+checkVar :: SubEnv -> Var -> SubEnv
+checkVar e v = e
+
+checkType :: SubEnv -> T -> SubEnv
+checkType e v = e
+
+checkArg :: SubEnv -> Arg -> SubEnv
+checkArg e v  = e
+
+checkExpr :: SubEnv -> Expr -> SubEnv
+checkExpr e v  = e
+
+-- checkQ :: SubEnv ->  -> SubEnv
+-- checkExpr e v  = e
+
+
+-- --------------------------------------- Substance Loader --------------------------------
+
+data SubObjects = SubObjects {
+    subObjs :: [SubObj] --,  -- declared Substance objects(including constraints, which is, again, viewed also as objects)
+} deriving (Show, Eq, Typeable)
+
+
+loadObjects :: SubProg -> SubObjects
+loadObjects p = let env1 = foldl passDecls initE p
+                    env2 = foldl passReferencess env1 p
+                in
+                    env2 { subObjs = reverse $ subObjs env2 }
+                where initE = SubObjects { subObjs = []}
 
 applyDef (n, m) d = case M.lookup n d of
     Nothing -> error "applyDef: definition not found!"
     Just (_, e) -> e
 
 -- | 'checkDecls' checks the validity of declarations of objects.
-checkDecls :: SubEnv -> SubStmt -> SubEnv
-checkDecls e (Decl t s)  = e { subObjs = toObj t s : subObjs e} --, subSymbols = checkAndInsert s t $ subSymbols e }
-checkDecls e _ = e -- Ignore all other statements
+passDecls :: SubObjects -> SubStmt -> SubObjects
+passDecls e (Decl t s)  = e { subObjs = toObj t s : subObjs e}
+passDecls e _ = e -- Ignore all other statements
 
 -- 'toObj' translates [Type] + [Identiers] to concrete Substance objects, to be selected by the Style program
-toObj :: Type -> Var -> SubObj
+toObj :: T -> Var -> SubObj
 toObj t v = LD $ (SubDeclConst t v)
 
 -- 'checkReferencess' checks any statement that refers to other objects. For example,
 -- > Subset A B
 -- refers to identifiers @A@ and @B@. The function will perform a lookup in the symbol table, make sure the objects exist and are of desired types -- in this case, 'Set' -- and throws an error otherwise.
-checkReferencess :: SubEnv -> SubStmt -> SubEnv
-checkReferencess e (ApplyP t ss) = e { subObjs = newConstrs : subObjs e }
+passReferencess :: SubObjects -> SubStmt -> SubObjects
+passReferencess e (ApplyP (Predicate (PredicateConst t) ss)) = e { subObjs = newConstrs : subObjs e }
     where newConstrs = (toConstr t ss)
-checkReferencess e _ = e -- Ignore all other statements
+passReferencess e _ = e -- Ignore all other statements
 
 
 -- | Similar to 'toObj'
-toConstr :: Predicate -> [Var] ->  SubObj
+toConstr :: String -> [PredArg] ->  SubObj
 toConstr p vl = LC $  (SubConstrConst p vl)
 
 -- helper function that checks the symbol table before inserting, making sure there is no duplicated declarations
@@ -247,33 +314,27 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-parseSubstance :: String -> String -> IO [SubObj]
-parseSubstance subFile subIn = case runParser substanceParser subFile subIn of
+parseSubstance :: String -> String -> D.DsllEnv -> IO ([SubObj], SubEnv)
+parseSubstance subFile subIn dsllEnv = case runParser substanceParser subFile subIn of
      Left err -> error (parseErrorPretty err)
      Right xs -> do
          mapM_ print xs
          --divLine
-         let c = check xs
-         return (subObjs c)
-
+         let subEnv = check xs dsllEnv
+         let c = loadObjects xs
+         return ((subObjs c), subEnv)
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc SubstanceCore.hs; ./SubstanceCore <substance core-file>
-
---parseFromFile p file = parseTest p file <$> readFile file
-
-parseFromFile p file = runParser p file <$> readFile file
 
 main :: IO ()
 main = do
     args <- getArgs
     let subFile = head args
     subIn <- readFile subFile
-    parsed <- parseSubstance subFile subIn
-    mapM_ print parsed
+    parseTest substanceParser subIn
+    --parsed <- parseFromFile  
+    --mapM_ print parsed
     return ()
 
-alloyDir = "./"
-alloyTempFile = "__temp__.als"
-alloyNumSamples = 1

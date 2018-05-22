@@ -42,7 +42,7 @@ type Block = ([Selector], [Stmt])
 
 -- | A selector is some pattern annotated by a __Substance type__.
 data Selector = Selector
-              { selTyp :: C.SubType -- type of Substance object
+              { selTyp :: C.SubTypeName -- type of Substance object
               , selPatterns :: [Pattern] -- a list of patterns: ids or wildcards
           } deriving (Show, Typeable)
 
@@ -122,7 +122,7 @@ globalSelect = do
 -- TODO: with the exception of some new grammars that we developed, such as 'f: A -> B'. You still have to do 'Map A B' to select this object.
 constructorSelect :: Parser Selector
 constructorSelect = do
-    typ <- C.subType
+    typ <- C.subTypeNameParser
     pat <- patterns
     return $ Selector typ pat
 
@@ -301,7 +301,7 @@ type StyDict = M.Map Name StySpec
 -- (TODO: maybe this is not the best model, since there is no difference between "primary" and "secondary" shapes)
 -- NOTE: for Substance constraints such as `Subset A B`, the 'spId' will be '_Subset_A_B' and the 'spArgs' will be '['A', 'B']'
 data StySpec = StySpec {
-    spType   :: C.SubType,  -- | The Substance type of the object
+    spType   :: C.SubTypeName,  -- | The Substance type of the object
     spId     :: String,     -- | The Substance ID of the object
     spArgs   :: [String],   -- | the "arguments" following the type.  The idea is to capture @f@, @A@ and @B@ in the case of @Map f A B@, which is needed for pattern matching (TODO: Maybe not the best term here.)
     spShpMap :: M.Map String StyObj -- | shapes associated with the substance object, e.g. "shapeName = shapeType { ... }; otherShape = otherType { ... }"
@@ -324,7 +324,7 @@ getDictAndFns :: (Autofloat a) =>
 getDictAndFns (decls, constrs) blocks =
     foldl procBlock (initDict, [], []) blocks
     where
-        -- idsWithArgs :: [(C.SubType, String, [String])]
+        -- idsWithArgs :: [(C.SubTypeName, String, [String])]
         idsWithArgs = getSubTuples decls ++ getConstrTuples constrs
         -- initDict :: M.Map String StySpec
         initDict = foldl (\m (t, n, a) ->
@@ -565,23 +565,38 @@ procAssign _ spec _ = spec -- TODO: ignoring assignment for all others; what kin
 
 varListToString :: [C.Var] -> [String]
 varListToString = map conv
-    where conv (C.VarConst s)  = s 
+    where conv (C.VarConst s)  = s
 
+
+--TODO: Support all the other cases
+convPredArg :: C.PredArg -> String
+convPredArg (C.PE (C.VarE (C.VarConst s)))  = s
+convPredArg c  = (show c)
+
+
+
+predArgListToString :: [C.PredArg] -> [String]
+predArgListToString = map convPredArg
+   
 varArgsToString :: [C.Arg] -> [String]
 varArgsToString = map conv
     where conv c = case c of
-            C.VarA (C.VarConst s) -> s
+            C.AVar (C.VarConst s) -> s
             _ -> ""
 
-getConstrTuples :: [C.SubConstr] -> [(C.SubType, String, [String])]
-getConstrTuples = map getType
-    where getType (C.SubConstrConst (C.PredicateConst p) vs)  = ((C.TypeConst p), "_" ++ p ++ (intercalate "" (varListToString vs)), (varListToString vs))
+exprToString :: [C.Expr] -> [String]
+exprToString = map conv
+    where conv c = (show c)
 
-getSubTuples :: [C.SubDecl] -> [(C.SubType, String, [String])]
+getConstrTuples :: [C.SubConstr] -> [(C.SubTypeName, String, [String])]
+getConstrTuples = map getType
+    where getType (C.SubConstrConst p  vs)  = ((C.TypeConst p), "_" ++ p ++ (intercalate "" (predArgListToString vs)), (predArgListToString vs))
+
+getSubTuples :: [C.SubDecl] -> [(C.SubTypeName, String, [String])]
 getSubTuples = map getType
     where getType d = case d of
-            C.SubDeclConst (C.ApplyT t xls) (C.VarConst v) -> (t, v , (v : (varArgsToString xls)))
-            C.SubDeclConst (C.TypeT (C.TypeVarConst t)) (C.VarConst v)     -> ((C.TypeConst t), v , [v])
+            C.SubDeclConst (C.TConstr (C.ConstructorInvoker (C.TypeConst t) xls)) (C.VarConst v) -> ((C.TypeConst t), v , (v : (varArgsToString xls)))
+            C.SubDeclConst (C.TypeVarT (C.TypeVarConst t)) (C.VarConst v)     -> ((C.TypeConst t), v , [v])
 
 
 
