@@ -25,6 +25,7 @@ import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 import Data.Dynamic
 import Data.Typeable
+import Env
 
 --------------------------------------------------------------------------------
 -- Style AST
@@ -42,7 +43,7 @@ type Block = ([Selector], [Stmt])
 
 -- | A selector is some pattern annotated by a __Substance type__.
 data Selector = Selector
-              { selTyp :: C.SubTypeName -- type of Substance object
+              { selTyp :: TypeName -- type of Substance object
               , selPatterns :: [Pattern] -- a list of patterns: ids or wildcards
           } deriving (Show, Typeable)
 
@@ -116,13 +117,13 @@ selector =  globalSelect <|> constructorSelect
 globalSelect :: Parser Selector
 globalSelect = do
     rword "global"
-    return $ Selector C.AllT []
+    return $ Selector AllT []
 
 -- | a constructor selector selects Substance objects in a similar syntax as they were declared in Substance
 -- TODO: with the exception of some new grammars that we developed, such as 'f: A -> B'. You still have to do 'Map A B' to select this object.
 constructorSelect :: Parser Selector
 constructorSelect = do
-    typ <- C.subTypeNameParser
+    typ <- typeNameParser
     pat <- patterns
     return $ Selector typ pat
 
@@ -301,7 +302,7 @@ type StyDict = M.Map Name StySpec
 -- (TODO: maybe this is not the best model, since there is no difference between "primary" and "secondary" shapes)
 -- NOTE: for Substance constraints such as `Subset A B`, the 'spId' will be '_Subset_A_B' and the 'spArgs' will be '['A', 'B']'
 data StySpec = StySpec {
-    spType   :: C.SubTypeName,  -- | The Substance type of the object
+    spType   :: TypeName,  -- | The Substance type of the object
     spId     :: String,     -- | The Substance ID of the object
     spArgs   :: [String],   -- | the "arguments" following the type.  The idea is to capture @f@, @A@ and @B@ in the case of @Map f A B@, which is needed for pattern matching (TODO: Maybe not the best term here.)
     spShpMap :: M.Map String StyObj -- | shapes associated with the substance object, e.g. "shapeName = shapeType { ... }; otherShape = otherType { ... }"
@@ -311,7 +312,7 @@ data StySpec = StySpec {
 type VarMap  = M.Map Name Name
 
 initSpec :: StySpec
-initSpec = StySpec { spType = (C.TypeConst "PointT" ),
+initSpec = StySpec { spType = (TypeNameConst "PointT" ),
                      spId = "",
                      spArgs = [],
                      spShpMap = M.empty
@@ -324,7 +325,7 @@ getDictAndFns :: (Autofloat a) =>
 getDictAndFns (decls, constrs) blocks =
     foldl procBlock (initDict, [], []) blocks
     where
-        -- idsWithArgs :: [(C.SubTypeName, String, [String])]
+        -- idsWithArgs :: [(TypeName, String, [String])]
         idsWithArgs = getSubTuples decls ++ getConstrTuples constrs
         -- initDict :: M.Map String StySpec
         initDict = foldl (\m (t, n, a) ->
@@ -392,7 +393,7 @@ procBlock :: (Autofloat a) =>
     StyContext a
 -- Case 1: @global@ block - only objectives and constraints are allowed, and
 --- there is no need to compute any variable map
-procBlock (dict, objFns, constrFns) ((Selector C.AllT []) : [], stmts) =
+procBlock (dict, objFns, constrFns) ((Selector AllT []) : [], stmts) =
     let keys          = M.keys dict
         identityMap   = M.fromList $ zip keys keys
         newObjFns     = concatMap (procObjFn identityMap [])    stmts
@@ -563,14 +564,14 @@ procAssign _ spec _ = spec -- TODO: ignoring assignment for all others; what kin
 -- FIXME: make sure these names are unique and make sure users cannot start ids
 -- with underscores
 
-varListToString :: [C.Var] -> [String]
+varListToString :: [Var] -> [String]
 varListToString = map conv
-    where conv (C.VarConst s)  = s
+    where conv (VarConst s)  = s
 
 
 --TODO: Support all the other cases
 convPredArg :: C.PredArg -> String
-convPredArg (C.PE (C.VarE (C.VarConst s)))  = s
+convPredArg (C.PE (C.VarE (VarConst s)))  = s
 convPredArg c  = (show c)
 
 
@@ -578,25 +579,25 @@ convPredArg c  = (show c)
 predArgListToString :: [C.PredArg] -> [String]
 predArgListToString = map convPredArg
    
-varArgsToString :: [C.Arg] -> [String]
+varArgsToString :: [Arg] -> [String]
 varArgsToString = map conv
     where conv c = case c of
-            C.AVar (C.VarConst s) -> s
+            AVar (VarConst s) -> s
             _ -> ""
 
 exprToString :: [C.Expr] -> [String]
 exprToString = map conv
     where conv c = (show c)
 
-getConstrTuples :: [C.SubConstr] -> [(C.SubTypeName, String, [String])]
+getConstrTuples :: [C.SubConstr] -> [(TypeName, String, [String])]
 getConstrTuples = map getType
-    where getType (C.SubConstrConst p  vs)  = ((C.TypeConst p), "_" ++ p ++ (intercalate "" (predArgListToString vs)), (predArgListToString vs))
+    where getType (C.SubConstrConst p  vs)  = ((TypeNameConst p), "_" ++ p ++ (intercalate "" (predArgListToString vs)), (predArgListToString vs))
 
-getSubTuples :: [C.SubDecl] -> [(C.SubTypeName, String, [String])]
+getSubTuples :: [C.SubDecl] -> [(TypeName, String, [String])]
 getSubTuples = map getType
     where getType d = case d of
-            C.SubDeclConst (C.TConstr (C.ConstructorInvoker (C.TypeConst t) xls)) (C.VarConst v) -> ((C.TypeConst t), v , (v : (varArgsToString xls)))
-            C.SubDeclConst (C.TypeVarT (C.TypeVarConst t)) (C.VarConst v)     -> ((C.TypeConst t), v , [v])
+            C.SubDeclConst (TConstr (ConstructorInvoker t xls)) (VarConst v) -> ((TypeNameConst t), v , (v : (varArgsToString xls)))
+            C.SubDeclConst (TTypeVar (TypeVarConst t)) (VarConst v)     -> ((TypeNameConst t), v , [v])
 
 
 

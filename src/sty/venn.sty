@@ -9,11 +9,11 @@ Intersect x y {
     constraint outsideOf(x.shape.label, y)
 }
 
-NoIntersect x y {
+NonIntersect x y {
     constraint nonOverlapping(x, y)
 }
 
-Subset x y {
+IsSubset x y {
     constraint contains(y, x)
     constraint smallerThan(x, y)
     constraint outsideOf(y.shape.label, x)

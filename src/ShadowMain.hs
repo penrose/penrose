@@ -46,7 +46,9 @@ shadowMain = do
     putStrLn (show dsllEnv)
 
     (objs, subEnv) <- C.parseSubstance subFile subIn dsllEnv
-
+    divLine
+    putStrLn "Substance Env program:\n"
+    putStrLn (show subEnv)
     -- case MP.runParser C.substanceParser subFile subIn of
     --     Left err -> putStr $ MP.parseErrorPretty err
     --     Right subParsed -> do

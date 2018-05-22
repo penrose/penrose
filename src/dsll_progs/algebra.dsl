@@ -12,4 +12,3 @@ operator Apply[['A,'B]:[type,type]] ([m1,a1] : [Map('A,'B), 'A]) : 'B
 predicate LinearV [[U, V] : [VectorSpace(), VectorSpace()]] ([m1, v1] : [Map(Vector(U), Vector(V)), Vector(U)]) : Prop
 predicate Not([l1] : [Prop]) : Prop
 predicate And([l1,l2] : [Prop, Prop]) : Prop
-
