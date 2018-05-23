@@ -95,7 +95,8 @@ data DSLLProg = DSLLProg{cd :: [Cd], vd :: [Vd], od :: [Od], pd :: [Pd]}
     deriving (Eq, Typeable)
 
 instance Show DSLLProg where
-    show (DSLLProg cd vd od pd) = "types = " ++ cdString ++ "\n \n" ++ "vars = " ++ vdString ++ "\n \n" ++ "operations = " ++ odString ++ "\n \n" ++ "predicates = " ++ pdString ++ "\n \n"
+    show (DSLLProg cd vd od pd) = "types = " ++ cdString ++ "\n \n" ++ "vars = " ++ 
+        vdString ++ "\n \n" ++ "operations = " ++ odString ++ "\n \n" ++ "predicates = " ++ pdString ++ "\n \n"
         where cdString = show cd
               vdString = show vd
               odString = show od
@@ -105,7 +106,8 @@ instance Show DSLLProg where
 
 
 -- | 'DSLLParser' is the top-level parser function. The parser contains a list of functions
---    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
+--    that parse small parts of the language. When parsing a source program, these functions are invoked
+--    in a top-down manner.
 dsllParser :: Parser DSLLProg
 dsllParser = between scn eof dsllProg -- Parse all the statemnts between the spaces to the end of the input file
 
@@ -221,29 +223,6 @@ pd2 = do
 
 
 -- --------------------------------------- DSLL Semantic Checker ---------------------------
--- | Environment for the dsll semantic checker. As the 'check' function executes, it
--- accumulate information such as symbol tables in the environment.
-
--- | list of elements that might appear in the global context
-
--- data Ttype = Ttype {yt :: Y, kt :: K}  deriving (Show, Eq, Typeable)
--- data TypeConstructor = TypeConstructor {nametc :: String, klstc :: [K], typtc :: Type} deriving (Show, Eq, Typeable)
--- data VarConstructor = VarConstructor {namevc :: String, ylsvc :: [Y], klsvc :: [K], tlsvc :: [T], tvc :: T} deriving (Show, Eq, Typeable)
--- data Operation = Operation {nameop :: String, ylsop :: [Y], klsop :: [K], tlsop :: [T], top :: T} deriving (Show, Eq, Typeable)
--- data Predicate = Pred1 Predicate1 | Pred2 Predicate2 deriving (Show, Eq, Typeable)
--- data Predicate1 = Predicate1 {namepred1 :: String, ylspred1 :: [Y], klspred1 :: [K], tlspred1 :: [T], ppred1 :: Prop} deriving (Show, Eq, Typeable)
--- data Predicate2 = Predicate2 {namepred2 :: String, plspred2 :: [Prop], ppred2 :: Prop} deriving (Show, Eq, Typeable)
-
-
--- data DsllEnv = DsllEnv{
---   typeContructors :: M.Map String TypeConstructor,
---   varConstructors :: M.Map String VarConstructor,
---   operations :: M.Map String Operation,
---   predicates :: M.Map String Predicate,
---   typeVarMap :: M.Map TypeVar Type,
---   varMap :: M.Map Var T,
---   names :: [String] -- a global list which contains all the names declared in that env
--- } deriving(Show, Eq, Typeable)
 
 
 -- | 'check' is the top-level semantic checking function. It takes a DSLL
@@ -254,9 +233,9 @@ check p =  let env1  = foldl checkTypeConstructors initE (cd p)
                env2  = foldl checkVarConstructors env1 (vd p)
                env3  = foldl checkOperations env2 (od p)
                env4  = foldl checkPredicates env3 (pd p)
-           in env4 { typeContructors =  typeContructors env4}
+           in if (null (errors env4)) then env4 else error("DSLL type checking failed with the following problems: \n" ++ (errors env4))
            where initE = VarEnv {typeContructors = M.empty, varConstructors = M.empty,
-            operations = M.empty, predicates = M.empty, typeVarMap = M.empty, varMap = M.empty, names = []}
+            operations = M.empty, predicates = M.empty, typeVarMap = M.empty, varMap = M.empty, names = [], errors = ""}
 
 
 checkTypeConstructors :: VarEnv -> Cd -> VarEnv
@@ -264,7 +243,8 @@ checkTypeConstructors e c = let kls = (seconds (inputCd c))
                                 env1 = foldl checkK e kls
                                 tc = TypeConstructor {nametc = nameCd c, klstc = (seconds (inputCd c))
                                                        , typtc = outputCd c}
-                        in env1 {typeContructors = M.insert (nameCd c) tc $ typeContructors env1, names = (addName (nameCd c) (names env1))}
+                                ef = addName (nameCd c) env1
+                             in ef {typeContructors = M.insert (nameCd c) tc $ typeContructors ef}
 
 
 checkVarConstructors :: VarEnv -> Vd -> VarEnv
@@ -277,7 +257,9 @@ checkVarConstructors e v = let kls = (seconds (varsVd v))
                                temp = checkT localEnv res
                                vc = VarConstructor {namevc = nameVd v,  ylsvc = (firsts (varsVd v))
                                          , klsvc = (seconds (varsVd v)) , tlsvc = (seconds (typesVd v)), tvc = (toVd v)}
-                            in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then e{varConstructors = M.insert (nameVd v) vc $ varConstructors e, names = (addName (nameVd v) (names e))} else error ("Error!")
+                               ef = addName (nameVd v) e
+                            in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then ef{varConstructors = M.insert (nameVd v) vc $ varConstructors ef} 
+                               else error ("Error!") -- Does not suppose to reach here
 
 
 checkOperations :: VarEnv -> Od -> VarEnv
@@ -290,7 +272,9 @@ checkOperations e v = let kls = (seconds (varsOd v))
                           temp = checkT localEnv res
                           op = Operation {nameop = nameOd v,  ylsop = (firsts (varsOd v))
                                     , klsop = (seconds (varsOd v)) , tlsop = (seconds (typesOd v)), top = (toOd v)}
-                        in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then e{operations = M.insert (nameOd v) op $ operations e, names = (addName (nameOd v) (names e))} else error ("Error!")
+                          ef = addName (nameOd v) e
+                        in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then ef{operations = M.insert (nameOd v) op $ operations ef} 
+                          else error ("Error!")  -- Does not suppose to reach here
 
 
 checkPredicates :: VarEnv -> Pd -> VarEnv
@@ -301,10 +285,13 @@ checkPredicates e (Pd1Const v) = let kls = (seconds (varsPd1 v))
                                      env2 = foldl checkT localEnv args
                                      pd1 = Pred1 Predicate1 {namepred1 = namePd1 v,  ylspred1 = (firsts (varsPd1 v))
                                          , klspred1 = (seconds (varsPd1 v)) , tlspred1 = (seconds (typesPd1 v)), ppred1 = (toPd1 v)}
-                                  in if ((env2 == e || env2 /= e)) then e{predicates = M.insert (namePd1 v) pd1 $ predicates e, names = (addName (namePd1 v) (names e))} else error ("Error!")
+                                     ef = addName (namePd1 v) e
+                                  in if ((env2 == e || env2 /= e)) then ef{predicates = M.insert (namePd1 v) pd1 $ predicates ef}
+                                   else error ("Error!")  -- Does not suppose to reach here
 
 checkPredicates e (Pd2Const v) = let pd = Pred2 Predicate2 {namepred2 = namePd2 v, plspred2 = (seconds (propsPd2 v)) , ppred2 = (toPd2 v)}
-                        in e {predicates = M.insert (namePd2 v) pd $ predicates e , names = (addName (namePd2 v) (names e))}
+                                     ef = addName (namePd2 v) e
+                        in ef {predicates = M.insert (namePd2 v) pd $ predicates ef}
 
 
 -- | 'parseDsll' runs the actual parser function: 'dsllParser', taking in a program String, parses it and

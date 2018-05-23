@@ -29,9 +29,6 @@ import qualified Dsll as D
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 
-
-
-
 --------------------------------------- Substance AST ---------------------------------------
 
 data ValConstructorName = ValConst String             -- “Cons”, “Times”
@@ -146,7 +143,7 @@ predicateParser = do
   return (Predicate {predicateName = n, predicateArgs = args})
 
 subStmt, decl, bind, applyP :: Parser SubStmt
-subStmt = try applyP <|> try bind <|> decl
+subStmt = try decl <|> try applyP <|> bind
 decl = do
   t' <- tParser
   v' <- varParser
@@ -167,7 +164,7 @@ applyP = do
 -- the typechecking rules, and outputs a collection of information.
 check :: SubProg -> VarEnv -> VarEnv
 check p varEnv = let env = foldl checkSubStmt varEnv p
-                 in env
+                 in if (null (errors env)) then env else error("Substance type checking failed with the following problems: \n" ++ (errors env))
 
 
 checkSubStmt :: VarEnv -> SubStmt -> VarEnv
@@ -180,8 +177,10 @@ checkSubStmt varEnv  (ApplyP p) = checkPredicate varEnv p
 
 checkPredicate :: VarEnv -> Predicate -> VarEnv 
 checkPredicate varEnv (Predicate (PredicateConst p) args) = case checkAndGet p (predicates varEnv) of
-                                            (Pred1 p1) -> checkVarPred varEnv args p1
-                                            (Pred2 p2) -> checkRecursePred varEnv args
+                                              Right p  -> case p of 
+                                                (Pred1 p1) -> checkVarPred varEnv args p1
+                                                (Pred2 p2) -> checkRecursePred varEnv args
+                                              Left err -> varEnv{errors = (errors varEnv) ++ err}
 
 checkVarPred :: VarEnv -> [PredArg] -> Predicate1 -> VarEnv
 checkVarPred varEnv args (Predicate1 name yls kls tls p) = varEnv
@@ -201,7 +200,6 @@ checkExpression varEnv (ApplyExpr f) = varEnv
 
 checkFunc ::  VarEnv -> Func -> VarEnv
 checkFunc varEnv f = varEnv
-
 
 -- --------------------------------------- Substance Loader --------------------------------
 -- | Load all the substance objects and pack them for visualization at runtime.hs
