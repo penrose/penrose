@@ -233,22 +233,22 @@ checkType :: VarEnv -> Type -> VarEnv
 checkType e t = e
 
 
---TODO: fix back...
-checkConstructorInvoker :: VarEnv -> ConstructorInvoker -> VarEnv
-checkConstructorInvoker e const = e 
-
+-- --TODO: fix back...
 -- checkConstructorInvoker :: VarEnv -> ConstructorInvoker -> VarEnv
--- checkConstructorInvoker e const = let name = (nameCons const)
---                                       args = (argCons const)
---                                       env1 = foldl checkArg e args
---                                       kls1 = getTypesOfArgs e args 
---                                       in case (checkAndGet name (typeContructors e)) of 
---                                       	Right val -> let kls2 = klstc val
---                                                      in if kls1 /= kls2 then env1{errors = (errors env1)
---                                                          ++ ("Args does not match: " ++ (show kls1) ++
---                                                          " != " ++ (show kls2) ++ "\n")}  
---                                                         else env1
---                                       	Left err -> env1 {errors = (errors env1) ++ err}
+-- checkConstructorInvoker e const = e 
+
+checkConstructorInvoker :: VarEnv -> ConstructorInvoker -> VarEnv
+checkConstructorInvoker e const = let name = (nameCons const)
+                                      args = (argCons const)
+                                      env1 = foldl checkArg e args
+                                      kls1 = getTypesOfArgs e args 
+                                      in case (checkAndGet name (typeContructors e)) of 
+                                      	Right val -> let kls2 = klstc val
+                                                     in if kls1 /= kls2 then env1{errors = (errors env1)
+                                                         ++ ("Args does not match: " ++ (show kls1) ++
+                                                         " != " ++ (show kls2) ++ "\n")}  
+                                                        else env1
+                                      	Left err -> env1 {errors = (errors env1) ++ err}
                                                                                            
 checkK :: VarEnv -> K -> VarEnv
 checkK e (Ktype t) = (checkType e t)

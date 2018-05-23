@@ -1,5 +1,5 @@
 tconstructor Set: type 				
-tconstructor Map(['A,'B] : [type,type]) : type 	
+tconstructor Map([a,b] : [Set(),Set()]) : type 	
 tconstructor Point: type
 
 operator Intersection ([a,b] : [Set(),Set()]) : Set()

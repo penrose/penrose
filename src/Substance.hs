@@ -183,8 +183,13 @@ checkPredicate varEnv (Predicate (PredicateConst p) args) = case checkAndGet p (
                                               Left err -> varEnv{errors = (errors varEnv) ++ err}
 
 checkVarPred :: VarEnv -> [PredArg] -> Predicate1 -> VarEnv
-checkVarPred varEnv args (Predicate1 name yls kls tls p) = varEnv
-
+checkVarPred varEnv args (Predicate1 name yls kls tls p) = let (argTypesLs, strls) = foldl argTypeLookup varEnv args
+                                                           in if ((fold (++) strls) == "")
+                                                              then let argTypes = fold (++) argTypesLs
+                                                                       sigma = substitution M.empty argTypes tls
+                                                                   in if (sigma == M.empty) then varEnv
+                                                                      else varEnv
+                                                              else varEnv{errors = (errors varEnv) ++ (fold (++) strls)}
 
 isRecursedPredicate :: PredArg -> Predicate
 isRecursedPredicate (PP p) = p
@@ -200,6 +205,52 @@ checkExpression varEnv (ApplyExpr f) = varEnv
 
 checkFunc ::  VarEnv -> Func -> VarEnv
 checkFunc varEnv f = varEnv
+
+substitution :: M.Map Y Arg -> [K] -> [K] -> M.Map Y Arg
+substitution sigma argTypes formalTypes = let types = zip argTypes formalTypes
+                                              sigmas = foldl substitutionHelper sigma types
+                                          in fold union sigmas
+
+substitutionHelper :: M.Map Y Arg -> (K, K) -> M.Map Y Arg
+substitutionHelper sigma ((Ktype aT), (Ktype fT)) = sigma
+substitutionHelper sigma ((Ktype aT), (KT fT)) = error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
+substitutionHelper sigma ((KT aT), (Ktype fT)) = error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
+substitutionHelper sigma ((KT (TTypeVar atv)), (KT (TTypeVar ftv))) = substitutionInsert sigma (TypeVarY ftv) (AT (TTypeVar atv))
+substitutionHelper sigma ((KT (TTypeVar atv)), (KT (TConstr ftc argsFT))) = error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
+substitutionHelper sigma ((KT (TConstr atc argsAT)), (KT (TTypeVar ftv))) = substitutionInsert sigma (TypeVarY ftv) (AT (TConstr atc argsAT)) $ sigma
+substitutionHelper sigma ((KT (TConstr atc argsAT)), (KT (TConstr ftc argsFT))) = if (atc /= ftc)
+                                                                            then error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
+                                                                            else let args = zip argsAT argsFT
+                                                                                     sigmas = foldl substitutionHelper2 sigma args
+                                                                                 in fold union sigmas
+
+substitutionHelper2 :: M.Map Y Arg -> (Arg, Arg) -> M.Map Y Arg
+substitutionHelper2 sigma ((AVar av), (AVar fv)) = substitutionInsert sigma (VarY fv) (AVar av) $ sigma
+substitutionHelper2 sigma ((AVar av), (AT ft)) = error("Argument type's argument " ++ (show av) ++ " doesn't match expected type's argument " ++ (show ft))
+substitutionHelper2 sigma ((AT at), (AVar fv)) = error("Argument type's argument " ++ (show at) ++ " doesn't match expected type's argument " ++ (show fv))
+substitutionHelper2 sigma ((AT at), (AT ft)) = substitutionHelper sigma ((KT at), (KT ft))
+
+substitutionInsert :: M.Map Y Arg -> Y -> Arg -> M.Map Y Arg
+substitutionInsert sigma y arg = case M.lookup y sigma of
+                                 Nothing -> M.insert y arg $ sigma
+                                 arg' -> if (arg /= arg') then error("Substituions inconsistent - no substitution can exist")
+                                         else sigma
+
+argTypeLookup :: VarEnv -> Expr -> ([K], String)
+argTypeLookup varEnv (VarE v) = let argTypes = []
+                                in case argTypeLookup varEnv arg of
+                                    Right err -> (argTypes, err)
+                                    Left t -> (t: argTypes, "")
+argTypeLookup varEnv (ApplyExpr f args) = 
+
+argTypeLookupHelper :: VarEnv -> Y -> Either K String
+argTypeLookupHelper varEnv (TypeVarY t) = case M.lookup t (typeVarMap varEnv) of
+                                   Nothing -> Right "Argument " ++ (show t) ++ " not in environment\n"
+                                   tType -> Left tType
+argTypeLookupHelper varEnv (VarY v) = case M.lookup v (varMap varEnv) of
+                               Nothing -> Right "Argument " ++ (show v) ++ " not in environment\n"
+                               vType -> Left vType
+
 
 -- --------------------------------------- Substance Loader --------------------------------
 -- | Load all the substance objects and pack them for visualization at runtime.hs
