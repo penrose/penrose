@@ -343,6 +343,8 @@ maxSize [C' c] _ = r' c -  limit / 6
 maxSize [S' s] _ = side' s - limit  / 3
 maxSize [R' r] _ = let max_side = max (sizeX' r) (sizeY' r) in
                    max_side - limit  / 3
+maxSize [PA' pa] _ = let max_side = max (sizeXpa' pa) (sizeYpa' pa) in
+                   max_side - limit  / 3
 maxSize [E' e] _ = max (ry' e) (rx' e) - limit  / 3
 
 at :: ConstrFn
@@ -352,6 +354,8 @@ minSize :: ConstrFn
 minSize [C' c] _ = 20 - r' c
 minSize [S' s] _ = 20 - side' s
 minSize [R' r] _ = let min_side = min (sizeX' r) (sizeY' r) in
+                   20 - min_side
+minSize [PA' pa] _ = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in
                    20 - min_side
 minSize [E' e] _ = 20 - min (ry' e) (rx' e)
 
