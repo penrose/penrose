@@ -1,5 +1,6 @@
 tconstructor Set: type 				
-tconstructor Map([a,b] : [Set(),Set()]) : type 	
+tconstructor Map([a,b] : [Set(),Set()]) : type
+tconstructor Map2(['a,'b] : [type,type]) : type 	
 tconstructor Point: type
 
 operator Intersection ([a,b] : [Set(),Set()]) : Set()
@@ -20,6 +21,6 @@ predicate NoSubset ([s1,s2] : [Set(),Set()]) : Prop
 predicate PointIn ([s1, p1] : [Set(),Point()]) : Prop
 predicate PointNotIn ([s1, p1] : [Set(),Point()]) : Prop
 predicate Injection [['A,'B] : [type,type]] ([m] : [Map('A,'B)]) : Prop
-predicate Surjection [['A,'B] : [type,type]] ([m] : [Map('A,'B)]) : Prop
+predicate Surjection [['A,'B] : [type,type]] ([m] : [Map2('A,'B)]) : Prop
 predicate Bijection [['A,'B] : [type,type]] ([m] : [Map('A,'B)]) : Prop
 

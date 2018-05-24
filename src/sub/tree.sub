@@ -14,3 +14,9 @@ IsSubset(G,C)
 NonIntersect(E,D)
 NonIntersect(F,G)
 NonIntersect(B,C)
+
+--Point() x
+--Empty(x)
+
+Map2(Set(),Set()) f
+Surjection(f)

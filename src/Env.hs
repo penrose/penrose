@@ -42,7 +42,7 @@ data Var = VarConst String
      deriving (Show, Eq, Typeable, Ord)
 
 data Y = TypeVarY TypeVar | VarY Var
-     deriving (Show, Eq, Typeable)
+     deriving (Show, Eq, Typeable, Ord)
 
 
 data T = TTypeVar TypeVar

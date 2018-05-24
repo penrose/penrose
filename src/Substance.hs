@@ -17,7 +17,7 @@ import Control.Arrow ((>>>))
 import System.Random
 import Debug.Trace
 import Data.List
-import Data.Maybe (fromMaybe)
+import Data.Maybe
 import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
@@ -170,9 +170,10 @@ check p varEnv = let env = foldl checkSubStmt varEnv p
 checkSubStmt :: VarEnv -> SubStmt -> VarEnv
 checkSubStmt varEnv  (Decl t v) = let env = checkT varEnv t
                                   in env {varMap = M.insert v t $ varMap env}
-checkSubStmt varEnv  (Bind v e) = let env1 = checkVar varEnv v
-                                      env2 = checkExpression env1 e
-                                  in env2
+checkSubStmt varEnv  (Bind v e) = let (vstr, vt) = checkVarE varEnv v
+                                      (estr, et) = checkExpression varEnv e -- TODO: Check lazy evaluation on et
+                                  in if (isJust vt && isJust et && vt /= et) then varEnv{errors = (errors varEnv) ++ vstr ++ estr ++ "Expression of type " ++ (show et) ++ " assigned to variable of type " ++ (show vt) ++ "\n"}
+                                     else varEnv{errors = (errors varEnv) ++ vstr ++ estr}
 checkSubStmt varEnv  (ApplyP p) = checkPredicate varEnv p
 
 checkPredicate :: VarEnv -> Predicate -> VarEnv 
@@ -183,13 +184,24 @@ checkPredicate varEnv (Predicate (PredicateConst p) args) = case checkAndGet p (
                                               Left err -> varEnv{errors = (errors varEnv) ++ err}
 
 checkVarPred :: VarEnv -> [PredArg] -> Predicate1 -> VarEnv
-checkVarPred varEnv args (Predicate1 name yls kls tls p) = let (argTypesLs, strls) = foldl argTypeLookup varEnv args
-                                                           in if ((fold (++) strls) == "")
-                                                              then let argTypes = fold (++) argTypesLs
-                                                                       sigma = substitution M.empty argTypes tls
-                                                                   in if (sigma == M.empty) then varEnv
-                                                                      else varEnv
-                                                              else varEnv{errors = (errors varEnv) ++ (fold (++) strls)}
+checkVarPred varEnv args (Predicate1 name yls kls tls p) = let exprArgs = map isVarPredicate args
+                                                               errAndTypesLs = map (checkExpression varEnv) exprArgs
+                                                               errls = map (\(err1,t1) -> err1) errAndTypesLs
+                                                               err = foldl (\err1 err2 -> err1 ++ err2) "" errls
+                                                               argTypes = map (\(err1,t1) -> t1) errAndTypesLs
+                                                           in if (foldl (\b at1 -> b && isJust at1) True argTypes)
+                                                              then let argTypes2 = map (\a -> KT (fromJust a)) argTypes
+                                                                       tls2 = map (\a -> KT a) tls
+                                                                       sigma = substitution M.empty argTypes2 tls2
+                                                                   in if (sigma == M.empty) 
+                                                                      then varEnv{errors = (errors varEnv) ++ err} -- err should be empty str
+                                                                      else varEnv{errors = (errors varEnv) ++ err} -- err should be empty str
+                                                              else 
+                                                               varEnv{errors = (errors varEnv) ++ err}
+                                                               
+isVarPredicate :: PredArg -> Expr
+isVarPredicate (PP p) = error("Mixed predicate types!")
+isVarPredicate (PE p) = p
 
 isRecursedPredicate :: PredArg -> Predicate
 isRecursedPredicate (PP p) = p
@@ -199,33 +211,88 @@ checkRecursePred :: VarEnv -> [PredArg] -> VarEnv
 checkRecursePred varEnv args = let predArgs = map isRecursedPredicate args
                                in foldl checkPredicate varEnv predArgs
 
-checkExpression :: VarEnv -> Expr -> VarEnv
-checkExpression varEnv (VarE v) = varEnv
-checkExpression varEnv (ApplyExpr f) = varEnv
+checkExpression :: VarEnv -> Expr -> (String, Maybe T)
+checkExpression varEnv (VarE v) = checkVarE varEnv v
+checkExpression varEnv (ApplyExpr f) = checkFunc varEnv f
 
-checkFunc ::  VarEnv -> Func -> VarEnv
-checkFunc varEnv f = varEnv
+checkVarE :: VarEnv -> Var -> (String, Maybe T)
+checkVarE varEnv v = case M.lookup v (varMap varEnv) of
+                     Nothing -> ("Variable " ++ (show v) ++ " not in environment\n", Nothing)
+                     vt -> ("", vt)
 
+checkFunc :: VarEnv -> Func -> (String, Maybe T)
+checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (varConstructors varEnv)
+                                     fEnv = M.lookup f (operations varEnv)
+                                 in if (isNothing(vcEnv) && isNothing(fEnv))
+                                    then ("Function or Val Constructor " ++ (show f) ++ " not in environment\n", Nothing)
+                                    else if (isJust(vcEnv))
+                                         then checkVarConsInEnv varEnv (Func f args) (fromJust vcEnv)
+                                    else checkFuncInEnv varEnv (Func f args) (fromJust fEnv)
+                                         
+
+checkFuncInEnv :: VarEnv -> Func -> Operation -> (String, Maybe T)
+checkFuncInEnv varEnv (Func f args) (Operation name yls kls tls t) = let errAndTypesLs = map (checkExpression varEnv) args
+                                                                         errls = map (\(err1,t1) -> err1) errAndTypesLs
+                                                                         err = foldl (\err1 err2 -> err1 ++ err2) "" errls
+                                                                         argTypes = map (\(err1,t1) -> t1) errAndTypesLs
+                                                                     in if (foldl (\b at1 -> b && isJust at1) True argTypes)
+                                                                        then let argTypes2 = map (\a -> KT (fromJust a)) argTypes
+                                                                                 tls2 = map (\a -> KT a) tls
+                                                                                 sigma = substitution M.empty argTypes2 tls2
+                                                                             in if (sigma == M.empty)
+                                                                                then (err, Just t) -- err should be empty str
+                                                                                else (err, Just (applySubstitution sigma t)) -- err should be empty str
+                                                                        else  
+                                                                         (err, Nothing)
+
+checkVarConsInEnv  :: VarEnv -> Func -> VarConstructor -> (String, Maybe T)                                       
+checkVarConsInEnv varEnv (Func f args) (VarConstructor name yls kls tls t) = let errAndTypesLs = map (checkExpression varEnv) args
+                                                                                 errls = map (\(err1,t1) -> err1) errAndTypesLs
+                                                                                 err = foldl (\err1 err2 -> err1 ++ err2) "" errls
+                                                                                 argTypes = map (\(err1,t1) -> t1) errAndTypesLs
+                                                                             in if (foldl (\b at1 -> b && isJust at1) True argTypes)
+                                                                                then let argTypes2 = map (\a -> KT (fromJust a)) argTypes
+                                                                                         tls2 = map (\a -> KT a) tls
+                                                                                         sigma = substitution M.empty argTypes2 tls2
+                                                                                      in if (sigma == M.empty) 
+                                                                                         then (err, Just t) -- err should be empty str
+                                                                                         else (err, Just (applySubstitution sigma t)) -- err should be empty str
+                                                                                else 
+                                                                                 (err, Nothing)
+
+applySubstitution :: M.Map Y Arg -> T -> T
+applySubstitution sigma (TTypeVar vt) = case sigma M.! (TypeVarY vt) of
+                                        AVar v -> error("Type var being mapped to variable in substitution sigma, error in TypeChecker!")
+                                        AT t -> t
+applySubstitution sigma (TConstr (ConstructorInvoker t args)) = let argsSub = map (applySubstitutionHelper sigma) args
+                                                                in (TConstr (ConstructorInvoker t argsSub))
+
+applySubstitutionHelper :: M.Map Y Arg -> Arg -> Arg
+applySubstitutionHelper sigma (AVar v) = case sigma M.! (VarY v) of
+                                         AVar v2 -> (AVar v2)
+                                         AT t -> error("Var being mapped to a type in substitution sigma, error in TypeChecker!")
+applySubstitutionHelper sigma (AT t) = AT (applySubstitution sigma t)
+                                                                                 
 substitution :: M.Map Y Arg -> [K] -> [K] -> M.Map Y Arg
 substitution sigma argTypes formalTypes = let types = zip argTypes formalTypes
-                                              sigmas = foldl substitutionHelper sigma types
-                                          in fold union sigmas
+                                              sigma2 = foldl substitutionHelper sigma types
+                                          in sigma2
 
 substitutionHelper :: M.Map Y Arg -> (K, K) -> M.Map Y Arg
 substitutionHelper sigma ((Ktype aT), (Ktype fT)) = sigma
 substitutionHelper sigma ((Ktype aT), (KT fT)) = error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
 substitutionHelper sigma ((KT aT), (Ktype fT)) = error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
 substitutionHelper sigma ((KT (TTypeVar atv)), (KT (TTypeVar ftv))) = substitutionInsert sigma (TypeVarY ftv) (AT (TTypeVar atv))
-substitutionHelper sigma ((KT (TTypeVar atv)), (KT (TConstr ftc argsFT))) = error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
-substitutionHelper sigma ((KT (TConstr atc argsAT)), (KT (TTypeVar ftv))) = substitutionInsert sigma (TypeVarY ftv) (AT (TConstr atc argsAT)) $ sigma
-substitutionHelper sigma ((KT (TConstr atc argsAT)), (KT (TConstr ftc argsFT))) = if (atc /= ftc)
-                                                                            then error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
+substitutionHelper sigma ((KT (TTypeVar atv)), (KT (TConstr (ConstructorInvoker ftc argsFT)))) = error("Argument type " ++ (show atv) ++ " doesn't match expected type " ++ (show ftc))
+substitutionHelper sigma ((KT (TConstr (ConstructorInvoker atc argsAT))), (KT (TTypeVar ftv))) = substitutionInsert sigma (TypeVarY ftv) (AT (TConstr (ConstructorInvoker atc argsAT)))
+substitutionHelper sigma ((KT (TConstr (ConstructorInvoker atc argsAT))), (KT (TConstr (ConstructorInvoker ftc argsFT)))) = if (atc /= ftc)
+                                                                            then error("Argument type " ++ (show atc) ++ " doesn't match expected type " ++ (show ftc))
                                                                             else let args = zip argsAT argsFT
-                                                                                     sigmas = foldl substitutionHelper2 sigma args
-                                                                                 in fold union sigmas
+                                                                                     sigma2 = foldl substitutionHelper2 sigma args
+                                                                                 in sigma2
 
 substitutionHelper2 :: M.Map Y Arg -> (Arg, Arg) -> M.Map Y Arg
-substitutionHelper2 sigma ((AVar av), (AVar fv)) = substitutionInsert sigma (VarY fv) (AVar av) $ sigma
+substitutionHelper2 sigma ((AVar av), (AVar fv)) = substitutionInsert sigma (VarY fv) (AVar av)
 substitutionHelper2 sigma ((AVar av), (AT ft)) = error("Argument type's argument " ++ (show av) ++ " doesn't match expected type's argument " ++ (show ft))
 substitutionHelper2 sigma ((AT at), (AVar fv)) = error("Argument type's argument " ++ (show at) ++ " doesn't match expected type's argument " ++ (show fv))
 substitutionHelper2 sigma ((AT at), (AT ft)) = substitutionHelper sigma ((KT at), (KT ft))
@@ -233,23 +300,16 @@ substitutionHelper2 sigma ((AT at), (AT ft)) = substitutionHelper sigma ((KT at)
 substitutionInsert :: M.Map Y Arg -> Y -> Arg -> M.Map Y Arg
 substitutionInsert sigma y arg = case M.lookup y sigma of
                                  Nothing -> M.insert y arg $ sigma
-                                 arg' -> if (arg /= arg') then error("Substituions inconsistent - no substitution can exist")
+                                 arg' -> if (arg /= (fromJust arg')) then error("Substituions inconsistent - no substitution can exist")
                                          else sigma
 
-argTypeLookup :: VarEnv -> Expr -> ([K], String)
-argTypeLookup varEnv (VarE v) = let argTypes = []
-                                in case argTypeLookup varEnv arg of
-                                    Right err -> (argTypes, err)
-                                    Left t -> (t: argTypes, "")
-argTypeLookup varEnv (ApplyExpr f args) = 
-
-argTypeLookupHelper :: VarEnv -> Y -> Either K String
-argTypeLookupHelper varEnv (TypeVarY t) = case M.lookup t (typeVarMap varEnv) of
-                                   Nothing -> Right "Argument " ++ (show t) ++ " not in environment\n"
-                                   tType -> Left tType
-argTypeLookupHelper varEnv (VarY v) = case M.lookup v (varMap varEnv) of
-                               Nothing -> Right "Argument " ++ (show v) ++ " not in environment\n"
-                               vType -> Left vType
+--argTypeLookupHelper :: VarEnv -> Y -> Either K String
+--argTypeLookupHelper varEnv (TypeVarY t) = case M.lookup t (typeVarMap varEnv) of
+--                                   Nothing -> Right "Argument " ++ (show t) ++ " not in environment\n"
+--                                   tType -> Left tType
+--argTypeLookupHelper varEnv (VarY v) = case M.lookup v (varMap varEnv) of
+--                               Nothing -> Right "Argument " ++ (show v) ++ " not in environment\n"
+--                               vType -> Left vType
 
 
 -- --------------------------------------- Substance Loader --------------------------------
