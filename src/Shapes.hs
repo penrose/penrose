@@ -290,6 +290,39 @@ instance Named Pt where
 instance ToJSON Pt
 instance FromJSON Pt
 
+-------------------
+
+data Image = Image { xim :: Float -- center of Image
+                     , yim :: Float
+                     , sizeXim :: Float -- x
+                     , sizeYim :: Float -- y
+                     , angim :: Float -- angle for which the obj is rotated
+                     , selim :: Bool
+                     , nameim :: String}
+     deriving (Eq, Show, Generic, Typeable, Data)
+
+instance Located Image Float where
+         getX s = xim s
+         getY s = yim s
+         setX x s = s { xim = x }
+         setY y s = s { yim = y }
+
+instance Selectable Image where
+         select x = x { selim = True }
+         deselect x = x { selim = False }
+         selected x = selim x
+
+-- NO instance for Sized
+
+instance Named Image where
+         getName im = nameim im
+         setName x im = im { nameim = x }
+
+instance ToJSON Image
+instance FromJSON Image
+
+----------------------------
+
 data Obj = S Square
          | R Rect
          | C Circ
@@ -299,6 +332,7 @@ data Obj = S Square
          | A SolidArrow
          | CB CubicBezier
          | LN Line
+         | IM Image
          deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
@@ -356,6 +390,11 @@ instance Located Obj Float where
                  A a -> getX a
                  CB c -> getX c
                  LN l -> getX l
+<<<<<<< Updated upstream
+=======
+                 PA pa -> getX pa
+                 IM im -> getX im
+>>>>>>> Stashed changes
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -366,6 +405,11 @@ instance Located Obj Float where
                  A a -> getY a
                  CB c -> getY c
                  LN l -> getY l
+<<<<<<< Updated upstream
+=======
+                 PA pa -> getY pa
+                 IM im -> getY im
+>>>>>>> Stashed changes
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -376,6 +420,11 @@ instance Located Obj Float where
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
                 LN l -> LN $ setX x l
+<<<<<<< Updated upstream
+=======
+                PA pa -> PA $ setX x pa
+                IM im -> IM $ setX x im
+>>>>>>> Stashed changes
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -386,6 +435,12 @@ instance Located Obj Float where
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
                 LN l -> LN $ setY y l
+<<<<<<< Updated upstream
+=======
+                PA pa -> PA $ setY y pa
+                IM im -> IM $ setY y im
+
+>>>>>>> Stashed changes
 
 -- I believe this typeclass is no longer used in the snap frontend
 instance Selectable Obj where
@@ -432,6 +487,11 @@ instance Named Obj where
                  A a   -> getName a
                  CB cb -> getName cb
                  LN l -> getName l
+<<<<<<< Updated upstream
+=======
+                 PA pa -> getName pa
+                 IM im -> getName im
+>>>>>>> Stashed changes
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
@@ -442,6 +502,12 @@ instance Named Obj where
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
                 LN l -> LN $ setName x l
+<<<<<<< Updated upstream
+=======
+                PA pa -> PA $ setName x pa
+                IM im -> IM $ setName x im
+
+>>>>>>> Stashed changes
 
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
@@ -456,6 +522,7 @@ data Obj' a
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     | LN' (Line' a)
+    | IM' (Image' a)
     deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
@@ -521,6 +588,29 @@ data Rect' a = Rect' { xr' :: a -- I assume this is top left?
                      , colorr' :: Color }
      deriving (Eq, Show, Generic, Typeable, Data)
 
+<<<<<<< Updated upstream
+=======
+data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
+                     , ypa' :: a
+                     , sizeXpa' :: a
+                     , sizeYpa' :: a
+                     , anglepa' :: Float
+                     , rotationpa' :: Float 
+                     , selpa' :: Bool
+                     , namepa' :: String
+                     , colorpa' :: Color }
+     deriving (Eq, Show, Generic, Typeable, Data)
+
+data Image' a = Image' { xim' :: a -- I assume this is top left?
+                     , yim' :: a
+                     , sizeXim' :: a
+                     , sizeYim' :: a
+                     , selim' :: Bool
+                     , angim' :: Float 
+                     , nameim' :: String } -- angle the obj is rotated, TODO make polymorphic
+     deriving (Eq, Show, Generic, Typeable, Data)
+
+>>>>>>> Stashed changes
 data CubicBezier' a = CubicBezier' {
     pathcb'           :: [(a, a)],
     namecb'           :: String,
@@ -529,9 +619,9 @@ data CubicBezier' a = CubicBezier' {
 } deriving (Eq, Show, Typeable, Data)
 
 data Line' a = Line' {
-    startx_l'           :: a,
-    starty_l'           :: a,
-    thickness_l'         :: a,
+    startx_l'         :: a,
+    starty_l'         :: a,
+    thickness_l'      :: a,
     endx_l'           :: a,
     endy_l'           :: a,
     name_l'           :: String,
@@ -574,6 +664,10 @@ instance Named (CubicBezier' a) where
 instance Named (Line' a) where
          getName = name_l'
          setName x l = l { name_l' = x }
+
+instance Named (Image' a) where
+         getName = nameim'
+         setName x im = im { nameim' = x }
 
 instance Named (Obj' a) where
          getName o = case o of
@@ -638,6 +732,12 @@ instance Located (Pt' a) a where
          setX x p = p { xp' = x }
          setY y p = p { yp' = y }
 
+instance Located (Image' a) a where
+         getX = xim'
+         getY = yim'
+         setX x im = im { xim' = x }
+         setY y im = im { yim' = y }
+
 -- TODO: Added context for max and min functions. Consider rewriting the whole `Located` interface. For general shapes, simply setX and getX does NOT make sense.
 instance (Real a, Floating a, Show a, Ord a) => Located (CubicBezier' a) a where
          getX c   = let xs = map fst $ pathcb' c in maximum xs - minimum xs
@@ -666,6 +766,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              R' r -> xr' r
              A' a -> startx' a
              LN' l -> getX l
+             IM' im -> xim' im
          getY o = case o of
              C' c -> yc' c
              E' e -> ye' e
@@ -675,6 +776,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              R' r -> yr' r
              A' a -> starty' a
              LN' l -> getY l
+             IM' im -> yim' im
          setX x o = case o of
              C' c -> C' $ setX x c
              E' e -> E' $ setX x e
@@ -684,6 +786,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              R' r -> R' $ setX x r
              A' a -> A' $ setX x a
              LN' l -> LN' $ setX x l
+             IM' im -> IM' $ setX x im
          setY y o = case o of
              C' c -> C' $ setY y c
              E' e -> E' $ setY y e
@@ -693,6 +796,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              R' r -> R' $ setY y r
              A' a -> A' $ setY y a
              LN' l -> LN' $ setY y l
+             IM' im -> IM' $ setY y im
 
 -----------------------------------------------
 -- Defining the interface between Style types/operations and internal computation types / object properties
@@ -829,6 +933,14 @@ set "end" (A' o) (TPt (x, y))    = A' $ o { endx' = x, endy' = y }
 set "thickness" (A' o) (TNum n)  = A' $ o { thickness' = n }
 set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
 -- TODO add angle and length properties
+-- Images
+set "x" (IM' o) (TNum n)          = IM' $ o { xim' = n }
+set "y" (IM' o) (TNum n)          = IM' $ o { yim' = n }
+set "center" (IM' o) (TPt (x, y)) = IM' $ o { xim' = x, yim' = y }
+set "length" (IM' o) (TNum n)     = IM' $ o { sizeXim' = n }
+set "width" (IM' o) (TNum n)      = IM' $ o { sizeYim' = n }
+-- TODO LILY fix rotate?
+--set "angle" (IM' o) (TNum n)      = IM' $ o { angim' = r2f n }
 
 -- Lines
 set "startx" (LN' o) (TNum n)     = LN' $ o { startx_l' = n }
@@ -849,3 +961,5 @@ set "location" (L' o) (TPt (x, y)) = L' $ o { xl' = x, yl' = y }
 
 set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n" 
                                    ++ show obj ++ "\n" ++ show val)
+
+

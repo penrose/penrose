@@ -343,6 +343,18 @@ $.getScript('snap.svg.js', function()
                     //     strokeWidth: 1, // CamelCase...
                     // })
                 break
+                //Case image
+                case 'IM':
+                    var sizeX = obj.sizeX
+                    var sizeY = obj.sizeY
+                    var xim = obj.width
+                    var yim = obj.height
+                    var path = "image/nimo.png"
+                    var image = s.image(path, xim, yim, sizeX, sizeY)
+                    image.data("name", obj.nameim)
+                    image.drag(move, start, stop)
+                break
+
             }
         }
         // Send the bbox information to the server
