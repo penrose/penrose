@@ -115,7 +115,8 @@ tParser, tConstructorInvokerParser, typeVarParser' :: Parser T
 tParser = try tConstructorInvokerParser <|> typeVarParser'
 tConstructorInvokerParser = do
     i         <- identifier
-    arguments <- try (parens (argParser `sepBy1` comma)) <|> emptyArgList
+    -- arguments <- try (parens (argParser `sepBy1` comma)) <|> emptyArgList
+    arguments <- option [] $ parens (argParser `sepBy1` comma)
     return (TConstr (ConstructorInvoker {nameCons = i, argCons = arguments}))
 typeVarParser' = do
     i <- typeVarParser
@@ -215,7 +216,7 @@ checkTypeVar e v = if (M.member v (typeVarMap e)) then e
 checkVar :: VarEnv -> Var -> VarEnv
 checkVar e v = if (M.member v (varMap e)) then e
     else e {errors = (errors e) ++ ("Var " ++ (show v) ++ "is not in scope \n")}
-               
+
 
 checkY :: VarEnv -> Y -> VarEnv
 checkY e (TypeVarY y) = checkTypeVar e y
@@ -235,21 +236,21 @@ checkType e t = e
 
 -- --TODO: fix back...
 -- checkConstructorInvoker :: VarEnv -> ConstructorInvoker -> VarEnv
--- checkConstructorInvoker e const = e 
+-- checkConstructorInvoker e const = e
 
 checkConstructorInvoker :: VarEnv -> ConstructorInvoker -> VarEnv
 checkConstructorInvoker e const = let name = (nameCons const)
                                       args = (argCons const)
                                       env1 = foldl checkArg e args
-                                      kls1 = getTypesOfArgs e args 
-                                      in case (checkAndGet name (typeContructors e)) of 
-                                      	Right val -> let kls2 = klstc val
+                                      kls1 = getTypesOfArgs e args
+                                      in case (checkAndGet name (typeContructors e)) of
+                                      Right val -> let kls2 = klstc val
                                                      in if kls1 /= kls2 then env1{errors = (errors env1)
                                                          ++ ("Args does not match: " ++ (show kls1) ++
-                                                         " != " ++ (show kls2) ++ "\n")}  
+                                                         " != " ++ (show kls2) ++ "\n")}
                                                         else env1
-                                      	Left err -> env1 {errors = (errors env1) ++ err}
-                                                                                           
+                                      Left err -> env1 {errors = (errors env1) ++ err}
+
 checkK :: VarEnv -> K -> VarEnv
 checkK e (Ktype t) = (checkType e t)
 checkK e (KT t) = (checkT e t)

@@ -1,4 +1,4 @@
--- | "DSLL" contains the grammers and parser for the 
+-- | "DSLL" contains the grammers and parser for the
 --    DSLL language
 --    Author: Dor Ma'ayan, May 2018
 
@@ -91,11 +91,11 @@ instance Show Pd2 where
 
 
 -- | DSLL program composed out of type constructors followed by ar declarations, operations and predicates
-data DSLLProg = DSLLProg{cd :: [Cd], vd :: [Vd], od :: [Od], pd :: [Pd]} 
+data DSLLProg = DSLLProg{cd :: [Cd], vd :: [Vd], od :: [Od], pd :: [Pd]}
     deriving (Eq, Typeable)
 
 instance Show DSLLProg where
-    show (DSLLProg cd vd od pd) = "types = " ++ cdString ++ "\n \n" ++ "vars = " ++ 
+    show (DSLLProg cd vd od pd) = "types = " ++ cdString ++ "\n \n" ++ "vars = " ++
         vdString ++ "\n \n" ++ "operations = " ++ odString ++ "\n \n" ++ "predicates = " ++ pdString ++ "\n \n"
         where cdString = show cd
               vdString = show vd
@@ -128,14 +128,10 @@ cdParser = try cd1 <|> cd2
 cd1= do
     rword "tconstructor"
     name <- identifier
-    lparen
-    b' <- listOut (yParser `sepBy1` comma)
-    colon
-    k' <- listOut (kParser `sepBy1` comma)
-    rparen
+    (y, k) <- parens ykParser
     colon
     t' <- typeParser
-    return Cd {nameCd = name, inputCd =  (zip b' k'), outputCd =  t'}
+    return Cd {nameCd = name, inputCd = zip y k, outputCd =  t'}
 cd2 = do
     rword "tconstructor"
     name <- identifier
@@ -144,68 +140,55 @@ cd2 = do
     return Cd {nameCd = name, inputCd =  [], outputCd =  t'}
 
 
+varWithType = do
+    v <- varParser
+    colon
+    t <- tParser
+    return (v, t)
+yWithKind = do
+    y <- yParser
+    colon
+    k <- kParser
+    return (y, k)
+
 -- | parser for the (y,k) list, refactored out to prevent duplication
 ykParser :: Parser ([Y],[K])
-ykParser = do
-  slparen
-  y' <- listOut (yParser `sepBy1` comma)
-  colon
-  k' <- listOut (kParser `sepBy1` comma)
-  srparen
-  return (y',k')
-
--- | for the cases we do not have (y,k) list 
-emptyykParser :: Parser ([Y],[K])
-emptyykParser = return ([],[])
+ykParser = unzip <$> (yWithKind `sepBy1` comma)
 
 -- | parser for the (b,t) list, refactored out to prevent duplication
 xtParser :: Parser ([Var],[T])
-xtParser = do
-  lparen
-  x' <- listOut (varParser `sepBy1` comma)
-  colon
-  t' <- listOut (tParser `sepBy1` comma)
-  rparen
-  return (x',t')
-
--- | for the cases we do not have (b,t) list 
-emptyxtParser :: Parser ([Var],[T])
-emptyxtParser = return ([],[])
-
+xtParser = unzip <$> (varWithType `sepBy1` comma)
 
 -- | var constructor parser
 vdParser :: Parser Vd
 vdParser = do
   rword "vconstructor"
   name <- identifier
-  (y',k') <- try ykParser <|> emptyykParser
-  (b',t') <- try xtParser <|> emptyxtParser
+  (y',k') <- option ([], []) ykParser
+  (b',t') <- option ([], []) xtParser
   colon
   t'' <- tParser
   return Vd{nameVd = name, varsVd = (zip y' k'), typesVd  =  (zip b' t'), toVd = t''}
-
-
 
   -- | operation parser
 odParser :: Parser Od
 odParser = do
   rword "operator"
   name <- identifier
-  (y',k') <- try ykParser <|> emptyykParser
-  (b',t') <- try xtParser <|> emptyxtParser
+  (y',k') <- option ([], []) $ brackets ykParser
+  (b',t') <- option ([], []) $ parens   xtParser
   colon
   t'' <- tParser
   return Od{nameOd = name, varsOd = (zip y' k'), typesOd  =  (zip b' t'), toOd = t''}
 
-
 -- | predicate parser
 pdParser, pd1, pd2 :: Parser Pd
-pdParser = try pd1 <|> pd2 
+pdParser = try pd1 <|> pd2
 pd1 = do
   rword "predicate"
   name <- identifier
-  (y',k') <- try ykParser <|> emptyykParser
-  (b',t') <- try xtParser <|> emptyxtParser
+  (y',k') <- option ([], []) $ brackets ykParser
+  (b',t') <- option ([], []) $ parens   xtParser
   colon
   p' <- propParser
   return (Pd1Const (Pd1{namePd1 = name, varsPd1 = (zip y' k'), typesPd1  =  (zip b' t'), toPd1 = p'}))
@@ -213,9 +196,9 @@ pd2 = do
   rword "predicate"
   name <- identifier
   lparen
-  b' <- listOut (varParser `sepBy1` comma)
+  b' <- brackets (varParser `sepBy1` comma)
   colon
-  prop' <- listOut (propParser `sepBy1` comma)
+  prop' <- brackets (propParser `sepBy1` comma)
   rparen
   colon
   p' <- propParser
@@ -258,7 +241,7 @@ checkVarConstructors e v = let kls = (seconds (varsVd v))
                                vc = VarConstructor {namevc = nameVd v,  ylsvc = (firsts (varsVd v))
                                          , klsvc = (seconds (varsVd v)) , tlsvc = (seconds (typesVd v)), tvc = (toVd v)}
                                ef = addName (nameVd v) e
-                            in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then ef{varConstructors = M.insert (nameVd v) vc $ varConstructors ef} 
+                            in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then ef{varConstructors = M.insert (nameVd v) vc $ varConstructors ef}
                                else error ("Error!") -- Does not suppose to reach here
 
 
@@ -273,7 +256,7 @@ checkOperations e v = let kls = (seconds (varsOd v))
                           op = Operation {nameop = nameOd v,  ylsop = (firsts (varsOd v))
                                     , klsop = (seconds (varsOd v)) , tlsop = (seconds (typesOd v)), top = (toOd v)}
                           ef = addName (nameOd v) e
-                        in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then ef{operations = M.insert (nameOd v) op $ operations ef} 
+                        in if ((env2 == e || env2 /= e) && (temp == e || temp /= e)) then ef{operations = M.insert (nameOd v) op $ operations ef}
                           else error ("Error!")  -- Does not suppose to reach here
 
 
@@ -318,14 +301,5 @@ main = do
       writeFile outputFile (show xs)
       let o = check xs
       putStrLn (show o)
-  putStrLn "Parsing Done!"  
+  putStrLn "Parsing Done!"
   return ()
-
-
-    
-
-
-
-
-
-

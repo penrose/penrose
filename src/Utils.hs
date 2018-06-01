@@ -180,8 +180,8 @@ braces = between (symbol "{") (symbol "}")
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
 
-listOut :: Parser a -> Parser a
-listOut = between (symbol "[") (symbol "]")
+brackets :: Parser a -> Parser a
+brackets = between (symbol "[") (symbol "]")
 
 -- | 'integer' parses an integer.
 integer :: Parser Integer

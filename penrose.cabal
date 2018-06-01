@@ -43,7 +43,6 @@ executable penrose
                        split,
                        directory
   hs-source-dirs:      src
-  default-language:    Haskell2010
 
 Test-Suite penrose-testsuite
   hs-source-dirs: src test
