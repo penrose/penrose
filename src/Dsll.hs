@@ -139,25 +139,20 @@ cd2 = do
     t' <- typeParser
     return Cd {nameCd = name, inputCd =  [], outputCd =  t'}
 
-
-varWithType = do
-    v <- varParser
-    colon
-    t <- tParser
-    return (v, t)
-yWithKind = do
-    y <- yParser
-    colon
-    k <- kParser
-    return (y, k)
-
--- | parser for the (y,k) list, refactored out to prevent duplication
+-- | parser for the (y,k) list
 ykParser :: Parser ([Y],[K])
 ykParser = unzip <$> (yWithKind `sepBy1` comma)
+    where yWithKind = (,) <$> (yParser <* colon) <*> kParser
 
--- | parser for the (b,t) list, refactored out to prevent duplication
+-- | parser for the (b,t) list
 xtParser :: Parser ([Var],[T])
 xtParser = unzip <$> (varWithType `sepBy1` comma)
+    where varWithType = (,) <$> (varParser <* colon) <*> tParser
+
+-- | parser for the (x, Prop) list
+xPropParser :: Parser ([Var],[Prop])
+xPropParser = unzip <$> (vpPair `sepBy1` comma)
+    where vpPair = (,) <$> (varParser <* colon) <*> propParser
 
 -- | var constructor parser
 vdParser :: Parser Vd
@@ -195,11 +190,7 @@ pd1 = do
 pd2 = do
   rword "predicate"
   name <- identifier
-  lparen
-  b' <- brackets (varParser `sepBy1` comma)
-  colon
-  prop' <- brackets (propParser `sepBy1` comma)
-  rparen
+  (b', prop') <- parens xPropParser
   colon
   p' <- propParser
   return (Pd2Const (Pd2{namePd2 = name, propsPd2 = (zip b' prop'), toPd2 = p'}))

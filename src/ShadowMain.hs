@@ -128,7 +128,7 @@ shadowMain = do
 --             return $ Just initState
 
 -- mainRetFinal :: R.State -> R.State
--- mainRetFinal initState = 
+-- mainRetFinal initState =
 --          let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepCount (initState, 0) in
 --          let objsComputed = R.computeOnObjs_noGrad (R.objs finalState) (R.comps finalState) in
 --          trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState { R.objs = objsComputed }

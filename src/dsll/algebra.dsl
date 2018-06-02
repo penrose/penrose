@@ -1,14 +1,14 @@
 tconstructor VectorSpace : type
-tconstructor Vector([v]:[VectorSpace()]) : type                    
-tconstructor Scalar : type                                               
-tconstructor Map([t1,t2]:[type, type]) : type
+tconstructor Vector(v : VectorSpace) : type
+tconstructor Scalar : type
+tconstructor Map(t1 : type, t2 : type) : type
 
-operator AddV [[V] : [VectorSpace()]] ([v1,v2]:[Vector(V), Vector(V)]) : Vector(V)
-operator AddS([s1,s2] : [Scalar(), Scalar()]) : Scalar()
-operator Norm[[V] : [VectorSpace()]] ([v1] : [Vector(V)]) : Scalar()
-operator InnerProd[[V] : [VectorSpace()]] ([v1,v2] : [Vector(V), Vector(V)]) : Scalar()
-operator Apply[['A,'B]:[type,type]] ([m1,a1] : [Map('A,'B), 'A]) : 'B
+operator AddV [V : VectorSpace] (v1 : Vector(V), v2 : Vector(V)) : Vector(V)
+operator AddS(s1 : Scalar, s2 : Scalar) : Scalar
+operator Norm[V : VectorSpace] (v1 : Vector(V)) : Scalar
+operator InnerProd[V : VectorSpace] (v1 : Vector(V), v2 : Vector(V)) : Scalar
+operator Apply['A : type,'B : type] (m1 : Map('A,'B), a1 : 'A) : 'B
 
-predicate LinearV [[U, V] : [VectorSpace(), VectorSpace()]] ([m1, v1] : [Map(Vector(U), Vector(V)), Vector(U)]) : Prop
-predicate Not([l1] : [Prop]) : Prop
-predicate And([l1,l2] : [Prop, Prop]) : Prop
+predicate LinearV [U : VectorSpace, V : VectorSpace] (m1 : Map(Vector(U), Vector(V)), v1 : Vector(U)) : Prop
+predicate Not(l1 : Prop) : Prop
+predicate And(l1 : Prop, l2 : Prop) : Prop

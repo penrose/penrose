@@ -131,13 +131,6 @@ tParser' = do
     t <- tParser
     return (AT t)
 
-emptyArgList :: Parser [Arg]
-emptyArgList = do
-  lparen
-  rparen
-  return []
-
-
 kParser, kTypeParser, tParser'' :: Parser K
 kParser = try kTypeParser <|> try tParser''
 kTypeParser = do
