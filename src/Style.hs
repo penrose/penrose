@@ -598,8 +598,8 @@ getConstrTuples = map getType
 getSubTuples :: [C.SubDecl] -> [(TypeName, String, [String])]
 getSubTuples = map getType
     where getType d = case d of
-            C.SubDeclConst (TConstr (ConstructorInvoker t xls)) (VarConst v) -> ((TypeNameConst t), v , (v : (varArgsToString xls)))
-            C.SubDeclConst (TTypeVar (TypeVarConst t)) (VarConst v)     -> ((TypeNameConst t), v , [v])
+            C.SubDeclConst (TConstr (ConstructorInvoker t xls pos1)) (VarConst v) -> ((TypeNameConst t), v , (v : (varArgsToString xls)))
+            C.SubDeclConst (TTypeVar (TypeVar name pos2)) (VarConst v)     -> ((TypeNameConst name), v , [v])
 
 
 

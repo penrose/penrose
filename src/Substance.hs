@@ -57,10 +57,10 @@ data PredArg = PE Expr | PP Predicate
     deriving (Show, Eq, Typeable)
 
 
-data Predicate = Predicate { predicateName :: PredicateName, predicateArgs:: [PredArg]}
+data Predicate = Predicate { predicateName :: PredicateName, predicateArgs:: [PredArg], predicatePos :: SourcePos}
     deriving (Eq, Typeable)
 instance Show Predicate where
-    show (Predicate predicateName predicateArgs) = nString ++ "(" ++ aString ++ ")"
+    show (Predicate predicateName predicateArgs pos) = nString ++ "(" ++ aString ++ ")"
         where nString = show predicateName
               aString = show predicateArgs
 
@@ -140,7 +140,8 @@ predicateParser :: Parser Predicate
 predicateParser = do
   n <- predicateNameParser
   args <- parens (predicateArgParser `sepBy1` comma) 
-  return (Predicate {predicateName = n, predicateArgs = args})
+  pos <- getPosition
+  return (Predicate {predicateName = n, predicateArgs = args, predicatePos = pos})
 
 subStmt, decl, bind, applyP :: Parser SubStmt
 subStmt = try decl <|> try applyP <|> bind
@@ -177,7 +178,7 @@ checkSubStmt varEnv  (Bind v e) = let (vstr, vt) = checkVarE varEnv v
 checkSubStmt varEnv  (ApplyP p) = checkPredicate varEnv p
 
 checkPredicate :: VarEnv -> Predicate -> VarEnv 
-checkPredicate varEnv (Predicate (PredicateConst p) args) = case checkAndGet p (predicates varEnv) of
+checkPredicate varEnv (Predicate (PredicateConst p) args pos) = case checkAndGet p (predicates varEnv) pos of
                                               Right p  -> case p of 
                                                 (Pred1 p1) -> checkVarPred varEnv args p1
                                                 (Pred2 p2) -> checkRecursePred varEnv args
@@ -262,15 +263,15 @@ checkVarConsInEnv varEnv (Func f args) (VarConstructor name yls kls tls t) = let
 
 applySubstitution :: M.Map Y Arg -> T -> T
 applySubstitution sigma (TTypeVar vt) = case sigma M.! (TypeVarY vt) of
-                                        AVar v -> error("Type var being mapped to variable in substitution sigma, error in TypeChecker!")
+                                        AVar v -> error("Type var being mapped to variable in substitution sigma, error in the TypeChecker!")
                                         AT t -> t
-applySubstitution sigma (TConstr (ConstructorInvoker t args)) = let argsSub = map (applySubstitutionHelper sigma) args
-                                                                in (TConstr (ConstructorInvoker t argsSub))
+applySubstitution sigma (TConstr (ConstructorInvoker t args pos)) = let argsSub = map (applySubstitutionHelper sigma) args
+                                                                in (TConstr (ConstructorInvoker t argsSub pos))
 
 applySubstitutionHelper :: M.Map Y Arg -> Arg -> Arg
 applySubstitutionHelper sigma (AVar v) = case sigma M.! (VarY v) of
                                          AVar v2 -> (AVar v2)
-                                         AT t -> error("Var being mapped to a type in substitution sigma, error in TypeChecker!")
+                                         AT t -> error("Var being mapped to a type in substitution sigma, error in the TypeChecker!")
 applySubstitutionHelper sigma (AT t) = AT (applySubstitution sigma t)
                                                                                  
 substitution :: M.Map Y Arg -> [K] -> [K] -> M.Map Y Arg
@@ -283,9 +284,9 @@ substitutionHelper sigma ((Ktype aT), (Ktype fT)) = sigma
 substitutionHelper sigma ((Ktype aT), (KT fT)) = error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
 substitutionHelper sigma ((KT aT), (Ktype fT)) = error("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
 substitutionHelper sigma ((KT (TTypeVar atv)), (KT (TTypeVar ftv))) = substitutionInsert sigma (TypeVarY ftv) (AT (TTypeVar atv))
-substitutionHelper sigma ((KT (TTypeVar atv)), (KT (TConstr (ConstructorInvoker ftc argsFT)))) = error("Argument type " ++ (show atv) ++ " doesn't match expected type " ++ (show ftc))
-substitutionHelper sigma ((KT (TConstr (ConstructorInvoker atc argsAT))), (KT (TTypeVar ftv))) = substitutionInsert sigma (TypeVarY ftv) (AT (TConstr (ConstructorInvoker atc argsAT)))
-substitutionHelper sigma ((KT (TConstr (ConstructorInvoker atc argsAT))), (KT (TConstr (ConstructorInvoker ftc argsFT)))) = if (atc /= ftc)
+substitutionHelper sigma ((KT (TTypeVar atv)), (KT (TConstr (ConstructorInvoker ftc argsFT pos)))) = error("Argument type " ++ (show atv) ++ " doesn't match expected type " ++ (show ftc))
+substitutionHelper sigma ((KT (TConstr (ConstructorInvoker atc argsAT pos))), (KT (TTypeVar ftv))) = substitutionInsert sigma (TypeVarY ftv) (AT (TConstr (ConstructorInvoker atc argsAT pos)))
+substitutionHelper sigma ((KT (TConstr (ConstructorInvoker atc argsAT pos1))), (KT (TConstr (ConstructorInvoker ftc argsFT pos2)))) = if (atc /= ftc)
                                                                             then error("Argument type " ++ (show atc) ++ " doesn't match expected type " ++ (show ftc))
                                                                             else let args = zip argsAT argsFT
                                                                                      sigma2 = foldl substitutionHelper2 sigma args
@@ -344,7 +345,7 @@ toObj t v = LD $ (SubDeclConst t v)
 -- > Subset A B
 -- refers to identifiers @A@ and @B@. The function will perform a lookup in the symbol table, make sure the objects exist and are of desired types -- in this case, 'Set' -- and throws an error otherwise.
 passReferencess :: SubObjects -> SubStmt -> SubObjects
-passReferencess e (ApplyP (Predicate (PredicateConst t) ss)) = e { subObjs = newConstrs : subObjs e }
+passReferencess e (ApplyP (Predicate (PredicateConst t) ss pos)) = e { subObjs = newConstrs : subObjs e }
     where newConstrs = (toConstr t ss)
 passReferencess e _ = e -- Ignore all other statements
 

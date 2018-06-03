@@ -131,6 +131,8 @@ cd1= do
     (y, k) <- parens ykParser
     colon
     t' <- typeParser
+    pos <- getPosition
+    
     return Cd {nameCd = name, inputCd = zip y k, outputCd =  t'}
 cd2 = do
     rword "tconstructor"

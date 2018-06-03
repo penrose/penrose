@@ -35,7 +35,7 @@ data TypeName = TypeNameConst String -- these are all names, e.g. “Set”
         | AllT -- specifically for global selection in Style
     deriving (Show, Eq, Typeable)
 
-data TypeVar = TypeVarConst String
+data TypeVar = TypeVar { typeVarName :: String, typeVarPos :: SourcePos}
      deriving (Show, Eq, Typeable, Ord)
 
 data Var = VarConst String
@@ -50,10 +50,10 @@ data T = TTypeVar TypeVar
     deriving (Show, Eq, Typeable)
 
 
-data ConstructorInvoker = ConstructorInvoker { nameCons :: String, argCons:: [Arg]}
+data ConstructorInvoker = ConstructorInvoker { nameCons :: String, argCons:: [Arg], constructorInvokerPos :: SourcePos}
     deriving (Eq, Typeable)
 instance Show ConstructorInvoker where
-    show (ConstructorInvoker nameCons argCons) = nString ++ "(" ++ aString ++ ")"
+    show (ConstructorInvoker nameCons argCons posCons) = nString ++ "(" ++ aString ++ ")"
         where nString = show nameCons
               aString = show argCons
 
@@ -65,13 +65,18 @@ data K = Ktype Type
      | KT T
      deriving (Show, Eq, Typeable)
 
-data Type = TypeConst String
-     deriving (Show, Eq, Typeable)
+
+data Type = Type{ typeName :: String, typePos :: SourcePos}
+     deriving (Show, Typeable)
+
+instance Eq Type where
+  (Type n1 _) == (Type n2 _) = n1 == n2
 
 
-data Prop = PropConst String
-     deriving (Show, Eq, Typeable)
-
+data Prop =  Prop {propName:: String, propPos :: SourcePos}
+     deriving (Show, Typeable)
+instance Eq Prop where
+  (Prop n1 _) == (Prop n2 _) = n1 == n2
 
 ----------------------------------- Parser --------------------------------------------
 
@@ -83,7 +88,8 @@ typeNameParser = do
 typeParser :: Parser Type
 typeParser = do
     rword "type"
-    return (TypeConst "type")
+    pos <- getPosition
+    return Type{ typeName = "type", typePos = pos}
 
 varParser :: Parser Var
 varParser = do
@@ -94,7 +100,8 @@ typeVarParser :: Parser TypeVar
 typeVarParser = do
     aps
     i <- identifier
-    return (TypeVarConst i)
+    pos <- getPosition
+    return TypeVar { typeVarName =  i, typeVarPos = pos}
 
 yParser, y1, y2 :: Parser Y
 yParser = try y1 <|> y2
@@ -108,16 +115,17 @@ y2 = do
 propParser :: Parser Prop
 propParser = do
     rword "Prop"
-    return (PropConst "Prop")
+    pos <- getPosition
+    return Prop { propName = "Prop", propPos = pos}
 
 
 tParser, tConstructorInvokerParser, typeVarParser' :: Parser T
 tParser = try tConstructorInvokerParser <|> typeVarParser'
 tConstructorInvokerParser = do
     i         <- identifier
-    -- arguments <- try (parens (argParser `sepBy1` comma)) <|> emptyArgList
     arguments <- option [] $ parens (argParser `sepBy1` comma)
-    return (TConstr (ConstructorInvoker {nameCons = i, argCons = arguments}))
+    pos <- getPosition
+    return (TConstr (ConstructorInvoker {nameCons = i, argCons = arguments, constructorInvokerPos = pos}))
 typeVarParser' = do
     i <- typeVarParser
     return (TTypeVar i)
@@ -135,7 +143,8 @@ kParser, kTypeParser, tParser'' :: Parser K
 kParser = try kTypeParser <|> try tParser''
 kTypeParser = do
      rword "type"
-     return (Ktype (TypeConst "type"))
+     pos <- getPosition
+     return (Ktype (Type { typeName = "type", typePos = pos}))
 tParser'' = do
     t <- tParser
     return (KT t)
@@ -153,13 +162,14 @@ second :: (a,b) -> b
 second (a,b) = b
 
 
-checkAndGet k m = case M.lookup k m of
-  Nothing -> Left ("Error: " ++ k ++ " Doesn't exsist in the context \n")
+checkAndGet k m pos = case M.lookup k m of
+  Nothing -> Left ("Error in " ++ (sourcePosPretty pos) ++ " : " ++ k ++ " Doesn't exsist in the context \n")
   Just v ->  Right v
 
 
 lookUpK :: VarEnv -> Arg -> K
-lookUpK e (AT  t)  = (Ktype (TypeConst "type"))
+lookUpK e (AT  (TTypeVar t))  = (Ktype (Type {typeName = "type", typePos = typeVarPos t }))
+lookUpK e (AT  (TConstr t))  = (Ktype (Type {typeName = "type", typePos = constructorInvokerPos t}))
 lookUpK e (AVar v) = (KT ((varMap e) M.! v))
 
 
@@ -236,7 +246,7 @@ checkConstructorInvoker e const = let name = (nameCons const)
                                       args = (argCons const)
                                       env1 = foldl checkArg e args
                                       kls1 = getTypesOfArgs e args
-                                      in case (checkAndGet name (typeContructors e)) of
+                                      in case (checkAndGet name (typeContructors e) (constructorInvokerPos const)) of
                                       Right val -> let kls2 = klstc val
                                                      in if kls1 /= kls2 then env1{errors = (errors env1)
                                                          ++ ("Args does not match: " ++ (show kls1) ++
