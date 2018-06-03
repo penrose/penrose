@@ -159,8 +159,8 @@ vdParser :: Parser Vd
 vdParser = do
   rword "vconstructor"
   name <- identifier
-  (y',k') <- option ([], []) ykParser
-  (b',t') <- option ([], []) xtParser
+  (y',k') <- option ([], []) $ brackets ykParser
+  (b',t') <- option ([], []) $ parens   xtParser
   colon
   t'' <- tParser
   return Vd{nameVd = name, varsVd = (zip y' k'), typesVd  =  (zip b' t'), toVd = t''}
