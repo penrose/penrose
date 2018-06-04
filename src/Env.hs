@@ -36,7 +36,9 @@ data TypeName = TypeNameConst String -- these are all names, e.g. “Set”
     deriving (Show, Eq, Typeable)
 
 data TypeVar = TypeVar { typeVarName :: String, typeVarPos :: SourcePos}
-     deriving (Show, Eq, Typeable, Ord)
+     deriving (Show, Typeable, Ord)
+instance Eq TypeVar where
+  (TypeVar n1 _) == (TypeVar n2 _) = n1 == n2
 
 data Var = VarConst String
      deriving (Show, Eq, Typeable, Ord)
@@ -51,11 +53,13 @@ data T = TTypeVar TypeVar
 
 
 data ConstructorInvoker = ConstructorInvoker { nameCons :: String, argCons:: [Arg], constructorInvokerPos :: SourcePos}
-    deriving (Eq, Typeable)
+    deriving (Typeable)
 instance Show ConstructorInvoker where
     show (ConstructorInvoker nameCons argCons posCons) = nString ++ "(" ++ aString ++ ")"
         where nString = show nameCons
               aString = show argCons
+instance Eq ConstructorInvoker where
+  (ConstructorInvoker n1 a1 _) == (ConstructorInvoker n2 a2 _) = (n1 == n2 && a1 == a2)
 
 data Arg = AVar Var
     | AT T
@@ -123,7 +127,7 @@ tParser, tConstructorInvokerParser, typeVarParser' :: Parser T
 tParser = try tConstructorInvokerParser <|> typeVarParser'
 tConstructorInvokerParser = do
     i         <- identifier
-    arguments <- option [] $ parens (argParser `sepBy1` comma)
+    arguments <- try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $ parens (argParser `sepBy1` comma)
     pos <- getPosition
     return (TConstr (ConstructorInvoker {nameCons = i, argCons = arguments, constructorInvokerPos = pos}))
 typeVarParser' = do
@@ -150,6 +154,11 @@ tParser'' = do
     return (KT t)
 
 
+emptyArgList :: Parser [Arg]
+emptyArgList = do
+  lparen
+  rparen
+  return []
 ----------------------------------- Typechecker aux functions ------------------------------------------
 
 firsts :: [(a,b)] -> [a]
