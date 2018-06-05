@@ -399,16 +399,16 @@ contains [E' set, L' label] _ =
     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
 contains [L' lab1, L' lab2] _ = 0 -- TODO: hack for venn_subset.sty for talk
 contains [S' sq, A' ar] _ = let
-                             lx = (xs' sq) - (side' sq)
-                             rx = (xs' sq) + (side' sq)
-                             ly = (ys' sq) - (side' sq)
-                             ry = (ys' sq) + (side' sq)
+                             lx = (xs' sq) - (side' sq)/2
+                             rx = (xs' sq) + (side' sq)/2
+                             ly = (ys' sq) - (side' sq)/2
+                             ry = (ys' sq) + (side' sq)/2
+                             ret = (isInRange (startx' ar) lx rx) + (isInRange (endx' ar) lx rx) + (isInRange (starty' ar) ly ry) + (isInRange (endy' ar) ly ry)
                             in
-                             (isInRange (startx' ar) lx rx) + (isInRange (endx' ar) lx rx) 
-                             + (isInRange (starty' ar) ly ry) + (isInRange (endy' ar) ly ry)
+                             ret
 contains objs consts = error ("subset: maybe not called with 2 args?\n" ++ show objs ++ "\n" ++ show consts)
 
-isInRange a l r = if (a > 2 * l && a < 2 * r) then 0 else ((abs (a-l)) + (abs (a-r)))
+isInRange a l r = if (a < l) then (a-l)^2 else if (a > r) then (a-r)^2 else 0
 
 outsideOf :: ConstrFn
 outsideOf [C' inc, C' outc] _ =

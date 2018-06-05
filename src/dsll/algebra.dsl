@@ -1,7 +1,7 @@
 tconstructor VectorSpace: type
 tconstructor Vector(v : VectorSpace) : type
 tconstructor Scalar : type
-tconstructor Map(t1 : type, t2 : type) : type
+tconstructor LinearMap(t1 : VectorSpace, t2 : VectorSpace) : type --A map between 2 vectpr spaces
 
 operator AddV [V : VectorSpace] (v1 : Vector(V), v2 : Vector(V)) : Vector(V)
 operator AddS(s1 : Scalar, s2 : Scalar) : Scalar

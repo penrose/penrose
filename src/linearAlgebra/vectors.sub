@@ -1,5 +1,3 @@
 VectorSpace U
---VectorSpace T
 Vector(U) A
 Vector(U) B
---Vector(T) C

@@ -228,6 +228,12 @@ regionX' v o = error' "regionX" v o
 midSquare' :: CompFn a
 midSquare' [] [S' b] = TPt((xs' b),(ys' b))
 
+rightSquare' :: CompFn a
+rightSquare' [] [S' b] = TPt((xs' b) + (side' b)/2,(ys' b) + (side' b)/2)
+
+leftSquare' :: CompFn a
+leftSquare' [] [S' b] = TPt((xs' b) - (side' b)/2,(ys' b) + (side' b)/2)
+
 toRightSquare' :: CompFn a
 toRightSquare' [] [S' b] = TPt(((xs' b) + 200),(ys' b))
 
@@ -288,6 +294,8 @@ computationDict = M.fromList flist
                     ("toLeftSquare", toLeftSquare'),
                     ("toAboveSquare", toAboveSquare'),
                     ("toBelowSquare", toBelowSquare'),
+                    ("rightSquare", rightSquare'),
+                    ("leftSquare", leftSquare'),
                     ("regionCenter", regionCenter'),
                     ("atOrigin", atOrigin'),
                     ("toRight", toRight'),

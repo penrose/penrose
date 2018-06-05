@@ -1,10 +1,10 @@
 VectorSpace u {
     
     shape = Box {
-       text = None
-     }
 
-    xPos = Arrow {
+     }
+   
+       xPos = Arrow {
           start = midSquare(u.shape)
           end = toRightSquare(u.shape)
           text = "x"
@@ -31,11 +31,27 @@ VectorSpace u {
     objective nearHead(u.xPos, u.xPos.label, 0, 20)
     objective nearHead(u.yPos, u.yPos.label, 0, 20)
 
-    --constraint contains(u.shape,u.shape.label)
+    constraint contains(u.shape,u.shape.label)
     constraint contains(u.shape,u.xPos)
     constraint contains(u.shape,u.xNeg)
     constraint contains(u.shape,u.yPos)
     constraint contains(u.shape,u.yNeg)
+}
+
+VectorSpace u, VectorSpace v{
+    constraint nonOverlapping(u.shape,v.shape)
+    objective sameHeight(u.shape, v.shape)
+}
+
+LinearMap f x y {
+    shape = Arrow {
+        start = rightSquare(x.shape)
+        end   = leftSquare(y.shape)
+        style = "curved"
+        text = Auto
+    }
+
+    objective centerLabel(f, f.shape.label)
 }
 
 Vector v vecSpace {    
