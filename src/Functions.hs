@@ -398,8 +398,17 @@ contains [S' set, L' label] _ =
 contains [E' set, L' label] _ =
     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
 contains [L' lab1, L' lab2] _ = 0 -- TODO: hack for venn_subset.sty for talk
-contains [S' outc, A' inc] _ = 0 -- TODO: Zero is for working big value otherwise
+contains [S' sq, A' ar] _ = let
+                             lx = (xs' sq) - (side' sq)
+                             rx = (xs' sq) + (side' sq)
+                             ly = (ys' sq) - (side' sq)
+                             ry = (ys' sq) + (side' sq)
+                            in
+                             (isInRange (startx' ar) lx rx) + (isInRange (endx' ar) lx rx) 
+                             + (isInRange (starty' ar) ly ry) + (isInRange (endy' ar) ly ry)
 contains objs consts = error ("subset: maybe not called with 2 args?\n" ++ show objs ++ "\n" ++ show consts)
+
+isInRange a l r = if (a > 2 * l && a < 2 * r) then 0 else ((abs (a-l)) + (abs (a-r)))
 
 outsideOf :: ConstrFn
 outsideOf [C' inc, C' outc] _ =

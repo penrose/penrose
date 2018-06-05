@@ -224,6 +224,23 @@ regionX' :: CompFn a
 regionX' [] [LN' lineLeft, LN' lineRight] = TNum $ regionX lineLeft lineRight
 regionX' v o = error' "regionX" v o
 
+-- returns the middle of the square as a starting position
+midSquare' :: CompFn a
+midSquare' [] [S' b] = TPt((xs' b),(ys' b))
+
+toRightSquare' :: CompFn a
+toRightSquare' [] [S' b] = TPt(((xs' b) + 200),(ys' b))
+
+toLeftSquare' :: CompFn a
+toLeftSquare' [] [S' b] = TPt(((xs' b) - 200),(ys' b))
+
+toAboveSquare' :: CompFn a
+toAboveSquare' [] [S' b] = TPt((xs' b),((ys' b)+125))
+
+toBelowSquare' :: CompFn a
+toBelowSquare' [] [S' b] = TPt((xs' b),((ys' b)-125))
+
+
 regionY' :: CompFn a
 regionY' [] [LN' down, LN' up] = TNum $ regionY down up
 regionY' v o = error' "regionY" v o
@@ -266,6 +283,11 @@ computationDict = M.fromList flist
                     ("computeSurjectionLines", computeSurjectionLines'),
                     ("regionX", regionX'),
                     ("regionY", regionY'),
+                    ("midSquare", midSquare'),
+                    ("toRightSquare", toRightSquare'),
+                    ("toLeftSquare", toLeftSquare'),
+                    ("toAboveSquare", toAboveSquare'),
+                    ("toBelowSquare", toBelowSquare'),
                     ("regionCenter", regionCenter'),
                     ("atOrigin", atOrigin'),
                     ("toRight", toRight'),
