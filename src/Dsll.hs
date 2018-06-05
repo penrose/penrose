@@ -210,8 +210,8 @@ check p =  let env1  = foldl checkTypeConstructors initE (cd p)
                env3  = foldl checkOperations env2 (od p)
                env4  = foldl checkPredicates env3 (pd p)
            in if (null (errors env4)) then env4 else error("DSLL type checking failed with the following problems: \n" ++ (errors env4))
-           where initE = VarEnv {typeContructors = M.empty, varConstructors = M.empty,
-            operations = M.empty, predicates = M.empty, typeVarMap = M.empty, varMap = M.empty, names = [], errors = ""}
+           where initE = VarEnv {typeConstructors = M.empty, varConstructors = M.empty,
+            operations = M.empty, predicates = M.empty, typeVarMap = M.empty, varMap = M.empty, names = [], declaredNames = [], errors = ""}
 
 
 checkTypeConstructors :: VarEnv -> Cd -> VarEnv
@@ -220,7 +220,7 @@ checkTypeConstructors e c = let kls = (seconds (inputCd c))
                                 tc = TypeConstructor {nametc = nameCd c, klstc = (seconds (inputCd c))
                                                        , typtc = outputCd c}
                                 ef = addName (nameCd c) env1
-                             in ef {typeContructors = M.insert (nameCd c) tc $ typeContructors ef}
+                             in ef {typeConstructors = M.insert (nameCd c) tc $ typeConstructors ef}
 
 
 checkVarConstructors :: VarEnv -> Vd -> VarEnv
@@ -276,6 +276,10 @@ parseDsll :: String -> String -> IO VarEnv
 parseDsll dsllFile dsllIn = case runParser dsllParser dsllFile dsllIn of
      Left err -> error (parseErrorPretty err)
      Right xs -> do
+         putStrLn ("DSLL AST: \n")
+         putStrLn (show xs)
+         --mapM_ print xs
+         divLine
          let env = check xs
          return (env)
 

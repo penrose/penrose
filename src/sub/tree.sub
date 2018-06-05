@@ -1,10 +1,10 @@
-Set() A
-Set() B
-Set() C
-Set() D
-Set() E
-Set() F
-Set() G
+Set A
+Set B
+Set C
+Set D
+Set E
+Set F
+Set G
 IsSubset(B,A)
 IsSubset(C,A)
 IsSubset(D,B)

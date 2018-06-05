@@ -1,8 +1,8 @@
-Set() domainOuter
-Set() codomain
-Set() domain
-Set() image
-Set() cartesianProduct 
+Set domainOuter
+Set codomain
+Set domain
+Set image
+Set cartesianProduct 
 -- `CartesianProduct domain image`?
 IsSubset(domain,domainOuter)
 IsSubset(image,codomain)

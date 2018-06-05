@@ -1,12 +1,12 @@
-Set() A
-Set() B
-Set() R1
-Set() R2
+Set A
+Set B
+Set R1
+Set R2
 IsSubset(A,R1)
 IsSubset(B,R2)
 NonIntersect(R1,R2)
 Map(A,B) f
-Set() U
+Set U
 IsSubset(U,B)
-Set() V
+Set V
 IsSubset(V,A)

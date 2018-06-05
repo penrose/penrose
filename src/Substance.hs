@@ -169,8 +169,13 @@ check p varEnv = let env = foldl checkSubStmt varEnv p
 
 
 checkSubStmt :: VarEnv -> SubStmt -> VarEnv
-checkSubStmt varEnv  (Decl t v) = let env = checkT varEnv t
-                                  in env {varMap = M.insert v t $ varMap env}
+checkSubStmt varEnv  (Decl t (VarConst n)) = let 
+                                                env = checkT varEnv t
+                                                env1 = addDeclaredName n env
+                                              in 
+                                                env1 {varMap = M.insert (VarConst n) t $ varMap env1}
+
+                                  
 checkSubStmt varEnv  (Bind v e) = let (vstr, vt) = checkVarE varEnv v
                                       (estr, et) = checkExpression varEnv e -- TODO: Check lazy evaluation on et
                                   in if (isJust vt && isJust et && vt /= et) then varEnv{errors = (errors varEnv) ++ vstr ++ estr ++ "Expression of type " ++ (show et) ++ " assigned to variable of type " ++ (show vt) ++ "\n"}
@@ -321,25 +326,34 @@ data SubObjects = SubObjects {
 } deriving (Show, Eq, Typeable)
 
 
-loadObjects :: SubProg -> SubObjects
-loadObjects p = let env1 = foldl passDecls initE p
-                    env2 = foldl passReferencess env1 p
-                in
-                    env2 { subObjs = reverse $ subObjs env2 }
-                where initE = SubObjects { subObjs = []}
+loadObjects :: SubProg -> VarEnv -> SubObjects
+loadObjects p subEnv = let env1 = foldl (passDecls subEnv) initE p
+                           env2 = foldl passReferencess env1 p
+                       in
+                           env2 { subObjs = reverse $ subObjs env2 }
+                       where initE = SubObjects { subObjs = []}
 
 applyDef (n, m) d = case M.lookup n d of
     Nothing -> error "applyDef: definition not found!"
     Just (_, e) -> e
 
 -- | 'checkDecls' checks the validity of declarations of objects.
-passDecls :: SubObjects -> SubStmt -> SubObjects
-passDecls e (Decl t s)  = e { subObjs = toObj t s : subObjs e}
-passDecls e _ = e -- Ignore all other statements
+passDecls :: VarEnv -> SubObjects -> SubStmt -> SubObjects
+passDecls subEnv e (Decl t s)  = e { subObjs = toObj subEnv t s : subObjs e}
+passDecls subEnv e _ = e -- Ignore all other statements
 
 -- 'toObj' translates [Type] + [Identiers] to concrete Substance objects, to be selected by the Style program
-toObj :: T -> Var -> SubObj
-toObj t v = LD $ (SubDeclConst t v)
+toObj :: VarEnv -> T -> Var -> SubObj
+toObj e t v = LD $ (SubDeclConst (fixAST e t) v)
+
+fixAST :: VarEnv -> T -> T
+fixAST e (TConstr c) = TConstr (c {argCons = (map (fixArg e) (argCons c))})
+fixAST e t = t -- Ignore all other cases 
+
+fixArg :: VarEnv -> Arg -> Arg
+fixArg e (AT (TConstr i)) = if (nameCons i) `elem` (declaredNames e) then (AVar (VarConst (nameCons i))) else (AT (TConstr i))
+fixArg e a = a -- Ignore all other cases 
+
 
 -- 'checkReferencess' checks any statement that refers to other objects. For example,
 -- > Subset A B
@@ -383,7 +397,7 @@ parseSubstance subFile subIn varEnv = case runParser substanceParser subFile sub
          --mapM_ print xs
          divLine
          let subEnv = check xs varEnv
-             c = loadObjects xs
+             c = loadObjects xs subEnv
          return ((subObjs c), subEnv)
 
 -- --------------------------------------- Test Driver -------------------------------------
