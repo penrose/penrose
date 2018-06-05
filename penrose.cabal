@@ -22,7 +22,6 @@ source-repository head
 
 executable penrose
   main-is:             Main.hs
-  default-language: Haskell2010
   other-modules:       ShadowMain Utils Server Style Substance Functions Runtime Shapes Computation
   other-extensions:    AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, OverloadedStrings, DeriveGeneric, DuplicateRecordFields
   build-depends:       base                >= 4.9 && <4.10,
