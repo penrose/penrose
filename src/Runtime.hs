@@ -111,11 +111,11 @@ unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
 -- TODO revert this!! Hack just for surjection program
-unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), 
+unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary),
                     (endx' a, Vary), (endy' a, Vary), (thickness' a, Vary)]
 -- unpackObj (CB' c) = [(pathcb' cb, Fix)]
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
-unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix), 
+unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix),
                     (endx_l' a, Fix), (endy_l' a, Fix), (thickness_l' a, Fix)]
 
 -- split out because pack needs this annotated list of lists
@@ -369,8 +369,8 @@ defaultLabel objName labelText =
 
 checkAuto :: String -> String -> String
 checkAuto objName labelText =  -- TODO: should this use labelSetting?
-          if labelText == autoWord then 
-             let subObjName = (nameParts objName) !! 0 
+          if labelText == autoWord then
+             let subObjName = (nameParts objName) !! 0
              in subObjName
           else labelText
 
@@ -958,10 +958,6 @@ step t s = -- if down s then s -- don't step when dragging
            if autostep s then s { objs = objs', params = params' } else s
            where (objs', params') = stepObjs (float2Double t) (params s) (objs s)
 
--- Utility functions for getting object info (currently unused)
-objInfo :: Obj -> [Float]
-objInfo o = [getX o, getY o, getSize o] -- TODO deal with labels, also do stuff at type level
-
 stateSize :: Int
 stateSize = 3
 
@@ -1019,7 +1015,7 @@ zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ star
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
                             selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a, stylesa = stylesa' a }
 zeroGrad (LN' a) = LN $ Line { startx_l = r2f $ startx_l' a, starty_l = r2f $ starty_l' a,
-                            endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a, 
+                            endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a,
                             thickness_l = r2f $ thickness_l' a, name_l = name_l' a, color_l = color_l' a,
                             style_l = style_l' a }
 zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namecb = namecb' c, stylecb = stylecb' c }

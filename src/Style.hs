@@ -31,7 +31,7 @@ import Env
 -- Style AST
 
 -- | Type annotation for all geometries supported by Style so far.
-data StyType = Ellip | Circle | Box | Rectangle | Parallel | Dot | Arrow | NoShape | Color | Text | Curve | Auto 
+data StyType = Ellip | Circle | Box | Rectangle | Parallel | Dot | Arrow | NoShape | Color | Text | Curve | Auto
                | Line2 -- two points
     deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
@@ -285,34 +285,34 @@ attribute = identifier -- TODO: Naming convention - same as identifiers?
 -- Type aliases for readability in this section
 -- | 'StyContext' maintains the current output of the translater
 type StyContext a =
-    (StyDict,         -- | dictionary mapping Substance ID to Style objects
+    (StyDict a,         -- | dictionary mapping Substance ID to Style objects
     [ObjFnInfo a],    -- | List of objective functions
     [ConstrFnInfo a]) -- | List of constraints
 
 -- | A dictionary storing properties of a Style object, e.g. "start" for 'Arrow'
-type Properties = M.Map String Expr
+type Properties a = M.Map String (TypeIn a)
 
 -- | A Style object is a type annotation ('StyType') and a collection of
 -- properties. E.g. an arrow is 'Arrow' and properties: "start", "end".
-type StyObj = (StyType, Properties)
+type StyObj a = (StyType, Properties a)
 
 -- | a Style Dictionary maps from a Substance id to a 'StySpec' -- collection of Style objects and some metadata about the Substance object
-type StyDict = M.Map Name StySpec
+type StyDict a = M.Map Name (StySpec a)
 
 -- | Style specification for a particular object declared in Substance (declarations and constraints)
 -- (TODO: maybe this is not the best model, since there is no difference between "primary" and "secondary" shapes)
 -- NOTE: for Substance constraints such as `Subset A B`, the 'spId' will be '_Subset_A_B' and the 'spArgs' will be '['A', 'B']'
-data StySpec = StySpec {
+data StySpec a = StySpec {
     spType   :: TypeName,  -- | The Substance type of the object
     spId     :: String,     -- | The Substance ID of the object
     spArgs   :: [String],   -- | the "arguments" following the type.  The idea is to capture @f@, @A@ and @B@ in the case of @Map f A B@, which is needed for pattern matching (TODO: Maybe not the best term here.)
-    spShpMap :: M.Map String StyObj -- | shapes associated with the substance object, e.g. "shapeName = shapeType { ... }; otherShape = otherType { ... }"
+    spShpMap :: M.Map String (StyObj a) -- | shapes associated with the substance object, e.g. "shapeName = shapeType { ... }; otherShape = otherType { ... }"
 } deriving (Show, Typeable)
 
 -- | A VarMap matches lambda ids in the selector to the actual selected id
 type VarMap  = M.Map Name Name
 
-initSpec :: StySpec
+initSpec :: (Autofloat a) => StySpec a
 initSpec = StySpec { spType = (TypeNameConst "PointT" ),
                      spId = "",
                      spArgs = [],
@@ -341,7 +341,7 @@ getDictAndFns (decls, constrs) blocks =
 -- 1. The number of arguments match,
 -- 2. The types match,
 -- 3. Identifier and arguments match. A wildcard matches with anything
-matched :: StySpec -> Selector -> Bool
+matched :: (Autofloat a) => StySpec a -> Selector -> Bool
 matched spec selector =
     let patterns = selPatterns selector
         args     = spArgs spec
@@ -355,7 +355,7 @@ matched spec selector =
 
 -- | Return all StySpecs and associated variable maps in the StyDict that
 -- match a selector.
-matchWith :: StyDict -> Selector -> [(VarMap, StySpec)]
+matchWith :: (Autofloat a) => StyDict a -> Selector -> [(VarMap, StySpec a)]
 matchWith dict selector = M.foldlWithKey getSpecAndVarMap [] dict
     where getSpecAndVarMap mapsAndSpecs name spec =
             if spec `matched` selector
@@ -365,13 +365,14 @@ matchWith dict selector = M.foldlWithKey getSpecAndVarMap [] dict
 -- | Match all entries in the 'StyDict' with all selectors. Each selector can
 -- potentially have a list of (varmap, spec) pairs, and thus we have a list of
 -- list of (varmap, spec) for a list of selectors.
-matchWithAll :: StyDict -> [Selector] -> [[(VarMap, StySpec)]]
+matchWithAll :: (Autofloat a) =>
+    StyDict a -> [Selector] -> [[(VarMap, StySpec a)]]
 matchWithAll dict selectors = map (matchWith dict) selectors
 
 -- | Given a selector and a Style spec that matches with it, returns a map from placeholder ids to actual matched ids.
 -- TODO: the underlying logic is the same as `matched`. Think of a cleaner
 -- way to both (1) check if there is a match and (2) collect a list of `VarMap`s
-getVarMap :: Selector -> StySpec -> VarMap
+getVarMap :: (Autofloat a) => Selector -> StySpec a -> VarMap
 getVarMap sel spec = foldl add M.empty patternNamePairs
     where
         -- patternNamePairs :: [(Pattern, String)]
@@ -413,7 +414,8 @@ procBlock (dict, objFns, constrFns) (selector : [], stmts) =
     in (newDict, objFns ++ newObjFns, constrFns ++ newConstrFns)
     where
         -- For the block, add each statement to the spec and insert the spec in the overall stydict
-        addShapes :: [Stmt] -> StyDict -> (VarMap, StySpec) -> StyDict
+        addShapes :: (Autofloat a) =>
+            [Stmt] -> StyDict -> (VarMap, StySpec a) -> StyDict
         addShapes statements dct (varmap, spec) =
             let newSpec = foldl (procAssign varmap) spec statements
             in M.insert (spId newSpec) newSpec dct
@@ -495,7 +497,7 @@ lookupVarMap s varMap = case M.lookup s varMap of
 -- An expression can be either a string (variable name) or float (literal)? TODO revise
 -- Example: context (VarMap) [X ~> A] would arise with Sub: "Set A", Sty: "Set X { ... }"
 -- TODO: this function is not done/tested yet
--- TODO: handle properties (e.g. `X.yaxis:length`, `X.yaxis.label:width`)
+-- TODO: handle properties (e.g. `X.yaxis.length`)
 -- TODO: replace underscores with spaces
 -- TODO: generalize this function to return Exprs? (so objectives/constraints/computations can handle gets)
 procExpr :: (Autofloat a) => VarMap -> Expr -> Either String a
@@ -509,12 +511,12 @@ procExpr ctx r@(BinOp Access (Id subObjName) (Id "label")) = error ("cannot acce
 
 -- Shapes are given their unique names (for lookup) in Runtime (so far)
 -- in context [X ~> A], look up "X.yaxis.label", return "A yaxis label"
-procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) = 
+procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) =
              let subObjName = lookupVarMap subObjPattern ctx in
              Left $ labelName $ uniqueShapeName subObjName styShapeName
 
 -- in context [X ~> A], look up "X.yaxis", return "A yaxis"
-procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) = 
+procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) =
          let subObjName = lookupVarMap subObjPattern ctx in
          Left $ uniqueShapeName subObjName styShapeName
 
@@ -529,14 +531,13 @@ procExpr _ (StringLit s) = Left s -- TODO: distinguish strings from ids?
 procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
-
 -- temp. hack to convert procExpr output to computation input
 backToExpr :: (Autofloat a) => Either String a -> Expr
 backToExpr (Left s) = Id s -- TODO write new procExpr
 backToExpr (Right x) = FloatLit $ r2f x
 
 -- FIXME: this (?) is incorrect, we should resolve the variables earlier
-addSpec :: VarMap -> Properties -> Stmt -> Properties
+addSpec :: (Autofloat a) => VarMap -> Properties a -> Stmt -> Properties a
 addSpec _ dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
 addSpec _ dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
 -- FIXME: wrap fromleft inside a function!
@@ -552,7 +553,7 @@ addSpec _ _ _ = error "addSpec: only support assignments in constructors!"
 -- | Given a variable mapping and spec, if the statement is an assignment,
 -- fold over the list of statements in the assignments (e.g. shapeName = ShapeType { key = val... } )
 -- and add them to the configuration in the object's spec.
-procAssign :: VarMap -> StySpec -> Stmt -> StySpec
+procAssign :: (Autofloat a) => VarMap -> StySpec a -> Stmt -> StySpec a
 procAssign varMap spec (Assign n (Cons typ stmts)) =
     spec { spShpMap = M.insert n (typ, configs) $ spShpMap spec }
     where
@@ -580,7 +581,7 @@ convPredArg c  = (show c)
 
 predArgListToString :: [C.PredArg] -> [String]
 predArgListToString = map convPredArg
-   
+
 varArgsToString :: [Arg] -> [String]
 varArgsToString = map conv
     where conv c = case c of
@@ -604,7 +605,7 @@ getSubTuples = map getType
 
 
 
-           
+
 
 getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs

@@ -25,28 +25,9 @@ class Located a b where
       setX :: b -> a -> a
       setY :: b -> a -> a
 
-class Selectable a where
-      select :: a -> a
-      deselect :: a -> a
-      selected :: a -> Bool
-
-class Sized a where
-      getSize :: a -> Float
-      setSize :: Float -> a -> a
-
 class Named a where
       getName :: a -> Name
       setName :: Name -> a -> a
-
-data BBox = BBox {
-    cx :: Float,
-    cy :: Float,
-    h :: Float,
-    w :: Float
-} deriving (Show, Eq, Generic, Typeable, Data)
-
-instance ToJSON BBox
-instance FromJSON BBox
 
 -------
 data CubicBezier = CubicBezier {
@@ -121,11 +102,6 @@ instance Located SolidArrow Float where
          setX x c = c { startx = x } -- TODO
          setY y c = c { starty = y }
 
-instance Selectable SolidArrow where
-         select x = x { selsa = True }
-         deselect x = x { selsa = False }
-         selected x = selsa x
-
 instance Named SolidArrow where
          getName a = namesa a
          setName x a = a { namesa = x }
@@ -148,15 +124,6 @@ instance Located Circ Float where
          getY c = yc c
          setX x c = c { xc = x }
          setY y c = c { yc = y }
-
-instance Selectable Circ where
-         select x = x { selc = True }
-         deselect x = x { selc = False }
-         selected x = selc x
-
-instance Sized Circ where
-         getSize x = r x
-         setSize size x = x { r = size }
 
 instance Named Circ where
          getName c = namec c
@@ -182,15 +149,6 @@ instance Located Square Float where
          setX x s = s { xs = x }
          setY y s = s { ys = y }
 
-instance Selectable Square where
-         select x = x { sels = True }
-         deselect x = x { sels = False }
-         selected x = sels x
-
-instance Sized Square where
-         getSize x = side x
-         setSize size x = x { side = size }
-
 instance Named Square where
          getName s = names s
          setName x s = s { names = x }
@@ -215,11 +173,6 @@ instance Located Rect Float where
          getY s = yr s
          setX x s = s { xr = x }
          setY y s = s { yr = y }
-
-instance Selectable Rect where
-         select x = x { selr = True }
-         deselect x = x { selr = False }
-         selected x = selr x
 
 -- NO instance for Sized
 
@@ -249,13 +202,6 @@ instance Located Parallelogram Float where
          setX x pa = pa { xpa = x }
          setY y pa = pa { ypa = y }
 
-instance Selectable Parallelogram where
-         select x = x { selpa = True }
-         deselect x = x { selpa = False }
-         selected x = selpa x
-
--- NO instance for Sized
-
 instance Named Parallelogram where
          getName pa = namepa pa
          setName x pa = pa { namepa = x }
@@ -281,17 +227,6 @@ instance Located Label Float where
          setX x l = l { xl = x }
          setY y l = l { yl = y }
 
-instance Selectable Label where
-         select x = x { sell = True }
-         deselect x = x { sell = False }
-         selected x = sell x
-
-instance Sized Label where
-         getSize x = xl x -- TODO generalize label size, distance to corner? ignores scale
-         setSize size x = x { xl = size, yl = size } -- TODO currently sets both of them, ignores scale
-                 -- changing a label's size doesn't actually do anything right now, but should use the scale
-                 -- and the base font size
-
 instance Named Label where
          getName l = namel l
          setName x l = l { namel = x }
@@ -311,11 +246,6 @@ instance Located Pt Float where
          getY p = yp p
          setX x p = p { xp = x }
          setY y p = p { yp = y }
-
-instance Selectable Pt where
-         select   x = x { selp = True }
-         deselect x = x { selp = False }
-         selected x = selp x
 
 instance Named Pt where
          getName p   = namep p
@@ -427,43 +357,6 @@ instance Located Obj Float where
                 PA pa -> PA $ setY y pa
 
 
--- I believe this typeclass is no longer used in the snap frontend
-instance Selectable Obj where
-         select x = case x of
-                C c -> C $ select c
-                L l -> L $ select l
-                P p -> P $ select p
-                S s -> S $ select s
-                R r -> R $ select r
-                A a -> A $ select a
-                PA pa -> PA $ select pa
-         deselect x = case x of
-                C c -> C $ deselect c
-                L l -> L $ deselect l
-                P p -> P $ deselect p
-                S s -> S $ deselect s
-                R r -> R $ select r
-                A a -> A $ deselect a
-                PA pa -> PA $ deselect pa
-         selected x = case x of
-                C c -> selected c
-                L l -> selected l
-                P p -> selected p
-                S s -> selected s
-                R r -> selected r
-                A a -> selected a
-                PA pa -> selected pa
-
-instance Sized Obj where
-         getSize o = case o of
-                 C c -> getSize c
-                 S s -> getSize s
-                 L l -> getSize l
-         setSize x o = case o of
-                C c -> C $ setSize x c
-                L l -> L $ setSize x l
-                S s -> S $ setSize x s
-
 instance Named Obj where
          getName o = case o of
                  C c   -> getName c
@@ -574,7 +467,7 @@ data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
                      , sizeXpa' :: a
                      , sizeYpa' :: a
                      , anglepa' :: Float
-                     , rotationpa' :: Float 
+                     , rotationpa' :: Float
                      , selpa' :: Bool
                      , namepa' :: String
                      , colorpa' :: Color }
@@ -782,7 +675,6 @@ data TypeIn a = TNum a
               | TInt Integer
               | TPt (Pt2 a)
               | TPath [Pt2 a]
-              | TArrow SolidArrow
               | TColor Color
               | TStyle String -- dotted, etc.
      deriving (Eq, Show, Data, Typeable)
@@ -864,7 +756,7 @@ get "path" (LN' o)          = TPath [(startx_l' o, starty_l' o), (endx_l' o, end
 -- Labels
 get "location" (L' o)      = TPt (xl' o, yl' o)
 
-get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n" 
+get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n"
                                    ++ show obj ++ "\n" ++ show obj)
 
 
@@ -943,12 +835,12 @@ set "end" (LN' o) (TPt (x, y))    = LN' $ o { endx_l' = x, endy_l' = y }
 set "thickness" (LN' o) (TNum n)  = LN' $ o { thickness_l' = n }
 set "color" (LN' o) (TColor n)    = LN' $ o { color_l' = n }
 set "style" (LN' o) (TStyle n)    = LN' $ o { style_l' = n }
-set "path" (LN' o) (TPath [(sx, sy), (ex, ey)])      = LN' $ o { startx_l' = sx, starty_l' = sy, 
+set "path" (LN' o) (TPath [(sx, sy), (ex, ey)])      = LN' $ o { startx_l' = sx, starty_l' = sy,
                                                                  endx_l' = ex, endy_l' = ey }
 set "path" (LN' o) (TPath p)      = error ("line expects two points on a path; got: " ++ show p)
-    
+
 -- Labels
 set "location" (L' o) (TPt (x, y)) = L' $ o { xl' = x, yl' = y }
 
-set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n" 
+set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n"
                                    ++ show obj ++ "\n" ++ show val)
