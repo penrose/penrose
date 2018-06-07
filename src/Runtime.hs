@@ -503,6 +503,8 @@ initArrow n config = (objs, oFns, [])
           objs = [setStyle (defaultSolidArrow n) style]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
+                         (Just fromName, Nothing) -> [(centerMap, defaultWeight, [n, fromName], [])]
+                         (Nothing, Just toName) -> [(centerMap, defaultWeight, [n, toName], [])]
                          (Just fromName, Just toName) -> [(centerMap, defaultWeight, [n, fromName, toName], [])]
           oFns = betweenObjFn
 

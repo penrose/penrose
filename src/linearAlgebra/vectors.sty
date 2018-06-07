@@ -1,9 +1,8 @@
 VectorSpace u {
-    
+   
     shape = Box {
 
      }
-   
        xPos = Arrow {
           start = midSquare(u.shape)
           end = toRightSquare(u.shape)
@@ -43,6 +42,7 @@ VectorSpace u, VectorSpace v{
     objective sameHeight(u.shape, v.shape)
 }
 
+
 LinearMap f x y {
     shape = Arrow {
         start = rightSquare(x.shape)
@@ -56,10 +56,63 @@ LinearMap f x y {
 
 Vector v vecSpace {    
     shape = Arrow {
-        start =  midSquare(vecSpace.shape)
+        start = midSquare(vecSpace.shape)
     }
     
     objective nearHead(v.shape, v.shape.label, 0, 20)
     constraint contains(vecSpace.shape,v.shape)
+
+}
+
+
+Neg v{
+    
+    shape = Arrow {
+        start = startArrow(v.shape)
+        end = reverseEndArrow(v.shape)
+        text = None
+    }
+
+    objective nearHead(v.shape, v.shape.label, 0, 20)
+}
+
+Norm v {
+        
+    shape = Arrow {
+        start = toBelowStartArrow(v.shape)
+        end = toBelowEndArrow(v.shape)
+        style = "length"
+        text = None
+    }
+    
+    objective nearHead(shape, shape.label, 0, 20)
+    constraint contains(vecSpace.shape, shape)
+}
+
+
+AddV v1 v2 {
+
+    shape = Arrow {
+        start = startArrow(v1.shape)
+        end = addVecEnd(v1.shape,v2.shape)
+        text = None
+    }
+
+    constraint contains(U.shape,shape)
+
+
+    s1 = Line {
+        start = endArrow(v1.shape)
+        end = addVecEnd(v1.shape, v2.shape)
+        style = "dashed"
+        text = None
+   }
+
+   s2 = Line {
+        start = endArrow(v2.shape)
+        end = addVecEnd(v1.shape,v2.shape)
+        style = "dashed"
+        text = None
+    }
 
 }

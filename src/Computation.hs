@@ -246,6 +246,33 @@ toAboveSquare' [] [S' b] = TPt((xs' b),((ys' b)+125))
 toBelowSquare' :: CompFn a
 toBelowSquare' [] [S' b] = TPt((xs' b),((ys' b)-125))
 
+startArrow' :: CompFn a
+startArrow' [] [A' a] = TPt((startx' a),(starty' a))
+
+endArrow' :: CompFn a
+endArrow' [] [A' a] = TPt((endx' a),(endy' a))
+
+reverseEndArrow' :: CompFn a
+reverseEndArrow' [] [A' a] = let sx = (startx' a)
+                                 sy  = (starty' a)
+                                 ex = (endx' a)
+                                 ey = (endy' a)
+                              in TPt(sx - (ex - sx), sy - (ey - sy))
+
+
+toBelowStartArrow' :: CompFn a
+toBelowStartArrow' [] [A' a] = TPt((startx' a),(starty' a)-20)
+
+toBelowEndArrow' :: CompFn a
+toBelowEndArrow' [] [A' a] = TPt((endx' a),(endy' a)-20)
+
+addVecEnd' :: CompFn a
+addVecEnd' [] [A' a, A' b] = TPt((endx' a) + (endx' b) - (startx' a) ,(endy' a) + (endy' b) - (starty' a))
+
+
+
+
+
 
 regionY' :: CompFn a
 regionY' [] [LN' down, LN' up] = TNum $ regionY down up
@@ -258,6 +285,12 @@ regionCenter' v o = error' "regionCenter" v o
 -- TODO parse these at runtime
 atOrigin' :: CompFn a
 atOrigin' _ _ = TPt (-100, 0)
+
+atEnd' :: CompFn a
+atEnd' _ _ = TPt (100, 100)
+
+atEnd2' :: CompFn a
+atEnd2' _ _ = TPt (-100, -100)
 
 toRight' :: CompFn a
 toRight' _ _ = TPt (325, 0)
@@ -296,6 +329,12 @@ computationDict = M.fromList flist
                     ("toBelowSquare", toBelowSquare'),
                     ("rightSquare", rightSquare'),
                     ("leftSquare", leftSquare'),
+                    ("startArrow", startArrow'),
+                    ("toBelowStartArrow", toBelowStartArrow'),
+                    ("toBelowEndArrow", toBelowEndArrow'),
+                    ("endArrow", endArrow'),
+                    ("addVecEnd", addVecEnd'),
+                    ("reverseEndArrow", reverseEndArrow'),
                     ("regionCenter", regionCenter'),
                     ("atOrigin", atOrigin'),
                     ("toRight", toRight'),

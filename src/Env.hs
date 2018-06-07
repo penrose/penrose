@@ -177,7 +177,6 @@ checkAndGet k m pos = case M.lookup k m of
   Nothing -> Left ("Error in " ++ (sourcePosPretty pos) ++ " : " ++ k ++ " Doesn't exist in the context \n")
   Just v ->  Right v
 
-
 lookUpK :: VarEnv -> Arg -> K
 lookUpK e (AT  (TTypeVar t))  = (Ktype ((typeVarMap e) M.! t)) --(Ktype (Type {typeName = "type", typePos = typeVarPos t }))
 lookUpK e (AT  (TConstr t))  = if (nameCons t) `elem` (declaredNames e) then lookUpK e (AVar (VarConst (nameCons t))) else (Ktype (Type {typeName = "type", typePos = constructorInvokerPos t}))
