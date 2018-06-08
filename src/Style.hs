@@ -415,7 +415,7 @@ procBlock (dict, objFns, constrFns) (selector : [], stmts) =
     where
         -- For the block, add each statement to the spec and insert the spec in the overall stydict
         addShapes :: (Autofloat a) =>
-            [Stmt] -> StyDict -> (VarMap, StySpec a) -> StyDict
+            [Stmt] -> StyDict a -> (VarMap, StySpec a) -> StyDict a
         addShapes statements dct (varmap, spec) =
             let newSpec = foldl (procAssign varmap) spec statements
             in M.insert (spId newSpec) newSpec dct
@@ -500,33 +500,33 @@ lookupVarMap s varMap = case M.lookup s varMap of
 -- TODO: handle properties (e.g. `X.yaxis.length`)
 -- TODO: replace underscores with spaces
 -- TODO: generalize this function to return Exprs? (so objectives/constraints/computations can handle gets)
-procExpr :: (Autofloat a) => VarMap -> Expr -> Either String a
+procExpr :: (Autofloat a) => VarMap -> Expr -> TypeIn a
 
 -- in context [X ~> A], look up "X", return "A"
 -- TODO: or a list of all shapes: "A xaxis", "A yaxis", ... (lookupAll does this for now)
-procExpr ctx (Id subObjPattern) = Left $ lookupVarMap subObjPattern ctx
-
--- "ID.label" is a synonym for "ID.shape.label"
-procExpr ctx r@(BinOp Access (Id subObjName) (Id "label")) = error ("cannot access label of non-shape:\n" ++ show r)
-
--- Shapes are given their unique names (for lookup) in Runtime (so far)
--- in context [X ~> A], look up "X.yaxis.label", return "A yaxis label"
-procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) =
-             let subObjName = lookupVarMap subObjPattern ctx in
-             Left $ labelName $ uniqueShapeName subObjName styShapeName
+procExpr ctx (Id subObjPattern) = TStr $ lookupVarMap subObjPattern ctx
+procExpr _ (StringLit s) = TStr s -- TODO: distinguish strings from ids?
+procExpr _ (IntLit i) = TNum $ r2f i -- TODO this shouldn't flatten ints for computations
+procExpr _ (FloatLit i) = TNum $ r2f i
 
 -- in context [X ~> A], look up "X.yaxis", return "A yaxis"
 procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) =
-         let subObjName = lookupVarMap subObjPattern ctx in
-         Left $ uniqueShapeName subObjName styShapeName
+    let subObjName = lookupVarMap subObjPattern ctx in
+    TStr $ uniqueShapeName subObjName styShapeName
+
+-- Shapes are given their unique names (for lookup) in Runtime (so far)
+-- in context [X ~> A], look up "X.yaxis.label", return "A yaxis label"
+-- TODO: pending discussion on `A.shape.label` vs `A.label`
+procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) =
+    let subObjName = lookupVarMap subObjPattern ctx in
+    TStr $ labelName $ uniqueShapeName subObjName styShapeName
+
+procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id propertyName)) =
 
 -- disallow deeper binops (e.g. "X.yaxis.zaxis")
 procExpr ctx r@(BinOp Access (BinOp Access _ _) _) = error ("nested non-label accesses not allowed:\n" ++ show r)
 procExpr ctx r@(BinOp Access _ _) = error ("incorrect binop access pattern:\n" ++ show r)
-
-procExpr _ (IntLit i) = Right $ r2f i -- TODO this shouldn't flatten ints for computations
-procExpr _ (FloatLit i) = Right $ r2f i
-procExpr _ (StringLit s) = Left s -- TODO: distinguish strings from ids?
+-- procExpr _ r@(BinOp Access (Id subObjName) (Id "label")) = error ("cannot access label of non-shape:\n" ++ show r)
 
 procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " ++ show e)
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
