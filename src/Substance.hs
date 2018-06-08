@@ -119,7 +119,7 @@ functionParser = do
 
 
 exprParser, varE, applyF :: Parser Expr
-exprParser = try varE <|> try applyF
+exprParser = try applyF <|> try varE 
 varE = do
   i <- varParser
   return (VarE i)
@@ -144,7 +144,7 @@ predicateParser = do
   return (Predicate {predicateName = n, predicateArgs = args, predicatePos = pos})
 
 subStmt, decl, bind, applyP :: Parser SubStmt
-subStmt = try bind <|> try decl <|>  applyP
+subStmt = try bind <|> try decl <|> applyP
 decl = do
   t' <- tParser
   v' <- varParser

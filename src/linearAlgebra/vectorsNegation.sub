@@ -2,11 +2,12 @@ VectorSpace U
 --VectorSpace T
 Vector(U) A
 Vector(U) B
-Vector(U) C
+B = Neg(B) 
+
+--Vector(U) B
 --Vector(T) C
 --Vector(T) D
-
-C = AddV(A,B)
---q = Neg(C)
---LinearMap(U,T) f
+--AddV(A,B)
+--Neg(D)
+---LinearMap(U,T) f
 
