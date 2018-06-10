@@ -1,4 +1,4 @@
--- | "SubstanceCore" contains the grammers and parser for the 
+-- | "SubstanceCore" contains the grammers and parser for the
 --    Substance Core language
 --    Author: Dor Ma'ayan, May 2018
 
@@ -26,39 +26,45 @@ import Text.Megaparsec.Expr
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
+
 --------------------------------------- Substance AST ---------------------------------------
 
 data SubType = TypeConst String -- these are all names, e.g. “Set”
-    deriving (Show, Eq, Typeable)
+               deriving (Show, Eq, Typeable)
 
 data ValConstructor = ValConst String    -- “Cons”, “Times”
-    deriving (Show, Eq, Typeable)
+                      deriving (Show, Eq, Typeable)
 
-data Operator' = OperatorConst String             -- “Intersection” 
-    deriving (Show, Eq, Typeable)
+data Operator' = OperatorConst String             -- “Intersection”
+                 deriving (Show, Eq, Typeable)
 
 data Predicate = PredicateConst String            -- “Intersect”
-    deriving (Show, Eq, Typeable)
+                 deriving (Show, Eq, Typeable)
 
 data TypeVar = TypeVarConst String
-    deriving (Show, Eq, Typeable)
+               deriving (Show, Eq, Typeable)
 
 data Var = VarConst String
-    deriving (Show, Eq, Typeable)
+           deriving (Show, Eq, Typeable)
 
 
+data Type = ApplyT SubType [Arg]
+          | TypeT TypeVar
+          deriving (Show, Eq, Typeable)
 
-data Type = ApplyT SubType [Arg] | TypeT TypeVar
-    deriving (Show, Eq, Typeable)
+data Arg = VarA Var
+         | TypeA Type
+         deriving (Show, Eq, Typeable)
 
-data Arg = VarA Var | TypeA Type
-    deriving (Show, Eq, Typeable)
+data Expr = VarE Var
+          | ApplyV Operator' [Expr]
+          | ApplyC ValConstructor [Expr]
+          deriving (Show, Eq, Typeable)
 
-data Expr = VarE Var | ApplyV Operator' [Expr] | ApplyC ValConstructor [Expr]
-    deriving (Show, Eq, Typeable)
-
-data SubStmt = Decl Type Var | Bind Var Expr | ApplyP Predicate [Var]
-    deriving (Show, Eq, Typeable)
+data SubStmt = Decl Type Var
+             | Bind Var Expr
+             | ApplyP Predicate [Var]
+             deriving (Show, Eq, Typeable)
 
 
 -- | Program is a sequence of statements
@@ -66,16 +72,15 @@ type SubProg = [SubStmt]
 type SubObjDiv = ([SubDecl], [SubConstr])
 
 -- | Declaration of Substance objects
-data SubDecl
-    = SubDeclConst Type Var
-    deriving (Show, Eq, Typeable)
+data SubDecl = SubDeclConst Type Var
+               deriving (Show, Eq, Typeable)
 
 -- | Declaration of Substance constaints
-data SubConstr
-    = SubConstrConst Predicate [Var]
-    deriving (Show, Eq, Typeable)
+data SubConstr = SubConstrConst Predicate [Var]
+                 deriving (Show, Eq, Typeable)
 
 -- --------------------------------------- Substance Lexer -------------------------------------
+
 -- | TODO: Some of the lexing functions are alreadt implemented at Utils.hs, Merge it and avoid duplications!
 type Parser = Parsec Void String
 
@@ -114,7 +119,6 @@ listOut :: Parser a -> Parser a
 listOut = between (symbol "[") (symbol "]")
 
 
-
 -- Define characters wich are part of the syntax
 colon, arrow, comma, rsbrac, lsbrac, lparen, rparen,eq :: Parser ()
 colon  = void (symbol ":")
@@ -124,17 +128,16 @@ lsbrac = void (symbol "[")
 rsbrac = void (symbol "]")
 lparen = void (symbol "(")
 rparen = void (symbol ")")
-eq  = void (symbol "=")
+eq     = void (symbol "=")
 
 
-
---Reserverd word handling
+-- Reserverd word handling
 rword :: String -> Parser()
 rword w = (lexeme . try) (string w *> notFollowedBy alphaNumChar)
 rws :: [String] -- The list of reserved words in DSLL
 rws = [] -- TODO: Doesn't seems like there is any reserved word here, should seperate reserved words in Utils.hs for each PL
 
---Identifiers handling
+-- Identifiers handling
 identifier :: Parser String
 identifier = (lexeme . try) (p >>= check)
   where
@@ -143,8 +146,8 @@ identifier = (lexeme . try) (p >>= check)
                 then fail $ "keyword " ++ show x ++ " cannot be an identifier"
                 else return x
 
-
 --------------------------------------- DSLL Parser -------------------------------------
+
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
 substanceParser :: Parser [SubStmt]
@@ -152,7 +155,7 @@ substanceParser = between scn eof subProg -- Parse all the statemnts between the
 
 -- |'subProg' parses the entire actual Substance Core language program which is a collection of statements
 subProg :: Parser [SubStmt]
-subProg = do 
+subProg = do
   stml <- subStmt `sepEndBy` newline'
   return stml
 
@@ -237,6 +240,7 @@ applyP = do
   return (ApplyP p v')
 
 -- --------------------------------------- Test Driver -------------------------------------
+
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc SubstanceCore.hs; ./SubstanceCore <substance core-file>
 
@@ -250,17 +254,6 @@ main = do
     --case (parse dsllParser dsllFile dsllIn) of
     --    Left err -> putStr (parseErrorPretty err)
     --    Right xs -> writeFile outputFile (show xs)
-    --putStrLn "Parsing Done!"  
+    --putStrLn "Parsing Done!"
     --mapM_ print parsed
     return ()
-
-
-
-
-
-
-
-
-
-
-

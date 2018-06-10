@@ -31,7 +31,7 @@ import Env
 -- Style AST
 
 -- | Type annotation for all geometries supported by Style so far.
-data StyType = Ellip | Circle | Box | Rectangle | Parallel | Dot | Arrow | NoShape | Color | Text | Curve | Auto 
+data StyType = Ellip | Circle | Box | Rectangle | Parallel | Dot | Arrow | NoShape | Color | Text | Curve | Auto
                | Line2 -- two points
     deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
@@ -509,12 +509,12 @@ procExpr ctx r@(BinOp Access (Id subObjName) (Id "label")) = error ("cannot acce
 
 -- Shapes are given their unique names (for lookup) in Runtime (so far)
 -- in context [X ~> A], look up "X.yaxis.label", return "A yaxis label"
-procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) = 
+procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) =
              let subObjName = lookupVarMap subObjPattern ctx in
              Left $ labelName $ uniqueShapeName subObjName styShapeName
 
 -- in context [X ~> A], look up "X.yaxis", return "A yaxis"
-procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) = 
+procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) =
          let subObjName = lookupVarMap subObjPattern ctx in
          Left $ uniqueShapeName subObjName styShapeName
 
@@ -580,7 +580,7 @@ convPredArg c  = (show c)
 
 predArgListToString :: [C.PredArg] -> [String]
 predArgListToString = map convPredArg
-   
+
 varArgsToString :: [Arg] -> [String]
 varArgsToString = map conv
     where conv c = case c of
@@ -593,18 +593,14 @@ exprToString = map conv
 
 getConstrTuples :: [C.SubConstr] -> [(TypeName, String, [String])]
 getConstrTuples = map getType
-    where getType (C.SubConstrConst p  vs)  = ((TypeNameConst p), "_" ++ p ++ (intercalate "" (predArgListToString vs)), (predArgListToString vs))
+    where getType (C.SubConstrConst p  vs)  = ((TypeNameConst p), "_" ++ p
+                                              ++ (intercalate "" (predArgListToString vs)), (predArgListToString vs))
 
 getSubTuples :: [C.SubDecl] -> [(TypeName, String, [String])]
 getSubTuples = map getType
     where getType d = case d of
             C.SubDeclConst (TConstr (ConstructorInvoker t xls pos1)) (VarConst v) -> ((TypeNameConst t), v , (v : (varArgsToString xls)))
-            C.SubDeclConst (TTypeVar (TypeVar name pos2)) (VarConst v)     -> ((TypeNameConst name), v , [v])
-
-
-
-
-           
+            C.SubDeclConst (TTypeVar (TypeVar name pos2)) (VarConst v)            -> ((TypeNameConst name), v , [v])
 
 getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
