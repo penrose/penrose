@@ -36,7 +36,7 @@ data TypeName = TypeNameConst String  -- these are all names, e.g. “Set”
                 deriving (Show, Eq, Typeable)
 
 data TypeVar = TypeVar { typeVarName :: String,
-                         typeVarPos :: SourcePos }
+                         typeVarPos  :: SourcePos }
                deriving (Show, Typeable)
 
 instance Eq TypeVar where
@@ -57,7 +57,7 @@ data T = TTypeVar TypeVar
          deriving (Show, Eq, Typeable)
 
 data ConstructorInvoker = ConstructorInvoker { nameCons :: String,
-                                               argCons:: [Arg],
+                                               argCons  :: [Arg],
                                                constructorInvokerPos :: SourcePos }
                           deriving (Typeable)
 
@@ -78,14 +78,14 @@ data K = Ktype Type
        deriving (Show, Eq, Typeable)
 
 data Type = Type { typeName :: String,
-                   typePos :: SourcePos}
+                   typePos  :: SourcePos }
             deriving (Show, Typeable)
 
 instance Eq Type where
   (Type n1 _) == (Type n2 _) = n1 == n2
 
-data Prop =  Prop { propName:: String,
-                    propPos :: SourcePos}
+data Prop =  Prop { propName :: String,
+                    propPos  :: SourcePos }
              deriving (Show, Typeable)
 
 instance Eq Prop where
@@ -93,7 +93,7 @@ instance Eq Prop where
 
 ----------------------------------- Parser --------------------------------------------
 
-typeNameParser ::Parser TypeName
+typeNameParser :: Parser TypeName
 typeNameParser = do
     i <- identifier
     return (TypeNameConst i)
@@ -131,14 +131,14 @@ propParser = do
     pos <- getPosition
     return Prop { propName = "Prop", propPos = pos}
 
-
 tParser, tConstructorInvokerParser, typeVarParser' :: Parser T
 tParser = try tConstructorInvokerParser <|> typeVarParser'
 tConstructorInvokerParser = do
     i         <- identifier
-    arguments <- option [] $ parens (argParser `sepBy1` comma) --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $ parens (argParser `sepBy1` comma) --try (parens (argParser `sepBy1` comma)) <|> emptyArgList-- -- --
+    arguments <- option [] $ parens (argParser `sepBy1` comma) 
+    --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $ parens (argParser `sepBy1` comma) --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
     pos <- getPosition
-    return (TConstr (ConstructorInvoker {nameCons = i, argCons = arguments, constructorInvokerPos = pos}))
+    return (TConstr (ConstructorInvoker { nameCons = i, argCons = arguments, constructorInvokerPos = pos }))
 typeVarParser' = do
     i <- typeVarParser
     return (TTypeVar i)
@@ -157,7 +157,7 @@ kParser = try kTypeParser <|> try tParser''
 kTypeParser = do
      rword "type"
      pos <- getPosition
-     return (Ktype (Type { typeName = "type", typePos = pos}))
+     return (Ktype (Type { typeName = "type", typePos = pos }))
 tParser'' = do
     t <- tParser
     return (KT t)
@@ -170,16 +170,16 @@ emptyArgList = do
 
 ----------------------------------- Typechecker aux functions ------------------------------------------
 
-firsts :: [(a,b)] -> [a]
+firsts :: [(a, b)] -> [a]
 firsts xs = [x | (x,_) <- xs]
 
-seconds :: [(a,b)] -> [b]
+seconds :: [(a, b)] -> [b]
 seconds xs = [x | (_,x) <- xs]
 
-second :: (a,b) -> b
-second (a,b) = b
+second :: (a, b) -> b
+second (a, b) = b
 
-
+checkAndGet :: String -> M.Map String v -> SourcePos -> Either String v
 checkAndGet k m pos = case M.lookup k m of
   Nothing -> Left ("Error in " ++ (sourcePosPretty pos) ++ " : " ++ k ++ " Doesn't exist in the context \n")
   Just v ->  Right v
@@ -189,16 +189,16 @@ lookUpK e (AT  (TTypeVar t))  = (Ktype ((typeVarMap e) M.! t)) --(Ktype (Type {t
 lookUpK e (AT  (TConstr t)) =
         if (nameCons t) `elem` (declaredNames e)
         then lookUpK e (AVar (VarConst (nameCons t)))
-        else (Ktype (Type {typeName = "type", typePos = constructorInvokerPos t}))
+        else (Ktype (Type { typeName = "type", typePos = constructorInvokerPos t }))
 lookUpK e (AVar v) = (KT ((varMap e) M.! v))
 
 getTypesOfArgs :: VarEnv -> [Arg] -> [K]
 getTypesOfArgs e args = map (lookUpK e) args
 
-updateEnv :: VarEnv -> (Y,K) -> VarEnv
-updateEnv e (TypeVarY y, Ktype t) = e {typeVarMap = M.insert y t $ typeVarMap e}
-updateEnv e (VarY y, KT t) = e {varMap = M.insert y t $ varMap e}
-updateEnv e err = e {errors = (errors e) ++ "Problem in update: " ++ (show err) ++ "\n"}
+updateEnv :: VarEnv -> (Y, K) -> VarEnv
+updateEnv e (TypeVarY y, Ktype t) = e { typeVarMap = M.insert y t $ typeVarMap e }
+updateEnv e (VarY y, KT t)        = e { varMap = M.insert y t $ varMap e }
+updateEnv e err                   = e { errors = (errors e) ++ "Problem in update: " ++ (show err) ++ "\n" }
 
 addName :: String -> VarEnv -> VarEnv
 addName a e = if (a `elem` (names e))
@@ -207,8 +207,8 @@ addName a e = if (a `elem` (names e))
 
 addDeclaredName :: String -> VarEnv -> VarEnv
 addDeclaredName a e = if (a `elem` (declaredNames e))
-                      then e {errors = (errors e) ++ ("Name already exsist in the context \n")}
-                      else e {declaredNames = a : (declaredNames e)}
+                      then e { errors = (errors e) ++ ("Name already exsist in the context \n") }
+                      else e { declaredNames = a : (declaredNames e) }
 
 --------------------------------------- Env Data Types ---------------------------------------
 
@@ -264,24 +264,24 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        varMap           :: M.Map Var T,
                        names            :: [String],  -- a global list which contains all the names of types in that env
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
-                       errors           :: String }   -- a string which accumulates all the errors founded during the run of the typecheker
+                       errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
               deriving (Show, Eq, Typeable)
 
 
 checkTypeVar :: VarEnv -> TypeVar -> VarEnv
 checkTypeVar e v = if (M.member v (typeVarMap e))
                    then e
-                   else e {errors = (errors e) ++ ("TypeVar " ++ (show v) ++ "is not in scope \n")}
+                   else e { errors = (errors e) ++ ("TypeVar " ++ (show v) ++ "is not in scope \n") }
 
 checkVar :: VarEnv -> Var -> VarEnv
 checkVar e v = if (M.member v (varMap e))
                then e
-               else e {errors = (errors e) ++ ("Var " ++ (show v) ++ "is not in scope \n")}
+               else e { errors = (errors e) ++ ("Var " ++ (show v) ++ "is not in scope \n") }
 
 
 checkY :: VarEnv -> Y -> VarEnv
 checkY e (TypeVarY y) = checkTypeVar e y
-checkY e (VarY y) = checkVar e y
+checkY e (VarY y)     = checkVar e y
 
 checkArg :: VarEnv -> Arg -> VarEnv
 checkArg e (AVar v) = checkVar e v
@@ -292,7 +292,7 @@ checkArg e (AT t) = checkT e t
 
 checkT :: VarEnv -> T -> VarEnv
 checkT e (TTypeVar t) = checkTypeVar e t
-checkT e (TConstr c) = checkConstructorInvoker e c
+checkT e (TConstr c)  = checkConstructorInvoker e c
 
 checkType :: VarEnv -> Type -> VarEnv
 checkType e t = e
@@ -302,19 +302,19 @@ checkType e t = e
 -- checkConstructorInvoker e const = e
 
 checkConstructorInvoker :: VarEnv -> ConstructorInvoker -> VarEnv
-checkConstructorInvoker e const = let name = (nameCons const)
-                                      args = (argCons const)
+checkConstructorInvoker e const = let name = nameCons const
+                                      args = argCons const
                                       env1 = foldl checkArg e args
                                       kls1 = getTypesOfArgs e args
                                       in case (checkAndGet name (typeConstructors e) (constructorInvokerPos const)) of
                                       Right val -> let kls2 = klstc val
                                                    in if kls1 /= kls2
-                                                      then env1 {errors = (errors env1)
+                                                      then env1 { errors = (errors env1)
                                                                           ++ ("Args do not match: " ++ (show kls1) ++
-                                                                          " != " ++ (show kls2) ++ "\n")}
+                                                                          " != " ++ (show kls2) ++ "\n") }
                                                       else env1
-                                      Left err -> env1 {errors = (errors env1) ++ err}
+                                      Left err -> env1 { errors = (errors env1) ++ err }
 
 checkK :: VarEnv -> K -> VarEnv
-checkK e (Ktype t) = (checkType e t)
-checkK e (KT t) = (checkT e t)
+checkK e (Ktype t) = checkType e t
+checkK e (KT t) = checkT e t

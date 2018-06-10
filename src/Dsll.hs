@@ -34,7 +34,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 -- | tconstructor
 data Cd = Cd { nameCd   :: String,
                inputCd  :: [(Y, K)],
-               outputCd :: Type}
+               outputCd :: Type }
           deriving (Eq, Typeable)
 
 instance Show Cd where
@@ -46,7 +46,7 @@ instance Show Cd where
 -- | vconstructor
 data Vd = Vd { nameVd  :: String,
                varsVd  :: [(Y, K)],
-               typesVd :: [(Var,T)],
+               typesVd :: [(Var, T)],
                toVd    :: T }
           deriving (Eq, Typeable)
 
@@ -136,40 +136,38 @@ dsllProg = do
     listVd <- vdParser `sepEndBy` newline'
     listOd <- odParser `sepEndBy` newline'
     listPd <- pdParser `sepEndBy` newline'
-    return DSLLProg {cd = listCd, vd = listVd, od =  listOd, pd =  listPd}
-
+    return DSLLProg { cd = listCd, vd = listVd, od = listOd, pd = listPd }
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser Cd
 cdParser = try cd1 <|> cd2
-cd1= do
+cd1 = do
     rword "tconstructor"
     name <- identifier
     (y, k) <- parens ykParser
     colon
     t' <- typeParser
     pos <- getPosition
-
-    return Cd {nameCd = name, inputCd = zip y k, outputCd =  t'}
+    return Cd { nameCd = name, inputCd = zip y k, outputCd = t' }
 cd2 = do
     rword "tconstructor"
     name <- identifier
     colon
     t' <- typeParser
-    return Cd {nameCd = name, inputCd =  [], outputCd =  t'}
+    return Cd { nameCd = name, inputCd = [], outputCd = t' }
 
 -- | parser for the (y,k) list
-ykParser :: Parser ([Y],[K])
+ykParser :: Parser ([Y], [K])
 ykParser = unzip <$> (yWithKind `sepBy1` comma)
     where yWithKind = (,) <$> (yParser <* colon) <*> kParser
 
 -- | parser for the (b,t) list
-xtParser :: Parser ([Var],[T])
+xtParser :: Parser ([Var], [T])
 xtParser = unzip <$> (varWithType `sepBy1` comma)
     where varWithType = (,) <$> (varParser <* colon) <*> tParser
 
 -- | parser for the (x, Prop) list
-xPropParser :: Parser ([Var],[Prop])
+xPropParser :: Parser ([Var], [Prop])
 xPropParser = unzip <$> (vpPair `sepBy1` comma)
     where vpPair = (,) <$> (varParser <* colon) <*> propParser
 
@@ -178,22 +176,22 @@ vdParser :: Parser Vd
 vdParser = do
   rword "vconstructor"
   name <- identifier
-  (y',k') <- option ([], []) ykParser
-  (b',t') <- option ([], []) xtParser
+  (y', k') <- option ([], []) ykParser
+  (b', t') <- option ([], []) xtParser
   colon
   t'' <- tParser
-  return Vd{nameVd = name, varsVd = (zip y' k'), typesVd  =  (zip b' t'), toVd = t''}
+  return Vd { nameVd = name, varsVd = (zip y' k'), typesVd = (zip b' t'), toVd = t'' }
 
   -- | operation parser
 odParser :: Parser Od
 odParser = do
   rword "operator"
   name <- identifier
-  (y',k') <- option ([], []) $ brackets ykParser
-  (b',t') <- option ([], []) $ parens   xtParser
+  (y', k') <- option ([], []) $ brackets ykParser
+  (b', t') <- option ([], []) $ parens   xtParser
   colon
   t'' <- tParser
-  return Od{nameOd = name, varsOd = (zip y' k'), typesOd  =  (zip b' t'), toOd = t''}
+  return Od { nameOd = name, varsOd = (zip y' k'), typesOd = (zip b' t'), toOd = t'' }
 
 -- | predicate parser
 pdParser, pd1, pd2 :: Parser Pd
@@ -201,20 +199,20 @@ pdParser = try pd1 <|> pd2
 pd1 = do
   rword "predicate"
   name <- identifier
-  (y',k') <- option ([], []) $ brackets ykParser
-  (b',t') <- option ([], []) $ parens   xtParser
+  (y', k') <- option ([], []) $ brackets ykParser
+  (b', t') <- option ([], []) $ parens   xtParser
   colon
   p' <- propParser
-  return (Pd1Const (Pd1{namePd1 = name, varsPd1 = (zip y' k'), typesPd1  =  (zip b' t'), toPd1 = p'}))
+  return (Pd1Const (Pd1 { namePd1 = name, varsPd1 = (zip y' k'), typesPd1 = (zip b' t'), toPd1 = p' }))
 pd2 = do
   rword "predicate"
   name <- identifier
   (b', prop') <- parens xPropParser
   colon
   p' <- propParser
-  return (Pd2Const (Pd2{namePd2 = name, propsPd2 = (zip b' prop'), toPd2 = p'}))
+  return (Pd2Const (Pd2 { namePd2 = name, propsPd2 = (zip b' prop'), toPd2 = p' }))
 
--- --------------------------------------- DSLL Semantic Checker ---------------------------
+--------------------------------------- DSLL Semantic Checker ---------------------------
 
 -- | 'check' is the top-level semantic checking function. It takes a DSLL
 -- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
@@ -224,84 +222,86 @@ check p =  let env1  = foldl checkTypeConstructors initE (cd p)
                env2  = foldl checkVarConstructors env1 (vd p)
                env3  = foldl checkOperations env2 (od p)
                env4  = foldl checkPredicates env3 (pd p)
-           in if (null (errors env4)) then env4 else error("DSLL type checking failed with the following problems: \n" ++ (errors env4))
+           in if (null (errors env4))
+              then env4
+              else error ("DSLL type checking failed with the following problems: \n" ++ (errors env4))
            where initE = VarEnv { typeConstructors = M.empty, varConstructors = M.empty,
                                   operations = M.empty, predicates = M.empty, typeVarMap = M.empty,
                                   varMap = M.empty, names = [], declaredNames = [], errors = ""}
 
-
 checkTypeConstructors :: VarEnv -> Cd -> VarEnv
-checkTypeConstructors e c = let kls = (seconds (inputCd c))
+checkTypeConstructors e c = let kls  = seconds (inputCd c)
                                 env1 = foldl checkK e kls
-                                tc = TypeConstructor {nametc = nameCd c, klstc = (seconds (inputCd c))
-                                                       , typtc = outputCd c}
-                                ef = addName (nameCd c) env1
+                                tc   = TypeConstructor { nametc = nameCd c, klstc = kls, typtc = outputCd c }
+                                ef   = addName (nameCd c) env1
                              in ef { typeConstructors = M.insert (nameCd c) tc $ typeConstructors ef }
 
-
 checkVarConstructors :: VarEnv -> Vd -> VarEnv
-checkVarConstructors e v = let kls = (seconds (varsVd v))
+checkVarConstructors e v = let kls = seconds (varsVd v)
                                env1 = foldl checkK e kls
                                localEnv = foldl updateEnv env1 (varsVd v)
-                               args = (seconds (typesVd v))
-                               res = (toVd v)
+                               args = seconds (typesVd v)
+                               res = toVd v
                                env2 = foldl checkT localEnv args
                                temp = checkT localEnv res
-                               vc = VarConstructor { namevc = nameVd v,  ylsvc = (firsts (varsVd v)),
-                                                     klsvc = (seconds (varsVd v)) , tlsvc = (seconds (typesVd v)), tvc = (toVd v) }
+                               vc = VarConstructor { namevc = nameVd v, ylsvc = firsts (varsVd v),
+                                                     klsvc = seconds (varsVd v), tlsvc = seconds (typesVd v),
+                                                     tvc = toVd v }
                                ef = addName (nameVd v) e
                             in if ((env2 == e || env2 /= e) && (temp == e || temp /= e))
-                               then ef{varConstructors = M.insert (nameVd v) vc $ varConstructors ef}
+                               then ef { varConstructors = M.insert (nameVd v) vc $ varConstructors ef }
                                else error ("Error!") -- Does not suppose to reach here
 
-
 checkOperations :: VarEnv -> Od -> VarEnv
-checkOperations e v = let kls = (seconds (varsOd v))
+checkOperations e v = let kls = seconds (varsOd v)
                           env1 = foldl checkK e kls
                           localEnv = foldl updateEnv env1 (varsOd v)
-                          args = (seconds (typesOd v))
-                          res = (toOd v)
+                          args = seconds (typesOd v)
+                          res = toOd v
                           env2 = foldl checkT localEnv args
                           temp = checkT localEnv res
-                          op = Operation { nameop = nameOd v,  ylsop = (firsts (varsOd v)),
-                                           klsop = (seconds (varsOd v)) , tlsop = (seconds (typesOd v)), top = (toOd v) }
+                          op = Operation { nameop = nameOd v, ylsop = firsts (varsOd v),
+                                           klsop = seconds (varsOd v), tlsop = seconds (typesOd v), top = toOd v }
                           ef = addName (nameOd v) e
                         in if ((env2 == e || env2 /= e) && (temp == e || temp /= e))
-                           then ef{operations = M.insert (nameOd v) op $ operations ef}
+                           then ef { operations = M.insert (nameOd v) op $ operations ef }
                            else error ("Error!")  -- Does not suppose to reach here
 
-
 checkPredicates :: VarEnv -> Pd -> VarEnv
-checkPredicates e (Pd1Const v) = let kls = (seconds (varsPd1 v))
+checkPredicates e (Pd1Const v) = let kls = seconds (varsPd1 v)
                                      env1 = foldl checkK e kls
                                      localEnv = foldl updateEnv env1 (varsPd1 v)
-                                     args = (seconds (typesPd1 v))
+                                     args = seconds (typesPd1 v)
                                      env2 = foldl checkT localEnv args
-                                     pd1 = Pred1 Predicate1 { namepred1 = namePd1 v,  ylspred1 = (firsts (varsPd1 v)),
-                                                              klspred1 = (seconds (varsPd1 v)) , tlspred1 = (seconds (typesPd1 v)),
-                                                              ppred1 = (toPd1 v) }
+                                     pd1 = Pred1 $ Predicate1 { namepred1 = namePd1 v,
+                                                                ylspred1  = firsts (varsPd1 v),
+                                                                klspred1  = seconds (varsPd1 v),
+                                                                tlspred1  = seconds (typesPd1 v),
+                                                                ppred1    = toPd1 v }
                                      ef = addName (namePd1 v) e
                                   in if ((env2 == e || env2 /= e))
                                      then ef { predicates = M.insert (namePd1 v) pd1 $ predicates ef }
                                      else error ("Error!")  -- Does not suppose to reach here
 
-checkPredicates e (Pd2Const v) = let pd = Pred2 Predicate2 { namepred2 = namePd2 v, plspred2 = (seconds (propsPd2 v)), ppred2 = (toPd2 v) }
+checkPredicates e (Pd2Const v) = let pd = Pred2 $ Predicate2 { namepred2 = namePd2 v, plspred2 = seconds (propsPd2 v), 
+                                                               ppred2 = toPd2 v }
                                      ef = addName (namePd2 v) e
-                                 in ef {predicates = M.insert (namePd2 v) pd $ predicates ef}
+                                 in ef { predicates = M.insert (namePd2 v) pd $ predicates ef }
 
 
 -- | 'parseDsll' runs the actual parser function: 'dsllParser', taking in a program String, parses it and
 -- | semantically checks it. It outputs the environement as returned from the dsll typechecker
 parseDsll :: String -> String -> IO VarEnv
-parseDsll dsllFile dsllIn = case runParser dsllParser dsllFile dsllIn of
-     Left err -> error (parseErrorPretty err)
-     Right xs -> do
-         putStrLn ("DSLL AST: \n")
-         putStrLn (show xs)
-         -- mapM_ print xs
-         divLine
-         let env = check xs
-         return (env)
+parseDsll dsllFile dsllIn =
+          case runParser dsllParser dsllFile dsllIn of
+          Left err -> error (parseErrorPretty err)
+          Right xs -> do
+              putStrLn ("DSLL AST: \n")
+              putStrLn (show xs)
+              -- mapM_ print xs
+              divLine
+              let env = check xs
+              return env
 
 -- --------------------------------------- Test Driver -------------------------------------
 

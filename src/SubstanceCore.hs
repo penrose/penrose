@@ -47,7 +47,6 @@ data TypeVar = TypeVarConst String
 data Var = VarConst String
            deriving (Show, Eq, Typeable)
 
-
 data Type = ApplyT SubType [Arg]
           | TypeT TypeVar
           deriving (Show, Eq, Typeable)
@@ -65,7 +64,6 @@ data SubStmt = Decl Type Var
              | Bind Var Expr
              | ApplyP Predicate [Var]
              deriving (Show, Eq, Typeable)
-
 
 -- | Program is a sequence of statements
 type SubProg = [SubStmt]
@@ -107,7 +105,6 @@ lexeme = L.lexeme sc
 symbol :: String -> Parser String
 symbol = L.symbol sc
 
-
 newline' :: Parser ()
 newline' = newline >> scn
 
@@ -117,7 +114,6 @@ parens = between (symbol "(") (symbol ")")
 
 listOut :: Parser a -> Parser a
 listOut = between (symbol "[") (symbol "]")
-
 
 -- Define characters wich are part of the syntax
 colon, arrow, comma, rsbrac, lsbrac, lparen, rparen,eq :: Parser ()
@@ -130,11 +126,12 @@ lparen = void (symbol "(")
 rparen = void (symbol ")")
 eq     = void (symbol "=")
 
-
 -- Reserverd word handling
-rword :: String -> Parser()
+rword :: String -> Parser ()
 rword w = (lexeme . try) (string w *> notFollowedBy alphaNumChar)
-rws :: [String] -- The list of reserved words in DSLL
+
+ -- The list of reserved words in DSLL
+rws :: [String]
 rws = [] -- TODO: Doesn't seems like there is any reserved word here, should seperate reserved words in Utils.hs for each PL
 
 -- Identifiers handling
@@ -189,7 +186,6 @@ predicateParser = do
     i <- identifier
     return (PredicateConst i)
 
-
 typeParser, applyT, typeT :: Parser Type
 typeParser = try applyT <|> typeT
 applyT = do
@@ -200,7 +196,7 @@ typeT = do
   i <- typeVarParser
   return (TypeT i)
 
-argParser, varA , typeA :: Parser Arg
+argParser, varA, typeA :: Parser Arg
 argParser = try varA <|> typeA
 varA  = do
   i <- varParser
