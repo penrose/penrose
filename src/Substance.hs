@@ -34,7 +34,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 data ValConstructorName = ValConst String             -- “Cons”, “Times”
     deriving (Show, Eq, Typeable)
 
-data OperatorName = OperatorConst String             -- “Intersection” 
+data OperatorName = OperatorConst String             -- “Intersection”
     deriving (Show, Eq, Typeable)
 
 data PredicateName = PredicateConst String            -- “Intersect”
@@ -101,7 +101,7 @@ substanceParser = between scn eof subProg -- Parse all the statemnts between the
 
 -- |'subProg' parses the entire actual Substance Core language program which is a collection of statements
 subProg :: Parser [SubStmt]
-subProg = do 
+subProg = do
   stml <- subStmt `sepEndBy` newline'
   return stml
 
@@ -114,7 +114,7 @@ predicateNameParser = do
 functionParser :: Parser Func
 functionParser = do
   n <- identifier
-  args <- parens (exprParser `sepBy1` comma) 
+  args <- parens (exprParser `sepBy1` comma)
   return (Func {nameFunc = n, argFunc = args})
 
 
@@ -139,7 +139,7 @@ predicateArgParserP = do
 predicateParser :: Parser Predicate
 predicateParser = do
   n <- predicateNameParser
-  args <- parens (predicateArgParser `sepBy1` comma) 
+  args <- parens (predicateArgParser `sepBy1` comma)
   return (Predicate {predicateName = n, predicateArgs = args})
 
 subStmt, decl, bind, applyP :: Parser SubStmt
@@ -160,7 +160,7 @@ applyP = do
 -- --------------------------------------- Substance TypeChecker ---------------------------
 
 -- | 'check' is the top-level semantic checking function. It takes a Substance
--- AST as the input and the environment recived from the DSLL type checker, checks the validity of the program acoording to 
+-- AST as the input and the environment recived from the DSLL type checker, checks the validity of the program acoording to
 -- the typechecking rules, and outputs a collection of information.
 check :: SubProg -> VarEnv -> VarEnv
 check p varEnv = let env = foldl checkSubStmt varEnv p
@@ -176,9 +176,9 @@ checkSubStmt varEnv  (Bind v e) = let (vstr, vt) = checkVarE varEnv v
                                      else varEnv{errors = (errors varEnv) ++ vstr ++ estr}
 checkSubStmt varEnv  (ApplyP p) = checkPredicate varEnv p
 
-checkPredicate :: VarEnv -> Predicate -> VarEnv 
+checkPredicate :: VarEnv -> Predicate -> VarEnv
 checkPredicate varEnv (Predicate (PredicateConst p) args) = case checkAndGet p (predicates varEnv) of
-                                              Right p  -> case p of 
+                                              Right p  -> case p of
                                                 (Pred1 p1) -> checkVarPred varEnv args p1
                                                 (Pred2 p2) -> checkRecursePred varEnv args
                                               Left err -> varEnv{errors = (errors varEnv) ++ err}
@@ -193,12 +193,12 @@ checkVarPred varEnv args (Predicate1 name yls kls tls p) = let exprArgs = map is
                                                               then let argTypes2 = map (\a -> KT (fromJust a)) argTypes
                                                                        tls2 = map (\a -> KT a) tls
                                                                        sigma = substitution M.empty argTypes2 tls2
-                                                                   in if (sigma == M.empty) 
+                                                                   in if (sigma == M.empty)
                                                                       then varEnv{errors = (errors varEnv) ++ err} -- err should be empty str
                                                                       else varEnv{errors = (errors varEnv) ++ err} -- err should be empty str
-                                                              else 
+                                                              else
                                                                varEnv{errors = (errors varEnv) ++ err}
-                                                               
+
 isVarPredicate :: PredArg -> Expr
 isVarPredicate (PP p) = error("Mixed predicate types!")
 isVarPredicate (PE p) = p
@@ -228,7 +228,7 @@ checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (varConstructors varEnv)
                                     else if (isJust(vcEnv))
                                          then checkVarConsInEnv varEnv (Func f args) (fromJust vcEnv)
                                     else checkFuncInEnv varEnv (Func f args) (fromJust fEnv)
-                                         
+
 
 checkFuncInEnv :: VarEnv -> Func -> Operation -> (String, Maybe T)
 checkFuncInEnv varEnv (Func f args) (Operation name yls kls tls t) = let errAndTypesLs = map (checkExpression varEnv) args
@@ -242,10 +242,10 @@ checkFuncInEnv varEnv (Func f args) (Operation name yls kls tls t) = let errAndT
                                                                              in if (sigma == M.empty)
                                                                                 then (err, Just t) -- err should be empty str
                                                                                 else (err, Just (applySubstitution sigma t)) -- err should be empty str
-                                                                        else  
+                                                                        else
                                                                          (err, Nothing)
 
-checkVarConsInEnv  :: VarEnv -> Func -> VarConstructor -> (String, Maybe T)                                       
+checkVarConsInEnv  :: VarEnv -> Func -> VarConstructor -> (String, Maybe T)
 checkVarConsInEnv varEnv (Func f args) (VarConstructor name yls kls tls t) = let errAndTypesLs = map (checkExpression varEnv) args
                                                                                  errls = map (\(err1,t1) -> err1) errAndTypesLs
                                                                                  err = foldl (\err1 err2 -> err1 ++ err2) "" errls
@@ -254,10 +254,10 @@ checkVarConsInEnv varEnv (Func f args) (VarConstructor name yls kls tls t) = let
                                                                                 then let argTypes2 = map (\a -> KT (fromJust a)) argTypes
                                                                                          tls2 = map (\a -> KT a) tls
                                                                                          sigma = substitution M.empty argTypes2 tls2
-                                                                                      in if (sigma == M.empty) 
+                                                                                      in if (sigma == M.empty)
                                                                                          then (err, Just t) -- err should be empty str
                                                                                          else (err, Just (applySubstitution sigma t)) -- err should be empty str
-                                                                                else 
+                                                                                else
                                                                                  (err, Nothing)
 
 applySubstitution :: M.Map Y Arg -> T -> T
@@ -272,7 +272,7 @@ applySubstitutionHelper sigma (AVar v) = case sigma M.! (VarY v) of
                                          AVar v2 -> (AVar v2)
                                          AT t -> error("Var being mapped to a type in substitution sigma, error in TypeChecker!")
 applySubstitutionHelper sigma (AT t) = AT (applySubstitution sigma t)
-                                                                                 
+
 substitution :: M.Map Y Arg -> [K] -> [K] -> M.Map Y Arg
 substitution sigma argTypes formalTypes = let types = zip argTypes formalTypes
                                               sigma2 = foldl substitutionHelper sigma types
@@ -363,14 +363,13 @@ checkNameAndTyp m (s, t) = case M.lookup s m of
     Just t' -> if t == t' then s
             else error ("Type of " ++ s ++ " is incorrect. Expecting " ++ show t ++ " , but have " ++ show t')
 
--- | `subSeparate` aplits a list of Substance objects into declared objects and constaints on these objects
+-- | `subSeparate` splits a list of Substance objects into declared objects and constaints on these objects
 subSeparate :: [SubObj] -> SubObjDiv
 subSeparate = foldr separate ([], [])
             where separate line (decls, constrs) =
                            case line of
                            (LD x) -> (x : decls, constrs)
                            (LC x) -> (decls, x : constrs)
-
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
 parseSubstance :: String -> String -> VarEnv -> IO ([SubObj],VarEnv)
@@ -385,6 +384,52 @@ parseSubstance subFile subIn varEnv = case runParser substanceParser subFile sub
              c = loadObjects xs
          return ((subObjs c), subEnv)
 
+--------------------------------------------------------------------------------
+-- COMBAK: organize this section and maybe rewrite some of the functions
+
+-- | Generate a unique id for a Substance constraint
+-- FIXME: make sure these names are unique and make sure users cannot start ids
+-- with underscores
+
+varListToString :: [Var] -> [String]
+varListToString = map conv
+    where conv (VarConst s)  = s
+
+--TODO: Support all the other cases
+convPredArg :: PredArg -> String
+convPredArg (PE (VarE (VarConst s)))  = s
+convPredArg c  = (show c)
+
+predArgListToString :: [PredArg] -> [String]
+predArgListToString = map convPredArg
+
+varArgsToString :: [Arg] -> [String]
+varArgsToString = map conv
+    where conv c = case c of
+                       AVar (VarConst s) -> s
+                       _ -> ""
+
+exprToString :: [Expr] -> [String]
+exprToString = map conv
+    where conv c = (show c)
+
+
+-- TODO: factor out internal naming convention logic
+getConstrTuples :: [SubConstr] -> [(TypeName, String, [String])]
+getConstrTuples = map getType
+    where getType (SubConstrConst p  vs)  = ((TypeNameConst p), "_" ++ p ++ (intercalate "" (predArgListToString vs)), (predArgListToString vs))
+
+getSubTuples :: [SubDecl] -> [(TypeName, String, [String])]
+getSubTuples = map getType
+    where getType d = case d of
+                        SubDeclConst (TConstr (ConstructorInvoker t xls)) (VarConst v) -> ((TypeNameConst t), v , (v : (varArgsToString xls)))
+                        SubDeclConst (TTypeVar (TypeVarConst t)) (VarConst v)     -> ((TypeNameConst t), v , [v])
+
+getAllIds :: ([SubDecl], [SubConstr]) -> [String]
+getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
+
+--------------------------------------------------------------------------------
+
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc SubstanceCore.hs; ./SubstanceCore <substance core-file>
@@ -395,7 +440,6 @@ main = do
     let subFile = head args
     subIn <- readFile subFile
     parseTest substanceParser subIn
-    --parsed <- parseFromFile  
+    --parsed <- parseFromFile
     --mapM_ print parsed
     return ()
-

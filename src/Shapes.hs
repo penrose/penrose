@@ -676,7 +676,12 @@ data TypeIn a = TNum a
               | TPt (Pt2 a)
               | TPath [Pt2 a]
               | TColor Color
-              | TStyle String -- dotted, etc.
+              | TStyle String -- | dotted, etc.
+
+              | TAllShapes String -- | Substance ID
+              | TShape String String -- | Substance ID, shape ID
+              | TProp String Property -- | Substance ID, shape ID, property of that shape
+              | TCall String [TypeIn a] -- | a call to computation function
      deriving (Eq, Show, Data, Typeable)
 
 -- | Getters for all shapes
