@@ -7,13 +7,15 @@ import Utils
 import Debug.Trace
 import qualified Data.Map.Strict as M
 
-type ObjFnOn a = [Obj' a] -> [a] -> a
-type ConstrFnOn a = [Obj' a] -> [a] -> a
-type ObjFn = forall a. (Autofloat a) => [Obj' a] -> [a] -> a
-type ConstrFn = forall a. (Autofloat a) => [Obj' a] -> [a] -> a
-type ObjFnInfo a = (ObjFnOn a, Weight a, [Name], [a])
-type ConstrFnInfo a = (ConstrFnOn a, Weight a, [Name], [a])
-type Weight a = a
+type ObjFnOn    a = [Obj' a] -> [TypeIn a] -> a
+type ConstrFnOn a = [Obj' a] -> [TypeIn a] -> a
+type ObjFn    = forall a. (Autofloat a) => [Obj' a] -> [TypeIn a] -> a
+type ConstrFn = forall a. (Autofloat a) => [Obj' a] -> [TypeIn a] -> a
+
+type Weight       a = a
+type ObjFnInfo    a = (ObjFnOn    a, Weight a, [TypeIn a])
+type ConstrFnInfo a = (ConstrFnOn a, Weight a, [TypeIn a])
+
 type PairConstrV a = forall a . (Autofloat a) => [[a]] -> a -- takes pairs of "packed" objs
 
 data FnInfo a = ObjFnInfo a | ConstrFnInfo a
@@ -68,17 +70,6 @@ objFuncDict = M.fromList flist
                     ("nearHead", nearHead)
                   ]
 
--- illegal polymorphic or qualified type--can't return a forall?
--- type ObjFnNamed a = forall a. (Floating a, Real a, Show a, Ord a) => M.Map Name (Obj' a) -> a
-
--- data Param a = O (Obj' a) | I Int | F Float
--- data ObjectiveFunction = ObjectiveFunction {
---     objName    :: String,
---     objWeight  :: forall a. (Floating a, Real a, Show a, Ord a) => Weight a,
---     objParam   :: forall a. (Floating a, Real a, Show a, Ord a) => [Param a],
---     objFunc    :: forall a. (Floating a, Real a, Show a, Ord a) => ObjFnOn a
--- }
-
 --------------------------------------------------------------------------------
 -- Objective functions
 -- TODO write about expectations for the objective function writer
@@ -89,12 +80,12 @@ objFuncDict = M.fromList flist
 -- distance (x1, y1) (x2, y2) dx dy = (x1 - x2)
 
 xInRange :: ObjFn
-xInRange l [xmin, xmax] = (minimum xs - xmin)^2 + (maximum xs - xmax)^2 + sum (map f xs)
+xInRange l [TNum xmin, TNum xmax] = (minimum xs - xmin)^2 + (maximum xs - xmax)^2 + sum (map f xs)
     where xs = map getX l
           f x = (max 0 $ xmax - x)^2 + (max 0 $ x - xmin)^2
 
 yInRange :: ObjFn
-yInRange l [ymin, ymax] = (minimum ys - ymin)^2 + (maximum ys - ymax)^2 + sum (map f ys)
+yInRange l [TNum ymin, TNum ymax] = (minimum ys - ymin)^2 + (maximum ys - ymax)^2 + sum (map f ys)
     where ys = map getY l
           f y = (max 0 $ ymax - y)^2 + (max 0 $ y - ymin)^2
 
@@ -129,7 +120,7 @@ center [o] _ = getX o ^ 2 + getY o ^ 2
 
 -- | 'above' makes sure the first argument is on top of the second.
 above :: ObjFn
-above [top, bottom] [offset] = (getY top - getY bottom - offset)^2
+above [top, bottom] [TNum offset] = (getY top - getY bottom - offset)^2
 above [top, bottom] _ = (getY top - getY bottom - 100)^2
 
 -- | 'toLeft' makes sure the first argument is to the left of the second.
@@ -277,7 +268,7 @@ nearEndHoriz [LN' line, L' lab] _ = -- expects a horiz line
             distsq (xl' lab, yl' lab) (fst leftpt + xoffset, snd leftpt)
 
 nearHead :: ObjFn
-nearHead [A' arr, L' lab] [xoff, yoff] =
+nearHead [A' arr, L' lab] [TNum xoff, TNum yoff] =
          let end = (endx' arr, endy' arr) in -- arrowhead
          let offset = (xoff, yoff) in
          distsq (xl' lab, yl' lab) (end `plus2` offset)
@@ -312,7 +303,7 @@ maxSize [PA' pa] _ = let max_side = max (sizeXpa' pa) (sizeYpa' pa) in
 maxSize [E' e] _ = max (ry' e) (rx' e) - limit  / 3
 
 at :: ConstrFn
-at [o] [x, y] = (getX o - x)^2 + (getY o - y)^2
+at [o] [TNum x, TNum y] = (getX o - x)^2 + (getY o - y)^2
 
 minSize :: ConstrFn
 minSize [C' c] _ = 20 - r' c
