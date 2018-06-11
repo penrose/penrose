@@ -189,8 +189,8 @@ checkPredicate varEnv (Predicate (PredicateConst p) args pos) =
                Right p -> case p of
                  Pred1 p1 -> checkVarPred varEnv args p1
                  Pred2 p2 -> checkRecursePred varEnv args
-               Left _ -> case checkAndGet p (operations varEnv) pos of
-                 Right o -> checkVarOperation varEnv args o
+               Left _ -> case checkAndGet p (operators varEnv) pos of
+                 Right o -> checkVarOperator varEnv args o
                  Left err -> varEnv { errors = (errors varEnv) ++ err }
 
 checkVarPred :: VarEnv -> [PredArg] -> Predicate1 -> VarEnv
@@ -204,14 +204,12 @@ checkVarPred varEnv args (Predicate1 name yls kls tls _) =
                 then let argTypes2 = map (\a -> KT (fromJust a)) argTypes
                          tls2      = map (\a -> KT a) tls
                          sigma     = subst varEnv M.empty argTypes2 tls2
-                     in if (sigma == M.empty)
-                        then varEnv { errors = (errors varEnv) ++ err } -- err should be empty str
-                        else varEnv { errors = (errors varEnv) ++ err } -- err should be empty str
+                     in varEnv { errors = (errors varEnv) ++ err } -- err should be empty str
                 else
                  varEnv { errors = (errors varEnv) ++ err}
 
-checkVarOperation :: VarEnv -> [PredArg] -> Operation -> VarEnv
-checkVarOperation varEnv args (Operation name yls kls tls _) =
+checkVarOperator :: VarEnv -> [PredArg] -> Env.Operator -> VarEnv
+checkVarOperator varEnv args (Operator name yls kls tls _) =
                   let exprArgs      = map isVarPredicate args
                       errAndTypesLs = map (checkExpression varEnv) exprArgs
                       errls         = map (\(err1, t1) -> err1) errAndTypesLs
@@ -249,16 +247,16 @@ checkVarE varEnv v = case M.lookup v (varMap varEnv) of
                      vt      -> ("", vt)
 
 checkFunc :: VarEnv -> Func -> (String, Maybe T)
-checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (varConstructors varEnv)
-                                     fEnv  = M.lookup f (operations varEnv)
+checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (valConstructors varEnv)
+                                     fEnv  = M.lookup f (operators varEnv)
                                  in if (isNothing(vcEnv) && isNothing(fEnv))
                                     then ("Function or Val Constructor " ++ (show f) ++ " not in environment\n", Nothing)
                                     else if (isJust(vcEnv))
                                          then checkVarConsInEnv varEnv (Func f args) (fromJust vcEnv)
                                     else checkFuncInEnv varEnv (Func f args) (fromJust fEnv)
 
-checkFuncInEnv :: VarEnv -> Func -> Operation -> (String, Maybe T)
-checkFuncInEnv varEnv (Func f args) (Operation name yls kls tls t) =
+checkFuncInEnv :: VarEnv -> Func -> Env.Operator -> (String, Maybe T)
+checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
                let errAndTypesLs = map (checkExpression varEnv) args
                    errls         = map (\(err1,t1) -> err1) errAndTypesLs
                    err           = foldl (\err1 err2 -> err1 ++ err2) "" errls
@@ -272,8 +270,8 @@ checkFuncInEnv varEnv (Func f args) (Operation name yls kls tls t) =
                           else (err, Just (applySubst sigma t)) -- err should be empty str
                   else (err, Nothing)
 
-checkVarConsInEnv  :: VarEnv -> Func -> VarConstructor -> (String, Maybe T)
-checkVarConsInEnv varEnv (Func f args) (VarConstructor name yls kls tls t) =
+checkVarConsInEnv  :: VarEnv -> Func -> ValConstructor -> (String, Maybe T)
+checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
                   let errAndTypesLs = map (checkExpression varEnv) args
                       errls         = map (\(err1,t1) -> err1) errAndTypesLs
                       err           = foldl (\err1 err2 -> err1 ++ err2) "" errls
@@ -292,9 +290,9 @@ applySubst sigma (TTypeVar vt) =
            case sigma M.! (TypeVarY vt) of
            AVar v -> error "Type var being mapped to variable in subst sigma, error in the TypeChecker!"
            AT t   -> t
-applySubst sigma (TConstr (ConstructorInvoker t args pos)) =
+applySubst sigma (TConstr (TypeCtorApp t args pos)) =
            let argsSub = map (applySubstHelper sigma) args
-           in TConstr (ConstructorInvoker t argsSub pos)
+           in TConstr (TypeCtorApp t argsSub pos)
 
 applySubstHelper :: M.Map Y Arg -> Arg -> Arg
 applySubstHelper sigma (AVar v) = case sigma M.! (VarY v) of
@@ -309,17 +307,11 @@ subst varEnv sigma argTypes formalTypes = let types = zip argTypes formalTypes
 
 substHelper :: VarEnv -> M.Map Y Arg -> (K, K) -> M.Map Y Arg
 substHelper varEnv sigma ((Ktype aT), (Ktype fT)) = sigma
-substHelper varEnv sigma ((Ktype aT), (KT fT)) =
-                   error ("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
-substHelper varEnv sigma ((KT aT), (Ktype fT)) =
-                   error ("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
 substHelper varEnv sigma ((KT (TTypeVar atv)), (KT (TTypeVar ftv))) =
                    substInsert sigma (TypeVarY ftv) (AT (TTypeVar atv))
-substHelper varEnv sigma ((KT (TTypeVar atv)), (KT (TConstr (ConstructorInvoker ftc argsFT pos)))) =
-                   error ("Argument type " ++ (show atv) ++ " doesn't match expected type " ++ (show ftc))
-substHelper varEnv sigma ((KT (TConstr (ConstructorInvoker atc argsAT pos))), (KT (TTypeVar ftv))) =
-                   substInsert sigma (TypeVarY ftv) (AT (TConstr (ConstructorInvoker atc argsAT pos)))
-substHelper varEnv sigma ((KT (TConstr (ConstructorInvoker atc argsAT pos1))), (KT (TConstr (ConstructorInvoker ftc argsFT pos2)))) =
+substHelper varEnv sigma ((KT (TConstr (TypeCtorApp atc argsAT pos))), (KT (TTypeVar ftv))) =
+                   substInsert sigma (TypeVarY ftv) (AT (TConstr (TypeCtorApp atc argsAT pos)))
+substHelper varEnv sigma ((KT (TConstr (TypeCtorApp atc argsAT pos1))), (KT (TConstr (TypeCtorApp ftc argsFT pos2)))) =
                    if ((atc `elem` (declaredNames varEnv)) || (ftc `elem` (declaredNames varEnv)))
                    then substHelper2 varEnv sigma ((AVar (VarConst atc)), (AVar (VarConst ftc)))
                    else if (atc /= ftc) 
@@ -327,16 +319,23 @@ substHelper varEnv sigma ((KT (TConstr (ConstructorInvoker atc argsAT pos1))), (
                         else let args   = zip argsAT argsFT
                                  sigma2 = foldl (substHelper2 varEnv) sigma args
                               in sigma2
+substHelper varEnv sigma ((Ktype aT), (KT fT)) =
+                   error ("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
+substHelper varEnv sigma ((KT (TTypeVar atv)), (KT (TConstr (TypeCtorApp ftc argsFT pos)))) =
+                   error ("Argument type " ++ (show atv) ++ " doesn't match expected type " ++ (show ftc))
+substHelper varEnv sigma ((KT aT), (Ktype fT)) =
+                   error ("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
+
 
 substHelper2 :: VarEnv -> M.Map Y Arg -> (Arg, Arg) -> M.Map Y Arg
 substHelper2 varEnv sigma ((AVar av), (AVar fv)) =
                     substInsert sigma (VarY fv) (AVar av)
+substHelper2 varEnv sigma ((AT at), (AT ft)) =
+                    substHelper varEnv sigma ((KT at), (KT ft))
 substHelper2 varEnv sigma ((AVar av), (AT ft)) =
                     error ("Argument type's argument " ++ (show av) ++ " doesn't match expected type's argument " ++ (show ft))
 substHelper2 varEnv sigma ((AT at), (AVar fv)) =
                     error("Argument type's argument " ++ (show at) ++ " doesn't match expected type's argument " ++ (show fv))
-substHelper2 varEnv sigma ((AT at), (AT ft)) =
-                    substHelper varEnv sigma ((KT at), (KT ft))
 
 substInsert :: M.Map Y Arg -> Y -> Arg -> M.Map Y Arg
 substInsert sigma y arg = case M.lookup y sigma of
@@ -396,20 +395,6 @@ passReferencess e _ = e -- Ignore all other statements
 toConstr :: String -> [PredArg] -> SubObj
 toConstr p vl = LC $ SubConstrConst p vl
 
--- | helper function that checks the symbol table before inserting, making sure there is no duplicated declarations
-checkAndInsert s t m = case M.lookup s m of
-    Nothing -> M.insert s t m
-    _ -> error ("Duplicated symbol: " ++ s)
-
--- | helper function that checks the existence and type of an object
-checkNameAndTyp :: (Show a, Eq a) => M.Map String a -> (String, a) -> String
-checkNameAndTyp m (s, t) = 
-                case M.lookup s m of
-                Nothing -> error ("Undefined symbol: " ++ s)
-                Just t' -> if t == t'
-                           then s
-                           else error ("Type of " ++ s ++ " is incorrect. Expecting " ++ show t ++ " , but have " ++ show t')
-
 -- | `subSeparate` splits a list of Substance objects into declared objects and constaints on these objects
 subSeparate :: [SubObj] -> SubObjDiv
 subSeparate = foldr separate ([], [])
@@ -419,10 +404,10 @@ subSeparate = foldr separate ([], [])
                              (LC x) -> (decls, x : constrs)
 
 loadObjects :: SubProg -> VarEnv -> SubObjects
-loadObjects p subEnv = let env1 = foldl (passDecls subEnv) initObjs p
-                           env2 = foldl passReferencess env1 p
-                       in  env2 { subObjs = reverse $ subObjs env2 }
-                       where initObjs = SubObjects { subObjs = [] }
+loadObjects p objs = let objs1 = foldl (passDecls objs) initObjs p
+                         objs2 = foldl passReferencess objs1 p
+                     in  objs2 { subObjs = reverse $ subObjs objs2 }
+                     where initObjs = SubObjects { subObjs = [] }
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
 parseSubstance :: String -> String -> VarEnv -> IO ([SubObj], VarEnv)

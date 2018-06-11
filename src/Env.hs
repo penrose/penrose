@@ -53,21 +53,21 @@ data Y = TypeVarY TypeVar
          deriving (Show, Eq, Typeable, Ord)
 
 data T = TTypeVar TypeVar
-       | TConstr ConstructorInvoker
+       | TConstr TypeCtorApp
          deriving (Show, Eq, Typeable)
 
-data ConstructorInvoker = ConstructorInvoker { nameCons :: String,
+data TypeCtorApp = TypeCtorApp { nameCons :: String,
                                                argCons  :: [Arg],
                                                constructorInvokerPos :: SourcePos }
                           deriving (Typeable)
 
-instance Show ConstructorInvoker where
-  show (ConstructorInvoker nameCons argCons posCons) = nString ++ "(" ++ aString ++ ")"
+instance Show TypeCtorApp where
+  show (TypeCtorApp nameCons argCons posCons) = nString ++ "(" ++ aString ++ ")"
         where nString = show nameCons
               aString = show argCons
 
-instance Eq ConstructorInvoker where
-  (ConstructorInvoker n1 a1 _) == (ConstructorInvoker n2 a2 _) = (n1 == n2 && a1 == a2)
+instance Eq TypeCtorApp where
+  (TypeCtorApp n1 a1 _) == (TypeCtorApp n2 a2 _) = (n1 == n2 && a1 == a2)
 
 data Arg = AVar Var
          | AT T
@@ -131,14 +131,14 @@ propParser = do
     pos <- getPosition
     return Prop { propName = "Prop", propPos = pos}
 
-tParser, tConstructorInvokerParser, typeVarParser' :: Parser T
-tParser = try tConstructorInvokerParser <|> typeVarParser'
-tConstructorInvokerParser = do
+tParser, tTypeCtorAppParser, typeVarParser' :: Parser T
+tParser = try tTypeCtorAppParser <|> typeVarParser'
+tTypeCtorAppParser = do
     i         <- identifier
     arguments <- option [] $ parens (argParser `sepBy1` comma) 
     --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $ parens (argParser `sepBy1` comma) --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
     pos <- getPosition
-    return (TConstr (ConstructorInvoker { nameCons = i, argCons = arguments, constructorInvokerPos = pos }))
+    return (TConstr (TypeCtorApp { nameCons = i, argCons = arguments, constructorInvokerPos = pos }))
 typeVarParser' = do
     i <- typeVarParser
     return (TTypeVar i)
@@ -201,9 +201,9 @@ updateEnv e (VarY y, KT t)        = e { varMap = M.insert y t $ varMap e }
 updateEnv e err                   = e { errors = (errors e) ++ "Problem in update: " ++ (show err) ++ "\n" }
 
 addName :: String -> VarEnv -> VarEnv
-addName a e = if (a `elem` (names e))
+addName a e = if (a `elem` (typeCtorNames e))
               then e {errors = (errors e) ++ ("Name already exsist in the context \n")}
-              else e {names = a : (names e)}
+              else e {typeCtorNames = a : (typeCtorNames e)}
 
 addDeclaredName :: String -> VarEnv -> VarEnv
 addDeclaredName a e = if (a `elem` (declaredNames e))
@@ -222,20 +222,20 @@ data Ttype = Ttype { yt :: Y,
              deriving (Show, Eq, Typeable)
 
 data TypeConstructor = TypeConstructor { nametc :: String,
-                                         klstc  :: [K],
+                                         kindstc  :: [K],
                                          typtc  :: Type }
                        deriving (Show, Eq, Typeable)
 
-data VarConstructor = VarConstructor { namevc :: String,
+data ValConstructor = ValConstructor { namevc :: String,
                                        ylsvc  :: [Y],
-                                       klsvc  :: [K],
+                                       kindsvc  :: [K],
                                        tlsvc  :: [T],
                                        tvc    :: T }
                       deriving (Show, Eq, Typeable)
 
-data Operation = Operation { nameop :: String,
+data Operator = Operator { nameop :: String,
                              ylsop  :: [Y],
-                             klsop  :: [K],
+                             kindsop  :: [K],
                              tlsop  :: [T],
                              top  :: T}
                  deriving (Show, Eq, Typeable)
@@ -246,7 +246,7 @@ data PredicateEnv = Pred1 Predicate1
 
 data Predicate1 = Predicate1 { namepred1 :: String,
                                ylspred1  :: [Y],
-                               klspred1  :: [K],
+                               kindspred1  :: [K],
                                tlspred1  :: [T],
                                ppred1    :: Prop}
                   deriving (Show, Eq, Typeable)
@@ -257,12 +257,12 @@ data Predicate2 = Predicate2 { namepred2 :: String,
                   deriving (Show, Eq, Typeable)
 
 data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
-                       varConstructors  :: M.Map String VarConstructor,
-                       operations       :: M.Map String Operation,
+                       valConstructors  :: M.Map String ValConstructor,
+                       operators       :: M.Map String Env.Operator,
                        predicates       :: M.Map String PredicateEnv,
                        typeVarMap       :: M.Map TypeVar Type,
                        varMap           :: M.Map Var T,
-                       names            :: [String],  -- a global list which contains all the names of types in that env
+                       typeCtorNames            :: [String],  -- a global list which contains all the names of types in that env
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
                        errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
               deriving (Show, Eq, Typeable)
@@ -292,26 +292,22 @@ checkArg e (AT t) = checkT e t
 
 checkT :: VarEnv -> T -> VarEnv
 checkT e (TTypeVar t) = checkTypeVar e t
-checkT e (TConstr c)  = checkConstructorInvoker e c
+checkT e (TConstr c)  = checkTypeCtorApp e c
 
 checkType :: VarEnv -> Type -> VarEnv
 checkType e t = e
 
--- --TODO: fix back...
--- checkConstructorInvoker :: VarEnv -> ConstructorInvoker -> VarEnv
--- checkConstructorInvoker e const = e
-
-checkConstructorInvoker :: VarEnv -> ConstructorInvoker -> VarEnv
-checkConstructorInvoker e const = let name = nameCons const
-                                      args = argCons const
-                                      env1 = foldl checkArg e args
-                                      kls1 = getTypesOfArgs e args
-                                      in case (checkAndGet name (typeConstructors e) (constructorInvokerPos const)) of
-                                      Right val -> let kls2 = klstc val
-                                                   in if kls1 /= kls2
+checkTypeCtorApp :: VarEnv -> TypeCtorApp -> VarEnv
+checkTypeCtorApp e const = let name = nameCons const
+                               args = argCons const
+                               env1 = foldl checkArg e args
+                               kinds1 = getTypesOfArgs e args
+                            in case (checkAndGet name (typeConstructors e) (constructorInvokerPos const)) of
+                                      Right val -> let kinds2 = kindstc val
+                                                   in if kinds1 /= kinds2
                                                       then env1 { errors = (errors env1)
-                                                                          ++ ("Args do not match: " ++ (show kls1) ++
-                                                                          " != " ++ (show kls2) ++ "\n") }
+                                                                          ++ ("Args do not match: " ++ (show kinds1) ++
+                                                                          " != " ++ (show kinds2) ++ "\n") }
                                                       else env1
                                       Left err -> env1 { errors = (errors env1) ++ err }
 

@@ -229,7 +229,7 @@ constrFnInfix = do
 
 expr :: Parser Expr
 expr =  try objConstructor
-    <|> makeExprParser term operators
+    <|> makeExprParser term Style.operators
     <|> none
     <|> auto
     <|> number
@@ -238,7 +238,7 @@ expr =  try objConstructor
 term :: Parser Expr
 term = Id <$> identifier
 
-operators :: [[Operator Parser Expr]]
+operators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
 operators = [ [ InfixL (BinOp Access <$ symbol ".")] ]
 
 -- | Special keyword @None@, normally written as @shape = None@, making the system not render the Substance object
@@ -596,7 +596,7 @@ getConstrTuples = map getType
 getSubTuples :: [C.SubDecl] -> [(TypeName, String, [String])]
 getSubTuples = map getType
     where getType d = case d of
-            C.SubDeclConst (TConstr (ConstructorInvoker t xls pos1)) (VarConst v) -> ((TypeNameConst t), v, (v : (varArgsToString xls)))
+            C.SubDeclConst (TConstr (TypeCtorApp t xls pos1)) (VarConst v) -> ((TypeNameConst t), v, (v : (varArgsToString xls)))
             C.SubDeclConst (TTypeVar (TypeVar name pos2)) (VarConst v)            -> ((TypeNameConst name), v, [v])
 
 getAllIds :: ([C.SubDecl], [C.SubConstr]) -> [String]

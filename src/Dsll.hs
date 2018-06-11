@@ -219,67 +219,67 @@ pd2 = do
 -- a collection of information.
 check :: DSLLProg -> VarEnv
 check p =  let env1  = foldl checkTypeConstructors initE (cd p)
-               env2  = foldl checkVarConstructors env1 (vd p)
-               env3  = foldl checkOperations env2 (od p)
+               env2  = foldl checkValConstructors env1 (vd p)
+               env3  = foldl checkOperators env2 (od p)
                env4  = foldl checkPredicates env3 (pd p)
            in if (null (errors env4))
               then env4
               else error ("DSLL type checking failed with the following problems: \n" ++ (errors env4))
-           where initE = VarEnv { typeConstructors = M.empty, varConstructors = M.empty,
-                                  operations = M.empty, predicates = M.empty, typeVarMap = M.empty,
-                                  varMap = M.empty, names = [], declaredNames = [], errors = ""}
+           where initE = VarEnv { typeConstructors = M.empty, valConstructors = M.empty,
+                                  operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
+                                  varMap = M.empty, typeCtorNames = [], declaredNames = [], errors = ""}
 
 checkTypeConstructors :: VarEnv -> Cd -> VarEnv
-checkTypeConstructors e c = let kls  = seconds (inputCd c)
-                                env1 = foldl checkK e kls
-                                tc   = TypeConstructor { nametc = nameCd c, klstc = kls, typtc = outputCd c }
+checkTypeConstructors e c = let kinds  = seconds (inputCd c)
+                                env1 = foldl checkK e kinds
+                                tc   = TypeConstructor { nametc = nameCd c, kindstc = kinds, typtc = outputCd c }
                                 ef   = addName (nameCd c) env1
                              in ef { typeConstructors = M.insert (nameCd c) tc $ typeConstructors ef }
 
-checkVarConstructors :: VarEnv -> Vd -> VarEnv
-checkVarConstructors e v = let kls = seconds (varsVd v)
-                               env1 = foldl checkK e kls
+checkValConstructors :: VarEnv -> Vd -> VarEnv
+checkValConstructors e v = let kinds = seconds (varsVd v)
+                               env1 = foldl checkK e kinds
                                localEnv = foldl updateEnv env1 (varsVd v)
                                args = seconds (typesVd v)
                                res = toVd v
                                env2 = foldl checkT localEnv args
                                temp = checkT localEnv res
-                               vc = VarConstructor { namevc = nameVd v, ylsvc = firsts (varsVd v),
-                                                     klsvc = seconds (varsVd v), tlsvc = seconds (typesVd v),
+                               vc = ValConstructor { namevc = nameVd v, ylsvc = firsts (varsVd v),
+                                                     kindsvc = seconds (varsVd v), tlsvc = seconds (typesVd v),
                                                      tvc = toVd v }
                                ef = addName (nameVd v) e
                             in if ((env2 == e || env2 /= e) && (temp == e || temp /= e))
-                               then ef { varConstructors = M.insert (nameVd v) vc $ varConstructors ef }
+                               then ef { valConstructors = M.insert (nameVd v) vc $ valConstructors ef }
                                else error ("Error!") -- Does not suppose to reach here
 
-checkOperations :: VarEnv -> Od -> VarEnv
-checkOperations e v = let kls = seconds (varsOd v)
-                          env1 = foldl checkK e kls
-                          localEnv = foldl updateEnv env1 (varsOd v)
-                          args = seconds (typesOd v)
-                          res = toOd v
-                          env2 = foldl checkT localEnv args
-                          temp = checkT localEnv res
-                          op = Operation { nameop = nameOd v, ylsop = firsts (varsOd v),
-                                           klsop = seconds (varsOd v), tlsop = seconds (typesOd v), top = toOd v }
-                          ef = addName (nameOd v) e
-                        in if ((env2 == e || env2 /= e) && (temp == e || temp /= e))
-                           then ef { operations = M.insert (nameOd v) op $ operations ef }
+checkOperators :: VarEnv -> Od -> VarEnv
+checkOperators e v = let kinds = seconds (varsOd v)
+                         env1 = foldl checkK e kinds
+                         localEnv = foldl updateEnv env1 (varsOd v)
+                         args = seconds (typesOd v)
+                         res = toOd v
+                         env2 = foldl checkT localEnv args
+                         temp = checkT localEnv res
+                         op = Operator { nameop = nameOd v, ylsop = firsts (varsOd v),
+                                           kindsop = seconds (varsOd v), tlsop = seconds (typesOd v), top = toOd v }
+                         ef = addName (nameOd v) e
+                      in if ((env2 == e || env2 /= e) && (temp == e || temp /= e))
+                           then ef { operators = M.insert (nameOd v) op $ operators ef }
                            else error ("Error!")  -- Does not suppose to reach here
 
 checkPredicates :: VarEnv -> Pd -> VarEnv
-checkPredicates e (Pd1Const v) = let kls = seconds (varsPd1 v)
-                                     env1 = foldl checkK e kls
+checkPredicates e (Pd1Const v) = let kinds = seconds (varsPd1 v)
+                                     env1 = foldl checkK e kinds
                                      localEnv = foldl updateEnv env1 (varsPd1 v)
                                      args = seconds (typesPd1 v)
                                      env2 = foldl checkT localEnv args
                                      pd1 = Pred1 $ Predicate1 { namepred1 = namePd1 v,
                                                                 ylspred1  = firsts (varsPd1 v),
-                                                                klspred1  = seconds (varsPd1 v),
+                                                                kindspred1  = seconds (varsPd1 v),
                                                                 tlspred1  = seconds (typesPd1 v),
                                                                 ppred1    = toPd1 v }
                                      ef = addName (namePd1 v) e
-                                  in if ((env2 == e || env2 /= e))
+                                 in if ((env2 == e || env2 /= e))
                                      then ef { predicates = M.insert (namePd1 v) pd1 $ predicates ef }
                                      else error ("Error!")  -- Does not suppose to reach here
 
