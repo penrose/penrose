@@ -69,8 +69,7 @@ Vector v vecSpace {
 Neg v{
     
     shape = Arrow {
-        startx = v.shape.startx
-        starty = v.shape.starty
+        start = v.shape.start
         end = reverseEndArrow(v.shape)
         text = None
     }
@@ -92,29 +91,23 @@ Norm v {
 }
 
 
-AddV v1 v2{
+AddV v1 v2 {
 
     shape = Arrow {
-        startx = v1.shape.startx
-        starty = v1.shape.starty
+        start = v1.shape.start
         end = addVecEnd(v1.shape,v2.shape)
         text = None
     }
 
-    --constraint contains(U.shape,shape)
-
-
     s1 = Line {
-        startx = v1.shape.endx
-        starty = v1.shape.endy
+        start = v1.shape.end
         end = addVecEnd(v1.shape, v2.shape)
         style = "dashed"
         text = None
    }
 
    s2 = Line {
-        startx = v2.shape.endx
-        starty = v2.shape.endy
+        start = v2.shape.end
         end = addVecEnd(v1.shape,v2.shape)
         style = "dashed"
         text = None

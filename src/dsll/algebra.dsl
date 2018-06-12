@@ -4,7 +4,7 @@ tconstructor Scalar : type
 tconstructor LinearMap(t1 : VectorSpace, t2 : VectorSpace) : type --A map between 2 vectpr spaces
 
 operator Neg [V : VectorSpace] (v1: Vector(V)) : Vector(V)
-operator AddV [V : VectorSpace] (v1 : Vector(V), v2 : Vector(V)) : Vector(V)
+operator AddV [V : VectorSpace] (v1 : Vector(V), v2 : Vector(V), U:VectorSpace) : Vector(V)
 operator AddS(s1 : Scalar, s2 : Scalar) : Scalar
 operator Norm[V : VectorSpace] (v1 : Vector(V)) : Scalar
 operator InnerProd[V : VectorSpace] (v1 : Vector(V), v2 : Vector(V)) : Scalar

@@ -159,15 +159,24 @@ applyP = do
 
 ----------------------------------------- Substance Typechecker ---------------------------
 
--- | 'check' is the top-level semantic checking function. It takes a Substance
--- AST as the input and the environment recived from the DSLL type checker, checks the validity of the program acoording to
--- the typechecking rules, and outputs a collection of information.
+-- This is the top level function for checking a substance program which calls checkSubStmt on each statement in the
+-- program and returnsan updated context from the statement check.
+-- Errors are accumulated in the context during checking as they occur.
 check :: SubProg -> VarEnv -> VarEnv
 check p varEnv = let env = foldl checkSubStmt varEnv p
                  in if (null (errors env))
                     then env
                     else error ("Substance type checking failed with the following problems: \n" ++ (errors env))
 
+
+-- Statements are checked differently depending on if they are a variable declaration, variable assignment, or predicate statement.
+-- Variable declaration statements call checkT to check that the type in the statement is well-formed.
+-- The context is updated with errors and the declared variable.
+-- A variable assignment statement calls checkVarE and checkExpression to check both the variable and expression in the statement for well-typedness.
+-- These functions return a Maybe type of the variable or expression and a string of errors (which may be empty).
+-- The error strings are added to the context and the Maybe types are checked for “non-null”
+-- values and then equivalence (extra error added to context if the types are not the same for the variable and expression in the statement).
+-- Predicate statements are checked by checkPredicate and return a context updated with errors from that checking (if they occur).
 checkSubStmt :: VarEnv -> SubStmt -> VarEnv
 checkSubStmt varEnv  (Decl t (VarConst n)) = let env  = checkT varEnv t
                                                  env1 = addDeclaredName n env
@@ -183,6 +192,10 @@ checkSubStmt varEnv  (Bind v e) = let (vstr, vt) = checkVarE varEnv v
 
 checkSubStmt varEnv  (ApplyP p) = checkPredicate varEnv p
 
+-- The predicate is looked up in the context; if the context doesn’t contain the predicate, then an error is added to the
+-- context, otherwise it is checked differently depending on if it takes expressions or other predicates as arguments by
+-- calling checkVarPred or checkRecursePred respectively. Any errors found within those checking functions will be accumulated
+-- in the context returned by those functions and ultimately this function.
 checkPredicate :: VarEnv -> Predicate -> VarEnv
 checkPredicate varEnv (Predicate (PredicateConst p) args pos) =
                case checkAndGet p (predicates varEnv) pos of
@@ -193,14 +206,27 @@ checkPredicate varEnv (Predicate (PredicateConst p) args pos) =
                  Right o -> checkVarOperator varEnv args o
                  Left err -> varEnv { errors = (errors varEnv) ++ err }
 
+
+areAllArgTypes argTypes = (foldl (\b at1 -> b && isJust at1) True argTypes)
+
+
+-- First, this function ensures all the supplied predicate arguments are in fact expressions using isVarPredicate.
+-- If they are not, then an execution stopping error is thrown (the error is not in the checking of the program)
+-- These expressions are checked by checkExpression for well-typedness returning a list of error strings and Maybe types.
+-- The Maybe types list is checked for all “non-null” types.
+-- If even one type is “null”, then there were checking failures and the error string is added to the context.
+-- Otherwise, the error string is empty and type substitution “sigma” is generated from calling the substitution
+-- function on the predicate argument types and formal types stored in the context.
+-- The substitution need not be applied to any types for predicates, because using the argument types to create the
+-- substitution ensures the argument types match the substitution applied to each formal type.
 checkVarPred :: VarEnv -> [PredArg] -> Predicate1 -> VarEnv
-checkVarPred varEnv args (Predicate1 name yls kls tls _) =
+checkVarPred varEnv args (Prd1 name yls kls tls _) =
              let exprArgs      = map isVarPredicate args
                  errAndTypesLs = map (checkExpression varEnv) exprArgs
-                 errls         = map (\(err1, t1) -> err1) errAndTypesLs
+                 errls         = firsts errAndTypesLs
                  err           = foldl (\err1 err2 -> err1 ++ err2) "" errls
-                 argTypes      = map (\(err1, t1) -> t1) errAndTypesLs
-             in if (foldl (\b at1 -> b && isJust at1) True argTypes)
+                 argTypes      = seconds errAndTypesLs
+             in if areAllArgTypes argTypes
                 then let argTypes2 = map (\a -> KT (fromJust a)) argTypes
                          tls2      = map (\a -> KT a) tls
                          sigma     = subst varEnv M.empty argTypes2 tls2
@@ -212,10 +238,10 @@ checkVarOperator :: VarEnv -> [PredArg] -> Env.Operator -> VarEnv
 checkVarOperator varEnv args (Operator name yls kls tls _) =
                   let exprArgs      = map isVarPredicate args
                       errAndTypesLs = map (checkExpression varEnv) exprArgs
-                      errls         = map (\(err1, t1) -> err1) errAndTypesLs
+                      errls         = firsts errAndTypesLs
                       err           = foldl (\err1 err2 -> err1 ++ err2) "" errls
-                      argTypes      = map (\(err1,t1) -> t1) errAndTypesLs
-                  in if (foldl (\b at1 -> b && isJust at1) True argTypes)
+                      argTypes      = seconds errAndTypesLs
+                  in if areAllArgTypes argTypes
                      then let argTypes2 = map (\a -> KT (fromJust a)) argTypes
                               tls2      = map (\a -> KT a) tls
                               sigma     = subst varEnv M.empty argTypes2 tls2
@@ -225,27 +251,45 @@ checkVarOperator varEnv args (Operator name yls kls tls _) =
                      else
                       varEnv { errors = (errors varEnv) ++ err}
 
+-- Helper function to determine if predicate arguments are all expressions.
+-- It will stop execution if a supplied predicate argument to the function is not an expression.
 isVarPredicate :: PredArg -> Expr
 isVarPredicate (PP p) = error "Mixed predicate types!"
 isVarPredicate (PE p) = p
 
+-- Helper function to determine if predicate arguments are all predicates. 
+-- It will stop execution if a supplied predicate argument to the function is not a predicate.
 isRecursedPredicate :: PredArg -> Predicate
 isRecursedPredicate (PP p) = p
 isRecursedPredicate (PE p) = error "Mixed predicate types!"
 
+-- This function, first, ensures all the supplied predicate arguments are predicates.
+-- It calls checkPredicate (recursively) on each argument predicate returning the context with any accumulated errors found
+-- when checking each argument predicate for well-formedness (if there are any).
 checkRecursePred :: VarEnv -> [PredArg] -> VarEnv
 checkRecursePred varEnv args = let predArgs = map isRecursedPredicate args
                                in foldl checkPredicate varEnv predArgs
 
+-- This function checks expressions for well-typedness and does it differently for variables or functions/value constructors
+-- calling checkVarE and checkFunc respectively for each case.]
+-- If errors were found during checking then they are accumulated and returned in a tuple with the Maybe type for the expression.
 checkExpression :: VarEnv -> Expr -> (String, Maybe T)
 checkExpression varEnv (VarE v) = checkVarE varEnv v
 checkExpression varEnv (ApplyExpr f) = checkFunc varEnv f
 
+
+-- Checking a variable expression for well-typedness involves looking it up in the context.
+-- If it cannot be found in the context, then a tuple is returned of a non-empty error string warning of this problem and
+-- a “null” type. Otherwise, a tuple of an empty string and “non-null” type for the variable from the context is returned.
 checkVarE :: VarEnv -> Var -> (String, Maybe T)
 checkVarE varEnv v = case M.lookup v (varMap varEnv) of
                      Nothing -> ("Variable " ++ (show v) ++ " not in environment\n", Nothing)
                      vt      -> ("", vt)
 
+--  Looks up the operator or value-constructor in the context. If it cannot be found in the context,
+-- then a tuple is returned of a non-empty error string warning of this problem and a “null” type.
+-- Otherwise, a tuple of an error string and Maybe type is returned from calls to checkVarConsInEnv and checkFuncInEnv 
+-- depending on if the Func supplied to this function is an value constructor or operator. 
 checkFunc :: VarEnv -> Func -> (String, Maybe T)
 checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (valConstructors varEnv)
                                      fEnv  = M.lookup f (operators varEnv)
@@ -255,6 +299,13 @@ checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (valConstructors varEnv)
                                          then checkVarConsInEnv varEnv (Func f args) (fromJust vcEnv)
                                     else checkFuncInEnv varEnv (Func f args) (fromJust fEnv)
 
+-- Operates very similarly to checkVarPred described above.
+-- The only differences are that this function operates on operators (so checking of arguments to be expressions is 
+-- unnecessary due to operator parsing) and returns a tuple of an error string and Maybe type.
+-- If the substitution “sigma” is generate, then if it is empty, a tuple of an empty error string and the formal
+-- return type of the operator is returned, otherwise (if it is not empty) a tuple of an empty error string and the
+-- substituted formal return type of the operator is returned. If checking failed for any of the arguments of the operator,
+-- then “sigma” is not generated and a tuple of a non-empty error string and “null” type is returned.
 checkFuncInEnv :: VarEnv -> Func -> Env.Operator -> (String, Maybe T)
 checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
                let errAndTypesLs = map (checkExpression varEnv) args
@@ -270,6 +321,7 @@ checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
                           else (err, Just (applySubst sigma t)) -- err should be empty str
                   else (err, Nothing)
 
+-- Operates exactly the same as checkFuncInEnv above it just operates over value constructors instead of operators.
 checkVarConsInEnv  :: VarEnv -> Func -> ValConstructor -> (String, Maybe T)
 checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
                   let errAndTypesLs = map (checkExpression varEnv) args
@@ -285,6 +337,9 @@ checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
                               else (err, Just (applySubst sigma t)) -- err should be empty str
                      else (err, Nothing)
 
+-- Takes a substitution “sigma” and applies it to a type. Types that are single type variables are mapped to their corresponding
+-- type which exists in “sigma”. Types that are type constructors are mapped to the same type but with their arguments
+-- substituted by “sigma” using applySubstitutionHelper.
 applySubst :: M.Map Y Arg -> T -> T
 applySubst sigma (TTypeVar vt) = 
            case sigma M.! (TypeVarY vt) of
@@ -294,17 +349,32 @@ applySubst sigma (TConstr (TypeCtorApp t args pos)) =
            let argsSub = map (applySubstHelper sigma) args
            in TConstr (TypeCtorApp t argsSub pos)
 
+-- This is a helper function which applies a substitution “sigma” to an argument of a type constructor.
+-- If the argument is a variable, then it is mapped to its corresponding variable which exists in “sigma”.
+-- If the argument is a type, then it is mapped to the “sigma” substitution of itself using a recursive call to applySubstitution
 applySubstHelper :: M.Map Y Arg -> Arg -> Arg
 applySubstHelper sigma (AVar v) = case sigma M.! (VarY v) of
                                   res@(AVar v2) -> res
                                   AT t -> error "Var being mapped to a type in subst sigma, error in the TypeChecker!"
 applySubstHelper sigma (AT t) = AT (applySubst sigma t)
 
+-- This function (along with its helper functions) follows a recursive-descent unification algorithm to find a substitution
+-- “sigma” for two type lists. It generates an entry in a substitution map “sigma” whenever a list of argument types (from
+-- a Substance program) and its corresponding list of formal types (from the context) differ.
+-- All entries in “sigma” must be consistent for it to be a valid substitution.
+-- substitutionHelper is called on each element of a list of tuples of corresponding argument and formal types to generate
+-- entries in a substitution “sigma”.
 subst :: VarEnv -> M.Map Y Arg -> [K] -> [K] -> M.Map Y Arg
 subst varEnv sigma argTypes formalTypes = let types = zip argTypes formalTypes
                                               sigma2 = foldl (substHelper varEnv) sigma types
-                                          in sigma2
+                                          in if ((length argTypes) /= (length formalTypes))
+                                            then error ("Arguments list lengths are not equal")
+                                            else  sigma2
 
+-- Ensures an argument type and formal type matches where they should match, otherwise a runtime error is generated.
+-- In places where they do not need to match exactly (where type and regular variables exist in the formal type)
+-- a substitution entry is generated. substitutionHelper2 helps in generating these entries for type constructor arguments and
+-- substitutionInsert does the insertion of the entry into the substitution map “sigma”.
 substHelper :: VarEnv -> M.Map Y Arg -> (K, K) -> M.Map Y Arg
 substHelper varEnv sigma ((Ktype aT), (Ktype fT)) = sigma
 substHelper varEnv sigma ((KT (TTypeVar atv)), (KT (TTypeVar ftv))) =
@@ -327,6 +397,11 @@ substHelper varEnv sigma ((KT aT), (Ktype fT)) =
                    error ("Argument type " ++ (show aT) ++ " doesn't match expected type " ++ (show fT))
 
 
+-- This helper function makes sure an argument type’s argument matches a formal type’s argument where they should match,
+-- otherwise a runtime error is generated. In places where they do not need to match exactly 
+-- (where type and regular variables exist in the formal type’s argument), a substitution entry is generated and inserted
+-- into the substitution map “sigma” using substitutionInsert. Note that substitutionHelper is called recursively to handle
+-- substitutions for an argument type’s argument and corresponding formal type’s argument that are both types themselves.
 substHelper2 :: VarEnv -> M.Map Y Arg -> (Arg, Arg) -> M.Map Y Arg
 substHelper2 varEnv sigma ((AVar av), (AVar fv)) =
                     substInsert sigma (VarY fv) (AVar av)
@@ -337,6 +412,9 @@ substHelper2 varEnv sigma ((AVar av), (AT ft)) =
 substHelper2 varEnv sigma ((AT at), (AVar fv)) =
                     error("Argument type's argument " ++ (show at) ++ " doesn't match expected type's argument " ++ (show fv))
 
+-- Handles the consistency of entries in the substitution “sigma”, by ensuring that if an entry being inserted into “sigma”
+-- already exists in “sigma” it is the same entry as the one already in “sigma”.
+-- If the entry doesn’t already exist in “sigma”, then it can be inserted directly without a check for consistency.
 substInsert :: M.Map Y Arg -> Y -> Arg -> M.Map Y Arg
 substInsert sigma y arg = case M.lookup y sigma of
                           Nothing -> M.insert y arg $ sigma
