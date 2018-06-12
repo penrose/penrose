@@ -89,19 +89,16 @@ compose2 :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
 
 --------------------------------------------------------------------------------
+-- Internal naming conventions
 
--- Code that involves naming conventions
 nameSep, labelWord :: String
-nameSep = " " -- TODO change to " "
+nameSep = " "
 labelWord = "label"
-
--- TODO: check that these definitions of labelName don't clash
--- labelName :: String -> String
--- labelName name = "_Label_" ++ name
 
 labelName :: String -> String
 labelName name = name ++ nameSep ++ labelWord
 
+-- | Given a Substance ID and a Style ID for one of its associated graphical primitive, generate a globally unique identifier for this primitive
 uniqueShapeName :: String -> String -> String
 uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
  -- e.g. "B yaxis" (the concatenation should be unique), TODO add the two names as separate obj fields
@@ -109,22 +106,19 @@ uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
 
 --------------------------------------------------------------------------------
 ---- Lexer helper functions
--- TODO: think about if it make sense to have the same set of reserved words
---       in both Substance and Style.
+-- TODO: separate reserved words and keywords for each of the DSLs
 
 type Parser = Parsec Void String
 
-rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
-rws =     ["avoid", "global", "as"] ++ types ++ shapes ++ dsll
+rws, attribs, attribVs, shapes :: [String] -- list of reserved words
+rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
-types =   [] --TODO, maybe ren=move now when we have generic substance(?)
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
 dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
--- TODO: should the rws for Style and Substance be separated at all?
 identifier :: Parser String
 identifier = (lexeme . try) (p >>= check)
   where

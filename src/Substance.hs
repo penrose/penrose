@@ -176,7 +176,7 @@ checkSubStmt varEnv  (Decl t (VarConst n)) = let env  = checkT varEnv t
 checkSubStmt varEnv  (Bind v e) = let (vstr, vt) = checkVarE varEnv v
                                       (estr, et) = checkExpression varEnv e -- TODO: Check lazy evaluation on et
                                   in if (isJust vt && isJust et && vt /= et)
-                                     then varEnv { errors = (errors varEnv) ++ vstr ++ estr ++ "Expression of type " 
+                                     then varEnv { errors = (errors varEnv) ++ vstr ++ estr ++ "Expression of type "
                                                    ++ (show et)
                                                    ++ " assigned to variable of type " ++ (show vt) ++ "\n"}
                                      else varEnv { errors = (errors varEnv) ++ vstr ++ estr }
@@ -314,7 +314,7 @@ substHelper varEnv sigma ((KT (TConstr (TypeCtorApp atc argsAT pos))), (KT (TTyp
 substHelper varEnv sigma ((KT (TConstr (TypeCtorApp atc argsAT pos1))), (KT (TConstr (TypeCtorApp ftc argsFT pos2)))) =
                    if ((atc `elem` (declaredNames varEnv)) || (ftc `elem` (declaredNames varEnv)))
                    then substHelper2 varEnv sigma ((AVar (VarConst atc)), (AVar (VarConst ftc)))
-                   else if (atc /= ftc) 
+                   else if (atc /= ftc)
                         then error ("Argument type " ++ (show atc) ++ " doesn't match expected type " ++ (show ftc))
                         else let args   = zip argsAT argsFT
                                  sigma2 = foldl (substHelper2 varEnv) sigma args
@@ -422,6 +422,51 @@ parseSubstance subFile subIn varEnv =
                    let subEnv = check xs varEnv
                        c      = loadObjects xs subEnv
                    return (subObjs c, subEnv)
+
+--------------------------------------------------------------------------------
+-- COMBAK: organize this section and maybe rewrite some of the functions
+
+-- | Generate a unique id for a Substance constraint
+-- FIXME: make sure these names are unique and make sure users cannot start ids
+-- with underscores
+
+varListToString :: [Var] -> [String]
+varListToString = map conv
+    where conv (VarConst s)  = s
+
+--TODO: Support all the other cases
+convPredArg :: PredArg -> String
+convPredArg (PE (VarE (VarConst s)))  = s
+convPredArg c  = (show c)
+
+predArgListToString :: [PredArg] -> [String]
+predArgListToString = map convPredArg
+
+varArgsToString :: [Arg] -> [String]
+varArgsToString = map conv
+    where conv c = case c of
+                       AVar (VarConst s) -> s
+                       _ -> ""
+
+exprToString :: [Expr] -> [String]
+exprToString = map conv
+    where conv c = (show c)
+
+
+-- TODO: factor out internal naming convention logic
+getConstrTuples :: [SubConstr] -> [(TypeName, String, [String])]
+getConstrTuples = map getType
+    where getType (SubConstrConst p  vs)  = ((TypeNameConst p), "_" ++ p ++ (intercalate "" (predArgListToString vs)), (predArgListToString vs))
+
+getSubTuples :: [SubDecl] -> [(TypeName, String, [String])]
+getSubTuples = map getType
+    where getType d = case d of
+            SubDeclConst (TConstr (TypeCtorApp t xls pos1)) (VarConst v) -> (TypeNameConst t, v, v : varArgsToString xls)
+            SubDeclConst (TTypeVar (TypeVar name pos2)) (VarConst v)            -> (TypeNameConst name, v, [v])
+
+getAllIds :: ([SubDecl], [SubConstr]) -> [String]
+getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
+
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the

@@ -283,7 +283,7 @@ checkPredicates e (Pd1Const v) = let kinds = seconds (varsPd1 v)
                                      then ef { predicates = M.insert (namePd1 v) pd1 $ predicates ef }
                                      else error ("Error!")  -- Does not suppose to reach here
 
-checkPredicates e (Pd2Const v) = let pd = Pred2 $ Predicate2 { namepred2 = namePd2 v, plspred2 = seconds (propsPd2 v), 
+checkPredicates e (Pd2Const v) = let pd = Pred2 $ Predicate2 { namepred2 = namePd2 v, plspred2 = seconds (propsPd2 v),
                                                                ppred2 = toPd2 v }
                                      ef = addName (namePd2 v) e
                                  in ef { predicates = M.insert (namePd2 v) pd $ predicates ef }

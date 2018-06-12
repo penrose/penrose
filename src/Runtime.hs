@@ -8,7 +8,6 @@
 -- for autodiff, requires passing in a polymorphic fn
 
 module Runtime where
-import qualified Style as S
 import Utils
 import Shapes
 import Functions
@@ -34,6 +33,7 @@ import Data.Data -- TODO remove extra dynamic/typeable/data imports and deriving
 import Data.Either (partitionEithers)
 import qualified Data.Map.Strict as M
 import qualified Substance as C
+import qualified Style as S
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
@@ -54,28 +54,23 @@ data Params = Params { weight :: Double,
                        annotations :: [[Annotation]]
                      } -- deriving (Eq, Show) -- TODO derive Show instance
 
--- State of the world
+-- State of the runtime system
 data State = State { objs :: [Obj]
                    , constrs :: [C.SubConstr]
-                   , comps :: [ObjComp]
-                   , down :: Bool -- left mouse button is down (dragging)
+                   , comps :: forall a. (Autofloat a) => [ObjComp a]
                    , rng :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
                    , params :: Params
                    }  deriving (Typeable)
 
-type Config = M.Map String S.Expr
-
 -- | Datatypes for computation. ObjComp is gathered in pre-compilation and passed to functions that evaluate the computation.
--- | object name, function name, list of args (TODO resolve them WRT pattern matching)
-data ObjComp = ObjComp { oName :: Name, -- "A"
-                     oProp :: Name, -- "radius"
-                     fnName :: Name, -- computeRadius
-                     fnParams :: [S.Expr] } -- (1.2, B)
-               deriving (Show, Typeable)
-
--- | fn name, list of args (returned by queryCondig)
-type CompInfo = (Name, [S.Expr])
+-- | object name, function name, list of args
+data ObjComp a = ObjComp {
+    oName    :: Name,      -- "A"
+    oProp    :: Name,      -- "radius"
+    fnName   :: Name,      -- computeRadius
+    fnParams :: [TypeIn a] -- (1.2, B)
+} deriving (Show, Typeable)
 
 ------
 
@@ -111,11 +106,11 @@ unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
 -- TODO revert this!! Hack just for surjection program
-unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), 
+unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary),
                     (endx' a, Vary), (endy' a, Vary), (thickness' a, Vary)]
 -- unpackObj (CB' c) = [(pathcb' cb, Fix)]
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
-unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix), 
+unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix),
                     (endx_l' a, Fix), (endy_l' a, Fix), (thickness_l' a, Fix)]
 
 -- split out because pack needs this annotated list of lists
@@ -250,10 +245,10 @@ pack' zipped fixed varying =
 mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
 
-computeOnObjs :: (Autofloat a) => [Obj' a] -> [ObjComp] -> [Obj' a]
+computeOnObjs :: (Autofloat a) => [Obj' a] -> [ObjComp a] -> [Obj' a]
 computeOnObjs objs comps = mapVals $ foldl computeOn (dictOfObjs objs) comps
 
-computeOnObjs_noGrad :: [Obj] -> [ObjComp] -> [Obj]
+computeOnObjs_noGrad :: (Autofloat a) => [Obj] -> [ObjComp a] -> [Obj]
 computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
                                  let objsComputed = mapVals $ foldl computeOn (dictOfObjs objsG) comps in
                                  zeroGrads objsComputed
@@ -261,7 +256,7 @@ computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
 -- | Apply a computation to the relevant object in the dictionary.
 -- | This computation model assumes that the point of all computations is to set an attribute in an object.
 -- | This helper function first catches errors on the function name, object name, and object type.
-computeOn :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> M.Map Name (Obj' a)
+computeOn :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp a -> M.Map Name (Obj' a)
 computeOn objDict comp =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           case fname of
@@ -275,28 +270,32 @@ computeOn objDict comp =
 
 -- | Look up the arguments to a computation, apply the computation,
 -- | and set the property in the object to the result.
-applyAndSet :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> CompFn a -> Obj' a -> Obj' a
+applyAndSet :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp a -> CompFn a -> Obj' a -> Obj' a
 applyAndSet objDict comp function obj =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           -- Style computations rely on the order of object inputs being the same as program arguments.
-          let (constArgs, objectArgs) = partitionEithers $ map (styExprToCompExpr objDict) args in
+          let (constArgs, objectArgs) = partitionEithers $ map (resolveObjs objDict) args in
           let res = function constArgs (concat objectArgs) in
           -- TODO: for multiple objects, might not be in right order. alphabetize?
           set objProperty obj res
 
--- | Convert a style expr to an internal type (look up variable names that correspond to objects)
--- | TODO: deal with dot accesses and get/set properties (e.g. X.radius)
-styExprToCompExpr :: (Autofloat a) => M.Map Name (Obj' a) -> S.Expr -> Either (TypeIn a) ([Obj' a])
-styExprToCompExpr objs e = case e of
-                S.IntLit i     -> Left $ TInt i
-                S.FloatLit f   -> Left $ TNum $ r2f f
-                S.StringLit s  -> Left $ TStr s
-                S.Id v         -> case lookupAll v objs of
-                                  [] -> error ("id '" ++ v ++ "' /and subobjects do(es) not exist in obj dict")
-                                  xs -> Right xs
-                S.BinOp _ _ _  -> error "computations don't support operations / TODO binops"
-                S.Cons _ _     -> error "computations don't support object constructors (?)"
-                S.CompArgs _ _ -> error "computations don't support nested computations"
+-- | Look up variable names that correspond to objects and retr
+-- TODO: complete documentation
+resolveObjs :: (Autofloat a) => M.Map Name (Obj' a) -> TypeIn a
+                             -> Either (TypeIn a) [Obj' a]
+resolveObjs objs e = case e of
+    -- TODO: type synonyms logic here
+    TAllShapes v   -> case lookupAll v objs of
+                      [] -> error ("id '" ++ v ++ "' /and subobjects do(es) not exist in obj dict")
+                      xs -> Right xs
+    TShape     v   -> case M.lookup v objs of
+                      Nothing -> error ("id '" ++ v ++ "' does not exist in obj dict: " ++ show e)
+                      Just x -> Right [x]
+    TProp i prop   -> case M.lookup i objs of
+                      Nothing  -> error ("id '" ++ i ++ "' does not exist in obj dict")
+                      Just obj -> Left $ get prop obj
+    TCall _ _      -> error "computations don't support nested computations"
+    constantArg    -> Left constantArg
 
 -- e.g. for an object named "domain", returns "domain" as well as secondary shapes "domain shape", "domain xaxis", etc.
    -- but not "domain shape label"
@@ -310,12 +309,14 @@ nameParts = splitOn nameSep
 -- A name is three parts: [subobjname, possibly styshapename, possibly label]
 -- TODO rewrite, it's hacky to do name resolution in lookup vs. in procExpr
 objOrSecondaryShape :: Name -> Name -> Bool
-objOrSecondaryShape name inName = let (names, inNames) = (nameParts name, nameParts inName) in
-                                  case (names, inNames) of
-                                  -- Resolve e.g. "A" to "A xaxis", "A yaxis"
-                                  ([subObjName], [inSubObjName, inStyShapeName]) -> subObjName == inSubObjName
-                                                                -- excludes labels of shapes
-                                  _ -> name == inName -- Resolve e.g. "A xaxis", "A xaxis label"
+objOrSecondaryShape name inName =
+    let (names, inNames) = (nameParts name, nameParts inName) in
+    case (names, inNames) of
+        -- Resolve e.g. "A" to "A xaxis", "A yaxis"
+        ([subObjName], [inSubObjName, inStyShapeName]) ->
+            subObjName == inSubObjName
+        -- excludes labels of shapes
+        _ -> name == inName -- Resolve e.g. "A xaxis", "A xaxis label"
 
 ------- Style related functions
 
@@ -369,18 +370,18 @@ defaultLabel objName labelText =
 
 checkAuto :: String -> String -> String
 checkAuto objName labelText =  -- TODO: should this use labelSetting?
-          if labelText == autoWord then 
-             let subObjName = (nameParts objName) !! 0 
+          if labelText == autoWord then
+             let subObjName = (nameParts objName) !! 0
              in subObjName
           else labelText
 
-shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
-                               ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+shapeAndFn :: (Autofloat a) => S.StyDict a -> String ->
+                               ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 shapeAndFn dict subObjName =
     case M.lookup subObjName dict of
+        -- COMBAK: check if this will cause errors when there are unmatched Substance objects
         Nothing -> error ("Cannot find style info for " ++ subObjName)
-        Just spec  -> let config = {-TODO: remove:-} map (mkUniqueShapeName subObjName)
-                                   (M.toList $ S.spShpMap spec) in
+        Just spec  -> let config = {-TODO: remove:-} map (mkUniqueShapeName subObjName) (M.toList $ S.spShpMap spec) in
                       let objs_and_functions = map getShape config in
                       concat4 objs_and_functions
                       -- example config:
@@ -394,29 +395,29 @@ shapeAndFn dict subObjName =
         thd4 (_, _, a, _) = a
         frth4 (_, _, _, a) = a
 
-getShape :: (Autofloat a) => (String, (S.StyType, Config)) ->
-                             ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+getShape :: (Autofloat a) => (String, S.StyObj a) ->
+                             ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 
-getShape (oName, (objType, config)) =
+getShape (oName, (objType, properties)) =
          -- We don't need the object type to typecheck the computation, because we have the object's name and
          -- it's stored as an Obj (can pattern-match)
-         let (computations, config_nocomps) = compsAndVars oName config in
+         let (computations, properties_nocomps) = compsAndVars oName properties in
          let objInfo = case objType of
-              S.Text    -> initText oName config_nocomps
-              S.Arrow   -> initArrow oName config_nocomps
-              S.Circle  -> initCircle oName config_nocomps
-              S.Ellip   -> initEllipse oName config_nocomps
-              S.Box     -> initSquare oName config_nocomps
-              S.Rectangle -> initRect oName config_nocomps
-              S.Parallel -> initParallelogram oName config_nocomps
-              S.Dot     -> initDot oName config_nocomps
-              S.Curve   -> initCurve oName config_nocomps
-              S.Line2    -> initLine oName config_nocomps
+              S.Text    -> initText oName properties_nocomps
+              S.Arrow   -> initArrow oName properties_nocomps
+              S.Circle  -> initCircle oName properties_nocomps
+              S.Ellip   -> initEllipse oName properties_nocomps
+              S.Box     -> initSquare oName properties_nocomps
+              S.Rectangle -> initRect oName properties_nocomps
+              S.Parallel -> initParallelogram oName properties_nocomps
+              S.Dot     -> initDot oName properties_nocomps
+              S.Curve   -> initCurve oName properties_nocomps
+              S.Line2    -> initLine oName properties_nocomps
               S.NoShape -> ([], [], []) in
          let res = tupAppend objInfo computations in
 
          -- TODO factor out label logic?
-         let labelRes = M.lookup labelTextWord config in -- assuming one label per shape
+         let labelRes = M.lookup labelTextWord properties in -- assuming one label per shape
          let labelSet = labelSetting labelRes objType oName in
          case labelSet of
          -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
@@ -430,22 +431,25 @@ getShape (oName, (objType, config)) =
 -- TODO: what if a property (e.g. "r") can take either a computation or an input expr??
 -- that should be done via getters and setters (for both base and derived properties)
 
--- TODO: should initX get its type? should this function use objProperties?
 -- Given a config, separates the computations and the vars and returns both
-compsAndVars :: Name -> Config -> ([ObjComp], Config)
-compsAndVars n config =
-         let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
-         let config_nocomps = M.mapMaybe notComp config in -- could use M.partition
-         (comps, config_nocomps)
-         where toComp :: Property -> S.Expr -> Maybe ObjComp
-               toComp propertyName expr = case expr of
-                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName,
-                                                                    fnName = fn, fnParams = args }
-                             _                  -> Nothing
-               notComp :: S.Expr -> Maybe S.Expr
-               notComp expr = case expr of
-                             S.CompArgs _ _  -> Nothing
-                             res             -> Just res
+compsAndVars :: (Autofloat a) =>  Name -> S.Properties a -> ([ObjComp a], S.Properties a)
+compsAndVars n props =
+    let (props_comps, props_nocomps) = M.partition isComp props
+        comps = mapVals $ M.mapWithKey packComp props_comps
+    in
+    (comps, props_nocomps)
+    where
+        packComp :: Property -> TypeIn a -> ObjComp a
+        packComp prop (TCall f args) = ObjComp { oName = n, oProp = prop, fnName = f, fnParams = args }
+        -- COMBAK: document `_get` properly
+        packComp prop (TProp i p) = ObjComp { oName = n, oProp = prop, fnName = "_get", fnParams = [TStr p, TShape i]}
+        packComp p e = error $ "packComp: there are only two types of computation - (1) computation function; (2) property access -- " ++ show p
+
+isComp :: (Autofloat a) => TypeIn a -> Bool
+isComp expr = case expr of
+    TCall f args -> True
+    TProp i p    -> True
+    _            -> False
 
 data LabelSetting = NoLabel | Default Name | Custom Name
 
@@ -455,26 +459,27 @@ noneWord = "None"
 autoWord = "Auto"
 labelTextWord = "text"
 
-labelSetting :: Maybe S.Expr -> S.StyType -> Name -> LabelSetting
+labelSetting :: (Autofloat a) =>
+    Maybe (TypeIn a) -> S.StyType -> Name -> LabelSetting
 labelSetting s_expr objType objName =
              case objType of
                   S.NoShape -> NoLabel
                   S.Text -> NoLabel
-                  _ -> let subObjName = (nameParts objName) !! 0 in
+                  _ -> let subObjName = head $ nameParts objName in
                         case s_expr of
                           -- A real object with unspecified label -> autolabeled with Substance name
                           Nothing -> Default subObjName
-                          Just (S.Id "None") -> NoLabel
-                          Just (S.Id "Auto") -> Default subObjName -- should this use autoWord?
-                          Just (S.StringLit text) -> Custom text
+                          Just (TStr "None") -> NoLabel
+                          Just (TStr "Auto") -> Default subObjName -- should this use autoWord?
+                          Just (TStr text) -> Custom text
                           Just res -> error ("invalid label setting:\n" ++ show res)
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse, initLine ::
-    (Autofloat a) => Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
+    (Autofloat a) => Name -> S.Properties a -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
 
 initText n config = ([defaultText text n], [], [])
-         where text = checkAuto n (fromMaybe n $ lookupId "text" config)
+         where text = checkAuto n (fromMaybe n $ lookupStr "text" config)
                -- For text objects, use the normal label "text" attribute to set the text
                -- of the text object (handling Auto in the same way, not allowing None)
 
@@ -483,17 +488,17 @@ initSquare n config = ([defaultSquare n], [], sizeFuncs n)
 initRect n config = ([defaultRect n], [], sizeFuncs n)
 
 initParallelogram n config = (objs, [],sizeFuncs n)
-     where 
-           angle =  fromMaybe 30.0 $ lookupFloat "angle" config 
+     where
+           angle =  fromMaybe 30.0 $ lookupFloat "angle" config
            rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config
-           setStyle (PA pa) a ro = PA $ pa {rotationpa = ro, anglepa = a} 
+           setStyle (PA pa) a ro = PA $ pa {rotationpa = ro, anglepa = a}
            objs = [setStyle (defaultParellelogram n) angle rotation]
 
 
 initDot n config = ([defaultPt n], [], [])
 
 initEllipse n config = ([defaultEllipse n], [],
-                         (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
+                         (penalty `compose2` ellipseRatio, defaultWeight, [TShape n]) : sizeFuncs n)
 
 initArrow n config = (objs, oFns, [])
     where from = lookupId "start" config
@@ -503,9 +508,8 @@ initArrow n config = (objs, oFns, [])
           objs = [setStyle (defaultSolidArrow n) style]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
-                         (Just fromName, Nothing) -> [(centerMap, defaultWeight, [n, fromName], [])]
-                         (Nothing, Just toName) -> [(centerMap, defaultWeight, [n, toName], [])]
-                         (Just fromName, Just toName) -> [(centerMap, defaultWeight, [n, fromName, toName], [])]
+                         (Just fromName, Just toName) ->
+                            [(centerMap, defaultWeight, [TShape n, TShape fromName, TShape toName])]
           oFns = betweenObjFn
 
 -- very similar to arrow and curve
@@ -513,11 +517,11 @@ initLine n config = (objs, oFns, [])
     where from = lookupId "start" config
           to   = lookupId "end" config
           style = fromMaybe "solid" $ lookupStr "style" config
-          setStyle (LN l) s = LN $ l { style_l = s } -- TODO: refactor defaultX vs defX
+          setStyle (LN l) s = LN $ l { style_l = s }
           objs = [setStyle (defaultLine n) style]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
-                         (Just fromNm, Just toNm) -> [(centerLine, defaultWeight, [n, fromNm, toNm], [])]
+                         (Just fromNm, Just toNm) -> [(centerLine, defaultWeight, [TShape n, TShape fromNm, TShape toNm])]
           oFns = betweenObjFn
 
 initCircle n config = (objs, oFns, constrs)
@@ -534,35 +538,38 @@ initCurve n config = (objs, [], [])
 
 
 sizeFuncs :: (Autofloat a) => Name -> [ConstrFnInfo a]
-sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
-               (penalty `compose2` minSize, defaultWeight, [n], [])]
+sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [TShape n]),
+               (penalty `compose2` minSize, defaultWeight, [TShape n])]
 
 tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
+-- COMBAK: use prism here?
 -- TODO: deal with pattern-matching on computation anywhere
-lookupId :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
+lookupId :: (Autofloat a) =>
+    String -> S.Properties a ->  Maybe String
 lookupId key dict = case M.lookup key dict of
-    Just (S.Id i) -> Just i -- objects are looked up later
+    Just (TShape i)     -> Just i -- objects are looked up later
+    Just (TAllShapes i) -> Just i -- objects are looked up later
     Just res -> error ("expecting id, got:\n" ++ show res)
     Nothing -> Nothing
 
-lookupStr :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
+lookupStr :: (Autofloat a) =>
+    String -> S.Properties a ->  Maybe String
 lookupStr key dict = case M.lookup key dict of
-    Just (S.StringLit i) -> Just i
+    Just (TStr i) -> Just i
     Just res -> error ("expecting str, got:\n" ++ show res)
     Nothing -> Nothing
 
-lookupFloat :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe Float
+lookupFloat :: (Autofloat a) =>
+    String -> S.Properties a ->  Maybe Float
 lookupFloat key dict = case M.lookup key dict of
-     Just (S.FloatLit i) -> Just i -- objects are looked up later
+     Just (TFloat i) -> Just i -- objects are looked up later
      Just res -> error ("expecting float, got:\n" ++ show res)
      Nothing -> Nothing
 
     -- Just (S.CompArgs fn params) -> error "not expecting a computed property"
     -- FIXME: get dot access to work for arbitrary input
-    -- TODO: don't hardcode "shape" and allow accessing other properties
-    -- Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Nothing
 
 ------- Generate objective functions
 
@@ -591,13 +598,12 @@ declMapObjfn = centerMap
 map4 :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
 map4 f (w, x, y, z) = (f w, f x, f y, f z)
 
-genAllObjs :: (Autofloat a) => ([C.SubDecl], [C.SubConstr]) -> S.StyDict
-                               -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+genAllObjs :: (Autofloat a) => ([C.SubDecl], [C.SubConstr]) -> S.StyDict a ->
+    ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 -- TODO figure out how the types work. also add weights
 genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss, concat compss)
     where
-        (objss, objFnss, constrFnss, compss) = unzip4 $ map (shapeAndFn stys) $ S.getAllIds (decls, constrs)
--- FIXME: getAllIds shouldn't be happening at all (why not?)
+        (objss, objFnss, constrFnss, compss) = unzip4 $ map (shapeAndFn stys) $ C.getAllIds (decls, constrs)
 
 dictOf :: (Autofloat a) => [Obj' a] -> M.Map Name (Obj' a)
 dictOf = foldr addObj M.empty
@@ -631,7 +637,7 @@ lookupNames dict ns = concatMap check res
 -- note: CANNOT do dict -> list because that destroys the order
 genObjFn :: (Autofloat a) =>
          [[Annotation]]
-         -> [ObjComp]
+         -> [ObjComp a]
          -> [ObjFnInfo a]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
          -> [ConstrFnInfo a]
@@ -642,11 +648,15 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
          -- Construct implicit computation graph (second stage), including computations as intermediate vars
          let objsComputed = computeOnObjs newObjs computations in
          let objDict = dictOf objsComputed in -- TODO revert
-         sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) objFns
+         sumMap (applyFn objDict) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
                 (constrWeight * penaltyWeight
-                              * sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) constrObjFns))
+                              * sumMap (applyFn objDict) constrObjFns))
+    where
+        applyFn d (f, w, e) =
+            let (args, objs) = partitionEithers $ map (resolveObjs d) e
+            in w * f (concat objs) args
 
 -- TODO: In principle, the exterior point method requires the initial state to start in the exterior
 -- of the feasible region; that is, at least one of the constraints should be violated.
@@ -694,12 +704,12 @@ genInitState (decls, constrs) stys =
 
              -- overall objective function
              let objFnOverall = genObjFn annotationsCalc computations objFns ambientObjFns constrObjFns in
-             trace ("initial constrained, computed state: \n" ++ show objsInit ++ "\n and Constraints: \n " ++ show constrs) $
+             -- trace ("initial constrained, computed state: \n" ++ show objsInit ++ "\n and Constraints: \n " ++ show constrs) $
              State { objs = objsInit,
                      constrs = constrs,
                      comps = computations,
                      params = initParams { objFn = objFnOverall, annotations = annotationsCalc },
-                     down = False, rng = initRng', autostep = False }
+                     rng = initRng', autostep = False }
 
 --------------- end object / objfn generation
 
@@ -718,7 +728,6 @@ initState :: State
 initState = State { objs = objsInit,
                     constrs = [],
                     comps = [],
-                    down = False,
                     rng = initRng,
                     autostep = False,
                     params = initParams }
@@ -795,7 +804,7 @@ sampleCoord gen o = case o of
                                   in
                               (R $ rt { sizeX = len', sizeY = wid',
                                         colorr = makeColor cr' cg' cb' opacity }, gen7)
-                    PA pa   -> let 
+                    PA pa   -> let
                                   (cr', gen3) = randomR colorRange  gen2
                                   (cg', gen4) = randomR colorRange  gen3
                                   (cb', gen5) = randomR colorRange  gen4
@@ -960,10 +969,6 @@ step t s = -- if down s then s -- don't step when dragging
            if autostep s then s { objs = objs', params = params' } else s
            where (objs', params') = stepObjs (float2Double t) (params s) (objs s)
 
--- Utility functions for getting object info (currently unused)
-objInfo :: Obj -> [Float]
-objInfo o = [getX o, getY o, getSize o] -- TODO deal with labels, also do stuff at type level
-
 stateSize :: Int
 stateSize = 3
 
@@ -1021,7 +1026,7 @@ zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ star
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
                             selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a, stylesa = stylesa' a }
 zeroGrad (LN' a) = LN $ Line { startx_l = r2f $ startx_l' a, starty_l = r2f $ starty_l' a,
-                            endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a, 
+                            endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a,
                             thickness_l = r2f $ thickness_l' a, name_l = name_l' a, color_l = color_l' a,
                             style_l = style_l' a }
 zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namecb = namecb' c, stylecb = stylecb' c }
