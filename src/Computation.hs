@@ -170,6 +170,7 @@ error' :: (Autofloat a) => Name -> [TypeIn a] -> [Obj' a] -> b
 error' nm vals objs = error ("unexpected # or type or argument in `" ++ nm ++ "`'s arguments: \n"
                                          ++ show vals ++ "\n" ++ show objs)
 
+-- | this function models property access and calls the general "get" function
 get' :: CompFn a
 get' [TStr p] [obj] = get p obj
 

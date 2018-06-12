@@ -510,7 +510,6 @@ procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (
 procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id propertyName)) =
     let subObjName = lookupVarMap subObjPattern ctx in
     TProp (uniqueShapeName subObjName styShapeName) propertyName
--- COMBAK: figure out the correct ordering of functions
 -- disallow deeper binops (e.g. "X.yaxis.zaxis")
 -- procExpr ctx r@(BinOp Access (BinOp Access _ _) _) = error ("nested non-label accesses not allowed:\n" ++ show r)
 procExpr ctx r@(BinOp Access _ _) = error ("incorrect binop access pattern:\n" ++ show r)
@@ -520,7 +519,7 @@ procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " +
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
 collectProperties :: (Autofloat a) => VarMap -> Properties a -> Stmt -> Properties a
--- COMBAK: provide special types for auto and noshape
+-- TODO: provide special types for auto and noshape
 collectProperties _ dict (Assign s e@(Cons NoShape _)) = M.insert s (TStr "None") dict
 collectProperties _ dict (Assign s e@(Cons Auto _)) = M.insert s (TStr "Auto") dict
 collectProperties ctx dict (Assign s e) = M.insert s (procExpr ctx e) dict

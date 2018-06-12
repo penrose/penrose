@@ -379,7 +379,6 @@ shapeAndFn :: (Autofloat a) => S.StyDict a -> String ->
                                ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 shapeAndFn dict subObjName =
     case M.lookup subObjName dict of
-        -- COMBAK: check if this will cause errors when there are unmatched Substance objects
         Nothing -> error ("Cannot find style info for " ++ subObjName)
         Just spec  -> let config = {-TODO: remove:-} map (mkUniqueShapeName subObjName) (M.toList $ S.spShpMap spec) in
                       let objs_and_functions = map getShape config in
@@ -441,8 +440,7 @@ compsAndVars n props =
     where
         packComp :: Property -> TypeIn a -> ObjComp a
         packComp prop (TCall f args) = ObjComp { oName = n, oProp = prop, fnName = f, fnParams = args }
-        -- COMBAK: document `_get` properly
-        packComp prop (TProp i p) = ObjComp { oName = n, oProp = prop, fnName = "_get", fnParams = [TStr p, TShape i]}
+        packComp prop (TProp i p) = ObjComp { oName = n, oProp = prop, fnName = "_get", fnParams = [TStr p, TShape i]} -- see `_get` in Computation
         packComp p e = error $ "packComp: there are only two types of computation - (1) computation function; (2) property access -- " ++ show p
 
 isComp :: (Autofloat a) => TypeIn a -> Bool
@@ -544,7 +542,6 @@ sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [TShape n]),
 tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
--- COMBAK: use prism here?
 -- TODO: deal with pattern-matching on computation anywhere
 lookupId :: (Autofloat a) =>
     String -> S.Properties a ->  Maybe String
