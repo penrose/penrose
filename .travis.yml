@@ -29,7 +29,7 @@ install:
 
 script:
  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
- - GHC_OPTIONS="-Werror"
+ - GHC_OPTIONS=""
  - |
    set -ex
    # Run tests
