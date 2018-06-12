@@ -182,7 +182,7 @@ vdParser = do
   t'' <- tParser
   return Vd { nameVd = name, varsVd = (zip y' k'), typesVd = (zip b' t'), toVd = t'' }
 
-  -- | operation parser
+-- | operation parser
 odParser :: Parser Od
 odParser = do
   rword "operator"

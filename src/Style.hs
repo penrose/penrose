@@ -277,9 +277,9 @@ attribute = identifier -- TODO: Naming convention - same as identifiers?
 -- Type aliases for readability in this section
 -- | 'StyContext' maintains the current output of the translater
 type StyContext a =
-    (StyDict a,         -- | dictionary mapping Substance ID to Style objects
-    [ObjFnInfo a],    -- | List of objective functions
-    [ConstrFnInfo a]) -- | List of constraints
+    (StyDict a,         -- dictionary mapping Substance ID to Style objects
+    [ObjFnInfo a],    -- List of objective functions
+    [ConstrFnInfo a]) -- List of constraints
 
 -- | A dictionary storing properties of a Style object, e.g. "start" for 'Arrow'
 type Properties a = M.Map String (TypeIn a)
@@ -294,10 +294,17 @@ type StyDict a = M.Map Name (StySpec a)
 -- | Style specification for a particular object declared in Substance (declarations and constraints)
 -- NOTE: for Substance constraints such as `Subset A B`, the 'spId' will be '_Subset_A_B' and the 'spArgs' will be '['A', 'B']'
 data StySpec a = StySpec {
-    spType   :: TypeName,  -- | The Substance type of the object
-    spId     :: String,     -- | The Substance ID of the object
-    spArgs   :: [String],   -- | the "arguments" following the type.  The idea is to capture @f@, @A@ and @B@ in the case of @Map f A B@, which is needed for pattern matching (TODO: Maybe not the best term here.)
-    spShpMap :: M.Map String (StyObj a) -- | shapes associated with the substance object, e.g. "shapeName = shapeType { ... }; otherShape = otherType { ... }"
+    -- | The Substance type of the object
+    spType   :: TypeName,
+    -- | The Substance ID of the object
+    spId     :: String,
+    -- | the "arguments" following the type.  The idea is to capture @f@, @A@ and @B@ in the case of @Map f A B@, which is needed for pattern matching (TODO: Maybe not the best term here.)
+    spArgs   :: [String],
+    -- | shapes associated with the substance object, e.g.
+    -- @
+    -- shapeName = shapeType { ... }; otherShape = otherType { ... }
+    -- @
+    spShpMap :: M.Map String (StyObj a)
 } deriving (Show, Typeable)
 
 -- | A VarMap matches lambda ids in the selector to the actual selected id

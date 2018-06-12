@@ -677,12 +677,16 @@ data TypeIn a = TNum a
               | TPt (Pt2 a)
               | TPath [Pt2 a]
               | TColor Color
-              | TStyle String -- | dotted, etc.
-              | TAllShapes String -- | Substance ID
-              | TShape String -- | shape ID
-              -- The following are the types that need computation
-              | TProp String Property -- | shape ID, property of that shape
-              | TCall String [TypeIn a] -- | a call to computation function
+              -- | dotted, etc.
+              | TStyle String
+              -- | Substance ID
+              | TAllShapes String
+              -- | shape ID
+              | TShape String
+              -- | shape ID, property of that shape
+              | TProp String Property
+              -- | a call to computation function
+              | TCall String [TypeIn a] 
      deriving (Eq, Show, Data, Typeable)
 
 -- TODO: should we collect the types that need computation to another single type. For example:
