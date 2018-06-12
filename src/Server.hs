@@ -7,6 +7,7 @@
 module Server where
 import Shapes
 import Computation
+import Utils (Autofloat)
 import GHC.Generics
 import Data.Monoid (mappend)
 import Data.Text (Text)
@@ -97,7 +98,7 @@ application s pending = do
     loop conn (step s)
 
 -- Apply computations N times post-optimization (TODO: just a terrible hack until explicit comp graph is built)
-computeN :: Int -> [Obj] -> [R.ObjComp] -> [Obj]
+computeN :: (Autofloat a) => Int -> [Obj] -> [R.ObjComp a] -> [Obj]
 computeN n objs comps = let res = iterate (flip R.computeOnObjs_noGrad comps) objs in
                         res !! n -- hopefully doesn't use too much space
 
@@ -152,7 +153,7 @@ executeCommand cmd conn s
 resampleAndSend, stepAndSend :: WS.Connection -> R.State -> IO ()
 resampleAndSend conn s = do
     let (objs', rng') = R.sampleConstrainedState (R.rng s) (R.objs s) (R.constrs s)
-    let nexts = s { R.objs = objs', R.down = False, R.rng = rng',
+    let nexts = s { R.objs = objs', R.rng = rng',
                     R.params = (R.params s) { R.weight = R.initWeight, R.optStatus = R.NewIter } }
     wsSendJSON conn (R.objs nexts)
     loop conn nexts

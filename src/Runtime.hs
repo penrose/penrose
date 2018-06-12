@@ -57,7 +57,7 @@ data Params = Params { weight :: Double,
 -- State of the runtime system
 data State = State { objs :: [Obj]
                    , constrs :: [C.SubConstr]
-                   , comps :: [ObjComp]
+                   , comps :: forall a. (Autofloat a) => [ObjComp a]
                    , rng :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
                    , params :: Params
@@ -245,10 +245,10 @@ pack' zipped fixed varying =
 mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
 
-computeOnObjs :: (Autofloat a) => [Obj' a] -> [ObjComp] -> [Obj' a]
+computeOnObjs :: (Autofloat a) => [Obj' a] -> [ObjComp a] -> [Obj' a]
 computeOnObjs objs comps = mapVals $ foldl computeOn (dictOfObjs objs) comps
 
-computeOnObjs_noGrad :: [Obj] -> [ObjComp] -> [Obj]
+computeOnObjs_noGrad :: (Autofloat a) => [Obj] -> [ObjComp a] -> [Obj]
 computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
                                  let objsComputed = mapVals $ foldl computeOn (dictOfObjs objsG) comps in
                                  zeroGrads objsComputed
@@ -256,7 +256,7 @@ computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
 -- | Apply a computation to the relevant object in the dictionary.
 -- | This computation model assumes that the point of all computations is to set an attribute in an object.
 -- | This helper function first catches errors on the function name, object name, and object type.
-computeOn :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> M.Map Name (Obj' a)
+computeOn :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp a -> M.Map Name (Obj' a)
 computeOn objDict comp =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           case fname of
@@ -270,7 +270,7 @@ computeOn objDict comp =
 
 -- | Look up the arguments to a computation, apply the computation,
 -- | and set the property in the object to the result.
-applyAndSet :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp -> CompFn a -> Obj' a -> Obj' a
+applyAndSet :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp a -> CompFn a -> Obj' a -> Obj' a
 applyAndSet objDict comp function obj =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
           -- Style computations rely on the order of object inputs being the same as program arguments.
@@ -290,10 +290,10 @@ resolveObjs objs e = case e of
                       xs -> Right xs
     TShape     v   -> case M.lookup v objs of
                       Nothing -> error ("id '" ++ v ++ "' does not exist in obj dict")
-                      Just x -> Right x
+                      Just x -> Right [x]
     TProp i prop   -> case M.lookup i objs of
-                      Nothing  -> error ("id '" ++ v ++ "' does not exist in obj dict")
-                      Just obj -> Left get prop obj
+                      Nothing  -> error ("id '" ++ i ++ "' does not exist in obj dict")
+                      Just obj -> Left $ get prop obj
     TCall _ _      -> error "computations don't support nested computations"
     constantArg    -> Left constantArg
 
@@ -375,8 +375,8 @@ checkAuto objName labelText =  -- TODO: should this use labelSetting?
              in subObjName
           else labelText
 
-shapeAndFn :: (Autofloat a) => S.StyDict -> String ->
-                               ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+shapeAndFn :: (Autofloat a) => S.StyDict a -> String ->
+                               ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 shapeAndFn dict subObjName =
     case M.lookup subObjName dict of
         -- COMBAK: check if this will cause errors when there are unmatched Substance objects
@@ -396,7 +396,7 @@ shapeAndFn dict subObjName =
         frth4 (_, _, _, a) = a
 
 getShape :: (Autofloat a) => (String, S.StyObj a) ->
-                             ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+                             ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 
 getShape (oName, (objType, properties)) =
          -- We don't need the object type to typecheck the computation, because we have the object's name and
@@ -417,7 +417,7 @@ getShape (oName, (objType, properties)) =
          let res = tupAppend objInfo computations in
 
          -- TODO factor out label logic?
-         let labelRes = M.lookup labelTextWord config in -- assuming one label per shape
+         let labelRes = M.lookup labelTextWord properties in -- assuming one label per shape
          let labelSet = labelSetting labelRes objType oName in
          case labelSet of
          -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
@@ -432,20 +432,24 @@ getShape (oName, (objType, properties)) =
 -- that should be done via getters and setters (for both base and derived properties)
 
 -- Given a config, separates the computations and the vars and returns both
-compsAndVars :: Name -> Config -> ([ObjComp], Config)
-compsAndVars n config =
-         let comps = map snd $ M.toList $ M.mapMaybeWithKey toComp config in
-         let config_nocomps = M.mapMaybe notComp config in -- could use M.partition
-         (comps, config_nocomps)
-         where toComp :: Property -> S.Expr -> Maybe ObjComp
-               toComp propertyName expr = case expr of
-                             S.CompArgs fn args -> Just $ ObjComp { oName = n, oProp = propertyName,
-                                                                    fnName = fn, fnParams = args }
-                             _                  -> Nothing
-               notComp :: S.Expr -> Maybe S.Expr
-               notComp expr = case expr of
-                             S.CompArgs _ _  -> Nothing
-                             res             -> Just res
+compsAndVars :: (Autofloat a) =>  Name -> S.Properties a -> ([ObjComp a], S.Properties a)
+compsAndVars n props =
+    let (props_comps, props_nocomps) = M.partition isComp props
+        comps = mapVals $ M.mapWithKey packComp props_comps
+    in
+    (comps, props_nocomps)
+    where
+        packComp :: Property -> TypeIn a -> ObjComp a
+        packComp prop (TCall f args) = ObjComp { oName = n, oProp = prop, fnName = f, fnParams = args }
+        -- COMBAK: document `_get` properly
+        packComp prop (TProp i p) = ObjComp { oName = n, oProp = prop, fnName = "_get", fnParams = [TStr p, TShape i]}
+        packComp p e = error $ "packComp: there are only two types of computation - (1) computation function; (2) property access -- " ++ show p
+
+isComp :: (Autofloat a) => TypeIn a -> Bool
+isComp expr = case expr of
+    TCall f args -> True
+    TProp i p    -> True
+    _            -> False
 
 data LabelSetting = NoLabel | Default Name | Custom Name
 
@@ -455,26 +459,27 @@ noneWord = "None"
 autoWord = "Auto"
 labelTextWord = "text"
 
-labelSetting :: Maybe S.Expr -> S.StyType -> Name -> LabelSetting
+labelSetting :: (Autofloat a) =>
+    Maybe (TypeIn a) -> S.StyType -> Name -> LabelSetting
 labelSetting s_expr objType objName =
              case objType of
                   S.NoShape -> NoLabel
                   S.Text -> NoLabel
-                  _ -> let subObjName = (nameParts objName) !! 0 in
+                  _ -> let subObjName = head $ nameParts objName in
                         case s_expr of
                           -- A real object with unspecified label -> autolabeled with Substance name
                           Nothing -> Default subObjName
-                          Just (S.Id "None") -> NoLabel
-                          Just (S.Id "Auto") -> Default subObjName -- should this use autoWord?
-                          Just (S.StringLit text) -> Custom text
+                          Just (TStr "None") -> NoLabel
+                          Just (TStr "Auto") -> Default subObjName -- should this use autoWord?
+                          Just (TStr text) -> Custom text
                           Just res -> error ("invalid label setting:\n" ++ show res)
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse, initLine ::
-    (Autofloat a) => Name -> Config -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
+    (Autofloat a) => Name -> S.Properties a -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a])
 
 initText n config = ([defaultText text n], [], [])
-         where text = checkAuto n (fromMaybe n $ lookupId "text" config)
+         where text = checkAuto n (fromMaybe n $ lookupStr "text" config)
                -- For text objects, use the normal label "text" attribute to set the text
                -- of the text object (handling Auto in the same way, not allowing None)
 
@@ -493,7 +498,7 @@ initParallelogram n config = (objs, [],sizeFuncs n)
 initDot n config = ([defaultPt n], [], [])
 
 initEllipse n config = ([defaultEllipse n], [],
-                         (penalty `compose2` ellipseRatio, defaultWeight, [n], []) : sizeFuncs n)
+                         (penalty `compose2` ellipseRatio, defaultWeight, [TShape n]) : sizeFuncs n)
 
 initArrow n config = (objs, oFns, [])
     where from = lookupId "start" config
@@ -503,7 +508,8 @@ initArrow n config = (objs, oFns, [])
           objs = [setStyle (defaultSolidArrow n) style]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
-                         (Just fromName, Just toName) -> [(centerMap, defaultWeight, [n, fromName, toName], [])]
+                         (Just fromName, Just toName) ->
+                            [(centerMap, defaultWeight, [TShape n, TShape fromName, TShape toName])]
           oFns = betweenObjFn
 
 -- very similar to arrow and curve
@@ -511,11 +517,11 @@ initLine n config = (objs, oFns, [])
     where from = lookupId "start" config
           to   = lookupId "end" config
           style = fromMaybe "solid" $ lookupStr "style" config
-          setStyle (LN l) s = LN $ l { style_l = s } -- TODO: refactor defaultX vs defX
+          setStyle (LN l) s = LN $ l { style_l = s }
           objs = [setStyle (defaultLine n) style]
           betweenObjFn = case (from, to) of
                          (Nothing, Nothing) -> []
-                         (Just fromNm, Just toNm) -> [(centerLine, defaultWeight, [n, fromNm, toNm], [])]
+                         (Just fromNm, Just toNm) -> [(centerLine, defaultWeight, [TShape n, TShape fromNm, TShape toNm])]
           oFns = betweenObjFn
 
 initCircle n config = (objs, oFns, constrs)
@@ -532,35 +538,37 @@ initCurve n config = (objs, [], [])
 
 
 sizeFuncs :: (Autofloat a) => Name -> [ConstrFnInfo a]
-sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [n], []),
-               (penalty `compose2` minSize, defaultWeight, [n], [])]
+sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [TShape n]),
+               (penalty `compose2` minSize, defaultWeight, [TShape n])]
 
 tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
+-- COMBAK: use prism here?
 -- TODO: deal with pattern-matching on computation anywhere
-lookupId :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
+lookupId :: (Autofloat a) =>
+    String -> S.Properties a ->  Maybe String
 lookupId key dict = case M.lookup key dict of
-    Just (S.Id i) -> Just i -- objects are looked up later
+    Just (TShape i) -> Just i -- objects are looked up later
     Just res -> error ("expecting id, got:\n" ++ show res)
     Nothing -> Nothing
 
-lookupStr :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe String
+lookupStr :: (Autofloat a) =>
+    String -> S.Properties a ->  Maybe String
 lookupStr key dict = case M.lookup key dict of
-    Just (S.StringLit i) -> Just i
+    Just (TStr i) -> Just i
     Just res -> error ("expecting str, got:\n" ++ show res)
     Nothing -> Nothing
 
-lookupFloat :: (Show k, Ord k) => k -> M.Map k S.Expr -> Maybe Float
+lookupFloat :: (Autofloat a) =>
+    String -> S.Properties a ->  Maybe Float
 lookupFloat key dict = case M.lookup key dict of
-     Just (S.FloatLit i) -> Just i -- objects are looked up later
+     Just (TFloat i) -> Just i -- objects are looked up later
      Just res -> error ("expecting float, got:\n" ++ show res)
      Nothing -> Nothing
 
     -- Just (S.CompArgs fn params) -> error "not expecting a computed property"
     -- FIXME: get dot access to work for arbitrary input
-    -- TODO: don't hardcode "shape" and allow accessing other properties
-    -- Just (S.BinOp S.Access (S.Id i) (S.Id "shape")) -> Nothing
 
 ------- Generate objective functions
 
@@ -589,8 +597,8 @@ declMapObjfn = centerMap
 map4 :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
 map4 f (w, x, y, z) = (f w, f x, f y, f z)
 
-genAllObjs :: (Autofloat a) => ([C.SubDecl], [C.SubConstr]) -> S.StyDict
-                               -> ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp])
+genAllObjs :: (Autofloat a) => ([C.SubDecl], [C.SubConstr]) -> S.StyDict a ->
+    ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 -- TODO figure out how the types work. also add weights
 genAllObjs (decls, constrs) stys = (concat objss, concat objFnss, concat constrFnss, concat compss)
     where
@@ -628,7 +636,7 @@ lookupNames dict ns = concatMap check res
 -- note: CANNOT do dict -> list because that destroys the order
 genObjFn :: (Autofloat a) =>
          [[Annotation]]
-         -> [ObjComp]
+         -> [ObjComp a]
          -> [ObjFnInfo a]
          -> [(M.Map Name (Obj' a) -> a, Weight a)]
          -> [ConstrFnInfo a]
@@ -639,11 +647,15 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
          -- Construct implicit computation graph (second stage), including computations as intermediate vars
          let objsComputed = computeOnObjs newObjs computations in
          let objDict = dictOf objsComputed in -- TODO revert
-         sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) objFns
+         sumMap (applyFn objDict) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "
                 (constrWeight * penaltyWeight
-                              * sumMap (\(f, w, n, e) -> w * f (lookupNames objDict n) e) constrObjFns))
+                              * sumMap (applyFn objDict) constrObjFns))
+    where
+        applyFn d (f, w, e) =
+            let (args, objs) = partitionEithers $ map (resolveObjs d) e
+            in w * f (concat objs) args
 
 -- TODO: In principle, the exterior point method requires the initial state to start in the exterior
 -- of the feasible region; that is, at least one of the constraints should be violated.
@@ -691,12 +703,12 @@ genInitState (decls, constrs) stys =
 
              -- overall objective function
              let objFnOverall = genObjFn annotationsCalc computations objFns ambientObjFns constrObjFns in
-             trace ("initial constrained, computed state: \n" ++ show objsInit ++ "\n and Constraints: \n " ++ show constrs) $
+             -- trace ("initial constrained, computed state: \n" ++ show objsInit ++ "\n and Constraints: \n " ++ show constrs) $
              State { objs = objsInit,
                      constrs = constrs,
                      comps = computations,
                      params = initParams { objFn = objFnOverall, annotations = annotationsCalc },
-                     down = False, rng = initRng', autostep = False }
+                     rng = initRng', autostep = False }
 
 --------------- end object / objfn generation
 
@@ -715,7 +727,6 @@ initState :: State
 initState = State { objs = objsInit,
                     constrs = [],
                     comps = [],
-                    down = False,
                     rng = initRng,
                     autostep = False,
                     params = initParams }

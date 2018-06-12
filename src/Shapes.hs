@@ -673,20 +673,25 @@ data TypeIn a = TNum a
               | TBool Bool
               | TStr String
               | TInt Integer
+              | TFloat Float
               | TPt (Pt2 a)
               | TPath [Pt2 a]
               | TColor Color
               | TStyle String -- | dotted, etc.
-
               | TAllShapes String -- | Substance ID
-              | TShape String String -- | Substance ID, shape ID
-              | TProp String Property -- | Substance ID, shape ID, property of that shape
+              | TShape String -- | shape ID
+              -- The following are the types that need computation
+              | TProp String Property -- | shape ID, property of that shape
               | TCall String [TypeIn a] -- | a call to computation function
      deriving (Eq, Show, Data, Typeable)
 
+-- TODO: should we collect the types that need computation to another single type. For example:
+-- data TypeIn a = ...
+--               | TPending (TypeIn a)
+-- data NeedComp a =
+
 -- | Getters for all shapes
 -- TODO using better record fields names + template haskell, could maybe generate these "interpreter"s
--- TODO fill these in; see if it works for dot accesses
 get :: (Autofloat a) => Property -> Obj' a -> TypeIn a
 -- Circles
 get "radius" (C' o)        = TNum $ r' o

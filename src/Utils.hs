@@ -106,22 +106,19 @@ uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
 
 --------------------------------------------------------------------------------
 ---- Lexer helper functions
--- TODO: think about if it make sense to have the same set of reserved words
---       in both Substance and Style.
+-- TODO: separate reserved words and keywords for each of the DSLs
 
 type Parser = Parsec Void String
 
-rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
-rws =     ["avoid", "global", "as"] ++ types ++ shapes ++ dsll
+rws, attribs, attribVs, shapes :: [String] -- list of reserved words
+rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
-types =   [] --TODO, maybe ren=move now when we have generic substance(?)
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
 dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
--- TODO: should the rws for Style and Substance be separated at all?
 identifier :: Parser String
 identifier = (lexeme . try) (p >>= check)
   where

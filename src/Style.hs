@@ -447,13 +447,13 @@ procConstrFn :: (Autofloat a) =>
     Stmt ->
     [ConstrFnInfo a]
 procConstrFn varMap fns (ConstrFn fname es) =
-    trStr ("New Constraint function: " ++ fname ++ " " ++ (show names)) $
-    (func, defaultWeight, names, nums) : fns
+    trStr ("New Constraint function: " ++ fname ++ " " ++ (show args)) $
+    (func, defaultWeight, args) : fns
     where
         func = case M.lookup fname constrFuncDict of
             Just f -> f
             Nothing -> error ("procConstrFn: constraint function " ++ fname ++ " not known")
-        (names, nums) = partitionEithers $ map (procExpr varMap) es
+        args = map (procExpr varMap) es
 procConstrFn varMap fns _ = fns -- TODO: avoid functions
 
 -- | Similar to `procConstrFn` but for objective functions
@@ -463,13 +463,13 @@ procObjFn :: (Autofloat a) =>
     Stmt ->
     [ObjFnInfo a]
 procObjFn varMap fns (ObjFn fname es) =
-    trStr ("New Objective function: " ++ fname ++ " " ++ (show names)) $
-    (func, defaultWeight, names, nums) : fns
+    trStr ("New Objective function: " ++ fname ++ " " ++ (show args)) $
+    (func, defaultWeight, args) : fns
     where
         func = case M.lookup fname objFuncDict of
             Just f -> f
             Nothing -> error ("procObjFn: objective function '" ++ fname ++ "' not known")
-        (names, nums) = partitionEithers $ map (procExpr varMap) es
+        args = map (procExpr varMap) es
 procObjFn varMap fns (Avoid fname es) = fns -- TODO: `avoid` functions
 procObjFn varMap fns _ = fns -- TODO: `avoid` functions
 
@@ -488,7 +488,7 @@ procExpr ctx (Id subObjPattern) = TAllShapes $ lookupVarMap subObjPattern ctx
 procExpr _ (StringLit s) = TStr s
 procExpr _ (IntLit i) = TNum $ r2f i -- TODO this shouldn't flatten ints for computations
 procExpr _ (FloatLit i) = TNum $ r2f i
-procExpr ctx (CompArgs fname params) = TCall $ map (procExpr ctx) params
+procExpr ctx (CompArgs fname params) = TCall fname $ map (procExpr ctx) params
 -- in context [X ~> A], look up "X.yaxis", return "A yaxis"
 procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) =
     let subObjName = lookupVarMap subObjPattern ctx in
@@ -501,7 +501,7 @@ procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (
     TShape $ labelName $ uniqueShapeName subObjName styShapeName
 procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id propertyName)) =
     let subObjName = lookupVarMap subObjPattern ctx in
-    TProp $ uniqueShapeName subObjName styShapeName $ propertyName
+    TProp (uniqueShapeName subObjName styShapeName) propertyName
 -- COMBAK: figure out the correct ordering of functions
 -- disallow deeper binops (e.g. "X.yaxis.zaxis")
 -- procExpr ctx r@(BinOp Access (BinOp Access _ _) _) = error ("nested non-label accesses not allowed:\n" ++ show r)
@@ -512,11 +512,10 @@ procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " +
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
 collectProperties :: (Autofloat a) => VarMap -> Properties a -> Stmt -> Properties a
--- FIXME: wrap fromleft inside a function!
-collectProperties ctx dict (Assign s e) = M.insert s $ procExpr ctx e $ dict
--- COMBAK: deal with RHS of label declarations
--- collectProperties _ dict (Assign s e@(Cons NoShape _)) = M.insert s (Id "None") dict
--- collectProperties _ dict (Assign s e@(Cons Auto _)) = M.insert s (Id "Auto") dict
+-- COMBAK: provide special types for auto and noshape
+collectProperties _ dict (Assign s e@(Cons NoShape _)) = M.insert s (TStr "None") dict
+collectProperties _ dict (Assign s e@(Cons Auto _)) = M.insert s (TStr "Auto") dict
+collectProperties ctx dict (Assign s e) = M.insert s (procExpr ctx e) dict
 collectProperties _ _ _ = error "collectProperties: only support assignments in constructors of graphical primitives."
 
 -- | Given a variable mapping and spec, if the statement is an assignment,
@@ -527,7 +526,8 @@ procAssign varMap spec (Assign n (Cons typ stmts)) =
     spec { spShpMap = M.insert n (typ, properties) $ spShpMap spec }
     where
         properties = foldl (collectProperties varMap) M.empty stmts
-procAssign _ _ _ = error "procAssign: only assignments of graphical primitives are allowed."
+procAssign _ _ (Assign n e) = error $ "procAssign: only assignments of graphical primitives are allowed."
+procAssign _ spec _ = spec -- passing through all other kinds of stmts
 
 --------------------------------------------------------------------------------
 -- DEBUG: takes an input file and prints the parsed AST
