@@ -4,6 +4,8 @@
  * @version: 06/23/2017
  */
 
+var canvasWidth  = 800
+var canvasHeight = 700
 
  $.getScript('snap.svg.js', function()
  {
@@ -189,8 +191,10 @@
             ws.send(json)
         }
         s.clear()
-        var dx = s.node.clientWidth  / 2
-        var dy = s.node.clientHeight / 2
+        // NOTE: just using clientWidth/Height does not work on Firefox
+        // see https://stackoverflow.com/questions/13122790/how-to-get-svg-element-dimensions-in-firefox
+        var dx = canvasWidth  / 2
+        var dy = canvasHeight / 2
 
         for (var key in data) {
             // console.log(data[key])
@@ -452,6 +456,8 @@
         // var s = Snap(800, 700);
         // TODO: set the width and height here?
         var s = Snap("#svgdiv");
+        $("#svgdiv").css("width", canvasWidth);
+        $("#svgdiv").css("height", canvasHeight);
 
         var firstRun = true
         ws = createSocket();

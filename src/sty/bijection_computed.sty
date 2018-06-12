@@ -24,10 +24,10 @@ Set `codomain` {
     objective nearHead(codomain, codomain.shape.label, 0, 20) -- TODO parse negative numbers
 }
 
-Map f domain image {
+Bijection f domain image {
     shape = Curve {
-          path = computeSurjectionLines(5, domain, image)
-          text = "(surjection)"
+          path = computeBijectionLines(5, domain, image)
+          text = "(Bijection)"
     color = darkBlue()
     }
     
