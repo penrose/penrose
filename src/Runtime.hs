@@ -289,7 +289,7 @@ resolveObjs objs e = case e of
                       [] -> error ("id '" ++ v ++ "' /and subobjects do(es) not exist in obj dict")
                       xs -> Right xs
     TShape     v   -> case M.lookup v objs of
-                      Nothing -> error ("id '" ++ v ++ "' does not exist in obj dict")
+                      Nothing -> error ("id '" ++ v ++ "' does not exist in obj dict: " ++ show e)
                       Just x -> Right [x]
     TProp i prop   -> case M.lookup i objs of
                       Nothing  -> error ("id '" ++ i ++ "' does not exist in obj dict")
@@ -549,7 +549,8 @@ tupCons a (b, c) = (a, b, c)
 lookupId :: (Autofloat a) =>
     String -> S.Properties a ->  Maybe String
 lookupId key dict = case M.lookup key dict of
-    Just (TShape i) -> Just i -- objects are looked up later
+    Just (TShape i)     -> Just i -- objects are looked up later
+    Just (TAllShapes i) -> Just i -- objects are looked up later
     Just res -> error ("expecting id, got:\n" ++ show res)
     Nothing -> Nothing
 

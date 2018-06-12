@@ -34,10 +34,10 @@ Map f x y {
     shape = Arrow {
         start = x.shape
         end   = y.shape
-        style = "curved"
+        -- style = "curved"
         text = Auto
     }
-    
+
     --objective above(f.shape.label, f.shape)
     objective centerLabel(f, f.shape.label)
     objective toLeft(x, y)
@@ -51,6 +51,3 @@ Set `R1` {
 Set `R2` {
     shape = Box { }
 }
-
-
-

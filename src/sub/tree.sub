@@ -18,5 +18,5 @@ NonIntersect(B,C)
 --Point x
 --Empty(x)
 
-Map2(Set,Set) f
-Surjection(f)
+--Map2(Set,Set) f
+--Surjection(f)

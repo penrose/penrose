@@ -396,6 +396,7 @@
                 var myMatrix = new Snap.Matrix();
                 myMatrix.translate(sx , sy);
                 myMatrix.rotate(angle, 0, 0);
+                console.log(obj.namesa + " ex: " + ex + ", ey: " + ey + " angle: " + angle + "\n");
                 var color = obj.colorsa
                 if(style == "straight"){
                     var line = s.polygon(body_path).transform(myMatrix.toTransformString())
@@ -483,7 +484,7 @@
             });
         };
         ws.onmessage = function(event) {
-            console.log(event.data)
+            //console.log(event.data)
             var now  = new Date().getTime()
             var diff = (now - lastTime);
             var obj = jQuery.parseJSON(event.data)

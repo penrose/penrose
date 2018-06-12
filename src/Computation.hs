@@ -227,6 +227,56 @@ regionX' :: CompFn a
 regionX' [] [LN' lineLeft, LN' lineRight] = TNum $ regionX lineLeft lineRight
 regionX' v o = error' "regionX" v o
 
+-- returns the middle of the square as a starting position
+midSquare' :: CompFn a
+midSquare' [] [S' b] = TPt((xs' b),(ys' b))
+
+rightSquare' :: CompFn a
+rightSquare' [] [S' b] = TPt((xs' b) + (side' b)/2,(ys' b) + (side' b)/2)
+
+leftSquare' :: CompFn a
+leftSquare' [] [S' b] = TPt((xs' b) - (side' b)/2,(ys' b) + (side' b)/2)
+
+toRightSquare' :: CompFn a
+toRightSquare' [] [S' b] = TPt(((xs' b) + 200),(ys' b))
+
+toLeftSquare' :: CompFn a
+toLeftSquare' [] [S' b] = TPt(((xs' b) - 200),(ys' b))
+
+toAboveSquare' :: CompFn a
+toAboveSquare' [] [S' b] = TPt((xs' b),((ys' b)+125))
+
+toBelowSquare' :: CompFn a
+toBelowSquare' [] [S' b] = TPt((xs' b),((ys' b)-125))
+
+startArrow' :: CompFn a
+startArrow' [] [A' a] = TPt((startx' a),(starty' a))
+
+endArrow' :: CompFn a
+endArrow' [] [A' a] = TPt((endx' a),(endy' a))
+
+reverseEndArrow' :: CompFn a
+reverseEndArrow' [] [A' a] = let sx = (startx' a)
+                                 sy  = (starty' a)
+                                 ex = (endx' a)
+                                 ey = (endy' a)
+                              in TPt(sx - (ex - sx), sy - (ey - sy))
+
+
+toBelowStartArrow' :: CompFn a
+toBelowStartArrow' [] [A' a] = TPt((startx' a),(starty' a)-20)
+
+toBelowEndArrow' :: CompFn a
+toBelowEndArrow' [] [A' a] = TPt((endx' a),(endy' a)-20)
+
+addVecEnd' :: CompFn a
+addVecEnd' [] [A' a, A' b] = TPt((endx' a) + (endx' b) - (startx' a) ,(endy' a) + (endy' b) - (starty' a))
+
+
+
+
+
+
 regionY' :: CompFn a
 regionY' [] [LN' down, LN' up] = TNum $ regionY down up
 regionY' v o = error' "regionY" v o
@@ -238,6 +288,12 @@ regionCenter' v o = error' "regionCenter" v o
 -- TODO parse these at runtime
 atOrigin' :: CompFn a
 atOrigin' _ _ = TPt (-100, 0)
+
+atEnd' :: CompFn a
+atEnd' _ _ = TPt (100, 100)
+
+atEnd2' :: CompFn a
+atEnd2' _ _ = TPt (-100, -100)
 
 toRight' :: CompFn a
 toRight' _ _ = TPt (325, 0)
@@ -270,6 +326,19 @@ computationDict = M.fromList flist
                     ("computeSurjectionLines", computeSurjectionLines'),
                     ("regionX", regionX'),
                     ("regionY", regionY'),
+                    ("midSquare", midSquare'),
+                    ("toRightSquare", toRightSquare'),
+                    ("toLeftSquare", toLeftSquare'),
+                    ("toAboveSquare", toAboveSquare'),
+                    ("toBelowSquare", toBelowSquare'),
+                    ("rightSquare", rightSquare'),
+                    ("leftSquare", leftSquare'),
+                    ("startArrow", startArrow'),
+                    ("toBelowStartArrow", toBelowStartArrow'),
+                    ("toBelowEndArrow", toBelowEndArrow'),
+                    ("endArrow", endArrow'),
+                    ("addVecEnd", addVecEnd'),
+                    ("reverseEndArrow", reverseEndArrow'),
                     ("regionCenter", regionCenter'),
                     ("atOrigin", atOrigin'),
                     ("toRight", toRight'),

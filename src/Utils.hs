@@ -165,6 +165,7 @@ srparen = void (symbol "]")
 colon = void (symbol ":")
 arrow = void (symbol "->")
 comma = void (symbol ",")
+dot = void (symbol ".")
 eq = void (symbol "=")
 
 
