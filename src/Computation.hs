@@ -5,7 +5,6 @@ import Shapes
 import Utils
 import Functions
 import qualified Data.Map.Strict as M
-import Graphics.Gloss.Interface.Pure.Game
 import Debug.Trace
 import System.Random
 import System.Random.Shuffle
@@ -80,12 +79,12 @@ computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
 -- Points generated lie in the bbox given, whether in math space or screen space
 -- TODO pass randomness around in Runtime
 computeBijection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
-computeBijection g numPoints (lowerx, lowery) (topx, topy) = 
-                  if numPoints < 2 then error "Bijection needs to have >= 2 points" 
+computeBijection g numPoints (lowerx, lowery) (topx, topy) =
+                  if numPoints < 2 then error "Bijection needs to have >= 2 points"
                   else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
                            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
                            xs_plot = nub (reverse (sort xs))
-                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy) 
+                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
                            ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
                            ys_plot = (nub (sort ys)) in -- Random permutation. TODO return g3?
                            (zip xs_plot ys_plot, g'') -- len xs == len ys
@@ -95,12 +94,12 @@ computeBijection g numPoints (lowerx, lowery) (topx, topy) =
 -- Points generated lie in the bbox given, whether in math space or screen space
 -- TODO pass randomness around in Runtime
 computeInjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
-computeInjection g numPoints (lowerx, lowery) (topx, topy) = 
-                  if numPoints < 2 then error "Injection needs to have >= 2 points" 
+computeInjection g numPoints (lowerx, lowery) (topx, topy) =
+                  if numPoints < 2 then error "Injection needs to have >= 2 points"
                   else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
                            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
                            xs_plot = nub (reverse (sort xs))
-                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f (lowery + (topy - lowery)/4), r2f (topy - (topy - lowery)/4)) 
+                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f (lowery + (topy - lowery)/4), r2f (topy - (topy - lowery)/4))
                            ys = (lowery + (topy - lowery)/4) : ys_inner ++ [topy - (topy - lowery)/4] --clude endpts so function is onto
                            ys_plot = (nub (sort ys)) in -- Random permutation. TODO return g3?
                            (zip xs_plot ys_plot, g'') -- len xs == len ys
@@ -128,22 +127,22 @@ computeSurjectionLines g n left right bottom top =
                        computeSurjection g n lower_left top_right
 
 
--- Computes the bijection to lie inside a bounding box defined by the corners of a box 
--- defined by four straight lines, assuming their lower/left coordinates come first. 
+-- Computes the bijection to lie inside a bounding box defined by the corners of a box
+-- defined by four straight lines, assuming their lower/left coordinates come first.
 -- Their intersections give the corners.
-computeBijectionLines :: (Autofloat a) => StdGen -> Integer 
+computeBijectionLines :: (Autofloat a) => StdGen -> Integer
                                    -> Line' a -> Line' a -> Line' a -> Line' a -> ([Pt2 a], StdGen)
-computeBijectionLines g n left right bottom top = 
+computeBijectionLines g n left right bottom top =
                        let lower_left = (startx_l' left, starty_l' bottom) in
                        let top_right = (startx_l' right, starty_l' top) in
                        computeBijection g n lower_left top_right
 
--- Computes the injection to lie inside a bounding box defined by the corners of a box 
--- defined by four straight lines, assuming their lower/left coordinates come first. 
+-- Computes the injection to lie inside a bounding box defined by the corners of a box
+-- defined by four straight lines, assuming their lower/left coordinates come first.
 -- Their intersections give the corners.
-computeInjectionLines :: (Autofloat a) => StdGen -> Integer 
+computeInjectionLines :: (Autofloat a) => StdGen -> Integer
                                    -> Line' a -> Line' a -> Line' a -> Line' a -> ([Pt2 a], StdGen)
-computeInjectionLines g n left right bottom top = 
+computeInjectionLines g n left right bottom top =
                        let lower_left = (startx_l' left, starty_l' bottom) in
                        let top_right = (startx_l' right, starty_l' top) in
                        computeInjection g n lower_left top_right
@@ -267,12 +266,12 @@ computeSurjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] =
 computeSurjectionLines' v o = error' "computeSurjectionLines" v o
 
 computeBijectionLines' :: CompFn a
-computeBijectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] = 
+computeBijectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] =
                         TPath $ fst $ computeBijectionLines compRng (floor x) l1 l2 l3 l4
 computeBijectionLines' v o = error' "computeBijectionLines" v o
 
 computeInjectionLines' :: CompFn a
-computeInjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] = 
+computeInjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] =
                         TPath $ fst $ computeInjectionLines compRng (floor x) l1 l2 l3 l4
 computeInjectionLines' v o = error' "computeInjectionLines" v o
 

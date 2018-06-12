@@ -3,7 +3,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DuplicateRecordFields #-}
+-- {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
 
@@ -12,7 +12,6 @@ module Shapes where
 import Data.Aeson
 import Data.Monoid ((<>))
 import GHC.Generics
-import Graphics.Gloss
 import Data.Data
 import Data.Typeable
 import Utils
@@ -28,6 +27,7 @@ class Located a b where
 class Named a where
       getName :: a -> Name
       setName :: Name -> a -> a
+
 
 -------
 data CubicBezier = CubicBezier {
@@ -686,7 +686,7 @@ data TypeIn a = TNum a
               -- | shape ID, property of that shape
               | TProp String Property
               -- | a call to computation function
-              | TCall String [TypeIn a] 
+              | TCall String [TypeIn a]
      deriving (Eq, Show, Data, Typeable)
 
 -- TODO: should we collect the types that need computation to another single type. For example:
@@ -862,3 +862,39 @@ set "location" (L' o) (TPt (x, y)) = L' $ o { xl' = x, yl' = y }
 
 set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n"
                                    ++ show obj ++ "\n" ++ show val)
+
+
+--------------------------------------------------------------------------------
+-- Color definition
+-- Adopted from gloss: https://github.com/benl23x5/gloss/blob/c63daedfe3b60085f8a9e810e1389cbc29110eea/gloss-rendering/Graphics/Gloss/Internals/Data/Color.hs
+
+data Color
+    -- | Holds the color components. All components lie in the range [0..1.
+    = RGBA  !Float !Float !Float !Float
+    deriving (Show, Eq, Data, Typeable)
+
+-- | Make a custom color. All components are clamped to the range  [0..1].
+makeColor :: Float        -- ^ Red component.
+          -> Float        -- ^ Green component.
+          -> Float        -- ^ Blue component.
+          -> Float        -- ^ Alpha component.
+          -> Color
+makeColor r g b a
+        = clampColor
+        $ RGBA r g b a
+{-# INLINE makeColor #-}
+
+-- | Take the RGBA components of a color.
+rgbaOfColor :: Color -> (Float, Float, Float, Float)
+rgbaOfColor (RGBA r g b a)      = (r, g, b, a)
+{-# INLINE rgbaOfColor #-}
+
+-- | Clamp components of a raw color into the required range.
+clampColor :: Color -> Color
+clampColor cc
+   = let  (r, g, b, a)    = rgbaOfColor cc
+     in   RGBA (min 1 r) (min 1 g) (min 1 b) (min 1 a)
+
+black, white :: Color
+black = makeColor 0.0 0.0 0.0 1.0
+white = makeColor 1.0 1.0 1.0 1.0
