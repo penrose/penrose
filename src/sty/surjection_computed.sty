@@ -5,9 +5,9 @@ Point p {
 
 Set `domainOuter` {
     shape = Arrow {
-	  -- TODO: writing "start = 5" isn't treated as fixed constants, but a computation sort of is
+    -- TODO: writing "start = 5" isn't treated as fixed constants, but a computation sort of is
           start = atOrigin()
-	  end = toRight()
+    end = toRight()
           text = "x"
     }
 
@@ -24,11 +24,11 @@ Set `codomain` {
     objective nearHead(codomain, codomain.shape.label, 0, 20) -- TODO parse negative numbers
 }
 
-Surjection f domain image {
+Map f domain image {
     shape = Curve {
           path = computeSurjectionLines(5, domain, image)
           text = "(surjection)"
-	  color = darkBlue()
+    color = darkBlue()
     }
     
     objective sameX(domainOuter.shape, f.shape.label, 30)

@@ -1,5 +1,13 @@
-Set domainOuter, codomain, domain, image, cartesianProduct 
+Set domainOuter
+Set codomain
+Set domain
+Set image
+Set cartesianProduct 
 -- `CartesianProduct domain image`?
-Subset domain domainOuter
-Subset image codomain
-Surjection q domain image
+IsSubset(domain,domainOuter)
+IsSubset(image,codomain)
+Map(domain,image) f
+-- TODO `Surjection f`? Would need to rewrite the Style
+
+-- Point p
+-- In p f

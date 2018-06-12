@@ -1,3 +1,7 @@
-Set domain, codomain
-Point origin, vert, horiz, topright
-f: domain -> codomain
+Set domain
+Set codomain
+Point origin
+Point vert
+Point horiz
+Point topright
+Map(domain,codomain) f
