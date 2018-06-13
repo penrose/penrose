@@ -156,6 +156,34 @@ instance Named Square where
 instance ToJSON Square
 instance FromJSON Square
 
+-------------------------- (Angle Mark, added by Dor)
+data Arc = Arc { xar:: Float -- Starting point for angle mark
+                     , yar:: Float
+                     , radiusar:: Float -- The radius of the angle mark
+                     , sizear:: Float
+                     , namear:: String
+                     , colorar:: Color
+                     , stylear :: String
+                     , selar :: Bool -- is the arc currently selected? (mouse is dragging it)
+                     , anglear:: Float -- The angle that the angle mark specifies
+                     , rotationar:: Float -- The rotation angle of argle mark
+                     , isRightar:: String -- Is this a right angle or not 
+                 }
+     deriving (Eq, Show, Generic, Typeable, Data)
+
+instance Located Arc Float where
+         getX ar= xar ar
+         getY ar= yar ar
+         setX x ar= ar{ xar= x }
+         setY y ar= ar{ yar= y }
+
+instance Named Arc where
+         getName ar= namear ar
+         setName x ar= ar{ namear= x }
+
+instance ToJSON Arc
+instance FromJSON Arc
+
 --------------------------
 
 data Rect = Rect { xr :: Float -- center of rect
@@ -264,6 +292,7 @@ data Obj = S Square
          | A SolidArrow
          | CB CubicBezier
          | LN Line
+         | AR Arc
          deriving (Eq, Show, Generic, Typeable, Data)
 
 instance ToJSON Obj
@@ -321,6 +350,7 @@ instance Located Obj Float where
                  A a -> getX a
                  CB c -> getX c
                  LN l -> getX l
+                 AR ar -> getX ar
                  PA pa -> getX pa
          getY o = case o of
                  C c -> getY c
@@ -332,6 +362,7 @@ instance Located Obj Float where
                  A a -> getY a
                  CB c -> getY c
                  LN l -> getY l
+                 AR ar -> getY ar
                  PA pa -> getY pa
          setX x o = case o of
                 C c -> C $ setX x c
@@ -343,6 +374,7 @@ instance Located Obj Float where
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
                 LN l -> LN $ setX x l
+                AR ar -> AR $ setX x ar
                 PA pa -> PA $ setX x pa
          setY y o = case o of
                 C c -> C $ setY y c
@@ -354,8 +386,7 @@ instance Located Obj Float where
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
                 LN l -> LN $ setY y l
-                PA pa -> PA $ setY y pa
-
+                AR ar -> AR $ setY y ar
 
 instance Named Obj where
          getName o = case o of
@@ -368,6 +399,7 @@ instance Named Obj where
                  A a   -> getName a
                  CB cb -> getName cb
                  LN l -> getName l
+                 AR ar -> getName ar
                  PA pa -> getName pa
          setName x o = case o of
                 C c   -> C $ setName x c
@@ -379,8 +411,8 @@ instance Named Obj where
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
                 LN l -> LN $ setName x l
+                AR ar -> AR $ setName x ar
                 PA pa -> PA $ setName x pa
-
 
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
@@ -396,6 +428,7 @@ data Obj' a
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     | LN' (Line' a)
+    | AR' (Arc' a)
     deriving (Eq, Show, Typeable, Data)
 
 data SolidArrow' a = SolidArrow' {
@@ -452,6 +485,21 @@ data Square' a  = Square' { xs' :: a
                      , colors' :: Color }
                      deriving (Eq, Show, Typeable, Data)
 
+
+data Arc' a  = Arc' { xar' :: a
+                     , yar' :: a
+                     , radiusar' :: a
+                     , rotationar' :: a
+                     , anglear' :: a
+                     , selar' :: Bool
+                     , stylear' :: String
+                     , isRightar' :: String
+                     , sizear' :: a
+                     , namear' :: String
+                     , colorar' :: Color }
+                     deriving (Eq, Show, Typeable, Data)
+
+
 data Rect' a = Rect' { xr' :: a -- I assume this is top left?
                      , yr' :: a
                      , sizeX' :: a
@@ -507,6 +555,10 @@ instance Named (Square' a) where
          getName = names'
          setName x s = s { names' = x }
 
+instance Named (Arc' a) where
+         getName = namear'
+         setName x ar= ar{ namear' = x }
+
 instance Named (Rect' a) where
          getName = namer'
          setName x r = r { namer' = x }
@@ -544,6 +596,7 @@ instance Named (Obj' a) where
                  A' a   -> getName a
                  CB' cb -> getName cb
                  LN' ln -> getName ln
+                 AR' ar-> getName ar
          setName x o = case o of
                 C' c   -> C' $ setName x c
                 S' s   -> S' $ setName x s
@@ -554,6 +607,7 @@ instance Named (Obj' a) where
                 A' a   -> A' $ setName x a
                 CB' cb -> CB' $ setName x cb
                 LN' ln -> LN' $ setName x ln
+                AR' ar-> AR' $ setName x ar
 --
 instance Located (Circ' a) a where
          getX = xc'
@@ -572,6 +626,12 @@ instance Located (Square' a) a where
          getY = ys'
          setX x s = s { xs' = x }
          setY y s = s { ys' = y }
+
+instance Located (Arc' a) a where
+         getX = xar'
+         getY = yar'
+         setX x ar= ar{ xar' = x }
+         setY y ar= ar{ yar' = y }
 
 instance Located (Rect' a) a where
          getX = xr'
@@ -628,6 +688,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> xl' l
              P' p -> xp' p
              S' s -> xs' s
+             AR' ar-> xar' ar
              R' r -> xr' r
              PA' pa -> xpa' pa
              A' a -> startx' a
@@ -638,6 +699,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> yl' l
              P' p -> yp' p
              S' s -> ys' s
+             AR' ar-> yar' ar
              R' r -> yr' r
              PA' pa -> ypa' pa
              A' a -> starty' a
@@ -648,6 +710,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> L' $ setX x l
              P' p -> P' $ setX x p
              S' s -> S' $ setX x s
+             AR' ar-> AR' $ setX x ar
              R' r -> R' $ setX x r
              PA' pa -> PA' $ setX x pa
              A' a -> A' $ setX x a
@@ -658,6 +721,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              L' l -> L' $ setY y l
              P' p -> P' $ setY y p
              S' s -> S' $ setY y s
+             AR' ar-> AR' $ setY y ar
              R' r -> R' $ setY y r
              PA' pa -> PA' $ setY y pa
              A' a -> A' $ setY y a
@@ -722,6 +786,18 @@ get "center" (S' o)        = TPt (xs' o, ys' o)
 get "side" (S' o)          = TNum $ side' o
 get "angle" (S' o)         = TNum $ r2f $ ang' o
 get "color" (S' o)         = TColor $ colors' o
+
+-- Arcs
+              
+get "radius" (AR' o)        = TNum $ radiusar' o
+get "rotation" (AR' o)      = TNum $ rotationar' o
+get "angle" (AR' o)         = TNum $ anglear' o
+get "isRight" (AR' o)       = TStyle $ isRightar' o
+get "x" (AR' o)             = TNum $ xar' o
+get "style" (AR' o)         = TStyle $ stylear' o
+get "y" (AR' o)             = TNum $ yar' o
+get "size" (AR' o)          = TNum $ sizear' o
+get "color" (AR' o)         = TColor $ colorar' o
 
 -- Rectangles
 get "x" (R' o)             = TNum $ xr' o
@@ -804,6 +880,18 @@ set "center" (S' o) (TPt (x, y)) = S' $ o { xs' = x, ys' = y }
 set "side" (S' o) (TNum n)       = S' $ o { side' = n }
 set "angle" (S' o) (TNum n)      = S' $ o { ang' = r2f n }
 set "color" (S' o) (TColor n)    = S' $ o { colors' = n }
+
+-- Arcs
+set "x" (AR' o) (TNum n)            = AR' $ o { xar' = n }
+set "y" (AR' o) (TNum n)            = AR' $ o { yar' = n }
+set "radius" (AR' o) (TNum n)       = AR' $ o { radiusar' = n }
+set "rotation" (AR' o) (TNum n)     = AR' $ o { rotationar' = r2f n }
+set "angle" (AR' o) (TNum n)        = AR' $ o { anglear' = r2f n }
+set "isRight" (AR' o) (TStyle n)    = AR' $ o { isRightar' = n }
+set "style" (AR' o) (TStyle n)    = AR' $ o { stylear' = n }
+set "start" (AR' o) (TPt (x, y))    = AR' $ o { xar' = x, yar' = y }
+set "size" (AR' o) (TNum n)         = AR' $ o { sizear' = n }
+set "color" (AR' o) (TColor n)      = AR' $ o { colorar' = n }
 
 -- Rectangles
 set "x" (R' o) (TNum n)          = R' $ o { xr' = n }

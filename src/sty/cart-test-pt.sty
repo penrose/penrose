@@ -2,10 +2,11 @@ global {
     constraint at(origin, 0, 0)
     constraint at(horiz, 200, 0)
     constraint at(vert, 0, 200)
-    constraint at(domain, 0, 0)
-    constraint at(codomain, 0, 0)
-    objective horizontal(domain)
-    objective upright(codomain)
+    constraint at(domain.shape, 0, 0)
+    constraint at(domain.angleMark, 0, 0)
+    constraint at(codomain.shape, 0, 0)
+    objective horizontal(domain.shape)
+    objective upright(codomain.shape)
 }
 
 Set `domain` {
@@ -13,6 +14,10 @@ Set `domain` {
     start = origin.shape
     end   = horiz.shape
     text = Auto
+  }
+
+  angleMark = Arc {
+    isRight = "true"
   }
 }
 
@@ -25,7 +30,7 @@ Set `codomain` {
 }
 
 Set S {
-  objective centerLabel(S, S.shape.label)
+  objective centerLabel(S.shape, S.shape.label)
 }
 
 -- TODO: clarify the cascading order for specificity, since the orders aren't consistent

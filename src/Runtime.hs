@@ -92,13 +92,16 @@ type Fixed a = [a]
 type Varying a = [a]
 
 -- make sure the unpacking matches the object packing in terms of number and order of parameters
--- annotations are specified inline here. this is per type, not per value (i.e. all circles have the same fixed parameters). but you could generalize it to per-value by adding or overriding annotations globally after the unpacking
--- does not unpack names
+-- annotations are specified inline here. this is per type, not per value (i.e. all circles have the
+-- same fixed parameters). but you could generalize it to per-value by adding or overriding 
+--annotations globally after the unpacking does not unpack names
 unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
 unpackObj (C' c) = [(xc' c, Vary), (yc' c, Vary), (r' c, Vary)]
 unpackObj (E' e) = [(xe' e, Vary), (ye' e, Vary), (rx' e, Vary), (ry' e, Vary)]
 unpackObj (S' s) = [(xs' s, Vary), (ys' s, Vary), (side' s, Vary)]
+unpackObj (AR' ar) = [(xar' ar, Vary), (yar' ar, Vary) , (sizear' ar, Vary),
+                      (radiusar' ar, Vary), (rotationar' ar, Vary), (anglear' ar, Fix)]
 unpackObj (R' r) = [(xr' r, Vary), (yr' r, Vary), (sizeX' r, Vary), (sizeY' r, Vary)]
 unpackObj (PA' pa) = [(xpa' pa, Vary), (ypa' pa, Vary), (sizeXpa' pa, Vary), (sizeYpa' pa, Vary)]
 -- the location of a label can vary, but not its width or height (or other attributes)
@@ -175,6 +178,14 @@ sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
 
+arPack :: (Autofloat a) => Arc -> [a] -> Arc' a
+arPack ar params = Arc' { xar' = xar1, yar' = yar1, sizear' = sizear1,
+                                radiusar' = radiusar1, rotationar' = rotationar1,
+                                 anglear' = anglear1, namear' = namear ar, selar' = selar ar, colorar' = colorar ar,
+                                 isRightar' = isRightar ar, stylear' = stylear ar}
+         where (xar1, yar1, sizear1, radiusar1, rotationar1, anglear1) = if not $ length params == 6 then error "wrong # params to pack angleMark"
+                                else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4, params !! 5)
+
 rectPack :: (Autofloat a) => Rect -> [a] -> Rect' a
 rectPack rct params = Rect' { xr' = xs1, yr' = ys1, sizeX' = len, sizeY' = wid, namer' = namer rct,
                               selr' = selr rct, colorr' = colorr rct, angr' = angr rct}
@@ -234,6 +245,7 @@ pack' zipped fixed varying =
                     L label -> L' $ labelPack label flatParams
                     P pt    -> P' $ ptPack pt flatParams
                     S sq    -> S' $ sqPack sq flatParams
+                    AR ar    -> AR' $ arPack ar flatParams
                     R rect  -> R' $ rectPack rect flatParams
                     PA parallelogram  -> PA' $ parallelogramPack parallelogram flatParams
                     A ar    -> A' $ solidArrowPack ar flatParams
@@ -328,6 +340,8 @@ defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
                           sels = False, names = defName, colors = black, ang = 0.0}
+defArc = Arc { xar = 100, yar = 100, sizear = defaultRad/6, namear = defName, colorar = black
+                          , isRightar = "false", selar = False, rotationar = 0.0, anglear = 60.0, radiusar = 12.0, stylear = "line" }
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
                           selr = False, namer = defName, colorr = black, angr = 0.0}
 defParellelogram = Parallelogram { xpa = 100, ypa = 100, sizeXpa = defaultRad, sizeYpa = defaultRad + 200,
@@ -344,12 +358,13 @@ defLine = Line { startx_l = -100, starty_l = -100, endx_l = 300, endy_l = 300,
                                 thickness_l = 2, name_l = defName, color_l = black, style_l = "solid" }
 
 -- default shapes
-defaultSolidArrow, defaultPt, defaultSquare, defaultRect, defaultParellelogram,
+defaultSolidArrow, defaultPt, defaultSquare, defaultArc, defaultRect, defaultParellelogram,
                    defaultCirc, defaultEllipse :: String -> Obj
 defaultSolidArrow name = A $ setName name defSolidArrow
 defaultLine name = LN $ setName name defLine
 defaultPt name = P $ setName name defPt
 defaultSquare name = S $ setName name defSquare
+defaultArc name = AR $ setName name defArc
 defaultRect name = R $ setName name defRect
 defaultParellelogram name = PA $ setName name defParellelogram
 
@@ -408,11 +423,12 @@ getShape (oName, (objType, properties)) =
               S.Circle  -> initCircle oName properties_nocomps
               S.Ellip   -> initEllipse oName properties_nocomps
               S.Box     -> initSquare oName properties_nocomps
+              S.Arc2 -> initArc oName properties_nocomps
               S.Rectangle -> initRect oName properties_nocomps
-              S.Parallel -> initParallelogram oName properties_nocomps
               S.Dot     -> initDot oName properties_nocomps
               S.Curve   -> initCurve oName properties_nocomps
               S.Line2    -> initLine oName properties_nocomps
+              S.Parallel -> initParallelogram oName properties_nocomps
               S.NoShape -> ([], [], []) in
          let res = tupAppend objInfo computations in
 
@@ -484,6 +500,16 @@ initText n config = ([defaultText text n], [], [])
                -- of the text object (handling Auto in the same way, not allowing None)
 
 initSquare n config = ([defaultSquare n], [], sizeFuncs n)
+
+
+initArc n config = (objs, [],sizeFuncs n)
+    where right = fromMaybe "true" $ lookupStr "isRight" config
+          radius =  fromMaybe 10.0 $ lookupFloat "radius" config
+          angle =  fromMaybe 30.0 $ lookupFloat "angle" config 
+          rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config
+          style = fromMaybe "line" $ lookupStr "style" config
+          setStyle (AR ar) s ra a ro st = AR $ ar { isRightar =  s, radiusar = ra, rotationar = ro, anglear = a, stylear = st} 
+          objs = [setStyle (defaultArc n) right radius angle rotation style]
 
 initRect n config = ([defaultRect n], [], sizeFuncs n)
 
@@ -813,6 +839,7 @@ sampleCoord gen o = case o of
                     L lab -> (o_loc, gen2) -- only sample location
                     P pt  -> (o_loc, gen2)
                     A a   -> (o_loc, gen2) -- TODO
+                    AR ar -> (o_loc, gen2)
                     LN a   -> (o_loc, gen2) -- TODO
                     CB c  -> (o, gen2) -- TODO: fall through
 
@@ -858,6 +885,7 @@ inObj (xm, ym) (L o) =
     -- abs (ym - (label_offset_y (textl o) (yl o))) <= 0.25 * (hl o) -- is label
 inObj (xm, ym) (C o) = dist (xm, ym) (xc o, yc o) <= r o -- is circle
 inObj (xm, ym) (S o) = abs (xm - xs o) <= 0.5 * side o && abs (ym - ys o) <= 0.5 * side o -- is square
+inObj (xm, ym) (AR o) = abs (xm - xar o) <= 0.5 * sizear o && abs (ym - yar o) <= 0.5 * sizear o -- is Arc
 inObj (xm, ym) (R o) = let (bl_x, bl_y) = (xr o - 0.5 * sizeX o, yr o - 0.5 * sizeY o) in -- bottom left
                        let (tr_x, tr_y) = (xr o + 0.5 * sizeX o, yr o + 0.5 * sizeY o) in -- top right
                        bl_x < xm && xm < tr_x && bl_y < ym && ym < tr_y
@@ -1014,6 +1042,10 @@ zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ r
                               namee = namee' e, colore = colore' e }
 zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s,
                              names = names' s, colors = colors' s, ang = ang' s }
+zeroGrad (AR' ar) = AR $ Arc { xar = r2f $ xar' ar, yar = r2f $ yar' ar, sizear = r2f $ sizear' ar,
+                                      isRightar = isRightar' ar, radiusar = r2f $ radiusar' ar,
+                                      selar = selar' ar, rotationar = r2f $ rotationar' ar, anglear = r2f $ anglear' ar
+                                      ,namear = namear' ar, colorar = colorar' ar, stylear = stylear' ar}
 zeroGrad (R' r) = R $ Rect { xr = r2f $ xr' r, yr = r2f $ yr' r, sizeX = r2f $ sizeX' r, sizeY = r2f $ sizeY' r,
                            selr = selr' r, namer = namer' r, colorr = colorr' r, angr = angr' r }
 zeroGrad (PA' pa) = PA $ Parallelogram { xpa = r2f $ xpa' pa, ypa = r2f $ ypa' pa, sizeXpa = r2f $ sizeXpa' pa, sizeYpa = r2f $ sizeYpa' pa,
@@ -1042,8 +1074,15 @@ addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
                              selc' = selc c, namec' = namec c, colorc' = colorc c }
 addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ rx e, ry' = r2f $ ry e,
                              namee' = namee e, colore' = colore e }
+
 addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
                             names' = names s, colors' = colors s, ang' = ang s }
+
+addGrad (AR ar) = AR' $ Arc' { xar' = r2f $ xar ar, yar' = r2f $ yar ar, sizear' = r2f $ sizear ar,
+                                      isRightar' = isRightar ar, radiusar' = r2f $ radiusar ar,
+                                      selar' = selar ar, rotationar' = r2f $ rotationar ar, anglear' = r2f $ anglear ar
+                                      ,namear' = namear ar, colorar' = colorar ar , stylear' = stylear ar}
+
 addGrad (R r) = R' $ Rect' { xr' = r2f $ xr r, yr' = r2f $ yr r, sizeX' = r2f $ sizeX r,
                            sizeY' = r2f $ sizeY r, selr' = selr r, namer' = namer r,
                            colorr' = colorr r, angr' = angr r }

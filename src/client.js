@@ -42,6 +42,55 @@ var canvasHeight = 700
         return Math.tan(degrees * Math.PI/180);
     }
 
+
+        /*
+     * Translate coordinates from polar to cartesian
+     * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+     * (Added by Dor)
+     */
+     function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+        return {
+         x: centerX + (radius * Math.cos(angleInRadians)),
+         y: centerY + (radius * Math.sin(angleInRadians))
+     };
+ }
+
+    /*
+     * Given center point, radius, and angels return an arc path
+     * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+     * (Added by Dor)
+     * Contaikns only the arc
+     */
+     function describeArc(x, y, radius, startAngle, endAngle) {
+        var start = polarToCartesian(x, y, radius, endAngle);
+        var end = polarToCartesian(x, y, radius, startAngle);
+        var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+        return [
+        "M", start.x, start.y,
+        "A", radius, radius, 0, arcSweep, 0, end.x, end.y
+        ].join(" ");
+    }
+
+    /*
+     * Given center point, radius, and angels return an arc path
+     * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+     * (Added by Dor)
+     * Returns the full "pie wedge" path
+     */
+    function describeFullArc(x, y, radius, startAngle, endAngle) {
+        var start = polarToCartesian(x, y, radius, endAngle);
+        var end = polarToCartesian(x, y, radius, startAngle);
+        var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+        return [
+        "M", start.x, start.y,
+        "A", radius, radius, 0, arcSweep, 0, end.x, end.y,
+        "L", x, y,
+        "L", start.x, start.y
+        ].join(" ");
+    }
+
+
     /*
      * Translate a list of points ([[x1, y1], [x2, y2] ...]) to a
      * Catmull-Rom Spline curve represented as an SVG path string
@@ -249,7 +298,7 @@ var canvasHeight = 700
                     }
                     curve.drag(move, start, stop)
                     break
-		   // var sx = dx + obj.startx_l, sy = dy - obj.starty_l,
+           // var sx = dx + obj.startx_l, sy = dy - obj.starty_l,
                    //      ex = dx + obj.endx_l,   ey = dy - obj.endy_l,
                    //      t  = obj.thickness_l / 12
                    //  var len = Snap.len(ex, ey, sx, sy)
@@ -341,12 +390,94 @@ var canvasHeight = 700
                 });
                 sq.drag(move, start, stop)
                 break
+
+                case 'AR': // Angle Mark
+                var isRightar = obj.isRightar
+                var sizear = obj.sizear
+                var color = obj.colorar
+                var xar = obj.xar
+                var yar = obj.yar
+                var style = obj.stylear
+                var rotationar = obj.rotationar
+
+                if(isRightar == "true"){
+                        //Draw PrepMark (for right angle)                        
+
+                        var myMatrix = new Snap.Matrix();
+                        var origX = dx + xar, origY = dy + yar
+                        
+                        myMatrix.translate(origX, origY);
+                        myMatrix.rotate(rotationar, 0, 0);
+                        
+                        var path = "M " + 0 + " " + (-sizear)+ " L "
+                        + sizear + " " +  (-sizear) + " L " 
+                        + sizear + " " + yar
+                        var p = s.path(path).transform(myMatrix.toTransformString())
+
+                        p.attr({
+                            fill: rgbToHex(color.r, color.g, color.b),
+                            "fill-opacity": 0,
+                            stroke: rgbToHex(color.r, color.g, color.b),
+                            strokeWidth: 2
+                        });
+                        if(style == "line"){
+                            p.data("name", obj.namear)
+                            p.drag(move, start, stop)
+
+                        } else if (style == "wedge") {
+                            
+                            var rectPpath = "M " + 0 + " " + (-sizear)+ " L "
+                            + sizear + " " +  (-sizear) + " L " 
+                            + sizear + " " + 0 + " L " + 0 + " " + 0
+                            
+                            var f = s.path(rectPpath).transform(myMatrix.toTransformString());
+                            f.attr({
+                                fill: rgbToHex(0, 0, 205),
+                                "fill-opacity": 0.6,
+                            });
+                            var g = s.g(p,f)
+                            g.data("name", obj.namear)
+                            g.drag(move, start, stop)
+                        }
+                    }
+
+                    if(isRightar == "false"){
+                        //Draw arc (for regular angles)
+                        var anglear = obj.anglear > 360.0 ? 360.0 - obj.anglear : obj.anglear
+                        anglear = anglear < 0 ? 360 + anglear : anglear
+                        var radiusar = obj.radiusar
+                        var arcPath = describeArc(dx + xar, dy + yar, radiusar, rotationar, 
+                            anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));                          
+                        var arc = s.path(arcPath);
+                        arc.attr({
+                            "fill-opacity": 0,
+                            stroke: rgbToHex(color.r, color.g, color.b),
+                            strokeWidth: 2
+                        });
+                        if(style == "line"){
+                            arc.data("name", obj.namear)
+                            arc.drag(move, start, stop)
+                        } else if (style == "wedge") {
+                            var pf = describeFullArc(dx + xar, dy + yar, radiusar, rotationar, 
+                                anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));                          
+                            var f = s.path(pf);
+                            f.attr({
+                                fill: rgbToHex(0, 0, 205),
+                                "fill-opacity": 0.6,
+                            });
+                            var g = s.g(arc,f)
+                            g.data("name", obj.namear)
+                            g.drag(move, start, stop)
+                        }
+
+                    }
+                    break
                 case 'R': // rectangle
-		// TODO fix this!
+        // TODO fix this!
         var sizeX = obj.sizeX;
         var sizeY = obj.sizeY;
         var rect = s.rect(dx + obj.xr - sizeX/2, dy - obj.yr - sizeY/2, sizeX, sizeY);
-		// isn't this bottom left?
+        // isn't this bottom left?
         rect.data("name", obj.namer)
         var color = obj.colorr;
         rect.attr({
