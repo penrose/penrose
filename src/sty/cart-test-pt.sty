@@ -11,8 +11,8 @@ global {
 
 Set `domain` {
   shape = Arrow {
-    start = origin
-    end   = horiz
+    start = origin.shape
+    end   = horiz.shape
     text = Auto
   }
 
@@ -23,8 +23,8 @@ Set `domain` {
 
 Set `codomain` {
   shape = Arrow {
-    start = origin
-    end   = vert
+    start = origin.shape
+    end   = vert.shape
     text = Auto
   }
 }
@@ -41,7 +41,7 @@ Point p {
         text = Auto
     }
     objective centerLabel(p, p.shape.label)
-} 
+}
 
 -- TODO add ability for objects to have multiple associated shapes
 -- TODO how to set radius of a circle?
@@ -55,7 +55,7 @@ Point `special` {
     }
     objective centerLabel(special, special.shape.label)
     -- objective near(special, special.shape.label)
-} 
+}
 
 -- TODO global label objective function
 -- what about x and y? can we operate on them?

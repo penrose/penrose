@@ -88,42 +88,49 @@ halfDiagonal side = 0.5 * dist (0, 0) (side, side)
 compose2 :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
 
+
+
+-- | Define ternary expressions in Haskell
+data Cond a = a :? a
+ 
+infixl 0 ?
+infixl 1 :?
+ 
+(?) :: Bool -> Cond a -> a
+True  ? (x :? _) = x
+False ? (_ :? y) = y
+
 --------------------------------------------------------------------------------
+-- Internal naming conventions
 
--- Code that involves naming conventions
 nameSep, labelWord :: String
-nameSep = " " -- TODO change to " "
+nameSep = " "
 labelWord = "label"
-
--- TODO: check that these definitions of labelName don't clash
--- labelName :: String -> String
--- labelName name = "_Label_" ++ name
 
 labelName :: String -> String
 labelName name = name ++ nameSep ++ labelWord
 
+-- | Given a Substance ID and a Style ID for one of its associated graphical primitive, generate a globally unique identifier for this primitive
 uniqueShapeName :: String -> String -> String
 uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
  -- e.g. "B yaxis" (the concatenation should be unique), TODO add the two names as separate obj fields
 
+
 --------------------------------------------------------------------------------
 ---- Lexer helper functions
--- TODO: think about if it make sense to have the same set of reserved words
---       in both Substance and Style.
+-- TODO: separate reserved words and keywords for each of the DSLs
 
 type Parser = Parsec Void String
 
-rws, attribs, attribVs, shapes, types :: [String] -- list of reserved words
-rws =     ["avoid", "global", "as"] ++ types ++ shapes
+rws, attribs, attribVs, shapes :: [String] -- list of reserved words
+rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
-
-types =   ["Definition", "Set", "Map", "Point", "In", "NotIn", "Subset", "NoSubset", "Intersect", "NoIntersect"]
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
+dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
--- TODO: should the rws for Style and Substance be separated at all?
 identifier :: Parser String
 identifier = (lexeme . try) (p >>= check)
   where
@@ -160,19 +167,28 @@ backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 
 lparen, rparen, lbrac, rbrac, colon, arrow, comma :: Parser ()
+aps = void (symbol "'")
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
 lparen = void (symbol "(")
 rparen = void (symbol ")")
+slparen = void (symbol "[")
+srparen = void (symbol "]")
 colon = void (symbol ":")
 arrow = void (symbol "->")
 comma = void (symbol ",")
+dot = void (symbol ".")
+eq = void (symbol "=")
+
 
 braces :: Parser a -> Parser a
 braces = between (symbol "{") (symbol "}")
 
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
+
+brackets :: Parser a -> Parser a
+brackets = between (symbol "[") (symbol "]")
 
 -- | 'integer' parses an integer.
 integer :: Parser Integer

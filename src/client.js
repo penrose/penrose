@@ -4,6 +4,8 @@
  * @version: 06/23/2017
  */
 
+var canvasWidth  = 800
+var canvasHeight = 700
 
  $.getScript('snap.svg.js', function()
  {
@@ -33,8 +35,15 @@
         }
     }
 
+    /**
+    Calculate Tangence from degrees
+    **/
+    function getTanFromDegrees(degrees) {
+        return Math.tan(degrees * Math.PI/180);
+    }
 
-    /*
+
+        /*
      * Translate coordinates from polar to cartesian
      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
      * (Added by Dor)
@@ -80,10 +89,6 @@
         "L", start.x, start.y
         ].join(" ");
     }
-
-
-    
-
 
 
     /*
@@ -159,8 +164,37 @@
         // return str.substring(0, str.length - 2);
     }
 
-    function allToScreen(orig_list, dx, dy) {
-        var list = new Array(orig_list.length);
+
+    /*
+      * Translate coordinates from polar to cartesian
+      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+      * (Added by Dor)
+      */
+      function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+       var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+       return {
+          x: centerX + (radius * Math.cos(angleInRadians)),
+          y: centerY + (radius * Math.sin(angleInRadians))
+      };
+  }
+     /*
+      * Given center point, radius, and angels return an arc path
+      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+      * (Added by Dor)
+      * Contaikns only the arc
+      */
+      function describeArc(x, y, radius, startAngle, endAngle) {
+       var start = polarToCartesian(x, y, radius, endAngle);
+       var end = polarToCartesian(x, y, radius, startAngle);
+       var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+       return [
+       "M", start.x, start.y,
+       "A", radius, radius, 0, arcSweep, 0, end.x, end.y
+       ].join(" ");
+   }
+
+   function allToScreen(orig_list, dx, dy) {
+    var list = new Array(orig_list.length);
 
         // transform all points to screen space
         for(var i = 0; i < list.length; i++) {
@@ -206,8 +240,10 @@
             ws.send(json)
         }
         s.clear()
-        var dx = s.node.clientWidth  / 2
-        var dy = s.node.clientHeight / 2
+        // NOTE: just using clientWidth/Height does not work on Firefox
+        // see https://stackoverflow.com/questions/13122790/how-to-get-svg-element-dimensions-in-firefox
+        var dx = canvasWidth  / 2
+        var dy = canvasHeight / 2
 
         for (var key in data) {
             // console.log(data[key])
@@ -262,7 +298,7 @@
                     }
                     curve.drag(move, start, stop)
                     break
-		   // var sx = dx + obj.startx_l, sy = dy - obj.starty_l,
+           // var sx = dx + obj.startx_l, sy = dy - obj.starty_l,
                    //      ex = dx + obj.endx_l,   ey = dy - obj.endy_l,
                    //      t  = obj.thickness_l / 12
                    //  var len = Snap.len(ex, ey, sx, sy)
@@ -437,11 +473,11 @@
                     }
                     break
                 case 'R': // rectangle
-		// TODO fix this!
+        // TODO fix this!
         var sizeX = obj.sizeX;
         var sizeY = obj.sizeY;
         var rect = s.rect(dx + obj.xr - sizeX/2, dy - obj.yr - sizeY/2, sizeX, sizeY);
-		// isn't this bottom left?
+        // isn't this bottom left?
         rect.data("name", obj.namer)
         var color = obj.colorr;
         rect.attr({
@@ -450,32 +486,94 @@
         });
         rect.drag(move, start, stop)
         break
+
+        case 'PA': // parallelogram
+        // TODO fix this!
+        var sx = dx + obj.xpa, sy = dy - obj.ypa
+        var sizeX = obj.sizeXpa;
+        var sizeY = obj.sizeYpa;
+        var angle = obj.anglepa;
+        var rotation = obj.rotationpa
+        var path = ""
+        if(angle <= 90.0){
+          path = "M " + (-(sizeX/2) - sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2)) +  " L " + 
+          (-(sizeX/2)) + " " + (sizeY/2) +  " L " +  (sizeX/2) + " " + (sizeY/2) +  " L " +
+          ((sizeX/2) - (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
+      }
+      else{
+          path = "M " + (-(sizeX/2)) + " " + (sizeY/2) +  " L " + 
+          (sizeX/2) + " " + (sizeY/2) +  " L " + ((sizeX/2) + sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2))
+          +  " L " + (-(sizeX/2) + (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
+      }
+
+      var myMatrix = new Snap.Matrix();
+      myMatrix.translate(sx, sy);
+      myMatrix.rotate(rotation, 0, 0);
+      var parallelogram = s.path(path).transform(myMatrix.toTransformString())
+      parallelogram.data("name", obj.namepa)
+      var color = obj.colorpa;
+      parallelogram.attr({
+
+        fill: rgbToHex(color.r, color.g, color.b),
+        "fill-opacity": color.a,
+    });
+      parallelogram.drag(move, start, stop)
+      break
                 case 'A': // arrow
+                var style = obj.stylesa
                 var sx = dx + obj.startx, sy = dy - obj.starty,
                 ex = dx + obj.endx,   ey = dy - obj.endy,
                 t  = obj.thickness / 6
                 var len = Snap.len(ex, ey, sx, sy)
-                var body_path = [0, 0 + t, len - 5*t, t, len - 5*t, -1*t, 0, -1*t]
+                var body_path = [0, t, len - 5*t, t, len - 5*t, -1*t, 0, -1*t]
                 var head_path = [len - 5*t, 3*t, len, 0, len - 5*t, -3*t]
                 var angle = Snap.angle(ex, ey, sx, sy)
                 var myMatrix = new Snap.Matrix();
-                myMatrix.translate(sx, sy);
+                myMatrix.translate(sx , sy);
                 myMatrix.rotate(angle, 0, 0);
-                var line = s.polygon(body_path).transform(myMatrix.toTransformString())
-                var head = s.polygon(head_path).transform(myMatrix.toTransformString())
-                var g = s.g(line, head)
-                g.data("name", obj.namesa)
-                g.drag(move, start, stop)
-                    // // render the bbox
-                    // var sq = s.path(g.getBBox().path);
-                    // sq.attr({
-                    //     "fill-opacity": 0,
-                    //     stroke: "#000",
-                    //     strokeWidth: 1, // CamelCase...
-                    // })
-                    break
+                console.log(obj.namesa + " ex: " + ex + ", ey: " + ey + " angle: " + angle + "\n");
+                var color = obj.colorsa
+                if(style == "straight"){
+                    var line = s.polygon(body_path).transform(myMatrix.toTransformString())
+                }                    
+                if(style == "curved"){
+                    line = s.path(describeArc(len/2-2.4*t,0,len/2,-90,90)).transform(myMatrix.toTransformString())
+                    line.attr({
+                        "fill-opacity" : 0,
+                        stroke: rgbToHex(color.r, color.g, color.b),
+                        strokeWidth: 2
+                    })
                 }
+                
+                if(style == "length"){
+                    //document.write(toPathString([[0,(-(4*t))],[0,(4*t)]],0,0))
+                    var p = "M " + 0 + " " + (-(4*t)) + " L " + 0 + " " + (4*t) +  " L " + 0 + " " + 0 + " L " + (len-(5*t)) + " " + 0;
+                    var tail1 = s.path(p)
+                        .transform(myMatrix.toTransformString())
+                    tail1.attr({
+                        "fill-opacity" : 0,
+                        stroke: rgbToHex(color.r, color.g, color.b),
+                        strokeWidth: 2
+                    })
+                    var head1 = s.path(toPathString([[(len-(5*t)),(-(4*t))],[len-(5*t),(4*t)]],0,0)).transform(myMatrix.toTransformString())
+                    head1.attr({
+                        "fill-opacity" : 0,
+                        stroke: rgbToHex(color.r, color.g, color.b),
+                        strokeWidth: 2
+                    })
+                    var g1 = s.g(head1, tail1)
+                    g1.data("name", obj.namesa)
+                    g1.drag(move, start, stop)
+                }
+                else{
+                    var head = s.polyline(head_path).transform(myMatrix.toTransformString())
+                    var g = s.g(line, head)
+                    g.data("name", obj.namesa)
+                    g.drag(move, start, stop)
+                }
+                break
             }
+        }
         // Send the bbox information to the server
         if(firstrun) {
             var dict = { "tag" : "Update", "contents" : { "objs" : data } }
@@ -489,6 +587,8 @@
         // var s = Snap(800, 700);
         // TODO: set the width and height here?
         var s = Snap("#svgdiv");
+        $("#svgdiv").css("width", canvasWidth);
+        $("#svgdiv").css("height", canvasHeight);
 
         var firstRun = true
         ws = createSocket();
@@ -521,7 +621,7 @@
             });
         };
         ws.onmessage = function(event) {
-            console.log(event.data)
+            //console.log(event.data)
             var now  = new Date().getTime()
             var diff = (now - lastTime);
             var obj = jQuery.parseJSON(event.data)

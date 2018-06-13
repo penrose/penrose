@@ -7,10 +7,10 @@ global {
 
 Set s {
     shape = Ellipse { }
-    -- constraint contains(s, s.label)
-    constraint outsideOf(s.label, s)
-    objective above(s, s.label)
-    objective sameX(s, s.label)
+    -- constraint contains(s, s.shape.label)
+    constraint outsideOf(s.shape.label, s)
+    objective above(s, s.shape.label)
+    objective sameX(s, s.shape.label)
 }
 
 Value f p q {

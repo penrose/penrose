@@ -1,9 +1,0 @@
-Set T
-Set V
-Set H
-Point F
-Point R
-Point Y
-NotIn F T
-Subset T V
-Subset T H

@@ -1,0 +1,5 @@
+Set domainOuter, codomain, domain, image, cartesianProduct 
+-- `CartesianProduct domain image`?
+Subset domain domainOuter
+Subset image codomain
+Injection q domain image
