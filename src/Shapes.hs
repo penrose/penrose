@@ -1,19 +1,17 @@
 -- | "Shapes" contains all geometric primitives that Penrose supports
 
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
--- {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
+-- {-# LANGUAGE DuplicateRecordFields #-}
 
 module Shapes where
 -- module Shapes (Obj, Obj') where
 import Data.Aeson
 import Data.Monoid ((<>))
 import GHC.Generics
-import Data.Data
-import Data.Typeable
+
 import Utils
 
 type Name = String
@@ -35,7 +33,7 @@ data CubicBezier = CubicBezier {
     namecb           :: String,
     stylecb          :: String,
     colorcb          :: Color
-} deriving (Eq, Show, Generic, Typeable, Data)
+} deriving (Eq, Show, Generic)
 
 instance Named CubicBezier where
          getName = namecb
@@ -64,7 +62,7 @@ data Line = Line {
     name_l           :: String,
     style_l          :: String,
     color_l          :: Color
-} deriving (Eq, Show, Generic, Typeable, Data)
+} deriving (Eq, Show, Generic)
 
 instance Named Line where
          getName = name_l
@@ -92,7 +90,7 @@ data SolidArrow = SolidArrow { startx :: Float
                              , colorsa :: Color
                             --  , bbox :: BBox
                          }
-         deriving (Eq, Show, Generic, Typeable, Data)
+         deriving (Eq, Show, Generic)
 
 instance Located SolidArrow Float where
         --  getX a = endx a - startx a
@@ -117,7 +115,7 @@ data Circ = Circ { xc :: Float
                  , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
                  , namec :: String
                  , colorc :: Color }
-     deriving (Eq, Show, Generic, Data, Typeable)
+     deriving (Eq, Show, Generic)
 
 instance Located Circ Float where
          getX c = xc c
@@ -141,7 +139,7 @@ data Square = Square { xs :: Float -- center of square
                      , sels :: Bool -- is the circle currently selected? (mouse is dragging it)
                      , names :: String
                      , colors :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Square Float where
          getX s = xs s
@@ -166,7 +164,7 @@ data Rect = Rect { xr :: Float -- center of rect
                      , selr :: Bool
                      , namer :: String
                      , colorr :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Rect Float where
          getX s = xr s
@@ -194,7 +192,7 @@ data Parallelogram = Parallelogram { xpa :: Float -- center of rect
                      , selpa :: Bool
                      , namepa :: String
                      , colorpa :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Parallelogram Float where
          getX pa = xpa pa
@@ -219,7 +217,7 @@ data Label = Label { xl :: Float
                    -- , scalel :: Float  -- calculate h,w from it
                    , sell :: Bool -- selected label
                    , namel :: String }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Label Float where
          getX l = xl l
@@ -239,7 +237,7 @@ data Pt = Pt { xp :: Float
              , yp :: Float
              , selp :: Bool
              , namep :: String }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Pt Float where
          getX p = xp p
@@ -264,7 +262,7 @@ data Obj = S Square
          | A SolidArrow
          | CB CubicBezier
          | LN Line
-         deriving (Eq, Show, Generic, Typeable, Data)
+         deriving (Eq, Show, Generic)
 
 instance ToJSON Obj
 instance FromJSON Obj
@@ -276,7 +274,7 @@ data Ellipse = Ellipse { xe :: Float
                  , ry :: Float
                  , namee :: String
                  , colore :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Ellipse Float where
          getX = xe
@@ -396,7 +394,7 @@ data Obj' a
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     | LN' (Line' a)
-    deriving (Eq, Show, Typeable, Data)
+    deriving (Eq, Show)
 
 data SolidArrow' a = SolidArrow' {
     startx'    :: a,
@@ -408,7 +406,7 @@ data SolidArrow' a = SolidArrow' {
     namesa'    :: String,
     stylesa'    :: String,
     colorsa'   :: Color
-} deriving (Eq, Show, Typeable, Data)
+} deriving (Eq, Show)
 
 data Circ' a = Circ' {
     xc'     :: a,
@@ -417,7 +415,7 @@ data Circ' a = Circ' {
     selc'   :: Bool, -- is the circle currently selected? (mouse is dragging it)
     namec'  :: String,
     colorc' :: Color
-} deriving (Eq, Show, Typeable, Data)
+} deriving (Eq, Show)
 
 data Ellipse' a = Ellipse' {
     xe' :: a,
@@ -426,7 +424,7 @@ data Ellipse' a = Ellipse' {
     ry' :: a,
     namee'  :: String,
     colore' :: Color
-} deriving (Eq, Show, Typeable, Data)
+} deriving (Eq, Show)
 
 data Label' a = Label' { xl' :: a -- middle (x, y) of label
                        , yl' :: a
@@ -435,13 +433,13 @@ data Label' a = Label' { xl' :: a -- middle (x, y) of label
                        , textl' :: String
                        , sell' :: Bool -- selected label
                        , namel' :: String }
-                       deriving (Eq, Show, Typeable, Data)
+                       deriving (Eq, Show)
 
 data Pt' a = Pt' { xp' :: a
                  , yp' :: a
                  , selp' :: Bool
                  , namep' :: String }
-                 deriving (Eq, Show, Typeable, Data)
+                 deriving (Eq, Show)
 
 data Square' a  = Square' { xs' :: a
                      , ys' :: a
@@ -450,7 +448,7 @@ data Square' a  = Square' { xs' :: a
                      , sels' :: Bool
                      , names' :: String
                      , colors' :: Color }
-                     deriving (Eq, Show, Typeable, Data)
+                     deriving (Eq, Show)
 
 data Rect' a = Rect' { xr' :: a -- I assume this is top left?
                      , yr' :: a
@@ -460,7 +458,7 @@ data Rect' a = Rect' { xr' :: a -- I assume this is top left?
                      , selr' :: Bool
                      , namer' :: String
                      , colorr' :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
                      , ypa' :: a
@@ -471,14 +469,14 @@ data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
                      , selpa' :: Bool
                      , namepa' :: String
                      , colorpa' :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 data CubicBezier' a = CubicBezier' {
     pathcb'           :: [(a, a)],
     namecb'           :: String,
     stylecb'          :: String,
     colorcb'          :: Color
-} deriving (Eq, Show, Typeable, Data)
+} deriving (Eq, Show)
 
 data Line' a = Line' {
     startx_l'           :: a,
@@ -489,7 +487,7 @@ data Line' a = Line' {
     name_l'           :: String,
     style_l'          :: String,
     color_l'          :: Color
-} deriving (Eq, Show, Generic, Typeable, Data)
+} deriving (Eq, Show, Generic)
 
 instance Named (SolidArrow' a) where
          getName = namesa'
@@ -687,7 +685,7 @@ data TypeIn a = TNum a
               | TProp String Property
               -- | a call to computation function
               | TCall String [TypeIn a]
-     deriving (Eq, Show, Data, Typeable)
+     deriving (Eq, Show)
 
 -- TODO: should we collect the types that need computation to another single type. For example:
 -- data TypeIn a = ...
@@ -871,7 +869,7 @@ set prop obj val = error ("setting property/object/value combination not support
 data Color
     -- | Holds the color components. All components lie in the range [0..1.
     = RGBA  !Float !Float !Float !Float
-    deriving (Show, Eq, Data, Typeable)
+    deriving (Show, Eq)
 
 -- | Make a custom color. All components are clamped to the range  [0..1].
 makeColor :: Float        -- ^ Red component.
