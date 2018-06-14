@@ -256,7 +256,8 @@ computeSurjection' [TNum x, TPt p1, TPt p2] [] = TPath $ fst $ computeSurjection
 computeSurjection' v o = error' "computeSurjection" v o
 
 computeSurjectionBbox' :: CompFn a
-computeSurjectionBbox' [TNum x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRngSur (floor x) a1 a2
+computeSurjectionBbox' [TNum x] [A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng (floor x) a1 a2
+computeSurjectionBbox' [TNum x] [AR' ar1, A' a1, A' a2] = TPath $ fst $ computeSurjectionBbox compRng (floor x) a1 a2
 computeSurjectionBbox' v o = error' "computeSurjectionBbox" v o
 
 -- TODO: for multiple objects, inputs might not be in right order (depending on lookupAll)

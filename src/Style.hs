@@ -31,8 +31,8 @@ import Env
 -- Style AST
 
 -- | Type annotation for all geometries supported by Style so far.
-data StyType = Ellip | Circle | Box | Rectangle | Parallel | Dot | Arrow | NoShape | Color | Text | Curve | Auto
-               | Line2 -- two points
+data StyType = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto 
+               | Arc2 | Line2 | Parallel
     deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
 -- | A Style program is a collection of blocks
@@ -143,6 +143,7 @@ styObj =
        (rword "Curve"   >> return Curve)   <|>
        (rword "Ellipse" >> return Ellip)   <|>
        (rword "Box"     >> return Box)     <|>
+       (rword "Arc"     >> return Arc2)     <|>
        (rword "Rect"    >> return Rectangle)     <|>
        (rword "Parallelogram"    >> return Parallel)     <|>
        (rword "Dot"     >> return Dot) <|>

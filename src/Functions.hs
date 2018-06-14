@@ -296,6 +296,7 @@ maxSize :: ConstrFn
 limit = max (fromIntegral picWidth) (fromIntegral picHeight)
 maxSize [C' c] _ = r' c -  limit / 6
 maxSize [S' s] _ = side' s - limit  / 3
+maxSize [AR' ar] _ = sizear' ar - limit  / 3
 maxSize [R' r] _ = let max_side = max (sizeX' r) (sizeY' r) in
                    max_side - limit  / 3
 maxSize [PA' pa] _ = let max_side = max (sizeXpa' pa) (sizeYpa' pa) in
@@ -308,6 +309,7 @@ at [o] [TNum x, TNum y] = (getX o - x)^2 + (getY o - y)^2
 minSize :: ConstrFn
 minSize [C' c] _ = 20 - r' c
 minSize [S' s] _ = 20 - side' s
+minSize [AR' ar] _ = 2.5 - sizear' ar
 minSize [R' r] _ = let min_side = min (sizeX' r) (sizeY' r) in
                    20 - min_side
 minSize [PA' pa] _ = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in
