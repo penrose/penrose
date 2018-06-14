@@ -2,9 +2,6 @@
 
 module ShadowMain where
 import Utils
-import Graphics.Gloss
-import Graphics.Gloss.Data.Vector
-import Graphics.Gloss.Interface.Pure.Game
 import qualified Server
 import qualified Runtime as R
 import qualified Substance as C
@@ -25,8 +22,8 @@ shadowMain = do
     -- Objective function is currently hard-coded
     -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
     args <- getArgs
-    when (length args /= 4) $ die "Usage: ./Main <snap|gloss> prog1.sub prog2.sty prog3.dsl"
-    let (mode, subFile, styFile, dsllFile) = (head args, args !! 1, args !! 2, args !! 3)
+    when (length args /= 3) $ die "Usage: ./Main prog1.sub prog2.sty prog3.dsl"
+    let (subFile, styFile, dsllFile) = (head args, args !! 1, args !! 2)
     subIn  <- readFile subFile
     styIn  <- readFile styFile
     dsllIn <- readFile dsllFile
@@ -84,16 +81,14 @@ shadowMain = do
             divLine
             putStrLn "Visualizing Substance program:\n"
 
-            if mode == "snap" then
-                -- Starting serving penrose on the web
-                let (domain, port) = ("127.0.0.1", 9160) in
-                Server.servePenrose domain port initState
+            -- Starting serving penrose on the web
+            let (domain, port) = ("127.0.0.1", 9160) 
+            Server.servePenrose domain port initState
 
-                else error "only snap is supported as a frontend\n"
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
 -- (extracted via unsafePerformIO)
--- Very similar to shadowMain but does not depend on rendering (snap/gloss) so it does not return SVG
+-- Very similar to shadowMain but does not depend on rendering  so it does not return SVG
 -- TODO take initRng seed as argument
 mainRetInit :: String -> String -> String -> IO (Maybe R.State)
 mainRetInit subFile styFile dsllFile = do

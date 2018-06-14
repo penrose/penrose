@@ -10,8 +10,6 @@ import ShadowMain
 import Shapes
 import Runtime
 import Debug.Trace
-import Graphics.Gloss.Interface.Pure.Game
--- import Graphics.Gloss.Internals.Data.Color
 
 tests :: TestTree
 tests = testGroup "ShadowMain tests" [properties, unitTests]
@@ -24,7 +22,6 @@ properties = testGroup "Properties" [scProps, qcProps]
 failed :: Assertion
 failed = False @?= True
 
--- TODO: remove gloss dependency for Point and Color/RGBA/makeColor
 type V2 = (Float, Float)
 type TestInfo = (String, String, String, String, [Obj], [Obj])
 

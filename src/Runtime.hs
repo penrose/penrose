@@ -19,7 +19,6 @@ import Data.Maybe
 import Data.Monoid ((<>))
 import Data.Aeson
 import Data.Function
-import Graphics.Gloss.Data.Color -- TODO: remove this dependency
 import Numeric.AD
 import GHC.Float -- float <-> double conversions
 import System.IO
