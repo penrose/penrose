@@ -714,6 +714,7 @@ get "location" (P' o)      = TPt (xp' o, yp' o)
 -- Squares
 get "x" (S' o)             = TNum $ xs' o
 get "y" (S' o)             = TNum $ ys' o
+get "center" (S' o)        = TPt (xs' o, ys' o)
 get "side" (S' o)          = TNum $ side' o
 get "angle" (S' o)         = TNum $ r2f $ ang' o
 get "color" (S' o)         = TColor $ colors' o
@@ -746,8 +747,10 @@ get "color" (CB' o)        = TColor $ colorcb' o
 -- Solid arrows
 get "startx" (A' o)        = TNum $ startx' o
 get "starty" (A' o)        = TNum $ starty' o
+get "start" (A' o)         = TPt (startx' o, starty' o)
 get "endx" (A' o)          = TNum $ endx' o
 get "endy" (A' o)          = TNum $ endy' o
+get "end" (A' o)           = TPt (endx' o, endy' o)
 get "thickness" (A' o)     = TNum $ thickness' o
 get "color" (A' o)         = TColor $ colorsa' o
 get "style" (A' o)         = TStyle $ stylesa' o

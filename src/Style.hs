@@ -494,7 +494,7 @@ lookupVarMap s varMap = case M.lookup s varMap of
 procExpr :: (Autofloat a) => VarMap -> Expr -> TypeIn a
 procExpr ctx (Id subObjPattern) = TAllShapes $ lookupVarMap subObjPattern ctx
 procExpr _ (StringLit s) = TStr s
-procExpr _ (IntLit i) = TNum $ r2f i -- TODO this shouldn't flatten ints for computations
+procExpr _ (IntLit i) = TNum $ r2f i
 procExpr _ (FloatLit i) = TNum $ r2f i
 procExpr ctx (CompArgs fname params) = TCall fname $ map (procExpr ctx) params
 -- in context [X ~> A], look up "X.yaxis", return "A yaxis"
@@ -503,7 +503,6 @@ procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) =
     TShape $ uniqueShapeName subObjName styShapeName
 -- Shapes are given their unique names (for lookup) in Runtime (so far)
 -- in context [X ~> A], look up "X.yaxis.label", return "A yaxis label"
--- TODO: pending discussion on `A.shape.label` vs `A.label`
 procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) =
     let subObjName = lookupVarMap subObjPattern ctx in
     TShape $ labelName $ uniqueShapeName subObjName styShapeName

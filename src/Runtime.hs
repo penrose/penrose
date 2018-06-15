@@ -269,7 +269,8 @@ computeOn objDict comp =
                                             M.insert objName objRes objDict
 
 -- | Look up the arguments to a computation, apply the computation,
--- | and set the property in the object to the result.
+-- | and set the property in the object to the result. The ordering of
+-- | arguments is preserved by 'partitionEithers' and 'map' onto 'resolveObjs'
 applyAndSet :: (Autofloat a) => M.Map Name (Obj' a) -> ObjComp a -> CompFn a -> Obj' a -> Obj' a
 applyAndSet objDict comp function obj =
           let (objName, objProperty, fname, args) = (oName comp, oProp comp, fnName comp, fnParams comp) in
@@ -279,8 +280,7 @@ applyAndSet objDict comp function obj =
           -- TODO: for multiple objects, might not be in right order. alphabetize?
           set objProperty obj res
 
--- | Look up variable names that correspond to objects and retr
--- TODO: complete documentation
+-- | Look up either a property of a GPI, or the GPI itself by its unique identifier. Constant arguments such as TFloat are ignored and passed through.
 resolveObjs :: (Autofloat a) => M.Map Name (Obj' a) -> TypeIn a
                              -> Either (TypeIn a) [Obj' a]
 resolveObjs objs e = case e of
