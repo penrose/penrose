@@ -98,9 +98,7 @@ computeSurjectionLines g n left right bottom top =
                        computeSurjection g n lower_left top_right
 
 -- | No arguments for now, to avoid typechecking
--- Does this only work in gloss?
 computeColor :: () -> Color
--- computeColor () = Colo { redc = 0, greenc = 0, bluec = 0 * 0, opacityc = 50 }
 computeColor () = makeColor 0.5 0.1 (0.2 / 3) 0.5
 
 computeColor2 :: () -> Color
@@ -178,6 +176,10 @@ error' nm vals objs = error ("unexpected # or type or argument in `" ++ nm ++ "`
 -- | this function models property access and calls the general "get" function
 get' :: CompFn a
 get' [TStr p] [obj] = get p obj
+
+multiply' :: CompFn a
+-- TODO pattern match on multiple TNums
+multiply' [TNum a, TNum b] [] = TNum $ a * b
 
 computeColor' :: CompFn a
 computeColor' _ _ = TColor $ computeColor ()
@@ -313,6 +315,7 @@ computationDict :: (Autofloat a) => M.Map String (CompFnOn a)
 computationDict = M.fromList flist
     where flist = [
                     ("_get", get'),
+                    ("multiply", multiply'),
                     ("computeColor", computeColor'),
                     ("computeColor2", computeColor2'),
                     ("computeColorArgs", computeColorArgs'),

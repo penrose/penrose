@@ -40,6 +40,10 @@ constrFuncDict = M.fromList flist
 objFuncDict :: forall a. (Autofloat a) => M.Map String (ObjFnOn a)
 objFuncDict = M.fromList flist
     where flist = [
+                    ("center", center),
+                    ("centerLabel", centerLabel),
+                    ("centerMap", centerMap),
+                    ("centerLine", centerLine),
                     ("increasingX", increasingX),
                     ("increasingY", increasingY),
                     ("horizontal", horizontal),
@@ -47,15 +51,13 @@ objFuncDict = M.fromList flist
                     ("xInRange", xInRange),
                     ("yInRange", yInRange),
                     ("orthogonal", orthogonal),
-                    ("center", center),
-                    ("centerLabel", centerLabel),
-                    ("centerMap", centerMap),
-                    ("centerLine", centerLine),
                     ("toLeft", toLeft),
                     ("above", above),
                     ("between", between),
                     ("sameHeight", sameHeight),
                     ("sameX", sameX),
+                    ("equal", equal),
+                    ("ratioOf", ratioOf),
                     ("sameY", sameY),
                     -- ("sameX", (*) 0.6 `compose2` sameX),
                     -- ("sameX", (*) 0.2 `compose2` sameX),
@@ -130,6 +132,13 @@ toLeft [a, b] [] = (getX a - getX b + 400)^2
 -- | 'sameHeight' forces two objects to stay at the same height (have the same Y value)
 sameHeight :: ObjFn
 sameHeight [a, b] [] = (getY a - getY b)^2
+
+equal :: ObjFn
+equal [] [TNum a, TNum b] = (a - b)^2
+
+ratioOf :: ObjFn
+ratioOf [] [TNum a, TNum b, TNum ratio] = (a - b * ratio)^2
+
 
 -- | encourages two objects to have the same X value
 sameX :: ObjFn

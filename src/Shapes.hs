@@ -767,6 +767,8 @@ get "color" (LN' o)         = TColor $ color_l' o
 get "path" (LN' o)          = TPath [(startx_l' o, starty_l' o), (endx_l' o, endy_l' o)]
 
 -- Labels
+get "x" (L' o)             = TNum $ xl' o
+get "y" (L' o)             = TNum $ yl' o
 get "location" (L' o)      = TPt (xl' o, yl' o)
 
 get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n"
