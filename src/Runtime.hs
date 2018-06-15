@@ -110,13 +110,13 @@ unpackObj (L' l) = [(xl' l, Vary), (yl' l, Vary), (wl' l, Fix), (hl' l, Fix)]
 -- the location of a point varies
 unpackObj (P' p) = [(xp' p, Vary), (yp' p, Vary)]
 -- TODO revert this!! Hack just for surjection program
-unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary), 
+unpackObj (A' a) = [(startx' a, Vary), (starty' a, Vary),
                     (endx' a, Vary), (endy' a, Vary), (thickness' a, Vary)]
 -- unpackObj (CB' c) = [(pathcb' cb, Fix)]
 unpackObj (CB' c) = concatMap (\(x, y) -> [(x, Fix), (y, Fix)]) $ pathcb' c
-unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix), 
+unpackObj (LN' a) = [(startx_l' a, Fix), (starty_l' a, Fix),
                     (endx_l' a, Fix), (endy_l' a, Fix), (thickness_l' a, Fix)]
-
+unpackObj (IM' im) = [(xim' im, Vary), (yim' im, Vary), (sizeXim' im, Vary), (sizeYim' im, Vary)]
 -- split out because pack needs this annotated list of lists
 unpackAnnotate :: (Autofloat a) => [Obj' a] -> [[(a, Annotation)]]
 unpackAnnotate objs = map unpackObj objs
@@ -196,6 +196,12 @@ labelPack lab params = Label' { xl' = xl1, yl' = yl1, wl' = wl1, hl' = hl1,
           where (xl1, yl1, wl1, hl1) = if not $ length params == 4 then error "wrong # params to pack label"
                                    else (params !! 0, params !! 1, params !! 2, params !! 3)
 
+imgPack :: (Autofloat x) => Img -> [a] -> Img' a
+imgPack im params = Img' { xim' = xi1, yim' = yi1, sizeXim' = len, sizeYim' = wid,
+                           nameim' = nameim im, selim' = selim im, angim' = angim im,
+                          path' = path im}
+          where (xi1, yi1, len, wid) = if not $ length params == 4 then error "wrong # of params to pack image"
+                                      else (params !! 0, params !! 1, params !! 2, params !! 3)
 -- does a right fold on `annotations` to preserve order of output list
 -- returns remaining (fixed, varying) that were not part of the object
 -- e.g. yoink [Fixed, Varying, Fixed] [1, 2, 3] [4, 5] = ([1, 4, 2], [3], [5])
@@ -236,6 +242,7 @@ pack' zipped fixed varying =
                     A ar    -> A' $ solidArrowPack ar flatParams
                     CB c    -> CB' $ curvePack c flatParams
                     LN c    -> LN' $ linePack c flatParams
+                    IM im   -> IM' $ imgPack im flatParams
 
 ------- Computation related functions
 
@@ -331,7 +338,7 @@ defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, style
     where path = [(10, 100), (300, 100)]
 defLine = Line { startx_l = -100, starty_l = -100, endx_l = 300, endy_l = 300,
                                 thickness_l = 2, name_l = defName, color_l = black, style_l = "solid" }
-
+defImg = Img {xim = 100, yim = 100, sizeXim = defaultRad, sizeYim = defaultRad + 200, selim = False, nameim = defName, angim = 0.0, path = ""}
 -- default shapes
 defaultSolidArrow, defaultPt, defaultSquare, defaultRect,
                    defaultCirc, defaultEllipse :: String -> Obj
@@ -343,6 +350,7 @@ defaultRect name = R $ setName name defRect
 defaultCirc name = C $ setName name defCirc
 defaultEllipse name = E $ setName name defEllipse
 defaultCurve name = CB $ setName name defCurve
+defaultImg name = IM $ setName name defImg
 
 -- Set the text field to just the Substance object name (e.g. "A")
 -- and name to the internal name, e.g. "A shape"
@@ -357,8 +365,8 @@ defaultLabel objName labelText =
 
 checkAuto :: String -> String -> String
 checkAuto objName labelText =  -- TODO: should this use labelSetting?
-          if labelText == autoWord then 
-             let subObjName = (nameParts objName) !! 0 
+          if labelText == autoWord then
+             let subObjName = (nameParts objName) !! 0
              in subObjName
           else labelText
 
@@ -399,6 +407,7 @@ getShape (oName, (objType, config)) =
               S.Dot     -> initDot oName config_nocomps
               S.Curve   -> initCurve oName config_nocomps
               S.Line2    -> initLine oName config_nocomps
+              S.Image      -> initImg oName config_nocomps
               S.NoShape -> ([], [], []) in
          let res = tupAppend objInfo computations in
 
@@ -506,6 +515,12 @@ initCurve n config = (objs, [], [])
               style = fromMaybe "solid" $ lookupStr "style" config
               curve = CB CubicBezier { colorcb = black, pathcb = defaultPath, namecb = n, stylecb = style }
               objs = [curve]
+
+initImg n config = (objs, [], sizeFuncs n)
+        where pth = fromMaybe "http://www.penrose.ink/resources/hollow-pentagon.svg" $ lookupStr "path" config
+              setPath (IM im) pth = IM $ im { path = pth } -- TODO: refactor defaultX vs defX
+              objs = [setPath (defaultImg n) pth]
+
 
 
 sizeFuncs :: (Autofloat a) => Name -> [ConstrFnInfo a]
@@ -771,6 +786,10 @@ sampleCoord gen o = case o of
                     A a   -> (o_loc, gen2) -- TODO
                     LN a   -> (o_loc, gen2) -- TODO
                     CB c  -> (o, gen2) -- TODO: fall through
+                    IM im -> let (len', gen3) = randomR sideRange gen2
+                                 (wid', gen4) = randomR sideRange gen3
+                                  in
+                              (IM $ im { sizeXim = len', sizeYim = wid'}, gen4)
 
         where (x', gen1) = randomR sizeYange  gen
               (y', gen2) = randomR heightRange gen1
@@ -983,12 +1002,14 @@ zeroGrad (A' a) = A $ SolidArrow { startx = r2f $ startx' a, starty = r2f $ star
                             endx = r2f $ endx' a, endy = r2f $ endy' a, thickness = r2f $ thickness' a,
                             selsa = selsa' a, namesa = namesa' a, colorsa = colorsa' a }
 zeroGrad (LN' a) = LN $ Line { startx_l = r2f $ startx_l' a, starty_l = r2f $ starty_l' a,
-                            endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a, 
+                            endx_l = r2f $ endx_l' a, endy_l = r2f $ endy_l' a,
                             thickness_l = r2f $ thickness_l' a, name_l = name_l' a, color_l = color_l' a,
                             style_l = style_l' a }
 zeroGrad (CB' c) = CB $ CubicBezier { pathcb = path, colorcb = colorcb' c, namecb = namecb' c, stylecb = stylecb' c }
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb' c
           path      = map tuplify2 $ chunksOf 2 path_flat
+zeroGrad (IM' im) = IM $ Img { xim = r2f $ xim' im, yim = r2f $ yim' im, sizeXim = r2f $ sizeXim' im, sizeYim = r2f $ sizeYim' im,
+                           selim = selim' im, nameim = nameim' im, angim = angim' im , path = path' im}
 
 zeroGrads :: (Autofloat a) => [Obj' a] -> [Obj]
 zeroGrads = map zeroGrad
@@ -1017,6 +1038,9 @@ addGrad (LN a) = LN' $ Line' { startx_l' = r2f $ startx_l a, starty_l' = r2f $ s
 addGrad (CB c) = CB' $ CubicBezier' { pathcb' = path, colorcb' = colorcb c, namecb' = namecb c, stylecb' = stylecb c }
     where path_flat = concatMap (\(x, y) -> [r2f x, r2f y]) $ pathcb c
           path      = map tuplify2 $ chunksOf 2 path_flat
+addGrad (IM im) = IM' $ Img' { xim' = r2f $ xim im, yim' = r2f $ yim im, sizeXim' = r2f $ sizeXim im,
+                           sizeYim' = r2f $ sizeYim im, selim' = selim im, nameim' = nameim im,
+                           angim' = angim im , path' = path im}
 
 addGrads :: (Autofloat a) => [Obj] -> [Obj' a]
 addGrads = map addGrad

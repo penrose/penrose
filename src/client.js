@@ -308,7 +308,7 @@ $.getScript('snap.svg.js', function()
                 case 'R': // rectangle
 		// TODO fix this!
                     var sizeX = obj.sizeX;
-		    var sizeY = obj.sizeY;
+		            var sizeY = obj.sizeY;
                     var rect = s.rect(dx + obj.xr - sizeX/2, dy - obj.yr - sizeY/2, sizeX, sizeY);
 		// isn't this bottom left?
                     rect.data("name", obj.namer)
@@ -345,14 +345,16 @@ $.getScript('snap.svg.js', function()
                 break
                 //Case image
                 case 'IM':
-                    var sizeX = obj.sizeX
-                    var sizeY = obj.sizeY
-                    var xim = obj.width
-                    var yim = obj.height
-                    var path = "image/nimo.png"
-                    var image = s.image(path, xim, yim, sizeX, sizeY)
+                    var sizeX = obj.sizeXim
+                    var sizeY = obj.sizeYim
+                    var xim = obj.xim
+                    var yim = obj.yim
+                    var path = obj.path
+
+                    var image = s.image(path, dx + obj.xim - sizeX/2, dy - obj.yim - sizeY/2, sizeX, sizeY)
                     image.data("name", obj.nameim)
                     image.drag(move, start, stop)
+
                 break
 
             }
@@ -404,7 +406,7 @@ $.getScript('snap.svg.js', function()
             });
         };
         ws.onmessage = function(event) {
-            console.log(event.data)
+            // console.log(event.data)
             var now  = new Date().getTime()
             var diff = (now - lastTime);
             var obj = jQuery.parseJSON(event.data)
@@ -415,7 +417,7 @@ $.getScript('snap.svg.js', function()
             } else {
                 // if not the last frame, we refresh the frontend on a time interval
                 if(firstRun || diff > sampleInterval) {
-                    renderScene(ws, s, obj, firstRun)
+                   renderScene(ws, s, obj, firstRun)
                     lastTime = now
                     firstRun = false
                 }

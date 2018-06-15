@@ -193,7 +193,7 @@ _centerMap a s1@[x1, y1] s2@[x2, y2] [o1, o2] =
     (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 
 centerLine :: ObjFn
-centerLine [LN' l, P' p1, P' p2] _ = 
+centerLine [LN' l, P' p1, P' p2] _ =
            let p1_distsq = (startx_l' l - xp' p1)^2 + (starty_l' l - yp' p1)^2 in
            let p2_distsq = (endx_l' l - xp' p2)^2 + (endy_l' l - yp' p2)^2 in
            p1_distsq + p2_distsq
@@ -215,6 +215,7 @@ repel [A' c, L' d] _ = repel' (startx' c, starty' c) (xl' d, yl' d) +
         repel' (endx' c, endy' c) (xl' d, yl' d)
 repel [A' c, C' d] _ = repel' (startx' c, starty' c) (xc' d, yc' d) +
         repel' (endx' c, endy' c) (xc' d, yc' d)
+repel [IM' c, IM' d] _ = 1 / (distsq (xim' c, yim' c) (xim' d, yim' d) + epsd) - sizeXim' c - sizeXim' d --TODO Lily check this math is correct
 repel [a, b] _ = 1 / distsq (getX a, getY a) (getX b, getY b) + epsd
 -- helper for `repel`
 repel' x y = 1 / distsq x y + epsd
@@ -277,7 +278,7 @@ nearEndHoriz [LN' line, L' lab] _ = -- expects a horiz line
             distsq (xl' lab, yl' lab) (fst leftpt + xoffset, snd leftpt)
 
 nearHead :: ObjFn
-nearHead [A' arr, L' lab] [xoff, yoff] = 
+nearHead [A' arr, L' lab] [xoff, yoff] =
          let end = (endx' arr, endy' arr) in -- arrowhead
          let offset = (xoff, yoff) in
          distsq (xl' lab, yl' lab) (end `plus2` offset)
@@ -344,6 +345,8 @@ maxSize [S' s] _ = side' s - limit  / 3
 maxSize [R' r] _ = let max_side = max (sizeX' r) (sizeY' r) in
                    max_side - limit  / 3
 maxSize [E' e] _ = max (ry' e) (rx' e) - limit  / 3
+maxSize [IM' im] _ = let max_side = max (sizeXim' im) (sizeYim' im) in
+                   max_side - limit  / 3
 
 at :: ConstrFn
 at [o] [x, y] = (getX o - x)^2 + (getY o - y)^2
@@ -354,6 +357,8 @@ minSize [S' s] _ = 20 - side' s
 minSize [R' r] _ = let min_side = min (sizeX' r) (sizeY' r) in
                    20 - min_side
 minSize [E' e] _ = 20 - min (ry' e) (rx' e)
+minSize [IM' im] _ = let min_side = min (sizeXim' im) (sizeYim' im) in
+                   20 - min_side
 
 smallerThan  :: ConstrFn
 smallerThan [C' inc, C' outc] _ =  (r' inc) - (r' outc) - 0.4 * r' outc -- TODO: taking this as a parameter?
