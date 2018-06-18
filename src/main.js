@@ -218,7 +218,7 @@ function main() {
     }
 } // end of main function
 
-// Main function
+// Main function invokation
 $(document).ready(function () {
     $.getScript('snap.svg.js', main);
 });

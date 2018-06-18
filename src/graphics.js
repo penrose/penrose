@@ -1,40 +1,59 @@
-// Handlers for dragging events
-var move = function(dx, dy) {
-    this.attr({
-        transform: this.data('origTransform') + (this.data('origTransform') ? "T" : "t") + [dx, dy]
-    });
-    // Increment distance traveled
-    this.data("ox", +dx );
-    this.data("oy", +dy );
-    // console.log(dx + " " + dy)
-}
-
-var start = function(dx, dy) {
-    this.data('origTransform', this.transform().local );
-    this.data("ox", 0);
-    this.data("oy", 0);
-    this.attr({opacity: 0.5});
-}
-var stop = function() {
-    // console.log('finished dragging');
-    // console.log('distance: ' + this.data("ox") + " " + this.data("oy"));
-    this.attr({opacity: 1});
-    var dict = { "tag" : "Drag",
-    "contents" : { "name" : this.data("name"),
-    "xm" : this.data("ox"),
-    "ym" : this.data("oy")} }
-    var json = JSON.stringify(dict)
-    // console.log(json)
-    ws.send(json)
-}
-
-
 var Render = (function(){
+    /**
+     * handler for dragging event, called in the middle of dragging event
+     * @param  {float} dx movement along x axis
+     * @param  {float} dy movement along y axis
+     */
+    var move = function(dx, dy) {
+        this.attr({
+            transform: this.data('origTransform') + (this.data('origTransform') ? "T" : "t") + [dx, dy]
+        });
+        // Increment distance traveled
+        this.data("ox", +dx );
+        this.data("oy", +dy );
+        // console.log(dx + " " + dy)
+    }
+
+    /**
+     * handler for dragging event, called at the start of dragging event
+     * @param  {float} dx NOT USED
+     * @param  {float} dy NOT USED
+     */
+    var start = function(dx, dy) {
+        this.data('origTransform', this.transform().local );
+        this.data("ox", 0);
+        this.data("oy", 0);
+        this.attr({opacity: 0.5});
+    }
+
+    /**
+     * handler for dragging event, called at the end of dragging event
+     * @param  {float} dx NOT USED
+     * @param  {float} dy NOT USED
+     */
+    var stop = function() {
+        if(DEBUG) {
+            console.log('finished dragging: ');
+            console.log('distance: ' + this.data("ox") + " " + this.data("oy"));
+        }
+        this.attr({opacity: 1});
+        var dict = { "tag" : "Drag",
+        "contents" : { "name" : this.data("name"),
+        "xm" : this.data("ox"),
+        "ym" : this.data("oy")} }
+        var json = JSON.stringify(dict)
+        if(DEBUG) {
+            console.log("Updating dragging event to server: ")
+            console.log(json)
+        }
+        ws.send(json)
+    }
     /*
      * Given center point, radius, and angels return an arc path
      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
      * (Added by Dor)
      * Contaikns only the arc
+     * FIXME: refactor
      */
      function describeArc(x, y, radius, startAngle, endAngle) {
         var start = polarToCartesian(x, y, radius, endAngle);
@@ -51,6 +70,7 @@ var Render = (function(){
      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
      * (Added by Dor)
      * Returns the full "pie wedge" path
+     * FIXME: refactor
      */
     function describeFullArc(x, y, radius, startAngle, endAngle) {
         var start = polarToCartesian(x, y, radius, endAngle);
@@ -69,6 +89,7 @@ var Render = (function(){
      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
      * (Added by Dor)
      * Contaikns only the arc
+     * FIXME: refactor
      */
     function describeArc(x, y, radius, startAngle, endAngle) {
         var start = polarToCartesian(x, y, radius, endAngle);
@@ -80,6 +101,9 @@ var Render = (function(){
         ].join(" ");
     }
 
+    /**
+     * FIXME: refactor
+     */
     function renderPoints(canvas, point_list, dx, dy) {
         for(var i = 0; i < point_list.length; i++) {
             var xy = toScreen(point_list[i], dx, dy);
@@ -90,6 +114,13 @@ var Render = (function(){
         }
     }
 
+    /**
+     * Top-level function that renders a frame of Penrose diagram
+     * @param       {WebSocket} ws    WebSocket connection
+     * @param       {Snap} s          Snap.svg canvas
+     * @param       {JSON} data       Scene data from Haskell server
+     * @param       {Boolean} firstrun flag indicating whether is this the first frame
+     */
     function _renderScene(ws, s, data, firstrun) {
         s.clear()
         // NOTE: just using clientWidth/Height does not work on Firefox
@@ -103,13 +134,16 @@ var Render = (function(){
             var obj = record.contents
             switch(record.tag) {
                 case 'C' : _renderCircle(s, obj); break
+                case 'E' : _renderEllipse(s, obj); break
                 case 'L' : _renderLabel (s, obj, firstrun); break
                 case 'P' : _renderPoint (s, obj); break
                 case 'R' : _renderRectangle(s, obj); break
                 case 'S' : _renderSquare(s, obj); break
                 case 'A' : _renderArrow (s, obj); break
+                case 'AR': _renderAngleMark(s, obj); break
                 case 'CB': _renderCurve (s, obj); break
                 case 'LN': _renderLine  (s, obj); break
+                case 'PA': _renderParallelogram(s, obj); break
             }
         }
         // Send the bbox information to the server
@@ -135,6 +169,23 @@ var Render = (function(){
             "fill-opacity": color.a,
         });
         circ.drag(move, start, stop)
+    }
+
+    /**
+     * Renders an ellipse on the canvas
+     * @param       {Snap} s  Snap.svg global object
+     * @param       {JSON} obj JSON object from Haskell server
+     */
+    function _renderEllipse(s, obj) {
+        [x, y] = Utils.scr([obj.xe, obj.ye])
+        var ellip = s.ellipse(x, y, obj.rx, obj.ry);
+        ellip.data("name", obj.namee)
+        var color = obj.colore
+        ellip.attr({
+            fill: Utils.hex(color.r, color.g, color.b),
+            "fill-opacity": color.a,
+        });
+        ellip.drag(move, start, stop)
     }
 
     /**
@@ -224,12 +275,12 @@ var Render = (function(){
         curve.drag(move, start, stop)
         // DEBUG: showing control points and poly line
         if (DEBUG) {
-            var polyLine = s.polyline(allToScreen(obj.pathcb, dx, dy));
+            var polyLine = s.polyline(allToScreen(obj.pathcb));
             var controlPts = renderPoints(s, obj.pathcb, dx, dy);
             polyLine.attr({
                 fill: "transparent",
                 strokeWidth: 5,
-                stroke: rgbToHex(color.r, color.g, color.b),
+                stroke: Utils.hex(color.r, color.g, color.b),
                 strokeDasharray: "10"
             });
         }
@@ -262,7 +313,7 @@ var Render = (function(){
             line = s.path(describeArc(len/2-2.4*t,0,len/2,-90,90)).transform(myMatrix.toTransformString())
             line.attr({
                 "fill-opacity" : 0,
-                stroke: rgbToHex(color.r, color.g, color.b),
+                stroke: Utils.hex(color.r, color.g, color.b),
                 strokeWidth: 2
             })
         }
@@ -274,13 +325,13 @@ var Render = (function(){
             .transform(myMatrix.toTransformString())
             tail1.attr({
                 "fill-opacity" : 0,
-                stroke: rgbToHex(color.r, color.g, color.b),
+                stroke: Utils.hex(color.r, color.g, color.b),
                 strokeWidth: 2
             })
             var head1 = s.path(toPathString([[(len-(5*t)),(-(4*t))],[len-(5*t),(4*t)]],0,0)).transform(myMatrix.toTransformString())
             head1.attr({
                 "fill-opacity" : 0,
-                stroke: rgbToHex(color.r, color.g, color.b),
+                stroke: Utils.hex(color.r, color.g, color.b),
                 strokeWidth: 2
             })
             var g1 = s.g(head1, tail1)
@@ -336,6 +387,130 @@ var Render = (function(){
         curve.drag(move, start, stop)
     }
 
+    /**
+     * Renders an Angle Mark on the canvas
+     * @param       {Snap} s  Snap.svg global object
+     * @param       {JSON} obj JSON object from Haskell server
+     * FIXME: refactor
+     */
+     function _renderAngleMark(s, obj) {
+         var isRightar = obj.isRightar
+         var sizear = obj.sizear
+         var color = obj.colorar
+         var xar = obj.xar
+         var yar = obj.yar
+         var style = obj.stylear
+         var rotationar = obj.rotationar
+         if(isRightar == "true") {
+             //Draw PrepMark (for right angle)
+             var myMatrix = new Snap.Matrix();
+             // FIXME: this doesn't compile yet
+             // TODO: test these shapes
+             var origX = dx + xar, origY = dy + yar
+             myMatrix.translate(origX, origY);
+             myMatrix.rotate(rotationar, 0, 0);
+             var path = "M " + 0 + " " + (-sizear)+ " L "
+             + sizear + " " +  (-sizear) + " L "
+             + sizear + " " + yar
+             var p = s.path(path).transform(myMatrix.toTransformString())
+             p.attr({
+                 fill: Utils.hex(color.r, color.g, color.b),
+                 "fill-opacity": 0,
+                 stroke: Utils.hex(color.r, color.g, color.b),
+                 strokeWidth: 2
+             });
+             if(style == "line"){
+                 p.data("name", obj.namear)
+                 p.drag(move, start, stop)
+
+             } else if (style == "wedge") {
+
+                 var rectPpath = "M " + 0 + " " + (-sizear)+ " L "
+                 + sizear + " " +  (-sizear) + " L "
+                 + sizear + " " + 0 + " L " + 0 + " " + 0
+
+                 var f = s.path(rectPpath).transform(myMatrix.toTransformString());
+                 f.attr({
+                     fill: Utils.hex(0, 0, 205),
+                     "fill-opacity": 0.6,
+                 });
+                 var g = s.g(p,f)
+                 g.data("name", obj.namear)
+                 g.drag(move, start, stop)
+             }
+         }
+
+         if(isRightar == "false"){
+             //Draw arc (for regular angles)
+             var anglear = obj.anglear > 360.0 ? 360.0 - obj.anglear : obj.anglear
+             anglear = anglear < 0 ? 360 + anglear : anglear
+             var radiusar = obj.radiusar
+             var arcPath = describeArc(dx + xar, dy + yar, radiusar, rotationar,
+                 anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));
+                 var arc = s.path(arcPath);
+                 arc.attr({
+                     "fill-opacity": 0,
+                     stroke: Utils.hex(color.r, color.g, color.b),
+                     strokeWidth: 2
+                 });
+                 if(style == "line"){
+                     arc.data("name", obj.namear)
+                     arc.drag(move, start, stop)
+                 } else if (style == "wedge") {
+                     var pf = describeFullArc(dx + xar, dy + yar, radiusar, rotationar,
+                         anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));
+                         var f = s.path(pf);
+                         f.attr({
+                             fill: Utils.hex(0, 0, 205),
+                             "fill-opacity": 0.6,
+                         });
+                         var g = s.g(arc,f)
+                         g.data("name", obj.namear)
+                         g.drag(move, start, stop)
+                     }
+
+                 }
+     }
+
+    /**
+     * Renders a parallelogram on the canvas
+     * @param       {Snap} s  Snap.svg global object
+     * @param       {JSON} obj JSON object from Haskell server
+     * FIXME: refactor
+     */
+     function _renderParallelogram(s, obj) {
+         // TODO fix this!
+         [sx, sy] = Utils.scr([obj.xpa, obj.ypa])
+         var sizeX = obj.sizeXpa;
+         var sizeY = obj.sizeYpa;
+         var angle = obj.anglepa;
+         var rotation = obj.rotationpa
+         var path = ""
+         if(angle <= 90.0){
+             path = "M " + (-(sizeX/2) - sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2)) +  " L " +
+             (-(sizeX/2)) + " " + (sizeY/2) +  " L " +  (sizeX/2) + " " + (sizeY/2) +  " L " +
+             ((sizeX/2) - (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
+         }
+         else{
+             path = "M " + (-(sizeX/2)) + " " + (sizeY/2) +  " L " +
+             (sizeX/2) + " " + (sizeY/2) +  " L " + ((sizeX/2) + sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2))
+             +  " L " + (-(sizeX/2) + (sizeY/getTanFromDegrees(angle))) + " " + (-(sizeY/2))
+         }
+
+         var myMatrix = new Snap.Matrix();
+         myMatrix.translate(sx, sy);
+         myMatrix.rotate(rotation, 0, 0);
+         var parallelogram = s.path(path).transform(myMatrix.toTransformString())
+         parallelogram.data("name", obj.namepa)
+         var color = obj.colorpa;
+         parallelogram.attr({
+             fill: Utils.hex(color.r, color.g, color.b),
+             "fill-opacity": color.a
+         });
+         parallelogram.drag(move, start, stop)
+     }
+
+
 
     // helper method that draws bbox around an object
     function _renderBoundingBox(s, obj) {
@@ -359,7 +534,6 @@ var Render = (function(){
             stroke: "#000",
             strokeWidth: 1
         })
-        // circ.drag()
     }
 
     return {
