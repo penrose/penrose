@@ -280,17 +280,17 @@ instance Named Pt where
 instance ToJSON Pt
 instance FromJSON Pt
 
-data Obj = S Square
-         | R Rect
-         | PA Parallelogram
+data Obj = A SolidArrow
          | C Circ
+         | AR Arc
+         | CB CubicBezier
          | E Ellipse
          | L Label
-         | P Pt
-         | A SolidArrow
-         | CB CubicBezier
          | LN Line
-         | AR Arc
+         | P Pt
+         | PA Parallelogram
+         | R Rect
+         | S Square
          deriving (Eq, Show, Generic)
 
 instance ToJSON Obj
