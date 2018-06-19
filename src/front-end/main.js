@@ -5,10 +5,13 @@
  */
 
 var DEBUG           = false
+// var DEBUG           = true
 var CANVAS_WIDTH    = 800
 var CANVAS_HEIGHT   = 700
 var SAMPLE_INTERVAL = 30
 var socketAddress   = 'ws://localhost:9160/'
+
+var label_svgs = {}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Modules
@@ -198,19 +201,27 @@ function main() {
             ws.send(json)
         });
     };
-    ws.onmessage = function(event) {
+    ws.onmessage = async function(event) {
         //console.log(event.data)
         var now  = new Date().getTime();
         var diff = (now - lastTime);
-        var obj = jQuery.parseJSON(event.data);
+        var json = jQuery.parseJSON(event.data);
 
         // the server only sends `Frame` type data for the __last__ frame
-        if(obj.flag == "final") {
-            Render.scene(ws, s, obj.objs, firstRun);
+        if(json.flag == "final") {
+            Render.scene(ws, s, json.objs, label_svgs, firstRun);
         } else {
+            var objs = json
             // if not the last frame, we refresh the frontend on a time interval
+            if(firstRun) {
+                label_svgs = await Render.collectLabels(objs)
+                if(DEBUG) {
+                    console.log("Generated labels:")
+                    console.log(label_svgs)
+                }
+            }
             if(firstRun || diff > SAMPLE_INTERVAL) {
-                Render.scene(ws, s, obj, firstRun);
+                Render.scene(ws, s, objs, label_svgs, firstRun);
                 lastTime = now;
                 firstRun = false;
             }

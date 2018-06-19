@@ -1,4 +1,5 @@
 Set A
+Set $f^{-1}(x)$
 Set B
 Set C
 Set D
@@ -14,9 +15,3 @@ IsSubset(G,C)
 NonIntersect(E,D)
 NonIntersect(F,G)
 NonIntersect(B,C)
-
---Point x
---Empty(x)
-
---Map2(Set,Set) f
---Surjection(f)

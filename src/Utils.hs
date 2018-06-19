@@ -92,10 +92,10 @@ compose2 = (.) . (.)
 
 -- | Define ternary expressions in Haskell
 data Cond a = a :? a
- 
+
 infixl 0 ?
 infixl 1 :?
- 
+
 (?) :: Bool -> Cond a -> a
 True  ? (x :? _) = x
 False ? (_ :? y) = y
@@ -128,16 +128,21 @@ rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
+labelrws = ["Label", "AutoLabel", "NoLabel"]
 dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
 identifier :: Parser String
 identifier = (lexeme . try) (p >>= check)
   where
-    p       = (:) <$> letterChar <*> many alphaNumChar
+    -- p       = (:) <$> letterChar <*> many alphaNumChar
+    p       = ((:) <$> letterChar <*> many alphaNumChar) <|> texExpr
     check x = if x `elem` rws
                 then fail $ "keyword " ++ show x ++ " cannot be an identifier"
                 else return x
+
+texExpr :: Parser String
+texExpr = dollar >> manyTill asciiChar dollar
 
 -- | 'lineComment' and 'blockComment' are the two styles of commenting in Penrose. Line comments start with @--@. Block comments are wrapped by @/*@ and @*/@.
 lineComment, blockComment :: Parser ()
@@ -179,7 +184,11 @@ arrow = void (symbol "->")
 comma = void (symbol ",")
 dot = void (symbol ".")
 eq = void (symbol "=")
+dollar = void (symbol "$")
 
+
+dollars :: Parser a -> Parser a
+dollars = between (symbol "$") (symbol "$")
 
 braces :: Parser a -> Parser a
 braces = between (symbol "{") (symbol "}")

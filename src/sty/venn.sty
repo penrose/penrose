@@ -13,6 +13,12 @@ NonIntersect x y {
     constraint nonOverlapping(x, y)
 }
 
+Subset x y {
+    constraint contains(y, x)
+    constraint smallerThan(x, y)
+    constraint outsideOf(y.shape.label, x)
+}
+
 IsSubset x y {
     constraint contains(y, x)
     constraint smallerThan(x, y)

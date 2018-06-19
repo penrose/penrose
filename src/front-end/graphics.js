@@ -1,4 +1,29 @@
 var Render = (function(){
+
+    /**
+     * [tex2svg description]
+     * @param  {[type]}   texstring [description]
+     * @param  {[type]}   id        to be used to insert into dictionary
+     * @param  {Function} callback  [description]
+     * @return {[type]}             [description]
+     */
+    function tex2svg(texstring, id) {
+        return new Promise(function(resolve, reject){
+            var input = texstring;
+            var wrapper = document.createElement("div");
+            wrapper.innerHTML = input;
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, wrapper]);
+            MathJax.Hub.Queue(function() {
+                var mjOut = wrapper.getElementsByTagName("svg")[0];
+                mjOut.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                svg = mjOut.outerHTML;
+                // FIXME: delete wrapper?
+                resolve({ "name": id, "svg": svg });
+                // TODO: reject??
+            });
+        })
+    }
+
     /**
      * handler for dragging event, called in the middle of dragging event
      * @param  {float} dx movement along x axis
@@ -121,7 +146,7 @@ var Render = (function(){
      * @param       {JSON} data       Scene data from Haskell server
      * @param       {Boolean} firstrun flag indicating whether is this the first frame
      */
-    function _renderScene(ws, s, data, firstrun) {
+    function _renderScene(ws, s, data, labels, firstrun) {
         s.clear()
         // NOTE: just using clientWidth/Height does not work on Firefox
         // see https://stackoverflow.com/questions/13122790/how-to-get-svg-element-dimensions-in-firefox
@@ -135,7 +160,7 @@ var Render = (function(){
             switch(record.tag) {
                 case 'C' : _renderCircle(s, obj); break
                 case 'E' : _renderEllipse(s, obj); break
-                case 'L' : _renderLabel (s, obj, firstrun); break
+                case 'L' : _renderLabel (s, obj, labels,labels, firstrun); break
                 case 'P' : _renderPoint (s, obj); break
                 case 'R' : _renderRectangle(s, obj); break
                 case 'S' : _renderSquare(s, obj); break
@@ -192,9 +217,40 @@ var Render = (function(){
      * Renders a label on the canvas
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
+     * @param       {JSON} lebels TODO
      * @param       {boolean} firstrun if this is the first run of the server, send back the bbox info
      */
-    function _renderLabel(s, obj, firstrun) {
+    function _renderLabel(s, obj, labels, firstrun) {
+        [x, y] = Utils.scr([obj.xl, obj.yl])
+        if(DEBUG)
+            s.circle(x, y, 2)
+        var e = Snap.parse(labels[obj.namel])
+        t = s.g()
+        t.append(e)
+        t.data("name", obj.namel)
+        t.attr({
+            "font-style": "italic",
+            "font-family": "Palatino"
+        });
+        var bbox = t.getBBox()
+        var mat = new Snap.Matrix()
+        // Fix the center of labels
+        mat.translate(x, y)
+        mat.translate(-bbox.width/2, -bbox.height/2)
+        t.transform(mat.toTransformString())
+        t.drag(move, start, stop)
+        if(firstrun) {
+            obj.wl = bbox.width
+            obj.hl = bbox.height
+        }
+        if(DEBUG) {
+            _renderBoundingBox(s, t)
+            //  _renderBoundingCircle(s, t)
+        }
+    }
+
+    // DEPRECATED
+    function _renderLabel_OLD(s, obj, firstrun) {
         [x, y] = Utils.scr([obj.xl, obj.yl])
         var t = s.text(x, y, [obj.textl]);
         t.data("name", obj.namel)
@@ -205,15 +261,17 @@ var Render = (function(){
         var bbox = t.getBBox()
         var mat = new Snap.Matrix()
         // Fix the center of labels
-        mat.translate(bbox.width / -2, bbox.height / 2)
+        mat.translate(-bbox.width/2, bbox.height/2)
         t.transform(mat.toTransformString())
         t.drag(move, start, stop)
         if(firstrun) {
             obj.wl = bbox.width
             obj.hl = bbox.height
         }
-        if(DEBUG) _renderBoundingBox(s, t)
-        if(DEBUG) _renderBoundingCircle(s, t)
+        if(DEBUG) {
+            _renderBoundingBox(s, t)
+            _renderBoundingCircle(s, t)
+        }
     }
 
     /**
@@ -536,7 +594,32 @@ var Render = (function(){
         })
     }
 
+    /**
+     * TODO [_collectLabels description]
+     * @param       {[type]} data [description]
+     * @constructor
+     * @return      {[type]}      [description]
+     */
+    async function _collectLabels(data) {
+        var res = {}
+        var promises = []
+        for (var key in data) {
+            var record = data[key]
+            var obj = record.contents
+            if(record.tag == 'L') {
+                var label = await tex2svg("$" + obj.textl + "$", obj.namel)
+                // var parser = new DOMParser();
+                // var doc = parser.parseFromString(svg, "image/svg+xml");
+                // document.getElementsByTagName('body')[0].appendChild(doc.documentElement);
+                res[label.name] = label.svg
+            }
+        }
+        return res
+    }
+
+
     return {
-        scene: _renderScene
+        scene: _renderScene,
+        collectLabels: _collectLabels
     };
 })(); // end of Render namespace

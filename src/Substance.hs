@@ -70,7 +70,13 @@ instance Show Predicate where
 data SubStmt = Decl T Var
              | Bind Var Expr
              | ApplyP Predicate
+             | LabelDecl String String
+             | AutoLabel LabelOption
+             | NoLabel   [String]
              deriving (Show, Eq, Typeable)
+
+data LabelOption = Default | None | IDs [String]
+    deriving (Show, Eq, Typeable)
 
 -- | Program is a sequence of statements
 type SubProg = [SubStmt]
@@ -140,10 +146,10 @@ predicateParser = do
   n    <- predicateNameParser
   args <- parens (predicateArgParser `sepBy1` comma)
   pos  <- getPosition
-  return (Predicate { predicateName = n, predicateArgs = args, predicatePos = pos })
+  return Predicate { predicateName = n, predicateArgs = args, predicatePos = pos }
 
-subStmt, decl, bind, applyP :: Parser SubStmt
-subStmt = try bind <|> try decl <|> applyP
+subStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
+subStmt = labelDecl <|> autoLabel <|> noLabel <|> try bind <|> try decl <|> try applyP
 decl = do
   t' <- tParser
   v' <- varParser
@@ -156,6 +162,12 @@ bind = do
 applyP = do
   p <- predicateParser
   return (ApplyP p)
+
+labelDecl = rword "Label" >> LabelDecl <$> identifier <*> texExpr
+noLabel   = rword "NoLabel" >> NoLabel <$> identifier `sepBy1` comma
+autoLabel = rword "AutoLabel" >> AutoLabel <$> (defaultLabels <|> idList)
+    where idList        = IDs <$> identifier `sepBy1` comma
+          defaultLabels = Default <$ rword "All"
 
 ----------------------------------------- Substance Typechecker ---------------------------
 
@@ -184,11 +196,11 @@ checkSubStmt varEnv  (Decl t (VarConst n)) = let env  = checkT varEnv t
 
 checkSubStmt varEnv  (Bind v e) = let (vstr, vt) = checkVarE varEnv v
                                       (estr, et) = checkExpression varEnv e -- TODO: Check lazy evaluation on et
-                                  in if (isJust vt && isJust et && vt /= et)
-                                     then varEnv { errors = (errors varEnv) ++ vstr ++ estr ++ "Expression of type "
-                                                   ++ (show et)
-                                                   ++ " assigned to variable of type " ++ (show vt) ++ "\n"}
-                                     else varEnv { errors = (errors varEnv) ++ vstr ++ estr }
+                                  in if isJust vt && isJust et && vt /= et
+                                     then varEnv { errors = errors varEnv ++ vstr ++ estr ++ "Expression of type "
+                                                   ++ show et
+                                                   ++ " assigned to variable of type " ++ show vt ++ "\n"}
+                                     else varEnv { errors = errors varEnv ++ vstr ++ estr }
 
 checkSubStmt varEnv  (ApplyP p) = checkPredicate varEnv p
 
@@ -257,7 +269,7 @@ isVarPredicate :: PredArg -> Expr
 isVarPredicate (PP p) = error "Mixed predicate types!"
 isVarPredicate (PE p) = p
 
--- Helper function to determine if predicate arguments are all predicates. 
+-- Helper function to determine if predicate arguments are all predicates.
 -- It will stop execution if a supplied predicate argument to the function is not a predicate.
 isRecursedPredicate :: PredArg -> Predicate
 isRecursedPredicate (PP p) = p
@@ -288,8 +300,8 @@ checkVarE varEnv v = case M.lookup v (varMap varEnv) of
 
 --  Looks up the operator or value-constructor in the context. If it cannot be found in the context,
 -- then a tuple is returned of a non-empty error string warning of this problem and a “null” type.
--- Otherwise, a tuple of an error string and Maybe type is returned from calls to checkVarConsInEnv and checkFuncInEnv 
--- depending on if the Func supplied to this function is an value constructor or operator. 
+-- Otherwise, a tuple of an error string and Maybe type is returned from calls to checkVarConsInEnv and checkFuncInEnv
+-- depending on if the Func supplied to this function is an value constructor or operator.
 checkFunc :: VarEnv -> Func -> (String, Maybe T)
 checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (valConstructors varEnv)
                                      fEnv  = M.lookup f (operators varEnv)
@@ -300,7 +312,7 @@ checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (valConstructors varEnv)
                                     else checkFuncInEnv varEnv (Func f args) (fromJust fEnv)
 
 -- Operates very similarly to checkVarPred described above.
--- The only differences are that this function operates on operators (so checking of arguments to be expressions is 
+-- The only differences are that this function operates on operators (so checking of arguments to be expressions is
 -- unnecessary due to operator parsing) and returns a tuple of an error string and Maybe type.
 -- If the substitution “sigma” is generate, then if it is empty, a tuple of an empty error string and the formal
 -- return type of the operator is returned, otherwise (if it is not empty) a tuple of an empty error string and the
@@ -341,7 +353,7 @@ checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
 -- type which exists in “sigma”. Types that are type constructors are mapped to the same type but with their arguments
 -- substituted by “sigma” using applySubstitutionHelper.
 applySubst :: M.Map Y Arg -> T -> T
-applySubst sigma (TTypeVar vt) = 
+applySubst sigma (TTypeVar vt) =
            case sigma M.! (TypeVarY vt) of
            AVar v -> error "Type var being mapped to variable in subst sigma, error in the TypeChecker!"
            AT t   -> t
@@ -398,7 +410,7 @@ substHelper varEnv sigma ((KT aT), (Ktype fT)) =
 
 
 -- This helper function makes sure an argument type’s argument matches a formal type’s argument where they should match,
--- otherwise a runtime error is generated. In places where they do not need to match exactly 
+-- otherwise a runtime error is generated. In places where they do not need to match exactly
 -- (where type and regular variables exist in the formal type’s argument), a substitution entry is generated and inserted
 -- into the substitution map “sigma” using substitutionInsert. Note that substitutionHelper is called recursively to handle
 -- substitutions for an argument type’s argument and corresponding formal type’s argument that are both types themselves.
