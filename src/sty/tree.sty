@@ -8,7 +8,7 @@ Set x {
 
 IsSubset x y {
     objective above(y, x)
-    objective sameX(x, y)
+    objective equal(x.shape.x, y.shape.y)
     shape =  Arrow {
         start = x.shape
         end   = y.shape

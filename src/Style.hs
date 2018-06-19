@@ -502,7 +502,7 @@ lookupVarMap s varMap = case M.lookup s varMap of
 procExpr :: (Autofloat a) => VarMap -> Expr -> TypeIn a
 procExpr ctx (Id subObjPattern) = TAllShapes $ lookupVarMap subObjPattern ctx
 procExpr _ (StringLit s) = TStr s
-procExpr _ (IntLit i) = TNum $ r2f i -- TODO this shouldn't flatten ints for computations
+procExpr _ (IntLit i) = TNum $ r2f i
 procExpr _ (FloatLit i) = TNum $ r2f i
 procExpr ctx (CompArgs fname params) = TCall fname $ map (procExpr ctx) params
 -- in context [X ~> A], look up "X.yaxis", return "A yaxis"
@@ -511,14 +511,12 @@ procExpr ctx (BinOp Access (Id subObjPattern) (Id styShapeName)) =
     TShape $ uniqueShapeName subObjName styShapeName
 -- Shapes are given their unique names (for lookup) in Runtime (so far)
 -- in context [X ~> A], look up "X.yaxis.label", return "A yaxis label"
--- TODO: pending discussion on `A.shape.label` vs `A.label`
 procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id "label")) =
     let subObjName = lookupVarMap subObjPattern ctx in
     TShape $ labelName $ uniqueShapeName subObjName styShapeName
 procExpr ctx (BinOp Access (BinOp Access (Id subObjPattern) (Id styShapeName)) (Id propertyName)) =
     let subObjName = lookupVarMap subObjPattern ctx in
     TProp (uniqueShapeName subObjName styShapeName) propertyName
--- COMBAK: figure out the correct ordering of functions
 -- disallow deeper binops (e.g. "X.yaxis.zaxis")
 -- procExpr ctx r@(BinOp Access (BinOp Access _ _) _) = error ("nested non-label accesses not allowed:\n" ++ show r)
 procExpr ctx r@(BinOp Access _ _) = error ("incorrect binop access pattern:\n" ++ show r)
@@ -528,7 +526,7 @@ procExpr v e  = error ("expr: argument unsupported! v: " ++ show v ++ " | e: " +
 -- Unsupported: Cons, and Comp seems to be (hackily) handled in procAssign
 
 collectProperties :: (Autofloat a) => VarMap -> Properties a -> Stmt -> Properties a
--- COMBAK: provide special types for auto and noshape
+-- TODO: provide special types for auto and noshape
 collectProperties _ dict (Assign s e@(Cons NoShape _)) = M.insert s (TStr "None") dict
 collectProperties _ dict (Assign s e@(Cons Auto _)) = M.insert s (TStr "Auto") dict
 collectProperties ctx dict (Assign s e) = M.insert s (procExpr ctx e) dict

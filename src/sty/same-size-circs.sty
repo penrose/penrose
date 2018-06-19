@@ -1,0 +1,17 @@
+/*
+Set x {
+    shape = Circle { }
+    constraint contains(x, x.shape.label)
+}
+*/
+
+
+Set `A` {
+    shape = Circle { }
+    constraint contains(A, B.shape.label)
+}
+
+Set `B` {
+    shape = Circle { radius = A.shape.radius }
+    constraint contains(B, B.shape.label)
+}

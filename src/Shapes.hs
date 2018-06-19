@@ -828,7 +828,7 @@ get "starty" (A' o)        = TNum $ starty' o
 get "start" (A' o)         = TPt (startx' o, starty' o)
 get "endx" (A' o)          = TNum $ endx' o
 get "endy" (A' o)          = TNum $ endy' o
-get "end" (A' o)         = TPt (endx' o, endy' o)
+get "end" (A' o)           = TPt (endx' o, endy' o)
 get "thickness" (A' o)     = TNum $ thickness' o
 get "color" (A' o)         = TColor $ colorsa' o
 get "style" (A' o)         = TStyle $ stylesa' o
@@ -845,6 +845,8 @@ get "color" (LN' o)         = TColor $ color_l' o
 get "path" (LN' o)          = TPath [(startx_l' o, starty_l' o), (endx_l' o, endy_l' o)]
 
 -- Labels
+get "x" (L' o)             = TNum $ xl' o
+get "y" (L' o)             = TNum $ yl' o
 get "location" (L' o)      = TPt (xl' o, yl' o)
 
 get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n"
