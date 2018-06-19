@@ -244,14 +244,14 @@ data PredicateEnv = Pred1 Predicate1
                   | Pred2 Predicate2
                   deriving (Show, Eq, Typeable)
 
-data Predicate1 = Predicate1 { namepred1 :: String,
+data Predicate1 = Prd1 { namepred1 :: String,
                                ylspred1  :: [Y],
                                kindspred1  :: [K],
                                tlspred1  :: [T],
                                ppred1    :: Prop}
                   deriving (Show, Eq, Typeable)
 
-data Predicate2 = Predicate2 { namepred2 :: String,
+data Predicate2 = Prd2 { namepred2 :: String,
                                plspred2  :: [Prop],
                                ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)

@@ -1,0 +1,5 @@
+VectorSpace U
+Vector(U) A
+Vector(U) B
+--Neg(A)
+AddV(A,B)

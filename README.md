@@ -1,4 +1,4 @@
-# Penrose
+# Penrose [![Build Status](https://travis-ci.org/penrose/penrose.svg?branch=master)](https://travis-ci.org/penrose/penrose)
 
 * See [the site](http://www.penrose.ink/) for more information and examples. 
 * See the [wiki](https://github.com/penrose/penrose/wiki) for more system-specific information on building, running, testing, and debugging the system. 

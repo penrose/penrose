@@ -88,6 +88,18 @@ halfDiagonal side = 0.5 * dist (0, 0) (side, side)
 compose2 :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
 
+
+
+-- | Define ternary expressions in Haskell
+data Cond a = a :? a
+ 
+infixl 0 ?
+infixl 1 :?
+ 
+(?) :: Bool -> Cond a -> a
+True  ? (x :? _) = x
+False ? (_ :? y) = y
+
 --------------------------------------------------------------------------------
 -- Internal naming conventions
 

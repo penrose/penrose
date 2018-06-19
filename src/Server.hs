@@ -120,9 +120,9 @@ loop conn s
 
 processCommand :: WS.Connection -> R.State -> IO ()
 processCommand conn s = do
-    -- putStrLn "Receiving Commands"
+    --putStrLn "Receiving Commands"
     msg_json <- WS.receiveData conn
-    -- print msg_json
+    --print msg_json
     case decode msg_json of
         Just e -> case e of
             Cmd (Command cmd)  -> executeCommand cmd conn s

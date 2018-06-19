@@ -1,9 +1,0 @@
-Set E
-Set P
-Set L
-Point A
-Point G
-Point Y
-NotIn A E
-Intersect E P
-Intersect E L

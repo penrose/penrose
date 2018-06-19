@@ -1,0 +1,56 @@
+global {
+    constraint at(origin, 0, 0)
+    constraint at(horiz, 200, 0)
+    constraint at(vert, 0, 200)
+    constraint at(rand, 0, -200)
+    constraint at(A.shape, 0, 0)
+    constraint at(A.angleMark, 0, 0)
+    constraint at(C.angleMark, 0, 0)
+    constraint at(B.shape, 0, 0)
+    constraint at(C.shape, 0, 0)
+    objective horizontal(A.shape)
+    objective upright(B.shape)
+}
+
+Set `A` {
+  shape = Arrow {
+    start = origin
+    end   = horiz
+    text = None
+  }
+
+  angleMark = Arc {
+    isRight = "true"
+    style = "wedge"
+    text = None
+  }
+}
+
+Set `B` {
+  shape = Arrow {
+    start = origin
+    end   = vert
+    text = None
+  }
+}
+
+Set `C` {
+  shape = Arrow {
+    start = origin
+    end   = rand
+    text = None
+  }
+
+    angleMark = Arc {
+    isRight = "true"
+    style = "wedge"
+    text = None
+    rotation = 90.0
+  }
+}
+
+Point p {
+    shape = Dot {
+        text = None
+    }
+}
