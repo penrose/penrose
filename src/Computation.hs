@@ -8,12 +8,11 @@
 module Computation where
 import           Data.Data
 import           Data.Dynamic
-import           Data.List                          (sort)
+import           Data.List                          (nub, sort)
 import qualified Data.Map.Strict                    as M
 import           Data.Typeable
 import           Debug.Trace
 import           Functions
-import           Graphics.Gloss.Interface.Pure.Game
 import           Shapes
 import           System.Random
 import           System.Random.Shuffle
