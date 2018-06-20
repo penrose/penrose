@@ -107,9 +107,9 @@ loop conn s
     | R.optStatus (R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
-        putStrLn "Applying final computations"
         let objsComputed = computeN 5 (R.objs s) (R.comps s)
-        putStrLn $ "Final objs:\n" ++ show objsComputed
+        putStrLn "Final computations applied"
+        -- putStrLn $ "Final objs:\n" ++ show objsComputed
         wsSendJSON conn Frame { flag = "final", objs = objsComputed }
         processCommand conn s
     | R.autostep s = stepAndSend conn s

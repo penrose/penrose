@@ -295,12 +295,11 @@ parseDsll :: String -> String -> IO VarEnv
 parseDsll dsllFile dsllIn =
           case runParser dsllParser dsllFile dsllIn of
           Left err -> error (parseErrorPretty err)
-          Right xs -> do
-              putStrLn ("DSLL AST: \n")
-              putStrLn (show xs)
-              -- mapM_ print xs
+          Right prog -> do
+              putStrLn "DSLL AST: \n"
+              print prog
               divLine
-              let env = check xs
+              let env = check prog
               return env
 
 -- --------------------------------------- Test Driver -------------------------------------

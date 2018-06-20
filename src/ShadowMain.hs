@@ -39,51 +39,29 @@ shadowMain = do
 
     dsllEnv <- D.parseDsll dsllFile dsllIn
     divLine
-    putStrLn "Dsll Env program:\n"
-    putStrLn (show dsllEnv)
+    -- putStrLn "Dsll Env program:\n"
+    -- print dsllEnv
 
-    (objs, subEnv) <- C.parseSubstance subFile subIn dsllEnv
+    (subObjs, subEnv) <- C.parseSubstance subFile subIn dsllEnv
     divLine
-    putStrLn "Substance Env program:\n"
-    putStrLn (show subEnv)
-    -- case MP.runParser C.substanceParser subFile subIn of
-    --     Left err -> putStr $ MP.parseErrorPretty err
-    --     Right subParsed -> do
-    --         divLine
-    --         putStrLn "Parsed Substance program:\n"
-    --         mapM_ print subParsed
-    --         -- putStrLn $ C.subPrettyPrint' subParsed
-    --         divLine
-    --         let e = C.check subParsed
-    -- let subSep@(decls, constrs) = C.subSeparate $ C.subObjs e
-    let subSep@(decls, constrs) = C.subSeparate objs
-    mapM_ print decls
+    -- putStrLn "Substance Env program:\n"
+    -- print subEnv
+    -- let subSep@(decls, constrs) = C.subSeparate objs
+
+    styProg <- S.parseStyle styFile styIn
+    let initState = R.genInitState subObjs styProg
+    putStrLn "Synthesizing objects and objective functions"
+    -- let initState = compilerToRuntimeTypes intermediateRep
+    -- divLine
+    -- putStrLn "Initial state, optimization representation:\n"
+    -- putStrLn "TODO derive Show"
+    -- putStrLn $ show initState
     divLine
-    mapM_ print constrs
+    putStrLn "Visualizing Substance program:\n"
 
-    case MP.runParser S.styleParser styFile styIn of
-        Left err -> putStr $ MP.parseErrorPretty err
-        Right styParsed -> do
-            divLine
-            putStrLn "Parsed Style program:\n"
-            --    putStrLn $ C.styPrettyPrint styParsed
-            mapM_ print styParsed
-            divLine
-            -- let initState = R.genInitState (C.subSeparate subParsed) styParsed
-            let initState = R.genInitState subSep styParsed
-            putStrLn "Synthesizing objects and objective functions"
-            -- let initState = compilerToRuntimeTypes intermediateRep
-            -- divLine
-            -- putStrLn "Initial state, optimization representation:\n"
-            -- putStrLn "TODO derive Show"
-            -- putStrLn $ show initState
-
-            divLine
-            putStrLn "Visualizing Substance program:\n"
-
-            -- Starting serving penrose on the web
-            let (domain, port) = ("127.0.0.1", 9160) 
-            Server.servePenrose domain port initState
+    -- Starting serving penrose on the web
+    let (domain, port) = ("127.0.0.1", 9160)
+    Server.servePenrose domain port initState
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
@@ -97,21 +75,9 @@ mainRetInit subFile styFile dsllFile = do
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
     (objs, env) <- C.parseSubstance subFile subIn dsllEnv
-    let subSep@(decls, constrs) = C.subSeparate objs
-
-    case MP.runParser S.styleParser styFile styIn of
-        Left err -> do putStrLn $ MP.parseErrorPretty err
-                       return Nothing
-        Right styParsed -> do
-            -- divLine
-            -- putStrLn "Parsed Style program:\n"
-            -- mapM_ print styParsed
-            -- divLine
-            let initState = R.genInitState subSep styParsed
-            -- putStrLn "Synthesizing objects and objective functions"
-            -- divLine
-            -- putStrLn "Visualizing notation:\n"
-            return $ Just initState
+    styProg <- S.parseStyle styFile styIn
+    let initState = R.genInitState objs styProg 
+    return $ Just initState
 
 mainRetFinal :: R.State -> R.State
 mainRetFinal initState =

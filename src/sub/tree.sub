@@ -1,5 +1,4 @@
 Set A
-Set $f^{-1}(x)$
 Set B
 Set C
 Set D
@@ -15,3 +14,5 @@ IsSubset(G,C)
 NonIntersect(E,D)
 NonIntersect(F,G)
 NonIntersect(B,C)
+
+AutoLabel All

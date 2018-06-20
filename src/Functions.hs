@@ -347,7 +347,7 @@ contains [S' set, P' pt] _ =
 contains [E' set, P' pt] _ =
     dist (xp' pt, yp' pt) (xe' set, ye' set) - max (rx' set) (ry' set) * 0.9
 contains [C' set, L' label] _ =
-    let res = dist (xl' label, yl' label) (xc' set, yc' set) - 0.5 * r' set in
+    let res = dist (xl' label, yl' label) (xc' set, yc' set) - r' set + max (wl' label) (hl' label) in
     if res < 0 then 0 else res
 contains [S' set, L' label] _ =
     dist (xl' label, yl' label) (xs' set, ys' set) - side' set / 2 + wl' label

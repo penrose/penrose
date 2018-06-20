@@ -54,9 +54,9 @@ instance FromJSON CubicBezier
 
 -------
 data Line = Line {
-    startx_l           :: Float,
-    starty_l           :: Float,
-    thickness_l          :: Float,
+    startx_l         :: Float,
+    starty_l         :: Float,
+    thickness_l      :: Float,
     endx_l           :: Float,
     endy_l           :: Float,
     name_l           :: String,

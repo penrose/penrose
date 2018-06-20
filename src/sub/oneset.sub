@@ -1,7 +1,8 @@
 Set A
 Set B
-AutoLabel All
+
 AutoLabel A, B
-NoLabel A, B, C
+NoLabel A, B
+AutoLabel All
 Label A $\sum_i^n\frac{x^2}{10}$
-Label B $\LaTeX$
+Label B $\delta\ \textrm{hello hello}$

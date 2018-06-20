@@ -92,7 +92,7 @@ type Varying a = [a]
 
 -- make sure the unpacking matches the object packing in terms of number and order of parameters
 -- annotations are specified inline here. this is per type, not per value (i.e. all circles have the
--- same fixed parameters). but you could generalize it to per-value by adding or overriding 
+-- same fixed parameters). but you could generalize it to per-value by adding or overriding
 --annotations globally after the unpacking does not unpack names
 unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
@@ -257,11 +257,11 @@ mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
 
 computeOnObjs :: (Autofloat a) => [Obj' a] -> [ObjComp a] -> [Obj' a]
-computeOnObjs objs comps = mapVals $ foldl computeOn (dictOfObjs objs) comps
+computeOnObjs objs comps = mapVals $ foldl computeOn (dictOf objs) comps
 
 computeOnObjs_noGrad :: (Autofloat a) => [Obj] -> [ObjComp a] -> [Obj]
 computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
-                                 let objsComputed = mapVals $ foldl computeOn (dictOfObjs objsG) comps in
+                                 let objsComputed = mapVals $ foldl computeOn (dictOf objsG) comps in
                                  zeroGrads objsComputed
 
 -- | Apply a computation to the relevant object in the dictionary.
@@ -391,28 +391,18 @@ checkAuto objName labelText =  -- TODO: should this use labelSetting?
 
 shapeAndFn :: (Autofloat a) => S.StyDict a -> String ->
                                ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
-shapeAndFn dict subObjName =
-    case M.lookup subObjName dict of
-        -- COMBAK: check if this will cause errors when there are unmatched Substance objects
-        Nothing -> error ("Cannot find style info for " ++ subObjName)
-        Just spec  -> let config = {-TODO: remove:-} map (mkUniqueShapeName subObjName) (M.toList $ S.spShpMap spec) in
-                      let objs_and_functions = map getShape config in
-                      concat4 objs_and_functions
-                      -- example config:
-                      -- shape map: [("A",(Circle,fromList [("color",
-                      -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
-    where
-        mkUniqueShapeName name1 (name2, objInfo) = (uniqueShapeName name1 name2, objInfo)
-        concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
-        fst4 (a, _, _, _) = a
-        snd4 (_, a, _, _) = a
-        thd4 (_, _, a, _) = a
-        frth4 (_, _, _, a) = a
+shapeAndFn dict subObjName = case M.lookup subObjName dict of
+    Nothing   -> error ("Cannot find style info for " ++ subObjName)
+    Just spec ->
+        let names = map (uniqueShapeName subObjName) $ M.keys (S.spShpMap spec)
+            styobjs = M.elems (S.spShpMap spec)
+            labelText = S.spLabel spec
+        in concat4 $ map (\(n,o) -> getShape n labelText o) $ zip names styobjs
 
-getShape :: (Autofloat a) => (String, S.StyObj a) ->
+getShape :: (Autofloat a) => String -> Maybe String -> S.StyObj a ->
                              ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 
-getShape (oName, (objType, properties)) =
+getShape oName labelText (objType, properties) =
          -- We don't need the object type to typecheck the computation, because we have the object's name and
          -- it's stored as an Obj (can pattern-match)
          let (computations, properties_nocomps) = compsAndVars oName properties in
@@ -433,12 +423,11 @@ getShape (oName, (objType, properties)) =
 
          -- TODO factor out label logic?
          let labelRes = M.lookup labelTextWord properties in -- assuming one label per shape
-         let labelSet = labelSetting labelRes objType oName in
+         let labelSet = labelSetting labelRes objType labelText in
          case labelSet of
          -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
-         NoLabel -> res
-         Default labelText -> addObject [defaultLabel oName labelText] res -- distinction for debugging
-         Custom labelText -> addObject [defaultLabel oName labelText] res
+         Nothing    -> res
+         Just label -> addObject [defaultLabel oName label] res
 
          where tupAppend (a, b, c) d = (a, b, c, d)
                addObject l (a, b, c, d) = (a ++ l, b, c, d)
@@ -456,7 +445,6 @@ compsAndVars n props =
     where
         packComp :: Property -> TypeIn a -> ObjComp a
         packComp prop (TCall f args) = ObjComp { oName = n, oProp = prop, fnName = f, fnParams = args }
-        -- COMBAK: document `_get` properly
         packComp prop (TProp i p) = ObjComp { oName = n, oProp = prop, fnName = "_get", fnParams = [TStr p, TShape i]}
         packComp p e = error $ "packComp: there are only two types of computation - (1) computation function; (2) property access -- " ++ show p
 
@@ -466,8 +454,6 @@ isComp expr = case expr of
     TProp i p    -> True
     _            -> False
 
-data LabelSetting = NoLabel | Default Name | Custom Name
-
 -- | Reserved words or special demarcators in the system
 noneWord, autoWord, labelTextWord :: String
 noneWord = "None"
@@ -475,19 +461,16 @@ autoWord = "Auto"
 labelTextWord = "text"
 
 labelSetting :: (Autofloat a) =>
-    Maybe (TypeIn a) -> S.StyType -> Name -> LabelSetting
-labelSetting s_expr objType objName =
-             case objType of
-                  S.NoShape -> NoLabel
-                  S.Text -> NoLabel
-                  _ -> let subObjName = head $ nameParts objName in
-                        case s_expr of
-                          -- A real object with unspecified label -> autolabeled with Substance name
-                          Nothing -> Default subObjName
-                          Just (TStr "None") -> NoLabel
-                          Just (TStr "Auto") -> Default subObjName -- should this use autoWord?
-                          Just (TStr text) -> Custom text
-                          Just res -> error ("invalid label setting:\n" ++ show res)
+    Maybe (TypeIn a) -> S.StyType -> Maybe String -> Maybe String
+labelSetting s_expr objType labelText = case objType of
+    S.NoShape -> Nothing
+    S.Text    -> Nothing -- for shape = Text { }
+    _ -> case s_expr of
+            Nothing -> labelText -- TODO: should be Nothing?
+            Just (TStr "None") -> Nothing
+            Just (TStr "Auto") -> labelText
+            Just (TStr text)   -> Just text     -- overrides Substance labels
+            Just res -> error ("invalid label setting:\n" ++ show res)
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse, initLine ::
@@ -504,10 +487,10 @@ initSquare n config = ([defaultSquare n], [], sizeFuncs n)
 initArc n config = (objs, [],sizeFuncs n)
     where right = fromMaybe "true" $ lookupStr "isRight" config
           radius =  fromMaybe 10.0 $ lookupFloat "radius" config
-          angle =  fromMaybe 30.0 $ lookupFloat "angle" config 
+          angle =  fromMaybe 30.0 $ lookupFloat "angle" config
           rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config
           style = fromMaybe "line" $ lookupStr "style" config
-          setStyle (AR ar) s ra a ro st = AR $ ar { isRightar =  s, radiusar = ra, rotationar = ro, anglear = a, stylear = st} 
+          setStyle (AR ar) s ra a ro st = AR $ ar { isRightar =  s, radiusar = ra, rotationar = ro, anglear = a, stylear = st}
           objs = [setStyle (defaultArc n) right radius angle rotation style]
 
 initRect n config = ([defaultRect n], [], sizeFuncs n)
@@ -569,7 +552,7 @@ sizeFuncs n = [(penalty `compose2` maxSize, defaultWeight, [TShape n]),
 tupCons :: a -> (b, c) -> (a, b, c)
 tupCons a (b, c) = (a, b, c)
 
--- COMBAK: use prism here?
+-- TODO: use prism here?
 -- TODO: deal with pattern-matching on computation anywhere
 lookupId :: (Autofloat a) =>
     String -> S.Properties a ->  Maybe String
@@ -689,14 +672,15 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
 constraint :: [C.SubConstr] -> [Obj] -> Bool
 constraint constrs = if constraintFlag then \x ->
                         let res = [consistentSizes constrs x] in and res
-                     else \x -> True
+                     else const True
 
 -- generate all objects and the overall objective function
 -- TODO adjust weights of all functions
-genInitState :: ([C.SubDecl], [C.SubConstr]) -> S.StyProg -> State
-genInitState (decls, constrs) stys =
+genInitState :: C.SubObjects -> S.StyProg -> State
+genInitState objs stys =
              -- objects and objectives (without ambient objfns or constrs)
-             let (dict, userObjFns, userConstrFns) = S.getDictAndFns (decls, constrs) stys in
+             let (decls, constrs) = C.subSeparate $ C.subObjs objs in
+             let (dict, userObjFns, userConstrFns) = S.getDictAndFns objs stys in
              let (initObjs, initObjFns, initConstrFns, computations) = genAllObjs (decls, constrs) dict in
              let objFns = userObjFns ++ initObjFns in
             --  let objFns = [] in -- TODO removed only for debugging constraints

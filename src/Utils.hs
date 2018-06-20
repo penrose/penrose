@@ -88,7 +88,12 @@ halfDiagonal side = 0.5 * dist (0, 0) (side, side)
 compose2 :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
 
-
+concat4 :: [([a], [b], [c], [d])] -> ([a], [b], [c], [d])
+concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
+fst4 (a, _, _, _) = a
+snd4 (_, a, _, _) = a
+thd4 (_, _, a, _) = a
+frth4 (_, _, _, a) = a
 
 -- | Define ternary expressions in Haskell
 data Cond a = a :? a
