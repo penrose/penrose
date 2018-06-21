@@ -479,7 +479,7 @@ var Render = (function(){
              var myMatrix = new Snap.Matrix();
              // FIXME: this doesn't compile yet
              // TODO: test these shapes
-             var origX = dx + xar, origY = dy + yar
+             [origX, origY] = Utils.scr([xar, yar])
              myMatrix.translate(origX, origY);
              myMatrix.rotate(rotationar, 0, 0);
              var path = "M " + 0 + " " + (-sizear)+ " L "
