@@ -1,4 +1,8 @@
 Set A
 Set B
-Subset(A, B)
 
+AutoLabel A, B
+NoLabel A, B
+AutoLabel All
+Label A $\sum_i^n\frac{x^2}{10}$
+Label B $\delta\ \textrm{hello hello}$

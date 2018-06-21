@@ -192,7 +192,14 @@ var Render = (function(){
         circ.attr({
             fill: Utils.hex(color.r, color.g, color.b),
             "fill-opacity": color.a,
+            "stroke-width": obj.strokec,
+            "stroke": "black",
         });
+        if(obj.stylec == "dashed") {
+            circ.attr({
+                strokeDasharray: "7, 5" // "10"
+            })
+        }
         circ.drag(move, start, stop)
     }
 
@@ -306,7 +313,15 @@ var Render = (function(){
         sq.attr({
             fill: Utils.hex(color.r, color.g, color.b),
             "fill-opacity": color.a,
+            "stroke-width": obj.strokec,
+            // "stroke-width": 2,
+            "stroke": "black"
         });
+        if(obj.stylec == "dashed") {
+            sq.attr({
+                strokeDasharray: "7, 5" // "10"
+            })
+        }
         sq.drag(move, start, stop)
     }
 

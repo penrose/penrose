@@ -4,7 +4,6 @@
 {-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
 -- for autodiff, requires passing in a polymorphic fn
 
 module Runtime where
@@ -160,7 +159,7 @@ linePack ln params = Line' { startx_l' = sx, starty_l' = sy, endx_l' = ex, endy_
                             else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
 
 circPack :: (Autofloat a) => Circ -> [a] -> Circ' a
-circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
+circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, colorc' = colorc cir, stylec' = stylec cir, strokec' = r2f $ strokec cir }
          where (xc1, yc1, r1) = if not $ length params == 3
                                 then error $ "wrong # params to pack circle: expected 3, got " ++ show (length params)
                                 else (params !! 0, params !! 1, params !! 2)
@@ -172,8 +171,7 @@ ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, na
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 sqPack :: (Autofloat a) => Square -> [a] -> Square' a
-sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq,
-                             sels' = sels sq, colors' = colors sq, ang' = ang sq}
+sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, colors' = colors sq, ang' = ang sq, styles' = styles sq, strokes' = r2f $ strokes sq}
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
 
@@ -338,7 +336,7 @@ defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
                                 thickness = 10, selsa = False, namesa = defName, colorsa = black, stylesa = "straight" }
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
-                          sels = False, names = defName, colors = black, ang = 0.0}
+                          names = defName, colors = black, ang = 0.0, strokes = 0.0, styles = "solid"}
 defArc = Arc { xar = 100, yar = 100, sizear = defaultRad/6, namear = defName, colorar = black
                           , isRightar = "false", selar = False, rotationar = 0.0, anglear = 60.0, radiusar = 12.0, stylear = "line" }
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
@@ -348,7 +346,7 @@ defParellelogram = Parallelogram { xpa = 100, ypa = 100, sizeXpa = defaultRad, s
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
 defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False,
                         namel = labelName defName }
-defCirc = Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = defName, colorc = black }
+defCirc = Circ { xc = 100, yc = 100, r = defaultRad, namec = defName, colorc = black, strokec = 0.0, stylec = "solid" }
 defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad,
                             namee = defName, colore = black }
 defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
@@ -481,7 +479,13 @@ initText n config = ([defaultText text n], [], [])
                -- For text objects, use the normal label "text" attribute to set the text
                -- of the text object (handling Auto in the same way, not allowing None)
 
-initSquare n config = ([defaultSquare n], [], sizeFuncs n)
+initSquare n config = ([sq], [], sizeFuncs n)
+    where
+        style = fromMaybe "solid" $ lookupStr "style" config
+        stroke = fromMaybe 0.0 $ lookupFloat "stroke" config
+        setStyle (S s) sty str = S $ s { styles = sty, strokes = str }
+        sq = setStyle (defaultSquare n) style stroke
+
 
 
 initArc n config = (objs, [],sizeFuncs n)
@@ -533,10 +537,15 @@ initLine n config = (objs, oFns, [])
           oFns = betweenObjFn
 
 initCircle n config = (objs, oFns, constrs)
-    where circObj = defaultCirc n
-          objs = [circObj]
-          oFns = []
-          constrs = sizeFuncs n
+    where
+        style = fromMaybe "solid" $ lookupStr "style" config
+        stroke = fromMaybe 0.0 $ lookupFloat "stroke" config
+        setStyle (C c) sty str = C $ c { stylec = sty, strokec = str }
+        circObj = setStyle (defaultCirc n) style stroke
+        objs = [circObj]
+        oFns = []
+        constrs = sizeFuncs n
+
 
 initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0)] -- (60, 0), (100, 100), (250, 250), (300, 100)]
@@ -573,6 +582,7 @@ lookupFloat :: (Autofloat a) =>
     String -> S.Properties a ->  Maybe Float
 lookupFloat key dict = case M.lookup key dict of
      Just (TFloat i) -> Just i -- objects are looked up later
+     Just (TNum i) -> Just $ r2f i -- HACK: separate function
      Just res -> error ("expecting float, got:\n" ++ show res)
      Nothing -> Nothing
 
@@ -1019,12 +1029,10 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 
 -- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
 zeroGrad :: (Autofloat a) => Obj' a -> Obj
-zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
-                             selc = selc' c, namec = namec' c, colorc = colorc' c }
+zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c, namec = namec' c, colorc = colorc' c, stylec = stylec' c, strokec = r2f $ strokec' c }
 zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ rx' e, ry = r2f $ ry' e,
                               namee = namee' e, colore = colore' e }
-zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s,
-                             names = names' s, colors = colors' s, ang = ang' s }
+zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, names = names' s, colors = colors' s, ang = ang' s, styles = styles' s, strokes = r2f $ strokes' s }
 zeroGrad (AR' ar) = AR $ Arc { xar = r2f $ xar' ar, yar = r2f $ yar' ar, sizear = r2f $ sizear' ar,
                                       isRightar = isRightar' ar, radiusar = r2f $ radiusar' ar,
                                       selar = selar' ar, rotationar = r2f $ rotationar' ar, anglear = r2f $ anglear' ar
@@ -1053,13 +1061,11 @@ zeroGrads = map zeroGrad
 
 -- Add the grad info by generalizing Obj (on Floats) to polymorphic objects (for autodiff to use)
 addGrad :: (Autofloat a) => Obj -> Obj' a
-addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
-                             selc' = selc c, namec' = namec c, colorc' = colorc c }
+addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c, namec' = namec c, colorc' = colorc c, stylec' = stylec c, strokec' = r2f $ strokec c }
 addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ rx e, ry' = r2f $ ry e,
                              namee' = namee e, colore' = colore e }
 
-addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
-                            names' = names s, colors' = colors s, ang' = ang s }
+addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, names' = names s, colors' = colors s, ang' = ang s, styles' = styles s, strokes' = r2f $ strokes s }
 
 addGrad (AR ar) = AR' $ Arc' { xar' = r2f $ xar ar, yar' = r2f $ yar ar, sizear' = r2f $ sizear ar,
                                       isRightar' = isRightar ar, radiusar' = r2f $ radiusar ar,
@@ -1326,10 +1332,10 @@ weightGrowth :: Floating a => a -- for EP weight
 weightGrowth = 10
 
 epStop :: Floating a => a -- for EP diff
--- epStop = 10 ** (-3)
+epStop = 10 ** (-3)
 -- epStop = 60 ** (-3)
 -- epStop = 10 ** (-1)
-epStop = 0.05
+-- epStop = 0.05
 
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
