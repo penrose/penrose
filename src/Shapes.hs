@@ -280,6 +280,36 @@ instance Named Pt where
 instance ToJSON Pt
 instance FromJSON Pt
 
+-------------------
+
+data Img = Img { xim :: Float -- center of Img
+                     , yim :: Float
+                     , sizeXim :: Float -- x
+                     , sizeYim :: Float -- y
+                     , angim :: Float -- angle for which the obj is rotated
+                     , selim :: Bool
+                     , nameim :: String
+                     , path :: String}
+     deriving (Eq, Show, Generic)
+
+instance Located Img Float where
+         getX s = xim s
+         getY s = yim s
+         setX x s = s { xim = x }
+         setY y s = s { yim = y }
+
+
+-- NO instance for Sized
+
+instance Named Img where
+         getName im = nameim im
+         setName x im = im { nameim = x }
+
+instance ToJSON Img
+instance FromJSON Img
+
+----------------------------
+
 data Obj = S Square
          | R Rect
          | PA Parallelogram
@@ -290,6 +320,7 @@ data Obj = S Square
          | A SolidArrow
          | CB CubicBezier
          | LN Line
+         | IM Img
          | AR Arc
          deriving (Eq, Show, Generic)
 
@@ -348,8 +379,10 @@ instance Located Obj Float where
                  A a -> getX a
                  CB c -> getX c
                  LN l -> getX l
+                 IM im -> getX im
                  AR ar -> getX ar
                  PA pa -> getX pa
+
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -360,8 +393,10 @@ instance Located Obj Float where
                  A a -> getY a
                  CB c -> getY c
                  LN l -> getY l
+                 IM im -> getY im
                  AR ar -> getY ar
                  PA pa -> getY pa
+
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -372,8 +407,10 @@ instance Located Obj Float where
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
                 LN l -> LN $ setX x l
+                IM im -> IM $ setX x im
                 AR ar -> AR $ setX x ar
                 PA pa -> PA $ setX x pa
+
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -384,6 +421,7 @@ instance Located Obj Float where
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
                 LN l -> LN $ setY y l
+                IM im -> IM $ setY y im
                 AR ar -> AR $ setY y ar
 
 instance Named Obj where
@@ -397,8 +435,10 @@ instance Named Obj where
                  A a   -> getName a
                  CB cb -> getName cb
                  LN l -> getName l
+                 IM im -> getName im
                  AR ar -> getName ar
                  PA pa -> getName pa
+
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
@@ -409,8 +449,10 @@ instance Named Obj where
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
                 LN l -> LN $ setName x l
+                IM im -> IM $ setName x im
                 AR ar -> AR $ setName x ar
                 PA pa -> PA $ setName x pa
+
 
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
@@ -426,6 +468,7 @@ data Obj' a
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     | LN' (Line' a)
+    | IM' (Img' a)
     | AR' (Arc' a)
     deriving (Eq, Show)
 
@@ -519,6 +562,18 @@ data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
                      , colorpa' :: Color }
      deriving (Eq, Show, Generic)
 
+
+data Img' a = Img' { xim' :: a -- I assume this is top left?
+                     , yim' :: a
+                     , sizeXim' :: a
+                     , sizeYim' :: a
+                     , selim' :: Bool
+                     , angim' :: Float
+                     , nameim' :: String
+                     , path' :: String } -- angle the obj is rotated, TODO make polymorphic
+     deriving (Eq, Show, Generic)
+
+
 data CubicBezier' a = CubicBezier' {
     pathcb'           :: [(a, a)],
     namecb'           :: String,
@@ -527,9 +582,9 @@ data CubicBezier' a = CubicBezier' {
 } deriving (Eq, Show)
 
 data Line' a = Line' {
-    startx_l'           :: a,
-    starty_l'           :: a,
-    thickness_l'         :: a,
+    startx_l'         :: a,
+    starty_l'         :: a,
+    thickness_l'      :: a,
     endx_l'           :: a,
     endy_l'           :: a,
     name_l'           :: String,
@@ -582,6 +637,10 @@ instance Named (Line' a) where
          getName = name_l'
          setName x l = l { name_l' = x }
 
+instance Named (Img' a) where
+         getName = nameim'
+         setName x im = im { nameim' = x }
+
 instance Named (Obj' a) where
          getName o = case o of
                  C' c   -> getName c
@@ -594,7 +653,9 @@ instance Named (Obj' a) where
                  A' a   -> getName a
                  CB' cb -> getName cb
                  LN' ln -> getName ln
+                 IM' im -> getName im
                  AR' ar-> getName ar
+
          setName x o = case o of
                 C' c   -> C' $ setName x c
                 S' s   -> S' $ setName x s
@@ -605,6 +666,7 @@ instance Named (Obj' a) where
                 A' a   -> A' $ setName x a
                 CB' cb -> CB' $ setName x cb
                 LN' ln -> LN' $ setName x ln
+                IM' im -> IM' $ setName x im
                 AR' ar-> AR' $ setName x ar
 --
 instance Located (Circ' a) a where
@@ -661,6 +723,12 @@ instance Located (Pt' a) a where
          setX x p = p { xp' = x }
          setY y p = p { yp' = y }
 
+instance Located (Img' a) a where
+         getX = xim'
+         getY = yim'
+         setX x im = im { xim' = x }
+         setY y im = im { yim' = y }
+
 -- TODO: Added context for max and min functions. Consider rewriting the whole `Located` interface. For general shapes, simply setX and getX does NOT make sense.
 instance (Real a, Floating a, Show a, Ord a) => Located (CubicBezier' a) a where
          getX c   = let xs = map fst $ pathcb' c in maximum xs - minimum xs
@@ -691,6 +759,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              PA' pa -> xpa' pa
              A' a -> startx' a
              LN' l -> getX l
+             IM' im -> xim' im
          getY o = case o of
              C' c -> yc' c
              E' e -> ye' e
@@ -702,6 +771,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              PA' pa -> ypa' pa
              A' a -> starty' a
              LN' l -> getY l
+             IM' im -> yim' im
          setX x o = case o of
              C' c -> C' $ setX x c
              E' e -> E' $ setX x e
@@ -713,6 +783,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              PA' pa -> PA' $ setX x pa
              A' a -> A' $ setX x a
              LN' l -> LN' $ setX x l
+             IM' im -> IM' $ setX x im
          setY y o = case o of
              C' c -> C' $ setY y c
              E' e -> E' $ setY y e
@@ -724,6 +795,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              PA' pa -> PA' $ setY y pa
              A' a -> A' $ setY y a
              LN' l -> LN' $ setY y l
+             IM' im -> IM' $ setY y im
 
 -----------------------------------------------
 -- Defining the interface between Style types/operations and internal computation types / object properties
@@ -739,6 +811,8 @@ data TypeIn a = TNum a
               | TPt (Pt2 a)
               | TPath [Pt2 a]
               | TColor Color
+              -- | path for image
+              | TFile String
               -- | dotted, etc.
               | TStyle String
               -- | Substance ID
@@ -849,6 +923,16 @@ get "x" (L' o)             = TNum $ xl' o
 get "y" (L' o)             = TNum $ yl' o
 get "location" (L' o)      = TPt (xl' o, yl' o)
 
+-- Images
+get "x" (IM' o)             = TNum $ xim' o
+get "y" (IM' o)             = TNum $ yim' o
+get "center" (IM' o)        = TPt (xim' o, yim' o)
+get "length" (IM' o)        = TNum $ sizeXim' o
+get "width" (IM' o)         = TNum $ sizeYim' o
+get "angle" (IM' o)         = TNum $ r2f $ angim' o
+get "path" (IM' o)         = TFile $ path' o
+
+
 get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n"
                                    ++ show obj ++ "\n" ++ show obj)
 
@@ -930,6 +1014,14 @@ set "color" (A' o) (TColor n)    = A' $ o { colorsa' = n }
 set "style" (A' o) (TStyle n)    = A' $ o { stylesa' = n }
 
 -- TODO add angle and length properties
+
+-- Imgs
+set "x" (IM' o) (TNum n)          = IM' $ o { xim' = n }
+set "y" (IM' o) (TNum n)          = IM' $ o { yim' = n }
+set "center" (IM' o) (TPt (x, y)) = IM' $ o { xim' = x, yim' = y }
+set "length" (IM' o) (TNum n)     = IM' $ o { sizeXim' = n }
+set "width" (IM' o) (TNum n)      = IM' $ o { sizeYim' = n }
+set "path" (IM' o) (TFile n)      = IM' $ o { path' = n }
 
 -- Lines
 set "startx" (LN' o) (TNum n)     = LN' $ o { startx_l' = n }
