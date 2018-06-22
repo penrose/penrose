@@ -290,7 +290,7 @@ data Img = Img { xim :: Float -- center of Img
                      , selim :: Bool
                      , nameim :: String
                      , path :: String}
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Img Float where
          getX s = xim s
@@ -298,10 +298,6 @@ instance Located Img Float where
          setX x s = s { xim = x }
          setY y s = s { yim = y }
 
-instance Selectable Img where
-         select x = x { selim = True }
-         deselect x = x { selim = False }
-         selected x = selim x
 
 -- NO instance for Sized
 
@@ -567,17 +563,6 @@ data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
      deriving (Eq, Show, Generic)
 
 
-data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
-                     , ypa' :: a
-                     , sizeXpa' :: a
-                     , sizeYpa' :: a
-                     , anglepa' :: Float
-                     , rotationpa' :: Float
-                     , selpa' :: Bool
-                     , namepa' :: String
-                     , colorpa' :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
-
 data Img' a = Img' { xim' :: a -- I assume this is top left?
                      , yim' :: a
                      , sizeXim' :: a
@@ -586,7 +571,7 @@ data Img' a = Img' { xim' :: a -- I assume this is top left?
                      , angim' :: Float
                      , nameim' :: String
                      , path' :: String } -- angle the obj is rotated, TODO make polymorphic
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 
 data CubicBezier' a = CubicBezier' {
@@ -826,7 +811,7 @@ data TypeIn a = TNum a
               | TPt (Pt2 a)
               | TPath [Pt2 a]
               | TColor Color
-              -- | path for image 
+              -- | path for image
               | TFile String
               -- | dotted, etc.
               | TStyle String
