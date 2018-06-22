@@ -6,9 +6,9 @@ Set x {
     }
 }
 
-Subset x y {
+IsSubset x y {
     objective above(y, x)
-    objective sameX(x, y)
+    objective equal(x.shape.x, y.shape.y)
     shape =  Arrow {
         start = x.shape
         end   = y.shape
@@ -20,6 +20,6 @@ Set x, Set y {
     objective repel(x, y)
 }
 
-Subset x S, Subset y S {
+IsSubset x S, IsSubset y S {
     objective sameHeight(x, y)
 }

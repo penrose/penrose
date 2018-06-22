@@ -2,11 +2,11 @@ Set A
 Set B
 Set R1
 Set R2
-Subset A R1
-Subset B R2
-NoIntersect R1 R2
-f: A -> B
+IsSubset(A,R1)
+IsSubset(B,R2)
+NonIntersect(R1,R2)
+Map(A,B) f
 Set U
-Subset U B
+IsSubset(U,B)
 Set V
-Subset V A
+IsSubset(V,A)

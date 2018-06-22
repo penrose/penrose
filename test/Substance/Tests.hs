@@ -24,7 +24,28 @@ subDir = "src/sub"
 
 -- TODO: seems like all tests are pure, but needed to perform IO actions
 subFilenames :: [String]
-subFilenames = unsafePerformIO $ listDirectory subDir
+-- subFilenames = unsafePerformIO $ listDirectory subDir
+subFilenames = [
+                    "continuousmap.sub",
+                    "fourpt_4sets.sub",
+                    "linearMap.sub",
+                    "nested.sub",
+                    "oneset.sub",
+                    "parallelogram.sub",
+                    "pt_set.sub",
+                    "surjection_computed.sub",
+                    "threesets.sub",
+                    "tree.sub",
+                    "twopoints.sub",
+                    "twosets-intersect.sub",
+                    "twosets-map.sub",
+                    "twosets.sub",
+                    "vectors.sub",
+                    "vectorsAddition.sub",
+                    "vectorsNegation.sub",
+                    "venn_comp_pt.sub"
+               ]
+
 
 parseFile :: String -> IO Bool
 parseFile fname = do

@@ -5,9 +5,9 @@ Set D
 Set E
 Set F
 Set G
-Subset B A
-Subset C B
-Subset D C
-Subset E D
-Subset F E
-Subset G F
+Subset(B, A)
+Subset(C, B)
+Subset(D, C)
+Subset(E, D)
+Subset(F, E)
+Subset(G, F)

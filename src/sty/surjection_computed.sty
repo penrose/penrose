@@ -5,9 +5,9 @@ Point p {
 
 Set `domainOuter` {
     shape = Arrow {
-	  -- TODO: writing "start = 5" isn't treated as fixed constants, but a computation sort of is
+    -- TODO: writing "start = 5" isn't treated as fixed constants, but a computation sort of is
           start = atOrigin()
-	  end = toRight()
+    end = toRight()
           text = "x"
     }
 
@@ -21,16 +21,22 @@ Set `codomain` {
           text = "f(x)"
     }
 
-    objective nearHead(codomain, codomain.shape.label, 0, 20) -- TODO parse negative numbers
+    angleNotation = Arc {
+      start = atOrigin()
+      isRight = "true"
+      style = "wedge"
+      text = None
+    }
+
+    objective nearHead(codomain.shape, codomain.shape.label, 0, 20) -- TODO parse negative numbers
 }
 
-Surjection f domain image {
+Map f domain image {
     shape = Curve {
           path = computeSurjectionLines(5, domain, image)
           text = "(surjection)"
-	  color = darkBlue()
+    color = darkBlue()
     }
-    
     objective sameX(domainOuter.shape, f.shape.label, 30)
     objective above(domainOuter.shape, f.shape.label, 30)
 }
@@ -49,13 +55,13 @@ Set `cartesianProduct` {
 Set `domain` {
        left = Line {
              style = "dashed"
-             path = lineLeft(0.2, domainOuter, codomain)
+             path = lineLeft(0.2, domainOuter, codomain.shape)
              text = "A0"
        }
 
        right = Line {
               style = "dashed"
-              path = lineLeft(0.8, domainOuter, codomain)
+              path = lineLeft(0.8, domainOuter, codomain.shape)
               text = "A1"
        }
 
@@ -68,13 +74,13 @@ Set `domain` {
 Set `image` {
        bottom = Line {
              style = "dashed"
-             path = lineRight(0.2, codomain, domainOuter)
+             path = lineRight(0.2, codomain.shape, domainOuter)
              text = "B0"
        }
 
        top = Line {
               style = "dashed"
-              path = lineRight(0.8, codomain, domainOuter)
+              path = lineRight(0.8, codomain.shape, domainOuter)
               text = "B1"
        }
 

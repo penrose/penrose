@@ -1,3 +1,7 @@
-Set domain, codomain
-surjection: domain -> codomain
-Point origin, vert, horiz, special
+Set domain
+Set codomain
+Map(domain,codomain) f
+Point origin
+Point vert
+Point horiz
+Point special
