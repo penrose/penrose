@@ -4,7 +4,6 @@
 {-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
 -- for autodiff, requires passing in a polymorphic fn
 
 module Runtime where
@@ -92,7 +91,7 @@ type Varying a = [a]
 
 -- make sure the unpacking matches the object packing in terms of number and order of parameters
 -- annotations are specified inline here. this is per type, not per value (i.e. all circles have the
--- same fixed parameters). but you could generalize it to per-value by adding or overriding 
+-- same fixed parameters). but you could generalize it to per-value by adding or overriding
 --annotations globally after the unpacking does not unpack names
 unpackObj :: (Autofloat a) => Obj' a -> [(a, Annotation)]
 -- the location of a circle and square can vary
@@ -160,7 +159,7 @@ linePack ln params = Line' { startx_l' = sx, starty_l' = sy, endx_l' = ex, endy_
                             else (params !! 0, params !! 1, params !! 2, params !! 3, params !! 4)
 
 circPack :: (Autofloat a) => Circ -> [a] -> Circ' a
-circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, selc' = selc cir, colorc' = colorc cir }
+circPack cir params = Circ' { xc' = xc1, yc' = yc1, r' = r1, namec' = namec cir, colorc' = colorc cir, stylec' = stylec cir, strokec' = r2f $ strokec cir }
          where (xc1, yc1, r1) = if not $ length params == 3
                                 then error $ "wrong # params to pack circle: expected 3, got " ++ show (length params)
                                 else (params !! 0, params !! 1, params !! 2)
@@ -172,8 +171,7 @@ ellipsePack e params = Ellipse' { xe' = xe1, ye' = ye1, rx' = rx1, ry' = ry1, na
                                 else (params !! 0, params !! 1, params !! 2, params !! 3)
 
 sqPack :: (Autofloat a) => Square -> [a] -> Square' a
-sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq,
-                             sels' = sels sq, colors' = colors sq, ang' = ang sq}
+sqPack sq params = Square' { xs' = xs1, ys' = ys1, side' = side1, names' = names sq, colors' = colors sq, ang' = ang sq, styles' = styles sq, strokes' = r2f $ strokes sq}
          where (xs1, ys1, side1) = if not $ length params == 3 then error "wrong # params to pack square"
                                 else (params !! 0, params !! 1, params !! 2)
 
@@ -264,11 +262,11 @@ mapVals :: M.Map a b -> [b]
 mapVals = map snd . M.toList
 
 computeOnObjs :: (Autofloat a) => [Obj' a] -> [ObjComp a] -> [Obj' a]
-computeOnObjs objs comps = mapVals $ foldl computeOn (dictOfObjs objs) comps
+computeOnObjs objs comps = mapVals $ foldl computeOn (dictOf objs) comps
 
 computeOnObjs_noGrad :: (Autofloat a) => [Obj] -> [ObjComp a] -> [Obj]
 computeOnObjs_noGrad objs comps = let objsG = addGrads objs in
-                                 let objsComputed = mapVals $ foldl computeOn (dictOfObjs objsG) comps in
+                                 let objsComputed = mapVals $ foldl computeOn (dictOf objsG) comps in
                                  zeroGrads objsComputed
 
 -- | Apply a computation to the relevant object in the dictionary.
@@ -345,7 +343,7 @@ defSolidArrow = SolidArrow { startx = 100, starty = 100, endx = 200, endy = 200,
                                 thickness = 10, selsa = False, namesa = defName, colorsa = black, stylesa = "straight" }
 defPt = Pt { xp = 100, yp = 100, selp = False, namep = defName }
 defSquare = Square { xs = 100, ys = 100, side = defaultRad,
-                          sels = False, names = defName, colors = black, ang = 0.0}
+                          names = defName, colors = black, ang = 0.0, strokes = 0.0, styles = "solid"}
 defArc = Arc { xar = 100, yar = 100, sizear = defaultRad/6, namear = defName, colorar = black
                           , isRightar = "false", selar = False, rotationar = 0.0, anglear = 60.0, radiusar = 12.0, stylear = "line" }
 defRect = Rect { xr = 100, yr = 100, sizeX = defaultRad, sizeY = defaultRad + 200,
@@ -355,7 +353,7 @@ defParellelogram = Parallelogram { xpa = 100, ypa = 100, sizeXpa = defaultRad, s
 defText = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False, namel = defName }
 defLabel = Label { xl = -100, yl = -100, wl = 0, hl = 0, textl = defName, sell = False,
                         namel = labelName defName }
-defCirc = Circ { xc = 100, yc = 100, r = defaultRad, selc = False, namec = defName, colorc = black }
+defCirc = Circ { xc = 100, yc = 100, r = defaultRad, namec = defName, colorc = black, strokec = 0.0, stylec = "solid" }
 defEllipse = Ellipse { xe = 100, ye = 100, rx = defaultRad, ry = defaultRad,
                             namee = defName, colore = black }
 defCurve = CubicBezier { colorcb = black, pathcb = path, namecb = defName, stylecb = "solid" }
@@ -399,27 +397,18 @@ checkAuto objName labelText =  -- TODO: should this use labelSetting?
 
 shapeAndFn :: (Autofloat a) => S.StyDict a -> String ->
                                ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
-shapeAndFn dict subObjName =
-    case M.lookup subObjName dict of
-        Nothing -> error ("Cannot find style info for " ++ subObjName)
-        Just spec  -> let config = {-TODO: remove:-} map (mkUniqueShapeName subObjName) (M.toList $ S.spShpMap spec) in
-                      let objs_and_functions = map getShape config in
-                      concat4 objs_and_functions
-                      -- example config:
-                      -- shape map: [("A",(Circle,fromList [("color",
-                      -- CompArgs "computeColorRGBA" [FloatLit 1.0,FloatLit 0.2,FloatLit 1.0,FloatLit 0.5])]))]
-    where
-        mkUniqueShapeName name1 (name2, objInfo) = (uniqueShapeName name1 name2, objInfo)
-        concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
-        fst4 (a, _, _, _) = a
-        snd4 (_, a, _, _) = a
-        thd4 (_, _, a, _) = a
-        frth4 (_, _, _, a) = a
+shapeAndFn dict subObjName = case M.lookup subObjName dict of
+    Nothing   -> error ("Cannot find style info for " ++ subObjName)
+    Just spec ->
+        let names = map (uniqueShapeName subObjName) $ M.keys (S.spShpMap spec)
+            styobjs = M.elems (S.spShpMap spec)
+            labelText = S.spLabel spec
+        in concat4 $ map (\(n,o) -> getShape n labelText o) $ zip names styobjs
 
-getShape :: (Autofloat a) => (String, S.StyObj a) ->
+getShape :: (Autofloat a) => String -> Maybe String -> S.StyObj a ->
                              ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 
-getShape (oName, (objType, properties)) =
+getShape oName labelText (objType, properties) =
          -- We don't need the object type to typecheck the computation, because we have the object's name and
          -- it's stored as an Obj (can pattern-match)
          let (computations, properties_nocomps) = compsAndVars oName properties in
@@ -442,12 +431,11 @@ getShape (oName, (objType, properties)) =
 
          -- TODO factor out label logic?
          let labelRes = M.lookup labelTextWord properties in -- assuming one label per shape
-         let labelSet = labelSetting labelRes objType oName in
+         let labelSet = labelSetting labelRes objType labelText in
          case labelSet of
          -- By default, if unspecified, an object is labeled with "Auto" setting, unless it has no shape
-         NoLabel -> res
-         Default labelText -> addObject [defaultLabel oName labelText] res -- distinction for debugging
-         Custom labelText -> addObject [defaultLabel oName labelText] res
+         Nothing    -> res
+         Just label -> addObject [defaultLabel oName label] res
 
          where tupAppend (a, b, c) d = (a, b, c, d)
                addObject l (a, b, c, d) = (a ++ l, b, c, d)
@@ -474,8 +462,6 @@ isComp expr = case expr of
     TProp i p    -> True
     _            -> False
 
-data LabelSetting = NoLabel | Default Name | Custom Name
-
 -- | Reserved words or special demarcators in the system
 noneWord, autoWord, labelTextWord :: String
 noneWord = "None"
@@ -483,19 +469,16 @@ autoWord = "Auto"
 labelTextWord = "text"
 
 labelSetting :: (Autofloat a) =>
-    Maybe (TypeIn a) -> S.StyType -> Name -> LabelSetting
-labelSetting s_expr objType objName =
-             case objType of
-                  S.NoShape -> NoLabel
-                  S.Text -> NoLabel
-                  _ -> let subObjName = head $ nameParts objName in
-                        case s_expr of
-                          -- A real object with unspecified label -> autolabeled with Substance name
-                          Nothing -> Default subObjName
-                          Just (TStr "None") -> NoLabel
-                          Just (TStr "Auto") -> Default subObjName -- should this use autoWord?
-                          Just (TStr text) -> Custom text
-                          Just res -> error ("invalid label setting:\n" ++ show res)
+    Maybe (TypeIn a) -> S.StyType -> Maybe String -> Maybe String
+labelSetting s_expr objType labelText = case objType of
+    S.NoShape -> Nothing
+    S.Text    -> Nothing -- for shape = Text { }
+    _ -> case s_expr of
+            Nothing -> labelText -- TODO: should be Nothing?
+            Just (TStr "None") -> Nothing
+            Just (TStr "Auto") -> labelText
+            Just (TStr text)   -> Just text     -- overrides Substance labels
+            Just res -> error ("invalid label setting:\n" ++ show res)
 
 -- | Given a name and context (?), the initObject functions return a 3-tuple of objects, objectives (with info), and constraints (with info) (NOT labels or computations; those are found in `getShape`)`
 initCurve, initDot, initText, initArrow, initCircle, initSquare, initEllipse, initLine ::
@@ -506,16 +489,22 @@ initText n config = ([defaultText text n], [], [])
                -- For text objects, use the normal label "text" attribute to set the text
                -- of the text object (handling Auto in the same way, not allowing None)
 
-initSquare n config = ([defaultSquare n], [], sizeFuncs n)
+initSquare n config = ([sq], [], sizeFuncs n)
+    where
+        style = fromMaybe "solid" $ lookupStr "style" config
+        stroke = fromMaybe 0.0 $ lookupFloat "stroke" config
+        setStyle (S s) sty str = S $ s { styles = sty, strokes = str }
+        sq = setStyle (defaultSquare n) style stroke
+
 
 
 initArc n config = (objs, [],sizeFuncs n)
     where right = fromMaybe "true" $ lookupStr "isRight" config
           radius =  fromMaybe 10.0 $ lookupFloat "radius" config
-          angle =  fromMaybe 30.0 $ lookupFloat "angle" config 
+          angle =  fromMaybe 30.0 $ lookupFloat "angle" config
           rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config
           style = fromMaybe "line" $ lookupStr "style" config
-          setStyle (AR ar) s ra a ro st = AR $ ar { isRightar =  s, radiusar = ra, rotationar = ro, anglear = a, stylear = st} 
+          setStyle (AR ar) s ra a ro st = AR $ ar { isRightar =  s, radiusar = ra, rotationar = ro, anglear = a, stylear = st}
           objs = [setStyle (defaultArc n) right radius angle rotation style]
 
 initRect n config = ([defaultRect n], [], sizeFuncs n)
@@ -558,10 +547,15 @@ initLine n config = (objs, oFns, [])
           oFns = betweenObjFn
 
 initCircle n config = (objs, oFns, constrs)
-    where circObj = defaultCirc n
-          objs = [circObj]
-          oFns = []
-          constrs = sizeFuncs n
+    where
+        style = fromMaybe "solid" $ lookupStr "style" config
+        stroke = fromMaybe 0.0 $ lookupFloat "stroke" config
+        setStyle (C c) sty str = C $ c { stylec = sty, strokec = str }
+        circObj = setStyle (defaultCirc n) style stroke
+        objs = [circObj]
+        oFns = []
+        constrs = sizeFuncs n
+
 
 initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0)] -- (60, 0), (100, 100), (250, 250), (300, 100)]
@@ -603,6 +597,7 @@ lookupFloat :: (Autofloat a) =>
     String -> S.Properties a ->  Maybe Float
 lookupFloat key dict = case M.lookup key dict of
      Just (TFloat i) -> Just i -- objects are looked up later
+     Just (TNum i) -> Just $ r2f i -- HACK: separate function
      Just res -> error ("expecting float, got:\n" ++ show res)
      Nothing -> Nothing
 
@@ -702,14 +697,15 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
 constraint :: [C.SubConstr] -> [Obj] -> Bool
 constraint constrs = if constraintFlag then \x ->
                         let res = [consistentSizes constrs x] in and res
-                     else \x -> True
+                     else const True
 
 -- generate all objects and the overall objective function
 -- TODO adjust weights of all functions
-genInitState :: ([C.SubDecl], [C.SubConstr]) -> S.StyProg -> State
-genInitState (decls, constrs) stys =
+genInitState :: C.SubObjects -> S.StyProg -> State
+genInitState objs stys =
              -- objects and objectives (without ambient objfns or constrs)
-             let (dict, userObjFns, userConstrFns) = S.getDictAndFns (decls, constrs) stys in
+             let (decls, constrs) = C.subSeparate $ C.subObjs objs in
+             let (dict, userObjFns, userConstrFns) = S.getDictAndFns objs stys in
              let (initObjs, initObjFns, initConstrFns, computations) = genAllObjs (decls, constrs) dict in
              let objFns = userObjFns ++ initObjFns in
             --  let objFns = [] in -- TODO removed only for debugging constraints
@@ -1052,12 +1048,10 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 
 -- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
 zeroGrad :: (Autofloat a) => Obj' a -> Obj
-zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c,
-                             selc = selc' c, namec = namec' c, colorc = colorc' c }
+zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c, namec = namec' c, colorc = colorc' c, stylec = stylec' c, strokec = r2f $ strokec' c }
 zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ rx' e, ry = r2f $ ry' e,
                               namee = namee' e, colore = colore' e }
-zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, sels = sels' s,
-                             names = names' s, colors = colors' s, ang = ang' s }
+zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, names = names' s, colors = colors' s, ang = ang' s, styles = styles' s, strokes = r2f $ strokes' s }
 zeroGrad (AR' ar) = AR $ Arc { xar = r2f $ xar' ar, yar = r2f $ yar' ar, sizear = r2f $ sizear' ar,
                                       isRightar = isRightar' ar, radiusar = r2f $ radiusar' ar,
                                       selar = selar' ar, rotationar = r2f $ rotationar' ar, anglear = r2f $ anglear' ar
@@ -1088,13 +1082,11 @@ zeroGrads = map zeroGrad
 
 -- Add the grad info by generalizing Obj (on Floats) to polymorphic objects (for autodiff to use)
 addGrad :: (Autofloat a) => Obj -> Obj' a
-addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c,
-                             selc' = selc c, namec' = namec c, colorc' = colorc c }
+addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c, namec' = namec c, colorc' = colorc c, stylec' = stylec c, strokec' = r2f $ strokec c }
 addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ rx e, ry' = r2f $ ry e,
                              namee' = namee e, colore' = colore e }
 
-addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, sels' = sels s,
-                            names' = names s, colors' = colors s, ang' = ang s }
+addGrad (S s) = S' $ Square' { xs' = r2f $ xs s, ys' = r2f $ ys s, side' = r2f $ side s, names' = names s, colors' = colors s, ang' = ang s, styles' = styles s, strokes' = r2f $ strokes s }
 
 addGrad (AR ar) = AR' $ Arc' { xar' = r2f $ xar ar, yar' = r2f $ yar ar, sizear' = r2f $ sizear ar,
                                       isRightar' = isRightar ar, radiusar' = r2f $ radiusar ar,
@@ -1364,10 +1356,10 @@ weightGrowth :: Floating a => a -- for EP weight
 weightGrowth = 10
 
 epStop :: Floating a => a -- for EP diff
--- epStop = 10 ** (-3)
+epStop = 10 ** (-3)
 -- epStop = 60 ** (-3)
 -- epStop = 10 ** (-1)
-epStop = 0.05
+-- epStop = 0.05
 
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges

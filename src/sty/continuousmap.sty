@@ -16,7 +16,10 @@ global {
 }
 
 Set x {
-    shape = Circle { }
+    shape = Circle {
+        color = lightBlue()
+        stroke = 2
+    }
     constraint contains(x, x.shape.label)
     -- objective centerLabel(x, x.shape.label)
 }
@@ -45,9 +48,33 @@ Map f x y {
 }
 
 Set `R1` {
-    shape = Box { }
+    shape = Box {
+        color = srgba(0.95, 0.96, 0.92, 0.5)
+        stroke = 2
+    }
 }
 
 Set `R2` {
-    shape = Box { }
+    shape = Box {
+        color = srgba(0.95, 0.96, 0.92, 0.5)
+        stroke = 2
+    }
+}
+
+Set `U` {
+    shape = Circle {
+        color = lightBlue()
+        stroke = 2
+        style = "dashed"
+    }
+    -- constraint contains(U, U.shape.label)
+}
+
+Set `V` {
+    shape = Circle {
+        color = lightBlue()
+        stroke = 2
+        style = "dashed"
+    }
+    -- constraint contains(V, V.shape.label)
 }

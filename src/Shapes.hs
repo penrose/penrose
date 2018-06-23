@@ -54,9 +54,9 @@ instance FromJSON CubicBezier
 
 -------
 data Line = Line {
-    startx_l           :: Float,
-    starty_l           :: Float,
-    thickness_l          :: Float,
+    startx_l         :: Float,
+    starty_l         :: Float,
+    thickness_l      :: Float,
     endx_l           :: Float,
     endy_l           :: Float,
     name_l           :: String,
@@ -109,22 +109,24 @@ instance FromJSON SolidArrow
 
 -------
 
-data Circ = Circ { xc :: Float
-                 , yc :: Float
-                 , r :: Float
-                 , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
-                 , namec :: String
-                 , colorc :: Color }
-     deriving (Eq, Show, Generic)
+data Circ = Circ {
+    xc      :: Float,
+    yc      :: Float,
+    r       :: Float,
+    strokec :: Float,
+    namec   :: String,
+    colorc  :: Color,
+    stylec  :: String
+} deriving (Eq, Show, Generic)
 
 instance Located Circ Float where
-         getX c = xc c
-         getY c = yc c
+         getX = xc
+         getY = yc
          setX x c = c { xc = x }
          setY y c = c { yc = y }
 
 instance Named Circ where
-         getName c = namec c
+         getName = namec
          setName x c = c { namec = x }
 
 instance ToJSON Circ
@@ -132,23 +134,26 @@ instance FromJSON Circ
 
 ----------------------
 
-data Square = Square { xs :: Float -- center of square
-                     , ys :: Float
-                     , side :: Float
-                     , ang  :: Float -- angle for which the obj is rotated
-                     , sels :: Bool -- is the circle currently selected? (mouse is dragging it)
-                     , names :: String
-                     , colors :: Color }
-     deriving (Eq, Show, Generic)
+data Square = Square {
+    xs      :: Float,
+    ys      :: Float,
+    side    :: Float,
+    ang     :: Float,
+    strokes :: Float,
+    names   :: String,
+    styles  :: String,
+    colors  :: Color
+}
+ deriving (Eq, Show, Generic)
 
 instance Located Square Float where
-         getX s = xs s
-         getY s = ys s
+         getX = xs
+         getY = ys
          setX x s = s { xs = x }
          setY y s = s { ys = y }
 
 instance Named Square where
-         getName s = names s
+         getName = names
          setName x s = s { names = x }
 
 instance ToJSON Square
@@ -314,14 +319,16 @@ data Obj = S Square
          | R Rect
          | PA Parallelogram
          | C Circ
+         | AR Arc
+         | CB CubicBezier
          | E Ellipse
          | L Label
-         | P Pt
-         | A SolidArrow
-         | CB CubicBezier
          | LN Line
          | IM Img
-         | AR Arc
+         | P Pt
+         | PA Parallelogram
+         | R Rect
+         | S Square
          deriving (Eq, Show, Generic)
 
 instance ToJSON Obj
@@ -488,8 +495,9 @@ data Circ' a = Circ' {
     xc'     :: a,
     yc'     :: a,
     r'      :: a,
-    selc'   :: Bool, -- is the circle currently selected? (mouse is dragging it)
+    strokec':: a,
     namec'  :: String,
+    stylec' :: String,
     colorc' :: Color
 } deriving (Eq, Show)
 
@@ -517,14 +525,16 @@ data Pt' a = Pt' { xp' :: a
                  , namep' :: String }
                  deriving (Eq, Show)
 
-data Square' a  = Square' { xs' :: a
-                     , ys' :: a
-                     , side' :: a
-                     , ang'  :: Float -- angle the obj is rotated, TODO make polymorphic
-                     , sels' :: Bool
-                     , names' :: String
-                     , colors' :: Color }
-                     deriving (Eq, Show)
+data Square' a  = Square' {
+    xs'               :: a,
+    ys'               :: a,
+    side'             :: a,
+    strokes'          :: a,
+    ang'              :: Float,
+    names'            :: String,
+    colors'           :: Color,
+    styles'           :: String
+} deriving (Eq, Show)
 
 
 data Arc' a  = Arc' { xar' :: a
@@ -838,6 +848,8 @@ get "radius" (C' o)        = TNum $ r' o
 get "x" (C' o)             = TNum $ xc' o
 get "y" (C' o)             = TNum $ yc' o
 get "color" (C' o)         = TColor $ colorc' o
+get "stroke-width" (C' o)  = TNum $ strokec' o
+get "stroke-style" (C' o)  = TStyle $ stylec' o
 
 -- Ellipses
 get "rx" (E' o)            = TNum $ rx' o
@@ -858,6 +870,8 @@ get "center" (S' o)        = TPt (xs' o, ys' o)
 get "side" (S' o)          = TNum $ side' o
 get "angle" (S' o)         = TNum $ r2f $ ang' o
 get "color" (S' o)         = TColor $ colors' o
+get "stroke-width" (S' o)  = TNum $ strokes' o
+get "stroke-style" (S' o)  = TStyle $ styles' o
 
 -- Arcs
 
@@ -944,6 +958,8 @@ set "radius" (C' o) (TNum n)  = C' $ o { r' = n }
 set "x" (C' o) (TNum n)       = C' $ o { xc' = n }
 set "y" (C' o) (TNum n)       = C' $ o { yc' = n }
 set "color" (C' o) (TColor n) = C' $ o { colorc' = n }
+set "stroke-width" (C' o) (TNum w)   = C' $ o { strokec' = w }
+set "stroke-style" (C' o) (TStyle s) =  C' $ o { stylec' = s }
 
 -- Ellipses
 set "rx" (E' o) (TNum n)      = E' $ o { rx' = n }

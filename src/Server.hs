@@ -107,12 +107,9 @@ loop conn s
     | R.optStatus (R.params s) == R.EPConverged = do
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ (show $ R.weight (R.params s)))
-        putStrLn "Applying final computations"
-        -- HACK: 5 is just a heuristic to solve the dependency problem
-        -- of computation. Assuming the ordering of computation is correct,
-        -- the maximum rounds of computation we should do is len(R.comps s)
         let objsComputed = computeN 5 (R.objs s) (R.comps s)
-        putStrLn $ "Final objs:\n" ++ show objsComputed 
+        putStrLn "Final computations applied"
+        -- putStrLn $ "Final objs:\n" ++ show objsComputed
         wsSendJSON conn Frame { flag = "final", objs = objsComputed }
         processCommand conn s
     | R.autostep s = stepAndSend conn s
