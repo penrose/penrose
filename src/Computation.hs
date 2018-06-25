@@ -234,6 +234,11 @@ get' [TStr p] [obj] = get p obj
 multiply' :: CompFn a
 -- TODO pattern match on multiple TNums
 multiply' [TNum a, TNum b] [] = TNum $ a * b
+
+add' :: CompFn a
+-- TODO pattern match on multiple TNums
+add' [TNum a, TNum b] [] = TNum $ a + b
+
 srgba' :: CompFn a
 srgba' [TNum r, TNum g, TNum b, TNum a] [] = TColor $ makeColor' r g b a
 
@@ -383,6 +388,7 @@ computationDict = M.fromList flist
     where flist = [
                     ("_get", get'),
                     ("multiply", multiply'),
+                    ("add", add'),
                     ("computeColor", computeColor'),
                     ("computeColor2", computeColor2'),
                     ("computeColorArgs", computeColorArgs'),

@@ -58,6 +58,7 @@ objFuncDict = M.fromList flist
                     ("sameX", sameX),
                     ("equal", equal),
                     ("ratioOf", ratioOf),
+                    ("topRightOf", topRightOf),
                     ("sameY", sameY),
                     -- ("sameX", (*) 0.6 `compose2` sameX),
                     -- ("sameX", (*) 0.2 `compose2` sameX),
@@ -99,6 +100,9 @@ horizontal [A' a] [] = (starty' a - endy' a)^2
 
 upright :: ObjFn
 upright [A' a] [] = (startx' a - endx' a)^2
+
+topRightOf :: ObjFn
+topRightOf [L' l, S' s] [] = dist (getX l, getY l) (getX s + 0.5 * side' s, getY s + 0.5 * side' s)
 
 increasingX :: ObjFn
 increasingX l [] = sum $ map f $ zip l' (drop 1 l')
@@ -204,7 +208,6 @@ centerLine o [] = error ("center line: unsupported args: " ++ show o)
 repel :: ObjFn
 repel [C' c, S' d] [] = 1 / distsq (xc' c, yc' c) (xs' d, ys' d) - r' c - side' d + epsd
 repel [S' c, C' d] [] = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c + epsd
-repel [C' c, C' d] [] = 1 / distsq (xc' c, yc' c) (xc' d, yc' d) - r' c - r' d + epsd
 repel [P' c, P' d] [] = if c == d then 0 else 1 / distsq (xp' c, yp' c) (xp' d, yp' d) - 2 * r2f ptRadius + epsd
 repel [L' c, L' d] [] = if c == d then 0 else 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
 -- TODO: why are there references to labelName in Functions?
@@ -217,7 +220,7 @@ repel [A' c, L' d] [] = repel' (startx' c, starty' c) (xl' d, yl' d) +
 repel [A' c, C' d] [] = repel' (startx' c, starty' c) (xc' d, yc' d) +
         repel' (endx' c, endy' c) (xc' d, yc' d)
 repel [IM' c, IM' d] [] = 1 / (distsq (xim' c, yim' c) (xim' d, yim' d) + epsd) - sizeXim' c - sizeXim' d --TODO Lily check this math is correct
-repel [a, b] [] = 1 / distsq (getX a, getY a) (getX b, getY b) + epsd
+repel [a, b] [] = if a == b then 0 else 1 / (distsq (getX a, getY a) (getX b, getY b) )
 
 -- helper for `repel`
 repel' x y = 1 / distsq x y + epsd
@@ -353,10 +356,12 @@ contains [C' outc, C' inc] [] =
          strictSubset [[xc' inc, yc' inc, r' inc], [xc' outc, yc' outc, r' outc]]
     -- let res =  dist (xc' inc, yc' inc) (xc' outc, yc' outc) - (r' outc - r' inc) in
     -- if res > 0 then res else 0
+contains [C' outc, C' inc] [TNum padding] = strictSubset [[xc' inc, yc' inc, r' inc + padding], [xc' outc, yc' outc, r' outc]]
+
 contains [S' outc, S' inc] [] = strictSubset
     [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
-contains [S' outc, C' inc] [] = strictSubset
-    [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
+contains [S' outc, C' inc] [] = strictSubset [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
+contains [S' outc, C' inc] [TNum padding] = strictSubset [[xc' inc, yc' inc, r' inc + padding], [xs' outc, ys' outc, 0.5 * side' outc]]
 contains [C' outc, S' inc] [] = strictSubset
     [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
 contains [C' set, P' pt] [] =
@@ -369,8 +374,8 @@ contains [E' set, P' pt] [] =
 contains [C' set, L' label] _ =
     let res = dist (xl' label, yl' label) (xc' set, yc' set) - r' set + max (wl' label) (hl' label) in
     if res < 0 then 0 else res
-contains [S' set, L' label] [] =
-    dist (xl' label, yl' label) (xs' set, ys' set) - side' set / 2 + wl' label
+contains [S' s, L' l] [] =
+    dist (xl' l, yl' l) (xs' s, ys' s) - side' s / 2 + wl' l
 -- FIXME: doesn't work
 contains [E' set, L' label] [] =
     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label

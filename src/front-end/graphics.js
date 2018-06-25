@@ -73,6 +73,20 @@ var Render = (function(){
         }
         ws.send(json)
     }
+
+    /*
+    * Translate coordinates from polar to cartesian
+    * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
+    * (Added by Dor)
+    */
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+        return {
+            x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians))
+        };
+    }
+
     /*
      * Given center point, radius, and angels return an arc path
      * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
@@ -169,6 +183,7 @@ var Render = (function(){
                 case 'CB': _renderCurve (s, obj); break
                 case 'LN': _renderLine  (s, obj); break
                 case 'PA': _renderParallelogram(s, obj); break
+                case 'IM': _renderImage(s, obj); break
             }
         }
         // Send the bbox information to the server
@@ -218,6 +233,21 @@ var Render = (function(){
             "fill-opacity": color.a,
         });
         ellip.drag(move, start, stop)
+    }
+
+    /**
+     * Renders an image on the canvas
+     * @param       {Snap} s  Snap.svg global object
+     * @param       {JSON} obj JSON object from Haskell server
+     */
+     function _renderImage(s, obj) {
+        [x, y] = Utils.scr([obj.xin, obj.yn])
+        var sizeX = obj.sizeXim
+        var sizeY = obj.sizeYim
+        var path = obj.path
+        var image = s.image(path, x, y, sizeX, sizeY)
+        image.data("name", obj.nameim)
+        image.drag(move, start, stop)
     }
 
     /**

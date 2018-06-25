@@ -2,35 +2,18 @@
  * This is the same continuous map program, written in the new syntax.
  */
 
-global {
-    constraint outsideOf(f.shape.label, R1)
-    constraint outsideOf(f.shape.label, R2)
-    objective repel(f, R2.shape.label)
-    objective repel(f, R1.shape.label)
-    objective repel(f, U)
-    objective repel(f, V)
-    objective sameHeight(R1, R2)
-    constraint sameSizeAs(R1, R2)
-    constraint sameSizeAs(U, V)
-    constraint sameSizeAs(A, B)
-}
-
 Set x {
     shape = Circle {
         color = lightBlue()
         stroke = 2
     }
     constraint contains(x, x.shape.label)
-    -- objective centerLabel(x, x.shape.label)
-}
-
-NonIntersect x y {
-    constraint nonOverlapping(x, y)
 }
 
 IsSubset x y {
-    constraint contains(y, x)
+    constraint contains(y, x, 10)
     constraint outsideOf(y.shape.label, x)
+    -- objective  repel(x.shape, y.shape)
 }
 
 Map f x y {
@@ -40,11 +23,7 @@ Map f x y {
         -- style = "curved"
         text = Auto
     }
-
-    --objective above(f.shape.label, f.shape)
     objective centerLabel(f, f.shape.label)
-    objective toLeft(x, y)
-    objective sameHeight(x, y)
 }
 
 Set `R1` {
@@ -52,29 +31,35 @@ Set `R1` {
         color = srgba(0.95, 0.96, 0.92, 0.5)
         stroke = 2
     }
+    objective topRightOf(R1.shape.label, R1.shape)
 }
 
 Set `R2` {
     shape = Box {
         color = srgba(0.95, 0.96, 0.92, 0.5)
         stroke = 2
+        y = R1.shape.y
+        x = add(R1.shape.x, 400)
+        side  = R1.shape.side
     }
+    objective topRightOf(R2.shape.label, R2.shape)
 }
 
 Set `U` {
     shape = Circle {
+        style = "dashed"
         color = lightBlue()
         stroke = 2
-        style = "dashed"
+        y = R1.shape.y
     }
-    -- constraint contains(U, U.shape.label)
 }
 
 Set `V` {
     shape = Circle {
+        style = "dashed"
+        radius = U.shape.radius
         color = lightBlue()
         stroke = 2
-        style = "dashed"
+        y = U.shape.y
     }
-    -- constraint contains(V, V.shape.label)
 }

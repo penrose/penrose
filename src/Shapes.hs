@@ -316,19 +316,17 @@ instance FromJSON Img
 ----------------------------
 
 data Obj = S Square
+         | A SolidArrow
          | R Rect
-         | PA Parallelogram
          | C Circ
-         | AR Arc
-         | CB CubicBezier
          | E Ellipse
          | L Label
+         | P Pt
+         | AR Arc
+         | CB CubicBezier
          | LN Line
          | IM Img
-         | P Pt
          | PA Parallelogram
-         | R Rect
-         | S Square
          deriving (Eq, Show, Generic)
 
 instance ToJSON Obj

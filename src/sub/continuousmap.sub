@@ -1,18 +1,16 @@
 Set A
 Set B
-Map(A,B) f
 Set U
-IsSubset(U,B)
 Set V
-IsSubset(V,A)
 Set R1
 Set R2
+Map(A,B) f
+IsSubset(U,A)
+IsSubset(V,B)
 IsSubset(A,R1)
 IsSubset(B,R2)
-NonIntersect(R1,R2)
 
 AutoLabel All
 Label R1 $\mathbb{R}^n$
 Label R2 $\mathbb{R}^m$
--- Label R2 $\fdsfdsfsdfR^m$
 Label V  $f^{-1}(U)$

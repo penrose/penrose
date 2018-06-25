@@ -19,18 +19,6 @@ var label_svgs = {}
 
 //////////////// Utils
 var Utils = (function () {
-    /*
-    * Translate coordinates from polar to cartesian
-    * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
-    * (Added by Dor)
-    */
-    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-        var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-        return {
-            x: centerX + (radius * Math.cos(angleInRadians)),
-            y: centerY + (radius * Math.sin(angleInRadians))
-        };
-    }
 
     /**
      * Calculate Tangence from degrees
