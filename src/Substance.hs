@@ -40,9 +40,10 @@ data OperatorName = OperatorConst String             -- “Intersection”
 data PredicateName = PredicateConst String            -- “Intersect”
                      deriving (Show, Eq, Typeable)
 
-data Func = Func { nameFunc :: String,
-                   argFunc  :: [Expr] }
-            deriving (Eq, Typeable)
+data Func = Func {
+    nameFunc :: String,
+    argFunc  :: [Expr]
+} deriving (Eq, Typeable)
 
 instance Show Func where
     show (Func nameFunc argFunc) = nString ++ "(" ++ aString ++ ")"

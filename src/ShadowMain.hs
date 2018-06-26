@@ -2,6 +2,7 @@
 
 module ShadowMain where
 import Utils
+import NewStyle -- COMBAK: remove
 import qualified Server
 import qualified Runtime as R
 import qualified Substance as C
@@ -76,7 +77,7 @@ mainRetInit subFile styFile dsllFile = do
     dsllEnv <- D.parseDsll dsllFile dsllIn
     (objs, env) <- C.parseSubstance subFile subIn dsllEnv
     styProg <- S.parseStyle styFile styIn
-    let initState = R.genInitState objs styProg 
+    let initState = R.genInitState objs styProg
     return $ Just initState
 
 mainRetFinal :: R.State -> R.State

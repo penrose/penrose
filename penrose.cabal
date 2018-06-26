@@ -23,7 +23,7 @@ source-repository head
 executable penrose
   main-is:             Main.hs
   default-language: Haskell2010
-  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation
+  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation NewStyle
   other-extensions:    AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, OverloadedStrings, DeriveGeneric, DuplicateRecordFields
   build-depends:       base                >= 4.9 && <4.10,
                        random              >= 1.1 && <1.2,
@@ -48,7 +48,7 @@ Test-Suite penrose-testsuite
   type: exitcode-stdio-1.0
   main-is: TestSuite.hs
   default-language: Haskell2010
-  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation
+  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation NewStyle
                        Runtime.Tests ShadowMain.Tests Computation.Tests Functions.Tests Server.Tests
                        Shapes.Tests Style.Tests Substance.Tests Utils.Tests
   build-depends:       base                >= 4.9 && <4.10,

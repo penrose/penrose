@@ -2,8 +2,8 @@
 -- and functions to traverse the Style AST, which are used by "Runtime"
 
 {-# OPTIONS_HADDOCK prune #-}
--- module Style where
-module Main (main) where -- for debugging purposes
+module Style where
+-- module Main (main) where -- for debugging purposes
 
 import Shapes
 import Utils
@@ -30,85 +30,64 @@ import Env
 --------------------------------------------------------------------------------
 -- Style AST
 
--------------------- Style Program grammar
+-- | Type annotation for all geometries supported by Style so far.
 
--- | A variable in Style can be TODO
-type StyVar  = String
+data StyType = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto
+               | Arc2 | Line2 | Parallel | Image
+    deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
--- | A Style program is a collection of (header, block) pairs
-type StyProg = [(Header, Block)]
-
--- | A header of a block is either a selector or a namespace declaration
-data Header = Select Selector | NameSpace StyVar
-    deriving (Show)
+-- | A Style program is a collection of blocks
+type StyProg = [Block]
 
 -- | A Style block contains a list of selectors and statements
 type Block = ([Selector], [Stmt])
 
--------------------- Style selector grammar
+-- | A selector is some pattern annotated by a __Substance type__.
+data Selector = Selector
+              { selTyp :: TypeName -- type of Substance object
+              , selPatterns :: [Pattern] -- a list of patterns: ids or wildcards
+          } deriving (Show, Typeable)
 
--- | A type in Style can be TODO (Alias because of "Top" in Substance type)
-type StyT    = T
-
--- | A relation appears in the @with@ clause, which can be either an
--- expression or a predicate
-data Relation = RPred Predicate | RExpr Expr
-    deriving (Show)
-
--- | A binding form can either be a newly declared Style id or an existing
--- Substnace id, which is denoted by the special @``@ characters
-data BindingForm = BSubVar Var | BStyVar StyVar
-    deriving (Show)
-
--- | A selector is TODO
-data Selector = Selector {
-    selHead  :: [(StyT, BindingForm)],
-    selWhere :: [(StyT, BindingForm)],
-    selWith  :: [(BindingForm, Relation)]
-} deriving (Show, Typeable)
-
--------------------- Style block grammar
-
--- | A style block is a list of Style statements
-type Block = [Stmt]
-
--- | A path consist of a Substance or Style id, a shape name, and (optionally)
--- a property name
-data Path = Path BindingForm String (Maybe String)
-    deriving (Show)
-
--- | A statement in the Style language
-data Stmt
-    = Assign Path Expr
-    | Delete Expr
+-- | So far we have two kinds of patterns:
+--
+-- * Raw IDs: 'Set `A`', referring to actual IDs from Substance
+-- * WildCard: `Set A`, which can be anything with the corresponding type
+--
+-- They can also be mixed, yielding to partial selectors like 'Subset `A` B', referring to all supersets of 'A'.
+data Pattern
+    = RawID String
+    | WildCard String
     deriving (Show, Typeable)
 
--- | A field declaration in a Style constructor binds an expression to a
--- string
-data FieldDecl = FieldDecl String Expr
-    deriving (Show)
+-- | A Style statement
+data Stmt
+    = Assign String Expr -- binding to geometric primitives: 'shapeName = ShapeType { ... }'
+    | ObjFn String [Expr] -- adding an objective function
+    | ConstrFn String [Expr] -- adding a constraint function
+    | Avoid String [Expr] -- to be implemented, stating an objective that we would like to avoid
+    deriving (Show, Typeable)
 
--- | An expression in the Style language
--- TODO: wrap custom types around the raw strings/typedef them for better error checking??
+-- | A Style expression, typically appears on the righthand side of assignment statements
 data Expr
     = IntLit Integer
     | FloatLit Float
     | StringLit String
-    | Path Path
-    | CompArgs String [Expr]
-    | ObjFn String [Expr]
-    | ConstrFn String [Expr]
-    | Avoid String [Expr]  -- TODO: to be implemented
+    | Id String
     | BinOp BinaryOp Expr Expr
-    | UOp UnaryOp Expr
-    | List [Expr]
-    | Cons String [FieldDecl]
+    | Cons StyType [Stmt] -- | Constructors for objects
+    | CompArgs String [Expr]
     deriving (Show, Typeable)
 
-data UnaryOp  = UPlus | UMinus
-    deriving (Show, Typeable)
-data BinaryOp = BPlus | BMinus | Multiply | Divide
-    deriving (Show, Typeable)
+-- TODO: this feature is NOT fully implemented. As if now, we do not support chained dot-access to arbitrary elements in the environment.
+-- Difficulty: the return type of each access might be different. What is a good way to resolve this?
+data BinaryOp = Access deriving (Show, Typeable)
+
+data Color = RndColor | Colo
+          { r :: Float
+          , g :: Float
+          , b :: Float
+          , a :: Float }
+          deriving (Show, Typeable)
 
 --------------------------------------------------------------------------------
 -- Style Parser

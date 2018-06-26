@@ -22,6 +22,7 @@ type Autofloat a = (RealFloat a, Floating a, Real a, Show a, Ord a)
 type Autofloat' a = (RealFloat a, Floating a, Real a, Show a, Ord a, Typeable a)
 
 type Pt2 a = (a, a)
+type Property = String
 
 --------------------------------------------------------------------------------
 -- Parameters of the system
