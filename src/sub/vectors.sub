@@ -2,4 +2,8 @@ VectorSpace U
 Vector(U) A
 Vector(U) B
 --Neg(A)
-AddV(A,B)
+--AddV(A,B)
+
+AutoLabel All
+Label A $\vec{A}$
+Label B $\vec{B}$

@@ -550,6 +550,9 @@ parseSubstance subFile subIn varEnv =
                    divLine
                    let subEnv = check xs varEnv
                        c      = loadObjects xs subEnv
+                   divLine
+                   putStrLn "Substance Env: \n"
+                   print subEnv
                    return (c, subEnv)
 
 --------------------------------------------------------------------------------

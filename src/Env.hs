@@ -135,7 +135,7 @@ tParser, tTypeCtorAppParser, typeVarParser' :: Parser T
 tParser = try tTypeCtorAppParser <|> typeVarParser'
 tTypeCtorAppParser = do
     i         <- identifier
-    arguments <- option [] $ parens (argParser `sepBy1` comma) 
+    arguments <- option [] $ parens (argParser `sepBy1` comma)
     --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $ parens (argParser `sepBy1` comma) --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
     pos <- getPosition
     return (TConstr (TypeCtorApp { nameCons = i, argCons = arguments, constructorInvokerPos = pos }))
@@ -169,6 +169,20 @@ emptyArgList = do
   return []
 
 ----------------------------------- Typechecker aux functions ------------------------------------------
+
+-- | Compute the transitive closure of list of pairs
+--   Useful for subtyping and equality aubtyping checkings
+transitiveClosure :: Eq a => [(a, a)] -> [(a, a)]
+transitiveClosure closure
+  | closure == closureAccum = closure
+  | otherwise                  = transitiveClosure closureAccum
+  where closureAccum =
+          nub $ closure ++ [(a, c) | (a, b) <- closure, (b', c) <- closure, b == b']
+
+-- | Return whether a closure is cyclic (a,b) and (b,a) appears in the closure
+isClosureNotCyclic :: Eq a => [(a,a)] -> Bool
+isClosureNotCyclic lst = let c = [(a,b) | (a,b) <- lst, (a',b') <- lst, a == b' && b == a']
+                  in c == []
 
 firsts :: [(a, b)] -> [a]
 firsts xs = [x | (x,_) <- xs]
@@ -258,11 +272,12 @@ data Predicate2 = Prd2 { namepred2 :: String,
 
 data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        valConstructors  :: M.Map String ValConstructor,
-                       operators       :: M.Map String Env.Operator,
+                       operators        :: M.Map String Env.Operator,
                        predicates       :: M.Map String PredicateEnv,
                        typeVarMap       :: M.Map TypeVar Type,
                        varMap           :: M.Map Var T,
-                       typeCtorNames            :: [String],  -- a global list which contains all the names of types in that env
+                       subTypes         :: [(T,T)],
+                       typeCtorNames    :: [String],  -- a global list which contains all the names of types in that env
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
                        errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
               deriving (Show, Eq, Typeable)
@@ -292,7 +307,9 @@ checkArg e (AT t) = checkT e t
 
 checkT :: VarEnv -> T -> VarEnv
 checkT e (TTypeVar t) = checkTypeVar e t
-checkT e (TConstr c)  = checkTypeCtorApp e c
+checkT e (TConstr c)  = let env1 = checkTypeCtorApp e c
+                            env2 = checkDeclaredType env1 (TConstr c)
+                        in env2
 
 checkType :: VarEnv -> Type -> VarEnv
 checkType e t = e
@@ -310,6 +327,13 @@ checkTypeCtorApp e const = let name = nameCons const
                                                                           " != " ++ (show kinds2) ++ "\n") }
                                                       else env1
                                       Left err -> env1 { errors = (errors env1) ++ err }
+
+checkDeclaredType :: VarEnv -> T -> VarEnv
+checkDeclaredType e (TConstr t) = if ((nameCons t) `elem` (typeCtorNames e))
+  then e
+  else error("Type " ++ (nameCons t) ++ " does not exsist in the context \n")
+checkDeclaredType e _ = error ("Should be called only with type constructors")
+
 
 checkK :: VarEnv -> K -> VarEnv
 checkK e (Ktype t) = checkType e t

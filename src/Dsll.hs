@@ -58,6 +58,16 @@ instance Show Vd where
               cString = show typesVd
               dString = show toVd
 
+-- | Subtype declarations
+data Std = Std {subType :: T,
+                superType :: T}
+          deriving (Eq, Typeable)
+
+instance Show Std where
+   show (Std subTypeStd superTypeStd) = aString ++ "Subtype of" ++ bString
+      where aString = show subTypeStd
+            bString = show superTypeStd
+
 -- | predicates
 data Od = Od { nameOd  :: String,
                varsOd  :: [(Y, K)],
@@ -107,15 +117,17 @@ instance Show Pd2 where
 
 -- | DSLL program composed out of type constructors followed by ar declarations, operations and predicates
 data DSLLProg = DSLLProg { cd :: [Cd],
+                           std :: [Std],
                            vd :: [Vd],
                            od :: [Od],
                            pd :: [Pd] }
                 deriving (Eq, Typeable)
 
 instance Show DSLLProg where
-    show (DSLLProg cd vd od pd) = "types = " ++ cdString ++ "\n \n" ++ "vars = " ++
+    show (DSLLProg cd std vd od pd) = "types = " ++ cdString ++ "\n \n" ++ "subtypes = " ++ stdString ++ "\n \n" ++ "vars = " ++
         vdString ++ "\n \n" ++ "operations = " ++ odString ++ "\n \n" ++ "predicates = " ++ pdString ++ "\n \n"
         where cdString = show cd
+              stdString = show std
               vdString = show vd
               odString = show od
               pdString = show pd
@@ -133,10 +145,11 @@ dsllParser = between scn eof dsllProg -- Parse all the statemnts between the spa
 dsllProg :: Parser DSLLProg
 dsllProg = do
     listCd <- cdParser `sepEndBy` newline'
+    listStd <- stdParser `sepEndBy` newline'
     listVd <- vdParser `sepEndBy` newline'
     listOd <- odParser `sepEndBy` newline'
     listPd <- pdParser `sepEndBy` newline'
-    return DSLLProg { cd = listCd, vd = listVd, od = listOd, pd = listPd }
+    return DSLLProg { cd = listCd, std = listStd, vd = listVd, od = listOd, pd = listPd }
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser Cd
@@ -155,6 +168,14 @@ cd2 = do
     colon
     t' <- typeParser
     return Cd { nameCd = name, inputCd = [], outputCd = t' }
+
+-- | sub type declarations parser
+stdParser :: Parser Std
+stdParser = do
+  subtype <- tParser
+  rword "<:"
+  supertype <- tParser
+  return Std { subType = subtype, superType = supertype}
 
 -- | parser for the (y,k) list
 ykParser :: Parser ([Y], [K])
@@ -218,16 +239,18 @@ pd2 = do
 -- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
 -- a collection of information.
 check :: DSLLProg -> VarEnv
-check p =  let env1  = foldl checkTypeConstructors initE (cd p)
-               env2  = foldl checkValConstructors env1 (vd p)
-               env3  = foldl checkOperators env2 (od p)
-               env4  = foldl checkPredicates env3 (pd p)
-           in if (null (errors env4))
-              then env4
-              else error ("DSLL type checking failed with the following problems: \n" ++ (errors env4))
+check p = let  env1  = foldl checkTypeConstructors initE (cd p)
+               env2  = foldl checkSubTypes env1 (std p)
+               env3  = computeSubTypes env2
+               env4  = foldl checkValConstructors env3 (vd p)
+               env5  = foldl checkOperators env4 (od p)
+               env6  = foldl checkPredicates env5 (pd p)
+           in if (null (errors env6))
+              then env6
+              else error ("DSLL type checking failed with the following problems: \n" ++ (errors env6))
            where initE = VarEnv { typeConstructors = M.empty, valConstructors = M.empty,
                                   operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
-                                  varMap = M.empty, typeCtorNames = [], declaredNames = [], errors = ""}
+                                  varMap = M.empty, subTypes = [], typeCtorNames = [], declaredNames = [], errors = ""}
 
 checkTypeConstructors :: VarEnv -> Cd -> VarEnv
 checkTypeConstructors e c = let kinds  = seconds (inputCd c)
@@ -235,6 +258,19 @@ checkTypeConstructors e c = let kinds  = seconds (inputCd c)
                                 tc   = TypeConstructor { nametc = nameCd c, kindstc = kinds, typtc = outputCd c }
                                 ef   = addName (nameCd c) env1
                              in ef { typeConstructors = M.insert (nameCd c) tc $ typeConstructors ef }
+
+
+checkSubTypes :: VarEnv -> Std -> VarEnv
+checkSubTypes e s = let env1 = checkDeclaredType e (subType s)
+                        env2 = checkDeclaredType env1 (superType s)
+                        env3 = env2{subTypes = ((subType s),(superType s)) : (subTypes env2)}
+                        in env3
+
+computeSubTypes :: VarEnv -> VarEnv
+computeSubTypes e = let env1 = e { subTypes = (transitiveClosure (subTypes e))}
+                    in if (isClosureNotCyclic (subTypes env1)) then
+                      env1
+                    else env1 { errors = (errors env1) ++ "Cyclic Subtyping Relation! \n"}
 
 checkValConstructors :: VarEnv -> Vd -> VarEnv
 checkValConstructors e v = let kinds = seconds (varsVd v)
@@ -259,7 +295,7 @@ checkOperators e v = let kinds = seconds (varsOd v)
                          args = seconds (typesOd v)
                          res = toOd v
                          env2 = foldl checkT localEnv args
-                         temp = checkT localEnv res
+                         temp = checkT env2 res
                          op = Operator { nameop = nameOd v, ylsop = firsts (varsOd v),
                                            kindsop = seconds (varsOd v), tlsop = seconds (typesOd v), top = toOd v }
                          ef = addName (nameOd v) e
@@ -300,6 +336,9 @@ parseDsll dsllFile dsllIn =
               print prog
               divLine
               let env = check prog
+              divLine
+              putStrLn "DSLL Env: \n"
+              print env
               return env
 
 -- --------------------------------------- Test Driver -------------------------------------
