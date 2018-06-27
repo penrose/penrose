@@ -129,7 +129,7 @@ uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
 type Parser = Parsec Void String
 
 rws, attribs, attribVs, shapes :: [String] -- list of reserved words
-rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
+rws =     ["avoid", "as"] ++ shapes ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
@@ -142,7 +142,8 @@ identifier :: Parser String
 identifier = (lexeme . try) (p >>= check)
   where
     -- p       = (:) <$> letterChar <*> many alphaNumChar
-    p       = ((:) <$> letterChar <*> many alphaNumChar) <|> texExpr
+    p       = ((:) <$> letterChar <*> many validChar) <|> texExpr
+    validChar = alphaNumChar <|> char '_'
     check x = if x `elem` rws
                 then fail $ "keyword " ++ show x ++ " cannot be an identifier"
                 else return x
@@ -171,13 +172,16 @@ lexeme = L.lexeme sc
 symbol :: String -> Parser String
 symbol = L.symbol sc
 
+symboln :: String -> Parser String
+symboln = L.symbol scn
+
 newline' :: Parser ()
 newline' = newline >> scn
 
 backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 
-lparen, rparen, lbrac, rbrac, colon, arrow, comma :: Parser ()
+lparen, rparen, lbrac, rbrac, colon, arrow, comma, dollar, question :: Parser ()
 aps = void (symbol "'")
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
@@ -191,13 +195,16 @@ comma = void (symbol ",")
 dot = void (symbol ".")
 eq = void (symbol "=")
 dollar = void (symbol "$")
+question = void (symbol "?")
 
 
 dollars :: Parser a -> Parser a
 dollars = between (symbol "$") (symbol "$")
 
 braces :: Parser a -> Parser a
-braces = between (symbol "{") (symbol "}")
+-- NOTE: symboln is used here because all usages of braces in our system allow newlines in the middle of a stmt
+-- May wanna change this later once we have stricter use case of it
+braces = between (symboln "{") (symbol "}")
 
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
@@ -218,6 +225,9 @@ float = L.signed sc unsignedFloat
 -- Reserved words
 rword :: String -> Parser ()
 rword w = lexeme (string w *> notFollowedBy alphaNumChar)
+
+tryChoice :: [Parser a] -> Parser a
+tryChoice list = choice $ map try list
 
 
 --------------------------------------------------------------------------------

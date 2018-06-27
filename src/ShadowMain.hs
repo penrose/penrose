@@ -2,10 +2,10 @@
 
 module ShadowMain where
 import Utils
-import NewStyle -- COMBAK: remove
 import qualified Server
 import qualified Runtime as R
 import qualified Substance as C
+import qualified NewStyle as NS -- COMBAK: remove
 import qualified Style as S
 import qualified Dsll as D
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
@@ -49,20 +49,23 @@ shadowMain = do
     -- print subEnv
     -- let subSep@(decls, constrs) = C.subSeparate objs
 
-    styProg <- S.parseStyle styFile styIn
-    let initState = R.genInitState subObjs styProg
-    putStrLn "Synthesizing objects and objective functions"
-    -- let initState = compilerToRuntimeTypes intermediateRep
-    -- divLine
-    -- putStrLn "Initial state, optimization representation:\n"
-    -- putStrLn "TODO derive Show"
-    -- putStrLn $ show initState
-    divLine
-    putStrLn "Visualizing Substance program:\n"
+    -- styProg <- S.parseStyle styFile styIn
+    styProg <- NS.parseStyle styFile styIn
+    -- COMBAK: remove and uncomment below
 
-    -- Starting serving penrose on the web
-    let (domain, port) = ("127.0.0.1", 9160)
-    Server.servePenrose domain port initState
+    -- let initState = R.genInitState subObjs styProg
+    -- putStrLn "Synthesizing objects and objective functions"
+    -- -- let initState = compilerToRuntimeTypes intermediateRep
+    -- -- divLine
+    -- -- putStrLn "Initial state, optimization representation:\n"
+    -- -- putStrLn "TODO derive Show"
+    -- -- putStrLn $ show initState
+    -- divLine
+    putStrLn "Visualizing Substance program:\n"
+    --
+    -- -- Starting serving penrose on the web
+    -- let (domain, port) = ("127.0.0.1", 9160)
+    -- Server.servePenrose domain port initState
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
