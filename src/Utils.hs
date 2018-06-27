@@ -185,7 +185,7 @@ newline' = newline >> scn
 backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 
-def, lparen, rparen, lbrac, rbrac, colon, arrow, comma, dollar, question :: Parser ()
+semi, def, lparen, rparen, lbrac, rbrac, colon, arrow, comma, dollar, question :: Parser ()
 aps = void (symbol "'")
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
@@ -194,6 +194,7 @@ rparen = void (symbol ")")
 slparen = void (symbol "[")
 srparen = void (symbol "]")
 colon = void (symbol ":")
+semi = void (symbol ";")
 arrow = void (symbol "->")
 comma = void (symbol ",")
 dot = void (symbol ".")

@@ -193,25 +193,30 @@ header :: Parser Header
 header = tryChoice [Select <$> selector, NameSpace <$> styVar]
 
 -------------------- Selector parsers
+-- COMBAK: short-hand for decls with the same type
+-- COMBAK: change commas to semicolons
 
 -- TODO: clear up the `scn` calls for all parsers and establish the convention of calling scn AFTER each parser
 selector :: Parser Selector
 selector = do
-    hd       <- declPattern `sepBy1` comma <* scn
+    hd       <- fmap concat $ declPattern `sepBy1` semi <* scn
     (wi, wh) <- withAndWhere
     ns       <- optional $ namespace <* scn
     return Selector { selHead = hd,  selWith = wi, selWhere = wh,
                       selNameSpace = ns}
-    where with = rword "with"  >> declPattern `sepBy1` comma <* scn
-          wher = rword "where" >> relationPattern `sepBy1` comma <* scn
+    where wth = fmap concat $ rword "with" *> declPattern `sepBy1` semi <* scn
+          whr = rword "where" *> relationPattern `sepBy1` semi <* scn
           namespace = rword "as" >> identifier
-          withAndWhere = makePermParser $ (,) <$?> ([], with) <|?> ([], wher)
+          withAndWhere = makePermParser $ (,) <$?> ([], wth) <|?> ([], whr)
 
 styVar :: Parser StyVar
 styVar = StyVar' <$> identifier
 
-declPattern :: Parser DeclPattern
-declPattern = PatternDecl' <$> styType <*> bindingForm
+declPattern :: Parser [DeclPattern]
+declPattern = do
+    t  <- styType
+    ns <- bindingForm `sepBy1` comma
+    return $ map (PatternDecl' t) ns
 
 styType :: Parser StyT
 styType = STTypeVar <$> typeVar <|> STConstr <$> typeConstructor
