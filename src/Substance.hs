@@ -1,6 +1,7 @@
 -- | "Substance" contains the grammar, parser, and semantic checker for
 --   the Substance language. It also contains translators to Alloy and
 --   the driver for it.
+--   Author: Dor Ma'ayan, May 2018
 
 {-# OPTIONS_HADDOCK prune #-}
 module Substance where
@@ -69,6 +70,8 @@ instance Show Predicate where
 
 data SubStmt = Decl T Var
              | Bind Var Expr
+             | EqualE Expr Expr
+             | EqualQ Predicate Predicate
              | ApplyP Predicate
              | LabelDecl Var String
              | AutoLabel LabelOption
@@ -137,16 +140,26 @@ predicateParser = do
   return Predicate { predicateName = n, predicateArgs = args, predicatePos = pos }
 
 subStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
-subStmt = labelDecl <|> autoLabel <|> noLabel <|> try bind <|> try decl <|> try applyP
+subStmt = labelDecl <|> autoLabel <|> noLabel <|> try equalE <|> try equalQ <|> try bind <|> try decl <|> try applyP
 decl = do
   t' <- tParser
   v' <- varParser
   return (Decl t' v')
 bind = do
   v' <- varParser
-  eq
+  rword ":="
   e' <- exprParser
   return (Bind v' e')
+equalE = do
+    e1 <- exprParser
+    eq
+    e2 <- exprParser
+    return (EqualE e1 e2)
+equalQ = do
+    q1 <- predicateParser
+    rword "<->"
+    q2 <- predicateParser
+    return (EqualQ q1 q2)
 applyP    = ApplyP <$> predicateParser
 labelDecl = do
     rword "Label"
@@ -190,7 +203,16 @@ checkSubStmt varEnv (Bind v e) = let (vstr, vt) = checkVarE varEnv v
                                                    ++ show et
                                                    ++ " assigned to variable of type " ++ show vt ++ "\n"}
                                      else varEnv { errors = errors varEnv ++ vstr ++ estr }
-
+checkSubStmt varEnv (EqualE expr1 expr2) = let (estr1, et1) = checkExpression varEnv expr1
+                                               (estr2, et2) = checkExpression varEnv expr2
+                                            in if isJust et1 && isJust et2 && et1 /= et2
+                                              then varEnv { errors = errors varEnv ++ estr1 ++ estr2 ++
+                                               "Expression of type " ++ show et1
+                                               ++ " attempeted to be equal to expression from type" ++ show et2 ++ "\n"}
+                                              else varEnv { errors = errors varEnv ++ estr1 ++ estr2 }
+checkSubStmt varEnv (EqualQ q1 q2) = let env1 = checkPredicate varEnv q1
+                                         env2 = checkPredicate env1 q2
+                                         in env2
 checkSubStmt varEnv (ApplyP p)          = checkPredicate varEnv p
 checkSubStmt varEnv (AutoLabel (IDs vs))  =
     let es = concatMap (fst . checkVarE varEnv) vs in varEnv { errors = errors varEnv ++ es}
@@ -202,6 +224,7 @@ checkSubStmt varEnv (LabelDecl i t) =
     let e = (fst . checkVarE varEnv) i
     in varEnv { errors = errors varEnv ++ e}
 
+
 -- | The predicate is looked up in the context; if the context doesn’t contain the predicate, then an error is added to the
 -- context, otherwise it is checked differently depending on if it takes expressions or other predicates as arguments by
 -- calling checkVarPred or checkRecursePred respectively. Any errors found within those checking functions will be accumulated
@@ -212,9 +235,7 @@ checkPredicate varEnv (Predicate (PredicateConst p) args pos) =
         Right p -> case p of
             Pred1 p1 -> checkVarPred varEnv args p1
             Pred2 p2 -> checkRecursePred varEnv args
-        Left _ -> case checkAndGet p (operators varEnv) pos of
-            Right o  -> checkVarOperator varEnv args o
-            Left err -> varEnv { errors = errors varEnv ++ err }
+        Left err -> varEnv { errors = (errors varEnv) ++ err }
 
 
 areAllArgTypes argTypes = foldl (\b at1 -> b && isJust at1) True argTypes
@@ -441,6 +462,47 @@ substInsert sigma y arg = case M.lookup y sigma of
 --                               Nothing -> Right "Argument " ++ (show v) ++ " not in environment\n"
 --                               vType -> Left vType
 
+----------------------------------------- Binding & Equality Environment ------------------
+-- | Definition of the suBSTANCE environemt + helper functions.
+--   Contains binding information and equality of expressions and predicates
+--   In order to calculate all the equalities, we cmpute the closure of the
+--   equlities in Substance + symetry
+
+data EqEnv = EqEnv {   exprEqualities :: [(Expr,Expr)],
+                       predEqualities :: [(Predicate,Predicate)],
+                       bindings       :: M.Map Var Expr
+                    }
+                     deriving (Show, Eq, Typeable)
+
+-- | The top levek function for computing the Substance environement
+--   Important: this function assuemes it runs after the typechecker and that
+--              the program is well-formed (as well as the DSLL)
+loadSubEnv :: SubProg -> EqEnv
+loadSubEnv p = let subEnv1 = foldl loadStatements initE p
+                   subEnv2 = computeEqualityClosure subEnv1
+               in subEnv2
+              where initE = EqEnv {exprEqualities = [], predEqualities = [], bindings = M.empty}
+
+loadStatements :: EqEnv -> SubStmt -> EqEnv
+loadStatements e (EqualE expr1 expr2) = e {exprEqualities = (expr1, expr2) : (exprEqualities e)}
+loadStatements e (EqualQ q1 q2) = e {predEqualities = (q1, q2): (predEqualities e)}
+loadStatements e (Bind v expr) = e {bindings = M.insert v expr $ bindings e }
+loadStatements e _ = e -- for all the other statements, do nothing and simply pass on the environment
+
+computeEqualityClosure:: EqEnv -> EqEnv
+computeEqualityClosure e = e --TODO Implement
+
+-- | Given an environment and 2 expression determine whether those
+--   expressions are equal
+--   For usage in style
+areExprEqual :: EqEnv -> Expr -> Expr -> Bool
+areExprEqual env e1 e2 = ((e1,e2) `elem` (exprEqualities env) || (e2,e1) `elem` (exprEqualities env))
+
+-- | Given an environment and 2 predicates determine whether those
+--   predicates are equal
+--   For usage in style
+arePredEqual :: EqEnv -> Predicate -> Predicate -> Bool
+arePredEqual env q1 q2 = ((q1,q2) `elem` (predEqualities env) || (q2,q1) `elem` (predEqualities env))
 
 -- --------------------------------------- Substance Loader --------------------------------
 -- | Load all the Substance objects for visualization in Runtime.hs
@@ -540,20 +602,24 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-parseSubstance :: String -> String -> VarEnv -> IO (SubObjects, VarEnv)
+parseSubstance :: String -> String -> VarEnv -> IO (SubObjects, (VarEnv, EqEnv))
 parseSubstance subFile subIn varEnv =
                case runParser substanceParser subFile subIn of
                Left err -> error (parseErrorPretty err)
                Right xs -> do
+                   divLine
                    putStrLn "Substance AST: \n"
                    mapM_ print xs
+                   let subTypeEnv = check xs varEnv
+                       c          = loadObjects xs subTypeEnv
+                       subEqEnv   = loadSubEnv xs
                    divLine
-                   let subEnv = check xs varEnv
-                       c      = loadObjects xs subEnv
+                   putStrLn "Substance Type Env: \n"
+                   print subTypeEnv
                    divLine
-                   putStrLn "Substance Env: \n"
-                   print subEnv
-                   return (c, subEnv)
+                   putStrLn "Substance Equality Env: \n"
+                   print subEqEnv
+                   return (c, (subTypeEnv, subEqEnv))
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

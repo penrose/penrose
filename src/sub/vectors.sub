@@ -1,8 +1,15 @@
 VectorSpace U
 Vector(U) A
 Vector(U) B
+Vector(U) C
+
+--Scalar C
 --Neg(A)
---AddV(A,B)
+--C := AddV(A,B)
+
+--Not() = AddV(A,B)
+
+C := AddV(A,B)
 
 AutoLabel All
 Label A $\vec{A}$
