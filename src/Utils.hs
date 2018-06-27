@@ -138,15 +138,19 @@ labelrws = ["Label", "AutoLabel", "NoLabel"]
 dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
-identifier :: Parser String
-identifier = (lexeme . try) (p >>= check)
-  where
-    -- p       = (:) <$> letterChar <*> many alphaNumChar
-    p       = ((:) <$> letterChar <*> many validChar) <|> texExpr
-    validChar = alphaNumChar <|> char '_'
-    check x = if x `elem` rws
-                then fail $ "keyword " ++ show x ++ " cannot be an identifier"
-                else return x
+upperId, lowerId, identifier :: Parser String
+identifier = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> letterChar <*> many validChar
+upperId = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> upperChar <*> many validChar
+lowerId = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> lowerChar <*> many validChar
+validChar = alphaNumChar <|> char '_'
+
+checkId :: String -> Parser String
+checkId x = if x `elem` rws
+          then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+          else return x
 
 texExpr :: Parser String
 texExpr = dollar >> manyTill asciiChar dollar
@@ -181,7 +185,7 @@ newline' = newline >> scn
 backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 
-lparen, rparen, lbrac, rbrac, colon, arrow, comma, dollar, question :: Parser ()
+def, lparen, rparen, lbrac, rbrac, colon, arrow, comma, dollar, question :: Parser ()
 aps = void (symbol "'")
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
@@ -194,6 +198,7 @@ arrow = void (symbol "->")
 comma = void (symbol ",")
 dot = void (symbol ".")
 eq = void (symbol "=")
+def = void (symbol ":=")
 dollar = void (symbol "$")
 question = void (symbol "?")
 

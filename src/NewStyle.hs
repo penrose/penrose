@@ -13,9 +13,11 @@ import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe)
 import Data.List (nubBy, nub, intercalate)
+import Data.Tuple (swap)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
+import Text.Megaparsec.Perm
 import System.Environment
 import Debug.Trace
 import qualified Substance as C
@@ -109,7 +111,8 @@ data RelationPattern = RelBind BindingForm SelExpr | RelPred Predicate
 data Selector = Selector {
     selHead  :: [DeclPattern],
     selWith  :: [DeclPattern],
-    selWhere :: [RelationPattern]
+    selWhere :: [RelationPattern],
+    selNameSpace :: Maybe String
 } deriving (Show, Eq, Typeable)
 
 -------------------- Style block grammar
@@ -195,19 +198,13 @@ selector :: Parser Selector
 selector = do
     hd       <- declPattern `sepBy1` comma
     (wi, wh) <- scn >> withAndWhere
-    return Selector { selHead = hd,  selWith = wi, selWhere = wh }
-    where with = option [] (rword "with"  >> declPattern `sepBy1` comma)
-          wher = option [] (rword "where" >> relationPattern `sepBy1` comma)
-          -- TODO: write it more elegantly
-          order1 = do
-              wi <- with
-              wh <- scn >> wher
-              return (wi, wh)
-          order2 = do
-              wh <- wher
-              wi <- scn >> with
-              return (wi, wh)
-          withAndWhere = order1 <|> order2
+    ns       <- scn >> optional namespace
+    return Selector { selHead = hd,  selWith = wi, selWhere = wh,
+                      selNameSpace = ns}
+    where with = scn >> rword "with"  >> declPattern `sepBy1` comma
+          wher = scn >> rword "where" >> relationPattern `sepBy1` comma
+          namespace = rword "as" >> identifier
+          withAndWhere = makePermParser $ (,) <$?> ([], with) <|?> ([], wher)
 
 styVar :: Parser StyVar
 styVar = StyVar' <$> identifier
@@ -218,9 +215,9 @@ declPattern = PatternDecl' <$> styType <*> bindingForm
 styType :: Parser StyT
 styType = STTypeVar <$> typeVar <|> STConstr <$> typeConstructor
 
--- COMBAK: what is the syntax of this thing? In Env this is `'E`
 typeVar :: Parser STypeVar
 typeVar = do
+    aps -- COMBAK: get rid of this later once it's consistent with DSLL/Substance
     t   <- identifier
     pos <- getPosition
     return STypeVar' { typeVarNameS = t, typeVarPosS = pos}
@@ -228,7 +225,7 @@ typeVar = do
 typeConstructor :: Parser STypeConstr
 typeConstructor = do
     n    <- identifier
-    args <- parens (styArgument `sepBy1` comma) -- COMBAK: empty parens?
+    args <- option [] $ parens (styArgument `sepBy1` comma)
     pos  <- getPosition
     return STypeConstr { nameConsS = n, argConsS = args, posConsS = pos }
 
@@ -238,7 +235,7 @@ styArgument = SAVar <$> bindingForm <|> SAT <$> styType
 
 relationPattern :: Parser RelationPattern
 relationPattern = try pre <|> bind
-    where bind = RelBind <$> bindingForm <*> (eq >> selectorExpr)
+    where bind = RelBind <$> bindingForm <*> (def >> selectorExpr)
           pre  = RelPred <$> predicate
 
 predicate :: Parser Predicate
@@ -254,11 +251,12 @@ predicateArgument = PE <$> selectorExpr <|> PP <$> predicate
 
 selectorExpr :: Parser SelExpr
 selectorExpr =
-    SEBind       <$> bindingForm <|>
-    -- COMBAK: what is the syntactic difference btw the two?
-    -- COMBAK: right recursion, empty parens
-    SEAppValCons <$> identifier <*> parens (selectorExpr `sepBy1` comma) <|>
-    SEAppFunc    <$> identifier <*> parens (selectorExpr `sepBy1` comma)
+    tryChoice [
+        -- COMBAK: right recursion, empty parens
+        SEAppValCons <$> upperId <*> parens (selectorExpr `sepBy1` comma),
+        SEAppFunc    <$> lowerId <*> parens (selectorExpr `sepBy1` comma),
+        SEBind       <$> bindingForm
+    ]
 
 bindingForm :: Parser BindingForm
 bindingForm = BSubVar <$> backticks varParser <|> BStyVar <$> styVar
@@ -269,8 +267,7 @@ block :: Parser [Stmt]
 block = stmt `sepEndBy` newline'
 
 stmt :: Parser Stmt
-stmt = assign <|> override <|> delete
--- stmt = return $ Delete (IntLit 1) -- DEBUG: COMBAK and delete
+stmt = tryChoice [assign, override, delete]
 
 assign, override, delete :: Parser Stmt
 assign   = Assign   <$> path <*> (eq >> expr)
@@ -284,19 +281,19 @@ expr = tryChoice [
            constrFn,
            compFn,
            stringLit,
-           -- COMBAK: change NewStyle to Style
-           makeExprParser term NewStyle.operators
+           arithmeticExpr
        ]
-    -- return $ IntLit 1
 
+-- COMBAK: change NewStyle to Style
+arithmeticExpr :: Parser Expr
+arithmeticExpr = makeExprParser term NewStyle.operators
 
 term :: Parser Expr
-term = parens term
-    <|> EPath  <$> path
+term = parens arithmeticExpr
     <|> try (AFloat <$> annotatedFloat)
+    <|> EPath  <$> path
     <|> IntLit <$> integer
 
--- COMBAK: get operators done
 operators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
 operators =
     [   -- Highest precedence
@@ -340,4 +337,4 @@ stringLit :: Parser Expr
 stringLit = StringLit <$> (char '"' >> manyTill L.charLiteral (char '"'))
 
 annotatedFloat :: Parser AnnoFloat
-annotatedFloat = (rword "optimized" >> return Vary) <|> Fix <$> float
+annotatedFloat = (rword "OPTIMIZED" *> pure Vary) <|> Fix <$> float
