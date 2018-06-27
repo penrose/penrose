@@ -11,7 +11,6 @@ import Utils
 import System.Process
 import Control.Monad (void)
 import Data.Void
-import Debug.Trace
 import System.IO -- read/write to file
 import System.Environment
 import Control.Arrow ((>>>))
@@ -45,7 +44,7 @@ instance Eq TypeVar where
 instance Ord TypeVar where
   (TypeVar s1 _) `compare` (TypeVar s2 _) = s1 `compare` s2
 
-data Var = VarConst String
+newtype Var = VarConst String
      deriving (Show, Eq, Typeable, Ord)
 
 data Y = TypeVarY TypeVar
@@ -67,7 +66,7 @@ instance Show TypeCtorApp where
               aString = show argCons
 
 instance Eq TypeCtorApp where
-  (TypeCtorApp n1 a1 _) == (TypeCtorApp n2 a2 _) = (n1 == n2 && a1 == a2)
+  (TypeCtorApp n1 a1 _) == (TypeCtorApp n2 a2 _) = n1 == n2 && a1 == a2
 
 data Arg = AVar Var
          | AT T
@@ -94,9 +93,7 @@ instance Eq Prop where
 ----------------------------------- Parser --------------------------------------------
 
 typeNameParser :: Parser TypeName
-typeNameParser = do
-    i <- identifier
-    return (TypeNameConst i)
+typeNameParser = TypeNameConst <$> identifier
 
 typeParser :: Parser Type
 typeParser = do
@@ -105,9 +102,7 @@ typeParser = do
     return Type{ typeName = "type", typePos = pos}
 
 varParser :: Parser Var
-varParser = do
-    i <- identifier
-    return (VarConst i)
+varParser = VarConst <$> identifier
 
 typeVarParser :: Parser TypeVar
 typeVarParser = do
@@ -118,12 +113,8 @@ typeVarParser = do
 
 yParser, y1, y2 :: Parser Y
 yParser = try y1 <|> y2
-y1 = do
-  i <- varParser
-  return (VarY i)
-y2 = do
-  i <- typeVarParser
-  return (TypeVarY i)
+y1 = VarY <$> varParser
+y2 = TypeVarY <$> typeVarParser
 
 propParser :: Parser Prop
 propParser = do
@@ -139,18 +130,12 @@ tTypeCtorAppParser = do
     --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $ parens (argParser `sepBy1` comma) --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
     pos <- getPosition
     return (TConstr (TypeCtorApp { nameCons = i, argCons = arguments, constructorInvokerPos = pos }))
-typeVarParser' = do
-    i <- typeVarParser
-    return (TTypeVar i)
+typeVarParser' = TTypeVar <$> typeVarParser
 
 argParser, varParser', tParser'  :: Parser Arg
 argParser = try tParser' <|> varParser'
-varParser' = do
-     i <- varParser
-     return (AVar i)
-tParser' = do
-    t <- tParser
-    return (AT t)
+varParser' = AVar <$> varParser
+tParser' = AT <$> tParser
 
 kParser, kTypeParser, tParser'' :: Parser K
 kParser = try kTypeParser <|> try tParser''
@@ -158,9 +143,7 @@ kTypeParser = do
      rword "type"
      pos <- getPosition
      return (Ktype (Type { typeName = "type", typePos = pos }))
-tParser'' = do
-    t <- tParser
-    return (KT t)
+tParser'' = KT <$> tParser
 
 emptyArgList :: Parser [Arg]
 emptyArgList = do
@@ -182,7 +165,7 @@ transitiveClosure closure
 -- | Return whether a closure is cyclic (a,b) and (b,a) appears in the closure
 isClosureNotCyclic :: Eq a => [(a,a)] -> Bool
 isClosureNotCyclic lst = let c = [(a,b) | (a,b) <- lst, (a',b') <- lst, a == b' && b == a']
-                  in c == []
+                  in null c
 
 firsts :: [(a, b)] -> [a]
 firsts xs = [x | (x,_) <- xs]
@@ -195,34 +178,37 @@ second (a, b) = b
 
 checkAndGet :: String -> M.Map String v -> SourcePos -> Either String v
 checkAndGet k m pos = case M.lookup k m of
-  Nothing -> Left ("Error in " ++ (sourcePosPretty pos) ++ " : " ++ k ++ " Doesn't exist in the context \n")
+  Nothing -> Left ("Error in " ++ sourcePosPretty pos ++ " : " ++ k ++ " Doesn't exist in the context \n")
   Just v ->  Right v
 
 lookUpK :: VarEnv -> Arg -> K
-lookUpK e (AT  (TTypeVar t))  = (Ktype ((typeVarMap e) M.! t)) --(Ktype (Type {typeName = "type", typePos = typeVarPos t }))
+lookUpK e (AT  (TTypeVar t))  = Ktype (typeVarMap e M.! t) --(Ktype (Type {typeName = "type", typePos = typeVarPos t }))
 lookUpK e (AT  (TConstr t)) =
-        if (nameCons t) `elem` (declaredNames e)
+        if nameCons t `elem` declaredNames e
         then lookUpK e (AVar (VarConst (nameCons t)))
-        else (Ktype (Type { typeName = "type", typePos = constructorInvokerPos t }))
-lookUpK e (AVar v) = (KT ((varMap e) M.! v))
+        else Ktype (Type { typeName = "type", typePos = constructorInvokerPos t })
+lookUpK e (AVar v) = KT (varMap e M.! v)
 
 getTypesOfArgs :: VarEnv -> [Arg] -> [K]
-getTypesOfArgs e args = map (lookUpK e) args
+getTypesOfArgs e = map (lookUpK e)
 
 updateEnv :: VarEnv -> (Y, K) -> VarEnv
 updateEnv e (TypeVarY y, Ktype t) = e { typeVarMap = M.insert y t $ typeVarMap e }
 updateEnv e (VarY y, KT t)        = e { varMap = M.insert y t $ varMap e }
-updateEnv e err                   = e { errors = (errors e) ++ "Problem in update: " ++ (show err) ++ "\n" }
+updateEnv e err                   = e { errors = errors e ++ "Problem in update: " ++ show err ++ "\n" }
 
 addName :: String -> VarEnv -> VarEnv
-addName a e = if (a `elem` (typeCtorNames e))
-              then e {errors = (errors e) ++ ("Name already exsist in the context \n")}
-              else e {typeCtorNames = a : (typeCtorNames e)}
+addName a e = if a `elem` typeCtorNames e
+              then e {errors = errors e ++ "Name already exsist in the context \n"}
+              else e {typeCtorNames = a : typeCtorNames e}
 
 addDeclaredName :: String -> VarEnv -> VarEnv
-addDeclaredName a e = if (a `elem` (declaredNames e))
-                      then e { errors = (errors e) ++ ("Name already exsist in the context \n") }
-                      else e { declaredNames = a : (declaredNames e) }
+addDeclaredName a e = if a `elem` declaredNames e
+                      then e { errors = errors e ++ "Name already exsist in the context \n" }
+                      else e { declaredNames = a : declaredNames e }
+
+isSubtype :: T -> T -> VarEnv -> Bool
+isSubtype t1 t2 e = (t1,t2) `elem` subTypes e
 
 --------------------------------------- Env Data Types ---------------------------------------
 
@@ -284,14 +270,14 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
 
 
 checkTypeVar :: VarEnv -> TypeVar -> VarEnv
-checkTypeVar e v = if (M.member v (typeVarMap e))
+checkTypeVar e v = if M.member v (typeVarMap e)
                    then e
-                   else e { errors = (errors e) ++ ("TypeVar " ++ (show v) ++ "is not in scope \n") }
+                   else e { errors = errors e ++ ("TypeVar " ++ show v ++ "is not in scope \n") }
 
 checkVar :: VarEnv -> Var -> VarEnv
-checkVar e v = if (M.member v (varMap e))
+checkVar e v = if M.member v (varMap e)
                then e
-               else e { errors = (errors e) ++ ("Var " ++ (show v) ++ "is not in scope \n") }
+               else e { errors = errors e ++ ("Var " ++ show v ++ "is not in scope \n") }
 
 
 checkY :: VarEnv -> Y -> VarEnv
@@ -300,7 +286,7 @@ checkY e (VarY y)     = checkVar e y
 
 checkArg :: VarEnv -> Arg -> VarEnv
 checkArg e (AVar v) = checkVar e v
-checkArg e (AT (TConstr i)) = if (nameCons i) `elem` (declaredNames e)
+checkArg e (AT (TConstr i)) = if nameCons i `elem` declaredNames e
                               then checkVar e (VarConst (nameCons i))
                               else checkT e (TConstr i)
 checkArg e (AT t) = checkT e t
@@ -319,20 +305,20 @@ checkTypeCtorApp e const = let name = nameCons const
                                args = argCons const
                                env1 = foldl checkArg e args
                                kinds1 = getTypesOfArgs e args
-                            in case (checkAndGet name (typeConstructors e) (constructorInvokerPos const)) of
+                            in case checkAndGet name (typeConstructors e) (constructorInvokerPos const) of
                                       Right val -> let kinds2 = kindstc val
                                                    in if kinds1 /= kinds2
-                                                      then env1 { errors = (errors env1)
-                                                                          ++ ("Args do not match: " ++ (show kinds1) ++
-                                                                          " != " ++ (show kinds2) ++ "\n") }
+                                                      then env1 { errors = errors env1
+                                                                          ++ ("Args do not match: " ++ show kinds1 ++
+                                                                          " != " ++ show kinds2 ++ "\n") }
                                                       else env1
-                                      Left err -> env1 { errors = (errors env1) ++ err }
+                                      Left err -> env1 { errors = errors env1 ++ err }
 
 checkDeclaredType :: VarEnv -> T -> VarEnv
-checkDeclaredType e (TConstr t) = if ((nameCons t) `elem` (typeCtorNames e))
+checkDeclaredType e (TConstr t) = if nameCons t `elem` typeCtorNames e
   then e
-  else error("Type " ++ (nameCons t) ++ " does not exsist in the context \n")
-checkDeclaredType e _ = error ("Should be called only with type constructors")
+  else error("Type " ++ nameCons t ++ " does not exsist in the context \n")
+checkDeclaredType e _ = error "Should be called only with type constructors"
 
 
 checkK :: VarEnv -> K -> VarEnv

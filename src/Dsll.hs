@@ -10,7 +10,6 @@ import Utils
 import System.Process
 import Control.Monad (void)
 import Data.Void
-import Debug.Trace
 import System.IO -- read/write to file
 import System.Environment
 import Control.Arrow ((>>>))
@@ -201,7 +200,7 @@ vdParser = do
   (b', t') <- option ([], []) xtParser
   colon
   t'' <- tParser
-  return Vd { nameVd = name, varsVd = (zip y' k'), typesVd = (zip b' t'), toVd = t'' }
+  return Vd { nameVd = name, varsVd = zip y' k', typesVd = zip b' t', toVd = t'' }
 
 -- | operation parser
 odParser :: Parser Od
@@ -212,7 +211,7 @@ odParser = do
   (b', t') <- option ([], []) $ parens   xtParser
   colon
   t'' <- tParser
-  return Od { nameOd = name, varsOd = (zip y' k'), typesOd = (zip b' t'), toOd = t'' }
+  return Od { nameOd = name, varsOd = zip y' k', typesOd = zip b' t', toOd = t'' }
 
 -- | predicate parser
 pdParser, pd1, pd2 :: Parser Pd
@@ -224,14 +223,14 @@ pd1 = do
   (b', t') <- option ([], []) $ parens   xtParser
   colon
   p' <- propParser
-  return (Pd1Const (Pd1 { namePd1 = name, varsPd1 = (zip y' k'), typesPd1 = (zip b' t'), toPd1 = p' }))
+  return (Pd1Const (Pd1 { namePd1 = name, varsPd1 = zip y' k', typesPd1 = zip b' t', toPd1 = p' }))
 pd2 = do
   rword "predicate"
   name <- identifier
   (b', prop') <- parens xPropParser
   colon
   p' <- propParser
-  return (Pd2Const (Pd2 { namePd2 = name, propsPd2 = (zip b' prop'), toPd2 = p' }))
+  return (Pd2Const (Pd2 { namePd2 = name, propsPd2 = zip b' prop', toPd2 = p' }))
 
 --------------------------------------- DSLL Semantic Checker ---------------------------
 
@@ -245,9 +244,9 @@ check p = let  env1  = foldl checkTypeConstructors initE (cd p)
                env4  = foldl checkValConstructors env3 (vd p)
                env5  = foldl checkOperators env4 (od p)
                env6  = foldl checkPredicates env5 (pd p)
-           in if (null (errors env6))
+           in if null (errors env6)
               then env6
-              else error ("DSLL type checking failed with the following problems: \n" ++ (errors env6))
+              else error("DSLL type checking failed with the following problems: \n" ++ errors env6)
            where initE = VarEnv { typeConstructors = M.empty, valConstructors = M.empty,
                                   operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
                                   varMap = M.empty, subTypes = [], typeCtorNames = [], declaredNames = [], errors = ""}
@@ -263,14 +262,14 @@ checkTypeConstructors e c = let kinds  = seconds (inputCd c)
 checkSubTypes :: VarEnv -> Std -> VarEnv
 checkSubTypes e s = let env1 = checkDeclaredType e (subType s)
                         env2 = checkDeclaredType env1 (superType s)
-                        env3 = env2{subTypes = ((subType s),(superType s)) : (subTypes env2)}
+                        env3 = env2{subTypes = (subType s,superType s) : subTypes env2}
                         in env3
 
 computeSubTypes :: VarEnv -> VarEnv
-computeSubTypes e = let env1 = e { subTypes = (transitiveClosure (subTypes e))}
-                    in if (isClosureNotCyclic (subTypes env1)) then
+computeSubTypes e = let env1 = e { subTypes = transitiveClosure (subTypes e)}
+                    in if isClosureNotCyclic (subTypes env1) then
                       env1
-                    else env1 { errors = (errors env1) ++ "Cyclic Subtyping Relation! \n"}
+                    else env1 { errors = errors env1 ++ "Cyclic Subtyping Relation! \n"}
 
 checkValConstructors :: VarEnv -> Vd -> VarEnv
 checkValConstructors e v = let kinds = seconds (varsVd v)
@@ -284,9 +283,9 @@ checkValConstructors e v = let kinds = seconds (varsVd v)
                                                      kindsvc = seconds (varsVd v), tlsvc = seconds (typesVd v),
                                                      tvc = toVd v }
                                ef = addName (nameVd v) e
-                            in if ((env2 == e || env2 /= e) && (temp == e || temp /= e))
+                            in if env2 == e || env2 /= e && temp == e || temp /= e
                                then ef { valConstructors = M.insert (nameVd v) vc $ valConstructors ef }
-                               else error ("Error!") -- Does not suppose to reach here
+                               else error "Error!" -- Does not suppose to reach here
 
 checkOperators :: VarEnv -> Od -> VarEnv
 checkOperators e v = let kinds = seconds (varsOd v)
@@ -299,9 +298,9 @@ checkOperators e v = let kinds = seconds (varsOd v)
                          op = Operator { nameop = nameOd v, ylsop = firsts (varsOd v),
                                            kindsop = seconds (varsOd v), tlsop = seconds (typesOd v), top = toOd v }
                          ef = addName (nameOd v) e
-                      in if ((env2 == e || env2 /= e) && (temp == e || temp /= e))
+                      in if env2 == e || env2 /= e && temp == e || temp /= e
                            then ef { operators = M.insert (nameOd v) op $ operators ef }
-                           else error ("Error!")  -- Does not suppose to reach here
+                           else error "Error!"  -- Does not suppose to reach here
 
 checkPredicates :: VarEnv -> Pd -> VarEnv
 checkPredicates e (Pd1Const v) = let kinds = seconds (varsPd1 v)
@@ -315,9 +314,9 @@ checkPredicates e (Pd1Const v) = let kinds = seconds (varsPd1 v)
                                                                 tlspred1  = seconds (typesPd1 v),
                                                                 ppred1    = toPd1 v }
                                      ef = addName (namePd1 v) e
-                                 in if ((env2 == e || env2 /= e))
+                                 in if env2 == e || env2 /= e
                                      then ef { predicates = M.insert (namePd1 v) pd1 $ predicates ef }
-                                     else error ("Error!")  -- Does not suppose to reach here
+                                     else error "Error!"  -- Does not suppose to reach here
 
 checkPredicates e (Pd2Const v) = let pd = Pred2 $ Prd2 { namepred2 = namePd2 v, plspred2 = seconds (propsPd2 v),
                                                                ppred2 = toPd2 v }
@@ -350,11 +349,11 @@ main :: IO ()
 main = do
   [dsllFile, outputFile] <- getArgs
   dsllIn <- readFile dsllFile
-  case (parse dsllParser dsllFile dsllIn) of
+  case parse dsllParser dsllFile dsllIn of
     Left err -> putStr (parseErrorPretty err)
     Right xs -> do
       writeFile outputFile (show xs)
       let o = check xs
-      putStrLn (show o)
+      print o
   putStrLn "Parsing Done!"
   return ()
