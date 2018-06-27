@@ -194,15 +194,16 @@ header = tryChoice [Select <$> selector, NameSpace <$> styVar]
 
 -------------------- Selector parsers
 
+-- TODO: clear up the `scn` calls for all parsers and establish the convention of calling scn AFTER each parser
 selector :: Parser Selector
 selector = do
-    hd       <- declPattern `sepBy1` comma
-    (wi, wh) <- scn >> withAndWhere
-    ns       <- scn >> optional namespace
+    hd       <- declPattern `sepBy1` comma <* scn
+    (wi, wh) <- withAndWhere
+    ns       <- optional $ namespace <* scn
     return Selector { selHead = hd,  selWith = wi, selWhere = wh,
                       selNameSpace = ns}
-    where with = scn >> rword "with"  >> declPattern `sepBy1` comma
-          wher = scn >> rword "where" >> relationPattern `sepBy1` comma
+    where with = rword "with"  >> declPattern `sepBy1` comma <* scn
+          wher = rword "where" >> relationPattern `sepBy1` comma <* scn
           namespace = rword "as" >> identifier
           withAndWhere = makePermParser $ (,) <$?> ([], with) <|?> ([], wher)
 
