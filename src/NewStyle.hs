@@ -157,6 +157,16 @@ data Expr
     | List [Expr]
     | ListAccess Path Integer
     | Ctor String [FieldDecl]
+    | Layering LExpr
+    deriving (Show, Eq, Typeable)
+
+data LExpr
+    = LId BindingForm
+    | LPath Path
+    | LayeringOp LayerOp LExpr LExpr
+    deriving (Show, Eq, Typeable)
+
+data LayerOp  = Less | LessEq | Eq | Seq
     deriving (Show, Eq, Typeable)
 
 data UnaryOp  = UPlus | UMinus
@@ -286,6 +296,7 @@ expr = tryChoice [
            objFn,
            constrFn,
            compFn,
+           Layering <$> brackets layeringExpr,
            list,
            stringLit,
            arithmeticExpr
@@ -320,34 +331,29 @@ aOperators =
         -- Lowest precedence
     ]
 
--- arithmeticExpr :: Parser Expr
--- arithmeticExpr = makeExprParser aTerm NewStyle.aOperators
---
--- aTerm :: Parser Expr
--- aTerm = parens arithmeticExpr
---     <|> try (AFloat <$> annotatedFloat)
---     <|> EPath  <$> path
---     <|> IntLit <$> integer
---
--- aOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
--- aOperators =
---     [   -- Highest precedence
---         [
---             Prefix (UOp UMinus <$ symbol "-"),
---             Prefix (UOp UPlus  <$ symbol "+")
---         ],
---         [ InfixL (BinOp Exp <$ symbol "^") ],
---         [
---             InfixL (BinOp Multiply <$ symbol "*"),
---             InfixL (BinOp Divide   <$ symbol "/")
---         ],
---         [
---             InfixL (BinOp BPlus  <$ symbol "+"),
---             InfixL (BinOp BMinus <$ symbol "-")
---         ]
---         -- Lowest precedence
---     ]
---
+layeringExpr :: Parser LExpr
+layeringExpr = makeExprParser lTerm NewStyle.lOperators
+
+lTerm :: Parser LExpr
+lTerm =
+    tryChoice [
+        parens layeringExpr,
+        LPath <$> path,
+        LId   <$> bindingForm
+    ]
+
+lOperators :: [[Text.Megaparsec.Expr.Operator Parser LExpr]]
+lOperators =
+    [   -- Highest precedence
+        [ InfixL (LayeringOp Seq <$ symbol ",") ],
+        [
+            InfixL (LayeringOp Less   <$ symbol "<"),
+            InfixL (LayeringOp LessEq <$ symbol "<="),
+            InfixL (LayeringOp Eq     <$ symbol "==")
+        ]
+        -- Lowest precedence
+    ]
+
 path :: Parser Path
 path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
        FieldPath <$> bindingForm <*> dotId

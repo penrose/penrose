@@ -130,6 +130,7 @@ dsllParser = between scn eof dsllProg -- Parse all the statemnts between the spa
 
 -- |'dsllProg' parses the entire actual DSLL program which is a collection of constructors followed by a collection of
 --   operations followed by a collection of predicates
+-- COMBAK: make the ordering flexible
 dsllProg :: Parser DSLLProg
 dsllProg = do
     listCd <- cdParser `sepEndBy` newline'
