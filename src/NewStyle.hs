@@ -204,8 +204,8 @@ selector = do
     ns       <- optional $ namespace <* scn
     return Selector { selHead = hd,  selWith = wi, selWhere = wh,
                       selNameSpace = ns}
-    where wth = fmap concat $ rword "with" *> declPattern `sepBy1` semi <* scn
-          whr = rword "where" *> relationPattern `sepBy1` semi <* scn
+    where wth = fmap concat $ rword "with" *> declPattern `sepEndBy1` semi <* scn
+          whr = rword "where" *> relationPattern `sepEndBy1` semi <* scn
           namespace = rword "as" >> identifier
           withAndWhere = makePermParser $ (,) <$?> ([], wth) <|?> ([], whr)
 
@@ -286,22 +286,23 @@ expr = tryChoice [
            objFn,
            constrFn,
            compFn,
+           list,
            stringLit,
            arithmeticExpr
        ]
 
 -- COMBAK: change NewStyle to Style
 arithmeticExpr :: Parser Expr
-arithmeticExpr = makeExprParser term NewStyle.operators
+arithmeticExpr = makeExprParser aTerm NewStyle.aOperators
 
-term :: Parser Expr
-term = parens arithmeticExpr
+aTerm :: Parser Expr
+aTerm = parens arithmeticExpr
     <|> try (AFloat <$> annotatedFloat)
     <|> EPath  <$> path
     <|> IntLit <$> integer
 
-operators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
-operators =
+aOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
+aOperators =
     [   -- Highest precedence
         [
             Prefix (UOp UMinus <$ symbol "-"),
@@ -319,9 +320,37 @@ operators =
         -- Lowest precedence
     ]
 
+-- arithmeticExpr :: Parser Expr
+-- arithmeticExpr = makeExprParser aTerm NewStyle.aOperators
+--
+-- aTerm :: Parser Expr
+-- aTerm = parens arithmeticExpr
+--     <|> try (AFloat <$> annotatedFloat)
+--     <|> EPath  <$> path
+--     <|> IntLit <$> integer
+--
+-- aOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
+-- aOperators =
+--     [   -- Highest precedence
+--         [
+--             Prefix (UOp UMinus <$ symbol "-"),
+--             Prefix (UOp UPlus  <$ symbol "+")
+--         ],
+--         [ InfixL (BinOp Exp <$ symbol "^") ],
+--         [
+--             InfixL (BinOp Multiply <$ symbol "*"),
+--             InfixL (BinOp Divide   <$ symbol "/")
+--         ],
+--         [
+--             InfixL (BinOp BPlus  <$ symbol "+"),
+--             InfixL (BinOp BMinus <$ symbol "-")
+--         ]
+--         -- Lowest precedence
+--     ]
+--
 path :: Parser Path
-path = FieldPath    <$> bindingForm <*> dotId <|>
-       PropertyPath <$> bindingForm <*> dotId <*> dotId
+path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
+       FieldPath <$> bindingForm <*> dotId
        where dotId = dot >> identifier
 
 compFn, objFn, constrFn :: Parser Expr
@@ -329,6 +358,9 @@ compFn   = CompApp <$> identifier <*> exprsInParens
 objFn    = ObjFn <$> (rword "encourage" >> identifier) <*> exprsInParens
 constrFn = ConstrFn <$> (rword "ensure" >> identifier) <*> exprsInParens
 exprsInParens = parens $ expr `sepBy` comma
+
+list :: Parser Expr
+list = List <$> brackets (expr `sepBy1` comma)
 
 constructor :: Parser Expr
 constructor = do

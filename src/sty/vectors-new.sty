@@ -34,38 +34,34 @@ VectorSpace U {
 
     U.labelFn = encourage topLeft(U.text, U.shape)
 }
-/*
-LinearMap f; VectorSpace U, V
-where f : U $\rightarrow$ V {
-    f.val = sampleMatrix(2, 2)   -- could be optimized
 
+LinearMap f; VectorSpace U, V
+where From(f, U, V) {
+    f.val = sampleMatrix(2, 2)   -- could be optimized
     f.shape = Arrow {
         from = U.shape
         to = V.shape
         style = LineStyles.curved
     }
-
     f.posFn = encourage between(f.shape, U.shape, V.shape)
     f.labelFn = encourage nearCenter(f.text, f.shape)
 }
 
 Vector v
 with VectorSpace V
-where v $\in$ V {
+where In(v, V) {
     v.val = sampleVectorIn(V.shape)
-
     v.shape = Arrow {
         tail = V.origin
         head = v.val
         color = Colors.blue
     }
-
     v.labelFn = encourage near(v.text, v.shape.head)
 }
 
 Vector u
 with Vector v, w; VectorSpace U
-where u := v + w; u, v, w $\in$ U {
+where u := Add(v, w); In(u, U); In(v, U); In(w, U) {
     -- overrides default vector style while inheriting tail and color attributes
 
     override u.val = addV(v.val, w.val)
@@ -85,20 +81,20 @@ where u := v + w; u, v, w $\in$ U {
 }
 
 Vector v
-with Scalar c; VectorSpace V
-where v := c * w; v, w $\in$ V {
+with Vector w; Scalar c; VectorSpace V
+where v := Scale(c, w); In(v, V); In(w, V) {
     override v.val = mulV(c.val, w.val)
 }
 
 Vector v
 with Vector u; LinearMap f; VectorSpace U, V
-where v := f(u); f : U $\rarrow$ V; v $\in$ V; u $\in$ U {
+where v := Apply(f, u); From(f, U, V); In(v, V); In(u, U) {
     override v.val = apply(f.val, u.val)
 }
 
 Scalar c
 with Vector v; VectorSpace V
-where c := |v|; v $\in$ V {
+where c := Norm(v); In(v, V) {
     override c.val = len(v.shape)
 
     c.shape = CurlyBrace {
@@ -111,7 +107,7 @@ where c := |v|; v $\in$ V {
 
 Scalar c
 with Vector v, w; VectorSpace V
-where c := det(v, w); v, w $\in$ V {
+where c := Determinant(v, w); In(v, V); In(w, V) {
     -- parallelogram in the smaller angle between the vectors
     override c.val = determinant(v.val, w.val)
 
@@ -123,6 +119,5 @@ where c := det(v, w); v, w $\in$ V {
 
     c.labelFn = encourage centered(c.text, c.shape)
 
-    c.layering = [V < c < (v == w)]
+    -- TODO c.layering = [V < c < (v == w)]
 }
-*/
