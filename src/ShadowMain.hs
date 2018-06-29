@@ -14,7 +14,7 @@ import System.IO
 import System.Exit
 import Debug.Trace
 import Text.Show.Pretty
-import Control.Monad (when)
+import Control.Monad (when, forM)
 
 
 -- | `main` runs the Penrose system
@@ -56,6 +56,13 @@ shadowMain = do
     -- mapM_ print styProg
     pPrint styProg
     divLine
+
+    putStrLn "Running Style semantics\n"
+    let selEnvs = NS.checkSels subEnv styProg
+    putStrLn "Selector static semantics and local envs:\n"
+    forM selEnvs pPrint
+    divLine
+
     -- COMBAK: remove and uncomment below
 
     -- let initState = R.genInitState subObjs styProg

@@ -1,16 +1,17 @@
-tconstructor VectorSpace: type
-tconstructor Vector(v : VectorSpace) : type
 tconstructor Scalar : type
-tconstructor LinearMap(t1 : VectorSpace, t2 : VectorSpace) : type --A map between 2 vectpr spaces
+tconstructor VectorSpace : type
+tconstructor Vector : type
+tconstructor LinearMap : type
 
-operator Neg [V : VectorSpace] (v1: Vector(V)) : Vector(V)
-operator AddV [V : VectorSpace] (v1 : Vector(V), v2 : Vector(V)) : Vector(V)
+operator Neg (v : Vector) : Vector
+operator Scale (c : Scalar, v : Vector) : Vector
+operator AddV (v1 : Vector, v2 : Vector) : Vector
 operator AddS(s1 : Scalar, s2 : Scalar) : Scalar
-operator Norm[V : VectorSpace] (v1 : Vector(V)) : Scalar
-operator InnerProd[V : VectorSpace] (v1 : Vector(V), v2 : Vector(V)) : Scalar
-operator Apply['A : type,'B : type] (m1 : Map('A,'B), a1 : 'A) : 'B
--- Scaling, determinants, apply (follows the paper)
+operator Norm (v1 : Vector) : Scalar
+operator InnerProd (v1 : Vector, v2 : Vector) : Scalar
+operator Determinant (v1 : Vector, v2 : Vector) : Scalar
+operator Apply (f : LinearMap, v : Vector) : Vector
 
---predicate LinearV [U : VectorSpace, V : VectorSpace] (m1 : Map(Vector(U), Vector(V)), v1 : Vector(U)) : Prop
-predicate Not(l1 : Prop) : Prop
-predicate And(l1 : Prop, l2 : Prop) : Prop
+predicate In (v : Vector, V : VectorSpace) : Prop
+predicate From (f : LinearMap, V : VectorSpace, W : VectorSpace) : Prop
+predicate Not (p1 : Prop) : Prop

@@ -61,7 +61,7 @@ where In(v, V) {
 
 Vector u
 with Vector v, w; VectorSpace U
-where u := Add(v, w); In(u, U); In(v, U); In(w, U) {
+where u := AddV(v, w); In(u, U); In(v, U); In(w, U) {
     -- overrides default vector style while inheriting tail and color attributes
 
     override u.val = addV(v.val, w.val)
@@ -121,3 +121,51 @@ where c := Determinant(v, w); In(v, V); In(w, V) {
 
     c.layering = [V < c < (v == w)]
 }
+
+-- TODO: just for testing
+
+LinearMap f
+with VectorSpace U, V
+where From(f, U, V) {
+}
+
+LinearMap `f`
+with VectorSpace `U`, V
+where From(`f`, `U`, V) {
+}
+
+-- TODO: it would be nice to print errors w/ sugar
+-- begin list of wrong selectors
+
+Zzzz U { }
+
+Vector u
+where u := Neg(v) { }
+
+Vector u; LinearMap u { }
+
+Vector u; Scalar v
+where u := Negate(v) { }
+
+Vector u; VectorSpace U
+where InV(u, U) { }
+
+-- Below two: to be tested with linearMap.sub
+LinearMap `g` { }
+
+Vector `f` { }
+
+Vector `u`; VectorSpace `U`
+where In(u, U) { }
+
+-- TODO: these fail at runtime (Sub)
+-- Vector u; Scalar v
+-- where u := Neg(v) { }
+
+-- Vector u; Vector v; Scalar c
+-- where u := AddV(v, c) { }
+
+-- Vector u
+-- where u := Neg(u, u) { }
+
+-- end wrong selectors 

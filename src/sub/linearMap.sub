@@ -1,6 +1,11 @@
 VectorSpace U
 VectorSpace T
-Vector(U) A
-Vector(U) B
-Vector(T) C
-LinearMap(U,T) f
+Vector A
+Vector B
+Vector C
+LinearMap f
+
+In(A, U)
+In(B, U)
+In(C, T)
+From(f, U, T)

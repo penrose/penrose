@@ -53,12 +53,13 @@ data Y = TypeVarY TypeVar
          deriving (Show, Eq, Typeable, Ord)
 
 data T = TTypeVar TypeVar
-       | TConstr TypeCtorApp
+       | TConstr TypeCtorApp 
+       -- TODO: rename to TCtor. Less confusing, more consistent w/ Sty
          deriving (Show, Eq, Typeable)
 
 data TypeCtorApp = TypeCtorApp { nameCons :: String,
-                                               argCons  :: [Arg],
-                                               constructorInvokerPos :: SourcePos }
+                                 argCons  :: [Arg],
+                                 constructorInvokerPos :: SourcePos }
                           deriving (Typeable)
 
 instance Show TypeCtorApp where
@@ -245,24 +246,24 @@ data PredicateEnv = Pred1 Predicate1
                   deriving (Show, Eq, Typeable)
 
 data Predicate1 = Prd1 { namepred1 :: String,
-                               ylspred1  :: [Y],
-                               kindspred1  :: [K],
-                               tlspred1  :: [T],
-                               ppred1    :: Prop}
+                         ylspred1  :: [Y],
+                         kindspred1  :: [K],
+                         tlspred1  :: [T],
+                         ppred1    :: Prop}
                   deriving (Show, Eq, Typeable)
 
 data Predicate2 = Prd2 { namepred2 :: String,
-                               plspred2  :: [Prop],
-                               ppred2    :: Prop }
+                         plspred2  :: [Prop],
+                         ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 
 data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        valConstructors  :: M.Map String ValConstructor,
-                       operators       :: M.Map String Env.Operator,
+                       operators        :: M.Map String Env.Operator,
                        predicates       :: M.Map String PredicateEnv,
                        typeVarMap       :: M.Map TypeVar Type,
                        varMap           :: M.Map Var T,
-                       typeCtorNames            :: [String],  -- a global list which contains all the names of types in that env
+                       typeCtorNames    :: [String],  -- a global list which contains all the names of types in that env
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
                        errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
               deriving (Show, Eq, Typeable)
