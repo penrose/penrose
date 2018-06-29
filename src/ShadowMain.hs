@@ -13,6 +13,7 @@ import System.Environment
 import System.IO
 import System.Exit
 import Debug.Trace
+import Text.Show.Pretty
 import Control.Monad (when)
 
 
@@ -51,6 +52,10 @@ shadowMain = do
 
     -- styProg <- S.parseStyle styFile styIn
     styProg <- NS.parseStyle styFile styIn
+    putStrLn "Style AST:\n"
+    -- mapM_ print styProg
+    pPrint styProg
+    divLine
     -- COMBAK: remove and uncomment below
 
     -- let initState = R.genInitState subObjs styProg

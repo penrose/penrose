@@ -10,7 +10,6 @@ import Utils
 import System.Process
 import Control.Monad (void)
 import Data.Void
-import Debug.Trace
 import System.IO -- read/write to file
 import System.Environment
 import Control.Arrow ((>>>))
@@ -23,6 +22,7 @@ import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
+import Text.Show.Pretty
 import Env
 --import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
@@ -115,10 +115,10 @@ data DSLLProg = DSLLProg { cd :: [Cd],
 instance Show DSLLProg where
     show (DSLLProg cd vd od pd) = "types = " ++ cdString ++ "\n \n" ++ "vars = " ++
         vdString ++ "\n \n" ++ "operations = " ++ odString ++ "\n \n" ++ "predicates = " ++ pdString ++ "\n \n"
-        where cdString = show cd
-              vdString = show vd
-              odString = show od
-              pdString = show pd
+        where cdString = ppShow cd
+              vdString = ppShow vd
+              odString = ppShow od
+              pdString = ppShow pd
 
 ----------------------------------------- DSLL Parser -------------------------------------
 
@@ -298,7 +298,7 @@ parseDsll dsllFile dsllIn =
           Left err -> error (parseErrorPretty err)
           Right prog -> do
               putStrLn "DSLL AST: \n"
-              print prog
+              pPrint prog
               divLine
               let env = check prog
               return env

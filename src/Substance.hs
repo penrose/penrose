@@ -22,6 +22,7 @@ import           System.Random
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Expr
+import           Text.Show.Pretty
 import           Utils
 -- import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
@@ -474,10 +475,10 @@ loadObjects p env =
         initObjs = SubObjects { subObjs = [], subLabels = M.empty }
         subIds   = map (\(VarConst v) -> v) $ M.keys (varMap env)
         labelStmt s = case s of
-            LabelDecl _ _       -> True
-            AutoLabel _         -> True
-            NoLabel   _         -> True
-            _                   -> False
+            LabelDecl _ _ -> True
+            AutoLabel _   -> True
+            NoLabel   _   -> True
+            _             -> False
 
 -- | Given all label statements and Substance IDs, generate a map from
 -- all ids to their labels
@@ -547,7 +548,7 @@ parseSubstance subFile subIn varEnv =
                Left err -> error (parseErrorPretty err)
                Right xs -> do
                    putStrLn "Substance AST: \n"
-                   mapM_ print xs
+                   pPrint xs
                    divLine
                    let subEnv = check xs varEnv
                        c      = loadObjects xs subEnv

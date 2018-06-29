@@ -183,11 +183,7 @@ parseStyle :: String -> String -> IO StyProg
 parseStyle styFile styIn =
     case runParser styleParser styFile styIn of
     Left err -> error (parseErrorPretty err)
-    Right styProg -> do
-        putStrLn "Style AST:\n"
-        mapM_ print styProg
-        divLine
-        return styProg
+    Right styProg -> return styProg
 
 -- | 'styleParser' is the top-level function that parses a Style proram
 styleParser :: Parser StyProg
