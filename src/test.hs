@@ -1,12 +1,16 @@
 module Test where
 import Data.List
 import Data.List.Split
+--import Data.Tuple.Extra
 enumerate = zip [0..]
 
 -- function to initizlie a bunch of the same value in a 2d grid of user defined size
 grid :: Int -> Int -> a -> [[a]]
 grid x y = replicate y . replicate x
 
+
+fst3 :: (a, b, c) -> a
+fst3 (a, b, c) = a
 ------------ DEFINITIONS -------------------
 -- SOON: Will get info from Penrose not me plugging in automatic values
 
@@ -21,7 +25,7 @@ row = 15
 
 dist :: Float -> Float -> Float -> Int -> Float
 dist radius xc yc n =
-  sqrt( (( fromIntegral (n / col) - xc) ^2) + (( fromIntegral (n / col) -yc) ^2) )  - radius
+  sqrt( (( fromIntegral (n `div` col) - xc) ^2) + (( fromIntegral (n `mod` col) -yc) ^2) )  - radius
 
 initGrid :: Float -> Float -> Float -> [[Float]]
 initGrid radius xc yc =
@@ -43,7 +47,10 @@ neighbors grid (x,y) =
             ]
     list = zip3 cells (map abs cells) [0..9]
     in
-    head (head (sortBy (compare `on` (minimum . snd) list )) )
+    fst3 (head (sortBy comp list ))
+    where
+      comp (_, a, _) (_, b, _) = compare a b
+
 
 fsm :: [[Float]] -> [[Float]]
 fsm grid = foldl (neighbors) grid [ (x,y) | x <- [1..row-1], y <- [1..col-1]]
