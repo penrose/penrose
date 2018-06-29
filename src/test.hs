@@ -1,8 +1,11 @@
 module Test where
 import Data.List
 import Data.List.Split
+import Data.Vector
 --import Data.Tuple.Extra
 enumerate = zip [0..]
+
+type Grid = Vector
 
 -- function to initizlie a bunch of the same value in a 2d grid of user defined size
 grid :: Int -> Int -> a -> [[a]]
@@ -50,10 +53,21 @@ neighbors grid (x,y) =
     fst3 (head (sortBy comp list ))
     where
       comp (_, a, _) (_, b, _) = compare a b
+      absDist cells = --if 0 dont add anything, if 1-4 add 1, if 4-9, add
 
 
 fsm :: [[Float]] -> [[Float]]
-fsm grid = foldl (neighbors) grid [ (x,y) | x <- [1..row-1], y <- [1..col-1]]
+fsm grid =
+
+
+fs1, fs2, fs3, fs4 :: [[Float]] -> [[Float]]
+-- ULtoLR
+fs1 grid = foldl (neighbors) grid [ (x,y) | x <- [1..row-1], y <- [1..col-1]]
+-- LLtoUR
+--
+-- fs3 -- URtoLL
+-- fs4 -- LRtoUL
+-- foldl (neighbors) grid [ (x,y) | x <- [1..row-1], y <- [1..col-1]]
 -- foldl (neighbors) grid [ (x,y) | x <- [row-1,row-2..1], y <- [1..col-1]]
 -- foldl (neighbors) grid [ (x,y) | x <- [1..row-1], y <- [col-1, col-2..1]]
 -- foldl (neighbors) grid [ (x,y) | x <- [row-1,row-2..1], y <- [col-1, col-2..1]]
