@@ -4,6 +4,7 @@ import Data.Maybe (isJust, fromJust)
 import Data.List
 import Data.Vector ((!), (//), (!?), Vector)
 import qualified Data.Vector as V
+import Numeric
 --import Data.Tuple.Extra
 
 type Coord = (Int, Int)
@@ -13,10 +14,11 @@ closestPt :: Entry -> Maybe Coord
 closestPt (Ent _ i) = i
 
 instance Show Entry where
-    show (Ent e _)
-        | e < 0     = "-"
-        | e > 0     = "+"
-        | otherwise = "o"
+    -- show (Ent e _)
+    --     | e < 0     = "-"
+    --     | e > 0     = "+"
+    --     | otherwise = "o"
+     show (Ent e _) = showFFloat (Just 2)  e ""
 type Grid  = Vector (Vector Entry)
 
 -- function to initizlie a bunch of the same value in a 2d grid of user defined size
@@ -84,16 +86,18 @@ neighbors grid (x,y) = map fromJust $ filter isJust $ map (grid !!?) ls
 updateCell :: Grid -> Coord -> Grid
 updateCell grid curCoord =
     let o           = i2f curCoord
+        Ent d _     = grid !!! curCoord
         (ns, _)     = partition (isJust . closestPt) $ neighbors grid curCoord
         toBoundry   = dist o . i2f . fromJust . closestPt
         cmp a b     = compare (toBoundry a) (toBoundry b)
+        signOf d    = if d== 0 then 0 else ( d / abs d )
         newPt (Ent _ (Just pt)) = update grid curCoord $
-                                    Ent (dist o (i2f pt)) (Just pt)
+                                Ent ( signOf d * dist o (i2f pt)) (Just pt)
     in if null ns then grid else newPt $ minimumBy cmp ns
 
 fsm :: Grid -> Grid
 fsm grid = fs1 grid
-
+--COMBAK : fix fast sweeping, add in other passes
 -- fs1, fs2, fs3, fs4 :: Grid -> Grid
 -- ULtoLR
 fs1 :: Grid -> Grid
@@ -110,3 +114,4 @@ main = do
     let image = initGrid r
     let (row, col) = dimensions image
     showGrid $ fsm image
+    -- print image
