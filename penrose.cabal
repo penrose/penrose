@@ -23,7 +23,7 @@ source-repository head
 executable penrose
   main-is:             Main.hs
   default-language: Haskell2010
-  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation
+  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation Graphics
   other-extensions:    AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, OverloadedStrings, DeriveGeneric, DuplicateRecordFields
   build-depends:       base                >= 4.9 && <4.10,
                        random              >= 1.1 && <1.2,
@@ -41,6 +41,8 @@ executable penrose
                        pretty-show,
                        network              >= 2.6.3 && < 2.7,
                        split,
+                       vector,
+                       unordered-containers,
                        directory
   hs-source-dirs:      src
 
@@ -49,7 +51,7 @@ Test-Suite penrose-testsuite
   type: exitcode-stdio-1.0
   main-is: TestSuite.hs
   default-language: Haskell2010
-  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation
+  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation Graphics
                        Runtime.Tests ShadowMain.Tests Computation.Tests Functions.Tests Server.Tests
                        Shapes.Tests Style.Tests Substance.Tests Utils.Tests
   build-depends:       base                >= 4.9 && <4.10,
@@ -67,7 +69,9 @@ Test-Suite penrose-testsuite
                        process             >= 1.4.3 && < 1.5,
                        network              >= 2.6.3 && < 2.7,
                        split,
+                       vector,
                        tasty,
+                       unordered-containers,
                        tasty-smallcheck,
                        tasty-quickcheck,
                        tasty-hunit,

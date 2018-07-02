@@ -31,6 +31,7 @@ import Data.Data -- TODO remove extra dynamic/typeable/data imports and deriving
 import Data.Either (partitionEithers)
 import qualified Data.Map.Strict as M
 import qualified Substance as C
+import qualified Graphics as G
 import qualified Style as S
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
@@ -546,16 +547,13 @@ initLine n config = (objs, oFns, [])
                          (Just fromNm, Just toNm) -> [(centerLine, defaultWeight, [TShape n, TShape fromNm, TShape toNm])]
           oFns = betweenObjFn
 
-initCircle n config = (objs, oFns, constrs)
+initCircle n config = ([circ], [], sizeFuncs n)
     where
-        style = fromMaybe "solid" $ lookupStr "style" config
+        style  = fromMaybe "solid" $ lookupStr "style" config
         stroke = fromMaybe 0.0 $ lookupFloat "stroke" config
         setStyle (C c) sty str = C $ c { stylec = sty, strokec = str }
-        circObj = setStyle (defaultCirc n) style stroke
-        objs = [circObj]
-        oFns = []
-        constrs = sizeFuncs n
-
+        (C c) = defaultCirc n
+        circ  = setStyle (C c) style stroke
 
 initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0)] -- (60, 0), (100, 100), (250, 250), (300, 100)]
@@ -815,8 +813,10 @@ sampleCoord gen o = case o of
                                   (cr', gen4) = randomR colorRange  gen3
                                   (cg', gen5) = randomR colorRange  gen4
                                   (cb', gen6) = randomR colorRange  gen5
-                                  in
-                              (C $ circ { r = r', colorc = makeColor cr' cg' cb' opacity }, gen6)
+                                  circ' = circ { r = r', colorc = makeColor cr' cg' cb' opacity }
+                                  sdf   = constructSDF $ C circ'
+                                  bvh   = G.constructBVH sdf
+                                  in (C $ circ' { bvhc = bvh, sdfc = sdf }, gen6)
                     E elli -> let (rx', gen3) = randomR radiusRange gen2
                                   (cr', gen4) = randomR colorRange  gen3
                                   (cg', gen5) = randomR colorRange  gen4
@@ -1048,7 +1048,7 @@ optStopCond gradEval = trStr ("||gradEval||: " ++ (show $ norm gradEval)
 
 -- Going from `Floating a` to Float discards the autodiff dual gradient info (I think)
 zeroGrad :: (Autofloat a) => Obj' a -> Obj
-zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c, namec = namec' c, colorc = colorc' c, stylec = stylec' c, strokec = r2f $ strokec' c }
+zeroGrad (C' c) = C $ Circ { xc = r2f $ xc' c, yc = r2f $ yc' c, r = r2f $ r' c, namec = namec' c, colorc = colorc' c, stylec = stylec' c, strokec = r2f $ strokec' c, bvhc = bvhc' c, sdfc = sdfc' c}
 zeroGrad (E' e) = E $ Ellipse { xe = r2f $ xe' e, ye = r2f $ ye' e, rx = r2f $ rx' e, ry = r2f $ ry' e,
                               namee = namee' e, colore = colore' e }
 zeroGrad (S' s) = S $ Square { xs = r2f $ xs' s, ys = r2f $ ys' s, side = r2f $ side' s, names = names' s, colors = colors' s, ang = ang' s, styles = styles' s, strokes = r2f $ strokes' s }
@@ -1082,7 +1082,7 @@ zeroGrads = map zeroGrad
 
 -- Add the grad info by generalizing Obj (on Floats) to polymorphic objects (for autodiff to use)
 addGrad :: (Autofloat a) => Obj -> Obj' a
-addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c, namec' = namec c, colorc' = colorc c, stylec' = stylec c, strokec' = r2f $ strokec c }
+addGrad (C c) = C' $ Circ' { xc' = r2f $ xc c, yc' = r2f $ yc c, r' = r2f $ r c, namec' = namec c, colorc' = colorc c, stylec' = stylec c, strokec' = r2f $ strokec c, bvhc' = bvhc c, sdfc' = sdfc c}
 addGrad (E e) = E' $ Ellipse' { xe' = r2f $ xe e, ye' = r2f $ ye e, rx' = r2f $ rx e, ry' = r2f $ ry e,
                              namee' = namee e, colore' = colore e }
 

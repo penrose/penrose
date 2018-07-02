@@ -4,8 +4,8 @@
  * @version: 06/23/2017
  */
 
+// var DEBUG           = false
 var DEBUG           = false
-// var DEBUG           = true
 var CANVAS_WIDTH    = 800
 var CANVAS_HEIGHT   = 700
 var SAMPLE_INTERVAL = 30

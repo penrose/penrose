@@ -11,6 +11,7 @@ module Shapes where
 import Data.Aeson
 import Data.Monoid ((<>))
 import GHC.Generics
+import qualified Graphics as G
 
 import Utils
 
@@ -26,6 +27,14 @@ class Named a where
       getName :: a -> Name
       setName :: Name -> a -> a
 
+--------------------------------------------------------------------------------
+-- BVH-SDF
+
+-- | 'constructSDF' is the top-level function that generates a signed
+-- distantce field given a shape object
+constructSDF :: Obj -> G.Grid
+constructSDF shape = case shape of
+    C c -> G.fsm $ G.initCircGrid (r c)
 
 -------
 data CubicBezier = CubicBezier {
@@ -116,7 +125,9 @@ data Circ = Circ {
     strokec :: Float,
     namec   :: String,
     colorc  :: Color,
-    stylec  :: String
+    stylec  :: String,
+    bvhc    :: G.Tree,
+    sdfc    :: G.Grid
 } deriving (Eq, Show, Generic)
 
 instance Located Circ Float where
@@ -496,7 +507,9 @@ data Circ' a = Circ' {
     strokec':: a,
     namec'  :: String,
     stylec' :: String,
-    colorc' :: Color
+    colorc' :: Color,
+    bvhc'   :: G.Tree,
+    sdfc'   :: G.Grid
 } deriving (Eq, Show)
 
 data Ellipse' a = Ellipse' {

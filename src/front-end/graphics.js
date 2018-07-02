@@ -194,6 +194,27 @@ var Render = (function(){
         }
     }
 
+    function _renderBVH(s, node, x, y, level) {
+        // render BBox
+        if(node.type != "EmptyNode") {
+            var [x0, y0] = node.bbox.topLeft
+            var [x1, y1] = node.bbox.bottomRight
+            var [w, h]   = [x1 - x0, y1 - y0]
+            var r = s.rect(x0 + x , y0 + y, w, h)
+            r.attr({
+                fill: Utils.hex(0.55, 0.55, 0.73),
+                "fill-opacity": 0.05*level,
+                stroke: "#000",
+                strokeWidth: 1
+            })
+        }
+        if(node.type == "Node") {
+            level += 1
+            _renderBVH(s, node.left, x, y, level)
+            _renderBVH(s, node.right, x, y, level)
+        }
+    }
+
     /**
      * Renders a circle on the canvas
      * @param       {Snap} s  Snap.svg global object
@@ -216,6 +237,9 @@ var Render = (function(){
             })
         }
         circ.drag(move, start, stop)
+        if(DEBUG) {
+            _renderBVH(s, obj.bvhc, x- obj.r*2, y - obj.r*2, 0)
+        }
     }
 
     /**
@@ -612,8 +636,6 @@ var Render = (function(){
          });
          parallelogram.drag(move, start, stop)
      }
-
-
 
     // helper method that draws bbox around an object
     function _renderBoundingBox(s, obj) {
