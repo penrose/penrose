@@ -44,8 +44,13 @@ shadowMain = do
     -- putStrLn "Dsll Env program:\n"
     -- print dsllEnv
 
-    (subObjs, subEnv) <- C.parseSubstance subFile subIn dsllEnv
+    (subProg, subObjs, subEnv) <- C.parseSubstance subFile subIn dsllEnv
     divLine
+
+    putStrLn "Parsed Substance program:\n"
+    pPrint subProg
+    divLine
+
     -- putStrLn "Substance Env program:\n"
     -- print subEnv
     -- let subSep@(decls, constrs) = C.subSeparate objs
@@ -61,6 +66,11 @@ shadowMain = do
     let selEnvs = NS.checkSels subEnv styProg
     putStrLn "Selector static semantics and local envs:\n"
     forM selEnvs pPrint
+    divLine
+
+    let subss = NS.find_substs_prog subEnv NS.SubEnv{} subProg styProg -- TODO: pass in beta
+    putStrLn "Selector matches:\n"
+    forM subss pPrint
     divLine
 
     -- COMBAK: remove and uncomment below
@@ -90,7 +100,7 @@ mainRetInit subFile styFile dsllFile = do
     styIn <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    (objs, env) <- C.parseSubstance subFile subIn dsllEnv
+    (subProg, objs, env) <- C.parseSubstance subFile subIn dsllEnv
     styProg <- S.parseStyle styFile styIn
     let initState = R.genInitState objs styProg
     return $ Just initState

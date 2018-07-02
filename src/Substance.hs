@@ -542,17 +542,17 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-parseSubstance :: String -> String -> VarEnv -> IO (SubObjects, VarEnv)
+parseSubstance :: String -> String -> VarEnv -> IO (SubProg, SubObjects, VarEnv)
 parseSubstance subFile subIn varEnv =
                case runParser substanceParser subFile subIn of
                Left err -> error (parseErrorPretty err)
-               Right xs -> do
+               Right subProg -> do
                    putStrLn "Substance AST: \n"
-                   pPrint xs
+                   pPrint subProg
                    divLine
-                   let subEnv = check xs varEnv
-                       c      = loadObjects xs subEnv
-                   return (c, subEnv)
+                   let subEnv = check subProg varEnv
+                       objs   = loadObjects subProg subEnv
+                   return (subProg, objs, subEnv)
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

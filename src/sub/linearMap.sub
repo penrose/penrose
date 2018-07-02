@@ -1,11 +1,23 @@
-VectorSpace U
-VectorSpace T
-Vector A
-Vector B
-Vector C
-LinearMap f
+Scalar x
+Scalar y
 
-In(A, U)
-In(B, U)
-In(C, T)
-From(f, U, T)
+VectorSpace U
+VectorSpace V
+VectorSpace W
+Vector a
+Vector b
+Vector c
+LinearMap f
+LinearMap g
+LinearMap h
+
+-- Vector d
+-- d := AddV(a, b)
+-- In(d, U)
+
+In(a, U)
+In(b, U)
+In(c, V)
+From(f, U, V)
+From(g, V, U)
+From(h, U, U)

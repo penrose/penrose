@@ -122,8 +122,9 @@ type Field = String
 -- | A path consist of a Substance or Style id, a shape name, and (optionally)
 -- a property name
 data Path
-    = FieldPath BindingForm Field
-    | PropertyPath BindingForm Field Property
+    = FieldPath BindingForm Field                 -- example: x.val
+    | PropertyPath BindingForm Field Property     -- example: x.shape.center
+    -- NOTE: we do have to use backticks in the block to indicate Substance variables
     deriving (Show, Eq, Typeable)
 
 -- | A statement in the Style language
@@ -388,9 +389,10 @@ annotatedFloat = (rword "OPTIMIZED" *> pure Vary) <|> Fix <$> float
 -- g ::= B => |T
 -- Assumes nullary type constructors (i.e. Style type = Substance type)
 -- TODO: hold error in env?
-data SelEnv = SelEnv { sTypeVarMap :: M.Map BindingForm StyT, -- x : T
+data SelEnv = SelEnv { sTypeVarMap :: M.Map BindingForm StyT, -- B : |T
                        sErrors :: [String] }
               deriving (Show, Eq, Typeable)
+
 type Error = String
 
 ------------ Helper functions on envs
@@ -454,6 +456,7 @@ toSubPred stypred = C.Predicate { C.predicateName = C.PredicateConst $ predicate
 
 ----------- Selector static semantics
 
+-- For `B := E`, make sure `B : T` and `E : T`
 compareTypes :: RelationPattern -> BindingForm -> SelExpr -> Maybe T -> Maybe T -> Maybe Error
 compareTypes stmt var expr vtype etype = 
    case (vtype, etype) of 
@@ -543,7 +546,7 @@ checkSel varEnv sel =
          selEnv_decls { sErrors = filter (/= "") $ reverse (sErrors selEnv_decls) ++ rel_errs }
 
 -- Returns a sel env for each selector in the Style program, in the same order
--- TODO: add these judgments
+-- TODO: add these judgments to the paper
 checkSels :: VarEnv -> StyProg -> [SelEnv]
 checkSels varEnv prog = map (checkPair varEnv) prog
           where checkPair :: VarEnv -> (Header, Block) -> SelEnv
@@ -551,5 +554,198 @@ checkSels varEnv prog = map (checkPair varEnv) prog
                 checkPair varEnv ((Namespace name), _) = initSelEnv 
                 -- TODO: for now, namespace has no local context 
 
--- TODO: write test cases (including failing ones)
+-- TODO: check that a Sub var `X` is not used in the same selector as the Sty var "X"
+
+-- TODO: write test cases (including failing ones) after Substance errors are no longer @ runtime
+-- TODO: use new .dsl files after merged
 -- TODO: get line/col numbers for errors
+
+----------- Selector dynamic semantics (matching)
+
+----- Type declarations
+
+-- A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
+type Subst = M.Map StyVar Var
+
+-- TODO: add beta everywhere after merge
+data SubEnv = SubEnv { }
+
+----- Debug info
+
+debugM1, debugM2 :: Bool
+debugM1 = False
+debugM2 = True
+
+mkTr :: Bool -> String -> a -> a
+mkTr flag str res = if flag then trace str res else res
+
+trM1 = mkTr debugM1
+trM2 = mkTr debugM2
+
+----- Substitution helper functions
+
+-- (+) operator
+combine :: Ord k => M.Map k a -> M.Map k a -> M.Map k a
+combine s1 s2 = M.union s1 s2
+-- TODO check for duplicate keys (and vals)
+
+-- (x) operator 
+merge :: Ord k => [M.Map k a] -> [M.Map k a] -> [M.Map k a]
+merge s1 [] = s1
+merge [] s2 = s2
+merge s1 s2 = [ combine s1i s2j | s1i <- s1, s2j <- s2 ] -- TODO check wrt maps
+
+checkSubst :: Subst -> Bool
+checkSubst subst = True -- TODO does this need to be checked WRT a selector?
+
+----- Apply a substitution to various parts of Style (relational statements, exprs, blocks)
+-- Recursively walk the tree, looking up and replacing each Style variable encountered with a Substance variable
+-- If a Sty var doesn't have a substitution (i.e. substitution map is bad), keep the Sty var and move on
+
+-- TODO: factor out tree-walking code? e.g. derive Traversable
+-- TODO: return "maybe" if a substitution fails?
+
+-- TODO: remove this after beta is added
+-- don't compare SourcePos
+predEq :: C.Predicate -> C.Predicate -> Bool
+predEq p1 p2 = C.predicateName p1 == C.predicateName p2 && C.predicateArgs p1 == C.predicateArgs p2
+
+substituteBform :: Subst -> BindingForm -> BindingForm
+substituteBform subst sv@(BSubVar _) = sv
+substituteBform subst sv@(BStyVar sv'@(StyVar' vn)) =
+   case M.lookup sv' subst of
+   Nothing     -> sv -- Returns same style variable by default if there's no substitution
+   Just subVar -> BSubVar subVar -- Returns result of mapping if it exists (y -> x)
+
+substituteExpr :: Subst -> SelExpr -> SelExpr
+-- theta(B) = ...
+substituteExpr subst (SEBind bvar) = SEBind $ substituteBform subst bvar
+-- theta(f[E]) = f([theta(E)]
+substituteExpr subst (SEAppFunc fname exprs) = SEAppFunc fname $ map (substituteExpr subst) exprs
+-- theta(v([E])) = v([theta(E)])
+substituteExpr subst (SEAppValCons vname exprs) = SEAppValCons vname $ map (substituteExpr subst) exprs
+
+substitutePredArg :: Subst -> PredArg -> PredArg
+substitutePredArg subst (PE expr) = PE $ substituteExpr subst expr
+substitutePredArg subst (PP pred) = PP $ substitutePred subst pred
+
+substitutePred :: Subst -> Predicate -> Predicate
+substitutePred subst pred = pred { predicateArgs = map (substitutePredArg subst) $ predicateArgs pred }
+
+-- theta(|S_r) = ...
+substituteRel :: Subst -> RelationPattern -> RelationPattern
+-- theta(B := E) |-> theta(B) := theta(E)
+substituteRel subst (RelBind bvar sExpr) = RelBind (substituteBform subst bvar) (substituteExpr subst sExpr)
+-- theta(Q([a]) = Q([theta(a)])
+substituteRel subst (RelPred pred) = RelPred $ substitutePred subst pred
+
+-- Applies a substitution to a list of relational statements. theta([|S_r])
+-- TODO: assumes a full substitution
+substituteRels :: Subst -> [RelationPattern] -> [RelationPattern]
+substituteRels subst rels = map (substituteRel subst) rels
+
+substituteBlock :: Subst -> Block -> Block
+substituteBlock subst block = block -- TODO fill in
+
+----- Filter with relational statements
+
+-- Judgment 11. b; theta |- S <| |S_r
+relMatchesLine :: SubEnv -> C.SubStmt -> RelationPattern -> Bool
+-- rule Bind-Match
+relMatchesLine subEnv (C.Bind var expr) (RelBind bvar sExpr) =
+               case bvar of
+               BStyVar _ -> error "Style variable found in relational statement; should not be present!"
+               BSubVar sVar -> var == sVar && expr == toSubExpr sExpr -- TODO: use beta to check equality
+-- rule Pred-Match
+relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) = predEq pred $ toSubPred sPred
+               -- TODO: use beta to check for implication
+relMatchesLine _ _ _ = False -- no other line forms match (decl, equality, etc.)
+
+-- Judgment 13. b |- [S] <| |S_r
+relMatchesProg :: SubEnv -> C.SubProg -> RelationPattern -> Bool
+relMatchesProg subEnv subProg rel = any (flip (relMatchesLine subEnv) rel) subProg
+
+-- Judgment 15. b |- [S] <| [|S_r]
+allRelsMatch :: SubEnv -> C.SubProg -> [RelationPattern] -> Bool
+allRelsMatch subEnv subProg rels = all (relMatchesProg subEnv subProg) rels
+
+-- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
+-- Folds over [theta]
+filterRels :: SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
+filterRels subEnv subProg rels substs = 
+           filter (\subst -> allRelsMatch subEnv subProg (substituteRels subst rels)) substs
+
+----- Match declaration statements
+
+-- TODO: change Subst to Maybe Subst, check for validity everywhere
+
+-- Judgment 9. G; theta |- T <| |T
+-- Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
+matchType :: VarEnv -> T -> StyT -> Bool
+matchType varEnv (TConstr tctor) (STCtor stctor) =
+          if length (argCons tctor) > 0 || length (argConsS stctor) > 0
+          then error "no types with parameters allowed in match" -- TODO error msg
+          else trM1 ("types: " ++ nameCons tctor ++ ", " ++ nameConsS stctor) $ 
+               nameCons tctor == nameConsS stctor -- TODO subtyping
+-- TODO better errors + think about cases below
+matchType varEnv (TTypeVar tvar) (STTypeVar stvar) = error "no type vars allowed in match" 
+matchType varEnv (TConstr tvar) (STTypeVar stvar) = error "no type vars allowed in match"
+matchType varEnv (TTypeVar tvar) (STCtor stctor) = error "no type vars allowed in match"
+
+-- Judgment 10. theta |- x <| B
+matchBvar :: Var -> BindingForm -> Maybe Subst
+matchBvar subVar (BStyVar styVar) = Just $ M.insert styVar subVar M.empty
+matchBvar subVar (BSubVar styVar) = if subVar == styVar 
+                                    then Just M.empty 
+                                    else Nothing
+
+-- Judgment 12. G; theta |- S <| |S_o
+matchDeclLine :: VarEnv -> C.SubStmt -> DeclPattern -> Maybe Subst
+matchDeclLine varEnv (C.Decl subT subVar) (PatternDecl' styT bvar) =
+              let typesMatched = matchType varEnv subT styT in
+              if typesMatched
+              then trM1 "types matched" $ matchBvar subVar bvar
+              else trM1 "types didn't match" $ Nothing -- substitution is only valid if types matched first
+matchDeclLine _ subL styL = Nothing -- Sty decls only match Sub decls
+          
+-- Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
+matchDecl :: VarEnv -> C.SubProg -> [Subst] -> DeclPattern -> [Subst]
+matchDecl varEnv subProg initSubsts decl = 
+          -- Judgment 14. G; [theta] |- [S] <| |S_o
+          let newSubsts = map (flip (matchDeclLine varEnv) decl) subProg in
+          trM1 ("new substs: " ++ show newSubsts) $ merge initSubsts (catMaybes newSubsts)
+          -- TODO: why is this trace necessary to see the rest of the debug output? 
+          -- is it because of list comprehensions?
+          -- TODO: check the merge, also filter out any empty `newSubsts`?
+          -- empty means "didn't match" or "no sty vars to match". distinguish between the two? Maybe Subst
+
+-- Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
+-- Folds over [|S_o]
+matchDecls :: VarEnv -> C.SubProg -> [DeclPattern] -> [Subst] -> [Subst]
+matchDecls varEnv subProg decls initSubsts = foldl (matchDecl varEnv subProg) initSubsts decls
+
+----- Overall judgments
+
+find_substs_sel :: VarEnv -> SubEnv -> C.SubProg -> Header -> [Subst]
+-- Judgment 19. G; b; [theta] |- [S] <| Sel
+find_substs_sel varEnv subEnv subProg (Select sel) =
+    let decls            = selHead sel ++ selWith sel
+        rels             = selWhere sel
+        initSubsts       = []
+        subst_candidates = matchDecls varEnv subProg decls initSubsts
+        -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
+        filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $ 
+                           filterRels subEnv subProg rels subst_candidates
+        correct_substs   = filter checkSubst filtered_substs
+    in correct_substs
+find_substs_sel _ _ _ (Namespace _) = [] -- No substitutions for a namespace (not in paper)
+
+-- TODO: note on prog, header judgment to paper?
+-- Find a list of substitutions for each selector in the Sty program.
+find_substs_prog :: VarEnv -> SubEnv -> C.SubProg -> StyProg -> [[Subst]]
+find_substs_prog varEnv subEnv subProg styProg =
+    let sels = map fst styProg in
+    map (find_substs_sel varEnv subEnv subProg) sels
+
+-- TODO: should Sub:[Scalar x, y] Sty:[Scalar c, d] generate all 4 matches? what is the intent here?
+-- TODO: make anonymous variables for unification for Substance program
