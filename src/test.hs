@@ -160,8 +160,8 @@ bVHHelper g bbox@(BBox (x0, y0) (x1, y1)) X =
             Just bbox -> Leaf bbox
     else
         -- COMBAK: clean
-        let right = toNode $ getBBox g (x0,y0) (x1 - (x1 - x0) `div` 2, y1)
-            left  = toNode $ getBBox g (x1 - (x1 - x0) `div` 2, y0) (x1, y1)
+        let right =  toNode $ getBBox g (x0,y0) (x1 - div (x1 - x0) 2, y1)
+            left  = trace ("calling X to node left with " ++ show (x1 - div (x1 - x0) 2) ++ " " ++ show(x1) ) $ toNode $ getBBox g (x1 - div (x1 - x0) 2, y0) (x1, y1)
         in  Node left right bbox
     where toNode maybeB = case maybeB of
             Nothing -> EmptyNode
@@ -172,8 +172,8 @@ bVHHelper g bbox@(BBox (x0, y0) (x1, y1)) Y =
             Nothing   -> EmptyNode
             Just bbox -> Leaf bbox
     else
-        let right = toNode $ getBBox g (x0,y0) (x1, y1 - (y1 - y0) `div` 2)
-            left  = toNode $ getBBox g (x0, y1 - (y1 - y0) `div` 2) (x1, y1)
+        let right = tr "YtoNoderight" $ toNode $ getBBox g (x0,y0) (x1, y1 - div (y1 - y0) 2)
+            left  = trace ("calling X to node left with " ++ show (y1 - div (y1 - y0) 2) ++ " " ++ show(y1) ) $ toNode $ getBBox g (x0, y1 - div (y1 - y0) 2) (x1, y1)
         in  Node left right bbox
     where toNode maybeB = case maybeB of
             Nothing -> EmptyNode
@@ -201,8 +201,6 @@ getBBox g (startx, starty) (endx, endy) =
 -- Divide in half, repeat ^, save in tree Node
 
 
-
-
 --------------------------------------------------------------------------------
 -- Main
 
@@ -212,7 +210,7 @@ main = do
     let (row, col) = dimensions grid
     let bvh  = constructBVH grid
     showGrid grid
-    putStrLn $ showTree bvh 0 0
-    -- print bvh
+    -- putStrLn $ showTree bvh 0 0
+    print bvh
     -- let rootBox = getBBox grid (0,0) (row-1, col-1)
     -- print rootBox
