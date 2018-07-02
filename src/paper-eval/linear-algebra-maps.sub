@@ -1,0 +1,21 @@
+VectorSpace U, V, W, X
+LinearMap f : U → V
+LinearMap g : V → W
+LinearMap h : W → X
+Vector u1, u2, u3, u4, u5 ∈ U
+Vector v1, v2, v3 ∈ V
+u3 := u1 + u2
+v1 := f(u1)
+v2 := f(u2)
+v3 := f(u3) = v1 + v2
+-- the "equivalence" equal sign is tentative
+Scalar a := det(u1,u3) u4 := a * u2
+u5 := -u4
+Scalar m := |v2| Scalar c := <v1, v3>
+Vector w1 ∈ W := g(v1) Vector x1 ∈ X := h(w1)
+
+Autolabel All
+Label u4 "$u_4 = au_2/2$
+Label u5 "$u_5 = -u_4$"
+Label c "$|v_1| \langle v_1, v_3 \rangle$" Label w1 "$g(v_1)$"
+Label x1 "$(h \circ g)(v_1)$"

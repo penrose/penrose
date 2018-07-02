@@ -199,12 +199,12 @@ updateEnv e err                   = e { errors = errors e ++ "Problem in update:
 
 addName :: String -> VarEnv -> VarEnv
 addName a e = if a `elem` typeCtorNames e
-              then e {errors = errors e ++ "Name already exsist in the context \n"}
+              then e {errors = errors e ++ "Name " ++ a ++ " already exsist in the context \n"}
               else e {typeCtorNames = a : typeCtorNames e}
 
 addDeclaredName :: String -> VarEnv -> VarEnv
 addDeclaredName a e = if a `elem` declaredNames e
-                      then e { errors = errors e ++ "Name already exsist in the context \n" }
+                      then e { errors = errors e ++ "Name " ++ a ++ " already exsist in the context \n"}
                       else e { declaredNames = a : declaredNames e }
 
 isSubtype :: T -> T -> VarEnv -> Bool
