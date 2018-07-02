@@ -5,6 +5,7 @@ import Data.Maybe (isJust, fromJust)
 import Data.List
 -- import Data.Tree.Pretty (drawTree)
 import Data.Vector ((!), (//), (!?), Vector)
+import Text.Show.Pretty (pPrint)
 import qualified Data.Vector as V
 import Numeric
 
@@ -34,7 +35,7 @@ r  = 15.0
 
 -- | 'res' is the lowest resolution of BVH leaf nodes
 res :: Int
-res = 4
+res = 10
 
 defaultCell :: Entry
 defaultCell = Ent (-1.0) Nothing
@@ -146,11 +147,6 @@ maxInt, minInt :: Int
 maxInt = maxBound
 minInt = minBound
 
-minMaxBBox :: (Coord, Coord) -> Coord -> Entry -> (Coord, Coord)
-minMaxBBox c@((xMin, yMin), (xMax, yMax) ) (i,j) (Ent val _ ) =
-    if val <= 0 then
-         (( min xMin i, min yMin j), (max xMax i, max yMax j))
-    else c
 
 bVHHelper :: Grid -> BBox -> Axis -> Tree
 bVHHelper g bbox@(BBox (x0, y0) (x1, y1)) X =
@@ -159,9 +155,8 @@ bVHHelper g bbox@(BBox (x0, y0) (x1, y1)) X =
             Nothing   -> EmptyNode
             Just bbox -> Leaf bbox
     else
-        -- COMBAK: clean
-        let right =  toNode $ getBBox g (x0,y0) (x1 - div (x1 - x0) 2, y1)
-            left  = trace ("calling X to node left with " ++ show (x1 - div (x1 - x0) 2) ++ " " ++ show(x1) ) $ toNode $ getBBox g (x1 - div (x1 - x0) 2, y0) (x1, y1)
+        let left  = toNode $ getBBox g (x0,y0) (x1, y1 - div (y1 - y0) 2)
+            right = toNode $ getBBox g (x0, y1 - div (y1 - y0) 2) (x1, y1)
         in  Node left right bbox
     where toNode maybeB = case maybeB of
             Nothing -> EmptyNode
@@ -172,8 +167,8 @@ bVHHelper g bbox@(BBox (x0, y0) (x1, y1)) Y =
             Nothing   -> EmptyNode
             Just bbox -> Leaf bbox
     else
-        let right = tr "YtoNoderight" $ toNode $ getBBox g (x0,y0) (x1, y1 - div (y1 - y0) 2)
-            left  = trace ("calling X to node left with " ++ show (y1 - div (y1 - y0) 2) ++ " " ++ show(y1) ) $ toNode $ getBBox g (x0, y1 - div (y1 - y0) 2) (x1, y1)
+        let left  = toNode $ getBBox g (x0,y0) (x1 - div (x1 - x0) 2, y1)
+            right = toNode $ getBBox g (x1 - div (x1 - x0) 2, y0) (x1, y1)
         in  Node left right bbox
     where toNode maybeB = case maybeB of
             Nothing -> EmptyNode
@@ -187,11 +182,17 @@ constructBVH grid =
         Nothing   -> EmptyNode -- TODO: handle empty shapes (?)
         Just bbox -> bVHHelper grid bbox X
 
+-- slice2D:: Grid -> Coord -> Coord -> Grid
+-- slice2D g (startx, starty) (rows, cols) =
+--      V.map (V.slice starty cols) $ V.slice startx rows g
+
 getBBox :: Grid -> Coord -> Coord -> Maybe BBox
-getBBox g (startx, starty) (endx, endy) =
+getBBox g orig@(startx, starty) (endx, endy) =
     let
         defaultPts = ((maxInt, maxInt) ,(minInt, minInt))
-        pts@((xMin,yMin) , (xMax,yMax)) = ifoldl2D minMaxBBox defaultPts g
+        coords     = [ (x,y) | x <- [startx..endx], y <- [starty..endy] ]
+        pts@((xMin,yMin) , (xMax,yMax)) = foldl (minMaxBBox g) defaultPts coords
+            -- ifoldl2D minMaxBBox defaultPts subG
         --b = BBox pMin pMax
     in if pts == defaultPts then Nothing else Just $ uncurry BBox pts
 
@@ -200,6 +201,14 @@ getBBox g (startx, starty) (endx, endy) =
 
 -- Divide in half, repeat ^, save in tree Node
 
+minMaxBBox :: Grid -> (Coord, Coord) -> Coord -> (Coord, Coord)
+minMaxBBox g c@((xMin, yMin), (xMax, yMax) ) (i,j) =
+    let
+        (Ent val _) = g !!! (i,j)
+    in
+    if val <= 0 then
+         (( min xMin i, min yMin j), (max xMax i, max yMax j))
+    else c
 
 --------------------------------------------------------------------------------
 -- Main
@@ -210,7 +219,11 @@ main = do
     let (row, col) = dimensions grid
     let bvh  = constructBVH grid
     showGrid grid
+    putStrLn ""
+    -- let smaller = slice2D grid (0,0) (4,4)
+    -- print $ dimensions smaller
+    -- showGrid smaller
     -- putStrLn $ showTree bvh 0 0
-    print bvh
+    pPrint bvh
     -- let rootBox = getBBox grid (0,0) (row-1, col-1)
     -- print rootBox
