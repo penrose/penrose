@@ -51,7 +51,8 @@ instance Show Func where
               aString = show argFunc
 
 data Expr = VarE Var
-          | ApplyExpr Func
+          | ApplyFunc Func
+          | ApplyValCons Func
           deriving (Show, Eq, Typeable)
 
 data PredArg = PE Expr
@@ -122,10 +123,17 @@ functionParser = do
   args <- parens (exprParser `sepBy1` comma)
   return Func { nameFunc = n, argFunc = args }
 
-exprParser, varE, applyF :: Parser Expr
-exprParser = try applyF <|> try varE
+exprParser, varE, applyFunc, applyValCons :: Parser Expr
+exprParser = try applyFunc <|> try applyValCons <|> try varE
 varE = VarE <$> varParser
-applyF = ApplyExpr <$> functionParser
+applyFunc = do
+  n <- lowerId
+  args <- parens (exprParser `sepBy1` comma)
+  return (ApplyFunc (Func { nameFunc = n, argFunc = args }))
+applyValCons = do
+  n <- upperId
+  args <- parens (exprParser `sepBy1` comma)
+  return (ApplyValCons (Func { nameFunc = n, argFunc = args }))
 
 predicateArgParser, predicateArgParserE, predicateArgParserP  :: Parser PredArg
 predicateArgParser = try predicateArgParserE <|> predicateArgParserP
@@ -301,7 +309,8 @@ checkRecursePred varEnv args = let predArgs = map isRecursedPredicate args
 -- If errors were found during checking then they are accumulated and returned in a tuple with the Maybe type for the expression.
 checkExpression :: VarEnv -> Expr -> (String, Maybe T)
 checkExpression varEnv (VarE v)      = checkVarE varEnv v
-checkExpression varEnv (ApplyExpr f) = checkFunc varEnv f
+checkExpression varEnv (ApplyFunc f) = checkFunc varEnv f
+checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
 
 
 -- Checking a variable expression for well-typedness involves looking it up in the context.
@@ -333,7 +342,7 @@ checkFunc varEnv (Func f args) = let vcEnv = M.lookup f (valConstructors varEnv)
 checkFuncInEnv :: VarEnv -> Func -> Env.Operator -> (String, Maybe T)
 checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
                let errAndTypesLs = map (checkExpression varEnv) args
-                   errls         = map fst errAndTypesLs
+                   errls         = firsts errAndTypesLs
                    err           = concat errls
                    argTypes      = map snd errAndTypesLs
                in if foldl (\b at1 -> b && isJust at1) True argTypes
@@ -454,41 +463,43 @@ substInsert sigma y arg = case M.lookup y sigma of
 --   In order to calculate all the equalities, we cmpute the closure of the
 --   equlities in Substance + symetry
 
-data EqEnv = EqEnv {   exprEqualities :: [(Expr,Expr)],
+data SubEnv = SubEnv { exprEqualities :: [(Expr,Expr)],
                        predEqualities :: [(Predicate,Predicate)],
-                       bindings       :: M.Map Var Expr
+                       bindings       :: M.Map Var Expr,
+                       subPreds :: [Predicate]
                     }
                      deriving (Show, Eq, Typeable)
 
 -- | The top levek function for computing the Substance environement
 --   Important: this function assuemes it runs after the typechecker and that
 --              the program is well-formed (as well as the DSLL)
-loadSubEnv :: SubProg -> EqEnv
+loadSubEnv :: SubProg -> SubEnv
 loadSubEnv p = let subEnv1 = foldl loadStatements initE p
                    subEnv2 = computeEqualityClosure subEnv1
                in subEnv2
-              where initE = EqEnv {exprEqualities = [], predEqualities = [], bindings = M.empty}
+              where initE = SubEnv {exprEqualities = [], predEqualities = [], bindings = M.empty, subPreds = []}
 
-loadStatements :: EqEnv -> SubStmt -> EqEnv
+loadStatements :: SubEnv -> SubStmt -> SubEnv
 loadStatements e (EqualE expr1 expr2) = e {exprEqualities = (expr1, expr2) : exprEqualities e}
 loadStatements e (EqualQ q1 q2) = e {predEqualities = (q1, q2) : predEqualities e}
 loadStatements e (Bind v expr) = e {bindings = M.insert v expr $ bindings e }
+loadStatements e (ApplyP p) = e {subPreds = p : subPreds e}
 loadStatements e _ = e -- for all the other statements, do nothing and simply pass on the environment
 
-computeEqualityClosure:: EqEnv -> EqEnv
+computeEqualityClosure:: SubEnv -> SubEnv
 computeEqualityClosure e = e {predEqualities = transitiveClosure (predEqualities e),
                               exprEqualities = transitiveClosure (exprEqualities e) }
 
 -- | Given an environment and 2 expression determine whether those
 --   expressions are equal
 --   For usage in style
-areExprEqual :: EqEnv -> Expr -> Expr -> Bool
+areExprEqual :: SubEnv -> Expr -> Expr -> Bool
 areExprEqual env e1 e2 = (e1,e2) `elem` exprEqualities env || (e2,e1) `elem` exprEqualities env
 
 -- | Given an environment and 2 predicates determine whether those
 --   predicates are equal
 --   For usage in style
-arePredEqual :: EqEnv -> Predicate -> Predicate -> Bool
+arePredEqual :: SubEnv -> Predicate -> Predicate -> Bool
 arePredEqual env q1 q2 = (q1,q2) `elem` predEqualities env || (q2,q1) `elem` predEqualities env
 
 -- --------------------------------------- Substance Loader --------------------------------
@@ -589,7 +600,7 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-parseSubstance :: String -> String -> VarEnv -> IO (SubObjects, (VarEnv, EqEnv))
+parseSubstance :: String -> String -> VarEnv -> IO (SubObjects, (VarEnv, SubEnv))
 parseSubstance subFile subIn varEnv =
                case runParser substanceParser subFile subIn of
                Left err -> error (parseErrorPretty err)
@@ -599,14 +610,14 @@ parseSubstance subFile subIn varEnv =
                    mapM_ print xs
                    let subTypeEnv = check xs varEnv
                        c          = loadObjects xs subTypeEnv
-                       subEqEnv   = loadSubEnv xs
+                       subSubEnv   = loadSubEnv xs
                    divLine
                    putStrLn "Substance Type Env: \n"
                    print subTypeEnv
                    divLine
-                   putStrLn "Substance Equality Env: \n"
-                   print subEqEnv
-                   return (c, (subTypeEnv, subEqEnv))
+                   putStrLn "Substance Dedicated Env: \n"
+                   print subSubEnv
+                   return (c, (subTypeEnv, subSubEnv))
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

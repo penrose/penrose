@@ -1,3 +1,5 @@
+-- | The target program from the design paper
+/*
 VectorSpace U, V, W, X
 LinearMap f : U → V
 LinearMap g : V → W
@@ -19,3 +21,72 @@ Label u4 "$u_4 = au_2/2$
 Label u5 "$u_5 = -u_4$"
 Label c "$|v_1| \langle v_1, v_3 \rangle$" Label w1 "$g(v_1)$"
 Label x1 "$(h \circ g)(v_1)$"
+
+*/
+VectorSpace U
+VectorSpace V
+VectorSpace W
+VectorSpace X
+
+LinearMap f
+From(f,U,V)
+
+LinearMap g
+From(f,V,W)
+
+LinearMap h
+From(f,W,X)
+
+Vector u1
+Vector u2
+Vector u3
+Vector u4
+Vector u5
+
+In(u1,U)
+In(u2,U)
+In(u3,U)
+In(u4,U)
+In(u5,U)
+
+Vector v1
+Vector v2
+Vector v3
+
+In(v1,V)
+In(v2,V)
+In(v3,V)
+
+u3 := Add(u1,u2)
+v1 := Apply(f,u1)
+v2 := Apply(f,u2)
+v3 := Apply(f,u3)
+
+v3 = Add(v1,v2)
+
+-- the "equivalence" equal sign is tentative
+Scalar a
+a := Determinant(u1,u3)
+u4 := Scale(a,u2)
+u5 := Neg(u4)
+
+Scalar m
+m := Norm(m)
+--Norm(v2)
+
+Scalar c
+c := InnerProduct(v1, v3)
+
+Vector w1
+In(w1,W)
+w1 := Apply(g,v1)
+
+Vector x1
+x1 := Apply(f,u1)
+
+AutoLabel All
+Label u4 $u_4 = au_2/2$
+Label u5 $u_5 = -u_4$
+Label c $|v_1| \langle v_1, v_3 \rangle$
+Label w1 $g(v_1)$
+Label x1 $(h \circ g)(v_1)$

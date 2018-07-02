@@ -4,7 +4,8 @@ tconstructor Vector : type
 tconstructor LinearMap : type
 
 operator Add (v1 : Vector, v2 : Vector) : Vector
-operator Scale (c : Scalar, v : Scalar) : Vector
+operator Neg (v1 : Vector) : Vector
+operator Scale (c : Scalar, v : Vector) : Vector
 operator Norm (v1 : Vector) : Scalar
 operator InnerProduct (v1 : Vector, v2 : Vector) : Scalar
 operator Determinant (v1 : Vector, v2 : Vector) : Scalar
