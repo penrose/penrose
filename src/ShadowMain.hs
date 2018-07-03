@@ -74,9 +74,9 @@ mainRetInit subFile styFile dsllFile = do
     styIn <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    (objs, env) <- C.parseSubstance subFile subIn dsllEnv
+    (objs, (env, eqEnv)) <- C.parseSubstance subFile subIn dsllEnv
     styProg <- S.parseStyle styFile styIn
-    let initState = R.genInitState objs styProg 
+    let initState = R.genInitState objs styProg
     return $ Just initState
 
 mainRetFinal :: R.State -> R.State

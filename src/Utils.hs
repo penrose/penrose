@@ -134,17 +134,22 @@ attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
 labelrws = ["Label", "AutoLabel", "NoLabel"]
-dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type"]
+dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type", "<:", "->", "<->"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
-identifier :: Parser String
-identifier = (lexeme . try) (p >>= check)
-  where
-    -- p       = (:) <$> letterChar <*> many alphaNumChar
-    p       = ((:) <$> letterChar <*> many alphaNumChar) <|> texExpr
-    check x = if x `elem` rws
-                then fail $ "keyword " ++ show x ++ " cannot be an identifier"
-                else return x
+upperId, lowerId, identifier :: Parser String
+identifier = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> letterChar <*> many validChar
+upperId = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> upperChar <*> many validChar
+lowerId = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> lowerChar <*> many validChar
+validChar = alphaNumChar <|> char '_'
+
+checkId :: String -> Parser String
+checkId x = if x `elem` rws
+          then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+          else return x
 
 texExpr :: Parser String
 texExpr = dollar >> manyTill asciiChar dollar
