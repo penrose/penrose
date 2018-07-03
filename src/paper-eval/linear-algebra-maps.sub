@@ -1,28 +1,3 @@
--- | The target program from the design paper
-/*
-VectorSpace U, V, W, X
-LinearMap f : U → V
-LinearMap g : V → W
-LinearMap h : W → X
-Vector u1, u2, u3, u4, u5 ∈ U
-Vector v1, v2, v3 ∈ V
-u3 := u1 + u2
-v1 := f(u1)
-v2 := f(u2)
-v3 := f(u3) = v1 + v2
--- the "equivalence" equal sign is tentative
-Scalar a := det(u1,u3) u4 := a * u2
-u5 := -u4
-Scalar m := |v2| Scalar c := <v1, v3>
-Vector w1 ∈ W := g(v1) Vector x1 ∈ X := h(w1)
-
-Autolabel All
-Label u4 "$u_4 = au_2/2$
-Label u5 "$u_5 = -u_4$"
-Label c "$|v_1| \langle v_1, v_3 \rangle$" Label w1 "$g(v_1)$"
-Label x1 "$(h \circ g)(v_1)$"
-
-*/
 VectorSpace U
 VectorSpace V
 VectorSpace W
@@ -57,32 +32,31 @@ In(v1,V)
 In(v2,V)
 In(v3,V)
 
-u3 := Add(u1,u2)
-v1 := Apply(f,u1)
-v2 := Apply(f,u2)
-v3 := Apply(f,u3)
-
-v3 = Add(v1,v2)
+u3 := add(u1,u2)
+v1 := apply(f,u1)
+v2 := apply(f,u2)
+v3 := apply(f,u3)
+v3 = add(v1,v2)
 
 -- the "equivalence" equal sign is tentative
 Scalar a
-a := Determinant(u1,u3)
-u4 := Scale(a,u2)
-u5 := Neg(u4)
+a := determinant(u1,u3)
+u4 := scale(a,u2)
+u5 := neg(u4)
 
 Scalar m
-m := Norm(m)
+m := norm(m)
 --Norm(v2)
 
 Scalar c
-c := InnerProduct(v1, v3)
+c := innerProduct(v1, v3)
 
 Vector w1
 In(w1,W)
-w1 := Apply(g,v1)
+w1 := apply(g,v1)
 
 Vector x1
-x1 := Apply(f,u1)
+x1 := apply(f,u1)
 
 AutoLabel All
 Label u4 $u_4 = au_2/2$

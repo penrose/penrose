@@ -134,7 +134,7 @@ attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
 labelrws = ["Label", "AutoLabel", "NoLabel"]
-dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type", "<:", ":=", "<->"]
+dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type", "<:", "->", "<->"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
 upperId, lowerId, identifier :: Parser String

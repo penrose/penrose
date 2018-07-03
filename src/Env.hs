@@ -164,7 +164,7 @@ transitiveClosure closure
 
 -- | Return whether a closure is cyclic (a,b) and (b,a) appears in the closure
 isClosureNotCyclic :: Eq a => [(a,a)] -> Bool
-isClosureNotCyclic lst = let c = [(a,b) | (a,b) <- lst, (a',b') <- lst, a == b' && b == a']
+isClosureNotCyclic lst = let c = [(a,a') | (a,a') <- lst, a == a']
                   in null c
 
 firsts :: [(a, b)] -> [a]
@@ -316,9 +316,9 @@ checkTypeCtorApp e const = let name = nameCons const
 
 checkDeclaredType :: VarEnv -> T -> VarEnv
 checkDeclaredType e (TConstr t) = if nameCons t `elem` typeCtorNames e
-  then e
-  else error("Type " ++ nameCons t ++ " does not exsist in the context \n")
-checkDeclaredType e _ = error "Should be called only with type constructors"
+                                   then e
+                                   else e { errors = errors e ++ "Type " ++ nameCons t ++ " does not exsist in the context \n" }
+checkDeclaredType e _ = e { errors = errors e ++ "checkDeclaredType should be called only with type constructors \n" }
 
 
 checkK :: VarEnv -> K -> VarEnv

@@ -22,14 +22,14 @@ LeftClopenInterval <: Interval
 RightClopenInterval <: Interval
 
 -- Operators on intervals
-operator Union (I : Interval, J : Interval) : Interval
-operator Intersection (I : Interval, J : Interval)  : Interval
+operator union (I : Interval, J : Interval) : Interval
+operator intersection (I : Interval, J : Interval)  : Interval
 
 -- Operators on functions, points, and intervals
-operator DerivativeAtP (f : Function, p : Real) : Real
-operator DerivativeOverD (f : Function) : Function
-operator Integral (I : Interval, f : Function) : Real
-operator Apply (f : Function, p : Real) : Real
+operator derivativeAtP (f : Function, p : Real) : Real
+operator derivativeOverD (f : Function) : Function
+operator integral (I : Interval, f : Function) : Real
+operator apply (f : Function, p : Real) : Real
 
 -- Predicates on intervals
 predicate Bounded (i : Interval) : Prop

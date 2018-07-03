@@ -34,7 +34,7 @@ type DsllProg = [DsllStmt]
 
 data DsllStmt = CdStmt Cd
              | VdStmt Vd
-             | StdStmt Std
+             | SubtypeDeclStmt SubtypeDecl
              | OdStmt Od
              | PdStmt Pd
              deriving (Show, Eq, Typeable)
@@ -67,14 +67,14 @@ instance Show Vd where
               dString = show toVd
 
 -- | Subtype declarations
-data Std = Std {subType :: T,
-                superType :: T}
-          deriving (Eq, Typeable)
+data SubtypeDecl = SubtypeDecl { subType :: T,
+                                 superType :: T }
+                   deriving (Eq, Typeable)
 
-instance Show Std where
-   show (Std subTypeStd superTypeStd) = aString ++ "Subtype of" ++ bString
-      where aString = show subTypeStd
-            bString = show superTypeStd
+instance Show SubtypeDecl where
+   show (SubtypeDecl subType superType) = aString ++ "Subtype of" ++ bString
+      where aString = show subType
+            bString = show superType
 
 -- | predicates
 data Od = Od { nameOd  :: String,
@@ -136,7 +136,7 @@ dsllProgParser :: Parser [DsllStmt]
 dsllProgParser = dsllStmt `sepEndBy` newline'
 
 dsllStmt :: Parser DsllStmt
-dsllStmt = try cdParser <|> try vdParser <|> try odParser <|> try stdParser <|> try pdParser
+dsllStmt = try cdParser <|> try vdParser <|> try odParser <|> try subtypeDeclParser <|> try pdParser
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser DsllStmt
@@ -157,12 +157,12 @@ cd2 = do
     return (CdStmt Cd { nameCd = name, inputCd = [], outputCd = t' })
 
 -- | sub type declarations parser
-stdParser :: Parser DsllStmt
-stdParser = do
+subtypeDeclParser :: Parser DsllStmt
+subtypeDeclParser = do
   subtype <- tParser
   rword "<:"
   supertype <- tParser
-  return (StdStmt (Std { subType = subtype, superType = supertype}))
+  return $ SubtypeDeclStmt $ SubtypeDecl { subType = subtype, superType = supertype}
 
 -- | parser for the (y,k) list
 ykParser :: Parser ([Y], [K])
@@ -225,19 +225,6 @@ pd2 = do
 -- | 'check' is the top-level semantic checking function. It takes a DSLL
 -- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
 -- a collection of information.
--- check :: DSLLProg -> VarEnv
--- check p = let  env1  = foldl checkTypeConstructors initE (cd p)
---                env2  = foldl checkSubTypes env1 (std p)
---                env3  = computeSubTypes env2
---                env4  = foldl checkValConstructors env3 (vd p)
---                env5  = foldl checkOperators env4 (od p)
---                env6  = foldl checkPredicates env5 (pd p)
---            in if null (errors env6)
---               then env6
---               else error("DSLL type checking failed with the following problems: \n" ++ errors env6)
---            where initE = VarEnv { typeConstructors = M.empty, valConstructors = M.empty,
---                                   operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
---                                   varMap = M.empty, subTypes = [], typeCtorNames = [], declaredNames = [], errors = ""}
 
 check :: DsllProg -> VarEnv
 check p = let env = foldl checkDsllStmt initE p
@@ -256,10 +243,10 @@ checkDsllStmt e (CdStmt c) = let kinds  = seconds (inputCd c)
                                  ef   = addName (nameCd c) env1
                              in ef { typeConstructors = M.insert (nameCd c) tc $ typeConstructors ef }
 
-checkDsllStmt e (StdStmt s) = let env1 = checkDeclaredType e (subType s)
-                                  env2 = checkDeclaredType env1 (superType s)
-                                  env3 = env2{subTypes = (subType s,superType s) : subTypes env2}
-                              in env3
+checkDsllStmt e (SubtypeDeclStmt s) = let env1 = checkDeclaredType e (subType s)
+                                          env2 = checkDeclaredType env1 (superType s)
+                                          env3 = env2 { subTypes = (subType s,superType s) : subTypes env2 }
+                                       in env3
 
 checkDsllStmt e (VdStmt v) = let kinds = seconds (varsVd v)
                                  env1 = foldl checkK e kinds
@@ -329,10 +316,11 @@ parseDsll dsllFile dsllIn =
               print prog
               divLine
               let env = check prog
+                  env1 = computeSubTypes env
               divLine
               putStrLn "DSLL Env: \n"
-              print env
-              return env
+              print env1
+              return env1
 
 -- --------------------------------------- Test Driver -------------------------------------
 

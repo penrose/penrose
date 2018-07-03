@@ -148,7 +148,15 @@ predicateParser = do
   return Predicate { predicateName = n, predicateArgs = args, predicatePos = pos }
 
 subStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
-subStmt = labelDecl <|> autoLabel <|> noLabel <|> try equalE <|> try equalQ <|> try bind <|> try decl <|> try applyP
+subStmt = labelDecl <|>
+          autoLabel <|>
+          noLabel   <|>
+         try equalE <|>
+         try equalQ <|>
+         try bind   <|>
+         try decl   <|>
+         try applyP
+
 decl = do t' <- tParser
           Decl t' <$> varParser
 bind = do
@@ -196,25 +204,25 @@ check p varEnv = let env = foldl checkSubStmt varEnv p
 checkSubStmt :: VarEnv -> SubStmt -> VarEnv
 checkSubStmt varEnv (Decl t (VarConst n)) = let env  = checkT varEnv t
                                                 env1 = addDeclaredName n env
-                                             in env1 { varMap = M.insert (VarConst n) t $ varMap env1 }
+                                            in  env1 { varMap = M.insert (VarConst n) t $ varMap env1 }
 
 checkSubStmt varEnv (Bind v e) = let (vstr, vt) = checkVarE varEnv v
                                      (estr, et) = checkExpression varEnv e -- TODO: Check lazy evaluation on et
-                                  in if isJust vt && isJust et && vt /= et
+                                 in if isJust vt && isJust et && vt /= et
                                      then varEnv { errors = errors varEnv ++ vstr ++ estr ++ "Expression of type "
                                                    ++ show et
                                                    ++ " assigned to variable of type " ++ show vt ++ "\n"}
                                      else varEnv { errors = errors varEnv ++ vstr ++ estr }
 checkSubStmt varEnv (EqualE expr1 expr2) = let (estr1, et1) = checkExpression varEnv expr1
                                                (estr2, et2) = checkExpression varEnv expr2
-                                            in if isJust et1 && isJust et2 && et1 /= et2
-                                              then varEnv { errors = errors varEnv ++ estr1 ++ estr2 ++
+                                           in if isJust et1 && isJust et2 && et1 /= et2
+                                               then varEnv { errors = errors varEnv ++ estr1 ++ estr2 ++
                                                "Expression of type " ++ show et1
                                                ++ " attempeted to be equal to expression from type" ++ show et2 ++ "\n"}
                                               else varEnv { errors = errors varEnv ++ estr1 ++ estr2 }
 checkSubStmt varEnv (EqualQ q1 q2) = let env1 = checkPredicate varEnv q1
                                          env2 = checkPredicate env1 q2
-                                         in env2
+                                     in env2
 checkSubStmt varEnv (ApplyP p)          = checkPredicate varEnv p
 checkSubStmt varEnv (AutoLabel (IDs vs))  =
     let es = concatMap (fst . checkVarE varEnv) vs in varEnv { errors = errors varEnv ++ es}
@@ -261,10 +269,10 @@ checkVarPred varEnv args (Prd1 name yls kls tls _) =
                  err           = concat errls
                  argTypes      = seconds errAndTypesLs
              in if areAllArgTypes argTypes
-                then let argTypes2 = map (KT . fromJust) argTypes
-                         tls2      = map KT tls
-                         sigma     = subst varEnv M.empty argTypes2 tls2
-                     in varEnv { errors = errors varEnv ++ err } -- err should be empty str
+                then let argTypes2       = map (KT . fromJust) argTypes
+                         tls2            = map KT tls
+                         (sigma , env)     = subst varEnv M.empty argTypes2 tls2
+                     in env { errors  = errors env ++ err } -- err should be empty str
                 else
                  varEnv { errors = errors varEnv ++ err}
 
@@ -276,12 +284,12 @@ checkVarOperator varEnv args (Operator name yls kls tls _) =
                       err           = concat errls
                       argTypes      = seconds errAndTypesLs
                   in if areAllArgTypes argTypes
-                     then let argTypes2 = map (KT . fromJust) argTypes
-                              tls2      = map KT tls
-                              sigma     = subst varEnv M.empty argTypes2 tls2
+                     then let argTypes2         = map (KT . fromJust) argTypes
+                              tls2              = map KT tls
+                              (sigma , env)     = subst varEnv M.empty argTypes2 tls2
                           in if sigma == M.empty
-                             then varEnv { errors = errors varEnv ++ err } -- err should be empty str
-                             else varEnv { errors = errors varEnv ++ err } -- err should be empty str
+                             then env { errors = errors env ++ err } -- err should be empty str
+                             else env { errors = errors env ++ err } -- err should be empty str
                      else
                       varEnv { errors = errors varEnv ++ err}
 
@@ -348,7 +356,7 @@ checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
                in if foldl (\b at1 -> b && isJust at1) True argTypes
                   then let argTypes2 = map (KT . fromJust) argTypes
                            tls2      = map KT tls
-                           sigma     = subst varEnv M.empty argTypes2 tls2
+                           (sigma , env)     = subst varEnv M.empty argTypes2 tls2
                        in if sigma == M.empty
                           then (err, Just t) -- err should be empty str
                           else (err, Just (applySubst sigma t)) -- err should be empty str
@@ -364,7 +372,7 @@ checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
                   in if foldl (\b at1 -> b && isJust at1) True argTypes
                      then let argTypes2 = map (KT . fromJust) argTypes
                               tls2      = map KT tls
-                              sigma     = subst varEnv M.empty argTypes2 tls2
+                              (sigma , env)     = subst varEnv M.empty argTypes2 tls2
                            in if sigma == M.empty
                               then (err, Just t) -- err should be empty str
                               else (err, Just (applySubst sigma t)) -- err should be empty str
@@ -397,12 +405,12 @@ applySubstHelper sigma (AT t) = AT (applySubst sigma t)
 -- All entries in “sigma” must be consistent for it to be a valid substitution.
 -- substitutionHelper is called on each element of a list of tuples of corresponding argument and formal types to generate
 -- entries in a substitution “sigma”.
-subst :: VarEnv -> M.Map Y Arg -> [K] -> [K] -> M.Map Y Arg
+subst :: VarEnv -> M.Map Y Arg -> [K] -> [K] -> (M.Map Y Arg, VarEnv)
 subst varEnv sigma argTypes formalTypes = let types = zip argTypes formalTypes
                                               sigma2 = foldl (substHelper varEnv) sigma types
                                           in if length argTypes /= length formalTypes
-                                            then error "Arguments list lengths are not equal"
-                                            else  sigma2
+                                            then  (sigma2,varEnv {errors = errors varEnv ++ "Arguments list lengths are not equal \n"})
+                                            else  (sigma2,varEnv)
 
 -- Ensures an argument type and formal type matches where they should match, otherwise a runtime error is generated.
 -- In places where they do not need to match exactly (where type and regular variables exist in the formal type)
@@ -463,10 +471,10 @@ substInsert sigma y arg = case M.lookup y sigma of
 --   In order to calculate all the equalities, we cmpute the closure of the
 --   equlities in Substance + symetry
 
-data SubEnv = SubEnv { exprEqualities :: [(Expr,Expr)],
-                       predEqualities :: [(Predicate,Predicate)],
+data SubEnv = SubEnv { exprEqualities :: [(Expr , Expr)],
+                       predEqualities :: [(Predicate , Predicate)],
                        bindings       :: M.Map Var Expr,
-                       subPreds :: [Predicate]
+                       subPreds       :: [Predicate]
                     }
                      deriving (Show, Eq, Typeable)
 
@@ -474,17 +482,18 @@ data SubEnv = SubEnv { exprEqualities :: [(Expr,Expr)],
 --   Important: this function assuemes it runs after the typechecker and that
 --              the program is well-formed (as well as the DSLL)
 loadSubEnv :: SubProg -> SubEnv
-loadSubEnv p = let subEnv1 = foldl loadStatements initE p
+loadSubEnv p = let subEnv1 = foldl loadStatement initE p
                    subEnv2 = computeEqualityClosure subEnv1
                in subEnv2
               where initE = SubEnv {exprEqualities = [], predEqualities = [], bindings = M.empty, subPreds = []}
 
-loadStatements :: SubEnv -> SubStmt -> SubEnv
-loadStatements e (EqualE expr1 expr2) = e {exprEqualities = (expr1, expr2) : exprEqualities e}
-loadStatements e (EqualQ q1 q2) = e {predEqualities = (q1, q2) : predEqualities e}
-loadStatements e (Bind v expr) = e {bindings = M.insert v expr $ bindings e }
-loadStatements e (ApplyP p) = e {subPreds = p : subPreds e}
-loadStatements e _ = e -- for all the other statements, do nothing and simply pass on the environment
+-- | The order in all the lists is reserved
+loadStatement :: SubEnv -> SubStmt -> SubEnv
+loadStatement e (EqualE expr1 expr2) = e {exprEqualities = (expr1, expr2) : exprEqualities e}
+loadStatement e (EqualQ q1 q2) = e {predEqualities = (q1, q2) : predEqualities e}
+loadStatement e (Bind v expr) = e {bindings = M.insert v expr $ bindings e }
+loadStatement e (ApplyP p) = e {subPreds = p : subPreds e}
+loadStatement e _ = e -- for all the other statements, do nothing and simply pass on the environment
 
 computeEqualityClosure:: SubEnv -> SubEnv
 computeEqualityClosure e = e {predEqualities = transitiveClosure (predEqualities e),
@@ -610,14 +619,14 @@ parseSubstance subFile subIn varEnv =
                    mapM_ print xs
                    let subTypeEnv = check xs varEnv
                        c          = loadObjects xs subTypeEnv
-                       subSubEnv   = loadSubEnv xs
+                       subDynEnv   = loadSubEnv xs
                    divLine
                    putStrLn "Substance Type Env: \n"
                    print subTypeEnv
                    divLine
                    putStrLn "Substance Dedicated Env: \n"
-                   print subSubEnv
-                   return (c, (subTypeEnv, subSubEnv))
+                   print subDynEnv
+                   return (c, (subTypeEnv, subDynEnv))
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions
