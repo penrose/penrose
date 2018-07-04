@@ -271,8 +271,8 @@ checkVarPred varEnv args (Prd1 name yls kls tls _) =
              in if areAllArgTypes argTypes
                 then let argTypes2       = map (KT . fromJust) argTypes
                          tls2            = map KT tls
-                         (sigma , env)     = subst varEnv M.empty argTypes2 tls2
-                     in env { errors  = errors env ++ err } -- err should be empty str
+                         (sigma , substErr)     = subst varEnv M.empty argTypes2 tls2
+                     in varEnv { errors = errors varEnv ++ err ++ substErr} -- err should be empty str
                 else
                  varEnv { errors = errors varEnv ++ err}
 
@@ -286,10 +286,10 @@ checkVarOperator varEnv args (Operator name yls kls tls _) =
                   in if areAllArgTypes argTypes
                      then let argTypes2         = map (KT . fromJust) argTypes
                               tls2              = map KT tls
-                              (sigma , env)     = subst varEnv M.empty argTypes2 tls2
+                              (sigma , substErr)     = subst varEnv M.empty argTypes2 tls2
                           in if sigma == M.empty
-                             then env { errors = errors env ++ err } -- err should be empty str
-                             else env { errors = errors env ++ err } -- err should be empty str
+                             then varEnv { errors = errors varEnv ++ err ++ substErr} -- err should be empty str
+                             else varEnv { errors = errors varEnv ++ err ++ substErr} -- err should be empty str
                      else
                       varEnv { errors = errors varEnv ++ err}
 
@@ -356,10 +356,10 @@ checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
                in if foldl (\b at1 -> b && isJust at1) True argTypes
                   then let argTypes2 = map (KT . fromJust) argTypes
                            tls2      = map KT tls
-                           (sigma , env)     = subst varEnv M.empty argTypes2 tls2
+                           (sigma , substErr)     = subst varEnv M.empty argTypes2 tls2
                        in if sigma == M.empty
-                          then (err, Just t) -- err should be empty str
-                          else (err, Just (applySubst sigma t)) -- err should be empty str
+                          then (substErr ++ err , Just t) -- err should be empty str
+                          else (substErr ++ err , Just (applySubst sigma t)) -- err should be empty str
                   else (err, Nothing)
 
 -- Operates exactly the same as checkFuncInEnv above it just operates over value constructors instead of operators.
@@ -372,10 +372,10 @@ checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
                   in if foldl (\b at1 -> b && isJust at1) True argTypes
                      then let argTypes2 = map (KT . fromJust) argTypes
                               tls2      = map KT tls
-                              (sigma , env)     = subst varEnv M.empty argTypes2 tls2
+                              (sigma , substErr)     = subst varEnv M.empty argTypes2 tls2
                            in if sigma == M.empty
-                              then (err, Just t) -- err should be empty str
-                              else (err, Just (applySubst sigma t)) -- err should be empty str
+                              then (substErr ++ err, Just t) -- err should be empty str
+                              else (substErr ++ err, Just (applySubst sigma t)) -- err should be empty str
                      else (err, Nothing)
 
 -- Takes a substitution “sigma” and applies it to a type. Types that are single type variables are mapped to their corresponding
@@ -405,12 +405,14 @@ applySubstHelper sigma (AT t) = AT (applySubst sigma t)
 -- All entries in “sigma” must be consistent for it to be a valid substitution.
 -- substitutionHelper is called on each element of a list of tuples of corresponding argument and formal types to generate
 -- entries in a substitution “sigma”.
-subst :: VarEnv -> M.Map Y Arg -> [K] -> [K] -> (M.Map Y Arg, VarEnv)
+subst :: VarEnv -> M.Map Y Arg -> [K] -> [K] -> (M.Map Y Arg, String)
 subst varEnv sigma argTypes formalTypes = let types = zip argTypes formalTypes
                                               sigma2 = foldl (substHelper varEnv) sigma types
-                                          in if length argTypes /= length formalTypes
-                                            then  (sigma2,varEnv {errors = errors varEnv ++ "Arguments list lengths are not equal \n"})
-                                            else  (sigma2,varEnv)
+                                          in if   length argTypes /= length formalTypes
+                                            then  (sigma2, "Arguments list lengths are not equal, expected " ++ show (length formalTypes) ++ " arguments but call was with " ++ show (length argTypes) ++ " arguments \n"  )
+                                            else  if argTypes /= formalTypes
+                                                   then  (sigma2, "Incorrect types of arguments, expected " ++ show formalTypes ++ " , but was " ++ show argTypes ++ " \n")
+                                                  else (sigma2,"")
 
 -- Ensures an argument type and formal type matches where they should match, otherwise a runtime error is generated.
 -- In places where they do not need to match exactly (where type and regular variables exist in the formal type)
