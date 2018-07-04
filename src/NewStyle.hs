@@ -441,9 +441,9 @@ toSubType (STCtor stcons) = TConstr $ TypeCtorApp { nameCons = nameConsS stcons,
 
 toSubExpr :: SelExpr -> C.Expr
 toSubExpr (SEBind bvar) = C.VarE $ toSubVar bvar
-toSubExpr (SEAppFunc f exprs) = C.ApplyExpr $ C.Func { C.nameFunc = f, C.argFunc = map toSubExpr exprs }
+toSubExpr (SEAppFunc f exprs) = C.ApplyFunc $ C.Func { C.nameFunc = f, C.argFunc = map toSubExpr exprs }
 -- TODO: after Substance merge/revision, convert to use val ctor branch of Expr
-toSubExpr (SEAppValCons v exprs) = C.ApplyExpr $ C.Func { C.nameFunc = v, C.argFunc = map toSubExpr exprs }
+toSubExpr (SEAppValCons v exprs) = C.ApplyFunc $ C.Func { C.nameFunc = v, C.argFunc = map toSubExpr exprs }
 
 toSubPredArg :: PredArg -> C.PredArg
 toSubPredArg (PE selExpr) = C.PE $ toSubExpr selExpr
@@ -568,7 +568,6 @@ checkSels varEnv prog = map (checkPair varEnv) prog
 type Subst = M.Map StyVar Var
 
 -- TODO: add beta everywhere after merge
-data SubEnv = SubEnv { }
 
 ----- Debug info
 
@@ -650,7 +649,7 @@ substituteBlock subst block = block -- TODO fill in
 ----- Filter with relational statements
 
 -- Judgment 11. b; theta |- S <| |S_r
-relMatchesLine :: SubEnv -> C.SubStmt -> RelationPattern -> Bool
+relMatchesLine :: C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 -- rule Bind-Match
 relMatchesLine subEnv (C.Bind var expr) (RelBind bvar sExpr) =
                case bvar of
@@ -662,16 +661,16 @@ relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) = predEq pred $ toSubPred 
 relMatchesLine _ _ _ = False -- no other line forms match (decl, equality, etc.)
 
 -- Judgment 13. b |- [S] <| |S_r
-relMatchesProg :: SubEnv -> C.SubProg -> RelationPattern -> Bool
+relMatchesProg :: C.SubEnv -> C.SubProg -> RelationPattern -> Bool
 relMatchesProg subEnv subProg rel = any (flip (relMatchesLine subEnv) rel) subProg
 
 -- Judgment 15. b |- [S] <| [|S_r]
-allRelsMatch :: SubEnv -> C.SubProg -> [RelationPattern] -> Bool
+allRelsMatch :: C.SubEnv -> C.SubProg -> [RelationPattern] -> Bool
 allRelsMatch subEnv subProg rels = all (relMatchesProg subEnv subProg) rels
 
 -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 -- Folds over [theta]
-filterRels :: SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
+filterRels :: C.SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
 filterRels subEnv subProg rels substs = 
            filter (\subst -> allRelsMatch subEnv subProg (substituteRels subst rels)) substs
 
@@ -726,7 +725,7 @@ matchDecls varEnv subProg decls initSubsts = foldl (matchDecl varEnv subProg) in
 
 ----- Overall judgments
 
-find_substs_sel :: VarEnv -> SubEnv -> C.SubProg -> Header -> [Subst]
+find_substs_sel :: VarEnv -> C.SubEnv -> C.SubProg -> Header -> [Subst]
 -- Judgment 19. G; b; [theta] |- [S] <| Sel
 find_substs_sel varEnv subEnv subProg (Select sel) =
     let decls            = selHead sel ++ selWith sel
@@ -742,7 +741,7 @@ find_substs_sel _ _ _ (Namespace _) = [] -- No substitutions for a namespace (no
 
 -- TODO: note on prog, header judgment to paper?
 -- Find a list of substitutions for each selector in the Sty program.
-find_substs_prog :: VarEnv -> SubEnv -> C.SubProg -> StyProg -> [[Subst]]
+find_substs_prog :: VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> [[Subst]]
 find_substs_prog varEnv subEnv subProg styProg =
     let sels = map fst styProg in
     map (find_substs_sel varEnv subEnv subProg) sels

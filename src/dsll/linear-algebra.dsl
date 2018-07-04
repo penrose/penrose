@@ -1,7 +1,13 @@
+-- NOTE: No dependent types in the linear algebra book
+
 tconstructor Scalar : type
+tconstructor ZeroScalar : type
 tconstructor VectorSpace : type
 tconstructor Vector : type
 tconstructor LinearMap : type
+
+-- TODO: put subtype declarations
+-- ZeroScalar <: Scalar
 
 operator Neg (v : Vector) : Vector
 operator Scale (c : Scalar, v : Vector) : Vector

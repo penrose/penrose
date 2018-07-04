@@ -44,7 +44,7 @@ shadowMain = do
     -- putStrLn "Dsll Env program:\n"
     -- print dsllEnv
 
-    (subProg, subObjs, subEnv) <- C.parseSubstance subFile subIn dsllEnv
+    (subProg, subObjs, (subEnv, eqEnv)) <- C.parseSubstance subFile subIn dsllEnv
     divLine
 
     putStrLn "Parsed Substance program:\n"
@@ -68,7 +68,7 @@ shadowMain = do
     forM selEnvs pPrint
     divLine
 
-    let subss = NS.find_substs_prog subEnv NS.SubEnv{} subProg styProg -- TODO: pass in beta
+    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg -- TODO: pass in beta
     putStrLn "Selector matches:\n"
     forM subss pPrint
     divLine
@@ -100,7 +100,7 @@ mainRetInit subFile styFile dsllFile = do
     styIn <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    (subProg, objs, env) <- C.parseSubstance subFile subIn dsllEnv
+    (subProg, objs, (env, eqEnv)) <- C.parseSubstance subFile subIn dsllEnv
     styProg <- S.parseStyle styFile styIn
     let initState = R.genInitState objs styProg
     return $ Just initState

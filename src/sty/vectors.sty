@@ -1,5 +1,5 @@
 VectorSpace u {
-   
+
     shape = Box {
 
      }
@@ -63,11 +63,11 @@ LinearMap f x y {
     objective centerLabel(f, f.shape.label)
 }
 
-Vector v vecSpace {    
+Vector v vecSpace {
     shape = Arrow {
         start = vecSpace.shape.center
     }
-    
+
     objective nearHead(v.shape, v.shape.label, 0, 20)
     constraint contains(vecSpace.shape,v.shape)
 
@@ -75,7 +75,7 @@ Vector v vecSpace {
 
 
 Neg v{
-    
+
     shape = Arrow {
         start = v.shape.start
         end = reverseEndArrow(v.shape)
@@ -86,14 +86,14 @@ Neg v{
 }
 
 Norm v {
-        
+
     shape = Arrow {
         start = toBelowStartArrow(v.shape)
         end = toBelowEndArrow(v.shape)
         style = "length"
         text = None
     }
-    
+
     objective nearHead(shape, shape.label, 0, 20)
     constraint contains(vecSpace.shape, shape)
 }
