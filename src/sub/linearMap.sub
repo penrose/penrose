@@ -21,3 +21,8 @@ In(c, V)
 From(f, U, V)
 From(g, V, U)
 From(h, U, U)
+
+-- Ill-typed expressions
+a := neg(x)
+b := add(a, y)
+c := neg(a, a)
