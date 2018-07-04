@@ -51,14 +51,16 @@ shadowMain = do
     pPrint subProg
     divLine
 
-    -- putStrLn "Substance Env program:\n"
-    -- print subEnv
-    -- let subSep@(decls, constrs) = C.subSeparate objs
+    putStrLn "Substance type env:\n"
+    pPrint subEnv
+    divLine
 
-    -- styProg <- S.parseStyle styFile styIn
+    putStrLn "Substance dyn env:\n"
+    pPrint eqEnv
+    divLine
+
     styProg <- NS.parseStyle styFile styIn
     putStrLn "Style AST:\n"
-    -- mapM_ print styProg
     pPrint styProg
     divLine
 

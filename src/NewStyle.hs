@@ -388,7 +388,6 @@ annotatedFloat = (rword "OPTIMIZED" *> pure Vary) <|> Fix <$> float
 
 -- g ::= B => |T
 -- Assumes nullary type constructors (i.e. Style type = Substance type)
--- TODO: hold error in env?
 data SelEnv = SelEnv { sTypeVarMap :: M.Map BindingForm StyT, -- B : |T
                        sErrors :: [String] }
               deriving (Show, Eq, Typeable)
@@ -410,6 +409,7 @@ addErr err selEnv = selEnv { sErrors = err : sErrors selEnv }
 addErrs :: [Error] -> SelEnv -> SelEnv
 addErrs errs selEnv = selEnv { sErrors = sErrors selEnv ++ errs }
 
+-- TODO: don't merge the varmaps! just put g as the varMap (otherwise there will be extraneous bindings for the relational statements)
 -- Judgment 1. G || g |-> ...
 mergeEnv :: VarEnv -> SelEnv -> VarEnv
 mergeEnv varEnv selEnv = foldl mergeMapping varEnv (M.assocs $ sTypeVarMap selEnv)
@@ -442,8 +442,7 @@ toSubType (STCtor stcons) = TConstr $ TypeCtorApp { nameCons = nameConsS stcons,
 toSubExpr :: SelExpr -> C.Expr
 toSubExpr (SEBind bvar) = C.VarE $ toSubVar bvar
 toSubExpr (SEAppFunc f exprs) = C.ApplyFunc $ C.Func { C.nameFunc = f, C.argFunc = map toSubExpr exprs }
--- TODO: after Substance merge/revision, convert to use val ctor branch of Expr
-toSubExpr (SEAppValCons v exprs) = C.ApplyFunc $ C.Func { C.nameFunc = v, C.argFunc = map toSubExpr exprs }
+toSubExpr (SEAppValCons v exprs) = C.ApplyValCons $ C.Func { C.nameFunc = v, C.argFunc = map toSubExpr exprs }
 
 toSubPredArg :: PredArg -> C.PredArg
 toSubPredArg (PE selExpr) = C.PE $ toSubExpr selExpr
@@ -469,7 +468,7 @@ compareTypes stmt var expr vtype etype =
      Just $ "In Style statement '" ++ show stmt ++ "', the var '" ++ show var ++
             " should have type '" ++ show etype' ++ "' but does not have a type."
    (Just vtype', Just etype') ->
-     if vtype' == etype' then Nothing
+     if typesEq (trM2 ("VTYPE: " ++ show vtype') vtype') (trM2 ("ETYPE: " ++ show etype') etype') then Nothing
      else Just $ "In Style statement '" ++ show stmt ++ "', the var and expr" ++
                  " should have the same type, but have types '" ++ show vtype' ++
                  "' and '" ++ show etype' ++ "'."
@@ -483,13 +482,16 @@ checkRelPatterns varEnv rels = concat $ map (checkRelPattern varEnv) rels
               case rel of
               -- rule Bind-Context
               RelBind bVar sExpr -> 
+                      -- TODO: use checkSubStmt here (and in paper)?
                       -- G |- B : T1
-                      let (error1, vtype) = C.checkVarE varEnv $ toSubVar bVar in
+                      let (error1, vtype) = C.checkVarE varEnv $ 
+                                            (trM2 ("B: " ++ show (toSubVar bVar)) $ toSubVar bVar) in
                       -- G |- E : T2
-                      let (error2, etype) = C.checkExpression varEnv $ toSubExpr sExpr in
+                      let (error2, etype) = C.checkExpression varEnv $ 
+                                            (trM2 ("E: " ++ show (toSubExpr sExpr)) $ toSubExpr sExpr) in
                       -- T1 = T2
                       let err3 = compareTypes rel bVar sExpr vtype etype in
-                      case err3 of 
+                      case trM2 ("ERR3: " ++ show err3) err3 of 
                       Nothing -> [error1, error2]
                       Just e3 -> [error1, error2, e3]
               -- rule Pred-Context
@@ -510,29 +512,46 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
              case bVar of 
              -- rule Decl-Sty-Context
              bsv@(BStyVar (StyVar' styVar)) ->
+                     -- NOTE: this does not aggregate *all* possible errors. May just return first error.
                      -- y \not\in dom(g)
                      if M.member bsv (sTypeVarMap selEnv')
                      then let err = "Style pattern statement " ++ show stmt ++ 
-                                    " declares Style variable '" ++ styVar ++ "' twice" in
-                          addErr err selEnv'
+                                    " declares Style variable '" ++ styVar ++ "' twice"
+                          in addErr err selEnv'
+                     else if M.member (BSubVar (VarConst styVar)) (sTypeVarMap selEnv')
+                     then let err = "Style pattern statement " ++ show stmt ++ 
+                                    " declares Style variable '" ++ styVar ++ "'" ++
+                                    " in the same selector as a Substance variable of the same name"
+                          in addErr err selEnv'
                      else addMapping bsv styType selEnv'
              -- rule Decl-Sub-Context
-             bsv@(BSubVar subVar) -> 
-                     -- G(x) = T
-                     let subType = M.lookup subVar $ varMap varEnv in
-                     case subType of
-                     Nothing -> let err = "Substance variable '" ++ show subVar ++ 
-                                          "' does not exist in environment. \n" {- ++ show varEnv -} in
-                                addErr err selEnv'
-                     Just subType' -> 
-                         -- check "T = |T", assuming type constructors are nullary
-                         let declType = toSubType styType in
-                         if subType' == declType 
-                         then addMapping bsv styType selEnv'
-                         else let err = "Mismatched types between Substance and Style vars.\n" ++
-                                         "Sub var '" ++ show subVar ++ "' has type '" ++ show subType' ++
-                                         "in Substance but has type '" ++ show declType ++ "' in Style." in
-                              addErr err selEnv'
+             bsv@(BSubVar subVar@(VarConst sVar)) -> 
+                     -- x \not\in dom(g)
+                     if M.member bsv (sTypeVarMap selEnv')
+                     then let err = "Style pattern statement " ++ show stmt ++ 
+                                    " declares Substance variable '" ++ sVar ++ "' twice"
+                          in addErr err selEnv'
+                     else if M.member (BStyVar (StyVar' sVar)) (sTypeVarMap selEnv')
+                     then let err = "Style pattern statement " ++ show stmt ++ 
+                                    " declares Substance variable '" ++ sVar  ++ "'" ++
+                                    " in the same selector as a Style variable of the same name"
+                          in addErr err selEnv'
+                     else 
+                         -- G(x) = T
+                         let subType = M.lookup subVar $ varMap varEnv in
+                         case subType of
+                         Nothing -> let err = "Substance variable '" ++ show subVar ++ 
+                                              "' does not exist in environment. \n" {- ++ show varEnv -} in
+                                    addErr err selEnv'
+                         Just subType' -> 
+                             -- check "T = |T", assuming type constructors are nullary
+                             let declType = toSubType styType in
+                             if subType' == declType 
+                             then addMapping bsv styType selEnv'
+                             else let err = "Mismatched types between Substance and Style vars.\n" ++
+                                             "Sub var '" ++ show subVar ++ "' has type '" ++ show subType' ++
+                                             "in Substance but has type '" ++ show declType ++ "' in Style."
+                                  in addErr err selEnv'
 
 -- Judgment 7. G |- Sel ok ~> g
 checkSel :: VarEnv -> Selector -> SelEnv
@@ -554,10 +573,7 @@ checkSels varEnv prog = map (checkPair varEnv) prog
                 checkPair varEnv ((Namespace name), _) = initSelEnv 
                 -- TODO: for now, namespace has no local context 
 
--- TODO: check that a Sub var `X` is not used in the same selector as the Sty var "X"
-
 -- TODO: write test cases (including failing ones) after Substance errors are no longer @ runtime
--- TODO: use new .dsl files after merged
 -- TODO: get line/col numbers for errors
 
 ----------- Selector dynamic semantics (matching)
@@ -578,7 +594,9 @@ debugM2 = True
 mkTr :: Bool -> String -> a -> a
 mkTr flag str res = if flag then trace str res else res
 
+-- matching
 trM1 = mkTr debugM1
+-- statics
 trM2 = mkTr debugM2
 
 ----- Substitution helper functions
@@ -605,9 +623,22 @@ checkSubst subst = True -- TODO does this need to be checked WRT a selector?
 -- TODO: return "maybe" if a substitution fails?
 
 -- TODO: remove this after beta is added
+-- TODO: use correct equality comparison in Substance typechecker
 -- don't compare SourcePos
 predEq :: C.Predicate -> C.Predicate -> Bool
 predEq p1 p2 = C.predicateName p1 == C.predicateName p2 && C.predicateArgs p1 == C.predicateArgs p2
+
+argsEq :: Arg -> Arg -> Bool
+argsEq (AVar v1) (AVar v2) = v1 == v2
+argsEq (AT t1) (AT t2)     = typesEq t1 t2
+argsEq _ _                 = False
+
+typesEq :: T -> T -> Bool
+typesEq (TTypeVar t1) (TTypeVar t2) = typeVarName t1 == typeVarName t2 -- TODO: better way to compare type vars
+typesEq (TConstr t1) (TConstr t2) = nameCons t1 == nameCons t2 &&
+                                    length (argCons t1) == length (argCons t2) &&
+                                    (all (\(a1, a2) -> argsEq a1 a2) $ zip (argCons t1) (argCons t2))
+typesEq _ _ = False
 
 substituteBform :: Subst -> BindingForm -> BindingForm
 substituteBform subst sv@(BSubVar _) = sv
