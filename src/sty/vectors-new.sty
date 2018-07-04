@@ -1,0 +1,127 @@
+-- This Style assumes all Substance objects have labels
+global {
+    -- ensure fitInBoundingBox(ALL, CANVAS)
+    -- encourage optimizeLabelPlacement(ALL)
+    -- ensure avoidDegenerate(ALL)
+}
+
+Scalar c { c.val = sampleReal() }
+
+Scalar c, d { }
+
+Scalar `x` { }
+
+VectorSpace U {
+    U.shape = Rectangle {
+        dim = bbox(U.x_axis, U.y_axis)
+    }
+
+    U.x_axis = Arrow {
+        angle = 0
+        length = 0.3 * CANVAS.width
+    }
+
+    U.y_axis = Arrow {
+        angle = 90
+        length = len(U.x_axis)
+        pos = midpoint(U.x_axis)
+    }
+
+    U.origin = AnchorPoint {
+        location = intersection(U.x_axis, U.y_axis)
+    }
+
+    U.angle = Arc {
+        from = U.x_axis
+        to = U.y_axis
+    }
+
+    U.labelFn = encourage topLeft(U.text, U.shape)
+}
+
+LinearMap f; VectorSpace U, V
+where From(f, U, V) {
+    f.val = sampleMatrix(2, 2)   -- could be optimized
+    f.shape = Arrow {
+        from = U.shape
+        to = V.shape
+        style = LineStyles.curved
+    }
+    f.posFn = encourage between(f.shape, U.shape, V.shape)
+    f.labelFn = encourage nearCenter(f.text, f.shape)
+}
+
+Vector v
+with VectorSpace V
+where In(v, V) {
+    v.val = sampleVectorIn(V.shape)
+    v.shape = Arrow {
+        tail = V.origin
+        head = v.val
+        color = Colors.blue
+    }
+    v.labelFn = encourage near(v.text, v.shape.head)
+}
+
+Vector u
+with Vector v, w; VectorSpace U
+where u := AddV(v, w); In(u, U); In(v, U); In(w, U) {
+    -- overrides default vector style while inheriting tail and color attributes
+
+    override u.val = addV(v.val, w.val)
+    -- u.shape.head is auto-set to the value at runtime
+
+    u.slider_v = Arrow {
+        tail = w.val
+        head = u.val
+        color = Colors.gray
+    }
+
+    u.slider_w = Arrow {
+        tail = v.val
+        head = u.val
+        color = Colors.gray
+    }
+}
+
+Vector v
+with Vector w; Scalar c; VectorSpace V
+where v := Scale(c, w); In(v, V); In(w, V) {
+    override v.val = mulV(c.val, w.val)
+}
+
+Vector v
+with Vector u; LinearMap f; VectorSpace U, V
+where v := Apply(f, u); From(f, U, V); In(v, V); In(u, U) {
+    override v.val = apply(f.val, u.val)
+}
+
+Scalar c
+with Vector v; VectorSpace V
+where c := Norm(v); In(v, V) {
+    override c.val = len(v.shape)
+
+    c.shape = CurlyBrace {
+        along = v.shape
+        color = Colors.gray
+    }
+
+    c.labelFn = encourage aligned(c.text, c.shape)
+}
+
+Scalar c
+with Vector v, w; VectorSpace V
+where c := Determinant(v, w); In(v, V); In(w, V) {
+    -- parallelogram in the smaller angle between the vectors
+    override c.val = determinant(v.val, w.val)
+
+    c.shape = Parallelogram {
+        side1 = v.shape
+        side2 = w.shape
+        opacity = 0.5
+    }
+
+    c.labelFn = encourage centered(c.text, c.shape)
+
+    c.layering = [V < c < (v == w)]
+}

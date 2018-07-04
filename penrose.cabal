@@ -23,7 +23,7 @@ source-repository head
 executable penrose
   main-is:             Main.hs
   default-language: Haskell2010
-  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation
+  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation NewStyle
   other-extensions:    AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, OverloadedStrings, DeriveGeneric, DuplicateRecordFields
   build-depends:       base                >= 4.9 && <4.10,
                        random              >= 1.1 && <1.2,
@@ -36,6 +36,7 @@ executable penrose
                        websockets          >= 0.11 && <0.12,
                        old-time            >= 1.1 && <1.2,
                        pretty              >= 1.1.3 && < 1.2,
+                       pretty-show,
                        extra               >= 1.6 && < 1.7,
                        process             >= 1.4.3 && < 1.5,
                        network              >= 2.6.3 && < 2.7,
@@ -48,7 +49,7 @@ Test-Suite penrose-testsuite
   type: exitcode-stdio-1.0
   main-is: TestSuite.hs
   default-language: Haskell2010
-  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation
+  other-modules:       ShadowMain Utils Server Style Substance Dsll Env Functions Runtime Shapes Computation NewStyle
                        Runtime.Tests ShadowMain.Tests Computation.Tests Functions.Tests Server.Tests
                        Shapes.Tests Style.Tests Substance.Tests Utils.Tests
   build-depends:       base                >= 4.9 && <4.10,
@@ -65,6 +66,7 @@ Test-Suite penrose-testsuite
                        extra               >= 1.6 && < 1.7,
                        process             >= 1.4.3 && < 1.5,
                        network              >= 2.6.3 && < 2.7,
+                       pretty-show,
                        split,
                        tasty,
                        tasty-smallcheck,

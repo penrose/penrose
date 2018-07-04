@@ -23,6 +23,7 @@ import           System.Random
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Expr
+import           Text.Show.Pretty
 import           Utils
 -- import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
@@ -41,9 +42,10 @@ newtype OperatorName = OperatorConst String             -- “Intersection”
 newtype PredicateName = PredicateConst String            -- “Intersect”
                      deriving (Show, Eq, Typeable)
 
-data Func = Func { nameFunc :: String,
-                   argFunc  :: [Expr] }
-            deriving (Eq, Typeable)
+data Func = Func {
+    nameFunc :: String,
+    argFunc  :: [Expr]
+} deriving (Eq, Typeable)
 
 instance Show Func where
     show (Func nameFunc argFunc) = nString ++ "(" ++ aString ++ ")"
@@ -542,10 +544,10 @@ loadObjects p env =
         initObjs = SubObjects { subObjs = [], subLabels = M.empty }
         subIds   = map (\(VarConst v) -> v) $ M.keys (varMap env)
         labelStmt s = case s of
-            LabelDecl _ _       -> True
-            AutoLabel _         -> True
-            NoLabel   _         -> True
-            _                   -> False
+            LabelDecl _ _ -> True
+            AutoLabel _   -> True
+            NoLabel   _   -> True
+            _             -> False
 
 -- | Given all label statements and Substance IDs, generate a map from
 -- all ids to their labels
@@ -609,24 +611,25 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-parseSubstance :: String -> String -> VarEnv -> IO (SubObjects, (VarEnv, SubEnv))
+
+parseSubstance :: String -> String -> VarEnv -> IO (SubProg, SubObjects, (VarEnv, SubEnv))
 parseSubstance subFile subIn varEnv =
                case runParser substanceParser subFile subIn of
                Left err -> error (parseErrorPretty err)
-               Right xs -> do
+               Right subProg -> do
                    divLine
                    putStrLn "Substance AST: \n"
-                   mapM_ print xs
-                   let subTypeEnv = check xs varEnv
-                       c          = loadObjects xs subTypeEnv
-                       subDynEnv   = loadSubEnv xs
+                   pPrint subProg
+                   let subTypeEnv  = check subProg varEnv
+                       objs        = loadObjects subProg subTypeEnv
+                       subDynEnv   = loadSubEnv subProg
                    divLine
                    putStrLn "Substance Type Env: \n"
-                   print subTypeEnv
+                   pPrint subTypeEnv
                    divLine
                    putStrLn "Substance Dedicated Env: \n"
-                   print subDynEnv
-                   return (c, (subTypeEnv, subDynEnv))
+                   pPrint subDynEnv
+                   return (subProg, objs, (subTypeEnv, subDynEnv))
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

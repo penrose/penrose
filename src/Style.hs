@@ -339,7 +339,7 @@ getDictAndFns objs blocks =
             Nothing -> error $ "BUG: Label not found for Substance ID " ++ n
 
 -- | 'parseStyle' runs the actual parser function: 'styleParser', taking in a program String and parse it into an AST.
-parseStyle :: String -> String -> IO (StyProg)
+parseStyle :: String -> String -> IO StyProg
 parseStyle styFile styIn =
     case runParser styleParser styFile styIn of
     Left err -> error (parseErrorPretty err)

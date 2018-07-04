@@ -405,6 +405,7 @@ shapeAndFn dict subObjName = case M.lookup subObjName dict of
             labelText = S.spLabel spec
         in concat4 $ map (\(n,o) -> getShape n labelText o) $ zip names styobjs
 
+-- COMBAK: now that types are gone, just use string for extensibility
 getShape :: (Autofloat a) => String -> Maybe String -> S.StyObj a ->
                              ([Obj], [ObjFnInfo a], [ConstrFnInfo a], [ObjComp a])
 

@@ -1,0 +1,35 @@
+global { }
+
+Scalar c { }
+
+Scalar c, d { }
+
+Scalar `x` { }
+
+Scalar `x`, d { }
+
+LinearMap f { }
+
+Scalar c
+with Scalar d { }
+
+Vector v
+with VectorSpace U { }
+
+Vector v
+with VectorSpace U
+where In(v, U) { }
+
+LinearMap f
+with VectorSpace U; VectorSpace V
+where From(f, U, V) { }
+
+LinearMap f
+with VectorSpace `U`; VectorSpace V
+where From(f, `U`, V) { }
+
+Vector v; LinearMap f
+with VectorSpace `V`; VectorSpace U
+where In(v, `V`); From(f, `V`, U) { }
+
+-- TODO: test binding, subtyping, equality

@@ -5,6 +5,7 @@ import Utils
 import qualified Server
 import qualified Runtime as R
 import qualified Substance as C
+import qualified NewStyle as NS -- COMBAK: remove
 import qualified Style as S
 import qualified Dsll as D
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
@@ -12,7 +13,8 @@ import System.Environment
 import System.IO
 import System.Exit
 import Debug.Trace
-import Control.Monad (when)
+import Text.Show.Pretty
+import Control.Monad (when, forM)
 
 
 -- | `main` runs the Penrose system
@@ -42,26 +44,52 @@ shadowMain = do
     -- putStrLn "Dsll Env program:\n"
     -- print dsllEnv
 
-    (subObjs, subEnv) <- C.parseSubstance subFile subIn dsllEnv
+    (subProg, subObjs, (subEnv, eqEnv)) <- C.parseSubstance subFile subIn dsllEnv
     divLine
-    -- putStrLn "Substance Env program:\n"
-    -- print subEnv
-    -- let subSep@(decls, constrs) = C.subSeparate objs
 
-    styProg <- S.parseStyle styFile styIn
-    let initState = R.genInitState subObjs styProg
-    putStrLn "Synthesizing objects and objective functions"
-    -- let initState = compilerToRuntimeTypes intermediateRep
+    putStrLn "Parsed Substance program:\n"
+    pPrint subProg
+    divLine
+
+    putStrLn "Substance type env:\n"
+    pPrint subEnv
+    divLine
+
+    putStrLn "Substance dyn env:\n"
+    pPrint eqEnv
+    divLine
+
+    styProg <- NS.parseStyle styFile styIn
+    putStrLn "Style AST:\n"
+    pPrint styProg
+    divLine
+
+    putStrLn "Running Style semantics\n"
+    let selEnvs = NS.checkSels subEnv styProg
+    putStrLn "Selector static semantics and local envs:\n"
+    forM selEnvs pPrint
+    divLine
+
+    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg -- TODO: pass in beta
+    putStrLn "Selector matches:\n"
+    forM subss pPrint
+    divLine
+
+    -- COMBAK: remove and uncomment below
+
+    -- let initState = R.genInitState subObjs styProg
+    -- putStrLn "Synthesizing objects and objective functions"
+    -- -- let initState = compilerToRuntimeTypes intermediateRep
+    -- -- divLine
+    -- -- putStrLn "Initial state, optimization representation:\n"
+    -- -- putStrLn "TODO derive Show"
+    -- -- putStrLn $ show initState
     -- divLine
-    -- putStrLn "Initial state, optimization representation:\n"
-    -- putStrLn "TODO derive Show"
-    -- putStrLn $ show initState
-    divLine
     putStrLn "Visualizing Substance program:\n"
-
-    -- Starting serving penrose on the web
-    let (domain, port) = ("127.0.0.1", 9160)
-    Server.servePenrose domain port initState
+    --
+    -- -- Starting serving penrose on the web
+    -- let (domain, port) = ("127.0.0.1", 9160)
+    -- Server.servePenrose domain port initState
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
@@ -74,7 +102,7 @@ mainRetInit subFile styFile dsllFile = do
     styIn <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    (objs, (env, eqEnv)) <- C.parseSubstance subFile subIn dsllEnv
+    (subProg, objs, (env, eqEnv)) <- C.parseSubstance subFile subIn dsllEnv
     styProg <- S.parseStyle styFile styIn
     let initState = R.genInitState objs styProg
     return $ Just initState
