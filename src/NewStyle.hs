@@ -5,13 +5,13 @@
 module NewStyle where
 -- module Main (main) where -- for debugging purposes
 
--- import Shapes
+import qualified Shapes as S
 import Utils
-import Control.Monad (void)
+import Control.Monad (void, foldM)
 import Data.Function (on)
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
-import Data.Maybe (fromMaybe, catMaybes)
+import Data.Maybe (fromMaybe, catMaybes, isNothing, maybeToList)
 import Data.List (nubBy, nub, intercalate)
 import Data.Tuple (swap)
 import Text.Megaparsec
@@ -124,19 +124,19 @@ type Field = String
 data Path
     = FieldPath BindingForm Field                 -- example: x.val
     | PropertyPath BindingForm Field Property     -- example: x.shape.center
-    -- NOTE: we do have to use backticks in the block to indicate Substance variables
+    -- NOTE: Style writer must use backticks in the block to indicate Substance variables
     deriving (Show, Eq, Typeable)
 
 -- | A statement in the Style language
 data Stmt
     = Assign Path Expr
     | Override Path Expr
-    | Delete Expr
+    | Delete Path
     deriving (Show, Eq, Typeable)
 
 -- | A field declaration in a Style constructor binds an expression to a
 -- string
-data FieldDecl = FieldDecl String Expr
+data PropertyDecl = PropertyDecl String Expr
     deriving (Show, Eq, Typeable)
 
 data AnnoFloat = Fix Float | Vary
@@ -157,7 +157,7 @@ data Expr
     | UOp UnaryOp Expr
     | List [Expr]
     | ListAccess Path Integer
-    | Ctor String [FieldDecl]
+    | Ctor String [PropertyDecl]  -- TODO: use the existing styObj parser in Sty.hs!
     | Layering LExpr
     deriving (Show, Eq, Typeable)
 
@@ -286,7 +286,7 @@ stmt = tryChoice [assign, override, delete]
 assign, override, delete :: Parser Stmt
 assign   = Assign   <$> path <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
-delete   = Delete   <$> (rword "delete"   >> expr)
+delete   = Delete   <$> (rword "delete"   >> path)
 
 expr :: Parser Expr
 expr = tryChoice [
@@ -369,11 +369,11 @@ list = List <$> brackets (expr `sepBy1` comma)
 constructor :: Parser Expr
 constructor = do
     typ    <- identifier
-    fields <- braces (fieldDecl `sepEndBy` newline')
+    fields <- braces (propertyDecl `sepEndBy` newline')
     return $ Ctor typ fields
 
-fieldDecl :: Parser FieldDecl
-fieldDecl = FieldDecl <$> identifier <*> (eq >> expr)
+propertyDecl :: Parser PropertyDecl
+propertyDecl = PropertyDecl <$> identifier <*> (eq >> expr)
 
 stringLit :: Parser Expr
 stringLit = StringLit <$> (char '"' >> manyTill L.charLiteral (char '"'))
@@ -483,6 +483,7 @@ checkRelPatterns varEnv rels = concat $ map (checkRelPattern varEnv) rels
               -- rule Bind-Context
               RelBind bVar sExpr -> 
                       -- TODO: use checkSubStmt here (and in paper)?
+                      -- TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
                       -- G |- B : T1
                       let (error1, vtype) = C.checkVarE varEnv $ 
                                             (trM2 ("B: " ++ show (toSubVar bVar)) $ toSubVar bVar) in
@@ -587,9 +588,10 @@ type Subst = M.Map StyVar Var
 
 ----- Debug info
 
-debugM1, debugM2 :: Bool
+debugM1, debugM2, debugM3 :: Bool
 debugM1 = False
-debugM2 = True
+debugM2 = False
+debugM3 = False
 
 mkTr :: Bool -> String -> a -> a
 mkTr flag str res = if flag then trace str res else res
@@ -598,6 +600,8 @@ mkTr flag str res = if flag then trace str res else res
 trM1 = mkTr debugM1
 -- statics
 trM2 = mkTr debugM2
+-- translation
+trM3 = mkTr debugM3
 
 ----- Substitution helper functions
 
@@ -644,7 +648,8 @@ substituteBform :: Subst -> BindingForm -> BindingForm
 substituteBform subst sv@(BSubVar _) = sv
 substituteBform subst sv@(BStyVar sv'@(StyVar' vn)) =
    case M.lookup sv' subst of
-   Nothing     -> sv -- Returns same style variable by default if there's no substitution
+   Nothing     -> sv -- error $ "No subst found for Sty var '" ++ vn ++ "'"
+                  -- TODO/URGENT: no substitutions for namespaces
    Just subVar -> BSubVar subVar -- Returns result of mapping if it exists (y -> x)
 
 substituteExpr :: Subst -> SelExpr -> SelExpr
@@ -674,8 +679,52 @@ substituteRel subst (RelPred pred) = RelPred $ substitutePred subst pred
 substituteRels :: Subst -> [RelationPattern] -> [RelationPattern]
 substituteRels subst rels = map (substituteRel subst) rels
 
+----- Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
+
+substitutePath :: Subst -> Path -> Path
+substitutePath subst path =
+    case path of
+    FieldPath    bVar field      -> FieldPath    (substituteBform subst bVar) field
+    PropertyPath bVar field prop -> PropertyPath (substituteBform subst bVar) field prop
+
+substituteField :: Subst -> PropertyDecl -> PropertyDecl
+substituteField subst (PropertyDecl field expr) = PropertyDecl field $ substituteBlockExpr subst expr
+
+substituteLayering :: Subst -> LExpr -> LExpr
+substituteLayering subst (LId bVar) = LId $ substituteBform subst bVar
+substituteLayering subst (LPath path) = LPath $ substitutePath subst path
+substituteLayering subst (LayeringOp op lex1 lex2) = 
+                   LayeringOp op (substituteLayering subst lex1) (substituteLayering subst lex1)
+
+substituteBlockExpr :: Subst -> Expr -> Expr
+substituteBlockExpr subst expr =
+    case expr of
+    EPath path        -> EPath $ substitutePath subst path
+    CompApp f es      -> CompApp f $ map (substituteBlockExpr subst) es
+    ObjFn   f es      -> ObjFn   f $ map (substituteBlockExpr subst) es
+    ConstrFn  f es    -> ConstrFn f $ map (substituteBlockExpr subst) es
+    AvoidFn   f es    -> AvoidFn  f $ map (substituteBlockExpr subst) es
+    BinOp op e1 e2    -> BinOp op (substituteBlockExpr subst e1) (substituteBlockExpr subst e2)
+    UOp   op e        -> UOp   op (substituteBlockExpr subst e)
+    List es           -> List $ map (substituteBlockExpr subst) es
+    ListAccess path i -> ListAccess (substitutePath subst path) i
+    Ctor gpi fields   -> Ctor gpi $ map (substituteField subst) fields 
+    Layering lexpr    -> Layering $ substituteLayering subst lexpr
+    -- No substitution for literals
+    IntLit _          -> expr
+    AFloat _          -> expr
+    StringLit _       -> expr
+
+substituteLine :: Subst -> Stmt -> Stmt
+substituteLine subst line =
+    case line of
+    Assign   path expr -> Assign (substitutePath subst path) (substituteBlockExpr subst expr)
+    Override path expr -> Override (substitutePath subst path) (substituteBlockExpr subst expr)
+    Delete   path      -> Delete $ substitutePath subst path
+
+-- TODO: assumes a full substitution
 substituteBlock :: Subst -> Block -> Block
-substituteBlock subst block = block -- TODO fill in
+substituteBlock subst block = map (substituteLine subst) block
 
 ----- Filter with relational statements
 
@@ -706,8 +755,6 @@ filterRels subEnv subProg rels substs =
            filter (\subst -> allRelsMatch subEnv subProg (substituteRels subst rels)) substs
 
 ----- Match declaration statements
-
--- TODO: change Subst to Maybe Subst, check for validity everywhere
 
 -- Judgment 9. G; theta |- T <| |T
 -- Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
@@ -746,8 +793,6 @@ matchDecl varEnv subProg initSubsts decl =
           trM1 ("new substs: " ++ show newSubsts) $ merge initSubsts (catMaybes newSubsts)
           -- TODO: why is this trace necessary to see the rest of the debug output? 
           -- is it because of list comprehensions?
-          -- TODO: check the merge, also filter out any empty `newSubsts`?
-          -- empty means "didn't match" or "no sty vars to match". distinguish between the two? Maybe Subst
 
 -- Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
 -- Folds over [|S_o]
@@ -770,7 +815,7 @@ find_substs_sel varEnv subEnv subProg (Select sel) =
     in correct_substs
 find_substs_sel _ _ _ (Namespace _) = [] -- No substitutions for a namespace (not in paper)
 
--- TODO: note on prog, header judgment to paper?
+-- TODO: add note on prog, header judgment to paper?
 -- Find a list of substitutions for each selector in the Sty program.
 find_substs_prog :: VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> [[Subst]]
 find_substs_prog varEnv subEnv subProg styProg =
@@ -779,3 +824,315 @@ find_substs_prog varEnv subEnv subProg styProg =
 
 -- TODO: should Sub:[Scalar x, y] Sty:[Scalar c, d] generate all 4 matches? what is the intent here?
 -- TODO: make anonymous variables for unification for Substance program
+
+-------------------- Translation dynamics (i.e. actual Style compiler)
+
+-- TODO: block statics
+checkBlock :: SelEnv -> Block -> [Error]
+checkBlock selEnv block = []
+
+----- Type definitions
+
+newtype SField = Field' String
+    deriving (Show, Eq, Typeable)
+
+newtype SProperty = Prop' String
+    deriving (Show, Eq, Typeable)
+
+-- TODO: add lists to S.TypeIn
+-- TODO: S.TypeIn doesn't support objfns etc
+
+data GPICtor = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto
+               | Arc2 | Line2 | Parallel | Image | AnchorPoint | CurlyBrace
+    deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
+
+data TagExpr a = OptEval Expr      -- Thunk evaluated at each step of optimization-time
+               | Done (S.TypeIn a) -- A value in the host language, fully evaluated
+    deriving (Show, Eq, Typeable)
+
+-- Should we use the Property/Field newtypes?
+type PropertyDict a = M.Map Property (TagExpr a)
+type FieldDict a = M.Map Field (FieldExpr a)
+
+data FieldExpr a = FExpr (TagExpr a) 
+                 | GPI GPICtor (PropertyDict a)
+    deriving (Show, Eq, Typeable)
+
+type Warning = String
+data Name = Sub String   -- Sub obj name
+            | Gen String -- randomly generated name
+    deriving (Show, Eq, Ord, Typeable)
+
+data Translation a = Trans { trMap    :: M.Map Name (FieldDict a),
+                             warnings :: [Warning] }
+    deriving (Show, Eq, Typeable)
+
+-- For a Substance object "A", the Translation might look like this:
+-- Trans [ "A" =>
+--        FieldDict [ "val"   => FExpr (Done (IntLit 2)), 
+--                    "shape" => GPI Circ PropMap [ "r" => OptEval (EPath (FieldPath (SubVar (VC "B"))) "val"),
+--                                                  "x" => ...  ] ] ]
+
+type OverrideFlag = Bool
+
+----- Translation util functions
+
+initTrans :: Autofloat a => Translation a
+initTrans = Trans { trMap = M.empty, warnings = [] }
+
+-- Convert Sub bvar name to Sub name in Translation
+trName :: BindingForm -> Name
+trName (BSubVar (VarConst nm)) = Sub nm
+trName (BStyVar (StyVar' nm))  = Sub nm -- error ("Style variable '" ++ show bv ++ "' in block! Was a non-full substitution applied?") -- TODO/URGENT fix for namespaces
+
+nameStr :: Name -> String
+nameStr (Sub s) = s
+nameStr (Gen s) = s
+
+-- TODO: replace this with styObj parser
+toCtorType :: String -> GPICtor
+toCtorType "Color"   = Color
+toCtorType "None"    = NoShape
+toCtorType "Arrow"   = Arrow
+toCtorType "Text"    = Text
+toCtorType "Circ"  = Circle -- TODO: Circle parsing???
+toCtorType "Curve"   = Curve
+toCtorType "Ellipse" = Ellip
+toCtorType "Box"     = Box
+toCtorType "Arc"     = Arc2
+toCtorType "Rectangle"    = Rectangle
+toCtorType "Parallelogram" = Parallel
+toCtorType "Dot"     = Dot
+toCtorType "Line"    = Line2
+toCtorType "Image"   = Image
+toCtorType "AnchorPoint"   = AnchorPoint
+toCtorType "CurlyBrace"   = CurlyBrace
+toCtorType s         = error ("Unrecognized shape: " ++ s)
+
+mkPropertyDict :: (Autofloat a) => [PropertyDecl] -> PropertyDict a
+mkPropertyDict propertyDecls = foldl addPropertyDecl M.empty propertyDecls
+    where addPropertyDecl :: PropertyDict a -> PropertyDecl -> PropertyDict a
+          -- TODO: check that the same property is not declared twice
+          addPropertyDecl dict (PropertyDecl property expr) = M.insert property (OptEval expr) dict
+
+-- All warnings are appended
+addMaybe :: [a] -> Maybe a -> [a]
+addMaybe xs x = xs ++ maybeToList x
+
+addMaybes :: [a] -> [Maybe a] -> [a]
+addMaybes xs ms = xs ++ catMaybes ms
+
+addWarn :: Translation a -> Warning -> Translation a
+addWarn tr warn = tr { warnings = warnings tr ++ [warn] }
+
+pathStr :: Name -> Field -> Property -> String
+pathStr name field property = intercalate "." [nameStr name, field, property]
+
+----- Main operations on translations (add and delete)
+
+-- TODO distinguish between warns/errs
+deleteField :: (Autofloat a) => Translation a -> Name -> Field -> Translation a
+deleteField trans name field =
+    let trn = trMap trans in
+    case M.lookup name trn of
+    Nothing ->
+        let err = "Err: Sub obj '" ++ nameStr name ++ "' has no fields; can't delete field '" ++ field ++ "'" in
+        addWarn trans err
+    Just fieldDict -> 
+        if field `M.notMember` fieldDict
+        then let warn = "Warn: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field ++ "'" in 
+             addWarn trans warn
+        else let fieldDict' = M.delete field fieldDict
+                 trn'       = M.insert name fieldDict' trn in
+             trans { trMap = trn' }
+
+deleteProperty :: (Autofloat a) => Translation a -> Name -> Field -> Property -> Translation a
+deleteProperty trans name field property =
+    let trn = trMap trans
+        path = pathStr name field property in
+    case M.lookup name trn of
+    Nothing ->
+        let err = "Err: Sub obj '" ++ nameStr name ++ "' has no fields; can't delete path '" ++ path ++ "'" in
+        addWarn trans err
+    Just fieldDict -> 
+        case M.lookup field fieldDict of
+        Nothing -> let err = "Err: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field 
+                              ++ "'; can't delete path " ++ path in 
+                   addWarn trans err
+        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '" 
+                                     ++ field ++ "'; cannot delete property '" ++ property ++ "'" in
+                          addWarn trans err
+        Just (GPI ctor properties) ->
+           -- If the field is GPI, check if property already exists
+           if property `M.notMember` properties
+           then let warn = "Warning: property '" ++ property ++ "' already does not exist in path '" 
+                           ++ pathStr name field property ++ "'; deletion does nothing"
+                in addWarn trans warn
+           else let properties' = M.delete property properties
+                    fieldDict'  = M.insert field (GPI ctor properties') fieldDict
+                    trn'        = M.insert name fieldDict' trn in
+                trans { trMap = trn' }
+
+-- Implements two rules for fields:
+-- x.n = Ctor { n_i = e_i }, rule Line-Set-Ctor, for GPI
+-- x.n = e, rule Line-Set-Field-Expr
+addField :: (Autofloat a) => OverrideFlag -> Translation a -> 
+                             Name -> Field -> Expr -> Translation a
+addField override trans name field expr =
+    let trn = trMap trans in
+    let fieldDict = case M.lookup name trn of
+                    Nothing    -> M.empty -- Initialize the field dict if it hasn't been initialized
+                    Just fdict -> fdict in
+     -- Warn using override if x doesn't exist
+    let warn1 = if fieldDict == M.empty && override
+                then Just $ "Warning: Sub obj '" ++ nameStr name ++ "' has no fields, but override was declared"
+                else Nothing in
+     -- Warn using override if x.n already exists
+    let warn2 = if (field `M.member` fieldDict) && (not override)
+                then Just $ "Warning: Sub obj '" ++ nameStr name ++ "''s field '" ++ field 
+                            ++ "' is overridden, but was not declared an override"
+                else Nothing in
+     -- Warn using override if x.n doesn't exist
+    let warn3 = if (field `M.notMember` fieldDict) && override
+                then Just $ "Warning: field '" ++ field ++ "' declared override, but has not been initialized"
+                else Nothing in
+    -- TODO: check existing FExpr is overridden by an FExpr and likewise for Ctor of same type (typechecking)
+    let fieldExpr = case expr of
+                    Ctor ctorName propertyDecls -> -- rule Line-Set-Ctor
+                         GPI (toCtorType ctorName) (mkPropertyDict propertyDecls)
+                    _ -> FExpr (OptEval expr) in   -- rule Line-Set-Field-Expr
+    let fieldDict' = M.insert field fieldExpr fieldDict
+        trn' = M.insert name fieldDict' trn in
+    trans { trMap = trn', warnings = addMaybes (warnings trans) [warn1, warn2, warn3] }
+
+addProperty :: (Autofloat a) => OverrideFlag -> Translation a ->
+                                Name -> Field -> Property -> Expr -> Translation a
+addProperty override trans name field property val =
+    let trn = trMap trans in
+    -- Setting a field's property should require that field to already exist and be a GPI
+    -- TODO: distinguish b/t errors and warns
+    case M.lookup name trn of
+    Nothing -> let err = "Error: Sub obj '" ++ nameStr name ++ "' has no fields; cannot add property" in
+               addWarn trans err
+    Just fieldDict ->
+        case M.lookup field fieldDict of
+        Nothing -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have field '" 
+                              ++ field ++ "'; cannot add property '" ++ property ++ "'" in
+                   addWarn trans err
+        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '" 
+                                     ++ field ++ "'; cannot add property '" ++ property ++ "'" in
+                          addWarn trans err
+        Just (GPI ctor properties) ->
+           -- If the field is GPI, check if property already exists and whether it matches the override setting
+           let warn = if (property `M.notMember` properties) && override 
+                      then Just $ "Warning: property '" ++ property ++ "' does not exist in path '" 
+                           ++ pathStr name field property ++ "' but override was set"
+                      else if property `M.member` properties && (not override)
+                      then Just $ "Warning: property '" ++ property ++ "' already exists in path '" 
+                           ++ pathStr name field property ++ "' but override was not set"
+                      else Nothing in
+           let properties' = M.insert property (OptEval val) properties
+               fieldDict'  = M.insert field (GPI ctor properties') fieldDict
+               trn'        = M.insert name fieldDict' trn in
+           trans { trMap = trn', warnings = addMaybe (warnings trans) warn }
+
+-- rule Line-Delete
+deletePath :: (Autofloat a) => Translation a -> Path -> Either [Error] (Translation a)
+deletePath trans path =
+    case path of
+    FieldPath bvar field ->
+        let name = trName bvar
+            trans' = deleteField trans name field in
+        Right trans'
+    PropertyPath bvar field property ->
+       let name = trName bvar
+           trans' = deleteProperty trans name field property in
+       Right trans'
+
+addPath :: (Autofloat a) => OverrideFlag -> Translation a -> Path -> Expr -> Either [Error] (Translation a)
+addPath override trans path expr =
+    case path of
+    -- rule Line-Set-Field-Expr, Line-Set-Ctor
+    FieldPath bvar field ->
+        let name   = trName bvar
+            trans' = addField override trans name field expr in
+        Right trans'
+    -- rule Line-Set-Prop-Expr
+    PropertyPath bvar field property ->
+       let name   = trName bvar
+           trans' = addProperty override trans name field property expr in
+       Right trans'
+
+----- Translation judgments
+
+-- Note: All of the folds below use foldM.
+-- foldM stops accumulating when the first fatal error is reached, using "Either [Error]" as a monad
+-- (Non-fatal errors are stored as warnings in the translation)
+-- foldM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
+-- example: 
+-- f acc elem = if elem < 0 then Left ["wrong " ++ show elem] else Right $ elem : acc
+-- foldM f [] [1, 9, -1, 2, -2] = Left ["wrong -1"]
+-- foldM f [] [1, 9] = Right [9,1]
+
+-- Judgment 26. D |- phi ~> D'
+-- This is where interesting things actually happen (each line is interpreted and added to the translation)
+translateLine :: (Autofloat a) => Translation a -> Stmt -> Either [Error] (Translation a)
+translateLine trans stmt =
+    case stmt of
+    Assign path expr   -> addPath False trans path expr
+    Override path expr -> addPath True trans path expr
+    Delete path        -> deletePath trans path
+
+-- Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
+translateBlock :: (Autofloat a) => Block -> Translation a -> Subst -> Either [Error] (Translation a)
+translateBlock block trans subst =
+    let block' = substituteBlock subst block in
+    foldM translateLine trans block'
+
+-- Judgment 24. [theta]; D |- |B ~> D'
+translateSubstsBlock :: (Autofloat a) => Translation a -> [Subst] -> Block -> Either [Error] (Translation a)
+translateSubstsBlock trans substs block = foldM (translateBlock block) trans substs
+
+-- Judgment 23, contd.
+translatePair :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg -> 
+                                  Translation a -> (Header, Block) -> Either [Error] (Translation a)
+translatePair varEnv subEnv subProg trans (Namespace styVar, block) =
+    let selEnv = initSelEnv
+        bErrs  = checkBlock selEnv block in
+    if null (sErrors selEnv) && null bErrs
+        then let subst = M.empty in -- is this the correct empty?
+             translateBlock block trans subst -- skip transSubstsBlock
+        else Left $ sErrors selEnv ++ bErrs
+    -- TODO translate namespaces properly?
+
+translatePair varEnv subEnv subProg trans (header@(Select sel), block) =
+    let selEnv = checkSel varEnv sel
+        bErrs  = checkBlock selEnv block in
+    if null (sErrors selEnv) && null bErrs
+        then let substs = find_substs_sel varEnv subEnv subProg header in
+             translateSubstsBlock trans substs block
+        else Left $ sErrors selEnv ++ bErrs
+            
+-- TODO: add beta in paper and to comment below
+-- Judgment 23. G; D |- [P]; |P ~> D'
+-- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
+translateStyProg :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> Either [Error] (Translation a)
+translateStyProg varEnv subEnv subProg styProg =
+                 foldM (translatePair varEnv subEnv subProg) initTrans styProg
+                 -- TODO: deal with warnings in translation
+                 -- TODO: remember to check the order of warnings (reverse?)
+
+------------ Translation second pass to actually make GPIs, objectives, computations
+
+-- TODO: filter Translation
+
+-- TODO: interpret and eval should use the State and TrComputations
+-- [|e|] : evaluate an expression as much as possible at compile-time
+-- stopping when an optimized value is encountered
+-- TODO this should call eval
+interpret :: (Autofloat a) => Expr -> TagExpr a
+interpret e = Done $ S.TStr "TODO" -- FILL IN
+
+eval :: TagExpr a -> TagExpr a
+eval e@(Done e') = e
+eval e@(OptEval e') = e -- FILL IN

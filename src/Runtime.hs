@@ -681,7 +681,7 @@ genObjFn annotations computations objFns ambientObjFns constrObjFns =
          let newObjs = pack annotations currObjs fixed varying in
          -- Construct implicit computation graph (second stage), including computations as intermediate vars
          let objsComputed = computeOnObjs newObjs computations in
-         let objDict = dictOf objsComputed in -- TODO revert
+         let objDict = dictOf objsComputed in
          sumMap (applyFn objDict) objFns
             + (tr "ambient fn value: " (sumMap (\(f, w) -> w * f objDict) ambientObjFns))
             + (tr "constr fn value: "

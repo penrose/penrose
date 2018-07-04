@@ -1,0 +1,23 @@
+global { }
+
+Scalar c {
+    c.shape = Circ {
+        r = 5 + 5
+        x = c.val
+        y = c.shape.r
+    }
+
+      c.val = computeVal(1)
+}
+
+Scalar c
+with Scalar a; Scalar b
+where c := addS(a, b) {
+  override c.shape = Rect {
+    wow = 100
+  }
+
+  delete c.val
+}
+
+-- TODO: test equality / multiple matches, anonymous expressions, subtyping

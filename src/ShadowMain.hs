@@ -70,9 +70,19 @@ shadowMain = do
     forM selEnvs pPrint
     divLine
 
-    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg -- TODO: pass in beta
+    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
     putStrLn "Selector matches:\n"
     forM subss pPrint
+    divLine
+
+    let styRes = NS.translateStyProg subEnv eqEnv subProg styProg
+    putStrLn "Translated Style program:\n"
+    pPrint styRes
+    -- let _ = case styRes of
+    --         Left errs -> putStrLn "Error" >>
+    --                      pPrint errs
+    --         Right tr -> putStrLn "No explicit errs" >>
+    --                     pPrint tr -- does this work?
     divLine
 
     -- COMBAK: remove and uncomment below

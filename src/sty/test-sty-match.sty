@@ -32,4 +32,11 @@ Vector v; LinearMap f
 with VectorSpace `V`; VectorSpace U
 where In(v, `V`); From(f, `V`, U) { }
 
--- TODO: test binding, subtyping, equality
+Vector u, v, w
+where u := addV(v, w) { }
+
+Vector u; Vector `c`
+where u := addV(`c`, `c`) { }
+
+-- TODO: test subtyping, equality
+-- TODO: test nested/anonymous expressions

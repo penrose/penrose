@@ -1,5 +1,8 @@
 Scalar x
 Scalar y
+Scalar z
+
+z := addS(x, y)
 
 VectorSpace U
 VectorSpace V
@@ -11,9 +14,13 @@ LinearMap f
 LinearMap g
 LinearMap h
 
--- Vector d
--- d := AddV(a, b)
--- In(d, U)
+Vector d
+d := addV(a, b)
+In(d, U)
+
+Vector e
+e := addV(c, c)
+In(e, V)
 
 In(a, U)
 In(b, U)
@@ -24,5 +31,5 @@ From(h, U, U)
 
 -- Ill-typed expressions
 a := neg(x)
-b := add(a, y)
+b := addV(a, y)
 c := neg(a, a)
