@@ -1,0 +1,66 @@
+VectorSpace U
+VectorSpace V
+VectorSpace W
+VectorSpace X
+
+LinearMap f
+From(f,U,V)
+
+LinearMap g
+From(f,V,W)
+
+LinearMap h
+From(f,W,X)
+
+Vector u1
+Vector u2
+Vector u3
+Vector u4
+Vector u5
+
+In(u1,U)
+In(u2,U)
+In(u3,U)
+In(u4,U)
+In(u5,U)
+
+Vector v1
+Vector v2
+Vector v3
+
+In(v1,V)
+In(v2,V)
+In(v3,V)
+
+u3 := add(u1,u2)
+v1 := apply(f,u1)
+v2 := apply(f,u2)
+v3 := apply(f,u3)
+v3 = add(v1,v2)
+
+-- the "equivalence" equal sign is tentative
+Scalar a
+a := determinant(u1,u3)
+u4 := scale(a,u2)
+u5 := neg(u4)
+
+Scalar m
+m := norm(m)
+--Norm(v2)
+
+Scalar c
+c := innerProduct(v1, v3)
+
+Vector w1
+In(w1,W)
+w1 := apply(g,v1)
+
+Vector x1
+x1 := apply(f,u1)
+
+AutoLabel All
+Label u4 $u_4 = au_2/2$
+Label u5 $u_5 = -u_4$
+Label c $|v_1| \langle v_1, v_3 \rangle$
+Label w1 $g(v_1)$
+Label x1 $(h \circ g)(v_1)$

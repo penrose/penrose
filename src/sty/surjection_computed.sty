@@ -56,13 +56,13 @@ Set `domain` {
        left = Line {
              style = "dashed"
              path = lineLeft(0.2, domainOuter, codomain.shape)
-             text = "A0"
+             text = "A_0"
        }
 
        right = Line {
               style = "dashed"
               path = lineLeft(0.8, domainOuter, codomain.shape)
-              text = "A1"
+              text = "A_1"
        }
 
        -- TODO here, 'domain' should be in scope, so we should only have to type 'left' or 'right'
@@ -75,13 +75,13 @@ Set `image` {
        bottom = Line {
              style = "dashed"
              path = lineRight(0.2, codomain.shape, domainOuter)
-             text = "B0"
+             text = "B_0"
        }
 
        top = Line {
               style = "dashed"
               path = lineRight(0.8, codomain.shape, domainOuter)
-              text = "B1"
+              text = "B_1"
        }
 
        objective nearEndHoriz(image.bottom, image.bottom.label)

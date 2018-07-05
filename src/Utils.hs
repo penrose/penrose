@@ -88,14 +88,19 @@ halfDiagonal side = 0.5 * dist (0, 0) (side, side)
 compose2 :: (b -> c) -> (a -> a1 -> b) -> a -> a1 -> c
 compose2 = (.) . (.)
 
-
+concat4 :: [([a], [b], [c], [d])] -> ([a], [b], [c], [d])
+concat4 x = (concatMap fst4 x, concatMap snd4 x, concatMap thd4 x, concatMap frth4 x)
+fst4 (a, _, _, _) = a
+snd4 (_, a, _, _) = a
+thd4 (_, _, a, _) = a
+frth4 (_, _, _, a) = a
 
 -- | Define ternary expressions in Haskell
 data Cond a = a :? a
- 
+
 infixl 0 ?
 infixl 1 :?
- 
+
 (?) :: Bool -> Cond a -> a
 True  ? (x :? _) = x
 False ? (_ :? y) = y
@@ -128,16 +133,26 @@ rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
 shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
-dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type"]
+labelrws = ["Label", "AutoLabel", "NoLabel"]
+dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type", "<:", "->", "<->"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
-identifier :: Parser String
-identifier = (lexeme . try) (p >>= check)
-  where
-    p       = (:) <$> letterChar <*> many alphaNumChar
-    check x = if x `elem` rws
-                then fail $ "keyword " ++ show x ++ " cannot be an identifier"
-                else return x
+upperId, lowerId, identifier :: Parser String
+identifier = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> letterChar <*> many validChar
+upperId = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> upperChar <*> many validChar
+lowerId = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> lowerChar <*> many validChar
+validChar = alphaNumChar <|> char '_'
+
+checkId :: String -> Parser String
+checkId x = if x `elem` rws
+          then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+          else return x
+
+texExpr :: Parser String
+texExpr = dollar >> manyTill asciiChar dollar
 
 -- | 'lineComment' and 'blockComment' are the two styles of commenting in Penrose. Line comments start with @--@. Block comments are wrapped by @/*@ and @*/@.
 lineComment, blockComment :: Parser ()
@@ -179,7 +194,11 @@ arrow = void (symbol "->")
 comma = void (symbol ",")
 dot = void (symbol ".")
 eq = void (symbol "=")
+dollar = void (symbol "$")
 
+
+dollars :: Parser a -> Parser a
+dollars = between (symbol "$") (symbol "$")
 
 braces :: Parser a -> Parser a
 braces = between (symbol "{") (symbol "}")

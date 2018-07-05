@@ -1,0 +1,21 @@
+h1 {font-family: "Raleway", sans-serif}
+hr {
+    border: 0;
+    width: 50%;
+    max-width: 10%;
+    margin-left: 45%;
+    height: 1px;
+    background: #333;
+    background-image: linear-gradient(to right, #ccc, #333, #ccc);
+}
+p {
+    color: rgba(#333030, .1);
+}
+div{
+    text-align:center;
+}
+#svgdiv {
+    text-align: center;
+    display : block;
+    margin : auto;
+}

@@ -1,20 +1,17 @@
 -- | "Shapes" contains all geometric primitives that Penrose supports
 
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
+-- {-# LANGUAGE DuplicateRecordFields #-}
 
 module Shapes where
 -- module Shapes (Obj, Obj') where
 import Data.Aeson
 import Data.Monoid ((<>))
 import GHC.Generics
-import Graphics.Gloss
-import Data.Data
-import Data.Typeable
+
 import Utils
 
 type Name = String
@@ -29,13 +26,14 @@ class Named a where
       getName :: a -> Name
       setName :: Name -> a -> a
 
+
 -------
 data CubicBezier = CubicBezier {
     pathcb           :: [(Float, Float)],
     namecb           :: String,
     stylecb          :: String,
     colorcb          :: Color
-} deriving (Eq, Show, Generic, Typeable, Data)
+} deriving (Eq, Show, Generic)
 
 instance Named CubicBezier where
          getName = namecb
@@ -56,15 +54,15 @@ instance FromJSON CubicBezier
 
 -------
 data Line = Line {
-    startx_l           :: Float,
-    starty_l           :: Float,
-    thickness_l          :: Float,
+    startx_l         :: Float,
+    starty_l         :: Float,
+    thickness_l      :: Float,
     endx_l           :: Float,
     endy_l           :: Float,
     name_l           :: String,
     style_l          :: String,
     color_l          :: Color
-} deriving (Eq, Show, Generic, Typeable, Data)
+} deriving (Eq, Show, Generic)
 
 instance Named Line where
          getName = name_l
@@ -92,7 +90,7 @@ data SolidArrow = SolidArrow { startx :: Float
                              , colorsa :: Color
                             --  , bbox :: BBox
                          }
-         deriving (Eq, Show, Generic, Typeable, Data)
+         deriving (Eq, Show, Generic)
 
 instance Located SolidArrow Float where
         --  getX a = endx a - startx a
@@ -111,22 +109,24 @@ instance FromJSON SolidArrow
 
 -------
 
-data Circ = Circ { xc :: Float
-                 , yc :: Float
-                 , r :: Float
-                 , selc :: Bool -- is the circle currently selected? (mouse is dragging it)
-                 , namec :: String
-                 , colorc :: Color }
-     deriving (Eq, Show, Generic, Data, Typeable)
+data Circ = Circ {
+    xc      :: Float,
+    yc      :: Float,
+    r       :: Float,
+    strokec :: Float,
+    namec   :: String,
+    colorc  :: Color,
+    stylec  :: String
+} deriving (Eq, Show, Generic)
 
 instance Located Circ Float where
-         getX c = xc c
-         getY c = yc c
+         getX = xc
+         getY = yc
          setX x c = c { xc = x }
          setY y c = c { yc = y }
 
 instance Named Circ where
-         getName c = namec c
+         getName = namec
          setName x c = c { namec = x }
 
 instance ToJSON Circ
@@ -134,23 +134,26 @@ instance FromJSON Circ
 
 ----------------------
 
-data Square = Square { xs :: Float -- center of square
-                     , ys :: Float
-                     , side :: Float
-                     , ang  :: Float -- angle for which the obj is rotated
-                     , sels :: Bool -- is the circle currently selected? (mouse is dragging it)
-                     , names :: String
-                     , colors :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+data Square = Square {
+    xs      :: Float,
+    ys      :: Float,
+    side    :: Float,
+    ang     :: Float,
+    strokes :: Float,
+    names   :: String,
+    styles  :: String,
+    colors  :: Color
+}
+ deriving (Eq, Show, Generic)
 
 instance Located Square Float where
-         getX s = xs s
-         getY s = ys s
+         getX = xs
+         getY = ys
          setX x s = s { xs = x }
          setY y s = s { ys = y }
 
 instance Named Square where
-         getName s = names s
+         getName = names
          setName x s = s { names = x }
 
 instance ToJSON Square
@@ -167,9 +170,9 @@ data Arc = Arc { xar:: Float -- Starting point for angle mark
                      , selar :: Bool -- is the arc currently selected? (mouse is dragging it)
                      , anglear:: Float -- The angle that the angle mark specifies
                      , rotationar:: Float -- The rotation angle of argle mark
-                     , isRightar:: String -- Is this a right angle or not 
+                     , isRightar:: String -- Is this a right angle or not
                  }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Arc Float where
          getX ar= xar ar
@@ -194,7 +197,7 @@ data Rect = Rect { xr :: Float -- center of rect
                      , selr :: Bool
                      , namer :: String
                      , colorr :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Rect Float where
          getX s = xr s
@@ -222,7 +225,7 @@ data Parallelogram = Parallelogram { xpa :: Float -- center of rect
                      , selpa :: Bool
                      , namepa :: String
                      , colorpa :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Parallelogram Float where
          getX pa = xpa pa
@@ -247,7 +250,7 @@ data Label = Label { xl :: Float
                    -- , scalel :: Float  -- calculate h,w from it
                    , sell :: Bool -- selected label
                    , namel :: String }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Label Float where
          getX l = xl l
@@ -267,7 +270,7 @@ data Pt = Pt { xp :: Float
              , yp :: Float
              , selp :: Bool
              , namep :: String }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Pt Float where
          getX p = xp p
@@ -282,18 +285,49 @@ instance Named Pt where
 instance ToJSON Pt
 instance FromJSON Pt
 
+-------------------
+
+data Img = Img { xim :: Float -- center of Img
+                     , yim :: Float
+                     , sizeXim :: Float -- x
+                     , sizeYim :: Float -- y
+                     , angim :: Float -- angle for which the obj is rotated
+                     , selim :: Bool
+                     , nameim :: String
+                     , path :: String}
+     deriving (Eq, Show, Generic)
+
+instance Located Img Float where
+         getX s = xim s
+         getY s = yim s
+         setX x s = s { xim = x }
+         setY y s = s { yim = y }
+
+
+-- NO instance for Sized
+
+instance Named Img where
+         getName im = nameim im
+         setName x im = im { nameim = x }
+
+instance ToJSON Img
+instance FromJSON Img
+
+----------------------------
+
 data Obj = S Square
+         | A SolidArrow
          | R Rect
-         | PA Parallelogram
          | C Circ
          | E Ellipse
          | L Label
          | P Pt
-         | A SolidArrow
+         | AR Arc
          | CB CubicBezier
          | LN Line
-         | AR Arc
-         deriving (Eq, Show, Generic, Typeable, Data)
+         | IM Img
+         | PA Parallelogram
+         deriving (Eq, Show, Generic)
 
 instance ToJSON Obj
 instance FromJSON Obj
@@ -305,7 +339,7 @@ data Ellipse = Ellipse { xe :: Float
                  , ry :: Float
                  , namee :: String
                  , colore :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 instance Located Ellipse Float where
          getX = xe
@@ -350,8 +384,10 @@ instance Located Obj Float where
                  A a -> getX a
                  CB c -> getX c
                  LN l -> getX l
+                 IM im -> getX im
                  AR ar -> getX ar
                  PA pa -> getX pa
+
          getY o = case o of
                  C c -> getY c
                  E e -> getY e
@@ -362,8 +398,10 @@ instance Located Obj Float where
                  A a -> getY a
                  CB c -> getY c
                  LN l -> getY l
+                 IM im -> getY im
                  AR ar -> getY ar
                  PA pa -> getY pa
+
          setX x o = case o of
                 C c -> C $ setX x c
                 E e -> E $ setX x e
@@ -374,8 +412,10 @@ instance Located Obj Float where
                 A a -> A $ setX x a
                 CB c -> CB $ setX x c
                 LN l -> LN $ setX x l
+                IM im -> IM $ setX x im
                 AR ar -> AR $ setX x ar
                 PA pa -> PA $ setX x pa
+
          setY y o = case o of
                 C c -> C $ setY y c
                 E e -> E $ setY y e
@@ -386,6 +426,7 @@ instance Located Obj Float where
                 A a -> A $ setY y a
                 CB c -> CB $ setY y c
                 LN l -> LN $ setY y l
+                IM im -> IM $ setY y im
                 AR ar -> AR $ setY y ar
 
 instance Named Obj where
@@ -399,8 +440,10 @@ instance Named Obj where
                  A a   -> getName a
                  CB cb -> getName cb
                  LN l -> getName l
+                 IM im -> getName im
                  AR ar -> getName ar
                  PA pa -> getName pa
+
          setName x o = case o of
                 C c   -> C $ setName x c
                 E e   -> E $ setName x e
@@ -411,8 +454,10 @@ instance Named Obj where
                 A a   -> A $ setName x a
                 CB cb -> CB $ setName x cb
                 LN l -> LN $ setName x l
+                IM im -> IM $ setName x im
                 AR ar -> AR $ setName x ar
                 PA pa -> PA $ setName x pa
+
 
 --------------------------------------------------------------------------------
 -- Polymorphic versions of the primitives
@@ -428,8 +473,9 @@ data Obj' a
     | A' (SolidArrow' a)
     | CB' (CubicBezier' a)
     | LN' (Line' a)
+    | IM' (Img' a)
     | AR' (Arc' a)
-    deriving (Eq, Show, Typeable, Data)
+    deriving (Eq, Show)
 
 data SolidArrow' a = SolidArrow' {
     startx'    :: a,
@@ -441,16 +487,17 @@ data SolidArrow' a = SolidArrow' {
     namesa'    :: String,
     stylesa'    :: String,
     colorsa'   :: Color
-} deriving (Eq, Show, Typeable, Data)
+} deriving (Eq, Show)
 
 data Circ' a = Circ' {
     xc'     :: a,
     yc'     :: a,
     r'      :: a,
-    selc'   :: Bool, -- is the circle currently selected? (mouse is dragging it)
+    strokec':: a,
     namec'  :: String,
+    stylec' :: String,
     colorc' :: Color
-} deriving (Eq, Show, Typeable, Data)
+} deriving (Eq, Show)
 
 data Ellipse' a = Ellipse' {
     xe' :: a,
@@ -459,7 +506,7 @@ data Ellipse' a = Ellipse' {
     ry' :: a,
     namee'  :: String,
     colore' :: Color
-} deriving (Eq, Show, Typeable, Data)
+} deriving (Eq, Show)
 
 data Label' a = Label' { xl' :: a -- middle (x, y) of label
                        , yl' :: a
@@ -468,22 +515,24 @@ data Label' a = Label' { xl' :: a -- middle (x, y) of label
                        , textl' :: String
                        , sell' :: Bool -- selected label
                        , namel' :: String }
-                       deriving (Eq, Show, Typeable, Data)
+                       deriving (Eq, Show)
 
 data Pt' a = Pt' { xp' :: a
                  , yp' :: a
                  , selp' :: Bool
                  , namep' :: String }
-                 deriving (Eq, Show, Typeable, Data)
+                 deriving (Eq, Show)
 
-data Square' a  = Square' { xs' :: a
-                     , ys' :: a
-                     , side' :: a
-                     , ang'  :: Float -- angle the obj is rotated, TODO make polymorphic
-                     , sels' :: Bool
-                     , names' :: String
-                     , colors' :: Color }
-                     deriving (Eq, Show, Typeable, Data)
+data Square' a  = Square' {
+    xs'               :: a,
+    ys'               :: a,
+    side'             :: a,
+    strokes'          :: a,
+    ang'              :: Float,
+    names'            :: String,
+    colors'           :: Color,
+    styles'           :: String
+} deriving (Eq, Show)
 
 
 data Arc' a  = Arc' { xar' :: a
@@ -497,7 +546,7 @@ data Arc' a  = Arc' { xar' :: a
                      , sizear' :: a
                      , namear' :: String
                      , colorar' :: Color }
-                     deriving (Eq, Show, Typeable, Data)
+                     deriving (Eq, Show)
 
 
 data Rect' a = Rect' { xr' :: a -- I assume this is top left?
@@ -508,7 +557,7 @@ data Rect' a = Rect' { xr' :: a -- I assume this is top left?
                      , selr' :: Bool
                      , namer' :: String
                      , colorr' :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
 
 data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
                      , ypa' :: a
@@ -519,25 +568,37 @@ data Parallelogram' a = Parallelogram' { xpa' :: a -- I assume this is top left?
                      , selpa' :: Bool
                      , namepa' :: String
                      , colorpa' :: Color }
-     deriving (Eq, Show, Generic, Typeable, Data)
+     deriving (Eq, Show, Generic)
+
+
+data Img' a = Img' { xim' :: a -- I assume this is top left?
+                     , yim' :: a
+                     , sizeXim' :: a
+                     , sizeYim' :: a
+                     , selim' :: Bool
+                     , angim' :: Float
+                     , nameim' :: String
+                     , path' :: String } -- angle the obj is rotated, TODO make polymorphic
+     deriving (Eq, Show, Generic)
+
 
 data CubicBezier' a = CubicBezier' {
     pathcb'           :: [(a, a)],
     namecb'           :: String,
     stylecb'          :: String,
     colorcb'          :: Color
-} deriving (Eq, Show, Typeable, Data)
+} deriving (Eq, Show)
 
 data Line' a = Line' {
-    startx_l'           :: a,
-    starty_l'           :: a,
-    thickness_l'         :: a,
+    startx_l'         :: a,
+    starty_l'         :: a,
+    thickness_l'      :: a,
     endx_l'           :: a,
     endy_l'           :: a,
     name_l'           :: String,
     style_l'          :: String,
     color_l'          :: Color
-} deriving (Eq, Show, Generic, Typeable, Data)
+} deriving (Eq, Show, Generic)
 
 instance Named (SolidArrow' a) where
          getName = namesa'
@@ -584,6 +645,10 @@ instance Named (Line' a) where
          getName = name_l'
          setName x l = l { name_l' = x }
 
+instance Named (Img' a) where
+         getName = nameim'
+         setName x im = im { nameim' = x }
+
 instance Named (Obj' a) where
          getName o = case o of
                  C' c   -> getName c
@@ -596,7 +661,9 @@ instance Named (Obj' a) where
                  A' a   -> getName a
                  CB' cb -> getName cb
                  LN' ln -> getName ln
+                 IM' im -> getName im
                  AR' ar-> getName ar
+
          setName x o = case o of
                 C' c   -> C' $ setName x c
                 S' s   -> S' $ setName x s
@@ -607,6 +674,7 @@ instance Named (Obj' a) where
                 A' a   -> A' $ setName x a
                 CB' cb -> CB' $ setName x cb
                 LN' ln -> LN' $ setName x ln
+                IM' im -> IM' $ setName x im
                 AR' ar-> AR' $ setName x ar
 --
 instance Located (Circ' a) a where
@@ -663,6 +731,12 @@ instance Located (Pt' a) a where
          setX x p = p { xp' = x }
          setY y p = p { yp' = y }
 
+instance Located (Img' a) a where
+         getX = xim'
+         getY = yim'
+         setX x im = im { xim' = x }
+         setY y im = im { yim' = y }
+
 -- TODO: Added context for max and min functions. Consider rewriting the whole `Located` interface. For general shapes, simply setX and getX does NOT make sense.
 instance (Real a, Floating a, Show a, Ord a) => Located (CubicBezier' a) a where
          getX c   = let xs = map fst $ pathcb' c in maximum xs - minimum xs
@@ -693,6 +767,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              PA' pa -> xpa' pa
              A' a -> startx' a
              LN' l -> getX l
+             IM' im -> xim' im
          getY o = case o of
              C' c -> yc' c
              E' e -> ye' e
@@ -704,6 +779,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              PA' pa -> ypa' pa
              A' a -> starty' a
              LN' l -> getY l
+             IM' im -> yim' im
          setX x o = case o of
              C' c -> C' $ setX x c
              E' e -> E' $ setX x e
@@ -715,6 +791,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              PA' pa -> PA' $ setX x pa
              A' a -> A' $ setX x a
              LN' l -> LN' $ setX x l
+             IM' im -> IM' $ setX x im
          setY y o = case o of
              C' c -> C' $ setY y c
              E' e -> E' $ setY y e
@@ -726,6 +803,7 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
              PA' pa -> PA' $ setY y pa
              A' a -> A' $ setY y a
              LN' l -> LN' $ setY y l
+             IM' im -> IM' $ setY y im
 
 -----------------------------------------------
 -- Defining the interface between Style types/operations and internal computation types / object properties
@@ -741,6 +819,8 @@ data TypeIn a = TNum a
               | TPt (Pt2 a)
               | TPath [Pt2 a]
               | TColor Color
+              -- | path for image
+              | TFile String
               -- | dotted, etc.
               | TStyle String
               -- | Substance ID
@@ -750,8 +830,8 @@ data TypeIn a = TNum a
               -- | shape ID, property of that shape
               | TProp String Property
               -- | a call to computation function
-              | TCall String [TypeIn a] 
-     deriving (Eq, Show, Data, Typeable)
+              | TCall String [TypeIn a]
+     deriving (Eq, Show)
 
 -- TODO: should we collect the types that need computation to another single type. For example:
 -- data TypeIn a = ...
@@ -766,6 +846,8 @@ get "radius" (C' o)        = TNum $ r' o
 get "x" (C' o)             = TNum $ xc' o
 get "y" (C' o)             = TNum $ yc' o
 get "color" (C' o)         = TColor $ colorc' o
+get "stroke-width" (C' o)  = TNum $ strokec' o
+get "stroke-style" (C' o)  = TStyle $ stylec' o
 
 -- Ellipses
 get "rx" (E' o)            = TNum $ rx' o
@@ -786,9 +868,11 @@ get "center" (S' o)        = TPt (xs' o, ys' o)
 get "side" (S' o)          = TNum $ side' o
 get "angle" (S' o)         = TNum $ r2f $ ang' o
 get "color" (S' o)         = TColor $ colors' o
+get "stroke-width" (S' o)  = TNum $ strokes' o
+get "stroke-style" (S' o)  = TStyle $ styles' o
 
 -- Arcs
-              
+
 get "radius" (AR' o)        = TNum $ radiusar' o
 get "rotation" (AR' o)      = TNum $ rotationar' o
 get "angle" (AR' o)         = TNum $ anglear' o
@@ -830,7 +914,7 @@ get "starty" (A' o)        = TNum $ starty' o
 get "start" (A' o)         = TPt (startx' o, starty' o)
 get "endx" (A' o)          = TNum $ endx' o
 get "endy" (A' o)          = TNum $ endy' o
-get "end" (A' o)         = TPt (endx' o, endy' o)
+get "end" (A' o)           = TPt (endx' o, endy' o)
 get "thickness" (A' o)     = TNum $ thickness' o
 get "color" (A' o)         = TColor $ colorsa' o
 get "style" (A' o)         = TStyle $ stylesa' o
@@ -847,7 +931,19 @@ get "color" (LN' o)         = TColor $ color_l' o
 get "path" (LN' o)          = TPath [(startx_l' o, starty_l' o), (endx_l' o, endy_l' o)]
 
 -- Labels
+get "x" (L' o)             = TNum $ xl' o
+get "y" (L' o)             = TNum $ yl' o
 get "location" (L' o)      = TPt (xl' o, yl' o)
+
+-- Images
+get "x" (IM' o)             = TNum $ xim' o
+get "y" (IM' o)             = TNum $ yim' o
+get "center" (IM' o)        = TPt (xim' o, yim' o)
+get "length" (IM' o)        = TNum $ sizeXim' o
+get "width" (IM' o)         = TNum $ sizeYim' o
+get "angle" (IM' o)         = TNum $ r2f $ angim' o
+get "path" (IM' o)         = TFile $ path' o
+
 
 get prop obj = error ("getting property/object combination not supported: \n" ++ prop ++ "\n"
                                    ++ show obj ++ "\n" ++ show obj)
@@ -860,6 +956,8 @@ set "radius" (C' o) (TNum n)  = C' $ o { r' = n }
 set "x" (C' o) (TNum n)       = C' $ o { xc' = n }
 set "y" (C' o) (TNum n)       = C' $ o { yc' = n }
 set "color" (C' o) (TColor n) = C' $ o { colorc' = n }
+set "stroke-width" (C' o) (TNum w)   = C' $ o { strokec' = w }
+set "stroke-style" (C' o) (TStyle s) =  C' $ o { stylec' = s }
 
 -- Ellipses
 set "rx" (E' o) (TNum n)      = E' $ o { rx' = n }
@@ -931,6 +1029,14 @@ set "style" (A' o) (TStyle n)    = A' $ o { stylesa' = n }
 
 -- TODO add angle and length properties
 
+-- Imgs
+set "x" (IM' o) (TNum n)          = IM' $ o { xim' = n }
+set "y" (IM' o) (TNum n)          = IM' $ o { yim' = n }
+set "center" (IM' o) (TPt (x, y)) = IM' $ o { xim' = x, yim' = y }
+set "length" (IM' o) (TNum n)     = IM' $ o { sizeXim' = n }
+set "width" (IM' o) (TNum n)      = IM' $ o { sizeYim' = n }
+set "path" (IM' o) (TFile n)      = IM' $ o { path' = n }
+
 -- Lines
 set "startx" (LN' o) (TNum n)     = LN' $ o { startx_l' = n }
 set "starty" (LN' o) (TNum n)     = LN' $ o { starty_l' = n }
@@ -950,3 +1056,39 @@ set "location" (L' o) (TPt (x, y)) = L' $ o { xl' = x, yl' = y }
 
 set prop obj val = error ("setting property/object/value combination not supported: \n" ++ prop ++ "\n"
                                    ++ show obj ++ "\n" ++ show val)
+
+
+--------------------------------------------------------------------------------
+-- Color definition
+-- Adopted from gloss: https://github.com/benl23x5/gloss/blob/c63daedfe3b60085f8a9e810e1389cbc29110eea/gloss-rendering/Graphics/Gloss/Internals/Data/Color.hs
+
+data Color
+    -- | Holds the color components. All components lie in the range [0..1.
+    = RGBA  !Float !Float !Float !Float
+    deriving (Show, Eq)
+
+-- | Make a custom color. All components are clamped to the range  [0..1].
+makeColor :: Float        -- ^ Red component.
+          -> Float        -- ^ Green component.
+          -> Float        -- ^ Blue component.
+          -> Float        -- ^ Alpha component.
+          -> Color
+makeColor r g b a
+        = clampColor
+        $ RGBA r g b a
+{-# INLINE makeColor #-}
+
+-- | Take the RGBA components of a color.
+rgbaOfColor :: Color -> (Float, Float, Float, Float)
+rgbaOfColor (RGBA r g b a)      = (r, g, b, a)
+{-# INLINE rgbaOfColor #-}
+
+-- | Clamp components of a raw color into the required range.
+clampColor :: Color -> Color
+clampColor cc
+   = let  (r, g, b, a)    = rgbaOfColor cc
+     in   RGBA (min 1 r) (min 1 g) (min 1 b) (min 1 a)
+
+black, white :: Color
+black = makeColor 0.0 0.0 0.0 1.0
+white = makeColor 1.0 1.0 1.0 1.0

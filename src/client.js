@@ -519,6 +519,7 @@ var canvasHeight = 700
     });
       parallelogram.drag(move, start, stop)
       break
+
                 case 'A': // arrow
                 var style = obj.stylesa
                 var sx = dx + obj.startx, sy = dy - obj.starty,
@@ -572,6 +573,20 @@ var canvasHeight = 700
                     g.drag(move, start, stop)
                 }
                 break
+                //Case image
+                case 'IM':
+                    var sizeX = obj.sizeXim
+                    var sizeY = obj.sizeYim
+                    var xim = obj.xim
+                    var yim = obj.yim
+                    var path = obj.path
+
+                    var image = s.image(path, dx + obj.xim - sizeX/2, dy - obj.yim - sizeY/2, sizeX, sizeY)
+                    image.data("name", obj.nameim)
+                    image.drag(move, start, stop)
+
+                break
+
             }
         }
         // Send the bbox information to the server
@@ -632,7 +647,7 @@ var canvasHeight = 700
             } else {
                 // if not the last frame, we refresh the frontend on a time interval
                 if(firstRun || diff > sampleInterval) {
-                    renderScene(ws, s, obj, firstRun)
+                   renderScene(ws, s, obj, firstRun)
                     lastTime = now
                     firstRun = false
                 }

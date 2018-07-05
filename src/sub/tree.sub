@@ -1,7 +1,7 @@
+Set D
 Set A
 Set B
 Set C
-Set D
 Set E
 Set F
 Set G
@@ -15,8 +15,4 @@ NonIntersect(E,D)
 NonIntersect(F,G)
 NonIntersect(B,C)
 
---Point x
---Empty(x)
-
---Map2(Set,Set) f
---Surjection(f)
+AutoLabel All
