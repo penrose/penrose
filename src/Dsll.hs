@@ -322,6 +322,16 @@ parseDsll dsllFile dsllIn =
               print env1
               return env1
 
+-- | 'parseDsllSilent' runs the actual parser function: 'dsllParser', taking in a program String, parses it and
+-- | semantically checks it. It outputs the environement as returned from the dsll typechecker - without printing
+parseDsllSilent :: String -> String -> IO VarEnv
+parseDsllSilent dsllFile dsllIn =
+    case runParser dsllParser dsllFile dsllIn of
+        Left err -> error (parseErrorPretty err)
+        Right prog -> do let env = check prog
+                             env1 = computeSubTypes env
+                         return env1
+
 -- --------------------------------------- Test Driver -------------------------------------
 
 -- | For testing: first uncomment the module definition to make this module the

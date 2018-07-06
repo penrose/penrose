@@ -1,6 +1,7 @@
 -- Automatic random generator for Substance programs
--- Author: Dor Ma'ayan
--- Version: 07/03/2018
+-- Author: Dor Ma'ayan, July 2018
+
+{-# LANGUAGE ScopedTypeVariables #-}
 
 import System.Random
 import System.IO
@@ -19,7 +20,9 @@ import qualified Data.Map.Strict as M
 -- The goal of the local env is to track the
 data LocalEnv = LocalEnv {
                        availableNames :: Language,
-                       declaredTypes :: M.Map String [String] -- Map from type to list of object from that type
+                       declaredTypes :: M.Map String [String], -- Map from type to list of object from that type
+                       pred1Lst :: [Predicate1],
+                       pred2Lst :: [Predicate2]
                      }
               deriving (Show, Eq)
 
@@ -40,7 +43,7 @@ main = do
     when (length args /= 2) $ die "Usage: ./Main prog.dsl namesFile"
     let (dsllFile, namesFile) = (head args,args !! 1)
     dsllIn <- readFile dsllFile
-    dsllEnv <- D.parseDsll dsllFile dsllIn
+    dsllEnv <- D.parseDsllSilent dsllFile dsllIn
     generateProgram dsllEnv namesFile
     return ()
 
@@ -48,14 +51,29 @@ main = do
 --   calls other functions to generate specific statements
 generateProgram dsllEnv namesFile = do
     let prog = ""
-        (prog1, localEnv1) = generateTypes dsllEnv initLocalEnv prog 10 --(unsafePerformIO $ getStdRandom (randomR (1,6)))
-        (prog2, localEnv2) = generateOperations dsllEnv localEnv1 prog1 3 --(unsafePerformIO $ getStdRandom (randomR (1,6)))
-        (prog3, localEnv3) = generatePredicates dsllEnv localEnv2 prog2
-    putStrLn prog3
-    putStrLn "\n And the local env is: \n"
-    print localEnv3
+        (prog1, localEnv1) = generateTypes dsllEnv initLocalEnv prog 15 --(unsafePerformIO $ getStdRandom (randomR (1,6)))
+        (prog2, localEnv2) = generateStatements dsllEnv localEnv1 prog1 10
+    putStrLn prog2
+    --putStrLn "\n And the local env is: \n"
+    --print localEnv2
     return ()
-    where initLocalEnv = LocalEnv {declaredTypes = M.empty, availableNames = loadLanguage namesFile }
+    where initLocalEnv = LocalEnv {declaredTypes = M.empty, availableNames = loadLanguage namesFile, pred1Lst = getPred1Lst dsllEnv, pred2Lst = getPred2Lst dsllEnv }
+
+-- | Generate random Substance statements
+generateStatements :: VarEnv -> LocalEnv -> String -> Int -> (String, LocalEnv)
+generateStatements dsllEnv localEnv prog n =
+    let prog1 = prog ++ generateStatement dsllEnv localEnv
+    in if n /= 1 then generateStatements dsllEnv localEnv prog1 (n - 1)
+                 else (prog1, localEnv)
+
+-- | Generate single random Substance statement
+generateStatement :: VarEnv -> LocalEnv -> String
+generateStatement dsllEnv localEnv =
+    let statementId = (unsafePerformIO $ getStdRandom (randomR (0,2))) :: Integer
+    in case statementId of
+          0 -> generateBinding dsllEnv localEnv ++ "\n"
+          1 -> generatePrediacte dsllEnv localEnv ++ "\n"
+          2 -> generatePrediacteEquality dsllEnv localEnv ++ "\n"
 
 -- | Generate random type statements
 generateTypes :: VarEnv -> LocalEnv -> String -> Int -> (String, LocalEnv)
@@ -75,21 +93,30 @@ generateType dsllEnv localEnv =
         localEnv2 = addDeclaredType localEnv1 tName name
     in  (tName ++ " " ++ name ++ " \n" , localEnv2)
 
--- | Generate random operation statements
-generateOperations :: VarEnv -> LocalEnv -> String -> Int -> (String, LocalEnv)
-generateOperations dsllEnv localEnv prog n =
-    let prog1 = prog ++ generateOperation dsllEnv localEnv
-    in if n /= 1 then generateOperations dsllEnv localEnv prog1 (n - 1)
-                   else (prog1, localEnv)
-
--- | Generate single random operation statement
-generateOperation dsllEnv localEnv =
+-- | Generate single random binding statement
+generateBinding dsllEnv localEnv =
     let operations = M.toAscList (operators dsllEnv)
         o = (unsafePerformIO $ getStdRandom (randomR (0,length operations -1)))
         operation = snd (operations !! o)
         (name, localEnv1) = getName localEnv
-    in nameop operation ++ generateArguments (getTypeNames (tlsop operation)) localEnv
+    in generateArgument localEnv (convert (top operation))   ++ " := " ++ nameop operation ++ generateArguments (getTypeNames (tlsop operation)) localEnv
 
+-- | Generate single random predicate equality
+generatePrediacteEquality dsllEnv localEnv =
+    let p1 = generatePrediacte dsllEnv localEnv
+        p2 = generatePrediacte dsllEnv localEnv
+    in p1 ++ " <-> " ++ p2
+
+-- | Generate single random operation statement
+generatePrediacte dsllEnv localEnv =
+    let preds = M.toAscList (predicates dsllEnv)
+        p = (unsafePerformIO $ getStdRandom (randomR (0,length preds -1)))
+        predicate = snd (preds !! p)
+    in case predicate of
+            Pred1 p1 -> namepred1 p1 ++ generateArguments (getTypeNames (tlspred1 p1)) localEnv
+            Pred2 p2 -> ""
+
+------------------------------- Helper Functions -------------------------------
 getTypeNames = map convert
 
 convert :: T ->  String
@@ -98,18 +125,31 @@ convert (TConstr t) = nameCons t
 
 generateArguments :: [String] -> LocalEnv -> String
 generateArguments types localEnv = let args1 = map (generateArgument localEnv) types
-                                   in "(" ++ intercalate "," args1 ++ ")\n"
+                                   in "(" ++ intercalate "," args1 ++ ")"
 
 -- | Get an argument for operations / predicates / val constructors
 generateArgument :: LocalEnv -> String -> String
 generateArgument localEnv t = case M.lookup t (declaredTypes localEnv) of
-  Nothing -> error "No declaration of type " ++ t
+  Nothing -> ""
   Just lst -> let a = (unsafePerformIO $ getStdRandom (randomR (0,length lst -1)))
               in lst !! a
 
+getPred1Lst :: VarEnv -> [Predicate1]
+getPred1Lst dsllEnv = let preds = M.toAscList (predicates dsllEnv)
+                      in concat (map extractPred1 preds)
 
--- | Generate random predicate statements
-generatePredicates dsllEnv localEnv prog = (prog,localEnv)
+getPred2Lst :: VarEnv -> [Predicate2]
+getPred2Lst dsllEnv = let preds = M.toAscList (predicates dsllEnv)
+                      in concat (map extractPred2 preds)
+
+extractPred1:: (String,PredicateEnv) -> [Predicate1]
+extractPred1 (_ , Pred1 p) = [p]
+extractPred1 _ = []
+
+extractPred2:: (String,PredicateEnv) -> [Predicate2]
+extractPred2 (_ , Pred2 p) = [p]
+extractPred2 _ = []
+
 
 -----------------------------  Randomize Names ---------------------------------
 -- The mechanism for randomization of names for entities in
