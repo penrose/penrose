@@ -1116,7 +1116,8 @@ translatePair varEnv subEnv subProg trans (header@(Select sel), block) =
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
-translateStyProg :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> Either [Error] (Translation a)
+translateStyProg :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg -> StyProg ->
+                                     Either [Error] (Translation a)
 translateStyProg varEnv subEnv subProg styProg =
                  foldM (translatePair varEnv subEnv subProg) initTrans styProg
                  -- TODO: deal with warnings in translation
@@ -1124,15 +1125,139 @@ translateStyProg varEnv subEnv subProg styProg =
 
 ------------ Translation second pass to actually make GPIs, objectives, computations
 
--- TODO: filter Translation
+----- Computation evaluation during optimization
+
+eval :: TagExpr a -> TagExpr a
+eval e@(Done e') = e
+eval e@(OptEval e') = e -- FILL IN
 
 -- TODO: interpret and eval should use the State and TrComputations
 -- [|e|] : evaluate an expression as much as possible at compile-time
 -- stopping when an optimized value is encountered
 -- TODO this should call eval
-interpret :: (Autofloat a) => Expr -> TagExpr a
-interpret e = Done $ S.TStr "TODO" -- FILL IN
+interpretLine :: (Autofloat a) => Expr -> TagExpr a
+interpretLine e = Done $ S.TStr "TODO" -- FILL IN
 
-eval :: TagExpr a -> TagExpr a
-eval e@(Done e') = e
-eval e@(OptEval e') = e -- FILL IN
+interpretTrans :: (Autofloat a) => Translation a -> Translation a
+interpretTrans trans = trans -- FILL IN
+
+----- Types
+
+data Annotation = Varying | Fixed | Unknown
+
+-- R stands for Runtime
+data RField a = RField { fsubname :: String, 
+                         fname :: String, 
+                         fval :: a }
+--                         fannot :: Maybe Annotation }
+
+data RState a = RState { objs :: [S.Obj] } -- TODO
+
+----- Generating initial state (GPIs, fields, annotations) and overall objective function
+
+-- Objfns
+
+genObjfn :: Bool
+genObjfn = False -- TODO, use interpretTrans
+
+sampleFloat () = 100 -- TODO: actually sample this using rng
+
+notGPI (FExpr _) = True
+notGPI (GPI _ _) = False
+
+--- Fields
+
+fieldAnnot expr =
+    case expr of
+    OptEval e -> 
+        case e of
+        AFloat (Fix float) -> Just Fixed
+        AFloat Vary -> Just Varying
+        CompApp fn args -> Just Unknown -- TODO: either fixed or unknown, depending on return type of function. how to figure out?
+        BinOp op e1 e2 -> Just Unknown -- TODO
+        UOp op e -> Just Unknown -- TODO
+        ListAccess path i -> Just Unknown -- TODO
+        _ -> Nothing -- TODO check cases
+    Done val ->
+        case val of 
+        S.TNum n -> Just Fixed -- If it's already evaluated to a float at compile time, then it's fixed
+        S.TFloat f -> Just Fixed
+        S.TAllShapes s -> error "remove exprs from typein"
+        S.TShape s -> error "remove exprs from typein"
+        S.TProp s p -> error "remove exprs from typein"
+        S.TCall fn args -> error "remove exprs from typein"
+        _ -> Nothing
+
+-- Only varying floats go in the state, others stay in the translation and are evaluated as needed
+makeField name field (FExpr expr) = 
+          case fieldAnnot expr of 
+          Just Varying ->
+               Just $ RField { fsubname = name, fname = field, fval = sampleFloat () }
+          Just Fixed -> Nothing
+          Just Unknown -> Nothing
+makeField name field _ = error "should not happen: this is a GPI, not a field" -- TODO clean up
+
+--- GPIs
+
+getGPIannotation propertyMap propertyName =
+    case M.lookup propertyName propertyMap of
+    Nothing -> Varying -- if the property is unspecified in Style, it must be varying
+    Just exp -> 
+         case exp of
+         OptEval e ->
+             case e of
+             AFloat (Fix float) -> Fixed
+             AFloat Vary -> Varying
+             _ -> error ("the property '" ++ propertyName ++ "' should be a float but is not!")
+         Done e ->
+             case e of
+             S.TNum n -> Fixed  -- If it's already evaluated to a float at compile time, then it's fixed
+             S.TFloat f -> Fixed
+             _ -> error ("the property '" ++ propertyName ++ "' should be a float but is not!")
+
+getGPIannotations :: (Autofloat a) => PropertyDict a -> [Property] -> [Annotation]
+getGPIannotations propertyMap propertyNames = map (getGPIannotation propertyMap) propertyNames
+
+
+makeGPI name field (GPI ctor properties) =
+        case ctor of
+        Circle -> makeCircle name properties
+        _ -> error "TODO: finish GPIs"
+makeGPI name field _ = error "should not happen: this is a field, not a GPI" -- TODO clean up
+
+-- TODO: concat
+walkFields name fieldDict =
+    let name' = nameStr name in -- TODO do we need do anything with Sub vs Sty vs Gen names?
+    let (fieldExprMap, fieldGPImap) = M.partition notGPI fieldDict in
+    let fieldExprInits = M.mapWithKey (makeField name') fieldExprMap in
+    let fieldGPIInits = M.mapWithKey (makeGPI name') fieldGPImap in
+    (fieldExprInits, fieldGPIInits)
+
+-- makeObjsAndFns :: (Autofloat a) => Translation a -> (Int, Int, Int, Int)
+makeObjsAndFns trans = 
+    let fieldsInits = M.mapWithKey walkFields (trMap trans) in
+    -- get objfns, constrfns out
+    separateThings fieldsInits
+    where separateThings x = x -- TODO
+
+-- TODO fix clash with megaparsec State
+-- genOptProblemAndState :: Translation a -> RState a
+genOptProblemAndState trans = 
+    -- objects w/ annotated floats, and objectives/constrs
+    -- TODO: ambient objfns and constraints
+
+    -- let (gpis, fields, objfns, constrfns) = makeObjsAndFns trans in
+    let res = makeObjsAndFns trans in
+
+    -- sample initial state
+
+    -- add gradients
+
+    -- apply computations once on init state
+
+    -- make overall objective function
+    let _ = genObjfn in
+
+    -- return init state
+    -- RState { }
+    res

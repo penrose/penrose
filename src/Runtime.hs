@@ -497,8 +497,6 @@ initSquare n config = ([sq], [], sizeFuncs n)
         setStyle (S s) sty str = S $ s { styles = sty, strokes = str }
         sq = setStyle (defaultSquare n) style stroke
 
-
-
 initArc n config = (objs, [],sizeFuncs n)
     where right = fromMaybe "true" $ lookupStr "isRight" config
           radius =  fromMaybe 10.0 $ lookupFloat "radius" config
@@ -516,7 +514,6 @@ initParallelogram n config = (objs, [],sizeFuncs n)
            rotation =  fromMaybe 0.0 $ lookupFloat "rotation" config
            setStyle (PA pa) a ro = PA $ pa {rotationpa = ro, anglepa = a}
            objs = [setStyle (defaultParellelogram n) angle rotation]
-
 
 initDot n config = ([defaultPt n], [], [])
 
@@ -557,7 +554,6 @@ initCircle n config = (objs, oFns, constrs)
         oFns = []
         constrs = sizeFuncs n
 
-
 initCurve n config = (objs, [], [])
         where defaultPath = [(10, 100), (50, 0)] -- (60, 0), (100, 100), (250, 250), (300, 100)]
               style = fromMaybe "solid" $ lookupStr "style" config
@@ -568,7 +564,6 @@ initImg n config = (objs, [], sizeFuncs n)
         where pth = fromMaybe "http://www.penrose.ink/resources/hollow-pentagon.svg" $ lookupStr "path" config
               setPath (IM im) pth = IM $ im { path = pth } -- TODO: refactor defaultX vs defX
               objs = [setPath (defaultImg n) pth]
-
 
 
 sizeFuncs :: (Autofloat a) => Name -> [ConstrFnInfo a]
@@ -1001,6 +996,9 @@ type Constraints = [(Int, (Double, Double))]
 --             foldr (lookInAndProj constraints) [] indexedState
 
 -------- Step the world by one timestep (provided by the library).
+
+-- NOTE: the Server uses the `step` in Runtime (which calls `stepObjs`), not this `step`.
+
 -- this function actually ignores the input timestep, because line search calculates the appropriate timestep to use,
 -- but it's left in, in case we want to debug the line search.
 -- gloss operates on floats, but the optimization code should be done with doubles, so we
