@@ -1145,13 +1145,17 @@ interpretTrans trans = trans -- FILL IN
 
 data Annotation = Varying | Fixed | Unknown
 
--- R stands for Runtime
-data RField a = RField { fsubname :: String, 
-                         fname :: String, 
-                         fval :: a }
---                         fannot :: Maybe Annotation }
-
 data RState a = RState { objs :: [S.Obj] } -- TODO
+
+floatProperties = M.fromList [
+                (Circle, ["radius", "x", "y", "stroke-width"]),
+                (Rectangle, ["x", "y", "length", "width", "angle"]) ]
+                -- ["x", "y", "r", "radius", "rx", "ry", "angle", "side", 
+                -- "stroke-width", "rotation", "length", "width", "startx", 
+                -- "starty", "endx", "endy", "thickness"]
+-- TODO: FILL IN OR DEPRECATE
+
+defaultFloats = ["x", "y"]
 
 ----- Generating initial state (GPIs, fields, annotations) and overall objective function
 
@@ -1162,102 +1166,69 @@ genObjfn = False -- TODO, use interpretTrans
 
 sampleFloat () = 100 -- TODO: actually sample this using rng
 
-notGPI (FExpr _) = True
-notGPI (GPI _ _) = False
+-- Generic functions for folding over a translation
+
+foldFields f name fieldDict acc =
+    let name' = nameStr name in -- TODO do we need do anything with Sub vs Sty vs Gen names?
+    let res = M.foldrWithKey (f name') [] fieldDict in
+    res ++ acc
+
+foldSubObjs f trans = 
+    let res = M.foldrWithKey (foldFields f) [] (trMap trans) in
+    res
 
 --- Fields
 
-fieldAnnot expr =
-    case expr of
-    OptEval e -> 
-        case e of
-        AFloat (Fix float) -> Just Fixed
-        AFloat Vary -> Just Varying
-        CompApp fn args -> Just Unknown -- TODO: either fixed or unknown, depending on return type of function. how to figure out?
-        BinOp op e1 e2 -> Just Unknown -- TODO
-        UOp op e -> Just Unknown -- TODO
-        ListAccess path i -> Just Unknown -- TODO
-        _ -> Nothing -- TODO check cases
-    Done val ->
-        case val of 
-        S.TNum n -> Just Fixed -- If it's already evaluated to a float at compile time, then it's fixed
-        S.TFloat f -> Just Fixed
-        S.TAllShapes s -> error "remove exprs from typein"
-        S.TShape s -> error "remove exprs from typein"
-        S.TProp s p -> error "remove exprs from typein"
-        S.TCall fn args -> error "remove exprs from typein"
-        _ -> Nothing
+declaredVarying (OptEval (AFloat Vary)) = True
+declaredVarying _ = False
 
--- Only varying floats go in the state, others stay in the translation and are evaluated as needed
-makeField name field (FExpr expr) = 
-          case fieldAnnot expr of 
-          Just Varying ->
-               Just $ RField { fsubname = name, fname = field, fval = sampleFloat () }
-          Just Fixed -> Nothing
-          Just Unknown -> Nothing
-makeField name field _ = error "should not happen: this is a GPI, not a field" -- TODO clean up
+-- If any float property is not initialized in properties, 
+-- or it's in properties and declared varying, it's varying
+findPropertyVarying name field properties floatName acc =
+    case M.lookup floatName properties of
+    Nothing -> [name, field, floatName] : acc
+    Just expr -> if declaredVarying expr then [name, field, floatName] : acc else acc
 
---- GPIs
+findFieldVarying name field (FExpr expr) acc =
+    let res = if declaredVarying expr
+              then [[name, field]] -- TODO better type
+              else []
+    in res ++ acc
+findFieldVarying name field (GPI ctor properties) acc =
+    let ctorFloats = M.findWithDefault defaultFloats ctor floatProperties in
+    let vs = foldr (findPropertyVarying name field properties) [] ctorFloats in
+    vs ++ acc
 
-getGPIannotation propertyMap propertyName =
-    case M.lookup propertyName propertyMap of
-    Nothing -> Varying -- if the property is unspecified in Style, it must be varying
-    Just exp -> 
-         case exp of
-         OptEval e ->
-             case e of
-             AFloat (Fix float) -> Fixed
-             AFloat Vary -> Varying
-             _ -> error ("the property '" ++ propertyName ++ "' should be a float but is not!")
-         Done e ->
-             case e of
-             S.TNum n -> Fixed  -- If it's already evaluated to a float at compile time, then it's fixed
-             S.TFloat f -> Fixed
-             _ -> error ("the property '" ++ propertyName ++ "' should be a float but is not!")
+findVarying = foldSubObjs findFieldVarying
 
-getGPIannotations :: (Autofloat a) => PropertyDict a -> [Property] -> [Annotation]
-getGPIannotations propertyMap propertyNames = map (getGPIannotation propertyMap) propertyNames
+--
 
+findFieldFns name field (FExpr (OptEval expr)) acc =
+    let res = case expr of
+              ObjFn fname args -> Left (fname, args)
+              ConstrFn fname args -> Right (fname, args)
+    in res : acc
+findFieldFns name field (GPI _ _) acc = acc
 
-makeGPI name field (GPI ctor properties) =
-        case ctor of
-        Circle -> makeCircle name properties
-        _ -> error "TODO: finish GPIs"
-makeGPI name field _ = error "should not happen: this is a field, not a GPI" -- TODO clean up
-
--- TODO: concat
-walkFields name fieldDict =
-    let name' = nameStr name in -- TODO do we need do anything with Sub vs Sty vs Gen names?
-    let (fieldExprMap, fieldGPImap) = M.partition notGPI fieldDict in
-    let fieldExprInits = M.mapWithKey (makeField name') fieldExprMap in
-    let fieldGPIInits = M.mapWithKey (makeGPI name') fieldGPImap in
-    (fieldExprInits, fieldGPIInits)
-
--- makeObjsAndFns :: (Autofloat a) => Translation a -> (Int, Int, Int, Int)
-makeObjsAndFns trans = 
-    let fieldsInits = M.mapWithKey walkFields (trMap trans) in
-    -- get objfns, constrfns out
-    separateThings fieldsInits
-    where separateThings x = x -- TODO
+findObjfnsConstrs = foldSubObjs findFieldFns
 
 -- TODO fix clash with megaparsec State
 -- genOptProblemAndState :: Translation a -> RState a
 genOptProblemAndState trans = 
-    -- objects w/ annotated floats, and objectives/constrs
-    -- TODO: ambient objfns and constraints
+    -- objfns and constraints, TODO: and ambient ones
+    let varyingPaths = findVarying trans in
+    let (objfns, constrfns) = (partitionEithers . findObjfnsConstrs) trans in
 
-    -- let (gpis, fields, objfns, constrfns) = makeObjsAndFns trans in
-    let res = makeObjsAndFns trans in
+    -- TODO: sample initial state
 
-    -- sample initial state
+    -- add gradients -- not necessary
+    -- TODO: zero grads properly
 
-    -- add gradients
+    -- TODO: apply computations once on init state WRT objfn args
 
-    -- apply computations once on init state
-
-    -- make overall objective function
+    -- TODO: make overall objective function, including eval fn / applying comps
     let _ = genObjfn in
 
-    -- return init state
+    -- TODO: return init state
     -- RState { }
-    res
+    (varyingPaths, (objfns, constrfns))

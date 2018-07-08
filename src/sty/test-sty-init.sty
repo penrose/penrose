@@ -1,0 +1,15 @@
+global { }
+
+Scalar c {
+  c.shape = Circ {
+    r = 10
+  }
+
+  c.labelFn = encourage near(c.shape, c.shape)
+}
+
+Scalar `m` {
+  `m`.shape.x = 2.5
+
+  `m`.inFn = ensure lessThan(`m`.shape.y, 10)
+}

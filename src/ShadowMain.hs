@@ -16,6 +16,8 @@ import Debug.Trace
 import Text.Show.Pretty
 import Control.Monad (when, forM)
 
+fromRight a (Left x) = a
+fromRight _ (Right a) = a
 
 -- | `main` runs the Penrose system
 shadowMain :: IO ()
@@ -75,14 +77,14 @@ shadowMain = do
     forM subss pPrint
     divLine
 
-    let styRes = NS.translateStyProg subEnv eqEnv subProg styProg
+    let trans = NS.translateStyProg subEnv eqEnv subProg styProg
     putStrLn "Translated Style program:\n"
-    pPrint styRes
-    -- let _ = case styRes of
-    --         Left errs -> putStrLn "Error" >>
-    --                      pPrint errs
-    --         Right tr -> putStrLn "No explicit errs" >>
-    --                     pPrint tr -- does this work?
+    pPrint trans
+    divLine
+
+    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
+    putStrLn "Generated initial state:\n"
+    pPrint initState
     divLine
 
     -- COMBAK: remove and uncomment below
