@@ -61,47 +61,52 @@ shadowMain = do
     pPrint eqEnv
     divLine
 
-    styProg <- NS.parseStyle styFile styIn
-    putStrLn "Style AST:\n"
-    pPrint styProg
-    divLine
+--------------------------------------------------------------------------------
+-- Neq Style
 
-    putStrLn "Running Style semantics\n"
-    let selEnvs = NS.checkSels subEnv styProg
-    putStrLn "Selector static semantics and local envs:\n"
-    forM selEnvs pPrint
-    divLine
+    -- styProg <- NS.parseStyle styFile styIn
+    -- putStrLn "Style AST:\n"
+    -- pPrint styProg
+    -- divLine
+    --
+    -- putStrLn "Running Style semantics\n"
+    -- let selEnvs = NS.checkSels subEnv styProg
+    -- putStrLn "Selector static semantics and local envs:\n"
+    -- forM selEnvs pPrint
+    -- divLine
+    --
+    -- let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
+    -- putStrLn "Selector matches:\n"
+    -- forM subss pPrint
+    -- divLine
+    --
+    -- let trans = NS.translateStyProg subEnv eqEnv subProg styProg
+    -- putStrLn "Translated Style program:\n"
+    -- pPrint trans
+    -- divLine
+    --
+    -- let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
+    -- putStrLn "Generated initial state:\n"
+    -- pPrint initState
+    -- divLine
 
-    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
-    putStrLn "Selector matches:\n"
-    forM subss pPrint
-    divLine
-
-    let trans = NS.translateStyProg subEnv eqEnv subProg styProg
-    putStrLn "Translated Style program:\n"
-    pPrint trans
-    divLine
-
-    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
-    putStrLn "Generated initial state:\n"
-    pPrint initState
-    divLine
+--------------------------------------------------------------------------------
+-- Old Style
 
     -- COMBAK: remove and uncomment below
 
-    -- let initState = R.genInitState subObjs styProg
-    -- putStrLn "Synthesizing objects and objective functions"
-    -- -- let initState = compilerToRuntimeTypes intermediateRep
-    -- -- divLine
-    -- -- putStrLn "Initial state, optimization representation:\n"
-    -- -- putStrLn "TODO derive Show"
-    -- -- putStrLn $ show initState
-    -- divLine
+    styProg <- S.parseStyle styFile styIn
+    let initState = R.genInitState subObjs styProg
+    putStrLn "Synthesizing objects and objective functions"
+    divLine
     putStrLn "Visualizing Substance program:\n"
-    --
-    -- -- Starting serving penrose on the web
-    -- let (domain, port) = ("127.0.0.1", 9160)
-    -- Server.servePenrose domain port initState
+
+    -- Starting serving penrose on the web
+    let (domain, port) = ("127.0.0.1", 9160)
+    Server.servePenrose domain port initState
+
+-- End of Old Style
+--------------------------------------------------------------------------------
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
