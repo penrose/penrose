@@ -410,9 +410,18 @@ subst varEnv sigma argTypes formalTypes = let types = zip argTypes formalTypes
                                               sigma2 = foldl (substHelper varEnv) sigma types
                                           in if   length argTypes /= length formalTypes
                                             then  (sigma2, "Arguments list lengths are not equal, expected " ++ show (length formalTypes) ++ " arguments but call was with " ++ show (length argTypes) ++ " arguments \n"  )
-                                            else  if argTypes /= formalTypes
+                                            else  if compareTypesList varEnv argTypes formalTypes--argTypes /= formalTypes
                                                    then  (sigma2, "Incorrect types of arguments, expected " ++ show formalTypes ++ " , but was " ++ show argTypes ++ " \n")
                                                   else (sigma2,"")
+
+compareTypesList :: VarEnv -> [K] ->[K] -> Bool
+compareTypesList varEnv argTypes formalTypes =
+    let u = zip argTypes formalTypes
+        f = filter (compareTypes varEnv) u
+    in length u /= length f
+
+compareTypes :: VarEnv -> (K,K) -> Bool
+compareTypes varEnv (k1,k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv)
 
 -- Ensures an argument type and formal type matches where they should match, otherwise a runtime error is generated.
 -- In places where they do not need to match exactly (where type and regular variables exist in the formal type)
