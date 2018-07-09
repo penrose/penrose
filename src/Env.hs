@@ -210,6 +210,9 @@ addDeclaredName a e = if a `elem` declaredNames e
 isSubtype :: T -> T -> VarEnv -> Bool
 isSubtype t1 t2 e = (t1,t2) `elem` subTypes e
 
+isSubtypeK :: K -> K -> VarEnv -> Bool
+isSubtypeK (KT k1) (KT k2) e = isSubtype k1 k2 e
+
 --------------------------------------- Env Data Types ---------------------------------------
 
 -- | Environment for the dsll semantic checker. As the 'check' function executes, it
@@ -253,6 +256,7 @@ data Predicate1 = Prd1 { namepred1 :: String,
 
 data Predicate2 = Prd2 { namepred2 :: String,
                                plspred2  :: [Prop],
+                               plspred2Length :: Int,
                                ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 
