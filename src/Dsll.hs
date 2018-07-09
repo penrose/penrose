@@ -215,7 +215,7 @@ pd1 = do
 pd2 = do
   rword "predicate"
   name <- identifier
-  (b', prop') <- parens xPropParser
+  (b', prop') <- option ([], []) $ parens xPropParser
   colon
   p' <- propParser
   return (PdStmt (Pd2Const (Pd2 { namePd2 = name, propsPd2 = zip b' prop', toPd2 = p' })))
@@ -293,7 +293,9 @@ checkDsllStmt e (PdStmt (Pd1Const v)) = let kinds = seconds (varsPd1 v)
                                             then ef { predicates = M.insert (namePd1 v) pd1 $ predicates ef }
                                             else error "Error!"  -- Does not suppose to reach here
 
-checkDsllStmt e (PdStmt (Pd2Const v)) = let pd = Pred2 $ Prd2 { namepred2 = namePd2 v, plspred2 = seconds (propsPd2 v),
+checkDsllStmt e (PdStmt (Pd2Const v)) = let pd = Pred2 $ Prd2 { namepred2 = namePd2 v,
+                                                                plspred2 = seconds (propsPd2 v),
+                                                                plspred2Length = length (propsPd2 v),
                                                                 ppred2 = toPd2 v }
                                             ef = addName (namePd2 v) e
                                          in ef { predicates = M.insert (namePd2 v) pd $ predicates ef }

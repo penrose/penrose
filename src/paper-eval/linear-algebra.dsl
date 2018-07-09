@@ -14,3 +14,4 @@ operator apply (f : LinearMap, v : Vector) : Vector
 predicate In(v : Vector, V : VectorSpace) : Prop
 predicate From(f : LinearMap, V : VectorSpace, W : VectorSpace) : Prop
 predicate Not(p : Prop) : Prop
+predicate And(p1 : Prop, p2 : Prop) : Prop
