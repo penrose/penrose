@@ -4,12 +4,16 @@ tconstructor Real : type
 tconstructor Point : type
 tconstructor Function : type
 tconstructor Interval : type
+tconstructor OpenInterval : type
+tconstructor ClosedInterval : type
+tconstructor LeftClopenInterval : type
+tconstructor RightClopenInterval : type
 
 vconstructor CreateInterval (left : Real, right : Real) : Interval
-vconstructor OpenInterval (left : Real, right : Real) : OpenInterval
-vconstructor ClosedInterval (left : Real, right : Real) : ClosedInterval
-vconstructor LeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
-vconstructor RightClopenInterval (left : Real, right : Real) : RightClopenInterval
+vconstructor CreateOpenInterval (left : Real, right : Real) : OpenInterval
+vconstructor CreateClosedInterval (left : Real, right : Real) : ClosedInterval
+vconstructor CreateLeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
+vconstructor CreateRightClopenInterval (left : Real, right : Real) : RightClopenInterval
 vconstructor Pt (x : Real, y : Real) : Point
 
 -- Subtyping relationships
