@@ -9,7 +9,10 @@ Scalar c {
 }
 
 Scalar `m` {
-  `m`.shape.x = 2.5
-
-  `m`.inFn = ensure lessThan(`m`.shape.y, 10)
+  `m`.shape.x = 2.5 + 0.2
+  `m`.shape.y = `m`.shape.r + `m`.shape.strokeWidth + `m`.shape.x
+  
+  -- TODO: add more nested computation, test cyclic computation
+  
+  `m`.inFn = ensure lessThan(`m`.shape.y, 10 + 3)
 }

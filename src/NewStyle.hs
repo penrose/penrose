@@ -307,8 +307,8 @@ arithmeticExpr = makeExprParser aTerm NewStyle.aOperators
 aTerm :: Parser Expr
 aTerm = parens arithmeticExpr
     <|> try (AFloat <$> annotatedFloat)
-    <|> EPath  <$> path
-    <|> IntLit <$> integer
+    <|> try (EPath  <$> path)
+    <|> try (IntLit <$> integer)
 
 aOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
 aOperators =
@@ -977,8 +977,8 @@ deleteProperty trans name field property =
 -- x.n = Ctor { n_i = e_i }, rule Line-Set-Ctor, for GPI
 -- x.n = e, rule Line-Set-Field-Expr
 addField :: (Autofloat a) => OverrideFlag -> Translation a -> 
-                             Name -> Field -> Expr -> Translation a
-addField override trans name field expr =
+                             Name -> Field -> TagExpr a -> Translation a
+addField override trans name field texpr =
     let trn = trMap trans in
     let fieldDict = case M.lookup name trn of
                     Nothing    -> M.empty -- Initialize the field dict if it hasn't been initialized
@@ -997,17 +997,17 @@ addField override trans name field expr =
                 then Just $ "Warning: field '" ++ field ++ "' declared override, but has not been initialized"
                 else Nothing in
     -- TODO: check existing FExpr is overridden by an FExpr and likewise for Ctor of same type (typechecking)
-    let fieldExpr = case expr of
-                    Ctor ctorName propertyDecls -> -- rule Line-Set-Ctor
+    let fieldExpr = case texpr of
+                    OptEval (Ctor ctorName propertyDecls) -> -- rule Line-Set-Ctor
                          GPI (toCtorType ctorName) (mkPropertyDict propertyDecls)
-                    _ -> FExpr (OptEval expr) in   -- rule Line-Set-Field-Expr
+                    _ -> FExpr texpr in   -- rule Line-Set-Field-Expr
     let fieldDict' = M.insert field fieldExpr fieldDict
         trn' = M.insert name fieldDict' trn in
     trans { trMap = trn', warnings = addMaybes (warnings trans) [warn1, warn2, warn3] }
 
 addProperty :: (Autofloat a) => OverrideFlag -> Translation a ->
-                                Name -> Field -> Property -> Expr -> Translation a
-addProperty override trans name field property val =
+                                Name -> Field -> Property -> TagExpr a -> Translation a
+addProperty override trans name field property texpr =
     let trn = trMap trans in
     -- Setting a field's property should require that field to already exist and be a GPI
     -- TODO: distinguish b/t errors and warns
@@ -1031,7 +1031,7 @@ addProperty override trans name field property val =
                       then Just $ "Warning: property '" ++ property ++ "' already exists in path '" 
                            ++ pathStr name field property ++ "' but override was not set"
                       else Nothing in
-           let properties' = M.insert property (OptEval val) properties
+           let properties' = M.insert property texpr properties
                fieldDict'  = M.insert field (GPI ctor properties') fieldDict
                trn'        = M.insert name fieldDict' trn in
            trans { trMap = trn', warnings = addMaybe (warnings trans) warn }
@@ -1049,7 +1049,7 @@ deletePath trans path =
            trans' = deleteProperty trans name field property in
        Right trans'
 
-addPath :: (Autofloat a) => OverrideFlag -> Translation a -> Path -> Expr -> Either [Error] (Translation a)
+addPath :: (Autofloat a) => OverrideFlag -> Translation a -> Path -> TagExpr a ->Either [Error] (Translation a)
 addPath override trans path expr =
     case path of
     -- rule Line-Set-Field-Expr, Line-Set-Ctor
@@ -1079,8 +1079,8 @@ addPath override trans path expr =
 translateLine :: (Autofloat a) => Translation a -> Stmt -> Either [Error] (Translation a)
 translateLine trans stmt =
     case stmt of
-    Assign path expr   -> addPath False trans path expr
-    Override path expr -> addPath True trans path expr
+    Assign path expr   -> addPath False trans path (OptEval expr)
+    Override path expr -> addPath True trans path (OptEval expr)
     Delete path        -> deletePath trans path
 
 -- Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
@@ -1143,12 +1143,11 @@ interpretTrans trans = trans -- FILL IN
 
 ----- Types
 
-data Annotation = Varying | Fixed | Unknown
-
 data RState a = RState { objs :: [S.Obj] } -- TODO
 
+-- TODO: Style cannot parse property names like "stroke-width"
 floatProperties = M.fromList [
-                (Circle, ["radius", "x", "y", "stroke-width"]),
+                (Circle, ["r", "x", "y", "strokeWidth"]),
                 (Rectangle, ["x", "y", "length", "width", "angle"]) ]
                 -- ["x", "y", "r", "radius", "rx", "ry", "angle", "side", 
                 -- "stroke-width", "rotation", "length", "width", "startx", 
@@ -1158,13 +1157,6 @@ floatProperties = M.fromList [
 defaultFloats = ["x", "y"]
 
 ----- Generating initial state (GPIs, fields, annotations) and overall objective function
-
--- Objfns
-
-genObjfn :: Bool
-genObjfn = False -- TODO, use interpretTrans
-
-sampleFloat () = 100 -- TODO: actually sample this using rng
 
 -- Generic functions for folding over a translation
 
@@ -1182,18 +1174,25 @@ foldSubObjs f trans =
 declaredVarying (OptEval (AFloat Vary)) = True
 declaredVarying _ = False
 
+-- TODO: figure out what to do with sty vars
+mkPath [name, field] = FieldPath (BSubVar (VarConst name)) field
+mkPath [name, field, property] = PropertyPath (BSubVar (VarConst name)) field property
+
+pathToList (FieldPath (BSubVar (VarConst name)) field) = [name, field]
+pathToList (PropertyPath (BSubVar (VarConst name)) field property) = [name, field, property]
+pathToList _ = error "pathToList should not handle Sty vars"
+
 -- If any float property is not initialized in properties, 
 -- or it's in properties and declared varying, it's varying
-findPropertyVarying name field properties floatName acc =
-    case M.lookup floatName properties of
-    Nothing -> [name, field, floatName] : acc
-    Just expr -> if declaredVarying expr then [name, field, floatName] : acc else acc
+findPropertyVarying name field properties floatProperty acc =
+    case M.lookup floatProperty properties of
+    Nothing -> mkPath [name, field, floatProperty] : acc
+    Just expr -> if declaredVarying expr then mkPath [name, field, floatProperty] : acc else acc
 
 findFieldVarying name field (FExpr expr) acc =
-    let res = if declaredVarying expr
-              then [[name, field]] -- TODO better type
-              else []
-    in res ++ acc
+    if declaredVarying expr
+    then mkPath [name, field] : acc -- TODO: deal with StyVars
+    else acc
 findFieldVarying name field (GPI ctor properties) acc =
     let ctorFloats = M.findWithDefault defaultFloats ctor floatProperties in
     let vs = foldr (findPropertyVarying name field properties) [] ctorFloats in
@@ -1212,13 +1211,113 @@ findFieldFns name field (GPI _ _) acc = acc
 
 findObjfnsConstrs = foldSubObjs findFieldFns
 
+--- Sampling state
+
+sampleState :: (Autofloat a) => [Path] -> [a]
+sampleState ps = map samplePath ps
+    where samplePath path = 10.0 
+    -- TODO: all floats are set to this value by default. Sample better WRT constraints, property names, shapes
+
+--- Objfns
+
+insertPath :: (Autofloat a) => Translation a -> (Path, TagExpr a) -> Either [Error] (Translation a)
+insertPath trans (path, expr) =
+         let overrideFlag = False in -- These paths should not exist in trans
+         addPath overrideFlag trans path expr
+
+insertPaths :: (Autofloat a) => [Path] -> [TagExpr a] -> Translation a -> Translation a
+insertPaths varyingPaths varying trans =
+         if length varying /= length varyingPaths
+         then error "not the same # varying paths as varying variables"
+         else case foldM insertPath trans (zip varyingPaths varying) of
+              Left errs -> error $ "Error while adding varying paths: " ++ intercalate "\n" errs
+              Right tr -> tr
+
+-- For varying values to be inserted into the translation
+toTagExpr :: (Autofloat a) => a -> TagExpr a
+toTagExpr n = Done (S.TNum n)
+
+--- Evaluation
+
+-- TODO: what about args like "5 + 10" or "5 + A.val"? those don't have paths
+-- recursively evaluate, TODO track iteration depth
+evalArg :: (Autofloat a) => Translation a -> Expr -> Translation a
+evalArg trans arg = trans -- TODO: return argVal
+    where argVal :: (Autofloat a) => TagExpr a 
+          argVal = case arg of
+                 -- Dones
+                 IntLit i -> Done $ S.TInt i
+                 StringLit s -> Done $ S.TStr s
+                 AFloat (Fix f) -> Done $ S.TNum (r2f f) -- TODO: note use of r2f here. is that ok?
+                 -- Inline computation, needs a recursive lookup that may change trans, but not a path
+                 CompApp fname args -> Done $ S.TStr "TODO"
+                 BinOp op e1 e2 -> Done $ S.TStr "TODO"
+                 UOp op e -> Done $ S.TStr "TODO"
+                 List es -> Done $ S.TStr "TODO"
+                 ListAccess p i -> Done $ S.TStr "TODO"
+                 -- Needs a recursive lookup that may change trans
+                 EPath p -> let trans' = case insertPath trans (p, argVal) of
+                                         Left err -> error "err"
+                                         Right trans' -> trans' in
+                            Done $ S.TStr "TODO" -- TODO: return trans
+                 -- Deal with later / what to do???
+                 Ctor ctor properties -> Done $ S.TStr "TODO"
+                 -- Error
+                 Layering _ -> error "layering should not be an objfn arg (or in the children of one)"
+                 ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
+                 ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
+                 AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
+
+-- TODO: maybe only evaluate inputs to fns, don't do it separately
+evalArgs :: (Autofloat a) => [Fn] -> [Fn] -> Translation a -> Translation a
+evalArgs objfns constrfns trans = 
+    let args = concat (map fargs objfns) ++ concat (map fargs constrfns) in
+    let trans' = foldl evalArg trans args in
+    trans'
+
+genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> Translation a
+genObjfn trans objfns constrfns varyingPaths = 
+         \penaltyWeight varying ->
+         let varyingTagExprs = map toTagExpr varying in
+         let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in
+         let transComputed = evalArgs objfns constrfns transWithVarying in
+         transComputed
+         -- FILL IN applyCombined and change return type
+         -- let overallObjFn = applyCombined objfns constrfns transComputed in
+         -- overallObjFn
+
+-- TODO: make sure the autodiff works w/ eval and genobjfn
+
+{- What's the type of this function? 
+   what's it partially applied with? what's it fully applied with?
+   what's the new type of an objfn?
+   how do I use the paths and and translation and the varying values?
+   how do I apply the computations?
+   how do I apply the objective functions?
+   how does the optimization have to change to use genObjFn?
+-}
+
+data OptType = Objfn | Constrfn
+     deriving (Show, Eq)
+data Fn = Fn { fname :: String, fargs :: [Expr], optType :: OptType }
+     deriving (Show, Eq)
+
+toFn otype (name, args) = Fn { fname = name, fargs = args, optType = otype }
+
+toFns (objfns, constrfns) = (map (toFn Objfn) objfns, map (toFn Constrfn) constrfns)
+
+--- Main function: what the Style compiler generates
 -- TODO fix clash with megaparsec State
--- genOptProblemAndState :: Translation a -> RState a
+genOptProblemAndState
+  :: (Autofloat a) => Translation a
+     -> ([Path], ([Fn], [Fn]), [a], Translation a)
 genOptProblemAndState trans = 
     -- objfns and constraints, TODO: and ambient ones
     let varyingPaths = findVarying trans in
-    let (objfns, constrfns) = (partitionEithers . findObjfnsConstrs) trans in
+    let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) trans in
 
+    -- FILL IN: initialize varying vars
+    let initState = sampleState varyingPaths in
     -- TODO: sample initial state
 
     -- add gradients -- not necessary
@@ -1227,8 +1326,10 @@ genOptProblemAndState trans =
     -- TODO: apply computations once on init state WRT objfn args
 
     -- TODO: make overall objective function, including eval fn / applying comps
-    let _ = genObjfn in
+    let overallObjFn = genObjfn trans objfns constrfns varyingPaths in
+    let appliedFn = overallObjFn 10 initState in
+    -- let appliedFn = trans in
 
     -- TODO: return init state
     -- RState { }
-    (varyingPaths, (objfns, constrfns))
+    (varyingPaths, (objfns, constrfns), initState, appliedFn)

@@ -82,9 +82,9 @@ shadowMain = do
     pPrint trans
     divLine
 
-    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
+    let res = NS.genOptProblemAndState (fromRight NS.initTrans trans)
     putStrLn "Generated initial state:\n"
-    pPrint initState
+    pPrint res
     divLine
 
     -- COMBAK: remove and uncomment below
