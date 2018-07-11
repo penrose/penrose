@@ -1239,49 +1239,75 @@ toTagExpr n = Done (S.TNum n)
 
 --- Evaluation
 
+-- Fully evaluated inputs
+data ArgVal a = GPIArg (M.Map Field (PropertyDict a)) | FieldArg (S.TypeIn a)
+     deriving (Eq, Show)
+
+type OptFn a = [ArgVal a] -> a
+type CompFn a = [ArgVal a] -> ArgVal a
+
+evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> S.TypeIn a
+evalUop UMinus v = case v of
+                  FieldArg (S.TNum a) -> S.TNum (-a)
+                  FieldArg (S.TInt i) -> S.TInt (-i)
+                  GPIArg _ -> error "cannot negate a GPI"
+                  FieldArg _ -> error "wrong type to negate"
+evalUop UPlus v = error "unary + doesn't make sense" -- TODO remove from parser
+
 -- TODO: what about args like "5 + 10" or "5 + A.val"? those don't have paths
 -- recursively evaluate, TODO track iteration depth
-evalArg :: (Autofloat a) => Translation a -> Expr -> Translation a
-evalArg trans arg = trans -- TODO: return argVal
-    where argVal :: (Autofloat a) => TagExpr a 
-          argVal = case arg of
-                 -- Dones
-                 IntLit i -> Done $ S.TInt i
-                 StringLit s -> Done $ S.TStr s
-                 AFloat (Fix f) -> Done $ S.TNum (r2f f) -- TODO: note use of r2f here. is that ok?
-                 -- Inline computation, needs a recursive lookup that may change trans, but not a path
-                 CompApp fname args -> Done $ S.TStr "TODO"
-                 BinOp op e1 e2 -> Done $ S.TStr "TODO"
-                 UOp op e -> Done $ S.TStr "TODO"
-                 List es -> Done $ S.TStr "TODO"
-                 ListAccess p i -> Done $ S.TStr "TODO"
-                 -- Needs a recursive lookup that may change trans
-                 EPath p -> let trans' = case insertPath trans (p, argVal) of
-                                         Left err -> error "err"
-                                         Right trans' -> trans' in
-                            Done $ S.TStr "TODO" -- TODO: return trans
-                 -- Deal with later / what to do???
-                 Ctor ctor properties -> Done $ S.TStr "TODO"
-                 -- Error
-                 Layering _ -> error "layering should not be an objfn arg (or in the children of one)"
-                 ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
-                 ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
-                 AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
+evalExpr :: (Autofloat a) => Expr -> Translation a -> (ArgVal a, Translation a)
+evalExpr arg trans =
+    case arg of
+    -- Already done values; don't change grans
+    IntLit i -> (FieldArg $ S.TInt i, trans)
+    StringLit s -> (FieldArg $ S.TStr s, trans)
+    AFloat (Fix f) -> (FieldArg $ S.TNum (r2f f), trans) -- TODO: note use of r2f here. is that ok?
+
+    -- Inline computation, needs a recursive lookup that may change trans, but not a path
+    UOp op e -> 
+        let (val, trans') = evalExpr e trans in
+        let compVal = evalUop op val in
+        (FieldArg compVal, trans')
+    BinOp op e1 e2 -> FieldArg $ S.TStr "TODO"
+    CompApp fname args -> FieldArg $ S.TStr "TODO"
+    List es -> FieldArg $ S.TStr "TODO"
+    ListAccess p i -> FieldArg $ S.TStr "TODO"
+
+    -- Needs a recursive lookup that may change trans
+    EPath p -> let res = () in -- lookup path
+               let trans' = case insertPath trans (p, Done $ S.TStr "TODO") of
+                            Left err -> error "err"
+                            Right trans' -> trans' in
+               FieldArg $ S.TStr "TODO" -- TODO: return trans
+
+    -- GPI argument
+    Ctor ctor properties -> GPIArg $ M.empty -- TODO
+
+    -- Error
+    Layering _ -> error "layering should not be an objfn arg (or in the children of one)"
+    ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
+    ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
+    AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
 
 -- TODO: maybe only evaluate inputs to fns, don't do it separately
-evalArgs :: (Autofloat a) => [Fn] -> [Fn] -> Translation a -> Translation a
-evalArgs objfns constrfns trans = 
-    let args = concat (map fargs objfns) ++ concat (map fargs constrfns) in
-    let trans' = foldl evalArg trans args in
-    trans'
+evalArgs :: (Autofloat a) => [Fn] -> Translation a -> ([ArgVal a], Translation a)
+evalArgs optfns trans = 
+    let args = concatMap fargs optfns in
+    foldl evalArg ([], trans) args
+    where evalArg :: (Autofloat a) => ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
+          evalArg (argvals, trans) arg = 
+                       let (argVal, trans') = evalExpr arg trans in
+                       (argVal : argvals, trans')
 
 genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> Translation a
 genObjfn trans objfns constrfns varyingPaths = 
          \penaltyWeight varying ->
          let varyingTagExprs = map toTagExpr varying in
          let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in
-         let transComputed = evalArgs objfns constrfns transWithVarying in
+         let (argVals, transComputed) = evalArgs (objfns ++ constrfns) transWithVarying in
          transComputed
+         -- TODO: put args back in the comps in the right order, also look up GPIs
          -- FILL IN applyCombined and change return type
          -- let overallObjFn = applyCombined objfns constrfns transComputed in
          -- overallObjFn
