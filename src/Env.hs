@@ -256,7 +256,6 @@ data Predicate1 = Prd1 { namepred1 :: String,
 
 data Predicate2 = Prd2 { namepred2 :: String,
                                plspred2  :: [Prop],
-                               plspred2Length :: Int,
                                ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 

@@ -3,6 +3,16 @@ tconstructor VectorSpace : type
 tconstructor Vector : type
 tconstructor LinearMap : type
 
+tconstructor ZeroScalar : type
+ZeroScalar <: Scalar
+
+tconstructor UnitVector : type
+UnitVector <: Vector
+
+tconstructor ZeroVector : type
+ZeroVector <: Vector
+
+
 operator add (v1 : Vector, v2 : Vector) : Vector
 operator neg (v1 : Vector) : Vector
 operator scale (c : Scalar, v : Vector) : Vector
