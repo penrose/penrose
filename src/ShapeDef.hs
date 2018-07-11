@@ -21,23 +21,23 @@ data ValueType
 -- | fully evaluated values in Style program
 data Value a
     -- | Floating point number
-    = VNum a
+    = FloatV a
     -- | integer
-    | VInt Integer
+    | IntV Integer
     -- | boolean value
-    | VBool Bool
+    | BoolV Bool
     -- | string literal
-    | VStr String
+    | StrV String
     -- | point in R^2
-    | VPt (Pt2 a)
+    | PtV (Pt2 a)
     -- | a list of points
-    | VPath [Pt2 a]
+    | PathV [Pt2 a]
     -- | an RGBA color value
-    | VColor Color
+    | ColorV Color
     -- | path for image
-    | VFile String
+    | FileV String
     -- | dotted, etc.
-    | VStyle String
+    | StyleV String
     -- COMBAK: decide whether GPIs or shortcuts to multiple GPIs should be vals
     -- -- | Substance ID
     -- | TAllShapes String
@@ -50,10 +50,10 @@ type ShapeType = String
 -- | the string identifier of a property
 type PropID = String
 
--- | A dictionary storing properties of a Style object, e.g. "start" for 'Arrow'
-type PropertiesDef = M.Map PropID ValueType
+-- | A dict storing names, types, and default values of properties
+type PropertiesDef a = M.Map PropID (ValueType, Value a)
 -- | definition of a new shape/graphical primitive
-type ShapeDef = (String, PropertiesDef)
+type ShapeDef a = (String, PropertiesDef a)
 
 -- | A dictionary storing properties of a Style object, e.g. "start" for 'Arrow'
 type Properties a = M.Map PropID (Value a)
@@ -63,26 +63,31 @@ type Shape a = (String, Properties a)
 --------------------------------------------------------------------------------
 -- Example shape defs
 
-circType :: ShapeDef
+circType :: (Autofloat a) => ShapeDef a
 circType = ("Circ", M.fromList
     [
-        ("x", FloatT),
-        ("y", FloatT),
-        ("stroke", FloatT),
-        ("name", StrT),
-        ("style", StrT),
-        ("color", ColorT)
+        ("x", (FloatT, FloatV 0.0)),
+        ("y", (FloatT, FloatV 0.0)),
+        ("stroke", (FloatT, FloatV 0.0)),
+        ("name", (StrT, StrV "defaultCircle")),
+        ("style", (StrT, StrV "filled")),
+        ("color", (ColorT, ColorV black))
     ])
 
 exampleCirc :: (Autofloat a) => Shape a
 exampleCirc = ("Circ", M.fromList
     [
-        ("x", VNum 5.5),
-        ("y", VNum 100.2),
-        ("name", VStr "C1"),
-        ("color", VColor black)
+        ("x", FloatV 5.5),
+        ("y", FloatV 100.2),
+        ("name", StrV "C1"),
+        ("color", ColorV black)
     ])
 
+--------------------------------------------------------------------------------
+-- Utility functions for Runtime
+
+--------------------------------------------------------------------------------
+-- Utility functions for objective/constraint function writers
 
 --------------------------------------------------------------------------------
 -- Color definition
