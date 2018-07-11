@@ -6,6 +6,7 @@ import qualified Data.Map.Strict as M
 --------------------------------------------------------------------------------
 -- Types
 
+-- | types of fully evaluated values in Style
 data ValueType
     = FloatT
     | IntT
@@ -18,7 +19,7 @@ data ValueType
     | StyleT
     deriving (Eq, Show)
 
--- | fully evaluated values in Style program
+-- | fully evaluated values in Style
 data Value a
     -- | Floating point number
     = FloatV a
@@ -54,8 +55,10 @@ type PropID = String
 type PropertiesDef a = M.Map PropID (ValueType, Value a)
 -- | definition of a new shape/graphical primitive
 type ShapeDef a = (String, PropertiesDef a)
+type ShapeDefs a = M.Map String (PropertiesDef a)
 
 -- | A dictionary storing properties of a Style object, e.g. "start" for 'Arrow'
+-- COMBAK: serializer to JSON
 type Properties a = M.Map PropID (Value a)
 -- | definition of a new shape/graphical primitive
 type Shape a = (String, Properties a)
@@ -63,8 +66,12 @@ type Shape a = (String, Properties a)
 --------------------------------------------------------------------------------
 -- Example shape defs
 
-circType :: (Autofloat a) => ShapeDef a
-circType = ("Circ", M.fromList
+shapeDefs :: (Autofloat a) => ShapeDefs a
+shapeDefs = M.fromList defList
+    where defList = [circType]
+
+circType, arrowType, curveType :: (Autofloat a) => ShapeDef a
+circType = ("Circle", M.fromList
     [
         ("x", (FloatT, FloatV 0.0)),
         ("y", (FloatT, FloatV 0.0)),
@@ -73,6 +80,24 @@ circType = ("Circ", M.fromList
         ("style", (StrT, StrV "filled")),
         ("color", (ColorT, ColorV black))
     ])
+arrowType = ("Arrow", M.fromList
+    [
+        ("startx", (FloatT, FloatV 0.0)),
+        ("starty", (FloatT, FloatV 0.0)),
+        ("endx", (FloatT, FloatV 0.0)),
+        ("endy", (FloatT, FloatV 0.0)),
+        ("name", (StrT, StrV "defaultArrow")),
+        ("style", (StrT, StrV "straight")),
+        ("color", (ColorT, ColorV black))
+    ])
+curveType = ("Curve", M.fromList
+    [
+        ("path", (PathT, PathV [])),
+        ("name", (StrT, StrV "defaultCurve")),
+        ("style", (StrT, StrV "solid")),
+        ("color", (ColorT, ColorV black))
+    ])
+
 
 exampleCirc :: (Autofloat a) => Shape a
 exampleCirc = ("Circ", M.fromList
@@ -84,10 +109,40 @@ exampleCirc = ("Circ", M.fromList
     ])
 
 --------------------------------------------------------------------------------
+-- Parser for shape def DSL (TODO)
+
+--------------------------------------------------------------------------------
+-- Type checker for a particular shape instance again its def (TODO)
+
+-- checkShape :: (Autofloat a) => Shape a -> ShapeDef a -> Shape a
+-- checkShape shape def =
+
+--------------------------------------------------------------------------------
 -- Utility functions for Runtime
+-- * set
+-- * get
+
+-- TODO: can use alter, update, adjust here. Come back if performance matters
+-- | Setting the value of a property
+set :: (Autofloat a) => Shape a -> PropID -> Value a -> Shape a
+set (n, propDict) prop val = case M.lookup prop propDict of
+    Nothing -> error ("set: Property \"" ++ prop ++
+                    "\" does not exist in shape \"" ++ n)
+    _       -> (n, M.update (const $ Just val) prop propDict)
+
+-- | Getting the value of a property
+get :: (Autofloat a) => Shape a -> PropID -> Value a
+get (n, propDict) prop = case M.lookup prop propDict of
+    Nothing -> error ("get: Property \"" ++ prop ++
+                    "\" does not exist in shape \"" ++ n)
+    Just v  -> v
 
 --------------------------------------------------------------------------------
 -- Utility functions for objective/constraint function writers
+
+-- | 'is' checks whether a shape is of a certain type
+is :: (Autofloat a) => Shape a -> ShapeType -> Bool
+is (t1, _) t2 = t1 == t2
 
 --------------------------------------------------------------------------------
 -- Color definition
@@ -123,3 +178,9 @@ clampColor cc
 black, white :: Color
 black = makeColor 0.0 0.0 0.0 1.0
 white = makeColor 1.0 1.0 1.0 1.0
+
+--------------------------------------------------------------------------------
+-- DEBUG: main function to test out the module
+
+main :: IO ()
+main = putStrLn "Hello"
