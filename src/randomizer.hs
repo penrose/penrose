@@ -16,6 +16,7 @@ import System.Environment
 import Data.List
 import Data.String
 import Data.Typeable
+import Data.Maybe
 import Control.Monad (when)
 import Env
 import Debug.Trace
@@ -131,12 +132,20 @@ generateType dsllEnv localEnv =
         in localEnv3 {prog = prog localEnv3 ++ tName ++ " " ++ name ++ " \n" }
 
 -- | Generate single random specific type statement
+generateSpecificGeneralType :: VarEnv -> LocalEnv -> String -> LocalEnv
+generateSpecificGeneralType dsllEnv localEnv tName =
+    let (name, localEnv1) = getName localEnv
+        allTypes = getAllPossibleTypes dsllEnv localEnv tName
+        (n, localEnv2) = rndNum localEnv (0 , length allTypes - 1)
+        localEnv3 = addDeclaredType localEnv2 (allTypes !! n) name
+    in localEnv3 {prog = prog localEnv3 ++ allTypes !! n ++ " " ++ name ++ " \n" }
+
+-- | Generate single random specific type statement
 generateSpecificType :: VarEnv -> LocalEnv -> String -> LocalEnv
 generateSpecificType dsllEnv localEnv tName =
     let (name, localEnv1) = getName localEnv
         localEnv2 = addDeclaredType localEnv1 tName name
-        localEnv3 = localEnv2 {prog = prog localEnv2 ++ tName ++ " " ++ name ++ " \n" }
-    in  localEnv3
+    in localEnv2 {prog = prog localEnv2 ++ tName ++ " " ++ name ++ " \n" }
 
 -- | Generate single random binding statement
 generateBinding :: VarEnv -> LocalEnv -> LocalEnv
@@ -148,7 +157,7 @@ generateBinding dsllEnv localEnv =
         localEnv2 = generatePreDeclarations dsllEnv localEnv1 (getTypeNames allTypes)
         localEnv3 = generateArgument localEnv2 (convert (top operation))
         localEnv4 = localEnv3 { prog = prog localEnv3 ++ " := " ++ nameop operation}
-        in generateArguments (getTypeNames (tlsop operation)) localEnv4
+        in generateArguments dsllEnv (getTypeNames (tlsop operation)) localEnv4
 
 -- | Get a list of all the types needed for a specific statement and
 --   add type declrations for them in case needed
@@ -161,7 +170,7 @@ generatePreDeclaration dsllEnv localEnv t =
   case M.lookup t (declaredTypes localEnv) of
     Nothing -> generateSpecificType dsllEnv localEnv t
     Just lst -> let (i , localEnv1) = rndNum localEnv (0,length lst)
-                in if i == 0 || i == 1 then generateSpecificType dsllEnv localEnv1 t else localEnv1
+                in if i == 0 || i == 1 then generateSpecificGeneralType dsllEnv localEnv1 t else localEnv1
 
 
 -- | Generate single random predicate equality
@@ -187,7 +196,7 @@ generatePrediacte1 dsllEnv localEnv =
         predicate = pred1Lst localEnv1 !! p
         localEnv2 = generatePreDeclarations dsllEnv localEnv1 (getTypeNames (tlspred1 predicate))
         localEnv3 = localEnv2 {prog = prog localEnv2 ++ namepred1 predicate}
-        localEnv4 = generateArguments (getTypeNames (tlspred1 predicate)) localEnv3
+        localEnv4 = generateArguments dsllEnv (getTypeNames (tlspred1 predicate)) localEnv3
     in localEnv4
 
 generatePrediacte1' :: VarEnv -> LocalEnv -> LocalEnv
@@ -195,7 +204,7 @@ generatePrediacte1' dsllEnv localEnv =
   let (p , localEnv1) = rndNum localEnv (0,length (pred1Lst localEnv) -1)
       predicate = pred1Lst localEnv1 !! p
       localEnv2 = localEnv1 {prog = prog localEnv1 ++ namepred1 predicate ++ "("}
-      localEnv3 = generateArguments (getTypeNames (tlspred1 predicate)) localEnv2
+      localEnv3 = generateArguments dsllEnv (getTypeNames (tlspred1 predicate)) localEnv2
   in localEnv3
 
 generatePrediacte2 :: VarEnv -> LocalEnv -> LocalEnv
@@ -226,10 +235,10 @@ convert :: T ->  String
 convert (TTypeVar t) = typeVarName t
 convert (TConstr t) = nameCons t
 
-generateArguments :: [String] -> LocalEnv -> LocalEnv
-generateArguments types localEnv =
+generateArguments :: VarEnv -> [String] -> LocalEnv -> LocalEnv
+generateArguments dsllEnv types localEnv =
   let localEnv1 = localEnv {prog = prog localEnv ++ "("}
-      localEnv2 = foldl generateFullArgument localEnv1 types
+      localEnv2 = foldl (generateFullArgument dsllEnv) localEnv1 types
       localEnv3 = localEnv2 {prog = init (fromString (prog localEnv2)) ++ ")"}
   in localEnv3
 
@@ -241,13 +250,23 @@ generateArgument localEnv t = case M.lookup t (declaredTypes localEnv) of
               in localEnv1 { prog = prog localEnv1 ++ lst !! a}
 
 -- | Get an argument for operations / predicates / val constructors
-generateFullArgument :: LocalEnv -> String -> LocalEnv
-generateFullArgument localEnv t =
-  case M.lookup t (declaredTypes localEnv) of
-    Nothing -> error "Generation Error!"
-    Just lst -> let (a, localEnv1) = rndNum localEnv (0,length lst -1)
-                in localEnv1 { prog = prog localEnv1 ++ lst !! a ++ ","}
+generateFullArgument :: VarEnv -> LocalEnv -> String -> LocalEnv
+generateFullArgument dsllEnv localEnv t =
+  let allPossibleArguments = getAllPossibleArguments dsllEnv localEnv t
+      (a, localEnv1) = rndNum localEnv (0,length allPossibleArguments -1)
+  in localEnv1 { prog = prog localEnv1 ++ allPossibleArguments !! a ++ ","}
 
+getAllPossibleArguments :: VarEnv -> LocalEnv -> String -> [String]
+getAllPossibleArguments dsllEnv localEnv t = concatMap (getIdentifiers localEnv) (getAllPossibleTypes dsllEnv localEnv t)
+
+getAllPossibleTypes :: VarEnv -> LocalEnv -> String -> [String]
+getAllPossibleTypes dsllEnv localEnv t =
+  let subt = subTypes dsllEnv
+      allTypes = [ t1 | (t1, t2) <- subt, getTypeNames [t2] == [t]]
+  in (t : getTypeNames allTypes)
+
+getIdentifiers :: LocalEnv -> String -> [String]
+getIdentifiers localEnv t = fromMaybe [] (M.lookup t (declaredTypes localEnv))
 
 getPred1Lst :: VarEnv -> [Predicate1]
 getPred1Lst dsllEnv = let preds = M.toAscList (predicates dsllEnv)
