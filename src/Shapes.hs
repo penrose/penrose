@@ -814,6 +814,7 @@ data TypeIn a = TNum a
               | TStr String
               | TInt Integer
               | TFloat Float
+              | TList [TypeIn a]
               | TPt (Pt2 a)
               | TPath [Pt2 a]
               | TColor Color

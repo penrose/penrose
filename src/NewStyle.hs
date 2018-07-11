@@ -925,8 +925,12 @@ addMaybes xs ms = xs ++ catMaybes ms
 addWarn :: Translation a -> Warning -> Translation a
 addWarn tr warn = tr { warnings = warnings tr ++ [warn] }
 
-pathStr :: Name -> Field -> Property -> String
-pathStr name field property = intercalate "." [nameStr name, field, property]
+pathStr :: Path -> String
+pathStr (FieldPath bvar field) = intercalate "." [show bvar, field]
+pathStr (PropertyPath bvar field property) = intercalate "." [show bvar, field, property]
+
+pathStr3 :: Name -> Field -> Property -> String
+pathStr3 name field property = intercalate "." [nameStr name, field, property]
 
 ----- Main operations on translations (add and delete)
 
@@ -949,7 +953,7 @@ deleteField trans name field =
 deleteProperty :: (Autofloat a) => Translation a -> Name -> Field -> Property -> Translation a
 deleteProperty trans name field property =
     let trn = trMap trans
-        path = pathStr name field property in
+        path = pathStr3 name field property in
     case M.lookup name trn of
     Nothing ->
         let err = "Err: Sub obj '" ++ nameStr name ++ "' has no fields; can't delete path '" ++ path ++ "'" in
@@ -966,7 +970,7 @@ deleteProperty trans name field property =
            -- If the field is GPI, check if property already exists
            if property `M.notMember` properties
            then let warn = "Warning: property '" ++ property ++ "' already does not exist in path '" 
-                           ++ pathStr name field property ++ "'; deletion does nothing"
+                           ++ pathStr3 name field property ++ "'; deletion does nothing"
                 in addWarn trans warn
            else let properties' = M.delete property properties
                     fieldDict'  = M.insert field (GPI ctor properties') fieldDict
@@ -1026,10 +1030,10 @@ addProperty override trans name field property texpr =
            -- If the field is GPI, check if property already exists and whether it matches the override setting
            let warn = if (property `M.notMember` properties) && override 
                       then Just $ "Warning: property '" ++ property ++ "' does not exist in path '" 
-                           ++ pathStr name field property ++ "' but override was set"
+                           ++ pathStr3 name field property ++ "' but override was set"
                       else if property `M.member` properties && (not override)
                       then Just $ "Warning: property '" ++ property ++ "' already exists in path '" 
-                           ++ pathStr name field property ++ "' but override was not set"
+                           ++ pathStr3 name field property ++ "' but override was not set"
                       else Nothing in
            let properties' = M.insert property texpr properties
                fieldDict'  = M.insert field (GPI ctor properties') fieldDict
@@ -1124,22 +1128,6 @@ translateStyProg varEnv subEnv subProg styProg =
                  -- TODO: remember to check the order of warnings (reverse?)
 
 ------------ Translation second pass to actually make GPIs, objectives, computations
-
------ Computation evaluation during optimization
-
-eval :: TagExpr a -> TagExpr a
-eval e@(Done e') = e
-eval e@(OptEval e') = e -- FILL IN
-
--- TODO: interpret and eval should use the State and TrComputations
--- [|e|] : evaluate an expression as much as possible at compile-time
--- stopping when an optimized value is encountered
--- TODO this should call eval
-interpretLine :: (Autofloat a) => Expr -> TagExpr a
-interpretLine e = Done $ S.TStr "TODO" -- FILL IN
-
-interpretTrans :: (Autofloat a) => Translation a -> Translation a
-interpretTrans trans = trans -- FILL IN
 
 ----- Types
 
@@ -1240,12 +1228,23 @@ toTagExpr n = Done (S.TNum n)
 --- Evaluation
 
 -- Fully evaluated inputs
+-- TODO: fix GPIArg input (just propertydict; should we store GPI name?)
 data ArgVal a = GPIArg (M.Map Field (PropertyDict a)) | FieldArg (S.TypeIn a)
      deriving (Eq, Show)
 
 type OptFn a = [ArgVal a] -> a
-type CompFn a = [ArgVal a] -> ArgVal a
+type CompFn' a = [ArgVal a] -> ArgVal a
 
+testCompFn :: (Autofloat a) => CompFn' a
+testCompFn [FieldArg (S.TStr str), FieldArg (S.TInt n)] = 
+           let res = concat $ take (fromIntegral n) $ repeat str in
+           FieldArg (S.TStr res)
+
+compDict :: (Autofloat a) => M.Map String (CompFn' a)
+compDict = M.fromList flist
+         where flist = [("testCompFn", testCompFn)] -- TODO: port existing comps
+
+-- TODO: write a more general typechecking mechanism
 evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> S.TypeIn a
 evalUop UMinus v = case v of
                   FieldArg (S.TNum a) -> S.TNum (-a)
@@ -1253,6 +1252,29 @@ evalUop UMinus v = case v of
                   GPIArg _ -> error "cannot negate a GPI"
                   FieldArg _ -> error "wrong type to negate"
 evalUop UPlus v = error "unary + doesn't make sense" -- TODO remove from parser
+
+evalBinop :: (Autofloat a) => BinaryOp -> ArgVal a -> ArgVal a -> S.TypeIn a
+evalBinop op v1 v2 = 
+        case (v1, v2) of
+        (FieldArg (S.TNum n1), FieldArg (S.TNum n2)) ->
+                  case op of
+                  BPlus -> S.TNum $ n1 + n2
+                  BMinus -> S.TNum $ n1 - n2
+                  Multiply -> S.TNum $ n1 * n2
+                  Divide -> if n2 == 0 then error "divide by 0!" else S.TNum $ n1 / n2
+                  Exp -> S.TNum $ n1 ** n2
+        (FieldArg (S.TInt n1), FieldArg (S.TInt n2)) ->
+                  case op of
+                  BPlus -> S.TInt $ n1 + n2
+                  BMinus -> S.TInt $ n1 - n2
+                  Multiply -> S.TInt $ n1 * n2
+                  Divide -> if n2 == 0 then error "divide by 0!" else S.TInt $ n1 `quot` n2 -- NOTE: not float
+                  Exp -> S.TInt $ n1 ^ n2
+        -- Cannot mix int and float
+        (FieldArg _, FieldArg _) -> error "wrong field types for binary operation"
+        (GPIArg _, FieldArg _) -> error "binop cannot operate on GPI"
+        (FieldArg _, GPIArg _) -> error "binop cannot operate on GPI"
+        (GPIArg _, GPIArg _) -> error "binop cannot operate on GPIs"
 
 -- TODO: what about args like "5 + 10" or "5 + A.val"? those don't have paths
 -- recursively evaluate, TODO track iteration depth
@@ -1265,21 +1287,33 @@ evalExpr arg trans =
     AFloat (Fix f) -> (FieldArg $ S.TNum (r2f f), trans) -- TODO: note use of r2f here. is that ok?
 
     -- Inline computation, needs a recursive lookup that may change trans, but not a path
+    -- TODO factor out eval / trans computation
     UOp op e -> 
         let (val, trans') = evalExpr e trans in
         let compVal = evalUop op val in
         (FieldArg compVal, trans')
-    BinOp op e1 e2 -> FieldArg $ S.TStr "TODO"
-    CompApp fname args -> FieldArg $ S.TStr "TODO"
-    List es -> FieldArg $ S.TStr "TODO"
-    ListAccess p i -> FieldArg $ S.TStr "TODO"
+    BinOp op e1 e2 ->
+        let ([v1, v2], trans') = evalExprs [e1, e2] trans in
+        let compVal = evalBinop op v1 v2 in
+        (FieldArg compVal, trans')
+    CompApp fname args -> 
+        let (vs, trans') = evalExprs args trans in
+        case M.lookup fname compDict of
+        Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
+        Just f -> let res = f vs in
+                  (res, trans')
+    List es -> error "TODO lists"
+        -- let (vs, trans') = evalExprs es trans in
+        -- (vs, trans')         
+    ListAccess p i -> error "TODO lists"
 
-    -- Needs a recursive lookup that may change trans
+    -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
     EPath p -> let res = () in -- lookup path
                let trans' = case insertPath trans (p, Done $ S.TStr "TODO") of
                             Left err -> error "err"
                             Right trans' -> trans' in
                FieldArg $ S.TStr "TODO" -- TODO: return trans
+               -- >>> fill in
 
     -- GPI argument
     Ctor ctor properties -> GPIArg $ M.empty -- TODO
@@ -1290,22 +1324,36 @@ evalExpr arg trans =
     ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
     AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
 
--- TODO: maybe only evaluate inputs to fns, don't do it separately
-evalArgs :: (Autofloat a) => [Fn] -> Translation a -> ([ArgVal a], Translation a)
-evalArgs optfns trans = 
-    let args = concatMap fargs optfns in
-    foldl evalArg ([], trans) args
-    where evalArg :: (Autofloat a) => ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
-          evalArg (argvals, trans) arg = 
+-- >>> fill in
+lookupPath :: (Autofloat a) => Path -> Translation a -> TagExpr a
+lookupPath path@(FieldPath bvar field) trans =
+    let name = trName bvar in
+    let trn = trMap trans in
+    case M.lookup name trn of
+    Nothing -> error ("path '" ++ pathStr path ++ "''s name doesn't exist in trans") 
+               -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
+    Just fieldDict ->
+         case M.lookup field fieldDict of
+         Nothing -> error ("path '" ++ pathStr path ++ "'s field doesn't exist in trans")
+-- lookupPath path@(PropertyPath bvar field property) trans =
+--     let name = trName bvar in
+--     Nothing
+
+-- Any evaluated exprs are cached in the translation for future evaluation
+evalExprs :: (Autofloat a) => [Expr] -> Translation a -> ([ArgVal a], Translation a)
+evalExprs args trans = 
+    foldl evalExprF ([], trans) args
+    where evalExprF :: (Autofloat a) => ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
+          evalExprF (argvals, trans) arg = 
                        let (argVal, trans') = evalExpr arg trans in
-                       (argVal : argvals, trans')
+                       (argvals ++ [argVal], trans') -- So returned exprs are in same order
 
 genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> Translation a
 genObjfn trans objfns constrfns varyingPaths = 
          \penaltyWeight varying ->
          let varyingTagExprs = map toTagExpr varying in
          let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in
-         let (argVals, transComputed) = evalArgs (objfns ++ constrfns) transWithVarying in
+         let (argVals, transComputed) = evalExprs (concatMap fargs $ objfns ++ constrfns) transWithVarying in
          transComputed
          -- TODO: put args back in the comps in the right order, also look up GPIs
          -- FILL IN applyCombined and change return type
@@ -1359,3 +1407,5 @@ genOptProblemAndState trans =
     -- TODO: return init state
     -- RState { }
     (varyingPaths, (objfns, constrfns), initState, appliedFn)
+
+-- TODO: write a function: Translation a -> [Shape a]
