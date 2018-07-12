@@ -30,7 +30,7 @@ type Interval = (Int, Int)
 
 {-# NOINLINE seedRnd #-}
 seedRnd :: Int
-seedRnd = unsafePerformIO $ getStdRandom (randomR (9,99))
+seedRnd = 99 --unsafePerformIO $ getStdRandom (randomR (9,99))
 
 -- | Refresh the StdGen in a given localEnv
 updateGen :: LocalEnv -> LocalEnv
@@ -47,6 +47,8 @@ data LocalEnv = LocalEnv {
                        declaredTypes :: M.Map String [String], -- Map from type to list of object from that type
                        pred1Lst :: [Predicate1],
                        pred2Lst :: [Predicate2],
+                       preDeclarations :: String, -- Store all the pre declarations in a current situation
+                       --preAdd :: String, -- Store a statement under construction before it is added to the system
                        prog :: String, --String representing the generated program
                        gen :: StdGen, -- A random generator which will be updated regulary
                        seed :: Int -- A random seed which is updated regulary
@@ -59,6 +61,10 @@ addDeclaredType localEnv t typeName = case M.lookup t (declaredTypes localEnv) o
   Nothing -> localEnv { declaredTypes =  M.insert t [typeName] (declaredTypes localEnv) }
   Just v -> localEnv { declaredTypes = M.insert t (typeName : v) (declaredTypes localEnv) }
 
+initializeLocalEnv :: VarEnv -> String -> LocalEnv
+initializeLocalEnv dsllEnv namesFile = LocalEnv {declaredTypes = M.empty, availableNames = loadLanguage namesFile,
+      pred1Lst = getPred1Lst dsllEnv, pred2Lst = getPred2Lst dsllEnv,
+      gen = mkStdGen seedRnd, seed = seedRnd, prog = "", preDeclarations = "" }
 ------------------------------ Substance Generator -----------------------------
 
 -- | The main function of the genrator.
@@ -68,34 +74,38 @@ addDeclaredType localEnv t typeName = case M.lookup t (declaredTypes localEnv) o
 main :: IO ()
 main = do
     args <- getArgs
-    when (length args /= 2) $ die "Usage: ./Main prog.dsl namesFile"
-    let (dsllFile, namesFile) = (head args,args !! 1)
+    when (length args /= 4) $ die "Usage: ./Main prog.dsl namesFile outputPath #program"
+    let (dsllFile, namesFile, outputPath, n) = (head args,args !! 1, args !! 2, args !! 3)
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsllSilent dsllFile dsllIn
-    generatePrograms dsllEnv namesFile 1
+    generatePrograms dsllEnv (initializeLocalEnv dsllEnv namesFile) namesFile outputPath (read n :: Int)
     return ()
 
 -- | Generate n random programs
-generatePrograms :: VarEnv -> String -> Int -> IO ()
-generatePrograms dsllEnv namesFile n =
-    when (n/=0) $
-    do generateProgram dsllEnv namesFile
-       generatePrograms dsllEnv namesFile (n-1)
+generatePrograms :: VarEnv -> LocalEnv -> String -> String -> Int -> IO ()
+generatePrograms dsllEnv localEnv namesFile outputPath n =
+    when (n /= 0) $
+    do localEnv1 <- generateProgram dsllEnv localEnv namesFile (outputPath ++ "/prog-" ++ show n ++ ".sub")
+       generatePrograms dsllEnv localEnv1 namesFile outputPath (n - 1)
+
 
 -- | The top level function for automatic generation of substance programs,
 --   calls other functions to generate specific statements
-generateProgram :: VarEnv -> String -> IO ()
-generateProgram dsllEnv namesFile = do
+generateProgram :: VarEnv -> LocalEnv -> String -> String -> IO LocalEnv
+generateProgram dsllEnv localEnv namesFile outputPath = do
     let localEnv1 = generateTypes dsllEnv initLocalEnv 3
-        localEnv2 = generateStatements dsllEnv localEnv1 10
-    putStrLn "Program: \n"
-    putStrLn (prog localEnv2)
+        localEnv2 = generateStatements dsllEnv localEnv1 22
+    --putStrLn "Program: \n"
+    --putStrLn (prog localEnv2)
+    --f <- openFile outputPath WriteMode
+    writeFile outputPath (prog localEnv2)
     --putStrLn "\n And the local env is: \n"
     --pPrint localEnv2
-    return ()
+    return localEnv2
     where initLocalEnv = LocalEnv {declaredTypes = M.empty, availableNames = loadLanguage namesFile,
-       pred1Lst = getPred1Lst dsllEnv, pred2Lst = getPred2Lst dsllEnv,
-       gen = mkStdGen seedRnd, seed = seedRnd, prog = "" }
+          pred1Lst = getPred1Lst dsllEnv, pred2Lst = getPred2Lst dsllEnv,
+          gen = gen localEnv, seed = seedRnd, prog = "", preDeclarations = "" }
+
 
 -- | Generate random Substance statements
 generateStatements :: VarEnv -> LocalEnv -> Int -> LocalEnv
@@ -110,8 +120,8 @@ generateStatement dsllEnv localEnv =
     let (statementId, localEnv1) = rndNum localEnv (0,2)
         localEnv2 = case statementId of
                  0 -> generateBinding dsllEnv localEnv1
-                 1 -> localEnv1 --generatePrediacte dsllEnv localEnv1
-                 2 -> localEnv1 --generatePrediacteEquality dsllEnv localEnv1
+                 1 -> generatePrediacte dsllEnv localEnv1
+                 2 -> generatePrediacteEquality dsllEnv localEnv1
     in localEnv2 {prog = prog localEnv2 ++ "\n"}
 
 -- | Generate random type statements
@@ -196,8 +206,7 @@ generatePrediacte1 dsllEnv localEnv =
         predicate = pred1Lst localEnv1 !! p
         localEnv2 = generatePreDeclarations dsllEnv localEnv1 (getTypeNames (tlspred1 predicate))
         localEnv3 = localEnv2 {prog = prog localEnv2 ++ namepred1 predicate}
-        localEnv4 = generateArguments dsllEnv (getTypeNames (tlspred1 predicate)) localEnv3
-    in localEnv4
+    in  generateArguments dsllEnv (getTypeNames (tlspred1 predicate)) localEnv3
 
 generatePrediacte1' :: VarEnv -> LocalEnv -> LocalEnv
 generatePrediacte1' dsllEnv localEnv =
@@ -228,6 +237,8 @@ generatePred2Args dsllEnv localEnv n =
 
 generatePred2Arg :: VarEnv -> LocalEnv -> LocalEnv
 generatePred2Arg = generatePrediacte1 -- TODO: Add nesting
+
+
 ------------------------------- Helper Functions -------------------------------
 getTypeNames = map convert
 
@@ -239,8 +250,7 @@ generateArguments :: VarEnv -> [String] -> LocalEnv -> LocalEnv
 generateArguments dsllEnv types localEnv =
   let localEnv1 = localEnv {prog = prog localEnv ++ "("}
       localEnv2 = foldl (generateFullArgument dsllEnv) localEnv1 types
-      localEnv3 = localEnv2 {prog = init (fromString (prog localEnv2)) ++ ")"}
-  in localEnv3
+  in  localEnv2 {prog = init (fromString (prog localEnv2)) ++ ")"}
 
 -- | Get an argument for operations / predicates / val constructors
 generateArgument :: LocalEnv -> String -> LocalEnv
@@ -254,7 +264,7 @@ generateFullArgument :: VarEnv -> LocalEnv -> String -> LocalEnv
 generateFullArgument dsllEnv localEnv t =
   let allPossibleArguments = getAllPossibleArguments dsllEnv localEnv t
       (a, localEnv1) = rndNum localEnv (0,length allPossibleArguments -1)
-  in localEnv1 { prog = prog localEnv1 ++ allPossibleArguments !! a ++ ","}
+  in localEnv1 { prog = prog localEnv1 ++  allPossibleArguments !!  a ++ ","}
 
 getAllPossibleArguments :: VarEnv -> LocalEnv -> String -> [String]
 getAllPossibleArguments dsllEnv localEnv t = concatMap (getIdentifiers localEnv) (getAllPossibleTypes dsllEnv localEnv t)
