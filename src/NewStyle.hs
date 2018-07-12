@@ -925,9 +925,13 @@ addMaybes xs ms = xs ++ catMaybes ms
 addWarn :: Translation a -> Warning -> Translation a
 addWarn tr warn = tr { warnings = warnings tr ++ [warn] }
 
+-- TODO clean these up
 pathStr :: Path -> String
 pathStr (FieldPath bvar field) = intercalate "." [show bvar, field]
 pathStr (PropertyPath bvar field property) = intercalate "." [show bvar, field, property]
+
+pathStr2 :: Name -> Field -> String
+pathStr2 name field = intercalate "." [nameStr name, field]
 
 pathStr3 :: Name -> Field -> Property -> String
 pathStr3 name field property = intercalate "." [nameStr name, field, property]
@@ -1229,16 +1233,16 @@ toTagExpr n = Done (S.TNum n)
 
 -- Fully evaluated inputs
 -- TODO: fix GPIArg input (just propertydict; should we store GPI name?)
-data ArgVal a = GPIArg (M.Map Field (PropertyDict a)) | FieldArg (S.TypeIn a)
+data ArgVal a = GPIArg (M.Map Field (PropertyDict a)) | ValueArg (S.TypeIn a)
      deriving (Eq, Show)
 
 type OptFn a = [ArgVal a] -> a
 type CompFn' a = [ArgVal a] -> ArgVal a
 
 testCompFn :: (Autofloat a) => CompFn' a
-testCompFn [FieldArg (S.TStr str), FieldArg (S.TInt n)] = 
+testCompFn [ValueArg (S.TStr str), ValueArg (S.TInt n)] = 
            let res = concat $ take (fromIntegral n) $ repeat str in
-           FieldArg (S.TStr res)
+           ValueArg (S.TStr res)
 
 compDict :: (Autofloat a) => M.Map String (CompFn' a)
 compDict = M.fromList flist
@@ -1247,23 +1251,23 @@ compDict = M.fromList flist
 -- TODO: write a more general typechecking mechanism
 evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> S.TypeIn a
 evalUop UMinus v = case v of
-                  FieldArg (S.TNum a) -> S.TNum (-a)
-                  FieldArg (S.TInt i) -> S.TInt (-i)
+                  ValueArg (S.TNum a) -> S.TNum (-a)
+                  ValueArg (S.TInt i) -> S.TInt (-i)
                   GPIArg _ -> error "cannot negate a GPI"
-                  FieldArg _ -> error "wrong type to negate"
+                  ValueArg _ -> error "wrong type to negate"
 evalUop UPlus v = error "unary + doesn't make sense" -- TODO remove from parser
 
 evalBinop :: (Autofloat a) => BinaryOp -> ArgVal a -> ArgVal a -> S.TypeIn a
 evalBinop op v1 v2 = 
         case (v1, v2) of
-        (FieldArg (S.TNum n1), FieldArg (S.TNum n2)) ->
+        (ValueArg (S.TNum n1), ValueArg (S.TNum n2)) ->
                   case op of
                   BPlus -> S.TNum $ n1 + n2
                   BMinus -> S.TNum $ n1 - n2
                   Multiply -> S.TNum $ n1 * n2
                   Divide -> if n2 == 0 then error "divide by 0!" else S.TNum $ n1 / n2
                   Exp -> S.TNum $ n1 ** n2
-        (FieldArg (S.TInt n1), FieldArg (S.TInt n2)) ->
+        (ValueArg (S.TInt n1), ValueArg (S.TInt n2)) ->
                   case op of
                   BPlus -> S.TInt $ n1 + n2
                   BMinus -> S.TInt $ n1 - n2
@@ -1271,9 +1275,9 @@ evalBinop op v1 v2 =
                   Divide -> if n2 == 0 then error "divide by 0!" else S.TInt $ n1 `quot` n2 -- NOTE: not float
                   Exp -> S.TInt $ n1 ^ n2
         -- Cannot mix int and float
-        (FieldArg _, FieldArg _) -> error "wrong field types for binary operation"
-        (GPIArg _, FieldArg _) -> error "binop cannot operate on GPI"
-        (FieldArg _, GPIArg _) -> error "binop cannot operate on GPI"
+        (ValueArg _, ValueArg _) -> error "wrong field types for binary operation"
+        (GPIArg _, ValueArg _) -> error "binop cannot operate on GPI"
+        (ValueArg _, GPIArg _) -> error "binop cannot operate on GPI"
         (GPIArg _, GPIArg _) -> error "binop cannot operate on GPIs"
 
 -- TODO: what about args like "5 + 10" or "5 + A.val"? those don't have paths
@@ -1282,20 +1286,20 @@ evalExpr :: (Autofloat a) => Expr -> Translation a -> (ArgVal a, Translation a)
 evalExpr arg trans =
     case arg of
     -- Already done values; don't change grans
-    IntLit i -> (FieldArg $ S.TInt i, trans)
-    StringLit s -> (FieldArg $ S.TStr s, trans)
-    AFloat (Fix f) -> (FieldArg $ S.TNum (r2f f), trans) -- TODO: note use of r2f here. is that ok?
+    IntLit i -> (ValueArg $ S.TInt i, trans)
+    StringLit s -> (ValueArg $ S.TStr s, trans)
+    AFloat (Fix f) -> (ValueArg $ S.TNum (r2f f), trans) -- TODO: note use of r2f here. is that ok?
 
     -- Inline computation, needs a recursive lookup that may change trans, but not a path
     -- TODO factor out eval / trans computation
     UOp op e -> 
         let (val, trans') = evalExpr e trans in
         let compVal = evalUop op val in
-        (FieldArg compVal, trans')
+        (ValueArg compVal, trans')
     BinOp op e1 e2 ->
         let ([v1, v2], trans') = evalExprs [e1, e2] trans in
         let compVal = evalBinop op v1 v2 in
-        (FieldArg compVal, trans')
+        (ValueArg compVal, trans')
     CompApp fname args -> 
         let (vs, trans') = evalExprs args trans in
         case M.lookup fname compDict of
@@ -1308,15 +1312,45 @@ evalExpr arg trans =
     ListAccess p i -> error "TODO lists"
 
     -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
-    EPath p -> let res = () in -- lookup path
-               let trans' = case insertPath trans (p, Done $ S.TStr "TODO") of
-                            Left err -> error "err"
-                            Right trans' -> trans' in
-               FieldArg $ S.TStr "TODO" -- TODO: return trans
-               -- >>> fill in
+    EPath p -> 
+          case p of
+          FieldPath bvar field -> 
+             -- Lookup field expr, evaluate it if necessary, cache the evaluated value in the trans,
+             -- return the evaluated value and the updated trans
+             let fexpr = lookupField bvar field trans in
+             case fexpr of
+             FExpr (Done v) -> (ValueArg v, trans)
+             FExpr (OptEval e) ->
+                 let (v, trans') = evalExpr e trans in
+                 case v of
+                 ValueArg fval -> 
+                     case insertPath trans (p, Done fval) of
+                     Right trans' -> (v, trans')
+                     Left err -> error $ concat err
+                 GPIArg _ -> error "path to field expr evaluated to a GPI"
+             GPI ctor properties -> error "TODO"
+             -- >>> fill in
+             -- Eval the GPI (as expr `Ctor ctor properties`), then insert the evaluated GPI 
+             -- into the translation and return it
+             -- TODO: need "insert GPI"
+
+          PropertyPath bvar field property ->
+              let texpr = lookupProperty bvar field property trans in
+              case texpr of
+              Done v -> (ValueArg v, trans)
+              OptEval e ->
+                 let (v, trans') = evalExpr e trans in
+                 case v of
+                 ValueArg fval -> 
+                     case insertPath trans (p, Done fval) of
+                     Right trans' -> (v, trans')
+                     Left err -> error $ concat err
+                 GPIArg _ -> error "path to property expr evaluated to a GPI"
 
     -- GPI argument
-    Ctor ctor properties -> GPIArg $ M.empty -- TODO
+    Ctor ctor properties ->
+              (GPIArg $ M.empty, trans) -- >>> fill in
+              -- need to evaluate each property in a GPI
 
     -- Error
     Layering _ -> error "layering should not be an objfn arg (or in the children of one)"
@@ -1324,20 +1358,28 @@ evalExpr arg trans =
     ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
     AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
 
--- >>> fill in
-lookupPath :: (Autofloat a) => Path -> Translation a -> TagExpr a
-lookupPath path@(FieldPath bvar field) trans =
+-- TODO move lookups to utils
+lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldExpr a
+lookupField bvar field trans =
     let name = trName bvar in
     let trn = trMap trans in
     case M.lookup name trn of
-    Nothing -> error ("path '" ++ pathStr path ++ "''s name doesn't exist in trans") 
+    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans") 
                -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
     Just fieldDict ->
          case M.lookup field fieldDict of
-         Nothing -> error ("path '" ++ pathStr path ++ "'s field doesn't exist in trans")
--- lookupPath path@(PropertyPath bvar field property) trans =
---     let name = trName bvar in
---     Nothing
+         Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
+         Just fexpr -> fexpr
+
+lookupProperty :: (Autofloat a) => BindingForm -> Field -> Property -> Translation a -> TagExpr a
+lookupProperty bvar field property trans =
+    let name = trName bvar in
+    case lookupField bvar field trans of
+    FExpr _ -> error ("path '" ++ pathStr3 name field property ++ "' has no properties")
+    GPI ctor properties ->
+        case M.lookup property properties of
+        Nothing -> error ("path '" ++ pathStr3 name field property ++ "'s property does not exist")
+        Just texpr -> texpr
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 evalExprs :: (Autofloat a) => [Expr] -> Translation a -> ([ArgVal a], Translation a)
