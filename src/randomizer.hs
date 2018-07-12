@@ -30,7 +30,7 @@ type Interval = (Int, Int)
 
 {-# NOINLINE seedRnd #-}
 seedRnd :: Int
-seedRnd = 99 --unsafePerformIO $ getStdRandom (randomR (9,99))
+seedRnd = unsafePerformIO $ getStdRandom (randomR (9,99))
 
 -- | Refresh the StdGen in a given localEnv
 updateGen :: LocalEnv -> LocalEnv
@@ -51,7 +51,8 @@ data LocalEnv = LocalEnv {
                        --preAdd :: String, -- Store a statement under construction before it is added to the system
                        prog :: String, --String representing the generated program
                        gen :: StdGen, -- A random generator which will be updated regulary
-                       seed :: Int -- A random seed which is updated regulary
+                       seed :: Int, -- A random seed which is updated regulary
+                       nestingLevel :: Int -- the nesting level of the system in a current position
                      }
               deriving (Show, Typeable)
 
@@ -64,7 +65,11 @@ addDeclaredType localEnv t typeName = case M.lookup t (declaredTypes localEnv) o
 initializeLocalEnv :: VarEnv -> String -> LocalEnv
 initializeLocalEnv dsllEnv namesFile = LocalEnv {declaredTypes = M.empty, availableNames = loadLanguage namesFile,
       pred1Lst = getPred1Lst dsllEnv, pred2Lst = getPred2Lst dsllEnv,
-      gen = mkStdGen seedRnd, seed = seedRnd, prog = "", preDeclarations = "" }
+      gen = mkStdGen seedRnd, seed = seedRnd, prog = "", preDeclarations = "", nestingLevel = 0 }
+
+-- | Zero the nesting level of the current environemt
+zeroNestingLevel :: LocalEnv -> LocalEnv
+zeroNestingLevel localEnv = localEnv {nestingLevel = 0}
 ------------------------------ Substance Generator -----------------------------
 
 -- | The main function of the genrator.
@@ -93,10 +98,10 @@ generatePrograms dsllEnv localEnv namesFile outputPath n =
 --   calls other functions to generate specific statements
 generateProgram :: VarEnv -> LocalEnv -> String -> String -> IO LocalEnv
 generateProgram dsllEnv localEnv namesFile outputPath = do
-    let localEnv1 = generateTypes dsllEnv initLocalEnv 3
+    let localEnv1 = foldl (generateSpecificType dsllEnv) initLocalEnv (map fst (M.toAscList (typeConstructors dsllEnv)))--generateTypes dsllEnv initLocalEnv 3
         localEnv2 = generateStatements dsllEnv localEnv1 22
-    --putStrLn "Program: \n"
-    --putStrLn (prog localEnv2)
+    putStrLn "Program: \n"
+    putStrLn (prog localEnv2)
     --f <- openFile outputPath WriteMode
     writeFile outputPath (prog localEnv2)
     --putStrLn "\n And the local env is: \n"
@@ -104,7 +109,7 @@ generateProgram dsllEnv localEnv namesFile outputPath = do
     return localEnv2
     where initLocalEnv = LocalEnv {declaredTypes = M.empty, availableNames = loadLanguage namesFile,
           pred1Lst = getPred1Lst dsllEnv, pred2Lst = getPred2Lst dsllEnv,
-          gen = gen localEnv, seed = seedRnd, prog = "", preDeclarations = "" }
+          gen = gen localEnv, seed = seedRnd, prog = "", preDeclarations = "", nestingLevel = 0 }
 
 
 -- | Generate random Substance statements
@@ -120,8 +125,8 @@ generateStatement dsllEnv localEnv =
     let (statementId, localEnv1) = rndNum localEnv (0,2)
         localEnv2 = case statementId of
                  0 -> generateBinding dsllEnv localEnv1
-                 1 -> generatePrediacte dsllEnv localEnv1
-                 2 -> generatePrediacteEquality dsllEnv localEnv1
+                 1 -> zeroNestingLevel (generatePrediacte dsllEnv localEnv1 False)
+                 2 -> zeroNestingLevel( generatePrediacteEquality dsllEnv localEnv1)
     in localEnv2 {prog = prog localEnv2 ++ "\n"}
 
 -- | Generate random type statements
@@ -186,19 +191,23 @@ generatePreDeclaration dsllEnv localEnv t =
 -- | Generate single random predicate equality
 generatePrediacteEquality :: VarEnv -> LocalEnv -> LocalEnv
 generatePrediacteEquality dsllEnv localEnv =
-    let localEnv1 = generatePrediacte dsllEnv localEnv
+    let localEnv1 = generatePrediacte dsllEnv localEnv False
         localEnv2 = localEnv1 {prog = prog localEnv1 ++ " <-> "}
-        in generatePrediacte dsllEnv localEnv2
+     in generatePrediacte dsllEnv localEnv2 True
 
 -- | Generate single random operation statement
-generatePrediacte :: VarEnv -> LocalEnv -> LocalEnv
-generatePrediacte dsllEnv localEnv =
+generatePrediacte :: VarEnv -> LocalEnv -> Bool -> LocalEnv
+generatePrediacte dsllEnv localEnv isNested =
     let preds = M.toAscList (predicates dsllEnv)
         (p , localEnv1) = rndNum localEnv (0,length preds - 1)
         predicate = snd (preds !! p)
-    in case predicate of
-            Pred1 p1 -> generatePrediacte1 dsllEnv localEnv1
-            Pred2 p2 -> generatePrediacte2 dsllEnv localEnv1
+    in  if isNested && nestingLevel localEnv1 > 2 then generatePrediacte1Nested dsllEnv localEnv1
+        else case predicate of
+            Pred1 p1 -> if isNested then
+               generatePrediacte1Nested dsllEnv localEnv1
+               else generatePrediacte1 dsllEnv localEnv1
+            Pred2 p2 -> let localEnv2 = localEnv1 {nestingLevel = nestingLevel localEnv1 + 1}
+                        in generatePrediacte2 dsllEnv localEnv2
 
 generatePrediacte1 :: VarEnv -> LocalEnv -> LocalEnv
 generatePrediacte1 dsllEnv localEnv =
@@ -208,13 +217,12 @@ generatePrediacte1 dsllEnv localEnv =
         localEnv3 = localEnv2 {prog = prog localEnv2 ++ namepred1 predicate}
     in  generateArguments dsllEnv (getTypeNames (tlspred1 predicate)) localEnv3
 
-generatePrediacte1' :: VarEnv -> LocalEnv -> LocalEnv
-generatePrediacte1' dsllEnv localEnv =
-  let (p , localEnv1) = rndNum localEnv (0,length (pred1Lst localEnv) -1)
-      predicate = pred1Lst localEnv1 !! p
-      localEnv2 = localEnv1 {prog = prog localEnv1 ++ namepred1 predicate ++ "("}
-      localEnv3 = generateArguments dsllEnv (getTypeNames (tlspred1 predicate)) localEnv2
-  in localEnv3
+generatePrediacte1Nested :: VarEnv -> LocalEnv -> LocalEnv
+generatePrediacte1Nested dsllEnv localEnv =
+        let (p , localEnv1) = rndNum localEnv (0,length (pred1Lst localEnv) -1)
+            predicate = pred1Lst localEnv1 !! p
+            localEnv2 = localEnv1 {prog = prog localEnv1 ++ namepred1 predicate}
+        in  generateArguments dsllEnv (getTypeNames (tlspred1 predicate)) localEnv2
 
 generatePrediacte2 :: VarEnv -> LocalEnv -> LocalEnv
 generatePrediacte2 dsllEnv localEnv =
@@ -230,13 +238,13 @@ generatePrediacte2 dsllEnv localEnv =
 
 generatePred2Args :: VarEnv -> LocalEnv -> Int -> LocalEnv
 generatePred2Args dsllEnv localEnv n =
-     let localEnv1 = generatePrediacte1' dsllEnv localEnv
+     let localEnv1 = generatePred2Arg dsllEnv localEnv
      in if n /= 1 then let localEnv2 = localEnv1 {prog = prog localEnv1 ++ ","}
                        in generatePred2Args dsllEnv localEnv2 (n - 1)
         else localEnv1 {prog = prog localEnv1 ++ ")"}
 
 generatePred2Arg :: VarEnv -> LocalEnv -> LocalEnv
-generatePred2Arg = generatePrediacte1 -- TODO: Add nesting
+generatePred2Arg dsllEnv localEnv = generatePrediacte dsllEnv localEnv True
 
 
 ------------------------------- Helper Functions -------------------------------
