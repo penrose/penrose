@@ -9,9 +9,10 @@
 module NewStyle where
 -- module Main (main) where -- for debugging purposes
 
-import qualified Shapes as S
 import qualified GHC.Generics as G
 import Utils
+import ShapeDef
+import NewFunctions
 import Control.Monad (void, foldM)
 import Data.Function (on)
 import Data.Either (partitionEithers)
@@ -27,7 +28,7 @@ import System.Environment
 import System.Random
 import Debug.Trace
 import qualified Substance as C
-import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn, ConstrFnInfo, ObjFnInfo)
+-- import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn, ConstrFnInfo, ObjFnInfo)
 import Computation
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
@@ -857,7 +858,7 @@ type GPICtor = String -- TODO: clean up this typeseq
     -- deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
 data TagExpr a = OptEval Expr      -- Thunk evaluated at each step of optimization-time
-               | Done (S.TypeIn a) -- A value in the host language, fully evaluated
+               | Done (Value a) -- A value in the host language, fully evaluated
     deriving (Show, Eq, Typeable, G.Generic)
 
 -- Should we use the Property/Field newtypes?
@@ -865,7 +866,7 @@ type PropertyDict a = M.Map Property (TagExpr a)
 type FieldDict a = M.Map Field (FieldExpr a)
 
 data FieldExpr a = FExpr (TagExpr a)
-                 | GPI GPICtor (PropertyDict a)
+                 | FGPI ShapeTypeStr (PropertyDict a)
     deriving (Show, Eq, Typeable)
 
 type Warning = String
@@ -979,14 +980,14 @@ deleteProperty trans name field property =
         Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
                                      ++ field ++ "'; cannot delete property '" ++ property ++ "'" in
                           addWarn trans err
-        Just (GPI ctor properties) ->
+        Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists
            if property `M.notMember` properties
            then let warn = "Warning: property '" ++ property ++ "' already does not exist in path '"
                            ++ pathStr3 name field property ++ "'; deletion does nothing"
                 in addWarn trans warn
            else let properties' = M.delete property properties
-                    fieldDict'  = M.insert field (GPI ctor properties') fieldDict
+                    fieldDict'  = M.insert field (FGPI ctor properties') fieldDict
                     trn'        = M.insert name fieldDict' trn in
                 trans { trMap = trn' }
 
@@ -1016,7 +1017,7 @@ addField override trans name field texpr =
     -- TODO: check existing FExpr is overridden by an FExpr and likewise for Ctor of same type (typechecking)
     let fieldExpr = case texpr of
                     OptEval (Ctor ctorName propertyDecls) -> -- rule Line-Set-Ctor
-                         GPI ctorName (mkPropertyDict propertyDecls)
+                         FGPI ctorName (mkPropertyDict propertyDecls)
                     _ -> FExpr texpr in   -- rule Line-Set-Field-Expr
     let fieldDict' = M.insert field fieldExpr fieldDict
         trn' = M.insert name fieldDict' trn in
@@ -1039,7 +1040,7 @@ addProperty override trans name field property texpr =
         Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
                                      ++ field ++ "'; cannot add property '" ++ property ++ "'" in
                           addWarn trans err
-        Just (GPI ctor properties) ->
+        Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists and whether it matches the override setting
            let warn = if (property `M.notMember` properties) && override
                       then Just $ "Warning: property '" ++ property ++ "' does not exist in path '"
@@ -1049,7 +1050,7 @@ addProperty override trans name field property texpr =
                            ++ pathStr3 name field property ++ "' but override was not set"
                       else Nothing in
            let properties' = M.insert property texpr properties
-               fieldDict'  = M.insert field (GPI ctor properties') fieldDict
+               fieldDict'  = M.insert field (FGPI ctor properties') fieldDict
                trn'        = M.insert name fieldDict' trn in
            trans { trMap = trn', warnings = addMaybe (warnings trans) warn }
 
@@ -1157,16 +1158,8 @@ data FnDone a = FnDone { fname_d :: String,
                          optType_d :: OptType }
      deriving (Show, Eq)
 
-type OptFn a = [ArgVal a] -> a
-type CompFn' a = [ArgVal a] -> ArgVal a
-
--- Fully evaluated inputs
-data ArgVal a = GPIArg GPICtor (PropertyDict a) | ValueArg (S.TypeIn a)
-     deriving (Eq, Show)
-
 -- RState defs
 
-type Shape a = (GPICtor, PropertyDict a)
 
 -- Stores the last EP varying state (that is, the state when the unconstrained opt last converged)
 type LastEPstate = forall a . (Autofloat a) => [a]
@@ -1223,59 +1216,6 @@ instance Show RState where
                   "\nParams: \n" ++ show (paramsr s) ++
                   "\nAutostep: \n" ++ show (autostep s)
 
----
-
-optNoop :: (Autofloat a) => [ArgVal a] -> a
-optNoop _ = -1.5
-
-objFnDict :: (Autofloat a) => M.Map String (OptFn a)
-objFnDict = M.fromList objFnList
-          where objFnList = [("optNoop", optNoop),
-                             ("near", optNoop)
-                            ]
-
-constrFnDict :: (Autofloat a) => M.Map String (OptFn a)
-constrFnDict = M.fromList constrFnList
-          where constrFnList = [("optNoop", optNoop),
-                                ("lessThan", optNoop)
-                               ]
-
-testCompFn :: (Autofloat a) => CompFn' a
-testCompFn [ValueArg (S.TStr str), ValueArg (S.TInt n)] =
-           let res = concat $ take (fromIntegral n) $ repeat str in
-           ValueArg (S.TStr res)
-
-noop :: (Autofloat a) => CompFn' a
-noop _ = ValueArg $ S.TStr "TODO: this is a no-op"
-
-compDict :: (Autofloat a) => M.Map String (CompFn' a)
-compDict = M.fromList flist
-         where flist = [("testCompFn", testCompFn),
-                        ("bbox", noop),
-                        ("curved", noop),
-                        ("len", noop),
-                        ("sampleMatrix", noop),
-                        ("sampleVectorIn", noop),
-                        ("intersection", noop),
-                        ("midpoint", noop),
-                        ("mulV", noop),
-                        ("determinant", noop),
-                        ("rgba", noop),
-                        ("addV", noop),
-                        ("apply", noop)
-                       ] -- TODO: port existing comps
-
--- TODO: Style cannot parse property names like "stroke-width"
-floatProperties = M.fromList [
-                ("Circ", ["r", "x", "y", "strokeWidth"]),
-                ("Rectangle", ["x", "y", "length", "width", "angle"]) ]
-                -- ["x", "y", "r", "radius", "rx", "ry", "angle", "side",
-                -- "stroke-width", "rotation", "length", "width", "startx",
-                -- "starty", "endx", "endy", "thickness"]
--- TODO: FILL IN OR DEPRECATE
-
-defaultFloats = ["x", "y"]
-
 ----- Generating initial state (GPIs, fields, annotations) and overall objective function
 
 -- Generic functions for folding over a translation
@@ -1316,8 +1256,8 @@ findFieldVarying name field (FExpr expr) acc =
     if declaredVarying expr
     then mkPath [name, field] : acc -- TODO: deal with StyVars
     else acc
-findFieldVarying name field (GPI ctor properties) acc =
-    let ctorFloats = M.findWithDefault defaultFloats ctor floatProperties in
+findFieldVarying name field (FGPI typ properties) acc =
+    let ctorFloats = propertiesOf FloatT typ shapeDefs in
     let vs = foldr (findPropertyVarying name field properties) [] ctorFloats in
     vs ++ acc
 
@@ -1331,20 +1271,20 @@ findFieldFns name field (FExpr (OptEval expr)) acc =
     ObjFn fname args -> Left (fname, args) : acc
     ConstrFn fname args -> Right (fname, args) : acc
     _ -> acc -- Not an optfn
-findFieldFns name field (GPI _ _) acc = acc
+findFieldFns name field (FGPI _ _) acc = acc
 
 findObjfnsConstrs = foldSubObjs findFieldFns
 
 --
 
-findGPIName name field (GPI _ _) acc = (name, field) : acc
+findGPIName name field (FGPI _ _) acc = (name, field) : acc
 findGPIName _ _ (FExpr _) acc = acc
 
 findShapeNames = foldSubObjs findGPIName
 
 --
 
-findShapeProperties name field (GPI ctor properties) acc =
+findShapeProperties name field (FGPI ctor properties) acc =
      let paths = map (\property -> (name, field, property)) (M.keys properties)
      in paths ++ acc
 findShapeProperties _ _ (FExpr _) acc = acc
@@ -1375,41 +1315,45 @@ insertPaths varyingPaths varying trans =
 
 -- For varying values to be inserted into the translation
 toTagExpr :: (Autofloat a) => a -> TagExpr a
-toTagExpr n = Done (S.TNum n)
+toTagExpr n = Done (FloatV n)
 
 --- Evaluation
 
+bvarToString :: BindingForm -> String
+bvarToString (BSubVar (VarConst s)) = s
+bvarToString (BStyVar _) = error "bvarToString: does not handle Style variables"
+
 -- TODO: write a more general typechecking mechanism
-evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> S.TypeIn a
+evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> Value a
 evalUop UMinus v = case v of
-                  ValueArg (S.TNum a) -> S.TNum (-a)
-                  ValueArg (S.TInt i) -> S.TInt (-i)
-                  GPIArg _ _ -> error "cannot negate a GPI"
-                  ValueArg _ -> error "wrong type to negate"
+                  Val (FloatV a) -> FloatV (-a)
+                  Val (IntV i) -> IntV (-i)
+                  GPI _ -> error "cannot negate a GPI"
+                  Val _ -> error "wrong type to negate"
 evalUop UPlus v = error "unary + doesn't make sense" -- TODO remove from parser
 
-evalBinop :: (Autofloat a) => BinaryOp -> ArgVal a -> ArgVal a -> S.TypeIn a
+evalBinop :: (Autofloat a) => BinaryOp -> ArgVal a -> ArgVal a -> Value a
 evalBinop op v1 v2 =
         case (v1, v2) of
-        (ValueArg (S.TNum n1), ValueArg (S.TNum n2)) ->
+        (Val (FloatV n1), Val (FloatV n2)) ->
                   case op of
-                  BPlus -> S.TNum $ n1 + n2
-                  BMinus -> S.TNum $ n1 - n2
-                  Multiply -> S.TNum $ n1 * n2
-                  Divide -> if n2 == 0 then error "divide by 0!" else S.TNum $ n1 / n2
-                  Exp -> S.TNum $ n1 ** n2
-        (ValueArg (S.TInt n1), ValueArg (S.TInt n2)) ->
+                  BPlus -> FloatV $ n1 + n2
+                  BMinus -> FloatV $ n1 - n2
+                  Multiply -> FloatV $ n1 * n2
+                  Divide -> if n2 == 0 then error "divide by 0!" else FloatV $ n1 / n2
+                  Exp -> FloatV $ n1 ** n2
+        (Val (IntV n1), Val (IntV n2)) ->
                   case op of
-                  BPlus -> S.TInt $ n1 + n2
-                  BMinus -> S.TInt $ n1 - n2
-                  Multiply -> S.TInt $ n1 * n2
-                  Divide -> if n2 == 0 then error "divide by 0!" else S.TInt $ n1 `quot` n2 -- NOTE: not float
-                  Exp -> S.TInt $ n1 ^ n2
+                  BPlus -> IntV $ n1 + n2
+                  BMinus -> IntV $ n1 - n2
+                  Multiply -> IntV $ n1 * n2
+                  Divide -> if n2 == 0 then error "divide by 0!" else IntV $ n1 `quot` n2 -- NOTE: not float
+                  Exp -> IntV $ n1 ^ n2
         -- Cannot mix int and float
-        (ValueArg _, ValueArg _) -> error ("wrong field types for binary op: " ++ show v1 ++ show op ++ show v2)
-        (GPIArg _ _, ValueArg _) -> error "binop cannot operate on GPI"
-        (ValueArg _, GPIArg _ _) -> error "binop cannot operate on GPI"
-        (GPIArg _ _, GPIArg _ _) -> error "binop cannot operate on GPIs"
+        (Val _, Val _) -> error ("wrong field types for binary op: " ++ show v1 ++ show op ++ show v2)
+        (GPI _, Val _) -> error "binop cannot operate on GPI"
+        (Val _, GPI _) -> error "binop cannot operate on GPI"
+        (GPI _, GPI _) -> error "binop cannot operate on GPIs"
 
 evalProperty :: (Autofloat a) => BindingForm -> Field -> Translation a -> (Property, TagExpr a) -> Translation a
 evalProperty bvar field trans (property, expr) =
@@ -1424,7 +1368,7 @@ evalGPI_withUpdate bvar field (ctor, properties) trans =
         let trans' = foldl (evalProperty bvar field) trans (M.toList properties) in
         -- Look up the final evaluated GPI
         let properties' = case lookupField bvar field trans' of
-                          GPI ctorT propertiesT -> if ctor == ctorT then propertiesT else error "wrong ctor"
+                          FGPI ctorT propertiesT -> if ctor == ctorT then propertiesT else error "wrong ctor"
                           FExpr _ -> error "expected GPI but got field" in
         ((ctor, properties'), trans')
 
@@ -1433,20 +1377,20 @@ evalExpr :: (Autofloat a) => Expr -> Translation a -> (ArgVal a, Translation a)
 evalExpr arg trans =
     case arg of
     -- Already done values; don't change trans
-    IntLit i -> (ValueArg $ S.TInt i, trans)
-    StringLit s -> (ValueArg $ S.TStr s, trans)
-    AFloat (Fix f) -> (ValueArg $ S.TNum (r2f f), trans) -- TODO: note use of r2f here. is that ok?
+    IntLit i -> (Val $ IntV i, trans)
+    StringLit s -> (Val $ StrV s, trans)
+    AFloat (Fix f) -> (Val $ FloatV (r2f f), trans) -- TODO: note use of r2f here. is that ok?
 
     -- Inline computation, needs a recursive lookup that may change trans, but not a path
     -- TODO factor out eval / trans computation?
     UOp op e ->
         let (val, trans') = evalExpr e trans in
         let compVal = evalUop op val in
-        (ValueArg compVal, trans')
+        (Val compVal, trans')
     BinOp op e1 e2 ->
         let ([v1, v2], trans') = evalExprs [e1, e2] trans in
         let compVal = evalBinop op v1 v2 in
-        (ValueArg compVal, trans')
+        (Val compVal, trans')
     CompApp fname args ->
         let (vs, trans') = evalExprs args trans in
         case M.lookup fname compDict of
@@ -1466,34 +1410,34 @@ evalExpr arg trans =
              -- return the evaluated value and the updated trans
              let fexpr = lookupField bvar field trans in
              case fexpr of
-             FExpr (Done v) -> (ValueArg v, trans)
+             FExpr (Done v) -> (Val v, trans)
              FExpr (OptEval e) ->
                  let (v, trans') = evalExpr e trans in
                  case v of
-                 ValueArg fval ->
+                 Val fval ->
                      case insertPath trans' (p, Done fval) of
                      Right trans' -> (v, trans')
                      Left err -> error $ concat err
-                 GPIArg _ _ -> error "path to field expr evaluated to a GPI"
-             GPI ctor properties ->
+                 GPI _ -> error "path to field expr evaluated to a GPI"
+             FGPI ctor properties ->
              -- Eval each property in the GPI, then lookup the updated GPI in the translation and return it
              -- No need to update the translation because each path should update the translation
                  let (gpiVal@(ctor, propertiesVal), trans') =
                          evalGPI_withUpdate bvar field (ctor, properties) trans in
-                 (GPIArg ctor propertiesVal, trans')
+                 (GPI (ctor, shapeExprsToVals ((bvarToString bvar), field) propertiesVal), trans')
 
           PropertyPath bvar field property ->
               let texpr = lookupProperty bvar field property trans in
               case texpr of
-              Done v -> (ValueArg v, trans)
+              Done v -> (Val v, trans)
               OptEval e ->
                  let (v, trans') = evalExpr e trans in
                  case v of
-                 ValueArg fval ->
+                 Val fval ->
                      case insertPath trans' (p, Done fval) of
                      Right trans' -> (v, trans')
                      Left err -> error $ concat err
-                 GPIArg _ _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
+                 GPI _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
 
     -- GPI argument
     Ctor ctor properties -> error "no anonymous/inline GPIs allowed as expressions!"
@@ -1522,7 +1466,7 @@ lookupProperty bvar field property trans =
     let name = trName bvar in
     case lookupField bvar field trans of
     FExpr _ -> error ("path '" ++ pathStr3 name field property ++ "' has no properties")
-    GPI ctor properties ->
+    FGPI ctor properties ->
         case M.lookup property properties of
         Nothing -> error ("path '" ++ pathStr3 name field property ++ "'s property does not exist")
         Just texpr -> texpr
@@ -1565,8 +1509,8 @@ applyOptFn dict finfo =
 applyCombined :: (Autofloat a) => a -> [FnDone a] -> a
 applyCombined penaltyWeight fns =
         let (objfns, constrfns) = partition (\f -> optType_d f == Objfn) fns in
-        sumMap (applyOptFn objFnDict) objfns
-               + constrWeight * penaltyWeight * sumMap (applyOptFn constrFnDict) constrfns
+        sumMap (applyOptFn objFuncDict) objfns
+               + constrWeight * penaltyWeight * sumMap (applyOptFn constrFuncDict) constrfns
 
 -- TODO: make sure the autodiff works w/ eval and genobjfn
 genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path]
@@ -1599,10 +1543,16 @@ initWeight = 10 ** (-5)
 -- initWeight = 10 ** (-3)
 
 -- TODO: fill this in when we use the actual shape type, also check that all values are Done
-trToShape :: (Autofloat a) => (String, Field) -> PropertyDict a -> PropertyDict a
-trToShape (subName, field) properties = 
-          let shapeName = subName ++ "." ++ field in -- Add names to all shapes
-          M.insert "name" (Done $ S.TStr shapeName) properties
+shapeExprsToVals :: (Autofloat a) =>
+    (String, Field) -> PropertyDict a -> Properties a
+shapeExprsToVals (subName, field) properties =
+          let shapeName   = subName ++ "." ++ field
+              properties' = M.map toVal properties
+          in M.insert "name" (StrV shapeName) properties'
+
+toVal :: (Autofloat a) => TagExpr a -> Value a
+toVal (Done v)    = v
+toVal (OptEval _) = error "Shape properties were not fully evaluated"
 
 getShapes :: (Autofloat a) => [(String, Field)] -> Translation a -> [Shape a]
 getShapes shapenames trans = map (getShape trans) shapenames
@@ -1611,12 +1561,12 @@ getShapes shapenames trans = map (getShape trans) shapenames
                     let fexpr = lookupField (BSubVar $ VarConst name) field trans in
                     case fexpr of
                     FExpr _ -> error "expected GPI, got field"
-                    GPI ctor properties -> (ctor, trToShape (name, field) properties)
+                    FGPI ctor properties -> (ctor, shapeExprsToVals (name, field) properties)
 
 -- technically, we can use the values here instead of getting the shapes out of the trans again
 evalPropertyPath :: (Autofloat a) => Translation a -> (String, Field, Property) -> Translation a
 evalPropertyPath trans (name, field, property) =
-    let pathExpr = EPath $ PropertyPath (BSubVar (VarConst name)) field property in 
+    let pathExpr = EPath $ PropertyPath (BSubVar (VarConst name)) field property in
     -- TODO figure out bindingform if styvar
     let (_, trans') = evalExpr pathExpr trans in
     trans'
@@ -1625,19 +1575,60 @@ evalPropertyPath trans (name, field, property) =
 evalShapes :: (Autofloat a) => [(String, Field, Property)] -> Translation a -> Translation a
 evalShapes shapeProperties trans = foldl evalPropertyPath trans shapeProperties
 
+initShapes :: (Autofloat a) =>
+    Translation a -> [(String, Field)] -> Translation a
+initShapes trans shapePaths =
+    foldl initShape trans shapePaths
+    where initShape trans (n, field) =
+              case lookupField (BSubVar (VarConst n)) field trans of
+                  FGPI t propDict ->
+                      let def = findDef t shapeDefs
+                          propDict' = foldlPropertyMappings initProperty
+                                          propDict def
+                      in insertGPI trans n field t propDict'
+                  _   -> error "expected GPI but got field"
+          initProperty properties pID (typ, val) =
+              -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
+              let val' = Done val in
+              case M.lookup pID properties of
+                  Just (OptEval (AFloat Vary)) -> M.insert pID val' properties
+                  Just (OptEval e) -> properties
+                  Just (Done v)    -> properties
+                  Nothing          -> M.insert pID val' properties
+
+insertGPI :: (Autofloat a) =>
+    Translation a -> String -> Field -> ShapeTypeStr -> PropertyDict a
+    -> Translation a
+insertGPI trans n field t propDict = case M.lookup (Sub n) $ trMap trans of
+    Nothing        -> error "Substance ID does not exist"
+    Just fieldDict ->
+        let fieldDict' = M.insert field (FGPI t propDict) fieldDict
+            trMap'     = M.insert (Sub n) fieldDict' $ trMap trans
+        in trans { trMap = trMap' }
+
+lookupPaths :: (Autofloat a) => [Path] -> Translation a -> [a]
+lookupPaths paths trans = map lookupPath paths
+    where
+        lookupPath p@(FieldPath v field) = case lookupField v field trans of
+            FExpr (OptEval (AFloat (Fix n))) -> r2f n
+            _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
+        lookupPath p@(PropertyPath v field pty) = case lookupProperty v field pty trans of
+            OptEval (AFloat (Fix n)) -> r2f n
+            Done (FloatV n) -> n
+            _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
+
 --- Main function: what the Style compiler generates
 -- TODO fix clash with megaparsec State
 genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> RState
 genOptProblemAndState trans =
     -- Save information about the translation
-    let varyingPaths = findVarying trans in
-    let shapeNames = findShapeNames trans in
+    let varyingPaths    = findVarying trans in
+    let shapeNames      = findShapeNames trans in
     let shapeProperties = findShapesProperties trans in
 
-    -- TODO: create transInit properly; right now it just sets some varying vals to consts
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
-    let initState = sampleState varyingPaths in
-    let transInit = insertPaths varyingPaths (map toTagExpr initState) trans in
+    -- NOTE: currently, we set varying variables to default values. TODO: sample them later
+    let transInit = initShapes trans shapeNames in
 
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) trans in
     let overallFn = genObjfn transInit objfns constrfns varyingPaths in
@@ -1645,7 +1636,8 @@ genOptProblemAndState trans =
     -- the varying values are re-inserted at each opt step
 
     -- Evaluate all expressions once to get the initial shapes
-    let transEvaled = evalShapes shapeProperties transInit in
+    let transEvaled = evalShapes shapeProperties trans in
+    let initState = lookupPaths varyingPaths transEvaled in
     let initShapes = getShapes shapeNames transEvaled in
 
     -- TODO: figure out how we rely / assume / enforce an order on varyingPaths and varyingState

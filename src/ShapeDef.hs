@@ -254,6 +254,13 @@ getX, getY :: (Autofloat a) => Shape a -> a
 getX shape = let FloatV x = shape .: "x" in x
 getY shape = let FloatV y = shape .: "y" in y
 
+getName :: (Autofloat a) => Shape a -> String
+getName shape = let StrV s = shape .: "name" in s
+
+setX, setY :: (Autofloat a) => Value a -> Shape a -> Shape a
+setX v shape = set shape "x" v
+setY v shape = set shape "y" v
+
 getNum :: (Autofloat a) => Shape a -> PropID -> a
 getNum shape prop = let FloatV x = shape .: prop in x
 
@@ -274,8 +281,14 @@ mapProperties f (t, propDict) = (t, M.map f propDict)
 -- | fold over all properties of a shape
 -- TODO: withKey?
 foldlProperties :: (Autofloat a) => (b -> Value a -> b) -> b -> Shape a -> b
-foldlProperties f accum (_, propDict) =  M.foldl f accum propDict
+foldlProperties f accum (_, propDict)  =  M.foldl f accum propDict
 
+foldlPropertyDefs :: (Autofloat a) => (b -> (ValueType, Value a) -> b) -> b -> ShapeDef a -> b
+foldlPropertyDefs f accum (_, propDict) =  M.foldl f accum propDict
+
+foldlPropertyMappings :: (Autofloat a) =>
+    (b -> PropID -> (ValueType, Value a) -> b) -> b -> ShapeDef a -> b
+foldlPropertyMappings f accum (_, propDict) =  M.foldlWithKey f accum propDict
 
 --------------------------------------------------------------------------------
 -- Error Msgs

@@ -6,7 +6,6 @@
 {-# LANGUAGE RankNTypes, NoMonomorphismRestriction #-}
 
 module Server where
-import Shapes
 import Computation
 import Utils (Autofloat, r2f)
 import GHC.Generics
@@ -24,9 +23,10 @@ import Network.WebSockets.Connection
 import System.Time
 import System.Random
 import Debug.Trace
-import qualified NewStyle as NS
+import qualified ShapeDef  as SD
+import qualified NewStyle  as NS
 import qualified Optimizer as O
-import qualified Data.Map as M
+import qualified Data.Map  as M
 import qualified Data.Text                 as T
 import qualified Data.Text.IO              as T
 import qualified Network.WebSockets        as WS
@@ -35,36 +35,31 @@ import qualified Network.WebSockets.Stream as Stream
 import qualified Control.Exception         as Exc (catch, ErrorCall)
 
 
+-- COMBAK: remove TagExpr
+
 -- Types used by the server, mainly for translation to JSON
 type ServerState = NS.RState
 
-data Feedback = Cmd Command 
-                | Drag DragEvent 
-                | Update UpdateShapes 
+data Feedback = Cmd Command
+                | Drag DragEvent
+                | Update UpdateShapes
      deriving (Generic)
 
-data Command = Command { command :: String } 
+data Command = Command { command :: String }
      deriving (Show, Generic)
 
-data DragEvent = DragEvent { name :: String, 
-                             xm :: Float, 
-                             ym :: Float } 
+data DragEvent = DragEvent { name :: String,
+                             xm :: Float,
+                             ym :: Float }
      deriving (Show, Generic)
 
-data UpdateShapes = UpdateShapes { 
-                       shapes :: [NS.Shape Double] 
+data UpdateShapes = UpdateShapes {
+                       shapes :: [SD.Shape Double]
                     } deriving (Show, Generic)
 
-data Frame = Frame { flag :: String, 
-                     shapes :: [NS.Shape Double] 
+data Frame = Frame { flag :: String,
+                     shapes :: [SD.Shape Double]
                    } deriving (Show, Generic)
-
--- TODO write these. do we need FromJSON instance for "a"? or should we just convert to floats?
-instance FromJSON (NS.TagExpr a) where
-         parseJSON = error "TODO fromjson tagexpr"
-
-instance ToJSON (NS.TagExpr a) where
-         toJSON x = error "TODO tojson tagexpr"
 
 instance FromJSON Feedback
 instance FromJSON Command
@@ -72,11 +67,11 @@ instance FromJSON DragEvent
 instance FromJSON UpdateShapes
 instance ToJSON Frame
 
-wsSendJSON :: WS.Connection -> (NS.Shape Double) -> IO ()
+wsSendJSON :: WS.Connection -> (SD.Shape Double) -> IO ()
 wsSendJSON conn shape = WS.sendTextData conn $ encode shape
 
 -- TODO use the more generic wsSendJSON?
-wsSendJSONList :: WS.Connection -> ([NS.Shape Double]) -> IO ()
+wsSendJSONList :: WS.Connection -> ([SD.Shape Double]) -> IO ()
 wsSendJSONList conn shapes = WS.sendTextData conn $ encode shapes
 
 wsSendJSONFrame :: WS.Connection -> Frame -> IO ()
@@ -136,8 +131,8 @@ loop conn s
     | NS.optStatus (NS.paramsr s) == NS.EPConverged = do
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ (show $ NS.weight (NS.paramsr s)))
-        wsSendJSONFrame conn (Frame { flag = "final", 
-                                shapes = (NS.shapesr s) :: ([NS.Shape Double]) })
+        wsSendJSONFrame conn (Frame { flag = "final",
+                                shapes = (NS.shapesr s) :: ([SD.Shape Double]) })
         processCommand conn s
     | NS.autostep s = stepAndSend conn s
     | otherwise = processCommand conn s
@@ -154,41 +149,41 @@ processCommand conn s = do
             Update (UpdateShapes shapes)  -> updateShapes shapes conn s
         Nothing -> error "Error reading JSON"
 
-toPolymorphics :: [NS.Shape Double] -> (forall a . (Autofloat a) => [NS.Shape a])
+toPolymorphics :: [SD.Shape Double] -> (forall a . (Autofloat a) => [SD.Shape a])
 toPolymorphics = map toPolymorphic
-   where toPolymorphic :: NS.Shape Double -> (forall a . (Autofloat a) => NS.Shape a)
+   where toPolymorphic :: SD.Shape Double -> (forall a . (Autofloat a) => SD.Shape a)
          toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
 
-         toPolyProperty :: NS.TagExpr Double -> (forall a . (Autofloat a) => NS.TagExpr a)
-         toPolyProperty e@(NS.OptEval v) = NS.OptEval v
-         toPolyProperty e@(NS.Done v) =
-               case v of
-               TNum n -> NS.Done $ TNum $ r2f n
+         toPolyProperty :: SD.Value Double -> (forall a . (Autofloat a) => SD.Value a)
+         toPolyProperty v = case v of
                -- Not sure why these have to be rewritten from scratch...
-               TBool x -> NS.Done $ TBool x
-               TStr x ->  NS.Done $ TStr x
-               TInt x ->  NS.Done $ TInt x
-               _ -> error "finish double -> polymorphic value conversion" -- TODO finish
-               -- TList x ->  NS.Done $ TList x
-               -- TPt x ->  NS.Done $ TPt x
+               SD.FloatV n  -> SD.FloatV $ r2f n
+               SD.BoolV x   -> SD.BoolV x
+               SD.StrV x    -> SD.StrV x
+               SD.IntV x    -> SD.IntV x
+               SD.PtV (x,y) -> SD.PtV (r2f x, r2f y)
+               SD.PathV xs  -> SD.PathV $ map (\(x,y) -> (r2f x, r2f y)) xs
+               SD.ColorV x  -> SD.ColorV x
+               SD.FileV x   -> SD.FileV x
+               SD.StyleV x  -> SD.StyleV x
 
-updateShapes :: ([NS.Shape Double]) -> Connection -> NS.RState -> IO ()
+updateShapes :: ([SD.Shape Double]) -> Connection -> NS.RState -> IO ()
 updateShapes newShapes conn s = if NS.autostep s then stepAndSend conn news else loop conn news
     where
         news = s { NS.shapesr = toPolymorphics newShapes,
                    NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter }}
 
--- TODO implement this
--- dragUpdate :: String -> Float -> Float -> WS.Connection -> NS.RState -> IO ()
--- dragUpdate name xm ym conn s = if NS.autostep s then stepAndSend conn news else loop conn news
---     where
---         newShapes = map (\x ->
---                 if getName x == name
---                     then setX (xm + getX x) $ setY (-ym + getY x) x
---                     else x)
---             (NS.shapesr s)
---         news = s { NS.shapesr = newShapes,
---                    NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter }}
+dragUpdate :: String -> Float -> Float -> WS.Connection -> NS.RState -> IO ()
+dragUpdate name xm ym conn s =
+    let (xm', ym') = (r2f xm, r2f ym)
+        newShapes  = map (\shape ->
+            if SD.getName shape == name
+                then SD.setX (SD.FloatV (xm' + SD.getX shape)) $ SD.setY (SD.FloatV (-ym' + SD.getY shape)) shape
+                else shape)
+            (NS.shapesr s)
+        news = s { NS.shapesr = newShapes,
+                   NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter }}
+   in if NS.autostep s then stepAndSend conn news else loop conn news
 
 executeCommand :: String -> WS.Connection -> NS.RState -> IO ()
 executeCommand cmd conn s
@@ -208,5 +203,5 @@ resampleAndSend conn s = do
 
 stepAndSend conn s = do
     let nexts = O.step s
-    wsSendJSONList conn ((NS.shapesr nexts) :: ([NS.Shape Double]))
+    wsSendJSONList conn ((NS.shapesr nexts) :: ([SD.Shape Double]))
     loop conn nexts

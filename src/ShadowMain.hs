@@ -67,34 +67,21 @@ shadowMain = do
 --------------------------------------------------------------------------------
 -- Neq Style
 
-    -- styProg <- NS.parseStyle styFile styIn
-    -- putStrLn "Style AST:\n"
-    -- pPrint styProg
-    -- divLine
-    --
-    -- putStrLn "Running Style semantics\n"
-    -- let selEnvs = NS.checkSels subEnv styProg
-    -- putStrLn "Selector static semantics and local envs:\n"
-    -- forM selEnvs pPrint
-    -- divLine
-    --
-    -- let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
-    -- putStrLn "Selector matches:\n"
-    -- forM subss pPrint
-    -- divLine
-    --
-    -- let trans = NS.translateStyProg subEnv eqEnv subProg styProg
-    -- putStrLn "Translated Style program:\n"
-    -- pPrint trans
-    -- divLine
-    --
-    -- let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
-    -- putStrLn "Generated initial state:\n"
-    -- pPrint initState
-    -- divLine
+    styProg <- NS.parseStyle styFile styIn
+    putStrLn "Style AST:\n"
+    pPrint styProg
+    divLine
 
---------------------------------------------------------------------------------
--- Old Style
+    putStrLn "Running Style semantics\n"
+    let selEnvs = NS.checkSels subEnv styProg
+    putStrLn "Selector static semantics and local envs:\n"
+    forM selEnvs pPrint
+    divLine
+
+    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
+    putStrLn "Selector matches:\n"
+    forM subss pPrint
+    divLine
 
     let trans = NS.translateStyProg subEnv eqEnv subProg styProg
                         :: forall a . (Autofloat a) => Either [NS.Error] (NS.Translation a)
