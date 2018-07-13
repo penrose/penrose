@@ -17,17 +17,17 @@ shape Circle =
 -- "<>" enclose code in another language
 render Circle Snap = <
     function _renderCircle(s, obj) {
-        [x, y] = Utils.scr([obj.xc, obj.yc])
+        [x, y] = Utils.scr([obj.x, obj.y])
         var circ = s.circle(x, y, obj.r);
-        circ.data("name", obj.namec)
-        var color = obj.colorc
+        circ.data("name", obj.name)
+        var color = obj.color
         circ.attr({
             fill: Utils.hex(color.r, color.g, color.b),
             "fill-opacity": color.a,
-            "stroke-width": obj.strokec,
+            "stroke-width": obj.stroke,
             "stroke": "black",
         });
-        if(obj.stylec == "dashed") {
+        if(obj.style == "dashed") {
             circ.attr({
                 strokeDasharray: "7, 5" // "10"
             })

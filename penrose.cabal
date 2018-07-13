@@ -41,6 +41,7 @@ executable penrose
                        process             >= 1.4.3 && < 1.5,
                        network              >= 2.6.3 && < 2.7,
                        split,
+                       multimap,
                        directory
   hs-source-dirs:      src
 

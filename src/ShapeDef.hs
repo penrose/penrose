@@ -1,8 +1,24 @@
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module ShapeDef where
 
 import Utils
+import GHC.Generics
+import Data.Aeson (FromJSON, ToJSON, toJSON)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as M
+
+-- import Language.Haskell.TH
+--
+-- type Autofloat a = (RealFloat a, Floating a, Real a, Show a, Ord a)
+-- type Pt2 a = (a, a)
+
+-- genShapeType :: [ShapeTypeStr] -> Q [Dec]
+-- genShapeType shapeTypes = do
+--     let mkconstructor n = NormalC (mkName n) []
+--         constructors    = map mkconstructor shapeTypes
+--     return [DataD [] (mkName "ShapeT") [] Nothing constructors []]
 
 --------------------------------------------------------------------------------
 -- Types
@@ -40,15 +56,27 @@ data Value a
     | FileV String
     -- | dotted, etc.
     | StyleV String
-    -- COMBAK: decide whether GPIs or shortcuts to multiple GPIs should be vals
-    -- -- | Substance ID
-    -- | TAllShapes String
-    -- -- | shape ID
-    -- | TShape String
-    deriving (Eq, Show)
+    deriving (Generic, Eq, Show)
+
+instance (FromJSON a) => FromJSON (Value a)
+instance (ToJSON a)   => ToJSON (Value a)
+
+-- | returns the type of a 'Value'
+typeOf :: (Autofloat a) => Value a -> ValueType
+typeOf v = case v of
+     FloatV _ -> FloatT
+     IntV   _ -> IntT
+     BoolV  _ -> BoolT
+     StrV   _ -> StrT
+     PtV    _ -> PtT
+     PathV  _ -> PathT
+     ColorV _ -> ColorT
+     FileV  _ -> FileT
+     StyleV _ -> StyleT
+
 
 -- | the type string of a shape
-type ShapeType = String
+type ShapeTypeStr = String
 -- | the string identifier of a property
 type PropID = String
 
@@ -56,41 +84,53 @@ type PropID = String
 type PropertiesDef a = M.Map PropID (ValueType, Value a)
 -- | definition of a new shape/graphical primitive
 -- TODO: rewrite as a record?
-type ShapeDef a = (ShapeType, PropertiesDef a)
+type ShapeDef a = (ShapeTypeStr, PropertiesDef a)
 
-type ShapeDefs a = M.Map ShapeType (ShapeDef a)
+type ShapeDefs a = M.Map ShapeTypeStr (ShapeDef a)
 
--- | A dictionary storing properties of a Style object, e.g. "start" for 'Arrow'
--- TODO: (?) Maybe shouldn't be just value, but something like FieldExpr
--- data FieldExpr a = FExpr (TagExpr a)
---                  | GPI GPICtor (PropertyDict a)
+-- | A dictionary storing properties of a Style object, e.g. "startx" for 'Arrow'
 -- COMBAK: serializer to JSON
 type Properties a = M.Map PropID (Value a)
+
 -- | definition of a new shape/graphical primitive
 -- TODO: rewrite as a record? Probably better for serialization
-type Shape a = (ShapeType, Properties a)
+type Shape a = (ShapeTypeStr, Properties a)
 
 --------------------------------------------------------------------------------
--- Example shape defs
+-- Shape introspection functions
 
+-- | all of the shape defs supported in the system
 shapeDefs :: (Autofloat a) => ShapeDefs a
 shapeDefs = M.fromList $ zipWithKey defList
-    where defList = [circType]
+    where defList = [circType, arrowType, curveType]
           zipWithKey = map (\x -> (fst x, x))
 
-findDef :: (Autofloat a) => ShapeType -> ShapeDefs a -> ShapeDef a
+-- | retrieve type strings of all shapes
+shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
+shapeTypes defs = map fst $ M.toList defs
+
+-- | given a type string, find the corresponding shape def
+findDef :: (Autofloat a) => ShapeTypeStr -> ShapeDefs a -> ShapeDef a
 findDef typ defs = fromMaybe
     (noShapeError "findDef" typ)
     (M.lookup typ defs)
+
+-- | given a shape def, construct a default shape
+defaultShapeOf :: (Autofloat a) => ShapeDef a -> Shape a
+defaultShapeOf (t, propDict) = (t, M.map snd propDict)
 
 defaultValueOf :: (Autofloat a) => PropID -> ShapeDef a -> Value a
 defaultValueOf prop (t, propDict) = snd $ fromMaybe
     (noPropError "defaultValueOf" prop t)
     (M.lookup prop propDict)
 
+--------------------------------------------------------------------------------
+-- Example shape defs
+
+
 -- | TODO: derived properties
 -- | TODO: instantiation of objs with (1) default values; (2) random sampling w.r.t. constraints
-constructShape :: ShapeDef a -> [SampleRule] -> Shape a
+-- constructShape :: ShapeDef a -> [SampleRule] -> Shape a
 
 circType, arrowType, curveType :: (Autofloat a) => ShapeDef a
 circType = ("Circle", M.fromList
@@ -121,7 +161,6 @@ curveType = ("Curve", M.fromList
         ("color", (ColorT, ColorV black))
     ])
 
-
 exampleCirc :: (Autofloat a) => Shape a
 exampleCirc = ("Circle", M.fromList
     [
@@ -137,8 +176,8 @@ exampleCirc = ("Circle", M.fromList
 -- Parser for shape def DSL (TODO)
 
 --------------------------------------------------------------------------------
--- Type checker for a particular shape instance again its def (TODO)
-
+-- Type checker for a particular shape instance against its def (TODO)
+--
 -- checkShape :: (Autofloat a) => Shape a -> ShapeDef a -> Shape a
 -- checkShape shape def =
 
@@ -175,6 +214,7 @@ getAll shape = map (get shape)
 setAll :: (Autofloat a) => Shape a -> [(PropID, Value a)] -> Shape a
 setAll = foldl (\s (k, v) -> set s k v)
 
+
 -- | reset a property to its default value
 reset :: (Autofloat a) => Shape a -> PropID -> Shape a
 reset (t, propDict) prop =
@@ -186,33 +226,44 @@ hasProperty :: (Autofloat a) => Shape a -> PropID -> Bool
 hasProperty (t, propDict) prop = M.member prop propDict
 
 -- | given name of prop, return type
-typeOf :: (Autofloat a) => PropID -> ShapeDef a -> ValueType
-typeOf prop (t, propDict) = case M.lookup prop propDict of
-    Nothing -> noPropError "typeOf" prop t
-    Just (t, _)  -> t
+typeOfProperty :: (Autofloat a) => PropID -> Shape a -> ValueType
+typeOfProperty prop (t, propDict) = case M.lookup prop propDict of
+    Nothing -> noPropError "typeOfProperty" prop t
+    Just v  -> typeOf v
 
--- | keys in alphabetical order
+-- | property IDs in alphabetical order
+propertyIDs :: (Autofloat a) => Shape a -> [PropID]
+propertyIDs (_, propDict) = map fst $ M.toAscList propDict
+
 -- | vals in alphabetical order of their keys
+propertyVals :: (Autofloat a) => Shape a -> [Value a]
+propertyVals (_, propDict) = map snd $ M.toAscList propDict
 
 --------------------------------------------------------------------------------
 -- Utility functions for objective/constraint function writers
 
 -- | 'is' checks whether a shape is of a certain type
-is :: (Autofloat a) => Shape a -> ShapeType -> Bool
+is :: (Autofloat a) => Shape a -> ShapeTypeStr -> Bool
 is (t1, _) t2 = t1 == t2
 
 -- | short-hand for 'get'
 (.:) :: (Autofloat a) => Shape a -> PropID -> Value a
 (.:) = get
 
+getX, getY :: (Autofloat a) => Shape a -> a
+getX shape = let FloatV x = shape .: "x" in x
+getY shape = let FloatV y = shape .: "y" in y
+
+getNum :: (Autofloat a) => Shape a -> PropID -> a
+getNum shape prop = let FloatV x = shape .: prop in x
+
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator
 
--- | Given ValueType and ShapeType, return all props of that ValueType
--- TODO: props -> properties
-propsWithType :: (Autofloat a) =>
-    ValueType -> ShapeType -> ShapeDefs a -> [PropID]
-propsWithType propType shapeType defs =
+-- | Given 'ValueType' and 'ShapeTypeStr', return all props of that ValueType
+propertiesOf :: (Autofloat a) =>
+    ValueType -> ShapeTypeStr -> ShapeDefs a -> [PropID]
+propertiesOf propType shapeType defs =
     M.keys $ M.filter (\(t, _) -> t == propType) $ snd $ findDef shapeType defs
 
 -- | Map over all properties of a shape
@@ -243,7 +294,9 @@ noPropError functionName prop shapeType =
 data Color
     -- | Holds the color components. All components lie in the range [0..1.
     = RGBA  !Float !Float !Float !Float
-    deriving (Show, Eq)
+    deriving (Show, Eq, Generic)
+instance ToJSON   Color
+instance FromJSON Color
 
 -- | Make a custom color. All components are clamped to the range  [0..1].
 makeColor :: Float        -- ^ Red component.
@@ -271,15 +324,18 @@ black, white :: Color
 black = makeColor 0.0 0.0 0.0 1.0
 white = makeColor 1.0 1.0 1.0 1.0
 
+makeColor' :: (Autofloat a) => a -> a -> a -> a -> Color
+makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
+
 --------------------------------------------------------------------------------
 -- DEBUG: main function to test out the module
-
-main :: IO ()
-main = do
-    let c = exampleCirc
-    print $ c .: "r"
-    let c' = set c "r" (FloatV 20)
-    print c'
-    let c'' = reset c "r"
-    print c''
-    print $ propsWithType FloatT "Circle" shapeDefs
+--
+-- main :: IO ()
+-- main = do
+--     let c = exampleCirc
+--     print $ c .: "r"
+--     let c' = set c "r" (FloatV 20)
+--     print c'
+--     let c'' = reset c "r"
+--     print c''
+--     print $ propertiesOf FloatT "Circle" shapeDefs
