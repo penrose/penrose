@@ -3,13 +3,11 @@
 
 {-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
-{-# LANGUAGE DeriveGeneric #-}
 -- Mostly for autodiff
 
 module NewStyle where
 -- module Main (main) where -- for debugging purposes
 
-import qualified GHC.Generics as G
 import Utils
 import ShapeDef
 import NewFunctions
@@ -859,7 +857,7 @@ type GPICtor = String -- TODO: clean up this typeseq
 
 data TagExpr a = OptEval Expr      -- Thunk evaluated at each step of optimization-time
                | Done (Value a) -- A value in the host language, fully evaluated
-    deriving (Show, Eq, Typeable, G.Generic)
+    deriving (Show, Eq, Typeable)
 
 -- Should we use the Property/Field newtypes?
 type PropertyDict a = M.Map Property (TagExpr a)
@@ -1375,7 +1373,7 @@ evalGPI_withUpdate bvar field (ctor, properties) trans =
 -- recursively evaluate, TODO track iteration depth and check for cycles in graph
 evalExpr :: (Autofloat a) => Expr -> Translation a -> (ArgVal a, Translation a)
 evalExpr arg trans =
-    case arg of
+    trace "hello" $ case arg of
     -- Already done values; don't change trans
     IntLit i -> (Val $ IntV i, trans)
     StringLit s -> (Val $ StrV s, trans)
@@ -1624,19 +1622,19 @@ genOptProblemAndState trans =
     -- Save information about the translation
     let varyingPaths    = findVarying trans in
     let shapeNames      = findShapeNames trans in
-    let shapeProperties = findShapesProperties trans in
 
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
     -- NOTE: currently, we set varying variables to default values. TODO: sample them later
     let transInit = initShapes trans shapeNames in
+    let shapeProperties = findShapesProperties transInit in
 
-    let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) trans in
+    let (objfns, constrfns) = traceShowId $ (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let overallFn = genObjfn transInit objfns constrfns varyingPaths in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 
     -- Evaluate all expressions once to get the initial shapes
-    let transEvaled = evalShapes shapeProperties trans in
+    let transEvaled = evalShapes shapeProperties transInit in
     let initState = lookupPaths varyingPaths transEvaled in
     let initShapes = getShapes shapeNames transEvaled in
 

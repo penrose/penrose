@@ -139,13 +139,13 @@ loop conn s
 
 processCommand :: WS.Connection -> NS.RState -> IO ()
 processCommand conn s = do
-    --putStrLn "Receiving Commands"
+    putStrLn "Receiving Commands"
     msg_json <- WS.receiveData conn
-    --print msg_json
+    print msg_json
     case decode msg_json of
         Just e -> case e of
             Cmd (Command cmd)  -> executeCommand cmd conn s
-            Drag (DragEvent name xm ym)  -> error "TODO: IMPLEMENT DRAG UPDATE" -- dragUpdate name xm ym conn s
+            Drag (DragEvent name xm ym)  -> dragUpdate name xm ym conn s
             Update (UpdateShapes shapes)  -> updateShapes shapes conn s
         Nothing -> error "Error reading JSON"
 

@@ -63,9 +63,11 @@ var Render = (function(){
         }
         this.attr({opacity: 1});
         var dict = { "tag" : "Drag",
-        "contents" : { "name" : this.data("name"),
-        "xm" : this.data("ox"),
-        "ym" : this.data("oy")} }
+        "contents" : {
+            "name" : this.data("name"),
+            "xm" : this.data("ox"),
+            "ym" : this.data("oy")}
+        }
         var json = JSON.stringify(dict)
         if(DEBUG) {
             console.log("Updating dragging event to server: ")
@@ -160,35 +162,39 @@ var Render = (function(){
      * @param       {JSON} data       Scene data from Haskell server
      * @param       {Boolean} firstrun flag indicating whether is this the first frame
      */
-    function _renderScene(ws, s, data, labels, firstrun) {
+    function _renderScene(ws, s, shapes, labels, firstrun) {
         s.clear()
         // NOTE: just using clientWidth/Height does not work on Firefox
         // see https://stackoverflow.com/questions/13122790/how-to-get-svg-element-dimensions-in-firefox
         if(DEBUG) {
             console.log("Incoming GPIs from server: ")
-            console.log(data)
+            console.log(shapes)
         }
-        for (var key in data) {
-            var record = data[key]
-            var obj = record.contents
-            switch(record.tag) {
-                case 'C' : _renderCircle(s, obj); break
-                case 'E' : _renderEllipse(s, obj); break
-                case 'L' : _renderLabel (s, obj, labels,labels, firstrun); break
-                case 'P' : _renderPoint (s, obj); break
-                case 'R' : _renderRectangle(s, obj); break
-                case 'S' : _renderSquare(s, obj); break
-                case 'A' : _renderArrow (s, obj); break
-                case 'AR': _renderAngleMark(s, obj); break
-                case 'CB': _renderCurve (s, obj); break
-                case 'LN': _renderLine  (s, obj); break
-                case 'PA': _renderParallelogram(s, obj); break
-                case 'IM': _renderImage(s, obj); break
+        for (var key in shapes) {
+            var shape = shapes[key]
+            var props = {}
+            for(var key in shape[1]) {
+                props[key] = shape[1][key].contents
+            }
+
+            switch(shape[0]) {
+                case 'Circle' : _renderCircle(s, props); break
+                case 'E' : _renderEllipse(s, props); break
+                case 'L' : _renderLabel (s, props, labels,labels, firstrun); break
+                case 'P' : _renderPoint (s, props); break
+                case 'R' : _renderRectangle(s, props); break
+                case 'S' : _renderSquare(s, props); break
+                case 'A' : _renderArrow (s, props); break
+                case 'AR': _renderAngleMark(s, props); break
+                case 'CB': _renderCurve (s, props); break
+                case 'LN': _renderLine  (s, props); break
+                case 'PA': _renderParallelogram(s, props); break
+                case 'IM': _renderImage(s, props); break
             }
         }
         // Send the bbox information to the server
         if(firstrun) {
-            var dict = { "tag" : "Update", "contents" : { "objs" : data } }
+            var dict = { "tag" : "Update", "contents" : { "shapes" : shapes } }
             var json = JSON.stringify(dict)
             ws.send(json)
         }
@@ -200,14 +206,14 @@ var Render = (function(){
      * @param       {JSON} obj JSON object from Haskell server
      */
     function _renderCircle(s, obj) {
-        [x, y] = Utils.scr([obj.xc, obj.yc])
+        [x, y] = Utils.scr([obj.x, obj.y])
         var circ = s.circle(x, y, obj.r);
-        circ.data("name", obj.namec)
-        var color = obj.colorc
+        circ.data("name", obj.name)
+        var color = obj.color
         circ.attr({
-            fill: Utils.hex(color.r, color.g, color.b),
-            "fill-opacity": color.a,
-            "stroke-width": obj.strokec,
+            fill: Utils.hex(color[0], color[1], color[2]),
+            "fill-opacity": color[3],
+            "stroke-width": obj["stroke-width"],
             "stroke": "black",
         });
         if(obj.stylec == "dashed") {

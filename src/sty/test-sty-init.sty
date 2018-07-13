@@ -1,21 +1,23 @@
 global { }
 
 Scalar c {
-  c.shape = Circ {
-    strokeWidth = -1.5 + c.shape.r
-    r = 10.0 + 10.0
+  c.shape = Circle {
+    -- stroke-width = -1.5 + c.shape.r
+    -- r = 10.0 + 10.0
   }
-
-  c.labelFn = encourage near(c.shape.r)
+  c.centerFn = encourage center(c.shape)
 }
 
-Scalar `m` {
-  `m`.shape.x = 2.5 + 0.2
-  `m`.shape.y = `m`.shape.r + `m`.shape.strokeWidth + `m`.shape.x
+-- Scalar `a`; Scalar `c` {
+    -- `a`.nearFn = encourage near(`c`.shape, `a`.shape)
+-- }
 
-  `m`.inFn = ensure lessThan(`m`.shape.y, 10 + 3)
-}
+-- Scalar `m` {
+  -- `m`.shape.x = 2.5 + 0.2
+  -- `m`.shape.y = `m`.shape.r + `m`.shape.stroke-width + `m`.shape.x
+--
+  -- `m`.inFn = ensure lessThan(`m`.shape.y, 10 + 3)
+-- }
 
   -- TODO: document how order of statements affects eval
   -- TODO: add more nested computation, test cyclic computation
-

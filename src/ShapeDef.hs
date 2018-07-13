@@ -137,8 +137,8 @@ circType = ("Circle", M.fromList
     [
         ("x", (FloatT, FloatV 0.0)),
         ("y", (FloatT, FloatV 0.0)),
-        ("r", (FloatT, FloatV 0.0)),
-        ("stroke", (FloatT, FloatV 0.0)),
+        ("r", (FloatT, FloatV 10.0)),
+        ("stroke-width", (FloatT, FloatV 0.0)),
         ("name", (StrT, StrV "defaultCircle")),
         ("style", (StrT, StrV "filled")),
         ("color", (ColorT, ColorV black))
@@ -251,11 +251,17 @@ is (t1, _) t2 = t1 == t2
 (.:) = get
 
 getX, getY :: (Autofloat a) => Shape a -> a
-getX shape = let FloatV x = shape .: "x" in x
-getY shape = let FloatV y = shape .: "y" in y
+getX shape = case shape .: "x" of
+    FloatV x -> x
+    _ -> error "getX: expected float but got something else"
+getY shape = case shape .: "y" of
+    FloatV y -> y
+    _ -> error "getY: expected float but got something else"
 
 getName :: (Autofloat a) => Shape a -> String
-getName shape = let StrV s = shape .: "name" in s
+getName shape = case shape .: "name" of
+    StrV s -> s
+    _ -> error "getName: expected string but got something else"
 
 setX, setY :: (Autofloat a) => Value a -> Shape a -> Shape a
 setX v shape = set shape "x" v

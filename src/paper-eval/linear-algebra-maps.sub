@@ -1,3 +1,4 @@
+/*
 VectorSpace U
 VectorSpace V
 VectorSpace W
@@ -63,3 +64,6 @@ Label u5 $u_5 = -u_4$
 Label c $|v_1| \langle v_1, v_3 \rangle$
 Label w1 $g(v_1)$
 Label x1 $(h \circ g)(v_1)$
+*/
+
+Scalar a

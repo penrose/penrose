@@ -41,9 +41,9 @@ defaultWeight :: Floating a => a
 defaultWeight = 1
 
 -- Debug flags
-debug = False
+debug = True
 debugStyle = False
-debugLineSearch = False
+debugLineSearch = True
 debugObj = False -- turn on/off output in obj fn or constraint
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
@@ -129,7 +129,7 @@ uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
 type Parser = Parsec Void String
 
 rws, attribs, attribVs, shapes :: [String] -- list of reserved words
-rws =     ["avoid", "as"] ++ shapes ++ dsll
+rws =     ["avoid", "as"] ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
@@ -145,7 +145,7 @@ upperId = (lexeme . try) (p >>= checkId)
   where p = (:) <$> upperChar <*> many validChar
 lowerId = (lexeme . try) (p >>= checkId)
   where p = (:) <$> lowerChar <*> many validChar
-validChar = alphaNumChar <|> char '_'
+validChar = alphaNumChar <|> char '_' <|> char '-'
 
 checkId :: String -> Parser String
 checkId x = if x `elem` rws
