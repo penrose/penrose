@@ -842,9 +842,11 @@ newtype SProperty = Prop' String
 -- TODO: add lists to S.TypeIn
 -- TODO: S.TypeIn doesn't support objfns etc
 
-data GPICtor = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto
-               | Arc2 | Line2 | Parallel | Image | AnchorPoint | CurlyBrace
-    deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
+type GPICtor = String -- TODO: clean up this typeseq
+
+-- data GPICtor = Ellip | Circle | Box | Rectangle | Dot | Arrow | NoShape | Color | Text | Curve | Auto
+               -- | Arc2 | Line2 | Parallel | Image | AnchorPoint | CurlyBrace
+    -- deriving (Show, Eq, Ord, Typeable) -- Ord for M.toList in Runtime
 
 data TagExpr a = OptEval Expr      -- Thunk evaluated at each step of optimization-time
                | Done (S.TypeIn a) -- A value in the host language, fully evaluated
@@ -889,25 +891,24 @@ nameStr :: Name -> String
 nameStr (Sub s) = s
 nameStr (Gen s) = s
 
--- TODO: replace this with styObj parser
-toCtorType :: String -> GPICtor
-toCtorType "Color"   = Color
-toCtorType "None"    = NoShape
-toCtorType "Arrow"   = Arrow
-toCtorType "Text"    = Text
-toCtorType "Circ"  = Circle -- TODO: Circle parsing???
-toCtorType "Curve"   = Curve
-toCtorType "Ellipse" = Ellip
-toCtorType "Box"     = Box
-toCtorType "Arc"     = Arc2
-toCtorType "Rectangle"    = Rectangle
-toCtorType "Parallelogram" = Parallel
-toCtorType "Dot"     = Dot
-toCtorType "Line"    = Line2
-toCtorType "Image"   = Image
-toCtorType "AnchorPoint"   = AnchorPoint
-toCtorType "CurlyBrace"   = CurlyBrace
-toCtorType s         = error ("Unrecognized shape: " ++ s)
+-- toCtorType :: String -> GPICtor
+-- toCtorType "Color"   = Color
+-- toCtorType "None"    = NoShape
+-- toCtorType "Arrow"   = Arrow
+-- toCtorType "Text"    = Text
+-- toCtorType "Circ"  = Circle -- TODO: Circle parsing???
+-- toCtorType "Curve"   = Curve
+-- toCtorType "Ellipse" = Ellip
+-- toCtorType "Box"     = Box
+-- toCtorType "Arc"     = Arc2
+-- toCtorType "Rectangle"    = Rectangle
+-- toCtorType "Parallelogram" = Parallel
+-- toCtorType "Dot"     = Dot
+-- toCtorType "Line"    = Line2
+-- toCtorType "Image"   = Image
+-- toCtorType "AnchorPoint"   = AnchorPoint
+-- toCtorType "CurlyBrace"   = CurlyBrace
+-- toCtorType s         = error ("Unrecognized shape: " ++ s)
 
 mkPropertyDict :: (Autofloat a) => [PropertyDecl] -> PropertyDict a
 mkPropertyDict propertyDecls = foldl addPropertyDecl M.empty propertyDecls
@@ -1007,7 +1008,7 @@ addField override trans name field texpr =
     -- TODO: check existing FExpr is overridden by an FExpr and likewise for Ctor of same type (typechecking)
     let fieldExpr = case texpr of
                     OptEval (Ctor ctorName propertyDecls) -> -- rule Line-Set-Ctor
-                         GPI (toCtorType ctorName) (mkPropertyDict propertyDecls)
+                         GPI ctorName (mkPropertyDict propertyDecls)
                     _ -> FExpr texpr in   -- rule Line-Set-Field-Expr
     let fieldDict' = M.insert field fieldExpr fieldDict
         trn' = M.insert name fieldDict' trn in
@@ -1139,8 +1140,8 @@ data RState a = RState { objs :: [S.Obj] } -- TODO
 
 -- TODO: Style cannot parse property names like "stroke-width"
 floatProperties = M.fromList [
-                (Circle, ["r", "x", "y", "strokeWidth"]),
-                (Rectangle, ["x", "y", "length", "width", "angle"]) ]
+                ("Circ", ["r", "x", "y", "strokeWidth"]),
+                ("Rectangle", ["x", "y", "length", "width", "angle"]) ]
                 -- ["x", "y", "r", "radius", "rx", "ry", "angle", "side", 
                 -- "stroke-width", "rotation", "length", "width", "startx", 
                 -- "starty", "endx", "endy", "thickness"]
@@ -1195,10 +1196,10 @@ findVarying = foldSubObjs findFieldVarying
 --
 
 findFieldFns name field (FExpr (OptEval expr)) acc =
-    let res = case expr of
-              ObjFn fname args -> Left (fname, args)
-              ConstrFn fname args -> Right (fname, args)
-    in res : acc
+    case expr of
+    ObjFn fname args -> Left (fname, args) : acc
+    ConstrFn fname args -> Right (fname, args) : acc
+    _ -> acc -- Not an optfn
 findFieldFns name field (GPI _ _) acc = acc
 
 findObjfnsConstrs = foldSubObjs findFieldFns
@@ -1232,8 +1233,7 @@ toTagExpr n = Done (S.TNum n)
 --- Evaluation
 
 -- Fully evaluated inputs
--- TODO: fix GPIArg input (just propertydict; should we store GPI name?)
-data ArgVal a = GPIArg (M.Map Field (PropertyDict a)) | ValueArg (S.TypeIn a)
+data ArgVal a = GPIArg GPICtor (PropertyDict a) | ValueArg (S.TypeIn a)
      deriving (Eq, Show)
 
 type OptFn a = [ArgVal a] -> a
@@ -1244,16 +1244,32 @@ testCompFn [ValueArg (S.TStr str), ValueArg (S.TInt n)] =
            let res = concat $ take (fromIntegral n) $ repeat str in
            ValueArg (S.TStr res)
 
+noop :: (Autofloat a) => CompFn' a
+noop _ = ValueArg $ S.TStr "TODO: this is a no-op"
+
 compDict :: (Autofloat a) => M.Map String (CompFn' a)
 compDict = M.fromList flist
-         where flist = [("testCompFn", testCompFn)] -- TODO: port existing comps
+         where flist = [("testCompFn", testCompFn),
+                        ("bbox", noop),
+                        ("curved", noop),
+                        ("len", noop),
+                        ("sampleMatrix", noop),
+                        ("sampleVectorIn", noop),
+                        ("intersection", noop),
+                        ("midpoint", noop),
+                        ("mulV", noop),
+                        ("determinant", noop),
+                        ("rgba", noop),
+                        ("addV", noop),
+                        ("apply", noop)
+                       ] -- TODO: port existing comps
 
 -- TODO: write a more general typechecking mechanism
 evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> S.TypeIn a
 evalUop UMinus v = case v of
                   ValueArg (S.TNum a) -> S.TNum (-a)
                   ValueArg (S.TInt i) -> S.TInt (-i)
-                  GPIArg _ -> error "cannot negate a GPI"
+                  GPIArg _ _ -> error "cannot negate a GPI"
                   ValueArg _ -> error "wrong type to negate"
 evalUop UPlus v = error "unary + doesn't make sense" -- TODO remove from parser
 
@@ -1275,23 +1291,39 @@ evalBinop op v1 v2 =
                   Divide -> if n2 == 0 then error "divide by 0!" else S.TInt $ n1 `quot` n2 -- NOTE: not float
                   Exp -> S.TInt $ n1 ^ n2
         -- Cannot mix int and float
-        (ValueArg _, ValueArg _) -> error "wrong field types for binary operation"
-        (GPIArg _, ValueArg _) -> error "binop cannot operate on GPI"
-        (ValueArg _, GPIArg _) -> error "binop cannot operate on GPI"
-        (GPIArg _, GPIArg _) -> error "binop cannot operate on GPIs"
+        (ValueArg _, ValueArg _) -> error ("wrong field types for binary op: " ++ show v1 ++ show op ++ show v2)
+        (GPIArg _ _, ValueArg _) -> error "binop cannot operate on GPI"
+        (ValueArg _, GPIArg _ _) -> error "binop cannot operate on GPI"
+        (GPIArg _ _, GPIArg _ _) -> error "binop cannot operate on GPIs"
 
--- TODO: what about args like "5 + 10" or "5 + A.val"? those don't have paths
--- recursively evaluate, TODO track iteration depth
+evalProperty :: (Autofloat a) => BindingForm -> Field -> Translation a -> (Property, TagExpr a) -> Translation a
+evalProperty bvar field trans (property, expr) =
+        let path = EPath $ PropertyPath bvar field property in -- factor out?
+        let (_, trans') = evalExpr path trans in -- Doesn't need evaluated value
+        trans'
+
+evalGPI_withUpdate :: (Autofloat a) => BindingForm -> Field -> (GPICtor, PropertyDict a)
+                                        -> Translation a -> ((GPICtor, PropertyDict a), Translation a)
+evalGPI_withUpdate bvar field (ctor, properties) trans =
+        -- Fold over the properties, evaluating each path, which will update the translation each time
+        let trans' = foldl (evalProperty bvar field) trans (M.toList properties) in
+        -- Look up the final evaluated GPI
+        let properties' = case lookupField bvar field trans' of
+                          GPI ctorT propertiesT -> if ctor == ctorT then propertiesT else error "wrong ctor"
+                          FExpr _ -> error "expected GPI but got field" in
+        ((ctor, properties'), trans')
+
+-- recursively evaluate, TODO track iteration depth and check for cycles in graph
 evalExpr :: (Autofloat a) => Expr -> Translation a -> (ArgVal a, Translation a)
 evalExpr arg trans =
     case arg of
-    -- Already done values; don't change grans
+    -- Already done values; don't change trans
     IntLit i -> (ValueArg $ S.TInt i, trans)
     StringLit s -> (ValueArg $ S.TStr s, trans)
     AFloat (Fix f) -> (ValueArg $ S.TNum (r2f f), trans) -- TODO: note use of r2f here. is that ok?
 
     -- Inline computation, needs a recursive lookup that may change trans, but not a path
-    -- TODO factor out eval / trans computation
+    -- TODO factor out eval / trans computation?
     UOp op e -> 
         let (val, trans') = evalExpr e trans in
         let compVal = evalUop op val in
@@ -1324,15 +1356,16 @@ evalExpr arg trans =
                  let (v, trans') = evalExpr e trans in
                  case v of
                  ValueArg fval -> 
-                     case insertPath trans (p, Done fval) of
+                     case insertPath trans' (p, Done fval) of
                      Right trans' -> (v, trans')
                      Left err -> error $ concat err
-                 GPIArg _ -> error "path to field expr evaluated to a GPI"
-             GPI ctor properties -> error "TODO"
-             -- >>> fill in
-             -- Eval the GPI (as expr `Ctor ctor properties`), then insert the evaluated GPI 
-             -- into the translation and return it
-             -- TODO: need "insert GPI"
+                 GPIArg _ _ -> error "path to field expr evaluated to a GPI"
+             GPI ctor properties ->
+             -- Eval each property in the GPI, then lookup the updated GPI in the translation and return it
+             -- No need to update the translation because each path should update the translation
+                 let (gpiVal@(ctor, propertiesVal), trans') = 
+                         evalGPI_withUpdate bvar field (ctor, properties) trans in
+                 (GPIArg ctor propertiesVal, trans')
 
           PropertyPath bvar field property ->
               let texpr = lookupProperty bvar field property trans in
@@ -1342,15 +1375,13 @@ evalExpr arg trans =
                  let (v, trans') = evalExpr e trans in
                  case v of
                  ValueArg fval -> 
-                     case insertPath trans (p, Done fval) of
+                     case insertPath trans' (p, Done fval) of
                      Right trans' -> (v, trans')
                      Left err -> error $ concat err
-                 GPIArg _ -> error "path to property expr evaluated to a GPI"
+                 GPIArg _ _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
 
     -- GPI argument
-    Ctor ctor properties ->
-              (GPIArg $ M.empty, trans) -- >>> fill in
-              -- need to evaluate each property in a GPI
+    Ctor ctor properties -> error "no anonymous/inline GPIs allowed as expressions!"
 
     -- Error
     Layering _ -> error "layering should not be an objfn arg (or in the children of one)"

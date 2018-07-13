@@ -2,17 +2,20 @@ global { }
 
 Scalar c {
   c.shape = Circ {
-    r = 10
+    strokeWidth = -1.5 + c.shape.r
+    r = 10.0 + 10.0
   }
 
-  c.labelFn = encourage near(c.shape, c.shape)
+  c.labelFn = encourage near(c.shape.r)
 }
 
 Scalar `m` {
   `m`.shape.x = 2.5 + 0.2
   `m`.shape.y = `m`.shape.r + `m`.shape.strokeWidth + `m`.shape.x
-  
-  -- TODO: add more nested computation, test cyclic computation
-  
+
   `m`.inFn = ensure lessThan(`m`.shape.y, 10 + 3)
 }
+
+  -- TODO: document how order of statements affects eval
+  -- TODO: add more nested computation, test cyclic computation
+

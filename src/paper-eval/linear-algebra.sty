@@ -6,8 +6,8 @@ global {
 }
 
 CANVAS {
-  CANVAS.width = 200
-  CANVAS.height = 400
+  CANVAS.width = 200.0
+  CANVAS.height = 400.0
 }
 
 Colors {
@@ -43,9 +43,11 @@ VectorSpace U {
     }
 
     U.angle = Arc {
-        from = U.x_axis
-        to = U.y_axis
+        -- from = U.x_axis
+        -- to = U.y_axis
     }
+
+    U.text = Text { }
 
     U.labelFn = encourage topLeft(U.text, U.shape)
 }
@@ -53,11 +55,15 @@ VectorSpace U {
 LinearMap f; VectorSpace U, V
 where From(f, U, V) {
     f.val = sampleMatrix(2, 2)   -- could be optimized
+
     f.shape = Arrow {
-        from = U.shape
-        to = V.shape
+        -- from = U.shape
+        -- to = V.shape
         style = LineStyles.curved
     }
+
+    f.text = Text { }
+
     f.posFn = encourage between(f.shape, U.shape, V.shape)
     f.labelFn = encourage nearCenter(f.text, f.shape)
 }
@@ -66,11 +72,15 @@ Vector v
 with VectorSpace V
 where In(v, V) {
     v.val = sampleVectorIn(V.shape)
+
     v.shape = Arrow {
         tail = V.origin
         head = v.val
         color = Colors.blue
     }
+
+    v.text = Text { }
+
     v.labelFn = encourage near(v.text, v.shape.head)
 }
 
@@ -113,10 +123,12 @@ where c := norm(v); In(v, V) {
     override c.val = len(v.shape)
 
     c.shape = CurlyBrace {
-        along = v.shape
+        -- along = v.shape
         color = Colors.gray
     }
 
+    c.text = Text { }
+    
     c.labelFn = encourage aligned(c.text, c.shape)
 }
 
@@ -127,10 +139,12 @@ where c := determinant(v, w); In(v, V); In(w, V) {
     override c.val = determinant(v.val, w.val)
 
     c.shape = Parallelogram {
-        side1 = v.shape
-        side2 = w.shape
+        -- side1 = v.shape
+        -- side2 = w.shape
         opacity = 0.5
     }
+
+    c.text = Text { }
 
     c.labelFn = encourage centered(c.text, c.shape)
 
@@ -138,3 +152,6 @@ where c := determinant(v, w); In(v, V); In(w, V) {
   }
 
   -- TODO: write inner product semantics
+  -- TODO: put labels back in
+  -- TODO: deal with ``from'', ``to'', ``side1'', ``side2'', ``along'' being paths to GPIs (should this be allowed??)
+  -- TODO: get working namespaces
