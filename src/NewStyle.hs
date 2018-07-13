@@ -423,7 +423,7 @@ mergeEnv varEnv selEnv = foldl mergeMapping varEnv (M.assocs $ sTypeVarMap selEn
                -- G || (x : |T) |-> G
                mergeMapping varEnv (BSubVar var, styType) = varEnv
                -- G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
-               mergeMapping varEnv (BStyVar (StyVar' var), styType) = 
+               mergeMapping varEnv (BStyVar (StyVar' var), styType) =
                             varEnv { varMap = M.insert (VarConst var) (toSubType styType) (varMap varEnv) }
 
 ----------- Converting Style values to Env/Substance values for two reasons:
@@ -439,9 +439,9 @@ toSubTArg (SAVar bVar) = AVar $ toSubVar bVar
 toSubTArg (SAT styT)   = AT   $ toSubType styT
 
 toSubType :: StyT -> T
-toSubType (STTypeVar stvar) = TTypeVar $ TypeVar { typeVarName = typeVarNameS stvar, 
+toSubType (STTypeVar stvar) = TTypeVar $ TypeVar { typeVarName = typeVarNameS stvar,
                                                    typeVarPos = typeVarPosS stvar }
-toSubType (STCtor stcons) = TConstr $ TypeCtorApp { nameCons = nameConsS stcons, 
+toSubType (STCtor stcons) = TConstr $ TypeCtorApp { nameCons = nameConsS stcons,
                                                       argCons = map toSubTArg $ argConsS stcons,
                                                       constructorInvokerPos = posConsS stcons }
 
@@ -455,18 +455,18 @@ toSubPredArg (PE selExpr) = C.PE $ toSubExpr selExpr
 toSubPredArg (PP pred)    = C.PP $ toSubPred pred
 
 toSubPred :: Predicate -> C.Predicate
-toSubPred stypred = C.Predicate { C.predicateName = C.PredicateConst $ predicateName stypred, 
-                                  C.predicateArgs = map toSubPredArg $ predicateArgs stypred, 
+toSubPred stypred = C.Predicate { C.predicateName = C.PredicateConst $ predicateName stypred,
+                                  C.predicateArgs = map toSubPredArg $ predicateArgs stypred,
                                   C.predicatePos = predicatePos stypred }
 
 ----------- Selector static semantics
 
 -- For `B := E`, make sure `B : T` and `E : T`
 compareTypes :: RelationPattern -> BindingForm -> SelExpr -> Maybe T -> Maybe T -> Maybe Error
-compareTypes stmt var expr vtype etype = 
-   case (vtype, etype) of 
+compareTypes stmt var expr vtype etype =
+   case (vtype, etype) of
    (Nothing, Nothing) ->
-     Just $ "In Style statement '" ++ show stmt ++ "', the var and expr" ++ " are both of invalid type." 
+     Just $ "In Style statement '" ++ show stmt ++ "', the var and expr" ++ " are both of invalid type."
    (Just vtype', Nothing) ->
      Just $ "In Style statement '" ++ show stmt ++ "', the expr '" ++ show expr ++
             " should have type '" ++ show vtype' ++ "' but does not have a type."
@@ -484,25 +484,25 @@ checkRelPatterns :: VarEnv -> [RelationPattern] -> [Error]
 checkRelPatterns varEnv rels = concat $ map (checkRelPattern varEnv) rels
     -- Judgment 4. G |- |S_r ok
     where checkRelPattern :: VarEnv -> RelationPattern -> [Error]
-          checkRelPattern varEnv rel = 
+          checkRelPattern varEnv rel =
               case rel of
               -- rule Bind-Context
-              RelBind bVar sExpr -> 
+              RelBind bVar sExpr ->
                       -- TODO: use checkSubStmt here (and in paper)?
                       -- TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
                       -- G |- B : T1
-                      let (error1, vtype) = C.checkVarE varEnv $ 
+                      let (error1, vtype) = C.checkVarE varEnv $
                                             (trM2 ("B: " ++ show (toSubVar bVar)) $ toSubVar bVar) in
                       -- G |- E : T2
-                      let (error2, etype) = C.checkExpression varEnv $ 
+                      let (error2, etype) = C.checkExpression varEnv $
                                             (trM2 ("E: " ++ show (toSubExpr sExpr)) $ toSubExpr sExpr) in
                       -- T1 = T2
                       let err3 = compareTypes rel bVar sExpr vtype etype in
-                      case trM2 ("ERR3: " ++ show err3) err3 of 
+                      case trM2 ("ERR3: " ++ show err3) err3 of
                       Nothing -> [error1, error2]
                       Just e3 -> [error1, error2, e3]
               -- rule Pred-Context
-              RelPred pred       -> 
+              RelPred pred       ->
                       -- G |- Q : Prop
                       let varEnv' = C.checkPredicate varEnv $ toSubPred pred in
                       [errors varEnv']
@@ -512,48 +512,48 @@ checkDeclPatterns :: VarEnv -> SelEnv -> [DeclPattern] -> SelEnv
 checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv decls
     -- Judgment 3. G; g |- |S_o ok ~> g'
     where checkDeclPattern :: VarEnv -> SelEnv -> DeclPattern -> SelEnv
-          checkDeclPattern varEnv selEnv stmt@(PatternDecl' styType bVar) = 
+          checkDeclPattern varEnv selEnv stmt@(PatternDecl' styType bVar) =
              -- G |- |T : type
-             let errT = errors $ checkT varEnv (toSubType styType) in 
+             let errT = errors $ checkT varEnv (toSubType styType) in
              let selEnv' = addErr errT selEnv in
-             case bVar of 
+             case bVar of
              -- rule Decl-Sty-Context
              bsv@(BStyVar (StyVar' styVar)) ->
                      -- NOTE: this does not aggregate *all* possible errors. May just return first error.
                      -- y \not\in dom(g)
                      if M.member bsv (sTypeVarMap selEnv')
-                     then let err = "Style pattern statement " ++ show stmt ++ 
+                     then let err = "Style pattern statement " ++ show stmt ++
                                     " declares Style variable '" ++ styVar ++ "' twice"
                           in addErr err selEnv'
                      else if M.member (BSubVar (VarConst styVar)) (sTypeVarMap selEnv')
-                     then let err = "Style pattern statement " ++ show stmt ++ 
+                     then let err = "Style pattern statement " ++ show stmt ++
                                     " declares Style variable '" ++ styVar ++ "'" ++
                                     " in the same selector as a Substance variable of the same name"
                           in addErr err selEnv'
                      else addMapping bsv styType selEnv'
              -- rule Decl-Sub-Context
-             bsv@(BSubVar subVar@(VarConst sVar)) -> 
+             bsv@(BSubVar subVar@(VarConst sVar)) ->
                      -- x \not\in dom(g)
                      if M.member bsv (sTypeVarMap selEnv')
-                     then let err = "Style pattern statement " ++ show stmt ++ 
+                     then let err = "Style pattern statement " ++ show stmt ++
                                     " declares Substance variable '" ++ sVar ++ "' twice"
                           in addErr err selEnv'
                      else if M.member (BStyVar (StyVar' sVar)) (sTypeVarMap selEnv')
-                     then let err = "Style pattern statement " ++ show stmt ++ 
+                     then let err = "Style pattern statement " ++ show stmt ++
                                     " declares Substance variable '" ++ sVar  ++ "'" ++
                                     " in the same selector as a Style variable of the same name"
                           in addErr err selEnv'
-                     else 
+                     else
                          -- G(x) = T
                          let subType = M.lookup subVar $ varMap varEnv in
                          case subType of
-                         Nothing -> let err = "Substance variable '" ++ show subVar ++ 
+                         Nothing -> let err = "Substance variable '" ++ show subVar ++
                                               "' does not exist in environment. \n" {- ++ show varEnv -} in
                                     addErr err selEnv'
-                         Just subType' -> 
+                         Just subType' ->
                              -- check "T = |T", assuming type constructors are nullary
                              let declType = toSubType styType in
-                             if subType' == declType 
+                             if subType' == declType
                              then addMapping bsv styType selEnv'
                              else let err = "Mismatched types between Substance and Style vars.\n" ++
                                              "Sub var '" ++ show subVar ++ "' has type '" ++ show subType' ++
@@ -562,7 +562,7 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
 
 -- Judgment 7. G |- Sel ok ~> g
 checkSel :: VarEnv -> Selector -> SelEnv
-checkSel varEnv sel = 
+checkSel varEnv sel =
          -- Check head statements
          let selEnv_afterHead = checkDeclPatterns varEnv initSelEnv (selHead sel) in
          -- Check `with` statements
@@ -577,8 +577,8 @@ checkSels :: VarEnv -> StyProg -> [SelEnv]
 checkSels varEnv prog = map (checkPair varEnv) prog
           where checkPair :: VarEnv -> (Header, Block) -> SelEnv
                 checkPair varEnv ((Select sel), _) = checkSel varEnv sel
-                checkPair varEnv ((Namespace name), _) = initSelEnv 
-                -- TODO: for now, namespace has no local context 
+                checkPair varEnv ((Namespace name), _) = initSelEnv
+                -- TODO: for now, namespace has no local context
 
 -- TODO: write test cases (including failing ones) after Substance errors are no longer @ runtime
 -- TODO: get line/col numbers for errors
@@ -616,7 +616,7 @@ combine :: Ord k => M.Map k a -> M.Map k a -> M.Map k a
 combine s1 s2 = M.union s1 s2
 -- TODO check for duplicate keys (and vals)
 
--- (x) operator 
+-- (x) operator
 merge :: Ord k => [M.Map k a] -> [M.Map k a] -> [M.Map k a]
 merge s1 [] = s1
 merge [] s2 = s2
@@ -699,7 +699,7 @@ substituteField subst (PropertyDecl field expr) = PropertyDecl field $ substitut
 substituteLayering :: Subst -> LExpr -> LExpr
 substituteLayering subst (LId bVar) = LId $ substituteBform subst bVar
 substituteLayering subst (LPath path) = LPath $ substitutePath subst path
-substituteLayering subst (LayeringOp op lex1 lex2) = 
+substituteLayering subst (LayeringOp op lex1 lex2) =
                    LayeringOp op (substituteLayering subst lex1) (substituteLayering subst lex1)
 
 substituteBlockExpr :: Subst -> Expr -> Expr
@@ -714,7 +714,7 @@ substituteBlockExpr subst expr =
     UOp   op e        -> UOp   op (substituteBlockExpr subst e)
     List es           -> List $ map (substituteBlockExpr subst) es
     ListAccess path i -> ListAccess (substitutePath subst path) i
-    Ctor gpi fields   -> Ctor gpi $ map (substituteField subst) fields 
+    Ctor gpi fields   -> Ctor gpi $ map (substituteField subst) fields
     Layering lexpr    -> Layering $ substituteLayering subst lexpr
     -- No substitution for literals
     IntLit _          -> expr
@@ -757,7 +757,7 @@ allRelsMatch subEnv subProg rels = all (relMatchesProg subEnv subProg) rels
 -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 -- Folds over [theta]
 filterRels :: C.SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
-filterRels subEnv subProg rels substs = 
+filterRels subEnv subProg rels substs =
            filter (\subst -> allRelsMatch subEnv subProg (substituteRels subst rels)) substs
 
 ----- Match declaration statements
@@ -768,18 +768,18 @@ matchType :: VarEnv -> T -> StyT -> Bool
 matchType varEnv (TConstr tctor) (STCtor stctor) =
           if length (argCons tctor) > 0 || length (argConsS stctor) > 0
           then error "no types with parameters allowed in match" -- TODO error msg
-          else trM1 ("types: " ++ nameCons tctor ++ ", " ++ nameConsS stctor) $ 
+          else trM1 ("types: " ++ nameCons tctor ++ ", " ++ nameConsS stctor) $
                nameCons tctor == nameConsS stctor -- TODO subtyping
 -- TODO better errors + think about cases below
-matchType varEnv (TTypeVar tvar) (STTypeVar stvar) = error "no type vars allowed in match" 
+matchType varEnv (TTypeVar tvar) (STTypeVar stvar) = error "no type vars allowed in match"
 matchType varEnv (TConstr tvar) (STTypeVar stvar) = error "no type vars allowed in match"
 matchType varEnv (TTypeVar tvar) (STCtor stctor) = error "no type vars allowed in match"
 
 -- Judgment 10. theta |- x <| B
 matchBvar :: Var -> BindingForm -> Maybe Subst
 matchBvar subVar (BStyVar styVar) = Just $ M.insert styVar subVar M.empty
-matchBvar subVar (BSubVar styVar) = if subVar == styVar 
-                                    then Just M.empty 
+matchBvar subVar (BSubVar styVar) = if subVar == styVar
+                                    then Just M.empty
                                     else Nothing
 
 -- Judgment 12. G; theta |- S <| |S_o
@@ -790,14 +790,14 @@ matchDeclLine varEnv (C.Decl subT subVar) (PatternDecl' styT bvar) =
               then trM1 "types matched" $ matchBvar subVar bvar
               else trM1 "types didn't match" $ Nothing -- substitution is only valid if types matched first
 matchDeclLine _ subL styL = Nothing -- Sty decls only match Sub decls
-          
+
 -- Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
 matchDecl :: VarEnv -> C.SubProg -> [Subst] -> DeclPattern -> [Subst]
-matchDecl varEnv subProg initSubsts decl = 
+matchDecl varEnv subProg initSubsts decl =
           -- Judgment 14. G; [theta] |- [S] <| |S_o
           let newSubsts = map (flip (matchDeclLine varEnv) decl) subProg in
           trM1 ("new substs: " ++ show newSubsts) $ merge initSubsts (catMaybes newSubsts)
-          -- TODO: why is this trace necessary to see the rest of the debug output? 
+          -- TODO: why is this trace necessary to see the rest of the debug output?
           -- is it because of list comprehensions?
 
 -- Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
@@ -815,7 +815,7 @@ find_substs_sel varEnv subEnv subProg (Select sel) =
         initSubsts       = []
         subst_candidates = matchDecls varEnv subProg decls initSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
-        filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $ 
+        filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
                            filterRels subEnv subProg rels subst_candidates
         correct_substs   = filter checkSubst filtered_substs
     in correct_substs
@@ -862,7 +862,7 @@ data TagExpr a = OptEval Expr      -- Thunk evaluated at each step of optimizati
 type PropertyDict a = M.Map Property (TagExpr a)
 type FieldDict a = M.Map Field (FieldExpr a)
 
-data FieldExpr a = FExpr (TagExpr a) 
+data FieldExpr a = FExpr (TagExpr a)
                  | GPI GPICtor (PropertyDict a)
     deriving (Show, Eq, Typeable)
 
@@ -877,7 +877,7 @@ data Translation a = Trans { trMap    :: M.Map Name (FieldDict a),
 
 -- For a Substance object "A", the Translation might look like this:
 -- Trans [ "A" =>
---        FieldDict [ "val"   => FExpr (Done (IntLit 2)), 
+--        FieldDict [ "val"   => FExpr (Done (IntLit 2)),
 --                    "shape" => GPI Circ PropMap [ "r" => OptEval (EPath (FieldPath (SubVar (VC "B"))) "val"),
 --                                                  "x" => ...  ] ] ]
 
@@ -885,7 +885,7 @@ type OverrideFlag = Bool
 
 ----- Translation util functions
 
-initTrans :: Autofloat a => Translation a
+initTrans :: forall a . Autofloat a => Translation a
 initTrans = Trans { trMap = M.empty, warnings = [] }
 
 -- Convert Sub bvar name to Sub name in Translation
@@ -953,9 +953,9 @@ deleteField trans name field =
     Nothing ->
         let err = "Err: Sub obj '" ++ nameStr name ++ "' has no fields; can't delete field '" ++ field ++ "'" in
         addWarn trans err
-    Just fieldDict -> 
+    Just fieldDict ->
         if field `M.notMember` fieldDict
-        then let warn = "Warn: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field ++ "'" in 
+        then let warn = "Warn: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field ++ "'" in
              addWarn trans warn
         else let fieldDict' = M.delete field fieldDict
                  trn'       = M.insert name fieldDict' trn in
@@ -969,18 +969,18 @@ deleteProperty trans name field property =
     Nothing ->
         let err = "Err: Sub obj '" ++ nameStr name ++ "' has no fields; can't delete path '" ++ path ++ "'" in
         addWarn trans err
-    Just fieldDict -> 
+    Just fieldDict ->
         case M.lookup field fieldDict of
-        Nothing -> let err = "Err: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field 
-                              ++ "'; can't delete path " ++ path in 
+        Nothing -> let err = "Err: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field
+                              ++ "'; can't delete path " ++ path in
                    addWarn trans err
-        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '" 
+        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
                                      ++ field ++ "'; cannot delete property '" ++ property ++ "'" in
                           addWarn trans err
         Just (GPI ctor properties) ->
            -- If the field is GPI, check if property already exists
            if property `M.notMember` properties
-           then let warn = "Warning: property '" ++ property ++ "' already does not exist in path '" 
+           then let warn = "Warning: property '" ++ property ++ "' already does not exist in path '"
                            ++ pathStr3 name field property ++ "'; deletion does nothing"
                 in addWarn trans warn
            else let properties' = M.delete property properties
@@ -991,7 +991,7 @@ deleteProperty trans name field property =
 -- Implements two rules for fields:
 -- x.n = Ctor { n_i = e_i }, rule Line-Set-Ctor, for GPI
 -- x.n = e, rule Line-Set-Field-Expr
-addField :: (Autofloat a) => OverrideFlag -> Translation a -> 
+addField :: (Autofloat a) => OverrideFlag -> Translation a ->
                              Name -> Field -> TagExpr a -> Translation a
 addField override trans name field texpr =
     let trn = trMap trans in
@@ -1004,7 +1004,7 @@ addField override trans name field texpr =
                 else Nothing in
      -- Warn using override if x.n already exists
     let warn2 = if (field `M.member` fieldDict) && (not override)
-                then Just $ "Warning: Sub obj '" ++ nameStr name ++ "''s field '" ++ field 
+                then Just $ "Warning: Sub obj '" ++ nameStr name ++ "''s field '" ++ field
                             ++ "' is overridden, but was not declared an override"
                 else Nothing in
      -- Warn using override if x.n doesn't exist
@@ -1031,19 +1031,19 @@ addProperty override trans name field property texpr =
                addWarn trans err
     Just fieldDict ->
         case M.lookup field fieldDict of
-        Nothing -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have field '" 
+        Nothing -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have field '"
                               ++ field ++ "'; cannot add property '" ++ property ++ "'" in
                    addWarn trans err
-        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '" 
+        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
                                      ++ field ++ "'; cannot add property '" ++ property ++ "'" in
                           addWarn trans err
         Just (GPI ctor properties) ->
            -- If the field is GPI, check if property already exists and whether it matches the override setting
-           let warn = if (property `M.notMember` properties) && override 
-                      then Just $ "Warning: property '" ++ property ++ "' does not exist in path '" 
+           let warn = if (property `M.notMember` properties) && override
+                      then Just $ "Warning: property '" ++ property ++ "' does not exist in path '"
                            ++ pathStr3 name field property ++ "' but override was set"
                       else if property `M.member` properties && (not override)
-                      then Just $ "Warning: property '" ++ property ++ "' already exists in path '" 
+                      then Just $ "Warning: property '" ++ property ++ "' already exists in path '"
                            ++ pathStr3 name field property ++ "' but override was not set"
                       else Nothing in
            let properties' = M.insert property texpr properties
@@ -1084,7 +1084,7 @@ addPath override trans path expr =
 -- foldM stops accumulating when the first fatal error is reached, using "Either [Error]" as a monad
 -- (Non-fatal errors are stored as warnings in the translation)
 -- foldM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
--- example: 
+-- example:
 -- f acc elem = if elem < 0 then Left ["wrong " ++ show elem] else Right $ elem : acc
 -- foldM f [] [1, 9, -1, 2, -2] = Left ["wrong -1"]
 -- foldM f [] [1, 9] = Right [9,1]
@@ -1109,7 +1109,7 @@ translateSubstsBlock :: (Autofloat a) => Translation a -> [Subst] -> Block -> Ei
 translateSubstsBlock trans substs block = foldM (translateBlock block) trans substs
 
 -- Judgment 23, contd.
-translatePair :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg -> 
+translatePair :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg ->
                                   Translation a -> (Header, Block) -> Either [Error] (Translation a)
 translatePair varEnv subEnv subProg trans (Namespace styVar, block) =
     let selEnv = initSelEnv
@@ -1127,11 +1127,11 @@ translatePair varEnv subEnv subProg trans (header@(Select sel), block) =
         then let substs = find_substs_sel varEnv subEnv subProg header in
              translateSubstsBlock trans substs block
         else Left $ sErrors selEnv ++ bErrs
-            
+
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
-translateStyProg :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg -> StyProg ->
+translateStyProg :: forall a . (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg -> StyProg ->
                                      Either [Error] (Translation a)
 translateStyProg varEnv subEnv subProg styProg =
                  foldM (translatePair varEnv subEnv subProg) initTrans styProg
@@ -1145,13 +1145,13 @@ translateStyProg varEnv subEnv subProg styProg =
 data OptType = Objfn | Constrfn
      deriving (Show, Eq)
 
-data Fn = Fn { fname :: String, 
-               fargs :: [Expr], 
+data Fn = Fn { fname :: String,
+               fargs :: [Expr],
                optType :: OptType }
      deriving (Show, Eq)
 
-data FnDone a = FnDone { fname_d :: String, 
-                         fargs_d :: [ArgVal a], 
+data FnDone a = FnDone { fname_d :: String,
+                         fargs_d :: [ArgVal a],
                          optType_d :: OptType }
      deriving (Show, Eq)
 
@@ -1167,41 +1167,51 @@ data ArgVal a = GPIArg GPICtor (PropertyDict a) | ValueArg (S.TypeIn a)
 type Shape a = (GPICtor, PropertyDict a)
 
 -- Stores the last EP varying state (that is, the state when the unconstrained opt last converged)
-data LastEPstate a = EPstate [a] deriving (Eq, Show)
+type LastEPstate = forall a . (Autofloat a) => [a]
 
-data OptStatus a = NewIter -- TODO should this be init with a state?
-               | UnconstrainedRunning (LastEPstate a)
-               | UnconstrainedConverged (LastEPstate a)
+data OptStatus = NewIter -- TODO should this be init with a state?
+               | UnconstrainedRunning LastEPstate
+               | UnconstrainedConverged LastEPstate
                | EPConverged
-               deriving (Eq, Show)
 
-data Params a = Params { weight :: a,
-                         optStatus :: OptStatus a,
-                         overallObjFn :: forall b. b -> [b] -> b
-                       }
+instance Show OptStatus where
+         show NewIter = "New iteration"
+         show (UnconstrainedRunning lastEPstate) =
+              "Unconstrained running with last EP state:\n" ++ show lastEPstate
+         show (UnconstrainedConverged lastEPstate) =
+              "Unconstrained converged with last EP state:\n" ++ show lastEPstate
+         show EPConverged = "EP converged"
 
-instance Show a => Show (Params a) where
+data Params = Params { weight :: forall a . (Autofloat a) => a,
+                       optStatus :: OptStatus, -- forall a . (Autofloat a) => OptStatus a,
+                       overallObjFn :: forall a . (Autofloat a) => a -> [a] -> a
+                     }
+
+instance Show Params where
          show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
 
-instance Eq a => Eq (Params a) where
-         p == q = (weight p) == (weight q) && (optStatus p) == (optStatus q)
+-- instance Eq Params where
+         -- p == q = (weight p) == (weight q) && (optStatus p) == (optStatus q)
 
--- data RState a = RState { shapesr :: [Shape a],
---                          shapeNames :: [(String, Field)], -- TODO Sub name type
---                          transr :: Translation a,
---                          varyingPaths :: [Path],
---                          varyingState :: [a],
---                          paramsr :: Params a,
---                          rng :: StdGen,
---                          autostep :: Bool }
---      deriving (Show)
+data RState = RState { shapesr :: forall a . (Autofloat a) => [Shape a],
+                       shapeNames :: [(String, Field)], -- TODO Sub name type
+                       shapeProperties :: [(String, Field, Property)],
+                       transr :: forall a . (Autofloat a) => Translation a,
+                       varyingPaths :: [Path],
+                       varyingState :: forall a . (Autofloat a) => [a],
+                       paramsr :: Params,
+                       rng :: StdGen,
+                       autostep :: Bool }
 
-data RState = RState { fn :: forall a . (Autofloat a) => a -> [a] -> a,
-                         autostep :: Bool }
-     -- deriving (Show)
-
+-- TODO: can we use pprint here?
 instance Show RState where
-         show s = "show rstate test"
+         show s = "Shapes: \n" ++ show (shapesr s) ++
+                  "\nShape names: \n" ++ show (shapeNames s) ++
+                  "\nTranslation: \n" ++ show (transr s) ++
+                  "\nVarying paths: \n" ++ show (varyingPaths s) ++
+                  "\nVarying state: \n" ++ show (varyingState s) ++
+                  "\nParams: \n" ++ show (paramsr s) ++
+                  "\nAutostep: \n" ++ show (autostep s)
 
 ---
 
@@ -1221,7 +1231,7 @@ constrFnDict = M.fromList constrFnList
                                ]
 
 testCompFn :: (Autofloat a) => CompFn' a
-testCompFn [ValueArg (S.TStr str), ValueArg (S.TInt n)] = 
+testCompFn [ValueArg (S.TStr str), ValueArg (S.TInt n)] =
            let res = concat $ take (fromIntegral n) $ repeat str in
            ValueArg (S.TStr res)
 
@@ -1249,8 +1259,8 @@ compDict = M.fromList flist
 floatProperties = M.fromList [
                 ("Circ", ["r", "x", "y", "strokeWidth"]),
                 ("Rectangle", ["x", "y", "length", "width", "angle"]) ]
-                -- ["x", "y", "r", "radius", "rx", "ry", "angle", "side", 
-                -- "stroke-width", "rotation", "length", "width", "startx", 
+                -- ["x", "y", "r", "radius", "rx", "ry", "angle", "side",
+                -- "stroke-width", "rotation", "length", "width", "startx",
                 -- "starty", "endx", "endy", "thickness"]
 -- TODO: FILL IN OR DEPRECATE
 
@@ -1265,7 +1275,7 @@ foldFields f name fieldDict acc =
     let res = M.foldrWithKey (f name') [] fieldDict in
     res ++ acc
 
-foldSubObjs f trans = 
+foldSubObjs f trans =
     let res = M.foldrWithKey (foldFields f) [] (trMap trans) in
     res
 
@@ -1282,9 +1292,9 @@ pathToList (FieldPath (BSubVar (VarConst name)) field) = [name, field]
 pathToList (PropertyPath (BSubVar (VarConst name)) field property) = [name, field, property]
 pathToList _ = error "pathToList should not handle Sty vars"
 
--- If any float property is not initialized in properties, 
+-- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
-findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map [Char] (TagExpr a) -> 
+findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map [Char] (TagExpr a) ->
                                                String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
     case M.lookup floatProperty properties of
@@ -1322,11 +1332,20 @@ findGPIName _ _ (FExpr _) acc = acc
 
 findShapeNames = foldSubObjs findGPIName
 
+--
+
+findShapeProperties name field (GPI ctor properties) acc =
+     let paths = map (\property -> (name, field, property)) (M.keys properties)
+     in paths ++ acc
+findShapeProperties _ _ (FExpr _) acc = acc
+
+findShapesProperties = foldSubObjs findShapeProperties
+
 --- Sampling state
 
 sampleState :: (Autofloat a) => [Path] -> [a]
 sampleState ps = map samplePath ps
-    where samplePath path = 10.0 
+    where samplePath path = 10.0
     -- TODO: all floats are set to this value by default. Sample better WRT constraints, property names, shapes
 
 --- Objfns
@@ -1360,7 +1379,7 @@ evalUop UMinus v = case v of
 evalUop UPlus v = error "unary + doesn't make sense" -- TODO remove from parser
 
 evalBinop :: (Autofloat a) => BinaryOp -> ArgVal a -> ArgVal a -> S.TypeIn a
-evalBinop op v1 v2 = 
+evalBinop op v1 v2 =
         case (v1, v2) of
         (ValueArg (S.TNum n1), ValueArg (S.TNum n2)) ->
                   case op of
@@ -1410,7 +1429,7 @@ evalExpr arg trans =
 
     -- Inline computation, needs a recursive lookup that may change trans, but not a path
     -- TODO factor out eval / trans computation?
-    UOp op e -> 
+    UOp op e ->
         let (val, trans') = evalExpr e trans in
         let compVal = evalUop op val in
         (ValueArg compVal, trans')
@@ -1418,7 +1437,7 @@ evalExpr arg trans =
         let ([v1, v2], trans') = evalExprs [e1, e2] trans in
         let compVal = evalBinop op v1 v2 in
         (ValueArg compVal, trans')
-    CompApp fname args -> 
+    CompApp fname args ->
         let (vs, trans') = evalExprs args trans in
         case M.lookup fname compDict of
         Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
@@ -1426,13 +1445,13 @@ evalExpr arg trans =
                   (res, trans')
     List es -> error "TODO lists"
         -- let (vs, trans') = evalExprs es trans in
-        -- (vs, trans')         
+        -- (vs, trans')
     ListAccess p i -> error "TODO lists"
 
     -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
-    EPath p -> 
+    EPath p ->
           case p of
-          FieldPath bvar field -> 
+          FieldPath bvar field ->
              -- Lookup field expr, evaluate it if necessary, cache the evaluated value in the trans,
              -- return the evaluated value and the updated trans
              let fexpr = lookupField bvar field trans in
@@ -1441,7 +1460,7 @@ evalExpr arg trans =
              FExpr (OptEval e) ->
                  let (v, trans') = evalExpr e trans in
                  case v of
-                 ValueArg fval -> 
+                 ValueArg fval ->
                      case insertPath trans' (p, Done fval) of
                      Right trans' -> (v, trans')
                      Left err -> error $ concat err
@@ -1449,7 +1468,7 @@ evalExpr arg trans =
              GPI ctor properties ->
              -- Eval each property in the GPI, then lookup the updated GPI in the translation and return it
              -- No need to update the translation because each path should update the translation
-                 let (gpiVal@(ctor, propertiesVal), trans') = 
+                 let (gpiVal@(ctor, propertiesVal), trans') =
                          evalGPI_withUpdate bvar field (ctor, properties) trans in
                  (GPIArg ctor propertiesVal, trans')
 
@@ -1460,7 +1479,7 @@ evalExpr arg trans =
               OptEval e ->
                  let (v, trans') = evalExpr e trans in
                  case v of
-                 ValueArg fval -> 
+                 ValueArg fval ->
                      case insertPath trans' (p, Done fval) of
                      Right trans' -> (v, trans')
                      Left err -> error $ concat err
@@ -1481,7 +1500,7 @@ lookupField bvar field trans =
     let name = trName bvar in
     let trn = trMap trans in
     case M.lookup name trn of
-    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans") 
+    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans")
                -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
     Just fieldDict ->
          case M.lookup field fieldDict of
@@ -1500,10 +1519,10 @@ lookupProperty bvar field property trans =
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 evalExprs :: (Autofloat a) => [Expr] -> Translation a -> ([ArgVal a], Translation a)
-evalExprs args trans = 
+evalExprs args trans =
     foldl evalExprF ([], trans) args
     where evalExprF :: (Autofloat a) => ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
-          evalExprF (argvals, trans) arg = 
+          evalExprF (argvals, trans) arg =
                        let (argVal, trans') = evalExpr arg trans in
                        (argvals ++ [argVal], trans') -- So returned exprs are in same order
 
@@ -1536,13 +1555,13 @@ applyOptFn dict finfo =
 applyCombined :: (Autofloat a) => a -> [FnDone a] -> a
 applyCombined penaltyWeight fns =
         let (objfns, constrfns) = partition (\f -> optType_d f == Objfn) fns in
-        sumMap (applyOptFn objFnDict) objfns 
+        sumMap (applyOptFn objFnDict) objfns
                + constrWeight * penaltyWeight * sumMap (applyOptFn constrFnDict) constrfns
 
 -- TODO: make sure the autodiff works w/ eval and genobjfn
-genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] 
+genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path]
                                            -> a -> [a] -> a
-genObjfn trans objfns constrfns varyingPaths = 
+genObjfn trans objfns constrfns varyingPaths =
          \penaltyWeight varying ->
          let varyingTagExprs = map toTagExpr varying in
          let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
@@ -1570,63 +1589,69 @@ initWeight = 10 ** (-5)
 -- initWeight = 10 ** (-3)
 
 -- TODO: fill this in when we use the actual shape type, also check that all values are Done
-trToShape :: (Autofloat a) => PropertyDict a -> PropertyDict a
-trToShape = id
+trToShape :: (Autofloat a) => (String, Field) -> PropertyDict a -> PropertyDict a
+trToShape (subName, field) properties = 
+          let shapeName = subName ++ "." ++ field in -- Add names to all shapes
+          M.insert "name" (Done $ S.TStr shapeName) properties
 
 getShapes :: (Autofloat a) => [(String, Field)] -> Translation a -> [Shape a]
 getShapes shapenames trans = map (getShape trans) shapenames
           -- TODO: fix use of Sub/Sty name here
-          where getShape trans (name, field) = 
+          where getShape trans (name, field) =
                     let fexpr = lookupField (BSubVar $ VarConst name) field trans in
                     case fexpr of
                     FExpr _ -> error "expected GPI, got field"
-                    GPI ctor properties -> (ctor, trToShape properties)
+                    GPI ctor properties -> (ctor, trToShape (name, field) properties)
 
-testFn :: (Autofloat a) => forall a . a -> [a] -> a
-testFn _ = error "OBJ FN"
+-- technically, we can use the values here instead of getting the shapes out of the trans again
+evalPropertyPath :: (Autofloat a) => Translation a -> (String, Field, Property) -> Translation a
+evalPropertyPath trans (name, field, property) =
+    let pathExpr = EPath $ PropertyPath (BSubVar (VarConst name)) field property in 
+    -- TODO figure out bindingform if styvar
+    let (_, trans') = evalExpr pathExpr trans in
+    trans'
+
+-- recursively evaluate every shape property in the translation
+evalShapes :: (Autofloat a) => [(String, Field, Property)] -> Translation a -> Translation a
+evalShapes shapeProperties trans = foldl evalPropertyPath trans shapeProperties
 
 --- Main function: what the Style compiler generates
 -- TODO fix clash with megaparsec State
--- genOptProblemAndState :: (Autofloat a) => Translation a -> RState 
-genOptProblemAndState :: RState
-genOptProblemAndState = 
-    let trans = initTrans in
-    -- objfns and constraints, TODO: and ambient ones
+genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> RState
+genOptProblemAndState trans =
+    -- Save information about the translation
     let varyingPaths = findVarying trans in
-    let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) trans in
+    let shapeNames = findShapeNames trans in
+    let shapeProperties = findShapesProperties trans in
 
     -- TODO: create transInit properly; right now it just sets some varying vals to consts
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
     let initState = sampleState varyingPaths in
     let transInit = insertPaths varyingPaths (map toTagExpr initState) trans in
 
-    let shapeNames = findShapeNames transInit in
-    let initShapes = getShapes shapeNames transInit in
-
-    -- add gradients -- not necessary
-    -- TODO: zero grads properly
-    -- TODO: apply computations once on init state WRT objfn args
-
-    -- TODO: if it's partially applied w/ transinit and VP, don't store them in rstate
+    let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) trans in
     let overallFn = genObjfn transInit objfns constrfns varyingPaths in
-    -- let overallFn = testFn in
+    -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
+    -- the varying values are re-inserted at each opt step
+
+    -- Evaluate all expressions once to get the initial shapes
+    let transEvaled = evalShapes shapeProperties transInit in
+    let initShapes = getShapes shapeNames transEvaled in
 
     -- TODO: figure out how we rely / assume / enforce an order on varyingPaths and varyingState
     -- This is the final Style compiler output
-
-    RState { autostep = True, fn = overallFn }
-
-    -- RState { shapesr = initShapes,
-    --          shapeNames = shapeNames,
-    --          transr = transInit,
-    --          varyingPaths = varyingPaths,
-    --          varyingState = initState,
-    --          paramsr = Params { weight = initWeight,
-    --                            optStatus = NewIter,
-    --                            overallObjFn = overallFn },
-    --          rng = initRng,
-    --          autostep = False -- default
-    --        }
+    RState { shapesr = initShapes,
+             shapeNames = shapeNames,
+             shapeProperties = shapeProperties,
+             transr = transInit, -- note: NOT transEvaled
+             varyingPaths = varyingPaths,
+             varyingState = initState,
+             paramsr = Params { weight = initWeight,
+                                optStatus = NewIter,
+                                overallObjFn = overallFn },
+             rng = initRng,
+             autostep = False -- default
+           }
 
 ----------------------------------------------------------------------------------------------
 
@@ -1635,204 +1660,203 @@ genOptProblemAndState =
 
 -- Opt types, util functions, and params
 
--- type ObjFn1 a = forall a . (Autofloat a) => [a] -> a
+type ObjFn1 a = forall a . (Autofloat a) => [a] -> a
 
--- -- used for duf
--- type ObjFn2 a = forall a . (Autofloat a) => [a] -> [a] -> a
+-- used for duf
+type ObjFn2 a = forall a . (Autofloat a) => [a] -> [a] -> a
 
--- type GradFn a = forall a . (Autofloat a) => [a] -> [a]
+type GradFn a = forall a . (Autofloat a) => [a] -> [a]
 
--- weightGrowthFactor :: (Autofloat a) => a -- for EP weight
--- weightGrowthFactor = 10
+weightGrowthFactor :: (Autofloat a) => a -- for EP weight
+weightGrowthFactor = 10
 
--- epStop :: Floating a => a -- for EP diff
--- epStop = 10 ** (-3)
--- -- epStop = 60 ** (-3)
--- -- epStop = 10 ** (-1)
--- -- epStop = 0.05
+epStop :: Floating a => a -- for EP diff
+epStop = 10 ** (-3)
+-- epStop = 60 ** (-3)
+-- epStop = 10 ** (-1)
+-- epStop = 0.05
 
--- -- convergence criterion for EP
--- -- if you want to use it for UO, needs a different epsilon
--- epStopCond :: (Autofloat a) => [a] -> [a] -> a -> a -> Bool
--- epStopCond x x' fx fx' =
---            trStr ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
---            ++ "\n|f(x') - f(x)|: " ++ (show $ abs (fx - fx'))) $
---            (norm (x -. x') <= epStop) || (abs (fx - fx') <= epStop)
+-- convergence criterion for EP
+-- if you want to use it for UO, needs a different epsilon
+epStopCond :: (Autofloat a) => [a] -> [a] -> a -> a -> Bool
+epStopCond x x' fx fx' =
+           trStr ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
+           ++ "\n|f(x') - f(x)|: " ++ (show $ abs (fx - fx'))) $
+           (norm (x -. x') <= epStop) || (abs (fx - fx') <= epStop)
 
--- nanSub :: (Autofloat a) => a
--- nanSub = 0
+nanSub :: (Autofloat a) => a
+nanSub = 0
 
--- -- Parameters for Armijo-Wolfe line search
--- -- NOTE: must maintain 0 < c1 < c2 < 1
--- c1 :: Floating a => a
--- c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
--- -- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
--- -- turn Armijo off: c1 = 0
+-- Parameters for Armijo-Wolfe line search
+-- NOTE: must maintain 0 < c1 < c2 < 1
+c1 :: Floating a => a
+c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
+-- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
+-- turn Armijo off: c1 = 0
 
--- c2 :: Floating a => a
--- c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
--- -- new directional derivative value / old DD value <= c2
--- -- smaller c2 = smaller new derivative value = harder to satisfy
--- -- turn Wolfe off: c1 = 1 (basically backatracking line search only)
+c2 :: Floating a => a
+c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
+-- new directional derivative value / old DD value <= c2
+-- smaller c2 = smaller new derivative value = harder to satisfy
+-- turn Wolfe off: c1 = 1 (basically backatracking line search only)
 
--- -- true = force linesearch halt if interval gets too small; false = no forced halt
--- intervalMin = True 
+-- true = force linesearch halt if interval gets too small; false = no forced halt
+intervalMin = True
 
--- infinity :: Floating a => a
--- infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
--- -- all numbers are smaller than infinity except infinity, to which it's equal
+infinity :: Floating a => a
+infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
+-- all numbers are smaller than infinity except infinity, to which it's equal
 
--- -------
+-------
 
--- -- apply all computations
--- evaluateAll :: (Autofloat a) => Translation a -> [Path] -> [a] -> Translation a
--- evaluateAll trans paths varyingState = trans -- FILL IN
+step :: (Autofloat a) => RState -> RState
+step s = let (state', params') = stepShapes (paramsr s) (varyingState s) in
+         let transWithVarying = insertPaths (varyingPaths s) (map toTagExpr state') (transr s) in
+         let transEvaled = evalShapes (shapeProperties s) transWithVarying in
+         let shapes' = getShapes (shapeNames s) transEvaled in
+         s { varyingState = state', shapesr = shapes', paramsr = params' }
+         -- note: trans is not updated in rstate
 
--- step :: (Autofloat a) => RState a -> RState a
--- step s = let (state', params') = stepShapes (paramsr s) (varyingState s) in
---          let trans' = evaluateAll (transr s) (varyingPaths s) state' in
---          let shapes' = getShapes (shapeNames s) trans' in
---          s { varyingState = state', shapesr = shapes', paramsr = params' }
---          -- should trans be updated?
+-- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
--- -- implements exterior point algo as described on page 6 here:
--- -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
--- stepShapes :: (Autofloat a) => Params a -> [a] -> ([a], Params a)
--- stepShapes params vstate = -- varying state
---          let (epWeight, epStatus) = (weight params, optStatus params) in
---          case epStatus of
+-- implements exterior point algo as described on page 6 here:
+-- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
+stepShapes :: (Autofloat a) => Params -> [a] -> ([a], Params)
+stepShapes params vstate = -- varying state
+         let (epWeight, epStatus) = (weight params, optStatus params) in
+         case epStatus of
 
---          -- start the outer EP optimization and the inner unconstrained optimization, recording initial EPstate
---          NewIter -> let status' = UnconstrainedRunning $ EPstate vstate in
---                     (vstate', params { weight = initWeight, optStatus = status'} )
+         -- start the outer EP optimization and the inner unconstrained optimization, recording initial EPstate
+         NewIter -> let status' = UnconstrainedRunning (map realToFrac vstate) in
+                    (vstate', params { weight = initWeight, optStatus = status'} )
 
---          -- check *weak* convergence of inner unconstrained opt.
---          -- if UO converged, set opt state to converged and update UO state (NOT EP state)
---          -- if not, keep running UO (inner state implicitly stored)
---          -- note convergence checks are only on the varying part of the state
---          UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
---            -- let unconstrConverged = optStopCond gradEval in
---            let unconstrConverged = epStopCond vstate vstate'
---                                    (objFnApplied vstate) (objFnApplied vstate') in
---            if unconstrConverged then
---               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
---               (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
---            else (vstate', params) -- update UO state but not EP state; UO still running
+         -- check *weak* convergence of inner unconstrained opt.
+         -- if UO converged, set opt state to converged and update UO state (NOT EP state)
+         -- if not, keep running UO (inner state implicitly stored)
+         -- note convergence checks are only on the varying part of the state
+         UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
+           -- let unconstrConverged = optStopCond gradEval in
+           let unconstrConverged = epStopCond vstate vstate'
+                                   (objFnApplied vstate) (objFnApplied vstate') in
+           if unconstrConverged then
+              let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
+              (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
+           else (vstate', params) -- update UO state but not EP state; UO still running
 
---          -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
---          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
---          -- and whether to check WRT the updated state or not
---          UnconstrainedConverged (EPstate lastEPstate) ->
---            let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
---                                    (objFnApplied lastEPstate) (objFnApplied vstate) in
---            if epConverged then
---               let status' = EPConverged in -- no more EP state
---               (vstate, params { optStatus = status'}) -- do not update UO state
---            -- update EP state: to be the converged state from the most recent UO
---            else let status' = UnconstrainedRunning $ EPstate vstate in -- increase weight
---                 (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
+         -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
+         -- TODO some trickiness about whether unconstrained-converged has updated the correct state
+         -- and whether to check WRT the updated state or not
+         UnconstrainedConverged lastEPstate ->
+           let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
+                                   (objFnApplied lastEPstate) (objFnApplied vstate) in
+           if epConverged then
+              let status' = EPConverged in -- no more EP state
+              (vstate, params { optStatus = status'}) -- do not update UO state
+           -- update EP state: to be the converged state from the most recent UO
+           else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
+                (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
 
---          -- done; don't update obj state or params; user can now manipulate
---          EPConverged -> (vstate, params)
+         -- done; don't update obj state or params; user can now manipulate
+         EPConverged -> (vstate, params)
 
---          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
+         -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
---          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
---         where (vstate', gradEval) = stepWithObjective params vstate
---               objFnApplied = (overallObjFn params) (weight params)
+         -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
+        where (vstate', gradEval) = stepWithObjective params vstate
+              objFnApplied = (overallObjFn params) (weight params)
 
 
--- -- Given the time, state, and evaluated gradient (or other search direction) at the point,
--- -- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
--- -- not gloss's `Float`
--- stepT :: Floating a => a -> a -> a -> a
--- stepT dt x dfdx = x - dt * dfdx
+-- Given the time, state, and evaluated gradient (or other search direction) at the point,
+-- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
+-- not gloss's `Float`
+stepT :: Floating a => a -> a -> a -> a
+stepT dt x dfdx = x - dt * dfdx
 
--- -- Calculates the new state by calculating the directional derivatives (via autodiff)
--- -- and timestep (via line search), then using them to step the current state.
--- -- Also partially applies the objective function.
--- stepWithObjective :: (Autofloat a) => Params a -> [a] -> ([a], [a])
--- stepWithObjective params state = (steppedState, gradEval)
---     where (t', gradEval) = timeAndGrad objFnApplied state
---           -- get timestep via line search, and evaluated gradient at the state
---           -- step each parameter of the state with the time and gradient
---           -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
---           steppedState = let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
---                          trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
---                                 ++ "\n|f(x') - f(x)|: " ++
---                                (show $ abs (objFnApplied state - objFnApplied state'))
---                                 ++ "\ngradEval: \n" ++ (show gradEval)
---                                 ++ "\nstate: \n" ++ (show state') )
---                          state'
+-- Calculates the new state by calculating the directional derivatives (via autodiff)
+-- and timestep (via line search), then using them to step the current state.
+-- Also partially applies the objective function.
+stepWithObjective :: (Autofloat a) => Params -> [a] -> ([a], [a])
+stepWithObjective params state = (steppedState, gradEval)
+    where (t', gradEval) = timeAndGrad objFnApplied state
+          -- get timestep via line search, and evaluated gradient at the state
+          -- step each parameter of the state with the time and gradient
+          -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
+          steppedState = let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
+                         trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
+                                ++ "\n|f(x') - f(x)|: " ++
+                               (show $ abs (objFnApplied state - objFnApplied state'))
+                                ++ "\ngradEval: \n" ++ (show gradEval)
+                                ++ "\nstate: \n" ++ (show state') )
+                         state'
 
---           objFnApplied :: ObjFn1 b
---           objFnApplied = (overallObjFn params) cWeight
---           cWeight = realToFrac $ weight params
---           -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
+          objFnApplied :: ObjFn1 b
+          objFnApplied = (overallObjFn params) cWeight
+          cWeight = realToFrac $ weight params
+          -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
 
--- -- a version of grad with a clearer type signature
--- appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
--- appGrad f l = grad f l
+-- a version of grad with a clearer type signature
+appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
+appGrad f l = grad f l
 
--- -- Given the objective function, gradient function, timestep, and current state,
--- -- return the timestep (found via line search) and evaluated gradient at the current state.
--- -- the autodiff library requires that objective functions be polymorphic with Floating a
--- timeAndGrad :: (Autofloat b) => ObjFn1 a -> [b] -> (b, [b])
--- timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
---             where gradF :: GradFn a
---                   gradF = appGrad f
---                   gradEval = gradF (tr "STATE: " state)
---                   -- Use line search to find a good timestep.
---                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
---                   descentDir = negL gradEval
---                   -- timestep :: Floating c => c
---                   timestep = let resT = awLineSearch f duf descentDir state in
---                              if isNaN resT then tr "returned timestep is NaN" nanSub else resT
---                   -- directional derivative at u, where u is the negated gradient in awLineSearch
---                   -- descent direction need not have unit norm
---                   -- we could also use a different descent direction if desired
---                   duf :: (Autofloat a) => [a] -> [a] -> a
---                   duf u x = gradF x `dotL` u
+-- Given the objective function, gradient function, timestep, and current state,
+-- return the timestep (found via line search) and evaluated gradient at the current state.
+-- the autodiff library requires that objective functions be polymorphic with Floating a
+timeAndGrad :: (Autofloat b) => ObjFn1 a -> [b] -> (b, [b])
+timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
+            where gradF :: GradFn a
+                  gradF = appGrad f
+                  gradEval = gradF (tr "STATE: " state)
+                  -- Use line search to find a good timestep.
+                  -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
+                  descentDir = negL gradEval
+                  -- timestep :: Floating c => c
+                  timestep = let resT = awLineSearch f duf descentDir state in
+                             if isNaN resT then tr "returned timestep is NaN" nanSub else resT
+                  -- directional derivative at u, where u is the negated gradient in awLineSearch
+                  -- descent direction need not have unit norm
+                  -- we could also use a different descent direction if desired
+                  duf :: (Autofloat a) => [a] -> [a] -> a
+                  duf u x = gradF x `dotL` u
 
--- -- Implements Armijo-Wolfe line search as specified in Keenan's notes, converges on nonconvex fns as well
--- -- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods", page TODO
--- -- duf = D_u(f), the directional derivative of f at descent direction u
--- -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
--- -- TODO summarize algorithm
--- -- TODO what happens if there are NaNs in awLineSearch? or infinities
--- awLineSearch :: (Autofloat b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
--- awLineSearch f duf_noU descentDir x0 =
---              -- results after a&w are satisfied are junk and can be discarded
---              -- drop while a&w are not satisfied OR the interval is large enough
---     --  let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
---     --                           $ iterate update (a0, b0, t0) in tf
---      let (numUpdatas, (af, bf, tf)) = head $ dropWhile (intervalOK_or_notArmijoAndWolfe . snd)
---                               $ zip [0..] $ iterate update (a0, b0, t0) in
---                             --   trRaw ("Linear search update count: " ++ show numUpdatas) $
---                               tf
---           where (a0, b0, t0) = (0, infinity, 1)
---                 duf = duf_noU descentDir
---                 update (a, b, t) =
---                        let (a', b', sat) = if not $ armijo t then tr' "not armijo" (a, t, False)
---                                            else if not $ weakWolfe t then tr' "not wolfe" (t, b, False)
---                                            -- remember to change both wolfes
---                                            else (a, b, True) in
---                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
---                        else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
---                        else tr' "b' = infinity" (a', b', 2 * a')
---                 intervalOK_or_notArmijoAndWolfe (a, b, t) = not $
---                       if armijo t && weakWolfe t then -- takes precedence
---                            tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True
---                       else if abs (b - a) < minInterval then
---                            tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
---                       else False -- could be shorter; long for debugging purposes
---                 armijo t = (f ((tr' "** x0" x0) +. t *. (tr' "descentDir" descentDir))) <= ((tr' "fAtX0"fAtx0) + c1 * t * (tr' "dufAtX0" dufAtx0))
---                 strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
---                 weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
---                           where duf_x_tu = tr' "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
---                                 t' = tr' "t" t
---                                 descentDir' = descentDir --tr' "descentDir" descentDir
---                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
---                 fAtx0 = f x0 -- TODO debug why NaN. even using removeNaN' didn't help
---                 minInterval = if intervalMin then 10 ** (-10) else 0
---                 -- stop if the interval gets too small; might not terminate
+-- Implements Armijo-Wolfe line search as specified in Keenan's notes, converges on nonconvex fns as well
+-- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods", page TODO
+-- duf = D_u(f), the directional derivative of f at descent direction u
+-- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
+-- TODO summarize algorithm
+-- TODO what happens if there are NaNs in awLineSearch? or infinities
+awLineSearch :: (Autofloat b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
+awLineSearch f duf_noU descentDir x0 =
+             -- results after a&w are satisfied are junk and can be discarded
+             -- drop while a&w are not satisfied OR the interval is large enough
+    --  let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
+    --                           $ iterate update (a0, b0, t0) in tf
+     let (numUpdatas, (af, bf, tf)) = head $ dropWhile (intervalOK_or_notArmijoAndWolfe . snd)
+                              $ zip [0..] $ iterate update (a0, b0, t0) in
+                            --   trRaw ("Linear search update count: " ++ show numUpdatas) $
+                              tf
+          where (a0, b0, t0) = (0, infinity, 1)
+                duf = duf_noU descentDir
+                update (a, b, t) =
+                       let (a', b', sat) = if not $ armijo t then tr' "not armijo" (a, t, False)
+                                           else if not $ weakWolfe t then tr' "not wolfe" (t, b, False)
+                                           -- remember to change both wolfes
+                                           else (a, b, True) in
+                       if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
+                       else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
+                       else tr' "b' = infinity" (a', b', 2 * a')
+                intervalOK_or_notArmijoAndWolfe (a, b, t) = not $
+                      if armijo t && weakWolfe t then -- takes precedence
+                           tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True
+                      else if abs (b - a) < minInterval then
+                           tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
+                      else False -- could be shorter; long for debugging purposes
+                armijo t = (f ((tr' "** x0" x0) +. t *. (tr' "descentDir" descentDir))) <= ((tr' "fAtX0"fAtx0) + c1 * t * (tr' "dufAtX0" dufAtx0))
+                strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
+                weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
+                          where duf_x_tu = tr' "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
+                                t' = tr' "t" t
+                                descentDir' = descentDir --tr' "descentDir" descentDir
+                dufAtx0 = duf x0 -- cache some results, can cache more if needed
+                fAtx0 = f x0 -- TODO debug why NaN. even using removeNaN' didn't help
+                minInterval = if intervalMin then 10 ** (-10) else 0
+                -- stop if the interval gets too small; might not terminate

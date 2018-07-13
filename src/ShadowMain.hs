@@ -1,5 +1,7 @@
 -- | Main module of the Penrose system (split out for testing; Main is the real main)
 
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable #-}
+
 module ShadowMain where
 import Utils
 import qualified Server
@@ -77,15 +79,32 @@ shadowMain = do
     forM subss pPrint
     divLine
 
-    let trans = NS.translateStyProg subEnv eqEnv subProg styProg
+    let trans = NS.translateStyProg subEnv eqEnv subProg styProg 
+                        :: forall a . (Autofloat a) => Either [NS.Error] (NS.Translation a)
     putStrLn "Translated Style program:\n"
     pPrint trans
     divLine
 
-    let res = NS.genOptProblemAndState {-(fromRight NS.initTrans trans) -}
+    let rstate = NS.genOptProblemAndState (fromRight NS.initTrans trans)
     putStrLn "Generated initial state:\n"
-    putStrLn "TODO Print"
-    -- pPrint res
+
+    -- TODO improve printing code
+    putStrLn "Shapes:"
+    pPrint $ NS.shapesr rstate
+    putStrLn "\nShape names:"
+    pPrint $ NS.shapeNames rstate
+    putStrLn "\nShape properties:"
+    pPrint $ NS.shapeProperties rstate
+    putStrLn "\nTranslation:"
+    pPrint $ NS.transr rstate
+    putStrLn "\nVarying paths:"
+    pPrint $ NS.varyingPaths rstate
+    putStrLn "\nVarying state:"
+    pPrint $ NS.varyingState rstate
+    putStrLn "\nParams:"
+    pPrint $ NS.paramsr rstate
+    putStrLn "\nAutostep:"
+    pPrint $ NS.autostep rstate
     divLine
 
     -- COMBAK: remove and uncomment below
