@@ -12,13 +12,14 @@ import Data.Function (on)
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe, catMaybes, isNothing, maybeToList)
-import Data.List (nubBy, nub, intercalate)
+import Data.List (nubBy, nub, intercalate, partition)
 import Data.Tuple (swap)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
 import Text.Megaparsec.Perm
 import System.Environment
+import System.Random
 import Debug.Trace
 import qualified Substance as C
 import Functions (objFuncDict, constrFuncDict, ObjFnOn, Weight, ConstrFnOn, ConstrFnInfo, ObjFnInfo)
@@ -1136,7 +1137,100 @@ translateStyProg varEnv subEnv subProg styProg =
 
 ----- Types
 
-data RState a = RState { objs :: [S.Obj] } -- TODO
+data OptType = Objfn | Constrfn
+     deriving (Show, Eq)
+
+data Fn = Fn { fname :: String, 
+               fargs :: [Expr], 
+               optType :: OptType }
+     deriving (Show, Eq)
+
+data FnDone a = FnDone { fname_d :: String, 
+                         fargs_d :: [ArgVal a], 
+                         optType_d :: OptType }
+     deriving (Show, Eq)
+
+type OptFn a = [ArgVal a] -> a
+type CompFn' a = [ArgVal a] -> ArgVal a
+
+-- Fully evaluated inputs
+data ArgVal a = GPIArg GPICtor (PropertyDict a) | ValueArg (S.TypeIn a)
+     deriving (Eq, Show)
+
+-- RState defs
+
+type Shape a = (GPICtor, PropertyDict a)
+
+data LastEPstate a = EPstate [Shape a] deriving (Eq, Show)
+
+data OptStatus a = NewIter -- TODO should this be init with a state?
+               | UnconstrainedRunning (LastEPstate a)
+               | UnconstrainedConverged (LastEPstate a)
+               | EPConverged
+               deriving (Eq, Show)
+
+data Params a = Params { weight :: a,
+                         optStatus :: OptStatus a,
+                         overallObjFn :: a -> [a] -> a
+                       }
+
+instance Show a => Show (Params a) where
+         show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
+
+instance Eq a => Eq (Params a) where
+         p == q = (weight p) == (weight q) && (optStatus p) == (optStatus q)
+
+data RState a = RState { shapesr :: [Shape a],
+                         shapeNames :: [(String, Field)], -- TODO Sub name type
+                         transr :: Translation a,
+                         varyingPaths :: [Path],
+                         varyingState :: [a],
+                         params :: Params a,
+                         rng :: StdGen,
+                         autostep :: Bool }
+     deriving (Show)
+
+---
+
+optNoop :: (Autofloat a) => [ArgVal a] -> a
+optNoop _ = -1.5
+
+objFnDict :: (Autofloat a) => M.Map String (OptFn a)
+objFnDict = M.fromList objFnList
+          where objFnList = [("optNoop", optNoop),
+                             ("near", optNoop)
+                            ]
+
+constrFnDict :: (Autofloat a) => M.Map String (OptFn a)
+constrFnDict = M.fromList constrFnList
+          where constrFnList = [("optNoop", optNoop),
+                                ("lessThan", optNoop)
+                               ]
+
+testCompFn :: (Autofloat a) => CompFn' a
+testCompFn [ValueArg (S.TStr str), ValueArg (S.TInt n)] = 
+           let res = concat $ take (fromIntegral n) $ repeat str in
+           ValueArg (S.TStr res)
+
+noop :: (Autofloat a) => CompFn' a
+noop _ = ValueArg $ S.TStr "TODO: this is a no-op"
+
+compDict :: (Autofloat a) => M.Map String (CompFn' a)
+compDict = M.fromList flist
+         where flist = [("testCompFn", testCompFn),
+                        ("bbox", noop),
+                        ("curved", noop),
+                        ("len", noop),
+                        ("sampleMatrix", noop),
+                        ("sampleVectorIn", noop),
+                        ("intersection", noop),
+                        ("midpoint", noop),
+                        ("mulV", noop),
+                        ("determinant", noop),
+                        ("rgba", noop),
+                        ("addV", noop),
+                        ("apply", noop)
+                       ] -- TODO: port existing comps
 
 -- TODO: Style cannot parse property names like "stroke-width"
 floatProperties = M.fromList [
@@ -1177,11 +1271,14 @@ pathToList _ = error "pathToList should not handle Sty vars"
 
 -- If any float property is not initialized in properties, 
 -- or it's in properties and declared varying, it's varying
+findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map [Char] (TagExpr a) -> 
+                                               String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
     case M.lookup floatProperty properties of
     Nothing -> mkPath [name, field, floatProperty] : acc
     Just expr -> if declaredVarying expr then mkPath [name, field, floatProperty] : acc else acc
 
+findFieldVarying :: (Autofloat a) => String -> Field -> FieldExpr a -> [Path] -> [Path]
 findFieldVarying name field (FExpr expr) acc =
     if declaredVarying expr
     then mkPath [name, field] : acc -- TODO: deal with StyVars
@@ -1191,6 +1288,7 @@ findFieldVarying name field (GPI ctor properties) acc =
     let vs = foldr (findPropertyVarying name field properties) [] ctorFloats in
     vs ++ acc
 
+findVarying :: (Autofloat a) => Translation a -> [Path]
 findVarying = foldSubObjs findFieldVarying
 
 --
@@ -1203,6 +1301,13 @@ findFieldFns name field (FExpr (OptEval expr)) acc =
 findFieldFns name field (GPI _ _) acc = acc
 
 findObjfnsConstrs = foldSubObjs findFieldFns
+
+--
+
+findGPIName name field (GPI _ _) acc = (name, field) : acc
+findGPIName _ _ (FExpr _) acc = acc
+
+findShapeNames = foldSubObjs findGPIName
 
 --- Sampling state
 
@@ -1231,38 +1336,6 @@ toTagExpr :: (Autofloat a) => a -> TagExpr a
 toTagExpr n = Done (S.TNum n)
 
 --- Evaluation
-
--- Fully evaluated inputs
-data ArgVal a = GPIArg GPICtor (PropertyDict a) | ValueArg (S.TypeIn a)
-     deriving (Eq, Show)
-
-type OptFn a = [ArgVal a] -> a
-type CompFn' a = [ArgVal a] -> ArgVal a
-
-testCompFn :: (Autofloat a) => CompFn' a
-testCompFn [ValueArg (S.TStr str), ValueArg (S.TInt n)] = 
-           let res = concat $ take (fromIntegral n) $ repeat str in
-           ValueArg (S.TStr res)
-
-noop :: (Autofloat a) => CompFn' a
-noop _ = ValueArg $ S.TStr "TODO: this is a no-op"
-
-compDict :: (Autofloat a) => M.Map String (CompFn' a)
-compDict = M.fromList flist
-         where flist = [("testCompFn", testCompFn),
-                        ("bbox", noop),
-                        ("curved", noop),
-                        ("len", noop),
-                        ("sampleMatrix", noop),
-                        ("sampleVectorIn", noop),
-                        ("intersection", noop),
-                        ("midpoint", noop),
-                        ("mulV", noop),
-                        ("determinant", noop),
-                        ("rgba", noop),
-                        ("addV", noop),
-                        ("apply", noop)
-                       ] -- TODO: port existing comps
 
 -- TODO: write a more general typechecking mechanism
 evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> S.TypeIn a
@@ -1421,64 +1494,119 @@ evalExprs args trans =
                        let (argVal, trans') = evalExpr arg trans in
                        (argvals ++ [argVal], trans') -- So returned exprs are in same order
 
-genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> Translation a
+evalFnArgs :: (Autofloat a) => ([FnDone a], Translation a) -> Fn -> ([FnDone a], Translation a)
+evalFnArgs (fnDones, trans) fn =
+           let args = fargs fn in
+           let (argsVal, trans') = evalExprs (fargs fn) trans in
+           let fn' = FnDone { fname_d = fname fn, fargs_d = argsVal, optType_d = optType fn } in
+           (fnDones ++ [fn'], trans') -- TODO factor out this pattern
+
+evalFns :: (Autofloat a) => [Fn] -> Translation a -> ([FnDone a], Translation a)
+evalFns fns trans = foldl evalFnArgs ([], trans) fns
+
+-- from R.
+sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
+sumMap f l = sum $ map f l
+
+-- from R.
+-- constant b/c ambient fn value seems to be 10^4 and constr value seems to reach only 10, 10^2
+constrWeight :: Floating a => a
+constrWeight = 10 ^ 4
+
+-- TODO: the functions can just be looked up once, don't need to repeat
+applyOptFn :: (Autofloat a) => M.Map String (OptFn a) -> FnDone a -> a
+applyOptFn dict finfo =
+         case M.lookup (fname_d finfo) dict of
+         Nothing -> error ("opt fn '" ++ fname_d finfo ++ "' doesn't exist")
+         Just f -> f (fargs_d finfo)
+
+applyCombined :: (Autofloat a) => a -> [FnDone a] -> a
+applyCombined penaltyWeight fns =
+        let (objfns, constrfns) = partition (\f -> optType_d f == Objfn) fns in
+        sumMap (applyOptFn objFnDict) objfns 
+               + constrWeight * penaltyWeight * sumMap (applyOptFn constrFnDict) constrfns
+
+-- TODO: make sure the autodiff works w/ eval and genobjfn
+genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a ->
+                                              [a] -> (a, [FnDone a], Translation a)
 genObjfn trans objfns constrfns varyingPaths = 
          \penaltyWeight varying ->
          let varyingTagExprs = map toTagExpr varying in
-         let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in
-         let (argVals, transComputed) = evalExprs (concatMap fargs $ objfns ++ constrfns) transWithVarying in
-         transComputed
-         -- TODO: put args back in the comps in the right order, also look up GPIs
-         -- FILL IN applyCombined and change return type
-         -- let overallObjFn = applyCombined objfns constrfns transComputed in
-         -- overallObjFn
-
--- TODO: make sure the autodiff works w/ eval and genobjfn
-
-{- What's the type of this function? 
-   what's it partially applied with? what's it fully applied with?
-   what's the new type of an objfn?
-   how do I use the paths and and translation and the varying values?
-   how do I apply the computations?
-   how do I apply the objective functions?
-   how does the optimization have to change to use genObjFn?
--}
-
-data OptType = Objfn | Constrfn
-     deriving (Show, Eq)
-data Fn = Fn { fname :: String, fargs :: [Expr], optType :: OptType }
-     deriving (Show, Eq)
+         let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
+         let (fnsE, transE) = evalFns (objfns ++ constrfns) transWithVarying in
+         let overallEnergy = applyCombined penaltyWeight fnsE in
+         (overallEnergy, fnsE, transE)
 
 toFn otype (name, args) = Fn { fname = name, fargs = args, optType = otype }
 
 toFns (objfns, constrfns) = (map (toFn Objfn) objfns, map (toFn Constrfn) constrfns)
 
+fst3 (a, b, c) = a
+
+-- from R.
+initRng :: StdGen
+initRng = mkStdGen seed
+    where seed = 16 -- deterministic RNG with seed
+
+-- from R.
+-- for use in barrier/penalty method (interior/exterior point method)
+-- seems if the point starts in interior + weight starts v small and increases, then it converges
+-- not quite... if the weight is too small then the constraint will be violated
+initWeight :: Floating a => a
+initWeight = 10 ** (-5)
+-- initWeight = 10 ** (-3)
+
+-- TODO: fill this in when we use the actual shape type, also check that all values are Done
+trToShape :: (Autofloat a) => PropertyDict a -> PropertyDict a
+trToShape = id
+
+getShapes :: (Autofloat a) => [(String, Field)] -> Translation a -> [Shape a]
+getShapes shapenames trans = map (getShape trans) shapenames
+          -- TODO: fix use of Sub/Sty name here
+          where getShape trans (name, field) = 
+                    let fexpr = lookupField (BSubVar $ VarConst name) field trans in
+                    case fexpr of
+                    FExpr _ -> error "expected GPI, got field"
+                    GPI ctor properties -> (ctor, trToShape properties)
+
 --- Main function: what the Style compiler generates
 -- TODO fix clash with megaparsec State
 genOptProblemAndState
-  :: (Autofloat a) => Translation a
-     -> ([Path], ([Fn], [Fn]), [a], Translation a)
+  :: (Autofloat a) => Translation a -> RState a
 genOptProblemAndState trans = 
     -- objfns and constraints, TODO: and ambient ones
     let varyingPaths = findVarying trans in
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) trans in
 
-    -- FILL IN: initialize varying vars
+    -- TODO: create transInit properly; right now it just sets some varying vals to consts
+    -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
     let initState = sampleState varyingPaths in
-    -- TODO: sample initial state
+    let transInit = insertPaths varyingPaths (map toTagExpr initState) trans in
+
+    let shapeNames = findShapeNames transInit in
+    let initShapes = getShapes shapeNames transInit in
 
     -- add gradients -- not necessary
     -- TODO: zero grads properly
-
     -- TODO: apply computations once on init state WRT objfn args
 
-    -- TODO: make overall objective function, including eval fn / applying comps
-    let overallObjFn = genObjfn trans objfns constrfns varyingPaths in
-    let appliedFn = overallObjFn 10 initState in
-    -- let appliedFn = trans in
+    -- TODO: if it's partially applied w/ transinit and VP, don't store them in rstate
+    let overallObjFn = genObjfn transInit objfns constrfns varyingPaths in
+    let res = overallObjFn 10 initState in -- TODO remove, testing
+    let overallObjFn' = \p w -> fst3 $ overallObjFn p w in
 
-    -- TODO: return init state
-    -- RState { }
-    (varyingPaths, (objfns, constrfns), initState, appliedFn)
+    -- TODO: figure out how we rely / assume / enforce an order on varyingPaths and varyingState
+    RState { shapesr = initShapes,
+             shapeNames = shapeNames,
+             transr = transInit,
+             varyingPaths = varyingPaths,
+             varyingState = initState,
+             params = Params { weight = initWeight,
+                               optStatus = NewIter,
+                               overallObjFn = overallObjFn' },
+             rng = initRng,
+             autostep = False -- default
+           }
+    -- (varyingPaths, (objfns, constrfns), initState, res)
 
 -- TODO: write a function: Translation a -> [Shape a]
