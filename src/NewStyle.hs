@@ -2,6 +2,9 @@
 -- and functions to traverse the Style AST, which are used by "Runtime"
 
 {-# OPTIONS_HADDOCK prune #-}
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable #-}
+-- Mostly for autodiff
+
 module NewStyle where
 -- module Main (main) where -- for debugging purposes
 
@@ -29,6 +32,8 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Data.Dynamic
 import Data.Typeable
 import Env
+
+import Numeric.AD
 
 --------------------------------------------------------------------------------
 -- Style AST
@@ -1161,7 +1166,8 @@ data ArgVal a = GPIArg GPICtor (PropertyDict a) | ValueArg (S.TypeIn a)
 
 type Shape a = (GPICtor, PropertyDict a)
 
-data LastEPstate a = EPstate [Shape a] deriving (Eq, Show)
+-- Stores the last EP varying state (that is, the state when the unconstrained opt last converged)
+data LastEPstate a = EPstate [a] deriving (Eq, Show)
 
 data OptStatus a = NewIter -- TODO should this be init with a state?
                | UnconstrainedRunning (LastEPstate a)
@@ -1171,7 +1177,7 @@ data OptStatus a = NewIter -- TODO should this be init with a state?
 
 data Params a = Params { weight :: a,
                          optStatus :: OptStatus a,
-                         overallObjFn :: a -> [a] -> a
+                         overallObjFn :: forall b. b -> [b] -> b
                        }
 
 instance Show a => Show (Params a) where
@@ -1180,15 +1186,22 @@ instance Show a => Show (Params a) where
 instance Eq a => Eq (Params a) where
          p == q = (weight p) == (weight q) && (optStatus p) == (optStatus q)
 
-data RState a = RState { shapesr :: [Shape a],
-                         shapeNames :: [(String, Field)], -- TODO Sub name type
-                         transr :: Translation a,
-                         varyingPaths :: [Path],
-                         varyingState :: [a],
-                         params :: Params a,
-                         rng :: StdGen,
+-- data RState a = RState { shapesr :: [Shape a],
+--                          shapeNames :: [(String, Field)], -- TODO Sub name type
+--                          transr :: Translation a,
+--                          varyingPaths :: [Path],
+--                          varyingState :: [a],
+--                          paramsr :: Params a,
+--                          rng :: StdGen,
+--                          autostep :: Bool }
+--      deriving (Show)
+
+data RState = RState { fn :: forall a . (Autofloat a) => a -> [a] -> a,
                          autostep :: Bool }
-     deriving (Show)
+     -- deriving (Show)
+
+instance Show RState where
+         show s = "show rstate test"
 
 ---
 
@@ -1527,15 +1540,15 @@ applyCombined penaltyWeight fns =
                + constrWeight * penaltyWeight * sumMap (applyOptFn constrFnDict) constrfns
 
 -- TODO: make sure the autodiff works w/ eval and genobjfn
-genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a ->
-                                              [a] -> (a, [FnDone a], Translation a)
+genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] 
+                                           -> a -> [a] -> a
 genObjfn trans objfns constrfns varyingPaths = 
          \penaltyWeight varying ->
          let varyingTagExprs = map toTagExpr varying in
          let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
          let (fnsE, transE) = evalFns (objfns ++ constrfns) transWithVarying in
          let overallEnergy = applyCombined penaltyWeight fnsE in
-         (overallEnergy, fnsE, transE)
+         overallEnergy
 
 toFn otype (name, args) = Fn { fname = name, fargs = args, optType = otype }
 
@@ -1552,7 +1565,7 @@ initRng = mkStdGen seed
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
-initWeight :: Floating a => a
+initWeight :: Autofloat a => a
 initWeight = 10 ** (-5)
 -- initWeight = 10 ** (-3)
 
@@ -1569,11 +1582,15 @@ getShapes shapenames trans = map (getShape trans) shapenames
                     FExpr _ -> error "expected GPI, got field"
                     GPI ctor properties -> (ctor, trToShape properties)
 
+testFn :: (Autofloat a) => forall a . a -> [a] -> a
+testFn _ = error "OBJ FN"
+
 --- Main function: what the Style compiler generates
 -- TODO fix clash with megaparsec State
-genOptProblemAndState
-  :: (Autofloat a) => Translation a -> RState a
-genOptProblemAndState trans = 
+-- genOptProblemAndState :: (Autofloat a) => Translation a -> RState 
+genOptProblemAndState :: RState
+genOptProblemAndState = 
+    let trans = initTrans in
     -- objfns and constraints, TODO: and ambient ones
     let varyingPaths = findVarying trans in
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) trans in
@@ -1591,22 +1608,231 @@ genOptProblemAndState trans =
     -- TODO: apply computations once on init state WRT objfn args
 
     -- TODO: if it's partially applied w/ transinit and VP, don't store them in rstate
-    let overallObjFn = genObjfn transInit objfns constrfns varyingPaths in
-    let res = overallObjFn 10 initState in -- TODO remove, testing
-    let overallObjFn' = \p w -> fst3 $ overallObjFn p w in
+    let overallFn = genObjfn transInit objfns constrfns varyingPaths in
+    -- let overallFn = testFn in
 
     -- TODO: figure out how we rely / assume / enforce an order on varyingPaths and varyingState
-    RState { shapesr = initShapes,
-             shapeNames = shapeNames,
-             transr = transInit,
-             varyingPaths = varyingPaths,
-             varyingState = initState,
-             params = Params { weight = initWeight,
-                               optStatus = NewIter,
-                               overallObjFn = overallObjFn' },
-             rng = initRng,
-             autostep = False -- default
-           }
-    -- (varyingPaths, (objfns, constrfns), initState, res)
+    -- This is the final Style compiler output
 
--- TODO: write a function: Translation a -> [Shape a]
+    RState { autostep = True, fn = overallFn }
+
+    -- RState { shapesr = initShapes,
+    --          shapeNames = shapeNames,
+    --          transr = transInit,
+    --          varyingPaths = varyingPaths,
+    --          varyingState = initState,
+    --          paramsr = Params { weight = initWeight,
+    --                            optStatus = NewIter,
+    --                            overallObjFn = overallFn },
+    --          rng = initRng,
+    --          autostep = False -- default
+    --        }
+
+----------------------------------------------------------------------------------------------
+
+-- New runtime: the optimizer
+-- TODO: move to separate file
+
+-- Opt types, util functions, and params
+
+-- type ObjFn1 a = forall a . (Autofloat a) => [a] -> a
+
+-- -- used for duf
+-- type ObjFn2 a = forall a . (Autofloat a) => [a] -> [a] -> a
+
+-- type GradFn a = forall a . (Autofloat a) => [a] -> [a]
+
+-- weightGrowthFactor :: (Autofloat a) => a -- for EP weight
+-- weightGrowthFactor = 10
+
+-- epStop :: Floating a => a -- for EP diff
+-- epStop = 10 ** (-3)
+-- -- epStop = 60 ** (-3)
+-- -- epStop = 10 ** (-1)
+-- -- epStop = 0.05
+
+-- -- convergence criterion for EP
+-- -- if you want to use it for UO, needs a different epsilon
+-- epStopCond :: (Autofloat a) => [a] -> [a] -> a -> a -> Bool
+-- epStopCond x x' fx fx' =
+--            trStr ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
+--            ++ "\n|f(x') - f(x)|: " ++ (show $ abs (fx - fx'))) $
+--            (norm (x -. x') <= epStop) || (abs (fx - fx') <= epStop)
+
+-- nanSub :: (Autofloat a) => a
+-- nanSub = 0
+
+-- -- Parameters for Armijo-Wolfe line search
+-- -- NOTE: must maintain 0 < c1 < c2 < 1
+-- c1 :: Floating a => a
+-- c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
+-- -- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
+-- -- turn Armijo off: c1 = 0
+
+-- c2 :: Floating a => a
+-- c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
+-- -- new directional derivative value / old DD value <= c2
+-- -- smaller c2 = smaller new derivative value = harder to satisfy
+-- -- turn Wolfe off: c1 = 1 (basically backatracking line search only)
+
+-- -- true = force linesearch halt if interval gets too small; false = no forced halt
+-- intervalMin = True 
+
+-- infinity :: Floating a => a
+-- infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
+-- -- all numbers are smaller than infinity except infinity, to which it's equal
+
+-- -------
+
+-- -- apply all computations
+-- evaluateAll :: (Autofloat a) => Translation a -> [Path] -> [a] -> Translation a
+-- evaluateAll trans paths varyingState = trans -- FILL IN
+
+-- step :: (Autofloat a) => RState a -> RState a
+-- step s = let (state', params') = stepShapes (paramsr s) (varyingState s) in
+--          let trans' = evaluateAll (transr s) (varyingPaths s) state' in
+--          let shapes' = getShapes (shapeNames s) trans' in
+--          s { varyingState = state', shapesr = shapes', paramsr = params' }
+--          -- should trans be updated?
+
+-- -- implements exterior point algo as described on page 6 here:
+-- -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
+-- stepShapes :: (Autofloat a) => Params a -> [a] -> ([a], Params a)
+-- stepShapes params vstate = -- varying state
+--          let (epWeight, epStatus) = (weight params, optStatus params) in
+--          case epStatus of
+
+--          -- start the outer EP optimization and the inner unconstrained optimization, recording initial EPstate
+--          NewIter -> let status' = UnconstrainedRunning $ EPstate vstate in
+--                     (vstate', params { weight = initWeight, optStatus = status'} )
+
+--          -- check *weak* convergence of inner unconstrained opt.
+--          -- if UO converged, set opt state to converged and update UO state (NOT EP state)
+--          -- if not, keep running UO (inner state implicitly stored)
+--          -- note convergence checks are only on the varying part of the state
+--          UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
+--            -- let unconstrConverged = optStopCond gradEval in
+--            let unconstrConverged = epStopCond vstate vstate'
+--                                    (objFnApplied vstate) (objFnApplied vstate') in
+--            if unconstrConverged then
+--               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
+--               (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
+--            else (vstate', params) -- update UO state but not EP state; UO still running
+
+--          -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
+--          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
+--          -- and whether to check WRT the updated state or not
+--          UnconstrainedConverged (EPstate lastEPstate) ->
+--            let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
+--                                    (objFnApplied lastEPstate) (objFnApplied vstate) in
+--            if epConverged then
+--               let status' = EPConverged in -- no more EP state
+--               (vstate, params { optStatus = status'}) -- do not update UO state
+--            -- update EP state: to be the converged state from the most recent UO
+--            else let status' = UnconstrainedRunning $ EPstate vstate in -- increase weight
+--                 (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
+
+--          -- done; don't update obj state or params; user can now manipulate
+--          EPConverged -> (vstate, params)
+
+--          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
+
+--          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
+--         where (vstate', gradEval) = stepWithObjective params vstate
+--               objFnApplied = (overallObjFn params) (weight params)
+
+
+-- -- Given the time, state, and evaluated gradient (or other search direction) at the point,
+-- -- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
+-- -- not gloss's `Float`
+-- stepT :: Floating a => a -> a -> a -> a
+-- stepT dt x dfdx = x - dt * dfdx
+
+-- -- Calculates the new state by calculating the directional derivatives (via autodiff)
+-- -- and timestep (via line search), then using them to step the current state.
+-- -- Also partially applies the objective function.
+-- stepWithObjective :: (Autofloat a) => Params a -> [a] -> ([a], [a])
+-- stepWithObjective params state = (steppedState, gradEval)
+--     where (t', gradEval) = timeAndGrad objFnApplied state
+--           -- get timestep via line search, and evaluated gradient at the state
+--           -- step each parameter of the state with the time and gradient
+--           -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
+--           steppedState = let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
+--                          trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
+--                                 ++ "\n|f(x') - f(x)|: " ++
+--                                (show $ abs (objFnApplied state - objFnApplied state'))
+--                                 ++ "\ngradEval: \n" ++ (show gradEval)
+--                                 ++ "\nstate: \n" ++ (show state') )
+--                          state'
+
+--           objFnApplied :: ObjFn1 b
+--           objFnApplied = (overallObjFn params) cWeight
+--           cWeight = realToFrac $ weight params
+--           -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
+
+-- -- a version of grad with a clearer type signature
+-- appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
+-- appGrad f l = grad f l
+
+-- -- Given the objective function, gradient function, timestep, and current state,
+-- -- return the timestep (found via line search) and evaluated gradient at the current state.
+-- -- the autodiff library requires that objective functions be polymorphic with Floating a
+-- timeAndGrad :: (Autofloat b) => ObjFn1 a -> [b] -> (b, [b])
+-- timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
+--             where gradF :: GradFn a
+--                   gradF = appGrad f
+--                   gradEval = gradF (tr "STATE: " state)
+--                   -- Use line search to find a good timestep.
+--                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
+--                   descentDir = negL gradEval
+--                   -- timestep :: Floating c => c
+--                   timestep = let resT = awLineSearch f duf descentDir state in
+--                              if isNaN resT then tr "returned timestep is NaN" nanSub else resT
+--                   -- directional derivative at u, where u is the negated gradient in awLineSearch
+--                   -- descent direction need not have unit norm
+--                   -- we could also use a different descent direction if desired
+--                   duf :: (Autofloat a) => [a] -> [a] -> a
+--                   duf u x = gradF x `dotL` u
+
+-- -- Implements Armijo-Wolfe line search as specified in Keenan's notes, converges on nonconvex fns as well
+-- -- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods", page TODO
+-- -- duf = D_u(f), the directional derivative of f at descent direction u
+-- -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
+-- -- TODO summarize algorithm
+-- -- TODO what happens if there are NaNs in awLineSearch? or infinities
+-- awLineSearch :: (Autofloat b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
+-- awLineSearch f duf_noU descentDir x0 =
+--              -- results after a&w are satisfied are junk and can be discarded
+--              -- drop while a&w are not satisfied OR the interval is large enough
+--     --  let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
+--     --                           $ iterate update (a0, b0, t0) in tf
+--      let (numUpdatas, (af, bf, tf)) = head $ dropWhile (intervalOK_or_notArmijoAndWolfe . snd)
+--                               $ zip [0..] $ iterate update (a0, b0, t0) in
+--                             --   trRaw ("Linear search update count: " ++ show numUpdatas) $
+--                               tf
+--           where (a0, b0, t0) = (0, infinity, 1)
+--                 duf = duf_noU descentDir
+--                 update (a, b, t) =
+--                        let (a', b', sat) = if not $ armijo t then tr' "not armijo" (a, t, False)
+--                                            else if not $ weakWolfe t then tr' "not wolfe" (t, b, False)
+--                                            -- remember to change both wolfes
+--                                            else (a, b, True) in
+--                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
+--                        else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
+--                        else tr' "b' = infinity" (a', b', 2 * a')
+--                 intervalOK_or_notArmijoAndWolfe (a, b, t) = not $
+--                       if armijo t && weakWolfe t then -- takes precedence
+--                            tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True
+--                       else if abs (b - a) < minInterval then
+--                            tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
+--                       else False -- could be shorter; long for debugging purposes
+--                 armijo t = (f ((tr' "** x0" x0) +. t *. (tr' "descentDir" descentDir))) <= ((tr' "fAtX0"fAtx0) + c1 * t * (tr' "dufAtX0" dufAtx0))
+--                 strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
+--                 weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
+--                           where duf_x_tu = tr' "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
+--                                 t' = tr' "t" t
+--                                 descentDir' = descentDir --tr' "descentDir" descentDir
+--                 dufAtx0 = duf x0 -- cache some results, can cache more if needed
+--                 fAtx0 = f x0 -- TODO debug why NaN. even using removeNaN' didn't help
+--                 minInterval = if intervalMin then 10 ** (-10) else 0
+--                 -- stop if the interval gets too small; might not terminate

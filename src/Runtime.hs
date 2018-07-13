@@ -1234,8 +1234,6 @@ tupMap f (a, b) = (f a, f b)
 
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
--- TODO change stepWithGradFn(s) to use this fn and its type
--- note: continue to use floats throughout the code, since gloss uses floats
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 timeAndGrad :: (Autofloat b) => ObjFn1 a -> b -> [b] -> (b, [b])
 timeAndGrad f t state = tr "timeAndGrad: " (timestep, gradEval)
