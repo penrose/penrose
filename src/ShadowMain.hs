@@ -8,6 +8,7 @@ import qualified Server
 import qualified Runtime as R
 import qualified Substance as C
 import qualified NewStyle as NS -- COMBAK: remove
+import qualified Optimizer as O -- COMBAK: remove
 import qualified Style as S
 import qualified Dsll as D
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
@@ -85,29 +86,29 @@ shadowMain = do
     pPrint trans
     divLine
 
-    let rstate = NS.genOptProblemAndState (fromRight NS.initTrans trans)
+    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
     putStrLn "Generated initial state:\n"
 
     -- TODO improve printing code
     putStrLn "Shapes:"
-    pPrint $ NS.shapesr rstate
+    pPrint $ NS.shapesr initState
     putStrLn "\nShape names:"
-    pPrint $ NS.shapeNames rstate
+    pPrint $ NS.shapeNames initState
     putStrLn "\nShape properties:"
-    pPrint $ NS.shapeProperties rstate
+    pPrint $ NS.shapeProperties initState
     putStrLn "\nTranslation:"
-    pPrint $ NS.transr rstate
+    pPrint $ NS.transr initState
     putStrLn "\nVarying paths:"
-    pPrint $ NS.varyingPaths rstate
+    pPrint $ NS.varyingPaths initState
     putStrLn "\nVarying state:"
-    pPrint $ NS.varyingState rstate
+    pPrint $ NS.varyingState initState
     putStrLn "\nParams:"
-    pPrint $ NS.paramsr rstate
+    pPrint $ NS.paramsr initState
     putStrLn "\nAutostep:"
-    pPrint $ NS.autostep rstate
+    pPrint $ NS.autostep initState
     divLine
 
-    -- COMBAK: remove and uncomment below
+    -- COMBAK: remove below
 
     -- let initState = R.genInitState subObjs styProg
     -- putStrLn "Synthesizing objects and objective functions"
@@ -117,12 +118,14 @@ shadowMain = do
     -- -- putStrLn "TODO derive Show"
     -- -- putStrLn $ show initState
     -- divLine
+
     putStrLn "Visualizing Substance program:\n"
     --
-    -- -- Starting serving penrose on the web
-    -- let (domain, port) = ("127.0.0.1", 9160)
-    -- Server.servePenrose domain port initState
+    -- Starting serving penrose on the web
+    let (domain, port) = ("127.0.0.1", 9160)
+    Server.servePenrose domain port initState
 
+-- TODO: port these to new Server/Optimizer (O.step)
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
 -- (extracted via unsafePerformIO)
@@ -140,12 +143,12 @@ mainRetInit subFile styFile dsllFile = do
     return $ Just initState
 
 mainRetFinal :: R.State -> R.State
-mainRetFinal initState =
-         let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepCount (initState, 0) in
-         let objsComputed = R.computeOnObjs_noGrad (R.objs finalState) (R.comps finalState) in
-         trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState { R.objs = objsComputed }
-         where stepCount (s, n) = (Server.step s, n + 1)
-               notConverged (s, n) = R.optStatus (R.params s) /= R.EPConverged
-                                     || n > maxSteps
-               maxSteps = 10 ** 10 -- Not sure how many steps it usually takes to converge
+mainRetFinal initState = error "port mainRetFinal"
+         -- let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepCount (initState, 0) in
+         -- let objsComputed = R.computeOnObjs_noGrad (R.objs finalState) (R.comps finalState) in
+         -- trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState { R.objs = objsComputed }
+         -- where stepCount (s, n) = (O.step s, n + 1)
+         --       notConverged (s, n) = R.optStatus (R.params s) /= R.EPConverged
+         --                             || n > maxSteps
+         --       maxSteps = 10 ** 10 -- Not sure how many steps it usually takes to converge
                -- TODO: looks like some things rely on the front-end library to check, like label size
