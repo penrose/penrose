@@ -1,0 +1,37 @@
+
+renderer Snap = -- some specification about the renderer such that Runtime knows
+                -- How to load it and use it
+renderer POVRAY = -- 3D rendering
+
+-- Definition of a shape:
+--   property names with types and default values
+shape Circle =
+    Float  x      (default 0.0)
+    Float  y      (default 0.0)
+    Float  stroke (default 0.0)
+    Style  style  (default "filled")
+    String name   (default "defaultCircle")
+    Color  color  (default black)
+
+-- Render function of a shape using one of the renderers
+-- "<>" enclose code in another language
+render Circle Snap = <
+    function _renderCircle(s, obj) {
+        [x, y] = Utils.scr([obj.x, obj.y])
+        var circ = s.circle(x, y, obj.r);
+        circ.data("name", obj.name)
+        var color = obj.color
+        circ.attr({
+            fill: Utils.hex(color.r, color.g, color.b),
+            "fill-opacity": color.a,
+            "stroke-width": obj.stroke,
+            "stroke": "black",
+        });
+        if(obj.style == "dashed") {
+            circ.attr({
+                strokeDasharray: "7, 5" // "10"
+            })
+        }
+        circ.drag(move, start, stop)
+    }
+>
