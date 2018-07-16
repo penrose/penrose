@@ -1353,98 +1353,112 @@ evalBinop op v1 v2 =
         (Val _, GPI _) -> error "binop cannot operate on GPI"
         (GPI _, GPI _) -> error "binop cannot operate on GPIs"
 
-evalProperty :: (Autofloat a) => BindingForm -> Field -> Translation a -> (Property, TagExpr a) -> Translation a
-evalProperty bvar field trans (property, expr) =
+evalProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> Translation a -> (Property, TagExpr a) -> Translation a
+evalProperty (i, n) bvar field trans (property, expr) =
         let path = EPath $ PropertyPath bvar field property in -- factor out?
-        let (_, trans') = evalExpr path trans in -- Doesn't need evaluated value
-        trans'
+        -- DEBUG
+        -- let (_, trans') = evalExpr (i, n) path trans in -- Doesn't need evaluated value
+        tr ("Starting evaluating property " ++ show path) trans -- DEBUG: SHOULD BE trans'
 
-evalGPI_withUpdate :: (Autofloat a) => BindingForm -> Field -> (GPICtor, PropertyDict a)
-                                        -> Translation a -> ((GPICtor, PropertyDict a), Translation a)
-evalGPI_withUpdate bvar field (ctor, properties) trans =
+evalGPI_withUpdate :: (Autofloat a) =>
+    (Int, Int) -> BindingForm -> Field -> (GPICtor, PropertyDict a) -> Translation a -> ((GPICtor, PropertyDict a), Translation a)
+evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans =
         -- Fold over the properties, evaluating each path, which will update the translation each time
-        let trans' = foldl (evalProperty bvar field) trans (M.toList properties) in
+        let trans' = foldl (evalProperty (i, n) bvar field) trans (M.toList properties) in
         -- Look up the final evaluated GPI
         let properties' = case lookupField bvar field trans' of
                           FGPI ctorT propertiesT -> if ctor == ctorT then propertiesT else error "wrong ctor"
                           FExpr _ -> error "expected GPI but got field" in
+        tr ("Starting evaluating a GPI: " ++
+        show properties ++ " " ++ "\n\tctor: " ++ "\n\tfield: " ++ show field)
+
+        -- show ((i, n), bvar, field, (ctor, properties)))
         ((ctor, properties'), trans')
 
+startingIteration, maxEvalIteration :: Int
+startingIteration = 0
+maxEvalIteration  = 1000
+
+evalIterRange :: (Int, Int)
+evalIterRange = (startingIteration, maxEvalIteration)
+
 -- recursively evaluate, TODO track iteration depth and check for cycles in graph
-evalExpr :: (Autofloat a) => Expr -> Translation a -> (ArgVal a, Translation a)
-evalExpr arg trans =
-    trace "hello" $ case arg of
-    -- Already done values; don't change trans
-    IntLit i -> (Val $ IntV i, trans)
-    StringLit s -> (Val $ StrV s, trans)
-    AFloat (Fix f) -> (Val $ FloatV (r2f f), trans) -- TODO: note use of r2f here. is that ok?
+evalExpr :: (Autofloat a) => (Int, Int) -> Expr -> Translation a -> (ArgVal a, Translation a)
+evalExpr (i, n) arg trans =
+    if i >= n then error ("evalExpr: iteration depth exceeded (" ++ show n ++ ")")
+        else trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n) argResult
+    where argResult = case arg of
+            -- Already done values; don't change trans
+            IntLit i -> (Val $ IntV i, trans)
+            StringLit s -> (Val $ StrV s, trans)
+            AFloat (Fix f) -> (Val $ FloatV (r2f f), trans) -- TODO: note use of r2f here. is that ok?
 
-    -- Inline computation, needs a recursive lookup that may change trans, but not a path
-    -- TODO factor out eval / trans computation?
-    UOp op e ->
-        let (val, trans') = evalExpr e trans in
-        let compVal = evalUop op val in
-        (Val compVal, trans')
-    BinOp op e1 e2 ->
-        let ([v1, v2], trans') = evalExprs [e1, e2] trans in
-        let compVal = evalBinop op v1 v2 in
-        (Val compVal, trans')
-    CompApp fname args ->
-        let (vs, trans') = evalExprs args trans in
-        case M.lookup fname compDict of
-        Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
-        Just f -> let res = f vs in
-                  (res, trans')
-    List es -> error "TODO lists"
-        -- let (vs, trans') = evalExprs es trans in
-        -- (vs, trans')
-    ListAccess p i -> error "TODO lists"
+            -- Inline computation, needs a recursive lookup that may change trans, but not a path
+            -- TODO factor out eval / trans computation?
+            UOp op e ->
+                let (val, trans') = evalExpr (i+1, n) e trans in
+                let compVal = evalUop op val in
+                (Val compVal, trans')
+            BinOp op e1 e2 ->
+                let ([v1, v2], trans') = evalExprs (i+1, n) [e1, e2] trans in
+                let compVal = evalBinop op v1 v2 in
+                (Val compVal, trans')
+            CompApp fname args ->
+                let (vs, trans') = evalExprs (i+1, n) args trans in
+                case M.lookup fname compDict of
+                Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
+                Just f -> let res = f vs in
+                          (res, trans')
+            List es -> error "TODO lists"
+                -- let (vs, trans') = evalExprs es trans in
+                -- (vs, trans')
+            ListAccess p i -> error "TODO lists"
 
-    -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
-    EPath p ->
-          case p of
-          FieldPath bvar field ->
-             -- Lookup field expr, evaluate it if necessary, cache the evaluated value in the trans,
-             -- return the evaluated value and the updated trans
-             let fexpr = lookupField bvar field trans in
-             case fexpr of
-             FExpr (Done v) -> (Val v, trans)
-             FExpr (OptEval e) ->
-                 let (v, trans') = evalExpr e trans in
-                 case v of
-                 Val fval ->
-                     case insertPath trans' (p, Done fval) of
-                     Right trans' -> (v, trans')
-                     Left err -> error $ concat err
-                 GPI _ -> error "path to field expr evaluated to a GPI"
-             FGPI ctor properties ->
-             -- Eval each property in the GPI, then lookup the updated GPI in the translation and return it
-             -- No need to update the translation because each path should update the translation
-                 let (gpiVal@(ctor, propertiesVal), trans') =
-                         evalGPI_withUpdate bvar field (ctor, properties) trans in
-                 (GPI (ctor, shapeExprsToVals ((bvarToString bvar), field) propertiesVal), trans')
+            -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
+            EPath p ->
+                  case p of
+                  FieldPath bvar field ->
+                     -- Lookup field expr, evaluate it if necessary, cache the evaluated value in the trans,
+                     -- return the evaluated value and the updated trans
+                     let fexpr = lookupField bvar field trans in
+                     case fexpr of
+                     FExpr (Done v) -> (Val v, trans)
+                     FExpr (OptEval e) ->
+                         let (v, trans') = evalExpr (i+1, n) e trans in
+                         case v of
+                         Val fval ->
+                             case insertPath trans' (p, Done fval) of
+                             Right trans' -> (v, trans')
+                             Left err -> error $ concat err
+                         GPI _ -> error "path to field expr evaluated to a GPI"
+                     FGPI ctor properties ->
+                     -- Eval each property in the GPI, then lookup the updated GPI in the translation and return it
+                     -- No need to update the translation because each path should update the translation
+                         let (gpiVal@(ctor', propertiesVal), trans') =
+                                 evalGPI_withUpdate (i+1, n) bvar field (ctor, properties) trans in
+                         (GPI (ctor', shapeExprsToVals (bvarToString bvar, field) propertiesVal), trans')
 
-          PropertyPath bvar field property ->
-              let texpr = lookupProperty bvar field property trans in
-              case texpr of
-              Done v -> (Val v, trans)
-              OptEval e ->
-                 let (v, trans') = evalExpr e trans in
-                 case v of
-                 Val fval ->
-                     case insertPath trans' (p, Done fval) of
-                     Right trans' -> (v, trans')
-                     Left err -> error $ concat err
-                 GPI _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
+                  PropertyPath bvar field property ->
+                      let texpr = lookupProperty bvar field property trans in
+                      case texpr of
+                      Done v -> (Val v, trans)
+                      OptEval e ->
+                         let (v, trans') = evalExpr (i+1, n) e trans in
+                         case v of
+                         Val fval ->
+                             case insertPath trans' (p, Done fval) of
+                             Right trans' -> (v, trans')
+                             Left err -> error $ concat err
+                         GPI _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
 
-    -- GPI argument
-    Ctor ctor properties -> error "no anonymous/inline GPIs allowed as expressions!"
+            -- GPI argument
+            Ctor ctor properties -> error "no anonymous/inline GPIs allowed as expressions!"
 
-    -- Error
-    Layering _ -> error "layering should not be an objfn arg (or in the children of one)"
-    ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
-    ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
-    AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
+            -- Error
+            Layering _ -> error "layering should not be an objfn arg (or in the children of one)"
+            ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
+            ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
+            AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
 
 -- TODO move lookups to utils
 lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldExpr a
@@ -1470,23 +1484,23 @@ lookupProperty bvar field property trans =
         Just texpr -> texpr
 
 -- Any evaluated exprs are cached in the translation for future evaluation
-evalExprs :: (Autofloat a) => [Expr] -> Translation a -> ([ArgVal a], Translation a)
-evalExprs args trans =
+evalExprs :: (Autofloat a) => (Int, Int) -> [Expr] -> Translation a -> ([ArgVal a], Translation a)
+evalExprs (i, n) args trans =
     foldl evalExprF ([], trans) args
     where evalExprF :: (Autofloat a) => ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
           evalExprF (argvals, trans) arg =
-                       let (argVal, trans') = evalExpr arg trans in
+                       let (argVal, trans') = evalExpr (i, n) arg trans in
                        (argvals ++ [argVal], trans') -- So returned exprs are in same order
 
-evalFnArgs :: (Autofloat a) => ([FnDone a], Translation a) -> Fn -> ([FnDone a], Translation a)
-evalFnArgs (fnDones, trans) fn =
+evalFnArgs :: (Autofloat a) => (Int, Int) -> ([FnDone a], Translation a) -> Fn -> ([FnDone a], Translation a)
+evalFnArgs limit (fnDones, trans) fn =
            let args = fargs fn in
-           let (argsVal, trans') = evalExprs (fargs fn) trans in
+           let (argsVal, trans') = evalExprs limit (fargs fn) trans in
            let fn' = FnDone { fname_d = fname fn, fargs_d = argsVal, optType_d = optType fn } in
            (fnDones ++ [fn'], trans') -- TODO factor out this pattern
 
-evalFns :: (Autofloat a) => [Fn] -> Translation a -> ([FnDone a], Translation a)
-evalFns fns trans = foldl evalFnArgs ([], trans) fns
+evalFns :: (Autofloat a) => (Int, Int) -> [Fn] -> Translation a -> ([FnDone a], Translation a)
+evalFns limit fns trans = foldl (evalFnArgs limit) ([], trans) fns
 
 -- from R.
 sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
@@ -1517,9 +1531,9 @@ genObjfn trans objfns constrfns varyingPaths =
          \penaltyWeight varying ->
          let varyingTagExprs = map toTagExpr varying in
          let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
-         let (fnsE, transE) = evalFns (objfns ++ constrfns) transWithVarying in
-         let overallEnergy = applyCombined penaltyWeight fnsE in
-         overallEnergy
+         let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) (tr "transWithVarying" transWithVarying) in
+         let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
+         tr "Completed applying optimization function" overallEnergy
 
 toFn otype (name, args) = Fn { fname = name, fargs = args, optType = otype }
 
@@ -1540,7 +1554,7 @@ initWeight :: Autofloat a => a
 initWeight = 10 ** (-5)
 -- initWeight = 10 ** (-3)
 
--- TODO: fill this in when we use the actual shape type, also check that all values are Done
+-- TODO: resolve label logic here
 shapeExprsToVals :: (Autofloat a) =>
     (String, Field) -> PropertyDict a -> Properties a
 shapeExprsToVals (subName, field) properties =
@@ -1562,16 +1576,16 @@ getShapes shapenames trans = map (getShape trans) shapenames
                     FGPI ctor properties -> (ctor, shapeExprsToVals (name, field) properties)
 
 -- technically, we can use the values here instead of getting the shapes out of the trans again
-evalPropertyPath :: (Autofloat a) => Translation a -> (String, Field, Property) -> Translation a
-evalPropertyPath trans (name, field, property) =
+evalPropertyPath :: (Autofloat a) => (Int, Int) -> Translation a -> (String, Field, Property) -> Translation a
+evalPropertyPath limit trans (name, field, property) =
     let pathExpr = EPath $ PropertyPath (BSubVar (VarConst name)) field property in
     -- TODO figure out bindingform if styvar
-    let (_, trans') = evalExpr pathExpr trans in
+    let (_, trans') = evalExpr limit pathExpr trans in
     trans'
 
 -- recursively evaluate every shape property in the translation
-evalShapes :: (Autofloat a) => [(String, Field, Property)] -> Translation a -> Translation a
-evalShapes shapeProperties trans = foldl evalPropertyPath trans shapeProperties
+evalShapes :: (Autofloat a) => (Int, Int) -> [(String, Field, Property)] -> Translation a -> Translation a
+evalShapes limit shapeProperties trans = foldl (evalPropertyPath limit) trans shapeProperties
 
 initShapes :: (Autofloat a) =>
     Translation a -> [(String, Field)] -> Translation a
@@ -1634,7 +1648,7 @@ genOptProblemAndState trans =
     -- the varying values are re-inserted at each opt step
 
     -- Evaluate all expressions once to get the initial shapes
-    let transEvaled = evalShapes shapeProperties transInit in
+    let transEvaled = evalShapes evalIterRange shapeProperties transInit in
     let initState = lookupPaths varyingPaths transEvaled in
     let initShapes = getShapes shapeNames transEvaled in
 
