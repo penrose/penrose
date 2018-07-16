@@ -2,39 +2,43 @@
 --  and also the Gloss GUI, now functional bot deprecated.
 
 {-# OPTIONS_HADDOCK prune #-}
-{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE AllowAmbiguousTypes       #-}
+{-# LANGUAGE DeriveDataTypeable        #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE RankNTypes                #-}
+{-# LANGUAGE UnicodeSyntax             #-}
 -- for autodiff, requires passing in a polymorphic fn
 
 module Runtime where
-import Utils
-import Shapes
-import Functions
-import Computation
-import Data.Set (fromList)
-import Data.List
-import Data.List.Split (splitOn)
-import Data.Maybe
-import Data.Monoid ((<>))
-import Data.Aeson
-import Data.Function
-import Numeric.AD
-import GHC.Float -- float <-> double conversions
-import System.IO
-import System.Exit
-import System.Environment
-import System.Random
-import Debug.Trace
-import Data.Dynamic
-import Data.Typeable
-import Data.Data -- TODO remove extra dynamic/typeable/data imports and deriving everywhere if not used
-import Data.Either (partitionEithers)
-import qualified Data.Map.Strict as M
-import qualified Substance as C
-import qualified Style as S
+import           Computation
+import           Data.Aeson
+import           Data.Data
+import           Data.Dynamic
+import           Data.Either        (partitionEithers)
+import           Data.Function
+import           Data.List
+import           Data.List.Split    (splitOn)
+import qualified Data.Map.Strict    as M
+import           Data.Maybe
+import           Data.Monoid        ((<>))
+import           Data.Set           (fromList)
+import           Data.Typeable
+import           Debug.Trace
+import           Functions
+import           GHC.Float
+import           Numeric.AD
+import           Shapes
+import qualified Style              as S
+import qualified Substance          as C
+import           System.Environment
+import           System.Exit
+import           System.IO
+import           System.Random
+import           Utils
        -- (subPrettyPrint, styPrettyPrint, subParse, styParse)
        -- TODO limit export/import
-import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
+import qualified Text.Megaparsec    as MP (parseErrorPretty, runParser)
 
 ------ Types and type synonyms
 
@@ -46,19 +50,19 @@ data OptStatus = NewIter -- TODO should this be init with a state?
                | EPConverged
                deriving (Eq, Show, Typeable)
 
-data Params = Params { weight :: Double,
-                       optStatus :: OptStatus,
-                       objFn :: forall a. ObjFnPenaltyState a,
+data Params = Params { weight      :: Double,
+                       optStatus   :: OptStatus,
+                       objFn       :: forall a. ObjFnPenaltyState a,
                        annotations :: [[Annotation]]
                      } -- deriving (Eq, Show) -- TODO derive Show instance
 
 -- State of the runtime system
-data State = State { objs :: [Obj]
-                   , constrs :: [C.SubConstr]
-                   , comps :: forall a. (Autofloat a) => [ObjComp a]
-                   , rng :: StdGen -- random number generator
+data State = State { objs     :: [Obj]
+                   , constrs  :: [C.SubConstr]
+                   , comps    :: forall a. (Autofloat a) => [ObjComp a]
+                   , rng      :: StdGen -- random number generator
                    , autostep :: Bool -- automatically step optimization or not
-                   , params :: Params
+                   , params   :: Params
                    }  deriving (Typeable)
 
 -- | Datatypes for computation. ObjComp is gathered in pre-compilation and passed to functions that evaluate the computation.
@@ -122,7 +126,7 @@ unpackAnnotate objs = map unpackObj objs
 splitFV :: (Autofloat a) => [(a, Annotation)] -> (Fixed a, Varying a)
 splitFV annotated = foldr chooseList ([], []) annotated
         where chooseList :: (a, Annotation) -> (Fixed a, Varying a) -> (Fixed a, Varying a)
-              chooseList (x, Fix) (f, v) = (x : f, v)
+              chooseList (x, Fix) (f, v)  = (x : f, v)
               chooseList (x, Vary) (f, v) = (f, x : v)
 
 -- optimizer should use this unpack function
@@ -415,19 +419,19 @@ getShape oName labelText (objType, properties) =
          let (computations, properties_nocomps) = compsAndVars oName properties in
          let objInfo = case objType of
 
-              S.Text    -> initText oName properties_nocomps
-              S.Arrow   -> initArrow oName properties_nocomps
-              S.Circle  -> initCircle oName properties_nocomps
-              S.Ellip   -> initEllipse oName properties_nocomps
-              S.Box     -> initSquare oName properties_nocomps
-              S.Arc2 -> initArc oName properties_nocomps
+              S.Text      -> initText oName properties_nocomps
+              S.Arrow     -> initArrow oName properties_nocomps
+              S.Circle    -> initCircle oName properties_nocomps
+              S.Ellip     -> initEllipse oName properties_nocomps
+              S.Box       -> initSquare oName properties_nocomps
+              S.Arc2      -> initArc oName properties_nocomps
               S.Rectangle -> initRect oName properties_nocomps
-              S.Dot     -> initDot oName properties_nocomps
-              S.Curve   -> initCurve oName properties_nocomps
-              S.Line2    -> initLine oName properties_nocomps
-              S.Image      -> initImg oName properties_nocomps
-              S.Parallel -> initParallelogram oName properties_nocomps
-              S.NoShape -> ([], [], []) in
+              S.Dot       -> initDot oName properties_nocomps
+              S.Curve     -> initCurve oName properties_nocomps
+              S.Line2     -> initLine oName properties_nocomps
+              S.Image     -> initImg oName properties_nocomps
+              S.Parallel  -> initParallelogram oName properties_nocomps
+              S.NoShape   -> ([], [], []) in
          let res = tupAppend objInfo computations in
 
          -- TODO factor out label logic?
@@ -579,23 +583,23 @@ lookupId :: (Autofloat a) =>
 lookupId key dict = case M.lookup key dict of
     Just (TShape i)     -> Just i -- objects are looked up later
     Just (TAllShapes i) -> Just i -- objects are looked up later
-    Just res -> error ("expecting id, got:\n" ++ show res)
-    Nothing -> Nothing
+    Just res            -> error ("expecting id, got:\n" ++ show res)
+    Nothing             -> Nothing
 
 lookupStr :: (Autofloat a) =>
     String -> S.Properties a ->  Maybe String
 lookupStr key dict = case M.lookup key dict of
     Just (TStr i) -> Just i
-    Just res -> error ("expecting str, got:\n" ++ show res)
-    Nothing -> Nothing
+    Just res      -> error ("expecting str, got:\n" ++ show res)
+    Nothing       -> Nothing
 
 lookupFloat :: (Autofloat a) =>
     String -> S.Properties a ->  Maybe Float
 lookupFloat key dict = case M.lookup key dict of
      Just (TFloat i) -> Just i -- objects are looked up later
-     Just (TNum i) -> Just $ r2f i -- HACK: separate function
-     Just res -> error ("expecting float, got:\n" ++ show res)
-     Nothing -> Nothing
+     Just (TNum i)   -> Just $ r2f i -- HACK: separate function
+     Just res        -> error ("expecting float, got:\n" ++ show res)
+     Nothing         -> Nothing
 
     -- Just (S.CompArgs fn params) -> error "not expecting a computed property"
     -- FIXME: get dot access to work for arbitrary input
@@ -1013,7 +1017,7 @@ stateSize = 3
 
 chunksOf :: Int -> [a] -> [[a]]
 chunksOf _ [] = []
-chunksOf n l = take n l : chunksOf n (drop n l)
+chunksOf n l  = take n l : chunksOf n (drop n l)
 
 objsInfo :: [a] -> [[a]]
 objsInfo = chunksOf stateSize

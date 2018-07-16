@@ -41,9 +41,10 @@ defaultWeight :: Floating a => a
 defaultWeight = 1
 
 -- Debug flags
-debug = True
+-- debug = True
+debug = False
 debugStyle = False
-debugLineSearch = True
+debugLineSearch = False
 debugObj = False -- turn on/off output in obj fn or constraint
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
@@ -256,7 +257,6 @@ trs s x = if debugStyle then trace "---" $ trace s $ traceShowId x else x -- pri
 
 trRaw :: Show a => String -> a -> a
 trRaw s x = trace "---" $ trace s $ trace (show x ++ "\n") x -- prints in left to right order
--- trRaw s x = if debug then  trace "---" $ trace s $ trace (show x ++ "\n") x else x-- prints in left to right order
 
 trStr :: String -> a -> a
 trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order

@@ -60,14 +60,7 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 -- Main optimization functions
 
 step :: RState -> RState
--- step s = let (state', params') = stepShapes (paramsr s) (varyingState s) in
---          let transWithVarying = insertPaths (varyingPaths s) (map toTagExpr state') (transr s) in
---          let transEvaled = evalShapes (shapeProperties s) transWithVarying in
---          let shapes' = getShapes (shapeNames s) transEvaled in
---          s { varyingState = state', shapesr = shapes', paramsr = params' }
---          -- note: trans is not updated in rstate
-
-step s = let (state', params') = stepShapes (tr "Optimization params" $ paramsr s) (varyingState s) in
+step s = let (state', params') = stepShapes (trRaw ("Shapes: " ++ show ( shapesr s) ++ "\nOptimization params") $ paramsr s)  (varyingState s) in
          let transWithVarying = insertPaths (varyingPaths s) (map toTagExpr state') (transr s) in
          let transEvaled = evalShapes evalIterRange (shapeProperties s) transWithVarying in
          let shapes' = getShapes (shapeNames s) transEvaled in
@@ -87,39 +80,37 @@ stepShapes params vstate = -- varying state
          -- start the outer EP optimization and the inner unconstrained optimization, recording initial EPstate
          NewIter -> let status' = UnconstrainedRunning (map realToFrac vstate) in
                     (vstate', params { weight = initWeight, optStatus = status'} )
-         _ -> error "DEBUG: wrong state"
+         -- check *weak* convergence of inner unconstrained opt.
+         -- if UO converged, set opt state to converged and update UO state (NOT EP state)
+         -- if not, keep running UO (inner state implicitly stored)
+         -- note convergence checks are only on the varying part of the state
+         UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
+           -- let unconstrConverged = optStopCond gradEval in
+           let unconstrConverged = epStopCond vstate vstate'
+                                   (objFnApplied vstate) (objFnApplied vstate') in
+           if unconstrConverged then
+              let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
+              (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
+           else (vstate', params) -- update UO state but not EP state; UO still running
 
-         -- -- check *weak* convergence of inner unconstrained opt.
-         -- -- if UO converged, set opt state to converged and update UO state (NOT EP state)
-         -- -- if not, keep running UO (inner state implicitly stored)
-         -- -- note convergence checks are only on the varying part of the state
-         -- UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
-         --   -- let unconstrConverged = optStopCond gradEval in
-         --   let unconstrConverged = epStopCond vstate vstate'
-         --                           (objFnApplied vstate) (objFnApplied vstate') in
-         --   if unconstrConverged then
-         --      let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
-         --      (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
-         --   else (vstate', params) -- update UO state but not EP state; UO still running
-         --
-         -- -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
-         -- -- TODO some trickiness about whether unconstrained-converged has updated the correct state
-         -- -- and whether to check WRT the updated state or not
-         -- UnconstrainedConverged lastEPstate ->
-         --   let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
-         --                           (objFnApplied lastEPstate) (objFnApplied vstate) in
-         --   if epConverged then
-         --      let status' = EPConverged in -- no more EP state
-         --      (vstate, params { optStatus = status'}) -- do not update UO state
-         --   -- update EP state: to be the converged state from the most recent UO
-         --   else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
-         --        (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
-         --
-         -- -- done; don't update obj state or params; user can now manipulate
-         -- EPConverged -> (vstate, params)
-         --
-         -- -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
-         --
+         -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
+         -- TODO some trickiness about whether unconstrained-converged has updated the correct state
+         -- and whether to check WRT the updated state or not
+         UnconstrainedConverged lastEPstate ->
+           let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
+                                   (objFnApplied lastEPstate) (objFnApplied vstate) in
+           if epConverged then
+              let status' = EPConverged in -- no more EP state
+              (vstate, params { optStatus = status'}) -- do not update UO state
+           -- update EP state: to be the converged state from the most recent UO
+           else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
+                (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
+
+         -- done; don't update obj state or params; user can now manipulate
+         EPConverged -> (vstate, params)
+
+         -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
+
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
         where (vstate', gradEval) = stepWithObjective params vstate
               objFnApplied = (overallObjFn params) (weight params)
@@ -135,21 +126,18 @@ stepT dt x dfdx = x - dt * dfdx
 -- Also partially applies the objective function.
 stepWithObjective :: (Autofloat a) => Params -> [a] -> ([a], [a])
 stepWithObjective params state = (steppedState, gradEval)
-    where (t', gradEval) = (r2f 0.01, map r2f [0.1, 0.2, 0.3, 0.4])
-        -- DEBUG timeAndGrad objFnApplied state
+    where (t', gradEval) = timeAndGrad objFnApplied state
           -- get timestep via line search, and evaluated gradient at the state
           -- step each parameter of the state with the time and gradient
           -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
-          steppedState = tr ("step result: " ++ show result) state
-          result = objFnApplied state -- DEBUG
-              -- DEBUG
-              -- let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
-                         -- trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
-                         --        ++ "\n|f(x') - f(x)|: " ++
-                         --       (show $ abs (objFnApplied state - objFnApplied state'))
-                         --        ++ "\ngradEval: \n" ++ (show gradEval)
-                         --        ++ "\nstate: \n" ++ (show state') )
-                         -- state'
+          steppedState =
+              let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
+                         trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
+                                ++ "\n|f(x') - f(x)|: " ++
+                               (show $ abs (objFnApplied state - objFnApplied state'))
+                                ++ "\ngradEval: \n" ++ (show gradEval)
+                                ++ "\nstate: \n" ++ (show state') )
+                         state'
 
           objFnApplied :: ObjFn1 b
           objFnApplied = (overallObjFn params) cWeight
@@ -173,8 +161,8 @@ timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
                   descentDir = negL gradEval
                   -- timestep :: Floating c => c
                   timestep =
-                      -- let resT = awLineSearch f duf descentDir state in
-                      let resT = r2f 0.001 in
+                      let resT = awLineSearch f duf descentDir state in
+                      -- let resT = r2f 0.001 in
                              if isNaN resT then tr "returned timestep is NaN" nanSub else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm

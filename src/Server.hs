@@ -151,21 +151,22 @@ processCommand conn s = do
 
 toPolymorphics :: [SD.Shape Double] -> (forall a . (Autofloat a) => [SD.Shape a])
 toPolymorphics = map toPolymorphic
-   where toPolymorphic :: SD.Shape Double -> (forall a . (Autofloat a) => SD.Shape a)
-         toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
 
-         toPolyProperty :: SD.Value Double -> (forall a . (Autofloat a) => SD.Value a)
-         toPolyProperty v = case v of
-               -- Not sure why these have to be rewritten from scratch...
-               SD.FloatV n  -> SD.FloatV $ r2f n
-               SD.BoolV x   -> SD.BoolV x
-               SD.StrV x    -> SD.StrV x
-               SD.IntV x    -> SD.IntV x
-               SD.PtV (x,y) -> SD.PtV (r2f x, r2f y)
-               SD.PathV xs  -> SD.PathV $ map (\(x,y) -> (r2f x, r2f y)) xs
-               SD.ColorV x  -> SD.ColorV x
-               SD.FileV x   -> SD.FileV x
-               SD.StyleV x  -> SD.StyleV x
+toPolymorphic :: SD.Shape Double -> (forall a . (Autofloat a) => SD.Shape a)
+toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
+
+toPolyProperty :: SD.Value Double -> (forall a . (Autofloat a) => SD.Value a)
+toPolyProperty v = case v of
+    -- Not sure why these have to be rewritten from scratch...
+    SD.FloatV n  -> SD.FloatV $ r2f n
+    SD.BoolV x   -> SD.BoolV x
+    SD.StrV x    -> SD.StrV x
+    SD.IntV x    -> SD.IntV x
+    SD.PtV (x,y) -> SD.PtV (r2f x, r2f y)
+    SD.PathV xs  -> SD.PathV $ map (\(x,y) -> (r2f x, r2f y)) xs
+    SD.ColorV x  -> SD.ColorV x
+    SD.FileV x   -> SD.FileV x
+    SD.StyleV x  -> SD.StyleV x
 
 updateShapes :: ([SD.Shape Double]) -> Connection -> NS.RState -> IO ()
 updateShapes newShapes conn s = if NS.autostep s then stepAndSend conn news else loop conn news
@@ -182,6 +183,7 @@ dragUpdate name xm ym conn s =
                 else shape)
             (NS.shapesr s)
         news = s { NS.shapesr = newShapes,
+                   NS.varyingState = NS.shapes2floats newShapes $ NS.varyingPaths s,
                    NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter }}
    in if NS.autostep s then stepAndSend conn news else loop conn news
 

@@ -1356,9 +1356,8 @@ evalBinop op v1 v2 =
 evalProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> Translation a -> (Property, TagExpr a) -> Translation a
 evalProperty (i, n) bvar field trans (property, expr) =
         let path = EPath $ PropertyPath bvar field property in -- factor out?
-        -- DEBUG
-        -- let (_, trans') = evalExpr (i, n) path trans in -- Doesn't need evaluated value
-        tr ("Starting evaluating property " ++ show path) trans -- DEBUG: SHOULD BE trans'
+        let (_, trans') = evalExpr (i, n) path trans in -- Doesn't need evaluated value
+        tr ("Starting evaluating property " ++ show path) trans'
 
 evalGPI_withUpdate :: (Autofloat a) =>
     (Int, Int) -> BindingForm -> Field -> (GPICtor, PropertyDict a) -> Translation a -> ((GPICtor, PropertyDict a), Translation a)
@@ -1386,7 +1385,7 @@ evalIterRange = (startingIteration, maxEvalIteration)
 evalExpr :: (Autofloat a) => (Int, Int) -> Expr -> Translation a -> (ArgVal a, Translation a)
 evalExpr (i, n) arg trans =
     if i >= n then error ("evalExpr: iteration depth exceeded (" ++ show n ++ ")")
-        else trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n) argResult
+        else tr ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n) argResult
     where argResult = case arg of
             -- Already done values; don't change trans
             IntLit i -> (Val $ IntV i, trans)
@@ -1558,9 +1557,21 @@ initWeight = 10 ** (-5)
 shapeExprsToVals :: (Autofloat a) =>
     (String, Field) -> PropertyDict a -> Properties a
 shapeExprsToVals (subName, field) properties =
-          let shapeName   = subName ++ "." ++ field
+          let shapeName   = getShapeName subName field
               properties' = M.map toVal properties
           in M.insert "name" (StrV shapeName) properties'
+
+getShapeName :: String -> Field -> String
+getShapeName subName field = subName ++ "." ++ field
+
+shapes2floats :: (Autofloat a) => [Shape a] -> [Path] -> [a]
+shapes2floats shapes varyingPaths = reverse $ foldl (lookupPathFloat shapes) [] varyingPaths
+    where
+        lookupPathFloat shapes acc (PropertyPath s field property) =
+            let subID = bvarToString s
+                shapeName = getShapeName subID field in
+            getNum (findShape shapeName shapes) property : acc
+        lookupPathFloat _ acc (FieldPath _ _) = acc
 
 toVal :: (Autofloat a) => TagExpr a -> Value a
 toVal (Done v)    = v
@@ -1587,26 +1598,43 @@ evalPropertyPath limit trans (name, field, property) =
 evalShapes :: (Autofloat a) => (Int, Int) -> [(String, Field, Property)] -> Translation a -> Translation a
 evalShapes limit shapeProperties trans = foldl (evalPropertyPath limit) trans shapeProperties
 
+rndInterval :: (Float, Float)
+rndInterval = (0, canvasWidth / 6)
+
+-- COMBAK: SHAME. Parametrize the random generators properly!
+canvasWidth :: Float
+canvasWidth = 700.0
+
 initShapes :: (Autofloat a) =>
-    Translation a -> [(String, Field)] -> Translation a
-initShapes trans shapePaths =
-    foldl initShape trans shapePaths
-    where initShape trans (n, field) =
-              case lookupField (BSubVar (VarConst n)) field trans of
-                  FGPI t propDict ->
-                      let def = findDef t shapeDefs
-                          propDict' = foldlPropertyMappings initProperty
-                                          propDict def
-                      in insertGPI trans n field t propDict'
-                  _   -> error "expected GPI but got field"
-          initProperty properties pID (typ, val) =
-              -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
-              let val' = Done val in
-              case M.lookup pID properties of
-                  Just (OptEval (AFloat Vary)) -> M.insert pID val' properties
-                  Just (OptEval e) -> properties
-                  Just (Done v)    -> properties
-                  Nothing          -> M.insert pID val' properties
+    Translation a -> [(String, Field)] -> StdGen -> (Translation a, StdGen)
+initShapes trans shapePaths gen =
+    foldl initShape (trans, gen) shapePaths
+
+initShape :: (Autofloat a) => (Translation a, StdGen) -> (String, Field) -> (Translation a, StdGen)
+initShape (trans, g) (n, field) =
+    case lookupField (BSubVar (VarConst n)) field trans of
+        FGPI t propDict ->
+            let def = findDef t shapeDefs
+                (propDict', g') = foldlPropertyMappings initProperty (propDict, g) def
+                shapeName = getShapeName n field
+                propDict'' =  M.insert "name" (Done $ StrV shapeName) propDict'
+            in (insertGPI trans n field t propDict'', g')
+        _   -> error "expected GPI but got field"
+
+-- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
+-- TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
+initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String -> (ValueType, Value a) -> (PropertyDict a, StdGen)
+initProperty (properties, g) pID (typ, val) =
+    let (rndVal, g') = randomR rndInterval g
+        autoRndVal   = Done $ FloatV $ r2f rndVal
+    in
+    case M.lookup pID properties of
+        Just (OptEval (AFloat Vary)) -> (M.insert pID autoRndVal properties, g')
+        Just (OptEval e) -> (properties, g)
+        Just (Done v)    -> (properties, g)
+        Nothing          -> case typ of
+            FloatT -> (M.insert pID autoRndVal properties, g')
+            _      -> (M.insert pID (Done val) properties, g)
 
 insertGPI :: (Autofloat a) =>
     Translation a -> String -> Field -> ShapeTypeStr -> PropertyDict a
@@ -1639,7 +1667,7 @@ genOptProblemAndState trans =
 
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
     -- NOTE: currently, we set varying variables to default values. TODO: sample them later
-    let transInit = initShapes trans shapeNames in
+    let (transInit, g') = initShapes trans shapeNames initRng in
     let shapeProperties = findShapesProperties transInit in
 
     let (objfns, constrfns) = traceShowId $ (toFns . partitionEithers . findObjfnsConstrs) transInit in
@@ -1650,11 +1678,11 @@ genOptProblemAndState trans =
     -- Evaluate all expressions once to get the initial shapes
     let transEvaled = evalShapes evalIterRange shapeProperties transInit in
     let initState = lookupPaths varyingPaths transEvaled in
-    let initShapes = getShapes shapeNames transEvaled in
+    let initialGPIs = getShapes shapeNames transEvaled in
 
     -- TODO: figure out how we rely / assume / enforce an order on varyingPaths and varyingState
     -- This is the final Style compiler output
-    RState { shapesr = initShapes,
+    RState { shapesr = initialGPIs,
              shapeNames = shapeNames,
              shapeProperties = shapeProperties,
              transr = transInit, -- note: NOT transEvaled
@@ -1663,6 +1691,6 @@ genOptProblemAndState trans =
              paramsr = Params { weight = initWeight,
                                 optStatus = NewIter,
                                 overallObjFn = overallFn },
-             rng = initRng,
+             rng = g',
              autostep = False -- default
            }

@@ -318,8 +318,8 @@ checkRecursePred varEnv args = let predArgs = map isRecursedPredicate args
 -- calling checkVarE and checkFunc respectively for each case.]
 -- If errors were found during checking then they are accumulated and returned in a tuple with the Maybe type for the expression.
 checkExpression :: VarEnv -> Expr -> (String, Maybe T)
-checkExpression varEnv (VarE v)      = checkVarE varEnv v
-checkExpression varEnv (ApplyFunc f) = checkFunc varEnv f
+checkExpression varEnv (VarE v)         = checkVarE varEnv v
+checkExpression varEnv (ApplyFunc f)    = checkFunc varEnv f
 checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
 
 
@@ -672,7 +672,6 @@ getSubTuples = map getType
 
 getAllIds :: ([SubDecl], [SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
-
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the

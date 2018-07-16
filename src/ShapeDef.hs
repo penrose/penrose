@@ -135,10 +135,10 @@ defaultValueOf prop (t, propDict) = snd $ fromMaybe
 circType, arrowType, curveType :: (Autofloat a) => ShapeDef a
 circType = ("Circle", M.fromList
     [
-        ("x", (FloatT, FloatV 0.0)),
-        ("y", (FloatT, FloatV 0.0)),
+        ("x", (FloatT, FloatV 100.0)),
+        ("y", (FloatT, FloatV 50.0)),
         ("r", (FloatT, FloatV 10.0)),
-        ("stroke-width", (FloatT, FloatV 0.0)),
+        ("stroke-width", (IntT, IntV 0)),
         ("name", (StrT, StrV "defaultCircle")),
         ("style", (StrT, StrV "filled")),
         ("color", (ColorT, ColorV black))
@@ -192,6 +192,12 @@ exampleCirc = ("Circle", M.fromList
 -- - do we allow extended properties? If so, where do we resolve them?
 -- generateShapes trans = []
     -- TODO write out full procedure
+
+findShape :: (Autofloat a) => String -> [Shape a] -> Shape a
+findShape shapeName shapes =
+    case filter (\s -> getName s == shapeName) shapes of
+        [x] -> x
+        _   -> error ("findShape: expected one shape for \"" ++ shapeName ++ "\", but did not find just one (returned zero or many).")
 
 -- TODO: can use alter, update, adjust here. Come back if performance matters
 -- | Setting the value of a property
@@ -268,7 +274,9 @@ setX v shape = set shape "x" v
 setY v shape = set shape "y" v
 
 getNum :: (Autofloat a) => Shape a -> PropID -> a
-getNum shape prop = let FloatV x = shape .: prop in x
+getNum shape prop = case shape .: prop of
+    FloatV x -> x
+    _ -> error "getNum: expected float but got something else"
 
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator

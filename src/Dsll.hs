@@ -319,7 +319,7 @@ parseDsll dsllFile dsllIn =
                   env1 = computeSubTypes env
               divLine
               putStrLn "DSLL Env: \n"
-              print env1
+              pPrint env1
               return env1
 
 -- --------------------------------------- Test Driver -------------------------------------

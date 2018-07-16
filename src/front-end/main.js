@@ -197,7 +197,7 @@ function main() {
 
         // the server only sends `Frame` type data for the __last__ frame
         if(json.flag == "final") {
-            Render.scene(ws, s, json.objs, label_svgs, firstRun);
+            Render.scene(ws, s, json.shapes, label_svgs, firstRun);
         } else {
             var objs = json
             // if not the last frame, we refresh the frontend on a time interval
