@@ -4,6 +4,7 @@
 module ShapeDef where
 
 import Utils
+import System.Random
 import GHC.Generics
 import Data.Aeson (FromJSON, ToJSON, toJSON)
 import Data.Maybe (fromMaybe)
@@ -81,7 +82,7 @@ type ShapeTypeStr = String
 type PropID = String
 
 -- | A dict storing names, types, and default values of properties
-type PropertiesDef a = M.Map PropID (ValueType, Value a)
+type PropertiesDef a = M.Map PropID (ValueType, SampledValue a)
 -- | definition of a new shape/graphical primitive
 -- TODO: rewrite as a record?
 type ShapeDef a = (ShapeTypeStr, PropertiesDef a)
@@ -116,13 +117,48 @@ findDef typ defs = fromMaybe
     (M.lookup typ defs)
 
 -- | given a shape def, construct a default shape
-defaultShapeOf :: (Autofloat a) => ShapeDef a -> Shape a
-defaultShapeOf (t, propDict) = (t, M.map snd propDict)
+defaultShapeOf :: (Autofloat a) => StdGen -> ShapeDef a -> (Shape a, StdGen)
+defaultShapeOf g (t, propDict) =
+    let (properties, g') = sampleProperties g propDict in
+    ((t, properties), g')
 
-defaultValueOf :: (Autofloat a) => PropID -> ShapeDef a -> Value a
-defaultValueOf prop (t, propDict) = snd $ fromMaybe
-    (noPropError "defaultValueOf" prop t)
-    (M.lookup prop propDict)
+defaultValueOf :: (Autofloat a) => StdGen -> PropID -> ShapeDef a -> (Value a, StdGen)
+defaultValueOf g prop (t, propDict) =
+    let sampleF = snd $ fromMaybe
+            (noPropError "defaultValueOf" prop t)
+            (M.lookup prop propDict)
+    in sampleF g
+
+--------------------------------------------------------------------------------
+-- Property samplers
+
+type SampledValue a = StdGen -> (Value a, StdGen)
+type FloatInterval = (Float, Float)
+
+rndInterval :: (Float, Float)
+rndInterval = (0, canvasWidth / 6)
+
+-- COMBAK: SHAME. Parametrize the random generators properly!
+canvasWidth :: Float
+canvasWidth = 700.0
+
+debugRng :: StdGen
+debugRng = mkStdGen seed
+    where seed = 16 -- deterministic RNG with seed
+
+constValue :: (Autofloat a) => Value a -> SampledValue a
+constValue v g = (v, g)
+
+sampleFloatIn :: (Autofloat a) => FloatInterval -> SampledValue a
+sampleFloatIn interval g =
+    let (n, g') = randomR interval g in (FloatV $ r2f n, g)
+
+sampleProperties :: (Autofloat a) => StdGen -> PropertiesDef a -> (Properties a, StdGen)
+sampleProperties g propDefs = M.foldlWithKey sampleProperty (M.empty, g) propDefs
+
+sampleProperty :: (Autofloat a) => (Properties a, StdGen) -> PropID -> (ValueType, SampledValue a) -> (Properties a, StdGen)
+sampleProperty (properties, g) propID (typ, sampleF) =
+    let (val, g') = sampleF g in (M.insert propID val properties, g')
 
 --------------------------------------------------------------------------------
 -- Example shape defs
@@ -135,30 +171,30 @@ defaultValueOf prop (t, propDict) = snd $ fromMaybe
 circType, arrowType, curveType :: (Autofloat a) => ShapeDef a
 circType = ("Circle", M.fromList
     [
-        ("x", (FloatT, FloatV 100.0)),
-        ("y", (FloatT, FloatV 50.0)),
-        ("r", (FloatT, FloatV 10.0)),
-        ("stroke-width", (IntT, IntV 0)),
-        ("name", (StrT, StrV "defaultCircle")),
-        ("style", (StrT, StrV "filled")),
-        ("color", (ColorT, ColorV black))
+        ("x", (FloatT, constValue $ FloatV 100.0)),
+        ("y", (FloatT, constValue $ FloatV 50.0)),
+        ("r", (FloatT, constValue $ FloatV 10.0)),
+        ("stroke-width", (IntT, constValue $ IntV 0)),
+        ("name", (StrT, constValue $ StrV "defaultCircle")),
+        ("style", (StrT, constValue $ StrV "filled")),
+        ("color", (ColorT, constValue $ ColorV black))
     ])
 arrowType = ("Arrow", M.fromList
     [
-        ("startx", (FloatT, FloatV 0.0)),
-        ("starty", (FloatT, FloatV 0.0)),
-        ("endx", (FloatT, FloatV 0.0)),
-        ("endy", (FloatT, FloatV 0.0)),
-        ("name", (StrT, StrV "defaultArrow")),
-        ("style", (StrT, StrV "straight")),
-        ("color", (ColorT, ColorV black))
+        ("startx", (FloatT, constValue $ FloatV 0.0)),
+        ("starty", (FloatT, constValue $ FloatV 0.0)),
+        ("endx", (FloatT, constValue $ FloatV 0.0)),
+        ("endy", (FloatT, constValue $ FloatV 0.0)),
+        ("name", (StrT, constValue $ StrV "defaultArrow")),
+        ("style", (StrT, constValue $ StrV "straight")),
+        ("color", (ColorT, constValue $ ColorV black))
     ])
 curveType = ("Curve", M.fromList
     [
-        ("path", (PathT, PathV [])),
-        ("name", (StrT, StrV "defaultCurve")),
-        ("style", (StrT, StrV "solid")),
-        ("color", (ColorT, ColorV black))
+        ("path", (PathT, constValue $ PathV [])),
+        ("name", (StrT, constValue $ StrV "defaultCurve")),
+        ("style", (StrT, constValue $ StrV "solid")),
+        ("color", (ColorT, constValue $ ColorV black))
     ])
 
 exampleCirc :: (Autofloat a) => Shape a
@@ -222,10 +258,11 @@ setAll = foldl (\s (k, v) -> set s k v)
 
 
 -- | reset a property to its default value
-reset :: (Autofloat a) => Shape a -> PropID -> Shape a
-reset (t, propDict) prop =
-    let val = defaultValueOf prop $ findDef t shapeDefs
-    in (t, M.update (const $ Just val) prop propDict)
+-- TODO: now needs to take in a random generator
+-- reset :: (Autofloat a) => Shape a -> PropID -> Shape a
+-- reset (t, propDict) prop =
+--     let val = defaultValueOf prop $ findDef t shapeDefs
+--     in (t, M.update (const $ Just val) prop propDict)
 
 -- | whether a shape has a prop
 hasProperty :: (Autofloat a) => Shape a -> PropID -> Bool
@@ -297,11 +334,11 @@ mapProperties f (t, propDict) = (t, M.map f propDict)
 foldlProperties :: (Autofloat a) => (b -> Value a -> b) -> b -> Shape a -> b
 foldlProperties f accum (_, propDict)  =  M.foldl f accum propDict
 
-foldlPropertyDefs :: (Autofloat a) => (b -> (ValueType, Value a) -> b) -> b -> ShapeDef a -> b
+foldlPropertyDefs :: (Autofloat a) => (b -> (ValueType, SampledValue a) -> b) -> b -> ShapeDef a -> b
 foldlPropertyDefs f accum (_, propDict) =  M.foldl f accum propDict
 
 foldlPropertyMappings :: (Autofloat a) =>
-    (b -> PropID -> (ValueType, Value a) -> b) -> b -> ShapeDef a -> b
+    (b -> PropID -> (ValueType, SampledValue a) -> b) -> b -> ShapeDef a -> b
 foldlPropertyMappings f accum (_, propDict) =  M.foldlWithKey f accum propDict
 
 --------------------------------------------------------------------------------

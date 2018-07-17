@@ -1598,13 +1598,6 @@ evalPropertyPath limit trans (name, field, property) =
 evalShapes :: (Autofloat a) => (Int, Int) -> [(String, Field, Property)] -> Translation a -> Translation a
 evalShapes limit shapeProperties trans = foldl (evalPropertyPath limit) trans shapeProperties
 
-rndInterval :: (Float, Float)
-rndInterval = (0, canvasWidth / 6)
-
--- COMBAK: SHAME. Parametrize the random generators properly!
-canvasWidth :: Float
-canvasWidth = 700.0
-
 initShapes :: (Autofloat a) =>
     Translation a -> [(String, Field)] -> StdGen -> (Translation a, StdGen)
 initShapes trans shapePaths gen =
@@ -1616,15 +1609,16 @@ initShape (trans, g) (n, field) =
         FGPI t propDict ->
             let def = findDef t shapeDefs
                 (propDict', g') = foldlPropertyMappings initProperty (propDict, g) def
-                shapeName = getShapeName n field
-                propDict'' =  M.insert "name" (Done $ StrV shapeName) propDict'
-            in (insertGPI trans n field t propDict'', g')
+                -- NOTE: since getShapes resolves the names and we never (?) use the names of the shapes in the Translation. This logic can be removed
+                -- shapeName = getShapeName n field
+                -- propDict'' =  M.insert "name" (Done $ StrV shapeName) propDict'
+            in (insertGPI trans n field t propDict', g')
         _   -> error "expected GPI but got field"
 
 -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
 -- TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
-initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String -> (ValueType, Value a) -> (PropertyDict a, StdGen)
-initProperty (properties, g) pID (typ, val) =
+initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String -> (ValueType, SampledValue a) -> (PropertyDict a, StdGen)
+initProperty (properties, g) pID (typ, sampleF) =
     let (rndVal, g') = randomR rndInterval g
         autoRndVal   = Done $ FloatV $ r2f rndVal
     in
@@ -1634,7 +1628,9 @@ initProperty (properties, g) pID (typ, val) =
         Just (Done v)    -> (properties, g)
         Nothing          -> case typ of
             FloatT -> (M.insert pID autoRndVal properties, g')
-            _      -> (M.insert pID (Done val) properties, g)
+            _      ->
+                let (v, g') = sampleF g in
+                (M.insert pID (Done v) properties, g')
 
 insertGPI :: (Autofloat a) =>
     Translation a -> String -> Field -> ShapeTypeStr -> PropertyDict a
