@@ -201,9 +201,10 @@ resampleAndSend conn s = do
     let trans' = NS.insertPaths (NS.uninitializedPaths s) uninitVals (NS.transr s)
                     -- TODO: shapes', rng' = NS.sampleConstrainedState (NS.rng s) (NS.shapesr s) (NS.constrs s)
     let nexts = s { NS.shapesr = newShapes, NS.rng = rng',
+                    NS.transr = trans',
                     NS.varyingState = NS.shapes2floats newShapes $ NS.varyingPaths s,
                     NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter } }
-    wsSendJSONList conn newShapes
+    wsSendJSONList conn $ NS.evalTranslation nexts
     loop conn nexts
 
 stepAndSend conn s = do

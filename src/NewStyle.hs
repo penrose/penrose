@@ -1683,7 +1683,11 @@ lookupPaths paths trans = map lookupPath paths
 
 -- updateTranslation :: (Autofloat a) => Translation a -> [Shape a] -> [Path] -> Translation a
 -- updateTranslation trans shapes paths =
-
+evalTranslation :: (Autofloat a) => RState -> [Shape a]
+evalTranslation s =
+    let transWithVarying = insertPaths (varyingPaths s) (map floatToTagExpr (varyingState s)) (transr s)
+        transEvaled = evalShapes evalIterRange (shapeProperties s) transWithVarying
+    in getShapes (shapeNames s) transEvaled
 
 --- Main function: what the Style compiler generates
 -- TODO fix clash with megaparsec State

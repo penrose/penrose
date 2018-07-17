@@ -222,7 +222,7 @@ var Render = (function(){
             "stroke-width": properties["stroke-width"],
             "stroke": "black",
         });
-        if(properties.stylec == "dashed") {
+        if(properties["stroke-style"] == "dashed") {
             circ.attr({
                 strokeDasharray: "7, 5" // "10"
             })

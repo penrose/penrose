@@ -61,9 +61,7 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 
 step :: RState -> RState
 step s = let (state', params') = stepShapes (trRaw ("Shapes: " ++ show ( shapesr s) ++ "\nOptimization params") $ paramsr s)  (varyingState s) in
-         let transWithVarying = insertPaths (varyingPaths s) (map floatToTagExpr state') (transr s) in
-         let transEvaled = evalShapes evalIterRange (shapeProperties s) transWithVarying in
-         let shapes' = getShapes (shapeNames s) transEvaled in
+         let shapes' = evalTranslation s in
          s { varyingState = state', shapesr = shapes', paramsr = params' }
          -- note: trans is not updated in rstate
 

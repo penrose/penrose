@@ -203,7 +203,8 @@ circType = ("Circle", M.fromList
         ("r", (FloatT, sampleFloatIn (3, canvasWidth / 6))),
         ("stroke-width", (FloatT, sampleFloatIn (0.5, 3))),
         ("name", (StrT, constValue $ StrV "defaultCircle")),
-        ("style", (StrT, sampleDiscrete ["filled", "nofill"])),
+        ("style", (StrT, sampleDiscrete ["filled"])),
+        ("stroke-style", (StrT, sampleDiscrete ["dashed", "solid"])),
         ("color", (ColorT, sampleColor))
     ])
 arrowType = ("Arrow", M.fromList
