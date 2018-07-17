@@ -182,7 +182,7 @@ var Render = (function(){
             switch(type) {
                 case 'Circle'        : _renderCircle(s, props); break
                 case 'Eillipse'      : _renderEllipse(s, props); break
-                case 'Label'         : _renderLabel(s, props, labels, firstrun); break
+                case 'Text'          : _renderLabel(s, props, labels, firstrun); break
                 case 'Point'         : _renderPoint(s, props); break
                 case 'Rectangle'     : _renderRectangle(s, props); break
                 case 'Square'        : _renderSquare(s, props); break
@@ -215,9 +215,10 @@ var Render = (function(){
         var circ = s.circle(x, y, properties.r);
         circ.data("name", properties.name)
         var color = properties.color
+        var opacity = properties.style == "filled" ? color[3] : 0
         circ.attr({
             fill: Utils.hex(color[0], color[1], color[2]),
-            "fill-opacity": color[3],
+            "fill-opacity": opacity,
             "stroke-width": properties["stroke-width"],
             "stroke": "black",
         });

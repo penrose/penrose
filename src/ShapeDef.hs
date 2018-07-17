@@ -139,8 +139,9 @@ rndInterval :: (Float, Float)
 rndInterval = (0, canvasWidth / 6)
 
 -- COMBAK: SHAME. Parametrize the random generators properly!
-canvasWidth :: Float
-canvasWidth = 700.0
+canvasHeight, canvasWidth :: Float
+canvasHeight = 700.0
+canvasWidth  = 800.0
 
 debugRng :: StdGen
 debugRng = mkStdGen seed
@@ -149,9 +150,34 @@ debugRng = mkStdGen seed
 constValue :: (Autofloat a) => Value a -> SampledValue a
 constValue v g = (v, g)
 
+sampleDiscrete :: (Autofloat a) => [String] -> SampledValue a
+sampleDiscrete list g =
+    let (idx, g') = randomR (0, length list - 1) g
+    in (StrV $ list !! idx, g')
+
 sampleFloatIn :: (Autofloat a) => FloatInterval -> SampledValue a
 sampleFloatIn interval g =
-    let (n, g') = randomR interval g in (FloatV $ r2f n, g)
+    let (n, g') = randomR interval g in (FloatV $ r2f n, g')
+
+sampleColor :: (Autofloat a) => SampledValue a
+sampleColor rng =
+    let interval = (0.1, 0.9)
+        (r, rng1)  = randomR interval rng
+        (g, rng2)  = randomR interval rng1
+        (b, rng3)  = randomR interval rng2
+        (a, rng4)  = randomR (0.3, 0.7) rng3
+    in (ColorV $ makeColor r g b a, rng4)
+
+-- | Samples all properties of input shapes (NOTE: this function reverses
+-- the ordering of shapes)
+sampleShapes :: (Autofloat a) => StdGen -> [Shape a] -> ([Shape a], StdGen)
+sampleShapes g shapes = foldl sampleShape ([], g) shapes
+sampleShape (shapes, g) oldShape@(typ, oldProperties) =
+    let (_, propDefs)    = findDef typ shapeDefs
+        (properties, g') = sampleProperties g propDefs
+        shape            = (typ, properties)
+        namedShape       = setName (getName oldShape) shape
+    in (namedShape : shapes, g')
 
 sampleProperties :: (Autofloat a) => StdGen -> PropertiesDef a -> (Properties a, StdGen)
 sampleProperties g propDefs = M.foldlWithKey sampleProperty (M.empty, g) propDefs
@@ -159,6 +185,7 @@ sampleProperties g propDefs = M.foldlWithKey sampleProperty (M.empty, g) propDef
 sampleProperty :: (Autofloat a) => (Properties a, StdGen) -> PropID -> (ValueType, SampledValue a) -> (Properties a, StdGen)
 sampleProperty (properties, g) propID (typ, sampleF) =
     let (val, g') = sampleF g in (M.insert propID val properties, g')
+
 
 --------------------------------------------------------------------------------
 -- Example shape defs
@@ -171,13 +198,13 @@ sampleProperty (properties, g) propID (typ, sampleF) =
 circType, arrowType, curveType :: (Autofloat a) => ShapeDef a
 circType = ("Circle", M.fromList
     [
-        ("x", (FloatT, constValue $ FloatV 100.0)),
-        ("y", (FloatT, constValue $ FloatV 50.0)),
-        ("r", (FloatT, constValue $ FloatV 10.0)),
-        ("stroke-width", (IntT, constValue $ IntV 0)),
+        ("x", (FloatT, sampleFloatIn (-canvasWidth / 2, canvasWidth / 2))),
+        ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2))),
+        ("r", (FloatT, sampleFloatIn (3, canvasWidth / 6))),
+        ("stroke-width", (FloatT, sampleFloatIn (0.5, 3))),
         ("name", (StrT, constValue $ StrV "defaultCircle")),
-        ("style", (StrT, constValue $ StrV "filled")),
-        ("color", (ColorT, constValue $ ColorV black))
+        ("style", (StrT, sampleDiscrete ["filled", "nofill"])),
+        ("color", (ColorT, sampleColor))
     ])
 arrowType = ("Arrow", M.fromList
     [
@@ -306,6 +333,9 @@ getName shape = case shape .: "name" of
     StrV s -> s
     _ -> error "getName: expected string but got something else"
 
+setName :: (Autofloat a) => String -> Shape a -> Shape a
+setName v shape = set shape "name" (StrV v)
+
 setX, setY :: (Autofloat a) => Value a -> Shape a -> Shape a
 setX v shape = set shape "x" v
 setY v shape = set shape "y" v
@@ -323,6 +353,15 @@ propertiesOf :: (Autofloat a) =>
     ValueType -> ShapeTypeStr -> ShapeDefs a -> [PropID]
 propertiesOf propType shapeType defs =
     M.keys $ M.filter (\(t, _) -> t == propType) $ snd $ findDef shapeType defs
+
+-- | Given 'ValueType' and 'ShapeTypeStr', return all props NOT of that ValueType
+propertiesNotOf :: (Autofloat a) =>
+    ValueType -> ShapeTypeStr -> ShapeDefs a -> [PropID]
+propertiesNotOf propType shapeType defs =
+    M.keys $ M.filter (\(t, _) -> t /= propType) $ snd $ findDef shapeType defs
+
+-- filterProperties :: (Autofloat a) => ((ValueType, SampledValue a) -> Bool) -> [PropID]
+-- filterProperties filterF =
 
 -- | Map over all properties of a shape
 -- TODO: withKey?

@@ -196,11 +196,14 @@ executeCommand cmd conn s
 
 resampleAndSend, stepAndSend :: WS.Connection -> NS.RState -> IO ()
 resampleAndSend conn s = do
-    let shapes' = NS.shapesr s
+    let (newShapes, rng') = SD.sampleShapes (NS.rng s) (NS.shapesr s)
+    let uninitVals = map NS.toTagExpr $ NS.shapes2vals newShapes $ NS.uninitializedPaths s
+    let trans' = NS.insertPaths (NS.uninitializedPaths s) uninitVals (NS.transr s)
                     -- TODO: shapes', rng' = NS.sampleConstrainedState (NS.rng s) (NS.shapesr s) (NS.constrs s)
-    let nexts = s { NS.shapesr = shapes', -- NS.rng = rng',
+    let nexts = s { NS.shapesr = newShapes, NS.rng = rng',
+                    NS.varyingState = NS.shapes2floats newShapes $ NS.varyingPaths s,
                     NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter } }
-    wsSendJSONList conn shapes'
+    wsSendJSONList conn newShapes
     loop conn nexts
 
 stepAndSend conn s = do

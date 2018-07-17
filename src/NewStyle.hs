@@ -1199,6 +1199,7 @@ data RState = RState { shapesr :: forall a . (Autofloat a) => [Shape a],
                        shapeProperties :: [(String, Field, Property)],
                        transr :: forall a . (Autofloat a) => Translation a,
                        varyingPaths :: [Path],
+                       uninitializedPaths :: [Path],
                        varyingState :: forall a . (Autofloat a) => [a],
                        paramsr :: Params,
                        rng :: StdGen,
@@ -1210,6 +1211,7 @@ instance Show RState where
                   "\nShape names: \n" ++ show (shapeNames s) ++
                   "\nTranslation: \n" ++ show (transr s) ++
                   "\nVarying paths: \n" ++ show (varyingPaths s) ++
+                  "\nUninitialized paths: \n" ++ show (uninitializedPaths s) ++
                   "\nVarying state: \n" ++ show (varyingState s) ++
                   "\nParams: \n" ++ show (paramsr s) ++
                   "\nAutostep: \n" ++ show (autostep s)
@@ -1242,8 +1244,7 @@ pathToList _ = error "pathToList should not handle Sty vars"
 
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
-findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map [Char] (TagExpr a) ->
-                                               String -> [Path] -> [Path]
+findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map [Char] (TagExpr a) -> String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
     case M.lookup floatProperty properties of
     Nothing -> mkPath [name, field, floatProperty] : acc
@@ -1262,7 +1263,24 @@ findFieldVarying name field (FGPI typ properties) acc =
 findVarying :: (Autofloat a) => Translation a -> [Path]
 findVarying = foldSubObjs findFieldVarying
 
---
+findPropertyUninitialized :: (Autofloat a) => String -> Field -> M.Map [Char] (TagExpr a) -> String -> [Path] -> [Path]
+findPropertyUninitialized name field properties nonfloatProperty acc =
+    case M.lookup nonfloatProperty properties of
+    -- nonfloatProperty is a non-float property that is NOT set by the user and thus we can sample it
+    Nothing   -> mkPath [name, field, nonfloatProperty] : acc
+    Just expr -> acc
+
+-- | find the paths to all uninitialized, non-float, non-name properties
+findUninitialized :: (Autofloat a) => Translation a -> [Path]
+findUninitialized = foldSubObjs findFieldUninitialized
+
+findFieldUninitialized :: (Autofloat a) => String -> Field -> FieldExpr a -> [Path] -> [Path]
+-- NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
+findFieldUninitialized name field (FExpr expr) acc = acc
+findFieldUninitialized name field (FGPI typ properties) acc =
+    let ctorNonfloats = filter (/= "name") $ propertiesNotOf FloatT typ shapeDefs in
+    let vs = foldr (findPropertyUninitialized name field properties) [] ctorNonfloats in
+    vs ++ acc
 
 findFieldFns name field (FExpr (OptEval expr)) acc =
     case expr of
@@ -1312,8 +1330,8 @@ insertPaths varyingPaths varying trans =
               Right tr -> tr
 
 -- For varying values to be inserted into the translation
-toTagExpr :: (Autofloat a) => a -> TagExpr a
-toTagExpr n = Done (FloatV n)
+floatToTagExpr :: (Autofloat a) => a -> TagExpr a
+floatToTagExpr n = Done (FloatV n)
 
 --- Evaluation
 
@@ -1528,7 +1546,7 @@ genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path]
                                            -> a -> [a] -> a
 genObjfn trans objfns constrfns varyingPaths =
          \penaltyWeight varying ->
-         let varyingTagExprs = map toTagExpr varying in
+         let varyingTagExprs = map floatToTagExpr varying in
          let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
          let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) (tr "transWithVarying" transWithVarying) in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
@@ -1564,6 +1582,15 @@ shapeExprsToVals (subName, field) properties =
 getShapeName :: String -> Field -> String
 getShapeName subName field = subName ++ "." ++ field
 
+shapes2vals :: (Autofloat a) => [Shape a] -> [Path] -> [Value a]
+shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
+    where
+        lookupPath shapes acc (PropertyPath s field property) =
+            let subID = bvarToString s
+                shapeName = getShapeName subID field in
+            get(findShape shapeName shapes) property : acc
+        lookupPath _ acc (FieldPath _ _) = acc
+
 shapes2floats :: (Autofloat a) => [Shape a] -> [Path] -> [a]
 shapes2floats shapes varyingPaths = reverse $ foldl (lookupPathFloat shapes) [] varyingPaths
     where
@@ -1573,6 +1600,11 @@ shapes2floats shapes varyingPaths = reverse $ foldl (lookupPathFloat shapes) [] 
             getNum (findShape shapeName shapes) property : acc
         lookupPathFloat _ acc (FieldPath _ _) = acc
 
+-- | converting from Value to TagExpr
+toTagExpr :: (Autofloat a) => Value a -> TagExpr a
+toTagExpr v = Done v
+
+-- | converting from TagExpr to Value
 toVal :: (Autofloat a) => TagExpr a -> Value a
 toVal (Done v)    = v
 toVal (OptEval _) = error "Shape properties were not fully evaluated"
@@ -1609,28 +1641,24 @@ initShape (trans, g) (n, field) =
         FGPI t propDict ->
             let def = findDef t shapeDefs
                 (propDict', g') = foldlPropertyMappings initProperty (propDict, g) def
-                -- NOTE: since getShapes resolves the names and we never (?) use the names of the shapes in the Translation. This logic can be removed
-                -- shapeName = getShapeName n field
-                -- propDict'' =  M.insert "name" (Done $ StrV shapeName) propDict'
-            in (insertGPI trans n field t propDict', g')
+                -- NOTE: since getShapes resolves the names and we never use the names of the shapes in the Translation. This logic can be removed but left in for debugging
+                shapeName = getShapeName n field
+                propDict'' =  M.insert "name" (Done $ StrV shapeName) propDict'
+            in (insertGPI trans n field t propDict'', g')
         _   -> error "expected GPI but got field"
 
 -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
 -- TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
 initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String -> (ValueType, SampledValue a) -> (PropertyDict a, StdGen)
 initProperty (properties, g) pID (typ, sampleF) =
-    let (rndVal, g') = randomR rndInterval g
-        autoRndVal   = Done $ FloatV $ r2f rndVal
+    let (v, g') = sampleF g
+        autoRndVal = Done v
     in
     case M.lookup pID properties of
         Just (OptEval (AFloat Vary)) -> (M.insert pID autoRndVal properties, g')
         Just (OptEval e) -> (properties, g)
         Just (Done v)    -> (properties, g)
-        Nothing          -> case typ of
-            FloatT -> (M.insert pID autoRndVal properties, g')
-            _      ->
-                let (v, g') = sampleF g in
-                (M.insert pID (Done v) properties, g')
+        Nothing          -> (M.insert pID autoRndVal properties, g')
 
 insertGPI :: (Autofloat a) =>
     Translation a -> String -> Field -> ShapeTypeStr -> PropertyDict a
@@ -1653,16 +1681,21 @@ lookupPaths paths trans = map lookupPath paths
             Done (FloatV n) -> n
             _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
 
+-- updateTranslation :: (Autofloat a) => Translation a -> [Shape a] -> [Path] -> Translation a
+-- updateTranslation trans shapes paths =
+
+
 --- Main function: what the Style compiler generates
 -- TODO fix clash with megaparsec State
 genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> RState
 genOptProblemAndState trans =
     -- Save information about the translation
     let varyingPaths    = findVarying trans in
+    -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
+    let uninitializedPaths = findUninitialized trans in
     let shapeNames      = findShapeNames trans in
 
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
-    -- NOTE: currently, we set varying variables to default values. TODO: sample them later
     let (transInit, g') = initShapes trans shapeNames initRng in
     let shapeProperties = findShapesProperties transInit in
 
@@ -1683,6 +1716,7 @@ genOptProblemAndState trans =
              shapeProperties = shapeProperties,
              transr = transInit, -- note: NOT transEvaled
              varyingPaths = varyingPaths,
+             uninitializedPaths = uninitializedPaths,
              varyingState = initState,
              paramsr = Params { weight = initWeight,
                                 optStatus = NewIter,

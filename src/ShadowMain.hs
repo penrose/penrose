@@ -103,6 +103,8 @@ shadowMain = do
     pPrint $ NS.transr initState
     putStrLn "\nVarying paths:"
     pPrint $ NS.varyingPaths initState
+    putStrLn "\nUninitialized paths:"
+    pPrint $ NS.uninitializedPaths initState
     putStrLn "\nVarying state:"
     pPrint $ NS.varyingState initState
     putStrLn "\nParams:"
