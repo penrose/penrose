@@ -102,9 +102,11 @@ type Shape a = (ShapeTypeStr, Properties a)
 
 -- | all of the shape defs supported in the system
 shapeDefs :: (Autofloat a) => ShapeDefs a
-shapeDefs = M.fromList $ zipWithKey defList
-    where defList = [circType, arrowType, curveType]
-          zipWithKey = map (\x -> (fst x, x))
+shapeDefs = M.fromList $ zipWithKey shapeDefList
+    where zipWithKey = map (\x -> (fst x, x))
+
+shapeDefList :: (Autofloat a) => [ShapeDef a]
+shapeDefList = [circType, arrowType, curveType]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
