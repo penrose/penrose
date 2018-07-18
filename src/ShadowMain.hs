@@ -18,6 +18,8 @@ import System.Exit
 import Debug.Trace
 import Text.Show.Pretty
 import Control.Monad (when, forM)
+import qualified Env as E -- DEBUG: remove
+import qualified Data.Map.Strict as M -- DEBUG: remove
 
 fromRight a (Left x) = a
 fromRight _ (Right a) = a
@@ -49,7 +51,7 @@ shadowMain = do
     -- putStrLn "Dsll Env program:\n"
     -- print dsllEnv
 
-    (subProg, subObjs, (subEnv, eqEnv)) <- C.parseSubstance subFile subIn dsllEnv
+    (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
     divLine
 
     putStrLn "Parsed Substance program:\n"
@@ -64,8 +66,9 @@ shadowMain = do
     pPrint eqEnv
     divLine
 
---------------------------------------------------------------------------------
--- Neq Style
+    putStrLn "Label mappings:\n"
+    pPrint labelMap
+    divLine
 
     styProg <- NS.parseStyle styFile styIn
     putStrLn "Style AST:\n"
@@ -83,7 +86,7 @@ shadowMain = do
     forM subss pPrint
     divLine
 
-    let trans = NS.translateStyProg subEnv eqEnv subProg styProg
+    let trans = NS.translateStyProg subEnv eqEnv subProg styProg labelMap
                         :: forall a . (Autofloat a) => Either [NS.Error] (NS.Translation a)
     putStrLn "Translated Style program:\n"
     pPrint trans
@@ -137,15 +140,20 @@ shadowMain = do
 -- (extracted via unsafePerformIO)
 -- Very similar to shadowMain but does not depend on rendering  so it does not return SVG
 -- TODO take initRng seed as argument
-mainRetInit :: String -> String -> String -> IO (Maybe R.State)
+mainRetInit :: String -> String -> String -> IO (Maybe NS.RState)
 mainRetInit subFile styFile dsllFile = do
     subIn <- readFile subFile
     styIn <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    (subProg, objs, (env, eqEnv)) <- C.parseSubstance subFile subIn dsllEnv
-    styProg <- S.parseStyle styFile styIn
-    let initState = R.genInitState objs styProg
+    (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
+    styProg <- NS.parseStyle styFile styIn
+    -- let initState = R.genInitState styProg
+    let selEnvs = NS.checkSels subEnv styProg
+    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
+    let trans = NS.translateStyProg subEnv eqEnv subProg styProg labelMap
+                        :: forall a . (Autofloat a) => Either [NS.Error] (NS.Translation a)
+    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
     return $ Just initState
 
 mainRetFinal :: R.State -> R.State

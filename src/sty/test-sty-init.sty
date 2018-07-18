@@ -1,14 +1,13 @@
--- global { }
 
 Scalar c {
-  c.shape = Circle {
-    -- color = rgba(0.5, 0.1, 0.9, 0.5)
-    -- stroke-width = -1.5 + c.shape.r
-    -- r = 10.0 + 10.0
-  }
-  c.centerFn = encourage center(c.shape)
-  -- c.centerFn = encourage centerX(c.shape.name)
-  -- c.centerFn = encourage centerX(c.shape.x)
+    c.text = Text {
+        text = c.label
+    }
+    c.shape = Circle {
+    }
+    -- c.centerFn = encourage center(c.shape)
+    -- c.centerFn = encourage centerX(c.shape.name)
+    -- c.centerFn = encourage centerX(c.shape.x)
 }
 
 Scalar `a` {
@@ -17,7 +16,7 @@ Scalar `a` {
 }
 
 Scalar `a`; Scalar `c` {
-    -- `a`.containFn = ensure contains(`c`.shape, `a`.shape)
+    `a`.containFn = ensure contains(`c`.shape, `a`.shape)
 }
 
 -- Scalar `a`; Scalar `c` {

@@ -106,7 +106,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [circType, arrowType, curveType]
+shapeDefList = [circType, arrowType, curveType, lineType, rectType, textType]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -197,35 +197,83 @@ sampleProperty (properties, g) propID (typ, sampleF) =
 -- | TODO: instantiation of objs with (1) default values; (2) random sampling w.r.t. constraints
 -- constructShape :: ShapeDef a -> [SampleRule] -> Shape a
 
-circType, arrowType, curveType :: (Autofloat a) => ShapeDef a
+x_sampler, y_sampler, width_sampler, height_sampler, angle_sampler,
+           stroke_sampler, stroke_style_sampler :: (Autofloat a) => SampledValue a
+x_sampler = sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)
+y_sampler = sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)
+width_sampler = sampleFloatIn (3, canvasWidth / 6)
+height_sampler = sampleFloatIn (3, canvasHeight / 6)
+angle_sampler = sampleFloatIn (0, 360) -- TODO: check that frontend uses degrees, not radians
+stroke_sampler = sampleFloatIn (0.5, 3)
+stroke_style_sampler = sampleDiscrete ["dashed", "solid"]
+
+circType, arrowType, curveType, lineType, rectType, textType :: (Autofloat a) => ShapeDef a
 circType = ("Circle", M.fromList
+    [
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("r", (FloatT, width_sampler)),
+        ("stroke-width", (FloatT, stroke_sampler)),
+        ("name", (StrT, constValue $ StrV "defaultCircle")),
+        ("style", (StrT, sampleDiscrete ["filled"])),
+        ("stroke-style", (StrT, stroke_style_sampler)),
+        ("color", (ColorT, sampleColor))
+    ])
+
+textType = ("Text", M.fromList
     [
         ("x", (FloatT, sampleFloatIn (-canvasWidth / 2, canvasWidth / 2))),
         ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2))),
-        ("r", (FloatT, sampleFloatIn (3, canvasWidth / 6))),
-        ("stroke-width", (FloatT, sampleFloatIn (0.5, 3))),
-        ("name", (StrT, constValue $ StrV "defaultCircle")),
-        ("style", (StrT, sampleDiscrete ["filled"])),
-        ("stroke-style", (StrT, sampleDiscrete ["dashed", "solid"])),
-        ("color", (ColorT, sampleColor))
+        ("w", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
+        ("h", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
+        ("text", (StrT, constValue $ StrV "defaultLabelText")),
+        ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
+
 arrowType = ("Arrow", M.fromList
     [
-        ("startx", (FloatT, constValue $ FloatV 0.0)),
-        ("starty", (FloatT, constValue $ FloatV 0.0)),
-        ("endx", (FloatT, constValue $ FloatV 0.0)),
-        ("endy", (FloatT, constValue $ FloatV 0.0)),
+        ("startX", (FloatT, x_sampler)),
+        ("startY", (FloatT, y_sampler)),
+        ("endX", (FloatT, x_sampler)),
+        ("endY", (FloatT, y_sampler)),
         ("name", (StrT, constValue $ StrV "defaultArrow")),
         ("style", (StrT, constValue $ StrV "straight")),
-        ("color", (ColorT, constValue $ ColorV black))
+        ("color", (ColorT, sampleColor))
     ])
+
 curveType = ("Curve", M.fromList
     [
-        ("path", (PathT, constValue $ PathV [])),
+        ("path", (PathT, constValue $ PathV [])), -- TODO: sample path
         ("name", (StrT, constValue $ StrV "defaultCurve")),
         ("style", (StrT, constValue $ StrV "solid")),
-        ("color", (ColorT, constValue $ ColorV black))
+        ("color", (ColorT, sampleColor))
     ])
+
+lineType = ("Line", M.fromList
+    [
+        ("startX", (FloatT, x_sampler)),
+        ("startY", (FloatT, y_sampler)),
+        ("endX", (FloatT, x_sampler)),
+        ("endY", (FloatT, y_sampler)),
+        ("thickness", (FloatT, width_sampler)),
+        ("name", (StrT, constValue $ StrV "defaultLine")),
+        ("style", (StrT, constValue $ StrV "straight")),
+        -- TODO: list the possible styles for each attribute of each GPI
+        ("color", (ColorT, sampleColor))
+    ])
+
+rectType = ("Rectangle", M.fromList
+    [
+        ("centerX", (FloatT, x_sampler)),
+        ("centerY", (FloatT, y_sampler)),
+        ("lengthX", (FloatT, width_sampler)),
+        ("lengthY", (FloatT, height_sampler)),
+        ("angle", (FloatT, angle_sampler)),
+        ("name", (StrT, constValue $ StrV "defaultRect")),
+        ("color", (ColorT, sampleColor))
+    ])
+
+-----
 
 exampleCirc :: (Autofloat a) => Shape a
 exampleCirc = ("Circle", M.fromList

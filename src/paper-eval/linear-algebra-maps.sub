@@ -67,4 +67,10 @@ Label x1 $(h \circ g)(v_1)$
 */
 Scalar a
 Scalar c
+AutoLabel a, c
+Label a $\Delta$
+Label c $\beta$
 Scalar m
+
+NoLabel a
+NoLabel c
