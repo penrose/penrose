@@ -486,6 +486,11 @@ getNum shape prop = case shape .: prop of
     FloatV x -> x
     _ -> error "getNum: expected float but got something else"
 
+getPath :: (Autofloat a) => Shape a -> [(a, a)]
+getPath shape = case shape .: "path" of
+    PathV x -> x
+    _ -> error "getPath: expected [(Float, Float)] but got something else"
+
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator
 
