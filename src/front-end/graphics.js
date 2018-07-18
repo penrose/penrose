@@ -270,28 +270,29 @@ var Render = (function(){
      * @param       {JSON} lebels TODO
      * @param       {boolean} firstrun if this is the first run of the server, send back the bbox info
      */
-    function _renderLabel(s, obj, labels, firstrun) {
-        [x, y] = Utils.scr([properties.x, properties.y])
-        if(DEBUG)
-            s.circle(x, y, 2)
-        var e = Snap.parse(labels[properties.name])
-        t = s.g()
-        t.append(e)
-        var bbox = t.getBBox()
-        var mat = new Snap.Matrix()
-        // Fix the center of labels
-        mat.translate(x, y)
-        mat.translate(-bbox.width/2, -bbox.height/2)
-        t.transform(mat.toTransformString())
-        if(firstrun) {
-            properties.wl = bbox.width
-            properties.hl = bbox.height
-        }
-        t.data("name", properties.name)
-        t.drag(move, start, stop)
-        if(DEBUG) {
-            _renderBoundingBox(s, t)
-            //  _renderBoundingCircle(s, t)
+    function _renderLabel(s, properties, labels, firstrun) {
+        if(labels[properties.name]) {
+            [x, y] = Utils.scr([properties.x, properties.y])
+            var e = Snap.parse(labels[properties.name])
+            t = s.g()
+            t.append(e)
+            var bbox = t.getBBox()
+            var mat = new Snap.Matrix()
+            // Fix the center of labels
+            mat.translate(x, y)
+            mat.translate(-bbox.width/2, -bbox.height/2)
+            t.transform(mat.toTransformString())
+            if(firstrun) {
+                properties.w = bbox.width
+                properties.h = bbox.height
+            }
+            t.data("name", properties.name)
+            t.drag(move, start, stop)
+            if(DEBUG) {
+                _renderBoundingBox(s, t)
+                s.circle(x, y, 2)
+                //  _renderBoundingCircle(s, t)
+            }
         }
     }
 
@@ -627,7 +628,7 @@ var Render = (function(){
     // helper method that draws bbox around an object
     function _renderBoundingBox(s, obj) {
         // render the bbox
-        var sq = s.path(properties.getBBox().path);
+        var sq = s.path(obj.getBBox().path);
         sq.attr({
             "fill-opacity": 0,
             stroke: "#000",
@@ -659,13 +660,16 @@ var Render = (function(){
         var promises = []
         for (var key in data) {
             var record = data[key]
-            var obj = record.contents
-            if(record.tag == 'L') {
-                var label = await tex2svg("$" + properties.text + "$", properties.name)
-                // var parser = new DOMParser();
-                // var doc = parser.parseFromString(svg, "image/svg+xml");
-                // document.getElementsByTagName('body')[0].appendChild(doc.documentElement);
-                res[label.name] = label.svg
+            var properties = record[1]
+            if(record[0] == 'Text') {
+                var text = properties.text.contents
+                if(text != "") {
+                    var label = await tex2svg("$" + properties.text.contents + "$", properties.name.contents)
+                    // var parser = new DOMParser();
+                    // var doc = parser.parseFromString(svg, "image/svg+xml");
+                    // document.getElementsByTagName('body')[0].appendChild(doc.documentElement);
+                    res[label.name] = label.svg
+                }
             }
         }
         return res

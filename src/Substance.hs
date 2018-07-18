@@ -530,7 +530,30 @@ data SubObjects = SubObjects {
     subLabels :: LabelMap
 } deriving (Show, Eq, Typeable)
 
--- TODO: documentation
+-- | generate a mapping from substance IDs to their label strings
+getLabelMap :: SubProg -> VarEnv -> LabelMap
+getLabelMap p env = collectLabels subIds p
+    where
+        subIds   = map (\(VarConst v) -> v) $ M.keys (varMap env)
+
+-- | Given all label statements and Substance IDs, generate a map from
+-- all ids to their labels
+collectLabels :: [String] -> SubProg -> LabelMap
+collectLabels ids =
+    foldl (\m stmt -> case stmt of
+        LabelDecl (VarConst i) s -> M.insert i (Just s) m
+        AutoLabel Default        ->
+            M.fromList $ zip ids $ map Just ids
+        AutoLabel (IDs ids)      ->
+            foldl (\m' (VarConst i) -> M.insert i (Just i) m') m ids
+        NoLabel   ids            ->
+            foldl (\m' (VarConst i) -> M.insert i Nothing m') m ids
+        _ -> m
+    ) initmap
+    where
+        initmap = M.fromList $ map (\i -> (i, Nothing)) $ trRaw "ids" ids
+
+-- COMBAK: DEPRECATED
 loadObjects :: SubProg -> VarEnv -> SubObjects
 loadObjects p env =
     let objs1  = foldl (passDecls env) initObjs p
@@ -548,22 +571,6 @@ loadObjects p env =
             AutoLabel _   -> True
             NoLabel   _   -> True
             _             -> False
-
--- | Given all label statements and Substance IDs, generate a map from
--- all ids to their labels
-collectLabels :: [String] -> [SubStmt] -> LabelMap
-collectLabels ids =
-    foldl (\m stmt -> case stmt of
-        LabelDecl (VarConst i) s -> M.insert i (Just s) m
-        AutoLabel Default        ->
-            M.fromList $ zip ids $ map Just ids
-        AutoLabel (IDs ids)      ->
-            foldl (\m' (VarConst i) -> M.insert i (Just i) m') m ids
-        NoLabel   ids            ->
-            foldl (\m' (VarConst i) -> M.insert i Nothing m') m ids
-    ) initmap
-    where
-        initmap = M.fromList $ map (\i -> (i, Nothing)) $ trRaw "ids" ids
 
 applyDef :: Ord k => (k, v) -> M.Map k (a, b) -> b
 applyDef (n, _) d = case M.lookup n d of
@@ -612,24 +619,17 @@ subSeparate = foldr separate ([], [])
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
 
-parseSubstance :: String -> String -> VarEnv -> IO (SubProg, SubObjects, (VarEnv, SubEnv))
+parseSubstance ::
+    String -> String -> VarEnv
+    -> IO (SubProg, (VarEnv, SubEnv), LabelMap)
 parseSubstance subFile subIn varEnv =
-               case runParser substanceParser subFile subIn of
-               Left err -> error (parseErrorPretty err)
-               Right subProg -> do
-                   divLine
-                   putStrLn "Substance AST: \n"
-                   pPrint subProg
-                   let subTypeEnv  = check subProg varEnv
-                       objs        = loadObjects subProg subTypeEnv
-                       subDynEnv   = loadSubEnv subProg
-                   divLine
-                   putStrLn "Substance Type Env: \n"
-                   pPrint subTypeEnv
-                   divLine
-                   putStrLn "Substance Dedicated Env: \n"
-                   pPrint subDynEnv
-                   return (subProg, objs, (subTypeEnv, subDynEnv))
+    case runParser substanceParser subFile subIn of
+        Left err -> error (parseErrorPretty err)
+        Right subProg -> do
+            let subTypeEnv  = check subProg varEnv
+            let subDynEnv   = loadSubEnv subProg
+            let labelMap    = getLabelMap subProg subTypeEnv
+            return (subProg, (subTypeEnv, subDynEnv), labelMap)
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

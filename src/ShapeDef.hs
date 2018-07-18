@@ -106,7 +106,9 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [circType, arrowType, curveType, lineType, rectType]
+-- TODO: add other types
+shapeDefList = [anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType,
+          squareType, parallelogramType, imageType, textType, arcType]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -245,6 +247,19 @@ ellipseType = ("Ellipse", M.fromList
         ("name", (StrT, constValue $ StrV "defaultEllipse"))
     ])
 
+textType = ("Text", M.fromList
+    [
+        ("x", (FloatT, sampleFloatIn (-canvasWidth / 2, canvasWidth / 2))),
+        ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2))),
+        ("w", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
+        ("h", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
+        ("text", (StrT, constValue $ StrV "defaultLabelText")), -- TODO: rename to string
+        ("rotation", (FloatT, angle_sampler)),
+        ("style", (StrT, constValue $ StrV "none")),
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultCircle"))
+    ])
+
 arrowType = ("Arrow", M.fromList
     [
         ("startX", (FloatT, x_sampler)),
@@ -331,20 +346,6 @@ imageType = ("Image", M.fromList
         ("name", (StrT, constValue $ StrV "defaultImage"))
     ])
 
-textType = ("Text", M.fromList
-    [
-        ("centerX", (FloatT, x_sampler)),
-        ("centerY", (FloatT, y_sampler)),
-        ("lengthX", (FloatT, width_sampler)), -- TODO: lengthX and lengthY should be set by the frontend
-        ("lengthY", (FloatT, height_sampler)),
-        ("rotation", (FloatT, angle_sampler)),
-        ("style", (StrT, constValue $ StrV "none")),
-        ("stroke", (StrT, constValue $ StrV "none")),
-        ("string", (StrT, constValue $ StrV "missing text string")),
-        ("color", (ColorT, sampleColor)),
-        ("name", (StrT, constValue $ StrV "defaultText"))
-    ])
-
 arcType = ("Arc", M.fromList
     [
         ("x", (FloatT, x_sampler)), -- TODO: what does this (x,y) mean? @Dor
@@ -361,7 +362,6 @@ arcType = ("Arc", M.fromList
         ("stroke", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultArc"))
     ])
-
 
 -----
 

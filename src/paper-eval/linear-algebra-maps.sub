@@ -65,6 +65,15 @@ Label c $|v_1| \langle v_1, v_3 \rangle$
 Label w1 $g(v_1)$
 Label x1 $(h \circ g)(v_1)$
 */
+
 Scalar a
 Scalar c
 Scalar m
+
+AutoLabel a, c
+Label a $\Delta$
+Label c $\beta$
+Label m $\sum_1^\infty \frac{1}{e^{i \pi}}$
+
+NoLabel a
+NoLabel c

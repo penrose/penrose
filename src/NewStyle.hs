@@ -1132,12 +1132,28 @@ translatePair varEnv subEnv subProg trans (header@(Select sel), block) =
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
-translateStyProg :: forall a . (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg -> StyProg ->
-                                     Either [Error] (Translation a)
-translateStyProg varEnv subEnv subProg styProg =
-                 foldM (translatePair varEnv subEnv subProg) initTrans styProg
-                 -- TODO: deal with warnings in translation
-                 -- TODO: remember to check the order of warnings (reverse?)
+-- TODO: deal with warnings in translation
+-- TODO: remember to check the order of warnings (reverse?)
+translateStyProg :: forall a . (Autofloat a) =>
+    VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> C.LabelMap ->
+    Either [Error] (Translation a)
+translateStyProg varEnv subEnv subProg styProg labelMap =
+    case foldM (translatePair varEnv subEnv subProg) initTrans styProg of
+        Right trans -> Right $ insertLabels trans labelMap
+        Left errors -> Left  errors
+
+insertLabels :: (Autofloat a) => Translation a -> C.LabelMap -> Translation a
+insertLabels trans labels =
+    trans { trMap = M.mapWithKey insertLabel (trMap trans) }
+    where
+        toFieldStr s = FExpr $ Done $ StrV s
+        insertLabel (Sub s) fieldDict = let labelField = "label" in
+            case M.lookup s labels of
+                Nothing -> error $ "insertLabels: Label option does not exist for Substance object " ++ s
+                Just (Just l) -> M.insert labelField (toFieldStr l) fieldDict -- If "NoLabel", default to an empty string
+                Just Nothing  -> M.insert labelField (toFieldStr "") fieldDict
+        -- only insert labels for Substance objects
+        insertLabel (Gen _) fieldDict = fieldDict
 
 ------------ Translation second pass to actually make GPIs, objectives, computations
 
@@ -1287,6 +1303,8 @@ findFieldFns name field (FExpr (OptEval expr)) acc =
     ObjFn fname args -> Left (fname, args) : acc
     ConstrFn fname args -> Right (fname, args) : acc
     _ -> acc -- Not an optfn
+-- COMBAK: what should we do if there's a constant field?
+findFieldFns name field (FExpr (Done _)) acc = acc
 findFieldFns name field (FGPI _ _) acc = acc
 
 findObjfnsConstrs = foldSubObjs findFieldFns
