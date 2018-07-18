@@ -152,10 +152,11 @@ debugRng = mkStdGen seed
 constValue :: (Autofloat a) => Value a -> SampledValue a
 constValue v g = (v, g)
 
-sampleDiscrete :: (Autofloat a) => [String] -> SampledValue a
+-- NOTE: this function does not enforce that all values have the same type
+sampleDiscrete :: (Autofloat a) => [Value a] -> SampledValue a
 sampleDiscrete list g =
     let (idx, g') = randomR (0, length list - 1) g
-    in (StrV $ list !! idx, g')
+    in (list !! idx, g')
 
 sampleFloatIn :: (Autofloat a) => FloatInterval -> SampledValue a
 sampleFloatIn interval g =
@@ -198,26 +199,50 @@ sampleProperty (properties, g) propID (typ, sampleF) =
 -- constructShape :: ShapeDef a -> [SampleRule] -> Shape a
 
 x_sampler, y_sampler, width_sampler, height_sampler, angle_sampler,
-           stroke_sampler, stroke_style_sampler :: (Autofloat a) => SampledValue a
+           stroke_sampler, stroke_style_sampler, bool_sampler :: (Autofloat a) => SampledValue a
 x_sampler = sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)
 y_sampler = sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)
 width_sampler = sampleFloatIn (3, canvasWidth / 6)
 height_sampler = sampleFloatIn (3, canvasHeight / 6)
 angle_sampler = sampleFloatIn (0, 360) -- TODO: check that frontend uses degrees, not radians
 stroke_sampler = sampleFloatIn (0.5, 3)
-stroke_style_sampler = sampleDiscrete ["dashed", "solid"]
+stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
+bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-circType, arrowType, curveType, lineType, rectType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType,
+          squareType, parallelogramType, imageType, textType, arcType :: (Autofloat a) => ShapeDef a
+
+anchorPointType = ("AnchorPoint", M.fromList
+    [
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("name", (StrT, constValue $ StrV "defaultAnchorPoint"))
+    ])
+
 circType = ("Circle", M.fromList
     [
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
         ("stroke-width", (FloatT, stroke_sampler)),
-        ("name", (StrT, constValue $ StrV "defaultCircle")),
-        ("style", (StrT, sampleDiscrete ["filled"])),
+        ("style", (StrT, sampleDiscrete [StrV "filled"])),
         ("stroke-style", (StrT, stroke_style_sampler)),
-        ("color", (ColorT, sampleColor))
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultCircle"))
+    ])
+
+ellipseType = ("Ellipse", M.fromList
+    [
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("radius1", (FloatT, width_sampler)),
+        ("radius2", (FloatT, height_sampler)), -- the samplers don't quite make sense if the shape is rotates
+        ("rotation", (FloatT, angle_sampler)),        
+        ("stroke-width", (FloatT, stroke_sampler)),
+        ("style", (StrT, sampleDiscrete [StrV "filled"])),
+        ("stroke-style", (StrT, stroke_style_sampler)),
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultEllipse"))
     ])
 
 arrowType = ("Arrow", M.fromList
@@ -226,17 +251,17 @@ arrowType = ("Arrow", M.fromList
         ("startY", (FloatT, y_sampler)),
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
-        ("name", (StrT, constValue $ StrV "defaultArrow")),
         ("style", (StrT, constValue $ StrV "straight")),
-        ("color", (ColorT, sampleColor))
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultArrow"))
     ])
 
 curveType = ("Curve", M.fromList
     [
         ("path", (PathT, constValue $ PathV [])), -- TODO: sample path
-        ("name", (StrT, constValue $ StrV "defaultCurve")),
         ("style", (StrT, constValue $ StrV "solid")),
-        ("color", (ColorT, sampleColor))
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultCurve"))
     ])
 
 lineType = ("Line", M.fromList
@@ -246,10 +271,11 @@ lineType = ("Line", M.fromList
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
         ("thickness", (FloatT, width_sampler)),
-        ("name", (StrT, constValue $ StrV "defaultLine")),
-        ("style", (StrT, constValue $ StrV "straight")), 
         -- TODO: list the possible styles for each attribute of each GPI
-        ("color", (ColorT, sampleColor))
+        ("color", (ColorT, sampleColor)),
+        ("style", (StrT, constValue $ StrV "solid")), 
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultLine"))
     ])
 
 rectType = ("Rectangle", M.fromList
@@ -258,10 +284,84 @@ rectType = ("Rectangle", M.fromList
         ("centerY", (FloatT, y_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
-        ("angle", (FloatT, angle_sampler)),
-        ("name", (StrT, constValue $ StrV "defaultRect")),
-        ("color", (ColorT, sampleColor))
+        ("rotation", (FloatT, angle_sampler)),
+        ("color", (ColorT, sampleColor)),
+        ("style", (StrT, constValue $ StrV "none")), -- TODO: what is this?
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultRect"))
     ])
+
+squareType = ("Square", M.fromList
+    [
+        ("centerX", (FloatT, x_sampler)),
+        ("centerY", (FloatT, y_sampler)),
+        ("sideLength", (FloatT, width_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
+        -- TODO: distinguish between stroke color and fill color everywhere
+        ("color", (ColorT, sampleColor)),
+        ("style", (StrT, constValue $ StrV "none")), -- TODO: what is this?
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultSquare"))
+    ])
+
+parallelogramType = ("Parallelogram", M.fromList
+    [
+        ("centerX", (FloatT, x_sampler)), -- TODO: is this top left? or center? @Dor
+        ("centerY", (FloatT, y_sampler)),
+        ("lengthX", (FloatT, width_sampler)),
+        ("lengthY", (FloatT, height_sampler)),
+        ("angle", (FloatT, angle_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
+        ("color", (ColorT, sampleColor)),
+        ("style", (StrT, constValue $ StrV "none")), -- TODO: what is this?
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultParallelogram"))
+    ])
+
+imageType = ("Image", M.fromList
+    [
+        ("centerX", (FloatT, x_sampler)), -- TODO: is this top left? or center? @Lily
+        ("centerY", (FloatT, y_sampler)),
+        ("lengthX", (FloatT, width_sampler)),
+        ("lengthY", (FloatT, height_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
+        ("style", (StrT, constValue $ StrV "none")),
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("path", (StrT, constValue $ StrV "missing image path")), -- Absolute path (URL)
+        ("name", (StrT, constValue $ StrV "defaultImage"))
+    ])
+
+textType = ("Text", M.fromList
+    [
+        ("centerX", (FloatT, x_sampler)),
+        ("centerY", (FloatT, y_sampler)),
+        ("lengthX", (FloatT, width_sampler)), -- TODO: lengthX and lengthY should be set by the frontend
+        ("lengthY", (FloatT, height_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
+        ("style", (StrT, constValue $ StrV "none")),
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("string", (StrT, constValue $ StrV "missing text string")),
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultText"))
+    ])
+
+arcType = ("Arc", M.fromList
+    [
+        ("x", (FloatT, x_sampler)), -- TODO: what does this (x,y) mean? @Dor
+        ("y", (FloatT, y_sampler)),
+        ("r", (FloatT, width_sampler)),
+        ("size", (FloatT, width_sampler)),
+        ("lengthX", (FloatT, width_sampler)),
+        ("lengthY", (FloatT, height_sampler)),
+        ("angle", (FloatT, angle_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
+        ("isRight", (BoolT, bool_sampler)),
+        ("color", (ColorT, sampleColor)),
+        ("style", (StrT, constValue $ StrV "none")),
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultArc"))
+    ])
+
 
 -----
 
@@ -271,7 +371,7 @@ exampleCirc = ("Circle", M.fromList
         ("x", FloatV 5.5),
         ("y", FloatV 100.2),
         ("r", FloatV 5),
-        ("name", StrV "C1"),
+        ("name", StrV "exampleCirc"),
         ("style", StyleV "filled"),
         ("color", ColorV black)
     ])
