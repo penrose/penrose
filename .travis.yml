@@ -26,6 +26,7 @@ install:
  - export PATH=$HOME/.local/bin:/opt/ghc/$GHCVER/bin:$PATH
  - ./.travis/install-ghr.sh
  - ./.travis/install-stack.sh
+ - stack install alex happy
 
 script:
  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
