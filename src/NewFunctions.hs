@@ -105,7 +105,37 @@ objFuncDict = M.fromList
     [
         ("near", near),
         ("center", center),
-        ("centerX", centerX)
+        ("centerX", centerX),
+        ("centerLabel", centerLabel),
+        ("centerArrow", centerArrow)
+{-      ("centerLine", centerLine),
+        ("increasingX", increasingX),
+        ("increasingY", increasingY),
+        ("horizontal", horizontal),
+        ("upright", upright),
+        ("xInRange", xInRange),
+        ("yInRange", yInRange),
+        ("orthogonal", orthogonal),
+        ("toLeft", toLeft),
+        ("above", above),
+        ("between", between),
+        ("sameHeight", sameHeight),
+        ("sameX", sameX),
+        ("equal", equal),
+        ("ratioOf", ratioOf),
+        ("topRightOf", topRightOf),
+        ("sameY", sameY),
+        -- ("sameX", (*) 0.6 `compose2` sameX),
+        -- ("sameX", (*) 0.2 `compose2` sameX),
+        ("sameCenter", sameCenter),
+        ("repel", (*)  900000  `compose2` repel),
+        -- ("repel", (*)  1000000  `compose2` repel),
+        -- ("repel", (*)  10000  `compose2` repel),
+        -- ("repel", repel),
+        ("outside", outside),
+        ("nearEndVert", nearEndVert),
+        ("nearEndHoriz", nearEndHoriz),
+        ("nearHead", nearHead) -}
     ]
 
 objSignatures :: OptSignatures
@@ -225,7 +255,98 @@ center [GPI o] = tr "center: " $ distsq (getX o, getY o) (0, 0)
 centerX :: ObjFn
 centerX [Val (FloatV x)] = tr "centerX" $ x^2
 
-centerX [Val (StrV x)] = tr ("centerX: " ++ x) $ r2f 0
+-- TODO move this elsewhere? (also applies to polyline)
+bezierBbox :: (Autofloat a) => Shape a -> ((a, a), (a, a)) -- poly Point type?
+bezierBbox cb = let path = getPath cb
+                    (xs, ys) = (map fst path, map snd path)
+                    lower_left = (minimum xs, minimum ys)
+                    top_right = (maximum xs, maximum ys) in
+                (lower_left, top_right)
+
+-- | 'sameCenter' encourages two objects to center at the same point
+sameCenter :: ObjFn
+sameCenter [GPI a, GPI b] = (getX a - getX b)^2 + (getY a - getY b)^2 
+
+centerLabel :: ObjFn
+centerLabel [GPI curve, GPI text]
+    | curve `is` "Curve" && text `is` "Text" =
+        let ((lx, ly), (rx, ry)) = bezierBbox curve
+            (xmargin, ymargin) = (-10, 30)
+            midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
+        distsq midbez (getX text, getY text)
+
+-- centerLabel [CB' a, L' l] [mag] = -- use the float input?
+--                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
+--                     (mx, my) = midpoint (sx, sy) (ex, ey)
+--                     (lx, ly) = (xl' l, yl' l) in
+                -- (mx - lx)^2 + (my + 1.1 * hl' l - ly)^2 -- Top right from the point
+
+centerLabel [GPI p, GPI l]
+    | p `is` "AnchorPoint" && l `is` "Text" =
+        let [px, py, lx, ly] = [getX p, getY p, getX l, getY l] in
+        (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
+
+-- -- TODO: depends on orientation of arrow
+centerLabel [GPI arr, GPI text]
+    | arr `is` "Arrow" && text `is` "Text" =
+        let (sx, sy, ex, ey) = (getNum arr "startX", getNum arr "startY", getNum arr "endX", getNum arr "endY")
+            (mx, my) = midpoint (sx, sy) (ex, ey)
+            (lx, ly) = (getX text, getY text) in
+        (mx - lx)^2 + (my + 1.1 * getNum text "h" - ly)^2 -- Top right from the point
+
+centerLabel [a, b] = sameCenter [a, b]
+
+-- | `centerArrow` positions an arrow between two objects, with some spacing
+centerArrow :: ObjFn
+
+centerArrow [GPI arr@("Arrow", _), GPI sq1@("Square", _), GPI sq2@("Square", _)] =
+            _centerArrow arr [getX sq1, getY sq1] [getX sq2, getY sq2]
+                [spacing + (halfDiagonal . flip getNum "sideLength") sq1, negate $ spacing + (halfDiagonal . flip getNum "sideLength") sq2]
+
+centerArrow [GPI arr@("Arrow", _), GPI sq@("Square", _), GPI circ@("Circle", _)] =
+            _centerArrow arr [getX sq, getY sq] [getX circ, getY circ]
+                [spacing + (halfDiagonal . flip getNum "sideLength") sq, negate $ spacing + getNum circ "radius"]
+
+centerArrow [GPI arr@("Arrow", _), GPI circ@("Circle", _), GPI sq@("Square", _)] =
+            _centerArrow arr [getX circ, getY circ] [getX sq, getY sq]
+                [spacing + getNum circ "radius", negate $ spacing + (halfDiagonal . flip getNum "sideLength") sq]
+
+centerArrow [GPI arr@("Arrow", _), GPI circ1@("Circle", _), GPI circ2@("Circle", _)] =
+            _centerArrow arr [getX circ1, getY circ1] [getX circ2, getY circ2]
+                [ spacing * getNum circ1 "radius", negate $ spacing * getNum circ2 "radius"]
+
+centerArrow [GPI arr@("Arrow", _), GPI ell1@("Ellipse", _), GPI ell2@("Ellipse", _)] =
+            _centerArrow arr [getX ell1, getY ell1] [getX ell2, getY ell2]
+                [ spacing * getNum ell1 "radius1", negate $ spacing * getNum ell2 "radius2"]
+                -- FIXME: inaccurate, only works for horizontal cases
+
+centerArrow [GPI arr@("Arrow", _), GPI pt1@("AnchorPoint", _), GPI pt2@("AnchorPoint", _)] =
+            _centerArrow arr [getX pt1, getY pt1] [getX pt2, getY pt2]
+                [ spacing * 2 * r2f ptRadius, negate $ spacing * 2 * r2f ptRadius]
+                -- FIXME: anchor points have no radius
+
+centerArrow [GPI arr@("Arrow", _), GPI text1@("Text", _), GPI text2@("Text", _)] =
+            _centerArrow arr [getX text1, getY text1] [getX text2, getY text2]
+                [spacing * getNum text1 "h", negate $ spacing * getNum text2 "h"]
+
+centerArrow [GPI arr@("Arrow", _), GPI text@("Text", _), GPI circ@("Circle", _)] =
+            _centerArrow arr [getX text, getY text] [getX circ, getY circ]
+                [1.5 * getNum text "w", negate $ spacing * getNum circ "radius"]
+
+centerArrow o = error ("CenterMap: unsupported arguments: " ++ show o)
+
+spacing :: (Autofloat a) => a
+spacing = 1.1 -- TODO: arbitrary
+
+_centerArrow :: Autofloat a => Shape a -> [a] -> [a] -> [a] -> a
+_centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
+    let vec  = [x2 - x1, y2 - y1] -- direction the arrow should point to
+        dir = normalize vec -- direction the arrow should point to
+        [sx, sy, ex, ey] = if norm vec > o1 + abs o2
+                then (s1 +. o1 *. dir) ++ (s2 +. o2 *. dir) else s1 ++ s2
+        [fromx, fromy, tox, toy] = [getNum arr "startX", getNum arr "startY", 
+                                    getNum arr "endX",   getNum arr "endY"] in
+    (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 
 --------------------------------------------------------------------------------
 -- Constraint Functions
