@@ -4,8 +4,8 @@
  * @version: 06/23/2017
  */
 
-var DEBUG           = false
-// var DEBUG           = true
+// var DEBUG           = false
+var DEBUG           = true
 var CANVAS_WIDTH    = 800
 var CANVAS_HEIGHT   = 700
 var SAMPLE_INTERVAL = 30
@@ -108,6 +108,7 @@ var Utils = (function () {
             str += "L " + _str(list[1][0]) + " " + _str(list[1][1]) + " ";
             return str;
         } else {
+            // TODO: document this properly
             return catmullRomSpline(list, 1)
         }
 

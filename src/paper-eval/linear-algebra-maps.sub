@@ -71,9 +71,9 @@ Scalar c
 Scalar m
 
 AutoLabel a, c
-Label a $\Delta$
+Label a $\textrm{hello world }\Delta$
 Label c $\beta$
 Label m $\sum_1^\infty \frac{1}{e^{i \pi}}$
 
-NoLabel a
-NoLabel c
+-- NoLabel a
+-- NoLabel c

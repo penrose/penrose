@@ -179,7 +179,7 @@ dragUpdate name xm ym conn s =
     let (xm', ym') = (r2f xm, r2f ym)
         newShapes  = map (\shape ->
             if SD.getName shape == name
-                then SD.setX (SD.FloatV (xm' + SD.getX shape)) $ SD.setY (SD.FloatV (-ym' + SD.getY shape)) shape
+                then SD.setX (SD.FloatV (xm' + SD.getX shape)) $ SD.setY (SD.FloatV (ym' + SD.getY shape)) shape
                 else shape)
             (NS.shapesr s)
         news = s { NS.shapesr = newShapes,
