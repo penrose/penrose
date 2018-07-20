@@ -60,7 +60,7 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 -- Main optimization functions
 
 step :: RState -> RState
-step s = let (state', params') = stepShapes (trRaw ("Shapes: " ++ show ( shapesr s) ++ "\nOptimization params") $ paramsr s)  (varyingState s) in
+step s = let (state', params') = stepShapes (paramsr s)  (varyingState s) in
          let shapes' = evalTranslation s in
          s { varyingState = state', shapesr = shapes', paramsr = params' }
          -- note: trans is not updated in rstate

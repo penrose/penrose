@@ -49,6 +49,19 @@ type ObjFnInfo    a = (ObjFnOn    a, Weight a, [Value a])
 type ConstrFnInfo a = (ConstrFnOn a, Weight a, [Value a])
 data FnInfo a = ObjFnInfo a | ConstrFnInfo a
 
+-- TODO: the functions can just be looked up and checked once, don't need to repeat
+invokeOptFn :: (Autofloat a) =>
+    M.Map String (OptFn a) -> FuncName -> [ArgVal a] -> OptSignatures -> a
+invokeOptFn dict n args signatures =
+    let sigs = case signatures MM.! n of
+                   [] -> noSignatureError n
+                   l  -> l
+        args'  = checkArgsOverload args sigs n
+        f      = fromMaybe (noFunctionError n) (M.lookup n dict)
+    -- in f args
+    in f args'
+
+
 --------------------------------------------------------------------------------
 -- Computations
 compDict :: forall a. (Autofloat a) => M.Map String (CompFnOn a)
@@ -146,43 +159,42 @@ objSignatures = MM.fromList
         ("centerX", [ValueT FloatT])
     ]
 
-invokeObj :: (Autofloat a) => FuncName -> [ArgVal a] -> OptSignatures -> a
-invokeObj n args sigs =
-    let sigs = case objSignatures MM.! n of
-                   [] -> noSignatureError n
-                   l  -> l
-        args'  = checkArgsOverload args sigs n
-        f      = fromMaybe (noFunctionError n) (M.lookup n objFuncDict)
-    in f args'
 
 --------------------------------------------------------------------------------
 -- Constraints
 
+-- exterior point method: penalty function
+penalty :: (Ord a, Floating a, Show a) => a -> a
+penalty x = tr "penalty" $ (max x 0) ^ q -- weights should get progressively larger in cr_dist
+            where q = 2 -- also, may need to sample OUTSIDE feasible set
+            -- where q = 3
+
 -- | 'constrFuncDict' stores a mapping from the name of constraint functions to the actual implementation
 constrFuncDict :: forall a. (Autofloat a) => M.Map FuncName (ConstrFnOn a)
-constrFuncDict = M.fromList
-    [
-        ("at", at),
-        ("contains", contains),
-        ("lessThan", lessThan)
-    ]
+constrFuncDict = M.fromList $ map toPenalty flist
+    where
+        toPenalty (n, f) = (n, penalty . f)
+        flist =
+            [
+                ("at", at),
+                ("contains", contains),
+                ("minSize", minSize),
+                ("maxSize", maxSize),
+                ("lessThan", lessThan)
+            ]
 
 constrSignatures :: OptSignatures
 constrSignatures = MM.fromList
     [
         ("at", [AnyGPI, ValueT FloatT, ValueT FloatT]),
         ("contains", [GPIType "Circle", GPIType "Circle"]),
+        ("contains", [GPIType "Circle", GPIType "Text"]),
+        ("contains", [GPIType "Square", GPIType "Text"]),
+        ("contains", [GPIType "Circle", GPIType "Rectangle"]),
+        ("minSize", [AnyGPI]),
+        ("maxSize", [AnyGPI]),
         ("lessThan", []) --TODO
     ]
-
-invokeConstr :: (Autofloat a) => FuncName -> [ArgVal a] -> OptSignatures -> a
-invokeConstr n args sigs =
-    let sigs = case constrSignatures MM.! n of
-                   [] -> noSignatureError n
-                   l  -> l
-        args'  = checkArgsOverload args sigs n
-        f      = fromMaybe (noFunctionError n) (M.lookup n constrFuncDict)
-    in f args'
 
 --------------------------------------------------------------------------------
 -- Type checker for objectives and constraints
@@ -265,7 +277,7 @@ bezierBbox cb = let path = getPath cb
 
 -- | 'sameCenter' encourages two objects to center at the same point
 sameCenter :: ObjFn
-sameCenter [GPI a, GPI b] = (getX a - getX b)^2 + (getY a - getY b)^2 
+sameCenter [GPI a, GPI b] = (getX a - getX b)^2 + (getY a - getY b)^2
 
 centerLabel :: ObjFn
 centerLabel [GPI curve, GPI text]
@@ -344,7 +356,7 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
         dir = normalize vec -- direction the arrow should point to
         [sx, sy, ex, ey] = if norm vec > o1 + abs o2
                 then (s1 +. o1 *. dir) ++ (s2 +. o2 *. dir) else s1 ++ s2
-        [fromx, fromy, tox, toy] = [getNum arr "startX", getNum arr "startY", 
+        [fromx, fromy, tox, toy] = [getNum arr "startX", getNum arr "startY",
                                     getNum arr "endX",   getNum arr "endY"] in
     (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 
@@ -359,10 +371,30 @@ lessThan :: ConstrFn
 lessThan [] = 0.0 -- TODO
 
 contains :: ConstrFn
-contains [GPI o1, GPI o2]
-    | o1 `is` "Circle" && o2 `is` "Circle" =
-        dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o2 "r" - getNum o1 "r")
-    | otherwise = error ("contains: unsupported arguments " ++ show o1 ++ "\n" ++ show o2)
+contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
+    dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o2 "r" - getNum o1 "r")
+contains [GPI c@("Circle", _), GPI rect@("Rectangle", _)] =
+    let (x, y, w, h)     =
+            (getX rect, getY rect, getNum rect "sizeX", getNum rect "sizeY")
+        [x0, x1, y0, y1] = [x - w/2, x + w/2, y - h/2, y + h/2]
+        pts              = [(x0, y0), (x0, y1), (x1, y0), (x1, y1)]
+        (cx, cy, radius) = (getX c, getY c, getNum c "r")
+    in sum $ map (\(a, b) -> max 0 $ dist (cx, cy) (a, b) - radius) pts
+        -- dist (cx, cy) (x, y)
+contains [GPI c@("Circle", _), GPI t@("Text", _)] =
+    let res = dist (getX t, getY t) (getX c, getY c) - getNum c "r" + max (getNum t "w") (getNum t "h")
+    in if res < 0 then 0 else res
+    -- TODO: factor out the vertex access code to a high-level getter
+    -- NOTE: seems that the following version doesn't perform as well as the hackier old version. Maybe it's the shape of the obj that is doing it, but we do observe that the labels tend to get really close to the edges
+    -- let (x, y, w, h)     = (getX t, getY t, getNum t "w", getNum t "h")
+    --     [x0, x1, y0, y1] = [x - w/2, x + w/2, y - h/2, y + h/2]
+    --     pts              = [(x0, y0), (x0, y1), (x1, y0), (x1, y1)]
+    --     (cx, cy, radius) = (getX c, getY c, getNum c "r")
+    -- in sum $ map (\(a, b) -> (max 0 $ dist (cx, cy) (a, b) - radius)^2) pts
+contains [GPI s@("Square", _), GPI l@("Text", _)] =
+    dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 + getNum l "w"
+
+-- | otherwise = error ("contains: unsupported arguments " ++ show o1 ++ "\n" ++ show o2)
 -- contains [C' outc, C' inc] [FloatV padding] = strictSubset [[xc' inc, yc' inc, r' inc + padding], [xc' outc, yc' outc, r' outc]]
 -- contains [S' outc, S' inc] [] = strictSubset
 --     [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
@@ -380,8 +412,6 @@ contains [GPI o1, GPI o2]
 -- contains [C' set, L' label] _ =
 --     let res = dist (xl' label, yl' label) (xc' set, yc' set) - r' set + max (wl' label) (hl' label) in
 --     if res < 0 then 0 else res
--- contains [S' s, L' l] [] =
---     dist (xl' l, yl' l) (xs' s, ys' s) - side' s / 2 + wl' l
 -- -- FIXME: doesn't work
 -- contains [E' set, L' label] [] =
 --     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
@@ -394,6 +424,37 @@ contains [GPI o1, GPI o2]
 --                              ret = (isInRange (startx' ar) lx rx) + (isInRange (endx' ar) lx rx) + (isInRange (starty' ar) ly ry) + (isInRange (endy' ar) ly ry)
 --                             in
 --                              ret
+
+maxSize :: ConstrFn
+-- TODO: why do we need `r2f` now? Didn't have to before
+limit = max canvasWidth canvasHeight
+maxSize [GPI c@("Circle", _)] = getNum c "r" - r2f (limit / 6)
+maxSize [GPI s@("Square", _)] = getNum s "side" - r2f (limit  / 3)
+maxSize [GPI r@("Rectangle", _)] =
+    let max_side = max (getNum r "sizeX") (getNum r "sizeY")
+    in max_side - r2f (limit  / 3)
+-- maxSize [GPI ar@("Arrow", _)] = sizear' ar - limit  / 3
+-- maxSize [GPI im@("Image", _)] =
+--     let max_side = max (sizeXim' im) (sizeYim' im)
+--     in max_side - limit  / 3
+-- maxSize [GPI pa@("Parallelogram", _)] [] =
+--     let max_side = max (sizeXpa' pa) (sizeYpa' pa) in
+--     max_side - limit  / 3
+-- maxSize [GPI e@("Ellipse", _)] [] = max (ry' e) (rx' e) - limit  / 3
+
+minSize :: ConstrFn
+minSize [GPI c@("Circle", _)] = 20 - getNum c "r"
+minSize [GPI s@("Square", _)] = 20 - getNum s "side"
+minSize [GPI r@("Rectangle", _)] =
+    let min_side = min (getNum r "sizeX") (getNum r "sizeY")
+    in 20 - min_side
+-- minSize [AR' ar] _ = 2.5 - sizear' ar
+-- minSize [IM' im] [] = let min_side = min (sizeXim' im) (sizeYim' im) in
+--                    20 - min_side
+-- minSize [PA' pa] [] = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in
+--                    20 - min_side
+-- minSize [E' e] [] = 20 - min (ry' e) (rx' e)
+
 
 
 --------------------------------------------------------------------------------

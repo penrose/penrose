@@ -4,7 +4,8 @@ Set U
 Set V
 Set R1
 Set R2
-Map(A,B) f
+Map f
+From(f, A, B)
 IsSubset(U,A)
 IsSubset(V,B)
 IsSubset(A,R1)

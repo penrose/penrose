@@ -7,7 +7,7 @@
 
 module Server where
 import Computation
-import Utils (Autofloat, r2f)
+import Utils (Autofloat, r2f, trRaw)
 import GHC.Generics
 import Data.Monoid (mappend)
 import Data.Text (Text)
@@ -168,11 +168,17 @@ toPolyProperty v = case v of
     SD.FileV x   -> SD.FileV x
     SD.StyleV x  -> SD.StyleV x
 
-updateShapes :: ([SD.Shape Double]) -> Connection -> NS.RState -> IO ()
-updateShapes newShapes conn s = if NS.autostep s then stepAndSend conn news else loop conn news
-    where
-        news = s { NS.shapesr = toPolymorphics newShapes,
-                   NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter }}
+updateShapes :: [SD.Shape Double] -> Connection -> NS.RState -> IO ()
+updateShapes newShapes conn s =
+    let polyShapes = toPolymorphics newShapes
+        uninitVals = map NS.toTagExpr $ NS.shapes2vals polyShapes $ NS.uninitializedPaths s
+        trans' = NS.insertPaths (NS.uninitializedPaths s) uninitVals (NS.transr s)
+        news = s {
+            NS.shapesr = polyShapes,
+            NS.varyingState = NS.shapes2floats polyShapes $ NS.varyingPaths s,
+            NS.transr = trans',
+            NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter }}
+    in if NS.autostep s then stepAndSend conn news else loop conn news
 
 dragUpdate :: String -> Float -> Float -> WS.Connection -> NS.RState -> IO ()
 dragUpdate name xm ym conn s =
@@ -210,4 +216,5 @@ resampleAndSend conn s = do
 stepAndSend conn s = do
     let nexts = O.step s
     wsSendJSONList conn ((NS.shapesr nexts) :: ([SD.Shape Double]))
+    -- loop conn (trRaw "state:" nexts)
     loop conn nexts

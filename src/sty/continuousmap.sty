@@ -1,18 +1,49 @@
-/*
- * This is the same continuous map program, written in the new syntax.
- */
 
 Set x {
-    shape = Circle {
-        color = lightBlue()
-        stroke = 2
+    x.shape = Circle {
+        color = rgba(0.1, 0.1, 0.9, 0.2)
+        stroke-style = "solid"
     }
-    constraint contains(x, x.shape.label)
+    x.maxSize = ensure maxSize(x.shape)
+    x.minSize = ensure minSize(x.shape)
+    x.text    = Text { string = x.label }
+    x.labelFn = ensure contains(x.shape, x.text)
 }
 
+Set `U` {
+    override `U`.shape.stroke-style = "dashed"
+    override `U`.shape.stroke-width = 2
+    -- y = R1.shape.y
+}
+
+Set `V` {
+    override `V`.shape.stroke-style = "dashed"
+    override `V`.shape.stroke-width = 2
+    -- y = U.shape.y
+}
+
+Set `R1` {
+    override `R1`.shape = Square {
+        color = rgba(0.95, 0.96, 0.92, 0.5)
+    }
+}
+
+Set `R2`
+with Set `R1`
+{
+    override `R2`.shape = Square {
+        color = rgba(0.95, 0.96, 0.92, 0.5)
+        y = `R1`.shape.y
+        x = `R1`.shape.x + 400.0
+        side  = `R1`.shape.side
+    }
+}
+
+
+/*
 IsSubset x y {
-    constraint contains(y, x, 10)
-    constraint outsideOf(y.shape.label, x)
+    -- constraint contains(y, x, 10)
+    -- constraint outsideOf(y.shape.label, x)
     -- objective  repel(x.shape, y.shape)
 }
 
@@ -45,21 +76,4 @@ Set `R2` {
     objective topRightOf(R2.shape.label, R2.shape)
 }
 
-Set `U` {
-    shape = Circle {
-        style = "dashed"
-        color = lightBlue()
-        stroke = 2
-        y = R1.shape.y
-    }
-}
-
-Set `V` {
-    shape = Circle {
-        style = "dashed"
-        radius = U.shape.radius
-        color = lightBlue()
-        stroke = 2
-        y = U.shape.y
-    }
-}
+*/

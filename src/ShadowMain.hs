@@ -115,18 +115,6 @@ shadowMain = do
     putStrLn "\nAutostep:"
     pPrint $ NS.autostep initState
     divLine
-    putStrLn "Visualizing Substance program:\n"
-
-    -- COMBAK: remove below
-
-    -- let initState = R.genInitState subObjs styProg
-    -- putStrLn "Synthesizing objects and objective functions"
-    -- -- let initState = compilerToRuntimeTypes intermediateRep
-    -- -- divLine
-    -- -- putStrLn "Initial state, optimization representation:\n"
-    -- -- putStrLn "TODO derive Show"
-    -- -- putStrLn $ show initState
-    -- divLine
 
     putStrLn "Visualizing Substance program:\n"
     --

@@ -67,7 +67,7 @@ var Render = (function(){
         "contents" : {
             "name" : this.data("name"),
             "xm" : this.data("ox"),
-            "ym" : -this.data("oy")}
+            "ym" : this.data("oy")}
         }
         var json = JSON.stringify(dict)
         if(DEBUG) {
@@ -181,7 +181,7 @@ var Render = (function(){
             for(var i in shape[1]) { props[i] = shape[1][i].contents }
 
             // transform coordinates to screen space
-            [screen_x, screen_y ] = Utils.scr([props.x, props.y])
+            [screen_x, screen_y] = Utils.scr([props.x, props.y])
             props.x = screen_x; props.y = screen_y
 
             var renderedShape = null
@@ -191,7 +191,7 @@ var Render = (function(){
                 case 'Eillipse'      :
                     renderedShape = _renderEllipse(s, props); break
                 case 'Text'          :
-                    renderedShape = _renderLabel(s, props, labels, firstrun); break
+                    renderedShape = _renderLabel(s, props, labels, shape[1], firstrun); break
                 case 'Point'         :
                     renderedShape = _renderPoint(s, props); break
                 case 'Rectangle'     :
@@ -220,6 +220,7 @@ var Render = (function(){
         // Send the bbox information and label dimensions to the server
         if(firstrun) {
             var dict = { "tag" : "Update", "contents" : { "shapes" : shapes } }
+            console.log("Sending updated shapes (e.g. labels with correct bboxes) to the server: ", dict)
             var json = JSON.stringify(dict)
             ws.send(json)
         }
@@ -251,7 +252,7 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-    function _renderEllipse(s, obj) {
+    function _renderEllipse(s, properties) {
         [x, y] = [properties.x, properties.y]
         var ellip = s.ellipse(x, y, properties.rx, properties.ry);
         ellip.data("name", properties.name)
@@ -268,14 +269,14 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-     function _renderImage(s, obj) {
-        [x, y] = [properties.x, properties.y]
-        var sizeX = properties.sizeX
-        var sizeY = properties.sizeY
-        var path = properties.path
-        var image = s.image(path, x, y, sizeX, sizeY)
-        return image
-    }
+     function _renderImage(s, properties) {
+         [x, y] = [properties.x, properties.y]
+         var sizeX = properties.sizeX
+         var sizeY = properties.sizeY
+         var path = properties.path
+         var image = s.image(path, x, y, sizeX, sizeY)
+         return image
+     }
 
     /**
      * Renders a label on the canvas. Note that the labels are pre-generated
@@ -285,7 +286,7 @@ var Render = (function(){
      * @param       {JSON} lebels TODO
      * @param       {boolean} firstrun if this is the first run of the server, send back the bbox info
      */
-    function _renderLabel(s, properties, labels, firstrun) {
+    function _renderLabel(s, properties, labels, shapedef, firstrun) {
         if(labels[properties.name]) {
             [x, y] = [properties.x, properties.y]
             var e = Snap.parse(labels[properties.name])
@@ -298,8 +299,8 @@ var Render = (function(){
             mat.translate(-bbox.width/2, -bbox.height/2)
             t.transform(mat.toTransformString())
             if(firstrun) {
-                properties.w = bbox.width
-                properties.h = bbox.height
+                shapedef.w = { tag: "FloatV", contents: bbox.width }
+                shapedef.h = { tag: "FloatV", contents: bbox.height }
             }
             if(DEBUG) {
                 //  var boundingCircle = _renderBoundingCircle(s, t)
@@ -318,7 +319,7 @@ var Render = (function(){
      */
      // FIXME: point radius is hardcoded
      // FIXME: render colored dot
-    function _renderPoint(s, obj) {
+    function _renderPoint(s, properties) {
         [x, y] = [properties.x, properties.y]
         var pt = s.circle(x, y, 4);
         var color = properties.color
@@ -334,14 +335,14 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-    function _renderSquare(s, obj) {
+    function _renderSquare(s, properties) {
         [x, y] = [properties.x, properties.y]
         var side = properties.side
         var sq = s.rect(x - side/2, y - side/2, side, side);
         var color = properties.color
         sq.attr({
-            fill: Utils.hex(color.r, color.g, color.b),
-            "fill-opacity": color.a,
+            fill: Utils.hex(color[0], color[1], color[2]),
+            "fill-opacity": color[3],
             "stroke-width": properties['stroke-width'],
             "stroke": "black"
         });
@@ -358,7 +359,7 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-    function _renderCurve(s, obj) {
+    function _renderCurve(s, properties) {
         var curve = s.path(Utils.path_str(properties.path));
         var color = properties.color;
         // by default, the curve should be solid
@@ -380,7 +381,9 @@ var Render = (function(){
                 stroke: Utils.hex(color.r, color.g, color.b),
                 strokeDasharray: "10"
             });
+            return s.g(polyLine, controlPts, curve)
         }
+        return curve
     }
 
     /**
@@ -443,26 +446,27 @@ var Render = (function(){
     /**
      * Renders a rectangle on the canvas
      * @param       {Snap} s  Snap.svg global object
-     * @param       {JSON} obj JSON object from Haskell server
+     * @param       {JSON} properties JSON object from Haskell server
      */
-    function _renderRectangle(s, obj) {
+    function _renderRectangle(s, properties) {
         [x, y] = [properties.x, properties.y]
         // TODO: document the different btw coord systems
         var rect = s.rect(x - properties.sizeX/2, y - properties.sizeY/2, properties.sizeX, properties.sizeY);
         var color = properties.color;
         rect.attr({
-            fill: Utils.hex(color.r, color.g, color.b),
-            "fill-opacity": color.a,
+            fill: Utils.hex(color[0], color[1], color[2]),
+            "fill-opacity": color[3],
         });
+        return rect
     }
 
     /**
      * Renders a line segment on the canvas
      * @param       {Snap} s  Snap.svg global object
-     * @param       {JSON} obj JSON object from Haskell server
+     * @param       {JSON} properties JSON object from Haskell server
      */
-    function _renderLine(s, obj) {
-        var path = [[properties.startx, properties.starty], [properties.endx, properties.endy]];
+    function _renderLine(s, properties) {
+        var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
         var curve = s.path(Utils.path_str(path));
         curve.data("name", properties.name)
         var color = properties.color;
@@ -618,7 +622,7 @@ var Render = (function(){
 
     // helper method that draw's bounding circle around an object
     // FIXME: figure out where the center of the circle is
-    function _renderBoundingCircle(s, obj) {
+    function _renderBoundingCircle(s, properties) {
         // render Bounding circle
         var bbox = properties.getBBox()
         var circ = s.circle(bbox.cx, bbox.cy, bbox.r0)
@@ -642,9 +646,9 @@ var Render = (function(){
             var record = data[key]
             var properties = record[1]
             if(record[0] == 'Text') {
-                var text = properties.text.contents
+                var text = properties.string.contents
                 if(text != "") {
-                    var label = await tex2svg("$" + properties.text.contents + "$", properties.name.contents)
+                    var label = await tex2svg("$" + text + "$", properties.name.contents)
                     // var parser = new DOMParser();
                     // var doc = parser.parseFromString(svg, "image/svg+xml");
                     // document.getElementsByTagName('body')[0].appendChild(doc.documentElement);

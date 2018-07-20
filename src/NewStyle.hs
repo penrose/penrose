@@ -22,6 +22,7 @@ import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
 import Text.Megaparsec.Perm
+import Text.Show.Pretty (ppShow)
 import System.Environment
 import System.Random
 import Debug.Trace
@@ -1223,14 +1224,14 @@ data RState = RState { shapesr :: forall a . (Autofloat a) => [Shape a],
 
 -- TODO: can we use pprint here?
 instance Show RState where
-         show s = "Shapes: \n" ++ show (shapesr s) ++
-                  "\nShape names: \n" ++ show (shapeNames s) ++
-                  "\nTranslation: \n" ++ show (transr s) ++
-                  "\nVarying paths: \n" ++ show (varyingPaths s) ++
-                  "\nUninitialized paths: \n" ++ show (uninitializedPaths s) ++
-                  "\nVarying state: \n" ++ show (varyingState s) ++
-                  "\nParams: \n" ++ show (paramsr s) ++
-                  "\nAutostep: \n" ++ show (autostep s)
+         show s = "Shapes: \n" ++ ppShow (shapesr s) ++
+                  "\nShape names: \n" ++ ppShow (shapeNames s) ++
+                  "\nTranslation: \n" ++ ppShow (transr s) ++
+                  "\nVarying paths: \n" ++ ppShow (varyingPaths s) ++
+                  "\nUninitialized paths: \n" ++ ppShow (uninitializedPaths s) ++
+                  "\nVarying state: \n" ++ ppShow (varyingState s) ++
+                  "\nParams: \n" ++ ppShow (paramsr s) ++
+                  "\nAutostep: \n" ++ ppShow (autostep s)
 
 ----- Generating initial state (GPIs, fields, annotations) and overall objective function
 
@@ -1272,9 +1273,10 @@ findFieldVarying name field (FExpr expr) acc =
     then mkPath [name, field] : acc -- TODO: deal with StyVars
     else acc
 findFieldVarying name field (FGPI typ properties) acc =
-    let ctorFloats = propertiesOf FloatT typ shapeDefs in
-    let vs = foldr (findPropertyVarying name field properties) [] ctorFloats in
-    vs ++ acc
+    let ctorFloats    = propertiesOf FloatT typ
+        varyingFloats = filter (not . fixedProperties typ) ctorFloats
+        vs = foldr (findPropertyVarying name field properties) [] varyingFloats
+    in vs ++ acc
 
 findVarying :: (Autofloat a) => Translation a -> [Path]
 findVarying = foldSubObjs findFieldVarying
@@ -1294,8 +1296,10 @@ findFieldUninitialized :: (Autofloat a) => String -> Field -> FieldExpr a -> [Pa
 -- NOTE: we don't find uninitialized field because you can't leave them uninitialized. Plus, we don't know what types they are
 findFieldUninitialized name field (FExpr expr) acc = acc
 findFieldUninitialized name field (FGPI typ properties) acc =
-    let ctorNonfloats = filter (/= "name") $ propertiesNotOf FloatT typ shapeDefs in
-    let vs = foldr (findPropertyUninitialized name field properties) [] ctorNonfloats in
+    let ctorNonfloats  = filter (/= "name") $ propertiesNotOf FloatT typ in
+    -- TODO: add a separte field (e.g. pendingPaths) in RState to store these special properties that needs frontend updates
+    let uninitializedProps = pendingProperties typ ++ ctorNonfloats in
+    let vs = foldr (findPropertyUninitialized name field properties) [] uninitializedProps in
     vs ++ acc
 
 findFieldFns name field (FExpr (OptEval expr)) acc =
@@ -1546,18 +1550,17 @@ sumMap f l = sum $ map f l
 constrWeight :: Floating a => a
 constrWeight = 10 ^ 4
 
--- TODO: the functions can just be looked up once, don't need to repeat
-applyOptFn :: (Autofloat a) => M.Map String (OptFn a) -> FnDone a -> a
-applyOptFn dict finfo =
-         case M.lookup (fname_d finfo) dict of
-         Nothing -> error ("opt fn '" ++ fname_d finfo ++ "' doesn't exist")
-         Just f -> f (fargs_d finfo)
+applyOptFn :: (Autofloat a) =>
+    M.Map String (OptFn a) -> OptSignatures -> FnDone a -> a
+applyOptFn dict sigs finfo =
+    let (name, args) = (fname_d finfo, fargs_d finfo)
+    in invokeOptFn dict name args sigs
 
 applyCombined :: (Autofloat a) => a -> [FnDone a] -> a
 applyCombined penaltyWeight fns =
         let (objfns, constrfns) = partition (\f -> optType_d f == Objfn) fns in
-        sumMap (applyOptFn objFuncDict) objfns
-               + constrWeight * penaltyWeight * sumMap (applyOptFn constrFuncDict) constrfns
+        sumMap (applyOptFn objFuncDict objSignatures) objfns
+               + constrWeight * penaltyWeight * sumMap (applyOptFn constrFuncDict constrSignatures) constrfns
 
 -- TODO: make sure the autodiff works w/ eval and genobjfn
 genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path]
@@ -1657,7 +1660,7 @@ initShape :: (Autofloat a) => (Translation a, StdGen) -> (String, Field) -> (Tra
 initShape (trans, g) (n, field) =
     case lookupField (BSubVar (VarConst n)) field trans of
         FGPI t propDict ->
-            let def = findDef t shapeDefs
+            let def = findDef t
                 (propDict', g') = foldlPropertyMappings initProperty (propDict, g) def
                 -- NOTE: since getShapes resolves the names and we never use the names of the shapes in the Translation. This logic can be removed but left in for debugging
                 shapeName = getShapeName n field
@@ -1699,8 +1702,6 @@ lookupPaths paths trans = map lookupPath paths
             Done (FloatV n) -> n
             _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
 
--- updateTranslation :: (Autofloat a) => Translation a -> [Shape a] -> [Path] -> Translation a
--- updateTranslation trans shapes paths =
 evalTranslation :: (Autofloat a) => RState -> [Shape a]
 evalTranslation s =
     let transWithVarying = insertPaths (varyingPaths s) (map floatToTagExpr (varyingState s)) (transr s)

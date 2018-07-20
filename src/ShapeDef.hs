@@ -106,19 +106,17 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
--- TODO: add other types
-shapeDefList = [anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType,
-          squareType, parallelogramType, imageType, textType, arcType]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
 shapeTypes defs = map fst $ M.toList defs
 
 -- | given a type string, find the corresponding shape def
-findDef :: (Autofloat a) => ShapeTypeStr -> ShapeDefs a -> ShapeDef a
-findDef typ defs = fromMaybe
+findDef :: (Autofloat a) => ShapeTypeStr -> ShapeDef a
+findDef typ = fromMaybe
     (noShapeError "findDef" typ)
-    (M.lookup typ defs)
+    (M.lookup typ shapeDefs)
 
 -- | given a shape def, construct a default shape
 defaultShapeOf :: (Autofloat a) => StdGen -> ShapeDef a -> (Shape a, StdGen)
@@ -173,12 +171,13 @@ sampleColor rng =
         (a, rng4)  = randomR (0.3, 0.7) rng3
     in (ColorV $ makeColor r g b a, rng4)
 
--- | Samples all properties of input shapes (NOTE: this function reverses
--- the ordering of shapes)
+-- | Samples all properties of input shapes
 sampleShapes :: (Autofloat a) => StdGen -> [Shape a] -> ([Shape a], StdGen)
-sampleShapes g shapes = foldl sampleShape ([], g) shapes
+sampleShapes g shapes =
+    let (shapes', g') = foldl sampleShape ([], g) shapes
+    in (reverse shapes', g')
 sampleShape (shapes, g) oldShape@(typ, oldProperties) =
-    let (_, propDefs)    = findDef typ shapeDefs
+    let (_, propDefs)    = findDef typ
         (properties, g') = sampleProperties g propDefs
         shape            = (typ, properties)
         namedShape       = setName (getName oldShape) shape
@@ -200,8 +199,7 @@ sampleProperty (properties, g) propID (typ, sampleF) =
 -- | TODO: instantiation of objs with (1) default values; (2) random sampling w.r.t. constraints
 -- constructShape :: ShapeDef a -> [SampleRule] -> Shape a
 
-x_sampler, y_sampler, width_sampler, height_sampler, angle_sampler,
-           stroke_sampler, stroke_style_sampler, bool_sampler :: (Autofloat a) => SampledValue a
+x_sampler, y_sampler, width_sampler, height_sampler, angle_sampler, stroke_sampler, stroke_style_sampler, bool_sampler :: (Autofloat a) => SampledValue a
 x_sampler = sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)
 y_sampler = sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)
 width_sampler = sampleFloatIn (3, canvasWidth / 6)
@@ -211,8 +209,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType,
-          squareType, parallelogramType, imageType, textType, arcType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -237,9 +234,9 @@ ellipseType = ("Ellipse", M.fromList
     [
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
-        ("radius1", (FloatT, width_sampler)),
-        ("radius2", (FloatT, height_sampler)), -- the samplers don't quite make sense if the shape is rotates
-        ("rotation", (FloatT, angle_sampler)),        
+        ("rx", (FloatT, width_sampler)),
+        ("ry", (FloatT, height_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
         ("stroke-width", (FloatT, stroke_sampler)),
         ("style", (StrT, sampleDiscrete [StrV "filled"])),
         ("stroke-style", (StrT, stroke_style_sampler)),
@@ -253,7 +250,7 @@ textType = ("Text", M.fromList
         ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2))),
         ("w", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
         ("h", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
-        ("text", (StrT, constValue $ StrV "defaultLabelText")), -- TODO: rename to string
+        ("string", (StrT, constValue $ StrV "defaultLabelText")),
         ("rotation", (FloatT, angle_sampler)),
         ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),
@@ -288,29 +285,28 @@ lineType = ("Line", M.fromList
         ("thickness", (FloatT, width_sampler)),
         -- TODO: list the possible styles for each attribute of each GPI
         ("color", (ColorT, sampleColor)),
-        ("style", (StrT, constValue $ StrV "solid")), 
+        ("style", (StrT, constValue $ StrV "solid")),
         ("stroke", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultLine"))
     ])
 
 rectType = ("Rectangle", M.fromList
     [
-        ("centerX", (FloatT, x_sampler)),
-        ("centerY", (FloatT, y_sampler)),
-        ("lengthX", (FloatT, width_sampler)),
-        ("lengthY", (FloatT, height_sampler)),
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("sizeX", (FloatT, width_sampler)),
+        ("sizeY", (FloatT, height_sampler)),
         ("rotation", (FloatT, angle_sampler)),
         ("color", (ColorT, sampleColor)),
-        ("style", (StrT, constValue $ StrV "none")), -- TODO: what is this?
         ("stroke", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultRect"))
     ])
 
 squareType = ("Square", M.fromList
     [
-        ("centerX", (FloatT, x_sampler)),
-        ("centerY", (FloatT, y_sampler)),
-        ("sideLength", (FloatT, width_sampler)),
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("side", (FloatT, width_sampler)),
         ("rotation", (FloatT, angle_sampler)),
         -- TODO: distinguish between stroke color and fill color everywhere
         ("color", (ColorT, sampleColor)),
@@ -494,17 +490,28 @@ getPath shape = case shape .: "path" of
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator
 
+-- | HACK: returns true of a property of a shape is not supposed to be
+-- | changed by the optimizer
+fixedProperties :: ShapeTypeStr -> PropID -> Bool
+fixedProperties "Text" "w" = True
+fixedProperties "Text" "h" = True
+fixedProperties _ _ = False
+
+-- | HACK: returns all "pending" properties that are undeterminded until
+-- | rendered by the frontend
+pendingProperties :: ShapeTypeStr -> [PropID]
+pendingProperties "Text" = ["w", "h"]
+pendingProperties _ = []
+
 -- | Given 'ValueType' and 'ShapeTypeStr', return all props of that ValueType
-propertiesOf :: (Autofloat a) =>
-    ValueType -> ShapeTypeStr -> ShapeDefs a -> [PropID]
-propertiesOf propType shapeType defs =
-    M.keys $ M.filter (\(t, _) -> t == propType) $ snd $ findDef shapeType defs
+propertiesOf :: ValueType -> ShapeTypeStr -> [PropID]
+propertiesOf propType shapeType =
+    M.keys $ M.filter (\(t, _) -> t == propType) $ snd $ findDef shapeType
 
 -- | Given 'ValueType' and 'ShapeTypeStr', return all props NOT of that ValueType
-propertiesNotOf :: (Autofloat a) =>
-    ValueType -> ShapeTypeStr -> ShapeDefs a -> [PropID]
-propertiesNotOf propType shapeType defs =
-    M.keys $ M.filter (\(t, _) -> t /= propType) $ snd $ findDef shapeType defs
+propertiesNotOf :: ValueType -> ShapeTypeStr -> [PropID]
+propertiesNotOf propType shapeType =
+    M.keys $ M.filter (\(t, _) -> t /= propType) $ snd $ findDef shapeType
 
 -- filterProperties :: (Autofloat a) => ((ValueType, SampledValue a) -> Bool) -> [PropID]
 -- filterProperties filterF =
