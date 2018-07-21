@@ -1313,7 +1313,15 @@ findFieldFns name field (FGPI _ _) acc = acc
 
 findObjfnsConstrs = foldSubObjs findFieldFns
 
---
+-- findDefaultFns :: (Autofloat a) => Translation a -> [FnDone a]
+findDefaultFns = foldSubObjs findFieldDefaultFns
+findFieldDefaultFns name field gpi@(FGPI typ props) acc =
+    let args    = [EPath $ FieldPath (BSubVar (VarConst name)) field]
+        objs    = map (Left . addArgs args) $ defaultObjFnsOf typ
+        constrs = map (Right . addArgs args) $ defaultConstrsOf typ
+    in constrs ++ objs ++ acc
+    where addArgs arguments f = (f, arguments)
+findFieldDefaultFns _ _ _ acc = acc
 
 findGPIName name field (FGPI _ _) acc = (name, field) : acc
 findGPIName _ _ (FExpr _) acc = acc
@@ -1563,8 +1571,7 @@ applyCombined penaltyWeight fns =
                + constrWeight * penaltyWeight * sumMap (applyOptFn constrFuncDict constrSignatures) constrfns
 
 -- TODO: make sure the autodiff works w/ eval and genobjfn
-genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path]
-                                           -> a -> [a] -> a
+genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> a
 genObjfn trans objfns constrfns varyingPaths =
          \penaltyWeight varying ->
          let varyingTagExprs = map floatToTagExpr varying in
@@ -1573,6 +1580,7 @@ genObjfn trans objfns constrfns varyingPaths =
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
 
+toFn :: OptType -> (String, [Expr]) -> Fn
 toFn otype (name, args) = Fn { fname = name, fargs = args, optType = otype }
 
 toFns (objfns, constrfns) = (map (toFn Objfn) objfns, map (toFn Constrfn) constrfns)
@@ -1723,7 +1731,8 @@ genOptProblemAndState trans =
     let shapeProperties = findShapesProperties transInit in
 
     let (objfns, constrfns) = traceShowId $ (toFns . partitionEithers . findObjfnsConstrs) transInit in
-    let overallFn = genObjfn transInit objfns constrfns varyingPaths in
+    let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
+    let overallFn = genObjfn transInit (objfns ++ defaultObjFns) (constrfns ++ defaultConstrs) varyingPaths in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 

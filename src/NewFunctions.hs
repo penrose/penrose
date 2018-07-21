@@ -394,7 +394,6 @@ contains [GPI c@("Circle", _), GPI t@("Text", _)] =
 contains [GPI s@("Square", _), GPI l@("Text", _)] =
     dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 + getNum l "w"
 
--- | otherwise = error ("contains: unsupported arguments " ++ show o1 ++ "\n" ++ show o2)
 -- contains [C' outc, C' inc] [FloatV padding] = strictSubset [[xc' inc, yc' inc, r' inc + padding], [xc' outc, yc' outc, r' outc]]
 -- contains [S' outc, S' inc] [] = strictSubset
 --     [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
@@ -422,8 +421,7 @@ contains [GPI s@("Square", _), GPI l@("Text", _)] =
 --                              ly = (ys' sq) - (side' sq)/2
 --                              ry = (ys' sq) + (side' sq)/2
 --                              ret = (isInRange (startx' ar) lx rx) + (isInRange (endx' ar) lx rx) + (isInRange (starty' ar) ly ry) + (isInRange (endy' ar) ly ry)
---                             in
---                              ret
+--                             in ret
 
 maxSize :: ConstrFn
 -- TODO: why do we need `r2f` now? Didn't have to before
@@ -455,7 +453,14 @@ minSize [GPI r@("Rectangle", _)] =
 --                    20 - min_side
 -- minSize [E' e] [] = 20 - min (ry' e) (rx' e)
 
+--------------------------------------------------------------------------------
+-- Default functions for every shape
 
+defaultConstrsOf :: ShapeTypeStr -> [FuncName]
+defaultConstrsOf "Text"  = []
+defaultConstrsOf _ = [ "minSize", "maxSize" ]
+defaultObjFnsOf :: ShapeTypeStr -> [FuncName]
+defaultObjFnsOf _ = [] -- NOTE: not used yet
 
 --------------------------------------------------------------------------------
 -- Errors
