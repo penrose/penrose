@@ -1,13 +1,14 @@
 Set A
 Set B
-Set C
-Set D
-Set E
-Set F
-Set G
-Subset(B, A)
-Subset(C, B)
-Subset(D, C)
-Subset(E, D)
-Subset(F, E)
-Subset(G, F)
+-- Set C
+-- Set D
+-- Set E
+-- Set F
+-- Set G
+IsSubset(B, A)
+-- IsSubset(C, B)
+-- IsSubset(D, C)
+-- IsSubset(E, D)
+-- IsSubset(F, E)
+-- IsSubset(G, F)
+AutoLabel All

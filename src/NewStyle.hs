@@ -1219,6 +1219,8 @@ data RState = RState { shapesr :: forall a . (Autofloat a) => [Shape a],
                        uninitializedPaths :: [Path],
                        varyingState :: forall a . (Autofloat a) => [a],
                        paramsr :: Params,
+                       objFns :: [Fn],
+                       constrFns :: [Fn],
                        rng :: StdGen,
                        autostep :: Bool }
 
@@ -1231,6 +1233,8 @@ instance Show RState where
                   "\nUninitialized paths: \n" ++ ppShow (uninitializedPaths s) ++
                   "\nVarying state: \n" ++ ppShow (varyingState s) ++
                   "\nParams: \n" ++ ppShow (paramsr s) ++
+                  "\nObjective Functions: \n" ++ ppShow (objFns s) ++
+                  "\nConstraint Functions: \n" ++ ppShow (constrFns s) ++
                   "\nAutostep: \n" ++ ppShow (autostep s)
 
 ----- Generating initial state (GPIs, fields, annotations) and overall objective function
@@ -1274,7 +1278,7 @@ findFieldVarying name field (FExpr expr) acc =
     else acc
 findFieldVarying name field (FGPI typ properties) acc =
     let ctorFloats    = propertiesOf FloatT typ
-        varyingFloats = filter (not . fixedProperties typ) ctorFloats
+        varyingFloats = filter (not . isPending typ) ctorFloats
         vs = foldr (findPropertyVarying name field properties) [] varyingFloats
     in vs ++ acc
 
@@ -1573,7 +1577,7 @@ applyCombined penaltyWeight fns =
 -- TODO: make sure the autodiff works w/ eval and genobjfn
 genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> a
 genObjfn trans objfns constrfns varyingPaths =
-         \penaltyWeight varying ->
+     \penaltyWeight varying ->
          let varyingTagExprs = map floatToTagExpr varying in
          let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
          let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) (tr "transWithVarying" transWithVarying) in
@@ -1597,8 +1601,8 @@ initRng = mkStdGen seed
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
 initWeight :: Autofloat a => a
-initWeight = 10 ** (-5)
--- initWeight = 10 ** (-3)
+-- initWeight = 10 ** (-5)
+initWeight = 10 ** (-3)
 
 -- TODO: resolve label logic here
 shapeExprsToVals :: (Autofloat a) =>
@@ -1732,7 +1736,8 @@ genOptProblemAndState trans =
 
     let (objfns, constrfns) = traceShowId $ (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
-    let overallFn = genObjfn transInit (objfns ++ defaultObjFns) (constrfns ++ defaultConstrs) varyingPaths in
+    let (objFnsWithDefaults, constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
+    let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults varyingPaths in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 
@@ -1750,6 +1755,8 @@ genOptProblemAndState trans =
              varyingPaths = varyingPaths,
              uninitializedPaths = uninitializedPaths,
              varyingState = initState,
+             objFns = objFnsWithDefaults,
+             constrFns = constrsWithDefaults,
              paramsr = Params { weight = initWeight,
                                 optStatus = NewIter,
                                 overallObjFn = overallFn },

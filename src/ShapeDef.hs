@@ -168,8 +168,9 @@ sampleColor rng =
         (r, rng1)  = randomR interval rng
         (g, rng2)  = randomR interval rng1
         (b, rng3)  = randomR interval rng2
-        (a, rng4)  = randomR (0.3, 0.7) rng3
-    in (ColorV $ makeColor r g b a, rng4)
+    in (ColorV $ makeColor r g b 0.5, rng3)
+        -- (a, rng4)  = randomR (0.3, 0.7) rng3
+    -- in (ColorV $ makeColor r g b a, rng4)
 
 -- | Samples all properties of input shapes
 sampleShapes :: (Autofloat a) => StdGen -> [Shape a] -> ([Shape a], StdGen)
@@ -411,6 +412,7 @@ get :: (Autofloat a) => Shape a -> PropID -> Value a
 get (t, propDict) prop = fromMaybe
     (noPropError "get" prop t)
     (M.lookup prop propDict)
+{-# INLINE get #-}
 
 -- | batch get
 getAll :: (Autofloat a) => Shape a -> [PropID] -> [Value a]
@@ -492,10 +494,8 @@ getPath shape = case shape .: "path" of
 
 -- | HACK: returns true of a property of a shape is not supposed to be
 -- | changed by the optimizer
-fixedProperties :: ShapeTypeStr -> PropID -> Bool
-fixedProperties "Text" "w" = True
-fixedProperties "Text" "h" = True
-fixedProperties _ _ = False
+isPending:: ShapeTypeStr -> PropID -> Bool
+isPending typ propId = propId `elem` pendingProperties typ
 
 -- | HACK: returns all "pending" properties that are undeterminded until
 -- | rendered by the frontend

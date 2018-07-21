@@ -19,9 +19,9 @@ weightGrowthFactor :: (Autofloat a) => a -- for EP weight
 weightGrowthFactor = 10
 
 epStop :: Floating a => a -- for EP diff
-epStop = 10 ** (-3)
+-- epStop = 10 ** (-3)
 -- epStop = 60 ** (-3)
--- epStop = 10 ** (-1)
+epStop = 10 ** (-1)
 -- epStop = 0.05
 
 -- convergence criterion for EP

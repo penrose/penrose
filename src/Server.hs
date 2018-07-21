@@ -173,11 +173,12 @@ updateShapes newShapes conn s =
     let polyShapes = toPolymorphics newShapes
         uninitVals = map NS.toTagExpr $ NS.shapes2vals polyShapes $ NS.uninitializedPaths s
         trans' = NS.insertPaths (NS.uninitializedPaths s) uninitVals (NS.transr s)
+        newObjFn = NS.genObjfn trans' (NS.objFns s) (NS.constrFns s) (NS.varyingPaths s)
         news = s {
             NS.shapesr = polyShapes,
             NS.varyingState = NS.shapes2floats polyShapes $ NS.varyingPaths s,
             NS.transr = trans',
-            NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter }}
+            NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter, NS.overallObjFn = newObjFn }}
     in if NS.autostep s then stepAndSend conn news else loop conn news
 
 dragUpdate :: String -> Float -> Float -> WS.Connection -> NS.RState -> IO ()
@@ -215,6 +216,6 @@ resampleAndSend conn s = do
 
 stepAndSend conn s = do
     let nexts = O.step s
-    wsSendJSONList conn ((NS.shapesr nexts) :: ([SD.Shape Double]))
+    wsSendJSONList conn (NS.shapesr nexts :: [SD.Shape Double])
     -- loop conn (trRaw "state:" nexts)
     loop conn nexts

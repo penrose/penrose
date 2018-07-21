@@ -178,8 +178,10 @@ constrFuncDict = M.fromList $ map toPenalty flist
             [
                 ("at", at),
                 ("contains", contains),
+                ("smallerThan", smallerThan),
                 ("minSize", minSize),
                 ("maxSize", maxSize),
+                ("outsideOf", outsideOf),
                 ("lessThan", lessThan)
             ]
 
@@ -193,6 +195,8 @@ constrSignatures = MM.fromList
         ("contains", [GPIType "Circle", GPIType "Rectangle"]),
         ("minSize", [AnyGPI]),
         ("maxSize", [AnyGPI]),
+        ("smallerThan", [GPIType "Circle", GPIType "Circle"]),
+        ("outsideOf", [GPIType "Text", GPIType "Circle"]),
         ("lessThan", []) --TODO
     ]
 
@@ -452,6 +456,14 @@ minSize [GPI r@("Rectangle", _)] =
 -- minSize [PA' pa] [] = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in
 --                    20 - min_side
 -- minSize [E' e] [] = 20 - min (ry' e) (rx' e)
+
+smallerThan  :: ConstrFn
+smallerThan [GPI inc@("Circle", _), GPI outc@("Circle", _)] =  getNum inc "r" - getNum outc "r" - 0.4 * getNum outc "r" -- TODO: taking this as a parameter?
+
+outsideOf :: ConstrFn
+outsideOf [GPI l@("Text", _), GPI c@("Circle", _)] =
+    let labelR = max (getNum l "w") (getNum l "h")
+    in -dist (getX l, getX l) (getX c, getY c) + getNum c "r" + labelR
 
 --------------------------------------------------------------------------------
 -- Default functions for every shape
