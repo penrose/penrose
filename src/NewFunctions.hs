@@ -165,9 +165,10 @@ objSignatures = MM.fromList
 
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a
-penalty x = tr "penalty" $ (max x 0) ^ q -- weights should get progressively larger in cr_dist
+penalty x = max x 0 ^ q -- weights should get progressively larger in cr_dist
             where q = 2 -- also, may need to sample OUTSIDE feasible set
             -- where q = 3
+{-# INLINE penalty #-}
 
 -- | 'constrFuncDict' stores a mapping from the name of constraint functions to the actual implementation
 constrFuncDict :: forall a. (Autofloat a) => M.Map FuncName (ConstrFnOn a)
@@ -418,7 +419,6 @@ contains [GPI s@("Square", _), GPI l@("Text", _)] =
 -- -- FIXME: doesn't work
 -- contains [E' set, L' label] [] =
 --     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
--- contains [L' lab1, L' lab2] [] = 0 -- TODO: hack for venn_subset.sty for talk
 -- contains [S' sq, A' ar] [] = let
 --                              lx = (xs' sq) - (side' sq)/2
 --                              rx = (xs' sq) + (side' sq)/2

@@ -1621,7 +1621,7 @@ shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
         lookupPath shapes acc (PropertyPath s field property) =
             let subID = bvarToString s
                 shapeName = getShapeName subID field in
-            get(findShape shapeName shapes) property : acc
+            get (findShape shapeName shapes) property : acc
         lookupPath _ acc (FieldPath _ _) = acc
 
 shapes2floats :: (Autofloat a) => [Shape a] -> [Path] -> [a]

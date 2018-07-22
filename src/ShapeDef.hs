@@ -221,8 +221,10 @@ anchorPointType = ("AnchorPoint", M.fromList
 
 circType = ("Circle", M.fromList
     [
-        ("x", (FloatT, x_sampler)),
-        ("y", (FloatT, y_sampler)),
+        ("x", (FloatT, constValue $ FloatV 100)),
+        ("y", (FloatT, constValue $ FloatV 100)),
+        -- ("x", (FloatT, x_sampler)),
+        -- ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
         ("stroke-width", (FloatT, stroke_sampler)),
         ("style", (StrT, sampleDiscrete [StrV "filled"])),
@@ -458,6 +460,7 @@ is (t1, _) t2 = t1 == t2
 -- | short-hand for 'get'
 (.:) :: (Autofloat a) => Shape a -> PropID -> Value a
 (.:) = get
+{-# INLINE (.:) #-}
 
 getX, getY :: (Autofloat a) => Shape a -> a
 getX shape = case shape .: "x" of
