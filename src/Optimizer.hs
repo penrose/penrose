@@ -1,4 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Optimizer where
 
@@ -21,8 +22,8 @@ weightGrowthFactor = 10
 epStop :: Floating a => a -- for EP diff
 -- epStop = 10 ** (-3)
 -- epStop = 60 ** (-3)
-epStop = 10 ** (-1)
--- epStop = 0.05
+-- epStop = 10 ** (-1)
+epStop = 0.05
 
 -- convergence criterion for EP
 -- if you want to use it for UO, needs a different epsilon
@@ -60,9 +61,9 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 -- Main optimization functions
 
 step :: RState -> RState
-step s = let (state', params') = stepShapes (paramsr s)  (varyingState s) in
-         let shapes' = evalTranslation s in
-         s { varyingState = state', shapesr = shapes', paramsr = params' }
+step s = let (state', params') = {-# SCC stepShapes #-} stepShapes (paramsr s)  (varyingState s) in
+         let !shapes' = {-# SCC evalTranslation #-} evalTranslation s in
+         s { varyingState = state', shapesr =  shapes', paramsr = params' }
          -- note: trans is not updated in rstate
 
 

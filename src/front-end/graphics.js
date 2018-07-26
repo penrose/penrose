@@ -200,8 +200,8 @@ var Render = (function(){
                     renderedShape = _renderSquare(s, props); break
                 case 'Arrow'         :
                     renderedShape = _renderArrow (s, props); break
-                case 'AngleMark'     :
-                    renderedShape = _renderAngleMark(s, props); break
+                case 'Arc'     :
+                    renderedShape = _renderArc(s, props); break
                 case 'Curve'         :
                     renderedShape = _renderCurve(s, props); break
                 case 'Line'          :
@@ -210,12 +210,21 @@ var Render = (function(){
                     renderedShape = _renderParallelogram(s, props); break
                 case 'Image'         :
                     renderedShape = _renderImage(s, props); break
+                case 'AnchorPoint'   :
+                    // NOTE: We do not render anchorPts
+                    // TODO: maybe render it in debug mode
+                    break
                 default: console.log("renderScene: the type of GPI\"" + type + "\" cannot be rendered!")
             }
+            console.log("Rendered GPI: ", renderedShape)
 
             // register name and functions for drag commands
-            renderedShape.drag(move, start, stop)
-            renderedShape.data("name", props.name)
+            // NOTE: cases where the shape is not rendered:
+            //     - Undefined labels
+            if(renderedShape) {
+                renderedShape.drag(move, start, stop)
+                renderedShape.data("name", props.name)
+            }
         }
         // Send the bbox information and label dimensions to the server
         if(firstrun) {
@@ -392,10 +401,10 @@ var Render = (function(){
      * @param       {JSON} obj JSON object from Haskell server
      * FIXME: factor out head styling code
      */
-    function _renderArrow(s, obj) {
+    function _renderArrow(s, properties) {
         var style    = properties.style
-        var [sx, sy] = Utils.scr([properties.startx, properties.starty])
-        var [ex, ey] = Utils.scr([properties.endx, properties.endy])
+        var [sx, sy] = Utils.scr([properties.startX, properties.startY])
+        var [ex, ey] = Utils.scr([properties.endX, properties.endY])
         var t        = properties.thickness / 6
         var len      = Snap.len(ex, ey, sx, sy)
         var body_path = [0, t, len - 5*t, t, len - 5*t, -1*t, 0, -1*t]
@@ -488,14 +497,14 @@ var Render = (function(){
      * FIXME: refactor
      * FIXME: NOT PORTED
      */
-     function _renderAngleMark(s, obj) {
-         var isRightar = properties.isRightar
-         var sizear = properties.sizear
-         var color = properties.colorar
-         var xar = properties.xar
-         var yar = properties.yar
-         var style = properties.stylear
-         var rotationar = properties.rotationar
+     function _renderArc(s, obj) {
+         var isRightar = properties.isRight
+         var sizear = properties.size
+         var color = properties.color
+         var xar = properties.x
+         var yar = properties.y
+         var style = properties.style
+         var rotationar = properties.rotation
          if(isRightar == "true") {
              //Draw PrepMark (for right angle)
              var myMatrix = new Snap.Matrix();
@@ -515,9 +524,6 @@ var Render = (function(){
                  strokeWidth: 2
              });
              if(style == "line"){
-                 p.data("name", properties.namear)
-                 p.drag(move, start, stop)
-
              } else if (style == "wedge") {
 
                  var rectPpath = "M " + 0 + " " + (-sizear)+ " L "
@@ -530,8 +536,6 @@ var Render = (function(){
                      "fill-opacity": 0.6,
                  });
                  var g = s.g(p,f)
-                 g.data("name", properties.namear)
-                 g.drag(move, start, stop)
              }
          }
 
@@ -549,8 +553,6 @@ var Render = (function(){
                      strokeWidth: 2
                  });
                  if(style == "line"){
-                     arc.data("name", properties.namear)
-                     arc.drag(move, start, stop)
                  } else if (style == "wedge") {
                      var pf = describeFullArc(dx + xar, dy + yar, radiusar, rotationar,
                          anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));
@@ -560,10 +562,7 @@ var Render = (function(){
                              "fill-opacity": 0.6,
                          });
                          var g = s.g(arc,f)
-                         g.data("name", properties.namear)
-                         g.drag(move, start, stop)
                      }
-
                  }
      }
 

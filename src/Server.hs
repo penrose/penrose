@@ -7,7 +7,7 @@
 
 module Server where
 import Computation
-import Utils (Autofloat, r2f, trRaw)
+import Utils (Autofloat, divLine, r2f, trRaw)
 import GHC.Generics
 import Data.Monoid (mappend)
 import Data.Text (Text)
@@ -142,6 +142,7 @@ processCommand conn s = do
     putStrLn "Receiving Commands"
     msg_json <- WS.receiveData conn
     print msg_json
+    divLine
     case decode msg_json of
         Just e -> case e of
             Cmd (Command cmd)  -> executeCommand cmd conn s

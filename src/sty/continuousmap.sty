@@ -4,29 +4,39 @@ Set x {
         color = rgba(0.1, 0.1, 0.9, 0.2)
         stroke-style = "solid"
     }
-    x.maxSize = ensure maxSize(x.shape)
-    x.minSize = ensure minSize(x.shape)
     x.text    = Text { string = x.label }
     x.labelFn = ensure contains(x.shape, x.text)
 }
 
-Set `U` {
+Set `U`
+-- with Set `R1`
+{
     override `U`.shape.stroke-style = "dashed"
     override `U`.shape.stroke-width = 2
-    -- y = R1.shape.y
-}
-
-Set `V` {
-    override `V`.shape.stroke-style = "dashed"
-    override `V`.shape.stroke-width = 2
-    -- y = U.shape.y
+    override `U`.shape.y = `R1`.shape.y
 }
 
 Set `R1` {
     override `R1`.shape = Square {
         color = rgba(0.95, 0.96, 0.92, 0.5)
     }
+    -- objective topRightOf(R1.shape.label, R1.shape)
 }
+
+
+Set x; Set y
+where IsSubset(x, y) {
+    y.containFn = ensure contains(y.shape, x.shape, 10.0)
+    y.outsideFn = ensure outsideOf(y.text, x.shape)
+}
+
+Set `V`
+with Set `U`{
+    override `V`.shape.stroke-style = "dashed"
+    override `V`.shape.stroke-width = 2
+    override `V`.shape.y = `U`.shape.y
+}
+
 
 Set `R2`
 with Set `R1`
@@ -37,43 +47,23 @@ with Set `R1`
         x = `R1`.shape.x + 400.0
         side  = `R1`.shape.side
     }
+    -- objective topRightOf(R2.shape.label, R2.shape)
 }
 
+
+Map f
+where From(f, X, Y)
+with Set X; Set Y
+{
+    f.shape = Arrow {
+        thickness = 10.0
+        -- style = "curved"
+    }
+    f.text     = Text { string = f.label }
+    f.labelFn  = encourage centerLabel(f.shape, f.text)
+    f.centerFn = encourage centerArrow(f.shape, X.shape, Y.shape)
+}
 
 /*
-IsSubset x y {
-    -- constraint contains(y, x, 10)
-    -- constraint outsideOf(y.shape.label, x)
-    -- objective  repel(x.shape, y.shape)
-}
-
-Map f x y {
-    shape = Arrow {
-        start = x.shape
-        end   = y.shape
-        -- style = "curved"
-        text = Auto
-    }
-    objective centerLabel(f, f.shape.label)
-}
-
-Set `R1` {
-    shape = Box {
-        color = srgba(0.95, 0.96, 0.92, 0.5)
-        stroke = 2
-    }
-    objective topRightOf(R1.shape.label, R1.shape)
-}
-
-Set `R2` {
-    shape = Box {
-        color = srgba(0.95, 0.96, 0.92, 0.5)
-        stroke = 2
-        y = R1.shape.y
-        x = add(R1.shape.x, 400)
-        side  = R1.shape.side
-    }
-    objective topRightOf(R2.shape.label, R2.shape)
-}
 
 */

@@ -96,24 +96,25 @@ shadowMain = do
     putStrLn "Generated initial state:\n"
 
     -- TODO improve printing code
-    putStrLn "Shapes:"
-    pPrint $ NS.shapesr initState
-    putStrLn "\nShape names:"
-    pPrint $ NS.shapeNames initState
-    putStrLn "\nShape properties:"
-    pPrint $ NS.shapeProperties initState
-    putStrLn "\nTranslation:"
-    pPrint $ NS.transr initState
-    putStrLn "\nVarying paths:"
-    pPrint $ NS.varyingPaths initState
-    putStrLn "\nUninitialized paths:"
-    pPrint $ NS.uninitializedPaths initState
-    putStrLn "\nVarying state:"
-    pPrint $ NS.varyingState initState
-    putStrLn "\nParams:"
-    pPrint $ NS.paramsr initState
-    putStrLn "\nAutostep:"
-    pPrint $ NS.autostep initState
+    -- putStrLn "Shapes:"
+    -- pPrint $ NS.shapesr initState
+    -- putStrLn "\nShape names:"
+    -- pPrint $ NS.shapeNames initState
+    -- putStrLn "\nShape properties:"
+    -- pPrint $ NS.shapeProperties initState
+    -- putStrLn "\nTranslation:"
+    -- pPrint $ NS.transr initState
+    -- putStrLn "\nVarying paths:"
+    -- pPrint $ NS.varyingPaths initState
+    -- putStrLn "\nUninitialized paths:"
+    -- pPrint $ NS.uninitializedPaths initState
+    -- putStrLn "\nVarying state:"
+    -- pPrint $ NS.varyingState initState
+    -- putStrLn "\nParams:"
+    -- pPrint $ NS.paramsr initState
+    -- putStrLn "\nAutostep:"
+    -- pPrint $ NS.autostep initState
+    print initState
     divLine
 
     putStrLn "Visualizing Substance program:\n"

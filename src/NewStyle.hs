@@ -1150,7 +1150,9 @@ insertLabels trans labels =
         toFieldStr s = FExpr $ Done $ StrV s
         insertLabel (Sub s) fieldDict = let labelField = "label" in
             case M.lookup s labels of
-                Nothing -> error $ "insertLabels: Label option does not exist for Substance object " ++ s
+                Nothing ->  fieldDict
+                -- NOTE: maybe this is a "namespce", so we pass through
+                -- error $ "insertLabels: Label option does not exist for Substance object " ++ s
                 Just (Just l) -> M.insert labelField (toFieldStr l) fieldDict -- If "NoLabel", default to an empty string
                 Just Nothing  -> M.insert labelField (toFieldStr "") fieldDict
         -- only insert labels for Substance objects
@@ -1233,9 +1235,12 @@ instance Show RState where
                   "\nUninitialized paths: \n" ++ ppShow (uninitializedPaths s) ++
                   "\nVarying state: \n" ++ ppShow (varyingState s) ++
                   "\nParams: \n" ++ ppShow (paramsr s) ++
-                  "\nObjective Functions: \n" ++ ppShow (objFns s) ++
-                  "\nConstraint Functions: \n" ++ ppShow (constrFns s) ++
+                  "\nObjective Functions: \n" ++ ppShowList (objFns s) ++
+                  "\nConstraint Functions: \n" ++ ppShowList (constrFns s) ++
                   "\nAutostep: \n" ++ ppShow (autostep s)
+
+-- Reimplementation of 'ppShowList' from pretty-show. Not sure why it cannot be imported at all
+ppShowList = concatMap ((++) "\n" . ppShow)
 
 ----- Generating initial state (GPIs, fields, annotations) and overall objective function
 
@@ -1456,6 +1461,7 @@ evalExpr (i, n) arg trans =
                 (Val compVal, trans')
             CompApp fname args ->
                 let (vs, trans') = evalExprs (i+1, n) args trans in
+                -- TODO: invokeComp should be used here
                 case M.lookup fname compDict of
                 Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
                 Just f -> let res = f vs in
@@ -1715,7 +1721,7 @@ lookupPaths paths trans = map lookupPath paths
             _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
 
 evalTranslation :: (Autofloat a) => RState -> [Shape a]
-evalTranslation s =
+evalTranslation s = {-# SCC evalTranslation #-}
     let transWithVarying = insertPaths (varyingPaths s) (map floatToTagExpr (varyingState s)) (transr s)
         transEvaled = evalShapes evalIterRange (shapeProperties s) transWithVarying
     in getShapes (shapeNames s) transEvaled
@@ -1734,7 +1740,7 @@ genOptProblemAndState trans =
     let (transInit, g') = initShapes trans shapeNames initRng in
     let shapeProperties = findShapesProperties transInit in
 
-    let (objfns, constrfns) = traceShowId $ (toFns . partitionEithers . findObjfnsConstrs) transInit in
+    let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
     let (objFnsWithDefaults, constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
     let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults varyingPaths in

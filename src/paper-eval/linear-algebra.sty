@@ -16,9 +16,10 @@ Colors {
   Colors.gray = rgba(20, 20, 20, 0.5)
 }
 
-LineStyles {
-  LineStyles.curved = curved() -- ??
-}
+-- TODO: fill this in
+-- LineStyles {
+  -- LineStyles.curved = curved() -- ??
+-- }
 
 Scalar c { c.val = sampleReal() }
 
@@ -128,7 +129,7 @@ where c := norm(v); In(v, V) {
     }
 
     c.text = Text { }
-    
+
     c.labelFn = encourage aligned(c.text, c.shape)
 }
 

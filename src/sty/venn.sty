@@ -9,8 +9,8 @@ Set x {
 Set x; Set y
 where IsSubset(x, y) {
     y.containFn = ensure contains(y.shape, x.shape)
-    -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    -- y.outsideFn = ensure outsideOf(y.text, x.shape)
+    y.sizeFn    = ensure smallerThan(x.shape, y.shape)
+    y.outsideFn = ensure outsideOf(y.text, x.shape)
 }
 
 /*

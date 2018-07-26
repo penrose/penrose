@@ -162,6 +162,13 @@ sampleFloatIn :: (Autofloat a) => FloatInterval -> SampledValue a
 sampleFloatIn interval g =
     let (n, g') = randomR interval g in (FloatV $ r2f n, g')
 
+samplePointIn :: (Autofloat a) =>
+    (FloatInterval, FloatInterval)  -> SampledValue a
+samplePointIn (interval1, interval2) g =
+    let (n1, g1) = randomR interval1 g
+        (n2, g2) = randomR interval2 g1
+    in (PtV (r2f n1, r2f n2), g2)
+
 sampleColor :: (Autofloat a) => SampledValue a
 sampleColor rng =
     let interval = (0.1, 0.9)
@@ -200,9 +207,13 @@ sampleProperty (properties, g) propID (typ, sampleF) =
 -- | TODO: instantiation of objs with (1) default values; (2) random sampling w.r.t. constraints
 -- constructShape :: ShapeDef a -> [SampleRule] -> Shape a
 
-x_sampler, y_sampler, width_sampler, height_sampler, angle_sampler, stroke_sampler, stroke_style_sampler, bool_sampler :: (Autofloat a) => SampledValue a
+inCanvas = (-canvasHeight / 2, canvasHeight / 2)
+
+-- TODO: change everything to camel case
+x_sampler, y_sampler, pointSampler, width_sampler, height_sampler, angle_sampler, stroke_sampler, stroke_style_sampler, bool_sampler :: (Autofloat a) => SampledValue a
 x_sampler = sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)
 y_sampler = sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)
+pointSampler = samplePointIn (inCanvas, inCanvas)
 width_sampler = sampleFloatIn (3, canvasWidth / 6)
 height_sampler = sampleFloatIn (3, canvasHeight / 6)
 angle_sampler = sampleFloatIn (0, 360) -- TODO: check that frontend uses degrees, not radians
@@ -214,17 +225,18 @@ anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
-        ("x", (FloatT, x_sampler)),
-        ("y", (FloatT, y_sampler)),
+        -- ("x", (FloatT, x_sampler)),
+        -- ("y", (FloatT, y_sampler)),
+        ("location", (PtT, pointSampler)),
         ("name", (StrT, constValue $ StrV "defaultAnchorPoint"))
     ])
 
 circType = ("Circle", M.fromList
     [
-        ("x", (FloatT, constValue $ FloatV 100)),
-        ("y", (FloatT, constValue $ FloatV 100)),
-        -- ("x", (FloatT, x_sampler)),
-        -- ("y", (FloatT, y_sampler)),
+        -- ("x", (FloatT, constValue $ FloatV 100)),
+        -- ("y", (FloatT, constValue $ FloatV 100)),
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
         ("stroke-width", (FloatT, stroke_sampler)),
         ("style", (StrT, sampleDiscrete [StrV "filled"])),
@@ -266,6 +278,7 @@ arrowType = ("Arrow", M.fromList
         ("startY", (FloatT, y_sampler)),
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
+        ("thickness", (FloatT, sampleFloatIn (5, 15))),
         ("style", (StrT, constValue $ StrV "straight")),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultArrow"))
@@ -285,7 +298,7 @@ lineType = ("Line", M.fromList
         ("startY", (FloatT, y_sampler)),
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
-        ("thickness", (FloatT, width_sampler)),
+        ("thickness", (FloatT, sampleFloatIn (5, 15))),
         -- TODO: list the possible styles for each attribute of each GPI
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "solid")),
@@ -297,8 +310,8 @@ rectType = ("Rectangle", M.fromList
     [
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
-        ("sizeX", (FloatT, width_sampler)),
-        ("sizeY", (FloatT, height_sampler)),
+        ("w", (FloatT, width_sampler)),
+        ("h", (FloatT, height_sampler)),
         ("rotation", (FloatT, angle_sampler)),
         ("color", (ColorT, sampleColor)),
         ("stroke", (StrT, constValue $ StrV "none")),
@@ -479,7 +492,10 @@ setName :: (Autofloat a) => String -> Shape a -> Shape a
 setName v shape = set shape "name" (StrV v)
 
 setX, setY :: (Autofloat a) => Value a -> Shape a -> Shape a
+setX v shape@("Arrow", _) = set shape "startX" v
 setX v shape = set shape "x" v
+
+setY v shape@("Arrow", _) = set shape "startY" v
 setY v shape = set shape "y" v
 
 getNum :: (Autofloat a) => Shape a -> PropID -> a

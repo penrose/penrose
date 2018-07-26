@@ -4,10 +4,13 @@
 module NewFunctions where
 
 import Utils
+import System.Random
 import Debug.Trace
 import ShapeDef
 import Data.Aeson (toJSON)
 import Data.Maybe (fromMaybe)
+import           Data.List                          (nub, sort)
+import           System.Random.Shuffle
 import qualified Data.Map.Strict as M
 import qualified Data.MultiMap as MM
 
@@ -68,15 +71,21 @@ compDict :: forall a. (Autofloat a) => M.Map String (CompFnOn a)
 compDict = M.fromList
     [
         ("rgba", rgba),
+        ("bboxWidth", bboxWidth),
+        ("bboxHeight", bboxHeight),
+        ("intersectionX", intersectionX),
+        ("intersectionY", intersectionY),
+        ("midpointX", midpointX),
+        ("midpointY", midpointY),
+        ("len", len),
+        ("computeSurjectionLines", computeSurjectionLines),
         ("bbox", noop), -- TODO
-        ("len", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
+        ("sampleReal", noop), -- TODO
         ("sampleVectorIn", noop), -- TODO
         ("intersection", noop), -- TODO
         ("midpoint", noop), -- TODO
-        ("mulV", noop), -- TODO
         ("determinant", noop), -- TODO
-        ("addV", noop), -- TODO
         ("apply", noop) -- TODO
     ] -- TODO: port existing comps
 
@@ -86,16 +95,20 @@ compSignatures = M.fromList
         ("rgba",
             ([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],
               ValueT ColorT)),
-        ("bbox", ([], ValueT StrT)), -- TODO
-        ("len", ([], ValueT StrT)), -- TODO
-        ("sampleMatrix", ([], ValueT StrT)), -- TODO
-        ("sampleVectorIn", ([], ValueT StrT)), -- TODO
-        ("intersection", ([], ValueT StrT)), -- TODO
-        ("midpoint", ([], ValueT StrT)), -- TODO
-        ("mulV", ([], ValueT StrT)), -- TODO
-        ("determinant", ([], ValueT StrT)), -- TODO
-        ("addV", ([], ValueT StrT)), -- TODO
-        ("apply", ([], ValueT StrT)) -- TODO
+        ("intersectionX", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
+        ("intersectionY", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
+        ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
+        ("bboxWidth", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
+        ("len", ([GPIType "Arrow"], ValueT FloatT)),
+        ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PathT))
+        -- ("len", ([GPIType "Arrow"], ValueT FloatT))
+        -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
+        -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
+        -- ("sampleVectorIn", ([], ValueT StrT)), -- TODO
+        -- ("intersection", ([], ValueT StrT)), -- TODO
+        -- ("midpoint", ([], ValueT StrT)), -- TODO
+        -- ("determinant", ([], ValueT StrT)), -- TODO
+        -- ("apply", ([], ValueT StrT)) -- TODO
     ]
 
 invokeComp :: (Autofloat a) =>
@@ -120,7 +133,11 @@ objFuncDict = M.fromList
         ("center", center),
         ("centerX", centerX),
         ("centerLabel", centerLabel),
-        ("centerArrow", centerArrow)
+        ("centerArrow", centerArrow),
+        ("repel", repel),
+        ("nearHead", nearHead),
+        ("topRightOf", topRightOf),
+        ("topLeftOf", topLeftOf)
 {-      ("centerLine", centerLine),
         ("increasingX", increasingX),
         ("increasingY", increasingY),
@@ -136,7 +153,6 @@ objFuncDict = M.fromList
         ("sameX", sameX),
         ("equal", equal),
         ("ratioOf", ratioOf),
-        ("topRightOf", topRightOf),
         ("sameY", sameY),
         -- ("sameX", (*) 0.6 `compose2` sameX),
         -- ("sameX", (*) 0.2 `compose2` sameX),
@@ -148,15 +164,26 @@ objFuncDict = M.fromList
         ("outside", outside),
         ("nearEndVert", nearEndVert),
         ("nearEndHoriz", nearEndHoriz),
-        ("nearHead", nearHead) -}
+        -}
     ]
 
 objSignatures :: OptSignatures
 objSignatures = MM.fromList
     [
         ("near", [GPIType "Circle", GPIType "Circle"]),
+        ("nearHead",
+            [GPIType "Arrow", GPIType "Text", ValueT FloatT, ValueT FloatT]),
         ("center", [AnyGPI]),
-        ("centerX", [ValueT FloatT])
+        ("centerX", [ValueT FloatT]),
+        ("repel", [AnyGPI, AnyGPI]),
+        ("centerLabel", [AnyGPI, GPIType "Text"]),
+        ("centerArrow", [GPIType "Arrow", GPIType "Square", GPIType "Square"]),
+        ("centerArrow", [GPIType "Arrow", GPIType "Circle", GPIType "Circle"]),
+        ("topLeftOf", [GPIType "Text", GPIType "Square"]),
+        ("topLeftOf", [GPIType "Text", GPIType "Rectangle"]),
+        ("topRightOf", [GPIType "Text", GPIType "Square"]),
+        ("topRightOf", [GPIType "Text", GPIType "Rectangle"])
+        -- ("centerArrow", []) -- TODO
     ]
 
 
@@ -190,14 +217,23 @@ constrSignatures :: OptSignatures
 constrSignatures = MM.fromList
     [
         ("at", [AnyGPI, ValueT FloatT, ValueT FloatT]),
-        ("contains", [GPIType "Circle", GPIType "Circle"]),
-        ("contains", [GPIType "Circle", GPIType "Text"]),
-        ("contains", [GPIType "Square", GPIType "Text"]),
-        ("contains", [GPIType "Circle", GPIType "Rectangle"]),
         ("minSize", [AnyGPI]),
         ("maxSize", [AnyGPI]),
         ("smallerThan", [GPIType "Circle", GPIType "Circle"]),
         ("outsideOf", [GPIType "Text", GPIType "Circle"]),
+        ("contains", [GPIType "Circle", GPIType "Circle"]),
+        ("contains", [GPIType "Circle", GPIType "Circle", ValueT FloatT]),
+        ("contains", [GPIType "Circle", GPIType "Text"]),
+        ("contains", [GPIType "Square", GPIType "Text"]),
+        ("contains", [GPIType "Rectangle", GPIType "Text"]),
+        ("contains", [GPIType "Square", GPIType "Circle", ValueT FloatT]),
+        ("contains", [GPIType "Square", GPIType "Circle"]),
+        ("contains", [GPIType "Circle", GPIType "Square"]),
+        ("contains", [GPIType "Circle", GPIType "Rectangle"]),
+        ("overlapping", [GPIType "Circle", GPIType "Circle"]),
+        ("overlapping", [GPIType "Square", GPIType "Circle"]),
+        ("overlapping", [GPIType "Circle", GPIType "Square"]),
+        ("overlapping", [GPIType "Square", GPIType "Square"]),
         ("lessThan", []) --TODO
     ]
 
@@ -213,10 +249,11 @@ checkArg (GPI (t1, _)) (GPIType t2) = t1 == t2
 checkArg (Val v) (ValueT t) = typeOf v == t
 checkArg _ _ = False
 
-matchWith args sig = and $ zipWith checkArg args sig
+matchWith args sig = length args == length sig && and (zipWith checkArg args sig)
 
 checkArgs :: (Autofloat a) => [ArgVal a] -> [ArgType] -> String -> [ArgVal a]
-checkArgs arguments signature n = if arguments `matchWith` signature
+checkArgs arguments signature n =
+    if arguments `matchWith` signature
     then arguments
     else sigMismatchError n signature arguments
 
@@ -234,13 +271,101 @@ checkReturn (GPI v) _ = error "checkReturn: Computations cannot return GPIs"
 --------------------------------------------------------------------------------
 -- Computation Functions
 
+type Interval = (Float, Float)
+
+-- TODO: use the rng in state
+compRng :: StdGen
+compRng = mkStdGen seed
+    where seed = 16 -- deterministic RNG with seed
+
+-- Generate n random values uniformly randomly sampled from interval and return generator.
+-- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
+-- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
+   -- which causes type inference problems in Style for some reason.
+-- Also apparently using Autofloat here with typeable causes problems for generality of returned StdGen.
+-- But it works fine without Typeable.
+randomsIn :: (Autofloat a) => StdGen -> Integer -> Interval -> ([a], StdGen)
+randomsIn g 0 _        =  ([], g)
+randomsIn g n interval = let (x, g') = randomR interval g -- First value
+                             (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
+                         (r2f x : xs, g'')
+
+-- Computes the surjection to lie inside a bounding box defined by the corners of a box
+-- defined by four straight lines, assuming their lower/left coordinates come first.
+-- Their intersections give the corners.
+computeSurjectionLines :: CompFn
+computeSurjectionLines args = Val $ PathV $ computeSurjectionLines' compRng args
+computeSurjectionLines' g [Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
+    let lower_left = (getNum left "startX", getNum bottom "startY") in
+    let top_right = (getNum right "startX", getNum top "startY") in
+    computeSurjection g n lower_left top_right
+
+computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> [Pt2 a]
+computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
+    if numPoints < 2 then error "Surjection needs to have >= 2 points"
+    else
+        let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
+            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
+            xs_increasing = sort xs
+            (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
+            ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
+            ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
+        -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
+        in zip xs_increasing ys_perm -- len xs == len ys
+
+
 rgba :: CompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
     Val (ColorV $ makeColor' r g b a)
+
+arrowPts a = (getNum a "startX", getNum a "startY", getNum a "endX", getNum a "endY")
+infinity :: Floating a => a
+infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
+
+intersectionX :: CompFn
+intersectionX [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let (x0, y0, x1, y1) = arrowPts a1
+        (x2, y2, x3, y3) = arrowPts a2
+        det = (x0 - x1) * (y2 - y3) - (y0 - y1) * (x2 - x3)
+    in Val $ FloatV $
+       if det == 0 then infinity
+       else (x0*y1 - y0*x1)*(x2 - x3) - (x0 - x1)*(x2*x3 - y2*y3) / det
+intersectionY :: CompFn
+intersectionY [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let (x0, y0, x1, y1) = arrowPts a1
+        (x2, y2, x3, y3) = arrowPts a2
+        det = (x0 - x1) * (y2 - y3) - (y0 - y1) * (x2 - x3)
+    in Val $ FloatV $
+       if det == 0 then infinity
+       else (x0*y1 - y0*x1)*(x2 - x3) - (y0 - y1)*(x2*x3 - y2*y3) / det
+
+bboxHeight :: CompFn
+bboxHeight [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let ys@[y0, y1, y2, y3] = getYs a1 ++ getYs a2
+        (ymin, ymax) = (minimum ys, maximum ys)
+    in Val $ FloatV $ abs $ ymax - ymin
+    where getYs a = [getNum a "startY", getNum a "endY"]
+bboxWidth :: CompFn
+bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
+        (xmin, xmax) = (minimum xs, maximum xs)
+    in Val $ FloatV $ abs $ xmax - xmin
+    where getXs a = [getNum a "startX", getNum a "endX"]
+len :: CompFn
+len [GPI a@("Arrow", _)] =
+    let (x0, y0, x1, y1) = arrowPts a
+    in Val $ FloatV $ dist (x0, y0) (x1, y1)
+midpointX :: CompFn
+midpointX [GPI a@("Arrow", _)] =
+    let (x0, x1) = (getNum a "startX", getNum a "endX")
+    in Val $ FloatV $ x1 - x0 / 2
+midpointY :: CompFn
+midpointY [GPI a@("Arrow", _)] =
+    let (y0, y1) = (getNum a "startY", getNum a "endY")
+    in Val $ FloatV $ y1 - y0 / 2
+
 -- bbox :: CompFn
 -- bbox =
--- len :: CompFn
--- len =
 -- sampleMatrix :: CompFn
 -- sampleMatrix =
 -- sampleVectorIn :: CompFn
@@ -249,12 +374,8 @@ rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
 -- intersection =
 -- midpoint :: CompFn
 -- midpoint =
--- mulV :: CompFn
--- mulV =
 -- determinant :: CompFn
 -- determinant =
--- addV :: CompFn
--- addV =
 -- apply :: CompFn
 -- apply =
 noop :: CompFn
@@ -291,18 +412,10 @@ centerLabel [GPI curve, GPI text]
             (xmargin, ymargin) = (-10, 30)
             midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
         distsq midbez (getX text, getY text)
-
--- centerLabel [CB' a, L' l] [mag] = -- use the float input?
---                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
---                     (mx, my) = midpoint (sx, sy) (ex, ey)
---                     (lx, ly) = (xl' l, yl' l) in
-                -- (mx - lx)^2 + (my + 1.1 * hl' l - ly)^2 -- Top right from the point
-
 centerLabel [GPI p, GPI l]
     | p `is` "AnchorPoint" && l `is` "Text" =
         let [px, py, lx, ly] = [getX p, getY p, getX l, getY l] in
         (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
-
 -- -- TODO: depends on orientation of arrow
 centerLabel [GPI arr, GPI text]
     | arr `is` "Arrow" && text `is` "Text" =
@@ -310,8 +423,12 @@ centerLabel [GPI arr, GPI text]
             (mx, my) = midpoint (sx, sy) (ex, ey)
             (lx, ly) = (getX text, getY text) in
         (mx - lx)^2 + (my + 1.1 * getNum text "h" - ly)^2 -- Top right from the point
-
 centerLabel [a, b] = sameCenter [a, b]
+-- centerLabel [CB' a, L' l] [mag] = -- use the float input?
+--                 let (sx, sy, ex, ey) = (startx' a, starty' a, endx' a, endy' a)
+--                     (mx, my) = midpoint (sx, sy) (ex, ey)
+--                     (lx, ly) = (xl' l, yl' l) in
+                -- (mx - lx)^2 + (my + 1.1 * hl' l - ly)^2 -- Top right from the point
 
 -- | `centerArrow` positions an arrow between two objects, with some spacing
 centerArrow :: ObjFn
@@ -330,7 +447,7 @@ centerArrow [GPI arr@("Arrow", _), GPI circ@("Circle", _), GPI sq@("Square", _)]
 
 centerArrow [GPI arr@("Arrow", _), GPI circ1@("Circle", _), GPI circ2@("Circle", _)] =
             _centerArrow arr [getX circ1, getY circ1] [getX circ2, getY circ2]
-                [ spacing * getNum circ1 "radius", negate $ spacing * getNum circ2 "radius"]
+                [ spacing * getNum circ1 "r", negate $ spacing * getNum circ2 "r"]
 
 centerArrow [GPI arr@("Arrow", _), GPI ell1@("Ellipse", _), GPI ell2@("Ellipse", _)] =
             _centerArrow arr [getX ell1, getY ell1] [getX ell2, getY ell2]
@@ -350,8 +467,6 @@ centerArrow [GPI arr@("Arrow", _), GPI text@("Text", _), GPI circ@("Circle", _)]
             _centerArrow arr [getX text, getY text] [getX circ, getY circ]
                 [1.5 * getNum text "w", negate $ spacing * getNum circ "radius"]
 
-centerArrow o = error ("CenterMap: unsupported arguments: " ++ show o)
-
 spacing :: (Autofloat a) => a
 spacing = 1.1 -- TODO: arbitrary
 
@@ -365,6 +480,41 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
                                     getNum arr "endX",   getNum arr "endY"] in
     (fromx - sx)^2 + (fromy - sy)^2 + (tox - ex)^2 + (toy - ey)^2
 
+-- | 'repel' exert an repelling force between objects
+-- TODO: temporarily written in a generic way
+repel :: ObjFn
+repel [GPI a, GPI b] =
+    1 / distsq (getX a, getY a) (getX b, getY b) + epsd
+-- repel [C' c, S' d] [] = 1 / distsq (xc' c, yc' c) (xs' d, ys' d) - r' c - side' d + epsd
+-- repel [S' c, C' d] [] = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c + epsd
+-- repel [P' c, P' d] [] = if c == d then 0 else 1 / distsq (xp' c, yp' c) (xp' d, yp' d) - 2 * r2f ptRadius + epsd
+-- repel [L' c, L' d] [] = if c == d then 0 else 1 / distsq (xl' c, yl' c) (xl' d, yl' d)
+-- repel [L' c, C' d] [] = 1 / distsq (xl' c, yl' c) (xc' d, yc' d)
+-- repel [C' c, L' d] [] = 1 / distsq (xc' c, yc' c) (xl' d, yl' d)
+-- repel [L' c, S' d] [] = 1 / distsq (xl' c, yl' c) (xs' d, ys' d)
+-- repel [S' c, L' d] [] = 1 / distsq (xs' c, ys' c) (xl' d, yl' d)
+-- repel [A' c, L' d] [] = repel' (startx' c, starty' c) (xl' d, yl' d) +
+--         repel' (endx' c, endy' c) (xl' d, yl' d)
+-- repel [A' c, C' d] [] = repel' (startx' c, starty' c) (xc' d, yc' d) +
+--         repel' (endx' c, endy' c) (xc' d, yc' d)
+-- repel [IM' c, IM' d] [] = 1 / (distsq (xim' c, yim' c) (xim' d, yim' d) + epsd) - sizeXim' c - sizeXim' d --TODO Lily check this math is correct
+-- repel [a, b] [] = if a == b then 0 else 1 / (distsq (getX a, getY a) (getX b, getY b) )
+
+topRightOf :: ObjFn
+topRightOf [GPI l@("Text", _), GPI s@("Square", _)] = dist (getX l, getY l) (getX s + 0.5 * getNum s "side", getY s + 0.5 * getNum s "side")
+topRightOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s + 0.5 * getNum s "w", getY s + 0.5 * getNum s "h")
+
+topLeftOf :: ObjFn
+topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] = dist (getX l, getY l) (getX s - 0.5 * getNum s "side", getY s - 0.5 * getNum s "side")
+topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s - 0.5 * getNum s "w", getY s - 0.5 * getNum s "h")
+
+nearHead :: ObjFn
+nearHead [GPI arr@("Arrow", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
+    let end = (getNum arr "endX", getNum arr "endY") in -- arrowhead
+    let offset = (xoff, yoff) in
+    distsq (getX lab, getY lab) (end `plus2` offset)
+    where plus2 (a, b) (c, d) = (a + c, b + d)
+
 --------------------------------------------------------------------------------
 -- Constraint Functions
 
@@ -377,7 +527,9 @@ lessThan [] = 0.0 -- TODO
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
-    dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o2 "r" - getNum o1 "r")
+    dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o1 "r" - getNum o2 "r")
+contains [GPI outc@("Circle", _), GPI inc@("Circle", _), Val (FloatV padding)] =
+    dist (getX outc, getY outc) (getX inc, getY inc) - (getNum outc "r" + padding - getNum inc "r")
 contains [GPI c@("Circle", _), GPI rect@("Rectangle", _)] =
     let (x, y, w, h)     =
             (getX rect, getY rect, getNum rect "sizeX", getNum rect "sizeY")
@@ -385,7 +537,6 @@ contains [GPI c@("Circle", _), GPI rect@("Rectangle", _)] =
         pts              = [(x0, y0), (x0, y1), (x1, y0), (x1, y1)]
         (cx, cy, radius) = (getX c, getY c, getNum c "r")
     in sum $ map (\(a, b) -> max 0 $ dist (cx, cy) (a, b) - radius) pts
-        -- dist (cx, cy) (x, y)
 contains [GPI c@("Circle", _), GPI t@("Text", _)] =
     let res = dist (getX t, getY t) (getX c, getY c) - getNum c "r" + max (getNum t "w") (getNum t "h")
     in if res < 0 then 0 else res
@@ -398,34 +549,54 @@ contains [GPI c@("Circle", _), GPI t@("Text", _)] =
     -- in sum $ map (\(a, b) -> (max 0 $ dist (cx, cy) (a, b) - radius)^2) pts
 contains [GPI s@("Square", _), GPI l@("Text", _)] =
     dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 + getNum l "w"
+contains [GPI s@("Rectangle", _), GPI l@("Text", _)] =
+    -- TODO: implement precisely, max (w, h)? How about diagonal case?
+    dist (getX l, getY l) (getX s, getY s) - getNum s "w" / 2 + getNum l "w"
+contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
+    dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - 0.5 * getNum inc "side")
+contains [GPI outc@("Square", _), GPI inc@("Circle", _)] =
+    dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - getNum inc "r")
+contains [GPI outc@("Square", _), GPI inc@("Circle", _), Val (FloatV padding)] =
+    dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" + padding - getNum inc "r")
+contains [GPI outc@("Circle", _), GPI inc@("Square", _)] =
+    dist (getX outc, getY outc) (getX inc, getY inc) - (getNum outc "r" - 0.5 * getNum inc "side")
+contains [GPI set@("Ellipse", _), GPI label@("Text", _)] =
+    dist (getX label, getY label) (getX set, getY set) - max (getNum set "r") (getNum set "r") + getNum label "w"
+contains [GPI sq@("Square", _), GPI ar@("Arrow", _)] =
+    let (startX, startY, endX, endY) = arrowPts ar
+        (x, y) = (getX sq, getY sq)
+        side = getNum sq "side"
+        (lx, ly) = (x - side / 2, y - side / 2)
+        (rx, ry) = (x + side / 2, y + side / 2)
+    in inRange startX lx rx
+        + inRange startY ly ry
+        + inRange endX lx rx
+        + inRange endY ly ry
+contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
+    let (startX, startY, endX, endY) = arrowPts ar
+        (x, y) = (getX rt, getY rt)
+        (w, h) = (getNum rt "w", getNum rt "h")
+        (lx, ly) = (x - w / 2, y - h / 2)
+        (rx, ry) = (x + w / 2, y + h / 2)
+    in inRange startX lx rx
+        + inRange startY ly ry
+        + inRange endX lx rx
+        + inRange endY ly ry
 
--- contains [C' outc, C' inc] [FloatV padding] = strictSubset [[xc' inc, yc' inc, r' inc + padding], [xc' outc, yc' outc, r' outc]]
--- contains [S' outc, S' inc] [] = strictSubset
---     [[xs' inc, ys' inc, 0.5 * side' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
--- contains [S' outc, C' inc] [] = strictSubset [[xc' inc, yc' inc, r' inc], [xs' outc, ys' outc, 0.5 * side' outc]]
--- contains [S' outc, C' inc] [FloatV padding] = strictSubset [[xc' inc, yc' inc, r' inc + padding], [xs' outc, ys' outc, 0.5 * side' outc]]
--- contains [C' outc, S' inc] [] = strictSubset
---     [[xs' inc, ys' inc, (halfDiagonal . side') inc], [xc' outc, yc' outc, r' outc]]
--- contains [C' set, P' pt] [] =
---         dist (xp' pt, yp' pt) (xc' set, yc' set) - 0.5 * r' set
--- contains [S' set, P' pt] [] =
---     dist (xp' pt, yp' pt) (xs' set, ys' set) - 0.4 * side' set
--- -- TODO: only approx
--- contains [E' set, P' pt] [] =
---     dist (xp' pt, yp' pt) (xe' set, ye' set) - max (rx' set) (ry' set) * 0.9
--- contains [C' set, L' label] _ =
---     let res = dist (xl' label, yl' label) (xc' set, yc' set) - r' set + max (wl' label) (hl' label) in
---     if res < 0 then 0 else res
--- -- FIXME: doesn't work
--- contains [E' set, L' label] [] =
---     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
--- contains [S' sq, A' ar] [] = let
---                              lx = (xs' sq) - (side' sq)/2
---                              rx = (xs' sq) + (side' sq)/2
---                              ly = (ys' sq) - (side' sq)/2
---                              ry = (ys' sq) + (side' sq)/2
---                              ret = (isInRange (startx' ar) lx rx) + (isInRange (endx' ar) lx rx) + (isInRange (starty' ar) ly ry) + (isInRange (endy' ar) ly ry)
---                             in ret
+inRange a l r
+    | a < l  = (a-l)^2
+    | a > r  = (a-r)^2
+    | a == r = 0
+
+
+-- TODO: is the "Point type still there?"
+-- contains [GPI set@("Circle", _), P' GPI pt@("", _)] = dist (getX pt, getX pt) (getX set, getY set) - 0.5 * r' set
+-- TODO: only approx
+-- contains [S' GPI set@("", _), P' GPI pt@("", _)] =
+--     dist (getX pt, getX pt) (getX set, getX set) - 0.4 * side' set
+-- FIXME: doesn't work
+-- contains [E' GPI set@("", _), P' GPI pt@("", _)] =
+--     dist (getX pt, getX pt) (xe' set, getX set) - max (rx' set) (ry' set) * 0.9
 
 maxSize :: ConstrFn
 -- TODO: why do we need `r2f` now? Didn't have to before
@@ -435,14 +606,15 @@ maxSize [GPI s@("Square", _)] = getNum s "side" - r2f (limit  / 3)
 maxSize [GPI r@("Rectangle", _)] =
     let max_side = max (getNum r "sizeX") (getNum r "sizeY")
     in max_side - r2f (limit  / 3)
--- maxSize [GPI ar@("Arrow", _)] = sizear' ar - limit  / 3
--- maxSize [GPI im@("Image", _)] =
---     let max_side = max (sizeXim' im) (sizeYim' im)
---     in max_side - limit  / 3
+maxSize [GPI im@("Image", _)] =
+    let max_side = max (getNum im "lengthX") (getNum im "lengthY")
+    in max_side - r2f (limit / 3)
+maxSize [GPI e@("Ellipse", _)] = max (getNum e "r") (getNum e "r") - r2f (limit  / 3)
+maxSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
+-- maxSize [GPI ar@("Arc", _)] = sizear' ar - limit  / 3
 -- maxSize [GPI pa@("Parallelogram", _)] [] =
 --     let max_side = max (sizeXpa' pa) (sizeYpa' pa) in
 --     max_side - limit  / 3
--- maxSize [GPI e@("Ellipse", _)] [] = max (ry' e) (rx' e) - limit  / 3
 
 minSize :: ConstrFn
 minSize [GPI c@("Circle", _)] = 20 - getNum c "r"
@@ -450,12 +622,12 @@ minSize [GPI s@("Square", _)] = 20 - getNum s "side"
 minSize [GPI r@("Rectangle", _)] =
     let min_side = min (getNum r "sizeX") (getNum r "sizeY")
     in 20 - min_side
+minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "r") (getNum e "r")
+minSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
+
 -- minSize [AR' ar] _ = 2.5 - sizear' ar
--- minSize [IM' im] [] = let min_side = min (sizeXim' im) (sizeYim' im) in
---                    20 - min_side
--- minSize [PA' pa] [] = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in
---                    20 - min_side
--- minSize [E' e] [] = 20 - min (ry' e) (rx' e)
+-- minSize [IM' im] [] = let min_side = min (sizeXim' im) (sizeYim' im) in 20 - min_side
+-- minSize [PA' pa] [] = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in 20 - min_side
 
 smallerThan  :: ConstrFn
 smallerThan [GPI inc@("Circle", _), GPI outc@("Circle", _)] =  getNum inc "r" - getNum outc "r" - 0.4 * getNum outc "r" -- TODO: taking this as a parameter?
@@ -464,6 +636,17 @@ outsideOf :: ConstrFn
 outsideOf [GPI l@("Text", _), GPI c@("Circle", _)] =
     let labelR = max (getNum l "w") (getNum l "h")
     in -dist (getX l, getX l) (getX c, getY c) + getNum c "r" + labelR
+
+overlapping :: ConstrFn
+overlapping [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
+    looseIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, getNum yset "r"]]
+overlapping [GPI xset@("Square", _), GPI yset@("Circle", _)] =
+    looseIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, getNum yset "r"]]
+overlapping [GPI xset@("Circle", _), GPI yset@("Square", _)] =
+    looseIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
+overlapping [GPI xset@("Square", _), GPI yset@("Square", _)] =
+    looseIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
+looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
 --------------------------------------------------------------------------------
 -- Default functions for every shape
