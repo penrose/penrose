@@ -4,11 +4,11 @@ Point p {
 
 Set `domainOuter` {
     `domainOuter`.shape = Arrow {
-          startX = -100.0
-          startY = 0.0
-          endX   = 325.0
-          endY   = 0.0
-          thickness = 10.0
+        startX = -100.0
+        startY = 0.0
+        endX   = 325.0
+        endY   = 0.0
+        thickness = 10.0
     }
     `domainOuter`.text = Text { string = `domainOuter`.label }
     `domainOuter`.nearFn = encourage nearHead(`domainOuter`.shape, `domainOuter`.text, 15.0, 0.0)
@@ -38,13 +38,13 @@ Map f
 where From(f, domain, image)
 with Set `domainOuter` {
     f.shape = Curve {
-        path = computeSurjectionLines(5, domain.left, domain.right, image.left, image.right)
+        path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
         color = rgba(0.05, 0.05, 0.6, 1.0)
     }
     f.text = Text {
         string = f.label
-        x = `domainOuter`.shape.endX - 30
-        y = `domainOuter`.shape.endY + 30
+        x = `domainOuter`.shape.endX - 30.0
+        y = `domainOuter`.shape.endY + 30.0
     }
 }
 
@@ -54,7 +54,6 @@ with Set `codomain`, `domainOuter`{
         style = "dashed"
         path = lineLeft(0.2, `domainOuter`.shape, `codomain`.shape)
     }
-
 
     `domain`.right = Line {
         style = "dashed"
@@ -67,32 +66,31 @@ with Set `codomain`, `domainOuter`{
     -- `domain`.rightFn = encourage nearEndVert(`domain`.right, `domain`.right_label)
 }
 
-/*
-Set `cartesianProduct` {
-  shape = Rect {
-    text = None
-    center = regionCenter(domain, image)    -- this will pass in both of domain's objects
-    length = regionX(domain)
-    width = regionY(image)
-    color = lightBlue()
-  }
+Set `image`
+with Set `codomain`, `domainOuter`{
+    `image`.bottom = Line {
+        style = "dashed"
+        path = lineRight(0.2, `codomain`.shape, `domainOuter`.shape)
+    }
+
+    `image`.top = Line {
+        style = "dashed"
+        path = lineRight(0.8, `codomain`.shape, `domainOuter`.shape)
+    }
+
+    -- `image`.top_label = Text { string = "B_0" }
+    -- `image`.bottom_label = Text { string = "B_1" }
+    -- `image`.bottomFn = encourage nearEndHoriz(`image`.bottom, `image`.bottom_label)
+    -- `image`.topFn = encourage nearEndHoriz(`image`.top, `image`.top_label)
 }
 
-
-Set `image` {
-       bottom = Line {
-             style = "dashed"
-             path = lineRight(0.2, codomain.shape, domainOuter)
-             text = "B_0"
-       }
-
-       top = Line {
-              style = "dashed"
-              path = lineRight(0.8, codomain.shape, domainOuter)
-              text = "B_1"
-       }
-
-       objective nearEndHoriz(image.bottom, image.bottom.label)
-       objective nearEndHoriz(image.top, image.top.label)
+/*
+Set `cartesianProduct` {
+    `cartesianProduct`.shape = Rectangle {
+        -- center = regionCenter(domain, image)    -- this will pass in both of domain's objects
+        length = regionX(domain)
+        width = regionY(image)
+        color = lightBlue()
+    }
 }
 */

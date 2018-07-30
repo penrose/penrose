@@ -146,14 +146,17 @@ var Render = (function(){
     /**
      * FIXME: refactor
      */
-    function renderPoints(canvas, point_list, dx, dy) {
+    function _renderPoints(canvas, point_list) {
+        var res = []
         for(var i = 0; i < point_list.length; i++) {
-            var xy = toScreen(point_list[i], dx, dy);
+            var xy = Utils.scr(point_list[i]);
             var point = canvas.circle(xy[0], xy[1], 5);
             point.attr({
                 fill: "none"
             })
+            // res.push(point)
         }
+        // return canvas.g(res)
     }
 
     /**
@@ -267,7 +270,7 @@ var Render = (function(){
         ellip.data("name", properties.name)
         var color = properties.color
         ellip.attr({
-            fill: Utils.hex(color.r, color.g, color.b),
+            fill: Utils.hex(color[0], color[1], color[2]),
             "fill-opacity": color.a,
         });
         return ellip
@@ -375,22 +378,23 @@ var Render = (function(){
         curve.attr({
             fill: "transparent",
             strokeWidth: 2.5, // this should be settable in Style
-            stroke: Utils.hex(color.r, color.g, color.b)
+            stroke: Utils.hex(color[0], color[1], color[2])
         });
         if(properties.stylecb == "dashed") {
             curve.attr({ strokeDasharray: "7, 5" });
         }
         // DEBUG: showing control points and poly line
         if (DEBUG) {
-            var polyLine = s.polyline(allToScreen(properties.path));
-            var controlPts = renderPoints(s, properties.path, dx, dy);
+            var polyLine = s.polyline(Utils.allToScreen(properties.path));
+            var controlPts = _renderPoints(s, properties.path);
             polyLine.attr({
                 fill: "transparent",
                 strokeWidth: 5,
-                stroke: Utils.hex(color.r, color.g, color.b),
+                stroke: Utils.hex(color[0], color[1], color[2]),
                 strokeDasharray: "10"
             });
-            return s.g(polyLine, controlPts, curve)
+            // return s.g(polyLine, controlPts, curve)
+            return s.g(polyLine, curve)
         }
         return curve
     }
@@ -421,7 +425,7 @@ var Render = (function(){
             line = s.path(describeArc(len/2-2.4*t,0,len/2,-90,90)).transform(myMatrix.toTransformString())
             line.attr({
                 "fill-opacity" : 0,
-                stroke: Utils.hex(color.r, color.g, color.b),
+                stroke: Utils.hex(color[0], color[1], color[2]),
                 strokeWidth: 2
             })
         }
@@ -433,13 +437,13 @@ var Render = (function(){
             .transform(myMatrix.toTransformString())
             tail1.attr({
                 "fill-opacity" : 0,
-                stroke: Utils.hex(color.r, color.g, color.b),
+                stroke: Utils.hex(color[0], color[1], color[2]),
                 strokeWidth: 2
             })
             var head1 = s.path(toPathString([[(len-(5*t)),(-(4*t))],[len-(5*t),(4*t)]],0,0)).transform(myMatrix.toTransformString())
             head1.attr({
                 "fill-opacity" : 0,
-                stroke: Utils.hex(color.r, color.g, color.b),
+                stroke: Utils.hex(color[0], color[1], color[2]),
                 strokeWidth: 2
             })
             var g1 = s.g(head1, tail1)
@@ -475,19 +479,22 @@ var Render = (function(){
      * @param       {JSON} properties JSON object from Haskell server
      */
     function _renderLine(s, properties) {
-        var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
+        // var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
+        var path = properties.path;
+        console.log(path);
         var curve = s.path(Utils.path_str(path));
         curve.data("name", properties.name)
         var color = properties.color;
-        // by default, the curve should be solid
+        // by default, the curve sheuld be solid
         curve.attr({
             fill: "transparent",
             strokeWidth: properties.thickness,
-            stroke: Utils.hex(color.r, color.g, color.b)
+            stroke: Utils.hex(color[0], color[1], color[2])
         });
         if(properties.style == "dashed") {
             curve.attr({ strokeDasharray: "7, 5" });
         }
+        return curve
     }
 
     /**
@@ -518,9 +525,9 @@ var Render = (function(){
              + sizear + " " + yar
              var p = s.path(path).transform(myMatrix.toTransformString())
              p.attr({
-                 fill: Utils.hex(color.r, color.g, color.b),
+                 fill: Utils.hex(color[0], color[1], color[2]),
                  "fill-opacity": 0,
-                 stroke: Utils.hex(color.r, color.g, color.b),
+                 stroke: Utils.hex(color[0], color[1], color[2]),
                  strokeWidth: 2
              });
              if(style == "line"){
@@ -549,7 +556,7 @@ var Render = (function(){
                  var arc = s.path(arcPath);
                  arc.attr({
                      "fill-opacity": 0,
-                     stroke: Utils.hex(color.r, color.g, color.b),
+                     stroke: Utils.hex(color[0], color[1], color[2]),
                      strokeWidth: 2
                  });
                  if(style == "line"){
@@ -599,7 +606,7 @@ var Render = (function(){
          parallelogram.data("name", properties.namepa)
          var color = properties.colorpa;
          parallelogram.attr({
-             fill: Utils.hex(color.r, color.g, color.b),
+            fill: Utils.hex(color[0], color[1], color[2]),
              "fill-opacity": color.a
          });
          parallelogram.drag(move, start, stop)

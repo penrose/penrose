@@ -45,7 +45,7 @@ defaultWeight = 1
 debug = False
 debugStyle = False
 debugLineSearch = False
-debugObj = False -- turn on/off output in obj fn or constraint
+debugObj = True -- turn on/off output in obj fn or constraint
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
 subsetSizeDiff :: Floating a => a
@@ -264,8 +264,8 @@ trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to ri
 tr' :: Show a => String -> a -> a
 tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
-tro :: Show a => String -> a -> a
-tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+tro :: String -> a -> a
+tro s x = if debugObj then trace "---" $ trace s x else x -- prints in left to right order
 
 --------------------------------------------------------------------------------
 -- Lists-as-vectors utility functions

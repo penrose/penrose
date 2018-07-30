@@ -131,16 +131,14 @@ var Utils = (function () {
         // return str.substring(0, str.length - 2);
     }
 
-    function allToScreen(orig_list, dx, dy) {
-     var list = new Array(orig_list.length);
-
-         // transform all points to screen space
-         for(var i = 0; i < list.length; i++) {
-             list[i] = toScreen(orig_list[i], dx, dy);
-         }
-
-         return list;
-     }
+    function _allToScreen(orig_list, dx, dy) {
+        var list = new Array(orig_list.length);
+        // transform all points to screen space
+        for(var i = 0; i < list.length; i++) {
+            list[i] = _toScreen(orig_list[i], dx, dy);
+        }
+        return list;
+    }
 
      function _toScreen(xy) {
          return [CANVAS_WIDTH/2  + xy[0],
@@ -149,6 +147,7 @@ var Utils = (function () {
 
      return {
          scr: _toScreen,
+         allToScreen: _allToScreen,
          hex: _rgbToHex,
          path_str: _toPathString
      }

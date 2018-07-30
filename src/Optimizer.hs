@@ -29,7 +29,7 @@ epStop = 0.05
 -- if you want to use it for UO, needs a different epsilon
 epStopCond :: (Autofloat a) => [a] -> [a] -> a -> a -> Bool
 epStopCond x x' fx fx' =
-           trStr ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
+           tro ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
            ++ "\n|f(x') - f(x)|: " ++ (show $ abs (fx - fx'))) $
            (norm (x -. x') <= epStop) || (abs (fx - fx') <= epStop)
 
@@ -131,7 +131,7 @@ stepWithObjective params state = (steppedState, gradEval)
           -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
           steppedState =
               let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
-                         trStr ("||x' - x||: " ++ (show $ norm (state -. state'))
+                         tro ("||x' - x||: " ++ (show $ norm (state -. state'))
                                 ++ "\n|f(x') - f(x)|: " ++
                                (show $ abs (objFnApplied state - objFnApplied state'))
                                 ++ "\ngradEval: \n" ++ (show gradEval)

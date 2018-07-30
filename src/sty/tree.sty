@@ -1,24 +1,23 @@
 -- Tree.sty
 Set x {
-    shape = Text {
-      string = x.label
-    }
+    x.shape = Text { string = x.label }
 }
 
-IsSubset x y {
-    objective above(y, x)
-    objective equal(x.shape.x, y.shape.y)
-    shape =  Arrow {
-        start = x.shape
-        end   = y.shape
-        text  = None
-    }
+Set x; Set y
+where IsSubset(x, y) {
+    -- objective above(y, x)
+    -- objective equal(x.shape.x, y.shape.y)
+    x.arrow = Arrow { }
+    x.centerFn = encourage centerArrow(x.arrow, x.shape, y.shape)
 }
 
-Set x, Set y {
-    objective repel(x, y)
+Set x; Set y {
+    -- objective repel(x, y)
 }
 
-IsSubset x S, IsSubset y S {
-    objective sameHeight(x, y)
+Set x; Set y
+where IsSubset(x, S); IsSubset(y, S)
+with Set S
+{
+    -- objective sameHeight(x, y)
 }

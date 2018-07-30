@@ -9,12 +9,20 @@ Set x {
 }
 
 Set `U`
--- with Set `R1`
+with Set `R1`
 {
     override `U`.shape.stroke-style = "dashed"
     override `U`.shape.stroke-width = 2
     override `U`.shape.y = `R1`.shape.y
 }
+
+Set `V`
+with Set `U` {
+    override `V`.shape.stroke-style = "dashed"
+    override `V`.shape.stroke-width = 2
+    override `V`.shape.y = `U`.shape.y
+}
+
 
 Set `R1` {
     override `R1`.shape = Square {
@@ -28,13 +36,6 @@ Set x; Set y
 where IsSubset(x, y) {
     y.containFn = ensure contains(y.shape, x.shape, 10.0)
     y.outsideFn = ensure outsideOf(y.text, x.shape)
-}
-
-Set `V`
-with Set `U`{
-    override `V`.shape.stroke-style = "dashed"
-    override `V`.shape.stroke-width = 2
-    override `V`.shape.y = `U`.shape.y
 }
 
 

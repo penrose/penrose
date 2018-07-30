@@ -1587,7 +1587,7 @@ genObjfn trans objfns constrfns varyingPaths =
      \penaltyWeight varying ->
          let varyingTagExprs = map floatToTagExpr varying in
          let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
-         let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) (tr "transWithVarying" transWithVarying) in
+         let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) transWithVarying in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
 

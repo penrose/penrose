@@ -61,8 +61,8 @@ invokeOptFn dict n args signatures =
                    l  -> l
         args'  = checkArgsOverload args sigs n
         f      = fromMaybe (noFunctionError n) (M.lookup n dict)
-    -- in f args
-    in f args'
+    in f args
+    -- in f args'
 
 
 --------------------------------------------------------------------------------
@@ -79,6 +79,8 @@ compDict = M.fromList
         ("midpointY", midpointY),
         ("len", len),
         ("computeSurjectionLines", computeSurjectionLines),
+        ("lineLeft", lineLeft),
+        ("lineRight", lineRight),
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
         ("sampleReal", noop), -- TODO
@@ -100,7 +102,8 @@ compSignatures = M.fromList
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxWidth", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("len", ([GPIType "Arrow"], ValueT FloatT)),
-        ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PathT))
+        ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PathT)),
+        ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PathT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
@@ -137,6 +140,8 @@ objFuncDict = M.fromList
         ("repel", repel),
         ("nearHead", nearHead),
         ("topRightOf", topRightOf),
+        ("nearEndVert", nearEndVert),
+        ("nearEndHoriz", nearEndHoriz),
         ("topLeftOf", topLeftOf)
 {-      ("centerLine", centerLine),
         ("increasingX", increasingX),
@@ -162,8 +167,6 @@ objFuncDict = M.fromList
         -- ("repel", (*)  10000  `compose2` repel),
         -- ("repel", repel),
         ("outside", outside),
-        ("nearEndVert", nearEndVert),
-        ("nearEndHoriz", nearEndHoriz),
         -}
     ]
 
@@ -179,10 +182,13 @@ objSignatures = MM.fromList
         ("centerLabel", [AnyGPI, GPIType "Text"]),
         ("centerArrow", [GPIType "Arrow", GPIType "Square", GPIType "Square"]),
         ("centerArrow", [GPIType "Arrow", GPIType "Circle", GPIType "Circle"]),
+        ("centerArrow", [GPIType "Arrow", GPIType "Text", GPIType "Text"]),
         ("topLeftOf", [GPIType "Text", GPIType "Square"]),
         ("topLeftOf", [GPIType "Text", GPIType "Rectangle"]),
         ("topRightOf", [GPIType "Text", GPIType "Square"]),
-        ("topRightOf", [GPIType "Text", GPIType "Rectangle"])
+        ("topRightOf", [GPIType "Text", GPIType "Rectangle"]),
+        ("nearEndVert", [GPIType "Line", GPIType "Text"]),
+        ("nearEndHoriz", [GPIType "Line", GPIType "Text"])
         -- ("centerArrow", []) -- TODO
     ]
 
@@ -313,12 +319,33 @@ computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
         -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
         in zip xs_increasing ys_perm -- len xs == len ys
 
+-- calculates a line (of two points) intersecting the first axis, stopping before it leaves bbox of second axis
+-- TODO rename lineLeft and lineRight
+-- assuming a1 horizontal and a2 vertical, respectively
+lineLeft :: CompFn
+lineLeft [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let a1_start = getNum a1 "startX" in
+    let a1_len = abs (getNum a1 "endX" - a1_start) in
+    let xpos = a1_start + lineFrac * a1_len in
+    Val $ PathV [(xpos, getNum a1 "startY"), (xpos, getNum a2 "endY")]
+
+-- assuming a1 vert and a2 horiz, respectively
+-- can this be written in terms of lineLeft?
+lineRight :: CompFn
+lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let a1_start = getNum a1 "startY" in
+    let a1_len = abs (getNum a1 "endY" - a1_start) in
+    let ypos = a1_start + lineFrac * a1_len in
+    Val $ PathV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
 
 rgba :: CompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
     Val (ColorV $ makeColor' r g b a)
 
+linePts, arrowPts :: (Autofloat a) => Shape a -> (a, a, a, a)
+linePts = arrowPts
 arrowPts a = (getNum a "startX", getNum a "startY", getNum a "endX", getNum a "endY")
+
 infinity :: Floating a => a
 infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
 
@@ -514,6 +541,22 @@ nearHead [GPI arr@("Arrow", _), GPI lab@("Text", _), Val (FloatV xoff), Val (Flo
     let offset = (xoff, yoff) in
     distsq (getX lab, getY lab) (end `plus2` offset)
     where plus2 (a, b) (c, d) = (a + c, b + d)
+
+nearEndVert :: ObjFn
+-- expects a vertical line
+nearEndVert [GPI line@("Line", _), GPI lab@("Text", _)] =
+            let (sx, sy, ex, ey) = linePts line in
+            let bottompt = if sy < ey then (sx, sy) else (ex, ey) in
+            let yoffset = -25 in
+            let res = distsq (getX lab, getY lab) (fst bottompt, snd bottompt + yoffset) in res
+
+nearEndHoriz :: ObjFn
+-- expects a horiz line
+nearEndHoriz [GPI line@("Line", _), GPI lab@("Text", _)] =
+            let (sx, sy, ex, ey) = linePts line in
+            let leftpt = if sx < ex then (sx, sy) else (ex, ey) in
+            let xoffset = -25 in
+            distsq (getX lab, getY lab) (fst leftpt + xoffset, snd leftpt)
 
 --------------------------------------------------------------------------------
 -- Constraint Functions
