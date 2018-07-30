@@ -2,9 +2,9 @@
 --    DSLL language
 --    Author: Dor Ma'ayan, May 2018
 
-{-# OPTIONS_HADDOCK prune #-}
---module Dsll where
-module Main (main) where -- for debugging purposes
+{-# OPTIONS_HADDOCK prune #-} 
+module Dsll where
+--module Main (main) where -- for debugging purposes
 
 import Utils
 import System.Process
@@ -37,8 +37,6 @@ data DsllStmt = CdStmt Cd
              | SubtypeDeclStmt SubtypeDecl
              | OdStmt Od
              | PdStmt Pd
-             | SnStmt Sn --StmtNotation
-             | EnStmt En --ExprNotation
              deriving (Show, Eq, Typeable)
 
 -- | tconstructor
@@ -124,17 +122,6 @@ instance Show Pd2 where
               bString = show propsPd2
               cString = show toPd2
 
--- | StmtNotation
-data Sn = Sn {fromSn :: String,
-              toSn :: String}
-    deriving (Eq, Show, Typeable)
-
-
--- | ExprNotation
-data En = En {fromEn :: String,
-              toEn :: String}
-    deriving (Eq, Show, Typeable)
-
 ----------------------------------------- DSLL Parser -------------------------------------
 
 -- | 'DSLLParser' is the top-level parser function. The parser contains a list of functions
@@ -149,8 +136,7 @@ dsllProgParser :: Parser [DsllStmt]
 dsllProgParser = dsllStmt `sepEndBy` newline'
 
 dsllStmt :: Parser DsllStmt
-dsllStmt = try cdParser <|> try vdParser <|> try odParser <|>
- try enParser <|> try snParser <|> try subtypeDeclParser <|> try pdParser
+dsllStmt = try cdParser <|> try vdParser <|> try odParser <|> try subtypeDeclParser <|> try pdParser
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser DsllStmt
@@ -234,27 +220,6 @@ pd2 = do
   p' <- propParser
   return (PdStmt (Pd2Const (Pd2 { namePd2 = name, propsPd2 = zip b' prop', toPd2 = p' })))
 
--- | ExprNotation parser
-enParser :: Parser DsllStmt
-enParser = do
-  rword "ExprNotation"
-  --symbol "\""
-  fromEn' <- transPattern
-  --symbol "\""
-  rword "->"
-  --symbol "\""
-  toEn' <- transPattern
-  --symbol "\""
-  return (EnStmt (En {fromEn = fromEn' , toEn = toEn'}))
-
--- | StmtNotation parser
-snParser :: Parser DsllStmt
-snParser = do
-  rword "StmtNotation"
-  fromSn' <- many anyChar
-  rword "->"
-  toSn' <- many anyChar
-  return (SnStmt (Sn {fromSn = fromSn' , toSn = toSn'}))
 --------------------------------------- DSLL Semantic Checker ---------------------------
 
 -- | 'check' is the top-level semantic checking function. It takes a DSLL
@@ -333,10 +298,6 @@ checkDsllStmt e (PdStmt (Pd2Const v)) = let pd = Pred2 $ Prd2 { namepred2 = name
                                             ef = addName (namePd2 v) e
                                          in ef { predicates = M.insert (namePd2 v) pd $ predicates ef }
 
-checkDsllStmt e (SnStmt sn) = e -- TODO: Implement
-
-checkDsllStmt e (EnStmt en) = e -- TODO: Implement
-
 computeSubTypes :: VarEnv -> VarEnv
 computeSubTypes e = let env1 = e { subTypes = transitiveClosure (subTypes e)}
                     in if isClosureNotCyclic (subTypes env1) then
@@ -368,7 +329,13 @@ parseDsll dsllFile dsllIn =
 
 main :: IO ()
 main = do
-  [dsllFile] <- getArgs
+  [dsllFile, outputFile] <- getArgs
   dsllIn <- readFile dsllFile
-  dsllEnv <- parseDsll dsllFile dsllIn
+  case parse dsllParser dsllFile dsllIn of
+    Left err -> putStr (parseErrorPretty err)
+    Right xs -> do
+      writeFile outputFile (show xs)
+      let o = check xs
+      print o
+  putStrLn "Parsing Done!"
   return ()

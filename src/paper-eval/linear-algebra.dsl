@@ -17,9 +17,8 @@ predicate Not(p : Prop) : Prop
 
 -- Syntactic Sugar Definition
 
-ExprNotation a -> b
---ExprNotation “add($v1$,$v2$)” -> “$v1$ + $v2$” --(at level 2, right associativity)
 /*
+ExprNotation “add($v1$,$v2$)” -> “$v1$ + $v2$” --(at level 2, right associativity)
 ExprNotation “scale($s$, $v1$)” -> “$s$ * $v1$” --(at level 1, right associativity)
 ExprNotation “norm($v1$)” -> “|$v1$|”
 ExprNotation “neg($v1$)” -> “-$v1$”
