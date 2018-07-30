@@ -382,7 +382,8 @@ propertyDecl :: Parser PropertyDecl
 propertyDecl = PropertyDecl <$> identifier <*> (eq >> expr)
 
 stringLit :: Parser Expr
-stringLit = StringLit <$> (char '"' >> manyTill L.charLiteral (char '"'))
+-- NOTE: overlapping parsers 'charLiteral' and 'char '"'', so we use 'try'
+stringLit = StringLit <$> (symbol "\"" >> manyTill L.charLiteral (try (symbol "\"")))
 
 annotatedFloat :: Parser AnnoFloat
 annotatedFloat = (rword "OPTIMIZED" *> pure Vary) <|> Fix <$> float
@@ -1724,7 +1725,7 @@ evalTranslation :: (Autofloat a) => RState -> [Shape a]
 evalTranslation s = {-# SCC evalTranslation #-}
     let transWithVarying = insertPaths (varyingPaths s) (map floatToTagExpr (varyingState s)) (transr s)
         transEvaled = evalShapes evalIterRange (shapeProperties s) transWithVarying
-    in getShapes (shapeNames s) transEvaled
+    in {-# SCC getShapes #-} getShapes (shapeNames s) transEvaled
 
 --- Main function: what the Style compiler generates
 -- TODO fix clash with megaparsec State
