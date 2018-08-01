@@ -370,7 +370,7 @@ imageType = ("Image", M.fromList
 
 arcType = ("Arc", M.fromList
     [
-        ("x", (FloatT, x_sampler)), -- TODO: what does this (x,y) mean? @Dor
+        ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
         ("size", (FloatT, width_sampler)),

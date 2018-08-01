@@ -130,15 +130,14 @@ var Render = (function(){
   * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
   * (Added by Dor)
   * Contaikns only the arc
-  * FIXME: refactor
   */
-  function describeArc(x, y, radius, startAngle, endAngle) {
+  function describeArc(x, y, radius, startAngle, endAngle,isElliptical) {
     var start = polarToCartesian(x, y, radius, endAngle);
     var end = polarToCartesian(x, y, radius, startAngle);
     var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
     return [
       "M", start.x, start.y,
-      "A", radius, radius/2, 0, arcSweep, 0, end.x, end.y
+      "A", radius, (isElliptical ? radius/2 : radius) , 0, arcSweep, 0, end.x, end.y
     ].join(" ");
   }
 
@@ -402,21 +401,21 @@ var Render = (function(){
 
   /**
   * Renders an arrow on the canvas
+  * Arrow can be either a regular or a curved arrow, specified by style
   * @param       {Snap} s  Snap.svg global object
   * @param       {JSON} obj JSON object from Haskell server
-  * FIXME: factor out head styling code
   */
   function _renderArrow(s, properties) {
     var style    = properties.style
     var [sx, sy] = Utils.scr([properties.startX, properties.startY])
     var [ex, ey] = Utils.scr([properties.endX, properties.endY])
-    var thickness        = properties.thickness / 6
+    var thickness = properties.thickness / 6
     var color = properties.color
-    var len      = Snap.len(ex, ey, sx, sy)
+    var len = Snap.len(ex, ey, sx, sy)
 
     var body_path = [0, thickness, len - 5 * thickness, thickness,
       len - 5 * thickness, -1 * thickness, 0, -1 * thickness]
-    var head_path = [len - 5 * thickness, 3 * thickness, len, 0,
+      var head_path = [len - 5 * thickness, 3 * thickness, len, 0,
         len - 5 * thickness, -3 * thickness]
 
         var angle = Snap.angle(ex, ey, sx, sy)
@@ -426,17 +425,28 @@ var Render = (function(){
 
         if(style == "straight"){
           var line = s.polygon(body_path).transform(myMatrix.toTransformString())
-        }
-        if(style == "curved"){
-          line = s.path(describeArc(len/2-2.4*thickness,0,len/2,-90,90)).transform(myMatrix.toTransformString())
+          line.attr({
+            "fill-opacity" : 1,
+            fill : Utils.hex(color[0], color[1], color[2]),
+            stroke: Utils.hex(color[0], color[1], color[2]),
+          })
+        } else if(style == "curved"){
+          //This hardcoded values help to locate the tail and the head
+          // of the arrow in a nice way, might be changed in the future
+          var line = s.path(describeArc(len/2-2.4*thickness,0,len/2,-90,90,true))
+          .transform(myMatrix.toTransformString())
           line.attr({
             "fill-opacity" : 0,
             stroke: Utils.hex(color[0], color[1], color[2]),
-            strokeWidth: 2
           })
         }
 
         var head = s.polyline(head_path).transform(myMatrix.toTransformString())
+        head.attr({
+          "fill-opacity" : 1,
+          fill : Utils.hex(color[0], color[1], color[2]),
+          stroke: Utils.hex(color[0], color[1], color[2]),
+        })
         var g = s.g(line, head)
         return g
 
@@ -451,26 +461,41 @@ var Render = (function(){
       function _renderBrace(s, properties) {
         var [sx, sy] = Utils.scr([properties.startX, properties.startY])
         var [ex, ey] = Utils.scr([properties.endX, properties.endY])
-        var t        = properties.thickness
         var len      = Snap.len(ex, ey, sx, sy)
         var color = properties.color
+        var angle = Snap.angle(sx, sy, ex, ey)
 
-        var tail = s.line(sx , sy , ex, ey)
+        //Matriceds for rotation of the brace sides
+        var mSide1 = new Snap.Matrix();
+                      mSide1.translate(0 , 0);
+                      mSide1.rotate(angle, sx, sy);
 
-        tail.attr({
-          "fill-opacity" : 0,
-          stroke: Utils.hex(color[0], color[1], color[2]),
-          strokeWidth: 2
+        var mSide2 = new Snap.Matrix();
+            mSide2.translate(0 , 0);
+            mSide2.rotate(angle, ex, ey);
+
+        var body = s.polyline(sx,sy,ex,ey)
+        body.attr({
+           "fill-opacity" : 1,
+            stroke: Utils.hex(color[0], color[1], color[2]),
+            strokeWidth: 2
         })
 
-        var head = s.path(toPathString([[(len-(5*t)),(-(4*t))],[len-(5*t),(4*t)]],0,0))
-        head1.attr({
-          "fill-opacity" : 0,
-          stroke: Utils.hex(color[0], color[1], color[2]),
-          strokeWidth: 2
+        var side1 = s.polyline(sx, sy + 10,sx , sy - 10).transform(mSide1.toTransformString())
+        side1.attr({
+           "fill-opacity" : 1,
+            stroke: Utils.hex(color[0], color[1], color[2]),
+            strokeWidth: 2
         })
-        var g1 = s.g(head, tail)
-        return tail
+
+        var side2 = s.polyline(ex, ey + 10,ex , ey - 10).transform(mSide2.toTransformString())
+        side2.attr({
+           "fill-opacity" : 1,
+            stroke: Utils.hex(color[0], color[1], color[2]),
+            strokeWidth: 2
+        })
+        var sides = s.g(side1,side2)
+        return s.g(body,sides);
 
       } // end of _renderBrace
 
@@ -556,34 +581,36 @@ var Render = (function(){
       * @param       {Snap} s  Snap.svg global object
       * @param       {JSON} properties JSON object from Haskell server
       */
-      function _renderRgularArc(s,properties){
-        var radius = properties.radiusar
+      function _renderRegularArc(s,properties){
+        var radius = properties.r
         var color = properties.color
         var x = properties.x
         var y = properties.y
         var style = properties.style
         var rotation = properties.rotation
-        var angle = properties.anglear > 360.0 ? 360.0
-                    - properties.angle : properties.angle //Handle angle > 360
+        var angle = properties.angle > 360.0 ? 360.0
+        - properties.angle : properties.angle //Handle angle > 360
         angle = angle < 0 ? 360 + angle : angle //Handle angle < 0
-
-        var arcPath = describeArc(xar, yar, radiusar, rotationar,
-          angle < 0 ? (rotation - angle) : (rotation + anglear));
+        var arcPath = describeArc(x, y, radius, rotation,
+          angle < 0 ? (rotation - angle) : (rotation + angle),false);
           var arc = s.path(arcPath);
           arc.attr({
             "fill-opacity": 0,
             stroke: Utils.hex(color[0], color[1], color[2]),
             strokeWidth: 2
           });
+
           if (style == "wedge") {
-            var pf = describeFullArc(xar, yar, radiusar, rotationar,
-              anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));
+            var pf = describeFullArc(x, y, radius, rotation,
+              angle < 0 ? (rotation - angle) : (rotation + angle));
               var f = s.path(pf);
               f.attr({
                 fill: Utils.hex(0, 0, 205),
                 "fill-opacity": 0.6,
               });
               var g = s.g(arc,f)
+            } else{
+              return arc;
             }
           }
 
@@ -596,7 +623,7 @@ var Render = (function(){
             if(properties.isRight == "true") {
               return _renderRightArc(s,properties)
             } else {
-              return _renderRgularArc(s,properties)
+              return _renderRegularArc(s,properties)
             }
           }
 
@@ -619,8 +646,8 @@ var Render = (function(){
             h = sizeY * getSinFromDegrees(angle)  // The height of the prallelogram
             cor = sizeY * getCosFromDegrees(angle)
 
-            parallelogramPath = [x, y, x + sizeX , y , x + sizeX + cor, y + h ,
-              x + cor , y + h]
+            parallelogramPath = [x, y, x + sizeX , y , x + sizeX + cor, y - h ,
+              x + cor , y - h]
 
               var parallelogram = s.polygon(parallelogramPath)
               .transform(myMatrix.toTransformString())
