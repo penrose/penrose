@@ -105,21 +105,7 @@ var Render = (function(){
     };
   }
 
-  /*
-  * Given center point, radius, and angels return an arc path
-  * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
-  * (Added by Dor)
-  * Contaikns only the arc
-  */
-  function describeArc(x, y, radius, startAngle, endAngle) {
-    var start = polarToCartesian(x, y, radius, endAngle);
-    var end = polarToCartesian(x, y, radius, startAngle);
-    var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-    return [
-      "M", start.x, start.y,
-      "A", radius, radius, 0, arcSweep, 0, end.x, end.y
-    ].join(" ");
-  }
+
 
   /*
   * Given center point, radius, and angels return an filled arc
@@ -152,7 +138,7 @@ var Render = (function(){
     var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
     return [
       "M", start.x, start.y,
-      "A", radius, radius, 0, arcSweep, 0, end.x, end.y
+      "A", radius, radius/2, 0, arcSweep, 0, end.x, end.y
     ].join(" ");
   }
 
@@ -430,7 +416,7 @@ var Render = (function(){
 
     var body_path = [0, thickness, len - 5 * thickness, thickness,
       len - 5 * thickness, -1 * thickness, 0, -1 * thickness]
-      var head_path = [len - 5 * thickness, 3 * thickness, len, 0,
+    var head_path = [len - 5 * thickness, 3 * thickness, len, 0,
         len - 5 * thickness, -3 * thickness]
 
         var angle = Snap.angle(ex, ey, sx, sy)
@@ -442,7 +428,7 @@ var Render = (function(){
           var line = s.polygon(body_path).transform(myMatrix.toTransformString())
         }
         if(style == "curved"){
-          line = s.path(describeArc(len/2-2.4*t,0,len/2,-90,90)).transform(myMatrix.toTransformString())
+          line = s.path(describeArc(len/2-2.4*thickness,0,len/2,-90,90)).transform(myMatrix.toTransformString())
           line.attr({
             "fill-opacity" : 0,
             stroke: Utils.hex(color[0], color[1], color[2]),
@@ -571,27 +557,25 @@ var Render = (function(){
       * @param       {JSON} properties JSON object from Haskell server
       */
       function _renderRgularArc(s,properties){
-        var isRightar = properties.isRight
-        var sizear = properties.size
+        var radius = properties.radiusar
         var color = properties.color
-        var xar = properties.x
-        var yar = properties.y
+        var x = properties.x
+        var y = properties.y
         var style = properties.style
-        var rotationar = properties.rotation
+        var rotation = properties.rotation
+        var angle = properties.anglear > 360.0 ? 360.0
+                    - properties.angle : properties.angle //Handle angle > 360
+        angle = angle < 0 ? 360 + angle : angle //Handle angle < 0
 
-        var anglear = properties.anglear > 360.0 ? 360.0 - properties.anglear : properties.anglear
-        anglear = anglear < 0 ? 360 + anglear : anglear
-        var radiusar = properties.radiusar
         var arcPath = describeArc(xar, yar, radiusar, rotationar,
-          anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));
+          angle < 0 ? (rotation - angle) : (rotation + anglear));
           var arc = s.path(arcPath);
           arc.attr({
             "fill-opacity": 0,
             stroke: Utils.hex(color[0], color[1], color[2]),
             strokeWidth: 2
           });
-          if(style == "line"){
-          } else if (style == "wedge") {
+          if (style == "wedge") {
             var pf = describeFullArc(xar, yar, radiusar, rotationar,
               anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));
               var f = s.path(pf);
