@@ -587,12 +587,15 @@ var Render = (function(){
           var x = properties.x
           var y = properties.y
           var style = properties.style
-          var rotation = properties.rotation
           var angle = properties.angle > 360.0 ? 360.0
-          - properties.angle : properties.angle //Handle angle > 360
-          angle = angle < 0 ? 360 + angle : angle //Handle angle < 0
-          var arcPath = describeArc(x, y, radius, rotation,
-              angle < 0 ? (rotation - angle) : (rotation + angle),false);
+                      - properties.angle : properties.angle //Handle angle > 360
+              angle = angle < 0 ? 360 + angle : angle //Handle angle < 0
+          var rotation = properties.rotation + 90 - angle
+
+          var startAngle = rotation
+          var endAngle = angle < 0 ? (rotation - angle) : (rotation + angle)
+
+          var arcPath = describeArc(x, y, radius, startAngle,endAngle,false);
           var arc = s.path(arcPath);
           arc.attr({
               "fill-opacity": 0,
@@ -601,8 +604,7 @@ var Render = (function(){
           });
 
           if (style == "wedge") {
-              var pf = describeFullArc(x, y, radius, rotation,
-                  angle < 0 ? (rotation - angle) : (rotation + angle));
+              var pf = describeFullArc(x, y, radius, startAngle, endAngle);
               var f = s.path(pf);
               f.attr({
                   // TODO: hardcoded color value here
