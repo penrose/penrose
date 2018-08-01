@@ -132,7 +132,7 @@ data Path
     = FieldPath BindingForm Field                 -- example: x.val
     | PropertyPath BindingForm Field Property     -- example: x.shape.center
     -- NOTE: Style writer must use backticks in the block to indicate Substance variables
-    deriving (Show, Eq, Typeable, Ord)
+    deriving (Show, Eq, Typeable) -- deriving Ord results in slow comparisons
 
 -- | A statement in the Style language
 data Stmt
@@ -938,8 +938,8 @@ addWarn tr warn = tr { warnings = warnings tr ++ [warn] }
 
 -- TODO clean these up
 pathStr :: Path -> String
-pathStr (FieldPath bvar field) = intercalate "." [show bvar, field]
-pathStr (PropertyPath bvar field property) = intercalate "." [show bvar, field, property]
+pathStr (FieldPath bvar field) = intercalate "." [bvarToString bvar, field]
+pathStr (PropertyPath bvar field property) = intercalate "." [bvarToString bvar, field, property]
 
 pathStr2 :: Name -> Field -> String
 pathStr2 name field = intercalate "." [nameStr name, field]
@@ -1220,6 +1220,7 @@ data RState = RState { shapesr :: forall a . (Autofloat a) => [Shape a],
                        shapeProperties :: [(String, Field, Property)],
                        transr :: forall a . (Autofloat a) => Translation a,
                        varyingPaths :: [Path],
+                       varyingPathStrs :: [String],
                        uninitializedPaths :: [Path],
                        varyingState :: forall a . (Autofloat a) => [a],
                        paramsr :: Params,
@@ -1527,14 +1528,14 @@ evalExpr (i, n) arg trans varyMap =
 -- If not then use the expr in the translation
 lookupFieldWithVarying :: (Autofloat a) => BindingForm -> Field -> Translation a -> VaryMap a -> FieldExpr a
 lookupFieldWithVarying bvar field trans varyMap =
-    case M.lookup (mkPath [bvarToString bvar, field]) varyMap of
+    case M.lookup (pathStr $ FieldPath bvar field) varyMap of
     Just varyVal -> {-trace "field lookup was vary" $ -} FExpr varyVal
     Nothing -> {-trace "field lookup was not vary" $ -} lookupField bvar field trans
 
 lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property 
                                               -> Translation a -> VaryMap a -> TagExpr a
 lookupPropertyWithVarying bvar field property trans varyMap =
-    case M.lookup (mkPath [bvarToString bvar, field, property]) varyMap of
+    case M.lookup (pathStr $ PropertyPath bvar field property) varyMap of
     Just varyVal -> {-trace "property lookup was vary" $ -} varyVal
     Nothing -> {- trace "property lookup was not vary" $ -} lookupProperty bvar field property trans
 
@@ -1607,23 +1608,22 @@ applyCombined penaltyWeight fns =
 
 -- A hashmap from the varying path to its value, used to look up values in the translation
 -- TODO: make this a hashmap (need to convert path to string)
-type VaryMap a = M.Map Path (TagExpr a)
+type VaryMap a = M.Map String (TagExpr a)
 
-mkVaryMap :: (Autofloat a) => [Path] -> [a] -> VaryMap a
-mkVaryMap varyPaths varyVals = M.fromList $ zip varyPaths (map floatToTagExpr varyVals)
+mkVaryMap :: (Autofloat a) => [String] -> [a] -> VaryMap a
+mkVaryMap varyPathStrs varyVals = M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
 
 -- TODO: make sure the autodiff works w/ eval and genobjfn
-genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> a
-genObjfn trans objfns constrfns varyingPaths =
+genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [String] -> a -> [a] -> a
+genObjfn trans objfns constrfns varyingPathStrs =
      \penaltyWeight varyingVals ->
          -- NOTE: the optimization is very fast if the varying map is replaced by M.empty
-         let varyMap = tr "varyingMap: " $ {-M.empty in-} mkVaryMap varyingPaths varyingVals in
+         -- The optimization also speeds up if the map is constructed inline but M.empty is passed in
+         let varyMap = tr "varyingMap: " $ {-M.empty in-} mkVaryMap varyingPathStrs varyingVals in
          let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans varyMap in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
-
          -- sumMap (^2) varyingVals
-
 
 toFn :: OptType -> (String, [Expr]) -> Fn
 toFn otype (name, args) = Fn { fname = name, fargs = args, optType = otype }
@@ -1761,7 +1761,7 @@ lookupPaths paths trans = map lookupPath paths
 -- with respect to the varying values
 evalTranslation :: (Autofloat a) => RState -> ([Shape a], Translation a)
 evalTranslation s = {-# SCC evalTranslation #-}
-    let varyMap = mkVaryMap (varyingPaths s) (varyingState s) in
+    let varyMap = mkVaryMap (varyingPathStrs s) (varyingState s) in
     evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap
 
 list2 (a, b) = [a, b]
@@ -1783,7 +1783,7 @@ genOptProblemAndState trans =
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
     let (objFnsWithDefaults, constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
-    let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults varyingPaths in
+    let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults (map pathStr varyingPaths) in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 
@@ -1800,6 +1800,7 @@ genOptProblemAndState trans =
              shapeProperties = shapeProperties,
              transr = transInit, -- note: NOT transEvaled
              varyingPaths = varyingPaths,
+             varyingPathStrs = map pathStr varyingPaths,
              uninitializedPaths = uninitializedPaths,
              varyingState = initState,
              objFns = objFnsWithDefaults,
