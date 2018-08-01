@@ -219,7 +219,10 @@ var Render = (function(){
                     break
                 default: console.log("renderScene: the type of GPI\"" + type + "\" cannot be rendered!")
             }
-            console.log("Rendered GPI: ", renderedShape)
+
+	    if (DEBUG) {
+		console.log("Rendered GPI: ", renderedShape)
+	    }
 
             // register name and functions for drag commands
             // NOTE: cases where the shape is not rendered:

@@ -118,12 +118,14 @@ shadowMain = do
     divLine
 
     putStrLn "Visualizing Substance program:\n"
-    --
-    -- Starting serving penrose on the web
-    let (domain, port) = ("127.0.0.1", 9160)
-    Server.servePenrose domain port initState
 
--- TODO: port these to new Server/Optimizer (O.step)
+    -- Step without server: test time taken to converge
+    let finalState = stepsWithoutServer initState
+    pPrint finalState
+
+    -- Starting serving penrose on the web
+    -- let (domain, port) = ("127.0.0.1", 9160)
+    -- Server.servePenrose domain port initState
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
 -- (extracted via unsafePerformIO)
@@ -145,13 +147,11 @@ mainRetInit subFile styFile dsllFile = do
     let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
     return $ Just initState
 
-mainRetFinal :: NS.RState -> NS.RState
-mainRetFinal initState = error "TODO: port mainRetFinal"
-         -- let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepCount (initState, 0) in
-         -- let objsComputed = R.computeOnObjs_noGrad (R.objs finalState) (R.comps finalState) in
-         -- trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState { R.objs = objsComputed }
-         -- where stepCount (s, n) = (O.step s, n + 1)
-         --       notConverged (s, n) = R.optStatus (R.params s) /= R.EPConverged
-         --                             || n > maxSteps
-         --       maxSteps = 10 ** 10 -- Not sure how many steps it usually takes to converge
-               -- TODO: looks like some things rely on the front-end library to check, like label size
+stepsWithoutServer :: NS.RState -> NS.RState
+stepsWithoutServer initState =
+         let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepAndCount (initState, 0) in
+         trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
+         where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
+               notConverged (s, n) = NS.optStatus (NS.paramsr s) /= NS.EPConverged
+                                     || n < maxSteps
+               maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge

@@ -62,7 +62,7 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 
 step :: RState -> RState
 step s = let (state', params') = {-# SCC stepShapes #-} stepShapes (paramsr s)  (varyingState s) in
-         let !shapes' = {-# SCC evalTranslation #-} evalTranslation s in
+         let (!shapes', _) = {-# SCC evalTranslation #-} evalTranslation s in
          s { varyingState = state', shapesr =  shapes', paramsr = params' }
          -- note: trans is not updated in rstate
 

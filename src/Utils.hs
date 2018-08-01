@@ -41,11 +41,13 @@ defaultWeight :: Floating a => a
 defaultWeight = 1
 
 -- Debug flags
--- debug = True
-debug = False
+debug = True
+-- debug = False
 debugStyle = False
 debugLineSearch = False
-debugObj = True -- turn on/off output in obj fn or constraint
+-- turn on/off output in obj fn or constraint
+debugObj = False
+-- debugObj = True 
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
 subsetSizeDiff :: Floating a => a
