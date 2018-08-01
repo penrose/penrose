@@ -495,7 +495,7 @@ var Render = (function(){
             strokeWidth: 2
         })
         var sides = s.g(side1,side2)
-        return s.g(body,sides);
+        return s.g(body, sides);
 
       } // end of _renderBrace
 
@@ -582,37 +582,38 @@ var Render = (function(){
       * @param       {JSON} properties JSON object from Haskell server
       */
       function _renderRegularArc(s,properties){
-        var radius = properties.r
-        var color = properties.color
-        var x = properties.x
-        var y = properties.y
-        var style = properties.style
-        var rotation = properties.rotation
-        var angle = properties.angle > 360.0 ? 360.0
-        - properties.angle : properties.angle //Handle angle > 360
-        angle = angle < 0 ? 360 + angle : angle //Handle angle < 0
-        var arcPath = describeArc(x, y, radius, rotation,
-          angle < 0 ? (rotation - angle) : (rotation + angle),false);
+          var radius = properties.r
+          var color = properties.color
+          var x = properties.x
+          var y = properties.y
+          var style = properties.style
+          var rotation = properties.rotation
+          var angle = properties.angle > 360.0 ? 360.0
+          - properties.angle : properties.angle //Handle angle > 360
+          angle = angle < 0 ? 360 + angle : angle //Handle angle < 0
+          var arcPath = describeArc(x, y, radius, rotation,
+              angle < 0 ? (rotation - angle) : (rotation + angle),false);
           var arc = s.path(arcPath);
           arc.attr({
-            "fill-opacity": 0,
-            stroke: Utils.hex(color[0], color[1], color[2]),
-            strokeWidth: 2
+              "fill-opacity": 0,
+              stroke: Utils.hex(color[0], color[1], color[2]),
+              strokeWidth: 2
           });
 
           if (style == "wedge") {
-            var pf = describeFullArc(x, y, radius, rotation,
-              angle < 0 ? (rotation - angle) : (rotation + angle));
+              var pf = describeFullArc(x, y, radius, rotation,
+                  angle < 0 ? (rotation - angle) : (rotation + angle));
               var f = s.path(pf);
               f.attr({
-                fill: Utils.hex(0, 0, 205),
-                "fill-opacity": 0.6,
+                  // TODO: hardcoded color value here
+                  fill: Utils.hex(0, 0, 205),
+                  "fill-opacity": 0.6,
               });
               var g = s.g(arc,f)
-            } else{
+          } else{
               return arc;
-            }
           }
+      }
 
           /**
           * Renders an angle mark on the canvas

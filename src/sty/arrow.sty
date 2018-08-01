@@ -1,26 +1,27 @@
 Vector v {
-
     v.shape = Parallelogram {
     x = 10.0
     y = 10.0
     lengthX = 200.0
     lengthY = 200.0
-    angle = 130
-    rotation = 50
+    angle = 30
+    rotation = 0
    }
-
 }
 
 Scalar s {
-    v.shape = Brace {
-      --startX = 10.0
-      --startY = 10.0
+    v.shape = Arc {
+      x = 10.0
+      y = 10.0
+      angle = 130
+      style = "wedge"
+      -- isRight = "true"
+
+      -- startX = 10.0
+      -- startY = 10.0
       --endX = 80.0
       --endY = 90.0
       --r = 5
-      --angle = 130
-      --isRight = "true"
-      --style = "curved"
-      --rotation = 0
+      rotation = 0.0
    }
 }
