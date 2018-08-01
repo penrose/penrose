@@ -16,7 +16,7 @@ import Data.Function (on)
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe, catMaybes, isNothing, maybeToList)
-import Data.List (nubBy, nub, intercalate, partition)
+import Data.List (nubBy, nub, intercalate, partition, foldl')
 import Data.Tuple (swap)
 import Text.Megaparsec
 import Text.Megaparsec.Char
@@ -422,7 +422,7 @@ addErrs errs selEnv = selEnv { sErrors = sErrors selEnv ++ errs }
 -- TODO: don't merge the varmaps! just put g as the varMap (otherwise there will be extraneous bindings for the relational statements)
 -- Judgment 1. G || g |-> ...
 mergeEnv :: VarEnv -> SelEnv -> VarEnv
-mergeEnv varEnv selEnv = foldl mergeMapping varEnv (M.assocs $ sTypeVarMap selEnv)
+mergeEnv varEnv selEnv = foldl' mergeMapping varEnv (M.assocs $ sTypeVarMap selEnv)
          where mergeMapping :: VarEnv -> (BindingForm, StyT) -> VarEnv
                -- G || (x : |T) |-> G
                mergeMapping varEnv (BSubVar var, styType) = varEnv
@@ -513,7 +513,7 @@ checkRelPatterns varEnv rels = concat $ map (checkRelPattern varEnv) rels
 
 -- Judgment 6. G; g |- [|S_o] ~> g'
 checkDeclPatterns :: VarEnv -> SelEnv -> [DeclPattern] -> SelEnv
-checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv decls
+checkDeclPatterns varEnv selEnv decls = foldl' (checkDeclPattern varEnv) selEnv decls
     -- Judgment 3. G; g |- |S_o ok ~> g'
     where checkDeclPattern :: VarEnv -> SelEnv -> DeclPattern -> SelEnv
           checkDeclPattern varEnv selEnv stmt@(PatternDecl' styType bVar) =
@@ -807,7 +807,7 @@ matchDecl varEnv subProg initSubsts decl =
 -- Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
 -- Folds over [|S_o]
 matchDecls :: VarEnv -> C.SubProg -> [DeclPattern] -> [Subst] -> [Subst]
-matchDecls varEnv subProg decls initSubsts = foldl (matchDecl varEnv subProg) initSubsts decls
+matchDecls varEnv subProg decls initSubsts = foldl' (matchDecl varEnv subProg) initSubsts decls
 
 ----- Overall judgments
 
@@ -921,7 +921,7 @@ nameStr (Gen s) = s
 -- toCtorType s         = error ("Unrecognized shape: " ++ s)
 
 mkPropertyDict :: (Autofloat a) => [PropertyDecl] -> PropertyDict a
-mkPropertyDict propertyDecls = foldl addPropertyDecl M.empty propertyDecls
+mkPropertyDict propertyDecls = foldl' addPropertyDecl M.empty propertyDecls
     where addPropertyDecl :: PropertyDict a -> PropertyDecl -> PropertyDict a
           -- TODO: check that the same property is not declared twice
           addPropertyDecl dict (PropertyDecl property expr) = M.insert property (OptEval expr) dict
@@ -938,8 +938,12 @@ addWarn tr warn = tr { warnings = warnings tr ++ [warn] }
 
 -- TODO clean these up
 pathStr :: Path -> String
-pathStr (FieldPath bvar field) = intercalate "." [bvarToString bvar, field]
-pathStr (PropertyPath bvar field property) = intercalate "." [bvarToString bvar, field, property]
+pathStr (FieldPath bvar field) = bvarToString bvar ++ ('.' : field)
+pathStr (PropertyPath bvar field property) = bvarToString bvar ++ ('.' : field) ++ ('.' : property)
+
+pathStr2' bvar field = bvarToString bvar ++ ('.' : field)
+
+pathStr3' bvar field property = bvarToString bvar ++ ('.' : field) ++ ('.' : property)
 
 pathStr2 :: Name -> Field -> String
 pathStr2 name field = intercalate "." [nameStr name, field]
@@ -992,6 +996,8 @@ deleteProperty trans name field property =
                     trn'        = M.insert name fieldDict' trn in
                 trans { trMap = trn' }
 
+-- TODO: revert warnings for style compiler
+
 -- Implements two rules for fields:
 -- x.n = Ctor { n_i = e_i }, rule Line-Set-Ctor, for GPI
 -- x.n = e, rule Line-Set-Field-Expr
@@ -1003,18 +1009,18 @@ addField override trans name field texpr =
                     Nothing    -> M.empty -- Initialize the field dict if it hasn't been initialized
                     Just fdict -> fdict in
      -- Warn using override if x doesn't exist
-    let warn1 = if fieldDict == M.empty && override
+    let warn1 = Just "" {-if fieldDict == M.empty && override
                 then Just $ "Warning: Sub obj '" ++ nameStr name ++ "' has no fields, but override was declared"
-                else Nothing in
+                else Nothing-} in
      -- Warn using override if x.n already exists
-    let warn2 = if (field `M.member` fieldDict) && (not override)
+    let warn2 = Just "" {-if (field `M.member` fieldDict) && (not override)
                 then Just $ "Warning: Sub obj '" ++ nameStr name ++ "''s field '" ++ field
                             ++ "' is overridden, but was not declared an override"
-                else Nothing in
+                else Nothing-} in
      -- Warn using override if x.n doesn't exist
-    let warn3 = if (field `M.notMember` fieldDict) && override
+    let warn3 = Just "" {-if (field `M.notMember` fieldDict) && override
                 then Just $ "Warning: field '" ++ field ++ "' declared override, but has not been initialized"
-                else Nothing in
+                else Nothing-} in
     -- TODO: check existing FExpr is overridden by an FExpr and likewise for Ctor of same type (typechecking)
     let fieldExpr = case texpr of
                     OptEval (Ctor ctorName propertyDecls) -> -- rule Line-Set-Ctor
@@ -1043,13 +1049,13 @@ addProperty override trans name field property texpr =
                           addWarn trans err
         Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists and whether it matches the override setting
-           let warn = if (property `M.notMember` properties) && override
+           let warn = Just "" in {- if (property `M.notMember` properties) && override
                       then Just $ "Warning: property '" ++ property ++ "' does not exist in path '"
                            ++ pathStr3 name field property ++ "' but override was set"
                       else if property `M.member` properties && (not override)
                       then Just $ "Warning: property '" ++ property ++ "' already exists in path '"
                            ++ pathStr3 name field property ++ "' but override was not set"
-                      else Nothing in
+                      else Nothing in -}
            let properties' = M.insert property texpr properties
                fieldDict'  = M.insert field (FGPI ctor properties') fieldDict
                trn'        = M.insert name fieldDict' trn in
@@ -1429,7 +1435,7 @@ evalGPI_withUpdate :: (Autofloat a) =>
 evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap =
         -- Fold over the properties, evaluating each path, which will update the translation each time,
         -- and accumulate the new property-value list (WITH varying looked up)
-        let (propertyList', trans') = foldl (evalProperty (i, n) bvar field varyMap) ([], trans) 
+        let (propertyList', trans') = foldl' (evalProperty (i, n) bvar field varyMap) ([], trans) 
                                                                             (M.toList properties) in
         let properties' = M.fromList propertyList' in
         {-trace ("Start eval GPI: " ++ show properties ++ " " ++ "\n\tctor: " ++ "\n\tfield: " ++ show field)-}
@@ -1483,7 +1489,7 @@ evalExpr (i, n) arg trans varyMap =
                   FieldPath bvar field ->
                      -- Lookup field expr, evaluate it if necessary, cache the evaluated value in the trans,
                      -- return the evaluated value and the updated trans
-                     let fexpr = lookupFieldWithVarying bvar field trans varyMap in
+                     let fexpr = {- lookupField -} lookupFieldWithVarying bvar field trans varyMap in
                      case fexpr of
                      FExpr (Done v) -> (Val v, trans)
                      FExpr (OptEval e) ->
@@ -1502,7 +1508,7 @@ evalExpr (i, n) arg trans varyMap =
                          (GPI (ctor', shapeExprsToVals (bvarToString bvar, field) propertiesVal), trans')
 
                   PropertyPath bvar field property ->
-                      let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
+                      let texpr = {- lookupProperty -} lookupPropertyWithVarying bvar field property trans varyMap in
                       case texpr of
                       Done v -> (Val v, trans)
                       OptEval e ->
@@ -1527,17 +1533,19 @@ evalExpr (i, n) arg trans varyMap =
 -- (The value in the translation is stale and should be ignored)
 -- If not then use the expr in the translation
 lookupFieldWithVarying :: (Autofloat a) => BindingForm -> Field -> Translation a -> VaryMap a -> FieldExpr a
-lookupFieldWithVarying bvar field trans varyMap =
-    case M.lookup (pathStr $ FieldPath bvar field) varyMap of
+lookupFieldWithVarying bvar@(BSubVar (VarConst name)) field trans varyMap =
+    case M.lookup (name ++ ('.' : field)) varyMap of
     Just varyVal -> {-trace "field lookup was vary" $ -} FExpr varyVal
     Nothing -> {-trace "field lookup was not vary" $ -} lookupField bvar field trans
+lookupFieldWithVarying _ _ _ _ = error "TODO"
 
 lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property 
                                               -> Translation a -> VaryMap a -> TagExpr a
-lookupPropertyWithVarying bvar field property trans varyMap =
-    case M.lookup (pathStr $ PropertyPath bvar field property) varyMap of
-    Just varyVal -> {-trace "property lookup was vary" $ -} varyVal
+lookupPropertyWithVarying bvar@(BSubVar (VarConst name)) field property trans varyMap =
+    case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} {-"A.shape.x"-} (name ++ ('.' : field) ++ ('.' : property)) varyMap of
+    Just varyVal -> {-trace "property lookup was vary" $ -} {- traceShowId -} varyVal
     Nothing -> {- trace "property lookup was not vary" $ -} lookupProperty bvar field property trans
+lookupPropertyWithVarying _ _ _ _ _ = error "TODO"
 
 -- TODO move lookups to utils
 lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldExpr a
@@ -1567,7 +1575,7 @@ lookupProperty bvar field property trans =
 evalExprs :: (Autofloat a) => (Int, Int) -> [Expr] -> Translation a -> VaryMap a 
                               -> ([ArgVal a], Translation a)
 evalExprs limit args trans varyMap =
-    foldl (evalExprF limit varyMap) ([], trans) args
+    foldl' (evalExprF limit varyMap) ([], trans) args
     where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a 
                        -> ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
           evalExprF limit varyMap (argvals, trans) arg =
@@ -1583,7 +1591,7 @@ evalFnArgs limit varyMap (fnDones, trans) fn =
            (fnDones ++ [fn'], trans') -- TODO factor out this pattern
 
 evalFns :: (Autofloat a) => (Int, Int) -> [Fn] -> Translation a -> VaryMap a -> ([FnDone a], Translation a)
-evalFns limit fns trans varyMap = foldl (evalFnArgs limit varyMap) ([], trans) fns
+evalFns limit fns trans varyMap = foldl' (evalFnArgs limit varyMap) ([], trans) fns
 
 -- from R.
 sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
@@ -1614,13 +1622,15 @@ mkVaryMap :: (Autofloat a) => [String] -> [a] -> VaryMap a
 mkVaryMap varyPathStrs varyVals = M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
 
 -- TODO: make sure the autodiff works w/ eval and genobjfn
-genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [String] -> a -> [a] -> a
-genObjfn trans objfns constrfns varyingPathStrs =
+genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> [String] -> a -> [a] -> a
+genObjfn trans objfns constrfns varyingPaths varyingPathStrs =
      \penaltyWeight varyingVals ->
          -- NOTE: the optimization is very fast if the varying map is replaced by M.empty
          -- The optimization also speeds up if the map is constructed inline but M.empty is passed in
+         -- let varyingTagExprs = map floatToTagExpr varyingVals in
+         -- let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
          let varyMap = tr "varyingMap: " $ {-M.empty in-} mkVaryMap varyingPathStrs varyingVals in
-         let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans varyMap in
+         let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
          -- sumMap (^2) varyingVals
@@ -1657,7 +1667,7 @@ getShapeName :: String -> Field -> String
 getShapeName subName field = subName ++ "." ++ field
 
 shapes2vals :: (Autofloat a) => [Shape a] -> [Path] -> [Value a]
-shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
+shapes2vals shapes paths = reverse $ foldl' (lookupPath shapes) [] paths
     where
         lookupPath shapes acc (PropertyPath s field property) =
             let subID = bvarToString s
@@ -1666,7 +1676,7 @@ shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
         lookupPath _ acc (FieldPath _ _) = acc
 
 shapes2floats :: (Autofloat a) => [Shape a] -> [Path] -> [a]
-shapes2floats shapes varyingPaths = reverse $ foldl (lookupPathFloat shapes) [] varyingPaths
+shapes2floats shapes varyingPaths = reverse $ foldl' (lookupPathFloat shapes) [] varyingPaths
     where
         lookupPathFloat shapes acc (PropertyPath s field property) =
             let subID = bvarToString s
@@ -1703,13 +1713,23 @@ evalShape limit varyMap (shapes, trans) shapePath =
 -- recursively evaluate every shape property in the translation
 evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> ([Shape a], Translation a)
 evalShapes limit shapeNames trans varyMap = 
-           let (shapes, trans') = foldl (evalShape limit varyMap) ([], trans) shapeNames in
+           let (shapes, trans') = foldl' (evalShape limit varyMap) ([], trans) shapeNames in
            (reverse shapes, trans')
+
+-- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape 
+-- with respect to the varying values
+evalTranslation :: (Autofloat a) => RState -> ([Shape a], Translation a)
+evalTranslation s = {-# SCC evalTranslation #-}
+    -- Note: if varyMap is empty then you need to put the varying vals in the translation -- use transwithvarying
+    -- let varyingTagExprs = map floatToTagExpr (varyingState s) in
+    -- let transWithVarying = insertPaths (varyingPaths s) varyingTagExprs (transr s) in -- E = evaluated
+    let varyMap = mkVaryMap (varyingPathStrs s) (varyingState s) in
+    evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) {- transWithVarying -} (transr s) varyMap
 
 initShapes :: (Autofloat a) =>
     Translation a -> [(String, Field)] -> StdGen -> (Translation a, StdGen)
 initShapes trans shapePaths gen =
-    foldl initShape (trans, gen) shapePaths
+    foldl' initShape (trans, gen) shapePaths
 
 initShape :: (Autofloat a) => (Translation a, StdGen) -> (String, Field) -> (Translation a, StdGen)
 initShape (trans, g) (n, field) =
@@ -1757,13 +1777,6 @@ lookupPaths paths trans = map lookupPath paths
             Done (FloatV n) -> n
             _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
 
--- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape 
--- with respect to the varying values
-evalTranslation :: (Autofloat a) => RState -> ([Shape a], Translation a)
-evalTranslation s = {-# SCC evalTranslation #-}
-    let varyMap = mkVaryMap (varyingPathStrs s) (varyingState s) in
-    evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap
-
 list2 (a, b) = [a, b]
 
 --- Main function: what the Style compiler generates
@@ -1783,7 +1796,7 @@ genOptProblemAndState trans =
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
     let (objFnsWithDefaults, constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
-    let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults (map pathStr varyingPaths) in
+    let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults varyingPaths (map pathStr varyingPaths) in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 
