@@ -28,7 +28,7 @@ import Env
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 
---------------------------------------- DSLL AST ---------------------------------------
+--------------------------------------- DSLL AST -------------------------------
 
 type DsllProg = [DsllStmt]
 
@@ -38,6 +38,7 @@ data DsllStmt = CdStmt Cd
              | OdStmt Od
              | PdStmt Pd
              | SnStmt Sn -- Statement notation
+             | EnStmt En -- Expression
              deriving (Show, Eq, Typeable)
 
 -- | tconstructor
@@ -47,7 +48,8 @@ data Cd = Cd { nameCd   :: String,
           deriving (Eq, Typeable)
 
 instance Show Cd where
-    show (Cd nameCd inputCd outputCd) = "(TCon, " ++ nString ++ ", ValOfType " ++ iString ++ ", Output " ++ oString ++")"
+    show (Cd nameCd inputCd outputCd) = "(TCon, " ++ nString ++ ", ValOfType "
+          ++ iString ++ ", Output " ++ oString ++")"
         where nString = show nameCd
               iString = show inputCd
               oString = show outputCd
@@ -61,7 +63,8 @@ data Vd = Vd { nameVd  :: String,
 
 instance Show Vd where
     show (Vd nameVd varsVd typesVd toVd) =
-     "(VCon, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString ++ ", outputT " ++ dString ++ ")"
+     "(VCon, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString
+     ++ ", outputT " ++ dString ++ ")"
         where aString = show nameVd
               bString = show varsVd
               cString = show typesVd
@@ -105,7 +108,8 @@ data Pd1 = Pd1 { namePd1  :: String,
 
 instance Show Pd1 where
     show (Pd1 namePd1 varsPd1 typesPd1 toPd1) =
-     "(Pred, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString ++ ", outputT " ++ dString ++ ")"
+     "(Pred, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString
+      ++ ", outputT " ++ dString ++ ")"
         where aString = show namePd1
               bString = show varsPd1
               cString = show typesPd1
@@ -118,32 +122,51 @@ data Pd2 = Pd2 { namePd2 :: String,
 
 instance Show Pd2 where
     show (Pd2 namePd2 propsPd2 toPd2) =
-     "(Pred, " ++ aString ++ ", forProps " ++ bString ++ ", outputT " ++ cString ++ ")"
+     "(Pred, " ++ aString ++ ", forProps " ++ bString ++ ", outputT "
+     ++ cString ++ ")"
         where aString = show namePd2
               bString = show propsPd2
               cString = show toPd2
 
 -- | Statement notation (for syntactic sugar)
-data Sn = Sn {fromSn :: String,
-              toSn :: String}
-          deriving(Eq, Typeable,Show)
+data Sn = Sn {fromSn :: String, toSn :: String}
+          deriving(Eq, Typeable)
+instance Show Sn where
+  show (Sn fromSn toSn) = "(StmtNotation: from: " ++ a ++ " to: " ++ b
+        where a = show fromSn
+              b = show toSn
 
+-- | Expression notation (for syntactic sugar)
+data En = En {fromEn :: String, toEn :: String, associativityEn :: String,
+              precedenceEn :: Integer}
+          deriving(Eq, Typeable)
+instance Show En where
+    show (En fromEn toEn associativityEn precedenceEn) =
+       "(ExprNotation: from: " ++ a ++ " to: " ++ b ++ " associativity: "
+        ++ c ++ " precedence: " ++ d
+         where a = show fromEn
+               b = show toEn
+               c = show associativityEn
+               d = show precedenceEn
+----------------------------------------- DSLL Parser --------------------------
 
------------------------------------------ DSLL Parser -------------------------------------
+-- | 'DSLLParser' is the top-level parser function. The parser contains a list
+-- of functions that parse small parts of the language. When parsing a source
+-- program, these functions are invoked in a top-down manner.
 
--- | 'DSLLParser' is the top-level parser function. The parser contains a list of functions
---    that parse small parts of the language. When parsing a source program, these functions are invoked
---    in a top-down manner.
+-- Parse all the statemnts between the spaces to the end of the input file
 dsllParser :: Parser [DsllStmt]
-dsllParser = between scn eof dsllProgParser -- Parse all the statemnts between the spaces to the end of the input file
+dsllParser = between scn eof dsllProgParser
 
--- |'dsllProg' parses the entire actual DSLL program which is a collection of constructors followed by a collection of
---   operations followed by a collection of predicates
+-- |'dsllProg' parses the entire actual DSLL program which is a collection of
+-- constructors followed by a collection of operations followed by a collection
+-- of predicates
 dsllProgParser :: Parser [DsllStmt]
 dsllProgParser = dsllStmt `sepEndBy` newline'
 
 dsllStmt :: Parser DsllStmt
-dsllStmt = try snParser <|> try cdParser <|> try vdParser <|> try odParser <|> try subtypeDeclParser <|> try pdParser
+dsllStmt = try snParser <|> try enParser <|> try cdParser <|> try vdParser <|> try odParser
+           <|> try subtypeDeclParser <|> try pdParser
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser DsllStmt
@@ -169,7 +192,8 @@ subtypeDeclParser = do
   subtype <- tParser
   rword "<:"
   supertype <- tParser
-  return $ SubtypeDeclStmt $ SubtypeDecl { subType = subtype, superType = supertype}
+  return $ SubtypeDeclStmt $
+                         SubtypeDecl { subType = subtype, superType = supertype}
 
 -- | parser for the (y,k) list
 ykParser :: Parser ([Y], [K])
@@ -195,7 +219,8 @@ vdParser = do
   (b', t') <- option ([], []) $ parens   xtParser
   colon
   t'' <- tParser
-  return (VdStmt Vd { nameVd = name, varsVd = zip y' k', typesVd = zip b' t', toVd = t'' })
+  return (VdStmt Vd { nameVd = name, varsVd = zip y' k',
+                      typesVd = zip b' t', toVd = t'' })
 
 -- | operation parser
 odParser :: Parser DsllStmt
@@ -206,7 +231,8 @@ odParser = do
   (b', t') <- option ([], []) $ parens   xtParser
   colon
   t'' <- tParser
-  return (OdStmt Od { nameOd = name, varsOd = zip y' k', typesOd = zip b' t', toOd = t'' })
+  return (OdStmt Od { nameOd = name, varsOd = zip y' k', typesOd = zip b' t',
+                      toOd = t'' })
 
 -- | predicate parser
 pdParser, pd1, pd2 :: Parser DsllStmt
@@ -218,28 +244,58 @@ pd1 = do
   (b', t') <- option ([], []) $ parens   xtParser
   colon
   p' <- propParser
-  return (PdStmt (Pd1Const (Pd1 { namePd1 = name, varsPd1 = zip y' k', typesPd1 = zip b' t', toPd1 = p' })))
+  return (PdStmt (Pd1Const (Pd1 { namePd1 = name, varsPd1 = zip y' k',
+          typesPd1 = zip b' t', toPd1 = p' })))
 pd2 = do
   rword "predicate"
   name <- identifier
   (b', prop') <- parens xPropParser
   colon
   p' <- propParser
-  return (PdStmt (Pd2Const (Pd2 { namePd2 = name, propsPd2 = zip b' prop', toPd2 = p' })))
+  return (PdStmt (Pd2Const (Pd2 { namePd2 = name, propsPd2 = zip b' prop',
+                                  toPd2 = p' })))
 
 snParser :: Parser DsllStmt
 snParser = do
     rword "StmtNotation"
-    toSn' <- quote $ many anyChar
+    quote
+    toSn' <- manyTill anyChar quote
     arrow
-    fromSn' <- quote $ many anyChar
+    quote
+    fromSn' <- manyTill anyChar quote
     return (SnStmt (Sn {fromSn = fromSn', toSn = toSn'}))
 
---------------------------------------- DSLL Semantic Checker ---------------------------
+enParser :: Parser DsllStmt
+enParser = do
+  rword "ExprNotation"
+  quote
+  toEn' <- manyTill anyChar quote
+  arrow
+  quote
+  fromEn' <- manyTill anyChar quote
+  (associativityEn',precedenceEn') <- option ("non", 100) enSettingsParser
+  return (EnStmt (En {fromEn = fromEn', toEn = toEn',
+   associativityEn = associativityEn', precedenceEn = precedenceEn' }))
+
+-- | Parse the settings of the expression notations, the precedence of them
+--   and their associativity. This parsing is optional
+enSettingsParser :: Parser (String,Integer)
+enSettingsParser = do
+  lparen
+  rword "at level"
+  precedenceEn' <- integer
+  comma
+  associativityEn' <- identifier
+  rword "associativity"
+  rparen
+  return (associativityEn',precedenceEn')
+
+
+--------------------------------------- DSLL Semantic Checker ------------------
 
 -- | 'check' is the top-level semantic checking function. It takes a DSLL
--- program as the input, checks the validity of the program acoording to the typechecking rules, and outputs
--- a collection of information.
+-- program as the input, checks the validity of the program acoording to the
+-- typechecking rules, and outputs a collection of information.
 
 check :: DsllProg -> VarEnv
 check p = let env = foldl checkDsllStmt initE p
@@ -313,6 +369,12 @@ checkDsllStmt e (PdStmt (Pd2Const v)) = let pd = Pred2 $ Prd2 { namepred2 = name
                                             ef = addName (namePd2 v) e
                                          in ef { predicates = M.insert (namePd2 v) pd $ predicates ef }
 
+checkDsllStmt e (SnStmt s) =  e -- TODO Implement typecheckihng for statement
+                                -- notations if needed
+
+checkDsllStmt e (EnStmt s) =  e -- TODO: Implement typecheckihng for expression
+                                -- notations if needed
+
 computeSubTypes :: VarEnv -> VarEnv
 computeSubTypes e = let env1 = e { subTypes = transitiveClosure (subTypes e)}
                     in if isClosureNotCyclic (subTypes env1) then
@@ -338,7 +400,6 @@ parseDsll dsllFile dsllIn =
               return env1
 
 -- --------------------------------------- Test Driver -------------------------------------
-
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc Dsll.hs; ./Dsll <dsll-file> <output-file>
 

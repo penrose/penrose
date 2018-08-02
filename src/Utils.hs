@@ -132,9 +132,12 @@ rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
-shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
+shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot",
+           "HollowDot", "Cross"]
 labelrws = ["Label", "AutoLabel", "NoLabel"]
-dsll = ["tconstructor","vconstructor","operator","ExprNotation","StmtNotation","forvars","fortypes","predicate", "Prop", "type", "<:", "->", "<->"]
+dsll = ["tconstructor","vconstructor","operator","ExprNotation","StmtNotation",
+        "forvars","fortypes","predicate", "Prop", "type", "<:", "->", "<->",
+        "at level", "associativity"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
 upperId, lowerId, identifier :: Parser String
@@ -145,6 +148,8 @@ upperId = (lexeme . try) (p >>= checkId)
 lowerId = (lexeme . try) (p >>= checkId)
   where p = (:) <$> lowerChar <*> many validChar
 validChar = alphaNumChar <|> char '_'
+
+
 
 transPattern :: Parser String
 transPattern = (lexeme . try) (p >>= checkPattern)
@@ -192,6 +197,7 @@ backticks = between (symbol "`") (symbol "`")
 
 lparen, rparen, lbrac, rbrac, colon, arrow, comma :: Parser ()
 aps = void (symbol "'")
+quote = void (symbol "\"")
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
 lparen = void (symbol "(")
@@ -217,9 +223,6 @@ parens = between (symbol "(") (symbol ")")
 
 brackets :: Parser a -> Parser a
 brackets = between (symbol "[") (symbol "]")
-
-quote :: Parser a -> Parser a
-quote = between (symbol "\"") (symbol "\"")
 
 -- | 'integer' parses an integer.
 integer :: Parser Integer
