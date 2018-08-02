@@ -3,6 +3,7 @@
 
 {-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE BangPatterns #-}
 -- Mostly for autodiff
 
 module NewStyle where
@@ -13,6 +14,7 @@ import ShapeDef
 import NewFunctions
 import Control.Monad (void, foldM)
 import Data.Function (on)
+import Data.Map.Internal.Debug
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe, catMaybes, isNothing, maybeToList)
@@ -1423,8 +1425,8 @@ evalBinop op v1 v2 =
         (Val _, GPI _) -> error "binop cannot operate on GPI"
         (GPI _, GPI _) -> error "binop cannot operate on GPIs"
 
-evalProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> VaryMap a 
-             -> ([(Property, TagExpr a)], Translation a) -> (Property, TagExpr a) 
+evalProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> VaryMap a
+             -> ([(Property, TagExpr a)], Translation a) -> (Property, TagExpr a)
              -> ([(Property, TagExpr a)], Translation a)
 evalProperty (i, n) bvar field varyMap (propertiesList, trans) (property, expr) =
         let path = EPath $ PropertyPath bvar field property in -- factor out?
@@ -1432,6 +1434,7 @@ evalProperty (i, n) bvar field varyMap (propertiesList, trans) (property, expr) 
         -- This check might be redundant with the later GPI conversion in evalExpr, TODO factor out
         case res of
         Val val -> {-trace ("Evaled property " ++ show path)-} ((property, Done val) : propertiesList, trans')
+        -- Val val -> {-trace ("Evaled property " ++ show path)-} ((property, Done $ FloatV 0.1) : propertiesList, trans')
         GPI _ -> error "GPI property should not evaluate to GPI argument" -- TODO: true later? references?
 
 evalGPI_withUpdate :: (Autofloat a) =>
@@ -1439,9 +1442,10 @@ evalGPI_withUpdate :: (Autofloat a) =>
 evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap =
         -- Fold over the properties, evaluating each path, which will update the translation each time,
         -- and accumulate the new property-value list (WITH varying looked up)
-        let (propertyList', trans') = foldl' (evalProperty (i, n) bvar field varyMap) ([], trans) 
+        let (propertyList', trans') = foldl' (evalProperty (i, n) bvar field varyMap) ([], trans)
                                                                             (M.toList properties) in
         let properties' = M.fromList propertyList' in
+        -- let properties' = propertyList' `seq` M.fromList [("x", Done $ FloatV 0.1), ("y", Done $ FloatV 0.1), ("yb", Done $ FloatV 0.1), ("ya", Done $ FloatV 0.1), ("z", Done $ FloatV 0.1)] in
         {-trace ("Start eval GPI: " ++ show properties ++ " " ++ "\n\tctor: " ++ "\n\tfield: " ++ show field)-}
               ((ctor, properties'), trans')
 
@@ -1513,6 +1517,7 @@ evalExpr (i, n) arg trans varyMap =
 
                   PropertyPath bvar field property ->
                       let texpr = {- lookupProperty -} lookupPropertyWithVarying bvar field property trans varyMap in
+                      -- Done $ FloatV 0.0
                       case texpr of
                       Done v -> (Val v, trans)
                       OptEval e ->
@@ -1543,12 +1548,17 @@ lookupFieldWithVarying bvar@(BSubVar (VarConst name)) field trans varyMap =
     Nothing -> {-trace "field lookup was not vary" $ -} lookupField bvar field trans
 lookupFieldWithVarying _ _ _ _ = error "TODO"
 
-lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property 
+lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property
                                               -> Translation a -> VaryMap a -> TagExpr a
 lookupPropertyWithVarying bvar@(BSubVar (VarConst name)) field property trans varyMap =
-    case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} {-"A.shape.x"-} (name ++ ('.' : field) ++ ('.' : property)) varyMap of
-    Just varyVal -> {-trace "property lookup was vary" $ -} {- traceShowId -} 
-                     varyVal `seq` Done (FloatV 0.51) 
+    case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} "A.shape.x" varyMap of
+    -- trace (show varyMap) $ case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} {-"A.shape.x"-} (name ++ ('.' : field) ++ ('.' : property)) varyMap of
+    -- case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} {-"A.shape.x"-} ("A" ++ ('.' : "shape") ++ ('.' : "x")) varyMap of
+    -- case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} "A.shape.z" varyMap of
+    -- case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} "A.shape.z" $ M.fromList [("A.shape.z",Done (FloatV 99.97999999999999)),("A.shape.stroke",Done (FloatV 99.97999999999999)),("A.shape.x",Done (FloatV 99.97999999999999)),("A.shape.y",Done (FloatV 99.97999999999999)),("B.shape.r",Done (FloatV 99.97999999999999)),("B.shape.stroke",Done (FloatV 99.97999999999999)),("B.shape.x",Done (FloatV 99.97999999999999)),("B.shape.y",Done (FloatV 99.97999999999999)),("C.shape.r",Done (FloatV 99.97999999999999)),("C.shape.stroke",Done (FloatV 99.97999999999999)),("C.shape.x",Done (FloatV 99.97999999999999)),("C.shape.y",Done (FloatV 99.97999999999999)),("D.shape.r",Done (FloatV 99.97999999999999)),("D.shape.stroke",Done (FloatV 99.97999999999999)),("D.shape.x",Done (FloatV 99.97999999999999)),("D.shape.y",Done (FloatV 99.97999999999999)),("E.shape.r",Done (FloatV 99.97999999999999)),("E.shape.stroke",Done (FloatV 99.97999999999999)),("E.shape.x",Done (FloatV 99.97999999999999)),("E.shape.y",Done (FloatV 99.97999999999999)),("F.shape.r",Done (FloatV 99.97999999999999)),("F.shape.stroke",Done (FloatV 99.97999999999999)),("F.shape.x",Done (FloatV 99.97999999999999)),("F.shape.y",Done (FloatV 99.97999999999999)),("G.shape.r",Done (FloatV 99.97999999999999)),("G.shape.stroke",Done (FloatV 99.97999999999999)),("G.shape.x",Done (FloatV 99.97999999999999)),("G.shape.y",Done (FloatV 99.97999999999999))] of
+    Just varyVal -> {-trace "property lookup was vary" $ -} {- traceShowId -}
+                     -- varyVal `seq` Done (FloatV 0.51)
+                     varyVal
                     {- trace ("varyMap length: " ++ (show $ length $ M.toList varyMap)) -}
                     -- varyVal
                     -- Done (FloatV (-0.51))
@@ -1581,17 +1591,17 @@ lookupProperty bvar field property trans =
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)
-evalExprs :: (Autofloat a) => (Int, Int) -> [Expr] -> Translation a -> VaryMap a 
+evalExprs :: (Autofloat a) => (Int, Int) -> [Expr] -> Translation a -> VaryMap a
                               -> ([ArgVal a], Translation a)
 evalExprs limit args trans varyMap =
     foldl' (evalExprF limit varyMap) ([], trans) args
-    where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a 
+    where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a
                        -> ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
           evalExprF limit varyMap (argvals, trans) arg =
                        let (argVal, trans') = evalExpr limit arg trans varyMap in
                        (argvals ++ [argVal], trans') -- So returned exprs are in same order
 
-evalFnArgs :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([FnDone a], Translation a) 
+evalFnArgs :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([FnDone a], Translation a)
                                     -> Fn -> ([FnDone a], Translation a)
 evalFnArgs limit varyMap (fnDones, trans) fn =
            let args = fargs fn in
@@ -1628,7 +1638,14 @@ applyCombined penaltyWeight fns =
 type VaryMap a = M.Map String (TagExpr a)
 
 mkVaryMap :: (Autofloat a) => [String] -> [a] -> VaryMap a
-mkVaryMap varyPathStrs varyVals = M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
+mkVaryMap varyPathStrs varyVals =
+     -- M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
+     trace "hello" (M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals))
+     -- traceShowId (M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)) `seq`     M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
+
+     -- trace "hello" (M.fromList [("A.shape.r",Done (FloatV 99.97999999999999)),("A.shape.stroke",Done (FloatV 99.97999999999999)),("A.shape.x",Done (FloatV 99.97999999999999)),("A.shape.y",Done (FloatV 99.97999999999999)),("B.shape.r",Done (FloatV 99.97999999999999)),("B.shape.stroke",Done (FloatV 99.97999999999999)),("B.shape.x",Done (FloatV 99.97999999999999)),("B.shape.y",Done (FloatV 99.97999999999999)),("C.shape.r",Done (FloatV 99.97999999999999)),("C.shape.stroke",Done (FloatV 99.97999999999999)),("C.shape.x",Done (FloatV 99.97999999999999)),("C.shape.y",Done (FloatV 99.97999999999999)),("D.shape.r",Done (FloatV 99.97999999999999)),("D.shape.stroke",Done (FloatV 99.97999999999999)),("D.shape.x",Done (FloatV 99.97999999999999)),("D.shape.y",Done (FloatV 99.97999999999999)),("E.shape.r",Done (FloatV 99.97999999999999)),("E.shape.stroke",Done (FloatV 99.97999999999999)),("E.shape.x",Done (FloatV 99.97999999999999)),("E.shape.y",Done (FloatV 99.97999999999999)),("F.shape.r",Done (FloatV 99.97999999999999)),("F.shape.stroke",Done (FloatV 99.97999999999999)),("F.shape.x",Done (FloatV 99.97999999999999)),("F.shape.y",Done (FloatV 99.97999999999999)),("G.shape.r",Done (FloatV 99.97999999999999)),("G.shape.stroke",Done (FloatV 99.97999999999999)),("G.shape.x",Done (FloatV 99.97999999999999)),("G.shape.y",Done (FloatV 99.97999999999999))])
+    -- M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
+
 
 -- TODO: make sure the autodiff works w/ eval and genobjfn
 genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> [String] -> a -> [a] -> a
@@ -1639,7 +1656,9 @@ genObjfn trans objfns constrfns varyingPaths varyingPathStrs =
          -- let varyingTagExprs = map floatToTagExpr varyingVals in
          -- let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
          let varyMap = tr "varyingMap: " $ {-M.empty in-} mkVaryMap varyingPathStrs varyingVals in
-         let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
+         -- let varyMap = M.fromList [("A.shape.r",Done (FloatV 99.97999999999999)),("A.shape.stroke",Done (FloatV 99.97999999999999)),("A.shape.x",Done (FloatV 99.97999999999999)),("A.shape.y",Done (FloatV 99.97999999999999)),("B.shape.r",Done (FloatV 99.97999999999999)),("B.shape.stroke",Done (FloatV 99.97999999999999)),("B.shape.x",Done (FloatV 99.97999999999999)),("B.shape.y",Done (FloatV 99.97999999999999)),("C.shape.r",Done (FloatV 99.97999999999999)),("C.shape.stroke",Done (FloatV 99.97999999999999)),("C.shape.x",Done (FloatV 99.97999999999999)),("C.shape.y",Done (FloatV 99.97999999999999)),("D.shape.r",Done (FloatV 99.97999999999999)),("D.shape.stroke",Done (FloatV 99.97999999999999)),("D.shape.x",Done (FloatV 99.97999999999999)),("D.shape.y",Done (FloatV 99.97999999999999)),("E.shape.r",Done (FloatV 99.97999999999999)),("E.shape.stroke",Done (FloatV 99.97999999999999)),("E.shape.x",Done (FloatV 99.97999999999999)),("E.shape.y",Done (FloatV 99.97999999999999)),("F.shape.r",Done (FloatV 99.97999999999999)),("F.shape.stroke",Done (FloatV 99.97999999999999)),("F.shape.x",Done (FloatV 99.97999999999999)),("F.shape.y",Done (FloatV 99.97999999999999)),("G.shape.r",Done (FloatV 99.97999999999999)),("G.shape.stroke",Done (FloatV 99.97999999999999)),("G.shape.x",Done (FloatV 99.97999999999999)),("G.shape.y",Done (FloatV 99.97999999999999))] in
+         let (fnsE, transE) = varyMap `seq` evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
+         -- let (fnsE, transE) = trace (showTreeWith (\k x -> show (k,x)) True True varyMap) evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
          -- sumMap (^2) varyingVals
@@ -1721,14 +1740,14 @@ evalShape limit varyMap (shapes, trans) shapePath =
 
 -- recursively evaluate every shape property in the translation
 evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> ([Shape a], Translation a)
-evalShapes limit shapeNames trans varyMap = 
+evalShapes limit shapeNames trans varyMap =
            let (shapes, trans') = foldl' (evalShape limit varyMap) ([], trans) shapeNames in
            (reverse shapes, trans')
 
--- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape 
+-- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
 -- with respect to the varying values
 evalTranslation :: (Autofloat a) => RState -> ([Shape a], Translation a)
-evalTranslation s = {-# SCC evalTranslation #-}
+evalTranslation s =
     -- Note: if varyMap is empty then you need to put the varying vals in the translation -- use transwithvarying
     -- let varyingTagExprs = map floatToTagExpr (varyingState s) in
     -- let transWithVarying = insertPaths (varyingPaths s) varyingTagExprs (transr s) in -- E = evaluated
@@ -1811,7 +1830,7 @@ genOptProblemAndState trans =
 
     -- Evaluate all expressions once to get the initial shapes
     let initVaryingMap = M.empty in -- No optimization has happened. Sampled varying vals are in transInit
-    let (initialGPIs, transEvaled) = evalShapes evalIterRange (map (mkPath . list2) $ shapeNames) 
+    let (initialGPIs, transEvaled) = evalShapes evalIterRange (map (mkPath . list2) $ shapeNames)
                                                 transInit initVaryingMap in
     let initState = lookupPaths varyingPaths transEvaled in
 
