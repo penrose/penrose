@@ -218,6 +218,9 @@ parens = between (symbol "(") (symbol ")")
 brackets :: Parser a -> Parser a
 brackets = between (symbol "[") (symbol "]")
 
+quote :: Parser a -> Parser a
+quote = between (symbol "\"") (symbol "\"")
+
 -- | 'integer' parses an integer.
 integer :: Parser Integer
 unsignedInteger       = lexeme L.decimal

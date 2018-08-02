@@ -17,6 +17,8 @@ predicate Not(p : Prop) : Prop
 
 -- Syntactic Sugar Definition
 
+StmtNotation "a" -> “b”
+
 /*
 ExprNotation “add($v1$,$v2$)” -> “$v1$ + $v2$” --(at level 2, right associativity)
 ExprNotation “scale($s$, $v1$)” -> “$s$ * $v1$” --(at level 1, right associativity)
@@ -25,7 +27,7 @@ ExprNotation “neg($v1$)” -> “-$v1$”
 ExprNotation “innerProduct($v1$ , $v2$)” -> “<$v1$, $v2$>”
 ExprNotation “apply($f$,$v$)” -> “$f$($v$)”
 
-StmtNotation “LinearMap $f$ ; From($f$,$U$,$V$)” -> “LinearMap $f$ : $U$ → $V$”
+StmtNotation "LinearMap $f ; From($f,$U,$V)" -> “LinearMap $f : $U → $V”
 StmtNotation “In( [.] , `V`)” -> “[...] ∈ `V`”
 StmtNotation “Scalar `x` ; `x` := `c`” -> “Scalar `x` := `c`”
 */

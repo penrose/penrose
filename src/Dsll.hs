@@ -2,7 +2,7 @@
 --    DSLL language
 --    Author: Dor Ma'ayan, May 2018
 
-{-# OPTIONS_HADDOCK prune #-} 
+{-# OPTIONS_HADDOCK prune #-}
 module Dsll where
 --module Main (main) where -- for debugging purposes
 
@@ -37,6 +37,7 @@ data DsllStmt = CdStmt Cd
              | SubtypeDeclStmt SubtypeDecl
              | OdStmt Od
              | PdStmt Pd
+             | SnStmt Sn -- Statement notation
              deriving (Show, Eq, Typeable)
 
 -- | tconstructor
@@ -122,6 +123,12 @@ instance Show Pd2 where
               bString = show propsPd2
               cString = show toPd2
 
+-- | Statement notation (for syntactic sugar)
+data Sn = Sn {fromSn :: String,
+              toSn :: String}
+          deriving(Eq, Typeable,Show)
+
+
 ----------------------------------------- DSLL Parser -------------------------------------
 
 -- | 'DSLLParser' is the top-level parser function. The parser contains a list of functions
@@ -136,7 +143,7 @@ dsllProgParser :: Parser [DsllStmt]
 dsllProgParser = dsllStmt `sepEndBy` newline'
 
 dsllStmt :: Parser DsllStmt
-dsllStmt = try cdParser <|> try vdParser <|> try odParser <|> try subtypeDeclParser <|> try pdParser
+dsllStmt = try snParser <|> try cdParser <|> try vdParser <|> try odParser <|> try subtypeDeclParser <|> try pdParser
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser DsllStmt
@@ -219,6 +226,14 @@ pd2 = do
   colon
   p' <- propParser
   return (PdStmt (Pd2Const (Pd2 { namePd2 = name, propsPd2 = zip b' prop', toPd2 = p' })))
+
+snParser :: Parser DsllStmt
+snParser = do
+    rword "StmtNotation"
+    toSn' <- quote $ many anyChar
+    arrow
+    fromSn' <- quote $ many anyChar
+    return (SnStmt (Sn {fromSn = fromSn', toSn = toSn'}))
 
 --------------------------------------- DSLL Semantic Checker ---------------------------
 
