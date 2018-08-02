@@ -36,6 +36,10 @@ import Data.Typeable
 import qualified Data.HashMap.Strict as H
 import Env
 
+-- For debugging
+import Numeric.AD
+import Numeric.AD.Internal.Reverse
+
 --------------------------------------------------------------------------------
 -- Style AST
 
@@ -1543,7 +1547,8 @@ lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property
                                               -> Translation a -> VaryMap a -> TagExpr a
 lookupPropertyWithVarying bvar@(BSubVar (VarConst name)) field property trans varyMap =
     case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} {-"A.shape.x"-} (name ++ ('.' : field) ++ ('.' : property)) varyMap of
-    Just varyVal -> {-trace "property lookup was vary" $ -} {- traceShowId -} varyVal
+    Just varyVal -> {-trace "property lookup was vary" $ -} {- traceShowId -} varyVal `seq` Done (FloatV 0.51) {-varyVal -}
+                    -- (Done $ FloatV $ Numeric.AD.Internal.Reverse.Zero) -- :: (Autofloat a => TagExpr a) --Reverse 12.1 (-1.2)
     Nothing -> {- trace "property lookup was not vary" $ -} lookupProperty bvar field property trans
 lookupPropertyWithVarying _ _ _ _ _ = error "TODO"
 
