@@ -1547,7 +1547,10 @@ lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property
                                               -> Translation a -> VaryMap a -> TagExpr a
 lookupPropertyWithVarying bvar@(BSubVar (VarConst name)) field property trans varyMap =
     case M.lookup {-"hfkdjsfhhksjffhksdfhkljhfh"-} {-"A.shape.x"-} (name ++ ('.' : field) ++ ('.' : property)) varyMap of
-    Just varyVal -> {-trace "property lookup was vary" $ -} {- traceShowId -} varyVal `seq` Done (FloatV 0.51) {-varyVal -}
+    Just varyVal -> {-trace "property lookup was vary" $ -} {- traceShowId -} {- varyVal `seq` Done (FloatV 0.51)-} 
+                    {- trace ("varyMap length: " ++ (show $ length $ M.toList varyMap)) -}
+                    varyVal
+                    -- Done (FloatV (-0.51))
                     -- (Done $ FloatV $ Numeric.AD.Internal.Reverse.Zero) -- :: (Autofloat a => TagExpr a) --Reverse 12.1 (-1.2)
     Nothing -> {- trace "property lookup was not vary" $ -} lookupProperty bvar field property trans
 lookupPropertyWithVarying _ _ _ _ _ = error "TODO"

@@ -225,9 +225,11 @@ anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
-        -- ("x", (FloatT, x_sampler)),
-        -- ("y", (FloatT, y_sampler)),
-        ("location", (PtT, pointSampler)),
+        -- ("x", (FloatT, constValue $ FloatV 100)),
+        -- ("y", (FloatT, constValue $ FloatV 100)),
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        -- ("location", (PtT, pointSampler)),
         ("name", (StrT, constValue $ StrV "defaultAnchorPoint"))
     ])
 
@@ -235,13 +237,13 @@ circType = ("Circle", M.fromList
     [
         -- ("x", (FloatT, constValue $ FloatV 100)),
         -- ("y", (FloatT, constValue $ FloatV 100)),
-        ("x", (FloatT, x_sampler)),
-        ("y", (FloatT, y_sampler)),
-        ("r", (FloatT, width_sampler)),
-        ("stroke-width", (FloatT, stroke_sampler)),
-        ("style", (StrT, sampleDiscrete [StrV "filled"])),
-        ("stroke-style", (StrT, stroke_style_sampler)),
-        ("color", (ColorT, sampleColor)),
+        ("x", (FloatT, constValue $ FloatV 100 {-x_sampler-})),
+        ("y", (FloatT, constValue $ FloatV 100 {-y_sampler-})),
+        ("r", (FloatT, constValue $ FloatV 100 {-width_sampler-})),
+        ("stroke", (FloatT, constValue $ FloatV 100 {-stroke_sampler-})),
+        -- ("style", (StrT, sampleDiscrete [StrV "filled"])),
+        -- ("stroke-style", (StrT, stroke_style_sampler)),
+        -- ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
 
@@ -555,8 +557,11 @@ foldlPropertyMappings f accum (_, propDict) =  M.foldlWithKey f accum propDict
 --------------------------------------------------------------------------------
 -- Error Msgs
 
+noShapeError :: String -> String -> a
 noShapeError functionName shapeType =
     error (functionName ++ ": Shape \"" ++ shapeType ++ "\" does not exist")
+
+noPropError :: String -> String -> String -> a
 noPropError functionName prop shapeType =
     error (functionName ++ ": Property \"" ++ prop ++
         "\" does not exist in shape \"" ++ shapeType ++ "\"")

@@ -1,0 +1,21 @@
+Set x {
+  -- AnchorPoint seems to always be fast
+  -- Circle is slow with centerX and x.shape.x
+  -- So it's not about evaluating the GPI?
+  -- What's the difference between Circle and AP?
+  -- Commenting out some circle properties...
+
+  x.shape = Circle {
+   -- x = 10.0
+   -- y = 5.0
+   -- r = 1.0
+  }
+  -- x.centerFn = encourage centerX(x.shape.x)
+  x.centerFn = encourage center(x.shape)
+}
+
+-- Set x; Set y
+-- where IsSubset(x, y) {
+--     y.containFn = ensure contains(y.shape, x.shape)
+-- }
+

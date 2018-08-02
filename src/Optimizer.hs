@@ -66,7 +66,6 @@ step s = let (state', params') = {-# SCC stepShapes #-} stepShapes (paramsr s)  
          s { varyingState = state', shapesr =  shapes', paramsr = params' }
          -- note: trans is not updated in rstate
 
-
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
 -- implements exterior point algo as described on page 6 here:
@@ -147,27 +146,39 @@ stepWithObjective params state = (steppedState, gradEval)
 appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
 appGrad f l = grad f l
 
+replace pos newVal list = take pos list ++ newVal : drop (pos+1) list
+
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 timeAndGrad :: (Autofloat b) => ObjFn1 a -> [b] -> (b, [b])
 timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
-            where gradF :: GradFn a
-                  gradF = appGrad f
-                  gradEval = gradF (tr "STATE: " state)
+            where -- gradF :: GradFn a
+                  -- gradF = appGrad f
+                  -- gradEval = gradF (tr "STATE: " state)
+
+                  gradEval = replicate (length state) 10 -- WRONG gradient
+                           -- let len = length state in
+                           -- let h = 0.001 in
+                           -- let fx = f state in
+                           -- -- time is O(|state|^2)
+                           -- let dfx i = ((f $ replace i ((state !! i) + h) state) - fx) / h in
+                           -- let dfxs = map dfx [0..(len-1)] in
+                           -- dfxs
+
                   -- Use line search to find a good timestep.
                   -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
                   descentDir = negL gradEval
                   -- timestep :: Floating c => c
                   timestep =
-                      let resT = awLineSearch f duf descentDir state in
-                      -- let resT = r2f 0.001 in
+                      -- let resT = awLineSearch f duf descentDir state in
+                      let resT = r2f 0.001 in
                              if isNaN resT then tr "returned timestep is NaN" nanSub else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
-                  duf :: (Autofloat a) => [a] -> [a] -> a
-                  duf u x = gradF x `dotL` u
+                  -- duf :: (Autofloat a) => [a] -> [a] -> a
+                  -- duf u x = gradF x `dotL` u
 
 -- Implements Armijo-Wolfe line search as specified in Keenan's notes, converges on nonconvex fns as well
 -- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods", page TODO

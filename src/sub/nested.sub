@@ -6,16 +6,16 @@ Set E
 Set F
 Set G
 
-Set H
-Set I
+-- Set H
+-- Set I
 
-IsSubset(B, A)
+-- IsSubset(B, A)
 -- IsSubset(C, B)
-IsSubset(D, C)
+-- IsSubset(D, C)
 -- IsSubset(E, D)
-IsSubset(F, E)
+-- IsSubset(F, E)
 -- IsSubset(G, F)
-IsSubset(I, H)
+-- IsSubset(I, H)
 
 -- Non-disjoint GPIs
 -- IsSubset(B, A)
@@ -25,4 +25,4 @@ IsSubset(I, H)
 -- IsSubset(F, E)
 -- IsSubset(G, F)
 
-AutoLabel All
+-- AutoLabel All

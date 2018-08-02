@@ -696,7 +696,7 @@ looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 
 
 defaultConstrsOf :: ShapeTypeStr -> [FuncName]
 defaultConstrsOf "Text"  = []
-defaultConstrsOf _ = [ "minSize", "maxSize" ]
+defaultConstrsOf _ = [] -- [ "minSize", "maxSize" ] -- TODO revert [ "minSize", "maxSize" ]
 defaultObjFnsOf :: ShapeTypeStr -> [FuncName]
 defaultObjFnsOf _ = [] -- NOTE: not used yet
 

@@ -1,4 +1,4 @@
-AutoLabel All
+-- AutoLabel All
 
 Set A
 Set U
@@ -17,7 +17,3 @@ IsSubset(B, R2)
 
 Map f
 From(f, A, B)
-
-/*
-
-*/
