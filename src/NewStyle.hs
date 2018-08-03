@@ -1851,6 +1851,7 @@ genOptProblemAndState trans =
              varyingPathStrs = map pathStr varyingPaths,
              uninitializedPaths = uninitializedPaths,
              varyingState = initState,
+             -- varyingState = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] ,
              objFns = objFnsWithDefaults,
              constrFns = constrsWithDefaults,
              paramsr = Params { weight = initWeight,

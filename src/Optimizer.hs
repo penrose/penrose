@@ -5,6 +5,7 @@ module Optimizer where
 
 import Utils
 import NewStyle
+import Debug.Trace
 import Numeric.AD
 
 ------ Opt types, util functions, and params
@@ -61,8 +62,10 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 -- Main optimization functions
 
 step :: RState -> RState
-step s = let (state', params') = {-# SCC stepShapes #-} stepShapes (paramsr s)  (varyingState s) in
-         s { varyingState = state', paramsr = params' }
+step s =
+    -- let (state', params') = stepShapes (paramsr s)  (varyingState s) in
+    let energy = traceShowId $ (overallObjFn $ paramsr s) (weight $ paramsr s)  (varyingState s) in
+         s { varyingState = energy `seq` varyingState s}
          -- let (!shapes', _) = {-# SCC evalTranslation #-} evalTranslation s in
          -- s { varyingState = state', shapesr = shapes', paramsr = params' }
          -- note: trans is not updated in rstate
