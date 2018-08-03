@@ -62,8 +62,9 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 
 step :: RState -> RState
 step s = let (state', params') = {-# SCC stepShapes #-} stepShapes (paramsr s)  (varyingState s) in
-         let (!shapes', _) = {-# SCC evalTranslation #-} evalTranslation s in
-         s { varyingState = state', shapesr =  shapes', paramsr = params' }
+         s { varyingState = state', paramsr = params' }
+         -- let (!shapes', _) = {-# SCC evalTranslation #-} evalTranslation s in
+         -- s { varyingState = state', shapesr = shapes', paramsr = params' }
          -- note: trans is not updated in rstate
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
@@ -84,8 +85,9 @@ stepShapes params vstate = -- varying state
          -- note convergence checks are only on the varying part of the state
          UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
            -- let unconstrConverged = optStopCond gradEval in
+           -- let unconstrConverged = False in
            let unconstrConverged = epStopCond vstate vstate'
-                                   (objFnApplied vstate) (objFnApplied vstate') in
+                                   (objFnApplied vstate) 10000.0 in -- TODO: REVERT
            if unconstrConverged then
               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
               (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
@@ -94,18 +96,19 @@ stepShapes params vstate = -- varying state
          -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
          -- and whether to check WRT the updated state or not
-         UnconstrainedConverged lastEPstate ->
-           let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
-                                   (objFnApplied lastEPstate) (objFnApplied vstate) in
-           if epConverged then
-              let status' = EPConverged in -- no more EP state
-              (vstate, params { optStatus = status'}) -- do not update UO state
-           -- update EP state: to be the converged state from the most recent UO
-           else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
-                (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
-
-         -- done; don't update obj state or params; user can now manipulate
-         EPConverged -> (vstate, params)
+         -- UnconstrainedConverged lastEPstate ->
+         --   let epConverged = False in
+         --   -- let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
+         --   --                         (objFnApplied lastEPstate) (objFnApplied vstate) in
+         --   if epConverged then
+         --      let status' = EPConverged in -- no more EP state
+         --      (vstate, params { optStatus = status'}) -- do not update UO state
+         --   -- update EP state: to be the converged state from the most recent UO
+         --   else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
+         --        (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
+         --
+         -- -- done; don't update obj state or params; user can now manipulate
+         -- EPConverged -> (vstate, params)
 
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
@@ -124,22 +127,22 @@ stepT dt x dfdx = x - dt * dfdx
 -- Also partially applies the objective function.
 stepWithObjective :: (Autofloat a) => Params -> [a] -> ([a], [a])
 stepWithObjective params state = (steppedState, gradEval)
-    where (t', gradEval) = timeAndGrad objFnApplied state
+    where (t', gradEval) = timeAndGrad state
           -- get timestep via line search, and evaluated gradient at the state
           -- step each parameter of the state with the time and gradient
           -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
           steppedState =
               let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
-                         tro ("||x' - x||: " ++ (show $ norm (state -. state'))
-                                ++ "\n|f(x') - f(x)|: " ++
-                               (show $ abs (objFnApplied state - objFnApplied state'))
-                                ++ "\ngradEval: \n" ++ (show gradEval)
-                                ++ "\nstate: \n" ++ (show state') )
+                         -- tro ("||x' - x||: " ++ (show $ norm (state -. state'))
+                         --        ++ "\n|f(x') - f(x)|: " ++
+                         --       (show $ abs (objFnApplied state - objFnApplied state'))
+                         --        ++ "\ngradEval: \n" ++ (show gradEval)
+                         --        ++ "\nstate: \n" ++ (show state') )
                          state'
 
-          objFnApplied :: ObjFn1 b
-          objFnApplied = (overallObjFn params) cWeight
-          cWeight = realToFrac $ weight params
+          -- objFnApplied :: ObjFn1 b
+          -- objFnApplied = (overallObjFn params) cWeight
+          -- cWeight = realToFrac $ weight params
           -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
 
 -- a version of grad with a clearer type signature
@@ -151,8 +154,8 @@ replace pos newVal list = take pos list ++ newVal : drop (pos+1) list
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: (Autofloat b) => ObjFn1 a -> [b] -> (b, [b])
-timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
+timeAndGrad :: (Autofloat b) => [b] -> (b, [b])
+timeAndGrad state = tr "timeAndGrad: " (timestep, gradEval)
             where -- gradF :: GradFn a
                   -- gradF = appGrad f
                   -- gradEval = gradF (tr "STATE: " state)

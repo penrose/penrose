@@ -18,7 +18,7 @@ import Data.Map.Internal.Debug
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe, catMaybes, isNothing, maybeToList)
-import Data.List (nubBy, nub, intercalate, partition, foldl')
+import Data.List (nubBy, nub, intercalate, partition, foldl)
 import Data.Tuple (swap)
 import Text.Megaparsec
 import Text.Megaparsec.Char
@@ -428,7 +428,7 @@ addErrs errs selEnv = selEnv { sErrors = sErrors selEnv ++ errs }
 -- TODO: don't merge the varmaps! just put g as the varMap (otherwise there will be extraneous bindings for the relational statements)
 -- Judgment 1. G || g |-> ...
 mergeEnv :: VarEnv -> SelEnv -> VarEnv
-mergeEnv varEnv selEnv = foldl' mergeMapping varEnv (M.assocs $ sTypeVarMap selEnv)
+mergeEnv varEnv selEnv = foldl mergeMapping varEnv (M.assocs $ sTypeVarMap selEnv)
          where mergeMapping :: VarEnv -> (BindingForm, StyT) -> VarEnv
                -- G || (x : |T) |-> G
                mergeMapping varEnv (BSubVar var, styType) = varEnv
@@ -519,7 +519,7 @@ checkRelPatterns varEnv rels = concat $ map (checkRelPattern varEnv) rels
 
 -- Judgment 6. G; g |- [|S_o] ~> g'
 checkDeclPatterns :: VarEnv -> SelEnv -> [DeclPattern] -> SelEnv
-checkDeclPatterns varEnv selEnv decls = foldl' (checkDeclPattern varEnv) selEnv decls
+checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv decls
     -- Judgment 3. G; g |- |S_o ok ~> g'
     where checkDeclPattern :: VarEnv -> SelEnv -> DeclPattern -> SelEnv
           checkDeclPattern varEnv selEnv stmt@(PatternDecl' styType bVar) =
@@ -813,7 +813,7 @@ matchDecl varEnv subProg initSubsts decl =
 -- Judgment 18. G; [theta] |- [S] <| [|S_o] ~> [theta']
 -- Folds over [|S_o]
 matchDecls :: VarEnv -> C.SubProg -> [DeclPattern] -> [Subst] -> [Subst]
-matchDecls varEnv subProg decls initSubsts = foldl' (matchDecl varEnv subProg) initSubsts decls
+matchDecls varEnv subProg decls initSubsts = foldl (matchDecl varEnv subProg) initSubsts decls
 
 ----- Overall judgments
 
@@ -927,7 +927,7 @@ nameStr (Gen s) = s
 -- toCtorType s         = error ("Unrecognized shape: " ++ s)
 
 mkPropertyDict :: (Autofloat a) => [PropertyDecl] -> PropertyDict a
-mkPropertyDict propertyDecls = foldl' addPropertyDecl M.empty propertyDecls
+mkPropertyDict propertyDecls = foldl addPropertyDecl M.empty propertyDecls
     where addPropertyDecl :: PropertyDict a -> PropertyDecl -> PropertyDict a
           -- TODO: check that the same property is not declared twice
           addPropertyDecl dict (PropertyDecl property expr) = M.insert property (OptEval expr) dict
@@ -1442,7 +1442,7 @@ evalGPI_withUpdate :: (Autofloat a) =>
 evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap =
         -- Fold over the properties, evaluating each path, which will update the translation each time,
         -- and accumulate the new property-value list (WITH varying looked up)
-        let (propertyList', trans') = foldl' (evalProperty (i, n) bvar field varyMap) ([], trans)
+        let (propertyList', trans') = foldl (evalProperty (i, n) bvar field varyMap) ([], trans)
                                                                             (M.toList properties) in
         let properties' = M.fromList propertyList' in
         -- let properties' = propertyList' `seq` M.fromList [("x", Done $ FloatV 0.1), ("y", Done $ FloatV 0.1), ("yb", Done $ FloatV 0.1), ("ya", Done $ FloatV 0.1), ("z", Done $ FloatV 0.1)] in
@@ -1594,7 +1594,7 @@ lookupProperty bvar field property trans =
 evalExprs :: (Autofloat a) => (Int, Int) -> [Expr] -> Translation a -> VaryMap a
                               -> ([ArgVal a], Translation a)
 evalExprs limit args trans varyMap =
-    foldl' (evalExprF limit varyMap) ([], trans) args
+    foldl (evalExprF limit varyMap) ([], trans) args
     where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a
                        -> ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
           evalExprF limit varyMap (argvals, trans) arg =
@@ -1610,7 +1610,7 @@ evalFnArgs limit varyMap (fnDones, trans) fn =
            (fnDones ++ [fn'], trans') -- TODO factor out this pattern
 
 evalFns :: (Autofloat a) => (Int, Int) -> [Fn] -> Translation a -> VaryMap a -> ([FnDone a], Translation a)
-evalFns limit fns trans varyMap = foldl' (evalFnArgs limit varyMap) ([], trans) fns
+evalFns limit fns trans varyMap = foldl (evalFnArgs limit varyMap) ([], trans) fns
 
 -- from R.
 sumMap :: Floating b => (a -> b) -> [a] -> b -- common pattern in objective functions
@@ -1655,12 +1655,14 @@ genObjfn trans objfns constrfns varyingPaths varyingPathStrs =
          -- The optimization also speeds up if the map is constructed inline but M.empty is passed in
          -- let varyingTagExprs = map floatToTagExpr varyingVals in
          -- let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
-         let varyMap = tr "varyingMap: " $ {-M.empty in-} mkVaryMap varyingPathStrs varyingVals in
+         let varyMap = traceShowId  {-M.empty in-} (mkVaryMap varyingPathStrs varyingVals)   in
          -- let varyMap = M.fromList [("A.shape.r",Done (FloatV 99.97999999999999)),("A.shape.stroke",Done (FloatV 99.97999999999999)),("A.shape.x",Done (FloatV 99.97999999999999)),("A.shape.y",Done (FloatV 99.97999999999999)),("B.shape.r",Done (FloatV 99.97999999999999)),("B.shape.stroke",Done (FloatV 99.97999999999999)),("B.shape.x",Done (FloatV 99.97999999999999)),("B.shape.y",Done (FloatV 99.97999999999999)),("C.shape.r",Done (FloatV 99.97999999999999)),("C.shape.stroke",Done (FloatV 99.97999999999999)),("C.shape.x",Done (FloatV 99.97999999999999)),("C.shape.y",Done (FloatV 99.97999999999999)),("D.shape.r",Done (FloatV 99.97999999999999)),("D.shape.stroke",Done (FloatV 99.97999999999999)),("D.shape.x",Done (FloatV 99.97999999999999)),("D.shape.y",Done (FloatV 99.97999999999999)),("E.shape.r",Done (FloatV 99.97999999999999)),("E.shape.stroke",Done (FloatV 99.97999999999999)),("E.shape.x",Done (FloatV 99.97999999999999)),("E.shape.y",Done (FloatV 99.97999999999999)),("F.shape.r",Done (FloatV 99.97999999999999)),("F.shape.stroke",Done (FloatV 99.97999999999999)),("F.shape.x",Done (FloatV 99.97999999999999)),("F.shape.y",Done (FloatV 99.97999999999999)),("G.shape.r",Done (FloatV 99.97999999999999)),("G.shape.stroke",Done (FloatV 99.97999999999999)),("G.shape.x",Done (FloatV 99.97999999999999)),("G.shape.y",Done (FloatV 99.97999999999999))] in
-         let (fnsE, transE) = varyMap `seq` evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
-         -- let (fnsE, transE) = trace (showTreeWith (\k x -> show (k,x)) True True varyMap) evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
-         let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
-         tr "Completed applying optimization function" overallEnergy
+         -- let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
+         -- -- let (fnsE, transE) = trace (showTreeWith (\k x -> show (k,x)) True True varyMap) evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
+         -- let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
+         -- tr "Completed applying optimization function" 0.0
+         varyMap `seq` 0.0
+          -- 0.0
          -- sumMap (^2) varyingVals
 
 toFn :: OptType -> (String, [Expr]) -> Fn
@@ -1695,7 +1697,7 @@ getShapeName :: String -> Field -> String
 getShapeName subName field = subName ++ "." ++ field
 
 shapes2vals :: (Autofloat a) => [Shape a] -> [Path] -> [Value a]
-shapes2vals shapes paths = reverse $ foldl' (lookupPath shapes) [] paths
+shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
     where
         lookupPath shapes acc (PropertyPath s field property) =
             let subID = bvarToString s
@@ -1704,7 +1706,7 @@ shapes2vals shapes paths = reverse $ foldl' (lookupPath shapes) [] paths
         lookupPath _ acc (FieldPath _ _) = acc
 
 shapes2floats :: (Autofloat a) => [Shape a] -> [Path] -> [a]
-shapes2floats shapes varyingPaths = reverse $ foldl' (lookupPathFloat shapes) [] varyingPaths
+shapes2floats shapes varyingPaths = reverse $ foldl (lookupPathFloat shapes) [] varyingPaths
     where
         lookupPathFloat shapes acc (PropertyPath s field property) =
             let subID = bvarToString s
@@ -1741,7 +1743,7 @@ evalShape limit varyMap (shapes, trans) shapePath =
 -- recursively evaluate every shape property in the translation
 evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> ([Shape a], Translation a)
 evalShapes limit shapeNames trans varyMap =
-           let (shapes, trans') = foldl' (evalShape limit varyMap) ([], trans) shapeNames in
+           let (shapes, trans') = foldl (evalShape limit varyMap) ([], trans) shapeNames in
            (reverse shapes, trans')
 
 -- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
@@ -1751,13 +1753,14 @@ evalTranslation s =
     -- Note: if varyMap is empty then you need to put the varying vals in the translation -- use transwithvarying
     -- let varyingTagExprs = map floatToTagExpr (varyingState s) in
     -- let transWithVarying = insertPaths (varyingPaths s) varyingTagExprs (transr s) in -- E = evaluated
-    let varyMap = mkVaryMap (varyingPathStrs s) (varyingState s) in
+    -- let varyMap = mkVaryMap (varyingPathStrs s) (varyingState s) in
+    let varyMap = M.empty in
     evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) {- transWithVarying -} (transr s) varyMap
 
 initShapes :: (Autofloat a) =>
     Translation a -> [(String, Field)] -> StdGen -> (Translation a, StdGen)
 initShapes trans shapePaths gen =
-    foldl' initShape (trans, gen) shapePaths
+    foldl initShape (trans, gen) shapePaths
 
 initShape :: (Autofloat a) => (Translation a, StdGen) -> (String, Field) -> (Translation a, StdGen)
 initShape (trans, g) (n, field) =
