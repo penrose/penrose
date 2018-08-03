@@ -5,9 +5,9 @@
 -- Author: Dor Ma'ayan, August 2018
 
 {-# OPTIONS_HADDOCK prune #-}
-module Substance where
---module Main (main) where -- for debugging purposes
--- TODO split this up + do selective export
+--module Sugarer where
+module Main (main) where -- for debugging purposes
+-- TODO
 
 import           Control.Arrow              ((>>>))
 import           Control.Monad              (void)
@@ -24,9 +24,29 @@ import           System.Random
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Expr
+import           Replace
 import           Utils
--- import Text.PrettyPrint
---import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
+
 import qualified Data.Map.Strict            as M
 import qualified Dsll                       as D
 import qualified Text.Megaparsec.Char.Lexer as L
+
+
+-- TODO : Preform basic type analysis to hansle overloading of statements
+
+-- | Extract replacement rules from the statement notation rules.
+extractReplacementRules :: VarEnv -> [Replace]
+extractReplacementRules varEnv = []
+
+-- --------------------------------------- Test Driver -------------------------------------
+-- | For testing: first uncomment the module definition to make this module the
+-- Main module. Usage: ghc Sugarer.hs; ./Sugarer <dsll-file> <substance-file>
+
+main :: IO ()
+main = do
+  [dsllFile, substanceFile] <- getArgs
+  dsllIn <- readFile dsllFile
+  substanceIn <- readFile substanceFile
+  dsllEnv <- D.parseDsll dsllFile dsllIn
+
+  return ()

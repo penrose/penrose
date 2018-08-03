@@ -304,8 +304,8 @@ check p = let env = foldl checkDsllStmt initE p
              else error $ "Dsll type checking failed with the following problems: \n" ++ errors env
              where initE = VarEnv { typeConstructors = M.empty, valConstructors = M.empty,
                                     operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
-                                    varMap = M.empty, subTypes = [], typeCtorNames = [], declaredNames = [],
-                                    errors = ""}
+                                    varMap = M.empty, subTypes = [], stmtNotations = [], exprNotations = [],
+                                     typeCtorNames = [], declaredNames = [], errors = ""}
 
 checkDsllStmt :: VarEnv -> DsllStmt -> VarEnv
 checkDsllStmt e (CdStmt c) = let kinds  = seconds (inputCd c)
@@ -369,11 +369,17 @@ checkDsllStmt e (PdStmt (Pd2Const v)) = let pd = Pred2 $ Prd2 { namepred2 = name
                                             ef = addName (namePd2 v) e
                                          in ef { predicates = M.insert (namePd2 v) pd $ predicates ef }
 
-checkDsllStmt e (SnStmt s) =  e -- TODO Implement typecheckihng for statement
-                                -- notations if needed
+-- TODO Implement typecheckihng for statement notations                                                                         -- notations if needed
+checkDsllStmt e (SnStmt s) = let newSnr = StmtNotationRule {fromSnr = fromSn s,
+                                                            toSnr   = toSn s}
+                             in e {stmtNotations = newSnr : stmtNotations e}
 
-checkDsllStmt e (EnStmt s) =  e -- TODO: Implement typecheckihng for expression
-                                -- notations if needed
+-- TODO: Implement typecheckihng for expression notations
+checkDsllStmt e (EnStmt s) = let newEnr = ExprNotationRule {fromEnr = fromEn s,
+                     toEnr = toEn s,
+                     associativityEnr = associativityEn s,
+                     precedenceEnr = precedenceEn s  }
+                             in e {exprNotations = newEnr : exprNotations e}
 
 computeSubTypes :: VarEnv -> VarEnv
 computeSubTypes e = let env1 = e { subTypes = transitiveClosure (subTypes e)}

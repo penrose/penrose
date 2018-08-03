@@ -1,2 +1,4 @@
 Vector A
-Scalar origin
+Vector B
+Vector C
+C := A + B

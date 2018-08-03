@@ -258,6 +258,16 @@ data Predicate2 = Prd2 { namepred2 :: String,
                                ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 
+data StmtNotationRule = StmtNotationRule {fromSnr :: String,
+                                          toSnr   :: String}
+                  deriving (Show, Eq, Typeable)
+
+data ExprNotationRule = ExprNotationRule {fromEnr          :: String,
+                                          toEnr            :: String,
+                                          associativityEnr :: String,
+                                          precedenceEnr    :: Integer}
+                  deriving (Show, Eq, Typeable)
+
 data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        valConstructors  :: M.Map String ValConstructor,
                        operators        :: M.Map String Env.Operator,
@@ -267,6 +277,8 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        subTypes         :: [(T,T)],
                        typeCtorNames    :: [String],  -- a global list which contains all the names of types in that env
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
+                       stmtNotations    :: [StmtNotationRule], -- all the statement notaton in the dsll
+                       exprNotations    :: [ExprNotationRule], -- all the expression notaton in the dsll
                        errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
               deriving (Show, Eq, Typeable)
 
