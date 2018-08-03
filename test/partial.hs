@@ -3,8 +3,7 @@
 -- | Possibilities:
 -- vstate poly?
 -- vstate update record
--- vstate show
--- fn app with vstate
+
 -- now we know that the performance *is* tied to the hellos
 -- if vstate is [Float], the extra hellos go away
 
@@ -12,21 +11,26 @@ import Debug.Trace
 
 -- Not sure how to get rid of the record
 data State = State {
-    vstate :: forall a . (Floating a) => [a]
+    -- vstate :: Float
+    vstate :: forall a . (Fractional a) => a
 }
 
-instance Show State where
-    show p = "this is a state\n" ++ show (vstate p)
-
-fn :: Float -> Float
-fn a = trace "hello" 0.0
-
 step :: State -> State
-step s = traceShowId (s { vstate = fn 100.0 `seq` vstate s })
+step s =
+    -- s { vstate = trace "hello" (vstate s) `seq` vstate s } -- many hellos
+
+    -- let vs = trace "hello" (vstate s) in
+    -- s { vstate = vs `seq` vstate s } -- one hello
+    --
+    s { vstate = vstate s `seq` vstate s } -- many hellos
+
+    -- let vs = vstate s in
+    -- s { vstate = vs `seq` vstate s } -- one hello
 
 main :: IO ()
 main = do
-    let initState = State { vstate = [100.0] }
-    let res = step $ step $ step $ step initState
-    print res
-    print "done!"
+    let initState = State { vstate = 0 }
+    let res = iterate step initState
+        -- step $ step $ step initState
+    print $ vstate $ last $ take 10000 res
+    print "done"
