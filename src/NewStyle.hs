@@ -1209,6 +1209,9 @@ data Params = Params { weight :: forall a . (Autofloat a) => a,
                        overallObjFn :: forall a . (Autofloat a) => a -> [a] -> a
                      }
 
+instance Show Params where
+         show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
+
 -- instance Eq Params where
          -- p == q = (weight p) == (weight q) && (optStatus p) == (optStatus q)
 
@@ -1223,20 +1226,20 @@ data RState = RState { shapesr :: forall a . (Autofloat a) => [Shape a],
                        objFns :: [Fn],
                        constrFns :: [Fn],
                        rng :: StdGen,
-                       autostep :: Bool } deriving (Typeable)
+                       autostep :: Bool }
 
 -- TODO: can we use pprint here?
--- instance Show RState where
---          show s = "Shapes: \n" ++ ppShow (shapesr s) ++
---                   "\nShape names: \n" ++ ppShow (shapeNames s) ++
---                   "\nTranslation: \n" ++ ppShow (transr s) ++
---                   "\nVarying paths: \n" ++ ppShow (varyingPaths s) ++
---                   "\nUninitialized paths: \n" ++ ppShow (uninitializedPaths s) ++
---                   "\nVarying state: \n" ++ ppShow (varyingState s) ++
---                   "\nParams: \n" ++ ppShow (paramsr s) ++
---                   "\nObjective Functions: \n" ++ ppShowList (objFns s) ++
---                   "\nConstraint Functions: \n" ++ ppShowList (constrFns s) ++
---                   "\nAutostep: \n" ++ ppShow (autostep s)
+instance Show RState where
+         show s = "Shapes: \n" ++ ppShow (shapesr s) ++
+                  "\nShape names: \n" ++ ppShow (shapeNames s) ++
+                  "\nTranslation: \n" ++ ppShow (transr s) ++
+                  "\nVarying paths: \n" ++ ppShow (varyingPaths s) ++
+                  "\nUninitialized paths: \n" ++ ppShow (uninitializedPaths s) ++
+                  "\nVarying state: \n" ++ ppShow (varyingState s) ++
+                  "\nParams: \n" ++ ppShow (paramsr s) ++
+                  "\nObjective Functions: \n" ++ ppShowList (objFns s) ++
+                  "\nConstraint Functions: \n" ++ ppShowList (constrFns s) ++
+                  "\nAutostep: \n" ++ ppShow (autostep s)
 
 -- Reimplementation of 'ppShowList' from pretty-show. Not sure why it cannot be imported at all
 ppShowList = concatMap ((++) "\n" . ppShow)
