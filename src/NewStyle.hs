@@ -14,7 +14,7 @@ import ShapeDef
 import NewFunctions
 import Control.Monad (void, foldM)
 import Data.Function (on)
-import Data.Map.Internal.Debug
+-- import Data.Map.Internal.Debug
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe, catMaybes, isNothing, maybeToList)
