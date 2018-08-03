@@ -28,9 +28,9 @@ step' param vstate = ((objFn param) $ head vstate) `seq` (vstate, param)
 main :: IO ()
 main = do
     let fn = genObjFn 1000
-    let vs = [100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0]
+    let vs = [100.0,100.0,100.0]
     let initState = State { param = Param { objFn = fn }, vstate = vs }
-    let res = fst $ stepCount $ stepCount $ stepCount $ stepCount $ stepCount $ stepCount $ stepCount $ stepCount $ (initState, 0)
+    let res = fst $ stepCount $ stepCount $ stepCount $ stepCount (initState, 0)
 
     print res
     print "done!"
