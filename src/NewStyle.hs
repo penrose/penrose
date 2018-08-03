@@ -1637,13 +1637,17 @@ applyCombined penaltyWeight fns =
 -- TODO: make this a hashmap (need to convert path to string)
 type VaryMap a = M.Map String (TagExpr a)
 
-mkVaryMap :: (Autofloat a) => [String] -> [a] -> VaryMap a
-mkVaryMap varyPathStrs varyVals =
+-- mkVaryMap :: (Autofloat a) => [String] -> [a] -> VaryMap a
+mkVaryMap :: (Autofloat a) => a -> a
+mkVaryMap varyVals =
      -- M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
-     trace "hello" (M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals))
+     -- trace "hello" M.empty
+     -- (M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals))
      -- traceShowId (M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)) `seq`     M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
 
-     -- trace "hello" (M.fromList [("A.shape.r",Done (FloatV 99.97999999999999)),("A.shape.stroke",Done (FloatV 99.97999999999999)),("A.shape.x",Done (FloatV 99.97999999999999)),("A.shape.y",Done (FloatV 99.97999999999999)),("B.shape.r",Done (FloatV 99.97999999999999)),("B.shape.stroke",Done (FloatV 99.97999999999999)),("B.shape.x",Done (FloatV 99.97999999999999)),("B.shape.y",Done (FloatV 99.97999999999999)),("C.shape.r",Done (FloatV 99.97999999999999)),("C.shape.stroke",Done (FloatV 99.97999999999999)),("C.shape.x",Done (FloatV 99.97999999999999)),("C.shape.y",Done (FloatV 99.97999999999999)),("D.shape.r",Done (FloatV 99.97999999999999)),("D.shape.stroke",Done (FloatV 99.97999999999999)),("D.shape.x",Done (FloatV 99.97999999999999)),("D.shape.y",Done (FloatV 99.97999999999999)),("E.shape.r",Done (FloatV 99.97999999999999)),("E.shape.stroke",Done (FloatV 99.97999999999999)),("E.shape.x",Done (FloatV 99.97999999999999)),("E.shape.y",Done (FloatV 99.97999999999999)),("F.shape.r",Done (FloatV 99.97999999999999)),("F.shape.stroke",Done (FloatV 99.97999999999999)),("F.shape.x",Done (FloatV 99.97999999999999)),("F.shape.y",Done (FloatV 99.97999999999999)),("G.shape.r",Done (FloatV 99.97999999999999)),("G.shape.stroke",Done (FloatV 99.97999999999999)),("G.shape.x",Done (FloatV 99.97999999999999)),("G.shape.y",Done (FloatV 99.97999999999999))])
+     -- trace "hello" (M.insert "a" (Done $ FloatV 100) M.empty)
+     trace "hello" 0.0
+     -- trace "hello" (M.fromList [("G.shape.y",Done (FloatV 99.97999999999999))])
     -- M.fromList $ zip varyPathStrs (map floatToTagExpr varyVals)
 
 
@@ -1655,7 +1659,7 @@ genObjfn trans objfns constrfns varyingPaths varyingPathStrs =
          -- The optimization also speeds up if the map is constructed inline but M.empty is passed in
          -- let varyingTagExprs = map floatToTagExpr varyingVals in
          -- let transWithVarying = insertPaths varyingPaths varyingTagExprs trans in -- E = evaluated
-         let varyMap = traceShowId  {-M.empty in-} (mkVaryMap varyingPathStrs varyingVals)   in
+         let varyMap = {-traceShowId M.empty in-} mkVaryMap $ head varyingVals  in
          -- let varyMap = M.fromList [("A.shape.r",Done (FloatV 99.97999999999999)),("A.shape.stroke",Done (FloatV 99.97999999999999)),("A.shape.x",Done (FloatV 99.97999999999999)),("A.shape.y",Done (FloatV 99.97999999999999)),("B.shape.r",Done (FloatV 99.97999999999999)),("B.shape.stroke",Done (FloatV 99.97999999999999)),("B.shape.x",Done (FloatV 99.97999999999999)),("B.shape.y",Done (FloatV 99.97999999999999)),("C.shape.r",Done (FloatV 99.97999999999999)),("C.shape.stroke",Done (FloatV 99.97999999999999)),("C.shape.x",Done (FloatV 99.97999999999999)),("C.shape.y",Done (FloatV 99.97999999999999)),("D.shape.r",Done (FloatV 99.97999999999999)),("D.shape.stroke",Done (FloatV 99.97999999999999)),("D.shape.x",Done (FloatV 99.97999999999999)),("D.shape.y",Done (FloatV 99.97999999999999)),("E.shape.r",Done (FloatV 99.97999999999999)),("E.shape.stroke",Done (FloatV 99.97999999999999)),("E.shape.x",Done (FloatV 99.97999999999999)),("E.shape.y",Done (FloatV 99.97999999999999)),("F.shape.r",Done (FloatV 99.97999999999999)),("F.shape.stroke",Done (FloatV 99.97999999999999)),("F.shape.x",Done (FloatV 99.97999999999999)),("F.shape.y",Done (FloatV 99.97999999999999)),("G.shape.r",Done (FloatV 99.97999999999999)),("G.shape.stroke",Done (FloatV 99.97999999999999)),("G.shape.x",Done (FloatV 99.97999999999999)),("G.shape.y",Done (FloatV 99.97999999999999))] in
          -- let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
          -- -- let (fnsE, transE) = trace (showTreeWith (\k x -> show (k,x)) True True varyMap) evalFns evalIterRange (objfns ++ constrfns) trans {- transWithVarying -} {- M.empty -} {- (varyMap `seq` M.empty) -} varyMap in
@@ -1827,7 +1831,7 @@ genOptProblemAndState trans =
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
     let (objFnsWithDefaults, constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
-    let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults varyingPaths (map pathStr varyingPaths) in
+    let overallFn = genObjfn initTrans [] [] [] [] in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 
