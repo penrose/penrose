@@ -96,8 +96,8 @@ stepShapes params vstate = -- varying state
          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
          -- and whether to check WRT the updated state or not
          UnconstrainedConverged lastEPstate ->
-           let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
-                                   (objFnApplied lastEPstate) (objFnApplied vstate) in
+           let epConverged = epStopCond lastEPstate (map r2f vstate) -- lastEPstate is last state for converged UO
+                                   (objFnApplied lastEPstate) (objFnApplied (map r2f vstate)) in
            if epConverged then
               let status' = EPConverged in -- no more EP state
               (vstate, params { optStatus = status'}) -- do not update UO state

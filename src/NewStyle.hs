@@ -1181,7 +1181,7 @@ data FnDone a = FnDone { fname_d :: String,
 
 
 -- Stores the last EP varying state (that is, the state when the unconstrained opt last converged)
-type LastEPstate = forall a . (Autofloat a) => [a]
+type LastEPstate = [Float]
 
 data OptStatus = NewIter -- TODO should this be init with a state?
                | UnconstrainedRunning LastEPstate
@@ -1209,9 +1209,6 @@ data Params = Params { weight :: forall a . (Autofloat a) => a,
                        overallObjFn :: forall a . (Autofloat a) => a -> [a] -> a
                      }
 
-instance Show Params where
-         show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
-
 -- instance Eq Params where
          -- p == q = (weight p) == (weight q) && (optStatus p) == (optStatus q)
 
@@ -1221,25 +1218,25 @@ data RState = RState { shapesr :: forall a . (Autofloat a) => [Shape a],
                        transr :: forall a . (Autofloat a) => Translation a,
                        varyingPaths :: [Path],
                        uninitializedPaths :: [Path],
-                       varyingState :: forall a . (Autofloat a) => [a],
+                       varyingState :: [Float],
                        paramsr :: Params,
                        objFns :: [Fn],
                        constrFns :: [Fn],
                        rng :: StdGen,
-                       autostep :: Bool }
+                       autostep :: Bool } deriving (Typeable)
 
 -- TODO: can we use pprint here?
-instance Show RState where
-         show s = "Shapes: \n" ++ ppShow (shapesr s) ++
-                  "\nShape names: \n" ++ ppShow (shapeNames s) ++
-                  "\nTranslation: \n" ++ ppShow (transr s) ++
-                  "\nVarying paths: \n" ++ ppShow (varyingPaths s) ++
-                  "\nUninitialized paths: \n" ++ ppShow (uninitializedPaths s) ++
-                  "\nVarying state: \n" ++ ppShow (varyingState s) ++
-                  "\nParams: \n" ++ ppShow (paramsr s) ++
-                  "\nObjective Functions: \n" ++ ppShowList (objFns s) ++
-                  "\nConstraint Functions: \n" ++ ppShowList (constrFns s) ++
-                  "\nAutostep: \n" ++ ppShow (autostep s)
+-- instance Show RState where
+--          show s = "Shapes: \n" ++ ppShow (shapesr s) ++
+--                   "\nShape names: \n" ++ ppShow (shapeNames s) ++
+--                   "\nTranslation: \n" ++ ppShow (transr s) ++
+--                   "\nVarying paths: \n" ++ ppShow (varyingPaths s) ++
+--                   "\nUninitialized paths: \n" ++ ppShow (uninitializedPaths s) ++
+--                   "\nVarying state: \n" ++ ppShow (varyingState s) ++
+--                   "\nParams: \n" ++ ppShow (paramsr s) ++
+--                   "\nObjective Functions: \n" ++ ppShowList (objFns s) ++
+--                   "\nConstraint Functions: \n" ++ ppShowList (constrFns s) ++
+--                   "\nAutostep: \n" ++ ppShow (autostep s)
 
 -- Reimplementation of 'ppShowList' from pretty-show. Not sure why it cannot be imported at all
 ppShowList = concatMap ((++) "\n" . ppShow)
@@ -1412,8 +1409,8 @@ evalBinop op v1 v2 =
         (Val _, GPI _) -> error "binop cannot operate on GPI"
         (GPI _, GPI _) -> error "binop cannot operate on GPIs"
 
-evalProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> VaryMap a 
-             -> ([(Property, TagExpr a)], Translation a) -> (Property, TagExpr a) 
+evalProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> VaryMap a
+             -> ([(Property, TagExpr a)], Translation a) -> (Property, TagExpr a)
              -> ([(Property, TagExpr a)], Translation a)
 evalProperty (i, n) bvar field varyMap (propertiesList, trans) (property, expr) =
         let path = EPath $ PropertyPath bvar field property in -- factor out?
@@ -1428,7 +1425,7 @@ evalGPI_withUpdate :: (Autofloat a) =>
 evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap =
         -- Fold over the properties, evaluating each path, which will update the translation each time,
         -- and accumulate the new property-value list (WITH varying looked up)
-        let (propertyList', trans') = foldl (evalProperty (i, n) bvar field varyMap) ([], trans) 
+        let (propertyList', trans') = foldl (evalProperty (i, n) bvar field varyMap) ([], trans)
                                                                             (M.toList properties) in
         let properties' = M.fromList propertyList' in
         {-trace ("Start eval GPI: " ++ show properties ++ " " ++ "\n\tctor: " ++ "\n\tfield: " ++ show field)-}
@@ -1531,7 +1528,7 @@ lookupFieldWithVarying bvar field trans varyMap =
     Just varyVal -> {-trace "field lookup was vary" $ -} FExpr varyVal
     Nothing -> {-trace "field lookup was not vary" $ -} lookupField bvar field trans
 
-lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property 
+lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property
                                               -> Translation a -> VaryMap a -> TagExpr a
 lookupPropertyWithVarying bvar field property trans varyMap =
     case M.lookup (mkPath [bvarToString bvar, field, property]) varyMap of
@@ -1563,17 +1560,17 @@ lookupProperty bvar field property trans =
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)
-evalExprs :: (Autofloat a) => (Int, Int) -> [Expr] -> Translation a -> VaryMap a 
+evalExprs :: (Autofloat a) => (Int, Int) -> [Expr] -> Translation a -> VaryMap a
                               -> ([ArgVal a], Translation a)
 evalExprs limit args trans varyMap =
     foldl (evalExprF limit varyMap) ([], trans) args
-    where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a 
+    where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a
                        -> ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
           evalExprF limit varyMap (argvals, trans) arg =
                        let (argVal, trans') = evalExpr limit arg trans varyMap in
                        (argvals ++ [argVal], trans') -- So returned exprs are in same order
 
-evalFnArgs :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([FnDone a], Translation a) 
+evalFnArgs :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([FnDone a], Translation a)
                                     -> Fn -> ([FnDone a], Translation a)
 evalFnArgs limit varyMap (fnDones, trans) fn =
            let args = fargs fn in
@@ -1702,7 +1699,7 @@ evalShape limit varyMap (shapes, trans) shapePath =
 
 -- recursively evaluate every shape property in the translation
 evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> ([Shape a], Translation a)
-evalShapes limit shapeNames trans varyMap = 
+evalShapes limit shapeNames trans varyMap =
            let (shapes, trans') = foldl (evalShape limit varyMap) ([], trans) shapeNames in
            (reverse shapes, trans')
 
@@ -1757,11 +1754,11 @@ lookupPaths paths trans = map lookupPath paths
             Done (FloatV n) -> n
             _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
 
--- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape 
+-- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
 -- with respect to the varying values
 evalTranslation :: (Autofloat a) => RState -> ([Shape a], Translation a)
 evalTranslation s = {-# SCC evalTranslation #-}
-    let varyMap = mkVaryMap (varyingPaths s) (varyingState s) in
+    let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
     evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap
 
 list2 (a, b) = [a, b]
@@ -1789,7 +1786,7 @@ genOptProblemAndState trans =
 
     -- Evaluate all expressions once to get the initial shapes
     let initVaryingMap = M.empty in -- No optimization has happened. Sampled varying vals are in transInit
-    let (initialGPIs, transEvaled) = evalShapes evalIterRange (map (mkPath . list2) $ shapeNames) 
+    let (initialGPIs, transEvaled) = evalShapes evalIterRange (map (mkPath . list2) $ shapeNames)
                                                 transInit initVaryingMap in
     let initState = lookupPaths varyingPaths transEvaled in
 
