@@ -1378,7 +1378,7 @@ floatToTagExpr n = Done (FloatV n)
 
 bvarToString :: BindingForm -> String
 bvarToString (BSubVar (VarConst s)) = s
-bvarToString (BStyVar _) = error "bvarToString: does not handle Style variables"
+bvarToString (BStyVar v) = error ("bvarToString: cannot handle Style variable: " ++ show v)
 
 -- TODO: write a more general typechecking mechanism
 evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> Value a

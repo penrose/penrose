@@ -2,4 +2,4 @@ Set A
 Set B
 IsSubset(A,B)
 
-AutoLabel A, B
+AutoLabel All

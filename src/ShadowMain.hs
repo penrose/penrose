@@ -96,26 +96,26 @@ shadowMain = do
     putStrLn "Generated initial state:\n"
 
     -- TODO improve printing code
-    -- putStrLn "Shapes:"
-    -- pPrint $ NS.shapesr initState
-    -- putStrLn "\nShape names:"
-    -- pPrint $ NS.shapeNames initState
-    -- putStrLn "\nShape properties:"
-    -- pPrint $ NS.shapeProperties initState
-    -- putStrLn "\nTranslation:"
-    -- pPrint $ NS.transr initState
-    -- putStrLn "\nVarying paths:"
-    -- pPrint $ NS.varyingPaths initState
-    -- putStrLn "\nUninitialized paths:"
-    -- pPrint $ NS.uninitializedPaths initState
-    -- putStrLn "\nVarying state:"
-    -- pPrint $ NS.varyingState initState
-    -- putStrLn "\nParams:"
-    -- pPrint $ NS.paramsr initState
-    -- putStrLn "\nAutostep:"
-    -- pPrint $ NS.autostep initState
-    -- print initState
-    -- divLine
+    putStrLn "Shapes:"
+    pPrint $ NS.shapesr initState
+    putStrLn "\nShape names:"
+    pPrint $ NS.shapeNames initState
+    putStrLn "\nShape properties:"
+    pPrint $ NS.shapeProperties initState
+    putStrLn "\nTranslation:"
+    pPrint $ NS.transr initState
+    putStrLn "\nVarying paths:"
+    pPrint $ NS.varyingPaths initState
+    putStrLn "\nUninitialized paths:"
+    pPrint $ NS.uninitializedPaths initState
+    putStrLn "\nVarying state:"
+    pPrint $ NS.varyingState initState
+    putStrLn "\nParams:"
+    pPrint $ NS.paramsr initState
+    putStrLn "\nAutostep:"
+    pPrint $ NS.autostep initState
+    print initState
+    divLine
 
     putStrLn "Visualizing Substance program:\n"
 
@@ -147,11 +147,11 @@ mainRetInit subFile styFile dsllFile = do
     let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
     return $ Just initState
 
--- stepsWithoutServer :: NS.RState -> NS.RState
--- stepsWithoutServer initState =
---          let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepAndCount (initState, 0) in
---          trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
---          where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
---                notConverged (s, n) = NS.optStatus (NS.paramsr s) /= NS.EPConverged
---                                      || n < maxSteps
---                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge
+stepsWithoutServer :: NS.RState -> NS.RState
+stepsWithoutServer initState =
+         let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepAndCount (initState, 0) in
+         trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
+         where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
+               notConverged (s, n) = NS.optStatus (NS.paramsr s) /= NS.EPConverged
+                                     || n < maxSteps
+               maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge

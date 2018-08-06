@@ -1,31 +1,26 @@
 Set x {
-   objective centerLabel(x, x.shape.label)
+  x.shape = Circle {
+    stroke-width = 0
+  }
+
+  x.text = Text {
+    string = x.label
+  }
+  
+  x.centerFn = encourage centerLabel(x.shape, x.text)
 }
 
 Set `A` {
-  shape = Circle {
-    -- red
-    color = computeColorRGBA(1.0, 0.2, 1.0, 0.5) 
-    label = Auto
-  }
-
-  constraint nondegenerate(A)
+  `A`.shape.color = rgba(1.0, 0.2, 1.0, 0.5) -- red
 }
 
 Set `B` {
-  shape = Circle {
-    -- radius = computeRadiusAsFrac(A, 0.5)
-    -- green
-    color = computeColorRGBA(0.1, 1.0, 0.2, 0.4) 
-    label = Auto
-  }
-
-  constraint nondegenerate(B)
+  `B`.shape.color = rgba(0.1, 1.0, 0.2, 0.4) -- green
 }
 
-Subset x y {
-    constraint contains(y, x)
-    constraint outsideOf(y.shape.label, x)
-    -- TODO discourage tangency:
-    -- inside contains fn or separately?
+Set x; Set y
+where IsSubset(x, y) {
+    x.containFn = ensure contains(y.shape, x.shape)
+    x.sizeFn    = ensure smallerThan(x.shape, y.shape)
+    x.outsideFn = ensure outsideOf(y.text, x.shape)
 }

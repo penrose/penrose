@@ -34,22 +34,8 @@ Set `codomain` {
     `codomain`.nearFn = encourage nearHead(`codomain`.shape, `codomain`.text, 0.0, 20.0) -- TODO parse negative numbers
 }
 
-Map f
-where From(f, domain, image)
-with Set `domainOuter` {
-    f.shape = Curve {
-        path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
-        color = rgba(0.05, 0.05, 0.6, 1.0)
-    }
-    f.text = Text {
-        string = f.label
-        x = `domainOuter`.shape.endX - 30.0
-        y = `domainOuter`.shape.endY + 30.0
-    }
-}
-
 Set `domain`
-with Set `codomain`, `domainOuter`{
+with Set `codomain`, `domainOuter` {
     `domain`.left = Line {
         style = "dashed"
         path = lineLeft(0.2, `domainOuter`.shape, `codomain`.shape)
@@ -82,6 +68,21 @@ with Set `codomain`, `domainOuter`{
     -- `image`.bottom_label = Text { string = "B_1" }
     -- `image`.bottomFn = encourage nearEndHoriz(`image`.bottom, `image`.bottom_label)
     -- `image`.topFn = encourage nearEndHoriz(`image`.top, `image`.top_label)
+}
+
+Map f; Set domain; Set image
+where From(f, domain, image)
+with Set `domainOuter` {
+    f.shape = Curve {
+        path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
+        color = rgba(0.05, 0.05, 0.6, 1.0)
+    }
+
+    f.text = Text {
+        string = f.label
+        x = `domainOuter`.shape.endX - 30.0
+        y = `domainOuter`.shape.endY + 30.0
+    }
 }
 
 /*

@@ -216,7 +216,8 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("minSize", minSize),
                 ("maxSize", maxSize),
                 ("outsideOf", outsideOf),
-                ("lessThan", lessThan)
+                ("nonOverlapping", nonOverlapping)
+                -- ("lessThan", lessThan)
             ]
 
 constrSignatures :: OptSignatures
@@ -226,6 +227,9 @@ constrSignatures = MM.fromList
         ("minSize", [AnyGPI]),
         ("maxSize", [AnyGPI]),
         ("smallerThan", [GPIType "Circle", GPIType "Circle"]),
+        ("smallerThan", [GPIType "Circle", GPIType "Square"]),
+        ("smallerThan", [GPIType "Square", GPIType "Circle"]),
+        ("smallerThan", [GPIType "Square", GPIType "Square"]),
         ("outsideOf", [GPIType "Text", GPIType "Circle"]),
         ("contains", [GPIType "Circle", GPIType "Circle"]),
         ("contains", [GPIType "Circle", GPIType "Circle", ValueT FloatT]),
@@ -240,7 +244,8 @@ constrSignatures = MM.fromList
         ("overlapping", [GPIType "Square", GPIType "Circle"]),
         ("overlapping", [GPIType "Circle", GPIType "Square"]),
         ("overlapping", [GPIType "Square", GPIType "Square"]),
-        ("lessThan", []) --TODO
+        ("nonOverlapping", [GPIType "Circle", GPIType "Circle"])
+        -- ("lessThan", []) --TODO
     ]
 
 --------------------------------------------------------------------------------
@@ -673,7 +678,14 @@ minSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not
 -- minSize [PA' pa] [] = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in 20 - min_side
 
 smallerThan  :: ConstrFn
-smallerThan [GPI inc@("Circle", _), GPI outc@("Circle", _)] =  getNum inc "r" - getNum outc "r" - 0.4 * getNum outc "r" -- TODO: taking this as a parameter?
+smallerThan [GPI inc@("Circle", _), GPI outc@("Circle", _)] = 
+            getNum inc "r" - getNum outc "r" - 0.4 * getNum outc "r" -- TODO: taking this as a parameter?
+smallerThan [GPI inc@("Circle", _), GPI outs@("Square", _)] = 
+            0.5 * getNum outs "side" - getNum inc "r"
+smallerThan [GPI ins@("Square", _), GPI outc@("Circle", _)] = 
+            halfDiagonal $ getNum ins "side" - getNum outc "r"
+smallerThan [GPI ins@("Square", _), GPI outs@("Square", _)] = 
+            getNum ins "side" - getNum outs "side" - subsetSizeDiff
 
 outsideOf :: ConstrFn
 outsideOf [GPI l@("Text", _), GPI c@("Circle", _)] =
@@ -689,7 +701,17 @@ overlapping [GPI xset@("Circle", _), GPI yset@("Square", _)] =
     looseIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
 overlapping [GPI xset@("Square", _), GPI yset@("Square", _)] =
     looseIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
+
+looseIntersect :: (Autofloat a) => [[a]] -> a
 looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
+
+nonOverlapping :: ConstrFn
+nonOverlapping [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
+    noIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, getNum yset "r"]]
+
+-- exterior point method constraint: no intersection (meaning also no subset)
+noIntersect :: (Autofloat a) => [[a]] -> a
+noIntersect [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset where offset = 10
 
 --------------------------------------------------------------------------------
 -- Default functions for every shape

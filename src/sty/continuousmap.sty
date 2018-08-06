@@ -1,70 +1,87 @@
-
 Set x {
     x.shape = Circle {
         color = rgba(0.1, 0.1, 0.9, 0.2)
         stroke-style = "solid"
+        stroke-width = 1.0
+        rotation = 0.0
     }
-    x.text    = Text { string = x.label }
+
+    x.text    = Text {
+      string = x.label
+      rotation = 0.0
+    }
     x.labelFn = ensure contains(x.shape, x.text)
 }
 
 Set `U`
-with Set `R1`
-{
+with Set `Rn` {
     override `U`.shape.stroke-style = "dashed"
     override `U`.shape.stroke-width = 2
-    override `U`.shape.y = `R1`.shape.y
+    -- override `U`.shape.y = `Rn`.shape.y
 }
 
 Set `V`
 with Set `U` {
     override `V`.shape.stroke-style = "dashed"
     override `V`.shape.stroke-width = 2
-    override `V`.shape.y = `U`.shape.y
+    -- override `V`.shape.y = `U`.shape.y
 }
 
-
-Set `R1` {
-    override `R1`.shape = Square {
-        color = rgba(0.95, 0.96, 0.92, 0.5)
+-- TODO: use subtyping for reals?
+Set `Rn` {
+    override `Rn`.shape = Square {
+      color = rgba(0.95, 0.96, 0.92, 0.5)
+      rotation = 0.0
+      stroke-width = 1.0
     }
-    -- objective topRightOf(R1.shape.label, R1.shape)
+      
+    `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - 20.0
+    `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - 20.0
+    `Rn`.text.rotation = 0.0
 }
 
 
 Set x; Set y
 where IsSubset(x, y) {
-    y.containFn = ensure contains(y.shape, x.shape, 10.0)
-    y.outsideFn = ensure outsideOf(y.text, x.shape)
+  y.containFn = ensure contains(y.shape, x.shape)
+  y.sizeFn    = ensure smallerThan(x.shape, y.shape)  
+  y.outsideFn = ensure outsideOf(y.text, x.shape)
 }
 
 
-Set `R2`
-with Set `R1`
-{
-    override `R2`.shape = Square {
+Set `Rm`
+with Set `Rn` {
+    -- TODO: factor this block out
+    override `Rm`.shape = Square {
         color = rgba(0.95, 0.96, 0.92, 0.5)
-        y = `R1`.shape.y
-        x = `R1`.shape.x + 400.0
-        side  = `R1`.shape.side
+        y = `Rn`.shape.y
+        x = `Rn`.shape.x + 400.0
+        side  = `Rn`.shape.side
+        rotation = 0.0
+        stroke-width = 1.0
     }
-    -- objective topRightOf(R2.shape.label, R2.shape)
+
+    `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - 20.0
+    `Rm`.text.y = `Rm`.shape.y + `Rm`.shape.side / 2.0 - 20.0
+    `Rm`.text.rotation = 0.0
+
+    -- This doesn't seem to work
+     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
 }
 
 
 Map f
 where From(f, X, Y)
-with Set X; Set Y
-{
+with Set X; Set Y {
     f.shape = Arrow {
         thickness = 10.0
         -- style = "curved"
     }
-    f.text     = Text { string = f.label }
+
+    f.text     = Text {
+      string = f.label
+      rotation = 0.0
+    }
     f.labelFn  = encourage centerLabel(f.shape, f.text)
     f.centerFn = encourage centerArrow(f.shape, X.shape, Y.shape)
 }
-
-/*
-
-*/
