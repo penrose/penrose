@@ -24,19 +24,15 @@ import           System.Random
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Expr
-import           Replace
 import           Utils
 
 import qualified Data.Map.Strict            as M
 import qualified Dsll                       as D
 import qualified Text.Megaparsec.Char.Lexer as L
-
+import qualified SubstanceTokenizer         as T
 
 -- TODO : Preform basic type analysis to hansle overloading of statements
 
--- | Extract replacement rules from the statement notation rules.
-extractReplacementRules :: VarEnv -> [Replace]
-extractReplacementRules varEnv = []
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
@@ -47,6 +43,6 @@ main = do
   [dsllFile, substanceFile] <- getArgs
   dsllIn <- readFile dsllFile
   substanceIn <- readFile substanceFile
-  dsllEnv <- D.parseDsll dsllFile dsllIn
-
+  --dsllEnv <- D.parseDsll dsllFile dsllIn
+  print(T.alexScanTokens dsllIn)
   return ()
