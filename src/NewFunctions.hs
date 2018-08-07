@@ -307,9 +307,17 @@ randomsIn g n interval = let (x, g') = randomR interval g -- First value
 -- Their intersections give the corners.
 computeSurjectionLines :: CompFn
 computeSurjectionLines args = Val $ PathV $ computeSurjectionLines' compRng args
-computeSurjectionLines' g [Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
+
+computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> [Pt2 a]
+computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
     let lower_left = (getNum left "startX", getNum bottom "startY") in
     let top_right = (getNum right "startX", getNum top "startY") in
+    -- error "1"
+    trace ("ARGS: " ++ show args) $ computeSurjection g n lower_left top_right
+-- Assuming left and bottom are perpendicular and share one point
+computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] = 
+    let lower_left = (getNum left "startX", getNum left "startY") in
+    let top_right = (getNum bottom "endX", getNum left "endY") in
     computeSurjection g n lower_left top_right
 
 computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> [Pt2 a]
@@ -320,7 +328,7 @@ computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
             xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
             xs_increasing = sort xs
             (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
-            ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
+            ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
             ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
         -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
         in zip xs_increasing ys_perm -- len xs == len ys

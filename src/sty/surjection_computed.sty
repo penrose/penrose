@@ -20,6 +20,7 @@ Set `codomain` {
           startY = 0.0
           endX   = -100.0
           endY   = 200.0
+          thickness = 10.0          
     }
 
     -- TODO: refactor rendering code and uncomment
@@ -31,17 +32,27 @@ Set `codomain` {
     -- }
 
     `codomain`.text = Text { string = `codomain`.label }
-    `codomain`.nearFn = encourage nearHead(`codomain`.shape, `codomain`.text, 0.0, 20.0) -- TODO parse negative numbers
+    `codomain`.nearFn = encourage nearHead(`codomain`.shape, `codomain`.text, 0.0, 20.0)
 }
 
 Set `domain`
 with Set `codomain`, `domainOuter` {
     `domain`.left = Line {
+        thickness = 2.0
+        color = rgba(0.0, 0.0, 0.0, 1.0)
         style = "dashed"
-        path = lineLeft(0.2, `domainOuter`.shape, `codomain`.shape)
+        -- TODO: Note that using lineLeft to set 'path' (a derived property) will NOT mark startX, etc. as non-varying. Therefore, anything that depends on those properties is going to look them up in the varyMap, which is wrong.
+        -- startX = `domainOuter`.shape.startX
+        -- + 0.2 * (`domainOuter`.shape.endX - `domainOuter`.shape.startX)
+--        startY = `domainOuter`.shape.startY
+--        endX = `domainOuter`.shape.startX + 0.8 * (`domainOuter`.shape.endX - `domainOuter`.shape.startX)
+--        endY = `domainOuter`.shape.endY
+        -- path = lineLeft(0.2, `domainOuter`.shape, `codomain`.shape)
     }
 
     `domain`.right = Line {
+        thickness = 2.0
+        color = rgba(0.0, 0.0, 0.0, 1.0)      
         style = "dashed"
         path = lineLeft(0.8, `domainOuter`.shape, `codomain`.shape)
     }
@@ -55,11 +66,15 @@ with Set `codomain`, `domainOuter` {
 Set `image`
 with Set `codomain`, `domainOuter`{
     `image`.bottom = Line {
+        thickness = 2.0
+        color = rgba(0.0, 0.0, 0.0, 1.0)
         style = "dashed"
         path = lineRight(0.2, `codomain`.shape, `domainOuter`.shape)
     }
 
     `image`.top = Line {
+        thickness = 2.0
+        color = rgba(0.0, 0.0, 0.0, 1.0)
         style = "dashed"
         path = lineRight(0.8, `codomain`.shape, `domainOuter`.shape)
     }
@@ -70,18 +85,20 @@ with Set `codomain`, `domainOuter`{
     -- `image`.topFn = encourage nearEndHoriz(`image`.top, `image`.top_label)
 }
 
-Map f; Set domain; Set image
+-- TODO: why does resampling this curve seem to only have two kinds of shapes?
+
+Map f
 where From(f, domain, image)
-with Set `domainOuter` {
+with Set `domainOuter`; Set domain; Set image {
     f.shape = Curve {
-        path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
+        path = computeSurjectionLines(10, domain.left, domain.right, image.bottom, image.top)
         color = rgba(0.05, 0.05, 0.6, 1.0)
     }
 
     f.text = Text {
         string = f.label
-        x = `domainOuter`.shape.endX - 30.0
-        y = `domainOuter`.shape.endY + 30.0
+        x = `domainOuter`.shape.endX / 2.0 - 50.0
+        y = `domainOuter`.shape.endY - 30.0
     }
 }
 
