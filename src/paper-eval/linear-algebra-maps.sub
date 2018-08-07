@@ -46,7 +46,7 @@ u5 := neg(u4)
 
 Scalar m
 m := norm(m)
---Norm(v2)
+Norm(v2)
 
 Scalar c
 c := innerProduct(v1, v3)
@@ -58,9 +58,9 @@ w1 := apply(g,v1)
 Vector x1
 x1 := apply(f,u1)
 
-AutoLabel All
-Label u4 $u_4 = au_2/2$
-Label u5 $u_5 = -u_4$
-Label c $|v_1| \langle v_1, v_3 \rangle$
-Label w1 $g(v_1)$
-Label x1 $(h \circ g)(v_1)$
+--AutoLabel All
+--Label u4 $u_4 = au_2/2$
+--Label u5 $u_5 = -u_4$
+--Label c $|v_1| \langle v_1, v_3 \rangle$
+--Label w1 $g(v_1)$
+--Label x1 $(h \circ g)(v_1)$

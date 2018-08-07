@@ -31,10 +31,32 @@ import qualified Dsll                       as D
 import qualified Text.Megaparsec.Char.Lexer as L
 import qualified SubstanceTokenizer         as T
 
--- TODO : Preform basic type analysis to hansle overloading of statements
+-- TODO : (In the near future) Preform basic type analysis to hansle overloading of statements
 
+-- | The top function for translating StmtNotations
+sugarStmts :: String -> VarEnv -> String
+sugarStmts prog e = reTokenize (T.alexScanTokens prog)
 
--- --------------------------------------- Test Driver -------------------------------------
+-- | Retranslate a token list into a program
+reTokenize :: [T.Token] -> String
+reTokenize = foldl translate ""
+
+-- | Translation function from a specific token back into String
+translate :: String -> T.Token -> String
+translate prog T.Bind = prog ++ ":="
+translate prog T.NewLine = prog ++ "\n"
+translate prog T.PredEq = prog ++ "<->"
+translate prog T.ExprEq = prog ++ "="
+translate prog T.Comma = prog ++ ","
+translate prog T.Lparen = prog ++ "("
+translate prog T.Rparen = prog ++ ")"
+translate prog T.Space = prog ++ " "
+translate prog (T.Sym c) = prog ++ [c]
+translate prog (T.Var v) = prog ++ v
+translate prog (T.Comment c) = prog ++ c
+translate prog e = error "reTokenize error!" -- Shouldn't be invoked
+
+-- -------------  ------------ Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc Sugarer.hs; ./Sugarer <dsll-file> <substance-file>
 
@@ -42,7 +64,12 @@ main :: IO ()
 main = do
   [dsllFile, substanceFile] <- getArgs
   dsllIn <- readFile dsllFile
+
+  dsllEnv <- D.parseDsll dsllFile dsllIn
+  divLine
   substanceIn <- readFile substanceFile
-  --dsllEnv <- D.parseDsll dsllFile dsllIn
-  print(T.alexScanTokens dsllIn)
+  putStrLn "Tokenized Sugared Substance: \n"
+  --print(T.alexScanTokens substanceIn)
+  --print(reTokenize (T.alexScanTokens substanceIn))
+  writeFile "syntacticSugarExamples/output" (sugarStmts substanceIn dsllEnv)
   return ()
