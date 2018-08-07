@@ -81,6 +81,7 @@ compDict = M.fromList
         ("computeSurjectionLines", computeSurjectionLines),
         ("lineLeft", lineLeft),
         ("lineRight", lineRight),
+        ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
         ("sampleReal", noop), -- TODO
@@ -377,39 +378,32 @@ bboxHeight [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
         (ymin, ymax) = (minimum ys, maximum ys)
     in Val $ FloatV $ abs $ ymax - ymin
     where getYs a = [getNum a "startY", getNum a "endY"]
+
 bboxWidth :: CompFn
 bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
         (xmin, xmax) = (minimum xs, maximum xs)
     in Val $ FloatV $ abs $ xmax - xmin
     where getXs a = [getNum a "startX", getNum a "endX"]
+
 len :: CompFn
 len [GPI a@("Arrow", _)] =
     let (x0, y0, x1, y1) = arrowPts a
     in Val $ FloatV $ dist (x0, y0) (x1, y1)
+
 midpointX :: CompFn
 midpointX [GPI a@("Arrow", _)] =
     let (x0, x1) = (getNum a "startX", getNum a "endX")
     in Val $ FloatV $ x1 - x0 / 2
+
 midpointY :: CompFn
 midpointY [GPI a@("Arrow", _)] =
     let (y0, y1) = (getNum a "startY", getNum a "endY")
     in Val $ FloatV $ y1 - y0 / 2
 
--- bbox :: CompFn
--- bbox =
--- sampleMatrix :: CompFn
--- sampleMatrix =
--- sampleVectorIn :: CompFn
--- sampleVectorIn =
--- intersection :: CompFn
--- intersection =
--- midpoint :: CompFn
--- midpoint =
--- determinant :: CompFn
--- determinant =
--- apply :: CompFn
--- apply =
+norm_ :: CompFn
+norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
+
 noop :: CompFn
 noop [] = Val (StrV "TODO")
 
