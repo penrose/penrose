@@ -16,7 +16,7 @@ tokens :-
   \(                                { \s -> Lparen }
   \)                                { \s -> Rparen }
   \,                                { \s -> Comma }
-  [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\⟵\⟶\⟷\<\>\|\;\~\`\!\#\%\&\*\±\§\?] { \s -> Sym (head s) }
+  [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\⟵\⟶\⟷\<\>\|\;\~\`\!\#\%\&\*\±\§\?\$] { \s -> Sym (head s) }
   $alpha [$alpha $digit \_ \’]*     { \s -> Var s }
   $alpha \`[$alpha $digit \_ \’]*   { \s -> Pattern s }
 
@@ -24,17 +24,18 @@ tokens :-
 -- Each action has type :: String -> Token
 -- The token type:
 data Token =
-  Bind            |
-  NewLine         |
-  PredEq          |
-  ExprEq          |
-  Comma           |
-  Lparen          |
-  Rparen          |
-  Space           |
-  Sym Char        |
-  Var String      |
-  Pattern String  |
+  Bind              |
+  NewLine           |
+  PredEq            |
+  ExprEq            |
+  Comma             |
+  Lparen            |
+  Rparen            |
+  Space             |
+  Sym Char          |
+  Var String        |
+  Pattern String    |
+  DSLLEntity String |
   Comment String
   deriving (Eq,Show)
 main = do

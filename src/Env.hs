@@ -27,11 +27,13 @@ import Text.Megaparsec.Expr
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
+import qualified SubstanceTokenizer         as T
 
------------------------------------ AST -----------------------------------------------
+
+----------------------------------- AST ----------------------------------------
 
 data TypeName = TypeNameConst String  -- these are all names, e.g. “Set”
-              | AllT                  -- specifically for global selection in Style
+              | AllT              -- specifically for global selection in Style
                 deriving (Show, Eq, Typeable)
 
 data TypeVar = TypeVar { typeVarName :: String,
@@ -56,8 +58,8 @@ data T = TTypeVar TypeVar
          deriving (Show, Eq, Typeable)
 
 data TypeCtorApp = TypeCtorApp { nameCons :: String,
-                                               argCons  :: [Arg],
-                                               constructorInvokerPos :: SourcePos }
+                                 argCons  :: [Arg],
+                                 constructorInvokerPos :: SourcePos }
                           deriving (Typeable)
 
 instance Show TypeCtorApp where
@@ -90,7 +92,7 @@ data Prop =  Prop { propName :: String,
 instance Eq Prop where
   (Prop n1 _) == (Prop n2 _) = n1 == n2
 
------------------------------------ Parser --------------------------------------------
+----------------------------------- Parser -------------------------------------
 
 typeNameParser :: Parser TypeName
 typeNameParser = TypeNameConst <$> identifier
@@ -127,9 +129,12 @@ tParser = try tTypeCtorAppParser <|> typeVarParser'
 tTypeCtorAppParser = do
     i         <- identifier
     arguments <- option [] $ parens (argParser `sepBy1` comma)
-    --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $ parens (argParser `sepBy1` comma) --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
+    --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $
+    -- parens (argParser `sepBy1` comma)
+    --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
     pos <- getPosition
-    return (TConstr (TypeCtorApp { nameCons = i, argCons = arguments, constructorInvokerPos = pos }))
+    return (TConstr (TypeCtorApp { nameCons = i, argCons = arguments,
+                                   constructorInvokerPos = pos }))
 typeVarParser' = TTypeVar <$> typeVarParser
 
 argParser, varParser', tParser'  :: Parser Arg
@@ -151,7 +156,7 @@ emptyArgList = do
   rparen
   return []
 
------------------------------------ Typechecker aux functions ------------------------------------------
+----------------------------------- Typechecker aux functions ------------------
 
 -- | Compute the transitive closure of list of pairs
 --   Useful for subtyping and equality aubtyping checkings
@@ -159,8 +164,7 @@ transitiveClosure :: Eq a => [(a, a)] -> [(a, a)]
 transitiveClosure closure
   | closure == closureAccum = closure
   | otherwise                  = transitiveClosure closureAccum
-  where closureAccum =
-          nub $ closure ++ [(a, c) | (a, b) <- closure, (b', c) <- closure, b == b']
+  where closureAccum = nub $ closure ++ [(a, c) | (a, b) <- closure, (b', c) <- closure, b == b']
 
 -- | Return whether a closure is cyclic (a,b) and (b,a) appears in the closure
 isClosureNotCyclic :: Eq a => [(a,a)] -> Bool
@@ -178,11 +182,13 @@ second (a, b) = b
 
 checkAndGet :: String -> M.Map String v -> SourcePos -> Either String v
 checkAndGet k m pos = case M.lookup k m of
-  Nothing -> Left ("Error in " ++ sourcePosPretty pos ++ " : " ++ k ++ " Doesn't exist in the context \n")
+  Nothing -> Left ("Error in " ++ sourcePosPretty pos ++ " : " ++ k
+                               ++ " Doesn't exist in the context \n")
   Just v ->  Right v
 
 lookUpK :: VarEnv -> Arg -> K
-lookUpK e (AT  (TTypeVar t))  = Ktype (typeVarMap e M.! t) --(Ktype (Type {typeName = "type", typePos = typeVarPos t }))
+lookUpK e (AT  (TTypeVar t))  = Ktype (typeVarMap e M.! t)
+--(Ktype (Type {typeName = "type", typePos = typeVarPos t }))
 lookUpK e (AT  (TConstr t)) =
         if nameCons t `elem` declaredNames e
         then lookUpK e (AVar (VarConst (nameCons t)))
@@ -195,16 +201,19 @@ getTypesOfArgs e = map (lookUpK e)
 updateEnv :: VarEnv -> (Y, K) -> VarEnv
 updateEnv e (TypeVarY y, Ktype t) = e { typeVarMap = M.insert y t $ typeVarMap e }
 updateEnv e (VarY y, KT t)        = e { varMap = M.insert y t $ varMap e }
-updateEnv e err                   = e { errors = errors e ++ "Problem in update: " ++ show err ++ "\n" }
+updateEnv e err                   = e { errors = errors e
+                                  ++ "Problem in update: " ++ show err ++ "\n" }
 
 addName :: String -> VarEnv -> VarEnv
 addName a e = if a `elem` typeCtorNames e
-              then e {errors = errors e ++ "Name " ++ a ++ " already exsist in the context \n"}
+              then e {errors = errors e ++ "Name " ++ a
+                                        ++ " already exsist in the context \n"}
               else e {typeCtorNames = a : typeCtorNames e}
 
 addDeclaredName :: String -> VarEnv -> VarEnv
 addDeclaredName a e = if a `elem` declaredNames e
-                      then e { errors = errors e ++ "Name " ++ a ++ " already exsist in the context \n"}
+                      then e { errors = errors e ++ "Name " ++ a
+                                         ++ " already exsist in the context \n"}
                       else e { declaredNames = a : declaredNames e }
 
 isSubtype :: T -> T -> VarEnv -> Bool
@@ -212,13 +221,12 @@ isSubtype t1 t2 e = (t1,t2) `elem` subTypes e
 
 isSubtypeK :: K -> K -> VarEnv -> Bool
 isSubtypeK (KT k1) (KT k2) e = isSubtype k1 k2 e
---------------------------------------- Env Data Types ---------------------------------------
+--------------------------------------- Env Data Types -------------------------
 
--- | Environment for the dsll semantic checker. As the 'check' function executes, it
--- accumulate information such as symbol tables in the environment.
+-- | Environment for the dsll semantic checker. As the 'check' function
+-- executes, it accumulate information such as symbol tables in the environment.
 
 -- | list of elements that might appear in the global context
-
 data Ttype = Ttype { yt :: Y,
                      kt :: K }
              deriving (Show, Eq, Typeable)
@@ -258,8 +266,8 @@ data Predicate2 = Prd2 { namepred2 :: String,
                                ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 
-data StmtNotationRule = StmtNotationRule {fromSnr :: String,
-                                          toSnr   :: String}
+data StmtNotationRule = StmtNotationRule {fromSnr :: [T.Token],
+                                          toSnr   :: [T.Token]}
                   deriving (Show, Eq, Typeable)
 
 data ExprNotationRule = ExprNotationRule {fromEnr          :: String,
@@ -282,6 +290,8 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
               deriving (Show, Eq, Typeable)
 
+isDeclared :: String -> VarEnv -> Bool
+isDeclared name varEnv = name `elem` typeCtorNames varEnv
 
 checkTypeVar :: VarEnv -> TypeVar -> VarEnv
 checkTypeVar e v = if M.member v (typeVarMap e)

@@ -27,6 +27,7 @@ import Env
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
+import qualified SubstanceTokenizer         as T
 
 --------------------------------------- DSLL AST -------------------------------
 
@@ -165,8 +166,8 @@ dsllProgParser :: Parser [DsllStmt]
 dsllProgParser = dsllStmt `sepEndBy` newline'
 
 dsllStmt :: Parser DsllStmt
-dsllStmt = try snParser <|> try enParser <|> try cdParser <|> try vdParser <|> try odParser
-           <|> try subtypeDeclParser <|> try pdParser
+dsllStmt = try snParser <|> try enParser <|> try cdParser <|> try vdParser
+           <|> try odParser <|> try subtypeDeclParser <|> try pdParser
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser DsllStmt
@@ -370,9 +371,10 @@ checkDsllStmt e (PdStmt (Pd2Const v)) = let pd = Pred2 $ Prd2 { namepred2 = name
                                          in ef { predicates = M.insert (namePd2 v) pd $ predicates ef }
 
 -- TODO Implement typecheckihng for statement notations                                                                         -- notations if needed
-checkDsllStmt e (SnStmt s) = let newSnr = StmtNotationRule {fromSnr = fromSn s,
-                                                            toSnr   = toSn s}
-                             in e {stmtNotations = newSnr : stmtNotations e}
+checkDsllStmt e (SnStmt s) =
+   let (from,to) = translatePatterns (fromSn s, toSn s) e
+       newSnr = StmtNotationRule {fromSnr = from, toSnr   = to}
+   in e {stmtNotations = newSnr : stmtNotations e}
 
 -- TODO: Implement typecheckihng for expression notations
 checkDsllStmt e (EnStmt s) = let newEnr = ExprNotationRule {fromEnr = fromEn s,
@@ -388,8 +390,9 @@ computeSubTypes e = let env1 = e { subTypes = transitiveClosure (subTypes e)}
                     else env1 { errors = errors env1 ++ "Cyclic Subtyping Relation! \n"}
 
 
--- | 'parseDsll' runs the actual parser function: 'dsllParser', taking in a program String, parses it and
--- | semantically checks it. It outputs the environement as returned from the dsll typechecker
+-- | 'parseDsll' runs the actual parser function: 'dsllParser', taking in a
+--   program String, parses it and semantically checks it. It outputs the
+--   environement as returned from the dsll typechecker
 parseDsll :: String -> String -> IO VarEnv
 parseDsll dsllFile dsllIn =
           case runParser dsllParser dsllFile dsllIn of
@@ -405,7 +408,76 @@ parseDsll dsllFile dsllIn =
               print env1
               return env1
 
--- --------------------------------------- Test Driver -------------------------------------
+------------------------------ Tokenization ------------------------------------
+-- TODO: Maybe should be refactored into a seperate file in the future
+-- | Get as an input from and to string notataions and returns refined tokenized
+--   versions of them
+
+-- | Tokenize the given string using the Substance tokenizer
+tokenize :: String -> [T.Token]
+tokenize = T.alexScanTokens
+
+translatePatterns :: (String,String) -> VarEnv -> ([T.Token],[T.Token])
+translatePatterns (fromStr, toStr) dsllEnv =
+  let from = foldl (refineDSLLToken dsllEnv) [] (tokenize fromStr)
+      patterns = filter notPattern from
+      to = foldl (refinePaternToken patterns) [] (tokenize toStr)
+  in (from,to)
+
+notPattern :: T.Token -> Bool
+notPattern (T.Pattern t) = True
+notPattern token = False
+
+refinePaternToken :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
+refinePaternToken patterns tokens (T.Var v) =
+   if T.Pattern v `elem` patterns
+    then tokens ++ [T.Pattern v]
+    else tokens ++ [T.Var v]
+
+refinePaternToken patterns tokens t = tokens ++ [t]
+
+
+refineDSLLToken :: VarEnv -> [T.Token] -> T.Token -> [T.Token]
+refineDSLLToken dsllEnv tokens (T.Var v) = if isDeclared v dsllEnv then
+                                          tokens ++ [T.DSLLEntity v]
+                                       else tokens ++ [T.Pattern v]
+refineDSLLToken dsllEnv tokens t = tokens ++ [t]
+
+-- |This function identify the pattern vars in the sugared notatation in the
+--  StmtNotation in the DSLL
+identifyPatterns :: [T.Token] -> [T.Token] -> [T.Token]
+identifyPatterns tokensSugared tokenDesugared =
+   foldl (identifyPattern tokenDesugared) [] tokensSugared
+
+identifyPattern :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
+identifyPattern tokenDesugared tokensSugared (T.Var v) =
+   if T.Var v `elem` tokenDesugared then
+     tokensSugared ++ [T.Pattern v]
+  else
+    tokensSugared ++ [T.Var v]
+identifyPattern tokenDesugared tokensSugared token = tokensSugared ++ [token]
+
+-- | Retranslate a token list into a program
+reTokenize :: [T.Token] -> String
+reTokenize = foldl translate ""
+
+-- | Translation function from a specific token back into String
+translate :: String -> T.Token -> String
+translate prog T.Bind = prog ++ ":="
+translate prog T.NewLine = prog ++ "\n"
+translate prog T.PredEq = prog ++ "<->"
+translate prog T.ExprEq = prog ++ "="
+translate prog T.Comma = prog ++ ","
+translate prog T.Lparen = prog ++ "("
+translate prog T.Rparen = prog ++ ")"
+translate prog T.Space = prog ++ " "
+translate prog (T.Sym c) = prog ++ [c]
+translate prog (T.Var v) = prog ++ v
+translate prog (T.Comment c) = prog ++ c
+translate prog (T.DSLLEntity d) = prog ++ d
+translate prog (T.Pattern p) = prog ++ p
+
+-- --------------------------------------- Test Driver -------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc Dsll.hs; ./Dsll <dsll-file> <output-file>
 
