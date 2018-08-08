@@ -24,8 +24,9 @@ import           Text.Megaparsec.Char
 import           Text.Megaparsec.Expr
 import           Utils
 
-import qualified Data.Map.Strict            as M
+import qualified Tokenizer
 import qualified Dsll                       as D
+import qualified Data.Map.Strict            as M
 import qualified Text.Megaparsec.Char.Lexer as L
 import qualified SubstanceTokenizer         as T
 
@@ -34,17 +35,26 @@ import qualified SubstanceTokenizer         as T
 -- | The top function for translating StmtNotations
 sugarStmts :: String -> VarEnv -> String
 sugarStmts prog e = let notations = stmtNotations e
-                        tokenizedProg = D.tokenize prog
+                        tokenizedProg = Tokenizer.tokenize prog
                         str  = foldl (sugarStmt e) tokenizedProg notations
-                     in D.reTokenize str
+                     in Tokenizer.reTokenize str
 
 -- Preform a replacement of a specific given pattern
 sugarStmt :: VarEnv -> [T.Token] -> StmtNotationRule -> [T.Token]
-sugarStmt dsllEnv tokens rule = tokens
-   -- let from = tokenize (fromSnr rule)
-   --                                  to = tokenize (toSnr rule) dsllEnv
-   --                                  splitted = split (onSublist to)  tokens
-   --                              in splitted
+sugarStmt dsllEnv tokens rule =
+   let from = fromSnr rule
+       to = toSnr rule
+       splitted = split (onSublist to)  tokens
+       splittedReplaced = foldl (replace from to) [] splitted
+   in concat splittedReplaced
+
+-- Preform the actual replacement of a pattern
+replace :: [T.Token] -> [T.Token] -> [[T.Token]] -> [T.Token] -> [[T.Token]]
+replace from to lst chunk = if comparePattern to chunk then lst ++ [from] else lst ++ [chunk]
+
+
+comparePattern :: [T.Token] -> [T.Token] -> Bool
+comparePattern to chunk = True
 ------------------------------ Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc Sugarer.hs; ./Sugarer <dsll-file> <substance-file>
@@ -58,7 +68,8 @@ main = do
   divLine
   substanceIn <- readFile substanceFile
   putStrLn "Tokenized Sugared Substance: \n"
-  print(sugarStmts substanceIn dsllEnv)
+  print (sugarStmts substanceIn dsllEnv)
+  --print(sugarStmts substanceIn dsllEnv)
   --print(tokenize substanceIn dsllEnv)
   --print(splitOn [T.NewLine] (tokenize substanceIn dsllEnv))
   -- print(reTokenize (T.alexScanTokens substanceIn))
