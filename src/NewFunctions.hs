@@ -312,8 +312,7 @@ computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> [Pt2 a]
 computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
     let lower_left = (getNum left "startX", getNum bottom "startY") in
     let top_right = (getNum right "startX", getNum top "startY") in
-    -- error "1"
-    trace ("ARGS: " ++ show args) $ computeSurjection g n lower_left top_right
+    computeSurjection g n lower_left top_right
 -- Assuming left and bottom are perpendicular and share one point
 computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] = 
     let lower_left = (getNum left "startX", getNum left "startY") in
@@ -654,7 +653,7 @@ limit = max canvasWidth canvasHeight
 maxSize [GPI c@("Circle", _)] = getNum c "r" - r2f (limit / 6)
 maxSize [GPI s@("Square", _)] = getNum s "side" - r2f (limit  / 3)
 maxSize [GPI r@("Rectangle", _)] =
-    let max_side = max (getNum r "sizeX") (getNum r "sizeY")
+    let max_side = max (getNum r "w") (getNum r "h")
     in max_side - r2f (limit  / 3)
 maxSize [GPI im@("Image", _)] =
     let max_side = max (getNum im "lengthX") (getNum im "lengthY")
@@ -670,7 +669,7 @@ minSize :: ConstrFn
 minSize [GPI c@("Circle", _)] = 20 - getNum c "r"
 minSize [GPI s@("Square", _)] = 20 - getNum s "side"
 minSize [GPI r@("Rectangle", _)] =
-    let min_side = min (getNum r "sizeX") (getNum r "sizeY")
+    let min_side = min (getNum r "w") (getNum r "h")
     in 20 - min_side
 minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "r") (getNum e "r")
 minSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented

@@ -298,6 +298,7 @@ lineType = ("Line", M.fromList
         ("startY", (FloatT, y_sampler)),
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
+        -- TODO: deal with derived property "path" here or in the frontend
         ("thickness", (FloatT, sampleFloatIn (5, 15))),
         -- TODO: list the possible styles for each attribute of each GPI
         ("color", (ColorT, sampleColor)),

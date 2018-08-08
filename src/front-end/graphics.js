@@ -467,7 +467,7 @@ var Render = (function(){
     function _renderRectangle(s, properties) {
         [x, y] = [properties.x, properties.y]
         // TODO: document the different btw coord systems
-        var rect = s.rect(x - properties.sizeX/2, y - properties.sizeY/2, properties.sizeX, properties.sizeY);
+        var rect = s.rect(x - properties.w/2, y - properties.h/2, properties.w, properties.h);
         var color = properties.color;
         rect.attr({
             fill: Utils.hex(color[0], color[1], color[2]),
@@ -482,13 +482,14 @@ var Render = (function(){
      * @param       {JSON} properties JSON object from Haskell server
      */
     function _renderLine(s, properties) {
-        // var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
-        var path = properties.path;
+	// TODO: Deal with the derived property "path" here or in the backend
+        var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
+        // var path = properties.path;
         console.log(path);
         var curve = s.path(Utils.path_str(path));
         curve.data("name", properties.name)
         var color = properties.color;
-        // by default, the curve sheuld be solid
+        // by default, the curve should be solid
         curve.attr({
             fill: "transparent",
             strokeWidth: properties.thickness,

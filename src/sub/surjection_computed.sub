@@ -6,12 +6,13 @@ Set cartesianProduct
 -- `CartesianProduct domain image`?
 IsSubset(domain,domainOuter)
 IsSubset(image,codomain)
+
 Map f
 From(f, domain, image)
 
 Label domainOuter $x$
-Label codomain $y$
-Label f $(surjection)$ --TODO: escape out of math mode
+Label codomain $f(x)$
+Label f $\text{(surjection)}$ --TODO: escape out of math mode
 
 -- Point p
 -- In p f
