@@ -1,23 +1,69 @@
--- Tree.sty
 Set x {
     x.shape = Text { string = x.label }
 }
 
+-- TODO: Namespace behavior is making the Sty assignment "y." get overridden
+/*
+Set x; Set y {
+   -- Try to make sure no labels overlap
+   y.genRepelFn = encourage repel(x.shape, y.shape, 10.0)
+}
+*/
+
+-- TODO: temp. hack to space 2nd level
+Set `F`; Set `D` {
+  `F`.genRepelFn = encourage repel(`F`.shape, `D`.shape)
+}
+
 Set x; Set y
 where IsSubset(x, y) {
-    -- objective above(y, x)
-    -- objective equal(x.shape.x, y.shape.y)
-    x.arrow = Arrow { }
+    x.arrow = Arrow {
+      thickness = 10.0
+    }
+
+    -- Draw the arrow from y to x
     x.centerFn = encourage centerArrow(x.arrow, x.shape, y.shape)
+
+    -- Position y above x
+    x.aboveFn = encourage above(y.shape, x.shape)
+
+    -- Have sets 'fight' to be aligned with the superset's x-position
+    x.equalFn = encourage equal(x.shape.x, y.shape.x)
 }
 
-Set x; Set y {
-    -- objective repel(x, y)
+Set x1; Set x2
+where IsSubset(x1, S); IsSubset(x2, S)
+with Set S {
+   -- If two sets are direct subsets of the same set, give them the same y-position
+   x1.heightFn = encourage sameHeight(x1.shape, x2.shape)
+
+   -- Have sets 'fight' to be aligned with the superset's x-position   
+   x1.repelFn = encourage repel(x1.shape, x2.shape)
 }
 
-Set x; Set y
-where IsSubset(x, S); IsSubset(y, S)
-with Set S
-{
-    -- objective sameHeight(x, y)
-}
+/* What matches are generated here?
+
+Expected matches: [S; x1, x2] => [A; B, C], [B; D, E], [C; F, G]
+Note it also generates these matches: 
+                  (2) [A; C, B], [B; E, D], [C; G, F]
+
+Proposed principles:
+
+- If the selector-writer uses different names for things of the same type, the same thing will never be matched
+  i.e. "Set X; Set Y" <| "Set A; Set B" won't ever yield substitution [A => X, B => X] or [A => Y, B => Y]
+  [Has been implemented]
+  
+- only take one permutation of the substitutions?
+  but what if you have, say, 
+  "Set A, B; IsSubset(A, B); IsSubset(B, A)" <| "Set X, Y where IsSubset(X, Y)"
+  eliminating permutations will eliminate one of the substitutions [X => A, Y => B], [X => B, Y => A]
+
+Do these principles contradict any matching functionality that we might want later? 
+Can we solve this problem with a compiler/program directive?
+e.g. -DiffPatternSameVar -AllPermutations
+Or some kind of syntax in the selector or variable?
+Is there some way to automatically detect which case we're in, or distinguish them?
+No permutations in the "same position" in a Substance stmt?
+Eliminate permutations where the objective functions are symmetric??? 
+  e.g. here, sameHeight and repel are symm.
+  So does it matter?  */

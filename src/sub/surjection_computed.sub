@@ -9,6 +9,7 @@ IsSubset(image,codomain)
 
 Map f
 From(f, domain, image)
+-- TODO: make a Surjection/Bijection/Injection predicate
 
 Label domainOuter $x$
 Label codomain $f(x)$

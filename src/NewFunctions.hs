@@ -129,6 +129,10 @@ invokeComp n args sigs =
 --------------------------------------------------------------------------------
 -- Objectives
 
+-- Weights
+repelWeight :: (Autofloat a) => a
+repelWeight = 10000000
+
 -- | 'objFuncDict' stores a mapping from the name of objective functions to the actual implementation
 objFuncDict :: forall a. (Autofloat a) => M.Map String (ObjFnOn a)
 objFuncDict = M.fromList
@@ -138,12 +142,16 @@ objFuncDict = M.fromList
         ("centerX", centerX),
         ("centerLabel", centerLabel),
         ("centerArrow", centerArrow),
-        ("repel", repel),
+        ("repel", (*) repelWeight . repel),
         ("nearHead", nearHead),
         ("topRightOf", topRightOf),
         ("nearEndVert", nearEndVert),
         ("nearEndHoriz", nearEndHoriz),
-        ("topLeftOf", topLeftOf)
+        ("topLeftOf", topLeftOf),
+        ("above", above),
+        ("sameHeight", sameHeight),
+        ("equal", equal)
+
 {-      ("centerLine", centerLine),
         ("increasingX", increasingX),
         ("increasingY", increasingY),
@@ -153,11 +161,8 @@ objFuncDict = M.fromList
         ("yInRange", yInRange),
         ("orthogonal", orthogonal),
         ("toLeft", toLeft),
-        ("above", above),
         ("between", between),
-        ("sameHeight", sameHeight),
         ("sameX", sameX),
-        ("equal", equal),
         ("ratioOf", ratioOf),
         ("sameY", sameY),
         -- ("sameX", (*) 0.6 `compose2` sameX),
@@ -515,9 +520,11 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
 
 -- | 'repel' exert an repelling force between objects
 -- TODO: temporarily written in a generic way
+-- Note: repel's energies are quite small so the function is scaled by repelWeight before being applied
 repel :: ObjFn
-repel [GPI a, GPI b] =
-    1 / distsq (getX a, getY a) (getX b, getY b) + epsd
+repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd) 
+repel [GPI a, GPI b, Val (FloatV weight)] = weight / (distsq (getX a, getY a) (getX b, getY b) + epsd) 
+    -- trace ("REPEL: " ++ show a ++ "\n" ++ show b ++ "\n" ++ show res) res
 -- repel [C' c, S' d] [] = 1 / distsq (xc' c, yc' c) (xs' d, ys' d) - r' c - side' d + epsd
 -- repel [S' c, C' d] [] = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c + epsd
 -- repel [P' c, P' d] [] = if c == d then 0 else 1 / distsq (xp' c, yp' c) (xp' d, yp' d) - 2 * r2f ptRadius + epsd
@@ -563,6 +570,18 @@ nearEndHoriz [GPI line@("Line", _), GPI lab@("Text", _)] =
             let leftpt = if sx < ex then (sx, sy) else (ex, ey) in
             let xoffset = -25 in
             distsq (getX lab, getY lab) (fst leftpt + xoffset, snd leftpt)
+
+-- | 'above' makes sure the first argument is on top of the second.
+above :: ObjFn
+above [GPI top, GPI bottom, Val (FloatV offset)] = (getY top - getY bottom - offset)^2
+above [GPI top, GPI bottom] = (getY top - getY bottom - 100)^2
+
+-- | 'sameHeight' forces two objects to stay at the same height (have the same Y value)
+sameHeight :: ObjFn
+sameHeight [GPI a, GPI b] = (getY a - getY b)^2
+
+equal :: ObjFn
+equal [Val (FloatV a), Val (FloatV b)] = (a - b)^2
 
 --------------------------------------------------------------------------------
 -- Constraint Functions

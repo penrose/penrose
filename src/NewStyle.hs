@@ -615,19 +615,32 @@ trM3 = mkTr debugM3
 
 ----- Substitution helper functions
 
--- (+) operator
+-- (+) operator combines two substitutions: subst -> subst -> subst
 combine :: Ord k => M.Map k a -> M.Map k a -> M.Map k a
 combine s1 s2 = M.union s1 s2
 -- TODO check for duplicate keys (and vals)
 
--- (x) operator
+-- (x) operator combines two lists of substitutions: [subst] -> [subst] -> [subst]
+-- the way merge is used, I think each subst in the second argument only contains one mapping
 merge :: Ord k => [M.Map k a] -> [M.Map k a] -> [M.Map k a]
 merge s1 [] = s1
 merge [] s2 = s2
 merge s1 s2 = [ combine s1i s2j | s1i <- s1, s2j <- s2 ] -- TODO check wrt maps
 
+allUnique :: Eq a => [a] -> Bool
+allUnique l = nub l == l
+
+-- TODO: check that there's one substitution (SubVar) per StyVar
+-- TODO does this need to be checked WRT a selector?
+-- Check that there are no duplicate keys or vals in the substitution
 checkSubst :: Subst -> Bool
-checkSubst subst = True -- TODO does this need to be checked WRT a selector?
+checkSubst subst =
+    let (keys, vals) = unzip $ M.toList subst in
+    allUnique keys && allUnique vals
+
+    -- if not (allUnique keys && allUnique vals)
+    -- then error ("substitution contains some duplicated keys or vals:\n" ++ show keys ++ "\n" ++ show vals)
+    -- else True
 
 ----- Apply a substitution to various parts of Style (relational statements, exprs, blocks)
 -- Recursively walk the tree, looking up and replacing each Style variable encountered with a Substance variable

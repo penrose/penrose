@@ -10,6 +10,7 @@ Set x {
       string = x.label
       rotation = 0.0
     }
+    
     x.labelFn = ensure contains(x.shape, x.text)
 }
 
@@ -40,14 +41,12 @@ Set `Rn` {
     `Rn`.text.rotation = 0.0
 }
 
-
 Set x; Set y
 where IsSubset(x, y) {
   y.containFn = ensure contains(y.shape, x.shape)
   y.sizeFn    = ensure smallerThan(x.shape, y.shape)  
   y.outsideFn = ensure outsideOf(y.text, x.shape)
 }
-
 
 Set `Rm`
 with Set `Rn` {
@@ -66,9 +65,8 @@ with Set `Rn` {
     `Rm`.text.rotation = 0.0
 
     -- This doesn't seem to work
-     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
+    --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
 }
-
 
 Map f
 where From(f, X, Y)
@@ -82,6 +80,7 @@ with Set X; Set Y {
       string = f.label
       rotation = 0.0
     }
+    
     f.labelFn  = encourage centerLabel(f.shape, f.text)
     f.centerFn = encourage centerArrow(f.shape, X.shape, Y.shape)
 }
