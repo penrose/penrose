@@ -470,18 +470,17 @@ centerLabel [a, b] = sameCenter [a, b]
 
 -- | `centerArrow` positions an arrow between two objects, with some spacing
 centerArrow :: ObjFn
-
 centerArrow [GPI arr@("Arrow", _), GPI sq1@("Square", _), GPI sq2@("Square", _)] =
             _centerArrow arr [getX sq1, getY sq1] [getX sq2, getY sq2]
-                [spacing + (halfDiagonal . flip getNum "sideLength") sq1, negate $ spacing + (halfDiagonal . flip getNum "sideLength") sq2]
+                [spacing + (halfDiagonal . flip getNum "side") sq1, negate $ spacing + (halfDiagonal . flip getNum "side") sq2]
 
 centerArrow [GPI arr@("Arrow", _), GPI sq@("Square", _), GPI circ@("Circle", _)] =
             _centerArrow arr [getX sq, getY sq] [getX circ, getY circ]
-                [spacing + (halfDiagonal . flip getNum "sideLength") sq, negate $ spacing + getNum circ "radius"]
+                [spacing + (halfDiagonal . flip getNum "side") sq, negate $ spacing + getNum circ "radius"]
 
 centerArrow [GPI arr@("Arrow", _), GPI circ@("Circle", _), GPI sq@("Square", _)] =
             _centerArrow arr [getX circ, getY circ] [getX sq, getY sq]
-                [spacing + getNum circ "radius", negate $ spacing + (halfDiagonal . flip getNum "sideLength") sq]
+                [spacing + getNum circ "radius", negate $ spacing + (halfDiagonal . flip getNum "side") sq]
 
 centerArrow [GPI arr@("Arrow", _), GPI circ1@("Circle", _), GPI circ2@("Circle", _)] =
             _centerArrow arr [getX circ1, getY circ1] [getX circ2, getY circ2]
@@ -597,7 +596,7 @@ contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
     dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o1 "r" - getNum o2 "r")
 contains [GPI outc@("Circle", _), GPI inc@("Circle", _), Val (FloatV padding)] =
-    dist (getX outc, getY outc) (getX inc, getY inc) - (getNum outc "r" + padding - getNum inc "r")
+    dist (getX outc, getY outc) (getX inc, getY inc) - (getNum outc "r" - padding - getNum inc "r")
 contains [GPI c@("Circle", _), GPI rect@("Rectangle", _)] =
     let (x, y, w, h)     =
             (getX rect, getY rect, getNum rect "sizeX", getNum rect "sizeY")
@@ -625,7 +624,7 @@ contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
 contains [GPI outc@("Square", _), GPI inc@("Circle", _)] =
     dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - getNum inc "r")
 contains [GPI outc@("Square", _), GPI inc@("Circle", _), Val (FloatV padding)] =
-    dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" + padding - getNum inc "r")
+    dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - padding - getNum inc "r")
 contains [GPI outc@("Circle", _), GPI inc@("Square", _)] =
     dist (getX outc, getY outc) (getX inc, getY inc) - (getNum outc "r" - 0.5 * getNum inc "side")
 contains [GPI set@("Ellipse", _), GPI label@("Text", _)] =
@@ -711,6 +710,9 @@ outsideOf :: ConstrFn
 outsideOf [GPI l@("Text", _), GPI c@("Circle", _)] =
     let labelR = max (getNum l "w") (getNum l "h")
     in -dist (getX l, getX l) (getX c, getY c) + getNum c "r" + labelR
+-- TODO: factor out runtime weights
+outsideOf [GPI l@("Text", _), GPI c@("Circle", _), Val (FloatV weight)] =
+    weight * outsideOf [GPI l, GPI c]
 
 overlapping :: ConstrFn
 overlapping [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
