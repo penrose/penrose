@@ -380,9 +380,9 @@ checkDsllStmt e (PdStmt (Pd2Const v)) =
 
 -- TODO Implement typecheckihng for statement notations                                                                         -- notations if needed
 checkDsllStmt e (SnStmt s) =
-   let (from,to,patterns) = T.translatePatterns (fromSn s, toSn s) e
+   let (from,to,patterns,entities) = T.translatePatterns (fromSn s, toSn s) e
        newSnr = StmtNotationRule {fromSnr = from,
-        toSnr   = to, patternsSnr = patterns}
+        toSnr   = to, patternsSnr = patterns, entitiesSnr = entities}
    in e {stmtNotations = newSnr : stmtNotations e}
 
 -- TODO: Implement typecheckihng for expression notations

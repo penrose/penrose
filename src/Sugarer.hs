@@ -34,10 +34,11 @@ import qualified SubstanceTokenizer         as T
 
 -- | The top function for translating StmtNotations
 sugarStmts :: String -> VarEnv -> String
-sugarStmts prog e = let notations = stmtNotations e
-                        tokenizedProg = Tokenizer.tokenize prog
-                        str  = foldl (sugarStmt e) tokenizedProg notations
-                     in Tokenizer.reTokenize str
+sugarStmts prog dsllEnv =
+  let notations = stmtNotations dsllEnv
+      tokenizedProg = Tokenizer.tokenizeSugaredSubstance prog dsllEnv
+      str  = foldl (sugarStmt dsllEnv) tokenizedProg notations
+  in Tokenizer.reTokenize str
 
 -- Preform a replacement of a specific given pattern
 sugarStmt :: VarEnv -> [T.Token] -> StmtNotationRule -> [T.Token]
@@ -60,7 +61,7 @@ replace from to patterns lst chunk =
 comparePattern :: [T.Token] -> [T.Token] -> [T.Token] -> Bool
 comparePattern to chunk patterns =
   let chunk' = filter Tokenizer.spaces chunk
-      to' = traceShowId (foldl (Tokenizer.refinePaternToken patterns) [] (filter Tokenizer.spaces to))
+      to' = filter Tokenizer.spaces to
   in (length chunk' == length to') && all compareElements (zip chunk' to')
 
 compareElements :: (T.Token,T.Token) -> Bool

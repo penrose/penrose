@@ -266,10 +266,13 @@ data Predicate2 = Prd2 { namepred2 :: String,
                                ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 
-data StmtNotationRule = StmtNotationRule {fromSnr :: [T.Token],
-                                          toSnr   :: [T.Token],
-                                          patternsSnr :: [T.Token]}
-                  deriving (Show, Eq, Typeable)
+data StmtNotationRule =
+   StmtNotationRule { fromSnr :: [T.Token],
+                      toSnr   :: [T.Token],
+                      patternsSnr :: [T.Token],
+                      entitiesSnr :: [T.Token] -- all the non pattern sugared entities
+                    }
+                    deriving (Show, Eq, Typeable)
 
 data ExprNotationRule = ExprNotationRule {fromEnr          :: String,
                                           toEnr            :: String,

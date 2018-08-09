@@ -37,18 +37,35 @@ import qualified SubstanceTokenizer         as T
 tokenize :: String -> [T.Token]
 tokenize = T.alexScanTokens
 
+-- | Given a string representing a sugared Substance program, tokenize it and
+--   and refine the tokens into patterns and entities
+tokenizeSugaredSubstance :: String -> VarEnv -> [T.Token]
+tokenizeSugaredSubstance prog dsllEnv =
+  let allEntities = concatMap entitiesSnr (stmtNotations dsllEnv)
+      tokenized = tokenize prog
+      tokenized' = foldl (refineByEntity allEntities) [] tokenized
+  in tokenized'
+
+-- getEntities :: StmtNotationRule -> [T.Token]
+-- getEntities s = entitiesSnr s
+
 -- | Translate string notation patterns into tokenized patterns which ignores
 --   spaces and properly recognize patterns and Dsll entities
-translatePatterns :: (String,String) -> VarEnv -> ([T.Token],[T.Token],[T.Token])
+translatePatterns :: (String,String) -> VarEnv -> ([T.Token],[T.Token],[T.Token],[T.Token])
 translatePatterns (fromStr, toStr) dsllEnv =
   let from = foldl (refineDSLLToken dsllEnv) [] (tokenize fromStr)
       patterns = filter notPatterns from
-      to = tokenize toStr --foldl (refinePaternToken patterns) [] (tokenize toStr)
-  in (from, to,patterns)
+      to = foldl (refineByPattern patterns) [] (tokenize toStr)
+      entities = filter notEntities to
+  in (from, to, patterns, entities)
 
 notPatterns :: T.Token -> Bool
 notPatterns (T.Pattern t) = True
 notPatterns token = False
+
+notEntities :: T.Token -> Bool
+notEntities (T.Entitiy e) = True
+notEntities token = False
 
 spaces :: T.Token -> Bool
 spaces T.Space  = False
@@ -58,13 +75,21 @@ newLines :: T.Token -> Bool
 newLines T.NewLine  = False
 newLines token = True
 
-refinePaternToken :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
-refinePaternToken patterns tokens (T.Var v) =
-   if T.Pattern v `elem` patterns
+refineByPattern :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
+refineByPattern patterns tokens (T.Var v) =
+   if v `elem` map (\(T.Pattern p) -> p) patterns
     then tokens ++ [T.Pattern v]
-    else tokens ++ [T.Var v]
+    else tokens ++ [T.Entitiy v]
 
-refinePaternToken patterns tokens t = tokens ++ [t]
+refineByPattern patterns tokens t = tokens ++ [t]
+
+refineByEntity :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
+refineByEntity entities tokens (T.Var v) =
+   if T.Entitiy v `elem` entities
+    then tokens ++ [T.Entitiy v]
+    else tokens ++ [T.Pattern v]
+
+refineByEntity patterns tokens t = tokens ++ [t]
 
 
 refineDSLLToken :: VarEnv -> [T.Token] -> T.Token -> [T.Token]
@@ -108,3 +133,4 @@ translate prog (T.Var v) = prog ++ v
 translate prog (T.Comment c) = prog ++ c
 translate prog (T.DSLLEntity d) = prog ++ d
 translate prog (T.Pattern p) = prog ++ p
+translate prog (T.Entitiy e) = prog ++ e

@@ -361,9 +361,28 @@ data Token =
   Sym Char          |
   Var String        |
   Pattern String    |
+  Entitiy String    |
   DSLLEntity String |
   Comment String
-  deriving (Eq,Show)
+  deriving (Show)
+
+instance Eq Token where
+  Bind == Bind = True
+  NewLine == NewLine = True
+  PredEq == PredEq = True
+  ExprEq == ExprEq = True
+  Comma == Comma = True
+  Lparen == Lparen = True
+  Rparen == Rparen = True
+  Space == Space = True
+  Sym c1 == Sym c2 = c1 == c2
+  Var c1 == Var c2 = c1 == c2
+  Pattern c1 == Pattern c2 = True
+  Entitiy c1 == Entitiy c2 = c1 == c2
+  DSLLEntity c1 == DSLLEntity c2 = c1 == c2
+  Comment c1 == Comment c2 = c1 == c2
+  a == b = False
+
 main = do
   s <- getContents
   print (alexScanTokens s)
