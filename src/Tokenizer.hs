@@ -132,5 +132,5 @@ translate prog (T.Sym c) = prog ++ [c]
 translate prog (T.Var v) = prog ++ v
 translate prog (T.Comment c) = prog ++ c
 translate prog (T.DSLLEntity d) = prog ++ d
-translate prog (T.Pattern p) = prog ++ p
+translate prog (T.Pattern p) = prog ++ p ++ " "
 translate prog (T.Entitiy e) = prog ++ e

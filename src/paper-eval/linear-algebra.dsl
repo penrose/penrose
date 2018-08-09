@@ -17,7 +17,11 @@ predicate Not(p : Prop) : Prop
 
 -- Syntactic Sugar Definition
 
-StmtNotation  "det( v1, v2) " -> "determinant(v1 , v2)   "
+StmtNotation  "det(v1, v2) " -> "determinant(v1 , v2)"
+StmtNotation "LinearMap f : U → V" -> "LinearMap f ;From(f,U,V)"
+StmtNotation "v1 + v2" -> "add(v1,v2)"
+StmtNotation "a ∈ U" -> "In(a,U)"
+StmtNotation "|y1|" -> "norm(y1)"
 
 /*
 ExprNotation "add($v1 ,$v2)" -> "$v1 + $v2" (at level 2, right associativity)

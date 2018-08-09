@@ -37,7 +37,7 @@ sugarStmts :: String -> VarEnv -> String
 sugarStmts prog dsllEnv =
   let notations = stmtNotations dsllEnv
       tokenizedProg = Tokenizer.tokenizeSugaredSubstance prog dsllEnv
-      str  = foldl (sugarStmt dsllEnv) tokenizedProg notations
+      str  = foldl (sugarStmt dsllEnv) (filter Tokenizer.spaces tokenizedProg) notations
   in Tokenizer.reTokenize str
 
 -- Preform a replacement of a specific given pattern
@@ -46,18 +46,29 @@ sugarStmt dsllEnv tokens rule =
    let from = fromSnr rule
        to = toSnr rule
        patterns = patternsSnr rule
-       splitted = split (onSublist (filter Tokenizer.spaces to))  tokens
+       splitted = split (onSublist (filter Tokenizer.spaces to)) tokens
        splittedReplaced =
-          foldl (replace from to patterns) [] (traceShowId splitted)
+          foldl (replace from to patterns) [] splitted
    in concat splittedReplaced
 
 -- Preform the actual replacement of a pattern
 replace :: [T.Token] -> [T.Token] -> [T.Token] -> [[T.Token]]
  -> [T.Token] -> [[T.Token]]
 replace from to patterns lst chunk =
-   if comparePattern to chunk patterns then lst ++ [from] else lst ++ [chunk]
+   if comparePattern to chunk patterns then
+     let patternMatch = zip (filter Tokenizer.notPatterns to) (filter Tokenizer.notPatterns chunk)
+         from' = foldl updateValue from patternMatch
+     in lst ++ [from']
+   else lst ++ [chunk]
 
+replaceElement (T.Pattern p1) (T.Pattern p2) (T.Pattern x) =
+  if p1 == x then T.Pattern p2 else T.Pattern x
+replaceElement p1 p2 x = x
 
+updateValue :: [T.Token] -> (T.Token,T.Token) -> [T.Token]
+updateValue from patternMatch = map (uncurry replaceElement patternMatch) from
+
+-- | Compare 2 patterns
 comparePattern :: [T.Token] -> [T.Token] -> [T.Token] -> Bool
 comparePattern to chunk patterns =
   let chunk' = filter Tokenizer.spaces chunk
@@ -67,6 +78,7 @@ comparePattern to chunk patterns =
 compareElements :: (T.Token,T.Token) -> Bool
 compareElements (T.Var a, T.Pattern b) = True
 compareElements (a,b) = a == b
+
 ------------------------------ Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc Sugarer.hs; ./Sugarer <dsll-file> <substance-file>
@@ -80,10 +92,10 @@ main = do
   divLine
   substanceIn <- readFile substanceFile
   putStrLn "Tokenized Sugared Substance: \n"
-  print (sugarStmts substanceIn dsllEnv)
-  --print(sugarStmts substanceIn dsllEnv)
+  --print (sugarStmts substanceIn dsllEnv)
+  print(sugarStmts substanceIn dsllEnv)
   --print(tokenize substanceIn dsllEnv)
   --print(splitOn [T.NewLine] (tokenize substanceIn dsllEnv))
   -- print(reTokenize (T.alexScanTokens substanceIn))
-  -- writeFile "syntacticSugarExamples/output" (sugarStmts substanceIn dsllEnv)
+  writeFile "syntacticSugarExamples/output" (sugarStmts substanceIn dsllEnv)
   return ()

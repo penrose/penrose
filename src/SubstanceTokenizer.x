@@ -10,6 +10,7 @@ tokens :-
   "--".*                            { \s -> Comment s }
   [\ \t\f\v\r]+                    {\s -> Space}
   [\n]+                             {\s -> NewLine}
+  \;                             {\s -> NewLine}
   \<\-\>                              { \s -> PredEq }
   \=                                { \s -> ExprEq }
   \:=                               { \s -> Bind }

@@ -1,1 +1,13 @@
-determinant($v1,$v2)
+VectorSpace X 
+VectorSpace Y 
+Vector a 
+Vector b 
+In(a ,X )
+In(b ,Y )
+LinearMap t1  
+From(t1 ,X ,Y )
+LinearMap t2  
+From(t2 ,Y ,X )
+determinant(a  , b )
+c :=add(a ,b )
+d :=norm(c )

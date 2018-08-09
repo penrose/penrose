@@ -682,7 +682,7 @@ getAllIds :: ([SubDecl], [SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
 
 
--- --------------------------------------- Test Driver -------------------------------------
+-- --------------------------------------- Test Driver -------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc SubstanceCore.hs; ./SubstanceCore <substance core-file>
 
