@@ -39,12 +39,12 @@ tokenize = T.alexScanTokens
 
 -- | Translate string notation patterns into tokenized patterns which ignores
 --   spaces and properly recognize patterns and Dsll entities
-translatePatterns :: (String,String) -> VarEnv -> ([T.Token],[T.Token])
+translatePatterns :: (String,String) -> VarEnv -> ([T.Token],[T.Token],[T.Token])
 translatePatterns (fromStr, toStr) dsllEnv =
   let from = foldl (refineDSLLToken dsllEnv) [] (tokenize fromStr)
       patterns = filter notPatterns from
-      to = foldl (refinePaternToken patterns) [] (tokenize toStr)
-  in (filter spaces from, filter spaces to)
+      to = tokenize toStr --foldl (refinePaternToken patterns) [] (tokenize toStr)
+  in (from, to,patterns)
 
 notPatterns :: T.Token -> Bool
 notPatterns (T.Pattern t) = True
@@ -53,6 +53,10 @@ notPatterns token = False
 spaces :: T.Token -> Bool
 spaces T.Space  = False
 spaces token = True
+
+newLines :: T.Token -> Bool
+newLines T.NewLine  = False
+newLines token = True
 
 refinePaternToken :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
 refinePaternToken patterns tokens (T.Var v) =

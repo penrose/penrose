@@ -30,7 +30,7 @@ import qualified Data.Map.Strict            as M
 import qualified Dsll                       as D
 import qualified Text.Megaparsec.Char.Lexer as L
 
---------------------------------------- Substance AST ---------------------------------------
+---------------------------- Substance AST -------------------------------------
 
 newtype ValConstructorName = ValConst String             -- “Cons”, “Times”
                           deriving (Show, Eq, Typeable)

@@ -267,7 +267,8 @@ data Predicate2 = Prd2 { namepred2 :: String,
                   deriving (Show, Eq, Typeable)
 
 data StmtNotationRule = StmtNotationRule {fromSnr :: [T.Token],
-                                          toSnr   :: [T.Token]}
+                                          toSnr   :: [T.Token],
+                                          patternsSnr :: [T.Token]}
                   deriving (Show, Eq, Typeable)
 
 data ExprNotationRule = ExprNotationRule {fromEnr          :: String,
@@ -296,12 +297,14 @@ isDeclared name varEnv = name `elem` typeCtorNames varEnv
 checkTypeVar :: VarEnv -> TypeVar -> VarEnv
 checkTypeVar e v = if M.member v (typeVarMap e)
                    then e
-                   else e { errors = errors e ++ ("TypeVar " ++ show v ++ "is not in scope \n") }
+                   else e { errors = errors e ++ ("TypeVar " ++
+                    show v ++ "is not in scope \n") }
 
 checkVar :: VarEnv -> Var -> VarEnv
 checkVar e v = if M.member v (varMap e)
                then e
-               else e { errors = errors e ++ ("Var " ++ show v ++ "is not in scope \n") }
+               else e { errors = errors e ++ ("Var " ++ show v
+               ++ "is not in scope \n") }
 
 
 checkY :: VarEnv -> Y -> VarEnv
@@ -325,24 +328,29 @@ checkType :: VarEnv -> Type -> VarEnv
 checkType e t = e
 
 checkTypeCtorApp :: VarEnv -> TypeCtorApp -> VarEnv
-checkTypeCtorApp e const = let name = nameCons const
-                               args = argCons const
-                               env1 = foldl checkArg e args
-                               kinds1 = getTypesOfArgs e args
-                            in case checkAndGet name (typeConstructors e) (constructorInvokerPos const) of
-                                      Right val -> let kinds2 = kindstc val
-                                                   in if kinds1 /= kinds2
-                                                      then env1 { errors = errors env1
-                                                                          ++ ("Args do not match: " ++ show kinds1 ++
-                                                                          " != " ++ show kinds2 ++ "\n") }
-                                                      else env1
-                                      Left err -> env1 { errors = errors env1 ++ err }
+checkTypeCtorApp e const =
+  let name = nameCons const
+      args = argCons const
+      env1 = foldl checkArg e args
+      kinds1 = getTypesOfArgs e args
+  in case checkAndGet name (typeConstructors e) (constructorInvokerPos const) of
+       Right val -> let kinds2 = kindstc val
+                     in if kinds1 /= kinds2
+                      then env1 { errors = errors env1
+                      ++ ("Args do not match: " ++ show kinds1 ++
+                      " != " ++ show kinds2 ++ "\n") }
+                      else env1
+       Left err -> env1 { errors = errors env1 ++ err }
 
 checkDeclaredType :: VarEnv -> T -> VarEnv
-checkDeclaredType e (TConstr t) = if nameCons t `elem` typeCtorNames e
-                                   then e
-                                   else e { errors = errors e ++ "Type " ++ nameCons t ++ " does not exsist in the context \n" }
-checkDeclaredType e _ = e { errors = errors e ++ "checkDeclaredType should be called only with type constructors \n" }
+checkDeclaredType e (TConstr t) =
+   if nameCons t `elem` typeCtorNames e
+     then e
+     else e { errors = errors e ++ "Type " ++ nameCons t ++
+      " does not exsist in the context \n" }
+
+checkDeclaredType e _ = e { errors = errors e ++
+ "checkDeclaredType should be called only with type constructors \n" }
 
 
 checkK :: VarEnv -> K -> VarEnv

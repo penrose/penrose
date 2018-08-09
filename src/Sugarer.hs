@@ -44,17 +44,28 @@ sugarStmt :: VarEnv -> [T.Token] -> StmtNotationRule -> [T.Token]
 sugarStmt dsllEnv tokens rule =
    let from = fromSnr rule
        to = toSnr rule
-       splitted = split (onSublist to)  tokens
-       splittedReplaced = foldl (replace from to) [] splitted
+       patterns = patternsSnr rule
+       splitted = split (onSublist (filter Tokenizer.spaces to))  tokens
+       splittedReplaced =
+          foldl (replace from to patterns) [] (traceShowId splitted)
    in concat splittedReplaced
 
 -- Preform the actual replacement of a pattern
-replace :: [T.Token] -> [T.Token] -> [[T.Token]] -> [T.Token] -> [[T.Token]]
-replace from to lst chunk = if comparePattern to chunk then lst ++ [from] else lst ++ [chunk]
+replace :: [T.Token] -> [T.Token] -> [T.Token] -> [[T.Token]]
+ -> [T.Token] -> [[T.Token]]
+replace from to patterns lst chunk =
+   if comparePattern to chunk patterns then lst ++ [from] else lst ++ [chunk]
 
 
-comparePattern :: [T.Token] -> [T.Token] -> Bool
-comparePattern to chunk = True
+comparePattern :: [T.Token] -> [T.Token] -> [T.Token] -> Bool
+comparePattern to chunk patterns =
+  let chunk' = filter Tokenizer.spaces chunk
+      to' = traceShowId (foldl (Tokenizer.refinePaternToken patterns) [] (filter Tokenizer.spaces to))
+  in (length chunk' == length to') && all compareElements (zip chunk' to')
+
+compareElements :: (T.Token,T.Token) -> Bool
+compareElements (T.Var a, T.Pattern b) = True
+compareElements (a,b) = a == b
 ------------------------------ Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc Sugarer.hs; ./Sugarer <dsll-file> <substance-file>
