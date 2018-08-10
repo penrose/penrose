@@ -1,10 +1,10 @@
 Vector v {
     v.shape = Parallelogram {
-    x = 10.0
-    y = 10.0
-    lengthX = 200.0
-    lengthY = 200.0
-    angle = 130
+    x = 0.0
+    y = 0.0
+    lengthX = 100.0
+    lengthY = 500.0
+    angle = 90.0
     rotation = 20.0
    }
 }
@@ -13,15 +13,26 @@ Scalar s {
     v.shape = Arc {
       x = 10.0
       y = 10.0
-      angle = 130
+      angle = 359
       style = "wedge"
-      -- isRight = "true"
+      isRight = "true"
 
       -- startX = 10.0
       -- startY = 10.0
       --endX = 80.0
       --endY = 90.0
       r = 50
-      rotation = 20.0
+      rotation = -100.0
    }
+}
+
+VectorSpace V {
+  V.shape = Brace {
+    startX = -100.0
+    startY = 0.0
+    endX = 100.0
+    endY = -100.0
+    thickness = 100.0
+    color = rgba(1.0, 0.0, 0.0, 0.5)
+  }
 }
