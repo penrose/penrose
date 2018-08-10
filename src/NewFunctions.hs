@@ -444,6 +444,7 @@ sameCenter :: ObjFn
 sameCenter [GPI a, GPI b] = (getX a - getX b)^2 + (getY a - getY b)^2
 
 centerLabel :: ObjFn
+centerLabel [a, b, Val (FloatV w)] = w * centerLabel [a, b] -- TODO factor out
 centerLabel [GPI curve, GPI text]
     | curve `is` "Curve" && text `is` "Text" =
         let ((lx, ly), (rx, ry)) = bezierBbox curve
@@ -708,8 +709,9 @@ smallerThan [GPI ins@("Square", _), GPI outs@("Square", _)] =
 
 outsideOf :: ConstrFn
 outsideOf [GPI l@("Text", _), GPI c@("Circle", _)] =
-    let labelR = max (getNum l "w") (getNum l "h")
-    in -dist (getX l, getX l) (getX c, getY c) + getNum c "r" + labelR
+    let padding = 10.0 in
+    let labelR = max (getNum l "w") (getNum l "h") in
+    -dist (getX l, getY l) (getX c, getY c) + getNum c "r" + labelR + padding
 -- TODO: factor out runtime weights
 outsideOf [GPI l@("Text", _), GPI c@("Circle", _), Val (FloatV weight)] =
     weight * outsideOf [GPI l, GPI c]

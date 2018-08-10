@@ -6,7 +6,8 @@ module Optimizer where
 import Utils
 import NewStyle
 import Numeric.AD
-
+import Debug.Trace
+       
 ------ Opt types, util functions, and params
 
 type ObjFn1 a = forall a . (Autofloat a) => [a] -> a
@@ -23,7 +24,7 @@ epsUnconstr :: Floating a => a
 epsUnconstr = 10 ** (-3)
 
 epStop :: Floating a => a -- for EP diff
-epStop = 10 ** (-3)
+epStop = 10 ** (-5)
 -- epStop = 60 ** (-3)
 -- epStop = 10 ** (-1)
 -- epStop = 0.05
@@ -110,7 +111,9 @@ stepShapes params vstate = -- varying state
               (vstate, params { optStatus = status'}) -- do not update UO state
            -- update EP state: to be the converged state from the most recent UO
            else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
-                (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
+                let epWeight' = weightGrowthFactor * epWeight in
+                trace ("Unconstrained converged. New weight: " ++ show epWeight') $
+                      (vstate, params { weight = epWeight', optStatus = status' })
 
          -- done; don't update obj state or params; user can now manipulate
          EPConverged -> (vstate, params)

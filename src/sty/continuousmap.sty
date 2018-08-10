@@ -20,7 +20,7 @@ Set x; Set y
 where IsSubset(x, y) {
   x.containFn = ensure contains(y.shape, x.shape, 10.0)
   -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)  
-  x.outsideFn = ensure outsideOf(y.text, x.shape, 0.5)
+  y.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
 }
 
 Map f
@@ -38,11 +38,14 @@ with Set X; Set Y; Set R1; Set R2 {
     }
 
     f.text     = Text {
+      -- Doesn't seem to work after the first resample. Is the server updating f.text.h on resample?
+      -- x = (f.shape.startX + f.shape.endX) / 2.0
+      -- y = (f.shape.startY + f.shape.endY) / 2.0 + 1.1 * f.text.h
       string = f.label
       rotation = 0.0
     }
     
-    f.labelFn  = encourage centerLabel(f.shape, f.text)
+    f.labelFn  = encourage centerLabel(f.shape, f.text, 5.0)
     -- f.centerFn = encourage centerArrow(f.shape, R1.shape, R2.shape)
 }
 
@@ -54,7 +57,7 @@ Set `U` {
 Set `V` {
     override `V`.shape.stroke-style = "dashed"
     override `V`.shape.stroke-width = 1.5
-}
+} 
 
 -- TODO: use subtyping for reals?
 Set `Rn` {
