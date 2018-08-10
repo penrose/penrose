@@ -22,6 +22,8 @@ StmtNotation "LinearMap f : U → V" -> "LinearMap f ;From(f,U,V)"
 StmtNotation "v1 + v2" -> "add(v1,v2)"
 StmtNotation "a ∈ U" -> "In(a,U)"
 StmtNotation "|y1|" -> "norm(y1)"
+StmtNotation "[...] ∈ V" -> "In( [.] , V)"
+
 
 /*
 ExprNotation "add($v1 ,$v2)" -> "$v1 + $v2" (at level 2, right associativity)
@@ -31,7 +33,5 @@ ExprNotation "neg($v1)" -> "-$v1"
 ExprNotation "innerProduct($v1 , $v2)" -> "<$v1, $v2>"
 ExprNotation "apply($f,$v)" -> "$f($v)"
 
-StmtNotation "LinearMap $f ; From($f,$U,$V)" -> "LinearMap $f : $U → $V"
-StmtNotation "In( [.] , $V)" -> "[...] ∈ $V"
 StmtNotation "Scalar $x ; $x := $c" -> "Scalar $x := $c"
 */

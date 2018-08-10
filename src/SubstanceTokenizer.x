@@ -8,15 +8,17 @@ tokens :-
   -- digits
   -- alphabetic characters
   "--".*                            { \s -> Comment s }
-  [\ \t\f\v\r]+                    {\s -> Space}
+  [\ \t\f\v\r]+                     {\s -> Space}
   [\n]+                             {\s -> NewLine}
-  \;                             {\s -> NewLine}
-  \<\-\>                              { \s -> PredEq }
+  \;                                {\s -> NewLine}
+  \<\-\>                            { \s -> PredEq }
   \=                                { \s -> ExprEq }
   \:=                               { \s -> Bind }
   \(                                { \s -> Lparen }
   \)                                { \s -> Rparen }
   \,                                { \s -> Comma }
+  \[\.\.\.\]                        { \s -> Iterator }
+  \[\.\]                            { \s -> Iter }
   [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\⟵\⟶\⟷\<\>\|\;\~\`\!\#\%\&\*\±\§\?\$] { \s -> Sym (head s) }
   $alpha [$alpha $digit \_ \’]*     { \s -> Var s }
   $alpha \`[$alpha $digit \_ \’]*   { \s -> Pattern s False }
@@ -26,6 +28,8 @@ tokens :-
 -- The token type:
 data Token =
   Bind                   |
+  Iterator               |
+  Iter                   |
   NewLine                |
   PredEq                 |
   ExprEq                 |

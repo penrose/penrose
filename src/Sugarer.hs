@@ -57,7 +57,7 @@ replace :: [T.Token] -> [T.Token] -> [T.Token] -> [[T.Token]]
 replace from to patterns lst chunk =
    if comparePattern to chunk patterns then
      let patternMatch = zip (filter Tokenizer.notPatterns to) (filter Tokenizer.notPatterns chunk)
-         from' = foldl updateValue from (traceShowId patternMatch)
+         from' = foldl updateValue from patternMatch
      in lst ++ [from']
    else lst ++ [chunk]
 
