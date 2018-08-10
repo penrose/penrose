@@ -290,7 +290,6 @@ braceType = ("Brace", M.fromList
         ("startY", (FloatT, y_sampler)),
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
-        ("thickness", (FloatT, sampleFloatIn (5, 15))),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultBrace"))
       ])
