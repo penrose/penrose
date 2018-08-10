@@ -57,12 +57,15 @@ replace :: [T.Token] -> [T.Token] -> [T.Token] -> [[T.Token]]
 replace from to patterns lst chunk =
    if comparePattern to chunk patterns then
      let patternMatch = zip (filter Tokenizer.notPatterns to) (filter Tokenizer.notPatterns chunk)
-         from' = foldl updateValue from patternMatch
+         from' = foldl updateValue from (traceShowId patternMatch)
      in lst ++ [from']
    else lst ++ [chunk]
 
-replaceElement (T.Pattern p1) (T.Pattern p2) (T.Pattern x) =
-  if p1 == x then T.Pattern p2 else T.Pattern x
+-- | Replace elements in the token list according to the pattern match, make
+--   sure that each element is replaced at most one time, in order to avoid
+--   collisions
+replaceElement (T.Pattern p1 b1) (T.Pattern p2 b2) (T.Pattern x b3) =
+  if p1 == x && not b3 then T.Pattern p2 True else T.Pattern x b3
 replaceElement p1 p2 x = x
 
 updateValue :: [T.Token] -> (T.Token,T.Token) -> [T.Token]
@@ -76,7 +79,7 @@ comparePattern to chunk patterns =
   in (length chunk' == length to') && all compareElements (zip chunk' to')
 
 compareElements :: (T.Token,T.Token) -> Bool
-compareElements (T.Var a, T.Pattern b) = True
+compareElements (T.Var a, T.Pattern b _) = True
 compareElements (a,b) = a == b
 
 ------------------------------ Test Driver -------------------------------------

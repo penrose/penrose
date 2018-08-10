@@ -4,8 +4,7 @@ Vector a
 Vector b
 a ∈ X
 b ∈ Y
-LinearMap t1 : X → Y
-LinearMap t2 : Y → X
-det(a,b)
+LinearMap t1 : V → U
+det(v2,v1)
 c := a + b
 d := |c|

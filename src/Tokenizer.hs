@@ -60,7 +60,7 @@ translatePatterns (fromStr, toStr) dsllEnv =
   in (from, to, patterns, entities)
 
 notPatterns :: T.Token -> Bool
-notPatterns (T.Pattern t) = True
+notPatterns (T.Pattern t b) = True
 notPatterns token = False
 
 notEntities :: T.Token -> Bool
@@ -77,8 +77,8 @@ newLines token = True
 
 refineByPattern :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
 refineByPattern patterns tokens (T.Var v) =
-   if v `elem` map (\(T.Pattern p) -> p) patterns
-    then tokens ++ [T.Pattern v]
+   if v `elem` map (\(T.Pattern p b) -> p) patterns
+    then tokens ++ [T.Pattern v False]
     else tokens ++ [T.Entitiy v]
 
 refineByPattern patterns tokens t = tokens ++ [t]
@@ -87,7 +87,7 @@ refineByEntity :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
 refineByEntity entities tokens (T.Var v) =
    if T.Entitiy v `elem` entities
     then tokens ++ [T.Entitiy v]
-    else tokens ++ [T.Pattern v]
+    else tokens ++ [T.Pattern v False]
 
 refineByEntity patterns tokens t = tokens ++ [t]
 
@@ -95,7 +95,7 @@ refineByEntity patterns tokens t = tokens ++ [t]
 refineDSLLToken :: VarEnv -> [T.Token] -> T.Token -> [T.Token]
 refineDSLLToken dsllEnv tokens (T.Var v) = if isDeclared v dsllEnv then
                                           tokens ++ [T.DSLLEntity v]
-                                       else tokens ++ [T.Pattern v]
+                                       else tokens ++ [T.Pattern v False]
 refineDSLLToken dsllEnv tokens t = tokens ++ [t]
 
 -- |This function identify the pattern vars in the sugared notatation in the
@@ -107,7 +107,7 @@ identifyPatterns tokensSugared tokenDesugared =
 identifyPattern :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
 identifyPattern tokenDesugared tokensSugared (T.Var v) =
    if T.Var v `elem` tokenDesugared then
-     tokensSugared ++ [T.Pattern v]
+     tokensSugared ++ [T.Pattern v False]
   else
     tokensSugared ++ [T.Var v]
 identifyPattern tokenDesugared tokensSugared token = tokensSugared ++ [token]
@@ -132,5 +132,5 @@ translate prog (T.Sym c) = prog ++ [c]
 translate prog (T.Var v) = prog ++ v
 translate prog (T.Comment c) = prog ++ c
 translate prog (T.DSLLEntity d) = prog ++ d
-translate prog (T.Pattern p) = prog ++ p ++ " "
+translate prog (T.Pattern p b) = prog ++ p ++ " "
 translate prog (T.Entitiy e) = prog ++ e

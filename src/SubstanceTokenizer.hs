@@ -350,19 +350,19 @@ alex_actions = array (0::Int,17) [(16,alex_action_0),(15,alex_action_1),(14,alex
 -- Each action has type :: String -> Token
 -- The token type:
 data Token =
-  Bind              |
-  NewLine           |
-  PredEq            |
-  ExprEq            |
-  Comma             |
-  Lparen            |
-  Rparen            |
-  Space             |
-  Sym Char          |
-  Var String        |
-  Pattern String    |
-  Entitiy String    |
-  DSLLEntity String |
+  Bind                   |
+  NewLine                |
+  PredEq                 |
+  ExprEq                 |
+  Comma                  |
+  Lparen                 |
+  Rparen                 |
+  Space                  |
+  Sym Char               |
+  Var String             |
+  Pattern String Bool    |
+  Entitiy String         |
+  DSLLEntity String      |
   Comment String
   deriving (Show)
 
@@ -377,7 +377,7 @@ instance Eq Token where
   Space == Space = True
   Sym c1 == Sym c2 = c1 == c2
   Var c1 == Var c2 = c1 == c2
-  Pattern c1 == Pattern c2 = True
+  Pattern c1 b1 == Pattern c2 b2 = True
   Entitiy c1 == Entitiy c2 = c1 == c2
   DSLLEntity c1 == DSLLEntity c2 = c1 == c2
   Comment c1 == Comment c2 = c1 == c2
@@ -399,7 +399,7 @@ alex_action_8 =  \s -> Rparen
 alex_action_9 =  \s -> Comma 
 alex_action_10 =  \s -> Sym (head s) 
 alex_action_11 =  \s -> Var s 
-alex_action_12 =  \s -> Pattern s 
+alex_action_12 =  \s -> Pattern s False 
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 
 
