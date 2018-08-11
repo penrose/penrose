@@ -291,6 +291,7 @@ braceType = ("Brace", M.fromList
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
         ("color", (ColorT, sampleColor)),
+        ("thickness", (FloatT, sampleFloatIn (1, 6))),
         ("name", (StrT, constValue $ StrV "defaultBrace"))
       ])
 
@@ -351,6 +352,7 @@ parallelogramType = ("Parallelogram", M.fromList
         ("rotation", (FloatT, angle_sampler)),
         ("color", (ColorT, sampleColor)),
         ("stroke-style", (StrT, stroke_style_sampler)),
+        ("stroke-color",  (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultParallelogram"))
     ])
 
@@ -369,15 +371,15 @@ imageType = ("Image", M.fromList
 
 arcType = ("Arc", M.fromList
     [
-        ("x", (FloatT, x_sampler)),
-        ("y", (FloatT, y_sampler)),
+        ("x", (FloatT, x_sampler)), -- x,y are the cordinates for the bottom left position
+        ("y", (FloatT, y_sampler)), -- of the right angle or the midlle pos of a regular angle
         ("r", (FloatT, width_sampler)),
         ("size", (FloatT, width_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
         ("angle", (FloatT, angle_sampler)),
         ("rotation", (FloatT, angle_sampler)),
-        ("isRight", (BoolT, bool_sampler)),
+        ("isRight", (BoolT, bool_sampler)), -- This property overrides the angle property
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),

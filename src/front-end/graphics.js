@@ -4,14 +4,14 @@ var Render = (function(){
 
 
   /**
-  Calculate sinus from degrees
+  Calculate sine from degrees
   **/
   function getSinFromDegrees(degrees) {
     return Math.sin(degrees * Math.PI/180);
   }
 
   /**
-  Calculate cosinus from degrees
+  Calculate cosine from degrees
   **/
   function getCosFromDegrees(degrees) {
     return Math.cos(degrees * Math.PI/180);
@@ -129,7 +129,7 @@ var Render = (function(){
   * Given center point, radius, and angels return an arc path
   * Adopted from: https://codepen.io/AnotherLinuxUser/pen/QEJmkN
   * (Added by Dor)
-  * Contaikns only the arc
+  * Contains only the arc, for use in angle marks and for curved arrows
   */
   function describeArc(x, y, radius, startAngle, endAngle,isElliptical) {
     var start = polarToCartesian(x, y, radius, endAngle);
@@ -413,6 +413,8 @@ var Render = (function(){
     var color = properties.color
     var len = Snap.len(ex, ey, sx, sy)
 
+   //Here, in order to generate thick arrow  lines, we generate a polygon with
+   // a thickness
     var body_path = [0, thickness, len - 5 * thickness, thickness,
       len - 5 * thickness, -1 * thickness, 0, -1 * thickness]
       var head_path = [len - 5 * thickness, 3 * thickness, len, 0,
@@ -426,9 +428,8 @@ var Render = (function(){
         if(style == "straight"){
           var line = s.polygon(body_path).transform(myMatrix.toTransformString())
           line.attr({
-            "fill-opacity" : 1,
-            fill : Utils.hex(color[0], color[1], color[2]),
-            stroke: Utils.hex(color[0], color[1], color[2]),
+            fill : Utils.hex(color[0], color[1], color[2],color[3]),
+            stroke: Utils.hex(color[0], color[1], color[2],color[3]),
           })
         } else if(style == "curved"){
           //This hardcoded values help to locate the tail and the head
@@ -464,6 +465,7 @@ var Render = (function(){
         var len      = Snap.len(ex, ey, sx, sy)
         var color = properties.color
         var angle = Snap.angle(sx, sy, ex, ey)
+        var strokeW = properties.thickness
 
         //Matriceds for rotation of the brace sides
         var mSide1 = new Snap.Matrix();
@@ -478,21 +480,21 @@ var Render = (function(){
         body.attr({
            "fill-opacity" : 1,
             stroke: Utils.hex(color[0], color[1], color[2]),
-            strokeWidth: 2
+            strokeWidth: strokeW
         })
 
         var side1 = s.polyline(sx, sy + 10,sx , sy - 10).transform(mSide1.toTransformString())
         side1.attr({
            "fill-opacity" : 1,
             stroke: Utils.hex(color[0], color[1], color[2]),
-            strokeWidth: 2
+            strokeWidth: strokeW
         })
 
         var side2 = s.polyline(ex, ey + 10,ex , ey - 10).transform(mSide2.toTransformString())
         side2.attr({
            "fill-opacity" : 1,
             stroke: Utils.hex(color[0], color[1], color[2]),
-            strokeWidth: 2
+            strokeWidth: strokeW
         })
         var sides = s.g(side1,side2)
         return s.g(body, sides);
@@ -541,7 +543,7 @@ var Render = (function(){
       }
 
       /**
-      * Renders a Right Angle Mark (PrepMark) on the canvas
+      * Renders a Right Angle Mark (PerpMark) on the canvas
       * @param       {Snap} s  Snap.svg global object
       * @param       {JSON} properties JSON object from Haskell server
       */
@@ -564,8 +566,8 @@ var Render = (function(){
           });
           return f;
         } else{
-          var prepMarkPath = [x,y-size,x+size,y-size,x+size,y]
-          var p = s.polyline(prepMarkPath).transform(myMatrix.toTransformString())
+          var perpMarkPath = [x,y-size,x+size,y-size,x+size,y]
+          var p = s.polyline(perpMarkPath).transform(myMatrix.toTransformString())
           p.attr({
             fill: Utils.hex(color[0], color[1], color[2]),
             "fill-opacity": 0,
@@ -636,7 +638,7 @@ var Render = (function(){
           * @param       {JSON} obj JSON object from Haskell server
           */
           function _renderParallelogram(s, properties) {
-            [x, y] = [properties.x, properties.y]
+            [x, y] = [properties.x, properties.y] //The bottom left corener of the parallelogram
             var sizeX = properties.lengthX;
             var sizeY = properties.lengthY;
             var angle = properties.angle;
@@ -647,7 +649,8 @@ var Render = (function(){
             myMatrix.rotate(rotation, x, y);
 
             h = sizeY * getSinFromDegrees(angle)  // The height of the prallelogram
-            cor = sizeY * getCosFromDegrees(angle)
+            cor = sizeY * getCosFromDegrees(angle) // The "shift" we get from the angle, or the
+                                                   // "correction" between rectangle to parallelogram
 
             parallelogramPath = [x, y, x + sizeX , y , x + sizeX + cor, y - h ,
               x + cor , y - h]
@@ -656,12 +659,13 @@ var Render = (function(){
               .transform(myMatrix.toTransformString())
 
               var color = properties.color
+              var strokeColor = properties["stroke-color"]
               var opacity = color[3]
 
               parallelogram.attr({
                 fill: Utils.hex(color[0], color[1], color[2]),
                 "fill-opacity": opacity,
-                "stroke": "black"
+                "stroke": Utils.hex(strokeColor[0], strokeColor[1], strokeColor[2], strokeColor[3])
               });
               if(properties["stroke-style"] == "dashed") {
                 parallelogram.attr({ strokeDasharray: "7, 5" })
