@@ -1,70 +1,100 @@
-
 Set x {
     x.shape = Circle {
         color = rgba(0.1, 0.1, 0.9, 0.2)
         stroke-style = "solid"
+        stroke-width = 1.0
+        rotation = 0.0
     }
-    x.text    = Text { string = x.label }
+
+    x.text    = Text {
+      string = x.label
+      rotation = 0.0
+    }
+
+    -- TODO
     x.labelFn = ensure contains(x.shape, x.text)
 }
 
-Set `U`
-with Set `R1`
-{
-    override `U`.shape.stroke-style = "dashed"
-    override `U`.shape.stroke-width = 2
-    override `U`.shape.y = `R1`.shape.y
-}
-
-Set `V`
-with Set `U` {
-    override `V`.shape.stroke-style = "dashed"
-    override `V`.shape.stroke-width = 2
-    override `V`.shape.y = `U`.shape.y
-}
-
-
-Set `R1` {
-    override `R1`.shape = Square {
-        color = rgba(0.95, 0.96, 0.92, 0.5)
-    }
-    -- objective topRightOf(R1.shape.label, R1.shape)
-}
-
-
+-- Selector ordering matters!
 Set x; Set y
 where IsSubset(x, y) {
-    y.containFn = ensure contains(y.shape, x.shape, 10.0)
-    y.outsideFn = ensure outsideOf(y.text, x.shape)
+  x.containFn = ensure contains(y.shape, x.shape, 10.0)
+  -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)  
+  y.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
 }
-
-
-Set `R2`
-with Set `R1`
-{
-    override `R2`.shape = Square {
-        color = rgba(0.95, 0.96, 0.92, 0.5)
-        y = `R1`.shape.y
-        x = `R1`.shape.x + 400.0
-        side  = `R1`.shape.side
-    }
-    -- objective topRightOf(R2.shape.label, R2.shape)
-}
-
 
 Map f
-where From(f, X, Y)
-with Set X; Set Y
-{
+where From(f, X, Y); IsSubset(X, R1); IsSubset(Y, R2)
+with Set X; Set Y; Set R1; Set R2 {
+  f.padding = 20.0
+  
     f.shape = Arrow {
+      startX = R1.shape.x + (R1.shape.side) / 2.0 + f.padding
+      startY = R1.shape.y
+      endX = R2.shape.x - (R2.shape.side) / 2.0 - f.padding
+      endY = R2.shape.y 
         thickness = 10.0
         -- style = "curved"
     }
-    f.text     = Text { string = f.label }
-    f.labelFn  = encourage centerLabel(f.shape, f.text)
-    f.centerFn = encourage centerArrow(f.shape, X.shape, Y.shape)
+
+    f.text     = Text {
+      -- Doesn't seem to work after the first resample. Is the server updating f.text.h on resample?
+      -- x = (f.shape.startX + f.shape.endX) / 2.0
+      -- y = (f.shape.startY + f.shape.endY) / 2.0 + 1.1 * f.text.h
+      string = f.label
+      rotation = 0.0
+    }
+    
+    f.labelFn  = encourage centerLabel(f.shape, f.text, 5.0)
+    -- f.centerFn = encourage centerArrow(f.shape, R1.shape, R2.shape)
 }
 
-/*
+Set `U` {
+    override `U`.shape.stroke-style = "dashed"
+    override `U`.shape.stroke-width = 1.5
+}
 
-*/
+Set `V` {
+    override `V`.shape.stroke-style = "dashed"
+    override `V`.shape.stroke-width = 1.5
+} 
+
+-- TODO: use subtyping for reals?
+Set `Rn` {
+    override `Rn`.shape = Square {
+      -- Works but is slow
+      -- x = -100.0
+      -- y = 0.0
+      color = rgba(0.95, 0.96, 0.92, 0.5)
+      rotation = 0.0
+      stroke-width = 1.0
+    }
+      
+    `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - 20.0
+    `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - 20.0
+
+    delete `Rn`.labelFn
+    delete `Rn`.outsideFn
+}
+
+Set `Rm`
+with Set `Rn` {
+    -- TODO: factor this block out
+    override `Rm`.shape = Square {
+        color = rgba(0.95, 0.96, 0.92, 0.5)
+        y = `Rn`.shape.y
+        x = `Rn`.shape.x + 400.0
+        side  = `Rn`.shape.side
+        rotation = 0.0
+        stroke-width = 1.0
+    }
+
+    `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - 20.0
+    `Rm`.text.y = `Rm`.shape.y + `Rm`.shape.side / 2.0 - 20.0
+
+    delete `Rm`.labelFn
+    delete `Rm`.outsideFn
+
+    -- This doesn't seem to work
+    --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
+}

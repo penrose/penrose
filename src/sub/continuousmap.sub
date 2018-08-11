@@ -2,22 +2,18 @@ AutoLabel All
 
 Set A
 Set U
-Set R1
-Label R1 $\mathbb{R}^n$
+Set Rn
+Label Rn $\mathbb{R}^n$
 IsSubset(U, A)
-IsSubset(A, R1)
+IsSubset(A, Rn)
 
 Set B
 Set V
-Label V  $f^{-1}(U)$
-Set R2
-Label R2 $\mathbb{R}^m$
+Label V $f^{-1}(U)$
+Set Rm
+Label Rm $\mathbb{R}^m$
 IsSubset(V, B)
-IsSubset(B, R2)
+IsSubset(B, Rm)
 
 Map f
 From(f, A, B)
-
-/*
-
-*/

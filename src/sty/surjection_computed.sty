@@ -20,6 +20,7 @@ Set `codomain` {
           startY = 0.0
           endX   = -100.0
           endY   = 200.0
+          thickness = 10.0          
     }
 
     -- TODO: refactor rendering code and uncomment
@@ -31,66 +32,95 @@ Set `codomain` {
     -- }
 
     `codomain`.text = Text { string = `codomain`.label }
-    `codomain`.nearFn = encourage nearHead(`codomain`.shape, `codomain`.text, 0.0, 20.0) -- TODO parse negative numbers
-}
-
-Map f
-where From(f, domain, image)
-with Set `domainOuter` {
-    f.shape = Curve {
-        path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
-        color = rgba(0.05, 0.05, 0.6, 1.0)
-    }
-    f.text = Text {
-        string = f.label
-        x = `domainOuter`.shape.endX - 30.0
-        y = `domainOuter`.shape.endY + 30.0
-    }
+    `codomain`.nearFn = encourage nearHead(`codomain`.shape, `codomain`.text, 0.0, 20.0)
 }
 
 Set `domain`
-with Set `codomain`, `domainOuter`{
+with Set `codomain`, `domainOuter` {
+    `domain`.left_margin  = 0.2
+    `domain`.right_margin = 0.8
+    `domain`.outer_len = `domainOuter`.shape.endX - `domainOuter`.shape.startX
+  
     `domain`.left = Line {
+        thickness = 2.0
+        color = rgba(0.0, 0.0, 0.0, 1.0)
         style = "dashed"
-        path = lineLeft(0.2, `domainOuter`.shape, `codomain`.shape)
+        startX = `domainOuter`.shape.startX + `domain`.left_margin * `domain`.outer_len
+        startY = `domainOuter`.shape.startY
+        endX = `domain`.left.startX
+        endY = `codomain`.shape.endY
     }
 
     `domain`.right = Line {
+        thickness = 2.0
+        color = rgba(0.0, 0.0, 0.0, 1.0)      
         style = "dashed"
-        path = lineLeft(0.8, `domainOuter`.shape, `codomain`.shape)
-    }
+        startX = `domainOuter`.shape.startX + `domain`.right_margin * `domain`.outer_len
+        startY = `domainOuter`.shape.startY
+        endX = `domain`.right.startX
+        endY = `codomain`.shape.endY
+     }
 
-    -- `domain`.left_label = Text { string = "A_0" }
-    -- `domain`.right_label = Text { string = "A_1" }
-    -- `domain`.leftFn = encourage nearEndVert(`domain`.left, `domain`.left_label)
-    -- `domain`.rightFn = encourage nearEndVert(`domain`.right, `domain`.right_label)
+    `domain`.left_label = Text { string = "A_0" }
+    `domain`.right_label = Text { string = "A_1" }
+    `domain`.leftFn = encourage nearEndVert(`domain`.left, `domain`.left_label)
+    `domain`.rightFn = encourage nearEndVert(`domain`.right, `domain`.right_label)
 }
 
 Set `image`
 with Set `codomain`, `domainOuter`{
+    `image`.bottom_margin  = 0.2 -- TODO: Could these margins be optimized?
+    `image`.top_margin = 0.8
+    `image`.codomain_len = `codomain`.shape.endY - `codomain`.shape.startY
+  
     `image`.bottom = Line {
+        thickness = 2.0
+        color = rgba(0.0, 0.0, 0.0, 1.0)
         style = "dashed"
-        path = lineRight(0.2, `codomain`.shape, `domainOuter`.shape)
+        startX = `codomain`.shape.startX
+        startY = `codomain`.shape.startY + `image`.bottom_margin * `image`.codomain_len
+        endX = `domainOuter`.shape.endX
+        endY = `image`.bottom.startY
     }
 
     `image`.top = Line {
+        thickness = 2.0
+        color = rgba(0.0, 0.0, 0.0, 1.0)
         style = "dashed"
-        path = lineRight(0.8, `codomain`.shape, `domainOuter`.shape)
+        startX = `codomain`.shape.startX
+        startY = `codomain`.shape.startY + `image`.top_margin * `image`.codomain_len
+        endX = `domainOuter`.shape.endX
+        endY = `image`.top.startY
     }
 
-    -- `image`.top_label = Text { string = "B_0" }
-    -- `image`.bottom_label = Text { string = "B_1" }
-    -- `image`.bottomFn = encourage nearEndHoriz(`image`.bottom, `image`.bottom_label)
-    -- `image`.topFn = encourage nearEndHoriz(`image`.top, `image`.top_label)
+    `image`.top_label = Text { string = "B_1" }
+    `image`.bottom_label = Text { string = "B_0" }
+    `image`.bottomFn = encourage nearEndHoriz(`image`.bottom, `image`.bottom_label)
+    `image`.topFn = encourage nearEndHoriz(`image`.top, `image`.top_label)
 }
 
-/*
-Set `cartesianProduct` {
+Map f
+where From(f, domain, image)
+with Set `domainOuter`; Set domain; Set image {
+    f.shape = Curve {
+        path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
+        color = rgba(0.05, 0.05, 0.6, 1.0)
+    }
+
+    f.text = Text {
+        string = f.label
+        x = `domainOuter`.shape.endX / 2.0 - 50.0
+        y = `domainOuter`.shape.endY - 30.0
+    }
+}
+
+Set `cartesianProduct`
+with Set `domain`; Set `image` {
     `cartesianProduct`.shape = Rectangle {
-        -- center = regionCenter(domain, image)    -- this will pass in both of domain's objects
-        length = regionX(domain)
-        width = regionY(image)
-        color = lightBlue()
+        x = (`domain`.left.startX + `domain`.right.startX) / 2.0
+        y = (`image`.bottom.startY + `image`.top.startY) / 2.0
+        w = `domain`.right.startX - `domain`.left.startX
+        h = `image`.top.startY - `image`.bottom.startY
+        color = rgba(0.1, 0.1, 0.9, 0.2)
     }
 }
-*/

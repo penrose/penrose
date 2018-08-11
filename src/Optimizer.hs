@@ -6,7 +6,8 @@ module Optimizer where
 import Utils
 import NewStyle
 import Numeric.AD
-
+import Debug.Trace
+       
 ------ Opt types, util functions, and params
 
 type ObjFn1 a = forall a . (Autofloat a) => [a] -> a
@@ -19,11 +20,14 @@ type GradFn a = forall a . (Autofloat a) => [a] -> [a]
 weightGrowthFactor :: (Autofloat a) => a -- for EP weight
 weightGrowthFactor = 10
 
+epsUnconstr :: Floating a => a
+epsUnconstr = 10 ** (-3)
+
 epStop :: Floating a => a -- for EP diff
--- epStop = 10 ** (-3)
+epStop = 10 ** (-5)
 -- epStop = 60 ** (-3)
 -- epStop = 10 ** (-1)
-epStop = 0.05
+-- epStop = 0.05
 
 -- convergence criterion for EP
 -- if you want to use it for UO, needs a different epsilon
@@ -32,6 +36,9 @@ epStopCond x x' fx fx' =
            tro ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
            ++ "\n|f(x') - f(x)|: " ++ (show $ abs (fx - fx'))) $
            (norm (x -. x') <= epStop) || (abs (fx - fx') <= epStop)
+
+unconstrainedStopCond :: (Autofloat a) => [a] -> Bool
+unconstrainedStopCond gradEval = norm gradEval < epsUnconstr
 
 nanSub :: (Autofloat a) => a
 nanSub = 0
@@ -62,7 +69,7 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 
 step :: RState -> RState
 step s = let (state', params') = {-# SCC stepShapes #-} stepShapes (paramsr s)  (varyingState s) in
-         let !shapes' = {-# SCC evalTranslation #-} evalTranslation s in
+         let (!shapes', _) = {-# SCC evalTranslation #-} evalTranslation s in
          s { varyingState = state', shapesr =  shapes', paramsr = params' }
          -- note: trans is not updated in rstate
 
@@ -85,8 +92,9 @@ stepShapes params vstate = -- varying state
          -- note convergence checks are only on the varying part of the state
          UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
            -- let unconstrConverged = optStopCond gradEval in
-           let unconstrConverged = epStopCond vstate vstate'
-                                   (objFnApplied vstate) (objFnApplied vstate') in
+           let unconstrConverged = epStopCond vstate vstate' (objFnApplied vstate) (objFnApplied vstate') in
+               -- Two stopping conditions
+               -- unconstrainedStopCond gradEval in 
            if unconstrConverged then
               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
               (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
@@ -96,14 +104,16 @@ stepShapes params vstate = -- varying state
          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
          -- and whether to check WRT the updated state or not
          UnconstrainedConverged lastEPstate ->
-           let epConverged = epStopCond lastEPstate vstate -- lastEPstate is last state for converged UO
-                                   (objFnApplied lastEPstate) (objFnApplied vstate) in
+           let epConverged = epStopCond lastEPstate (map r2f vstate) -- lastEPstate is last state for converged UO
+                                   (objFnApplied lastEPstate) (objFnApplied (map r2f vstate)) in
            if epConverged then
               let status' = EPConverged in -- no more EP state
               (vstate, params { optStatus = status'}) -- do not update UO state
            -- update EP state: to be the converged state from the most recent UO
            else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
-                (vstate, params { weight = weightGrowthFactor * epWeight, optStatus = status' })
+                let epWeight' = weightGrowthFactor * epWeight in
+                trace ("Unconstrained converged. New weight: " ++ show epWeight') $
+                      (vstate, params { weight = epWeight', optStatus = status' })
 
          -- done; don't update obj state or params; user can now manipulate
          EPConverged -> (vstate, params)
@@ -131,10 +141,13 @@ stepWithObjective params state = (steppedState, gradEval)
           -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
           steppedState =
               let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
+              let (fx, fx') = (objFnApplied state, objFnApplied state') in
                          tro ("||x' - x||: " ++ (show $ norm (state -. state'))
                                 ++ "\n|f(x') - f(x)|: " ++
-                               (show $ abs (objFnApplied state - objFnApplied state'))
+                               (show $ abs (fx' - fx))
+                                ++ "\nf(x'): \n" ++ (show fx')
                                 ++ "\ngradEval: \n" ++ (show gradEval)
+                                ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
                                 ++ "\nstate: \n" ++ (show state') )
                          state'
 
@@ -169,6 +182,9 @@ timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
                   duf :: (Autofloat a) => [a] -> [a] -> a
                   duf u x = gradF x `dotL` u
 
+linesearch_max :: Int
+linesearch_max = 100 -- TODO what's a reasonable limit (if any)?
+
 -- Implements Armijo-Wolfe line search as specified in Keenan's notes, converges on nonconvex fns as well
 -- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods", page TODO
 -- duf = D_u(f), the directional derivative of f at descent direction u
@@ -181,9 +197,9 @@ awLineSearch f duf_noU descentDir x0 =
              -- drop while a&w are not satisfied OR the interval is large enough
     --  let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
     --                           $ iterate update (a0, b0, t0) in tf
-     let (numUpdatas, (af, bf, tf)) = head $ dropWhile (intervalOK_or_notArmijoAndWolfe . snd)
+     let (numUpdates, (af, bf, tf)) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
                               $ zip [0..] $ iterate update (a0, b0, t0) in
-                            --   trRaw ("Linear search update count: " ++ show numUpdatas) $
+                              tr ("Line search # updates: " ++ show numUpdates) $
                               tf
           where (a0, b0, t0) = (0, infinity, 1)
                 duf = duf_noU descentDir
@@ -195,11 +211,14 @@ awLineSearch f duf_noU descentDir x0 =
                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
                        else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
                        else tr' "b' = infinity" (a', b', 2 * a')
-                intervalOK_or_notArmijoAndWolfe (a, b, t) = not $
+                intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) = 
+                      not $
                       if armijo t && weakWolfe t then -- takes precedence
                            tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True
                       else if abs (b - a) < minInterval then
                            tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
+                      else if numUpdates > linesearch_max then
+                           tr ("stop: number of line search updates exceeded max") True
                       else False -- could be shorter; long for debugging purposes
                 armijo t = (f ((tr' "** x0" x0) +. t *. (tr' "descentDir" descentDir))) <= ((tr' "fAtX0"fAtx0) + c1 * t * (tr' "dufAtX0" dufAtx0))
                 strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0

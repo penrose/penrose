@@ -212,7 +212,7 @@ resampleAndSend conn s = do
                     NS.transr = trans',
                     NS.varyingState = NS.shapes2floats newShapes $ NS.varyingPaths s,
                     NS.paramsr = (NS.paramsr s) { NS.weight = NS.initWeight, NS.optStatus = NS.NewIter } }
-    wsSendJSONList conn $ NS.evalTranslation nexts
+    wsSendJSONList conn $ fst $ NS.evalTranslation nexts
     loop conn nexts
 
 stepAndSend conn s = do
