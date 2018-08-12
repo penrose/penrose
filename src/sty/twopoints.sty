@@ -1,7 +1,16 @@
+global {
+  global.padding = 15.0
+}
+
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.pink = rgba(1.0, 0.2, 1.0, 0.5)
+}
+
 Point p {
   p.shape = Circle {
     r = 3.0
-    color = rgba(0.0, 0.0, 0.0, 1.0)
+    color = Colors.black
     stroke-width = 0
   }
 
@@ -11,23 +20,23 @@ Point p {
 Point `a` {
   `a`.shape.x = 0.0
   `a`.shape.y = 0.0
-  `a`.text.x = `a`.shape.x + 15.0
-  `a`.text.y = `a`.shape.y + 15.0
+  `a`.text.x = `a`.shape.x + global.padding
+  `a`.text.y = `a`.shape.y + global.padding
 }
 
 Point `b`
 with Point `a` {
   `b`.shape.x = `a`.shape.x + 100.0
   `b`.shape.y = `a`.shape.y + 200.0
-  `b`.text.x = `b`.shape.x + 15.0
-  `b`.text.y = `b`.shape.y + 15.0
+  `b`.text.x = `b`.shape.x + global.padding
+  `b`.text.y = `b`.shape.y + global.padding
 }
 
 Set X
 with Point `b` {
   X.shape = Circle {
     stroke-width = 0
-    color = rgba(1.0, 0.2, 1.0, 0.5)
+    color = Colors.pink
     r = norm_(X.shape.x - `b`.shape.x, X.shape.y -`b`.shape.y)
   }
 
