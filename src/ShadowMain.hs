@@ -7,6 +7,7 @@ import qualified Runtime as R
 import qualified Substance as C
 import qualified Style as S
 import qualified Dsll as D
+import qualified Sugarer
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 import System.Environment
 import System.IO
@@ -39,10 +40,13 @@ shadowMain = do
 
     dsllEnv <- D.parseDsll dsllFile dsllIn
     divLine
+
+    writeFile (subFile ++ "sugared") (Sugarer.sugarStmts subIn dsllEnv)
+    desugaredSub <- readFile (subFile ++ "sugared")
     -- putStrLn "Dsll Env program:\n"
     -- print dsllEnv
 
-    (subObjs, subEnv) <- C.parseSubstance subFile subIn dsllEnv
+    (subObjs, subEnv) <- C.parseSubstance (subFile ++ "sugared") desugaredSub dsllEnv
     divLine
     -- putStrLn "Substance Env program:\n"
     -- print subEnv

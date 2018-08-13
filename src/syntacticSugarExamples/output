@@ -1,11 +1,48 @@
-VectorSpace X 
-VectorSpace Y 
-Vector a 
-Vector b 
-In(a ,X )
-In(b ,Y )
-LinearMap t1  
-From(t1 ,V ,U )
-determinant(v2  , v1 )
-c :=add(a ,b )
-d :=norm(c )
+Reals R
+Real a
+In(a ,R )
+Real b
+In(b ,R )
+Real d
+In(d ,R )
+Real e
+In(e ,R )
+Real i
+In(i ,R )
+Real j
+In(j ,R )
+Real k
+In(k ,R )
+Real inf
+In(inf ,R )
+LessThan(b ,k )
+LessThan (b ,k )
+ClosedInterval A
+A  := CreateClosedInterval (a , b )
+Subset(A , R )
+LeftClopenInterval J
+J  := CreateLeftClopenInterval (d , e )
+Subset(J , R )
+OpenInterval I
+I  := OpenInterval(i , j )
+Subset(I , R )
+OpenInterval K
+K  := OpenInterval(k , inf )
+Subset(K , R )
+Function f
+From(f ,A ,R )
+apply(Differentiable ,f )
+Interval U
+U :=J ∪I
+Function h
+From(h ,U ,R )
+apply(Discontinuous ,h )
+Real l
+In(l ,A )
+Real fl
+Point p2
+fl :=apply(f ,l )
+p2 :=Pt (l ,fl )
+Real dfl ,ih 
+dfl :=derivativeAtP(f , l )
+ih :=integral(J , h )
