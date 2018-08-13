@@ -23,6 +23,7 @@ import           System.Random
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Expr
+import           Text.Show.Pretty
 import           Utils
 -- import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
@@ -41,9 +42,10 @@ newtype OperatorName = OperatorConst String             -- “Intersection”
 newtype PredicateName = PredicateConst String            -- “Intersect”
                      deriving (Show, Eq, Typeable)
 
-data Func = Func { nameFunc :: String,
-                   argFunc  :: [Expr] }
-            deriving (Eq, Typeable)
+data Func = Func {
+    nameFunc :: String,
+    argFunc  :: [Expr]
+} deriving (Eq, Typeable)
 
 instance Show Func where
     show (Func nameFunc argFunc) = nString ++ "(" ++ aString ++ ")"
@@ -316,8 +318,8 @@ checkRecursePred varEnv args = let predArgs = map isRecursedPredicate args
 -- calling checkVarE and checkFunc respectively for each case.]
 -- If errors were found during checking then they are accumulated and returned in a tuple with the Maybe type for the expression.
 checkExpression :: VarEnv -> Expr -> (String, Maybe T)
-checkExpression varEnv (VarE v)      = checkVarE varEnv v
-checkExpression varEnv (ApplyFunc f) = checkFunc varEnv f
+checkExpression varEnv (VarE v)         = checkVarE varEnv v
+checkExpression varEnv (ApplyFunc f)    = checkFunc varEnv f
 checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
 
 
@@ -539,7 +541,30 @@ data SubObjects = SubObjects {
     subLabels :: LabelMap
 } deriving (Show, Eq, Typeable)
 
--- TODO: documentation
+-- | generate a mapping from substance IDs to their label strings
+getLabelMap :: SubProg -> VarEnv -> LabelMap
+getLabelMap p env = collectLabels subIds p
+    where
+        subIds   = map (\(VarConst v) -> v) $ M.keys (varMap env)
+
+-- | Given all label statements and Substance IDs, generate a map from
+-- all ids to their labels
+collectLabels :: [String] -> SubProg -> LabelMap
+collectLabels ids =
+    foldl (\m stmt -> case stmt of
+        LabelDecl (VarConst i) s -> M.insert i (Just s) m
+        AutoLabel Default        ->
+            M.fromList $ zip ids $ map Just ids
+        AutoLabel (IDs ids)      ->
+            foldl (\m' (VarConst i) -> M.insert i (Just i) m') m ids
+        NoLabel   ids            ->
+            foldl (\m' (VarConst i) -> M.insert i Nothing m') m ids
+        _ -> m
+    ) initmap
+    where
+        initmap = M.fromList $ map (\i -> (i, Nothing)) $ trRaw "ids" ids
+
+-- COMBAK: DEPRECATED
 loadObjects :: SubProg -> VarEnv -> SubObjects
 loadObjects p env =
     let objs1  = foldl (passDecls env) initObjs p
@@ -553,26 +578,10 @@ loadObjects p env =
         initObjs = SubObjects { subObjs = [], subLabels = M.empty }
         subIds   = map (\(VarConst v) -> v) $ M.keys (varMap env)
         labelStmt s = case s of
-            LabelDecl _ _       -> True
-            AutoLabel _         -> True
-            NoLabel   _         -> True
-            _                   -> False
-
--- | Given all label statements and Substance IDs, generate a map from
--- all ids to their labels
-collectLabels :: [String] -> [SubStmt] -> LabelMap
-collectLabels ids =
-    foldl (\m stmt -> case stmt of
-        LabelDecl (VarConst i) s -> M.insert i (Just s) m
-        AutoLabel Default        ->
-            M.fromList $ zip ids $ map Just ids
-        AutoLabel (IDs ids)      ->
-            foldl (\m' (VarConst i) -> M.insert i (Just i) m') m ids
-        NoLabel   ids            ->
-            foldl (\m' (VarConst i) -> M.insert i Nothing m') m ids
-    ) initmap
-    where
-        initmap = M.fromList $ map (\i -> (i, Nothing)) $ trRaw "ids" ids
+            LabelDecl _ _ -> True
+            AutoLabel _   -> True
+            NoLabel   _   -> True
+            _             -> False
 
 applyDef :: Ord k => (k, v) -> M.Map k (a, b) -> b
 applyDef (n, _) d = case M.lookup n d of
@@ -620,24 +629,18 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-parseSubstance :: String -> String -> VarEnv -> IO (SubObjects, (VarEnv, SubEnv))
+
+parseSubstance ::
+    String -> String -> VarEnv
+    -> IO (SubProg, (VarEnv, SubEnv), LabelMap)
 parseSubstance subFile subIn varEnv =
-               case runParser substanceParser subFile subIn of
-               Left err -> error (parseErrorPretty err)
-               Right xs -> do
-                   divLine
-                   putStrLn "Substance AST: \n"
-                   mapM_ print xs
-                   let subTypeEnv = check xs varEnv
-                       c          = loadObjects xs subTypeEnv
-                       subDynEnv   = loadSubEnv xs
-                   divLine
-                   putStrLn "Substance Type Env: \n"
-                   print subTypeEnv
-                   divLine
-                   putStrLn "Substance Dedicated Env: \n"
-                   print subDynEnv
-                   return (c, (subTypeEnv, subDynEnv))
+    case runParser substanceParser subFile subIn of
+        Left err -> error (parseErrorPretty err)
+        Right subProg -> do
+            let subTypeEnv  = check subProg varEnv
+            let subDynEnv   = loadSubEnv subProg
+            let labelMap    = getLabelMap subProg subTypeEnv
+            return (subProg, (subTypeEnv, subDynEnv), labelMap)
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions
@@ -680,7 +683,6 @@ getSubTuples = map getType
 
 getAllIds :: ([SubDecl], [SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
-
 
 -- --------------------------------------- Test Driver -------------------------------------
 -- | For testing: first uncomment the module definition to make this module the

@@ -808,14 +808,13 @@ instance (Num a, Fractional a) => Located (Obj' a) a where
 -----------------------------------------------
 -- Defining the interface between Style types/operations and internal computation types / object properties
 
-type Property = String
-
 -- | Possible computation input types (internal types)
 data TypeIn a = TNum a
               | TBool Bool
               | TStr String
               | TInt Integer
               | TFloat Float
+              | TList [TypeIn a]
               | TPt (Pt2 a)
               | TPath [Pt2 a]
               | TColor Color

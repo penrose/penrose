@@ -1,3 +1,5 @@
+// NOT PORTED denotes functions that needs to be ported to the new Penrose system
+
 var Render = (function(){
 
     /**
@@ -34,9 +36,8 @@ var Render = (function(){
             transform: this.data('origTransform') + (this.data('origTransform') ? "T" : "t") + [dx, dy]
         });
         // Increment distance traveled
-        this.data("ox", +dx );
-        this.data("oy", +dy );
-        // console.log(dx + " " + dy)
+        this.data("ox", dx);
+        this.data("oy", -dy);
     }
 
     /**
@@ -63,9 +64,11 @@ var Render = (function(){
         }
         this.attr({opacity: 1});
         var dict = { "tag" : "Drag",
-        "contents" : { "name" : this.data("name"),
-        "xm" : this.data("ox"),
-        "ym" : this.data("oy")} }
+        "contents" : {
+            "name" : this.data("name"),
+            "xm" : this.data("ox"),
+            "ym" : this.data("oy")}
+        }
         var json = JSON.stringify(dict)
         if(DEBUG) {
             console.log("Updating dragging event to server: ")
@@ -143,14 +146,17 @@ var Render = (function(){
     /**
      * FIXME: refactor
      */
-    function renderPoints(canvas, point_list, dx, dy) {
+    function _renderPoints(canvas, point_list) {
+        var res = []
         for(var i = 0; i < point_list.length; i++) {
-            var xy = toScreen(point_list[i], dx, dy);
+            var xy = Utils.scr(point_list[i]);
             var point = canvas.circle(xy[0], xy[1], 5);
             point.attr({
                 fill: "none"
             })
+            // res.push(point)
         }
+        // return canvas.g(res)
     }
 
     /**
@@ -160,35 +166,76 @@ var Render = (function(){
      * @param       {JSON} data       Scene data from Haskell server
      * @param       {Boolean} firstrun flag indicating whether is this the first frame
      */
-    function _renderScene(ws, s, data, labels, firstrun) {
+    function _renderScene(ws, s, shapes, labels, firstrun) {
         s.clear()
         // NOTE: just using clientWidth/Height does not work on Firefox
         // see https://stackoverflow.com/questions/13122790/how-to-get-svg-element-dimensions-in-firefox
         if(DEBUG) {
             console.log("Incoming GPIs from server: ")
-            console.log(data)
+            console.log(shapes)
         }
-        for (var key in data) {
-            var record = data[key]
-            var obj = record.contents
-            switch(record.tag) {
-                case 'C' : _renderCircle(s, obj); break
-                case 'E' : _renderEllipse(s, obj); break
-                case 'L' : _renderLabel (s, obj, labels,labels, firstrun); break
-                case 'P' : _renderPoint (s, obj); break
-                case 'R' : _renderRectangle(s, obj); break
-                case 'S' : _renderSquare(s, obj); break
-                case 'A' : _renderArrow (s, obj); break
-                case 'AR': _renderAngleMark(s, obj); break
-                case 'CB': _renderCurve (s, obj); break
-                case 'LN': _renderLine  (s, obj); break
-                case 'PA': _renderParallelogram(s, obj); break
-                case 'IM': _renderImage(s, obj); break
+        for (var key in shapes) {
+            // retrieve a shape and its associated properties
+            var shape = shapes[key]
+            var props = {}
+            var type  = shape[0]
+
+            // strip off all types of properties
+            for(var i in shape[1]) { props[i] = shape[1][i].contents }
+
+            // transform coordinates to screen space
+            [screen_x, screen_y] = Utils.scr([props.x, props.y])
+            props.x = screen_x; props.y = screen_y
+
+            var renderedShape = null
+            switch(type) {
+                case 'Circle'        :
+                    renderedShape = _renderCircle(s, props); break
+                case 'Eillipse'      :
+                    renderedShape = _renderEllipse(s, props); break
+                case 'Text'          :
+                    renderedShape = _renderLabel(s, props, labels, shape[1], firstrun); break
+                case 'Point'         :
+                    renderedShape = _renderPoint(s, props); break
+                case 'Rectangle'     :
+                    renderedShape = _renderRectangle(s, props); break
+                case 'Square'        :
+                    renderedShape = _renderSquare(s, props); break
+                case 'Arrow'         :
+                    renderedShape = _renderArrow (s, props); break
+                case 'Arc'     :
+                    renderedShape = _renderArc(s, props); break
+                case 'Curve'         :
+                    renderedShape = _renderCurve(s, props); break
+                case 'Line'          :
+                    renderedShape = _renderLine(s, props); break
+                case 'Parallelogram' :
+                    renderedShape = _renderParallelogram(s, props); break
+                case 'Image'         :
+                    renderedShape = _renderImage(s, props); break
+                case 'AnchorPoint'   :
+                    // NOTE: We do not render anchorPts
+                    // TODO: maybe render it in debug mode
+                    break
+                default: console.log("renderScene: the type of GPI\"" + type + "\" cannot be rendered!")
+            }
+
+	    if (DEBUG) {
+		console.log("Rendered GPI: ", renderedShape)
+	    }
+
+            // register name and functions for drag commands
+            // NOTE: cases where the shape is not rendered:
+            //     - Undefined labels
+            if(renderedShape) {
+                renderedShape.drag(move, start, stop)
+                renderedShape.data("name", props.name)
             }
         }
-        // Send the bbox information to the server
+        // Send the bbox information and label dimensions to the server
         if(firstrun) {
-            var dict = { "tag" : "Update", "contents" : { "objs" : data } }
+            var dict = { "tag" : "Update", "contents" : { "shapes" : shapes } }
+            console.log("Sending updated shapes (e.g. labels with correct bboxes) to the server: ", dict)
             var json = JSON.stringify(dict)
             ws.send(json)
         }
@@ -199,23 +246,20 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-    function _renderCircle(s, obj) {
-        [x, y] = Utils.scr([obj.xc, obj.yc])
-        var circ = s.circle(x, y, obj.r);
-        circ.data("name", obj.namec)
-        var color = obj.colorc
+    function _renderCircle(s, properties) {
+        var circ = s.circle(properties.x, properties.y, properties.r);
+        var color = properties.color
+        var opacity = properties.style == "filled" ? color[3] : 0
         circ.attr({
-            fill: Utils.hex(color.r, color.g, color.b),
-            "fill-opacity": color.a,
-            "stroke-width": obj.strokec,
+            fill: Utils.hex(color[0], color[1], color[2]),
+            "fill-opacity": opacity,
+            "stroke-width": properties["stroke-width"],
             "stroke": "black",
         });
-        if(obj.stylec == "dashed") {
-            circ.attr({
-                strokeDasharray: "7, 5" // "10"
-            })
+        if(properties["stroke-style"] == "dashed") {
+            circ.attr({ strokeDasharray: "7, 5" })
         }
-        circ.drag(move, start, stop)
+        return circ
     }
 
     /**
@@ -223,16 +267,16 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-    function _renderEllipse(s, obj) {
-        [x, y] = Utils.scr([obj.xe, obj.ye])
-        var ellip = s.ellipse(x, y, obj.rx, obj.ry);
-        ellip.data("name", obj.namee)
-        var color = obj.colore
+    function _renderEllipse(s, properties) {
+        [x, y] = [properties.x, properties.y]
+        var ellip = s.ellipse(x, y, properties.rx, properties.ry);
+        ellip.data("name", properties.name)
+        var color = properties.color
         ellip.attr({
-            fill: Utils.hex(color.r, color.g, color.b),
+            fill: Utils.hex(color[0], color[1], color[2]),
             "fill-opacity": color.a,
         });
-        ellip.drag(move, start, stop)
+        return ellip
     }
 
     /**
@@ -240,74 +284,46 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-     function _renderImage(s, obj) {
-        [x, y] = Utils.scr([obj.xin, obj.yn])
-        var sizeX = obj.sizeXim
-        var sizeY = obj.sizeYim
-        var path = obj.path
-        var image = s.image(path, x, y, sizeX, sizeY)
-        image.data("name", obj.nameim)
-        image.drag(move, start, stop)
-    }
+     function _renderImage(s, properties) {
+         [x, y] = [properties.x, properties.y]
+         var sizeX = properties.sizeX
+         var sizeY = properties.sizeY
+         var path = properties.path
+         var image = s.image(path, x, y, sizeX, sizeY)
+         return image
+     }
 
     /**
-     * Renders a label on the canvas
+     * Renders a label on the canvas. Note that the labels are pre-generated
+     * by the main module separately. This function merely performs a lookup
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      * @param       {JSON} lebels TODO
      * @param       {boolean} firstrun if this is the first run of the server, send back the bbox info
      */
-    function _renderLabel(s, obj, labels, firstrun) {
-        [x, y] = Utils.scr([obj.xl, obj.yl])
-        if(DEBUG)
-            s.circle(x, y, 2)
-        var e = Snap.parse(labels[obj.namel])
-        t = s.g()
-        t.append(e)
-        t.data("name", obj.namel)
-        t.attr({
-            "font-style": "italic",
-            "font-family": "Palatino"
-        });
-        var bbox = t.getBBox()
-        var mat = new Snap.Matrix()
-        // Fix the center of labels
-        mat.translate(x, y)
-        mat.translate(-bbox.width/2, -bbox.height/2)
-        t.transform(mat.toTransformString())
-        t.drag(move, start, stop)
-        if(firstrun) {
-            obj.wl = bbox.width
-            obj.hl = bbox.height
-        }
-        if(DEBUG) {
-            _renderBoundingBox(s, t)
-            //  _renderBoundingCircle(s, t)
-        }
-    }
-
-    // DEPRECATED
-    function _renderLabel_OLD(s, obj, firstrun) {
-        [x, y] = Utils.scr([obj.xl, obj.yl])
-        var t = s.text(x, y, [obj.textl]);
-        t.data("name", obj.namel)
-        t.attr({
-            "font-style": "italic",
-            "font-family": "Palatino"
-        });
-        var bbox = t.getBBox()
-        var mat = new Snap.Matrix()
-        // Fix the center of labels
-        mat.translate(-bbox.width/2, bbox.height/2)
-        t.transform(mat.toTransformString())
-        t.drag(move, start, stop)
-        if(firstrun) {
-            obj.wl = bbox.width
-            obj.hl = bbox.height
-        }
-        if(DEBUG) {
-            _renderBoundingBox(s, t)
-            _renderBoundingCircle(s, t)
+    function _renderLabel(s, properties, labels, shapedef, firstrun) {
+        if(labels[properties.name]) {
+            [x, y] = [properties.x, properties.y]
+            var e = Snap.parse(labels[properties.name])
+            t = s.g()
+            t.append(e)
+            var bbox = t.getBBox()
+            var mat = new Snap.Matrix()
+            // Fix the center of labels
+            mat.translate(x, y)
+            mat.translate(-bbox.width/2, -bbox.height/2)
+            t.transform(mat.toTransformString())
+            if(firstrun) {
+                shapedef.w = { tag: "FloatV", contents: bbox.width }
+                shapedef.h = { tag: "FloatV", contents: bbox.height }
+            }
+            if(DEBUG) {
+                //  var boundingCircle = _renderBoundingCircle(s, t)
+                var boundingBox = _renderBoundingBox(s, t)
+                var LabelCenter =  s.circle(x, y, 2)
+                return s.g(t, boundingBox, LabelCenter)
+            }
+            return t
         }
     }
 
@@ -316,17 +332,17 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-    function _renderPoint(s, obj) {
-        [x, y] = Utils.scr([obj.xp, obj.yp])
-        // FIXME: point radius is hardcoded
+     // FIXME: point radius is hardcoded
+     // FIXME: render colored dot
+    function _renderPoint(s, properties) {
+        [x, y] = [properties.x, properties.y]
         var pt = s.circle(x, y, 4);
-        pt.data("name", obj.namep)
-        var color = obj.colorp
+        var color = properties.color
         pt.attr({
             fill: "#000000",
             "fill-opacity": 1
         });
-        pt.drag(move, start, stop)
+        return pt
     }
 
     /**
@@ -334,25 +350,23 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-    function _renderSquare(s, obj) {
-        [x, y] = Utils.scr([obj.xs, obj.ys])
-        var side = obj.side
+    function _renderSquare(s, properties) {
+        [x, y] = [properties.x, properties.y]
+        var side = properties.side
         var sq = s.rect(x - side/2, y - side/2, side, side);
-        sq.data("name", obj.names)
-        var color = obj.colors
+        var color = properties.color
         sq.attr({
-            fill: Utils.hex(color.r, color.g, color.b),
-            "fill-opacity": color.a,
-            "stroke-width": obj.strokec,
-            // "stroke-width": 2,
+            fill: Utils.hex(color[0], color[1], color[2]),
+            "fill-opacity": color[3],
+            "stroke-width": properties['stroke-width'],
             "stroke": "black"
         });
-        if(obj.stylec == "dashed") {
+        if(properties.stylec == "dashed") {
             sq.attr({
-                strokeDasharray: "7, 5" // "10"
+                strokeDasharray: "7, 5"
             })
         }
-        sq.drag(move, start, stop)
+        return sq
     }
 
     /**
@@ -360,33 +374,32 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      */
-    function _renderCurve(s, obj) {
-        var curve = s.path(Utils.path_str(obj.pathcb));
-        curve.data("name", obj.namecb)
-        var color = obj.colorcb;
+    function _renderCurve(s, properties) {
+        var curve = s.path(Utils.path_str(properties.path));
+        var color = properties.color;
         // by default, the curve should be solid
         curve.attr({
             fill: "transparent",
             strokeWidth: 2.5, // this should be settable in Style
-            stroke: Utils.hex(color.r, color.g, color.b)
+            stroke: Utils.hex(color[0], color[1], color[2])
         });
-        if(obj.stylecb == "dashed") {
-            curve.attr({
-                strokeDasharray: "7, 5" // "10"
-            });
+        if(properties.stylecb == "dashed") {
+            curve.attr({ strokeDasharray: "7, 5" });
         }
-        curve.drag(move, start, stop)
         // DEBUG: showing control points and poly line
         if (DEBUG) {
-            var polyLine = s.polyline(allToScreen(obj.pathcb));
-            var controlPts = renderPoints(s, obj.pathcb, dx, dy);
+            var polyLine = s.polyline(Utils.allToScreen(properties.path));
+            var controlPts = _renderPoints(s, properties.path);
             polyLine.attr({
                 fill: "transparent",
                 strokeWidth: 5,
-                stroke: Utils.hex(color.r, color.g, color.b),
+                stroke: Utils.hex(color[0], color[1], color[2]),
                 strokeDasharray: "10"
             });
+            // return s.g(polyLine, controlPts, curve)
+            return s.g(polyLine, curve)
         }
+        return curve
     }
 
     /**
@@ -395,11 +408,11 @@ var Render = (function(){
      * @param       {JSON} obj JSON object from Haskell server
      * FIXME: factor out head styling code
      */
-    function _renderArrow(s, obj) {
-        var style    = obj.stylesa
-        var [sx, sy] = Utils.scr([obj.startx, obj.starty])
-        var [ex, ey] = Utils.scr([obj.endx, obj.endy])
-        var t        = obj.thickness / 6
+    function _renderArrow(s, properties) {
+        var style    = properties.style
+        var [sx, sy] = Utils.scr([properties.startX, properties.startY])
+        var [ex, ey] = Utils.scr([properties.endX, properties.endY])
+        var t        = properties.thickness / 6
         var len      = Snap.len(ex, ey, sx, sy)
         var body_path = [0, t, len - 5*t, t, len - 5*t, -1*t, 0, -1*t]
         var head_path = [len - 5*t, 3*t, len, 0, len - 5*t, -3*t]
@@ -407,8 +420,7 @@ var Render = (function(){
         var myMatrix = new Snap.Matrix();
         myMatrix.translate(sx , sy);
         myMatrix.rotate(angle, 0, 0);
-        // console.log(obj.namesa + " ex: " + ex + ", ey: " + ey + " angle: " + angle + "\n");
-        var color = obj.colorsa
+        var color = properties.color
         if(style == "straight"){
             var line = s.polygon(body_path).transform(myMatrix.toTransformString())
         }
@@ -416,7 +428,7 @@ var Render = (function(){
             line = s.path(describeArc(len/2-2.4*t,0,len/2,-90,90)).transform(myMatrix.toTransformString())
             line.attr({
                 "fill-opacity" : 0,
-                stroke: Utils.hex(color.r, color.g, color.b),
+                stroke: Utils.hex(color[0], color[1], color[2]),
                 strokeWidth: 2
             })
         }
@@ -428,66 +440,65 @@ var Render = (function(){
             .transform(myMatrix.toTransformString())
             tail1.attr({
                 "fill-opacity" : 0,
-                stroke: Utils.hex(color.r, color.g, color.b),
+                stroke: Utils.hex(color[0], color[1], color[2]),
                 strokeWidth: 2
             })
             var head1 = s.path(toPathString([[(len-(5*t)),(-(4*t))],[len-(5*t),(4*t)]],0,0)).transform(myMatrix.toTransformString())
             head1.attr({
                 "fill-opacity" : 0,
-                stroke: Utils.hex(color.r, color.g, color.b),
+                stroke: Utils.hex(color[0], color[1], color[2]),
                 strokeWidth: 2
             })
             var g1 = s.g(head1, tail1)
-            g1.data("name", obj.namesa)
-            g1.drag(move, start, stop)
+            return g1
         }
         else{
             var head = s.polyline(head_path).transform(myMatrix.toTransformString())
             var g = s.g(line, head)
-            g.data("name", obj.namesa)
-            g.drag(move, start, stop)
+            return g
         }
     } // end of _renderArrow
 
     /**
      * Renders a rectangle on the canvas
      * @param       {Snap} s  Snap.svg global object
-     * @param       {JSON} obj JSON object from Haskell server
+     * @param       {JSON} properties JSON object from Haskell server
      */
-    function _renderRectangle(s, obj) {
-        [x, y] = Utils.scr([obj.xr, obj.yr])
-        var rect = s.rect(x - obj.sizeX/2, y - obj.sizeY/2, obj.sizeX, obj.sizeY);
-        rect.data("name", obj.namer)
-        var color = obj.colorr;
+    function _renderRectangle(s, properties) {
+        [x, y] = [properties.x, properties.y]
+        // TODO: document the different btw coord systems
+        var rect = s.rect(x - properties.w/2, y - properties.h/2, properties.w, properties.h);
+        var color = properties.color;
         rect.attr({
-            fill: Utils.hex(color.r, color.g, color.b),
-            "fill-opacity": color.a,
+            fill: Utils.hex(color[0], color[1], color[2]),
+            "fill-opacity": color[3],
         });
-        rect.drag(move, start, stop)
+        return rect
     }
 
     /**
      * Renders a line segment on the canvas
      * @param       {Snap} s  Snap.svg global object
-     * @param       {JSON} obj JSON object from Haskell server
+     * @param       {JSON} properties JSON object from Haskell server
      */
-    function _renderLine(s, obj) {
-        var path = [[obj.startx_l, obj.starty_l], [obj.endx_l, obj.endy_l]];
+    function _renderLine(s, properties) {
+	// TODO: Deal with the derived property "path" here or in the backend
+        var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
+        // var path = properties.path;
+        console.log(path);
         var curve = s.path(Utils.path_str(path));
-        curve.data("name", obj.name_l)
-        var color = obj.color_l;
+        curve.data("name", properties.name)
+        var color = properties.color;
         // by default, the curve should be solid
         curve.attr({
             fill: "transparent",
-            strokeWidth: obj.thickness_l,
-            stroke: Utils.hex(color.r, color.g, color.b)
+            strokeWidth: properties.thickness,
+            stroke: Utils.hex(color[0], color[1], color[2])
         });
-        if(obj.style_l == "dashed") {
-            curve.attr({
-                strokeDasharray: "7, 5" // "10"
-            });
+        if(properties.style == "dashed") {
+            curve.attr({ strokeDasharray: "7, 5" });
         }
-        curve.drag(move, start, stop)
+        return curve
     }
 
     /**
@@ -495,15 +506,16 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      * FIXME: refactor
+     * FIXME: NOT PORTED
      */
-     function _renderAngleMark(s, obj) {
-         var isRightar = obj.isRightar
-         var sizear = obj.sizear
-         var color = obj.colorar
-         var xar = obj.xar
-         var yar = obj.yar
-         var style = obj.stylear
-         var rotationar = obj.rotationar
+     function _renderArc(s, obj) {
+         var isRightar = properties.isRight
+         var sizear = properties.size
+         var color = properties.color
+         var xar = properties.x
+         var yar = properties.y
+         var style = properties.style
+         var rotationar = properties.rotation
          if(isRightar == "true") {
              //Draw PrepMark (for right angle)
              var myMatrix = new Snap.Matrix();
@@ -517,15 +529,12 @@ var Render = (function(){
              + sizear + " " + yar
              var p = s.path(path).transform(myMatrix.toTransformString())
              p.attr({
-                 fill: Utils.hex(color.r, color.g, color.b),
+                 fill: Utils.hex(color[0], color[1], color[2]),
                  "fill-opacity": 0,
-                 stroke: Utils.hex(color.r, color.g, color.b),
+                 stroke: Utils.hex(color[0], color[1], color[2]),
                  strokeWidth: 2
              });
              if(style == "line"){
-                 p.data("name", obj.namear)
-                 p.drag(move, start, stop)
-
              } else if (style == "wedge") {
 
                  var rectPpath = "M " + 0 + " " + (-sizear)+ " L "
@@ -538,27 +547,23 @@ var Render = (function(){
                      "fill-opacity": 0.6,
                  });
                  var g = s.g(p,f)
-                 g.data("name", obj.namear)
-                 g.drag(move, start, stop)
              }
          }
 
          if(isRightar == "false"){
              //Draw arc (for regular angles)
-             var anglear = obj.anglear > 360.0 ? 360.0 - obj.anglear : obj.anglear
+             var anglear = properties.anglear > 360.0 ? 360.0 - properties.anglear : properties.anglear
              anglear = anglear < 0 ? 360 + anglear : anglear
-             var radiusar = obj.radiusar
+             var radiusar = properties.radiusar
              var arcPath = describeArc(dx + xar, dy + yar, radiusar, rotationar,
                  anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));
                  var arc = s.path(arcPath);
                  arc.attr({
                      "fill-opacity": 0,
-                     stroke: Utils.hex(color.r, color.g, color.b),
+                     stroke: Utils.hex(color[0], color[1], color[2]),
                      strokeWidth: 2
                  });
                  if(style == "line"){
-                     arc.data("name", obj.namear)
-                     arc.drag(move, start, stop)
                  } else if (style == "wedge") {
                      var pf = describeFullArc(dx + xar, dy + yar, radiusar, rotationar,
                          anglear < 0 ? (rotationar - anglear) : (rotationar + anglear));
@@ -568,10 +573,7 @@ var Render = (function(){
                              "fill-opacity": 0.6,
                          });
                          var g = s.g(arc,f)
-                         g.data("name", obj.namear)
-                         g.drag(move, start, stop)
                      }
-
                  }
      }
 
@@ -580,14 +582,15 @@ var Render = (function(){
      * @param       {Snap} s  Snap.svg global object
      * @param       {JSON} obj JSON object from Haskell server
      * FIXME: refactor
+     * FIXME: NOT PORTED
      */
      function _renderParallelogram(s, obj) {
          // TODO fix this!
-         [sx, sy] = Utils.scr([obj.xpa, obj.ypa])
-         var sizeX = obj.sizeXpa;
-         var sizeY = obj.sizeYpa;
-         var angle = obj.anglepa;
-         var rotation = obj.rotationpa
+         [sx, sy] = Utils.scr([properties.xpa, properties.ypa])
+         var sizeX = properties.sizeXpa;
+         var sizeY = properties.sizeYpa;
+         var angle = properties.anglepa;
+         var rotation = properties.rotationpa
          var path = ""
          if(angle <= 90.0){
              path = "M " + (-(sizeX/2) - sizeY/getTanFromDegrees(angle)) + " " + (-(sizeY/2)) +  " L " +
@@ -604,10 +607,10 @@ var Render = (function(){
          myMatrix.translate(sx, sy);
          myMatrix.rotate(rotation, 0, 0);
          var parallelogram = s.path(path).transform(myMatrix.toTransformString())
-         parallelogram.data("name", obj.namepa)
-         var color = obj.colorpa;
+         parallelogram.data("name", properties.namepa)
+         var color = properties.colorpa;
          parallelogram.attr({
-             fill: Utils.hex(color.r, color.g, color.b),
+            fill: Utils.hex(color[0], color[1], color[2]),
              "fill-opacity": color.a
          });
          parallelogram.drag(move, start, stop)
@@ -624,13 +627,14 @@ var Render = (function(){
             stroke: "#000",
             strokeWidth: 1
         })
+        return sq
     }
 
     // helper method that draw's bounding circle around an object
     // FIXME: figure out where the center of the circle is
-    function _renderBoundingCircle(s, obj) {
+    function _renderBoundingCircle(s, properties) {
         // render Bounding circle
-        var bbox = obj.getBBox()
+        var bbox = properties.getBBox()
         var circ = s.circle(bbox.cx, bbox.cy, bbox.r0)
         circ.attr({
             "fill-opacity": 0,
@@ -650,13 +654,16 @@ var Render = (function(){
         var promises = []
         for (var key in data) {
             var record = data[key]
-            var obj = record.contents
-            if(record.tag == 'L') {
-                var label = await tex2svg("$" + obj.textl + "$", obj.namel)
-                // var parser = new DOMParser();
-                // var doc = parser.parseFromString(svg, "image/svg+xml");
-                // document.getElementsByTagName('body')[0].appendChild(doc.documentElement);
-                res[label.name] = label.svg
+            var properties = record[1]
+            if(record[0] == 'Text') {
+                var text = properties.string.contents
+                if(text != "") {
+                    var label = await tex2svg("$" + text + "$", properties.name.contents)
+                    // var parser = new DOMParser();
+                    // var doc = parser.parseFromString(svg, "image/svg+xml");
+                    // document.getElementsByTagName('body')[0].appendChild(doc.documentElement);
+                    res[label.name] = label.svg
+                }
             }
         }
         return res

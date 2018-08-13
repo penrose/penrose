@@ -1,21 +1,31 @@
 Point p {
-  shape = Dot {
-    text = Auto
+  p.shape = Circle {
+    r = 3.0
+    color = rgba(0.0, 0.0, 0.0, 1.0)
+    stroke-width = 0
   }
 
-  objective centerLabel(p, p.shape.label)
+  p.text = Text {
+    string = p.label
+    x = `p`.shape.x + 15.0
+    y = `p`.shape.y + 15.0
+  }
+
+  -- p.labelFn = encourage centerLabel(p.shape, p.text)
 }
 
 Set X {
-  shape = Circle {
-    -- green
-    color = computeColorRGBA(0.1, 1.0, 0.2, 0.4)
-    text = Auto
+  X.shape = Circle {
+    color = rgba(0.1, 1.0, 0.2, 0.4)
+    stroke-width = 0
   }
 
-  constraint contains(A, A.shape.label)
+  X.text = Text { string = X.label }
+  
+  X.centerFn = encourage centerLabel(X.shape, X.text)
 }
 
-In p X {
-    constraint contains(X, p)
+Point p; Set X
+where PointIn(p, X) {
+  p.containFn = ensure contains(X.shape, p.shape)
 }

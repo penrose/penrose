@@ -1,7 +1,8 @@
 Set domain
 Set codomain
-Point origin
-Point vert
-Point horiz
-Point topright
-Map(domain,codomain) f
+
+Map f
+From(f, domain, codomain)
+-- TODO: add Surjection(f) predicate
+
+AutoLabel All

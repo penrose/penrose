@@ -52,12 +52,13 @@ data Y = TypeVarY TypeVar
          deriving (Show, Eq, Typeable, Ord)
 
 data T = TTypeVar TypeVar
-       | TConstr TypeCtorApp
+       | TConstr TypeCtorApp 
+       -- TODO: rename to TCtor. Less confusing, more consistent w/ Sty
          deriving (Show, Eq, Typeable)
 
 data TypeCtorApp = TypeCtorApp { nameCons :: String,
-                                               argCons  :: [Arg],
-                                               constructorInvokerPos :: SourcePos }
+                                 argCons  :: [Arg],
+                                 constructorInvokerPos :: SourcePos }
                           deriving (Typeable)
 
 instance Show TypeCtorApp where
@@ -247,15 +248,15 @@ data PredicateEnv = Pred1 Predicate1
                   deriving (Show, Eq, Typeable)
 
 data Predicate1 = Prd1 { namepred1 :: String,
-                               ylspred1  :: [Y],
-                               kindspred1  :: [K],
-                               tlspred1  :: [T],
-                               ppred1    :: Prop}
+                         ylspred1  :: [Y],
+                         kindspred1  :: [K],
+                         tlspred1  :: [T],
+                         ppred1    :: Prop}
                   deriving (Show, Eq, Typeable)
 
 data Predicate2 = Prd2 { namepred2 :: String,
-                               plspred2  :: [Prop],
-                               ppred2    :: Prop }
+                         plspred2  :: [Prop],
+                         ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 
 data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,

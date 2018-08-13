@@ -8,7 +8,7 @@ var DEBUG           = false
 // var DEBUG           = true
 var CANVAS_WIDTH    = 800
 var CANVAS_HEIGHT   = 700
-var SAMPLE_INTERVAL = 30
+var SAMPLE_INTERVAL = 40
 var socketAddress   = 'ws://localhost:9160/'
 
 var label_svgs = {}
@@ -108,6 +108,7 @@ var Utils = (function () {
             str += "L " + _str(list[1][0]) + " " + _str(list[1][1]) + " ";
             return str;
         } else {
+            // TODO: document this properly
             return catmullRomSpline(list, 1)
         }
 
@@ -130,16 +131,14 @@ var Utils = (function () {
         // return str.substring(0, str.length - 2);
     }
 
-    function allToScreen(orig_list, dx, dy) {
-     var list = new Array(orig_list.length);
-
-         // transform all points to screen space
-         for(var i = 0; i < list.length; i++) {
-             list[i] = toScreen(orig_list[i], dx, dy);
-         }
-
-         return list;
-     }
+    function _allToScreen(orig_list, dx, dy) {
+        var list = new Array(orig_list.length);
+        // transform all points to screen space
+        for(var i = 0; i < list.length; i++) {
+            list[i] = _toScreen(orig_list[i], dx, dy);
+        }
+        return list;
+    }
 
      function _toScreen(xy) {
          return [CANVAS_WIDTH/2  + xy[0],
@@ -148,6 +147,7 @@ var Utils = (function () {
 
      return {
          scr: _toScreen,
+         allToScreen: _allToScreen,
          hex: _rgbToHex,
          path_str: _toPathString
      }
@@ -197,7 +197,7 @@ function main() {
 
         // the server only sends `Frame` type data for the __last__ frame
         if(json.flag == "final") {
-            Render.scene(ws, s, json.objs, label_svgs, firstRun);
+            Render.scene(ws, s, json.shapes, label_svgs, firstRun);
         } else {
             var objs = json
             // if not the last frame, we refresh the frontend on a time interval
