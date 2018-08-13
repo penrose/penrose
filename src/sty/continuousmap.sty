@@ -1,6 +1,16 @@
+global {
+  global.strokeWidth = 1.5
+  global.padding = 20.0
+}
+
+Colors {
+  Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
+  Colors.lightYellow = rgba(0.95, 0.96, 0.92, 0.5)
+}
+
 Set x {
     x.shape = Circle {
-        color = rgba(0.1, 0.1, 0.9, 0.2)
+        color = Colors.lightBlue
         stroke-style = "solid"
         stroke-width = 1.0
         rotation = 0.0
@@ -51,12 +61,12 @@ with Set X; Set Y; Set R1; Set R2 {
 
 Set `U` {
     override `U`.shape.stroke-style = "dashed"
-    override `U`.shape.stroke-width = 1.5
+    override `U`.shape.stroke-width = global.strokeWidth
 }
 
 Set `V` {
     override `V`.shape.stroke-style = "dashed"
-    override `V`.shape.stroke-width = 1.5
+    override `V`.shape.stroke-width = global.strokeWidth
 } 
 
 -- TODO: use subtyping for reals?
@@ -65,13 +75,13 @@ Set `Rn` {
       -- Works but is slow
       -- x = -100.0
       -- y = 0.0
-      color = rgba(0.95, 0.96, 0.92, 0.5)
+      color = Colors.lightYellow
       rotation = 0.0
-      stroke-width = 1.0
+      stroke-width = global.strokeWidth
     }
       
-    `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - 20.0
-    `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - 20.0
+    `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - global.padding
+    `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - global.padding
 
     delete `Rn`.labelFn
     delete `Rn`.outsideFn
@@ -81,7 +91,7 @@ Set `Rm`
 with Set `Rn` {
     -- TODO: factor this block out
     override `Rm`.shape = Square {
-        color = rgba(0.95, 0.96, 0.92, 0.5)
+        color = Colors.lightYellow
         y = `Rn`.shape.y
         x = `Rn`.shape.x + 400.0
         side  = `Rn`.shape.side
@@ -89,8 +99,8 @@ with Set `Rn` {
         stroke-width = 1.0
     }
 
-    `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - 20.0
-    `Rm`.text.y = `Rm`.shape.y + `Rm`.shape.side / 2.0 - 20.0
+    `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - global.padding
+    `Rm`.text.y = `Rm`.shape.y + `Rm`.shape.side / 2.0 - global.padding
 
     delete `Rm`.labelFn
     delete `Rm`.outsideFn

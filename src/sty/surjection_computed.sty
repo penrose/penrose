@@ -1,3 +1,9 @@
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
+  Colors.darkBlue = rgba(0.05, 0.05, 0.6, 1.0)
+}
+
 Point p {
     p.shape = AnchorPoint { }
 }
@@ -43,7 +49,7 @@ with Set `codomain`, `domainOuter` {
   
     `domain`.left = Line {
         thickness = 2.0
-        color = rgba(0.0, 0.0, 0.0, 1.0)
+        color = Colors.black
         style = "dashed"
         startX = `domainOuter`.shape.startX + `domain`.left_margin * `domain`.outer_len
         startY = `domainOuter`.shape.startY
@@ -53,7 +59,7 @@ with Set `codomain`, `domainOuter` {
 
     `domain`.right = Line {
         thickness = 2.0
-        color = rgba(0.0, 0.0, 0.0, 1.0)      
+        color = Colors.black      
         style = "dashed"
         startX = `domainOuter`.shape.startX + `domain`.right_margin * `domain`.outer_len
         startY = `domainOuter`.shape.startY
@@ -75,7 +81,7 @@ with Set `codomain`, `domainOuter`{
   
     `image`.bottom = Line {
         thickness = 2.0
-        color = rgba(0.0, 0.0, 0.0, 1.0)
+        color = Colors.black
         style = "dashed"
         startX = `codomain`.shape.startX
         startY = `codomain`.shape.startY + `image`.bottom_margin * `image`.codomain_len
@@ -85,7 +91,7 @@ with Set `codomain`, `domainOuter`{
 
     `image`.top = Line {
         thickness = 2.0
-        color = rgba(0.0, 0.0, 0.0, 1.0)
+        color = Colors.black
         style = "dashed"
         startX = `codomain`.shape.startX
         startY = `codomain`.shape.startY + `image`.top_margin * `image`.codomain_len
@@ -104,7 +110,7 @@ where From(f, domain, image)
 with Set `domainOuter`; Set domain; Set image {
     f.shape = Curve {
         path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
-        color = rgba(0.05, 0.05, 0.6, 1.0)
+        color = Colors.darkBlue
     }
 
     f.text = Text {
@@ -121,6 +127,6 @@ with Set `domain`; Set `image` {
         y = (`image`.bottom.startY + `image`.top.startY) / 2.0
         w = `domain`.right.startX - `domain`.left.startX
         h = `image`.top.startY - `image`.bottom.startY
-        color = rgba(0.1, 0.1, 0.9, 0.2)
+        color = Colors.lightBlue
     }
 }

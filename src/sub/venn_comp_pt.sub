@@ -2,4 +2,8 @@ Point p
 Set X
 PointIn(p, X)
 
+-- Test namespace checking:
+-- Point global
+-- Set Colors
+
 AutoLabel All

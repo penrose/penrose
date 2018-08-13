@@ -56,7 +56,7 @@ type Block = [Stmt]
 type StyProg = [(Header, Block)]
 
 -------------------- Style selector grammar
--- TODO: write a NOTE about the namespace situation between Substance and Style
+-- TODO: write a NOTE about the namespace situation between Substance and Style.
 
 data STypeVar = STypeVar' {
     typeVarNameS :: String,
@@ -575,15 +575,29 @@ checkSel varEnv sel =
          let rel_errs = checkRelPatterns (mergeEnv varEnv selEnv_decls) (selWhere sel) in
          selEnv_decls { sErrors = filter (/= "") $ reverse (sErrors selEnv_decls) ++ rel_errs }
 
+checkNamespace :: String -> VarEnv -> SelEnv
+checkNamespace name varEnv = 
+    -- A Substance variable cannot have the same name as a namespace               
+    let error = if M.member (VarConst name) (varMap varEnv)
+                then ["Substance variable '" ++ name ++ "' has the same name as a namespace in the Style program"]
+                else []
+    in addErrs error initSelEnv
+
 -- Returns a sel env for each selector in the Style program, in the same order
 -- TODO: add these judgments to the paper
 checkSels :: VarEnv -> StyProg -> [SelEnv]
-checkSels varEnv prog = map (checkPair varEnv) prog
+checkSels varEnv prog = 
+          let selEnvs = map (checkPair varEnv) prog in
+          let errors = concatMap sErrors selEnvs in
+          if null errors
+          then selEnvs 
+          else error $ intercalate "\n" errors
           where checkPair :: VarEnv -> (Header, Block) -> SelEnv
                 checkPair varEnv ((Select sel), _) = checkSel varEnv sel
-                checkPair varEnv ((Namespace name), _) = initSelEnv
+                checkPair varEnv (Namespace (StyVar' name), _) = checkNamespace name varEnv
                 -- TODO: for now, namespace has no local context
 
+-- TODO: namespaces are implicitly converted to Substance variables somewhere (not sure where)
 -- TODO: write test cases (including failing ones) after Substance errors are no longer @ runtime
 -- TODO: get line/col numbers for errors
 
