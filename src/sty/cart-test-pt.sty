@@ -1,6 +1,6 @@
-global {
-  global.start = -100.0
-  global.setLength = 400.0
+Const {
+  Const.start = -100.0
+  Const.setLength = 400.0
 }
 
 Colors {
@@ -16,19 +16,19 @@ Set X {
   X.labelFn = encourage centerLabel(X.shape, X.text)
 }
 
--- TODO: have consts be calculated off of a global
+-- TODO: have consts be calculated off of a Const
 Set `domain` {
-    `domain`.shape.startX = global.start
-    `domain`.shape.startY = global.start
-    `domain`.shape.endX   = global.start + global.setLength
-    `domain`.shape.endY   = global.start
+    `domain`.shape.startX = Const.start
+    `domain`.shape.startY = Const.start
+    `domain`.shape.endX   = Const.start + Const.setLength
+    `domain`.shape.endY   = Const.start
 }
 
 Set `codomain` {
-    `codomain`.shape.startX = global.start
-    `codomain`.shape.startY = global.start
-    `codomain`.shape.endX   = global.start
-    `codomain`.shape.endY   = global.start + global.setLength
+    `codomain`.shape.startX = Const.start
+    `codomain`.shape.startY = Const.start
+    `codomain`.shape.endX   = Const.start
+    `codomain`.shape.endY   = Const.start + Const.setLength
 }
 
 -- Set `domain`; Set `codomain`
