@@ -1,13 +1,13 @@
 VectorSpace U
-Vector(U) A
-Vector(U) B
-Vector(U) C
+Vector A
+Vector B
+Vector C
 
 Scalar C1
-ZeroScalar C2
+--ZeroScalar C2
 Scalar C3
 
-C3 := AddS(C2,C2)
+--C3 := AddS(C2,C2)
 
 --Neg(A)
 --C := AddV(A,B)

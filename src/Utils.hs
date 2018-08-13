@@ -132,9 +132,12 @@ rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
-shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot", "HollowDot", "Cross"]
+shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot",
+           "HollowDot", "Cross"]
 labelrws = ["Label", "AutoLabel", "NoLabel"]
-dsll = ["tconstructor","vconstructor","operator","forvars","fortypes","predicate", "Prop", "type", "<:", "->", "<->"]
+dsll = ["tconstructor","vconstructor","operator","ExprNotation","StmtNotation",
+        "forvars","fortypes","predicate", "Prop", "type", "<:", "->", "<->",
+        "at level", "associativity"]
 -- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
 
 upperId, lowerId, identifier :: Parser String
@@ -145,6 +148,17 @@ upperId = (lexeme . try) (p >>= checkId)
 lowerId = (lexeme . try) (p >>= checkId)
   where p = (:) <$> lowerChar <*> many validChar
 validChar = alphaNumChar <|> char '_'
+
+
+
+transPattern :: Parser String
+transPattern = (lexeme . try) (p >>= checkPattern)
+  where p = many anyChar --(:) <$> letterChar <*> many validChar
+
+checkPattern :: String -> Parser String
+checkPattern x = if x == "\"" || x == "->"
+            then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+            else return x
 
 checkId :: String -> Parser String
 checkId x = if x `elem` rws
@@ -183,6 +197,7 @@ backticks = between (symbol "`") (symbol "`")
 
 lparen, rparen, lbrac, rbrac, colon, arrow, comma :: Parser ()
 aps = void (symbol "'")
+quote = void (symbol "\"")
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
 lparen = void (symbol "(")

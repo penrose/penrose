@@ -62,12 +62,15 @@ predicate LessThan (p1 : Real, p2 : Real) : Prop
 predicate ClosedEnd (p : Real, I : Interval) : Prop
 predicate OpenEnd (p : Real, I : Interval) : Prop
 
--- Prelude exports
---value RR : Reals
+------------------------- Syntactic Sugar Definition ---------------------------
 
--- notation is ASCII only
--- kw NEW := OLD
---notation "f.domain" -> "Dom(f)"
--- TODO: flip rest
---notation "Cod(f)" := "f.codomain"
---notation "X Subset Y" := Subset(X, Y)
+StmtNotation "Real a ∈ U" -> "Real a ;In(a,U)"
+StmtNotation "a < b" -> "LessThan(a,b)"
+StmtNotation "a < b" -> "LessThan(a,b)"
+StmtNotation "A := [a, b] ⊆ R" -> "ClosedInterval A ;A := CreateClosedInterval(a, b) ;Subset(A, R)"
+StmtNotation "A := [a, b) ⊆ R" -> "LeftClopenInterval A ;A := CreateLeftClopenInterval(a, b) ;Subset(A, R)"
+StmtNotation "A := (a, b) ⊆ R" -> "OpenInterval A ;A := OpenInterval(a, b) ;Subset(A, R)"
+StmtNotation "f : U → V" -> "Function f ;From(f,U,V)"
+StmtNotation "f(v)" -> "apply(f,v)"
+StmtNotation "f^(p)" -> "derivativeAtP(f, p)"
+StmtNotation "∫f(p)" -> "integral(f, p)"
