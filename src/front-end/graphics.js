@@ -256,87 +256,71 @@ var Render = (function(){
     if(properties["stroke-style"] == "dashed") {
       circ.attr({ strokeDasharray: "7, 5" })
     }
+    return circ
+  }
 
-    /**
-     * Top-level function that renders a frame of Penrose diagram
-     * @param       {WebSocket} ws    WebSocket connection
-     * @param       {Snap} s          Snap.svg canvas
-     * @param       {JSON} data       Scene data from Haskell server
-     * @param       {Boolean} firstrun flag indicating whether is this the first frame
-     */
-    function _renderScene(ws, s, shapes, labels, firstrun) {
-        s.clear()
-        // NOTE: just using clientWidth/Height does not work on Firefox
-        // see https://stackoverflow.com/questions/13122790/how-to-get-svg-element-dimensions-in-firefox
-        if(DEBUG) {
-            console.log("Incoming GPIs from server: ")
-            console.log(shapes)
-        }
-        for (var key in shapes) {
-            // retrieve a shape and its associated properties
-            var shape = shapes[key]
-            var props = {}
-            var type  = shape[0]
+  /**
+  * Renders an ellipse on the canvas
+  * @param       {Snap} s  Snap.svg global object
+  * @param       {JSON} obj JSON object from Haskell server
+  */
+  function _renderEllipse(s, properties) {
+    [x, y] = [properties.x, properties.y]
+    var ellip = s.ellipse(x, y, properties.rx, properties.ry);
+    ellip.data("name", properties.name)
+    var color = properties.color
+    ellip.attr({
+      fill: Utils.hex(color[0], color[1], color[2]),
+      "fill-opacity": color.a,
+    });
+    return ellip
+  }
 
-            // strip off all types of properties
-            for(var i in shape[1]) { props[i] = shape[1][i].contents }
+  /**
+  * Renders an image on the canvas
+  * @param       {Snap} s  Snap.svg global object
+  * @param       {JSON} obj JSON object from Haskell server
+  */
+  function _renderImage(s, properties) {
+    [x, y] = [properties.x, properties.y]
+    var sizeX = properties.sizeX
+    var sizeY = properties.sizeY
+    var path = properties.path
+    var image = s.image(path, x, y, sizeX, sizeY)
+    return image
+  }
 
-            // transform coordinates to screen space
-            [screen_x, screen_y] = Utils.scr([props.x, props.y])
-            props.x = screen_x; props.y = screen_y
-
-            var renderedShape = null
-            switch(type) {
-                case 'Circle'        :
-                    renderedShape = _renderCircle(s, props); break
-                case 'Eillipse'      :
-                    renderedShape = _renderEllipse(s, props); break
-                case 'Text'          :
-                    renderedShape = _renderLabel(s, props, labels, shape[1], firstrun); break
-                case 'Point'         :
-                    renderedShape = _renderPoint(s, props); break
-                case 'Rectangle'     :
-                    renderedShape = _renderRectangle(s, props); break
-                case 'Square'        :
-                    renderedShape = _renderSquare(s, props); break
-                case 'Arrow'         :
-                    renderedShape = _renderArrow (s, props); break
-                case 'Arc'     :
-                    renderedShape = _renderArc(s, props); break
-                case 'Curve'         :
-                    renderedShape = _renderCurve(s, props); break
-                case 'Line'          :
-                    renderedShape = _renderLine(s, props); break
-                case 'Parallelogram' :
-                    renderedShape = _renderParallelogram(s, props); break
-                case 'Image'         :
-                    renderedShape = _renderImage(s, props); break
-                case 'AnchorPoint'   :
-                    // NOTE: We do not render anchorPts
-                    // TODO: maybe render it in debug mode
-                    break
-                default: console.log("renderScene: the type of GPI\"" + type + "\" cannot be rendered!")
-            }
-
-	    if (DEBUG) {
-		console.log("Rendered GPI: ", renderedShape)
-	    }
-
-            // register name and functions for drag commands
-            // NOTE: cases where the shape is not rendered:
-            //     - Undefined labels
-            if(renderedShape) {
-                renderedShape.drag(move, start, stop)
-                renderedShape.data("name", props.name)
-            }
-        }
-        // Send the bbox information and label dimensions to the server
-        if(firstrun) {
-            var dict = { "tag" : "Update", "contents" : { "shapes" : shapes } }
-            console.log("Sending updated shapes (e.g. labels with correct bboxes) to the server: ", dict)
-            var json = JSON.stringify(dict)
-            ws.send(json)
-        }
+  /**
+  * Renders a label on the canvas. Note that the labels are pre-generated
+  * by the main module separately. This function merely performs a lookup
+  * @param       {Snap} s  Snap.svg global object
+  * @param       {JSON} obj JSON object from Haskell server
+  * @param       {JSON} lebels TODO
+  * @param       {boolean} firstrun if this is the first run of the server, send back the bbox info
+  */
+  function _renderLabel(s, properties, labels, shapedef, firstrun) {
+    if(labels[properties.name]) {
+      [x, y] = [properties.x, properties.y]
+      var e = Snap.parse(labels[properties.name])
+      t = s.g()
+      t.append(e)
+      var bbox = t.getBBox()
+      var mat = new Snap.Matrix()
+      // Fix the center of labels
+      mat.translate(x, y)
+      mat.translate(-bbox.width/2, -bbox.height/2)
+      t.transform(mat.toTransformString())
+      if(firstrun) {
+        shapedef.w = { tag: "FloatV", contents: bbox.width }
+        shapedef.h = { tag: "FloatV", contents: bbox.height }
+      }
+      if(DEBUG) {
+        //  var boundingCircle = _renderBoundingCircle(s, t)
+        var boundingBox = _renderBoundingBox(s, t)
+        var LabelCenter =  s.circle(x, y, 2)
+        return s.g(t, boundingBox, LabelCenter)
+      }
+      return t
     }
   }
 
@@ -525,23 +509,28 @@ var Render = (function(){
       function _renderRectangle(s, properties) {
         [x, y] = [properties.x, properties.y]
         // TODO: document the different btw coord systems
-        var rect = s.rect(x - properties.w/2, y - properties.h/2, properties.w, properties.h);
+        var rect = s.rect(x - properties.sizeX/2, y - properties.sizeY/2, properties.sizeX, properties.sizeY);
         var color = properties.color;
         rect.attr({
           fill: Utils.hex(color[0], color[1], color[2]),
           "fill-opacity": color[3],
         });
         return rect
+      }
 
-    function _renderLine(s, properties) {
-	// TODO: Deal with the derived property "path" here or in the backend
-        var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
-        // var path = properties.path;
+      /**
+      * Renders a line segment on the canvas
+      * @param       {Snap} s  Snap.svg global object
+      * @param       {JSON} properties JSON object from Haskell server
+      */
+      function _renderLine(s, properties) {
+        // var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
+        var path = properties.path;
         console.log(path);
         var curve = s.path(Utils.path_str(path));
         curve.data("name", properties.name)
         var color = properties.color;
-        // by default, the curve should be solid
+        // by default, the curve sheuld be solid
         curve.attr({
           fill: "transparent",
           strokeWidth: properties.thickness,
