@@ -1,6 +1,7 @@
 const {
-  const.vectorSpaceSize = 500.0
+  const.vectorSpaceSize = 400.0
   const.axisSize = const.vectorSpaceSize * 0.4
+  const.distVectorSpaces = 50.0
 }
 Colors {
   Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
@@ -79,15 +80,16 @@ VectorSpace U {
 }
 
 VectorSpace U; VectorSpace V {
-    U.smaeHeight = ensure sameHeight(U.shape, V.shape)
-    U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
-
+    --U.smaeHeight = ensure sameHeight(U.shape, V.shape)
+    --U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
+    --V.shape.y = U.shape.y
+    --V.shape.x =U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
 }
 
 Vector u
 with Vector v; VectorSpace U
-where u := Neg(v); In(v,U){
-
+--where u := Neg(v); In(v,U){
+where u := Neg(v){
  u.containFn = ensure contains(U.shape, u.shape)
  u.containLabel = ensure contains(U.shape, u.text)
  u.labelLocation = ensure nearHead(u.shape, u.text, 15.0 ,15.0 )
@@ -166,4 +168,26 @@ where In(v,U) {
     startY = U.shape.y
     thickness = 9.0
   }
+}
+
+LinearMap f
+with VectorSpace U; VectorSpace V
+where From(f,U,V) {
+
+   f.shape = Arrow {
+      startX = U.shape.x  + const.vectorSpaceSize/2.0
+      startY = U.shape.y + const.vectorSpaceSize/2.0
+      endX = V.shape.x - const.vectorSpaceSize/2.0
+      endY = V.shape.y + const.vectorSpaceSize/2.0
+      --style = "curved"
+   }
+}
+
+Scalar c
+with Vector a; Vector b; VectorSpace U
+where c:= Determinant(a,b); In(a,U); In(b,U) {
+   c.shape = Parallelogram {
+      x = U.shape.x
+      y = U.shape.y
+   }
 }
