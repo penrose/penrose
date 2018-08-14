@@ -381,10 +381,10 @@ contains [E' set, L' label] [] =
     dist (xl' label, yl' label) (xe' set, ye' set) -  max (rx' set) (ry' set) + wl' label
 contains [L' lab1, L' lab2] [] = 0 -- TODO: hack for venn_subset.sty for talk
 contains [S' sq, A' ar] [] = let
-                             lx = (xs' sq) - (side' sq)/2
-                             rx = (xs' sq) + (side' sq)/2
-                             ly = (ys' sq) - (side' sq)/2
-                             ry = (ys' sq) + (side' sq)/2
+                             lx = (xs' sq) - (side' sq)/3
+                             rx = (xs' sq) + (side' sq)/3
+                             ly = (ys' sq) - (side' sq)/3
+                             ry = (ys' sq) + (side' sq)/3
                              ret = (isInRange (startx' ar) lx rx) + (isInRange (endx' ar) lx rx) + (isInRange (starty' ar) ly ry) + (isInRange (endy' ar) ly ry)
                             in
                              ret

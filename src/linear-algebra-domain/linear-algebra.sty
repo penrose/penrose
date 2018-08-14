@@ -1,0 +1,169 @@
+const {
+  const.vectorSpaceSize = 500.0
+  const.axisSize = const.vectorSpaceSize * 0.4
+}
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
+  Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
+  Colors.lightGray = rgba(200.0,200.0,200.0,1.0)
+}
+
+VectorSpace U {
+
+  U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 ,0.0)
+  U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
+
+  U.shape = Square {
+    side = const.vectorSpaceSize
+    color = Colors.lightBlue
+   }
+
+   U.textX = Text {
+     string = "x"
+   }
+
+   U.textY = Text {
+     string = "y"
+   }
+
+   U.perpMark = Arc {
+      x = U.shape.x
+      y = U.shape.y
+      size = 10
+      rotation = 0
+     isRight = "true"
+   }
+
+   U.xAxisRight = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y
+      endX = U.shape.x + const.axisSize
+      endY = U.shape.y
+      thickness = 8.0
+      color = Colors.black
+   }
+
+   U.xAxisLeft = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y
+      endX = U.shape.x - const.axisSize
+      endY = U.shape.y
+      thickness = 8.0
+      color = Colors.black
+   }
+
+   U.yAxisUp = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y
+      endX = U.shape.x
+      endY = U.shape.y + const.axisSize
+      thickness = 8.0
+      color = Colors.black
+   }
+
+   U.yAxisDown = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y
+      endX = U.shape.x
+      endY = U.shape.y - const.axisSize
+      thickness = 8.0
+      color = Colors.black
+   }
+
+   U.text = Text {
+     string = U.label
+     x = U.shape.x - const.axisSize
+     y = U.shape.y + const.axisSize
+   }
+}
+
+VectorSpace U; VectorSpace V {
+    U.smaeHeight = ensure sameHeight(U.shape, V.shape)
+    U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
+
+}
+
+Vector u
+with Vector v; VectorSpace U
+where u := Neg(v); In(v,U){
+
+ u.containFn = ensure contains(U.shape, u.shape)
+ u.containLabel = ensure contains(U.shape, u.text)
+ u.labelLocation = ensure nearHead(u.shape, u.text, 15.0 ,15.0 )
+
+  u.text = Text {
+    string = u.label
+  }
+
+  u.shape = Arrow {
+      startX = v.shape.startX
+      startY = v.shape.startY
+      endX = 2.0 * v.shape.startX - v.shape.endX
+      endY = 2.0 * v.shape.startY - v.shape.endY
+      thickness = 9.0
+    }
+
+}
+
+
+Vector u
+with Vector v; Vector w; VectorSpace U
+where u := AddV(v,w);  {
+    u.containFn = ensure contains(U.shape, u.shape)
+    u.containLabel = ensure contains(U.shape, u.text)
+    u.labelLocation = ensure nearHead(u.shape, u.text, 15.0 ,15.0 )
+
+    u.text = Text {
+      string = u.label
+    }
+
+    u.shape = Arrow {
+       startX = U.shape.x
+       startY = U.shape.y
+       endX = v.shape.endX + w.shape.endX - U.shape.x
+       endY = v.shape.endY + w.shape.endY - U.shape.y
+       thickness = 9.0
+    }
+
+
+    u.slider_v = Arrow {
+     endX = u.shape.endX
+     endY = u.shape.endY
+
+     startX = w.shape.endX
+     startY = w.shape.endY
+     thickness = 7.0
+    }
+
+    u.slider_w = Arrow {
+       endX = u.shape.endX
+       endY = u.shape.endY
+
+       startX = v.shape.endX
+       startY = v.shape.endY
+       thickness = 7.0
+       color = u.slider_v.color
+
+    }
+
+}
+
+Vector v
+with VectorSpace U
+where In(v,U) {
+
+  v.containFn = ensure contains(U.shape, v.shape)
+  v.containLabel = ensure contains(U.shape, v.text)
+  v.labelLocation = ensure nearHead(v.shape, v.text, 15.0 ,15.0 )
+
+  v.text = Text {
+    string = v.label
+  }
+
+  v.shape = Arrow {
+    startX = U.shape.x
+    startY = U.shape.y
+    thickness = 9.0
+  }
+}

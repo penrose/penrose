@@ -1,0 +1,12 @@
+VectorSpace U
+
+Vector A
+Vector B
+
+In(A,U)
+
+B := Neg(A)
+
+Label A $\vec{u_{1}}$
+Label B $\vec{-u_{2}}$
+AutoLabel U

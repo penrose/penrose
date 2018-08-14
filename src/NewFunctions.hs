@@ -149,7 +149,6 @@ objFuncDict = M.fromList
         ("nearEndHoriz", nearEndHoriz),
         ("topLeftOf", topLeftOf),
         ("above", above),
-        ("sameHeight", sameHeight),
         ("equal", equal)
 
 {-      ("centerLine", centerLine),
@@ -218,6 +217,8 @@ constrFuncDict = M.fromList $ map toPenalty flist
             [
                 ("at", at),
                 ("contains", contains),
+                ("sameHeight", sameHeight),
+                ("nearHead", nearHead),
                 ("smallerThan", smallerThan),
                 ("minSize", minSize),
                 ("maxSize", maxSize),
@@ -238,6 +239,7 @@ constrSignatures = MM.fromList
         ("smallerThan", [GPIType "Square", GPIType "Square"]),
         ("outsideOf", [GPIType "Text", GPIType "Circle"]),
         ("contains", [GPIType "Circle", GPIType "Circle"]),
+        ("contains", [GPIType "Square", GPIType "Arrow"]),
         ("contains", [GPIType "Circle", GPIType "Circle", ValueT FloatT]),
         ("contains", [GPIType "Circle", GPIType "Text"]),
         ("contains", [GPIType "Square", GPIType "Text"]),
@@ -250,7 +252,8 @@ constrSignatures = MM.fromList
         ("overlapping", [GPIType "Square", GPIType "Circle"]),
         ("overlapping", [GPIType "Circle", GPIType "Square"]),
         ("overlapping", [GPIType "Square", GPIType "Square"]),
-        ("nonOverlapping", [GPIType "Circle", GPIType "Circle"])
+        ("nonOverlapping", [GPIType "Circle", GPIType "Circle"]),
+        ("nonOverlapping", [GPIType "Square", GPIType "Square"])
         -- ("lessThan", []) --TODO
     ]
 
@@ -319,7 +322,7 @@ computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("
     let top_right = (getNum right "startX", getNum top "startY") in
     computeSurjection g n lower_left top_right
 -- Assuming left and bottom are perpendicular and share one point
-computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] = 
+computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] =
     let lower_left = (getNum left "startX", getNum left "startY") in
     let top_right = (getNum bottom "endX", getNum left "endY") in
     computeSurjection g n lower_left top_right
@@ -522,8 +525,8 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
 -- TODO: temporarily written in a generic way
 -- Note: repel's energies are quite small so the function is scaled by repelWeight before being applied
 repel :: ObjFn
-repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd) 
-repel [GPI a, GPI b, Val (FloatV weight)] = weight / (distsq (getX a, getY a) (getX b, getY b) + epsd) 
+repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd)
+repel [GPI a, GPI b, Val (FloatV weight)] = weight / (distsq (getX a, getY a) (getX b, getY b) + epsd)
     -- trace ("REPEL: " ++ show a ++ "\n" ++ show b ++ "\n" ++ show res) res
 -- repel [C' c, S' d] [] = 1 / distsq (xc' c, yc' c) (xs' d, ys' d) - r' c - side' d + epsd
 -- repel [S' c, C' d] [] = 1 / distsq (xc' d, yc' d) (xs' c, ys' c) - r' d - side' c + epsd
@@ -631,15 +634,15 @@ contains [GPI outc@("Circle", _), GPI inc@("Square", _)] =
 contains [GPI set@("Ellipse", _), GPI label@("Text", _)] =
     dist (getX label, getY label) (getX set, getY set) - max (getNum set "r") (getNum set "r") + getNum label "w"
 contains [GPI sq@("Square", _), GPI ar@("Arrow", _)] =
-    let (startX, startY, endX, endY) = arrowPts ar
-        (x, y) = (getX sq, getY sq)
-        side = getNum sq "side"
-        (lx, ly) = (x - side / 2, y - side / 2)
-        (rx, ry) = (x + side / 2, y + side / 2)
-    in inRange startX lx rx
-        + inRange startY ly ry
-        + inRange endX lx rx
-        + inRange endY ly ry
+     let (startX, startY, endX, endY) = arrowPts ar
+         (x, y) = (getX sq, getY sq)
+         side = getNum sq "side"
+         (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
+         (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
+     in inRange startX lx rx
+         + inRange startY ly ry
+         + inRange endX lx rx
+         + inRange endY ly ry
 contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
     let (startX, startY, endX, endY) = arrowPts ar
         (x, y) = (getX rt, getY rt)
@@ -654,7 +657,7 @@ contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
 inRange a l r
     | a < l  = (a-l)^2
     | a > r  = (a-r)^2
-    | a == r = 0
+    | otherwise = 0
 
 
 -- TODO: is the "Point type still there?"
@@ -698,13 +701,13 @@ minSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not
 -- minSize [PA' pa] [] = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in 20 - min_side
 
 smallerThan  :: ConstrFn
-smallerThan [GPI inc@("Circle", _), GPI outc@("Circle", _)] = 
+smallerThan [GPI inc@("Circle", _), GPI outc@("Circle", _)] =
             getNum inc "r" - getNum outc "r" - 0.4 * getNum outc "r" -- TODO: taking this as a parameter?
-smallerThan [GPI inc@("Circle", _), GPI outs@("Square", _)] = 
+smallerThan [GPI inc@("Circle", _), GPI outs@("Square", _)] =
             0.5 * getNum outs "side" - getNum inc "r"
-smallerThan [GPI ins@("Square", _), GPI outc@("Circle", _)] = 
+smallerThan [GPI ins@("Square", _), GPI outc@("Circle", _)] =
             halfDiagonal $ getNum ins "side" - getNum outc "r"
-smallerThan [GPI ins@("Square", _), GPI outs@("Square", _)] = 
+smallerThan [GPI ins@("Square", _), GPI outs@("Square", _)] =
             getNum ins "side" - getNum outs "side" - subsetSizeDiff
 
 outsideOf :: ConstrFn
@@ -732,6 +735,9 @@ looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 
 nonOverlapping :: ConstrFn
 nonOverlapping [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
     noIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, getNum yset "r"]]
+
+nonOverlapping [GPI xset@("Square", _), GPI yset@("Square", _)] =
+    noIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersect :: (Autofloat a) => [[a]] -> a

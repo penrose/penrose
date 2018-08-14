@@ -441,7 +441,7 @@ var Render = (function(){
             stroke: Utils.hex(color[0], color[1], color[2]),
           })
         }
-
+                
         var head = s.polyline(head_path).transform(myMatrix.toTransformString())
         head.attr({
           "fill-opacity" : 1,
