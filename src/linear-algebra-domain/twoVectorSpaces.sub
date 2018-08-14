@@ -1,9 +1,6 @@
-VectorSpace U
-VectorSpace V
+VectorSpace U,V
 
-Vector A
-Vector B
-Vector C
+Vector A,B,C
 
 In(A,U)
 In(B,U)

@@ -1,5 +1,4 @@
-VectorSpace V
-VectorSpace U
+VectorSpace V,U
 
 LinearMap f
 From(f,V,U)

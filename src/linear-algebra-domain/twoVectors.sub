@@ -1,7 +1,6 @@
 VectorSpace U
 
-Vector u1
-Vector u2
+Vector u1,u2
 
 In(u1,U)
 In(u2,U)

@@ -80,8 +80,8 @@ VectorSpace U {
 }
 
 VectorSpace U; VectorSpace V {
-    --U.smaeHeight = ensure sameHeight(U.shape, V.shape)
-    --U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
+    U.smaeHeight = ensure sameHeight(U.shape, V.shape)
+    U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
     --V.shape.y = U.shape.y
     --V.shape.x =U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
 }
