@@ -32,7 +32,9 @@ import qualified SubstanceTokenizer         as T
 
 -------------------------------- Sugaring --------------------------------------
 
--- | The top function for translating StmtNotations
+-- | The top function for translating StmtNotations, gets as an input String of
+--   sugared program + the DSLL env, and returns a string of desugared program.
+--   All the NotationStmts are stored in dsllEnv.
 sugarStmts :: String -> VarEnv -> String
 sugarStmts prog dsllEnv =
   let notations = stmtNotations dsllEnv
@@ -40,16 +42,44 @@ sugarStmts prog dsllEnv =
       str  = foldl (sugarStmt dsllEnv) (filter Tokenizer.spaces tokenizedProg) notations
   in Tokenizer.reTokenize str
 
--- Preform a replacement of a specific given pattern
+-- | Preform a replacement of a specific given StmtNotationRule over
+--   a list of tokens.
 sugarStmt :: VarEnv -> [T.Token] -> StmtNotationRule -> [T.Token]
 sugarStmt dsllEnv tokens rule =
    let from = fromSnr rule
        to = toSnr rule
        patterns = patternsSnr rule
-       splitted = split (onSublist (filter Tokenizer.spaces to)) tokens
-       splittedReplaced =
-          foldl (replace from to patterns) [] splitted
-   in concat splittedReplaced
+   in if isRecursivePattern to
+     then handleRecursivePattern from to patterns tokens
+     else handleNonRecursivePattern from to patterns tokens
+
+-- | Handle a specific recursive pattern, as part of handling recursive patterns
+--  we need to refine the sugared substance tokens list to recognize recursive
+--  patterns before the actual split
+handleRecursivePattern from to patterns tokens =
+ let c =  traceShowId (groupBy cmpSubst tokens)
+     c' = traceShowId (foldl replaceToRecursivePattern [] c)
+     splittedReplaced = foldl (replace from to patterns) [] c'
+ in concat splittedReplaced
+
+cmpSubst :: T.Token -> T.Token -> Bool
+cmpSubst (T.Pattern _ _) T.Comma = True
+cmpSubst a b = a == b
+
+replaceToRecursivePattern :: [[T.Token]] -> [T.Token] -> [[T.Token]]
+replaceToRecursivePattern lst subSeq =
+   if length subSeq > 1 && (head $ tail subSeq) == T.Comma
+     && head subSeq == T.Pattern "" False then lst ++ [[T.RecursivePattern subSeq]]
+       else lst ++ [subSeq]
+
+-- | Handle non recursive patterns
+handleNonRecursivePattern from to patterns tokens =
+  let splitted = split (onSublist (filter Tokenizer.spaces to)) tokens
+      splittedReplaced = foldl (replace from to patterns) [] splitted
+  in concat splittedReplaced
+
+isRecursivePattern :: [T.Token] -> Bool
+isRecursivePattern tokens = T.RecursivePattern [] `elem` tokens
 
 -- Preform the actual replacement of a pattern
 replace :: [T.Token] -> [T.Token] -> [T.Token] -> [[T.Token]]
@@ -90,15 +120,10 @@ main :: IO ()
 main = do
   [dsllFile, substanceFile] <- getArgs
   dsllIn <- readFile dsllFile
-
   dsllEnv <- D.parseDsll dsllFile dsllIn
   divLine
   substanceIn <- readFile substanceFile
   putStrLn "Tokenized Sugared Substance: \n"
-  --print (sugarStmts substanceIn dsllEnv)
-  print(sugarStmts substanceIn dsllEnv)
-  --print(tokenize substanceIn dsllEnv)
-  --print(splitOn [T.NewLine] (tokenize substanceIn dsllEnv))
-  -- print(reTokenize (T.alexScanTokens substanceIn))
+  --print(sugarStmts substanceIn dsllEnv)
   writeFile "syntacticSugarExamples/output" (sugarStmts substanceIn dsllEnv)
   return ()
