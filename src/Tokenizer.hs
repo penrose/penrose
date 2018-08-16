@@ -13,10 +13,10 @@ import Data.Void
 import System.IO -- read/write to file
 import System.Environment
 import Control.Arrow ((>>>))
-import System.Random
 import Debug.Trace
 import Data.Functor.Classes
 import Data.List
+import Data.List.Split
 import Data.Maybe (fromMaybe)
 import Data.Typeable
 import Text.Megaparsec
@@ -53,11 +53,28 @@ tokenizeSugaredSubstance prog dsllEnv =
 --   spaces and properly recognize patterns and Dsll entities
 translatePatterns :: (String,String) -> VarEnv -> ([T.Token],[T.Token],[T.Token],[T.Token])
 translatePatterns (fromStr, toStr) dsllEnv =
-  let from = foldl (refineDSLLToken dsllEnv) [] (tokenize fromStr)
+  let from = refineByRecursivePatternElement (foldl (refineDSLLToken dsllEnv) [] (tokenize fromStr))
       patterns = filter notPatterns from
       to = foldl (refineByPattern patterns) [] (tokenize toStr)
       entities = filter notEntities to
   in (from, to, patterns, entities)
+
+refineByRecursivePatternElement :: [T.Token] -> [T.Token]
+refineByRecursivePatternElement tokens = let dividedToLines =  split (onSublist [T.NewLine]) tokens
+                                             refinedDividedToLines = map replaceToRecursivePattern dividedToLines
+                                         in concat refinedDividedToLines
+
+replaceToRecursivePattern chunk =
+  if T.RecursivePatternElement [] `elem` chunk then
+    [T.RecursivePatternElement (wrap1 chunk)]
+  else chunk
+
+wrap1 :: [T.Token] -> [T.Token]
+wrap1 tokens = map replaceToSingleElement tokens
+
+replaceToSingleElement (T.RecursivePatternElement l) = T.SinglePatternElement l
+replaceToSingleElement a = a
+
 
 notPatterns :: T.Token -> Bool
 notPatterns (T.Pattern t b) = True
@@ -65,6 +82,7 @@ notPatterns token = False
 
 notAllPatterns :: T.Token -> Bool
 notAllPatterns (T.RecursivePattern t) = True
+notAllPatterns (T.RecursivePatternElement t) = True
 notAllPatterns token = notPatterns token
 
 notEntities :: T.Token -> Bool
@@ -138,4 +156,6 @@ translate prog (T.Comment c) = prog ++ c
 translate prog (T.DSLLEntity d) = prog ++ d
 translate prog (T.Pattern p b) = prog ++ p ++ " "
 translate prog (T.Entitiy e) = prog ++ e ++ " "
+translate prog (T.RecursivePatternElement lst) = prog ++ concatMap (translate "") lst
 translate prog (T.RecursivePattern lst) = prog ++ concatMap (translate "") lst
+translate prog (T.SinglePatternElement lst) = prog ++ concatMap (translate "") lst

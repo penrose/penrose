@@ -350,23 +350,24 @@ alex_actions = array (0::Int,22) [(21,alex_action_0),(20,alex_action_1),(19,alex
 -- Each action has type :: String -> Token
 -- The token type:
 data Token =
-  Bind                           |
-  Iterator                       |
-  Iter                           |
-  NewLine                        |
-  PredEq                         |
-  ExprEq                         |
-  Comma                          |
-  Lparen                         |
-  Rparen                         |
-  Space                          |
-  Sym Char                       |
-  Var String                     |
-  RecursivePattern [Token]       |
-  Pattern String Bool            |
-  RecursivePatternElement        |
-  Entitiy String                 |
-  DSLLEntity String              |
+  Bind                            |
+  Iterator                        |
+  Iter                            |
+  NewLine                         |
+  PredEq                          |
+  ExprEq                          |
+  Comma                           |
+  Lparen                          |
+  Rparen                          |
+  Space                           |
+  Sym Char                        |
+  Var String                      |
+  RecursivePattern [Token]        |
+  RecursivePatternElement [Token] |
+  SinglePatternElement [Token]    |
+  Pattern String Bool             |
+  Entitiy String                  |
+  DSLLEntity String               |
   Comment String
   deriving (Show)
 
@@ -385,7 +386,7 @@ instance Eq Token where
   Entitiy c1 == Entitiy c2 = c1 == c2
   DSLLEntity c1 == DSLLEntity c2 = c1 == c2
   Comment c1 == Comment c2 = c1 == c2
-  RecursivePatternElement == RecursivePatternElement = True
+  RecursivePatternElement lst1 == RecursivePatternElement lst2 = True
   RecursivePattern lst1 == RecursivePattern lst2 = lst1 == lst2
   a == b = False
 
@@ -398,7 +399,7 @@ alex_action_0 =  \s -> Comment s
 alex_action_1 = \s -> Space
 alex_action_2 = \s -> NewLine
 alex_action_3 = \s -> NewLine
-alex_action_4 = \s -> RecursivePatternElement
+alex_action_4 = \s -> RecursivePatternElement []
 alex_action_5 = \s -> RecursivePattern []
 alex_action_6 =  \s -> PredEq 
 alex_action_7 =  \s -> ExprEq 

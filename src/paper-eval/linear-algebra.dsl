@@ -20,7 +20,7 @@ predicate Not(p : Prop) : Prop
 
 ------------------------- Syntactic Sugar Definition ---------------------------
 
-/*
+
 StmtNotation  "det(v1, v2) " -> "determinant(v1 , v2)"
 StmtNotation "LinearMap f : U → V" -> "LinearMap f;From(f,U,V)"
 StmtNotation "v1 + v2" -> "add(v1,v2)"
@@ -30,8 +30,8 @@ StmtNotation "|y1|" -> "norm(y1)"
 StmtNotation "<v1,v2>" -> "innerProduct(v1 , v2)"
 StmtNotation "s * v1" -> "scale(s , v1)"
 StmtNotation "f(v)" -> "apply(f,v)"
-*/
-StmtNotation "Vector ... ∈ V" -> "Vector ..."
+
+-- StmtNotation "Vector ... ∈ U" -> "Vector ... ;In(..,U)"
 
 
 /* TODO in the near future

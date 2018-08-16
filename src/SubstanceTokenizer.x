@@ -11,7 +11,7 @@ tokens :-
   [\ \t\f\v\r]+                     {\s -> Space}
   [\n]+                             {\s -> NewLine}
   \;                                {\s -> NewLine}
-  [\.]{2}                           {\s -> RecursivePatternElement}
+  [\.]{2}                           {\s -> RecursivePatternElement []}
   [\.]{3}                           {\s -> RecursivePattern []}
   \<\-\>                            { \s -> PredEq }
   \=                                { \s -> ExprEq }
@@ -29,23 +29,24 @@ tokens :-
 -- Each action has type :: String -> Token
 -- The token type:
 data Token =
-  Bind                           |
-  Iterator                       |
-  Iter                           |
-  NewLine                        |
-  PredEq                         |
-  ExprEq                         |
-  Comma                          |
-  Lparen                         |
-  Rparen                         |
-  Space                          |
-  Sym Char                       |
-  Var String                     |
-  RecursivePattern [Token]       |
-  Pattern String Bool            |
-  RecursivePatternElement        |
-  Entitiy String                 |
-  DSLLEntity String              |
+  Bind                            |
+  Iterator                        |
+  Iter                            |
+  NewLine                         |
+  PredEq                          |
+  ExprEq                          |
+  Comma                           |
+  Lparen                          |
+  Rparen                          |
+  Space                           |
+  Sym Char                        |
+  Var String                      |
+  RecursivePattern [Token]        |
+  RecursivePatternElement [Token] |
+  SinglePatternElement [Token]    |
+  Pattern String Bool             |
+  Entitiy String                  |
+  DSLLEntity String               |
   Comment String
   deriving (Show)
 
@@ -64,7 +65,7 @@ instance Eq Token where
   Entitiy c1 == Entitiy c2 = c1 == c2
   DSLLEntity c1 == DSLLEntity c2 = c1 == c2
   Comment c1 == Comment c2 = c1 == c2
-  RecursivePatternElement == RecursivePatternElement = True
+  RecursivePatternElement lst1 == RecursivePatternElement lst2 = True
   RecursivePattern lst1 == RecursivePattern lst2 = lst1 == lst2
   a == b = False
 

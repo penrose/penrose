@@ -60,8 +60,16 @@ handleRecursivePattern from to patterns tokens =
  let c = groupBy cmpSubst tokens
      c' = concat (foldl replaceToRecursivePattern [] c)
      c'' = split (onSublist (filter Tokenizer.spaces to)) c'
-     splittedReplaced = foldl (replace from to patterns) [] c''
- in concat splittedReplaced
+     splittedReplaced = concat (foldl (replace from to patterns) [] c'')
+     recursivePattern = foldl findRecursivePattern [] splittedReplaced
+     final = foldl (replaceToRecursivePatternElement recursivePattern) [] splittedReplaced
+ in (traceShowId final)
+
+replaceToRecursivePatternElement recursivePattern lst (T.RecursivePatternElement p) = lst ++ p
+replaceToRecursivePatternElement recursivePattern lst t = lst ++ [t]
+
+findRecursivePattern lst (T.RecursivePattern p) = lst ++ p
+findRecursivePattern lst _ = lst
 
 cmpSubst :: T.Token -> T.Token -> Bool
 cmpSubst (T.Pattern _ _) T.Comma = True
@@ -88,7 +96,7 @@ replace :: [T.Token] -> [T.Token] -> [T.Token] -> [[T.Token]]
 replace from to patterns lst chunk =
    if comparePattern to chunk patterns then
      let patternMatch = zip (filter Tokenizer.notAllPatterns to) (filter Tokenizer.notAllPatterns chunk)
-         from' = foldl updateValue from patternMatch
+         from' = foldl updateValue from (patternMatch ++ [(T.RecursivePatternElement [], T.RecursivePatternElement [])])
      in lst ++ [from']
    else lst ++ [chunk]
 
@@ -98,13 +106,14 @@ replace from to patterns lst chunk =
 replaceElement (T.Pattern p1 b1) (T.Pattern p2 b2) (T.Pattern x b3) =
   if p1 == x && not b3 then T.Pattern p2 True else T.Pattern x b3
 
-replaceElement (T.RecursivePattern p1) (T.RecursivePattern p2) (T.RecursivePattern x) =
-  traceShowId (T.RecursivePattern p2)
+replaceElement (T.RecursivePattern p1) (T.RecursivePattern p2) (T.RecursivePattern x) = T.RecursivePattern p2
+
+replaceElement (T.RecursivePatternElement p1) (T.RecursivePatternElement p2) (T.RecursivePatternElement x) = T.RecursivePatternElement x
 
 replaceElement p1 p2 x = x
 
 updateValue :: [T.Token] -> (T.Token,T.Token) -> [T.Token]
-updateValue from patternMatch = map (uncurry replaceElement (traceShowId patternMatch)) from
+updateValue from patternMatch = map (uncurry replaceElement patternMatch) from
 
 -- | Compare 2 patterns
 comparePattern :: [T.Token] -> [T.Token] -> [T.Token] -> Bool
@@ -118,6 +127,8 @@ compareElements (T.Var a, T.Pattern b _) = True
 compareElements (T.Entitiy a, T.Pattern b _) = True
 compareElements (T.Pattern b _,T.Entitiy a) = True
 compareElements (T.RecursivePattern _ ,T.RecursivePattern _) = True
+compareElements (T.RecursivePatternElement _ ,T.RecursivePattern _) = True
+compareElements (T.RecursivePattern _ ,T.RecursivePatternElement _) = True
 compareElements (a,b) = a == b
 
 ------------------------------ Test Driver -------------------------------------
