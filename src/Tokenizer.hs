@@ -63,6 +63,10 @@ notPatterns :: T.Token -> Bool
 notPatterns (T.Pattern t b) = True
 notPatterns token = False
 
+notAllPatterns :: T.Token -> Bool
+notAllPatterns (T.RecursivePattern t) = True
+notAllPatterns token = notPatterns token
+
 notEntities :: T.Token -> Bool
 notEntities (T.Entitiy e) = True
 notEntities token = False

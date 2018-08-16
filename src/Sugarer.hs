@@ -57,9 +57,10 @@ sugarStmt dsllEnv tokens rule =
 --  we need to refine the sugared substance tokens list to recognize recursive
 --  patterns before the actual split
 handleRecursivePattern from to patterns tokens =
- let c =  traceShowId (groupBy cmpSubst tokens)
-     c' = traceShowId (foldl replaceToRecursivePattern [] c)
-     splittedReplaced = foldl (replace from to patterns) [] c'
+ let c = groupBy cmpSubst tokens
+     c' = concat (foldl replaceToRecursivePattern [] c)
+     c'' = split (onSublist (filter Tokenizer.spaces to)) c'
+     splittedReplaced = foldl (replace from to patterns) [] c''
  in concat splittedReplaced
 
 cmpSubst :: T.Token -> T.Token -> Bool
@@ -86,7 +87,7 @@ replace :: [T.Token] -> [T.Token] -> [T.Token] -> [[T.Token]]
  -> [T.Token] -> [[T.Token]]
 replace from to patterns lst chunk =
    if comparePattern to chunk patterns then
-     let patternMatch = zip (filter Tokenizer.notPatterns to) (filter Tokenizer.notPatterns chunk)
+     let patternMatch = zip (filter Tokenizer.notAllPatterns to) (filter Tokenizer.notAllPatterns chunk)
          from' = foldl updateValue from patternMatch
      in lst ++ [from']
    else lst ++ [chunk]
@@ -96,20 +97,27 @@ replace from to patterns lst chunk =
 --   collisions
 replaceElement (T.Pattern p1 b1) (T.Pattern p2 b2) (T.Pattern x b3) =
   if p1 == x && not b3 then T.Pattern p2 True else T.Pattern x b3
+
+replaceElement (T.RecursivePattern p1) (T.RecursivePattern p2) (T.RecursivePattern x) =
+  traceShowId (T.RecursivePattern p2)
+
 replaceElement p1 p2 x = x
 
 updateValue :: [T.Token] -> (T.Token,T.Token) -> [T.Token]
-updateValue from patternMatch = map (uncurry replaceElement patternMatch) from
+updateValue from patternMatch = map (uncurry replaceElement (traceShowId patternMatch)) from
 
 -- | Compare 2 patterns
 comparePattern :: [T.Token] -> [T.Token] -> [T.Token] -> Bool
 comparePattern to chunk patterns =
-  let chunk' = filter Tokenizer.spaces chunk
-      to' = filter Tokenizer.spaces to
-  in (length chunk' == length to') && all compareElements (zip chunk' to')
+  let chunk' =  (filter Tokenizer.newLines (filter Tokenizer.spaces chunk))
+      to' =   (filter Tokenizer.spaces to)
+  in  ((length chunk' == length to') && all compareElements (zip chunk' to'))
 
 compareElements :: (T.Token,T.Token) -> Bool
 compareElements (T.Var a, T.Pattern b _) = True
+compareElements (T.Entitiy a, T.Pattern b _) = True
+compareElements (T.Pattern b _,T.Entitiy a) = True
+compareElements (T.RecursivePattern _ ,T.RecursivePattern _) = True
 compareElements (a,b) = a == b
 
 ------------------------------ Test Driver -------------------------------------
