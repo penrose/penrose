@@ -4,6 +4,7 @@ module SubstanceTokenizer where
 %wrapper "basic"
 $digit = 0-9
 $alpha = [a-zA-Z]
+$symbol = [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\⟵\⟶\⟷\<\>\|\;\~\`\!\#\%\&\*\±\§\?\$\<\>\⊆\∪\∩\`\∫\[\]\^]
 tokens :-
   -- digits
   -- alphabetic characters
@@ -21,7 +22,7 @@ tokens :-
   \,                                { \s -> Comma }
   \[\.\.\.\]                        { \s -> Iterator }
   \[\.\]                            { \s -> Iter }
-  [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\⟵\⟶\⟷\<\>\|\;\~\`\!\#\%\&\*\±\§\?\$\<\>\⊆\∪\∩\`\∫\[\]\^] { \s -> Sym (head s) }
+  $symbol                           { \s -> Sym (head s) }
   $alpha [$alpha $digit \_ \’]*     { \s -> Var s }
   $alpha \`[$alpha $digit \_ \’]*   { \s -> Pattern s False }
 

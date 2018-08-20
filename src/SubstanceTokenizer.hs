@@ -345,7 +345,7 @@ alex_accept = listArray (0::Int,46) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAcc
 
 alex_actions = array (0::Int,22) [(21,alex_action_0),(20,alex_action_1),(19,alex_action_2),(18,alex_action_3),(17,alex_action_4),(16,alex_action_5),(15,alex_action_6),(14,alex_action_7),(13,alex_action_8),(12,alex_action_9),(11,alex_action_10),(10,alex_action_11),(9,alex_action_12),(8,alex_action_13),(7,alex_action_14),(6,alex_action_14),(5,alex_action_14),(4,alex_action_14),(3,alex_action_14),(2,alex_action_15),(1,alex_action_15),(0,alex_action_16)]
 
-{-# LINE 28 "SubstanceTokenizer.x" #-}
+{-# LINE 29 "SubstanceTokenizer.x" #-}
 
 -- Each action has type :: String -> Token
 -- The token type:
