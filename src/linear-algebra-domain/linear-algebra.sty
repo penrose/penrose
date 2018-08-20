@@ -3,6 +3,7 @@ const {
   const.axisSize = const.vectorSpaceSize * 0.4
   const.distVectorSpaces = 50.0
 }
+
 Colors {
   Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
   Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
@@ -11,7 +12,6 @@ Colors {
 }
 
 VectorSpace U {
-
   U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 ,0.0)
   U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
 
@@ -80,81 +80,15 @@ VectorSpace U {
 }
 
 VectorSpace U; VectorSpace V {
-    U.smaeHeight = ensure sameHeight(U.shape, V.shape)
+    U.sameHeight = ensure sameHeight(U.shape, V.shape)
     U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
     --V.shape.y = U.shape.y
     --V.shape.x =U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
 }
 
-Vector u
-with Vector v; VectorSpace U
---where u := Neg(v); In(v,U){
-where u := Neg(v){
- u.containFn = ensure contains(U.shape, u.shape)
- u.containLabel = ensure contains(U.shape, u.text)
- u.labelLocation = ensure nearHead(u.shape, u.text, 15.0 ,15.0 )
-
-  u.text = Text {
-    string = u.label
-  }
-
-  u.shape = Arrow {
-      startX = v.shape.startX
-      startY = v.shape.startY
-      endX = 2.0 * v.shape.startX - v.shape.endX
-      endY = 2.0 * v.shape.startY - v.shape.endY
-      thickness = 9.0
-    }
-
-}
-
-
-Vector u
-with Vector v; Vector w; VectorSpace U
-where u := AddV(v,w);  {
-    u.containFn = ensure contains(U.shape, u.shape)
-    u.containLabel = ensure contains(U.shape, u.text)
-    u.labelLocation = ensure nearHead(u.shape, u.text, 15.0 ,15.0 )
-
-    u.text = Text {
-      string = u.label
-    }
-
-    u.shape = Arrow {
-       startX = U.shape.x
-       startY = U.shape.y
-       endX = v.shape.endX + w.shape.endX - U.shape.x
-       endY = v.shape.endY + w.shape.endY - U.shape.y
-       thickness = 9.0
-    }
-
-
-    u.slider_v = Arrow {
-     endX = u.shape.endX
-     endY = u.shape.endY
-
-     startX = w.shape.endX
-     startY = w.shape.endY
-     thickness = 7.0
-    }
-
-    u.slider_w = Arrow {
-       endX = u.shape.endX
-       endY = u.shape.endY
-
-       startX = v.shape.endX
-       startY = v.shape.endY
-       thickness = 7.0
-       color = u.slider_v.color
-
-    }
-
-}
-
 Vector v
 with VectorSpace U
 where In(v,U) {
-
   v.containFn = ensure contains(U.shape, v.shape)
   v.containLabel = ensure contains(U.shape, v.text)
   v.labelLocation = ensure nearHead(v.shape, v.text, 15.0 ,15.0 )
@@ -170,6 +104,41 @@ where In(v,U) {
   }
 }
 
+Vector u
+with Vector v; VectorSpace U
+where u := Neg(v); In(v,U); In(u, U) {
+  u.shape.endX = 2.0 * v.shape.startX - v.shape.endX
+  u.shape.endY = 2.0 * v.shape.startY - v.shape.endY
+}
+
+Vector u
+with Vector v; Vector w; VectorSpace U
+where u := AddV(v,w); In(u, U); In(v, U); In(w, U) {
+   u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
+   u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
+
+    u.slider_v = Arrow {
+     endX = u.shape.endX
+     endY = u.shape.endY
+
+     startX = w.shape.endX
+     startY = w.shape.endY
+     thickness = 4.5
+     -- style = "dashed"
+    }
+
+    u.slider_w = Arrow {
+       endX = u.shape.endX
+       endY = u.shape.endY
+
+       startX = v.shape.endX
+       startY = v.shape.endY
+       thickness = 4.5
+       color = u.slider_v.color
+       -- style = "dashed"
+    }
+}
+
 LinearMap f
 with VectorSpace U; VectorSpace V
 where From(f,U,V) {
@@ -183,11 +152,15 @@ where From(f,U,V) {
    }
 }
 
+-- FIXME (kye): Style throws bad error message about `c` if no Determinant is in Substance program
+
+/*
 Scalar c
 with Vector a; Vector b; VectorSpace U
-where c:= Determinant(a,b); In(a,U); In(b,U) {
+where c := Determinant(a,b); In(a,U); In(b,U) {
    c.shape = Parallelogram {
       x = U.shape.x
       y = U.shape.y
    }
 }
+*/

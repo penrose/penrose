@@ -1,11 +1,10 @@
 VectorSpace U
+Vector u1, neg_u1
 
-Vector A,B
+In(u1, U)
+neg_u1 := Neg(u1)
+In(neg_u1, U)
 
-In(A,U)
-
-B := Neg(A)
-
-Label A $\vec{u_{1}}$
-Label B $\vec{-u_{2}}$
+Label u1 $\vec{u_{1}}$
+Label neg_u1 $\vec{-u_{1}}$
 AutoLabel U

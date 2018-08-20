@@ -770,7 +770,7 @@ relMatchesLine :: C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 -- rule Bind-Match
 relMatchesLine subEnv (C.Bind var expr) (RelBind bvar sExpr) =
                case bvar of
-               BStyVar _ -> error "Style variable found in relational statement; should not be present!"
+               BStyVar v -> error ("Style variable '" ++ show v ++ "' found in relational statement '" ++ show (RelBind bvar sExpr) ++ "'. Should not be present!")
                BSubVar sVar -> var == sVar && expr == toSubExpr sExpr -- TODO: use beta to check equality
 -- rule Pred-Match
 relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) = predEq pred $ toSubPred sPred
