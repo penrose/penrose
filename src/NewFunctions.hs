@@ -553,11 +553,9 @@ topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (g
 
 nearHead :: ObjFn
 nearHead [GPI arr@("Arrow", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
-    let end = (getNum arr "endX", getNum arr "endY") in -- arrowhead
-    let offset = if fst end < 0 then (-xoff, yoff) else (xoff, yoff)
-        offset1 = if snd end < 0 then (fst offset, -yoff) else (fst offset, yoff)
-    in
-    distsq (getX lab, getY lab) (end `plus2` offset1)
+    let end = (getNum arr "endX", getNum arr "endY")
+        offset = (xoff, yoff)
+    in distsq (getX lab, getY lab) (end `plus2` offset)
     where plus2 (a, b) (c, d) = (a + c, b + d)
 
 nearEndVert :: ObjFn

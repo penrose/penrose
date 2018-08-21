@@ -1,5 +1,5 @@
 const {
-  const.vectorSpaceSize = 400.0
+  const.vectorSpaceSize = 300.0
   const.axisSize = const.vectorSpaceSize * 0.4
   const.distVectorSpaces = 50.0
 }
@@ -12,13 +12,14 @@ Colors {
 }
 
 VectorSpace U {
-  U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 ,0.0)
-  U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
+ U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 , 0.0)
+ U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
 
   U.shape = Square {
     side = const.vectorSpaceSize
     color = Colors.lightBlue
    }
+
 
    U.textX = Text {
      string = "x"
@@ -33,8 +34,10 @@ VectorSpace U {
       y = U.shape.y
       size = 10
       rotation = 0
-     isRight = "true"
+      isRight = "true"
+      color = Colors.black
    }
+
 
    U.xAxisRight = Arrow {
       startX = U.shape.x
@@ -83,7 +86,7 @@ VectorSpace U; VectorSpace V {
     U.sameHeight = ensure sameHeight(U.shape, V.shape)
     U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
     --V.shape.y = U.shape.y
-    --V.shape.x =U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
+    --V.shape.x = U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
 }
 
 Vector v
@@ -91,7 +94,7 @@ with VectorSpace U
 where In(v,U) {
   v.containFn = ensure contains(U.shape, v.shape)
   v.containLabel = ensure contains(U.shape, v.text)
-  v.labelLocation = ensure nearHead(v.shape, v.text, 15.0 ,15.0 )
+  v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 ,20.0 )
 
   v.text = Text {
     string = v.label
@@ -124,7 +127,7 @@ where u := AddV(v,w); In(u, U); In(v, U); In(w, U) {
      startX = w.shape.endX
      startY = w.shape.endY
      thickness = 4.5
-     -- style = "dashed"
+     style = "dashed"
     }
 
     u.slider_w = Arrow {
@@ -135,20 +138,26 @@ where u := AddV(v,w); In(u, U); In(v, U); In(w, U) {
        startY = v.shape.endY
        thickness = 4.5
        color = u.slider_v.color
-       -- style = "dashed"
+       style = "dashed"
     }
 }
 
 LinearMap f
 with VectorSpace U; VectorSpace V
 where From(f,U,V) {
-
    f.shape = Arrow {
-      startX = U.shape.x  + const.vectorSpaceSize/2.0
+      startX = U.shape.x
       startY = U.shape.y + const.vectorSpaceSize/2.0
-      endX = V.shape.x - const.vectorSpaceSize/2.0
+      endX = V.shape.x
       endY = V.shape.y + const.vectorSpaceSize/2.0
-      --style = "curved"
+      style = "curved"
+      rotation = 0.0
+   }
+
+   f.text = Text {
+     string = f.label
+     x = (f.shape.startX + f.shape.endX) / 2.0
+     y = f.shape.startY + 100.0
    }
 }
 

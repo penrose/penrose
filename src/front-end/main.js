@@ -6,8 +6,8 @@
 
 var DEBUG           = false
 // var DEBUG           = true
-var CANVAS_WIDTH    = 800
-var CANVAS_HEIGHT   = 700
+var CANVAS_WIDTH    = 1500
+var CANVAS_HEIGHT   = 1500
 var SAMPLE_INTERVAL = 40
 var socketAddress   = 'ws://localhost:9160/'
 

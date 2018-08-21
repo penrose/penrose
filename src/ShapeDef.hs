@@ -281,7 +281,8 @@ arrowType = ("Arrow", M.fromList
         ("thickness", (FloatT, sampleFloatIn (5, 15))),
         ("style", (StrT, constValue $ StrV "straight")),
         ("color", (ColorT, sampleColor)),
-        ("name", (StrT, constValue $ StrV "defaultArrow"))
+        ("name", (StrT, constValue $ StrV "defaultArrow")),
+        ("rotation", (FloatT, angle_sampler))
     ])
 
 braceType = ("Brace", M.fromList

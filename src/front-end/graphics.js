@@ -413,6 +413,7 @@ var Render = (function(){
     var color = properties.color
     var len = Snap.len(ex, ey, sx, sy)
 
+
    //Here, in order to generate thick arrow  lines, we generate a polygon with
    // a thickness
     var body_path = [0, thickness, len - 5 * thickness, thickness,
@@ -434,14 +435,23 @@ var Render = (function(){
         } else if(style == "curved"){
           //This hardcoded values help to locate the tail and the head
           // of the arrow in a nice way, might be changed in the future
+          myMatrix.rotate(properties.rotation, 0, 0);
+
           var line = s.path(describeArc(len/2-2.4*thickness,0,len/2,-90,90,true))
           .transform(myMatrix.toTransformString())
           line.attr({
             "fill-opacity" : 0,
             stroke: Utils.hex(color[0], color[1], color[2]),
           })
+        } else if(style == "dashed"){
+          var line = s.polyline(sx,sy,ex,ey)
+          line.attr({
+            "fill-opacity" : 0,
+            stroke: Utils.hex(color[0], color[1], color[2]),
+            strokeDasharray: "7, 5"
+          })
         }
-                
+
         var head = s.polyline(head_path).transform(myMatrix.toTransformString())
         head.attr({
           "fill-opacity" : 1,
