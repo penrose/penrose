@@ -392,9 +392,9 @@ calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1)
       Val (FloatV ex2), Val (FloatV ey2)] =
         let (ax,ay) = (ex1 - sx1, ey1 - sy1)
             (bx,by) = (ex2 - sx2, ey2 - sy2)
-            angle1 = if ay < 0 then 1 * atan (ay / ax) / pi*180.0 else 180.0  + 1 * atan (ay / ax) / pi*180.0
-            angle2 = if by < 0 then 1 * atan (by / bx) / pi*180.0 else 180.0 + 1 * atan (by / bx) / pi*180.0
-        in if angle1 < angle2 then Val (FloatV $ -1 * angle1) else Val (FloatV $ -1 * angle1)
+            angle1 =  (if (traceShowId (ay < 0)) then abs (atan (ay / ax) / pi*180.0) else 180.0  + abs (atan (ay / ax) / pi*180.0))
+            angle2 =  (if (traceShowId (by < 0)) then abs (atan (by / bx) / pi*180.0) else 180.0 + abs (atan  (by / bx) / pi*180.0))
+        in if traceShowId angle1 < traceShowId angle2 then Val (FloatV $ -1 *  (angle1)) else Val (FloatV $ -1 * (angle2))
 
 linePts, arrowPts :: (Autofloat a) => Shape a -> (a, a, a, a)
 linePts = arrowPts
