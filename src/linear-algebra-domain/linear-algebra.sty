@@ -161,15 +161,38 @@ where From(f,U,V) {
    }
 }
 
--- FIXME (kye): Style throws bad error message about `c` if no Determinant is in Substance program
-
-/*
 Scalar c
 with Vector a; Vector b; VectorSpace U
 where c := Determinant(a,b); In(a,U); In(b,U) {
    c.shape = Parallelogram {
+    --  m1 = (a.shape.endY - a.shape.startY) / (a.shape.endX - a.shape.startX)
+      m2 = (b.shape.endY - b.shape.startY) / (b.shape.endX - b.shape.startX)
       x = U.shape.x
       y = U.shape.y
+      lengthX = len(a.shape)
+      lengthY = len(b.shape)
+      angle = calcAngleDeterminant(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
+      -- calcAngle( )atan((c.shape.m1 - c.shape.m2)/ (1.0 + c.shape.m1 * c.shape.m2))
+      rotation = 0.0  --atan(c.shape.m2) -- + atan(c.shape.m2)
+      stroke-style = "dashed"
    }
 }
-*/
+
+Scalar c
+with Vector a;  VectorSpace U
+where c := Norm(a); In(a,U) {
+   c.shape = Brace {
+     startX = a.shape.startX
+     startY = a.shape.startY + 10.0
+     endX = a.shape.endX
+     endY = a.shape.endY + 10.0
+     thickness = 2
+   }
+
+   c.text = Text {
+     string = c.label
+     x = (a.shape.startX + a.shape.endX) / 2.0 + 15.0
+     y = (a.shape.startY + a.shape.endY) / 2.0 + 15.0
+   }
+
+  }

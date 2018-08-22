@@ -71,6 +71,8 @@ compDict :: forall a. (Autofloat a) => M.Map String (CompFnOn a)
 compDict = M.fromList
     [
         ("rgba", rgba),
+        ("atan", arctangent),
+        ("calcAngleDeterminant", calcAngleDeterminant),
         ("bboxWidth", bboxWidth),
         ("bboxHeight", bboxHeight),
         ("intersectionX", intersectionX),
@@ -98,6 +100,9 @@ compSignatures = M.fromList
         ("rgba",
             ([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],
               ValueT ColorT)),
+        ("atan",([ValueT FloatT],ValueT FloatT)),
+        ("calcAngleDeterminant",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
+            ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("intersectionX", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("intersectionY", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
@@ -362,6 +367,19 @@ lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
 rgba :: CompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
     Val (ColorV $ makeColor' r g b a)
+
+arctangent :: CompFn
+arctangent [(Val (FloatV d))] = Val (FloatV $ (atan d)/pi*180)
+
+calcAngleDeterminant :: CompFn
+calcAngleDeterminant [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
+      Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
+       Val (FloatV ex2), Val (FloatV ey2)] =
+         let m1 = (ey1 - sy1) / (ex1 - sx1)
+             m2 = (ey2 - sy2) / (ex2 - sx2)
+             alpha = (m1 - m2) / (1.0 + m1 * m2)
+             angle = (atan alpha) / pi*180.0
+         in if m1 > m2 then Val (FloatV $ 180.0 - angle) else Val (FloatV $ angle)
 
 linePts, arrowPts :: (Autofloat a) => Shape a -> (a, a, a, a)
 linePts = arrowPts

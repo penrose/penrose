@@ -493,14 +493,14 @@ var Render = (function(){
             strokeWidth: strokeW
         })
 
-        var side1 = s.polyline(sx, sy + 10,sx , sy - 10).transform(mSide1.toTransformString())
+        var side1 = s.polyline(sx, sy + 5,sx , sy - 5).transform(mSide1.toTransformString())
         side1.attr({
            "fill-opacity" : 1,
             stroke: Utils.hex(color[0], color[1], color[2]),
             strokeWidth: strokeW
         })
 
-        var side2 = s.polyline(ex, ey + 10,ex , ey - 10).transform(mSide2.toTransformString())
+        var side2 = s.polyline(ex, ey + 5,ex , ey - 5).transform(mSide2.toTransformString())
         side2.attr({
            "fill-opacity" : 1,
             stroke: Utils.hex(color[0], color[1], color[2]),
@@ -663,7 +663,7 @@ var Render = (function(){
                                                    // "correction" between rectangle to parallelogram
 
             parallelogramPath = [x, y, x + sizeX , y , x + sizeX + cor, y - h ,
-              x + cor , y - h]
+                x + cor , y - h]
 
               var parallelogram = s.polygon(parallelogramPath)
               .transform(myMatrix.toTransformString())
