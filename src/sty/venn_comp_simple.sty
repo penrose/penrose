@@ -1,5 +1,12 @@
-global {
-  global.padding = 15.0
+Const {
+  Const.padding = 15.0
+
+  -- this gets drawn by default
+  /* Const.test = Circle {
+    r = 50.0
+    color = Colors.black
+    stroke-width = 0
+  } */
 }
 
 Colors {
@@ -17,10 +24,11 @@ Point p {
 
   p.text = Text {
     string = p.label
-    x = `p`.shape.x + global.padding
-    y = `p`.shape.y + global.padding
+    x = `p`.shape.x + Const.padding
+    y = `p`.shape.y + Const.padding
   }
 
+  -- override Const.test.color = Colors.red
   -- p.labelFn = encourage centerLabel(p.shape, p.text)
 }
 

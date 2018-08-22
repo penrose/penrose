@@ -1,5 +1,5 @@
-global {
-  global.padding = 15.0
+Const {
+  Const.padding = 15.0
 }
 
 Colors {
@@ -20,16 +20,16 @@ Point p {
 Point `a` {
   `a`.shape.x = 0.0
   `a`.shape.y = 0.0
-  `a`.text.x = `a`.shape.x + global.padding
-  `a`.text.y = `a`.shape.y + global.padding
+  `a`.text.x = `a`.shape.x + Const.padding
+  `a`.text.y = `a`.shape.y + Const.padding
 }
 
 Point `b`
 with Point `a` {
   `b`.shape.x = `a`.shape.x + 100.0
   `b`.shape.y = `a`.shape.y + 200.0
-  `b`.text.x = `b`.shape.x + global.padding
-  `b`.text.y = `b`.shape.y + global.padding
+  `b`.text.x = `b`.shape.x + Const.padding
+  `b`.text.y = `b`.shape.y + Const.padding
 }
 
 Set X
