@@ -1,6 +1,19 @@
-VectorSpace V,U
+VectorSpace U,V
 
 LinearMap f
-From(f,V,U)
+From(f,U,V)
+
+Vector u1
+In(u1,U)
+
+Label u1 $\vec{u_{1}}$
+
+Vector v1
+In(v1,V)
+
+Label v1 $f(\vec{u_{1}})$
+
+
+Label f $f : U \rightarrow V$
 
 AutoLabel U,V

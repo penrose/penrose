@@ -5,6 +5,7 @@ In(u1,U)
 In(u2,U)
 Scalar c
 c := Determinant(u1,u2)
+Label c $det(\vec{u1},\vec{u2})$
 
 AutoLabel U
 Label u1 $\vec{u1}$

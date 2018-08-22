@@ -71,6 +71,9 @@ compDict :: forall a. (Autofloat a) => M.Map String (CompFnOn a)
 compDict = M.fromList
     [
         ("rgba", rgba),
+        ("atan", arctangent),
+        ("calcVectorsAngle", calcVectorsAngle),
+        ("calcVectorsAngleWithOrigin", calcVectorsAngleWithOrigin),
         ("bboxWidth", bboxWidth),
         ("bboxHeight", bboxHeight),
         ("intersectionX", intersectionX),
@@ -98,6 +101,11 @@ compSignatures = M.fromList
         ("rgba",
             ([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],
               ValueT ColorT)),
+        ("atan",([ValueT FloatT],ValueT FloatT)),
+        ("calcVectorsAngle",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
+            ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
+        ("calcVectorsAngleWithOrigin",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
+                ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("intersectionX", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("intersectionY", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
@@ -363,6 +371,31 @@ rgba :: CompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
     Val (ColorV $ makeColor' r g b a)
 
+arctangent :: CompFn
+arctangent [(Val (FloatV d))] = Val (FloatV $ (atan d)/pi*180)
+
+calcVectorsAngle :: CompFn
+calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
+      Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
+       Val (FloatV ex2), Val (FloatV ey2)] =
+         let (ax,ay) = (ex1 - sx1, ey1 - sy1)
+             (bx,by) = (ex2 - sx2, ey2 - sy2)
+             ab = ax*bx + ay*by
+             na = sqrt (ax^2 + ay^2)
+             nb = sqrt (bx^2 + by^2)
+             angle = acos (ab / (na*nb)) / pi*180.0
+         in Val (FloatV $ angle)
+
+calcVectorsAngleWithOrigin :: CompFn
+calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
+     Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
+      Val (FloatV ex2), Val (FloatV ey2)] =
+        let (ax,ay) = (ex1 - sx1, ey1 - sy1)
+            (bx,by) = (ex2 - sx2, ey2 - sy2)
+            angle1 = if ay < 0 then 1 * atan (ay / ax) / pi*180.0 else 180.0  + 1 * atan (ay / ax) / pi*180.0
+            angle2 = if by < 0 then 1 * atan (by / bx) / pi*180.0 else 180.0 + 1 * atan (by / bx) / pi*180.0
+        in if angle1 < angle2 then Val (FloatV $ -1 * angle1) else Val (FloatV $ -1 * angle1)
+
 linePts, arrowPts :: (Autofloat a) => Shape a -> (a, a, a, a)
 linePts = arrowPts
 arrowPts a = (getNum a "startX", getNum a "startY", getNum a "endX", getNum a "endY")
@@ -553,11 +586,9 @@ topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (g
 
 nearHead :: ObjFn
 nearHead [GPI arr@("Arrow", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
-    let end = (getNum arr "endX", getNum arr "endY") in -- arrowhead
-    let offset = if fst end < 0 then (-xoff, yoff) else (xoff, yoff)
-        offset1 = if snd end < 0 then (fst offset, -yoff) else (fst offset, yoff)
-    in
-    distsq (getX lab, getY lab) (end `plus2` offset1)
+    let end = (getNum arr "endX", getNum arr "endY")
+        offset = (xoff, yoff)
+    in distsq (getX lab, getY lab) (end `plus2` offset)
     where plus2 (a, b) (c, d) = (a + c, b + d)
 
 nearEndVert :: ObjFn
