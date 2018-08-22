@@ -211,6 +211,8 @@ addDeclaredName a e = if a `elem` declaredNames e
 isSubtype :: T -> T -> VarEnv -> Bool
 isSubtype t1 t2 e = (t1,t2) `elem` subTypes e
 
+isSubtypeK :: K -> K -> VarEnv -> Bool
+isSubtypeK (KT k1) (KT k2) e = isSubtype k1 k2 e
 --------------------------------------- Env Data Types ---------------------------------------
 
 -- | Environment for the dsll semantic checker. As the 'check' function executes, it

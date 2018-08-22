@@ -1,38 +1,20 @@
-Vector v {
-    v.shape = Parallelogram {
-    x = 0.0
-    y = 0.0
-    lengthX = 100.0
-    lengthY = 500.0
-    angle = 90.0
-    rotation = 20.0
-   }
+Set x {
+    shape = Circle { }
+    objective outside(x.shape.label, x.shape)
+    arr = Arrow {
+        start = x.shape.label
+        end   = x
+        text = None
+    }
 }
 
-Scalar s {
-    v.shape = Arc {
-      x = 10.0
-      y = 10.0
-      angle = 359
-      style = "wedge"
-      isRight = "true"
-
-      -- startX = 10.0
-      -- startY = 10.0
-      --endX = 80.0
-      --endY = 90.0
-      r = 50
-      rotation = -100.0
-   }
+NoIntersect x y {
+    constraint nonOverlapping(x.shape, y.shape)
 }
 
-VectorSpace V {
-  V.shape = Brace {
-    startX = -100.0
-    startY = 0.0
-    endX = 100.0
-    endY = -100.0
-    thickness = 100.0
-    color = rgba(1.0, 0.0, 0.0, 0.5)
-  }
+Subset x y {
+    constraint contains(y.shape, x.shape.label)
+    constraint contains(y.shape, x.shape)
+    constraint smallerThan(x.shape, y.shape)
+    constraint outsideOf(y.shape.label, x.shape)
 }

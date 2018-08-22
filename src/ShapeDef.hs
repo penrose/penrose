@@ -106,7 +106,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType,imageType, textType, arcType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -221,7 +221,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -284,17 +284,6 @@ arrowType = ("Arrow", M.fromList
         ("name", (StrT, constValue $ StrV "defaultArrow"))
     ])
 
-braceType = ("Brace", M.fromList
-    [
-        ("startX", (FloatT, x_sampler)),
-        ("startY", (FloatT, y_sampler)),
-        ("endX", (FloatT, x_sampler)),
-        ("endY", (FloatT, y_sampler)),
-        ("color", (ColorT, sampleColor)),
-        ("thickness", (FloatT, sampleFloatIn (1, 6))),
-        ("name", (StrT, constValue $ StrV "defaultBrace"))
-      ])
-
 curveType = ("Curve", M.fromList
     [
         ("path", (PathT, constValue $ PathV [])), -- TODO: sample path
@@ -322,8 +311,8 @@ rectType = ("Rectangle", M.fromList
     [
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
-        ("sizeX", (FloatT, width_sampler)),
-        ("sizeY", (FloatT, height_sampler)),
+        ("w", (FloatT, width_sampler)),
+        ("h", (FloatT, height_sampler)),
         ("rotation", (FloatT, angle_sampler)),
         ("color", (ColorT, sampleColor)),
         ("stroke", (StrT, constValue $ StrV "none")),
@@ -345,15 +334,15 @@ squareType = ("Square", M.fromList
 
 parallelogramType = ("Parallelogram", M.fromList
     [
-        ("x", (FloatT, x_sampler)),
-        ("y", (FloatT, y_sampler)),
+        ("centerX", (FloatT, x_sampler)), -- TODO: is this top left? or center? @Dor
+        ("centerY", (FloatT, y_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
         ("angle", (FloatT, angle_sampler)),
         ("rotation", (FloatT, angle_sampler)),
         ("color", (ColorT, sampleColor)),
-        ("stroke-style", (StrT, stroke_style_sampler)),
-        ("stroke-color",  (ColorT, sampleColor)),
+        ("style", (StrT, constValue $ StrV "none")), -- TODO: what is this?
+        ("stroke", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultParallelogram"))
     ])
 
@@ -372,15 +361,15 @@ imageType = ("Image", M.fromList
 
 arcType = ("Arc", M.fromList
     [
-        ("x", (FloatT, x_sampler)), -- x,y are the cordinates for the bottom left position
-        ("y", (FloatT, y_sampler)), -- of the right angle or the midlle pos of a regular angle
+        ("x", (FloatT, x_sampler)), -- TODO: what does this (x,y) mean? @Dor
+        ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
         ("size", (FloatT, width_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
         ("angle", (FloatT, angle_sampler)),
         ("rotation", (FloatT, angle_sampler)),
-        ("isRight", (BoolT, bool_sampler)), -- This property overrides the angle property
+        ("isRight", (BoolT, bool_sampler)),
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),

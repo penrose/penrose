@@ -411,10 +411,10 @@ var Render = (function(){
     var [ex, ey] = Utils.scr([properties.endX, properties.endY])
     var thickness = properties.thickness / 6
     var color = properties.color
-    var opacity = color[3] 
     var len = Snap.len(ex, ey, sx, sy)
 
-   // Here, in order to generate thick arrow  lines, we generate a polygon with
+
+   //Here, in order to generate thick arrow  lines, we generate a polygon with
    // a thickness
     var body_path = [0, thickness, len - 5 * thickness, thickness,
       len - 5 * thickness, -1 * thickness, 0, -1 * thickness]
@@ -429,14 +429,14 @@ var Render = (function(){
         if(style == "straight"){
           var line = s.polygon(body_path).transform(myMatrix.toTransformString())
           line.attr({
-              fill : Utils.hex(color[0], color[1], color[2]),
-              stroke: Utils.hex(color[0], color[1], color[2]),
-	      "fill-opacity": opacity,
+            fill : Utils.hex(color[0], color[1], color[2],color[3]),
+            stroke: Utils.hex(color[0], color[1], color[2],color[3]),
           })
         } else if(style == "curved"){
           //This hardcoded values help to locate the tail and the head
           // of the arrow in a nice way, might be changed in the future
           myMatrix.rotate(properties.rotation, 0, 0);
+
           var line = s.path(describeArc(len/2-2.4*thickness,0,len/2,-90,90,true))
           .transform(myMatrix.toTransformString())
           line.attr({
@@ -454,7 +454,7 @@ var Render = (function(){
 
         var head = s.polyline(head_path).transform(myMatrix.toTransformString())
         head.attr({
-          "fill-opacity" : opacity,
+          "fill-opacity" : 1,
           fill : Utils.hex(color[0], color[1], color[2]),
           stroke: Utils.hex(color[0], color[1], color[2]),
         })
@@ -493,14 +493,14 @@ var Render = (function(){
             strokeWidth: strokeW
         })
 
-        var side1 = s.polyline(sx, sy + 10,sx , sy - 10).transform(mSide1.toTransformString())
+        var side1 = s.polyline(sx, sy + 5,sx , sy - 5).transform(mSide1.toTransformString())
         side1.attr({
            "fill-opacity" : 1,
             stroke: Utils.hex(color[0], color[1], color[2]),
             strokeWidth: strokeW
         })
 
-        var side2 = s.polyline(ex, ey + 10,ex , ey - 10).transform(mSide2.toTransformString())
+        var side2 = s.polyline(ex, ey + 5,ex , ey - 5).transform(mSide2.toTransformString())
         side2.attr({
            "fill-opacity" : 1,
             stroke: Utils.hex(color[0], color[1], color[2]),
@@ -663,7 +663,7 @@ var Render = (function(){
                                                    // "correction" between rectangle to parallelogram
 
             parallelogramPath = [x, y, x + sizeX , y , x + sizeX + cor, y - h ,
-              x + cor , y - h]
+                x + cor , y - h]
 
               var parallelogram = s.polygon(parallelogramPath)
               .transform(myMatrix.toTransformString())
