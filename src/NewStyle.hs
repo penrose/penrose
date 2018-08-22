@@ -768,7 +768,7 @@ relMatchesLine :: C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 -- rule Bind-Match
 relMatchesLine subEnv (C.Bind var expr) (RelBind bvar sExpr) =
                case bvar of
-               BStyVar _ -> error "Style variable found in relational statement; should not be present!"
+               BStyVar v -> error ("Style variable '" ++ show v ++ "' found in relational statement '" ++ show (RelBind bvar sExpr) ++ "'. Should not be present!")
                BSubVar sVar -> 
                        let selExpr = toSubExpr sExpr in
                        (var == sVar && expr == selExpr) -- self-equal

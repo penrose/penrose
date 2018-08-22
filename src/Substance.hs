@@ -72,6 +72,7 @@ instance Show Predicate where
               aString = show predicateArgs
 
 data SubStmt = Decl T Var
+             | DeclList T [Var]
              | Bind Var Expr
              | EqualE Expr Expr
              | EqualQ Predicate Predicate
@@ -106,6 +107,16 @@ data SubObj = LD SubDecl
             deriving (Show, Eq, Typeable)
 
 --------------------------------------- Substance Parser --------------------------------------
+
+refineAST :: SubProg -> SubProg
+refineAST subProg = foldl refineDeclList [] subProg
+
+refineDeclList accumProg (DeclList t vars) =
+  accumProg ++ foldl (convertDeclList t) [] vars
+refineDeclList accumProg stmt = accumProg ++ [stmt]
+
+convertDeclList t vars var = vars ++ [Decl t var]
+
 
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
@@ -160,7 +171,11 @@ subStmt = labelDecl <|>
          try applyP
 
 decl = do t' <- tParser
-          Decl t' <$> varParser
+          vars <- varParser `sepBy1` comma
+          if length vars == 1
+            then return (Decl t' (head vars))
+            else return (DeclList t' vars)
+
 bind = do
   v' <- varParser
   rword ":="
@@ -625,10 +640,11 @@ parseSubstance subFile subIn varEnv =
     case runParser substanceParser subFile subIn of
         Left err -> error (parseErrorPretty err)
         Right subProg -> do
-            let subTypeEnv  = check subProg varEnv
-            let subDynEnv   = loadSubEnv subProg
-            let labelMap    = getLabelMap subProg subTypeEnv
-            return (subProg, (subTypeEnv, subDynEnv), labelMap)
+            let subProg' = refineAST subProg
+            let subTypeEnv  = check subProg' varEnv
+            let subDynEnv   = loadSubEnv subProg'
+            let labelMap    = getLabelMap subProg' subTypeEnv
+            return (subProg', (subTypeEnv, subDynEnv), labelMap)
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

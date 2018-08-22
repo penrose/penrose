@@ -437,7 +437,6 @@ var Render = (function(){
           //This hardcoded values help to locate the tail and the head
           // of the arrow in a nice way, might be changed in the future
           myMatrix.rotate(properties.rotation, 0, 0);
-
           var line = s.path(describeArc(len/2-2.4*thickness,0,len/2,-90,90,true))
           .transform(myMatrix.toTransformString())
           line.attr({
