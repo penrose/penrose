@@ -608,8 +608,6 @@ checkSels varEnv prog =
 -- A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
 type Subst = M.Map StyVar Var
 
--- TODO: add beta everywhere after merge
-
 ----- Debug info
 
 debugM1, debugM2, debugM3 :: Bool
@@ -771,11 +769,16 @@ relMatchesLine :: C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 relMatchesLine subEnv (C.Bind var expr) (RelBind bvar sExpr) =
                case bvar of
                BStyVar _ -> error "Style variable found in relational statement; should not be present!"
-               BSubVar sVar -> var == sVar && expr == toSubExpr sExpr -- TODO: use beta to check equality
+               BSubVar sVar -> 
+                       let selExpr = toSubExpr sExpr in
+                       (var == sVar && expr == selExpr) -- self-equal
+                       || C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
 -- rule Pred-Match
-relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) = predEq pred $ toSubPred sPred
-               -- TODO: use beta to check for implication
-relMatchesLine _ _ _ = False -- no other line forms match (decl, equality, etc.)
+relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) = 
+               let selPred = toSubPred sPred in
+               predEq pred selPred -- self-equal
+               || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
+relMatchesLine _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
 
 -- Judgment 13. b |- [S] <| |S_r
 relMatchesProg :: C.SubEnv -> C.SubProg -> RelationPattern -> Bool

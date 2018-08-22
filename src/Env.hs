@@ -155,15 +155,15 @@ emptyArgList = do
 ----------------------------------- Typechecker aux functions ------------------------------------------
 
 -- | Compute the transitive closure of list of pairs
---   Useful for subtyping and equality aubtyping checkings
+--   Useful for subtyping and equality subtyping checkings
 transitiveClosure :: Eq a => [(a, a)] -> [(a, a)]
 transitiveClosure closure
   | closure == closureAccum = closure
-  | otherwise                  = transitiveClosure closureAccum
+  | otherwise               = transitiveClosure closureAccum
   where closureAccum =
           nub $ closure ++ [(a, c) | (a, b) <- closure, (b', c) <- closure, b == b']
 
--- | Return whether a closure is cyclic (a,b) and (b,a) appears in the closure
+-- | Return whether a closure is cyclic (a, b) and (b, a) appears in the closure
 isClosureNotCyclic :: Eq a => [(a,a)] -> Bool
 isClosureNotCyclic lst = let c = [(a,a') | (a,a') <- lst, a == a']
                   in null c
