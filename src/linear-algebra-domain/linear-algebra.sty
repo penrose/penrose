@@ -165,16 +165,19 @@ Scalar c
 with Vector a; Vector b; VectorSpace U
 where c := Determinant(a,b); In(a,U); In(b,U) {
    c.shape = Parallelogram {
-    --  m1 = (a.shape.endY - a.shape.startY) / (a.shape.endX - a.shape.startX)
-      m2 = (b.shape.endY - b.shape.startY) / (b.shape.endX - b.shape.startX)
       x = U.shape.x
       y = U.shape.y
       lengthX = len(a.shape)
       lengthY = len(b.shape)
-      angle = calcAngleDeterminant(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
-      -- calcAngle( )atan((c.shape.m1 - c.shape.m2)/ (1.0 + c.shape.m1 * c.shape.m2))
-      rotation = 0.0  --atan(c.shape.m2) -- + atan(c.shape.m2)
+      angle = calcVectorsAngle(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
+      rotation = calcVectorsAngleWithOrigin(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
       stroke-style = "dashed"
+   }
+
+   c.text = Text {
+     string = c.label
+     x = (a.shape.endX + b.shape.endX) / 2.0
+     y = (a.shape.endY + b.shape.endY) / 2.0
    }
 }
 

@@ -72,7 +72,8 @@ compDict = M.fromList
     [
         ("rgba", rgba),
         ("atan", arctangent),
-        ("calcAngleDeterminant", calcAngleDeterminant),
+        ("calcVectorsAngle", calcVectorsAngle),
+        ("calcVectorsAngleWithOrigin", calcVectorsAngleWithOrigin),
         ("bboxWidth", bboxWidth),
         ("bboxHeight", bboxHeight),
         ("intersectionX", intersectionX),
@@ -101,8 +102,10 @@ compSignatures = M.fromList
             ([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],
               ValueT ColorT)),
         ("atan",([ValueT FloatT],ValueT FloatT)),
-        ("calcAngleDeterminant",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
+        ("calcVectorsAngle",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
             ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
+        ("calcVectorsAngleWithOrigin",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
+                ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("intersectionX", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("intersectionY", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
@@ -371,15 +374,27 @@ rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
 arctangent :: CompFn
 arctangent [(Val (FloatV d))] = Val (FloatV $ (atan d)/pi*180)
 
-calcAngleDeterminant :: CompFn
-calcAngleDeterminant [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
+calcVectorsAngle :: CompFn
+calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
       Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
        Val (FloatV ex2), Val (FloatV ey2)] =
-         let m1 = (ey1 - sy1) / (ex1 - sx1)
-             m2 = (ey2 - sy2) / (ex2 - sx2)
-             alpha = (m1 - m2) / (1.0 + m1 * m2)
-             angle = (atan alpha) / pi*180.0
-         in if m1 > m2 then Val (FloatV $ 180.0 - angle) else Val (FloatV $ angle)
+         let (ax,ay) = (ex1 - sx1, ey1 - sy1)
+             (bx,by) = (ex2 - sx2, ey2 - sy2)
+             ab = ax*bx + ay*by
+             na = sqrt (ax^2 + ay^2)
+             nb = sqrt (bx^2 + by^2)
+             angle = acos (ab / (na*nb)) / pi*180.0
+         in Val (FloatV $ angle)
+
+calcVectorsAngleWithOrigin :: CompFn
+calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
+     Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
+      Val (FloatV ex2), Val (FloatV ey2)] =
+        let (ax,ay) = (ex1 - sx1, ey1 - sy1)
+            (bx,by) = (ex2 - sx2, ey2 - sy2)
+            angle1 = if ay < 0 then 1 * atan (ay / ax) / pi*180.0 else 180.0  + 1 * atan (ay / ax) / pi*180.0
+            angle2 = if by < 0 then 1 * atan (by / bx) / pi*180.0 else 180.0 + 1 * atan (by / bx) / pi*180.0
+        in if angle1 < angle2 then Val (FloatV $ -1 * angle1) else Val (FloatV $ -1 * angle1)
 
 linePts, arrowPts :: (Autofloat a) => Shape a -> (a, a, a, a)
 linePts = arrowPts
