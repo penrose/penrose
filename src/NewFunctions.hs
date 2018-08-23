@@ -75,6 +75,7 @@ compDict = M.fromList
         ("calcVectorsAngle", calcVectorsAngle),
         ("calcVectorsAngleWithOrigin", calcVectorsAngleWithOrigin),
         ("generateRandomReal", generateRandomReal),
+        ("calcNorm", calcNorm),
         ("bboxWidth", bboxWidth),
         ("bboxHeight", bboxHeight),
         ("intersectionX", intersectionX),
@@ -108,6 +109,7 @@ compSignatures = M.fromList
         ("calcVectorsAngleWithOrigin",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
                 ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("generateRandomReal",([],ValueT FloatT)),
+        ("calcNorm",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("intersectionX", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("intersectionY", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
@@ -394,15 +396,25 @@ calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1)
       Val (FloatV ex2), Val (FloatV ey2)] =
         let (ax,ay) = (ex1 - sx1, ey1 - sy1)
             (bx,by) = (ex2 - sx2, ey2 - sy2)
-            angle1 =  if ay < 0 then abs (atan (ay / ax) / pi*180.0) else 180.0  + abs (atan (ay / ax) / pi*180.0)
-            angle2 =  if by < 0 then abs (atan (by / bx) / pi*180.0) else 180.0 + abs (atan  (by / bx) / pi*180.0)
-        in if traceShowId angle1 < traceShowId angle2 then Val (FloatV $ -1 * angle1) else Val (FloatV $ -1 * angle2)
+            (cx,cy) = ((ax + bx)/2.0,(ay + by)/2.0)
+            angle =  if cy < 0 then  (atan (cy / cx) / pi*180.0) * 2.0 else 180.0 + (atan (cy / cx) / pi*180.0) * 2.0
+        in Val (FloatV $ -1.0 * angle)
+        --     angle1 =  if ay < 0 then  (atan (ay / ax) / pi*180.0) else 180.0  +  (atan (ay / ax) / pi*180.0)
+        --     angle2 =  if by < 0 then  (atan (by / bx) / pi*180.0) else 180.0 +   (atan  (by / bx) / pi*180.0)
+        -- in if traceShowId angle1 > traceShowId angle2 then Val (FloatV $ -1 * angle1) else Val (FloatV $ -1 * angle2)
 
 generateRandomReal :: CompFn
 generateRandomReal [] = let g1 = mkStdGen 16
                             (x,g2) = (randomR (1, 15) g1) :: (Int,StdGen)
                             y = fst(randomR (1, 15) g2) ::  Int
                          in Val (FloatV ((fromIntegral x)/(fromIntegral y)))
+
+calcNorm :: CompFn
+calcNorm [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),Val (FloatV ey1)] =
+  let nx = (ex1 - sx1) ** 2.0
+      ny = (ey1 - sy1) ** 2.0
+      norm = sqrt (nx + ny + 0.5)
+  in Val (FloatV norm)
 
 linePts, arrowPts :: (Autofloat a) => Shape a -> (a, a, a, a)
 linePts = arrowPts
@@ -444,8 +456,8 @@ bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
 
 len :: CompFn
 len [GPI a@("Arrow", _)] =
-    let (x0, y0, x1, y1) = arrowPts a
-    in Val $ FloatV $ dist (x0, y0) (x1, y1)
+    let (x0, y0, x1, y1) = traceShowId (arrowPts a)
+    in Val $ FloatV (x0 ** 2.0) -- $ dist (x0, y0) (x1, y1)
 
 midpointX :: CompFn
 midpointX [GPI a@("Arrow", _)] =

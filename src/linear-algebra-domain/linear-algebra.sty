@@ -167,6 +167,8 @@ where From(f,U,V) {
    }
 }
 
+-- | Sclar is not visualized in any concrete way but insteat it contains a
+--   Real value
 Scalar c {
   c.val = generateRandomReal()
 }
@@ -194,6 +196,7 @@ where c := Determinant(a,b); In(a,U); In(b,U) {
 Scalar c
 with Vector a;  VectorSpace U
 where c := Norm(a); In(a,U) {
+   override c.val = len(a.shape) --calcNorm(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY)
    c.shape = Brace {
      startX = a.shape.startX
      startY = a.shape.startY + 10.0
