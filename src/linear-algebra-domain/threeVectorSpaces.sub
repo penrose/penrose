@@ -1,0 +1,15 @@
+VectorSpace U,V,W
+
+Vector A,B,C,D
+
+In(A,U)
+In(B,U)
+In(C,V)
+In(D,W)
+
+Label A $\vec{u_{1}}$
+Label B $\vec{u_{2}}$
+Label C $\vec{v_{1}}$
+Label D $\vec{w_{1}}$
+
+AutoLabel U,V,W
