@@ -16,7 +16,7 @@ import Data.Function (on)
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
 import Data.Maybe (fromMaybe, catMaybes, isNothing, maybeToList)
-import Data.List (nubBy, nub, intercalate, partition)
+import Data.List (nubBy, nub, intercalate, partition, sort)
 import Data.Tuple (swap)
 import Text.Megaparsec
 import Text.Megaparsec.Char
@@ -642,11 +642,25 @@ merge s1 s2 = [ combine s1i s2j | s1i <- s1, s2j <- s2 ] -- TODO check wrt maps
 allUnique :: Eq a => [a] -> Bool
 allUnique l = nub l == l
 
+isStyVar :: BindingForm -> Bool
+isStyVar (BStyVar _) = True
+isStyVar (BSubVar _) = False
+
+-- Judgment 20. A substitution for a selector is only correct if it gives exactly one
+--   mapping for each Style variable in the selector.
+fullSubst :: SelEnv -> Subst -> Bool
+fullSubst selEnv subst =
+    let selStyVars = map styVarToString $ filter isStyVar $ M.keys $ sTypeVarMap selEnv in
+    let substStyVars = map styVarToString' $ M.keys subst in
+    sort selStyVars == sort substStyVars -- Equal up to permutation (M.keys ensures that there are no dups)
+    where styVarToString  (BStyVar (StyVar' v)) = v
+          styVarToString' (StyVar' v) = v
+
 -- TODO: check that there's one substitution (SubVar) per StyVar
 -- TODO does this need to be checked WRT a selector?
 -- Check that there are no duplicate keys or vals in the substitution
-checkSubst :: Subst -> Bool
-checkSubst subst =
+uniqueKeysAndVals :: Subst -> Bool
+uniqueKeysAndVals subst =
     let (keys, vals) = unzip $ M.toList subst in
     allUnique keys && allUnique vals
 
@@ -862,26 +876,28 @@ matchDecls varEnv subProg decls initSubsts = foldl (matchDecl varEnv subProg) in
 
 ----- Overall judgments
 
-find_substs_sel :: VarEnv -> C.SubEnv -> C.SubProg -> Header -> [Subst]
--- Judgment 19. G; b; [theta] |- [S] <| Sel
-find_substs_sel varEnv subEnv subProg (Select sel) =
+find_substs_sel :: VarEnv -> C.SubEnv -> C.SubProg -> (Header, SelEnv) -> [Subst]
+-- Judgment 19. g; G; b; [theta] |- [S] <| Sel
+-- NOTE: this uses little gamma (not in paper) to check substitution validity
+find_substs_sel varEnv subEnv subProg ((Select sel), selEnv) =
     let decls            = selHead sel ++ selWith sel
         rels             = selWhere sel
         initSubsts       = []
-        subst_candidates = matchDecls varEnv subProg decls initSubsts
+        subst_candidates = filter (fullSubst selEnv) $ matchDecls varEnv subProg decls initSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
                            filterRels subEnv subProg rels subst_candidates
-        correct_substs   = filter checkSubst filtered_substs
+        correct_substs   = filter uniqueKeysAndVals filtered_substs
     in correct_substs
-find_substs_sel _ _ _ (Namespace _) = [] -- No substitutions for a namespace (not in paper)
+find_substs_sel _ _ _ ((Namespace _), _) = [] -- No substitutions for a namespace (not in paper)
 
 -- TODO: add note on prog, header judgment to paper?
 -- Find a list of substitutions for each selector in the Sty program.
-find_substs_prog :: VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> [[Subst]]
-find_substs_prog varEnv subEnv subProg styProg =
+find_substs_prog :: VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> [SelEnv] -> [[Subst]]
+find_substs_prog varEnv subEnv subProg styProg selEnvs =
     let sels = map fst styProg in
-    map (find_substs_sel varEnv subEnv subProg) sels
+    let selsWithEnvs = zip sels selEnvs in
+    map (find_substs_sel varEnv subEnv subProg) selsWithEnvs
 
 -- TODO: should Sub:[Scalar x, y] Sty:[Scalar c, d] generate all 4 matches? what is the intent here?
 -- TODO: make anonymous variables for unification for Substance program
@@ -1181,7 +1197,7 @@ translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNu
     let selEnv = checkSel varEnv sel
         bErrs  = checkBlock selEnv block in
     if null (sErrors selEnv) && null bErrs
-        then let substs = find_substs_sel varEnv subEnv subProg header in
+        then let substs = find_substs_sel varEnv subEnv subProg (header, selEnv) in
              let numberedSubsts = zip substs [0..] in -- For creating unique local var names
              translateSubstsBlock trans numberedSubsts (block, blockNum)
         else Left $ sErrors selEnv ++ bErrs
@@ -1575,6 +1591,7 @@ evalExpr (i, n) arg trans varyMap =
             ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
             ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
             AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
+            xs -> error ("unmatched case in evalExpr with argument: " ++ show xs) 
 
 -- First check if the path is a varying path. If so then use the varying value
 -- (The value in the translation is stale and should be ignored)

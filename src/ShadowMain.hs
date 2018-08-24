@@ -81,7 +81,7 @@ shadowMain = do
     forM selEnvs pPrint
     divLine
 
-    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
+    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg selEnvs
     putStrLn "Selector matches:\n"
     forM subss pPrint
     divLine
@@ -141,7 +141,7 @@ mainRetInit subFile styFile dsllFile = do
     styProg <- NS.parseStyle styFile styIn
     -- let initState = R.genInitState styProg
     let selEnvs = NS.checkSels subEnv styProg
-    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
+    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg selEnvs
     let trans = NS.translateStyProg subEnv eqEnv subProg styProg labelMap
                         :: forall a . (Autofloat a) => Either [NS.Error] (NS.Translation a)
     let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
