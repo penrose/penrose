@@ -12,12 +12,12 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    x.containFn = ensure contains(y.shape, x.shape)
-    x.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    x.outsideFn = ensure outsideOf(y.text, x.shape)
+    LOCAL.containFn = ensure contains(y.shape, x.shape)
+    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
+    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
 }
 
 Set x; Set y
 where NotIntersecting(x, y) {
-    x.notIntersectFn = ensure nonOverlapping(x.shape, y.shape)
+    LOCAL.notIntersectFn = ensure nonOverlapping(x.shape, y.shape)
 }

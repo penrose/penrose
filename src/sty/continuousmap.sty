@@ -4,6 +4,7 @@ Const {
 }
 
 Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
   Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
   Colors.lightYellow = rgba(0.95, 0.96, 0.92, 0.5)
 }
@@ -28,9 +29,9 @@ Set x {
 -- Selector ordering matters!
 Set x; Set y
 where IsSubset(x, y) {
-  x.containFn = ensure contains(y.shape, x.shape, 10.0)
+  LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
   -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)  
-  y.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
+  LOCAL.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
 }
 
 Map f
@@ -43,7 +44,8 @@ with Set X; Set Y; Set R1; Set R2 {
       startY = R1.shape.y
       endX = R2.shape.x - (R2.shape.side) / 2.0 - f.padding
       endY = R2.shape.y 
-        thickness = 10.0
+      thickness = 10.0
+      color = Colors.black
         -- style = "curved"
     }
 

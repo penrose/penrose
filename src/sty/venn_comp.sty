@@ -25,7 +25,7 @@ Set `B` {
 
 Set x; Set y
 where IsSubset(x, y) {
-    x.containFn = ensure contains(y.shape, x.shape)
-    x.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    x.outsideFn = ensure outsideOf(y.text, x.shape)
+    LOCAL.containFn = ensure contains(y.shape, x.shape)
+    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
+    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
 }

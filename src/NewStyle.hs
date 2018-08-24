@@ -658,6 +658,16 @@ checkSubst subst =
 -- Recursively walk the tree, looking up and replacing each Style variable encountered with a Substance variable
 -- If a Sty var doesn't have a substitution (i.e. substitution map is bad), keep the Sty var and move on
 
+type LocalVarId = (Int, Int)
+-- Index of the block, paired with the index of the current substitution
+-- Should be unique across blocks and substitutions
+
+localKeyword :: String
+localKeyword = "LOCAL"
+
+mkLocalVarName :: LocalVarId -> String
+mkLocalVarName (blockNum, substNum) = localKeyword ++ "_b" ++ show blockNum ++ "_s" ++ show substNum
+
 -- TODO: factor out tree-walking code? e.g. derive Traversable
 -- TODO: return "maybe" if a substitution fails?
 
@@ -679,17 +689,27 @@ typesEq (TConstr t1) (TConstr t2) = nameCons t1 == nameCons t2 &&
                                     (all (\(a1, a2) -> argsEq a1 a2) $ zip (argCons t1) (argCons t2))
 typesEq _ _ = False
 
-substituteBform :: Subst -> BindingForm -> BindingForm
-substituteBform subst sv@(BSubVar _) = sv
-substituteBform subst sv@(BStyVar sv'@(StyVar' vn)) =
-   case M.lookup sv' subst of
-   Nothing     -> sv -- error $ "No subst found for Sty var '" ++ vn ++ "'"
-                  -- TODO/URGENT: no substitutions for namespaces
-   Just subVar -> BSubVar subVar -- Returns result of mapping if it exists (y -> x)
+substituteBform :: Maybe LocalVarId -> Subst -> BindingForm -> BindingForm
+-- Variable in backticks in block or selector (e.g. `X`)
+substituteBform _ subst sv@(BSubVar _) = sv
+
+-- If the Style variable is "LOCAL", then resolve it to a unique id for the block and selector
+-- Otherwise, look up the substitution for the Style variable and return a Substance variable
+substituteBform lv subst sv@(BStyVar sv'@(StyVar' vn)) =
+   if vn == localKeyword
+   then case lv of
+        -- lv = Nothing: substituting into selector, so local vars don't matter
+        -- lv = Just (i, j): substituting into block, so local vars matter
+        Nothing -> error "LOCAL keyword found without a subst/block id. It should not be used in a selector."
+        Just localVarId -> BSubVar $ VarConst $ mkLocalVarName localVarId
+   else case M.lookup sv' subst of
+        Just subVar -> BSubVar subVar -- Returns result of mapping if it exists (y -> x)
+        Nothing     -> sv -- error $ "No subst found for Sty var '" ++ vn ++ "'"
+                       -- TODO/URGENT: no substitutions for namespaces
 
 substituteExpr :: Subst -> SelExpr -> SelExpr
 -- theta(B) = ...
-substituteExpr subst (SEBind bvar) = SEBind $ substituteBform subst bvar
+substituteExpr subst (SEBind bvar) = SEBind $ substituteBform Nothing subst bvar
 -- theta(f[E]) = f([theta(E)]
 substituteExpr subst (SEAppFunc fname exprs) = SEAppFunc fname $ map (substituteExpr subst) exprs
 -- theta(v([E])) = v([theta(E)])
@@ -705,7 +725,8 @@ substitutePred subst pred = pred { predicateArgs = map (substitutePredArg subst)
 -- theta(|S_r) = ...
 substituteRel :: Subst -> RelationPattern -> RelationPattern
 -- theta(B := E) |-> theta(B) := theta(E)
-substituteRel subst (RelBind bvar sExpr) = RelBind (substituteBform subst bvar) (substituteExpr subst sExpr)
+substituteRel subst (RelBind bvar sExpr) = RelBind (substituteBform Nothing subst bvar) 
+                                                   (substituteExpr subst sExpr)
 -- theta(Q([a]) = Q([theta(a)])
 substituteRel subst (RelPred pred) = RelPred $ substitutePred subst pred
 
@@ -716,50 +737,50 @@ substituteRels subst rels = map (substituteRel subst) rels
 
 ----- Substs for the translation semantics (more tree-walking on blocks, just changing binding forms)
 
-substitutePath :: Subst -> Path -> Path
-substitutePath subst path =
+substitutePath :: LocalVarId -> Subst -> Path -> Path
+substitutePath lv subst path =
     case path of
-    FieldPath    bVar field      -> FieldPath    (substituteBform subst bVar) field
-    PropertyPath bVar field prop -> PropertyPath (substituteBform subst bVar) field prop
+    FieldPath    bVar field      -> FieldPath    (substituteBform (Just lv) subst bVar) field
+    PropertyPath bVar field prop -> PropertyPath (substituteBform (Just lv) subst bVar) field prop
 
-substituteField :: Subst -> PropertyDecl -> PropertyDecl
-substituteField subst (PropertyDecl field expr) = PropertyDecl field $ substituteBlockExpr subst expr
+substituteField :: LocalVarId -> Subst -> PropertyDecl -> PropertyDecl
+substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substituteBlockExpr lv subst expr
 
-substituteLayering :: Subst -> LExpr -> LExpr
-substituteLayering subst (LId bVar) = LId $ substituteBform subst bVar
-substituteLayering subst (LPath path) = LPath $ substitutePath subst path
-substituteLayering subst (LayeringOp op lex1 lex2) =
-                   LayeringOp op (substituteLayering subst lex1) (substituteLayering subst lex1)
+substituteLayering :: LocalVarId -> Subst -> LExpr -> LExpr
+substituteLayering lv subst (LId bVar) = LId $ substituteBform (Just lv) subst bVar
+substituteLayering lv subst (LPath path) = LPath $ substitutePath lv subst path
+substituteLayering lv subst (LayeringOp op lex1 lex2) =
+                   LayeringOp op (substituteLayering lv subst lex1) (substituteLayering lv subst lex1)
 
-substituteBlockExpr :: Subst -> Expr -> Expr
-substituteBlockExpr subst expr =
+substituteBlockExpr :: LocalVarId -> Subst -> Expr -> Expr
+substituteBlockExpr lv subst expr =
     case expr of
-    EPath path        -> EPath $ substitutePath subst path
-    CompApp f es      -> CompApp f $ map (substituteBlockExpr subst) es
-    ObjFn   f es      -> ObjFn   f $ map (substituteBlockExpr subst) es
-    ConstrFn  f es    -> ConstrFn f $ map (substituteBlockExpr subst) es
-    AvoidFn   f es    -> AvoidFn  f $ map (substituteBlockExpr subst) es
-    BinOp op e1 e2    -> BinOp op (substituteBlockExpr subst e1) (substituteBlockExpr subst e2)
-    UOp   op e        -> UOp   op (substituteBlockExpr subst e)
-    List es           -> List $ map (substituteBlockExpr subst) es
-    ListAccess path i -> ListAccess (substitutePath subst path) i
-    Ctor gpi fields   -> Ctor gpi $ map (substituteField subst) fields
-    Layering lexpr    -> Layering $ substituteLayering subst lexpr
+    EPath path        -> EPath $ substitutePath lv subst path
+    CompApp f es      -> CompApp f $ map (substituteBlockExpr lv subst) es
+    ObjFn   f es      -> ObjFn   f $ map (substituteBlockExpr lv subst) es
+    ConstrFn  f es    -> ConstrFn f $ map (substituteBlockExpr lv subst) es
+    AvoidFn   f es    -> AvoidFn  f $ map (substituteBlockExpr lv subst) es
+    BinOp op e1 e2    -> BinOp op (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
+    UOp   op e        -> UOp   op (substituteBlockExpr lv subst e)
+    List es           -> List $ map (substituteBlockExpr lv subst) es
+    ListAccess path i -> ListAccess (substitutePath lv subst path) i
+    Ctor gpi fields   -> Ctor gpi $ map (substituteField lv subst) fields
+    Layering lexpr    -> Layering $ substituteLayering lv subst lexpr
     -- No substitution for literals
     IntLit _          -> expr
     AFloat _          -> expr
     StringLit _       -> expr
 
-substituteLine :: Subst -> Stmt -> Stmt
-substituteLine subst line =
+substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
+substituteLine lv subst line =
     case line of
-    Assign   path expr -> Assign (substitutePath subst path) (substituteBlockExpr subst expr)
-    Override path expr -> Override (substitutePath subst path) (substituteBlockExpr subst expr)
-    Delete   path      -> Delete $ substitutePath subst path
+    Assign   path expr -> Assign (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
+    Override path expr -> Override (substitutePath lv subst path) (substituteBlockExpr lv subst expr)
+    Delete   path      -> Delete $ substitutePath lv subst path
 
 -- TODO: assumes a full substitution
-substituteBlock :: Subst -> Block -> Block
-substituteBlock subst block = map (substituteLine subst) block
+substituteBlock :: (Subst, Int) -> (Block, Int) -> Block
+substituteBlock (subst, substNum) (block, blockNum) = map (substituteLine (blockNum, substNum) subst) block
 
 ----- Filter with relational statements
 
@@ -1133,33 +1154,36 @@ translateLine trans stmt =
     Delete path        -> deletePath trans path
 
 -- Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
-translateBlock :: (Autofloat a) => Block -> Translation a -> Subst -> Either [Error] (Translation a)
-translateBlock block trans subst =
-    let block' = substituteBlock subst block in
+translateBlock :: (Autofloat a) => (Block, Int) -> Translation a -> (Subst, Int) -> 
+                                                               Either [Error] (Translation a)
+translateBlock blockWithNum trans substNum =
+    let block' = substituteBlock substNum blockWithNum in
     foldM translateLine trans block'
 
 -- Judgment 24. [theta]; D |- |B ~> D'
-translateSubstsBlock :: (Autofloat a) => Translation a -> [Subst] -> Block -> Either [Error] (Translation a)
-translateSubstsBlock trans substs block = foldM (translateBlock block) trans substs
+translateSubstsBlock :: (Autofloat a) => Translation a -> [(Subst, Int)] -> 
+                                                     (Block, Int) -> Either [Error] (Translation a)
+translateSubstsBlock trans substsNum blockWithNum = foldM (translateBlock blockWithNum) trans substsNum
 
 -- Judgment 23, contd.
 translatePair :: (Autofloat a) => VarEnv -> C.SubEnv -> C.SubProg ->
-                                  Translation a -> (Header, Block) -> Either [Error] (Translation a)
-translatePair varEnv subEnv subProg trans (Namespace styVar, block) =
+                                  Translation a -> ((Header, Block), Int) -> Either [Error] (Translation a)
+translatePair varEnv subEnv subProg trans ((Namespace styVar, block), blockNum) =
     let selEnv = initSelEnv
         bErrs  = checkBlock selEnv block in
     if null (sErrors selEnv) && null bErrs
         then let subst = M.empty in -- is this the correct empty?
-             translateBlock block trans subst -- skip transSubstsBlock
+             translateBlock (block, blockNum) trans (subst, 0) -- skip transSubstsBlock; only one subst
         else Left $ sErrors selEnv ++ bErrs
     -- TODO translate namespaces properly?
 
-translatePair varEnv subEnv subProg trans (header@(Select sel), block) =
+translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNum) =
     let selEnv = checkSel varEnv sel
         bErrs  = checkBlock selEnv block in
     if null (sErrors selEnv) && null bErrs
         then let substs = find_substs_sel varEnv subEnv subProg header in
-             translateSubstsBlock trans substs block
+             let numberedSubsts = zip substs [0..] in -- For creating unique local var names
+             translateSubstsBlock trans numberedSubsts (block, blockNum)
         else Left $ sErrors selEnv ++ bErrs
 
 -- TODO: add beta in paper and to comment below
@@ -1171,9 +1195,10 @@ translateStyProg :: forall a . (Autofloat a) =>
     VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> C.LabelMap ->
     Either [Error] (Translation a)
 translateStyProg varEnv subEnv subProg styProg labelMap =
-    case foldM (translatePair varEnv subEnv subProg) initTrans styProg of
+    let numberedProg = zip styProg [0..] in -- For creating unique local var names
+    case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
         Right trans -> Right $ insertLabels trans labelMap
-        Left errors -> Left  errors
+        Left errors -> Left errors
 
 insertLabels :: (Autofloat a) => Translation a -> C.LabelMap -> Translation a
 insertLabels trans labels =
@@ -1208,7 +1233,6 @@ data FnDone a = FnDone { fname_d :: String,
      deriving (Show, Eq)
 
 -- RState defs
-
 
 -- Stores the last EP varying state (that is, the state when the unconstrained opt last converged)
 type LastEPstate = [Float]
