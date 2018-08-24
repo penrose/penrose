@@ -157,7 +157,8 @@ objFuncDict = M.fromList
         ("nearEndHoriz", nearEndHoriz),
         ("topLeftOf", topLeftOf),
         ("above", above),
-        ("equal", equal)
+        ("equal", equal),
+        ("distBetween", distBetween)
 
 {-      ("centerLine", centerLine),
         ("increasingX", increasingX),
@@ -231,7 +232,8 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("minSize", minSize),
                 ("maxSize", maxSize),
                 ("outsideOf", outsideOf),
-                ("nonOverlapping", nonOverlapping)
+                ("nonOverlapping", nonOverlapping),
+                ("inRange", inRange')
                 -- ("lessThan", lessThan)
             ]
 
@@ -619,6 +621,17 @@ sameHeight [GPI a, GPI b] = (getY a - getY b)^2
 equal :: ObjFn
 equal [Val (FloatV a), Val (FloatV b)] = (a - b)^2
 
+distBetween :: ObjFn
+distBetween [GPI c1, GPI c2, Val (FloatV padding)] =
+    let (r1, r2, x1, y1, x2, y2) = (getNum c1 "r", getNum c2 "r", getX c1, getY c1, getX c2, getY c2) in
+    -- If one's a subset of another or has same radius as other
+    -- If they only intersect
+    if dist (x1, y1) (x2, y2) < (r1 + r2) 
+    then repel [GPI c1, GPI c2, Val (FloatV repelWeight)] -- 1 / distsq (x1, y1) (x2, y2)
+    -- If they don't intersect
+    else -- trace ("padding: " ++ show padding) 
+         (dist (x1, y1) (x2, y2) - r1 - r2 - padding)^2
+
 --------------------------------------------------------------------------------
 -- Constraint Functions
 
@@ -626,8 +639,8 @@ at :: ConstrFn
 at [GPI o, Val (FloatV x), Val (FloatV y)] =
     (getX o - x)^2 + (getY o - y)^2
 
-lessThan :: ConstrFn
-lessThan [] = 0.0 -- TODO
+-- lessThan :: ConstrFn
+-- lessThan [] = 0.0 -- TODO
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
@@ -692,8 +705,13 @@ inRange a l r
     | a > r  = (a-r)^2
     | otherwise = 0
 
+inRange' :: ConstrFn
+inRange' [Val (FloatV v), Val (FloatV left), Val (FloatV right)]
+    | v < left = left - v
+    | v > right = v - right
+    | otherwise = 0
+-- = inRange v left right
 
--- TODO: is the "Point type still there?"
 -- contains [GPI set@("Circle", _), P' GPI pt@("", _)] = dist (getX pt, getX pt) (getX set, getY set) - 0.5 * r' set
 -- TODO: only approx
 -- contains [S' GPI set@("", _), P' GPI pt@("", _)] =

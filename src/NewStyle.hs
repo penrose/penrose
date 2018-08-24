@@ -1135,7 +1135,7 @@ deletePath trans path =
            trans' = deleteProperty trans name field property in
        Right trans'
 
-addPath :: (Autofloat a) => OverrideFlag -> Translation a -> Path -> TagExpr a ->Either [Error] (Translation a)
+addPath :: (Autofloat a) => OverrideFlag -> Translation a -> Path -> TagExpr a -> Either [Error] (Translation a)
 addPath override trans path expr =
     case path of
     -- rule Line-Set-Field-Expr, Line-Set-Ctor
@@ -1448,7 +1448,8 @@ floatToTagExpr n = Done (FloatV n)
 
 bvarToString :: BindingForm -> String
 bvarToString (BSubVar (VarConst s)) = s
-bvarToString (BStyVar v) = error ("bvarToString: cannot handle Style variable: " ++ show v)
+bvarToString (BStyVar (StyVar' s)) = s -- For namespaces
+             -- error ("bvarToString: cannot handle Style variable: " ++ show v)
 
 -- TODO: write a more general typechecking mechanism
 evalUop :: (Autofloat a) => UnaryOp -> ArgVal a -> Value a
@@ -1523,6 +1524,7 @@ evalExpr (i, n) arg trans varyMap =
             IntLit i -> (Val $ IntV i, trans)
             StringLit s -> (Val $ StrV s, trans)
             AFloat (Fix f) -> (Val $ FloatV (r2f f), trans) -- TODO: note use of r2f here. is that ok?
+            AFloat Vary -> error "evalExpr should not encounter an uninitialized varying float!"
 
             -- Inline computation, needs a recursive lookup that may change trans, but not a path
             -- TODO factor out eval / trans computation?
@@ -1591,7 +1593,7 @@ evalExpr (i, n) arg trans varyMap =
             ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
             ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
             AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
-            xs -> error ("unmatched case in evalExpr with argument: " ++ show xs) 
+            -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs) 
 
 -- First check if the path is a varying path. If so then use the varying value
 -- (The value in the translation is stale and should be ignored)
@@ -1692,9 +1694,6 @@ genObjfn trans objfns constrfns varyingPaths =
          let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans varyMap in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
-
-         -- sumMap (^2) varyingVals
-
 
 toFn :: OptType -> (String, [Expr]) -> Fn
 toFn otype (name, args) = Fn { fname = name, fargs = args, optType = otype }
@@ -1822,11 +1821,23 @@ lookupPaths paths trans = map lookupPath paths
     where
         lookupPath p@(FieldPath v field) = case lookupField v field trans of
             FExpr (OptEval (AFloat (Fix n))) -> r2f n
-            _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
+            FExpr (Done (FloatV n))          -> r2f n
+            xs -> error ("varying path \"" ++ pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
         lookupPath p@(PropertyPath v field pty) = case lookupProperty v field pty trans of
             OptEval (AFloat (Fix n)) -> r2f n
             Done (FloatV n) -> n
-            _ -> error ("varying path \"" ++ pathStr p ++ "\" is invalid")
+            xs -> error ("varying path \"" ++ pathStr p ++ "\" is invalid: is '" ++ show xs ++ "'")
+
+-- sample varying fields only (from the range defined by canvas dims) and store them in the translation
+-- example: A.val = OPTIMIZED
+initFields :: (Autofloat a) => [Path] -> Translation a -> StdGen -> (Translation a, StdGen)
+initFields varyingPaths trans g = 
+    let varyingFields = filter isFieldPath varyingPaths 
+        (sampledVals, g') = NewFunctions.randomsIn g (fromIntegral $ length varyingFields) ShapeDef.canvasDims
+        trans' = insertPaths varyingFields (map (Done . FloatV) sampledVals) trans in
+    (trans', g')
+    where isFieldPath (FieldPath _ _)      = True
+          isFieldPath (PropertyPath _ _ _) = False
 
 -- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
 -- with respect to the varying values
@@ -1847,8 +1858,11 @@ genOptProblemAndState trans =
     let uninitializedPaths = findUninitialized trans in
     let shapeNames      = findShapeNames trans in
 
+    -- sample varying fields
+    let (transInitFields, g') = initFields varyingPaths trans initRng in
+
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
-    let (transInit, g') = initShapes trans shapeNames initRng in
+    let (transInit, g'') = initShapes transInitFields shapeNames g' in
     let shapeProperties = findShapesProperties transInit in
 
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
@@ -1872,7 +1886,7 @@ genOptProblemAndState trans =
              transr = transInit, -- note: NOT transEvaled
              varyingPaths = varyingPaths,
              uninitializedPaths = uninitializedPaths,
-             varyingState = initState,
+             varyingState = initState, 
              objFns = objFnsWithDefaults,
              constrFns = constrsWithDefaults,
              paramsr = Params { weight = initWeight,

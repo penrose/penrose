@@ -198,7 +198,6 @@ sampleProperty :: (Autofloat a) => (Properties a, StdGen) -> PropID -> (ValueTyp
 sampleProperty (properties, g) propID (typ, sampleF) =
     let (val, g') = sampleF g in (M.insert propID val properties, g')
 
-
 --------------------------------------------------------------------------------
 -- Example shape defs
 
@@ -207,13 +206,14 @@ sampleProperty (properties, g) propID (typ, sampleF) =
 -- | TODO: instantiation of objs with (1) default values; (2) random sampling w.r.t. constraints
 -- constructShape :: ShapeDef a -> [SampleRule] -> Shape a
 
-inCanvas = (-canvasHeight / 2, canvasHeight / 2)
+canvasDims :: (Float, Float)
+canvasDims = (-canvasHeight / 2, canvasHeight / 2)
 
 -- TODO: change everything to camel case
 x_sampler, y_sampler, pointSampler, width_sampler, height_sampler, angle_sampler, stroke_sampler, stroke_style_sampler, bool_sampler :: (Autofloat a) => SampledValue a
-x_sampler = sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)
-y_sampler = sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)
-pointSampler = samplePointIn (inCanvas, inCanvas)
+x_sampler = sampleFloatIn canvasDims
+y_sampler = sampleFloatIn canvasDims
+pointSampler = samplePointIn (canvasDims, canvasDims)
 width_sampler = sampleFloatIn (3, canvasWidth / 6)
 height_sampler = sampleFloatIn (3, canvasHeight / 6)
 angle_sampler = sampleFloatIn (0, 360) -- TODO: check that frontend uses degrees, not radians
