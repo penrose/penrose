@@ -457,7 +457,7 @@ bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
 len :: CompFn
 len [GPI a@("Arrow", _)] =
     let (x0, y0, x1, y1) = traceShowId (arrowPts a)
-    in Val $ FloatV (x0 ** 2.0) -- $ dist (x0, y0) (x1, y1)
+    in Val $ FloatV $ (traceShowId (dist (x0, y0) (x1, y1)))
 
 midpointX :: CompFn
 midpointX [GPI a@("Arrow", _)] =

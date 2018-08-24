@@ -7,6 +7,7 @@ const {
   const.vectorSpaceSize = 400.0
   const.axisSize = const.vectorSpaceSize * 0.4
   const.distVectorSpaces = 50.0
+  const.scaleRatio = 200.0
 }
 
 -- Global RGB colors in common use
@@ -98,9 +99,11 @@ VectorSpace U; VectorSpace V {
 Vector v
 with VectorSpace U
 where In(v,U) {
-  v.containFn = ensure contains(U.shape, v.shape)
-  v.containLabel = ensure contains(U.shape, v.text)
-  v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 ,20.0 )
+   --v.endXTest = OPTIMIZED
+   --v.endYTest = OPTIMIZED
+   v.containFn = ensure contains(U.shape, v.shape)
+   v.containLabel = ensure contains(U.shape, v.text)
+   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 ,20.0 )
 
   v.text = Text {
     string = v.label
@@ -109,6 +112,8 @@ where In(v,U) {
   v.shape = Arrow {
     startX = U.shape.x
     startY = U.shape.y
+    -- endX = v.endXTest / const.scaleRatio
+    -- endY = v.endYTest / const.scaleRatio
     thickness = 9.0
   }
 }
@@ -167,7 +172,6 @@ where From(f,U,V) {
    }
 }
 
-/*
 -- | Sclar is not visualized in any concrete way but insteat it contains a
 --   Real value
 Scalar c {
@@ -197,7 +201,8 @@ where c := Determinant(a,b); In(a,U); In(b,U) {
 Scalar c
 with Vector a;  VectorSpace U
 where c := Norm(a); In(a,U) {
-   override c.val = len(a.shape) --calcNorm(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY)
+   c.tmp = len(a.shape)
+   override c.val = c.tmp / const.scaleRatio --calcNorm(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY)
    c.shape = Brace {
      startX = a.shape.startX
      startY = a.shape.startY + 10.0
@@ -219,4 +224,3 @@ where u := Scale(c,v); In(u,U); In(v,U){
     u.shape.endX = v.shape.endX * c.val - v.shape.startX * (c.val - 1.0)
     u.shape.endY = v.shape.endY * c.val - v.shape.startY * (c.val - 1.0)
 }
-*/
