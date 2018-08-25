@@ -1318,31 +1318,38 @@ ppShowList = concatMap ((++) "\n" . ppShow)
 
 -- Generic functions for folding over a translation
 
+foldFields :: (Autofloat a) => (String -> Field -> (FieldExpr a) -> [b] -> [b]) -> 
+                                       Name -> FieldDict a -> [b] -> [b]
 foldFields f name fieldDict acc =
     let name' = nameStr name in -- TODO do we need do anything with Sub vs Sty vs Gen names?
     let res = M.foldrWithKey (f name') [] fieldDict in
     res ++ acc
 
+foldSubObjs :: (Autofloat a) => (String -> Field -> FieldExpr a -> [b] -> [b]) -> Translation a -> [b]
 foldSubObjs f trans =
     let res = M.foldrWithKey (foldFields f) [] (trMap trans) in
     res
 
 --- Fields
 
+declaredVarying :: (Autofloat a) => TagExpr a -> Bool
 declaredVarying (OptEval (AFloat Vary)) = True
 declaredVarying _ = False
 
 -- TODO: figure out what to do with sty vars
+mkPath :: [String] -> Path
 mkPath [name, field] = FieldPath (BSubVar (VarConst name)) field
 mkPath [name, field, property] = PropertyPath (BSubVar (VarConst name)) field property
 
+pathToList :: Path -> [String]
 pathToList (FieldPath (BSubVar (VarConst name)) field) = [name, field]
 pathToList (PropertyPath (BSubVar (VarConst name)) field property) = [name, field, property]
 pathToList _ = error "pathToList should not handle Sty vars"
 
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
-findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map [Char] (TagExpr a) -> String -> [Path] -> [Path]
+findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map [Char] (TagExpr a) -> 
+                                                                 String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
     case M.lookup floatProperty properties of
     Nothing -> mkPath [name, field, floatProperty] : acc
@@ -1383,6 +1390,10 @@ findFieldUninitialized name field (FGPI typ properties) acc =
     let vs = foldr (findPropertyUninitialized name field properties) [] uninitializedProps in
     vs ++ acc
 
+type StyleOptFn = (String, [Expr]) -- Objective or constraint
+
+findFieldFns :: (Autofloat a) => String -> Field -> FieldExpr a -> [Either StyleOptFn StyleOptFn]
+                                        -> [Either StyleOptFn StyleOptFn]
 findFieldFns name field (FExpr (OptEval expr)) acc =
     case expr of
     ObjFn fname args -> Left (fname, args) : acc
@@ -1392,10 +1403,14 @@ findFieldFns name field (FExpr (OptEval expr)) acc =
 findFieldFns name field (FExpr (Done _)) acc = acc
 findFieldFns name field (FGPI _ _) acc = acc
 
+findObjfnsConstrs :: (Autofloat a) => Translation a -> [Either StyleOptFn StyleOptFn]
 findObjfnsConstrs = foldSubObjs findFieldFns
 
--- findDefaultFns :: (Autofloat a) => Translation a -> [FnDone a]
+findDefaultFns :: (Autofloat a) => Translation a -> [Either StyleOptFn StyleOptFn]
 findDefaultFns = foldSubObjs findFieldDefaultFns
+
+findFieldDefaultFns :: (Autofloat a) => String -> Field -> FieldExpr a -> [Either StyleOptFn StyleOptFn] 
+                                               -> [Either StyleOptFn StyleOptFn]
 findFieldDefaultFns name field gpi@(FGPI typ props) acc =
     let args    = [EPath $ FieldPath (BSubVar (VarConst name)) field]
         objs    = map (Left . addArgs args) $ defaultObjFnsOf typ
@@ -1404,18 +1419,25 @@ findFieldDefaultFns name field gpi@(FGPI typ props) acc =
     where addArgs arguments f = (f, arguments)
 findFieldDefaultFns _ _ _ acc = acc
 
+--
+
+findGPIName :: (Autofloat a) => String -> Field -> FieldExpr a -> [(String, Field)] -> [(String, Field)]
 findGPIName name field (FGPI _ _) acc = (name, field) : acc
 findGPIName _ _ (FExpr _) acc = acc
 
+findShapeNames :: (Autofloat a) => Translation a -> [(String, Field)]
 findShapeNames = foldSubObjs findGPIName
 
 --
 
+findShapeProperties :: (Autofloat a) => String -> Field -> FieldExpr a -> [(String, Field, Property)] 
+                                                  -> [(String, Field, Property)]
 findShapeProperties name field (FGPI ctor properties) acc =
      let paths = map (\property -> (name, field, property)) (M.keys properties)
      in paths ++ acc
 findShapeProperties _ _ (FExpr _) acc = acc
 
+findShapesProperties :: (Autofloat a) => Translation a -> [(String, Field, Property)]
 findShapesProperties = foldSubObjs findShapeProperties
 
 --- Sampling state
