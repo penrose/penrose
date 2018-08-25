@@ -20,9 +20,12 @@ import Text.Show.Pretty
 import Control.Monad (when, forM)
 import qualified Env as E -- DEBUG: remove
 import qualified Data.Map.Strict as M -- DEBUG: remove
+import qualified Data.List as L (intercalate)
+import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
 
-fromRight a (Left x) = a
-fromRight _ (Right a) = a
+fromRight :: (Show a, Show b) => Either a b -> b
+fromRight (Left x) = error ("Failed with error: " ++ show x)
+fromRight (Right y) = y
 
 -- | `main` runs the Penrose system
 shadowMain :: IO ()
@@ -92,7 +95,7 @@ shadowMain = do
     pPrint trans
     divLine
 
-    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
+    let initState = NS.genOptProblemAndState (fromRight trans)
     putStrLn "Generated initial state:\n"
 
     -- TODO improve printing code
@@ -116,6 +119,10 @@ shadowMain = do
     pPrint $ NS.autostep initState
     print initState
     divLine
+
+    putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
+    let warns = NS.warnings $ fromRight trans
+    putStrLn (color Red $ L.intercalate "\n" warns ++ "\n")
 
     putStrLn "Visualizing Substance program:\n"
 
@@ -144,7 +151,7 @@ mainRetInit subFile styFile dsllFile = do
     let subss = NS.find_substs_prog subEnv eqEnv subProg styProg selEnvs
     let trans = NS.translateStyProg subEnv eqEnv subProg styProg labelMap
                         :: forall a . (Autofloat a) => Either [NS.Error] (NS.Translation a)
-    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
+    let initState = NS.genOptProblemAndState (fromRight trans)
     return $ Just initState
 
 stepsWithoutServer :: NS.RState -> NS.RState

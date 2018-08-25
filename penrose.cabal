@@ -59,7 +59,8 @@ executable penrose
         split -any,
         multimap -any,
         directory -any,
-        unordered-containers -any
+        unordered-containers -any,
+        pretty-terminal -any
 
 test-suite penrose-testsuite
     type: exitcode-stdio-1.0

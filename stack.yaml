@@ -11,4 +11,5 @@ extra-deps:
 - megaparsec-6.4.0
 - parser-combinators-0.4.0
 - websockets-0.11.2.0
+- pretty-terminal-0.1.0.0
 resolver: lts-9.10
