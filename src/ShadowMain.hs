@@ -7,6 +7,7 @@ import Utils
 import qualified Server
 import qualified Substance as C
 import qualified Style as S
+import qualified GenOptProblem as G
 import qualified Optimizer as O
 import qualified Dsll as D
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
@@ -93,28 +94,28 @@ shadowMain = do
     pPrint trans
     divLine
 
-    let initState = S.genOptProblemAndState (fromRight trans)
+    let initState = G.genOptProblemAndState (fromRight trans)
     putStrLn "Generated initial state:\n"
 
     -- TODO improve printing code
     putStrLn "Shapes:"
-    pPrint $ S.shapesr initState
+    pPrint $ G.shapesr initState
     putStrLn "\nShape names:"
-    pPrint $ S.shapeNames initState
+    pPrint $ G.shapeNames initState
     putStrLn "\nShape properties:"
-    pPrint $ S.shapeProperties initState
+    pPrint $ G.shapeProperties initState
     putStrLn "\nTranslation:"
-    pPrint $ S.transr initState
+    pPrint $ G.transr initState
     putStrLn "\nVarying paths:"
-    pPrint $ S.varyingPaths initState
+    pPrint $ G.varyingPaths initState
     putStrLn "\nUninitialized paths:"
-    pPrint $ S.uninitializedPaths initState
+    pPrint $ G.uninitializedPaths initState
     putStrLn "\nVarying state:"
-    pPrint $ S.varyingState initState
+    pPrint $ G.varyingState initState
     putStrLn "\nParams:"
-    pPrint $ S.paramsr initState
+    pPrint $ G.paramsr initState
     putStrLn "\nAutostep:"
-    pPrint $ S.autostep initState
+    pPrint $ G.autostep initState
     print initState
     divLine
 
@@ -136,7 +137,7 @@ shadowMain = do
 -- (extracted via unsafePerformIO)
 -- Very similar to shadowMain but does not depend on rendering  so it does not return SVG
 -- TODO take initRng seed as argument
-mainRetInit :: String -> String -> String -> IO (Maybe S.RState)
+mainRetInit :: String -> String -> String -> IO (Maybe G.State)
 mainRetInit subFile styFile dsllFile = do
     subIn <- readFile subFile
     styIn <- readFile styFile
@@ -149,14 +150,14 @@ mainRetInit subFile styFile dsllFile = do
     let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
     let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
                         :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
-    let initState = S.genOptProblemAndState (fromRight trans)
+    let initState = G.genOptProblemAndState (fromRight trans)
     return $ Just initState
 
-stepsWithoutServer :: S.RState -> S.RState
+stepsWithoutServer :: G.State -> G.State
 stepsWithoutServer initState =
          let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepAndCount (initState, 0) in
          trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
          where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
-               notConverged (s, n) = S.optStatus (S.paramsr s) /= S.EPConverged
+               notConverged (s, n) = G.optStatus (G.paramsr s) /= G.EPConverged
                                      || n < maxSteps
                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge

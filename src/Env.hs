@@ -45,7 +45,7 @@ instance Ord TypeVar where
   (TypeVar s1 _) `compare` (TypeVar s2 _) = s1 `compare` s2
 
 newtype Var = VarConst String
-     deriving (Show, Eq, Typeable, Ord)
+         deriving (Show, Eq, Typeable, Ord)
 
 data Y = TypeVarY TypeVar
        | VarY Var

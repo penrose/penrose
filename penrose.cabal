@@ -29,6 +29,7 @@ executable penrose
         Env
         Style
         Optimizer
+        GenOptProblem
         Shapes
         Functions
     default-language: Haskell2010
@@ -69,6 +70,7 @@ test-suite penrose-testsuite
         Dsll
         Env
         Style
+        GenOptProblem
         Optimizer
         Functions
         Shapes
