@@ -4,7 +4,7 @@
 module Optimizer where
 
 import Utils
-import NewStyle
+import Style
 import Numeric.AD
 import Debug.Trace
        

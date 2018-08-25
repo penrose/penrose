@@ -8,9 +8,9 @@ Set x {
       string = x.label
     }
 
-    x.text = Text {
-      string = "test Style warnings"
-    }
+    -- x.text = Text {
+    -- string = "test Style warnings"
+    -- }
 
     x.centerFn = encourage center(x.shape)
     x.centerLabelFn = encourage centerLabel(x.shape, x.text, 100.0)
@@ -20,7 +20,7 @@ Set x {
 Set x; Set y {
   LOCAL.left = 10.0
   LOCAL.right = 100.0
-  override LOCAL.padding = OPTIMIZED -- test Style warnings again
+  LOCAL.padding = OPTIMIZED
 
   LOCAL.paddingFn = ensure inRange(LOCAL.padding, LOCAL.left, LOCAL.right)
   -- Need overlapFn so that betweenFn works

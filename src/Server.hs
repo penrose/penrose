@@ -6,7 +6,6 @@
 {-# LANGUAGE RankNTypes, NoMonomorphismRestriction #-}
 
 module Server where
-import Computation
 import Utils (Autofloat, divLine, r2f, trRaw)
 import GHC.Generics
 import Data.Monoid (mappend)
@@ -23,8 +22,8 @@ import Network.WebSockets.Connection
 import System.Time
 import System.Random
 import Debug.Trace
-import qualified ShapeDef  as SD
-import qualified NewStyle  as NS
+import qualified Shapes  as SD
+import qualified Style   as NS
 import qualified Optimizer as O
 import qualified Data.Map  as M
 import qualified Data.Text                 as T
