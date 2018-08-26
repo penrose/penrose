@@ -513,7 +513,7 @@ evalExpr (i, n) arg trans varyMap =
                              Left err -> error $ concat err
                          GPI _ -> error "path to field expr evaluated to a GPI"
                      FGPI ctor properties ->
-                     -- Eval each property in the GPI, then lookup the updated GPI in the translation and return it
+                     -- Eval each property in the GPI, storing each property result in a new dictionary
                      -- No need to update the translation because each path should update the translation
                          let (gpiVal@(ctor', propertiesVal), trans') =
                                  evalGPI_withUpdate limit bvar field (ctor, properties) trans varyMap in
@@ -596,27 +596,28 @@ genObjfn trans objfns constrfns varyingPaths =
 
 -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
 -- TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
-initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String -> (ValueType, SampledValue a) -> (PropertyDict a, StdGen)
+initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String -> 
+                                               (ValueType, SampledValue a) -> (PropertyDict a, StdGen)
 initProperty (properties, g) pID (typ, sampleF) =
-    let (v, g') = sampleF g
-        autoRndVal = Done v
-    in
+    let (v, g')    = sampleF g
+        autoRndVal = Done v in
     case M.lookup pID properties of
-        Just (OptEval (AFloat Vary)) -> (M.insert pID autoRndVal properties, g')
-        Just (OptEval e) -> (properties, g)
-        Just (Done v)    -> (properties, g)
-        Nothing          -> (M.insert pID autoRndVal properties, g')
+      Just (OptEval (AFloat Vary)) -> (M.insert pID autoRndVal properties, g')
+      Just (OptEval e) -> (properties, g)
+      Just (Done v)    -> (properties, g)
+      Nothing          -> (M.insert pID autoRndVal properties, g')
 
 initShape :: (Autofloat a) => (Translation a, StdGen) -> (String, Field) -> (Translation a, StdGen)
 initShape (trans, g) (n, field) =
     case lookupField (BSubVar (VarConst n)) field trans of
-        FGPI t propDict ->
-            let def = findDef t
+        FGPI shapeType propDict ->
+            let def = findDef shapeType
                 (propDict', g') = foldlPropertyMappings initProperty (propDict, g) def
-                -- NOTE: since getShapes resolves the names and we never use the names of the shapes in the Translation. This logic can be removed but left in for debugging
+                -- NOTE: getShapes resolves the names + we don't use the names of the shapes in the translation
+                -- The name-adding logic can be removed but is left in for debugging
                 shapeName = getShapeName n field
                 propDict'' =  M.insert "name" (Done $ StrV shapeName) propDict'
-            in (insertGPI trans n field t propDict'', g')
+            in (insertGPI trans n field shapeType propDict'', g')
         _   -> error "expected GPI but got field"
 
 initShapes :: (Autofloat a) =>
@@ -662,17 +663,17 @@ evalTranslation s =
 genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> State
 genOptProblemAndState trans =
     -- Save information about the translation
-    let varyingPaths    = findVarying trans in
+    let varyingPaths       = findVarying trans in
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
     let uninitializedPaths = findUninitialized trans in
-    let shapeNames      = findShapeNames trans in
+    let shapeNames         = findShapeNames trans in
 
     -- sample varying fields
     let (transInitFields, g') = initFields varyingPaths trans initRng in
 
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
     let (transInit, g'') = initShapes transInitFields shapeNames g' in
-    let shapeProperties = findShapesProperties transInit in
+    let shapeProperties  = findShapesProperties transInit in
 
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
@@ -687,7 +688,6 @@ genOptProblemAndState trans =
                                                 transInit initVaryingMap in
     let initState = lookupPaths varyingPaths transEvaled in
 
-    -- TODO: figure out how we rely / assume / enforce an order on varyingPaths and varyingState
     -- This is the final Style compiler output
     State { shapesr = initialGPIs,
              shapeNames = shapeNames,
@@ -701,6 +701,6 @@ genOptProblemAndState trans =
              paramsr = Params { weight = initWeight,
                                 optStatus = NewIter,
                                 overallObjFn = overallFn },
-             rng = g',
+             rng = g'',
              autostep = False -- default
            }

@@ -34,7 +34,6 @@ import qualified Network.Socket            as S
 import qualified Network.WebSockets.Stream as Stream
 import qualified Control.Exception         as Exc (catch, ErrorCall)
 
-
 -- COMBAK: remove TagExpr
 
 -- Types used by the server, mainly for translation to JSON
