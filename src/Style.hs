@@ -297,11 +297,11 @@ expr = tryChoice [
            constructor,
            objFn,
            constrFn,
+           arithmeticExpr,
            compFn,
            Layering <$> brackets layeringExpr,
            list,
-           stringLit,
-           arithmeticExpr
+           stringLit
        ]
 
 -- COMBAK: change NewStyle to Style
@@ -309,10 +309,14 @@ arithmeticExpr :: Parser Expr
 arithmeticExpr = makeExprParser aTerm Style.aOperators
 
 aTerm :: Parser Expr
-aTerm = parens arithmeticExpr
-    <|> try (AFloat <$> annotatedFloat)
-    <|> try (EPath  <$> path)
-    <|> try (IntLit <$> integer)
+aTerm = tryChoice
+    [
+        compFn,
+        parens arithmeticExpr,
+        AFloat <$> annotatedFloat,
+        EPath  <$> path,
+        IntLit <$> integer
+    ]
 
 aOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
 aOperators =
@@ -590,8 +594,8 @@ checkSel varEnv sel =
          selEnv_decls { sErrors = filter (/= "") $ reverse (sErrors selEnv_decls) ++ rel_errs }
 
 checkNamespace :: String -> VarEnv -> SelEnv
-checkNamespace name varEnv = 
-    -- A Substance variable cannot have the same name as a namespace               
+checkNamespace name varEnv =
+    -- A Substance variable cannot have the same name as a namespace
     let error = if M.member (VarConst name) (varMap varEnv)
                 then ["Substance variable '" ++ name ++ "' has the same name as a namespace in the Style program"]
                 else []
@@ -600,11 +604,11 @@ checkNamespace name varEnv =
 -- Returns a sel env for each selector in the Style program, in the same order
 -- TODO: add these judgments to the paper
 checkSels :: VarEnv -> StyProg -> [SelEnv]
-checkSels varEnv prog = 
+checkSels varEnv prog =
           let selEnvs = map (checkPair varEnv) prog in
           let errors = concatMap sErrors selEnvs in
           if null errors
-          then selEnvs 
+          then selEnvs
           else error $ intercalate "\n" errors
           where checkPair :: VarEnv -> (Header, Block) -> SelEnv
                 checkPair varEnv (Select sel, _) = checkSel varEnv sel
@@ -731,7 +735,7 @@ substitutePred subst pred = pred { predicateArgs = map (substitutePredArg subst)
 -- theta(|S_r) = ...
 substituteRel :: Subst -> RelationPattern -> RelationPattern
 -- theta(B := E) |-> theta(B) := theta(E)
-substituteRel subst (RelBind bvar sExpr) = RelBind (substituteBform Nothing subst bvar) 
+substituteRel subst (RelBind bvar sExpr) = RelBind (substituteBform Nothing subst bvar)
                                                    (substituteExpr subst sExpr)
 -- theta(Q([a]) = Q([theta(a)])
 substituteRel subst (RelPred pred) = RelPred $ substitutePred subst pred
@@ -796,12 +800,12 @@ relMatchesLine :: C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 relMatchesLine subEnv (C.Bind var expr) (RelBind bvar sExpr) =
                case bvar of
                BStyVar v -> error ("Style variable '" ++ show v ++ "' found in relational statement '" ++ show (RelBind bvar sExpr) ++ "'. Should not be present!")
-               BSubVar sVar -> 
+               BSubVar sVar ->
                        let selExpr = toSubExpr sExpr in
                        (var == sVar && expr == selExpr) -- self-equal
                        || C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
 -- rule Pred-Match
-relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) = 
+relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) =
                let selPred = toSubPred sPred in
                predEq pred selPred -- self-equal
                || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
@@ -946,7 +950,7 @@ initTrans = Trans { trMap = M.empty, warnings = [] }
 -- Convert Sub bvar name to Sub name in Translation
 trName :: BindingForm -> Name
 trName (BSubVar (VarConst nm)) = Sub nm
-trName (BStyVar (StyVar' nm))  = Sub nm 
+trName (BStyVar (StyVar' nm))  = Sub nm
        -- error ("Style variable '" ++ show bv ++ "' in block! Was a non-full substitution applied?") -- TODO/URGENT fix for namespaces
 
 nameStr :: Name -> String
@@ -1136,14 +1140,14 @@ translateLine trans stmt =
     Delete path        -> deletePath trans path
 
 -- Judgment 25. D |- |B ~> D' (modified to be: theta; D |- |B ~> D')
-translateBlock :: (Autofloat a) => (Block, Int) -> Translation a -> (Subst, Int) -> 
+translateBlock :: (Autofloat a) => (Block, Int) -> Translation a -> (Subst, Int) ->
                                                                Either [Error] (Translation a)
 translateBlock blockWithNum trans substNum =
     let block' = substituteBlock substNum blockWithNum in
     foldM translateLine trans block'
 
 -- Judgment 24. [theta]; D |- |B ~> D'
-translateSubstsBlock :: (Autofloat a) => Translation a -> [(Subst, Int)] -> 
+translateSubstsBlock :: (Autofloat a) => Translation a -> [(Subst, Int)] ->
                                                      (Block, Int) -> Either [Error] (Translation a)
 translateSubstsBlock trans substsNum blockWithNum = foldM (translateBlock blockWithNum) trans substsNum
 
@@ -1177,7 +1181,7 @@ insertLabels trans labels =
                 Nothing ->  fieldDict
                 -- NOTE: maybe this is a "namespace," so we pass through
                 -- error $ "insertLabels: Label option does not exist for Substance object " ++ s
-                Just (Just l) -> M.insert labelField (toFieldStr l) fieldDict 
+                Just (Just l) -> M.insert labelField (toFieldStr l) fieldDict
                                  -- If "NoLabel", default to an empty string
                 Just Nothing  -> M.insert labelField (toFieldStr "") fieldDict
         -- only insert labels for Substance objects
