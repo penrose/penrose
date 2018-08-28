@@ -74,6 +74,8 @@ compDict = M.fromList
         ("atan", arctangent),
         ("calcVectorsAngle", calcVectorsAngle),
         ("calcVectorsAngleWithOrigin", calcVectorsAngleWithOrigin),
+        ("generateRandomReal", generateRandomReal),
+        ("calcNorm", calcNorm),
         ("bboxWidth", bboxWidth),
         ("bboxHeight", bboxHeight),
         ("intersectionX", intersectionX),
@@ -106,6 +108,8 @@ compSignatures = M.fromList
             ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("calcVectorsAngleWithOrigin",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
                 ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
+        ("generateRandomReal",([],ValueT FloatT)),
+        ("calcNorm",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("intersectionX", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("intersectionY", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
@@ -159,7 +163,6 @@ objFuncDict = M.fromList
         ("above", above),
         ("equal", equal),
         ("distBetween", distBetween)
-
 {-      ("centerLine", centerLine),
         ("increasingX", increasingX),
         ("increasingY", increasingY),
@@ -374,7 +377,7 @@ rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
     Val (ColorV $ makeColor' r g b a)
 
 arctangent :: CompFn
-arctangent [(Val (FloatV d))] = Val (FloatV $ (atan d)/pi*180)
+arctangent [Val (FloatV d)] = Val (FloatV $ (atan d) / pi * 180)
 
 calcVectorsAngle :: CompFn
 calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
@@ -386,7 +389,7 @@ calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
              na = sqrt (ax^2 + ay^2)
              nb = sqrt (bx^2 + by^2)
              angle = acos (ab / (na*nb)) / pi*180.0
-         in Val (FloatV $ angle)
+         in Val (FloatV angle)
 
 calcVectorsAngleWithOrigin :: CompFn
 calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
@@ -394,9 +397,25 @@ calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1)
       Val (FloatV ex2), Val (FloatV ey2)] =
         let (ax,ay) = (ex1 - sx1, ey1 - sy1)
             (bx,by) = (ex2 - sx2, ey2 - sy2)
-            angle1 = if ay < 0 then 1 * atan (ay / ax) / pi*180.0 else 180.0  + 1 * atan (ay / ax) / pi*180.0
-            angle2 = if by < 0 then 1 * atan (by / bx) / pi*180.0 else 180.0 + 1 * atan (by / bx) / pi*180.0
-        in if angle1 < angle2 then Val (FloatV $ -1 * angle1) else Val (FloatV $ -1 * angle1)
+            (cx,cy) = ((ax + bx)/2.0,(ay + by)/2.0)
+            angle =  if cy < 0 then  (atan (cy / cx) / pi*180.0) * 2.0 else 180.0 + (atan (cy / cx) / pi*180.0) * 2.0
+        in Val (FloatV $ -1.0 * angle)
+        --     angle1 =  if ay < 0 then  (atan (ay / ax) / pi*180.0) else 180.0  +  (atan (ay / ax) / pi*180.0)
+        --     angle2 =  if by < 0 then  (atan (by / bx) / pi*180.0) else 180.0 +   (atan  (by / bx) / pi*180.0)
+        -- in if traceShowId angle1 > traceShowId angle2 then Val (FloatV $ -1 * angle1) else Val (FloatV $ -1 * angle2)
+
+generateRandomReal :: CompFn
+generateRandomReal [] = let g1 = mkStdGen 16
+                            (x,g2) = (randomR (1, 15) g1) :: (Int,StdGen)
+                            y = fst(randomR (1, 15) g2) ::  Int
+                         in Val (FloatV ((fromIntegral x)/(fromIntegral y)))
+
+calcNorm :: CompFn
+calcNorm [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),Val (FloatV ey1)] =
+  let nx = (ex1 - sx1) ** 2.0
+      ny = (ey1 - sy1) ** 2.0
+      norm = sqrt (nx + ny + 0.5)
+  in Val (FloatV norm)
 
 linePts, arrowPts :: (Autofloat a) => Shape a -> (a, a, a, a)
 linePts = arrowPts

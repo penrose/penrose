@@ -1,10 +1,13 @@
 VectorSpace U
-Vector u1
+Vector u1,u2
 In(u1,U)
+In(u2,U)
+
 Label u1 $\vec{u_{1}}$
 
 Scalar c
-c := Norm(u1)
-Label c $|\vec{u_{1}}|$
+u2 := Scale(c,u1)
+Label u2 $c*\vec{u_{1}}$
+
 
 AutoLabel U
