@@ -7,5 +7,4 @@ Scalar c
 c := Norm(u1)
 Label c $|\vec{u_{1}}|$
 
-
 AutoLabel U

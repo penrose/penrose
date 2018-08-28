@@ -5,11 +5,10 @@
 module ShadowMain where
 import Utils
 import qualified Server
-import qualified Runtime as R
 import qualified Substance as C
-import qualified NewStyle as NS -- COMBAK: remove
-import qualified Optimizer as O -- COMBAK: remove
 import qualified Style as S
+import qualified GenOptProblem as G
+import qualified Optimizer as O
 import qualified Dsll as D
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 import System.Environment
@@ -20,9 +19,12 @@ import Text.Show.Pretty
 import Control.Monad (when, forM)
 import qualified Env as E -- DEBUG: remove
 import qualified Data.Map.Strict as M -- DEBUG: remove
+import qualified Data.List as L (intercalate)
+import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
 
-fromRight a (Left x) = a
-fromRight _ (Right a) = a
+fromRight :: (Show a, Show b) => Either a b -> b
+fromRight (Left x) = error ("Failed with error: " ++ show x)
+fromRight (Right y) = y
 
 -- | `main` runs the Penrose system
 shadowMain :: IO ()
@@ -70,52 +72,56 @@ shadowMain = do
     pPrint labelMap
     divLine
 
-    styProg <- NS.parseStyle styFile styIn
+    styProg <- S.parseStyle styFile styIn
     putStrLn "Style AST:\n"
     pPrint styProg
     divLine
 
     putStrLn "Running Style semantics\n"
-    let selEnvs = NS.checkSels subEnv styProg
+    let selEnvs = S.checkSels subEnv styProg
     putStrLn "Selector static semantics and local envs:\n"
     forM selEnvs pPrint
     divLine
 
-    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
+    let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
     putStrLn "Selector matches:\n"
     forM subss pPrint
     divLine
 
-    let trans = NS.translateStyProg subEnv eqEnv subProg styProg labelMap
-                        :: forall a . (Autofloat a) => Either [NS.Error] (NS.Translation a)
+    let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
+                        :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
     putStrLn "Translated Style program:\n"
     pPrint trans
     divLine
 
-    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
+    let initState = G.genOptProblemAndState (fromRight trans)
     putStrLn "Generated initial state:\n"
 
     -- TODO improve printing code
     putStrLn "Shapes:"
-    pPrint $ NS.shapesr initState
+    pPrint $ G.shapesr initState
     putStrLn "\nShape names:"
-    pPrint $ NS.shapeNames initState
+    pPrint $ G.shapeNames initState
     putStrLn "\nShape properties:"
-    pPrint $ NS.shapeProperties initState
+    pPrint $ G.shapeProperties initState
     putStrLn "\nTranslation:"
-    pPrint $ NS.transr initState
+    pPrint $ G.transr initState
     putStrLn "\nVarying paths:"
-    pPrint $ NS.varyingPaths initState
+    pPrint $ G.varyingPaths initState
     putStrLn "\nUninitialized paths:"
-    pPrint $ NS.uninitializedPaths initState
+    pPrint $ G.uninitializedPaths initState
     putStrLn "\nVarying state:"
-    pPrint $ NS.varyingState initState
+    pPrint $ G.varyingState initState
     putStrLn "\nParams:"
-    pPrint $ NS.paramsr initState
+    pPrint $ G.paramsr initState
     putStrLn "\nAutostep:"
-    pPrint $ NS.autostep initState
+    pPrint $ G.autostep initState
     print initState
     divLine
+
+    putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
+    let warns = S.warnings $ fromRight trans
+    putStrLn (color Red $ L.intercalate "\n" warns ++ "\n")
 
     putStrLn "Visualizing Substance program:\n"
 
@@ -131,27 +137,27 @@ shadowMain = do
 -- (extracted via unsafePerformIO)
 -- Very similar to shadowMain but does not depend on rendering  so it does not return SVG
 -- TODO take initRng seed as argument
-mainRetInit :: String -> String -> String -> IO (Maybe NS.RState)
+mainRetInit :: String -> String -> String -> IO (Maybe G.State)
 mainRetInit subFile styFile dsllFile = do
     subIn <- readFile subFile
     styIn <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
     (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
-    styProg <- NS.parseStyle styFile styIn
+    styProg <- S.parseStyle styFile styIn
     -- let initState = R.genInitState styProg
-    let selEnvs = NS.checkSels subEnv styProg
-    let subss = NS.find_substs_prog subEnv eqEnv subProg styProg
-    let trans = NS.translateStyProg subEnv eqEnv subProg styProg labelMap
-                        :: forall a . (Autofloat a) => Either [NS.Error] (NS.Translation a)
-    let initState = NS.genOptProblemAndState (fromRight NS.initTrans trans)
+    let selEnvs = S.checkSels subEnv styProg
+    let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
+    let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
+                        :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
+    let initState = G.genOptProblemAndState (fromRight trans)
     return $ Just initState
 
-stepsWithoutServer :: NS.RState -> NS.RState
+stepsWithoutServer :: G.State -> G.State
 stepsWithoutServer initState =
          let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepAndCount (initState, 0) in
          trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
          where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
-               notConverged (s, n) = NS.optStatus (NS.paramsr s) /= NS.EPConverged
+               notConverged (s, n) = G.optStatus (G.paramsr s) /= G.EPConverged
                                      || n < maxSteps
                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge

@@ -13,8 +13,8 @@ In(E, U)
 
 Label A $\vec{u_{1}}$
 Label B $\vec{u_{2}}$
-Label C $\vec{u_{1} + u_{2}}$
+Label C $\vec{u_{1}} + \vec{u_{2}}$
 Label D $\vec{u_{3}}$
-Label E $\vec{u_{1} + u_{2} +u_{3}}$
+Label E $\vec{u_{1}} + \vec{u_{2}} + \vec{u_{3}}$
 
 AutoLabel U

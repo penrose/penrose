@@ -648,7 +648,7 @@ var Render = (function(){
           * @param       {JSON} obj JSON object from Haskell server
           */
           function _renderParallelogram(s, properties) {
-            [x, y] = [properties.x, properties.y] //The bottom left corener of the parallelogram
+            [x, y] = [properties.x, properties.y] // The bottom left corner of the parallelogram
             var sizeX = properties.lengthX;
             var sizeY = properties.lengthY;
             var angle = properties.angle;

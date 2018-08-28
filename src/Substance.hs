@@ -288,8 +288,8 @@ checkVarPred varEnv args (Prd1 name yls kls tls _) =
              in if areAllArgTypes argTypes
                 then let argTypes2       = map (KT . fromJust) argTypes
                          tls2            = map KT tls
-                         (sigma , env)     = subst varEnv M.empty argTypes2 tls2
-                     in env { errors  = errors env ++ err } -- err should be empty str
+                         (sigma , substErr)     = subst varEnv M.empty argTypes2 tls2
+                     in varEnv { errors = errors varEnv ++ err ++ substErr} -- err should be empty str
                 else
                  varEnv { errors = errors varEnv ++ err}
 
@@ -303,10 +303,10 @@ checkVarOperator varEnv args (Operator name yls kls tls _) =
                   in if areAllArgTypes argTypes
                      then let argTypes2         = map (KT . fromJust) argTypes
                               tls2              = map KT tls
-                              (sigma , env)     = subst varEnv M.empty argTypes2 tls2
+                              (sigma , substErr)     = subst varEnv M.empty argTypes2 tls2
                           in if sigma == M.empty
-                             then env { errors = errors env ++ err } -- err should be empty str
-                             else env { errors = errors env ++ err } -- err should be empty str
+                             then varEnv { errors = errors varEnv ++ err ++ substErr} -- err should be empty str
+                             else varEnv { errors = errors varEnv ++ err ++ substErr} -- err should be empty str
                      else
                       varEnv { errors = errors varEnv ++ err}
 
@@ -373,10 +373,10 @@ checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
                in if foldl (\b at1 -> b && isJust at1) True argTypes
                   then let argTypes2 = map (KT . fromJust) argTypes
                            tls2      = map KT tls
-                           (sigma , env)     = subst varEnv M.empty argTypes2 tls2
+                           (sigma , substErr)     = subst varEnv M.empty argTypes2 tls2
                        in if sigma == M.empty
-                          then (err, Just t) -- err should be empty str
-                          else (err, Just (applySubst sigma t)) -- err should be empty str
+                          then (substErr ++ err , Just t) -- err should be empty str
+                          else (substErr ++ err , Just (applySubst sigma t)) -- err should be empty str
                   else (err, Nothing)
 
 -- Operates exactly the same as checkFuncInEnv above it just operates over value constructors instead of operators.
@@ -389,10 +389,10 @@ checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
                   in if foldl (\b at1 -> b && isJust at1) True argTypes
                      then let argTypes2 = map (KT . fromJust) argTypes
                               tls2      = map KT tls
-                              (sigma , env)     = subst varEnv M.empty argTypes2 tls2
+                              (sigma , substErr)     = subst varEnv M.empty argTypes2 tls2
                            in if sigma == M.empty
-                              then (err, Just t) -- err should be empty str
-                              else (err, Just (applySubst sigma t)) -- err should be empty str
+                              then (substErr ++ err, Just t) -- err should be empty str
+                              else (substErr ++ err, Just (applySubst sigma t)) -- err should be empty str
                      else (err, Nothing)
 
 -- Takes a substitution “sigma” and applies it to a type. Types that are single type variables are mapped to their corresponding
@@ -422,12 +422,23 @@ applySubstHelper sigma (AT t) = AT (applySubst sigma t)
 -- All entries in “sigma” must be consistent for it to be a valid substitution.
 -- substitutionHelper is called on each element of a list of tuples of corresponding argument and formal types to generate
 -- entries in a substitution “sigma”.
-subst :: VarEnv -> M.Map Y Arg -> [K] -> [K] -> (M.Map Y Arg, VarEnv)
+subst :: VarEnv -> M.Map Y Arg -> [K] -> [K] -> (M.Map Y Arg, String)
 subst varEnv sigma argTypes formalTypes = let types = zip argTypes formalTypes
                                               sigma2 = foldl (substHelper varEnv) sigma types
-                                          in if length argTypes /= length formalTypes
-                                            then  (sigma2,varEnv {errors = errors varEnv ++ "Arguments list lengths are not equal \n"})
-                                            else  (sigma2,varEnv)
+                                          in if   length argTypes /= length formalTypes
+                                            then  (sigma2, "Arguments list lengths are not equal, expected " ++ show (length formalTypes) ++ " arguments but call was with " ++ show (length argTypes) ++ " arguments \n"  )
+                                            else  if compareTypesList varEnv argTypes formalTypes--argTypes /= formalTypes
+                                                   then  (sigma2, "Incorrect types of arguments, expected " ++ show formalTypes ++ " , but was " ++ show argTypes ++ " \n")
+                                                  else (sigma2,"")
+
+compareTypesList :: VarEnv -> [K] ->[K] -> Bool
+compareTypesList varEnv argTypes formalTypes =
+    let u = zip argTypes formalTypes
+        f = filter (compareTypes varEnv) u
+    in length u /= length f
+
+compareTypes :: VarEnv -> (K,K) -> Bool
+compareTypes varEnv (k1,k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv)
 
 -- Ensures an argument type and formal type matches where they should match, otherwise a runtime error is generated.
 -- In places where they do not need to match exactly (where type and regular variables exist in the formal type)
@@ -483,10 +494,11 @@ substInsert sigma y arg = case M.lookup y sigma of
 --                               vType -> Left vType
 
 ----------------------------------------- Binding & Equality Environment ------------------
--- | Definition of the suBSTANCE environemt + helper functions.
+-- | Definition of the Substance environment + helper functions.
 --   Contains binding information and equality of expressions and predicates
---   In order to calculate all the equalities, we cmpute the closure of the
---   equlities in Substance + symetry
+--   In order to calculate all the equalities, we compute the closure of the
+--   equalities in Substance + symmetry. 
+-- The equalities do NOT contain self-equalities, which are manually checked by the Style matcher
 
 data SubEnv = SubEnv { exprEqualities :: [(Expr , Expr)],
                        predEqualities :: [(Predicate , Predicate)],
@@ -495,8 +507,8 @@ data SubEnv = SubEnv { exprEqualities :: [(Expr , Expr)],
                     }
                      deriving (Show, Eq, Typeable)
 
--- | The top levek function for computing the Substance environement
---   Important: this function assuemes it runs after the typechecker and that
+-- | The top level function for computing the Substance environement
+--   Important: this function assumes it runs after the typechecker and that
 --              the program is well-formed (as well as the DSLL)
 loadSubEnv :: SubProg -> SubEnv
 loadSubEnv p = let subEnv1 = foldl loadStatement initE p
@@ -506,27 +518,25 @@ loadSubEnv p = let subEnv1 = foldl loadStatement initE p
 
 -- | The order in all the lists is reserved
 loadStatement :: SubEnv -> SubStmt -> SubEnv
-loadStatement e (EqualE expr1 expr2) = e {exprEqualities = (expr1, expr2) : exprEqualities e}
-loadStatement e (EqualQ q1 q2) = e {predEqualities = (q1, q2) : predEqualities e}
-loadStatement e (Bind v expr) = e {bindings = M.insert v expr $ bindings e }
-loadStatement e (ApplyP p) = e {subPreds = p : subPreds e}
-loadStatement e _ = e -- for all the other statements, do nothing and simply pass on the environment
+loadStatement e (EqualE expr1 expr2) = e { exprEqualities = (expr1, expr2) : exprEqualities e }
+loadStatement e (EqualQ q1 q2)       = e { predEqualities = (q1, q2) : predEqualities e }
+loadStatement e (Bind v expr)        = e { bindings = M.insert v expr $ bindings e }
+loadStatement e (ApplyP p)           = e { subPreds = p : subPreds e }
+loadStatement e _                    = e    -- for all other statements, simply pass on the environment
 
 computeEqualityClosure:: SubEnv -> SubEnv
-computeEqualityClosure e = e {predEqualities = transitiveClosure (predEqualities e),
-                              exprEqualities = transitiveClosure (exprEqualities e) }
+computeEqualityClosure e = e { predEqualities = transitiveClosure (predEqualities e),
+                               exprEqualities = transitiveClosure (exprEqualities e) }
 
--- | Given an environment and 2 expression determine whether those
---   expressions are equal
---   For usage in style
-areExprEqual :: SubEnv -> Expr -> Expr -> Bool
-areExprEqual env e1 e2 = (e1,e2) `elem` exprEqualities env || (e2,e1) `elem` exprEqualities env
+-- | Given an environment and 2 expressions, determine whether those expressions are equal
+--   For use in Style
+exprsDeclaredEqual :: SubEnv -> Expr -> Expr -> Bool
+exprsDeclaredEqual env e1 e2 = (e1, e2) `elem` exprEqualities env || (e2, e1) `elem` exprEqualities env
 
--- | Given an environment and 2 predicates determine whether those
---   predicates are equal
---   For usage in style
-arePredEqual :: SubEnv -> Predicate -> Predicate -> Bool
-arePredEqual env q1 q2 = (q1,q2) `elem` predEqualities env || (q2,q1) `elem` predEqualities env
+-- | Given an environment and 2 predicates determine whether those predicates are equal
+--   For use in Style
+predsDeclaredEqual :: SubEnv -> Predicate -> Predicate -> Bool
+predsDeclaredEqual env q1 q2 = (q1, q2) `elem` predEqualities env || (q2, q1) `elem` predEqualities env
 
 -- --------------------------------------- Substance Loader --------------------------------
 -- | Load all the Substance objects for visualization in Runtime.hs

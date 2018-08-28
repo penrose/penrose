@@ -14,26 +14,22 @@ import Test.Tasty.HUnit
 
 -- import Main hiding (main)
 import qualified ShadowMain.Tests
-import qualified Runtime.Tests
 import qualified Functions.Tests
 import qualified Shapes.Tests
 import qualified Utils.Tests
 import qualified Substance.Tests
 import qualified Style.Tests
 import qualified Server.Tests
-import qualified Computation.Tests
 
 main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Tests" 
       [ ShadowMain.Tests.tests,
-        Runtime.Tests.tests,
         Functions.Tests.tests,
         Shapes.Tests.tests,
         Utils.Tests.tests,
         Substance.Tests.tests,
         Style.Tests.tests,
-        Server.Tests.tests,
-        Computation.Tests.tests
+        Server.Tests.tests
       ]

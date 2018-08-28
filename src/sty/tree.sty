@@ -2,45 +2,38 @@ Set x {
     x.shape = Text { string = x.label }
 }
 
--- TODO: Selector behavior is making the Sty assignment "y." get overridden
-/*
 Set x; Set y {
    -- Try to make sure no labels overlap
-   y.genRepelFn = encourage repel(x.shape, y.shape, 10.0)
+   LOCAL.genRepelFn = encourage repel(x.shape, y.shape, 5.0)
 }
-*/
-
--- TODO: temp. hack to space 2nd level
-/*
-Set `F`; Set `D` {
-  `F`.genRepelFn = encourage repel(`F`.shape, `D`.shape)
-} */
 
 Set x; Set y
 where IsSubset(x, y) {
-    x.arrow = Arrow {
+    LOCAL.arrow = Arrow {
       thickness = 10.0
+      color = rgba(0.0, 0.0, 0.0, 1.0)
     }
 
     -- Draw the arrow from y to x
-    x.centerFn = encourage centerArrow(x.arrow, x.shape, y.shape)
+    LOCAL.centerFn = encourage centerArrow(LOCAL.arrow, x.shape, y.shape)
 
     -- Position y above x
-    x.aboveFn = encourage above(y.shape, x.shape)
+    LOCAL.aboveFn = encourage above(y.shape, x.shape)
 
     -- Have sets 'fight' to be aligned with the superset's x-position
-    x.equalFn = encourage equal(x.shape.x, y.shape.x)
+    LOCAL.equalFn = encourage equal(x.shape.x, y.shape.x)
 }
+
+/*
+-- This one currently causes convergence to become very slow but works eventually
 
 Set x1; Set x2
 where IsSubset(x1, S); IsSubset(x2, S)
 with Set S {
    -- If two sets are direct subsets of the same set, give them the same y-position
-   x1.heightFn = encourage sameHeight(x1.shape, x2.shape)
-
-   -- Have sets 'fight' to be aligned with the superset's x-position   
-   x1.repelFn = encourage repel(x1.shape, x2.shape)
+   LOCAL.heightFn = ensure sameHeight(x1.shape, x2.shape)
 }
+*/
 
 /* What matches are generated here?
 

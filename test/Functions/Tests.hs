@@ -7,7 +7,6 @@ import Test.Tasty.HUnit
 
 import Functions
 import Shapes
-import Runtime
 
 tests :: TestTree
 tests = testGroup "Functions tests" [properties, unitTests]
@@ -19,6 +18,7 @@ scProps = testGroup "(checked by SmallCheck)"
           [ 
           ]
 
+{-
 -- These tests could be more useful. Just an example.
 sameSize_idCirc :: Circ' a -> Circ' a -> Bool
 sameSize_idCirc c1 c2 = True
@@ -32,6 +32,7 @@ repel_CS_unit_NaN :: Assertion
 repel_CS_unit_NaN = (isNaN $ repel [defcirc, defsquare] []) @?= False
                        where defcirc = addGrad $ defaultCirc "c"
                              defsquare = addGrad $ defaultCirc "s"
+-}
 
 -- Perhaps "for any two randomly initialized objects, an objective function that can be applied to them
 -- does not result in NaN"? TODO derive Arbitrary
@@ -43,6 +44,6 @@ qcProps = testGroup "(checked by QuickCheck)"
 
 -- Module: topic: function: property
 unitTests = testGroup "Unit tests" 
-          [ testCase "constraint function: same size identity" sameSize_idCirc_unit,
-            testCase "objective function: repel no NaN" sameSize_idCirc_unit
+          [ -- testCase "constraint function: same size identity" sameSize_idCirc_unit,
+            -- testCase "objective function: repel no NaN" sameSize_idCirc_unit
           ]
