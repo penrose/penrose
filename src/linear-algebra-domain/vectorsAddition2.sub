@@ -1,0 +1,31 @@
+--VectorSpace U
+VectorSpace V
+
+--Vector u1
+--Vector u2
+--In(u1,U)
+--In(u2,U)
+
+--Vector u3
+--u3 := AddV(u1,u2)
+
+Vector v1
+Vector v2
+In(v1,V)
+In(v2,V)
+
+Vector v3
+v3 := AddV(v1,v2)
+
+Vector v4
+v4 := Neg(v3)
+
+AutoLabel V -- ,U
+--Label u1 $\vec{u_{1}}$
+--Label u2 $\vec{u_{2}}$
+--Label u3 $\vec{u_{1} + u_{2}}$
+
+Label v1 $\vec{v_{1}}$
+Label v2 $\vec{v_{2}}$
+Label v3 $\vec{v_{1} + v_{2}}$
+Label v4 $\vec{-v_{1} - v_{2}}$

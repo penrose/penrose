@@ -4,7 +4,8 @@
 module Optimizer where
 
 import Utils
-import NewStyle
+import Style
+import GenOptProblem
 import Numeric.AD
 import Debug.Trace
        
@@ -67,12 +68,11 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 
 -- Main optimization functions
 
-step :: RState -> RState
-step s = let (state', params') = {-# SCC stepShapes #-} stepShapes (paramsr s)  (varyingState s) in
-         let (!shapes', _) = {-# SCC evalTranslation #-} evalTranslation s in
-         s { varyingState = state', shapesr =  shapes', paramsr = params' }
-         -- note: trans is not updated in rstate
-
+step :: State -> State
+step s = let (state', params') = stepShapes (paramsr s) (varyingState s)
+             s'                = s { varyingState = state', paramsr = params' }
+             (!shapes', _)     = evalTranslation s' in
+         s' { shapesr = shapes' } -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
@@ -204,10 +204,10 @@ awLineSearch f duf_noU descentDir x0 =
           where (a0, b0, t0) = (0, infinity, 1)
                 duf = duf_noU descentDir
                 update (a, b, t) =
-                       let (a', b', sat) = if not $ armijo t then tr' "not armijo" (a, t, False)
-                                           else if not $ weakWolfe t then tr' "not wolfe" (t, b, False)
+                       let (a', b', sat) | not $ armijo t    = tr' "not armijo" (a, t, False)
+                                         | not $ weakWolfe t =  tr' "not wolfe" (t, b, False)
                                            -- remember to change both wolfes
-                                           else (a, b, True) in
+                                         | otherwise         = (a, b, True) in
                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
                        else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
                        else tr' "b' = infinity" (a', b', 2 * a')

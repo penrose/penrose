@@ -1,0 +1,201 @@
+const {
+  const.vectorSpaceSize = 300.0
+  const.axisSize = const.vectorSpaceSize * 0.4
+  const.distVectorSpaces = 50.0
+}
+
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
+  Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
+  Colors.lightGray = rgba(200.0,200.0,200.0,1.0)
+}
+
+VectorSpace U {
+ U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 , 0.0)
+ U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
+
+  U.shape = Square {
+    side = const.vectorSpaceSize
+    color = Colors.lightBlue
+   }
+
+
+   U.textX = Text {
+     string = "x"
+   }
+
+   U.textY = Text {
+     string = "y"
+   }
+
+   U.perpMark = Arc {
+      x = U.shape.x
+      y = U.shape.y
+      size = 10
+      rotation = 0
+      isRight = "true"
+      color = Colors.black
+   }
+
+
+   U.xAxisRight = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y
+      endX = U.shape.x + const.axisSize
+      endY = U.shape.y
+      thickness = 8.0
+      color = Colors.black
+   }
+
+   U.xAxisLeft = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y
+      endX = U.shape.x - const.axisSize
+      endY = U.shape.y
+      thickness = 8.0
+      color = Colors.black
+   }
+
+   U.yAxisUp = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y
+      endX = U.shape.x
+      endY = U.shape.y + const.axisSize
+      thickness = 8.0
+      color = Colors.black
+   }
+
+   U.yAxisDown = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y
+      endX = U.shape.x
+      endY = U.shape.y - const.axisSize
+      thickness = 8.0
+      color = Colors.black
+   }
+
+   U.text = Text {
+     string = U.label
+     x = U.shape.x - const.axisSize
+     y = U.shape.y + const.axisSize
+   }
+}
+
+VectorSpace U; VectorSpace V {
+    U.sameHeight = ensure sameHeight(U.shape, V.shape)
+    U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
+    --V.shape.y = U.shape.y
+    --V.shape.x = U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
+}
+
+Vector v
+with VectorSpace U
+where In(v,U) {
+  v.containFn = ensure contains(U.shape, v.shape)
+  v.containLabel = ensure contains(U.shape, v.text)
+  v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 ,20.0 )
+
+  v.text = Text {
+    string = v.label
+  }
+
+  v.shape = Arrow {
+    startX = U.shape.x
+    startY = U.shape.y
+    thickness = 9.0
+  }
+}
+
+Vector u
+with Vector v; VectorSpace U
+where u := Neg(v); In(v,U); In(u, U) {
+  u.shape.endX = 2.0 * v.shape.startX - v.shape.endX
+  u.shape.endY = 2.0 * v.shape.startY - v.shape.endY
+}
+
+Vector u
+with Vector v; Vector w; VectorSpace U
+where u := AddV(v,w); In(u, U); In(v, U); In(w, U) {
+   u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
+   u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
+
+    u.slider_v = Arrow {
+     endX = u.shape.endX
+     endY = u.shape.endY
+
+     startX = w.shape.endX
+     startY = w.shape.endY
+     thickness = 4.5
+     style = "dashed"
+    }
+
+    u.slider_w = Arrow {
+       endX = u.shape.endX
+       endY = u.shape.endY
+
+       startX = v.shape.endX
+       startY = v.shape.endY
+       thickness = 4.5
+       color = u.slider_v.color
+       style = "dashed"
+    }
+}
+
+LinearMap f
+with VectorSpace U; VectorSpace V
+where From(f,U,V) {
+   f.shape = Arrow {
+      startX = U.shape.x
+      startY = U.shape.y + const.vectorSpaceSize/2.0
+      endX = V.shape.x
+      endY = V.shape.y + const.vectorSpaceSize/2.0
+      style = "curved"
+      rotation = 0.0
+   }
+
+   f.text = Text {
+     string = f.label
+     x = (f.shape.startX + f.shape.endX) / 2.0
+     y = f.shape.startY + 100.0
+   }
+}
+
+Scalar c
+with Vector a; Vector b; VectorSpace U
+where c := Determinant(a,b); In(a,U); In(b,U) {
+   c.shape = Parallelogram {
+      x = U.shape.x
+      y = U.shape.y
+      lengthX = len(a.shape)
+      lengthY = len(b.shape)
+      angle = calcVectorsAngle(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
+      rotation = calcVectorsAngleWithOrigin(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
+      stroke-style = "dashed"
+   }
+
+   c.text = Text {
+     string = c.label
+     x = (a.shape.endX + b.shape.endX) / 2.0
+     y = (a.shape.endY + b.shape.endY) / 2.0
+   }
+} 
+
+Scalar c
+with Vector a;  VectorSpace U
+where c := Norm(a); In(a,U) {
+   c.shape = Brace {
+     startX = a.shape.startX
+     startY = a.shape.startY + 10.0
+     endX = a.shape.endX
+     endY = a.shape.endY + 10.0
+     thickness = 2
+   }
+
+   c.text = Text {
+     string = c.label
+     x = (a.shape.startX + a.shape.endX) / 2.0 + 15.0
+     y = (a.shape.startY + a.shape.endY) / 2.0 + 15.0
+   }
+
+  }

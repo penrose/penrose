@@ -1,3 +1,12 @@
+Const {
+  Const.start = -100.0
+  Const.setLength = 400.0
+}
+
+Colors {
+  Colors.orange = rgba(1.0, 0.25, 0.25, 0.5)
+}
+
 Set X {
   X.shape = Arrow {
     thickness = 10.0
@@ -7,19 +16,19 @@ Set X {
   X.labelFn = encourage centerLabel(X.shape, X.text)
 }
 
--- TODO: have consts be calculated off of a global
+-- TODO: have consts be calculated off of a Const
 Set `domain` {
-    `domain`.shape.startX = -100.0
-    `domain`.shape.startY = -100.0
-    `domain`.shape.endX   = 300.0
-    `domain`.shape.endY   = -100.0
+    `domain`.shape.startX = Const.start
+    `domain`.shape.startY = Const.start
+    `domain`.shape.endX   = Const.start + Const.setLength
+    `domain`.shape.endY   = Const.start
 }
 
 Set `codomain` {
-    `codomain`.shape.startX = -100.0
-    `codomain`.shape.startY = -100.0
-    `codomain`.shape.endX   = -100.0
-    `codomain`.shape.endY   = 300.0
+    `codomain`.shape.startX = Const.start
+    `codomain`.shape.startY = Const.start
+    `codomain`.shape.endX   = Const.start
+    `codomain`.shape.endY   = Const.start + Const.setLength
 }
 
 -- Set `domain`; Set `codomain`
@@ -45,7 +54,7 @@ Point p {
         r     = 20.0
         x     = 130.0
         y     = 180.0
-        color = rgba(1.0, 0.25, 0.25, 0.5)
+        color = Colors.orange
         stroke-width = 0.0
     }
 
