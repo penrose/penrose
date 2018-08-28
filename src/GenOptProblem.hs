@@ -68,7 +68,7 @@ instance Eq OptStatus where
                   (UnconstrainedConverged a, UnconstrainedConverged b) -> a == b
                   (_, _) -> False
 
-data Params = Params { weight :: forall a . (Autofloat a) => a,
+data Params = Params { weight :: Float,
                        optStatus :: OptStatus,
                        overallObjFn :: forall a . (Autofloat a) => a -> [a] -> a
                      }
@@ -77,17 +77,17 @@ instance Show Params where
          show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
 
 data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
-                       shapeNames :: [(String, Field)], -- TODO Sub name type
-                       shapeProperties :: [(String, Field, Property)],
-                       transr :: forall a . (Autofloat a) => Translation a,
-                       varyingPaths :: [Path],
-                       uninitializedPaths :: [Path],
-                       varyingState :: [Float], -- Note: NOT polymorphic
-                       paramsr :: Params,
-                       objFns :: [Fn],
-                       constrFns :: [Fn],
-                       rng :: StdGen,
-                       autostep :: Bool }
+                     shapeNames :: [(String, Field)], -- TODO Sub name type
+                     shapeProperties :: [(String, Field, Property)],
+                     transr :: forall a . (Autofloat a) => Translation a,
+                     varyingPaths :: [Path],
+                     uninitializedPaths :: [Path],
+                     varyingState :: [Float], -- Note: NOT polymorphic
+                     paramsr :: Params,
+                     objFns :: [Fn],
+                     constrFns :: [Fn],
+                     rng :: StdGen,
+                     autostep :: Bool }
 
 instance Show State where
          show s = "Shapes: \n" ++ ppShow (shapesr s) ++

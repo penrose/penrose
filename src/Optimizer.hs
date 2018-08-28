@@ -122,7 +122,7 @@ stepShapes params vstate = -- varying state
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
         where (vstate', gradEval) = stepWithObjective params vstate
-              objFnApplied = (overallObjFn params) (weight params)
+              objFnApplied = (overallObjFn params) (r2f $ weight params)
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
 -- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
