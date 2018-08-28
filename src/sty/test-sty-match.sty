@@ -1,0 +1,42 @@
+global { }
+
+Scalar c { }
+
+Scalar c, d { }
+
+Scalar `x` { }
+
+Scalar `x`, d { }
+
+LinearMap f { }
+
+Scalar c
+with Scalar d { }
+
+Vector v
+with VectorSpace U { }
+
+Vector v
+with VectorSpace U
+where In(v, U) { }
+
+LinearMap f
+with VectorSpace U; VectorSpace V
+where From(f, U, V) { }
+
+LinearMap f
+with VectorSpace `U`; VectorSpace V
+where From(f, `U`, V) { }
+
+Vector v; LinearMap f
+with VectorSpace `V`; VectorSpace U
+where In(v, `V`); From(f, `V`, U) { }
+
+Vector u, v, w
+where u := addV(v, w) { }
+
+Vector u; Vector `c`
+where u := addV(`c`, `c`) { }
+
+-- TODO: test subtyping, equality
+-- TODO: test nested/anonymous expressions

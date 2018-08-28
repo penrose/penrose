@@ -1,21 +1,49 @@
+Const {
+  Const.padding = 15.0
+
+  -- this gets drawn by default
+  /* Const.test = Circle {
+    r = 50.0
+    color = Colors.black
+    stroke-width = 0
+  } */
+}
+
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+  Colors.lightGreen = rgba(0.1, 1.0, 0.2, 0.4)
+}
+
 Point p {
-  shape = Dot {
-    text = Auto
+  p.shape = Circle {
+    r = 3.0
+    color = Colors.black
+    stroke-width = 0
   }
 
-  objective centerLabel(p, p.shape.label)
+  p.text = Text {
+    string = p.label
+    x = `p`.shape.x + Const.padding
+    y = `p`.shape.y + Const.padding
+  }
+
+  -- override Const.test.color = Colors.red
+  -- p.labelFn = encourage centerLabel(p.shape, p.text)
 }
 
 Set X {
-  shape = Circle {
-    -- green
-    color = computeColorRGBA(0.1, 1.0, 0.2, 0.4)
-    text = Auto
+  X.shape = Circle {
+    color = Colors.lightGreen
+    stroke-width = 0
   }
 
-  constraint contains(A, A.shape.label)
+  X.text = Text { string = X.label }
+  
+  X.centerFn = encourage centerLabel(X.shape, X.text)
 }
 
-In p X {
-    constraint contains(X, p)
+Point p; Set X
+where PointIn(p, X) {
+  p.containFn = ensure contains(X.shape, p.shape)
 }

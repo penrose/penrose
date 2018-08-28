@@ -1,32 +1,46 @@
-global {
-  -- objective sameX(a, b)
+Const {
+  Const.padding = 15.0
 }
 
-Point x {
-  shape = Dot {
-    text = Auto
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.pink = rgba(1.0, 0.2, 1.0, 0.5)
+}
+
+Point p {
+  p.shape = Circle {
+    r = 3.0
+    color = Colors.black
+    stroke-width = 0
   }
 
-  objective centerLabel(x, x.shape.label)
+  p.text = Text { string = p.label }
 }
 
 Point `a` {
-  objective center(a)
+  `a`.shape.x = 0.0
+  `a`.shape.y = 0.0
+  `a`.text.x = `a`.shape.x + Const.padding
+  `a`.text.y = `a`.shape.y + Const.padding
 }
 
-Point `b` {
-  shape = Dot {
-    location = addVector(100.0, 200.0, a)
-    text = Auto
-  }
+Point `b`
+with Point `a` {
+  `b`.shape.x = `a`.shape.x + 100.0
+  `b`.shape.y = `a`.shape.y + 200.0
+  `b`.text.x = `b`.shape.x + Const.padding
+  `b`.text.y = `b`.shape.y + Const.padding
 }
 
-Set X {
-  shape = Circle {
-    color = computeColorRGBA(1.0, 0.2, 1.0, 0.5)
-    radius = computeRadiusToMatch(X, b)
-    text = Auto
+Set X
+with Point `b` {
+  X.shape = Circle {
+    stroke-width = 0
+    color = Colors.pink
+    r = norm_(X.shape.x - `b`.shape.x, X.shape.y -`b`.shape.y)
   }
+
+  X.text = Text { string = X.label }
   
-  objective centerLabel(X, X.shape.label)
+  X.centerFn = encourage centerLabel(X.shape, X.text)
 }

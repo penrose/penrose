@@ -1,0 +1,39 @@
+Set x {
+    x.shape = Circle {
+        stroke-width = 0
+    }
+
+    x.text = Text {
+      string = x.label
+    }
+    
+    x.labelFn = ensure contains(x.shape, x.text)
+}
+
+Set x; Set y {
+  -- Doesn't fully work; only 3 arrows (AC, CB, BC)
+  /*
+  x.arrow = Arrow {
+    startX = x.shape.x
+    startY = x.shape.y
+    endX = y.shape.x
+    endY = y.shape.y
+  }
+  */
+
+  LOCAL.val = 10.0 -- Not used
+  
+  -- Should work for all 6 matches (AB, AC, BA, BC, CA, CB)
+  LOCAL.arrow = Arrow {
+    startX = x.shape.x
+    startY = x.shape.y
+    endX = y.shape.x
+    endY = y.shape.y
+  }
+
+  LOCAL.text = Text {
+    string = "between"
+  }
+  
+  LOCAL.betweenFn = encourage centerLabel(LOCAL.arrow, LOCAL.text)
+}

@@ -1,89 +1,132 @@
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
+  Colors.darkBlue = rgba(0.05, 0.05, 0.6, 1.0)
+}
+
 Point p {
-      shape = None
-      -- TODO: add an "anchor point" object class? (has an internal shape that isn't displayed)
+    p.shape = AnchorPoint { }
 }
 
 Set `domainOuter` {
-    shape = Arrow {
-    -- TODO: writing "start = 5" isn't treated as fixed constants, but a computation sort of is
-          start = atOrigin()
-    end = toRight()
-          text = "x"
+    `domainOuter`.shape = Arrow {
+        startX = -100.0
+        startY = 0.0
+        endX   = 325.0
+        endY   = 0.0
+        thickness = 10.0
     }
-
-    objective nearHead(domainOuter, domainOuter.shape.label, 15, 0) -- formerly domainOuter.label
+    `domainOuter`.text = Text { string = `domainOuter`.label }
+    `domainOuter`.nearFn = encourage nearHead(`domainOuter`.shape, `domainOuter`.text, 15.0, 0.0)
 }
 
 Set `codomain` {
-    shape = Arrow {
-          start = atOrigin()
-          end = toAbove()
-          text = "f(x)"
+    `codomain`.shape = Arrow {
+          startX = -100.0
+          startY = 0.0
+          endX   = -100.0
+          endY   = 200.0
+          thickness = 10.0          
     }
 
-    angleNotation = Arc {
-      start = atOrigin()
-      isRight = "true"
-      style = "wedge"
-      text = None
+    -- TODO: refactor rendering code and uncomment
+    -- `codomain`.angleNotation = Arc {
+        -- x = -100.0
+        -- y = 0.0
+        -- isRight = "true"
+        -- style = "wedge"
+    -- }
+
+    `codomain`.text = Text { string = `codomain`.label }
+    `codomain`.nearFn = encourage nearHead(`codomain`.shape, `codomain`.text, 0.0, 20.0)
+}
+
+Set `domain`
+with Set `codomain`, `domainOuter` {
+    `domain`.left_margin  = 0.2
+    `domain`.right_margin = 0.8
+    `domain`.outer_len = `domainOuter`.shape.endX - `domainOuter`.shape.startX
+  
+    `domain`.left = Line {
+        thickness = 2.0
+        color = Colors.black
+        style = "dashed"
+        startX = `domainOuter`.shape.startX + `domain`.left_margin * `domain`.outer_len
+        startY = `domainOuter`.shape.startY
+        endX = `domain`.left.startX
+        endY = `codomain`.shape.endY
     }
 
-    objective nearHead(codomain.shape, codomain.shape.label, 0, 20) -- TODO parse negative numbers
+    `domain`.right = Line {
+        thickness = 2.0
+        color = Colors.black      
+        style = "dashed"
+        startX = `domainOuter`.shape.startX + `domain`.right_margin * `domain`.outer_len
+        startY = `domainOuter`.shape.startY
+        endX = `domain`.right.startX
+        endY = `codomain`.shape.endY
+     }
+
+    `domain`.left_label = Text { string = "A_0" }
+    `domain`.right_label = Text { string = "A_1" }
+    `domain`.leftFn = encourage nearEndVert(`domain`.left, `domain`.left_label)
+    `domain`.rightFn = encourage nearEndVert(`domain`.right, `domain`.right_label)
 }
 
-Map f domain image {
-    shape = Curve {
-          path = computeSurjectionLines(5, domain, image)
-          text = "(surjection)"
-    color = darkBlue()
+Set `image`
+with Set `codomain`, `domainOuter`{
+    `image`.bottom_margin  = 0.2 -- TODO: Could these margins be optimized?
+    `image`.top_margin = 0.8
+    `image`.codomain_len = `codomain`.shape.endY - `codomain`.shape.startY
+  
+    `image`.bottom = Line {
+        thickness = 2.0
+        color = Colors.black
+        style = "dashed"
+        startX = `codomain`.shape.startX
+        startY = `codomain`.shape.startY + `image`.bottom_margin * `image`.codomain_len
+        endX = `domainOuter`.shape.endX
+        endY = `image`.bottom.startY
     }
-    objective sameX(domainOuter.shape, f.shape.label, 30)
-    objective above(domainOuter.shape, f.shape.label, 30)
+
+    `image`.top = Line {
+        thickness = 2.0
+        color = Colors.black
+        style = "dashed"
+        startX = `codomain`.shape.startX
+        startY = `codomain`.shape.startY + `image`.top_margin * `image`.codomain_len
+        endX = `domainOuter`.shape.endX
+        endY = `image`.top.startY
+    }
+
+    `image`.top_label = Text { string = "B_1" }
+    `image`.bottom_label = Text { string = "B_0" }
+    `image`.bottomFn = encourage nearEndHoriz(`image`.bottom, `image`.bottom_label)
+    `image`.topFn = encourage nearEndHoriz(`image`.top, `image`.top_label)
 }
 
--- Set `domainOuter`, Set `codomain` {
-Set `cartesianProduct` {
-  shape = Rect {
-    text = None
-    center = regionCenter(domain, image)    -- this will pass in both of domain's objects
-    length = regionX(domain)
-    width = regionY(image)
-    color = lightBlue()
-  }
+Map f
+where From(f, domain, image)
+with Set `domainOuter`; Set domain; Set image {
+    f.shape = Curve {
+        path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
+        color = Colors.darkBlue
+    }
+
+    f.text = Text {
+        string = f.label
+        x = `domainOuter`.shape.endX / 2.0 - 50.0
+        y = `domainOuter`.shape.endY - 30.0
+    }
 }
 
-Set `domain` {
-       left = Line {
-             style = "dashed"
-             path = lineLeft(0.2, domainOuter, codomain.shape)
-             text = "A_0"
-       }
-
-       right = Line {
-              style = "dashed"
-              path = lineLeft(0.8, domainOuter, codomain.shape)
-              text = "A_1"
-       }
-
-       -- TODO here, 'domain' should be in scope, so we should only have to type 'left' or 'right'
-       -- TODO need to check for name clashes/scope between Sub/Sty/Sty blocks
-       objective nearEndVert(domain.left, domain.left.label)
-       objective nearEndVert(domain.right, domain.right.label)
-}
-
-Set `image` {
-       bottom = Line {
-             style = "dashed"
-             path = lineRight(0.2, codomain.shape, domainOuter)
-             text = "B_0"
-       }
-
-       top = Line {
-              style = "dashed"
-              path = lineRight(0.8, codomain.shape, domainOuter)
-              text = "B_1"
-       }
-
-       objective nearEndHoriz(image.bottom, image.bottom.label)
-       objective nearEndHoriz(image.top, image.top.label)
+Set `cartesianProduct`
+with Set `domain`; Set `image` {
+    `cartesianProduct`.shape = Rectangle {
+        x = (`domain`.left.startX + `domain`.right.startX) / 2.0
+        y = (`image`.bottom.startY + `image`.top.startY) / 2.0
+        w = `domain`.right.startX - `domain`.left.startX
+        h = `image`.top.startY - `image`.bottom.startY
+        color = Colors.lightBlue
+    }
 }

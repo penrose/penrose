@@ -1,65 +1,112 @@
-/*
- * This is the same continuous map program, written in the new syntax.
- */
+Const {
+  Const.strokeWidth = 1.5
+  Const.padding = 20.0
+}
+
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
+  Colors.lightYellow = rgba(0.95, 0.96, 0.92, 0.5)
+}
 
 Set x {
-    shape = Circle {
-        color = lightBlue()
-        stroke = 2
+    x.shape = Circle {
+        color = Colors.lightBlue
+        stroke-style = "solid"
+        stroke-width = 1.0
+        rotation = 0.0
     }
-    constraint contains(x, x.shape.label)
+
+    x.text    = Text {
+      string = x.label
+      rotation = 0.0
+    }
+
+    -- TODO
+    x.labelFn = ensure contains(x.shape, x.text)
 }
 
-IsSubset x y {
-    constraint contains(y, x, 10)
-    constraint outsideOf(y.shape.label, x)
-    -- objective  repel(x.shape, y.shape)
+-- Selector ordering matters!
+Set x; Set y
+where IsSubset(x, y) {
+  LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
+  -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)  
+  LOCAL.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
 }
 
-Map f x y {
-    shape = Arrow {
-        start = x.shape
-        end   = y.shape
+Map f
+where From(f, X, Y); IsSubset(X, R1); IsSubset(Y, R2)
+with Set X; Set Y; Set R1; Set R2 {
+  f.padding = 20.0
+  
+    f.shape = Arrow {
+      startX = R1.shape.x + (R1.shape.side) / 2.0 + f.padding
+      startY = R1.shape.y
+      endX = R2.shape.x - (R2.shape.side) / 2.0 - f.padding
+      endY = R2.shape.y 
+      thickness = 10.0
+      color = Colors.black
         -- style = "curved"
-        text = Auto
     }
-    objective centerLabel(f, f.shape.label)
-}
 
-Set `R1` {
-    shape = Box {
-        color = srgba(0.95, 0.96, 0.92, 0.5)
-        stroke = 2
+    f.text     = Text {
+      -- Doesn't seem to work after the first resample. Is the server updating f.text.h on resample?
+      -- x = (f.shape.startX + f.shape.endX) / 2.0
+      -- y = (f.shape.startY + f.shape.endY) / 2.0 + 1.1 * f.text.h
+      string = f.label
+      rotation = 0.0
     }
-    objective topRightOf(R1.shape.label, R1.shape)
-}
-
-Set `R2` {
-    shape = Box {
-        color = srgba(0.95, 0.96, 0.92, 0.5)
-        stroke = 2
-        y = R1.shape.y
-        x = add(R1.shape.x, 400)
-        side  = R1.shape.side
-    }
-    objective topRightOf(R2.shape.label, R2.shape)
+    
+    f.labelFn  = encourage centerLabel(f.shape, f.text, 5.0)
+    -- f.centerFn = encourage centerArrow(f.shape, R1.shape, R2.shape)
 }
 
 Set `U` {
-    shape = Circle {
-        style = "dashed"
-        color = lightBlue()
-        stroke = 2
-        y = R1.shape.y
-    }
+    override `U`.shape.stroke-style = "dashed"
+    override `U`.shape.stroke-width = Const.strokeWidth
 }
 
 Set `V` {
-    shape = Circle {
-        style = "dashed"
-        radius = U.shape.radius
-        color = lightBlue()
-        stroke = 2
-        y = U.shape.y
+    override `V`.shape.stroke-style = "dashed"
+    override `V`.shape.stroke-width = Const.strokeWidth
+} 
+
+-- TODO: use subtyping for reals?
+Set `Rn` {
+    override `Rn`.shape = Square {
+      -- Works but is slow
+      -- x = -100.0
+      -- y = 0.0
+      color = Colors.lightYellow
+      rotation = 0.0
+      stroke-width = Const.strokeWidth
     }
+      
+    `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - Const.padding
+    `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - Const.padding
+
+    delete `Rn`.labelFn
+    delete `Rn`.outsideFn
+}
+
+Set `Rm`
+with Set `Rn` {
+    -- TODO: factor this block out
+    override `Rm`.shape = Square {
+        color = Colors.lightYellow
+        y = `Rn`.shape.y
+        x = `Rn`.shape.x + 400.0
+        side  = `Rn`.shape.side
+        rotation = 0.0
+        stroke-width = 1.0
+    }
+
+    `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - Const.padding
+    `Rm`.text.y = `Rm`.shape.y + `Rm`.shape.side / 2.0 - Const.padding
+
+    delete `Rm`.labelFn
+    delete `Rm`.outsideFn
+
+    -- This doesn't seem to work
+    --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
 }

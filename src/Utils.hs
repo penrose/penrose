@@ -22,6 +22,7 @@ type Autofloat a = (RealFloat a, Floating a, Real a, Show a, Ord a)
 type Autofloat' a = (RealFloat a, Floating a, Real a, Show a, Ord a, Typeable a)
 
 type Pt2 a = (a, a)
+type Property = String
 
 --------------------------------------------------------------------------------
 -- Parameters of the system
@@ -40,10 +41,14 @@ defaultWeight :: Floating a => a
 defaultWeight = 1
 
 -- Debug flags
+-- debug = True
 debug = False
 debugStyle = False
+-- debugLineSearch = True
 debugLineSearch = False
-debugObj = False -- turn on/off output in obj fn or constraint
+-- turn on/off output in obj fn or constraint
+-- debugObj = False
+debugObj = True
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
 subsetSizeDiff :: Floating a => a
@@ -128,7 +133,7 @@ uniqueShapeName subObjName styShapeName = subObjName ++ nameSep ++ styShapeName
 type Parser = Parsec Void String
 
 rws, attribs, attribVs, shapes :: [String] -- list of reserved words
-rws =     ["avoid", "global", "as"] ++ shapes ++ dsll
+rws =     ["avoid", "as"] ++ dsll
 -- ++ types ++ attribs ++ shapes ++ colors
 attribs = ["shape", "color", "label", "scale", "position"]
 attribVs = shapes
@@ -144,7 +149,7 @@ upperId = (lexeme . try) (p >>= checkId)
   where p = (:) <$> upperChar <*> many validChar
 lowerId = (lexeme . try) (p >>= checkId)
   where p = (:) <$> lowerChar <*> many validChar
-validChar = alphaNumChar <|> char '_'
+validChar = alphaNumChar <|> char '_' <|> char '-'
 
 checkId :: String -> Parser String
 checkId x = if x `elem` rws
@@ -175,13 +180,16 @@ lexeme = L.lexeme sc
 symbol :: String -> Parser String
 symbol = L.symbol sc
 
+symboln :: String -> Parser String
+symboln = L.symbol scn
+
 newline' :: Parser ()
 newline' = newline >> scn
 
 backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 
-lparen, rparen, lbrac, rbrac, colon, arrow, comma :: Parser ()
+semi, def, lparen, rparen, lbrac, rbrac, colon, arrow, comma, dollar, question :: Parser ()
 aps = void (symbol "'")
 lbrac = void (symbol "{")
 rbrac = void (symbol "}")
@@ -190,18 +198,23 @@ rparen = void (symbol ")")
 slparen = void (symbol "[")
 srparen = void (symbol "]")
 colon = void (symbol ":")
+semi = void (symbol ";")
 arrow = void (symbol "->")
 comma = void (symbol ",")
 dot = void (symbol ".")
 eq = void (symbol "=")
+def = void (symbol ":=")
 dollar = void (symbol "$")
+question = void (symbol "?")
 
 
 dollars :: Parser a -> Parser a
 dollars = between (symbol "$") (symbol "$")
 
 braces :: Parser a -> Parser a
-braces = between (symbol "{") (symbol "}")
+-- NOTE: symboln is used here because all usages of braces in our system allow newlines in the middle of a stmt
+-- May wanna change this later once we have stricter use case of it
+braces = between (symboln "{") (symbol "}")
 
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
@@ -222,6 +235,9 @@ float = L.signed sc unsignedFloat
 -- Reserved words
 rword :: String -> Parser ()
 rword w = lexeme (string w *> notFollowedBy alphaNumChar)
+
+tryChoice :: [Parser a] -> Parser a
+tryChoice list = choice $ map try list
 
 
 --------------------------------------------------------------------------------
@@ -244,7 +260,6 @@ trs s x = if debugStyle then trace "---" $ trace s $ traceShowId x else x -- pri
 
 trRaw :: Show a => String -> a -> a
 trRaw s x = trace "---" $ trace s $ trace (show x ++ "\n") x -- prints in left to right order
--- trRaw s x = if debug then  trace "---" $ trace s $ trace (show x ++ "\n") x else x-- prints in left to right order
 
 trStr :: String -> a -> a
 trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
@@ -252,8 +267,8 @@ trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to ri
 tr' :: Show a => String -> a -> a
 tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
-tro :: Show a => String -> a -> a
-tro s x = if debugObj then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
+tro :: String -> a -> a
+tro s x = if debugObj then trace "---" $ trace s x else x -- prints in left to right order
 
 --------------------------------------------------------------------------------
 -- Lists-as-vectors utility functions

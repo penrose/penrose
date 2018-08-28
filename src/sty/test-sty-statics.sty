@@ -1,0 +1,50 @@
+global { }
+
+Scalar c
+with Scalar `c` { }
+
+LinearMap f
+with VectorSpace U, V
+where From(f, U, V) {
+}
+
+LinearMap `f`
+with VectorSpace `U`, V
+where From(`f`, `U`, V) {
+}
+
+-- TODO: it would be nice to print errors w/ sugar
+-- begin list of wrong selectors
+
+Zzzz U { }
+
+Vector u
+where u := neg(v) { }
+
+Vector u; LinearMap u { }
+
+Vector u; Scalar v
+where u := Neg(v) { }
+
+Vector u; VectorSpace U
+where InV(u, U) { }
+
+-- Below two: to be tested with linearMap.sub
+LinearMap `g` { }
+
+Vector `f` { }
+
+Vector `u`; VectorSpace `U`
+where In(u, U) { }
+
+-- TODO: these should fail, but don't
+Vector u; Scalar v
+where u := neg(v) { }
+
+Vector u; Vector v; Scalar c
+where u := addV(v, c) { }
+
+Vector u
+where u := neg(u, u) { }
+
+-- end wrong selectors 

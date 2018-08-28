@@ -1,0 +1,55 @@
+/* global {
+  global.origin = Circle {
+    x = 0.0
+    y = 0.0
+    r = 2.5
+    stroke-width = 0.0
+    color = Colors.black
+  }
+} */
+
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.red = rgba(1.0, 0.0, 0.0, 0.1)
+  Colors.green = rgba(0.0, 1.0, 0.0, 0.1)
+  Colors.blue = rgba(0.0, 0.0, 1.0, 0.1)
+  Colors.purple = rgba(0.5, 0.0, 0.5, 0.9)  
+}
+
+Scalar x {
+  -- TODO: arrows don't set color
+  x.shape = Arrow {
+    startX = 0.0
+    startY = 0.0
+    -- endX = 100.0 -- let this float!
+    endY = 0.0
+    -- would be nice to set line length and angle
+    thickness = 30.0
+    color = Colors.black
+    -- stroke-width = 0
+  }
+
+  x.text = Text {
+    string = x.label
+  }
+
+  x.labelFn = encourage nearHead(x.shape, x.text, 15.0, 15.0)
+}
+
+Scalar x; Scalar y; Scalar z
+where x := AddS(y, z) {
+
+  -- Will match [x ~> res1, y ~> a, z ~> b]
+  -- AND        [x ~> res2, y ~> b, z ~> a]
+  -- But then, when you style it, you don't know which match you're getting. does that matter?
+  
+  override x.shape.endX = y.shape.endX + z.shape.endX
+  override x.shape.thickness = 10.0
+  -- a, b, and x are going to be overridden to the same thing...
+  
+  override y.shape.color = Colors.red
+  override z.shape.color = Colors.blue
+  override x.shape.color = Colors.purple
+}
+
+-- Test out multiple additions???

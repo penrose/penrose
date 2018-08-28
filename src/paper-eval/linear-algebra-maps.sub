@@ -1,4 +1,12 @@
+AutoLabel All
+
 VectorSpace U
+
+/*
+Scalar a
+Scalar c
+Scalar m
+
 VectorSpace V
 VectorSpace W
 VectorSpace X
@@ -7,10 +15,10 @@ LinearMap f
 From(f,U,V)
 
 LinearMap g
-From(f,V,W)
+From(g,V,W)
 
 LinearMap h
-From(f,W,X)
+From(h,W,X)
 
 Vector u1
 Vector u2
@@ -32,11 +40,11 @@ In(v1,V)
 In(v2,V)
 In(v3,V)
 
-u3 := add(u1,u2)
+u3 := addV(u1,u2)
 v1 := apply(f,u1)
 v2 := apply(f,u2)
 v3 := apply(f,u3)
-v3 = add(v1,v2)
+v3 = addV(v1,v2)
 
 -- the "equivalence" equal sign is tentative
 Scalar a
@@ -45,8 +53,7 @@ u4 := scale(a,u2)
 u5 := neg(u4)
 
 Scalar m
-m := norm(m)
---Norm(v2)
+m := norm(v2)
 
 Scalar c
 c := innerProduct(v1, v3)
@@ -58,9 +65,9 @@ w1 := apply(g,v1)
 Vector x1
 x1 := apply(f,u1)
 
-AutoLabel All
 Label u4 $u_4 = au_2/2$
 Label u5 $u_5 = -u_4$
 Label c $|v_1| \langle v_1, v_3 \rangle$
 Label w1 $g(v_1)$
 Label x1 $(h \circ g)(v_1)$
+*/
