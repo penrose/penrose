@@ -534,8 +534,8 @@ var Render = (function(){
       * @param       {JSON} properties JSON object from Haskell server
       */
       function _renderLine(s, properties) {
-        // var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
-        var path = properties.path;
+        var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
+        // var path = properties.path;
         console.log(path);
         var curve = s.path(Utils.path_str(path));
         curve.data("name", properties.name)

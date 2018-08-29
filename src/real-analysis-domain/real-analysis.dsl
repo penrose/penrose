@@ -67,11 +67,14 @@ predicate ClosedEnd (p : Real, I : Interval) : Prop
 predicate OpenEnd (p : Real, I : Interval) : Prop
 
 -- Prelude exports
---value RR : Reals
+-- value RR : Reals
 
--- notation is ASCII only
--- kw NEW := OLD
---notation "f.domain" -> "Dom(f)"
--- TODO: flip rest
---notation "Cod(f)" := "f.codomain"
---notation "X Subset Y" := Subset(X, Y)
+-- Notation is ASCII only
+-- notation "f.domain" -> "Dom(f)"
+-- notation "f.codomain" := "Cod(f)"
+-- notation "Subset(X, Y)" := "X Subset Y"
+-- TODO: specify infix predicates
+
+-- Unicode display
+-- display "Subset" -> ⊂
+-- display "RR" -> R

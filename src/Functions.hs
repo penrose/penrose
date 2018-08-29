@@ -606,11 +606,13 @@ topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] = dist (getX l, getY l) (getX
 topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s - 0.5 * getNum s "w", getY s - 0.5 * getNum s "h")
 
 nearHead :: ObjFn
-nearHead [GPI arr@("Arrow", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
-    let end = (getNum arr "endX", getNum arr "endY")
-        offset = (xoff, yoff)
-    in distsq (getX lab, getY lab) (end `plus2` offset)
-    where plus2 (a, b) (c, d) = (a + c, b + d)
+nearHead [GPI lineLike, GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
+    if fst lineLike == "Line" || fst lineLike == "Arrow"
+    then let end = (getNum lineLike "endX", getNum lineLike "endY")
+             offset = (xoff, yoff)
+         in distsq (getX lab, getY lab) (end `plus2` offset)
+    else error "GPI type for nearHead must be line-like"
+      where plus2 (a, b) (c, d) = (a + c, b + d)
 
 nearEndVert :: ObjFn
 -- expects a vertical line

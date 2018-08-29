@@ -174,9 +174,10 @@ updateShapes newShapes conn s =
         uninitVals = map G.toTagExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
         trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
         newObjFn = G.genObjfn trans' (G.objFns s) (G.constrFns s) (G.varyingPaths s)
+        varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
         news = s {
             G.shapesr = polyShapes,
-            G.varyingState = G.shapes2floats polyShapes $ G.varyingPaths s,
+            G.varyingState = G.shapes2floats polyShapes varyMapNew $ G.varyingPaths s,
             G.transr = trans',
             G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn }}
     in if G.autostep s then stepAndSend conn news else loop conn news
@@ -189,8 +190,9 @@ dragUpdate name xm ym conn s =
                 then SD.setX (SD.FloatV (xm' + SD.getX shape)) $ SD.setY (SD.FloatV (ym' + SD.getY shape)) shape
                 else shape)
             (G.shapesr s)
+        varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
         news = s { G.shapesr = newShapes,
-                   G.varyingState = G.shapes2floats newShapes $ G.varyingPaths s,
+                   G.varyingState = G.shapes2floats newShapes varyMapNew $ G.varyingPaths s,
                    G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter }}
    in if G.autostep s then stepAndSend conn news else loop conn news
 
@@ -203,13 +205,18 @@ executeCommand cmd conn s
 
 resampleAndSend, stepAndSend :: WS.Connection -> G.State -> IO ()
 resampleAndSend conn s = do
-    let (newShapes, rng') = SD.sampleShapes (G.rng s) (G.shapesr s)
-    let uninitVals = map G.toTagExpr $ G.shapes2vals newShapes $ G.uninitializedPaths s
+    let (resampledShapes, rng') = SD.sampleShapes (G.rng s) (G.shapesr s)
+    let uninitVals = map G.toTagExpr $ G.shapes2vals resampledShapes $ G.uninitializedPaths s
     let trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
                     -- TODO: shapes', rng' = G.sampleConstrainedState (G.rng s) (G.shapesr s) (G.constrs s)
-    let nexts = s { G.shapesr = newShapes, G.rng = rng',
+
+    let (resampledFields, rng'') = G.resampleFields (G.varyingPaths s) rng'
+    -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
+    let varyMapNew = G.mkVaryMap (filter G.isFieldPath $ G.varyingPaths s) resampledFields
+
+    let nexts = s { G.shapesr = resampledShapes, G.rng = rng'',
                     G.transr = trans',
-                    G.varyingState = G.shapes2floats newShapes $ G.varyingPaths s,
+                    G.varyingState = G.shapes2floats resampledShapes varyMapNew $ G.varyingPaths s,
                     G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter } }
     wsSendJSONList conn $ fst $ G.evalTranslation nexts
     loop conn nexts

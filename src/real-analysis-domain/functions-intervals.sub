@@ -28,6 +28,7 @@ LessThan(b, k)
 -- J := [d, e) $\subseteq$ $\mathbb{R}$
 -- I := (i, j) $\subseteq$ $\mathbb{R}$
 -- K := (k, inf) $\subseteq$ $\mathbb{R}$
+
 ClosedInterval A
 LeftClopenInterval J
 OpenInterval I
@@ -41,10 +42,10 @@ Subset(J, RR)
 Subset(I, RR)
 Subset(K, RR)
 
-
 --------------------------------------------------------------------------------
 --  f : A $\rightarrow$ $\mathbb{R}$
 --  Differentiable(f)
+
 Function f
 From(f, A, RR)
 Differentiable(f)
@@ -59,11 +60,11 @@ Function h
 From(h, U, RR)
 Discontinuous(h)
 
-
 --------------------------------------------------------------------------------
 --  l $\in$ A
 --  fl := f(l)
 --  p2 := Pt(l, fl)
+
 Real l
 In(l, A)
 Real fl
@@ -74,7 +75,17 @@ p2 := Pt(l, fl)
 --------------------------------------------------------------------------------
 --  dfl := f'(l)
 --  ih := $\int$_{J}(h)
+
 Real dfl
 dfl := derivativeAtP(f, l)
 Real ih
 ih  := integral(J, h)
+
+--------------------------------------------------------------------------------
+
+-- TODO: where are the labels?
+AutoLabel All
+NoLabel U, p2
+Label fl $f(l)$
+Label dfl $f'(l)$
+Label ih $\int_{[d, e)} h$
