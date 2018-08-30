@@ -540,11 +540,12 @@ var Render = (function(){
         var curve = s.path(Utils.path_str(path));
         curve.data("name", properties.name)
         var color = properties.color;
-        // by default, the curve sheuld be solid
+        // by default, the curve should be solid
         curve.attr({
-          fill: "transparent",
+          // fill: "transparent",
           strokeWidth: properties.thickness,
-          stroke: Utils.hex(color[0], color[1], color[2])
+          stroke: Utils.hex(color[0], color[1], color[2]),
+          "stroke-opacity": color[3],
         });
         if(properties.style == "dashed") {
           curve.attr({ strokeDasharray: "7, 5" });
