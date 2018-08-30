@@ -86,6 +86,7 @@ compDict = M.fromList
         ("computeSurjectionLines", computeSurjectionLines),
         ("lineLeft", lineLeft),
         ("lineRight", lineRight),
+        ("constPath", constPath),
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -236,8 +237,8 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("maxSize", maxSize),
                 ("outsideOf", outsideOf),
                 ("nonOverlapping", nonOverlapping),
-                ("inRange", inRange')
-                -- ("lessThan", lessThan)
+                ("inRange", inRange'),
+                ("lessThan", lessThan)
             ]
 
 constrSignatures :: OptSignatures
@@ -322,6 +323,9 @@ randomsIn g 0 _        =  ([], g)
 randomsIn g n interval = let (x, g') = randomR interval g -- First value
                              (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
                          (r2f x : xs, g'')
+
+constPath :: CompFn
+constPath [] = Val $ PathV [(0, 0), (50, 50), (100, 0)]
 
 -- Computes the surjection to lie inside a bounding box defined by the corners of a box
 -- defined by four straight lines, assuming their lower/left coordinates come first.
@@ -660,8 +664,9 @@ at :: ConstrFn
 at [GPI o, Val (FloatV x), Val (FloatV y)] =
     (getX o - x)^2 + (getY o - y)^2
 
--- lessThan :: ConstrFn
--- lessThan [] = 0.0 -- TODO
+lessThan :: ConstrFn
+lessThan [Val (FloatV x), Val (FloatV y)] = 
+         x - y
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
