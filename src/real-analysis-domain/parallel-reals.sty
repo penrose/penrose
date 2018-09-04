@@ -1,64 +1,163 @@
--- TODO: shaded mass style (vs. lines)
+-- Is our DSL / Substance program even modeling things correctly? We don't quite have f.domain and f.codomain working, either as anon exprs or as selector matches
+-- What are we learning from this rewritten style?
 
--- Note sure which selector to start with, because it's hard to reason about how they'll interact / need to depend on each other
+Interval I {
+  -- can be drawn independently of R; horiz
+  I.left = ?
+  I.right = ? -- not specified by an a or b
 
-Function f; Set A; Set B
-where f := CreateFunction(A, B)
-{
-  A.shape = Line {
-    orientation = ?
+  -- No brackets b/c we don't know what kind of int.
+  I.yval = ?
+  I.shape = Line {
+    startX = I.left
+    startY = I.yval
+    endX = I.right
+    endY = I.yval
+    thickness = 10
   }
 
-  B.shape = Line {
-    orientation = ?
+  I.wfFn = ensure lessThan(I.left, I.right)
+}
+
+-- Should we have Reals <: Interval?
+Reals R {
+  R.left = ?
+  R.right = ?
+  R.yval = ?
+  
+  R.shape = Arrow { -- horiz
+    startX = R.left
+    startY = R.yval
+    endX = R.right
+    endY = R.yval
+    style = double
+  }
+}
+
+Real x
+with Reals `R` {
+  -- If not ``In'' a copy of R, then implicitly in R
+  x.val = ?
+  x.shape = Tick { -- line w/ some length
+    x = x.val
+    y = `R`.yval
   }
 
-  encourage lessThan(A.shape.x, B.shape.x)
+  x.rFn = ensure inRange(x.val, R.left, R.right)
+}
+
+Real x
+with Interval I
+where In(x, I) {
+  x.val = ?
+  x.shape = Tick {
+    x = x.val
+    y = I.yval
+  }
+
+  x.rFn = ensure inRange(x.val, I.left, I.right)
+}
+
+Interval I
+where Subset(I, R)
+with Reals R {
+  I.lrFn = ensure inRange(I.left, R.left, R.right)
+  I.rrFn = ensure inRange(I.right, R.left, R.right)
+}
+
+-- `I` should be related to a and b
+Interval I
+where I := CreateInterval(a, b)
+with Real a, b {
+  -- Is there such a thing as generic value deconstructors with subtyping?
+  -- This would hopefully match 'OpenInterval I := CreateOpenInterval(a, b)'
+  
+  -- Don't need to include In/Subset predicates
+  -- since prior selectors should have covered In
+  -- on I, a, and b
+  -- Better to override a and b since left < right
+  
+  override a.val = I.left
+  override b.val = I.right
+}
+
+-- The other selectors should have already dealt with the subset and endpoint relationships
+-- Now we just need brackets
+ClosedInterval I
+where I := CreateClosedInterval(a, b)
+with Real a, b {
+  -- TODO aligned with R.shape
+  -- this is why it's important to pull out the vals:
+  -- so shapes can be overridden
+  override a.shape = Bracket {
+    side = left
+    x = a.val
+    y = I.yval
+  }
+  
+  override b.shape = Bracket {
+    side = right
+    x = b.val
+    y = I.yval
+  }
+}
+
+-- (Omitted other interval styles, e.g. clopen)
+-- Interval should have been styled already
+
+Function f
+with Interval A; Interval B
+where f := CreateFunction(A, B) {
+  -- function drawn from top down
+  f.dirFn = ensure greaterThan(A.shape.y, B.shape.y)
 
   f.val = sampleFunction()
-
-  f.xvals = sampleFrom(A.left, A.right, 10)
-  f.yvals = map(f.val, f.xvals)
-  -- we'll need to write an ad-hoc polymorphic version
+  -- each is a list of floats
+  f.x_vals = sampleFrom(A.left, A.right, 10)
+  f.y_vals = map(applyFn, f.val, f.x_vals)
   
-  -- programmatically creating shapes is hard for people too
-  -- expanded by Style compiler to list of GPIs?
-  -- can the # of GPIs change?
-  
-  f.shape = List(Curve) {
-    xs = f.xvals
-    ys = f.yvals
+  f.shape = List<Curve> {
+    xs = f.x_vals
+    ys = f.y_vals
     arrows = true
     -- how is the curving calculated?
   }
 
-  -- first(f.shape).style ?
-  f.shape.first.style = "bold"
-  f.shape.last.style = "bold"
+  -- style individual curve GPIs
+  f.shape.first.style = bold
+  f.shape.last.style = bold
 
   f.shading = Region {
     fill = true
-    vertices = [f.shape.first.pt1, f.shape.first.pt2,
-                f.shape.last.pt1, f.shape.last.pt2] 
+    -- should we allow a list of GPIs?
+    sides = [f.shape.first.eqn, f.shape.last.eqn,
+             A.shape, Line(f.y_vals)]
   }
-
-  -- TODO: how to shade the region?
 }
 
-Real x {
-  x.shape = Tick {}
-}
+-- If the functions are not explicitly composed, then what happens? the functions will be drawn on the same intervals?
+-- NOTE: for function composition, need to line up the points in f.y_vals with g.x_vals
 
 Real y
 where y := apply(f, x); f := CreateFunction(A, B)
-with Real x; Function f; Set A; Set B {
-  ???
+with Real x; Function f; Interval A; Interval B {
+  -- highlight an existing x-y pair
+  -- delete existing tick style and constraints
+  delete x.shape
+  delete x.rFn
+  delete y.shape
+  delete y.rFn
+  
+  LOCAL index = choice(range(f.x_vals))
+  override x.val = f.x_vals[index]
+  override y.val = f.y_vals[index]
+  override f.shape[index].style = bold
 }
 
+-- TODO: add the below to the book, Sub, and Sty
+-- composition of functions
+-- image of interval
+-- inverse images
+-- union of intervals
 
-ClosedInterval I 
-where Subset(I, R)
-with Reals R {
-  I.shape = Line {}
-}
-
+-- TODO: this Sub/Sty doesn't include labels

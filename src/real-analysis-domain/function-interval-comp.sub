@@ -30,3 +30,18 @@ Continuous(f)
 -- TODO: finish reasoning thru the built-up Sub/Sty
 -- and make sure it's consistent
 -- work out the finer details of Style later
+
+/*
+
+Interval I
+Function f
+f := CreateFunction(I, J)
+
+Interval J
+Function g
+g := CreateFunction(J, R)
+
+Function h
+h := compose(f, g)
+
+*/

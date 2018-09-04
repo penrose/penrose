@@ -36,6 +36,8 @@ operator derivativeAtP (f : Function, p : Real) : Real
 operator derivativeOverD (f : Function) : Function
 operator integral (I : Interval, f : Function) : Real
 operator apply (f : Function, p : Real) : Real
+-- (g . f): Does not check f's codomain matches g's domain
+operator compose (f : Function, g : Function) : Function
 
 -- Predicates on intervals
 predicate Bounded (i : Interval) : Prop
