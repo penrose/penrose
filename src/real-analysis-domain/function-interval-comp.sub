@@ -1,0 +1,32 @@
+Reals R
+-- OR: Interval R
+-- R := CreateOpenInterval(neg_inf, inf)
+
+-- Real a
+-- Real b
+-- In(a, R)
+-- In(b, R)
+
+ClosedInterval I
+-- I := CreateClosedInterval(a, b)
+Subset(I, R)
+
+-- f : I -> R
+Function f
+f := CreateFunction(I, R)
+Continuous(f)
+
+-- Why have ClosedInterval I vs. Function f; Continuous(f)?
+
+-- Real c
+-- In(c, I)
+-- OR: In(c, f.domain)
+
+-- Real d
+-- In(d, R)
+-- OR: In(d, f.codomain)
+-- d := apply(f, c)
+
+-- TODO: finish reasoning thru the built-up Sub/Sty
+-- and make sure it's consistent
+-- work out the finer details of Style later

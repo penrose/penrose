@@ -1,0 +1,64 @@
+-- TODO: shaded mass style (vs. lines)
+
+-- Note sure which selector to start with, because it's hard to reason about how they'll interact / need to depend on each other
+
+Function f; Set A; Set B
+where f := CreateFunction(A, B)
+{
+  A.shape = Line {
+    orientation = ?
+  }
+
+  B.shape = Line {
+    orientation = ?
+  }
+
+  encourage lessThan(A.shape.x, B.shape.x)
+
+  f.val = sampleFunction()
+
+  f.xvals = sampleFrom(A.left, A.right, 10)
+  f.yvals = map(f.val, f.xvals)
+  -- we'll need to write an ad-hoc polymorphic version
+  
+  -- programmatically creating shapes is hard for people too
+  -- expanded by Style compiler to list of GPIs?
+  -- can the # of GPIs change?
+  
+  f.shape = List(Curve) {
+    xs = f.xvals
+    ys = f.yvals
+    arrows = true
+    -- how is the curving calculated?
+  }
+
+  -- first(f.shape).style ?
+  f.shape.first.style = "bold"
+  f.shape.last.style = "bold"
+
+  f.shading = Region {
+    fill = true
+    vertices = [f.shape.first.pt1, f.shape.first.pt2,
+                f.shape.last.pt1, f.shape.last.pt2] 
+  }
+
+  -- TODO: how to shade the region?
+}
+
+Real x {
+  x.shape = Tick {}
+}
+
+Real y
+where y := apply(f, x); f := CreateFunction(A, B)
+with Real x; Function f; Set A; Set B {
+  ???
+}
+
+
+ClosedInterval I 
+where Subset(I, R)
+with Reals R {
+  I.shape = Line {}
+}
+

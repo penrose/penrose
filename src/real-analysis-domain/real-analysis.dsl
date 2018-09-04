@@ -14,6 +14,8 @@ vconstructor CreateOpenInterval (left : Real, right : Real) : OpenInterval
 vconstructor CreateClosedInterval (left : Real, right : Real) : ClosedInterval
 vconstructor CreateLeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
 vconstructor CreateRightClopenInterval (left : Real, right : Real) : RightClopenInterval
+vconstructor CreateFunction (domain : Set, codomain : Set) : Function
+
 vconstructor Pt (x : Real, y : Real) : Point
 
 -- Subtyping relationships
@@ -46,7 +48,6 @@ predicate Degenerate (i : Interval) : Prop
 predicate Empty (i : Interval) : Prop
 
 -- Predicates on functions
-predicate From (f : Function, domain : Set, codomain : Set) : Prop
 predicate Continuous (f : Function) : Prop
 predicate Discontinuous (f : Function) : Prop
 predicate Differentiable (f : Function) : Prop
