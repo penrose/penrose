@@ -1,0 +1,28 @@
+Set A {}
+
+Set A
+with Point C { }
+
+Set A
+with Point C, D { }
+
+Set A, `B`
+where Subset(A, `B`) {
+    A.a = 0.5*3 + 4 - (3^4.0 + 3e7)
+}
+
+Set A, B; Point D
+with Point C
+where Subset(A, B) { }
+
+Set A, B
+where Subset(A, B)
+with Point C {}
+
+Set A, B
+where Subset(A, B)
+with Point C
+as ABC { }
+
+Set A, `B`
+where Intersect(A, B); C := SubsetOf(A, B); D := func(A, C) { }

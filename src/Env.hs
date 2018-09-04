@@ -47,7 +47,7 @@ instance Ord TypeVar where
   (TypeVar s1 _) `compare` (TypeVar s2 _) = s1 `compare` s2
 
 newtype Var = VarConst String
-     deriving (Show, Eq, Typeable, Ord)
+         deriving (Show, Eq, Typeable, Ord)
 
 data Y = TypeVarY TypeVar
        | VarY Var
@@ -55,6 +55,7 @@ data Y = TypeVarY TypeVar
 
 data T = TTypeVar TypeVar
        | TConstr TypeCtorApp
+       -- TODO: rename to TCtor. Less confusing, more consistent w/ Sty
          deriving (Show, Eq, Typeable)
 
 data TypeCtorApp = TypeCtorApp { nameCons :: String,
@@ -159,14 +160,15 @@ emptyArgList = do
 ----------------------------------- Typechecker aux functions ------------------
 
 -- | Compute the transitive closure of list of pairs
---   Useful for subtyping and equality aubtyping checkings
+--   Useful for subtyping and equality subtyping checkings
 transitiveClosure :: Eq a => [(a, a)] -> [(a, a)]
 transitiveClosure closure
   | closure == closureAccum = closure
-  | otherwise                  = transitiveClosure closureAccum
-  where closureAccum = nub $ closure ++ [(a, c) | (a, b) <- closure, (b', c) <- closure, b == b']
+  | otherwise               = transitiveClosure closureAccum
+  where closureAccum =
+          nub $ closure ++ [(a, c) | (a, b) <- closure, (b', c) <- closure, b == b']
 
--- | Return whether a closure is cyclic (a,b) and (b,a) appears in the closure
+-- | Return whether a closure is cyclic (a, b) and (b, a) appears in the closure
 isClosureNotCyclic :: Eq a => [(a,a)] -> Bool
 isClosureNotCyclic lst = let c = [(a,a') | (a,a') <- lst, a == a']
                   in null c
@@ -255,15 +257,15 @@ data PredicateEnv = Pred1 Predicate1
                   deriving (Show, Eq, Typeable)
 
 data Predicate1 = Prd1 { namepred1 :: String,
-                               ylspred1  :: [Y],
-                               kindspred1  :: [K],
-                               tlspred1  :: [T],
-                               ppred1    :: Prop}
+                         ylspred1  :: [Y],
+                         kindspred1  :: [K],
+                         tlspred1  :: [T],
+                         ppred1    :: Prop}
                   deriving (Show, Eq, Typeable)
 
 data Predicate2 = Prd2 { namepred2 :: String,
-                               plspred2  :: [Prop],
-                               ppred2    :: Prop }
+                         plspred2  :: [Prop],
+                         ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 
 data StmtNotationRule =

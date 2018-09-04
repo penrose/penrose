@@ -1,0 +1,29 @@
+Set x {
+    x.shape = Circle {
+      stroke-width = 0
+      r = OPTIMIZED
+    }
+
+    x.text = Text {
+      string = x.label
+    }
+
+    -- x.text = Text {
+    -- string = "test Style warnings"
+    -- }
+
+    x.centerFn = encourage center(x.shape)
+    x.centerLabelFn = encourage centerLabel(x.shape, x.text, 100.0)
+    x.rFn = ensure inRange(x.shape.r, 20.0, 100.0)
+}
+
+Set x; Set y {
+  LOCAL.left = 10.0
+  LOCAL.right = 100.0
+  LOCAL.padding = OPTIMIZED
+
+  LOCAL.paddingFn = ensure inRange(LOCAL.padding, LOCAL.left, LOCAL.right)
+  -- Need overlapFn so that betweenFn works
+  LOCAL.overlapFn = ensure nonOverlapping(x.shape, y.shape)
+  LOCAL.betweenFn = encourage distBetween(x.shape, y.shape, LOCAL.padding)
+}

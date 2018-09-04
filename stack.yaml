@@ -12,4 +12,6 @@ extra-deps:
 - parser-combinators-0.4.0
 - websockets-0.11.2.0
 - array-0.5.1.1
+- pretty-terminal-0.1.0.0
+
 resolver: lts-9.10

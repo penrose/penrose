@@ -1,0 +1,17 @@
+Scalar a
+Scalar b
+-- Scalar c
+
+Scalar res1
+Scalar res2
+
+res1 := AddS(a, b)
+res2 := AddS(b, a)
+
+res1 = res2
+-- AddS(a, b) = AddS(b, a)
+
+Label a $a$
+Label b $b$
+Label res1 $a + b$
+Label res2 $b + a$

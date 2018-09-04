@@ -5,8 +5,8 @@
 -- Author: Dor Ma'ayan, August 2018
 
 {-# OPTIONS_HADDOCK prune #-}
---module Sugarer where
-module Main (main) where -- for debugging purposes
+module Sugarer where
+--module Main (main) where -- for debugging purposes
 import           Control.Arrow              ((>>>))
 import           Control.Monad              (void)
 import           Data.List

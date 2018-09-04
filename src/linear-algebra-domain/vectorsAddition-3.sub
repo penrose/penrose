@@ -1,0 +1,20 @@
+VectorSpace U
+Vector A, B, C, D ,E
+
+C := AddV(A,B)
+E := AddV(C,D)
+
+In(A, U)
+In(B, U)
+In(C, U)
+In(D, U)
+In(E, U)
+
+
+Label A $\vec{u_{1}}$
+Label B $\vec{u_{2}}$
+Label C $\vec{u_{1}} + \vec{u_{2}}$
+Label D $\vec{u_{3}}$
+Label E $\vec{u_{1}} + \vec{u_{2}} + \vec{u_{3}}$
+
+AutoLabel U

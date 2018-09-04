@@ -22,6 +22,7 @@ import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
+import Text.Show.Pretty
 import Env
 --import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
@@ -409,13 +410,13 @@ parseDsll dsllFile dsllIn =
           Left err -> error (parseErrorPretty err)
           Right prog -> do
               putStrLn "DSLL AST: \n"
-              print prog
+              pPrint prog
               divLine
               let env = check prog
                   env1 = computeSubTypes env
               divLine
               putStrLn "DSLL Env: \n"
-              print env1
+              pPrint env1
               return env1
 
 ----------------------------- Test Driver --------------------------------------

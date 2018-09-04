@@ -8,6 +8,8 @@ $symbol = [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\
 tokens :-
   -- digits
   -- alphabetic characters
+  "Label".*                         { \s -> Label s }
+  "AutoLabel".*                     { \s -> AutoLabel s }
   "--".*                            { \s -> Comment s }
   [\ \t\f\v\r]+                     {\s -> Space}
   [\n]+                             {\s -> NewLine}
@@ -48,6 +50,8 @@ data Token =
   Pattern String Bool             |
   Entitiy String                  |
   DSLLEntity String               |
+  Label String                    |
+  AutoLabel String                |
   Comment String
   deriving (Show)
 

@@ -31,3 +31,4 @@ node_modules/
 .stack-work/
 build/
 .tmp/
+_region_.tex
