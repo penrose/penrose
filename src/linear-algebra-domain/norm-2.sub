@@ -1,24 +1,22 @@
 VectorSpace U
-Vector u1,u2,u3,u4
-In(u1,U)
-In(u2,U)
-In(u3,U)
-In(u4,U)
+
+Vector u1 ∈ U
+Vector u2 ∈ U
+Vector u3 ∈ U
+Vector u4 ∈ U
+
+Scalar c1,c2,c3
+c1 := |u1|
+c2 := |u2|
+c3 := AddS(c1,c2)
+
+u2 := c1 * u1
+u4 := c3 * u3
 
 Label u1 $\vec{u_{1}}$
 Label u2 $\vec{u_{2}}$
 Label u3 $\vec{u_{3}}$
 Label u4 $\vec{u_{4}}$
-
-Scalar c1,c2,c3
-c1 := Norm(u1)
-c2 := Norm(u2)
-c3 := AddS(c1,c2)
-
 -- Label c1 $|\vec{u_{1}}|$
 -- Label c2 $|\vec{u_{2}}|$
-
-u2 := Scale(c1,u1)
-u4 := Scale(c3,u3)
-
 AutoLabel U

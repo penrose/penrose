@@ -1,9 +1,9 @@
 VectorSpace U
-Vector u1, neg_u1
 
-In(u1, U)
-neg_u1 := Neg(u1)
-In(neg_u1, U)
+Vector u1 ∈ U
+Vector neg_u1 ∈ U
+
+neg_u1 := -u1
 
 Label u1 $\vec{u_{1}}$
 Label neg_u1 $\vec{-u_{1}}$

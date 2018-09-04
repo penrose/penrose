@@ -142,7 +142,7 @@ reTokenize = foldl translate ""
 --   In use after the notation replacements in order to translate back to
 --   a Substance program
 translate :: String -> T.Token -> String
-translate prog T.Bind = prog ++ ":="
+translate prog T.Bind = prog ++ ":= "
 translate prog T.NewLine = prog ++ "\n"
 translate prog T.PredEq = prog ++ "<->"
 translate prog T.ExprEq = prog ++ "="
