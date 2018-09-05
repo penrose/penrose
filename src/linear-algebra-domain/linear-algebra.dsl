@@ -24,7 +24,6 @@ predicate Not (p1 : Prop) : Prop
 
 ------------------------- Syntactic Sugar Definition ---------------------------
 
-
 StmtNotation  "det(v1, v2) " -> "Determinant(v1 , v2)"
 StmtNotation "LinearMap f : U → V" -> "LinearMap f;From(f,U,V)"
 StmtNotation "v1 + v2" -> "AddV(v1,v2)"
