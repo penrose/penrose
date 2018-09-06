@@ -5,10 +5,9 @@ Vector u2 ∈ U
 Vector u3 ∈ U
 Vector u4 ∈ U
 
-Scalar c1,c2,c3
-c1 := |u1|
-c2 := |u2|
-c3 := AddS(c1,c2)
+Scalar c1 := |u1|
+Scalar c2 := |u2|
+Scalar c3 := AddS(c1,c2)
 
 u2 := c1 * u1
 u4 := c3 * u3

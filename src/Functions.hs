@@ -73,6 +73,7 @@ compDict = M.fromList
         ("rgba", rgba),
         ("atan", arctangent),
         ("calcVectorsAngle", calcVectorsAngle),
+        ("calcVectorsAngleCos", calcVectorsAngleCos),
         ("calcVectorsAngleWithOrigin", calcVectorsAngleWithOrigin),
         ("generateRandomReal", generateRandomReal),
         ("calcNorm", calcNorm),
@@ -106,6 +107,8 @@ compSignatures = M.fromList
         ("atan",([ValueT FloatT],ValueT FloatT)),
         ("calcVectorsAngle",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
             ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
+        ("calcVectorsAngleCos",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
+                ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("calcVectorsAngleWithOrigin",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
                 ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("generateRandomReal",([],ValueT FloatT)),
@@ -391,6 +394,19 @@ calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
              angle = acos (ab / (na*nb)) / pi*180.0
          in Val (FloatV angle)
 
+-- TODO: Refactor
+calcVectorsAngleCos :: CompFn
+calcVectorsAngleCos [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
+     Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
+      Val (FloatV ex2), Val (FloatV ey2)] =
+        let (ax,ay) = (ex1 - sx1, ey1 - sy1)
+            (bx,by) = (ex2 - sx2, ey2 - sy2)
+            ab = ax*bx + ay*by
+            na = sqrt (ax^2 + ay^2)
+            nb = sqrt (bx^2 + by^2)
+            angle = acos (ab / (na*nb)) / pi*180.0
+        in Val (FloatV $ cos angle)
+
 calcVectorsAngleWithOrigin :: CompFn
 calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
      Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
@@ -645,10 +661,10 @@ distBetween [GPI c1, GPI c2, Val (FloatV padding)] =
     let (r1, r2, x1, y1, x2, y2) = (getNum c1 "r", getNum c2 "r", getX c1, getY c1, getX c2, getY c2) in
     -- If one's a subset of another or has same radius as other
     -- If they only intersect
-    if dist (x1, y1) (x2, y2) < (r1 + r2) 
+    if dist (x1, y1) (x2, y2) < (r1 + r2)
     then repel [GPI c1, GPI c2, Val (FloatV repelWeight)] -- 1 / distsq (x1, y1) (x2, y2)
     -- If they don't intersect
-    else -- trace ("padding: " ++ show padding) 
+    else -- trace ("padding: " ++ show padding)
          (dist (x1, y1) (x2, y2) - r1 - r2 - padding)^2
 
 --------------------------------------------------------------------------------

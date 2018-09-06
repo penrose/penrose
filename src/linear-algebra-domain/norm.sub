@@ -1,7 +1,7 @@
 VectorSpace U
 Vector u1 ∈ U
-Scalar c
-c := |u1|
+
+Scalar c := |u1|
 
 Label c $|\vec{u_{1}}|$
 Label u1 $\vec{u_{1}}$

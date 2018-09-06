@@ -1,0 +1,37 @@
+VectorSpace U ,V ,W ,X
+--LinearMap f, g, h
+--From(f,U,V)
+--From(g,V,W)
+--From(h,W,X)
+Vector u1
+In(u1 ,U )
+Vector u2
+In(u2 ,U )
+Vector u3
+In(u3 ,U )
+Vector u4
+In(u4 ,U )
+Vector u5
+In(u5 ,U )
+u3 := AddV(u1 ,u2 )
+Vector v1
+In(v1 ,V )
+Vector v2
+In(v2 ,V )
+Vector v3
+In(v3 ,V )
+v3 := AddV(v1 ,v2 )
+Scalar a
+-- a := det(u1,u3)
+u4 := Scale(a  , u2 )
+u5 := Neg(u4 )
+Vector w1
+In(w1 ,W )
+Vector x1 
+In(x1 ,X )
+AutoLabel U,V,W,X
+Label u4 $u_4 = au_2/2$
+Label u5 $u_5 = -u_4$
+Label c $|v_1| \langle v_1, v_3 \rangle$"
+Label w1 $g(v_1)$
+Label x1 $(h \circ g)(v_1)$

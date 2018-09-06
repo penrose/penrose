@@ -12,7 +12,7 @@ operator Scale (c : Scalar, v : Vector) : Vector
 operator AddV (v1 : Vector, v2 : Vector) : Vector
 operator AddS(s1 : Scalar, s2 : Scalar) : Scalar
 operator Norm (v1 : Vector) : Scalar
-operator InnerProd (v1 : Vector, v2 : Vector) : Scalar
+operator InnerProduct (v1 : Vector, v2 : Vector) : Scalar
 operator Determinant (v1 : Vector, v2 : Vector) : Scalar
 operator Apply (f : LinearMap, v : Vector) : Vector
 
@@ -30,8 +30,9 @@ StmtNotation "v1 + v2" -> "AddV(v1,v2)"
 StmtNotation "-v1" -> "Neg(v1)"
 StmtNotation "Vector a ∈ U" -> "Vector a;In(a,U)"
 StmtNotation "|y1|" -> "Norm(y1)"
-StmtNotation "<v1,v2>" -> "innerProduct(v1 , v2)"
+StmtNotation "<v1,v2>" -> "InnerProduct(v1 , v2)"
 StmtNotation "s * v1" -> "Scale(s , v1)"
+StmtNotation "Scalar c := " -> "Scalar c ;c := "
 -- StmtNotation "f(v)" -> "apply(f,v)"
 
 -- TODO:

@@ -3,8 +3,7 @@ VectorSpace U
 Vector u1 ∈ U
 Vector u2 ∈ U
 
-Scalar c
-c := det(u1,u2)
+Scalar c := det(u1,u2)
 
 Label c $det(\vec{u1},\vec{u2})$
 AutoLabel U

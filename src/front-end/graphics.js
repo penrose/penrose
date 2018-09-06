@@ -534,22 +534,31 @@ var Render = (function(){
       * @param       {JSON} properties JSON object from Haskell server
       */
       function _renderLine(s, properties) {
-        // var path = [[properties.startX, properties.startY], [properties.endX, properties.endY]];
-        var path = properties.path;
-        console.log(path);
-        var curve = s.path(Utils.path_str(path));
-        curve.data("name", properties.name)
-        var color = properties.color;
-        // by default, the curve sheuld be solid
-        curve.attr({
+        var style    = properties.style
+        var [sx, sy] = Utils.scr([properties.startX, properties.startY])
+        var [ex, ey] = Utils.scr([properties.endX, properties.endY])
+        var thickness = properties.thickness / 6
+        var color = properties.color
+        var len = Snap.len(ex, ey, sx, sy)
+
+        var line = s.polyline(sx,sy,ex,ey)
+
+        line.attr({
           fill: "transparent",
           strokeWidth: properties.thickness,
           stroke: Utils.hex(color[0], color[1], color[2])
         });
-        if(properties.style == "dashed") {
-          curve.attr({ strokeDasharray: "7, 5" });
+
+        line.attr({
+          "fill-opacity" : 0,
+          stroke: Utils.hex(color[0], color[1], color[2]),
+          strokeDasharray: "7, 5"
+        })
+        
+        if(style == "dashed") {
+          line.attr({ strokeDasharray: "7, 5" });
         }
-        return curve
+        return line;
       }
 
       /**
