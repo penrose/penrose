@@ -1,6 +1,10 @@
 -- Is our DSL / Substance program modeling things correctly? We don't quite have f.domain and f.codomain working, either as anon exprs or as selector matches
 -- What are we learning from this rewritten style?
 
+global {
+  global.axis_separation = OPTIMIZED 
+}
+
 Interval I {
   -- can be drawn independently of R; horiz
   I.left = ?
@@ -8,7 +12,7 @@ Interval I {
 
   -- No brackets b/c we don't know what kind of int.
   I.yval = ?
-  I.shape = Line {
+  I.shape = Line { -- horizontal
     startX = I.left
     startY = I.yval
     endX = I.right
@@ -105,46 +109,22 @@ with Real a, b {
 -- (Omitted other interval styles, e.g. clopen)
 -- Interval should have been styled already
 
--- model f : R -> R
--- this selector differs from f : A -> B
+-- generic function selector
 Function f
-with Interval A
-where f := CreateFunction(A, A) {
-      -- make another shape for A?
-
-  f.domain = A.shape
-  f.codomain = Line {
-    ? = ?
-  } 
-
-}
-
--- do we need this selector?
-Function f
-with Reals `R`
-where f := CreateFunction(`R`, `R`) {
-  -- make another shape for `R`?
-
-  f.domain = TODO
-  f.codomain = TODO
-
-}
-
--- can we compose functions f : R -> R and g : R -> R?
-
--- TODO: need to make sure A and B are different vars?
--- should this match f : R -> R?
-Function f
-with Interval A; Interval B
-where f := CreateFunction(A, B) {
+where f := CreateFunction(A, B); A ?= B {
   -- function drawn from top down
   f.dirFn = ensure greaterThan(A.shape.y, B.shape.y)
+
+  -- fields for later use by those that override functions
+  f.domain   = A.shape
+  f.codomain = B.shape
 
   f.val = sampleFunction()
   -- each is a list of floats
   f.x_vals = sampleFrom(A.left, A.right, 10)
   f.y_vals = map(applyFn, f.val, f.x_vals)
-  
+
+  -- TODO: lambda (i => Curve) for making the shapes?
   f.shape = List(Curve) {
     xs = f.x_vals
     ys = f.y_vals
@@ -165,38 +145,85 @@ where f := CreateFunction(A, B) {
   }
 }
 
--- If the functions are not explicitly composed, then what happens? the functions will be drawn on the same intervals?
--- NOTE: for function composition, need to line up the points in f.y_vals with g.x_vals
+-- overrides the generic function selector to model
+-- f : R -> R, f : I -> I
+Function f
+with Interval A
+where f := CreateFunction(A, A) {
+  -- make a second shape for A
+  -- another horizontal line, lined up with A.shape
+  -- with some margin between them
+  A.yval2 = A.yval + global.axis_separation
+
+  A.shape2 = Line {
+    startX = A.left 
+    -- or I.shape.startX? what overriding behavior do we want?
+    startY = A.yval2
+    endX = A.right
+    endY = A.yval2
+    thickness = 10
+  }
+
+  -- since there is no B.shape, set the codomain appropriately
+  override f.domain = A.shape
+  override f.codomain = A.shape2
+  delete f.dirFn -- this is satisfied by A.yval2
+}
+
+-- Function applications/compositions: to a real, to an interval, to a function
+
+TODO -- how does this work for z := f(g(x))
 
 Real y
-where y := apply(f, x); f := CreateFunction(A, B)
+where y := apply(f, x); f := CreateFunction(A, B); A ?= B
 with Real x; Function f; Interval A; Interval B {
   -- highlight an existing x-y pair
   -- delete existing tick style and constraints
-  delete x.shape
-  delete x.rFn
   delete y.shape
   delete y.rFn
+
+  delete x.shape
+  delete x.rFn
+  -- alternatively, could keep the tick marks + make them bold
+
+  x.index = choose(range(f.x_vals))
+  TODO  -- for multiple application:
+  -- may need to override? how do you do things based on whether a field already exists? if it doesn't exist I want to choose it, if it exists I want to use it
+   -- does it make sense to make a null index field for all reals?
+   -- or do we need another selector specifically for multiple function application?
+   -- it makes sense that you need special behavior at front of a list vs elsewhere
+   -- but then what if you have z := h(f(g(x)))?
+   -- what about y := f(f(x))?
+   -- style needs to be able to inspect itself??
+  y.index = x.index
   
-  LOCAL index = choose(range(f.x_vals))
-  override x.val = f.x_vals[index]
-  override y.val = f.y_vals[index]
-  override f.shape[index].style = bold
+  override x.val = f.x_vals[x.index]
+  override y.val = f.y_vals[y.index]
+  override f.shape[index].style = "bold"
 }
+
+-- Set J
+-- where J := applyInterval(f, I); f := CreateFunction(?, ?)
+-- with Interval I {
+--      ?
+-- }
 
 -- does this work for compositions of arbitrary #s of fns?
 -- over any kinds of intervals, regardless of whether they are "equal"?
-Function h; Function g; Function f
-where h := Compose(g, f); g := CreateFunction(C, B); f := CreateFunction(B, A)
-with Interval A; Interval B; Interval C {
-     -- link f.codomain, g.domain
-     TODO
-}
+-- for any kind of f and g?
 
--- TODO: add the below to the book, Sub, and Sty
--- composition of functions
--- image of interval
--- inverse images
--- union of intervals
+Function h; Function g; Function f
+where h := Compose(g, f); 
+      g := CreateFunction(C, B); 
+      f := CreateFunction(B, A)
+with Interval A; Interval B; Interval C {
+
+  -- link f's codomain and g's domain
+  -- namely, set g's codomain to be f's domain
+  override g.domain = f.codomain
+  override g.x_vals = f.y_vals
+
+  -- that's it! (I think)
+}
 
 -- TODO: this Sub/Sty doesn't include labels
