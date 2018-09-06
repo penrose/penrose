@@ -5,7 +5,6 @@ Main
 Style
 Substance
 Tests
-*.el
 *.aux
 *.fdb_latexmk
 *.fls
