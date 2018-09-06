@@ -16,6 +16,13 @@ Function f
 f := CreateFunction(I, R)
 Continuous(f)
 
+-- g : R -> R
+Function g
+g := CreateFunction(R, R)
+
+Function h
+h := compose(f, g)
+
 -- Why have ClosedInterval I vs. Function f; Continuous(f)?
 
 -- Real c

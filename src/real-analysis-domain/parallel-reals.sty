@@ -1,4 +1,4 @@
--- Is our DSL / Substance program even modeling things correctly? We don't quite have f.domain and f.codomain working, either as anon exprs or as selector matches
+-- Is our DSL / Substance program modeling things correctly? We don't quite have f.domain and f.codomain working, either as anon exprs or as selector matches
 -- What are we learning from this rewritten style?
 
 Interval I {
@@ -30,7 +30,7 @@ Reals R {
     startY = R.yval
     endX = R.right
     endY = R.yval
-    style = double
+    style = "double"
   }
 }
 
@@ -90,13 +90,13 @@ with Real a, b {
   -- this is why it's important to pull out the vals:
   -- so shapes can be overridden
   override a.shape = Bracket {
-    side = left
+    side = "left"
     x = a.val
     y = I.yval
   }
   
   override b.shape = Bracket {
-    side = right
+    side = "right"
     x = b.val
     y = I.yval
   }
@@ -105,6 +105,35 @@ with Real a, b {
 -- (Omitted other interval styles, e.g. clopen)
 -- Interval should have been styled already
 
+-- model f : R -> R
+-- this selector differs from f : A -> B
+Function f
+with Interval A
+where f := CreateFunction(A, A) {
+      -- make another shape for A?
+
+  f.domain = A.shape
+  f.codomain = Line {
+    ? = ?
+  } 
+
+}
+
+-- do we need this selector?
+Function f
+with Reals `R`
+where f := CreateFunction(`R`, `R`) {
+  -- make another shape for `R`?
+
+  f.domain = TODO
+  f.codomain = TODO
+
+}
+
+-- can we compose functions f : R -> R and g : R -> R?
+
+-- TODO: need to make sure A and B are different vars?
+-- should this match f : R -> R?
 Function f
 with Interval A; Interval B
 where f := CreateFunction(A, B) {
@@ -116,19 +145,20 @@ where f := CreateFunction(A, B) {
   f.x_vals = sampleFrom(A.left, A.right, 10)
   f.y_vals = map(applyFn, f.val, f.x_vals)
   
-  f.shape = List<Curve> {
+  f.shape = List(Curve) {
     xs = f.x_vals
     ys = f.y_vals
-    arrows = true
+    arrows = "true"
     -- how is the curving calculated?
   }
 
   -- style individual curve GPIs
-  f.shape.first.style = bold
-  f.shape.last.style = bold
+  f.shape.first.style = "bold"
+  f.shape.last.style = "bold"
 
+  -- TODO: design and use custom shape API
   f.shading = Region {
-    fill = true
+    fill = "true"
     -- should we allow a list of GPIs?
     sides = [f.shape.first.eqn, f.shape.last.eqn,
              A.shape, Line(f.y_vals)]
@@ -148,10 +178,19 @@ with Real x; Function f; Interval A; Interval B {
   delete y.shape
   delete y.rFn
   
-  LOCAL index = choice(range(f.x_vals))
+  LOCAL index = choose(range(f.x_vals))
   override x.val = f.x_vals[index]
   override y.val = f.y_vals[index]
   override f.shape[index].style = bold
+}
+
+-- does this work for compositions of arbitrary #s of fns?
+-- over any kinds of intervals, regardless of whether they are "equal"?
+Function h; Function g; Function f
+where h := Compose(g, f); g := CreateFunction(C, B); f := CreateFunction(B, A)
+with Interval A; Interval B; Interval C {
+     -- link f.codomain, g.domain
+     TODO
 }
 
 -- TODO: add the below to the book, Sub, and Sty
