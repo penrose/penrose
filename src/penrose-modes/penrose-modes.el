@@ -1,17 +1,13 @@
 ;; Penrose syntax highlighting defined using generic-mode
 
-;; NOTE: you will need to manually update the keywords and syntax here if the language grammar changes
-;; The domain keywords (for LA, RA, etc.) need to be present in both the Substance and Style modes
-
 ;; To use: 
-;; paste into your .emacs file (usually located at ~/.emacs)
+;; paste into your .emacs
 ;; run `M-x eval-buffer` in your .emacs buffer
 ;; then run one of the following commands, depending on the kind of file:
 ;; `M-x penrose-dsl-mode`
 ;; `M-x penrose-substance-mode`
 ;; `M-x penrose-style-mode`
 
-;; Resources:
 ;; https://www.emacswiki.org/emacs/GenericMode
 ;; https://stackoverflow.com/questions/3887372/simplest-emacs-syntax-highlighting-tutorial
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html
@@ -33,6 +29,7 @@
 
   ;; Operators, regexes
   '(
+    ("TODO" . 'font-lock-warning-face)
     ("<:" . 'font-lock-variable-name-face)
     ("(.*)" . 'font-lock-variable-name-face)
     (":" . 'font-lock-variable-name-face)
@@ -71,9 +68,10 @@
 
   ;; Operators, regexes
   '(
+    ("TODO" . 'font-lock-warning-face)
+    ("$.*$" . 'font-lock-variable-name-face)
     (":=" . 'font-lock-variable-name-face)
     ("=" . 'font-lock-variable-name-face)
-    ("$.*$" . 'font-lock-variable-name-face)
     ("(" . 'font-lock-variable-name-face)
     (")" . 'font-lock-variable-name-face)
     ;; ("(.*)" . 'font-lock-variable-name-face)
@@ -115,10 +113,10 @@
     "Set" "Reals" "Real" "Point" "Function" "Interval" "OpenInterval" "ClosedInterval" "LeftClopenInterval" "RightClopenInterval" "CreateInterval" "CreateOpenInterval" "CreateClosedInterval" "CreateLeftClopenInterval" "CreateRightClopenInterval" "CreateFunction" "Pt" "union" "intersection" "derivativeAtP" "derivativeOverD" "integral" "apply" "compose" "Bounded" "LeftBounded" "RightBounded" "Unbounded" "Compact" "Disconnected" "Degenerate" "Empty" "Continuous" "Discontinuous" "Differentiable" "Integrable" "Invertible" "Monotonic" "Decreasing" "Increasing" "In" "In2" "Subset" "LessThan" "ClosedEnd" "OpenEnd" 
 
     ;; Style reserved words
-    "with" "where" "LOCAL" "ensure" "encourage" "override" "delete" "OPTIMIZED"
+    "with" "where" "LOCAL" "ensure" "encourage" "override" "delete" "OPTIMIZED" "List"
 
     ;; GPIs
-    "Circle" "Square" "Brace" "Parallelogram" "Arrow" "AnchorPoint" "Ellipse" "Curve" "Line" "Rectangle" "Arc" "Image" "Text"
+    "Circle" "Square" "Brace" "Parallelogram" "Arrow" "AnchorPoint" "Ellipse" "Curve" "Line" "Rectangle" "Arc" "Image" "Text" "Bracket"
 
     ;; property names
     ;; TODO
@@ -126,17 +124,25 @@
   
   ;; Operators, regexes
   '(
+    ("TODO" . 'font-lock-warning-face)
+    ("?" . 'font-lock-warning-face)
+    ("`.*`" . 'font-lock-doc-face)
+    (":=" . 'font-lock-function-name-face)
+    (";" . 'font-lock-function-name-face)
     ("=" . 'font-lock-function-name-face)
     ("(" . 'font-lock-type-face)
     (")" . 'font-lock-type-face)
     ("{" . 'font-lock-type-face)
     ("}" . 'font-lock-type-face)
+    ("\\[" . 'font-lock-type-face)
+    ("\\]" . 'font-lock-type-face)
     ;; ("." . 'font-lock-operator)
     ("[0-9]+" . 'font-lock-variable-name-face)
     ;; Not sure how to combine these regexes
     ;; Also their relative orders seem to matter
-    ("[A-Za-z_]+\\.[A-Za-z_]+\\.[A-Za-z_]+" . 'font-lock-constant-face)
-    ("[A-Za-z_]+\\.[A-Za-z_]+" . 'font-lock-constant-face)
+    ("[A-Za-z_`]+\\.[A-Za-z_`]+\\.[A-Za-z_`]+\\.[A-Za-z_`]+" . 'font-lock-constant-face)
+    ("[A-Za-z_`]+\\.[A-Za-z_`]+\\.[A-Za-z_`]+" . 'font-lock-constant-face)
+    ("[A-Za-z_`]+\\.[A-Za-z_`]+" . 'font-lock-constant-face)
     )
 
   ;; File extensions that trigger the mode
