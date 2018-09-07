@@ -172,11 +172,14 @@ where f := CreateFunction(A, A) {
 
 -- Function applications/compositions: to a real, to an interval, to a function
 
-TODO -- how does this work for z := f(g(x))
-
+-- y := f(x)
 Real y
-where y := apply(f, x); f := CreateFunction(A, B); A ?= B
-with Real x; Function f; Interval A; Interval B {
+where y := apply(f, x); 
+      f := CreateFunction(A, B); 
+      A ?= B
+with Real x; 
+     Function f; 
+     Interval A, B {
   -- highlight an existing x-y pair
   -- delete existing tick style and constraints
   delete y.shape
@@ -187,20 +190,48 @@ with Real x; Function f; Interval A; Interval B {
   -- alternatively, could keep the tick marks + make them bold
 
   x.index = choose(range(f.x_vals))
-  TODO  -- for multiple application:
-  -- may need to override? how do you do things based on whether a field already exists? if it doesn't exist I want to choose it, if it exists I want to use it
-   -- does it make sense to make a null index field for all reals?
-   -- or do we need another selector specifically for multiple function application?
-   -- it makes sense that you need special behavior at front of a list vs elsewhere
-   -- but then what if you have z := h(f(g(x)))?
-   -- what about y := f(f(x))?
-   -- style needs to be able to inspect itself??
+  TODO  -- figure out how this interacts w/ z := g(f(x)) sel
   y.index = x.index
   
   override x.val = f.x_vals[x.index]
   override y.val = f.y_vals[y.index]
-  override f.shape[index].style = "bold"
+  override f.shape[x.index].style = "bold"
+
+/* for z := g(y), writing out the substitution:
+
+	delete `z`.shape
+	delete `z`.rFn
+	delete `y`.shape
+	delete `y`.rFn
+
+	`y`.index = choose(range(`h`.x_vals))
+	`z`.index = `y`.index
+
+	override `y`.val = `h`.x_vals[`y`.index]
+	override `z`.val = `h`.y_vals[`z`.index]
+	override `h`.shape[`y`.index].style = "bold" */
 }
+
+
+-- z := g(f(x))
+-- this should work for an arbitrarily long chain of function compositions, propagating the index down from the original x to the last application
+Real z
+where z := apply(g, y); 
+      y := apply(f, x); -- note: z and x are linked via y
+      f := CreateFunction(A, B); 
+      g := CreateFunction(B, C);
+      A ?= B; B ?= C
+with Real x, y; 
+     Function f, g; 
+     Interval A, B, C {
+  -- What assumptions can we make in this selector?
+  -- What assumptions will later selectors make about this one?
+
+  override y.index = x.index
+  -- the rest of the references should now be accurate
+  -- there's going to be a multiple delete for y's shape/rFn
+  -- for the above selector. not sure how to get around that
+}   
 
 -- Set J
 -- where J := applyInterval(f, I); f := CreateFunction(?, ?)
