@@ -59,7 +59,7 @@ data T = TTypeVar TypeVar
 data TypeCtorApp = TypeCtorApp { nameCons :: String,
                                  argCons  :: [Arg],
                                  constructorInvokerPos :: SourcePos }
-                          deriving (Typeable, Ord)
+                          deriving (Typeable)
 
 instance Show TypeCtorApp where
   show (TypeCtorApp nameCons argCons posCons) = nString ++ "(" ++ aString ++ ")"
@@ -68,6 +68,9 @@ instance Show TypeCtorApp where
 
 instance Eq TypeCtorApp where
   (TypeCtorApp n1 a1 _) == (TypeCtorApp n2 a2 _) = n1 == n2 && a1 == a2
+
+instance Ord TypeCtorApp where
+    (TypeCtorApp s1 _ _) `compare` (TypeCtorApp s2 _ _) = s1 `compare` s2
 
 data Arg = AVar Var
          | AT T

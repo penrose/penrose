@@ -255,14 +255,14 @@ checkDsllStmt e (VdStmt v) = let kinds = seconds (varsVd v)
                                  args = seconds (typesVd v)
                                  res = toVd v
                                  env2 = foldl checkT localEnv args
-                                 temp = checkT localEnv res
+                                 env3 = checkT env2 res
                                  vc = ValConstructor { namevc = nameVd v, ylsvc = firsts (varsVd v),
                                                        kindsvc = seconds (varsVd v),
                                                        nsvc = firsts (typesVd v),  tlsvc = seconds (typesVd v),
                                                        tvc = toVd v }
-                                 e1 = addName (nameVd v) e
+                                 e1 = addName (nameVd v) env3
                                  ef = addValConstructor vc e1
-                              in if env2 == e || env2 /= e && temp == e || temp /= e
+                              in if env2 == e || env2 /= e && env3 == e || env3 /= e && e1 == e || e1 /= e
                                   then ef { valConstructors = M.insert (nameVd v) vc $ valConstructors ef }
                                   else error "Error!" -- Does not suppose to reach here
 
@@ -272,11 +272,11 @@ checkDsllStmt e (OdStmt v) = let kinds = seconds (varsOd v)
                                  args = seconds (typesOd v)
                                  res = toOd v
                                  env2 = foldl checkT localEnv args
-                                 temp = checkT env2 res
+                                 env3 = checkT env2 res
                                  op = Operator { nameop = nameOd v, ylsop = firsts (varsOd v),
                                                  kindsop = seconds (varsOd v), tlsop = seconds (typesOd v), top = toOd v }
-                                 ef = addName (nameOd v) e
-                               in if env2 == e || env2 /= e && temp == e || temp /= e
+                                 ef = addName (nameOd v) env3
+                               in if env2 == e || env2 /= e && env3 == e || env3 /= e
                                    then ef { operators = M.insert (nameOd v) op $ operators ef }
                                    else error "Error!"  -- Does not suppose to reach here
 

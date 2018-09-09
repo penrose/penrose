@@ -356,17 +356,23 @@ checkExpression :: VarEnv -> Expr -> (String, Maybe T)
 checkExpression varEnv (VarE v)         = checkVarE varEnv v
 checkExpression varEnv (ApplyFunc f)    = checkFunc varEnv f
 checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
-checkExpression varEnv (DeconstructorE d) = checkVarE varEnv (varDeconstructor d)
---    let (err, t) =  checkVarE varEnv (varDeconstructor d)
---    in case t of
---      Just -> checkField varEnv d
---      Nothing -> (err,Nothing)
---
--- checkField :: VarEnv -> DeconstructorE -> (String, Maybe T)
--- checkField varEnv d =
---    let e = varDeconstructor d
---        f = fieldDeconstructor d
+checkExpression varEnv (DeconstructorE d) = --checkVarE varEnv (varDeconstructor d)
+   let (err, t) =  checkVarE varEnv (varDeconstructor d)
+   in case t of
+     Just t' -> checkField varEnv (fieldDeconstructor d) t'
+     Nothing -> (err,Nothing)
 
+-- Type checking for fields in value deconstructor, check that there is a
+-- matched value deconstructor with a matching field a retrieve the type,
+-- otherwise, return an error
+checkField :: VarEnv -> Field -> T -> (String, Maybe T)
+checkField varEnv (FieldConst f) t =
+  case M.lookup t (typeValConstructor varEnv) of
+     Nothing -> ("No matching value constructor for the type " ++ show t, Nothing)
+     Just v -> let m = M.fromList (zip (nsvc v) (tlsvc v))
+               in case M.lookup (VarConst f) m of
+                  Nothing -> ("No matching field " ++ show f ++ " In the value constructor of " ++ show t, Nothing)
+                  Just t' -> ("", Just t')
 
 -- Checking a variable expression for well-typedness involves looking it up in the context.
 -- If it cannot be found in the context, then a tuple is returned of a non-empty error string warning of this problem and
