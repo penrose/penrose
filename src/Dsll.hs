@@ -233,6 +233,7 @@ check p = let env = foldl checkDsllStmt initE p
              else error $ "Dsll type checking failed with the following problems: \n" ++ errors env
              where initE = VarEnv { typeConstructors = M.empty, valConstructors = M.empty,
                                     operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
+                                    typeValConstructor = M.empty,
                                     varMap = M.empty, subTypes = [], typeCtorNames = [], declaredNames = [],
                                     errors = ""}
 
@@ -256,9 +257,11 @@ checkDsllStmt e (VdStmt v) = let kinds = seconds (varsVd v)
                                  env2 = foldl checkT localEnv args
                                  temp = checkT localEnv res
                                  vc = ValConstructor { namevc = nameVd v, ylsvc = firsts (varsVd v),
-                                                       kindsvc = seconds (varsVd v), tlsvc = seconds (typesVd v),
+                                                       kindsvc = seconds (varsVd v),
+                                                       nsvc = firsts (typesVd v),  tlsvc = seconds (typesVd v),
                                                        tvc = toVd v }
-                                 ef = addName (nameVd v) e
+                                 e1 = addName (nameVd v) e
+                                 ef = addValConstructor vc e1
                               in if env2 == e || env2 /= e && temp == e || temp /= e
                                   then ef { valConstructors = M.insert (nameVd v) vc $ valConstructors ef }
                                   else error "Error!" -- Does not suppose to reach here

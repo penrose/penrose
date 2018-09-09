@@ -1,0 +1,5 @@
+Interval A, B
+Function f
+f := CreateFunction(A, B)
+Real x
+In(x, f.domain)

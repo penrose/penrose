@@ -42,6 +42,9 @@ newtype OperatorName = OperatorConst String             -- “Intersection”
 newtype PredicateName = PredicateConst String            -- “Intersect”
                      deriving (Show, Eq, Typeable)
 
+newtype Field = FieldConst String            -- “Intersect”
+                     deriving (Show, Eq, Typeable)
+
 data Func = Func {
     nameFunc :: String,
     argFunc  :: [Expr]
@@ -55,7 +58,14 @@ instance Show Func where
 data Expr = VarE Var
           | ApplyFunc Func
           | ApplyValCons Func
+          | DeconstructorE Deconstructor
           deriving (Show, Eq, Typeable)
+
+data Deconstructor  = Deconstructor {
+    varDeconstructor :: Var ,
+    fieldDeconstructor :: Field
+   } deriving (Show, Eq, Typeable)
+
 
 data PredArg = PE Expr
              | PP Predicate
@@ -136,8 +146,18 @@ functionParser = do
   args <- parens (exprParser `sepBy1` comma)
   return Func { nameFunc = n, argFunc = args }
 
-exprParser, varE, applyFunc, applyValCons :: Parser Expr
-exprParser = try applyFunc <|> try applyValCons <|> try varE
+fieldParser :: Parser Field
+fieldParser = FieldConst <$> identifier
+
+exprParser, varE, applyFunc, applyValCons, deconstructorE :: Parser Expr
+exprParser = try deconstructorE <|> try applyFunc <|>
+             try applyValCons <|> try varE
+deconstructorE = do
+  v <- varParser
+  dot
+  f <- fieldParser
+  return (DeconstructorE (Deconstructor {varDeconstructor = v,
+   fieldDeconstructor = f}))
 varE = VarE <$> varParser
 applyFunc = do
   n <- lowerId
@@ -336,6 +356,16 @@ checkExpression :: VarEnv -> Expr -> (String, Maybe T)
 checkExpression varEnv (VarE v)         = checkVarE varEnv v
 checkExpression varEnv (ApplyFunc f)    = checkFunc varEnv f
 checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
+checkExpression varEnv (DeconstructorE d) = checkVarE varEnv (varDeconstructor d)
+--    let (err, t) =  checkVarE varEnv (varDeconstructor d)
+--    in case t of
+--      Just -> checkField varEnv d
+--      Nothing -> (err,Nothing)
+--
+-- checkField :: VarEnv -> DeconstructorE -> (String, Maybe T)
+-- checkField varEnv d =
+--    let e = varDeconstructor d
+--        f = fieldDeconstructor d
 
 
 -- Checking a variable expression for well-typedness involves looking it up in the context.
@@ -381,7 +411,7 @@ checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
 
 -- Operates exactly the same as checkFuncInEnv above it just operates over value constructors instead of operators.
 checkVarConsInEnv  :: VarEnv -> Func -> ValConstructor -> (String, Maybe T)
-checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
+checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls nls tls t) =
                   let errAndTypesLs = map (checkExpression varEnv) args
                       errls         = map fst errAndTypesLs
                       err           = concat errls
@@ -497,7 +527,7 @@ substInsert sigma y arg = case M.lookup y sigma of
 -- | Definition of the Substance environment + helper functions.
 --   Contains binding information and equality of expressions and predicates
 --   In order to calculate all the equalities, we compute the closure of the
---   equalities in Substance + symmetry. 
+--   equalities in Substance + symmetry.
 -- The equalities do NOT contain self-equalities, which are manually checked by the Style matcher
 
 data SubEnv = SubEnv { exprEqualities :: [(Expr , Expr)],

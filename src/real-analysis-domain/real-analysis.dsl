@@ -10,6 +10,7 @@ tconstructor LeftClopenInterval : type
 tconstructor RightClopenInterval : type
 
 vconstructor CreateInterval (left : Real, right : Real) : Interval
+vconstructor CreateIntervali (left : Real, right : Real) : Interval
 vconstructor CreateOpenInterval (left : Real, right : Real) : OpenInterval
 vconstructor CreateClosedInterval (left : Real, right : Real) : ClosedInterval
 vconstructor CreateLeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
