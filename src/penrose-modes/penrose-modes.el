@@ -72,8 +72,8 @@
     ("$.*$" . 'font-lock-variable-name-face)
     (":=" . 'font-lock-variable-name-face)
     ("=" . 'font-lock-variable-name-face)
-    ("(" . 'font-lock-variable-name-face)
-    (")" . 'font-lock-variable-name-face)
+    ("(" . 'font-lock-type-face)
+    (")" . 'font-lock-type-face)
     ;; ("(.*)" . 'font-lock-variable-name-face)
     )
 
@@ -110,7 +110,7 @@
     "VectorSpace" "Scalar" "Vector" "LinearMap" "Neg" "Scale" "AddV" "AddS" "Norm" "InnerProd" "Determinant" "Apply" "In" "From" "Not"
 
     ;; RA reserved words
-    "Set" "Reals" "Real" "Point" "Function" "Interval" "OpenInterval" "ClosedInterval" "LeftClopenInterval" "RightClopenInterval" "CreateInterval" "CreateOpenInterval" "CreateClosedInterval" "CreateLeftClopenInterval" "CreateRightClopenInterval" "CreateFunction" "Pt" "union" "intersection" "derivativeAtP" "derivativeOverD" "integral" "apply" "compose" "Bounded" "LeftBounded" "RightBounded" "Unbounded" "Compact" "Disconnected" "Degenerate" "Empty" "Continuous" "Discontinuous" "Differentiable" "Integrable" "Invertible" "Monotonic" "Decreasing" "Increasing" "In" "In2" "Subset" "LessThan" "ClosedEnd" "OpenEnd" 
+    "Set" "Reals" "Real" "Point" "Function" "Interval" "OpenInterval" "ClosedInterval" "LeftClopenInterval" "RightClopenInterval" "CreateInterval" "CreateOpenInterval" "CreateClosedInterval" "CreateLeftClopenInterval" "CreateRightClopenInterval" "CreateFunction" "Pt" "union" "intersection" "derivativeAtP" "derivativeOverD" "integral" "apply" "compose" "Bounded" "LeftBounded" "RightBounded" "Unbounded" "Compact" "Disconnected" "Degenerate" "Empty" "Continuous" "Discontinuous" "Differentiable" "Integrable" "Invertible" "Monotonic" "Decreasing" "Increasing" "In" "In2" "Subset" "LessThan" "ClosedEnd" "OpenEnd" "Compose"
 
     ;; Style reserved words
     "with" "where" "LOCAL" "ensure" "encourage" "override" "delete" "OPTIMIZED" "List"
@@ -124,11 +124,14 @@
   
   ;; Operators, regexes
   '(
+    ;; ("-- TODO.*" . 'font-lock-warning-face)
     ("TODO" . 'font-lock-warning-face)
-    ("?" . 'font-lock-warning-face)
     ("`.*`" . 'font-lock-doc-face)
+    ("?=" . 'font-lock-function-name-face)
+    ("?" . 'font-lock-warning-face)
     (":=" . 'font-lock-function-name-face)
     (";" . 'font-lock-function-name-face)
+    ("," . 'font-lock-function-name-face)
     ("=" . 'font-lock-function-name-face)
     ("(" . 'font-lock-type-face)
     (")" . 'font-lock-type-face)
@@ -136,13 +139,15 @@
     ("}" . 'font-lock-type-face)
     ("\\[" . 'font-lock-type-face)
     ("\\]" . 'font-lock-type-face)
+    ;; Conflict in highlighting e.g. "A.shape9a.x2" vs. "100.21"
+    ("[0-9]+\\.[0-9]+" . 'font-lock-variable-name-face)
     ;; ("." . 'font-lock-operator)
-    ("[0-9]+" . 'font-lock-variable-name-face)
     ;; Not sure how to combine these regexes
     ;; Also their relative orders seem to matter
-    ("[A-Za-z_`]+\\.[A-Za-z_`]+\\.[A-Za-z_`]+\\.[A-Za-z_`]+" . 'font-lock-constant-face)
-    ("[A-Za-z_`]+\\.[A-Za-z_`]+\\.[A-Za-z_`]+" . 'font-lock-constant-face)
-    ("[A-Za-z_`]+\\.[A-Za-z_`]+" . 'font-lock-constant-face)
+    ("[0-9A-Za-z_`]+\\.[0-9A-Za-z_`]+\\.[0-9A-Za-z_`]+\\.[0-9A-Za-z_`]+" . 'font-lock-constant-face)
+    ("[0-9A-Za-z_`]+\\.[0-9A-Za-z_`]+\\.[0-9A-Za-z_`]+" . 'font-lock-constant-face)
+    ("[0-9A-Za-z_`]+\\.[0-9A-Za-z_`]+" . 'font-lock-constant-face)
+    ("[0-9]+" . 'font-lock-variable-name-face)
     )
 
   ;; File extensions that trigger the mode
