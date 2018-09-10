@@ -5,6 +5,10 @@ global {
   global.axis_separation = OPTIMIZED 
 }
 
+-- The selectors for just Substance objects define the "Style API" for the objects
+-- e.g. Intervals have left, right, yval
+-- Reals <: Interval so it has the same S.API
+-- a Real only has a val
 Interval I {
   -- can be drawn independently of R; horiz
   I.left = ?
@@ -50,6 +54,9 @@ with Reals `R` {
   x.rFn = ensure inRange(x.val, R.left, R.right)
 }
 
+-- Now add visual constraints to correspond to more specific Substance types/predicates
+
+-- The previous selector styles all reals; now this one overrides the styling for any ones that are explicitly declared to be in an interval
 Real x
 with Interval I
 where In(x, I) {
@@ -119,7 +126,7 @@ where f := CreateFunction(A, B); A ?= B {
   f.domain   = A.shape
   f.codomain = B.shape
 
-  f.val = sampleFunction()
+  f.val = sampleFunction(f.domain, f.codomain)
   -- each is a list of floats
   f.x_vals = sampleFrom(A.left, A.right, 10)
   f.y_vals = map(applyFn, f.val, f.x_vals)
@@ -173,13 +180,12 @@ where f := CreateFunction(A, A) {
 -- Function applications/compositions: to a real, to an interval, to a function
 
 -- y := f(x)
+-- More complicated test case: g = f, so Real y := f(f(x))
 Real y
 where y := apply(f, x); 
       f := CreateFunction(A, B); 
-      A ?= B
-with Real x; 
-     Function f; 
-     Interval A, B {
+      A ?= B -- y ?= x
+with Real x; Function f; Interval A, B {
   -- highlight an existing x-y pair
   -- delete existing tick style and constraints
   delete y.shape
@@ -190,7 +196,7 @@ with Real x;
   -- alternatively, could keep the tick marks + make them bold
 
   x.index = choose(range(f.x_vals))
-  TODO  -- figure out how this interacts w/ z := g(f(x)) sel
+  TODO -- figure out how this interacts w/ z := g(f(x)) sel
   y.index = x.index
   
   override x.val = f.x_vals[x.index]
@@ -204,6 +210,8 @@ with Real x;
 	delete `y`.shape
 	delete `y`.rFn
 
+	-- this is the line that needs to be overridden
+	-- since y and x are linked
 	`y`.index = choose(range(`h`.x_vals))
 	`z`.index = `y`.index
 
@@ -212,20 +220,18 @@ with Real x;
 	override `h`.shape[`y`.index].style = "bold" */
 }
 
-
 -- z := g(f(x))
--- this should work for an arbitrarily long chain of function compositions, propagating the index down from the original x to the last application
+-- this should work for an arbitrarily long chain of function compositions, propagating the index down from the original x to the last application (x,y is matched first, then y,z, etc.)
 Real z
 where z := apply(g, y); 
       y := apply(f, x); -- note: z and x are linked via y
       f := CreateFunction(A, B); 
       g := CreateFunction(B, C);
-      A ?= B; B ?= C
-with Real x, y; 
-     Function f, g; 
-     Interval A, B, C {
+      A ?= B; B ?= C -- TODO: what if A = B and/or B = C?
+      -- x ?= y; f ?= g
+with Real x, y; Function f, g; Interval A, B, C {
   -- What assumptions can we make in this selector?
-  -- What assumptions will later selectors make about this one?
+  -- What assumptions do later selectors make about this one?
 
   override y.index = x.index
   -- the rest of the references should now be accurate
@@ -239,22 +245,86 @@ with Real x, y;
 --      ?
 -- }
 
--- does this work for compositions of arbitrary #s of fns?
--- over any kinds of intervals, regardless of whether they are "equal"?
--- for any kind of f and g?
+/* Does the function composition selector work for compositions of arbitrary #s of fns?
 
+Example: Function i = h . g . f
+
+Desugared: (Not dealing with equality now)
+Interval A, B, C, D
+Function f := MkFunction(A, B)
+Function g := MkFunction(B, C)
+Function h := MkFunction(C, D)
+Function i0 := compose(g, f)
+Function i := compose(h, i0)
+
+First, the interval selector will match A, B, C, and D.
+This will style them as horizontal lines on the screen.
+
+Next, the function selector will match f, g, h, i0, and i,
+      pulling in A, B, C, D as needed
+This will style the intervals/functions as A -> B -> C -> D (horizontally). But the functions will likely be drawn on A -> B, B -> C in such a way that they don't "align."
+
+Next, the function composition selector below will match the variables around i0 and i: (Sty var => Sub var)
+
+1. h => i0, g => g, f => f
+2. h => i,  g => h, f => i0
+
+Match 1: (with substitution applied to body)
+1. h => i0, g => g, f => f
+
+override `g`.domain = `f`.codomain
+override `g`.x_vals = `f`.y_vals
+override `i0`.domain = `f`.domain
+override `i0`.codomain = `g`.codomain
+-- more overrides and deletes on i0...
+
+This will draw `g` and `f` such that they "align", set the fields of i0 to point to its constituent functions, and delete i0's shape (since we are not drawing the composed function beyond its parts).
+
+Match 2: (with substitution applied to body)
+2. h => i,  g => h, f => i0
+
+override `h`.domain = `i0`.codomain
+override `h`.x_vals = `i0`.y_vals
+override `i`.domain = `i0`.domain (= `f`.domain)
+override `i`.codomain = `h`.codomain
+-- more overrides and deletes on `i`...
+
+This will draw `h` in such a way that it "aligns" with the previous (composite) function `i0`, and set the fields of `i` accordingly (as it encompasses all three functions `f`, `g`, and `h`).
+
+(Reason by induction to see the behavior on the composition of more functions.)
+
+Therefore, yes, this function composition selector works for compositions of arbitrary #s of functions! 
+
+Future questions: Does it work over any kinds of intervals, regardless of whether they are "equal"? */
+
+-- h = g . f
 Function h; Function g; Function f
 where h := Compose(g, f); 
       g := CreateFunction(C, B); 
       f := CreateFunction(B, A)
-with Interval A; Interval B; Interval C {
-
+      -- disallow equality for simplicity
+      -- TODO: deal with these later
+      -- A ?= B;
+      -- B ?= C;
+      -- h ?= g;
+      -- g ?= f
+with Interval A, B, C {
   -- link f's codomain and g's domain
   -- namely, set g's codomain to be f's domain
   override g.domain = f.codomain
   override g.x_vals = f.y_vals
 
-  -- that's it! (I think)
+  -- What do we do with h? should we still draw it?
+  -- depends on the style!
+  -- h needs to be correctly set for future fn compositions
+  override h.domain = f.domain
+  override h.codomain = g.codomain
+  override h.val = composeFns(g.val, f.val)
+  override h.x_vals = f.x_vals
+  override h.y_vals = g.y_vals
+  delete h.shape
+  delete h.shading
+  delete h.dirFn
 }
 
 -- TODO: this Sub/Sty doesn't include labels
