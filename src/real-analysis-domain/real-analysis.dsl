@@ -36,6 +36,8 @@ operator derivativeAtP (f : Function, p : Real) : Real
 operator derivativeOverD (f : Function) : Function
 operator integral (I : Interval, f : Function) : Real
 operator apply (f : Function, p : Real) : Real
+-- We don't know if applying f to an interval yields an interval. Substance should be able to cast it to an Interval
+operator applyOver (f : Function, I : Interval) : Set
 -- (g . f): Does not check f's codomain matches g's domain
 operator compose (f : Function, g : Function) : Function
 
