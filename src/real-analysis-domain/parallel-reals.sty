@@ -184,6 +184,8 @@ where f := CreateFunction(A, A) {
 Real y
 where y := apply(f, x); 
       f := CreateFunction(A, B); 
+      -- this only matches "base" functions,
+      -- not composed functions
       A ?= B -- y ?= x
 with Real x; Function f; Interval A, B {
   -- highlight an existing x-y pair
@@ -325,6 +327,72 @@ with Interval A, B, C {
   delete h.shape
   delete h.shading
   delete h.dirFn
+}
+
+/* Another question: what diagram does this program create?
+
+Interval A, B, C
+Function f : A -> B
+Function g : B -> C
+Function h : A -> C
+Function h := g . f
+Real x
+Real z := h(x)
+
+Desugared: 
+Interval A, B, C
+Function f := CreateFunction(A, B)
+Function g := CreateFunction(B, C)
+Function h := CreateFunction(A, C)
+	 h := compose(g, f) 
+	 -- maybe not CreateFunction(A, C), so it doesn't 
+	 -- match the base "y := f(x)" selector?
+Real     x
+Real     y := apply(h, x)
+
+In order:
+The Real selectors match
+The Interval selectors match
+The Function selectors match
+The apply selector matches
+The function composition selector matches
+
+Problem: "apply" depends on the function having a shape.
+But, a composed function has its shape deleted (or it has two shapes).
+So, do we need a new selector for the composition of two functions?
+
+Actually, the semantics of CreateFunction are unclear. 
+Does f : A -> B mean that f is NOT the composition of two functions?
+
+Design decision in writing the Sub program: 
+don't say Function h := compose(g, f)
+*/
+
+Real y
+where y := apply(h, x);
+      f := CreateFunction(A, B); 
+      g := CreateFunction(B, C);
+      h := CreateFunction(A, C);
+      h := compose(g, f)
+with Function f, g, h; Interval A, B, C; Real x {
+  -- if `f` is a composition of functions itself... works?
+  -- am I trying too hard to make Style perfectly compositional and modular and reusable?
+  -- we could always write a LOT of ugly/overlapping selectors
+  -- is this in scope for the first paper?
+
+     -- inherits stuff from the y:= f(x) selector
+     -- which is refined here WRT composition
+
+     -- the line
+     -- `override `h`.shape[x.index].style = "bold"`
+     -- is going to be invalid since `h`.shape doesn't exist
+     -- instead, proceed (ignoring the warning) and 
+     -- and bold the line from x to f(x), then f(x) to g(f(x))
+
+     -- x0 := f(x)
+     -- LOCAL.x0 = f.y_vals[x.index]
+     override f.shape[x.index].style = "bold"
+     override g.shape[x.index].style = "bold"
 }
 
 -- TODO: this Sub/Sty doesn't include labels
