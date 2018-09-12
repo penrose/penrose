@@ -15,7 +15,7 @@ Colors {
   Colors.blue = rgba(0.0, 0.0, 1.0, 0.5)
 }
 
--- Reals `R`?
+-- Reals `R`
 Reals R {
   R.len = 500.0
   R.thickness = 5.0
@@ -62,7 +62,7 @@ with Reals `R` {
     rotation = 0.0
   }
 
-  r.inFn = ensure inRange(r.val, R.shape.startX, R.shape.endX)
+  r.inFn = ensure inRange(r.val, R.left, R.right)
   r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
 }
 
@@ -146,9 +146,9 @@ where f := CreateFunction(I, R) {
   -- TODO: implement partial path lookup
   -- so we can write f.domain.startX, etc.
   f.shape = Arrow {
-    startX = midpointX(I.shape)
+    startX = midpointX(I.shape) -- TODO change to f.domain
     startY = I.yval - global.padding
-    endX   = midpointX(R.shape2)
+    endX   = midpointX(R.shape2) -- TODO change to f.codomain
     endY   = R.yval2 + global.padding
     thickness = R.thickness * 2.0
     -- color = Colors.blue
@@ -198,7 +198,6 @@ with Interval A, B; Reals R {
   -- B matches J
   -- may not work in general; specialized to our case
   -- TODO: work out how it generalizes
-
   override B.yval = R.yval2
 
   -- update f to point to J
@@ -207,7 +206,7 @@ with Interval A, B; Reals R {
   override f.shape.endX = midpointX(B.shape)
 
   -- move g's codomain, and h's, to be the third R
-  -- TODO fix paths and lookups so this override works modularly
+  -- TODO fix paths/lookups so this override works modularly
   -- override g.codomain = R.shape3
   -- Error: Sub obj 'g' does not have GPI 'codomain'; cannot add property 'endY'
   -- override g.codomain.endY = R.yval3 + global.padding

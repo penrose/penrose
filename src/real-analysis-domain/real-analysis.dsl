@@ -21,6 +21,7 @@ vconstructor Pt (x : Real, y : Real) : Point
 -- Subtyping relationships
 Reals <: Set
 Interval <: Set
+-- TODO: Reals <: Interval
 
 OpenInterval <: Interval
 ClosedInterval <: Interval

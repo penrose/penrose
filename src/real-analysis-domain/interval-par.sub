@@ -38,5 +38,6 @@ Function h
 h := CreateFunction(I, R)
 h := compose(g, f)
 
+
 AutoLabel All
 Label R $\mathbb{R}$
