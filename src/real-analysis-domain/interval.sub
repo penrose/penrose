@@ -6,18 +6,17 @@ Real d
 
 Real x
 
-In(a, R)
+/* In(a, R)
 In(b, R)
 In(c, R)
 In(d, R)
-In(x, R)
+In(x, R) */
 
 Interval A
 A := CreateInterval(a, b)
 
 Interval B
 B := CreateInterval(c, d)
--- TODO: What if the intervals share an endpoint?
 
 Subset(A, R)
 Subset(B, R)
@@ -25,7 +24,7 @@ Subset(B, R)
 In(x, A)
 
 Function f
-From(f, A, R)
+f := CreateFunction(A, R)
 -- TODO: Is this match going to work?
 -- From(f, R, R) 
 

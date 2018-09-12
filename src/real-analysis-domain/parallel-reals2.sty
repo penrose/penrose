@@ -1,0 +1,261 @@
+global {
+  global.padding = 10.0
+}
+
+origin {
+  origin.x = -200.0
+  origin.y = 100.0
+}
+
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+  Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+  Colors.green = rgba(0.0, 1.0, 0.0, 0.5)
+  Colors.blue = rgba(0.0, 0.0, 1.0, 0.5)
+}
+
+-- Reals `R`?
+Reals R {
+  R.len = 500.0
+  R.thickness = 5.0
+  R.color = Colors.gray
+
+  R.left = origin.x
+  R.right = origin.x + R.len
+  R.yval = origin.y
+
+  R.shape = Arrow {
+    startX = R.left
+    startY = R.yval
+    endX = R.right
+    endY = R.yval
+    thickness = R.thickness
+    color = R.color
+    rotation = 0.0
+  }
+
+  R.text = Text {
+    string = R.label
+    rotation = 0.0
+  }
+
+  R.labelFn = ensure nearHead(R.shape, R.text, global.padding, global.padding)
+}
+
+Real r  -- no "In(r, `R`)"
+with Reals `R` {
+  r.val = OPTIMIZED
+  r.len = 20.0
+  
+  r.shape = Line {
+    startX = r.val
+    startY = `R`.yval - (r.len / 2.0)
+    endX = r.val
+    endY = `R`.yval + (r.len / 2.0)
+    thickness = 2.5
+    color = Colors.black
+  }
+
+  r.text = Text {
+    string = r.label
+    rotation = 0.0
+  }
+
+  r.inFn = ensure inRange(r.val, R.shape.startX, R.shape.endX)
+  r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
+}
+
+Interval I
+where Subset(I, R)
+with Reals R { -- TODO: more general, with Interval J
+  I.left = OPTIMIZED
+  I.right = OPTIMIZED
+  I.yval = R.yval
+
+  I.shape = Line { -- horizontal
+    startX = I.left
+    startY = I.yval
+    endX = I.right
+    endY = I.yval
+    thickness = 10.0
+  }
+
+  -- position computed, not optimized
+  I.text = Text {
+    string = I.label
+    -- TODO: This doesn't seem to be computed properly
+    -- x = (I.shape.endX - I.shape.startX) / 2.0
+    y = I.yval + global.padding
+    rotation = 0.0
+  }
+
+  I.wfFn = ensure lessThan(I.left, I.right)
+  I.liFn = ensure inRange(I.left, R.left, R.right)
+  I.riFn = ensure inRange(I.right, R.left, R.right)
+  I.labelFn = encourage centerLabel(I.shape, I.text)
+  -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
+  -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
+}
+
+Real a; Real b
+with Interval I; Reals R
+where I := CreateInterval(a, b); Subset(I, R) {
+  override a.val = I.left
+  override b.val = I.right
+}
+
+Real r
+with Interval I; Reals R
+where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
+  override r.inFn = ensure inRange(r.val, a.val, b.val)
+  override r.shape.color = Colors.red
+}
+
+Function f; Reals R
+with Interval I
+where f := CreateFunction(I, R) {
+  -- make a second R shape
+  -- this is technically going to be made for every match, but overridden to be the same thing
+  -- which is messy but will achieve the effect of if only one shape had been made...
+  R.yval2 = R.yval - 100.0 -- function drawn downward
+
+  R.shape2 = Arrow {
+    startX = R.left
+    startY = R.yval2
+    endX = R.right
+    endY = R.yval2
+    thickness = R.thickness
+    color = R.color
+    rotation = 0.0
+  } 
+
+ R.shape2_text = Text {
+    string = R.label
+    rotation = 0.0
+  }
+
+  R.shape2_labelFn = ensure nearHead(R.shape2, R.shape2_text, global.padding, global.padding)
+
+  -------------------------------------------------
+  -- draw f as an arrow from interval to reals
+  f.val = OPTIMIZED   -- placeholder, TODO sample f's value
+  f.domain = I.shape
+  f.codomain = R.shape2
+
+  -- TODO: implement partial path lookup
+  -- so we can write f.domain.startX, etc.
+  f.shape = Arrow {
+    startX = midpointX(I.shape)
+    startY = I.yval - global.padding
+    endX   = midpointX(R.shape2)
+    endY   = R.yval2 + global.padding
+    thickness = R.thickness * 2.0
+    -- color = Colors.blue
+    rotation = 0.0
+  } 
+
+  f.text = Text {
+    string = f.label
+    rotation = 0.0
+  } 
+
+  f.labelFn = encourage centerLabel(f.shape, f.text)
+}
+
+-- h = g . f
+Function h; Function g; Function f
+where h := compose(g, f); h := CreateFunction(A, R); g := CreateFunction(B, R); f := CreateFunction(A, R)
+      -- TODO: Style parser doesn't like newlines here
+      -- disallow equality for simplicity
+      -- TODO: deal with these later
+      -- A ?= B; B ?= C; h ?= g; g ?= f
+      -- TODO: generalize the selector to three intervals
+with Interval A, B; Reals R {
+  -- make a third R shape
+  -- again, this is technically going to be made for every match, but overridden to be the same thing
+  R.yval3 = R.yval2 - 100.0 -- function drawn downward
+
+  R.shape3 = Arrow {
+    startX = R.left
+    startY = R.yval3
+    endX = R.right
+    endY = R.yval3
+    thickness = R.thickness
+    color = R.color
+    rotation = 0.0
+  } 
+
+ R.shape3_text = Text {
+    string = R.label
+    rotation = 0.0
+  }
+
+  R.shape3_labelFn = ensure nearHead(R.shape3, R.shape3_text, global.padding, global.padding)
+
+  -------------------------------------------------
+  -- move B to be in f's codomain
+  -- B matches J
+  -- may not work in general; specialized to our case
+  -- TODO: work out how it generalizes
+
+  override B.yval = R.yval2
+
+  -- update f to point to J
+  -- TODO: this should match the `f(I) \subset J` in Sub
+  override f.codomain = B.shape
+  override f.shape.endX = midpointX(B.shape)
+
+  -- move g's codomain, and h's, to be the third R
+  -- TODO fix paths and lookups so this override works modularly
+  -- override g.codomain = R.shape3
+  -- Error: Sub obj 'g' does not have GPI 'codomain'; cannot add property 'endY'
+  -- override g.codomain.endY = R.yval3 + global.padding
+  override g.shape.endY = R.yval3 + global.padding
+
+  -- delete h's shape, label, etc.
+  delete h.val
+  delete h.shape
+  delete h.text
+  delete h.labelFn
+}
+
+-- TODO: selectors to make fourth, fifth, etc. R
+-- specifically for the composition of three, four functions
+
+/*  -- link f's codomain and g's domain
+  -- namely, set g's codomain to be f's domain
+  override g.domain = f.codomain
+  override g.x_vals = f.y_vals
+
+  -- What do we do with h? should we still draw it?
+  -- depends on the style!
+  -- h needs to be correctly set for future fn compositions
+  override h.domain = f.domain
+  override h.codomain = g.codomain
+  override h.val = composeFns(g.val, f.val)
+  override h.x_vals = f.x_vals
+  override h.y_vals = g.y_vals
+  delete h.shape
+  delete h.shape2 -- only exists for h : R -> R
+  delete h.shading
+  delete h.dirFn */
+
+/* Problem: there are multiple copies of R here, they are just superimposed
+
+I feel like we need some kind of global Substance analysis phase. Can we analyze the Sub prog and generate a Style?
+if we could analyze the prog, what would we do?
+is it too much to expect a "local" Style program to be able to deal with this R behavior in all situations?
+should we give up on the dream of a generic Style? I could easily analyze the Sub program myself (as a Style-writer) and write a Style for that Sub program
+or make Style more expressive on first match, on second match or some reflection on the translation "if this shape/attribute already exists, use it and don't draw it"
+or a lot of really specific selectors: if both functions are from I,J to R, and are not composed then delete the second shape. hard to know how these interact/cascade
+
+Proposed solution: 
+if there's any real or interval, draw an R
+if there's any function from reals /  interval in R to reals / interval in R, draw another R
+if there's any function composed w/ another, draw another R (and so on). 
+(write selectors for the composition of up to 4 functions)
+(i think this is OK for most use cases)
+what if there are "parallel composed functions"?
+don't these R copies need to be programmatically named?
+can't just call them R1, R2, R3, and they can't be local sels, and they can't be attached to the function */

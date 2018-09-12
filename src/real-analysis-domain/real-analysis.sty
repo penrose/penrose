@@ -56,8 +56,7 @@ Reals R {
 }
 
 Real r
-with Reals R
-where In(r, R) {
+with Reals `R` { -- No In(r, `R`)
   r.val = OPTIMIZED
   r.len = 20.0
   
@@ -79,6 +78,7 @@ where In(r, R) {
   r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
 }
 
+-- need to comment out the next 4 selectors for reals.sub
 Interval I
 with Real a; Real b; Reals R
 where I := CreateInterval(a, b); Subset(I, R) {
@@ -123,7 +123,7 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
 Function f
 with Interval I; Reals R
 -- TODO: with Set A; Set B
-where From(f, I, R) {
+where f := CreateFunction(I, R) {
   f.pts = 5
   -- TODO: use a more general function than computeSurjection
   f.val = sampleFunction(f.pts, I.shape, R.y_axis)

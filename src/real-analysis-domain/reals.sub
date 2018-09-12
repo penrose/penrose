@@ -2,9 +2,6 @@ Reals R
 Real x
 Real inf
 
-In(x, R)
-In(inf, R)
-
 AutoLabel All
 Label R $\mathbb{R}$
 Label inf $\infty$

@@ -82,6 +82,7 @@ compDict = M.fromList
         ("intersectionY", intersectionY),
         ("midpointX", midpointX),
         ("midpointY", midpointY),
+        ("midpoint", noop), -- TODO
         ("len", len),
         ("computeSurjectionLines", computeSurjectionLines),
         ("lineLeft", lineLeft),
@@ -93,7 +94,6 @@ compDict = M.fromList
         ("sampleReal", noop), -- TODO
         ("sampleVectorIn", noop), -- TODO
         ("intersection", noop), -- TODO
-        ("midpoint", noop), -- TODO
         ("determinant", noop), -- TODO
         ("apply", noop) -- TODO
     ] -- TODO: port existing comps
@@ -531,7 +531,7 @@ centerLabel [GPI p, GPI l]
         (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
 -- -- TODO: depends on orientation of arrow
 centerLabel [GPI arr, GPI text]
-    | arr `is` "Arrow" && text `is` "Text" =
+    | ((arr `is` "Arrow") || (arr `is` "Line")) && text `is` "Text" =
         let (sx, sy, ex, ey) = (getNum arr "startX", getNum arr "startY", getNum arr "endX", getNum arr "endY")
             (mx, my) = midpoint (sx, sy) (ex, ey)
             (lx, ly) = (getX text, getY text) in
@@ -784,7 +784,15 @@ minSize [GPI r@("Rectangle", _)] =
     let min_side = min (getNum r "w") (getNum r "h")
     in 20 - min_side
 minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "r") (getNum e "r")
-minSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
+minSize [GPI g] = 
+        if fst g == "Line" || fst g == "Arrow" then
+        let vec = [ getNum g "endX" - getNum g "startX",
+                    getNum g "endY" - getNum g "startY"] in
+        40 - norm vec
+        else 0
+
+ -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
+-- minSize _ = 0
 
 -- minSize [AR' ar] _ = 2.5 - sizear' ar
 -- minSize [IM' im] [] = let min_side = min (sizeXim' im) (sizeYim' im) in 20 - min_side
