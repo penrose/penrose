@@ -33,7 +33,7 @@ StmtNotation "|y1|" -> "Norm(y1)"
 StmtNotation "<v1,v2>" -> "InnerProduct(v1 , v2)"
 StmtNotation "s * v1" -> "Scale(s , v1)"
 StmtNotation "Scalar c := " -> "Scalar c ;c := "
--- StmtNotation "f(v)" -> "apply(f,v)"
+StmtNotation "f(v)" -> "apply(f,v)"
 
 -- TODO:
 -- StmtNotation "Vector ... ∈ U" -> "Vector ... ;In(..,U)"
