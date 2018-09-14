@@ -4,17 +4,24 @@ tconstructor Real : type
 tconstructor Point : type
 tconstructor Function : type
 tconstructor Interval : type
+tconstructor OpenInterval : type
+tconstructor ClosedInterval : type
+tconstructor LeftClopenInterval : type
+tconstructor RightClopenInterval : type
 
 vconstructor CreateInterval (left : Real, right : Real) : Interval
-vconstructor OpenInterval (left : Real, right : Real) : OpenInterval
-vconstructor ClosedInterval (left : Real, right : Real) : ClosedInterval
-vconstructor LeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
-vconstructor RightClopenInterval (left : Real, right : Real) : RightClopenInterval
+vconstructor CreateOpenInterval (left : Real, right : Real) : OpenInterval
+vconstructor CreateClosedInterval (left : Real, right : Real) : ClosedInterval
+vconstructor CreateLeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
+vconstructor CreateRightClopenInterval (left : Real, right : Real) : RightClopenInterval
+vconstructor CreateFunction (domain : Set, codomain : Set) : Function
+
 vconstructor Pt (x : Real, y : Real) : Point
 
 -- Subtyping relationships
 Reals <: Set
 Interval <: Set
+-- TODO: Reals <: Interval
 
 OpenInterval <: Interval
 ClosedInterval <: Interval
@@ -30,6 +37,11 @@ operator derivativeAtP (f : Function, p : Real) : Real
 operator derivativeOverD (f : Function) : Function
 operator integral (I : Interval, f : Function) : Real
 operator apply (f : Function, p : Real) : Real
+-- We don't know if applying f to an interval yields an interval. Substance should be able to cast it to an Interval
+operator applyOver (f : Function, I : Interval) : Interval
+-- operator applyOver (f : Function, I : Interval) : Set
+-- (g . f): Does not check f's codomain matches g's domain
+operator compose (f : Function, g : Function) : Function
 
 -- Predicates on intervals
 predicate Bounded (i : Interval) : Prop
@@ -42,7 +54,6 @@ predicate Degenerate (i : Interval) : Prop
 predicate Empty (i : Interval) : Prop
 
 -- Predicates on functions
-predicate From (f : Function, domain : Set, codomain : Set) : Prop
 predicate Continuous (f : Function) : Prop
 predicate Discontinuous (f : Function) : Prop
 predicate Differentiable (f : Function) : Prop
@@ -62,15 +73,15 @@ predicate LessThan (p1 : Real, p2 : Real) : Prop
 predicate ClosedEnd (p : Real, I : Interval) : Prop
 predicate OpenEnd (p : Real, I : Interval) : Prop
 
-------------------------- Syntactic Sugar Definition ---------------------------
+-- Prelude exports
+-- value RR : Reals
 
-StmtNotation "Real a ∈ U" -> "Real a ;In(a,U)"
-StmtNotation "a < b" -> "LessThan(a,b)"
-StmtNotation "a < b" -> "LessThan(a,b)"
-StmtNotation "A := [a, b] ⊆ R" -> "ClosedInterval A ;A := CreateClosedInterval(a, b) ;Subset(A, R)"
-StmtNotation "A := [a, b) ⊆ R" -> "LeftClopenInterval A ;A := CreateLeftClopenInterval(a, b) ;Subset(A, R)"
-StmtNotation "A := (a, b) ⊆ R" -> "OpenInterval A ;A := OpenInterval(a, b) ;Subset(A, R)"
-StmtNotation "f : U → V" -> "Function f ;From(f,U,V)"
-StmtNotation "f(v)" -> "apply(f,v)"
-StmtNotation "f^(p)" -> "derivativeAtP(f, p)"
-StmtNotation "∫f(p)" -> "integral(f, p)"
+-- Notation is ASCII only
+-- notation "f.domain" -> "Dom(f)"
+-- notation "f.codomain" := "Cod(f)"
+-- notation "Subset(X, Y)" := "X Subset Y"
+-- TODO: specify infix predicates
+
+-- Unicode display
+-- display "Subset" -> ⊂
+-- display "RR" -> R

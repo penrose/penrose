@@ -62,7 +62,7 @@ shadowMain = do
     -- print dsllEnv
 
     (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance (subFile ++ "sugared") desugaredSub dsllEnv
-    removeIfExists (subFile ++ "sugared")
+    -- removeIfExists (subFile ++ "sugared")
     divLine
 
     putStrLn "Parsed Substance program:\n"
@@ -154,7 +154,6 @@ mainRetInit subFile styFile dsllFile = do
     dsllEnv <- D.parseDsll dsllFile dsllIn
     (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
     styProg <- S.parseStyle styFile styIn
-    -- let initState = R.genInitState styProg
     let selEnvs = S.checkSels subEnv styProg
     let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
     let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
@@ -168,7 +167,7 @@ stepsWithoutServer initState =
          trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
          where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
                notConverged (s, n) = G.optStatus (G.paramsr s) /= G.EPConverged
-                                     || n < maxSteps
+                                     && n < maxSteps
                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge
 
 -- | Remove file if exist, used for removing the desugared file after we are done

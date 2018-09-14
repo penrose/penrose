@@ -80,6 +80,7 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s)
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
 stepShapes :: (Autofloat a) => Params -> [a] -> ([a], Params)
 stepShapes params vstate = -- varying state
+         -- if null vstate then error "empty state in stepshapes" else
          let (epWeight, epStatus) = (weight params, optStatus params) in
          case epStatus of
 
@@ -134,7 +135,9 @@ stepT dt x dfdx = x - dt * dfdx
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
 stepWithObjective :: (Autofloat a) => Params -> [a] -> ([a], [a])
-stepWithObjective params state = (steppedState, gradEval)
+stepWithObjective params state = 
+                  -- if null gradEval then error "empty gradient" else
+                  (steppedState, gradEval)
     where (t', gradEval) = timeAndGrad objFnApplied state
           -- get timestep via line search, and evaluated gradient at the state
           -- step each parameter of the state with the time and gradient
@@ -148,7 +151,8 @@ stepWithObjective params state = (steppedState, gradEval)
                                 ++ "\nf(x'): \n" ++ (show fx')
                                 ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
-                                ++ "\nstate: \n" ++ (show state') )
+                                ++ "\n original state: \n" ++ (show state) 
+                                ++ "\n new state: \n" ++ (show state') )
                          state'
 
           objFnApplied :: ObjFn1 b

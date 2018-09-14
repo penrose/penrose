@@ -447,7 +447,7 @@ compareTypes varEnv (k1,k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv)
 substHelper varEnv sigma (KT (TConstr (TypeCtorApp atc argsAT pos1)), KT (TConstr (TypeCtorApp ftc argsFT pos2)))
   | atc `elem` declaredNames varEnv || ftc `elem` declaredNames varEnv =
     substHelper2 varEnv sigma (AVar (VarConst atc), AVar (VarConst ftc))
-  | atc /= ftc && isSubtype (TConstr (TypeCtorApp atc argsAT pos1)) (TConstr (TypeCtorApp ftc argsFT pos2)) varEnv =
+  | atc /= ftc && not (isSubtype (TConstr (TypeCtorApp atc argsAT pos1)) (TConstr (TypeCtorApp ftc argsFT pos2)) varEnv) =
     error ("Argument type " ++ show atc ++ " doesn't match expected type " ++ show ftc)
   | otherwise = let args = zip argsAT argsFT
                     sigma2 = foldl (substHelper2 varEnv) sigma args

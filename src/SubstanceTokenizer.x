@@ -11,6 +11,8 @@ tokens :-
   "Label".*                         { \s -> Label s }
   "AutoLabel".*                     { \s -> AutoLabel s }
   "--".*                            { \s -> Comment s }
+  "/*".*                            { \s -> StartMultiComment s}
+  "*/".*                            { \s -> EndMultiComment s}
   [\ \t\f\v\r]+                     {\s -> Space}
   [\n]+                             {\s -> NewLine}
   \;                                {\s -> NewLine}
@@ -52,7 +54,9 @@ data Token =
   DSLLEntity String               |
   Label String                    |
   AutoLabel String                |
-  Comment String
+  Comment String                  |
+  StartMultiComment String        |
+  EndMultiComment String
   deriving (Show)
 
 instance Eq Token where
@@ -70,6 +74,8 @@ instance Eq Token where
   Entitiy c1 == Entitiy c2 = c1 == c2
   DSLLEntity c1 == DSLLEntity c2 = c1 == c2
   Comment c1 == Comment c2 = c1 == c2
+  StartMultiComment c1 == StartMultiComment c2 = c1 == c2
+  EndMultiComment c1 == EndMultiComment c2 = c1 == c2
   RecursivePatternElement lst1 == RecursivePatternElement lst2 = True
   RecursivePattern lst1 == RecursivePattern lst2 = lst1 == lst2
   a == b = False

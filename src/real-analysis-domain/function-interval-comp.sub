@@ -1,0 +1,68 @@
+Reals R
+-- OR: Interval R
+-- R := CreateOpenInterval(neg_inf, inf)
+
+-- Real a
+-- Real b
+-- In(a, R)
+-- In(b, R)
+
+Interval I
+-- I := CreateClosedInterval(a, b)
+Subset(I, R)
+
+-- f : I -> R
+Function f
+f := CreateFunction(I, R)
+Continuous(f)
+
+-- g : R -> R
+Function g
+g := CreateFunction(R, R)
+
+Function h
+h := compose(f, g)
+
+-- Image of an interval
+Interval C
+Subset(C, I)
+-- Set D
+Interval D -- casting from Set
+J := applyOver(I)
+
+-- Draw something in g's codomain, where g : R -> R
+-- so we have to distinguish the two axes
+Real x
+In(x, g.domain)
+Real y
+In(y, g.codomain)
+
+-- Why have ClosedInterval I vs. Function f; Continuous(f)?
+
+-- Real c
+-- In(c, I)
+-- OR: In(c, f.domain)
+
+-- Real d
+-- In(d, R)
+-- OR: In(d, f.codomain)
+-- d := apply(f, c)
+
+-- TODO: finish reasoning thru the built-up Sub/Sty
+-- and make sure it's consistent
+-- work out the finer details of Style later
+
+/*
+
+Interval I
+Function f
+f := CreateFunction(I, J)
+
+Interval J
+Function g
+g := CreateFunction(J, R)
+
+Function h
+h := compose(f, g)
+
+*/

@@ -83,17 +83,18 @@ compDict = M.fromList
         ("intersectionY", intersectionY),
         ("midpointX", midpointX),
         ("midpointY", midpointY),
+        ("midpoint", noop), -- TODO
         ("len", len),
         ("computeSurjectionLines", computeSurjectionLines),
         ("lineLeft", lineLeft),
         ("lineRight", lineRight),
+        ("sampleFunction", sampleFunction),
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
         ("sampleReal", noop), -- TODO
         ("sampleVectorIn", noop), -- TODO
         ("intersection", noop), -- TODO
-        ("midpoint", noop), -- TODO
         ("determinant", noop), -- TODO
         ("apply", noop) -- TODO
     ] -- TODO: port existing comps
@@ -239,8 +240,8 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("maxSize", maxSize),
                 ("outsideOf", outsideOf),
                 ("nonOverlapping", nonOverlapping),
-                ("inRange", inRange')
-                -- ("lessThan", lessThan)
+                ("inRange", inRange'),
+                ("lessThan", lessThan)
             ]
 
 constrSignatures :: OptSignatures
@@ -312,7 +313,7 @@ type Interval = (Float, Float)
 -- TODO: use the rng in state
 compRng :: StdGen
 compRng = mkStdGen seed
-    where seed = 16 -- deterministic RNG with seed
+    where seed = 17 -- deterministic RNG with seed
 
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
@@ -325,6 +326,18 @@ randomsIn g 0 _        =  ([], g)
 randomsIn g n interval = let (x, g') = randomR interval g -- First value
                              (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
                          (r2f x : xs, g'')
+
+sampleFunction :: CompFn
+-- Assuming domain and range are lines or arrows, TODO deal w/ points
+-- TODO: discontinuous functions? not sure how to sample/model/draw consistently
+sampleFunction [Val (IntV n), GPI domain, GPI range] =
+               let (dsx, dsy, dex, dey) = (getNum domain "startX", getNum domain "startY", 
+                                           getNum domain "endX", getNum domain "endY")
+                   (rsx, rsy, rex, rey) = (getNum range "startX", getNum range "startY", 
+                                           getNum range "endX", getNum range "endY")
+                   lower_left = (min dsx dex, min rsy rey)
+                   top_right  = (max dsx dex, max rsy rey) in
+               Val $ PathV $ computeSurjection compRng n lower_left top_right
 
 -- Computes the surjection to lie inside a bounding box defined by the corners of a box
 -- defined by four straight lines, assuming their lower/left coordinates come first.
@@ -477,14 +490,18 @@ len [GPI a@("Arrow", _)] =
     in Val $ FloatV $ dist (x0, y0) (x1, y1)
 
 midpointX :: CompFn
-midpointX [GPI a@("Arrow", _)] =
-    let (x0, x1) = (getNum a "startX", getNum a "endX")
-    in Val $ FloatV $ x1 - x0 / 2
+midpointX [GPI linelike] =
+    if fst linelike == "Line" || fst linelike == "Arrow"
+    then let (x0, x1) = (getNum linelike "startX", getNum linelike "endX")
+         in Val $ FloatV $ (x1 + x0) / 2
+    else error "GPI type must be line-like"
 
 midpointY :: CompFn
-midpointY [GPI a@("Arrow", _)] =
-    let (y0, y1) = (getNum a "startY", getNum a "endY")
-    in Val $ FloatV $ y1 - y0 / 2
+midpointY [GPI linelike] =
+    if fst linelike == "Line" || fst linelike == "Arrow"
+    then let (y0, y1) = (getNum linelike "startY", getNum linelike "endY")
+         in Val $ FloatV $ (y1 + y0) / 2
+    else error "GPI type must be line-like"
 
 norm_ :: CompFn
 norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
@@ -530,7 +547,7 @@ centerLabel [GPI p, GPI l]
         (px + 10 - lx)^2 + (py + 20 - ly)^2 -- Top right from the point
 -- -- TODO: depends on orientation of arrow
 centerLabel [GPI arr, GPI text]
-    | arr `is` "Arrow" && text `is` "Text" =
+    | ((arr `is` "Arrow") || (arr `is` "Line")) && text `is` "Text" =
         let (sx, sy, ex, ey) = (getNum arr "startX", getNum arr "startY", getNum arr "endX", getNum arr "endY")
             (mx, my) = midpoint (sx, sy) (ex, ey)
             (lx, ly) = (getX text, getY text) in
@@ -622,11 +639,13 @@ topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] = dist (getX l, getY l) (getX
 topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s - 0.5 * getNum s "w", getY s - 0.5 * getNum s "h")
 
 nearHead :: ObjFn
-nearHead [GPI arr@("Arrow", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
-    let end = (getNum arr "endX", getNum arr "endY")
-        offset = (xoff, yoff)
-    in distsq (getX lab, getY lab) (end `plus2` offset)
-    where plus2 (a, b) (c, d) = (a + c, b + d)
+nearHead [GPI lineLike, GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
+    if fst lineLike == "Line" || fst lineLike == "Arrow"
+    then let end = (getNum lineLike "endX", getNum lineLike "endY")
+             offset = (xoff, yoff)
+         in distsq (getX lab, getY lab) (end `plus2` offset)
+    else error "GPI type for nearHead must be line-like"
+      where plus2 (a, b) (c, d) = (a + c, b + d)
 
 nearEndVert :: ObjFn
 -- expects a vertical line
@@ -674,8 +693,9 @@ at :: ConstrFn
 at [GPI o, Val (FloatV x), Val (FloatV y)] =
     (getX o - x)^2 + (getY o - y)^2
 
--- lessThan :: ConstrFn
--- lessThan [] = 0.0 -- TODO
+lessThan :: ConstrFn
+lessThan [Val (FloatV x), Val (FloatV y)] = 
+         x - y
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
@@ -780,7 +800,15 @@ minSize [GPI r@("Rectangle", _)] =
     let min_side = min (getNum r "w") (getNum r "h")
     in 20 - min_side
 minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "r") (getNum e "r")
-minSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
+minSize [GPI g] = 
+        if fst g == "Line" || fst g == "Arrow" then
+        let vec = [ getNum g "endX" - getNum g "startX",
+                    getNum g "endY" - getNum g "startY"] in
+        40 - norm vec
+        else 0
+
+ -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
+-- minSize _ = 0
 
 -- minSize [AR' ar] _ = 2.5 - sizear' ar
 -- minSize [IM' im] [] = let min_side = min (sizeXim' im) (sizeYim' im) in 20 - min_side
