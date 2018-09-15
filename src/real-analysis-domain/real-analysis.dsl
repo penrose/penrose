@@ -1,3 +1,5 @@
+----------------------------- Type Constructors --------------------------------
+
 tconstructor Set : type
 tconstructor Reals : type
 tconstructor Real : type
@@ -28,6 +30,8 @@ ClosedInterval <: Interval
 LeftClopenInterval <: Interval
 RightClopenInterval <: Interval
 
+-------------------------------- Operators -------------------------------------
+
 -- Operators on intervals
 operator union (I : Interval, J : Interval) : Interval
 operator intersection (I : Interval, J : Interval)  : Interval
@@ -42,6 +46,8 @@ operator applyOver (f : Function, I : Interval) : Interval
 -- operator applyOver (f : Function, I : Interval) : Set
 -- (g . f): Does not check f's codomain matches g's domain
 operator compose (f : Function, g : Function) : Function
+
+-------------------------------- Predicates -------------------------------------
 
 -- Predicates on intervals
 predicate Bounded (i : Interval) : Prop
@@ -72,6 +78,31 @@ predicate Subset (X : Set, Y : Set) : Prop
 predicate LessThan (p1 : Real, p2 : Real) : Prop
 predicate ClosedEnd (p : Real, I : Interval) : Prop
 predicate OpenEnd (p : Real, I : Interval) : Prop
+
+------------------------- Syntactic Sugar Definition ---------------------------
+
+StmtNotation  "Real a ∈ R" -> "Real a;In(a,R)"
+StmtNotation  "a < b" -> "LessThan(a,b)"
+StmtNotation  "A := [ a ,b ] ⊆ R " -> "ClosedInterval A;A := CreateClosedInterval(a,b);Subset(A,R)"
+StmtNotation  "A := ( a ,b ) ⊆ R " -> "OpenInterval A;A := CreateOpenInterval(a,b);Subset(A,R)"
+StmtNotation  "A := ( a ,b ] ⊆ R " -> "RightClopenInterval A;A := CreateRightClopenInterval(a,b);Subset(A,R)"
+StmtNotation  "A := [ a ,b ) ⊆ R " -> "LeftClopenInterval A;A := CreateLeftClopenInterval(a,b);Subset(A,R)"
+StmtNotation  "f : A → B" -> "Function f;f := CreateFunction(A,B)"
+StmtNotation  "B ∪ C " -> "union(B,C)"
+StmtNotation  "f ^ (l)" -> "derivativeAtP(f,l)"
+StmtNotation  "f(x)" -> "apply(f,x)"
+
+
+
+
+
+
+
+
+
+
+
+------------------------------- Others -----------------------------------------
 
 -- Prelude exports
 -- value RR : Reals
