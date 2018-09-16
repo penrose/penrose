@@ -92,16 +92,6 @@ StmtNotation  "B ∪ C " -> "union(B,C)"
 StmtNotation  "f ^ (l)" -> "derivativeAtP(f,l)"
 StmtNotation  "f(x)" -> "apply(f,x)"
 
-
-
-
-
-
-
-
-
-
-
 ------------------------------- Others -----------------------------------------
 
 -- Prelude exports

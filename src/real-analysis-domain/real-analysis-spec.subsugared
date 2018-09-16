@@ -31,12 +31,12 @@ K  :=  CreateOpenInterval(k ,inf )
 Subset(K ,R )
 Function f 
 f  :=  CreateFunction(A ,R )
-apply(Differentiable ,f )
+Differentiable (f )
 Interval U 
 U := union(J ,I )
 Function h 
 h  :=  CreateFunction(U ,R )
-apply(Discontinuous ,h )
+Discontinuous (h )
 Real l 
 In(l ,A )
 Real fl 

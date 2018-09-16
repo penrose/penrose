@@ -41,9 +41,10 @@ tokenize = T.alexScanTokens
 --   and refine the tokens into patterns and entities
 tokenizeSugaredSubstance :: String -> VarEnv -> [T.Token]
 tokenizeSugaredSubstance prog dsllEnv =
-  let allEntities = concatMap entitiesSnr (stmtNotations dsllEnv)
+  let allDsllEntities = typeCtorNames dsllEnv
+      allSnrEntities = concatMap entitiesSnr (stmtNotations dsllEnv)
       tokenized = tokenize prog
-      tokenized' = foldl (refineByEntity allEntities) [] tokenized
+      tokenized' = foldl (refineByEntity allDsllEntities allSnrEntities) [] tokenized
   in tokenized'
 
 -- getEntities :: StmtNotationRule -> [T.Token]
@@ -105,13 +106,13 @@ refineByPattern patterns tokens (T.Var v) =
 
 refineByPattern patterns tokens t = tokens ++ [t]
 
-refineByEntity :: [T.Token] -> [T.Token] -> T.Token -> [T.Token]
-refineByEntity entities tokens (T.Var v) =
-   if T.Entitiy v `elem` entities
+refineByEntity :: [String] -> [T.Token] -> [T.Token] -> T.Token -> [T.Token]
+refineByEntity dsllEntities snrEntities tokens (T.Var v) =
+   if v `elem` dsllEntities || T.Entitiy v `elem` snrEntities
     then tokens ++ [T.Entitiy v]
     else tokens ++ [T.Pattern v False]
 
-refineByEntity patterns tokens t = tokens ++ [t]
+refineByEntity _ _ tokens t = tokens ++ [t]
 
 
 refineDSLLToken :: VarEnv -> [T.Token] -> T.Token -> [T.Token]
