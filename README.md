@@ -4,11 +4,11 @@
 * See the [wiki](https://github.com/penrose/penrose/wiki) for more system-specific information on building, running, testing, and debugging the system. 
 * For even more documentation, see Nimo Ni's [README](https://github.com/wodeni/notes-public/blob/master/penrose/archive/ramp-down.md).
 
-Our system is not ready for contributions or public use yet, but hopefully will be soon. Send us an email if you're interested in collaborating.
+**Penrose is an early-stage system that is still in development.** Our system is not ready for contributions or public use yet, but hopefully will be soon. Send us an email if you're interested in collaborating.
 
 ### Example
 
-Here a Penrose visualization in the domain of set theory.
+Here's a simple Penrose visualization in the domain of set theory.
 
 <img src="https://i.imgur.com/3JHZeaX.png" width=300>
 
