@@ -26,31 +26,32 @@ styDir = "src/sty"
 styFilenames :: [String]
 -- styFilenames = unsafePerformIO $ listDirectory styDir
 styFilenames = [
-    "bijection.sty",
-    "bijection_computed.sty",
     "cart-test-pt.sty",
-    "composition.sty",
     "continuousmap.sty",
-    "dsldi-demo1.sty",
-    "injection.sty",
-    "injection_computed.sty",
-    "parallelogram.sty",
-    "surjection-abstract.sty",
-    "surjection-cart.sty",
-    "surjection-cart2.sty",
-    "surjection.sty",
     "surjection_computed.sty",
     "tree.sty",
     "twopoints.sty",
-    "twopoints_negative.sty",
-    "twosets.sty",
-    "vectorNorm.sty",
-    "vectors.sty",
     "venn.sty",
     "venn_comp.sty",
-    "venn_comp_simple.sty",
-    "venn_subset.sty" ]
+    "venn_comp_simple.sty" ]
 
+-- TEMP: deprecated examples due to the new Style parser
+-- "bijection.sty",
+-- "bijection_computed.sty",
+-- "composition.sty",
+-- "dsldi-demo1.sty",
+-- "injection.sty",
+-- "injection_computed.sty",
+-- "surjection-abstract.sty",
+-- "surjection-cart.sty",
+-- "surjection-cart2.sty",
+-- "surjection.sty",
+-- "twopoints_negative.sty",
+-- "twosets.sty",
+-- "vectorNorm.sty",
+-- "vectors.sty",
+-- "venn_subset.sty"
+-- "parallelogram.sty",
 
 parseFile :: String -> IO Bool
 parseFile fname = do
