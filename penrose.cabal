@@ -56,7 +56,11 @@ executable penrose
         multimap -any,
         directory -any,
         unordered-containers -any,
-        pretty-terminal -any
+        pretty-terminal -any,
+        scotty -any,
+        http-types -any,
+        mtl -any,
+        bytestring -any
 
 test-suite penrose-testsuite
     type: exitcode-stdio-1.0
@@ -105,4 +109,8 @@ test-suite penrose-testsuite
         tasty-hunit -any,
         directory -any,
         multimap -any,
-        pretty-terminal -any
+        pretty-terminal -any,
+        scotty -any,
+        http-types -any,
+        mtl -any,
+        bytestring -any

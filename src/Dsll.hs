@@ -312,14 +312,14 @@ parseDsll dsllFile dsllIn =
           case runParser dsllParser dsllFile dsllIn of
           Left err -> error (parseErrorPretty err)
           Right prog -> do
-              putStrLn "DSLL AST: \n"
-              pPrint prog
-              divLine
+            --   putStrLn "DSLL AST: \n"
+            --   pPrint prog
+            --   divLine
               let env = check prog
                   env1 = computeSubTypes env
-              divLine
-              putStrLn "DSLL Env: \n"
-              pPrint env1
+            --   divLine
+            --   putStrLn "DSLL Env: \n"
+            --   pPrint env1
               return env1
 
 -- --------------------------------------- Test Driver -------------------------------------

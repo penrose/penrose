@@ -1,11 +1,12 @@
 -- | Main module of the Penrose system (split out for testing; Main is the real main)
 
-{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable #-}
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable, OverloadedStrings #-}
 
 module ShadowMain where
 import Utils
 import qualified Server
 import qualified Substance as C
+import qualified Control.Concurrent as CC
 import qualified Style as S
 import qualified GenOptProblem as G
 import qualified Optimizer as O
@@ -16,7 +17,13 @@ import System.IO
 import System.Exit
 import Debug.Trace
 import Text.Show.Pretty
+import Web.Scotty
+import Network.HTTP.Types.Status
+import qualified Data.Text.Lazy as T
+import Data.Text.Lazy.Encoding (decodeUtf8)
+import qualified Data.ByteString.Lazy.Char8 as B 
 import Control.Monad (when, forM)
+import Control.Monad.Trans
 import qualified Env as E -- DEBUG: remove
 import qualified Data.Map.Strict as M -- DEBUG: remove
 import qualified Data.List as L (intercalate)
@@ -35,103 +42,113 @@ shadowMain = do
     args <- getArgs
     when (length args /= 3) $ die "Usage: ./Main prog1.sub prog2.sty prog3.dsl"
     let (subFile, styFile, dsllFile) = (head args, args !! 1, args !! 2)
-    subIn  <- readFile subFile
     styIn  <- readFile styFile
     dsllIn <- readFile dsllFile
-    putStrLn "\nSubstance program:\n"
-    putStrLn subIn
-    divLine
-    putStrLn "Style program:\n"
-    putStrLn styIn
-    divLine
-    putStrLn "DSLL program:\n"
-    putStrLn dsllIn
-    divLine
-
+    -- putStrLn "Style program:\n"
+    -- putStrLn styIn
+    -- divLine
+    -- putStrLn "DSLL program:\n"
+    -- putStrLn dsllIn
+    -- divLine
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    divLine
+    -- divLine
     -- putStrLn "Dsll Env program:\n"
     -- print dsllEnv
-
-    (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
-    divLine
-
-    putStrLn "Parsed Substance program:\n"
-    pPrint subProg
-    divLine
-
-    putStrLn "Substance type env:\n"
-    pPrint subEnv
-    divLine
-
-    putStrLn "Substance dyn env:\n"
-    pPrint eqEnv
-    divLine
-
-    putStrLn "Label mappings:\n"
-    pPrint labelMap
-    divLine
-
     styProg <- S.parseStyle styFile styIn
-    putStrLn "Style AST:\n"
-    pPrint styProg
-    divLine
+    -- putStrLn "Style AST:\n"
+    -- pPrint styProg
+    -- divLine
+    scotty 3939 $
+        post "/" $ do
+            sub <- body
+            let subIn = B.unpack sub
+            _ <- liftIO (putStrLn subIn)
+            -- subIn  <- readFile subFile
+            -- subIn <- decodeUtf8 sub
+            -- _ <- liftIO (putStrLn "\nSubstance program:\n")
+            -- _ <- liftIO (putStrLn subIn)
+            -- divLine
+            
 
-    putStrLn "Running Style semantics\n"
-    let selEnvs = S.checkSels subEnv styProg
-    putStrLn "Selector static semantics and local envs:\n"
-    forM selEnvs pPrint
-    divLine
+            (subProg, (subEnv, eqEnv), labelMap) <- liftIO (C.parseSubstance subFile subIn dsllEnv)
+            -- divLine
 
-    let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
-    putStrLn "Selector matches:\n"
-    forM subss pPrint
-    divLine
+            -- putStrLn "Parsed Substance program:\n"
+            -- pPrint subProg
+            -- divLine
 
-    let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
-                        :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
-    putStrLn "Translated Style program:\n"
-    pPrint trans
-    divLine
+            -- putStrLn "Substance type env:\n"
+            -- pPrint subEnv
+            -- divLine
 
-    let initState = G.genOptProblemAndState (fromRight trans)
-    putStrLn "Generated initial state:\n"
+            -- putStrLn "Substance dyn env:\n"
+            -- pPrint eqEnv
+            -- divLine
 
-    -- TODO improve printing code
-    putStrLn "Shapes:"
-    pPrint $ G.shapesr initState
-    putStrLn "\nShape names:"
-    pPrint $ G.shapeNames initState
-    putStrLn "\nShape properties:"
-    pPrint $ G.shapeProperties initState
-    putStrLn "\nTranslation:"
-    pPrint $ G.transr initState
-    putStrLn "\nVarying paths:"
-    pPrint $ G.varyingPaths initState
-    putStrLn "\nUninitialized paths:"
-    pPrint $ G.uninitializedPaths initState
-    putStrLn "\nVarying state:"
-    pPrint $ G.varyingState initState
-    putStrLn "\nParams:"
-    pPrint $ G.paramsr initState
-    putStrLn "\nAutostep:"
-    pPrint $ G.autostep initState
-    print initState
-    divLine
+            -- putStrLn "Label mappings:\n"
+            -- pPrint labelMap
+            -- divLine
 
-    putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
-    let warns = S.warnings $ fromRight trans
-    putStrLn (color Red $ L.intercalate "\n" warns ++ "\n")
+            
 
-    putStrLn "Visualizing Substance program:\n"
+            -- putStrLn "Running Style semantics\n"
+            let selEnvs = S.checkSels subEnv styProg
+            -- putStrLn "Selector static semantics and local envs:\n"
+            -- _ <- liftIO (forM selEnvs pPrint)
+            -- divLine
 
-    -- Step without server: test time taken to converge
-    -- let finalState = stepsWithoutServer initState
-    -- pPrint finalState
+            let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
+            -- putStrLn "Selector matches:\n"
+            -- _ <- liftIO (forM subss pPrint)
+            -- divLine
 
-    -- Starting serving penrose on the web
-    let (domain, port) = ("127.0.0.1", 9160)
-    Server.servePenrose domain port initState
+            let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
+                                :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
+            -- putStrLn "Translated Style program:\n"
+            -- pPrint trans
+            -- divLine
+
+            let initState = G.genOptProblemAndState (fromRight trans)
+            -- putStrLn "Generated initial state:\n"
+
+            -- TODO improve printing code
+            -- putStrLn "Shapes:"
+            -- pPrint $ G.shapesr initState
+            -- putStrLn "\nShape names:"
+            -- pPrint $ G.shapeNames initState
+            -- putStrLn "\nShape properties:"
+            -- pPrint $ G.shapeProperties initState
+            -- putStrLn "\nTranslation:"
+            -- pPrint $ G.transr initState
+            -- putStrLn "\nVarying paths:"
+            -- pPrint $ G.varyingPaths initState
+            -- putStrLn "\nUninitialized paths:"
+            -- pPrint $ G.uninitializedPaths initState
+            -- putStrLn "\nVarying state:"
+            -- pPrint $ G.varyingState initState
+            -- putStrLn "\nParams:"
+            -- pPrint $ G.paramsr initState
+            -- putStrLn "\nAutostep:"
+            -- pPrint $ G.autostep initState
+            -- print initState
+            -- divLine
+
+            -- putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
+            let warns = S.warnings $ fromRight trans
+            -- putStrLn (color Red $ L.intercalate "\n" warns ++ "\n")
+
+            -- putStrLn "Visualizing Substance program:\n"
+
+            -- Step without server: test time taken to converge
+            -- let finalState = stepsWithoutServer initState
+            -- pPrint finalState
+
+            -- Starting serving penrose on the web
+            let (domain, port) = ("127.0.0.1", 9160)
+            _ <- liftIO $ CC.forkIO $ Server.servePenrose domain port initState
+            text "127.0.0.1:9160"
+            -- status status200
+
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
 -- (extracted via unsafePerformIO)

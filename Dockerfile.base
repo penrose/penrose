@@ -6,4 +6,5 @@ RUN apt-get update && apt-get install -y \
   libgmp-dev
 
 ENTRYPOINT ["penrose"]
+EXPOSE 3939
 CMD ["src/sub/twosets.sub","src/sty/venn_comp.sty","src/dsll/setTheory.dsl"]
