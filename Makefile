@@ -7,4 +7,4 @@ build-stack-native: build-base
 	stack --stack-yaml stack-native.yaml image container
 
 run-stack-native:
-	docker run penrose 
+	docker run -it --rm -p 3939:3939 -p 9160:9160 penrose 
