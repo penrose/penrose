@@ -1,0 +1,70 @@
+{
+    "tag": "Update",
+    "contents": {
+        "shapes": [
+            [
+                "Circle",
+                {
+                    "color": { "tag": "ColorV", "contents": [1, 0.2, 1, 0.5] },
+                    "name": { "tag": "StrV", "contents": "A.shape" },
+                    "r": { "tag": "FloatV", "contents": 56.106910705566406 },
+                    "stroke-style": { "tag": "StrV", "contents": "solid" },
+                    "stroke-width": { "tag": "IntV", "contents": 0 },
+                    "style": { "tag": "StrV", "contents": "filled" },
+                    "x": { "tag": "FloatV", "contents": 224.38153076171875 },
+                    "y": { "tag": "FloatV", "contents": 219.06719970703125 }
+                }
+            ],
+            [
+                "Text",
+                {
+                    "h": { "tag": "FloatV", "contents": 14.964703559875488 },
+                    "name": { "tag": "StrV", "contents": "A.text" },
+                    "rotation": {
+                        "tag": "FloatV",
+                        "contents": 184.10113525390625
+                    },
+                    "string": { "tag": "StrV", "contents": "A" },
+                    "stroke": { "tag": "StrV", "contents": "none" },
+                    "style": { "tag": "StrV", "contents": "none" },
+                    "w": { "tag": "FloatV", "contents": 14.442193984985352 },
+                    "x": { "tag": "FloatV", "contents": -15.9296875 },
+                    "y": { "tag": "FloatV", "contents": -153.58094787597656 }
+                }
+            ],
+            [
+                "Circle",
+                {
+                    "color": {
+                        "tag": "ColorV",
+                        "contents": [0.1, 1, 0.2, 0.4]
+                    },
+                    "name": { "tag": "StrV", "contents": "B.shape" },
+                    "r": { "tag": "FloatV", "contents": 128.5289306640625 },
+                    "stroke-style": { "tag": "StrV", "contents": "solid" },
+                    "stroke-width": { "tag": "IntV", "contents": 0 },
+                    "style": { "tag": "StrV", "contents": "filled" },
+                    "x": { "tag": "FloatV", "contents": 244.18157958984375 },
+                    "y": { "tag": "FloatV", "contents": -106.43710327148438 }
+                }
+            ],
+            [
+                "Text",
+                {
+                    "h": { "tag": "FloatV", "contents": 14.273270606994629 },
+                    "name": { "tag": "StrV", "contents": "B.text" },
+                    "rotation": {
+                        "tag": "FloatV",
+                        "contents": 188.1309814453125
+                    },
+                    "string": { "tag": "StrV", "contents": "B" },
+                    "stroke": { "tag": "StrV", "contents": "none" },
+                    "style": { "tag": "StrV", "contents": "none" },
+                    "w": { "tag": "FloatV", "contents": 15.067390441894531 },
+                    "x": { "tag": "FloatV", "contents": 217.06219482421875 },
+                    "y": { "tag": "FloatV", "contents": 181.97418212890625 }
+                }
+            ]
+        ]
+    }
+}

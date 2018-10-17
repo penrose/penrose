@@ -1,19 +1,25 @@
-import * as React from 'react';
-import './App.css';
+import * as React from "react";
+import "./App.css";
+import Canvas from "./Canvas";
 
-import logo from './logo.svg';
+interface IState {
+  json: any;
+}
 
-class App extends React.Component {
+class App extends React.Component<any, IState> {
+  public readonly state = { json: {} };
+  public async componentDidMount() {
+    const myRes = await fetch("/raw.json");
+    const myJSON = await myRes.json();
+    // tslint:disable-next-line:no-console
+    // console.log(myJSON);
+    this.setState({ json: myJSON });
+  }
   public render() {
+    const { json } = this.state;
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <Canvas data={json} />
       </div>
     );
   }
