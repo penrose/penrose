@@ -12,7 +12,6 @@ class App extends React.Component<any, IState> {
   public async componentDidMount() {
     const myRes = await fetch("/raw.json");
     const myJSON = await myRes.json();
-    // console.log(myJSON);
     this.setState({ json: clean(myJSON) });
   }
   public render() {

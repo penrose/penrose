@@ -1,11 +1,6 @@
 import * as React from "react";
 import { toScreen } from "./Util";
 
-interface IProps {
-  shape: any;
-  canvasSize: [number, number];
-}
-
 interface IState {
   shape: any;
   tempX: number;
@@ -13,8 +8,8 @@ interface IState {
   changed: boolean;
 }
 
-class Circle extends React.Component<IProps, IState> {
-  public static getDerivedStateFromProps(props: IProps, state: IState) {
+class Circle extends React.Component<IEntityProps, IState> {
+  public static getDerivedStateFromProps(props: IEntityProps, state: IState) {
     if (!state.changed) {
       return { ...state, shape: props.shape };
     }

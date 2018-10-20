@@ -1,5 +1,5 @@
 import * as React from "react";
-import Circle from "./Circle";
+import componentMap from "./componentMap";
 
 interface IProps {
   data: any;
@@ -17,6 +17,14 @@ class Canvas extends React.Component<IProps, IState> {
   // if () { }
   // return
   // }
+  public renderEntity = ([name, shape]: [string, object], key: number) => {
+    const component = componentMap[name];
+    if (component === undefined) {
+      return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
+    }
+    const canvasSize = this.canvasSize;
+    return React.createElement(component, { key, shape, canvasSize });
+  };
   public render() {
     const { data } = this.props;
     if (data.length === undefined) {
@@ -24,34 +32,7 @@ class Canvas extends React.Component<IProps, IState> {
     }
     return (
       <svg width={this.canvasSize[0]} height={this.canvasSize[1]}>
-        {data.map((shape: any, index: number) => {
-          const props = shape[1];
-          // TODO: factor out the switch statement
-          switch (shape[0]) {
-            case "Circle":
-              // TODO: circle react component in separate file
-              return (
-                <Circle
-                  key={index}
-                  shape={props}
-                  canvasSize={this.canvasSize}
-                />
-              );
-              break;
-            default:
-              return (
-                <rect
-                  fill="red"
-                  x={0}
-                  y={0}
-                  width={100}
-                  height={100}
-                  key={index}
-                />
-              );
-              break;
-          }
-        })}
+        {data.map(this.renderEntity)}
       </svg>
     );
   }
