@@ -8,7 +8,7 @@ interface IState {
   changed: boolean;
 }
 
-class Circle extends React.Component<IEntityProps, IState> {
+class Rectangle extends React.Component<IEntityProps, IState> {
   public static getDerivedStateFromProps(props: IEntityProps, state: IState) {
     if (!state.changed) {
       return { ...state, shape: props.shape };
@@ -20,10 +20,11 @@ class Circle extends React.Component<IEntityProps, IState> {
     shape: {
       x: 0,
       y: 0,
-      r: 0,
+      sizeX: 0,
+      sizeY: 0,
       color: ["", ""],
-      strokeWidth: 0,
-      strokeStyle: ""
+      rotation: 0,
+      stroke: ""
     },
     tempX: 0,
     tempY: 0
@@ -59,10 +60,11 @@ class Circle extends React.Component<IEntityProps, IState> {
     const color = props.color[0];
     const alpha = props.color[1];
     return (
-      <circle
-        cx={x}
-        cy={y}
-        r={props.r}
+      <rect
+        x={x - props.sizeX / 2}
+        y={y - props.sizeY / 2}
+        width={props.sizeX}
+        height={props.sizeY}
         fill={color}
         fillOpacity={alpha}
         onMouseDown={this.handleMouseDown}
@@ -70,4 +72,4 @@ class Circle extends React.Component<IEntityProps, IState> {
     );
   }
 }
-export default Circle;
+export default Rectangle;
