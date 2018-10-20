@@ -1,6 +1,7 @@
 import * as React from "react";
 import "./App.css";
 import Canvas from "./Canvas";
+import { clean } from "./Util";
 
 interface IState {
   json: any;
@@ -11,9 +12,8 @@ class App extends React.Component<any, IState> {
   public async componentDidMount() {
     const myRes = await fetch("/raw.json");
     const myJSON = await myRes.json();
-    // tslint:disable-next-line:no-console
     // console.log(myJSON);
-    this.setState({ json: myJSON });
+    this.setState({ json: clean(myJSON) });
   }
   public render() {
     const { json } = this.state;
