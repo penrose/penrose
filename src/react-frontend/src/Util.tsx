@@ -27,16 +27,21 @@ export const clean = (tree: IPre) => {
         case "FloatV":
           shapeN[key] = val.contents;
           break;
+        case "IntV":
+          shapeN[key] = val.contents;
+          break;
         case "StrV":
           shapeN[key] = val.contents;
           break;
         case "ColorV":
           shapeN[key] = [toHex(val.contents), val.contents[3]];
           break;
-        case "IntV":
-          shapeN[key] = val.contents;
-          break;
         default:
+          console.warn(
+            `Value tag ${
+              val.tag
+            } unaccounted for. Defaulting to ${key}.contents.`
+          );
           shapeN[key] = val.contents;
           break;
       }

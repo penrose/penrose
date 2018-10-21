@@ -31,7 +31,11 @@ class Canvas extends React.Component<IProps, IState> {
       return <svg />;
     }
     return (
-      <svg width={this.canvasSize[0]} height={this.canvasSize[1]}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={this.canvasSize[0]}
+        height={this.canvasSize[1]}
+      >
         {data.map(this.renderEntity)}
       </svg>
     );
