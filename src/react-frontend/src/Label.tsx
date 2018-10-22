@@ -58,7 +58,7 @@ class Label extends React.Component<IEntityProps, IState> {
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, wrapper]);
       MathJax.Hub.Queue(() => {
         const output = wrapper.getElementsByTagName("svg")[0];
-        cur.innerHTML = output.innerHTML;
+        cur.innerHTML = output.outerHTML; // need to keep properties in <svg>
       });
     }
   };
