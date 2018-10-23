@@ -8,8 +8,8 @@ interface IState {
   changed: boolean;
 }
 
-class Rectangle extends React.Component<IEntityProps, IState> {
-  public static getDerivedStateFromProps(props: IEntityProps, state: IState) {
+class Rectangle extends React.Component<IGPIProps, IState> {
+  public static getDerivedStateFromProps(props: IGPIProps, state: IState) {
     if (!state.changed) {
       return { ...state, shape: props.shape };
     }

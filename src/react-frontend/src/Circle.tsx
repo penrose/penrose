@@ -8,8 +8,8 @@ interface IState {
   changed: boolean;
 }
 
-class Circle extends React.Component<IEntityProps, IState> {
-  public static getDerivedStateFromProps(props: IEntityProps, state: IState) {
+class Circle extends React.Component<IGPIProps, IState> {
+  public static getDerivedStateFromProps(props: IGPIProps, state: IState) {
     if (!state.changed) {
       return { ...state, shape: props.shape };
     }
