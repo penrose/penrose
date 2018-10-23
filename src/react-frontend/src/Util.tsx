@@ -18,8 +18,8 @@ interface IPre {
   contents: any;
 }
 
-export const clean = (tree: IPre) => {
-  return tree.contents.shapes.map((shape: IPre) => {
+export const clean = (shapes: any[]) => {
+  return shapes.map((shape: IPre) => {
     const shapeN = { ...shape[1] };
     for (const key of Object.keys(shapeN)) {
       const val: IPre = shapeN[key];
