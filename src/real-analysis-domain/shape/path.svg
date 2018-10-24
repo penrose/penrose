@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     viewBox="0 0 1095.6 809.6" style="enable-background:new 0 0 1095.6 809.6;" xml:space="preserve">
+  <style type="text/css">
+    .st5{opacity:0.2;}
+    .st6{fill:#FF7635;}
+  </style>
+  <g id="XMLID_1_" class="st5">
+    <path class="st6" d="M 628.8, 416.7 
+			 L 628.8, 638.2
+			 H 490.8
+			 V 364.8
+			 C 533.8, 341.8, 546.8, 402.8, 577.8, 412.8
+			 S 628.8, 416.7, 628.8, 416.7 
+			 Z"/>
+    <!-- c 43, -23, 56, 38, 87, 48 -->
+  </g>
+  <!-- visualizing the path -->
+  <!-- <circle cx="628.8" cy="416.7" r="5" fill="red"/> -->
+  <path d="M 628.8, 416.7 
+	   l 0, 221.5" stroke="blue"/>
+
+  <circle cx="490.8" cy="364.8" r="2.5" fill="green"/>
+  <path d="M 490.8 364.8
+	   L 533.8, 341.8" stroke="green"/>
+  <circle cx="533.8" cy="341.8" r="2.5" fill="green"/>
+  <path d="M 577.8 412.8
+	   L 546.8, 402.8" stroke="green"/>
+  <circle cx="546.8" cy="402.8" r="2.5" fill="green"/>
+  <circle cx="577.8" cy="412.8" r="2.5" fill="green"/>
+
+  <circle cx="628.8" cy="412.7" r="2.5" fill="black"/>
+
+  <!-- Not sure why the curve is slightly off near the end -->
+  <!-- <path class="st6" d="M628.8,416.7
+       l0.5,221.5
+       H490.8
+       h-0.5
+       v-264
+       c 43-23,56,38,87,48
+       S 628.8,416.7,628.8,416.7
+       z"/>
+  -->
+
+</svg>
