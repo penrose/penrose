@@ -1,5 +1,12 @@
 interface IGPIProps {
   shape: any;
   canvasSize: [number, number];
-  onDrag(dx: number, dy: number): void;
+  onShapeUpdate?(shape: any): void;
+  dragEvent?(id: string, dy: number, dx: number): void;
+}
+
+interface IGPIPropsDraggable extends IGPIProps {
+  dx: number;
+  dy: number;
+  onClick(e: React.MouseEvent<any>): void;
 }

@@ -13,10 +13,6 @@ class Canvas extends React.Component<IProps, IState> {
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly state = { data: [] };
 
-  // public getDerivedStateFromProps(props: IProps, state: IState) {
-  // if () { }
-  // return
-  // }
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     const component = componentMap[name];
     if (component === undefined) {
