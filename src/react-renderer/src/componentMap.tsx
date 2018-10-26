@@ -1,12 +1,13 @@
+// Map between "tag" and corresponding component
 import Circle from "./Circle";
 import Label from "./Label";
 import Rectangle from "./Rectangle";
-// Map between "tag" and corresponding component
-// TODO: turn off prettifier for this
+
+// prettier-ignore
 const componentMap = {
-  Circle,
-  Rectangle,
-  Text: Label
+  "Circle": Circle,
+  "Rectangle": Rectangle,
+  "Text": Label
 };
 
 export default componentMap;
