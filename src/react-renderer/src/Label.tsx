@@ -3,16 +3,7 @@ import { toScreen } from "./Util";
 import draggable from "./Draggable";
 declare const MathJax: any;
 
-interface IState {
-  shape: any;
-  // tempX: number;
-  // tempY: number;
-  // origX: number;
-  // origY: number;
-  // changed: boolean;
-}
-
-class Label extends React.Component<IGPIPropsDraggable, IState> {
+class Label extends React.Component<IGPIPropsDraggable> {
   private readonly ref = React.createRef<SVGGElement>();
   public constructor(props: IGPIPropsDraggable) {
     super(props);
@@ -33,14 +24,17 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
     const wrapper = document.createElement("div");
     wrapper.style.display = "none";
     const cur = this.ref.current;
+    const { shape, onShapeUpdate } = this.props;
     if (cur !== null) {
       wrapper.innerHTML = "$" + this.props.shape.string + "$";
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, wrapper]);
       MathJax.Hub.Queue(() => {
         const output = wrapper.getElementsByTagName("svg")[0];
         cur.innerHTML = output.outerHTML; // need to keep properties in <svg>
-        // TODO: send bbox to server
-        // const { width, height } = cur.getBBox();
+        const { width, height } = cur.getBBox();
+        if (onShapeUpdate) {
+          onShapeUpdate({ ...shape, w: width, h: height });
+        }
       });
     }
   };
