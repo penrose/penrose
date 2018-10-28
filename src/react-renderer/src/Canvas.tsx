@@ -3,6 +3,7 @@ import componentMap from "./componentMap";
 
 interface IProps {
   data: any;
+  onShapeUpdate(shape: any): void;
 }
 
 interface IState {
@@ -19,7 +20,13 @@ class Canvas extends React.Component<IProps, IState> {
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
     const canvasSize = this.canvasSize;
-    return React.createElement(component, { key, shape, canvasSize });
+    const { onShapeUpdate } = this.props;
+    return React.createElement(component, {
+      key,
+      shape,
+      canvasSize,
+      onShapeUpdate
+    });
   };
   public render() {
     const { data } = this.props;
