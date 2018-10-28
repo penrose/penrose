@@ -40,114 +40,50 @@ shadowMain = do
     -- Objective function is currently hard-coded
     -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
     args <- getArgs
-    when (length args /= 3) $ die "Usage: ./Main prog1.sub prog2.sty prog3.dsl"
-    let (subFile, styFile, dsllFile) = (head args, args !! 1, args !! 2)
-    styIn  <- readFile styFile
-    dsllIn <- readFile dsllFile
-    -- putStrLn "Style program:\n"
-    -- putStrLn styIn
-    -- divLine
-    -- putStrLn "DSLL program:\n"
-    -- putStrLn dsllIn
-    -- divLine
-    dsllEnv <- D.parseDsll dsllFile dsllIn
-    -- divLine
-    -- putStrLn "Dsll Env program:\n"
-    -- print dsllEnv
-    styProg <- S.parseStyle styFile styIn
-    -- putStrLn "Style AST:\n"
-    -- pPrint styProg
-    -- divLine
-    scotty 3939 $
-        post "/" $ do
-            sub <- body
-            let subIn = B.unpack sub
-            _ <- liftIO (putStrLn subIn)
-            -- subIn  <- readFile subFile
-            -- subIn <- decodeUtf8 sub
-            -- _ <- liftIO (putStrLn "\nSubstance program:\n")
-            -- _ <- liftIO (putStrLn subIn)
-            -- divLine
-            
-
-            (subProg, (subEnv, eqEnv), labelMap) <- liftIO (C.parseSubstance subFile subIn dsllEnv)
-            -- divLine
-
-            -- putStrLn "Parsed Substance program:\n"
-            -- pPrint subProg
-            -- divLine
-
-            -- putStrLn "Substance type env:\n"
-            -- pPrint subEnv
-            -- divLine
-
-            -- putStrLn "Substance dyn env:\n"
-            -- pPrint eqEnv
-            -- divLine
-
-            -- putStrLn "Label mappings:\n"
-            -- pPrint labelMap
-            -- divLine
-
-            
-
-            -- putStrLn "Running Style semantics\n"
+    when ((length args /= 3) && (length args /= 2)) $ die "Usage: ./Main prog1.sub prog2.sty prog3.dsl"
+    case (length args) of
+        3 -> do
+            let (subFile, styFile, dsllFile) = (head args, args !! 1, args !! 2)
+            subIn <- readFile subFile
+            styIn  <- readFile styFile
+            dsllIn <- readFile dsllFile
+            dsllEnv <- D.parseDsll dsllFile dsllIn
+            (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
+            styProg <- S.parseStyle styFile styIn
             let selEnvs = S.checkSels subEnv styProg
-            -- putStrLn "Selector static semantics and local envs:\n"
-            -- _ <- liftIO (forM selEnvs pPrint)
-            -- divLine
-
             let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
-            -- putStrLn "Selector matches:\n"
-            -- _ <- liftIO (forM subss pPrint)
-            -- divLine
-
             let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
-                                :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
-            -- putStrLn "Translated Style program:\n"
-            -- pPrint trans
-            -- divLine
-
+                        :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
             let initState = G.genOptProblemAndState (fromRight trans)
-            -- putStrLn "Generated initial state:\n"
-
-            -- TODO improve printing code
-            -- putStrLn "Shapes:"
-            -- pPrint $ G.shapesr initState
-            -- putStrLn "\nShape names:"
-            -- pPrint $ G.shapeNames initState
-            -- putStrLn "\nShape properties:"
-            -- pPrint $ G.shapeProperties initState
-            -- putStrLn "\nTranslation:"
-            -- pPrint $ G.transr initState
-            -- putStrLn "\nVarying paths:"
-            -- pPrint $ G.varyingPaths initState
-            -- putStrLn "\nUninitialized paths:"
-            -- pPrint $ G.uninitializedPaths initState
-            -- putStrLn "\nVarying state:"
-            -- pPrint $ G.varyingState initState
-            -- putStrLn "\nParams:"
-            -- pPrint $ G.paramsr initState
-            -- putStrLn "\nAutostep:"
-            -- pPrint $ G.autostep initState
-            -- print initState
-            -- divLine
-
-            -- putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
+            putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
             let warns = S.warnings $ fromRight trans
-            -- putStrLn (color Red $ L.intercalate "\n" warns ++ "\n")
-
-            -- putStrLn "Visualizing Substance program:\n"
-
-            -- Step without server: test time taken to converge
-            -- let finalState = stepsWithoutServer initState
-            -- pPrint finalState
-
-            -- Starting serving penrose on the web
+            putStrLn (color Red $ L.intercalate "\n" warns ++ "\n")
             let (domain, port) = ("127.0.0.1", 9160)
-            _ <- liftIO $ CC.forkIO $ Server.servePenrose domain port initState
-            text "127.0.0.1:9160"
-            -- status status200
+            Server.servePenrose domain port initState
+        2 -> do
+            let (styFile, dsllFile) = (head args, args !! 1)
+            styIn  <- readFile styFile
+            dsllIn <- readFile dsllFile
+            dsllEnv <- D.parseDsll dsllFile dsllIn
+            styProg <- S.parseStyle styFile styIn
+            scotty 3939 $
+                post "/" $ do
+                sub <- body
+                let subIn = B.unpack sub
+                _ <- liftIO (putStrLn subIn)
+                (subProg, (subEnv, eqEnv), labelMap) <- liftIO (C.parseSubstance "" subIn dsllEnv)
+                let selEnvs = S.checkSels subEnv styProg
+                let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
+                let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
+                                    :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
+
+                let initState = G.genOptProblemAndState (fromRight trans)
+                let warns = S.warnings $ fromRight trans
+                -- Starting serving penrose on the web
+                let (domain, port) = ("127.0.0.1", 9160)
+                _ <- liftIO $ CC.forkIO $ Server.servePenrose domain port initState
+                text "127.0.0.1:9160"
+                -- status status200
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state

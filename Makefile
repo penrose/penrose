@@ -1,3 +1,6 @@
+build-local:
+	stack build
+
 build-base:
 	docker build -t penrose-base -f Dockerfile.base .
 
