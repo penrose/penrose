@@ -5,13 +5,12 @@ import { clean } from "./Util";
 
 interface IState {
   json: any;
-  send?(packet: string): void;
 }
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<any, IState> {
   public readonly state = { json: {}, send: undefined };
-  private readonly autoStepRef = React.createRef<HTMLDivElement>();
+  public ws: any = null;
   public onMessage = (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
     // For final frame
@@ -21,24 +20,19 @@ class App extends React.Component<any, IState> {
     const cleaned = clean(myJSON);
     this.setState({ json: cleaned });
   };
+  public autoStepToggle = () => {
+    const packet = { tag: "Cmd", contents: { command: "autostep" } };
+    this.ws.send(JSON.stringify(packet));
+  };
   public async componentDidMount() {
-    const ws = new WebSocket(socketAddress);
-    ws.onmessage = this.onMessage;
-    const t = this;
-    ws.onopen = () => {
-      if (t.autoStepRef.current !== null) {
-        t.autoStepRef.current.onclick = () => {
-          const packet = { tag: "Cmd", contents: { command: "autostep" } };
-          ws.send(JSON.stringify(packet));
-        };
-      }
-    };
+    this.ws = new WebSocket(socketAddress);
+    this.ws.onmessage = this.onMessage;
   }
   public render() {
     const { json } = this.state;
     return (
       <div className="App">
-        <div ref={this.autoStepRef}>autostep</div>
+        <div onClick={this.autoStepToggle}>autostep</div>
         <Canvas data={json} />
       </div>
     );
