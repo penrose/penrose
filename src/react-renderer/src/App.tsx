@@ -1,15 +1,16 @@
 import * as React from "react";
 import "./App.css";
 import Canvas from "./Canvas";
-import { clean } from "./Util";
+import { clean, serializeShape, containsEmptyLabels } from "./Util";
 
 interface IState {
   json: any[];
+  cleaned: any[];
 }
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<any, IState> {
-  public readonly state = { json: [], send: undefined };
+  public readonly state = { json: [], cleaned: [] };
   public ws: any = null;
   public onMessage = (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
@@ -18,24 +19,29 @@ class App extends React.Component<any, IState> {
       myJSON = myJSON.shapes;
     }
     const cleaned = clean(myJSON);
-    this.setState({ json: cleaned });
+    this.setState({ json: myJSON, cleaned });
   };
   public autoStepToggle = () => {
     const packet = { tag: "Cmd", contents: { command: "autostep" } };
     this.ws.send(JSON.stringify(packet));
   };
   public onShapeUpdate = (updatedShape: any) => {
-    const shapes = this.state.json.map((oldShape: any) => {
+    const shapes = this.state.cleaned.map(([name, oldShape]: [string, any]) => {
       if (oldShape.name === updatedShape.name) {
-        return updatedShape;
+        return [name, updatedShape];
       }
-      return oldShape;
+      return [name, oldShape];
     });
     this.setState({
-      json: shapes
+      cleaned: shapes
     });
-    const packet = { tag: "Update", contents: { shapes } };
-    this.ws.send(JSON.stringify(packet));
+    if (!containsEmptyLabels(shapes)) {
+      const packet = {
+        tag: "Update",
+        contents: { shapes: shapes.map(serializeShape) }
+      };
+      this.ws.send(JSON.stringify(packet));
+    }
   };
   public setupSockets = () => {
     this.ws = new WebSocket(socketAddress);
@@ -46,11 +52,11 @@ class App extends React.Component<any, IState> {
     this.setupSockets();
   }
   public render() {
-    const { json } = this.state;
+    const { cleaned } = this.state;
     return (
       <div className="App">
         <div onClick={this.autoStepToggle}>autostep</div>
-        <Canvas data={json} onShapeUpdate={this.onShapeUpdate} />
+        <Canvas data={cleaned} onShapeUpdate={this.onShapeUpdate} />
       </div>
     );
   }

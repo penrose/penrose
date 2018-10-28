@@ -6,13 +6,8 @@ interface IProps {
   onShapeUpdate(shape: any): void;
 }
 
-interface IState {
-  data: any;
-}
-
-class Canvas extends React.Component<IProps, IState> {
+class Canvas extends React.Component<IProps> {
   public readonly canvasSize: [number, number] = [800, 700];
-  public readonly state = { data: [] };
 
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     const component = componentMap[name];
