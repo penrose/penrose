@@ -1,6 +1,7 @@
 import * as React from "react";
 import { toScreen } from "./Util";
 import draggable from "./Draggable";
+import { IGPIPropsDraggable } from "./types";
 
 class Circle extends React.Component<IGPIPropsDraggable> {
   public render() {

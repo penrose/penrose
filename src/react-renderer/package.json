@@ -1,6 +1,8 @@
 {
     "name": "react-renderer",
     "version": "0.1.0",
+    "main": "src/module.tsx",
+    "module": "src/module.tsx",
     "private": true,
     "dependencies": {
         "react": "^16.5.2",
