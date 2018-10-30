@@ -1,4 +1,5 @@
 import * as React from "react";
+import { IGPIPropsDraggable, IGPIProps } from "./types";
 
 interface IState {
   tempX: number;

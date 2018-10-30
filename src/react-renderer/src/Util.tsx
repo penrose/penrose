@@ -18,7 +18,7 @@ const toRgb = (hex: string) => {
   const r = (bigint >> 16) & 255;
   const g = (bigint >> 8) & 255;
   const b = bigint & 255;
-  return [r, g, b];
+  return [r / 255, g / 255, b / 255];
 };
 
 interface IPre {
@@ -90,6 +90,7 @@ export const serializeShape = ([name, obj]: [string, object]) => {
               tag: "ColorV",
               contents: [...toRgb(orig[0].slice(1)), orig[1]]
             };
+            console.log(val);
           }
         } else {
           console.error(`Could not serialize ${key}`);

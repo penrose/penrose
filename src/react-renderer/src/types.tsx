@@ -1,11 +1,11 @@
-interface IGPIProps {
+export interface IGPIProps {
   shape: any;
   canvasSize: [number, number];
   onShapeUpdate?(shape: any): void;
   dragEvent?(id: string, dy: number, dx: number): void;
 }
 
-interface IGPIPropsDraggable extends IGPIProps {
+export interface IGPIPropsDraggable extends IGPIProps {
   dx: number;
   dy: number;
   onClick(e: React.MouseEvent<any>): void;

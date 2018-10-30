@@ -1,19 +1,33 @@
-import * as React from 'react';
-import './App.css';
+import * as React from "react";
+import "./App.css";
 
-import logo from './logo.svg';
+import logo from "./logo.svg";
 
-class App extends React.Component {
+interface IState {
+  code: string;
+}
+
+class App extends React.Component<any, IState> {
+  public state = { code: "" };
+  public compile = async () => {
+    fetch("http://localhost:3939/", {
+      method: "POST",
+      body: this.state.code
+    });
+  };
+  public onChangeCode = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ code: e.target.value });
+  };
   public render() {
+    const { code } = this.state;
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
+          <h1 className="App-title">Welcome to Penrose</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <textarea onChange={this.onChangeCode} value={code} />
+        <button onClick={this.compile}>COMPILE!</button>
       </div>
     );
   }

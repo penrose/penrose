@@ -1,6 +1,7 @@
 import * as React from "react";
 import { toScreen } from "./Util";
 import draggable from "./Draggable";
+import { IGPIPropsDraggable } from "./types";
 declare const MathJax: any;
 
 class Label extends React.Component<IGPIPropsDraggable> {
