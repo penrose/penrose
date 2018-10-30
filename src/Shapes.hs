@@ -21,6 +21,38 @@ import qualified Data.Map.Strict as M
 --         constructors    = map mkconstructor shapeTypes
 --     return [DataD [] (mkName "ShapeT") [] Nothing constructors []]
 
+
+--------------------------------------------------------------------------------
+-- Path-related types
+
+type PathData = Path'
+
+data Path' a
+    = Closed [Elem a] -- “Z”
+    | Open   [Elem a]  -- no “Z”
+    deriving (Generic, Eq, Show)
+instance (FromJSON a) => FromJSON (Path' a)
+instance (ToJSON a)   => ToJSON (Path' a)
+-- NOTE: the order of the elements is important
+
+data Elem a
+    -- | Replace “M,” “L”, “H”, “V”
+    = Pt (Pt2 a)
+    -- | “C”: two control pts, 1 endpt
+    | CubicBez (Pt2 a, Pt2 a, Pt2 a)
+    -- | “S”: 1 control pt, 1 endpt
+    | CubicBezJoin (Pt2 a, Pt2 a)
+    -- | “T”: 1 endpt
+    | QuadBez (Pt2 a, Pt2 a)
+    -- | “T”: 1 endpt
+    | QuadBezJoin (Pt2 a)
+    deriving (Generic, Eq, Show)
+instance (FromJSON a) => FromJSON (Elem a)
+instance (ToJSON a)   => ToJSON (Elem a)
+
+    -- “A” TODO: complete this
+    -- | Arc { x, y, sweep1, … }
+
 --------------------------------------------------------------------------------
 -- Types
 
@@ -50,7 +82,8 @@ data Value a
     -- | point in R^2
     | PtV (Pt2 a)
     -- | a list of points
-    | PathV [Pt2 a]
+    -- | PathV [Pt2 a]
+    | PathV (PathData a)
     -- | an RGBA color value
     | ColorV Color
     -- | path for image
@@ -297,7 +330,7 @@ braceType = ("Brace", M.fromList
 
 curveType = ("Curve", M.fromList
     [
-        ("path", (PathT, constValue $ PathV [])), -- TODO: sample path
+        ("path", (PathT, constValue $ PathV $ Closed [])), -- TODO: sample path
         ("style", (StrT, constValue $ StrV "solid")),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCurve"))
@@ -515,7 +548,7 @@ getNum shape prop = case shape .: prop of
     FloatV x -> x
     _ -> error "getNum: expected float but got something else"
 
-getPath :: (Autofloat a) => Shape a -> [(a, a)]
+getPath :: (Autofloat a) => Shape a -> PathData a
 getPath shape = case shape .: "path" of
     PathV x -> x
     _ -> error "getPath: expected [(Float, Float)] but got something else"

@@ -163,7 +163,8 @@ toPolyProperty v = case v of
     SD.StrV x    -> SD.StrV x
     SD.IntV x    -> SD.IntV x
     SD.PtV (x,y) -> SD.PtV (r2f x, r2f y)
-    SD.PathV xs  -> SD.PathV $ map (\(x,y) -> (r2f x, r2f y)) xs
+    -- TODO: rewrite this
+    -- SD.PathV xs  -> SD.PathV $ map (\(x,y) -> (r2f x, r2f y)) xs
     SD.ColorV x  -> SD.ColorV x
     SD.FileV x   -> SD.FileV x
     SD.StyleV x  -> SD.StyleV x
