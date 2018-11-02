@@ -31,6 +31,7 @@ class Label extends React.Component<IGPIPropsDraggable> {
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, wrapper]);
       MathJax.Hub.Queue(() => {
         const output = wrapper.getElementsByTagName("svg")[0];
+        // TODO: need to check whether MathJax returns a non-null response
         cur.innerHTML = output.outerHTML; // need to keep properties in <svg>
         const { width, height } = cur.getBBox();
         if (onShapeUpdate) {

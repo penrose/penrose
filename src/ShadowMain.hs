@@ -21,17 +21,13 @@ import Web.Scotty
 import Network.HTTP.Types.Status
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (decodeUtf8)
-import qualified Data.ByteString.Lazy.Char8 as B 
+import qualified Data.ByteString.Lazy.Char8 as B
 import Control.Monad (when, forM)
 import Control.Monad.Trans
 import qualified Env as E -- DEBUG: remove
 import qualified Data.Map.Strict as M -- DEBUG: remove
 import qualified Data.List as L (intercalate)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
-
-fromRight :: (Show a, Show b) => Either a b -> b
-fromRight (Left x) = error ("Failed with error: " ++ show x)
-fromRight (Right y) = y
 
 -- | `main` runs the Penrose system
 shadowMain :: IO ()
@@ -66,24 +62,23 @@ shadowMain = do
             dsllIn <- readFile dsllFile
             dsllEnv <- D.parseDsll dsllFile dsllIn
             styProg <- S.parseStyle styFile styIn
-            scotty 3939 $
-                post "/" $ do
-                sub <- body
-                let subIn = B.unpack sub
-                _ <- liftIO (putStrLn subIn)
-                (subProg, (subEnv, eqEnv), labelMap) <- liftIO (C.parseSubstance "" subIn dsllEnv)
-                let selEnvs = S.checkSels subEnv styProg
-                let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
-                let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
-                                    :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
+            let (domain, port) = ("127.0.0.1", 9160) -- TODO: if current port in use, assign another
+            Server.serveWithoutSub domain port dsllEnv styProg
 
-                let initState = G.genOptProblemAndState (fromRight trans)
-                let warns = S.warnings $ fromRight trans
-                -- Starting serving penrose on the web
-                let (domain, port) = ("127.0.0.1", 9160)
-                _ <- liftIO $ CC.forkIO $ Server.servePenrose domain port initState
-                text "127.0.0.1:9160"
-                -- status status200
+            -- scotty 3939 $
+            --     post "/" $ do
+            --     sub <- body
+            --     let subIn = B.unpack sub
+            --     liftIO (putStrLn $ bgColor Green "Substance program received: " ++ subIn)
+            --     (subProg, (subEnv, eqEnv), labelMap) <- liftIO (C.parseSubstance "" subIn dsllEnv)
+            --     let selEnvs = S.checkSels subEnv styProg
+            --     let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
+            --     let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
+            --                         :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
+            --
+            --     let initState = G.genOptProblemAndState (fromRight trans)
+            --     let warns = S.warnings $ fromRight trans
+            --     -- Starting serving penrose on the web
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state

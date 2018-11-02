@@ -59,6 +59,10 @@ epsd = 10 ** (-10)
 --------------------------------------------------------------------------------
 -- General helper functions
 
+fromRight :: (Show a, Show b) => Either a b -> b
+fromRight (Left x) = error ("Failed with error: " ++ show x)
+fromRight (Right y) = y
+
 divLine :: IO ()
 divLine = putStr "\n--------\n\n"
 
