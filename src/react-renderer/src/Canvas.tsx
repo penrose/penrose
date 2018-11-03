@@ -4,6 +4,7 @@ import componentMap from "./componentMap";
 interface IProps {
   data: any;
   onShapeUpdate(shape: any): void;
+  dragEvent?(id: string, dy: number, dx: number): void;
 }
 
 class Canvas extends React.Component<IProps> {
@@ -15,12 +16,13 @@ class Canvas extends React.Component<IProps> {
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
     const canvasSize = this.canvasSize;
-    const { onShapeUpdate } = this.props;
+    const { onShapeUpdate, dragEvent } = this.props;
     return React.createElement(component, {
       key,
       shape,
       canvasSize,
-      onShapeUpdate
+      onShapeUpdate,
+      dragEvent
     });
   };
   public render() {

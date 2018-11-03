@@ -43,6 +43,18 @@ class App extends React.Component<any, IState> {
       this.ws.send(JSON.stringify(packet));
     }
   };
+  public dragEvent = (id: string, dy: number, dx: number) => {
+    // TODO: save intermediate state so no snapback
+    const packet = {
+      tag: "Drag",
+      contents: {
+        name: id,
+        xm: -dx,
+        ym: -dy
+      }
+    };
+    this.ws.send(JSON.stringify(packet));
+  };
   public setupSockets = () => {
     this.ws = new WebSocket(socketAddress);
     this.ws.onmessage = this.onMessage;
@@ -56,7 +68,11 @@ class App extends React.Component<any, IState> {
     return (
       <div className="App">
         <div onClick={this.autoStepToggle}>autostep</div>
-        <Canvas data={cleaned} onShapeUpdate={this.onShapeUpdate} />
+        <Canvas
+          data={cleaned}
+          onShapeUpdate={this.onShapeUpdate}
+          dragEvent={this.dragEvent}
+        />
       </div>
     );
   }
