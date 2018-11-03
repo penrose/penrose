@@ -1,5 +1,4 @@
 import * as React from "react";
-import "./App.css";
 import Canvas from "./Canvas";
 import { clean, serializeShape, containsEmptyLabels } from "./Util";
 

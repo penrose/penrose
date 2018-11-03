@@ -24,6 +24,7 @@
     "promise": "8.0.1",
     "raf": "3.4.0",
     "react": "^16.6.0",
+    "react-ace": "^6.2.0",
     "react-dev-utils": "^5.0.2",
     "react-dom": "^16.6.0",
     "resolve": "1.6.0",

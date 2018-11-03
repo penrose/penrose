@@ -90,7 +90,6 @@ export const serializeShape = ([name, obj]: [string, object]) => {
               tag: "ColorV",
               contents: [...toRgb(orig[0].slice(1)), orig[1]]
             };
-            console.log(val);
           }
         } else {
           console.error(`Could not serialize ${key}`);

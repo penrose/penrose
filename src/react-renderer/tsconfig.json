@@ -4,7 +4,7 @@
         "outDir": "build/dist",
         "module": "esnext",
         "target": "es5",
-        "lib": ["es6", "dom"],
+        "lib": ["es5", "es6", "dom"],
         "sourceMap": true,
         "allowJs": true,
         "jsx": "react",
@@ -22,6 +22,7 @@
     "exclude": [
         "node_modules",
         "build",
+        "dist",
         "scripts",
         "acceptance-tests",
         "webpack",

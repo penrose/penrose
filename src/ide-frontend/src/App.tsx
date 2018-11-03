@@ -1,6 +1,8 @@
 import * as React from "react";
 import "./App.css";
 
+import AceEditor from "react-ace";
+import Renderer from "react-renderer";
 import logo from "./logo.svg";
 
 interface IState {
@@ -15,8 +17,8 @@ class App extends React.Component<any, IState> {
       body: this.state.code
     });
   };
-  public onChangeCode = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    this.setState({ code: e.target.value });
+  public onChangeCode = (value: string) => {
+    this.setState({ code: value });
   };
   public render() {
     const { code } = this.state;
@@ -26,8 +28,10 @@ class App extends React.Component<any, IState> {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to Penrose</h1>
         </header>
-        <textarea onChange={this.onChangeCode} value={code} />
+        <AceEditor onChange={this.onChangeCode} value={code} />
+        {/* <textarea onChange={this.onChangeCode} value={code} /> */}
         <button onClick={this.compile}>COMPILE!</button>
+        <Renderer />
       </div>
     );
   }
