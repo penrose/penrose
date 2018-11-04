@@ -102,7 +102,7 @@
     ],
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "/home/max/Documents/research/penrose/src/ide-frontend/tsconfig.test.json"
+        "tsConfigFile": "/Users/niw/dev/penrose/src/ide-frontend/tsconfig.test.json"
       }
     }
   },

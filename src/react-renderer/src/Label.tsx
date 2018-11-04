@@ -27,7 +27,8 @@ class Label extends React.Component<IGPIPropsDraggable> {
     wrapper.style.display = "none";
     const cur = this.ref.current;
     const { shape, onShapeUpdate } = this.props;
-    if (cur !== null) {
+    // HACK: Style compiler decides to give empty labels if not specified
+    if (cur !== null && this.props.shape.string !== "") {
       wrapper.innerHTML = "$" + this.props.shape.string + "$";
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, wrapper]);
       MathJax.Hub.Queue(() => {
