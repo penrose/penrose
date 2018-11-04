@@ -19,6 +19,7 @@ class Label extends React.Component<IGPIPropsDraggable> {
     });
   }
   public async componentDidMount() {
+    // TODO: fix re-computing, since width/height computing only occurs on initial render
     this.tex2svg();
   }
   public tex2svg = () => {
