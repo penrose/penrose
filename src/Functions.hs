@@ -83,9 +83,10 @@ compDict = M.fromList
         ("midpointX", midpointX),
         ("midpointY", midpointY),
         ("len", len),
-        ("computeSurjectionLines", computeSurjectionLines),
-        ("lineLeft", lineLeft),
-        ("lineRight", lineRight),
+        -- TODO: revert
+        -- ("computeSurjectionLines", computeSurjectionLines),
+        -- ("lineLeft", lineLeft),
+        -- ("lineRight", lineRight),
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -115,7 +116,8 @@ compSignatures = M.fromList
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxWidth", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("len", ([GPIType "Arrow"], ValueT FloatT)),
-        ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PathT)),
+        -- TODO: revert
+        -- ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PathT)),
         ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PathT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
@@ -323,54 +325,57 @@ randomsIn g n interval = let (x, g') = randomR interval g -- First value
                              (xs, g'') = randomsIn g' (n - 1) interval in -- Rest of values
                          (r2f x : xs, g'')
 
+-- TODO: revert
 -- Computes the surjection to lie inside a bounding box defined by the corners of a box
 -- defined by four straight lines, assuming their lower/left coordinates come first.
 -- Their intersections give the corners.
-computeSurjectionLines :: CompFn
-computeSurjectionLines args = Val $ PathV $ computeSurjectionLines' compRng args
+-- computeSurjectionLines :: CompFn
+-- computeSurjectionLines args = Val $ PathV $ computeSurjectionLines' compRng args
+--
+-- computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> [Pt2 a]
+-- computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
+--     let lower_left = (getNum left "startX", getNum bottom "startY") in
+--     let top_right = (getNum right "startX", getNum top "startY") in
+--     computeSurjection g n lower_left top_right
+-- -- Assuming left and bottom are perpendicular and share one point
+-- computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] =
+--     let lower_left = (getNum left "startX", getNum left "startY") in
+--     let top_right = (getNum bottom "endX", getNum left "endY") in
+--     computeSurjection g n lower_left top_right
+--
+-- computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> [Pt2 a]
+-- computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
+--     if numPoints < 2 then error "Surjection needs to have >= 2 points"
+--     else
+--         let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
+--             xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
+--             xs_increasing = sort xs
+--             (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
+--             ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
+--             ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
+--         -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
+--         in zip xs_increasing ys_perm -- len xs == len ys
 
-computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> [Pt2 a]
-computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
-    let lower_left = (getNum left "startX", getNum bottom "startY") in
-    let top_right = (getNum right "startX", getNum top "startY") in
-    computeSurjection g n lower_left top_right
--- Assuming left and bottom are perpendicular and share one point
-computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] =
-    let lower_left = (getNum left "startX", getNum left "startY") in
-    let top_right = (getNum bottom "endX", getNum left "endY") in
-    computeSurjection g n lower_left top_right
-
-computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> [Pt2 a]
-computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
-    if numPoints < 2 then error "Surjection needs to have >= 2 points"
-    else
-        let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
-            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
-            xs_increasing = sort xs
-            (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
-            ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
-            ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
-        -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
-        in zip xs_increasing ys_perm -- len xs == len ys
-
+-- TODO revert
 -- calculates a line (of two points) intersecting the first axis, stopping before it leaves bbox of second axis
 -- TODO rename lineLeft and lineRight
 -- assuming a1 horizontal and a2 vertical, respectively
-lineLeft :: CompFn
-lineLeft [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
-    let a1_start = getNum a1 "startX" in
-    let a1_len = abs (getNum a1 "endX" - a1_start) in
-    let xpos = a1_start + lineFrac * a1_len in
-    Val $ PathV [(xpos, getNum a1 "startY"), (xpos, getNum a2 "endY")]
+-- lineLeft :: CompFn
+-- lineLeft [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+--     let a1_start = getNum a1 "startX" in
+--     let a1_len = abs (getNum a1 "endX" - a1_start) in
+--     let xpos = a1_start + lineFrac * a1_len in
+--     Val $ PathV [(xpos, getNum a1 "startY"), (xpos, getNum a2 "endY")]
 
+-- TODO revert
 -- assuming a1 vert and a2 horiz, respectively
 -- can this be written in terms of lineLeft?
-lineRight :: CompFn
-lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
-    let a1_start = getNum a1 "startY" in
-    let a1_len = abs (getNum a1 "endY" - a1_start) in
-    let ypos = a1_start + lineFrac * a1_len in
-    Val $ PathV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
+-- lineRight :: CompFn
+-- lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+--     let a1_start = getNum a1 "startY" in
+--     let a1_len = abs (getNum a1 "endY" - a1_start) in
+--     let ypos = a1_start + lineFrac * a1_len in
+--     Val $ PathV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
 
 rgba :: CompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
@@ -489,12 +494,13 @@ centerX :: ObjFn
 centerX [Val (FloatV x)] = tr "centerX" $ x^2
 
 -- TODO move this elsewhere? (also applies to polyline)
-bezierBbox :: (Autofloat a) => Shape a -> ((a, a), (a, a)) -- poly Point type?
-bezierBbox cb = let path = getPath cb
-                    (xs, ys) = (map fst path, map snd path)
-                    lower_left = (minimum xs, minimum ys)
-                    top_right = (maximum xs, maximum ys) in
-                (lower_left, top_right)
+-- TODO revert
+-- bezierBbox :: (Autofloat a) => Shape a -> ((a, a), (a, a)) -- poly Point type?
+-- bezierBbox cb = let path = getPath cb
+--                     (xs, ys) = (map fst path, map snd path)
+--                     lower_left = (minimum xs, minimum ys)
+--                     top_right = (maximum xs, maximum ys) in
+--                 (lower_left, top_right)
 
 -- | 'sameCenter' encourages two objects to center at the same point
 sameCenter :: ObjFn
@@ -502,12 +508,13 @@ sameCenter [GPI a, GPI b] = (getX a - getX b)^2 + (getY a - getY b)^2
 
 centerLabel :: ObjFn
 centerLabel [a, b, Val (FloatV w)] = w * centerLabel [a, b] -- TODO factor out
-centerLabel [GPI curve, GPI text]
-    | curve `is` "Curve" && text `is` "Text" =
-        let ((lx, ly), (rx, ry)) = bezierBbox curve
-            (xmargin, ymargin) = (-10, 30)
-            midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
-        distsq midbez (getX text, getY text)
+-- TODO revert
+-- centerLabel [GPI curve, GPI text]
+--     | curve `is` "Curve" && text `is` "Text" =
+--         let ((lx, ly), (rx, ry)) = bezierBbox curve
+--             (xmargin, ymargin) = (-10, 30)
+--             midbez = ((lx + rx) / 2 + xmargin, (ly + ry) / 2 + ymargin) in
+--         distsq midbez (getX text, getY text)
 centerLabel [GPI p, GPI l]
     | p `is` "AnchorPoint" && l `is` "Text" =
         let [px, py, lx, ly] = [getX p, getY p, getX l, getY l] in
@@ -645,10 +652,10 @@ distBetween [GPI c1, GPI c2, Val (FloatV padding)] =
     let (r1, r2, x1, y1, x2, y2) = (getNum c1 "r", getNum c2 "r", getX c1, getY c1, getX c2, getY c2) in
     -- If one's a subset of another or has same radius as other
     -- If they only intersect
-    if dist (x1, y1) (x2, y2) < (r1 + r2) 
+    if dist (x1, y1) (x2, y2) < (r1 + r2)
     then repel [GPI c1, GPI c2, Val (FloatV repelWeight)] -- 1 / distsq (x1, y1) (x2, y2)
     -- If they don't intersect
-    else -- trace ("padding: " ++ show padding) 
+    else -- trace ("padding: " ++ show padding)
          (dist (x1, y1) (x2, y2) - r1 - r2 - padding)^2
 
 --------------------------------------------------------------------------------

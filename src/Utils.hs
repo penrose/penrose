@@ -47,8 +47,7 @@ debugStyle = False
 -- debugLineSearch = True
 debugLineSearch = False
 -- turn on/off output in obj fn or constraint
--- debugObj = False
-debugObj = True
+debugObj = False
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
 subsetSizeDiff :: Floating a => a
@@ -59,6 +58,10 @@ epsd = 10 ** (-10)
 
 --------------------------------------------------------------------------------
 -- General helper functions
+
+fromRight :: (Show a, Show b) => Either a b -> b
+fromRight (Left x) = error ("Failed with error: " ++ show x)
+fromRight (Right y) = y
 
 divLine :: IO ()
 divLine = putStr "\n--------\n\n"
