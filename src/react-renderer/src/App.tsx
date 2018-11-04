@@ -6,9 +6,12 @@ interface IState {
   json: any[];
   cleaned: any[];
 }
+interface IProps {
+  ws?: any;
+}
 const socketAddress = "ws://localhost:9160";
 
-class App extends React.Component<any, IState> {
+class App extends React.Component<IProps, IState> {
   public readonly state = { json: [], cleaned: [] };
   public ws: any = null;
   public onMessage = (e: MessageEvent) => {
@@ -55,11 +58,15 @@ class App extends React.Component<any, IState> {
     this.ws.send(JSON.stringify(packet));
   };
   public setupSockets = () => {
-    this.ws = new WebSocket(socketAddress);
+    if (this.props.ws) {
+      this.ws = this.props.ws;
+    } else {
+      this.ws = new WebSocket(socketAddress);
+    }
     this.ws.onmessage = this.onMessage;
     this.ws.onclose = this.setupSockets;
   };
-  public async componentWillMount() {
+  public async componentDidMount() {
     this.setupSockets();
   }
   public render() {

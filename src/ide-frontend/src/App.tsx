@@ -13,14 +13,17 @@ interface IState {
 class App extends React.Component<any, IState> {
   public state = { code: "" };
   public ws: any = null;
+  constructor(props: any) {
+    super(props);
+    this.setupSockets();
+  }
   public setupSockets = () => {
     this.ws = new WebSocket(socketAddress);
     this.ws.onmessage = this.onMessage;
     this.ws.onclose = this.setupSockets;
   };
   public onMessage = (e: MessageEvent) => {
-    const myJSON = JSON.parse(e.data);
-    console.log(myJSON)
+    // const myJSON = JSON.parse(e.data);
   };
   public compile = async () => {
     const packet = { tag: "Edit", contents: { program: this.state.code } };
@@ -29,9 +32,6 @@ class App extends React.Component<any, IState> {
   public onChangeCode = (value: string) => {
     this.setState({ code: value });
   };
-  public async componentWillMount() {
-    this.setupSockets();
-  }
   public render() {
     const { code } = this.state;
     return (
@@ -43,7 +43,7 @@ class App extends React.Component<any, IState> {
         <AceEditor onChange={this.onChangeCode} value={code} />
         {/* <textarea onChange={this.onChangeCode} value={code} /> */}
         <button onClick={this.compile}>COMPILE!</button>
-        <Renderer />
+        <Renderer ws={this.ws} />
       </div>
     );
   }
