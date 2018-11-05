@@ -115,8 +115,8 @@ compSignatures = M.fromList
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxWidth", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("len", ([GPIType "Arrow"], ValueT FloatT)),
-        ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PathT)),
-        ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PathT))
+        ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PtListT)),
+        ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PtListT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
@@ -327,7 +327,7 @@ randomsIn g n interval = let (x, g') = randomR interval g -- First value
 -- defined by four straight lines, assuming their lower/left coordinates come first.
 -- Their intersections give the corners.
 computeSurjectionLines :: CompFn
-computeSurjectionLines args = Val $ PathV $ computeSurjectionLines' compRng args
+computeSurjectionLines args = Val $ PtListV $ computeSurjectionLines' compRng args
 
 computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> [Pt2 a]
 computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
@@ -361,7 +361,7 @@ lineLeft [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let a1_start = getNum a1 "startX" in
     let a1_len = abs (getNum a1 "endX" - a1_start) in
     let xpos = a1_start + lineFrac * a1_len in
-    Val $ PathV [(xpos, getNum a1 "startY"), (xpos, getNum a2 "endY")]
+    Val $ PtListV [(xpos, getNum a1 "startY"), (xpos, getNum a2 "endY")]
 
 -- assuming a1 vert and a2 horiz, respectively
 -- can this be written in terms of lineLeft?
@@ -370,7 +370,7 @@ lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let a1_start = getNum a1 "startY" in
     let a1_len = abs (getNum a1 "endY" - a1_start) in
     let ypos = a1_start + lineFrac * a1_len in
-    Val $ PathV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
+    Val $ PtListV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
 
 rgba :: CompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
@@ -645,10 +645,10 @@ distBetween [GPI c1, GPI c2, Val (FloatV padding)] =
     let (r1, r2, x1, y1, x2, y2) = (getNum c1 "r", getNum c2 "r", getX c1, getY c1, getX c2, getY c2) in
     -- If one's a subset of another or has same radius as other
     -- If they only intersect
-    if dist (x1, y1) (x2, y2) < (r1 + r2) 
+    if dist (x1, y1) (x2, y2) < (r1 + r2)
     then repel [GPI c1, GPI c2, Val (FloatV repelWeight)] -- 1 / distsq (x1, y1) (x2, y2)
     -- If they don't intersect
-    else -- trace ("padding: " ++ show padding) 
+    else -- trace ("padding: " ++ show padding)
          (dist (x1, y1) (x2, y2) - r1 - r2 - padding)^2
 
 --------------------------------------------------------------------------------

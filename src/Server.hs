@@ -22,8 +22,8 @@ import Network.WebSockets.Connection
 import System.Time
 import System.Random
 import Debug.Trace
-import qualified Shapes  as SD
-import qualified Style   as NS
+import Shapes  (Shape, Value(..), getX, getY, setX, setY, getName, toPolymorphics, sampleShapes)
+import qualified Style   as N
 import qualified GenOptProblem as G
 import qualified Optimizer as O
 import qualified Data.Map  as M
@@ -53,11 +53,11 @@ data DragEvent = DragEvent { name :: String,
      deriving (Show, Generic)
 
 data UpdateShapes = UpdateShapes {
-                       shapes :: [SD.Shape Double]
+                       shapes :: [Shape Double]
                     } deriving (Show, Generic)
 
 data Frame = Frame { flag :: String,
-                     shapes :: [SD.Shape Double]
+                     shapes :: [Shape Double]
                    } deriving (Show, Generic)
 
 instance FromJSON Feedback
@@ -66,11 +66,11 @@ instance FromJSON DragEvent
 instance FromJSON UpdateShapes
 instance ToJSON Frame
 
-wsSendJSON :: WS.Connection -> (SD.Shape Double) -> IO ()
+wsSendJSON :: WS.Connection -> (Shape Double) -> IO ()
 wsSendJSON conn shape = WS.sendTextData conn $ encode shape
 
 -- TODO use the more generic wsSendJSON?
-wsSendJSONList :: WS.Connection -> ([SD.Shape Double]) -> IO ()
+wsSendJSONList :: WS.Connection -> ([Shape Double]) -> IO ()
 wsSendJSONList conn shapes = WS.sendTextData conn $ encode shapes
 
 wsSendJSONFrame :: WS.Connection -> Frame -> IO ()
@@ -131,7 +131,7 @@ loop conn s
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ (show $ G.weight (G.paramsr s)))
         wsSendJSONFrame conn (Frame { flag = "final",
-                                shapes = (G.shapesr s) :: ([SD.Shape Double]) })
+                                shapes = (G.shapesr s) :: ([Shape Double]) })
         processCommand conn s
     | G.autostep s = stepAndSend conn s
     | otherwise = processCommand conn s
@@ -149,26 +149,8 @@ processCommand conn s = do
             Update (UpdateShapes shapes)  -> updateShapes shapes conn s
         Nothing -> error "Error reading JSON"
 
-toPolymorphics :: [SD.Shape Double] -> (forall a . (Autofloat a) => [SD.Shape a])
-toPolymorphics = map toPolymorphic
 
-toPolymorphic :: SD.Shape Double -> (forall a . (Autofloat a) => SD.Shape a)
-toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
-
-toPolyProperty :: SD.Value Double -> (forall a . (Autofloat a) => SD.Value a)
-toPolyProperty v = case v of
-    -- Not sure why these have to be rewritten from scratch...
-    SD.FloatV n  -> SD.FloatV $ r2f n
-    SD.BoolV x   -> SD.BoolV x
-    SD.StrV x    -> SD.StrV x
-    SD.IntV x    -> SD.IntV x
-    SD.PtV (x,y) -> SD.PtV (r2f x, r2f y)
-    SD.PathV xs  -> SD.PathV $ map (\(x,y) -> (r2f x, r2f y)) xs
-    SD.ColorV x  -> SD.ColorV x
-    SD.FileV x   -> SD.FileV x
-    SD.StyleV x  -> SD.StyleV x
-
-updateShapes :: [SD.Shape Double] -> Connection -> G.State -> IO ()
+updateShapes :: [Shape Double] -> Connection -> G.State -> IO ()
 updateShapes newShapes conn s =
     let polyShapes = toPolymorphics newShapes
         uninitVals = map G.toTagExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
@@ -185,8 +167,8 @@ dragUpdate :: String -> Float -> Float -> WS.Connection -> G.State -> IO ()
 dragUpdate name xm ym conn s =
     let (xm', ym') = (r2f xm, r2f ym)
         newShapes  = map (\shape ->
-            if SD.getName shape == name
-                then SD.setX (SD.FloatV (xm' + SD.getX shape)) $ SD.setY (SD.FloatV (ym' + SD.getY shape)) shape
+            if getName shape == name
+                then setX (FloatV (xm' + getX shape)) $ setY (FloatV (ym' + getY shape)) shape
                 else shape)
             (G.shapesr s)
         news = s { G.shapesr = newShapes,
@@ -203,7 +185,7 @@ executeCommand cmd conn s
 
 resampleAndSend, stepAndSend :: WS.Connection -> G.State -> IO ()
 resampleAndSend conn s = do
-    let (newShapes, rng') = SD.sampleShapes (G.rng s) (G.shapesr s)
+    let (newShapes, rng') = sampleShapes (G.rng s) (G.shapesr s)
     let uninitVals = map G.toTagExpr $ G.shapes2vals newShapes $ G.uninitializedPaths s
     let trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
                     -- TODO: shapes', rng' = G.sampleConstrainedState (G.rng s) (G.shapesr s) (G.constrs s)
@@ -216,6 +198,6 @@ resampleAndSend conn s = do
 
 stepAndSend conn s = do
     let nexts = O.step s
-    wsSendJSONList conn (G.shapesr nexts :: [SD.Shape Double])
+    wsSendJSONList conn (G.shapesr nexts :: [Shape Double])
     -- loop conn (trRaw "state:" nexts)
     loop conn nexts
