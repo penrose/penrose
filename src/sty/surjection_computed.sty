@@ -15,6 +15,7 @@ Set `domainOuter` {
         endX   = 325.0
         endY   = 0.0
         thickness = 10.0
+        color = Colors.black
     }
     `domainOuter`.text = Text { string = `domainOuter`.label }
     `domainOuter`.nearFn = encourage nearHead(`domainOuter`.shape, `domainOuter`.text, 15.0, 0.0)
@@ -27,6 +28,7 @@ Set `codomain` {
           endX   = -100.0
           endY   = 200.0
           thickness = 10.0          
+          color = Colors.black
     }
 
     -- TODO: refactor rendering code and uncomment
@@ -125,8 +127,8 @@ with Set `domain`; Set `image` {
     `cartesianProduct`.shape = Rectangle {
         x = (`domain`.left.startX + `domain`.right.startX) / 2.0
         y = (`image`.bottom.startY + `image`.top.startY) / 2.0
-        w = `domain`.right.startX - `domain`.left.startX
-        h = `image`.top.startY - `image`.bottom.startY
+        sizeX = `domain`.right.startX - `domain`.left.startX
+        sizeY = `image`.top.startY - `image`.bottom.startY
         color = Colors.lightBlue
     }
 }

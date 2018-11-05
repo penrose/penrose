@@ -22,8 +22,10 @@ import Network.WebSockets.Connection
 import System.Time
 import System.Random
 import Debug.Trace
-import qualified Shapes  as SD
-import qualified Substance     as SU
+import Shapes  (Shape, Value(..), getX, getY, setX, setY, getName, toPolymorphics, sampleShapes)
+import Substance (parseSubstance)
+import qualified Style   as N
+import qualified GenOptProblem as G
 import qualified Optimizer as O
 import qualified Data.Map  as M
 import qualified Data.Text                 as T
@@ -81,11 +83,11 @@ data DragEvent = DragEvent { name :: String,
 data SubstanceEdit = SubstanceEdit { program :: String }
      deriving (Show, Generic)
 
-data UpdateShapes = UpdateShapes { shapes :: [SD.Shape Double] }
+data UpdateShapes = UpdateShapes { shapes :: [Shape Double] }
     deriving (Show, Generic)
 
 data Frame = Frame { flag :: String,
-                     shapes :: [SD.Shape Double]
+                     shapes :: [Shape Double]
                    } deriving (Show, Generic)
 
 instance FromJSON Feedback
@@ -95,11 +97,11 @@ instance FromJSON UpdateShapes
 instance FromJSON SubstanceEdit
 instance ToJSON Frame
 
-wsSendJSON :: WS.Connection -> (SD.Shape Double) -> IO ()
+wsSendJSON :: WS.Connection -> (Shape Double) -> IO ()
 wsSendJSON conn shape = WS.sendTextData conn $ encode shape
 
 -- TODO use the more generic wsSendJSON?
-wsSendJSONList :: WS.Connection -> ([SD.Shape Double]) -> IO ()
+wsSendJSONList :: WS.Connection -> ([Shape Double]) -> IO ()
 wsSendJSONList conn shapes = WS.sendTextData conn $ encode shapes
 
 wsSendJSONFrame :: WS.Connection -> Frame -> IO ()
@@ -152,7 +154,7 @@ loop conn serverState
         putStrLn "Optimization completed."
         putStrLn ("Current weight: " ++ show (weight (paramsr s)))
         wsSendJSONFrame conn Frame { flag = "final",
-                                shapes = shapesr s :: [SD.Shape Double] }
+                                shapes = shapesr s :: [Shape Double] }
         processCommand conn serverState
     | autostep s = stepAndSend conn serverState
     | otherwise = processCommand conn serverState
@@ -188,31 +190,12 @@ processCommand conn s = do
             Update (UpdateShapes shapes)  -> updateShapes shapes conn s
         Nothing -> error "Error reading JSON"
 
-toPolymorphics :: [SD.Shape Double] -> (forall a . (Autofloat a) => [SD.Shape a])
-toPolymorphics = map toPolymorphic
-
-toPolymorphic :: SD.Shape Double -> (forall a . (Autofloat a) => SD.Shape a)
-toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
-
-toPolyProperty :: SD.Value Double -> (forall a . (Autofloat a) => SD.Value a)
-toPolyProperty v = case v of
-    -- Not sure why these have to be rewritten from scratch...
-    SD.FloatV n  -> SD.FloatV $ r2f n
-    SD.BoolV x   -> SD.BoolV x
-    SD.StrV x    -> SD.StrV x
-    SD.IntV x    -> SD.IntV x
-    SD.PtV (x,y) -> SD.PtV (r2f x, r2f y)
-    -- TODO: rewrite this
-    -- SD.PathV xs  -> SD.PathV $ map (\(x,y) -> (r2f x, r2f y)) xs
-    SD.ColorV x  -> SD.ColorV x
-    SD.FileV x   -> SD.FileV x
-    SD.StyleV x  -> SD.StyleV x
 
 substanceEdit :: String -> Connection -> ServerState -> IO ()
 substanceEdit subIn conn (Renderer _) = error "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
 substanceEdit subIn conn serverState@(Editor env styProg s) = do
     putStrLn $ bgColor Green "Substance program received: " ++ subIn
-    (subProg, (subEnv, eqEnv), labelMap) <- SU.parseSubstance "" subIn env
+    (subProg, (subEnv, eqEnv), labelMap) <- parseSubstance "" subIn env
     let selEnvs = checkSels subEnv styProg
     let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
     let trans = translateStyProg subEnv eqEnv subProg styProg labelMap :: forall a . (Autofloat a) => Either [Error] (Translation a)
@@ -220,7 +203,7 @@ substanceEdit subIn conn serverState@(Editor env styProg s) = do
     let warns = warnings $ fromRight trans -- TODO: report warnings
     stepAndSend conn $ Editor env styProg $ Just newState
 
-updateShapes :: [SD.Shape Double] -> Connection -> ServerState -> IO ()
+updateShapes :: [Shape Double] -> Connection -> ServerState -> IO ()
 updateShapes newShapes conn serverState =
     let polyShapes = toPolymorphics newShapes
         uninitVals = map toTagExpr $ shapes2vals polyShapes $ uninitializedPaths s
@@ -239,8 +222,8 @@ dragUpdate :: String -> Float -> Float -> WS.Connection -> ServerState -> IO ()
 dragUpdate name xm ym conn serverState =
     let (xm', ym') = (r2f xm, r2f ym)
         newShapes  = map (\shape ->
-            if SD.getName shape == name
-                then SD.setX (SD.FloatV (xm' + SD.getX shape)) $ SD.setY (SD.FloatV (ym' + SD.getY shape)) shape
+            if getName shape == name
+                then setX (FloatV (xm' + getX shape)) $ setY (FloatV (ym' + getY shape)) shape
                 else shape)
             (shapesr s)
         news = s { shapesr = newShapes,
@@ -262,7 +245,7 @@ executeCommand cmd conn s
 
 resampleAndSend, stepAndSend :: WS.Connection -> ServerState -> IO ()
 resampleAndSend conn serverState = do
-    let (newShapes, rng') = SD.sampleShapes (rng s) (shapesr s)
+    let (newShapes, rng') = sampleShapes (rng s) (shapesr s)
     let uninitVals = map toTagExpr $ shapes2vals newShapes $ uninitializedPaths s
     let trans' = insertPaths (uninitializedPaths s) uninitVals (transr s)
                     -- TODO: shapes', rng' = sampleConstrainedState (rng s) (shapesr s) (constrs s)
@@ -278,7 +261,7 @@ resampleAndSend conn serverState = do
 stepAndSend conn serverState = do
     let s = getBackendState serverState
     let nexts = O.step s
-    wsSendJSONList conn (shapesr nexts :: [SD.Shape Double])
+    wsSendJSONList conn (shapesr nexts :: [Shape Double])
     -- loop conn (trRaw "state:" nexts)
     loop conn $ updateState serverState nexts
 

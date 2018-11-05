@@ -1,4 +1,5 @@
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Shapes where
@@ -21,40 +22,33 @@ import qualified Data.Map.Strict as M
 --         constructors    = map mkconstructor shapeTypes
 --     return [DataD [] (mkName "ShapeT") [] Nothing constructors []]
 
-
 --------------------------------------------------------------------------------
--- Path-related types
+-- Types
 
-type PathData = Path'
+-- | shape can have multiple pieces, e.g. multiple “M”s
+type PathData a = [Path' a]
 
+-- | TODO
+-- NOTE: the order of the elements is important
 data Path' a
-    = Closed [Elem a] -- “Z”
-    | Open   [Elem a]  -- no “Z”
+    = Closed [Elem a] -- ^  “Z”
+    | Open [Elem a]   -- ^  no “Z”
     deriving (Generic, Eq, Show)
 instance (FromJSON a) => FromJSON (Path' a)
 instance (ToJSON a)   => ToJSON (Path' a)
--- NOTE: the order of the elements is important
 
+-- | TODO
 data Elem a
-    -- | Replace “M,” “L”, “H”, “V”
-    = Pt (Pt2 a)
-    -- | “C”: two control pts, 1 endpt
-    | CubicBez (Pt2 a, Pt2 a, Pt2 a)
-    -- | “S”: 1 control pt, 1 endpt
-    | CubicBezJoin (Pt2 a, Pt2 a)
-    -- | “T”: 1 endpt
-    | QuadBez (Pt2 a, Pt2 a)
-    -- | “T”: 1 endpt
-    | QuadBezJoin (Pt2 a)
+    = Pt (Pt2 a)                   -- ^ Replace “M,” “L”, “H”, “V”
+    | CubicBez (Pt2 a, Pt2 a, Pt2 a) -- ^ “C”: two control pts, 1 endpt
+    | CubicBezJoin (Pt2 a, Pt2 a)  -- ^ “S”: 1 control pt, 1 endpt
+    | QuadBez (Pt2 a, Pt2 a)       -- ^ “Q”: 1 control pt, 1 endpt
+    | QuadBezJoin (Pt2 a)          -- ^ “T”: 1 endpt
     deriving (Generic, Eq, Show)
+    -- | Arc { x, y, sweep1, … }  -- “A” TODO
 instance (FromJSON a) => FromJSON (Elem a)
 instance (ToJSON a)   => ToJSON (Elem a)
 
-    -- “A” TODO: complete this
-    -- | Arc { x, y, sweep1, … }
-
---------------------------------------------------------------------------------
--- Types
 
 -- | types of fully evaluated values in Style
 data ValueType
@@ -63,7 +57,8 @@ data ValueType
     | BoolT
     | StrT
     | PtT
-    | PathT
+    | PtListT
+    | PathDataT
     | ColorT
     | FileT
     | StyleT
@@ -81,9 +76,10 @@ data Value a
     | StrV String
     -- | point in R^2
     | PtV (Pt2 a)
+    -- | path commands
+    | PathDataV (PathData a)
     -- | a list of points
-    -- | PathV [Pt2 a]
-    | PathV (PathData a)
+    | PtListV [Pt2 a]
     -- | an RGBA color value
     | ColorV Color
     -- | path for image
@@ -98,16 +94,48 @@ instance (ToJSON a)   => ToJSON (Value a)
 -- | returns the type of a 'Value'
 typeOf :: (Autofloat a) => Value a -> ValueType
 typeOf v = case v of
-     FloatV _ -> FloatT
-     IntV   _ -> IntT
-     BoolV  _ -> BoolT
-     StrV   _ -> StrT
-     PtV    _ -> PtT
-     PathV  _ -> PathT
-     ColorV _ -> ColorT
-     FileV  _ -> FileT
-     StyleV _ -> StyleT
+     FloatV _     -> FloatT
+     IntV   _     -> IntT
+     BoolV  _     -> BoolT
+     StrV   _     -> StrT
+     PtV    _     -> PtT
+     PtListV    _ -> PtListT
+     PathDataV  _ -> PathDataT
+     ColorV _     -> ColorT
+     FileV  _     -> FileT
+     StyleV _     -> StyleT
 
+toPolymorphics :: [Shape Double] -> (forall a . (Autofloat a) => [Shape a])
+toPolymorphics = map toPolymorphic
+
+toPolymorphic :: Shape Double -> (forall a . (Autofloat a) => Shape a)
+toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
+
+toPolyProperty :: Value Double -> (forall a . (Autofloat a) => Value a)
+toPolyProperty v = case v of
+    -- Not sure why these have to be rewritten from scratch...
+    FloatV n  -> FloatV $ r2f n
+    BoolV x   -> BoolV x
+    StrV x    -> StrV x
+    IntV x    -> IntV x
+    PtV (x,y) -> PtV (r2f x, r2f y)
+    PtListV xs  -> PtListV $ map (\(x,y) -> (r2f x, r2f y)) xs
+    ColorV x  -> ColorV x
+    FileV x   -> FileV x
+    StyleV x  -> StyleV x
+    PathDataV es -> PathDataV $ map toPolyPath es
+
+toPolyPath :: Path' Double -> (forall a . (Autofloat a) => Path' a)
+toPolyPath (Closed es) = Closed $ map toPolyElem es
+toPolyPath (Open es) = Open $ map toPolyElem es
+
+toPolyElem :: Elem Double -> (forall a . (Autofloat a) => Elem a)
+toPolyElem (Pt p) = Pt $ r2ft p
+toPolyElem (CubicBez (p0, p1, p2)) = CubicBez (r2ft p0, r2ft p1, r2ft p2)
+toPolyElem (CubicBezJoin (p0, p1)) = CubicBezJoin (r2ft p0, r2ft p1)
+toPolyElem (QuadBez (p0, p1)) = QuadBez (r2ft p0, r2ft p1)
+toPolyElem (QuadBezJoin p) = QuadBezJoin $ r2ft p
+r2ft (x, y) = (r2f x, r2f y)
 
 -- | the type string of a shape
 type ShapeTypeStr = String
@@ -330,7 +358,8 @@ braceType = ("Brace", M.fromList
 
 curveType = ("Curve", M.fromList
     [
-        ("path", (PathT, constValue $ PathV $ Closed [])), -- TODO: sample path
+        ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
         ("style", (StrT, constValue $ StrV "solid")),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCurve"))
@@ -548,9 +577,9 @@ getNum shape prop = case shape .: prop of
     FloatV x -> x
     _ -> error "getNum: expected float but got something else"
 
-getPath :: (Autofloat a) => Shape a -> PathData a
+getPath :: (Autofloat a) => Shape a -> [Pt2 a]
 getPath shape = case shape .: "path" of
-    PathV x -> x
+    PtListV x -> x
     _ -> error "getPath: expected [(Float, Float)] but got something else"
 
 -- | ternary op for set (TODO: maybe later)

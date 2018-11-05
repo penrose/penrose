@@ -83,10 +83,9 @@ compDict = M.fromList
         ("midpointX", midpointX),
         ("midpointY", midpointY),
         ("len", len),
-        -- TODO: revert
-        -- ("computeSurjectionLines", computeSurjectionLines),
-        -- ("lineLeft", lineLeft),
-        -- ("lineRight", lineRight),
+        ("computeSurjectionLines", computeSurjectionLines),
+        ("lineLeft", lineLeft),
+        ("lineRight", lineRight),
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -116,9 +115,8 @@ compSignatures = M.fromList
         ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("bboxWidth", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("len", ([GPIType "Arrow"], ValueT FloatT)),
-        -- TODO: revert
-        -- ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PathT)),
-        ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PathT))
+        ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PtListT)),
+        ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PtListT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
@@ -329,53 +327,51 @@ randomsIn g n interval = let (x, g') = randomR interval g -- First value
 -- Computes the surjection to lie inside a bounding box defined by the corners of a box
 -- defined by four straight lines, assuming their lower/left coordinates come first.
 -- Their intersections give the corners.
--- computeSurjectionLines :: CompFn
--- computeSurjectionLines args = Val $ PathV $ computeSurjectionLines' compRng args
---
--- computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> [Pt2 a]
--- computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
---     let lower_left = (getNum left "startX", getNum bottom "startY") in
---     let top_right = (getNum right "startX", getNum top "startY") in
---     computeSurjection g n lower_left top_right
--- -- Assuming left and bottom are perpendicular and share one point
--- computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] =
---     let lower_left = (getNum left "startX", getNum left "startY") in
---     let top_right = (getNum bottom "endX", getNum left "endY") in
---     computeSurjection g n lower_left top_right
---
--- computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> [Pt2 a]
--- computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
---     if numPoints < 2 then error "Surjection needs to have >= 2 points"
---     else
---         let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
---             xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
---             xs_increasing = sort xs
---             (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
---             ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
---             ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
---         -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
---         in zip xs_increasing ys_perm -- len xs == len ys
+computeSurjectionLines :: CompFn
+computeSurjectionLines args = Val $ PtListV $ computeSurjectionLines' compRng args
 
--- TODO revert
+computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> [Pt2 a]
+computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
+    let lower_left = (getNum left "startX", getNum bottom "startY") in
+    let top_right = (getNum right "startX", getNum top "startY") in
+    computeSurjection g n lower_left top_right
+-- Assuming left and bottom are perpendicular and share one point
+computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] =
+    let lower_left = (getNum left "startX", getNum left "startY") in
+    let top_right = (getNum bottom "endX", getNum left "endY") in
+    computeSurjection g n lower_left top_right
+
+computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> [Pt2 a]
+computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
+    if numPoints < 2 then error "Surjection needs to have >= 2 points"
+    else
+        let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
+            xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
+            xs_increasing = sort xs
+            (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
+            ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
+            ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
+        -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
+        in zip xs_increasing ys_perm -- len xs == len ys
+
 -- calculates a line (of two points) intersecting the first axis, stopping before it leaves bbox of second axis
 -- TODO rename lineLeft and lineRight
 -- assuming a1 horizontal and a2 vertical, respectively
--- lineLeft :: CompFn
--- lineLeft [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
---     let a1_start = getNum a1 "startX" in
---     let a1_len = abs (getNum a1 "endX" - a1_start) in
---     let xpos = a1_start + lineFrac * a1_len in
---     Val $ PathV [(xpos, getNum a1 "startY"), (xpos, getNum a2 "endY")]
+lineLeft :: CompFn
+lineLeft [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let a1_start = getNum a1 "startX" in
+    let a1_len = abs (getNum a1 "endX" - a1_start) in
+    let xpos = a1_start + lineFrac * a1_len in
+    Val $ PtListV [(xpos, getNum a1 "startY"), (xpos, getNum a2 "endY")]
 
--- TODO revert
 -- assuming a1 vert and a2 horiz, respectively
 -- can this be written in terms of lineLeft?
--- lineRight :: CompFn
--- lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
---     let a1_start = getNum a1 "startY" in
---     let a1_len = abs (getNum a1 "endY" - a1_start) in
---     let ypos = a1_start + lineFrac * a1_len in
---     Val $ PathV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
+lineRight :: CompFn
+lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let a1_start = getNum a1 "startY" in
+    let a1_len = abs (getNum a1 "endY" - a1_start) in
+    let ypos = a1_start + lineFrac * a1_len in
+    Val $ PtListV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
 
 rgba :: CompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
@@ -606,11 +602,11 @@ repel [GPI a, GPI b, Val (FloatV weight)] = weight / (distsq (getX a, getY a) (g
 
 topRightOf :: ObjFn
 topRightOf [GPI l@("Text", _), GPI s@("Square", _)] = dist (getX l, getY l) (getX s + 0.5 * getNum s "side", getY s + 0.5 * getNum s "side")
-topRightOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s + 0.5 * getNum s "w", getY s + 0.5 * getNum s "h")
+topRightOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s + 0.5 * getNum s "sizeX", getY s + 0.5 * getNum s "sizeY")
 
 topLeftOf :: ObjFn
 topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] = dist (getX l, getY l) (getX s - 0.5 * getNum s "side", getY s - 0.5 * getNum s "side")
-topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s - 0.5 * getNum s "w", getY s - 0.5 * getNum s "h")
+topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s - 0.5 * getNum s "sizeX", getY s - 0.5 * getNum s "sizeY")
 
 nearHead :: ObjFn
 nearHead [GPI arr@("Arrow", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
@@ -694,7 +690,7 @@ contains [GPI s@("Square", _), GPI l@("Text", _)] =
     dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 + getNum l "w"
 contains [GPI s@("Rectangle", _), GPI l@("Text", _)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
-    dist (getX l, getY l) (getX s, getY s) - getNum s "w" / 2 + getNum l "w"
+    dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "sizeX"
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
     dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - 0.5 * getNum inc "side")
 contains [GPI outc@("Square", _), GPI inc@("Circle", _)] =
@@ -718,7 +714,7 @@ contains [GPI sq@("Square", _), GPI ar@("Arrow", _)] =
 contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
     let (startX, startY, endX, endY) = arrowPts ar
         (x, y) = (getX rt, getY rt)
-        (w, h) = (getNum rt "w", getNum rt "h")
+        (w, h) = (getNum rt "sizeX", getNum rt "sizeY")
         (lx, ly) = (x - w / 2, y - h / 2)
         (rx, ry) = (x + w / 2, y + h / 2)
     in inRange startX lx rx
@@ -752,7 +748,7 @@ limit = max canvasWidth canvasHeight
 maxSize [GPI c@("Circle", _)] = getNum c "r" - r2f (limit / 6)
 maxSize [GPI s@("Square", _)] = getNum s "side" - r2f (limit  / 3)
 maxSize [GPI r@("Rectangle", _)] =
-    let max_side = max (getNum r "w") (getNum r "h")
+    let max_side = max (getNum r "sizeX") (getNum r "sizeY")
     in max_side - r2f (limit  / 3)
 maxSize [GPI im@("Image", _)] =
     let max_side = max (getNum im "lengthX") (getNum im "lengthY")
@@ -768,7 +764,7 @@ minSize :: ConstrFn
 minSize [GPI c@("Circle", _)] = 20 - getNum c "r"
 minSize [GPI s@("Square", _)] = 20 - getNum s "side"
 minSize [GPI r@("Rectangle", _)] =
-    let min_side = min (getNum r "w") (getNum r "h")
+    let min_side = min (getNum r "sizeX") (getNum r "sizeY")
     in 20 - min_side
 minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "r") (getNum e "r")
 minSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
