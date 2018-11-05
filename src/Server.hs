@@ -135,13 +135,10 @@ serveWithoutSub domain port env styProg = do
 
 
 application :: ServerState -> WS.ServerApp
--- Wait for first command, which __must be__ "SubstanceEdit"
--- TODO: make an explicit function for this for better readability?
-application serverState@(Editor sty dsll Nothing) pending = do
+application serverState@Editor {} pending = do
     conn <- WS.acceptRequest pending
     WS.forkPingThread conn 30 -- To keep the connection alive
-    processCommand conn serverState
-
+    waitSubstance conn serverState
 
 application (Renderer s) pending = do
     conn <- WS.acceptRequest pending
@@ -161,6 +158,21 @@ loop conn serverState
     | otherwise = processCommand conn serverState
     where s = getBackendState serverState
 
+-- | In editor mode, the server first waits for a well-formed Substance program
+-- before accepting any other kinds of commands. The default action on other
+-- commands is to continue waiting without crashing
+waitSubstance :: WS.Connection -> ServerState -> IO ()
+waitSubstance conn s = do
+    putStrLn "Waiting for Substance program..."
+    msg_json <- WS.receiveData conn
+    case decode msg_json of
+        Just e -> case e of
+            Edit (SubstanceEdit subProg)  -> substanceEdit subProg conn s
+            _   -> continue
+        Nothing -> continue
+    where continue = do
+            putStrLn "Invalid command. Returning to wait for Substance program"
+            waitSubstance conn s
 
 processCommand :: WS.Connection -> ServerState -> IO ()
 processCommand conn s = do
