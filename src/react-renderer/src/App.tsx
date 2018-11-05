@@ -24,6 +24,10 @@ class App extends React.Component<IProps, IState> {
     const cleaned = clean(myJSON);
     this.setState({ json: myJSON, cleaned });
   };
+  public resample = () => {
+    const packet = { tag: "Cmd", contents: { command: "resample" } };
+    this.ws.send(JSON.stringify(packet));
+  }
   public autoStepToggle = () => {
     const packet = { tag: "Cmd", contents: { command: "autostep" } };
     this.ws.send(JSON.stringify(packet));
@@ -75,6 +79,7 @@ class App extends React.Component<IProps, IState> {
     return (
       <div className="App">
         <div onClick={this.autoStepToggle}>autostep</div>
+        <div onClick={this.resample}>resample</div>
         <Canvas
           data={cleaned}
           onShapeUpdate={this.onShapeUpdate}
