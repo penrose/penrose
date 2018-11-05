@@ -272,7 +272,8 @@ resampleAndSend conn serverState = do
                     paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter } }
     wsSendJSONList conn $ fst $ evalTranslation nexts
     let nextServerS = updateState serverState nexts
-    loop conn nextServerS
+    -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled. 
+    processCommand conn nextServerS
     where s = getBackendState serverState
 
 stepAndSend conn serverState = do
