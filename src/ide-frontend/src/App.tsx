@@ -4,6 +4,7 @@ import "./App.css";
 import AceEditor from "react-ace";
 import Renderer from "react-renderer";
 import logo from "./logo.svg";
+import Log from "Log";
 const socketAddress = "ws://localhost:9160";
 
 interface IState {
@@ -15,6 +16,7 @@ class App extends React.Component<any, IState> {
   public ws: any = null;
   constructor(props: any) {
     super(props);
+    Log.info("Connecting to socket...");
     this.setupSockets();
   }
   public setupSockets = () => {

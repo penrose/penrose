@@ -8,7 +8,7 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 registerServiceWorker();
 
 if (process.env.NODE_ENV !== "production") {
-  localStorage.setItem("debug", "*");
+  localStorage.setItem("debug", "renderer:*,ide:*");
 }
 
 export default App;
