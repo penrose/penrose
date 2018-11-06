@@ -3,13 +3,9 @@ import { toScreen } from "./Util";
 import draggable from "./Draggable";
 import { IGPIPropsDraggable } from "./types";
 
-interface IState {
-  shape: any;
-}
-
-class Rectangle extends React.Component<IGPIPropsDraggable, IState> {
+class Rectangle extends React.Component<IGPIPropsDraggable> {
   public render() {
-    const props = this.state.shape;
+    const props = this.props.shape;
     const { canvasSize } = this.props;
     const { dy, dx, onClick } = this.props;
     const [x, y] = toScreen([props.x, props.y], canvasSize);
