@@ -7,4 +7,8 @@ import registerServiceWorker from "./registerServiceWorker";
 ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 registerServiceWorker();
 
+if (process.env.NODE_ENV !== "production") {
+  localStorage.setItem("debug", "*");
+}
+
 export default App;
