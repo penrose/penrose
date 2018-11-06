@@ -27,7 +27,7 @@ Set `codomain` {
           startY = 0.0
           endX   = -100.0
           endY   = 200.0
-          thickness = 10.0          
+          thickness = 10.0
           color = Colors.black
     }
 
@@ -48,7 +48,7 @@ with Set `codomain`, `domainOuter` {
     `domain`.left_margin  = 0.2
     `domain`.right_margin = 0.8
     `domain`.outer_len = `domainOuter`.shape.endX - `domainOuter`.shape.startX
-  
+
     `domain`.left = Line {
         thickness = 2.0
         color = Colors.black
@@ -61,7 +61,7 @@ with Set `codomain`, `domainOuter` {
 
     `domain`.right = Line {
         thickness = 2.0
-        color = Colors.black      
+        color = Colors.black
         style = "dashed"
         startX = `domainOuter`.shape.startX + `domain`.right_margin * `domain`.outer_len
         startY = `domainOuter`.shape.startY
@@ -80,7 +80,7 @@ with Set `codomain`, `domainOuter`{
     `image`.bottom_margin  = 0.2 -- TODO: Could these margins be optimized?
     `image`.top_margin = 0.8
     `image`.codomain_len = `codomain`.shape.endY - `codomain`.shape.startY
-  
+
     `image`.bottom = Line {
         thickness = 2.0
         color = Colors.black
@@ -112,8 +112,10 @@ where From(f, domain, image)
 with Set `domainOuter`; Set domain; Set image {
     f.shape = Curve {
         path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
+        pathData = interpolate(f.shape.path)
         color = Colors.darkBlue
     }
+    -- f.shape.pathData = interpolate(f.shape.path)
 
     f.text = Text {
         string = f.label

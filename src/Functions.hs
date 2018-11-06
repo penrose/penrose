@@ -86,6 +86,7 @@ compDict = M.fromList
         ("computeSurjectionLines", computeSurjectionLines),
         ("lineLeft", lineLeft),
         ("lineRight", lineRight),
+        ("interpolate", interpolate),
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -116,7 +117,8 @@ compSignatures = M.fromList
         ("bboxWidth", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
         ("len", ([GPIType "Arrow"], ValueT FloatT)),
         ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PtListT)),
-        ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PtListT))
+        ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PtListT)),
+        ("interpolate", ([ValueT PtListT], ValueT PathDataT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
@@ -473,6 +475,24 @@ midpointY [GPI a@("Arrow", _)] =
 
 norm_ :: CompFn
 norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
+
+-- | Catmull-Rom spline interpolation algorithm
+interpolate :: CompFn
+interpolate [Val (PtListV pts)] =
+    let k  = 1
+        p0 = head pts
+        chunks = repeat4 $ head pts : pts ++ [last pts]
+        paths = map (chain k) chunks
+    in Val $ PathDataV [Open $ Pt p0 : paths]
+    where repeat4 xs = [ take 4 . drop n $ xs | n <- [0..length xs - 4] ]
+
+-- chain :: Pt2 -> Pt2 -> Pt2 -> Pt2 -> Float -> Elem
+chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
+    let cp1x = x1 + (x2 - x0) / 6 * k
+        cp1y = y1 + (y2 - y0) / 6 * k
+        cp2x = x2 - (x3 - x1) / 6 * k
+        cp2y = y2 - (y3 - y1) / 6 * k
+    in CubicBez ((cp1x, cp1y), (cp2x, cp2y), (x2, y2))
 
 noop :: CompFn
 noop [] = Val (StrV "TODO")
