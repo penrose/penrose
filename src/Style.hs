@@ -210,13 +210,13 @@ header = tryChoice [Select <$> selector, Namespace <$> styVar]
 -- TODO: clear up the `scn` calls for all parsers and establish the convention of calling scn AFTER each parser
 selector :: Parser Selector
 selector = do
-    hd       <- fmap concat $ declPattern `sepBy1` semi <* scn
+    hd       <- fmap concat $ declPattern `sepBy1` semi' <* scn
     (wi, wh) <- withAndWhere
     ns       <- optional $ namespace <* scn
     return Selector { selHead = hd,  selWith = wi, selWhere = wh,
                       selNamespace = ns}
-    where wth = fmap concat $ rword "with" *> declPattern `sepEndBy1` semi <* scn
-          whr = rword "where" *> relationPattern `sepEndBy1` semi <* scn
+    where wth = fmap concat $ rword "with" *> declPattern `sepEndBy1` semi' <* scn
+          whr = rword "where" *> relationPattern `sepEndBy1` semi' <* scn
           namespace = rword "as" >> identifier
           withAndWhere = makePermParser $ (,) <$?> ([], wth) <|?> ([], whr)
 

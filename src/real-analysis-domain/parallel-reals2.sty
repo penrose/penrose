@@ -46,7 +46,7 @@ Real r  -- no "In(r, `R`)"
 with Reals `R` {
   r.val = OPTIMIZED
   r.len = 20.0
-  
+
   r.shape = Line {
     startX = r.val
     startY = `R`.yval - (r.len / 2.0)
@@ -65,9 +65,7 @@ with Reals `R` {
   r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
 }
 
-Interval I
-where Subset(I, R)
-with Reals R { -- TODO: more general, with Interval J
+Interval I where Subset(I, R) with Reals R { -- TODO: more general, with Interval J
   I.left = OPTIMIZED
   I.right = OPTIMIZED
   I.yval = R.yval
@@ -112,9 +110,9 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
 }
 
 -- f : I -> R
--- If there is any function from I to R, then we make a 
+-- If there is any function from I to R, then we make a
 -- second real number line that those functions all share.
--- (This is going to be done for every match, hence the 
+-- (This is going to be done for every match, hence the
 -- `override` / lack of `override` warnings.)
 -- Will achieve the effect of if only one shape had been made
 
@@ -131,7 +129,7 @@ where f := CreateFunction(I, R) {
     thickness = R.thickness
     color = R.color
     rotation = 0.0
-  } 
+  }
 
  R.shape2_text = Text {
     string = R.label
@@ -154,12 +152,12 @@ where f := CreateFunction(I, R) {
     thickness = R.thickness * 2.0
     -- color = Colors.blue
     rotation = 0.0
-  } 
+  }
 
   f.text = Text {
     string = f.label
     rotation = 0.0
-  } 
+  }
 
   f.labelFn = encourage centerLabel(f.shape, f.text)
 }
@@ -169,14 +167,21 @@ where f := CreateFunction(I, R) {
   -- again, this is technically going to be made for every match, but overridden to be the same thing
 -- (Does NOT deal with composition of 3 functions, i = h.g.f)
 
-Function h; Function g; Function f
-where h := compose(g, f); h := CreateFunction(A, R); g := CreateFunction(B, R); f := CreateFunction(A, R)
+Function h;
+Function g;
+Function f
+where h := compose(g, f);
+      h := CreateFunction(A, R);
+      g := CreateFunction(B, R);
+      f := CreateFunction(A, R)
       -- TODO: Style parser doesn't like newlines here
       -- disallow equality for simplicity
       -- TODO: deal with these later
       -- A ?= B; B ?= C; h ?= g; g ?= f
       -- TODO: generalize the selector to three intervals
-with Interval A, B; Reals R {
+with Interval A, B;
+     Reals R
+{
   R.yval3 = R.yval2 - 100.0 -- function drawn downward
 
   R.shape3 = Arrow {
@@ -187,7 +192,7 @@ with Interval A, B; Reals R {
     thickness = R.thickness
     color = R.color
     rotation = 0.0
-  } 
+  }
 
  R.shape3_text = Text {
     string = R.label
