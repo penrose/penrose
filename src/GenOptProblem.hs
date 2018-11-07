@@ -257,7 +257,17 @@ lookupProperty :: (Autofloat a) => BindingForm -> Field -> Property -> Translati
 lookupProperty bvar field property trans =
     let name = trName bvar in
     case lookupField bvar field trans of
-    FExpr _ -> error ("path '" ++ pathStr3 name field property ++ "' has no properties")
+    FExpr e ->
+        -- to deal with path synonyms, e.g. `y.f = some GPI with property p; z.f = y.f; z.f.p = some value`
+        -- if we're looking for `z.f.p` and we find out that `z.f = y.f`, then look for `y.f.p` instead
+        -- NOTE: this makes a recursive call!
+        case e of
+        OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) -> 
+                if bvar == bvarSynonym && field == fieldSynonym
+                then error ("nontermination in lookupProperty with path '" ++ pathStr3 name field property ++ "' set to itself")
+                else lookupProperty bvarSynonym fieldSynonym property trans
+        -- the only thing that might have properties is another field path
+        _ -> error ("path '" ++ pathStr3 name field property ++ "' has no properties")
     FGPI ctor properties ->
         case M.lookup property properties of
         Nothing -> error ("path '" ++ pathStr3 name field property ++ "'s property does not exist")
@@ -523,7 +533,7 @@ evalExpr (i, n) arg trans varyMap =
                              case insertPath trans' (p, Done fval) of
                              Right trans' -> (v, trans')
                              Left err -> error $ concat err
-                         GPI _ -> error "path to field expr evaluated to a GPI"
+                         gpiVal@(GPI _) -> (gpiVal, trans') -- to deal with path synonyms, e.g. "y.f = some GPI; z.f = y.f"
                      FGPI ctor properties ->
                      -- Eval each property in the GPI, storing each property result in a new dictionary
                      -- No need to update the translation because each path should update the translation

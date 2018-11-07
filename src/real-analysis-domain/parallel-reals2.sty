@@ -15,8 +15,7 @@ Colors {
   Colors.blue = rgba(0.0, 0.0, 1.0, 0.5)
 }
 
--- Reals `R`
-Reals R {
+Reals `R` {
   R.len = 500.0
   R.thickness = 5.0
   R.color = Colors.gray
@@ -112,12 +111,16 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
   override r.shape.color = Colors.red
 }
 
+-- f : I -> R
+-- If there is any function from I to R, then we make a 
+-- second real number line that those functions all share.
+-- (This is going to be done for every match, hence the 
+-- `override` / lack of `override` warnings.)
+-- Will achieve the effect of if only one shape had been made
+
 Function f; Reals R
 with Interval I
 where f := CreateFunction(I, R) {
-  -- make a second R shape
-  -- this is technically going to be made for every match, but overridden to be the same thing
-  -- which is messy but will achieve the effect of if only one shape had been made...
   R.yval2 = R.yval - 100.0 -- function drawn downward
 
   R.shape2 = Arrow {
@@ -143,12 +146,10 @@ where f := CreateFunction(I, R) {
   f.domain = I.shape
   f.codomain = R.shape2
 
-  -- TODO: implement partial path lookup
-  -- so we can write f.domain.startX, etc.
   f.shape = Arrow {
-    startX = midpointX(I.shape) -- TODO change to f.domain
+    startX = midpointX(f.domain)
     startY = I.yval - global.padding
-    endX   = midpointX(R.shape2) -- TODO change to f.codomain
+    endX   = midpointX(f.codomain)
     endY   = R.yval2 + global.padding
     thickness = R.thickness * 2.0
     -- color = Colors.blue
@@ -164,6 +165,10 @@ where f := CreateFunction(I, R) {
 }
 
 -- h = g . f
+-- If there is a composition of functions, draw a third R for the second function
+  -- again, this is technically going to be made for every match, but overridden to be the same thing
+-- (Does NOT deal with composition of 3 functions, i = h.g.f)
+
 Function h; Function g; Function f
 where h := compose(g, f); h := CreateFunction(A, R); g := CreateFunction(B, R); f := CreateFunction(A, R)
       -- TODO: Style parser doesn't like newlines here
@@ -172,8 +177,6 @@ where h := compose(g, f); h := CreateFunction(A, R); g := CreateFunction(B, R); 
       -- A ?= B; B ?= C; h ?= g; g ?= f
       -- TODO: generalize the selector to three intervals
 with Interval A, B; Reals R {
-  -- make a third R shape
-  -- again, this is technically going to be made for every match, but overridden to be the same thing
   R.yval3 = R.yval2 - 100.0 -- function drawn downward
 
   R.shape3 = Arrow {
@@ -205,13 +208,11 @@ with Interval A, B; Reals R {
   override f.codomain = B.shape
   override f.shape.endX = midpointX(B.shape)
 
-  -- move g's codomain, and h's, to be the third R
-  -- TODO fix paths/lookups so this override works modularly
-  -- override g.codomain = R.shape3
-  -- Error: Sub obj 'g' does not have GPI 'codomain'; cannot add property 'endY'
-  -- override g.codomain.endY = R.yval3 + global.padding
+  -- move g's codomain to be the third R
+  override g.codomain = R.shape3
   override g.shape.endY = R.yval3 + global.padding
 
+  override h.codomain = R.shape3
   -- delete h's shape, label, etc.
   delete h.val
   delete h.shape
@@ -221,40 +222,3 @@ with Interval A, B; Reals R {
 
 -- TODO: selectors to make fourth, fifth, etc. R
 -- specifically for the composition of three, four functions
-
-/*  -- link f's codomain and g's domain
-  -- namely, set g's codomain to be f's domain
-  override g.domain = f.codomain
-  override g.x_vals = f.y_vals
-
-  -- What do we do with h? should we still draw it?
-  -- depends on the style!
-  -- h needs to be correctly set for future fn compositions
-  override h.domain = f.domain
-  override h.codomain = g.codomain
-  override h.val = composeFns(g.val, f.val)
-  override h.x_vals = f.x_vals
-  override h.y_vals = g.y_vals
-  delete h.shape
-  delete h.shape2 -- only exists for h : R -> R
-  delete h.shading
-  delete h.dirFn */
-
-/* Problem: there are multiple copies of R here, they are just superimposed
-
-I feel like we need some kind of global Substance analysis phase. Can we analyze the Sub prog and generate a Style?
-if we could analyze the prog, what would we do?
-is it too much to expect a "local" Style program to be able to deal with this R behavior in all situations?
-should we give up on the dream of a generic Style? I could easily analyze the Sub program myself (as a Style-writer) and write a Style for that Sub program
-or make Style more expressive on first match, on second match or some reflection on the translation "if this shape/attribute already exists, use it and don't draw it"
-or a lot of really specific selectors: if both functions are from I,J to R, and are not composed then delete the second shape. hard to know how these interact/cascade
-
-Proposed solution: 
-if there's any real or interval, draw an R
-if there's any function from reals /  interval in R to reals / interval in R, draw another R
-if there's any function composed w/ another, draw another R (and so on). 
-(write selectors for the composition of up to 4 functions)
-(i think this is OK for most use cases)
-what if there are "parallel composed functions"?
-don't these R copies need to be programmatically named?
-can't just call them R1, R2, R3, and they can't be local sels, and they can't be attached to the function */
