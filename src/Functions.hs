@@ -88,7 +88,10 @@ compDict = M.fromList
         ("lineLeft", lineLeft),
         ("lineRight", lineRight),
         ("sampleFunction", sampleFunction),
+        ("fromDomain", fromDomain),
+        ("applyFn", applyFn),
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
+
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
         ("sampleReal", noop), -- TODO
@@ -310,7 +313,7 @@ type Interval = (Float, Float)
 -- TODO: use the rng in state
 compRng :: StdGen
 compRng = mkStdGen seed
-    where seed = 17 -- deterministic RNG with seed
+    where seed = 15 -- deterministic RNG with seed
 
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
@@ -489,6 +492,25 @@ midpointY [GPI linelike] =
 
 norm_ :: CompFn
 norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
+
+-- From Shapes.hs, TODO factor out
+sampleList :: (Autofloat a) => [a] -> StdGen -> (a, StdGen)
+sampleList list g =
+    let (idx, g') = randomR (0, length list - 1) g
+    in (list !! idx, g')
+
+-- sample random element from domain of function (relation)
+fromDomain :: CompFn
+fromDomain [Val (PathV path)] =
+           let (x, g') = sampleList (map fst path) compRng in
+           Val $ FloatV $ x
+
+-- lookup element in function (relation) by making a Map
+applyFn :: CompFn
+applyFn [Val (PathV path), Val (FloatV x)] = 
+        case M.lookup x (M.fromList path) of
+        Just y -> Val (FloatV y)
+        Nothing -> error "x element does not exist in function"
 
 noop :: CompFn
 noop [] = Val (StrV "TODO")

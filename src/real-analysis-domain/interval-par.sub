@@ -3,8 +3,7 @@
 Reals R
 
 -- I := [a, b] \subset R
-Real a
-Real b
+Real a, b
 Interval I
 I := CreateInterval(a, b)
 Subset(I, R)
@@ -12,6 +11,7 @@ Subset(I, R)
 -- x \in I
 Real x
 In(x, I)
+
 -- TODO: y := f(x)
 -- z := g(y)
 
@@ -37,7 +37,6 @@ Subset(fI, J) */
 Function h
 h := CreateFunction(I, R)
 h := compose(g, f)
-
 
 AutoLabel All
 Label R $\mathbb{R}$

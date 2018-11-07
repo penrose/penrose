@@ -13,6 +13,7 @@ Colors {
   Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
   Colors.green = rgba(0.0, 1.0, 0.0, 0.5)
   Colors.blue = rgba(0.0, 0.0, 1.0, 0.5)
+  Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
 }
 
 Reals R {
@@ -109,12 +110,14 @@ Interval `A` {
   override `A`.shape.color = Colors.blue
 }
 
+/*
 Interval `B` {
   override `B`.shape.color = Colors.green
 }
+*/
 
 Real r
-with Interval I; Reals R
+with Interval I; Reals R; Real a; Real b
 where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
   override r.inFn = ensure inRange(r.val, a.val, b.val)
   override r.shape.color = Colors.red
@@ -138,4 +141,59 @@ where f := CreateFunction(I, R) {
     y = midpointY(R.y_axis)
     string = f.label
   }
+}
+
+-- y := f(x)
+-- draw on the vertical axis
+Real y
+with Function f; Interval I; Real x
+where y := apply(f, x); f := CreateFunction(I, R); In(x, I) {
+      -- TODO: For now, picks the corresponding point in the list of points. Later, x can be properly sampled in the domain of f, and y can be found by applying the Bezier curve eqn.
+      override x.val = fromDomain(f.val)
+      override y.val = applyFn(f.val, x.val)
+
+      override y.shape.color = Colors.blue
+
+      override y.shape.startX = origin.x - (y.len / 2.0)
+      override y.shape.startY = y.val
+      override y.shape.endX =  origin.x + (y.len / 2.0)
+      override y.shape.endY = y.val
+
+      override y.inFn = ensure inRange(y.val, R.y_axis.startY, R.y_axis.endY)
+}
+
+Point p
+with Function f; Interval I; Real x; Real y
+where p := Pt(x, y); 
+      y := apply(f, x); 
+      f := CreateFunction(I, R); 
+      In(x, I) {
+
+      p.shape = Circle {
+      	      x = x.val
+	      y = y.val
+	      r = 5.0
+	      color = Colors.purple
+	      stroke = "none"
+      }
+
+      p.vert = Line {
+      	     startX = x.val
+	     startY = origin.y
+	     endX = x.val
+	     endY = y.val
+	     thickness = 1.5
+	     style = "dashed"
+      	     color = Colors.red
+      }
+
+      p.horiz = Line {
+      	     startX = origin.x
+	     startY = y.val
+	     endX = x.val
+	     endY = y.val
+	     thickness = 1.5
+	     style = "dashed"
+      	     color = Colors.blue
+      }
 }
