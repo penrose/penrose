@@ -1,5 +1,6 @@
 import * as React from "react";
 import componentMap from "./componentMap";
+import Log from "./Log";
 
 interface IProps {
   data: any;
@@ -13,6 +14,7 @@ class Canvas extends React.Component<IProps> {
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     const component = componentMap[name];
     if (component === undefined) {
+      Log.error(`Could not render GPI ${name}.`);
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
     const canvasSize = this.canvasSize;

@@ -1,6 +1,7 @@
 import * as React from "react";
 import Canvas from "./Canvas";
 import { clean, serializeShape, containsEmptyLabels } from "./Util";
+import Log from "./Log";
 
 interface IState {
   json: any[];
@@ -20,9 +21,14 @@ class App extends React.Component<IProps, IState> {
     // For final frame
     if (myJSON.flag !== null && myJSON.flag === "final") {
       myJSON = myJSON.shapes;
+      Log.info("Fully optimized.");
     }
     const cleaned = clean(myJSON);
     this.setState({ json: myJSON, cleaned });
+  };
+  public resample = () => {
+    const packet = { tag: "Cmd", contents: { command: "resample" } };
+    this.ws.send(JSON.stringify(packet));
   };
   public autoStepToggle = () => {
     const packet = { tag: "Cmd", contents: { command: "autostep" } };
@@ -62,6 +68,7 @@ class App extends React.Component<IProps, IState> {
     if (this.props.ws) {
       this.ws = this.props.ws;
     } else {
+      Log.info("No Websocket supplied in props, creating own.");
       this.ws = new WebSocket(socketAddress);
     }
     this.ws.onmessage = this.onMessage;
@@ -74,7 +81,10 @@ class App extends React.Component<IProps, IState> {
     const { cleaned } = this.state;
     return (
       <div className="App">
-        <div onClick={this.autoStepToggle}>autostep</div>
+        <div>
+          <button onClick={this.autoStepToggle}>autostep</button>
+          <button onClick={this.resample}>resample</button>
+        </div>
         <Canvas
           data={cleaned}
           onShapeUpdate={this.onShapeUpdate}
