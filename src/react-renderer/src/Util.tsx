@@ -1,3 +1,5 @@
+import Log from "./Log";
+
 export const toScreen = (
   [x, y]: [number, number],
   canvasSize: [number, number]
@@ -34,6 +36,8 @@ export const containsEmptyLabels = (shapes: any[]) =>
     return true;
   });
 
+// TODO: deprecate this
+
 export const clean = (shapes: any[]) => {
   return shapes.map((shape: IPre) => {
     const shapeN = { ...shape[1] };
@@ -52,8 +56,12 @@ export const clean = (shapes: any[]) => {
         case "ColorV":
           shapeN[key] = [toHex(val.contents), val.contents[3]];
           break;
+        case "PtListV":
+          shapeN[key] = val.contents;
+        case "PathDataV":
+          shapeN[key] = val.contents;
         default:
-          console.warn(
+          Log.warn(
             `Value tag ${
               val.tag
             } unaccounted for. Defaulting to ${key}.contents.`
@@ -90,6 +98,13 @@ export const serializeShape = ([name, obj]: [string, object]) => {
               tag: "ColorV",
               contents: [...toRgb(orig[0].slice(1)), orig[1]]
             };
+          } else if (key === "path") {
+            val = {
+              tag: "PtListV",
+              contents: orig
+            };
+          } else if (key === "pathData") {
+            val = { tag: "PathDataV", contents: orig };
           }
         } else {
           console.error(`Could not serialize ${key}`);

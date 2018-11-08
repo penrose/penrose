@@ -7,6 +7,7 @@
     "private": true,
     "dependencies": {
         "debug": "^4.1.0",
+        "lodash": "^4.17.11",
         "react": "^16.6.0",
         "react-dom": "^16.6.0",
         "react-scripts-ts": "3.1.0"
@@ -19,11 +20,12 @@
         "eject": "react-scripts-ts eject"
     },
     "devDependencies": {
+        "@types/debug": "0.0.31",
         "@types/jest": "^23.3.9",
+        "@types/lodash": "^4.14.118",
         "@types/node": "^10.12.2",
         "@types/react": "^16.4.18",
         "@types/react-dom": "^16.0.9",
-        "typescript": "^3.1.6",
-        "@types/debug": "0.0.31"
+        "typescript": "^3.1.6"
     }
 }
