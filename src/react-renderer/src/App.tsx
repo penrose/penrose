@@ -1,11 +1,10 @@
 import * as React from "react";
 import Canvas from "./Canvas";
-import { clean, serializeShape, containsEmptyLabels } from "./Util";
+import { containsEmptyLabels } from "./Util";
 import Log from "./Log";
 
 interface IState {
-  json: any[];
-  cleaned: any[];
+  data: any[];
 }
 interface IProps {
   ws?: any;
@@ -13,7 +12,7 @@ interface IProps {
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<IProps, IState> {
-  public readonly state = { json: [], cleaned: [] };
+  public readonly state = { data: [] };
   public ws: any = null;
   public onMessage = (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
@@ -23,8 +22,7 @@ class App extends React.Component<IProps, IState> {
       myJSON = myJSON.shapes;
       Log.info("Fully optimized.");
     }
-    const cleaned = clean(myJSON);
-    this.setState({ json: myJSON, cleaned });
+    this.setState({ data: myJSON });
   };
   public resample = () => {
     const packet = { tag: "Cmd", contents: { command: "resample" } };
@@ -35,19 +33,19 @@ class App extends React.Component<IProps, IState> {
     this.ws.send(JSON.stringify(packet));
   };
   public onShapeUpdate = (updatedShape: any) => {
-    const shapes = this.state.cleaned.map(([name, oldShape]: [string, any]) => {
-      if (oldShape.name === updatedShape.name) {
+    const shapes = this.state.data.map(([name, oldShape]: [string, any]) => {
+      if (oldShape.name.contents === updatedShape.name.contents) {
         return [name, updatedShape];
       }
       return [name, oldShape];
     });
     this.setState({
-      cleaned: shapes
+      data: shapes
     });
     if (!containsEmptyLabels(shapes)) {
       const packet = {
         tag: "Update",
-        contents: { shapes: shapes.map(serializeShape) }
+        contents: { shapes }
       };
       this.ws.send(JSON.stringify(packet));
     }
@@ -78,7 +76,7 @@ class App extends React.Component<IProps, IState> {
     this.setupSockets();
   }
   public render() {
-    const { cleaned } = this.state;
+    const { data } = this.state;
     return (
       <div className="App">
         <div>
@@ -86,7 +84,7 @@ class App extends React.Component<IProps, IState> {
           <button onClick={this.resample}>resample</button>
         </div>
         <Canvas
-          data={cleaned}
+          data={data}
           onShapeUpdate={this.onShapeUpdate}
           dragEvent={this.dragEvent}
         />

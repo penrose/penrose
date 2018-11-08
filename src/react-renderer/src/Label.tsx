@@ -34,9 +34,14 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
     const { w, h } = this.state;
     if (
       onShapeUpdate &&
-      ((shape.w === 0 && w !== 0) || (shape.h === 0 && h !== 0))
+      ((shape.w.contents === 0 && w !== 0) ||
+        (shape.h.contents === 0 && h !== 0))
     ) {
-      onShapeUpdate({ ...shape, w, h });
+      onShapeUpdate({
+        ...shape,
+        w: { ...shape.w, contents: w },
+        h: { ...shape.h, contents: h }
+      });
     }
   }
   public tex2svg = () => {
@@ -47,7 +52,7 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
     const setState = this.setState.bind(this);
     // HACK: Style compiler decides to give empty labels if not specified
     if (cur !== null && this.props.shape.string !== "") {
-      wrapper.innerHTML = "$" + this.props.shape.string + "$";
+      wrapper.innerHTML = "$" + this.props.shape.string.contents + "$";
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, wrapper]);
       MathJax.Hub.Queue(() => {
         const output = wrapper.getElementsByTagName("svg")[0];
@@ -55,26 +60,35 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
         cur.innerHTML = output.outerHTML; // need to keep properties in <svg>
         const { width, height } = cur.getBBox();
         if (onShapeUpdate) {
-          onShapeUpdate({ ...shape, w: width, h: height });
-          setState({ w: width, h: height });
+          onShapeUpdate({
+            ...shape,
+            w: { ...shape.w, contents: width },
+            h: { ...shape.h, contents: height }
+          });
+          setState({
+            w: width,
+            h: height
+          });
         }
       });
     }
   };
 
   public render() {
-    const props = this.props.shape;
+    const { shape } = this.props;
     const { dy, dx, onClick } = this.props;
     const { canvasSize } = this.props;
-    const [x, y] = toScreen([props.x, props.y], canvasSize);
-    const { w, h } = props;
+    const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
+    const { w, h } = shape;
     return (
       <g
-        transform={`translate(${x - w / 2 - dx},${y - h / 2 + dy})`}
+        transform={`translate(${x - w.contents / 2 - dx},${y -
+          h.contents / 2 +
+          dy})`}
         onMouseDown={onClick}
         ref={this.ref}
       >
-        <text>{props.string}</text>
+        <text>{shape.string.contents}</text>
       </g>
     );
   }

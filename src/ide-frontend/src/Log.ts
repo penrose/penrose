@@ -3,22 +3,27 @@ import * as Debug from "debug";
 const BASE = "ide";
 
 class Log {
+  private readonly debugInfo = Debug(`${BASE}:info`);
+  private readonly debugWarn = Debug(`${BASE}:warn`);
+  private readonly debugError = Debug(`${BASE}:error`);
   public info(message: string, source?: string) {
-    return this.generateMessage("info", message, source);
+    return this.generateMessage(this.debugInfo, message, source);
   }
   public warn(message: string, source?: string) {
-    return this.generateMessage("warn", message, source);
+    return this.generateMessage(this.debugWarn, message, source);
   }
   public error(message: string, source?: string) {
-    return this.generateMessage("error", message, source);
+    return this.generateMessage(this.debugError, message, source);
   }
-  private generateMessage(level: string, message: string, source?: string) {
-    const namespace = `${BASE}:${level}`;
-    const createDebug = Debug(namespace);
+  private generateMessage(
+    dbgr: Debug.IDebugger,
+    message: string,
+    source?: string
+  ) {
     if (source) {
-      return createDebug(source, message);
+      return dbgr(source, message);
     } else {
-      return createDebug(message);
+      return dbgr(message);
     }
   }
 }

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { toScreen } from "./Util";
+import { toScreen, toHex } from "./Util";
 import { flatten } from "lodash";
 import { IGPIProps } from "./types";
 
@@ -32,17 +32,17 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
 
 class Curve extends React.Component<IGPIProps> {
   public render() {
-    const props = this.props.shape;
-    const color = props.color[0];
+    const { shape } = this.props;
     const { canvasSize } = this.props;
-    const alpha = props.color[1];
+    const color = toHex(shape.color.contents);
+    const alpha = shape.color.contents[3];
     return (
       <path
         stroke={color}
         fill="rgba(0,0,0,0)"
         style={{ strokeWidth: 2.5 }}
         fillOpacity={alpha}
-        d={toPathString(props.pathData, canvasSize)}
+        d={toPathString(shape.pathData.contents, canvasSize)}
       />
     );
   }

@@ -29,7 +29,7 @@ const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
       const { dy, dx } = this.state;
       const { shape } = this.props;
       if (this.props.dragEvent) {
-        this.props.dragEvent(shape.name, dy, dx);
+        this.props.dragEvent(shape.name.contents, dy, dx);
       }
       this.setState({ tempX: 0, tempY: 0, dx: 0, dy: 0 });
     };
