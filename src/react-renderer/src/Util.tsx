@@ -15,7 +15,7 @@ export const toHex = (rgba: [number, number, number, number]) => {
 export const containsEmptyLabels = (shapes: any[]) =>
   !shapes.every(([type, obj]: [string, any]) => {
     if (type === "Text") {
-      return obj.w !== 0 && obj.h !== 0;
+      return obj.w.contents !== 0 && obj.h.contents !== 0;
     }
     return true;
   });

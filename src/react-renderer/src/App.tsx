@@ -16,7 +16,6 @@ class App extends React.Component<IProps, IState> {
   public ws: any = null;
   public onMessage = (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
-    // TODO: logger
     // For final frame
     if (myJSON.flag !== null && myJSON.flag === "final") {
       myJSON = myJSON.shapes;
