@@ -11,6 +11,10 @@ interface IProps {
 class Canvas extends React.Component<IProps> {
   public readonly canvasSize: [number, number] = [800, 700];
 
+  public notEmptyLabel = ([name, shape]: [string, any], key: number) => {
+    return !(name === "Text" && shape.string.contents === "");
+  }
+
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     const component = componentMap[name];
     if (component === undefined) {
@@ -39,7 +43,7 @@ class Canvas extends React.Component<IProps> {
         height="100%"
         viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
       >
-        {data.map(this.renderEntity)}
+        {data.filter(this.notEmptyLabel).map(this.renderEntity)}
       </svg>
     );
   }

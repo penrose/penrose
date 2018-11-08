@@ -176,6 +176,20 @@ waitSubstance conn s = do
             putStrLn "Invalid command. Returning to wait for Substance program"
             waitSubstance conn s
 
+-- } COMBAK: abstract this logic out to `wait`
+waitUpdate :: WS.Connection -> ServerState -> IO ()
+waitUpdate conn s = do
+    putStrLn "Waiting for label dimension update"
+    msg_json <- WS.receiveData conn
+    case decode msg_json of
+        Just e -> case e of
+            Update (UpdateShapes shapes)  -> updateShapes shapes conn s
+            _   -> continue
+        Nothing -> continue
+    where continue = do
+            putStrLn "Invalid command. Returning to wait for label update."
+            waitUpdate conn s
+
 processCommand :: WS.Connection -> ServerState -> IO ()
 processCommand conn s = do
     putStrLn "Receiving Commands"
@@ -255,8 +269,8 @@ resampleAndSend conn serverState = do
                     paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter } }
     wsSendJSONList conn $ fst $ evalTranslation nexts
     let nextServerS = updateState serverState nexts
-    -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled. 
-    processCommand conn nextServerS
+    -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled.
+    waitUpdate conn nextServerS
     where s = getBackendState serverState
 
 stepAndSend conn serverState = do

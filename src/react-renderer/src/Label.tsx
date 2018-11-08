@@ -25,6 +25,7 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
     });
   }
   public componentDidMount() {
+    console.log("hello")
     this.tex2svg();
   }
 
@@ -51,7 +52,7 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
     const { shape, onShapeUpdate } = this.props;
     const setState = this.setState.bind(this);
     // HACK: Style compiler decides to give empty labels if not specified
-    if (cur !== null && this.props.shape.string !== "") {
+    if (cur !== null && this.props.shape.string.contents !== "") {
       wrapper.innerHTML = "$" + this.props.shape.string.contents + "$";
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, wrapper]);
       MathJax.Hub.Queue(() => {
