@@ -38,6 +38,7 @@ data DsllStmt = CdStmt Cd
              | SubtypeDeclStmt SubtypeDecl
              | OdStmt Od
              | PdStmt Pd
+             | PreludeDeclStmt Var T
              deriving (Show, Eq, Typeable)
 
 -- | tconstructor
@@ -136,7 +137,8 @@ dsllProgParser :: Parser [DsllStmt]
 dsllProgParser = dsllStmt `sepEndBy` newline'
 
 dsllStmt :: Parser DsllStmt
-dsllStmt = try cdParser <|> try vdParser <|> try odParser <|> try subtypeDeclParser <|> try pdParser
+dsllStmt = try cdParser <|> try vdParser <|> try odParser <|>
+ try subtypeDeclParser <|> try pdParser <|> try preludeParser
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser DsllStmt
@@ -163,6 +165,15 @@ subtypeDeclParser = do
   rword "<:"
   supertype <- tParser
   return $ SubtypeDeclStmt $ SubtypeDecl { subType = subtype, superType = supertype}
+
+-- | prelude declarations parser
+preludeParser :: Parser DsllStmt
+preludeParser = do
+  rword "value"
+  pvar <- varParser
+  rword ":"
+  ptype <- tParser
+  return $ PreludeDeclStmt pvar ptype
 
 -- | parser for the (y,k) list
 ykParser :: Parser ([Y], [K])
@@ -235,6 +246,7 @@ check p = let env = foldl checkDsllStmt initE p
                                     operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
                                     typeValConstructor = M.empty,
                                     varMap = M.empty, subTypes = [], typeCtorNames = [], declaredNames = [],
+                                    preludes = [],
                                     errors = ""}
 
 checkDsllStmt :: VarEnv -> DsllStmt -> VarEnv
@@ -248,6 +260,11 @@ checkDsllStmt e (SubtypeDeclStmt s) = let env1 = checkDeclaredType e (subType s)
                                           env2 = checkDeclaredType env1 (superType s)
                                           env3 = env2 { subTypes = (subType s,superType s) : subTypes env2 }
                                        in env3
+
+checkDsllStmt e (PreludeDeclStmt (VarConst pvar) ptype) =
+  let env  = checkT e ptype
+  in  env {
+   preludes = ((VarConst pvar), ptype) : (preludes env)}
 
 checkDsllStmt e (VdStmt v) = let kinds = seconds (varsVd v)
                                  env1 = foldl checkK e kinds

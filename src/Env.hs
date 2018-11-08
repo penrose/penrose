@@ -275,6 +275,7 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        typeVarMap       :: M.Map TypeVar Type,
                        typeValConstructor :: M.Map T ValConstructor,
                        varMap           :: M.Map Var T,
+                       preludes        :: [(Var,T)],
                        subTypes         :: [(T,T)],
                        typeCtorNames    :: [String],  -- a global list which contains all the names of types in that env
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env

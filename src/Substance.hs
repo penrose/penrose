@@ -118,14 +118,21 @@ data SubObj = LD SubDecl
 
 --------------------------------------- Substance Parser --------------------------------------
 
-refineAST :: SubProg -> SubProg
-refineAST subProg = foldl refineDeclList [] subProg
+refineAST :: SubProg -> VarEnv -> SubProg
+refineAST subProg varEnv =
+  let subProg' =  map preludesToDeclarations (preludes varEnv) ++ subProg
+  in foldl refineDeclList [] subProg'
 
 refineDeclList accumProg (DeclList t vars) =
   accumProg ++ foldl (convertDeclList t) [] vars
 refineDeclList accumProg stmt = accumProg ++ [stmt]
 
 convertDeclList t vars var = vars ++ [Decl t var]
+
+-- | Convert prelude statemnts from the .dsl file into declaration Statements
+--   in the Substance program AST
+preludesToDeclarations :: (Var,T) -> SubStmt
+preludesToDeclarations (v,t) = (Decl t v)
 
 
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
@@ -687,7 +694,7 @@ parseSubstance subFile subIn varEnv =
     case runParser substanceParser subFile subIn of
         Left err -> error (parseErrorPretty err)
         Right subProg -> do
-            let subProg' = refineAST subProg
+            let subProg' = refineAST subProg varEnv
             let subTypeEnv  = check subProg' varEnv
             let subDynEnv   = loadSubEnv subProg'
             let labelMap    = getLabelMap subProg' subTypeEnv

@@ -15,3 +15,9 @@ operator Apply (f : LinearMap, v : Vector) : Vector
 predicate In (v : Vector, V : VectorSpace) : Prop
 predicate From (f : LinearMap, V : VectorSpace, W : VectorSpace) : Prop
 predicate Not (p1 : Prop) : Prop
+
+-- Prelude Example
+
+-- Examples for prelude, just for reproducing
+-- value T : VectorSpace
+-- value T1 : VectorSpace
