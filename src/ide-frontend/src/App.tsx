@@ -3,6 +3,7 @@ import "./App.css";
 
 import AceEditor from "react-ace";
 import Renderer from "react-renderer";
+import { Grid, Cell } from "styled-css-grid";
 import logo from "./logo.svg";
 import Log from "Log";
 const socketAddress = "ws://localhost:9160";
@@ -41,11 +42,16 @@ class App extends React.Component<any, IState> {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to Penrose</h1>
+          <button onClick={this.compile}>COMPILE!</button>
         </header>
-        <AceEditor onChange={this.onChangeCode} value={code} />
-        {/* <textarea onChange={this.onChangeCode} value={code} /> */}
-        <button onClick={this.compile}>COMPILE!</button>
-        <Renderer ws={this.ws} />
+        <Grid columns={2}>
+          <Cell width={1}>
+            <AceEditor width="100%" onChange={this.onChangeCode} value={code} />
+          </Cell>
+          <Cell width={1}>
+            <Renderer ws={this.ws} />
+          </Cell>
+        </Grid>
       </div>
     );
   }

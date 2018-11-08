@@ -31,6 +31,8 @@
     "resolve": "1.6.0",
     "source-map-loader": "^0.2.1",
     "style-loader": "0.19.0",
+    "styled-components": "^4.0.3",
+    "styled-css-grid": "^1.1.1",
     "sw-precache-webpack-plugin": "0.11.4",
     "ts-jest": "22.0.1",
     "ts-loader": "^2.3.7",
