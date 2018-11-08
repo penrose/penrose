@@ -58,8 +58,10 @@ export const clean = (shapes: any[]) => {
           break;
         case "PtListV":
           shapeN[key] = val.contents;
+          break;
         case "PathDataV":
           shapeN[key] = val.contents;
+          break;
         default:
           Log.warn(
             `Value tag ${
