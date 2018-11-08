@@ -17,7 +17,15 @@ y := apply(f, x)
 Point p
 p := Pt(x, y)
 
+Real dfx 
+dfx := derivativeAtP(f, x)
+
+Real ifA
+ifA := integral(A, f)
+
 AutoLabel All
 Label R $\mathbb{R}$
 Label y $f(x)$
+Label dfx $f'(x)$
+Label ifA $\int_{A} f(x) dx$
 NoLabel a1, a2

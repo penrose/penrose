@@ -11,8 +11,14 @@ Colors {
   Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
   Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
   Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
-  Colors.green = rgba(0.0, 1.0, 0.0, 0.5)
-  Colors.blue = rgba(0.0, 0.0, 1.0, 0.5)
+  Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+  Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+  Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+  Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+  Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+  Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+  Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+  Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
   Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
 }
 
@@ -60,7 +66,7 @@ Real r
 with Reals `R` { -- No In(r, `R`)
   r.val = OPTIMIZED
   r.len = 20.0
-  
+
   r.shape = Line {
     startX = r.val
     startY = origin.y - (r.len / 2.0)
@@ -106,11 +112,11 @@ where I := CreateInterval(a, b); Subset(I, R) {
   -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
 }
 
+/*
 Interval `A` {
   override `A`.shape.color = Colors.blue
 }
 
-/*
 Interval `B` {
   override `B`.shape.color = Colors.green
 }
@@ -127,12 +133,13 @@ Function f
 with Interval I; Reals R
 -- TODO: with Set A; Set B
 where f := CreateFunction(I, R) {
-  f.pts = 5
+  f.pts = 9
   -- TODO: use a more general function than computeSurjection
   f.val = sampleFunction(f.pts, I.shape, R.y_axis)
-  
+
   f.shape = Curve {
     path = f.val
+    color = Colors.blue
     -- TODO: start and end style depending on the interval
   }
 
@@ -146,7 +153,7 @@ where f := CreateFunction(I, R) {
 -- y := f(x)
 -- draw on the vertical axis
 Real y
-with Function f; Interval I; Real x
+with Function f; Interval I; Real x; Reals R
 where y := apply(f, x); f := CreateFunction(I, R); In(x, I) {
       -- TODO: For now, picks the corresponding point in the list of points. Later, x can be properly sampled in the domain of f, and y can be found by applying the Bezier curve eqn.
       override x.val = fromDomain(f.val)
@@ -164,9 +171,9 @@ where y := apply(f, x); f := CreateFunction(I, R); In(x, I) {
 
 Point p
 with Function f; Interval I; Real x; Real y
-where p := Pt(x, y); 
-      y := apply(f, x); 
-      f := CreateFunction(I, R); 
+where p := Pt(x, y);
+      y := apply(f, x);
+      f := CreateFunction(I, R);
       In(x, I) {
 
       p.shape = Circle {
@@ -196,4 +203,56 @@ where p := Pt(x, y);
 	     style = "dashed"
       	     color = Colors.blue
       }
+}
+
+Real dfx
+with Function f; Interval I; Real x; Real y; Reals R
+where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
+      y := apply(f, x) {
+      -- We know that x's val has been chosen from f's domain
+
+      -- TODO: compute dfx to actually be tangent at point
+      -- (right now it's a hardcoded arbitrary line)
+      -- TODO: compute the whole GPI
+      override dfx.shape = Line {
+      	       startX = I.shape.startX
+	       startY = 0.0
+	       endX = I.shape.endX
+	       endY = 200.0
+	       thickness = 2.0
+      	       color = Colors.lightblue
+      }
+
+      dfx.offset = 30.0
+      dfx.text.x = dfx.shape.endX + dfx.offset
+      dfx.text.y = dfx.shape.endY + dfx.offset
+
+      delete dfx.inFn
+      delete dfx.labelFn
+}
+
+Real ifI
+with Function f; Interval I; Reals R
+where ifI := integral(I, f); f := CreateFunction(I, R) {
+
+      -- TODO: compute the whole GPI
+      -- TODO: figure out problem with rectangle alignment
+      -- TODO: compute integral to actually lie under fn
+      override ifI.shape = Rectangle {
+      	       x = midpointX(I.shape)
+     	       	 -- midpointPathX(f.val)
+	       y = pathY(f.val)
+	       sizeX = I.shape.endX - I.shape.startX
+	       	     -- sizePathX(f.val)
+	       sizeY = (ifI.shape.y - origin.y) * 2.0
+	       	     -- sizePathY(f.val)
+      	       color = Colors.lightorange
+	       rotation = 0.0
+      }
+
+      ifI.text.x = ifI.shape.x
+      ifI.text.y = ifI.shape.y
+
+      delete ifI.inFn
+      delete ifI.labelFn
 }

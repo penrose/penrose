@@ -92,6 +92,11 @@ compDict = M.fromList
         ("applyFn", applyFn),
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
 
+        ("midpointPathX", midpointPathX),
+        ("pathY", pathY),
+        ("sizePathX", sizePathX),
+        ("sizePathY", sizePathY),
+
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
         ("sampleReal", noop), -- TODO
@@ -313,7 +318,7 @@ type Interval = (Float, Float)
 -- TODO: use the rng in state
 compRng :: StdGen
 compRng = mkStdGen seed
-    where seed = 15 -- deterministic RNG with seed
+    where seed = 17 -- deterministic RNG with seed
 
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
@@ -511,6 +516,31 @@ applyFn [Val (PathV path), Val (FloatV x)] =
         case M.lookup x (M.fromList path) of
         Just y -> Val (FloatV y)
         Nothing -> error "x element does not exist in function"
+
+-- TODO: remove the unused functions in the next four
+midpointPathX :: CompFn
+midpointPathX [Val (PathV path)] = 
+              let xs = map fst path
+                  res = (maximum xs - minimum xs) / 2 in
+              Val $ FloatV res
+
+pathY :: CompFn
+pathY [Val (PathV path)] = 
+              let ys = map snd path
+                  res = maximum ys / 2 in
+              Val $ FloatV res
+
+sizePathX :: CompFn
+sizePathX [Val (PathV path)] = 
+              let xs = map fst path
+                  res = maximum xs - minimum xs in
+              Val $ FloatV res
+
+sizePathY :: CompFn
+sizePathY [Val (PathV path)] = 
+              let ys = map snd path
+                  res = maximum ys - minimum ys in
+              Val $ FloatV res
 
 noop :: CompFn
 noop [] = Val (StrV "TODO")
@@ -787,7 +817,7 @@ limit = max canvasWidth canvasHeight
 maxSize [GPI c@("Circle", _)] = getNum c "r" - r2f (limit / 6)
 maxSize [GPI s@("Square", _)] = getNum s "side" - r2f (limit  / 3)
 maxSize [GPI r@("Rectangle", _)] =
-    let max_side = max (getNum r "w") (getNum r "h")
+    let max_side = max (getNum r "sizeX") (getNum r "sizeY")
     in max_side - r2f (limit  / 3)
 maxSize [GPI im@("Image", _)] =
     let max_side = max (getNum im "lengthX") (getNum im "lengthY")
@@ -803,7 +833,7 @@ minSize :: ConstrFn
 minSize [GPI c@("Circle", _)] = 20 - getNum c "r"
 minSize [GPI s@("Square", _)] = 20 - getNum s "side"
 minSize [GPI r@("Rectangle", _)] =
-    let min_side = min (getNum r "w") (getNum r "h")
+    let min_side = min (getNum r "sizeX") (getNum r "sizeY")
     in 20 - min_side
 minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "r") (getNum e "r")
 minSize [GPI g] = 
