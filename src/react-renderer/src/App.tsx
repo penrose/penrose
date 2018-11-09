@@ -14,9 +14,12 @@ const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<IProps, IState> {
   public readonly state = { data: [] };
+  public readonly canvas = React.createRef<Canvas>();
   public ws: any = null;
   public download = () => {
-    Log.error("unimplemented download");
+    if (this.canvas.current !== null) {
+      this.canvas.current.download();
+    }
   };
   public onMessage = (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
@@ -71,8 +74,8 @@ class App extends React.Component<IProps, IState> {
     } else {
       Log.info("No Websocket supplied in props, creating own.");
       this.ws = new WebSocket(socketAddress);
+      this.ws.onmessage = this.onMessage;
     }
-    this.ws.onmessage = this.onMessage;
     this.ws.onclose = this.setupSockets;
   };
   public async componentDidMount() {
@@ -92,7 +95,7 @@ class App extends React.Component<IProps, IState> {
         )}
         <Canvas
           data={data}
-          download={f => (this.download = f)}
+          ref={this.canvas}
           onShapeUpdate={this.onShapeUpdate}
           dragEvent={this.dragEvent}
         />

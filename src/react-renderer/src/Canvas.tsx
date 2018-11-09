@@ -7,7 +7,6 @@ interface IProps {
   data: any;
   onShapeUpdate(shape: any): void;
   dragEvent?(id: string, dy: number, dx: number): void;
-  download(f: () => void): void;
 }
 
 class Canvas extends React.Component<IProps> {
@@ -50,9 +49,6 @@ class Canvas extends React.Component<IProps> {
       dragEvent
     });
   };
-  public componentDidMount() {
-    this.props.download(this.download);
-  }
   public render() {
     const { data } = this.props;
     if (data.length === undefined) {

@@ -4,6 +4,7 @@ import styled from "styled-components";
 interface IProps {
   label: string;
   primary?: boolean;
+  disabled?: boolean;
   onClick(): void;
 }
 
@@ -19,13 +20,18 @@ const B = styled.div`
   font-weight: ${({ primary }: any) => (primary ? "regular" : "bold")};
   font-size: 1em;
   user-select: none;
-  cursor: pointer;
+  cursor: ${({ disabled }: any) => (disabled ? "default" : "pointer")};
+  opacity: ${({ disabled }: any) => (disabled ? 0.5 : 1)};
   transition: 0.2s;
   :hover {
-    background-color: ${({ primary }: any) =>
-      primary ? "#339EDB" : "#e5f4ff"};
-    border: ${({ primary }: any) =>
-      primary ? "0.2ex solid #339EDB" : "0.2ex solid #40b4f7"};
+    background-color: ${({ primary, disabled }: any) =>
+      !disabled ? (primary ? "#339EDB" : "#e5f4ff") : "default"};
+    border: ${({ primary, disabled }: any) =>
+      !disabled
+        ? primary
+          ? "0.2ex solid #339EDB"
+          : "0.2ex solid #40b4f7"
+        : "default"};
     transition: 0.2s;
   }
 `;
@@ -33,7 +39,11 @@ const B = styled.div`
 class Button extends React.Component<IProps> {
   public render() {
     return (
-      <B onClick={this.props.onClick} primary={this.props.primary}>
+      <B
+        onClick={this.props.onClick}
+        primary={this.props.primary}
+        disabled={this.props.disabled}
+      >
         {this.props.label}
       </B>
     );

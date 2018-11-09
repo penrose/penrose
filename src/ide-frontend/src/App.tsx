@@ -10,10 +10,18 @@ const socketAddress = "ws://localhost:9160";
 
 interface IState {
   code: string;
+  initialCode: string;
+  rendered: boolean;
+  converged: boolean;
 }
 
 class App extends React.Component<any, IState> {
-  public state = { code: "" };
+  public state = {
+    code: "",
+    initialCode: "",
+    rendered: false,
+    converged: false
+  };
   public ws: any = null;
   public readonly renderer = React.createRef<Renderer>();
   constructor(props: any) {
@@ -42,17 +50,24 @@ class App extends React.Component<any, IState> {
     this.ws.onclose = this.setupSockets;
   };
   public onMessage = (e: MessageEvent) => {
-    // const myJSON = JSON.parse(e.data);
+    if (this.renderer.current !== null) {
+      this.renderer.current.onMessage(e);
+      const data = JSON.parse(e.data);
+      this.setState({ rendered: true, converged: data.flag === "final" });
+    } else {
+      Log.error("Renderer is null.");
+    }
   };
   public compile = async () => {
     const packet = { tag: "Edit", contents: { program: this.state.code } };
     this.ws.send(JSON.stringify(packet));
+    this.setState({ initialCode: this.state.code });
   };
   public onChangeCode = (value: string) => {
     this.setState({ code: value });
   };
   public render() {
-    const { code } = this.state;
+    const { code, initialCode, rendered, converged } = this.state;
     return (
       <Grid
         style={{ height: "100vh", backgroundColor: "#EDF8FF" }}
@@ -75,7 +90,12 @@ class App extends React.Component<any, IState> {
             <img src={logo} width={50} />
             <Button label={"set theory"} onClick={console.log} />
           </div>
-          <Button label={"compile"} onClick={this.compile} primary={true} />
+          <Button
+            label={"build"}
+            onClick={this.compile}
+            primary={true}
+            disabled={code === initialCode}
+          />
         </Cell>
         <Cell
           style={{
@@ -100,9 +120,22 @@ class App extends React.Component<any, IState> {
         <Cell style={{ backgroundColor: "#FBFBFB" }}>
           <Renderer ws={this.ws} ref={this.renderer} customButtons={true} />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button label="resample" onClick={this.resample} primary={true} />
-            <Button label="autostep" onClick={this.autostep} />
-            <Button label="download" onClick={this.download} />
+            <Button
+              label="resample"
+              onClick={this.resample}
+              primary={true}
+              disabled={!rendered}
+            />
+            <Button
+              label="autostep"
+              onClick={this.autostep}
+              disabled={converged || !rendered}
+            />
+            <Button
+              label="download"
+              onClick={this.download}
+              disabled={!rendered}
+            />
           </div>
         </Cell>
       </Grid>
