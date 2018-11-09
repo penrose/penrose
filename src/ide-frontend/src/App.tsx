@@ -1,11 +1,11 @@
 import * as React from "react";
-import "./App.css";
 
 import AceEditor from "react-ace";
 import Renderer from "react-renderer";
 import { Grid, Cell } from "styled-css-grid";
 import logo from "./logo.svg";
 import Log from "Log";
+import Button from "Button";
 const socketAddress = "ws://localhost:9160";
 
 interface IState {
@@ -38,21 +38,53 @@ class App extends React.Component<any, IState> {
   public render() {
     const { code } = this.state;
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to Penrose</h1>
-          <button onClick={this.compile}>COMPILE!</button>
-        </header>
-        <Grid columns={2}>
-          <Cell width={1}>
-            <AceEditor width="100%" onChange={this.onChangeCode} value={code} />
-          </Cell>
-          <Cell width={1}>
-            <Renderer ws={this.ws} />
-          </Cell>
-        </Grid>
-      </div>
+      <Grid
+        style={{ height: "100vh", backgroundColor: "#EDF8FF" }}
+        columns={2}
+        rows={"minmax(70px, auto) 1fr "}
+        gap="0"
+        rowGap="0"
+        columnGap={"5px"}
+      >
+        <Cell
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexDirection: "row",
+            padding: "0 0.2em 0 0.5em"
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img src={logo} width={50} />
+            <Button label={"set theory"} onClick={console.log} />
+          </div>
+          <Button label={"compile"} onClick={this.compile} primary={true} />
+        </Cell>
+        <Cell
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexDirection: "row",
+            padding: "0 0.2em 0 0.5em"
+          }}
+        >
+          <Button label={"venn"} onClick={console.log} />
+          <Button label="fork" onClick={console.log} />
+        </Cell>
+        <Cell>
+          <AceEditor
+            width="100%"
+            height="100%"
+            onChange={this.onChangeCode}
+            value={code}
+          />
+        </Cell>
+        <Cell style={{ backgroundColor: "#FBFBFB" }}>
+          <Renderer ws={this.ws} />
+        </Cell>
+      </Grid>
     );
   }
 }
