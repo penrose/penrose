@@ -15,11 +15,27 @@ interface IState {
 class App extends React.Component<any, IState> {
   public state = { code: "" };
   public ws: any = null;
+  public readonly renderer = React.createRef<Renderer>();
   constructor(props: any) {
     super(props);
     Log.info("Connecting to socket...");
     this.setupSockets();
   }
+  public download = () => {
+    if (this.renderer.current !== null) {
+      this.renderer.current.donwload();
+    }
+  };
+  public autostep = () => {
+    if (this.renderer.current !== null) {
+      this.renderer.current.autoStepToggle();
+    }
+  };
+  public resample = () => {
+    if (this.renderer.current !== null) {
+      this.renderer.current.resample();
+    }
+  };
   public setupSockets = () => {
     this.ws = new WebSocket(socketAddress);
     this.ws.onmessage = this.onMessage;
@@ -82,7 +98,12 @@ class App extends React.Component<any, IState> {
           />
         </Cell>
         <Cell style={{ backgroundColor: "#FBFBFB" }}>
-          <Renderer ws={this.ws} />
+          <Renderer ws={this.ws} ref={this.renderer} customButtons={true} />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Button label="resample" onClick={this.resample} primary={true} />
+            <Button label="autostep" onClick={this.autostep} />
+            <Button label="download" onClick={this.download} />
+          </div>
         </Cell>
       </Grid>
     );

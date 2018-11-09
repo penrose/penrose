@@ -8,9 +8,7 @@ interface IState {
 }
 interface IProps {
   ws?: any;
-  download?: ((f: () => void) => void);
-  autostep?: ((f: () => void) => void);
-  resample?: ((f: () => void) => void);
+  customButtons?: boolean;
 }
 const socketAddress = "ws://localhost:9160";
 
@@ -18,20 +16,8 @@ class App extends React.Component<IProps, IState> {
   public readonly state = { data: [] };
   public ws: any = null;
   public download = () => {
-    console.log("unimplemented");
+    Log.error("unimplemented download");
   };
-  public componentWillMount() {
-    const { download, autostep, resample } = this.props;
-    if (download) {
-      download(this.download);
-    }
-    if (autostep) {
-      autostep(this.autoStepToggle);
-    }
-    if (resample) {
-      resample(this.resample);
-    }
-  }
   public onMessage = (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
     // For final frame
@@ -94,13 +80,16 @@ class App extends React.Component<IProps, IState> {
   }
   public render() {
     const { data } = this.state;
+    const { customButtons } = this.props;
     return (
       <div className="App">
-        <div>
-          <button onClick={this.autoStepToggle}>autostep</button>
-          <button onClick={this.resample}>resample</button>
-          <button onClick={this.download}>download</button>
-        </div>
+        {!customButtons && (
+          <div>
+            <button onClick={this.autoStepToggle}>autostep</button>
+            <button onClick={this.resample}>resample</button>
+            <button onClick={this.download}>download</button>
+          </div>
+        )}
         <Canvas
           data={data}
           download={f => (this.download = f)}
