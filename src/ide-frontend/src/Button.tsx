@@ -3,10 +3,24 @@ import styled from "styled-components";
 
 interface IProps {
   label: string;
+  icon?: string;
   primary?: boolean;
   disabled?: boolean;
   onClick(): void;
 }
+
+const MiddleAlign = styled.div`
+  display: flex;
+  align-items: center;
+  span {
+    margin-left: 0.1em;
+    margin-right: 0.2em;
+  }
+  img {
+    margin-left: 0.2em;
+    margin-right: 0.1em;
+  }
+`;
 
 const B = styled.div`
   display: inline-block;
@@ -44,7 +58,10 @@ class Button extends React.Component<IProps> {
         primary={this.props.primary}
         disabled={this.props.disabled}
       >
-        {this.props.label}
+        <MiddleAlign>
+          {this.props.icon && <img src={this.props.icon} width={20} />}
+          <span>{this.props.label}</span>
+        </MiddleAlign>
       </B>
     );
   }

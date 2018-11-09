@@ -88,7 +88,7 @@ class App extends React.Component<any, IState> {
         >
           <div style={{ display: "flex", alignItems: "center" }}>
             <img src={logo} width={50} />
-            <Button label={"set theory"} onClick={console.log} />
+            <Button label={"set theory"} icon={logo} onClick={console.log} />
           </div>
           <Button
             label={"build"}
@@ -106,7 +106,7 @@ class App extends React.Component<any, IState> {
             padding: "0 0.2em 0 0.5em"
           }}
         >
-          <Button label={"venn"} onClick={console.log} />
+          <Button label="venn" icon={logo} onClick={console.log} />
           <Button label="fork" onClick={console.log} />
         </Cell>
         <Cell>
