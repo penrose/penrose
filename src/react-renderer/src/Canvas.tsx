@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 import componentMap from "./componentMap";
 import Log from "./Log";
 
@@ -6,6 +7,7 @@ interface IProps {
   data: any;
   onShapeUpdate(shape: any): void;
   dragEvent?(id: string, dy: number, dx: number): void;
+  download(f: () => void): void;
 }
 
 class Canvas extends React.Component<IProps> {
@@ -13,8 +15,25 @@ class Canvas extends React.Component<IProps> {
 
   public notEmptyLabel = ([name, shape]: [string, any], key: number) => {
     return !(name === "Text" && shape.string.contents === "");
-  }
+  };
 
+  public download = () => {
+    const domnode = ReactDOM.findDOMNode(this);
+    if (domnode !== null && domnode instanceof Element) {
+      const blob = new Blob([domnode.outerHTML], {
+        type: "image/svg+xml;charset=utf-8"
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = "illustration.svg";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } else {
+      Log.error("Could not find SVG domnode.");
+    }
+  };
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     const component = componentMap[name];
     if (component === undefined) {
@@ -31,6 +50,9 @@ class Canvas extends React.Component<IProps> {
       dragEvent
     });
   };
+  public componentDidMount() {
+    this.props.download(this.download);
+  }
   public render() {
     const { data } = this.props;
     if (data.length === undefined) {

@@ -18,6 +18,9 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
       skipStartupTypeset: true,
       extensions: ["tex2jax.js", "TeX/AMSmath.js"],
       jax: ["input/TeX", "output/SVG"],
+      SVG: {
+        useGlobalCache: false // Needed for SVG inline export
+      },
       tex2jax: {
         inlineMath: [["$", "$"], ["\\(", "\\)"]],
         processEscapes: true
@@ -25,7 +28,6 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
     });
   }
   public componentDidMount() {
-    console.log("hello")
     this.tex2svg();
   }
 
