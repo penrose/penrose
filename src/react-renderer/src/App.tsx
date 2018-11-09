@@ -45,7 +45,7 @@ class App extends React.Component<IProps, IState> {
     this.setState({
       data: shapes
     });
-    if (!hydrated(shapes)) {
+    if (hydrated(shapes)) {
       const packet = {
         tag: "Update",
         contents: { shapes }
