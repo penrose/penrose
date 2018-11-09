@@ -23,7 +23,7 @@ class App extends React.Component<any, IState> {
   }
   public download = () => {
     if (this.renderer.current !== null) {
-      this.renderer.current.donwload();
+      this.renderer.current.download();
     }
   };
   public autostep = () => {

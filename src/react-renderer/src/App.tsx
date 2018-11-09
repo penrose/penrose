@@ -1,6 +1,6 @@
 import * as React from "react";
 import Canvas from "./Canvas";
-import { containsEmptyLabels } from "./Util";
+import { hydrated } from "./Util";
 import Log from "./Log";
 
 interface IState {
@@ -45,7 +45,7 @@ class App extends React.Component<IProps, IState> {
     this.setState({
       data: shapes
     });
-    if (!containsEmptyLabels(shapes)) {
+    if (!hydrated(shapes)) {
       const packet = {
         tag: "Update",
         contents: { shapes }

@@ -13,7 +13,7 @@ interface IProps {
 class Canvas extends React.Component<IProps> {
   public readonly canvasSize: [number, number] = [800, 700];
 
-  public notEmptyLabel = ([name, shape]: [string, any], key: number) => {
+  public notEmptyLabel = ([name, shape]: [string, any]) => {
     return !(name === "Text" && shape.string.contents === "");
   };
 
