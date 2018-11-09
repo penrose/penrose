@@ -133,7 +133,7 @@ serveWithoutSub domain port env styProg = do
      Exc.catch (runServer domain port $ application initState) handler
      where
         handler :: Exc.ErrorCall -> IO ()
-        handler _ = putStrLn "Server Error"
+        handler e = putStrLn "Server Error"
 
 
 application :: ServerState -> WS.ServerApp
@@ -169,12 +169,20 @@ waitSubstance conn s = do
     msg_json <- WS.receiveData conn
     case decode msg_json of
         Just e -> case e of
-            Edit (SubstanceEdit subProg)  -> substanceEdit subProg conn s
+            Edit (SubstanceEdit subProg)  -> Exc.catch (substanceEdit subProg conn s) (substanceError conn s)
             _   -> continue
         Nothing -> continue
     where continue = do
-            putStrLn "Invalid command. Returning to wait for Substance program"
-            waitSubstance conn s
+              putStrLn "Invalid command. Returning to wait for Substance program"
+              waitSubstance conn s
+
+substanceError c s (ErrorCallWithLocation msg loc) = do
+  putStrLn $ "Substance compiler error: " ++ msg ++ " at " ++ loc
+  waitSubstance c s
+
+substanceError c s _ = do
+  putStrLn "Substance compiler error: Unknown error."
+  waitSubstance c s
 
 -- } COMBAK: abstract this logic out to `wait`
 waitUpdate :: WS.Connection -> ServerState -> IO ()
@@ -190,6 +198,7 @@ waitUpdate conn s = do
             putStrLn "Invalid command. Returning to wait for label update."
             waitUpdate conn s
 
+-- COMBAK: this function should be updated to remove
 processCommand :: WS.Connection -> ServerState -> IO ()
 processCommand conn s = do
     putStrLn "Receiving Commands"
@@ -270,7 +279,7 @@ resampleAndSend conn serverState = do
     wsSendJSONList conn $ fst $ evalTranslation nexts
     let nextServerS = updateState serverState nexts
     -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled.
-    waitUpdate conn nextServerS
+    processCommand conn nextServerS
     where s = getBackendState serverState
 
 stepAndSend conn serverState = do
