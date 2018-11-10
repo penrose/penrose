@@ -4,6 +4,7 @@ import AceEditor from "react-ace";
 import Renderer from "react-renderer";
 import { Grid, Cell } from "styled-css-grid";
 import logo from "./logo.svg";
+import venn from "./venn.svg";
 import Log from "Log";
 import Button from "Button";
 import Dropdown, { IOption } from "Dropdown";
@@ -15,20 +16,24 @@ interface IState {
   rendered: boolean;
   converged: boolean;
   selectedElement: IOption;
+  selectedStyle: IOption;
 }
 
 const elementOptions = [
-  { value: 0, label: "set theory", icon: logo },
+  { value: 0, label: "set theory", icon: venn },
   { value: 1, label: "linear algebra", icon: logo },
   { value: 2, label: "real analysis", icon: logo }
 ];
+
+const styleOptions = [{ value: 0, label: "venn", icon: venn }];
 class App extends React.Component<any, IState> {
   public state = {
     code: "",
     initialCode: "",
     rendered: false,
     converged: false,
-    selectedElement: elementOptions[0]
+    selectedElement: elementOptions[0],
+    selectedStyle: styleOptions[0]
   };
   public ws: any = null;
   public readonly renderer = React.createRef<Renderer>();
@@ -77,13 +82,17 @@ class App extends React.Component<any, IState> {
   public selectedElement = (value: IOption) => {
     this.setState({ selectedElement: value });
   };
+  public selectedStyle = (value: IOption) => {
+    this.setState({ selectedStyle: value });
+  };
   public render() {
     const {
       code,
       initialCode,
       rendered,
       converged,
-      selectedElement
+      selectedElement,
+      selectedStyle
     } = this.state;
     return (
       <Grid
@@ -127,7 +136,11 @@ class App extends React.Component<any, IState> {
             padding: "0 0.2em 0 0.5em"
           }}
         >
-          <Button label="venn" leftIcon={logo} onClick={console.log} />
+          <Dropdown
+            options={styleOptions}
+            selected={selectedStyle}
+            onSelect={this.selectedStyle}
+          />
           <Button label="fork" onClick={console.log} />
         </Cell>
         <Cell>
