@@ -3,10 +3,11 @@ import styled from "styled-components";
 
 interface IProps {
   label: string;
-  icon?: string;
+  leftIcon?: string;
+  rightIcon?: string;
   primary?: boolean;
   disabled?: boolean;
-  onClick(): void;
+  onClick?: () => void;
 }
 
 const MiddleAlign = styled.div`
@@ -59,8 +60,11 @@ class Button extends React.Component<IProps> {
         disabled={this.props.disabled}
       >
         <MiddleAlign>
-          {this.props.icon && <img src={this.props.icon} width={20} />}
+          {this.props.leftIcon && <img src={this.props.leftIcon} width={20} />}
           <span>{this.props.label}</span>
+          {this.props.rightIcon && (
+            <img src={this.props.rightIcon} width={20} />
+          )}
         </MiddleAlign>
       </B>
     );

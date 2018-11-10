@@ -6,6 +6,7 @@ import { Grid, Cell } from "styled-css-grid";
 import logo from "./logo.svg";
 import Log from "Log";
 import Button from "Button";
+import Dropdown, { IOption } from "Dropdown";
 const socketAddress = "ws://localhost:9160";
 
 interface IState {
@@ -13,14 +14,21 @@ interface IState {
   initialCode: string;
   rendered: boolean;
   converged: boolean;
+  selectedElement: IOption;
 }
 
+const elementOptions = [
+  { value: 0, label: "Set Theory", icon: logo },
+  { value: 1, label: "Linear Algebra", icon: logo },
+  { value: 2, label: "Real Analysis", icon: logo }
+];
 class App extends React.Component<any, IState> {
   public state = {
     code: "",
     initialCode: "",
     rendered: false,
-    converged: false
+    converged: false,
+    selectedElement: elementOptions[0]
   };
   public ws: any = null;
   public readonly renderer = React.createRef<Renderer>();
@@ -66,8 +74,17 @@ class App extends React.Component<any, IState> {
   public onChangeCode = (value: string) => {
     this.setState({ code: value });
   };
+  public selectedElement = (value: IOption) => {
+    this.setState({ selectedElement: value });
+  };
   public render() {
-    const { code, initialCode, rendered, converged } = this.state;
+    const {
+      code,
+      initialCode,
+      rendered,
+      converged,
+      selectedElement
+    } = this.state;
     return (
       <Grid
         style={{ height: "100vh", backgroundColor: "#EDF8FF" }}
@@ -88,7 +105,11 @@ class App extends React.Component<any, IState> {
         >
           <div style={{ display: "flex", alignItems: "center" }}>
             <img src={logo} width={50} />
-            <Button label={"set theory"} icon={logo} onClick={console.log} />
+            <Dropdown
+              options={elementOptions}
+              selected={selectedElement}
+              onSelect={this.selectedElement}
+            />
           </div>
           <Button
             label={"build"}
@@ -106,13 +127,14 @@ class App extends React.Component<any, IState> {
             padding: "0 0.2em 0 0.5em"
           }}
         >
-          <Button label="venn" icon={logo} onClick={console.log} />
+          <Button label="venn" leftIcon={logo} onClick={console.log} />
           <Button label="fork" onClick={console.log} />
         </Cell>
         <Cell>
           <AceEditor
             width="100%"
             height="100%"
+            style={{ zIndex: 0 }}
             onChange={this.onChangeCode}
             value={code}
           />
