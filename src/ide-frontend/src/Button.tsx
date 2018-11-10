@@ -52,10 +52,15 @@ const B = styled.div`
 `;
 
 class Button extends React.Component<IProps> {
+  public onClick = () => {
+    if (!this.props.disabled && this.props.onClick) {
+      this.props.onClick();
+    }
+  };
   public render() {
     return (
       <B
-        onClick={this.props.onClick}
+        onClick={this.onClick}
         primary={this.props.primary}
         disabled={this.props.disabled}
       >
