@@ -18,9 +18,9 @@ interface IState {
 }
 
 const elementOptions = [
-  { value: 0, label: "Set Theory", icon: logo },
-  { value: 1, label: "Linear Algebra", icon: logo },
-  { value: 2, label: "Real Analysis", icon: logo }
+  { value: 0, label: "set theory", icon: logo },
+  { value: 1, label: "linear algebra", icon: logo },
+  { value: 2, label: "real analysis", icon: logo }
 ];
 class App extends React.Component<any, IState> {
   public state = {

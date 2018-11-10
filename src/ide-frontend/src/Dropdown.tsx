@@ -1,91 +1,20 @@
 import * as React from "react";
 import styled from "styled-components";
 import Select, { components } from "react-select";
-// import Button from "Button";
-// import ChevronDownIcon from "./chevron_down.svg";
-// import ChevronUpIcon from "./chevron_up.svg";
 
 const D = styled.div`
+  margin: 1em;
   display: inline-block;
   width: 200px;
 `;
 
-// const B = styled.div`
-//   display: flex;
-//   align-items: center;
-// `;
-
-// const Container = styled.div`
-//   margin: 0 0.3em 0 0.3em;
-//   position: absolute;
-//   display: inline-block;
-//   z-index: 1000;
-//   background-color: #ffffff;
-//   border: 0.2ex solid #40b4f7;
-//   border-radius: 6px;
-//   overflow: hidden;
-// `;
-
-// const Item = styled.div`
-//   display: block;
-//   padding: 0.15em 0.3em 0.15em 0.3em;
-//   display: flex;
-//   align-items: center;
-//   justify-content: space-between;
-//   cursor: pointer;
-//   user-select: none;
-//   color: #40b4f7;
-//   background-color: ${({ selected }: any) =>
-//     selected ? "#e5f4ff" : "default"};
-//   font-weight: ${({ selected }: any) => (selected ? "bold" : "600")};
-//   span {
-//     margin-left: 0.1em;
-//     margin-right: 0.2em;
-//   }
-//   img {
-//     margin-left: 0.2em;
-//     margin-right: 0.1em;
-//   }
-//   /* transition: 0.2s; */
-// // `;
-
-// const Icon = styled.img`
-//   cursor: pointer;
-// `;
-
-// interface IFullItemProps {
-//   label: string;
-//   icon: string;
-//   index: number;
-//   selected: boolean;
-//   onClick(index: number): void;
-//   onHover(index: number): void;
-// }
-
-// const FullItem = ({
-//   label,
-//   index,
-//   icon,
-//   onClick,
-//   onHover,
-//   selected
-// }: IFullItemProps) => (
-//   <Item
-//     tabIndex={index}
-//     onClick={() => onClick(index)}
-//     onMouseEnter={() => onHover(index)}
-//     selected={selected}
-//   >
-//     <span>{label}</span>
-//     <img src={icon} width={20} />
-//   </Item>
-// );
 const MiddleAlign = styled.div`
   display: flex;
   align-items: center;
   span {
     margin-left: 0.1em;
     margin-right: 0.2em;
+    font-size: 1em;
   }
   img {
     margin-left: 0.2em;
@@ -106,7 +35,7 @@ const ValueContainer = (props: any) => {
   const val = props.getValue()[0];
   return (
     <components.ValueContainer {...props}>
-      <MiddleAlign>
+      <MiddleAlign style={{ fontWeight: "bold" }}>
         {val && <img src={val.icon} width={20} />} <span>{props.children}</span>
       </MiddleAlign>
     </components.ValueContainer>
@@ -141,6 +70,7 @@ class DropdownMenu extends React.Component<IProps, IState> {
         <Select
           aria-label="Element Program"
           isClearable={false}
+          backspaceRemovesValue={false}
           isSearchable={true}
           styles={{
             option: (base: any, { isSelected }: any) => ({
@@ -151,7 +81,10 @@ class DropdownMenu extends React.Component<IProps, IState> {
             indicatorSeparator: () => ({
               display: "none"
             }),
-            control: (base: any) => ({ ...base, border: "0.2ex solid #40b4f7" })
+            control: (base: any) => ({
+              ...base,
+              border: "0.2ex solid #40b4f7 !important"
+            })
           }}
           theme={(theme: any) => ({
             ...theme,
@@ -161,7 +94,8 @@ class DropdownMenu extends React.Component<IProps, IState> {
               ...theme.colors,
               selected: "#40b47",
               primary25: "#edf8ff",
-              primary: "#e5f4ff"
+              primary: "#e5f4ff",
+              neutral80: "#40b4f7"
             }
           })}
           components={{ Option, ValueContainer }}
