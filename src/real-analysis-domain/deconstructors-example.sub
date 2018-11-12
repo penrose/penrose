@@ -5,4 +5,4 @@ Real x1,x2
 I := CreateInterval(x1,x2)
 Real x
 In(x, f.domain) -- Ok
-In(x, I.right) -- throw type error
+-- In(x, I.right) -- throw type error

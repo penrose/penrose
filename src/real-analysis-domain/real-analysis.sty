@@ -105,6 +105,7 @@ where I := CreateInterval(a, b); Subset(I, R) {
   -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
 }
 
+/*
 Interval `A` {
   override `A`.shape.color = Colors.blue
 }
@@ -112,6 +113,7 @@ Interval `A` {
 Interval `B` {
   override `B`.shape.color = Colors.green
 }
+*/
 
 Real r
 with Interval I; Reals R
@@ -121,9 +123,9 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
 }
 
 Function f
-with Interval I; Reals R
+with Interval I; Reals R {
 -- TODO: with Set A; Set B
-where From(f, I, R) {
+-- where From(f, I, R) {
   f.pts = 5
   -- TODO: use a more general function than computeSurjection
   f.val = sampleFunction(f.pts, I.shape, R.y_axis)

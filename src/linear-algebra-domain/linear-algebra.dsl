@@ -19,5 +19,5 @@ predicate Not (p1 : Prop) : Prop
 -- Prelude Example
 
 -- Examples for prelude, just for reproducing
--- value T : VectorSpace
--- value T1 : VectorSpace
+value T : VectorSpace
+value T1 : VectorSpace
