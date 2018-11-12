@@ -20,7 +20,9 @@ class Rectangle extends React.Component<IGPIPropsDraggable> {
         fill={color}
         fillOpacity={alpha}
         onMouseDown={onClick}
-      />
+      >
+        <title>{shape.name.contents}</title>
+      </rect>
     );
   }
 }

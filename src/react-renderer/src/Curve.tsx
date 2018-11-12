@@ -43,7 +43,9 @@ class Curve extends React.Component<IGPIProps> {
         style={{ strokeWidth: 2.5 }}
         fillOpacity={alpha}
         d={toPathString(shape.pathData.contents, canvasSize)}
-      />
+      >
+        <title>{shape.name.contents}</title>
+      </path>
     );
   }
 }

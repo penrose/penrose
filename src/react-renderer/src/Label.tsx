@@ -83,6 +83,7 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
     const { canvasSize } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const { w, h } = shape;
+    // TODO: add metadata
     return (
       <g
         transform={`translate(${x - w.contents / 2 - dx},${y -
