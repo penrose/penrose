@@ -5,6 +5,7 @@ import Renderer from "react-renderer";
 import { Grid, Cell } from "styled-css-grid";
 import logo from "./logo.svg";
 import venn from "./venn.svg";
+import play from "./play.svg";
 import Log from "Log";
 import Button from "Button";
 import Dropdown, { IOption } from "Dropdown";
@@ -122,6 +123,7 @@ class App extends React.Component<any, IState> {
           </div>
           <Button
             label={"build"}
+            leftIcon={play}
             onClick={this.compile}
             primary={true}
             disabled={code === initialCode}
