@@ -263,8 +263,7 @@ checkDsllStmt e (SubtypeDeclStmt s) = let env1 = checkDeclaredType e (subType s)
 
 checkDsllStmt e (PreludeDeclStmt (VarConst pvar) ptype) =
   let env  = checkT e ptype
-  in  env {
-   preludes = ((VarConst pvar), ptype) : (preludes env)}
+  in  env { preludes = ((VarConst pvar), ptype) : preludes env }
 
 checkDsllStmt e (VdStmt v) = let kinds = seconds (varsVd v)
                                  env1 = foldl checkK e kinds

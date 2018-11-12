@@ -163,8 +163,8 @@ deconstructorE = do
   v <- varParser
   dot
   f <- fieldParser
-  return (DeconstructorE (Deconstructor {varDeconstructor = v,
-   fieldDeconstructor = f}))
+  return (DeconstructorE (Deconstructor { varDeconstructor = v,
+                                          fieldDeconstructor = f }))
 varE = VarE <$> varParser
 applyFunc = do
   n <- lowerId
@@ -366,8 +366,8 @@ checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
 checkExpression varEnv (DeconstructorE d) = --checkVarE varEnv (varDeconstructor d)
    let (err, t) =  checkVarE varEnv (varDeconstructor d)
    in case t of
-     Just t' -> checkField varEnv (fieldDeconstructor d) t'
-     Nothing -> (err,Nothing)
+      Just t' -> checkField varEnv (fieldDeconstructor d) t'
+      Nothing -> (err, Nothing)
 
 -- Type checking for fields in value deconstructor, check that there is a
 -- matched value deconstructor with a matching field a retrieve the type,
