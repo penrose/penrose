@@ -1,7 +1,8 @@
 import * as React from "react";
 import { toScreen, toHex } from "./Util";
 import { flatten } from "lodash";
-import { IGPIProps } from "./types";
+import {  IGPIPropsDraggable } from "./types";
+import draggable from './Draggable';
 
 const toPathString = (pathData: any[], canvasSize: [number, number]) =>
   pathData
@@ -30,7 +31,7 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
     })
     .join(" ");
 
-class Curve extends React.Component<IGPIProps> {
+class Curve extends React.Component<IGPIPropsDraggable> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
@@ -49,4 +50,4 @@ class Curve extends React.Component<IGPIProps> {
     );
   }
 }
-export default Curve;
+export default draggable(Curve);

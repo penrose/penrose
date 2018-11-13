@@ -60,7 +60,8 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
       MathJax.Hub.Queue(() => {
         const output = wrapper.getElementsByTagName("svg")[0];
         // TODO: need to check whether MathJax returns a non-null response
-        cur.innerHTML = output.outerHTML; // need to keep properties in <svg>
+        cur.innerHTML =
+          output.outerHTML + `<title>${shape.name.contents}</title>`; // need to keep properties in <svg>
         const { width, height } = cur.getBBox();
         if (onShapeUpdate) {
           onShapeUpdate({
@@ -89,7 +90,10 @@ class Label extends React.Component<IGPIPropsDraggable, IState> {
         transform={`translate(${x - w.contents / 2 - dx},${y -
           h.contents / 2 +
           dy})`}
+        width={w.contents}
+        height={h.contents}
         onMouseDown={onClick}
+        pointerEvents="bounding-box"
         ref={this.ref}
       >
         <text>{shape.string.contents}</text>
