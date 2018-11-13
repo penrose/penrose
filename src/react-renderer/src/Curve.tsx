@@ -4,24 +4,30 @@ import { flatten } from "lodash";
 import { IGPIPropsDraggable } from "./types";
 import draggable from "./Draggable";
 
+const pathCommandString = (command: string, pts: number[][], canvasSize: [number, number]) =>
+  command + flatten(
+    pts.map((coords: [number, number]) => {
+      return toScreen(coords, canvasSize);
+    })
+  ).join(" ")
+
 const toPathString = (pathData: any[], canvasSize: [number, number]) =>
   pathData
     .map((group: any) => {
       const { tag, contents } = group;
       const mapped = contents
-        .map((point: any) => {
-          switch (point.tag) {
+        .map((cmd: any) => {
+          switch (cmd.tag) {
             case "Pt":
-              return "M" + toScreen(point.contents, canvasSize).join(" ");
+              return "M" + toScreen(cmd.contents, canvasSize).join(" ");
             case "CubicBez":
-              return (
-                "C" +
-                flatten(
-                  point.contents.map((coords: [number, number]) => {
-                    return toScreen(coords, canvasSize);
-                  })
-                ).join(" ")
-              );
+              return pathCommandString("C", cmd.contents, canvasSize);
+            case "CubicBezJoin":
+              return pathCommandString("S", cmd.contents, canvasSize);
+            case "QuadBez":
+              return pathCommandString("Q", cmd.contents, canvasSize);
+            case "QuadBezJoin":
+              return pathCommandString("T", cmd.contents, canvasSize);
             default:
               return " ";
           }
