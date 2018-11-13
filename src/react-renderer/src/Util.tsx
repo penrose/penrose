@@ -26,3 +26,16 @@ const isLabelBlank = ([type, obj]: [string, any]) => {
 
 export const hydrated = (shapes: any[]) =>
   shapes.every(isLabelBlank) || shapes.every(isLabelSized);
+
+export const getAngle = (x1: number, y1: number, x2: number, y2: number) => {
+  const x = x1 - x2;
+  const y = y1 - y2;
+  if (!x && !y) {
+    return 0;
+  }
+  return (180 + (Math.atan2(-y, -x) * 180) / Math.PI + 360) % 360;
+};
+
+export const getLen = (x1: number, y1: number, x2: number, y2: number) => {
+  return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+};

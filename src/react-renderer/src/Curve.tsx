@@ -1,8 +1,8 @@
 import * as React from "react";
 import { toScreen, toHex } from "./Util";
 import { flatten } from "lodash";
-import {  IGPIPropsDraggable } from "./types";
-import draggable from './Draggable';
+import { IGPIPropsDraggable } from "./types";
+import draggable from "./Draggable";
 
 const toPathString = (pathData: any[], canvasSize: [number, number]) =>
   pathData
@@ -33,7 +33,7 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
 
 class Curve extends React.Component<IGPIPropsDraggable> {
   public render() {
-    const { shape } = this.props;
+    const { shape, onClick, dy, dx } = this.props;
     const { canvasSize } = this.props;
     const color = toHex(shape.color.contents);
     const alpha = shape.color.contents[3];
@@ -43,6 +43,8 @@ class Curve extends React.Component<IGPIPropsDraggable> {
         fill="rgba(0,0,0,0)"
         style={{ strokeWidth: 2.5 }}
         fillOpacity={alpha}
+        transform={`translate(${-dx},${dy})`}
+        onMouseDown={onClick}
         d={toPathString(shape.pathData.contents, canvasSize)}
       >
         <title>{shape.name.contents}</title>

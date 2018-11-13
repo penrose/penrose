@@ -3,13 +3,15 @@ import Circle from "./Circle";
 import Label from "./Label";
 import Rectangle from "./Rectangle";
 import Curve from "./Curve";
+import Arrow from "./Arrow";
 
 // prettier-ignore
 const componentMap = {
   "Circle": Circle,
   "Rectangle": Rectangle,
   "Text": Label,
-  "Curve": Curve
+  "Curve": Curve,
+  "Arrow": Arrow
 };
 
 export default componentMap;
