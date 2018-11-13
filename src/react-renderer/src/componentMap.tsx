@@ -4,6 +4,7 @@ import Label from "./Label";
 import Rectangle from "./Rectangle";
 import Curve from "./Curve";
 import Arrow from "./Arrow";
+import Line from "./Line";
 
 // prettier-ignore
 const componentMap = {
@@ -11,7 +12,8 @@ const componentMap = {
   "Rectangle": Rectangle,
   "Text": Label,
   "Curve": Curve,
-  "Arrow": Arrow
+  "Arrow": Arrow,
+  "Line": Line
 };
 
 export default componentMap;

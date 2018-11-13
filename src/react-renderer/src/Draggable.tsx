@@ -8,6 +8,11 @@ interface IState {
   dy: number;
 }
 
+/* 
+  TROUBLESHOOTING:
+    Don't use pointerEvents="bounding-box" on paths (like Line.tsx) is broken
+*/
+
 const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
   return class extends React.Component<IGPIProps, IState> {
     public readonly state = {
