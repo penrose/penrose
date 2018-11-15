@@ -147,6 +147,10 @@ pathToList (FieldPath (BSubVar (VarConst name)) field)             = [name, fiel
 pathToList (PropertyPath (BSubVar (VarConst name)) field property) = [name, field, property]
 pathToList _ = error "pathToList should not handle Sty vars"
 
+isFieldPath :: Path -> Bool
+isFieldPath (FieldPath _ _)      = True
+isFieldPath (PropertyPath _ _ _) = False
+
 bvarToString :: BindingForm -> String
 bvarToString (BSubVar (VarConst s)) = s
 bvarToString (BStyVar (StyVar' s)) = s -- For namespaces
@@ -155,7 +159,7 @@ bvarToString (BStyVar (StyVar' s)) = s -- For namespaces
 getShapeName :: String -> Field -> String
 getShapeName subName field = subName ++ "." ++ field
 
--- For varying values to be inserted into the translation
+-- For varying values to be inserted into varyMap
 floatToTagExpr :: (Autofloat a) => a -> TagExpr a
 floatToTagExpr n = Done (FloatV n)
 
@@ -253,7 +257,17 @@ lookupProperty :: (Autofloat a) => BindingForm -> Field -> Property -> Translati
 lookupProperty bvar field property trans =
     let name = trName bvar in
     case lookupField bvar field trans of
-    FExpr _ -> error ("path '" ++ pathStr3 name field property ++ "' has no properties")
+    FExpr e ->
+        -- to deal with path synonyms, e.g. `y.f = some GPI with property p; z.f = y.f; z.f.p = some value`
+        -- if we're looking for `z.f.p` and we find out that `z.f = y.f`, then look for `y.f.p` instead
+        -- NOTE: this makes a recursive call!
+        case e of
+        OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) -> 
+                if bvar == bvarSynonym && field == fieldSynonym
+                then error ("nontermination in lookupProperty with path '" ++ pathStr3 name field property ++ "' set to itself")
+                else lookupProperty bvarSynonym fieldSynonym property trans
+        -- the only thing that might have properties is another field path
+        _ -> error ("path '" ++ pathStr3 name field property ++ "' has no properties")
     FGPI ctor properties ->
         case M.lookup property properties of
         Nothing -> error ("path '" ++ pathStr3 name field property ++ "'s property does not exist")
@@ -298,14 +312,22 @@ shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
             get (findShape shapeName shapes) property : acc
         lookupPath _ acc (FieldPath _ _) = acc
 
-shapes2floats :: (Autofloat a) => [Shape a] -> [Path] -> [a]
-shapes2floats shapes varyingPaths = reverse $ foldl (lookupPathFloat shapes) [] varyingPaths
+-- Given a set of new shapes (from the frontend) and a varyMap (for varying field values):
+-- look up property values in the shapes and field values in the varyMap
+-- NOTE: varyState is constructed using a foldl, so to preserve its order, we must reverse the list of values!
+shapes2floats :: (Autofloat a) => [Shape a] -> VaryMap a -> [Path] -> [a]
+shapes2floats shapes varyMap varyingPaths = reverse $ foldl (lookupPathFloat shapes varyMap) [] varyingPaths
     where
-        lookupPathFloat shapes acc (PropertyPath s field property) =
+        lookupPathFloat :: (Autofloat a) => [Shape a] -> VaryMap a -> [a] -> Path -> [a]
+        lookupPathFloat shapes _ acc (PropertyPath s field property) =
             let subID = bvarToString s
                 shapeName = getShapeName subID field in
             getNum (findShape shapeName shapes) property : acc
-        lookupPathFloat _ acc (FieldPath _ _) = acc
+        lookupPathFloat _ varyMap acc fp@(FieldPath _ _) =
+             case M.lookup fp varyMap of
+             Just (Done (FloatV num)) -> num : acc
+             Just _ -> error ("wrong type for varying field path (expected float): " ++ show fp)
+             Nothing -> error ("could not find varying field path '" ++ show fp ++ "' in varyMap")
 
 --------------------------------- Analyzing the translation
 
@@ -511,7 +533,7 @@ evalExpr (i, n) arg trans varyMap =
                              case insertPath trans' (p, Done fval) of
                              Right trans' -> (v, trans')
                              Left err -> error $ concat err
-                         GPI _ -> error "path to field expr evaluated to a GPI"
+                         gpiVal@(GPI _) -> (gpiVal, trans') -- to deal with path synonyms, e.g. "y.f = some GPI; z.f = y.f"
                      FGPI ctor properties ->
                      -- Eval each property in the GPI, storing each property result in a new dictionary
                      -- No need to update the translation because each path should update the translation
@@ -584,8 +606,7 @@ applyCombined penaltyWeight fns =
 genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> a
 genObjfn trans objfns constrfns varyingPaths =
      \penaltyWeight varyingVals ->
-         -- NOTE: the optimization is very fast if the varying map is replaced by M.empty
-         let varyMap = tr "varyingMap: " $ {-M.empty in-} mkVaryMap varyingPaths varyingVals in
+         let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
          let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans varyMap in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
@@ -624,6 +645,11 @@ initShapes :: (Autofloat a) =>
     Translation a -> [(String, Field)] -> StdGen -> (Translation a, StdGen)
 initShapes trans shapePaths gen = foldl initShape (trans, gen) shapePaths
 
+resampleFields :: (Autofloat a) => [Path] -> StdGen -> ([a], StdGen)
+resampleFields varyingPaths g = 
+    let varyingFields = filter isFieldPath varyingPaths in
+    Functions.randomsIn g (fromIntegral $ length varyingFields) Shapes.canvasDims
+
 -- sample varying fields only (from the range defined by canvas dims) and store them in the translation
 -- example: A.val = OPTIMIZED
 initFields :: (Autofloat a) => [Path] -> Translation a -> StdGen -> (Translation a, StdGen)
@@ -632,8 +658,6 @@ initFields varyingPaths trans g =
         (sampledVals, g') = Functions.randomsIn g (fromIntegral $ length varyingFields) Shapes.canvasDims
         trans' = insertPaths varyingFields (map (Done . FloatV) sampledVals) trans in
     (trans', g')
-    where isFieldPath (FieldPath _ _)      = True
-          isFieldPath (PropertyPath _ _ _) = False
 
 ------------- Evaluating all shapes in a translation
 
@@ -687,6 +711,8 @@ genOptProblemAndState trans =
     let (initialGPIs, transEvaled) = evalShapes evalIterRange (map (mkPath . list2) shapeNames)
                                                 transInit initVaryingMap in
     let initState = lookupPaths varyingPaths transEvaled in
+
+    if null initState then error "empty state in genopt" else
 
     -- This is the final Style compiler output
     State { shapesr = initialGPIs,

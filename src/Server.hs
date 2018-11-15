@@ -176,13 +176,14 @@ waitSubstance conn s = do
               putStrLn "Invalid command. Returning to wait for Substance program"
               waitSubstance conn s
 
+substanceError :: WS.Connection -> ServerState -> ErrorCall -> IO ()
 substanceError c s (ErrorCallWithLocation msg loc) = do
-  putStrLn $ "Substance compiler error: " ++ msg ++ " at " ++ loc
-  waitSubstance c s
-
+    putStrLn $ "Substance compiler error: " ++ msg ++ " at " ++ loc
+    waitSubstance c s
+-- TODO: this match might be redundant, but not sure why the linter warns that.
 substanceError c s _ = do
-  putStrLn "Substance compiler error: Unknown error."
-  waitSubstance c s
+    putStrLn "Substance compiler error: Unknown error."
+    waitSubstance c s
 
 -- } COMBAK: abstract this logic out to `wait`
 waitUpdate :: WS.Connection -> ServerState -> IO ()
@@ -229,14 +230,15 @@ substanceEdit subIn conn serverState@(Editor env styProg s) = do
 updateShapes :: [Shape Double] -> Connection -> ServerState -> IO ()
 updateShapes newShapes conn serverState =
     let polyShapes = toPolymorphics newShapes
-        uninitVals = map toTagExpr $ shapes2vals polyShapes $ uninitializedPaths s
-        trans' = insertPaths (uninitializedPaths s) uninitVals (transr s)
-        newObjFn = genObjfn trans' (objFns s) (constrFns s) (varyingPaths s)
+        uninitVals = map G.toTagExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
+        trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
+        newObjFn = G.genObjfn trans' (G.objFns s) (G.constrFns s) (G.varyingPaths s)
+        varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
         news = s {
-            shapesr = polyShapes,
-            varyingState = shapes2floats polyShapes $ varyingPaths s,
-            transr = trans',
-            paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter, overallObjFn = newObjFn }}
+            G.shapesr = polyShapes,
+            G.varyingState = G.shapes2floats polyShapes varyMapNew $ G.varyingPaths s,
+            G.transr = trans',
+            G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn }}
         nextServerS = updateState serverState news
     in if autostep s then stepAndSend conn nextServerS else loop conn nextServerS
     where s = getBackendState serverState
@@ -248,10 +250,11 @@ dragUpdate name xm ym conn serverState =
             if getName shape == name
                 then setX (FloatV (xm' + getX shape)) $ setY (FloatV (ym' + getY shape)) shape
                 else shape)
-            (shapesr s)
-        news = s { shapesr = newShapes,
-                   varyingState = shapes2floats newShapes $ varyingPaths s,
-                   paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter }}
+            (G.shapesr s)
+        varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
+        news = s { G.shapesr = newShapes,
+                   G.varyingState = G.shapes2floats newShapes varyMapNew $ G.varyingPaths s,
+                   G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter }}
         nextServerS = updateState serverState news
     in if autostep s then stepAndSend conn nextServerS else loop conn nextServerS
     where s = getBackendState serverState
@@ -268,18 +271,23 @@ executeCommand cmd conn s
 
 resampleAndSend, stepAndSend :: WS.Connection -> ServerState -> IO ()
 resampleAndSend conn serverState = do
-    let (newShapes, rng') = sampleShapes (rng s) (shapesr s)
-    let uninitVals = map toTagExpr $ shapes2vals newShapes $ uninitializedPaths s
-    let trans' = insertPaths (uninitializedPaths s) uninitVals (transr s)
-                    -- TODO: shapes', rng' = sampleConstrainedState (rng s) (shapesr s) (constrs s)
-    let nexts = s { shapesr = newShapes, rng = rng',
-                    transr = trans',
-                    varyingState = shapes2floats newShapes $ varyingPaths s,
-                    paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter } }
+    let (resampledShapes, rng') = sampleShapes (G.rng s) (G.shapesr s)
+    let uninitVals = map G.toTagExpr $ G.shapes2vals resampledShapes $ G.uninitializedPaths s
+    let trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
+                    -- TODO: shapes', rng' = G.sampleConstrainedState (G.rng s) (G.shapesr s) (G.constrs s)
+
+    let (resampledFields, rng'') = G.resampleFields (G.varyingPaths s) rng'
+    -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
+    let varyMapNew = G.mkVaryMap (filter G.isFieldPath $ G.varyingPaths s) resampledFields
+
+    let nexts = s { G.shapesr = resampledShapes, G.rng = rng'',
+                    G.transr = trans',
+                    G.varyingState = G.shapes2floats resampledShapes varyMapNew $ G.varyingPaths s,
+                    G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter } }
     wsSendJSONList conn $ fst $ evalTranslation nexts
     let nextServerS = updateState serverState nexts
     -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled.
-    processCommand conn nextServerS
+    waitUpdate conn nextServerS
     where s = getBackendState serverState
 
 stepAndSend conn serverState = do

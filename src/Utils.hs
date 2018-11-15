@@ -189,6 +189,9 @@ symboln = L.symbol scn
 newline' :: Parser ()
 newline' = newline >> scn
 
+semi' :: Parser ()
+semi' = semi >> scn
+
 backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 

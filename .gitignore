@@ -32,3 +32,4 @@ build/
 .tmp/
 _region_.tex
 .vscode/
+out*.txt

@@ -68,6 +68,7 @@ class App extends React.Component<any, IState> {
     if (this.renderer.current !== null) {
       this.renderer.current.onMessage(e);
       const data = JSON.parse(e.data);
+      Log.info("Received data from the server.", data)
       this.setState({ rendered: true, converged: data.flag === "final" });
     } else {
       Log.error("Renderer is null.");
