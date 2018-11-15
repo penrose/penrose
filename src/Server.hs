@@ -146,7 +146,7 @@ application (Renderer s) pending = do
     conn <- WS.acceptRequest pending
     WS.forkPingThread conn 30 -- To keep the connection alive
     wsSendJSONList conn (shapesr s)
-    loop conn $ Renderer $ O.step s
+    waitUpdate conn $ Renderer $ O.step s
 
 loop :: WS.Connection -> ServerState -> IO ()
 loop conn serverState

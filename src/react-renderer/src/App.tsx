@@ -53,7 +53,10 @@ class App extends React.Component<IProps, IState> {
         tag: "Update",
         contents: { shapes }
       };
-      this.ws.send(JSON.stringify(packet));
+      const packetString = JSON.stringify(packet);
+      Log.info("Sending an Update packet to the server...");
+      console.log(packet)
+      this.ws.send(packetString);
     }
   };
   public dragEvent = (id: string, dy: number, dx: number) => {

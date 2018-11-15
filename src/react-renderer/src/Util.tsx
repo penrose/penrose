@@ -24,8 +24,11 @@ const isLabelBlank = ([type, obj]: [string, any]) => {
   return type === "Text" && obj.string.contents === "";
 };
 
-export const hydrated = (shapes: any[]) =>
-  shapes.every(isLabelBlank) || shapes.every(isLabelSized);
+export const hydrated = (shapes: any[]) => {
+  return shapes.every((shape: any) => {
+    return isLabelSized(shape) || isLabelBlank(shape)
+  });
+};
 
 export const getAngle = (x1: number, y1: number, x2: number, y2: number) => {
   const x = x1 - x2;
