@@ -6,6 +6,7 @@ import { Grid, Cell } from "styled-css-grid";
 import logo from "./logo.svg";
 import venn from "./venn.svg";
 import play from "./play.svg";
+import reload from "./reload.svg";
 import Log from "Log";
 import Button from "Button";
 import Dropdown, { IOption } from "Dropdown";
@@ -150,6 +151,7 @@ class App extends React.Component<any, IState> {
             width="100%"
             height="100%"
             style={{ zIndex: 0 }}
+            fontSize={20}
             onChange={this.onChangeCode}
             value={code}
           />
@@ -159,6 +161,7 @@ class App extends React.Component<any, IState> {
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <Button
               label="resample"
+              leftIcon={reload}
               onClick={this.resample}
               primary={true}
               disabled={!rendered}
