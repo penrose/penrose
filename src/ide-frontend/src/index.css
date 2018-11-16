@@ -3,3 +3,12 @@ body {
     padding: 0;
     font-family: "Open Sans", sans-serif;
 }
+
+.error-marker {
+    position: absolute;
+    background-color: rgba(255, 226, 226, 0.9);
+}
+
+.ace_error {
+    background-color: rgba(255, 226, 226, 0.9);
+}
