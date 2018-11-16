@@ -63,6 +63,7 @@ class Button extends React.Component<IProps> {
         onClick={this.onClick}
         primary={this.props.primary}
         disabled={this.props.disabled}
+        role="button"
       >
         <MiddleAlign>
           {this.props.leftIcon && <img src={this.props.leftIcon} width={20} />}
