@@ -52,6 +52,7 @@ executable penrose
         extra -any,
         process -any,
         network -any,
+        uuid -any,
         split -any,
         multimap -any,
         directory -any,

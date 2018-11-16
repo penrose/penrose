@@ -6,6 +6,8 @@
 {-# LANGUAGE RankNTypes, NoMonomorphismRestriction #-}
 
 module Server where
+import Control.Monad (forM_, forever)
+import Control.Concurrent (MVar, newMVar, modifyMVar_, modifyMVar, readMVar)
 import Utils (Autofloat, divLine, r2f, trRaw, fromRight)
 import GHC.Generics
 import Data.Monoid (mappend)
@@ -39,28 +41,85 @@ import           System.Console.Pretty (Color (..), Style (..), bgColor, color, 
 import GenOptProblem
 import Env   (VarEnv)
 import Style
+import Data.UUID
+import System.Random
 
-type BackendState = GenOptProblem.State
+--------------------------------------------------------------------------------
+-- Types
 
--- COMBAK: remove TagExpr
-
--- Types used by the server, mainly for translation to JSON
--- TODO model this differently?
--- data ServerState = ServerState {
---     optState :: Maybe State,
---     env :: Maybe Env.VarEnv,
---     sty :: Maybe NS.StyProg
--- } deriving (Generic)
-
-data ServerState
+type ClientID = UUID
+type ServerState = [Client]
+type Client = (ClientID, WS.Connection, ClientState)
+data ClientState
     = Editor VarEnv StyProg (Maybe BackendState)
     | Renderer BackendState
+type BackendState = GenOptProblem.State
 
-updateState :: ServerState -> BackendState -> ServerState
+--------------------------------------------------------------------------------
+-- Server-level functions
+
+
+newServerState :: ServerState
+newServerState = []
+
+numClients :: ServerState -> Int
+numClients = length
+
+addClient :: Client -> ServerState -> ServerState
+addClient client clients = client : clients
+
+removeClient :: Client -> ServerState -> ServerState
+removeClient client = filter ((/= fst3 client) . fst3)
+    where fst3 (a, b, c) = a
+
+newUUID :: IO UUID
+newUUID = randomIO
+
+-- TODO: rename
+start :: VarEnv   -- ^ Element environment
+      -> StyProg  -- ^ parsed Style program
+      -> IO ()
+start env sty = do
+    state <- newMVar newServerState
+    WS.runServer "127.0.0.1" 9160 $ handleClient env sty state
+
+handleClient :: VarEnv   -- ^ Element environment
+             -> StyProg  -- ^ parsed Style program
+             -> MVar ServerState
+             -> WS.ServerApp
+handleClient env styProg state pending = do
+    conn <- WS.acceptRequest pending
+    WS.forkPingThread conn 30 -- To keep the connection alive
+    clients  <- readMVar state
+    clientID <- newUUID
+    let clientState = Editor env styProg Nothing
+    let client      = (clientID, conn, clientState)
+    -- flip finally disconnect $ do
+    modifyMVar_ state $ \s -> do
+        let s' = addClient client s
+        return s'
+    print $ "Client connected " ++ toString clientID
+    app client
+
+    -- where disconnect = do
+    --           -- Remove client and return new state
+    --           s <- modifyMVar state $ \s ->
+    --               let s' = removeClient client s in return (s', s')
+    --           broadcast (fst client `mappend` " disconnected") s
+
+app :: Client -> IO ()
+app (i, conn, s) = waitSubstance conn s
+
+
+
+--------------------------------------------------------------------------------
+-- Client-level functions
+
+updateState :: ClientState -> BackendState -> ClientState
 updateState (Renderer s) s' = Renderer s'
 updateState (Editor e sty s) s' = Editor e sty $ Just s'
 
-getBackendState :: ServerState -> BackendState
+getBackendState :: ClientState -> BackendState
 getBackendState (Renderer s) = s
 getBackendState (Editor _ _ (Just s)) = s
 getBackendState (Editor _ _ Nothing) = error "Server error: Backend state has not been initialized yet."
@@ -97,6 +156,7 @@ instance FromJSON UpdateShapes
 instance FromJSON SubstanceEdit
 instance ToJSON Frame
 
+
 wsSendJSON :: WS.Connection -> (Shape Double) -> IO ()
 wsSendJSON conn shape = WS.sendTextData conn $ encode shape
 
@@ -121,7 +181,7 @@ servePenrose domain port initState = do
         handler :: Exc.ErrorCall -> IO ()
         handler _ = putStrLn "Server Error"
 
--- | 'serveWithoutSub' TODO
+-- | 'serveWithoutSub' starts the Penrose server without compiling a Substance program. The server enters the editor mode and compile user's input Substance programs dynamically
 serveWithoutSub :: String   -- ^ the domain of the server
                 -> Int      -- ^ port number of the server
                 -> VarEnv   -- ^ Element environment
@@ -136,7 +196,8 @@ serveWithoutSub domain port env styProg = do
         handler e = putStrLn "Server Error"
 
 
-application :: ServerState -> WS.ServerApp
+
+application :: ClientState -> WS.ServerApp
 application serverState@Editor {} pending = do
     conn <- WS.acceptRequest pending
     WS.forkPingThread conn 30 -- To keep the connection alive
@@ -148,7 +209,7 @@ application (Renderer s) pending = do
     wsSendJSONList conn (shapesr s)
     waitUpdate conn $ Renderer $ O.step s
 
-loop :: WS.Connection -> ServerState -> IO ()
+loop :: WS.Connection -> ClientState -> IO ()
 loop conn serverState
     | optStatus (paramsr s) == EPConverged = do
         putStrLn "Optimization completed."
@@ -163,7 +224,7 @@ loop conn serverState
 -- | In editor mode, the server first waits for a well-formed Substance program
 -- before accepting any other kinds of commands. The default action on other
 -- commands is to continue waiting without crashing
-waitSubstance :: WS.Connection -> ServerState -> IO ()
+waitSubstance :: WS.Connection -> ClientState -> IO ()
 waitSubstance conn s = do
     putStrLn "Waiting for Substance program..."
     msg_json <- WS.receiveData conn
@@ -176,7 +237,7 @@ waitSubstance conn s = do
               putStrLn "Invalid command. Returning to wait for Substance program"
               waitSubstance conn s
 
-substanceError :: WS.Connection -> ServerState -> ErrorCall -> IO ()
+substanceError :: WS.Connection -> ClientState -> ErrorCall -> IO ()
 substanceError c s (ErrorCallWithLocation msg loc) = do
     putStrLn $ "Substance compiler error: " ++ msg ++ " at " ++ loc
     waitSubstance c s
@@ -186,7 +247,7 @@ substanceError c s _ = do
     waitSubstance c s
 
 -- } COMBAK: abstract this logic out to `wait`
-waitUpdate :: WS.Connection -> ServerState -> IO ()
+waitUpdate :: WS.Connection -> ClientState -> IO ()
 waitUpdate conn s = do
     putStrLn "Waiting for label dimension update"
     msg_json <- WS.receiveData conn
@@ -200,7 +261,7 @@ waitUpdate conn s = do
             waitUpdate conn s
 
 -- COMBAK: this function should be updated to remove
-processCommand :: WS.Connection -> ServerState -> IO ()
+processCommand :: WS.Connection -> ClientState -> IO ()
 processCommand conn s = do
     putStrLn "Receiving Commands"
     msg_json <- WS.receiveData conn
@@ -215,7 +276,7 @@ processCommand conn s = do
         Nothing -> error "Error reading JSON"
 
 
-substanceEdit :: String -> Connection -> ServerState -> IO ()
+substanceEdit :: String -> Connection -> ClientState -> IO ()
 substanceEdit subIn conn (Renderer _) = error "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
 substanceEdit subIn conn serverState@(Editor env styProg s) = do
     putStrLn $ bgColor Green "Substance program received: " ++ subIn
@@ -227,7 +288,7 @@ substanceEdit subIn conn serverState@(Editor env styProg s) = do
     let warns = warnings $ fromRight trans -- TODO: report warnings
     stepAndSend conn $ Editor env styProg $ Just newState
 
-updateShapes :: [Shape Double] -> Connection -> ServerState -> IO ()
+updateShapes :: [Shape Double] -> Connection -> ClientState -> IO ()
 updateShapes newShapes conn serverState =
     let polyShapes = toPolymorphics newShapes
         uninitVals = map G.toTagExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
@@ -243,7 +304,7 @@ updateShapes newShapes conn serverState =
     in if autostep s then stepAndSend conn nextServerS else loop conn nextServerS
     where s = getBackendState serverState
 
-dragUpdate :: String -> Float -> Float -> WS.Connection -> ServerState -> IO ()
+dragUpdate :: String -> Float -> Float -> WS.Connection -> ClientState -> IO ()
 dragUpdate name xm ym conn serverState =
     let (xm', ym') = (r2f xm, r2f ym)
         newShapes  = map (\shape ->
@@ -259,7 +320,7 @@ dragUpdate name xm ym conn serverState =
     in if autostep s then stepAndSend conn nextServerS else loop conn nextServerS
     where s = getBackendState serverState
 
-executeCommand :: String -> WS.Connection -> ServerState -> IO ()
+executeCommand :: String -> WS.Connection -> ClientState -> IO ()
 executeCommand cmd conn s
     | cmd == "resample" = resampleAndSend conn s
     | cmd == "step"     = stepAndSend conn s
@@ -269,7 +330,7 @@ executeCommand cmd conn s
         in loop conn $ updateState s os'
     | otherwise         = putStrLn ("Can't recognize command " ++ cmd)
 
-resampleAndSend, stepAndSend :: WS.Connection -> ServerState -> IO ()
+resampleAndSend, stepAndSend :: WS.Connection -> ClientState -> IO ()
 resampleAndSend conn serverState = do
     let (resampledShapes, rng') = sampleShapes (G.rng s) (G.shapesr s)
     let uninitVals = map G.toTagExpr $ G.shapes2vals resampledShapes $ G.uninitializedPaths s

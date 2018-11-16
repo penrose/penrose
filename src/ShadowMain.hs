@@ -63,7 +63,8 @@ shadowMain = do
             dsllEnv <- D.parseDsll dsllFile dsllIn
             styProg <- S.parseStyle styFile styIn
             let (domain, port) = ("127.0.0.1", 9160) -- TODO: if current port in use, assign another
-            Server.serveWithoutSub domain port dsllEnv styProg
+            -- Server.serveWithoutSub domain port dsllEnv styProg
+            Server.start dsllEnv styProg
 
             -- scotty 3939 $
             --     post "/" $ do
