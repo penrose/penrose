@@ -2,9 +2,12 @@ import * as React from "react";
 import Canvas from "./Canvas";
 import { hydrated } from "./Util";
 import Log from "./Log";
+import { LockContext } from "./contexts";
 
 interface IState {
   data: any[];
+  autostep: boolean;
+  converged: boolean;
 }
 interface IProps {
   ws?: any;
@@ -13,7 +16,7 @@ interface IProps {
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<IProps, IState> {
-  public readonly state = { data: [] };
+  public readonly state = { data: [], autostep: false, converged: true };
   public readonly canvas = React.createRef<Canvas>();
   public ws: any = null;
   public download = () => {
@@ -26,16 +29,22 @@ class App extends React.Component<IProps, IState> {
     // For final frame
     if (myJSON.flag !== null && myJSON.flag === "final") {
       myJSON = myJSON.shapes;
+      this.setState({ converged: true });
       Log.info("Fully optimized.");
     }
     this.setState({ data: myJSON });
   };
   public resample = () => {
     const packet = { tag: "Cmd", contents: { command: "resample" } };
+    this.setState({ converged: !this.state.autostep });
     this.ws.send(JSON.stringify(packet));
   };
   public autoStepToggle = () => {
     const packet = { tag: "Cmd", contents: { command: "autostep" } };
+    this.setState({
+      autostep: !this.state.autostep,
+      converged: this.state.autostep
+    });
     this.ws.send(JSON.stringify(packet));
   };
   public onShapeUpdate = (updatedShape: any) => {
@@ -55,7 +64,6 @@ class App extends React.Component<IProps, IState> {
       };
       const packetString = JSON.stringify(packet);
       Log.info("Sending an Update packet to the server...");
-      console.log(packet)
       this.ws.send(packetString);
     }
   };
@@ -69,6 +77,9 @@ class App extends React.Component<IProps, IState> {
         ym: -dy
       }
     };
+    if (this.state.autostep) {
+      this.setState({ converged: false });
+    }
     this.ws.send(JSON.stringify(packet));
   };
   public setupSockets = () => {
@@ -85,23 +96,36 @@ class App extends React.Component<IProps, IState> {
     this.setupSockets();
   }
   public render() {
-    const { data } = this.state;
+    const { data, autostep, converged } = this.state;
     const { customButtons } = this.props;
     return (
       <div className="App">
         {!customButtons && (
-          <div>
-            <button onClick={this.autoStepToggle}>autostep</button>
+          <div style={{ display: "flex", justifyContent: "middle" }}>
+            <button onClick={this.autoStepToggle}>
+              autostep {autostep ? "(on)" : "(off)"}
+            </button>
             <button onClick={this.resample}>resample</button>
             <button onClick={this.download}>download</button>
+            <div
+              style={{
+                borderRadius: 100,
+                display: "inline-block",
+                width: 20,
+                height: 20,
+                backgroundColor: converged ? "#55de55" : "#ff9d23"
+              }}
+            />
           </div>
         )}
-        <Canvas
-          data={data}
-          ref={this.canvas}
-          onShapeUpdate={this.onShapeUpdate}
-          dragEvent={this.dragEvent}
-        />
+        <LockContext.Provider value={autostep && !converged}>
+          <Canvas
+            data={data}
+            ref={this.canvas}
+            onShapeUpdate={this.onShapeUpdate}
+            dragEvent={this.dragEvent}
+          />
+        </LockContext.Provider>
       </div>
     );
   }
