@@ -1,0 +1,32 @@
+Reals R {
+      R.len = 300.0
+      R.x_axis = Arrow { }
+}
+
+Real r {
+     r.shape = Circle { }
+}
+
+Real r
+with Reals R
+where In(r, R) {
+  r.val = OPTIMIZED
+  r.len = 20.0
+  
+  r.shape = Line {
+    startX = r.val
+    startY = origin.y - (r.len / 2.0)
+    endX = r.val
+    endY = origin.y + (r.len / 2.0)
+    thickness = 2.5
+    color = Colors.black
+  }
+
+  r.text = Text {
+    string = r.label
+    rotation = 0.0
+  }
+
+  r.inFn = ensure inRange(r.val, R.x_axis.startX, R.x_axis.endX)
+  r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
+}

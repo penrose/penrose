@@ -38,6 +38,7 @@ data DsllStmt = CdStmt Cd
              | SubtypeDeclStmt SubtypeDecl
              | OdStmt Od
              | PdStmt Pd
+             | PreludeDeclStmt Var T
              deriving (Show, Eq, Typeable)
 
 -- | tconstructor
@@ -136,7 +137,8 @@ dsllProgParser :: Parser [DsllStmt]
 dsllProgParser = dsllStmt `sepEndBy` newline'
 
 dsllStmt :: Parser DsllStmt
-dsllStmt = try cdParser <|> try vdParser <|> try odParser <|> try subtypeDeclParser <|> try pdParser
+dsllStmt = try cdParser <|> try vdParser <|> try odParser <|>
+ try subtypeDeclParser <|> try pdParser <|> try preludeParser
 
 -- | type constructor parser
 cdParser, cd1, cd2 :: Parser DsllStmt
@@ -163,6 +165,15 @@ subtypeDeclParser = do
   rword "<:"
   supertype <- tParser
   return $ SubtypeDeclStmt $ SubtypeDecl { subType = subtype, superType = supertype}
+
+-- | prelude declarations parser
+preludeParser :: Parser DsllStmt
+preludeParser = do
+  rword "value"
+  pvar <- varParser
+  rword ":"
+  ptype <- tParser
+  return $ PreludeDeclStmt pvar ptype
 
 -- | parser for the (y,k) list
 ykParser :: Parser ([Y], [K])
@@ -233,7 +244,9 @@ check p = let env = foldl checkDsllStmt initE p
              else error $ "Dsll type checking failed with the following problems: \n" ++ errors env
              where initE = VarEnv { typeConstructors = M.empty, valConstructors = M.empty,
                                     operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
+                                    typeValConstructor = M.empty,
                                     varMap = M.empty, subTypes = [], typeCtorNames = [], declaredNames = [],
+                                    preludes = [],
                                     errors = ""}
 
 checkDsllStmt :: VarEnv -> DsllStmt -> VarEnv
@@ -248,18 +261,24 @@ checkDsllStmt e (SubtypeDeclStmt s) = let env1 = checkDeclaredType e (subType s)
                                           env3 = env2 { subTypes = (subType s,superType s) : subTypes env2 }
                                        in env3
 
+checkDsllStmt e (PreludeDeclStmt (VarConst pvar) ptype) =
+  let env  = checkT e ptype
+  in  env { preludes = ((VarConst pvar), ptype) : preludes env }
+
 checkDsllStmt e (VdStmt v) = let kinds = seconds (varsVd v)
                                  env1 = foldl checkK e kinds
                                  localEnv = foldl updateEnv env1 (varsVd v)
                                  args = seconds (typesVd v)
                                  res = toVd v
                                  env2 = foldl checkT localEnv args
-                                 temp = checkT localEnv res
+                                 env3 = checkT env2 res
                                  vc = ValConstructor { namevc = nameVd v, ylsvc = firsts (varsVd v),
-                                                       kindsvc = seconds (varsVd v), tlsvc = seconds (typesVd v),
+                                                       kindsvc = seconds (varsVd v),
+                                                       nsvc = firsts (typesVd v),  tlsvc = seconds (typesVd v),
                                                        tvc = toVd v }
-                                 ef = addName (nameVd v) e
-                              in if env2 == e || env2 /= e && temp == e || temp /= e
+                                 e1 = addName (nameVd v) env3
+                                 ef = addValConstructor vc e1
+                              in if env2 == e || env2 /= e && env3 == e || env3 /= e && e1 == e || e1 /= e
                                   then ef { valConstructors = M.insert (nameVd v) vc $ valConstructors ef }
                                   else error "Error!" -- Does not suppose to reach here
 
@@ -269,11 +288,11 @@ checkDsllStmt e (OdStmt v) = let kinds = seconds (varsOd v)
                                  args = seconds (typesOd v)
                                  res = toOd v
                                  env2 = foldl checkT localEnv args
-                                 temp = checkT env2 res
+                                 env3 = checkT env2 res
                                  op = Operator { nameop = nameOd v, ylsop = firsts (varsOd v),
                                                  kindsop = seconds (varsOd v), tlsop = seconds (typesOd v), top = toOd v }
-                                 ef = addName (nameOd v) e
-                               in if env2 == e || env2 /= e && temp == e || temp /= e
+                                 ef = addName (nameOd v) env3
+                               in if env2 == e || env2 /= e && env3 == e || env3 /= e
                                    then ef { operators = M.insert (nameOd v) op $ operators ef }
                                    else error "Error!"  -- Does not suppose to reach here
 

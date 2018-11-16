@@ -4,12 +4,18 @@ tconstructor Real : type
 tconstructor Point : type
 tconstructor Function : type
 tconstructor Interval : type
+tconstructor OpenInterval : type
+tconstructor ClosedInterval : type
+tconstructor LeftClopenInterval : type
+tconstructor RightClopenInterval : type
 
 vconstructor CreateInterval (left : Real, right : Real) : Interval
-vconstructor OpenInterval (left : Real, right : Real) : OpenInterval
-vconstructor ClosedInterval (left : Real, right : Real) : ClosedInterval
-vconstructor LeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
-vconstructor RightClopenInterval (left : Real, right : Real) : RightClopenInterval
+vconstructor CreateOpenInterval (left : Real, right : Real) : OpenInterval
+vconstructor CreateClosedInterval (left : Real, right : Real) : ClosedInterval
+vconstructor CreateLeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
+vconstructor CreateRightClopenInterval (left : Real, right : Real) : RightClopenInterval
+vconstructor CreateFunction (domain : Set, codomain : Set) : Function
+
 vconstructor Pt (x : Real, y : Real) : Point
 
 -- Subtyping relationships
@@ -30,6 +36,8 @@ operator derivativeAtP (f : Function, p : Real) : Real
 operator derivativeOverD (f : Function) : Function
 operator integral (I : Interval, f : Function) : Real
 operator apply (f : Function, p : Real) : Real
+-- (g . f): Does not check f's codomain matches g's domain
+operator compose (f : Function, g : Function) : Function
 
 -- Predicates on intervals
 predicate Bounded (i : Interval) : Prop
@@ -42,7 +50,6 @@ predicate Degenerate (i : Interval) : Prop
 predicate Empty (i : Interval) : Prop
 
 -- Predicates on functions
-predicate From (f : Function, domain : Set, codomain : Set) : Prop
 predicate Continuous (f : Function) : Prop
 predicate Discontinuous (f : Function) : Prop
 predicate Differentiable (f : Function) : Prop
@@ -63,11 +70,14 @@ predicate ClosedEnd (p : Real, I : Interval) : Prop
 predicate OpenEnd (p : Real, I : Interval) : Prop
 
 -- Prelude exports
---value RR : Reals
+-- value RR : Reals
 
--- notation is ASCII only
--- kw NEW := OLD
---notation "f.domain" -> "Dom(f)"
--- TODO: flip rest
---notation "Cod(f)" := "f.codomain"
---notation "X Subset Y" := Subset(X, Y)
+-- Notation is ASCII only
+-- notation "f.domain" -> "Dom(f)"
+-- notation "f.codomain" := "Cod(f)"
+-- notation "Subset(X, Y)" := "X Subset Y"
+-- TODO: specify infix predicates
+
+-- Unicode display
+-- display "Subset" -> ⊂
+-- display "RR" -> R

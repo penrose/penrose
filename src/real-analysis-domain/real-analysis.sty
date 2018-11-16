@@ -1,0 +1,143 @@
+global {
+  global.padding = 20.0
+}
+
+origin {
+  origin.x = -200.0
+  origin.y = 100.0
+}
+
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+  Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+  Colors.green = rgba(0.0, 1.0, 0.0, 0.5)
+  Colors.blue = rgba(0.0, 0.0, 1.0, 0.5)
+}
+
+Reals R {
+  R.len = 300.0
+  R.thickness = 5.0
+  R.color = Colors.gray
+
+  -- TODO: draw these axes overlapping
+  R.x_axis = Arrow {
+    startX = origin.x
+    startY = origin.y
+    endX = R.len
+    endY = origin.y
+    thickness = R.thickness
+    color = R.color
+    rotation = 0.0
+  }
+
+  R.y_axis = Arrow {
+    startX = origin.x
+    startY = origin.y
+    endX = origin.x
+    endY = R.len
+    thickness = R.thickness
+    color = R.color
+    rotation = 0.0
+  }
+
+  R.x_text = Text {
+    string = R.label
+    rotation = 0.0
+  }
+
+  R.y_text = Text {
+    string = R.label
+    rotation = 0.0
+  }
+
+  R.xlabelFn = ensure nearHead(R.x_axis, R.x_text, global.padding, global.padding)
+  R.ylabelFn = ensure nearHead(R.y_axis, R.y_text, global.padding, global.padding)
+}
+
+Real r
+with Reals R
+where In(r, R) {
+  r.val = OPTIMIZED
+  r.len = 20.0
+  
+  r.shape = Line {
+    startX = r.val
+    startY = origin.y - (r.len / 2.0)
+    endX = r.val
+    endY = origin.y + (r.len / 2.0)
+    thickness = 2.5
+    color = Colors.black
+  }
+
+  r.text = Text {
+    string = r.label
+    rotation = 0.0
+  }
+
+  r.inFn = ensure inRange(r.val, R.x_axis.startX, R.x_axis.endX)
+  r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
+}
+
+Interval I
+with Real a; Real b; Reals R
+where I := CreateInterval(a, b); Subset(I, R) {
+  I.shape = Line {
+    startX = a.val
+    startY = origin.y
+    endX   = b.val
+    endY   = origin.y
+    color = Colors.black
+    thickness = 10.0
+  }
+
+  -- position computed, not optimized
+  I.text = Text {
+    string = I.label
+    -- TODO: This doesn't seem to be computed properly
+    -- x = (I.shape.endX - I.shape.startX) / 2.0
+    y = origin.y + global.padding
+    rotation = 0.0
+  }
+
+  I.orderFn = ensure lessThan(a.val, b.val)
+  I.labelFn = ensure inRange(I.text.x, a.val, b.val)
+  -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
+}
+
+/*
+Interval `A` {
+  override `A`.shape.color = Colors.blue
+}
+
+Interval `B` {
+  override `B`.shape.color = Colors.green
+}
+*/
+
+Real r
+with Interval I; Reals R
+where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
+  override r.inFn = ensure inRange(r.val, a.val, b.val)
+  override r.shape.color = Colors.red
+}
+
+Function f
+with Interval I; Reals R {
+-- TODO: with Set A; Set B
+-- where From(f, I, R) {
+  f.pts = 5
+  -- TODO: use a more general function than computeSurjection
+  f.val = sampleFunction(f.pts, I.shape, R.y_axis)
+  
+  f.shape = Curve {
+    path = f.val
+    -- TODO: start and end style depending on the interval
+  }
+
+  f.text = Text {
+    x = midpointX(I.shape)
+    y = midpointY(R.y_axis)
+    string = f.label
+  }
+}

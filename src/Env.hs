@@ -52,9 +52,9 @@ data Y = TypeVarY TypeVar
          deriving (Show, Eq, Typeable, Ord)
 
 data T = TTypeVar TypeVar
-       | TConstr TypeCtorApp 
+       | TConstr TypeCtorApp
        -- TODO: rename to TCtor. Less confusing, more consistent w/ Sty
-         deriving (Show, Eq, Typeable)
+         deriving (Show, Eq, Typeable, Ord)
 
 data TypeCtorApp = TypeCtorApp { nameCons :: String,
                                  argCons  :: [Arg],
@@ -69,9 +69,12 @@ instance Show TypeCtorApp where
 instance Eq TypeCtorApp where
   (TypeCtorApp n1 a1 _) == (TypeCtorApp n2 a2 _) = n1 == n2 && a1 == a2
 
+instance Ord TypeCtorApp where
+    (TypeCtorApp s1 _ _) `compare` (TypeCtorApp s2 _ _) = s1 `compare` s2
+
 data Arg = AVar Var
          | AT T
-           deriving (Show, Eq, Typeable)
+           deriving (Show, Eq, Typeable,Ord)
 
 data K = Ktype Type
        | KT T
@@ -200,8 +203,13 @@ updateEnv e err                   = e { errors = errors e ++ "Problem in update:
 
 addName :: String -> VarEnv -> VarEnv
 addName a e = if a `elem` typeCtorNames e
-              then e {errors = errors e ++ "Name " ++ a ++ " already exsist in the context \n"}
-              else e {typeCtorNames = a : typeCtorNames e}
+              then e { errors = errors e ++ "Name " ++ a ++ " already exists in the context \n" }
+              else e { typeCtorNames = a : typeCtorNames e }
+
+addValConstructor :: ValConstructor -> VarEnv -> VarEnv
+addValConstructor v e = case M.lookup (tvc v) (typeValConstructor e) of
+  Nothing -> e {typeValConstructor =  M.insert (tvc v) v $ typeValConstructor e}
+  Just x -> e {errors = errors e ++ "Multiple declarations of value constructors for type " ++ show (tvc v)}
 
 addDeclaredName :: String -> VarEnv -> VarEnv
 addDeclaredName a e = if a `elem` declaredNames e
@@ -232,6 +240,7 @@ data TypeConstructor = TypeConstructor { nametc :: String,
 data ValConstructor = ValConstructor { namevc :: String,
                                        ylsvc  :: [Y],
                                        kindsvc  :: [K],
+                                       nsvc   :: [Var],
                                        tlsvc  :: [T],
                                        tvc    :: T }
                       deriving (Show, Eq, Typeable)
@@ -264,7 +273,9 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        operators        :: M.Map String Env.Operator,
                        predicates       :: M.Map String PredicateEnv,
                        typeVarMap       :: M.Map TypeVar Type,
+                       typeValConstructor :: M.Map T ValConstructor,
                        varMap           :: M.Map Var T,
+                       preludes        :: [(Var,T)],
                        subTypes         :: [(T,T)],
                        typeCtorNames    :: [String],  -- a global list which contains all the names of types in that env
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env

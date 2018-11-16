@@ -31,3 +31,4 @@ node_modules/
 build/
 .tmp/
 _region_.tex
+out*.txt
