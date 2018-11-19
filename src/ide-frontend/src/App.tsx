@@ -30,8 +30,8 @@ const elementOptions = [
 const styleOptions = [{ value: 0, label: "venn", icon: venn }];
 class App extends React.Component<any, IState> {
   public state = {
-    code: "",
-    initialCode: "",
+    code: "AutoLabel All\n",
+    initialCode: "AutoLabel All\n",
     rendered: false,
     selectedElement: elementOptions[0],
     selectedStyle: styleOptions[0]
