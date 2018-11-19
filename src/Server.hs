@@ -1,66 +1,154 @@
 -- | "Server" contains functions that serves the Penrose runtime over
 --   websockets connection.
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE RankNTypes, NoMonomorphismRestriction #-}
+{-# LANGUAGE DeriveGeneric             #-}
+{-# LANGUAGE DuplicateRecordFields     #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE RankNTypes                #-}
 
 module Server where
-import Utils (Autofloat, divLine, r2f, trRaw, fromRight)
-import GHC.Generics
-import Data.Monoid (mappend)
-import Data.Text (Text)
-import Control.Exception
-import Control.Monad (forM_, forever, void)
-import Control.Monad.IO.Class (liftIO)
-import Control.Concurrent (MVar, newMVar, modifyMVar_, modifyMVar, readMVar, forkIOWithUnmask)
-import Data.Char (isPunctuation, isSpace)
-import Data.Aeson
-import Data.Maybe (fromMaybe)
-import GHC.Float (float2Double)
-import Network.WebSockets.Connection
-import System.Time
-import System.Random
-import Debug.Trace
-import Shapes  (Shape, Value(..), getX, getY, setX, setY, getName, toPolymorphics, sampleShapes)
-import Substance (parseSubstance)
-import qualified Style   as N
-import qualified GenOptProblem as G
-import qualified Optimizer as O
-import qualified Data.Map  as M
-import qualified Data.Text                 as T
-import qualified Data.Text.IO              as T
-import qualified Network.WebSockets        as WS
-import qualified Network.Socket            as S
-import qualified Network.WebSockets.Stream as Stream
-import qualified Control.Exception         as Exc (catch, ErrorCall)
-import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
+import           Control.Concurrent            (MVar, forkIOWithUnmask,
+                                                modifyMVar, modifyMVar_,
+                                                newMVar, readMVar)
+import           Control.Exception
+import           Control.Monad                 (forM_, forever, void)
+import           Control.Monad.IO.Class        (liftIO)
+import           Data.Aeson
+import           Data.Char                     (isPunctuation, isSpace)
+import qualified Data.Map                      as M
+import           Data.Maybe                    (fromMaybe)
+import           Data.Monoid                   (mappend)
+import           Data.Text                     (Text)
+import qualified Data.Text                     as T
+import qualified Data.Text.IO                  as T
+import           Data.Tuple.Extra              (fst3)
+import           Debug.Trace
+import qualified GenOptProblem                 as G
+import           GHC.Float                     (float2Double)
+import           GHC.Generics
+import qualified Network.Socket                as S
+import qualified Network.WebSockets            as WS
+import           Network.WebSockets.Connection
+import qualified Network.WebSockets.Stream     as Stream
+import qualified Optimizer                     as O
+import           Shapes                        (Shape, Value (..), getName,
+                                                getX, getY, sampleShapes, setX,
+                                                setY, toPolymorphics)
+import qualified Style                         as N
+import           Substance                     (parseSubstance)
+import           System.Console.Pretty         (Color (..), Style (..), bgColor,
+                                                color, style, supportsPretty)
+import           System.Random
+import           System.Time
+import           Utils                         (Autofloat, divLine, fromRight,
+                                                r2f, trRaw)
 
-import GenOptProblem
-import Env   (VarEnv)
-import Style
+import           Data.UUID
+import           Env                           (VarEnv)
+import           GenOptProblem
+import           Style
+import System.IO (stderr, Handle)
+import System.Log.Logger (rootLoggerName, setHandlers, updateGlobalLogger,
+                          Priority(..), infoM, debugM,
+                          warningM, errorM, setLevel)
+import System.Log.Handler.Simple (fileHandler, streamHandler, GenericHandler)
+import System.Log.Handler (setFormatter)
+import System.Log.Formatter
+--------------------------------------------------------------------------------
+-- Types
 
-type BackendState = GenOptProblem.State
+-- | TODO
+type ClientID = UUID
 
--- COMBAK: remove TagExpr
+-- | TODO
+type ServerState = [Client]
 
--- Types used by the server, mainly for translation to JSON
--- TODO model this differently?
--- data ServerState = ServerState {
---     optState :: Maybe State,
---     env :: Maybe Env.VarEnv,
---     sty :: Maybe NS.StyProg
--- } deriving (Generic)
+-- | TODO
+type Client = (ClientID, WS.Connection, ClientState)
 
-data ServerState
+-- | TODO
+data ClientState
     = Editor VarEnv StyProg (Maybe BackendState)
     | Renderer BackendState
 
-updateState :: ServerState -> BackendState -> ServerState
-updateState (Renderer s) s' = Renderer s'
+-- | TODO
+type BackendState = GenOptProblem.State
+
+--------------------------------------------------------------------------------
+-- Server-level functions
+
+
+newServerState :: ServerState
+newServerState = []
+
+numClients :: ServerState -> Int
+numClients = length
+
+addClient :: Client -> ServerState -> ServerState
+addClient client clients = client : clients
+
+removeClient :: Client -> ServerState -> ServerState
+removeClient client = filter ((/= fst3 client) . fst3)
+
+newUUID :: IO UUID
+newUUID = randomIO
+
+idString :: Client -> String
+idString = toString . fst3
+
+-- | TODO
+servePenrose :: VarEnv   -- ^ Element environment
+             -> StyProg  -- ^ parsed Style program
+             -> String   -- ^ the domain of the server
+             -> Int      -- ^ port number of the server
+             -> IO ()
+servePenrose env sty domain port = do
+    initState <- newMVar newServerState
+    catch (runServer domain port $ handleClient env sty initState) handler
+    where
+        handler :: ErrorCall -> IO ()
+        handler e = putStrLn "Internal server Error"
+
+
+handleClient :: VarEnv           -- ^ Element environment
+             -> StyProg          -- ^ parsed Style program
+             -> MVar ServerState -- ^ current list of clients
+             -> WS.ServerApp
+handleClient env styProg state pending = do
+    conn <- WS.acceptRequest pending
+    WS.forkPingThread conn 30 -- To keep the connection alive
+    clients  <- readMVar state
+    clientID <- newUUID
+    let clientState = Editor env styProg Nothing
+    let client      = (clientID, conn, clientState)
+    let logPath = "/tmp/penrose-" ++ idString client ++ ".log"
+    myStreamHandler <- streamHandler stderr INFO
+    myFileHandler <- fileHandler logPath INFO
+    let myFileHandler' = withFormatter myFileHandler
+    let myStreamHandler' = withColoredFormatter myStreamHandler
+    updateGlobalLogger rootLoggerName (setHandlers [myStreamHandler', myFileHandler'])
+    updateGlobalLogger rootLoggerName (setLevel DEBUG)
+    flip finally (disconnect client) $ do
+        modifyMVar_ state $ \s -> do
+            let s' = addClient client s
+            return s'
+        logInfo client $ "Client connected " ++ toString clientID
+        -- start an editor session
+        waitSubstance client
+    where disconnect client= do
+              -- Remove client
+              modifyMVar_ state $ \s ->
+                return $ removeClient client s
+              logInfo client (idString client ++ " disconnected")
+
+--------------------------------------------------------------------------------
+-- Client-level functions
+
+updateState :: ClientState -> BackendState -> ClientState
+updateState (Renderer s) s'     = Renderer s'
 updateState (Editor e sty s) s' = Editor e sty $ Just s'
 
-getBackendState :: ServerState -> BackendState
+getBackendState :: ClientState -> BackendState
 getBackendState (Renderer s) = s
 getBackendState (Editor _ _ (Just s)) = s
 getBackendState (Editor _ _ Nothing) = error "Server error: Backend state has not been initialized yet."
@@ -76,8 +164,8 @@ data Command = Command { command :: String }
      deriving (Show, Generic)
 
 data DragEvent = DragEvent { name :: String,
-                             xm :: Float,
-                             ym :: Float }
+                             xm   :: Float,
+                             ym   :: Float }
      deriving (Show, Generic)
 
 data SubstanceEdit = SubstanceEdit { program :: String }
@@ -86,7 +174,7 @@ data SubstanceEdit = SubstanceEdit { program :: String }
 data UpdateShapes = UpdateShapes { shapes :: [Shape Double] }
     deriving (Show, Generic)
 
-data Frame = Frame { flag :: String,
+data Frame = Frame { flag   :: String,
                      shapes :: [Shape Double]
                    } deriving (Show, Generic)
 
@@ -97,138 +185,133 @@ instance FromJSON UpdateShapes
 instance FromJSON SubstanceEdit
 instance ToJSON Frame
 
-wsSendJSON :: WS.Connection -> (Shape Double) -> IO ()
-wsSendJSON conn shape = WS.sendTextData conn $ encode shape
 
--- TODO use the more generic wsSendJSON?
-wsSendJSONList :: WS.Connection -> ([Shape Double]) -> IO ()
-wsSendJSONList conn shapes = WS.sendTextData conn $ encode shapes
-
-wsSendJSONFrame :: WS.Connection -> Frame -> IO ()
-wsSendJSONFrame conn frame = WS.sendTextData conn $ encode frame
-
--- | 'servePenrose' is the top-level function that "Main" uses to start serving
+-- | 'serveRenderer' is the top-level function that "Main" uses to start serving
 --   the Penrose Runtime.
-servePenrose :: String  -- the domain of the server
-             -> Int  -- port number of the server
-             -> BackendState  -- initial state of Penrose Runtime
-             -> IO ()
-servePenrose domain port initState = do
+serveRenderer :: String  -- the domain of the server
+              -> Int  -- port number of the server
+              -> BackendState  -- initial state of Penrose Runtime
+              -> IO ()
+serveRenderer domain port initState = do
      putStrLn "Starting Server..."
      let s = Renderer initState
-     Exc.catch (runServer domain port $ application s) handler
+     catch (runServer domain port $ renderer s) handler
      where
-        handler :: Exc.ErrorCall -> IO ()
-        handler _ = putStrLn "Server Error"
+         handler :: ErrorCall -> IO ()
+         handler _ = putStrLn "Server Error"
 
--- | 'serveWithoutSub' TODO
-serveWithoutSub :: String   -- ^ the domain of the server
-                -> Int      -- ^ port number of the server
-                -> VarEnv   -- ^ Element environment
-                -> StyProg  -- ^ parsed Style program
-                -> IO ()
-serveWithoutSub domain port env styProg = do
+-- | 'serveREditor' starts the Penrose server without compiling a Substance program. The server enters the editor mode and compile user's input Substance programs dynamically
+serveEditor :: String   -- ^ the domain of the server
+            -> Int      -- ^ port number of the server
+            -> VarEnv   -- ^ Element environment
+            -> StyProg  -- ^ parsed Style program
+            -> IO ()
+serveEditor domain port env styProg = do
      putStrLn "Starting Server..."
      let initState = Editor env styProg Nothing
-     Exc.catch (runServer domain port $ application initState) handler
+     catch (runServer domain port $ editor initState) handler
      where
-        handler :: Exc.ErrorCall -> IO ()
-        handler e = putStrLn "Server Error"
+         handler :: ErrorCall -> IO ()
+         handler e = putStrLn "Server Error"
 
-
-application :: ServerState -> WS.ServerApp
-application serverState@Editor {} pending = do
+editor, renderer :: ClientState -> WS.ServerApp
+editor clientState@Editor {} pending = do
     conn <- WS.acceptRequest pending
+    clientID <- newUUID
+    let client = (clientID, conn, clientState)
     WS.forkPingThread conn 30 -- To keep the connection alive
-    waitSubstance conn serverState
-
-application (Renderer s) pending = do
+    waitSubstance client
+renderer (Renderer s) pending = do
     conn <- WS.acceptRequest pending
     WS.forkPingThread conn 30 -- To keep the connection alive
     wsSendJSONList conn (shapesr s)
-    waitUpdate conn $ Renderer $ O.step s
+    clientID <- newUUID
+    let clientState = Renderer $ O.step s
+    let client = (clientID, conn, clientState)
+    waitUpdate client
 
-loop :: WS.Connection -> ServerState -> IO ()
-loop conn serverState
+loop :: Client -> IO ()
+loop client@(clientID, conn, clientState)
     | optStatus (paramsr s) == EPConverged = do
-        putStrLn "Optimization completed."
-        putStrLn ("Current weight: " ++ show (weight (paramsr s)))
+        logInfo client "Optimization completed."
+        logInfo client ("Current weight: " ++ show (weight (paramsr s)))
         wsSendJSONFrame conn Frame { flag = "final",
                                 shapes = shapesr s :: [Shape Double] }
-        processCommand conn serverState
-    | autostep s = stepAndSend conn serverState
-    | otherwise = processCommand conn serverState
-    where s = getBackendState serverState
+        processCommand client
+    | autostep s = stepAndSend client
+    | otherwise = processCommand client
+    where s = getBackendState clientState
 
 -- | In editor mode, the server first waits for a well-formed Substance program
 -- before accepting any other kinds of commands. The default action on other
 -- commands is to continue waiting without crashing
-waitSubstance :: WS.Connection -> ServerState -> IO ()
-waitSubstance conn s = do
-    putStrLn "Waiting for Substance program..."
+waitSubstance :: Client -> IO ()
+waitSubstance client@(clientID, conn, clientState) = do
+    infoM (toString clientID) "Waiting for Substance program..."
     msg_json <- WS.receiveData conn
     case decode msg_json of
         Just e -> case e of
-            Edit (SubstanceEdit subProg)  -> Exc.catch (substanceEdit subProg conn s) (substanceError conn s)
-            _   -> continue
+            Edit (SubstanceEdit subProg)  -> catch (substanceEdit subProg client) (substanceError client)
+            _                             -> continue
         Nothing -> continue
     where continue = do
-              putStrLn "Invalid command. Returning to wait for Substance program"
-              waitSubstance conn s
-
-substanceError :: WS.Connection -> ServerState -> ErrorCall -> IO ()
-substanceError c s (ErrorCallWithLocation msg loc) = do
-    putStrLn $ "Substance compiler error: " ++ msg ++ " at " ++ loc
-    waitSubstance c s
--- TODO: this match might be redundant, but not sure why the linter warns that.
-substanceError c s _ = do
-    putStrLn "Substance compiler error: Unknown error."
-    waitSubstance c s
+              warningM (toString clientID) "Invalid command. Returning to wait for Substance program"
+              waitSubstance client
 
 -- } COMBAK: abstract this logic out to `wait`
-waitUpdate :: WS.Connection -> ServerState -> IO ()
-waitUpdate conn s = do
-    putStrLn "Waiting for label dimension update"
+waitUpdate :: Client -> IO ()
+waitUpdate client@(clientID, conn, clientState) = do
+    logInfo client "Waiting for label dimension update"
     msg_json <- WS.receiveData conn
     case decode msg_json of
         Just e -> case e of
-            Update (UpdateShapes shapes)  -> updateShapes shapes conn s
-            _   -> continue
+            Update (UpdateShapes shapes) -> updateShapes shapes client
+            _                            -> continue
         Nothing -> continue
     where continue = do
-            putStrLn "Invalid command. Returning to wait for label update."
-            waitUpdate conn s
+            warningM (toString clientID) "Invalid command. Returning to wait for label update."
+            waitUpdate client
+
+substanceError :: Client -> ErrorCall -> IO ()
+substanceError client (ErrorCallWithLocation msg loc) = do
+     logError client $ "Substance compiler error: " ++ msg ++ " at " ++ loc
+     waitSubstance client
+-- -- TODO: this match might be redundant, but not sure why the linter warns that.
+-- substanceError client s _ = do
+--     putStrLn "Substance compiler error: Unknown error."
+--     waitSubstance c s
+
 
 -- COMBAK: this function should be updated to remove
-processCommand :: WS.Connection -> ServerState -> IO ()
-processCommand conn s = do
-    putStrLn "Receiving Commands"
+processCommand :: Client -> IO ()
+processCommand client@(clientID, conn, s) = do
+    logInfo client "Waiting for Commands"
     msg_json <- WS.receiveData conn
-    print msg_json
-    divLine
+    logInfo client $ "Messege received from frontend: \n" ++ show msg_json
     case decode msg_json of
         Just e -> case e of
-            Cmd (Command cmd)             -> executeCommand cmd conn s
-            Drag (DragEvent name xm ym)   -> dragUpdate name xm ym conn s
-            Edit (SubstanceEdit subProg)  -> substanceEdit subProg conn s
-            Update (UpdateShapes shapes)  -> updateShapes shapes conn s
-        Nothing -> error "Error reading JSON"
+            Cmd (Command cmd)            -> executeCommand cmd client
+            Drag (DragEvent name xm ym)  -> dragUpdate name xm ym client
+            Edit (SubstanceEdit subProg) -> substanceEdit subProg client
+            Update (UpdateShapes shapes) -> updateShapes shapes client
+        Nothing -> logError client "Error reading JSON"
 
-
-substanceEdit :: String -> Connection -> ServerState -> IO ()
-substanceEdit subIn conn (Renderer _) = error "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
-substanceEdit subIn conn serverState@(Editor env styProg s) = do
-    putStrLn $ bgColor Green "Substance program received: " ++ subIn
+substanceEdit :: String -> Client -> IO ()
+substanceEdit subIn client@(_, _, Renderer _) =
+    logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
+substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
+    logInfo client $ "Substance program received: " ++ subIn
     (subProg, (subEnv, eqEnv), labelMap) <- parseSubstance "" subIn env
     let selEnvs = checkSels subEnv styProg
     let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
     let trans = translateStyProg subEnv eqEnv subProg styProg labelMap :: forall a . (Autofloat a) => Either [Error] (Translation a)
     let newState = genOptProblemAndState (fromRight trans)
     let warns = warnings $ fromRight trans -- TODO: report warnings
-    stepAndSend conn $ Editor env styProg $ Just newState
+    wsSendJSONList conn (shapesr newState)
+    loop (clientID, conn, Editor env styProg $ Just newState)
 
-updateShapes :: [Shape Double] -> Connection -> ServerState -> IO ()
-updateShapes newShapes conn serverState =
+updateShapes :: [Shape Double] -> Client -> IO ()
+updateShapes newShapes client@(clientID, conn, clientState) =
     let polyShapes = toPolymorphics newShapes
         uninitVals = map G.toTagExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
         trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
@@ -239,12 +322,15 @@ updateShapes newShapes conn serverState =
             G.varyingState = G.shapes2floats polyShapes varyMapNew $ G.varyingPaths s,
             G.transr = trans',
             G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn }}
-        nextServerS = updateState serverState news
-    in if autostep s then stepAndSend conn nextServerS else loop conn nextServerS
-    where s = getBackendState serverState
+        nextClientS = updateState clientState news
+        client' = (clientID, conn, nextClientS)
+    in if autostep s
+        then stepAndSend client'
+        else loop client'
+    where s = getBackendState clientState
 
-dragUpdate :: String -> Float -> Float -> WS.Connection -> ServerState -> IO ()
-dragUpdate name xm ym conn serverState =
+dragUpdate :: String -> Float -> Float -> Client -> IO ()
+dragUpdate name xm ym client@(clientID, conn, clientState) =
     let (xm', ym') = (r2f xm, r2f ym)
         newShapes  = map (\shape ->
             if getName shape == name
@@ -255,22 +341,25 @@ dragUpdate name xm ym conn serverState =
         news = s { G.shapesr = newShapes,
                    G.varyingState = G.shapes2floats newShapes varyMapNew $ G.varyingPaths s,
                    G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter }}
-        nextServerS = updateState serverState news
-    in if autostep s then stepAndSend conn nextServerS else loop conn nextServerS
-    where s = getBackendState serverState
+        nextClientS = updateState clientState news
+        client' = (clientID, conn, nextClientS)
+    in if autostep s
+        then stepAndSend client'
+        else loop client'
+    where s = getBackendState clientState
 
-executeCommand :: String -> WS.Connection -> ServerState -> IO ()
-executeCommand cmd conn s
-    | cmd == "resample" = resampleAndSend conn s
-    | cmd == "step"     = stepAndSend conn s
+executeCommand :: String -> Client -> IO ()
+executeCommand cmd client@(clientID, conn, clientState)
+    | cmd == "resample" = resampleAndSend client
+    | cmd == "step"     = stepAndSend client
     | cmd == "autostep" =
-        let os  = getBackendState s
+        let os  = getBackendState clientState
             os' = os { autostep = not $ autostep os }
-        in loop conn $ updateState s os'
-    | otherwise         = putStrLn ("Can't recognize command " ++ cmd)
+        in loop (clientID, conn, updateState clientState os')
+    | otherwise         = logError client ("Can't recognize command " ++ cmd)
 
-resampleAndSend, stepAndSend :: WS.Connection -> ServerState -> IO ()
-resampleAndSend conn serverState = do
+resampleAndSend, stepAndSend :: Client -> IO()
+resampleAndSend client@(clientID, conn, clientState) = do
     let (resampledShapes, rng') = sampleShapes (G.rng s) (G.shapesr s)
     let uninitVals = map G.toTagExpr $ G.shapes2vals resampledShapes $ G.uninitializedPaths s
     let trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
@@ -279,27 +368,49 @@ resampleAndSend conn serverState = do
     let (resampledFields, rng'') = G.resampleFields (G.varyingPaths s) rng'
     -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
     let varyMapNew = G.mkVaryMap (filter G.isFieldPath $ G.varyingPaths s) resampledFields
-
-    let nexts = s { G.shapesr = resampledShapes, G.rng = rng'',
+    let news = s { G.shapesr = resampledShapes, G.rng = rng'',
                     G.transr = trans',
                     G.varyingState = G.shapes2floats resampledShapes varyMapNew $ G.varyingPaths s,
                     G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter } }
-    wsSendJSONList conn $ fst $ evalTranslation nexts
-    let nextServerS = updateState serverState nexts
+    wsSendJSONList conn $ fst $ evalTranslation news
+    let nextClientS = updateState clientState news
+    let client' = (clientID, conn, nextClientS)
     -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled.
-    waitUpdate conn nextServerS
-    where s = getBackendState serverState
+    waitUpdate client'
+    where s = getBackendState clientState
 
-stepAndSend conn serverState = do
-    let s = getBackendState serverState
+stepAndSend client@(clientID, conn, clientState) = do
+    let s = getBackendState clientState
     let nexts = O.step s
     wsSendJSONList conn (shapesr nexts :: [Shape Double])
     -- loop conn (trRaw "state:" nexts)
-    loop conn $ updateState serverState nexts
-
+    loop (clientID, conn, updateState clientState nexts)
 
 --------------------------------------------------------------------------------
--- Copied from WebSocket library
+-- Logger
+
+withColoredFormatter, withFormatter :: GenericHandler Handle -> GenericHandler Handle
+withFormatter handler = setFormatter handler formatter
+    where formatter = simpleLogFormatter ("[$time $loggername $prio]" ++ "\n$msg")
+withColoredFormatter handler = setFormatter handler formatter
+    where formatter = simpleLogFormatter (bgColor Red $ style Bold "[$time $loggername $prio]" ++ "\n$msg")
+
+logInfo, logError :: Client -> String -> IO ()
+logInfo  client = infoM (idString client)
+logError client = errorM (idString client)
+
+--------------------------------------------------------------------------------
+-- WebSocket utils
+
+wsSendJSON :: WS.Connection -> Shape Double -> IO ()
+wsSendJSON conn shape = WS.sendTextData conn $ encode shape
+
+-- TODO use the more generic wsSendJSON?
+wsSendJSONList :: WS.Connection -> [Shape Double] -> IO ()
+wsSendJSONList conn shapes = WS.sendTextData conn $ encode shapes
+
+wsSendJSONFrame :: WS.Connection -> Frame -> IO ()
+wsSendJSONFrame conn frame = WS.sendTextData conn $ encode frame
 
 -- | This 'runServer' is exactly the same as the one in "Network.WebSocket". Duplicated for calling a customized version of 'runServerWith' with error messages enabled.
 runServer :: String     -- ^ Address to bind

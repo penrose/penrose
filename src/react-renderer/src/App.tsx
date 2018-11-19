@@ -34,6 +34,10 @@ class App extends React.Component<IProps, IState> {
     }
     this.setState({ data: myJSON });
   };
+  public step = () => {
+    const packet = { tag: "Cmd", contents: { command: "step" } };
+    this.ws.send(JSON.stringify(packet));
+  }
   public resample = () => {
     const packet = { tag: "Cmd", contents: { command: "resample" } };
     this.setState({ converged: !this.state.autostep });
@@ -105,6 +109,7 @@ class App extends React.Component<IProps, IState> {
             <button onClick={this.autoStepToggle}>
               autostep {autostep ? "(on)" : "(off)"}
             </button>
+            <button onClick={this.step}>step</button>
             <button onClick={this.resample}>resample</button>
             <button onClick={this.download}>download</button>
             <div
