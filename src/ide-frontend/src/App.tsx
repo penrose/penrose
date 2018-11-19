@@ -7,6 +7,7 @@ import logo from "./logo.svg";
 import venn from "./venn.svg";
 import play from "./play.svg";
 import reload from "./reload.svg";
+import download from "./download.svg";
 import Log from "Log";
 import Button from "Button";
 import Dropdown, { IOption } from "Dropdown";
@@ -16,7 +17,6 @@ interface IState {
   code: string;
   initialCode: string;
   rendered: boolean;
-  converged: boolean;
   selectedElement: IOption;
   selectedStyle: IOption;
 }
@@ -33,7 +33,6 @@ class App extends React.Component<any, IState> {
     code: "",
     initialCode: "",
     rendered: false,
-    converged: false,
     selectedElement: elementOptions[0],
     selectedStyle: styleOptions[0]
   };
@@ -68,8 +67,8 @@ class App extends React.Component<any, IState> {
     if (this.renderer.current !== null) {
       this.renderer.current.onMessage(e);
       const data = JSON.parse(e.data);
-      Log.info("Received data from the server.", data)
-      this.setState({ rendered: true, converged: data.flag === "final" });
+      Log.info("Received data from the server.", data);
+      this.setState({ rendered: true });
     } else {
       Log.error("Renderer is null.");
     }
@@ -93,10 +92,12 @@ class App extends React.Component<any, IState> {
       code,
       initialCode,
       rendered,
-      converged,
       selectedElement,
       selectedStyle
     } = this.state;
+    const autostepStatus = this.renderer.current
+      ? this.renderer.current.state.autostep
+      : false;
     return (
       <Grid
         style={{ height: "100vh", backgroundColor: "#EDF8FF" }}
@@ -168,11 +169,11 @@ class App extends React.Component<any, IState> {
               disabled={!rendered}
             />
             <Button
-              label="autostep"
+              label={autostepStatus ? "autostep (on)" : "autostep (off)"}
               onClick={this.autostep}
-              disabled={converged || !rendered}
             />
             <Button
+              leftIcon={download}
               label="download"
               onClick={this.download}
               disabled={!rendered}
