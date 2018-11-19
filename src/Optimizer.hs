@@ -8,7 +8,7 @@ import Style
 import GenOptProblem
 import Numeric.AD
 import Debug.Trace
-       
+
 ------ Opt types, util functions, and params
 
 type ObjFn1 a = forall a . (Autofloat a) => [a] -> a
@@ -95,7 +95,7 @@ stepShapes params vstate = -- varying state
            -- let unconstrConverged = optStopCond gradEval in
            let unconstrConverged = epStopCond vstate vstate' (objFnApplied vstate) (objFnApplied vstate') in
                -- Two stopping conditions
-               -- unconstrainedStopCond gradEval in 
+               -- unconstrainedStopCond gradEval in
            if unconstrConverged then
               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
               (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
@@ -113,7 +113,7 @@ stepShapes params vstate = -- varying state
            -- update EP state: to be the converged state from the most recent UO
            else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
                 let epWeight' = weightGrowthFactor * epWeight in
-                trace ("Unconstrained converged. New weight: " ++ show epWeight') $
+                -- trace ("Unconstrained converged. New weight: " ++ show epWeight') $
                       (vstate, params { weight = epWeight', optStatus = status' })
 
          -- done; don't update obj state or params; user can now manipulate
@@ -135,7 +135,7 @@ stepT dt x dfdx = x - dt * dfdx
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
 stepWithObjective :: (Autofloat a) => Params -> [a] -> ([a], [a])
-stepWithObjective params state = 
+stepWithObjective params state =
                   -- if null gradEval then error "empty gradient" else
                   (steppedState, gradEval)
     where (t', gradEval) = timeAndGrad objFnApplied state
@@ -151,7 +151,7 @@ stepWithObjective params state =
                                 ++ "\nf(x'): \n" ++ (show fx')
                                 ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
-                                ++ "\n original state: \n" ++ (show state) 
+                                ++ "\n original state: \n" ++ (show state)
                                 ++ "\n new state: \n" ++ (show state') )
                          state'
 
@@ -215,7 +215,7 @@ awLineSearch f duf_noU descentDir x0 =
                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
                        else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
                        else tr' "b' = infinity" (a', b', 2 * a')
-                intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) = 
+                intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) =
                       not $
                       if armijo t && weakWolfe t then -- takes precedence
                            tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True

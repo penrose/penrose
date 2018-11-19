@@ -55,7 +55,7 @@ shadowMain = do
             let warns = S.warnings $ fromRight trans
             putStrLn (color Red $ L.intercalate "\n" warns ++ "\n")
             let (domain, port) = ("127.0.0.1", 9160)
-            Server.servePenrose domain port initState
+            Server.serveRenderer domain port initState
         2 -> do
             let (styFile, dsllFile) = (head args, args !! 1)
             styIn  <- readFile styFile
@@ -63,8 +63,7 @@ shadowMain = do
             dsllEnv <- D.parseDsll dsllFile dsllIn
             styProg <- S.parseStyle styFile styIn
             let (domain, port) = ("127.0.0.1", 9160) -- TODO: if current port in use, assign another
-            -- Server.serveWithoutSub domain port dsllEnv styProg
-            Server.start dsllEnv styProg
+            Server.servePenrose dsllEnv styProg domain port
 
             -- scotty 3939 $
             --     post "/" $ do

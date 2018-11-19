@@ -53,6 +53,7 @@ executable penrose
         process -any,
         network -any,
         uuid -any,
+        hslogger -any,
         split -any,
         multimap -any,
         directory -any,

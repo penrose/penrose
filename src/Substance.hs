@@ -497,7 +497,7 @@ substInsert sigma y arg = case M.lookup y sigma of
 -- | Definition of the Substance environment + helper functions.
 --   Contains binding information and equality of expressions and predicates
 --   In order to calculate all the equalities, we compute the closure of the
---   equalities in Substance + symmetry. 
+--   equalities in Substance + symmetry.
 -- The equalities do NOT contain self-equalities, which are manually checked by the Style matcher
 
 data SubEnv = SubEnv { exprEqualities :: [(Expr , Expr)],
@@ -576,7 +576,7 @@ collectLabels ids =
         _ -> m
     ) initmap
     where
-        initmap = M.fromList $ map (\i -> (i, Nothing)) $ trRaw "ids" ids
+        initmap = M.fromList $ map (\i -> (i, Nothing)) ids
 
 -- COMBAK: DEPRECATED
 loadObjects :: SubProg -> VarEnv -> SubObjects
