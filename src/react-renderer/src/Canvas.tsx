@@ -11,6 +11,7 @@ interface IProps {
 
 class Canvas extends React.Component<IProps> {
   public readonly canvasSize: [number, number] = [800, 700];
+  public readonly svg = React.createRef<SVGSVGElement>();
 
   public notEmptyLabel = ([name, shape]: [string, any]) => {
     return !(name === "Text" && shape.string.contents === "");
@@ -39,6 +40,11 @@ class Canvas extends React.Component<IProps> {
       Log.error(`Could not render GPI ${name}.`);
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
+    if (this.svg.current === null) {
+      Log.error("SVG ref is null");
+      return <rect />;
+    }
+    const ctm = this.svg.current.getScreenCTM();
     const canvasSize = this.canvasSize;
     const { onShapeUpdate, dragEvent } = this.props;
     return React.createElement(component, {
@@ -46,7 +52,8 @@ class Canvas extends React.Component<IProps> {
       shape,
       canvasSize,
       onShapeUpdate,
-      dragEvent
+      dragEvent,
+      ctm
     });
   };
   public render() {
@@ -59,6 +66,7 @@ class Canvas extends React.Component<IProps> {
         xmlns="http://www.w3.org/2000/svg"
         width="100%"
         height="100%"
+        ref={this.svg}
         viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
       >
         {data.filter(this.notEmptyLabel).map(this.renderEntity)}
