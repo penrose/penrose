@@ -26,16 +26,17 @@ class App extends React.Component<IProps, IState> {
   };
   public onMessage = async (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
+    const flag = myJSON.flag;
     // For final frame
-    if (myJSON.flag !== null) {
+    if (flag !== null) {
       myJSON = myJSON.shapes;
     }
-    if (myJSON.flag !== null && myJSON.flag === "final") {
+    if (flag !== null && flag === "final") {
       this.setState({ converged: true });
       Log.info("Fully optimized.");
     }
     const results = await collectLabels(myJSON);
-    if (myJSON.flag !== null && myJSON.flag === "initial") {
+    if (flag !== null && flag === "initial") {
       this.sendUpdate(results);
     }
     this.setState({ data: results });
