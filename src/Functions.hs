@@ -97,6 +97,7 @@ compDict = M.fromList
         ("pathY", pathY),
         ("sizePathX", sizePathX),
         ("sizePathY", sizePathY),
+        ("makeRegionPath", makeRegionPath),
 
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -502,15 +503,20 @@ norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
 
 -- | Catmull-Rom spline interpolation algorithm
 interpolate :: CompFn
-interpolate [Val (PtListV pts)] =
+interpolate [Val (PtListV pts), Val (StrV closedParam)] =
     let k  = 1
         p0 = head pts
         chunks = repeat4 $ head pts : pts ++ [last pts]
         paths = map (chain k) chunks
-    in Val $ PathDataV [Open $ Pt p0 : paths]
+        path = Pt p0 : paths
+        path' = if closedParam == "closed" 
+                then Closed path
+                else if closedParam == "open" then Open path
+                else error "invalid path closed/open type in interpolate"
+    in Val $ PathDataV [path']
     where repeat4 xs = [ take 4 . drop n $ xs | n <- [0..length xs - 4] ]
 
--- chain :: Pt2 -> Pt2 -> Pt2 -> Pt2 -> Float -> Elem
+chain :: Autofloat a => a -> [(a, a)] -> Elem a
 chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
     let cp1x = x1 + (x2 - x0) / 6 * k
         cp1y = y1 + (y2 - y0) / 6 * k
@@ -561,6 +567,22 @@ sizePathY [Val (PtListV path)] =
               let ys = map snd path
                   res = maximum ys - minimum ys in
               Val $ FloatV res
+
+-- Compute path for an integral's shape (under a function, above the interval on which the function is defined)
+makeRegionPath :: CompFn
+makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
+               let pt1   = Pt $ getPoint "start" intv
+                   pt2   = Pt $ getPoint "end" intv
+
+                   -- Assume the function is a single open path consisting of a Pt elem, followed by CubicBez elements
+                   -- (i.e. produced by `interpolate` with "open")
+                   curve = case (getPathData fn) !! 0 of
+                           Closed elems -> error "TODO"
+                           Open elems -> elems
+                   path  = Closed $ pt1 : curve ++ [pt2]
+               in Val (PathDataV [path])
+               -- in Val $ PathDataV $ getPathData fn
+
 noop :: CompFn
 noop [] = Val (StrV "TODO")
 

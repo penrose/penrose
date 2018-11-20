@@ -361,6 +361,7 @@ curveType = ("Curve", M.fromList
         ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
         ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
         ("style", (StrT, constValue $ StrV "solid")),
+        ("fill", (ColorT, sampleColor)), -- for no fill, set opacity to 0
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCurve"))
     ])
@@ -557,6 +558,15 @@ getY shape = case shape .: "y" of
     FloatV y -> y
     _ -> error "getY: expected float but got something else"
 
+getPoint :: (Autofloat a) => String -> Shape a -> (a, a)
+getPoint "start" shape = case (shape .: "startX", shape .: "startY") of
+   (FloatV x, FloatV y) -> (x, y)
+   _ -> error "getPoint expected two floats but got something else"
+getPoint "end" shape = case (shape .: "endX", shape .: "endY") of
+   (FloatV x, FloatV y) -> (x, y)
+   _ -> error "getPoint expected two floats but got something else"
+getPoint _ shape = error "getPoint did not receive existing property name"
+
 getName :: (Autofloat a) => Shape a -> String
 getName shape = case shape .: "name" of
     StrV s -> s
@@ -581,6 +591,11 @@ getPath :: (Autofloat a) => Shape a -> [Pt2 a]
 getPath shape = case shape .: "path" of
     PtListV x -> x
     _ -> error "getPath: expected [(Float, Float)] but got something else"
+
+getPathData :: (Autofloat a) => Shape a -> PathData a
+getPathData shape = case shape .: "pathData" of
+    PathDataV x -> x
+    _ -> error "getPathData: expected [PathData a] but got something else"
 
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator

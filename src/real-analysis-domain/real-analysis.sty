@@ -20,6 +20,7 @@ Colors {
   Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
   Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
   Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+  Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
 }
 
 Reals R {
@@ -139,6 +140,8 @@ where f := CreateFunction(I, R) {
 
   f.shape = Curve {
     path = f.val
+    pathData = interpolate(f.val, "open")
+    fill = Colors.none
     color = Colors.blue
     -- TODO: start and end style depending on the interval
   }
@@ -235,23 +238,32 @@ Real ifI
 with Function f; Interval I; Reals R
 where ifI := integral(I, f); f := CreateFunction(I, R) {
 
-      -- TODO: compute the whole GPI
       -- TODO: figure out problem with rectangle alignment
-      -- TODO: compute integral to actually lie under fn
-      override ifI.shape = Rectangle {
-      	       x = midpointX(I.shape)
-     	       	 -- midpointPathX(f.val)
-	       y = pathY(f.val)
-	       sizeX = I.shape.endX - I.shape.startX
-	       	     -- sizePathX(f.val)
-	       sizeY = (ifI.shape.y - origin.y) * 2.0
-	       	     -- sizePathY(f.val)
-      	       color = Colors.lightorange
+      -- override ifI.shape = Rectangle {
+      -- 	       x = midpointX(I.shape)
+      -- 	       	 -- midpointPathX(f.val)
+      -- 	       y = pathY(f.val)
+      -- 	       sizeX = I.shape.endX - I.shape.startX
+      -- 	       	     -- sizePathX(f.val)
+      -- 	       sizeY = (ifI.shape.y - origin.y) * 2.0
+      -- 	       	     -- sizePathY(f.val)
+      -- 	       color = Colors.lightorange
+      -- 	       rotation = 0.0
+      -- }
+
+      -- compute integral as a shape that lies under fn curve
+      -- for some reason, the test sequence of pts didn't work
+      -- problem with the path? or with the renderer?
+      override ifI.shape = Curve {
+      	       pathData = makeRegionPath(f.shape, I.shape)
+	       fill = Colors.red
+	       color = Colors.red
 	       rotation = 0.0
       }
 
-      ifI.text.x = ifI.shape.x
-      ifI.text.y = ifI.shape.y
+      -- TODO place label
+      -- ifI.text.x = ifI.shape.x
+      -- ifI.text.y = ifI.shape.y
 
       delete ifI.inFn
       delete ifI.labelFn
