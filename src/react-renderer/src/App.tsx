@@ -27,16 +27,18 @@ class App extends React.Component<IProps, IState> {
   public onMessage = async (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
     const flag = myJSON.flag;
-    // For final frame
-    if (flag !== null) {
+    if (flag) {
       myJSON = myJSON.shapes;
     }
-    if (flag !== null && flag === "final") {
+    // For final frame
+    if (flag && flag === "final") {
       this.setState({ converged: true });
       Log.info("Fully optimized.");
     }
+    // Compute (or retrieve from memory) label dimensions
     const results = await collectLabels(myJSON);
-    if (flag !== null && flag === "initial") {
+    // For initial frame - send dimensions
+    if (flag && flag === "initial") {
       this.sendUpdate(results);
     }
     this.setState({ data: results });
@@ -65,6 +67,7 @@ class App extends React.Component<IProps, IState> {
       }
       return [name, oldShape];
     });
+    this.setState({ data: shapes });
     this.sendUpdate(shapes);
   };
   public sendUpdate = (updatedShapes: any[]) => {
@@ -79,7 +82,6 @@ class App extends React.Component<IProps, IState> {
     const packetString = JSON.stringify(packet);
     Log.info("Sending an Update packet to the server...");
     this.ws.send(packetString);
-    this.setState({ data: updatedShapes });
   };
   public dragEvent = (id: string, dy: number, dx: number) => {
     // TODO: save intermediate state so no snapback
