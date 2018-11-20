@@ -20,8 +20,9 @@ class Label extends React.Component<IGPIPropsDraggable> {
         onMouseDown={onClick}
         pointerEvents="bounding-box"
         dangerouslySetInnerHTML={{
-          __html:
-            shape.rendered.contents || `<text>${shape.string.contents}</text>`
+          __html: shape.rendered
+            ? shape.rendered.contents
+            : `<text>${shape.string.contents}</text>`
         }}
       />
     );

@@ -31,10 +31,14 @@ class App extends React.Component<IProps, IState> {
       myJSON = myJSON.shapes;
       this.setState({ converged: true });
       Log.info("Fully optimized.");
-    }
-    // TODO: only if initial build
+    } else if (myJSON.flag !== null && myJSON.flag === "initial") {
     const results = await collectLabels(myJSON);
     this.sendUpdate(results);
+    } else {
+      this.setState({data: myJSON})
+    }
+    // TODO: only if initial build
+
   };
   public step = () => {
     const packet = { tag: "Cmd", contents: { command: "step" } };
