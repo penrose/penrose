@@ -53,6 +53,11 @@ class App extends React.Component<any, IState> {
       this.renderer.current.autoStepToggle();
     }
   };
+  public step = () => {
+    if (this.renderer.current !== null) {
+      this.renderer.current.step();
+    }
+  }
   public resample = () => {
     if (this.renderer.current !== null) {
       this.renderer.current.resample();
@@ -146,7 +151,7 @@ class App extends React.Component<any, IState> {
             selected={selectedStyle}
             onSelect={this.selectedStyle}
           />
-          <Button label="fork" onClick={console.log} />
+          <Button label="step" onClick={this.step} />
         </Cell>
         <Cell>
           <AceEditor
