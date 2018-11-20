@@ -27,18 +27,18 @@ class App extends React.Component<IProps, IState> {
   public onMessage = async (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
     // For final frame
-    if (myJSON.flag !== null && myJSON.flag === "final") {
+    if (myJSON.flag !== null) {
       myJSON = myJSON.shapes;
-      this.setState({ converged: true, data: myJSON });
-      Log.info("Fully optimized.");
-    } else if (myJSON.flag !== null && myJSON.flag === "initial") {
-      myJSON = myJSON.shapes;
-      const results = await collectLabels(myJSON);
-      this.sendUpdate(results);
-    } else {
-      this.setState({ data: myJSON });
     }
-    // TODO: only if initial build
+    if (myJSON.flag !== null && myJSON.flag === "final") {
+      this.setState({ converged: true });
+      Log.info("Fully optimized.");
+    }
+    const results = await collectLabels(myJSON);
+    if (myJSON.flag !== null && myJSON.flag === "initial") {
+      this.sendUpdate(results);
+    }
+    this.setState({ data: results });
   };
   public step = () => {
     const packet = { tag: "Cmd", contents: { command: "step" } };
