@@ -103,8 +103,7 @@ jobs:
       - run: *penroseenv
       - run: *install
       - checkout
-      - run: *testsetup
-      - run: *testrun
+      # tests can be added here
       - persist_to_workspace:
           root: /tmp
           paths:
