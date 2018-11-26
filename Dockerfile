@@ -20,8 +20,7 @@ ENV ARCH linux
 ARG PENROSE_BRANCH master
 ARG PENROSE_REPO https://www.github.com/penrose/penrose.git
 
-RUN apt-get update && apt-get install -y git \
-                                         ghc-8.2.1
+RUN apt-get update && apt-get install -y git ghc-8.2.1
                                         
 ################################################################################
 ## Install GHC and Stack
