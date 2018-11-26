@@ -1,0 +1,205 @@
+# Continuous Integration to deploy the docker container to vanessa/penrose
+
+# In addition to the variables defined above, you should set the GITHUB_EMAIL
+# to be the email associated with the repo (for deploy to Github pages).
+# if not set, this step won't be done 
+
+
+################################################################################
+# Functions
+################################################################################
+
+# Defaults
+defaults: &defaults
+  docker:
+    - image: docker:18.01.0-ce-git
+  working_directory: /tmp/src
+  environment:
+    - TZ: "/usr/share/zoneinfo/America/Los_Angeles"
+    - PENROSE_CONTAINER: vanessa/penrose
+
+# Installation
+install: &install
+    name: Install gzip, gettext, python3, gcc python3-dev, jq, linux-headers
+    command: |
+        apk add --no-cache pigz python3 gettext jq gcc python3-dev linux-headers \
+                           libffi-dev musl-dev openssl-dev
+
+# Environment
+penroseenv: &penroseenv
+    name: Define container and penrose names
+    command: |
+        if [ ! -n "${CIRCLE_PR_REPONAME}" ]; then
+            REPO_NAME=vsoch/penrose
+        else
+            REPO_NAME=${CIRCLE_PR_USERNAME}/${CIRCLE_PR_REPONAME}
+        fi
+        # Version is first 10 of commit id
+        if [ ! -n "${DOCKER_TAG:-}" ]; then
+            DOCKER_TAG=$(echo "${CIRCLE_SHA1}" | cut -c1-10)
+        fi
+        # export to bash environment
+        echo "export REPO_NAME=${REPO_NAME}" >> ${BASH_ENV}
+        echo "export DOCKER_TAG=${DOCKER_TAG}" >> ${BASH_ENV}
+        cat ${BASH_ENV}
+
+# Installation
+dockerbuild: &dockerbuild
+    name: Build the penrose/penrose containers
+    command: |
+        source ${BASH_ENV}
+        cd /tmp/src
+        echo "docker build --build-arg PENROSE_BRANCH=${CIRCLE_BRANCH} --build-arg PENROSE_REPO=${REPO_NAME} -t ${SCHEMA_BUILDER} ."
+        docker build --build-arg PENROSE_BRANCH=${CIRCLE_BRANCH} --build-arg PENROSE_REPO=${REPO_NAME} -t ${SCHEMA_BUILDER} .        
+        docker tag "${PENROSE_CONTAINER}:latest" "${PENROSE_CONTAINER}:${DOCKER_TAG}"
+
+# Docker
+dockerload: &dockerload
+    name: Load Docker container Image
+    no_output_timeout: 30m
+    command: | 
+      echo "Working directory is ${PWD}"
+      docker info
+      set +o pipefail
+      if [ -f /tmp/cache/container.tar.gz ]; then
+          apk update && apk add --no-cache pigz curl curl-dev
+          pigz -d --stdout /tmp/cache/container.tar.gz | docker load
+          docker images
+      fi
+
+dockersave: &dockersave
+    name: Docker Save
+    no_output_timeout: 40m
+    command: |
+        cat ${BASH_ENV}
+        source ${BASH_ENV}
+        echo "Saving ${PENROSE_CONTAINER} to container.tar.gz"
+        docker images | grep ${PENROSE_CONTAINER}
+        mkdir -p /tmp/cache
+        docker save ${PENROSE_CONTAINER} | pigz -2 -p 3 > /tmp/cache/container.tar.gz
+
+dockerdeploy: &dockerdeploy
+    name: Deploy to Docker Hub
+    no_output_timeout: 40m
+    command: |
+      source ${BASH_ENV}
+      echo "Looking for ${PENROSE_CONTAINER}"
+      if [[ -n "$DOCKER_PASS" ]]; then
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push ${PENROSE_CONTAINER}:latest
+            docker push ${PENROSE_CONTAINER}:${DOCKER_TAG}
+      fi
+
+################################################################################
+# Jobs
+################################################################################
+
+
+version: 2
+jobs:
+  test:
+    <<: *defaults
+    steps:
+      - run: *schemaenv
+      - run: *install
+      - checkout
+      - run: *testsetup
+      - run: *testrun
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - src
+
+  build:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /tmp
+      - run: *install
+      - restore_cache:
+          keys:
+            - docker-v1-{{ .Branch }}
+          paths:
+            - /tmp/cache/container.tar.gz      
+      - setup_remote_docker
+      - run: *schemaenv
+      - run: *dockerbuild
+      - run: *dockersave
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - cache/container.tar.gz
+            - src
+
+  update_cache:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /tmp
+      - save_cache:
+         key: docker-v1-{{ .Branch }}
+         paths:
+            - /tmp/cache/container.tar.gz
+
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /tmp
+      - setup_remote_docker
+      - run: *schemaenv
+      - run: *dockerload
+      - run: *dockerdeploy
+
+
+################################################################################
+# Workflows
+################################################################################
+
+
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore: 
+                - /docs?/.*/
+                - gh-pages
+            tags:
+              only: /.*/
+
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              ignore: 
+                - /docs?/.*/
+                - gh-pages
+            tags:
+              only: /.*/
+
+      - update_cache:
+          requires:
+            - test
+            - build
+          filters:
+            branches:
+              ignore: 
+                - /docs?/.*/
+                - gh-pages
+            tags:
+              only: /.*/
+
+      - deploy:
+          requires:
+            - test
+            - build
+            - update_cache
+          filters:
+            branches:
+              only: master
+            tags:
+              only: /.*/
