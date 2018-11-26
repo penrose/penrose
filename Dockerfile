@@ -17,8 +17,8 @@ ENV BUILD_BINARY 1
 ENV PATH $HOME/.local/bin:/opt/ghc/$GHCVER/bin:$HOME/bin:$PATH
 ENV ARCH linux
 
-ARG PENROSE_BRANCH master
-ARG PENROSE_REPO https://www.github.com/penrose/penrose.git
+ARG PENROSE_BRANCH=master
+ARG PENROSE_REPO=https://www.github.com/penrose/penrose.git
 
 RUN apt-get update && apt-get install -y git ghc-8.2.1
                                         

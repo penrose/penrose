@@ -20,7 +20,7 @@ defaults: &defaults
 
 # Installation
 install: &install
-    name: Install gzip, gettext, python3, gcc python3-dev, jq, linux-headers
+    name: Install gzip, linux-headers
     command: |
         apk add --no-cache pigz python3 gettext jq gcc python3-dev linux-headers \
                            libffi-dev musl-dev openssl-dev
