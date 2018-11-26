@@ -49,8 +49,8 @@ dockerbuild: &dockerbuild
     command: |
         source ${BASH_ENV}
         cd /tmp/src
-        echo "docker build --build-arg PENROSE_BRANCH=${CIRCLE_BRANCH} --build-arg PENROSE_REPO=${REPO_NAME} -t ${SCHEMA_BUILDER} ."
-        docker build --build-arg PENROSE_BRANCH=${CIRCLE_BRANCH} --build-arg PENROSE_REPO=${REPO_NAME} -t ${SCHEMA_BUILDER} .        
+        echo "docker build --build-arg PENROSE_BRANCH=${CIRCLE_BRANCH} --build-arg PENROSE_REPO=${REPO_NAME} -t ${PENROSE_CONTAINER} ."
+        docker build --build-arg PENROSE_BRANCH=${CIRCLE_BRANCH} --build-arg PENROSE_REPO=${REPO_NAME} -t ${PENROSE_CONTAINER} .        
         docker tag "${PENROSE_CONTAINER}:latest" "${PENROSE_CONTAINER}:${DOCKER_TAG}"
 
 # Docker
@@ -100,7 +100,7 @@ jobs:
   test:
     <<: *defaults
     steps:
-      - run: *schemaenv
+      - run: *penroseenv
       - run: *install
       - checkout
       - run: *testsetup
@@ -122,7 +122,7 @@ jobs:
           paths:
             - /tmp/cache/container.tar.gz      
       - setup_remote_docker
-      - run: *schemaenv
+      - run: *penroseenv
       - run: *dockerbuild
       - run: *dockersave
       - persist_to_workspace:
@@ -147,7 +147,7 @@ jobs:
       - attach_workspace:
           at: /tmp
       - setup_remote_docker
-      - run: *schemaenv
+      - run: *penroseenv
       - run: *dockerload
       - run: *dockerdeploy
 
