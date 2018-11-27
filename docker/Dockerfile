@@ -5,6 +5,7 @@ FROM fpco/stack-build
 
 # Run penrose via container
 # docker run vanessa/penrose
+# docker run -it -p 8000:8000 -p 9160:9160 vanessa/penrose web
 
 # Interactive debugging, or shell inside container
 # docker run -it vanessa/penrose bash
@@ -20,19 +21,8 @@ ENV ARCH linux
 ARG PENROSE_BRANCH=master
 ARG PENROSE_REPO=https://www.github.com/penrose/penrose.git
 
-RUN apt-get update && apt-get install -y git ghc-8.2.1
+RUN apt-get update && apt-get install -y git mini_httpd
                                         
-################################################################################
-## Install GHC and Stack
-
-RUN wget -O ghr.zip https://github.com/tcnksm/ghr/releases/download/v0.5.4/ghr_v0.5.4_${ARCH}_386.zip && \
-    mkdir -p $HOME/bin && \
-    unzip ghr.zip -d $HOME/bin && \
-    rm ghr.zip && \
-    mkdir -p ~/.local/bin && \
-    curl -sL https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack' && \
-    stack --no-terminal setup
-
 RUN git clone -b ${PENROSE_BRANCH} ${PENROSE_REPO} && \
     cd penrose && \
     stack install alex happy
@@ -45,4 +35,7 @@ WORKDIR /penrose
 RUN stack build && \
     stack install
 
-ENTRYPOINT ["/root/.local/bin/penrose"]
+EXPOSE 8000
+EXPOSE 9160
+
+ENTRYPOINT ["/penrose/docker/entrypoint.sh"]
