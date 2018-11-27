@@ -1,4 +1,5 @@
 Colors {
+  Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
   Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
   Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
   Colors.darkBlue = rgba(0.05, 0.05, 0.6, 1.0)
@@ -112,8 +113,9 @@ where From(f, domain, image)
 with Set `domainOuter`; Set domain; Set image {
     f.shape = Curve {
         path = computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
-        pathData = interpolate(f.shape.path)
+        pathData = interpolate(f.shape.path, "open")
         color = Colors.darkBlue
+        fill = Colors.none
     }
     -- f.shape.pathData = interpolate(f.shape.path)
 
