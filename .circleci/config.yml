@@ -34,6 +34,7 @@ penroseenv: &penroseenv
         else
             REPO_NAME=${CIRCLE_PR_USERNAME}/${CIRCLE_PR_REPONAME}
         fi
+        REPO_NAME=https://www.github.com/${REPO_NAME}
         # Version is first 10 of commit id
         if [ ! -n "${DOCKER_TAG:-}" ]; then
             DOCKER_TAG=$(echo "${CIRCLE_SHA1}" | cut -c1-10)
