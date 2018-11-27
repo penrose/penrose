@@ -1,0 +1,38 @@
+Reals R
+Real a ∈ R
+Real b ∈ R
+Real d ∈ R
+Real e ∈ R
+Real i ∈ R
+Real j ∈ R
+Real k ∈ R
+Real inf ∈ R
+
+b < k
+
+LessThan(b, k)
+
+A := [a, b] ⊆ R
+J := [d, e) ⊆ R
+I := (i, j) ⊆ R
+K := (k, inf) ⊆ R
+
+
+f : A → R
+Differentiable(f)
+
+
+Interval U
+U := J ∪ I
+h : U → R
+Discontinuous(h)
+
+Real l ∈ A
+Real fl
+Point p2
+fl := f(l)
+p2 := Pt(l, fl)
+
+Real dfl, ih
+dfl := f^(l)
+-- ih := ∫J(h)

@@ -1,12 +1,14 @@
--- | The full generic Style file for the linear algebra domain
+-- | A costumed style file for the LA paper spec
 -- | Author: Dor Ma'ayan
---   August, 2018
+--   September, 2018
+
+--TODO: One day hopefully use the generic style file for that
 
 -- Global constants and sizes
 const {
-  const.vectorSpaceSize = 400.0
+  const.vectorSpaceSize = 350.0
   const.axisSize = const.vectorSpaceSize * 0.4
-  const.distVectorSpaces = 50.0
+  const.distVectorSpaces = 80.0
   const.scaleRatio = 200.0
 }
 
@@ -89,12 +91,35 @@ VectorSpace U {
    }
 }
 
+VectorSpace `U` {
+ U.shape.x = -200.0
+ U.shape.y = 150.0
+
+}
+
+VectorSpace `V` {
+  V.shape.x = -200.0 + const.vectorSpaceSize + const.distVectorSpaces
+  V.shape.y = 150.0
+}
+
+VectorSpace `W` {
+  W.shape.x = -200.0 + const.vectorSpaceSize + const.distVectorSpaces
+  W.shape.y = 150.0 - const.vectorSpaceSize - const.distVectorSpaces
+}
+
+VectorSpace `X` {
+  X.shape.x = -200.0
+  X.shape.y = 150.0 - const.vectorSpaceSize - const.distVectorSpaces
+}
+
+/*
 VectorSpace U; VectorSpace V {
     U.sameHeight = ensure sameHeight(U.shape, V.shape)
     U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
     --V.shape.y = U.shape.y
     --V.shape.x = U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
 }
+*/
 
 Vector v
 with VectorSpace U
@@ -172,6 +197,33 @@ where From(f,U,V) {
    }
 }
 
+LinearMap `f`
+with VectorSpace `U`; VectorSpace `V`
+where From(`f`,`U`,`V`){
+   override f.shape.startX = U.shape.x + const.vectorSpaceSize / 2.0
+   override f.shape.startY = U.shape.y
+   override f.shape.endX = V.shape.x - const.vectorSpaceSize / 2.0
+   override f.shape.endY = V.shape.y
+}
+
+LinearMap `g`
+with VectorSpace `V`; VectorSpace `W`
+where From(`g`,`V`,`W`){
+   override g.shape.startX = V.shape.x
+   override g.shape.startY = V.shape.y - const.vectorSpaceSize / 2.0
+   override g.shape.endX = W.shape.x
+   override g.shape.endY = W.shape.y + const.vectorSpaceSize / 2.0
+}
+
+LinearMap `h`
+with VectorSpace `W`; VectorSpace `X`
+where From(`h`,`W`,`X`){
+   override h.shape.startX = W.shape.x - const.vectorSpaceSize / 2.0
+   override h.shape.startY = W.shape.y
+   override h.shape.endX = X.shape.x + const.vectorSpaceSize / 2.0
+   override h.shape.endY = X.shape.y
+}
+
 -- | Sclar is not visualized in any concrete way but insteat it contains a
 --   Real value
 Scalar c {
@@ -196,36 +248,6 @@ where c := Determinant(a,b); In(a,U); In(b,U) {
      x = (a.shape.endX + b.shape.endX) / 2.0
      y = (a.shape.endY + b.shape.endY) / 2.0
    }
-}
-
-Scalar c
-with Vector a; Vector b; VectorSpace U
-where c := InnerProduct(a,b); In(a,U); In(b,U) {
-  override c.val = len(a.shape) * calcVectorsAngleCos(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY) / 200.0
-  c.line1 = Line {
-     startX = b.shape.startX
-     startY = b.shape.startY
-     endX =  b.shape.endX * c.val - b.shape.startX * (c.val - 1.0)
-     endY = b.shape.endY * c.val - b.shape.startY * (c.val - 1.0)
-     thickness = 2.5
-     style = "dashed"
-  }
-
-  c.line2 = Line {
-     startX = a.shape.endX
-     startY = a.shape.endY
-     endX = b.shape.endX * c.val - b.shape.startX * (c.val - 1.0)
-     endY = b.shape.endY * c.val - b.shape.startY * (c.val - 1.0)
-     thickness = 2.5
-     style = "dashed"
-  }
-
-  /*
-    c.line1 =
-    u.shape.endX = v.shape.endX * c.val - v.shape.startX * (c.val - 1.0)
-    u.shape.endY = v.shape.endY * c.val - v.shape.startY * (c.val - 1.0)
-    c.line1 =
-    */
 }
 
 Scalar c

@@ -1,0 +1,33 @@
+VectorSpace U, V, W, X
+
+LinearMap f : U → V
+LinearMap g : V → W
+LinearMap h : W → X
+
+Vector u1 ∈ U
+Vector u2 ∈ U
+Vector u3 ∈ U
+Vector u4 ∈ U
+Vector u5 ∈ U
+
+Vector v1  ∈ V
+Vector v2  ∈ V
+Vector v3  ∈ V
+
+u3 := u1 + u2
+v1 := f(u1)
+v2 := f(u2)
+v3 := f(u3)
+f(u3) = v1 + v2
+
+
+Scalar a := det(u1,u3)
+
+u4 := a * u2
+u5 := -u4
+Scalar m := |v2|
+Scalar c := <v1, v3>
+Vector w1 ∈ W
+w := g(v1)
+Vector x1 ∈ X
+x1 := h(w1)
