@@ -140,6 +140,10 @@ jobs:
          key: docker-v1-{{ .Branch }}
          paths:
             - /tmp/cache/container.tar.gz
+            - $HOME/.ghc
+            - $HOME/.cabal
+            - $HOME/.stack
+            - /tmp/src/.stack-work
 
   deploy:
     <<: *defaults

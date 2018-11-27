@@ -1,4 +1,4 @@
-FROM fpco/stack-build
+FROM fpco/stack-build:lts-9.10
 
 # Build container
 # docker build -t vanessa/penrose .
