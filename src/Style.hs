@@ -541,7 +541,7 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
              case bVar of
              -- rule Decl-Sty-Context
              bsv@(BStyVar (StyVar' styVar)) ->
-                     -- NOTE: this does not aggregate *all* possible errors. May just return first error.
+                     -- NOTE: this does not aggregate *all* possible error May just return first error.
                      -- y \not\in dom(g)
                      if M.member bsv (sTypeVarMap selEnv')
                      then let err = "Style pattern statement " ++ show stmt ++
@@ -577,7 +577,7 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
                              let declType = toSubType styType in
                              if subType' == declType
                              then addMapping bsv styType selEnv'
-                             else let err = "Mismatched types between Substance and Style vars.\n" ++
+                             else let err = "Mismatched types between Substance and Style var\n" ++
                                              "Sub var '" ++ show subVar ++ "' has type '" ++ show subType' ++
                                              "in Substance but has type '" ++ show declType ++ "' in Style."
                                   in addErr err selEnv'
@@ -740,7 +740,7 @@ substituteRel subst (RelBind bvar sExpr) = RelBind (substituteBform Nothing subs
 -- theta(Q([a]) = Q([theta(a)])
 substituteRel subst (RelPred pred) = RelPred $ substitutePred subst pred
 
--- Applies a substitution to a list of relational statements. theta([|S_r])
+-- Applies a substitution to a list of relational statement theta([|S_r])
 -- TODO: assumes a full substitution
 substituteRels :: Subst -> [RelationPattern] -> [RelationPattern]
 substituteRels subst rels = map (substituteRel subst) rels
@@ -1198,5 +1198,3 @@ translateStyProg varEnv subEnv subProg styProg labelMap =
     case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
         Right trans -> Right $ insertLabels trans labelMap
         Left errors -> Left errors
-
--- For an example of how the semantics are used together, see ShadowMain

@@ -128,13 +128,23 @@ compSignatures = M.fromList
         ("len", ([GPIType "Arrow"], ValueT FloatT)),
         ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PtListT)),
         ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PtListT)),
-        ("interpolate", ([ValueT PtListT], ValueT PathDataT))
+        ("interpolate", ([ValueT PtListT, ValueT StrT], ValueT PathDataT)),
+        ("sampleFunction", ([ValueT IntT, AnyGPI, AnyGPI], ValueT PtListT)),
+        ("midpointX", ([AnyGPI], ValueT FloatT)),
+        ("midpointY", ([AnyGPI], ValueT FloatT)),
+        ("fromDomain", ([ValueT PtListT], ValueT FloatT)),
+        ("applyFn", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
+        ("norm_", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)), -- type: any two GPIs with centers (getX, getY)
+        ("midpointPathX", ([ValueT PtListT], ValueT FloatT)),
+        ("pathY", ([ValueT PtListT], ValueT FloatT)),
+        ("sizePathX", ([ValueT PtListT], ValueT FloatT)),
+        ("sizePathY", ([ValueT PtListT], ValueT FloatT)),
+        ("makeRegionPath", ([GPIType "Curve", GPIType "Line"], ValueT PathDataT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
         -- ("sampleVectorIn", ([], ValueT StrT)), -- TODO
         -- ("intersection", ([], ValueT StrT)), -- TODO
-        -- ("midpoint", ([], ValueT StrT)), -- TODO
         -- ("determinant", ([], ValueT StrT)), -- TODO
         -- ("apply", ([], ValueT StrT)) -- TODO
     ]
@@ -509,7 +519,7 @@ interpolate [Val (PtListV pts), Val (StrV closedParam)] =
         chunks = repeat4 $ head pts : pts ++ [last pts]
         paths = map (chain k) chunks
         path = Pt p0 : paths
-        path' = if closedParam == "closed" 
+        path' = if closedParam == "closed"
                 then Closed path
                 else if closedParam == "open" then Open path
                 else error "invalid path closed/open type in interpolate"

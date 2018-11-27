@@ -301,12 +301,11 @@ substanceEdit subIn client@(_, _, Renderer _) =
     logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
 substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
-    (subProg, (subEnv, eqEnv), labelMap) <- parseSubstance "" subIn env
-    let selEnvs = checkSels subEnv styProg
-    let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
-    let trans = translateStyProg subEnv eqEnv subProg styProg labelMap :: forall a . (Autofloat a) => Either [Error] (Translation a)
-    let newState = genOptProblemAndState (fromRight trans)
-    let warns = warnings $ fromRight trans -- TODO: report warnings
+    subOut <- parseSubstance "" subIn env
+
+    logDebug client $ show subOut
+
+    newState <- compileStyle styProg subOut
     wsSendJSONList conn (shapesr newState)
     loop (clientID, conn, Editor env styProg $ Just newState)
 
@@ -395,8 +394,9 @@ withFormatter handler = setFormatter handler formatter
 withColoredFormatter handler = setFormatter handler formatter
     where formatter = simpleLogFormatter (bgColor Red $ style Bold "[$time $loggername $prio]" ++ "\n$msg")
 
-logInfo, logError :: Client -> String -> IO ()
-logInfo  client = infoM (idString client)
+logDebug, logInfo, logError :: Client -> String -> IO ()
+logDebug client = debugM (idString client)
+logInfo  client = infoM  (idString client)
 logError client = errorM (idString client)
 
 --------------------------------------------------------------------------------

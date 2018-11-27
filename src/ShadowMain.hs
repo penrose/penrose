@@ -22,63 +22,59 @@ import Network.HTTP.Types.Status
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (decodeUtf8)
 import qualified Data.ByteString.Lazy.Char8 as B
-import Control.Monad (when, forM)
+import Control.Monad (when, forM_)
 import Control.Monad.Trans
 import qualified Env as E -- DEBUG: remove
 import qualified Data.Map.Strict as M -- DEBUG: remove
 import qualified Data.List as L (intercalate)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
 
--- | `main` runs the Penrose system
+-- | `shadowMain` runs the Penrose system
 shadowMain :: IO ()
 shadowMain = do
-    -- Reading in from file
-    -- Objective function is currently hard-coded
-    -- Comment in (or out) this block of code to read from a file (need to fix parameter tuning!)
     args <- getArgs
-    when ((length args /= 3) && (length args /= 2)) $ die "Usage: ./Main prog1.sub prog2.sty prog3.dsl"
-    case (length args) of
-        3 -> do
-            let (subFile, styFile, dsllFile) = (head args, args !! 1, args !! 2)
-            subIn <- readFile subFile
-            styIn  <- readFile styFile
-            dsllIn <- readFile dsllFile
-            dsllEnv <- D.parseDsll dsllFile dsllIn
-            (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
-            styProg <- S.parseStyle styFile styIn
-            let selEnvs = S.checkSels subEnv styProg
-            let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
-            let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
-                        :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
-            let initState = G.genOptProblemAndState (fromRight trans)
-            putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
-            let warns = S.warnings $ fromRight trans
-            putStrLn (color Red $ L.intercalate "\n" warns ++ "\n")
-            let (domain, port) = ("127.0.0.1", 9160)
-            Server.serveRenderer domain port initState
-        2 -> do
-            let (styFile, dsllFile) = (head args, args !! 1)
-            styIn  <- readFile styFile
-            dsllIn <- readFile dsllFile
-            dsllEnv <- D.parseDsll dsllFile dsllIn
-            styProg <- S.parseStyle styFile styIn
-            let (domain, port) = ("127.0.0.1", 9160) -- TODO: if current port in use, assign another
-            Server.servePenrose dsllEnv styProg domain port
+    when ((length args /= 3) && (length args /= 2)) $ die "Usage: ./Main [prog1.sub] prog2.sty prog3.dsl"
+    case length args of
+        3 ->
+            let (subFile, styFile, dsllFile) = (head args, args !! 1, args !! 2) in
+            penroseRenderer subFile styFile dsllFile
+        2 ->
+            let (styFile, dsllFile) = (head args, args !! 1) in
+            penroseEditor styFile dsllFile
 
-            -- scotty 3939 $
-            --     post "/" $ do
-            --     sub <- body
-            --     let subIn = B.unpack sub
-            --     liftIO (putStrLn $ bgColor Green "Substance program received: " ++ subIn)
-            --     (subProg, (subEnv, eqEnv), labelMap) <- liftIO (C.parseSubstance "" subIn dsllEnv)
-            --     let selEnvs = S.checkSels subEnv styProg
-            --     let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
-            --     let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
-            --                         :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
-            --
-            --     let initState = G.genOptProblemAndState (fromRight trans)
-            --     let warns = S.warnings $ fromRight trans
-            --     -- Starting serving penrose on the web
+penroseEditor :: String -> String -> IO ()
+penroseEditor styFile dsllFile = do
+    styIn  <- readFile styFile
+    dsllIn <- readFile dsllFile
+    dsllEnv <- D.parseDsll dsllFile dsllIn
+
+    styProg <- S.parseStyle styFile styIn
+    putStrLn "Style AST:\n"
+    pPrint styProg
+    divLine
+
+    let (domain, port) = ("127.0.0.1", 9160) -- TODO: if current port in use, assign another
+    Server.servePenrose dsllEnv styProg domain port
+
+penroseRenderer :: String -> String -> String -> IO ()
+penroseRenderer subFile styFile dsllFile = do
+    subIn <- readFile subFile
+    styIn  <- readFile styFile
+    dsllIn <- readFile dsllFile
+    dsllEnv <- D.parseDsll dsllFile dsllIn
+    subOut <- C.parseSubstance subFile subIn dsllEnv
+
+    print subOut
+
+    styProg <- S.parseStyle styFile styIn
+    putStrLn "Style AST:\n"
+    pPrint styProg
+    divLine
+
+    initState <- G.compileStyle styProg subOut
+
+    let (domain, port) = ("127.0.0.1", 9160)
+    Server.serveRenderer domain port initState
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
@@ -91,7 +87,7 @@ mainRetInit subFile styFile dsllFile = do
     styIn <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
+    subOut@(C.SubOut subProg (subEnv, eqEnv) labelMap) <- C.parseSubstance subFile subIn dsllEnv
     styProg <- S.parseStyle styFile styIn
     let selEnvs = S.checkSels subEnv styProg
     let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
