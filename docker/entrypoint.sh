@@ -19,8 +19,8 @@ usage () {
                 web: start penrose frontend (requires mapping of ports)         
 
          Examples:
-             docker run -p 8000:8000 -p 9060:9060 <container> web --custom math.sub math.sty math.det
-             docker run -p 8000:8000 -p 9060:9060 <container> web linear-algebra
+             docker run -p 8000:8000 -p 9160:9160 <container> web --custom math.sub math.sty math.det
+             docker run -p 8000:8000 -p 9160:9160 <container> web linear-algebra
 
 
          "
@@ -95,8 +95,6 @@ if [ "${PENROSE_WEB}" == "yes" ]; then
     cd /penrose/src/front-end && 
        (python3 -m http.server ${PENROSE_PORT} &)
         penrose ${PENROSE_COMMAND}
-    #(cd /penrose/src/front-end && mini_httpd -p 8000 &)
-    #exec penrose ${PENROSE_COMMAND}
 
 else
     exec /root/.local/bin/penrose "$@"
