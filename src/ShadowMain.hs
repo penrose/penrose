@@ -130,7 +130,10 @@ shadowMain = do
     -- pPrint finalState
 
     -- Starting serving penrose on the web
-    let (domain, port) = ("127.0.0.1", 9160)
+    --let (domain, port) = ("127.0.0.1", 9160)
+    let (domain, port) = ("0.0.0.0", 9160)
+    -- The server needs to listen on 0.0.0.0 when running in a docker container.
+    -- TODO: make this a command-line option, defaulting to localhost.
     Server.servePenrose domain port initState
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state

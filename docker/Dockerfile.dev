@@ -1,0 +1,20 @@
+FROM vanessa/penrose:local
+
+# This container exists purely to edit the entrypoint file.
+# Build container
+# docker build -f docker/Dockerfile.dev -t vanessa/penrose:dev .
+
+# Run penrose via container
+# docker run vanessa/penrose:dev
+# docker run -it -p 8000:8000 -p 9160:9160 vanessa/penrose:dev web
+
+# Interactive debugging, or shell inside container
+# docker run -it vanessa/penrose:dev bash
+
+LABEL Maintainer @vsoch
+
+ADD docker/entrypoint.sh /penrose/docker/entrypoint.sh
+ADD src/domains /penrose/src/domains
+ADD src/front-end /penrose/src/front-end
+RUN chmod u+x /penrose/docker/entrypoint.sh            
+ENTRYPOINT ["/penrose/docker/entrypoint.sh"]
