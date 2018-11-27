@@ -13,7 +13,6 @@ FROM vanessa/penrose:local
 
 LABEL Maintainer @vsoch
 
-EXPOSE 8000 9160 
 ADD docker/entrypoint.sh /penrose/docker/entrypoint.sh
 ADD src/domains /penrose/src/domains
 ADD src/front-end /penrose/src/front-end

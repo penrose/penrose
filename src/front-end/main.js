@@ -9,7 +9,7 @@ var DEBUG           = false
 var CANVAS_WIDTH    = 1000
 var CANVAS_HEIGHT   = 1000
 var SAMPLE_INTERVAL = 40
-var socketAddress   = 'ws://localhost:9160/'
+var socketAddress   = 'ws://0.0.0.0:9160/'
 
 var label_svgs = {}
 

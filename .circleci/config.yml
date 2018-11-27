@@ -50,8 +50,8 @@ dockerbuild: &dockerbuild
     command: |
         source ${BASH_ENV}
         cd /tmp/src
-        echo "docker build -f docker/Dockerfile --build-arg PENROSE_BRANCH=${CIRCLE_BRANCH} --build-arg PENROSE_REPO=${REPO_NAME} -t ${PENROSE_CONTAINER} ."
-        docker build -f docker/Dockerfile --build-arg PENROSE_BRANCH=${CIRCLE_BRANCH} --build-arg PENROSE_REPO=${REPO_NAME} -t ${PENROSE_CONTAINER} .        
+        echo "docker build -f docker/Dockerfile -t ${PENROSE_CONTAINER} ."
+        docker build -f docker/Dockerfile -t ${PENROSE_CONTAINER} .        
         docker tag "${PENROSE_CONTAINER}:latest" "${PENROSE_CONTAINER}:${DOCKER_TAG}"
 
 # Docker
