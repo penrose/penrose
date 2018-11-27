@@ -62,7 +62,7 @@ shadowMain = do
     -- print dsllEnv
 
     (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance (subFile ++ "sugared") desugaredSub dsllEnv
-    -- removeIfExists (subFile ++ "sugared")
+    removeIfExists (subFile ++ "sugared")
     divLine
 
     putStrLn "Parsed Substance program:\n"
