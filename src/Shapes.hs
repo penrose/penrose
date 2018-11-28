@@ -298,9 +298,10 @@ circType = ("Circle", M.fromList
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
-        ("stroke-width", (FloatT, stroke_sampler)),
+        ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, sampleDiscrete [StrV "filled"])),
-        ("stroke-style", (StrT, stroke_style_sampler)),
+        ("strokeStyle", (StrT, stroke_style_sampler)),
+        ("strokeColor", (ColorT, sampleColor)),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
@@ -585,7 +586,7 @@ setY v shape = set shape "y" v
 getNum :: (Autofloat a) => Shape a -> PropID -> a
 getNum shape prop = case shape .: prop of
     FloatV x -> x
-    _ -> error "getNum: expected float but got something else"
+    res -> error ("getNum: expected float but got something else: " ++ show res)
 
 getPath :: (Autofloat a) => Shape a -> [Pt2 a]
 getPath shape = case shape .: "path" of

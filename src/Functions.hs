@@ -17,7 +17,7 @@ import qualified Data.MultiMap as MM
 -- genShapeType $ shapeTypes shapeDefs
 -- deriving instance Show ShapeType
 
-debugOpt = False
+debugOpt = True
 
 trOpt :: Show a => String -> a -> a
 trOpt s x = if debugOpt then trace "---" $ trace s $ traceShowId x else x
@@ -262,7 +262,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("minSize", minSize),
                 ("maxSize", maxSize),
                 ("outsideOf", outsideOf),
-                ("nonOverlapping", nonOverlapping),
+                ("disjoint", disjoint),
                 ("inRange", inRange'),
                 ("lessThan", lessThan)
             ]
@@ -292,8 +292,8 @@ constrSignatures = MM.fromList
         ("overlapping", [GPIType "Square", GPIType "Circle"]),
         ("overlapping", [GPIType "Circle", GPIType "Square"]),
         ("overlapping", [GPIType "Square", GPIType "Square"]),
-        ("nonOverlapping", [GPIType "Circle", GPIType "Circle"]),
-        ("nonOverlapping", [GPIType "Square", GPIType "Square"])
+        ("disjoint", [GPIType "Circle", GPIType "Circle"]),
+        ("disjoint", [GPIType "Square", GPIType "Square"])
         -- ("lessThan", []) --TODO
     ]
 
@@ -337,6 +337,10 @@ type Interval = (Float, Float)
 compRng :: StdGen
 compRng = mkStdGen seed
     where seed = 17 -- deterministic RNG with seed
+
+compRng2 :: StdGen
+compRng2 = mkStdGen seed
+    where seed = 19
 
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
@@ -548,7 +552,8 @@ sampleList list g =
 -- sample random element from domain of function (relation)
 fromDomain :: CompFn
 fromDomain [Val (PtListV path)] =
-           let (x, g') = sampleList (map fst path) compRng in
+           -- let (x, g') = sampleList (trOpt "path: " (map fst path)) compRng2 in
+           let x = fst $ path !! 1 in
            Val $ FloatV $ x
 
 -- lookup element in function (relation) by making a Map
@@ -561,14 +566,14 @@ applyFn [Val (PtListV path), Val (FloatV x)] =
 -- TODO: remove the unused functions in the next four
 midpointPathX :: CompFn
 midpointPathX [Val (PtListV path)] =
-              let xs = trOpt "xs: " $ map fst path
-                  res = trOpt "midpoint path x: " $ (maximum xs + minimum xs) / 2 in
+              let xs = map fst path
+                  res = (maximum xs + minimum xs) / 2 in
               Val $ FloatV res
 
 midpointPathY :: CompFn
 midpointPathY [Val (PtListV path)] =
-              let ys = trOpt "ys: " $ map snd path
-                  res = trOpt "midpoint path y: " $ (maximum ys + minimum ys) / 2 in
+              let ys = map snd path
+                  res = (maximum ys + minimum ys) / 2 in
               Val $ FloatV res
 
 sizePathX :: CompFn
@@ -900,6 +905,12 @@ minSize [GPI g] =
                     getNum g "endY" - getNum g "startY"] in
         50 - norm vec
         else 0
+minSize [GPI g, Val (FloatV len)] =
+        if fst g == "Line" || fst g == "Arrow" then
+        let vec = [ getNum g "endX" - getNum g "startX",
+                    getNum g "endY" - getNum g "startY"] in
+        len - norm vec
+        else 0
 
  -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
 -- minSize _ = 0
@@ -940,12 +951,22 @@ overlapping [GPI xset@("Square", _), GPI yset@("Square", _)] =
 looseIntersect :: (Autofloat a) => [[a]] -> a
 looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
-nonOverlapping :: ConstrFn
-nonOverlapping [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
+disjoint :: ConstrFn
+disjoint [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
     noIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, getNum yset "r"]]
 
-nonOverlapping [GPI xset@("Square", _), GPI yset@("Square", _)] =
+disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
     noIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
+
+-- Make sure the closest endpoints are separated by some padding
+disjoint [GPI s1@("Line", _), GPI s2@("Line", _)] =
+    let (s1_start, s1_end, s2_start, s2_end) = (getPoint "start" s1, getPoint "end" s1,
+                                                getPoint "start" s2, getPoint "end" s2)
+        dists = [dist s1_start s2_start, dist s1_start s2_end,
+                 dist s1_end s2_start, dist s1_end s2_end] -- use distsq?
+        min_dist = minimum dists
+        padding = 40 in
+    padding - min_dist
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersect :: (Autofloat a) => [[a]] -> a
