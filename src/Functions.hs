@@ -17,6 +17,11 @@ import qualified Data.MultiMap as MM
 -- genShapeType $ shapeTypes shapeDefs
 -- deriving instance Show ShapeType
 
+debugOpt = False
+
+trOpt :: Show a => String -> a -> a
+trOpt s x = if debugOpt then trace "---" $ trace s $ traceShowId x else x
+
 --------------------------------------------------------------------------------
 -- Types
 
@@ -94,7 +99,7 @@ compDict = M.fromList
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
 
         ("midpointPathX", midpointPathX),
-        ("pathY", pathY),
+        ("midpointPathY", midpointPathY),
         ("sizePathX", sizePathX),
         ("sizePathY", sizePathY),
         ("makeRegionPath", makeRegionPath),
@@ -136,7 +141,7 @@ compSignatures = M.fromList
         ("applyFn", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
         ("norm_", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)), -- type: any two GPIs with centers (getX, getY)
         ("midpointPathX", ([ValueT PtListT], ValueT FloatT)),
-        ("pathY", ([ValueT PtListT], ValueT FloatT)),
+        ("midpointPathY", ([ValueT PtListT], ValueT FloatT)),
         ("sizePathX", ([ValueT PtListT], ValueT FloatT)),
         ("sizePathY", ([ValueT PtListT], ValueT FloatT)),
         ("makeRegionPath", ([GPIType "Curve", GPIType "Line"], ValueT PathDataT))
@@ -556,14 +561,14 @@ applyFn [Val (PtListV path), Val (FloatV x)] =
 -- TODO: remove the unused functions in the next four
 midpointPathX :: CompFn
 midpointPathX [Val (PtListV path)] =
-              let xs = map fst path
-                  res = (maximum xs - minimum xs) / 2 in
+              let xs = trOpt "xs: " $ map fst path
+                  res = trOpt "midpoint path x: " $ (maximum xs + minimum xs) / 2 in
               Val $ FloatV res
 
-pathY :: CompFn
-pathY [Val (PtListV path)] =
-              let ys = map snd path
-                  res = maximum ys / 2 in
+midpointPathY :: CompFn
+midpointPathY [Val (PtListV path)] =
+              let ys = trOpt "ys: " $ map snd path
+                  res = trOpt "midpoint path y: " $ (maximum ys + minimum ys) / 2 in
               Val $ FloatV res
 
 sizePathX :: CompFn
@@ -893,7 +898,7 @@ minSize [GPI g] =
         if fst g == "Line" || fst g == "Arrow" then
         let vec = [ getNum g "endX" - getNum g "startX",
                     getNum g "endY" - getNum g "startY"] in
-        40 - norm vec
+        50 - norm vec
         else 0
 
  -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
@@ -951,7 +956,9 @@ noIntersect [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2 +
 
 defaultConstrsOf :: ShapeTypeStr -> [FuncName]
 defaultConstrsOf "Text"  = []
+defaultConstrsOf "Curve" = []
 defaultConstrsOf _ = [ "minSize", "maxSize" ]
+                 -- TODO: remove? these fns make the optimization too hard to solve sometimes
 defaultObjFnsOf :: ShapeTypeStr -> [FuncName]
 defaultObjFnsOf _ = [] -- NOTE: not used yet
 
