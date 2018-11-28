@@ -363,6 +363,8 @@ curveType = ("Curve", M.fromList
         ("style", (StrT, constValue $ StrV "solid")),
         ("fill", (ColorT, sampleColor)), -- for no fill, set opacity to 0
         ("color", (ColorT, sampleColor)),
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
         ("name", (StrT, constValue $ StrV "defaultCurve"))
     ])
 

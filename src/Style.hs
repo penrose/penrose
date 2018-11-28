@@ -152,6 +152,7 @@ data Expr
     = IntLit Integer
     | AFloat AnnoFloat
     | StringLit String
+    | BoolLit Bool
     | EPath Path
     | CompApp String [Expr]
     | ObjFn String [Expr]
@@ -301,7 +302,8 @@ expr = tryChoice [
            compFn,
            Layering <$> brackets layeringExpr,
            list,
-           stringLit
+           stringLit,
+           boolLit
        ]
 
 -- COMBAK: change NewStyle to Style
@@ -382,6 +384,10 @@ constructor = do
 
 propertyDecl :: Parser PropertyDecl
 propertyDecl = PropertyDecl <$> identifier <*> (eq >> expr)
+
+boolLit :: Parser Expr
+boolLit =  (rword "True" >> return (BoolLit True))
+       <|> (rword "False" >> return (BoolLit False))
 
 stringLit :: Parser Expr
 -- NOTE: overlapping parsers 'charLiteral' and 'char '"'', so we use 'try'
@@ -780,6 +786,7 @@ substituteBlockExpr lv subst expr =
     IntLit _          -> expr
     AFloat _          -> expr
     StringLit _       -> expr
+    BoolLit _         -> expr
 
 substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =

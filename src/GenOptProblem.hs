@@ -494,6 +494,7 @@ evalExpr (i, n) arg trans varyMap =
             -- Already done values; don't change trans
             IntLit i -> (Val $ IntV i, trans)
             StringLit s -> (Val $ StrV s, trans)
+            BoolLit b -> (Val $ BoolV b, trans)
             AFloat (Fix f) -> (Val $ FloatV (r2f f), trans) -- TODO: note use of r2f here. is that ok?
             AFloat Vary -> error "evalExpr should not encounter an uninitialized varying float!"
 
