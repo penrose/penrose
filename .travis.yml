@@ -36,6 +36,14 @@ script:
    # Run tests
    stack --no-terminal test --ghc-options="$GHC_OPTIONS"
    set +ex
+ - |
+   mkdir -p ./docs
+   stack exec -- haddock --html src/*.hs  --hyperlinked-source --odir=./docs
+
+deploy:
+  provider: surge
+  project: ./docs/
+  domain: penrose.surge.sh 
 
 after_success:
  - |

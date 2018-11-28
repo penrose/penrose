@@ -24,8 +24,8 @@ import qualified Data.MultiMap as MM
 data ArgVal a = GPI (Shape a) | Val (Value a)
      deriving (Eq, Show)
 
- -- | possible types in the argument of computation, constraint, or objectives.
- -- Used for type checking functions
+-- | possible types in the argument of computation, constraint, or objectives.
+-- Used for type checking functions
 data ArgType
     = GPIType ShapeTypeStr
     | ValueT ValueType
