@@ -38,12 +38,16 @@ const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
       dy: 0,
       shapeSnapshot: {}
     };
+    public getPosition = (x: number, y: number) => {
+      const { ctm } = this.props;
+      return [(x - ctm.e) / ctm.a, (y - ctm.f) / ctm.d];
+    };
 
     public handleMouseMove = (e: PointerEvent) => {
-      const { pageX, pageY } = e;
+      const [x, y] = this.getPosition(e.clientX, e.clientY);
       const { tempX, tempY } = this.state;
-      const dx = tempX - pageX;
-      const dy = pageY - tempY;
+      const dx = tempX - x;
+      const dy = y - tempY;
       this.setState({ dx, dy });
     };
     public handleMouseUp = () => {
@@ -55,12 +59,13 @@ const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
         this.props.dragEvent(shape.name.contents, dy, dx);
       }
     };
-    public handleMouseDown = (e: React.MouseEvent<any>) => {
+    public handleMouseDown = (e: React.PointerEvent<any>) => {
+      const [x, y] = this.getPosition(e.clientX, e.clientY);
       const shouldInteract = !this.context;
       if (shouldInteract) {
         this.setState({
-          tempX: e.pageX + this.state.dx,
-          tempY: e.pageY - this.state.dy
+          tempX: x + this.state.dx,
+          tempY: y - this.state.dy
         });
         // These listeners are applied to the document
         // because shape-specific listeners don't fire if there's overlapping issues
@@ -72,6 +77,8 @@ const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
     };
     public render() {
       const { dy, dx } = this.state;
+      // TODO: change opacity effect on mousedown
+      // TODO: try <g> transforms
       return (
         <Child onClick={this.handleMouseDown} dx={dx} dy={dy} {...this.props} />
       );

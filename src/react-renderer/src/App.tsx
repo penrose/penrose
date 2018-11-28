@@ -1,6 +1,6 @@
 import * as React from "react";
 import Canvas from "./Canvas";
-import { hydrated } from "./Util";
+import { collectLabels } from "./Util";
 import Log from "./Log";
 import { LockContext } from "./contexts";
 
@@ -24,20 +24,29 @@ class App extends React.Component<IProps, IState> {
       this.canvas.current.download();
     }
   };
-  public onMessage = (e: MessageEvent) => {
+  public onMessage = async (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
-    // For final frame
-    if (myJSON.flag !== null && myJSON.flag === "final") {
+    const flag = myJSON.flag;
+    if (flag) {
       myJSON = myJSON.shapes;
+    }
+    // For final frame
+    if (flag && flag === "final") {
       this.setState({ converged: true });
       Log.info("Fully optimized.");
     }
-    this.setState({ data: myJSON });
+    // Compute (or retrieve from memory) label dimensions
+    const results = await collectLabels(myJSON);
+    // For initial frame - send dimensions
+    if (flag && flag === "initial") {
+      this.sendUpdate(results);
+    }
+    this.setState({ data: results });
   };
   public step = () => {
     const packet = { tag: "Cmd", contents: { command: "step" } };
     this.ws.send(JSON.stringify(packet));
-  }
+  };
   public resample = () => {
     const packet = { tag: "Cmd", contents: { command: "resample" } };
     this.setState({ converged: !this.state.autostep });
@@ -58,18 +67,21 @@ class App extends React.Component<IProps, IState> {
       }
       return [name, oldShape];
     });
-    this.setState({
-      data: shapes
-    });
-    if (hydrated(shapes)) {
-      const packet = {
-        tag: "Update",
-        contents: { shapes }
-      };
-      const packetString = JSON.stringify(packet);
-      Log.info("Sending an Update packet to the server...");
-      this.ws.send(packetString);
-    }
+    this.setState({ data: shapes });
+    this.sendUpdate(shapes);
+  };
+  public sendUpdate = (updatedShapes: any[]) => {
+    const packet = {
+      tag: "Update",
+      contents: {
+        shapes: updatedShapes.map(([name, obj]: [string, any]) => {
+          return [name, { ...obj, rendered: undefined }];
+        })
+      }
+    };
+    const packetString = JSON.stringify(packet);
+    Log.info("Sending an Update packet to the server...");
+    this.ws.send(packetString);
   };
   public dragEvent = (id: string, dy: number, dx: number) => {
     // TODO: save intermediate state so no snapback

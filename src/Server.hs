@@ -224,7 +224,9 @@ editor clientState@Editor {} pending = do
 renderer (Renderer s) pending = do
     conn <- WS.acceptRequest pending
     WS.forkPingThread conn 30 -- To keep the connection alive
-    wsSendJSONList conn (shapesr s)
+    -- wsSendJSONList conn (shapesr s) -- COMBAK: remove
+    wsSendJSONFrame conn Frame { flag = "initial",
+                            shapes = shapesr s :: [Shape Double] }
     clientID <- newUUID
     let clientState = Renderer $ O.step s
     let client = (clientID, conn, clientState)
@@ -306,7 +308,8 @@ substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
     logDebug client $ show subOut
 
     newState <- compileStyle styProg subOut
-    wsSendJSONList conn (shapesr newState)
+    wsSendJSONFrame conn Frame { flag = "initial",
+                            shapes = shapesr newState :: [Shape Double] }
     loop (clientID, conn, Editor env styProg $ Just newState)
 
 updateShapes :: [Shape Double] -> Client -> IO ()
