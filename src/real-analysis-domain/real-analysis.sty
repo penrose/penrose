@@ -26,8 +26,8 @@ Colors {
 
 Reals R {
   R.len = 300.0
-  R.thickness = 5.0
-  R.color = Colors.gray
+  R.thickness = 1.0
+  R.color = Colors.red
 
   -- TODO: draw these axes overlapping
   R.x_axis = Arrow {
@@ -167,6 +167,8 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
     pathData = interpolate(f.val, "open")
     fill = Colors.none
     color = Colors.blue
+    right-arrowhead = True
+    left-arrowhead = True
     -- TODO: start and end style depending on the interval
   }
 
@@ -286,7 +288,7 @@ where p := Pt(x, y);
 	     endY = y.val
 	     thickness = 1.5
 	     style = "dashed"
-      	     color = Colors.red
+         color = Colors.red
       }
 
       p.horiz = Line {

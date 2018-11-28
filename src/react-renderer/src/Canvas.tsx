@@ -64,6 +64,7 @@ class Canvas extends React.Component<IProps> {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
+        version="1.2"
         width="100%"
         height="100%"
         ref={this.svg}
