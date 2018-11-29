@@ -82,6 +82,9 @@ class App extends React.Component<any, IState> {
     const packet = { tag: "Edit", contents: { program: this.state.code } };
     this.ws.send(JSON.stringify(packet));
     this.setState({ initialCode: this.state.code });
+    if (this.renderer.current !== null) {
+      this.renderer.current.turnOffAutostep();
+    }
   };
   public onChangeCode = (value: string) => {
     this.setState({ code: value });
