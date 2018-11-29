@@ -1,4 +1,4 @@
-# Continuous Integration to deploy the docker container to vanessa/penrose
+# Continuous Integration to deploy the docker container to penroseorg/penrose
 
 # In addition to the variables defined above, you should set the GITHUB_EMAIL
 # to be the email associated with the repo (for deploy to Github pages).

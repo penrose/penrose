@@ -1,15 +1,15 @@
-FROM vanessa/penrose:local
+FROM penroseorg/penrose:latest
 
 # This container exists purely to edit the entrypoint file.
 # Build container
-# docker build -f docker/Dockerfile.dev -t vanessa/penrose:dev .
+# docker build -f docker/Dockerfile.dev -t penroseorg/penrose:dev .
 
 # Run penrose via container
-# docker run vanessa/penrose:dev
-# docker run -it -p 8000:8000 -p 9160:9160 vanessa/penrose:dev web
+# docker run penroseorg/penrose:dev
+# docker run -it -p 8000:8000 -p 9160:9160 penroseorg/penrose:dev web
 
 # Interactive debugging, or shell inside container
-# docker run -it vanessa/penrose:dev bash
+# docker run -it penroseorg/penrose:dev bash
 
 LABEL Maintainer @vsoch
 

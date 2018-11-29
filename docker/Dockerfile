@@ -1,14 +1,14 @@
 FROM fpco/stack-build:lts-9.10
 
 # Build container
-# docker build -t vanessa/penrose .
+# docker build -t penroseorg/penrose .
 
 # Run penrose via container
-# docker run vanessa/penrose
-# docker run -it -p 8000:8000 -p 9160:9160 vanessa/penrose web linear-algebra
+# docker run penroseorg/penrose
+# docker run -it -p 8000:8000 -p 9160:9160 penroseorg/penrose web linear-algebra
 
 # Interactive debugging, or shell inside container
-# docker run -it vanessa/penrose bash
+# docker run -it penroseorg/penrose bash
 
 LABEL Maintainer @vsoch
 
