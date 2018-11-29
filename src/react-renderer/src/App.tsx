@@ -60,6 +60,9 @@ class App extends React.Component<IProps, IState> {
     });
     this.ws.send(JSON.stringify(packet));
   };
+  public turnOffAutostep = () => {
+    this.setState({autostep: false});
+  }
   public onShapeUpdate = (updatedShape: any) => {
     const shapes = this.state.data.map(([name, oldShape]: [string, any]) => {
       if (oldShape.name.contents === updatedShape.name.contents) {
