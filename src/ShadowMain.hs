@@ -10,9 +10,14 @@ import qualified Style as S
 import qualified GenOptProblem as G
 import qualified Optimizer as O
 import qualified Dsll as D
+import qualified Sugarer
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 import System.Environment
 import System.IO
+import Prelude hiding (catch)
+import System.Directory
+import Control.Exception
+import System.IO.Error hiding (catch)
 import System.Exit
 import Debug.Trace
 import Text.Show.Pretty
@@ -50,10 +55,14 @@ shadowMain = do
 
     dsllEnv <- D.parseDsll dsllFile dsllIn
     divLine
+
+    writeFile (subFile ++ "sugared") (Sugarer.sugarStmts subIn dsllEnv)
+    desugaredSub <- readFile (subFile ++ "sugared")
     -- putStrLn "Dsll Env program:\n"
     -- print dsllEnv
 
-    (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance subFile subIn dsllEnv
+    (subProg, (subEnv, eqEnv), labelMap) <- C.parseSubstance (subFile ++ "sugared") desugaredSub dsllEnv
+    removeIfExists (subFile ++ "sugared")
     divLine
 
     putStrLn "Parsed Substance program:\n"
@@ -163,3 +172,10 @@ stepsWithoutServer initState =
                notConverged (s, n) = G.optStatus (G.paramsr s) /= G.EPConverged
                                      && n < maxSteps
                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge
+
+-- | Remove file if exist, used for removing the desugared file after we are done
+removeIfExists :: FilePath -> IO ()
+removeIfExists fileName = removeFile fileName `catch` handleExists
+ where handleExists e
+         | isDoesNotExistError e = return ()
+         | otherwise = throwIO e

@@ -27,11 +27,13 @@ import Text.Megaparsec.Expr
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
+import qualified SubstanceTokenizer         as T
 
------------------------------------ AST -----------------------------------------------
+
+----------------------------------- AST ----------------------------------------
 
 data TypeName = TypeNameConst String  -- these are all names, e.g. “Set”
-              | AllT                  -- specifically for global selection in Style
+              | AllT              -- specifically for global selection in Style
                 deriving (Show, Eq, Typeable)
 
 data TypeVar = TypeVar { typeVarName :: String,
@@ -94,7 +96,7 @@ data Prop =  Prop { propName :: String,
 instance Eq Prop where
   (Prop n1 _) == (Prop n2 _) = n1 == n2
 
------------------------------------ Parser --------------------------------------------
+----------------------------------- Parser -------------------------------------
 
 typeNameParser :: Parser TypeName
 typeNameParser = TypeNameConst <$> identifier
@@ -131,9 +133,12 @@ tParser = try tTypeCtorAppParser <|> typeVarParser'
 tTypeCtorAppParser = do
     i         <- identifier
     arguments <- option [] $ parens (argParser `sepBy1` comma)
-    --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $ parens (argParser `sepBy1` comma) --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
+    --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $
+    -- parens (argParser `sepBy1` comma)
+    --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
     pos <- getPosition
-    return (TConstr (TypeCtorApp { nameCons = i, argCons = arguments, constructorInvokerPos = pos }))
+    return (TConstr (TypeCtorApp { nameCons = i, argCons = arguments,
+                                   constructorInvokerPos = pos }))
 typeVarParser' = TTypeVar <$> typeVarParser
 
 argParser, varParser', tParser'  :: Parser Arg
@@ -155,7 +160,7 @@ emptyArgList = do
   rparen
   return []
 
------------------------------------ Typechecker aux functions ------------------------------------------
+----------------------------------- Typechecker aux functions ------------------
 
 -- | Compute the transitive closure of list of pairs
 --   Useful for subtyping and equality subtyping checkings
@@ -182,11 +187,13 @@ second (a, b) = b
 
 checkAndGet :: String -> M.Map String v -> SourcePos -> Either String v
 checkAndGet k m pos = case M.lookup k m of
-  Nothing -> Left ("Error in " ++ sourcePosPretty pos ++ " : " ++ k ++ " Doesn't exist in the context \n")
+  Nothing -> Left ("Error in " ++ sourcePosPretty pos ++ " : " ++ k
+                               ++ " Doesn't exist in the context \n")
   Just v ->  Right v
 
 lookUpK :: VarEnv -> Arg -> K
-lookUpK e (AT  (TTypeVar t))  = Ktype (typeVarMap e M.! t) --(Ktype (Type {typeName = "type", typePos = typeVarPos t }))
+lookUpK e (AT  (TTypeVar t))  = Ktype (typeVarMap e M.! t)
+--(Ktype (Type {typeName = "type", typePos = typeVarPos t }))
 lookUpK e (AT  (TConstr t)) =
         if nameCons t `elem` declaredNames e
         then lookUpK e (AVar (VarConst (nameCons t)))
@@ -199,21 +206,25 @@ getTypesOfArgs e = map (lookUpK e)
 updateEnv :: VarEnv -> (Y, K) -> VarEnv
 updateEnv e (TypeVarY y, Ktype t) = e { typeVarMap = M.insert y t $ typeVarMap e }
 updateEnv e (VarY y, KT t)        = e { varMap = M.insert y t $ varMap e }
-updateEnv e err                   = e { errors = errors e ++ "Problem in update: " ++ show err ++ "\n" }
+updateEnv e err                   = e { errors = errors e
+                                  ++ "Problem in update: " ++ show err ++ "\n" }
 
 addName :: String -> VarEnv -> VarEnv
 addName a e = if a `elem` typeCtorNames e
-              then e { errors = errors e ++ "Name " ++ a ++ " already exists in the context \n" }
+              then e { errors = errors e ++ "Name " ++ a ++
+               " already exists in the context \n" }
               else e { typeCtorNames = a : typeCtorNames e }
 
 addValConstructor :: ValConstructor -> VarEnv -> VarEnv
 addValConstructor v e = case M.lookup (tvc v) (typeValConstructor e) of
   Nothing -> e {typeValConstructor =  M.insert (tvc v) v $ typeValConstructor e}
-  Just x -> e {errors = errors e ++ "Multiple declarations of value constructors for type " ++ show (tvc v)}
+  Just x -> e {errors = errors e ++
+   "Multiple declarations of value constructors for type " ++ show (tvc v)}
 
 addDeclaredName :: String -> VarEnv -> VarEnv
 addDeclaredName a e = if a `elem` declaredNames e
-                      then e { errors = errors e ++ "Name " ++ a ++ " already exsist in the context \n"}
+                      then e { errors = errors e ++ "Name " ++ a
+                                         ++ " already exsist in the context \n"}
                       else e { declaredNames = a : declaredNames e }
 
 isSubtype :: T -> T -> VarEnv -> Bool
@@ -221,13 +232,12 @@ isSubtype t1 t2 e = (t1,t2) `elem` subTypes e
 
 isSubtypeK :: K -> K -> VarEnv -> Bool
 isSubtypeK (KT k1) (KT k2) e = isSubtype k1 k2 e
---------------------------------------- Env Data Types ---------------------------------------
+--------------------------------------- Env Data Types -------------------------
 
--- | Environment for the dsll semantic checker. As the 'check' function executes, it
--- accumulate information such as symbol tables in the environment.
+-- | Environment for the dsll semantic checker. As the 'check' function
+-- executes, it accumulate information such as symbol tables in the environment.
 
 -- | list of elements that might appear in the global context
-
 data Ttype = Ttype { yt :: Y,
                      kt :: K }
              deriving (Show, Eq, Typeable)
@@ -268,6 +278,20 @@ data Predicate2 = Prd2 { namepred2 :: String,
                          ppred2    :: Prop }
                   deriving (Show, Eq, Typeable)
 
+data StmtNotationRule =
+   StmtNotationRule { fromSnr :: [T.Token],
+                      toSnr   :: [T.Token],
+                      patternsSnr :: [T.Token],
+                      entitiesSnr :: [T.Token] -- all the non pattern sugared entities
+                    }
+                    deriving (Show, Eq, Typeable)
+
+data ExprNotationRule = ExprNotationRule {fromEnr          :: String,
+                                          toEnr            :: String,
+                                          associativityEnr :: String,
+                                          precedenceEnr    :: Integer}
+                  deriving (Show, Eq, Typeable)
+
 data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        valConstructors  :: M.Map String ValConstructor,
                        operators        :: M.Map String Env.Operator,
@@ -279,19 +303,24 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        subTypes         :: [(T,T)],
                        typeCtorNames    :: [String],  -- a global list which contains all the names of types in that env
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
+                       stmtNotations    :: [StmtNotationRule], -- all the statement notations in the dsll
                        errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
               deriving (Show, Eq, Typeable)
 
+isDeclared :: String -> VarEnv -> Bool
+isDeclared name varEnv = name `elem` typeCtorNames varEnv
 
 checkTypeVar :: VarEnv -> TypeVar -> VarEnv
 checkTypeVar e v = if M.member v (typeVarMap e)
                    then e
-                   else e { errors = errors e ++ ("TypeVar " ++ show v ++ "is not in scope \n") }
+                   else e { errors = errors e ++ ("TypeVar " ++
+                    show v ++ "is not in scope \n") }
 
 checkVar :: VarEnv -> Var -> VarEnv
 checkVar e v = if M.member v (varMap e)
                then e
-               else e { errors = errors e ++ ("Var " ++ show v ++ "is not in scope \n") }
+               else e { errors = errors e ++ ("Var " ++ show v
+               ++ "is not in scope \n") }
 
 
 checkY :: VarEnv -> Y -> VarEnv
@@ -315,24 +344,29 @@ checkType :: VarEnv -> Type -> VarEnv
 checkType e t = e
 
 checkTypeCtorApp :: VarEnv -> TypeCtorApp -> VarEnv
-checkTypeCtorApp e const = let name = nameCons const
-                               args = argCons const
-                               env1 = foldl checkArg e args
-                               kinds1 = getTypesOfArgs e args
-                            in case checkAndGet name (typeConstructors e) (constructorInvokerPos const) of
-                                      Right val -> let kinds2 = kindstc val
-                                                   in if kinds1 /= kinds2
-                                                      then env1 { errors = errors env1
-                                                                          ++ ("Args do not match: " ++ show kinds1 ++
-                                                                          " != " ++ show kinds2 ++ "\n") }
-                                                      else env1
-                                      Left err -> env1 { errors = errors env1 ++ err }
+checkTypeCtorApp e const =
+  let name = nameCons const
+      args = argCons const
+      env1 = foldl checkArg e args
+      kinds1 = getTypesOfArgs e args
+  in case checkAndGet name (typeConstructors e) (constructorInvokerPos const) of
+       Right val -> let kinds2 = kindstc val
+                     in if kinds1 /= kinds2
+                      then env1 { errors = errors env1
+                      ++ ("Args do not match: " ++ show kinds1 ++
+                      " != " ++ show kinds2 ++ "\n") }
+                      else env1
+       Left err -> env1 { errors = errors env1 ++ err }
 
 checkDeclaredType :: VarEnv -> T -> VarEnv
-checkDeclaredType e (TConstr t) = if nameCons t `elem` typeCtorNames e
-                                   then e
-                                   else e { errors = errors e ++ "Type " ++ nameCons t ++ " does not exsist in the context \n" }
-checkDeclaredType e _ = e { errors = errors e ++ "checkDeclaredType should be called only with type constructors \n" }
+checkDeclaredType e (TConstr t) =
+   if nameCons t `elem` typeCtorNames e
+     then e
+     else e { errors = errors e ++ "Type " ++ nameCons t ++
+      " does not exsist in the context \n" }
+
+checkDeclaredType e _ = e { errors = errors e ++
+ "checkDeclaredType should be called only with type constructors \n" }
 
 
 checkK :: VarEnv -> K -> VarEnv
