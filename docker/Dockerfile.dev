@@ -6,7 +6,7 @@ FROM penroseorg/penrose:latest
 
 # Run penrose via container
 # docker run penroseorg/penrose:dev
-# docker run -it -p 8000:8000 -p 9160:9160 penroseorg/penrose:dev web
+# docker run -it -p 8000:8000 -p 9160:9160 penroseorg/penrose:dev web --template linear-algebra
 
 # Interactive debugging, or shell inside container
 # docker run -it penroseorg/penrose:dev bash

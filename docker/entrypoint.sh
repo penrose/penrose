@@ -20,7 +20,7 @@ usage () {
 
          Examples:
              docker run -p 8000:8000 -p 9160:9160 <container> web --custom math.sub math.sty math.det
-             docker run -p 8000:8000 -p 9160:9160 <container> web linear-algebra
+             docker run -p 8000:8000 -p 9160:9160 <container> web --template linear-algebra
 
 
          "
