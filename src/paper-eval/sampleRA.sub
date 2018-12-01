@@ -1,0 +1,56 @@
+--------------------------------------------------------------------------------
+-- a, b, d, e, i, j, k, inf $\in$ $\mathbb{R}$
+Reals RR
+Real a
+Real b
+Real d
+Real e
+Real i
+Real j
+Real k
+Real inf
+
+In(a, RR)
+In(b, RR)
+In(d, RR)
+In(e, RR)
+In(i, RR)
+In(j, RR)
+In(k, RR)
+In(inf, RR)
+--------------------------------------------------------------------------------
+-- b < k
+LessThan(b, k)
+--------------------------------------------------------------------------------
+-- A := [a, b] $\subseteq$ $\mathbb{R}$
+-- J := [d, e) $\subseteq$ $\mathbb{R}$
+-- I := (i, j) $\subseteq$ $\mathbb{R}$
+-- K := (k, inf) $\subseteq$ $\mathbb{R}$
+ClosedInterval A
+LeftClopenInterval J
+OpenInterval I
+OpenInterval K
+A := CreateClosedInterval(a, b)
+J := CreateLeftClopenInterval(d, e)
+I := CreateOpenInterval(i, j)
+K := CreateOpenInterval(k, inf)
+-- Subset(A, RR)
+-- Subset(J, RR)
+-- Subset(I, RR)
+-- Subset(K, RR)
+--------------------------------------------------------------------------------
+--  f : A $\rightarrow$ $\mathbb{R}$
+--  Differentiable(f)
+--  From()
+--  U := (J $\cup$ I) $\subseteq$ $\mathbb{R}$
+--  h : U $\rightarrow$ $\mathbb{R}$
+--  Discontinuous(h)
+--
+--  l $\in$ A
+--  fl := f(l)
+--  p2 := Pt(l, fl)
+--
+--  dfl := f'(l)
+--  ih := $\int$_{J}(h)
+--
+--  t := $\mathbb{R}$ $\rightarrow$ $\mathbb{R}$
