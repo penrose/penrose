@@ -425,7 +425,7 @@ parallelogramType = ("Parallelogram", M.fromList
 
 imageType = ("Image", M.fromList
     [
-        ("centerX", (FloatT, x_sampler)), -- TODO: is this top left? or center? @Lily
+        ("centerX", (FloatT, x_sampler)), 
         ("centerY", (FloatT, y_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),

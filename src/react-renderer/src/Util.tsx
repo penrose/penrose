@@ -13,7 +13,7 @@ export const StartArrowhead = (props: {id: string, color: string}) => {
     refY="6"
     orient="auto"
   >
-  <path d="M10,10 A30,30,0,0,0,2,6 A30,30,0,0,0,10,2 L7.5,6 z" fill={props.color}></path>
+  <path d="M10,10 A30,30,0,0,0,2,6 A30,30,0,0,0,10,2 L7.5,6 z" fill={props.color}/>
   </marker>
 }
 export const EndArrowhead = (props: {id: string, color: string}) => {
@@ -27,7 +27,7 @@ export const EndArrowhead = (props: {id: string, color: string}) => {
     refY="6"
     orient="auto"
   >
-  <path d="M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"  fill={props.color}></path>
+  <path d="M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"  fill={props.color}/>
   </marker>
 }
 export const toScreen = (

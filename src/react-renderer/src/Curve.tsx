@@ -29,10 +29,11 @@ const pathCommandString = (command: string, pts: number[][], canvasSize: [number
   ).join(" ")
 
 const fstCmdString = (pathCmd: any, canvasSize: [number, number]) => {
-  if (pathCmd.tag === "Pt")
+  if (pathCmd.tag === "Pt") {
     return "M" + toScreen(pathCmd.contents, canvasSize).join(" ");
-  else
+  } else {
     return toCmdString(pathCmd, canvasSize)
+  }
 }
 
 const toSubPathString = (commands: any[], canvasSize: [number, number]) => {
