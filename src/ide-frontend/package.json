@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@reach/alert": "^0.1.1",
     "@reach/menu-button": "^0.1.7",
     "@types/react-select": "^2.0.6",
     "autoprefixer": "7.1.6",

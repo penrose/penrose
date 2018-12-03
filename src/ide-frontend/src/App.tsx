@@ -14,6 +14,7 @@ import Button from "Button";
 import Dropdown, { IOption } from "Dropdown";
 import { Menu, MenuList, MenuButton, MenuItem } from "@reach/menu-button";
 import { Persist } from "react-persist";
+import Alert from "@reach/alert";
 import styled from "styled-components";
 const socketAddress = "ws://localhost:9160";
 
@@ -38,6 +39,11 @@ const MenuBtn = styled(MenuButton)`
     opacity: 1;
   }
 `;
+
+const SocketAlert = styled(Alert)`
+  background-color: hsla(10, 50%, 50%, 0.3);
+  padding: 0.5em;
+`;
 interface IState {
   code: string;
   initialCode: string;
@@ -45,6 +51,7 @@ interface IState {
   selectedElement: IOption;
   selectedStyle: IOption;
   debug: boolean;
+  socketError: string;
 }
 
 const elementOptions = [
@@ -61,7 +68,8 @@ class App extends React.Component<any, IState> {
     rendered: false,
     selectedElement: elementOptions[0],
     selectedStyle: styleOptions[0],
-    debug: false
+    debug: false,
+    socketError: ""
   };
   public ws: any = null;
   public readonly renderer = React.createRef<Renderer>();
@@ -90,10 +98,21 @@ class App extends React.Component<any, IState> {
       this.renderer.current.resample();
     }
   };
+  public onSocketError = (e: any) => {
+    this.setState({ socketError: "Error: could not connect to WebSocket." });
+  };
+  public clearSocketError = () => {
+    this.setState({ socketError: "" });
+  };
   public setupSockets = () => {
     this.ws = new WebSocket(socketAddress);
+    this.ws.onopen = this.clearSocketError;
     this.ws.onmessage = this.onMessage;
-    this.ws.onclose = this.setupSockets;
+    this.ws.onclose = (e: any) => {
+      this.onSocketError(e);
+      this.setupSockets();
+    };
+    this.ws.onerror = this.onSocketError;
   };
   public onMessage = (e: MessageEvent) => {
     if (this.renderer.current !== null) {
@@ -132,7 +151,8 @@ class App extends React.Component<any, IState> {
       rendered,
       selectedElement,
       selectedStyle,
-      debug
+      debug,
+      socketError
     } = this.state;
     const autostepStatus = this.renderer.current
       ? this.renderer.current.state.autostep
@@ -221,6 +241,7 @@ class App extends React.Component<any, IState> {
           />
         </Cell>
         <Cell style={{ backgroundColor: "#FBFBFB" }}>
+          {socketError !== "" && <SocketAlert>{socketError}</SocketAlert>}
           <Renderer ws={this.ws} ref={this.renderer} customButtons={true} />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <Button

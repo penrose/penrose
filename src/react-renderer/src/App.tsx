@@ -61,8 +61,8 @@ class App extends React.Component<IProps, IState> {
     this.ws.send(JSON.stringify(packet));
   };
   public turnOffAutostep = () => {
-    this.setState({autostep: false});
-  }
+    this.setState({ autostep: false });
+  };
   public onShapeUpdate = (updatedShape: any) => {
     const shapes = this.state.data.map(([name, oldShape]: [string, any]) => {
       if (oldShape.name.contents === updatedShape.name.contents) {
@@ -108,8 +108,8 @@ class App extends React.Component<IProps, IState> {
       Log.info("No Websocket supplied in props, creating own.");
       this.ws = new WebSocket(socketAddress);
       this.ws.onmessage = this.onMessage;
+      this.ws.onclose = this.setupSockets;
     }
-    this.ws.onclose = this.setupSockets;
   };
   public async componentDidMount() {
     this.setupSockets();
