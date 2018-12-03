@@ -17,6 +17,12 @@ import { Persist } from "react-persist";
 import styled from "styled-components";
 const socketAddress = "ws://localhost:9160";
 
+/* 
+  DEBUG NOTES:
+    If you don't want the localStorage to set text box contents,
+    remove the <Persist> Element
+*/
+
 const MenuBtn = styled(MenuButton)`
   background: none;
   border: none;
@@ -29,6 +35,7 @@ const MenuBtn = styled(MenuButton)`
   }
   :focus {
     outline: none;
+    opacity: 1;
   }
 `;
 interface IState {
