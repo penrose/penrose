@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@reach/menu-button": "^0.1.7",
     "@types/react-select": "^2.0.6",
     "autoprefixer": "7.1.6",
     "babel-jest": "20.0.3",
@@ -29,6 +30,7 @@
     "react-ace": "^6.2.0",
     "react-dev-utils": "^5.0.2",
     "react-dom": "^16.6.0",
+    "react-persist": "^1.0.2",
     "react-select": "^2.1.1",
     "resolve": "1.6.0",
     "source-map-loader": "^0.2.1",

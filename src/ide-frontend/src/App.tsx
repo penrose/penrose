@@ -7,18 +7,37 @@ import logo from "./logo.svg";
 import venn from "./venn.svg";
 import play from "./play.svg";
 import reload from "./reload.svg";
+import chevronDown from "./chevron_down.svg";
 import download from "./download.svg";
 import Log from "Log";
 import Button from "Button";
 import Dropdown, { IOption } from "Dropdown";
+import { Menu, MenuList, MenuButton, MenuItem } from "@reach/menu-button";
+import { Persist } from "react-persist";
+import styled from "styled-components";
 const socketAddress = "ws://localhost:9160";
 
+const MenuBtn = styled(MenuButton)`
+  background: none;
+  border: none;
+  opacity: 0.8;
+  transition: 0.2s;
+  cursor: pointer;
+  :hover {
+    opacity: 1;
+    transition: 0.2s;
+  }
+  :focus {
+    outline: none;
+  }
+`;
 interface IState {
   code: string;
   initialCode: string;
   rendered: boolean;
   selectedElement: IOption;
   selectedStyle: IOption;
+  debug: boolean;
 }
 
 const elementOptions = [
@@ -34,7 +53,8 @@ class App extends React.Component<any, IState> {
     initialCode: "AutoLabel All\n",
     rendered: false,
     selectedElement: elementOptions[0],
-    selectedStyle: styleOptions[0]
+    selectedStyle: styleOptions[0],
+    debug: false
   };
   public ws: any = null;
   public readonly renderer = React.createRef<Renderer>();
@@ -57,7 +77,7 @@ class App extends React.Component<any, IState> {
     if (this.renderer.current !== null) {
       this.renderer.current.step();
     }
-  }
+  };
   public resample = () => {
     if (this.renderer.current !== null) {
       this.renderer.current.resample();
@@ -95,13 +115,17 @@ class App extends React.Component<any, IState> {
   public selectedStyle = (value: IOption) => {
     this.setState({ selectedStyle: value });
   };
+  public toggleDebug = () => {
+    this.setState({ debug: !this.state.debug });
+  };
   public render() {
     const {
       code,
       initialCode,
       rendered,
       selectedElement,
-      selectedStyle
+      selectedStyle,
+      debug
     } = this.state;
     const autostepStatus = this.renderer.current
       ? this.renderer.current.state.autostep
@@ -115,6 +139,18 @@ class App extends React.Component<any, IState> {
         rowGap="0"
         columnGap={"5px"}
       >
+        <Persist
+          name="debugMode"
+          data={debug}
+          debounce={0}
+          onMount={data => this.setState({ debug: data })}
+        />
+        <Persist
+          name="savedContents"
+          data={code}
+          debounce={200}
+          onMount={data => this.setState({ code: data })}
+        />
         <Cell
           style={{
             display: "flex",
@@ -125,7 +161,18 @@ class App extends React.Component<any, IState> {
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
-            <img src={logo} width={50} />
+            <Menu>
+              <MenuBtn>
+                <img src={logo} width={50} aria-labelledby="Main Menu" />
+                <img src={chevronDown} />
+              </MenuBtn>
+              <MenuList>
+                <MenuItem onSelect={this.toggleDebug}>
+                  Turn {debug ? "off" : "on"} debug mode
+                </MenuItem>
+              </MenuList>
+            </Menu>
+
             <Dropdown
               options={elementOptions}
               selected={selectedElement}
@@ -154,7 +201,7 @@ class App extends React.Component<any, IState> {
             selected={selectedStyle}
             onSelect={this.selectedStyle}
           />
-          <Button label="step" onClick={this.step} />
+          {debug && <Button label="step" onClick={this.step} />}
         </Cell>
         <Cell>
           <AceEditor
