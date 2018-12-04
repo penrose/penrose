@@ -18,7 +18,7 @@ import Alert from "@reach/alert";
 import styled from "styled-components";
 const socketAddress = "ws://localhost:9160";
 
-/* 
+/*
   DEBUG NOTES:
     If you don't want the localStorage to set text box contents,
     remove the <Persist> Element
@@ -131,14 +131,18 @@ class App extends React.Component<any, IState> {
   public onMessage = (e: MessageEvent) => {
     if (this.renderer.current !== null) {
       const myJSON = JSON.parse(e.data);
-      const flag = myJSON.flag;
-      if (flag === "error") {
-        Log.error(myJSON);
-      }
-      this.renderer.current.onMessage(e);
+      const packetType = myJSON.type;
       const data = JSON.parse(e.data);
       Log.info("Received data from the server.", data);
       this.setState({ rendered: true });
+      if (packetType === "error") {
+        Log.error(myJSON);
+        // TODO: some error handling
+      } else if(packetType === "shapes") {
+        this.renderer.current.onMessage(e);
+      } else {
+        Log.error(`Unknown packet type: ${packetType}`);
+      }
     } else {
       Log.error("Renderer is null.");
     }
