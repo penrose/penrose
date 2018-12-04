@@ -15,6 +15,9 @@ interface IProps {
 }
 const socketAddress = "ws://localhost:9160";
 
+// Checks only against flags the renderer understands (syntax errors are not flags that it understands!)
+const validFlag = (flag: string) => ["final", "initial"].indexOf(flag) > -1;
+
 class App extends React.Component<IProps, IState> {
   public readonly state = { data: [], autostep: false, converged: true };
   public readonly canvas = React.createRef<Canvas>();
@@ -27,6 +30,9 @@ class App extends React.Component<IProps, IState> {
   public onMessage = async (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
     const flag = myJSON.flag;
+    if (flag && !validFlag(flag)) {
+      return;
+    }
     if (flag) {
       myJSON = myJSON.shapes;
     }
