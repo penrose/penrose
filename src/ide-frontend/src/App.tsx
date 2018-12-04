@@ -51,6 +51,7 @@ interface IState {
   selectedElement: IOption;
   selectedStyle: IOption;
   debug: boolean;
+  ready: boolean;
   socketError: string;
 }
 
@@ -69,6 +70,7 @@ class App extends React.Component<any, IState> {
     selectedElement: elementOptions[0],
     selectedStyle: styleOptions[0],
     debug: false,
+    ready: false,
     socketError: ""
   };
   public ws: any = null;
@@ -102,7 +104,7 @@ class App extends React.Component<any, IState> {
     this.setState({ socketError: "Error: could not connect to WebSocket." });
   };
   public clearSocketError = () => {
-    this.setState({ socketError: "" });
+    this.setState({ socketError: "", ready: true });
   };
   public setupSockets = () => {
     this.ws = new WebSocket(socketAddress);
@@ -152,7 +154,8 @@ class App extends React.Component<any, IState> {
       selectedElement,
       selectedStyle,
       debug,
-      socketError
+      socketError,
+      ready
     } = this.state;
     const autostepStatus = this.renderer.current
       ? this.renderer.current.state.autostep
@@ -211,7 +214,7 @@ class App extends React.Component<any, IState> {
             leftIcon={play}
             onClick={this.compile}
             primary={true}
-            disabled={code === initialCode}
+            disabled={!ready || code === initialCode}
           />
         </Cell>
         <Cell
