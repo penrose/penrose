@@ -7,6 +7,9 @@ B := CreateInterval(c, d)
 Subset(A, R)
 Subset(B, R)
 
+ClosedInterval C
+C := CreateClosedInterval(a, d)
+
 Real x
 In(x, A)
 
