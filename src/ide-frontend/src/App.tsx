@@ -44,6 +44,15 @@ const SocketAlert = styled(Alert)`
   background-color: hsla(10, 50%, 50%, 0.3);
   padding: 0.5em;
 `;
+
+// const CodeError = styled(Alert)`
+//   background-color: hsla(10, 50%, 50%, 0.3);
+//   padding: 0.5em;
+//   width: inherit;
+//   position: fixed;
+//   bottom: 0;
+// `;
+
 interface IState {
   code: string;
   initialCode: string;
@@ -118,6 +127,11 @@ class App extends React.Component<any, IState> {
   };
   public onMessage = (e: MessageEvent) => {
     if (this.renderer.current !== null) {
+      const myJSON = JSON.parse(e.data);
+      const flag = myJSON.flag;
+      if (flag === "error") {
+        Log.error(myJSON);
+      }
       this.renderer.current.onMessage(e);
       const data = JSON.parse(e.data);
       Log.info("Received data from the server.", data);
@@ -242,6 +256,7 @@ class App extends React.Component<any, IState> {
             onChange={this.onChangeCode}
             value={code}
           />
+          {/* <CodeError>hi</CodeError> */}
         </Cell>
         <Cell style={{ backgroundColor: "#FBFBFB" }}>
           {socketError !== "" && <SocketAlert>{socketError}</SocketAlert>}
