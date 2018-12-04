@@ -30,7 +30,7 @@ class App extends React.Component<IProps, IState> {
   public onMessage = async (e: MessageEvent) => {
     let myJSON = JSON.parse(e.data);
     const flag = myJSON.flag;
-    if (flag && !validFlag(flag)) {
+    if (!myJSON.shapes || (flag && !validFlag(flag))) {
       return;
     }
     if (flag) {

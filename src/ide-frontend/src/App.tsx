@@ -45,13 +45,14 @@ const SocketAlert = styled(Alert)`
   padding: 0.5em;
 `;
 
-// const CodeError = styled(Alert)`
-//   background-color: hsla(10, 50%, 50%, 0.3);
-//   padding: 0.5em;
-//   width: inherit;
-//   position: fixed;
-//   bottom: 0;
-// `;
+const CodeError = styled(Alert)`
+  background-color: hsla(10, 50%, 50%, 0.3);
+  padding: 0.5em;
+  width: inherit;
+  position: sticky;
+  bottom: 0;
+  font-size: 1.5em;
+`;
 
 interface IState {
   code: string;
@@ -62,6 +63,7 @@ interface IState {
   debug: boolean;
   ready: boolean;
   socketError: string;
+  codeError: string;
 }
 
 const elementOptions = [
@@ -80,7 +82,8 @@ class App extends React.Component<any, IState> {
     selectedStyle: styleOptions[0],
     debug: false,
     ready: false,
-    socketError: ""
+    socketError: "",
+    codeError: ""
   };
   public ws: any = null;
   public readonly renderer = React.createRef<Renderer>();
@@ -169,6 +172,7 @@ class App extends React.Component<any, IState> {
       selectedStyle,
       debug,
       socketError,
+      codeError,
       ready
     } = this.state;
     const autostepStatus = this.renderer.current
@@ -256,7 +260,7 @@ class App extends React.Component<any, IState> {
             onChange={this.onChangeCode}
             value={code}
           />
-          {/* <CodeError>hi</CodeError> */}
+          {codeError === "" && <CodeError>{codeError}</CodeError>}
         </Cell>
         <Cell style={{ backgroundColor: "#FBFBFB" }}>
           {socketError !== "" && <SocketAlert>{socketError}</SocketAlert>}
