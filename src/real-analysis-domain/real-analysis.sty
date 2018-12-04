@@ -123,7 +123,7 @@ with Interval J, K; Reals R
 where I := union(J, K); Subset(I, R) {
       -- TODO: fix findShapeNames so `I` doesn't need to have a shape
       -- this is a hack
-      I.shape = Line { 
+      I.shape = Line {
       	      color = Colors.none
       }
 
@@ -183,9 +183,9 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
 -- Draw a function with two parts with a discontinuity
 Function f
 with Interval I; Interval J; Interval K; Reals R
-where f := CreateFunction(I, R); 
+where f := CreateFunction(I, R);
       I := union(J, K);
-      Discontinuous(f); 
+      Discontinuous(f);
       Subset(I, R); Subset(J, R); Subset(K, R) {
 
       f.pts1 = 3
@@ -345,4 +345,16 @@ where ifI := integral(I, f); f := CreateFunction(I, R) {
       delete ifI.val -- IMPORTANT: if you don't delete this, it breaks the opt. TODO: why?
       delete ifI.inFn
       delete ifI.labelFn
+}
+
+Real a
+with Real b; Reals  R; Interval I
+where I := CreateClosedInterval(a, b); Subset(I, R)
+{
+    override a.shape = Image {
+        path = "left-paren.svg"
+        centerX = a.val
+        lengthX = 100
+        lengthY = 200
+    }
 }
