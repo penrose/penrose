@@ -298,9 +298,10 @@ circType = ("Circle", M.fromList
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
-        ("stroke-width", (FloatT, stroke_sampler)),
+        ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, sampleDiscrete [StrV "filled"])),
-        ("stroke-style", (StrT, stroke_style_sampler)),
+        ("strokeStyle", (StrT, stroke_style_sampler)),
+        ("strokeColor", (ColorT, sampleColor)),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
@@ -361,7 +362,10 @@ curveType = ("Curve", M.fromList
         ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
         ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
         ("style", (StrT, constValue $ StrV "solid")),
+        ("fill", (ColorT, sampleColor)), -- for no fill, set opacity to 0
         ("color", (ColorT, sampleColor)),
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
         ("name", (StrT, constValue $ StrV "defaultCurve"))
     ])
 
@@ -421,7 +425,7 @@ parallelogramType = ("Parallelogram", M.fromList
 
 imageType = ("Image", M.fromList
     [
-        ("centerX", (FloatT, x_sampler)), -- TODO: is this top left? or center? @Lily
+        ("centerX", (FloatT, x_sampler)), 
         ("centerY", (FloatT, y_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
@@ -557,6 +561,15 @@ getY shape = case shape .: "y" of
     FloatV y -> y
     _ -> error "getY: expected float but got something else"
 
+getPoint :: (Autofloat a) => String -> Shape a -> (a, a)
+getPoint "start" shape = case (shape .: "startX", shape .: "startY") of
+   (FloatV x, FloatV y) -> (x, y)
+   _ -> error "getPoint expected two floats but got something else"
+getPoint "end" shape = case (shape .: "endX", shape .: "endY") of
+   (FloatV x, FloatV y) -> (x, y)
+   _ -> error "getPoint expected two floats but got something else"
+getPoint _ shape = error "getPoint did not receive existing property name"
+
 getName :: (Autofloat a) => Shape a -> String
 getName shape = case shape .: "name" of
     StrV s -> s
@@ -575,12 +588,17 @@ setY v shape = set shape "y" v
 getNum :: (Autofloat a) => Shape a -> PropID -> a
 getNum shape prop = case shape .: prop of
     FloatV x -> x
-    _ -> error "getNum: expected float but got something else"
+    res -> error ("getNum: expected float but got something else: " ++ show res)
 
 getPath :: (Autofloat a) => Shape a -> [Pt2 a]
 getPath shape = case shape .: "path" of
     PtListV x -> x
     _ -> error "getPath: expected [(Float, Float)] but got something else"
+
+getPathData :: (Autofloat a) => Shape a -> PathData a
+getPathData shape = case shape .: "pathData" of
+    PathDataV x -> x
+    _ -> error "getPathData: expected [PathData a] but got something else"
 
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator

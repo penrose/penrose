@@ -89,6 +89,22 @@ data LabelOption = Default | IDs [Var]
 type SubProg = [SubStmt]
 type SubObjDiv = ([SubDecl], [SubConstr])
 
+-- | 'SubOut' is the output of the Substance compuler, comprised of:
+-- * Substance AST
+-- * (Variable environment (?), Substance environment)
+-- * A mapping from Substance ids to their coresponding labels
+data SubOut = SubOut SubProg (VarEnv, SubEnv) LabelMap
+instance Show SubOut where
+    show (SubOut subProg (subEnv, eqEnv) labelMap) =
+        "Parsed Substance program:\n"++
+        ppShow subProg ++
+        "\nSubstance type env:\n" ++
+        ppShow subEnv ++
+        "\nSubstance dyn env:\n" ++
+        ppShow eqEnv ++
+        "\nLabel mappings:\n" ++
+        ppShow labelMap
+
 ------------------------------------
 -- | Special data types for passing on to the style parser
 
@@ -643,10 +659,7 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-
-parseSubstance ::
-    String -> String -> VarEnv
-    -> IO (SubProg, (VarEnv, SubEnv), LabelMap)
+parseSubstance :: String -> String -> VarEnv -> IO SubOut
 parseSubstance subFile subIn varEnv =
     case runParser substanceParser subFile subIn of
         Left err -> error (parseErrorPretty err)
@@ -655,7 +668,7 @@ parseSubstance subFile subIn varEnv =
             let subTypeEnv  = check subProg' varEnv
             let subDynEnv   = loadSubEnv subProg'
             let labelMap    = getLabelMap subProg' subTypeEnv
-            return (subProg', (subTypeEnv, subDynEnv), labelMap)
+            return (SubOut subProg' (subTypeEnv, subDynEnv) labelMap)
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

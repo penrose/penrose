@@ -1,4 +1,4 @@
--- | The GenOptProblem module performs several passes on the translation generated 
+-- | The GenOptProblem module performs several passes on the translation generated
 -- by the Style compiler to generate the initial state (fields and GPIs) and optimization problem
 -- (objectives, constraints, and computations) specified by the Substance/Style pair.
 
@@ -14,13 +14,15 @@ import qualified Substance as C
 import Env
 import Style
 import Functions
-import Text.Show.Pretty (ppShow)
+import Text.Show.Pretty (ppShow, pPrint)
 import System.Random
 import Debug.Trace
 import qualified Data.Map.Strict as M
-import Control.Monad (foldM)
+import Control.Monad (foldM, forM_)
 import Data.List (intercalate, partition)
 import Data.Either (partitionEithers)
+import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
+
 
 -------------------- Type definitions
 
@@ -187,7 +189,7 @@ mkVaryMap varyPaths varyVals = M.fromList $ zip varyPaths (map floatToTagExpr va
 
 ------ Generic functions for folding over a translation
 
-foldFields :: (Autofloat a) => (String -> Field -> FieldExpr a -> [b] -> [b]) -> 
+foldFields :: (Autofloat a) => (String -> Field -> FieldExpr a -> [b] -> [b]) ->
                                        Name -> FieldDict a -> [b] -> [b]
 foldFields f name fieldDict acc =
     let name' = nameStr name in -- TODO do we need do anything with Sub vs Gen names?
@@ -262,7 +264,7 @@ lookupProperty bvar field property trans =
         -- if we're looking for `z.f.p` and we find out that `z.f = y.f`, then look for `y.f.p` instead
         -- NOTE: this makes a recursive call!
         case e of
-        OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) -> 
+        OptEval (EPath (FieldPath bvarSynonym fieldSynonym)) ->
                 if bvar == bvarSynonym && field == fieldSynonym
                 then error ("nontermination in lookupProperty with path '" ++ pathStr3 name field property ++ "' set to itself")
                 else lookupProperty bvarSynonym fieldSynonym property trans
@@ -335,7 +337,7 @@ shapes2floats shapes varyMap varyingPaths = reverse $ foldl (lookupPathFloat sha
 
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
-findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) -> 
+findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) ->
                                                                  String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
     case M.lookup floatProperty properties of
@@ -358,7 +360,7 @@ findVarying = foldSubObjs findFieldVarying
 
 --- Find uninitialized (non-float) paths
 
-findPropertyUninitialized :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) -> 
+findPropertyUninitialized :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) ->
                                                                        String -> [Path] -> [Path]
 findPropertyUninitialized name field properties nonfloatProperty acc =
     case M.lookup nonfloatProperty properties of
@@ -397,7 +399,7 @@ findObjfnsConstrs = foldSubObjs findFieldFns
 
 findDefaultFns :: (Autofloat a) => Translation a -> [Either StyleOptFn StyleOptFn]
 findDefaultFns = foldSubObjs findFieldDefaultFns
-    where findFieldDefaultFns :: (Autofloat a) => String -> Field -> FieldExpr a -> 
+    where findFieldDefaultFns :: (Autofloat a) => String -> Field -> FieldExpr a ->
                                             [Either StyleOptFn StyleOptFn] -> [Either StyleOptFn StyleOptFn]
           findFieldDefaultFns name field gpi@(FGPI typ props) acc =
               let args    = [EPath $ FieldPath (BSubVar (VarConst name)) field]
@@ -411,14 +413,14 @@ findDefaultFns = foldSubObjs findFieldDefaultFns
 
 findShapeNames :: (Autofloat a) => Translation a -> [(String, Field)]
 findShapeNames = foldSubObjs findGPIName
-    where findGPIName :: (Autofloat a) => String -> Field -> FieldExpr a -> 
+    where findGPIName :: (Autofloat a) => String -> Field -> FieldExpr a ->
                                           [(String, Field)] -> [(String, Field)]
           findGPIName name field (FGPI _ _) acc = (name, field) : acc
           findGPIName _ _ (FExpr _) acc = acc
 
 findShapesProperties :: (Autofloat a) => Translation a -> [(String, Field, Property)]
 findShapesProperties = foldSubObjs findShapeProperties
-    where findShapeProperties :: (Autofloat a) => String -> Field -> FieldExpr a -> [(String, Field, Property)] 
+    where findShapeProperties :: (Autofloat a) => String -> Field -> FieldExpr a -> [(String, Field, Property)]
                                                   -> [(String, Field, Property)]
           findShapeProperties name field (FGPI ctor properties) acc =
                let paths = map (\property -> (name, field, property)) (M.keys properties)
@@ -492,6 +494,7 @@ evalExpr (i, n) arg trans varyMap =
             -- Already done values; don't change trans
             IntLit i -> (Val $ IntV i, trans)
             StringLit s -> (Val $ StrV s, trans)
+            BoolLit b -> (Val $ BoolV b, trans)
             AFloat (Fix f) -> (Val $ FloatV (r2f f), trans) -- TODO: note use of r2f here. is that ok?
             AFloat Vary -> error "evalExpr should not encounter an uninitialized varying float!"
 
@@ -507,11 +510,12 @@ evalExpr (i, n) arg trans varyMap =
                 (Val compVal, trans')
             CompApp fname args ->
                 let (vs, trans') = evalExprs limit args trans varyMap in
-                -- TODO: invokeComp should be used here
-                case M.lookup fname compDict of
-                Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
-                Just f -> let res = f vs in
-                          (res, trans')
+                (invokeComp fname vs compSignatures, trans')
+                -- -- TODO: invokeComp should be used here
+                -- case M.lookup fname compDict of
+                -- Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
+                -- Just f -> let res = f vs in
+                --           (res, trans')
             List es -> error "TODO lists"
                 -- let (vs, trans') = evalExprs es trans in
                 -- (vs, trans')
@@ -562,7 +566,7 @@ evalExpr (i, n) arg trans varyMap =
             ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
             ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
             AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
-            -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs) 
+            -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)
@@ -617,7 +621,7 @@ genObjfn trans objfns constrfns varyingPaths =
 
 -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
 -- TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
-initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String -> 
+initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String ->
                                                (ValueType, SampledValue a) -> (PropertyDict a, StdGen)
 initProperty (properties, g) pID (typ, sampleF) =
     let (v, g')    = sampleF g
@@ -646,15 +650,15 @@ initShapes :: (Autofloat a) =>
 initShapes trans shapePaths gen = foldl initShape (trans, gen) shapePaths
 
 resampleFields :: (Autofloat a) => [Path] -> StdGen -> ([a], StdGen)
-resampleFields varyingPaths g = 
+resampleFields varyingPaths g =
     let varyingFields = filter isFieldPath varyingPaths in
     Functions.randomsIn g (fromIntegral $ length varyingFields) Shapes.canvasDims
 
 -- sample varying fields only (from the range defined by canvas dims) and store them in the translation
 -- example: A.val = OPTIMIZED
 initFields :: (Autofloat a) => [Path] -> Translation a -> StdGen -> (Translation a, StdGen)
-initFields varyingPaths trans g = 
-    let varyingFields = filter isFieldPath varyingPaths 
+initFields varyingPaths trans g =
+    let varyingFields = filter isFieldPath varyingPaths
         (sampledVals, g') = Functions.randomsIn g (fromIntegral $ length varyingFields) Shapes.canvasDims
         trans' = insertPaths varyingFields (map (Done . FloatV) sampledVals) trans in
     (trans', g')
@@ -721,7 +725,7 @@ genOptProblemAndState trans =
              transr = transInit, -- note: NOT transEvaled
              varyingPaths = varyingPaths,
              uninitializedPaths = uninitializedPaths,
-             varyingState = initState, 
+             varyingState = initState,
              objFns = objFnsWithDefaults,
              constrFns = constrsWithDefaults,
              paramsr = Params { weight = initWeight,
@@ -730,3 +734,36 @@ genOptProblemAndState trans =
              rng = g'',
              autostep = False -- default
            }
+
+-- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
+-- NOTE: this function also print information out to stdout
+-- TODO: enable logger
+compileStyle :: StyProg -> C.SubOut -> IO State
+compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
+   putStrLn "Running Style semantics\n"
+   let selEnvs = checkSels subEnv styProg
+
+   putStrLn "Selector static semantics and local envs:\n"
+   forM_ selEnvs pPrint
+   divLine
+
+   let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
+   putStrLn "Selector matches:\n"
+   forM_ subss pPrint
+   divLine
+
+   let trans = translateStyProg subEnv eqEnv subProg styProg labelMap
+                       :: forall a . (Autofloat a) => Either [Error] (Translation a)
+   putStrLn "Translated Style program:\n"
+   pPrint trans
+   divLine
+
+   let initState = genOptProblemAndState (fromRight trans)
+   putStrLn "Generated initial state:\n"
+   print initState
+   divLine
+
+   putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
+   let warns = warnings $ fromRight trans
+   putStrLn (color Red $ intercalate "\n" warns ++ "\n")
+   return initState

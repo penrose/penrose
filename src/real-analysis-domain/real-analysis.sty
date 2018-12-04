@@ -20,11 +20,13 @@ Colors {
   Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
   Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
   Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+  Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+  Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
 }
 
 Reals R {
   R.len = 300.0
-  R.thickness = 5.0
+  R.thickness = 2.0
   R.color = Colors.gray
 
   -- TODO: draw these axes overlapping
@@ -109,7 +111,30 @@ where I := CreateInterval(a, b); Subset(I, R) {
 
   I.orderFn = ensure lessThan(a.val, b.val)
   I.labelFn = ensure inRange(I.text.x, a.val, b.val)
+
+  -- TODO: `minSize` seems to clash with the `disjoint` objective and prevents convergence
+  -- I.sizeFn = ensure minSize(I.shape, 100.0) -- OK to use multiple minSizes?
+
   -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
+}
+
+Interval I
+with Interval J, K; Reals R
+where I := union(J, K); Subset(I, R) {
+      -- TODO: fix findShapeNames so `I` doesn't need to have a shape
+      -- this is a hack
+      I.shape = Line {
+      	      color = Colors.none
+      }
+
+      -- I.text = Text {
+      -- 	     string = I.label
+      -- 	     y = origin.y + global.padding
+      -- 	     rotation = 0.0
+      -- }
+
+      override J.shape.color = Colors.blue
+      override K.shape.color = Colors.blue
 }
 
 /*
@@ -132,22 +157,94 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
 Function f
 with Interval I; Reals R
 -- TODO: with Set A; Set B
-where f := CreateFunction(I, R) {
+where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
   f.pts = 9
   -- TODO: use a more general function than computeSurjection
   f.val = sampleFunction(f.pts, I.shape, R.y_axis)
 
   f.shape = Curve {
     path = f.val
+    pathData = interpolate(f.val, "open")
+    fill = Colors.none
     color = Colors.blue
+    right-arrowhead = True
+    left-arrowhead = True
     -- TODO: start and end style depending on the interval
   }
 
+  -- TODO: position label using midpointPathX(f.val)
   f.text = Text {
     x = midpointX(I.shape)
     y = midpointY(R.y_axis)
     string = f.label
   }
+}
+
+-- Draw a function with two parts with a discontinuity
+Function f
+with Interval I; Interval J; Interval K; Reals R
+where f := CreateFunction(I, R);
+      I := union(J, K);
+      Discontinuous(f);
+      Subset(I, R); Subset(J, R); Subset(K, R) {
+
+      f.pts1 = 3
+      f.pts2 = 6
+
+      f.val1 = sampleFunction(f.pts1, J.shape, R.y_axis)
+      f.val2 = sampleFunction(f.pts2, K.shape, R.y_axis)
+
+      f.shape1 = Curve {
+	path = f.val1
+	pathData = interpolate(f.val1, "open")
+	fill = Colors.none
+	color = Colors.blue
+	-- TODO: start and end style depending on the interval
+      }
+
+      f.text1 = Text {
+	x = midpointPathX(f.val1)
+	y = midpointPathY(f.val1)
+	string = f.label
+      }
+
+      -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
+      f.shape2 = Curve {
+	path = f.val2
+	pathData = interpolate(f.val2, "open")
+	fill = Colors.none
+	color = Colors.blue
+	-- TODO: start and end style depending on the interval
+      }
+
+      f.text2 = Text {
+	x = midpointPathX(f.val2)
+	y = midpointPathY(f.val2)
+	string = f.label
+      }
+
+      -- Discontinuity
+      f.shape3 = Circle {
+	r = 5.0
+	color = Colors.white
+	strokeWidth = 2.5
+	strokeColor = Colors.blue
+	-- TODO: not sure why this keeps sampling the last point
+	x = fromDomain(f.val2)
+	y = applyFn(f.val2, f.shape3.x)
+      }
+
+      -- Value of function
+      f.shape4 = Circle {
+	r = 5.0
+	color = Colors.blue
+	strokeWidth = 2.5
+	strokeColor = Colors.blue
+	x = fromDomain(f.val2)
+	y = 50.0 -- TODO: OPTIMIZED
+      }
+
+      f.domainFn = ensure disjoint(J.shape, K.shape)
 }
 
 -- y := f(x)
@@ -191,7 +288,7 @@ where p := Pt(x, y);
 	     endY = y.val
 	     thickness = 1.5
 	     style = "dashed"
-      	     color = Colors.red
+         color = Colors.red
       }
 
       p.horiz = Line {
@@ -234,25 +331,30 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
 Real ifI
 with Function f; Interval I; Reals R
 where ifI := integral(I, f); f := CreateFunction(I, R) {
-
-      -- TODO: compute the whole GPI
-      -- TODO: figure out problem with rectangle alignment
-      -- TODO: compute integral to actually lie under fn
-      override ifI.shape = Rectangle {
-      	       x = midpointX(I.shape)
-     	       	 -- midpointPathX(f.val)
-	       y = pathY(f.val)
-	       sizeX = I.shape.endX - I.shape.startX
-	       	     -- sizePathX(f.val)
-	       sizeY = (ifI.shape.y - origin.y) * 2.0
-	       	     -- sizePathY(f.val)
-      	       color = Colors.lightorange
+      -- compute integral as a shape that lies under fn curve
+      override ifI.shape = Curve {
+      	       pathData = makeRegionPath(f.shape, I.shape)
+	       fill = Colors.lightorange
+	       color = Colors.lightorange
 	       rotation = 0.0
       }
 
-      ifI.text.x = ifI.shape.x
-      ifI.text.y = ifI.shape.y
+      ifI.text.x = midpointPathX(f.val)
+      ifI.text.y = midpointPathY(f.val)
 
+      delete ifI.val -- IMPORTANT: if you don't delete this, it breaks the opt. TODO: why?
       delete ifI.inFn
       delete ifI.labelFn
+}
+
+Real a
+with Real b; Reals  R; Interval I
+where I := CreateClosedInterval(a, b); Subset(I, R)
+{
+    override a.shape = Image {
+        path = "left-paren.svg"
+        centerX = a.val
+        lengthX = 100
+        lengthY = 200
+    }
 }

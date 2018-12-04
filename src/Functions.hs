@@ -17,6 +17,11 @@ import qualified Data.MultiMap as MM
 -- genShapeType $ shapeTypes shapeDefs
 -- deriving instance Show ShapeType
 
+debugOpt = True
+
+trOpt :: Show a => String -> a -> a
+trOpt s x = if debugOpt then trace "---" $ trace s $ traceShowId x else x
+
 --------------------------------------------------------------------------------
 -- Types
 
@@ -94,9 +99,10 @@ compDict = M.fromList
         ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
 
         ("midpointPathX", midpointPathX),
-        ("pathY", pathY),
+        ("midpointPathY", midpointPathY),
         ("sizePathX", sizePathX),
         ("sizePathY", sizePathY),
+        ("makeRegionPath", makeRegionPath),
 
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -127,13 +133,23 @@ compSignatures = M.fromList
         ("len", ([GPIType "Arrow"], ValueT FloatT)),
         ("computeSurjectionLines", ([ValueT IntT, GPIType "Line", GPIType "Line", GPIType "Line", GPIType "Line"], ValueT PtListT)),
         ("lineLeft", ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PtListT)),
-        ("interpolate", ([ValueT PtListT], ValueT PathDataT))
+        ("interpolate", ([ValueT PtListT, ValueT StrT], ValueT PathDataT)),
+        ("sampleFunction", ([ValueT IntT, AnyGPI, AnyGPI], ValueT PtListT)),
+        ("midpointX", ([AnyGPI], ValueT FloatT)),
+        ("midpointY", ([AnyGPI], ValueT FloatT)),
+        ("fromDomain", ([ValueT PtListT], ValueT FloatT)),
+        ("applyFn", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
+        ("norm_", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)), -- type: any two GPIs with centers (getX, getY)
+        ("midpointPathX", ([ValueT PtListT], ValueT FloatT)),
+        ("midpointPathY", ([ValueT PtListT], ValueT FloatT)),
+        ("sizePathX", ([ValueT PtListT], ValueT FloatT)),
+        ("sizePathY", ([ValueT PtListT], ValueT FloatT)),
+        ("makeRegionPath", ([GPIType "Curve", GPIType "Line"], ValueT PathDataT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
         -- ("sampleVectorIn", ([], ValueT StrT)), -- TODO
         -- ("intersection", ([], ValueT StrT)), -- TODO
-        -- ("midpoint", ([], ValueT StrT)), -- TODO
         -- ("determinant", ([], ValueT StrT)), -- TODO
         -- ("apply", ([], ValueT StrT)) -- TODO
     ]
@@ -246,7 +262,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("minSize", minSize),
                 ("maxSize", maxSize),
                 ("outsideOf", outsideOf),
-                ("nonOverlapping", nonOverlapping),
+                ("disjoint", disjoint),
                 ("inRange", inRange'),
                 ("lessThan", lessThan)
             ]
@@ -276,8 +292,8 @@ constrSignatures = MM.fromList
         ("overlapping", [GPIType "Square", GPIType "Circle"]),
         ("overlapping", [GPIType "Circle", GPIType "Square"]),
         ("overlapping", [GPIType "Square", GPIType "Square"]),
-        ("nonOverlapping", [GPIType "Circle", GPIType "Circle"]),
-        ("nonOverlapping", [GPIType "Square", GPIType "Square"])
+        ("disjoint", [GPIType "Circle", GPIType "Circle"]),
+        ("disjoint", [GPIType "Square", GPIType "Square"])
         -- ("lessThan", []) --TODO
     ]
 
@@ -321,6 +337,10 @@ type Interval = (Float, Float)
 compRng :: StdGen
 compRng = mkStdGen seed
     where seed = 17 -- deterministic RNG with seed
+
+compRng2 :: StdGen
+compRng2 = mkStdGen seed
+    where seed = 19
 
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
@@ -502,15 +522,20 @@ norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
 
 -- | Catmull-Rom spline interpolation algorithm
 interpolate :: CompFn
-interpolate [Val (PtListV pts)] =
+interpolate [Val (PtListV pts), Val (StrV closedParam)] =
     let k  = 1
         p0 = head pts
         chunks = repeat4 $ head pts : pts ++ [last pts]
         paths = map (chain k) chunks
-    in Val $ PathDataV [Open $ Pt p0 : paths]
+        path = Pt p0 : paths
+        path' = if closedParam == "closed"
+                then Closed path
+                else if closedParam == "open" then Open path
+                else error "invalid path closed/open type in interpolate"
+    in Val $ PathDataV [path']
     where repeat4 xs = [ take 4 . drop n $ xs | n <- [0..length xs - 4] ]
 
--- chain :: Pt2 -> Pt2 -> Pt2 -> Pt2 -> Float -> Elem
+chain :: Autofloat a => a -> [(a, a)] -> Elem a
 chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
     let cp1x = x1 + (x2 - x0) / 6 * k
         cp1y = y1 + (y2 - y0) / 6 * k
@@ -527,7 +552,8 @@ sampleList list g =
 -- sample random element from domain of function (relation)
 fromDomain :: CompFn
 fromDomain [Val (PtListV path)] =
-           let (x, g') = sampleList (map fst path) compRng in
+           -- let (x, g') = sampleList (trOpt "path: " (map fst path)) compRng2 in
+           let x = fst $ path !! 1 in
            Val $ FloatV $ x
 
 -- lookup element in function (relation) by making a Map
@@ -541,13 +567,13 @@ applyFn [Val (PtListV path), Val (FloatV x)] =
 midpointPathX :: CompFn
 midpointPathX [Val (PtListV path)] =
               let xs = map fst path
-                  res = (maximum xs - minimum xs) / 2 in
+                  res = (maximum xs + minimum xs) / 2 in
               Val $ FloatV res
 
-pathY :: CompFn
-pathY [Val (PtListV path)] =
+midpointPathY :: CompFn
+midpointPathY [Val (PtListV path)] =
               let ys = map snd path
-                  res = maximum ys / 2 in
+                  res = (maximum ys + minimum ys) / 2 in
               Val $ FloatV res
 
 sizePathX :: CompFn
@@ -561,6 +587,22 @@ sizePathY [Val (PtListV path)] =
               let ys = map snd path
                   res = maximum ys - minimum ys in
               Val $ FloatV res
+
+-- Compute path for an integral's shape (under a function, above the interval on which the function is defined)
+makeRegionPath :: CompFn
+makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
+               let pt1   = Pt $ getPoint "start" intv
+                   pt2   = Pt $ getPoint "end" intv
+
+                   -- Assume the function is a single open path consisting of a Pt elem, followed by CubicBez elements
+                   -- (i.e. produced by `interpolate` with "open")
+                   curve = case (getPathData fn) !! 0 of
+                           Closed elems -> error "TODO"
+                           Open elems -> elems
+                   path  = Closed $ pt1 : curve ++ [pt2]
+               in Val (PathDataV [path])
+               -- in Val $ PathDataV $ getPathData fn
+
 noop :: CompFn
 noop [] = Val (StrV "TODO")
 
@@ -861,7 +903,13 @@ minSize [GPI g] =
         if fst g == "Line" || fst g == "Arrow" then
         let vec = [ getNum g "endX" - getNum g "startX",
                     getNum g "endY" - getNum g "startY"] in
-        40 - norm vec
+        50 - norm vec
+        else 0
+minSize [GPI g, Val (FloatV len)] =
+        if fst g == "Line" || fst g == "Arrow" then
+        let vec = [ getNum g "endX" - getNum g "startX",
+                    getNum g "endY" - getNum g "startY"] in
+        len - norm vec
         else 0
 
  -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
@@ -903,12 +951,22 @@ overlapping [GPI xset@("Square", _), GPI yset@("Square", _)] =
 looseIntersect :: (Autofloat a) => [[a]] -> a
 looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
-nonOverlapping :: ConstrFn
-nonOverlapping [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
+disjoint :: ConstrFn
+disjoint [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
     noIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, getNum yset "r"]]
 
-nonOverlapping [GPI xset@("Square", _), GPI yset@("Square", _)] =
+disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
     noIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
+
+-- Make sure the closest endpoints are separated by some padding
+disjoint [GPI s1@("Line", _), GPI s2@("Line", _)] =
+    let (s1_start, s1_end, s2_start, s2_end) = (getPoint "start" s1, getPoint "end" s1,
+                                                getPoint "start" s2, getPoint "end" s2)
+        dists = [dist s1_start s2_start, dist s1_start s2_end,
+                 dist s1_end s2_start, dist s1_end s2_end] -- use distsq?
+        min_dist = minimum dists
+        padding = 40 in
+    padding - min_dist
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersect :: (Autofloat a) => [[a]] -> a
@@ -919,7 +977,9 @@ noIntersect [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2 +
 
 defaultConstrsOf :: ShapeTypeStr -> [FuncName]
 defaultConstrsOf "Text"  = []
+defaultConstrsOf "Curve" = []
 defaultConstrsOf _ = [ "minSize", "maxSize" ]
+                 -- TODO: remove? these fns make the optimization too hard to solve sometimes
 defaultObjFnsOf :: ShapeTypeStr -> [FuncName]
 defaultObjFnsOf _ = [] -- NOTE: not used yet
 

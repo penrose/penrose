@@ -26,6 +26,7 @@ class Line extends React.Component<IGPIPropsDraggable> {
         d={path}
         onMouseDown={onClick}
         fillOpacity={alpha}
+	strokeOpacity={alpha}
         stroke={color}
         transform={`translate(${-dx},${dy})`}
         strokeWidth={thickness}

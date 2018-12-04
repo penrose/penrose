@@ -10,6 +10,7 @@ In(x, A)
 
 Function f
 f := CreateFunction(A, R)
+Continuous(f)
 
 Real y
 y := apply(f, x)

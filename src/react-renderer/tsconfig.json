@@ -19,6 +19,28 @@
         "suppressImplicitAnyIndexErrors": true,
         "noUnusedLocals": true
     },
+    "formatCodeOptions": {
+        "baseIndentSize": 0,
+        "indentSize": 2,
+        "tabSize": 2,
+        "newLineCharacter": "\n",
+        "convertTabsToSpaces": true,
+        "indentStyle": "Smart",
+        "insertSpaceAfterCommaDelimiter": true,
+        "insertSpaceAfterSemicolonInForStatements": false,
+        "insertSpaceBeforeAndAfterBinaryOperators": true,
+        "insertSpaceAfterConstructor": false,
+        "insertSpaceAfterKeywordsInControlFlowStatements": true,
+        "insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+        "insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+        "insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
+        "insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+        "insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": false,
+        "insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": false,
+        "insertSpaceBeforeFunctionParenthesis": false,
+        "placeOpenBraceOnNewLineForFunctions": false,
+        "placeOpenBraceOnNewLineForControlBlocks": false
+    },
     "exclude": [
         "node_modules",
         "build",
