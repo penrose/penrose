@@ -348,7 +348,7 @@ where ifI := integral(I, f); f := CreateFunction(I, R) {
 }
 
 Real a
-with Real b; Reals  R; Interval I
+with Real b; Reals R; ClosedInterval I -- TODO: be able to say Interval I?
 where I := CreateClosedInterval(a, b); Subset(I, R)
 {
     override a.shape = Image {

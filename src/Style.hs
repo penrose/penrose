@@ -466,6 +466,7 @@ toSubTArg :: SArg -> Arg
 toSubTArg (SAVar bVar) = AVar $ toSubVar bVar
 toSubTArg (SAT styT)   = AT   $ toSubType styT
 
+-- | Convert a Style type to a Substance type. (This has nothing to do with subtyping)
 toSubType :: StyT -> T
 toSubType (STTypeVar stvar) = TTypeVar $ TypeVar { typeVarName = typeVarNameS stvar,
                                                    typeVarPos = typeVarPosS stvar }
@@ -837,11 +838,13 @@ filterRels subEnv subProg rels substs =
 -- Judgment 9. G; theta |- T <| |T
 -- Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
 matchType :: VarEnv -> T -> StyT -> Bool
-matchType varEnv (TConstr tctor) (STCtor stctor) =
+matchType varEnv substanceType@(TConstr tctor) styleType@(STCtor stctor) =
           if not (null (argCons tctor)) || not (null (argConsS stctor))
           then error "no types with parameters allowed in match" -- TODO error msg
           else trM1 ("types: " ++ nameCons tctor ++ ", " ++ nameConsS stctor) $
-               nameCons tctor == nameConsS stctor -- TODO subtyping
+               nameCons tctor == nameConsS stctor
+               -- Only match if a Substance type is a subtype of a Style type (e.g. Interval matches ClosedInterval)
+               || isSubtype substanceType (toSubType styleType) varEnv
 -- TODO better errors + think about cases below
 matchType varEnv (TTypeVar tvar) (STTypeVar stvar) = error "no type vars allowed in match"
 matchType varEnv (TConstr tvar) (STTypeVar stvar) = error "no type vars allowed in match"
