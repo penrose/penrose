@@ -17,8 +17,8 @@ class Image extends React.Component<IGPIPropsDraggable> {
       <image
         href={process.env.PUBLIC_URL + path}
         xlinkHref={process.env.PUBLIC_URL + path}
-        x={x - dx}
-        y={y + dy}
+        x={x - dx - lengthX/2}
+        y={y + dy - lengthY/2}
         width={lengthX}
         height={lengthY}
         onMouseDown={onClick}
