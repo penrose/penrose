@@ -27,7 +27,7 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
           d={`M${sx} ${sy} L${ex} ${ey}`}
           fill={color}
           stroke={color}
-          stroke-width={shape.thickness.contents}
+          strokeWidth={shape.thickness.contents}
           markerEnd="url(#arrowhead)"
         />
         <title>{shape.name.contents}</title>

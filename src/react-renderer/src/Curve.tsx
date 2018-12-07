@@ -56,6 +56,7 @@ class Curve extends React.Component<IGPIPropsDraggable> {
   public render() {
     const {shape, onClick, dy, dx} = this.props;
     const {canvasSize} = this.props;
+    const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.color.contents);
     const fillColor = toHex(shape.fill.contents);
     const strokeOpacity = shape.color.contents[3];
@@ -71,7 +72,7 @@ class Curve extends React.Component<IGPIPropsDraggable> {
         <path
           stroke={strokeColor}
           fill={fillColor}
-          style={{strokeWidth: 2.5}}
+          strokeWidth={strokeWidth}
           strokeOpacity={strokeOpacity}
           fillOpacity={fillOpacity}
           transform={`translate(${-dx},${dy})`}

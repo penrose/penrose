@@ -361,6 +361,7 @@ curveType = ("Curve", M.fromList
     [
         ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
         ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
+        ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "solid")),
         ("fill", (ColorT, sampleColor)), -- for no fill, set opacity to 0
         ("color", (ColorT, sampleColor)),
@@ -425,7 +426,7 @@ parallelogramType = ("Parallelogram", M.fromList
 
 imageType = ("Image", M.fromList
     [
-        ("centerX", (FloatT, x_sampler)), 
+        ("centerX", (FloatT, x_sampler)),
         ("centerY", (FloatT, y_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),

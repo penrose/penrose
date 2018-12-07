@@ -1,7 +1,24 @@
-Reals R
-Real x
-Real inf
-
 AutoLabel All
+
+Reals R
 Label R $\mathbb{R}$
-Label inf $\infty$
+
+-- Real x
+-- Real y
+
+Real d, e, i, j
+Interval I
+I := CreateInterval(d, e)
+Subset(I, R)
+
+Interval J
+J := CreateInterval(i, j)
+Subset(J, R)
+
+-- TODO fix: style line 714: Sub obj might not have a shape
+Interval U
+U := union(I, J)
+Subset(U, R)
+
+-- Real inf
+-- Label inf $\infty$

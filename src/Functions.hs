@@ -523,7 +523,7 @@ norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
 -- | Catmull-Rom spline interpolation algorithm
 interpolate :: CompFn
 interpolate [Val (PtListV pts), Val (StrV closedParam)] =
-    let k  = 1
+    let k  = 1.5
         p0 = head pts
         chunks = repeat4 $ head pts : pts ++ [last pts]
         paths = map (chain k) chunks
@@ -542,6 +542,21 @@ chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
         cp2x = x2 - (x3 - x1) / 6 * k
         cp2y = y2 - (y3 - y1) / 6 * k
     in CubicBez ((cp1x, cp1y), (cp2x, cp2y), (x2, y2))
+
+-- COMBAK: finish this
+-- sampleCurve :: Autofloat a =>
+--     StdGen -> Integer -> Pt2 a -> Pt2 a -> Bool -> Bool -> [Pt2 a]
+-- sampleCurve g numPoints (lowerx, lowery) (topx, topy) =
+--     if numPoints < 2 then error "Surjection needs to have >= 2 points"
+--     else
+--         let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
+--             xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
+--             (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
+--             ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
+--             xs_increasing = sort xs
+--             ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
+--         -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
+--         in zip xs_increasing ys_perm -- len xs == len ys
 
 -- From Shapes.hs, TODO factor out
 sampleList :: (Autofloat a) => [a] -> StdGen -> (a, StdGen)
@@ -874,6 +889,7 @@ inRange' [Val (FloatV v), Val (FloatV left), Val (FloatV right)]
 -- contains [E' GPI set@("", _), P' GPI pt@("", _)] =
 --     dist (getX pt, getX pt) (xe' set, getX set) - max (rx' set) (ry' set) * 0.9
 
+-- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
 maxSize :: ConstrFn
 -- TODO: why do we need `r2f` now? Didn't have to before
 limit = max canvasWidth canvasHeight
@@ -886,12 +902,9 @@ maxSize [GPI im@("Image", _)] =
     let max_side = max (getNum im "lengthX") (getNum im "lengthY")
     in max_side - r2f (limit / 3)
 maxSize [GPI e@("Ellipse", _)] = max (getNum e "r") (getNum e "r") - r2f (limit  / 3)
-maxSize _ = 0 -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
--- maxSize [GPI ar@("Arc", _)] = sizear' ar - limit  / 3
--- maxSize [GPI pa@("Parallelogram", _)] [] =
---     let max_side = max (sizeXpa' pa) (sizeYpa' pa) in
---     max_side - limit  / 3
+maxSize _ = 0
 
+-- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
 minSize :: ConstrFn
 minSize [GPI c@("Circle", _)] = 20 - getNum c "r"
 minSize [GPI s@("Square", _)] = 20 - getNum s "side"
@@ -911,13 +924,6 @@ minSize [GPI g, Val (FloatV len)] =
                     getNum g "endY" - getNum g "startY"] in
         len - norm vec
         else 0
-
- -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
--- minSize _ = 0
-
--- minSize [AR' ar] _ = 2.5 - sizear' ar
--- minSize [IM' im] [] = let min_side = min (sizeXim' im) (sizeYim' im) in 20 - min_side
--- minSize [PA' pa] [] = let min_side = min (sizeXpa' pa) (sizeYpa' pa) in 20 - min_side
 
 smallerThan  :: ConstrFn
 smallerThan [GPI inc@("Circle", _), GPI outc@("Circle", _)] =
@@ -959,8 +965,10 @@ disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
     noIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
 
 -- Make sure the closest endpoints are separated by some padding
+-- BUG: this doesn't work when two line segments are colinear
 disjoint [GPI s1@("Line", _), GPI s2@("Line", _)] =
-    let (s1_start, s1_end, s2_start, s2_end) = (getPoint "start" s1, getPoint "end" s1,
+    let (s1_start, s1_end, s2_start, s2_end) =
+        (getPoint "start" s1, getPoint "end" s1,
                                                 getPoint "start" s2, getPoint "end" s2)
         dists = [dist s1_start s2_start, dist s1_start s2_end,
                  dist s1_end s2_start, dist s1_end s2_end] -- use distsq?
@@ -978,6 +986,7 @@ noIntersect [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2 +
 defaultConstrsOf :: ShapeTypeStr -> [FuncName]
 defaultConstrsOf "Text"  = []
 defaultConstrsOf "Curve" = []
+-- defaultConstrsOf "Line" = []
 defaultConstrsOf _ = [ "minSize", "maxSize" ]
                  -- TODO: remove? these fns make the optimization too hard to solve sometimes
 defaultObjFnsOf :: ShapeTypeStr -> [FuncName]
