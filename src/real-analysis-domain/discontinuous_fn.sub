@@ -1,3 +1,5 @@
+AutoLabel All
+
 -- d, e, i, j ∈ R
 -- J := [d, e) ⊆ R
 -- I := (i, j) ⊆ R
@@ -26,6 +28,9 @@ Function h
 h := CreateFunction(U, R)
 Discontinuous(h)
 
-AutoLabel All
+Real ifI
+ifI := integral(I, h)
+Label ifI $\int_{I} h(x) dx$
+
 NoLabel d, e, i, j
 Label R $\mathbb{R}$

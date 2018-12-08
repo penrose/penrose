@@ -1,0 +1,18 @@
+Set Z
+
+Reals R
+Real a, b, c, d
+
+Interval A
+A := CreateInterval(a, b)
+Subset(A, R)
+
+ClosedInterval C
+C := CreateClosedInterval(c, d)
+Subset(C, R)
+
+In(a, A)
+In(b, C)
+
+AutoLabel All
+Label R $\mathbb{R}$
