@@ -2,34 +2,44 @@ import * as React from "react";
 
 declare const MathJax: any;
 import memoize from "fast-memoize";
-export const StartArrowhead = (props: {id: string, color: string}) => {
-  return <marker
-    id={props.id}
-    markerUnits="strokeWidth"
-    markerWidth="12"
-    markerHeight="12"
-    viewBox="0 0 12 12"
-    refX="6"
-    refY="6"
-    orient="auto"
-  >
-  <path d="M10,10 A30,30,0,0,0,2,6 A30,30,0,0,0,10,2 L7.5,6 z" fill={props.color}/>
-  </marker>
-}
-export const EndArrowhead = (props: {id: string, color: string}) => {
-  return <marker
-    id={props.id}
-    markerUnits="strokeWidth"
-    markerWidth="12"
-    markerHeight="12"
-    viewBox="0 0 12 12"
-    refX="6"
-    refY="6"
-    orient="auto"
-  >
-  <path d="M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"  fill={props.color}/>
-  </marker>
-}
+export const StartArrowhead = (props: { id: string; color: string }) => {
+  return (
+    <marker
+      id={props.id}
+      markerUnits="strokeWidth"
+      markerWidth="12"
+      markerHeight="12"
+      viewBox="0 0 12 12"
+      refX="6"
+      refY="6"
+      orient="auto"
+    >
+      <path
+        d="M10,10 A30,30,0,0,0,2,6 A30,30,0,0,0,10,2 L7.5,6 z"
+        fill={props.color}
+      />
+    </marker>
+  );
+};
+export const EndArrowhead = (props: { id: string; color: string }) => {
+  return (
+    <marker
+      id={props.id}
+      markerUnits="strokeWidth"
+      markerWidth="12"
+      markerHeight="12"
+      viewBox="0 0 12 12"
+      refX="6"
+      refY="6"
+      orient="auto"
+    >
+      <path
+        d="M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
+        fill={props.color}
+      />
+    </marker>
+  );
+};
 export const toScreen = (
   [x, y]: [number, number],
   canvasSize: [number, number]
@@ -87,12 +97,14 @@ const tex2svg = memoize(
           const output = wrapper.getElementsByTagName("svg")[0];
           output.setAttribute("xmlns", "http://www.w3.org/2000/svg");
           // TODO: need to check whether MathJax returns a non-null response
+          const { width, height } = svgBBox(output);
+          output.setAttribute("width", width.toString());
+          output.setAttribute("height", height.toString());
           const body = output.outerHTML + `<title>${name}</title>`; // need to keep properties in <svg>
-          const {width, height} = svgBBox(output);
-          resolve({body, width, height});
+          resolve({ body, width, height });
         });
       } else {
-        resolve({body: "", width: 0, height: 0});
+        resolve({ body: "", width: 0, height: 0 });
       }
     })
 );
@@ -112,14 +124,14 @@ export const collectLabels = async (allShapes: any[]) => {
   return Promise.all(
     allShapes.map(async ([type, obj]: [string, any]) => {
       if (type === "Text") {
-        const {body, width, height} = await tex2svg(
+        const { body, width, height } = await tex2svg(
           obj.string.contents,
           obj.name.contents
         );
-        const obj2 = {...obj};
+        const obj2 = { ...obj };
         obj2.w.contents = width;
         obj2.h.contents = height;
-        obj2.rendered = {contents: body};
+        obj2.rendered = { contents: body };
         return [type, obj2];
       } else {
         return [type, obj];

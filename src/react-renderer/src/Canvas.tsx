@@ -20,6 +20,8 @@ class Canvas extends React.Component<IProps> {
   public download = () => {
     const domnode = ReactDOM.findDOMNode(this);
     if (domnode !== null && domnode instanceof Element) {
+      domnode.setAttribute("width", this.canvasSize[0].toString());
+      domnode.setAttribute("height", this.canvasSize[1].toString());
       const blob = new Blob([domnode.outerHTML], {
         type: "image/svg+xml;charset=utf-8"
       });
@@ -30,6 +32,8 @@ class Canvas extends React.Component<IProps> {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
+      domnode.setAttribute("width", "100%");
+      domnode.setAttribute("height", "100%");
     } else {
       Log.error("Could not find SVG domnode.");
     }
