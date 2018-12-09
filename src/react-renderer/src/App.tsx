@@ -12,6 +12,7 @@ interface IState {
 interface IProps {
   ws?: any;
   customButtons?: boolean;
+  convergeStatus?: (converged: boolean) => void;
 }
 const socketAddress = "ws://localhost:9160";
 
@@ -19,6 +20,14 @@ class App extends React.Component<IProps, IState> {
   public readonly state = { data: [], autostep: false, converged: true };
   public readonly canvas = React.createRef<Canvas>();
   public ws: any = null;
+  public componentDidUpdate(prevProps: IProps, prevState: IState) {
+    if (
+      prevState.converged !== this.state.converged &&
+      this.props.convergeStatus
+    ) {
+      this.props.convergeStatus(this.state.converged);
+    }
+  }
   public download = () => {
     if (this.canvas.current !== null) {
       this.canvas.current.download();

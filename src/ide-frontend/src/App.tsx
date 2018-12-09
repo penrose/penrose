@@ -43,15 +43,26 @@ const MenuBtn = styled(MenuButton)`
 const SocketAlert = styled(Alert)`
   background-color: hsla(10, 50%, 50%, 0.3);
   padding: 0.5em;
+  position: absolute;
+  width: 100%;
+`;
+const ConvergedStatus = styled(Alert)`
+  background: rgba(0, 0, 0, 0.07);
+  padding: 0.5em;
+  position: absolute;
+  width: 100%;
+`;
+const ErrorContainer = styled.div`
+  position: relative;
 `;
 
 const CodeError = styled(Alert)`
-  background-color: hsla(10, 50%, 50%, 0.3);
+  background-color: hsla(202, 92%, 61%, 0.3);
   padding: 0.5em;
   width: inherit;
   position: sticky;
   bottom: 0;
-  font-size: 1.5em;
+  font-size: 1.2em;
 `;
 
 interface IState {
@@ -64,6 +75,7 @@ interface IState {
   ready: boolean;
   socketError: string;
   codeError: string;
+  converged: boolean;
 }
 
 const elementOptions = [
@@ -83,7 +95,8 @@ class App extends React.Component<any, IState> {
     debug: false,
     ready: false,
     socketError: "",
-    codeError: ""
+    codeError: "",
+    converged: true
   };
   public ws: any = null;
   public readonly renderer = React.createRef<Renderer>();
@@ -92,6 +105,9 @@ class App extends React.Component<any, IState> {
     Log.info("Connecting to socket...");
     this.setupSockets();
   }
+  public changedConverged = (converged: boolean) => {
+    this.setState({ converged });
+  };
   public download = () => {
     if (this.renderer.current !== null) {
       this.renderer.current.download();
@@ -135,10 +151,13 @@ class App extends React.Component<any, IState> {
       const data = JSON.parse(e.data);
       Log.info("Received data from the server.", data);
       this.setState({ rendered: true });
+      if (packetType !== "error") {
+        this.setState({ codeError: "" });
+      }
       if (packetType === "error") {
         Log.error(myJSON);
-        // TODO: some error handling
-      } else if(packetType === "shapes") {
+        this.setState({ codeError: myJSON.contents.contents });
+      } else if (packetType === "shapes") {
         this.renderer.current.onMessage(e);
       } else {
         Log.error(`Unknown packet type: ${packetType}`);
@@ -167,6 +186,7 @@ class App extends React.Component<any, IState> {
   public toggleDebug = () => {
     this.setState({ debug: !this.state.debug });
   };
+
   public render() {
     const {
       code,
@@ -177,7 +197,8 @@ class App extends React.Component<any, IState> {
       debug,
       socketError,
       codeError,
-      ready
+      ready,
+      converged
     } = this.state;
     const autostepStatus = this.renderer.current
       ? this.renderer.current.state.autostep
@@ -264,11 +285,21 @@ class App extends React.Component<any, IState> {
             onChange={this.onChangeCode}
             value={code}
           />
-          {codeError === "" && <CodeError>{codeError}</CodeError>}
+          {codeError !== "" && <CodeError>{codeError}</CodeError>}
         </Cell>
         <Cell style={{ backgroundColor: "#FBFBFB" }}>
-          {socketError !== "" && <SocketAlert>{socketError}</SocketAlert>}
-          <Renderer ws={this.ws} ref={this.renderer} customButtons={true} />
+          <ErrorContainer>
+            {socketError !== "" && <SocketAlert>{socketError}</SocketAlert>}
+
+            {!converged && <ConvergedStatus>optimizing...</ConvergedStatus>}
+          </ErrorContainer>
+
+          <Renderer
+            ws={this.ws}
+            ref={this.renderer}
+            customButtons={true}
+            convergeStatus={this.changedConverged}
+          />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <Button
               label="resample"
