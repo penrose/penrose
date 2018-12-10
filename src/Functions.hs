@@ -968,7 +968,7 @@ disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
 -- BUG: this doesn't work when two line segments are colinear
 disjoint [GPI s1@("Line", _), GPI s2@("Line", _)] =
     let (s1_start, s1_end, s2_start, s2_end) =
-        (getPoint "start" s1, getPoint "end" s1,
+            (getPoint "start" s1, getPoint "end" s1,
                                                 getPoint "start" s2, getPoint "end" s2)
         dists = [dist s1_start s2_start, dist s1_start s2_end,
                  dist s1_end s2_start, dist s1_end s2_end] -- use distsq?
