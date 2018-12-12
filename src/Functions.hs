@@ -763,7 +763,7 @@ centerArrow [GPI arr@("Arrow", _), GPI pt1@("AnchorPoint", _), GPI pt2@("AnchorP
 
 centerArrow [GPI arr@("Arrow", _), GPI text1@("Text", _), GPI text2@("Text", _)] =
             _centerArrow arr [getX text1, getY text1] [getX text2, getY text2]
-                [spacing * getNum text1 "h", negate $ spacing * getNum text2 "h"]
+                [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
 
 centerArrow [GPI arr@("Arrow", _), GPI text@("Text", _), GPI circ@("Circle", _)] =
             _centerArrow arr [getX text, getY text] [getX circ, getY circ]
@@ -775,7 +775,7 @@ spacing = 1.1 -- TODO: arbitrary
 _centerArrow :: Autofloat a => Shape a -> [a] -> [a] -> [a] -> a
 _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
     let vec  = [x2 - x1, y2 - y1] -- direction the arrow should point to
-        dir = normalize vec -- direction the arrow should point to
+        dir = normalize vec
         [sx, sy, ex, ey] = if norm vec > o1 + abs o2
                 then (s1 +. o1 *. dir) ++ (s2 +. o2 *. dir) else s1 ++ s2
         [fromx, fromy, tox, toy] = [getNum arr "startX", getNum arr "startY",
