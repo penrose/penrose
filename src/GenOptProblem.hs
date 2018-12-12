@@ -461,56 +461,57 @@ evalBinop op v1 v2 =
         (Val _, GPI _) -> error "binop cannot operate on GPI"
         (GPI _, GPI _) -> error "binop cannot operate on GPIs"
 
-evalProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> VaryMap a
-             -> ([(Property, TagExpr a)], Translation a) -> (Property, TagExpr a)
-             -> ([(Property, TagExpr a)], Translation a)
-evalProperty (i, n) bvar field varyMap (propertiesList, trans) (property, expr) =
-        let path = EPath $ PropertyPath bvar field property in -- factor out?
-        let (res, trans') = evalExpr (i, n) path trans varyMap in
-        -- This check might be redundant with the later GPI conversion in evalExpr, TODO factor out
-        case res of
-        Val val -> {-trace ("Evaled property " ++ show path)-} ((property, Done val) : propertiesList, trans')
+evalProperty :: (Autofloat a)
+    => (Int, Int) -> BindingForm -> Field -> VaryMap a -> ([(Property, TagExpr a)], Translation a, StdGen) -> (Property, TagExpr a)
+    -> ([(Property, TagExpr a)], Translation a, StdGen)
+evalProperty (i, n) bvar field varyMap (propertiesList, trans, g) (property, expr) =
+    let path = EPath $ PropertyPath bvar field property in -- factor out?
+    let (res, trans', g') = evalExpr (i, n) path trans varyMap g in
+    -- This check might be redundant with the later GPI conversion in evalExpr, TODO factor out
+    case res of
+        Val val -> {-trace ("Evaled property " ++ show path)-} ((property, Done val) : propertiesList, trans', g')
         GPI _ -> error "GPI property should not evaluate to GPI argument" -- TODO: true later? references?
 
-evalGPI_withUpdate :: (Autofloat a) =>
-    (Int, Int) -> BindingForm -> Field -> (GPICtor, PropertyDict a) -> Translation a -> VaryMap a -> ((GPICtor, PropertyDict a), Translation a)
-evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap =
+evalGPI_withUpdate :: (Autofloat a)
+    => (Int, Int) -> BindingForm -> Field -> (GPICtor, PropertyDict a) -> Translation a -> VaryMap a -> StdGen
+    -> ((GPICtor, PropertyDict a), Translation a, StdGen)
+evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap g =
         -- Fold over the properties, evaluating each path, which will update the translation each time,
         -- and accumulate the new property-value list (WITH varying looked up)
-        let (propertyList', trans') = foldl (evalProperty (i, n) bvar field varyMap) ([], trans)
-                                                                            (M.toList properties) in
+        let (propertyList', trans', g') = foldl (evalProperty (i, n) bvar field varyMap) ([], trans, g) (M.toList properties) in
         let properties' = M.fromList propertyList' in
         {-trace ("Start eval GPI: " ++ show properties ++ " " ++ "\n\tctor: " ++ "\n\tfield: " ++ show field)-}
-              ((ctor, properties'), trans')
+        ((ctor, properties'), trans', g')
 
 -- recursively evaluate, tracking iteration depth in case there are cycles in graph
-evalExpr :: (Autofloat a) => (Int, Int) -> Expr -> Translation a -> VaryMap a -> (ArgVal a, Translation a)
-evalExpr (i, n) arg trans varyMap =
+evalExpr :: (Autofloat a) => (Int, Int) -> Expr -> Translation a -> VaryMap a -> StdGen -> (ArgVal a, Translation a, StdGen)
+evalExpr (i, n) arg trans varyMap g =
     if i >= n then error ("evalExpr: iteration depth exceeded (" ++ show n ++ ")")
         else {-trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n) -}
                    argResult
     where limit = (i + 1, n)
           argResult = case arg of
             -- Already done values; don't change trans
-            IntLit i -> (Val $ IntV i, trans)
-            StringLit s -> (Val $ StrV s, trans)
-            BoolLit b -> (Val $ BoolV b, trans)
-            AFloat (Fix f) -> (Val $ FloatV (r2f f), trans) -- TODO: note use of r2f here. is that ok?
+            IntLit i -> (Val $ IntV i, trans, g)
+            StringLit s -> (Val $ StrV s, trans, g)
+            BoolLit b -> (Val $ BoolV b, trans, g)
+            AFloat (Fix f) -> (Val $ FloatV (r2f f), trans, g) -- TODO: note use of r2f here. is that ok?
             AFloat Vary -> error "evalExpr should not encounter an uninitialized varying float!"
 
             -- Inline computation, needs a recursive lookup that may change trans, but not a path
             -- TODO factor out eval / trans computation?
             UOp op e ->
-                let (val, trans') = evalExpr limit e trans varyMap in
+                let (val, trans', g') = evalExpr limit e trans varyMap g in
                 let compVal = evalUop op val in
-                (Val compVal, trans')
+                (Val compVal, trans', g')
             BinOp op e1 e2 ->
-                let ([v1, v2], trans') = evalExprs limit [e1, e2] trans varyMap in
+                let ([v1, v2], trans', g') = evalExprs limit [e1, e2] trans varyMap g in
                 let compVal = evalBinop op v1 v2 in
-                (Val compVal, trans')
+                (Val compVal, trans', g')
             CompApp fname args ->
-                let (vs, trans') = evalExprs limit args trans varyMap in
-                (invokeComp fname vs compSignatures, trans')
+                let (vs, trans', g') = evalExprs limit args trans varyMap g
+                    (compRes, g'')   = invokeComp fname vs compSignatures g'
+                in (compRes, trans', g'')
                 -- -- TODO: invokeComp should be used here
                 -- case M.lookup fname compDict of
                 -- Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
@@ -529,32 +530,32 @@ evalExpr (i, n) arg trans varyMap =
                      -- return the evaluated value and the updated trans
                      let fexpr = lookupFieldWithVarying bvar field trans varyMap in
                      case fexpr of
-                     FExpr (Done v) -> (Val v, trans)
+                     FExpr (Done v) -> (Val v, trans, g)
                      FExpr (OptEval e) ->
-                         let (v, trans') = evalExpr limit e trans varyMap in
+                         let (v, trans', g') = evalExpr limit e trans varyMap g in
                          case v of
-                         Val fval ->
-                             case insertPath trans' (p, Done fval) of
-                             Right trans' -> (v, trans')
-                             Left err -> error $ concat err
-                         gpiVal@(GPI _) -> (gpiVal, trans') -- to deal with path synonyms, e.g. "y.f = some GPI; z.f = y.f"
+                             Val fval ->
+                                 case insertPath trans' (p, Done fval) of
+                                 Right trans' -> (v, trans', g')
+                                 Left err -> error $ concat err
+                             gpiVal@(GPI _) -> (gpiVal, trans', g') -- to deal with path synonyms, e.g. "y.f = some GPI; z.f = y.f"
                      FGPI ctor properties ->
                      -- Eval each property in the GPI, storing each property result in a new dictionary
                      -- No need to update the translation because each path should update the translation
-                         let (gpiVal@(ctor', propertiesVal), trans') =
-                                 evalGPI_withUpdate limit bvar field (ctor, properties) trans varyMap in
-                         (GPI (ctor', shapeExprsToVals (bvarToString bvar, field) propertiesVal), trans')
+                         let (gpiVal@(ctor', propertiesVal), trans', g') =
+                                 evalGPI_withUpdate limit bvar field (ctor, properties) trans varyMap g in
+                         (GPI (ctor', shapeExprsToVals (bvarToString bvar, field) propertiesVal), trans', g')
 
                   PropertyPath bvar field property ->
                       let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
                       case texpr of
-                      Done v -> (Val v, trans)
+                      Done v -> (Val v, trans, g)
                       OptEval e ->
-                         let (v, trans') = evalExpr limit e trans varyMap in
+                         let (v, trans', g') = evalExpr limit e trans varyMap g in
                          case v of
                          Val fval ->
                              case insertPath trans' (p, Done fval) of
-                             Right trans' -> (v, trans')
+                             Right trans' -> (v, trans', g')
                              Left err -> error $ concat err
                          GPI _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
 
@@ -570,25 +571,26 @@ evalExpr (i, n) arg trans varyMap =
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)
-evalExprs :: (Autofloat a) => (Int, Int) -> [Expr] -> Translation a -> VaryMap a
-                              -> ([ArgVal a], Translation a)
-evalExprs limit args trans varyMap =
-    foldl (evalExprF limit varyMap) ([], trans) args
-    where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a
-                       -> ([ArgVal a], Translation a) -> Expr -> ([ArgVal a], Translation a)
-          evalExprF limit varyMap (argvals, trans) arg =
-                       let (argVal, trans') = evalExpr limit arg trans varyMap in
-                       (argvals ++ [argVal], trans') -- So returned exprs are in same order
+evalExprs :: (Autofloat a)
+    => (Int, Int) -> [Expr] -> Translation a -> VaryMap a -> StdGen
+    -> ([ArgVal a], Translation a, StdGen)
+evalExprs limit args trans varyMap g =
+    foldl (evalExprF limit varyMap) ([], trans, g) args
+    where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([ArgVal a], Translation a, StdGen) -> Expr -> ([ArgVal a], Translation a, StdGen)
+          evalExprF limit varyMap (argvals, trans, rng) arg =
+                       let (argVal, trans', rng') = evalExpr limit arg trans varyMap rng in
+                       (argvals ++ [argVal], trans', rng') -- So returned exprs are in same order
 
 ------------------- Generating and evaluating the objective function
 
 evalFnArgs :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([FnDone a], Translation a)
                                     -> Fn -> ([FnDone a], Translation a)
 evalFnArgs limit varyMap (fnDones, trans) fn =
-           let args = fargs fn in
-           let (argsVal, trans') = evalExprs limit (fargs fn) trans varyMap in
-           let fn' = FnDone { fname_d = fname fn, fargs_d = argsVal, optType_d = optType fn } in
-           (fnDones ++ [fn'], trans') -- TODO factor out this pattern
+    let args = fargs fn in
+    let (argsVal, trans', _) = evalExprs limit (fargs fn) trans varyMap tempRng in
+    let fn' = FnDone { fname_d = fname fn, fargs_d = argsVal, optType_d = optType fn } in
+    (fnDones ++ [fn'], trans') -- TODO factor out this pattern
+    where tempRng = mkStdGen 42 -- HACK: we are assuming that arguments to obj fns will *not* involve any randomness. Check back later and see if this is indeed true
 
 evalFns :: (Autofloat a) => (Int, Int) -> [Fn] -> Translation a -> VaryMap a -> ([FnDone a], Translation a)
 evalFns limit fns trans varyMap = foldl (evalFnArgs limit varyMap) ([], trans) fns
@@ -665,26 +667,28 @@ initFields varyingPaths trans g =
 
 ------------- Evaluating all shapes in a translation
 
-evalShape :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([Shape a], Translation a)
-                                           -> Path -> ([Shape a], Translation a)
-evalShape limit varyMap (shapes, trans) shapePath =
-    let (res, trans') = evalExpr limit (EPath shapePath) trans varyMap in
+evalShape :: (Autofloat a) =>
+    (Int, Int) -> VaryMap a
+    -> ([Shape a], Translation a, StdGen) -> Path
+    -> ([Shape a], Translation a, StdGen)
+evalShape limit varyMap (shapes, trans, g) shapePath =
+    let (res, trans', g') = evalExpr limit (EPath shapePath) trans varyMap g in
     case res of
-    GPI shape -> (shape : shapes, trans')
+    GPI shape -> (shape : shapes, trans', g')
     _ -> error "evaluating a GPI path did not result in a GPI"
 
 -- recursively evaluate every shape property in the translation
-evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> ([Shape a], Translation a)
-evalShapes limit shapeNames trans varyMap =
-           let (shapes, trans') = foldl (evalShape limit varyMap) ([], trans) shapeNames in
-           (reverse shapes, trans')
+evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> StdGen -> ([Shape a], Translation a, StdGen)
+evalShapes limit shapeNames trans varyMap rng =
+           let (shapes, trans', rng') = foldl (evalShape limit varyMap) ([], trans, rng) shapeNames in
+           (reverse shapes, trans', rng')
 
 -- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
 -- with respect to the varying values
-evalTranslation :: (Autofloat a) => State -> ([Shape a], Translation a)
+evalTranslation :: (Autofloat a) => State -> ([Shape a], Translation a, StdGen)
 evalTranslation s =
     let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
-    evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap
+    evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap (rng s)
 
 ------------- Main function: what the Style compiler generates
 
@@ -712,8 +716,7 @@ genOptProblemAndState trans =
 
     -- Evaluate all expressions once to get the initial shapes
     let initVaryingMap = M.empty in -- No optimization has happened. Sampled varying vals are in transInit
-    let (initialGPIs, transEvaled) = evalShapes evalIterRange (map (mkPath . list2) shapeNames)
-                                                transInit initVaryingMap in
+    let (initialGPIs, transEvaled, _) = evalShapes evalIterRange (map (mkPath . list2) shapeNames) transInit initVaryingMap g'' in -- intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
     let initState = lookupPaths varyingPaths transEvaled in
 
     if null initState then error "empty state in genopt" else

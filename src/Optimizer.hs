@@ -71,8 +71,8 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 step :: State -> State
 step s = let (state', params') = stepShapes (paramsr s) (varyingState s)
              s'                = s { varyingState = state', paramsr = params' }
-             (!shapes', _)     = evalTranslation s' in
-         s' { shapesr = shapes' } -- note: trans is not updated in state
+             (!shapes', _, _)     = evalTranslation s'
+         in s' { shapesr = shapes' } -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 

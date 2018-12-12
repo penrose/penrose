@@ -63,6 +63,17 @@ class Curve extends React.Component<IGPIPropsDraggable> {
     const fillOpacity = shape.fill.contents[3];
     const leftArrowId = shape.name.contents + "-leftArrowhead"
     const rightArrowId = shape.name.contents + "-rightArrowhead"
+    // const ptListString = flatten(
+    //   shape.path.contents.map((coords: [number, number]) => {
+    //     return toScreen(coords, canvasSize);
+    //   })
+    // ).join(" ")
+    //     <polyline
+    //         points={ptListString}
+    //         stroke="black"
+    //         fill="none"
+    //     />
+
     // TODO: distinguish between fill opacity and stroke opacity
 
     return (

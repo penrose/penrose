@@ -22,9 +22,9 @@ class Circle extends React.Component<IGPIPropsDraggable> {
         r={shape.r.contents}
         fill={fillColor}
         fillOpacity={fillAlpha}
-	stroke={strokeColor}
-	strokeOpacity={strokeAlpha}
-	strokeWidth={thickness}
+        stroke={strokeColor}
+        strokeOpacity={strokeAlpha}
+        strokeWidth={thickness}
         onMouseDown={onClick}
       >
         <title>{shape.name.contents}</title>

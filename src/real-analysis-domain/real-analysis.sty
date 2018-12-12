@@ -270,7 +270,7 @@ where p := Pt(x, y);
 	      y = y.val
 	      r = 3.0
 	      color = Colors.sky
-	      stroke = Colors.none
+	      strokeColor = Colors.sky
       }
 
       p.vert = Line {
@@ -297,17 +297,22 @@ where p := Pt(x, y);
 Real dfx
 with Function f; Interval I; Real x; Real y; Reals R
 where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
-      y := apply(f, x) {
+      y := apply(f, x)
+{
       -- We know that x's val has been chosen from f's domain
 
       -- TODO: compute dfx to actually be tangent at point
       -- (right now it's a hardcoded arbitrary line)
       -- TODO: compute the whole GPI
       override dfx.shape = Line {
-          startX = I.shape.startX
-          startY = 0.0
-          endX = I.shape.endX
-          endY = 200.0
+          -- startX = I.shape.startX
+          -- startY = 0.0
+          -- endX = I.shape.endX
+          -- endY = 200.0
+          startX = tangentLineSX(f.shape.path, x.val)
+          startY = tangentLineSY(f.shape.path, x.val)
+          endX = tangentLineEX(f.shape.path, x.val)
+          endY = tangentLineEY(f.shape.path, x.val)
           thickness = 2.0
           color = Colors.lightsky
       }

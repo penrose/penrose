@@ -374,8 +374,9 @@ resampleAndSend client@(clientID, conn, clientState) = do
                     G.transr = trans',
                     G.varyingState = G.shapes2floats resampledShapes varyMapNew $ G.varyingPaths s,
                     G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter } }
-    wsSendJSONFrame conn Frame { flag = "initial",
-                            shapes = fst $ evalTranslation news :: [Shape Double] }
+    let (newShapes, _, g') = evalTranslation news
+    -- TODO: do we need to pass on the random generator?
+    wsSendJSONFrame conn Frame { flag = "initial", shapes = newShapes }
     let nextClientS = updateState clientState news
     let client' = (clientID, conn, nextClientS)
     -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled.

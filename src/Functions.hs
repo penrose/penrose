@@ -9,7 +9,7 @@ import Debug.Trace
 import Shapes
 import Data.Aeson (toJSON)
 import Data.Maybe (fromMaybe)
-import           Data.List                          (nub, sort)
+import           Data.List                          (nub, sort, findIndex)
 import           System.Random.Shuffle
 import qualified Data.Map.Strict as M
 import qualified Data.MultiMap as MM
@@ -46,10 +46,11 @@ type CompSignatures = M.Map String ([ArgType], ArgType)
 type OptFn      a = [ArgVal a] -> a
 type ObjFnOn    a = [ArgVal a] -> a
 type ConstrFnOn a = [ArgVal a] -> a
-type CompFnOn   a = [ArgVal a] -> ArgVal a
+type CompFnOn   a = [ArgVal a] -> StdGen -> (ArgVal a, StdGen)
 type ObjFn    = forall a. (Autofloat a) => [ArgVal a] -> a
 type ConstrFn = forall a. (Autofloat a) => [ArgVal a] -> a
-type CompFn   = forall a. (Autofloat a) => [ArgVal a] -> ArgVal a
+type CompFn   = forall a. (Autofloat a) => [ArgVal a] -> StdGen -> (ArgVal a, StdGen)
+type ConstCompFn = forall a. (Autofloat a) => [ArgVal a] -> ArgVal a
 
 -- TODO: are the Info types still needed?
 type Weight       a = a
@@ -72,38 +73,42 @@ invokeOptFn dict n args signatures =
 
 --------------------------------------------------------------------------------
 -- Computations
-compDict :: forall a. (Autofloat a) => M.Map String (CompFnOn a)
+-- compDict :: forall a. (Autofloat a) => M.Map String (CompFnOn a)
+compDict :: (Autofloat a) => M.Map String (CompFnOn a)
 compDict = M.fromList
     [
-        ("rgba", rgba),
-        ("atan", arctangent),
-        ("calcVectorsAngle", calcVectorsAngle),
-        ("calcVectorsAngleWithOrigin", calcVectorsAngleWithOrigin),
-        ("generateRandomReal", generateRandomReal),
-        ("calcNorm", calcNorm),
-        ("bboxWidth", bboxWidth),
-        ("bboxHeight", bboxHeight),
-        ("intersectionX", intersectionX),
-        ("intersectionY", intersectionY),
-        ("midpointX", midpointX),
-        ("midpointY", midpointY),
-        ("midpoint", noop), -- TODO
-        ("len", len),
+        ("rgba", constComp rgba),
+        ("atan", constComp arctangent),
+        ("calcVectorsAngle", constComp calcVectorsAngle),
+        ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin),
+        ("generateRandomReal", constComp generateRandomReal),
+        ("calcNorm", constComp calcNorm),
+        ("bboxWidth", constComp bboxWidth),
+        ("bboxHeight", constComp bboxHeight),
+        ("intersectionX", constComp intersectionX),
+        ("intersectionY", constComp intersectionY),
+        ("midpointX", constComp midpointX),
+        ("midpointY", constComp midpointY),
+        ("len", constComp len),
         ("computeSurjectionLines", computeSurjectionLines),
-        ("lineLeft", lineLeft),
-        ("lineRight", lineRight),
-        ("interpolate", interpolate),
+        ("lineLeft", constComp lineLeft),
+        ("lineRight", constComp lineRight),
+        ("interpolate", constComp interpolate),
         ("sampleFunction", sampleFunction),
         ("fromDomain", fromDomain),
-        ("applyFn", applyFn),
-        ("norm_", norm_), -- type: any two GPIs with centers (getX, getY)
+        ("applyFn", constComp applyFn),
+        ("norm_", constComp norm_), -- type: any two GPIs with centers (getX, getY)
+        ("midpointPathX", constComp midpointPathX),
+        ("midpointPathY", constComp midpointPathY),
+        ("sizePathX", constComp sizePathX),
+        ("sizePathY", constComp sizePathY),
+        ("makeRegionPath", constComp makeRegionPath),
+        ("tangentLineSX", constComp tangentLineSX),
+        ("tangentLineSY", constComp tangentLineSY),
+        ("tangentLineEX", constComp tangentLineEX),
+        ("tangentLineEY", constComp tangentLineEY),
 
-        ("midpointPathX", midpointPathX),
-        ("midpointPathY", midpointPathY),
-        ("sizePathX", sizePathX),
-        ("sizePathY", sizePathY),
-        ("makeRegionPath", makeRegionPath),
-
+        ("midpoint", noop), -- TODO
         ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
         ("sampleReal", noop), -- TODO
@@ -144,6 +149,10 @@ compSignatures = M.fromList
         ("midpointPathY", ([ValueT PtListT], ValueT FloatT)),
         ("sizePathX", ([ValueT PtListT], ValueT FloatT)),
         ("sizePathY", ([ValueT PtListT], ValueT FloatT)),
+        ("tangentLineSX", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
+        ("tangentLineSY", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
+        ("tangentLineEX", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
+        ("tangentLineEY", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
         ("makeRegionPath", ([GPIType "Curve", GPIType "Line"], ValueT PathDataT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
@@ -155,15 +164,19 @@ compSignatures = M.fromList
     ]
 
 invokeComp :: (Autofloat a) =>
-    FuncName -> [ArgVal a] -> CompSignatures -> ArgVal a
-invokeComp n args sigs =
+    FuncName -> [ArgVal a] -> CompSignatures -> StdGen
+    -> (ArgVal a, StdGen)
+invokeComp n args sigs g =
     let (argTypes, retType) =
             fromMaybe (noSignatureError n) (M.lookup n compSignatures)
         args'  = checkArgs args argTypes n
         f      = fromMaybe (noFunctionError n) (M.lookup n compDict)
-        ret    = f args'
-    in if checkReturn ret retType then ret else
+        (ret, g') = f args' g
+    in if checkReturn ret retType then (ret, g') else
         error ("invalid return value \"" ++ show ret ++ "\" of computation \"" ++ show n ++ "\". expected type is \"" ++ show retType ++ "\"")
+
+constComp :: ConstCompFn -> CompFn
+constComp f = \args g -> (f args, g)
 
 --------------------------------------------------------------------------------
 -- Objectives
@@ -357,22 +370,25 @@ randomsIn g n interval = let (x, g') = randomR interval g -- First value
 sampleFunction :: CompFn
 -- Assuming domain and range are lines or arrows, TODO deal w/ points
 -- TODO: discontinuous functions? not sure how to sample/model/draw consistently
-sampleFunction [Val (IntV n), GPI domain, GPI range] =
+sampleFunction [Val (IntV n), GPI domain, GPI range] g =
                let (dsx, dsy, dex, dey) = (getNum domain "startX", getNum domain "startY",
                                            getNum domain "endX", getNum domain "endY")
                    (rsx, rsy, rex, rey) = (getNum range "startX", getNum range "startY",
                                            getNum range "endX", getNum range "endY")
                    lower_left = (min dsx dex, min rsy rey)
-                   top_right  = (max dsx dex, max rsy rey) in
-               Val $ PtListV $ computeSurjection compRng n lower_left top_right
+                   top_right  = (max dsx dex, max rsy rey)
+                   (pts, g')  = computeSurjection g n lower_left top_right
+              in (Val $ PtListV pts, g')
 
 -- Computes the surjection to lie inside a bounding box defined by the corners of a box
 -- defined by four straight lines, assuming their lower/left coordinates come first.
 -- Their intersections give the corners.
 computeSurjectionLines :: CompFn
-computeSurjectionLines args = Val $ PtListV $ computeSurjectionLines' compRng args
+computeSurjectionLines args g =
+    let (pts, g') = computeSurjectionLines' g args
+    in (Val $ PtListV pts, g')
 
-computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> [Pt2 a]
+computeSurjectionLines' :: (Autofloat a) => StdGen -> [ArgVal a] -> ([Pt2 a], StdGen)
 computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
     let lower_left = (getNum left "startX", getNum bottom "startY") in
     let top_right = (getNum right "startX", getNum top "startY") in
@@ -383,7 +399,7 @@ computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arr
     let top_right = (getNum bottom "endX", getNum left "endY") in
     computeSurjection g n lower_left top_right
 
-computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> [Pt2 a]
+computeSurjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
     if numPoints < 2 then error "Surjection needs to have >= 2 points"
     else
@@ -394,12 +410,12 @@ computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
             ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
             ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
         -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
-        in zip xs_increasing ys_perm -- len xs == len ys
+        in (zip xs_increasing ys_perm, g'')-- len xs == len ys
 
 -- calculates a line (of two points) intersecting the first axis, stopping before it leaves bbox of second axis
 -- TODO rename lineLeft and lineRight
 -- assuming a1 horizontal and a2 vertical, respectively
-lineLeft :: CompFn
+lineLeft :: ConstCompFn
 lineLeft [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let a1_start = getNum a1 "startX" in
     let a1_len = abs (getNum a1 "endX" - a1_start) in
@@ -408,21 +424,21 @@ lineLeft [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
 
 -- assuming a1 vert and a2 horiz, respectively
 -- can this be written in terms of lineLeft?
-lineRight :: CompFn
+lineRight :: ConstCompFn
 lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let a1_start = getNum a1 "startY" in
     let a1_len = abs (getNum a1 "endY" - a1_start) in
     let ypos = a1_start + lineFrac * a1_len in
     Val $ PtListV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
 
-rgba :: CompFn
+rgba :: ConstCompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
     Val (ColorV $ makeColor' r g b a)
 
-arctangent :: CompFn
+arctangent :: ConstCompFn
 arctangent [Val (FloatV d)] = Val (FloatV $ (atan d) / pi * 180)
 
-calcVectorsAngle :: CompFn
+calcVectorsAngle :: ConstCompFn
 calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
       Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
        Val (FloatV ex2), Val (FloatV ey2)] =
@@ -434,7 +450,7 @@ calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
              angle = acos (ab / (na*nb)) / pi*180.0
          in Val (FloatV angle)
 
-calcVectorsAngleWithOrigin :: CompFn
+calcVectorsAngleWithOrigin :: ConstCompFn
 calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),
      Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2),
       Val (FloatV ex2), Val (FloatV ey2)] =
@@ -447,13 +463,13 @@ calcVectorsAngleWithOrigin [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1)
         --     angle2 =  if by < 0 then  (atan (by / bx) / pi*180.0) else 180.0 +   (atan  (by / bx) / pi*180.0)
         -- in if traceShowId angle1 > traceShowId angle2 then Val (FloatV $ -1 * angle1) else Val (FloatV $ -1 * angle2)
 
-generateRandomReal :: CompFn
+generateRandomReal :: ConstCompFn
 generateRandomReal [] = let g1 = mkStdGen 16
                             (x,g2) = (randomR (1, 15) g1) :: (Int,StdGen)
                             y = fst(randomR (1, 15) g2) ::  Int
                          in Val (FloatV ((fromIntegral x)/(fromIntegral y)))
 
-calcNorm :: CompFn
+calcNorm :: ConstCompFn
 calcNorm [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1),Val (FloatV ey1)] =
   let nx = (ex1 - sx1) ** 2.0
       ny = (ey1 - sy1) ** 2.0
@@ -467,7 +483,7 @@ arrowPts a = (getNum a "startX", getNum a "startY", getNum a "endX", getNum a "e
 infinity :: Floating a => a
 infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
 
-intersectionX :: CompFn
+intersectionX :: ConstCompFn
 intersectionX [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let (x0, y0, x1, y1) = arrowPts a1
         (x2, y2, x3, y3) = arrowPts a2
@@ -475,7 +491,7 @@ intersectionX [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     in Val $ FloatV $
        if det == 0 then infinity
        else (x0*y1 - y0*x1)*(x2 - x3) - (x0 - x1)*(x2*x3 - y2*y3) / det
-intersectionY :: CompFn
+intersectionY :: ConstCompFn
 intersectionY [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let (x0, y0, x1, y1) = arrowPts a1
         (x2, y2, x3, y3) = arrowPts a2
@@ -484,52 +500,51 @@ intersectionY [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
        if det == 0 then infinity
        else (x0*y1 - y0*x1)*(x2 - x3) - (y0 - y1)*(x2*x3 - y2*y3) / det
 
-bboxHeight :: CompFn
+bboxHeight :: ConstCompFn
 bboxHeight [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let ys@[y0, y1, y2, y3] = getYs a1 ++ getYs a2
         (ymin, ymax) = (minimum ys, maximum ys)
     in Val $ FloatV $ abs $ ymax - ymin
     where getYs a = [getNum a "startY", getNum a "endY"]
 
-bboxWidth :: CompFn
+bboxWidth :: ConstCompFn
 bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
         (xmin, xmax) = (minimum xs, maximum xs)
     in Val $ FloatV $ abs $ xmax - xmin
     where getXs a = [getNum a "startX", getNum a "endX"]
 
-len :: CompFn
+len :: ConstCompFn
 len [GPI a@("Arrow", _)] =
     let (x0, y0, x1, y1) = arrowPts a
     in Val $ FloatV $ dist (x0, y0) (x1, y1)
 
-midpointX :: CompFn
+midpointX :: ConstCompFn
 midpointX [GPI linelike] =
     if fst linelike == "Line" || fst linelike == "Arrow"
     then let (x0, x1) = (getNum linelike "startX", getNum linelike "endX")
          in Val $ FloatV $ (x1 + x0) / 2
     else error "GPI type must be line-like"
 
-midpointY :: CompFn
+midpointY :: ConstCompFn
 midpointY [GPI linelike] =
     if fst linelike == "Line" || fst linelike == "Arrow"
     then let (y0, y1) = (getNum linelike "startY", getNum linelike "endY")
          in Val $ FloatV $ (y1 + y0) / 2
     else error "GPI type must be line-like"
 
-norm_ :: CompFn
+norm_ :: ConstCompFn
 norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
 
 -- | Catmull-Rom spline interpolation algorithm
-interpolate :: CompFn
+interpolate :: ConstCompFn
 interpolate [Val (PtListV pts), Val (StrV closedParam)] =
     let k  = 1.5
         p0 = head pts
         chunks = repeat4 $ head pts : pts ++ [last pts]
         paths = map (chain k) chunks
         path = Pt p0 : paths
-        path' = if closedParam == "closed"
-                then Closed path
+        path' = if closedParam == "closed" then Closed path
                 else if closedParam == "open" then Open path
                 else error "invalid path closed/open type in interpolate"
     in Val $ PathDataV [path']
@@ -566,45 +581,46 @@ sampleList list g =
 
 -- sample random element from domain of function (relation)
 fromDomain :: CompFn
-fromDomain [Val (PtListV path)] =
-           -- let (x, g') = sampleList (trOpt "path: " (map fst path)) compRng2 in
-           let x = fst $ path !! 1 in
-           Val $ FloatV $ x
+fromDomain [Val (PtListV path)] g =
+           let (x, g') = sampleList (middle $ map fst path) g in
+           -- let x = fst $ path !! 1 in
+           (Val $ FloatV x, g')
+    where middle = init . tail
 
 -- lookup element in function (relation) by making a Map
-applyFn :: CompFn
+applyFn :: ConstCompFn
 applyFn [Val (PtListV path), Val (FloatV x)] =
         case M.lookup x (M.fromList path) of
         Just y -> Val (FloatV y)
         Nothing -> error "x element does not exist in function"
 
 -- TODO: remove the unused functions in the next four
-midpointPathX :: CompFn
+midpointPathX :: ConstCompFn
 midpointPathX [Val (PtListV path)] =
               let xs = map fst path
                   res = (maximum xs + minimum xs) / 2 in
               Val $ FloatV res
 
-midpointPathY :: CompFn
+midpointPathY :: ConstCompFn
 midpointPathY [Val (PtListV path)] =
               let ys = map snd path
                   res = (maximum ys + minimum ys) / 2 in
               Val $ FloatV res
 
-sizePathX :: CompFn
+sizePathX :: ConstCompFn
 sizePathX [Val (PtListV path)] =
               let xs = map fst path
                   res = maximum xs - minimum xs in
               Val $ FloatV res
 
-sizePathY :: CompFn
+sizePathY :: ConstCompFn
 sizePathY [Val (PtListV path)] =
               let ys = map snd path
                   res = maximum ys - minimum ys in
               Val $ FloatV res
 
 -- Compute path for an integral's shape (under a function, above the interval on which the function is defined)
-makeRegionPath :: CompFn
+makeRegionPath :: ConstCompFn
 makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
                let pt1   = Pt $ getPoint "start" intv
                    pt2   = Pt $ getPoint "end" intv
@@ -618,8 +634,52 @@ makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
                in Val (PathDataV [path])
                -- in Val $ PathDataV $ getPathData fn
 
+-- tangentLine :: Autofloat a => a -> PathData a -> (Pt2 a, Pt2 a)
+-- -- TODO: closed curves?
+-- tangentLine t [Open curve] = deCasteljau t $ concatMap controlPoints curve
+--     where controlPoints (CubicBez (p0, p1, p2)) = [p0, p1, p2]
+--           controlPoints _ = []
+
+-- approximation
+tangentLine :: Autofloat a => a -> [Pt2 a] -> (Pt2 a, Pt2 a)
+tangentLine x ptList =
+    let i  = fromMaybe 0 $ findIndex (\(a, _) -> x == a) ptList  -- TODO: default value should be randomized?
+        (p0, p1, p2) = (ptList !! (i-1), ptList !! i, ptList !! (i+1))
+        (k0, k1) = (slope p0 p1, slope p1 p2)
+        (px, py) = p1
+        k  = (k0 + k1) / 2
+        theta = atan k0
+        (dx, dy) = (len * sin theta, len * cos theta)
+        len = 50
+    in ((px - dx, py - dy), (px + dx, py + dy))
+    where slope (x0, y0) (x1, y1) = (y1 - y0) / (x1 - x0)
+
+tangentLine _ _ = error "tangentLine: expecting a list of cubic bezier curves but got something else."
+
+tangentLineSX :: ConstCompFn
+tangentLineSX [Val (PtListV curve), Val (FloatV x)] =
+    Val $ FloatV $ fst $ fst $ tangentLine x curve
+tangentLineSY :: ConstCompFn
+tangentLineSY [Val (PtListV curve), Val (FloatV x)] =
+    Val $ FloatV $ snd $ fst $ tangentLine x curve
+tangentLineEX :: ConstCompFn
+tangentLineEX [Val (PtListV curve), Val (FloatV x)] =
+    Val $ FloatV $ fst $ snd $ tangentLine x curve
+tangentLineEY :: ConstCompFn
+tangentLineEY [Val (PtListV curve), Val (FloatV x)] =
+    Val $ FloatV $ snd $ snd $ tangentLine x curve
+
+-- Adopted from: https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm
+deCasteljau :: Autofloat a => a -> [Pt2 a] -> (Pt2 a, Pt2 a)
+deCasteljau t [a, b] = (a, b)
+deCasteljau t coefs = deCasteljau t reduced
+  where
+    reduced = zipWith (lerpP t) coefs (tail coefs)
+    lerpP t (x0, y0) (x1, y1) = (lerp t x0 x1, lerp t y0 y1)
+    lerp t a b = t * b + (1 - t) * a
+
 noop :: CompFn
-noop [] = Val (StrV "TODO")
+noop [] g = (Val (StrV "TODO"), g)
 
 --------------------------------------------------------------------------------
 -- Objective Functions
