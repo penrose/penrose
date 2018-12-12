@@ -50,6 +50,8 @@ type CompFnOn   a = [ArgVal a] -> StdGen -> (ArgVal a, StdGen)
 type ObjFn    = forall a. (Autofloat a) => [ArgVal a] -> a
 type ConstrFn = forall a. (Autofloat a) => [ArgVal a] -> a
 type CompFn   = forall a. (Autofloat a) => [ArgVal a] -> StdGen -> (ArgVal a, StdGen)
+
+-- | computations that do not use randomization
 type ConstCompFn = forall a. (Autofloat a) => [ArgVal a] -> ArgVal a
 
 -- TODO: are the Info types still needed?
@@ -175,8 +177,9 @@ invokeComp n args sigs g =
     in if checkReturn ret retType then (ret, g') else
         error ("invalid return value \"" ++ show ret ++ "\" of computation \"" ++ show n ++ "\". expected type is \"" ++ show retType ++ "\"")
 
+-- | 'constComp' is a wrapper for computation functions that do not use randomization
 constComp :: ConstCompFn -> CompFn
-constComp f = \args g -> (f args, g)
+constComp f = \args g -> (f args, g) -- written in the lambda fn style to be more readable
 
 --------------------------------------------------------------------------------
 -- Objectives
@@ -346,15 +349,6 @@ checkReturn (GPI v) _ = error "checkReturn: Computations cannot return GPIs"
 
 type Interval = (Float, Float)
 
--- TODO: use the rng in state
-compRng :: StdGen
-compRng = mkStdGen seed
-    where seed = 17 -- deterministic RNG with seed
-
-compRng2 :: StdGen
-compRng2 = mkStdGen seed
-    where seed = 19
-
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
 -- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
@@ -375,8 +369,8 @@ sampleFunction [Val (IntV n), GPI domain, GPI range] g =
                                            getNum domain "endX", getNum domain "endY")
                    (rsx, rsy, rex, rey) = (getNum range "startX", getNum range "startY",
                                            getNum range "endX", getNum range "endY")
-                   lower_left = (min dsx dex, min rsy rey + 50)
-                   top_right  = (max dsx dex, max rsy rey - 20)
+                   lower_left = (min dsx dex, min rsy rey)
+                   top_right  = (max dsx dex, max rsy rey)
                    (pts, g')  = computeSurjection g n lower_left top_right
               in (Val $ PtListV pts, g')
 
@@ -640,7 +634,10 @@ makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
 --     where controlPoints (CubicBez (p0, p1, p2)) = [p0, p1, p2]
 --           controlPoints _ = []
 
--- approximation
+-- HACK: approximation of tangentline by just looking at the polyline. A more
+-- principled method should explicitly compute the derivative of the bezier
+-- curve, as introduced in https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-der.html, by de Casteljau's Algorithm.
+-- NOTE: assumes that the curve has at least 3 points 
 tangentLine :: Autofloat a => a -> [Pt2 a] -> (Pt2 a, Pt2 a)
 tangentLine x ptList =
     let i  = fromMaybe 0 $ findIndex (\(a, _) -> x == a) ptList  -- TODO: default value should be randomized?
@@ -650,11 +647,9 @@ tangentLine x ptList =
         k  = (k0 + k1) / 2
         theta = atan k0
         (dx, dy) = (len * sin theta, len * cos theta)
-        len = 50
+        len = 50  -- TODO: length of the tangent line segment. Take in as arg?
     in ((px - dx, py - dy), (px + dx, py + dy))
     where slope (x0, y0) (x1, y1) = (y1 - y0) / (x1 - x0)
-
-tangentLine _ _ = error "tangentLine: expecting a list of cubic bezier curves but got something else."
 
 tangentLineSX :: ConstCompFn
 tangentLineSX [Val (PtListV curve), Val (FloatV x)] =
