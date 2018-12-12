@@ -149,7 +149,7 @@ Function f
 with Interval I; Reals R
 -- TODO: with Set A; Set B
 where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
-  f.pts = 5
+  f.pts = 3
   -- TODO: use a more general function than computeSurjection
   f.val = sampleFunction(f.pts, I.shape, R.y_axis)
 
@@ -180,8 +180,8 @@ where f := CreateFunction(I, R);
       Discontinuous(f);
       Subset(I, R); Subset(J, R); Subset(K, R) {
 
-      f.pts1 = 5
-      f.pts2 = 4
+      f.pts1 = 4
+      f.pts2 = 3
 
       f.val1 = sampleFunction(f.pts1, J.shape, R.y_axis)
       f.val2 = sampleFunction(f.pts2, K.shape, R.y_axis)

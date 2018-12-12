@@ -31,9 +31,10 @@ import qualified Network.WebSockets            as WS
 import           Network.WebSockets.Connection
 import qualified Network.WebSockets.Stream     as Stream
 import qualified Optimizer                     as O
-import           Shapes                        (Shape, Value (..), getName,
-                                                getX, getY, sampleShapes, setX,
-                                                setY, toPolymorphics)
+import           Shapes
+-- (Shape, Value (..), getName,
+--                                                 getNum, getX, getY, sampleShapes, setX,
+--                                                 setY, toPolymorphics, set, is)
 import qualified Style                         as N
 import           Substance                     (parseSubstance)
 import           System.Console.Pretty         (Color (..), Style (..), bgColor,
@@ -336,7 +337,7 @@ dragUpdate name xm ym client@(clientID, conn, clientState) =
     let (xm', ym') = (r2f xm, r2f ym)
         newShapes  = map (\shape ->
             if getName shape == name
-                then setX (FloatV (xm' + getX shape)) $ setY (FloatV (ym' + getY shape)) shape
+                then dragShape shape xm' ym'
                 else shape)
             (G.shapesr s)
         varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
@@ -349,6 +350,23 @@ dragUpdate name xm ym client@(clientID, conn, clientState) =
         then stepAndSend client'
         else loop client'
     where s = getBackendState clientState
+
+dragShape :: Autofloat a => Shape a -> a -> a -> Shape a
+dragShape shape dx dy
+    | shape `is` "Line" =
+        trRaw "here"  $ move "startX" dx $
+        move "startY" dy $
+        move "endX"   dx $
+        move "endY"   dy shape
+    | shape `is` "Arrow" =
+        move "startX" dx $
+        move "startY" dy $
+        move "endX"   dx $
+        move "endY"   dy shape
+    | otherwise = setX (FloatV (dx + getX shape)) $ setY (FloatV (dy + getY shape)) shape
+
+move :: Autofloat a => PropID -> a -> Shape a -> Shape a
+move prop dd s = set s prop (FloatV (dd + getNum s prop))
 
 executeCommand :: String -> Client -> IO ()
 executeCommand cmd client@(clientID, conn, clientState)

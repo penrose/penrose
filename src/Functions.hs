@@ -375,8 +375,8 @@ sampleFunction [Val (IntV n), GPI domain, GPI range] g =
                                            getNum domain "endX", getNum domain "endY")
                    (rsx, rsy, rex, rey) = (getNum range "startX", getNum range "startY",
                                            getNum range "endX", getNum range "endY")
-                   lower_left = (min dsx dex, min rsy rey)
-                   top_right  = (max dsx dex, max rsy rey)
+                   lower_left = (min dsx dex, min rsy rey + 50)
+                   top_right  = (max dsx dex, max rsy rey - 20)
                    (pts, g')  = computeSurjection g n lower_left top_right
               in (Val $ PtListV pts, g')
 
