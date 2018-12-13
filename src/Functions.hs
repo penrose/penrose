@@ -234,6 +234,7 @@ objSignatures :: OptSignatures
 objSignatures = MM.fromList
     [
         ("near", [GPIType "Circle", GPIType "Circle"]),
+        ("near", [GPIType "Image", GPIType "Text", ValueT FloatT, ValueT FloatT]),
         ("nearHead",
             [GPIType "Arrow", GPIType "Text", ValueT FloatT, ValueT FloatT]),
         ("center", [AnyGPI]),
@@ -637,7 +638,7 @@ makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
 -- HACK: approximation of tangentline by just looking at the polyline. A more
 -- principled method should explicitly compute the derivative of the bezier
 -- curve, as introduced in https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-der.html, by de Casteljau's Algorithm.
--- NOTE: assumes that the curve has at least 3 points 
+-- NOTE: assumes that the curve has at least 3 points
 tangentLine :: Autofloat a => a -> [Pt2 a] -> (Pt2 a, Pt2 a)
 tangentLine x ptList =
     let i  = fromMaybe 0 $ findIndex (\(a, _) -> x == a) ptList  -- TODO: default value should be randomized?
@@ -681,6 +682,11 @@ noop [] g = (Val (StrV "TODO"), g)
 
 near :: ObjFn
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
+near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
+    let center = (getNum img "centerX", getNum img "centerY")
+        offset = (xoff, yoff)
+    in distsq (getX lab, getY lab) (center `plus2` offset)
+    where plus2 (a, b) (c, d) = (a + c, b + d)
 
 center :: ObjFn
 center [GPI o] = tr "center: " $ distsq (getX o, getY o) (0, 0)

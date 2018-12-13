@@ -1,7 +1,7 @@
 Set Z
 
 Reals R
-Real a, b, c, d
+Real a, b, c, d, e, f
 
 Interval A
 A := CreateInterval(a, b)
@@ -10,6 +10,10 @@ Subset(A, R)
 ClosedInterval C
 C := CreateClosedInterval(c, d)
 Subset(C, R)
+
+OpenInterval D
+D := CreateOpenInterval(e, f)
+Subset(D, R)
 
 AutoLabel All
 Label R $\mathbb{R}$

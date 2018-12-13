@@ -358,6 +358,9 @@ dragShape shape dx dy
         move "startY" dy $
         move "endX"   dx $
         move "endY"   dy shape
+    | shape `is` "Image" =
+        move "centerX" dx $
+        move "centerY" dy shape
     | shape `is` "Arrow" =
         move "startX" dx $
         move "startY" dy $
