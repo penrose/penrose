@@ -395,8 +395,10 @@ resampleAndSend client@(clientID, conn, clientState) = do
                     G.transr = trans',
                     G.varyingState = G.shapes2floats resampledShapes varyMapNew $ G.varyingPaths s,
                     G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter } }
-    let (newShapes, _, g') = evalTranslation news
-    -- TODO: do we need to pass on the random generator?
+    -- NOTE: for now we do not update the new state with the new rng from eval.
+    -- The results still look different because resampling updated the rng.
+    -- Therefore, we do not have to update rng here.
+    let (newShapes, _, _) = evalTranslation news
     wsSendJSONFrame conn Frame { flag = "initial", shapes = newShapes }
     let nextClientS = updateState clientState news
     let client' = (clientID, conn, nextClientS)

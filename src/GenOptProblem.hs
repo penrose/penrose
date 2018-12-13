@@ -72,7 +72,7 @@ instance Eq OptStatus where
 
 data Params = Params { weight :: Float,
                        optStatus :: OptStatus,
-                       overallObjFn :: forall a . (Autofloat a) => a -> [a] -> a
+                       overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a
                      }
 
 instance Show Params where
@@ -509,6 +509,7 @@ evalExpr (i, n) arg trans varyMap g =
                 let compVal = evalBinop op v1 v2 in
                 (Val compVal, trans', g')
             CompApp fname args ->
+                -- NOTE: the goal of all the rng passing in this module is for invoking computations with randomization
                 let (vs, trans', g') = evalExprs limit args trans varyMap g
                     (compRes, g'')   = invokeComp fname vs compSignatures g'
                 in (compRes, trans', g'')
@@ -583,17 +584,17 @@ evalExprs limit args trans varyMap g =
 
 ------------------- Generating and evaluating the objective function
 
-evalFnArgs :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([FnDone a], Translation a)
-                                    -> Fn -> ([FnDone a], Translation a)
-evalFnArgs limit varyMap (fnDones, trans) fn =
+evalFnArgs :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([FnDone a], Translation a, StdGen) -> Fn -> ([FnDone a], Translation a, StdGen)
+evalFnArgs limit varyMap (fnDones, trans, g) fn =
     let args = fargs fn in
-    let (argsVal, trans', _) = evalExprs limit (fargs fn) trans varyMap tempRng in
+    let (argsVal, trans', g') = evalExprs limit (fargs fn) trans varyMap g in
     let fn' = FnDone { fname_d = fname fn, fargs_d = argsVal, optType_d = optType fn } in
-    (fnDones ++ [fn'], trans') -- TODO factor out this pattern
-    where tempRng = mkStdGen 42 -- HACK: we are assuming that arguments to obj fns will *not* involve any randomness. Check back later and see if this is indeed true
+    (fnDones ++ [fn'], trans', g') -- TODO factor out this pattern
 
-evalFns :: (Autofloat a) => (Int, Int) -> [Fn] -> Translation a -> VaryMap a -> ([FnDone a], Translation a)
-evalFns limit fns trans varyMap = foldl (evalFnArgs limit varyMap) ([], trans) fns
+evalFns :: (Autofloat a)
+    => (Int, Int) -> [Fn] -> Translation a -> VaryMap a -> StdGen
+    -> ([FnDone a], Translation a, StdGen)
+evalFns limit fns trans varyMap g = foldl (evalFnArgs limit varyMap) ([], trans, g) fns
 
 applyOptFn :: (Autofloat a) =>
     M.Map String (OptFn a) -> OptSignatures -> FnDone a -> a
@@ -609,11 +610,14 @@ applyCombined penaltyWeight fns =
 
 -- Main function: generates the objective function, partially applying it with some info
 
-genObjfn :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a -> [a] -> a
+genObjfn :: (Autofloat a)
+    => Translation a -> [Fn] -> [Fn] -> [Path]
+    -> StdGen -> a -> [a]
+    -> a
 genObjfn trans objfns constrfns varyingPaths =
-     \penaltyWeight varyingVals ->
+     \rng penaltyWeight varyingVals ->
          let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
-         let (fnsE, transE) = evalFns evalIterRange (objfns ++ constrfns) trans varyMap in
+         let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
 

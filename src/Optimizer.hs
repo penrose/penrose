@@ -8,6 +8,7 @@ import Style
 import GenOptProblem
 import Numeric.AD
 import Debug.Trace
+import System.Random
 
 ------ Opt types, util functions, and params
 
@@ -69,8 +70,13 @@ infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinit
 -- Main optimization functions
 
 step :: State -> State
-step s = let (state', params') = stepShapes (paramsr s) (varyingState s)
+step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              s'                = s { varyingState = state', paramsr = params' }
+             -- NOTE: we intentially discard the random generator here because
+             -- we want to have consistent computation output in a single
+             -- optimization session
+             -- For the same reason, all subsequent step* functions such as
+             -- stepShapes do not return the new random generator
              (!shapes', _, _)     = evalTranslation s'
          in s' { shapesr = shapes' } -- note: trans is not updated in state
 
@@ -78,8 +84,8 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s)
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
-stepShapes :: (Autofloat a) => Params -> [a] -> ([a], Params)
-stepShapes params vstate = -- varying state
+stepShapes :: (Autofloat a) => Params -> [a] -> StdGen -> ([a], Params)
+stepShapes params vstate g = -- varying state
          -- if null vstate then error "empty state in stepshapes" else
          let (epWeight, epStatus) = (weight params, optStatus params) in
          case epStatus of
@@ -122,8 +128,8 @@ stepShapes params vstate = -- varying state
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
-        where (vstate', gradEval) = stepWithObjective params vstate
-              objFnApplied = (overallObjFn params) (r2f $ weight params)
+        where (vstate', gradEval) = stepWithObjective g params vstate
+              objFnApplied = (overallObjFn params) g (r2f $ weight params)
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
 -- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
@@ -134,8 +140,8 @@ stepT dt x dfdx = x - dt * dfdx
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: (Autofloat a) => Params -> [a] -> ([a], [a])
-stepWithObjective params state =
+stepWithObjective :: (Autofloat a) => StdGen -> Params -> [a] -> ([a], [a])
+stepWithObjective g params state =
                   -- if null gradEval then error "empty gradient" else
                   (steppedState, gradEval)
     where (t', gradEval) = timeAndGrad objFnApplied state
@@ -156,7 +162,7 @@ stepWithObjective params state =
                          state'
 
           objFnApplied :: ObjFn1 b
-          objFnApplied = (overallObjFn params) cWeight
+          objFnApplied = (overallObjFn params) g cWeight
           cWeight = realToFrac $ weight params
           -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
 
