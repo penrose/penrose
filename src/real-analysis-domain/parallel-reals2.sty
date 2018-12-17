@@ -8,11 +8,22 @@ origin {
 }
 
 Colors {
-  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
-  Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
-  Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
-  Colors.green = rgba(0.0, 1.0, 0.0, 0.5)
-  Colors.blue = rgba(0.0, 0.0, 1.0, 0.5)
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
 }
 
 Reals `R` {
@@ -186,8 +197,8 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
 -- Will achieve the effect of if only one shape had been made
 
 Function f; Reals R
-with Interval I
-where f := CreateFunction(I, R) {
+with Interval I; Interval J
+where f := CreateFunction(I, J) {
   R.yval2 = R.yval - 100.0 -- function drawn downward
 
   R.shape2 = Arrow {
@@ -213,13 +224,21 @@ where f := CreateFunction(I, R) {
   f.domain = I.shape
   f.codomain = R.shape2
 
-  f.shape = Arrow {
+  /* f.shape = Arrow {
     startX = midpointX(f.domain)
     startY = I.yval - global.padding
     endX   = midpointX(f.codomain)
     endY   = R.yval2 + global.padding
     thickness = R.thickness * 2.0
     -- color = Colors.blue
+    rotation = 0.0
+  } */
+
+  f.shape = Curve {
+    pathData = sampleFunctionArea(I.shape, J.shape)
+    strokeWidth = 0.0
+    fill = Colors.lightorange
+    color = Colors.lightorange
     rotation = 0.0
   }
 
@@ -228,7 +247,11 @@ where f := CreateFunction(I, R) {
     rotation = 0.0
   }
 
-  f.labelFn = encourage centerLabel(f.shape, f.text)
+  -- TODO position text
+  -- ifI.text.x = midpointPathX(f.val1)
+  -- ifI.text.y = midpointPathY(f.val1) - 100.0
+
+  -- f.labelFn = encourage centerLabel(f.shape, f.text)
 }
 
 -- h = g . f
@@ -242,7 +265,7 @@ Function f
 where h := compose(g, f);
       h := CreateFunction(A, R);
       g := CreateFunction(B, R);
-      f := CreateFunction(A, R)
+      f := CreateFunction(A, B)
       -- disallow equality for simplicity
       -- TODO: deal with these later
       -- A ?= B; B ?= C; h ?= g; g ?= f

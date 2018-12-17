@@ -329,8 +329,7 @@ with Function f; Interval I; Interval J; Interval U; Reals R
 where U := union(I, J);
       ifI := integral(I, f);
       f := CreateFunction(U, R);
-      Discontinuous(f);
-{
+      Discontinuous(f) {
       -- compute integral as a shape that lies under fn curve
       override ifI.shape = Curve {
           pathData = makeRegionPath(f.shape1, I.shape)

@@ -72,6 +72,9 @@ invokeOptFn dict n args signatures =
     in f args
     -- in f args'
 
+-- For a very limited form of supertyping...
+linelike :: Autofloat a => Shape a -> Bool
+linelike shape = fst shape == "Line" || fst shape == "Arrow"
 
 --------------------------------------------------------------------------------
 -- Computations
@@ -105,6 +108,7 @@ compDict = M.fromList
         ("sizePathX", constComp sizePathX),
         ("sizePathY", constComp sizePathY),
         ("makeRegionPath", constComp makeRegionPath),
+        ("sampleFunctionArea", sampleFunctionArea),
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
         ("tangentLineEX", constComp tangentLineEX),
@@ -169,13 +173,15 @@ invokeComp :: (Autofloat a) =>
     FuncName -> [ArgVal a] -> CompSignatures -> StdGen
     -> (ArgVal a, StdGen)
 invokeComp n args sigs g =
-    let (argTypes, retType) =
-            fromMaybe (noSignatureError n) (M.lookup n compSignatures)
-        args'  = checkArgs args argTypes n
+    -- TODO: Improve computation function typechecking to allow for genericity #164
+    let -- (argTypes, retType) =
+            -- fromMaybe (noSignatureError n) (M.lookup n compSignatures)
+        -- args'  = checkArgs args argTypes n
         f      = fromMaybe (noFunctionError n) (M.lookup n compDict)
-        (ret, g') = f args' g
-    in if checkReturn ret retType then (ret, g') else
-        error ("invalid return value \"" ++ show ret ++ "\" of computation \"" ++ show n ++ "\". expected type is \"" ++ show retType ++ "\"")
+        (ret, g') = f args g
+    in (ret, g')
+       -- if checkReturn ret retType then (ret, g') else
+       --  error ("invalid return value \"" ++ show ret ++ "\" of computation \"" ++ show n ++ "\". expected type is \"" ++ show retType ++ "\"")
 
 -- | 'constComp' is a wrapper for computation functions that do not use randomization
 constComp :: ConstCompFn -> CompFn
@@ -515,16 +521,16 @@ len [GPI a@("Arrow", _)] =
     in Val $ FloatV $ dist (x0, y0) (x1, y1)
 
 midpointX :: ConstCompFn
-midpointX [GPI linelike] =
-    if fst linelike == "Line" || fst linelike == "Arrow"
-    then let (x0, x1) = (getNum linelike "startX", getNum linelike "endX")
+midpointX [GPI l] =
+    if linelike l
+    then let (x0, x1) = (getNum l "startX", getNum l "endX")
          in Val $ FloatV $ (x1 + x0) / 2
     else error "GPI type must be line-like"
 
 midpointY :: ConstCompFn
-midpointY [GPI linelike] =
-    if fst linelike == "Line" || fst linelike == "Arrow"
-    then let (y0, y1) = (getNum linelike "startY", getNum linelike "endY")
+midpointY [GPI l] =
+    if linelike l
+    then let (y0, y1) = (getNum l "startY", getNum l "endY")
          in Val $ FloatV $ (y1 + y0) / 2
     else error "GPI type must be line-like"
 
@@ -619,15 +625,25 @@ makeRegionPath :: ConstCompFn
 makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
                let pt1   = Pt $ getPoint "start" intv
                    pt2   = Pt $ getPoint "end" intv
-
                    -- Assume the function is a single open path consisting of a Pt elem, followed by CubicBez elements
-                   -- (i.e. produced by `interpolate` with "open")
+                   -- (i.e. produced by `interpolate` with parameter "open")
                    curve = case (getPathData fn) !! 0 of
-                           Closed elems -> error "TODO"
                            Open elems -> elems
+                           Closed elems -> error "makeRegionPath not implemented for closed paths"
                    path  = Closed $ pt1 : curve ++ [pt2]
                in Val (PathDataV [path])
-               -- in Val $ PathDataV $ getPathData fn
+
+sampleFunctionArea :: CompFn
+sampleFunctionArea [GPI domain, GPI range] g =
+               if linelike domain && linelike range
+               then let pt_tl = Pt $ getPoint "start" domain
+                        pt_tr = Pt $ getPoint "end" domain
+                        pt_bl = Pt $ getPoint "start" range
+                        pt_br = Pt $ getPoint "end" range
+                        path = Closed $ [pt_tl, pt_tr, pt_br, pt_bl]
+                        -- TODO: sample inner control points
+                    in (Val $ PathDataV [path], g)
+               else error "expected two linelike shapes"
 
 -- tangentLine :: Autofloat a => a -> PathData a -> (Pt2 a, Pt2 a)
 -- -- TODO: closed curves?
@@ -814,9 +830,9 @@ topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] = dist (getX l, getY l) (getX
 topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] = dist (getX l, getY l) (getX s - 0.5 * getNum s "sizeX", getY s - 0.5 * getNum s "sizeY")
 
 nearHead :: ObjFn
-nearHead [GPI lineLike, GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
-    if fst lineLike == "Line" || fst lineLike == "Arrow"
-    then let end = (getNum lineLike "endX", getNum lineLike "endY")
+nearHead [GPI l, GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
+    if linelike l
+    then let end = (getNum l "endX", getNum l "endY")
              offset = (xoff, yoff)
          in distsq (getX lab, getY lab) (end `plus2` offset)
     else error "GPI type for nearHead must be line-like"

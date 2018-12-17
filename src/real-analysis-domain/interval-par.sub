@@ -21,13 +21,16 @@ In(x, I)
 -- TODO: y := f(x)
 -- z := g(y)
 
--- f : I -> R
-Function f
-f := CreateFunction(I, R)
-
 -- J \subset R
 Interval J
 Subset(J, R)
+
+-- f : I -> R
+Function f
+f := CreateFunction(I, J)
+
+Function f2
+f2 := CreateFunction(T, R)
 
 -- g : J -> R
 Function g
