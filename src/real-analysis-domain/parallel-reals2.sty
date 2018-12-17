@@ -24,6 +24,8 @@ Colors {
     Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.lightblue2 = rgba(0.82, 0.88, 0.94, 1.0)
+    Colors.lightpink = rgba(0.9, 0.5, 0.5, 0.25)
 }
 
 Reals `R` {
@@ -56,13 +58,14 @@ Reals `R` {
 Real r  -- no "In(r, `R`)"
 with Reals `R` {
   r.val = OPTIMIZED
+  r.yval = `R`.yval
   r.len = 20.0
 
   r.shape = Line {
     startX = r.val
-    startY = `R`.yval - (r.len / 2.0)
+    startY = r.yval - (r.len / 2.0)
     endX = r.val
-    endY = `R`.yval + (r.len / 2.0)
+    endY = r.yval + (r.len / 2.0)
     thickness = 2.5
     color = Colors.black
   }
@@ -94,7 +97,8 @@ with Reals R { -- TODO: more general, with Interval J
     startY = I.yval
     endX = I.right
     endY = I.yval
-    thickness = 10.0
+    thickness = 7.5
+    color = rgba(0.3, 0.3, 0.9, 0.5)
   }
 
   -- position computed, not optimized
@@ -135,12 +139,14 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
 
   override a.val = I.left
   override b.val = I.right
+  override a.yval = I.yval
+  override b.yval = I.yval
 
   -- lines copied from real-analysis-types.sty
   override a.shape = Image {
       path = "left-paren.svg"
       centerX = a.val
-      centerY = origin.y
+      centerY = a.yval
       lengthX = 10.0
       lengthY = 20.0
   }
@@ -148,7 +154,7 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
   override b.shape = Image {
       path = "right-paren.svg"
       centerX = b.val
-      centerY = origin.y
+      centerY = b.yval
       lengthX = 10.0
       lengthY = 20.0
   }
@@ -164,12 +170,14 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
 
   override a.val = I.left
   override b.val = I.right
+  override a.yval = I.yval
+  override b.yval = I.yval
 
   -- lines copied from real-analysis-types.sty
   override a.shape = Image {
       path = "left-bracket.svg"
       centerX = a.val
-      centerY = origin.y
+      centerY = a.yval
       lengthX = 10.0
       lengthY = 20.0
   }
@@ -177,7 +185,7 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
   override b.shape = Image {
       path = "right-bracket.svg"
       centerX = b.val
-      centerY = origin.y
+      centerY = b.yval
       lengthX = 10.0
       lengthY = 20.0
   }
@@ -218,11 +226,12 @@ where f := CreateFunction(I, J) {
 
   R.shape2_labelFn = ensure nearHead(R.shape2, R.shape2_text, global.padding, global.padding)
 
+  override J.yval = R.yval2
   -------------------------------------------------
   -- draw f as an arrow from interval to reals
   f.val = OPTIMIZED   -- placeholder, TODO sample f's value
   f.domain = I.shape
-  f.codomain = R.shape2
+  f.codomain = J.shape
 
   /* f.shape = Arrow {
     startX = midpointX(f.domain)
@@ -235,10 +244,10 @@ where f := CreateFunction(I, J) {
   } */
 
   f.shape = Curve {
-    pathData = sampleFunctionArea(I.shape, J.shape)
+    pathData = sampleFunctionArea(I.shape, J.shape, 5.0, 30.0)
     strokeWidth = 0.0
-    fill = Colors.lightorange
-    color = Colors.lightorange
+    fill = Colors.lightpink
+    color = Colors.lightpink
     rotation = 0.0
   }
 
@@ -247,9 +256,8 @@ where f := CreateFunction(I, J) {
     rotation = 0.0
   }
 
-  -- TODO position text
-  -- ifI.text.x = midpointPathX(f.val1)
-  -- ifI.text.y = midpointPathY(f.val1) - 100.0
+  f.text.x = average(midpointX(I.shape), midpointX(J.shape)) + 10.0
+  f.text.y = average(I.yval, J.yval)
 
   -- f.labelFn = encourage centerLabel(f.shape, f.text)
 }
@@ -258,6 +266,11 @@ where f := CreateFunction(I, J) {
 -- If there is a composition of functions, draw a third R for the second function
   -- again, this is technically going to be made for every match, but overridden to be the same thing
 -- (Does NOT deal with composition of 3 functions, i = h.g.f)
+
+Function `g` {
+	 override `g`.shape.fill = Colors.lightsky
+	 override `g`.shape.color = Colors.lightsky
+}
 
 Function h;
 Function g;

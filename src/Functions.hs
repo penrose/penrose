@@ -94,6 +94,7 @@ compDict = M.fromList
         ("intersectionY", constComp intersectionY),
         ("midpointX", constComp midpointX),
         ("midpointY", constComp midpointY),
+        ("average", constComp average),
         ("len", constComp len),
         ("computeSurjectionLines", computeSurjectionLines),
         ("lineLeft", constComp lineLeft),
@@ -534,22 +535,30 @@ midpointY [GPI l] =
          in Val $ FloatV $ (y1 + y0) / 2
     else error "GPI type must be line-like"
 
+average :: ConstCompFn
+average [Val (FloatV x), Val (FloatV y)] =
+    let res = (x + y) / 2
+    in Val $ FloatV res
+
 norm_ :: ConstCompFn
 norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
 
 -- | Catmull-Rom spline interpolation algorithm
-interpolate :: ConstCompFn
-interpolate [Val (PtListV pts), Val (StrV closedParam)] =
+interpolateFn :: Autofloat a => [Pt2 a] -> [Elem a]
+interpolateFn pts = 
     let k  = 1.5
         p0 = head pts
         chunks = repeat4 $ head pts : pts ++ [last pts]
         paths = map (chain k) chunks
-        path = Pt p0 : paths
-        path' = if closedParam == "closed" then Closed path
-                else if closedParam == "open" then Open path
-                else error "invalid path closed/open type in interpolate"
-    in Val $ PathDataV [path']
+        finalPath = Pt p0 : paths
+    in finalPath
     where repeat4 xs = [ take 4 . drop n $ xs | n <- [0..length xs - 4] ]
+
+-- Wrapper for interpolateFn
+interpolate :: ConstCompFn
+interpolate [Val (PtListV pts)] =
+    let pathRes = interpolateFn pts
+    in Val $ PathDataV $ [Open pathRes]
 
 chain :: Autofloat a => a -> [(a, a)] -> Elem a
 chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
@@ -633,15 +642,34 @@ makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
                    path  = Closed $ pt1 : curve ++ [pt2]
                in Val (PathDataV [path])
 
+-- | Draws a filled region from domain to range with in-curved sides, assuming domain is above range
+-- | Directionality: domain's right, then range's right, then range's left, then domain's left
+
+-- TODO: when range's x is a lot smaller than the domain's x, or |range| << |domain|, the generated region crosses itself
+-- You can see this by adjusting the interval size by *dragging the labels*
+-- TODO: should account for thickness of domain and range
 sampleFunctionArea :: CompFn
-sampleFunctionArea [GPI domain, GPI range] g =
+sampleFunctionArea [x@(GPI domain), y@(GPI range)] g =
+                   -- Apply with default offsets
+                   sampleFunctionArea [x, y, Val (FloatV 5), Val (FloatV (30))] g
+sampleFunctionArea [GPI domain, GPI range, Val (FloatV dx), Val (FloatV dy)] g =
                if linelike domain && linelike range
-               then let pt_tl = Pt $ getPoint "start" domain
-                        pt_tr = Pt $ getPoint "end" domain
-                        pt_bl = Pt $ getPoint "start" range
-                        pt_br = Pt $ getPoint "end" range
-                        path = Closed $ [pt_tl, pt_tr, pt_br, pt_bl]
-                        -- TODO: sample inner control points
+               then let pt_tl = getPoint "start" domain
+                        pt_tr = getPoint "end" domain
+
+                        pt_br = getPoint "end" range
+                        pt_bl = getPoint "start" range
+
+                        x_offset = (dx, 0)
+                        y_offset = (0, dy)
+                        pt_midright = midpoint pt_tr pt_br -: x_offset +: y_offset
+                        pt_midleft = midpoint pt_bl pt_tl +: x_offset +: y_offset
+               
+                        right_curve = interpolateFn [pt_tr, pt_midright, pt_br]
+                        left_curve = interpolateFn [pt_bl, pt_midleft, pt_tl]
+
+                        -- TODO: not sure if this is right. do any points need to be included in the path?
+                        path = Closed $ [Pt pt_tl, Pt pt_tr] ++ right_curve ++ [Pt pt_br, Pt pt_bl] ++ left_curve
                     in (Val $ PathDataV [path], g)
                else error "expected two linelike shapes"
 

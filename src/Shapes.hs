@@ -571,6 +571,16 @@ getPoint "end" shape = case (shape .: "endX", shape .: "endY") of
    _ -> error "getPoint expected two floats but got something else"
 getPoint _ shape = error "getPoint did not receive existing property name"
 
+-- To use with vector operations
+getPointV :: (Autofloat a) => String -> Shape a -> [a]
+getPointV "start" shape = case (shape .: "startX", shape .: "startY") of
+   (FloatV x, FloatV y) -> [x, y]
+   _ -> error "getPointV expected two floats but got something else"
+getPointV "end" shape = case (shape .: "endX", shape .: "endY") of
+   (FloatV x, FloatV y) -> [x, y]
+   _ -> error "getPointV expected two floats but got something else"
+getPointV _ shape = error "getPointV did not receive existing property name"
+
 getName :: (Autofloat a) => Shape a -> String
 getName shape = case shape .: "name" of
     StrV s -> s

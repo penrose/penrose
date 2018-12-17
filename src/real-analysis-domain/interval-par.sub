@@ -14,27 +14,42 @@ ClosedInterval T
 T := CreateClosedInterval(c, d)
 Subset(T, R)
 
+-- S := [e, f] \subset R
+Real i, j
+OpenInterval S
+S := CreateOpenInterval(i, j)
+Subset(S, R)
+
+-- f : I -> R
+Function f
+f := CreateFunction(I, T)
+
+Function g
+g := CreateFunction(I, S)
+
 -- x \in I
+/*
 Real x
 In(x, I)
+*/
 
 -- TODO: y := f(x)
 -- z := g(y)
 
 -- J \subset R
+/*
 Interval J
 Subset(J, R)
+*/
 
--- f : I -> R
-Function f
-f := CreateFunction(I, J)
-
+/*
 Function f2
 f2 := CreateFunction(T, R)
 
 -- g : J -> R
 Function g
 g := CreateFunction(J, R)
+*/
 
 -- TODO: match in Style
 -- f(I) \subset J
@@ -43,9 +58,13 @@ fI := applyOver(f, I)
 Subset(fI, J) */
 
 -- h := g . f
+/*
 Function h
 h := CreateFunction(I, R)
 h := compose(g, f)
 
+*/
+
 AutoLabel All
+NoLabel a, b, c, d, i, j
 Label R $\mathbb{R}$

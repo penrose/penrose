@@ -281,7 +281,7 @@ tro s x = if debugObj then trace "---" $ trace s x else x -- prints in left to r
 
 -- define operator precedence: higher precedence = evaluated earlier
 infixl 6 +., -.
-infixl 7 *. -- .*, /.
+infixl 7 *., /.
 
 -- assumes lists are of the same length
 dotL :: (RealFloat a, Floating a) => [a] -> [a] -> a
@@ -305,6 +305,28 @@ negL = map negate
 (*.) :: Floating a => a -> [a] -> [a] -- multiply by a constant
 (*.) c v = map ((*) c) v
 
+(/.) :: Floating a => [a] -> a -> [a]
+(/.) v c = map ((/) c) v
+
+p2v (x, y) = [x, y]
+
+v2p [x, y] = (x, y)
+
+infixl 6 +:, -:
+infixl 7 *:, /:
+
+(+:) :: Floating a => (a, a) -> (a, a) -> (a, a)
+(+:) (x, y) (c, d) = (x + y, c + d)
+
+(-:) :: Floating a => (a, a) -> (a, a) -> (a, a)
+(-:) (x, y) (c, d) = (x - y, c - d)
+
+(*:) :: Floating a => a -> (a, a) -> (a, a)
+(*:) c (x, y) = (c * x, c * y)
+
+(/:) :: Floating a => (a, a) -> a -> (a, a)
+(/:) (x, y) c = (c / x, c / y)
+
 -- Again (see below), we add epsd to avoid NaNs. This is a general problem with using `sqrt`.
 norm :: Floating a => [a] -> a
 norm v = sqrt ((sum $ map (^ 2) v) + epsd)
@@ -321,6 +343,9 @@ findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
 
 midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
 midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
+
+midpointV :: Floating a => [a] -> [a] -> [a]
+midpointV x y = (x +. y) /. 2.0
 
 -- We add epsd to avoid NaNs in the denominator of the gradient of dist.
 -- Now, grad dist (0, 0) (0, 0) is 0 instead of NaN.
