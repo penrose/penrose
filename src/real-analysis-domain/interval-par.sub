@@ -20,7 +20,6 @@ OpenInterval S
 S := CreateOpenInterval(i, j)
 Subset(S, R)
 
--- f : I -> R
 Function f
 f := CreateFunction(I, T)
 
@@ -28,10 +27,12 @@ Function g
 g := CreateFunction(I, S)
 
 -- x \in I
-/*
+
 Real x
 In(x, I)
-*/
+Real y
+y := apply(g, x)
+In(y, S)
 
 -- TODO: y := f(x)
 -- z := g(y)

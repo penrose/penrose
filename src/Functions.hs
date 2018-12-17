@@ -110,6 +110,7 @@ compDict = M.fromList
         ("sizePathY", constComp sizePathY),
         ("makeRegionPath", constComp makeRegionPath),
         ("sampleFunctionArea", sampleFunctionArea),
+        ("makeCurve", makeCurve),
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
         ("tangentLineEX", constComp tangentLineEX),
@@ -672,6 +673,14 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV dx), Val (FloatV dy)] g =
                         path = Closed $ [Pt pt_tl, Pt pt_tr] ++ right_curve ++ [Pt pt_br, Pt pt_bl] ++ left_curve
                     in (Val $ PathDataV [path], g)
                else error "expected two linelike shapes"
+
+-- Draw a curve from (x1, y1) to (x2, y2) with some point in the middle defining curvature
+makeCurve :: CompFn
+makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), Val (FloatV dx), Val (FloatV dy)] g = 
+          let offset = (dx, dy)
+              midpt = midpoint (x1, y1) (x2, y2) +: offset
+              path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)]
+          in (Val $ PathDataV [path], g)
 
 -- tangentLine :: Autofloat a => a -> PathData a -> (Pt2 a, Pt2 a)
 -- -- TODO: closed curves?

@@ -155,7 +155,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
 
   f.shape = Curve {
     path = f.val
-    pathData = interpolate(f.val, "open")
+    pathData = interpolate(f.val)
     fill = Colors.none
     color = Colors.sky
     strokeWidth = 1
@@ -188,7 +188,7 @@ where f := CreateFunction(I, R);
 
       f.shape1 = Curve {
           path = f.val1
-          pathData = interpolate(f.val1, "open")
+          pathData = interpolate(f.val1)
           fill = Colors.none
           color = Colors.orange
           -- TODO: start and end style depending on the interval
@@ -203,7 +203,7 @@ where f := CreateFunction(I, R);
       -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
       f.shape2 = Curve {
     	path = f.val2
-    	pathData = interpolate(f.val2, "open")
+    	pathData = interpolate(f.val2)
     	fill = Colors.none
     	color = Colors.orange
     	-- TODO: start and end style depending on the interval

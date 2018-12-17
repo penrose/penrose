@@ -126,8 +126,9 @@ where I := CreateInterval(a, b); Subset(I, R) {
 }
 
 Real r
-with Interval I; Reals R
+with Interval I; Reals R; Real a; Real b
 where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
+  override r.yval = I.yval
   override r.inFn = ensure inRange(r.val, a.val, b.val)
   override r.shape.color = Colors.red
 }
@@ -161,6 +162,16 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
 
     override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+-- TODO: duplicated from Interval; remove
+-- also TODO: missing one for ClosedInterval
+Real r
+with OpenInterval I; Reals R; Real a; Real b
+where I := CreateOpenInterval(a, b); In(r, I); Subset(I, R) {
+  override r.yval = I.yval
+  override r.inFn = ensure inRange(r.val, a.val, b.val)
+  override r.shape.color = Colors.red
 }
 
 Real a; Real b
@@ -331,3 +342,37 @@ with Interval A, B;
 
 -- TODO: selectors to make fourth, fifth, etc. R
 -- specifically for the composition of three, four functions
+
+----------------------------------
+-- FUNCTION APPLICATION STYLES
+
+-- y := f(x)
+Real y; Function f
+with Interval I; Interval J; Real x; Reals R
+where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
+
+  -- so it's not necessary to say In(y, J)
+  override y.yval = J.yval
+
+  f.pointwise_shape = Curve {
+    -- TODO: syntax for working with 2-tuples and lists
+    pathData = makeCurve(x.val, I.yval, y.val, J.yval, 0.0, 0.0)
+    strokeWidth = 2.0
+    fill = Colors.sky
+    color = Colors.sky
+    rotation = 0.0
+    -- TODO: rename to account for arrow directionality
+    right-arrowhead = True
+  }
+
+/* f.pointwise_shape = Arrow {
+    startX = x.val
+    startY = I.yval - global.padding
+    endX   = y.val
+    endY   = J.yval + global.padding
+    thickness = R.thickness
+    color = f.shape.color
+    rotation = 0.0
+  } */
+
+}
