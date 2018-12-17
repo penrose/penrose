@@ -4,9 +4,15 @@ Reals R
 
 -- I := [a, b] \subset R
 Real a, b
-Interval I
-I := CreateInterval(a, b)
+OpenInterval I
+I := CreateOpenInterval(a, b)
 Subset(I, R)
+
+-- T := [c, d] \subset R
+Real c, d
+ClosedInterval T
+T := CreateClosedInterval(c, d)
+Subset(T, R)
 
 -- x \in I
 Real x

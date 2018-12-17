@@ -65,7 +65,15 @@ with Reals `R` {
   r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
 }
 
-Interval I where Subset(I, R) with Reals R { -- TODO: more general, with Interval J
+----------------------------------
+-- INTERVAL STYLES
+
+-- TODO: Implement subtyping match WRT value ctors
+-- so the next 3 selectors can apply generically to intervals.
+
+Interval I
+where Subset(I, R)
+with Reals R { -- TODO: more general, with Interval J
   I.left = OPTIMIZED
   I.right = OPTIMIZED
   I.yval = R.yval
@@ -108,6 +116,67 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
   override r.inFn = ensure inRange(r.val, a.val, b.val)
   override r.shape.color = Colors.red
 }
+
+Real a; Real b
+with OpenInterval I; Reals R
+where I := CreateOpenInterval(a, b); Subset(I, R) {
+  -- TODO: next 2 lines are duplicated from interval style; remove
+
+  override a.val = I.left
+  override b.val = I.right
+
+  -- lines copied from real-analysis-types.sty
+  override a.shape = Image {
+      path = "left-paren.svg"
+      centerX = a.val
+      centerY = origin.y
+      lengthX = 10.0
+      lengthY = 20.0
+  }
+
+  override b.shape = Image {
+      path = "right-paren.svg"
+      centerX = b.val
+      centerY = origin.y
+      lengthX = 10.0
+      lengthY = 20.0
+  }
+
+    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with ClosedInterval I; Reals R
+where I := CreateClosedInterval(a, b); Subset(I, R) {
+  -- TODO: next 2 lines are duplicated from interval style; remove
+
+  override a.val = I.left
+  override b.val = I.right
+
+  -- lines copied from real-analysis-types.sty
+  override a.shape = Image {
+      path = "left-bracket.svg"
+      centerX = a.val
+      centerY = origin.y
+      lengthX = 10.0
+      lengthY = 20.0
+  }
+
+  override b.shape = Image {
+      path = "right-bracket.svg"
+      centerX = b.val
+      centerY = origin.y
+      lengthX = 10.0
+      lengthY = 20.0
+  }
+
+    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+----------------------------------
+-- FUNCTION STYLES
 
 -- f : I -> R
 -- If there is any function from I to R, then we make a
