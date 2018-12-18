@@ -356,9 +356,11 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
 
   f.pointwise_shape = Curve {
     -- TODO: syntax for working with 2-tuples and lists
-    pathData = makeCurve(x.val, I.yval, y.val, J.yval, 0.0, 0.0)
+    -- TODO: why does this not interpolate properly with offset = (0, 0)?
+    -- TODO: more curves = more time to optimize?
+    pathData = makeCurve(x.val, I.yval - 2.0 * global.padding, y.val, J.yval + 2.0 * global.padding, -10.0, -(J.yval - I.yval) / 1.5)
     strokeWidth = 2.0
-    fill = Colors.sky
+    fill = Colors.none
     color = Colors.sky
     rotation = 0.0
     -- TODO: rename to account for arrow directionality
