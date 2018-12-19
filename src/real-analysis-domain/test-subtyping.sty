@@ -50,3 +50,11 @@ with Interval I
 where In(x, I) {
       override a.shape.color = Colors.cyan
 }
+
+-- Should match `I` AND `C`
+Interval X
+with Real x; Real y; Reals R
+where X := CreateInterval(x, y); Subset(X, R) {
+      X.shape.strokeColor = Colors.orange
+      X.shape.strokeWidth = 10.0
+}

@@ -689,23 +689,6 @@ uniqueKeysAndVals subst =
 
 -- TODO: return "maybe" if a substitution fails?
 
--- TODO: use correct equality comparison in Substance typechecker
--- don't compare SourcePos
-predEq :: C.Predicate -> C.Predicate -> Bool
-predEq p1 p2 = C.predicateName p1 == C.predicateName p2 && C.predicateArgs p1 == C.predicateArgs p2
-
-argsEq :: Arg -> Arg -> Bool
-argsEq (AVar v1) (AVar v2) = v1 == v2
-argsEq (AT t1) (AT t2)     = typesEq t1 t2
-argsEq _ _                 = False
-
-typesEq :: T -> T -> Bool
-typesEq (TTypeVar t1) (TTypeVar t2) = typeVarName t1 == typeVarName t2 -- TODO: better way to compare type vars
-typesEq (TConstr t1) (TConstr t2) = nameCons t1 == nameCons t2 &&
-                                    length (argCons t1) == length (argCons t2) &&
-                                    (all (\(a1, a2) -> argsEq a1 a2) $ zip (argCons t1) (argCons t2))
-typesEq _ _ = False
-
 substituteBform :: Maybe LocalVarId -> Subst -> BindingForm -> BindingForm
 -- Variable in backticks in block or selector (e.g. `X`)
 substituteBform _ subst sv@(BSubVar _) = sv
@@ -802,36 +785,87 @@ substituteBlock (subst, substNum) (block, blockNum) = map (substituteLine (block
 
 ----- Filter with relational statements
 
+-- Intentionally pulling out variable equality judgment (. |- x1 = x2) as string equality
+varsEq :: Var -> Var -> Bool
+varsEq = (==)
+
+exprToVar :: C.Expr -> Var
+exprToVar (C.VarE v) = v
+exprToVar e        = error $ "Style expression matching does not yet handle nested expressions: '" ++ show e ++ "'"
+
+data ArrowType = FnT | VCtorT deriving (Eq, Show)
+
+findType :: VarEnv -> ArrowType -> String -> [T]
+findType typeEnv FnT name =
+         case M.lookup name (operators typeEnv) of
+         Just vc -> tlsop vc ++ [top vc]
+         Nothing -> error $ "name '" ++ name ++ "' does not exist in Substance type environment"
+         -- shouldn't happen, since the Sub/Sty should have been statically checked)
+findType typeEnv VCtorT name =
+         case M.lookup name (valConstructors typeEnv) of
+         Just vc -> tlsvc vc ++ [tvc vc]
+         Nothing -> error $ "name '" ++ name ++ "' does not exist in Substance type environment"
+         -- shouldn't happen, since the Sub/Sty should have been statically checked)
+
+exprsMatchArr :: VarEnv -> ArrowType -> C.Func -> C.Func -> Bool
+exprsMatchArr typeEnv arrT subE styE =
+           let subArrType = findType typeEnv arrT $ C.nameFunc subE
+               styArrType = findType typeEnv arrT $ C.nameFunc styE
+               subVarArgs = map exprToVar $ C.argFunc subE
+               styVarArgs = map exprToVar $ C.argFunc styE
+           in let res = isSubtypeArrow subArrType styArrType typeEnv
+                        && (all (uncurry varsEq) $ zip subVarArgs styVarArgs) in
+              trM1 ("subArrType: " ++ show subArrType 
+                   ++ "\nstyArrType: " ++ show styArrType 
+                   ++ "\nres: " ++ show (isSubtypeArrow subArrType styArrType typeEnv)) res
+
+-- New judgment (COMBAK number): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
+-- We assume the latter expression has already had a substitution applied
+exprsMatch :: VarEnv -> C.Expr -> C.Expr -> Bool
+-- rule Match-Expr-Var
+exprsMatch typeEnv (C.VarE subVar) (C.VarE styVar) = varsEq subVar styVar
+-- the Operator and Vctor types are different, though structurally the same, so there's some boilerplate
+-- Otherwise, function applications are treated the same as value constructor applications (for now)
+-- rule Match-Expr-Vconsapp
+exprsMatch typeEnv (C.ApplyValCons subE) (C.ApplyValCons styE) =
+           exprsMatchArr typeEnv VCtorT subE styE
+-- rule Match-Expr-Fnapp
+exprsMatch typeEnv (C.ApplyFunc subE) (C.ApplyFunc styE) = 
+           exprsMatchArr typeEnv FnT subE styE
+exprsMatch _ _ _ = False
+
 -- Judgment 11. b; theta |- S <| |S_r
-relMatchesLine :: C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
+relMatchesLine :: VarEnv -> C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 -- rule Bind-Match
-relMatchesLine subEnv (C.Bind var expr) (RelBind bvar sExpr) =
+relMatchesLine typeEnv subEnv s1@(C.Bind var expr) s2@(RelBind bvar sExpr) =
                case bvar of
                BStyVar v -> error ("Style variable '" ++ show v ++ "' found in relational statement '" ++ show (RelBind bvar sExpr) ++ "'. Should not be present!")
                BSubVar sVar ->
                        let selExpr = toSubExpr sExpr in
-                       (var == sVar && expr == selExpr) -- self-equal
-                       || C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
+                       let res = (varsEq var sVar && exprsMatch typeEnv expr selExpr)
+                                 || C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
+                       in trM1 ("trying to match exprs \n'" ++ show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $ res
+
 -- rule Pred-Match
-relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) =
+relMatchesLine typeEnv subEnv (C.ApplyP pred) (RelPred sPred) =
                let selPred = toSubPred sPred in
-               predEq pred selPred -- self-equal
+               C.predsEq pred selPred -- self-equal
                || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
-relMatchesLine _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
+relMatchesLine _ _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
 
 -- Judgment 13. b |- [S] <| |S_r
-relMatchesProg :: C.SubEnv -> C.SubProg -> RelationPattern -> Bool
-relMatchesProg subEnv subProg rel = any (flip (relMatchesLine subEnv) rel) subProg
+relMatchesProg :: VarEnv -> C.SubEnv -> C.SubProg -> RelationPattern -> Bool
+relMatchesProg typeEnv subEnv subProg rel = any (flip (relMatchesLine typeEnv subEnv) rel) subProg
 
 -- Judgment 15. b |- [S] <| [|S_r]
-allRelsMatch :: C.SubEnv -> C.SubProg -> [RelationPattern] -> Bool
-allRelsMatch subEnv subProg rels = all (relMatchesProg subEnv subProg) rels
+allRelsMatch :: VarEnv -> C.SubEnv -> C.SubProg -> [RelationPattern] -> Bool
+allRelsMatch typeEnv subEnv subProg rels = all (relMatchesProg typeEnv subEnv subProg) rels
 
 -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 -- Folds over [theta]
-filterRels :: C.SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
-filterRels subEnv subProg rels substs =
-           filter (\subst -> allRelsMatch subEnv subProg (substituteRels subst rels)) substs
+filterRels :: VarEnv -> C.SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
+filterRels typeEnv subEnv subProg rels substs =
+           filter (\subst -> allRelsMatch typeEnv subEnv subProg (substituteRels subst rels)) substs
 
 ----- Match declaration statements
 
@@ -892,7 +926,7 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
         subst_candidates = filter (fullSubst selEnv) $ matchDecls varEnv subProg decls initSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
-                           filterRels subEnv subProg rels subst_candidates
+                           filterRels varEnv subEnv subProg rels subst_candidates
         correct_substs   = filter uniqueKeysAndVals filtered_substs
     in correct_substs
 find_substs_sel _ _ _ (Namespace _, _) = [] -- No substitutions for a namespace (not in paper)

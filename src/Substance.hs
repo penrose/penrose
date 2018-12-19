@@ -215,6 +215,13 @@ autoLabel = rword "AutoLabel" >> AutoLabel <$> (defaultLabels <|> idList)
     where idList        = IDs . map VarConst <$> identifier `sepBy1` comma
           defaultLabels = Default <$ rword "All"
 
+----------------------------------- Utility functions ------------------------------------------
+
+-- Equality functions that don't compare SourcePos
+-- TODO: use correct equality comparison in typechecker
+predsEq :: Predicate -> Predicate -> Bool
+predsEq p1 p2 = predicateName p1 == predicateName p2 && predicateArgs p1 == predicateArgs p2
+
 ----------------------------------------- Substance Typechecker ---------------------------
 
 -- | 'check' is the top level function for checking a substance program which calls checkSubStmt on each statement in the
@@ -454,7 +461,7 @@ compareTypesList varEnv argTypes formalTypes =
     in length u /= length f
 
 compareTypes :: VarEnv -> (K,K) -> Bool
-compareTypes varEnv (k1,k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv)
+compareTypes varEnv (k1,k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv) -- TODO: remove the equality here (or derive Eq to not include SourcePos)
 
 -- Ensures an argument type and formal type matches where they should match, otherwise a runtime error is generated.
 -- In places where they do not need to match exactly (where type and regular variables exist in the formal type)
