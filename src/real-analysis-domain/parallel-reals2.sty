@@ -82,9 +82,6 @@ with Reals `R` {
 ----------------------------------
 -- INTERVAL STYLES
 
--- TODO: Implement subtyping match WRT value ctors
--- so the next 3 selectors can apply generically to intervals.
-
 Interval I
 where Subset(I, R)
 with Reals R { -- TODO: more general, with Interval J
@@ -123,6 +120,8 @@ with Interval I; Reals R
 where I := CreateInterval(a, b); Subset(I, R) {
   override a.val = I.left
   override b.val = I.right
+  override a.yval = I.yval
+  override b.yval = I.yval
 }
 
 Real r
@@ -136,13 +135,6 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
 Real a; Real b
 with OpenInterval I; Reals R
 where I := CreateOpenInterval(a, b); Subset(I, R) {
-  -- TODO: next 2 lines are duplicated from interval style; remove
-
-  override a.val = I.left
-  override b.val = I.right
-  override a.yval = I.yval
-  override b.yval = I.yval
-
   -- lines copied from real-analysis-types.sty
   override a.shape = Image {
       path = "left-paren.svg"
@@ -164,26 +156,9 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
     override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
--- TODO: duplicated from Interval; remove
--- also TODO: missing one for ClosedInterval
-Real r
-with OpenInterval I; Reals R; Real a; Real b
-where I := CreateOpenInterval(a, b); In(r, I); Subset(I, R) {
-  override r.yval = I.yval
-  override r.inFn = ensure inRange(r.val, a.val, b.val)
-  override r.shape.color = Colors.red
-}
-
 Real a; Real b
 with ClosedInterval I; Reals R
 where I := CreateClosedInterval(a, b); Subset(I, R) {
-  -- TODO: next 2 lines are duplicated from interval style; remove
-
-  override a.val = I.left
-  override b.val = I.right
-  override a.yval = I.yval
-  override b.yval = I.yval
-
   -- lines copied from real-analysis-types.sty
   override a.shape = Image {
       path = "left-bracket.svg"

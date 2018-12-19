@@ -90,7 +90,6 @@ with Reals R { -- No In(r, `R`)
   r.labelFn = encourage nearHead(r.shape, r.text, 0.0, -30.0)
 }
 
--- need to comment out the next 4 selectors for reals.sub
 Interval I
 with Real a; Real b; Reals R
 where I := CreateInterval(a, b); Subset(I, R) {
@@ -297,8 +296,7 @@ where p := Pt(x, y);
 Real dfx
 with Function f; Interval I; Real x; Real y; Reals R
 where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
-      y := apply(f, x)
-{
+      y := apply(f, x) {
       -- We know that x's val has been chosen from f's domain
 
       -- TODO: compute dfx to actually be tangent at point
@@ -330,8 +328,7 @@ with Function f; Interval I; Interval J; Interval U; Reals R
 where U := union(I, J);
       ifI := integral(I, f);
       f := CreateFunction(U, R);
-      Discontinuous(f);
-{
+      Discontinuous(f) {
       -- compute integral as a shape that lies under fn curve
       override ifI.shape = Curve {
           pathData = makeRegionPath(f.shape1, I.shape)
@@ -349,23 +346,57 @@ where U := union(I, J);
       delete ifI.labelFn
 }
 
-Real a
-with Real b; Reals R; ClosedInterval I -- TODO: be able to say Interval I?
-where I := CreateClosedInterval(a, b); Subset(I, R)
-{
+
+Real a; Real b
+with ClosedInterval I; Reals R -- TODO: be able to say Interval I?
+where I := CreateClosedInterval(a, b); Subset(I, R) {
+    override a.shape = Image {
+        path = "left-bracket.svg"
+        centerX = a.val
+        centerY = origin.y
+        lengthX = 10.0
+        lengthY = 20.0
+    }
+
+    override b.shape = Image {
+        path = "right-bracket.svg"
+        centerX = b.val
+        centerY = origin.y
+        lengthX = 10.0
+        lengthY = 20.0
+    }
+
+    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with OpenInterval I; Reals R -- TODO: be able to say Interval I?
+where I := CreateOpenInterval(a, b); Subset(I, R) {
     override a.shape = Image {
         path = "left-paren.svg"
         centerX = a.val
-        lengthX = 100
-        lengthY = 200
+        centerY = origin.y
+        lengthX = 10.0
+        lengthY = 20.0
     }
+
+    override b.shape = Image {
+        path = "right-paren.svg"
+        centerX = b.val
+        centerY = origin.y
+        lengthX = 10.0
+        lengthY = 20.0
+    }
+
+    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
-/*
 Interval I; Interval J
 with Reals R
-where Subset(I, R); Subset(J, R)
-{
-    I.distFn = ensure disjoint(I.shape, J.shape)
+where Subset(I, R); Subset(J, R) {
+    -- TODO: we should use LOCAL.distFn
+    -- but that creates additional (unnecessary?) constraints which make the opt problem harder
+    LOCAL.distFn = ensure disjoint(I.shape, J.shape)
 }
-*/

@@ -1078,12 +1078,14 @@ disjoint [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
 disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
     noIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
 
+-- For (horizontally collinear?) line segments only
 -- Make sure the closest endpoints are separated by some padding
--- BUG: this doesn't work when two line segments are colinear
+-- ...use signed distance? or call "not subset"?
+-- BUG: this doesn't work when one line seg is a subset of the other
 disjoint [GPI s1@("Line", _), GPI s2@("Line", _)] =
     let (s1_start, s1_end, s2_start, s2_end) =
             (getPoint "start" s1, getPoint "end" s1,
-                                                getPoint "start" s2, getPoint "end" s2)
+             getPoint "start" s2, getPoint "end" s2)
         dists = [dist s1_start s2_start, dist s1_start s2_end,
                  dist s1_end s2_start, dist s1_end s2_end] -- use distsq?
         min_dist = minimum dists

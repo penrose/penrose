@@ -237,14 +237,11 @@ isSubtypeK (KT k1) (KT k2) e = isSubtype k1 k2 e
 -- | The arrow types are contravariant in their arguments and covariant in their return type
 -- | e.g. if Cat <: Animal, then Cat -> Cat <: Cat -> Animal, and Animal -> Cat <: Cat -> Cat
 isSubtypeArrow :: [T] -> [T] -> VarEnv -> Bool
-isSubtypeArrow [t] [s] e = -- trace ("t: " ++ show t ++ ", s: " ++ show s ++ ", res: " ++ show (isSubtype t s e)) $ 
-                           isSubtype t s e -- Covariant in return type (or simply the type for a nullary function)
-isSubtypeArrow (t1:ts) (s1:ss) e =
-               -- trace ("t1: " ++ show t1 ++ ", s1: " ++ show s1 ++ ", res: " ++ show (isSubtype s1 t1 e)) $ 
-               isSubtype s1 t1 e -- Contravariant in arguments
-               && isSubtypeArrow ts ss e
-isSubtypeArrow t s _ = -- trace ("FALSE: t: " ++ show t ++ ", s: " ++ show s) $ 
-                          False -- Functions have different numbers of arguments
+isSubtypeArrow [t] [s] e = isSubtype t s e 
+                       -- Covariant in return type (or simply the type for a nullary function)
+isSubtypeArrow (t1:ts) (s1:ss) e = isSubtype s1 t1 e -- Contravariant in arguments
+                                   && isSubtypeArrow ts ss e
+isSubtypeArrow t s _ = False -- Functions have different numbers of arguments
 
 --------------------------------------- Env Data Types ---------------------------------------
 
