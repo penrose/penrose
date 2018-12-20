@@ -21,12 +21,14 @@ vconstructor Pt (x : Real, y : Real) : Point
 -- Subtyping relationships
 Reals <: Set
 Interval <: Set
--- TODO: Reals <: Interval
-
+Reals <: Interval
 OpenInterval <: Interval
 ClosedInterval <: Interval
 LeftClopenInterval <: Interval
 RightClopenInterval <: Interval
+-- Reals <: OpenInterval
+-- TODO: check that the Style records for the Substance subtypes satisfy the subtyping relationship as well
+-- AND that the GPIs satisfy the subtyping relationship (e.g. lines, arrows having start/end fields)
 
 -- Operators on intervals
 operator union (I : Interval, J : Interval) : Interval
