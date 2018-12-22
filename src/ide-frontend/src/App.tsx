@@ -3,12 +3,12 @@ import * as React from "react";
 import AceEditor from "react-ace";
 import Renderer from "react-renderer";
 import { Grid, Cell } from "styled-css-grid";
-import logo from "./logo.svg";
-import venn from "./venn.svg";
-import play from "./play.svg";
-import reload from "./reload.svg";
-import chevronDown from "./chevron_down.svg";
-import download from "./download.svg";
+import logo from "./icons/logo.svg";
+import venn from "./icons/venn.svg";
+import play from "./icons/play.svg";
+import reload from "./icons/reload.svg";
+import chevronDown from "./icons/chevron_down.svg";
+import download from "./icons/download.svg";
 import Log from "Log";
 import Button from "Button";
 import Dropdown, { IOption } from "Dropdown";
@@ -45,6 +45,7 @@ const SocketAlert = styled(Alert)`
   padding: 0.5em;
   position: absolute;
   width: 100%;
+  box-sizing: border-box;
 `;
 const ConvergedStatus = styled(Alert)`
   background: rgba(0, 0, 0, 0.07);
