@@ -1,3 +1,9 @@
-Set A
-Point B
-In(B,A)
+Point p
+Set X
+PointIn(p, X)
+
+-- Test namespace checking:
+-- Point global
+-- Set Colors
+
+AutoLabel All

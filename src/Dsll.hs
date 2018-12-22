@@ -22,6 +22,7 @@ import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
+import Text.Show.Pretty
 import Env
 --import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
@@ -121,7 +122,6 @@ instance Show Pd2 where
         where aString = show namePd2
               bString = show propsPd2
               cString = show toPd2
-
 ----------------------------------------- DSLL Parser -------------------------------------
 
 -- | 'DSLLParser' is the top-level parser function. The parser contains a list of functions
@@ -313,14 +313,14 @@ parseDsll dsllFile dsllIn =
           case runParser dsllParser dsllFile dsllIn of
           Left err -> error (parseErrorPretty err)
           Right prog -> do
-              putStrLn "DSLL AST: \n"
-              print prog
-              divLine
+            --   putStrLn "DSLL AST: \n"
+            --   pPrint prog
+            --   divLine
               let env = check prog
                   env1 = computeSubTypes env
-              divLine
-              putStrLn "DSLL Env: \n"
-              print env1
+            --   divLine
+            --   putStrLn "DSLL Env: \n"
+            --   pPrint env1
               return env1
 
 -- | 'parseDsllSilent' runs the actual parser function: 'dsllParser', taking in a program String, parses it and

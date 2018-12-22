@@ -1,16 +1,19 @@
-Set A
-Set B
-Set U
-Set V
-Set R1
-Set R2
-Map(A,B) f
-IsSubset(U,A)
-IsSubset(V,B)
-IsSubset(A,R1)
-IsSubset(B,R2)
-
 AutoLabel All
-Label R1 $\mathbb{R}^n$
-Label R2 $\mathbb{R}^m$
-Label V  $f^{-1}(U)$
+
+Set A
+Set U
+Set Rn
+Label Rn $\mathbb{R}^n$
+IsSubset(U, A)
+IsSubset(A, Rn)
+
+Set B
+Set V
+Label V $f^{-1}(U)$
+Set Rm
+Label Rm $\mathbb{R}^m$
+IsSubset(V, B)
+IsSubset(B, Rm)
+
+Map f
+From(f, A, B)

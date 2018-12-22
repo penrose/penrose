@@ -1,0 +1,264 @@
+[
+    [
+        "Rectangle",
+        {
+            "color": { "tag": "ColorV", "contents": [0.1, 0.1, 0.9, 0.2] },
+            "name": { "tag": "StrV", "contents": "cartesianProduct.shape" },
+            "rotation": { "tag": "FloatV", "contents": 146.68917846679688 },
+            "sizeX": { "tag": "FloatV", "contents": 255.0000037997961 },
+            "sizeY": { "tag": "FloatV", "contents": 120.00000178813934 },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "x": { "tag": "FloatV", "contents": 112.50000316649675 },
+            "y": { "tag": "FloatV", "contents": 100.00000149011612 }
+        }
+    ],
+    [
+        "Arrow",
+        {
+            "color": { "tag": "ColorV", "contents": [0, 0, 0, 1] },
+            "endX": { "tag": "FloatV", "contents": -100 },
+            "endY": { "tag": "FloatV", "contents": 200 },
+            "name": { "tag": "StrV", "contents": "codomain.shape" },
+            "rotation": { "tag": "FloatV", "contents": 110.40519714355469 },
+            "startX": { "tag": "FloatV", "contents": -100 },
+            "startY": { "tag": "FloatV", "contents": 0 },
+            "style": { "tag": "StrV", "contents": "straight" },
+            "thickness": { "tag": "FloatV", "contents": 10 }
+        }
+    ],
+    [
+        "Text",
+        {
+            "h": { "tag": "FloatV", "contents": 0 },
+            "name": { "tag": "StrV", "contents": "codomain.text" },
+            "rotation": { "tag": "FloatV", "contents": 295.3962097167969 },
+            "string": { "tag": "StrV", "contents": "f(x)" },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "none" },
+            "w": { "tag": "FloatV", "contents": 0 },
+            "x": { "tag": "FloatV", "contents": 250.36248779296875 },
+            "y": { "tag": "FloatV", "contents": 7.97442626953125 }
+        }
+    ],
+    [
+        "Line",
+        {
+            "color": { "tag": "ColorV", "contents": [0, 0, 0, 1] },
+            "endX": { "tag": "FloatV", "contents": -14.999998733401299 },
+            "endY": { "tag": "FloatV", "contents": 200 },
+            "name": { "tag": "StrV", "contents": "domain.left" },
+            "startX": { "tag": "FloatV", "contents": -14.999998733401299 },
+            "startY": { "tag": "FloatV", "contents": 0 },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "dashed" },
+            "thickness": { "tag": "FloatV", "contents": 2 }
+        }
+    ],
+    [
+        "Text",
+        {
+            "h": { "tag": "FloatV", "contents": 0 },
+            "name": { "tag": "StrV", "contents": "domain.left_label" },
+            "rotation": { "tag": "FloatV", "contents": 172.83163452148438 },
+            "string": { "tag": "StrV", "contents": "A_0" },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "none" },
+            "w": { "tag": "FloatV", "contents": 0 },
+            "x": { "tag": "FloatV", "contents": -175.52108764648438 },
+            "y": { "tag": "FloatV", "contents": 324.19635009765625 }
+        }
+    ],
+    [
+        "Line",
+        {
+            "color": { "tag": "ColorV", "contents": [0, 0, 0, 1] },
+            "endX": { "tag": "FloatV", "contents": 240.0000050663948 },
+            "endY": { "tag": "FloatV", "contents": 200 },
+            "name": { "tag": "StrV", "contents": "domain.right" },
+            "startX": { "tag": "FloatV", "contents": 240.0000050663948 },
+            "startY": { "tag": "FloatV", "contents": 0 },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "dashed" },
+            "thickness": { "tag": "FloatV", "contents": 2 }
+        }
+    ],
+    [
+        "Text",
+        {
+            "h": { "tag": "FloatV", "contents": 0 },
+            "name": { "tag": "StrV", "contents": "domain.right_label" },
+            "rotation": { "tag": "FloatV", "contents": 276.5047607421875 },
+            "string": { "tag": "StrV", "contents": "A_1" },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "none" },
+            "w": { "tag": "FloatV", "contents": 0 },
+            "x": { "tag": "FloatV", "contents": 279.06463623046875 },
+            "y": { "tag": "FloatV", "contents": -106.43710327148438 }
+        }
+    ],
+    [
+        "Arrow",
+        {
+            "color": { "tag": "ColorV", "contents": [0, 0, 0, 1] },
+            "endX": { "tag": "FloatV", "contents": 325 },
+            "endY": { "tag": "FloatV", "contents": 0 },
+            "name": { "tag": "StrV", "contents": "domainOuter.shape" },
+            "rotation": { "tag": "FloatV", "contents": 188.1309814453125 },
+            "startX": { "tag": "FloatV", "contents": -100 },
+            "startY": { "tag": "FloatV", "contents": 0 },
+            "style": { "tag": "StrV", "contents": "straight" },
+            "thickness": { "tag": "FloatV", "contents": 10 }
+        }
+    ],
+    [
+        "Text",
+        {
+            "h": { "tag": "FloatV", "contents": 0 },
+            "name": { "tag": "StrV", "contents": "domainOuter.text" },
+            "rotation": { "tag": "FloatV", "contents": 277.677978515625 },
+            "string": { "tag": "StrV", "contents": "x" },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "none" },
+            "w": { "tag": "FloatV", "contents": 0 },
+            "x": { "tag": "FloatV", "contents": 207.970458984375 },
+            "y": { "tag": "FloatV", "contents": -112.70030212402344 }
+        }
+    ],
+    [
+        "Curve",
+        {
+            "color": { "tag": "ColorV", "contents": [5.0e-2, 5.0e-2, 0.6, 1] },
+            "name": { "tag": "StrV", "contents": "f.shape" },
+            "path": {
+                "tag": "PtListV",
+                "contents": [
+                    [-14.999998733401299, 40.00000059604645],
+                    [63.20368194580078, 137.55438232421875],
+                    [88.90483093261719, 101.36705017089844],
+                    [194.23898315429688, 160.0000023841858],
+                    [240.0000050663948, 97.61054992675781]
+                ]
+            },
+            "pathData": {
+                "tag": "PathDataV",
+                "contents": [
+                    {
+                        "tag": "Open",
+                        "contents": [
+                            {
+                                "tag": "Pt",
+                                "contents": [
+                                    -14.999998733401299,
+                                    40.00000059604645
+                                ]
+                            },
+                            {
+                                "tag": "CubicBez",
+                                "contents": [
+                                    [-1.9660519535342846, 56.25906421740849],
+                                    [45.886210334797696, 127.32654072841008],
+                                    [63.20368194580078, 137.55438232421875]
+                                ]
+                            },
+                            {
+                                "tag": "CubicBez",
+                                "contents": [
+                                    [80.52115355680387, 147.7822239200274],
+                                    [67.0656140645345, 97.62611349423726],
+                                    [88.90483093261719, 101.36705017089844]
+                                ]
+                            },
+                            {
+                                "tag": "CubicBez",
+                                "contents": [
+                                    [110.74404780069987, 105.10798684755962],
+                                    [169.0564541320006, 160.62608575820923],
+                                    [194.23898315429688, 160.0000023841858]
+                                ]
+                            },
+                            {
+                                "tag": "CubicBez",
+                                "contents": [
+                                    [219.42151217659315, 159.37391901016235],
+                                    [232.37316808104515, 108.0087920029958],
+                                    [240.0000050663948, 97.61054992675781]
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "style": { "tag": "StrV", "contents": "solid" }
+        }
+    ],
+    [
+        "Text",
+        {
+            "h": { "tag": "FloatV", "contents": 0 },
+            "name": { "tag": "StrV", "contents": "f.text" },
+            "rotation": { "tag": "FloatV", "contents": 111.2691650390625 },
+            "string": { "tag": "StrV", "contents": "\\text{(surjection)}" },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "none" },
+            "w": { "tag": "FloatV", "contents": 0 },
+            "x": { "tag": "FloatV", "contents": 112.5 },
+            "y": { "tag": "FloatV", "contents": -30 }
+        }
+    ],
+    [
+        "Line",
+        {
+            "color": { "tag": "ColorV", "contents": [0, 0, 0, 1] },
+            "endX": { "tag": "FloatV", "contents": 325 },
+            "endY": { "tag": "FloatV", "contents": 40.00000059604645 },
+            "name": { "tag": "StrV", "contents": "image.bottom" },
+            "startX": { "tag": "FloatV", "contents": -100 },
+            "startY": { "tag": "FloatV", "contents": 40.00000059604645 },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "dashed" },
+            "thickness": { "tag": "FloatV", "contents": 2 }
+        }
+    ],
+    [
+        "Text",
+        {
+            "h": { "tag": "FloatV", "contents": 0 },
+            "name": { "tag": "StrV", "contents": "image.bottom_label" },
+            "rotation": { "tag": "FloatV", "contents": 53.09653854370117 },
+            "string": { "tag": "StrV", "contents": "B_0" },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "none" },
+            "w": { "tag": "FloatV", "contents": 0 },
+            "x": { "tag": "FloatV", "contents": -128.4410400390625 },
+            "y": { "tag": "FloatV", "contents": 126.90277099609375 }
+        }
+    ],
+    [
+        "Line",
+        {
+            "color": { "tag": "ColorV", "contents": [0, 0, 0, 1] },
+            "endX": { "tag": "FloatV", "contents": 325 },
+            "endY": { "tag": "FloatV", "contents": 160.0000023841858 },
+            "name": { "tag": "StrV", "contents": "image.top" },
+            "startX": { "tag": "FloatV", "contents": -100 },
+            "startY": { "tag": "FloatV", "contents": 160.0000023841858 },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "dashed" },
+            "thickness": { "tag": "FloatV", "contents": 2 }
+        }
+    ],
+    [
+        "Text",
+        {
+            "h": { "tag": "FloatV", "contents": 0 },
+            "name": { "tag": "StrV", "contents": "image.top_label" },
+            "rotation": { "tag": "FloatV", "contents": 71.16484069824219 },
+            "string": { "tag": "StrV", "contents": "B_1" },
+            "stroke": { "tag": "StrV", "contents": "none" },
+            "style": { "tag": "StrV", "contents": "none" },
+            "w": { "tag": "FloatV", "contents": 0 },
+            "x": { "tag": "FloatV", "contents": 91.55712890625 },
+            "y": { "tag": "FloatV", "contents": 184.90716552734375 }
+        }
+    ]
+]

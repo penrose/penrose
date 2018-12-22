@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "outDir": "build/dist",
+        "module": "esnext",
+        "target": "es5",
+        "lib": ["es6", "dom"],
+        "sourceMap": true,
+        "allowJs": true,
+        "skipLibCheck": true,
+        "jsx": "react",
+        "moduleResolution": "node",
+        "rootDirs": ["src", "stories"],
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "importHelpers": true,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "noUnusedLocals": true
+    },
+    "exclude": [
+        "node_modules",
+        "build",
+        "scripts",
+        "acceptance-tests",
+        "webpack",
+        "jest",
+        ".storybook",
+        "src/setupTests.ts"
+    ]
+}
