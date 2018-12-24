@@ -79,11 +79,11 @@ zeroNestingLevel localEnv = localEnv {nestingLevel = 0}
 main :: IO ()
 main = do
     args <- getArgs
-    when (length args /= 4) $ die "Usage: ./Main prog.dsl namesFile outputPath #program"
-    let (dsllFile, namesFile, outputPath, n) = (head args,args !! 1, args !! 2, args !! 3)
+    when (length args /= 3) $ die "Usage: ./Main prog.dsl namesFile outputPath #program"
+    let (dsllFile, namesFile, outputPath) = (head args,args !! 1, args !! 2)
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsllSilent dsllFile dsllIn
-    generatePrograms dsllEnv (initializeLocalEnv dsllEnv namesFile) namesFile outputPath (read n :: Int)
+    generatePrograms dsllEnv (initializeLocalEnv dsllEnv namesFile) namesFile outputPath 1
     return ()
 
 -- | Generate n random programs
@@ -91,15 +91,15 @@ generatePrograms :: VarEnv -> LocalEnv -> String -> String -> Int -> IO ()
 generatePrograms dsllEnv localEnv namesFile outputPath n =
     when (n /= 0) $
     do localEnv1 <- generateProgram dsllEnv localEnv namesFile (outputPath ++ "/prog-" ++ show n ++ ".sub")
-       generatePrograms dsllEnv localEnv1 namesFile outputPath (n - 1)
+       generatePrograms dsllEnv (initializeLocalEnv dsllEnv namesFile) namesFile outputPath (n - 1)
 
 
 -- | The top level function for automatic generation of substance programs,
 --   calls other functions to generate specific statements
 generateProgram :: VarEnv -> LocalEnv -> String -> String -> IO LocalEnv
 generateProgram dsllEnv localEnv namesFile outputPath = do
-    let localEnv1 = foldl (generateSpecificType dsllEnv) initLocalEnv (map fst (M.toAscList (typeConstructors dsllEnv)))--generateTypes dsllEnv initLocalEnv 3
-        localEnv2 = generateStatements dsllEnv localEnv1 22
+    let localEnv1 = generateTypes dsllEnv initLocalEnv 1 --foldl (generateSpecificType dsllEnv) initLocalEnv (map fst (M.toAscList (typeConstructors dsllEnv)))--
+        localEnv2 = generateStatements dsllEnv localEnv1 1
     putStrLn "Program: \n"
     putStrLn (prog localEnv2)
     --f <- openFile outputPath WriteMode
@@ -140,7 +140,7 @@ generateTypes dsllEnv localEnv n =
 generateType :: VarEnv -> LocalEnv -> LocalEnv
 generateType dsllEnv localEnv =
     let types = M.toAscList (typeConstructors dsllEnv)
-        (t, localEnv1) = rndNum localEnv (0,length types-1)
+        (t, localEnv1) = rndNum localEnv (0,length types - 1)
         (name, localEnv2) = getName localEnv1
         tName = fst (types !! t)
         localEnv3 = addDeclaredType localEnv2 tName name
