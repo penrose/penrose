@@ -79,7 +79,7 @@ zeroNestingLevel localEnv = localEnv {nestingLevel = 0}
 main :: IO ()
 main = do
     args <- getArgs
-    when (length args /= 3) $ die "Usage: ./Main prog.dsl namesFile outputPath #program"
+    when (length args /= 3) $ die "Usage: ./Main prog.dsl namesFile outputPath"
     let (dsllFile, namesFile, outputPath) = (head args,args !! 1, args !! 2)
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsllSilent dsllFile dsllIn
@@ -98,15 +98,17 @@ generatePrograms dsllEnv localEnv namesFile outputPath n =
 --   calls other functions to generate specific statements
 generateProgram :: VarEnv -> LocalEnv -> String -> String -> IO LocalEnv
 generateProgram dsllEnv localEnv namesFile outputPath = do
-    let localEnv1 = generateTypes dsllEnv initLocalEnv 1 --foldl (generateSpecificType dsllEnv) initLocalEnv (map fst (M.toAscList (typeConstructors dsllEnv)))--
-        localEnv2 = generateStatements dsllEnv localEnv1 1
+    let (i1 , localEnv1) = rndNum initLocalEnv (1,3)
+        (i2 , localEnv2) = rndNum localEnv1 (1,10)
+        localEnv3 = generateTypes dsllEnv localEnv2 i1
+        localEnv4 = generateStatements dsllEnv localEnv3 i2
     putStrLn "Program: \n"
-    putStrLn (prog localEnv2)
+    putStrLn (prog localEnv4)
     --f <- openFile outputPath WriteMode
-    writeFile outputPath (prog localEnv2)
+    writeFile outputPath (prog localEnv4)
     --putStrLn "\n And the local env is: \n"
     --pPrint localEnv2
-    return localEnv2
+    return localEnv4
     where initLocalEnv = LocalEnv {declaredTypes = M.empty, availableNames = loadLanguage namesFile,
           pred1Lst = getPred1Lst dsllEnv, pred2Lst = getPred2Lst dsllEnv,
           gen = gen localEnv, seed = seedRnd, prog = "", preDeclarations = "", nestingLevel = 0 }
@@ -201,10 +203,10 @@ generatePrediacte dsllEnv localEnv isNested =
     let preds = M.toAscList (predicates dsllEnv)
         (p , localEnv1) = rndNum localEnv (0,length preds - 1)
         predicate = snd (preds !! p)
-    in  if isNested && nestingLevel localEnv1 > 2 then generatePrediacte1Nested dsllEnv localEnv1
+    in  if isNested && nestingLevel localEnv1 > 2
+        then generatePrediacte1Nested dsllEnv localEnv1
         else case predicate of
-            Pred1 p1 -> if isNested then
-               generatePrediacte1Nested dsllEnv localEnv1
+            Pred1 p1 -> if isNested then generatePrediacte1Nested dsllEnv localEnv1
                else generatePrediacte1 dsllEnv localEnv1
             Pred2 p2 -> let localEnv2 = localEnv1 {nestingLevel = nestingLevel localEnv1 + 1}
                         in generatePrediacte2 dsllEnv localEnv2
@@ -219,10 +221,12 @@ generatePrediacte1 dsllEnv localEnv =
 
 generatePrediacte1Nested :: VarEnv -> LocalEnv -> LocalEnv
 generatePrediacte1Nested dsllEnv localEnv =
+  if length (pred1Lst localEnv) > 2 then
         let (p , localEnv1) = rndNum localEnv (0,length (pred1Lst localEnv) -1)
             predicate = pred1Lst localEnv1 !! p
             localEnv2 = localEnv1 {prog = prog localEnv1 ++ namepred1 predicate}
         in  generateArguments dsllEnv (getTypeNames (tlspred1 predicate)) localEnv2
+  else localEnv
 
 generatePrediacte2 :: VarEnv -> LocalEnv -> LocalEnv
 generatePrediacte2 dsllEnv localEnv =
