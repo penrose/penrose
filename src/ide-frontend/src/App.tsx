@@ -117,7 +117,7 @@ class App extends React.Component<any, IState> {
   public autostep = async () => {
     if (this.renderer.current !== null) {
       await this.renderer.current.autoStepToggle();
-      this.forceUpdate();
+      this.forceUpdate(); // force re-render of button state since own state remains the same
     }
   };
   public step = () => {
