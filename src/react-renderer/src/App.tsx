@@ -61,16 +61,16 @@ class App extends React.Component<IProps, IState> {
     this.setState({ converged: !this.state.autostep });
     this.ws.send(JSON.stringify(packet));
   };
-  public autoStepToggle = () => {
+  public autoStepToggle = async () => {
     const packet = { tag: "Cmd", contents: { command: "autostep" } };
-    this.setState({
+    await this.setState({
       autostep: !this.state.autostep,
       converged: this.state.autostep
     });
     this.ws.send(JSON.stringify(packet));
   };
-  public turnOffAutostep = () => {
-    this.setState({ autostep: false });
+  public turnOffAutostep = async () => {
+    await this.setState({ autostep: false });
   };
   public onShapeUpdate = (updatedShape: any) => {
     const shapes = this.state.data.map(([name, oldShape]: [string, any]) => {

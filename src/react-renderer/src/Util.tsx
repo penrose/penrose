@@ -97,6 +97,7 @@ const tex2svg = memoize(
           const output = wrapper.getElementsByTagName("svg")[0];
           output.setAttribute("xmlns", "http://www.w3.org/2000/svg");
           // TODO: need to check whether MathJax returns a non-null response
+          // NOTE: This is where you can directly control the width/height of the LaTeX
           const { width, height } = svgBBox(output);
           output.setAttribute("width", width.toString());
           output.setAttribute("height", height.toString());

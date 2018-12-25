@@ -114,9 +114,10 @@ class App extends React.Component<any, IState> {
       this.renderer.current.download();
     }
   };
-  public autostep = () => {
+  public autostep = async () => {
     if (this.renderer.current !== null) {
-      this.renderer.current.autoStepToggle();
+      await this.renderer.current.autoStepToggle();
+      this.forceUpdate();
     }
   };
   public step = () => {
@@ -147,17 +148,20 @@ class App extends React.Component<any, IState> {
   };
   public onMessage = (e: MessageEvent) => {
     if (this.renderer.current !== null) {
-      const myJSON = JSON.parse(e.data);
-      const packetType = myJSON.type;
       const data = JSON.parse(e.data);
+      const packetType = data.type;
       Log.info("Received data from the server.", data);
-      this.setState({ rendered: true });
       if (packetType !== "error") {
-        this.setState({ codeError: "" });
+        if (this.state.codeError !== "") {
+          this.setState({ codeError: "" });
+        }
+        if (!this.state.rendered) {
+          this.setState({ rendered: true });
+        }
       }
       if (packetType === "error") {
-        Log.error(myJSON);
-        this.setState({ codeError: myJSON.contents.contents });
+        Log.error(data);
+        this.setState({ codeError: data.contents.contents });
       } else if (packetType === "shapes") {
         this.renderer.current.onMessage(e);
       } else {
@@ -169,11 +173,11 @@ class App extends React.Component<any, IState> {
   };
   public compile = async () => {
     const packet = { tag: "Edit", contents: { program: this.state.code } };
+    if (this.renderer.current !== null) {
+      await this.renderer.current.turnOffAutostep();
+    }
     this.ws.send(JSON.stringify(packet));
     this.setState({ initialCode: this.state.code });
-    if (this.renderer.current !== null) {
-      this.renderer.current.turnOffAutostep();
-    }
   };
   public onChangeCode = (value: string) => {
     this.setState({ code: value });
