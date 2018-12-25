@@ -124,11 +124,12 @@ generateStatements dsllEnv localEnv n =
 -- | Generate single random Substance statement
 generateStatement :: VarEnv -> LocalEnv -> LocalEnv
 generateStatement dsllEnv localEnv =
-    let (statementId, localEnv1) = rndNum localEnv (0,2)
+    let (statementId, localEnv1) = rndNum localEnv (0,3)
         localEnv2 = case statementId of
                  0 -> generateBinding dsllEnv localEnv1
-                 1 -> zeroNestingLevel (generatePrediacte dsllEnv localEnv1 False)
-                 2 -> zeroNestingLevel( generatePrediacteEquality dsllEnv localEnv1)
+                 1 -> generateValueBinding dsllEnv localEnv1
+                 2 -> zeroNestingLevel (generatePrediacte dsllEnv localEnv1 False)
+                 3 -> zeroNestingLevel (generatePrediacte dsllEnv localEnv1 False) -- zeroNestingLevel( generatePrediacteEquality dsllEnv localEnv1)
     in localEnv2 {prog = prog localEnv2 ++ "\n"}
 
 -- | Generate random type statements
@@ -167,14 +168,30 @@ generateSpecificType dsllEnv localEnv tName =
 -- | Generate single random binding statement
 generateBinding :: VarEnv -> LocalEnv -> LocalEnv
 generateBinding dsllEnv localEnv =
-    let operations = M.toAscList (operators dsllEnv)
-        (o, localEnv1) = rndNum localEnv (0,length operations - 1)
-        operation = snd (operations !! o)
-        allTypes = top operation : tlsop operation
+  if not (null(operators dsllEnv)) then
+      let operations = M.toAscList (operators dsllEnv)
+          (o, localEnv1) = rndNum localEnv (0,length operations - 1)
+          operation = snd (operations !! o)
+          allTypes = top operation : tlsop operation
+          localEnv2 = generatePreDeclarations dsllEnv localEnv1 (getTypeNames allTypes)
+          localEnv3 = generateArgument localEnv2 (convert (top operation))
+          localEnv4 = localEnv3 { prog = prog localEnv3 ++ " := " ++ nameop operation}
+          in generateArguments dsllEnv (getTypeNames (tlsop operation)) localEnv4
+  else localEnv
+
+-- | Generate single random binding statement
+generateValueBinding :: VarEnv -> LocalEnv -> LocalEnv
+generateValueBinding dsllEnv localEnv =
+  if not (null(valConstructors dsllEnv)) then
+    let valConsts = M.toAscList (valConstructors dsllEnv)
+        (v, localEnv1) = rndNum localEnv (0,length valConsts - 1)
+        valConstructor = snd (valConsts !! v)
+        allTypes = tvc valConstructor : tlsvc valConstructor
         localEnv2 = generatePreDeclarations dsllEnv localEnv1 (getTypeNames allTypes)
-        localEnv3 = generateArgument localEnv2 (convert (top operation))
-        localEnv4 = localEnv3 { prog = prog localEnv3 ++ " := " ++ nameop operation}
-        in generateArguments dsllEnv (getTypeNames (tlsop operation)) localEnv4
+        localEnv3 = generateArgument localEnv2 (convert (tvc valConstructor))
+        localEnv4 = localEnv3 { prog = prog localEnv3 ++ " := " ++ namevc valConstructor}
+        in generateArguments dsllEnv (getTypeNames (tlsvc valConstructor)) localEnv4
+  else localEnv
 
 -- | Get a list of all the types needed for a specific statement and
 --   add type declrations for them in case needed
