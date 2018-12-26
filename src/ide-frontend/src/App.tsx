@@ -50,6 +50,7 @@ const SocketAlert = styled(Alert)`
 const ConvergedStatus = styled(Alert)`
   background: rgba(0, 0, 0, 0.07);
   padding: 0.5em;
+  box-sizing: border-box;
   position: absolute;
   width: 100%;
 `;
@@ -61,9 +62,19 @@ const CodeError = styled(Alert)`
   background-color: hsla(202, 92%, 61%, 0.3);
   padding: 0.5em;
   width: inherit;
-  position: sticky;
+  position: absolute;
   bottom: 0;
-  font-size: 1.2em;
+  font-size: 1em;
+`;
+
+const ButtonWell = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5em;
+  padding-bottom: 1em;
+  box-sizing: border-box;
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 interface IState {
@@ -210,9 +221,12 @@ class App extends React.Component<any, IState> {
       : false;
     return (
       <Grid
-        style={{ height: "100vh", backgroundColor: "#EDF8FF" }}
+        style={{
+          height: "100vh",
+          backgroundColor: "#EDF8FF"
+        }}
         columns={2}
-        rows={"minmax(70px, auto) 1fr "}
+        rows="70px minmax(0px,auto)"
         gap="0"
         rowGap="0"
         columnGap={"5px"}
@@ -290,39 +304,56 @@ class App extends React.Component<any, IState> {
             onChange={this.onChangeCode}
             value={code}
           />
-          {codeError !== "" && <CodeError>{codeError}</CodeError>}
+          {codeError !== "" && (
+            <div style={{ position: "relative" }}>
+              <CodeError>{codeError}</CodeError>
+            </div>
+          )}
         </Cell>
-        <Cell style={{ backgroundColor: "#FBFBFB" }}>
-          <ErrorContainer>
-            {socketError !== "" && <SocketAlert>{socketError}</SocketAlert>}
+        <Cell
+          style={{
+            backgroundColor: "#FBFBFB"
+          }}
+        >
+          <div style={{ height: "100%", display: "flex", flexFlow: "column" }}>
+            <ErrorContainer>
+              {socketError !== "" && <SocketAlert>{socketError}</SocketAlert>}
 
-            {!converged && <ConvergedStatus>optimizing...</ConvergedStatus>}
-          </ErrorContainer>
-
-          <Renderer
-            ws={this.ws}
-            ref={this.renderer}
-            customButtons={true}
-            convergeStatus={this.changedConverged}
-          />
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button
-              label="resample"
-              leftIcon={reload}
-              onClick={this.resample}
-              primary={true}
-              disabled={!rendered}
-            />
-            <Button
-              label={autostepStatus ? "autostep (on)" : "autostep (off)"}
-              onClick={this.autostep}
-            />
-            <Button
-              leftIcon={download}
-              label="download"
-              onClick={this.download}
-              disabled={!rendered}
-            />
+              {!converged && <ConvergedStatus>optimizing...</ConvergedStatus>}
+            </ErrorContainer>
+            <div
+              style={{
+                flexGrow: 1,
+                flexShrink: 1,
+                overflowY: "auto"
+              }}
+            >
+              <Renderer
+                ws={this.ws}
+                ref={this.renderer}
+                customButtons={true}
+                convergeStatus={this.changedConverged}
+              />
+            </div>
+            <ButtonWell>
+              <Button
+                label="resample"
+                leftIcon={reload}
+                onClick={this.resample}
+                primary={true}
+                disabled={!rendered}
+              />
+              <Button
+                label={autostepStatus ? "autostep (on)" : "autostep (off)"}
+                onClick={this.autostep}
+              />
+              <Button
+                leftIcon={download}
+                label="download"
+                onClick={this.download}
+                disabled={!rendered}
+              />
+            </ButtonWell>
           </div>
         </Cell>
       </Grid>
