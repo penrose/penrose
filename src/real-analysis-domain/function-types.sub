@@ -37,3 +37,9 @@ Function f
 
 -- f := CreateFunction(A, A) 
 -- f := CreateFunction(B, B)
+
+------
+
+-- Next test: all functions between intervals above work if {A,B} are any kind of interval (Interval without endpoints, Interval with endpoints, Open, Closed, LeftClopen, RightClopen)
+-- BUT not necessarily an interval that was created by union or intersection
+-- I feel like I need proofs about the Style program, not tests! e.g. if the interval fields in Style satisfy this interface, then we know anything that depends on a type will work for the subtype.

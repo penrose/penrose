@@ -1,5 +1,3 @@
--- Modeling the Barthe example
-
 Reals R
 
 -- I := [a, b] \subset R
@@ -33,38 +31,6 @@ In(x, I)
 Real y
 y := apply(g, x)
 In(y, S)
-
--- TODO: y := f(x)
--- z := g(y)
-
--- J \subset R
-/*
-Interval J
-Subset(J, R)
-*/
-
-/*
-Function f2
-f2 := CreateFunction(T, R)
-
--- g : J -> R
-Function g
-g := CreateFunction(J, R)
-*/
-
--- TODO: match in Style
--- f(I) \subset J
-/* Interval fI 
-fI := applyOver(f, I)
-Subset(fI, J) */
-
--- h := g . f
-/*
-Function h
-h := CreateFunction(I, R)
-h := compose(g, f)
-
-*/
 
 AutoLabel All
 NoLabel a, b, c, d, i, j

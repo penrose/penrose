@@ -106,8 +106,7 @@ with Reals R { -- TODO: more general, with Interval J
   -- position computed, not optimized
   I.text = Text {
     string = I.label
-    -- TODO: This doesn't seem to be computed properly
-    -- x = (I.shape.endX - I.shape.startX) / 2.0
+    x = (I.shape.endX + I.shape.startX) / 2.0
     y = I.yval + global.padding
     rotation = 0.0
   }
@@ -115,7 +114,9 @@ with Reals R { -- TODO: more general, with Interval J
   I.wfFn = ensure lessThan(I.left, I.right)
   I.liFn = ensure inRange(I.left, R.left, R.right)
   I.riFn = ensure inRange(I.right, R.left, R.right)
-  I.labelFn = encourage centerLabel(I.shape, I.text)
+
+  -- TODO: the first I.labelFn interferes with I.wfFn
+  -- I.labelFn = encourage centerLabel(I.shape, I.text)
   -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
   -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
 }
@@ -127,6 +128,9 @@ where I := CreateInterval(a, b); Subset(I, R) {
   override b.val = I.right
   override a.yval = I.yval
   override b.yval = I.yval
+  -- I.left and I.right already have I.liFn, I.riFn
+  delete a.inFn
+  delete b.inFn
 }
 
 Real r
@@ -140,7 +144,6 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
 Real a; Real b
 with OpenInterval I; Reals R
 where I := CreateOpenInterval(a, b); Subset(I, R) {
-  -- lines copied from real-analysis-types.sty
   override a.shape = Image {
       path = "left-paren.svg"
       centerX = a.val
@@ -164,9 +167,54 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
 Real a; Real b
 with ClosedInterval I; Reals R
 where I := CreateClosedInterval(a, b); Subset(I, R) {
-  -- lines copied from real-analysis-types.sty
   override a.shape = Image {
       path = "left-bracket.svg"
+      centerX = a.val
+      centerY = a.yval
+      lengthX = 10.0
+      lengthY = 20.0
+  }
+
+  override b.shape = Image {
+      path = "right-bracket.svg"
+      centerX = b.val
+      centerY = b.yval
+      lengthX = 10.0
+      lengthY = 20.0
+  }
+
+    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with LeftClopenInterval I; Reals R
+where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
+  override a.shape = Image {
+      path = "left-bracket.svg"
+      centerX = a.val
+      centerY = a.yval
+      lengthX = 10.0
+      lengthY = 20.0
+  }
+
+  override b.shape = Image {
+      path = "right-paren.svg"
+      centerX = b.val
+      centerY = b.yval
+      lengthX = 10.0
+      lengthY = 20.0
+  }
+
+    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+}
+
+Real a; Real b
+with RightClopenInterval I; Reals R
+where I := CreateRightClopenInterval(a, b); Subset(I, R) {
+  override a.shape = Image {
+      path = "left-paren.svg"
       centerX = a.val
       centerY = a.yval
       lengthX = 10.0
@@ -241,11 +289,10 @@ where f := CreateFunction(I, J) {
 
   f.text = Text {
     string = f.label
+    x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
+    y = average(f.domain.startY, f.codomain.startY)
     rotation = 0.0
   }
-
-  f.text.x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
-  f.text.y = average(f.domain.startY, f.codomain.startY)
 }
 
 -- This is simply copy-pasted from the previous selector except for f.domain and f.codomain
@@ -289,11 +336,10 @@ where f := CreateFunction(`R`, `R`) {
 
   f.text = Text {
     string = f.label
+    x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
+    y = average(f.domain.startY, f.codomain.startY)
     rotation = 0.0
   }
-
-  f.text.x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
-  f.text.y = average(f.domain.startY, f.codomain.startY)
 }
 
 /* We have no style for f : I -> I where I is a generic interval in R.  Hard to visualize with the "mass" function. ut we could easily draw a loopy arrow. */
@@ -327,65 +373,124 @@ Function `g` {
 
 If there is a composition of functions, draw a third R for the second function. Again, this is technically going to be made for every match, but overridden to be the same thing. (Does NOT deal with composition of 3 functions, i = h . g . f) */
 
-Function h;
-Function g;
-Function f
+Function h, g, f
 where h := compose(g, f);
-      h := CreateFunction(A, R);
-      g := CreateFunction(B, R);
+      h := CreateFunction(A, C);
+      g := CreateFunction(B, C);
       f := CreateFunction(A, B)
       -- disallow equality for simplicity
       -- TODO: deal with these later
       -- A ?= B; B ?= C; h ?= g; g ?= f
-      -- TODO: generalize the selector to three intervals
-with Interval A, B;
-     Reals R
-{
-  R.yval3 = R.yval2 - 100.0 -- function drawn downward
+with Interval A, B, C;
+     Reals `R` {
+  `R`.yval3 = `R`.yval2 - 100.0 -- function drawn downward
 
-  R.shape3 = Arrow {
-    startX = R.left
-    startY = R.yval3
-    endX = R.right
-    endY = R.yval3
-    thickness = R.thickness
-    color = R.color
+  `R`.shape3 = Arrow {
+    startX = `R`.left
+    startY = `R`.yval3
+    endX = `R`.right
+    endY = `R`.yval3
+    thickness = `R`.thickness
+    color = `R`.color
     rotation = 0.0
   }
 
- R.shape3_text = Text {
-    string = R.label
+ `R`.shape3_text = Text {
+    string = `R`.label
     rotation = 0.0
   }
 
-  R.shape3_labelFn = ensure nearHead(R.shape3, R.shape3_text, global.padding, global.padding)
+  `R`.shape3_labelFn = ensure nearHead(`R`.shape3, `R`.shape3_text, global.padding, global.padding)
 
   -------------------------------------------------
-  -- move B to be in f's codomain
-  -- B matches J
-  -- may not work in general; specialized to our case
-  -- TODO: work out how it generalizes
-  override B.yval = R.yval2
 
-  -- update f to point to J
-  -- TODO: this should match the `f(I) \subset J` in Sub
-  override f.codomain = B.shape
-  override f.shape.endX = midpointX(B.shape)
+  -- move g's codomain to the new real line
+  -- have to use C because we can't write
+  -- "f.codomain = J" in the function block yet
+  override C.yval = `R`.yval3
 
-  -- move g's codomain to be the third R
-  override g.codomain = R.shape3
-  override g.shape.endY = R.yval3 + global.padding
+  -- TODO: not sure why the "handles" of g are high
+  -- they look like the "handles" of f?
+  -- this line changes the y offset of the midpts
+  -- but it shouldn't be necessary
+  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain, 5.0, -30.0)
 
-  override h.codomain = R.shape3
   -- delete h's shape, label, etc.
   delete h.val
   delete h.shape
   delete h.text
-  delete h.labelFn
 }
 
--- TODO: selectors to make fourth, fifth, etc. R
--- specifically for the composition of three, four functions
+/* Composition of a composition of functions 
+   Two cases:
+   Composition on the left
+   Composition on the right */
+
+-- Composition on the right
+-- Note that the first function composition
+-- selector will apply first, and this will cascade
+
+/* TODO: WHY is this slowing down the Style compiler? Way too many matches on the selector (WRT the cartesian product and filtering)?
+And why is it slowing down the generation of the translation?
+And why does it take so long to render on the server?
+It doesn't seem to be generating an unusual number of objects.
+And interactions on the server take a lot of time--must be the translation being slow? large? 
+Should there be that many Style warnings?
+Maybe the previous composition selector is matching too many times?
+Maybe evaluating the translation somehow means having to lazily redo the match?
+*/
+
+Function h
+where h := compose(g, f);
+      f := compose(e, d);
+      -- It's a little faster with the intervals and createFunctions commented out.
+      h := CreateFunction(A, D)
+      -- g := CreateFunction(C, D);
+      -- f := CreateFunction(A, C);
+      -- e := CreateFunction(B, C);
+      -- d := CreateFunction(A, B)
+with Function g, f, e, d;
+     Interval A, D;
+     Reals `R` {
+     -- Interval A, B, C, D;
+
+     -- just to test the match
+     -- override `R`.shape3.color = Colors.red
+
+  `R`.yval4 = `R`.yval3 - 100.0 -- function drawn downward
+
+  `R`.shape4 = Arrow {
+    startX = `R`.left
+    startY = `R`.yval4
+    endX = `R`.right
+    endY = `R`.yval4
+    thickness = `R`.thickness
+    color = `R`.color
+    rotation = 0.0
+  }
+
+ `R`.shape4_text = Text {
+    string = `R`.label
+    rotation = 0.0
+  }
+
+  `R`.shape4_labelFn = ensure nearHead(`R`.shape4, `R`.shape4_text, global.padding, global.padding)
+
+  -------------------------------------------------
+
+  -- move g's codomain to the new real line
+  -- have to use C because we can't write
+  -- "f.codomain = J" in the function block yet
+  override D.yval = `R`.yval4
+
+  -- TODO: not sure why the "handles" of g are high
+  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain, 5.0, -60.0)
+
+  -- delete h's shape, label, etc.
+  delete h.val
+  delete h.shape
+  delete h.text
+}
 
 ----------------------------------
 -- FUNCTION APPLICATION STYLES
@@ -410,15 +515,4 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
     -- TODO: rename to account for arrow directionality
     right-arrowhead = True
   }
-
-/* f.pointwise_shape = Arrow {
-    startX = x.val
-    startY = I.yval - global.padding
-    endX   = y.val
-    endY   = J.yval + global.padding
-    thickness = R.thickness
-    color = f.shape.color
-    rotation = 0.0
-  } */
-
 }
