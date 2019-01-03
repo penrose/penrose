@@ -6,15 +6,13 @@ import { IGPIPropsDraggable } from "./types";
 class Label extends React.Component<IGPIPropsDraggable> {
   public render() {
     const { shape } = this.props;
-    const { dy, dx, onClick } = this.props;
+    const { onClick } = this.props;
     const { canvasSize } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const { w, h } = shape;
     return (
       <g
-        transform={`translate(${x - w.contents / 2 - dx},${y -
-          h.contents / 2 +
-          dy})`}
+        transform={`translate(${x - w.contents / 2},${y - h.contents / 2})`}
         width={w.contents}
         height={h.contents}
         onMouseDown={onClick}
