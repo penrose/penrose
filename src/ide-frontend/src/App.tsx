@@ -84,10 +84,11 @@ interface IState {
   selectedElement: IOption;
   selectedStyle: IOption;
   debug: boolean;
-  ready: boolean;
+  socketReady: boolean;
   socketError: string;
   codeError: string;
   converged: boolean;
+  autostep: boolean;
 }
 
 const elementOptions = [
@@ -105,10 +106,11 @@ class App extends React.Component<any, IState> {
     selectedElement: elementOptions[0],
     selectedStyle: styleOptions[0],
     debug: false,
-    ready: false,
+    socketReady: false,
     socketError: "",
     codeError: "",
-    converged: true
+    converged: true,
+    autostep: false
   };
   public ws: any = null;
   public readonly renderer = React.createRef<Renderer>();
@@ -117,35 +119,34 @@ class App extends React.Component<any, IState> {
     Log.info("Connecting to socket...");
     this.setupSockets();
   }
-  public changedConverged = (converged: boolean) => {
-    this.setState({ converged });
-  };
   public download = () => {
     if (this.renderer.current !== null) {
       this.renderer.current.download();
     }
   };
   public autostep = async () => {
-    if (this.renderer.current !== null) {
-      await this.renderer.current.autoStepToggle();
-      this.forceUpdate(); // force re-render of button state since own state remains the same
-    }
+    const packet = { tag: "Cmd", contents: { command: "autostep" } };
+    this.setState({
+      autostep: !this.state.autostep
+    });
+    this.sendPacket(JSON.stringify(packet));
+  };
+  public sendPacket = (packet: string) => {
+    this.ws.send(packet);
   };
   public step = () => {
-    if (this.renderer.current !== null) {
-      this.renderer.current.step();
-    }
+    const packet = { tag: "Cmd", contents: { command: "step" } };
+    this.sendPacket(JSON.stringify(packet));
   };
   public resample = () => {
-    if (this.renderer.current !== null) {
-      this.renderer.current.resample();
-    }
+    const packet = { tag: "Cmd", contents: { command: "resample" } };
+    this.sendPacket(JSON.stringify(packet));
   };
   public onSocketError = (e: any) => {
     this.setState({ socketError: "Error: could not connect to WebSocket." });
   };
   public clearSocketError = () => {
-    this.setState({ socketError: "", ready: true });
+    this.setState({ socketError: "", socketReady: true });
   };
   public setupSockets = () => {
     this.ws = new WebSocket(socketAddress);
@@ -175,6 +176,11 @@ class App extends React.Component<any, IState> {
         this.setState({ codeError: data.contents.contents });
       } else if (packetType === "shapes") {
         this.renderer.current.onMessage(e);
+        const { flag } = data.contents;
+        const converged = flag === "initial" || flag === "final";
+        if (this.state.converged !== converged) {
+          this.setState({ converged });
+        }
       } else {
         Log.error(`Unknown packet type: ${packetType}`);
       }
@@ -184,11 +190,9 @@ class App extends React.Component<any, IState> {
   };
   public compile = async () => {
     const packet = { tag: "Edit", contents: { program: this.state.code } };
-    if (this.renderer.current !== null) {
-      await this.renderer.current.turnOffAutostep();
-    }
+
     this.ws.send(JSON.stringify(packet));
-    this.setState({ initialCode: this.state.code });
+    this.setState({ initialCode: this.state.code, autostep: false });
   };
   public onChangeCode = (value: string) => {
     this.setState({ code: value });
@@ -213,12 +217,11 @@ class App extends React.Component<any, IState> {
       debug,
       socketError,
       codeError,
-      ready,
-      converged
+      socketReady,
+      converged,
+      autostep
     } = this.state;
-    const autostepStatus = this.renderer.current
-      ? this.renderer.current.state.autostep
-      : false;
+    const busy = !converged && autostep;
     return (
       <Grid
         style={{
@@ -276,7 +279,7 @@ class App extends React.Component<any, IState> {
             leftIcon={play}
             onClick={this.compile}
             primary={true}
-            disabled={!ready || code === initialCode}
+            disabled={!socketReady || busy || code === initialCode}
           />
         </Cell>
         <Cell
@@ -319,7 +322,7 @@ class App extends React.Component<any, IState> {
             <ErrorContainer>
               {socketError !== "" && <SocketAlert>{socketError}</SocketAlert>}
 
-              {!converged && <ConvergedStatus>optimizing...</ConvergedStatus>}
+              {busy && <ConvergedStatus>optimizing...</ConvergedStatus>}
             </ErrorContainer>
             <div
               style={{
@@ -329,10 +332,9 @@ class App extends React.Component<any, IState> {
               }}
             >
               <Renderer
-                ws={this.ws}
                 ref={this.renderer}
-                customButtons={true}
-                convergeStatus={this.changedConverged}
+                lock={busy}
+                sendPacket={this.sendPacket}
               />
             </div>
             <ButtonWell>
@@ -341,10 +343,10 @@ class App extends React.Component<any, IState> {
                 leftIcon={reload}
                 onClick={this.resample}
                 primary={true}
-                disabled={!rendered}
+                disabled={!rendered || busy}
               />
               <Button
-                label={autostepStatus ? "autostep (on)" : "autostep (off)"}
+                label={autostep ? "autostep (on)" : "autostep (off)"}
                 onClick={this.autostep}
               />
               <Button

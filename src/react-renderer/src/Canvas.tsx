@@ -2,19 +2,80 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import componentMap from "./componentMap";
 import Log from "./Log";
+import { LockContext } from "./contexts";
+import { collectLabels } from "./Util";
 
 interface IProps {
-  data: any;
-  onShapeUpdate(shape: any): void;
-  dragEvent?(id: string, dy: number, dx: number): void;
+  lock: boolean;
+  sendPacket(packet: string): void;
 }
 
-class Canvas extends React.Component<IProps> {
+interface IState {
+  data: any;
+}
+
+class Canvas extends React.Component<IProps, IState> {
+  public readonly state = { data: [] };
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
 
   public notEmptyLabel = ([name, shape]: [string, any]) => {
     return !(name === "Text" && shape.string.contents === "");
+  };
+  public onMessage = async (e: MessageEvent) => {
+    let myJSON = JSON.parse(e.data).contents;
+    const flag = myJSON.flag;
+    if (flag) {
+      myJSON = myJSON.shapes;
+    }
+    // For final frame
+    if (flag && flag === "final") {
+      Log.info("Fully optimized.");
+    }
+    // Compute (or retrieve from memory) label dimensions
+    const results = await collectLabels(myJSON);
+
+    // For initial frame - send dimensions
+    if (flag && flag === "initial") {
+      this.sendUpdate(results);
+    }
+    this.setState({ data: results });
+  };
+  public dragEvent = (id: string, dy: number, dx: number) => {
+    const packet = {
+      tag: "Drag",
+      contents: {
+        name: id,
+        xm: -dx,
+        ym: -dy
+      }
+    };
+    this.props.sendPacket(JSON.stringify(packet));
+  };
+
+  public sendUpdate = (updatedShapes: any[]) => {
+    const packet = {
+      tag: "Update",
+      contents: {
+        shapes: updatedShapes.map(([name, obj]: [string, any]) => {
+          return [name, { ...obj, rendered: undefined }];
+        })
+      }
+    };
+    const packetString = JSON.stringify(packet);
+    Log.info("Sending an Update packet to the server...");
+    this.props.sendPacket(packetString);
+  };
+
+  public onShapeUpdate = (updatedShape: any) => {
+    const shapes = this.state.data.map(([name, oldShape]: [string, any]) => {
+      if (oldShape.name.contents === updatedShape.name.contents) {
+        return [name, updatedShape];
+      }
+      return [name, oldShape];
+    });
+    this.setState({ data: shapes });
+    this.sendUpdate(shapes);
   };
 
   public download = () => {
@@ -50,7 +111,7 @@ class Canvas extends React.Component<IProps> {
     }
     const ctm = this.svg.current.getScreenCTM();
     const canvasSize = this.canvasSize;
-    const { onShapeUpdate, dragEvent } = this.props;
+    const { onShapeUpdate, dragEvent } = this;
     return React.createElement(component, {
       key,
       shape,
@@ -61,21 +122,24 @@ class Canvas extends React.Component<IProps> {
     });
   };
   public render() {
-    const { data } = this.props;
+    const { lock } = this.props;
+    const { data } = this.state;
     if (data.length === undefined) {
       return <svg />;
     }
     return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        version="1.2"
-        width="100%"
-        height="100%"
-        ref={this.svg}
-        viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
-      >
-        {data.filter(this.notEmptyLabel).map(this.renderEntity)}
-      </svg>
+      <LockContext.Provider value={lock}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          version="1.2"
+          width="100%"
+          height="100%"
+          ref={this.svg}
+          viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
+        >
+          {data.filter(this.notEmptyLabel).map(this.renderEntity)}
+        </svg>
+      </LockContext.Provider>
     );
   }
 }

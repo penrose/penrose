@@ -1,3 +1,3 @@
-import App from "./App";
+import Canvas from "./Canvas";
 
-export default App;
+export default Canvas;

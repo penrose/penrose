@@ -1,7 +1,7 @@
 {
   "name": "react-renderer",
   "version": "0.1.0",
-  "main": "build/dist/index.js",
+  "main": "build/dist/module.js",
   "module": "build/dist/module.js",
   "types": "build/dist/types.js",
   "private": true,
