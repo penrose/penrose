@@ -1,4 +1,7 @@
 import * as React from "react";
+// TODO: lift state up to parent
+// TODO: abstract out packet constructors so they can be consumed by dependents
+
 interface IState {
   autostep: boolean;
 }
