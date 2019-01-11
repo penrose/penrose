@@ -1,15 +1,17 @@
 import * as React from "react";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
+import { autoStepToggle, resample, step } from "./packets";
 
 interface IState {
   data: any[];
   converged: boolean;
+  autostep: boolean;
 }
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<any, IState> {
-  public readonly state = { data: [], converged: true };
+  public readonly state = { data: [], converged: true, autostep: false };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
   public ws: any = null;
@@ -20,6 +22,16 @@ class App extends React.Component<any, IState> {
     if (this.canvas.current !== null) {
       this.canvas.current.download();
     }
+  };
+  public autoStepToggle = () => {
+    this.setState({ autostep: !this.state.autostep });
+    this.sendPacket(autoStepToggle());
+  };
+  public step = () => {
+    this.sendPacket(step());
+  };
+  public resample = () => {
+    this.sendPacket(resample());
   };
   public onMessage = async (e: MessageEvent) => {
     const myJSON = JSON.parse(e.data).contents;
@@ -41,17 +53,17 @@ class App extends React.Component<any, IState> {
     this.setupSockets();
   }
   public render() {
-    const { converged } = this.state;
-    const autostep = this.buttons.current
-      ? this.buttons.current.state.autostep
-      : false;
+    const { converged, autostep } = this.state;
     const { customButtons } = this.props;
     return (
       <div className="App">
         {!customButtons && (
           <ButtonBar
-            sendPacket={this.sendPacket}
             download={this.download}
+            autostep={autostep}
+            step={this.step}
+            autoStepToggle={this.autoStepToggle}
+            resample={this.resample}
             converged={converged}
             ref={this.buttons}
           />
