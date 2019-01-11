@@ -4,6 +4,7 @@ import componentMap from "./componentMap";
 import Log from "./Log";
 import { LockContext } from "./contexts";
 import { collectLabels } from "./Util";
+import {drag, update} from "./packets";
 
 interface IProps {
   lock: boolean;
@@ -42,29 +43,12 @@ class Canvas extends React.Component<IProps, IState> {
     this.setState({ data: results });
   };
   public dragEvent = (id: string, dy: number, dx: number) => {
-    const packet = {
-      tag: "Drag",
-      contents: {
-        name: id,
-        xm: -dx,
-        ym: -dy
-      }
-    };
-    this.props.sendPacket(JSON.stringify(packet));
+    this.props.sendPacket(drag(id, dy, dx));
   };
 
   public sendUpdate = (updatedShapes: any[]) => {
-    const packet = {
-      tag: "Update",
-      contents: {
-        shapes: updatedShapes.map(([name, obj]: [string, any]) => {
-          return [name, { ...obj, rendered: undefined }];
-        })
-      }
-    };
-    const packetString = JSON.stringify(packet);
     Log.info("Sending an Update packet to the server...");
-    this.props.sendPacket(packetString);
+    this.props.sendPacket(update(updatedShapes));
   };
 
   public onShapeUpdate = (updatedShape: any) => {
