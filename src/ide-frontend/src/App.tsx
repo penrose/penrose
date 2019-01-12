@@ -5,7 +5,9 @@ import {Canvas, Packets} from "react-renderer";
 import { Grid, Cell } from "styled-css-grid";
 import logo from "./icons/logo.svg";
 import venn from "./icons/venn.svg";
-import play from "./icons/play.svg";
+import playWhite from "./icons/play-white.svg";
+import playBlue from "./icons/play-blue.svg";
+import pause from "./icons/pause.svg";
 import reload from "./icons/reload.svg";
 import chevronDown from "./icons/chevron_down.svg";
 import download from "./icons/download.svg";
@@ -276,7 +278,7 @@ class App extends React.Component<any, IState> {
           </div>
           <Button
             label={"build"}
-            leftIcon={play}
+            leftIcon={playWhite}
             onClick={this.compile}
             primary={true}
             disabled={!socketReady || busy || code === initialCode}
@@ -346,6 +348,7 @@ class App extends React.Component<any, IState> {
                 disabled={!rendered || busy}
               />
               <Button
+                leftIcon={autostep ? pause : playBlue}
                 label={autostep ? "autostep (on)" : "autostep (off)"}
                 onClick={this.autostep}
               />
