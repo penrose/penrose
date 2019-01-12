@@ -1,14 +1,14 @@
 import * as React from "react";
 
 import AceEditor from "react-ace";
-import {Canvas, Packets} from "react-renderer";
+import { Canvas, Packets } from "react-renderer";
 import { Grid, Cell } from "styled-css-grid";
 import logo from "./icons/logo.svg";
 import venn from "./icons/venn.svg";
 import playWhite from "./icons/play-white.svg";
-import playBlue from "./icons/play-blue.svg";
-import pause from "./icons/pause.svg";
+import hammer from "./icons/hammer.svg";
 import reload from "./icons/reload.svg";
+import Checkmark from "./icons/checkmark";
 import chevronDown from "./icons/chevron_down.svg";
 import download from "./icons/download.svg";
 import Log from "Log";
@@ -18,6 +18,7 @@ import { Menu, MenuList, MenuButton, MenuItem } from "@reach/menu-button";
 import { Persist } from "react-persist";
 import Alert from "@reach/alert";
 import styled from "styled-components";
+import { COLORS } from "./styles";
 const socketAddress = "ws://localhost:9160";
 
 /*
@@ -79,13 +80,18 @@ const ButtonWell = styled.div`
   flex-shrink: 0;
 `;
 
+interface ISettings {
+  debug: boolean;
+  playOnBuild: boolean;
+}
+
 interface IState {
   code: string;
   initialCode: string;
   rendered: boolean;
   selectedElement: IOption;
   selectedStyle: IOption;
-  debug: boolean;
+  settings: ISettings;
   socketReady: boolean;
   socketError: string;
   codeError: string;
@@ -107,7 +113,10 @@ class App extends React.Component<any, IState> {
     rendered: false,
     selectedElement: elementOptions[0],
     selectedStyle: styleOptions[0],
-    debug: false,
+    settings: {
+      debug: false,
+      playOnBuild: true
+    },
     socketReady: false,
     socketError: "",
     codeError: "",
@@ -175,7 +184,8 @@ class App extends React.Component<any, IState> {
       if (packetType === "error") {
         Log.error(data);
         this.setState({ codeError: data.contents.contents });
-      } else if (packetType === "shapes") { // Otherwise, send the packet to the renderer
+      } else if (packetType === "shapes") {
+        // Otherwise, send the packet to the renderer
         this.renderer.current.onMessage(e);
         const { flag } = data.contents;
         // Rough inference of whether the diagram converged
@@ -193,8 +203,13 @@ class App extends React.Component<any, IState> {
   public compile = async () => {
     const packet = { tag: "Edit", contents: { program: this.state.code } };
 
-    this.ws.send(JSON.stringify(packet));
-    this.setState({ initialCode: this.state.code, autostep: false });
+    await this.ws.send(JSON.stringify(packet));
+    await this.setState({ initialCode: this.state.code, autostep: false });
+  };
+  public compileAndRun = async () => {
+    await this.compile();
+    // TODO: send autostep jointly with compile packet so there are no jumpy behaviors
+    await this.autostep();
   };
   public onChangeCode = (value: string) => {
     this.setState({ code: value });
@@ -205,10 +220,13 @@ class App extends React.Component<any, IState> {
   public selectedStyle = (value: IOption) => {
     this.setState({ selectedStyle: value });
   };
-  public toggleDebug = () => {
-    this.setState({ debug: !this.state.debug });
+  public toggleSetting = (setting: string) => () => {
+    const settings = {
+      ...this.state.settings,
+      [setting]: !this.state.settings[setting]
+    };
+    this.setState({ settings });
   };
-
   public render() {
     const {
       code,
@@ -216,7 +234,7 @@ class App extends React.Component<any, IState> {
       rendered,
       selectedElement,
       selectedStyle,
-      debug,
+      settings,
       socketError,
       codeError,
       socketReady,
@@ -224,6 +242,7 @@ class App extends React.Component<any, IState> {
       autostep
     } = this.state;
     const busy = !converged && autostep;
+    // TODO: split panes into individual files (renderingPane, editingPane, etc)
     return (
       <Grid
         style={{
@@ -237,10 +256,10 @@ class App extends React.Component<any, IState> {
         columnGap={"5px"}
       >
         <Persist
-          name="debugMode"
-          data={debug}
+          name="ideSettings"
+          data={settings}
           debounce={0}
-          onMount={data => this.setState({ debug: data })}
+          onMount={data => this.setState({ settings: data })}
         />
         <Persist
           name="savedContents"
@@ -264,8 +283,11 @@ class App extends React.Component<any, IState> {
                 <img src={chevronDown} />
               </MenuBtn>
               <MenuList>
-                <MenuItem onSelect={this.toggleDebug}>
-                  Turn {debug ? "off" : "on"} debug mode
+                <MenuItem onSelect={this.toggleSetting("playOnBuild")}>
+                  {settings.playOnBuild && <Checkmark color={COLORS.primary} />} Play on Build
+                </MenuItem>
+                <MenuItem onSelect={this.toggleSetting("debug")}>
+                  {settings.debug && <Checkmark color={COLORS.primary} />} Debug Mode
                 </MenuItem>
               </MenuList>
             </Menu>
@@ -277,9 +299,9 @@ class App extends React.Component<any, IState> {
             />
           </div>
           <Button
-            label={"build"}
-            leftIcon={playWhite}
-            onClick={this.compile}
+            label={settings.playOnBuild ? "play" : "build"}
+            leftIcon={settings.playOnBuild ? playWhite : hammer}
+            onClick={settings.playOnBuild ? this.compileAndRun : this.compile}
             primary={true}
             disabled={!socketReady || busy || code === initialCode}
           />
@@ -298,7 +320,7 @@ class App extends React.Component<any, IState> {
             selected={selectedStyle}
             onSelect={this.selectedStyle}
           />
-          {debug && <Button label="step" onClick={this.step} />}
+          {settings.debug && <Button label="step" onClick={this.step} />}
         </Cell>
         <Cell>
           <AceEditor
@@ -348,7 +370,6 @@ class App extends React.Component<any, IState> {
                 disabled={!rendered || busy}
               />
               <Button
-                leftIcon={autostep ? pause : playBlue}
                 label={autostep ? "autostep (on)" : "autostep (off)"}
                 onClick={this.autostep}
               />

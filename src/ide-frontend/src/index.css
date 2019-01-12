@@ -6,6 +6,10 @@ body {
   font-family: "Open Sans", sans-serif;
 }
 
+[data-reach-menu-item][data-selected] path {
+  fill: #FFFFFF;
+}
+
 .error-marker {
   position: absolute;
   background-color: rgba(255, 226, 226, 0.9);
