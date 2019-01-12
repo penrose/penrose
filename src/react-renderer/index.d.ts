@@ -1,6 +1,6 @@
-import Canvas from "src/Canvas";
+import {Canvas, Packets} from "src/module";
 
 declare module "mathjax";
 
 
-export default Canvas;
+export {Canvas, Packets};

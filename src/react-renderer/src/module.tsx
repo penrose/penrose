@@ -1,3 +1,4 @@
 import Canvas from "./Canvas";
+import * as Packets from "./packets";
 
-export default Canvas;
+export {Canvas, Packets};

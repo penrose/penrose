@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import AceEditor from "react-ace";
-import Renderer from "react-renderer";
+import {Canvas, Packets} from "react-renderer";
 import { Grid, Cell } from "styled-css-grid";
 import logo from "./icons/logo.svg";
 import venn from "./icons/venn.svg";
@@ -113,7 +113,7 @@ class App extends React.Component<any, IState> {
     autostep: false
   };
   public ws: any = null;
-  public readonly renderer = React.createRef<Renderer>();
+  public readonly renderer = React.createRef<Canvas>();
   constructor(props: any) {
     super(props);
     Log.info("Connecting to socket...");
@@ -125,22 +125,19 @@ class App extends React.Component<any, IState> {
     }
   };
   public autostep = async () => {
-    const packet = { tag: "Cmd", contents: { command: "autostep" } };
     this.setState({
       autostep: !this.state.autostep
     });
-    this.sendPacket(JSON.stringify(packet));
+    this.sendPacket(Packets.autoStepToggle());
   };
   public sendPacket = (packet: string) => {
     this.ws.send(packet);
   };
   public step = () => {
-    const packet = { tag: "Cmd", contents: { command: "step" } };
-    this.sendPacket(JSON.stringify(packet));
+    this.sendPacket(Packets.step());
   };
   public resample = () => {
-    const packet = { tag: "Cmd", contents: { command: "resample" } };
-    this.sendPacket(JSON.stringify(packet));
+    this.sendPacket(Packets.resample());
   };
   public onSocketError = (e: any) => {
     this.setState({ socketError: "Error: could not connect to WebSocket." });
@@ -331,7 +328,7 @@ class App extends React.Component<any, IState> {
                 overflowY: "auto"
               }}
             >
-              <Renderer
+              <Canvas
                 ref={this.renderer}
                 lock={busy}
                 sendPacket={this.sendPacket}
