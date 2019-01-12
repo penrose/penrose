@@ -33,12 +33,14 @@ class App extends React.Component<any, IState> {
   public resample = () => {
     this.sendPacket(resample());
   };
-  public onMessage = async (e: MessageEvent) => {
+  public onMessage = (e: MessageEvent) => {
     const myJSON = JSON.parse(e.data).contents;
     const flag = myJSON.flag;
+
+    // Rough inference of whether the diagram converged
     const converged = flag === "final" || flag === "initial";
 
-    await this.setState({ converged });
+    this.setState({ converged });
     if (this.canvas.current) {
       this.canvas.current.onMessage(e);
     }

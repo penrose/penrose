@@ -160,6 +160,7 @@ class App extends React.Component<any, IState> {
       const data = JSON.parse(e.data);
       const packetType = data.type;
       Log.info("Received data from the server.", data);
+      // If no error, clear error box
       if (packetType !== "error") {
         if (this.state.codeError !== "") {
           this.setState({ codeError: "" });
@@ -168,12 +169,14 @@ class App extends React.Component<any, IState> {
           this.setState({ rendered: true });
         }
       }
+      // If error, show error popup
       if (packetType === "error") {
         Log.error(data);
         this.setState({ codeError: data.contents.contents });
-      } else if (packetType === "shapes") {
+      } else if (packetType === "shapes") { // Otherwise, send the packet to the renderer
         this.renderer.current.onMessage(e);
         const { flag } = data.contents;
+        // Rough inference of whether the diagram converged
         const converged = flag === "initial" || flag === "final";
         if (this.state.converged !== converged) {
           this.setState({ converged });
