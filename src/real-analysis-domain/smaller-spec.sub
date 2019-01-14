@@ -1,4 +1,4 @@
--- This is the desugared version of the full real analysis spec program in the design paper.
+-- This Substance program builds up to the full real analysis spec in the paper (point-perp.sub) for the parallel reals style.
 
 AutoLabel All
 
@@ -6,6 +6,7 @@ Reals R
 Label R $\mathbb{R}$
 
 ---------------------------------------------------
+
 Real a, b
 Interval A
 A := CreateInterval(a, b)
@@ -22,12 +23,13 @@ Real f_l
 f_l := apply(f, l)
 Label f_l $f(l)$
 
-Point p
-p := Pt(l, f_l)
+-- parallel style doesn't have a visualization for point or derivative
+-- Point p
+-- p := Pt(l, f_l)
 
-Real dfl
-dfl := derivativeAtP(f, l)
-Label dfl $f'(l)$
+-- Real dfl
+-- dfl := derivativeAtP(f, l)
+-- Label dfl $f'(l)$
 
 ---------------------------------------------------
 
@@ -40,6 +42,11 @@ Interval J
 J := CreateInterval(i, j)
 Subset(J, R)
 
+NoLabel a, b, d, e, i, j
+
+-- Gets (visibly) slower after adding these 2 intervals
+-- But also gets a lot faster after computing the R label positions
+
 -- TODO fix: style line 714: Sub obj might not have a shape
 Interval U
 U := union(I, J)
@@ -49,15 +56,16 @@ Function h
 h := CreateFunction(U, R)
 Discontinuous(h)
 
-Real ifI
-ifI := integral(I, h)
-Label ifI $\int_{I} h(x) dx$
+-- Real ifI
+-- ifI := integral(I, h)
+-- Label ifI $\int_{I} h(x) dx$
 
 ---------------------------------------------------
 
+-- TODO: inf interval style with arrow
 Real k, inf
 Interval K
 K := CreateInterval(k, inf)
 Subset(K, R)
 LessThan(k, inf)
-NoLabel inf
+NoLabel k, inf

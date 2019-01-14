@@ -1,5 +1,5 @@
 global {
-  global.padding = 10.0
+  global.padding = 20.0
 }
 
 origin {
@@ -53,11 +53,13 @@ Reals `R` {
   }
 
   R.text = Text {
+    x = R.shape.endX + global.padding
+    y = R.shape.endY + global.padding
     string = R.label
     rotation = 0.0
   }
 
-  R.labelFn = ensure nearHead(R.shape, R.text, global.padding, global.padding)
+  -- R.labelFn = ensure nearHead(R.shape, R.text, global.padding, global.padding)
 }
 
 Real r  -- no "In(r, `R`)"
@@ -82,6 +84,12 @@ with Reals `R` {
 
   r.inFn = ensure inRange(r.val, R.left, R.right)
   r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
+}
+
+Real `inf` 
+with Reals `R` {
+     -- Not sure how to put `inf`s on R.shape2
+     override `inf`.val = `R`.right
 }
 
 ----------------------------------
@@ -233,6 +241,19 @@ where I := CreateRightClopenInterval(a, b); Subset(I, R) {
     override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
+-- TODO: Can't do this here because the Function selector relies on it, unless we add the NOT construct to the selector language?
+-- !(I := union(X, Y))
+
+-- Interval Z
+-- where Z := union(X, Y)
+-- with Interval X; Interval Y {
+--      delete Z.shape
+--      delete Z.text
+--      delete Z.wfFn
+--      delete Z.liFn
+--      delete Z.riFn
+-- }
+
 ----------------------------------
 -- FUNCTION STYLES
 
@@ -267,11 +288,13 @@ where f := CreateFunction(I, J) {
   }
 
  `R`.shape2_text = Text {
+    x = R.shape2.endX + global.padding
+    y = R.shape2.endY + global.padding
     string = `R`.label
     rotation = 0.0
   }
 
-  `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
+  -- `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
 
   -------------------------------------------------
 
@@ -314,11 +337,13 @@ where f := CreateFunction(`R`, `R`) {
   }
 
  `R`.shape2_text = Text {
+    x = R.shape2.endX + global.padding
+    y = R.shape2.endY + global.padding
     string = `R`.label
     rotation = 0.0
   }
 
-  `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
+  -- `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
 
   -------------------------------------------------
 
@@ -369,6 +394,65 @@ Function `g` {
 	 override `g`.shape.color = Colors.lightsky
 } */
 
+-- Function defined on a union of intervals
+
+-- Draw a function with two parts with a discontinuity
+Function f
+with Interval I; Interval J; Interval X; Interval Y
+where f := CreateFunction(I, J);
+      I := union(X, Y); -- Assuming that none of these is recursively a union of intervals...
+      Discontinuous(f) {
+
+      -- TODO: have domain intervals be disjoint?
+
+     delete I.shape
+     delete I.text
+     delete I.wfFn
+     delete I.liFn
+     delete I.riFn
+
+     -- use overrides instead?
+     delete f.val
+     delete f.domain
+     -- what to do with f.codomain?
+     delete f.shape
+     delete f.text
+     
+     -- The second R is already drawn
+     -- NOTE: f has no domain (since we can't define a list of shapes yet)
+     override f.codomain = R.shape2 -- Is this right? what if it needs to be R.shape2? TODO need a second selector for this?
+
+     f.shape1 = Curve {
+       pathData = sampleFunctionArea(X.shape, f.codomain, 5.0, 30.0)
+       strokeWidth = 0.0
+       fill = Colors.lightsky
+       color = Colors.lightsky
+       rotation = 0.0
+     }
+
+     f.shape2 = Curve {
+       pathData = sampleFunctionArea(Y.shape, f.codomain, 5.0, 30.0)
+       strokeWidth = 0.0
+       fill = Colors.lightsky
+       color = Colors.lightsky
+       rotation = 0.0
+     }
+
+     f.text = Text {
+       string = f.label
+       x = 0.0
+       y = 0.0 -- TODO
+       x = average(midpointX(X.shape), midpointX(Y.shape)) + 10.0
+       y = average(X.shape.startY, f.codomain.startY)
+       rotation = 0.0
+     }     
+
+}
+
+-------------------------------------------------------
+
+-- FUNCTION COMPOSITION STYLES
+
 /* h = g . f
 
 If there is a composition of functions, draw a third R for the second function. Again, this is technically going to be made for every match, but overridden to be the same thing. (Does NOT deal with composition of 3 functions, i = h . g . f) */
@@ -396,11 +480,13 @@ with Interval A, B, C;
   }
 
  `R`.shape3_text = Text {
+    x = R.shape3.endX + global.padding
+    y = R.shape3.endY + global.padding
     string = `R`.label
     rotation = 0.0
   }
 
-  `R`.shape3_labelFn = ensure nearHead(`R`.shape3, `R`.shape3_text, global.padding, global.padding)
+  -- `R`.shape3_labelFn = ensure nearHead(`R`.shape3, `R`.shape3_text, global.padding, global.padding)
 
   -------------------------------------------------
 
@@ -438,6 +524,8 @@ And interactions on the server take a lot of time--must be the translation being
 Should there be that many Style warnings?
 Maybe the previous composition selector is matching too many times?
 Maybe evaluating the translation somehow means having to lazily redo the match?
+
+Temporarily moving on from making this selector/block work
 */
 
 Function h
@@ -497,17 +585,21 @@ with Function g, f, e, d;
 
 -- y := f(x)
 Real y; Function f
-with Interval I; Interval J; Real x; Reals R
+with Interval I; Interval J; Real x
 where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
 
   -- so it's not necessary to say In(y, J)
-  override y.yval = J.yval
+  override y.yval = f.codomain.startY
+  -- We need to use f.codomain.startY (and f.domain.startY) because f's domain and codomain might have been overridden 
+  -- NOT J.yval
+  -- also NOT f.domain.yval
+  -- this seems really tricky
 
   f.pointwise_shape = Curve {
     -- TODO: syntax for working with 2-tuples and lists
     -- TODO: why does this not interpolate properly with offset = (0, 0)?
     -- TODO: more curves = more time to optimize?
-    pathData = makeCurve(x.val, I.yval - 2.0 * global.padding, y.val, J.yval + 2.0 * global.padding, -10.0, -(J.yval - I.yval) / 1.5)
+    pathData = makeCurve(x.val, f.domain.startY - 2.0 * global.padding, y.val, y.yval + 2.0 * global.padding, -10.0, -(y.yval - f.domain.startY) / 1.5)
     strokeWidth = 2.0
     fill = Colors.none
     color = Colors.sky
@@ -515,4 +607,14 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
     -- TODO: rename to account for arrow directionality
     right-arrowhead = True
   }
+}
+
+Real dfx
+with Function f; Interval I; Interval J; Real x; Real y
+where dfx := derivativeAtP(f, x); f := CreateFunction(I, J);
+      y := apply(f, x) {
+      delete dfx.shape
+      delete dfx.text
+      delete dfx.inFn
+      delete dfx.labelFn
 }

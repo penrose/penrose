@@ -44,7 +44,7 @@ Function z
 z := CreateFunction(I, L)
 z := compose(h, y)
 
--- TODO: 
+-- TODO: associativity of composition
 -- z = (h . g) . f
 
 AutoLabel All
