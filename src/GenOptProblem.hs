@@ -487,7 +487,7 @@ evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap g =
 evalExpr :: (Autofloat a) => (Int, Int) -> Expr -> Translation a -> VaryMap a -> StdGen -> (ArgVal a, Translation a, StdGen)
 evalExpr (i, n) arg trans varyMap g =
     if i >= n then error ("evalExpr: iteration depth exceeded (" ++ show n ++ ")")
-        else {-trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n) -}
+        else {- trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n) -}
                    argResult
     where limit = (i + 1, n)
           argResult = case arg of

@@ -26,7 +26,7 @@ Function f
 -- f := CreateFunction(R, A)
 -- f := CreateFunction(R, B)
 
--- f := CreateFunction(A, B)
+f := CreateFunction(A, B)
 -- f := CreateFunction(B, B)
 
 -- f := CreateFunction(R, R)

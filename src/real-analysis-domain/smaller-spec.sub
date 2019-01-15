@@ -8,8 +8,8 @@ Label R $\mathbb{R}$
 ---------------------------------------------------
 
 Real a, b
-Interval A
-A := CreateInterval(a, b)
+ClosedInterval A
+A := CreateClosedInterval(a, b)
 Subset(A, R)
 
 Real l
@@ -22,6 +22,7 @@ Continuous(f)
 Real f_l
 f_l := apply(f, l)
 Label f_l $f(l)$
+NoLabel a, b
 
 -- parallel style doesn't have a visualization for point or derivative
 -- Point p
@@ -34,15 +35,15 @@ Label f_l $f(l)$
 ---------------------------------------------------
 
 Real d, e, i, j
-Interval I
-I := CreateInterval(d, e)
+OpenInterval I
+I := CreateOpenInterval(d, e)
 Subset(I, R)
 
-Interval J
-J := CreateInterval(i, j)
+LeftClopenInterval J
+J := CreateLeftClopenInterval(i, j)
 Subset(J, R)
 
-NoLabel a, b, d, e, i, j
+NoLabel d, e, i, j
 
 -- Gets (visibly) slower after adding these 2 intervals
 -- But also gets a lot faster after computing the R label positions
@@ -62,10 +63,10 @@ Discontinuous(h)
 
 ---------------------------------------------------
 
--- TODO: inf interval style with arrow
-Real k, inf
-Interval K
-K := CreateInterval(k, inf)
+Real m, n
+PosInfinite(n)
+OpenInterval K
+K := CreateOpenInterval(m, n)
 Subset(K, R)
-LessThan(k, inf)
-NoLabel k, inf
+
+NoLabel m, n

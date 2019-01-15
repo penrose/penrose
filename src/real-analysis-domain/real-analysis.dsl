@@ -45,6 +45,10 @@ operator applyOver (f : Function, I : Interval) : Interval
 -- (g . f): Does not check f's codomain matches g's domain
 operator compose (f : Function, g : Function) : Function
 
+-- Predicates on reals
+predicate PosInfinite(x : Real) : Prop
+predicate NegInfinite(x : Real) : Prop
+
 -- Predicates on intervals
 predicate Bounded (i : Interval) : Prop
 predicate LeftBounded (i : Interval) : Prop

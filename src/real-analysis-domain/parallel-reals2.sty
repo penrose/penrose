@@ -1,5 +1,7 @@
 global {
   global.padding = 20.0
+  global.area_dx = -50.0
+  global.area_dy = 0.0
 }
 
 origin {
@@ -10,22 +12,26 @@ origin {
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
     Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.darkgray = rgba(0.6, 0.6, 0.6, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
-    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    -- Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
     Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
     Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
     Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
     Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
     Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
-    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
-    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
     Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
     Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
     Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.lightblue2 = rgba(0.82, 0.88, 0.94, 1.0)
-    Colors.lightpink = rgba(0.9, 0.5, 0.5, 0.25)
+
+    Colors.sky = rgba(0.42, 0.65, 0.77, 1.0)
+    Colors.lightsky = rgba(0.252, 0.65, 0.77, 0.25)
+    Colors.pink = rgba(0.78, 0.256, 0.53, 1.0)
+    Colors.lightpink = rgba(0.78, 0.256, 0.53, 0.25)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
 -- Should there be a style for generic Interval
@@ -35,8 +41,9 @@ Colors {
 
 Reals `R` {
   R.len = 500.0
-  R.thickness = 1.5
-  R.color = Colors.gray
+  R.thickness = 3
+  R.color = Colors.darkgray
+  R.spacing = 200.0 -- spacing between parallel reals
 
   R.left = origin.x
   R.right = origin.x + R.len
@@ -86,11 +93,11 @@ with Reals `R` {
   r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
 }
 
-Real `inf` 
-with Reals `R` {
-     -- Not sure how to put `inf`s on R.shape2
-     override `inf`.val = `R`.right
-}
+-- Real `inf` 
+-- with Reals `R` {
+--      -- Not sure how to put `inf`s on R.shape2
+--      override `inf`.val = `R`.right
+-- }
 
 ----------------------------------
 -- INTERVAL STYLES
@@ -107,7 +114,7 @@ with Reals R { -- TODO: more general, with Interval J
     startY = I.yval
     endX = I.right
     endY = I.yval
-    thickness = 7.5
+    thickness = 7
     color = rgba(0.3, 0.3, 0.9, 0.5)
   }
 
@@ -241,6 +248,33 @@ where I := CreateRightClopenInterval(a, b); Subset(I, R) {
     override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
+-- Extend I's shape toward positive infinity
+Interval I
+with Real x; Real y; Reals `R`
+where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
+      override I.right = `R`.right
+
+      override I.shape = Arrow {
+      	       startX = I.left
+	       startY = I.yval
+	       endX = I.right
+	       endY = I.yval
+	       thickness = 7
+	       color = Colors.bluegreen
+      }
+
+      override y.val = `R`.right
+      delete y.shape
+      delete y.text
+      delete y.labelFn
+
+      delete I.wfFn
+      delete I.riFn
+}
+
+-- TODO: style for interval with negative infinity
+-- do they cascade style (-inf, +inf) properly?
+
 -- TODO: Can't do this here because the Function selector relies on it, unless we add the NOT construct to the selector language?
 -- !(I := union(X, Y))
 
@@ -275,7 +309,7 @@ Function f
 with Interval I; Interval J; Reals `R`
 -- Does NOT match with generic "Reals R"!
 where f := CreateFunction(I, J) {
-  `R`.yval2 = `R`.yval - 100.0 -- function drawn downward
+  `R`.yval2 = `R`.yval - `R`.spacing -- function drawn downward
 
   `R`.shape2 = Arrow {
     startX = `R`.left
@@ -301,12 +335,14 @@ where f := CreateFunction(I, J) {
   f.val = OPTIMIZED   -- placeholder, TODO sample f's value
   f.domain = I.shape -- TODO: we really want to be able to write `f.domain = I` but it doesn't even parse
   f.codomain = J.shape
+  f.color1 = Colors.lightpink
+  f.color2 = Colors.pink
 
   f.shape = Curve {
-    pathData = sampleFunctionArea(f.domain, f.codomain, 5.0, 30.0)
+    pathData = sampleFunctionArea(f.domain, f.codomain, global.area_dx, global.area_dy)
     strokeWidth = 0.0
-    fill = Colors.lightpink
-    color = Colors.lightpink
+    fill = f.color1
+    color = f.color1
     rotation = 0.0
   }
 
@@ -324,7 +360,7 @@ where f := CreateFunction(I, J) {
 Function f
 with Reals `R`
 where f := CreateFunction(`R`, `R`) {
-  `R`.yval2 = `R`.yval - 100.0 -- function drawn downward
+  `R`.yval2 = `R`.yval - `R`.spacing -- function drawn downward
 
   `R`.shape2 = Arrow {
     startX = `R`.left
@@ -350,12 +386,14 @@ where f := CreateFunction(`R`, `R`) {
   f.val = OPTIMIZED
   f.domain = `R`.shape
   f.codomain = `R`.shape2
+  f.color1 = Colors.lightpink
+  f.color2 = Colors.pink
 
   f.shape = Curve {
-    pathData = sampleFunctionArea(f.domain, f.codomain, 5.0, 30.0)
+    pathData = sampleFunctionArea(f.domain, f.codomain, global.area_dx, global.area_dy)
     strokeWidth = 0.0
-    fill = Colors.lightpink
-    color = Colors.lightpink
+    fill = f.color1
+    color = f.color1
     rotation = 0.0
   }
 
@@ -397,14 +435,14 @@ Function `g` {
 -- Function defined on a union of intervals
 
 -- Draw a function with two parts with a discontinuity
+-- Note that this works generically over subtypes of intervals
 Function f
 with Interval I; Interval J; Interval X; Interval Y
 where f := CreateFunction(I, J);
       I := union(X, Y); -- Assuming that none of these is recursively a union of intervals...
       Discontinuous(f) {
 
-      -- TODO: have domain intervals be disjoint?
-
+      -- TODO: have domain intervals be disjoint
      delete I.shape
      delete I.text
      delete I.wfFn
@@ -422,19 +460,25 @@ where f := CreateFunction(I, J);
      -- NOTE: f has no domain (since we can't define a list of shapes yet)
      override f.codomain = R.shape2 -- Is this right? what if it needs to be R.shape2? TODO need a second selector for this?
 
+     override f.color1 = Colors.lightsky
+     override f.color2 = Colors.sky
+
+     override X.shape.color = f.color2
+     override Y.shape.color = f.color2
+
      f.shape1 = Curve {
-       pathData = sampleFunctionArea(X.shape, f.codomain, 5.0, 30.0)
+       pathData = sampleFunctionArea(X.shape, f.codomain, global.area_dx, global.area_dy)
        strokeWidth = 0.0
-       fill = Colors.lightsky
-       color = Colors.lightsky
+       fill = f.color1
+       color = f.color1
        rotation = 0.0
      }
 
      f.shape2 = Curve {
-       pathData = sampleFunctionArea(Y.shape, f.codomain, 5.0, 30.0)
+       pathData = sampleFunctionArea(Y.shape, f.codomain, global.area_dx, global.area_dy)
        strokeWidth = 0.0
-       fill = Colors.lightsky
-       color = Colors.lightsky
+       fill = f.color1
+       color = f.color1
        rotation = 0.0
      }
 
@@ -467,7 +511,7 @@ where h := compose(g, f);
       -- A ?= B; B ?= C; h ?= g; g ?= f
 with Interval A, B, C;
      Reals `R` {
-  `R`.yval3 = `R`.yval2 - 100.0 -- function drawn downward
+  `R`.yval3 = `R`.yval2 - `R`.spacing -- function drawn downward
 
   `R`.shape3 = Arrow {
     startX = `R`.left
@@ -499,7 +543,7 @@ with Interval A, B, C;
   -- they look like the "handles" of f?
   -- this line changes the y offset of the midpts
   -- but it shouldn't be necessary
-  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain, 5.0, -30.0)
+  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain, global.area_dx, -1.0 * global.area_dy)
 
   -- delete h's shape, label, etc.
   delete h.val
@@ -545,7 +589,7 @@ with Function g, f, e, d;
      -- just to test the match
      -- override `R`.shape3.color = Colors.red
 
-  `R`.yval4 = `R`.yval3 - 100.0 -- function drawn downward
+  `R`.yval4 = `R`.yval3 - `R`.spacing -- function drawn downward
 
   `R`.shape4 = Arrow {
     startX = `R`.left
@@ -572,7 +616,7 @@ with Function g, f, e, d;
   override D.yval = `R`.yval4
 
   -- TODO: not sure why the "handles" of g are high
-  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain, 5.0, -60.0)
+  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain, global.area_dx, -2.0 * global.area_dy)
 
   -- delete h's shape, label, etc.
   delete h.val
@@ -595,14 +639,19 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
   -- also NOT f.domain.yval
   -- this seems really tricky
 
+  override x.shape.color = f.color2
+  override y.shape.color = f.color2
+  override I.shape.color = f.color2
+  -- TODO: how to change the color of the interval's brackets?
+
   f.pointwise_shape = Curve {
     -- TODO: syntax for working with 2-tuples and lists
     -- TODO: why does this not interpolate properly with offset = (0, 0)?
     -- TODO: more curves = more time to optimize?
-    pathData = makeCurve(x.val, f.domain.startY - 2.0 * global.padding, y.val, y.yval + 2.0 * global.padding, -10.0, -(y.yval - f.domain.startY) / 1.5)
+    pathData = makeCurve(x.val, f.domain.startY - global.padding, y.val, y.yval + global.padding, (x.val + y.val) / 2.0, (y.yval + f.domain.startY) / 2.0)
     strokeWidth = 2.0
     fill = Colors.none
-    color = Colors.sky
+    color = f.color2
     rotation = 0.0
     -- TODO: rename to account for arrow directionality
     right-arrowhead = True
