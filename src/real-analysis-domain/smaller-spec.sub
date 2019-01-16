@@ -63,10 +63,10 @@ Discontinuous(h)
 
 ---------------------------------------------------
 
-Real m, n
-PosInfinite(n)
-OpenInterval K
-K := CreateOpenInterval(m, n)
-Subset(K, R)
+-- Real m, n
+-- PosInfinite(n)
+-- OpenInterval K
+-- K := CreateOpenInterval(m, n)
+-- Subset(K, R)
 
-NoLabel m, n
+-- NoLabel m, n

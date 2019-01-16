@@ -650,9 +650,9 @@ makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
 -- You can see this by adjusting the interval size by *dragging the labels*
 -- TODO: should account for thickness of domain and range
 sampleFunctionArea :: CompFn
--- sampleFunctionArea [x@(GPI domain), y@(GPI range)] g =
+sampleFunctionArea [x@(GPI domain), y@(GPI range)] g =
                    -- Apply with default offsets
-                   -- sampleFunctionArea [x, y, Val (FloatV 5), Val (FloatV (30))] g
+                   sampleFunctionArea [x, y, Val (FloatV 50), Val (FloatV 0)] g
 sampleFunctionArea [GPI domain, GPI range, Val (FloatV dx), Val (FloatV dy)] g =
                if linelike domain && linelike range
                then let pt_tl = getPoint "start" domain
@@ -663,18 +663,15 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV dx), Val (FloatV dy)] g =
 
                         x_offset = (dx, 0)
                         y_offset = (0, dy)
-                        pt_midright = midpoint pt_tr pt_br -: x_offset -- +: y_offset
-                        pt_midleft = midpoint pt_bl pt_tl -: x_offset -- +: y_offset
+                        pt_midright = midpoint pt_tr pt_br -: x_offset +: y_offset
+                        pt_midleft = midpoint pt_bl pt_tl +: x_offset +: y_offset
                
                         right_curve = interpolateFn [pt_tr, pt_midright, pt_br]
                         left_curve = interpolateFn [pt_bl, pt_midleft, pt_tl]
 
                         -- TODO: not sure if this is right. do any points need to be included in the path?
                         path = Closed $ [Pt pt_tl, Pt pt_tr] ++ right_curve ++ [Pt pt_br, Pt pt_bl] ++ left_curve
-                    in {-trace ("\npt_midleft: " ++ show pt_midleft ++ ", pt_midright: " ++ show pt_midright
-                             ++ "\nx_offset: " ++ show x_offset ++ ", y_offset: " ++ show y_offset
-                             ++ "\nleft midpt: " ++ show (midpoint pt_tl pt_bl) ++ "right midpt: " ++ show (midpoint pt_br pt_tr)) 
-                             $ -} (Val $ PathDataV [path], g)
+                    in (Val $ PathDataV [path], g)
                else error "expected two linelike shapes"
 
 -- Draw a curve from (x1, y1) to (x2, y2) with some point in the middle defining curvature

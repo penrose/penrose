@@ -1057,9 +1057,18 @@ deleteProperty trans name field property =
         Nothing -> let err = "Err: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field
                               ++ "'; can't delete path " ++ path in
                    addWarn trans err
-        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
-                                     ++ field ++ "'; cannot delete property '" ++ property ++ "'" in
-                          addWarn trans err
+        -- Deal with path aliasing as in `addProperty`
+        Just (FExpr e) -> 
+             case e of
+             OptEval (EPath p@(FieldPath bvar newField)) ->
+                            let newName = trName bvar in
+                            if newName == name && newField == field
+                            then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
+                                 in addWarn trans err
+                            else deleteProperty trans newName newField property
+             res -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
+                              ++ field ++ "'; cannot delete property '" ++ property ++ "'" in
+                    addWarn trans err
         Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists
            if property `M.notMember` properties
@@ -1117,9 +1126,20 @@ addProperty override trans name field property texpr =
         Nothing -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have field '"
                               ++ field ++ "'; cannot add property '" ++ property ++ "'" in
                    addWarn trans err
-        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
-                                     ++ field ++ "'; cannot add property '" ++ property ++ "'" in
-                          addWarn trans err
+        -- If looking up "f.domain" yields a *different* path (i.e. that path was an alias)
+        -- e.g. "f.domain" is aliased to "I.shape"
+        -- then call addProperty with the other path, otherwise fail
+        Just (FExpr e) -> 
+             case e of
+             OptEval (EPath p@(FieldPath bvar newField)) ->
+                            let newName = trName bvar in
+                            if newName == name && newField == field
+                            then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
+                                 in addWarn trans err
+                            else addProperty override trans newName newField property texpr
+             res -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
+                              ++ field ++ "'; found expr '" ++ show res ++ "'; cannot add property '" ++ property ++ "'" in
+                    addWarn trans err
         Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists and whether it matches the override setting
            let warn = if (property `M.notMember` properties) && override

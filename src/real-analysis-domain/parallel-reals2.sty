@@ -1,7 +1,9 @@
 global {
   global.padding = 20.0
-  global.area_dx = -50.0
+  global.area_dx = 50.0
   global.area_dy = 0.0
+  global.curve_dx = -50.0
+  global.curve_dy = -10.0
 }
 
 origin {
@@ -85,6 +87,9 @@ with Reals `R` {
   }
 
   r.text = Text {
+    -- position computed, not optimized
+    -- x = r.val
+    -- y = r.shape.startY - global.padding
     string = r.label
     rotation = 0.0
   }
@@ -122,7 +127,7 @@ with Reals R { -- TODO: more general, with Interval J
   I.text = Text {
     string = I.label
     x = (I.shape.endX + I.shape.startX) / 2.0
-    y = I.yval + global.padding
+    y = I.yval + 2.0 * global.padding
     rotation = 0.0
   }
 
@@ -197,6 +202,11 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
       lengthX = 10.0
       lengthY = 20.0
   }
+
+  -- TODO: put these everywhere and remove all the labelFns
+  -- Since r.text.y refers to r.shape.startY, which no longer exists since the shape was overridden to have a different type
+  -- override a.text.y = 0.0
+  -- override b.text.y = 0.0
 
     override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
@@ -338,6 +348,11 @@ where f := CreateFunction(I, J) {
   f.color1 = Colors.lightpink
   f.color2 = Colors.pink
 
+  -- This will override the CURRENT contents of f.domain
+  -- but if f.domain is overridden later, that will
+  -- not change what happens here
+  override f.domain.color = f.color2
+
   f.shape = Curve {
     pathData = sampleFunctionArea(f.domain, f.codomain, global.area_dx, global.area_dy)
     strokeWidth = 0.0
@@ -389,6 +404,9 @@ where f := CreateFunction(`R`, `R`) {
   f.color1 = Colors.lightpink
   f.color2 = Colors.pink
 
+  override f.domain.color = f.color2
+  override f.codomain.color = f.color2
+
   f.shape = Curve {
     pathData = sampleFunctionArea(f.domain, f.codomain, global.area_dx, global.area_dy)
     strokeWidth = 0.0
@@ -414,6 +432,7 @@ where f := CreateFunction(I, J);
 
   override J.yval = `R`.yval2
   -- avoid cycles if I=R in generic (I,J) selector
+  override f.codomain.color = f.color2
 }
 
 Function f
@@ -421,6 +440,7 @@ with Interval I; Reals R
 where f := CreateFunction(I, R) {
 
   override f.codomain = R.shape2
+  override f.codomain.color = f.color2
   -- specifically draw from the current R to new R
   -- otherwise, will show it from R to itself
   -- (which is also a valid viz)
@@ -439,32 +459,34 @@ Function `g` {
 Function f
 with Interval I; Interval J; Interval X; Interval Y
 where f := CreateFunction(I, J);
-      I := union(X, Y); -- Assuming that none of these is recursively a union of intervals...
+      I := union(X, Y); -- Assuming that none of these is recursively a union of intervals
       Discontinuous(f) {
 
-      -- TODO: have domain intervals be disjoint
+      -- `I` is not drawn separately on the screen
      delete I.shape
      delete I.text
      delete I.wfFn
      delete I.liFn
      delete I.riFn
 
-     -- use overrides instead?
      delete f.val
+     -- f has no domain field defined in Style (since we can't define a list of shapes yet)
      delete f.domain
-     -- what to do with f.codomain?
      delete f.shape
      delete f.text
-     
+
+     -- Define f.domain1 and f.domain2?
+     -- TODO: should we have h go to two intervals?
+     -- TODO: move this to separate selector if we need to specify R.shape2
      -- The second R is already drawn
-     -- NOTE: f has no domain (since we can't define a list of shapes yet)
-     override f.codomain = R.shape2 -- Is this right? what if it needs to be R.shape2? TODO need a second selector for this?
+     override f.codomain = R.shape2
 
      override f.color1 = Colors.lightsky
      override f.color2 = Colors.sky
 
      override X.shape.color = f.color2
      override Y.shape.color = f.color2
+     -- TODO: have domain intervals be disjoint
 
      f.shape1 = Curve {
        pathData = sampleFunctionArea(X.shape, f.codomain, global.area_dx, global.area_dy)
@@ -484,13 +506,10 @@ where f := CreateFunction(I, J);
 
      f.text = Text {
        string = f.label
-       x = 0.0
-       y = 0.0 -- TODO
        x = average(midpointX(X.shape), midpointX(Y.shape)) + 10.0
        y = average(X.shape.startY, f.codomain.startY)
        rotation = 0.0
      }     
-
 }
 
 -------------------------------------------------------
@@ -641,14 +660,11 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
 
   override x.shape.color = f.color2
   override y.shape.color = f.color2
-  override I.shape.color = f.color2
-  -- TODO: how to change the color of the interval's brackets?
+  -- TODO: change the color of the interval's brackets
 
   f.pointwise_shape = Curve {
-    -- TODO: syntax for working with 2-tuples and lists
-    -- TODO: why does this not interpolate properly with offset = (0, 0)?
-    -- TODO: more curves = more time to optimize?
-    pathData = makeCurve(x.val, f.domain.startY - global.padding, y.val, y.yval + global.padding, (x.val + y.val) / 2.0, (y.yval + f.domain.startY) / 2.0)
+    pathData = makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
+
     strokeWidth = 2.0
     fill = Colors.none
     color = f.color2
@@ -657,6 +673,35 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
     right-arrowhead = True
   }
 }
+
+-- Again duplicated for f : R -> R
+Real y; Function f
+with Reals `R`; Real x
+where y := apply(f, x); f := CreateFunction(`R`, `R`) {
+  override y.yval = `R`.yval2
+  override x.shape.color = f.color2
+  override y.shape.color = f.color2
+
+  f.pointwise_shape = Curve {
+    pathData = makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
+
+    strokeWidth = 2.0
+    fill = Colors.none
+    color = f.color2
+    rotation = 0.0
+    right-arrowhead = True
+  }
+}
+
+-- Only if J is not reals, make sure result is in interval
+Real y; Function f
+with Interval I; Interval J; Real x; Reals `R`
+where y := apply(f, x); f := CreateFunction(I, J); In(x, I); Subset(J, `R`) {
+  -- Only if J is not reals?
+  y.inCodomainFn = ensure inRange(y.val, J.left, J.right)
+}
+
+-----------------------------------
 
 Real dfx
 with Function f; Interval I; Interval J; Real x; Real y
