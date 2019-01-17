@@ -7,6 +7,7 @@ Label R $\mathbb{R}$
 
 ---------------------------------------------------
 
+/*
 Real a, b
 ClosedInterval A
 A := CreateClosedInterval(a, b)
@@ -22,7 +23,8 @@ Continuous(f)
 Real f_l
 f_l := apply(f, l)
 Label f_l $f(l)$
-NoLabel a, b
+NoLabel a, b, l, f_l
+*/
 
 -- parallel style doesn't have a visualization for point or derivative
 -- Point p
@@ -63,10 +65,10 @@ Discontinuous(h)
 
 ---------------------------------------------------
 
--- Real m, n
--- PosInfinite(n)
--- OpenInterval K
--- K := CreateOpenInterval(m, n)
--- Subset(K, R)
+Real m, n
+PosInfinite(n)
+OpenInterval K
+K := CreateOpenInterval(m, n)
+Subset(K, R)
 
--- NoLabel m, n
+NoLabel m, n
