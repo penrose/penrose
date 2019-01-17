@@ -45,7 +45,7 @@ Reals `R` {
   R.len = 500.0
   R.thickness = 3
   R.color = Colors.darkgray
-  R.spacing = 200.0 -- spacing between parallel reals
+  R.spacing = 100.0 -- spacing between parallel reals
 
   R.left = origin.x
   R.right = origin.x + R.len
@@ -280,6 +280,33 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
 
       delete I.wfFn
       delete I.riFn
+}
+
+-- TODO
+-- 1) This generates a lot of matches (and if it does (B,C) and (C,B), is that ok?)
+-- 2) Why don't the disjoint functions show up in the list of functions?
+-- 3) Why do the intervals collapse onto one interval?
+-- 4) Should I add a match directive to get rid of symmetric pairs?
+/*
+Interval A; Interval B
+with Reals `R`
+where Subset(A, `R`); Subset(B, `R`) {
+   -- Exclude Interval matching Reals
+   LOCAL.disjointFn = ensure disjoint(A.shape, B.shape)
+}
+*/
+
+-- Only works with interval-types.sub
+Interval `A`; Interval `C` {
+   LOCAL.disjointFn = ensure disjoint(`A`.shape, `C`.shape)
+}
+
+Interval `A`; Interval `D` {
+   LOCAL.disjointFn = ensure disjoint(`A`.shape, `D`.shape)
+}
+
+Interval `C`; Interval `D` {
+   LOCAL.disjointFn = ensure disjoint(`C`.shape, `D`.shape)
 }
 
 -- TODO: style for interval with negative infinity

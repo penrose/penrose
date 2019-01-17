@@ -580,9 +580,10 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
                                               "' does not exist in environment. \n" {- ++ show varEnv -} in
                                     addErr err selEnv'
                          Just subType' ->
-                             -- check "T = |T", assuming type constructors are nullary
+                             -- check "T <: |T", assuming type constructors are nullary
                              let declType = toSubType styType in
                              if subType' == declType
+                                || isSubtype subType' declType varEnv
                              then addMapping bsv styType selEnv'
                              else let err = "Mismatched types between Substance and Style var\n" ++
                                              "Sub var '" ++ show subVar ++ "' has type '" ++ show subType' ++

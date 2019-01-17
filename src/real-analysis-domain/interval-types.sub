@@ -1,7 +1,7 @@
-Set Z
+-- Set Z
 
 Reals R
-Real a, b, c, d, e, f
+Real a, b, c, d
 
 Interval A
 A := CreateInterval(a, b)
@@ -11,6 +11,7 @@ ClosedInterval C
 C := CreateClosedInterval(c, d)
 Subset(C, R)
 
+Real e, f
 OpenInterval D
 D := CreateOpenInterval(e, f)
 Subset(D, R)
