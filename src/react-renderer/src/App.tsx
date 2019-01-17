@@ -24,24 +24,30 @@ class App extends React.Component<IProps, IState> {
       this.canvas.current.download();
     }
   };
+  public sortShapes = (shapes: any[], ordering: string[]) => {
+    const res = ordering.map((name =>
+      shapes.find(([_, shape]) => shape.name.contents === name))); // assumes that all names are unique
+    return res
+  };
+
   public onMessage = async (e: MessageEvent) => {
-    let myJSON = JSON.parse(e.data);
-    const flag = myJSON.flag;
-    if (flag) {
-      myJSON = myJSON.shapes;
-    }
+    const myJSON = JSON.parse(e.data);
+    const { flag, shapes, ordering } = myJSON;
+    // TODO: clear up logic, now that frame format is standardized
     // For final frame
-    if (flag && flag === "final") {
+    if (flag === "final") {
       this.setState({ converged: true });
       Log.info("Fully optimized.");
     }
     // Compute (or retrieve from memory) label dimensions
-    const results = await collectLabels(myJSON);
+    const labeledShapes = await collectLabels(shapes);
     // For initial frame - send dimensions
-    if (flag && flag === "initial") {
-      this.sendUpdate(results);
+    if (flag === "initial") {
+      this.sendUpdate(labeledShapes);
     }
-    this.setState({ data: results });
+    console.log(labeledShapes)
+    console.log(this.sortShapes(labeledShapes, ordering))
+    this.setState({ data: this.sortShapes(labeledShapes, ordering) });
   };
   public step = () => {
     const packet = { tag: "Cmd", contents: { command: "step" } };

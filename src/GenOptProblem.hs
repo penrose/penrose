@@ -83,6 +83,7 @@ instance Show Params where
 
 data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
+                     shapeOrdering :: [String],
                      shapeProperties :: [(String, Field, Property)],
                      transr :: forall a . (Autofloat a) => Translation a,
                      varyingPaths :: [Path],
@@ -796,6 +797,7 @@ genOptProblemAndState trans =
     State { shapesr = initialGPIs,
              shapeNames = shapeNames,
              shapeProperties = shapeProperties,
+             shapeOrdering = [], -- NOTE: to be populated later
              transr = transInit, -- note: NOT transEvaled
              varyingPaths = varyingPaths,
              uninitializedPaths = uninitializedPaths,
@@ -832,18 +834,20 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
    pPrint trans
    divLine
 
+   let initState = genOptProblemAndState (fromRight trans)
+   putStrLn "Generated initial state:\n"
+   print initState
+   divLine
+
    -- global layering order computation
    let gpiOrdering = computeLayering styProg subss $ fromRight trans
    putStrLn "Generated GPI global layering:\n"
    print gpiOrdering
    divLine
 
-   let initState = genOptProblemAndState (fromRight trans)
-   putStrLn "Generated initial state:\n"
-   print initState
-   divLine
+   let initState' = initState { shapeOrdering = gpiOrdering }
 
    putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
    let warns = warnings $ fromRight trans
    putStrLn (color Red $ intercalate "\n" warns ++ "\n")
-   return initState
+   return initState'

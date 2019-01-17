@@ -176,7 +176,8 @@ data UpdateShapes = UpdateShapes { shapes :: [Shape Double] }
     deriving (Show, Generic)
 
 data Frame = Frame { flag   :: String,
-                     shapes :: [Shape Double]
+                     shapes :: [Shape Double],
+                     ordering :: [String]
                    } deriving (Show, Generic)
 
 instance FromJSON Feedback
@@ -225,9 +226,12 @@ editor clientState@Editor {} pending = do
 renderer (Renderer s) pending = do
     conn <- WS.acceptRequest pending
     WS.forkPingThread conn 30 -- To keep the connection alive
-    -- wsSendJSONList conn (shapesr s) -- COMBAK: remove
-    wsSendJSONFrame conn Frame { flag = "initial",
-                            shapes = shapesr s :: [Shape Double] }
+    wsSendJSONFrame conn
+        Frame {
+            flag = "initial",
+            ordering = shapeOrdering s,
+            shapes = shapesr s :: [Shape Double]
+        }
     clientID <- newUUID
     let clientState = Renderer $ O.step s
     let client = (clientID, conn, clientState)
@@ -238,8 +242,12 @@ loop client@(clientID, conn, clientState)
     | optStatus (paramsr s) == EPConverged = do
         logInfo client "Optimization completed."
         logInfo client ("Current weight: " ++ show (weight (paramsr s)))
-        wsSendJSONFrame conn Frame { flag = "final",
-                                shapes = shapesr s :: [Shape Double] }
+        wsSendJSONFrame conn
+            Frame {
+                flag = "final",
+                ordering = shapeOrdering s,
+                shapes = shapesr s :: [Shape Double]
+            }
         processCommand client
     | autostep s = stepAndSend client
     | otherwise = processCommand client
@@ -309,8 +317,12 @@ substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
     logDebug client $ show subOut
 
     newState <- compileStyle styProg subOut
-    wsSendJSONFrame conn Frame { flag = "initial",
-                            shapes = shapesr newState :: [Shape Double] }
+    wsSendJSONFrame conn
+        Frame {
+            flag = "initial",
+            ordering = shapeOrdering newState,
+            shapes = shapesr newState :: [Shape Double]
+        }
     loop (clientID, conn, Editor env styProg $ Just newState)
 
 updateShapes :: [Shape Double] -> Client -> IO ()
@@ -399,7 +411,12 @@ resampleAndSend client@(clientID, conn, clientState) = do
     -- The results still look different because resampling updated the rng.
     -- Therefore, we do not have to update rng here.
     let (newShapes, _, _) = evalTranslation news
-    wsSendJSONFrame conn Frame { flag = "initial", shapes = newShapes }
+    wsSendJSONFrame conn
+        Frame {
+            flag = "initial",
+            ordering = shapeOrdering news,
+            shapes = newShapes
+        }
     let nextClientS = updateState clientState news
     let client' = (clientID, conn, nextClientS)
     -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled.
@@ -409,7 +426,13 @@ resampleAndSend client@(clientID, conn, clientState) = do
 stepAndSend client@(clientID, conn, clientState) = do
     let s = getBackendState clientState
     let nexts = O.step s
-    wsSendJSONList conn (shapesr nexts :: [Shape Double])
+    -- wsSendJSONList conn (shapesr nexts :: [Shape Double])
+    wsSendJSONFrame conn
+        Frame {
+            flag = "running",
+            ordering = shapeOrdering s,
+            shapes = shapesr s :: [Shape Double]
+        }
     -- loop conn (trRaw "state:" nexts)
     loop (clientID, conn, updateState clientState nexts)
 
