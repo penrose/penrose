@@ -62,7 +62,8 @@ executable penrose
         scotty -any,
         http-types -any,
         mtl -any,
-        bytestring -any
+        bytestring -any,
+        array -any
 
 test-suite penrose-testsuite
     type: exitcode-stdio-1.0
@@ -115,4 +116,5 @@ test-suite penrose-testsuite
         scotty -any,
         http-types -any,
         mtl -any,
-        bytestring -any
+        bytestring -any,
+        array -any

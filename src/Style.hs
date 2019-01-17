@@ -12,6 +12,7 @@ import Utils
 import Shapes
 import Functions
 import Control.Monad (void, foldM)
+import Control.Applicative ((<**>))
 import Data.Function (on)
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
@@ -163,16 +164,16 @@ data Expr
     | List [Expr]
     | ListAccess Path Integer
     | Ctor String [PropertyDecl]
-    | Layering LExpr
+    | Layering Path Path -- ^ first GPI is *below* the second GPI
     deriving (Show, Eq, Typeable)
 
-data LExpr
-    = LId BindingForm
-    | LPath Path
-    | LayeringOp LayerOp LExpr LExpr
-    deriving (Show, Eq, Typeable)
+-- DEPRECATED
+-- data LExpr
+--     = LPath Path
+--     | LayeringOp LayerOp LExpr LExpr
+--     deriving (Show, Eq, Typeable)
 
-data LayerOp  = Less | LessEq | Eq | Seq
+data LayerOp  = Less | Seq
     deriving (Show, Eq, Typeable)
 
 data UnaryOp  = UPlus | UMinus
@@ -298,9 +299,10 @@ expr = tryChoice [
            constructor,
            objFn,
            constrFn,
+           layeringExpr,
            arithmeticExpr,
            compFn,
-           Layering <$> brackets layeringExpr,
+           -- Layering <$> brackets layeringExpr,
            list,
            stringLit,
            boolLit
@@ -339,28 +341,38 @@ aOperators =
         -- Lowest precedence
     ]
 
-layeringExpr :: Parser LExpr
-layeringExpr = makeExprParser lTerm Style.lOperators
+layeringExpr :: Parser Expr
+layeringExpr = try layeringAbove <|> layeringBelow
+    where
+        layeringBelow = Layering <$> path <* rword "below" <*> path
+        layeringAbove = do
+            path1 <- path
+            rword "above"
+            path2 <- path
+            return $ Layering path2 path1
 
-lTerm :: Parser LExpr
-lTerm =
-    tryChoice [
-        parens layeringExpr,
-        LPath <$> path,
-        LId   <$> bindingForm
-    ]
-
-lOperators :: [[Text.Megaparsec.Expr.Operator Parser LExpr]]
-lOperators =
-    [   -- Highest precedence
-        [ InfixL (LayeringOp Seq <$ symbol ",") ],
-        [
-            InfixL (LayeringOp Less   <$ symbol "<"),
-            InfixL (LayeringOp LessEq <$ symbol "<="),
-            InfixL (LayeringOp Eq     <$ symbol "==")
-        ]
-        -- Lowest precedence
-    ]
+-- DEPRECATED
+-- layeringExpr :: Parser LExpr
+-- layeringExpr = makeExprParser lTerm Style.lOperators
+--
+-- lTerm :: Parser LExpr
+-- lTerm =
+--     tryChoice [
+--         parens layeringExpr,
+--         LPath <$> path,
+--         LId   <$> bindingForm
+--     ]
+--
+-- lOperators :: [[Text.Megaparsec.Expr.Operator Parser LExpr]]
+-- lOperators =
+--     [   -- Highest precedence
+--         [ InfixL (LayeringOp Seq <$ symbol ",") ],
+--         [
+--             InfixL (LayeringOp Less   <$ symbol "<"),
+--             InfixL (LayeringOp Eq     <$ symbol "==")
+--         ]
+--         -- Lowest precedence
+--     ]
 
 path :: Parser Path
 path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
@@ -746,11 +758,13 @@ substitutePath lv subst path =
 substituteField :: LocalVarId -> Subst -> PropertyDecl -> PropertyDecl
 substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substituteBlockExpr lv subst expr
 
-substituteLayering :: LocalVarId -> Subst -> LExpr -> LExpr
-substituteLayering lv subst (LId bVar) = LId $ substituteBform (Just lv) subst bVar
-substituteLayering lv subst (LPath path) = LPath $ substitutePath lv subst path
-substituteLayering lv subst (LayeringOp op lex1 lex2) =
-                   LayeringOp op (substituteLayering lv subst lex1) (substituteLayering lv subst lex1)
+
+-- DEPRECATED
+-- substituteLayering :: LocalVarId -> Subst -> LExpr -> LExpr
+-- substituteLayering lv subst (LId bVar) = LId $ substituteBform (Just lv) subst bVar
+-- substituteLayering lv subst (LPath path) = LPath $ substitutePath lv subst path
+-- substituteLayering lv subst (LayeringOp op lex1 lex2) =
+--                    LayeringOp op (substituteLayering lv subst lex1) (substituteLayering lv subst lex1)
 
 substituteBlockExpr :: LocalVarId -> Subst -> Expr -> Expr
 substituteBlockExpr lv subst expr =
@@ -765,7 +779,7 @@ substituteBlockExpr lv subst expr =
     List es           -> List $ map (substituteBlockExpr lv subst) es
     ListAccess path i -> ListAccess (substitutePath lv subst path) i
     Ctor gpi fields   -> Ctor gpi $ map (substituteField lv subst) fields
-    Layering lexpr    -> Layering $ substituteLayering lv subst lexpr
+    Layering path1 path2 -> Layering (substitutePath lv subst path1) (substitutePath lv subst path2)
     -- No substitution for literals
     IntLit _          -> expr
     AFloat _          -> expr
@@ -808,8 +822,8 @@ exprsMatchArr typeEnv subE styE =
                styVarArgs = map exprToVar $ C.argFunc styE
            in let res = isSubtypeArrow subArrType styArrType typeEnv
                         && (all (uncurry varsEq) $ zip subVarArgs styVarArgs) in
-              trM1 ("subArrType: " ++ show subArrType 
-                   ++ "\nstyArrType: " ++ show styArrType 
+              trM1 ("subArrType: " ++ show subArrType
+                   ++ "\nstyArrType: " ++ show styArrType
                    ++ "\nres: " ++ show (isSubtypeArrow subArrType styArrType typeEnv)) res
 
 -- New judgment (COMBAK number): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
@@ -823,12 +837,12 @@ exprsMatch typeEnv (C.VarE subVar) (C.VarE styVar) = varsEq subVar styVar
 -- This is because a val ctor doesn't "do" anything besides wrap its values
 -- whereas functions with the same type could do very different things, so we don't
 -- necessarily want to match them by subtyping
--- (e.g. think of the infinite functions from Vector -> Vector)   
+-- (e.g. think of the infinite functions from Vector -> Vector)
 -- rule Match-Expr-Vconsapp
 exprsMatch typeEnv (C.ApplyValCons subE) (C.ApplyValCons styE) =
            exprsMatchArr typeEnv subE styE
 -- rule Match-Expr-Fnapp
-exprsMatch typeEnv (C.ApplyFunc subE) (C.ApplyFunc styE) = 
+exprsMatch typeEnv (C.ApplyFunc subE) (C.ApplyFunc styE) =
            subE == styE
 exprsMatch _ _ _ = False
 

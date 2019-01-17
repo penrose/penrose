@@ -20,8 +20,11 @@ import Debug.Trace
 import qualified Data.Map.Strict as M
 import Control.Monad (foldM, forM_)
 import Data.List (intercalate, partition)
+import Data.Array (assocs)
 import Data.Either (partitionEithers)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
+import qualified Data.Set as Set
+import qualified Data.Graph as Graph
 
 
 -------------------- Type definitions
@@ -564,7 +567,7 @@ evalExpr (i, n) arg trans varyMap g =
             Ctor ctor properties -> error "no anonymous/inline GPIs allowed as expressions!"
 
             -- Error
-            Layering _ -> error "layering should not be an objfn arg (or in the children of one)"
+            Layering _ _ -> error "layering should not be an objfn arg (or in the children of one)"
             ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
             ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
             AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
@@ -694,6 +697,70 @@ evalTranslation s =
     let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
     evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap (rng s)
 
+------------- Compute global layering of GPIs
+
+lookupGPIName :: (Autofloat a) => Path -> Translation a -> String
+lookupGPIName (FieldPath v field) trans =
+    case lookupField v field trans of
+        FExpr _  -> notGPIError
+        FGPI _ _ -> getShapeName (bvarToString v) field
+
+lookupGPIName _ _ = notGPIError
+notGPIError = error "Layering expressions can only operate on GPIs."
+
+findLayeringExprs :: Block -> [Expr]
+findLayeringExprs stmts =
+    [ x | (Assign (FieldPath _ _) x@(Layering _ _)) <- stmts ]
+
+-- | Calculates all the nodes that are part of cycles in a graph.
+cyclicNodes :: Graph.Graph -> [Graph.Vertex]
+cyclicNodes graph =
+  map fst . filter isCyclicAssoc . assocs $ graph
+  where
+    isCyclicAssoc = uncurry $ reachableFromAny graph
+
+-- | In the specified graph, can the specified node be reached, starting out
+-- from any of the specified vertices?
+reachableFromAny :: Graph.Graph -> Graph.Vertex -> [Graph.Vertex] -> Bool
+reachableFromAny graph node =
+  elem node . concatMap (Graph.reachable graph)
+
+-- | 'computeLayering' takes in a list of all GPI names and a list of directed edges [(a -> b)] representing partial layering orders as input and outputs a linear layering order of GPIs
+topSortLayering :: [String] -> [(String, String)] -> [String]
+topSortLayering names partialOrderings =
+    let orderedNodes = nodesFromEdges partialOrderings
+        freeNodes = Set.difference (Set.fromList names) orderedNodes
+        edges = map (\(x, y) -> (x, x, y)) $ adjList partialOrderings
+                    ++ (map (\x -> (x, [])) $ Set.toList freeNodes)
+        (graph, nodeFromVertex, vertexFromKey) = Graph.graphFromEdges edges
+        cyclic = not . null $ cyclicNodes graph
+    in if cyclic then error "The graph is cyclic!" else map (getNodePart . nodeFromVertex) $ Graph.topSort graph
+    where
+        getNodePart (n, _, _) = n
+
+nodesFromEdges edges = Set.fromList $ concatMap (\(a, b) -> [a, b]) edges
+
+adjList :: [(String, String)] -> [(String, [String])]
+adjList edges =
+    let nodes = Set.toList $ nodesFromEdges edges
+    in map (\x -> (x, findNeighbors x)) nodes
+    where findNeighbors node = map snd $ filter ((==) node . fst) edges
+
+computeLayering :: (Autofloat a) => StyProg -> [[Subst]] -> Translation a -> [String]
+computeLayering styProg substs trans =
+    let blocks = foldl substitute [] $ zip (map snd styProg) substs
+        layeringExprs = concatMap findLayeringExprs blocks
+        partialOrderings = trRaw "hi" $ map findNames layeringExprs
+        gpiNames  = trRaw "hello" $ map (uncurry getShapeName) $ findShapeNames trans
+    in topSortLayering gpiNames partialOrderings
+    where
+        unused = -1
+        substitute res (block, substs) =
+            let block'  = (block, unused)
+                substs' = map (\s -> (s, unused)) substs
+            in res ++ map (`substituteBlock` block') substs'
+        findNames (Layering path1 path2) = (lookupGPIName path1 trans, lookupGPIName path2 trans)
+
 ------------- Main function: what the Style compiler generates
 
 genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> State
@@ -763,6 +830,12 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
                        :: forall a . (Autofloat a) => Either [Error] (Translation a)
    putStrLn "Translated Style program:\n"
    pPrint trans
+   divLine
+
+   -- global layering order computation
+   let gpiOrdering = computeLayering styProg subss $ fromRight trans
+   putStrLn "Generated GPI global layering:\n"
+   print gpiOrdering
    divLine
 
    let initState = genOptProblemAndState (fromRight trans)
