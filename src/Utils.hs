@@ -316,10 +316,10 @@ infixl 6 +:, -:
 infixl 7 *:, /:
 
 (+:) :: Floating a => (a, a) -> (a, a) -> (a, a)
-(+:) (x, y) (c, d) = (x + y, c + d)
+(+:) (x, y) (c, d) = (x + c, y + d)
 
 (-:) :: Floating a => (a, a) -> (a, a) -> (a, a)
-(-:) (x, y) (c, d) = (x - y, c - d)
+(-:) (x, y) (c, d) = (x - c, y - d)
 
 (*:) :: Floating a => a -> (a, a) -> (a, a)
 (*:) c (x, y) = (c * x, c * y)

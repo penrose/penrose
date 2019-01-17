@@ -650,9 +650,9 @@ makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
 -- You can see this by adjusting the interval size by *dragging the labels*
 -- TODO: should account for thickness of domain and range
 sampleFunctionArea :: CompFn
--- sampleFunctionArea [x@(GPI domain), y@(GPI range)] g =
+sampleFunctionArea [x@(GPI domain), y@(GPI range)] g =
                    -- Apply with default offsets
-                   -- sampleFunctionArea [x, y, Val (FloatV 5), Val (FloatV (30))] g
+                   sampleFunctionArea [x, y, Val (FloatV 50), Val (FloatV 0)] g
 sampleFunctionArea [GPI domain, GPI range, Val (FloatV dx), Val (FloatV dy)] g =
                if linelike domain && linelike range
                then let pt_tl = getPoint "start" domain
@@ -663,18 +663,15 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV dx), Val (FloatV dy)] g =
 
                         x_offset = (dx, 0)
                         y_offset = (0, dy)
-                        pt_midright = midpoint pt_tr pt_br -: x_offset -- +: y_offset
-                        pt_midleft = midpoint pt_bl pt_tl -: x_offset -- +: y_offset
+                        pt_midright = midpoint pt_tr pt_br -: x_offset +: y_offset
+                        pt_midleft = midpoint pt_bl pt_tl +: x_offset +: y_offset
                
                         right_curve = interpolateFn [pt_tr, pt_midright, pt_br]
                         left_curve = interpolateFn [pt_bl, pt_midleft, pt_tl]
 
                         -- TODO: not sure if this is right. do any points need to be included in the path?
                         path = Closed $ [Pt pt_tl, Pt pt_tr] ++ right_curve ++ [Pt pt_br, Pt pt_bl] ++ left_curve
-                    in {-trace ("\npt_midleft: " ++ show pt_midleft ++ ", pt_midright: " ++ show pt_midright
-                             ++ "\nx_offset: " ++ show x_offset ++ ", y_offset: " ++ show y_offset
-                             ++ "\nleft midpt: " ++ show (midpoint pt_tl pt_bl) ++ "right midpt: " ++ show (midpoint pt_br pt_tr)) 
-                             $ -} (Val $ PathDataV [path], g)
+                    in  (Val $ PathDataV [path], g)
                else error "expected two linelike shapes"
 
 -- Draw a curve from (x1, y1) to (x2, y2) with some point in the middle defining curvature
@@ -1081,19 +1078,23 @@ disjoint [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
 disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
     noIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
 
--- For (horizontally collinear?) line segments only
+-- For horizontally collinear line segments only
+-- with endpoints (si, ei), assuming si < ei (e.g. enforced by some other constraint)
 -- Make sure the closest endpoints are separated by some padding
--- ...use signed distance? or call "not subset"?
--- BUG: this doesn't work when one line seg is a subset of the other
-disjoint [GPI s1@("Line", _), GPI s2@("Line", _)] =
-    let (s1_start, s1_end, s2_start, s2_end) =
-            (getPoint "start" s1, getPoint "end" s1,
-             getPoint "start" s2, getPoint "end" s2)
-        dists = [dist s1_start s2_start, dist s1_start s2_end,
-                 dist s1_end s2_start, dist s1_end s2_end] -- use distsq?
-        min_dist = minimum dists
-        padding = 40 in
-    padding - min_dist
+disjoint [GPI o1@("Line", _), GPI o2@("Line", _)] =
+    let (start1, end1, start2, end2) =
+            (fst $ getPoint "start" o1, fst $ getPoint "end" o1,
+             fst $ getPoint "start" o2, fst $ getPoint "end" o2) -- Throw away y coords
+        padding = 30 -- should be > 0
+        -- Six cases for two intervals: disjoint [-] (-), overlap (-[-)-], contained [-(-)-], and swapping the intervals
+        -- Assuming si < ei, we can just push away the closest start and end of the two intervals
+        distA = unsignedDist end1 start2
+        distB = unsignedDist end2 start1
+    in if distA <= distB 
+       then end1 + padding - start2 -- Intervals separated by padding (original condition: e1 + c < s2)
+       else end2 + padding - start1 -- e2 + c < s1
+    where unsignedDist :: (Autofloat a) => a -> a -> a
+          unsignedDist x y = abs $ x - y
 
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersect :: (Autofloat a) => [[a]] -> a

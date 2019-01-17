@@ -26,10 +26,10 @@ Function f
 -- f := CreateFunction(R, A)
 -- f := CreateFunction(R, B)
 
-f := CreateFunction(A, B)
+-- f := CreateFunction(A, B)
 -- f := CreateFunction(B, B)
 
--- f := CreateFunction(R, R)
+f := CreateFunction(R, R)
 
 -- TODO: get it to work in perp style too
 
@@ -37,6 +37,10 @@ f := CreateFunction(A, B)
 
 -- f := CreateFunction(A, A) 
 -- f := CreateFunction(B, B)
+
+Real f_l
+f_l := apply(f, l)
+Label f_l $f(l)$
 
 ------
 
