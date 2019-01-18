@@ -24,6 +24,7 @@ class Circle extends React.Component<IGPIPropsDraggable> {
         fillOpacity={fillAlpha}
         stroke={strokeColor}
         strokeOpacity={strokeAlpha}
+        strokeDasharray={ shape.strokeStyle.contents === "dashed" ? "7, 5" : "" }
         strokeWidth={thickness}
         onMouseDown={onClick}
       >

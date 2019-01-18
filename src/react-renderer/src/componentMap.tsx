@@ -3,6 +3,7 @@ import Circle from "./Circle";
 import Image from "./Image";
 import Label from "./Label";
 import Rectangle from "./Rectangle";
+import Square from "./Square";
 import Curve from "./Curve";
 import Arrow from "./Arrow";
 import Line from "./Line";
@@ -11,6 +12,7 @@ import Line from "./Line";
 const componentMap = {
   "Circle": Circle,
   "Rectangle": Rectangle,
+  "Square": Square,
   "Text": Label,
   "Curve": Curve,
   "Arrow": Arrow,

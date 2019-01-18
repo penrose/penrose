@@ -45,8 +45,6 @@ class App extends React.Component<IProps, IState> {
     if (flag === "initial") {
       this.sendUpdate(labeledShapes);
     }
-    console.log(labeledShapes)
-    console.log(this.sortShapes(labeledShapes, ordering))
     this.setState({ data: this.sortShapes(labeledShapes, ordering) });
   };
   public step = () => {

@@ -20,6 +20,7 @@ class Rectangle extends React.Component<IGPIPropsDraggable> {
         fill={color}
         fillOpacity={alpha}
         onMouseDown={onClick}
+        strokeDasharray={ shape.strokeStyle.contents === "dashed" ? "7, 5" : "" }
       >
         <title>{shape.name.contents}</title>
       </rect>
