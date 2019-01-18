@@ -63,7 +63,8 @@ executable penrose
         http-types -any,
         mtl -any,
         bytestring -any,
-        array -any
+        array -any,
+        ansi-terminal -any
 
 test-suite penrose-testsuite
     type: exitcode-stdio-1.0

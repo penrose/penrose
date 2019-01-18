@@ -60,9 +60,9 @@ data OptStatus = NewIter
 instance Show OptStatus where
          show NewIter = "New iteration"
          show (UnconstrainedRunning lastEPstate) =
-              "Unconstrained running with last EP state:\n" ++ show lastEPstate
+              "Unconstrained running" -- with last EP state:\n" ++ show lastEPstate
          show (UnconstrainedConverged lastEPstate) =
-              "Unconstrained converged with last EP state:\n" ++ show lastEPstate
+              "Unconstrained converged" -- with last EP state:\n" ++ show lastEPstate
          show EPConverged = "EP converged"
 
 instance Eq OptStatus where
@@ -131,8 +131,15 @@ initRng = mkStdGen seed
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
 initWeight :: Autofloat a => a
--- initWeight = 10 ** (-5)
-initWeight = 10 ** (-3)
+initWeight = 10 ** (-5)
+
+-- Converges very fast w/ constraints removed (function-composition.sub)
+-- initWeight = 0
+
+-- Steps very slowly with a higher weight; does not seem to converge but looks visually OK (function-composition.sub)
+-- initWeight = 1
+
+-- initWeight = 10 ** (-3)
 
 --------------- Utility functions
 

@@ -665,11 +665,13 @@ with Function g, f, e, d;
   }
 
  `R`.shape4_text = Text {
+    x = R.shape4.endX + global.padding
+    y = R.shape4.endY + global.padding
     string = `R`.label
     rotation = 0.0
   }
 
-  `R`.shape4_labelFn = ensure nearHead(`R`.shape4, `R`.shape4_text, global.padding, global.padding)
+  -- `R`.shape4_labelFn = ensure nearHead(`R`.shape4, `R`.shape4_text, global.padding, global.padding)
 
   -------------------------------------------------
 

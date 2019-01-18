@@ -9,6 +9,7 @@ import GenOptProblem
 import Numeric.AD
 import Debug.Trace
 import System.Random
+import System.Console.ANSI
 
 ------ Opt types, util functions, and params
 
@@ -78,7 +79,12 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              -- For the same reason, all subsequent step* functions such as
              -- stepShapes do not return the new random generator
              (!shapes', _, _)     = evalTranslation s'
-         in s' { shapesr = shapes' } -- note: trans is not updated in state
+
+             -- For debugging
+             oldParams = paramsr s
+
+         in tro (clearScreenCode ++ "Params: \n" ++ show oldParams ++ "\n:") $ 
+            s' { shapesr = shapes' } -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
@@ -155,10 +161,11 @@ stepWithObjective g params state =
                                 ++ "\n|f(x') - f(x)|: " ++
                                (show $ abs (fx' - fx))
                                 ++ "\nf(x'): \n" ++ (show fx')
-                                ++ "\ngradEval: \n" ++ (show gradEval)
+                                -- ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
-                                ++ "\n original state: \n" ++ (show state)
-                                ++ "\n new state: \n" ++ (show state') )
+                                -- ++ "\n original state: \n" ++ (show state)
+                                -- ++ "\n new state: \n" ++ (show state') 
+                               )
                          state'
 
           objFnApplied :: ObjFn1 b
