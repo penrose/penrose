@@ -83,7 +83,7 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              -- For debugging
              oldParams = paramsr s
 
-         in tro (clearScreenCode ++ "Params: \n" ++ show oldParams ++ "\n:") $ 
+         in tro ({-clearScreenCode ++ -}"Params: \n" ++ show oldParams ++ "\n:") $ 
             s' { shapesr = shapes' } -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
@@ -216,7 +216,7 @@ awLineSearch f duf_noU descentDir x0 =
     --                           $ iterate update (a0, b0, t0) in tf
      let (numUpdates, (af, bf, tf)) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
                               $ zip [0..] $ iterate update (a0, b0, t0) in
-                              tr ("Line search # updates: " ++ show numUpdates) $
+                              tro ("Line search # updates: " ++ show numUpdates) $
                               tf
           where (a0, b0, t0) = (0, infinity, 1)
                 duf = duf_noU descentDir
