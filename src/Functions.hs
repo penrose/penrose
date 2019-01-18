@@ -1081,18 +1081,20 @@ disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
 -- For horizontally collinear line segments only
 -- with endpoints (si, ei), assuming si < ei (e.g. enforced by some other constraint)
 -- Make sure the closest endpoints are separated by some padding
-disjoint [GPI o1@("Line", _), GPI o2@("Line", _)] =
-    let (start1, end1, start2, end2) =
-            (fst $ getPoint "start" o1, fst $ getPoint "end" o1,
-             fst $ getPoint "start" o2, fst $ getPoint "end" o2) -- Throw away y coords
-        padding = 30 -- should be > 0
-        -- Six cases for two intervals: disjoint [-] (-), overlap (-[-)-], contained [-(-)-], and swapping the intervals
-        -- Assuming si < ei, we can just push away the closest start and end of the two intervals
-        distA = unsignedDist end1 start2
-        distB = unsignedDist end2 start1
-    in if distA <= distB 
-       then end1 + padding - start2 -- Intervals separated by padding (original condition: e1 + c < s2)
-       else end2 + padding - start1 -- e2 + c < s1
+disjoint [GPI o1, GPI o2] =
+    if linelike o1 && linelike o2 then
+        let (start1, end1, start2, end2) =
+                (fst $ getPoint "start" o1, fst $ getPoint "end" o1,
+                 fst $ getPoint "start" o2, fst $ getPoint "end" o2) -- Throw away y coords
+            padding = 30 -- should be > 0
+            -- Six cases for two intervals: disjoint [-] (-), overlap (-[-)-], contained [-(-)-], and swapping the intervals
+            -- Assuming si < ei, we can just push away the closest start and end of the two intervals
+            distA = unsignedDist end1 start2
+            distB = unsignedDist end2 start1
+        in if distA <= distB 
+           then end1 + padding - start2 -- Intervals separated by padding (original condition: e1 + c < s2)
+           else end2 + padding - start1 -- e2 + c < s1
+    else error "expected two linelike GPIs in `disjoint`"
     where unsignedDist :: (Autofloat a) => a -> a -> a
           unsignedDist x y = abs $ x - y
 

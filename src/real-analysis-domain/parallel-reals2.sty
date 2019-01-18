@@ -287,16 +287,17 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
 -- 2) Why don't the disjoint functions show up in the list of functions?
 -- 3) Why do the intervals collapse onto one interval?
 -- 4) Should I add a match directive to get rid of symmetric pairs?
+
 /*
 Interval A; Interval B
 with Reals `R`
 where Subset(A, `R`); Subset(B, `R`) {
    -- Exclude Interval matching Reals
    LOCAL.disjointFn = ensure disjoint(A.shape, B.shape)
-}
-*/
+} */
 
 -- Only works with interval-types.sub
+/*
 Interval `A`; Interval `C` {
    LOCAL.disjointFn = ensure disjoint(`A`.shape, `C`.shape)
 }
@@ -307,6 +308,20 @@ Interval `A`; Interval `D` {
 
 Interval `C`; Interval `D` {
    LOCAL.disjointFn = ensure disjoint(`C`.shape, `D`.shape)
+}
+*/
+
+-- Only works with smaller-spec.sub
+
+-- Intervals A, I, J, K, but not U
+-- Interval `A`; 
+-- Doesn't work well with all the constraints
+Interval `I`; Interval `J`; Interval `K` {
+   -- LOCAL.disjointFn1 = ensure disjoint(`A`.shape, `I`.shape)
+   LOCAL.disjointFn2 = ensure disjoint(`I`.shape, `J`.shape)
+   -- LOCAL.disjointFn3 = ensure disjoint(`J`.shape, `A`.shape)
+   LOCAL.disjointFn4 = ensure disjoint(`I`.shape, `K`.shape)
+   LOCAL.disjointFn5 = ensure disjoint(`J`.shape, `K`.shape)
 }
 
 -- TODO: style for interval with negative infinity
@@ -491,6 +506,8 @@ where f := CreateFunction(I, J);
 
       -- `I` is not drawn separately on the screen
      delete I.shape
+     I.shape1 = X.shape
+     I.shape2 = Y.shape
      delete I.text
      delete I.wfFn
      delete I.liFn
