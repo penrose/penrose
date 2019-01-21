@@ -681,9 +681,11 @@ isStyVar (BSubVar _) = False
 --   mapping for each Style variable in the selector.
 fullSubst :: SelEnv -> Subst -> Bool
 fullSubst selEnv subst =
-    let selStyVars = map styVarToString $ filter isStyVar $ M.keys $ sTypeVarMap selEnv in
-    let substStyVars = map styVarToString' $ M.keys subst in
-    sort selStyVars == sort substStyVars -- Equal up to permutation (M.keys ensures that there are no dups)
+    let selStyVars = map styVarToString $ filter isStyVar $ M.keys $ sTypeVarMap selEnv
+        substStyVars = map styVarToString' $ M.keys subst
+        res = sort selStyVars == sort substStyVars in
+    -- Equal up to permutation (M.keys ensures that there are no dups)
+    {- trace ("fullSubst: \nselEnv: " ++ show selEnv ++ "\nsubst: " ++ show subst ++ "\nres: " ++ show res) -} res
     where styVarToString  (BStyVar (StyVar' v)) = v
           styVarToString' (StyVar' v) = v
 
@@ -1273,5 +1275,5 @@ translateStyProg :: forall a . (Autofloat a) =>
 translateStyProg varEnv subEnv subProg styProg labelMap =
     let numberedProg = zip styProg [0..] in -- For creating unique local var names
     case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
-        Right trans -> Right $ insertLabels trans labelMap
+        Right trans -> trace "translateStyProg: " $ Right $ insertLabels trans labelMap
         Left errors -> Left errors

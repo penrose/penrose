@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 -- | The GenOptProblem module performs several passes on the translation generated
 -- by the Style compiler to generate the initial state (fields and GPIs) and optimization problem
 -- (objectives, constraints, and computations) specified by the Substance/Style pair.
@@ -774,7 +775,7 @@ computeLayering styProg substs trans =
 genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> State
 genOptProblemAndState trans =
     -- Save information about the translation
-    let varyingPaths       = findVarying trans in
+    let !varyingPaths       = findVarying trans in
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
     let uninitializedPaths = findUninitialized trans in
     let shapeNames         = findShapeNames trans in
@@ -783,12 +784,12 @@ genOptProblemAndState trans =
     let (transInitFields, g') = initFields varyingPaths trans initRng in
 
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
-    let (transInit, g'') = initShapes transInitFields shapeNames g' in
+    let (!transInit, g'') = initShapes transInitFields shapeNames g' in
     let shapeProperties  = findShapesProperties transInit in
 
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
-    let (objFnsWithDefaults, constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
+    let (!objFnsWithDefaults, !constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
     let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults varyingPaths in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
@@ -801,6 +802,7 @@ genOptProblemAndState trans =
     if null initState then error "empty state in genopt" else
 
     -- This is the final Style compiler output
+    trace "genOptProblem: " $ 
     State { shapesr = initialGPIs,
              shapeNames = shapeNames,
              shapeProperties = shapeProperties,
@@ -835,7 +837,7 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
    forM_ subss pPrint
    divLine
 
-   let trans = translateStyProg subEnv eqEnv subProg styProg labelMap
+   let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap
                        :: forall a . (Autofloat a) => Either [Error] (Translation a)
    putStrLn "Translated Style program:\n"
    pPrint trans

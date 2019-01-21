@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 -- | Main module of the Penrose system (split out for testing; Main is the real main)
 
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable, OverloadedStrings #-}
@@ -91,7 +92,7 @@ mainRetInit subFile styFile dsllFile = do
     styProg <- S.parseStyle styFile styIn
     let selEnvs = S.checkSels subEnv styProg
     let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
-    let trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
+    let !trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
                         :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
     let initState = G.genOptProblemAndState (fromRight trans)
     return $ Just initState
