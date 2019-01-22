@@ -9,6 +9,7 @@ import playWhite from "./icons/play-white.svg";
 import hammer from "./icons/hammer.svg";
 import reload from "./icons/reload.svg";
 import Checkmark from "./icons/checkmark";
+import popout from "./icons/popout.svg";
 import chevronDown from "./icons/chevron_down.svg";
 import download from "./icons/download.svg";
 import Log from "Log";
@@ -19,6 +20,7 @@ import { Persist } from "react-persist";
 import Alert from "@reach/alert";
 import styled from "styled-components";
 import { COLORS } from "./styles";
+import Inspector from "./Inspector";
 const socketAddress = "ws://localhost:9160";
 
 /*
@@ -80,6 +82,11 @@ const ButtonWell = styled.div`
   flex-shrink: 0;
 `;
 
+const DebugButtonBox = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 interface ISettings {
   debug: boolean;
   playOnBuild: boolean;
@@ -97,6 +104,7 @@ interface IState {
   codeError: string;
   converged: boolean;
   autostep: boolean;
+  showInspector: boolean;
 }
 
 const elementOptions = [
@@ -121,7 +129,8 @@ class App extends React.Component<any, IState> {
     socketError: "",
     codeError: "",
     converged: true,
-    autostep: false
+    autostep: false,
+    showInspector: false
   };
   public ws: any = null;
   public readonly renderer = React.createRef<Canvas>();
@@ -147,11 +156,15 @@ class App extends React.Component<any, IState> {
   public step = () => {
     this.sendPacket(Packets.step());
   };
+  public toggleInspector = () => {
+    this.setState({showInspector: !this.state.showInspector});
+  };
   public resample = () => {
     this.sendPacket(Packets.resample());
   };
   public onSocketError = (e: any) => {
     this.setState({ socketError: "Error: could not connect to WebSocket." });
+    Log.error(`Could not connect to websocket: ${e}`)
   };
   public clearSocketError = () => {
     this.setState({ socketError: "", socketReady: true });
@@ -239,10 +252,11 @@ class App extends React.Component<any, IState> {
       codeError,
       socketReady,
       converged,
-      autostep
+      autostep,
+      showInspector
     } = this.state;
     const busy = !converged && autostep;
-    // TODO: split panes into individual files (renderingPane, editingPane, etc)
+    // TODO: split panes into individual files after merge (renderingPane, editingPane, etc)
     return (
       <Grid
         style={{
@@ -255,6 +269,7 @@ class App extends React.Component<any, IState> {
         rowGap="0"
         columnGap={"5px"}
       >
+        <Inspector show={showInspector}/>
         <Persist
           name="ideSettings"
           data={settings}
@@ -284,10 +299,12 @@ class App extends React.Component<any, IState> {
               </MenuBtn>
               <MenuList>
                 <MenuItem onSelect={this.toggleSetting("playOnBuild")}>
-                  {settings.playOnBuild && <Checkmark color={COLORS.primary} />} Play on Build
+                  {settings.playOnBuild && <Checkmark color={COLORS.primary}/>}{" "}
+                  Play on Build
                 </MenuItem>
                 <MenuItem onSelect={this.toggleSetting("debug")}>
-                  {settings.debug && <Checkmark color={COLORS.primary} />} Debug Mode
+                  {settings.debug && <Checkmark color={COLORS.primary}/>} Debug
+                  Mode
                 </MenuItem>
               </MenuList>
             </Menu>
@@ -320,7 +337,16 @@ class App extends React.Component<any, IState> {
             selected={selectedStyle}
             onSelect={this.selectedStyle}
           />
-          {settings.debug && <Button label="step" onClick={this.step} />}
+          {settings.debug && (
+            <DebugButtonBox>
+              <Button label="step" onClick={this.step}/>
+              <Button
+                label={"inspector"}
+                onClick={this.toggleInspector}
+                leftIcon={popout}
+              />
+            </DebugButtonBox>
+          )}
         </Cell>
         <Cell>
           <AceEditor
