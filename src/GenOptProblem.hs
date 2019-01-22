@@ -132,7 +132,7 @@ initRng = mkStdGen seed
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
 -- not quite... if the weight is too small then the constraint will be violated
 initWeight :: Autofloat a => a
-initWeight = 10 ** (-5)
+-- initWeight = 10 ** (-5)
 
 -- Converges very fast w/ constraints removed (function-composition.sub)
 -- initWeight = 0
@@ -140,7 +140,7 @@ initWeight = 10 ** (-5)
 -- Steps very slowly with a higher weight; does not seem to converge but looks visually OK (function-composition.sub)
 -- initWeight = 1
 
--- initWeight = 10 ** (-3)
+initWeight = 10 ** (-3)
 
 --------------- Utility functions
 
@@ -785,7 +785,7 @@ genOptProblemAndState trans =
 
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
     let (!transInit, g'') = initShapes transInitFields shapeNames g' in
-    let shapeProperties  = findShapesProperties transInit in
+    let shapeProperties  = transInit `seq` findShapesProperties transInit in
 
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
@@ -802,7 +802,7 @@ genOptProblemAndState trans =
     if null initState then error "empty state in genopt" else
 
     -- This is the final Style compiler output
-    trace "genOptProblem: " $ 
+    trace "genOptProblem: " $
     State { shapesr = initialGPIs,
              shapeNames = shapeNames,
              shapeProperties = shapeProperties,
@@ -838,12 +838,16 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
    divLine
 
    let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap
-                       :: forall a . (Autofloat a) => Either [Error] (Translation a)
+                       :: Either [Error] (Translation Float)
+                       -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
+                       -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
+                       -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
+                       -- This greatly improves the performance of the system. See #166 for more details.
    putStrLn "Translated Style program:\n"
    pPrint trans
    divLine
 
-   let initState = genOptProblemAndState (fromRight trans)
+   let initState = genOptProblemAndState (castTranslation $ fromRight trans)
    putStrLn "Generated initial state:\n"
    print initState
    divLine
@@ -860,3 +864,50 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
    let warns = warnings $ fromRight trans
    putStrLn (color Red $ intercalate "\n" warns ++ "\n")
    return initState'
+
+-- After monomorphizing the translation's type (to make sure it's computed), we generalize the type again, which means
+-- it's again under a typeclass lambda. (#166)
+castTranslation :: Translation Float -> (forall a . Autofloat a => Translation a)
+castTranslation t =
+      let res = M.map castFieldDict (trMap t) in
+      t { trMap = res }
+      where
+        castFieldDict :: FieldDict Float -> (forall a . Autofloat a => FieldDict a)
+        castFieldDict dict = M.map castFieldExpr dict
+
+        castFieldExpr :: FieldExpr Float -> (forall a . (Autofloat a) => FieldExpr a)
+        castFieldExpr e =
+          case e of
+             FExpr te -> FExpr $ castTagExpr te
+             FGPI n props -> FGPI n $ M.map castTagExpr props
+
+        castTagExpr :: TagExpr Float -> (forall a . Autofloat a => TagExpr a)
+        castTagExpr e =
+           case e of
+             Done v ->
+                let res = case v of
+                          FloatV x -> FloatV (r2f x)
+                          PtV (x, y) -> PtV (r2f x, r2f y)
+                          PtListV pts -> PtListV $ map (app2 r2f) pts
+                          PathDataV d -> PathDataV $ map castPath d
+                          -- More boilerplate not involving floats
+                          IntV x -> IntV x
+                          BoolV x -> BoolV x
+                          StrV x -> StrV x
+                          FileV x -> FileV x
+                          StyleV x -> StyleV x
+                in Done res
+             OptEval e -> OptEval e -- Expr only contains floats
+
+        castPath :: Path' Float -> (forall a . Autofloat a => Path' a)
+        castPath p = case p of
+                     Closed elems -> Closed $ map castElem elems
+                     Open elems -> Open $ map castElem elems
+
+        castElem :: Elem Float -> (forall a . Autofloat a => Elem a)
+        castElem e = case e of
+                     Pt pt -> Pt $ app2 r2f pt
+                     CubicBez pts -> CubicBez $ app3 (app2 r2f) pts
+                     CubicBezJoin pts -> CubicBezJoin $ app2 (app2 r2f) pts
+                     QuadBez pts -> QuadBez $ app2 (app2 r2f) pts
+                     QuadBezJoin pt -> QuadBezJoin $ app2 r2f pt

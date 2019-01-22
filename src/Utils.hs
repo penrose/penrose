@@ -82,6 +82,14 @@ trd (_, _, x) = x
 tuplify2 :: [a] -> (a,a)
 tuplify2 [x,y] = (x,y)
 
+-- | apply a function to each element of a 2-tuple
+app2 :: (a -> b) -> (a, a) -> (b, b)
+app2 f (x, y) = (f x, f y)
+
+-- | apply a function to each element of a 3-tuple
+app3 :: (a -> b) -> (a, a, a) -> (b, b, b)
+app3 f (x, y, z) = (f x, f y, f z)
+
 -- | generic cartesian product of elements in a list
 cartesianProduct :: [[a]] -> [[a]]
 cartesianProduct = foldr f [[]] where f l a = [ x:xs | x <- l, xs <- a ]

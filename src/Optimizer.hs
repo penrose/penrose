@@ -66,6 +66,9 @@ infinity :: Floating a => a
 infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
 -- all numbers are smaller than infinity except infinity, to which it's equal
 
+useLineSearch :: Bool
+useLineSearch = True
+
 ---------------------------------------
 
 -- Main optimization functions
@@ -78,13 +81,13 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              -- optimization session
              -- For the same reason, all subsequent step* functions such as
              -- stepShapes do not return the new random generator
-             --(!shapes', _, _)     = evalTranslation s'
+             (!shapes', _, _)     = evalTranslation s'
 
              -- For debugging
              oldParams = paramsr s
 
          in tro ({-clearScreenCode ++ -}"Params: \n" ++ show oldParams ++ "\n:") $ 
-            s' {-{ shapesr = shapes' } -} -- note: trans is not updated in state
+            s' { shapesr = shapes' } -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
@@ -190,9 +193,10 @@ timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
                   descentDir = negL gradEval
                   -- timestep :: Floating c => c
                   timestep =
-                      -- let resT = awLineSearch f duf descentDir state in
-                      let resT = r2f 0.001 in -- hardcoded timestep
-                             if isNaN resT then tr "returned timestep is NaN" nanSub else resT
+                      let resT = if useLineSearch 
+                                 then awLineSearch f duf descentDir state
+                                 else r2f 0.001 in -- hardcoded timestep
+                          if isNaN resT then tr "returned timestep is NaN" nanSub else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired

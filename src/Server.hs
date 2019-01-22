@@ -246,7 +246,7 @@ loop client@(clientID, conn, clientState)
             Frame {
                 flag = "final",
                 ordering = shapeOrdering s,
-                shapes = fst3 $ evalTranslation s -- shapesr s :: [Shape Double]
+                shapes = shapesr s :: [Shape Double]
             }
         processCommand client
     | autostep s = stepAndSend client
