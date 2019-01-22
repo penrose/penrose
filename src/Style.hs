@@ -685,7 +685,7 @@ fullSubst selEnv subst =
         substStyVars = map styVarToString' $ M.keys subst
         res = sort selStyVars == sort substStyVars in
     -- Equal up to permutation (M.keys ensures that there are no dups)
-    {- trace ("fullSubst: \nselEnv: " ++ show selEnv ++ "\nsubst: " ++ show subst ++ "\nres: " ++ show res) -} res
+    trM1 ("fullSubst: \nselEnv: " ++ ppShow selEnv ++ "\nsubst: " ++ ppShow subst ++ "\nres: " ++ ppShow res ++ "\n") res
     where styVarToString  (BStyVar (StyVar' v)) = v
           styVarToString' (StyVar' v) = v
 
@@ -938,7 +938,9 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
     let decls            = selHead sel ++ selWith sel
         rels             = selWhere sel
         initSubsts       = []
-        subst_candidates = filter (fullSubst selEnv) $ matchDecls varEnv subProg decls initSubsts
+        rawSubsts        = matchDecls varEnv subProg decls initSubsts
+        subst_candidates = filter (fullSubst selEnv) 
+                           $ trM1 ("rawSubsts: # " ++ show (length rawSubsts) ++ "\n"{- ++ ppShow rawSubsts-}) rawSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
                            filterRels varEnv subEnv subProg rels subst_candidates

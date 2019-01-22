@@ -1,4 +1,5 @@
 -- This is the desugared version of the full real analysis spec program in the design paper.
+-- TODO: match smaller-spec.sub
 
 AutoLabel All
 
@@ -7,6 +8,7 @@ Label R $\mathbb{R}$
 
 ---------------------------------------------------
 Real a, b
+-- TODO: make this closed
 Interval A
 A := CreateInterval(a, b)
 Subset(A, R)
@@ -32,10 +34,12 @@ Label dfl $f'(l)$
 ---------------------------------------------------
 
 Real d, e, i, j
+-- TODO: make this open
 Interval I
 I := CreateInterval(d, e)
 Subset(I, R)
 
+-- TODO: make this LeftClopen
 Interval J
 J := CreateInterval(i, j)
 Subset(J, R)
@@ -55,6 +59,16 @@ Label ifI $\int_{I} h(x) dx$
 
 ---------------------------------------------------
 
+-- TODO: use the new design
+/*
+Real m, n
+PosInfinite(n)
+OpenInterval K
+K := CreateOpenInterval(m, n)
+Subset(K, R)
+
+NoLabel m, n
+*/
 Real k, inf
 Interval K
 K := CreateInterval(k, inf)

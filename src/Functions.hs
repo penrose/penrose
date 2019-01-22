@@ -649,11 +649,12 @@ makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
 -- TODO: when range's x is a lot smaller than the domain's x, or |range| << |domain|, the generated region crosses itself
 -- You can see this by adjusting the interval size by *dragging the labels*
 -- TODO: should account for thickness of domain and range
+-- Assuming horizontal GPIs
 sampleFunctionArea :: CompFn
 sampleFunctionArea [x@(GPI domain), y@(GPI range)] g =
                    -- Apply with default offsets
-                   sampleFunctionArea [x, y, Val (FloatV 50), Val (FloatV 0)] g
-sampleFunctionArea [GPI domain, GPI range, Val (FloatV dx), Val (FloatV dy)] g =
+                   sampleFunctionArea [x, y, Val (FloatV 0.3), Val (FloatV 0.0)] g
+sampleFunctionArea [GPI domain, GPI range, Val (FloatV xFrac), Val (FloatV yFrac)] g =
                if linelike domain && linelike range
                then let pt_tl = getPoint "start" domain
                         pt_tr = getPoint "end" domain
@@ -661,6 +662,11 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV dx), Val (FloatV dy)] g =
                         pt_br = getPoint "end" range
                         pt_bl = getPoint "start" range
 
+                        -- Compute dx (the x offset for the function's shape) as a fraction of width of the smaller interval
+                        width = min (abs (fst pt_tl - fst pt_tr)) (abs (fst pt_br - fst pt_bl))
+                        height = abs $ snd pt_bl - snd pt_tl
+                        dx = xFrac * width
+                        dy = yFrac * height
                         x_offset = (dx, 0)
                         y_offset = (0, dy)
                         pt_midright = midpoint pt_tr pt_br -: x_offset +: y_offset

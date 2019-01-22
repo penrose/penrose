@@ -1,7 +1,5 @@
 global {
   global.padding = 20.0
-  global.area_dx = 50.0
-  global.area_dy = 0.0
   global.curve_dx = -50.0
   global.curve_dy = -10.0
 }
@@ -396,7 +394,7 @@ where f := CreateFunction(I, J) {
   override f.domain.color = f.color2
 
   f.shape = Curve {
-    pathData = sampleFunctionArea(f.domain, f.codomain, global.area_dx, global.area_dy)
+    pathData = sampleFunctionArea(f.domain, f.codomain)
     strokeWidth = 0.0
     fill = f.color1
     color = f.color1
@@ -450,7 +448,7 @@ where f := CreateFunction(`R`, `R`) {
   override f.codomain.color = f.color2
 
   f.shape = Curve {
-    pathData = sampleFunctionArea(f.domain, f.codomain, global.area_dx, global.area_dy)
+    pathData = sampleFunctionArea(f.domain, f.codomain)
     strokeWidth = 0.0
     fill = f.color1
     color = f.color1
@@ -533,7 +531,7 @@ where f := CreateFunction(I, J);
      -- TODO: have domain intervals be disjoint
 
      f.shape1 = Curve {
-       pathData = sampleFunctionArea(X.shape, f.codomain, global.area_dx, global.area_dy)
+       pathData = sampleFunctionArea(X.shape, f.codomain)
        strokeWidth = 0.0
        fill = f.color1
        color = f.color1
@@ -541,7 +539,7 @@ where f := CreateFunction(I, J);
      }
 
      f.shape2 = Curve {
-       pathData = sampleFunctionArea(Y.shape, f.codomain, global.area_dx, global.area_dy)
+       pathData = sampleFunctionArea(Y.shape, f.codomain)
        strokeWidth = 0.0
        fill = f.color1
        color = f.color1
@@ -602,11 +600,7 @@ with Interval A, B, C;
   -- "f.codomain = J" in the function block yet
   override C.yval = `R`.yval3
 
-  -- TODO: not sure why the "handles" of g are high
-  -- they look like the "handles" of f?
-  -- this line changes the y offset of the midpts
-  -- but it shouldn't be necessary
-  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain, global.area_dx, -1.0 * global.area_dy)
+  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain)
 
   -- delete h's shape, label, etc.
   delete h.val
@@ -623,17 +617,7 @@ with Interval A, B, C;
 -- Note that the first function composition
 -- selector will apply first, and this will cascade
 
-/* TODO: WHY is this slowing down the Style compiler? Way too many matches on the selector (WRT the cartesian product and filtering)?
-And why is it slowing down the generation of the translation?
-And why does it take so long to render on the server?
-It doesn't seem to be generating an unusual number of objects.
-And interactions on the server take a lot of time--must be the translation being slow? large? 
-Should there be that many Style warnings?
-Maybe the previous composition selector is matching too many times?
-Maybe evaluating the translation somehow means having to lazily redo the match?
-
-Temporarily moving on from making this selector/block work
-*/
+-- Temporarily moving on from making this selector/block work (issue #167)
 
 Function h
 where h := compose(g, f);
@@ -680,8 +664,7 @@ with Function g, f, e, d;
   -- "f.codomain = J" in the function block yet
   override D.yval = `R`.yval4
 
-  -- TODO: not sure why the "handles" of g are high
-  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain, global.area_dx, -2.0 * global.area_dy)
+  override g.shape.pathData = sampleFunctionArea(g.domain, g.codomain)
 
   -- delete h's shape, label, etc.
   delete h.val

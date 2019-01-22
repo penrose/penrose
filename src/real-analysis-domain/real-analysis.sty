@@ -1,6 +1,7 @@
 global {
     global.padding = 20.0
     global.intervalPadding = 60.0
+    global.stroke = 2.0
 }
 
 origin {
@@ -54,17 +55,21 @@ Reals R {
   }
 
   R.x_text = Text {
+    x = R.x_axis.endX + global.padding
+    y = R.x_axis.endY + global.padding
     string = R.label
     rotation = 0.0
   }
 
   R.y_text = Text {
+    x = R.y_axis.endX + global.padding
+    y = R.y_axis.endY + global.padding
     string = R.label
     rotation = 0.0
   }
 
-  R.xlabelFn = ensure nearHead(R.x_axis, R.x_text, global.padding, global.padding)
-  R.ylabelFn = ensure nearHead(R.y_axis, R.y_text, global.padding, global.padding)
+  -- R.xlabelFn = ensure nearHead(R.x_axis, R.x_text, global.padding, global.padding)
+  -- R.ylabelFn = ensure nearHead(R.y_axis, R.y_text, global.padding, global.padding)
 }
 
 Real r
@@ -82,12 +87,14 @@ with Reals R { -- No In(r, `R`)
   }
 
   r.text = Text {
+    x = r.val
+    y = r.shape.endY - 2.0 * global.padding
     string = r.label
     rotation = 0.0
   }
 
   r.inFn = ensure inRange(r.val, R.x_axis.startX, R.x_axis.endX)
-  r.labelFn = encourage nearHead(r.shape, r.text, 0.0, -30.0)
+  -- r.labelFn = encourage nearHead(r.shape, r.text, 0.0, -30.0)
   LOCAL.layering = r.shape above R.x_axis
 }
 
@@ -124,9 +131,10 @@ with Interval J, K; Reals R
 where I := union(J, K); Subset(I, R) {
       -- TODO: fix findShapeNames so `I` doesn't need to have a shape
       -- this is a hack
+      /*
       I.shape = Line {
   	      color = Colors.none
-      }
+      } */
 
       -- I.text = Text {
       -- 	     string = I.label
@@ -158,7 +166,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
     pathData = interpolate(f.val)
     fill = Colors.none
     color = Colors.sky
-    strokeWidth = 1
+    strokeWidth = 2.0
     -- right-arrowhead = True
     -- left-arrowhead = True
     -- TODO: start and end style depending on the interval
@@ -169,6 +177,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
     x = midpointX(I.shape)
     y = midpointY(R.y_axis)
     string = f.label
+    rotation = 0.0
   }
 }
 
@@ -191,6 +200,7 @@ where f := CreateFunction(I, R);
           pathData = interpolate(f.val1)
           fill = Colors.none
           color = Colors.orange
+	  strokeWidth = global.stroke
           -- TODO: start and end style depending on the interval
       }
 
@@ -198,6 +208,7 @@ where f := CreateFunction(I, R);
           x = midpointPathX(f.val1)
           y = midpointPathY(f.val1)
           string = f.label
+	  rotation = 0.0
       }
 
       -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
@@ -206,6 +217,7 @@ where f := CreateFunction(I, R);
     	pathData = interpolate(f.val2)
     	fill = Colors.none
     	color = Colors.orange
+	strokeWidth = global.stroke
     	-- TODO: start and end style depending on the interval
       }
 
@@ -213,6 +225,7 @@ where f := CreateFunction(I, R);
           x = midpointPathX(f.val2)
           y = midpointPathY(f.val2)
           string = f.label
+	  rotation = 0.0
       }
 
       -- Discontinuity
@@ -253,9 +266,14 @@ where y := apply(f, x); f := CreateFunction(I, R); In(x, I)
       override y.shape.startY = y.val
       override y.shape.endX =  origin.x + (y.len / 2.0)
       override y.shape.endY = y.val
-      override y.labelFn = encourage nearHead(y.shape, y.text, -50.0, 0.0)
+      -- override y.labelFn = encourage nearHead(y.shape, y.text, -50.0, 0.0)
 
       override y.inFn = ensure inRange(y.val, R.y_axis.startY, R.y_axis.endY)
+}
+
+-- TODO: use new design
+Real `inf` {
+     override inf.val = 0.0
 }
 
 Point p
@@ -271,6 +289,7 @@ where p := Pt(x, y);
 	      r = 3.0
 	      color = Colors.sky
 	      strokeColor = Colors.sky
+	      strokeWidth = 0.0
       }
 
       p.vert = Line {
@@ -300,6 +319,8 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
       y := apply(f, x) {
       -- We know that x's val has been chosen from f's domain
 
+      delete dfx.val
+
       -- TODO: compute dfx to actually be tangent at point
       -- (right now it's a hardcoded arbitrary line)
       -- TODO: compute the whole GPI
@@ -317,11 +338,11 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
       }
 
       dfx.offset = 30.0
-      dfx.text.x = dfx.shape.endX + dfx.offset
-      dfx.text.y = dfx.shape.endY + dfx.offset
+      override dfx.text.x = dfx.shape.endX + dfx.offset
+      override dfx.text.y = dfx.shape.endY + dfx.offset
 
       delete dfx.inFn
-      delete dfx.labelFn
+      -- delete dfx.labelFn
 }
 
 Real ifI
@@ -330,6 +351,9 @@ where U := union(I, J);
       ifI := integral(I, f);
       f := CreateFunction(U, R);
       Discontinuous(f) {
+      
+      delete ifI.val
+
       -- compute integral as a shape that lies under fn curve
       override ifI.shape = Curve {
           pathData = makeRegionPath(f.shape1, I.shape)
@@ -339,12 +363,11 @@ where U := union(I, J);
           rotation = 0.0
       }
 
-      ifI.text.x = midpointPathX(f.val1)
-      ifI.text.y = midpointPathY(f.val1) - 100.0
+      override ifI.text.x = midpointPathX(f.val1)
+      override ifI.text.y = midpointPathY(f.val1) - 100.0
 
-      -- delete ifI.val -- IMPORTANT: if you don't delete this, it breaks the opt. TODO: why?
       delete ifI.inFn
-      delete ifI.labelFn
+      -- delete ifI.labelFn
 }
 
 
@@ -367,8 +390,8 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
         lengthY = 20.0
     }
 
-    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
-    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
 Real a; Real b
@@ -390,14 +413,26 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
         lengthY = 20.0
     }
 
-    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
-    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
+/*
+Interval `I`; Interval `J` {
+    LOCAL.distFn = ensure disjoint(`I`.shape, `J`.shape)
+}
+
+Interval `A`; Interval `I` {
+    LOCAL.distFn = ensure disjoint(`A`.shape, `I`.shape)
+}
+
+Interval `A`; Interval `J` {
+    LOCAL.distFn = ensure disjoint(`A`.shape, `J`.shape)
+} */
+
+/*
 Interval I; Interval J
 with Reals R
 where Subset(I, R); Subset(J, R) {
-    -- TODO: we should use LOCAL.distFn
-    -- but that creates additional (unnecessary?) constraints which make the opt problem harder
     LOCAL.distFn = ensure disjoint(I.shape, J.shape)
-}
+} */

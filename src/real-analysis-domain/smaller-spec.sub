@@ -7,7 +7,7 @@ Label R $\mathbb{R}$
 
 ---------------------------------------------------
 
-/*
+
 Real a, b
 ClosedInterval A
 A := CreateClosedInterval(a, b)
@@ -24,7 +24,6 @@ Real f_l
 f_l := apply(f, l)
 Label f_l $f(l)$
 NoLabel a, b, l, f_l
-*/
 
 -- parallel style doesn't have a visualization for point or derivative
 -- Point p

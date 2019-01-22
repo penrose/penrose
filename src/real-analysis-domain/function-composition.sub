@@ -32,7 +32,7 @@ y := CreateFunction(I, K)
 y := compose(g, f)
 
 -- z = h . y = h . (g . f)
-/*
+
 Interval L
 Subset(L, R)
 Function h
@@ -44,7 +44,6 @@ h := CreateFunction(K, L)
 Function z
 z := CreateFunction(I, L)
 z := compose(h, y)
-*/
 
 -- TODO: associativity of composition
 -- z = (h . g) . f
