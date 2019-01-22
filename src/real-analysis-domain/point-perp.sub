@@ -8,9 +8,8 @@ Label R $\mathbb{R}$
 
 ---------------------------------------------------
 Real a, b
--- TODO: make this closed
-Interval A
-A := CreateInterval(a, b)
+ClosedInterval A
+A := CreateClosedInterval(a, b)
 Subset(A, R)
 
 Real l
@@ -34,14 +33,12 @@ Label dfl $f'(l)$
 ---------------------------------------------------
 
 Real d, e, i, j
--- TODO: make this open
-Interval I
-I := CreateInterval(d, e)
+OpenInterval I
+I := CreateOpenInterval(d, e)
 Subset(I, R)
 
--- TODO: make this LeftClopen
-Interval J
-J := CreateInterval(i, j)
+LeftClopenInterval J
+J := CreateLeftClopenInterval(i, j)
 Subset(J, R)
 
 -- TODO fix: style line 714: Sub obj might not have a shape
@@ -59,19 +56,18 @@ Label ifI $\int_{I} h(x) dx$
 
 ---------------------------------------------------
 
--- TODO: use the new design
-/*
 Real m, n
 PosInfinite(n)
 OpenInterval K
 K := CreateOpenInterval(m, n)
 Subset(K, R)
+-- NoLabel m, n
 
-NoLabel m, n
-*/
+/*
 Real k, inf
 Interval K
 K := CreateInterval(k, inf)
 Subset(K, R)
 LessThan(k, inf)
 NoLabel inf
+*/
