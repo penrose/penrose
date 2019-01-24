@@ -13,6 +13,7 @@ origin {
 
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
     Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
     Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
@@ -89,8 +90,8 @@ with Reals R { -- No In(r, `R`)
     startY = origin.y - (r.len / 2.0)
     endX = r.val
     endY = origin.y + (r.len / 2.0)
-    thickness = 2.5
-    color = Colors.black
+    thickness = 1.5
+    color = Colors.darkgray
   }
 
   r.text = Text {
@@ -132,8 +133,8 @@ where I := CreateInterval(a, b); Subset(I, R) {
   I.orderFn = ensure lessThan(a.val, b.val)
   -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
 
-  I.minSize = 0.2 * (R.x_axis.endX - R.x_axis.startX)
-  I.sizeFn = ensure minSize(I.shape, I.minSize)
+  I.minSize = 0.2 * R.len
+  I.minSizeFn = ensure minSize(I.shape, I.minSize)
   -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
 }
 
@@ -260,7 +261,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
 	       endX = `R`.x_axis.endX
 	       endY = origin.y
 	       thickness = 4.0
-	       color = Colors.bluegreen
+	       color = setOpacity(Colors.bluegreen, 0.5)
 	       rotation = 0.0
       }
 
@@ -273,6 +274,8 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
 
       delete I.orderFn
       -- delete I.riFn
+
+      I.maxSizeFn = ensure maxSize(I.shape, 0.3 * `R`.len)
 }
 
 Interval `A`; Interval `K` {
@@ -304,12 +307,13 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
   f.pts = 3
   -- TODO: use a more general function than computeSurjection
   f.val = sampleFunction(f.pts, I.shape, R.y_axis)
+  f.color = Colors.sky
 
   f.shape = Curve {
     path = f.val
     pathData = interpolate(f.val)
     fill = Colors.none
-    color = Colors.sky
+    color = f.color
     strokeWidth = 2.0
     polyline = polygonizeCurve(5, f.shape.pathData)
     -- right-arrowhead = True
@@ -317,7 +321,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
     -- TODO: start and end style depending on the interval
   }
 
-  override I.shape.color = f.shape.color
+  override I.shape.color = setOpacity(f.color, 0.5)
 
   -- TODO: position label using midpointPathX(f.val)
   f.text = Text {
@@ -337,8 +341,8 @@ where f := CreateFunction(I, R);
       Subset(I, R); Subset(J, R); Subset(K, R) {
 
       f.color = Colors.orange
-      override J.shape.color = f.color
-      override K.shape.color = f.color
+      override J.shape.color = setOpacity(f.color, 0.5)
+      override K.shape.color = setOpacity(f.color, 0.5)
 
       f.pts1 = 4
       f.pts2 = 3

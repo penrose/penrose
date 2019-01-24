@@ -17,17 +17,24 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
       canvasSize
     );
     const color = toHex(shape.color.contents);
+    const alpha = shape.color.contents[3];
     const arrowHeadId = "arrowhead_" + shape.name.contents
     return (
       <g
         pointerEvents="bounding-box"
         onMouseDown={onClick}
       >
-        <EndArrowhead id={arrowHeadId} color={color} />
+        <EndArrowhead 
+	  id={arrowHeadId} 
+	  color={color} 
+	  opacity={alpha}
+	/>
         <path
           d={`M${sx} ${sy} L${ex} ${ey}`}
           fill={color}
           stroke={color}
+	  fillOpacity={alpha}
+	  strokeOpacity={alpha}
           strokeWidth={shape.thickness.contents}
           markerEnd={`url(#${arrowHeadId})`}
         />

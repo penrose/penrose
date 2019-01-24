@@ -116,6 +116,7 @@ compDict = M.fromList
         ("tangentLineEX", constComp tangentLineEX),
         ("tangentLineEY", constComp tangentLineEY),
         ("polygonizeCurve", constComp polygonizeCurve),
+        ("setOpacity", constComp setOpacity),
 
         ("midpoint", noop), -- TODO
         ("bbox", noop), -- TODO
@@ -777,6 +778,10 @@ splitCubicBezier (a, b, c, d) = (ab, bc, cd, abbc, bccd, abbcbccd)
 
 noop :: CompFn
 noop [] g = (Val (StrV "TODO"), g)
+
+-- Set the opacity to a given fraction of the value.
+setOpacity :: ConstCompFn
+setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] = Val $ ColorV (RGBA r g b (r2f frac * a))
 
 --------------------------------------------------------------------------------
 -- Objective Functions

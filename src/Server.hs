@@ -393,23 +393,9 @@ executeCommand cmd client@(clientID, conn, clientState)
         in loop (clientID, conn, updateState clientState os')
     | otherwise         = logError client ("Can't recognize command " ++ cmd)
 
-resampleAndSend, stepAndSend :: Client -> IO()
+resampleAndSend, stepAndSend :: Client -> IO ()
 resampleAndSend client@(clientID, conn, clientState) = do
-    let (resampledShapes, rng') = sampleShapes (G.rng s) (G.shapesr s)
-    let uninitVals = map G.toTagExpr $ G.shapes2vals resampledShapes $ G.uninitializedPaths s
-    let trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
-                    -- TODO: shapes', rng' = G.sampleConstrainedState (G.rng s) (G.shapesr s) (G.constrs s)
-
-    let (resampledFields, rng'') = G.resampleFields (G.varyingPaths s) rng'
-    -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
-    let varyMapNew = G.mkVaryMap (filter G.isFieldPath $ G.varyingPaths s) resampledFields
-    let news = s { G.shapesr = resampledShapes, G.rng = rng'',
-                    G.transr = trans',
-                    G.varyingState = G.shapes2floats resampledShapes varyMapNew $ G.varyingPaths s,
-                    G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter } }
-    -- NOTE: for now we do not update the new state with the new rng from eval.
-    -- The results still look different because resampling updated the rng.
-    -- Therefore, we do not have to update rng here.
+    let news = {- resample -} G.sampleBest G.numStateSamples s -- TODO
     let (newShapes, _, _) = evalTranslation news
     wsSendJSONFrame conn
         Frame {

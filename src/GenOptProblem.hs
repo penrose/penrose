@@ -20,7 +20,7 @@ import System.Random
 import Debug.Trace
 import qualified Data.Map.Strict as M
 import Control.Monad (foldM, forM_)
-import Data.List (intercalate, partition)
+import Data.List (minimumBy, intercalate, partition)
 import Data.Array (assocs)
 import Data.Either (partitionEithers)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
@@ -126,7 +126,7 @@ constrWeight = 10 ^ 4
 
 initRng :: StdGen
 initRng = mkStdGen seed
-    where seed = 16 -- deterministic RNG with seed
+    where seed = 17 -- deterministic RNG with seed
 
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
@@ -806,23 +806,27 @@ genOptProblemAndState trans =
     if null initState then error "empty state in genopt" else
 
     -- This is the final Style compiler output
-    trace "genOptProblem: " $
-    State { shapesr = initialGPIs,
-             shapeNames = shapeNames,
-             shapeProperties = shapeProperties,
-             shapeOrdering = [], -- NOTE: to be populated later
-             transr = transInit, -- note: NOT transEvaled
-             varyingPaths = varyingPaths,
-             uninitializedPaths = uninitializedPaths,
-             varyingState = initState,
-             objFns = objFnsWithDefaults,
-             constrFns = constrsWithDefaults,
-             paramsr = Params { weight = initWeight,
-                                optStatus = NewIter,
-                                overallObjFn = overallFn },
-             rng = g'',
-             autostep = False -- default
-           }
+    let initFullState = trace "genOptProblem init state: " $
+                        State { shapesr = initialGPIs,
+                                 shapeNames = shapeNames,
+                                 shapeProperties = shapeProperties,
+                                 shapeOrdering = [], -- NOTE: to be populated later
+                                 transr = transInit, -- note: NOT transEvaled
+                                 varyingPaths = varyingPaths,
+                                 uninitializedPaths = uninitializedPaths,
+                                 varyingState = initState,
+                                 objFns = objFnsWithDefaults,
+                                 constrFns = constrsWithDefaults,
+                                 paramsr = Params { weight = initWeight,
+                                                    optStatus = NewIter,
+                                                    overallObjFn = overallFn },
+                                 rng = g'',
+                                 autostep = False -- default
+                               } in
+
+    initFullState
+    -- TODO: for some reason, the shapes don't show up right when I sample this state. Why?
+    -- trace "genOptProblem sampled state: " $ sampleBest 10 initFullState
 
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- NOTE: this function also print information out to stdout
@@ -871,8 +875,8 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
    putStrLn (color Red $ intercalate "\n" warns ++ "\n")
    return initState'
 
--- After monomorphizing the translation's type (to make sure it's computed), we generalize the type again, which means
--- it's again under a typeclass lambda. (#166)
+-- | After monomorphizing the translation's type (to make sure it's computed), we generalize the type again, which means
+-- | it's again under a typeclass lambda. (#166)
 castTranslation :: Translation Float -> (forall a . Autofloat a => Translation a)
 castTranslation t =
       let res = M.map castFieldDict (trMap t) in
@@ -917,3 +921,47 @@ castTranslation t =
                      CubicBezJoin pts -> CubicBezJoin $ app2 (app2 r2f) pts
                      QuadBez pts -> QuadBez $ app2 (app2 r2f) pts
                      QuadBezJoin pt -> QuadBezJoin $ app2 r2f pt
+
+-------------------------------
+-- Sampling code
+
+numStateSamples :: Int
+numStateSamples = 100
+
+-- | Evaluate the objective function on the varying state (with the penalty weight, which should be the same between state).
+evalFnOn :: State -> Float
+evalFnOn s = let optInfo = paramsr s
+                 f       = (overallObjFn optInfo) (rng s) (weight optInfo) in
+              f (varyingState s)
+
+-- | Compare two states and return the one with less energy.
+lessEnergy :: State -> State -> Ordering
+lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
+
+-- | Sample the state a specified number of times and pick the best one.
+sampleBest :: Int -> State -> State
+sampleBest n initS =
+           -- Drop the first state, since we don't want to pick the same one
+           let states = take n $ tail $ iterate resample initS in
+           trace "sampleBest" $ minimumBy lessEnergy states
+
+-- | Resample the state.
+resample :: State -> State
+resample s =
+    let (resampledShapes, rng') = sampleShapes (rng s) (shapesr s)
+        uninitVals = map toTagExpr $ shapes2vals resampledShapes $ uninitializedPaths s
+        trans' = insertPaths (uninitializedPaths s) uninitVals (transr s)
+                    -- TODO: should we be iterating with the original state, not each resampled one? Does it matter?
+                    -- TODO: shapes', rng' = sampleConstrainedState (rng s) (shapesr s) (constrs s)
+
+        (resampledFields, rng'') = resampleFields (varyingPaths s) rng'
+        -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
+        varyMapNew = mkVaryMap (filter isFieldPath $ varyingPaths s) resampledFields
+    in s { shapesr = resampledShapes,
+           rng = rng'',
+           transr = trans' { warnings = [] }, -- Clear the warnings, since they aren't relevant anymore
+           varyingState = shapes2floats resampledShapes varyMapNew $ varyingPaths s,
+           paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter } }
+    -- NOTE: for now we do not update the new state with the new rng from eval.
+    -- The results still look different because resampling updated the rng.
+    -- Therefore, we do not have to update rng here.
