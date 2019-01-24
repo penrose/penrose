@@ -9,7 +9,7 @@ import Debug.Trace
 import Shapes
 import Data.Aeson (toJSON)
 import Data.Maybe (fromMaybe)
-import           Data.List                          (nub, sort, findIndex)
+import           Data.List                          (nub, sort, findIndex, find)
 import           System.Random.Shuffle
 import qualified Data.Map.Strict as M
 import qualified Data.MultiMap as MM
@@ -115,6 +115,7 @@ compDict = M.fromList
         ("tangentLineSY", constComp tangentLineSY),
         ("tangentLineEX", constComp tangentLineEX),
         ("tangentLineEY", constComp tangentLineEY),
+        ("polygonizeCurve", constComp polygonizeCurve),
 
         ("midpoint", noop), -- TODO
         ("bbox", noop), -- TODO
@@ -546,7 +547,7 @@ norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
 
 -- | Catmull-Rom spline interpolation algorithm
 interpolateFn :: Autofloat a => [Pt2 a] -> [Elem a]
-interpolateFn pts = 
+interpolateFn pts =
     let k  = 1.5
         p0 = head pts
         chunks = repeat4 $ head pts : pts ++ [last pts]
@@ -671,7 +672,7 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV xFrac), Val (FloatV yFrac
                         y_offset = (0, dy)
                         pt_midright = midpoint pt_tr pt_br -: x_offset +: y_offset
                         pt_midleft = midpoint pt_bl pt_tl +: x_offset +: y_offset
-               
+
                         right_curve = interpolateFn [pt_tr, pt_midright, pt_br]
                         left_curve = interpolateFn [pt_bl, pt_midleft, pt_tl]
 
@@ -682,7 +683,7 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV xFrac), Val (FloatV yFrac
 
 -- Draw a curve from (x1, y1) to (x2, y2) with some point in the middle defining curvature
 makeCurve :: CompFn
-makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), Val (FloatV dx), Val (FloatV dy)] g = 
+makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), Val (FloatV dx), Val (FloatV dy)] g =
           let offset = (dx, dy)
               midpt = midpoint (x1, y1) (x2, y2) +: offset
               path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)]
@@ -694,35 +695,35 @@ makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), V
 --     where controlPoints (CubicBez (p0, p1, p2)) = [p0, p1, p2]
 --           controlPoints _ = []
 
--- HACK: approximation of tangentline by just looking at the polyline. A more
--- principled method should explicitly compute the derivative of the bezier
--- curve, as introduced in https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-der.html, by de Casteljau's Algorithm.
 -- NOTE: assumes that the curve has at least 3 points
-tangentLine :: Autofloat a => a -> [Pt2 a] -> (Pt2 a, Pt2 a)
-tangentLine x ptList =
-    let i  = fromMaybe 0 $ findIndex (\(a, _) -> x == a) ptList  -- TODO: default value should be randomized?
-        (p0, p1, p2) = (ptList !! (i-1), ptList !! i, ptList !! (i+1))
-        (k0, k1) = (slope p0 p1, slope p1 p2)
-        (px, py) = p1
-        k  = (k0 + k1) / 2
-        theta = atan k0
-        (dx, dy) = (len * sin theta, len * cos theta)
-        len = 50  -- TODO: length of the tangent line segment. Take in as arg?
+tangentLine :: Autofloat a => a -> [Pt2 a] -> a -> (Pt2 a, Pt2 a)
+tangentLine x ptList len =
+    let i  = fromMaybe 1 $ findIndex (\(a, _) -> abs (x - a) <= 1) ptList
+        p0@(px, py) = ptList !! i
+        p1 = nextPoint p0 $ drop (i - 1) ptList
+        k = slope p0 p1
+        dx = d / sqrt (1 + k^2)
+        dy = k * dx
+        d = len / 2
     in ((px - dx, py - dy), (px + dx, py + dy))
-    where slope (x0, y0) (x1, y1) = (y1 - y0) / (x1 - x0)
+    where
+        nextPoint (x, y) l = fromMaybe
+            (error "tangentLine: cannot find next point") $
+            find (\(x', y') -> abs (x - x') > epsd || abs (y - y') > epsd) l
+        slope (x0, y0) (x1, y1) = (y1 - y0) / (x1 - x0) 
 
 tangentLineSX :: ConstCompFn
-tangentLineSX [Val (PtListV curve), Val (FloatV x)] =
-    Val $ FloatV $ fst $ fst $ tangentLine x curve
+tangentLineSX [Val (PtListV curve), Val (FloatV x), Val (FloatV len)] =
+    Val $ FloatV $ fst $ fst $ tangentLine x curve len
 tangentLineSY :: ConstCompFn
-tangentLineSY [Val (PtListV curve), Val (FloatV x)] =
-    Val $ FloatV $ snd $ fst $ tangentLine x curve
+tangentLineSY [Val (PtListV curve), Val (FloatV x), Val (FloatV len)] =
+    Val $ FloatV $ snd $ fst $ tangentLine x curve len
 tangentLineEX :: ConstCompFn
-tangentLineEX [Val (PtListV curve), Val (FloatV x)] =
-    Val $ FloatV $ fst $ snd $ tangentLine x curve
+tangentLineEX [Val (PtListV curve), Val (FloatV x), Val (FloatV len)] =
+    Val $ FloatV $ fst $ snd $ tangentLine x curve len
 tangentLineEY :: ConstCompFn
-tangentLineEY [Val (PtListV curve), Val (FloatV x)] =
-    Val $ FloatV $ snd $ snd $ tangentLine x curve
+tangentLineEY [Val (PtListV curve), Val (FloatV x), Val (FloatV len)] =
+    Val $ FloatV $ snd $ snd $ tangentLine x curve len
 
 -- Adopted from: https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm
 deCasteljau :: Autofloat a => a -> [Pt2 a] -> (Pt2 a, Pt2 a)
@@ -732,6 +733,60 @@ deCasteljau t coefs = deCasteljau t reduced
     reduced = zipWith (lerpP t) coefs (tail coefs)
     lerpP t (x0, y0) (x1, y1) = (lerp t x0 x1, lerp t y0 y1)
     lerp t a b = t * b + (1 - t) * a
+
+polygonizeCurve :: ConstCompFn
+polygonizeCurve [Val (IntV maxIter), Val (PathDataV curve)] =
+    Val $ PtListV $ head $ polygonize (fromIntegral maxIter) curve
+
+polygonize :: Autofloat a => Int -> PathData a -> [[Pt2 a]]
+polygonize maxIter = map go
+    where
+        go (Closed path) = error "TODO"
+        go (Open path) = concatMap (polyCubicBez 0 maxIter) $ expandCurves path
+
+type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
+
+expandCurves :: Autofloat a => [Elem a] -> [CubicBezCoeffs a]
+expandCurves elems = zipWith attach elems $ tail elems
+    where
+        attach (Pt a) (CubicBez (b, c, d)) = (a, b, c, d)
+        attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
+
+polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
+polyCubicBez count maxCount curve@(a, b, c, d) =
+    if (tr "count" count) >= maxCount then [a, b, c, d] else
+        concatMapTuple (polyCubicBez (count + 1) maxCount) $ divideCubicBezier curve
+    where concatMapTuple f (a1, a2) = f a1 ++ f a2
+
+isFlat :: Autofloat a => CubicBezCoeffs a -> Bool
+isFlat (a, b, c, d) = True
+
+divideCubicBezier :: Autofloat a => CubicBezCoeffs a -> (CubicBezCoeffs a, CubicBezCoeffs a)
+divideCubicBezier bezier@(a, _, _, d) = (left, right) where
+    left = (a, ab, abbc, abbcbccd)
+    right = (abbcbccd, bccd, cd, d)
+    (ab, _bc, cd, abbc, bccd, abbcbccd) = splitCubicBezier bezier
+
+--                     BC
+--         B X----------X---------X C
+--    ^     /      ___/   \___     \     ^
+--   u \   /   __X------X------X_   \   / v
+--      \ /___/ ABBC       BCCD  \___\ /
+--    AB X/                          \X CD
+--      /                              \
+--     /                                \
+--    /                                  \
+-- A X                                    X D
+splitCubicBezier :: Autofloat a => CubicBezCoeffs a -> (Pt2 a, Pt2 a, Pt2 a, Pt2 a, Pt2 a, Pt2 a)
+splitCubicBezier (a, b, c, d) = (ab, bc, cd, abbc, bccd, abbcbccd)
+    where
+        ab = a `midpoint` b
+        bc = b `midpoint` c
+        cd = c `midpoint` d
+        abbc = ab `midpoint` bc
+        bccd = bc `midpoint` cd
+        abbcbccd = abbc `midpoint` bccd
+
 
 noop :: CompFn
 noop [] g = (Val (StrV "TODO"), g)
@@ -1097,7 +1152,7 @@ disjoint [GPI o1, GPI o2] =
             -- Assuming si < ei, we can just push away the closest start and end of the two intervals
             distA = unsignedDist end1 start2
             distB = unsignedDist end2 start1
-        in if distA <= distB 
+        in if distA <= distB
            then end1 + padding - start2 -- Intervals separated by padding (original condition: e1 + c < s2)
            else end2 + padding - start1 -- e2 + c < s1
     else error "expected two linelike GPIs in `disjoint`"

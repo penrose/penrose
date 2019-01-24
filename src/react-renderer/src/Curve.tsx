@@ -51,6 +51,11 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
       return subPathStr + (tag === "Closed" ? "Z" : "");
     })
     .join(" ");
+const toPointListString = (ptList: any[], canvasSize: [number, number]) =>
+  ptList.map((coords: [number, number]) => {
+    const pt = toScreen(coords, canvasSize);
+    return pt[0].toString() + " " + pt[1].toString();
+  }).join(" ")
 
 class Curve extends React.Component<IGPIPropsDraggable> {
   public render() {
@@ -63,13 +68,18 @@ class Curve extends React.Component<IGPIPropsDraggable> {
     const fillOpacity = shape.fill.contents[3];
     const leftArrowId = shape.name.contents + "-leftArrowhead"
     const rightArrowId = shape.name.contents + "-rightArrowhead"
-    
+
     // TODO: distinguish between fill opacity and stroke opacity
 
     return (
       <g>
         <StartArrowhead id={leftArrowId} color={strokeColor} />
         <EndArrowhead id={rightArrowId} color={strokeColor} />
+        <polyline
+          points={toPointListString(shape.polyline.contents, canvasSize)}
+          stroke="black"
+          fillOpacity="0"
+        />
         <path
           stroke={strokeColor}
           fill={fillColor}

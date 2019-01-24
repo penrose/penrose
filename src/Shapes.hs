@@ -360,6 +360,7 @@ braceType = ("Brace", M.fromList
 curveType = ("Curve", M.fromList
     [
         ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        ("polyline", (PtListT, constValue $ PtListV [])), -- TODO: sample path
         ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "solid")),

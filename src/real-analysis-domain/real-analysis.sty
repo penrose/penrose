@@ -168,6 +168,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
     fill = Colors.none
     color = Colors.sky
     strokeWidth = 2.0
+    polyline = polygonizeCurve(5, f.shape.pathData)
     -- right-arrowhead = True
     -- left-arrowhead = True
     -- TODO: start and end style depending on the interval
@@ -326,18 +327,11 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
 
       delete dfx.val
 
-      -- TODO: compute dfx to actually be tangent at point
-      -- (right now it's a hardcoded arbitrary line)
-      -- TODO: compute the whole GPI
       override dfx.shape = Line {
-          -- startX = I.shape.startX
-          -- startY = 0.0
-          -- endX = I.shape.endX
-          -- endY = 200.0
-          startX = tangentLineSX(f.shape.path, x.val)
-          startY = tangentLineSY(f.shape.path, x.val)
-          endX = tangentLineEX(f.shape.path, x.val)
-          endY = tangentLineEY(f.shape.path, x.val)
+          startX = tangentLineSX(f.shape.polyline, x.val, 150.0)
+          startY = tangentLineSY(f.shape.polyline, x.val, 150.0)
+          endX = tangentLineEX(f.shape.polyline, x.val, 150.0)
+          endY = tangentLineEY(f.shape.polyline, x.val, 150.0)
           thickness = 2.0
           color = Colors.lightsky
       }
@@ -356,7 +350,7 @@ where U := union(I, J);
       ifI := integral(I, f);
       f := CreateFunction(U, R);
       Discontinuous(f) {
-      
+
       delete ifI.val
 
       -- compute integral as a shape that lies under fn curve
@@ -385,7 +379,7 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
         centerY = origin.y
         lengthX = 10.0
         lengthY = 20.0
-	rotation = 0.0	
+	rotation = 0.0
     }
 
     override b.shape = Image {
