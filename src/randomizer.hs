@@ -98,8 +98,8 @@ generatePrograms dsllEnv localEnv namesFile outputPath n =
 --   calls other functions to generate specific statements
 generateProgram :: VarEnv -> LocalEnv -> String -> String -> IO LocalEnv
 generateProgram dsllEnv localEnv namesFile outputPath = do
-    let (i1 , localEnv1) = rndNum initLocalEnv (1,3)
-        (i2 , localEnv2) = rndNum localEnv1 (1,10)
+    let (i1 , localEnv1) = rndNum initLocalEnv (1,2)
+        (i2 , localEnv2) = rndNum localEnv1 (1,4)
         localEnv3 = generateTypes dsllEnv localEnv2 i1
         localEnv4 = generateStatements dsllEnv localEnv3 i2
     putStrLn "Program: \n"

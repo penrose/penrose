@@ -1,0 +1,14 @@
+Reals x 
+LeftClopenInterval h 
+Interval y1 
+RightBounded(y1)
+OpenInterval p 
+Interval l1 
+l1 := intersection(h,p)
+Set r1 
+OpenInterval o2 
+Subset(y1,l1)
+Function f2 
+ClosedInterval y 
+RightClopenInterval m 
+f2 := CreateFunction(h,r1)
