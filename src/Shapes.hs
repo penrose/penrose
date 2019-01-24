@@ -299,8 +299,8 @@ circType = ("Circle", M.fromList
         ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
         ("strokeWidth", (FloatT, stroke_sampler)),
-        ("style", (StrT, sampleDiscrete [StrV "filled"])),
-        ("strokeStyle", (StrT, stroke_style_sampler)),
+        ("style", (StrT, constValue $ StrV "filled")),
+        ("strokeStyle", (StrT, constValue $ StrV "solid")),
         ("strokeColor", (ColorT, sampleColor)),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCircle"))

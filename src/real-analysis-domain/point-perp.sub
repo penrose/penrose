@@ -62,12 +62,3 @@ OpenInterval K
 K := CreateOpenInterval(m, n)
 Subset(K, R)
 -- NoLabel m, n
-
-/*
-Real k, inf
-Interval K
-K := CreateInterval(k, inf)
-Subset(K, R)
-LessThan(k, inf)
-NoLabel inf
-*/

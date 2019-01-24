@@ -689,12 +689,6 @@ makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), V
               path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)]
           in (Val $ PathDataV [path], g)
 
--- tangentLine :: Autofloat a => a -> PathData a -> (Pt2 a, Pt2 a)
--- -- TODO: closed curves?
--- tangentLine t [Open curve] = deCasteljau t $ concatMap controlPoints curve
---     where controlPoints (CubicBez (p0, p1, p2)) = [p0, p1, p2]
---           controlPoints _ = []
-
 -- NOTE: assumes that the curve has at least 3 points
 tangentLine :: Autofloat a => a -> [Pt2 a] -> a -> (Pt2 a, Pt2 a)
 tangentLine x ptList len =
@@ -707,10 +701,11 @@ tangentLine x ptList len =
         d = len / 2
     in ((px - dx, py - dy), (px + dx, py + dy))
     where
+        -- NOTE: instead of getting the immediate next point in the list, we search the rest of the list until a point that is numerically far enough from (x, y) is found, in order to compute the slope.
         nextPoint (x, y) l = fromMaybe
             (error "tangentLine: cannot find next point") $
             find (\(x', y') -> abs (x - x') > epsd || abs (y - y') > epsd) l
-        slope (x0, y0) (x1, y1) = (y1 - y0) / (x1 - x0) 
+        slope (x0, y0) (x1, y1) = (y1 - y0) / (x1 - x0)
 
 tangentLineSX :: ConstCompFn
 tangentLineSX [Val (PtListV curve), Val (FloatV x), Val (FloatV len)] =
@@ -724,15 +719,6 @@ tangentLineEX [Val (PtListV curve), Val (FloatV x), Val (FloatV len)] =
 tangentLineEY :: ConstCompFn
 tangentLineEY [Val (PtListV curve), Val (FloatV x), Val (FloatV len)] =
     Val $ FloatV $ snd $ snd $ tangentLine x curve len
-
--- Adopted from: https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm
-deCasteljau :: Autofloat a => a -> [Pt2 a] -> (Pt2 a, Pt2 a)
-deCasteljau t [a, b] = (a, b)
-deCasteljau t coefs = deCasteljau t reduced
-  where
-    reduced = zipWith (lerpP t) coefs (tail coefs)
-    lerpP t (x0, y0) (x1, y1) = (lerp t x0 x1, lerp t y0 y1)
-    lerp t a b = t * b + (1 - t) * a
 
 polygonizeCurve :: ConstCompFn
 polygonizeCurve [Val (IntV maxIter), Val (PathDataV curve)] =
@@ -752,6 +738,7 @@ expandCurves elems = zipWith attach elems $ tail elems
         attach (Pt a) (CubicBez (b, c, d)) = (a, b, c, d)
         attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
 
+-- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
 polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
 polyCubicBez count maxCount curve@(a, b, c, d) =
     if (tr "count" count) >= maxCount then [a, b, c, d] else
@@ -1170,7 +1157,7 @@ defaultConstrsOf :: ShapeTypeStr -> [FuncName]
 defaultConstrsOf "Text"  = []
 defaultConstrsOf "Curve" = []
 -- defaultConstrsOf "Line" = []
-defaultConstrsOf _ = [ "minSize", "maxSize" ]
+defaultConstrsOf _ = [] -- [ "minSize", "maxSize" ]
                  -- TODO: remove? these fns make the optimization too hard to solve sometimes
 defaultObjFnsOf :: ShapeTypeStr -> [FuncName]
 defaultObjFnsOf _ = [] -- NOTE: not used yet
