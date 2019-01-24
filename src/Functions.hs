@@ -1115,7 +1115,7 @@ defaultConstrsOf :: ShapeTypeStr -> [FuncName]
 defaultConstrsOf "Text"  = []
 defaultConstrsOf "Curve" = []
 -- defaultConstrsOf "Line" = []
-defaultConstrsOf _ = [ "minSize", "maxSize" ]
+defaultConstrsOf _ = [] -- [ "minSize", "maxSize" ]
                  -- TODO: remove? these fns make the optimization too hard to solve sometimes
 defaultObjFnsOf :: ShapeTypeStr -> [FuncName]
 defaultObjFnsOf _ = [] -- NOTE: not used yet

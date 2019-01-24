@@ -95,7 +95,7 @@ with Reals R { -- No In(r, `R`)
 
   r.text = Text {
     x = r.val
-    y = r.shape.endY - 2.0 * global.padding
+    y = r.shape.startY - 1.5 * global.padding
     string = r.label
     rotation = 0.0
   }
@@ -125,15 +125,15 @@ where I := CreateInterval(a, b); Subset(I, R) {
   I.text = Text {
     string = I.label
     x = I.shape.startX + (I.shape.endX - I.shape.startX) / 2.0
-    y = origin.y - global.intervalPadding
+    y = origin.y - 3.5 * global.padding
     rotation = 0.0
   }
 
   I.orderFn = ensure lessThan(a.val, b.val)
   -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
 
-  -- TODO: `minSize` seems to clash with the `disjoint` objective and prevents convergence
-     -- I.sizeFn = ensure minSize(I.shape, 100.0) -- OK to use multiple minSizes?
+  I.minSize = 0.2 * (R.x_axis.endX - R.x_axis.startX)
+  I.sizeFn = ensure minSize(I.shape, I.minSize)
   -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
 }
 
@@ -154,7 +154,9 @@ where I := union(J, K); Subset(I, R) {
       -- }
       -- override J.shape.color = Colors.orange
       -- override K.shape.color = Colors.orange
-      -- I.unionFn = ensure disjoint(J.shape, K.shape)
+
+      -- The disjointness is applied in f
+      -- I.disjointFn = ensure disjoint(J.shape, K.shape)
 }
 
 
@@ -277,19 +279,13 @@ Interval `A`; Interval `K` {
     LOCAL.distFn = ensure disjoint(`A`.shape, `K`.shape)
 }
 
-/*
-Interval `I`; Interval `J` {
-    LOCAL.distFn = ensure disjoint(`I`.shape, `J`.shape)
-}*/
-
-/*
 Interval `A`; Interval `I` {
     LOCAL.distFn = ensure disjoint(`A`.shape, `I`.shape)
 }
 
 Interval `A`; Interval `J` {
     LOCAL.distFn = ensure disjoint(`A`.shape, `J`.shape)
-} */
+}
 
 /*
 Interval I; Interval J
@@ -384,10 +380,11 @@ where f := CreateFunction(I, R);
 
       -- Discontinuity
       f.shape3 = Circle {
-          r = 5.0
+          r = 6.0
           color = Colors.white
           strokeWidth = 2.5
           strokeColor = f.color
+	  strokeStyle = "solid"
           -- TODO: not sure why this keeps sampling the last point
           x = fromDomain(f.val2)
           y = applyFn(f.val2, f.shape3.x)
@@ -399,6 +396,7 @@ where f := CreateFunction(I, R);
           color = Colors.orange
           strokeWidth = 2.5
           strokeColor = Colors.orange
+	  strokeStyle = "solid"
           x = fromDomain(f.val2)
           y = 50.0 -- TODO: OPTIMIZED
       }
@@ -406,6 +404,7 @@ where f := CreateFunction(I, R);
       f.domainFn = ensure disjoint(J.shape, K.shape)
 
       f.layering1 = f.shape3 above f.shape2
+      f.layering2 = f.shape3 above J.shape
 }
 
 --------------------------------------------------
@@ -431,7 +430,8 @@ where y := apply(f, x); f := CreateFunction(I, R); In(x, I)
       override y.text.y = y.val
       -- override y.labelFn = encourage nearHead(y.shape, y.text, -50.0, 0.0)
 
-      override y.inFn = ensure inRange(y.val, R.y_axis.startY, R.y_axis.endY)
+      delete x.inFn
+      delete y.inFn
 }
 
 Point p
@@ -478,15 +478,12 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
       -- We know that x's val has been chosen from f's domain
 
       delete dfx.val
+      delete dfx.inFn
+      delete dfx.layering
+      -- delete dfx.labelFn
 
-      -- TODO: compute dfx to actually be tangent at point
-      -- (right now it's a hardcoded arbitrary line)
       -- TODO: compute the whole GPI
       override dfx.shape = Line {
-          -- startX = I.shape.startX
-          -- startY = 0.0
-          -- endX = I.shape.endX
-          -- endY = 200.0
           startX = tangentLineSX(f.shape.path, x.val)
           startY = tangentLineSY(f.shape.path, x.val)
           endX = tangentLineEX(f.shape.path, x.val)
@@ -498,9 +495,6 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
       dfx.offset = 30.0
       override dfx.text.x = dfx.shape.endX + dfx.offset
       override dfx.text.y = dfx.shape.endY + dfx.offset
-
-      delete dfx.inFn
-      -- delete dfx.labelFn
 }
 
 Real ifI
@@ -511,6 +505,9 @@ where U := union(I, J);
       Discontinuous(f) {
       
       delete ifI.val
+      delete ifI.inFn
+      delete ifI.layering
+      -- delete ifI.labelFn
 
       -- compute integral as a shape that lies under fn curve
       override ifI.shape = Curve {
@@ -523,7 +520,4 @@ where U := union(I, J);
 
       override ifI.text.x = midpointPathX(f.val1)
       override ifI.text.y = midpointPathY(f.val1) - 100.0
-
-      delete ifI.inFn
-      -- delete ifI.labelFn
 }

@@ -32,7 +32,6 @@ Label dfl $f'(l)$
 
 ---------------------------------------------------
 
-/*
 Real d, e, i, j
 OpenInterval I
 I := CreateOpenInterval(d, e)
@@ -54,7 +53,6 @@ Discontinuous(h)
 Real ifI
 ifI := integral(I, h)
 Label ifI $\int_{I} h(x) dx$
-*/
 
 ---------------------------------------------------
 
