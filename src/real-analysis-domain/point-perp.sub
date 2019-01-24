@@ -32,6 +32,7 @@ Label dfl $f'(l)$
 
 ---------------------------------------------------
 
+/*
 Real d, e, i, j
 OpenInterval I
 I := CreateOpenInterval(d, e)
@@ -53,6 +54,7 @@ Discontinuous(h)
 Real ifI
 ifI := integral(I, h)
 Label ifI $\int_{I} h(x) dx$
+*/
 
 ---------------------------------------------------
 
@@ -62,12 +64,3 @@ OpenInterval K
 K := CreateOpenInterval(m, n)
 Subset(K, R)
 -- NoLabel m, n
-
-/*
-Real k, inf
-Interval K
-K := CreateInterval(k, inf)
-Subset(K, R)
-LessThan(k, inf)
-NoLabel inf
-*/

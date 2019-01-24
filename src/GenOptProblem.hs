@@ -717,9 +717,14 @@ lookupGPIName (FieldPath v field) trans =
 lookupGPIName _ _ = notGPIError
 notGPIError = error "Layering expressions can only operate on GPIs."
 
-findLayeringExprs :: Block -> [Expr]
-findLayeringExprs stmts =
-    [ x | (Assign (FieldPath _ _) x@(Layering _ _)) <- stmts ]
+-- | Walk the translation to find all layering statements.
+findLayeringExprs :: (Autofloat a) => Translation a -> [Expr]
+findLayeringExprs t = foldSubObjs findLayeringExpr t
+  where findLayeringExpr :: (Autofloat a) => String -> Field -> FieldExpr a -> [Expr] -> [Expr]
+        findLayeringExpr name field fexpr acc =
+          case fexpr of
+          FExpr (OptEval x@(Layering _ _)) -> x : acc
+          _ -> acc
 
 -- | Calculates all the nodes that are part of cycles in a graph.
 cyclicNodes :: Graph.Graph -> [Graph.Vertex]
@@ -755,10 +760,9 @@ adjList edges =
     in map (\x -> (x, findNeighbors x)) nodes
     where findNeighbors node = map snd $ filter ((==) node . fst) edges
 
-computeLayering :: (Autofloat a) => StyProg -> [[Subst]] -> Translation a -> [String]
-computeLayering styProg substs trans =
-    let blocks = foldl substitute [] $ zip (map snd styProg) substs
-        layeringExprs = concatMap findLayeringExprs blocks
+computeLayering :: (Autofloat a) => Translation a -> [String]
+computeLayering trans =
+    let layeringExprs = findLayeringExprs trans
         partialOrderings = trRaw "hi" $ map findNames layeringExprs
         gpiNames  = trRaw "hello" $ map (uncurry getShapeName) $ findShapeNames trans
     in topSortLayering gpiNames partialOrderings
@@ -843,17 +847,19 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
                        -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
                        -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
                        -- This greatly improves the performance of the system. See #166 for more details.
+   let transAuto = castTranslation $ fromRight trans
+                       :: forall a . (Autofloat a) => Translation a
    putStrLn "Translated Style program:\n"
    pPrint trans
    divLine
 
-   let initState = genOptProblemAndState (castTranslation $ fromRight trans)
+   let initState = genOptProblemAndState transAuto
    putStrLn "Generated initial state:\n"
    print initState
    divLine
 
    -- global layering order computation
-   let gpiOrdering = computeLayering styProg subss $ fromRight trans
+   let gpiOrdering = computeLayering transAuto
    putStrLn "Generated GPI global layering:\n"
    print gpiOrdering
    divLine
@@ -861,7 +867,7 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
    let initState' = initState { shapeOrdering = gpiOrdering }
 
    putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
-   let warns = warnings $ fromRight trans
+   let warns = warnings transAuto
    putStrLn (color Red $ intercalate "\n" warns ++ "\n")
    return initState'
 
