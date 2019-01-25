@@ -353,6 +353,7 @@ where f := CreateFunction(I, R);
       f.shape1 = Curve {
           path = f.val1
           pathData = interpolate(f.val1)
+          polyline = polygonizeCurve(5, f.shape1.pathData)
           fill = Colors.none
           color = f.color
 	  strokeWidth = global.stroke
@@ -370,6 +371,7 @@ where f := CreateFunction(I, R);
       f.shape2 = Curve {
     	path = f.val2
     	pathData = interpolate(f.val2)
+        polyline = polygonizeCurve(5, f.shape2.pathData)
     	fill = Colors.none
     	color = f.color
 	strokeWidth = global.stroke
@@ -389,10 +391,9 @@ where f := CreateFunction(I, R);
           color = Colors.white
           strokeWidth = 2.5
           strokeColor = f.color
-	  strokeStyle = "solid"
-          -- TODO: not sure why this keeps sampling the last point
-          x = fromDomain(f.val2)
-          y = applyFn(f.val2, f.shape3.x)
+          strokeStyle = "solid"
+          x = fromDomain(f.shape2.polyline)
+          y = applyFn(f.shape2.polyline, f.shape3.x)
       }
 
       -- Value of function
@@ -401,8 +402,8 @@ where f := CreateFunction(I, R);
           color = Colors.orange
           strokeWidth = 2.5
           strokeColor = Colors.orange
-	  strokeStyle = "solid"
-          x = fromDomain(f.val2)
+          strokeStyle = "solid"
+          x = f.shape3.x
           y = 50.0 -- TODO: OPTIMIZED
       }
 
@@ -422,9 +423,8 @@ Real y
 with Function f; Interval I; Real x; Reals R
 where y := apply(f, x); f := CreateFunction(I, R); In(x, I)
 {
-      -- TODO: For now, picks the corresponding point in the list of points. Later, x can be properly sampled in the domain of f, and y can be found by applying the Bezier curve eqn.
-      override x.val = fromDomain(f.val)
-      override y.val = applyFn(f.val, x.val)
+      override x.val = fromDomain(f.shape.polyline)
+      override y.val = applyFn(f.shape.polyline, x.val)
 
       override y.shape.startX = origin.x - (y.len / 2.0)
       override y.shape.startY = y.val
@@ -484,7 +484,7 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
 
       delete dfx.val
       delete dfx.inFn
-      delete dfx.layering
+      -- delete dfx.layering
       -- delete dfx.labelFn
 
       override dfx.shape = Line {
@@ -495,6 +495,7 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
           thickness = 2.0
           color = Colors.lightsky
       }
+      override dfx.layering = dfx.shape above f.shape
 
       dfx.offset = 30.0
       override dfx.text.x = dfx.shape.endX + dfx.offset
