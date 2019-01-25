@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import Select, { components } from "react-select";
+import { COLORS } from "styles";
 
 const D = styled.div`
   margin: 1em;
@@ -75,7 +76,7 @@ class DropdownMenu extends React.Component<IProps, IState> {
           styles={{
             option: (base: any, { isSelected }: any) => ({
               ...base,
-              color: isSelected ? "#40B4F7" : "#393939",
+              color: isSelected ? COLORS.primary : "#393939",
               fontWeight: isSelected ? "bold" : 400
             }),
             indicatorSeparator: () => ({
@@ -83,7 +84,7 @@ class DropdownMenu extends React.Component<IProps, IState> {
             }),
             control: (base: any) => ({
               ...base,
-              border: "0.2ex solid #40b4f7 !important"
+              border: `0.2ex solid ${COLORS.primary} !important`
             })
           }}
           theme={(theme: any) => ({
@@ -95,7 +96,7 @@ class DropdownMenu extends React.Component<IProps, IState> {
               selected: "#40b47",
               primary25: "#edf8ff",
               primary: "#e5f4ff",
-              neutral80: "#40b4f7"
+              neutral80: COLORS.primary
             }
           })}
           components={{ Option, ValueContainer }}

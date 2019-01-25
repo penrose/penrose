@@ -1,3 +1,4 @@
-import App from "./App";
+import Canvas from "./Canvas";
+import * as Packets from "./packets";
 
-export default App;
+export {Canvas, Packets};

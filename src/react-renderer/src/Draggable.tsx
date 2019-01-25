@@ -78,9 +78,10 @@ const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
     public render() {
       const { dy, dx } = this.state;
       // TODO: change opacity effect on mousedown
-      // TODO: try <g> transforms
       return (
-        <Child onClick={this.handleMouseDown} dx={dx} dy={dy} {...this.props} />
+        <g transform={`translate(${-dx},${dy})`}>
+          <Child onClick={this.handleMouseDown} {...this.props} />
+        </g>
       );
     }
   };

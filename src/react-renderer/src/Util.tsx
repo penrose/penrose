@@ -2,6 +2,7 @@ import * as React from "react";
 
 declare const MathJax: any;
 import memoize from "fast-memoize";
+
 export const StartArrowhead = (props: {id: string, color: string, opacity: number}) => {
   return <marker
     id={props.id}
@@ -87,12 +88,15 @@ const tex2svg = memoize(
           const output = wrapper.getElementsByTagName("svg")[0];
           output.setAttribute("xmlns", "http://www.w3.org/2000/svg");
           // TODO: need to check whether MathJax returns a non-null response
+          // NOTE: This is where you can directly control the width/height of the LaTeX
+          const { width, height } = svgBBox(output);
+          output.setAttribute("width", width.toString());
+          output.setAttribute("height", height.toString());
           const body = output.outerHTML + `<title>${name}</title>`; // need to keep properties in <svg>
-          const {width, height} = svgBBox(output);
-          resolve({body, width, height});
+          resolve({ body, width, height });
         });
       } else {
-        resolve({body: "", width: 0, height: 0});
+        resolve({ body: "", width: 0, height: 0 });
       }
     })
 );
@@ -112,14 +116,14 @@ export const collectLabels = async (allShapes: any[]) => {
   return Promise.all(
     allShapes.map(async ([type, obj]: [string, any]) => {
       if (type === "Text") {
-        const {body, width, height} = await tex2svg(
+        const { body, width, height } = await tex2svg(
           obj.string.contents,
           obj.name.contents
         );
-        const obj2 = {...obj};
+        const obj2 = { ...obj };
         obj2.w.contents = width;
         obj2.h.contents = height;
-        obj2.rendered = {contents: body};
+        obj2.rendered = { contents: body };
         return [type, obj2];
       } else {
         return [type, obj];

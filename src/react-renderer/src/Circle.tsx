@@ -6,7 +6,7 @@ import { IGPIPropsDraggable } from "./types";
 class Circle extends React.Component<IGPIPropsDraggable> {
   public render() {
     const { shape } = this.props;
-    const { dx, dy, onClick } = this.props;
+    const { onClick } = this.props;
     const { canvasSize } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const fillColor = toHex(shape.color.contents);
@@ -17,8 +17,8 @@ class Circle extends React.Component<IGPIPropsDraggable> {
 
     return (
       <circle
-        cx={x - dx}
-        cy={y + dy}
+        cx={x}
+        cy={y}
         r={shape.r.contents}
         fill={fillColor}
         fillOpacity={fillAlpha}

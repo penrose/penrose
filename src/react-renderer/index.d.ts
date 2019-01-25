@@ -1,6 +1,6 @@
-import App from "src";
+import {Canvas, Packets} from "src/module";
 
 declare module "mathjax";
 
 
-export default App;
+export {Canvas, Packets};

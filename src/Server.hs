@@ -58,6 +58,17 @@ import System.Log.Formatter
 --------------------------------------------------------------------------------
 -- Types
 
+data Packet a = Packet {
+    typ :: String,
+    contents :: a
+} deriving Generic
+instance (ToJSON a) => ToJSON (Packet a) where
+    toJSON Packet{typ=t, contents=c} = object ["type" .= t, "contents" .= c]
+
+data CompilerError = SubError String | StyError String | ElmtError String
+    deriving Generic
+instance ToJSON CompilerError
+
 -- | TODO
 type ClientID = UUID
 
@@ -226,7 +237,7 @@ editor clientState@Editor {} pending = do
 renderer (Renderer s) pending = do
     conn <- WS.acceptRequest pending
     WS.forkPingThread conn 30 -- To keep the connection alive
-    wsSendJSONFrame conn
+    wsSendFrame conn
         Frame {
             flag = "initial",
             ordering = shapeOrdering s,
@@ -242,7 +253,7 @@ loop client@(clientID, conn, clientState)
     | optStatus (paramsr s) == EPConverged = do
         logInfo client "Optimization completed."
         logInfo client ("Current weight: " ++ show (weight (paramsr s)))
-        wsSendJSONFrame conn
+        wsSendFrame conn
             Frame {
                 flag = "final",
                 ordering = shapeOrdering s,
@@ -262,7 +273,7 @@ waitSubstance client@(clientID, conn, clientState) = do
     msg_json <- WS.receiveData conn
     case decode msg_json of
         Just e -> case e of
-            Edit (SubstanceEdit subProg)  -> catch (substanceEdit subProg client) (substanceError client)
+            Edit (SubstanceEdit subProg)  -> substanceEdit subProg client
             _                             -> continue
         Nothing -> continue
     where continue = do
@@ -284,8 +295,9 @@ waitUpdate client@(clientID, conn, clientState) = do
             waitUpdate client
 
 substanceError :: Client -> ErrorCall -> IO ()
-substanceError client (ErrorCallWithLocation msg loc) = do
-     logError client $ "Substance compiler error: " ++ msg ++ " at " ++ loc
+substanceError client@(_, conn, _) e = do
+     logError client $ "Substance compiler error: " ++ show e
+     wsSendPacket conn Packet { typ = "error", contents = SubError $ show e}
      waitSubstance client
 -- -- TODO: this match might be redundant, but not sure why the linter warns that.
 -- substanceError client s _ = do
@@ -312,18 +324,21 @@ substanceEdit subIn client@(_, _, Renderer _) =
     logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
 substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
-    subOut <- parseSubstance "" subIn env
-
-    logDebug client $ show subOut
-
-    newState <- compileStyle styProg subOut
-    wsSendJSONFrame conn
-        Frame {
-            flag = "initial",
-            ordering = shapeOrdering newState,
-            shapes = shapesr newState :: [Shape Double]
-        }
-    loop (clientID, conn, Editor env styProg $ Just newState)
+    subRes <- try (parseSubstance "" subIn env)
+    case subRes of
+        Right subOut -> do
+            logDebug client $ show subOut
+            styRes <- try (compileStyle styProg subOut)
+            case styRes of
+                Right newState -> do
+                    wsSendFrame conn Frame {
+                        flag = "initial",
+                        ordering = shapeOrdering newState,
+                        shapes = shapesr newState :: [Shape Double]
+                    }
+                    loop (clientID, conn, Editor env styProg $ Just newState)
+                Left styError -> substanceError client styError
+        Left subError -> substanceError client subError
 
 updateShapes :: [Shape Double] -> Client -> IO ()
 updateShapes newShapes client@(clientID, conn, clientState) =
@@ -397,7 +412,7 @@ resampleAndSend, stepAndSend :: Client -> IO ()
 resampleAndSend client@(clientID, conn, clientState) = do
     let news = {- resample -} G.sampleBest G.numStateSamples s -- TODO
     let (newShapes, _, _) = evalTranslation news
-    wsSendJSONFrame conn
+    wsSendFrame conn
         Frame {
             flag = "initial",
             ordering = shapeOrdering news,
@@ -413,7 +428,7 @@ stepAndSend client@(clientID, conn, clientState) = do
     let s = getBackendState clientState
     let nexts = O.step s
     -- wsSendJSONList conn (shapesr nexts :: [Shape Double])
-    wsSendJSONFrame conn
+    wsSendFrame conn
         Frame {
             flag = "running",
             ordering = shapeOrdering s,
@@ -439,15 +454,18 @@ logError client = errorM (idString client)
 --------------------------------------------------------------------------------
 -- WebSocket utils
 
-wsSendJSON :: WS.Connection -> Shape Double -> IO ()
-wsSendJSON conn shape = WS.sendTextData conn $ encode shape
-
 -- TODO use the more generic wsSendJSON?
-wsSendJSONList :: WS.Connection -> [Shape Double] -> IO ()
-wsSendJSONList conn shapes = WS.sendTextData conn $ encode shapes
+wsSendShapes :: WS.Connection -> [Shape Double] -> IO ()
+wsSendShapes conn shapes = WS.sendTextData conn $ encode packet
+    where packet = Packet { typ = "shapes", contents = shapes }
 
-wsSendJSONFrame :: WS.Connection -> Frame -> IO ()
-wsSendJSONFrame conn frame = WS.sendTextData conn $ encode frame
+wsSendFrame :: WS.Connection -> Frame -> IO ()
+wsSendFrame conn frame = WS.sendTextData conn $ encode packet
+    where packet = Packet { typ = "shapes", contents = frame }
+
+wsSendPacket :: ToJSON a => WS.Connection -> Packet a -> IO ()
+wsSendPacket conn packet = WS.sendTextData conn $ encode packet
+
 
 -- | This 'runServer' is exactly the same as the one in "Network.WebSocket". Duplicated for calling a customized version of 'runServerWith' with error messages enabled.
 runServer :: String     -- ^ Address to bind

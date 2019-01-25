@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-
+import { COLORS } from "./styles";
 interface IProps {
   label: string;
   leftIcon?: string;
@@ -23,14 +23,15 @@ const MiddleAlign = styled.div`
   }
 `;
 
-const B = styled.div`
+const B = styled.button`
   display: inline-block;
-  background-color: ${({ primary }: any) => (primary ? "#40B4F7" : "#ffffff")};
-  color: ${({ primary }: any) => (primary ? "#FFFFFF" : "#40b4f7")};
-  border: 0.2ex solid #40b4f7;
+  background-color: ${({ primary }: any) =>
+    primary ? COLORS.primary : "#ffffff"};
+  color: ${({ primary }: any) => (primary ? "#FFFFFF" : COLORS.primary)};
+  border: 0.2ex solid ${COLORS.primary};
   border-radius: 6px;
   box-sizing: border-box;
-  padding: 0.15em 0.3em 0.15em 0.3em;
+  padding: 0.25em 0.3em 0.25em 0.3em;
   margin: 0 0.3em 0 0.3em;
   font-weight: ${({ primary }: any) => (primary ? "regular" : "bold")};
   font-size: 1em;
@@ -38,6 +39,9 @@ const B = styled.div`
   cursor: ${({ disabled }: any) => (disabled ? "default" : "pointer")};
   opacity: ${({ disabled }: any) => (disabled ? 0.5 : 1)};
   transition: 0.2s;
+  :focus {
+    outline: none;
+  }
   :hover {
     background-color: ${({ primary, disabled }: any) =>
       !disabled ? (primary ? "#339EDB" : "#e5f4ff") : "default"};
@@ -45,7 +49,7 @@ const B = styled.div`
       !disabled
         ? primary
           ? "0.2ex solid #339EDB"
-          : "0.2ex solid #40b4f7"
+          : "0.2ex solid " + COLORS.primary
         : "default"};
     transition: 0.2s;
   }

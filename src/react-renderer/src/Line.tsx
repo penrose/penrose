@@ -6,7 +6,7 @@ import { toScreen, toHex } from "./Util";
 
 class Line extends React.Component<IGPIPropsDraggable> {
   public render() {
-    const { shape, canvasSize, onClick, dy, dx } = this.props;
+    const { shape, canvasSize, onClick } = this.props;
     const style = shape.style.contents;
     const [sx, sy] = toScreen(
       [shape.startX.contents, shape.startY.contents],
@@ -26,9 +26,8 @@ class Line extends React.Component<IGPIPropsDraggable> {
         d={path}
         onMouseDown={onClick}
         fillOpacity={alpha}
-	strokeOpacity={alpha}
+        strokeOpacity={alpha}
         stroke={color}
-        transform={`translate(${-dx},${dy})`}
         strokeWidth={thickness}
         strokeDasharray={strokeDasharray}
       >

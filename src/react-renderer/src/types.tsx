@@ -7,7 +7,5 @@ export interface IGPIProps {
 }
 
 export interface IGPIPropsDraggable extends IGPIProps {
-  dx: number;
-  dy: number;
   onClick(e: React.MouseEvent<any>): void;
 }
