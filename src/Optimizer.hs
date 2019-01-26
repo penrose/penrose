@@ -24,7 +24,7 @@ weightGrowthFactor :: (Autofloat a) => a -- for EP weight
 weightGrowthFactor = 10
 
 epsUnconstr :: Floating a => a
-epsUnconstr = 10 ** (-3)
+epsUnconstr = 10 ** (-2)
 
 epStop :: Floating a => a -- for EP diff
 epStop = 10 ** (-5)
@@ -107,7 +107,7 @@ stepShapes params vstate g = -- varying state
          -- if not, keep running UO (inner state implicitly stored)
          -- note convergence checks are only on the varying part of the state
          UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
-           -- let unconstrConverged = optStopCond gradEval in
+           -- let unconstrConverged = unconstrainedStopCond gradEval in
            let unconstrConverged = epStopCond vstate vstate' (objFnApplied vstate) (objFnApplied vstate') in
                -- Two stopping conditions
                -- unconstrainedStopCond gradEval in

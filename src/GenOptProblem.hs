@@ -20,13 +20,13 @@ import System.Random
 import Debug.Trace
 import qualified Data.Map.Strict as M
 import Control.Monad (foldM, forM_)
-import Data.List (minimumBy, intercalate, partition)
+import Data.List (foldl', minimumBy, intercalate, partition)
 import Data.Array (assocs)
 import Data.Either (partitionEithers)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
 import qualified Data.Set as Set
 import qualified Data.Graph as Graph
-
+import GHC.Float (float2Double, double2Float)
 
 -------------------- Type definitions
 
@@ -140,7 +140,7 @@ initWeight :: Autofloat a => a
 -- Steps very slowly with a higher weight; does not seem to converge but looks visually OK (function-composition.sub)
 -- initWeight = 1
 
-initWeight = 10 ** (-3)
+initWeight = 10 ** (-1)
 
 --------------- Utility functions
 
@@ -924,15 +924,71 @@ castTranslation t =
 
 -------------------------------
 -- Sampling code
+-- TODO: should this code go in the optimizer?
+-- TODO: combine this version and the rewritten version, and test both the init and the client resample
 
 numStateSamples :: Int
-numStateSamples = 100
+numStateSamples = 1000
+
+-- | Resample the varying state. 
+-- | We are intentionally using a monomorphic type (float) and NOT using the translation, to avoid slowness.
+resampleVState :: [Path] -> [Shape Double] -> StdGen -> (([Shape Double], [Double], [Double]), StdGen)
+resampleVState varyPaths shapes g = 
+    let (resampledShapes, rng') = sampleShapes g shapes
+        (resampledFields, rng'') = resampleFields varyPaths rng'
+        -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
+        varyMapNew = mkVaryMap (filter isFieldPath $ varyPaths) resampledFields
+        varyingState = shapes2floats resampledShapes varyMapNew $ varyPaths
+    in ((resampledShapes, varyingState, resampledFields), rng')
+
+-- | Update the translation to get the full state.
+updateVState :: State -> (([Shape Double], [Double], [Double]), StdGen) -> State
+updateVState s ((resampledShapes, varyingState', fields'), g) =
+    let polyShapes = toPolymorphics resampledShapes
+        uninitVals = map toTagExpr $ shapes2vals polyShapes $ uninitializedPaths s
+        trans' = insertPaths (uninitializedPaths s) uninitVals (transr s)
+                    -- TODO: shapes', rng' = sampleConstrainedState (rng s) (shapesr s) (constrs s)
+        varyMapNew = mkVaryMap (filter isFieldPath $ varyingPaths s) fields'
+    in s { shapesr = polyShapes,
+           rng = g,
+           transr = trans' { warnings = [] }, -- Clear the warnings, since they aren't relevant anymore
+           varyingState = map r2f varyingState',
+           paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter } }
+    -- NOTE: for now we do not update the new state with the new rng from eval.
+    -- The results still look different because resampling updated the rng.
+    -- Therefore, we do not have to update rng here.
+
+iterateS :: (a -> (b, a)) -> a -> [(b, a)]
+iterateS f g = let (res, g') = f g in
+               (res, g') : iterateS f g'
+
+-- | Compare two states and return the one with less energy.
+lessEnergyOn :: ([Double] -> Double) -> (([Shape Double], [Double], [Double]), StdGen) 
+                             -> (([Shape Double], [Double], [Double]), StdGen) -> Ordering
+lessEnergyOn f ((_, vs1, _), _) ((_, vs2, _), _) = compare (f vs1) (f vs2)
+
+-- | Resample the varying state some number of times (sampling each new state from the original state, but with an updated rng).
+-- | Pick the one with the lowest energy and update the original state with the lowest-energy-state's info.
+-- TODO clean up + comment this code; profile it; delete old code
+resampleN :: Int -> State -> State
+resampleN n s =
+          let optInfo = paramsr s
+              f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
+              (varyPaths, shapes, g) = (varyingPaths s, shapesr s, rng s)
+              resampleVStateConst = resampleVState varyPaths shapes
+              sampledResults = take n $ iterateS resampleVStateConst g
+              res = minimumBy (lessEnergyOn f) sampledResults
+              {- (trace ("energies: " ++ (show $ map (\((_, x, _), _) -> f x) sampledResults)) -}
+          in updateVState s res
+
+------- Old code (slow)
 
 -- | Evaluate the objective function on the varying state (with the penalty weight, which should be the same between state).
-evalFnOn :: State -> Float
+evalFnOn :: State -> Double
 evalFnOn s = let optInfo = paramsr s
-                 f       = (overallObjFn optInfo) (rng s) (weight optInfo) in
-              f (varyingState s)
+                 f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
+                 args    = map float2Double $ varyingState s
+             in f args
 
 -- | Compare two states and return the one with less energy.
 lessEnergy :: State -> State -> Ordering
@@ -945,7 +1001,7 @@ sampleBest n initS =
            let states = take n $ tail $ iterate resample initS in
            trace "sampleBest" $ minimumBy lessEnergy states
 
--- | Resample the state.
+-- | Resample the state once.
 resample :: State -> State
 resample s =
     let (resampledShapes, rng') = sampleShapes (rng s) (shapesr s)

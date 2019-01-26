@@ -410,7 +410,7 @@ executeCommand cmd client@(clientID, conn, clientState)
 
 resampleAndSend, stepAndSend :: Client -> IO ()
 resampleAndSend client@(clientID, conn, clientState) = do
-    let news = {- resample -} G.sampleBest G.numStateSamples s -- TODO
+    let news = {- resample -} G.resampleN G.numStateSamples s -- TODO
     let (newShapes, _, _) = evalTranslation news
     wsSendFrame conn
         Frame {

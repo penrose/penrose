@@ -133,7 +133,7 @@ where I := CreateInterval(a, b); Subset(I, R) {
   I.orderFn = ensure lessThan(a.val, b.val)
   -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
 
-  I.minSize = 0.2 * R.len
+  I.minSize = 0.15 * R.len
   I.minSizeFn = ensure minSize(I.shape, I.minSize)
   -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
 }
@@ -288,6 +288,14 @@ Interval `A`; Interval `I` {
 
 Interval `A`; Interval `J` {
     LOCAL.distFn = ensure disjoint(`A`.shape, `J`.shape)
+}
+
+Interval `K`; Interval `I` {
+    LOCAL.distFn = ensure disjoint(`K`.shape, `I`.shape)
+}
+
+Interval `K`; Interval `J` {
+    LOCAL.distFn = ensure disjoint(`K`.shape, `J`.shape)
 }
 
 /*
