@@ -83,8 +83,8 @@ class Curve extends React.Component<IGPIPropsDraggable> {
 
     return (
       <g>
-        <StartArrowhead id={leftArrowId} color={strokeColor} opacity={fillOpacity} />
-        <EndArrowhead id={rightArrowId} color={strokeColor} opacity={fillOpacity} />
+        <StartArrowhead id={leftArrowId} color={strokeColor} opacity={strokeOpacity} />
+        <EndArrowhead id={rightArrowId} color={strokeColor} opacity={strokeOpacity} />
         <path
           stroke={strokeColor}
           fill={fillColor}
