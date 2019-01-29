@@ -12,6 +12,7 @@ import Utils
 import Shapes
 import Functions
 import Control.Monad (void, foldM)
+import Control.Applicative ((<**>))
 import Data.Function (on)
 import Data.Either (partitionEithers)
 import Data.Either.Extra (fromLeft)
@@ -152,6 +153,7 @@ data Expr
     = IntLit Integer
     | AFloat AnnoFloat
     | StringLit String
+    | BoolLit Bool
     | EPath Path
     | CompApp String [Expr]
     | ObjFn String [Expr]
@@ -162,16 +164,16 @@ data Expr
     | List [Expr]
     | ListAccess Path Integer
     | Ctor String [PropertyDecl]
-    | Layering LExpr
+    | Layering Path Path -- ^ first GPI is *below* the second GPI
     deriving (Show, Eq, Typeable)
 
-data LExpr
-    = LId BindingForm
-    | LPath Path
-    | LayeringOp LayerOp LExpr LExpr
-    deriving (Show, Eq, Typeable)
+-- DEPRECATED
+-- data LExpr
+--     = LPath Path
+--     | LayeringOp LayerOp LExpr LExpr
+--     deriving (Show, Eq, Typeable)
 
-data LayerOp  = Less | LessEq | Eq | Seq
+data LayerOp  = Less | Seq
     deriving (Show, Eq, Typeable)
 
 data UnaryOp  = UPlus | UMinus
@@ -210,13 +212,13 @@ header = tryChoice [Select <$> selector, Namespace <$> styVar]
 -- TODO: clear up the `scn` calls for all parsers and establish the convention of calling scn AFTER each parser
 selector :: Parser Selector
 selector = do
-    hd       <- fmap concat $ declPattern `sepBy1` semi <* scn
+    hd       <- fmap concat $ declPattern `sepBy1` semi' <* scn
     (wi, wh) <- withAndWhere
     ns       <- optional $ namespace <* scn
     return Selector { selHead = hd,  selWith = wi, selWhere = wh,
                       selNamespace = ns}
-    where wth = fmap concat $ rword "with" *> declPattern `sepEndBy1` semi <* scn
-          whr = rword "where" *> relationPattern `sepEndBy1` semi <* scn
+    where wth = fmap concat $ rword "with" *> declPattern `sepEndBy1` semi' <* scn
+          whr = rword "where" *> relationPattern `sepEndBy1` semi' <* scn
           namespace = rword "as" >> identifier
           withAndWhere = makePermParser $ (,) <$?> ([], wth) <|?> ([], whr)
 
@@ -297,11 +299,13 @@ expr = tryChoice [
            constructor,
            objFn,
            constrFn,
+           layeringExpr,
            arithmeticExpr,
            compFn,
-           Layering <$> brackets layeringExpr,
+           -- Layering <$> brackets layeringExpr,
            list,
-           stringLit
+           stringLit,
+           boolLit
        ]
 
 -- COMBAK: change NewStyle to Style
@@ -337,28 +341,38 @@ aOperators =
         -- Lowest precedence
     ]
 
-layeringExpr :: Parser LExpr
-layeringExpr = makeExprParser lTerm Style.lOperators
+layeringExpr :: Parser Expr
+layeringExpr = try layeringAbove <|> layeringBelow
+    where
+        layeringBelow = Layering <$> path <* rword "below" <*> path
+        layeringAbove = do
+            path1 <- path
+            rword "above"
+            path2 <- path
+            return $ Layering path2 path1
 
-lTerm :: Parser LExpr
-lTerm =
-    tryChoice [
-        parens layeringExpr,
-        LPath <$> path,
-        LId   <$> bindingForm
-    ]
-
-lOperators :: [[Text.Megaparsec.Expr.Operator Parser LExpr]]
-lOperators =
-    [   -- Highest precedence
-        [ InfixL (LayeringOp Seq <$ symbol ",") ],
-        [
-            InfixL (LayeringOp Less   <$ symbol "<"),
-            InfixL (LayeringOp LessEq <$ symbol "<="),
-            InfixL (LayeringOp Eq     <$ symbol "==")
-        ]
-        -- Lowest precedence
-    ]
+-- DEPRECATED
+-- layeringExpr :: Parser LExpr
+-- layeringExpr = makeExprParser lTerm Style.lOperators
+--
+-- lTerm :: Parser LExpr
+-- lTerm =
+--     tryChoice [
+--         parens layeringExpr,
+--         LPath <$> path,
+--         LId   <$> bindingForm
+--     ]
+--
+-- lOperators :: [[Text.Megaparsec.Expr.Operator Parser LExpr]]
+-- lOperators =
+--     [   -- Highest precedence
+--         [ InfixL (LayeringOp Seq <$ symbol ",") ],
+--         [
+--             InfixL (LayeringOp Less   <$ symbol "<"),
+--             InfixL (LayeringOp Eq     <$ symbol "==")
+--         ]
+--         -- Lowest precedence
+--     ]
 
 path :: Parser Path
 path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
@@ -382,6 +396,10 @@ constructor = do
 
 propertyDecl :: Parser PropertyDecl
 propertyDecl = PropertyDecl <$> identifier <*> (eq >> expr)
+
+boolLit :: Parser Expr
+boolLit =  (rword "True" >> return (BoolLit True))
+       <|> (rword "False" >> return (BoolLit False))
 
 stringLit :: Parser Expr
 -- NOTE: overlapping parsers 'charLiteral' and 'char '"'', so we use 'try'
@@ -460,6 +478,7 @@ toSubTArg :: SArg -> Arg
 toSubTArg (SAVar bVar) = AVar $ toSubVar bVar
 toSubTArg (SAT styT)   = AT   $ toSubType styT
 
+-- | Convert a Style type to a Substance type. (This has nothing to do with subtyping)
 toSubType :: StyT -> T
 toSubType (STTypeVar stvar) = TTypeVar $ TypeVar { typeVarName = typeVarNameS stvar,
                                                    typeVarPos = typeVarPosS stvar }
@@ -541,7 +560,7 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
              case bVar of
              -- rule Decl-Sty-Context
              bsv@(BStyVar (StyVar' styVar)) ->
-                     -- NOTE: this does not aggregate *all* possible errors. May just return first error.
+                     -- NOTE: this does not aggregate *all* possible error May just return first error.
                      -- y \not\in dom(g)
                      if M.member bsv (sTypeVarMap selEnv')
                      then let err = "Style pattern statement " ++ show stmt ++
@@ -573,11 +592,12 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
                                               "' does not exist in environment. \n" {- ++ show varEnv -} in
                                     addErr err selEnv'
                          Just subType' ->
-                             -- check "T = |T", assuming type constructors are nullary
+                             -- check "T <: |T", assuming type constructors are nullary
                              let declType = toSubType styType in
                              if subType' == declType
+                                || isSubtype subType' declType varEnv
                              then addMapping bsv styType selEnv'
-                             else let err = "Mismatched types between Substance and Style vars.\n" ++
+                             else let err = "Mismatched types between Substance and Style var\n" ++
                                              "Sub var '" ++ show subVar ++ "' has type '" ++ show subType' ++
                                              "in Substance but has type '" ++ show declType ++ "' in Style."
                                   in addErr err selEnv'
@@ -661,9 +681,11 @@ isStyVar (BSubVar _) = False
 --   mapping for each Style variable in the selector.
 fullSubst :: SelEnv -> Subst -> Bool
 fullSubst selEnv subst =
-    let selStyVars = map styVarToString $ filter isStyVar $ M.keys $ sTypeVarMap selEnv in
-    let substStyVars = map styVarToString' $ M.keys subst in
-    sort selStyVars == sort substStyVars -- Equal up to permutation (M.keys ensures that there are no dups)
+    let selStyVars = map styVarToString $ filter isStyVar $ M.keys $ sTypeVarMap selEnv
+        substStyVars = map styVarToString' $ M.keys subst
+        res = sort selStyVars == sort substStyVars in
+    -- Equal up to permutation (M.keys ensures that there are no dups)
+    trM1 ("fullSubst: \nselEnv: " ++ ppShow selEnv ++ "\nsubst: " ++ ppShow subst ++ "\nres: " ++ ppShow res ++ "\n") res
     where styVarToString  (BStyVar (StyVar' v)) = v
           styVarToString' (StyVar' v) = v
 
@@ -681,23 +703,6 @@ uniqueKeysAndVals subst =
 -- If a Sty var doesn't have a substitution (i.e. substitution map is bad), keep the Sty var and move on
 
 -- TODO: return "maybe" if a substitution fails?
-
--- TODO: use correct equality comparison in Substance typechecker
--- don't compare SourcePos
-predEq :: C.Predicate -> C.Predicate -> Bool
-predEq p1 p2 = C.predicateName p1 == C.predicateName p2 && C.predicateArgs p1 == C.predicateArgs p2
-
-argsEq :: Arg -> Arg -> Bool
-argsEq (AVar v1) (AVar v2) = v1 == v2
-argsEq (AT t1) (AT t2)     = typesEq t1 t2
-argsEq _ _                 = False
-
-typesEq :: T -> T -> Bool
-typesEq (TTypeVar t1) (TTypeVar t2) = typeVarName t1 == typeVarName t2 -- TODO: better way to compare type vars
-typesEq (TConstr t1) (TConstr t2) = nameCons t1 == nameCons t2 &&
-                                    length (argCons t1) == length (argCons t2) &&
-                                    (all (\(a1, a2) -> argsEq a1 a2) $ zip (argCons t1) (argCons t2))
-typesEq _ _ = False
 
 substituteBform :: Maybe LocalVarId -> Subst -> BindingForm -> BindingForm
 -- Variable in backticks in block or selector (e.g. `X`)
@@ -740,7 +745,7 @@ substituteRel subst (RelBind bvar sExpr) = RelBind (substituteBform Nothing subs
 -- theta(Q([a]) = Q([theta(a)])
 substituteRel subst (RelPred pred) = RelPred $ substitutePred subst pred
 
--- Applies a substitution to a list of relational statements. theta([|S_r])
+-- Applies a substitution to a list of relational statement theta([|S_r])
 -- TODO: assumes a full substitution
 substituteRels :: Subst -> [RelationPattern] -> [RelationPattern]
 substituteRels subst rels = map (substituteRel subst) rels
@@ -756,11 +761,13 @@ substitutePath lv subst path =
 substituteField :: LocalVarId -> Subst -> PropertyDecl -> PropertyDecl
 substituteField lv subst (PropertyDecl field expr) = PropertyDecl field $ substituteBlockExpr lv subst expr
 
-substituteLayering :: LocalVarId -> Subst -> LExpr -> LExpr
-substituteLayering lv subst (LId bVar) = LId $ substituteBform (Just lv) subst bVar
-substituteLayering lv subst (LPath path) = LPath $ substitutePath lv subst path
-substituteLayering lv subst (LayeringOp op lex1 lex2) =
-                   LayeringOp op (substituteLayering lv subst lex1) (substituteLayering lv subst lex1)
+
+-- DEPRECATED
+-- substituteLayering :: LocalVarId -> Subst -> LExpr -> LExpr
+-- substituteLayering lv subst (LId bVar) = LId $ substituteBform (Just lv) subst bVar
+-- substituteLayering lv subst (LPath path) = LPath $ substitutePath lv subst path
+-- substituteLayering lv subst (LayeringOp op lex1 lex2) =
+--                    LayeringOp op (substituteLayering lv subst lex1) (substituteLayering lv subst lex1)
 
 substituteBlockExpr :: LocalVarId -> Subst -> Expr -> Expr
 substituteBlockExpr lv subst expr =
@@ -775,11 +782,12 @@ substituteBlockExpr lv subst expr =
     List es           -> List $ map (substituteBlockExpr lv subst) es
     ListAccess path i -> ListAccess (substitutePath lv subst path) i
     Ctor gpi fields   -> Ctor gpi $ map (substituteField lv subst) fields
-    Layering lexpr    -> Layering $ substituteLayering lv subst lexpr
+    Layering path1 path2 -> Layering (substitutePath lv subst path1) (substitutePath lv subst path2)
     -- No substitution for literals
     IntLit _          -> expr
     AFloat _          -> expr
     StringLit _       -> expr
+    BoolLit _         -> expr
 
 substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
@@ -794,47 +802,98 @@ substituteBlock (subst, substNum) (block, blockNum) = map (substituteLine (block
 
 ----- Filter with relational statements
 
+-- Intentionally pulling out variable equality judgment (. |- x1 = x2) as string equality
+varsEq :: Var -> Var -> Bool
+varsEq = (==)
+
+exprToVar :: C.Expr -> Var
+exprToVar (C.VarE v) = v
+exprToVar e = error $ "Style expression matching does not yet handle nested expressions: '" ++ show e ++ "'"
+
+findType :: VarEnv -> String -> [T]
+findType typeEnv name =
+         case M.lookup name (valConstructors typeEnv) of
+         Just vc -> tlsvc vc ++ [tvc vc]
+         Nothing -> error $ "name '" ++ name ++ "' does not exist in Substance type environment"
+         -- shouldn't happen, since the Sub/Sty should have been statically checked)
+
+exprsMatchArr :: VarEnv -> C.Func -> C.Func -> Bool
+exprsMatchArr typeEnv subE styE =
+           let subArrType = findType typeEnv $ C.nameFunc subE
+               styArrType = findType typeEnv $ C.nameFunc styE
+               subVarArgs = map exprToVar $ C.argFunc subE
+               styVarArgs = map exprToVar $ C.argFunc styE
+           in let res = isSubtypeArrow subArrType styArrType typeEnv
+                        && (all (uncurry varsEq) $ zip subVarArgs styVarArgs) in
+              trM1 ("subArrType: " ++ show subArrType
+                   ++ "\nstyArrType: " ++ show styArrType
+                   ++ "\nres: " ++ show (isSubtypeArrow subArrType styArrType typeEnv)) res
+
+-- New judgment (COMBAK number): expression matching that accounts for subtyping. G, B, . |- E0 <| E1
+-- We assume the latter expression has already had a substitution applied
+exprsMatch :: VarEnv -> C.Expr -> C.Expr -> Bool
+-- rule Match-Expr-Var
+exprsMatch typeEnv (C.VarE subVar) (C.VarE styVar) = varsEq subVar styVar
+
+-- Match value constructor applications if one val ctor is a subtype of another
+-- whereas for function applications, we match only if the exprs are equal (for now)
+-- This is because a val ctor doesn't "do" anything besides wrap its values
+-- whereas functions with the same type could do very different things, so we don't
+-- necessarily want to match them by subtyping
+-- (e.g. think of the infinite functions from Vector -> Vector)
+-- rule Match-Expr-Vconsapp
+exprsMatch typeEnv (C.ApplyValCons subE) (C.ApplyValCons styE) =
+           True  -- exprsMatchArr typeEnv subE styE -- TODO: revert
+-- rule Match-Expr-Fnapp
+exprsMatch typeEnv (C.ApplyFunc subE) (C.ApplyFunc styE) =
+           subE == styE
+exprsMatch _ _ _ = False
+
 -- Judgment 11. b; theta |- S <| |S_r
-relMatchesLine :: C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
+relMatchesLine :: VarEnv -> C.SubEnv -> C.SubStmt -> RelationPattern -> Bool
 -- rule Bind-Match
-relMatchesLine subEnv (C.Bind var expr) (RelBind bvar sExpr) =
+relMatchesLine typeEnv subEnv s1@(C.Bind var expr) s2@(RelBind bvar sExpr) =
                case bvar of
                BStyVar v -> error ("Style variable '" ++ show v ++ "' found in relational statement '" ++ show (RelBind bvar sExpr) ++ "'. Should not be present!")
                BSubVar sVar ->
                        let selExpr = toSubExpr sExpr in
-                       (var == sVar && expr == selExpr) -- self-equal
-                       || C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
+                       let res = (varsEq var sVar && exprsMatch typeEnv expr selExpr)
+                                 || C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
+                       in trM1 ("trying to match exprs \n'" ++ show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $ res
+
 -- rule Pred-Match
-relMatchesLine subEnv (C.ApplyP pred) (RelPred sPred) =
+relMatchesLine typeEnv subEnv (C.ApplyP pred) (RelPred sPred) =
                let selPred = toSubPred sPred in
-               predEq pred selPred -- self-equal
+               C.predsEq pred selPred -- self-equal
                || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
-relMatchesLine _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
+relMatchesLine _ _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
 
 -- Judgment 13. b |- [S] <| |S_r
-relMatchesProg :: C.SubEnv -> C.SubProg -> RelationPattern -> Bool
-relMatchesProg subEnv subProg rel = any (flip (relMatchesLine subEnv) rel) subProg
+relMatchesProg :: VarEnv -> C.SubEnv -> C.SubProg -> RelationPattern -> Bool
+relMatchesProg typeEnv subEnv subProg rel = any (flip (relMatchesLine typeEnv subEnv) rel) subProg
 
 -- Judgment 15. b |- [S] <| [|S_r]
-allRelsMatch :: C.SubEnv -> C.SubProg -> [RelationPattern] -> Bool
-allRelsMatch subEnv subProg rels = all (relMatchesProg subEnv subProg) rels
+allRelsMatch :: VarEnv -> C.SubEnv -> C.SubProg -> [RelationPattern] -> Bool
+allRelsMatch typeEnv subEnv subProg rels = all (relMatchesProg typeEnv subEnv subProg) rels
 
 -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 -- Folds over [theta]
-filterRels :: C.SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
-filterRels subEnv subProg rels substs =
-           filter (\subst -> allRelsMatch subEnv subProg (substituteRels subst rels)) substs
+filterRels :: VarEnv -> C.SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
+filterRels typeEnv subEnv subProg rels substs =
+           filter (\subst -> allRelsMatch typeEnv subEnv subProg (substituteRels subst rels)) substs
 
 ----- Match declaration statements
 
 -- Judgment 9. G; theta |- T <| |T
 -- Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
 matchType :: VarEnv -> T -> StyT -> Bool
-matchType varEnv (TConstr tctor) (STCtor stctor) =
+matchType varEnv substanceType@(TConstr tctor) styleType@(STCtor stctor) =
           if not (null (argCons tctor)) || not (null (argConsS stctor))
           then error "no types with parameters allowed in match" -- TODO error msg
           else trM1 ("types: " ++ nameCons tctor ++ ", " ++ nameConsS stctor) $
-               nameCons tctor == nameConsS stctor -- TODO subtyping
+               nameCons tctor == nameConsS stctor
+               -- Only match if a Substance type is a subtype of a Style type (e.g. Interval matches ClosedInterval)
+               || isSubtype substanceType (toSubType styleType) varEnv
 -- TODO better errors + think about cases below
 matchType varEnv (TTypeVar tvar) (STTypeVar stvar) = error "no type vars allowed in match"
 matchType varEnv (TConstr tvar) (STTypeVar stvar) = error "no type vars allowed in match"
@@ -879,10 +938,12 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
     let decls            = selHead sel ++ selWith sel
         rels             = selWhere sel
         initSubsts       = []
-        subst_candidates = filter (fullSubst selEnv) $ matchDecls varEnv subProg decls initSubsts
+        rawSubsts        = matchDecls varEnv subProg decls initSubsts
+        subst_candidates = filter (fullSubst selEnv)
+                           $ trM1 ("rawSubsts: # " ++ show (length rawSubsts) ++ "\n"{- ++ ppShow rawSubsts-}) rawSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
-                           filterRels subEnv subProg rels subst_candidates
+                           filterRels varEnv subEnv subProg rels subst_candidates
         correct_substs   = filter uniqueKeysAndVals filtered_substs
     in correct_substs
 find_substs_sel _ _ _ (Namespace _, _) = [] -- No substitutions for a namespace (not in paper)
@@ -1015,9 +1076,18 @@ deleteProperty trans name field property =
         Nothing -> let err = "Err: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field
                               ++ "'; can't delete path " ++ path in
                    addWarn trans err
-        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
-                                     ++ field ++ "'; cannot delete property '" ++ property ++ "'" in
-                          addWarn trans err
+        -- Deal with path aliasing as in `addProperty`
+        Just (FExpr e) ->
+             case e of
+             OptEval (EPath p@(FieldPath bvar newField)) ->
+                            let newName = trName bvar in
+                            if newName == name && newField == field
+                            then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
+                                 in addWarn trans err
+                            else deleteProperty trans newName newField property
+             res -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
+                              ++ field ++ "'; cannot delete property '" ++ property ++ "'" in
+                    addWarn trans err
         Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists
            if property `M.notMember` properties
@@ -1075,9 +1145,20 @@ addProperty override trans name field property texpr =
         Nothing -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have field '"
                               ++ field ++ "'; cannot add property '" ++ property ++ "'" in
                    addWarn trans err
-        Just (FExpr _) -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
-                                     ++ field ++ "'; cannot add property '" ++ property ++ "'" in
-                          addWarn trans err
+        -- If looking up "f.domain" yields a *different* path (i.e. that path was an alias)
+        -- e.g. "f.domain" is aliased to "I.shape"
+        -- then call addProperty with the other path, otherwise fail
+        Just (FExpr e) ->
+             case e of
+             OptEval (EPath p@(FieldPath bvar newField)) ->
+                            let newName = trName bvar in
+                            if newName == name && newField == field
+                            then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
+                                 in addWarn trans err
+                            else addProperty override trans newName newField property texpr
+             res -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
+                              ++ field ++ "'; found expr '" ++ show res ++ "'; cannot add property '" ++ property ++ "'" in
+                    addWarn trans err
         Just (FGPI ctor properties) ->
            -- If the field is GPI, check if property already exists and whether it matches the override setting
            let warn = if (property `M.notMember` properties) && override
@@ -1196,7 +1277,5 @@ translateStyProg :: forall a . (Autofloat a) =>
 translateStyProg varEnv subEnv subProg styProg labelMap =
     let numberedProg = zip styProg [0..] in -- For creating unique local var names
     case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
-        Right trans -> Right $ insertLabels trans labelMap
+        Right trans -> trace "translateStyProg: " $ Right $ insertLabels trans labelMap
         Left errors -> Left errors
-
--- For an example of how the semantics are used together, see ShadowMain

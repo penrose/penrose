@@ -1,0 +1,22 @@
+Set x {
+    shape = Circle { }
+    constraint contains(x, x.label)
+}
+
+Subset x y {
+    constraint contains(y, x)
+    constraint smallerThan(x, y)
+    constraint outsideOf(y.label, x)
+}
+
+
+Subset x S, Subset y S {
+    objective repel(x, y)
+}
+
+/*
+Set x, Set y {
+    objective repel(x, y)
+}
+*/
+

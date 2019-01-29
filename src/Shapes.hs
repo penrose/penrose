@@ -1,4 +1,5 @@
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Shapes where
@@ -24,6 +25,31 @@ import qualified Data.Map.Strict as M
 --------------------------------------------------------------------------------
 -- Types
 
+-- | shape can have multiple pieces, e.g. multiple "M"s
+type PathData a = [Path' a]
+
+-- | TODO
+-- NOTE: the order of the elements is important
+data Path' a
+    = Closed [Elem a] -- ^  "Z"
+    | Open [Elem a]   -- ^  no "Z"
+    deriving (Generic, Eq, Show)
+instance (FromJSON a) => FromJSON (Path' a)
+instance (ToJSON a)   => ToJSON (Path' a)
+
+-- | TODO
+data Elem a
+    = Pt (Pt2 a)                   -- ^ Replace "M," "L", "H", "V"
+    | CubicBez (Pt2 a, Pt2 a, Pt2 a) -- ^ "C": two control pts, 1 endpt
+    | CubicBezJoin (Pt2 a, Pt2 a)  -- ^ "S": 1 control pt, 1 endpt
+    | QuadBez (Pt2 a, Pt2 a)       -- ^ "Q": 1 control pt, 1 endpt
+    | QuadBezJoin (Pt2 a)          -- ^ "T": 1 endpt
+    deriving (Generic, Eq, Show)
+    -- | Arc { x, y, sweep1, … }  -- "A" TODO
+instance (FromJSON a) => FromJSON (Elem a)
+instance (ToJSON a)   => ToJSON (Elem a)
+
+
 -- | types of fully evaluated values in Style
 data ValueType
     = FloatT
@@ -31,7 +57,8 @@ data ValueType
     | BoolT
     | StrT
     | PtT
-    | PathT
+    | PtListT
+    | PathDataT
     | ColorT
     | FileT
     | StyleT
@@ -49,8 +76,10 @@ data Value a
     | StrV String
     -- | point in R^2
     | PtV (Pt2 a)
+    -- | path commands
+    | PathDataV (PathData a)
     -- | a list of points
-    | PathV [Pt2 a]
+    | PtListV [Pt2 a]
     -- | an RGBA color value
     | ColorV Color
     -- | path for image
@@ -65,16 +94,48 @@ instance (ToJSON a)   => ToJSON (Value a)
 -- | returns the type of a 'Value'
 typeOf :: (Autofloat a) => Value a -> ValueType
 typeOf v = case v of
-     FloatV _ -> FloatT
-     IntV   _ -> IntT
-     BoolV  _ -> BoolT
-     StrV   _ -> StrT
-     PtV    _ -> PtT
-     PathV  _ -> PathT
-     ColorV _ -> ColorT
-     FileV  _ -> FileT
-     StyleV _ -> StyleT
+     FloatV _     -> FloatT
+     IntV   _     -> IntT
+     BoolV  _     -> BoolT
+     StrV   _     -> StrT
+     PtV    _     -> PtT
+     PtListV    _ -> PtListT
+     PathDataV  _ -> PathDataT
+     ColorV _     -> ColorT
+     FileV  _     -> FileT
+     StyleV _     -> StyleT
 
+toPolymorphics :: [Shape Double] -> (forall a . (Autofloat a) => [Shape a])
+toPolymorphics = map toPolymorphic
+
+toPolymorphic :: Shape Double -> (forall a . (Autofloat a) => Shape a)
+toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
+
+toPolyProperty :: Value Double -> (forall a . (Autofloat a) => Value a)
+toPolyProperty v = case v of
+    -- Not sure why these have to be rewritten from scratch...
+    FloatV n  -> FloatV $ r2f n
+    BoolV x   -> BoolV x
+    StrV x    -> StrV x
+    IntV x    -> IntV x
+    PtV (x,y) -> PtV (r2f x, r2f y)
+    PtListV xs  -> PtListV $ map (\(x,y) -> (r2f x, r2f y)) xs
+    ColorV x  -> ColorV x
+    FileV x   -> FileV x
+    StyleV x  -> StyleV x
+    PathDataV es -> PathDataV $ map toPolyPath es
+
+toPolyPath :: Path' Double -> (forall a . (Autofloat a) => Path' a)
+toPolyPath (Closed es) = Closed $ map toPolyElem es
+toPolyPath (Open es) = Open $ map toPolyElem es
+
+toPolyElem :: Elem Double -> (forall a . (Autofloat a) => Elem a)
+toPolyElem (Pt p) = Pt $ r2ft p
+toPolyElem (CubicBez (p0, p1, p2)) = CubicBez (r2ft p0, r2ft p1, r2ft p2)
+toPolyElem (CubicBezJoin (p0, p1)) = CubicBezJoin (r2ft p0, r2ft p1)
+toPolyElem (QuadBez (p0, p1)) = QuadBez (r2ft p0, r2ft p1)
+toPolyElem (QuadBezJoin p) = QuadBezJoin $ r2ft p
+r2ft (x, y) = (r2f x, r2f y)
 
 -- | the type string of a shape
 type ShapeTypeStr = String
@@ -237,9 +298,10 @@ circType = ("Circle", M.fromList
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
-        ("stroke-width", (FloatT, stroke_sampler)),
-        ("style", (StrT, sampleDiscrete [StrV "filled"])),
-        ("stroke-style", (StrT, stroke_style_sampler)),
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("style", (StrT, constValue $ StrV "filled")),
+        ("strokeStyle", (StrT, constValue $ StrV "solid")),
+        ("strokeColor", (ColorT, sampleColor)),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
@@ -297,9 +359,15 @@ braceType = ("Brace", M.fromList
 
 curveType = ("Curve", M.fromList
     [
-        ("path", (PathT, constValue $ PathV [])), -- TODO: sample path
+        ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        ("polyline", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
+        ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "solid")),
+        ("fill", (ColorT, sampleColor)), -- for no fill, set opacity to 0
         ("color", (ColorT, sampleColor)),
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
         ("name", (StrT, constValue $ StrV "defaultCurve"))
     ])
 
@@ -359,7 +427,7 @@ parallelogramType = ("Parallelogram", M.fromList
 
 imageType = ("Image", M.fromList
     [
-        ("centerX", (FloatT, x_sampler)), -- TODO: is this top left? or center? @Lily
+        ("centerX", (FloatT, x_sampler)),
         ("centerY", (FloatT, y_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
@@ -495,6 +563,25 @@ getY shape = case shape .: "y" of
     FloatV y -> y
     _ -> error "getY: expected float but got something else"
 
+getPoint :: (Autofloat a) => String -> Shape a -> (a, a)
+getPoint "start" shape = case (shape .: "startX", shape .: "startY") of
+   (FloatV x, FloatV y) -> (x, y)
+   _ -> error "getPoint expected two floats but got something else"
+getPoint "end" shape = case (shape .: "endX", shape .: "endY") of
+   (FloatV x, FloatV y) -> (x, y)
+   _ -> error "getPoint expected two floats but got something else"
+getPoint _ shape = error "getPoint did not receive existing property name"
+
+-- To use with vector operations
+getPointV :: (Autofloat a) => String -> Shape a -> [a]
+getPointV "start" shape = case (shape .: "startX", shape .: "startY") of
+   (FloatV x, FloatV y) -> [x, y]
+   _ -> error "getPointV expected two floats but got something else"
+getPointV "end" shape = case (shape .: "endX", shape .: "endY") of
+   (FloatV x, FloatV y) -> [x, y]
+   _ -> error "getPointV expected two floats but got something else"
+getPointV _ shape = error "getPointV did not receive existing property name"
+
 getName :: (Autofloat a) => Shape a -> String
 getName shape = case shape .: "name" of
     StrV s -> s
@@ -513,12 +600,17 @@ setY v shape = set shape "y" v
 getNum :: (Autofloat a) => Shape a -> PropID -> a
 getNum shape prop = case shape .: prop of
     FloatV x -> x
-    _ -> error "getNum: expected float but got something else"
+    res -> error ("getNum: expected float but got something else: " ++ show res)
 
-getPath :: (Autofloat a) => Shape a -> [(a, a)]
+getPath :: (Autofloat a) => Shape a -> [Pt2 a]
 getPath shape = case shape .: "path" of
-    PathV x -> x
+    PtListV x -> x
     _ -> error "getPath: expected [(Float, Float)] but got something else"
+
+getPathData :: (Autofloat a) => Shape a -> PathData a
+getPathData shape = case shape .: "pathData" of
+    PathDataV x -> x
+    _ -> error "getPathData: expected [PathData a] but got something else"
 
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator

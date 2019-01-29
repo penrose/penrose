@@ -99,6 +99,22 @@ data LabelOption = Default | IDs [Var]
 type SubProg = [SubStmt]
 type SubObjDiv = ([SubDecl], [SubConstr])
 
+-- | 'SubOut' is the output of the Substance compuler, comprised of:
+-- * Substance AST
+-- * (Variable environment (?), Substance environment)
+-- * A mapping from Substance ids to their coresponding labels
+data SubOut = SubOut SubProg (VarEnv, SubEnv) LabelMap
+instance Show SubOut where
+    show (SubOut subProg (subEnv, eqEnv) labelMap) =
+        "Parsed Substance program:\n"++
+        ppShow subProg ++
+        "\nSubstance type env:\n" ++
+        ppShow subEnv ++
+        "\nSubstance dyn env:\n" ++
+        ppShow eqEnv ++
+        "\nLabel mappings:\n" ++
+        ppShow labelMap
+
 ------------------------------------
 -- | Special data types for passing on to the style parser
 
@@ -225,6 +241,13 @@ noLabel   = rword "NoLabel" >> NoLabel <$> ids
 autoLabel = rword "AutoLabel" >> AutoLabel <$> (defaultLabels <|> idList)
     where idList        = IDs . map VarConst <$> identifier `sepBy1` comma
           defaultLabels = Default <$ rword "All"
+
+----------------------------------- Utility functions ------------------------------------------
+
+-- Equality functions that don't compare SourcePos
+-- TODO: use correct equality comparison in typechecker
+predsEq :: Predicate -> Predicate -> Bool
+predsEq p1 p2 = predicateName p1 == predicateName p2 && predicateArgs p1 == predicateArgs p2
 
 ----------------------------------------- Substance Typechecker ---------------------------
 
@@ -481,7 +504,7 @@ compareTypesList varEnv argTypes formalTypes =
     in length u /= length f
 
 compareTypes :: VarEnv -> (K,K) -> Bool
-compareTypes varEnv (k1,k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv)
+compareTypes varEnv (k1,k2) = (k1 == k2 || isSubtypeK k1 k2 varEnv) -- TODO: remove the equality here (or derive Eq to not include SourcePos)
 
 -- Ensures an argument type and formal type matches where they should match, otherwise a runtime error is generated.
 -- In places where they do not need to match exactly (where type and regular variables exist in the formal type)
@@ -619,7 +642,7 @@ collectLabels ids =
         _ -> m
     ) initmap
     where
-        initmap = M.fromList $ map (\i -> (i, Nothing)) $ trRaw "ids" ids
+        initmap = M.fromList $ map (\i -> (i, Nothing)) ids
 
 -- COMBAK: DEPRECATED
 loadObjects :: SubProg -> VarEnv -> SubObjects
@@ -686,10 +709,7 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-
-parseSubstance ::
-    String -> String -> VarEnv
-    -> IO (SubProg, (VarEnv, SubEnv), LabelMap)
+parseSubstance :: String -> String -> VarEnv -> IO SubOut
 parseSubstance subFile subIn varEnv =
     case runParser substanceParser subFile subIn of
         Left err -> error (parseErrorPretty err)
@@ -698,7 +718,7 @@ parseSubstance subFile subIn varEnv =
             let subTypeEnv  = check subProg' varEnv
             let subDynEnv   = loadSubEnv subProg'
             let labelMap    = getLabelMap subProg' subTypeEnv
-            return (subProg', (subTypeEnv, subDynEnv), labelMap)
+            return (SubOut subProg' (subTypeEnv, subDynEnv) labelMap)
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

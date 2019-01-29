@@ -1,0 +1,53 @@
+-- Modeling the Barthe example with function composition
+
+Reals R
+
+-- I := [a, b] \subset R
+Real a, b
+OpenInterval I
+I := CreateOpenInterval(a, b)
+Subset(I, R)
+
+-- J := [c, d] \subset R
+Real c, d
+ClosedInterval J
+J := CreateClosedInterval(c, d)
+Subset(J, R)
+
+-- K := [e, f] \subset R
+Real i, j
+OpenInterval K
+K := CreateOpenInterval(i, j)
+Subset(K, R)
+
+Function f
+f := CreateFunction(I, J)
+
+Function g
+g := CreateFunction(J, K)
+
+-- y := g . f
+Function y
+y := CreateFunction(I, K)
+y := compose(g, f)
+
+-- z = h . y = h . (g . f)
+
+Interval L
+Subset(L, R)
+Function h
+h := CreateFunction(K, L)
+-- TODO: This doesn't work! It draws L in the second R
+-- when you'd expect it to create a new R
+-- You *could* special-case this by matching on a function whose domain is the codomain of a composition of functions and moving *its* codomain to a 4th real axis. I just don't know how to write a general Style for this. Perhaps programmatic # of GPIs?
+
+Function z
+z := CreateFunction(I, L)
+z := compose(h, y)
+
+-- TODO: associativity of composition
+-- z = (h . g) . f
+
+AutoLabel All
+NoLabel a, b, c, d, i, j
+Label R $\mathbb{R}$

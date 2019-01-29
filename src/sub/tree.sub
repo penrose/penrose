@@ -1,28 +1,32 @@
-Set A
-Set B
-Set C
-Set D
-Set E
-Set F
-Set G
--- Set H
--- Set I
+Set A, B, C, D, E, F, G
+-- Set H, I, J, K, L
 
 IsSubset(B, A)
 IsSubset(C, A)
 IsSubset(D, B)
 IsSubset(E, B)
--- Doesn't work well with a third child
--- IsSubset(I, B)
 IsSubset(F, C)
 IsSubset(G, C)
--- IsSubset(H, G)
 
 NotIntersecting(E, D)
 NotIntersecting(F, G)
 NotIntersecting(B, C)
 
-AutoLabel All
+-- IsSubset(H, A)
+-- IsSubset(H, A)
+-- IsSubset(I, A)
+-- IsSubset(I, A)
+-- IsSubset(J, H)
+-- IsSubset(J, H)
+-- IsSubset(K, I)
+-- IsSubset(K, I)
+-- IsSubset(L, H)
+-- IsSubset(L, H)
+-- NotIntersecting(H, I)
+-- NotIntersecting(L, J)
+-- NotIntersecting(B, I)
+-- NotIntersecting(B, H)
+-- NotIntersecting(C, I)
+-- NotIntersecting(C, H)
 
--- GA, GB, BC, GC, CB, GD, DE, GE, ED, GF, FG, FG, GF
--- ???
+AutoLabel All

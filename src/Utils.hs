@@ -47,7 +47,6 @@ debugStyle = False
 -- debugLineSearch = True
 debugLineSearch = False
 -- turn on/off output in obj fn or constraint
--- debugObj = False
 debugObj = True
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
@@ -59,6 +58,10 @@ epsd = 10 ** (-10)
 
 --------------------------------------------------------------------------------
 -- General helper functions
+
+fromRight :: (Show a, Show b) => Either a b -> b
+fromRight (Left x) = error ("Failed with error: " ++ show x)
+fromRight (Right y) = y
 
 divLine :: IO ()
 divLine = putStr "\n--------\n\n"
@@ -78,6 +81,14 @@ trd (_, _, x) = x
 -- | transform from a 2-element list to a 2-tuple
 tuplify2 :: [a] -> (a,a)
 tuplify2 [x,y] = (x,y)
+
+-- | apply a function to each element of a 2-tuple
+app2 :: (a -> b) -> (a, a) -> (b, b)
+app2 f (x, y) = (f x, f y)
+
+-- | apply a function to each element of a 3-tuple
+app3 :: (a -> b) -> (a, a, a) -> (b, b, b)
+app3 f (x, y, z) = (f x, f y, f z)
 
 -- | generic cartesian product of elements in a list
 cartesianProduct :: [[a]] -> [[a]]
@@ -200,6 +211,9 @@ symboln = L.symbol scn
 newline' :: Parser ()
 newline' = newline >> scn
 
+semi' :: Parser ()
+semi' = semi >> scn
+
 backticks :: Parser a -> Parser a
 backticks = between (symbol "`") (symbol "`")
 
@@ -291,7 +305,7 @@ tro s x = if debugObj then trace "---" $ trace s x else x -- prints in left to r
 
 -- define operator precedence: higher precedence = evaluated earlier
 infixl 6 +., -.
-infixl 7 *. -- .*, /.
+infixl 7 *., /.
 
 -- assumes lists are of the same length
 dotL :: (RealFloat a, Floating a) => [a] -> [a] -> a
@@ -315,6 +329,28 @@ negL = map negate
 (*.) :: Floating a => a -> [a] -> [a] -- multiply by a constant
 (*.) c v = map ((*) c) v
 
+(/.) :: Floating a => [a] -> a -> [a]
+(/.) v c = map ((/) c) v
+
+p2v (x, y) = [x, y]
+
+v2p [x, y] = (x, y)
+
+infixl 6 +:, -:
+infixl 7 *:, /:
+
+(+:) :: Floating a => (a, a) -> (a, a) -> (a, a)
+(+:) (x, y) (c, d) = (x + c, y + d)
+
+(-:) :: Floating a => (a, a) -> (a, a) -> (a, a)
+(-:) (x, y) (c, d) = (x - c, y - d)
+
+(*:) :: Floating a => a -> (a, a) -> (a, a)
+(*:) c (x, y) = (c * x, c * y)
+
+(/:) :: Floating a => (a, a) -> a -> (a, a)
+(/:) (x, y) c = (c / x, c / y)
+
 -- Again (see below), we add epsd to avoid NaNs. This is a general problem with using `sqrt`.
 norm :: Floating a => [a] -> a
 norm v = sqrt ((sum $ map (^ 2) v) + epsd)
@@ -331,6 +367,9 @@ findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
 
 midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
 midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
+
+midpointV :: Floating a => [a] -> [a] -> [a]
+midpointV x y = (x +. y) /. 2.0
 
 -- We add epsd to avoid NaNs in the denominator of the gradient of dist.
 -- Now, grad dist (0, 0) (0, 0) is 0 instead of NaN.

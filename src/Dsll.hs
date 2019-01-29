@@ -24,8 +24,8 @@ import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
 import Text.Show.Pretty
 import Env
---import Text.PrettyPrint
---import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
+-- import qualified Text.PrettyPrint as P
+-- import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
 import qualified Tokenizer         as T
@@ -292,7 +292,7 @@ check p =
    in if null (errors env)
      then env
      else error $ "Dsll type checking failed with the following problems: \n"
-      ++ errors env
+      ++ (ppShow $ errors env) ++ ppShow env
   where initE = VarEnv { typeConstructors = M.empty, valConstructors = M.empty,
         operators = M.empty, predicates = M.empty, typeVarMap = M.empty,
         typeValConstructor = M.empty, varMap = M.empty, subTypes = [],
@@ -394,14 +394,14 @@ parseDsll dsllFile dsllIn =
           case runParser dsllParser dsllFile dsllIn of
           Left err -> error (parseErrorPretty err)
           Right prog -> do
-              putStrLn "DSLL AST: \n"
-              pPrint prog
-              divLine
+            --   putStrLn "DSLL AST: \n"
+            --   pPrint prog
+            --   divLine
               let env = check prog
                   env1 = computeSubTypes env
-              divLine
-              putStrLn "DSLL Env: \n"
-              pPrint env1
+            --   divLine
+            --   putStrLn "DSLL Env: \n"
+            --   pPrint env1
               return env1
 
 ----------------------------- Test Driver --------------------------------------

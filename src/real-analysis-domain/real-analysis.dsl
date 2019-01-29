@@ -1,5 +1,3 @@
------------------------------ Type Constructors --------------------------------
-
 tconstructor Set : type
 tconstructor Reals : type
 tconstructor Real : type
@@ -23,14 +21,14 @@ vconstructor Pt (x : Real, y : Real) : Point
 -- Subtyping relationships
 Reals <: Set
 Interval <: Set
--- TODO: Reals <: Interval
-
+Reals <: Interval
 OpenInterval <: Interval
 ClosedInterval <: Interval
 LeftClopenInterval <: Interval
 RightClopenInterval <: Interval
-
--------------------------------- Operators -------------------------------------
+-- Reals <: OpenInterval
+-- TODO: check that the Style records for the Substance subtypes satisfy the subtyping relationship as well
+-- AND that the GPIs satisfy the subtyping relationship (e.g. lines, arrows having start/end fields)
 
 -- Operators on intervals
 operator union (I : Interval, J : Interval) : Interval
@@ -47,7 +45,9 @@ operator applyOver (f : Function, I : Interval) : Interval
 -- (g . f): Does not check f's codomain matches g's domain
 operator compose (f : Function, g : Function) : Function
 
--------------------------------- Predicates -------------------------------------
+-- Predicates on reals
+predicate PosInfinite(x : Real) : Prop
+predicate NegInfinite(x : Real) : Prop
 
 -- Predicates on intervals
 predicate Bounded (i : Interval) : Prop
@@ -79,23 +79,14 @@ predicate LessThan (p1 : Real, p2 : Real) : Prop
 predicate ClosedEnd (p : Real, I : Interval) : Prop
 predicate OpenEnd (p : Real, I : Interval) : Prop
 
-------------------------- Syntactic Sugar Definition ---------------------------
-
-StmtNotation  "Real a ∈ R" -> "Real a;In(a,R)"
-StmtNotation  "a < b" -> "LessThan(a,b)"
-StmtNotation  "A := [ a ,b ] ⊆ R " -> "ClosedInterval A;A := CreateClosedInterval(a,b);Subset(A,R)"
-StmtNotation  "A := ( a ,b ) ⊆ R " -> "OpenInterval A;A := CreateOpenInterval(a,b);Subset(A,R)"
-StmtNotation  "A := ( a ,b ] ⊆ R " -> "RightClopenInterval A;A := CreateRightClopenInterval(a,b);Subset(A,R)"
-StmtNotation  "A := [ a ,b ) ⊆ R " -> "LeftClopenInterval A;A := CreateLeftClopenInterval(a,b);Subset(A,R)"
-StmtNotation  "f : A → B" -> "Function f;f := CreateFunction(A,B)"
-StmtNotation  "B ∪ C " -> "union(B,C)"
-StmtNotation  "f ^ (l)" -> "derivativeAtP(f,l)"
-StmtNotation  "f(x)" -> "apply(f,x)"
-
-------------------------------- Others -----------------------------------------
-
 -- Prelude exports
 -- value RR : Reals
+
+-- Notation is ASCII only
+-- notation "f.domain" -> "Dom(f)"
+-- notation "f.codomain" := "Cod(f)"
+-- notation "Subset(X, Y)" := "X Subset Y"
+-- TODO: specify infix predicates
 
 -- Unicode display
 -- display "Subset" -> ⊂

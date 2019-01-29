@@ -1,0 +1,36 @@
+AutoLabel All
+
+-- d, e, i, j ∈ R
+-- J := [d, e) ⊆ R
+-- I := (i, j) ⊆ R
+-- U := (J ∪ I) ⊆ R
+-- h : U → R
+-- h IsDiscontinuous
+
+Reals R
+Real d, e, i, j
+
+-- TODO: make these intervals clopen/open
+Interval I
+I := CreateInterval(d, e)
+Subset(I, R)
+
+Interval J
+J := CreateInterval(i, j)
+Subset(J, R)
+
+-- TODO fix: style line 714: Sub obj might not have a shape
+Interval U
+U := union(I, J)
+Subset(U, R)
+
+Function h
+h := CreateFunction(U, R)
+Discontinuous(h)
+
+Real ifI
+ifI := integral(I, h)
+Label ifI $\int_{I} h(x) dx$
+
+NoLabel d, e, i, j
+Label R $\mathbb{R}$

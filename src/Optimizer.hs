@@ -8,7 +8,9 @@ import Style
 import GenOptProblem
 import Numeric.AD
 import Debug.Trace
-       
+import System.Random
+import System.Console.ANSI
+
 ------ Opt types, util functions, and params
 
 type ObjFn1 a = forall a . (Autofloat a) => [a] -> a
@@ -22,7 +24,7 @@ weightGrowthFactor :: (Autofloat a) => a -- for EP weight
 weightGrowthFactor = 10
 
 epsUnconstr :: Floating a => a
-epsUnconstr = 10 ** (-3)
+epsUnconstr = 10 ** (-2)
 
 epStop :: Floating a => a -- for EP diff
 epStop = 10 ** (-5)
@@ -64,22 +66,35 @@ infinity :: Floating a => a
 infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
 -- all numbers are smaller than infinity except infinity, to which it's equal
 
+useLineSearch :: Bool
+useLineSearch = True
+
 ---------------------------------------
 
 -- Main optimization functions
 
 step :: State -> State
-step s = let (state', params') = stepShapes (paramsr s) (varyingState s)
+step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              s'                = s { varyingState = state', paramsr = params' }
-             (!shapes', _)     = evalTranslation s' in
-         s' { shapesr = shapes' } -- note: trans is not updated in state
+             -- NOTE: we intentially discard the random generator here because
+             -- we want to have consistent computation output in a single
+             -- optimization session
+             -- For the same reason, all subsequent step* functions such as
+             -- stepShapes do not return the new random generator
+             (!shapes', _, _)     = evalTranslation s'
+
+             -- For debugging
+             oldParams = paramsr s
+
+         in tro ({-clearScreenCode ++ -}"Params: \n" ++ show oldParams ++ "\n:") $
+            s' { shapesr = shapes' } -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
-stepShapes :: (Autofloat a) => Params -> [a] -> ([a], Params)
-stepShapes params vstate = -- varying state
+stepShapes :: (Autofloat a) => Params -> [a] -> StdGen -> ([a], Params)
+stepShapes params vstate g = -- varying state
          -- if null vstate then error "empty state in stepshapes" else
          let (epWeight, epStatus) = (weight params, optStatus params) in
          case epStatus of
@@ -92,10 +107,10 @@ stepShapes params vstate = -- varying state
          -- if not, keep running UO (inner state implicitly stored)
          -- note convergence checks are only on the varying part of the state
          UnconstrainedRunning lastEPstate ->  -- doesn't use last EP state
-           -- let unconstrConverged = optStopCond gradEval in
+           -- let unconstrConverged = unconstrainedStopCond gradEval in
            let unconstrConverged = epStopCond vstate vstate' (objFnApplied vstate) (objFnApplied vstate') in
                -- Two stopping conditions
-               -- unconstrainedStopCond gradEval in 
+               -- unconstrainedStopCond gradEval in
            if unconstrConverged then
               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
               (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
@@ -113,7 +128,7 @@ stepShapes params vstate = -- varying state
            -- update EP state: to be the converged state from the most recent UO
            else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
                 let epWeight' = weightGrowthFactor * epWeight in
-                trace ("Unconstrained converged. New weight: " ++ show epWeight') $
+                -- trace ("Unconstrained converged. New weight: " ++ show epWeight') $
                       (vstate, params { weight = epWeight', optStatus = status' })
 
          -- done; don't update obj state or params; user can now manipulate
@@ -122,8 +137,8 @@ stepShapes params vstate = -- varying state
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
-        where (vstate', gradEval) = stepWithObjective params vstate
-              objFnApplied = (overallObjFn params) (r2f $ weight params)
+        where (vstate', gradEval) = stepWithObjective g params vstate
+              objFnApplied = (overallObjFn params) g (r2f $ weight params)
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
 -- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
@@ -134,8 +149,8 @@ stepT dt x dfdx = x - dt * dfdx
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: (Autofloat a) => Params -> [a] -> ([a], [a])
-stepWithObjective params state = 
+stepWithObjective :: (Autofloat a) => StdGen -> Params -> [a] -> ([a], [a])
+stepWithObjective g params state =
                   -- if null gradEval then error "empty gradient" else
                   (steppedState, gradEval)
     where (t', gradEval) = timeAndGrad objFnApplied state
@@ -149,14 +164,15 @@ stepWithObjective params state =
                                 ++ "\n|f(x') - f(x)|: " ++
                                (show $ abs (fx' - fx))
                                 ++ "\nf(x'): \n" ++ (show fx')
-                                ++ "\ngradEval: \n" ++ (show gradEval)
+                                -- ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
-                                ++ "\n original state: \n" ++ (show state) 
-                                ++ "\n new state: \n" ++ (show state') )
+                                -- ++ "\n original state: \n" ++ (show state)
+                                -- ++ "\n new state: \n" ++ (show state')
+                               )
                          state'
 
           objFnApplied :: ObjFn1 b
-          objFnApplied = (overallObjFn params) cWeight
+          objFnApplied = (overallObjFn params) g cWeight
           cWeight = realToFrac $ weight params
           -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
 
@@ -177,9 +193,10 @@ timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
                   descentDir = negL gradEval
                   -- timestep :: Floating c => c
                   timestep =
-                      let resT = awLineSearch f duf descentDir state in
-                      -- let resT = r2f 0.001 in
-                             if isNaN resT then tr "returned timestep is NaN" nanSub else resT
+                      let resT = if useLineSearch
+                                 then awLineSearch f duf descentDir state
+                                 else r2f 0.001 in -- hardcoded timestep
+                          if isNaN resT then tr "returned timestep is NaN" nanSub else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
@@ -203,7 +220,7 @@ awLineSearch f duf_noU descentDir x0 =
     --                           $ iterate update (a0, b0, t0) in tf
      let (numUpdates, (af, bf, tf)) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
                               $ zip [0..] $ iterate update (a0, b0, t0) in
-                              tr ("Line search # updates: " ++ show numUpdates) $
+                              tro ("Line search # updates: " ++ show numUpdates) $
                               tf
           where (a0, b0, t0) = (0, infinity, 1)
                 duf = duf_noU descentDir
@@ -215,7 +232,7 @@ awLineSearch f duf_noU descentDir x0 =
                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
                        else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
                        else tr' "b' = infinity" (a', b', 2 * a')
-                intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) = 
+                intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) =
                       not $
                       if armijo t && weakWolfe t then -- takes precedence
                            tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True

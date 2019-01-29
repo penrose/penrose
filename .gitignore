@@ -31,4 +31,5 @@ node_modules/
 build/
 .tmp/
 _region_.tex
+.vscode/
 out*.txt

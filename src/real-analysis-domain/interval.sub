@@ -1,32 +1,21 @@
 Reals R
-Real a
-Real b
-Real c
-Real d
+Real a, b, c, d
 
-Real x
-
-/* In(a, R)
-In(b, R)
-In(c, R)
-In(d, R)
-In(x, R) */
-
-Interval A
+Interval A, B
 A := CreateInterval(a, b)
-
-Interval B
 B := CreateInterval(c, d)
-
 Subset(A, R)
 Subset(B, R)
 
+ClosedInterval C
+C := CreateClosedInterval(a, d)
+
+Real x
 In(x, A)
 
 Function f
 f := CreateFunction(A, R)
--- TODO: Is this match going to work?
--- From(f, R, R) 
+-- From(f, R, R) -- TODO: Will this work?
 
 AutoLabel All
 Label R $\mathbb{R}$

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Penrose</title>
+
+        <!-- Included scripts -->
+        <script
+            type="text/JavaScript"
+            src="https://code.jquery.com/jquery-1.6.3.min.js"
+        ></script>
+        <script>
+            // In case the computer is not online, load local JQuery
+            // instead of cdn
+            window.jQuery ||
+                document.write('<script src="jquery.min.js""><\/script>');
+        </script>
+        <script type="text/JavaScript" src="graphics.js"></script>
+        <script type="text/JavaScript" src="main.js"></script>
+        <script type="text/JavaScript" src="snap.svg.js"></script>
+
+        <!-- Style sheets -->
+        <!--
+            <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        -->
+        <link rel="stylesheet" href="w3.css" />
+        <link rel="stylesheet" href="styles.css" />
+
+        <!-- MathJax -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=default"></script>
+        <script type="text/x-mathjax-config">
+              MathJax.Hub.Config({
+                  skipStartupTypeset: true,
+                  extensions: ["tex2jax.js", "TeX/AMSmath.js"],
+                  jax: ["input/TeX", "output/SVG"],
+                    SVG: {
+              useGlobalCache: false // Needed for SVG inline export
+            },
+                  tex2jax: {
+                      inlineMath: [["$", "$"]],
+                      processEscapes: true
+                  }
+              })
+        </script>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>Penrose</h1>
+            <p class="w3-opacity">Visualizing the abstract world</p>
+            <hr />
+
+            <!-- control buttons -->
+            <div class="button-container">
+                <button id="resample" class="w3-button w3-black" type="button">
+                    Resample
+                </button>
+                <button id="step" class="w3-button w3-green" type="button">
+                    Step
+                </button>
+                <button id="autostep" class="w3-button w3-red" type="button">
+                    Autostep
+                </button>
+            </div>
+
+            <!-- Main canvas -->
+            <svg id="svgdiv" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+    </body>
+</html>

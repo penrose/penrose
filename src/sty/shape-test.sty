@@ -1,0 +1,28 @@
+Set A {
+    A.circ = Circle { }
+    A.sizeMin = ensure minSize(A.circ)
+    A.sizeMax = ensure maxSize(A.circ)
+
+    A.text = Text {
+        string = A.label
+    }
+    A.labelFn = ensure contains(A.circ, A.text)
+    
+    /*
+
+    A.rect = Rectangle { }
+    A.rectIn = ensure contains(A.circ, A.rect)
+    A.rectMin = ensure minSize(A.rect)
+    A.rectMax = ensure maxSize(A.rect)
+
+    A.circ2 = Circle { }
+    A.sizeMin2 = ensure minSize(A.circ2)
+    A.sizeMax2 = ensure maxSize(A.circ2)
+    -- A.containFn = ensure contains(A.circ, A.circ2)
+
+    A.shape = Text {
+    string = "a"
+    }
+    */
+
+}

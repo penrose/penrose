@@ -12,8 +12,9 @@ Colors {
 Set x {
     x.shape = Circle {
         color = Colors.lightBlue
-        stroke-style = "solid"
-        stroke-width = 1.0
+        strokeColor = Colors.black
+        strokeStyle = "solid"
+        strokeWidth = 1.0
         rotation = 0.0
     }
 
@@ -24,27 +25,29 @@ Set x {
 
     -- TODO
     x.labelFn = ensure contains(x.shape, x.text)
+    LOCAL.layering = x.shape below x.text
 }
 
 -- Selector ordering matters!
 Set x; Set y
 where IsSubset(x, y) {
   LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
-  -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)  
+  -- y.sizeFn    = ensure smallerThan(x.shape, y.shape)
   LOCAL.outsideFn = ensure outsideOf(y.text, x.shape, 1.0)
+  LOCAL.layering = x.shape above y.shape
 }
 
 Map f
 where From(f, X, Y); IsSubset(X, R1); IsSubset(Y, R2)
 with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
-  
+
     f.shape = Arrow {
       startX = R1.shape.x + (R1.shape.side) / 2.0 + f.padding
       startY = R1.shape.y
       endX = R2.shape.x - (R2.shape.side) / 2.0 - f.padding
-      endY = R2.shape.y 
-      thickness = 10.0
+      endY = R2.shape.y
+      thickness = 2.0
       color = Colors.black
         -- style = "curved"
     }
@@ -56,20 +59,20 @@ with Set X; Set Y; Set R1; Set R2 {
       string = f.label
       rotation = 0.0
     }
-    
+
     f.labelFn  = encourage centerLabel(f.shape, f.text, 5.0)
     -- f.centerFn = encourage centerArrow(f.shape, R1.shape, R2.shape)
 }
 
 Set `U` {
-    override `U`.shape.stroke-style = "dashed"
-    override `U`.shape.stroke-width = Const.strokeWidth
+    override `U`.shape.strokeStyle = "dashed"
+    override `U`.shape.strokeWidth = Const.strokeWidth
 }
 
 Set `V` {
-    override `V`.shape.stroke-style = "dashed"
-    override `V`.shape.stroke-width = Const.strokeWidth
-} 
+    override `V`.shape.strokeStyle = "dashed"
+    override `V`.shape.strokeWidth = Const.strokeWidth
+}
 
 -- TODO: use subtyping for reals?
 Set `Rn` {
@@ -79,9 +82,10 @@ Set `Rn` {
       -- y = 0.0
       color = Colors.lightYellow
       rotation = 0.0
-      stroke-width = Const.strokeWidth
+      strokeWidth = Const.strokeWidth
+      strokeColor = Colors.black
     }
-      
+
     `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - Const.padding
     `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - Const.padding
 
@@ -98,7 +102,7 @@ with Set `Rn` {
         x = `Rn`.shape.x + 400.0
         side  = `Rn`.shape.side
         rotation = 0.0
-        stroke-width = 1.0
+        strokeWidth = 1.0
     }
 
     `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - Const.padding

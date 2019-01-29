@@ -10,7 +10,7 @@ Set x; Set y {
 Set x; Set y
 where IsSubset(x, y) {
     LOCAL.arrow = Arrow {
-      thickness = 10.0
+      thickness = 2.0
       color = rgba(0.0, 0.0, 0.0, 1.0)
     }
 
@@ -38,7 +38,7 @@ with Set S {
 /* What matches are generated here?
 
 Expected matches: [S; x1, x2] => [A; B, C], [B; D, E], [C; F, G]
-Note it also generates these matches: 
+Note it also generates these matches:
                   (2) [A; C, B], [B; E, D], [C; G, F]
 
 Proposed principles:
@@ -46,18 +46,18 @@ Proposed principles:
 - If the selector-writer uses different names for things of the same type, the same thing will never be matched
   i.e. "Set X; Set Y" <| "Set A; Set B" won't ever yield substitution [A => X, B => X] or [A => Y, B => Y]
   [Has been implemented]
-  
+
 - only take one permutation of the substitutions?
-  but what if you have, say, 
+  but what if you have, say,
   "Set A, B; IsSubset(A, B); IsSubset(B, A)" <| "Set X, Y where IsSubset(X, Y)"
   eliminating permutations will eliminate one of the substitutions [X => A, Y => B], [X => B, Y => A]
 
-Do these principles contradict any matching functionality that we might want later? 
+Do these principles contradict any matching functionality that we might want later?
 Can we solve this problem with a compiler/program directive?
 e.g. -DiffPatternSameVar -AllPermutations
 Or some kind of syntax in the selector or variable?
 Is there some way to automatically detect which case we're in, or distinguish them?
 No permutations in the "same position" in a Substance stmt?
-Eliminate permutations where the objective functions are symmetric??? 
+Eliminate permutations where the objective functions are symmetric???
   e.g. here, sameHeight and repel are symm.
   So does it matter?  */

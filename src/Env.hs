@@ -160,7 +160,24 @@ emptyArgList = do
   rparen
   return []
 
------------------------------------ Typechecker aux functions ------------------
+----------------------------------- Utility functions ------------------------------------------
+
+-- Equality functions that don't compare SourcePos
+-- TODO: use correct equality comparison in typechecker
+
+argsEq :: Arg -> Arg -> Bool
+argsEq (AVar v1) (AVar v2) = v1 == v2
+argsEq (AT t1) (AT t2)     = typesEq t1 t2
+argsEq _ _                 = False
+
+typesEq :: T -> T -> Bool
+typesEq (TTypeVar t1) (TTypeVar t2) = typeVarName t1 == typeVarName t2 -- TODO: better way to compare type vars
+typesEq (TConstr t1) (TConstr t2) = nameCons t1 == nameCons t2 &&
+                                    length (argCons t1) == length (argCons t2) &&
+                                    (all (\(a1, a2) -> argsEq a1 a2) $ zip (argCons t1) (argCons t2))
+typesEq _ _ = False
+
+----------------------------------- Typechecker aux functions ------------------------------------------
 
 -- | Compute the transitive closure of list of pairs
 --   Useful for subtyping and equality subtyping checkings
@@ -228,11 +245,24 @@ addDeclaredName a e = if a `elem` declaredNames e
                       else e { declaredNames = a : declaredNames e }
 
 isSubtype :: T -> T -> VarEnv -> Bool
-isSubtype t1 t2 e = (t1,t2) `elem` subTypes e
+isSubtype t1 t2 e = typesEq t1 t2 -- A type is considered a subtype of itself
+                    || (t1,t2) `elem` subTypes e
 
 isSubtypeK :: K -> K -> VarEnv -> Bool
 isSubtypeK (KT k1) (KT k2) e = isSubtype k1 k2 e
---------------------------------------- Env Data Types -------------------------
+
+-- | For existing judgment G |- T1 <: T2,
+-- | this rule (SUBTYPE-ARROW) checks if the first arrow type (i.e. function or value constructor type) is a subtype of the second
+-- | The arrow types are contravariant in their arguments and covariant in their return type
+-- | e.g. if Cat <: Animal, then Cat -> Cat <: Cat -> Animal, and Animal -> Cat <: Cat -> Cat
+isSubtypeArrow :: [T] -> [T] -> VarEnv -> Bool
+isSubtypeArrow [t] [s] e = isSubtype t s e
+                       -- Covariant in return type (or simply the type for a nullary function)
+isSubtypeArrow (t1:ts) (s1:ss) e = isSubtype s1 t1 e -- Contravariant in arguments
+                                   && isSubtypeArrow ts ss e
+isSubtypeArrow t s _ = False -- Functions have different numbers of arguments
+
+--------------------------------------- Env Data Types ---------------------------------------
 
 -- | Environment for the dsll semantic checker. As the 'check' function
 -- executes, it accumulate information such as symbol tables in the environment.
