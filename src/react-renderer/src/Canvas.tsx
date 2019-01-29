@@ -21,6 +21,8 @@ interface IState {
   data: any;
 }
 
+// TODO: codify layers
+
 class Canvas extends React.Component<IProps, IState> {
   public readonly state = { data: [] };
   public readonly canvasSize: [number, number] = [800, 700];
