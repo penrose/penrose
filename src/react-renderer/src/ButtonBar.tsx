@@ -1,10 +1,10 @@
 import * as React from "react";
-import {ILayers} from "./Canvas";
+import {ILayer} from "./types";
 
 interface IProps {
   converged: boolean;
   autostep: boolean;
-  layers: ILayers;
+  layers: ILayer[];
 
   download(): void;
   autoStepToggle(): void;
@@ -33,10 +33,10 @@ class ButtonBar extends React.Component<IProps> {
         <button onClick={step}>step</button>
         <button onClick={resample}>resample</button>
         <button onClick={download}>download</button>
-        {Object.keys(layers).map((layer: string, key: number) => {
+        {layers.map(({layer, enabled}: ILayer, key: number) => {
           return (
             <button onClick={() => toggleLayer(layer)} key={key}>
-              polygon layer {layers[layer] ? "(on)" : "(off)"}
+              {layer} {enabled ? "(on)" : "(off)"}
             </button>
           );
         })}

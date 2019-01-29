@@ -6,28 +6,27 @@ import { LockContext } from "./contexts";
 import { collectLabels } from "./Util";
 import {drag, update} from "./packets";
 import PolygonLayer from "./layers/PolygonLayer";
+import {ILayer, ILayerProps} from "./types";
+
+
 
 interface IProps {
   lock: boolean;
-  layers: ILayers;
+  layers: ILayer[];
   sendPacket(packet: string): void;
-}
-
-export interface ILayers {
-  polygon?: boolean;
 }
 
 interface IState {
   data: any;
 }
 
-// TODO: codify layers
-
 class Canvas extends React.Component<IProps, IState> {
+  public static getLayerDeck = () => ({
+    polygon: PolygonLayer
+  });
   public readonly state = { data: [] };
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
-
   public sortShapes = (shapes: any[], ordering: string[]) => {
     return ordering.map(name =>
       shapes.find(([_, shape]) => shape.name.contents === name)
@@ -105,20 +104,29 @@ class Canvas extends React.Component<IProps, IState> {
       ctm
     });
   };
-  public renderPolygonLayer = (shapes: Array<[string, object]>) => {
+  public renderLayer = (
+    shapes: Array<[string, object]>,
+    component: React.ComponentClass<ILayerProps>,
+    key: number
+  ) => {
     if (shapes.length === 0) {
-      return <g/>;
+      return <g key={key}/>;
     }
     if (this.svg.current === null) {
       Log.error("SVG ref is null");
-      return <g/>;
+      return <g key={key}/>;
     }
     const ctm = this.svg.current.getScreenCTM();
     if (ctm === null) {
       Log.error("Cannot get CTM");
-      return <g/>;
+      return <g key={key}/>;
     }
-    return <PolygonLayer shapes={shapes} ctm={ctm} canvasSize={this.canvasSize}/>;
+    return React.createElement(component, {
+      key,
+      ctm,
+      shapes,
+      canvasSize: this.canvasSize
+    });
   };
   public render() {
     const {lock, layers} = this.props;
@@ -138,7 +146,20 @@ class Canvas extends React.Component<IProps, IState> {
           viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
         >
           {nonEmpties.map(this.renderEntity)}
-          {layers.polygon && this.renderPolygonLayer(nonEmpties)}
+          {layers.map(({layer, enabled}: ILayer, key: number) => {
+            if (Canvas.getLayerDeck()[layer] === undefined) {
+              Log.error(`Layer does not exist in deck: ${layer}`);
+              return null;
+            }
+            if (enabled) {
+              return this.renderLayer(
+                nonEmpties,
+                Canvas.getLayerDeck()[layer],
+                key
+              );
+            }
+            return null;
+          })}
         </svg>
       </LockContext.Provider>
     );

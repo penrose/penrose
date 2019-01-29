@@ -14,3 +14,8 @@ export interface ILayerProps {
   ctm: DOMMatrix;
   canvasSize: [number, number];
 }
+
+export interface ILayer {
+  layer: string;
+  enabled: boolean;
+}

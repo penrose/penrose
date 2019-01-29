@@ -1,13 +1,14 @@
 import * as React from "react";
-import Canvas, {ILayers} from "./Canvas";
+import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { autoStepToggle, resample, step } from "./packets";
+import {ILayer} from "./types";
 
 interface IState {
   data: any[];
   converged: boolean;
   autostep: boolean;
-  layers: ILayers;
+  layers: ILayer[];
 }
 const socketAddress = "ws://localhost:9160";
 
@@ -16,9 +17,7 @@ class App extends React.Component<any, IState> {
     data: [],
     converged: true,
     autostep: false,
-    layers: {
-      polygon: false
-    }
+    layers: [{layer: "polygon", enabled: false}]
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
@@ -41,9 +40,14 @@ class App extends React.Component<any, IState> {
   public resample = () => {
     this.sendPacket(resample());
   };
-  public toggleLayer = (layer: string) => {
+  public toggleLayer = (layerName: string) => {
     this.setState({
-      layers: {...this.state.layers, [layer]: !this.state.layers[layer]}
+      layers: this.state.layers.map(({layer, enabled}: ILayer) => {
+        if (layerName === layer) {
+          return {layer, enabled: !enabled};
+        }
+        return {layer, enabled};
+      })
     });
   };
   public onMessage = (e: MessageEvent) => {
