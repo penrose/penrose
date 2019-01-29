@@ -8,3 +8,9 @@ export interface IGPIProps {
 export interface IGPIPropsDraggable extends IGPIProps {
   onClick(e: React.MouseEvent<any>): void;
 }
+
+export interface ILayerProps {
+  shapes: Array<[string, any]>;
+  ctm: DOMMatrix;
+  canvasSize: [number, number];
+}

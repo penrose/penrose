@@ -111,7 +111,12 @@ class Canvas extends React.Component<IProps, IState> {
       Log.error("SVG ref is null");
       return <g/>;
     }
-    return <PolygonLayer shapes={shapes} canvasSize={this.canvasSize}/>;
+    const ctm = this.svg.current.getScreenCTM();
+    if (ctm === null) {
+      Log.error("Cannot get CTM");
+      return <g/>;
+    }
+    return <PolygonLayer shapes={shapes} ctm={ctm} canvasSize={this.canvasSize}/>;
   };
   public render() {
     const {lock, layers} = this.props;

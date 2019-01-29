@@ -1,11 +1,7 @@
 import * as React from "react";
 import {toScreen} from "../Util";
 import memoize from "fast-memoize";
-
-interface IProps {
-  shapes: Array<[string, any]>;
-  canvasSize: [number, number];
-}
+import {ILayerProps} from "../types";
 
 const toPointListString = memoize(
   (ptList: any[], canvasSize: [number, number]) =>
@@ -17,7 +13,7 @@ const toPointListString = memoize(
       .join(" ")
 );
 
-class PolygonLayer extends React.Component<IProps> {
+class PolygonLayer extends React.Component<ILayerProps> {
   public render() {
     const {shapes, canvasSize} = this.props;
     return (
@@ -29,12 +25,13 @@ class PolygonLayer extends React.Component<IProps> {
               canvasSize
             );
             return (
-              <polyline
-                key={key}
-                points={ptListString}
-                stroke="black"
-                fillOpacity="0"
-              />
+              <g key={key}>
+                <polyline
+                  points={ptListString}
+                  stroke="black"
+                  fillOpacity="0"
+                />
+              </g>
             );
           }
           return <g key={key}/>;
