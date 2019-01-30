@@ -113,24 +113,27 @@ ppShowList = concatMap ((++) "\n" . ppShow)
 
 --------------- Constants
 
+-- For evaluating expressions
 startingIteration, maxEvalIteration :: Int
 startingIteration = 0
-maxEvalIteration  = 1000
+maxEvalIteration  = 500 -- Max iteration depth in case of cycles
 
 evalIterRange :: (Int, Int)
 evalIterRange = (startingIteration, maxEvalIteration)
-
--- constant b/c ambient fn value seems to be 10^4 and constr value seems to reach only 10, 10^2
-constrWeight :: Floating a => a
-constrWeight = 10 ^ 4
 
 initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 17 -- deterministic RNG with seed
 
+--------------- Parameters used in optimization
+-- Should really be in Optimizer, but need to fix module import structure
+
+constrWeight :: Floating a => a
+constrWeight = 10 ^ 4
+
 -- for use in barrier/penalty method (interior/exterior point method)
 -- seems if the point starts in interior + weight starts v small and increases, then it converges
--- not quite... if the weight is too small then the constraint will be violated
+-- not quite: if the weight is too small then the constraint will be violated
 initWeight :: Autofloat a => a
 -- initWeight = 10 ** (-5)
 
@@ -139,8 +142,7 @@ initWeight :: Autofloat a => a
 
 -- Steps very slowly with a higher weight; does not seem to converge but looks visually OK (function-composition.sub)
 -- initWeight = 1
-
-initWeight = 10 ** (-1)
+initWeight = 10 ** (-3)
 
 --------------- Utility functions
 
@@ -825,8 +827,8 @@ genOptProblemAndState trans =
                                } in
 
     initFullState
-    -- TODO: for some reason, the shapes don't show up right when I sample this state. Why?
-    -- trace "genOptProblem sampled state: " $ sampleBest 10 initFullState
+    -- NOTE: we do not resample the very first initial state. Not sure why the shapes / labels are rendered incorrectly.
+    -- resampleBest numStateSamples initFullState
 
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- NOTE: this function also print information out to stdout
@@ -925,7 +927,6 @@ castTranslation t =
 -------------------------------
 -- Sampling code
 -- TODO: should this code go in the optimizer?
--- TODO: combine this version and the rewritten version, and test both the init and the client resample
 
 numStateSamples :: Int
 numStateSamples = 1000
@@ -939,7 +940,7 @@ resampleVState varyPaths shapes g =
         -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
         varyMapNew = mkVaryMap (filter isFieldPath $ varyPaths) resampledFields
         varyingState = shapes2floats resampledShapes varyMapNew $ varyPaths
-    in ((resampledShapes, varyingState, resampledFields), rng')
+    in ((resampledShapes, varyingState, resampledFields), rng'')
 
 -- | Update the translation to get the full state.
 updateVState :: State -> (([Shape Double], [Double], [Double]), StdGen) -> State
@@ -958,6 +959,7 @@ updateVState s ((resampledShapes, varyingState', fields'), g) =
     -- The results still look different because resampling updated the rng.
     -- Therefore, we do not have to update rng here.
 
+-- | Iterate a function that uses a generator, generating an infinite list of results with their corresponding updated generators.
 iterateS :: (a -> (b, a)) -> a -> [(b, a)]
 iterateS f g = let (res, g') = f g in
                (res, g') : iterateS f g'
@@ -969,19 +971,21 @@ lessEnergyOn f ((_, vs1, _), _) ((_, vs2, _), _) = compare (f vs1) (f vs2)
 
 -- | Resample the varying state some number of times (sampling each new state from the original state, but with an updated rng).
 -- | Pick the one with the lowest energy and update the original state with the lowest-energy-state's info.
--- TODO clean up + comment this code; profile it; delete old code
-resampleN :: Int -> State -> State
-resampleN n s =
+resampleBest :: Int -> State -> State
+resampleBest n s =
+          if n < 2 then error "Need to sample at least two states" else
           let optInfo = paramsr s
+              -- Take out the relevant information for resampling
               f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
               (varyPaths, shapes, g) = (varyingPaths s, shapesr s, rng s)
+              -- Partially apply resampleVState with the params that don't change over a resampling
               resampleVStateConst = resampleVState varyPaths shapes
               sampledResults = take n $ iterateS resampleVStateConst g
               res = minimumBy (lessEnergyOn f) sampledResults
               {- (trace ("energies: " ++ (show $ map (\((_, x, _), _) -> f x) sampledResults)) -}
           in updateVState s res
 
-------- Old code (slow)
+------- Other possibly-useful utility functions (not currently used)
 
 -- | Evaluate the objective function on the varying state (with the penalty weight, which should be the same between state).
 evalFnOn :: State -> Double
@@ -993,31 +997,3 @@ evalFnOn s = let optInfo = paramsr s
 -- | Compare two states and return the one with less energy.
 lessEnergy :: State -> State -> Ordering
 lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
-
--- | Sample the state a specified number of times and pick the best one.
-sampleBest :: Int -> State -> State
-sampleBest n initS =
-           -- Drop the first state, since we don't want to pick the same one
-           let states = take n $ tail $ iterate resample initS in
-           trace "sampleBest" $ minimumBy lessEnergy states
-
--- | Resample the state once.
-resample :: State -> State
-resample s =
-    let (resampledShapes, rng') = sampleShapes (rng s) (shapesr s)
-        uninitVals = map toTagExpr $ shapes2vals resampledShapes $ uninitializedPaths s
-        trans' = insertPaths (uninitializedPaths s) uninitVals (transr s)
-                    -- TODO: should we be iterating with the original state, not each resampled one? Does it matter?
-                    -- TODO: shapes', rng' = sampleConstrainedState (rng s) (shapesr s) (constrs s)
-
-        (resampledFields, rng'') = resampleFields (varyingPaths s) rng'
-        -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
-        varyMapNew = mkVaryMap (filter isFieldPath $ varyingPaths s) resampledFields
-    in s { shapesr = resampledShapes,
-           rng = rng'',
-           transr = trans' { warnings = [] }, -- Clear the warnings, since they aren't relevant anymore
-           varyingState = shapes2floats resampledShapes varyMapNew $ varyingPaths s,
-           paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter } }
-    -- NOTE: for now we do not update the new state with the new rng from eval.
-    -- The results still look different because resampling updated the rng.
-    -- Therefore, we do not have to update rng here.
