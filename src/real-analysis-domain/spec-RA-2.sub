@@ -22,8 +22,9 @@ Continuous(f)
 
 Real f_l
 f_l := apply(f, l)
-Label f_l $f(l)$
-NoLabel a, b, l, f_l
+Label l $x$
+Label f_l $f(x)$
+NoLabel a, b
 
 -- parallel style doesn't have a visualization for point or derivative
 -- Point p
@@ -45,9 +46,6 @@ J := CreateLeftClopenInterval(i, j)
 Subset(J, R)
 
 NoLabel d, e, i, j
-
--- Gets (visibly) slower after adding these 2 intervals
--- But also gets a lot faster after computing the R label positions
 
 -- TODO fix: style line 714: Sub obj might not have a shape
 Interval U

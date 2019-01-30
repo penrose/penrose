@@ -312,7 +312,7 @@ ellipseType = ("Ellipse", M.fromList
         ("y", (FloatT, y_sampler)),
         ("rx", (FloatT, width_sampler)),
         ("ry", (FloatT, height_sampler)),
-        ("rotation", (FloatT, angle_sampler)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("stroke-width", (FloatT, stroke_sampler)),
         ("style", (StrT, sampleDiscrete [StrV "filled"])),
         ("stroke-style", (StrT, stroke_style_sampler)),
@@ -327,7 +327,7 @@ textType = ("Text", M.fromList
         ("w", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
         ("h", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
         ("string", (StrT, constValue $ StrV "defaultLabelText")),
-        ("rotation", (FloatT, angle_sampler)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultCircle"))
@@ -343,7 +343,7 @@ arrowType = ("Arrow", M.fromList
         ("style", (StrT, constValue $ StrV "straight")),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultArrow")),
-        ("rotation", (FloatT, angle_sampler))
+        ("rotation", (FloatT, constValue $ FloatV 0.0))
     ])
 
 braceType = ("Brace", M.fromList
@@ -392,7 +392,7 @@ rectType = ("Rectangle", M.fromList
         ("y", (FloatT, y_sampler)),
         ("sizeX", (FloatT, width_sampler)),
         ("sizeY", (FloatT, height_sampler)),
-        ("rotation", (FloatT, angle_sampler)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("color", (ColorT, sampleColor)),
         ("stroke", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultRect"))
@@ -403,7 +403,7 @@ squareType = ("Square", M.fromList
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
         ("side", (FloatT, width_sampler)),
-        ("rotation", (FloatT, angle_sampler)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
         -- TODO: distinguish between stroke color and fill color everywhere
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "none")), -- TODO: what is this?
@@ -417,8 +417,8 @@ parallelogramType = ("Parallelogram", M.fromList
         ("y", (FloatT, y_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
-        ("angle", (FloatT, angle_sampler)),
-        ("rotation", (FloatT, angle_sampler)),
+        ("angle", (FloatT, constValue $ FloatV 0.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("color", (ColorT, sampleColor)),
         ("stroke-style", (StrT, stroke_style_sampler)),
         ("stroke-color",  (ColorT, sampleColor)),
@@ -431,7 +431,7 @@ imageType = ("Image", M.fromList
         ("centerY", (FloatT, y_sampler)),
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
-        ("rotation", (FloatT, angle_sampler)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),
         ("path", (StrT, constValue $ StrV "missing image path")), -- Absolute path (URL)
@@ -447,7 +447,7 @@ arcType = ("Arc", M.fromList
         ("lengthX", (FloatT, width_sampler)),
         ("lengthY", (FloatT, height_sampler)),
         ("angle", (FloatT, angle_sampler)),
-        ("rotation", (FloatT, angle_sampler)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("isRight", (BoolT, bool_sampler)), -- This property overrides the angle property
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "none")),

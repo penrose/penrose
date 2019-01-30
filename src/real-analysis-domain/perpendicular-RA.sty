@@ -158,6 +158,8 @@ where I := union(J, K); Subset(I, R) {
 
       -- The disjointness is applied in f
       -- I.disjointFn = ensure disjoint(J.shape, K.shape)
+      delete I.minSize
+      delete I.minSizeFn
 }
 
 

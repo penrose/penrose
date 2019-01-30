@@ -1252,21 +1252,40 @@ translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNu
              translateSubstsBlock trans numberedSubsts (block, blockNum)
         else Left $ sErrors selEnv ++ bErrs
 
-insertLabels :: (Autofloat a) => Translation a -> C.LabelMap -> Translation a
+insertLabels :: (Autofloat a, Eq a) => Translation a -> C.LabelMap -> Translation a
 insertLabels trans labels =
-    trans { trMap = M.mapWithKey insertLabel (trMap trans) }
+    trans { trMap = M.mapWithKey insertLabel (trMap trans),
+            warnings = warnings trans ++ ["Note: Text GPIs are automatically deleted if their Substance object has no label"]
+            -- TODO: print out the names of the GPIs that were auto-deleted
+          }
     where
+        toFieldStr :: Eq a => String -> FieldExpr a
         toFieldStr s = FExpr $ Done $ StrV s
+        
+        insertLabel :: Eq a => Name -> M.Map Field (FieldExpr a) -> M.Map Field (FieldExpr a)
         insertLabel (Sub s) fieldDict = let labelField = "label" in
             case M.lookup s labels of
                 Nothing ->  fieldDict
                 -- NOTE: maybe this is a "namespace," so we pass through
                 -- error $ "insertLabels: Label option does not exist for Substance object " ++ s
                 Just (Just l) -> M.insert labelField (toFieldStr l) fieldDict
-                                 -- If "NoLabel", default to an empty string
-                Just Nothing  -> M.insert labelField (toFieldStr "") fieldDict
+                                 -- If "NoLabel", default to an empty string *and* delete any Text GPIs that use it
+                Just Nothing  -> let fd' = M.insert labelField (toFieldStr "") fieldDict in
+                                 M.filter (not . usesLabelText s) fd'
         -- only insert labels for Substance objects
         insertLabel (Gen _) fieldDict = fieldDict
+
+        -- Return True if it's a Text GPI that uses the label 
+        -- TODO: should probably do something with other GPIs/fields that use the label (delete/filter/modify them?)
+        -- as well as recursively delete anything else that refers to *those* things
+        usesLabelText :: Eq a => String -> FieldExpr a -> Bool
+        usesLabelText subName (FExpr _) = False
+        usesLabelText subName (FGPI shapeType properties) =
+                      let labelForm = OptEval (EPath (FieldPath (BSubVar (VarConst subName)) "label"))
+                          usesLabel = case M.lookup "string" properties of
+                                      Nothing -> False
+                                      Just expr -> expr == labelForm
+                      in shapeType == "Text" && usesLabel
 
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
