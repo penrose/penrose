@@ -5,11 +5,8 @@ import Log from "./Log";
 import { LockContext } from "./contexts";
 import { collectLabels } from "./Util";
 import {drag, update} from "./packets";
-import PolygonLayer from "./layers/PolygonLayer";
 import {ILayer, ILayerProps} from "./types";
-import BoundingBoxLayer from "./layers/BoundingBoxLayer";
-
-
+import {layerMap} from "./layers/layerMap";
 
 interface IProps {
   lock: boolean;
@@ -22,10 +19,6 @@ interface IState {
 }
 
 class Canvas extends React.Component<IProps, IState> {
-  public static getLayerDeck = () => ({
-    polygon: PolygonLayer,
-    bbox: BoundingBoxLayer
-  });
   public readonly state = { data: [] };
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
@@ -149,16 +142,12 @@ class Canvas extends React.Component<IProps, IState> {
         >
           {nonEmpties.map(this.renderEntity)}
           {layers.map(({layer, enabled}: ILayer, key: number) => {
-            if (Canvas.getLayerDeck()[layer] === undefined) {
+            if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
             }
             if (enabled) {
-              return this.renderLayer(
-                nonEmpties,
-                Canvas.getLayerDeck()[layer],
-                key
-              );
+              return this.renderLayer(nonEmpties, layerMap[layer], key);
             }
             return null;
           })}
