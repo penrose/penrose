@@ -16,6 +16,7 @@ const toPointListString = memoize(
 class PolygonLayer extends React.Component<ILayerProps> {
   public render() {
     const {shapes, canvasSize} = this.props;
+    // TODO: control points
     return (
       <g>
         {shapes.map(([name, shape]: [string, any], key: number) => {

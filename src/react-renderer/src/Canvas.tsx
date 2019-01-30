@@ -7,6 +7,7 @@ import { collectLabels } from "./Util";
 import {drag, update} from "./packets";
 import PolygonLayer from "./layers/PolygonLayer";
 import {ILayer, ILayerProps} from "./types";
+import BoundingBoxLayer from "./layers/BoundingBoxLayer";
 
 
 
@@ -22,7 +23,8 @@ interface IState {
 
 class Canvas extends React.Component<IProps, IState> {
   public static getLayerDeck = () => ({
-    polygon: PolygonLayer
+    polygon: PolygonLayer,
+    bbox: BoundingBoxLayer
   });
   public readonly state = { data: [] };
   public readonly canvasSize: [number, number] = [800, 700];

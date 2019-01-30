@@ -1,4 +1,5 @@
 import memoize from "fast-memoize";
+import {pickBy} from "lodash";
 
 const memoized = (p: any) =>
   memoize((...args: any) => JSON.stringify(p(...args)));
@@ -22,7 +23,7 @@ export const update = memoized((updatedShapes: any[]) => ({
   tag: "Update",
   contents: {
     shapes: updatedShapes.map(([name, obj]: [string, any]) => {
-      return [name, { ...obj, rendered: undefined }];
+      return [name, pickBy(obj, (k: any) => !k.omit)];
     })
   }
 }));

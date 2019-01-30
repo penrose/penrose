@@ -17,7 +17,10 @@ class App extends React.Component<any, IState> {
     data: [],
     converged: true,
     autostep: false,
-    layers: [{layer: "polygon", enabled: false}]
+    layers: [
+      {layer: "polygon", enabled: false},
+      {layer: "bbox", enabled: false}
+    ]
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
