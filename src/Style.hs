@@ -843,7 +843,7 @@ exprsMatch typeEnv (C.VarE subVar) (C.VarE styVar) = varsEq subVar styVar
 -- (e.g. think of the infinite functions from Vector -> Vector)
 -- rule Match-Expr-Vconsapp
 exprsMatch typeEnv (C.ApplyValCons subE) (C.ApplyValCons styE) =
-           True  -- exprsMatchArr typeEnv subE styE -- TODO: revert
+           exprsMatchArr typeEnv subE styE
 -- rule Match-Expr-Fnapp
 exprsMatch typeEnv (C.ApplyFunc subE) (C.ApplyFunc styE) =
            subE == styE
