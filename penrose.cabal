@@ -124,4 +124,7 @@ test-suite penrose-testsuite
         http-types -any,
         mtl -any,
         bytestring -any,
-        array -any
+        ansi-terminal -any,
+        array -any,
+        uuid -any,
+        hslogger -any
