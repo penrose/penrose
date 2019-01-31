@@ -1,7 +1,7 @@
 global {
   global.padding = 20.0
-  global.curve_dx = -50.0
-  global.curve_dy = -10.0
+  global.curve_dx = -10.0
+  global.curve_dy = 5.0
 }
 
 origin {
@@ -82,25 +82,20 @@ with Reals `R` {
     endY = r.yval + (r.len / 2.0)
     thickness = 2.5
     color = Colors.black
+    rotation = 0.0
   }
 
   r.text = Text {
     -- position computed, not optimized
-    -- x = r.val
-    -- y = r.shape.startY - global.padding
+    x = r.val
+    y = r.shape.endY + 1.5 * global.padding
     string = r.label
     rotation = 0.0
   }
 
   r.inFn = ensure inRange(r.val, R.left, R.right)
-  r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
+  -- r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
 }
-
--- Real `inf` 
--- with Reals `R` {
---      -- Not sure how to put `inf`s on R.shape2
---      override `inf`.val = `R`.right
--- }
 
 ----------------------------------
 -- INTERVAL STYLES
@@ -119,19 +114,23 @@ with Reals R { -- TODO: more general, with Interval J
     endY = I.yval
     thickness = 7
     color = rgba(0.3, 0.3, 0.9, 0.5)
+    rotation = 0.0
   }
 
   -- position computed, not optimized
   I.text = Text {
     string = I.label
-    x = (I.shape.endX + I.shape.startX) / 2.0
-    y = I.yval + 2.0 * global.padding
+    x = midpointX(I.shape)
+    y = I.yval + 3.5 * global.padding
     rotation = 0.0
   }
 
   I.wfFn = ensure lessThan(I.left, I.right)
   I.liFn = ensure inRange(I.left, R.left, R.right)
   I.riFn = ensure inRange(I.right, R.left, R.right)
+
+  I.minSize = 0.15 * R.len
+  I.minSizeFn = ensure minSize(I.shape, I.minSize)
 
   -- TODO: the first I.labelFn interferes with I.wfFn
   -- I.labelFn = encourage centerLabel(I.shape, I.text)
@@ -168,6 +167,7 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
       centerY = a.yval
       lengthX = 10.0
       lengthY = 20.0
+      rotation = 0.0
   }
 
   override b.shape = Image {
@@ -176,10 +176,14 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
       centerY = b.yval
       lengthX = 10.0
       lengthY = 20.0
+      rotation = 0.0
   }
 
-    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
-    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+    override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
+    override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
 Real a; Real b
@@ -191,6 +195,7 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
       centerY = a.yval
       lengthX = 10.0
       lengthY = 20.0
+      rotation = 0.0
   }
 
   override b.shape = Image {
@@ -199,15 +204,19 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
       centerY = b.yval
       lengthX = 10.0
       lengthY = 20.0
+      rotation = 0.0
   }
+
+    override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
+    override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
 
   -- TODO: put these everywhere and remove all the labelFns
   -- Since r.text.y refers to r.shape.startY, which no longer exists since the shape was overridden to have a different type
   -- override a.text.y = 0.0
   -- override b.text.y = 0.0
 
-    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
-    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
 Real a; Real b
@@ -219,6 +228,7 @@ where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
       centerY = a.yval
       lengthX = 10.0
       lengthY = 20.0
+      rotation = 0.0
   }
 
   override b.shape = Image {
@@ -227,10 +237,14 @@ where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
       centerY = b.yval
       lengthX = 10.0
       lengthY = 20.0
+      rotation = 0.0
   }
 
-    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
-    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+    override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
+    override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
 Real a; Real b
@@ -242,6 +256,7 @@ where I := CreateRightClopenInterval(a, b); Subset(I, R) {
       centerY = a.yval
       lengthX = 10.0
       lengthY = 20.0
+      rotation = 0.0
   }
 
   override b.shape = Image {
@@ -250,10 +265,14 @@ where I := CreateRightClopenInterval(a, b); Subset(I, R) {
       centerY = b.yval
       lengthX = 10.0
       lengthY = 20.0
+      rotation = 0.0
   }
 
-    override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
-    override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
+    override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
+    override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+
+    -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
+    -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
 
 -- Extend I's shape toward positive infinity
@@ -269,15 +288,16 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
 	       endY = I.yval
 	       thickness = 7
 	       color = Colors.bluegreen
+	       rotation = 0.0
       }
 
       override y.val = `R`.right
       delete y.shape
       delete y.text
-      delete y.labelFn
-
-      delete I.wfFn
+      -- delete y.labelFn
       delete I.riFn
+
+      override I.wfFn = ensure lessThan(x.val, I.right)
 }
 
 -- TODO
@@ -314,12 +334,13 @@ Interval `C`; Interval `D` {
 -- Intervals A, I, J, K, but not U
 -- Interval `A`; 
 -- Doesn't work well with all the constraints
-Interval `I`; Interval `J`; Interval `K` {
-   -- LOCAL.disjointFn1 = ensure disjoint(`A`.shape, `I`.shape)
-   LOCAL.disjointFn2 = ensure disjoint(`I`.shape, `J`.shape)
-   -- LOCAL.disjointFn3 = ensure disjoint(`J`.shape, `A`.shape)
-   LOCAL.disjointFn4 = ensure disjoint(`I`.shape, `K`.shape)
-   LOCAL.disjointFn5 = ensure disjoint(`J`.shape, `K`.shape)
+Interval `A`; Interval `I`; Interval `J`; Interval `K` {
+   LOCAL.disjointFn1 = ensure disjoint(`A`.shape, `I`.shape)
+   LOCAL.disjointFn2 = ensure disjoint(`A`.shape, `J`.shape)
+   LOCAL.disjointFn3 = ensure disjoint(`A`.shape, `K`.shape)
+   LOCAL.disjointFn4 = ensure disjoint(`I`.shape, `J`.shape)
+   LOCAL.disjointFn5 = ensure disjoint(`I`.shape, `K`.shape)
+   LOCAL.disjointFn6 = ensure disjoint(`J`.shape, `K`.shape)
 }
 
 -- TODO: style for interval with negative infinity
@@ -328,15 +349,18 @@ Interval `I`; Interval `J`; Interval `K` {
 -- TODO: Can't do this here because the Function selector relies on it, unless we add the NOT construct to the selector language?
 -- !(I := union(X, Y))
 
--- Interval Z
--- where Z := union(X, Y)
--- with Interval X; Interval Y {
---      delete Z.shape
---      delete Z.text
---      delete Z.wfFn
---      delete Z.liFn
---      delete Z.riFn
--- }
+Interval Z
+where Z := union(X, Y)
+with Interval X; Interval Y {
+     -- delete Z.shape
+     -- delete Z.text
+     -- delete Z.wfFn
+     -- delete Z.liFn
+     -- delete Z.riFn
+
+     delete Z.minSize
+     delete Z.minSizeFn
+}
 
 ----------------------------------
 -- FUNCTION STYLES
@@ -382,7 +406,6 @@ where f := CreateFunction(I, J) {
 
   -------------------------------------------------
 
-  f.val = OPTIMIZED   -- placeholder, TODO sample f's value
   f.domain = I.shape -- TODO: we really want to be able to write `f.domain = I` but it doesn't even parse
   f.codomain = J.shape
   f.color1 = Colors.lightpink
@@ -511,7 +534,6 @@ where f := CreateFunction(I, J);
      delete I.liFn
      delete I.riFn
 
-     delete f.val
      -- f has no domain field defined in Style (since we can't define a list of shapes yet)
      delete f.domain
      delete f.shape
@@ -680,6 +702,8 @@ Real y; Function f
 with Interval I; Interval J; Real x
 where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
 
+  override x.val = midpointX(f.domain)
+  override y.val = midpointX(f.codomain) -- hardcoded
   -- so it's not necessary to say In(y, J)
   override y.yval = f.codomain.startY
   -- We need to use f.codomain.startY (and f.domain.startY) because f's domain and codomain might have been overridden 
@@ -701,12 +725,22 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
     -- TODO: rename to account for arrow directionality
     right-arrowhead = True
   }
+
+  -- x.text.x = x.val
+  -- x.text.y = x.shape.endY + 1.5 * global.padding
+  override y.text.x = y.val
+  override y.text.y = y.shape.startY - 1.5 * global.padding
+
+  y.layering = y.shape above f.codomain
 }
 
 -- Again duplicated for f : R -> R
 Real y; Function f
 with Reals `R`; Real x
 where y := apply(f, x); f := CreateFunction(`R`, `R`) {
+  override x.val = midpointX(`R`.shape1)
+  override y.val = midpointX(`R`.shape2) -- hardcoded
+
   override y.yval = `R`.yval2
   override x.shape.color = f.color2
   override y.shape.color = f.color2
@@ -720,6 +754,13 @@ where y := apply(f, x); f := CreateFunction(`R`, `R`) {
     rotation = 0.0
     right-arrowhead = True
   }
+
+  -- x.text.x = x.val
+  -- x.text.y = x.shape.endY + 1.5 * global.padding
+  override y.text.x = y.val
+  override y.text.y = y.shape.startY - 1.5 * global.padding
+
+  y.layering = y.shape above `R`.shape2
 }
 
 -- Only if J is not reals, make sure result is in interval
@@ -732,12 +773,40 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I); Subset(J, `R`) {
 
 -----------------------------------
 
+-- No styles for derivative, integral, point
+
 Real dfx
 with Function f; Interval I; Interval J; Real x; Real y
 where dfx := derivativeAtP(f, x); f := CreateFunction(I, J);
       y := apply(f, x) {
+
+      delete dfx.val
       delete dfx.shape
       delete dfx.text
       delete dfx.inFn
-      delete dfx.labelFn
+      -- delete dfx.labelFn
+}
+
+Real ifI
+with Function f; Interval I; Interval J; Interval U; Reals R
+where U := union(I, J);
+      ifI := integral(I, f);
+      f := CreateFunction(U, R);
+      Discontinuous(f) {
+
+      delete ifI.val
+      delete ifI.shape
+      delete ifI.text
+      delete ifI.inFn
+      -- delete ifI.labelFn
+}
+
+Point p
+with Function f; Interval I; Real x; Real y; Reals R
+where p := Pt(x, y);
+      y := apply(f, x);
+      f := CreateFunction(I, R);
+      In(x, I) {
+
+      -- no style
 }
