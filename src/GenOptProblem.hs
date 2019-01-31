@@ -711,9 +711,16 @@ evalTranslation s =
 ------------- Compute global layering of GPIs
 
 lookupGPIName :: (Autofloat a) => Path -> Translation a -> String
-lookupGPIName (FieldPath v field) trans =
+lookupGPIName path@(FieldPath v field) trans =
     case lookupField v field trans of
-        FExpr _  -> notGPIError
+        FExpr e  -> 
+           -- to deal with path synonyms in a layering statement (see `lookupProperty` for more explanation)
+           case e of
+               OptEval (EPath pathSynonym@(FieldPath vSynonym fieldSynonym)) ->
+                   if v == vSynonym && field == fieldSynonym
+                   then error ("nontermination in lookupGPIName w/ path '" ++ show path ++ "' set to itself")
+                   else lookupGPIName pathSynonym trans
+               _ -> notGPIError
         FGPI _ _ -> getShapeName (bvarToString v) field
 
 lookupGPIName _ _ = notGPIError

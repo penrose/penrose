@@ -1,5 +1,4 @@
 -- This is the desugared version of the full real analysis spec program in the design paper.
--- TODO: match smaller-spec.sub
 
 AutoLabel All
 
@@ -22,14 +21,15 @@ Continuous(f)
 
 Real f_l
 f_l := apply(f, l)
-Label f_l $f(l)$
+Label l $x$
+Label f_l $f(x)$
 
 Point p
 p := Pt(l, f_l)
 
 Real dfl
 dfl := derivativeAtP(f, l)
-Label dfl $f'(l)$
+Label dfl $f'(x)$
 
 ---------------------------------------------------
 

@@ -158,8 +158,6 @@ where I := union(J, K); Subset(I, R) {
 
       -- The disjointness is applied in f
       -- I.disjointFn = ensure disjoint(J.shape, K.shape)
-      delete I.minSize
-      delete I.minSizeFn
 }
 
 
@@ -263,7 +261,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
 	       endX = `R`.x_axis.endX
 	       endY = origin.y
 	       thickness = 4.0
-	       color = setOpacity(Colors.bluegreen, 0.5)
+	       color = Colors.bluegreen
 	       rotation = 0.0
       }
 
@@ -274,7 +272,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
       delete y.inFn
       -- delete y.labelFn
 
-      delete I.orderFn
+      override I.orderFn = ensure lessThan(x.val, `R`.x_axis.endX)
       -- delete I.riFn
 
       I.maxSizeFn = ensure maxSize(I.shape, 0.3 * `R`.len)
@@ -331,7 +329,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
     -- TODO: start and end style depending on the interval
   }
 
-  override I.shape.color = setOpacity(f.color, 0.5)
+  override I.shape.color = f.color
 
   -- TODO: position label using midpointPathX(f.val)
   f.text = Text {
@@ -351,8 +349,8 @@ where f := CreateFunction(I, R);
       Subset(I, R); Subset(J, R); Subset(K, R) {
 
       f.color = Colors.orange
-      override J.shape.color = setOpacity(f.color, 0.5)
-      override K.shape.color = setOpacity(f.color, 0.5)
+      override J.shape.color = f.color
+      override K.shape.color = f.color
 
       f.pts1 = 4
       f.pts2 = 3
