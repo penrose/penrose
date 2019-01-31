@@ -930,10 +930,10 @@ castTranslation t =
 numStateSamples :: Int
 numStateSamples = 1000
 
--- | Resample the varying state. 
+-- | Resample the varying state.
 -- | We are intentionally using a monomorphic type (float) and NOT using the translation, to avoid slowness.
 resampleVState :: [Path] -> [Shape Double] -> StdGen -> (([Shape Double], [Double], [Double]), StdGen)
-resampleVState varyPaths shapes g = 
+resampleVState varyPaths shapes g =
     let (resampledShapes, rng') = sampleShapes g shapes
         (resampledFields, rng'') = resampleFields varyPaths rng'
         -- make varying map using the newly sampled fields (we do not need to insert the shape paths)
@@ -963,7 +963,7 @@ iterateS f g = let (res, g') = f g in
                (res, g') : iterateS f g'
 
 -- | Compare two states and return the one with less energy.
-lessEnergyOn :: ([Double] -> Double) -> (([Shape Double], [Double], [Double]), StdGen) 
+lessEnergyOn :: ([Double] -> Double) -> (([Shape Double], [Double], [Double]), StdGen)
                              -> (([Shape Double], [Double], [Double]), StdGen) -> Ordering
 lessEnergyOn f ((_, vs1, _), _) ((_, vs2, _), _) = compare (f vs1) (f vs2)
 

@@ -1,0 +1,8 @@
+Interval A, B, I
+Function f
+f := CreateFunction(A, B)
+Real x1,x2
+I := CreateInterval(x1,x2)
+Real x
+In(x, f.domain) -- Ok
+--In(x, I.right) -- throw type error

@@ -1,0 +1,35 @@
+Set `G` {
+    shape = Circle { radius = multiply(F.shape.radius, 0.5) }
+    constraint contains(G, G.shape.label)
+}
+
+Set `F` {
+    shape = Circle { radius = multiply(E.shape.radius, 0.5) }
+    constraint contains(F, F.shape.label)
+}
+
+Set `E` {
+    shape = Circle { radius = multiply(D.shape.radius, 0.5) }
+    constraint contains(E, E.shape.label)
+}
+
+Set `D` {
+    shape = Circle { radius = multiply(C.shape.radius, 0.5) }
+    constraint contains(D, D.shape.label)
+}
+
+Set `C` {
+    shape = Circle { radius = multiply(B.shape.radius, 0.5) }
+    constraint contains(C, C.shape.label)
+}
+
+Set `B` {
+    shape = Circle { radius = multiply(A.shape.radius, 0.5) }
+    constraint contains(B, B.shape.label)
+}
+
+
+Set `A` {
+    shape = Circle { }
+    constraint contains(A, A.shape.label)
+}

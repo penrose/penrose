@@ -1,2 +1,4 @@
-Set A, B, C
-Point origin, vert, horiz, rand
+Vector A
+Vector B
+Vector C
+C := A + B

@@ -86,7 +86,7 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              -- For debugging
              oldParams = paramsr s
 
-         in tro ({-clearScreenCode ++ -}"Params: \n" ++ show oldParams ++ "\n:") $ 
+         in tro ({-clearScreenCode ++ -}"Params: \n" ++ show oldParams ++ "\n:") $
             s' { shapesr = shapes' } -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
@@ -167,7 +167,7 @@ stepWithObjective g params state =
                                 -- ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
                                 -- ++ "\n original state: \n" ++ (show state)
-                                -- ++ "\n new state: \n" ++ (show state') 
+                                -- ++ "\n new state: \n" ++ (show state')
                                )
                          state'
 
@@ -193,7 +193,7 @@ timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
                   descentDir = negL gradEval
                   -- timestep :: Floating c => c
                   timestep =
-                      let resT = if useLineSearch 
+                      let resT = if useLineSearch
                                  then awLineSearch f duf descentDir state
                                  else r2f 0.001 in -- hardcoded timestep
                           if isNaN resT then tr "returned timestep is NaN" nanSub else resT

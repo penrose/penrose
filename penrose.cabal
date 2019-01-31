@@ -32,6 +32,9 @@ executable penrose
         GenOptProblem
         Shapes
         Functions
+        SubstanceTokenizer
+        Sugarer
+        Tokenizer
     default-language: Haskell2010
     other-extensions: AllowAmbiguousTypes RankNTypes UnicodeSyntax
                       NoMonomorphismRestriction OverloadedStrings DeriveGeneric
@@ -82,6 +85,9 @@ test-suite penrose-testsuite
         Optimizer
         Functions
         Shapes
+        SubstanceTokenizer
+        Sugarer
+        Tokenizer
         ShadowMain.Tests
         Server.Tests
         Substance.Tests
@@ -118,4 +124,7 @@ test-suite penrose-testsuite
         http-types -any,
         mtl -any,
         bytestring -any,
-        array -any
+        ansi-terminal -any,
+        array -any,
+        uuid -any,
+        hslogger -any

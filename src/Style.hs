@@ -939,7 +939,7 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
         rels             = selWhere sel
         initSubsts       = []
         rawSubsts        = matchDecls varEnv subProg decls initSubsts
-        subst_candidates = filter (fullSubst selEnv) 
+        subst_candidates = filter (fullSubst selEnv)
                            $ trM1 ("rawSubsts: # " ++ show (length rawSubsts) ++ "\n"{- ++ ppShow rawSubsts-}) rawSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
@@ -1077,7 +1077,7 @@ deleteProperty trans name field property =
                               ++ "'; can't delete path " ++ path in
                    addWarn trans err
         -- Deal with path aliasing as in `addProperty`
-        Just (FExpr e) -> 
+        Just (FExpr e) ->
              case e of
              OptEval (EPath p@(FieldPath bvar newField)) ->
                             let newName = trName bvar in
@@ -1148,7 +1148,7 @@ addProperty override trans name field property texpr =
         -- If looking up "f.domain" yields a *different* path (i.e. that path was an alias)
         -- e.g. "f.domain" is aliased to "I.shape"
         -- then call addProperty with the other path, otherwise fail
-        Just (FExpr e) -> 
+        Just (FExpr e) ->
              case e of
              OptEval (EPath p@(FieldPath bvar newField)) ->
                             let newName = trName bvar in
