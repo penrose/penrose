@@ -68,7 +68,13 @@ penroseRenderer subFile styFile dsllFile = do
     styIn  <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    subOut <- C.parseSubstance subFile subIn dsllEnv
+
+    -- Desugar Substance source file
+    let subFileSugared = subFile ++ "sugared"
+    writeFile subFileSugared (Sugarer.sugarStmts subIn dsllEnv)
+    desugaredSub <- readFile subFileSugared
+    subOut <- C.parseSubstance subFileSugared desugaredSub dsllEnv
+    removeIfExists subFileSugared
 
     print subOut
 
