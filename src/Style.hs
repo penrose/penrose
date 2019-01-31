@@ -814,7 +814,7 @@ findType :: VarEnv -> String -> [T]
 findType typeEnv name =
          case M.lookup name (valConstructors typeEnv) of
          Just vc -> tlsvc vc ++ [tvc vc]
-         Nothing -> error $ "name '" ++ name ++ "' does not exist in Substance type environment"
+         Nothing -> error $ "name '" ++ name ++ "' does not exist in Substance val constructor environment"
          -- shouldn't happen, since the Sub/Sty should have been statically checked)
 
 exprsMatchArr :: VarEnv -> C.Func -> C.Func -> Bool

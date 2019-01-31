@@ -1,11 +1,11 @@
------------------------------ Type Constructors --------------------------------
+------------------- Type Constructors --------------------
 
 tconstructor Scalar : type
 tconstructor VectorSpace : type
 tconstructor Vector : type
 tconstructor LinearMap : type
 
--------------------------------- Operators -------------------------------------
+-------------------- Operators -----------------------
 
 operator Neg (v : Vector) : Vector
 operator Scale (c : Scalar, v : Vector) : Vector
@@ -16,16 +16,13 @@ operator InnerProduct (v1 : Vector, v2 : Vector) : Scalar
 operator Determinant (v1 : Vector, v2 : Vector) : Scalar
 operator Apply (f : LinearMap, v : Vector) : Vector
 
--------------------------------- Predicates -------------------------------------
+-------------------- Predicates -----------------------
 
 predicate In (v : Vector, V : VectorSpace) : Prop
 predicate From (f : LinearMap, V : VectorSpace, W : VectorSpace) : Prop
 predicate Not (p1 : Prop) : Prop
 
-
-
-
-------------------------- Syntactic Sugar Definition ---------------------------
+--------------- Syntactic Sugar Definition -----------------
 
 StmtNotation "det(v1, v2)" -> "Determinant(v1 , v2)"
 StmtNotation "LinearMap f : U → V" -> "LinearMap f;From(f,U,V)"
@@ -39,5 +36,6 @@ StmtNotation "Scalar c := " -> "Scalar c ;c := "
 StmtNotation "f(v)" -> "apply(f,v)"
 
 -- Examples for prelude, just for reproducing (Should be removed)
+
 --value T : VectorSpace
 -- value T1 : VectorSpace

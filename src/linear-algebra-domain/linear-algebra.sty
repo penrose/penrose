@@ -19,6 +19,8 @@ Colors {
 }
 
 VectorSpace U {
+ U.thickness = 2.0
+
  U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 , 0.0)
  U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
 
@@ -36,6 +38,7 @@ VectorSpace U {
      string = "y"
    }
 
+   /*
    U.perpMark = Arc {
       x = U.shape.x
       y = U.shape.y
@@ -44,14 +47,14 @@ VectorSpace U {
       isRight = "true"
       color = Colors.black
    }
-
+   */
 
    U.xAxisRight = Arrow {
       startX = U.shape.x
       startY = U.shape.y
       endX = U.shape.x + const.axisSize
       endY = U.shape.y
-      thickness = 8.0
+      thickness = U.thickness
       color = Colors.black
    }
 
@@ -60,7 +63,7 @@ VectorSpace U {
       startY = U.shape.y
       endX = U.shape.x - const.axisSize
       endY = U.shape.y
-      thickness = 8.0
+      thickness = U.thickness
       color = Colors.black
    }
 
@@ -69,7 +72,7 @@ VectorSpace U {
       startY = U.shape.y
       endX = U.shape.x
       endY = U.shape.y + const.axisSize
-      thickness = 8.0
+      thickness = U.thickness
       color = Colors.black
    }
 
@@ -78,7 +81,7 @@ VectorSpace U {
       startY = U.shape.y
       endX = U.shape.x
       endY = U.shape.y - const.axisSize
-      thickness = 8.0
+      thickness = U.thickness
       color = Colors.black
    }
 
@@ -114,7 +117,7 @@ where In(v,U) {
     startY = U.shape.y
     -- endX = v.endXTest / const.scaleRatio
     -- endY = v.endYTest / const.scaleRatio
-    thickness = 9.0
+    thickness = 3.0
   }
 }
 

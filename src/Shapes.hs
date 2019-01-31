@@ -236,7 +236,7 @@ sampleColor rng =
         (r, rng1)  = randomR interval rng
         (g, rng2)  = randomR interval rng1
         (b, rng3)  = randomR interval rng2
-    in (ColorV $ makeColor r g b 0.5, rng3)
+    in (ColorV $ makeColor r g b 1.0, rng3)
         -- (a, rng4)  = randomR (0.3, 0.7) rng3
     -- in (ColorV $ makeColor r g b a, rng4)
 
@@ -407,7 +407,8 @@ squareType = ("Square", M.fromList
         -- TODO: distinguish between stroke color and fill color everywhere
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "none")), -- TODO: what is this?
-        ("stroke", (StrT, constValue $ StrV "none")),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("strokeWidth", (FloatT, constValue $ FloatV 0.0)),
         ("name", (StrT, constValue $ StrV "defaultSquare"))
     ])
 
