@@ -20,7 +20,7 @@ f := CreateFunction(A, R)
 Continuous(f)
 
 Real f_l
-f_l := apply(f, l)
+f_l := Apply(f, l)
 Label l $x$
 Label f_l $f(x)$
 

@@ -13,6 +13,7 @@ import Data.Void
 import System.IO -- read/write to file
 import System.Environment
 import Control.Arrow ((>>>))
+import Control.Monad.State.Lazy (evalStateT)
 import System.Random
 import Debug.Trace
 import Data.Functor.Classes
@@ -146,8 +147,11 @@ instance Show Sn where
 -- program, these functions are invoked in a top-down manner.
 
 -- Parse all the statemnts between the spaces to the end of the input file
-dsllParser :: Parser [DsllStmt]
-dsllParser = between scn eof dsllProgParser
+dsllParser :: BaseParser [DsllStmt]
+dsllParser = evalStateT dsllParser' Nothing
+
+dsllParser' :: Parser [DsllStmt]
+dsllParser' = between scn eof dsllProgParser
 
 -- |'dsllProg' parses the entire actual DSLL program which is a collection of
 -- constructors followed by a collection of operations followed by a collection

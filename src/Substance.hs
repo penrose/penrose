@@ -4,6 +4,7 @@
 --   Author: Dor Ma'ayan, May 2018
 
 {-# OPTIONS_HADDOCK prune #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Substance where
 --module Main (main) where -- for debugging purposes
 -- TODO split this up + do selective export
@@ -25,6 +26,7 @@ import           Text.Megaparsec.Char
 import           Text.Megaparsec.Expr
 import           Text.Show.Pretty
 import           Utils
+import           Control.Monad.State.Lazy (evalStateT, get)
 -- import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict            as M
@@ -153,8 +155,9 @@ preludesToDeclarations (v,t) = (Decl t v)
 
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
-substanceParser :: Parser [SubStmt]
-substanceParser = between scn eof subProg -- Parse all the statemnts between the spaces to the end of the input file
+substanceParser :: VarEnv -> BaseParser [SubStmt]
+substanceParser env = evalStateT substanceParser' $ Just env
+substanceParser' = between scn eof subProg -- Parse all the statemnts between the spaces to the end of the input file
 
 -- |'subProg' parses the entire actual Substance Core language program which is a collection of statements
 subProg :: Parser [SubStmt]
@@ -172,24 +175,28 @@ functionParser = do
 fieldParser :: Parser Field
 fieldParser = FieldConst <$> identifier
 
-exprParser, varE, applyFunc, applyValCons, deconstructorE :: Parser Expr
-exprParser = try deconstructorE <|> try applyFunc <|>
-             try applyValCons <|> try varE
+exprParser, varE, valConsOrFunc, deconstructorE :: Parser Expr
+exprParser = try deconstructorE <|> try valConsOrFunc <|> try varE
 deconstructorE = do
   v <- varParser
   dot
   f <- fieldParser
-  return (DeconstructorE (Deconstructor { varDeconstructor = v,
-                                          fieldDeconstructor = f }))
+  return (DeconstructorE Deconstructor { varDeconstructor = v,
+                                          fieldDeconstructor = f })
 varE = VarE <$> varParser
-applyFunc = do
-  n <- lowerId
-  args <- parens (exprParser `sepBy1` comma)
-  return (ApplyFunc (Func { nameFunc = n, argFunc = args }))
-applyValCons = do
-  n <- upperId
-  args <- parens (exprParser `sepBy1` comma)
-  return (ApplyValCons (Func { nameFunc = n, argFunc = args }))
+valConsOrFunc = do
+    n <- identifier
+    e <- get
+    let env = fromMaybe (error "Substance parser: variable environment is not intiialized.") e
+    args <- parens (exprParser `sepBy1` comma)
+    case (M.lookup n $ valConstructors env, M.lookup n $ operators env) of
+        -- the id is a value constructor
+        (Just _, Nothing)  -> return (ApplyValCons Func { nameFunc = n, argFunc = args })
+        -- the id is an operator
+        (Nothing, Just _)  -> return (ApplyFunc Func { nameFunc = n, argFunc = args })
+        (Nothing, Nothing) -> substanceErr $ "undefined identifier " ++ n
+        _ -> substanceErr $  n ++ " cannot be both a value constructor and an operator"
+    where substanceErr s = customFailure (SubstanceError s)
 
 predicateArgParser, predicateArgParserE, predicateArgParserP  :: Parser PredArg
 predicateArgParser = try predicateArgParserE <|> predicateArgParserP
@@ -204,14 +211,16 @@ predicateParser = do
   return Predicate { predicateName = n, predicateArgs = args, predicatePos = pos }
 
 subStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
-subStmt = labelDecl <|>
-          autoLabel <|>
-          noLabel   <|>
-         try equalE <|>
-         try equalQ <|>
-         try bind   <|>
-         try decl   <|>
-         try applyP
+subStmt = tryChoice [
+              labelDecl,
+              autoLabel,
+              noLabel,
+              equalE,
+              equalQ,
+              bind,
+              decl,
+              applyP
+          ]
 
 decl = do t' <- tParser
           vars <- varParser `sepBy1` comma
@@ -711,7 +720,7 @@ subSeparate = foldr separate ([], [])
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
 parseSubstance :: String -> String -> VarEnv -> IO SubOut
 parseSubstance subFile subIn varEnv =
-    case runParser substanceParser subFile subIn of
+    case runParser (substanceParser varEnv) subFile subIn of
         Left err -> error (parseErrorPretty err)
         Right subProg -> do
             let subProg' = refineAST subProg varEnv
@@ -772,7 +781,7 @@ main = do
     args <- getArgs
     let subFile = head args
     subIn <- readFile subFile
-    parseTest substanceParser subIn
+    -- parseTest substanceParser subIn
     --parsed <- parseFromFile
     --mapM_ print parsed
     return ()

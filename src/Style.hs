@@ -3,6 +3,7 @@
 
 {-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE ConstraintKinds #-}
 -- Mostly for autodiff
 
 module Style where
@@ -12,6 +13,7 @@ import Utils
 import Shapes
 import Functions
 import Control.Monad (void, foldM)
+import Control.Monad.State.Lazy (evalStateT)
 import Control.Applicative ((<**>))
 import Data.Function (on)
 import Data.Either (partitionEithers)
@@ -186,15 +188,16 @@ data BinaryOp = BPlus | BMinus | Multiply | Divide | Exp
 -- Style Parser
 
 -- | 'parseStyle' runs the actual parser function: 'styleParser', taking in a program String and parse it into an AST.
-parseStyle :: String -> String -> IO StyProg
-parseStyle styFile styIn =
-    case runParser styleParser styFile styIn of
+parseStyle :: String -> String -> VarEnv -> IO StyProg
+parseStyle styFile styIn env =
+    case runParser (styleParser env) styFile styIn of
     Left err -> error (parseErrorPretty err)
     Right styProg -> return styProg
 
 -- | 'styleParser' is the top-level function that parses a Style proram
-styleParser :: Parser StyProg
-styleParser = between scn eof styProg
+styleParser :: VarEnv -> BaseParser StyProg
+styleParser env = evalStateT styleParser' $ Just env
+styleParser' = between scn eof styProg
 
 -- | `styProg` parses a Style program, consisting of a collection of one or
 -- more blocks
@@ -1261,7 +1264,7 @@ insertLabels trans labels =
     where
         toFieldStr :: Eq a => String -> FieldExpr a
         toFieldStr s = FExpr $ Done $ StrV s
-        
+
         insertLabel :: Eq a => Name -> M.Map Field (FieldExpr a) -> M.Map Field (FieldExpr a)
         insertLabel (Sub s) fieldDict = let labelField = "label" in
             case M.lookup s labels of
@@ -1275,7 +1278,7 @@ insertLabels trans labels =
         -- only insert labels for Substance objects
         insertLabel (Gen _) fieldDict = fieldDict
 
-        -- Return True if it's a Text GPI that uses the label 
+        -- Return True if it's a Text GPI that uses the label
         -- TODO: should probably do something with other GPIs/fields that use the label (delete/filter/modify them?)
         -- as well as recursively delete anything else that refers to *those* things
         usesLabelText :: Eq a => String -> FieldExpr a -> Bool
