@@ -81,19 +81,17 @@ predicate OpenEnd (p : Real, I : Interval) : Prop
 
 -- Syntactic Sugars
 
-StmtNotation "A := [a,b]" -> "ClosedInterval A; A := CreateClosedInterval(a, b)"
-StmtNotation "A := (a,b)" -> "OpenInterval A; A := CreateOpenInterval(a, b)"
-StmtNotation "A := [a,b)" -> "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b)"
+StmtNotation "A := [a,b] ⊆ X" -> "ClosedInterval A; A := CreateClosedInterval(a, b);Subset(A, X)"
+StmtNotation "A := (a,b) ⊆ X" -> "OpenInterval A; A := CreateOpenInterval(a, b);Subset(A, X)"
+StmtNotation "A := [a,b) ⊆ X" -> "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b);Subset(A, X)"
 
 StmtNotation "X ⊆ Y" -> "Subset(X, Y)"
-StmtNotation "X ∈ Y" -> "In(X, Y)"
+StmtNotation "Real X ∈ Y" -> "Real X;In(X, Y)"
 StmtNotation "X ∪ Y" -> "union(X, Y)"
 
 StmtNotation "f : A -> B" -> "Function f; f := CreateFunction(A,B)"
 StmtNotation "f(x)" -> "apply(f, x)"
-
-
-
+StmtNotation "f ` (x)" -> "derivativeAtP(f, x)"
 
 
 
