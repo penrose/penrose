@@ -1,11 +1,10 @@
 VectorSpace U
-Vector A, B, C
 
-C := AddV(A,B)
+Vector A ∈ U
+Vector B ∈ U
+Vector C ∈ U
 
-In(A, U)
-In(B, U)
-In(C, U)
+C := A + B
 
 Label A $\vec{u_{1}}$
 Label B $\vec{u_{2}}$

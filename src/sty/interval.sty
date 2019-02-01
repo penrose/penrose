@@ -1,0 +1,225 @@
+Reals `D` {
+    shape = DoubleArrow {
+        start = leftOfOrigin()
+        end = right()
+        style = solid
+        label = auto
+    }
+}
+
+Reals `C` {
+    shape = DoubleArrow {
+        start = bottomOfOrigin()
+        end = top()
+        style = solid
+        label = auto
+    }
+}
+
+Point a : `D` {
+    shape = Tick {
+        orientation = vertical
+    }
+    objective sameY(a.shape, D.shape)
+    objective toLeft(a.shape, right())
+    objective toRight(a.shape, origin())
+}
+
+Point a : A
+where Interval A : `D` {
+    shape = Tick {
+        orientation = vertical
+    }
+
+    objective toLeft(A.left, a.shape)
+    objective toLeft(a.shape, A.right)
+    -- vs. objective linearIn(a.shape, A)
+    objective sameY(a.shape, D.shape)
+}
+
+Point p : C = f(a)
+where Map f : A -> C; Interval A : D; Point a : A; Reals C, D {
+
+    shape = Tick {
+        orientation = horizontal
+        y = f.function(a.shape.x)
+    }
+
+    objective sameX(f(a).shape, C.shape)
+}
+
+Interval A = [a, b]
+    where Point a, b : D; A : D; Reals D {
+   line = Line {
+        start = a.shape.x    -- assuming horizontal
+        end = b.shape.x
+        style = bold
+    }
+
+    a.shape = Bracket {
+        orientation = “vertical”
+        bracket-type = left
+    }
+
+    b.shape = Bracket {
+        orientation = “vertical”
+        bracket-type = right
+    }
+
+    objective toLeft(a.shape, b.shape)
+    objective sameY(A.line, D.shape)
+}
+
+-- alternative to above
+Interval A where Closed(A); A : D {
+    line = Line {
+        start = left
+        end = right
+        style = “bold”
+    }
+
+    left = Bracket {
+        orientation = “vertical”
+        bracketType = left
+    }
+
+    right = Bracket {
+        orientation = “vertical”
+        bracketType = right
+    }
+
+    objective toLeft(A.left, A.right)
+    objective sameY(A.line, D.shape)
+}
+
+Interval A = (a,b)
+ where Bounded(A); Point a, b : D; A : D; Reals D {
+    line = Line {
+        start = a.shape
+        end = b.shape
+        style = none
+    }
+
+   a.shape = Paren {
+        orientation = vertical
+        bracket-type = left
+    }
+
+   b.shape = Paren {
+        orientation = vertical
+        bracket-type = right
+    }
+
+    objective toLeft(a.shape, b.shape)
+    objective sameY(A.line, D.shape)
+}
+
+Interval A = (a,b)
+  where LeftBounded(A); Point a, b : D; A : D; Reals D {
+    line = Line {
+        start = a.shape
+        end = right()
+        style = bold
+    }
+
+    a.shape = Paren {
+        orientation = vertical
+        bracket-type = left
+    }
+
+    objective toLeft(a.shape, right())
+    objective sameY(A.line, D.shape)
+}
+
+Interval A = [a,b)
+  where LeftClopen(A); Point a, b : D; A : D; Reals D {
+    line = Line {
+        start = a.shape
+        end = b.shape
+        style = none
+    }
+
+    a.shape = Bracket {
+        orientation = vertical
+        bracket-type = left
+    }
+
+    b.shape.style = Paren {
+        orientation = vertical
+        bracket-type = right
+    }
+
+     objective toLeft(a.shape, b.shape)
+     objective sameY(A.line, D.shape)
+}
+
+Point2D p = (a, b)
+ where p : D * C; Point a : D; Point b : C; Reals D, C {
+    shape = Dot {
+        style = closed
+        label = none
+        x = a.shape.x
+        y = b.shape.y
+    }
+}
+
+Map f : A -> C
+  where Differentiable(f); Interval A = [a,b]; Closed(A); Point a,b; a,b : D; A : D; Reals C, D {
+    shape = Curve {
+        function = sample_differentiable_fn() -- needs to be able to take arguments
+        path = samplePointsInBbox(f.shape.function, A, C)
+        label = auto
+        start-style = none
+        end-style = none
+    }
+}
+
+Map h : U -> C
+  where Discontinuous(h); Interval U : D = union(c,J,I); Interval J : U = [d,e); Interval I : U = (i,j); Point c : U; Point d,e,i,j : D; Reals C, D {
+    shape1 = Curve {
+        function = sample_continuous_fn()
+        path = samplePointsInBbox(h.shape1.function,c, C)
+        label = auto
+        start-style = none
+        end-style = none
+    }
+
+    shape2 = Curve {
+        function = sample_continuous_fn()
+        path = samplePointsInBbox(h.shape2.function, J, C)
+        label = auto
+        start-style = none
+        end-style = none
+    }
+
+    shape3 = Curve {
+        function = sample_continuous_fn()
+        path = samplePointsInBbox(h.shape3.function, I, C)
+        label = auto
+        start-style = none
+        end-style = none
+    }
+}
+
+AppliedDerivative(A, C) dfx = f’(x)
+  where Map f : A -> C; Differentiable(f); Interval A : D = [a,b]; Point x : A; Point a,b : D; Reals C,D {
+    shape = Function {
+        function = taylor(x.shape.x, derivative(f.shape.function, x.shape.x)) -- f(x) ~~ x + f’(x)
+             -- How do you know the names of the shapes of the Substance variables that you are binding??
+        path =  samplePointsInBbox(dfx.shape.function, A.line, C.shape)
+        style = dashed
+    }
+}
+
+AppliedIntegral(U, C) ih = integral(h, J)
+where Map h : U -> C; Discontinouos(h); Interval U : D = union(c,J,I); Interval J : U = [d,e); Interval I : U = (i,j); Point c : U Point d,e,i,j : D; Reals C, D {
+    shape = Region {
+        outline = computeShape(h.shape2.function, d.shape.x, e.shape.x, D.shape)
+        style = shaded
+    }
+}
+
+LessThan(a,b)
+where Point a,b : D {
+    objective toLeft(a.shape, b.shape)
+}

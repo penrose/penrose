@@ -12,15 +12,18 @@ class Square extends React.Component<IGPIPropsDraggable> {
     const color = toHex(shape.color.contents);
     const alpha = shape.color.contents[3];
     const strokeColor = toHex(shape.strokeColor.contents);
+    const side = shape.side.contents;
+    const strokeWidth = shape.strokeWidth.contents;
+
     return (
       <rect
-        x={x - shape.side.contents / 2}
-        y={y - shape.side.contents / 2}
-        width={shape.side.contents}
-        height={shape.side.contents}
+        x={x - side / 2}
+        y={y - side / 2}
+        width={side}
+        height={side}
         fill={color}
         fillOpacity={alpha}
-        strokeWidth={shape.strokeWidth.contents}
+        strokeWidth={strokeWidth}
         stroke={strokeColor}
         onMouseDown={onClick}
       >

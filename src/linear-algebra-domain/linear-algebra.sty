@@ -19,6 +19,8 @@ Colors {
 }
 
 VectorSpace U {
+ U.thickness = 2.0
+
  U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 , 0.0)
  U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
 
@@ -36,6 +38,7 @@ VectorSpace U {
      string = "y"
    }
 
+   /*
    U.perpMark = Arc {
       x = U.shape.x
       y = U.shape.y
@@ -44,14 +47,14 @@ VectorSpace U {
       isRight = "true"
       color = Colors.black
    }
-
+   */
 
    U.xAxisRight = Arrow {
       startX = U.shape.x
       startY = U.shape.y
       endX = U.shape.x + const.axisSize
       endY = U.shape.y
-      thickness = 8.0
+      thickness = U.thickness
       color = Colors.black
    }
 
@@ -60,7 +63,7 @@ VectorSpace U {
       startY = U.shape.y
       endX = U.shape.x - const.axisSize
       endY = U.shape.y
-      thickness = 8.0
+      thickness = U.thickness
       color = Colors.black
    }
 
@@ -69,7 +72,7 @@ VectorSpace U {
       startY = U.shape.y
       endX = U.shape.x
       endY = U.shape.y + const.axisSize
-      thickness = 8.0
+      thickness = U.thickness
       color = Colors.black
    }
 
@@ -78,7 +81,7 @@ VectorSpace U {
       startY = U.shape.y
       endX = U.shape.x
       endY = U.shape.y - const.axisSize
-      thickness = 8.0
+      thickness = U.thickness
       color = Colors.black
    }
 
@@ -114,7 +117,7 @@ where In(v,U) {
     startY = U.shape.y
     -- endX = v.endXTest / const.scaleRatio
     -- endY = v.endYTest / const.scaleRatio
-    thickness = 9.0
+    thickness = 3.0
   }
 }
 
@@ -196,7 +199,37 @@ where c := Determinant(a,b); In(a,U); In(b,U) {
      x = (a.shape.endX + b.shape.endX) / 2.0
      y = (a.shape.endY + b.shape.endY) / 2.0
    }
-} 
+}
+
+Scalar c
+with Vector a; Vector b; VectorSpace U
+where c := InnerProduct(a,b); In(a,U); In(b,U) {
+  override c.val = len(a.shape) * calcVectorsAngleCos(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY) / 200.0
+  c.line1 = Line {
+     startX = b.shape.startX
+     startY = b.shape.startY
+     endX =  b.shape.endX * c.val - b.shape.startX * (c.val - 1.0)
+     endY = b.shape.endY * c.val - b.shape.startY * (c.val - 1.0)
+     thickness = 2.5
+     style = "dashed"
+  }
+
+  c.line2 = Line {
+     startX = a.shape.endX
+     startY = a.shape.endY
+     endX = b.shape.endX * c.val - b.shape.startX * (c.val - 1.0)
+     endY = b.shape.endY * c.val - b.shape.startY * (c.val - 1.0)
+     thickness = 2.5
+     style = "dashed"
+  }
+
+  /*
+    c.line1 =
+    u.shape.endX = v.shape.endX * c.val - v.shape.startX * (c.val - 1.0)
+    u.shape.endY = v.shape.endY * c.val - v.shape.startY * (c.val - 1.0)
+    c.line1 =
+    */
+}
 
 Scalar c
 with Vector a;  VectorSpace U

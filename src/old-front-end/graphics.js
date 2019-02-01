@@ -547,10 +547,17 @@ var Render = (function(){
           stroke: Utils.hex(color[0], color[1], color[2]),
           "stroke-opacity": color[3],
         });
-        if(properties.style == "dashed") {
-          curve.attr({ strokeDasharray: "7, 5" });
+
+        line.attr({
+          "fill-opacity" : 0,
+          stroke: Utils.hex(color[0], color[1], color[2]),
+          strokeDasharray: "7, 5"
+        })
+
+        if(style == "dashed") {
+          line.attr({ strokeDasharray: "7, 5" });
         }
-        return curve
+        return line;
       }
 
       /**

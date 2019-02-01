@@ -1,0 +1,26 @@
+Set x {
+    x.shape = Circle {
+        strokeWidth = 0
+    }
+
+    x.text = Text {
+      string = x.label
+    }
+
+    x.labelFn = ensure contains(x.shape, x.text)
+    LOCAL.layering  = x.shape below x.text
+}
+
+Set x; Set y
+where IsSubset(x, y) {
+    LOCAL.containFn = ensure contains(y.shape, x.shape)
+    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
+    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
+    LOCAL.layering  = x.shape above y.shape
+    LOCAL.layering1  = y.text below x.shape
+}
+
+Set x; Set y
+where NotIntersecting(x, y) {
+    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+}

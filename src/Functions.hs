@@ -137,6 +137,8 @@ compSignatures = M.fromList
         ("atan",([ValueT FloatT],ValueT FloatT)),
         ("calcVectorsAngle",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
             ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
+        ("calcVectorsAngleCos",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
+                ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("calcVectorsAngleWithOrigin",([ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT,
                 ValueT FloatT, ValueT FloatT, ValueT FloatT, ValueT FloatT],ValueT FloatT)),
         ("generateRandomReal",([],ValueT FloatT)),

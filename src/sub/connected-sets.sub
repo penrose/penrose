@@ -1,0 +1,4 @@
+Set A, B, C
+NoIntersect A B
+NoIntersect B C
+NoIntersect A C

@@ -1,0 +1,9 @@
+VectorSpace U
+
+Vector u1 ∈ U
+Vector u2 ∈ U
+Scalar c := <u1,u2>
+
+AutoLabel U
+Label u1 $\vec{u_{1}}$
+Label u2 $\vec{u_{2}}$

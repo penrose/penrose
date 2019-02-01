@@ -1,0 +1,8 @@
+Reals R
+Real x
+Real y
+ClosedInterval I
+I := CreateClosedInterval(x, y)
+
+AutoLabel All
+Label R $\mathbb{R}$

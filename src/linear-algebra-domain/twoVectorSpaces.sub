@@ -1,10 +1,8 @@
 VectorSpace U,V
 
-Vector A,B,C
-
-In(A,U)
-In(B,U)
-In(C,V)
+Vector A ∈ U
+Vector B ∈ U
+Vector C ∈ V
 
 Label A $\vec{u_{1}}$
 Label B $\vec{u_{2}}$

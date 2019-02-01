@@ -20,6 +20,17 @@ type ObjFn2 a = forall a . (Autofloat a) => [a] -> [a] -> a
 
 type GradFn a = forall a . (Autofloat a) => [a] -> [a]
 
+----- Various consts
+
+nanSub :: (Autofloat a) => a
+nanSub = 0
+
+infinity :: Floating a => a
+infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
+-- all numbers are smaller than infinity except infinity, to which it's equal
+
+----- Hyperparameters
+
 weightGrowthFactor :: (Autofloat a) => a -- for EP weight
 weightGrowthFactor = 10
 
@@ -31,20 +42,6 @@ epStop = 10 ** (-5)
 -- epStop = 60 ** (-3)
 -- epStop = 10 ** (-1)
 -- epStop = 0.05
-
--- convergence criterion for EP
--- if you want to use it for UO, needs a different epsilon
-epStopCond :: (Autofloat a) => [a] -> [a] -> a -> a -> Bool
-epStopCond x x' fx fx' =
-           tro ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
-           ++ "\n|f(x') - f(x)|: " ++ (show $ abs (fx - fx'))) $
-           (norm (x -. x') <= epStop) || (abs (fx - fx') <= epStop)
-
-unconstrainedStopCond :: (Autofloat a) => [a] -> Bool
-unconstrainedStopCond gradEval = norm gradEval < epsUnconstr
-
-nanSub :: (Autofloat a) => a
-nanSub = 0
 
 -- Parameters for Armijo-Wolfe line search
 -- NOTE: must maintain 0 < c1 < c2 < 1
@@ -62,12 +59,21 @@ c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
 -- true = force linesearch halt if interval gets too small; false = no forced halt
 intervalMin = True
 
-infinity :: Floating a => a
-infinity = 1/0 -- x/0 == Infinity for any x > 0 (x = 0 -> Nan, x < 0 -> -Infinity)
--- all numbers are smaller than infinity except infinity, to which it's equal
-
 useLineSearch :: Bool
 useLineSearch = True
+
+----- Convergence criteria
+
+-- convergence criterion for EP
+-- if you want to use it for UO, needs a different epsilon
+epStopCond :: (Autofloat a) => [a] -> [a] -> a -> a -> Bool
+epStopCond x x' fx fx' =
+           tro ("EP: \n||x' - x||: " ++ (show $ norm (x -. x'))
+           ++ "\n|f(x') - f(x)|: " ++ (show $ abs (fx - fx'))) $
+           (norm (x -. x') <= epStop) || (abs (fx - fx') <= epStop)
+
+unconstrainedStopCond :: (Autofloat a) => [a] -> Bool
+unconstrainedStopCond gradEval = norm gradEval < epsUnconstr
 
 ---------------------------------------
 
@@ -86,7 +92,7 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              -- For debugging
              oldParams = paramsr s
 
-         in tro ({-clearScreenCode ++ -}"Params: \n" ++ show oldParams ++ "\n:") $ 
+         in tro ({-clearScreenCode ++ -}"Params: \n" ++ show oldParams ++ "\n:") $
             s' { shapesr = shapes' } -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
@@ -167,7 +173,7 @@ stepWithObjective g params state =
                                 -- ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
                                 -- ++ "\n original state: \n" ++ (show state)
-                                -- ++ "\n new state: \n" ++ (show state') 
+                                -- ++ "\n new state: \n" ++ (show state')
                                )
                          state'
 
@@ -193,7 +199,7 @@ timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
                   descentDir = negL gradEval
                   -- timestep :: Floating c => c
                   timestep =
-                      let resT = if useLineSearch 
+                      let resT = if useLineSearch
                                  then awLineSearch f duf descentDir state
                                  else r2f 0.001 in -- hardcoded timestep
                           if isNaN resT then tr "returned timestep is NaN" nanSub else resT

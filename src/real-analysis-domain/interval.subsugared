@@ -1,0 +1,24 @@
+Reals R 
+Real a 
+Real b 
+Real c 
+Real d 
+Real x 
+/* In(a, R)
+In (b ,R )
+In (c ,R )
+In (d ,R )
+In (x ,R )*/
+Interval A 
+A := CreateInterval (a ,b )
+Interval B 
+B := CreateInterval (c ,d )
+Subset (A ,R )
+Subset (B ,R )
+In (x ,A )
+Function f 
+f := CreateFunction (A ,R )
+-- TODO: Is this match going to work?
+-- From(f, R, R) 
+AutoLabel All
+Label R $\mathbb{R}$
