@@ -16,6 +16,7 @@ Colors {
   Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
   Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
   Colors.lightGray = rgba(200.0,200.0,200.0,1.0)
+    Colors.darkGray = rgba(0.4, 0.4, 0.4, 1.0)
 
     Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
@@ -37,10 +38,7 @@ Colors {
 
 VectorSpace U {
  U.thickness = 2.0
-
- U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 , 0.0)
- U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
- U.axisColor = Colors.gray
+ U.axisColor = Colors.darkGray
 
   U.shape = Square {
     side = const.vectorSpaceSize
@@ -50,10 +48,12 @@ VectorSpace U {
 
    U.textX = Text {
      string = "x"
+     color = Colors.darkGray
    }
 
    U.textY = Text {
      string = "y"
+     color = Colors.darkGray
    }
 
    /*
@@ -74,7 +74,7 @@ VectorSpace U {
       endX = U.shape.x + const.axisSize
       endY = U.shape.y
       thickness = U.thickness
-      color = Colors.gray
+      color = U.axisColor
    }
 
    U.xAxisLeft = Arrow {
@@ -83,7 +83,7 @@ VectorSpace U {
       endX = U.shape.x - const.axisSize
       endY = U.shape.y
       thickness = U.thickness
-      color = Colors.gray
+      color = U.axisColor
    }
 
    U.yAxisUp = Arrow {
@@ -92,7 +92,7 @@ VectorSpace U {
       endX = U.shape.x
       endY = U.shape.y + const.axisSize
       thickness = U.thickness
-      color = Colors.gray
+      color = U.axisColor
    }
 
    U.yAxisDown = Arrow {
@@ -101,25 +101,28 @@ VectorSpace U {
       endX = U.shape.x
       endY = U.shape.y - const.axisSize
       thickness = U.thickness
-      color = Colors.gray
+      color = U.axisColor
    }
 
    U.text = Text {
      string = U.label
      x = U.shape.x - const.axisSize
      y = U.shape.y + const.axisSize
+     color = U.axisColor
    }
+
+   U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
+   U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0, 20.0)
 }
 
 -- TODO: generates too many constraints?
-/*
+
 VectorSpace U; VectorSpace V {
     LOCAL.sameHeight = ensure sameHeight(U.shape, V.shape)
     LOCAL.nonIntersect = ensure disjoint(U.shape, V.shape)
     --V.shape.y = U.shape.y
     --V.shape.x = U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
 }
-*/
 
 Vector v
 with VectorSpace U
@@ -132,6 +135,7 @@ where In(v,U) {
 
   v.text = Text {
     string = v.label
+    color = v.shape.color
   }
 
   v.shape = Arrow {
@@ -207,6 +211,7 @@ where From(f,U,V) {
      string = f.label
      x = (U.shape.x + V.shape.x) / 2.0
      y = U.shape.y + 50.0
+     color = f.shape.color
    }
 
    f.orderFn = ensure lessThan(U.shape.x + 20.0, V.shape.x)
@@ -242,6 +247,7 @@ where c := determinant(a,b); In(a,U); In(b,U) {
      -- Normalize for origin
      x = (a.shape.endX + b.shape.endX - a.shape.startX) / 2.0
      y = (a.shape.endY + b.shape.endY - a.shape.startY) / 2.0
+     color = Colors.sky
    }
 
    c.layering = c.text above c.shape
@@ -299,6 +305,7 @@ where c := norm(a); In(a,U) {
      string = c.label
      x = midpointX(c.shape) + c.padding
      y = midpointY(c.shape) + c.padding
+     color = c.shape.color
    }
 }
 

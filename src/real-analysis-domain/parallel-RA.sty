@@ -90,6 +90,7 @@ with Reals `R` {
     x = r.val
     y = r.shape.endY + 1.5 * global.padding
     string = r.label
+    color = r.shape.color
     rotation = 0.0
   }
 
@@ -123,6 +124,7 @@ with Reals R { -- TODO: more general, with Interval J
     x = midpointX(I.shape)
     y = I.yval + 3.5 * global.padding
     rotation = 0.0
+    color = I.shape.color
   }
 
   I.wfFn = ensure lessThan(I.left, I.right)
@@ -148,6 +150,8 @@ where I := CreateInterval(a, b); Subset(I, R) {
   -- I.left and I.right already have I.liFn, I.riFn
   delete a.inFn
   delete b.inFn
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
 }
 
 Real r
@@ -156,6 +160,7 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
   override r.yval = I.yval
   override r.inFn = ensure inRange(r.val, a.val, b.val)
   override r.shape.color = Colors.red
+  override r.text.color = I.shape.color
 }
 
 Real a; Real b
@@ -182,6 +187,8 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
     override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
 
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
     -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
@@ -209,6 +216,8 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
 
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
     override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+
+
 
   -- TODO: put these everywhere and remove all the labelFns
   -- Since r.text.y refers to r.shape.startY, which no longer exists since the shape was overridden to have a different type
@@ -243,6 +252,8 @@ where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
     override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
 
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
     -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
@@ -271,6 +282,8 @@ where I := CreateRightClopenInterval(a, b); Subset(I, R) {
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
     override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
 
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
     -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
@@ -298,6 +311,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
       delete I.riFn
 
       override I.wfFn = ensure lessThan(x.val, I.right)
+      override x.text.color = I.shape.color
 }
 
 -- TODO
@@ -429,6 +443,7 @@ where f := CreateFunction(I, J) {
     x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
     y = average(f.domain.startY, f.codomain.startY)
     rotation = 0.0
+    color = f.color2
   }
 }
 
@@ -455,6 +470,7 @@ where f := CreateFunction(`R`, `R`) {
     y = R.shape2.endY + global.padding
     string = `R`.label
     rotation = 0.0
+    color = `R`.shape2.color
   }
 
   -- `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
@@ -483,6 +499,7 @@ where f := CreateFunction(`R`, `R`) {
     x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
     y = average(f.domain.startY, f.codomain.startY)
     rotation = 0.0
+    color = f.color2
   }
 }
 
@@ -573,7 +590,11 @@ where f := CreateFunction(I, J);
        x = average(midpointX(X.shape), midpointX(Y.shape)) + 10.0
        y = average(X.shape.startY, f.codomain.startY)
        rotation = 0.0
+       color = f.color2
      }
+
+     f.layering1 = f.text above f.shape1
+     f.layering2 = f.text above f.shape2
 }
 
 -------------------------------------------------------
