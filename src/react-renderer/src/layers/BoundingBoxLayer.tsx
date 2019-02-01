@@ -8,6 +8,7 @@ class BoundingBoxLayer extends React.Component<ILayerProps> {
     return (
       <g>
         {shapes.map(([name, shape]: [string, any], key: number) => {
+          // TODO: add bb support to other shapes
           if (name === "Text") {
             const [x, y] = toScreen(
               [shape.x.contents, shape.y.contents],
