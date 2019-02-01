@@ -33,3 +33,5 @@ build/
 _region_.tex
 .vscode/
 out*.txt
+penrose-ide/
+*.prof

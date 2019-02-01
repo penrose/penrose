@@ -12,9 +12,14 @@ import qualified Style as S
 import qualified GenOptProblem as G
 import qualified Optimizer as O
 import qualified Dsll as D
+import qualified Sugarer
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 import System.Environment
 import System.IO
+import Prelude hiding (catch)
+import System.Directory
+import Control.Exception
+import System.IO.Error hiding (catch)
 import System.Exit
 import Debug.Trace
 import Text.Show.Pretty
@@ -63,7 +68,13 @@ penroseRenderer subFile styFile dsllFile = do
     styIn  <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
-    subOut <- C.parseSubstance subFile subIn dsllEnv
+
+    -- Desugar Substance source file
+    let subFileSugared = subFile ++ "sugared"
+    writeFile subFileSugared (Sugarer.sugarStmts subIn dsllEnv)
+    desugaredSub <- readFile subFileSugared
+    subOut <- C.parseSubstance subFileSugared desugaredSub dsllEnv
+    removeIfExists subFileSugared
 
     print subOut
 
@@ -105,3 +116,10 @@ stepsWithoutServer initState =
                notConverged (s, n) = G.optStatus (G.paramsr s) /= G.EPConverged
                                      && n < maxSteps
                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge
+
+-- | Remove file if exist, used for removing the desugared file after we are done
+removeIfExists :: FilePath -> IO ()
+removeIfExists fileName = removeFile fileName `catch` handleExists
+ where handleExists e
+         | isDoesNotExistError e = return ()
+         | otherwise = throwIO e

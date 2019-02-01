@@ -1,10 +1,8 @@
 VectorSpace U
-Vector u1
-In(u1,U)
-Label u1 $\vec{u_{1}}$
+Vector u1 ∈ U
 
-Scalar c
-c := Norm(u1)
+Scalar c := |u1|
+
 Label c $|\vec{u_{1}}|$
-
+Label u1 $\vec{u_{1}}$
 AutoLabel U

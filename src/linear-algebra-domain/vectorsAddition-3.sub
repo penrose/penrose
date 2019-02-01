@@ -1,15 +1,12 @@
 VectorSpace U
-Vector A, B, C, D ,E
+Vector A ∈ U
+Vector B ∈ U
+Vector C ∈ U
+Vector D ∈ U
+Vector E ∈ U
 
-C := AddV(A,B)
-E := AddV(C,D)
-
-In(A, U)
-In(B, U)
-In(C, U)
-In(D, U)
-In(E, U)
-
+C := A + B
+E := C + D
 
 Label A $\vec{u_{1}}$
 Label B $\vec{u_{2}}$

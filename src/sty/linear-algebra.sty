@@ -1,0 +1,165 @@
+-- This Style assumes all Substance objects have labels
+global {
+    -- ensure fitInBoundingBox(ALL, CANVAS)
+    -- encourage optimizeLabelPlacement(ALL)
+    -- ensure avoidDegenerate(ALL)
+}
+
+CANVAS {
+  CANVAS.width = 200.0
+  CANVAS.height = 400.0
+}
+
+Colors {
+  Colors.red = rgba(100, 0, 0, 1)
+  Colors.blue = rgba(0, 0, 100, 1)
+  Colors.gray = rgba(20, 20, 20, 0.5)
+}
+
+/*
+LineStyles {
+  LineStyles.curved = curved() -- ??
+}
+*/
+
+Scalar c { c.val = sampleReal() }
+
+VectorSpace U {
+    U.x_axis = Arrow {
+        -- angle = 0.0
+        -- length = 0.3 * CANVAS.width
+        -- length = 0.3 * 800.0
+    }
+
+    U.y_axis = Arrow {
+        -- angle = 90.0
+        -- length = len(U.x_axis)
+        -- pos = midpoint(U.x_axis)
+    }
+
+    U.shape = Rectangle {
+        -- dim = bbox(U.x_axis, U.y_axis)
+        -- w = bboxWidth(U.x_axis, U.y_axis)
+        -- h = bboxHeight(U.x_axis, U.y_axis)
+    }
+    U.containFn = ensure contains(U.shape, U.x_axis)
+
+    -- U.origin = AnchorPoint {
+        -- -- location = intersection(U.x_axis, U.y_axis)
+        -- x = intersectionX(U.x_axis, U.y_axis)
+        -- y = intersectionY(U.x_axis, U.y_axis)
+    -- }
+
+    -- U.angle = Arc {
+        -- from = U.x_axis
+        -- to = U.y_axis
+    -- }
+
+    U.text = Text { string = U.label }
+    U.topRightFn = encourage topRightOf(U.text, U.shape)
+    U.labelFn    = ensure contains(U.shape, U.text)
+}
+
+LinearMap f; VectorSpace U, V
+where From(f, U, V) {
+    f.val = sampleMatrix(2, 2)   -- could be optimized
+
+    f.shape = Arrow {
+        -- from = U.shape
+        -- to = V.shape
+        style = LineStyles.curved
+    }
+
+    f.text = Text { }
+
+    f.posFn = encourage between(f.shape, U.shape, V.shape)
+    f.labelFn = encourage nearCenter(f.text, f.shape)
+}
+
+Vector v
+with VectorSpace V
+where In(v, V) {
+    v.val = sampleVectorIn(V.shape)
+
+    v.shape = Arrow {
+        -- tail = V.origin
+        head = v.val
+        color = Colors.blue
+    }
+
+    v.text = Text { }
+
+    v.labelFn = encourage near(v.text, v.shape.head)
+}
+
+Vector u
+with Vector v, w; VectorSpace U
+where u := addV(v, w); In(u, U); In(v, U); In(w, U) {
+    -- overrides default vector style while inheriting tail and color attributes
+
+    override u.val = v.val + w.val
+    -- u.shape.head is auto-set to the value at runtime
+
+    u.slider_v = Arrow {
+        tail = w.val
+        head = u.val
+        color = Colors.gray
+    }
+
+    u.slider_w = Arrow {
+        tail = v.val
+        head = u.val
+        color = Colors.gray
+    }
+}
+
+Vector v
+with Vector w; Scalar c; VectorSpace V
+where v := scale(c, w); In(v, V); In(w, V) {
+    override v.val = c.val * w.val
+}
+
+Vector v
+with Vector u; LinearMap f; VectorSpace U, V
+where v := apply(f, u); From(f, U, V); In(v, V); In(u, U) {
+    override v.val = apply(f.val, u.val)
+}
+
+Scalar c
+with Vector v; VectorSpace V
+where c := norm(v); In(v, V) {
+    override c.val = len(v.shape)
+
+    c.shape = CurlyBrace {
+        -- along = v.shape
+        color = Colors.gray
+    }
+
+    c.text = Text { }
+
+    c.labelFn = encourage aligned(c.text, c.shape)
+}
+
+Scalar c
+with Vector v, w; VectorSpace V
+where c := determinant(v, w); In(v, V); In(w, V) {
+    -- parallelogram in the smaller angle between the vectors
+    override c.val = determinant(v.val, w.val)
+
+    c.shape = Parallelogram {
+        -- side1 = v.shape
+        -- side2 = w.shape
+        opacity = 0.5
+    }
+
+    c.text = Text { }
+
+    c.labelFn = encourage centered(c.text, c.shape)
+
+    c.layering = [V < c < (v == w)]
+}
+
+  -- TODO: write inner product semantics
+  -- TODO: put labels back in
+  -- TODO: deal with ``from'', ``to'', ``side1'', ``side2'', ``along'' being paths to GPIs (should this be allowed??)
+  -- TODO: get working namespaces

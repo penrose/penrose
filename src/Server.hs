@@ -410,7 +410,8 @@ executeCommand cmd client@(clientID, conn, clientState)
 
 resampleAndSend, stepAndSend :: Client -> IO ()
 resampleAndSend client@(clientID, conn, clientState) = do
-    let news = {- resample -} G.resampleN G.numStateSamples s -- TODO
+    -- Sample several states and choose the one with lowest energy
+    let news = G.resampleBest G.numStateSamples s
     let (newShapes, _, _) = evalTranslation news
     wsSendFrame conn
         Frame {

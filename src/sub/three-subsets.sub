@@ -1,0 +1,10 @@
+-- Substance
+
+Set A, B, C, D
+
+-- A, B and C are both subsets of D
+
+Subset A D
+Subset B D
+Subset C D
+

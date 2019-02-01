@@ -31,7 +31,7 @@ import qualified Data.Map.Strict            as M
 import qualified Dsll                       as D
 import qualified Text.Megaparsec.Char.Lexer as L
 
---------------------------------------- Substance AST ---------------------------------------
+---------------------------- Substance AST -------------------------------------
 
 newtype ValConstructorName = ValConst String             -- “Cons”, “Times”
                           deriving (Show, Eq, Typeable)
@@ -40,6 +40,9 @@ newtype OperatorName = OperatorConst String             -- “Intersection”
                     deriving (Show, Eq, Typeable)
 
 newtype PredicateName = PredicateConst String            -- “Intersect”
+                     deriving (Show, Eq, Typeable)
+
+newtype Field = FieldConst String            -- “Intersect”
                      deriving (Show, Eq, Typeable)
 
 data Func = Func {
@@ -55,7 +58,14 @@ instance Show Func where
 data Expr = VarE Var
           | ApplyFunc Func
           | ApplyValCons Func
+          | DeconstructorE Deconstructor
           deriving (Show, Eq, Typeable)
+
+data Deconstructor  = Deconstructor {
+    varDeconstructor :: Var ,
+    fieldDeconstructor :: Field
+   } deriving (Show, Eq, Typeable)
+
 
 data PredArg = PE Expr
              | PP Predicate
@@ -124,14 +134,21 @@ data SubObj = LD SubDecl
 
 --------------------------------------- Substance Parser --------------------------------------
 
-refineAST :: SubProg -> SubProg
-refineAST subProg = foldl refineDeclList [] subProg
+refineAST :: SubProg -> VarEnv -> SubProg
+refineAST subProg varEnv =
+  let subProg' =  map preludesToDeclarations (preludes varEnv) ++ subProg
+  in foldl refineDeclList [] subProg'
 
 refineDeclList accumProg (DeclList t vars) =
   accumProg ++ foldl (convertDeclList t) [] vars
 refineDeclList accumProg stmt = accumProg ++ [stmt]
 
 convertDeclList t vars var = vars ++ [Decl t var]
+
+-- | Convert prelude statemnts from the .dsl file into declaration Statements
+--   in the Substance program AST
+preludesToDeclarations :: (Var,T) -> SubStmt
+preludesToDeclarations (v,t) = (Decl t v)
 
 
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
@@ -152,8 +169,18 @@ functionParser = do
   args <- parens (exprParser `sepBy1` comma)
   return Func { nameFunc = n, argFunc = args }
 
-exprParser, varE, applyFunc, applyValCons :: Parser Expr
-exprParser = try applyFunc <|> try applyValCons <|> try varE
+fieldParser :: Parser Field
+fieldParser = FieldConst <$> identifier
+
+exprParser, varE, applyFunc, applyValCons, deconstructorE :: Parser Expr
+exprParser = try deconstructorE <|> try applyFunc <|>
+             try applyValCons <|> try varE
+deconstructorE = do
+  v <- varParser
+  dot
+  f <- fieldParser
+  return (DeconstructorE (Deconstructor { varDeconstructor = v,
+                                          fieldDeconstructor = f }))
 varE = VarE <$> varParser
 applyFunc = do
   n <- lowerId
@@ -359,7 +386,23 @@ checkExpression :: VarEnv -> Expr -> (String, Maybe T)
 checkExpression varEnv (VarE v)         = checkVarE varEnv v
 checkExpression varEnv (ApplyFunc f)    = checkFunc varEnv f
 checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
+checkExpression varEnv (DeconstructorE d) = --checkVarE varEnv (varDeconstructor d)
+   let (err, t) =  checkVarE varEnv (varDeconstructor d)
+   in case t of
+      Just t' -> checkField varEnv (fieldDeconstructor d) t'
+      Nothing -> (err, Nothing)
 
+-- Type checking for fields in value deconstructor, check that there is a
+-- matched value deconstructor with a matching field a retrieve the type,
+-- otherwise, return an error
+checkField :: VarEnv -> Field -> T -> (String, Maybe T)
+checkField varEnv (FieldConst f) t =
+  case M.lookup t (typeValConstructor varEnv) of
+     Nothing -> ("No matching value constructor for the type " ++ show t, Nothing)
+     Just v -> let m = M.fromList (zip (nsvc v) (tlsvc v))
+               in case M.lookup (VarConst f) m of
+                  Nothing -> ("No matching field " ++ show f ++ " In the value constructor of " ++ show t, Nothing)
+                  Just t' -> ("", Just t')
 
 -- Checking a variable expression for well-typedness involves looking it up in the context.
 -- If it cannot be found in the context, then a tuple is returned of a non-empty error string warning of this problem and
@@ -404,7 +447,7 @@ checkFuncInEnv varEnv (Func f args) (Operator name yls kls tls t) =
 
 -- Operates exactly the same as checkFuncInEnv above it just operates over value constructors instead of operators.
 checkVarConsInEnv  :: VarEnv -> Func -> ValConstructor -> (String, Maybe T)
-checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls tls t) =
+checkVarConsInEnv varEnv (Func f args) (ValConstructor name yls kls nls tls t) =
                   let errAndTypesLs = map (checkExpression varEnv) args
                       errls         = map fst errAndTypesLs
                       err           = concat errls
@@ -671,7 +714,7 @@ parseSubstance subFile subIn varEnv =
     case runParser substanceParser subFile subIn of
         Left err -> error (parseErrorPretty err)
         Right subProg -> do
-            let subProg' = refineAST subProg
+            let subProg' = refineAST subProg varEnv
             let subTypeEnv  = check subProg' varEnv
             let subDynEnv   = loadSubEnv subProg'
             let labelMap    = getLabelMap subProg' subTypeEnv
@@ -719,7 +762,8 @@ getSubTuples = map getType
 getAllIds :: ([SubDecl], [SubConstr]) -> [String]
 getAllIds (decls, constrs) = map (\(_, x, _) -> x) $ getSubTuples decls ++ getConstrTuples constrs
 
--- --------------------------------------- Test Driver -------------------------------------
+
+-- --------------------------------------- Test Driver -------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc SubstanceCore.hs; ./SubstanceCore <substance core-file>
 

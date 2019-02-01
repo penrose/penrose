@@ -1,0 +1,376 @@
+global {
+  global.padding = 20.0
+}
+
+origin {
+  origin.x = -200.0
+  origin.y = 100.0
+}
+
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+  Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+  Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+  Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+  Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+  Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+  Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+  Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+  Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+  Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+  Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+  Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+  Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+}
+
+Reals R {
+  R.len = 300.0
+  R.thickness = 2.0
+  R.color = Colors.gray
+
+  -- TODO: draw these axes overlapping
+  R.x_axis = Arrow {
+    startX = origin.x
+    startY = origin.y
+    endX = R.len
+    endY = origin.y
+    thickness = R.thickness
+    color = R.color
+    rotation = 0.0
+  }
+
+  R.y_axis = Arrow {
+    startX = origin.x
+    startY = origin.y
+    endX = origin.x
+    endY = R.len
+    thickness = R.thickness
+    color = R.color
+    rotation = 0.0
+  }
+
+  R.x_text = Text {
+    string = R.label
+    rotation = 0.0
+  }
+
+  R.y_text = Text {
+    string = R.label
+    rotation = 0.0
+  }
+
+  R.xlabelFn = ensure nearHead(R.x_axis, R.x_text, global.padding, global.padding)
+  R.ylabelFn = ensure nearHead(R.y_axis, R.y_text, global.padding, global.padding)
+}
+
+Real r
+with Reals R { -- No In(r, `R`)
+  r.val = OPTIMIZED
+  r.len = 20.0
+
+  r.shape = Line {
+    startX = r.val
+    startY = origin.y - (r.len / 2.0)
+    endX = r.val
+    endY = origin.y + (r.len / 2.0)
+    thickness = 2.5
+    color = Colors.black
+  }
+
+  r.text = Text {
+    string = r.label
+    rotation = 0.0
+  }
+
+  r.inFn = ensure inRange(r.val, R.x_axis.startX, R.x_axis.endX)
+  r.labelFn = encourage nearHead(r.shape, r.text, 10.0, 10.0)
+}
+
+-- need to comment out the next 4 selectors for reals.sub
+ClosedInterval I
+with Real a; Real b; Reals R
+where I := CreateClosedInterval(a, b) {
+  I.shape = Line {
+    startX = a.val
+    startY = origin.y
+    endX   = b.val
+    endY   = origin.y
+    color = Colors.black
+    thickness = 10.0
+  }
+
+  -- position computed, not optimized
+  I.text = Text {
+    string = I.label
+    -- TODO: This doesn't seem to be computed properly
+    -- x = (I.shape.endX - I.shape.startX) / 2.0
+    y = origin.y + global.padding
+    rotation = 0.0
+  }
+
+  I.orderFn = ensure lessThan(a.val, b.val)
+  I.labelFn = ensure inRange(I.text.x, a.val, b.val)
+
+  -- TODO: `minSize` seems to clash with the `disjoint` objective and prevents convergence
+  -- I.sizeFn = ensure minSize(I.shape, 100.0) -- OK to use multiple minSizes?
+
+  -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
+}
+
+Interval I
+with Interval J, K; Reals R
+where I := union(J, K); Subset(I, R) {
+      -- TODO: fix findShapeNames so `I` doesn't need to have a shape
+      -- this is a hack
+      I.shape = Line {
+      	      color = Colors.none
+      }
+
+      -- I.text = Text {
+      -- 	     string = I.label
+      -- 	     y = origin.y + global.padding
+      -- 	     rotation = 0.0
+      -- }
+
+      override J.shape.color = Colors.blue
+      override K.shape.color = Colors.blue
+}
+
+/*
+Interval `A` {
+  override `A`.shape.color = Colors.blue
+}
+
+Interval `B` {
+  override `B`.shape.color = Colors.green
+}
+*/
+
+Real r
+with ClosedInterval I; Reals R; Real a; Real b
+where I := CreateClosedInterval(a, b); In(r, I); Subset(I, R) {
+  override r.inFn = ensure inRange(r.val, a.val, b.val)
+  override r.shape.color = Colors.red
+}
+
+Function f
+with Interval I; Reals R
+-- TODO: with Set A; Set B
+where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
+  f.pts = 9
+  -- TODO: use a more general function than computeSurjection
+  f.val = sampleFunction(f.pts, I.shape, R.y_axis)
+
+  f.shape = Curve {
+    path = f.val
+    pathData = interpolate(f.val, "open")
+    fill = Colors.none
+    color = Colors.blue
+    right-arrowhead = True
+    left-arrowhead = True
+    -- TODO: start and end style depending on the interval
+  }
+
+  -- TODO: position label using midpointPathX(f.val)
+  f.text = Text {
+    x = midpointX(I.shape)
+    y = midpointY(R.y_axis)
+    string = f.label
+  }
+}
+
+-- Draw a function with two parts with a discontinuity
+Function f
+with Interval I; Interval J; Interval K; Reals R
+where f := CreateFunction(I, R);
+      I := union(J, K);
+      Discontinuous(f);
+      Subset(I, R); Subset(J, R); Subset(K, R) {
+
+      f.pts1 = 3
+      f.pts2 = 6
+
+      f.val1 = sampleFunction(f.pts1, J.shape, R.y_axis)
+      f.val2 = sampleFunction(f.pts2, K.shape, R.y_axis)
+
+      f.shape1 = Curve {
+	path = f.val1
+	pathData = interpolate(f.val1, "open")
+	fill = Colors.none
+	color = Colors.blue
+	-- TODO: start and end style depending on the interval
+      }
+
+      f.text1 = Text {
+	x = midpointPathX(f.val1)
+	y = midpointPathY(f.val1)
+	string = f.label
+      }
+
+      -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
+      f.shape2 = Curve {
+	path = f.val2
+	pathData = interpolate(f.val2, "open")
+	fill = Colors.none
+	color = Colors.blue
+	-- TODO: start and end style depending on the interval
+      }
+
+      f.text2 = Text {
+	x = midpointPathX(f.val2)
+	y = midpointPathY(f.val2)
+	string = f.label
+      }
+
+      -- Discontinuity
+      f.shape3 = Circle {
+	r = 5.0
+	color = Colors.white
+	strokeWidth = 2.5
+	strokeColor = Colors.blue
+	-- TODO: not sure why this keeps sampling the last point
+	x = fromDomain(f.val2)
+	y = applyFn(f.val2, f.shape3.x)
+      }
+
+      -- Value of function
+      f.shape4 = Circle {
+	r = 5.0
+	color = Colors.blue
+	strokeWidth = 2.5
+	strokeColor = Colors.blue
+	x = fromDomain(f.val2)
+	y = 50.0 -- TODO: OPTIMIZED
+      }
+
+      f.domainFn = ensure disjoint(J.shape, K.shape)
+}
+
+-- y := f(x)
+-- draw on the vertical axis
+Real y
+with Function f; Interval I; Real x; Reals R
+where y := apply(f, x); f := CreateFunction(I, R); In(x, I) {
+      -- TODO: For now, picks the corresponding point in the list of points. Later, x can be properly sampled in the domain of f, and y can be found by applying the Bezier curve eqn.
+      override x.val = fromDomain(f.val)
+      override y.val = applyFn(f.val, x.val)
+
+      override y.shape.color = Colors.blue
+
+      override y.shape.startX = origin.x - (y.len / 2.0)
+      override y.shape.startY = y.val
+      override y.shape.endX =  origin.x + (y.len / 2.0)
+      override y.shape.endY = y.val
+
+      override y.inFn = ensure inRange(y.val, R.y_axis.startY, R.y_axis.endY)
+}
+
+Point p
+with Function f; Interval I; Real x; Real y; Reals R
+where p := Pt(x, y);
+      y := apply(f, x);
+      f := CreateFunction(I, R);
+      In(x, I) {
+
+      p.shape = Circle {
+      	      x = x.val
+	      y = y.val
+	      r = 5.0
+	      color = Colors.purple
+	      stroke = "none"
+      }
+
+      p.vert = Line {
+      	     startX = x.val
+	     startY = origin.y
+	     endX = x.val
+	     endY = y.val
+	     thickness = 1.5
+	     style = "dashed"
+         color = Colors.red
+      }
+
+      p.horiz = Line {
+      	     startX = origin.x
+	     startY = y.val
+	     endX = x.val
+	     endY = y.val
+	     thickness = 1.5
+	     style = "dashed"
+      	     color = Colors.blue
+      }
+}
+
+Real dfx
+with Function f; Interval I; Real x; Real y; Reals R
+where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
+      y := apply(f, x) {
+      -- We know that x's val has been chosen from f's domain
+
+      -- TODO: compute dfx to actually be tangent at point
+      -- (right now it's a hardcoded arbitrary line)
+      -- TODO: compute the whole GPI
+      override dfx.shape = Line {
+      	       startX = I.shape.startX
+	       startY = 0.0
+	       endX = I.shape.endX
+	       endY = 200.0
+	       thickness = 2.0
+      	       color = Colors.lightblue
+      }
+
+      dfx.offset = 30.0
+      dfx.text.x = dfx.shape.endX + dfx.offset
+      dfx.text.y = dfx.shape.endY + dfx.offset
+
+      delete dfx.inFn
+      delete dfx.labelFn
+}
+
+Real ifI
+with Function f; Interval I; Reals R
+where ifI := integral(I, f); f := CreateFunction(I, R) {
+      -- compute integral as a shape that lies under fn curve
+      override ifI.shape = Curve {
+      	       pathData = makeRegionPath(f.shape, I.shape)
+	       fill = Colors.lightorange
+	       color = Colors.lightorange
+	       rotation = 0.0
+      }
+
+      ifI.text.x = midpointPathX(f.val)
+      ifI.text.y = midpointPathY(f.val)
+
+      delete ifI.val -- IMPORTANT: if you don't delete this, it breaks the opt. TODO: why?
+      delete ifI.inFn
+      delete ifI.labelFn
+}
+
+Real b
+with Real a; ClosedInterval I; Reals R
+where I := CreateClosedInterval(a, b); Subset(I, R)
+{
+    override b.shape = Image {
+        path = "right-bracket.svg"
+        centerX = b.val
+        centerY = origin.y
+        lengthY = 20.0
+        lengthX = 5.0
+    }
+    delete b.labelFn
+}
+
+Real a
+with Real b; ClosedInterval I; Reals R
+where I := CreateClosedInterval(a, b); Subset(I, R)
+{
+    override a.shape = Image {
+        path = "left-bracket.svg"
+        centerX = a.val
+        centerY = origin.y
+        lengthY = 20.0
+        lengthX = 5.0
+    }
+    delete a.labelFn
+}

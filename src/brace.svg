@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="100%" height="36px" viewBox="0 0 478 36"  preserveAspectRatio="none" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+
+xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.1 (12002) - http://www.bohemiancoding.com/sketch -->
+    <title>フッター</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="ツリー" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="フッター" sketch:type="MSLayerGroup">
+            <rect id="Rectangle-3-Copy" fill="#EFAE00" sketch:type="MSShapeGroup" x="0" y="0" width="100%" height="36"></rect>
+            <path d="M160.5,36 L478,36 L478,0 L141,0 L141,0.467532468 L103,36 L160.5,36 Z" id="Rectangle-3-Copy-2" fill="#3D4D5A" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>

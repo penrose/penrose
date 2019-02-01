@@ -1,0 +1,11 @@
+Subset x `D` {
+    x.color = computeColorRGBA(0.1, 1.0, 0.2, 0.4) -- green
+    constraint contains(y, x)
+    constraint smallerThan(x, y)
+    constraint outsideOf(y.label, x)
+}
+
+Set x {
+    shape = Circle { }
+    constraint contains(x, x.label)
+}

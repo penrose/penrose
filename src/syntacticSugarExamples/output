@@ -1,0 +1,39 @@
+VectorSpace U ,V ,W ,X 
+LinearMap f 
+From(f ,U ,V )
+LinearMap g 
+From(g ,V ,W )
+LinearMap h 
+From(h ,W ,X )
+Vector u1 
+In(u1 ,U )
+Vector u2 
+In(u2 ,U )
+Vector u3 
+In(u3 ,U )
+Vector u4 
+In(u4 ,U )
+Vector u5 
+In(u5 ,U )
+Vector v1 
+In(v1 ,V )
+Vector v2 
+In(v2 ,V )
+Vector v3 
+In(v3 ,V )
+u3 :=add(u1 ,u2 )
+v1 :=apply(f ,u1 )
+v2 :=apply(f ,u2 )
+v3 :=apply(f ,u3 )
+apply(f ,u3 )=add(v1 ,v2 )
+Scalar a :=determinant(u1  , u3 )
+u4 :=scale(a  , u2 )
+u5 :=neg(u4 )
+Scalar m :=norm(v2 )
+Scalar c :=innerProduct(v1  , v3 )
+Vector w1 
+In(w1 ,W )
+w :=apply(g ,v1 )
+Vector x1 
+In(x1 ,X )
+x1 :=apply(h ,w1 )

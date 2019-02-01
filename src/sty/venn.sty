@@ -8,6 +8,8 @@ Set x {
     }
 
     x.labelFn = ensure contains(x.shape, x.text)
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
     LOCAL.layering  = x.shape below x.text
 }
 
