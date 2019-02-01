@@ -119,7 +119,7 @@ where I := CreateInterval(a, b); Subset(I, R) {
     endX   = b.val
     endY   = origin.y
     color = Colors.black
-    thickness = 5.0
+    thickness = 3.0
   }
 
   -- position computed, not optimized
@@ -193,6 +193,8 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
 
     override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
     override b.text.y = b.shape.centerY - b.shape.lengthY - global.padding
+    override a.text.color = I.shape.color
+    override b.text.color = I.shape.color
 
     -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
@@ -221,6 +223,8 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
 
     override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
     override b.text.y = b.shape.centerY - b.shape.lengthY - global.padding
+    override a.text.color = I.shape.color
+    override b.text.color = I.shape.color
 
     -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
@@ -249,6 +253,8 @@ where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
 
     override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
     override b.text.y = b.shape.centerY - b.shape.lengthY - global.padding
+    override a.text.color = I.shape.color
+    override b.text.color = I.shape.color
 }
 
 -- Extend I's shape toward positive infinity
@@ -256,15 +262,17 @@ Interval I
 with Real x; Real y; Reals `R`
 where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
       override I.shape = Arrow {
-      	       startX = x.val
+           startX = x.val
 	       startY = origin.y
 	       endX = `R`.x_axis.endX
 	       endY = origin.y
-	       thickness = 4.0
+	       thickness = 3.0
 	       color = Colors.bluegreen
 	       rotation = 0.0
       }
 
+      override I.text.color = I.shape.color
+      override x.text.color = I.shape.color
       override y.val = `R`.x_axis.endX
       delete y.shape
       delete y.text
@@ -330,6 +338,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
   }
 
   override I.shape.color = f.color
+  override I.text.color = f.color
 
   -- TODO: position label using midpointPathX(f.val)
   f.text = Text {
@@ -337,6 +346,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
     y = midpointY(R.y_axis)
     string = f.label
     rotation = 0.0
+    color = f.shape.color
   }
 }
 
@@ -351,6 +361,8 @@ where f := CreateFunction(I, R);
       f.color = Colors.orange
       override J.shape.color = f.color
       override K.shape.color = f.color
+      override J.text.color = f.color
+      override K.text.color = f.color
 
       f.pts1 = 4
       f.pts2 = 3
@@ -372,7 +384,8 @@ where f := CreateFunction(I, R);
           x = midpointPathX(f.val1)
           y = midpointPathY(f.val1)
           string = f.label
-	  rotation = 0.0
+          rotation = 0.0
+          color = f.color
       }
 
       -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
@@ -390,7 +403,8 @@ where f := CreateFunction(I, R);
           x = midpointPathX(f.val2)
           y = midpointPathY(f.val2)
           string = f.label
-	  rotation = 0.0
+          rotation = 0.0
+          color = f.color
       }
 
       -- Discontinuity
@@ -439,8 +453,15 @@ where y := apply(f, x); f := CreateFunction(I, R); In(x, I)
       override y.shape.endX =  origin.x + (y.len / 2.0)
       override y.shape.endY = y.val
 
+      override x.shape.color = f.shape.color
+      override y.shape.color = f.shape.color
+
       override y.text.x = y.shape.startX - 2.0 * global.padding
       override y.text.y = y.val
+
+      override y.text.color = f.shape.color
+      override x.text.color = f.shape.color
+
       -- override y.labelFn = encourage nearHead(y.shape, y.text, -50.0, 0.0)
 
       delete x.inFn
@@ -470,7 +491,7 @@ where p := Pt(x, y);
           endY = y.val
           thickness = 1.5
           style = "dashed"
-          color = Colors.gray
+          color = f.shape.color
       }
 
       p.horiz = Line {
@@ -480,7 +501,7 @@ where p := Pt(x, y);
           endY = y.val
           thickness = 1.5
           style = "dashed"
-          color = Colors.gray
+          color = f.shape.color
       }
 }
 
@@ -508,6 +529,7 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
       dfx.offset = 30.0
       override dfx.text.x = dfx.shape.endX + dfx.offset
       override dfx.text.y = dfx.shape.endY + dfx.offset
+      override dfx.text.color = dfx.shape.color
 }
 
 Real ifI
@@ -530,6 +552,8 @@ where U := union(I, J);
           color = Colors.lightorange
           rotation = 0.0
       }
+
+      override ifI.text.color = ifI.shape.color
 
       override ifI.text.x = midpointPathX(f.val1)
       override ifI.text.y = midpointPathY(f.val1) - 100.0

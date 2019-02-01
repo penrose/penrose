@@ -67,7 +67,8 @@ executable penrose
         mtl -any,
         bytestring -any,
         array -any,
-        ansi-terminal -any
+        ansi-terminal -any,
+        docopt -any
 
 test-suite penrose-testsuite
     type: exitcode-stdio-1.0
@@ -127,4 +128,5 @@ test-suite penrose-testsuite
         ansi-terminal -any,
         array -any,
         uuid -any,
-        hslogger -any
+        hslogger -any,
+        docopt -any
