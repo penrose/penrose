@@ -1,8 +1,14 @@
 import * as React from "react";
-import { toScreen } from "./Util";
+import { toScreen, toHex } from "./Util";
 import draggable from "./Draggable";
 import { IGPIPropsDraggable } from "./types";
 
+const styleLabel = (label : HTMLElement, color: string) => {
+  label.getElementsByTagName("g")[0].setAttribute("fill", color)
+  return label.outerHTML
+}
+
+            // ? styleLabel(shape.rendered.contents, style)
 class Label extends React.Component<IGPIPropsDraggable> {
   public render() {
     const { shape } = this.props;
@@ -10,6 +16,7 @@ class Label extends React.Component<IGPIPropsDraggable> {
     const { canvasSize } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const { w, h } = shape;
+    const color = toHex(shape.color.contents)
     return (
       <g
         transform={`translate(${x - w.contents / 2},${y - h.contents / 2})`}
@@ -19,7 +26,7 @@ class Label extends React.Component<IGPIPropsDraggable> {
         pointerEvents="bounding-box"
         dangerouslySetInnerHTML={{
           __html: shape.rendered
-            ? shape.rendered.contents
+            ? styleLabel(shape.rendered.contents, color)
             : `<text>${shape.string.contents}</text>`
         }}
       />

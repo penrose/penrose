@@ -330,6 +330,7 @@ textType = ("Text", M.fromList
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),
+        ("color", (ColorT, constValue $ ColorV black)),
         ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
 
