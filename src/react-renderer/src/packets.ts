@@ -28,6 +28,14 @@ export const update = memoized((updatedShapes: any[]) => ({
   }
 }));
 
+export const recompileDomain = memoized((element: string, style: string) => ({
+  tag: "Recompile",
+  contents: {
+    element,
+    style
+  }
+}));
+
 export const drag = memoized((id: string, dy: number, dx: number) => ({
   tag: "Drag",
   contents: {
