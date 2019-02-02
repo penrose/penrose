@@ -283,6 +283,7 @@ waitSubstance client@(clientID, conn, clientState) = do
     case decode msg_json of
         Just e -> case e of
             Edit (SubstanceEdit subProg)  -> substanceEdit subProg client
+            Recompile (RecompileDomain element style) -> recompileDomain element style client
             _                             -> continue
         Nothing -> continue
     where continue = do
@@ -346,7 +347,7 @@ recompileDomain _ _ client@(_, conn, Renderer s) = do
 recompileDomain element style client@(clientID, conn, Editor {}) = do
     logInfo client "Switching to another domain..."
     logInfo client $ "Element program received: " ++ element
-    logInfo client $ "Element program received: " ++ style
+    logInfo client $ "Style program received: " ++ style
 
     elementRes <- try $ parseDsll "" element
     case elementRes of
