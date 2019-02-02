@@ -378,7 +378,7 @@ substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
                         ordering = shapeOrdering newState,
                         shapes = shapesr newState :: [Shape Double]
                     }
-                    loop (clientID, conn, Editor env styProg $ Just newState)
+                    waitUpdate (clientID, conn, Editor env styProg $ Just newState)
                 Left styError -> substanceError client styError
         Left subError -> substanceError client subError
 
