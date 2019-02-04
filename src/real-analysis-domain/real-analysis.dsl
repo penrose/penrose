@@ -79,8 +79,24 @@ predicate LessThan (p1 : Real, p2 : Real) : Prop
 predicate ClosedEnd (p : Real, I : Interval) : Prop
 predicate OpenEnd (p : Real, I : Interval) : Prop
 
+-- Syntactic Sugars
+
+StmtNotation "A := [a,b] ⊆ X" -> "ClosedInterval A; A := CreateClosedInterval(a, b);Subset(A, X)"
+StmtNotation "A := (a,b) ⊆ X" -> "OpenInterval A; A := CreateOpenInterval(a, b);Subset(A, X)"
+StmtNotation "A := [a,b) ⊆ X" -> "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b);Subset(A, X)"
+
+StmtNotation "X ⊆ Y" -> "Subset(X, Y)"
+StmtNotation "Real X ∈ Y" -> "Real X;In(X, Y)"
+StmtNotation "X ∪ Y" -> "union(X, Y)"
+
+StmtNotation "f : A -> B" -> "Function f; f := CreateFunction(A,B)"
+StmtNotation "f(x)" -> "apply(f, x)"
+StmtNotation "f ` (x)" -> "derivativeAtP(f, x)"
+
+
+
 -- Prelude exports
--- value RR : Reals
+value R : Reals
 
 -- Notation is ASCII only
 -- notation "f.domain" -> "Dom(f)"
