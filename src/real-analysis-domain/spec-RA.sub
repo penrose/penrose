@@ -42,7 +42,6 @@ LeftClopenInterval J
 J := CreateLeftClopenInterval(i, j)
 Subset(J, R)
 
--- TODO fix: style line 714: Sub obj might not have a shape
 Interval U
 U := union(I, J)
 Subset(U, R)
@@ -62,4 +61,3 @@ PosInfinite(n)
 OpenInterval K
 K := CreateOpenInterval(m, n)
 Subset(K, R)
--- NoLabel m, n

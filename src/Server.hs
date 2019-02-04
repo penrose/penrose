@@ -32,6 +32,7 @@ import           Network.WebSockets.Connection
 import qualified Network.WebSockets.Stream     as Stream
 import qualified Optimizer                     as O
 import           Shapes
+import qualified Sugarer
 -- (Shape, Value (..), getName,
 --                                                 getNum, getX, getY, sampleShapes, setX,
 --                                                 setY, toPolymorphics, set, is)
@@ -324,7 +325,7 @@ substanceEdit subIn client@(_, _, Renderer _) =
     logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
 substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
-    subRes <- try (parseSubstance "" subIn env)
+    subRes <- try (parseSubstance "" (Sugarer.sugarStmts subIn env) env)
     case subRes of
         Right subOut -> do
             logDebug client $ show subOut
