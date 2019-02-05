@@ -40,10 +40,10 @@ operator DerivativeOverD (f : Function) : Function
 operator Integral (I : Interval, f : Function) : Real
 operator Apply (f : Function, p : Real) : Real
 -- We don't know if applying f to an interval yields an interval. Substance should be able to cast it to an Interval
-operator applyOver (f : Function, I : Interval) : Interval
+operator ApplyOver (f : Function, I : Interval) : Interval
 -- operator applyOver (f : Function, I : Interval) : Set
 -- (g . f): Does not check f's codomain matches g's domain
-operator compose (f : Function, g : Function) : Function
+operator Compose (f : Function, g : Function) : Function
 
 -- Predicates on reals
 predicate PosInfinite(x : Real) : Prop

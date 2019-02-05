@@ -77,7 +77,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
     dsllEnv <- D.parseDsll dsllFile dsllIn
 
     -- Desugar Substance source file
-    let subFileSugared = subFile ++ "sugared"
+    let subFileSugared = subFile ++ "desugared"
     writeFile subFileSugared (Sugarer.sugarStmts subIn dsllEnv)
     desugaredSub <- readFile subFileSugared
     subOut <- C.parseSubstance subFileSugared desugaredSub dsllEnv

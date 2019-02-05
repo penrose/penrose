@@ -350,7 +350,7 @@ Interval `A`; Interval `I`; Interval `J`; Interval `K` {
 -- !(I := union(X, Y))
 
 Interval Z
-where Z := union(X, Y)
+where Z := Union(X, Y)
 with Interval X; Interval Y {
      -- delete Z.shape
      -- delete Z.text
@@ -522,7 +522,7 @@ Function `g` {
 Function f
 with Interval I; Interval J; Interval X; Interval Y
 where f := CreateFunction(I, J);
-      I := union(X, Y); -- Assuming that none of these is recursively a union of intervals
+      I := Union(X, Y); -- Assuming that none of these is recursively a Union of intervals
       Discontinuous(f) {
 
       -- `I` is not drawn separately on the screen
@@ -585,7 +585,7 @@ where f := CreateFunction(I, J);
 If there is a composition of functions, draw a third R for the second function. Again, this is technically going to be made for every match, but overridden to be the same thing. (Does NOT deal with composition of 3 functions, i = h . g . f) */
 
 Function h, g, f
-where h := compose(g, f);
+where h := Compose(g, f);
       h := CreateFunction(A, C);
       g := CreateFunction(B, C);
       f := CreateFunction(A, B)
@@ -642,8 +642,8 @@ with Interval A, B, C;
 -- Temporarily moving on from making this selector/block work (issue #167)
 
 Function h
-where h := compose(g, f);
-      f := compose(e, d);
+where h := Compose(g, f);
+      f := Compose(e, d);
       -- It's a little faster with the intervals and createFunctions commented out.
       h := CreateFunction(A, D)
       -- g := CreateFunction(C, D);
@@ -700,7 +700,7 @@ with Function g, f, e, d;
 -- y := f(x)
 Real y; Function f
 with Interval I; Interval J; Real x
-where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
+where y := Apply(f, x); f := CreateFunction(I, J); In(x, I) {
 
   override x.val = midpointX(f.domain)
   override y.val = midpointX(f.codomain) -- hardcoded
@@ -737,7 +737,7 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
 -- Again duplicated for f : R -> R
 Real y; Function f
 with Reals `R`; Real x
-where y := apply(f, x); f := CreateFunction(`R`, `R`) {
+where y := Apply(f, x); f := CreateFunction(`R`, `R`) {
   override x.val = midpointX(`R`.shape1)
   override y.val = midpointX(`R`.shape2) -- hardcoded
 
@@ -766,19 +766,19 @@ where y := apply(f, x); f := CreateFunction(`R`, `R`) {
 -- Only if J is not reals, make sure result is in interval
 Real y; Function f
 with Interval I; Interval J; Real x; Reals `R`
-where y := apply(f, x); f := CreateFunction(I, J); In(x, I); Subset(J, `R`) {
+where y := Apply(f, x); f := CreateFunction(I, J); In(x, I); Subset(J, `R`) {
   -- Only if J is not reals?
   y.inCodomainFn = ensure inRange(y.val, J.left, J.right)
 }
 
 -----------------------------------
 
--- No styles for derivative, integral, point
+-- No styles for derivative, Integral, point
 
 Real dfx
 with Function f; Interval I; Interval J; Real x; Real y
-where dfx := derivativeAtP(f, x); f := CreateFunction(I, J);
-      y := apply(f, x) {
+where dfx := DerivativeAtP(f, x); f := CreateFunction(I, J);
+      y := Apply(f, x) {
 
       delete dfx.val
       delete dfx.shape
@@ -789,8 +789,8 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, J);
 
 Real ifI
 with Function f; Interval I; Interval J; Interval U; Reals R
-where U := union(I, J);
-      ifI := integral(I, f);
+where U := Union(I, J);
+      ifI := Integral(I, f);
       f := CreateFunction(U, R);
       Discontinuous(f) {
 
@@ -804,7 +804,7 @@ where U := union(I, J);
 Point p
 with Function f; Interval I; Real x; Real y; Reals R
 where p := Pt(x, y);
-      y := apply(f, x);
+      y := Apply(f, x);
       f := CreateFunction(I, R);
       In(x, I) {
 
