@@ -62,7 +62,7 @@ penroseEditor styFile dsllFile domain port = do
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
 
-    styProg <- S.parseStyle styFile styIn
+    styProg <- S.parseStyle styFile styIn dsllEnv
     putStrLn "Style AST:\n"
     pPrint styProg
     divLine
@@ -77,7 +77,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
     dsllEnv <- D.parseDsll dsllFile dsllIn
 
     -- Desugar Substance source file
-    let subFileSugared = subFile ++ "sugared"
+    let subFileSugared = subFile ++ "desugared"
     writeFile subFileSugared (Sugarer.sugarStmts subIn dsllEnv)
     desugaredSub <- readFile subFileSugared
     subOut <- C.parseSubstance subFileSugared desugaredSub dsllEnv
@@ -85,7 +85,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
 
     print subOut
 
-    styProg <- S.parseStyle styFile styIn
+    styProg <- S.parseStyle styFile styIn dsllEnv
     putStrLn "Style AST:\n"
     pPrint styProg
     divLine
@@ -106,7 +106,7 @@ mainRetInit subFile styFile dsllFile = do
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
     subOut@(C.SubOut subProg (subEnv, eqEnv) labelMap) <- C.parseSubstance subFile subIn dsllEnv
-    styProg <- S.parseStyle styFile styIn
+    styProg <- S.parseStyle styFile styIn dsllEnv
     let selEnvs = S.checkSels subEnv styProg
     let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
     let !trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap

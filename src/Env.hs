@@ -19,16 +19,158 @@ import Debug.Trace
 import Data.Functor.Classes
 import Data.List
 import Data.Maybe (fromMaybe)
+import Control.Monad (void)
 import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Expr
+import Data.Void
+import Control.Monad.State.Lazy (StateT)
 --import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
-import qualified Data.Map.Strict as M
+import qualified Data.Set                   as S
+import qualified Data.Map.Strict            as M
 import qualified Text.Megaparsec.Char.Lexer as L
 import qualified SubstanceTokenizer         as T
 
+--------------------------------------------------------------------------------
+---- Lexer helper functions
+-- TODO: separate reserved words and keywords for each of the DSLs
+
+type BaseParser = Parsec ParserError String
+type Parser = StateT (Maybe VarEnv) BaseParser
+data ParserError
+    = SubstanceError String
+    | StyleError String
+    deriving (Eq, Typeable, Ord, Read, Show)
+instance ShowErrorComponent ParserError where
+    showErrorComponent (SubstanceError msg) = "Substance Parser Error: " ++ msg
+
+rws, attribs, attribVs, shapes :: [String] -- list of reserved words
+rws =     ["avoid", "as"] ++ dsll
+-- ++ types ++ attribs ++ shapes ++ colors
+attribs = ["shape", "color", "label", "scale", "position"]
+attribVs = shapes
+shapes =  ["Auto", "None", "Circle", "Box", "SolidArrow", "SolidDot",
+           "HollowDot", "Cross"]
+labelrws = ["Label", "AutoLabel", "NoLabel"]
+dsll = ["tconstructor","vconstructor","operator","ExprNotation","StmtNotation",
+        "forvars","fortypes","predicate", "Prop", "type", "<:", "->", "<->",
+        "at level", "associativity"]
+-- colors =  ["Random", "Black", "Red", "Blue", "Yellow"]
+
+upperId, lowerId, identifier :: Parser String
+identifier = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> letterChar <*> many validChar
+upperId = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> upperChar <*> many validChar
+lowerId = (lexeme . try) (p >>= checkId)
+  where p = (:) <$> lowerChar <*> many validChar
+validChar = alphaNumChar <|> char '_' <|> char '-'
+
+
+
+transPattern :: Parser String
+transPattern = (lexeme . try) (p >>= checkPattern)
+  where p = many anyChar --(:) <$> letterChar <*> many validChar
+
+checkPattern :: String -> Parser String
+checkPattern x = if x == "\"" || x == "->"
+            then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+            else return x
+
+checkId :: String -> Parser String
+checkId x = if x `elem` rws
+          then fail $ "keyword " ++ show x ++ " cannot be an identifier"
+          else return x
+
+texExpr :: Parser String
+texExpr = dollar >> manyTill asciiChar dollar
+
+-- | 'lineComment' and 'blockComment' are the two styles of commenting in Penrose. Line comments start with @--@. Block comments are wrapped by @/*@ and @*/@.
+lineComment, blockComment :: Parser ()
+lineComment  = L.skipLineComment "--"
+blockComment = L.skipBlockComment "/*" "*/"
+
+-- | A strict space consumer. 'sc' only eats space and tab characters. It does __not__ eat newlines.
+sc :: Parser ()
+sc = L.space (void $ takeWhile1P Nothing f) lineComment empty
+  where
+    f x = x == ' ' || x == '\t'
+
+-- | A normal space consumer. 'scn' consumes all whitespaces __including__ newlines.
+scn :: Parser ()
+scn = L.space space1 lineComment blockComment
+
+lexeme :: Parser a -> Parser a
+lexeme = L.lexeme sc
+
+symbol :: String -> Parser String
+symbol = L.symbol sc
+
+symboln :: String -> Parser String
+symboln = L.symbol scn
+
+newline' :: Parser ()
+newline' = newline >> scn
+
+semi' :: Parser ()
+semi' = semi >> scn
+
+backticks :: Parser a -> Parser a
+backticks = between (symbol "`") (symbol "`")
+
+semi, def, lparen, rparen, lbrac, rbrac, colon,
+           arrow, comma, dollar, question, dot :: Parser ()
+aps = void (symbol "'")
+quote = void (symbol "\"")
+lbrac = void (symbol "{")
+rbrac = void (symbol "}")
+lparen = void (symbol "(")
+rparen = void (symbol ")")
+slparen = void (symbol "[")
+srparen = void (symbol "]")
+colon = void (symbol ":")
+semi = void (symbol ";")
+arrow = void (symbol "->")
+comma = void (symbol ",")
+dot = void (symbol ".")
+eq = void (symbol "=")
+def = void (symbol ":=")
+dollar = void (symbol "$")
+question = void (symbol "?")
+
+
+dollars :: Parser a -> Parser a
+dollars = between (symbol "$") (symbol "$")
+
+braces :: Parser a -> Parser a
+-- NOTE: symboln is used here because all usages of braces in our system allow newlines in the middle of a stmt
+-- May wanna change this later once we have stricter use case of it
+braces = between (symboln "{") (symbol "}")
+
+parens :: Parser a -> Parser a
+parens = between (symbol "(") (symbol ")")
+
+brackets :: Parser a -> Parser a
+brackets = between (symbol "[") (symbol "]")
+
+-- | 'integer' parses an integer.
+integer :: Parser Integer
+unsignedInteger       = lexeme L.decimal
+integer = L.signed sc unsignedInteger
+
+-- | 'float' parses a floating point number.
+float :: Parser Float
+unsignedFloat = lexeme L.float
+float = L.signed sc unsignedFloat
+
+-- Reserved words
+rword :: String -> Parser ()
+rword w = lexeme (string w *> notFollowedBy alphaNumChar)
+
+tryChoice :: [Parser a] -> Parser a
+tryChoice list = choice $ map try list
 
 ----------------------------------- AST ----------------------------------------
 
