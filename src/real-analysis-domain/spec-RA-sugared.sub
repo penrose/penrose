@@ -43,7 +43,7 @@ h : U -> R
 Discontinuous(h)
 
 Real ifI
-ifI := integral(I, h)
+ifI := Integral(I, h)
 Label ifI $\int_{I} h(x) dx$
 
 ---------------------------------------------------

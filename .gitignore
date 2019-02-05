@@ -35,4 +35,4 @@ _region_.tex
 out*.txt
 penrose-ide/
 *.prof
-*.subsugared
+*.subdesugared

@@ -88,11 +88,11 @@ StmtNotation "A := [a,b) ⊆ X" -> "LeftClopenInterval A; A := CreateLeftClopenI
 
 StmtNotation "X ⊆ Y" -> "Subset(X, Y)"
 StmtNotation "Real X ∈ Y" -> "Real X;In(X, Y)"
-StmtNotation "X ∪ Y" -> "union(X, Y)"
+StmtNotation "X ∪ Y" -> "Union(X, Y)"
 
 StmtNotation "f : A -> B" -> "Function f; f := CreateFunction(A,B)"
-StmtNotation "f(x)" -> "apply(f, x)"
-StmtNotation "f ` (x)" -> "derivativeAtP(f, x)"
+StmtNotation "f(x)" -> "Apply(f, x)"
+StmtNotation "f ` (x)" -> "DerivativeAtP(f, x)"
 
 
 -- Prelude exports
