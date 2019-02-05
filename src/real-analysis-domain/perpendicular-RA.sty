@@ -507,7 +507,11 @@ where p := Pt(x, y);
 
 Real dfx
 with Function f; Interval I; Real x; Real y; Reals R
+<<<<<<< Updated upstream
 where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
+=======
+where dfx := DerivativeAtP(f, x); f := CreateFunction(I, R);
+>>>>>>> Stashed changes
       y := Apply(f, x) {
       -- We know that x's val has been chosen from f's domain
 

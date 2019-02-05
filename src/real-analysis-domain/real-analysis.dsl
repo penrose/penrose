@@ -31,13 +31,13 @@ RightClopenInterval <: Interval
 -- AND that the GPIs satisfy the subtyping relationship (e.g. lines, arrows having start/end fields)
 
 -- Operators on intervals
-operator union (I : Interval, J : Interval) : Interval
-operator intersection (I : Interval, J : Interval)  : Interval
+operator Union (I : Interval, J : Interval) : Interval
+operator Intersection (I : Interval, J : Interval)  : Interval
 
 -- Operators on functions, points, and intervals
-operator derivativeAtP (f : Function, p : Real) : Real
-operator derivativeOverD (f : Function) : Function
-operator integral (I : Interval, f : Function) : Real
+operator DerivativeAtP (f : Function, p : Real) : Real
+operator DerivativeOverD (f : Function) : Function
+operator Integral (I : Interval, f : Function) : Real
 operator Apply (f : Function, p : Real) : Real
 -- We don't know if applying f to an interval yields an interval. Substance should be able to cast it to an Interval
 operator applyOver (f : Function, I : Interval) : Interval
@@ -78,6 +78,20 @@ predicate Subset (X : Set, Y : Set) : Prop
 predicate LessThan (p1 : Real, p2 : Real) : Prop
 predicate ClosedEnd (p : Real, I : Interval) : Prop
 predicate OpenEnd (p : Real, I : Interval) : Prop
+
+-- Syntactic Sugars
+
+-- StmtNotation "A := [a,b] ⊆ X" -> "ClosedInterval A; A := CreateClosedInterval(a, b);Subset(A, X)"
+-- StmtNotation "A := (a,b) ⊆ X" -> "OpenInterval A; A := CreateOpenInterval(a, b);Subset(A, X)"
+-- StmtNotation "A := [a,b) ⊆ X" -> "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b);Subset(A, X)"
+--
+-- StmtNotation "X ⊆ Y" -> "Subset(X, Y)"
+-- StmtNotation "Real X ∈ Y" -> "Real X;In(X, Y)"
+-- StmtNotation "X ∪ Y" -> "Union(X, Y)"
+--
+-- StmtNotation "f : A -> B" -> "Function f; f := CreateFunction(A,B)"
+-- StmtNotation "f(x)" -> "Apply(f, x)"
+-- StmtNotation "f ` (x)" -> "DerivativeAtP(f, x)"
 
 -- Prelude exports
 -- value RR : Reals
