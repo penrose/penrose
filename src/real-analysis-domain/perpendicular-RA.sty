@@ -443,7 +443,7 @@ where f := CreateFunction(I, R);
 -- draw on the vertical axis
 Real y
 with Function f; Interval I; Real x; Reals R
-where y := apply(f, x); f := CreateFunction(I, R); In(x, I)
+where y := Apply(f, x); f := CreateFunction(I, R); In(x, I)
 {
       override x.val = fromDomain(f.shape.polyline)
       override y.val = applyFn(f.shape.polyline, x.val)
@@ -471,7 +471,7 @@ where y := apply(f, x); f := CreateFunction(I, R); In(x, I)
 Point p
 with Function f; Interval I; Real x; Real y; Reals R
 where p := Pt(x, y);
-      y := apply(f, x);
+      y := Apply(f, x);
       f := CreateFunction(I, R);
       In(x, I) {
 
@@ -508,7 +508,7 @@ where p := Pt(x, y);
 Real dfx
 with Function f; Interval I; Real x; Real y; Reals R
 where dfx := derivativeAtP(f, x); f := CreateFunction(I, R);
-      y := apply(f, x) {
+      y := Apply(f, x) {
       -- We know that x's val has been chosen from f's domain
 
       delete dfx.val

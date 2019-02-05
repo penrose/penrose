@@ -39,7 +39,9 @@ import qualified SubstanceTokenizer         as T
 
 type BaseParser = Parsec ParserError String
 type Parser = StateT (Maybe VarEnv) BaseParser
-data ParserError = SubstanceError String
+data ParserError
+    = SubstanceError String
+    | StyleError String
     deriving (Eq, Typeable, Ord, Read, Show)
 instance ShowErrorComponent ParserError where
     showErrorComponent (SubstanceError msg) = "Substance Parser Error: " ++ msg

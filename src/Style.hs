@@ -2,7 +2,7 @@
 -- and functions to traverse the Style AST, which are used by "Runtime"
 
 {-# OPTIONS_HADDOCK prune #-}
-{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, FlexibleContexts #-}
 {-# LANGUAGE ConstraintKinds #-}
 -- Mostly for autodiff
 
@@ -10,10 +10,10 @@ module Style where
 -- module Main (main) where -- for debugging purposes
 
 import Utils
-import Shapes
+import Shapes hiding (get)
 import Functions
 import Control.Monad (void, foldM)
-import Control.Monad.State.Lazy (evalStateT)
+import Control.Monad.State.Lazy (evalStateT, get)
 import Control.Applicative ((<**>))
 import Data.Function (on)
 import Data.Either (partitionEithers)
@@ -273,16 +273,27 @@ predicateArgument = PE <$> selectorExpr <|> PP <$> predicate
 
 selectorExpr :: Parser SelExpr
 selectorExpr =
-    tryChoice [
-        -- COMBAK: right recursion, empty parens
-        -- TODO: document that value constructors should start w/ a capital letter and functions w/ lowercase
-        SEAppValCons <$> upperId <*> parens (selectorExpr `sepBy1` comma),
-        SEAppFunc    <$> lowerId <*> parens (selectorExpr `sepBy1` comma),
+        try selectorValConsOrFunc <|>
         SEBind       <$> bindingForm
-    ]
 
 bindingForm :: Parser BindingForm
 bindingForm = BSubVar <$> backticks varParser <|> BStyVar <$> styVar
+
+-- NOTE: this is a duplication of "valConsOrFunc" in Substance parser, with selector specific types
+selectorValConsOrFunc :: Parser SelExpr
+selectorValConsOrFunc = do
+    n <- identifier
+    e <- get
+    let env = fromMaybe (error "Style parser: variable environment is not intiialized.") e
+    args <- parens (selectorExpr `sepBy1` comma)
+    case (M.lookup n $ valConstructors env, M.lookup n $ operators env) of
+        -- the id is a value constructor
+        (Just _, Nothing)  -> return $ SEAppValCons n args
+        -- the id is an operator
+        (Nothing, Just _)  -> return $ SEAppFunc n args
+        (Nothing, Nothing) -> styleErr $ "undefined identifier " ++ n
+        _ -> styleErr $  n ++ " cannot be both a value constructor and an operator"
+    where styleErr s = customFailure (StyleError s)
 
 -------------------- Block parsers
 
