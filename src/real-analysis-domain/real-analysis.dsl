@@ -81,27 +81,19 @@ predicate OpenEnd (p : Real, I : Interval) : Prop
 
 -- Syntactic Sugars
 
--- StmtNotation "A := [a,b] ⊆ X" -> "ClosedInterval A; A := CreateClosedInterval(a, b);Subset(A, X)"
--- StmtNotation "A := (a,b) ⊆ X" -> "OpenInterval A; A := CreateOpenInterval(a, b);Subset(A, X)"
--- StmtNotation "A := [a,b) ⊆ X" -> "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b);Subset(A, X)"
---
--- StmtNotation "X ⊆ Y" -> "Subset(X, Y)"
--- StmtNotation "Real X ∈ Y" -> "Real X;In(X, Y)"
--- StmtNotation "X ∪ Y" -> "Union(X, Y)"
---
--- StmtNotation "f : A -> B" -> "Function f; f := CreateFunction(A,B)"
--- StmtNotation "f(x)" -> "Apply(f, x)"
--- StmtNotation "f ` (x)" -> "DerivativeAtP(f, x)"
+
+StmtNotation "A := [a,b] ⊆ X" -> "ClosedInterval A; A := CreateClosedInterval(a, b);Subset(A, X)"
+StmtNotation "A := (a,b) ⊆ X" -> "OpenInterval A; A := CreateOpenInterval(a, b);Subset(A, X)"
+StmtNotation "A := [a,b) ⊆ X" -> "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b);Subset(A, X)"
+
+StmtNotation "X ⊆ Y" -> "Subset(X, Y)"
+StmtNotation "Real X ∈ Y" -> "Real X;In(X, Y)"
+StmtNotation "X ∪ Y" -> "union(X, Y)"
+
+StmtNotation "f : A -> B" -> "Function f; f := CreateFunction(A,B)"
+StmtNotation "f(x)" -> "apply(f, x)"
+StmtNotation "f ` (x)" -> "derivativeAtP(f, x)"
+
 
 -- Prelude exports
--- value RR : Reals
-
--- Notation is ASCII only
--- notation "f.domain" -> "Dom(f)"
--- notation "f.codomain" := "Cod(f)"
--- notation "Subset(X, Y)" := "X Subset Y"
--- TODO: specify infix predicates
-
--- Unicode display
--- display "Subset" -> ⊂
--- display "RR" -> R
+value R : Reals

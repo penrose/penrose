@@ -1,5 +1,4 @@
 Set A, B, C, D, E, F, G
--- Set H, I, J, K, L
 
 IsSubset(B, A)
 IsSubset(C, A)
@@ -11,22 +10,5 @@ IsSubset(G, C)
 NotIntersecting(E, D)
 NotIntersecting(F, G)
 NotIntersecting(B, C)
-
--- IsSubset(H, A)
--- IsSubset(H, A)
--- IsSubset(I, A)
--- IsSubset(I, A)
--- IsSubset(J, H)
--- IsSubset(J, H)
--- IsSubset(K, I)
--- IsSubset(K, I)
--- IsSubset(L, H)
--- IsSubset(L, H)
--- NotIntersecting(H, I)
--- NotIntersecting(L, J)
--- NotIntersecting(B, I)
--- NotIntersecting(B, H)
--- NotIntersecting(C, I)
--- NotIntersecting(C, H)
 
 AutoLabel All

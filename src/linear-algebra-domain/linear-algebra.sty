@@ -16,13 +16,29 @@ Colors {
   Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
   Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
   Colors.lightGray = rgba(200.0,200.0,200.0,1.0)
+    Colors.darkGray = rgba(0.4, 0.4, 0.4, 1.0)
+
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
 VectorSpace U {
  U.thickness = 2.0
-
- U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 15.0 , 0.0)
- U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0 ,15.0 )
+ U.axisColor = Colors.darkGray
 
   U.shape = Square {
     side = const.vectorSpaceSize
@@ -32,10 +48,12 @@ VectorSpace U {
 
    U.textX = Text {
      string = "x"
+     color = Colors.darkGray
    }
 
    U.textY = Text {
      string = "y"
+     color = Colors.darkGray
    }
 
    /*
@@ -49,13 +67,14 @@ VectorSpace U {
    }
    */
 
+   -- TODO: double-headed arrows
    U.xAxisRight = Arrow {
       startX = U.shape.x
       startY = U.shape.y
       endX = U.shape.x + const.axisSize
       endY = U.shape.y
       thickness = U.thickness
-      color = Colors.black
+      color = U.axisColor
    }
 
    U.xAxisLeft = Arrow {
@@ -64,7 +83,7 @@ VectorSpace U {
       endX = U.shape.x - const.axisSize
       endY = U.shape.y
       thickness = U.thickness
-      color = Colors.black
+      color = U.axisColor
    }
 
    U.yAxisUp = Arrow {
@@ -73,7 +92,7 @@ VectorSpace U {
       endX = U.shape.x
       endY = U.shape.y + const.axisSize
       thickness = U.thickness
-      color = Colors.black
+      color = U.axisColor
    }
 
    U.yAxisDown = Arrow {
@@ -82,19 +101,25 @@ VectorSpace U {
       endX = U.shape.x
       endY = U.shape.y - const.axisSize
       thickness = U.thickness
-      color = Colors.black
+      color = U.axisColor
    }
 
    U.text = Text {
      string = U.label
      x = U.shape.x - const.axisSize
      y = U.shape.y + const.axisSize
+     color = U.axisColor
    }
+
+   U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
+   U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0, 20.0)
 }
 
+-- TODO: generates too many constraints?
+
 VectorSpace U; VectorSpace V {
-    U.sameHeight = ensure sameHeight(U.shape, V.shape)
-    U.nonIntersect = ensure nonOverlapping(U.shape, V.shape)
+    LOCAL.sameHeight = ensure sameHeight(U.shape, V.shape)
+    LOCAL.nonIntersect = ensure disjoint(U.shape, V.shape)
     --V.shape.y = U.shape.y
     --V.shape.x = U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
 }
@@ -106,10 +131,11 @@ where In(v,U) {
    --v.endYTest = OPTIMIZED
    v.containFn = ensure contains(U.shape, v.shape)
    v.containLabel = ensure contains(U.shape, v.text)
-   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 ,20.0 )
+   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 , 30.0)
 
   v.text = Text {
     string = v.label
+    color = v.shape.color
   }
 
   v.shape = Arrow {
@@ -119,18 +145,23 @@ where In(v,U) {
     -- endY = v.endYTest / const.scaleRatio
     thickness = 3.0
   }
+
+  v.layeringText1 = v.text above U.xAxisRight
+  v.layeringText2 = v.text above U.xAxisLeft
+  v.layeringText3 = v.text above U.yAxisUp
+  v.layeringText4 = v.text above U.yAxisDown
 }
 
 Vector u
 with Vector v; VectorSpace U
-where u := Neg(v); In(v,U); In(u, U) {
+where u := neg(v); In(v,U); In(u, U) {
   u.shape.endX = 2.0 * v.shape.startX - v.shape.endX
   u.shape.endY = 2.0 * v.shape.startY - v.shape.endY
 }
 
 Vector u
 with Vector v; Vector w; VectorSpace U
-where u := AddV(v,w); In(u, U); In(v, U); In(w, U) {
+where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
    u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
    u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
 
@@ -140,7 +171,8 @@ where u := AddV(v,w); In(u, U); In(v, U); In(w, U) {
 
      startX = w.shape.endX
      startY = w.shape.endY
-     thickness = 4.5
+     thickness = 1.5
+     color = setOpacity(v.shape.color, 0.5)
      style = "dashed"
     }
 
@@ -150,8 +182,8 @@ where u := AddV(v,w); In(u, U); In(v, U); In(w, U) {
 
        startX = v.shape.endX
        startY = v.shape.endY
-       thickness = 4.5
-       color = u.slider_v.color
+       thickness = 1.5
+       color = setOpacity(w.shape.color, 0.5)
        style = "dashed"
     }
 }
@@ -159,20 +191,30 @@ where u := AddV(v,w); In(u, U); In(v, U); In(w, U) {
 LinearMap f
 with VectorSpace U; VectorSpace V
 where From(f,U,V) {
-   f.shape = Arrow {
+   /* f.shape = Arrow {
       startX = U.shape.x
       startY = U.shape.y + const.vectorSpaceSize/2.0
       endX = V.shape.x
       endY = V.shape.y + const.vectorSpaceSize/2.0
       style = "curved"
       rotation = 0.0
+   } */
+
+   f.shape = Curve {
+     pathData = makeCurve(U.shape.x + const.vectorSpaceSize/2.0, U.shape.y, V.shape.x - const.vectorSpaceSize/2.0, V.shape.y, 0.0, 30.0)
+     fill = Colors.none
+     strokeWidth = 1.5
+     right-arrowhead = True
    }
 
    f.text = Text {
      string = f.label
-     x = (f.shape.startX + f.shape.endX) / 2.0
-     y = f.shape.startY + 100.0
+     x = (U.shape.x + V.shape.x) / 2.0
+     y = U.shape.y + 50.0
+     color = f.shape.color
    }
+
+   f.orderFn = ensure lessThan(U.shape.x + 20.0, V.shape.x)
 }
 
 -- | Sclar is not visualized in any concrete way but insteat it contains a
@@ -183,8 +225,14 @@ Scalar c {
 
 Scalar c
 with Vector a; Vector b; VectorSpace U
-where c := Determinant(a,b); In(a,U); In(b,U) {
-   c.shape = Parallelogram {
+where c := determinant(a,b); In(a,U); In(b,U) {
+   c.shape = Curve {
+   	   pathData = makeRegionPath(a.shape, b.shape)
+	   strokeWidth = 0.0
+	   fill = setOpacity(Colors.sky, 0.25)
+   }
+
+/* c.shape = Parallelogram {
       x = U.shape.x
       y = U.shape.y
       lengthX = len(a.shape)
@@ -192,18 +240,22 @@ where c := Determinant(a,b); In(a,U); In(b,U) {
       angle = calcVectorsAngle(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
       rotation = calcVectorsAngleWithOrigin(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
       stroke-style = "dashed"
-   }
+   } */
 
    c.text = Text {
      string = c.label
-     x = (a.shape.endX + b.shape.endX) / 2.0
-     y = (a.shape.endY + b.shape.endY) / 2.0
+     -- Normalize for origin
+     x = (a.shape.endX + b.shape.endX - a.shape.startX) / 2.0
+     y = (a.shape.endY + b.shape.endY - a.shape.startY) / 2.0
+     color = Colors.sky
    }
+
+   c.layering = c.text above c.shape
 }
 
 Scalar c
 with Vector a; Vector b; VectorSpace U
-where c := InnerProduct(a,b); In(a,U); In(b,U) {
+where c := innerProduct(a,b); In(a,U); In(b,U) {
   override c.val = len(a.shape) * calcVectorsAngleCos(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY) / 200.0
   c.line1 = Line {
      startX = b.shape.startX
@@ -233,27 +285,37 @@ where c := InnerProduct(a,b); In(a,U); In(b,U) {
 
 Scalar c
 with Vector a;  VectorSpace U
-where c := Norm(a); In(a,U) {
-   c.tmp = len(a.shape)
-   override c.val = c.tmp / const.scaleRatio --calcNorm(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY)
-   c.shape = Brace {
+where c := norm(a); In(a,U) {
+   c.norm = len(a.shape)
+   override c.val = c.norm / const.scaleRatio --calcnorm(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY)
+
+   c.padding = 20.0
+
+   -- c.shape = Brace {
+   c.shape = Line {
      startX = a.shape.startX
-     startY = a.shape.startY + 10.0
+     startY = a.shape.startY + c.padding
      endX = a.shape.endX
-     endY = a.shape.endY + 10.0
-     thickness = 2
+     endY = a.shape.endY + c.padding
+     thickness = 1.5
+     color = setOpacity(a.shape.color, 0.75)
    }
 
    c.text = Text {
      string = c.label
-     x = (a.shape.startX + a.shape.endX) / 2.0 + 15.0
-     y = (a.shape.startY + a.shape.endY) / 2.0 + 15.0
+     x = midpointX(c.shape) + c.padding
+     y = midpointY(c.shape) + c.padding
+     color = c.shape.color
    }
 }
 
 Vector u
 with Scalar c; VectorSpace U; Vector v
-where u := Scale(c,v); In(u,U); In(v,U){
+where u := scale(c,v); In(u,U); In(v,U){
     u.shape.endX = v.shape.endX * c.val - v.shape.startX * (c.val - 1.0)
     u.shape.endY = v.shape.endY * c.val - v.shape.startY * (c.val - 1.0)
+
+    -- u.shape.color = setOpacity(v.shape.color, 0.75)
+
+    c.layeringScale = u.shape above v.shape
 }

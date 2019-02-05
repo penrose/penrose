@@ -7,7 +7,7 @@ import { toScreen, toHex, EndArrowhead } from "./Util";
 class Arrow extends React.Component<IGPIPropsDraggable> {
   public render() {
     const { shape, canvasSize, onClick } = this.props;
-    // const style = shape.style.contents;
+    const style = shape.style.contents;
     const [sx, sy] = toScreen(
       [shape.startX.contents, shape.startY.contents],
       canvasSize
@@ -19,6 +19,8 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
     const color = toHex(shape.color.contents);
     const alpha = shape.color.contents[3];
     const arrowHeadId = "arrowhead_" + shape.name.contents
+    const strokeDasharray = style === "dashed" ? "7, 5" : "";
+
     return (
       <g
         pointerEvents="bounding-box"
@@ -36,6 +38,7 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
           fillOpacity={alpha}
           strokeOpacity={alpha}
           strokeWidth={shape.thickness.contents}
+          strokeDasharray={strokeDasharray}
           markerEnd={`url(#${arrowHeadId})`}
         />
         <title>{shape.name.contents}</title>

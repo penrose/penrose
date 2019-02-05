@@ -117,9 +117,9 @@ compDict = M.fromList
         ("tangentLineEY", constComp tangentLineEY),
         ("polygonizeCurve", constComp polygonizeCurve),
         ("setOpacity", constComp setOpacity),
+        ("bbox", constComp bbox'),
 
         ("midpoint", noop), -- TODO
-        ("bbox", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
         ("sampleReal", noop), -- TODO
         ("sampleVectorIn", noop), -- TODO
@@ -507,20 +507,6 @@ intersectionY [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
        if det == 0 then infinity
        else (x0*y1 - y0*x1)*(x2 - x3) - (y0 - y1)*(x2*x3 - y2*y3) / det
 
-bboxHeight :: ConstCompFn
-bboxHeight [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
-    let ys@[y0, y1, y2, y3] = getYs a1 ++ getYs a2
-        (ymin, ymax) = (minimum ys, maximum ys)
-    in Val $ FloatV $ abs $ ymax - ymin
-    where getYs a = [getNum a "startY", getNum a "endY"]
-
-bboxWidth :: ConstCompFn
-bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
-    let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
-        (xmin, xmax) = (minimum xs, maximum xs)
-    in Val $ FloatV $ abs $ xmax - xmin
-    where getXs a = [getNum a "startX", getNum a "endX"]
-
 len :: ConstCompFn
 len [GPI a@("Arrow", _)] =
     let (x0, y0, x1, y1) = arrowPts a
@@ -646,6 +632,18 @@ makeRegionPath [GPI fn@("Curve", _), GPI intv@("Line", _)] =
                            Closed elems -> error "makeRegionPath not implemented for closed paths"
                    path  = Closed $ pt1 : curve ++ [pt2]
                in Val (PathDataV [path])
+
+-- Make determinant region
+makeRegionPath [GPI a1, GPI a2] =
+               if not (linelike a1 && linelike a2) then error "expected two linelike GPIs" else
+               let xs@[sx1, ex1, sx2, ex2] = getXs a1 ++ getXs a2
+                   ys@[sy1, ey1, sy2, ey2] = getYs a1 ++ getYs a2
+                   -- Third coordinate is the vector addition, normalized for an origin that may not be (0, 0)
+                   regionPts = [(sx1, sy1), (ex1, ey1), (ex1 + ex2 - sx1, ey1 + ey2 - sy1), (ex2, ey2)]
+                   path = Closed $ map Pt regionPts
+               in Val (PathDataV [path])
+               where getXs a = [getNum a "startX", getNum a "endX"]
+                     getYs a = [getNum a "startY", getNum a "endY"]
 
 -- | Draws a filled region from domain to range with in-curved sides, assuming domain is above range
 -- | Directionality: domain's right, then range's right, then range's left, then domain's left
@@ -777,6 +775,41 @@ splitCubicBezier (a, b, c, d) = (ab, bc, cd, abbc, bccd, abbcbccd)
         bccd = bc `midpoint` cd
         abbcbccd = abbc `midpoint` bccd
 
+bezierBbox :: (Autofloat a) => Shape a -> ((a, a), (a, a)) -- poly Point type?
+bezierBbox cb = let path = getPath cb
+                    (xs, ys) = (map fst path, map snd path)
+                    lower_left = (minimum xs, minimum ys)
+                    top_right = (maximum xs, maximum ys) in
+                (lower_left, top_right)
+
+bboxHeight :: ConstCompFn
+bboxHeight [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let ys@[y0, y1, y2, y3] = getYs a1 ++ getYs a2
+        (ymin, ymax) = (minimum ys, maximum ys)
+    in Val $ FloatV $ abs $ ymax - ymin
+    where getYs a = [getNum a "startY", getNum a "endY"]
+
+bboxWidth :: ConstCompFn
+bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
+    let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
+        (xmin, xmax) = (minimum xs, maximum xs)
+    in Val $ FloatV $ abs $ xmax - xmin
+    where getXs a = [getNum a "startX", getNum a "endX"]
+
+bbox :: (Autofloat a) => Shape a -> Shape a -> [(a, a)]
+bbox a1 a2 = 
+    if not (linelike a1 && linelike a2) then error "expected two linelike GPIs" else
+    let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
+        (xmin, xmax) = (minimum xs, maximum xs)
+        ys@[y0, y1, y2, y3] = getYs a1 ++ getYs a2
+        (ymin, ymax) = (minimum ys, maximum ys)
+    -- Four bbox points in clockwise order (bottom left, bottom right, top right, top left)
+    in [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)]
+    where getXs a = [getNum a "startX", getNum a "endX"]
+          getYs a = [getNum a "startY", getNum a "endY"]
+
+bbox' :: ConstCompFn
+bbox' [GPI a1, GPI a2] = Val $ PtListV $ bbox a2 a2
 
 noop :: CompFn
 noop [] g = (Val (StrV "TODO"), g)
@@ -801,15 +834,6 @@ center [GPI o] = tr "center: " $ distsq (getX o, getY o) (0, 0)
 
 centerX :: ObjFn
 centerX [Val (FloatV x)] = tr "centerX" $ x^2
-
--- TODO move this elsewhere? (also applies to polyline)
--- TODO revert
--- bezierBbox :: (Autofloat a) => Shape a -> ((a, a), (a, a)) -- poly Point type?
--- bezierBbox cb = let path = getPath cb
---                     (xs, ys) = (map fst path, map snd path)
---                     lower_left = (minimum xs, minimum ys)
---                     top_right = (maximum xs, maximum ys) in
---                 (lower_left, top_right)
 
 -- | 'sameCenter' encourages two objects to center at the same point
 sameCenter :: ObjFn

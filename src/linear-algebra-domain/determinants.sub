@@ -5,7 +5,7 @@ Vector u2 ∈ U
 
 Scalar c := det(u1,u2)
 
-Label c $det(\vec{u1},\vec{u2})$
 AutoLabel U
-Label u1 $\vec{u1}$
-Label u2 $\vec{u2}$
+Label u1 $\vec{u_1}$
+Label u2 $\vec{u_2}$
+Label c $\text{det}(\vec{u_1},\vec{u_2})$
