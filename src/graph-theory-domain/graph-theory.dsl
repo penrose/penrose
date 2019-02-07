@@ -18,6 +18,7 @@ tconstructor Face : type
 tconstructor Path : type
 tconstructor Cycle : type
 
+vconstructor GenerateGraph() : Graph
 vconstructor MkGraph(vertices : List(Vertex), edges : List(Edge)) : Graph
 vconstructor MkEdge(v1 : Vertex, v2 : Vertex) : Edge
 vconstructor MkUndirectedEdge(v1 : Vertex, v2 : Vertex) : UndirectedEdge
@@ -37,6 +38,8 @@ Cycle <: Graph
 operator Union(G1 : Graph, G2 : Graph) : Graph
 operator Product(G1 : Graph, G2 : Graph) : Graph
 operator Neighbors(v : Vertex) : List(Vertex)
+operator FindFace(G : Graph) : Face
+operator FindVertex(G : Graph) : Vertex
 
 predicate Selected(v : Vertex) : Prop
 predicate Colored(G : Graph) : Prop
@@ -45,5 +48,6 @@ predicate Bipartite(G : Graph) : Prop
 predicate SmallerDegree(v1 : Vertex, v2 : Vertex) : Prop
 predicate InV(v : Vertex, G : Graph) : Prop
 predicate InE(e : Edge, G : Graph) : Prop
+predicate InF(f : Face, G : Graph) : Prop
 
 -- TODO: syntactic sugar

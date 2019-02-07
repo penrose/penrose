@@ -20,7 +20,29 @@ InE(e1, G1)
 
 Graph G2
 G2 := GenerateGraph()
--- TODO: we don't seem to be able to parse nullary vconstructors in subtance or style
+-- TODO: we don't seem to be able to parse nullary vconstructors in substance or style
+
+Face f1
+f1 := FindFace(G2)
+
+-- What's the difference between SELECTING something and DRAWING a new thing?
+
+-- Need a handle to something in a structure: use find
+Vertex vf1
+vf1 := FindVertex(f1) -- Made in the external code
+
+Vertex vf2
+vf2 := FindVertex(G2)
+
+Edge ef12
+ef12 := MkEdge(vf1, vf2)
+-- Is it ok to make this in the Substance program?
+
+-- Have a handle to something in a structure: use selected
+SelectedE(ef12)
+
+-- What kinds of compositional operators might we have?
+-- Is this a realistic use case?
 
 AutoLabel All
 
