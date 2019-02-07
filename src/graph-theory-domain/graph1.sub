@@ -18,6 +18,10 @@ InV(v1, G1)
 InV(v2, G1)
 InE(e1, G1)
 
+Graph G2
+G2 := GenerateGraph()
+-- TODO: we don't seem to be able to parse nullary vconstructors in subtance or style
+
 AutoLabel All
 
 -- TODO: rest of In predicates (if we need them?)
