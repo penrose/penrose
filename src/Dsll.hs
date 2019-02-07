@@ -3,8 +3,8 @@
 --    Author: Dor Ma'ayan, May 2018
 
 {-# OPTIONS_HADDOCK prune #-}
-module Dsll where
---module Main (main) where -- for debugging purposes
+-- module Dsll where
+module Main (main) where -- for debugging purposes
 
 import Utils
 import System.Process
