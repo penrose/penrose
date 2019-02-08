@@ -44,3 +44,11 @@ export const drag = memoized((id: string, dy: number, dx: number) => ({
     ym: -dy
   }
 }));
+
+export const edit = memoized((program: string, autostep: boolean) => ({
+  tag: "Edit",
+  contents: {
+    program,
+    enableAutostep: autostep
+  }
+}));
