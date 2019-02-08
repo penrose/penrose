@@ -1,6 +1,6 @@
 ;; Penrose syntax highlighting defined using generic-mode
 
-;; To use: 
+;; To use:
 ;; paste into your .emacs
 ;; run `M-x eval-buffer` in your .emacs buffer
 ;; then run one of the following commands, depending on the kind of file:
@@ -60,7 +60,7 @@
     "VectorSpace" "Scalar" "Vector" "LinearMap" "Neg" "Scale" "AddV" "AddS" "Norm" "InnerProd" "Determinant" "Apply" "In" "From" "Not"
 
     ;; RA reserved words
-    "Set" "Reals" "Real" "Point" "Function" "Interval" "OpenInterval" "ClosedInterval" "LeftClopenInterval" "RightClopenInterval" "CreateInterval" "CreateOpenInterval" "CreateClosedInterval" "CreateLeftClopenInterval" "CreateRightClopenInterval" "CreateFunction" "Pt" "union" "intersection" "derivativeAtP" "derivativeOverD" "integral" "apply" "compose" "Bounded" "LeftBounded" "RightBounded" "Unbounded" "Compact" "Disconnected" "Degenerate" "Empty" "Continuous" "Discontinuous" "Differentiable" "Integrable" "Invertible" "Monotonic" "Decreasing" "Increasing" "In" "In2" "Subset" "LessThan" "ClosedEnd" "OpenEnd" 
+    "Set" "Reals" "Real" "Point" "Function" "Interval" "OpenInterval" "ClosedInterval" "LeftClopenInterval" "RightClopenInterval" "CreateInterval" "CreateOpenInterval" "CreateClosedInterval" "CreateLeftClopenInterval" "CreateRightClopenInterval" "CreateFunction" "Pt" "union" "intersection" "derivativeAtP" "derivativeOverD" "integral" "apply" "compose" "Bounded" "LeftBounded" "RightBounded" "Unbounded" "Compact" "Disconnected" "Degenerate" "Empty" "Continuous" "Discontinuous" "Differentiable" "Integrable" "Invertible" "Monotonic" "Decreasing" "Increasing" "In" "In2" "Subset" "LessThan" "ClosedEnd" "OpenEnd"
 
     ;; Reserved over all domains
     "AutoLabel" "All" "Label" "NoLabel"
@@ -121,7 +121,7 @@
     ;; property names
     ;; TODO
     )
-  
+
   ;; Operators, regexes
   '(
     ;; ("-- TODO.*" . 'font-lock-warning-face)

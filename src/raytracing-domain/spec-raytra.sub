@@ -1,0 +1,8 @@
+-- regex for a caustic (e.g. swimming pool)
+pathType = [L, S, D, S, E]
+
+path1 = sample(pathType) -- nondeterministic
+path2 = sample(pathType)
+
+Autolabel All
+NoLabel pathType, path1, path2
