@@ -31,19 +31,19 @@ RightClopenInterval <: Interval
 -- AND that the GPIs satisfy the subtyping relationship (e.g. lines, arrows having start/end fields)
 
 -- Operators on intervals
-operator union (I : Interval, J : Interval) : Interval
-operator intersection (I : Interval, J : Interval)  : Interval
+operator Union (I : Interval, J : Interval) : Interval
+operator Intersection (I : Interval, J : Interval)  : Interval
 
 -- Operators on functions, points, and intervals
-operator derivativeAtP (f : Function, p : Real) : Real
-operator derivativeOverD (f : Function) : Function
-operator integral (I : Interval, f : Function) : Real
-operator apply (f : Function, p : Real) : Real
+operator DerivativeAtP (f : Function, p : Real) : Real
+operator DerivativeOverD (f : Function) : Function
+operator Integral (I : Interval, f : Function) : Real
+operator Apply (f : Function, p : Real) : Real
 -- We don't know if applying f to an interval yields an interval. Substance should be able to cast it to an Interval
-operator applyOver (f : Function, I : Interval) : Interval
+operator ApplyOver (f : Function, I : Interval) : Interval
 -- operator applyOver (f : Function, I : Interval) : Set
 -- (g . f): Does not check f's codomain matches g's domain
-operator compose (f : Function, g : Function) : Function
+operator Compose (f : Function, g : Function) : Function
 
 -- Predicates on reals
 predicate PosInfinite(x : Real) : Prop
@@ -81,29 +81,19 @@ predicate OpenEnd (p : Real, I : Interval) : Prop
 
 -- Syntactic Sugars
 
+
 StmtNotation "A := [a,b] ⊆ X" -> "ClosedInterval A; A := CreateClosedInterval(a, b);Subset(A, X)"
 StmtNotation "A := (a,b) ⊆ X" -> "OpenInterval A; A := CreateOpenInterval(a, b);Subset(A, X)"
 StmtNotation "A := [a,b) ⊆ X" -> "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b);Subset(A, X)"
 
 StmtNotation "X ⊆ Y" -> "Subset(X, Y)"
 StmtNotation "Real X ∈ Y" -> "Real X;In(X, Y)"
-StmtNotation "X ∪ Y" -> "union(X, Y)"
+StmtNotation "X ∪ Y" -> "Union(X, Y)"
 
 StmtNotation "f : A -> B" -> "Function f; f := CreateFunction(A,B)"
-StmtNotation "f(x)" -> "apply(f, x)"
-StmtNotation "f ` (x)" -> "derivativeAtP(f, x)"
-
+StmtNotation "f(x)" -> "Apply(f, x)"
+StmtNotation "f ` (x)" -> "DerivativeAtP(f, x)"
 
 
 -- Prelude exports
 value R : Reals
-
--- Notation is ASCII only
--- notation "f.domain" -> "Dom(f)"
--- notation "f.codomain" := "Cod(f)"
--- notation "Subset(X, Y)" := "X Subset Y"
--- TODO: specify infix predicates
-
--- Unicode display
--- display "Subset" -> ⊂
--- display "RR" -> R

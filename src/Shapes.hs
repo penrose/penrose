@@ -236,7 +236,7 @@ sampleColor rng =
         (r, rng1)  = randomR interval rng
         (g, rng2)  = randomR interval rng1
         (b, rng3)  = randomR interval rng2
-    in (ColorV $ makeColor r g b 1.0, rng3)
+    in (ColorV $ makeColor r g b 0.5, rng3)
         -- (a, rng4)  = randomR (0.3, 0.7) rng3
     -- in (ColorV $ makeColor r g b a, rng4)
 
@@ -330,6 +330,7 @@ textType = ("Text", M.fromList
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),
+        ("color", (ColorT, constValue $ ColorV black)),
         ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
 

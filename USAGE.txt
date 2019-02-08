@@ -1,0 +1,9 @@
+Usage:
+  penrose [options] <substance> <style> <element>
+  penrose [options] <style> <element>
+
+Options:
+  --port=PORT    Port number of the websocket connection that the backend
+                 server listens on [default: 9160]
+  --domain=NAME  Domain of the websocket connection that the backend server
+                 listens on [default: 127.0.0.1]

@@ -112,11 +112,12 @@ const tex2svg = memoize(
           const { width, height } = svgBBox(output);
           output.setAttribute("width", width.toString());
           output.setAttribute("height", height.toString());
-          const body = output.outerHTML + `<title>${name}</title>`; // need to keep properties in <svg>
+          const body = output;
+          // const body = output.outerHTML + `<title>${name}</title>`; // need to keep properties in <svg>
           resolve({ body, width, height });
         });
       } else {
-        resolve({ body: "", width: 0, height: 0 });
+        resolve({ output: undefined, width: 0, height: 0 });
       }
     })
 );

@@ -349,11 +349,17 @@ shapes2floats shapes varyMap varyingPaths = reverse $ foldl (lookupPathFloat sha
 
 --- Find varying (float) paths
 
+-- For now, don't optimize these float-valued properties of a GPI 
+-- (use whatever they are initialized to in Shapes or set to in Style)
+unoptimizedFloatProperties :: [String]
+unoptimizedFloatProperties = ["rotation", "strokeWidth", "thickness"]
+
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
 findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) ->
                                                                  String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
+    if floatProperty `elem` unoptimizedFloatProperties then acc else
     case M.lookup floatProperty properties of
     Nothing -> mkPath [name, field, floatProperty] : acc
     Just expr -> if declaredVarying expr then mkPath [name, field, floatProperty] : acc else acc

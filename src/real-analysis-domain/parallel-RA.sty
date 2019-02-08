@@ -90,6 +90,7 @@ with Reals `R` {
     x = r.val
     y = r.shape.endY + 1.5 * global.padding
     string = r.label
+    color = r.shape.color
     rotation = 0.0
   }
 
@@ -112,7 +113,7 @@ with Reals R { -- TODO: more general, with Interval J
     startY = I.yval
     endX = I.right
     endY = I.yval
-    thickness = 7
+    thickness = 3
     color = rgba(0.3, 0.3, 0.9, 0.5)
     rotation = 0.0
   }
@@ -123,6 +124,7 @@ with Reals R { -- TODO: more general, with Interval J
     x = midpointX(I.shape)
     y = I.yval + 3.5 * global.padding
     rotation = 0.0
+    color = I.shape.color
   }
 
   I.wfFn = ensure lessThan(I.left, I.right)
@@ -148,6 +150,8 @@ where I := CreateInterval(a, b); Subset(I, R) {
   -- I.left and I.right already have I.liFn, I.riFn
   delete a.inFn
   delete b.inFn
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
 }
 
 Real r
@@ -156,6 +160,7 @@ where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
   override r.yval = I.yval
   override r.inFn = ensure inRange(r.val, a.val, b.val)
   override r.shape.color = Colors.red
+  override r.text.color = I.shape.color
 }
 
 Real a; Real b
@@ -182,6 +187,8 @@ where I := CreateOpenInterval(a, b); Subset(I, R) {
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
     override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
 
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
     -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
@@ -209,6 +216,8 @@ where I := CreateClosedInterval(a, b); Subset(I, R) {
 
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
     override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+
+
 
   -- TODO: put these everywhere and remove all the labelFns
   -- Since r.text.y refers to r.shape.startY, which no longer exists since the shape was overridden to have a different type
@@ -243,6 +252,8 @@ where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
     override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
 
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
     -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
@@ -271,6 +282,8 @@ where I := CreateRightClopenInterval(a, b); Subset(I, R) {
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
     override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
 
+  override a.text.color = I.shape.color
+  override b.text.color = I.shape.color
     -- override a.labelFn = encourage near(a.shape, a.text, 0.0, -20.0)
     -- override b.labelFn = encourage near(b.shape, b.text, 0.0, -20.0)
 }
@@ -286,7 +299,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
 	       startY = I.yval
 	       endX = I.right
 	       endY = I.yval
-	       thickness = 7
+	       thickness = 3
 	       color = Colors.bluegreen
 	       rotation = 0.0
       }
@@ -298,6 +311,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
       delete I.riFn
 
       override I.wfFn = ensure lessThan(x.val, I.right)
+      override x.text.color = I.shape.color
 }
 
 -- TODO
@@ -332,7 +346,7 @@ Interval `C`; Interval `D` {
 -- Only works with smaller-spec.sub
 
 -- Intervals A, I, J, K, but not U
--- Interval `A`; 
+-- Interval `A`;
 -- Doesn't work well with all the constraints
 Interval `A`; Interval `I`; Interval `J`; Interval `K` {
    LOCAL.disjointFn1 = ensure disjoint(`A`.shape, `I`.shape)
@@ -350,7 +364,7 @@ Interval `A`; Interval `I`; Interval `J`; Interval `K` {
 -- !(I := union(X, Y))
 
 Interval Z
-where Z := union(X, Y)
+where Z := Union(X, Y)
 with Interval X; Interval Y {
      -- delete Z.shape
      -- delete Z.text
@@ -375,7 +389,7 @@ cascade by first drawing a generic function between two *different* intervals (w
 We currently do not draw f : I -> I. */
 
 /* f : I -> J
- If there is any function from I to J, then we make a second real number line that those functions all share. (This is going to be done for every match, hence the `override` / lack of `override` warnings.) This will achieve the effect of if only one shape had been made. 
+ If there is any function from I to J, then we make a second real number line that those functions all share. (This is going to be done for every match, hence the `override` / lack of `override` warnings.) This will achieve the effect of if only one shape had been made.
 
 TODO: Doesn't match f : R -> R right now but will match if we add a "could equal" for I ?= J */
 
@@ -429,6 +443,7 @@ where f := CreateFunction(I, J) {
     x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
     y = average(f.domain.startY, f.codomain.startY)
     rotation = 0.0
+    color = f.color2
   }
 }
 
@@ -455,6 +470,7 @@ where f := CreateFunction(`R`, `R`) {
     y = R.shape2.endY + global.padding
     string = `R`.label
     rotation = 0.0
+    color = `R`.shape2.color
   }
 
   -- `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
@@ -483,6 +499,7 @@ where f := CreateFunction(`R`, `R`) {
     x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
     y = average(f.domain.startY, f.codomain.startY)
     rotation = 0.0
+    color = f.color2
   }
 }
 
@@ -522,7 +539,7 @@ Function `g` {
 Function f
 with Interval I; Interval J; Interval X; Interval Y
 where f := CreateFunction(I, J);
-      I := union(X, Y); -- Assuming that none of these is recursively a union of intervals
+      I := Union(X, Y); -- Assuming that none of these is recursively a Union of intervals
       Discontinuous(f) {
 
       -- `I` is not drawn separately on the screen
@@ -573,7 +590,11 @@ where f := CreateFunction(I, J);
        x = average(midpointX(X.shape), midpointX(Y.shape)) + 10.0
        y = average(X.shape.startY, f.codomain.startY)
        rotation = 0.0
-     }     
+       color = f.color2
+     }
+
+     f.layering1 = f.text above f.shape1
+     f.layering2 = f.text above f.shape2
 }
 
 -------------------------------------------------------
@@ -585,7 +606,7 @@ where f := CreateFunction(I, J);
 If there is a composition of functions, draw a third R for the second function. Again, this is technically going to be made for every match, but overridden to be the same thing. (Does NOT deal with composition of 3 functions, i = h . g . f) */
 
 Function h, g, f
-where h := compose(g, f);
+where h := Compose(g, f);
       h := CreateFunction(A, C);
       g := CreateFunction(B, C);
       f := CreateFunction(A, B)
@@ -630,7 +651,7 @@ with Interval A, B, C;
   delete h.text
 }
 
-/* Composition of a composition of functions 
+/* Composition of a composition of functions
    Two cases:
    Composition on the left
    Composition on the right */
@@ -642,8 +663,8 @@ with Interval A, B, C;
 -- Temporarily moving on from making this selector/block work (issue #167)
 
 Function h
-where h := compose(g, f);
-      f := compose(e, d);
+where h := Compose(g, f);
+      f := Compose(e, d);
       -- It's a little faster with the intervals and createFunctions commented out.
       h := CreateFunction(A, D)
       -- g := CreateFunction(C, D);
@@ -700,13 +721,13 @@ with Function g, f, e, d;
 -- y := f(x)
 Real y; Function f
 with Interval I; Interval J; Real x
-where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
+where y := Apply(f, x); f := CreateFunction(I, J); In(x, I) {
 
   override x.val = midpointX(f.domain)
   override y.val = midpointX(f.codomain) -- hardcoded
   -- so it's not necessary to say In(y, J)
   override y.yval = f.codomain.startY
-  -- We need to use f.codomain.startY (and f.domain.startY) because f's domain and codomain might have been overridden 
+  -- We need to use f.codomain.startY (and f.domain.startY) because f's domain and codomain might have been overridden
   -- NOT J.yval
   -- also NOT f.domain.yval
   -- this seems really tricky
@@ -737,7 +758,7 @@ where y := apply(f, x); f := CreateFunction(I, J); In(x, I) {
 -- Again duplicated for f : R -> R
 Real y; Function f
 with Reals `R`; Real x
-where y := apply(f, x); f := CreateFunction(`R`, `R`) {
+where y := Apply(f, x); f := CreateFunction(`R`, `R`) {
   override x.val = midpointX(`R`.shape1)
   override y.val = midpointX(`R`.shape2) -- hardcoded
 
@@ -766,19 +787,19 @@ where y := apply(f, x); f := CreateFunction(`R`, `R`) {
 -- Only if J is not reals, make sure result is in interval
 Real y; Function f
 with Interval I; Interval J; Real x; Reals `R`
-where y := apply(f, x); f := CreateFunction(I, J); In(x, I); Subset(J, `R`) {
+where y := Apply(f, x); f := CreateFunction(I, J); In(x, I); Subset(J, `R`) {
   -- Only if J is not reals?
   y.inCodomainFn = ensure inRange(y.val, J.left, J.right)
 }
 
 -----------------------------------
 
--- No styles for derivative, integral, point
+-- No styles for derivative, Integral, point
 
 Real dfx
 with Function f; Interval I; Interval J; Real x; Real y
-where dfx := derivativeAtP(f, x); f := CreateFunction(I, J);
-      y := apply(f, x) {
+where dfx := DerivativeAtP(f, x); f := CreateFunction(I, J);
+      y := Apply(f, x) {
 
       delete dfx.val
       delete dfx.shape
@@ -789,8 +810,8 @@ where dfx := derivativeAtP(f, x); f := CreateFunction(I, J);
 
 Real ifI
 with Function f; Interval I; Interval J; Interval U; Reals R
-where U := union(I, J);
-      ifI := integral(I, f);
+where U := Union(I, J);
+      ifI := Integral(I, f);
       f := CreateFunction(U, R);
       Discontinuous(f) {
 
@@ -804,7 +825,7 @@ where U := union(I, J);
 Point p
 with Function f; Interval I; Real x; Real y; Reals R
 where p := Pt(x, y);
-      y := apply(f, x);
+      y := Apply(f, x);
       f := CreateFunction(I, R);
       In(x, I) {
 

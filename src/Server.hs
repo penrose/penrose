@@ -352,7 +352,7 @@ recompileDomain element style client@(clientID, conn, Editor {}) = do
     elementRes <- try $ parseDsll "" element
     case elementRes of
         Right elementEnv -> do
-            styRes <- try $ parseStyle "" style
+            styRes <- try $ parseStyle "" style elementEnv
             case styRes of
                 Right styProg -> do
                     logDebug client ("Style AST:\n" ++ ppShow styProg)

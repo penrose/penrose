@@ -1,7 +1,7 @@
-{-# LANGUAGE BangPatterns #-}
 -- | Main module of the Penrose system (split out for testing; Main is the real main)
-
-{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, DeriveDataTypeable, OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, OverloadedStrings #-}
 
 module ShadowMain where
 import Utils
@@ -34,43 +34,50 @@ import qualified Env as E -- DEBUG: remove
 import qualified Data.Map.Strict as M -- DEBUG: remove
 import qualified Data.List as L (intercalate)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
+import System.Console.Docopt
+
+argPatterns :: Docopt
+argPatterns = [docoptFile|USAGE.txt|]
+
+getArgOrExit = getArgOrExitWith argPatterns
 
 -- | `shadowMain` runs the Penrose system
 shadowMain :: IO ()
 shadowMain = do
-    args <- getArgs
-    when ((length args /= 3) && (length args /= 2)) $ die "Usage: ./Main [prog1.sub] prog2.sty prog3.dsl"
-    case length args of
-        3 ->
-            let (subFile, styFile, dsllFile) = (head args, args !! 1, args !! 2) in
-            penroseRenderer subFile styFile dsllFile
-        2 ->
-            let (styFile, dsllFile) = (head args, args !! 1) in
-            penroseEditor styFile dsllFile
+    args <- parseArgsOrExit argPatterns =<< getArgs
+    styFile  <- args `getArgOrExit` argument "style"
+    dsllFile <- args `getArgOrExit` argument "element"
+    domain   <- args `getArgOrExit` longOption "domain"
+    port     <- args `getArgOrExit` longOption "port"
 
-penroseEditor :: String -> String -> IO ()
-penroseEditor styFile dsllFile = do
+    if args `isPresent` argument "substance" then do
+        subFile <- args `getArgOrExit` argument "substance"
+        penroseRenderer subFile styFile dsllFile domain $ read port
+    else
+        penroseEditor styFile dsllFile domain $ read port
+
+penroseEditor :: String -> String -> String -> Int -> IO ()
+penroseEditor styFile dsllFile domain port = do
     styIn  <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
 
-    styProg <- S.parseStyle styFile styIn
+    styProg <- S.parseStyle styFile styIn dsllEnv
     putStrLn "Style AST:\n"
     pPrint styProg
     divLine
 
-    let (domain, port) = ("127.0.0.1", 9160) -- TODO: if current port in use, assign another
     Server.servePenrose dsllEnv styProg domain port
 
-penroseRenderer :: String -> String -> String -> IO ()
-penroseRenderer subFile styFile dsllFile = do
+penroseRenderer :: String -> String -> String -> String -> Int -> IO ()
+penroseRenderer subFile styFile dsllFile domain port = do
     subIn <- readFile subFile
     styIn  <- readFile styFile
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
 
     -- Desugar Substance source file
-    let subFileSugared = subFile ++ "sugared"
+    let subFileSugared = subFile ++ "desugared"
     writeFile subFileSugared (Sugarer.sugarStmts subIn dsllEnv)
     desugaredSub <- readFile subFileSugared
     subOut <- C.parseSubstance subFileSugared desugaredSub dsllEnv
@@ -78,14 +85,13 @@ penroseRenderer subFile styFile dsllFile = do
 
     print subOut
 
-    styProg <- S.parseStyle styFile styIn
+    styProg <- S.parseStyle styFile styIn dsllEnv
     putStrLn "Style AST:\n"
     pPrint styProg
     divLine
 
     initState <- G.compileStyle styProg subOut
 
-    let (domain, port) = ("127.0.0.1", 9160)
     Server.serveRenderer domain port initState
 
 
@@ -100,7 +106,7 @@ mainRetInit subFile styFile dsllFile = do
     dsllIn <- readFile dsllFile
     dsllEnv <- D.parseDsll dsllFile dsllIn
     subOut@(C.SubOut subProg (subEnv, eqEnv) labelMap) <- C.parseSubstance subFile subIn dsllEnv
-    styProg <- S.parseStyle styFile styIn
+    styProg <- S.parseStyle styFile styIn dsllEnv
     let selEnvs = S.checkSels subEnv styProg
     let subss = S.find_substs_prog subEnv eqEnv subProg styProg selEnvs
     let !trans = S.translateStyProg subEnv eqEnv subProg styProg labelMap
