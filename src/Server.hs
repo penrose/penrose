@@ -185,7 +185,7 @@ data DragEvent = DragEvent { name :: String,
                              ym   :: Float }
      deriving (Show, Generic)
 
-data SubstanceEdit = SubstanceEdit { program :: String }
+data SubstanceEdit = SubstanceEdit { program :: String, enableAutostep :: Bool }
      deriving (Show, Generic)
 
 data RecompileDomain = RecompileDomain { element :: String, style :: String }
@@ -282,7 +282,7 @@ waitSubstance client@(clientID, conn, clientState) = do
     msg_json <- WS.receiveData conn
     case decode msg_json of
         Just e -> case e of
-            Edit (SubstanceEdit subProg)  -> substanceEdit subProg client
+            Edit (SubstanceEdit subProg auto) -> substanceEdit subProg auto client
             Recompile (RecompileDomain element style) -> recompileDomain element style client
             _                             -> continue
         Nothing -> continue
@@ -334,7 +334,7 @@ processCommand client@(clientID, conn, s) = do
         Just e -> case e of
             Cmd (Command cmd)            -> executeCommand cmd client
             Drag (DragEvent name xm ym)  -> dragUpdate name xm ym client
-            Edit (SubstanceEdit subProg) -> substanceEdit subProg client
+            Edit (SubstanceEdit subProg auto) -> substanceEdit subProg auto client
             Update (UpdateShapes shapes) -> updateShapes shapes client
             Recompile (RecompileDomain element style) -> recompileDomain element style client
         Nothing -> logError client "Error reading JSON"
@@ -361,10 +361,10 @@ recompileDomain element style client@(clientID, conn, Editor {}) = do
                 Left err -> styleError client err
         Left err -> elementError client err
 
-substanceEdit :: String -> Client -> IO ()
-substanceEdit subIn client@(_, _, Renderer _) =
+substanceEdit :: String -> Bool -> Client -> IO ()
+substanceEdit subIn _ client@(_, _, Renderer _) =
     logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
-substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
+substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
     subRes <- try (parseSubstance "" (Sugarer.sugarStmts subIn env) env)
     case subRes of
@@ -378,7 +378,7 @@ substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
                         ordering = shapeOrdering newState,
                         shapes = shapesr newState :: [Shape Double]
                     }
-                    waitUpdate (clientID, conn, Editor env styProg $ Just newState)
+                    waitUpdate (clientID, conn, Editor env styProg $ Just newState { G.autostep = auto })
                 Left styError -> substanceError client styError
         Left subError -> substanceError client subError
 
