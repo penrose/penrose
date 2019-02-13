@@ -3,34 +3,54 @@ import * as React from "react";
 declare const MathJax: any;
 import memoize from "fast-memoize";
 
-export const StartArrowhead = (props: {id: string, color: string, opacity: number}) => {
-  return <marker
-    id={props.id}
-    markerUnits="strokeWidth"
-    markerWidth="12"
-    markerHeight="12"
-    viewBox="0 0 12 12"
-    refX="6"
-    refY="6"
-    orient="auto"
-  >
-  <path d="M10,10 A30,30,0,0,0,2,6 A30,30,0,0,0,10,2 L7.5,6 z" fill={props.color} fillOpacity={props.opacity}/>
-  </marker>
-}
-export const EndArrowhead = (props: {id: string, color: string, opacity: number}) => {
-  return <marker
-    id={props.id}
-    markerUnits="strokeWidth"
-    markerWidth="12"
-    markerHeight="12"
-    viewBox="0 0 12 12"
-    refX="6"
-    refY="6"
-    orient="auto"
-  >
-	<path d="M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"  fill={props.color} fillOpacity={props.opacity} />
-  </marker>
-}
+export const StartArrowhead = (props: {
+  id: string;
+  color: string;
+  opacity: number;
+}) => {
+  return (
+    <marker
+      id={props.id}
+      markerUnits="strokeWidth"
+      markerWidth="12"
+      markerHeight="12"
+      viewBox="0 0 12 12"
+      refX="6"
+      refY="6"
+      orient="auto"
+    >
+      <path
+        d="M10,10 A30,30,0,0,0,2,6 A30,30,0,0,0,10,2 L7.5,6 z"
+        fill={props.color}
+        fillOpacity={props.opacity}
+      />
+    </marker>
+  );
+};
+export const EndArrowhead = (props: {
+  id: string;
+  color: string;
+  opacity: number;
+}) => {
+  return (
+    <marker
+      id={props.id}
+      markerUnits="strokeWidth"
+      markerWidth="12"
+      markerHeight="12"
+      viewBox="0 0 12 12"
+      refX="6"
+      refY="6"
+      orient="auto"
+    >
+      <path
+        d="M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
+        fill={props.color}
+        fillOpacity={props.opacity}
+      />
+    </marker>
+  );
+};
 export const toScreen = (
   [x, y]: [number, number],
   canvasSize: [number, number]
@@ -59,7 +79,7 @@ export const getLen = (x1: number, y1: number, x2: number, y2: number) => {
   return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 };
 
-function svgBBox(svgEl: SVGSVGElement) {
+export function svgBBox(svgEl: SVGSVGElement) {
   const tempDiv = document.createElement("div");
   tempDiv.setAttribute(
     "style",
@@ -124,7 +144,8 @@ export const collectLabels = async (allShapes: any[]) => {
         const obj2 = { ...obj };
         obj2.w.contents = width;
         obj2.h.contents = height;
-        obj2.rendered = { contents: body };
+        // Add omit: true flag so it doesn't get sent to the server
+        obj2.rendered = {contents: body, omit: true};
         return [type, obj2];
       } else {
         return [type, obj];

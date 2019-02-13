@@ -38,8 +38,9 @@ import qualified Sugarer
 --                                                 setY, toPolymorphics, set, is)
 import qualified Style                         as N
 import           Substance                     (parseSubstance)
+import qualified System.Console.Pretty         as Console
 import           System.Console.Pretty         (Color (..), Style (..), bgColor,
-                                                color, style, supportsPretty)
+                                                color, supportsPretty)
 import           System.Random
 import           System.Time
 import           Utils                         (Autofloat, divLine, fromRight,
@@ -47,6 +48,7 @@ import           Utils                         (Autofloat, divLine, fromRight,
 
 import           Data.UUID
 import           Env                           (VarEnv)
+import           Dsll                          (parseDsll)
 import           GenOptProblem
 import           Style
 import System.IO (stderr, Handle)
@@ -56,6 +58,7 @@ import System.Log.Logger (rootLoggerName, setHandlers, updateGlobalLogger,
 import System.Log.Handler.Simple (fileHandler, streamHandler, GenericHandler)
 import System.Log.Handler (setFormatter)
 import System.Log.Formatter
+import Text.Show.Pretty
 --------------------------------------------------------------------------------
 -- Types
 
@@ -171,6 +174,7 @@ data Feedback
     | Drag DragEvent
     | Update UpdateShapes
     | Edit SubstanceEdit
+    | Recompile RecompileDomain
     deriving (Generic)
 
 data Command = Command { command :: String }
@@ -181,7 +185,10 @@ data DragEvent = DragEvent { name :: String,
                              ym   :: Float }
      deriving (Show, Generic)
 
-data SubstanceEdit = SubstanceEdit { program :: String }
+data SubstanceEdit = SubstanceEdit { program :: String, enableAutostep :: Bool }
+     deriving (Show, Generic)
+
+data RecompileDomain = RecompileDomain { element :: String, style :: String }
      deriving (Show, Generic)
 
 data UpdateShapes = UpdateShapes { shapes :: [Shape Double] }
@@ -197,6 +204,7 @@ instance FromJSON Command
 instance FromJSON DragEvent
 instance FromJSON UpdateShapes
 instance FromJSON SubstanceEdit
+instance FromJSON RecompileDomain
 instance ToJSON Frame
 
 
@@ -274,7 +282,8 @@ waitSubstance client@(clientID, conn, clientState) = do
     msg_json <- WS.receiveData conn
     case decode msg_json of
         Just e -> case e of
-            Edit (SubstanceEdit subProg)  -> substanceEdit subProg client
+            Edit (SubstanceEdit subProg auto) -> substanceEdit subProg auto client
+            Recompile (RecompileDomain element style) -> recompileDomain element style client
             _                             -> continue
         Nothing -> continue
     where continue = do
@@ -295,11 +304,20 @@ waitUpdate client@(clientID, conn, clientState) = do
             warningM (toString clientID) "Invalid command. Returning to wait for label update."
             waitUpdate client
 
-substanceError :: Client -> ErrorCall -> IO ()
+substanceError, elementError, styleError :: Client -> ErrorCall -> IO ()
 substanceError client@(_, conn, _) e = do
      logError client $ "Substance compiler error: " ++ show e
      wsSendPacket conn Packet { typ = "error", contents = SubError $ show e}
      waitSubstance client
+elementError client@(_, conn, _) e = do
+     logError client $ "Element parser error: " ++ show e
+     wsSendPacket conn Packet { typ = "error", contents = SubError $ show e}
+     waitSubstance client
+styleError client@(_, conn, _) e = do
+     logError client $ "Style parser error: " ++ show e
+     wsSendPacket conn Packet { typ = "error", contents = SubError $ show e}
+     waitSubstance client
+
 -- -- TODO: this match might be redundant, but not sure why the linter warns that.
 -- substanceError client s _ = do
 --     putStrLn "Substance compiler error: Unknown error."
@@ -316,14 +334,37 @@ processCommand client@(clientID, conn, s) = do
         Just e -> case e of
             Cmd (Command cmd)            -> executeCommand cmd client
             Drag (DragEvent name xm ym)  -> dragUpdate name xm ym client
-            Edit (SubstanceEdit subProg) -> substanceEdit subProg client
+            Edit (SubstanceEdit subProg auto) -> substanceEdit subProg auto client
             Update (UpdateShapes shapes) -> updateShapes shapes client
+            Recompile (RecompileDomain element style) -> recompileDomain element style client
         Nothing -> logError client "Error reading JSON"
+        -- TODO: might need to return to `loop`
 
-substanceEdit :: String -> Client -> IO ()
-substanceEdit subIn client@(_, _, Renderer _) =
+recompileDomain :: String -> String -> Client -> IO ()
+recompileDomain _ _ client@(_, conn, Renderer s) = do
+    logError client "Cannot change domains in Renderer mode."
+    loop client
+recompileDomain element style client@(clientID, conn, Editor {}) = do
+    logInfo client "Switching to another domain..."
+    logInfo client $ "Element program received: " ++ element
+    logInfo client $ "Style program received: " ++ style
+
+    elementRes <- try $ parseDsll "" element
+    case elementRes of
+        Right elementEnv -> do
+            styRes <- try $ parseStyle "" style elementEnv
+            case styRes of
+                Right styProg -> do
+                    logDebug client ("Style AST:\n" ++ ppShow styProg)
+                    let client = (clientID, conn, Editor elementEnv styProg Nothing)
+                    waitSubstance client
+                Left err -> styleError client err
+        Left err -> elementError client err
+
+substanceEdit :: String -> Bool -> Client -> IO ()
+substanceEdit subIn _ client@(_, _, Renderer _) =
     logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
-substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
+substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
     subRes <- try (parseSubstance "" (Sugarer.sugarStmts subIn env) env)
     case subRes of
@@ -337,7 +378,7 @@ substanceEdit subIn client@(clientID, conn, Editor env styProg s) = do
                         ordering = shapeOrdering newState,
                         shapes = shapesr newState :: [Shape Double]
                     }
-                    loop (clientID, conn, Editor env styProg $ Just newState)
+                    waitUpdate (clientID, conn, Editor env styProg $ Just newState { G.autostep = auto })
                 Left styError -> substanceError client styError
         Left subError -> substanceError client subError
 
@@ -446,7 +487,7 @@ withColoredFormatter, withFormatter :: GenericHandler Handle -> GenericHandler H
 withFormatter handler = setFormatter handler formatter
     where formatter = simpleLogFormatter ("[$time $loggername $prio]" ++ "\n$msg")
 withColoredFormatter handler = setFormatter handler formatter
-    where formatter = simpleLogFormatter (bgColor Red $ style Bold "[$time $loggername $prio]" ++ "\n$msg")
+    where formatter = simpleLogFormatter (bgColor Red $ Console.style Bold "[$time $loggername $prio]" ++ "\n$msg")
 
 logDebug, logInfo, logError :: Client -> String -> IO ()
 logDebug client = debugM (idString client)

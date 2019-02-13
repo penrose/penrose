@@ -8,7 +8,6 @@ const styleLabel = (label : HTMLElement, color: string) => {
   return label.outerHTML
 }
 
-            // ? styleLabel(shape.rendered.contents, style)
 class Label extends React.Component<IGPIPropsDraggable> {
   public render() {
     const { shape } = this.props;

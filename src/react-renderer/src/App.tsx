@@ -2,16 +2,26 @@ import * as React from "react";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { autoStepToggle, resample, step } from "./packets";
+import {ILayer} from "./types";
 
 interface IState {
   data: any[];
   converged: boolean;
   autostep: boolean;
+  layers: ILayer[];
 }
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<any, IState> {
-  public readonly state = { data: [], converged: true, autostep: false };
+  public readonly state = {
+    data: [],
+    converged: true,
+    autostep: false,
+    layers: [
+      {layer: "polygon", enabled: false},
+      {layer: "bbox", enabled: false}
+    ]
+  };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
   public ws: any = null;
@@ -32,6 +42,16 @@ class App extends React.Component<any, IState> {
   };
   public resample = () => {
     this.sendPacket(resample());
+  };
+  public toggleLayer = (layerName: string) => {
+    this.setState({
+      layers: this.state.layers.map(({layer, enabled}: ILayer) => {
+        if (layerName === layer) {
+          return {layer, enabled: !enabled};
+        }
+        return {layer, enabled};
+      })
+    });
   };
   public onMessage = (e: MessageEvent) => {
     const myJSON = JSON.parse(e.data).contents;
@@ -55,7 +75,7 @@ class App extends React.Component<any, IState> {
     this.setupSockets();
   }
   public render() {
-    const { converged, autostep } = this.state;
+    const {converged, autostep, layers} = this.state;
     const { customButtons } = this.props;
     return (
       <div className="App">
@@ -67,12 +87,15 @@ class App extends React.Component<any, IState> {
             autoStepToggle={this.autoStepToggle}
             resample={this.resample}
             converged={converged}
+            toggleLayer={this.toggleLayer}
+            layers={layers}
             ref={this.buttons}
           />
         )}
         <Canvas
           sendPacket={this.sendPacket}
           lock={!converged && autostep}
+          layers={layers}
           ref={this.canvas}
         />
       </div>
