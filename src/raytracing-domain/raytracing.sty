@@ -26,19 +26,19 @@ Colors {
 Diagram d {
     d.room = Rectangle {
         angle = 0
-        fill = Colors.none
+        fill  = Colors.none
         -- optimize height, width, location
     }
 
-    -- d.mirror = Image {
-        -- path = "raytracing/mirror.svg"
+    d.mirror = Image {
+        path = "mirror.svg"
         -- display = "none"
-        -- -- optimize angle, size, location
-    -- }
+        -- optimize angle, size, location
+    }
 
-    -- each mirror still has `display = "none"`
-    -- d.mirrors = listOfRandLength(mirror, 2, 6)
-    -- d.inFn = ensure eachIn(d.mirrors, d.room)
+    each mirror still has `display = "none"`
+    d.mirrors = listOfRandLength(mirror, 2, 6)
+    d.inFn = ensure eachIn(d.mirrors, d.room)
 }
 
 ---------------------------NON-COMPILABLE CODE----------------------------------
