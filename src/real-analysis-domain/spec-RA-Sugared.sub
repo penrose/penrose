@@ -1,0 +1,53 @@
+-- This is the sugared version of the full real analysis spec program in the design paper.
+
+AutoLabel All
+
+Label R $\mathbb{R}$
+
+---------------------------------------------------
+
+Real a, b
+
+A := [a,b] ⊆ R
+
+Real l ∈ A
+
+f : A -> R
+Continuous(f)
+
+Real f_l
+f_l := f(l)
+Label l $x$
+Label f_l $f(x)$
+
+Point p
+p := Pt(l, f_l)
+
+Real dfl
+dfl := f ` (l)
+Label dfl $f'(x)$
+
+---------------------------------------------------
+
+Real d, e, i, j
+I := (d, e) ⊆ R
+
+J := [i, j) ⊆ R
+
+
+Interval U
+U := I ∪ J
+U ⊆ R
+
+h : U -> R
+Discontinuous(h)
+
+Real ifI
+ifI := Integral(I, h)
+Label ifI $\int_{I} h(x) dx$
+
+---------------------------------------------------
+
+Real m, n
+PosInfinite(n)
+K := (m, n) ⊆ R

@@ -5,9 +5,12 @@ import Log from "./Log";
 import { LockContext } from "./contexts";
 import { collectLabels } from "./Util";
 import {drag, update} from "./packets";
+import {ILayer, ILayerProps} from "./types";
+import {layerMap} from "./layers/layerMap";
 
 interface IProps {
   lock: boolean;
+  layers: ILayer[];
   sendPacket(packet: string): void;
 }
 
@@ -19,11 +22,10 @@ class Canvas extends React.Component<IProps, IState> {
   public readonly state = { data: [] };
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
-
   public sortShapes = (shapes: any[], ordering: string[]) => {
-    const res = ordering.map((name =>
-      shapes.find(([_, shape]) => shape.name.contents === name))); // assumes that all names are unique
-    return res
+    return ordering.map(name =>
+      shapes.find(([_, shape]) => shape.name.contents === name)
+    ); // assumes that all names are unique
   };
 
   public notEmptyLabel = ([name, shape]: [string, any]) => {
@@ -55,17 +57,6 @@ class Canvas extends React.Component<IProps, IState> {
     this.props.sendPacket(update(updatedShapes));
   };
 
-  public onShapeUpdate = (updatedShape: any) => {
-    const shapes = this.state.data.map(([name, oldShape]: [string, any]) => {
-      if (oldShape.name.contents === updatedShape.name.contents) {
-        return [name, updatedShape];
-      }
-      return [name, oldShape];
-    });
-    this.setState({ data: shapes });
-    this.sendUpdate(shapes);
-  };
-
   public download = () => {
     const domnode = ReactDOM.findDOMNode(this);
     if (domnode !== null && domnode instanceof Element) {
@@ -95,26 +86,50 @@ class Canvas extends React.Component<IProps, IState> {
     }
     if (this.svg.current === null) {
       Log.error("SVG ref is null");
-      return <rect />;
+      return <g key={key}/>;
     }
     const ctm = this.svg.current.getScreenCTM();
     const canvasSize = this.canvasSize;
-    const { onShapeUpdate, dragEvent } = this;
+    const {dragEvent} = this;
     return React.createElement(component, {
       key,
       shape,
       canvasSize,
-      onShapeUpdate,
       dragEvent,
       ctm
     });
   };
+  public renderLayer = (
+    shapes: Array<[string, object]>,
+    component: React.ComponentClass<ILayerProps>,
+    key: number
+  ) => {
+    if (shapes.length === 0) {
+      return <g key={key}/>;
+    }
+    if (this.svg.current === null) {
+      Log.error("SVG ref is null");
+      return <g key={key}/>;
+    }
+    const ctm = this.svg.current.getScreenCTM();
+    if (ctm === null) {
+      Log.error("Cannot get CTM");
+      return <g key={key}/>;
+    }
+    return React.createElement(component, {
+      key,
+      ctm,
+      shapes,
+      canvasSize: this.canvasSize
+    });
+  };
   public render() {
-    const { lock } = this.props;
+    const {lock, layers} = this.props;
     const { data } = this.state;
     if (data.length === undefined) {
       return <svg />;
     }
+    const nonEmpties = data.filter(this.notEmptyLabel);
     return (
       <LockContext.Provider value={lock}>
         <svg
@@ -125,7 +140,17 @@ class Canvas extends React.Component<IProps, IState> {
           ref={this.svg}
           viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
         >
-          {data.filter(this.notEmptyLabel).map(this.renderEntity)}
+          {nonEmpties.map(this.renderEntity)}
+          {layers.map(({layer, enabled}: ILayer, key: number) => {
+            if (layerMap[layer] === undefined) {
+              Log.error(`Layer does not exist in deck: ${layer}`);
+              return null;
+            }
+            if (enabled) {
+              return this.renderLayer(nonEmpties, layerMap[layer], key);
+            }
+            return null;
+          })}
         </svg>
       </LockContext.Provider>
     );
