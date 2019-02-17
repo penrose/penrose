@@ -3,8 +3,8 @@
 --    Author: Dor Ma'ayan, May 2018
 
 {-# OPTIONS_HADDOCK prune #-}
--- module Dsll where
-module Main (main) where -- for debugging purposes
+module Dsll where
+--module Main (main) where -- for debugging purposes
 
 import Utils
 import System.Process
@@ -292,7 +292,8 @@ enSettingsParser = do
 
 check :: DsllProg -> VarEnv
 check p =
-   let env = foldl checkDsllStmt initE p
+   let loadedEnv = loadBuiltInTypes initE
+       env = foldl checkDsllStmt loadedEnv p
    in if null (errors env)
      then env
      else error $ "Dsll type checking failed with the following problems: \n"
@@ -302,6 +303,18 @@ check p =
         typeValConstructor = M.empty, varMap = M.empty, subTypes = [],
         stmtNotations = [], typeCtorNames = [], preludes = [],
         declaredNames = [], errors = ""}
+
+-- | Load the initial environemt with built in types and predicates
+--   for data structures such as lists and tuples
+loadBuiltInTypes :: VarEnv -> VarEnv
+loadBuiltInTypes initEnv =
+  let listConstructor = TypeConstructor {nametc = "List", kindstc = [Ktype (Type {typeName = "type",
+     typePos = initialPos ""})], typtc = Type {typeName = "type",
+        typePos = initialPos ""} }
+      ef   = addName (nametc listConstructor) initEnv
+  in ef { typeConstructors = M.insert "List" listConstructor $ typeConstructors ef }
+
+
 
 checkDsllStmt :: VarEnv -> DsllStmt -> VarEnv
 checkDsllStmt e (CdStmt c) =

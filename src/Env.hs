@@ -376,8 +376,9 @@ addName a e = if a `elem` typeCtorNames e
 
 addValConstructor :: ValConstructor -> VarEnv -> VarEnv
 addValConstructor v e = case M.lookup (tvc v) (typeValConstructor e) of
-  Nothing -> e {typeValConstructor =  M.insert (tvc v) [v] $ typeValConstructor e}
-  Just ls -> e {typeValConstructor =  M.insert (tvc v) (v : ls) $ typeValConstructor e}
+  Nothing -> e {typeValConstructor =  M.insert (tvc v) v $ typeValConstructor e}
+  Just x -> e {errors = errors e ++
+   "Multiple declarations of value constructors for type " ++ show (tvc v)}
 
 addDeclaredName :: String -> VarEnv -> VarEnv
 addDeclaredName a e = if a `elem` declaredNames e
@@ -468,7 +469,7 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        operators        :: M.Map String Env.Operator,
                        predicates       :: M.Map String PredicateEnv,
                        typeVarMap       :: M.Map TypeVar Type,
-                       typeValConstructor :: M.Map T [ValConstructor],
+                       typeValConstructor :: M.Map T ValConstructor,
                        varMap           :: M.Map Var T,
                        preludes        :: [(Var,T)],
                        subTypes         :: [(T,T)],
