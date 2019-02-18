@@ -1,3 +1,8 @@
 VectorSpace U
 
 List(Vector) lst
+
+-- List(Scalar) lst -- (Should fail with this)
+
+lst := [u1,u2,u3]
+u3 := addV(u1,u2)

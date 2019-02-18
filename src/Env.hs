@@ -197,6 +197,7 @@ data Y = TypeVarY TypeVar
 
 data T = TTypeVar TypeVar
        | TConstr TypeCtorApp
+       | TNone
        -- TODO: rename to TCtor. Less confusing, more consistent w/ Sty
          deriving (Show, Eq, Typeable, Ord)
 

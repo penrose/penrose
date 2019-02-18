@@ -61,6 +61,7 @@ data Expr = VarE Var
           | ApplyFunc Func
           | ApplyValCons Func
           | DeconstructorE Deconstructor
+          | ListConstructorE [Var]
           deriving (Show, Eq, Typeable)
 
 data Deconstructor  = Deconstructor {
@@ -175,14 +176,19 @@ functionParser = do
 fieldParser :: Parser Field
 fieldParser = FieldConst <$> identifier
 
-exprParser, varE, valConsOrFunc, deconstructorE :: Parser Expr
+exprParser, varE, valConsOrFunc, deconstructorE, listExpr :: Parser Expr
 exprParser = try deconstructorE <|> try valConsOrFunc <|> try varE
+                                <|> try listExpr
 deconstructorE = do
   v <- varParser
   dot
   f <- fieldParser
   return (DeconstructorE Deconstructor { varDeconstructor = v,
                                           fieldDeconstructor = f })
+listExpr = do
+     lst <- brackets (varParser `sepBy1` comma)
+     return (ListConstructorE lst)
+
 varE = VarE <$> varParser
 valConsOrFunc = do
     n <- identifier
@@ -269,6 +275,17 @@ check p varEnv = let env = foldl checkSubStmt varEnv p
                     then env
                     else error $ "Substance type checking failed with the following problems: \n" ++ errors env
 
+
+checkList :: VarEnv -> T -> [Var] -> VarEnv
+checkList varEnv t lst  = foldl (checkListElement t) varEnv lst
+
+checkListElement::  T -> VarEnv -> Var -> VarEnv
+checkListElement t varEnv v = case M.lookup v (varMap varEnv) of
+                     Nothing -> varEnv {varMap = M.insert v t $ varMap varEnv}
+                     vt      -> varEnv { errors = errors varEnv
+                   ++ "Var" ++ show v ++ " already defined \n"}
+
+
 -- | Statements are checked differently depending on if they are a variable declaration, variable assignment, or predicate statement.
 -- Variable declaration statements call checkT to check that the type in the statement is well-formed.
 -- The context is updated with errors and the declared variable.
@@ -281,6 +298,20 @@ checkSubStmt :: VarEnv -> SubStmt -> VarEnv
 checkSubStmt varEnv (Decl t (VarConst n)) = let env  = checkT varEnv t
                                                 env1 = addDeclaredName n env
                                             in  env1 { varMap = M.insert (VarConst n) t $ varMap env1 }
+
+checkSubStmt varEnv (Bind v (ListConstructorE lst)) =
+  case checkVarE varEnv v of
+    (vstr, Just (TConstr vtconstr)) ->
+      let nvt = nameCons vtconstr
+          lavt = argCons vtconstr
+      in if nvt == "List" && (length lavt == 1) then
+        case head lavt of
+          AVar a -> varEnv { errors = errors varEnv
+           ++ "Illegal assignment of a list to a type" ++ show vtconstr ++ "\n" }
+          AT t -> checkList varEnv t lst
+        else varEnv { errors = errors varEnv ++
+                 "Illegal assignment of a list to a type" ++ show vtconstr ++ "\n"}
+    (vstr, vt) -> varEnv { errors = errors varEnv ++ "Can't assign a list to " ++ show vt ++ "\n"}
 
 checkSubStmt varEnv (Bind v e) = let (vstr, vt) = checkVarE varEnv v
                                      (estr, et) = checkExpression varEnv e -- TODO: Check lazy evaluation on et
@@ -395,6 +426,7 @@ checkExpression :: VarEnv -> Expr -> (String, Maybe T)
 checkExpression varEnv (VarE v)         = checkVarE varEnv v
 checkExpression varEnv (ApplyFunc f)    = checkFunc varEnv f
 checkExpression varEnv (ApplyValCons f) = checkFunc varEnv f
+checkExpression varEnv (ListConstructorE l) = ("", Just TNone) -- Checking of lists is done with the binding
 checkExpression varEnv (DeconstructorE d) = --checkVarE varEnv (varDeconstructor d)
    let (err, t) =  checkVarE varEnv (varDeconstructor d)
    in case t of
