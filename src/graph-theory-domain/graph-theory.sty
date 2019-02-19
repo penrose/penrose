@@ -67,27 +67,73 @@ Graph G {
 
 }
 
-Graph G 
-where G := MkGraph() {
-      <makeGraph(G.id)>
-      -- What does this expand to?
-}
--- What about if there are In, etc. and other things that need to be true about this graph?
--- Does it have to follow the Style refinement model instead of making the thing all at once?
--- Or should I make a bunch of selectors with the predicates?
--- How does the overriding model work with generated shapes?? How can you delete a field if you don't know what it's called?
--- With this feature there are many more invalid / hard to draw Substance/Style combinations
-
+/* Disallowed
 Graph G
 where G := MkGraph(vertices, edges) 
 with List(Vertex) vertices; List(Vertex) edges
 {
 
+} */
+
+Graph G 
+where G := MkGraph() {
+      <EXTERNAL.makeGraph(G.id)>
+      -- Why not:
+      G.shapes = EXTERNAL.makeGraph(G.id)
+      -- It could be a list of shapes... and values...
+      -- Then we need facilities to inspect them by type, e.g. if the shape is a circle?
+      -- This is like embedding Style code in a Style block.
+
+      -- You *could* get a different generated graph for each G id
+      -- EXPANDS TO:
+      G.node1 = Circle { 
+      	      r = ? 
+	      strokeWidth = ?
+      }
+
+      G.node2 = Circle {
+      	      r = ?
+	      strokeWidth = ?
+      }
+
+      G.edge1 = Line { 
+      	      startX = G.node1.x -- can we say this?
+	      startY = G.node1.y -- Our external program needs to know the name of node1 and its attributes... 
+	      -- And later, how are we supposed to style these Circles and Lines or know how they're styles?
+	      -- Metaprogramming? Style reflection? 
+	      endX = G.node2.x
+	      endY = G.node2.y
+      }
+
+      G.text1 = Text { 
+      	      x = ?
+	      y = ?
+	      string = ?
+	      rotation = ?
+      }
+      -- How do we want to style this later?
 }
 
-Face f
-where f := FindFace(G)
+Tree T
+where T := Subtree(G)
 with Graph G {
-     <findFace(f.id, G.id)>
-     -- what does this expand to?
+     <EXTERNAL.findTree(T.id, G.id)>
+
+     -- EXPANDS TO:
+     ?
 }
+
+/* External function call makes a graph data structure in-memory
+Returns a collection of nodes, lines, text, etc. (Actually, I'm starting to feel like it should return a Substance program?) Those edges and predicates in Substance are actually how we draw a Graph)
+What are they called? How do we refer to them? Modify them? Style them?
+How does it tell us their types, attributes, names?
+
+If it expands as a substance program, then how do give THAT a type?
+The elements are anonymous?
+*/
+
+-- What about if there are In, etc. and other things that need to be true about this graph?
+-- Does it have to follow the Style refinement model instead of making the thing all at once?
+-- Or should I make a bunch of selectors with the predicates?
+-- How does the overriding model work with generated shapes?? How can you delete a field if you don't know what it's called?
+-- With this feature there are many more invalid / hard to draw Substance/Style combinations

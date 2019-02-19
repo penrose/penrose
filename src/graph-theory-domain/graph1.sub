@@ -19,7 +19,9 @@ InV(v2, G1)
 InE(e1, G1)
 
 Graph G2
-G2 := GenerateGraph()
+-- <Graph.makeGraph(G2)> expands to a collection of vertices, edges, and In predicates (but we don't know what they're called?)
+-- G2 := GenerateGraph()
+-- G2 := MkGraph(GenerateGraph())?
 -- TODO: we don't seem to be able to parse nullary vconstructors in substance or style
 
 Face f1
