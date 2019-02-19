@@ -23,6 +23,7 @@ executable penrose
     other-modules:
         ShadowMain
         Utils
+        Plugins
         Server
         Substance
         Dsll
@@ -77,6 +78,7 @@ test-suite penrose-testsuite
     other-modules:
         ShadowMain
         Utils
+        Plugins
         Server
         Substance
         Dsll

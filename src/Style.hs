@@ -46,7 +46,7 @@ import Env
 type Instantiator  = String
 type Instantiation = [Instantiator]
 
--- | 'parseInstantiation' parses a Style program and return a lost of instantiators declared at the __top__ of the program.
+-- | 'parseInstantiation' parses a Style program and return a list of instantiators declared at the __top__ of the program.
 -- NOTE: this parse do run the Style parser to check for ill-formed instantiation statements. Therefore, a 'VarEnv' is required to run this parser without any errors
 parseInstantiation :: String -> String -> VarEnv -> IO Instantiation
 parseInstantiation styFile styIn env =

@@ -1,0 +1,5 @@
+Set A
+Set B
+IsSubset(A,B)
+
+Label A $A$
