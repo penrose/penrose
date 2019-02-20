@@ -8,6 +8,7 @@ import Utils
 import Plugins
 import qualified Server
 import qualified Substance as C
+import qualified SubstanceJSON as J
 import qualified Control.Concurrent as CC
 import qualified Style as S
 import qualified GenOptProblem as G
@@ -104,8 +105,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
     putStrLn $ "plugin dir path: " ++ dirPath
     let outFile = dirPath ++ "/Sub_enduser.sub"
     let inFile = dirPath ++ "/Sub_instantiated.sub"
-    let subProgOut = subIn -- TODO: use a nicer format like JSON
-    writeFile outFile subProgOut
+    J.writeSubstanceToJSON outFile subOut
     setCurrentDirectory dirPath -- Change to plugin dir so the plugin gets the right path. Otherwise pwd sees "penrose/src"
     callCommand binPath
     setCurrentDirectory originalDir -- Return to original directory
