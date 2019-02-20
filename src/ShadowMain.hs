@@ -93,7 +93,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
     -- Don't forget to recompile the plugin!
     -- NOTE: we are not expecting multiple processes to use these tempfiles
     -- TODO: add more error checking to deal with paths or files that don't exist
-    instantiations <- S.parseInstantiation styFile styIn dsllEnv
+    instantiations <- S.parsePlugins styFile styIn dsllEnv
     putStrLn $ "instantiation: " ++ (show instantiations)
 
     originalDir <- getCurrentDirectory
@@ -113,7 +113,6 @@ penroseRenderer subFile styFile dsllFile domain port = do
     putStrLn "Penrose received file: "
     putStrLn newSubProg
 
-{- -- TODO: currently doesn't parse
     styProg <- S.parseStyle styFile styIn dsllEnv
     putStrLn "Style AST:\n"
     pPrint styProg
@@ -121,7 +120,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
 
     initState <- G.compileStyle styProg subOut
 
-    Server.serveRenderer domain port initState -}
+    Server.serveRenderer domain port initState
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
@@ -161,7 +160,7 @@ removeIfExists fileName = removeFile fileName `catch` handleExists
 
 -- Go up a directory. "/dir1/dir2/end" -> "/dir1/dir2"
 cdUp :: FilePath -> FilePath
-cdUp path = 
+cdUp path =
      let dirs = LS.splitOn "/" path in
      L.intercalate "/" $ take (length dirs - 1) dirs
 

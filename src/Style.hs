@@ -43,33 +43,33 @@ import Env
 
 -- | A Style program can have an instantiator, which would expand its corresponding Substance program via an external program. The instantiator is specified with a string
 -- NOTE: for now, we would allow multiple instantiation statements, but only use the __first__ instantiator in the Style program
-type Instantiator  = String
-type Instantiation = [Instantiator]
+type Plugin  = String
+type Plugins = [Plugin]
 
 -- | 'parseInstantiation' parses a Style program and return a list of instantiators declared at the __top__ of the program.
 -- NOTE: this parse do run the Style parser to check for ill-formed instantiation statements. Therefore, a 'VarEnv' is required to run this parser without any errors
-parseInstantiation :: String -> String -> VarEnv -> IO Instantiation
-parseInstantiation styFile styIn env =
-    case runParser (instantiationParser env) styFile styIn of
+parsePlugins :: String -> String -> VarEnv -> IO Plugins
+parsePlugins styFile styIn env =
+    case runParser (pluginParser env) styFile styIn of
     Left err -> error (parseErrorPretty err)
     Right instantiation -> return instantiation
 
-instantiationParser :: VarEnv -> BaseParser Instantiation
-instantiationParser env = evalStateT instantiationParser' $ Just env
+pluginParser :: VarEnv -> BaseParser Plugins
+pluginParser env = evalStateT pluginParser' $ Just env
 
-instantiationParser' :: Parser Instantiation
-instantiationParser' = do
+pluginParser' :: Parser Plugins
+pluginParser' = do
     scn
-    res <- instantiators
+    res <- plugins
     _   <- styProg
     return res
     where restOfFile = manyTill anyChar eof >> return []
 
-instantiators :: Parser Instantiation
-instantiators = instantiator `endBy` newline' -- zero or multiple instantiators
+plugins :: Parser Plugins
+plugins = plugin `endBy` newline' -- zero or multiple instantiators
 
-instantiator :: Parser Instantiator
-instantiator = symbol "plugin" >> stringLiteral
+plugin :: Parser Plugin
+plugin = symbol "plugin" >> stringLiteral
     where stringLiteral = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
 
 --------------------------------------------------------------------------------
@@ -238,7 +238,9 @@ styleParser' = between scn eof styProg
 -- | `styProg` parses a Style program, consisting of a collection of one or
 -- more blocks
 styProg :: Parser StyProg
-styProg = some headerBlock
+styProg =
+    plugins >>  -- ignore plugin statements
+    some headerBlock
     where headerBlock = (,) <$> header <*> braces block <* scn
 
 header :: Parser Header
