@@ -36,3 +36,5 @@ out*.txt
 penrose-ide/
 *.prof
 *.subdesugared
+Sub_enduser.sub
+Sub_instantiated.sub
