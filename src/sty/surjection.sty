@@ -1,41 +1,96 @@
-global {
-    objective toLeft(A, B)
-    objective sameHeight(A, B)
-    objective sameX(A, B)
-    constraint sameSizeAs(A, B)
-}
+-- global {
+--     objective toLeft(A, B)
+--     objective sameHeight(A, B)
+--     objective sameX(A, B)
+--     constraint sameSizeAs(A, B)
+-- }
+--
+-- Set s {
+--     shape = Ellipse { }
+--     -- constraint contains(s, s.shape.label)
+--     constraint outsideOf(s.shape.label, s)
+--     objective above(s, s.shape.label)
+--     objective sameX(s, s.shape.label)
+-- }
+--
+-- Value f p q {
+--     shape = Arrow {
+--         start = p
+--         end   = q
+--         text = None
+--         test = p
+--     }
+-- }
+--
+--
+-- In p s {
+--     constraint contains(s, p)
+--     objective sameX(p, s)
+--     objective sameHeight(p, s)
+-- }
+--
+-- In p S, In q S {
+--     objective sameX(p, q)
+--     objective repel(p, q)
+-- }
 
-Set s {
-    shape = Ellipse { }
-    -- constraint contains(s, s.shape.label)
-    constraint outsideOf(s.shape.label, s)
-    objective above(s, s.shape.label)
-    objective sameX(s, s.shape.label)
-}
+plugin "alloy"
 
-Value f p q {
-    shape = Arrow {
-        start = p
-        end   = q
-        text = None
-        test = p
+Set x {
+    x.shape = Circle {
+        strokeWidth = 0
     }
-}
 
-
-Point p {
-    shape = Dot {
-        text = None
+    x.text = Text {
+      string = x.label
+      x = x.shape.x
+      y = x.shape.y + x.shape.r + 20.0
     }
+
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
+    LOCAL.layering  = x.shape below x.text
 }
 
-In p s {
-    constraint contains(s, p)
-    objective sameX(p, s)
-    objective sameHeight(p, s)
+Point p
+with Set A
+where PointIn(A, p) {
+    p.offset = 10.0
+    p.shape = Circle {
+        strokeWidth = 0
+        color = rgba(0.0, 0.0, 0.0, 1.0)
+        r = 3.0
+        x = A.shape.x
+    }
+
+    p.text = Text {
+        string = p.label
+        x = p.shape.x + p.offset
+        y = p.shape.y + p.offset
+    }
+    p.containsFn = ensure contains(A.shape, p.shape)
+    p.layering = p.shape above A.shape
 }
 
-In p S, In q S {
-    objective sameX(p, q)
-    objective repel(p, q)
+Map f
+with Set A; Set B
+where From(f, A, B)
+{
+    B.shape.x = 400.0 + A.shape.x
+    B.shape.y = A.shape.y
+    B.shape.r = A.shape.r
+}
+
+Point p; Point q
+with Map f
+where PairIn(p, q, f)
+{
+    p.mapShape = Arrow {
+        startX = p.shape.x + p.offset
+        startY = p.shape.y
+        endX   = q.shape.x - p.offset
+        endY   = q.shape.y
+        thickness = 2.0
+        color  = rgba(0.0, 0.0, 0.0, 1.0)
+    }
 }

@@ -51,7 +51,19 @@ public class AlloyPlugin {
         this.functions    = new HashMap<String, String[]>();
     }
 
+    public void genSurjection() {
+        for(String f : targets) {
+            // all b : B | some a : A | a.f = b
+            String domain, codomain;
+            String[] args = functions.get(f);
+            domain = args[0]; codomain = args[1];
+            String fact = "all b : " + codomain + " | some a : " + domain + " | a." + f + " = b\n";
+            this.facts.add(fact);
+        }
+    }
+
     public String getAlloyProg() {
+
         StringBuffer factString = new StringBuffer("fact {\n");
         for(String s : facts)
             factString.append("    " + s);
@@ -72,12 +84,6 @@ public class AlloyPlugin {
     }
 
     public void mkSurjection(String f) {
-        // all b : B | some a : A | a.f = b
-        String domain, codomain;
-        String[] args = functions.get(f);
-        domain = args[0]; codomain = args[1];
-        String fact = "all b : " + codomain + " | some a : " + domain + " | a." + f + " = b\n";
-        this.facts.add(fact);
         this.targets.add(f);
     }
 
@@ -145,17 +151,26 @@ public class AlloyPlugin {
                     if(tups.size() == 0) {
                     }
                     */
-                    Set<String> ids = new LinkedHashSet<String>();
+                    Set<String> fromIds = new LinkedHashSet<String>();
+                    Set<String> toIds   = new LinkedHashSet<String>();
 
                     for(A4Tuple t : tups) {
                         String p = t.atom(0).replace('$', '_');
                         String q = t.atom(1).replace('$', '_');
-                        ids.add(p);
-                        ids.add(q);
+                        fromIds.add(p);
+                        toIds.add(q);
                         curSolStr += ("PairIn(" + p + ", " + q + ", " + f + ")\n");
                     }
-                    for(String id : ids)
+                    for(String id : fromIds) {
+                        String set = this.functions.get(f)[0];
+                        curSolStr = "PointIn(" + set + ", " + id + ")\n" + curSolStr;
                         curSolStr = "Point " + id + "\n" + curSolStr;
+                    }
+                    for(String id : toIds) {
+                        String set = this.functions.get(f)[1];
+                        curSolStr = "PointIn(" + set + ", " + id + ")\n" + curSolStr;
+                        curSolStr = "Point " + id + "\n" + curSolStr;
+                    }
                 }
                 solStrings.add(curSolStr);
                 sol = sol.next();
@@ -177,17 +192,21 @@ public class AlloyPlugin {
                 this.mkSurjection(arr.getString(0));
             }
         }
+
+        // Post-processing
+        this.genSurjection();
     }
 
     public static void main(String[] args) throws Exception {
         // check args
-        if(args.length != 1) {
-            System.out.println("usage: <input-filename>");
-            System.exit(-1);
-        }
+        // if(args.length != 1) {
+        //     System.out.println("usage: <input-filename>");
+        //     System.exit(-1);
+        // }
 
         // read input file
-        String input = readFile(args[0]);
+        // String input = readFile(args[0]);
+        String input = readFile("Sub_enduser.json");
         System.out.println("Loaded JSON input: ");
         System.out.println(input);
         JSONObject json = new JSONObject(input);
@@ -205,7 +224,7 @@ public class AlloyPlugin {
         String output = res.get(index);
         System.out.println("Output from Alloy, translated to Substance: ");
         System.out.println(output);
-        PrintWriter out = new PrintWriter("output.sub");
+        PrintWriter out = new PrintWriter("Sub_instantiated.sub");
         out.println(output);
         out.close();
 

@@ -10,6 +10,6 @@ plugins :: M.Map String (String, String)
 plugins = M.fromList [
         ("haskell-test", ("plugins/haskell-instantiator", "./Main")),
         ("ddgjs",        ("plugins/mesh-plugin", "node mesh-plugin.js")),
-        ("alloy",        ("TODO: path", "TODO: command")),
+        ("alloy",        ("plugins/alloy", "java -cp \"*:.\" AlloyPlugin")),
         ("raytracing",   ("TODO: path", "TODO: command"))
        ]
