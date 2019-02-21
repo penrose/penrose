@@ -1,6 +1,13 @@
 const fs = require('fs');
+const gp_vertex = require('./geometry-processing-js/node/core/vertex.js')
+const gp_edge = require('./geometry-processing-js/node/core/mesh.js')
+const gp_halfedge = require('./geometry-processing-js/node/core/mesh.js')
+const gp_mesh = require('./geometry-processing-js/node/core/mesh.js')
+const gp_geometry = require('./geometry-processing-js/node/core/geometry.js')
 
 function makeSub(json) {
+    let m1 = new gp_mesh[0]();
+    console.log(m1);
     let newSub = "Edge e\ne := MkEdge(i, j)";
     return newSub;
 }
