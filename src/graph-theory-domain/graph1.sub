@@ -1,0 +1,85 @@
+-- TODO: should we really be generating a *Substance* program rather than a Style one? How does a Substance graph interact with a Style one??
+Graph G1
+Vertex v1, v2, v3, v4
+
+Edge e1
+e1 := MkEdge(v1, v2)
+
+Edge e2
+e2 := MkEdge(v1, v3)
+
+Edge e3
+e3 := MkEdge(v3, v4)
+
+Edge e4
+e4 := MkEdge(v3, v2)
+
+InV(v1, G1)
+InV(v2, G1)
+InE(e1, G1)
+
+Graph G2
+-- <Graph.makeGraph(G2)> expands to a collection of vertices, edges, and In predicates (but we don't know what they're called?)
+-- G2 := GenerateGraph()
+-- G2 := MkGraph(GenerateGraph())?
+-- TODO: we don't seem to be able to parse nullary vconstructors in substance or style
+
+Face f1
+f1 := FindFace(G2)
+
+-- What's the difference between SELECTING something and DRAWING a new thing?
+
+-- Need a handle to something in a structure: use find
+Vertex vf1
+vf1 := FindVertex(f1) -- Made in the external code
+
+Vertex vf2
+vf2 := FindVertex(G2)
+
+Edge ef12
+ef12 := MkEdge(vf1, vf2)
+-- Is it ok to make this in the Substance program?
+
+-- Have a handle to something in a structure: use selected
+SelectedE(ef12)
+
+-- What kinds of compositional operators might we have?
+-- Is this a realistic use case?
+
+AutoLabel All
+
+-- TODO: rest of In predicates (if we need them?)
+
+-- Style fails on parametric type; Substance fails on Nil constructor and on Cons constructor
+-- List(Vertex) temp
+-- temp := Nil()
+
+-- List(Vertex) V
+-- V := Cons(v1, Cons(v2, temp))
+
+/*
+-- Make a concrete graph
+Vertex v1, v2, v3, v4
+List(Vertex) V := [v1, v2, v3, v4]
+-- Edge e1 := <v1, v2>
+-- Edge e2 := <v2, v3>
+-- Edge e3 := <v3, v4>
+Edge e1 := MkEdge(v1, v2)
+Edge e2 := MkEdge(v2, v3)
+Edge e3 := MkEdge(v3, v4)
+List(Edge) E := [e1, e2, e3]
+Graph G1 := MakeGraph(V, E)
+
+-- Make abstract graphs that satisfy some properties and operate on them
+Graph G2
+FullyConnected(G2)
+
+Tree T
+
+Graph G3 := Product(G2, T)
+
+-- Highlight subparts of each graph (if possible)
+Path p1 := FindPath(G1)
+Graph G4 := Subgraph(G3)
+Selected(e2)
+*/

@@ -1,0 +1,139 @@
+global {
+    global.padding = 20.0
+    global.stroke = 2.0
+}
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+Vertex V {
+       V.shape = Circle { 
+         r = 6.0
+	 -- color = Colors.black	 
+	 strokeWidth = 0.0
+       }
+
+       V.text = Text {
+	 x = V.shape.x + global.padding
+	 y = V.shape.y + global.padding
+	 string = V.label
+	 rotation = 0.0
+	 color = V.shape.color
+       }
+}
+
+Edge E
+where E := MkEdge(v1, v2)
+with Vertex v1; Vertex v2 {
+     E.shape = Line { 
+     	     startX = v1.shape.x
+     	     startY = v1.shape.y
+     	     endX = v2.shape.x
+     	     endY = v2.shape.y
+	     color = Colors.black
+	     thickness = 3.0
+     }
+
+     E.text = Text {
+       x = midpointX(E.shape) + global.padding
+       y = midpointY(E.shape) + global.padding
+       string = E.label
+       rotation = 0.0
+     }
+
+     E.layering1 = v1.shape above E.shape
+     E.layering2 = v2.shape above E.shape
+}
+
+Graph G {
+
+}
+
+/* Disallowed
+Graph G
+where G := MkGraph(vertices, edges) 
+with List(Vertex) vertices; List(Vertex) edges
+{
+
+} */
+
+Graph G 
+where G := MkGraph() {
+      <EXTERNAL.makeGraph(G.id)>
+      -- Why not:
+      G.shapes = EXTERNAL.makeGraph(G.id)
+      -- It could be a list of shapes... and values...
+      -- Then we need facilities to inspect them by type, e.g. if the shape is a circle?
+      -- This is like embedding Style code in a Style block.
+
+      -- You *could* get a different generated graph for each G id
+      -- EXPANDS TO:
+      G.node1 = Circle { 
+      	      r = ? 
+	      strokeWidth = ?
+      }
+
+      G.node2 = Circle {
+      	      r = ?
+	      strokeWidth = ?
+      }
+
+      G.edge1 = Line { 
+      	      startX = G.node1.x -- can we say this?
+	      startY = G.node1.y -- Our external program needs to know the name of node1 and its attributes... 
+	      -- And later, how are we supposed to style these Circles and Lines or know how they're styles?
+	      -- Metaprogramming? Style reflection? 
+	      endX = G.node2.x
+	      endY = G.node2.y
+      }
+
+      G.text1 = Text { 
+      	      x = ?
+	      y = ?
+	      string = ?
+	      rotation = ?
+      }
+      -- How do we want to style this later?
+}
+
+Tree T
+where T := Subtree(G)
+with Graph G {
+     <EXTERNAL.findTree(T.id, G.id)>
+
+     -- EXPANDS TO:
+     ?
+}
+
+/* External function call makes a graph data structure in-memory
+Returns a collection of nodes, lines, text, etc. (Actually, I'm starting to feel like it should return a Substance program?) Those edges and predicates in Substance are actually how we draw a Graph)
+What are they called? How do we refer to them? Modify them? Style them?
+How does it tell us their types, attributes, names?
+
+If it expands as a substance program, then how do give THAT a type?
+The elements are anonymous?
+*/
+
+-- What about if there are In, etc. and other things that need to be true about this graph?
+-- Does it have to follow the Style refinement model instead of making the thing all at once?
+-- Or should I make a bunch of selectors with the predicates?
+-- How does the overriding model work with generated shapes?? How can you delete a field if you don't know what it's called?
+-- With this feature there are many more invalid / hard to draw Substance/Style combinations
