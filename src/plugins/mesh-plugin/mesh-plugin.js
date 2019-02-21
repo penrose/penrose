@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 function makeSub(json) {
-    let newSub = "Set Z";
+    let newSub = "Edge e\ne := MkEdge(i, j)";
     return newSub;
 }
 
