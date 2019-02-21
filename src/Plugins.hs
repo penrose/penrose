@@ -2,14 +2,14 @@ module Plugins where
 
 import qualified Data.Map.Strict as M
 
--- First entry: name of instantiator
--- Second entry: path to binary from src directory (which the plugins directory is in as well)
-plugins = M.fromList [
-        ("haskell-test", "plugins/haskell-instantiator/Main"),
-        ("raytracing",   "PATH TODO"),
-        ("ddgjs",        "PATH TODO")
-       ]
+-- First entry: plugin name
+-- Second entry: plugin directory (relative path OK), no trailing "/"
+-- Third entry: command to run, relative to plugin directory
 
-main :: IO ()
-main = do
-     putStrLn "hello"
+plugins :: M.Map String (String, String)
+plugins = M.fromList [
+        ("haskell-test", ("plugins/haskell-instantiator", "./Main")),
+        ("ddgjs",        ("plugins/mesh-plugin", "node mesh-plugin.js")),
+        ("alloy",        ("TODO: path", "TODO: command")),
+        ("raytracing",   ("TODO: path", "TODO: command"))
+       ]

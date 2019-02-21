@@ -103,6 +103,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
                                             -- Do we really need subFileSugared? Doesn't seem to be needed above.
                                             newSubOut <- C.parseSubstance subFileSugared fullSubProg dsllEnv
                                             putStrLn "new Substance program after plugin:" 
+                                            print newSubOut
                                             return newSubOut
                          _ -> error "Multiple instantiators found in Style; only one allowed"
 
@@ -162,28 +163,21 @@ type SubstanceRaw = String
 instantiateSub :: String -> C.SubOut -> IO SubstanceRaw
 instantiateSub pluginName parsedSub = do
     originalDir <- getCurrentDirectory
-    binPath <- makeAbsolute $ catchPathError pluginName (M.lookup pluginName plugins)
-    let dirPath = cdUp binPath
-    putStrLn $ "plugin bin path: " ++ binPath
-    putStrLn $ "plugin dir path: " ++ dirPath
+    let (dirPath, pluginCmd) = catchPathError pluginName (M.lookup pluginName plugins)
+    putStrLn $ "plugin directory: " ++ dirPath
+    putStrLn $ "plugin command: " ++ pluginCmd
     -- NOTE: we are not expecting multiple processes to use these tempfiles
     let outFile = dirPath ++ "/Sub_enduser.json"
     let inFile = dirPath ++ "/Sub_instantiated.sub"
     J.writeSubstanceToJSON outFile parsedSub
     setCurrentDirectory dirPath -- Change to plugin dir so the plugin gets the right path. Otherwise pwd sees "penrose/src"
-    callCommand binPath
+    callCommand pluginCmd
     setCurrentDirectory originalDir -- Return to original directory
     newSubProg <- readFile inFile
     putStrLn "Penrose received file: "
     putStrLn newSubProg
     return newSubProg
 
--- Go up a directory. "/dir1/dir2/end" -> "/dir1/dir2"
-cdUp :: FilePath -> FilePath
-cdUp path =
-     let dirs = LS.splitOn "/" path in
-     L.intercalate "/" $ take (length dirs - 1) dirs
-
-catchPathError :: String -> Maybe FilePath -> FilePath
-catchPathError name Nothing = error "path to plugin '" ++ name ++ "' doesn't exist!"
+catchPathError :: String -> Maybe (FilePath, String) -> (FilePath, String)
+catchPathError name Nothing = error $ "path to plugin '" ++ name ++ "' doesn't exist!"
 catchPathError _ (Just x) = x
