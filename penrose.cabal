@@ -26,6 +26,7 @@ executable penrose
         Plugins
         Server
         Substance
+        SubstanceJSON
         Dsll
         Env
         Style
@@ -81,6 +82,7 @@ test-suite penrose-testsuite
         Plugins
         Server
         Substance
+        SubstanceJSON
         Dsll
         Env
         Style
