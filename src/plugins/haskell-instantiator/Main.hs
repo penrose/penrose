@@ -48,7 +48,7 @@ instantiate x = "Point a"
 main :: IO ()
 main = do
      path <- getCurrentDirectory
-     inFile <- makeAbsolute "Sub_enduser.sub"
+     inFile <- makeAbsolute "Sub_enduser.json"
      outFile <- makeAbsolute "Sub_instantiated.sub"
 
      putStrLn "-------"

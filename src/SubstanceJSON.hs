@@ -4,8 +4,11 @@ module SubstanceJSON where
 
 import GHC.Generics
 import Data.Aeson
+import Debug.Trace
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.List as L
 
+import qualified Env as E
 import Substance
 
 -------------------------------------------------------
@@ -64,32 +67,62 @@ instance FromJSON SubSchema
 
 -------------------------------------------------------
 
+targToSchema :: E.Arg -> String
+targToSchema (E.AVar (E.VarConst s)) = s
+targToSchema (E.AT t) = tToSchema t
+
+tToSchema :: E.T -> String
+tToSchema (E.TTypeVar typeVar) = E.typeVarName typeVar
+tToSchema (E.TConstr typeCtorApp) = 
+          let ctorString = E.nameCons typeCtorApp 
+              args = E.argCons typeCtorApp in
+          case args of
+          [] -> ctorString -- "Set"
+          _ -> ctorString ++ "(" ++ (L.intercalate ", " $ map targToSchema args) ++ ")" -- "List(Bounce)"
+
+exprToSchema :: Expr -> String
+exprToSchema (VarE (E.VarConst v)) = v
+exprToSchema _ = error "Cannot convert anonymous expressions in function/val ctor arguments to JSON; must name them first"
+
+prednameToSchema :: PredicateName -> String
+prednameToSchema (PredicateConst s) = s
+
+predargToSchema :: PredArg -> String
+predargToSchema (PE expr) = exprToSchema expr
+predargToSchema (PP pred) = error "Cannot convert nested predicate in predicate argument to JSON"
+
+-- | Convert a Substance statement to a JSON format and adds it to the right list
+-- | Note: do not rely on ordering in JSON, as this function does not guarantee preserving Substance program order.
+-- | However, we do guarantee preserving argument order in function/valcons/predicate applications.
 toSchema ::
   ([ObjectSchema], [FunctionSchema], [PredicateSchema])
   -> SubStmt -> ([ObjectSchema], [FunctionSchema], [PredicateSchema])
 toSchema acc@(objSchs, fnSchs, predSchs) subLine =
          case subLine of
-         Decl t v -> 
-              let res = ObjectSchema { objType = "", objName = "" }
+         Decl t (E.VarConst v) -> 
+              let res = ObjectSchema { objType = tToSchema t, objName = v }
               in (res : objSchs, fnSchs, predSchs)
-         DeclList t vs -> error "TODO: export to JSON"
+         DeclList t vs ->
+              let decls = map (\v -> Decl t v) vs
+              in foldl toSchema acc decls
 
-         Bind v (ApplyFunc f) -> 
-              let res = FunctionSchema { varName = "", fname = "", fargNames = [] }
+         Bind (E.VarConst v) (ApplyFunc f) -> 
+              let res = FunctionSchema { varName = v, fname = nameFunc f, fargNames = map exprToSchema $ argFunc f }
               in (objSchs, res : fnSchs, predSchs)
-         Bind v (ApplyValCons f) -> 
-              let res = FunctionSchema { varName = "", fname = "", fargNames = [] }
+         Bind (E.VarConst v) (ApplyValCons f) -> 
+              let res = FunctionSchema { varName = v, fname = nameFunc f, fargNames = map exprToSchema $ argFunc f }
               in (objSchs, res : fnSchs, predSchs)
 
          ApplyP p -> 
-              let res = PredicateSchema { pname = "", pargNames = [] }
+              let res = PredicateSchema { pname = prednameToSchema $ predicateName p, pargNames = map predargToSchema $ predicateArgs p }
               in (objSchs, fnSchs, res : predSchs)
 
-         -- TODO: not sent to plugins
-         Bind _ (VarE _) -> acc
-         Bind _ (DeconstructorE _) -> acc
-         EqualE _ _ -> acc
-         EqualQ _ _ -> acc
+         -- TODO: these forms are not sent to plugins
+         Bind _ (VarE _) -> trace "WARNING: not sending Substance form to plugin!" acc
+         Bind _ (DeconstructorE _) -> trace "WARNING: not sending Substance form to plugin!" acc
+         EqualE _ _ -> trace "WARNING: not sending Substance form to plugin!" acc
+         EqualQ _ _ -> trace "WARNING: not sending Substance form to plugin!" acc
+
          LabelDecl _ _ -> acc
          AutoLabel _ -> acc
          NoLabel _ -> acc
@@ -106,6 +139,7 @@ subToSchema prog =
                       }
             }
 
+-- | This is the main function for converting a parsed Substance program to JSON format, called in ShadowMain
 writeSubstanceToJSON :: FilePath -> SubOut -> IO ()
 writeSubstanceToJSON file (SubOut subprog envs labels) = do
      let substanceSchema = subToSchema subprog
@@ -117,6 +151,8 @@ writeSubstanceToJSON file (SubOut subprog envs labels) = do
 -- | Test writing a Substance program in JSON format
 main :: IO ()
 main = do
+     -- let subProg = "Set A\nSet B\n IsSubset(A,B)\nSet C\nC := Union(A, B)\n\nPoint p\n PointIn(C, p)\nC := AddPoint(p, C)\n\nAutoLabel All"
+     let testFile = "testSubstanceJSON.json"
      let info = SubSchema { objects = [ ObjectSchema { objType = "Set", objName = "A" } ], 
                             constraints = ConstraintSchema
                                           { functions = [ FunctionSchema { varName = "C",
@@ -127,4 +163,4 @@ main = do
                                           }
                           }
      let res = encode info
-     BL.writeFile "testSubstanceJSON.json" res
+     BL.writeFile testFile res
