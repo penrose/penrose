@@ -1,0 +1,9 @@
+sig B {  }
+sig A { f : B }
+
+fact {
+    all b : B | some a : A | a.f = b
+}
+pred show() { }
+run show
+
