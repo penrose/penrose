@@ -93,19 +93,25 @@ penroseRenderer subFile styFile dsllFile domain port = do
     instantiations <- S.parsePlugins styFile styIn dsllEnv
     putStrLn $ "instantiations found: " ++ (show instantiations)
     -- If no instantiations, proceed with Style compiler.
-    -- If 1 instantiation, run the plugin, re-check the result, and proceed with Style compiler.
+    -- If 1 instantiation, run the plugin, append the resulting Substance program, re-check the full program, and use it in the Style compiler.
     -- If >1 instantiation, throw an error.
-    case instantiations of
-       [] -> putStrLn "no instantiators found"
-       [pluginName] -> instantiateSub pluginName subOut
-       _ -> error "Multiple instantiators found in Style; only one allowed"
+    subProgForStyle <- case instantiations of
+                         [] -> do putStrLn "no instantiators found"
+                                  return subOut
+                         [pluginName] -> do newSubProg <- instantiateSub pluginName subOut
+                                            let fullSubProg = desugaredSub ++ "\n" ++ newSubProg
+                                            -- Do we really need subFileSugared? Doesn't seem to be needed above.
+                                            newSubOut <- C.parseSubstance subFileSugared fullSubProg dsllEnv
+                                            putStrLn "new Substance program after plugin:" 
+                                            return newSubOut
+                         _ -> error "Multiple instantiators found in Style; only one allowed"
 
     styProg <- S.parseStyle styFile styIn dsllEnv
     putStrLn "Style AST:\n"
     pPrint styProg
     divLine
 
-    initState <- G.compileStyle styProg subOut
+    initState <- G.compileStyle styProg subProgForStyle -- Includes Substance plugin output
 
     Server.serveRenderer domain port initState
 
@@ -150,8 +156,10 @@ removeIfExists fileName = removeFile fileName `catch` handleExists
 -- Substance instantiation / plugin calls
 -- Don't forget to recompile the plugin!
 
+type SubstanceRaw = String
+
 -- TODO: add more error checking to deal with paths or files that don't exist
-instantiateSub :: String -> C.SubOut -> IO ()
+instantiateSub :: String -> C.SubOut -> IO SubstanceRaw
 instantiateSub pluginName parsedSub = do
     originalDir <- getCurrentDirectory
     binPath <- makeAbsolute $ catchPathError pluginName (M.lookup pluginName plugins)
@@ -168,6 +176,7 @@ instantiateSub pluginName parsedSub = do
     newSubProg <- readFile inFile
     putStrLn "Penrose received file: "
     putStrLn newSubProg
+    return newSubProg
 
 -- Go up a directory. "/dir1/dir2/end" -> "/dir1/dir2"
 cdUp :: FilePath -> FilePath

@@ -28,3 +28,18 @@ Set x; Set y
 where NotIntersecting(x, y) {
     LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
 }
+
+Point p {
+      p.offset = 10.0
+      p.shape = Circle {
+      	      strokeWidth = 0
+	      color = rgba(0.0, 0.0, 0.0, 1.0)
+	      r = 3.0
+      }
+
+      p.text = Text {
+	string = p.label
+	x = p.shape.x + p.offset
+	y = p.shape.y + p.offset
+      }
+}
