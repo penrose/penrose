@@ -1,9 +1,13 @@
-For Alloy support, you will need to first run `make` in `src`.
+# Alloy Plugin for Penrose
 
-You will also need to download `alloy4.2.jar` from [here](http://alloy.lcs.mit.edu/alloy/download.html) and place it in both `src` and `plugins/alloy`.
+## Dependencies
 
-NOTE: this plugin requires Java 1.6. On Mac OS Sierra and above, please install https://support.apple.com/kb/DL1572?locale=en_US
+- NOTE: although the `.jar` files are provided in the repo, they might not compile in another machine due to unknown reasons (TODO: might be different JRE versions). So please redownload them whenever errors appear
+- Alloy: [`alloy4.2.jar`](http://alloy.lcs.mit.edu/alloy/downloads/alloy4.2.jar)
+    - NOTE: this plugin requires Java 1.6. On Mac OS Sierra and above, please install https://support.apple.com/kb/DL1572?locale=en_US
+- org.json: [`json.jar`](http://central.maven.org/maven2/org/json/json/20180813/json-20180813.jar)
 
-To build the plugin, run `make`. 
+## Build and run
 
-To run it, run `java -cp ".:alloy4.2.jar" AlloyPlugin <input-file-name>`
+- To build the plugin, run `make`.
+- To run it, run `java -cp "*.:" AlloyPlugin <input-file-name>`
