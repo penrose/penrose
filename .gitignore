@@ -24,7 +24,6 @@ utils/penrose.db
 utils/penroseDB.py
 __temp__.als
 *.class
-alloy
 node_modules/
 *~
 .stack-work/
