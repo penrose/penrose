@@ -5,7 +5,12 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.*;
+import org.json.*;
+
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
 import edu.mit.csail.sdg.alloy4.XMLNode;
@@ -34,21 +39,25 @@ public class AlloyPlugin {
     private StringBuffer alloyProg;
     private ArrayList<String> facts;
     private int numInstances;
+    private Map<String, String[]> functions;
+    private List<String> targets;
 
     public AlloyPlugin(int numInstances) {
         this.alloyProg    = new StringBuffer();
         this.facts        = new ArrayList<String>();
+        this.targets      = new ArrayList<String>();
         this.rnd          = new Random(System.currentTimeMillis());
         this.numInstances = numInstances;
+        this.functions    = new HashMap<String, String[]>();
     }
 
-    public String toString() {
+    public String getAlloyProg() {
         StringBuffer factString = new StringBuffer("fact {\n");
         for(String s : facts)
             factString.append("    " + s);
         factString.append("}\n");
         factString.append("pred show() { }\n");
-        factString.append("run show\n");
+        factString.append("run show for " + this.numInstances + "\n");
         return this.alloyProg.toString() + "\n" + factString;
     }
 
@@ -58,12 +67,18 @@ public class AlloyPlugin {
         String sig2 = "sig " + domain + " { " + f + " : " + codomain + " }\n";
         this.alloyProg.append(sig1);
         this.alloyProg.append(sig2);
+        String[] args = {domain, codomain};
+        functions.put(f, args);
     }
 
-    public void mkSurjection(String f, String domain, String codomain) {
+    public void mkSurjection(String f) {
         // all b : B | some a : A | a.f = b
+        String domain, codomain;
+        String[] args = functions.get(f);
+        domain = args[0]; codomain = args[1];
         String fact = "all b : " + codomain + " | some a : " + domain + " | a." + f + " = b\n";
         this.facts.add(fact);
+        this.targets.add(f);
     }
 
     // Printing solutions randomly
@@ -75,6 +90,7 @@ public class AlloyPlugin {
         }
     }
 
+    // util function for reading a file into a string
     static String readFile(String path) throws IOException {
         InputStream is = new FileInputStream(path);
         BufferedReader buf = new BufferedReader(new InputStreamReader(is));
@@ -91,13 +107,13 @@ public class AlloyPlugin {
     }
 
     // Main function to run Alloy Analyzer
-    public ArrayList<String> run(String[] targets) throws Exception {
+    public ArrayList<String> run() throws Exception {
         A4Reporter rep = new A4Reporter();
         ArrayList<String> solStrings = new ArrayList<String>();
 
         String tempFilename = "__temp.als__";
         PrintWriter out = new PrintWriter(tempFilename);
-        out.println(this.toString());
+        out.println(this.getAlloyProg());
         out.close();
 
         Module world = CompUtil.parseEverything_fromFile(rep, null, tempFilename);
@@ -119,7 +135,7 @@ public class AlloyPlugin {
                 // System.out.println(sol.toString());
                 // sol.writeXML("bijection.xml");
                 String curSolStr = "";
-                for(String f : targets) {
+                for(String f : this.targets) {
                     // System.out.println(sol.eval(e));
                     Expr e = CompUtil.parseOneExpression_fromString(world, f);
                     //  If this solution is solved and satisfiable, evaluates the
@@ -140,7 +156,6 @@ public class AlloyPlugin {
                     }
                     for(String id : ids)
                         curSolStr = "Point " + id + "\n" + curSolStr;
-
                 }
                 solStrings.add(curSolStr);
                 sol = sol.next();
@@ -150,20 +165,56 @@ public class AlloyPlugin {
         return solStrings;
     }
 
+    public void processJSON(JSONObject json) {
+        // process predicates
+        for(Object o : json.getJSONObject("constraints").getJSONArray("predicates")) {
+            JSONObject obj = (JSONObject) o;
+            if(obj.getString("pname").equals("From")) {
+                JSONArray arr = obj.getJSONArray("pargNames");
+                this.mkFunction(arr.getString(0), arr.getString(1), arr.getString(2));
+            } else if(obj.getString("pname").equals("Surjection")) {
+                JSONArray arr = obj.getJSONArray("pargNames");
+                this.mkSurjection(arr.getString(0));
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-        int numSamples = 3;
-
-        AlloyPlugin a = new AlloyPlugin(numSamples);
-        a.mkFunction("f", "A", "B");
-        a.mkSurjection("f", "A", "B");
-        System.out.println(a);
-
+        // check args
         if(args.length != 1) {
             System.out.println("usage: <input-filename>");
             System.exit(-1);
         }
-        String[] targets = {"f"};
-        a.printSols( a.run(targets) );
+
+        // read input file
+        String input = readFile(args[0]);
+        System.out.println("Loaded JSON input: ");
+        System.out.println(input);
+        JSONObject json = new JSONObject(input);
+
+        int numSamples = 4;
+        AlloyPlugin a = new AlloyPlugin(numSamples);
+
+        // processJSON
+        a.processJSON(json);
+        System.out.println(a.getAlloyProg());
+
+        // write result to file
+        List<String> res = a.run();
+        int index = a.rnd.nextInt(res.size());
+        String output = res.get(index);
+        System.out.println("Output from Alloy, translated to Substance: ");
+        System.out.println(output);
+        PrintWriter out = new PrintWriter("output.sub");
+        out.println(output);
+        out.close();
+
+        // DEBUG
+        // AlloyPlugin a = new AlloyPlugin(numSamples);
+        //
+        // a.mkFunction("f", "A", "B");
+        // a.mkSurjection("f", "A", "B");
+        // System.out.println(a);
     }
 }
 

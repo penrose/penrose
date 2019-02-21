@@ -1,4 +1,4 @@
-JFLAGS = -g -cp ".:alloy4.2.jar"
+JFLAGS = -g -cp "*:."
 JC = javac
 .SUFFIXES: .java .class
 

@@ -5,5 +5,5 @@ fact {
     all b : B | some a : A | a.f = b
 }
 pred show() { }
-run show
+run show for 4
 
