@@ -1,0 +1,171 @@
+plugin "ddgjs"
+
+global {
+    global.padding = 20.0
+    global.stroke = 2.0
+}
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+Vertex v {
+       v.shape = Circle { 
+         r = 6.0
+	 -- color = Colors.black	 
+	 strokeWidth = 0.0
+       }
+
+       v.text = Text {
+	 x = v.shape.x + global.padding
+	 y = v.shape.y + global.padding
+	 string = v.label
+	 rotation = 0.0
+	 color = v.shape.color
+       }
+}
+
+Edge E
+where E := MkEdge(v1, v2)
+with Vertex v1; Vertex v2 {
+     E.shape = Line { 
+     	     startX = v1.shape.x
+     	     startY = v1.shape.y
+     	     endX = v2.shape.x
+     	     endY = v2.shape.y
+	     color = Colors.black
+	     thickness = 3.0
+     }
+
+     E.text = Text {
+       x = midpointX(E.shape) + global.padding
+       y = midpointY(E.shape) + global.padding
+       string = E.label
+       rotation = 0.0
+     }
+
+     E.layering1 = v1.shape above E.shape
+     E.layering2 = v2.shape above E.shape
+}
+
+------------------- Base things
+
+/*
+Vertex v 
+where InVertexComplex(v, K) 
+with ?
+{
+	-- location only, no shape
+}
+
+Edge e
+where InEdgeComplex(e, K); InE(v1, e); InE(v2, e)
+with Vertex v1, v2
+{
+	-- draw a line between vertices
+}
+
+Face f 
+where InFaceComplex(f, K) 
+with ?
+{
+
+	-- shade it light purple
+	-- note there are unshaded faces too
+}
+
+------------------- Selected things
+
+-- TODO: how to distinguish between two kinds of "in"?
+-- InVC_Generated(v,K) vs InVC(v,K)? But then Style needs to match on either one in order to know how to draw it??
+
+Vertex v
+where -- SPECIFICALLY in a simplicial complex, not generated
+{
+	-- label it on the diagram
+}
+
+-- same for edges and faces
+
+------------------- Star
+
+Vertex v 
+where -- in a star
+with ? 
+{
+	-- make the dot purple
+}
+
+Edge e
+where -- in a star
+with ?
+{
+	-- draw a line
+}
+
+Face f 
+where -- in a star
+with ?
+{
+
+	-- shade it light purple
+}
+
+------------------- Closure
+
+Vertex v 
+where -- in a closure
+with ? 
+{
+	-- make the dot purple
+}
+
+Edge e
+where -- in a closure
+with ?
+{
+	-- draw a line
+}
+
+Face f 
+where -- in a closure
+with ?
+{
+
+	-- shade it light purple
+}
+
+-- No styles for star, closure, SC, SS?
+
+------------------- Closure
+
+SimplicialSet S 
+{
+	-- label the closure
+}
+
+SimplicialComplex K
+with ?? -- Need to pull in a list of things?
+where In(v, K), In(f, K)
+{
+	-- draw a box around the simplicial complex and everything in it
+	-- label the box corner
+}
+*/

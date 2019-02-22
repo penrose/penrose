@@ -1,10 +1,13 @@
-tconstructor Set: type
-tconstructor Point: type
-tconstructor Map: type
+tconstructor Set : type
+tconstructor Point : type
+tconstructor Map : type
+
+vconstructor EmptySet () : Set
+vconstructor Singleton (p : Point) : Set
 
 operator Intersection (a : Set, b : Set) : Set
 operator Union (a : Set, b : Set) : Set
-operator Substraciton (a : Set, b : Set) : Set
+operator Subtraction (a : Set, b : Set) : Set
 operator CartesianProduct (a : Set, b : Set) : Set
 operator Difference (a : Set, b : Set) : Set
 operator Subset (a : Set, b : Set) : Set

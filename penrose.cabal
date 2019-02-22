@@ -23,8 +23,10 @@ executable penrose
     other-modules:
         ShadowMain
         Utils
+        Plugins
         Server
         Substance
+        SubstanceJSON
         Dsll
         Env
         Style
@@ -77,8 +79,10 @@ test-suite penrose-testsuite
     other-modules:
         ShadowMain
         Utils
+        Plugins
         Server
         Substance
+        SubstanceJSON
         Dsll
         Env
         Style

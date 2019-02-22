@@ -375,10 +375,8 @@ addName a e = if a `elem` typeCtorNames e
               else e { typeCtorNames = a : typeCtorNames e }
 
 addValConstructor :: ValConstructor -> VarEnv -> VarEnv
-addValConstructor v e = case M.lookup (tvc v) (typeValConstructor e) of
-  Nothing -> e {typeValConstructor =  M.insert (tvc v) v $ typeValConstructor e}
-  Just x -> e {errors = errors e ++
-   "Multiple declarations of value constructors for type " ++ show (tvc v)}
+addValConstructor v e = e { typeValConstructor = M.insert (tvc v) v $ typeValConstructor e }
+-- Allow multiple value constructors for a type (e.g. List(`X) has Cons[`X] and Nil[`X]
 
 addDeclaredName :: String -> VarEnv -> VarEnv
 addDeclaredName a e = if a `elem` declaredNames e
