@@ -82,12 +82,16 @@ penroseRenderer subFile styFile dsllFile domain port = do
     dsllEnv <- D.parseDsll dsllFile dsllIn
 
     -- Desugar Substance source file
-    let subFileSugared = subFile ++ "desugared"
-    writeFile subFileSugared (Sugarer.sugarStmts subIn dsllEnv)
-    desugaredSub <- readFile subFileSugared
+    -- let subFileSugared = subFile ++ "desugared"
+    -- writeFile subFileSugared (Sugarer.sugarStmts subIn dsllEnv)
+    -- desugaredSub <- readFile subFileSugared
+    -- subOut <- C.parseSubstance subFileSugared desugaredSub dsllEnv
+    -- removeIfExists subFileSugared
+    -- print subOut
+
+    desugaredSub <- readFile subFile -- HACK: turning off sugarer
+    let subFileSugared = subFile
     subOut <- C.parseSubstance subFileSugared desugaredSub dsllEnv
-    removeIfExists subFileSugared
-    print subOut
 
     -- Find Substance instantiator plugin (if it exists in Style file + directory)
     instantiations <- S.parsePlugins styFile styIn dsllEnv
@@ -102,7 +106,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
                                             let fullSubProg = desugaredSub ++ "\n" ++ newSubProg
                                             -- Do we really need subFileSugared? Doesn't seem to be needed above.
                                             newSubOut <- C.parseSubstance subFileSugared fullSubProg dsllEnv
-                                            putStrLn "new Substance program after plugin:" 
+                                            putStrLn "new Substance program after plugin:"
                                             print newSubOut
                                             return newSubOut
                          _ -> error "Multiple instantiators found in Style; only one allowed"

@@ -292,7 +292,8 @@ enSettingsParser = do
 
 check :: DsllProg -> VarEnv
 check p =
-   let env = foldl checkDsllStmt initE p
+   let loadedEnv = loadBuiltInTypes initE
+       env = foldl checkDsllStmt loadedEnv p
    in if null (errors env)
      then env
      else error $ "Dsll type checking failed with the following problems: \n"
@@ -302,6 +303,21 @@ check p =
         typeValConstructor = M.empty, varMap = M.empty, subTypes = [],
         stmtNotations = [], typeCtorNames = [], preludes = [],
         declaredNames = [], errors = ""}
+
+-- | Load the initial environemt with built in types and predicates
+loadBuiltInTypes :: VarEnv -> VarEnv
+loadBuiltInTypes initEnv = foldl go initEnv builtInTypes
+    where go env typeCons =
+            let typeName = nametc typeCons
+                env' = addName typeName initEnv
+            in env' { typeConstructors = M.insert typeName typeCons $ typeConstructors env' }
+
+-- | all the built-in types supported by all Element programs
+builtInTypes :: [TypeConstructor]
+builtInTypes = [ stringType ]
+
+stringType :: TypeConstructor
+stringType =  TypeConstructor {nametc = "String", kindstc = [], typtc = Type {typeName = "type", typePos = initialPos ""} }
 
 checkDsllStmt :: VarEnv -> DsllStmt -> VarEnv
 checkDsllStmt e (CdStmt c) =

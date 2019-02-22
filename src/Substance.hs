@@ -61,6 +61,7 @@ data Expr = VarE Var
           | ApplyFunc Func
           | ApplyValCons Func
           | DeconstructorE Deconstructor
+          | StringLit String
           deriving (Show, Eq, Typeable)
 
 data Deconstructor  = Deconstructor {
@@ -176,7 +177,7 @@ fieldParser :: Parser Field
 fieldParser = FieldConst <$> identifier
 
 exprParser, varE, valConsOrFunc, deconstructorE :: Parser Expr
-exprParser = try deconstructorE <|> try valConsOrFunc <|> try varE
+exprParser = try deconstructorE <|> try valConsOrFunc <|> try varE <|> stringLit
 deconstructorE = do
   v <- varParser
   dot
@@ -184,6 +185,7 @@ deconstructorE = do
   return (DeconstructorE Deconstructor { varDeconstructor = v,
                                           fieldDeconstructor = f })
 varE = VarE <$> varParser
+stringLit = StringLit <$> doubleQuotedString
 valConsOrFunc = do
     n <- identifier
     e <- get
@@ -400,6 +402,8 @@ checkExpression varEnv (DeconstructorE d) = --checkVarE varEnv (varDeconstructor
    in case t of
       Just t' -> checkField varEnv (fieldDeconstructor d) t'
       Nothing -> (err, Nothing)
+checkExpression varEnv (StringLit v)    = ("", Nothing)
+    -- checkString varEnv v -- HACK: pending proper checking for strings
 
 -- Type checking for fields in value deconstructor, check that there is a
 -- matched value deconstructor with a matching field a retrieve the type,

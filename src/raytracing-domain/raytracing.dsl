@@ -1,6 +1,6 @@
 -- Actual DSLL
 tconstructor Scene : type
-tconstructor VertexType : type
+tconstructor PathVertex : type
 tconstructor BounceType : type
 tconstructor DiffuseBounce : type
 tconstructor SpecularBounce : type
@@ -9,11 +9,10 @@ tconstructor LightSource : type
 tconstructor Camera : type
 tconstructor Path : type
 tconstructor PathSample : type -- a sampled path
-tconstructor String : type
 
-BounceType <: VertexType
-Camera <: VertexType
-LightSource <: VertexType
+BounceType <: PathVertex
+Camera <: PathVertex
+LightSource <: PathVertex
 DiffuseBounce <: BounceType
 SpecularBounce <: BounceType
 GlossyBounce <: BounceType

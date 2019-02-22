@@ -68,7 +68,9 @@ lowerId = (lexeme . try) (p >>= checkId)
   where p = (:) <$> lowerChar <*> many validChar
 validChar = alphaNumChar <|> char '_' <|> char '-'
 
-
+doubleQuotedString :: Parser String
+-- NOTE: overlapping parsers 'charLiteral' and 'char '"'', so we use 'try'
+doubleQuotedString = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
 
 transPattern :: Parser String
 transPattern = (lexeme . try) (p >>= checkPattern)
@@ -523,7 +525,7 @@ checkTypeCtorApp e const =
        Right val -> let kinds2 = kindstc val
                      in if kinds1 /= kinds2
                       then env1 { errors = errors env1
-                      ++ ("Args do not match: " ++ show kinds1 ++
+                      ++ ("Args do not match for type constructor " ++ name ++ ": " ++ show kinds1 ++
                       " != " ++ show kinds2 ++ "\n") }
                       else env1
        Left err -> env1 { errors = errors env1 ++ err }

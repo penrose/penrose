@@ -455,7 +455,7 @@ boolLit =  (rword "True" >> return (BoolLit True))
 
 stringLit :: Parser Expr
 -- NOTE: overlapping parsers 'charLiteral' and 'char '"'', so we use 'try'
-stringLit = StringLit <$> (symbol "\"" >> manyTill L.charLiteral (try (symbol "\"")))
+stringLit = StringLit <$> doubleQuotedString
 
 annotatedFloat :: Parser AnnoFloat
 annotatedFloat = (rword "OPTIMIZED" *> pure Vary) <|> Fix <$> float
