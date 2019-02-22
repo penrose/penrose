@@ -1,5 +1,5 @@
 -- Actual DSLL
-tconstructor Diagram : type
+tconstructor Scene : type
 tconstructor VertexType : type
 tconstructor BounceType : type
 tconstructor DiffuseBounce : type
@@ -7,7 +7,9 @@ tconstructor SpecularBounce : type
 tconstructor GlossyBounce : type
 tconstructor LightSource : type
 tconstructor Camera : type
-tconstructor Path : type -- a sampled path
+tconstructor Path : type
+tconstructor PathSample : type -- a sampled path
+tconstructor String : type
 
 BounceType <: VertexType
 Camera <: VertexType
@@ -16,13 +18,13 @@ DiffuseBounce <: BounceType
 SpecularBounce <: BounceType
 GlossyBounce <: BounceType
 
-tsynonym PathType := List(VertexType)
+operator Sample (T : Path) : PathSample
 
-operator sample (T : PathType) : Path
+predicate HasForm (p : Path, s : String) : Prop
+predicate In (p : Path, s : Scene) : Prop
 
-value diagram : Diagram
-value L : LightSource
-value E : Camera
-value D : DiffuseBounce
-value S : SpecularBounce
-value G : GlossyBounce
+-- value L : LightSource
+-- value E : Camera
+-- value D : DiffuseBounce
+-- value S : SpecularBounce
+-- value G : GlossyBounce

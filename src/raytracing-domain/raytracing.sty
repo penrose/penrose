@@ -1,4 +1,7 @@
+-- plugin "raytracing"
+
 global { global.padding = 10 }
+
 
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
@@ -20,25 +23,20 @@ Colors {
     Colors.pink = rgba(0.78, 0.256, 0.53, 1.0)
     Colors.lightpink = rgba(0.78, 0.256, 0.53, 0.25)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
-    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
 }
 
-Diagram d {
+Scene d {
     d.room = Rectangle {
-        angle = 0
-        fill  = Colors.none
+        angle  = 0
+        fill   = Colors.none
+        strokeColor = Colors.black
+        strokeWidth = 1.5
         -- optimize height, width, location
+        sizeX = OPTIMIZED
+        sizeY = OPTIMIZED
+        x = OPTIMIZED
+        y = OPTIMIZED
     }
-
-    d.mirror = Image {
-        path = "mirror.svg"
-        -- display = "none"
-        -- optimize angle, size, location
-    }
-
-    each mirror still has `display = "none"`
-    d.mirrors = listOfRandLength(mirror, 2, 6)
-    d.inFn = ensure eachIn(d.mirrors, d.room)
 }
 
 ---------------------------NON-COMPILABLE CODE----------------------------------

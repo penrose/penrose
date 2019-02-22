@@ -394,8 +394,9 @@ rectType = ("Rectangle", M.fromList
         ("sizeX", (FloatT, width_sampler)),
         ("sizeY", (FloatT, height_sampler)),
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
-        ("color", (ColorT, sampleColor)),
-        ("stroke", (StrT, constValue $ StrV "none")),
+        ("fill", (ColorT, sampleColor)),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("strokeWidth", (FloatT, constValue $ FloatV 0.0)),
         ("name", (StrT, constValue $ StrV "defaultRect"))
     ])
 

@@ -1,8 +1,17 @@
--- regex for a caustic (e.g. swimming pool)
-pathType = [L, S, D, S, E]
+Scene S
+Path p
+In(p, S)
 
-path1 = sample(pathType) -- nondeterministic
-path2 = sample(pathType)
+String s
+-- s := "LD*SE"
 
-Autolabel All
-NoLabel pathType, path1, path2
+HasForm(p, s)
+
+PathSample p1, p2
+p1 := Sample(p)
+p2 := Sample(p)
+
+-- let PathVertex v[, T2 x2...] in p1,... where IsSpecular(v)...
+-- Label v "special vertex"
+
+AutoLabel All
