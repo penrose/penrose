@@ -38,27 +38,52 @@ public class AlloyPlugin {
     private Random rnd;
     private StringBuffer alloyProg;
     private ArrayList<String> facts;
-    private int numInstances;
+    private int numInstances; // number of total instances generated to be picked at random
+    private int maxPts;
     private Map<String, String[]> functions;
-    private List<String> targets;
+    private List<String> surjections, injections, bijections;
 
-    public AlloyPlugin(int numInstances) {
+    public AlloyPlugin(int numInstances, int maxPts) {
         this.alloyProg    = new StringBuffer();
         this.facts        = new ArrayList<String>();
-        this.targets      = new ArrayList<String>();
         this.rnd          = new Random(System.currentTimeMillis());
         this.numInstances = numInstances;
+        this.maxPts       = maxPts;
         this.functions    = new HashMap<String, String[]>();
+        this.surjections  = new ArrayList<String>();
+        this.injections   = new ArrayList<String>();
+        this.bijections   = new ArrayList<String>();
     }
 
-    public void genSurjection() {
-        for(String f : targets) {
-            // all b : B | some a : A | a.f = b
+    public String mkInjection(String f, String domain) {
+        // all a1,a2 : A | a1.f = a2.f implies a1 = a2
+        return "all a1, a2: " + domain + " | a1." + f + " = a2." + f + " implies a1 = a2\n";
+    }
+    public String mkSurjection(String f, String domain, String codomain) {
+        // all b : B | some a : A | a.f = b
+        return "all b : " + codomain + " | some a : " + domain + " | a." + f + " = b\n";
+    }
+
+    public void genFacts() {
+        for(String f : surjections) {
             String domain, codomain;
             String[] args = functions.get(f);
             domain = args[0]; codomain = args[1];
-            String fact = "all b : " + codomain + " | some a : " + domain + " | a." + f + " = b\n";
-            this.facts.add(fact);
+            this.facts.add(mkSurjection(f, domain, codomain));
+        }
+        for(String f : injections) {
+            String domain, codomain;
+            String[] args = functions.get(f);
+            domain = args[0];
+            this.facts.add(mkInjection(f, domain));
+        }
+        for(String f : bijections) {
+            String domain, codomain;
+            String[] args = functions.get(f);
+            domain = args[0]; codomain = args[1];
+            // both injective and surjective
+            this.facts.add(mkSurjection(f, domain, codomain));
+            this.facts.add(mkInjection(f, domain));
         }
     }
 
@@ -69,7 +94,7 @@ public class AlloyPlugin {
             factString.append("    " + s);
         factString.append("}\n");
         factString.append("pred show() { }\n");
-        factString.append("run show for " + this.numInstances + "\n");
+        factString.append("run show for " + this.maxPts + "\n");
         return this.alloyProg.toString() + "\n" + factString;
     }
 
@@ -81,10 +106,6 @@ public class AlloyPlugin {
         this.alloyProg.append(sig2);
         String[] args = {domain, codomain};
         functions.put(f, args);
-    }
-
-    public void mkSurjection(String f) {
-        this.targets.add(f);
     }
 
     // Printing solutions randomly
@@ -112,6 +133,19 @@ public class AlloyPlugin {
         return sb.toString();
     }
 
+    public String translateSet(String set, Module world, A4Solution sol) throws Exception {
+        Expr e = CompUtil.parseOneExpression_fromString(world, set);
+        A4TupleSet tups = (A4TupleSet) sol.eval(e);
+        String res = "";
+
+        for(A4Tuple t : tups) {
+            String id = t.atom(0).replace('$', '_');
+            res += "Point " + id + "\n";
+            res += "PointIn(" + set + ", " + id + ")\n";
+        }
+        return res;
+    }
+
     // Main function to run Alloy Analyzer
     public ArrayList<String> run() throws Exception {
         A4Reporter rep = new A4Reporter();
@@ -135,41 +169,28 @@ public class AlloyPlugin {
                 System.out.println("The predicates are not satisfiable. No instance generated.");
                 System.exit(-1);
             }
-            // while (sol.satisfiable() && i < numInstances) {
             while (sol.satisfiable()) {
                 // System.out.println("[Solution]:");
                 // System.out.println(sol.toString());
                 // sol.writeXML("bijection.xml");
                 String curSolStr = "";
-                for(String f : this.targets) {
-                    // System.out.println(sol.eval(e));
+                List<String> targets = new ArrayList<String>();
+                targets.addAll(surjections);
+                targets.addAll(injections);
+                targets.addAll(bijections);
+                for(String f : targets) {
+                    String[] sets = this.functions.get(f);
+                    String domain = sets[0]; String codomain = sets[1];
+                    curSolStr += translateSet(domain, world, sol);
+                    curSolStr += translateSet(codomain, world, sol);
                     Expr e = CompUtil.parseOneExpression_fromString(world, f);
                     //  If this solution is solved and satisfiable, evaluates the
                     //  given expression and returns an A4TupleSet, a java Integer, or a java Boolean.
-                    A4TupleSet tups = (A4TupleSet) sol.eval(e);
-                    /* TODO: do we want to skip empty set solutions or not??
-                    if(tups.size() == 0) {
-                    }
-                    */
-                    Set<String> fromIds = new LinkedHashSet<String>();
-                    Set<String> toIds   = new LinkedHashSet<String>();
-
+                    A4TupleSet tups     = (A4TupleSet) sol.eval(e);
                     for(A4Tuple t : tups) {
                         String p = t.atom(0).replace('$', '_');
                         String q = t.atom(1).replace('$', '_');
-                        fromIds.add(p);
-                        toIds.add(q);
                         curSolStr += ("PairIn(" + p + ", " + q + ", " + f + ")\n");
-                    }
-                    for(String id : fromIds) {
-                        String set = this.functions.get(f)[0];
-                        curSolStr = "PointIn(" + set + ", " + id + ")\n" + curSolStr;
-                        curSolStr = "Point " + id + "\n" + curSolStr;
-                    }
-                    for(String id : toIds) {
-                        String set = this.functions.get(f)[1];
-                        curSolStr = "PointIn(" + set + ", " + id + ")\n" + curSolStr;
-                        curSolStr = "Point " + id + "\n" + curSolStr;
                     }
                 }
                 solStrings.add(curSolStr);
@@ -184,17 +205,20 @@ public class AlloyPlugin {
         // process predicates
         for(Object o : json.getJSONObject("constraints").getJSONArray("predicates")) {
             JSONObject obj = (JSONObject) o;
+            JSONArray arr = obj.getJSONArray("pargNames");
             if(obj.getString("pname").equals("From")) {
-                JSONArray arr = obj.getJSONArray("pargNames");
                 this.mkFunction(arr.getString(0), arr.getString(1), arr.getString(2));
             } else if(obj.getString("pname").equals("Surjection")) {
-                JSONArray arr = obj.getJSONArray("pargNames");
-                this.mkSurjection(arr.getString(0));
+                this.surjections.add(arr.getString(0));
+            } else if(obj.getString("pname").equals("Injection")) {
+                this.injections.add(arr.getString(0));
+            } else if(obj.getString("pname").equals("Bijection")) {
+                this.bijections.add(arr.getString(0));
             }
         }
 
         // Post-processing
-        this.genSurjection();
+        this.genFacts();
     }
 
     public static void main(String[] args) throws Exception {
@@ -211,8 +235,8 @@ public class AlloyPlugin {
         System.out.println(input);
         JSONObject json = new JSONObject(input);
 
-        int numSamples = 4;
-        AlloyPlugin a = new AlloyPlugin(numSamples);
+        int numSamples = 10; int pts = 5;
+        AlloyPlugin a = new AlloyPlugin(numSamples, pts);
 
         // processJSON
         a.processJSON(json);
