@@ -1,10 +1,16 @@
 const Fs = require('fs');
+const _ = require('lodash');
+
+// Geometry processing imports
 const Vertex = require('./geometry-processing-js/node/core/vertex.js')
-const Edge = require('./geometry-processing-js/node/core/mesh.js')
-const Halfedge = require('./geometry-processing-js/node/core/mesh.js')
+const Edge = require('./geometry-processing-js/node/core/edge.js')
+const Halfedge = require('./geometry-processing-js/node/core/halfedge.js')
+const MeshSubset = require('./geometry-processing-js/node/core/mesh-subset.js')
 const Mesh = require('./geometry-processing-js/node/core/mesh.js')
 const Geometry = require('./geometry-processing-js/node/core/geometry.js')
 const MeshIO = require('./geometry-processing-js/node/utils/meshio.js');
+
+const SC = require('./geometry-processing-js/node/projects/simplicial-complex-operators/simplicial-complex-operators.js');
 // TODO: port simplicial complex project to Node
 
 // Input meshes
@@ -16,62 +22,86 @@ const TetraMesh = require('./geometry-processing-js/input/tetrahedron.js');
 global_mesh = undefined;
 newline = "\n";
 
-function vname(v) {
-    return "v" + v.index;
+function vname(cname, v) {
+    return cname + "_v" + v.index;
 }
 
-function ename(e) {
-    return "e" + e.index;
+function ename(cname, e) {
+    return cname + "_e" + e.index;
 }
 
-function vdecl(v) {
-    return "Vertex " + vname(v);
+function vdecl(cname, v) {
+    return "Vertex " + vname(cname, v);
 }
 
-function edecl(e) {
-    return "Edge " + ename(e);
+function edecl(cname, e) {
+    return "Edge " + ename(cname, e);
 }
 
-function inVE(v, e) {
-    return "InVE(" + vname(v) + ", " + ename(e) + ")";
+function inVE(cname, v, e) {
+    return "InVE(" + vname(cname, v) + ", " + ename(cname, e) + ")";
 }
 
-function mkE(v1, v2) {
-    return "e := MkEdge(" + vname(v1) + ", " + ename(v2) + ")";
+function mkE(cname, v1, v2) {
+    return "e := MkEdge(" + vname(cname, v1) + ", " + ename(cname, v2) + ")";
 }
 
-function makeSub(json) {
-    // TODO: do something as function of json
+function makeSComplex(cname) {
+    // TODO: maintain a lookup table for objects that belong to c
 
+    // TODO: make a simple random mesh, not a constant one
     let polygonSoup = MeshIO.readOBJ(TetraMesh);
-    let m1 = new Mesh.Mesh();
-    m1.build(polygonSoup);
-    console.log(m1);
+    let mesh = new Mesh.Mesh();
+    mesh.build(polygonSoup);
 
-    global_mesh = m1;
+    // TODO: keep this mesh alive
 
-    // vertices, edges, faces, corners, halfedges, boundaries
-    let vs = m1.vertices;
+    // -------------------------------------------
+    // TODO: factor out the simplicial complex code
+    let SCO = new SC.SimplicialComplexOperators(mesh);
+
+    let selectedSimplices = new MeshSubset();
+    selectedSimplices.addVertices([1,2,3]);
+    selectedSimplices.addEdges([1,2,3]);
+    selectedSimplices.addFaces([1,2,3]);
+
+    let star_sc = SCO.star(selectedSimplices);
+    console.log("sc: ", SCO);
+    console.log("sc star: ", star_sc);
+    // -------------------------------------------
+
+    global_mesh = mesh; // TODO remove
 
     let prog = [];
 
     // Emit all declarations first, since objects need to be defined in Substance before they're referenced
-    for (let v of m1.vertices) {
-	prog.push(vdecl(v));
+    for (let v of mesh.vertices) {
+	prog.push(vdecl(cname, v));
     }
 
-    for (let e of m1.edges) {
-	prog.push(edecl(e));
+    for (let e of mesh.edges) {
+	prog.push(edecl(cname, e));
     }
 
     // Build connectivity info
-    for (let v of m1.vertices) {
+    for (let v of mesh.vertices) {
 	for (let e of v.adjacentEdges()) {
-	    prog.push(inVE(v, e));
+	    prog.push(inVE(cname, v, e));
 	}
     }
 
-    return prog.join(newline);
+    return prog;
+}
+
+function makeSub(json) {
+    // We only construct simplicial complexes, and objects are named according to the SComplex they belong to
+    let scNames = json.objects.filter(o => o.objType === 'SComplex').map(o => o.objName);
+    console.log("complexes", scNames);
+
+    // TODO: use consistent fp style
+    let complexesProg = _.flatten(scNames.map(name => makeSComplex(name)));
+
+    return complexesProg.join(newline);
 }
 
 function main() {

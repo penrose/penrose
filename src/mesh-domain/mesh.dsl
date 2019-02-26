@@ -16,7 +16,7 @@ tconstructor Edge : type
 tconstructor Face : type
 tconstructor SSubset : type
 tconstructor SComplex : type -- Mesh := SComplex(2)
-tconstructor Subcomplex : type -- (V, E, F) linked to a mes
+tconstructor Subcomplex : type -- (V, E, F) linked to a mesh
 
 SComplex <: SSubset
 -- Is this possible?
