@@ -86,8 +86,26 @@ class Canvas extends React.Component<IProps, IState> {
           const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
           g.innerHTML = outer;
           g.setAttributeNS(null, "transform", `translate(${x},${y})`);
-
-          wrapper.remove();
+          // HACK: generate unique ids
+          const defs = g.getElementsByTagName("defs");
+          if (defs.length > 0) {
+            defs[0].querySelectorAll("*").forEach((node: any) => {
+              if (node.id !== "") {
+                const users = g.querySelectorAll(
+                  `[*|href="#${node.id}"]:not([href])`
+                );
+                users.forEach((user: any) => {
+                  const unique = `${i}-ns-${node.id}`;
+                  user.setAttributeNS(
+                    "http://www.w3.org/1999/xlink",
+                    "href",
+                    "#" + unique
+                  );
+                  node.setAttribute("id", unique);
+                });
+              }
+            });
+          }
           image.insertAdjacentElement("beforebegin", g);
           wrapper.remove();
           image.remove();
@@ -106,7 +124,6 @@ class Canvas extends React.Component<IProps, IState> {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-
     } else {
       Log.error("Could not find SVG domnode.");
     }

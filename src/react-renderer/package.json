@@ -9,7 +9,6 @@
     "debug": "^4.1.0",
     "fast-memoize": "^2.5.1",
     "lodash": "^4.17.11",
-    "prettier": "^1.16.4",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
     "react-fast-compare": "^2.0.4",
@@ -29,6 +28,7 @@
     "@types/node": "^10.12.2",
     "@types/react": "^16.4.18",
     "@types/react-dom": "^16.0.9",
+    "prettier": "^1.16.4",
     "tslint": "^5.12.1",
     "typescript": "^3.1.6"
   },
