@@ -8,7 +8,7 @@ const gp_geometry = require('./geometry-processing-js/node/core/geometry.js')
 function makeSub(json) {
     let m1 = new gp_mesh[0]();
     console.log(m1);
-    let newSub = "Edge e\ne := MkEdge(i, j)";
+    let newSub = "Vertex v1\nVertex v2\nEdge e\ne := MkEdge(v1, v2)";
     return newSub;
 }
 

@@ -23,18 +23,19 @@ S := Star(i)
 SimplicialComplex A
 A := Closure(S) */
 
-Mesh K1
-Mesh K2
+SComplex K1
+SComplex K2
 Vertex i
 InVS(i, K1)
 Vertex j
 InVS(j, K2)
 
-MeshSubset S
-Subset(S, K1)
-S := Star(i)
+SSubset S
+IsSubsetOf(S, K1)
+S := StarV(i)
 
-Mesh A
+-- SComplex A
+SSubset A
 A := Closure(S)
 
 AutoLabel All

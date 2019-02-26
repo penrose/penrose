@@ -1,33 +1,55 @@
--- Modeled after geometry-processing-js types and classes
+-- Keenan's notes:
+-- http://brickisland.net/DDGSpring2019/
+-- https://www.cs.cmu.edu/~kmcrane/Projects/DDG/paper.pdf (chapter 2)
+-- http://brickisland.net/DDGSpring2019/2019/01/22/a0-coding-combinatorial-surfaces/
+
+-- geometry-processing-js types and classes:
 -- https://geometrycollective.github.io/geometry-processing-js/docs/module-Core.html
 -- https://geometrycollective.github.io/geometry-processing-js/docs/module-Projects.SimplicialComplexOperators.html
 
-tconstructor Edge : type
-tconstructor Halfedge : type
-tconstructor Vertex : type
-tconstructor Face : type
--- tconstructor SimplicialComplex : type
--- tconstructor SimplicialSubset : type
-tconstructor Mesh : type
-tconstructor MeshSubset : type
+-- Other resources:
+-- https://github.com/cmu462/Scotty3D/wiki/Edge-Flip-Tutorial
+-- https://github.com/cmu462/Scotty3D/wiki/Local-Mesh-Operations
 
--- Mesh <: SimplicialComplex
-MeshSubset <: Mesh
+tconstructor Vertex : type
+tconstructor Edge : type
+tconstructor Face : type
+tconstructor SSubset : type
+tconstructor SComplex : type
+tconstructor Subcomplex : type
+
+SComplex <: SSubset
+-- Is this possible?
+Subcomplex <: SSubset
+Subcomplex <: SComplex
 
 vconstructor MkEdge(v1 : Vertex, v2 : Vertex) : Edge
-vconstructor MkHalfedge(twin : Halfedge, next : Halfedge, edge : Edge) : Halfedge
+vconstructor MkFace(e1 : Edge, e2 : Edge, e3 : Edge) : Face
+-- TODO: do we need other value constructors? or is In enough?
+-- either way, Style is going to need to pull in and operate on a list of objects
 
--- vconstructor Face(edges : List(Edge)) : Face -- In CCW order
--- vconstructor Mesh(vs : List(Vertex), es : List(Edge), hs : List(Halfedge), fs : List(Face))
+-- How do you go from a SSubset to a SComplex? Can a closure actually do that?
+operator Star(c : SComplex) : SSubset
+operator StarV(v : Vertex) : SSubset
+-- operator StarV(v : Vertex, c : SComplex) : SSubset
+operator Closure(s : SSubset) : SSubset
+operator Link(s : SSubset) : SSubset
+operator Boundary(s : SSubset) : SSubset
+operator Coboundary(s : SSubset) : SSubset
+operator ToSComplex(s : SSubset) : SComplex -- Type conversion?
+-- Computing homology? A collection of faces?
 
--- TODO: check if these types are right
+-- Math-related predicates
+predicate IsSubsetOf(s : SSubset, c : SComplex) : Prop
+predicate IsSComplex(s : SSubset) : Prop
+predicate Pure(s : SSubset) : Prop
+predicate IsBoundary(s : SSubset) : Prop -- Not sure how to check it
 
-operator Star(v : Vertex) : MeshSubset
-operator Closure(m : MeshSubset) : Mesh
-operator Link(m : MeshSubset) : Mesh
-operator EdgeFlip(m : Mesh) : Mesh
-
+-- Generic connectivity and selection predicates
+-- Does this work WRT subtyping?
+predicate InVS(v : Vertex, s : SSubset) : Prop
+predicate InES(e : Edge, s : SSubset) : Prop
+predicate InFS(f : Face, s : SSubset) : Prop
 predicate SelectedV(v : Vertex) : Prop
-predicate InVS(v : Vertex, S : Mesh) : Prop
-predicate BoundaryFace(f : Face) : Prop
-predicate Subset(s : MeshSubset, m : Mesh) : Prop
+predicate SelectedE(e : Edge) : Prop
+predicate SelectedF(f : Face) : Prop
