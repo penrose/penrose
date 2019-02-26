@@ -15,8 +15,8 @@ tconstructor Vertex : type
 tconstructor Edge : type
 tconstructor Face : type
 tconstructor SSubset : type
-tconstructor SComplex : type
-tconstructor Subcomplex : type
+tconstructor SComplex : type -- Mesh := SComplex(2)
+tconstructor Subcomplex : type -- (V, E, F) linked to a mes
 
 SComplex <: SSubset
 -- Is this possible?
@@ -47,6 +47,7 @@ predicate IsBoundary(s : SSubset) : Prop -- Not sure how to check it
 
 -- Generic connectivity and selection predicates
 -- Does this work WRT subtyping?
+predicate InVE(v : Vertex, e : Edge) : Prop
 predicate InVS(v : Vertex, s : SSubset) : Prop
 predicate InES(e : Edge, s : SSubset) : Prop
 predicate InFS(f : Face, s : SSubset) : Prop

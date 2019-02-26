@@ -42,10 +42,13 @@ Vertex v {
        }
 }
 
-Edge E
-where E := MkEdge(v1, v2)
+-- Is this going to match too many times?
+-- It'll match once for (e, v1, v2) and again for (e, v2, v1), because it's not ordered, as opposed to e := MkEdge(v1, v2), which can only match once
+Edge e
+where InVE(v1, e); InVE(v2, e)
+-- where e := Mkedge(v1, v2)
 with Vertex v1; Vertex v2 {
-     E.shape = Line { 
+     e.shape = Line { 
      	     startX = v1.shape.x
      	     startY = v1.shape.y
      	     endX = v2.shape.x
@@ -54,15 +57,15 @@ with Vertex v1; Vertex v2 {
 	     thickness = 3.0
      }
 
-     E.text = Text {
-       x = midpointX(E.shape) + global.padding
-       y = midpointY(E.shape) + global.padding
-       string = E.label
+     e.text = Text {
+       x = midpointX(e.shape) + global.padding
+       y = midpointY(e.shape) + global.padding
+       string = e.label
        rotation = 0.0
      }
 
-     E.layering1 = v1.shape above E.shape
-     E.layering2 = v2.shape above E.shape
+     e.layering1 = v1.shape above e.shape
+     e.layering2 = v2.shape above e.shape
 }
 
 ------------------- Base things
