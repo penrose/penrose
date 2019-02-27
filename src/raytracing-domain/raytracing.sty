@@ -39,6 +39,88 @@ Scene d {
     }
 }
 
+-------------- Style program
+
+SceneGeometry o {
+	      -- location field
+}
+
+DiffuseObject d {
+	      -- draw a room
+}
+
+SpecularObject o
+where InOS(o, S) with Scene s { -- No "in path" predicate because scene geometry shouldn't depend directly on a path
+	-- import mirror SVG and put it in scene
+}
+
+LightSource L -- subtyped
+where InOS(L, S) with Scene S {
+	    -- draw L in S
+	    -- has to have a location
+} -- Same with camera
+
+Path p , PathSample ps
+where p in scene {
+      -- make path sample color
+      -- label path with its string
+}
+
+-- Path vertex with various kinds of bounces
+
+PathVertex v  , PathSample ps
+where InVP(v, p)
+with Path p {
+     -- v.location = (?, ?)
+}
+
+-- TODO: work out the pathsample???
+
+PathVertex v  , PathSample ps
+where InVP(v, p), OnLight(v)
+with Path p, LightSource L {
+	-- put the location on L's border
+} -- same with eye, but going into the eye
+
+PathVertex v   , PathSample ps
+where InVP(v, p); Hits(v, o)
+with Path p; SpecularObject o {
+          -- on border of mirror
+}
+
+-- Rays
+
+PathEdge e , PathSample ps
+where InVE(v1, e); InVE(v2, e);
+with PathVertex v1, v2 {
+     -- draw an arrow from v1's location to v2's location
+}
+
+PathEdge e, SceneGeometry o , PathSample ps {
+	 -- ray should not intersect scene geometry
+}
+
+-- Do something at bounce point
+
+-- Two edges that share a vertex
+PathEdge e1, PathEdge e2 , PathSample ps
+where InVE(v1, e1); InVE(v2, e1); InVE(v2, e2); InVE(v3, e2);
+      Hits(v2, o)
+with PathVertex v1, v2, v3;
+     SceneGeometry o {
+     -- draw bounce normal for all bounces
+}
+
+-- Do something at specular bounce point
+
+PathEdge e1, PathEdge e2 , PathSample ps
+where InVE(v1, e1); InVE(v2, e1); InVE(v2, e2); InVE(v3, e2);
+       IsSpecular(v2);
+       Hits(v2, o)
+with PathVertex v1, v2, v3;
+     SceneGeometry o {
+     -- make sure angles are equal
+}
 ---------------------------NON-COMPILABLE CODE----------------------------------
 
 /*

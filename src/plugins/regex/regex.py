@@ -1,6 +1,8 @@
 '''
 - Assumes only one scene
+- Assumes only one DiffuseObject
 - Assumes only one path sample
+- Generates exactly as many objects as vertices
 '''
 
 import json
@@ -35,11 +37,12 @@ def genSubstance():
         path['vertices'] = vertices
 
         # declare edges
-        print vertices
         for v0, v1 in zip(vertices, vertices[1:]):
             res += edgeDecl(v0, v1)
 
         # declare scene objs
+        for v in path['vertices']:
+
 
     return res
 

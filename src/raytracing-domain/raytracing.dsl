@@ -2,26 +2,27 @@
 tconstructor Scene : type
 tconstructor PathVertex : type
 tconstructor PathEdge : type
-tconstructor BounceType : type
-tconstructor DiffuseBounce : type
-tconstructor SpecularBounce : type
-tconstructor GlossyBounce : type
-tconstructor LightSource : type
+tconstructor PathSample : type -- a sampled path
+tconstructor SceneGeometry : type
 tconstructor Camera : type
 tconstructor Path : type
-tconstructor PathSample : type -- a sampled path
+tconstructor SpecularObject : type
+tconstructor DiffuseObject : type
+
 
 BounceType <: PathVertex
 Camera <: PathVertex
 LightSource <: PathVertex
-DiffuseBounce <: BounceType
-SpecularBounce <: BounceType
-GlossyBounce <: BounceType
+DiffuseObject <: SceneGeometry
+SpecularObject <: SceneGeometry
+-- GlossyBounce <: SceneGeometry
 
 operator Sample (T : Path) : PathSample
 
 predicate HasForm (p : Path, s : String) : Prop
 predicate In (p : Path, s : Scene) : Prop
+predicate InVE (v : PathVertex, e : PathEdge) : Prop
+predicate InVP (v : PathVertex, p : PathSample) : Prop
 predicate OnLight(v : PathVertex) : Prop
 predicate OnEye(v : PathVertex) : Prop
 predicate IsDiffuse(v : PathVertex) : Prop
