@@ -28,14 +28,14 @@ def valueOf(json, s):
 
 def genSubstance():
     res = ''
-    for id, path in paths.iteritems():
+    for path_id, path in paths.iteritems():
         vertices = []
         pathString = gen.xeger(path['form'])
         print "generated an instance of a sampled path: ", pathString
 
         # declare verts
         for v in pathString:
-            type, id, decl = vertexDecl(v)
+            type, id, decl = vertexDecl(v, path_id)
             res += decl
             vertices.append((type, id))
         path['vertices'] = vertices
@@ -47,6 +47,7 @@ def genSubstance():
 
         # declare scene objs
         diffuseExists = False
+        path['objects'] = []
         for type, v in path['vertices']:
             if type == 'Diffuse':
                 if not diffuseExists:
@@ -63,8 +64,17 @@ def genSubstance():
                 exit('unrecognized vertex type {0} when generating scene obj'.format(type))
             res += line
             res += 'InOS({0}, {1})\n'.format(id, path['scene'])
+            path['objects'].append((type, id))
+
+        # HACK: find first obj of the same type everytime
+        for vType, vId in path['vertices']:
+            oType, oId = findObj(vType, path['objects'])
+            res += 'Hits({0}, {1})\n'.format(vId, oId)
 
     return res
+
+def findObj(vType, objList):
+    return filter(lambda (t, i): t == vType, objList)[0]
 
 def nextDecl(type):
     id   = ids[type][0] + str(ids[type][1])
@@ -76,11 +86,10 @@ def edgeDecl(v0, v1):
     res = ''
     id = 'e_' + v0 + '_' + v1
     res += 'PathEdge {0}\n'.format(id)
-    res += 'InVE({0}, {1})\n'.format(v0, id)
-    res += 'InVE({0}, {1})\n'.format(v1, id)
+    res += '{0} := CreateEdge({1}, {2})\n'.format(id, v0, v1)
     return res
 
-def vertexDecl(v):
+def vertexDecl(v, path):
     line, id = nextDecl('PathVertex')
     res = line
     if v == 'L':
@@ -97,6 +106,7 @@ def vertexDecl(v):
         type = 'Eye'
     else:
         exit('unrecognized path vertex string: ' + v)
+    res += 'InVP({0}, {1})\n'.format(id, path)
     return type, id, res
 
 
@@ -123,7 +133,7 @@ def process(json, gen):
 if __name__ == '__main__':
     inputFile  = 'Sub_enduser.json'
     outputFile = 'Sub_instantiated.sub'
-    limit = 20
+    limit = 5
     gen = Xeger(limit=limit)
 
     # load json data from input file

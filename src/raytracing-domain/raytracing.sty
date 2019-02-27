@@ -116,6 +116,62 @@ where InOS(d, s) with Scene s {
     d.layering = d.shape below s.container
 }
 
+PathVertex v; PathSample ps
+where InVP(v, p); OnLight(v)
+with Path p; LightSource L {
+	-- TODO: put the location on L's border
+    v.x = L.shape.x
+    v.y = L.shape.y
+}
+
+-- going into the eye
+PathVertex v; PathSample ps
+where InVP(v, p); OnEye(v)
+with Path p; Camera c {
+	-- TODO: put the location on E's border
+    v.x = c.shape.x
+    v.y = c.shape.y
+}
+
+PathVertex v; PathSample ps
+where InVP(v, p); Hits(v, o)
+with Path p; SpecularObject o {
+    -- TODO: on border of mirror
+    v.x = o.shape.x
+    v.y = o.shape.y
+}
+
+PathVertex v; PathSample ps
+where InVP(v, p); Hits(v, o)
+with Path p; DiffuseObject o {
+    -- TODO: pretty much anywhere on the room?
+    v.x = OPTIMIZED
+    v.y = OPTIMIZED
+}
+
+-- PathVertex v
+-- where InVP(v, p); Hits(v, o) {
+--     -- v.locationFn = ensure
+-- }
+
+PathEdge e; PathSample ps
+where e := CreateEdge(v1, v2)
+     -- Hits(v1, o1); Hits(v2, o2) -- for layering
+with PathVertex v1, v2
+     -- SceneGeometry o1, o2  -- for layering
+{
+     -- draw an arrow from v1's location to v2's location
+     e.shape = Arrow {
+         startX = v1.x
+         startY = v1.y
+         endX   = v2.x
+         endY   = v2.y
+         color  = Colors.black
+         thickness = 1.5
+     }
+     -- e.layering1 = e.shape above o1.shape
+     -- e.layering2 = e.shape above o2.shape
+}
 
 
 ---------------------------NON-COMPILABLE CODE----------------------------------
@@ -137,24 +193,9 @@ where InVP(v, p) with Path p {
 
 -- TODO: work out the pathsample???
 
-PathVertex v; PathSample ps
-where InVP(v, p); OnLight(v)
-with Path p; LightSource L {
-	-- put the location on L's border
-} -- same with eye, but going into the eye
 
-PathVertex v; PathSample ps
-where InVP(v, p); Hits(v, o)
-with Path p; SpecularObject o {
-          -- on border of mirror
-}
 -- Rays
 
-PathEdge e; PathSample ps
-where InVE(v1, e); InVE(v2, e);
-with PathVertex v1, v2 {
-     -- draw an arrow from v1's location to v2's location
-}
 
 PathEdge e; SceneGeometry o; PathSample ps {
 	 -- ray should not intersect scene geometry
