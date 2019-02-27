@@ -13,7 +13,11 @@ from xeger import Xeger   # string generator from regex
 
 paths = {}
 ids = {
-    'PathVertex': ['v', 0]
+    'PathVertex': ['v', 0],
+    'DiffuseObject': ['d', 0],
+    'SpecularObject': ['s', 0],
+    'LightSource': ['l', 0],
+    'Camera': ['c', 0]
 }
 numSamples = 0
 scene = ""
@@ -31,22 +35,38 @@ def genSubstance():
 
         # declare verts
         for v in pathString:
-            id, decl = vertexDecl(v)
+            type, id, decl = vertexDecl(v)
             res += decl
-            vertices.append(id)
+            vertices.append((type, id))
         path['vertices'] = vertices
 
         # declare edges
-        for v0, v1 in zip(vertices, vertices[1:]):
+        vertexIds = [v for typ, v in vertices]
+        for v0, v1 in zip(vertexIds, vertexIds[1:]):
             res += edgeDecl(v0, v1)
 
         # declare scene objs
-        for v in path['vertices']:
-
+        diffuseExists = False
+        for type, v in path['vertices']:
+            if type == 'Diffuse':
+                if not diffuseExists:
+                    diffuseExists = True
+                    line, id = nextDecl('DiffuseObject')
+                else: continue
+            elif type == 'Specular':
+                line, id = nextDecl('SpecularObject')
+            elif type == 'Eye':
+                line, id = nextDecl('Camera')
+            elif type == 'Light':
+                line, id = nextDecl('LightSource')
+            else:
+                exit('unrecognized vertex type {0} when generating scene obj'.format(type))
+            res += line
+            res += 'InOS({0}, {1})\n'.format(id, path['scene'])
 
     return res
 
-def nextVert(type):
+def nextDecl(type):
     id   = ids[type][0] + str(ids[type][1])
     ids[type][1] = ids[type][1] + 1
     line = type + ' ' + id + '\n'
@@ -56,24 +76,28 @@ def edgeDecl(v0, v1):
     res = ''
     id = 'e_' + v0 + '_' + v1
     res += 'PathEdge {0}\n'.format(id)
-    res += 'In({0})\n'.format(v0)
-    res += 'In({0})\n'.format(v1)
+    res += 'InVE({0}, {1})\n'.format(v0, id)
+    res += 'InVE({0}, {1})\n'.format(v1, id)
     return res
 
 def vertexDecl(v):
-    line, id = nextVert('PathVertex')
+    line, id = nextDecl('PathVertex')
     res = line
     if v == 'L':
         res += 'OnLight(' + id + ')\n'
+        type = 'Light'
     elif v == 'S':
         res += 'IsSpecular(' + id + ')\n'
+        type = 'Specular'
     elif v == 'D':
         res += 'IsDiffuse(' + id + ')\n'
+        type = 'Diffuse'
     elif v == 'E':
         res += 'OnEye(' + id + ')\n'
+        type = 'Eye'
     else:
         exit('unrecognized path vertex string: ' + v)
-    return id, res
+    return type, id, res
 
 
 def process(json, gen):
@@ -91,7 +115,7 @@ def process(json, gen):
             pathName, form = pred['pargNames']
             paths[pathName]['form'] = valueOf(json, form)
         elif name == 'SceneSatisfies':
-            pathId, sceneId = pred['pargNames']
+            sceneId, pathId = pred['pargNames']
             paths[pathId]['scene'] = sceneId
 
 
@@ -117,4 +141,4 @@ if __name__ == '__main__':
 
     # Write results to the output file
     with open(outputFile, 'w') as the_file:
-        the_file.write('PathVertex S_u1\n')
+        the_file.write(subOut)

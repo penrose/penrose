@@ -313,6 +313,7 @@ constrSignatures = MM.fromList
         ("contains", [GPIType "Circle", GPIType "Text"]),
         ("contains", [GPIType "Square", GPIType "Text"]),
         ("contains", [GPIType "Rectangle", GPIType "Text"]),
+        ("contains", [GPIType "Rectangle", GPIType "Rectangle"]),
         ("contains", [GPIType "Square", GPIType "Circle", ValueT FloatT]),
         ("contains", [GPIType "Square", GPIType "Circle"]),
         ("contains", [GPIType "Circle", GPIType "Square"]),
@@ -797,7 +798,7 @@ bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     where getXs a = [getNum a "startX", getNum a "endX"]
 
 bbox :: (Autofloat a) => Shape a -> Shape a -> [(a, a)]
-bbox a1 a2 = 
+bbox a1 a2 =
     if not (linelike a1 && linelike a2) then error "expected two linelike GPIs" else
     let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
         (xmin, xmax) = (minimum xs, maximum xs)
@@ -1031,6 +1032,13 @@ contains [GPI s@("Square", _), GPI l@("Text", _)] =
 contains [GPI s@("Rectangle", _), GPI l@("Text", _)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
     dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "sizeX"
+contains [GPI r1@("Rectangle", _), GPI r2@("Rectangle", _)] =
+    -- HACK: reusing test impl, revert later
+    let r1_l = min (getNum r1 "sizeX") (getNum r1 "sizeY") / 2
+        r2_l = max (getNum r2 "sizeX") (getNum r2 "sizeY") / 2
+        diff = r1_l - r2_l
+    in dist (getX r1, getY r1) (getX r2, getY r2) - diff
+
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
     dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - 0.5 * getNum inc "side")
 contains [GPI outc@("Square", _), GPI inc@("Circle", _)] =

@@ -25,85 +25,108 @@ Colors {
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
-Scene d {
+Scene s {
+    -- optimized fields to be shared with diffuse obj
+    s.x = OPTIMIZED
+    s.y = OPTIMIZED
+    s.sizeX = OPTIMIZED
+    s.sizeY = OPTIMIZED
+
+    s.container = Rectangle {
+        x = s.x
+        y = s.y
+        sizeX = s.sizeX
+        sizeY = s.sizeY
+        fill  = Colors.none
+        strokeColor = Colors.blue
+        strokeWidth = 1.5
+    }
+}
+
+DiffuseObject d
+where InOS(d, s) with Scene s {
     d.room = Rectangle {
         angle  = 0
         fill   = Colors.none
         strokeColor = Colors.black
         strokeWidth = 1.5
         -- optimize height, width, location
-        sizeX = OPTIMIZED
-        sizeY = OPTIMIZED
-        x = OPTIMIZED
-        y = OPTIMIZED
+        x = s.x
+        y = s.y
+        sizeX = s.sizeX
+        sizeY = s.sizeY
     }
+    d.containFn = ensure contains(s.container, d.room)
+    d.layering  = d.room below s.container
 }
 
--------------- Style program
 
-SceneGeometry o {
-	      -- location field
-}
-
-DiffuseObject d {
-	      -- draw a room
-}
-
+-- No "in path" predicate because scene geometry shouldn't depend directly on a path
 SpecularObject o
-where InOS(o, S) with Scene s { -- No "in path" predicate because scene geometry shouldn't depend directly on a path
-	-- import mirror SVG and put it in scene
+where InOS(o, s) with Scene s {
+	-- create mirror shape and put it in scene
+    -- TODO: import SVG?
+    o.shape = Rectangle {
+        fill = Colors.gray
+        sizeX = 100.0
+        sizeY = 30.0
+    }
+    o.containFn = ensure contains(s.container, o.shape)
+    o.layering  = o.shape above s.container
 }
 
+
+---------------------------NON-COMPILABLE CODE----------------------------------
+
+/*
 LightSource L -- subtyped
-where InOS(L, S) with Scene S {
+where In(L, S) with Scene S {
 	    -- draw L in S
 	    -- has to have a location
 } -- Same with camera
 
-Path p , PathSample ps
-where p in scene {
+Path p; PathSample ps
+where In(p, S) with Scene S {
       -- make path sample color
       -- label path with its string
 }
 
 -- Path vertex with various kinds of bounces
 
-PathVertex v  , PathSample ps
-where InVP(v, p)
-with Path p {
+PathVertex v; PathSample ps
+where InVP(v, p) with Path p {
      -- v.location = (?, ?)
 }
 
 -- TODO: work out the pathsample???
 
-PathVertex v  , PathSample ps
-where InVP(v, p), OnLight(v)
-with Path p, LightSource L {
+PathVertex v; PathSample ps
+where InVP(v, p); OnLight(v)
+with Path p; LightSource L {
 	-- put the location on L's border
 } -- same with eye, but going into the eye
 
-PathVertex v   , PathSample ps
+PathVertex v; PathSample ps
 where InVP(v, p); Hits(v, o)
 with Path p; SpecularObject o {
           -- on border of mirror
 }
-
 -- Rays
 
-PathEdge e , PathSample ps
+PathEdge e; PathSample ps
 where InVE(v1, e); InVE(v2, e);
 with PathVertex v1, v2 {
      -- draw an arrow from v1's location to v2's location
 }
 
-PathEdge e, SceneGeometry o , PathSample ps {
+PathEdge e; SceneGeometry o; PathSample ps {
 	 -- ray should not intersect scene geometry
 }
 
 -- Do something at bounce point
 
 -- Two edges that share a vertex
-PathEdge e1, PathEdge e2 , PathSample ps
+PathEdge e1; PathEdge e2; PathSample ps
 where InVE(v1, e1); InVE(v2, e1); InVE(v2, e2); InVE(v3, e2);
       Hits(v2, o)
 with PathVertex v1, v2, v3;
@@ -113,7 +136,7 @@ with PathVertex v1, v2, v3;
 
 -- Do something at specular bounce point
 
-PathEdge e1, PathEdge e2 , PathSample ps
+PathEdge e1; PathEdge e2; PathSample ps
 where InVE(v1, e1); InVE(v2, e1); InVE(v2, e2); InVE(v3, e2);
        IsSpecular(v2);
        Hits(v2, o)
@@ -121,102 +144,4 @@ with PathVertex v1, v2, v3;
      SceneGeometry o {
      -- make sure angles are equal
 }
----------------------------NON-COMPILABLE CODE----------------------------------
-
-/*
--- There is only one light source GPI and camera GPI for the whole Substance program
-LightSource X; Diagram d {
-    -- white border so arrows look rooted at center
-    -- create one boundary point per sample?
-    X.shape = Circle {
-         border-color = "white"
-         border-width = 10
-         layering = "top"
-         -- optimize radius, location
-    }
-
-    X.location = X.shape.center
-    X.inFn = ensure in(X.shape, d.room)
-}
-
-Camera X {
-    X.shape = Image {
-        path = "raytracing/eye.svg"
-        -- optimize angle, size, location
-    }
-
-    -- TODO: construct lens inline?
-    X.location = findLens(X.shape, global.padding)
-    X.inFn = ensure in(X.shape, d.room)
-}
-
--- Give the visual semantics of "sample," meaning "make another path" (possibly w/ different rand seed) using a nested selector
-Path p; PathType T; Diagram d
-where p = sample(T) {
-    p.color = random(Colors.ColorType)
-
-    -- There is one anchor point created for *every* occurrence of D or S in a path type
-    -- They are created independently for each sample
-    -- Each occurrence of an element x in a list L is uniquely denoted/named by its index: L[i]
-    DiffuseBounce D
-    where InList(D, T) {
-        p.D.shape = d.shape
-        -- later used to calculate normals
-        p.D.location = (optimized, optimized)
-        p.D.onFn = onBoundary(p.D.location, p.D.shape, global.padding)
-    }
-
-    SpecularBounce S
-    where InList(S, T) {
-        p.S.shape = randElem(d.mirrors)
-        -- only show the mirrors involved in a bounce
-        P.S.shape.display = "visible"
-        p.S.location = (optimized, optimized)
-        p.S.onFn = onBoundary(p.S.location, p.S.shape, global.padding)
-    }
-
-    -- Draw arrows b/t any 2 consecutive vertices in path
-    PathType ray := [A, B]
-    with BounceType A, B
-    where InList(ray, T) {
-        p.ray.shape = Arrow {
-            from = p.A.location
-            to = p.B.location
-            color = p.color
-        }
-
-        p.ray.iFn1 = ensure noIntersect(p.ray.shape, d.room)
-        p.ray.iFn2 = ensure each_noIntersect(p.ray.shape, d.mirrors)
-    }
-
-    -- Draw normals at bounce points
-    PathType bounce := [A, B, C]
-    with VertexType A, B, C
-    where Sublist(bounce, T)  {
-        -- No normals for L, E; ray only enters/exits
-        p.bounce.normal = Arrow {
-            from = p.B.location
-            angle = perpendicularTo(p.B.location, p.B.shape)
-            length = "small"
-            style = "dashed"
-        }
-
-    p.bounce.angle_in = Arc {
-        from = arrowOf(p.A.location, p.B.location)
-        -- replicating ray_in.shape
-        to = p.bounce.normal
-    }
-
-    p.bounce.angle_out = Arc {
-        from = p.bounce.normal
-        to = arrowOf(p.B.location, p.C.location)
-        -- replicating ray_out.shape
-    }
-    } and if SpecularBounce B {
-        -- Constrain angles for specular bounces
-        -- Optimize A, B, C so bounce angles are equal
-        ensure equalAngles(p.A.location, p.B.location, p.C.location, p.bounce.normal)
-    }
-} -- end of "Path p" scope
-
 */
