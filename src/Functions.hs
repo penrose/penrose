@@ -314,6 +314,7 @@ constrSignatures = MM.fromList
         ("contains", [GPIType "Square", GPIType "Text"]),
         ("contains", [GPIType "Rectangle", GPIType "Text"]),
         ("contains", [GPIType "Rectangle", GPIType "Rectangle"]),
+        ("contains", [GPIType "Rectangle", GPIType "Circle"]),
         ("contains", [GPIType "Square", GPIType "Circle", ValueT FloatT]),
         ("contains", [GPIType "Square", GPIType "Circle"]),
         ("contains", [GPIType "Circle", GPIType "Square"]),
@@ -1038,6 +1039,11 @@ contains [GPI r1@("Rectangle", _), GPI r2@("Rectangle", _)] =
         r2_l = max (getNum r2 "sizeX") (getNum r2 "sizeY") / 2
         diff = r1_l - r2_l
     in dist (getX r1, getY r1) (getX r2, getY r2) - diff
+contains [GPI r@("Rectangle", _), GPI c@("Circle", _)] =
+    -- HACK: reusing test impl, revert later
+    let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+        diff = r_l - getNum c "r"
+    in dist (getX r, getY r) (getX c, getY c) - diff
 
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
     dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - 0.5 * getNum inc "side")
