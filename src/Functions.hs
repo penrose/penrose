@@ -293,6 +293,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("outsideOf", outsideOf),
                 ("disjoint", disjoint),
                 ("inRange", inRange'),
+                ("pointOn", pointOn),
                 ("lessThan", lessThan)
             ]
 
@@ -324,7 +325,8 @@ constrSignatures = MM.fromList
         ("overlapping", [GPIType "Circle", GPIType "Square"]),
         ("overlapping", [GPIType "Square", GPIType "Square"]),
         ("disjoint", [GPIType "Circle", GPIType "Circle"]),
-        ("disjoint", [GPIType "Square", GPIType "Square"])
+        ("disjoint", [GPIType "Square", GPIType "Square"]),
+        ("pointOn", [ValueT FloatT, ValueT FloatT, GPIType "Rectangle"])
         -- ("lessThan", []) --TODO
     ]
 
@@ -1001,6 +1003,14 @@ distBetween [GPI c1, GPI c2, Val (FloatV padding)] =
 at :: ConstrFn
 at [GPI o, Val (FloatV x), Val (FloatV y)] =
     (getX o - x)^2 + (getY o - y)^2
+
+pointOn :: ConstrFn
+pointOn [Val (FloatV px), Val (FloatV py), GPI rect@("Rectangle", _)] =
+    -- NOTE: assumes axis-aligned rectangles
+    let [w, h, x, y] = map (getNum rect) ["sizeX", "sizeY", "x", "y"]
+        dx = abs (px - x) - w / 2
+        dy = abs (py - y) - h / 2
+    in if dx == 0 || dy == 0 then 0 else (max dx dy) ^ 2
 
 lessThan :: ConstrFn
 lessThan [Val (FloatV x), Val (FloatV y)] =

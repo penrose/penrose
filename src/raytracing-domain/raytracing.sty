@@ -147,6 +147,7 @@ with Path p; DiffuseObject o {
     -- TODO: pretty much anywhere on the room?
     v.x = OPTIMIZED
     v.y = OPTIMIZED
+    v.onFn = ensure pointOn(v.x, v.y, o.shape)
 }
 
 -- PathVertex v
