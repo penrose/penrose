@@ -137,8 +137,8 @@ PathVertex v; PathSample ps
 where InVP(v, p); Hits(v, o)
 with Path p; SpecularObject o {
     -- TODO: on border of mirror
-    v.x = o.shape.x
-    v.y = o.shape.y
+    v.x = OPTIMIZED
+    v.y = OPTIMIZED
 }
 
 PathVertex v; PathSample ps
@@ -147,7 +147,7 @@ with Path p; DiffuseObject o {
     -- TODO: pretty much anywhere on the room?
     v.x = OPTIMIZED
     v.y = OPTIMIZED
-    v.onFn = ensure pointOn(v.x, v.y, o.shape)
+    v.onFn = ensure pointOn(v.x, v.y, o.shape, 5.0)
 }
 
 -- PathVertex v
@@ -184,6 +184,8 @@ with PathVertex v1, v2, v3;
 {
     -- NOTE: trying to control rotation first
     override o.shape.rotation = mirrorAngle(e1.shape, e2.shape)
+    override o.shape.x = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, -20.0)
+    override o.shape.y = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, -20.0)
 }
 
 ---------------------------NON-COMPILABLE CODE----------------------------------

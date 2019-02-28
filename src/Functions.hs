@@ -119,6 +119,8 @@ compDict = M.fromList
         ("setOpacity", constComp setOpacity),
         ("bbox", constComp bbox'),
         ("mirrorAngle", constComp mirrorAngle),
+        ("mirrorPosX", constComp mirrorPosX),
+        ("mirrorPosY", constComp mirrorPosY),
 
         ("midpoint", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -167,7 +169,9 @@ compSignatures = M.fromList
         ("tangentLineEX", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
         ("tangentLineEY", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
         ("makeRegionPath", ([GPIType "Curve", GPIType "Line"], ValueT PathDataT)),
-        ("mirrorAngle", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT))
+        ("mirrorAngle", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT)),
+        ("mirrorPosX", ([GPIType "Arrow", GPIType "Arrow", ValueT FloatT, ValueT FloatT], ValueT FloatT)),
+        ("mirrorPosY", ([GPIType "Arrow", GPIType "Arrow", ValueT FloatT, ValueT FloatT], ValueT FloatT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
@@ -328,7 +332,7 @@ constrSignatures = MM.fromList
         ("overlapping", [GPIType "Square", GPIType "Square"]),
         ("disjoint", [GPIType "Circle", GPIType "Circle"]),
         ("disjoint", [GPIType "Square", GPIType "Square"]),
-        ("pointOn", [ValueT FloatT, ValueT FloatT, GPIType "Rectangle"])
+        ("pointOn", [ValueT FloatT, ValueT FloatT, GPIType "Rectangle", ValueT FloatT])
         -- ("lessThan", []) --TODO
     ]
 
@@ -817,13 +821,28 @@ bbox a1 a2 =
 bbox' :: ConstCompFn
 bbox' [GPI a1, GPI a2] = Val $ PtListV $ bbox a2 a2
 
+-- TODO: move to Utils?
+toVector (x0, y0, x1, y1) = [x1 - x0, y1 - y0]
+toTup [x, y] = (x, y)
+
+mirrorPosX, mirrorPosY :: ConstCompFn
+mirrorPosX args = Val $ FloatV $ fst $ mirrorPos args
+mirrorPosY args = Val $ FloatV $ snd $ mirrorPos args
+
+mirrorPos :: (Autofloat a) => [ArgVal a] -> (a, a)
+mirrorPos [GPI a1, GPI a2, Val (FloatV rx), Val (FloatV ry), Val (FloatV offset)] =
+    let [(x0, y0, x1, y1), pts2] = map arrowPts [a1, a2]
+        pts1 = (x1, y1, x0, y0)
+        [v1, v2] = map (toTup . normalize . toVector) [pts1, pts2]
+        (x, y)   = v1 +: v2
+        [x', y'] = normalize [x, y]
+    in (rx + x' * offset, ry + y' * offset)
+
 mirrorAngle :: ConstCompFn
 mirrorAngle [GPI a1, GPI a2] =
     let [v1, v2] = map (toTup . normalize . toVector . arrowPts) [a1, a2]
         (x, y)   = v1 +: v2
     in Val . FloatV $ atan2 y x * (180 / pi)
-    where toVector (x0, y0, x1, y1) = [x1 - x0, y1 - y0]
-          toTup [x, y] = (x, y)
 
 noop :: CompFn
 noop [] g = (Val (StrV "TODO"), g)
@@ -1015,11 +1034,11 @@ at [GPI o, Val (FloatV x), Val (FloatV y)] =
     (getX o - x)^2 + (getY o - y)^2
 
 pointOn :: ConstrFn
-pointOn [Val (FloatV px), Val (FloatV py), GPI rect@("Rectangle", _)] =
+pointOn [Val (FloatV px), Val (FloatV py), GPI rect@("Rectangle", _), Val (FloatV offset)] =
     -- NOTE: assumes axis-aligned rectangles
     let [w, h, x, y] = map (getNum rect) ["sizeX", "sizeY", "x", "y"]
-        dx = abs (px - x) - w / 2
-        dy = abs (py - y) - h / 2
+        dx = abs (px - x) - w / 2 + offset
+        dy = abs (py - y) - h / 2 + offset
     in if dx == 0 || dy == 0 then 0 else sqrt $ (max dx dy) ^ 2
 
 lessThan :: ConstrFn
