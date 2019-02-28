@@ -118,6 +118,7 @@ compDict = M.fromList
         ("polygonizeCurve", constComp polygonizeCurve),
         ("setOpacity", constComp setOpacity),
         ("bbox", constComp bbox'),
+        ("mirrorAngle", constComp mirrorAngle),
 
         ("midpoint", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -165,7 +166,8 @@ compSignatures = M.fromList
         ("tangentLineSY", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
         ("tangentLineEX", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
         ("tangentLineEY", ([ValueT PtListT, ValueT FloatT], ValueT FloatT)),
-        ("makeRegionPath", ([GPIType "Curve", GPIType "Line"], ValueT PathDataT))
+        ("makeRegionPath", ([GPIType "Curve", GPIType "Line"], ValueT PathDataT)),
+        ("mirrorAngle", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
@@ -814,6 +816,14 @@ bbox a1 a2 =
 
 bbox' :: ConstCompFn
 bbox' [GPI a1, GPI a2] = Val $ PtListV $ bbox a2 a2
+
+mirrorAngle :: ConstCompFn
+mirrorAngle [GPI a1, GPI a2] =
+    let [v1, v2] = map (toTup . normalize . toVector . arrowPts) [a1, a2]
+        (x, y)   = v1 +: v2
+    in Val . FloatV $ atan2 y x * (180 / pi)
+    where toVector (x0, y0, x1, y1) = [x1 - x0, y1 - y0]
+          toTup [x, y] = (x, y)
 
 noop :: CompFn
 noop [] g = (Val (StrV "TODO"), g)

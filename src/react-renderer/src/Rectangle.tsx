@@ -14,6 +14,7 @@ class Rectangle extends React.Component<IGPIPropsDraggable> {
     const strokeColor = toHex(shape.strokeColor.contents);
     const strokeWidth = shape.strokeWidth.contents;
     // strokeDasharray={ shape.strokeStyle.contents === "dashed" ? "7, 5" : "" }
+    // TODO: unclear exactly why rotation needs the 180 - angle step?
     return (
       <rect
         x={x - shape.sizeX.contents / 2}
@@ -25,6 +26,7 @@ class Rectangle extends React.Component<IGPIPropsDraggable> {
         stroke={strokeColor}
         fillOpacity={alpha}
         onMouseDown={onClick}
+        transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
       >
         <title>{shape.name.contents}</title>
       </rect>
