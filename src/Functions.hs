@@ -1010,7 +1010,7 @@ pointOn [Val (FloatV px), Val (FloatV py), GPI rect@("Rectangle", _)] =
     let [w, h, x, y] = map (getNum rect) ["sizeX", "sizeY", "x", "y"]
         dx = abs (px - x) - w / 2
         dy = abs (py - y) - h / 2
-    in if dx == 0 || dy == 0 then 0 else (max dx dy) ^ 2
+    in if dx == 0 || dy == 0 then 0 else sqrt $ (max dx dy) ^ 2
 
 lessThan :: ConstrFn
 lessThan [Val (FloatV x), Val (FloatV y)] =
