@@ -113,21 +113,44 @@ class Canvas extends React.Component<IProps, IState> {
           Log.error(`Could not fetch ${uri}`);
         }
       }
-
-      const blob = new Blob([exportingNode.outerHTML], {
-        type: "image/svg+xml;charset=utf-8"
-      });
-      const url = URL.createObjectURL(blob);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = url;
-      downloadLink.download = "illustration.svg";
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+      return exportingNode.outerHTML;
     } else {
       Log.error("Could not find SVG domnode.");
+      return "";
     }
   };
+
+  public downloadSVG = async () => {
+    const content = await this.download();
+    const blob = new Blob([content], {
+      type: "image/svg+xml;charset=utf-8"
+    });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = "illustration.svg";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }
+
+  public downloadPDF = async () => {
+    const content = await this.download();
+    const frame = document.createElement("iframe");
+    document.body.appendChild(frame);
+    const pri = frame.contentWindow;
+    frame.setAttribute("style", "height: 100%; width: 100%; position: absolute");
+    if(content && pri) {
+      console.log('Printing pdf now...');
+      pri.document.open();
+      pri.document.write(content);
+      pri.document.close();
+      pri.focus();
+      pri.print();
+    }
+    frame.remove();
+  }
+
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     const component = componentMap[name];
     if (component === undefined) {

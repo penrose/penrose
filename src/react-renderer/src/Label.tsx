@@ -5,6 +5,9 @@ import { IGPIPropsDraggable } from "./types";
 
 const styleLabel = (label : HTMLElement, color: string) => {
   label.getElementsByTagName("g")[0].setAttribute("fill", color);
+  // HACK: pdf output seems to apply `stroke: black` automatically, so we make it explicit now
+  label.getElementsByTagName("g")[0].setAttribute("stroke", "none");
+  label.getElementsByTagName("g")[0].setAttribute("stroke-width", "0");
   return label.outerHTML
 };
 

@@ -30,7 +30,8 @@ class App extends React.Component<any, IState> {
   };
   public download = () => {
     if (this.canvas.current !== null) {
-      this.canvas.current.download();
+      this.canvas.current.downloadSVG();
+      this.canvas.current.downloadPDF();
     }
   };
   public autoStepToggle = () => {
