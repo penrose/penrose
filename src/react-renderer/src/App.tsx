@@ -28,9 +28,13 @@ class App extends React.Component<any, IState> {
   public sendPacket = (packet: string) => {
     this.ws.send(packet);
   };
-  public download = () => {
+  public downloadSVG = () => {
     if (this.canvas.current !== null) {
       this.canvas.current.downloadSVG();
+    }
+  };
+  public downloadPDF = () => {
+    if (this.canvas.current !== null) {
       this.canvas.current.downloadPDF();
     }
   };
@@ -82,7 +86,8 @@ class App extends React.Component<any, IState> {
       <div className="App">
         {!customButtons && (
           <ButtonBar
-            download={this.download}
+            downloadPDF={this.downloadPDF}
+            downloadSVG={this.downloadSVG}
             autostep={autostep}
             step={this.step}
             autoStepToggle={this.autoStepToggle}
