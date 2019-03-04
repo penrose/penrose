@@ -32,7 +32,7 @@ vconstructor MkFace(e1 : Edge, e2 : Edge, e3 : Edge) : Face
 operator Star(c : SComplex) : SSubset
 operator StarV(v : Vertex) : SSubset
 -- operator StarV(v : Vertex, c : SComplex) : SSubset
-operator Closure(s : SSubset) : SSubset
+operator Closure(s : SSubset) : Subcomplex
 operator Link(s : SSubset) : SSubset
 operator Boundary(s : SSubset) : SSubset
 operator Coboundary(s : SSubset) : SSubset
@@ -48,9 +48,12 @@ predicate IsBoundary(s : SSubset) : Prop -- Not sure how to check it
 -- Generic connectivity and selection predicates
 -- Does this work WRT subtyping?
 predicate InVE(v : Vertex, e : Edge) : Prop
+predicate InEF(e : Edge, f : Face) : Prop
+
 predicate InVS(v : Vertex, s : SSubset) : Prop
 predicate InES(e : Edge, s : SSubset) : Prop
 predicate InFS(f : Face, s : SSubset) : Prop
+
 predicate SelectedV(v : Vertex) : Prop
 predicate SelectedE(e : Edge) : Prop
 predicate SelectedF(f : Face) : Prop

@@ -35,8 +35,10 @@ IsSubsetOf(S, K1)
 S := StarV(i)
 
 -- SComplex A
-SSubset A
+Subcomplex A
 A := Closure(S)
+
+SelectedV(i)
 
 AutoLabel All
 

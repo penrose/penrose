@@ -3,6 +3,8 @@ plugin "ddgjs"
 global {
     global.padding = 20.0
     global.stroke = 2.0
+    global.selectedColor = Colors.purple
+    global.selectedColor2 = Colors.lightpurple
 }
 
 Colors {
@@ -21,6 +23,7 @@ Colors {
     Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
     Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
     Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.lightpurple = rgba(0.5, 0.0, 0.5, 0.25)
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
@@ -29,7 +32,7 @@ Colors {
 Vertex v {
        v.shape = Circle { 
          r = 6.0
-	 -- color = Colors.black	 
+	 color = Colors.black	 
 	 strokeWidth = 0.0
        }
 
@@ -66,6 +69,42 @@ with Vertex v1; Vertex v2 {
 
      e.layering1 = v1.shape above e.shape
      e.layering2 = v2.shape above e.shape
+}
+
+Face f
+where f := MkFace(e1, e2, e3)
+with Edge e1; Edge e2; Edge e3 {
+     f.color = Colors.lightsky
+
+     f.shape = Curve { 
+     	     pathData = triangle(e1.shape, e2.shape, e3.shape)
+	     strokeWidth = 0.0
+	     fill = Colors.none
+	     color = Colors.none
+	     rotation = 0.0
+     }
+
+     -- f.text = Text {
+     --   string = f.label
+     --   color = f.color
+     --   rotation = 0.0
+     -- }
+}
+
+Vertex v
+where SelectedV(v) {
+      override v.shape.color = global.selectedColor
+}
+
+Edge e
+where SelectedE(e) {
+      override e.shape.color = global.selectedColor
+}
+
+Face f
+where SelectedF(f) {
+      override f.shape.fill = global.selectedColor2
+      override f.shape.color = global.selectedColor2
 }
 
 ------------------- Base things

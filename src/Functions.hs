@@ -9,7 +9,7 @@ import Debug.Trace
 import Shapes
 import Data.Aeson (toJSON)
 import Data.Maybe (fromMaybe)
-import           Data.List                          (nub, sort, findIndex, find)
+import           Data.List                          (nub, sort, findIndex, find, maximumBy)
 import           System.Random.Shuffle
 import qualified Data.Map.Strict as M
 import qualified Data.MultiMap as MM
@@ -111,6 +111,7 @@ compDict = M.fromList
         ("makeRegionPath", constComp makeRegionPath),
         ("sampleFunctionArea", sampleFunctionArea),
         ("makeCurve", makeCurve),
+        ("triangle", constComp triangle),
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
         ("tangentLineEX", constComp tangentLineEX),
@@ -679,7 +680,7 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV xFrac), Val (FloatV yFrac
 
                         -- TODO: not sure if this is right. do any points need to be included in the path?
                         path = Closed $ [Pt pt_tl, Pt pt_tr] ++ right_curve ++ [Pt pt_br, Pt pt_bl] ++ left_curve
-                    in  (Val $ PathDataV [path], g)
+                    in (Val $ PathDataV [path], g)
                else error "expected two linelike shapes"
 
 -- Draw a curve from (x1, y1) to (x2, y2) with some point in the middle defining curvature
@@ -689,6 +690,22 @@ makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), V
               midpt = midpoint (x1, y1) (x2, y2) +: offset
               path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)]
           in (Val $ PathDataV [path], g)
+
+-- Draw a triangle as the closure of three lines (assuming they define a valid triangle, i.e. intersect exactly at their endpoints)
+triangle :: ConstCompFn
+triangle [GPI e1@("Line", _), GPI e2@("Line", _), GPI e3@("Line", _)] =
+         -- TODO: what's the convention on the ordering of the lines?
+         let (v1, v2) = (getPoint "start" e1, getPoint "end" e1)
+             v3_candidates = [getPoint "start" e2, getPoint "end" e2, 
+                              getPoint "start" e3, getPoint "end" e3]
+             v3 = furthestFrom (v1, v2) v3_candidates
+             path = Closed [Pt v1, Pt v2, Pt v3]
+         in trace ("path: " ++ show path) $ Val $ PathDataV [path]
+         where 
+         furthestFrom :: (Autofloat a) => (Pt2 a, Pt2 a) -> [Pt2 a] -> Pt2 a
+         furthestFrom (p1, p2) pts = fst $ 
+                                     maximumBy (\p1 p2 -> compare (snd p1) (snd p2)) $
+                                     map (\p -> (p, dist p p1 + dist p p2)) pts
 
 -- NOTE: assumes that the curve has at least 3 points
 tangentLine :: Autofloat a => a -> [Pt2 a] -> a -> (Pt2 a, Pt2 a)
