@@ -84,23 +84,13 @@ function makeSComplex(cname) {
 
     // TODO: keep this mesh object outside of function scope
 
+    // Construct a simplicial complex for a mesh 
+    let SCO = new SC.SimplicialComplexOperators(mesh);
+
     // Build mappings from Penrose name to mesh index (not really needed since each name includes its index...)
     let penrose_to_mesh = {};
 
     // -------------------------------------------
-    // TODO: factor out the simplicial complex code
-    let SCO = new SC.SimplicialComplexOperators(mesh);
-
-    let selectedSimplices = new MeshSubset();
-    selectedSimplices.addVertices([1]);
-    selectedSimplices.addEdges([]);
-    selectedSimplices.addFaces([]);
-
-    let star_sc = SCO.star(selectedSimplices);
-    console.log("sc: ", SCO);
-    console.log("sc star: ", star_sc);
-    // -------------------------------------------
-
     global_mesh = mesh; // TODO remove
 
     let prog = [];
@@ -150,15 +140,35 @@ function makeSComplex(cname) {
 	}
     }
 
-    // -------------------------------------------
-    // TODO factor this out
-    // Select the vertices, edges, and faces that are in the star
+    return { name: cname,
+	     mesh: mesh, 
+	     sc: SCO, 
+	     prog: prog, 
+	     mappings: penrose_to_mesh
+	   };
+}
 
-    console.log("penrose to mesh", penrose_to_mesh);
+// Expects a mesh made by makeSComplex
+function doStar(starName, scObj) {
+    // Select the vertices, edges, and faces that are in the star
+    // TODO do programmatically
+    let cname = scObj.name;
+    let SCO = scObj.sc;
+
+    let selectedSimplices = new MeshSubset();
+    selectedSimplices.addVertices([1]);
+    selectedSimplices.addEdges([]);
+    selectedSimplices.addFaces([]);
+
+    let star_sc = SCO.star(selectedSimplices);
+    console.log("sc: ", SCO);
+    console.log("sc star: ", star_sc);
+
+    let prog = [];
 
     // Note that for a simplex, an object is simply the index
     for (let v of star_sc.vertices) {
-	console.log(v);
+	console.log("selected vertex: ", v);
 	prog.push(selected(vtype, objName(cname, vtype, v)));
     }
 
@@ -170,18 +180,71 @@ function makeSComplex(cname) {
 	prog.push(selected(ftype, objName(cname, ftype, f)));
     }
 
-    return prog;
+    return { name: starName, // name bound in Substance
+	     selectedSimplices: selectedSimplices,
+	     starObj: star_sc,
+	     prog: prog
+	   };
+}
+
+// find the mesh object that the vertex belongs to (if any)
+// should be declared with an InVS statement in substance, assuming a valid substance program with parg order preserved
+function findMesh(vname, json, scObjs) {
+    // first find the name of the mesh, then look it up in the objects we made
+
+    // TODO: write a "find" function
+    let meshNames = json.constraints.predicates
+	.filter(o => o.pname === "InVS" && vname === o.pargNames[0])
+        .map(o => o.pargNames[1]);
+        
+    if (meshNames.length !== 1) {
+	console.log("expected to find vertex " + vname + " in exactly one mesh, but found " + meshNames.length);
+	return undefined;
+    } 
+
+    console.log("found mesh: " + meshNames[0]);
+    let meshName = meshNames[0];
+
+    // TODO: use a better find function
+    // expects exactly one mesh with the name
+    let mesh = scObjs.filter(o => o.name === meshName)[0];
+
+    return mesh;
 }
 
 function makeSub(json) {
+    /* How this plugin handles Substance programs:
+       - Make a new simplicial complex for every SComplex declaration
+       - Names declared vertices, edges, faces according to what they are in (TODO work this out)
+       - Performs star, closure, and link functions, naming them correctly (TODO work this out)
+       - Ignores all other Substance statements (for now) */
+
     // We only construct simplicial complexes, and objects are named according to the SComplex they belong to
-    let scNames = json.objects.filter(o => o.objType === 'SComplex').map(o => o.objName);
-    console.log("complexes", scNames);
+    let scObjects = json.objects
+	.filter(o => o.objType === 'SComplex')
+	.map(o => makeSComplex(o.objName));
+
+    console.log("complexes", scObjects);
+
+    // TODO: deal with named vertex statements.
+    // Make a mapping from Substance name to generated name
+    // Don't output the Vertex or Label statement
+    // But do output the In edge statement
+
+    // TODO: deal w/ star being called arbitrary # times
+    // Perhaps this should be done recursively?
+    let starObjects = json.constraints.functions
+	.filter(o => o.fname === 'StarV')
+        .map(o => doStar(o.varName, findMesh(o.fargNames[0], json, scObjects)));
+
+    console.log("stars", starObjects);
 
     // TODO: use consistent fp style
-    let complexesProg = _.flatten(scNames.map(name => makeSComplex(name)));
+    let objs = _.concat(scObjects, starObjects);
+    let lines = _.flatten(objs.map(o => o.prog));
+    let subProgStr = lines.join(newline);
 
-    return complexesProg.join(newline);
+    return subProgStr;
 }
 
 function main() {
