@@ -24,7 +24,6 @@ utils/penrose.db
 utils/penroseDB.py
 __temp__.als
 *.class
-alloy
 node_modules/
 *~
 .stack-work/
@@ -36,3 +35,7 @@ out*.txt
 penrose-ide/
 *.prof
 *.subdesugared
+Sub_enduser.json
+Sub_instantiated.sub
+*.dslsugared
+geometry-processing-js

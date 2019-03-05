@@ -5,8 +5,10 @@
 
 module ShadowMain where
 import Utils
+import Plugins
 import qualified Server
 import qualified Substance as C
+import qualified SubstanceJSON as J
 import qualified Control.Concurrent as CC
 import qualified Style as S
 import qualified GenOptProblem as G
@@ -15,6 +17,8 @@ import qualified Dsll as D
 import qualified Sugarer
 import qualified Text.Megaparsec as MP (runParser, parseErrorPretty)
 import System.Environment
+import System.Process
+import System.Directory
 import System.IO
 import Prelude hiding (catch)
 import System.Directory
@@ -32,6 +36,7 @@ import Control.Monad (when, forM_)
 import Control.Monad.Trans
 import qualified Env as E -- DEBUG: remove
 import qualified Data.Map.Strict as M -- DEBUG: remove
+import qualified Data.List.Split as LS (splitOn)
 import qualified Data.List as L (intercalate)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
 import System.Console.Docopt
@@ -82,15 +87,32 @@ penroseRenderer subFile styFile dsllFile domain port = do
     desugaredSub <- readFile subFileSugared
     subOut <- C.parseSubstance subFileSugared desugaredSub dsllEnv
     removeIfExists subFileSugared
-
     print subOut
+
+    -- Find Substance instantiator plugin (if it exists in Style file + directory)
+    instantiations <- S.parsePlugins styFile styIn dsllEnv
+    putStrLn $ "instantiations found: " ++ (show instantiations)
+    -- If no instantiations, proceed with Style compiler.
+    -- If 1 instantiation, run the plugin, append the resulting Substance program, re-check the full program, and use it in the Style compiler.
+    -- If >1 instantiation, throw an error.
+    subProgForStyle <- case instantiations of
+                         [] -> do putStrLn "no instantiators found"
+                                  return subOut
+                         [pluginName] -> do newSubProg <- instantiateSub pluginName subOut
+                                            let fullSubProg = desugaredSub ++ "\n" ++ newSubProg
+                                            -- Do we really need subFileSugared? Doesn't seem to be needed above.
+                                            newSubOut <- C.parseSubstance subFileSugared fullSubProg dsllEnv
+                                            putStrLn "new Substance program after plugin:" 
+                                            print newSubOut
+                                            return newSubOut
+                         _ -> error "Multiple instantiators found in Style; only one allowed"
 
     styProg <- S.parseStyle styFile styIn dsllEnv
     putStrLn "Style AST:\n"
     pPrint styProg
     divLine
 
-    initState <- G.compileStyle styProg subOut
+    initState <- G.compileStyle styProg subProgForStyle -- Includes Substance plugin output
 
     Server.serveRenderer domain port initState
 
@@ -129,3 +151,33 @@ removeIfExists fileName = removeFile fileName `catch` handleExists
  where handleExists e
          | isDoesNotExistError e = return ()
          | otherwise = throwIO e
+
+
+------------------------------------------------------------
+-- Substance instantiation / plugin calls
+-- Don't forget to recompile the plugin!
+
+type SubstanceRaw = String
+
+-- TODO: add more error checking to deal with paths or files that don't exist
+instantiateSub :: String -> C.SubOut -> IO SubstanceRaw
+instantiateSub pluginName parsedSub = do
+    originalDir <- getCurrentDirectory
+    let (dirPath, pluginCmd) = catchPathError pluginName (M.lookup pluginName plugins)
+    putStrLn $ "plugin directory: " ++ dirPath
+    putStrLn $ "plugin command: " ++ pluginCmd
+    -- NOTE: we are not expecting multiple processes to use these tempfiles
+    let outFile = dirPath ++ "/Sub_enduser.json"
+    let inFile = dirPath ++ "/Sub_instantiated.sub"
+    J.writeSubstanceToJSON outFile parsedSub
+    setCurrentDirectory dirPath -- Change to plugin dir so the plugin gets the right path. Otherwise pwd sees "penrose/src"
+    callCommand pluginCmd
+    setCurrentDirectory originalDir -- Return to original directory
+    newSubProg <- readFile inFile
+    putStrLn "Penrose received file: "
+    putStrLn newSubProg
+    return newSubProg
+
+catchPathError :: String -> Maybe (FilePath, String) -> (FilePath, String)
+catchPathError name Nothing = error $ "path to plugin '" ++ name ++ "' doesn't exist!"
+catchPathError _ (Just x) = x

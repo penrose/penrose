@@ -2,4 +2,11 @@ Set A
 Set B
 IsSubset(A,B)
 
-Label A $A$
+Set C
+C := Union(A, B)
+
+Point p
+PointIn(C, p)
+C := AddPoint(p, C)
+
+AutoLabel All

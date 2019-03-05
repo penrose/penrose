@@ -7,7 +7,9 @@
 -- Mostly for autodiff
 
 module Style where
--- module Main (main) where -- for debugging purposes
+
+-- module Main (main) where
+-- import Dsll (parseDsll) -- for debugging purposes
 
 import Utils
 import Shapes hiding (get)
@@ -35,6 +37,40 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Data.Dynamic
 import Data.Typeable
 import Env
+
+--------------------------------------------------------------------------------
+-- Instantiator
+
+-- | A Style program can have an instantiator, which would expand its corresponding Substance program via an external program. The instantiator is specified with a string
+-- NOTE: for now, we would allow multiple instantiation statements, but only use the __first__ instantiator in the Style program
+type Plugin  = String
+type Plugins = [Plugin]
+
+-- | 'parseInstantiation' parses a Style program and return a list of instantiators declared at the __top__ of the program.
+-- NOTE: this parse do run the Style parser to check for ill-formed instantiation statements. Therefore, a 'VarEnv' is required to run this parser without any errors
+parsePlugins :: String -> String -> VarEnv -> IO Plugins
+parsePlugins styFile styIn env =
+    case runParser (pluginParser env) styFile styIn of
+    Left err -> error (parseErrorPretty err)
+    Right instantiation -> return instantiation
+
+pluginParser :: VarEnv -> BaseParser Plugins
+pluginParser env = evalStateT pluginParser' $ Just env
+
+pluginParser' :: Parser Plugins
+pluginParser' = do
+    scn
+    res <- plugins
+    _   <- styProg
+    return res
+    where restOfFile = manyTill anyChar eof >> return []
+
+plugins :: Parser Plugins
+plugins = plugin `endBy` newline' -- zero or multiple instantiators
+
+plugin :: Parser Plugin
+plugin = symbol "plugin" >> stringLiteral
+    where stringLiteral = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
 
 --------------------------------------------------------------------------------
 -- Style AST
@@ -202,7 +238,9 @@ styleParser' = between scn eof styProg
 -- | `styProg` parses a Style program, consisting of a collection of one or
 -- more blocks
 styProg :: Parser StyProg
-styProg = some headerBlock
+styProg =
+    plugins >>  -- ignore plugin statements
+    some headerBlock
     where headerBlock = (,) <$> header <*> braces block <* scn
 
 header :: Parser Header
@@ -324,7 +362,7 @@ expr = tryChoice [
 
 -- COMBAK: change NewStyle to Style
 arithmeticExpr :: Parser Expr
-arithmeticExpr = makeExprParser aTerm Style.aOperators
+arithmeticExpr = makeExprParser aTerm aOperators
 
 aTerm :: Parser Expr
 aTerm = tryChoice
@@ -1312,3 +1350,18 @@ translateStyProg varEnv subEnv subProg styProg labelMap =
     case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
         Right trans -> trace "translateStyProg: " $ Right $ insertLabels trans labelMap
         Left errors -> Left errors
+
+--------------------------------------------------------------------------------
+-- Debugging
+
+-- main :: IO ()
+-- main = do
+--     let f = "sty/test.sty"
+--
+--     let dsllFile = "real-analysis-domain/real-analysis.dsl"
+--     dsllIn <- readFile dsllFile
+--     dsllEnv <- parseDsll dsllFile dsllIn
+--
+--     prog <- readFile f
+--     res <- parseInstantiation f prog dsllEnv
+--     print res

@@ -1,6 +1,6 @@
-Set A = { a, b, c }
-Set B = { x, y, z }
-f: A -> B
-f(a) = x
-f(b) = y
-f(c) = z
+Set A, B
+Map f
+From(f, A, B)
+Bijection(f)
+
+AutoLabel All

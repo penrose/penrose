@@ -1,0 +1,35 @@
+{
+    "objects": [
+        {
+            "objType": "Map",
+            "objName": "f"
+        },
+        {
+            "objType": "Set",
+            "objName": "B"
+        },
+        {
+            "objType": "Set",
+            "objName": "A"
+        }
+    ],
+    "constraints": {
+        "functions": [],
+        "predicates": [
+            {
+                "pname": "Surjection",
+                "pargNames": [
+                    "f"
+                ]
+            },
+            {
+                "pname": "From",
+                "pargNames": [
+                    "f",
+                    "A",
+                    "B"
+                ]
+            }
+        ]
+    }
+}

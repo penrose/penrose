@@ -22,3 +22,4 @@ predicate PointNotIn (s1 : Set, p1 : Point) : Prop
 predicate Injection (m : Map) : Prop
 predicate Surjection (m : Map) : Prop
 predicate Bijection (m : Map) : Prop
+predicate PairIn(x : Point, y : Point, f : Map) : Prop
