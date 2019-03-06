@@ -3,8 +3,10 @@ plugin "ddgjs"
 global {
     global.padding = 20.0
     global.stroke = 2.0
-    global.selectedColor = Colors.purple
-    global.selectedColor2 = Colors.lightpurple
+    global.selectedColor = Colors.red
+    global.selectedColor2 = setOpacity(global.selectedColor, 0.25)
+    global.subsetColor = Colors.purple
+    global.subsetColor2 = setOpacity(global.subsetColor, 0.25)
 }
 
 Colors {
@@ -91,6 +93,29 @@ with Edge e1; Edge e2; Edge e3 {
      -- }
 }
 
+------------------ Things in a subset
+
+Vertex v
+where InVS(v, s)
+with SSubset s {
+      override v.shape.color = global.subsetColor
+}
+
+Edge e
+where InES(e, s)
+with SSubset s {
+      override e.shape.color = global.subsetColor
+}
+
+Face f
+where InFS(f, s)
+with SSubset s {
+      override f.shape.fill = global.subsetColor2
+      override f.shape.color = global.subsetColor2
+}
+
+------------------- Selected things
+
 Vertex v
 where SelectedV(v) {
       override v.shape.color = global.selectedColor
@@ -107,97 +132,7 @@ where SelectedF(f) {
       override f.shape.color = global.selectedColor2
 }
 
-------------------- Base things
-
 /*
-Vertex v 
-where InVertexComplex(v, K) 
-with ?
-{
-	-- location only, no shape
-}
-
-Edge e
-where InEdgeComplex(e, K); InE(v1, e); InE(v2, e)
-with Vertex v1, v2
-{
-	-- draw a line between vertices
-}
-
-Face f 
-where InFaceComplex(f, K) 
-with ?
-{
-
-	-- shade it light purple
-	-- note there are unshaded faces too
-}
-
-------------------- Selected things
-
--- TODO: how to distinguish between two kinds of "in"?
--- InVC_Generated(v,K) vs InVC(v,K)? But then Style needs to match on either one in order to know how to draw it??
-
-Vertex v
-where -- SPECIFICALLY in a simplicial complex, not generated
-{
-	-- label it on the diagram
-}
-
--- same for edges and faces
-
-------------------- Star
-
-Vertex v 
-where -- in a star
-with ? 
-{
-	-- make the dot purple
-}
-
-Edge e
-where -- in a star
-with ?
-{
-	-- draw a line
-}
-
-Face f 
-where -- in a star
-with ?
-{
-
-	-- shade it light purple
-}
-
-------------------- Closure
-
-Vertex v 
-where -- in a closure
-with ? 
-{
-	-- make the dot purple
-}
-
-Edge e
-where -- in a closure
-with ?
-{
-	-- draw a line
-}
-
-Face f 
-where -- in a closure
-with ?
-{
-
-	-- shade it light purple
-}
-
--- No styles for star, closure, SC, SS?
-
-------------------- Closure
-
 SimplicialSet S 
 {
 	-- label the closure

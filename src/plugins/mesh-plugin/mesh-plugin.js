@@ -44,6 +44,11 @@ function inVE(cname, vi, ei) {
     return "InVE(" + objName(cname, vtype, vi) + ", " + objName(cname, etype, ei) + ")";
 }
 
+// TODO: factor out subset?
+function inSubset(objType, oname, sname) {
+    return "In" + tstr(objType) + "S(" + oname + ", " + sname + ")";
+}
+
 function mkE(ename, cname, vi, vj) {
     return ename + " := MkEdge(" + objName(cname, vtype, vi) + ", " 
 	+ objName(cname, vtype, vj) + ")";
@@ -186,6 +191,7 @@ function scToSub(scObj) {
 
 function starToSub(starWrapper) {
     let cname = starWrapper.scName;
+    let sname = starWrapper.name;
     let star_sc = starWrapper.starObj;
 
     let prog = [];
@@ -193,15 +199,15 @@ function starToSub(starWrapper) {
     // Note that for a simplex, an object is simply the index
     for (let v of star_sc.vertices) {
 	console.log("selected vertex: ", v);
-	prog.push(selected(vtype, objName(cname, vtype, v)));
+	prog.push(inSubset(vtype, objName(cname, vtype, v), sname));
     }
 
     for (let e of star_sc.edges) {
-	prog.push(selected(etype, objName(cname, etype, e)));
+	prog.push(inSubset(etype, objName(cname, etype, e), sname));
     }
 
     for (let f of star_sc.faces) {
-	prog.push(selected(ftype, objName(cname, ftype, f)));
+	prog.push(inSubset(ftype, objName(cname, ftype, f), sname));
     }
 
     return prog;
@@ -248,12 +254,23 @@ function makeSub(json) {
        - Performs star, closure, and link functions, naming them correctly (TODO work this out)
        - Ignores all other Substance statements (for now) */
 
-    // We only construct simplicial complexes, and objects are named according to the SComplex they belong to
+    // We only construct simplicial complexes. Objects are named according to the SC they belong to
     let scObjects = json.objects
 	.filter(o => o.objType === 'SComplex')
 	.map(o => makeSComplex(o.objName));
-
     console.log("complexes", scObjects);
+
+    // ------------
+    // TODO: deal with named vertex statements.
+    // Choose a random vertex in the mesh (fail if no vertices)
+    // Make a mapping from Substance name ("v") to that vertex's index, simplicial complex, and generated name ("K1_v1")
+    // What info do we need about "v"? Do we ever need a reverse mapping?
+    // In Substance, we might say "SelectedV(v)" or "S := Star(v)" (no MkEdge statements allowed) or "Label v $...$"
+    // That means this plugin needs to
+    // 1. generate Star statements WRT the correct vertex name, but respecting the connectivity of the actual vertex it maps to
+    // 2. NOT declare that Vertex or Label it, but do output the In edge statement (and anything relating to its connectivity)
+    
+    // This only deals with Vertex v in S (where SimplicialComplex S), not other kinds of objects in non-sc objects
 
     // Mappings from Substance name to subpart of structure
     // Have to figure out which complex it's in
@@ -261,28 +278,33 @@ function makeSub(json) {
     let vertexMappings = json.objects
 	.filter(o => o.objType === 'Vertex');
 
+    console.log("vm", vertexMappings);
     for (let v in vertexMappings) {
-	// nameMappings.v
+	let mesh = findMesh(v.objName, json, scObjects);
+	let meshName = mesh.name;
+
+	nameMappings.v = { meshName: meshName, // Should this be a pointer to the mesh?
+			   assignedName: undefined,
+			   index: undefined };
+
+	if (meshNameMappings.length == 0) {
+	    console.log("error: mesh has no vertices!");
+	    continue;
+	}
+
+	let vi = Math.random() * mesh.vertices.length;
+	nameMappings.v.assignedName = objName(meshName, vtype, vi);
+	nameMappings.v.index = vi;
     }
 
-    // TODO: deal with named vertex statements.
-    // Choose a random vertex in the mesh (fail if no vertices)
-    // Make a mapping from Substance name ("v") to that vertex's index, simplicial complex, and generated name ("K1_v1")
-    // What info do we need about "v"? Do we ever need a reverse mapping?
-
-    // When a Sub prog is generated:
-    // Don't output the Vertex or Label statement, but do output the In edge statement
-    
-    // This only deals with Vertex v in S (where SimplicialComplex S), not other kinds of objects in non-sc objects
+    console.log("name mappings", nameMappings);
+    // -------------
 
     // TODO: deal w/ star being called arbitrary # times
     // Perhaps this should be done recursively?
-
-    // TODO: output the In statements for star, link, and closure according to what they're bound to
     let starObjects = json.constraints.functions
 	.filter(o => o.fname === 'StarV')
         .map(o => doStar(o.varName, findMesh(o.fargNames[0], json, scObjects)));
-
     console.log("stars", starObjects);
 
     // Generate Substance programs for all objs
