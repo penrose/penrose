@@ -45,6 +45,9 @@ Vertex v {
 	 rotation = 0.0
 	 color = v.shape.color
        }
+
+       -- v.posFn = ensure onCanvas(v.shape)
+       -- v.posFn = encourage center(v.shape)
 }
 
 -- Is this going to match too many times?
@@ -62,12 +65,12 @@ with Vertex v1; Vertex v2 {
 	     thickness = 3.0
      }
 
-     e.text = Text {
-       x = midpointX(e.shape) + global.padding
-       y = midpointY(e.shape) + global.padding
-       string = e.label
-       rotation = 0.0
-     }
+     -- e.text = Text {
+     --   x = midpointX(e.shape) + global.padding
+     --   y = midpointY(e.shape) + global.padding
+     --   string = e.label
+     --   rotation = 0.0
+     -- }
 
      e.layering1 = v1.shape above e.shape
      e.layering2 = v2.shape above e.shape
@@ -92,6 +95,32 @@ with Edge e1; Edge e2; Edge e3 {
      --   rotation = 0.0
      -- }
 }
+
+Vertex v; Vertex w
+where InVS(v, K); InVS(w, K)
+with SComplex K {
+       LOCAL.repelFn = encourage repel(v.shape, w.shape)
+}
+
+
+Vertex v
+where InVS(v, `K1`) 
+with SComplex `K1` {
+     v.posFn = encourage near(v.shape, -100.0, 0.0)
+}
+
+Vertex v
+where InVS(v, `K2`) 
+with SComplex `K2` {
+     v.posFn = encourage near(v.shape, 100.0, 0.0)
+}
+
+/*
+Vertex v; Vertex w
+where InVS(v, `K1`); InVS(w, `K2`)
+with SComplex `K1`; SComplex `K2` {
+       LOCAL.repelFn = encourage repel(v.shape, w.shape)
+} */
 
 ------------------ Things in a subset that result from a star
 

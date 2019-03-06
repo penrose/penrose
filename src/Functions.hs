@@ -294,7 +294,8 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("outsideOf", outsideOf),
                 ("disjoint", disjoint),
                 ("inRange", inRange'),
-                ("lessThan", lessThan)
+                ("lessThan", lessThan),
+                ("onCanvas", onCanvas)
             ]
 
 constrSignatures :: OptSignatures
@@ -700,7 +701,7 @@ triangle [GPI e1@("Line", _), GPI e2@("Line", _), GPI e3@("Line", _)] =
                               getPoint "start" e3, getPoint "end" e3]
              v3 = furthestFrom (v1, v2) v3_candidates
              path = Closed [Pt v1, Pt v2, Pt v3]
-         in trace ("path: " ++ show path) $ Val $ PathDataV [path]
+         in {- trace ("path: " ++ show path) $ -} Val $ PathDataV [path]
          where 
          furthestFrom :: (Autofloat a) => (Pt2 a, Pt2 a) -> [Pt2 a] -> Pt2 a
          furthestFrom (p1, p2) pts = fst $ 
@@ -839,6 +840,7 @@ setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] = Val $ ColorV (RGBA
 -- Objective Functions
 
 near :: ObjFn
+near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
     let center = (getNum img "centerX", getNum img "centerY")
@@ -1084,12 +1086,25 @@ inRange a l r
     | a > r  = (a-r)^2
     | otherwise = 0
 
+inRange'' :: (Autofloat a) => a -> a -> a -> a
+inRange'' v left right
+    | v < left = left - v
+    | v > right = v - right
+    | otherwise = 0
+
 inRange' :: ConstrFn
 inRange' [Val (FloatV v), Val (FloatV left), Val (FloatV right)]
     | v < left = left - v
     | v > right = v - right
     | otherwise = 0
 -- = inRange v left right
+
+onCanvas :: ConstrFn
+onCanvas [GPI g] =
+         let (leftX, rightX) = (-canvasHeight / 2, canvasHeight / 2)
+             (leftY, rightY) = (-canvasWidth / 2, canvasWidth / 2) in
+         inRange'' (getX g) (r2f leftX) (r2f rightX) +
+         inRange'' (getY g) (r2f leftY) (r2f rightY) 
 
 -- contains [GPI set@("Circle", _), P' GPI pt@("", _)] = dist (getX pt, getX pt) (getX set, getY set) - 0.5 * r' set
 -- TODO: only approx

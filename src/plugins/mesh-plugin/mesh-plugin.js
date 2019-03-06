@@ -18,6 +18,7 @@ const SC = require('./geometry-processing-js/node/projects/simplicial-complex-op
 // const HexMesh = require('./geometry-processing-js/input/hexagon.js');
 // const DiskMesh = require('./geometry-processing-js/input/small_disk.js');
 const TetraMesh = require('./geometry-processing-js/input/tetrahedron.js');
+const SquareMesh = require('./geometry-processing-js/input/square.js');
 
 global_mesh = undefined;
 newline = "\n";
@@ -29,10 +30,10 @@ function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;
 }
 
-function label(cname, objName, index) {
+function label(cname, objName, objType, index) {
     return "Label " + objName
-	+ " $" + cname[0] + "_{" + cname.substring(1) + "}"
-	+ " v_{" + index + "}$";
+	+ " $" + cname[0] + "_{" + cname.substring(1) + "} "
+	+ tstr(objType) + "_{" + index + "}$";
 
 }
 
@@ -78,7 +79,7 @@ function makeSComplex(cname) {
     // TODO: make a simple random mesh, not a constant one
     // Tetrahedron has vertices indexed from 0-3 (inclusive), edges 0-5, faces 0-3
     // Maybe I should draw a 2D mesh
-    let polygonSoup = MeshIO.readOBJ(TetraMesh);
+    let polygonSoup = MeshIO.readOBJ(SquareMesh);
     let mesh = new Mesh.Mesh();
     mesh.build(polygonSoup);
 
@@ -153,7 +154,8 @@ function scToSub(mappings, scObj) {
 
 	if (!wasRemapped(plugin2sub, vname)) {
 	    prog.push(decl(vtype, vname));
-	    prog.push(label(cname, vname, v.index));
+	    prog.push(inSubset(vtype, vname, cname));
+	    prog.push(label(cname, vname, vtype, v.index));
 	}
     }
 
@@ -162,7 +164,7 @@ function scToSub(mappings, scObj) {
 
 	if (!wasRemapped(plugin2sub, ename)) {
 	    prog.push(decl(etype, ename));
-	    prog.push(label(cname, ename, e.index));
+	    prog.push(label(cname, ename, etype, e.index));
 	}
     }
 
@@ -171,7 +173,7 @@ function scToSub(mappings, scObj) {
 
 	if (!wasRemapped(plugin2sub, fname)) {
 	    prog.push(decl(ftype, fname));
-	    prog.push(label(cname, fname, f.index));
+	    prog.push(label(cname, fname, ftype, f.index));
 	}
     }
 
@@ -289,6 +291,7 @@ function makeNameMappings(json, scObjects) {
 	    console.log("error: mesh has no vertices!");
 	} else {
 	    let vi = Math.floor(Math.random() * mesh.vertices.length);
+	    // let vi = 4; // TODO: hardcode to the center vertex
 	    let assignedName = objName(scName, vtype, vi); // K1_V0
 
 	    subToAssignedMapping[vname].assignedName = assignedName;
