@@ -93,23 +93,23 @@ with Edge e1; Edge e2; Edge e3 {
      -- }
 }
 
------------------- Things in a subset
+------------------ Things in a subset that result from a star
 
 Vertex v
-where InVS(v, s)
-with SSubset s {
+where InVS(v, S); S := StarV(v); IsSubsetOf(S, K)
+with SSubset S; SComplex K {
       override v.shape.color = global.subsetColor
 }
 
 Edge e
-where InES(e, s)
-with SSubset s {
+where InES(e, S); S := StarV(v); IsSubsetOf(S, K)
+with SSubset S; SComplex K; Vertex v {
       override e.shape.color = global.subsetColor
 }
 
 Face f
-where InFS(f, s)
-with SSubset s {
+where InFS(f, S); S := StarV(v); IsSubsetOf(S, K)
+with SSubset S; SComplex K; Vertex v {
       override f.shape.fill = global.subsetColor2
       override f.shape.color = global.subsetColor2
 }
