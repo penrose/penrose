@@ -73,16 +73,12 @@ function selected(objType, objName) {
 }
 
 function makeSComplex(cname) {
-    // TODO: maintain a lookup table for objects that belong to c
-
     // TODO: make a simple random mesh, not a constant one
     // Tetrahedron has vertices indexed from 0-3 (inclusive), edges 0-5, faces 0-3
-    // Maybe I should draw a 2D mesh...
+    // Maybe I should draw a 2D mesh
     let polygonSoup = MeshIO.readOBJ(TetraMesh);
     let mesh = new Mesh.Mesh();
     mesh.build(polygonSoup);
-
-    // TODO: keep this mesh object outside of function scope
 
     // Construct a simplicial complex for a mesh 
     let SCO = new SC.SimplicialComplexOperators(mesh);
@@ -90,9 +86,58 @@ function makeSComplex(cname) {
     // Build mappings from Penrose name to mesh index (not really needed since each name includes its index...)
     let penrose_to_mesh = {};
 
-    // -------------------------------------------
-    global_mesh = mesh; // TODO remove
+    // global_mesh = mesh; // TODO remove
 
+    // Map names to indices
+    for (let v of mesh.vertices) {
+	// TODO document these conventions
+	penrose_to_mesh[objName(cname, vtype, v.index)] = v.index;
+    }
+
+    for (let e of mesh.edges) {
+	penrose_to_mesh[objName(cname, etype, e.index)] = e.index;
+    }
+
+    for (let f of mesh.faces) {
+	penrose_to_mesh[objName(cname, ftype, f.index)] = f.index;
+    }
+
+    return { type: 'SimplicialComplex',
+	     name: cname,
+	     mesh: mesh, 
+	     sc: SCO, 
+	     mappings: penrose_to_mesh
+	   };
+}
+
+// Expects a mesh made by makeSComplex
+function doStar(starName, scObj) {
+    // Select the vertices, edges, and faces that are in the star
+    // TODO do programmatically
+    let cname = scObj.name;
+    let SCO = scObj.sc;
+
+    let selectedSimplices = new MeshSubset();
+    selectedSimplices.addVertices([1]);
+    selectedSimplices.addEdges([]);
+    selectedSimplices.addFaces([]);
+
+    let star_sc = SCO.star(selectedSimplices);
+    console.log("sc: ", SCO);
+    console.log("sc star: ", star_sc);
+
+    return { type: 'Star',
+	     name: starName, // name bound in Substance
+	     scName: cname,
+	     selectedSimplices: selectedSimplices,
+	     starObj: star_sc,
+	   };
+}
+
+// Return the Substance programs
+function scToSub(scObj) {
+    let mesh = scObj.mesh;
+    let cname = scObj.name;
     let prog = [];
 
     // Emit all declarations first, since objects need to be defined in Substance before they're referenced
@@ -100,23 +145,19 @@ function makeSComplex(cname) {
     for (let v of mesh.vertices) {
 	prog.push(decl(cname, vtype, v.index));
 	prog.push(label(cname, vtype, v.index));
-	// TODO document these conventions
-	penrose_to_mesh[objName(cname, vtype, v.index)] = v.index;
     }
 
     for (let e of mesh.edges) {
 	prog.push(decl(cname, etype, e.index));
 	prog.push(label(cname, etype, e.index));
-	penrose_to_mesh[objName(cname, etype, e.index)] = e.index;
     }
 
     for (let f of mesh.faces) {
 	prog.push(decl(cname, ftype, f.index));
 	prog.push(label(cname, ftype, f.index));
-	penrose_to_mesh[objName(cname, ftype, f.index)] = f.index;
     }
 
-    // Build connectivity info
+    // Build connectivity info for edges and faces
     for (let v of mesh.vertices) {
 	// TODO use mkE
 	for (let e of v.adjacentEdges()) {
@@ -140,44 +181,11 @@ function makeSComplex(cname) {
 	}
     }
 
-    return { name: cname,
-	     mesh: mesh, 
-	     sc: SCO, 
-	     prog: prog, 
-	     mappings: penrose_to_mesh
-	   };
-}
-
-// Expects a mesh made by makeSComplex
-function doStar(starName, scObj) {
-    // Select the vertices, edges, and faces that are in the star
-    // TODO do programmatically
-    let cname = scObj.name;
-    let SCO = scObj.sc;
-
-    let selectedSimplices = new MeshSubset();
-    selectedSimplices.addVertices([1]);
-    selectedSimplices.addEdges([]);
-    selectedSimplices.addFaces([]);
-
-    let star_sc = SCO.star(selectedSimplices);
-    console.log("sc: ", SCO);
-    console.log("sc star: ", star_sc);
-
-    return { name: starName, // name bound in Substance
-	     scName: cname,
-	     selectedSimplices: selectedSimplices,
-	     starObj: star_sc,
-	   };
-}
-
-// Return the Substance programs
-function meshToSub(scObj) {
-    return [];
+    return prog;
 }
 
 function starToSub(starWrapper) {
-    let cname = starWrapper.name;
+    let cname = starWrapper.scName;
     let star_sc = starWrapper.starObj;
 
     let prog = [];
@@ -196,9 +204,7 @@ function starToSub(starWrapper) {
 	prog.push(selected(ftype, objName(cname, ftype, f)));
     }
 
-    starWrapper.prog = prog;
-
-    return starWrapper;
+    return prog;
 }
 
 // find the mesh object that the vertex belongs to (if any)
@@ -226,6 +232,15 @@ function findMesh(vname, json, scObjs) {
     return mesh;
 }
 
+// Examine an object and call the right Sub prog generating function
+function makeProg(o) {
+    if (o.type === 'SimplicialComplex') {
+	return scToSub(o);
+    } else if (o.type === 'Star') {
+	return starToSub(o);
+    }
+}
+
 function makeSub(json) {
     /* How this plugin handles Substance programs:
        - Make a new simplicial complex for every SComplex declaration
@@ -240,15 +255,29 @@ function makeSub(json) {
 
     console.log("complexes", scObjects);
 
-    // TODO: deal with named vertex statements.
-    // Make a mapping from Substance name to generated name
+    // Mappings from Substance name to subpart of structure
+    // Have to figure out which complex it's in
+    let nameMappings = {};
+    let vertexMappings = json.objects
+	.filter(o => o.objType === 'Vertex');
 
-    // TODO: Factor out the statement outputting to the end, for all generated objects
-    // Don't output the Vertex or Label statement
-    // But do output the In edge statement
+    for (let v in vertexMappings) {
+	// nameMappings.v
+    }
+
+    // TODO: deal with named vertex statements.
+    // Choose a random vertex in the mesh (fail if no vertices)
+    // Make a mapping from Substance name ("v") to that vertex's index, simplicial complex, and generated name ("K1_v1")
+    // What info do we need about "v"? Do we ever need a reverse mapping?
+
+    // When a Sub prog is generated:
+    // Don't output the Vertex or Label statement, but do output the In edge statement
+    
+    // This only deals with Vertex v in S (where SimplicialComplex S), not other kinds of objects in non-sc objects
 
     // TODO: deal w/ star being called arbitrary # times
     // Perhaps this should be done recursively?
+
     // TODO: output the In statements for star, link, and closure according to what they're bound to
     let starObjects = json.constraints.functions
 	.filter(o => o.fname === 'StarV')
@@ -256,11 +285,10 @@ function makeSub(json) {
 
     console.log("stars", starObjects);
 
-    // TODO: make programs
-
+    // Generate Substance programs for all objs
     // TODO: use consistent fp style
     let objs = _.concat(scObjects, starObjects);
-    let lines = _.flatten(objs.map(o => o.prog));
+    let lines = _.flatten(objs.map(o => makeProg(o)));
     let subProgStr = lines.join(newline);
 
     return subProgStr;
