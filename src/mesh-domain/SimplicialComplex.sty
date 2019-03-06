@@ -3,10 +3,16 @@ plugin "ddgjs"
 global {
     global.padding = 20.0
     global.stroke = 2.0
+    global.spacing = 150.0
+
     global.selectedColor = Colors.red
     global.selectedColor2 = setOpacity(global.selectedColor, 0.25)
+
     global.subsetColor = Colors.purple
     global.subsetColor2 = setOpacity(global.subsetColor, 0.25)
+
+    global.closureColor = Colors.green
+    global.closureColor2 = setOpacity(global.closureColor, 0.25)
 }
 
 Colors {
@@ -99,28 +105,42 @@ with Edge e1; Edge e2; Edge e3 {
 Vertex v; Vertex w
 where InVS(v, K); InVS(w, K)
 with SComplex K {
-       LOCAL.repelFn = encourage repel(v.shape, w.shape)
+       LOCAL.repelFn = encourage repel(v.shape, w.shape, 10.0)
 }
 
 
 Vertex v
 where InVS(v, `K1`) 
 with SComplex `K1` {
-     v.posFn = encourage near(v.shape, -100.0, 0.0)
+     v.posFn = encourage near(v.shape, -global.spacing, 0.0)
 }
 
 Vertex v
 where InVS(v, `K2`) 
 with SComplex `K2` {
-     v.posFn = encourage near(v.shape, 100.0, 0.0)
+     v.posFn = encourage near(v.shape, global.spacing, 0.0)
 }
 
-/*
-Vertex v; Vertex w
-where InVS(v, `K1`); InVS(w, `K2`)
-with SComplex `K1`; SComplex `K2` {
-       LOCAL.repelFn = encourage repel(v.shape, w.shape)
-} */
+------------------ Things in a closure
+
+Vertex v
+where InVS(v, C); C := Closure(S)
+with Subcomplex C; SSubset S {
+      override v.shape.color = global.closureColor
+}
+
+Edge e
+where InES(e, C); C := Closure(S)
+with Subcomplex C; SSubset S {
+      override e.shape.color = global.closureColor
+}
+
+Face f
+where InFS(f, C); C := Closure(S)
+with Subcomplex C; SSubset S {
+      override f.shape.fill = global.closureColor2
+      override f.shape.color = global.closureColor2
+}
 
 ------------------ Things in a subset that result from a star
 

@@ -43,7 +43,7 @@ Vertex j
 InVS(j, K2)
 
 SSubset S2
-IsSubsetOf(S2, K1)
+IsSubsetOf(S2, K2)
 S2 := StarV(j)
 
 AutoLabel All
