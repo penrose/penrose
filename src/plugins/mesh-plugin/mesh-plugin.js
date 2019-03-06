@@ -164,6 +164,22 @@ function doStar(starName, scObj) {
     console.log("sc: ", SCO);
     console.log("sc star: ", star_sc);
 
+    return { name: starName, // name bound in Substance
+	     scName: cname,
+	     selectedSimplices: selectedSimplices,
+	     starObj: star_sc,
+	   };
+}
+
+// Return the Substance programs
+function meshToSub(scObj) {
+    return [];
+}
+
+function starToSub(starWrapper) {
+    let cname = starWrapper.name;
+    let star_sc = starWrapper.starObj;
+
     let prog = [];
 
     // Note that for a simplex, an object is simply the index
@@ -180,11 +196,9 @@ function doStar(starName, scObj) {
 	prog.push(selected(ftype, objName(cname, ftype, f)));
     }
 
-    return { name: starName, // name bound in Substance
-	     selectedSimplices: selectedSimplices,
-	     starObj: star_sc,
-	     prog: prog
-	   };
+    starWrapper.prog = prog;
+
+    return starWrapper;
 }
 
 // find the mesh object that the vertex belongs to (if any)
@@ -228,16 +242,21 @@ function makeSub(json) {
 
     // TODO: deal with named vertex statements.
     // Make a mapping from Substance name to generated name
+
+    // TODO: Factor out the statement outputting to the end, for all generated objects
     // Don't output the Vertex or Label statement
     // But do output the In edge statement
 
     // TODO: deal w/ star being called arbitrary # times
     // Perhaps this should be done recursively?
+    // TODO: output the In statements for star, link, and closure according to what they're bound to
     let starObjects = json.constraints.functions
 	.filter(o => o.fname === 'StarV')
         .map(o => doStar(o.varName, findMesh(o.fargNames[0], json, scObjects)));
 
     console.log("stars", starObjects);
+
+    // TODO: make programs
 
     // TODO: use consistent fp style
     let objs = _.concat(scObjects, starObjects);
