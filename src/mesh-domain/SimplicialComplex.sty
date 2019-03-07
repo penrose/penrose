@@ -106,6 +106,11 @@ with SComplex K {
 Vertex v
 where InVS(v, `K1`) 
 with SComplex `K1` {
+     -- TODO: Testing plugin accessors
+     -- Doesn't pass Style compiler yet
+     -- v.test1 = ddg["hello"]["vertexPosition"]
+     -- v.test2 = encourage near(v.shape, -100.0, ddg["hello"][v.label])
+
      v.posFn = encourage near(v.shape, -100.0, 0.0)
 }
 
