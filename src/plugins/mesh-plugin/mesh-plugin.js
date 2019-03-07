@@ -87,7 +87,7 @@ function makeSComplex(cname) {
     let SCO = new SC.SimplicialComplexOperators(mesh);
 
     // Build mappings from Penrose name to mesh index (not really needed since each name includes its index...)
-    let penrose_to_mesh = {};
+    /* let penrose_to_mesh = {};
 
     // global_mesh = mesh; // TODO remove
 
@@ -103,13 +103,13 @@ function makeSComplex(cname) {
 
     for (let f of mesh.faces) {
 	penrose_to_mesh[objName(cname, ftype, f.index)] = f.index;
-    }
+    } */ // Doesn't seem to be needed
 
     return { type: 'SimplicialComplex',
 	     name: cname,
 	     mesh: mesh, 
-	     sc: SCO, 
-	     mappings: penrose_to_mesh
+	     sc: SCO
+	     // mappings: penrose_to_mesh
 	   };
 }
 
@@ -352,12 +352,125 @@ function makeProg(mappings, o) {
     }
 }
 
+function makeObj(decl) {
+    // Dispatch based on stype.
+    // SimplicialComplex: make one (these can never result from fn calls)
+    // Vertex, Edge, Face: select a subpart of a simplicial complex (or simplicial subset, or subcomplex)--not handled here
+    // SSubset, SComplex: ignore? (these always need to result from fn calls)
+    let stype = decl.objType;
+    let sname = decl.objName;
+    let res = undefined;
+
+    if (stype === "SComplex") { res = makeSComplex(sname); }
+    return res;
+}
+
+function lookupObj(name, objs) {
+    let res = objs.filter(o => o.name === name);
+    if (res.length < 1) { return undefined; }
+    return res[0]; // Assuming the same name isn't bound twice
+}
+
+function lookupBoundvar(name, fnCalls) {
+    let res = fnCalls.filter(o => o.varName === name);
+    if (res.length < 1) { return undefined; }
+    return res[0];
+}
+
+function doFnCall(json, objs, mappings, fnCall) {
+    let bindVar = fnCall.varName;
+    let fname = fnCall.fname;
+    let fnArgs = fnCall.fargNames;
+    let res = undefined;
+
+    console.log("objs in doFnCall", objs);
+
+    // If function call has already been done, move on
+    // (NOTE: assuming you aren't binding twice like y1 := f(x), y1 := g(z))
+    let bindLookup = lookupObj(bindVar, objs);
+    if (bindLookup) { return objs; }
+
+    // Otherwise, do the function call, store the value, and return the new values
+    // Dispatch based on fname (just StarV, Closure, Link for now)
+
+    // If argument not yet computed, do it and memoize it in objs (keeps updating it -- should this be a fold?)
+    // Otherwise look up and find it
+    for (let fnArg of fnArgs) {
+	console.log("fn arg", fnArg);
+	let argLookup = lookupObj(fnArg, objs);
+
+	// It should be a bound variable in functions, otherwise the Substance program is invalid
+	if (!argLookup) {
+	    let bvar_fncall = lookupBoundvar(fnArg, json.constraints.functions);
+	    if (!bvar_fncall) {
+		console.log("error: function argument", fnArg, "not declared or bound");
+		// >>> TODO: problem: what to do with StarV(i)? Do I need to make a Vertex object?
+		// Should the `mappings` actually be objects in the object list? That would be more consistent
+		return objs; // skip
+	    }
+	    let argsComputed = doFnCall(json, objs, mappings, bvar_fncall); // could update multiple objects
+	    objs = _.concat(objs, argsComputed);
+	}
+    }
+
+    if (fname === "StarV") {
+	// TODO: lookup fnArgs / call recursively
+	let argObj = findMesh(fnArgs[0], json, objs);
+	res = doStar(fnCall, mappings, argObj);
+    } else if (fname === "Closure") {
+	let argObj = findSubset(fnArgs[0], objs);
+	if (!argObj) {
+	    console.log("argument", fnArgs[0], "to closure not found");
+	}
+	res = doClosure(fnCall, mappings, argObj);
+    } else if (fname === "Link") {
+	// TODO
+    }
+
+    if (res) { objs.push(res); }
+
+    return objs;
+}
+
 function makeSub(json) {
+    // TODO: recursion limit
+    // T x: For each object that needs to be constructed: map `T` to the corresponding function here; make `x` and add it to the list of objects
+    // y := f([x]): For each function call: map `f` to the corresponding function here and look up the `x` in the list of objects
+      // If the `x` exists, find it and pass it in as an argument
+      // Otherwise, make `x`, add it to the list of objects, and pass it in as an argument [i.e. memoized]
+      // Bind the resulting object to `y` and add it to the list of objects
+    // P([x]): ignore predicates for now
+
+    let subDecls = json.objects;
+    let subPreds = json.constraints.predicates;
+    let subFnCalls = json.constraints.functions;
+
+    let objs = subDecls.map(decl => makeObj(decl))
+	.filter(o => o !== undefined);
+
+    // Deal with statements that select a subpart of a whole (TODO: currently just a vertex of an SC)
+    let mappings = makeNameMappings(json, objs);
+
+    let fnObjs = subFnCalls.reduce((objs_acc, fnCall) => doFnCall(json, objs_acc, mappings, fnCall), 
+				   objs);
+
+    // Output Substance code
+    let allObjs = _.concat(objs, fnObjs);
+    let lines = _.flatten(allObjs.map(o => makeProg(mappings, o)));
+    let subProgStr = lines.join(newline);
+
+    return subProgStr;
+}
+
+// Temporary version of makeSub
+function makeSubInit(json) {
     /* How this plugin handles Substance programs:
        - Make a new simplicial complex for every SComplex declaration
        - Names declared vertices, edges, faces according to what they are in (TODO work this out)
        - Performs star, closure, and link functions, naming them correctly (TODO work this out)
        - Ignores all other Substance statements (for now) */
+
+    // Given all the objects made, output the Substance lines for each of them
 
     // We only construct simplicial complexes. Objects are named according to the SC they belong to
     let scObjects = json.objects
@@ -396,6 +509,7 @@ function main() {
    let rawdata = Fs.readFileSync('Sub_enduser.json');
    let subJSON = JSON.parse(rawdata);
    console.log("Received JSON", subJSON);
+   console.log("Received JSON", subJSON.constraints);
 
    let newSub = makeSub(subJSON)
    console.log("writing data: ", newSub);
@@ -406,4 +520,4 @@ function main() {
 
 main();
 
-module.exports = {main, makeSub, global_mesh};
+module.exports = {main, makeSub, makeSubInit, global_mesh};
