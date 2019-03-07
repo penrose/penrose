@@ -17,8 +17,8 @@ const SC = require('./geometry-processing-js/node/projects/simplicial-complex-op
 // const FaceMesh = require('./geometry-processing-js/input/face.js');
 // const HexMesh = require('./geometry-processing-js/input/hexagon.js');
 // const DiskMesh = require('./geometry-processing-js/input/small_disk.js');
-const TetraMesh = require('./geometry-processing-js/input/tetrahedron.js');
-const SquareMesh = require('./geometry-processing-js/input/square.js');
+const TetraMesh = require('./input/tetrahedron.js');
+const SquareMesh = require('./input/square.js');
 
 global_mesh = undefined;
 newline = "\n";
@@ -114,8 +114,10 @@ function makeSComplex(cname) {
 }
 
 // Expects a mesh made by makeSComplex
-function doStar(starName, vertexName, nameMappings, scObj) {
-    // Select the vertices, edges, and faces that are in the star of a specific vertex
+function doStar(stmt, nameMappings, scObj) {
+    let starName = stmt.varName;
+    let vertexName = stmt.fargNames[0];
+    // Take the star at a specific vertex
     let cname = scObj.name;
     let SCO = scObj.sc;
     let vertexIndex = nameMappings.sub2plugin[vertexName].index;
@@ -129,11 +131,30 @@ function doStar(starName, vertexName, nameMappings, scObj) {
     // console.log("sc: ", SCO);
     // console.log("sc star: ", star_sc);
 
-    return { type: 'Star',
+    // Mesh subset object
+    return { type: 'MeshSubset',
 	     name: starName, // name bound in Substance
 	     scName: cname,
-	     selectedSimplices: selectedSimplices,
-	     starObj: star_sc,
+	     sc: SCO, // Has to carry the simplicial complex operators with it...
+	     // selectedSimplices: selectedSimplices,
+	     meshSubset: star_sc,
+	   };
+}
+
+function doClosure(stmt, nameMappings, subsetObj) {
+    let subcomplexName = stmt.varName;
+    let inputSubsetName = stmt.fargNames[0];
+    let cname = subsetObj.scName;
+    let SCO = subsetObj.sc;
+
+    let meshSubset = subsetObj.meshSubset;
+    let closure_ms = SCO.closure(meshSubset);
+
+    return { type: 'MeshSubset',
+	     name: subcomplexName,
+	     scName: cname,
+	     sc: SCO,
+	     meshSubset: closure_ms 
 	   };
 }
 
@@ -209,14 +230,15 @@ function scToSub(mappings, scObj) {
     return prog;
 }
 
-function starToSub(mappings, starWrapper) {
-    let cname = starWrapper.scName;
-    let sname = starWrapper.name;
-    let star_sc = starWrapper.starObj;
+function subsetToSub(mappings, subsetWrapper) {
+    let cname = subsetWrapper.scName;
+    let sname = subsetWrapper.name;
+    let star_sc = subsetWrapper.meshSubset;
     let plugin2sub = mappings.plugin2sub;
 
     let prog = [];
 
+    // Specify the vertices, edges, and faces that are in a particular mesh subset
     // Note that for a simplex, an object is simply the index
     for (let v of star_sc.vertices) {
 	console.log("selected vertex: ", v);
@@ -257,6 +279,10 @@ function findMesh(vname, json, scObjs) {
     let mesh = scObjs.filter(o => o.name === meshName)[0];
 
     return mesh;
+}
+
+function findSubset(subsetName, subsets) {
+    return subsets.filter(o => o.name === subsetName)[0];
 }
 
 function makeNameMappings(json, scObjects) {
@@ -321,8 +347,8 @@ function wasRemapped(plugin2sub, pluginName) {
 function makeProg(mappings, o) {
     if (o.type === 'SimplicialComplex') {
 	return scToSub(mappings, o);
-    } else if (o.type === 'Star') {
-	return starToSub(mappings, o);
+    } else if (o.type === 'MeshSubset') {
+	return subsetToSub(mappings, o);
     }
 }
 
@@ -346,12 +372,18 @@ function makeSub(json) {
     // Perhaps this should be done recursively?
     let starObjects = json.constraints.functions
 	.filter(o => o.fname === 'StarV')
-        .map(o => doStar(o.varName, o.fargNames[0], mappings, findMesh(o.fargNames[0], json, scObjects)));
+        .map(o => doStar(o, mappings, findMesh(o.fargNames[0], json, scObjects)));
     console.log("stars", starObjects);
+
+    let clObjects = json.constraints.functions
+	.filter(o => o.fname === 'Closure')
+        .map(o => doClosure(o, mappings, findSubset(o.fargNames[0], starObjects)));
+    // TODO: factor out findMesh / findSubset
+    console.log("cls", clObjects);
 
     // Generate Substance programs for all objs
     // TODO: use consistent fp style
-    let objs = _.concat(scObjects, starObjects);
+    let objs = _.concat(scObjects, starObjects, clObjects);
     let lines = _.flatten(objs.map(o => makeProg(mappings, o)));
     let subProgStr = lines.join(newline);
 
