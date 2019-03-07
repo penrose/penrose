@@ -69,12 +69,25 @@ class Curve extends React.Component<IGPIPropsDraggable> {
     const fillOpacity = shape.fill.contents[3];
     const leftArrowId = shape.name.contents + "-leftArrowhead";
     const rightArrowId = shape.name.contents + "-rightArrowhead";
+    const [width, height] = [12, 12];
     // TODO: distinguish between fill opacity and stroke opacity
 
     return (
       <g>
-        <StartArrowhead id={leftArrowId} color={strokeColor} opacity={strokeOpacity} />
-        <EndArrowhead id={rightArrowId} color={strokeColor} opacity={strokeOpacity} />
+        <StartArrowhead
+          id={leftArrowId}
+          color={strokeColor}
+          opacity={strokeOpacity}
+          width={width}
+          height={height}
+        />
+        <EndArrowhead
+          id={rightArrowId}
+          color={strokeColor}
+          opacity={strokeOpacity}
+          width={width}
+          height={height}
+        />
         <path
           stroke={strokeColor}
           fill={fillColor}

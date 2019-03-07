@@ -20,6 +20,10 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
     const alpha = shape.color.contents[3];
     const arrowHeadId = "arrowhead_" + shape.name.contents
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
+    const [width, height] = [12, 12];
+    const slope = Math.atan2(ey - sy, ex - sx);
+    const [offsetX, offsetY] = [Math.cos(slope) * height / 2,  Math.sin(slope) * height / 2];
+    // const [offsetX, offsetY] = [0, 0];
 
     return (
       <g
@@ -30,9 +34,11 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
         id={arrowHeadId}
         color={color}
         opacity={alpha}
+        width={width}
+        height={height}
       />
         <path
-          d={`M${sx} ${sy} L${ex} ${ey}`}
+          d={`M${sx} ${sy} L${ex - offsetX} ${ey - offsetY}`}
           fill={color}
           stroke={color}
           fillOpacity={alpha}

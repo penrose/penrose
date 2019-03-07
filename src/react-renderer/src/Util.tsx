@@ -7,16 +7,19 @@ export const StartArrowhead = (props: {
   id: string;
   color: string;
   opacity: number;
+  width: number;
+  height: number
 }) => {
+  // TODO: refactor path using width and height
   return (
     <marker
       id={props.id}
       markerUnits="strokeWidth"
-      markerWidth="12"
-      markerHeight="12"
-      viewBox="0 0 12 12"
-      refX="6"
-      refY="6"
+      markerWidth={props.width}
+      markerHeight={props.height}
+      viewBox={`0 0 ${props.width} ${props.height}`}
+      refX={props.width/2}
+      refY={props.height/2}
       orient="auto"
     >
       <path
@@ -31,16 +34,19 @@ export const EndArrowhead = (props: {
   id: string;
   color: string;
   opacity: number;
+  width: number;
+  height: number
 }) => {
+  // TODO: refactor path using width and height
   return (
     <marker
       id={props.id}
       markerUnits="strokeWidth"
-      markerWidth="12"
-      markerHeight="12"
-      viewBox="0 0 12 12"
-      refX="6"
-      refY="6"
+      markerWidth={props.width}
+      markerHeight={props.height}
+      viewBox={`0 0 ${props.width} ${props.height}`}
+      refX={props.width/2}
+      refY={props.height/2}
       orient="auto"
     >
       <path
