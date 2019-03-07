@@ -70,7 +70,9 @@ plugins = plugin `endBy` newline' -- zero or multiple instantiators
 
 plugin :: Parser Plugin
 plugin = symbol "plugin" >> stringLiteral
-    where stringLiteral = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
+
+stringLiteral :: Parser String
+stringLiteral = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
 
 --------------------------------------------------------------------------------
 -- Style AST
@@ -203,6 +205,7 @@ data Expr
     | ListAccess Path Integer
     | Ctor String [PropertyDecl]
     | Layering Path Path -- ^ first GPI is *below* the second GPI
+    | PluginAccess String Expr Expr -- ^ Plugin name, Substance name, Key
     deriving (Show, Eq, Typeable)
 
 -- DEPRECATED
@@ -352,15 +355,22 @@ expr = tryChoice [
            objFn,
            constrFn,
            layeringExpr,
+           pluginAccess,
            arithmeticExpr,
            compFn,
-           -- Layering <$> brackets layeringExpr,
            list,
            stringLit,
            boolLit
        ]
 
--- COMBAK: change NewStyle to Style
+pluginAccess :: Parser Expr
+pluginAccess = do
+    plugin <- identifier
+    name   <- bExpr
+    key    <- bExpr
+    return $ PluginAccess plugin name key
+    where bExpr = brackets expr
+
 arithmeticExpr :: Parser Expr
 arithmeticExpr = makeExprParser aTerm aOperators
 
