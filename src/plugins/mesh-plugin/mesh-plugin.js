@@ -467,7 +467,7 @@ function makeSty(objs) {
     let scs = objs.filter(o => o.type === "SimplicialComplex");
     // console.log("v pos", scs.map(o => o.geometry.positions));
 
-    let vals = {};
+    let vals = [];
     for (let sc of scs) {
 	let mesh = sc.mesh;
 	let cname = sc.name;
@@ -476,9 +476,18 @@ function makeSty(objs) {
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
 	    let vname = objName(cname, vtype, vi);
-	    let vpos = positions[vi]; // Vector object
-	    let pos_json = { x: vpos.x, y: vpos.y }; // throw away z pos
-	    vals[vname] = pos_json;
+	    let vpos = positions[vi]; // Vector object, throw away z pos
+
+	    let pos_json_x = { propertyName: "x",
+			       propertyVal: vpos.x };
+	    let pos_json_y = { propertyName: "y",
+			       propertyVal: vpos.y };
+	    let local_positions = [pos_json_x, pos_json_y];
+
+	    let local_json = {};
+	    local_json["subName"] = vname;
+	    local_json["nameVals"] = local_positions;
+	    vals.push(local_json);
 	}
     }
 

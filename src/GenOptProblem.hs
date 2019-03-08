@@ -11,6 +11,7 @@ module GenOptProblem where
 
 import Utils
 import Shapes
+import qualified SubstanceJSON as J
 import qualified Substance as C
 import Env
 import Style
@@ -846,8 +847,8 @@ genOptProblemAndState trans =
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- NOTE: this function also print information out to stdout
 -- TODO: enable logger
-compileStyle :: StyProg -> C.SubOut -> IO State
-compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
+compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> IO State
+compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals = do
    putStrLn "Running Style semantics\n"
    let selEnvs = checkSels subEnv styProg
 

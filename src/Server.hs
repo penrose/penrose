@@ -370,7 +370,9 @@ substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
     case subRes of
         Right subOut -> do
             logDebug client $ show subOut
-            styRes <- try (compileStyle styProg subOut)
+            -- TODO: store the Style values to reuse on Substance edit
+            let styVals = []
+            styRes <- try (compileStyle styProg subOut styVals)
             case styRes of
                 Right newState -> do
                     wsSendFrame conn Frame {

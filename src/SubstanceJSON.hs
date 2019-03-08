@@ -148,6 +148,25 @@ writeSubstanceToJSON file (SubOut subprog envs labels) = do
 
 --------------------------------------------------------
 
+-- | JSON format for parsing Style values from plugins
+
+data KeyValPair = KeyValPair {
+     propertyName :: String,
+     propertyVal  :: Float -- TODO: generalize this
+} deriving (Generic, Show)
+
+data StyVal = StyVal {
+     subName :: String,
+     nameVals  :: [KeyValPair]
+} deriving (Generic, Show)
+
+instance FromJSON KeyValPair
+instance FromJSON StyVal
+
+-- Plugin output parsed as [StyVal]
+
+--------------------------------------------------------
+
 -- | Test writing a Substance program in JSON format
 main :: IO ()
 main = do
