@@ -258,7 +258,7 @@ function subsetToSub(mappings, subsetWrapper) {
 
 // find the mesh object that the vertex belongs to (if any)
 // should be declared with an InVS statement in substance, assuming a valid substance program with parg order preserved
-function findMesh(vname, json, scObjs) {
+function findMesh(vname, json, objs) {
     // first find the name of the mesh, then look it up in the objects we made
 
     // TODO: write a "find" function
@@ -274,18 +274,14 @@ function findMesh(vname, json, scObjs) {
     console.log("found mesh: " + meshNames[0]);
     let meshName = meshNames[0];
 
-    // TODO: use a better find function
-    // expects exactly one mesh with the name
-    let mesh = scObjs.filter(o => o.name === meshName)[0];
-
-    return mesh;
+    return objs[meshName];
 }
 
 function findSubset(subsetName, subsets) {
     return subsets.filter(o => o.name === subsetName)[0];
 }
 
-function makeNameMappings(json, scObjects) {
+function makeNameMappings(json, objs) {
     // Deal with named vertex statements.
     // Choose a random vertex in the mesh (fail if no vertices)
     // Make a mapping from Substance name ("v") to that vertex's index, simplicial complex, and generated name ("K1_v1")
@@ -305,7 +301,7 @@ function makeNameMappings(json, scObjects) {
 
     for (let v of vertexMappings) {
 	let vname = v.objName;
-	let scObj = findMesh(vname, json, scObjects);
+	let scObj = findMesh(vname, json, objs);
 	let mesh = scObj.mesh;
 	let scName = scObj.name;
 
@@ -345,6 +341,8 @@ function wasRemapped(plugin2sub, pluginName) {
 
 // Examine an object and call the right Sub prog generating function
 function makeProg(mappings, o) {
+    console.log("make prog o", o);
+
     if (o.type === 'SimplicialComplex') {
 	return scToSub(mappings, o);
     } else if (o.type === 'MeshSubset') {
@@ -365,11 +363,11 @@ function makeObj(decl) {
     return res;
 }
 
-function lookupObj(name, objs) {
-    let res = objs.filter(o => o.name === name);
-    if (res.length < 1) { return undefined; }
-    return res[0]; // Assuming the same name isn't bound twice
-}
+// function lookupObj(name, objs) {
+//     let res = objs.filter(o => o.name === name);
+//     if (res.length < 1) { return undefined; }
+//     return res[0]; // Assuming the same name isn't bound twice
+// }
 
 function lookupBoundvar(name, fnCalls) {
     let res = fnCalls.filter(o => o.varName === name);
@@ -377,7 +375,7 @@ function lookupBoundvar(name, fnCalls) {
     return res[0];
 }
 
-function doFnCall(json, objs, mappings, fnCall) {
+function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
     let bindVar = fnCall.varName;
     let fname = fnCall.fname;
     let fnArgs = fnCall.fargNames;
@@ -387,49 +385,43 @@ function doFnCall(json, objs, mappings, fnCall) {
 
     // If function call has already been done, move on
     // (NOTE: assuming you aren't binding twice like y1 := f(x), y1 := g(z))
-    let bindLookup = lookupObj(bindVar, objs);
-    if (bindLookup) { return objs; }
+    if (objs[bindVar]) { return objs; }
 
     // Otherwise, do the function call, store the value, and return the new values
-    // Dispatch based on fname (just StarV, Closure, Link for now)
-
-    // If argument not yet computed, do it and memoize it in objs (keeps updating it -- should this be a fold?)
-    // Otherwise look up and find it
+    // First, if an argument to a function call is not yet computed, do it and memoize it in objs
+        // (keeps updating it -- should this be a fold?)
     for (let fnArg of fnArgs) {
-	console.log("fn arg", fnArg);
-	let argLookup = lookupObj(fnArg, objs);
+	console.log("fn arg", fnArg, objs[fnArg]);
 
 	// It should be a bound variable in functions, otherwise the Substance program is invalid
-	if (!argLookup) {
+	if (!objs[fnArg]) {
 	    let bvar_fncall = lookupBoundvar(fnArg, json.constraints.functions);
+
 	    if (!bvar_fncall) {
 		console.log("error: function argument", fnArg, "not declared or bound");
-		// >>> TODO: problem: what to do with StarV(i)? Do I need to make a Vertex object?
-		// Should the `mappings` actually be objects in the object list? That would be more consistent
 		return objs; // skip
 	    }
-	    let argsComputed = doFnCall(json, objs, mappings, bvar_fncall); // could update multiple objects
-	    objs = _.concat(objs, argsComputed);
+	    let argsComputed = doFnCall(json, objs, mappings, bvar_fncall); // could update multiple objects... is this pass by reference or by value?
+	    objs = Object.assign(objs, argsComputed); // TODO: use argsComputed? or merge?
 	}
     }
 
+    // Do the fn call. Dispatch based on fname (just StarV, Closure, Link for now)
     if (fname === "StarV") {
 	// TODO: lookup fnArgs / call recursively
 	let argObj = findMesh(fnArgs[0], json, objs);
 	res = doStar(fnCall, mappings, argObj);
     } else if (fname === "Closure") {
-	let argObj = findSubset(fnArgs[0], objs);
-	if (!argObj) {
-	    console.log("argument", fnArgs[0], "to closure not found");
-	}
+	let argObj = objs[fnArgs[0]];
+	if (!argObj) { console.log("argument", fnArgs[0], "to closure not found"); }
 	res = doClosure(fnCall, mappings, argObj);
     } else if (fname === "Link") {
 	// TODO
     }
 
-    if (res) { objs.push(res); }
+    if (res) { objs[bindVar] = res; }
 
-    return objs;
+    return objs; // returns the whole updated map. but maybe it shouldn't return anything?
 }
 
 function makeSub(json) {
@@ -445,59 +437,33 @@ function makeSub(json) {
     let subPreds = json.constraints.predicates;
     let subFnCalls = json.constraints.functions;
 
-    let objs = subDecls.map(decl => makeObj(decl))
+    let objs_flat = subDecls.map(decl => makeObj(decl))
 	.filter(o => o !== undefined);
+
+    let objs = [];
+    for (let obj of objs_flat) {
+	objs[obj.name] = obj; // Convert to a key-value store
+    }
 
     // Deal with statements that select a subpart of a whole (TODO: currently just a vertex of an SC)
     let mappings = makeNameMappings(json, objs);
 
-    let fnObjs = subFnCalls.reduce((objs_acc, fnCall) => doFnCall(json, objs_acc, mappings, fnCall), 
+    // Merge key-value pairs
+    const objsWithMappings = Object.assign(objs, mappings.sub2plugin);
+    console.log("objs with mappings", objsWithMappings);
+
+    // Fold over the function calls, updating objs whenever new ones are made, and recursively performing function calls to make any objs that haven't been made
+    let finalObjs = subFnCalls.reduce((objs_acc, fnCall) => doFnCall(json, objs_acc, mappings, fnCall), 
 				   objs);
 
+    let objs_flat_final = [];
+    for (var objName in finalObjs) { // Convert from key-value store back to flat list of objects
+	objs_flat_final.push(finalObjs[objName]);
+    }
+    
     // Output Substance code
-    let allObjs = _.concat(objs, fnObjs);
-    let lines = _.flatten(allObjs.map(o => makeProg(mappings, o)));
-    let subProgStr = lines.join(newline);
-
-    return subProgStr;
-}
-
-// Temporary version of makeSub
-function makeSubInit(json) {
-    /* How this plugin handles Substance programs:
-       - Make a new simplicial complex for every SComplex declaration
-       - Names declared vertices, edges, faces according to what they are in (TODO work this out)
-       - Performs star, closure, and link functions, naming them correctly (TODO work this out)
-       - Ignores all other Substance statements (for now) */
-
-    // Given all the objects made, output the Substance lines for each of them
-
-    // We only construct simplicial complexes. Objects are named according to the SC they belong to
-    let scObjects = json.objects
-	.filter(o => o.objType === 'SComplex')
-	.map(o => makeSComplex(o.objName));
-    console.log("complexes", scObjects);
-
-    // Deal with statements that select a subpart of a whole (currently just a vertex of an SC)
-    let mappings = makeNameMappings(json, scObjects);
-
-    // TODO: deal w/ star being called arbitrary # times
-    // Perhaps this should be done recursively?
-    let starObjects = json.constraints.functions
-	.filter(o => o.fname === 'StarV')
-        .map(o => doStar(o, mappings, findMesh(o.fargNames[0], json, scObjects)));
-    console.log("stars", starObjects);
-
-    let clObjects = json.constraints.functions
-	.filter(o => o.fname === 'Closure')
-        .map(o => doClosure(o, mappings, findSubset(o.fargNames[0], starObjects)));
-    // TODO: factor out findMesh / findSubset
-    console.log("cls", clObjects);
-
-    // Generate Substance programs for all objs
-    // TODO: use consistent fp style
-    let objs = _.concat(scObjects, starObjects, clObjects);
-    let lines = _.flatten(objs.map(o => makeProg(mappings, o)));
+    console.log("final objs:", finalObjs, objs_flat_final);
+    let lines = _.flatten(objs_flat_final.map(o => makeProg(mappings, o)));
     let subProgStr = lines.join(newline);
 
     return subProgStr;
