@@ -34,7 +34,8 @@ operator StarV(v : Vertex) : SSubset
 -- operator StarV(v : Vertex, c : SComplex) : SSubset
 operator Closure(s : SSubset) : Subcomplex
 operator Link(s : SSubset) : SSubset
-operator Boundary(s : SSubset) : SSubset
+operator LinkV(v : Vertex) : SSubset
+operator Boundary(s : SComplex) : SSubset
 operator Coboundary(s : SSubset) : SSubset
 operator ToSComplex(s : SSubset) : SComplex -- Type conversion?
 -- Computing homology? A collection of faces?

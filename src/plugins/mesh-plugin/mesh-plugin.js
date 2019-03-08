@@ -86,30 +86,10 @@ function makeSComplex(cname) {
     // Construct a simplicial complex for a mesh 
     let SCO = new SC.SimplicialComplexOperators(mesh);
 
-    // Build mappings from Penrose name to mesh index (not really needed since each name includes its index...)
-    /* let penrose_to_mesh = {};
-
-    // global_mesh = mesh; // TODO remove
-
-    // Map names to indices
-    for (let v of mesh.vertices) {
-	// TODO document these conventions
-	penrose_to_mesh[objName(cname, vtype, v.index)] = v.index;
-    }
-
-    for (let e of mesh.edges) {
-	penrose_to_mesh[objName(cname, etype, e.index)] = e.index;
-    }
-
-    for (let f of mesh.faces) {
-	penrose_to_mesh[objName(cname, ftype, f.index)] = f.index;
-    } */ // Doesn't seem to be needed
-
     return { type: 'SimplicialComplex',
 	     name: cname,
 	     mesh: mesh, 
 	     sc: SCO
-	     // mappings: penrose_to_mesh
 	   };
 }
 
@@ -128,8 +108,6 @@ function doStar(stmt, nameMappings, scObj) {
     selectedSimplices.addFaces([]);
 
     let star_sc = SCO.star(selectedSimplices);
-    // console.log("sc: ", SCO);
-    // console.log("sc star: ", star_sc);
 
     // Mesh subset object
     return { type: 'MeshSubset',
@@ -143,7 +121,6 @@ function doStar(stmt, nameMappings, scObj) {
 
 function doClosure(stmt, nameMappings, subsetObj) {
     let subcomplexName = stmt.varName;
-    let inputSubsetName = stmt.fargNames[0];
     let cname = subsetObj.scName;
     let SCO = subsetObj.sc;
 
@@ -161,7 +138,6 @@ function doClosure(stmt, nameMappings, subsetObj) {
 // TODO: factor out this boilerplace
 function doLink(stmt, subsetObj) {
     let subsetName = stmt.varName;
-    let inputSubsetName = stmt.fargNames[0];
     let cname = subsetObj.scName;
     let SCO = subsetObj.sc;
 
@@ -173,6 +149,47 @@ function doLink(stmt, subsetObj) {
 	     scName: cname,
 	     sc: SCO,
 	     meshSubset: link_ms 
+	   };
+}
+
+function doLinkV(stmt, nameMappings, scObj) {
+    let subsetName = stmt.varName;
+    console.log("do link v", scObj);
+
+    let cname = scObj.name;
+    let SCO = scObj.sc;
+
+    let vertexName = stmt.fargNames[0];
+    let vertexIndex = nameMappings.sub2plugin[vertexName].index;
+
+    let selectedSimplices = new MeshSubset();
+    selectedSimplices.addVertices([vertexIndex]);
+    selectedSimplices.addEdges([]);
+    selectedSimplices.addFaces([]);
+
+    let link_ms = SCO.link(selectedSimplices);
+
+    return { type: 'MeshSubset',
+	     name: subsetName,
+	     scName: cname,
+	     sc: SCO,
+	     meshSubset: link_ms 
+	   };
+}
+
+function doBoundary(stmt, nameMappings, subsetObj) {
+    let subcomplexName = stmt.varName;
+    let cname = subsetObj.scName;
+    let SCO = subsetObj.sc;
+
+    let meshSubset = subsetObj.meshSubset;
+    let boundary_ms = SCO.boundary(meshSubset);
+
+    return { type: 'MeshSubset',
+	     name: subcomplexName,
+	     scName: cname,
+	     sc: SCO,
+	     meshSubset: boundary_ms 
 	   };
 }
 
@@ -249,6 +266,7 @@ function scToSub(mappings, scObj) {
 }
 
 function subsetToSub(mappings, subsetWrapper) {
+    console.log("subset to sub", subsetWrapper);
     let cname = subsetWrapper.scName;
     let sname = subsetWrapper.name;
     let star_sc = subsetWrapper.meshSubset;
@@ -381,12 +399,6 @@ function makeObj(decl) {
     return res;
 }
 
-// function lookupObj(name, objs) {
-//     let res = objs.filter(o => o.name === name);
-//     if (res.length < 1) { return undefined; }
-//     return res[0]; // Assuming the same name isn't bound twice
-// }
-
 function lookupBoundvar(name, fnCalls) {
     let res = fnCalls.filter(o => o.varName === name);
     if (res.length < 1) { return undefined; }
@@ -424,18 +436,23 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	}
     }
 
-    // Do the fn call. Dispatch based on fname (just StarV, Closure, Link for now)
+    // Do the fn call based on the fn's name
+    // There's probably a more generic way to do this based on the Element type and geometry-processing.js types of the function
     if (fname === "StarV") {
-	// TODO: lookup fnArgs / call recursively
 	let argObj = findMesh(fnArgs[0], json, objs);
 	res = doStar(fnCall, mappings, argObj);
     } else if (fname === "Closure") {
 	let argObj = objs[fnArgs[0]];
 	res = doClosure(fnCall, mappings, argObj);
     } else if (fname === "Link") {
-	console.log("link");
 	let argObj = objs[fnArgs[0]];
 	res = doLink(fnCall, argObj);
+    } else if (fname === "LinkV") {
+	let argObj = findMesh(fnArgs[0], json, objs);
+	res = doLinkV(fnCall, mappings, argObj);
+    } else if (fname === "Boundary") { // Supposed to only operate on a SComplex; here we look for a mesh subset
+	let argObj = objs[fnArgs[0]];
+	res = doBoundary(fnCall, mappings, argObj);
     }
 
     if (res) { objs[bindVar] = res; }

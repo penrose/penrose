@@ -16,6 +16,9 @@ global {
 
     global.linkColor = Colors.blue
     global.linkColor2 = setOpacity(global.linkColor, 0.25)
+
+    global.boundaryColor = Colors.yellow
+    global.boundaryColor2 = setOpacity(global.boundaryColor, 0.25)
 }
 
 Colors {
@@ -119,7 +122,9 @@ with SComplex `K1` {
      -- Doesn't pass Style compiler yet
      -- v.test1 = ddg["hello"]["vertexPosition"]
      -- v.test2 = encourage near(v.shape, -100.0, ddg["hello"][v.label])
-     v.posFn = encourage near(v.shape, -global.spacing, 0.0)
+
+     -- v.posFn = encourage near(v.shape, -global.spacing, 0.0)
+     v.posFn = encourage center(v.shape)
 }
 
 Vertex v
@@ -170,18 +175,18 @@ with SSubset S; SComplex K; Vertex v {
       override f.shape.color = global.subsetColor2
 }
 
------------------- Things in a link
+------------------ Things in a link of a subset
 
 Vertex v
 where InVS(v, S2); S2 := Link(S1)
 with SSubset S2; SSubset S1 {
-      override v.shape.color = global.linkS2olor
+      override v.shape.color = global.linkColor
 }
 
 Edge e
 where InES(e, S2); S2 := Link(S1)
 with SSubset S2; SSubset S1 {
-      override e.shape.color = global.linkS2olor
+      override e.shape.color = global.linkColor
 }
 
 Face f
@@ -189,6 +194,48 @@ where InFS(f, S2); S2 := Link(S1)
 with SSubset S2; SSubset S1 {
       override f.shape.fill = global.linkColor2
       override f.shape.color = global.linkColor2
+}
+
+------------------ Things in a link of a vertex
+
+Vertex v
+where InVS(v, S); S := LinkV(w)
+with SSubset S; Vertex w {
+      override v.shape.color = global.linkColor
+}
+
+Edge e
+where InES(e, S); S := LinkV(w)
+with SSubset S; Vertex w {
+      override e.shape.color = global.linkColor
+}
+
+Face f
+where InFS(f, S); S := LinkV(w)
+with SSubset S; Vertex w {
+      override f.shape.fill = global.linkColor2
+      override f.shape.color = global.linkColor2
+}
+
+------------------ Things in boundary of a subcomplex
+
+Vertex v
+where InVS(v, S); S := Boundary(C)
+with SSubset S; SComplex C {
+      override v.shape.color = global.boundaryColor
+}
+
+Edge e
+where InES(e, S); S := Boundary(C)
+with SSubset S; SComplex C {
+      override e.shape.color = global.boundaryColor
+}
+
+Face f
+where InFS(f, S); S := Boundary(C)
+with SSubset S; SComplex C {
+      override f.shape.fill = global.boundaryColor2
+      override f.shape.color = global.boundaryColor2
 }
 
 ------------------- Selected things

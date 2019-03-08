@@ -34,6 +34,10 @@ S1 := StarV(i)
 Subcomplex A
 A := Closure(S1)
 
+SSubset S4
+IsSubsetOf(S4, K1)
+S4 := Boundary(A)
+
 SelectedV(i)
 
 -------
@@ -42,13 +46,15 @@ SComplex K2
 Vertex j
 InVS(j, K2)
 
+SelectedV(j)
+
 SSubset S2
 IsSubsetOf(S2, K2)
 S2 := StarV(j)
 
 SSubset S3
 IsSubsetOf(S3, K2)
-S3 := Link(S2)
+S3 := LinkV(j)
 
 AutoLabel All
 
