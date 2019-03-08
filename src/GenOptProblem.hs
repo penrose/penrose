@@ -589,6 +589,7 @@ evalExpr (i, n) arg trans varyMap g =
             ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
             ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
             AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
+            PluginAccess _ _ _ -> error "plugin access should not be evaluated at runtime"
             -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
 
 -- Any evaluated exprs are cached in the translation for future evaluation
@@ -861,7 +862,7 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals = do
    forM_ subss pPrint
    divLine
 
-   let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap
+   let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals
                        :: Either [Error] (Translation Float)
                        -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
                        -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated

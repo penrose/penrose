@@ -34,6 +34,7 @@ import Debug.Trace
 import qualified Substance as C
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
+import SubstanceJSON as J
 import Data.Dynamic
 import Data.Typeable
 import Env
@@ -850,6 +851,8 @@ substituteBlockExpr lv subst expr =
     AFloat _          -> expr
     StringLit _       -> expr
     BoolLit _         -> expr
+    -- TODO: check if this is right
+    PluginAccess pluginName e1 e2 -> PluginAccess pluginName (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
 
 substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
@@ -1324,8 +1327,9 @@ insertLabels trans labels =
         toFieldStr :: Eq a => String -> FieldExpr a
         toFieldStr s = FExpr $ Done $ StrV s
 
-        insertLabel :: Eq a => Name -> M.Map Field (FieldExpr a) -> M.Map Field (FieldExpr a)
-        insertLabel (Sub s) fieldDict = let labelField = "label" in
+        insertLabel :: Eq a => Name -> FieldDict a -> FieldDict a
+        insertLabel (Sub s) fieldDict = 
+            let labelField = "label" in
             case M.lookup s labels of
                 Nothing ->  fieldDict
                 -- NOTE: maybe this is a "namespace," so we pass through
@@ -1349,16 +1353,30 @@ insertLabels trans labels =
                                       Just expr -> expr == labelForm
                       in shapeType == "Text" && usesLabel
 
+-- For any Substance object (say one called "K1"), insert the field mapping `K1.name = "K1"` which will be accessible from Style.
+-- This is generally for plugin accessors to use in Style, so they can access the right field of the Style values returned by a plugin.
+insertNames :: (Autofloat a, Eq a) => Translation a -> Translation a
+insertNames trans = trans { trMap = M.mapWithKey insertName $ trMap trans }
+            where insertName :: Name -> FieldDict a -> FieldDict a -- I guess we don't need to insert names for namespaces
+                  insertName (Sub name) fieldDict = 
+                             let nameField = "name" in
+                             M.insert nameField (FExpr $ Done $ StrV name) fieldDict
+                  insertName (Gen _) fieldDict = fieldDict
+                          
+
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
 translateStyProg :: forall a . (Autofloat a) =>
-    VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> C.LabelMap ->
+    VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> C.LabelMap -> [J.StyVal] ->
     Either [Error] (Translation a)
-translateStyProg varEnv subEnv subProg styProg labelMap =
+translateStyProg varEnv subEnv subProg styProg labelMap styVals =
     let numberedProg = zip styProg [0..] in -- For creating unique local var names
     case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
-        Right trans -> trace "translateStyProg: " $ Right $ insertLabels trans labelMap
+        Right trans -> 
+              let transWithNames = insertNames trans
+                  transWithNamesAndLabels = insertLabels transWithNames labelMap in
+              trace "translateStyProg: " $ Right transWithNamesAndLabels
         Left errors -> Left errors
 
 --------------------------------------------------------------------------------

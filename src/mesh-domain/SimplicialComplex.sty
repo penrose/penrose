@@ -120,8 +120,9 @@ where InVS(v, `K1`)
 with SComplex `K1` {
      -- TODO: Testing plugin accessors
      -- Doesn't pass Style compiler yet
-     -- v.test1 = ddg["hello"]["vertexPosition"]
-     -- v.test2 = encourage near(v.shape, -100.0, ddg["hello"][v.label])
+     v.test0 = v.name
+     v.test1 = ddg[v.name]["vertexPosition"]
+     v.test2 = encourage near(v.shape, -100.0, ddg[v.name][v.label])
 
      v.posFn = encourage near(v.shape, -global.spacing, 0.0)
      -- v.posFn = encourage center(v.shape)

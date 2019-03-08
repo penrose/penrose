@@ -122,6 +122,8 @@ penroseRenderer subFile styFile dsllFile domain port = do
 -- (extracted via unsafePerformIO)
 -- Very similar to shadowMain but does not depend on rendering  so it does not return SVG
 -- TODO take initRng seed as argument
+-- TODO: port to use plugin architecture
+{-
 mainRetInit :: String -> String -> String -> IO (Maybe G.State)
 mainRetInit subFile styFile dsllFile = do
     subIn <- readFile subFile
@@ -136,6 +138,7 @@ mainRetInit subFile styFile dsllFile = do
                         :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
     let initState = G.genOptProblemAndState (fromRight trans)
     return $ Just initState
+-}
 
 stepsWithoutServer :: G.State -> G.State
 stepsWithoutServer initState =
