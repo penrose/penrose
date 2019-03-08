@@ -13,6 +13,9 @@ global {
 
     global.closureColor = Colors.green
     global.closureColor2 = setOpacity(global.closureColor, 0.25)
+
+    global.linkColor = Colors.blue
+    global.linkColor2 = setOpacity(global.linkColor, 0.25)
 }
 
 Colors {
@@ -165,6 +168,27 @@ where InFS(f, S); S := StarV(v); IsSubsetOf(S, K)
 with SSubset S; SComplex K; Vertex v {
       override f.shape.fill = global.subsetColor2
       override f.shape.color = global.subsetColor2
+}
+
+------------------ Things in a link
+
+Vertex v
+where InVS(v, S2); S2 := Link(S1)
+with SSubset S2; SSubset S1 {
+      override v.shape.color = global.linkS2olor
+}
+
+Edge e
+where InES(e, S2); S2 := Link(S1)
+with SSubset S2; SSubset S1 {
+      override e.shape.color = global.linkS2olor
+}
+
+Face f
+where InFS(f, S2); S2 := Link(S1)
+with SSubset S2; SSubset S1 {
+      override f.shape.fill = global.linkColor2
+      override f.shape.color = global.linkColor2
 }
 
 ------------------- Selected things

@@ -158,6 +158,24 @@ function doClosure(stmt, nameMappings, subsetObj) {
 	   };
 }
 
+// TODO: factor out this boilerplace
+function doLink(stmt, subsetObj) {
+    let subsetName = stmt.varName;
+    let inputSubsetName = stmt.fargNames[0];
+    let cname = subsetObj.scName;
+    let SCO = subsetObj.sc;
+
+    let meshSubset = subsetObj.meshSubset;
+    let link_ms = SCO.link(meshSubset);
+
+    return { type: 'MeshSubset',
+	     name: subsetName,
+	     scName: cname,
+	     sc: SCO,
+	     meshSubset: link_ms 
+	   };
+}
+
 // Return the Substance programs
 function scToSub(mappings, scObj) {
     let mesh = scObj.mesh;
@@ -413,10 +431,11 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	res = doStar(fnCall, mappings, argObj);
     } else if (fname === "Closure") {
 	let argObj = objs[fnArgs[0]];
-	if (!argObj) { console.log("argument", fnArgs[0], "to closure not found"); }
 	res = doClosure(fnCall, mappings, argObj);
     } else if (fname === "Link") {
-	// TODO
+	console.log("link");
+	let argObj = objs[fnArgs[0]];
+	res = doLink(fnCall, argObj);
     }
 
     if (res) { objs[bindVar] = res; }
@@ -486,4 +505,4 @@ function main() {
 
 main();
 
-module.exports = {main, makeSub, makeSubInit, global_mesh};
+module.exports = {main, makeSub, global_mesh};

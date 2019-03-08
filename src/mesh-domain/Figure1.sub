@@ -46,6 +46,10 @@ SSubset S2
 IsSubsetOf(S2, K2)
 S2 := StarV(j)
 
+SSubset S3
+IsSubsetOf(S3, K2)
+S3 := Link(S2)
+
 AutoLabel All
 
 ------------------------
