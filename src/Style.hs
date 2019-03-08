@@ -1375,9 +1375,24 @@ translateStyProg varEnv subEnv subProg styProg labelMap styVals =
     case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
         Right trans -> 
               let transWithNames = insertNames trans
-                  transWithNamesAndLabels = insertLabels transWithNames labelMap in
-              trace "translateStyProg: " $ Right transWithNamesAndLabels
+                  transWithNamesAndLabels = insertLabels transWithNames labelMap 
+                  styValMap = styJsonToMap styVals
+              in trace "translateStyProg: " $ Right transWithNamesAndLabels
         Left errors -> Left errors
+
+---------- Plugin accessors
+
+type SubObjName = String
+type PropertyName = String
+type StyValMap a = M.Map SubObjName (M.Map PropertyName a)
+
+styJsonToMap :: (Autofloat a) => [J.StyVal] -> StyValMap a
+styJsonToMap vals = 
+             M.fromList (map (\v -> (subName v, 
+                                     M.fromList (map (\w -> (propertyName w, 
+                                                             r2f $ propertyVal w)) 
+                                                    (nameVals v)))) 
+                             vals)
 
 --------------------------------------------------------------------------------
 -- Debugging
