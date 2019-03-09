@@ -257,19 +257,6 @@ lookupPropertyWithVarying bvar field property trans varyMap =
     Just varyVal -> {-trace "property lookup was vary" $ -} varyVal
     Nothing -> {- trace "property lookup was not vary" $ -} lookupProperty bvar field property trans
 
--- TODO move lookups to utils
-lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldExpr a
-lookupField bvar field trans =
-    let name = trName bvar in
-    let trn = trMap trans in
-    case M.lookup name trn of
-    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans")
-               -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
-    Just fieldDict ->
-         case M.lookup field fieldDict of
-         Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
-         Just fexpr -> fexpr
-
 lookupProperty :: (Autofloat a) => BindingForm -> Field -> Property -> Translation a -> TagExpr a
 lookupProperty bvar field property trans =
     let name = trName bvar in

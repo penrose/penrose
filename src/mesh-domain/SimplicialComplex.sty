@@ -44,7 +44,11 @@ Colors {
 }
 
 Vertex v {
+       v.val = OPTIMIZED -- TODO: just so we have some variables optimized, otherwise genOptProblem complains
+
        v.shape = Circle { 
+         x = ddg[v.name]["x"]
+	 y = ddg[v.name]["y"]
          r = 6.0
 	 color = Colors.black	 
 	 strokeWidth = 0.0
@@ -119,10 +123,12 @@ Vertex v
 where InVS(v, `K1`) 
 with SComplex `K1` {
      -- TODO: Testing plugin accessors
-     -- Doesn't pass Style compiler yet
-     v.test0 = v.name
-     v.test1 = ddg[v.name]["vertexPosition"]
-     v.test2 = encourage near(v.shape, -100.0, ddg[v.name][v.label])
+     -- v.test0 = v.name
+     -- v.test1 = ddg[v.name]["x"]
+     -- v.test2 = encourage near(v.shape, -100.0, ddg[v.name]["y"])
+     -- v.test3 = Circle {
+     -- 	     r = ddg[v.name]["x"]
+     -- }
 
      v.posFn = encourage near(v.shape, -global.spacing, 0.0)
      -- v.posFn = encourage center(v.shape)

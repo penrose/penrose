@@ -462,26 +462,29 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 }
 
 // Make the values for style, using just the object map made while processing the Substance program
-function makeSty(objs) {
+function makeSty(objs, plugin2sub) {
     // Output the vertex positions of each mesh
     let scs = objs.filter(o => o.type === "SimplicialComplex");
-    // console.log("v pos", scs.map(o => o.geometry.positions));
+    let scale_factor = 50; // TODO revert this
+    let offset = 0; // TODO revert this
 
     let vals = [];
     for (let sc of scs) {
 	let mesh = sc.mesh;
 	let cname = sc.name;
 	let positions = sc.geometry.positions;
+	if (cname === "K1") { offset = -200.0; }
+	else if (cname === "K2") { offset = 10.0; }
 
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
-	    let vname = objName(cname, vtype, vi);
+	    let vname = substitute(plugin2sub, objName(cname, vtype, vi));
 	    let vpos = positions[vi]; // Vector object, throw away z pos
 
 	    let pos_json_x = { propertyName: "x",
-			       propertyVal: vpos.x };
+			       propertyVal: scale_factor * vpos.x + offset };
 	    let pos_json_y = { propertyName: "y",
-			       propertyVal: vpos.y };
+			       propertyVal: scale_factor * vpos.y + offset };
 	    let local_positions = [pos_json_x, pos_json_y];
 
 	    let local_json = {};
@@ -537,16 +540,17 @@ function makeSub(json) {
     let subProgStr = lines.join(newline);
 
     return { objs: objs_flat,
-	     subProgStr: subProgStr 
+	     subProgStr: subProgStr,
+	     plugin2sub: mappings.plugin2sub
 	   };
 }
 
 function makeSubAndValues(json) {
     let res = makeSub(json);
-    let [objs, subProgStr] = [res.objs, res.subProgStr];
+    let [objs, subProgStr, plugin2sub] = [res.objs, res.subProgStr, res.plugin2sub];
 
     return { newSub: subProgStr,
-	     styVals: makeSty(objs)
+	     styVals: makeSty(objs, plugin2sub)
 	   };
 
 }

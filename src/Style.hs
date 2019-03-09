@@ -204,7 +204,7 @@ data Expr
     | UOp UnaryOp Expr
     | List [Expr]
     | ListAccess Path Integer
-    | Ctor String [PropertyDecl]
+    | Ctor String [PropertyDecl] -- Shouldn't be using this, since we have PropertyDict
     | Layering Path Path -- ^ first GPI is *below* the second GPI
     | PluginAccess String Expr Expr -- ^ Plugin name, Substance name, Key
     deriving (Show, Eq, Typeable)
@@ -1363,6 +1363,75 @@ insertNames trans = trans { trMap = M.mapWithKey insertName $ trMap trans }
                              M.insert nameField (FExpr $ Done $ StrV name) fieldDict
                   insertName (Gen _) fieldDict = fieldDict
                           
+{- Find plugin accessor expressions
+Evaluates a plugin accessor’s subexpressions (the primary and secondary key)
+  Static evaluate: look up value in translation (perform compile-time computations)
+  Check their types (both need to be strings)
+Look up the result in the plugin’s JSON output
+Store it in the translation in place of the accessor, as a finished float -}
+     
+evalPluginAccess :: (Autofloat a) => StyValMap a -> Translation a -> Translation a
+evalPluginAccess valMap trans = 
+                 trans { trMap = M.mapWithKey (evalFieldAccesses valMap) $ trMap trans }
+
+            where evalFieldAccesses :: (Autofloat a) => StyValMap a -> Name -> FieldDict a -> FieldDict a
+                  evalFieldAccesses vmap (Sub name) fieldDict = 
+                       M.mapWithKey (evalFieldAccess vmap) fieldDict
+                  evalFieldAccesses vmap (Gen _) fieldDict = fieldDict
+
+                  evalFieldAccess :: (Autofloat a) => StyValMap a -> Field -> FieldExpr a -> FieldExpr a
+                  evalFieldAccess vmap field (FExpr te) = FExpr $ evalTExpr vmap te
+                  evalFieldAccess vmap field (FGPI stype properties) =
+                      let properties' = M.mapWithKey (evalPropertyAccess vmap) properties in
+                      FGPI stype properties'
+                  
+                  evalPropertyAccess :: (Autofloat a) => StyValMap a -> Property -> TagExpr a -> TagExpr a
+                  evalPropertyAccess vmap property te = evalTExpr vmap te
+
+                  evalTExpr :: (Autofloat a) => StyValMap a -> TagExpr a -> TagExpr a
+                  evalTExpr vmap val@(Done _) = val
+                  evalTExpr vmap (OptEval e) = OptEval $ evalPluginExpr vmap e
+                  -- TODO: check if the result was a string, and if so, make it a done value?
+
+                  evalPluginExpr :: (Autofloat a) => StyValMap a -> Expr -> Expr
+                  -- Do work
+                  evalPluginExpr vmap (PluginAccess p e1 e2) = 
+                      -- TODO: actually check/use the plugin string
+                      -- just use the trans in the context for now, TODO: fix to pass it around?
+                      -- or remove the vmap from the context
+                      let e1' = evalStatic e1 
+                          e2' = evalStatic e2
+                          res = lookupStyVal e1' e2' vmap
+                      in AFloat $ Fix $ r2f res
+
+                  -- Look for work to do (might involve strings)
+                  evalPluginExpr vmap (CompApp s es) = CompApp s $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (ObjFn s es) = ObjFn s $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (ConstrFn s es) = ConstrFn s $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (AvoidFn s es) = AvoidFn s $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (BinOp o e1 e2) = BinOp o (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (UOp o e) = UOp o $ evalPluginExpr vmap e
+                  evalPluginExpr vmap (List es) = List $ map (evalPluginExpr vmap) es
+
+                  -- Leaves (no strings should be involved)
+                  evalPluginExpr _ e@(IntLit _) = e
+                  evalPluginExpr _ e@(AFloat _) = e
+                  evalPluginExpr _ e@(StringLit _) = e
+                  evalPluginExpr _ e@(BoolLit _) = e
+                  evalPluginExpr _ e@(EPath _) = e
+                  evalPluginExpr _ e@(ListAccess _ _) = e
+                  evalPluginExpr _ e@(Ctor _ _) = e
+                  evalPluginExpr _ e@(Layering _ _) = e
+
+                  evalStatic :: Expr -> String
+                  evalStatic (StringLit s) = s
+                  evalStatic (EPath (FieldPath bvar field)) = 
+                    case lookupField bvar field trans of -- TODO: clean up lookupField location
+                    FExpr (OptEval (StringLit s)) -> s
+                    FExpr (Done (StrV s)) -> s
+                    _ -> error "expected string for plugin accessor key; after looking up field, didn't get string"
+                  evalStatic (EPath (PropertyPath (BSubVar v) field property)) = error "plugin TODO"
+                  evalStatic e = error "expected string or path expression for plugin accessor key; did not get a string"
 
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
@@ -1377,7 +1446,8 @@ translateStyProg varEnv subEnv subProg styProg labelMap styVals =
               let transWithNames = insertNames trans
                   transWithNamesAndLabels = insertLabels transWithNames labelMap 
                   styValMap = styJsonToMap styVals
-              in trace "translateStyProg: " $ Right transWithNamesAndLabels
+                  transWithPlugins = evalPluginAccess styValMap transWithNamesAndLabels
+              in trace "translateStyProg: " $ Right transWithPlugins
         Left errors -> Left errors
 
 ---------- Plugin accessors
@@ -1393,6 +1463,29 @@ styJsonToMap vals =
                                                              r2f $ propertyVal w)) 
                                                     (nameVals v)))) 
                              vals)
+
+-- TODO move lookups to utils
+lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldExpr a
+lookupField bvar field trans =
+    let name = trName bvar in
+    let trn = trMap trans in
+    case M.lookup name trn of
+    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans")
+               -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
+    Just fieldDict ->
+         case M.lookup field fieldDict of
+         Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
+         Just fexpr -> fexpr
+
+lookupStyVal :: (Autofloat a) => String -> String -> StyValMap a -> a
+lookupStyVal subName propName vmap =
+    case M.lookup subName vmap of
+    Nothing -> error ("plugin accessors in style: for access " ++ toAccess subName propName ++ ", primary key does not exist")
+    Just propDict ->
+         case M.lookup propName propDict of
+         Nothing -> error ("plugin accessors in style: for access " ++ toAccess subName propName ++ ", property does not exist")
+         Just val -> val
+    where toAccess s1 s2 = s1 ++ "." ++ s2
 
 --------------------------------------------------------------------------------
 -- Debugging
