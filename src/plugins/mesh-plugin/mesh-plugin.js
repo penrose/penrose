@@ -49,7 +49,7 @@ function inSubset(objType, oname, sname) {
     return "In" + tstr(objType) + "S(" + oname + ", " + sname + ")";
 }
 
-function mkE(ename, cname, vname1, vname2) {
+function mkE(ename, vname1, vname2) {
     return ename + " := MkEdge(" + vname1 + ", " + vname2 + ")";
 }
 
@@ -236,13 +236,16 @@ function scToSub(mappings, scObj) {
 
     // Build connectivity info for edges and faces
     // Substitute any renamed objects, if they exist
-    for (let v of mesh.vertices) {
-	let vname = substitute(plugin2sub, objName(cname, vtype, v.index));
+    for (let e of mesh.edges) {
+	let h = e.halfedge;
+	let v1 = h.vertex;
+	let v2 = h.twin.vertex;
 
-	for (let e of v.adjacentEdges()) {
-	    let ename = objName(cname, etype, e.index);
-	    prog.push(inVE(vname, ename)); // TODO use mkE
-	}
+	let ename = objName(cname, etype, e.index);
+	let vname1 = substitute(plugin2sub, objName(cname, vtype, v1.index));
+	let vname2 = substitute(plugin2sub, objName(cname, vtype, v2.index));
+	
+	prog.push(mkE(ename, vname1, vname2));
     }
 
     // TODO: check what faces should be in the star
@@ -465,16 +468,12 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 function makeSty(objs, plugin2sub) {
     // Output the vertex positions of each mesh
     let scs = objs.filter(o => o.type === "SimplicialComplex");
-    let scale_factor = 50; // TODO revert this
-    let offset = 0; // TODO revert this
 
     let vals = [];
     for (let sc of scs) {
 	let mesh = sc.mesh;
 	let cname = sc.name;
 	let positions = sc.geometry.positions;
-	if (cname === "K1") { offset = -200.0; }
-	else if (cname === "K2") { offset = 10.0; }
 
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
@@ -482,9 +481,9 @@ function makeSty(objs, plugin2sub) {
 	    let vpos = positions[vi]; // Vector object, throw away z pos
 
 	    let pos_json_x = { propertyName: "x",
-			       propertyVal: scale_factor * vpos.x + offset };
+			       propertyVal: vpos.x };
 	    let pos_json_y = { propertyName: "y",
-			       propertyVal: scale_factor * vpos.y + offset };
+			       propertyVal: vpos.y };
 	    let local_positions = [pos_json_x, pos_json_y];
 
 	    let local_json = {};

@@ -19,6 +19,10 @@ global {
 
     global.boundaryColor = Colors.yellow
     global.boundaryColor2 = setOpacity(global.boundaryColor, 0.25)
+
+    -- For conversion from math space to screen space
+    global.scaleFactor = 30.0
+    global.offset = 150.0
 }
 
 Colors {
@@ -45,12 +49,13 @@ Colors {
 
 Vertex v {
        v.val = OPTIMIZED -- TODO: just so we have some variables optimized, otherwise genOptProblem complains
+       v.xpos = ddg[v.name]["x"] * global.scaleFactor
 
        v.shape = Circle { 
-         x = ddg[v.name]["x"]
-	 y = ddg[v.name]["y"]
-         r = 6.0
-	 color = Colors.black	 
+         x = v.xpos -- avoid "x <- f(x)" in override
+	 y = ddg[v.name]["y"] * global.scaleFactor
+         r = 7.0
+	 color = setOpacity(Colors.black, 0.25)
 	 strokeWidth = 0.0
        }
 
@@ -66,19 +71,16 @@ Vertex v {
        -- v.posFn = encourage center(v.shape)
 }
 
--- Is this going to match too many times?
--- It'll match once for (e, v1, v2) and again for (e, v2, v1), because it's not ordered, as opposed to e := MkEdge(v1, v2), which can only match once
 Edge e
-where InVE(v1, e); InVE(v2, e)
--- where e := Mkedge(v1, v2)
+where e := MkEdge(v1, v2)
 with Vertex v1; Vertex v2 {
      e.shape = Line { 
      	     startX = v1.shape.x
      	     startY = v1.shape.y
      	     endX = v2.shape.x
      	     endY = v2.shape.y
-	     color = Colors.black
-	     thickness = 3.0
+	     color = setOpacity(Colors.black, 0.25)
+	     thickness = 5.0
      }
 
      -- e.text = Text {
@@ -100,8 +102,8 @@ with Edge e1; Edge e2; Edge e3 {
      f.shape = Curve { 
      	     pathData = triangle(e1.shape, e2.shape, e3.shape)
 	     strokeWidth = 0.0
-	     fill = Colors.none
-	     color = Colors.none
+	     fill = global.selectedColor2
+	     color = global.selectedColor2
 	     rotation = 0.0
      }
 
@@ -130,14 +132,17 @@ with SComplex `K1` {
      -- 	     r = ddg[v.name]["x"]
      -- }
 
-     v.posFn = encourage near(v.shape, -global.spacing, 0.0)
+     override v.shape.x = v.xpos - global.offset
+
+     -- v.posFn = encourage near(v.shape, -global.spacing, 0.0)
      -- v.posFn = encourage center(v.shape)
 }
 
 Vertex v
 where InVS(v, `K2`) 
 with SComplex `K2` {
-     v.posFn = encourage near(v.shape, global.spacing, 0.0)
+     override v.shape.x = v.xpos + global.offset
+     -- v.posFn = encourage near(v.shape, global.spacing, 0.0)
 }
 
 ------------------ Things in a closure

@@ -12,3 +12,11 @@ f 4 1 5
 `;
 
 module.exports = square
+// l 1 2
+// l 2 3
+// l 3 4
+// l 4 5
+// l 1 5
+// l 5 3
+// l 2 5
+// l 5 4
