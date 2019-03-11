@@ -356,7 +356,6 @@ expr = tryChoice [
            objFn,
            constrFn,
            layeringExpr,
-           pluginAccess,
            arithmeticExpr,
            compFn,
            list,
@@ -379,6 +378,7 @@ aTerm :: Parser Expr
 aTerm = tryChoice
     [
         compFn,
+        pluginAccess,
         parens arithmeticExpr,
         AFloat <$> annotatedFloat,
         EPath  <$> path,
