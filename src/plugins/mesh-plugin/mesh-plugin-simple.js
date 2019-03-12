@@ -18,6 +18,9 @@ const SC = require('./geometry-processing-js/node/projects/simplicial-complex-op
 // const DiskMesh = require('./geometry-processing-js/input/small_disk.js');
 const TetraMesh = require('./input/tetrahedron.js');
 const SquareMesh = require('./input/square.js');
+const TriangleMesh = require('./input/triangle.js');
+
+const mesh_to_use = TriangleMesh;
 
 global_mesh = undefined;
 newline = "\n";
@@ -78,7 +81,7 @@ function makeSComplex(cname) {
     // TODO: make a simple random mesh, not a constant one
     // Tetrahedron has vertices indexed from 0-3 (inclusive), edges 0-5, faces 0-3
     // Maybe I should draw a 2D mesh
-    let polygonSoup = MeshIO.readOBJ(SquareMesh);
+    let polygonSoup = MeshIO.readOBJ(mesh_to_use);
     let mesh = new Mesh.Mesh();
     mesh.build(polygonSoup);
     let geometry = new Geometry.Geometry(mesh, polygonSoup["v"], false);
@@ -213,21 +216,21 @@ function scToSub(mappings, scObj) {
 
 	prog.push(decl(vtype, vname));
 	prog.push(inSubset(vtype, vname, cname));
-	prog.push(label(cname, vname, vtype, v.index));
+	// prog.push(label(cname, vname, vtype, v.index));
     }
 
     for (let e of mesh.edges) {
 	let ename = objName(cname, etype, e.index);
 
 	prog.push(decl(etype, ename));
-	prog.push(label(cname, ename, etype, e.index));
+	// prog.push(label(cname, ename, etype, e.index));
     }
 
     for (let f of mesh.faces) {
 	let fname = objName(cname, ftype, f.index);
 
 	prog.push(decl(ftype, fname));
-	prog.push(label(cname, fname, ftype, f.index));
+	// prog.push(label(cname, fname, ftype, f.index));
     }
 
     // TODO: does this work for things on the boundary?
@@ -239,6 +242,11 @@ function scToSub(mappings, scObj) {
 	let h = e.halfedge;
 	let v1 = h.vertex;
 	let v2 = h.twin.vertex;
+
+	console.log("----------------");
+	console.log("e", e);
+	console.log("v1", v1);
+	console.log("v2", v2);
 
 	let ename = objName(cname, etype, e.index);
 	let vname1 = objName(cname, vtype, v1.index);
@@ -424,11 +432,12 @@ function makeSty(objs, plugin2sub) {
 	let mesh = sc.mesh;
 	let cname = sc.name;
 	let positions = sc.geometry.positions;
+	console.log("positions", positions);
 
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
 	    let vname = substitute(plugin2sub, objName(cname, vtype, vi));
-	    let vpos = positions[vi]; // Vector object, throw away z pos
+	    let vpos = positions[v]; // Vector object, throw away z pos; access by string of index
 
 	    let pos_json_x = { propertyName: "x",
 			       propertyVal: vpos.x };
@@ -442,6 +451,8 @@ function makeSty(objs, plugin2sub) {
 	    vals.push(local_json);
 	}
     }
+
+    console.log("mesh vertices", scs[0].mesh.vertices);
 
     return JSON.stringify(vals);
 }

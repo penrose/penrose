@@ -102,6 +102,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
                                     [pluginName] -> do (newSubProg, styJSON) <- instantiateSub pluginName subOut
                                                        let fullSubProg = desugaredSub ++ "\n" ++ newSubProg
                                                        -- Do we really need subFileSugared? Doesn't seem to be needed above.
+                                                       -- error "stop for now"
                                                        newSubOut <- C.parseSubstance subFileSugared fullSubProg dsllEnv
                                                        putStrLn "new Substance program after plugin:" 
                                                        print newSubOut

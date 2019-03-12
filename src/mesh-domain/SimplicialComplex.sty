@@ -21,7 +21,7 @@ global {
     global.boundaryColor2 = setOpacity(global.boundaryColor, 0.25)
 
     -- For conversion from math space to screen space
-    global.scaleFactor = 30.0
+    global.scaleFactor = 80.0
     global.offset = 150.0
 }
 
@@ -48,7 +48,6 @@ Colors {
 }
 
 Vertex v {
-       v.val = OPTIMIZED -- TODO: just so we have some variables optimized, otherwise genOptProblem complains
        v.xpos = ddg[v.name]["x"] * global.scaleFactor
 
        v.shape = Circle { 
@@ -114,11 +113,13 @@ with Edge e1; Edge e2; Edge e3 {
      -- }
 }
 
+/*
 Vertex v; Vertex w
 where InVS(v, K); InVS(w, K)
 with SComplex K {
        LOCAL.repelFn = encourage repel(v.shape, w.shape, 10.0)
 }
+*/
 
 /*
 Vertex v
@@ -266,6 +267,13 @@ Face f
 where SelectedF(f) {
       override f.shape.fill = global.selectedColor2
       override f.shape.color = global.selectedColor2
+}
+
+-------------------
+
+SComplex K {
+       K.val = OPTIMIZED
+       -- TODO: just so we have some variables optimized, otherwise genOptProblem complains
 }
 
 /*
