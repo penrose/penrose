@@ -233,7 +233,8 @@ function scToSub(mappings, scObj) {
     // TODO: does this work for things on the boundary?
 
     // Build connectivity info for edges and faces
-    // Substitute any renamed objects, if they exist
+
+    // Find the two vertices for an edge
     for (let e of mesh.edges) {
 	let h = e.halfedge;
 	let v1 = h.vertex;
@@ -246,7 +247,7 @@ function scToSub(mappings, scObj) {
 	prog.push(mkE(ename, vname1, vname2));
     }
 
-    // TODO: check what faces should be in the star
+    // Find the three edges for a face
     for (let f of mesh.faces) {
 	let edges = [];
 
