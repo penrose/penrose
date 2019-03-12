@@ -119,6 +119,7 @@ const tex2svg = memoize(
       } else {
         resolve({ output: undefined, width: 0, height: 0 });
       }
+      wrapper.remove();
     })
 );
 export const collectLabels = async (allShapes: any[]) => {

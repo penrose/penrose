@@ -57,27 +57,100 @@ class Canvas extends React.Component<IProps, IState> {
     this.props.sendPacket(update(updatedShapes));
   };
 
-  public download = () => {
+  public download = async () => {
     const domnode = ReactDOM.findDOMNode(this);
     if (domnode !== null && domnode instanceof Element) {
-      domnode.setAttribute("width", this.canvasSize[0].toString());
-      domnode.setAttribute("height", this.canvasSize[1].toString());
-      const blob = new Blob([domnode.outerHTML], {
-        type: "image/svg+xml;charset=utf-8"
-      });
-      const url = URL.createObjectURL(blob);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = url;
-      downloadLink.download = "illustration.svg";
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      domnode.setAttribute("width", "100%");
-      domnode.setAttribute("height", "100%");
+      const exportingNode = domnode.cloneNode(true) as any;
+      exportingNode.setAttribute("width", this.canvasSize[0].toString());
+      exportingNode.setAttribute("height", this.canvasSize[1].toString());
+
+      const images = exportingNode.getElementsByTagName("image");
+      for (let i = images.length - 1; i >= 0; i--) {
+        const image = images[i];
+        const uri = image.getAttribute("href");
+        const response = await fetch(uri);
+        const contents = await response.text();
+        if (response.ok) {
+          const width = image.getAttribute("width");
+          const height = image.getAttribute("height");
+          const x = image.getAttribute("x");
+          const y = image.getAttribute("y");
+
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = contents;
+
+          const s = wrapper.getElementsByTagName("svg")[0];
+          s.setAttributeNS(null, "width", width);
+          s.setAttributeNS(null, "height", height);
+          const outer = s.outerHTML;
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          g.innerHTML = outer;
+          g.setAttributeNS(null, "transform", `translate(${x},${y})`);
+          // HACK: generate unique ids
+          const defs = g.getElementsByTagName("defs");
+          if (defs.length > 0) {
+            defs[0].querySelectorAll("*").forEach((node: any) => {
+              if (node.id !== "") {
+                const users = g.querySelectorAll(
+                  `[*|href="#${node.id}"]:not([href])`
+                );
+                users.forEach((user: any) => {
+                  const unique = `${i}-ns-${node.id}`;
+                  user.setAttributeNS(
+                    "http://www.w3.org/1999/xlink",
+                    "href",
+                    "#" + unique
+                  );
+                  node.setAttribute("id", unique);
+                });
+              }
+            });
+          }
+          image.insertAdjacentElement("beforebegin", g);
+          wrapper.remove();
+          image.remove();
+        } else {
+          Log.error(`Could not fetch ${uri}`);
+        }
+      }
+      return exportingNode.outerHTML;
     } else {
       Log.error("Could not find SVG domnode.");
+      return "";
     }
   };
+
+  public downloadSVG = async () => {
+    const content = await this.download();
+    const blob = new Blob([content], {
+      type: "image/svg+xml;charset=utf-8"
+    });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = "illustration.svg";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }
+
+  public downloadPDF = async () => {
+    const content = await this.download();
+    const frame = document.createElement("iframe");
+    document.body.appendChild(frame);
+    const pri = frame.contentWindow;
+    frame.setAttribute("style", "height: 100%; width: 100%; position: absolute");
+    if(content && pri) {
+      console.log('Printing pdf now...');
+      pri.document.open();
+      pri.document.write(content);
+      pri.document.close();
+      pri.focus();
+      pri.print();
+    }
+    frame.remove();
+  }
+
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     const component = componentMap[name];
     if (component === undefined) {
