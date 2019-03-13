@@ -34,6 +34,11 @@ function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;
 }
 
+// TODO: assumes all simplicial complices have name format [single character][numbers]
+function labelSC(cname) {
+    return "Label " + cname + " $" + cname[0] + "_{" + cname.substring(1) + "}$";
+}
+
 function label(cname, objName, objType, index) {
     return "Label " + objName
 	+ " $" + cname[0] + "_{" + cname.substring(1) + "} "
@@ -212,6 +217,9 @@ function scToSub(mappings, scObj) {
     let remappedNames = Object.keys(plugin2sub); // Any plugin names that have been bound in Substance by the end user, like K1_V2
 
     console.log("remapped names", remappedNames);
+
+    // SC names can't be remapped
+    prog.push(labelSC(cname));
 
     // Emit all declarations first, since objects need to be defined in Substance before they're referenced
     // TODO factor out V,E,F code and 3-tuple

@@ -21,7 +21,8 @@ global {
     global.boundaryColor2 = setOpacity(global.boundaryColor, 0.25)
 
     -- For conversion from math space to screen space
-    global.scaleFactor = 100.0
+    -- TODO: compute these more automatically
+    global.scaleFactor = 200.0
     global.offset = 150.0
 }
 
@@ -49,10 +50,11 @@ Colors {
 
 Vertex v {
        v.xpos = ddg[v.name]["x"] * global.scaleFactor
+       v.ypos = ddg[v.name]["y"] * global.scaleFactor
 
        v.shape = Circle { 
          x = v.xpos -- avoid "x <- f(x)" in override
-	 y = ddg[v.name]["y"] * global.scaleFactor
+	 y = v.ypos
          r = 7.0
 	 color = setOpacity(Colors.black, 0.25)
 	 strokeWidth = 0.0
@@ -120,7 +122,7 @@ with SComplex K {
        LOCAL.repelFn = encourage repel(v.shape, w.shape, 10.0)
 }
 */
-
+/*
 Vertex v
 where InVS(v, `K1`) 
 with SComplex `K1` {
@@ -143,7 +145,7 @@ where InVS(v, `K2`)
 with SComplex `K2` {
      override v.shape.x = v.xpos + global.offset
      -- v.posFn = encourage near(v.shape, global.spacing, 0.0)
-}
+} */
 
 ------------------ Things in a closure
 
@@ -270,22 +272,60 @@ where SelectedF(f) {
 
 -------------------
 
+-- TODO: this is going to match Subcomplex too... how to fix that?
 SComplex K {
-       K.val = OPTIMIZED
+       -- K.val = OPTIMIZED
        -- TODO: just so we have some variables optimized, otherwise genOptProblem complains
+
+       K.x_offset = OPTIMIZED
+       K.y_offset = OPTIMIZED
+
+       K.shape = Rectangle {
+       	       x = OPTIMIZED
+	       y = OPTIMIZED
+	       sizeX = 400.0
+	       sizeY = 400.0
+	       rotation = 0.0
+	       color = Colors.none
+	       strokeColor = Colors.black
+	       strokeWidth = 5.0
+       }
+
+       K.text = Text {
+	 -- x = midpointX(K.shape)
+	 -- y = midpointY(K.shape)
+	 string = K.label
+	 rotation = 0.0
+	 color = Colors.black
+       }
+
+       K.labelFn = encourage centerLabel(K.shape, K.text)
 }
 
-/*
-SimplicialSet S 
-{
-	-- label the closure
+-- Try to position the vertices to be inside the bbox
+Vertex v
+where InVS(v, K)
+with SComplex K {
+     override v.shape.x = v.xpos + K.x_offset
+     override v.shape.y = v.ypos + K.y_offset
+
+     v.inSCFn = ensure contains(v.shape, K.shape)
 }
 
-SimplicialComplex K
-with ?? -- Need to pull in a list of things?
-where In(v, K), In(f, K)
-{
-	-- draw a box around the simplicial complex and everything in it
-	-- label the box corner
+-- Label the closure of a star
+
+Subcomplex C
+where C := Closure(S); IsSubsetOf(S, K); S := StarV(v)
+with SSubset S; SComplex K; Vertex v {
+
+       C.text = Text {
+	 x = 0.0
+	 y = 0.0
+	 string = C.label
+	 rotation = 0.0
+	 color = Colors.black
+       }
+
 }
-*/
+
+-- TODO: for each face in the subcomplex... put the label near it? Not sure.

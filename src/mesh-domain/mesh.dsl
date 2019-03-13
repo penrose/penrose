@@ -19,9 +19,9 @@ tconstructor SComplex : type -- Mesh := SComplex(2)
 tconstructor Subcomplex : type -- (V, E, F) linked to a mesh
 
 SComplex <: SSubset
--- Is this possible?
 Subcomplex <: SSubset
-Subcomplex <: SComplex
+-- Subcomplex <: SComplex 
+-- TODO: Technically true, but messes up our Style program
 
 vconstructor MkEdge(v1 : Vertex, v2 : Vertex) : Edge
 vconstructor MkFace(e1 : Edge, e2 : Edge, e3 : Edge) : Face

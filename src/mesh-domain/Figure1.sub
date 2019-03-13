@@ -34,9 +34,9 @@ S1 := StarV(i)
 Subcomplex A
 A := Closure(S1)
 
-SSubset S4
-IsSubsetOf(S4, K1)
-S4 := Boundary(A)
+-- SSubset S4
+-- IsSubsetOf(S4, K1)
+-- S4 := Boundary(A)
 
 -------
 
@@ -53,6 +53,7 @@ IsSubsetOf(S3, K2)
 S3 := LinkV(j)
 
 AutoLabel All
+Label A $Cl(St(i))$
 
 ------------------------
 
