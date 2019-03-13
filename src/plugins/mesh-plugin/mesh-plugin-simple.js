@@ -21,7 +21,7 @@ const SquareMesh = require('./input/square.js');
 const TriangleMesh = require('./input/triangle.js');
 const TriangleMesh3 = require('./input/triangle-3.js');
 
-const mesh_to_use = TriangleMesh;
+const mesh_to_use = SquareMesh;
 
 global_mesh = undefined;
 newline = "\n";
@@ -85,10 +85,11 @@ function makeSComplex(cname) {
     let polygonSoup = MeshIO.readOBJ(mesh_to_use);
     let mesh = new Mesh.Mesh();
     mesh.build(polygonSoup);
+    // TODO get rid of this
     let geometry = new Geometry.Geometry(mesh, polygonSoup["v"], false);
 
     // Construct a simplicial complex for a mesh
-    // let SCO = new SC.SimplicialComplexOperators(mesh);
+    let SCO = new SC.SimplicialComplexOperators(mesh);
 
     global_mesh = { polygonSoup, mesh, geometry };
 
@@ -239,7 +240,11 @@ function makeSty(objs, plugin2sub) {
     for (let sc of scs) {
 	let mesh = sc.mesh;
 	let cname = sc.name;
-	let positions = sc.geometry.positions;
+
+	let polygonSoup = MeshIO.readOBJ(mesh_to_use);
+	let new_geometry = new Geometry.Geometry(mesh, polygonSoup["v"], false);
+
+	let positions = new_geometry.positions; // NOT sc.geometry
 	console.log("positions", positions);
 
 	for (let v of mesh.vertices) {
