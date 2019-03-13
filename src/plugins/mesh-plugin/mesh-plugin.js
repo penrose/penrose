@@ -19,8 +19,10 @@ const SC = require('./geometry-processing-js/node/projects/simplicial-complex-op
 const TetraMesh = require('./input/tetrahedron.js');
 const SquareMesh = require('./input/square.js');
 const TriangleMesh = require('./input/triangle.js');
+const GridMesh = require('./input/grid.js');
+const InnerMesh = require('./input/inner.js');
 
-const mesh_to_use = SquareMesh;
+const mesh_to_use = InnerMesh;
 
 const global_mesh = undefined;
 const newline = "\n";
