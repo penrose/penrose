@@ -9,7 +9,7 @@ import qualified Data.Map.Strict as M
 plugins :: M.Map String (String, String)
 plugins = M.fromList [
         ("haskell-test", ("plugins/haskell-instantiator", "./Main")),
-        ("ddgjs",        ("plugins/mesh-plugin", "node mesh-plugin-simple.js")),
+        ("ddgjs",        ("plugins/mesh-plugin", "node mesh-plugin.js")),
         ("alloy",        ("plugins/alloy", "java -cp \"*:.\" AlloyPlugin")),
         ("raytracing",   ("TODO: path", "TODO: command"))
        ]

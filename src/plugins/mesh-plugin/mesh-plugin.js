@@ -18,12 +18,15 @@ const SC = require('./geometry-processing-js/node/projects/simplicial-complex-op
 // const DiskMesh = require('./geometry-processing-js/input/small_disk.js');
 const TetraMesh = require('./input/tetrahedron.js');
 const SquareMesh = require('./input/square.js');
+const TriangleMesh = require('./input/triangle.js');
 
-global_mesh = undefined;
-newline = "\n";
-vtype = "Vertex";
-etype = "Edge";
-ftype = "Face";
+const mesh_to_use = SquareMesh;
+
+const global_mesh = undefined;
+const newline = "\n";
+const vtype = "Vertex";
+const etype = "Edge";
+const ftype = "Face";
 
 function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;
@@ -78,18 +81,22 @@ function makeSComplex(cname) {
     // TODO: make a simple random mesh, not a constant one
     // Tetrahedron has vertices indexed from 0-3 (inclusive), edges 0-5, faces 0-3
     // Maybe I should draw a 2D mesh
-    let polygonSoup = MeshIO.readOBJ(SquareMesh);
+    let polygonSoup = MeshIO.readOBJ(mesh_to_use);
     let mesh = new Mesh.Mesh();
     mesh.build(polygonSoup);
-    let geometry = new Geometry.Geometry(mesh, polygonSoup["v"], false);
+    let v1 = mesh.vertices.length;
 
     // Construct a simplicial complex for a mesh
+    // NOTE: this changes the indices of the mesh
     let SCO = new SC.SimplicialComplexOperators(mesh);
+    let v2 = mesh.vertices.length;
+
+    if (v1 !== v2) { throw new Error("number of vertices changed after SCO"); }
 
     return { type: 'SimplicialComplex',
 	     name: cname,
 	     mesh: mesh,
-	     geometry: geometry,
+	     obj_file: mesh_to_use,
 	     sc: SCO
 	   };
 }
@@ -473,12 +480,21 @@ function makeSty(objs, plugin2sub) {
     for (let sc of scs) {
 	let mesh = sc.mesh;
 	let cname = sc.name;
-	let positions = sc.geometry.positions;
+
+	let polygonSoup = MeshIO.readOBJ(sc.obj_file);
+	// Note: geometry is rebuilt after SCO is built, so mesh indices are accurate
+	let geometry = new Geometry.Geometry(mesh, polygonSoup["v"], false);
+	let positions = geometry.positions;
+	console.log("positions", positions);
+	console.log("positions length", Object.keys(positions).length);
+	console.log("vertices length", mesh.vertices.length);
 
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
 	    let vname = substitute(plugin2sub, objName(cname, vtype, vi));
-	    let vpos = positions[vi]; // Vector object, throw away z pos
+	    let vpos = positions[v]; // Vector object, throw away z pos
+	    console.log("positions inner", positions);
+	    console.log("v index", vi);
 
 	    let pos_json_x = { propertyName: "x",
 			       propertyVal: vpos.x };

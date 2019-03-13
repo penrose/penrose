@@ -24,37 +24,33 @@ SimplicialComplex A
 A := Closure(S) */
 
 SComplex K1
--- Vertex i
--- InVS(i, K1)
+Vertex i
+InVS(i, K1)
 
--- SSubset S1
--- IsSubsetOf(S1, K1)
--- S1 := StarV(i)
+SSubset S1
+IsSubsetOf(S1, K1)
+S1 := StarV(i)
 
--- Subcomplex A
--- A := Closure(S1)
+Subcomplex A
+A := Closure(S1)
 
--- SSubset S4
--- IsSubsetOf(S4, K1)
--- S4 := Boundary(A)
-
--- SelectedV(i)
+SSubset S4
+IsSubsetOf(S4, K1)
+S4 := Boundary(A)
 
 -------
 
--- SComplex K2
--- Vertex j
--- InVS(j, K2)
+SComplex K2
+Vertex j
+InVS(j, K2)
 
--- SelectedV(j)
+SSubset S2
+IsSubsetOf(S2, K2)
+S2 := StarV(j)
 
--- SSubset S2
--- IsSubsetOf(S2, K2)
--- S2 := StarV(j)
-
--- SSubset S3
--- IsSubsetOf(S3, K2)
--- S3 := LinkV(j)
+SSubset S3
+IsSubsetOf(S3, K2)
+S3 := LinkV(j)
 
 AutoLabel All
 
