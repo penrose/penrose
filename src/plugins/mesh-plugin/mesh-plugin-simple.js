@@ -19,6 +19,7 @@ const SC = require('./geometry-processing-js/node/projects/simplicial-complex-op
 const TetraMesh = require('./input/tetrahedron.js');
 const SquareMesh = require('./input/square.js');
 const TriangleMesh = require('./input/triangle.js');
+const TriangleMesh3 = require('./input/triangle-3.js');
 
 const mesh_to_use = TriangleMesh;
 
@@ -87,115 +88,15 @@ function makeSComplex(cname) {
     let geometry = new Geometry.Geometry(mesh, polygonSoup["v"], false);
 
     // Construct a simplicial complex for a mesh
-    let SCO = new SC.SimplicialComplexOperators(mesh);
+    // let SCO = new SC.SimplicialComplexOperators(mesh);
 
     global_mesh = { polygonSoup, mesh, geometry };
 
     return { type: 'SimplicialComplex',
 	     name: cname,
 	     mesh: mesh,
-	     geometry: geometry,
-	     sc: SCO
-	   };
-}
-
-// Expects a mesh made by makeSComplex
-function doStar(stmt, nameMappings, scObj) {
-    let starName = stmt.varName;
-    let vertexName = stmt.fargNames[0];
-    // Take the star at a specific vertex
-    let cname = scObj.name;
-    let SCO = scObj.sc;
-    let vertexIndex = nameMappings.sub2plugin[vertexName].index;
-
-    let selectedSimplices = new MeshSubset();
-    selectedSimplices.addVertices([vertexIndex]);
-    selectedSimplices.addEdges([]);
-    selectedSimplices.addFaces([]);
-
-    let star_sc = SCO.star(selectedSimplices);
-
-    // Mesh subset object
-    return { type: 'MeshSubset',
-	     name: starName, // name bound in Substance
-	     scName: cname,
-	     sc: SCO, // Has to carry the simplicial complex operators with it...
-	     // selectedSimplices: selectedSimplices,
-	     meshSubset: star_sc,
-	   };
-}
-
-function doClosure(stmt, nameMappings, subsetObj) {
-    let subcomplexName = stmt.varName;
-    let cname = subsetObj.scName;
-    let SCO = subsetObj.sc;
-
-    let meshSubset = subsetObj.meshSubset;
-    let closure_ms = SCO.closure(meshSubset);
-
-    return { type: 'MeshSubset',
-	     name: subcomplexName,
-	     scName: cname,
-	     sc: SCO,
-	     meshSubset: closure_ms
-	   };
-}
-
-// TODO: factor out this boilerplace
-function doLink(stmt, subsetObj) {
-    let subsetName = stmt.varName;
-    let cname = subsetObj.scName;
-    let SCO = subsetObj.sc;
-
-    let meshSubset = subsetObj.meshSubset;
-    let link_ms = SCO.link(meshSubset);
-
-    return { type: 'MeshSubset',
-	     name: subsetName,
-	     scName: cname,
-	     sc: SCO,
-	     meshSubset: link_ms
-	   };
-}
-
-function doLinkV(stmt, nameMappings, scObj) {
-    let subsetName = stmt.varName;
-    console.log("do link v", scObj);
-
-    let cname = scObj.name;
-    let SCO = scObj.sc;
-
-    let vertexName = stmt.fargNames[0];
-    let vertexIndex = nameMappings.sub2plugin[vertexName].index;
-
-    let selectedSimplices = new MeshSubset();
-    selectedSimplices.addVertices([vertexIndex]);
-    selectedSimplices.addEdges([]);
-    selectedSimplices.addFaces([]);
-
-    let link_ms = SCO.link(selectedSimplices);
-
-    return { type: 'MeshSubset',
-	     name: subsetName,
-	     scName: cname,
-	     sc: SCO,
-	     meshSubset: link_ms
-	   };
-}
-
-function doBoundary(stmt, nameMappings, subsetObj) {
-    let subcomplexName = stmt.varName;
-    let cname = subsetObj.scName;
-    let SCO = subsetObj.sc;
-
-    let meshSubset = subsetObj.meshSubset;
-    let boundary_ms = SCO.boundary(meshSubset);
-
-    return { type: 'MeshSubset',
-	     name: subcomplexName,
-	     scName: cname,
-	     sc: SCO,
-	     meshSubset: boundary_ms
+	     geometry: geometry
+	     // sc: SCO
 	   };
 }
 
@@ -210,8 +111,9 @@ function scToSub(mappings, scObj) {
     console.log("remapped names", remappedNames);
 
     // Emit all declarations first, since objects need to be defined in Substance before they're referenced
-    // TODO factor out V,E,F code and 3-tuple
-    for (let v of mesh.vertices) {
+
+    for (let vi = 0; vi < mesh.vertices.length; vi++) {
+	let v = mesh.vertices[vi];
 	let vname = objName(cname, vtype, v.index);
 
 	prog.push(decl(vtype, vname));
@@ -219,7 +121,8 @@ function scToSub(mappings, scObj) {
 	// prog.push(label(cname, vname, vtype, v.index));
     }
 
-    for (let e of mesh.edges) {
+    for (let ei = 0; ei < mesh.edges.length; ei++) {
+	let e = mesh.edges[ei];
 	let ename = objName(cname, etype, e.index);
 
 	prog.push(decl(etype, ename));
@@ -273,70 +176,36 @@ function scToSub(mappings, scObj) {
 	}
     }
 
+    // (Testing) find the three vertices for a face
+    // since this is what's used to build the three.js mesh
+    // The names of the vertices are not changing over different runs (e.g. K0_V0 (seems to) always have position (0,0), etc.)
+    // So why is the face connectivity seeming to change??
+    // Can it have something to do with how I call the mesh constructor in node?
+/*
+    for (let f of mesh.faces) {
+	// F0 should always be on the 0-indexed vertices (0,1,2) as specified in the obj file, right???
+	let vs = [];
+
+	for (let v of f.adjacentVertices()) {
+	    vs.push(v.index);
+	}
+
+	let vnames = vs.map(i => objName(cname, vtype, i));
+
+	console.log("f index:", f.index);
+	console.log("f's adjacent vertices:", f.adjacentVertices());
+	console.log("vs:", vs);
+	console.log("vnames:", vnames);
+
+	if (vnames.length == 3) {
+	    prog.push(mkF(objName(cname, ftype, f.index),
+			  cname, vnames[0], vnames[1], vnames[2]));
+	} else {
+	    console.log("malformed face: ", f);
+	}
+    } */
+
     return prog;
-}
-
-function subsetToSub(mappings, subsetWrapper) {
-    console.log("subset to sub", subsetWrapper);
-    let cname = subsetWrapper.scName;
-    let sname = subsetWrapper.name;
-    let star_sc = subsetWrapper.meshSubset;
-    let plugin2sub = mappings.plugin2sub;
-
-    let prog = [];
-
-    // Specify the vertices, edges, and faces that are in a particular mesh subset
-    // Note that for a simplex, an object is simply the index
-    for (let v of star_sc.vertices) {
-	console.log("selected vertex: ", v);
-	prog.push(inSubset(vtype, substitute(plugin2sub, objName(cname, vtype, v)), sname));
-    }
-
-    for (let e of star_sc.edges) {
-	prog.push(inSubset(etype, substitute(plugin2sub, objName(cname, etype, e)), sname));
-    }
-
-    for (let f of star_sc.faces) {
-	prog.push(inSubset(ftype, substitute(plugin2sub, objName(cname, ftype, f)), sname));
-    }
-
-    return prog;
-}
-
-// find the mesh object that the vertex belongs to (if any)
-// should be declared with an InVS statement in substance, assuming a valid substance program with parg order preserved
-function findMesh(vname, json, objs) {
-    // first find the name of the mesh, then look it up in the objects we made
-
-    // TODO: write a "find" function
-    let meshNames = json.constraints.predicates
-	.filter(o => o.pname === "InVS" && vname === o.pargNames[0])
-        .map(o => o.pargNames[1]);
-
-    if (meshNames.length !== 1) {
-	console.log("expected to find vertex " + vname + " in exactly one mesh, but found " + meshNames.length);
-	return undefined;
-    }
-
-    console.log("found mesh: " + meshNames[0]);
-    let meshName = meshNames[0];
-
-    return objs[meshName];
-}
-
-function findSubset(subsetName, subsets) {
-    return subsets.filter(o => o.name === subsetName)[0];
-}
-
-// Given plugin2sub and a plugin name Ki_Vi, return the sub name `v` if it exists. Otherwise return the plugin name.
-function substitute(plugin2sub, pluginName) {
-    let remappedNames = Object.keys(plugin2sub);
-    return remappedNames.includes(pluginName) ? plugin2sub[pluginName] : pluginName;
-}
-
-function wasRemapped(plugin2sub, pluginName) {
-    let remappedNames = Object.keys(plugin2sub);
-    return remappedNames.includes(pluginName);
 }
 
 // Examine an object and call the right Sub prog generating function
@@ -361,67 +230,6 @@ function makeObj(decl) {
     return res;
 }
 
-function lookupBoundvar(name, fnCalls) {
-    let res = fnCalls.filter(o => o.varName === name);
-    if (res.length < 1) { return undefined; }
-    return res[0];
-}
-
-function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
-    let bindVar = fnCall.varName;
-    let fname = fnCall.fname;
-    let fnArgs = fnCall.fargNames;
-    let res = undefined;
-
-    console.log("objs in doFnCall", objs);
-
-    // If function call has already been done, move on
-    // (NOTE: assuming you aren't binding twice like y1 := f(x), y1 := g(z))
-    if (objs[bindVar]) { return objs; }
-
-    // Otherwise, do the function call, store the value, and return the new values
-    // First, if an argument to a function call is not yet computed, do it and memoize it in objs
-        // (keeps updating it -- should this be a fold?)
-    for (let fnArg of fnArgs) {
-	console.log("fn arg", fnArg, objs[fnArg]);
-
-	// It should be a bound variable in functions, otherwise the Substance program is invalid
-	if (!objs[fnArg]) {
-	    let bvar_fncall = lookupBoundvar(fnArg, json.constraints.functions);
-
-	    if (!bvar_fncall) {
-		console.log("error: function argument", fnArg, "not declared or bound");
-		return objs; // skip
-	    }
-	    let argsComputed = doFnCall(json, objs, mappings, bvar_fncall); // could update multiple objects... is this pass by reference or by value?
-	    objs = Object.assign(objs, argsComputed); // TODO: use argsComputed? or merge?
-	}
-    }
-
-    // Do the fn call based on the fn's name
-    // There's probably a more generic way to do this based on the Element type and geometry-processing.js types of the function
-    if (fname === "StarV") {
-	let argObj = findMesh(fnArgs[0], json, objs);
-	res = doStar(fnCall, mappings, argObj);
-    } else if (fname === "Closure") {
-	let argObj = objs[fnArgs[0]];
-	res = doClosure(fnCall, mappings, argObj);
-    } else if (fname === "Link") {
-	let argObj = objs[fnArgs[0]];
-	res = doLink(fnCall, argObj);
-    } else if (fname === "LinkV") {
-	let argObj = findMesh(fnArgs[0], json, objs);
-	res = doLinkV(fnCall, mappings, argObj);
-    } else if (fname === "Boundary") { // Supposed to only operate on a SComplex; here we look for a mesh subset
-	let argObj = objs[fnArgs[0]];
-	res = doBoundary(fnCall, mappings, argObj);
-    }
-
-    if (res) { objs[bindVar] = res; }
-
-    return objs; // returns the whole updated map. but maybe it shouldn't return anything?
-}
-
 // Make the values for style, using just the object map made while processing the Substance program
 function makeSty(objs, plugin2sub) {
     // Output the vertex positions of each mesh
@@ -436,7 +244,7 @@ function makeSty(objs, plugin2sub) {
 
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
-	    let vname = substitute(plugin2sub, objName(cname, vtype, vi));
+	    let vname = objName(cname, vtype, vi);
 	    let vpos = positions[v]; // Vector object, throw away z pos; access by string of index
 
 	    let pos_json_x = { propertyName: "x",
@@ -467,29 +275,15 @@ function makeSub(json) {
     // P([x]): ignore predicates for now
 
     let subDecls = json.objects;
-    let subPreds = json.constraints.predicates;
-    let subFnCalls = json.constraints.functions;
 
     let objs_flat = subDecls.map(decl => makeObj(decl))
 	.filter(o => o !== undefined);
 
-    let objs = [];
-    for (let obj of objs_flat) {
-	objs[obj.name] = obj; // Convert to a key-value store
-    }
-
     // Deal with statements that select a subpart of a whole (TODO: currently just a vertex of an SC)
     let mappings = { sub2plugin: {}, plugin2sub: {} };
-    let finalObjs = objs;
-
-    let objs_flat_final = [];
-    for (var objName in finalObjs) { // Convert from key-value store back to flat list of objects
-	objs_flat_final.push(finalObjs[objName]);
-    }
 
     // Output Substance code
-    console.log("final objs:", finalObjs, objs_flat_final);
-    let lines = _.flatten(objs_flat_final.map(o => makeProg(mappings, o)));
+    let lines = _.flatten(objs_flat.map(o => makeProg(mappings, o)));
     let subProgStr = lines.join(newline);
 
     return { objs: objs_flat,
@@ -519,10 +313,10 @@ function main() {
     let results = makeSubAndValues(subJSON);
     let [newSub, styVals] = [results.newSub, results.styVals];
 
-    console.log("writing Substance program: ", newSub);
+    console.log("\nwriting Substance program\n", newSub);
     Fs.writeFileSync('Sub_instantiated.sub', newSub);
 
-    console.log("writing values for Style: ", styVals);
+    console.log("\nwriting values for Style\n", styVals);
     Fs.writeFileSync('values.json', styVals);
 
     console.log("ending mesh plugin")
