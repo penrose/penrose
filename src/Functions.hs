@@ -219,6 +219,8 @@ objFuncDict = M.fromList
         ("above", above),
         ("equal", equal),
         ("distBetween", distBetween)
+        -- ("sameX", sameX)
+
 {-      ("centerLine", centerLine),
         ("increasingX", increasingX),
         ("increasingY", increasingY),
@@ -229,7 +231,6 @@ objFuncDict = M.fromList
         ("orthogonal", orthogonal),
         ("toLeft", toLeft),
         ("between", between),
-        ("sameX", sameX),
         ("ratioOf", ratioOf),
         ("sameY", sameY),
         -- ("sameX", (*) 0.6 `compose2` sameX),
@@ -1002,7 +1003,7 @@ equal :: ObjFn
 equal [Val (FloatV a), Val (FloatV b)] = (a - b)^2
 
 distBetween :: ObjFn
-distBetween [GPI c1, GPI c2, Val (FloatV padding)] =
+distBetween [GPI c1@("Circle", _), GPI c2@("Circle", _), Val (FloatV padding)] =
     let (r1, r2, x1, y1, x2, y2) = (getNum c1 "r", getNum c2 "r", getX c1, getY c1, getX c2, getY c2) in
     -- If one's a subset of another or has same radius as other
     -- If they only intersect
@@ -1186,8 +1187,13 @@ disjoint :: ConstrFn
 disjoint [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
     noIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, getNum yset "r"]]
 
+-- This is not totally correct since it doesn't account for the diagonal of a square
 disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
     noIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
+
+disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offset)] =
+    -- Arbitrarily using x size
+    noIntersectOffset [[getX xset, getY xset, 0.5 * getNum xset "sizeX"], [getX yset, getY yset, 0.5 * getNum yset "sizeX"]] offset
 
 -- For horizontally collinear line segments only
 -- with endpoints (si, ei), assuming si < ei (e.g. enforced by some other constraint)
@@ -1212,6 +1218,9 @@ disjoint [GPI o1, GPI o2] =
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersect :: (Autofloat a) => [[a]] -> a
 noIntersect [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset where offset = 10
+
+noIntersectOffset :: (Autofloat a) => [[a]] -> a -> a
+noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset = -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset
 
 --------------------------------------------------------------------------------
 -- Default functions for every shape

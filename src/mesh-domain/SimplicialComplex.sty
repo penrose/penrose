@@ -25,7 +25,7 @@ global {
 
     -- For conversion from math space to screen space
     -- TODO: compute these more automatically
-    global.scaleFactor = 200.0
+    global.scaleFactor = 100.0
     global.offset = 150.0
 }
 
@@ -65,12 +65,13 @@ SComplex K {
 
        K.x_offset = OPTIMIZED
        K.y_offset = OPTIMIZED
+       K.size = 200.0
 
        K.shape = Rectangle {
        	       x = OPTIMIZED
 	       y = OPTIMIZED
-	       sizeX = 400.0
-	       sizeY = 400.0
+	       sizeX = K.size
+	       sizeY = K.size
 	       rotation = 0.0
 	       color = Colors.gainsboro
 	       strokeColor = Colors.black
@@ -90,6 +91,16 @@ SComplex K {
        K.labelFn = encourage centerLabel(K.shape, K.text)
 
        K.layerTextFn = K.text above K.shape
+}
+
+-- TODO: make this generic
+SComplex `K1`; SComplex `K2` {
+	 LOCAL.padding = 30.0
+
+	 -- TODO: improve this for rectangles by not just using the x size
+	 LOCAL.overlapFn = ensure disjoint(K1.shape, K2.shape, LOCAL.padding)
+	 LOCAL.alignFn = ensure sameHeight(K1.shape, K2.shape)
+	 -- LOCAL.distFn = ensure distBetween(K1.shape, K2.shape, LOCAL.padding)
 }
 
 Vertex v 
@@ -354,6 +365,8 @@ with SSubset S; SComplex K; Vertex v {
 	 color = global.closureColor
        }
 
+       -- TODO
+       -- In K's shape
+       -- Does not overlap any other shape
+       -- Close to the V/E/F of the Subcomplex in question
 }
-
--- TODO: for each face in the subcomplex... put the label near it? Not sure.
