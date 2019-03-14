@@ -216,6 +216,9 @@ infixl 7 *:, /:
 (/:) :: Floating a => (a, a) -> a -> (a, a)
 (/:) (x, y) c = (c / x, c / y)
 
+dotv :: Floating a => (a, a) -> (a, a) -> a
+dotv (x, y) (a, b) = x * a + y * b
+
 -- Again (see below), we add epsd to avoid NaNs. This is a general problem with using `sqrt`.
 norm :: Floating a => [a] -> a
 norm v = sqrt ((sum $ map (^ 2) v) + epsd)
@@ -243,6 +246,21 @@ dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2 + epsd)
 
 distsq :: Floating a => (a, a) -> (a, a) -> a -- distance
 distsq (x1, y1) (x2, y2) = (x1 - x2)^2 + (y1 - y2)^2
+
+-- Closest point on line segment to a point
+-- https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+closestpt_pt_seg :: (Floating a, Ord a) => (a, a) -> ((a, a), (a, a)) -> (a, a)
+closestpt_pt_seg p@(px, py) (v@(vx, vy), w@(wx, wy)) =
+                 let eps = 10 ** (-3)
+                     lensq = distsq v w in
+                 if lensq < eps then v                  -- line seg looks like a point
+                 else let dir = w -: v
+                          t = ((p -: v) `dotv` dir) / lensq -- project vector onto line seg and normalize
+                          t' = clamp (0, 1) t in
+                      v +: (t' *: dir) -- walk along vector of line seg
+
+clamp :: (Floating a, Ord a) => (a, a) -> a -> a
+clamp (l, r) x = max l $ min r x
 
 --------------------------------------
 -- Reflection capabilities to typecheck Computation functions

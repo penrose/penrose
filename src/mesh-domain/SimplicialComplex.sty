@@ -132,10 +132,29 @@ with SComplex K {
        -- v.posFn = encourage center(v.shape)
 }
 
+-- Label a distinguished vertex
 Vertex v
-where DeclaredV(v) {
+where DeclaredV(v); InVS(v, K)
+with SComplex K {
+      -- Optimize the label position, only for the distinguished vertex
       override v.text.string = v.label
-      -- TODO: optimize the position
+      override v.text.x = OPTIMIZED
+      override v.text.y = OPTIMIZED
+
+      v.offset = 30.0
+      -- This is trying to place the labels but it's very slow, goes from 40s to 3min
+      v.labelCloseFn = encourage near(v.text, v.shape, v.offset)
+      v.labelInComplexFn = ensure contains(K.shape, v.text)
+      -- Label's color might need to be programmatically set depending on its location
+}
+
+Vertex v; Edge e
+where DeclaredV(v); InVS(v, K); InES(e, K)
+with SComplex K {
+     LOCAL.offset = 5.0
+     -- Make sure the label doesn't overlap with any edge
+     -- TODO: this is NaNing
+     LOCAL.edgeLabelFn = ensure disjoint(v.text, e.shape, LOCAL.offset)
 }
 
 Edge e
@@ -190,38 +209,6 @@ with SComplex K {
       LOCAL.textLayering1 = v.text above f.shape
       LOCAL.textLayering2 = v.text above e.shape
 }
-
-/*
-Vertex v; Vertex w
-where InVS(v, K); InVS(w, K)
-with SComplex K {
-       LOCAL.repelFn = encourage repel(v.shape, w.shape, 10.0)
-}
-*/
-/*
-Vertex v
-where InVS(v, `K1`) 
-with SComplex `K1` {
-     -- TODO: Testing plugin accessors
-     -- v.test0 = v.name
-     -- v.test1 = ddg[v.name]["x"]
-     -- v.test2 = encourage near(v.shape, -100.0, ddg[v.name]["y"])
-     -- v.test3 = Circle {
-     -- 	     r = ddg[v.name]["x"]
-     -- }
-
-     override v.shape.x = v.xpos - global.offset
-
-     -- v.posFn = encourage near(v.shape, -global.spacing, 0.0)
-     -- v.posFn = encourage center(v.shape)
-}
-
-Vertex v
-where InVS(v, `K2`) 
-with SComplex `K2` {
-     override v.shape.x = v.xpos + global.offset
-     -- v.posFn = encourage near(v.shape, global.spacing, 0.0)
-} */
 
 ------------------ Things in a closure
 
@@ -358,15 +345,18 @@ where C := Closure(S); IsSubsetOf(S, K); S := StarV(v)
 with SSubset S; SComplex K; Vertex v {
 
        C.text = Text {
-	 x = 0.0
-	 y = 0.0
+	 x = OPTIMIZED
+	 y = OPTIMIZED
 	 string = C.label
 	 rotation = 0.0
 	 color = global.closureColor
        }
 
+       -- TODO: this actually prefers the center of the shape but it shouldn't
+       C.labelFn = ensure contains(K.shape, C.text)
+       C.layerFn = C.text above K.shape
+
        -- TODO
-       -- In K's shape
-       -- Does not overlap any other shape
+       -- Does not overlap any other shape (maybe just disjoint with edges?)
        -- Close to the V/E/F of the Subcomplex in question
 }

@@ -843,6 +843,7 @@ setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] = Val $ ColorV (RGBA
 near :: ObjFn
 near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
+near [GPI o1, GPI o2, Val (FloatV offset)] = distsq (getX o1, getY o1) (getX o2, getY o2) - offset^2
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
     let center = (getNum img "centerX", getNum img "centerY")
         offset = (xoff, yoff)
@@ -1047,10 +1048,10 @@ contains [GPI c@("Circle", _), GPI t@("Text", _)] =
     --     (cx, cy, radius) = (getX c, getY c, getNum c "r")
     -- in sum $ map (\(a, b) -> (max 0 $ dist (cx, cy) (a, b) - radius)^2) pts
 contains [GPI s@("Square", _), GPI l@("Text", _)] =
-    dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 + getNum l "w"
+    dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 + getNum l "w" / 2
 contains [GPI s@("Rectangle", _), GPI l@("Text", _)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
-    dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "sizeX"
+    dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "w" / 2
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
     dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - 0.5 * getNum inc "side")
 contains [GPI outc@("Square", _), GPI inc@("Circle", _)] =
@@ -1194,6 +1195,15 @@ disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
 disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offset)] =
     -- Arbitrarily using x size
     noIntersectOffset [[getX xset, getY xset, 0.5 * getNum xset "sizeX"], [getX yset, getY yset, 0.5 * getNum yset "sizeX"]] offset
+
+disjoint [GPI box@("Text", _), GPI seg@("Line", _), Val (FloatV offset)] =
+    let center = (getX box, getY box)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp     = closestpt_pt_seg center (v, w) 
+        len_approx = getNum box "w" / 2.0 -- TODO make this more exact
+    in -(dist center cp) + len_approx + offset
+    -- i.e. dist from center of box to closest pt on line seg is greater than the approx distance between the box center and the line + some offset
+
 
 -- For horizontally collinear line segments only
 -- with endpoints (si, ei), assuming si < ei (e.g. enforced by some other constraint)
