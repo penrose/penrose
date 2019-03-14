@@ -1,0 +1,5 @@
+FROM fpco/stack-build:lts-9.10
+
+WORKDIR /home/penrose
+
+EXPOSE 9160
