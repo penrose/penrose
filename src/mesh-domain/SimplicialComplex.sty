@@ -5,14 +5,17 @@ global {
     global.stroke = 2.0
     global.spacing = 150.0
 
+    global.selectedRadius = 5.0
+    global.selectedThickness = 3.5
+
     global.selectedColor = Colors.red
     global.selectedColor2 = setOpacity(global.selectedColor, 0.25)
 
-    global.subsetColor = Colors.purple
-    global.subsetColor2 = setOpacity(global.subsetColor, 0.25)
+    global.starColor = Colors.midnightblue
+    global.starColor2 = Colors.lightslategray
 
-    global.closureColor = Colors.green
-    global.closureColor2 = setOpacity(global.closureColor, 0.25)
+    global.closureColor = Colors.midnightblue
+    global.closureColor2 = Colors.lightslategray
 
     global.linkColor = Colors.blue
     global.linkColor2 = setOpacity(global.linkColor, 0.25)
@@ -27,7 +30,13 @@ global {
 }
 
 Colors {
+    -- Keenan palette
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
     Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
     Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
@@ -48,40 +57,86 @@ Colors {
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
-Vertex v {
+
+-- TODO: this is going to match Subcomplex too... how to fix that?
+SComplex K {
+       -- K.val = OPTIMIZED
+       -- TODO: just so we have some variables optimized, otherwise genOptProblem complains
+
+       K.x_offset = OPTIMIZED
+       K.y_offset = OPTIMIZED
+
+       K.shape = Rectangle {
+       	       x = OPTIMIZED
+	       y = OPTIMIZED
+	       sizeX = 400.0
+	       sizeY = 400.0
+	       rotation = 0.0
+	       color = Colors.gainsboro
+	       strokeColor = Colors.black
+	       strokeWidth = 4.0
+       }
+
+       K.padding = 25.0
+
+       K.text = Text {
+	 x = K.shape.x - K.shape.sizeX / 2.0 + K.padding
+	 y = K.shape.y - K.shape.sizeY / 2.0 + K.padding
+	 string = K.label
+	 rotation = 0.0
+	 color = Colors.black
+       }
+
+       K.labelFn = encourage centerLabel(K.shape, K.text)
+
+       K.layerTextFn = K.text above K.shape
+}
+
+Vertex v 
+where InVS(v, K)
+with SComplex K {
        v.xpos = ddg[v.name]["x"] * global.scaleFactor
        v.ypos = ddg[v.name]["y"] * global.scaleFactor
 
        v.shape = Circle { 
          x = v.xpos -- avoid "x <- f(x)" in override
 	 y = v.ypos
-         r = 7.0
-	 color = setOpacity(Colors.black, 0.25)
+         r = 0.0
+	 color = Colors.black
 	 strokeWidth = 0.0
        }
 
+       -- NOTE: by default, this starts with an empty string, so we only label user-declared vertices
        v.text = Text {
 	 x = v.shape.x + global.padding
 	 y = v.shape.y + global.padding
-	 string = v.label
+	 string = ""
 	 rotation = 0.0
 	 color = v.shape.color
        }
 
+       v.layerFnShape = v.shape above K.shape
+       v.layerFnText = v.text above K.shape
        -- v.posFn = ensure onCanvas(v.shape)
        -- v.posFn = encourage center(v.shape)
 }
 
+Vertex v
+where DeclaredV(v) {
+      override v.text.string = v.label
+      -- TODO: optimize the position
+}
+
 Edge e
-where e := MkEdge(v1, v2)
-with Vertex v1; Vertex v2 {
+where e := MkEdge(v1, v2); InES(e, K)
+with Vertex v1; Vertex v2; SComplex K {
      e.shape = Line { 
      	     startX = v1.shape.x
      	     startY = v1.shape.y
      	     endX = v2.shape.x
      	     endY = v2.shape.y
-	     color = setOpacity(Colors.black, 0.25)
-	     thickness = 5.0
+	     color = Colors.black
+	     thickness = 2.5
      }
 
      -- e.text = Text {
@@ -93,18 +148,19 @@ with Vertex v1; Vertex v2 {
 
      e.layering1 = v1.shape above e.shape
      e.layering2 = v2.shape above e.shape
+     e.layering3 = e.shape above K.shape
 }
 
 Face f
-where f := MkFace(e1, e2, e3)
-with Edge e1; Edge e2; Edge e3 {
+where f := MkFace(e1, e2, e3); InFS(f, K)
+with Edge e1; Edge e2; Edge e3; SComplex K {
      f.color = Colors.lightsky
 
      f.shape = Curve { 
      	     pathData = triangle(e1.shape, e2.shape, e3.shape)
 	     strokeWidth = 0.0
-	     fill = global.selectedColor2
-	     color = global.selectedColor2
+	     fill = Colors.silver
+	     color = Colors.silver
 	     rotation = 0.0
      }
 
@@ -113,6 +169,15 @@ with Edge e1; Edge e2; Edge e3 {
      --   color = f.color
      --   rotation = 0.0
      -- }
+     f.layeringShape = f.shape above K.shape
+}
+
+-- Relative layerings within a simplicial complex
+Vertex v; Edge e; Face f
+where InVS(v, K); InES(e, K); InFS(f, K)
+with SComplex K {
+      LOCAL.textLayering1 = v.text above f.shape
+      LOCAL.textLayering2 = v.text above e.shape
 }
 
 /*
@@ -152,12 +217,14 @@ with SComplex `K2` {
 Vertex v
 where InVS(v, C); C := Closure(S)
 with Subcomplex C; SSubset S {
+     override v.shape.r = global.selectedRadius
       override v.shape.color = global.closureColor
 }
 
 Edge e
 where InES(e, C); C := Closure(S)
 with Subcomplex C; SSubset S {
+      override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.closureColor
 }
 
@@ -173,20 +240,22 @@ with Subcomplex C; SSubset S {
 Vertex v
 where InVS(v, S); S := StarV(v); IsSubsetOf(S, K)
 with SSubset S; SComplex K {
-      override v.shape.color = global.subsetColor
+     override v.shape.r = global.selectedRadius
+      override v.shape.color = global.starColor
 }
 
 Edge e
 where InES(e, S); S := StarV(v); IsSubsetOf(S, K)
 with SSubset S; SComplex K; Vertex v {
-      override e.shape.color = global.subsetColor
+      override e.shape.thickness = global.selectedThickness
+      override e.shape.color = global.starColor
 }
 
 Face f
 where InFS(f, S); S := StarV(v); IsSubsetOf(S, K)
 with SSubset S; SComplex K; Vertex v {
-      override f.shape.fill = global.subsetColor2
-      override f.shape.color = global.subsetColor2
+      override f.shape.fill = global.starColor2
+      override f.shape.color = global.starColor2
 }
 
 ------------------ Things in a link of a subset
@@ -194,12 +263,14 @@ with SSubset S; SComplex K; Vertex v {
 Vertex v
 where InVS(v, S2); S2 := Link(S1)
 with SSubset S2; SSubset S1 {
+     override v.shape.r = global.selectedRadius
       override v.shape.color = global.linkColor
 }
 
 Edge e
 where InES(e, S2); S2 := Link(S1)
 with SSubset S2; SSubset S1 {
+      override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.linkColor
 }
 
@@ -215,12 +286,14 @@ with SSubset S2; SSubset S1 {
 Vertex v
 where InVS(v, S); S := LinkV(w)
 with SSubset S; Vertex w {
+     override v.shape.r = global.selectedRadius
       override v.shape.color = global.linkColor
 }
 
 Edge e
 where InES(e, S); S := LinkV(w)
 with SSubset S; Vertex w {
+      override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.linkColor
 }
 
@@ -236,12 +309,14 @@ with SSubset S; Vertex w {
 Vertex v
 where InVS(v, S); S := Boundary(C)
 with SSubset S; SComplex C {
+     override v.shape.r = global.selectedRadius
       override v.shape.color = global.boundaryColor
 }
 
 Edge e
 where InES(e, S); S := Boundary(C)
 with SSubset S; SComplex C {
+      override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.boundaryColor
 }
 
@@ -252,57 +327,10 @@ with SSubset S; SComplex C {
       override f.shape.color = global.boundaryColor2
 }
 
-------------------- Selected things
-
-Vertex v
-where SelectedV(v) {
-      override v.shape.color = global.selectedColor
-}
-
-Edge e
-where SelectedE(e) {
-      override e.shape.color = global.selectedColor
-}
-
-Face f
-where SelectedF(f) {
-      override f.shape.fill = global.selectedColor2
-      override f.shape.color = global.selectedColor2
-}
-
 -------------------
 
--- TODO: this is going to match Subcomplex too... how to fix that?
-SComplex K {
-       -- K.val = OPTIMIZED
-       -- TODO: just so we have some variables optimized, otherwise genOptProblem complains
-
-       K.x_offset = OPTIMIZED
-       K.y_offset = OPTIMIZED
-
-       K.shape = Rectangle {
-       	       x = OPTIMIZED
-	       y = OPTIMIZED
-	       sizeX = 400.0
-	       sizeY = 400.0
-	       rotation = 0.0
-	       color = Colors.none
-	       strokeColor = Colors.black
-	       strokeWidth = 5.0
-       }
-
-       K.text = Text {
-	 -- x = midpointX(K.shape)
-	 -- y = midpointY(K.shape)
-	 string = K.label
-	 rotation = 0.0
-	 color = Colors.black
-       }
-
-       K.labelFn = encourage centerLabel(K.shape, K.text)
-}
-
 -- Try to position the vertices to be inside the bbox
+-- Should this go in the vertex selector?
 Vertex v
 where InVS(v, K)
 with SComplex K {
@@ -323,7 +351,7 @@ with SSubset S; SComplex K; Vertex v {
 	 y = 0.0
 	 string = C.label
 	 rotation = 0.0
-	 color = Colors.black
+	 color = global.closureColor
        }
 
 }

@@ -19,7 +19,6 @@ const SC = require('./geometry-processing-js/node/projects/simplicial-complex-op
 const TetraMesh = require('./input/tetrahedron.js');
 const SquareMesh = require('./input/square.js');
 const TriangleMesh = require('./input/triangle.js');
-const GridMesh = require('./input/grid.js');
 const InnerMesh = require('./input/inner.js');
 
 const mesh_to_use = InnerMesh;
@@ -34,14 +33,19 @@ function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;
 }
 
+function userSpecified(objName, objType) {
+    return "Declared" + tstr(objType) + "(" + objName + ")";
+}
+
 // TODO: assumes all simplicial complices have name format [single character][numbers]
 function labelSC(cname) {
     return "Label " + cname + " $" + cname[0] + "_{" + cname.substring(1) + "}$";
 }
 
 function label(cname, objName, objType, index) {
-    return "Label " + objName
-	+ " $" + cname[0] + "_{" + cname.substring(1) + "} "
+    return "Label " + objName + " $" 
+    // e.g. K_1 V_4
+	// + cname[0] + "_{" + cname.substring(1) + "} "
 	+ tstr(objType) + "_{" + index + "}$";
 
 }
@@ -238,6 +242,7 @@ function scToSub(mappings, scObj) {
 
 	if (!wasRemapped(plugin2sub, ename)) {
 	    prog.push(decl(etype, ename));
+	    prog.push(inSubset(etype, ename, cname));
 	    prog.push(label(cname, ename, etype, e.index));
 	}
     }
@@ -247,6 +252,7 @@ function scToSub(mappings, scObj) {
 
 	if (!wasRemapped(plugin2sub, fname)) {
 	    prog.push(decl(ftype, fname));
+	    prog.push(inSubset(ftype, fname, cname));
 	    prog.push(label(cname, fname, ftype, f.index));
 	}
     }
@@ -363,6 +369,7 @@ function makeNameMappings(json, objs) {
 	let scName = scObj.name;
 
 	subToAssignedMapping[vname] = { scName: scName, // Should this be a pointer to the SC?
+					type: vtype,
 					assignedName: undefined,
 					index: undefined };
 
@@ -394,6 +401,19 @@ function substitute(plugin2sub, pluginName) {
 function wasRemapped(plugin2sub, pluginName) {
     let remappedNames = Object.keys(plugin2sub);
     return remappedNames.includes(pluginName);
+}
+
+function makeUserLines(mappings) {
+    let prog = [];
+    let sub2plugin = mappings.sub2plugin;
+
+    // Note the things that were user-specified for Style to match on (e.g. `DeclaredV(i)`)
+    for (let subName of Object.keys(sub2plugin)) {
+	let objType = sub2plugin[subName].type;
+	prog.push(userSpecified(subName, objType));
+    }
+
+    return prog;
 }
 
 // Examine an object and call the right Sub prog generating function
@@ -561,8 +581,10 @@ function makeSub(json) {
 
     // Output Substance code
     console.log("final objs:", finalObjs, objs_flat_final);
+    let subUserLines = makeUserLines(mappings);
     let lines = _.flatten(objs_flat_final.map(o => makeProg(mappings, o)));
-    let subProgStr = lines.join(newline);
+    let allLines = subUserLines.concat(lines)
+    let subProgStr = allLines.join(newline);
 
     return { objs: objs_flat,
 	     subProgStr: subProgStr,

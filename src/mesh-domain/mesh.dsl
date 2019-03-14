@@ -55,6 +55,10 @@ predicate InVS(v : Vertex, s : SSubset) : Prop
 predicate InES(e : Edge, s : SSubset) : Prop
 predicate InFS(f : Face, s : SSubset) : Prop
 
-predicate SelectedV(v : Vertex) : Prop
-predicate SelectedE(e : Edge) : Prop
-predicate SelectedF(f : Face) : Prop
+-- For plugin use
+predicate DeclaredV(v : Vertex) : Prop
+predicate DeclaredE(e : Edge) : Prop
+predicate DeclaredF(f : Face) : Prop
+-- predicate GeneratedV(v : Vertex) : Prop
+-- predicate GeneratedE(e : Edge) : Prop
+-- predicate GeneratedF(f : Face) : Prop
