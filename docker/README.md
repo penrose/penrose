@@ -1,7 +1,5 @@
 # Docker Compose Workflow
 
-**TODO: IDE inclusion**
-
 ## Setting Up
 
 * Ensure docker is installed and the daemon is running.
@@ -16,6 +14,8 @@
 
 ## Developing The Renderer
 
+* Run `make start-dev` if you haven't already.
+
 * Wait for `make start-dev` to finish such that you see the message `You can now view react-renderer in the browser`.
 
 * Enter `make shell-dev` in another terminal and run your desired domain.
@@ -26,9 +26,20 @@
 
 ## Developing The System
 
+* Run `make start-dev` if you haven't already.
+
 All the files in `TOP` are mounted into the `penrose` container.
 
-Just use `make shell-dev` in another terminal to enter an interactive bash shell and run your stack/ghc build commands, and run penrose itself using `runpenrose`.
+Rebuild using `make dev-build`, and run penrose using `make penrose [args]`.
+E,g:
+```
+make dev-build
+make penrose src/linear-algebra-domain/determinants.sub src/linear-algebra-domain/linear-algebra.sty src/linear-algebra-domain/linear-algebra.dsl
+```
+
+Alternatively, use `make shell-dev` in another terminal to enter an interactive bash shell and run your stack/ghc build commands, and run penrose itself using the `penrose` command.
+
+Note that the `penrose` command in both scenarios is aliased to include a `--domain=0.0.0.0` arg due to the way Docker works with IPs.
 
 ## Everything Broke, Restart
 
