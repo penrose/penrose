@@ -12,6 +12,6 @@ WORKDIR /home/node/react-renderer
 
 RUN npm install
 
-ENTRYPOINT ["sh", "-c", "npm start"]
+ENTRYPOINT ["sh", "-c", "PORT=3500 npm start"]
 
-EXPOSE 3000
+EXPOSE 3500

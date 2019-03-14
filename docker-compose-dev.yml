@@ -16,7 +16,7 @@ services:
       dockerfile: ./docker/Dockerfile-renderer.dev
     image: renderer-dev
     ports:
-      - "3000:3000"
+      - "3500:3500"
     volumes:
       - "./src/react-renderer:/home/node/react-renderer"
     tty: true # needed for ctrl-C graceful shutdown of whole system

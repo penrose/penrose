@@ -1,14 +1,18 @@
 # Docker Compose Workflow
 
+**TODO: IDE inclusion**
+
 ## Setting Up
 
 * Ensure docker is installed and the daemon is running.
 
 * Ensure you have GNU Make installed (the `make` command).
 
-* Run `make dev-build` to do initial dep, GHC installation
+* Run `make start-dev` to start the containers.
 
-* To shut down the system (while preserving your build cache), just `ctrl-C` out.
+* Run `make dev-build` in another terminal to do initial dep, GHC installation
+
+* To shut down the containers (while preserving your build cache), just `ctrl-C` out of the `make start-dev` terminal.
 
 ## Developing The Renderer
 
@@ -16,7 +20,9 @@
 
 * Enter `make shell-dev` in another terminal and run your desired domain.
 
-* Navigate to `localhost:3000` in the browser to see the renderer.
+* Navigate to `localhost:3500` in the browser to see the renderer.
+
+* Edit your files locally, and you'll get auto-reloading as usual!
 
 ## Developing The System
 
