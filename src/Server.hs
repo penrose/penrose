@@ -437,6 +437,8 @@ dragShape shape dx dy
         move "startY" dy $
         move "endX"   dx $
         move "endY"   dy shape
+    | shape `is` "Curve" =
+      movePath (dx, dy) shape
     | otherwise = setX (FloatV (dx + getX shape)) $ setY (FloatV (dy + getY shape)) shape
 
 move :: Autofloat a => PropID -> a -> Shape a -> Shape a

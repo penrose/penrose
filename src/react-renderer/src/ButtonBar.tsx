@@ -6,7 +6,9 @@ interface IProps {
   autostep: boolean;
   layers: ILayer[];
 
-  download(): void;
+  downloadPDF(): void;
+
+  downloadSVG(): void;
   autoStepToggle(): void;
   step(): void;
   resample(): void;
@@ -19,7 +21,8 @@ class ButtonBar extends React.Component<IProps> {
       converged,
       autostep,
       autoStepToggle,
-      download,
+      downloadPDF,
+      downloadSVG,
       step,
       resample,
       toggleLayer,
@@ -32,7 +35,8 @@ class ButtonBar extends React.Component<IProps> {
         </button>
         <button onClick={step}>step</button>
         <button onClick={resample}>resample</button>
-        <button onClick={download}>download</button>
+        <button onClick={downloadPDF}>download PDF</button>
+        <button onClick={downloadSVG}>download SVG</button>
         {layers.map(({layer, enabled}: ILayer, key: number) => {
           return (
             <button onClick={() => toggleLayer(layer)} key={key}>
