@@ -941,11 +941,41 @@ relMatchesProg typeEnv subEnv subProg rel = any (flip (relMatchesLine typeEnv su
 allRelsMatch :: VarEnv -> C.SubEnv -> C.SubProg -> [RelationPattern] -> Bool
 allRelsMatch typeEnv subEnv subProg rels = all (relMatchesProg typeEnv subEnv subProg) rels
 
+-- Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
+couldMatchRels :: VarEnv -> [RelationPattern] -> C.SubStmt -> Bool
+couldMatchRels typeEnv rels stmt = any (flip couldMatchARel stmt) rels
+  where couldMatchARel :: RelationPattern -> C.SubStmt -> Bool
+        -- Heuristic: check if names are equal
+        couldMatchARel (RelBind _ (SEAppFunc styF _)) (C.Bind _ (C.ApplyFunc subF)) =
+                       styF == C.nameFunc subF
+
+        couldMatchARel (RelBind _ (SEAppValCons styVC _)) (C.Bind _ (C.ApplyValCons subVC')) =
+                       let subVC = C.nameFunc subVC' in
+                       styVC == subVC
+                       || isSubtypeArrowNamed typeEnv subVC styVC -- check value ctor subtyping
+
+        couldMatchARel (RelPred styPred) (C.ApplyP subPred) =
+                       predicateName styPred == (nameOf $ C.predicateName subPred)
+
+        couldMatchARel _ _ = False
+
+        nameOf (C.PredicateConst n) = n
+
+isSubtypeArrowNamed :: VarEnv -> String -> String -> Bool
+isSubtypeArrowNamed typeEnv subCtor styCtor =
+            let subArrType = findType typeEnv subCtor
+                styArrType = findType typeEnv styCtor
+            in isSubtypeArrow subArrType styArrType typeEnv
+
 -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 -- Folds over [theta]
 filterRels :: VarEnv -> C.SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
 filterRels typeEnv subEnv subProg rels substs =
-           filter (\subst -> allRelsMatch typeEnv subEnv subProg (substituteRels subst rels)) substs
+           let subProgFiltered = filter (couldMatchRels typeEnv rels) subProg in
+           -- trace ("\n----------\n\nrels:\n" ++ ppShow rels
+           --        ++ "\nsub prog filtered\n: " ++ ppShow subProgFiltered) $
+           filter (\subst -> allRelsMatch typeEnv subEnv subProgFiltered 
+                             (substituteRels subst rels)) substs
 
 ----- Match declaration statements
 
@@ -1005,7 +1035,8 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
         initSubsts       = []
         rawSubsts        = matchDecls varEnv subProg decls initSubsts
         subst_candidates = filter (fullSubst selEnv)
-                           $ trace ("rawSubsts: # " ++ show (length rawSubsts) ++ "\n"{- ++ ppShow rawSubsts-}) rawSubsts
+                           $ trace ("rawSubsts: # " ++ show (length rawSubsts))
+                           rawSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
                            filterRels varEnv subEnv subProg rels subst_candidates
