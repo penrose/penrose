@@ -1,0 +1,11 @@
+FROM fpco/stack-build:lts-9.10
+
+RUN echo 'alias runpenrose=""' >> ~/.bashrc
+
+# Put runpenrose in PATH with default domain arg (to be docker compatible)
+RUN echo -e '#!/bin/bash\n/home/penrose/.stack-work/install/x86_64-linux/lts-9.10/8.0.2/bin/penrose --domain=0.0.0.0 "$@"' > /usr/bin/penrose && \
+    chmod +x /usr/bin/penrose
+
+WORKDIR /home/penrose
+
+EXPOSE 9160
