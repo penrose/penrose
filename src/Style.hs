@@ -1005,7 +1005,7 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
         initSubsts       = []
         rawSubsts        = matchDecls varEnv subProg decls initSubsts
         subst_candidates = filter (fullSubst selEnv)
-                           $ trM1 ("rawSubsts: # " ++ show (length rawSubsts) ++ "\n"{- ++ ppShow rawSubsts-}) rawSubsts
+                           $ trace ("rawSubsts: # " ++ show (length rawSubsts) ++ "\n"{- ++ ppShow rawSubsts-}) rawSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
                            filterRels varEnv subEnv subProg rels subst_candidates

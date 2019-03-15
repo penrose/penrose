@@ -26,7 +26,7 @@ global {
     -- For conversion from math space to screen space
     -- TODO: compute these more automatically
     global.scaleFactor = 100.0
-    global.offset = 150.0
+    -- global.offset = 150.0
 }
 
 Colors {
@@ -93,8 +93,8 @@ SComplex K {
        K.layerTextFn = K.text above K.shape
 }
 
--- TODO: make this generic
-SComplex `K1`; SComplex `K2` {
+-- TODO: this generates a (K1, K2) and (K2, K1) match
+SComplex K1; SComplex K2 {
 	 LOCAL.padding = 30.0
 
 	 -- TODO: improve this for rectangles by not just using the x size
@@ -181,7 +181,7 @@ with Vertex v1; Vertex v2; SComplex K {
      e.layering3 = e.shape above K.shape
 }
 
-Face f
+Face f -- 255,552 substitutions...
 where f := MkFace(e1, e2, e3); InFS(f, K)
 with Edge e1; Edge e2; Edge e3; SComplex K {
      f.color = Colors.lightsky
