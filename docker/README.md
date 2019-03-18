@@ -6,7 +6,7 @@
 
 * Ensure you have GNU Make installed (the `make` command).
 
-* Run `make start-dev` to start the containers.
+* Run `make start-dev` to start the containers. If it's your first run, wait for the build to finish, and then keep the terminal running.
 
 * Run `make dev-build` in another terminal to do initial dep, GHC installation
 
