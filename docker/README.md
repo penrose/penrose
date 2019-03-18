@@ -2,7 +2,7 @@
 
 ## Setting Up
 
-* Ensure docker is installed and the daemon is running.
+* Ensure docker and docker-compose are installed and the docker daemon is running.
 
 * Ensure you have GNU Make installed (the `make` command).
 
