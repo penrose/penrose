@@ -9,25 +9,23 @@ const MeshSubset = require('./geometry-processing-js/node/core/mesh-subset.js');
 const Mesh = require('./geometry-processing-js/node/core/mesh.js');
 const Geometry = require('./geometry-processing-js/node/core/geometry.js');
 const MeshIO = require('./geometry-processing-js/node/utils/meshio.js');
-
 const SC = require('./geometry-processing-js/node/projects/simplicial-complex-operators/simplicial-complex-operators.js');
+const RandMesh = require('./rand-mesh.js');
 
 // Input meshes
-// const FaceMesh = require('./geometry-processing-js/input/face.js');
-// const HexMesh = require('./geometry-processing-js/input/hexagon.js');
-// const DiskMesh = require('./geometry-processing-js/input/small_disk.js');
 const TetraMesh = require('./input/tetrahedron.js');
 const SquareMesh = require('./input/square.js');
 const TriangleMesh = require('./input/triangle.js');
 const InnerMesh = require('./input/inner.js');
-
-const mesh_to_use = InnerMesh;
 
 const global_mesh = undefined;
 const newline = "\n";
 const vtype = "Vertex";
 const etype = "Edge";
 const ftype = "Face";
+
+const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
+const numPointsRange = [5, 10];
 
 function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;
@@ -89,10 +87,13 @@ function selected(objType, objName) {
 }
 
 function makeSComplex(cname) {
-    // TODO: make a simple random mesh, not a constant one
-    // Tetrahedron has vertices indexed from 0-3 (inclusive), edges 0-5, faces 0-3
-    // Maybe I should draw a 2D mesh
-    let polygonSoup = MeshIO.readOBJ(mesh_to_use);
+    const numPts = Math.floor(RandMesh.sampleFrom(numPointsRange));
+    console.log("num pts", numPts);
+    let mesh_input = RandMesh.makeRandMesh(numPts, pointRange);
+    console.log("mesh input", mesh_input);
+
+    let polygonSoup = MeshIO.readOBJ(mesh_input);
+    console.log("polygon soup", polygonSoup);
     let mesh = new Mesh.Mesh();
     mesh.build(polygonSoup);
     let v1 = mesh.vertices.length;
@@ -107,7 +108,7 @@ function makeSComplex(cname) {
     return { type: 'SimplicialComplex',
 	     name: cname,
 	     mesh: mesh,
-	     obj_file: mesh_to_use,
+	     obj_file: mesh_input,
 	     sc: SCO
 	   };
 }

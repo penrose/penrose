@@ -5,8 +5,11 @@ global {
     global.stroke = 2.0
     global.spacing = 150.0
 
-    global.selectedRadius = 5.0
-    global.selectedThickness = 3.5
+    global.sc_rect_stroke = 2.0
+    global.edgeStroke = 1.5
+
+    global.selectedRadius = 3.0
+    global.selectedThickness = 2.5
 
     global.selectedColor = Colors.red
     global.selectedColor2 = setOpacity(global.selectedColor, 0.25)
@@ -25,6 +28,10 @@ global {
 
     -- For conversion from math space to screen space
     -- TODO: compute these more automatically
+    -- These numbers (weights on inRange and the range itself) have been heavily tweaked
+    -- And it makes convergence hard
+    -- global.scaleFactor = OPTIMIZED
+    -- global.optFn = ensure inRange(global.scaleFactor, 75.0, 150.0)
     global.scaleFactor = 100.0
     -- global.offset = 150.0
 }
@@ -75,7 +82,7 @@ SComplex K {
 	       rotation = 0.0
 	       color = Colors.gainsboro
 	       strokeColor = Colors.black
-	       strokeWidth = 4.0
+	       strokeWidth = global.sc_rect_stroke
        }
 
        K.padding = 25.0
@@ -136,16 +143,24 @@ with SComplex K {
 Vertex v
 where DeclaredV(v); InVS(v, K)
 with SComplex K {
-      -- Optimize the label position, only for the distinguished vertex
       override v.text.string = v.label
-      override v.text.x = OPTIMIZED
-      override v.text.y = OPTIMIZED
+
+      /*
+       -- Optimize the label padding, only for the distinguished vertex
+      v.padding_x = OPTIMIZED
+      v.padding_y = OPTIMIZED
+      override v.text.x = v.shape.x + v.padding_x
+      override v.text.y = v.shape.y + v.padding_y
 
       v.offset = 30.0
       -- This is trying to place the labels but it's very slow, goes from 40s to 3min
       v.labelCloseFn = encourage near(v.text, v.shape, v.offset)
       v.labelInComplexFn = ensure contains(K.shape, v.text)
       -- Label's color might need to be programmatically set depending on its location
+
+      v.padding_range = 20.0
+      v.labelRangeXFn = ensure inRange(v.padding_x, v.shape.x - v.padding_range, v.shape.x + v.padding_range)
+      v.labelRangeYFn = ensure inRange(v.padding_y, v.shape.y - v.padding_range, v.shape.y + v.padding_range) */
 }
 
 Vertex v; Edge e
@@ -166,7 +181,7 @@ with Vertex v1; Vertex v2; SComplex K {
      	     endX = v2.shape.x
      	     endY = v2.shape.y
 	     color = Colors.black
-	     thickness = 2.5
+	     thickness = global.edgeStroke
      }
 
      -- e.text = Text {

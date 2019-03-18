@@ -295,10 +295,13 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("outsideOf", outsideOf),
                 ("overlapping", overlapping),
                 ("disjoint", disjoint),
-                ("inRange", inRange'),
+                ("inRange", (*) indivConstrWeight .  inRange'),
                 ("lessThan", lessThan),
                 ("onCanvas", onCanvas)
             ]
+
+indivConstrWeight :: (Autofloat a) => a
+indivConstrWeight = 1000
 
 constrSignatures :: OptSignatures
 constrSignatures = MM.fromList
