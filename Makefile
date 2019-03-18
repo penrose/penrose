@@ -11,4 +11,4 @@ penrose:
 	docker-compose -f docker-compose-dev.yml exec penrose sh -c "$(MAKECMDGOALS)"
 
 dev-build:
-	docker-compose -f docker-compose-dev.yml exec penrose sh -c "stack setup && stack build"
+	docker-compose -f docker-compose-dev.yml exec penrose sh -c "stack setup --allow-different-user && stack build --allow-different-user"
