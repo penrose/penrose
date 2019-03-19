@@ -2,15 +2,15 @@
 
 ## Setting Up
 
-* Ensure docker is installed and the daemon is running.
+* Ensure docker and docker-compose are installed and the docker daemon is running.
 
 * Ensure you have GNU Make installed (the `make` command).
 
-* Run `make start-dev` to start the containers.
+* Run `make start-dev` to start the containers. If it's your first run, wait for the build to finish, and then keep the terminal running.
 
 * Run `make dev-build` in another terminal to do initial dep, GHC installation
 
-* To shut down the containers (while preserving your build cache), just `ctrl-C` out of the `make start-dev` terminal.
+* To shut down the containers (while preserving your build cache), just `ctrl-C` out of the `make start-dev` terminal. If it exited by itself for some reason, you can run `make stop-dev`.
 
 ## Developing The Renderer
 
