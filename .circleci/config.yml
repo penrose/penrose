@@ -51,9 +51,15 @@ jobs:
 
 workflows:
   version: 2.1
-  build_deploy:
+  build:
     jobs:
       - build
+  build_deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
       - aws-ecr/build_and_push_image:
           filters:
             tags:
@@ -75,3 +81,6 @@ workflows:
           aws-access-key-id: $AWS_ACCESS_KEY
           aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
           aws-region: $AWS_REGION
+          filters:
+            tags:
+              only: /^v.*/
