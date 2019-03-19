@@ -10,7 +10,7 @@
 
 * Run `make dev-build` in another terminal to do initial dep, GHC installation
 
-* To shut down the containers (while preserving your build cache), just `ctrl-C` out of the `make start-dev` terminal.
+* To shut down the containers (while preserving your build cache), just `ctrl-C` out of the `make start-dev` terminal. If it exited by itself for some reason, you can run `make stop-dev`.
 
 ## Developing The Renderer
 
