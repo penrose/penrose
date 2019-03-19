@@ -51,19 +51,23 @@ jobs:
 
 workflows:
   version: 2.1
-  build:
+  build_other_branches:
     jobs:
-      - build
-  build_deploy:
+      - build:
+        filters:
+          branches:
+            ignore:
+              - master
+  build_master_deploy:
     jobs:
       - build:
           filters:
-            tags:
-              only: /^v.*/
+            branches:
+              only: master
       - aws-ecr/build_and_push_image:
           filters:
-            tags:
-              only: /^v.*/
+            branches:
+              only: master
           requires:
             - build
           account-url: AWS_ECR_ACCOUNT_URL
@@ -82,5 +86,5 @@ workflows:
           aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
           aws-region: $AWS_REGION
           filters:
-            tags:
-              only: /^v.*/
+            branches:
+              only: master
