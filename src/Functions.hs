@@ -291,6 +291,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("minSize", minSize),
                 ("maxSize", maxSize),
                 ("outsideOf", outsideOf),
+                ("overlapping", overlapping),
                 ("disjoint", disjoint),
                 ("inRange", inRange'),
                 ("lessThan", lessThan)
@@ -797,7 +798,7 @@ bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
     where getXs a = [getNum a "startX", getNum a "endX"]
 
 bbox :: (Autofloat a) => Shape a -> Shape a -> [(a, a)]
-bbox a1 a2 = 
+bbox a1 a2 =
     if not (linelike a1 && linelike a2) then error "expected two linelike GPIs" else
     let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
         (xmin, xmax) = (minimum xs, maximum xs)

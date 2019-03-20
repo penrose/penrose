@@ -614,6 +614,38 @@ getPathData shape = case shape .: "pathData" of
     PathDataV x -> x
     _ -> error "getPathData: expected [PathData a] but got something else"
 
+-- | Apply a function to each point in a path
+mapPathData :: (Autofloat a) => (Pt2 a -> Pt2 a) -> PathData a -> PathData a
+mapPathData f pd = map (mapPath f) pd
+
+mapPath :: (Autofloat a) => (Pt2 a -> Pt2 a) -> Path' a -> Path' a
+mapPath f (Closed es) = Closed $ map (mapElem f) es
+mapPath f (Open es)   = Open $ map (mapElem f) es
+
+mapElem :: (Autofloat a) => (Pt2 a -> Pt2 a) -> Elem a -> Elem a
+mapElem f (Pt p) = Pt $ f p
+mapElem f (CubicBez (p0, p1, p2)) = CubicBez (f p0, f p1, f p2)
+mapElem f (CubicBezJoin (p0, p1)) = CubicBezJoin (f p0, f p1)
+mapElem f (QuadBez (p0, p1)) = QuadBez (f p0, f p1)
+mapElem f (QuadBezJoin p) = QuadBezJoin $ f p
+
+-- | Add an offset to each point in a path
+translatePath :: (Autofloat a) => Pt2 a -> PathData a -> PathData a
+translatePath offset pd = mapPathData (+: offset) pd
+
+-- | Figure out whether to translate pathManual or pathData
+movePath :: (Autofloat a) => (a, a) -> Shape a -> Shape a
+movePath offset shape =
+      let pathManual = getPath shape
+          pathData   = getPathData shape in
+      case (pathManual, pathData) of
+      (_:_, []) -> let res = (map (+: offset) pathManual) in
+                   set shape "path" (PtListV res)
+      ([], _:_) -> let res = translatePath offset pathData in
+                   set shape "pathData" (PathDataV res)
+      (_:_, _:_) -> error "shape can't have both path manually set and path data"
+      ([], []) -> error "shape has no path or data"
+
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator
 
