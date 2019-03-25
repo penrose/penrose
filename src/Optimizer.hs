@@ -77,12 +77,39 @@ unconstrainedStopCond gradEval = norm gradEval < epsUnconstr
 
 ---------------------------------------
 
+stepToUse :: State -> State
+stepToUse = stepPolicy
+
+-- Policies
+
+stepPolicy :: State -> State
+stepPolicy s = 
+    -- Check convergence first 
+    let epStatus = optStatus $ (paramsr s) in
+    case epStatus of
+    -- Generate new objective function
+    EPConverged -> -- TODO: I'm pretty sure the frontend will stop at EPConverged and ignore the policy. Put it after step instead, and have it change the actual Opt params
+        let (policyRes, psNew) = (policyFn s) s in
+        case policyRes of
+            Nothing     -> s -- Policy done. Should the frontend know about it?
+            Just newFns -> -- Policy keeps going
+                let objFnNew = genObjfn (transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) -- TODO: check that these inputs are right
+                    s' = s { policyParams = PolicyParams { policyState = psNew, 
+                                                           policySteps = 1 + policySteps (policyParams s) }}
+                in step s'
+    -- If not converged, optimize as usual, don't change policy mid-optimization
+    _ -> step s
+    where isObjFn f  = optType f == Objfn
+          isConstr f = optType f == Constrfn
+
+---------------------------------------
+
 -- Main optimization functions
 
 step :: State -> State
 step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              s'                = s { varyingState = state', paramsr = params' }
-             -- NOTE: we intentially discard the random generator here because
+             -- NOTE: we intentionally discard the random generator here because
              -- we want to have consistent computation output in a single
              -- optimization session
              -- For the same reason, all subsequent step* functions such as

@@ -83,6 +83,16 @@ data Params = Params { weight :: Float,
 instance Show Params where
          show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
 
+type PolicyState = String -- Should this include the functions that it returned last time?
+type Policy = State -> (Maybe [Fn], PolicyState) -- State includes PolicyParams
+
+data PolicyParams = PolicyParams { policyState :: String,
+                                   policySteps :: Int 
+                                 }
+
+instance Show PolicyParams where
+         show p = "PState: " ++ policyState p ++ " | Opt status: " ++ show (policySteps p)
+
 data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
                      shapeOrdering :: [String],
@@ -95,7 +105,9 @@ data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      objFns :: [Fn],
                      constrFns :: [Fn],
                      rng :: StdGen,
-                     autostep :: Bool }
+                     autostep :: Bool,
+                     policyFn :: Policy,
+                     policyParams :: PolicyParams }
 
 instance Show State where
          show s = "Shapes: \n" ++ ppShow (shapesr s) ++
@@ -144,6 +156,9 @@ initWeight :: Autofloat a => a
 -- Steps very slowly with a higher weight; does not seem to converge but looks visually OK (function-composition.sub)
 -- initWeight = 1
 initWeight = 10 ** (-3)
+
+policyToUse :: Policy
+policyToUse = optimizeConstraintsThenObjectives
 
 --------------- Utility functions
 
@@ -825,7 +840,10 @@ genOptProblemAndState trans =
                                                     optStatus = NewIter,
                                                     overallObjFn = overallFn },
                                  rng = g'',
-                                 autostep = False -- default
+                                 autostep = False, -- default
+                                 policyParams = PolicyParams { policyState = "",
+                                                               policySteps = 0 },
+                                 policyFn = policyToUse
                                } in
 
     initFullState
@@ -999,3 +1017,42 @@ evalFnOn s = let optInfo = paramsr s
 -- | Compare two states and return the one with less energy.
 lessEnergy :: State -> State -> Ordering
 lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
+
+---------- Policies
+
+-- Policy stops when value is None
+-- Policy step = one optimization through to convergence
+-- TODO: factor out number of policy steps / other boilerplate? or let it remain dynamic?
+-- TODO: factor out the weights on the objective functions / method of combination (in genObjFn)
+
+optimizeConstraints :: Policy
+optimizeConstraints s = 
+    let (pstate, psteps) = (policyState (policyParams s), policySteps (policyParams s)) in
+    if psteps == 0 then (Just $ constrFns s, "")
+    else (Nothing, "") -- Take 1 step
+
+optimizeObjectives :: Policy
+optimizeObjectives s =
+    let (pstate, psteps) = (policyState (policyParams s), policySteps (policyParams s)) in
+    if psteps == 0 then (Just $ objFns s, "")
+    else (Nothing, "") -- Take 1 step
+
+-- This is the typical/old Penrose policy
+optimizeSumAll :: Policy
+optimizeSumAll s =
+    let (pstate, psteps) = (policyState (policyParams s), policySteps (policyParams s)) in
+    if psteps == 0 then (Just $ objFns s ++ constrFns s, "")
+    else (Nothing, "") -- Take 1 step
+
+-- TODO stepToUse
+
+optimizeConstraintsThenObjectives :: Policy
+optimizeConstraintsThenObjectives s =
+     let (objfns, constrfns, params) = (objFns s, constrFns s, policyParams s) 
+         (pstate, psteps) = (policyState params, policySteps params)
+     in
+     if psteps == 0 then (Just constrfns, "Constraints")
+     else if psteps > 10 then (Nothing, "")
+     else if pstate == "Constraints" then (Just objfns, "Objectives")
+     else if pstate == "Objectives" then (Just constrfns, "Constraints")
+     else error "invalid policy state"
