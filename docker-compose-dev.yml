@@ -1,0 +1,34 @@
+version: '3.2'
+services:
+  penrose:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-penrose.dev
+    image: penrose-dev
+    ports:
+      - "9160:9160"
+    command: tail -F /dev/null # keepalive
+    volumes:
+      - ".:/home/penrose"
+  renderer:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-renderer.dev
+    image: renderer-dev
+    ports:
+      - "3500:3500"
+    volumes:
+      - "./src/react-renderer:/home/node/react-renderer"
+    tty: true # needed for ctrl-C graceful shutdown of whole system
+  domain-server:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-domains.dev
+    image: domains
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./src:/home/node/src"
+    logging:
+      driver: "none"
+
