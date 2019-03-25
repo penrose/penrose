@@ -83,27 +83,27 @@ stepPolicy :: State -> (Params, PolicyParams)
 stepPolicy s = 
     -- Check overall convergence first 
     let epStatus = optStatus $ (paramsr s) in
+    let pparams = policyParams s in
     case epStatus of
 
     -- Generate new objective function and replace the optimization and policy params accordingly
     EPConverged -> 
-        let (policyRes, psNew) = (policyFn s) s in -- See what the policy function wants
+                -- TODO: clean up the step incrementing
+        let pparams' = pparams { policySteps = 1 + policySteps pparams } in
+        let (policyRes, psNew) = (policyFn s) (objFns s) (constrFns s) pparams' in -- See what the policy function wants
         case policyRes of
-            Nothing     -> (paramsr s, policyParams s) -- Policy done
+            Nothing     -> (paramsr s, pparams' { policyState = psNew }) -- steps incremented, policy done
+
             Just newFns -> -- Policy keeps going
                 let objFnNew = genObjfn (transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) -- TODO: check that these inputs are right
-                    pparamsNew = PolicyParams { policyState = psNew, 
-                                                policySteps = 1 + policySteps (policyParams s) }
+                    pparamsNew = pparams' { policyState = psNew }
                     paramsNew = Params { weight = initWeight,
                                          optStatus = NewIter,
                                          overallObjFn = objFnNew } -- Change obj function!!
-                in (paramsNew, pparamsNew)
+                in tro ("Step policy, EP converged, new params:\n" ++ show (paramsNew, pparamsNew, newFns)) $ (paramsNew, pparamsNew)
 
     -- If not converged, optimize as usual, don't change policy mid-optimization
-    _ -> (paramsr s, policyParams s)
-
-    where isObjFn f  = optType f == Objfn
-          isConstr f = optType f == Constrfn
+    _ -> tro ("Step policy, EP not converged, new params:\n" ++ show (paramsr s, pparams)) $ (paramsr s, pparams)
 
 ---------------------------------------
 
@@ -121,7 +121,7 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              (!shapes', _, _)     = evalTranslation s'
              -- Check the state and see if the overall objective function should be changed
              -- The policy may change EPConverged to a new iteration before the frontend sees it
-             (paramsNew, pparamsNew) = stepPolicy s
+             (paramsNew, pparamsNew) = stepPolicy s'
 
              -- For debugging
              oldParams = paramsr s

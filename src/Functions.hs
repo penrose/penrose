@@ -218,7 +218,9 @@ objFuncDict = M.fromList
         ("topLeftOf", topLeftOf),
         ("above", above),
         ("equal", equal),
-        ("distBetween", distBetween)
+        ("distBetween", distBetween),
+        ("sameCenter", sameCenter)
+
         -- ("sameX", sameX)
 
 {-      ("centerLine", centerLine),
@@ -235,7 +237,6 @@ objFuncDict = M.fromList
         ("sameY", sameY),
         -- ("sameX", (*) 0.6 `compose2` sameX),
         -- ("sameX", (*) 0.2 `compose2` sameX),
-        ("sameCenter", sameCenter),
         ("repel", (*)  900000  `compose2` repel),
         -- ("repel", (*)  1000000  `compose2` repel),
         -- ("repel", (*)  10000  `compose2` repel),
