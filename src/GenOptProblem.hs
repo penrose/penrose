@@ -1029,22 +1029,20 @@ optimizeConstraints :: Policy
 optimizeConstraints s = 
     let (pstate, psteps) = (policyState (policyParams s), policySteps (policyParams s)) in
     if psteps == 0 then (Just $ constrFns s, "")
-    else (Nothing, "") -- Take 1 step
+    else (Nothing, "") -- Take 1 policy step
 
 optimizeObjectives :: Policy
 optimizeObjectives s =
     let (pstate, psteps) = (policyState (policyParams s), policySteps (policyParams s)) in
     if psteps == 0 then (Just $ objFns s, "")
-    else (Nothing, "") -- Take 1 step
+    else (Nothing, "") -- Take 1 policy step
 
 -- This is the typical/old Penrose policy
 optimizeSumAll :: Policy
 optimizeSumAll s =
     let (pstate, psteps) = (policyState (policyParams s), policySteps (policyParams s)) in
     if psteps == 0 then (Just $ objFns s ++ constrFns s, "")
-    else (Nothing, "") -- Take 1 step
-
--- TODO stepToUse
+    else (Nothing, "") -- Take 1 policy step
 
 optimizeConstraintsThenObjectives :: Policy
 optimizeConstraintsThenObjectives s =
@@ -1052,7 +1050,7 @@ optimizeConstraintsThenObjectives s =
          (pstate, psteps) = (policyState params, policySteps params)
      in
      if psteps == 0 then (Just constrfns, "Constraints")
-     else if psteps > 10 then (Nothing, "")
+     else if psteps >= 2 then (Nothing, "") -- Just constraints then objectives for now, then done
      else if pstate == "Constraints" then (Just objfns, "Objectives")
      else if pstate == "Objectives" then (Just constrfns, "Constraints")
      else error "invalid policy state"

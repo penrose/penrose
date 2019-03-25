@@ -253,7 +253,7 @@ renderer (Renderer s) pending = do
             shapes = shapesr s :: [Shape Double]
         }
     clientID <- newUUID
-    let clientState = Renderer $ O.stepToUse s
+    let clientState = Renderer $ O.step s
     let client = (clientID, conn, clientState)
     waitUpdate client
 

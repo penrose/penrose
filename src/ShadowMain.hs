@@ -145,7 +145,7 @@ stepsWithoutServer :: G.State -> G.State
 stepsWithoutServer initState =
          let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepAndCount (initState, 0) in
          trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
-         where stepAndCount (s, n) = traceShowId (O.stepToUse s, n + 1)
+         where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
                notConverged (s, n) = G.optStatus (G.paramsr s) /= G.EPConverged
                                      && n < maxSteps
                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge
