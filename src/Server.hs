@@ -389,7 +389,9 @@ updateShapes newShapes client@(clientID, conn, clientState) =
     let polyShapes = toPolymorphics newShapes
         uninitVals = map G.toTagExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
         trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
-        newObjFn = G.genObjfn trans' (G.objFns s) (G.constrFns s) (G.varyingPaths s)
+        -- Respect the optimization policy
+        policyFns = currFns $ policyParams s
+        newObjFn = G.genObjfn trans' (filter isObjFn policyFns) (filter isConstr policyFns) (G.varyingPaths s)
         varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
         news = s {
             G.shapesr = polyShapes,

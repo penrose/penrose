@@ -28,6 +28,7 @@ import           System.Console.Pretty (Color (..), Style (..), bgColor, color, 
 import qualified Data.Set as Set
 import qualified Data.Graph as Graph
 import GHC.Float (float2Double, double2Float)
+import qualified Data.Maybe as DM (fromJust)
 
 -------------------- Type definitions
 
@@ -83,6 +84,18 @@ data Params = Params { weight :: Float,
 instance Show Params where
          show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
 
+type PolicyState = String -- Should this include the functions that it returned last time?
+type Policy = [Fn] -> [Fn] -> PolicyParams -> (Maybe [Fn], PolicyState)
+
+data PolicyParams = PolicyParams { policyState :: String,
+                                   policySteps :: Int,
+                                   currFns :: [Fn]
+                                 }
+
+instance Show PolicyParams where
+         show p = "Policy state: " ++ policyState p ++ " | Policy steps: " ++ show (policySteps p)
+                          -- ++ "\nFunctions:\n" ++ ppShow (currFns p)
+
 data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
                      shapeOrdering :: [String],
@@ -95,7 +108,9 @@ data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      objFns :: [Fn],
                      constrFns :: [Fn],
                      rng :: StdGen,
-                     autostep :: Bool }
+                     autostep :: Bool,
+                     policyFn :: Policy,
+                     policyParams :: PolicyParams }
 
 instance Show State where
          show s = "Shapes: \n" ++ ppShow (shapesr s) ++
@@ -144,6 +159,12 @@ initWeight :: Autofloat a => a
 -- Steps very slowly with a higher weight; does not seem to converge but looks visually OK (function-composition.sub)
 -- initWeight = 1
 initWeight = 10 ** (-3)
+
+policyToUse :: Policy
+policyToUse = optimizeSumAll
+-- policyToUse = optimizeConstraintsThenObjectives
+-- policyToUse = optimizeConstraints
+-- policyToUse = optimizeObjectives
 
 --------------- Utility functions
 
@@ -626,7 +647,7 @@ genObjfn :: (Autofloat a)
 genObjfn trans objfns constrfns varyingPaths =
      \rng penaltyWeight varyingVals ->
          let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
-         let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
+         let (fnsE, transE, rng') = evalFns evalIterRange (trace ("genObjfn inputs:" ++ ppShow (objfns ++ constrfns)) (objfns ++ constrfns)) trans varyMap rng in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
 
@@ -810,7 +831,7 @@ genOptProblemAndState trans =
     if null initState then error "empty state in genopt" else
 
     -- This is the final Style compiler output
-    let initFullState = trace "genOptProblem init state: " $
+    let s = trace "genOptProblem init state: " $
                         State { shapesr = initialGPIs,
                                  shapeNames = shapeNames,
                                  shapeProperties = shapeProperties,
@@ -825,10 +846,21 @@ genOptProblemAndState trans =
                                                     optStatus = NewIter,
                                                     overallObjFn = overallFn },
                                  rng = g'',
-                                 autostep = False -- default
+                                 autostep = False, -- default
+                                 policyParams = PolicyParams { policyState = "",
+                                                               policySteps = 0,
+                                                               currFns = [] },
+                                 policyFn = policyToUse
                                } in
 
-    initFullState
+        -- TODO: make this less verbose
+    let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) (policyParams s) in
+    let newFns = DM.fromJust policyRes in
+    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) 
+                                                                              (filter isConstr newFns) varyingPaths }, 
+                              policyParams = (policyParams s) { policyState = pstate, currFns = newFns } } in
+
+    stateWithPolicy
     -- NOTE: we do not resample the very first initial state. Not sure why the shapes / labels are rendered incorrectly.
     -- resampleBest numStateSamples initFullState
 
@@ -999,3 +1031,44 @@ evalFnOn s = let optInfo = paramsr s
 -- | Compare two states and return the one with less energy.
 lessEnergy :: State -> State -> Ordering
 lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
+
+---------- List of policies that can be used with the optimizer
+
+-- Policy stops when value is None
+-- Note: if there are no objectives/constraints, policy may return an empty list of functions
+-- Policy step = one optimization through to convergence
+-- TODO: factor out number of policy steps / other boilerplate? or let it remain dynamic?
+-- TODO: factor out the weights on the objective functions / method of combination (in genObjFn)
+
+optimizeConstraints :: Policy
+optimizeConstraints objfns constrfns params = 
+    let (pstate, psteps) = (policyState params, policySteps params) in
+    if psteps == 0 then (Just constrfns, "")
+    else (Nothing, "") -- Take 1 policy step
+
+optimizeObjectives :: Policy
+optimizeObjectives objfns constrfns params =
+    let (pstate, psteps) = (policyState params, policySteps params) in
+    if psteps == 0 then (Just objfns, "")
+    else (Nothing, "") -- Take 1 policy step
+
+-- This is the typical/old Penrose policy
+optimizeSumAll :: Policy
+optimizeSumAll objfns constrfns params =
+    let (pstate, psteps) = (policyState params, policySteps params) in
+    if psteps == 0 then (Just $ objfns ++ constrfns, "")
+    else (Nothing, "") -- Take 1 policy step
+
+optimizeConstraintsThenObjectives :: Policy
+optimizeConstraintsThenObjectives objfns constrfns params =
+     let (pstate, psteps) = (policyState params, policySteps params) in
+     if psteps == 0 then (Just constrfns, "Constraints") -- Initial policy state
+     else if psteps >= 2 then (Nothing, "Done") -- Just constraints then objectives for now, then done
+     else if pstate == "Constraints" then (Just objfns, "Objectives")
+     else if pstate == "Objectives" then (Just constrfns, "Constraints")
+     else error "invalid policy state"
+
+isObjFn f  = optType f == Objfn
+isConstr f = optType f == Constrfn
+
+-- TODO: does genObjFns work with an empty list?

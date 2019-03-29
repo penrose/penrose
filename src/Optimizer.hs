@@ -77,23 +77,64 @@ unconstrainedStopCond gradEval = norm gradEval < epsUnconstr
 
 ---------------------------------------
 
+-- Policies
+
+stepPolicy :: State -> (Params, PolicyParams)
+stepPolicy s = 
+    -- Check overall convergence first 
+    let epStatus = optStatus $ (paramsr s) in
+    let pparams = policyParams s in
+    case epStatus of
+
+    -- Generate new objective function and replace the optimization and policy params accordingly
+    EPConverged -> 
+                -- TODO: clean up the step incrementing
+        let pparams' = pparams { policySteps = 1 + policySteps pparams } in
+        let (policyRes, psNew) = (policyFn s) (objFns s) (constrFns s) pparams' in -- See what the policy function wants
+        case policyRes of
+            Nothing     -> (paramsr s, pparams' { policyState = psNew }) -- steps incremented, policy done
+
+            Just newFns -> -- Policy keeps going
+                let objFnNew = genObjfn (transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) 
+                    -- TODO: check that these inputs are right
+                    -- Change obj function and restart optimization
+                    pparamsNew = pparams' { policyState = psNew,
+                                            currFns = newFns }
+                    paramsNew = Params { weight = initWeight,
+                                         optStatus = NewIter,
+                                         overallObjFn = objFnNew }
+                in tro ("Step policy, EP converged, new params:\n" ++ show (paramsNew, pparamsNew, newFns)) $ (paramsNew, pparamsNew)
+
+    -- If not converged, optimize as usual, don't change policy mid-optimization
+    _ -> tro ("Step policy, EP not converged, new params:\n" ++ show (paramsr s, pparams)) $ (paramsr s, pparams)
+
+---------------------------------------
+
 -- Main optimization functions
 
 step :: State -> State
 step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
-             s'                = s { varyingState = state', paramsr = params' }
-             -- NOTE: we intentially discard the random generator here because
+             s'                = s { varyingState = state', 
+                                     paramsr = params' }
+             -- NOTE: we intentionally discard the random generator here because
              -- we want to have consistent computation output in a single
              -- optimization session
              -- For the same reason, all subsequent step* functions such as
              -- stepShapes do not return the new random generator
              (!shapes', _, _)     = evalTranslation s'
 
+             -- Check the state and see if the overall objective function should be changed
+             -- The policy may change EPConverged to a new iteration before the frontend sees it
+             (paramsNew, pparamsNew) = stepPolicy s'
+
              -- For debugging
              oldParams = paramsr s
 
-         in tro ({-clearScreenCode ++ -}"Params: \n" ++ show oldParams ++ "\n:") $
-            s' { shapesr = shapes' } -- note: trans is not updated in state
+         in tro ("Params: \n" ++ show oldParams ++ "\n:") $
+            s' { shapesr = shapes',
+                 paramsr = paramsNew,
+                 policyParams = pparamsNew } 
+            -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
