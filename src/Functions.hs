@@ -301,7 +301,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
             ]
 
 indivConstrWeight :: (Autofloat a) => a
-indivConstrWeight = 1000
+indivConstrWeight = 1
 
 constrSignatures :: OptSignatures
 constrSignatures = MM.fromList
