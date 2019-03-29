@@ -9,7 +9,7 @@ import Debug.Trace
 import Shapes
 import Data.Aeson (toJSON)
 import Data.Maybe (fromMaybe)
-import           Data.List                          (nub, sort, findIndex, find)
+import           Data.List                          (nub, sort, findIndex, find, maximumBy)
 import           System.Random.Shuffle
 import qualified Data.Map.Strict as M
 import qualified Data.MultiMap as MM
@@ -111,6 +111,7 @@ compDict = M.fromList
         ("makeRegionPath", constComp makeRegionPath),
         ("sampleFunctionArea", sampleFunctionArea),
         ("makeCurve", makeCurve),
+        ("triangle", constComp triangle),
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
         ("tangentLineEX", constComp tangentLineEX),
@@ -218,6 +219,8 @@ objFuncDict = M.fromList
         ("above", above),
         ("equal", equal),
         ("distBetween", distBetween)
+        -- ("sameX", sameX)
+
 {-      ("centerLine", centerLine),
         ("increasingX", increasingX),
         ("increasingY", increasingY),
@@ -228,7 +231,6 @@ objFuncDict = M.fromList
         ("orthogonal", orthogonal),
         ("toLeft", toLeft),
         ("between", between),
-        ("sameX", sameX),
         ("ratioOf", ratioOf),
         ("sameY", sameY),
         -- ("sameX", (*) 0.6 `compose2` sameX),
@@ -293,9 +295,13 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("outsideOf", outsideOf),
                 ("overlapping", overlapping),
                 ("disjoint", disjoint),
-                ("inRange", inRange'),
-                ("lessThan", lessThan)
+                ("inRange", (*) indivConstrWeight .  inRange'),
+                ("lessThan", lessThan),
+                ("onCanvas", onCanvas)
             ]
+
+indivConstrWeight :: (Autofloat a) => a
+indivConstrWeight = 1
 
 constrSignatures :: OptSignatures
 constrSignatures = MM.fromList
@@ -680,7 +686,7 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV xFrac), Val (FloatV yFrac
 
                         -- TODO: not sure if this is right. do any points need to be included in the path?
                         path = Closed $ [Pt pt_tl, Pt pt_tr] ++ right_curve ++ [Pt pt_br, Pt pt_bl] ++ left_curve
-                    in  (Val $ PathDataV [path], g)
+                    in (Val $ PathDataV [path], g)
                else error "expected two linelike shapes"
 
 -- Draw a curve from (x1, y1) to (x2, y2) with some point in the middle defining curvature
@@ -690,6 +696,22 @@ makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), V
               midpt = midpoint (x1, y1) (x2, y2) +: offset
               path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)]
           in (Val $ PathDataV [path], g)
+
+-- Draw a triangle as the closure of three lines (assuming they define a valid triangle, i.e. intersect exactly at their endpoints)
+triangle :: ConstCompFn
+triangle [GPI e1@("Line", _), GPI e2@("Line", _), GPI e3@("Line", _)] =
+         -- TODO: what's the convention on the ordering of the lines?
+         let (v1, v2) = (getPoint "start" e1, getPoint "end" e1)
+             v3_candidates = [getPoint "start" e2, getPoint "end" e2, 
+                              getPoint "start" e3, getPoint "end" e3]
+             v3 = furthestFrom (v1, v2) v3_candidates
+             path = Closed [Pt v1, Pt v2, Pt v3]
+         in {- trace ("path: " ++ show path) $ -} Val $ PathDataV [path]
+         where 
+         furthestFrom :: (Autofloat a) => (Pt2 a, Pt2 a) -> [Pt2 a] -> Pt2 a
+         furthestFrom (p1, p2) pts = fst $ 
+                                     maximumBy (\p1 p2 -> compare (snd p1) (snd p2)) $
+                                     map (\p -> (p, dist p p1 + dist p p2)) pts
 
 -- NOTE: assumes that the curve has at least 3 points
 tangentLine :: Autofloat a => a -> [Pt2 a] -> a -> (Pt2 a, Pt2 a)
@@ -823,7 +845,9 @@ setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] = Val $ ColorV (RGBA
 -- Objective Functions
 
 near :: ObjFn
+near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
+near [GPI o1, GPI o2, Val (FloatV offset)] = distsq (getX o1, getY o1) (getX o2, getY o2) - offset^2
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
     let center = (getNum img "centerX", getNum img "centerY")
         offset = (xoff, yoff)
@@ -984,7 +1008,7 @@ equal :: ObjFn
 equal [Val (FloatV a), Val (FloatV b)] = (a - b)^2
 
 distBetween :: ObjFn
-distBetween [GPI c1, GPI c2, Val (FloatV padding)] =
+distBetween [GPI c1@("Circle", _), GPI c2@("Circle", _), Val (FloatV padding)] =
     let (r1, r2, x1, y1, x2, y2) = (getNum c1 "r", getNum c2 "r", getX c1, getY c1, getX c2, getY c2) in
     -- If one's a subset of another or has same radius as other
     -- If they only intersect
@@ -1028,10 +1052,10 @@ contains [GPI c@("Circle", _), GPI t@("Text", _)] =
     --     (cx, cy, radius) = (getX c, getY c, getNum c "r")
     -- in sum $ map (\(a, b) -> (max 0 $ dist (cx, cy) (a, b) - radius)^2) pts
 contains [GPI s@("Square", _), GPI l@("Text", _)] =
-    dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 + getNum l "w"
+    dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 + getNum l "w" / 2
 contains [GPI s@("Rectangle", _), GPI l@("Text", _)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
-    dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "sizeX"
+    dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "w" / 2
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
     dist (getX outc, getY outc) (getX inc, getY inc) - (0.5 * getNum outc "side" - 0.5 * getNum inc "side")
 contains [GPI outc@("Square", _), GPI inc@("Circle", _)] =
@@ -1068,12 +1092,25 @@ inRange a l r
     | a > r  = (a-r)^2
     | otherwise = 0
 
+inRange'' :: (Autofloat a) => a -> a -> a -> a
+inRange'' v left right
+    | v < left = left - v
+    | v > right = v - right
+    | otherwise = 0
+
 inRange' :: ConstrFn
 inRange' [Val (FloatV v), Val (FloatV left), Val (FloatV right)]
     | v < left = left - v
     | v > right = v - right
     | otherwise = 0
 -- = inRange v left right
+
+onCanvas :: ConstrFn
+onCanvas [GPI g] =
+         let (leftX, rightX) = (-canvasHeight / 2, canvasHeight / 2)
+             (leftY, rightY) = (-canvasWidth / 2, canvasWidth / 2) in
+         inRange'' (getX g) (r2f leftX) (r2f rightX) +
+         inRange'' (getY g) (r2f leftY) (r2f rightY) 
 
 -- contains [GPI set@("Circle", _), P' GPI pt@("", _)] = dist (getX pt, getX pt) (getX set, getY set) - 0.5 * r' set
 -- TODO: only approx
@@ -1155,8 +1192,22 @@ disjoint :: ConstrFn
 disjoint [GPI xset@("Circle", _), GPI yset@("Circle", _)] =
     noIntersect [[getX xset, getY xset, getNum xset "r"], [getX yset, getY yset, getNum yset "r"]]
 
+-- This is not totally correct since it doesn't account for the diagonal of a square
 disjoint [GPI xset@("Square", _), GPI yset@("Square", _)] =
     noIntersect [[getX xset, getY xset, 0.5 * getNum xset "side"], [getX yset, getY yset, 0.5 * getNum yset "side"]]
+
+disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offset)] =
+    -- Arbitrarily using x size
+    noIntersectOffset [[getX xset, getY xset, 0.5 * getNum xset "sizeX"], [getX yset, getY yset, 0.5 * getNum yset "sizeX"]] offset
+
+disjoint [GPI box@("Text", _), GPI seg@("Line", _), Val (FloatV offset)] =
+    let center = (getX box, getY box)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp     = closestpt_pt_seg center (v, w) 
+        len_approx = getNum box "w" / 2.0 -- TODO make this more exact
+    in -(dist center cp) + len_approx + offset
+    -- i.e. dist from center of box to closest pt on line seg is greater than the approx distance between the box center and the line + some offset
+
 
 -- For horizontally collinear line segments only
 -- with endpoints (si, ei), assuming si < ei (e.g. enforced by some other constraint)
@@ -1181,6 +1232,9 @@ disjoint [GPI o1, GPI o2] =
 -- exterior point method constraint: no intersection (meaning also no subset)
 noIntersect :: (Autofloat a) => [[a]] -> a
 noIntersect [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset where offset = 10
+
+noIntersectOffset :: (Autofloat a) => [[a]] -> a -> a
+noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset = -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset
 
 --------------------------------------------------------------------------------
 -- Default functions for every shape

@@ -29,6 +29,7 @@ import Debug.Trace
 import Text.Show.Pretty
 import Web.Scotty
 import Network.HTTP.Types.Status
+import Data.Aeson
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (decodeUtf8)
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -95,24 +96,25 @@ penroseRenderer subFile styFile dsllFile domain port = do
     -- If no instantiations, proceed with Style compiler.
     -- If 1 instantiation, run the plugin, append the resulting Substance program, re-check the full program, and use it in the Style compiler.
     -- If >1 instantiation, throw an error.
-    subProgForStyle <- case instantiations of
-                         [] -> do putStrLn "no instantiators found"
-                                  return subOut
-                         [pluginName] -> do newSubProg <- instantiateSub pluginName subOut
-                                            let fullSubProg = desugaredSub ++ "\n" ++ newSubProg
-                                            -- Do we really need subFileSugared? Doesn't seem to be needed above.
-                                            newSubOut <- C.parseSubstance subFileSugared fullSubProg dsllEnv
-                                            putStrLn "new Substance program after plugin:" 
-                                            print newSubOut
-                                            return newSubOut
-                         _ -> error "Multiple instantiators found in Style; only one allowed"
+    (subProgForStyle, styVals) <- case instantiations of
+                                    [] -> do putStrLn "no instantiators found"
+                                             return (subOut, [])
+                                    [pluginName] -> do (newSubProg, styJSON) <- instantiateSub pluginName subOut
+                                                       let fullSubProg = desugaredSub ++ "\n" ++ newSubProg
+                                                       -- Do we really need subFileSugared? Doesn't seem to be needed above.
+                                                       -- error "stop for now"
+                                                       newSubOut <- C.parseSubstance subFileSugared fullSubProg dsllEnv
+                                                       putStrLn "new Substance program after plugin:" 
+                                                       print newSubOut
+                                                       return (newSubOut, styJSON)
+                                    _ -> error "Multiple instantiators found in Style; only one allowed"
 
     styProg <- S.parseStyle styFile styIn dsllEnv
     putStrLn "Style AST:\n"
     pPrint styProg
     divLine
 
-    initState <- G.compileStyle styProg subProgForStyle -- Includes Substance plugin output
+    initState <- G.compileStyle styProg subProgForStyle styVals -- Includes Substance plugin output
 
     Server.serveRenderer domain port initState
 
@@ -121,6 +123,8 @@ penroseRenderer subFile styFile dsllFile domain port = do
 -- (extracted via unsafePerformIO)
 -- Very similar to shadowMain but does not depend on rendering  so it does not return SVG
 -- TODO take initRng seed as argument
+-- TODO: port to use plugin architecture
+{-
 mainRetInit :: String -> String -> String -> IO (Maybe G.State)
 mainRetInit subFile styFile dsllFile = do
     subIn <- readFile subFile
@@ -135,6 +139,7 @@ mainRetInit subFile styFile dsllFile = do
                         :: forall a . (Autofloat a) => Either [S.Error] (S.Translation a)
     let initState = G.genOptProblemAndState (fromRight trans)
     return $ Just initState
+-}
 
 stepsWithoutServer :: G.State -> G.State
 stepsWithoutServer initState =
@@ -160,7 +165,7 @@ removeIfExists fileName = removeFile fileName `catch` handleExists
 type SubstanceRaw = String
 
 -- TODO: add more error checking to deal with paths or files that don't exist
-instantiateSub :: String -> C.SubOut -> IO SubstanceRaw
+instantiateSub :: String -> C.SubOut -> IO (SubstanceRaw, [J.StyVal])
 instantiateSub pluginName parsedSub = do
     originalDir <- getCurrentDirectory
     let (dirPath, pluginCmd) = catchPathError pluginName (M.lookup pluginName plugins)
@@ -168,15 +173,25 @@ instantiateSub pluginName parsedSub = do
     putStrLn $ "plugin command: " ++ pluginCmd
     -- NOTE: we are not expecting multiple processes to use these tempfiles
     let outFile = dirPath ++ "/Sub_enduser.json"
-    let inFile = dirPath ++ "/Sub_instantiated.sub"
+    let subInFile = dirPath ++ "/Sub_instantiated.sub"
+    let styInFile = dirPath ++ "/values.json"
     J.writeSubstanceToJSON outFile parsedSub
     setCurrentDirectory dirPath -- Change to plugin dir so the plugin gets the right path. Otherwise pwd sees "penrose/src"
     callCommand pluginCmd
     setCurrentDirectory originalDir -- Return to original directory
-    newSubProg <- readFile inFile
-    putStrLn "Penrose received file: "
+    newSubProg <- readFile subInFile
+    styVals    <- readFile styInFile
+    styVals'   <- B.readFile styInFile
+    putStrLn "Penrose received Sub file: "
     putStrLn newSubProg
-    return newSubProg
+    putStrLn "---------------------------"
+    putStrLn "Penrose received Sty file: "
+    putStrLn styVals
+    let styRes = (decode styVals') :: Maybe [J.StyVal]
+    let styJSON = case styRes of
+                  Nothing -> error "couldn't read plugin JSON"
+                  Just x -> x
+    return (newSubProg, styJSON)
 
 catchPathError :: String -> Maybe (FilePath, String) -> (FilePath, String)
 catchPathError name Nothing = error $ "path to plugin '" ++ name ++ "' doesn't exist!"

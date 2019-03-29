@@ -9,18 +9,27 @@ class Rectangle extends React.Component<IGPIPropsDraggable> {
     const { canvasSize } = this.props;
     const { onClick } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
-    const color = toHex(shape.color.contents);
-    const alpha = shape.color.contents[3];
+    const fillColor = toHex(shape.color.contents);
+    const fillAlpha = shape.color.contents[3];
+    const strokeColor = toHex(shape.strokeColor.contents);
+    const strokeAlpha = shape.strokeColor.contents[3];
+    const thickness = shape.strokeWidth.contents;
+
     return (
       <rect
         x={x - shape.sizeX.contents / 2}
         y={y - shape.sizeY.contents / 2}
         width={shape.sizeX.contents}
         height={shape.sizeY.contents}
-        fill={color}
-        fillOpacity={alpha}
-        onMouseDown={onClick}
+        fill={fillColor}
+        fillOpacity={fillAlpha}
+
+        stroke={strokeColor}
+        strokeOpacity={strokeAlpha}
         strokeDasharray={ shape.strokeStyle.contents === "dashed" ? "7, 5" : "" }
+        strokeWidth={thickness}
+
+        onMouseDown={onClick}
       >
         <title>{shape.name.contents}</title>
       </rect>

@@ -34,6 +34,7 @@ import Debug.Trace
 import qualified Substance as C
 import qualified Data.Map.Strict as M
 import qualified Text.Megaparsec.Char.Lexer as L
+import SubstanceJSON as J
 import Data.Dynamic
 import Data.Typeable
 import Env
@@ -70,7 +71,9 @@ plugins = plugin `endBy` newline' -- zero or multiple instantiators
 
 plugin :: Parser Plugin
 plugin = symbol "plugin" >> stringLiteral
-    where stringLiteral = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
+
+stringLiteral :: Parser String
+stringLiteral = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
 
 --------------------------------------------------------------------------------
 -- Style AST
@@ -201,8 +204,9 @@ data Expr
     | UOp UnaryOp Expr
     | List [Expr]
     | ListAccess Path Integer
-    | Ctor String [PropertyDecl]
+    | Ctor String [PropertyDecl] -- Shouldn't be using this, since we have PropertyDict
     | Layering Path Path -- ^ first GPI is *below* the second GPI
+    | PluginAccess String Expr Expr -- ^ Plugin name, Substance name, Key
     deriving (Show, Eq, Typeable)
 
 -- DEPRECATED
@@ -354,13 +358,19 @@ expr = tryChoice [
            layeringExpr,
            arithmeticExpr,
            compFn,
-           -- Layering <$> brackets layeringExpr,
            list,
            stringLit,
            boolLit
        ]
 
--- COMBAK: change NewStyle to Style
+pluginAccess :: Parser Expr
+pluginAccess = do
+    plugin <- identifier
+    name   <- bExpr
+    key    <- bExpr
+    return $ PluginAccess plugin name key
+    where bExpr = brackets expr
+
 arithmeticExpr :: Parser Expr
 arithmeticExpr = makeExprParser aTerm aOperators
 
@@ -368,6 +378,7 @@ aTerm :: Parser Expr
 aTerm = tryChoice
     [
         compFn,
+        pluginAccess,
         parens arithmeticExpr,
         AFloat <$> annotatedFloat,
         EPath  <$> path,
@@ -840,6 +851,8 @@ substituteBlockExpr lv subst expr =
     AFloat _          -> expr
     StringLit _       -> expr
     BoolLit _         -> expr
+    -- TODO: check if this is right
+    PluginAccess pluginName e1 e2 -> PluginAccess pluginName (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
 
 substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
@@ -928,11 +941,41 @@ relMatchesProg typeEnv subEnv subProg rel = any (flip (relMatchesLine typeEnv su
 allRelsMatch :: VarEnv -> C.SubEnv -> C.SubProg -> [RelationPattern] -> Bool
 allRelsMatch typeEnv subEnv subProg rels = all (relMatchesProg typeEnv subEnv subProg) rels
 
+-- Optimization to filter out Substance statements that have no hope of matching any of the substituted relation patterns, so we don't do redundant work for every substitution (of which there could be millions). This function is only called once per selector.
+couldMatchRels :: VarEnv -> [RelationPattern] -> C.SubStmt -> Bool
+couldMatchRels typeEnv rels stmt = any (flip couldMatchARel stmt) rels
+  where couldMatchARel :: RelationPattern -> C.SubStmt -> Bool
+        -- Heuristic: check if names are equal
+        couldMatchARel (RelBind _ (SEAppFunc styF _)) (C.Bind _ (C.ApplyFunc subF)) =
+                       styF == C.nameFunc subF
+
+        couldMatchARel (RelBind _ (SEAppValCons styVC _)) (C.Bind _ (C.ApplyValCons subVC')) =
+                       let subVC = C.nameFunc subVC' in
+                       styVC == subVC
+                       || isSubtypeArrowNamed typeEnv subVC styVC -- check value ctor subtyping
+
+        couldMatchARel (RelPred styPred) (C.ApplyP subPred) =
+                       predicateName styPred == (nameOf $ C.predicateName subPred)
+
+        couldMatchARel _ _ = False
+
+        nameOf (C.PredicateConst n) = n
+
+isSubtypeArrowNamed :: VarEnv -> String -> String -> Bool
+isSubtypeArrowNamed typeEnv subCtor styCtor =
+            let subArrType = findType typeEnv subCtor
+                styArrType = findType typeEnv styCtor
+            in isSubtypeArrow subArrType styArrType typeEnv
+
 -- Judgment 17. b; [theta] |- [S] <| [|S_r] ~> [theta']
 -- Folds over [theta]
 filterRels :: VarEnv -> C.SubEnv -> C.SubProg -> [RelationPattern] -> [Subst] -> [Subst]
 filterRels typeEnv subEnv subProg rels substs =
-           filter (\subst -> allRelsMatch typeEnv subEnv subProg (substituteRels subst rels)) substs
+           let subProgFiltered = filter (couldMatchRels typeEnv rels) subProg in
+           -- trace ("\n----------\n\nrels:\n" ++ ppShow rels
+           --        ++ "\nsub prog filtered\n: " ++ ppShow subProgFiltered) $
+           filter (\subst -> allRelsMatch typeEnv subEnv subProgFiltered 
+                             (substituteRels subst rels)) substs
 
 ----- Match declaration statements
 
@@ -992,7 +1035,8 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
         initSubsts       = []
         rawSubsts        = matchDecls varEnv subProg decls initSubsts
         subst_candidates = filter (fullSubst selEnv)
-                           $ trM1 ("rawSubsts: # " ++ show (length rawSubsts) ++ "\n"{- ++ ppShow rawSubsts-}) rawSubsts
+                           $ trace ("rawSubsts: # " ++ show (length rawSubsts))
+                           rawSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
                            filterRels varEnv subEnv subProg rels subst_candidates
@@ -1314,8 +1358,9 @@ insertLabels trans labels =
         toFieldStr :: Eq a => String -> FieldExpr a
         toFieldStr s = FExpr $ Done $ StrV s
 
-        insertLabel :: Eq a => Name -> M.Map Field (FieldExpr a) -> M.Map Field (FieldExpr a)
-        insertLabel (Sub s) fieldDict = let labelField = "label" in
+        insertLabel :: Eq a => Name -> FieldDict a -> FieldDict a
+        insertLabel (Sub s) fieldDict = 
+            let labelField = "label" in
             case M.lookup s labels of
                 Nothing ->  fieldDict
                 -- NOTE: maybe this is a "namespace," so we pass through
@@ -1339,17 +1384,139 @@ insertLabels trans labels =
                                       Just expr -> expr == labelForm
                       in shapeType == "Text" && usesLabel
 
+-- For any Substance object (say one called "K1"), insert the field mapping `K1.name = "K1"` which will be accessible from Style.
+-- This is generally for plugin accessors to use in Style, so they can access the right field of the Style values returned by a plugin.
+insertNames :: (Autofloat a, Eq a) => Translation a -> Translation a
+insertNames trans = trans { trMap = M.mapWithKey insertName $ trMap trans }
+            where insertName :: Name -> FieldDict a -> FieldDict a -- I guess we don't need to insert names for namespaces
+                  insertName (Sub name) fieldDict = 
+                             let nameField = "name" in
+                             M.insert nameField (FExpr $ Done $ StrV name) fieldDict
+                  insertName (Gen _) fieldDict = fieldDict
+                          
+{- Find plugin accessor expressions
+Evaluates a plugin accessor’s subexpressions (the primary and secondary key)
+  Static evaluate: look up value in translation (perform compile-time computations)
+  Check their types (both need to be strings)
+Look up the result in the plugin’s JSON output
+Store it in the translation in place of the accessor, as a finished float -}
+     
+evalPluginAccess :: (Autofloat a) => StyValMap a -> Translation a -> Translation a
+evalPluginAccess valMap trans = 
+                 trans { trMap = M.mapWithKey (evalFieldAccesses valMap) $ trMap trans }
+
+            where evalFieldAccesses :: (Autofloat a) => StyValMap a -> Name -> FieldDict a -> FieldDict a
+                  evalFieldAccesses vmap (Sub name) fieldDict = 
+                       M.mapWithKey (evalFieldAccess vmap) fieldDict
+                  evalFieldAccesses vmap (Gen _) fieldDict = fieldDict
+
+                  evalFieldAccess :: (Autofloat a) => StyValMap a -> Field -> FieldExpr a -> FieldExpr a
+                  evalFieldAccess vmap field (FExpr te) = FExpr $ evalTExpr vmap te
+                  evalFieldAccess vmap field (FGPI stype properties) =
+                      let properties' = M.mapWithKey (evalPropertyAccess vmap) properties in
+                      FGPI stype properties'
+                  
+                  evalPropertyAccess :: (Autofloat a) => StyValMap a -> Property -> TagExpr a -> TagExpr a
+                  evalPropertyAccess vmap property te = evalTExpr vmap te
+
+                  evalTExpr :: (Autofloat a) => StyValMap a -> TagExpr a -> TagExpr a
+                  evalTExpr vmap val@(Done _) = val
+                  evalTExpr vmap (OptEval e) = OptEval $ evalPluginExpr vmap e
+                  -- TODO: check if the result was a string, and if so, make it a done value?
+
+                  evalPluginExpr :: (Autofloat a) => StyValMap a -> Expr -> Expr
+                  -- Do work: evaluate something like ddg[A.name]["x"] by evaluating each key and looking up the result in JSON
+                  evalPluginExpr vmap (PluginAccess p e1 e2) = 
+                      -- TODO: actually check/use the plugin string; this currently ignores the plugin `p`
+                      -- just use the trans in the context of `evalPluginAccess` for now, TODO: fix to pass it around?
+                      -- or remove the vmap from the context
+                      let e1' = evalStatic e1 
+                          e2' = evalStatic e2
+                          res = lookupStyVal e1' e2' vmap
+                      in AFloat $ Fix $ r2f res
+
+                  -- Look for work to do (might involve strings)
+                  evalPluginExpr vmap (CompApp s es) = CompApp s $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (ObjFn s es) = ObjFn s $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (ConstrFn s es) = ConstrFn s $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (AvoidFn s es) = AvoidFn s $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (BinOp o e1 e2) = BinOp o (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (UOp o e) = UOp o $ evalPluginExpr vmap e
+                  evalPluginExpr vmap (List es) = List $ map (evalPluginExpr vmap) es
+
+                  -- Leaves (no strings should be involved)
+                  evalPluginExpr _ e@(IntLit _) = e
+                  evalPluginExpr _ e@(AFloat _) = e
+                  evalPluginExpr _ e@(StringLit _) = e
+                  evalPluginExpr _ e@(BoolLit _) = e
+                  evalPluginExpr _ e@(EPath _) = e
+                  evalPluginExpr _ e@(ListAccess _ _) = e
+                  evalPluginExpr _ e@(Ctor _ _) = e
+                  evalPluginExpr _ e@(Layering _ _) = e
+
+                  evalStatic :: Expr -> String
+                  evalStatic (StringLit s) = s
+                  evalStatic (EPath (FieldPath bvar field)) = 
+                    case lookupField bvar field trans of -- TODO: clean up lookupField location
+                    FExpr (OptEval (StringLit s)) -> s
+                    FExpr (Done (StrV s)) -> s
+                    _ -> error "expected string for plugin accessor key; after looking up field, didn't get string"
+                  evalStatic (EPath (PropertyPath (BSubVar v) field property)) = error "plugin TODO"
+                  evalStatic e = error "expected string or path expression for plugin accessor key; did not get a string"
+
 -- TODO: add beta in paper and to comment below
 -- Judgment 23. G; D |- [P]; |P ~> D'
 -- Fold over the pairs in the Sty program, then the substitutions for a selector, then the lines in a block.
 translateStyProg :: forall a . (Autofloat a) =>
-    VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> C.LabelMap ->
+    VarEnv -> C.SubEnv -> C.SubProg -> StyProg -> C.LabelMap -> [J.StyVal] ->
     Either [Error] (Translation a)
-translateStyProg varEnv subEnv subProg styProg labelMap =
+translateStyProg varEnv subEnv subProg styProg labelMap styVals =
     let numberedProg = zip styProg [0..] in -- For creating unique local var names
     case foldM (translatePair varEnv subEnv subProg) initTrans numberedProg of
-        Right trans -> trace "translateStyProg: " $ Right $ insertLabels trans labelMap
+        Right trans -> 
+              let transWithNames = insertNames trans
+                  transWithNamesAndLabels = insertLabels transWithNames labelMap 
+                  styValMap = styJsonToMap styVals
+                  transWithPlugins = evalPluginAccess styValMap transWithNamesAndLabels
+              in trace "translateStyProg: " $ Right transWithPlugins
         Left errors -> Left errors
+
+---------- Plugin accessors
+
+type SubObjName = String
+type PropertyName = String
+type StyValMap a = M.Map SubObjName (M.Map PropertyName a)
+
+styJsonToMap :: (Autofloat a) => [J.StyVal] -> StyValMap a
+styJsonToMap vals = 
+             M.fromList (map (\v -> (subName v, 
+                                     M.fromList (map (\w -> (propertyName w, 
+                                                             r2f $ propertyVal w)) 
+                                                    (nameVals v)))) 
+                             vals)
+
+-- TODO move lookups to utils; this was moved from GenOptProblem
+lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldExpr a
+lookupField bvar field trans =
+    let name = trName bvar in
+    let trn = trMap trans in
+    case M.lookup name trn of
+    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans")
+               -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
+    Just fieldDict ->
+         case M.lookup field fieldDict of
+         Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
+         Just fexpr -> fexpr
+
+lookupStyVal :: (Autofloat a) => String -> String -> StyValMap a -> a
+lookupStyVal subName propName vmap =
+    case M.lookup subName vmap of
+    Nothing -> error ("plugin accessors in style: for access " ++ toAccess subName propName ++ ", primary key does not exist")
+    Just propDict ->
+         case M.lookup propName propDict of
+         Nothing -> error ("plugin accessors in style: for access " ++ toAccess subName propName ++ ", property does not exist")
+         Just val -> val
+    where toAccess s1 s2 = s1 ++ "." ++ s2
 
 --------------------------------------------------------------------------------
 -- Debugging

@@ -3,10 +3,47 @@ plugin "ddgjs"
 global {
     global.padding = 20.0
     global.stroke = 2.0
+    global.spacing = 150.0
+
+    global.sc_rect_stroke = 2.0
+    global.edgeStroke = 1.5
+
+    global.selectedRadius = 3.0
+    global.selectedThickness = 2.5
+
+    global.selectedColor = Colors.red
+    global.selectedColor2 = setOpacity(global.selectedColor, 0.25)
+
+    global.starColor = Colors.midnightblue
+    global.starColor2 = Colors.lightslategray
+
+    global.closureColor = Colors.midnightblue
+    global.closureColor2 = Colors.lightslategray
+
+    global.linkColor = Colors.blue
+    global.linkColor2 = setOpacity(global.linkColor, 0.25)
+
+    global.boundaryColor = Colors.yellow
+    global.boundaryColor2 = setOpacity(global.boundaryColor, 0.25)
+
+    -- For conversion from math space to screen space
+    -- TODO: compute these more automatically
+    -- These numbers (weights on inRange and the range itself) have been heavily tweaked
+    -- And it makes convergence hard
+    -- global.scaleFactor = OPTIMIZED
+    -- global.optFn = ensure inRange(global.scaleFactor, 75.0, 150.0)
+    global.scaleFactor = 100.0
+    -- global.offset = 150.0
 }
 
 Colors {
+    -- Keenan palette
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
     Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
     Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
@@ -21,151 +58,317 @@ Colors {
     Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
     Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
     Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.lightpurple = rgba(0.5, 0.0, 0.5, 0.25)
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
-Vertex v {
+
+-- TODO: this is going to match Subcomplex too... how to fix that?
+SComplex K {
+       K.x_offset = OPTIMIZED
+       K.y_offset = OPTIMIZED
+       K.size = 200.0
+
+       K.shape = Rectangle {
+       	       x = OPTIMIZED
+	       y = OPTIMIZED
+	       sizeX = K.size
+	       sizeY = K.size
+	       rotation = 0.0
+	       color = Colors.gainsboro
+	       strokeColor = Colors.black
+	       strokeWidth = global.sc_rect_stroke
+       }
+
+       K.padding = 25.0
+
+       K.text = Text {
+	 x = K.shape.x - K.shape.sizeX / 2.0 + K.padding
+	 y = K.shape.y - K.shape.sizeY / 2.0 + K.padding
+	 string = K.label
+	 rotation = 0.0
+	 color = Colors.black
+       }
+
+       K.labelFn = encourage centerLabel(K.shape, K.text)
+
+       K.layerTextFn = K.text above K.shape
+}
+
+-- TODO: this generates a (K1, K2) and (K2, K1) match
+SComplex K1; SComplex K2 {
+	 LOCAL.padding = 30.0
+
+	 -- TODO: improve this for rectangles by not just using the x size
+	 LOCAL.overlapFn = ensure disjoint(K1.shape, K2.shape, LOCAL.padding)
+	 LOCAL.alignFn = ensure sameHeight(K1.shape, K2.shape)
+	 -- LOCAL.distFn = ensure distBetween(K1.shape, K2.shape, LOCAL.padding)
+}
+
+Vertex v 
+where InVS(v, K)
+with SComplex K {
+       v.xpos = ddg[v.name]["x"] * global.scaleFactor
+       v.ypos = ddg[v.name]["y"] * global.scaleFactor
+
        v.shape = Circle { 
-         r = 6.0
-	 -- color = Colors.black	 
+         x = v.xpos -- avoid "x <- f(x)" in override
+	 y = v.ypos
+         r = 0.0
+	 color = Colors.black
 	 strokeWidth = 0.0
        }
 
+       -- NOTE: by default, this starts with an empty string, so we only label user-declared vertices
        v.text = Text {
 	 x = v.shape.x + global.padding
 	 y = v.shape.y + global.padding
-	 string = v.label
+	 string = ""
 	 rotation = 0.0
 	 color = v.shape.color
        }
+
+       v.layerFnShape = v.shape above K.shape
+       v.layerFnText = v.text above K.shape
+       -- v.posFn = ensure onCanvas(v.shape)
+       -- v.posFn = encourage center(v.shape)
 }
 
-Edge E
-where E := MkEdge(v1, v2)
-with Vertex v1; Vertex v2 {
-     E.shape = Line { 
+-- Label a distinguished vertex
+Vertex v
+where DeclaredV(v); InVS(v, K)
+with SComplex K {
+      override v.text.string = v.label
+
+      /*
+       -- Optimize the label padding, only for the distinguished vertex
+      v.padding_x = OPTIMIZED
+      v.padding_y = OPTIMIZED
+      override v.text.x = v.shape.x + v.padding_x
+      override v.text.y = v.shape.y + v.padding_y
+
+      v.offset = 30.0
+      -- This is trying to place the labels but it's very slow, goes from 40s to 3min
+      v.labelCloseFn = encourage near(v.text, v.shape, v.offset)
+      v.labelInComplexFn = ensure contains(K.shape, v.text)
+      -- Label's color might need to be programmatically set depending on its location
+
+      v.padding_range = 20.0
+      v.labelRangeXFn = ensure inRange(v.padding_x, v.shape.x - v.padding_range, v.shape.x + v.padding_range)
+      v.labelRangeYFn = ensure inRange(v.padding_y, v.shape.y - v.padding_range, v.shape.y + v.padding_range) */
+}
+
+Vertex v; Edge e
+where DeclaredV(v); InVS(v, K); InES(e, K)
+with SComplex K {
+     LOCAL.offset = 5.0
+     -- Make sure the label doesn't overlap with any edge
+     -- TODO: this is NaNing
+     LOCAL.edgeLabelFn = ensure disjoint(v.text, e.shape, LOCAL.offset)
+}
+
+Edge e
+where e := MkEdge(v1, v2); InES(e, K)
+with Vertex v1; Vertex v2; SComplex K {
+     e.shape = Line { 
      	     startX = v1.shape.x
      	     startY = v1.shape.y
      	     endX = v2.shape.x
      	     endY = v2.shape.y
 	     color = Colors.black
-	     thickness = 3.0
+	     thickness = global.edgeStroke
      }
 
-     E.text = Text {
-       x = midpointX(E.shape) + global.padding
-       y = midpointY(E.shape) + global.padding
-       string = E.label
-       rotation = 0.0
+     -- e.text = Text {
+     --   x = midpointX(e.shape) + global.padding
+     --   y = midpointY(e.shape) + global.padding
+     --   string = e.label
+     --   rotation = 0.0
+     -- }
+
+     e.layering1 = v1.shape above e.shape
+     e.layering2 = v2.shape above e.shape
+     e.layering3 = e.shape above K.shape
+}
+
+Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
+where f := MkFace(e1, e2, e3); InFS(f, K)
+with Edge e1; Edge e2; Edge e3; SComplex K {
+     f.color = Colors.lightsky
+
+     f.shape = Curve { 
+     	     pathData = triangle(e1.shape, e2.shape, e3.shape)
+	     strokeWidth = 0.0
+	     fill = Colors.silver
+	     color = Colors.silver
+	     rotation = 0.0
      }
 
-     E.layering1 = v1.shape above E.shape
-     E.layering2 = v2.shape above E.shape
+     -- f.text = Text {
+     --   string = f.label
+     --   color = f.color
+     --   rotation = 0.0
+     -- }
+     f.layeringShape = f.shape above K.shape
 }
 
-------------------- Base things
-
-/*
-Vertex v 
-where InVertexComplex(v, K) 
-with ?
-{
-	-- location only, no shape
+-- Relative layerings within a simplicial complex
+Vertex v; Edge e; Face f
+where InVS(v, K); InES(e, K); InFS(f, K)
+with SComplex K {
+      LOCAL.textLayering1 = v.text above f.shape
+      LOCAL.textLayering2 = v.text above e.shape
 }
 
-Edge e
-where InEdgeComplex(e, K); InE(v1, e); InE(v2, e)
-with Vertex v1, v2
-{
-	-- draw a line between vertices
-}
-
-Face f 
-where InFaceComplex(f, K) 
-with ?
-{
-
-	-- shade it light purple
-	-- note there are unshaded faces too
-}
-
-------------------- Selected things
-
--- TODO: how to distinguish between two kinds of "in"?
--- InVC_Generated(v,K) vs InVC(v,K)? But then Style needs to match on either one in order to know how to draw it??
+------------------ Things in a closure
 
 Vertex v
-where -- SPECIFICALLY in a simplicial complex, not generated
-{
-	-- label it on the diagram
-}
-
--- same for edges and faces
-
-------------------- Star
-
-Vertex v 
-where -- in a star
-with ? 
-{
-	-- make the dot purple
+where InVS(v, C); C := Closure(S)
+with Subcomplex C; SSubset S {
+     override v.shape.r = global.selectedRadius
+      override v.shape.color = global.closureColor
 }
 
 Edge e
-where -- in a star
-with ?
-{
-	-- draw a line
+where InES(e, C); C := Closure(S)
+with Subcomplex C; SSubset S {
+      override e.shape.thickness = global.selectedThickness
+      override e.shape.color = global.closureColor
 }
 
-Face f 
-where -- in a star
-with ?
-{
-
-	-- shade it light purple
+Face f
+where InFS(f, C); C := Closure(S)
+with Subcomplex C; SSubset S {
+      override f.shape.fill = global.closureColor2
+      override f.shape.color = global.closureColor2
 }
 
-------------------- Closure
+------------------ Things in a subset that result from a star
 
-Vertex v 
-where -- in a closure
-with ? 
-{
-	-- make the dot purple
+Vertex v
+where InVS(v, S); S := StarV(v); IsSubsetOf(S, K)
+with SSubset S; SComplex K {
+     override v.shape.r = global.selectedRadius
+      override v.shape.color = global.starColor
 }
 
 Edge e
-where -- in a closure
-with ?
-{
-	-- draw a line
+where InES(e, S); S := StarV(v); IsSubsetOf(S, K)
+with SSubset S; SComplex K; Vertex v {
+      override e.shape.thickness = global.selectedThickness
+      override e.shape.color = global.starColor
 }
 
-Face f 
-where -- in a closure
-with ?
-{
-
-	-- shade it light purple
+Face f
+where InFS(f, S); S := StarV(v); IsSubsetOf(S, K)
+with SSubset S; SComplex K; Vertex v {
+      override f.shape.fill = global.starColor2
+      override f.shape.color = global.starColor2
 }
 
--- No styles for star, closure, SC, SS?
+------------------ Things in a link of a subset
 
-------------------- Closure
-
-SimplicialSet S 
-{
-	-- label the closure
+Vertex v
+where InVS(v, S2); S2 := Link(S1)
+with SSubset S2; SSubset S1 {
+     override v.shape.r = global.selectedRadius
+      override v.shape.color = global.linkColor
 }
 
-SimplicialComplex K
-with ?? -- Need to pull in a list of things?
-where In(v, K), In(f, K)
-{
-	-- draw a box around the simplicial complex and everything in it
-	-- label the box corner
+Edge e
+where InES(e, S2); S2 := Link(S1)
+with SSubset S2; SSubset S1 {
+      override e.shape.thickness = global.selectedThickness
+      override e.shape.color = global.linkColor
 }
-*/
+
+Face f
+where InFS(f, S2); S2 := Link(S1)
+with SSubset S2; SSubset S1 {
+      override f.shape.fill = global.linkColor2
+      override f.shape.color = global.linkColor2
+}
+
+------------------ Things in a link of a vertex
+
+Vertex v
+where InVS(v, S); S := LinkV(w)
+with SSubset S; Vertex w {
+     override v.shape.r = global.selectedRadius
+      override v.shape.color = global.linkColor
+}
+
+Edge e
+where InES(e, S); S := LinkV(w)
+with SSubset S; Vertex w {
+      override e.shape.thickness = global.selectedThickness
+      override e.shape.color = global.linkColor
+}
+
+Face f
+where InFS(f, S); S := LinkV(w)
+with SSubset S; Vertex w {
+      override f.shape.fill = global.linkColor2
+      override f.shape.color = global.linkColor2
+}
+
+------------------ Things in boundary of a subcomplex
+
+Vertex v
+where InVS(v, S); S := Boundary(C)
+with SSubset S; SComplex C {
+     override v.shape.r = global.selectedRadius
+      override v.shape.color = global.boundaryColor
+}
+
+Edge e
+where InES(e, S); S := Boundary(C)
+with SSubset S; SComplex C {
+      override e.shape.thickness = global.selectedThickness
+      override e.shape.color = global.boundaryColor
+}
+
+Face f
+where InFS(f, S); S := Boundary(C)
+with SSubset S; SComplex C {
+      override f.shape.fill = global.boundaryColor2
+      override f.shape.color = global.boundaryColor2
+}
+
+-------------------
+
+-- Try to position the vertices to be inside the bbox
+-- Should this go in the vertex selector?
+Vertex v
+where InVS(v, K)
+with SComplex K {
+     override v.shape.x = v.xpos + K.x_offset
+     override v.shape.y = v.ypos + K.y_offset
+
+     v.inSCFn = ensure contains(v.shape, K.shape)
+}
+
+-- Label the closure of a star
+
+Subcomplex C
+where C := Closure(S); IsSubsetOf(S, K); S := StarV(v)
+with SSubset S; SComplex K; Vertex v {
+
+       C.text = Text {
+	 x = OPTIMIZED
+	 y = OPTIMIZED
+	 string = C.label
+	 rotation = 0.0
+	 color = global.closureColor
+       }
+
+       -- TODO: this actually prefers the center of the shape but it shouldn't
+       C.labelFn = ensure contains(K.shape, C.text)
+       C.layerFn = C.text above K.shape
+
+       -- TODO
+       -- Does not overlap any other shape (maybe just disjoint with edges?)
+       -- Close to the V/E/F of the Subcomplex in question
+}

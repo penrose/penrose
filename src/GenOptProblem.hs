@@ -11,6 +11,7 @@ module GenOptProblem where
 
 import Utils
 import Shapes
+import qualified SubstanceJSON as J
 import qualified Substance as C
 import Env
 import Style
@@ -255,19 +256,6 @@ lookupPropertyWithVarying bvar field property trans varyMap =
     case M.lookup (mkPath [bvarToString bvar, field, property]) varyMap of
     Just varyVal -> {-trace "property lookup was vary" $ -} varyVal
     Nothing -> {- trace "property lookup was not vary" $ -} lookupProperty bvar field property trans
-
--- TODO move lookups to utils
-lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldExpr a
-lookupField bvar field trans =
-    let name = trName bvar in
-    let trn = trMap trans in
-    case M.lookup name trn of
-    Nothing -> error ("path '" ++ pathStr2 name field ++ "''s name doesn't exist in trans")
-               -- TODO improve error messages and return error messages (Either [Error] (TagExpr a))
-    Just fieldDict ->
-         case M.lookup field fieldDict of
-         Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
-         Just fexpr -> fexpr
 
 lookupProperty :: (Autofloat a) => BindingForm -> Field -> Property -> Translation a -> TagExpr a
 lookupProperty bvar field property trans =
@@ -588,6 +576,7 @@ evalExpr (i, n) arg trans varyMap g =
             ObjFn _ _ -> error "objfn should not be an objfn arg (or in the children of one)"
             ConstrFn _ _ -> error "constrfn should not be an objfn arg (or in the children of one)"
             AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
+            PluginAccess _ _ _ -> error "plugin access should not be evaluated at runtime"
             -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
 
 -- Any evaluated exprs are cached in the translation for future evaluation
@@ -846,8 +835,8 @@ genOptProblemAndState trans =
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- NOTE: this function also print information out to stdout
 -- TODO: enable logger
-compileStyle :: StyProg -> C.SubOut -> IO State
-compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
+compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> IO State
+compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals = do
    putStrLn "Running Style semantics\n"
    let selEnvs = checkSels subEnv styProg
 
@@ -860,7 +849,7 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) = do
    forM_ subss pPrint
    divLine
 
-   let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap
+   let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals
                        :: Either [Error] (Translation Float)
                        -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
                        -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
