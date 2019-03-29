@@ -2,7 +2,7 @@ tconstructor Set : type
 tconstructor Point : type
 tconstructor Map : type
 
-vconstructor EmptySet () : Set
+-- vconstructor EmptySet () : Set
 vconstructor Singleton (p : Point) : Set
 
 operator Intersection (a : Set, b : Set) : Set
