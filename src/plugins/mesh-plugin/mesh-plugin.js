@@ -1,3 +1,23 @@
+/* This is a plugin for the mesh domain, meant to be used with mesh-domain/mesh.dsl and mesh-domain/SimplicialComplex.sty.
+
+It does the following:
+
+First, it instantiates every declared simplicial complex. This is done in `makeObj`. To make a random mesh, it calls rand-mesh.js, using parameters `pointRange` and `numPointsRange`. To make the data structure, it calls geometry-processing-js to make a mesh and its simplicial complex. All objects are created and stored in the `objs` key-value store in `makeSub`, indexed by name. 
+
+It names and refers to objects by the convention defined in `objName`, which relies on the internal index of an object in geometry-processing-js. For example, a vertex belonging to the simplicial complex `K1` might be called `K1_V1`.
+
+Next, it binds and manages names that are declared in the Substance, like `Vertex i` (currently only supports vertices). It does this in `makeNameMappings` by selecting a random vertex (by index) and keeping track of which Substance name is bound to which generated name. It also, later, says that these have been declared in `makeUserLines`.
+
+Then, it performs simplicial complex operations by calling the corresponding function in geometry-processing-js.
+  The supported functions can be found in `doFnCall` and are currently `StarV`, `Closure`, `Link`, `LinkV`, and `Boundary`.
+  Because the Substance JSON may not preserve the order of the Substance program, each function call is evaluated by checking if its argument has been created, and if not, recursively evaluating the Substance program until all arguments to the current function call have been created. All results of function calls return objects (mesh subsets and simplical complex operators) as well as any relevant names.
+
+Then, with all the objects that have been made, the plugin outputs Substance code for the meshes and subsets. This is done in `makeProg`. For a simplicial complex, for each vertex, edge, and face in it, it outputs a declaration, In statement, and labeling statement. (It has to build simple connectivity info to create the edge and face value constructors.) For a mesh subset, it outputs In statements for each vertex, edge, and face in it. All statements are output with respect to any names bound in Substance, if they exist, by substituting them for generated names.
+
+Finally, it makes a JSON file for Style that contains the vertex positions of each mesh. This is done in `makeSty`. Note that it builds the geometry of the mesh here by calling geometry-processing-js. It also ignores any z-positions of the vertices. 
+
+Some parts are unfinished and the plugin hasn't been completely tested over general Substance programs. See the PR for further documentation. */
+
 const Fs = require('fs');
 const _ = require('lodash');
 

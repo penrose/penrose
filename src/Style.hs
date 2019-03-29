@@ -1425,10 +1425,10 @@ evalPluginAccess valMap trans =
                   -- TODO: check if the result was a string, and if so, make it a done value?
 
                   evalPluginExpr :: (Autofloat a) => StyValMap a -> Expr -> Expr
-                  -- Do work
+                  -- Do work: evaluate something like ddg[A.name]["x"] by evaluating each key and looking up the result in JSON
                   evalPluginExpr vmap (PluginAccess p e1 e2) = 
-                      -- TODO: actually check/use the plugin string
-                      -- just use the trans in the context for now, TODO: fix to pass it around?
+                      -- TODO: actually check/use the plugin string; this currently ignores the plugin `p`
+                      -- just use the trans in the context of `evalPluginAccess` for now, TODO: fix to pass it around?
                       -- or remove the vmap from the context
                       let e1' = evalStatic e1 
                           e2' = evalStatic e2
@@ -1495,7 +1495,7 @@ styJsonToMap vals =
                                                     (nameVals v)))) 
                              vals)
 
--- TODO move lookups to utils
+-- TODO move lookups to utils; this was moved from GenOptProblem
 lookupField :: (Autofloat a) => BindingForm -> Field -> Translation a -> FieldExpr a
 lookupField bvar field trans =
     let name = trName bvar in

@@ -1,3 +1,8 @@
+// The function `makeRandMesh` makes a random Delaunay mesh with `numPts`  points 
+// whose coordinates are each sampled uniformly at random from range `range`
+// and outputs it as a .obj file.
+// For how the Delaunay triangulation works, see: https://github.com/mapbox/delaunator
+
 const Fs = require('fs');
 const _ = require('lodash');
 
@@ -36,30 +41,32 @@ function makeRandMesh(numPts, range) {
     const triangles = delaunay.triangles
     console.log("triangles", triangles);
 
-    let coordinates = [];
+    // let coordinates = [];
 
-    // Not really needed
-    for (let i = 0; i < triangles.length; i += 3) {
-	let tri = [
-	    points[triangles[i]],
-	    points[triangles[i + 1]],
-	    points[triangles[i + 2]]
-	];
-	coordinates.push(tri);
-    }
+    // // Not needed, just for debugging
+    // for (let i = 0; i < triangles.length; i += 3) {
+    // 	let tri = [
+    // 	    points[triangles[i]],
+    // 	    points[triangles[i + 1]],
+    // 	    points[triangles[i + 2]]
+    // 	];
+    // 	coordinates.push(tri);
+    // }
 
-    console.log("coordinates", coordinates);
+    // console.log("coordinates", coordinates);
 
     // Output obj file
     let obj = [];
 
+    // Output the vertices
     // Assuming mesh is planar, so z = 0
     for (let pt of points) {
 	let line = ["v", pt[0].toString(), pt[1].toString(), "0"].join(" ");
 	obj.push(line);
     }
 
-    // In obj files, mesh vertices are indexed from 1, not 0
+    // Output the faces
+    // In obj files, mesh vertices are indexed from 1, not 0, so add 1 to each index
     let triangles1 = triangles.map(i => i + 1);
     
     for (let i = 0; i < triangles.length; i += 3) {
@@ -72,12 +79,10 @@ function makeRandMesh(numPts, range) {
     return obj_final;
 }
 
-function main() {
-    const numPts = 4; 		// TODO sample this
+function main() { // An example use
+    const numPts = 4;
     const range = [-5, 5];
     let res = makeRandMesh(numPts, range);
 }
-
-// main();
 
 module.exports = { makeRandMesh, sampleFrom };

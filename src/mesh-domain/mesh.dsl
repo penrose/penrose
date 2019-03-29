@@ -21,24 +21,19 @@ tconstructor Subcomplex : type -- (V, E, F) linked to a mesh
 SComplex <: SSubset
 Subcomplex <: SSubset
 -- Subcomplex <: SComplex 
--- TODO: Technically true, but messes up our Style program
+-- TODO: Technically true, but messes up our Style matching
 
 vconstructor MkEdge(v1 : Vertex, v2 : Vertex) : Edge
 vconstructor MkFace(e1 : Edge, e2 : Edge, e3 : Edge) : Face
--- TODO: do we need other value constructors? or is In enough?
--- either way, Style is going to need to pull in and operate on a list of objects
 
--- How do you go from a SSubset to a SComplex? Can a closure actually do that?
 operator Star(c : SComplex) : SSubset
-operator StarV(v : Vertex) : SSubset
--- operator StarV(v : Vertex, c : SComplex) : SSubset
+operator StarV(v : Vertex) : SSubset -- This operator does not include the simplicial complex that v is in
 operator Closure(s : SSubset) : Subcomplex
 operator Link(s : SSubset) : SSubset
 operator LinkV(v : Vertex) : SSubset
 operator Boundary(s : SComplex) : SSubset
 operator Coboundary(s : SSubset) : SSubset
-operator ToSComplex(s : SSubset) : SComplex -- Type conversion?
--- Computing homology? A collection of faces?
+operator ToSComplex(s : SSubset) : SComplex
 
 -- Math-related predicates
 predicate IsSubsetOf(s : SSubset, c : SComplex) : Prop
@@ -59,6 +54,3 @@ predicate InFS(f : Face, s : SSubset) : Prop
 predicate DeclaredV(v : Vertex) : Prop
 predicate DeclaredE(e : Edge) : Prop
 predicate DeclaredF(f : Face) : Prop
--- predicate GeneratedV(v : Vertex) : Prop
--- predicate GeneratedE(e : Edge) : Prop
--- predicate GeneratedF(f : Face) : Prop
