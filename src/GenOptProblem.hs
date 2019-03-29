@@ -88,11 +88,13 @@ type PolicyState = String -- Should this include the functions that it returned 
 type Policy = [Fn] -> [Fn] -> PolicyParams -> (Maybe [Fn], PolicyState)
 
 data PolicyParams = PolicyParams { policyState :: String,
-                                   policySteps :: Int 
+                                   policySteps :: Int,
+                                   currFns :: [Fn]
                                  }
 
 instance Show PolicyParams where
          show p = "Policy state: " ++ policyState p ++ " | Policy steps: " ++ show (policySteps p)
+                          -- ++ "\nFunctions:\n" ++ ppShow (currFns p)
 
 data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
@@ -160,6 +162,9 @@ initWeight = 10 ** (-3)
 
 policyToUse :: Policy
 policyToUse = optimizeSumAll
+-- policyToUse = optimizeConstraintsThenObjectives
+-- policyToUse = optimizeConstraints
+-- policyToUse = optimizeObjectives
 
 --------------- Utility functions
 
@@ -642,7 +647,7 @@ genObjfn :: (Autofloat a)
 genObjfn trans objfns constrfns varyingPaths =
      \rng penaltyWeight varyingVals ->
          let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
-         let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
+         let (fnsE, transE, rng') = evalFns evalIterRange (trace ("genObjfn inputs:" ++ ppShow (objfns ++ constrfns)) (objfns ++ constrfns)) trans varyMap rng in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
 
@@ -843,15 +848,17 @@ genOptProblemAndState trans =
                                  rng = g'',
                                  autostep = False, -- default
                                  policyParams = PolicyParams { policyState = "",
-                                                               policySteps = 0 },
+                                                               policySteps = 0,
+                                                               currFns = [] },
                                  policyFn = policyToUse
                                } in
 
-        -- TODO: this is poorly designed
+        -- TODO: make this less verbose
     let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) (policyParams s) in
-    let newFns = trace ("policy functions in genopt: " ++ show (DM.fromJust policyRes)) $ DM.fromJust policyRes in
-    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) (filter isConstr newFns) varyingPaths }, 
-                              policyParams = (policyParams s) { policyState = pstate } } in
+    let newFns = DM.fromJust policyRes in
+    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) 
+                                                                              (filter isConstr newFns) varyingPaths }, 
+                              policyParams = (policyParams s) { policyState = pstate, currFns = newFns } } in
 
     stateWithPolicy
     -- NOTE: we do not resample the very first initial state. Not sure why the shapes / labels are rendered incorrectly.
@@ -1025,9 +1032,10 @@ evalFnOn s = let optInfo = paramsr s
 lessEnergy :: State -> State -> Ordering
 lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
 
----------- Policies
+---------- List of policies that can be used with the optimizer
 
 -- Policy stops when value is None
+-- Note: if there are no objectives/constraints, policy may return an empty list of functions
 -- Policy step = one optimization through to convergence
 -- TODO: factor out number of policy steps / other boilerplate? or let it remain dynamic?
 -- TODO: factor out the weights on the objective functions / method of combination (in genObjFn)
@@ -1035,13 +1043,13 @@ lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
 optimizeConstraints :: Policy
 optimizeConstraints objfns constrfns params = 
     let (pstate, psteps) = (policyState params, policySteps params) in
-    if psteps == 0 then (Just $ constrfns, "")
+    if psteps == 0 then (Just constrfns, "")
     else (Nothing, "") -- Take 1 policy step
 
 optimizeObjectives :: Policy
 optimizeObjectives objfns constrfns params =
     let (pstate, psteps) = (policyState params, policySteps params) in
-    if psteps == 0 then (Just $ objfns, "")
+    if psteps == 0 then (Just objfns, "")
     else (Nothing, "") -- Take 1 policy step
 
 -- This is the typical/old Penrose policy
@@ -1063,4 +1071,4 @@ optimizeConstraintsThenObjectives objfns constrfns params =
 isObjFn f  = optType f == Objfn
 isConstr f = optType f == Constrfn
 
--- TODO: does genObjFns work with an empty list...??
+-- TODO: does genObjFns work with an empty list?

@@ -95,11 +95,14 @@ stepPolicy s =
             Nothing     -> (paramsr s, pparams' { policyState = psNew }) -- steps incremented, policy done
 
             Just newFns -> -- Policy keeps going
-                let objFnNew = genObjfn (transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) -- TODO: check that these inputs are right
-                    pparamsNew = pparams' { policyState = psNew }
+                let objFnNew = genObjfn (transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) 
+                    -- TODO: check that these inputs are right
+                    -- Change obj function and restart optimization
+                    pparamsNew = pparams' { policyState = psNew,
+                                            currFns = newFns }
                     paramsNew = Params { weight = initWeight,
                                          optStatus = NewIter,
-                                         overallObjFn = objFnNew } -- Change obj function!!
+                                         overallObjFn = objFnNew }
                 in tro ("Step policy, EP converged, new params:\n" ++ show (paramsNew, pparamsNew, newFns)) $ (paramsNew, pparamsNew)
 
     -- If not converged, optimize as usual, don't change policy mid-optimization
@@ -119,6 +122,7 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
              -- For the same reason, all subsequent step* functions such as
              -- stepShapes do not return the new random generator
              (!shapes', _, _)     = evalTranslation s'
+
              -- Check the state and see if the overall objective function should be changed
              -- The policy may change EPConverged to a new iteration before the frontend sees it
              (paramsNew, pparamsNew) = stepPolicy s'
