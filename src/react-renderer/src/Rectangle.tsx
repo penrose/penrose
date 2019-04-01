@@ -15,6 +15,9 @@ class Rectangle extends React.Component<IGPIPropsDraggable> {
     const strokeAlpha = shape.strokeColor.contents[3];
     const thickness = shape.strokeWidth.contents;
 
+    const rotation = shape.rotation.contents;
+    const transform = "rotate(" + rotation + ")";
+
     return (
       <rect
         x={x - shape.sizeX.contents / 2}
@@ -28,6 +31,8 @@ class Rectangle extends React.Component<IGPIPropsDraggable> {
         strokeOpacity={strokeAlpha}
         strokeDasharray={ shape.strokeStyle.contents === "dashed" ? "7, 5" : "" }
         strokeWidth={thickness}
+
+	transform={transform}
 
         onMouseDown={onClick}
       >

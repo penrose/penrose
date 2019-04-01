@@ -51,6 +51,7 @@ export const EndArrowhead = (props: {
     </marker>
   );
 };
+
 export const toScreen = (
   [x, y]: [number, number],
   canvasSize: [number, number]
@@ -58,6 +59,7 @@ export const toScreen = (
   const [width, height] = canvasSize;
   return [width / 2 + x, height / 2 - y];
 };
+
 export const toHex = (rgba: [number, number, number, number]) => {
   return rgba.slice(0, 3).reduce((prev, cur) => {
     const hex = Math.round(255 * cur).toString(16);

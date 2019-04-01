@@ -34,6 +34,7 @@ executable penrose
         GenOptProblem
         Shapes
         Functions
+        Transforms
         SubstanceTokenizer
         Sugarer
         Tokenizer
@@ -89,6 +90,7 @@ test-suite penrose-testsuite
         GenOptProblem
         Optimizer
         Functions
+        Transforms
         Shapes
         SubstanceTokenizer
         Sugarer

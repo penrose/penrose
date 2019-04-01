@@ -11,6 +11,7 @@ module GenOptProblem where
 
 import Utils
 import Shapes
+import Transforms
 import qualified SubstanceJSON as J
 import qualified Substance as C
 import Env

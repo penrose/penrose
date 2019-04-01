@@ -7,6 +7,7 @@ import Utils
 import System.Random
 import Debug.Trace
 import Shapes
+import Transforms
 import Data.Aeson (toJSON)
 import Data.Maybe (fromMaybe)
 import           Data.List                          (nub, sort, findIndex, find, maximumBy)
