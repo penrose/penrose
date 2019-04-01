@@ -49,6 +49,44 @@ data Elem a
 instance (FromJSON a) => FromJSON (Elem a)
 instance (ToJSON a)   => ToJSON (Elem a)
 
+--------- Transforms
+
+data Transform a = RotateAbout a a a
+                    | Scale a a
+                    | Translate a a
+     deriving (Generic, Eq, Show)
+
+instance (FromJSON a) => FromJSON (Transform a)
+instance (ToJSON a)   => ToJSON (Transform a)
+
+-- Homogeneous matrix / flat transform type
+-- TODO: make it from a list of transforms
+-- TODO: specify order of application
+data Transformation a = Transformation { -- Should this be quantified individually?
+     rotation :: a,
+     center_r :: Pt2 a,
+     scaleXY :: Pt2 a,
+     dxy :: Pt2 a
+} deriving (Generic, Eq, Show)
+
+instance (FromJSON a) => FromJSON (Transformation a)
+instance (ToJSON a)   => ToJSON (Transformation a)
+
+-- a, b, c, d, e, f as here:
+-- https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+data HMatrix a = HMatrix {
+     x_scale :: a, -- a
+     xy_fac :: a, -- c -- What are c and b called?
+     yx_fac :: a, -- b
+     y_scale :: a, -- d
+     dx     :: a, -- e
+     dy     :: a  -- f
+} deriving (Generic, Eq, Show)
+
+instance (FromJSON a) => FromJSON (HMatrix a)
+instance (ToJSON a)   => ToJSON (HMatrix a)
+
+---------
 
 -- | types of fully evaluated values in Style
 data ValueType
@@ -62,6 +100,8 @@ data ValueType
     | ColorT
     | FileT
     | StyleT
+    | TransformT
+    | HMatrixT
     deriving (Eq, Show)
 
 -- | fully evaluated values in Style
@@ -86,6 +126,11 @@ data Value a
     | FileV String
     -- | dotted, etc.
     | StyleV String
+
+    -- | single transformation
+         -- TODO: which to use?
+    | TransformV (Transformation a)
+    | HMatrixV (HMatrix a)
     deriving (Generic, Eq, Show)
 
 instance (FromJSON a) => FromJSON (Value a)
@@ -104,6 +149,8 @@ typeOf v = case v of
      ColorV _     -> ColorT
      FileV  _     -> FileT
      StyleV _     -> StyleT
+     TransformV _ -> TransformT
+     HMatrixV _ -> HMatrixT
 
 toPolymorphics :: [Shape Double] -> (forall a . (Autofloat a) => [Shape a])
 toPolymorphics = map toPolymorphic
@@ -118,12 +165,24 @@ toPolyProperty v = case v of
     BoolV x   -> BoolV x
     StrV x    -> StrV x
     IntV x    -> IntV x
-    PtV (x,y) -> PtV (r2f x, r2f y)
-    PtListV xs  -> PtListV $ map (\(x,y) -> (r2f x, r2f y)) xs
+    PtV p -> PtV $ r2 p
+    PtListV xs  -> PtListV $ map r2 xs
     ColorV x  -> ColorV x
     FileV x   -> FileV x
     StyleV x  -> StyleV x
     PathDataV es -> PathDataV $ map toPolyPath es
+    TransformV t -> TransformV $ Transformation { rotation = r2f $ rotation t,
+                                                  center_r = r2 $ center_r t,
+                                                  scaleXY = r2 $ scaleXY t,
+                                                  dxy = r2 $ dxy t }
+    HMatrixV m -> HMatrixV $ HMatrix { x_scale = r2f $ x_scale m,
+                                       xy_fac = r2f $ xy_fac m,
+                                       yx_fac = r2f $ yx_fac m,
+                                       y_scale = r2f $ y_scale m,
+                                       dx = r2f $ dx m,
+                                       dy = r2f $ dy m
+                                     }
+    where r2 (x, y) = (r2f x, r2f y)
 
 toPolyPath :: Path' Double -> (forall a . (Autofloat a) => Path' a)
 toPolyPath (Closed es) = Closed $ map toPolyElem es
@@ -167,7 +226,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -281,7 +340,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -394,6 +453,22 @@ rectType = ("Rectangle", M.fromList
         ("sizeX", (FloatT, width_sampler)),
         ("sizeY", (FloatT, height_sampler)),
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        ("color", (ColorT, sampleColor)),
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("style", (StrT, constValue $ StrV "filled")),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("strokeStyle", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultRect"))
+    ])
+
+rectTransformType = ("RectangleTransform", M.fromList
+    [
+        ("x", (FloatT, constValue $ FloatV 0.0)),
+        ("y", (FloatT, constValue $ FloatV 0.0)),
+        ("sizeX", (FloatT, width_sampler)), -- TODO default
+        ("sizeY", (FloatT, height_sampler)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        ("transform", (FloatT, constValue $ FloatV 0.0)),
         ("color", (ColorT, sampleColor)),
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "filled")),

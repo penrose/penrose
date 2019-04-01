@@ -1,7 +1,23 @@
+global {
+       global.half_pi = 1.57
+       global.pi = 3.14
+       global.two_pi = 6.28
+}
+
 Set x {
-    x.shape = Rectangle {
+    x.shape = RectangleTransform {
         strokeWidth = 0
-	rotation = 20.0
+	-- x = OPTIMIZED
+	-- y = OPTIMIZED
+	-- width = OPTIMIZED
+	-- height = OPTIMIZED
+	-- rotation = OPTIMIZED
+
+	transform = rotate(0.2)
+	-- TODO: make sure this starts in the origin of screen space?
+
+	-- transform = translate(0.0, 300.0)
+	-- andThen(andThen(rotate(20.0), translate(3.0, 5.0)), scaleX(10.0))
     }
 
     -- Note: rotations are only applied in frontend, so we don't optimize WRT them yet.
@@ -10,10 +26,10 @@ Set x {
       string = x.label
     }
 
-    x.labelFn = ensure contains(x.shape, x.text)
-    x.minSizeFn = ensure minSize(x.shape)
-    x.maxSizeFn = ensure maxSize(x.shape)
-    x.labelPosFn = encourage sameCenter(x.text, x.shape)
+    -- x.labelFn = ensure contains(x.shape, x.text)
+    -- x.minSizeFn = ensure minSize(x.shape)
+    -- x.maxSizeFn = ensure maxSize(x.shape)
+    -- x.labelPosFn = encourage sameCenter(x.text, x.shape)
     LOCAL.layering  = x.shape below x.text
 }
 
@@ -33,9 +49,9 @@ where NotIntersecting(x, y) {
 
 Set x; Set y
 where Intersect(x, y) {
-    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
-    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
-    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
+    -- LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
+    -- LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
+    -- LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
 }
 
 Point p {

@@ -121,6 +121,12 @@ compDict = M.fromList
         ("setOpacity", constComp setOpacity),
         ("bbox", constComp bbox'),
 
+        -- Transformations
+        ("rotate", constComp rotate),
+        ("rotateAbout", constComp rotateAbout),
+        ("scale", constComp scale),
+        ("translate", constComp translate),
+
         ("midpoint", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
         ("sampleReal", noop), -- TODO
@@ -1237,6 +1243,66 @@ noIntersect [[x1, y1, s1], [x2, y2, s2]] = -(dist (x1, y1) (x2, y2)) + s1 + s2 +
 
 noIntersectOffset :: (Autofloat a) => [[a]] -> a -> a
 noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset = -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset
+
+--------------------------------------------------------------------------------
+-- Transformations
+
+idT :: (Autofloat a) => Transformation a -- Identity transformation
+idT = Transformation {
+    rotation = 0.0,
+    center_r = (0.0, 0.0), -- Is this right?
+    scaleXY = (1.0, 1.0),
+    dxy = (0.0, 0.0) 
+}
+
+idH :: (Autofloat a) => HMatrix a
+idH = HMatrix {
+    x_scale = 1,
+    xy_fac = 0,
+    yx_fac = 0,
+    y_scale = 1,
+    dx = 0,
+    dy = 0
+}
+
+-- TODO: build these data structures at parse-time, not compute-time
+-- TODO: make wrapped and wrapped versions of these functions
+
+-- NOTE: Haskell trig is in radians
+rotate :: ConstCompFn
+rotate [Val (FloatV radians)] =
+    Val (HMatrixV $ idH { x_scale = cos radians, 
+                          xy_fac = -(sin radians),
+                          yx_fac = sin radians,
+                          y_scale = cos radians
+        })
+
+rotateAbout :: ConstCompFn
+rotateAbout [Val (FloatV angle), Val (FloatV x), Val (FloatV y)] =
+            error "TODO"
+    -- Val (TransformV $ idT { rotation = angle, center_r = (x, y) })
+
+translate :: ConstCompFn
+translate [Val (FloatV x), Val (FloatV y)] =
+    Val (HMatrixV $ idH { dx = x, dy = y })
+    -- Val (TransformV $ idT { dxy = (x, y) })
+
+scale :: ConstCompFn
+scale [Val (FloatV cx), Val (FloatV cy)] =
+    Val (HMatrixV $ idH { x_scale = cx, y_scale = cy })
+
+-- TODO: make a list
+-- Again, this should probably be done at parse-time
+
+composeTransform :: (Autofloat a) => HMatrix a -> HMatrix a -> HMatrix a
+composeTransform t s = error "TODO"
+
+composeTransforms :: (Autofloat a) => [HMatrix a] -> HMatrix a
+composeTransforms ts = error "TODO"
+
+andThen :: ConstCompFn
+andThen [Val (HMatrixV t1), Val (HMatrixV t2)] = 
+        error "TODO"
 
 --------------------------------------------------------------------------------
 -- Default functions for every shape
