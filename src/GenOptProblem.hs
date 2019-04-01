@@ -647,7 +647,7 @@ genObjfn :: (Autofloat a)
 genObjfn trans objfns constrfns varyingPaths =
      \rng penaltyWeight varyingVals ->
          let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
-         let (fnsE, transE, rng') = evalFns evalIterRange (trace ("genObjfn inputs:" ++ ppShow (objfns ++ constrfns)) (objfns ++ constrfns)) trans varyMap rng in
+         let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
          let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
          tr "Completed applying optimization function" overallEnergy
 
