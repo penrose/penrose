@@ -226,10 +226,11 @@ objFuncDict = M.fromList
         ("above", above),
         ("equal", equal),
         ("distBetween", distBetween),
-        ("sameCenter", sameCenter)
+        ("sameCenter", sameCenter),
+
+        ("nearT", nearT)
 
         -- ("sameX", sameX)
-
 {-      ("centerLine", centerLine),
         ("increasingX", increasingX),
         ("increasingY", increasingY),
@@ -1247,24 +1248,6 @@ noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset = -(dist (x1, y1) (x2, y2)
 --------------------------------------------------------------------------------
 -- Transformations
 
-idT :: (Autofloat a) => Transformation a -- Identity transformation
-idT = Transformation {
-    rotation = 0.0,
-    center_r = (0.0, 0.0), -- Is this right?
-    scaleXY = (1.0, 1.0),
-    dxy = (0.0, 0.0) 
-}
-
-idH :: (Autofloat a) => HMatrix a
-idH = HMatrix {
-    x_scale = 1,
-    xy_fac = 0,
-    yx_fac = 0,
-    y_scale = 1,
-    dx = 0,
-    dy = 0
-}
-
 -- TODO: build these data structures at parse-time, not compute-time
 -- TODO: make wrapped and wrapped versions of these functions
 
@@ -1303,6 +1286,14 @@ composeTransforms ts = error "TODO"
 andThen :: ConstCompFn
 andThen [Val (HMatrixV t1), Val (HMatrixV t2)] = 
         error "TODO"
+
+------ Transform objectives and constraints
+
+nearT :: ObjFn
+nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
+      -- TODO: transform needs to include DOF. How?
+      let tf = getTransform o in
+      distsq (dx tf, dy tf) (x, y) -- TODO: dx, dy from origin
 
 --------------------------------------------------------------------------------
 -- Default functions for every shape

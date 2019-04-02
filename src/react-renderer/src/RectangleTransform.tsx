@@ -8,6 +8,8 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
     const { shape } = this.props;
     const { canvasSize } = this.props;
     const { onClick } = this.props;
+
+    // TODO: write toScreen as a transform that is applied before or after the H transform matrix
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const fillColor = toHex(shape.color.contents);
     const fillAlpha = shape.color.contents[3];

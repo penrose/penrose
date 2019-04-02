@@ -86,6 +86,30 @@ data HMatrix a = HMatrix {
 instance (FromJSON a) => FromJSON (HMatrix a)
 instance (ToJSON a)   => ToJSON (HMatrix a)
 
+idT :: (Autofloat a) => Transformation a -- Identity transformation
+idT = Transformation {
+    rotation = 0.0,
+    center_r = (0.0, 0.0), -- Is this right?
+    scaleXY = (1.0, 1.0),
+    dxy = (0.0, 0.0) 
+}
+
+-- TODO: Should this be a map instead of a record?
+-- TODO: Should we extend the path type to access these fields? So it would really be a nested map
+-- How should the "x" "y" etc properties be treated? Also, where should the init/default values be stored?
+-- Perhaps as "x0" "size0"?
+-- It also depends on how you want to actually apply the matrix to a shape
+-- 
+idH :: (Autofloat a) => HMatrix a
+idH = HMatrix {
+    x_scale = 1,
+    xy_fac = 0,
+    yx_fac = 0,
+    y_scale = 1,
+    dx = 0,
+    dy = 0
+}
+
 ---------
 
 -- | types of fully evaluated values in Style
@@ -465,10 +489,10 @@ rectTransformType = ("RectangleTransform", M.fromList
     [
         ("x", (FloatT, constValue $ FloatV 0.0)),
         ("y", (FloatT, constValue $ FloatV 0.0)),
-        ("sizeX", (FloatT, width_sampler)), -- TODO default
-        ("sizeY", (FloatT, height_sampler)),
+        ("sizeX", (FloatT, constValue $ FloatV 100.0)), -- TODO should be unit size
+        ("sizeY", (FloatT, constValue $ FloatV 100.0)),
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
-        ("transform", (FloatT, constValue $ FloatV 0.0)),
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("color", (ColorT, sampleColor)),
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "filled")),
@@ -724,12 +748,18 @@ movePath offset shape =
       (_:_, _:_) -> error "shape can't have both path manually set and path data"
       ([], []) -> error "shape has no path or data"
 
+-- | Transform utils
+getTransform :: (Autofloat a) => Shape a -> HMatrix a
+getTransform shape = case shape .: "transform" of
+    HMatrixV x -> x
+    _ -> error "getTransform: expected HMatrix but got something else"
+
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator
 
 -- | HACK: returns true of a property of a shape is not supposed to be
 -- | changed by the optimizer
-isPending:: ShapeTypeStr -> PropID -> Bool
+isPending :: ShapeTypeStr -> PropID -> Bool
 isPending typ propId = propId `elem` pendingProperties typ
 
 -- | HACK: returns all "pending" properties that are undeterminded until
