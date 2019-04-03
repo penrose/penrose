@@ -126,6 +126,7 @@ compDict = M.fromList
         ("rotateAbout", constComp rotateAbout),
         ("scale", constComp scale),
         ("translate", constComp translate),
+        ("andThen", constComp andThen),
 
         ("midpoint", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -1248,44 +1249,64 @@ noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset = -(dist (x1, y1) (x2, y2)
 --------------------------------------------------------------------------------
 -- Transformations
 
--- TODO: build these data structures at parse-time, not compute-time
--- TODO: make wrapped and wrapped versions of these functions
+-- General functions to work with transformations
+
+-- Do t2, then t1. That is, multiply two homogeneous matrices: t1 * t2
+composeTransform :: (Autofloat a) => HMatrix a -> HMatrix a -> HMatrix a
+composeTransform t1 t2 = HMatrix { xScale = xScale t1 * xScale t2 + xSkew t1  * ySkew t2,
+                                   xSkew  = xScale t1 * xSkew t2  + xSkew t1  * yScale t2,
+                                   ySkew  =  ySkew t1 * xScale t2 + yScale t1 * ySkew t2,
+                                   yScale =  ySkew t1 * xSkew t2  + yScale t1 * yScale t2,
+                                   dx     = xScale t1 * dx t2 + xSkew t1 * dy t2 + dx t1,
+                                   dy     = yScale t1 * dy t2 + ySkew t1 * dx t2 + dy t1 }
+-- TODO: test that this gives expected results for two scalings, translations, rotations, etc.
+
+-- Compose all the transforms in RIGHT TO LEFT order:
+-- [t1, t2, t3] means "do t3, then do t2, then do t1" or "t1 * t2 * t3"
+composeTransforms :: (Autofloat a) => [HMatrix a] -> HMatrix a
+composeTransforms ts = foldr composeTransform idH ts
+
+-- Specific transformations
+
+rotationM :: (Autofloat a) => a -> HMatrix a
+rotationM radians = idH { xScale = cos radians, 
+                          xSkew = -(sin radians),
+                          ySkew = sin radians,
+                          yScale = cos radians
+                       }
+
+translationM :: (Autofloat a) => Pt2 a -> HMatrix a
+translationM (x, y) = idH { dx = x, dy = y }
+
+scalingM :: (Autofloat a) => Pt2 a -> HMatrix a
+scalingM (cx, cy) = idH { xScale = cx, yScale = cy }
+
+-- TODO: check this, not sure if it's right
+rotationAboutM :: (Autofloat a) => a -> Pt2 a -> HMatrix a
+rotationAboutM radians (x, y) = 
+    -- Make the new point the new origin, do a rotation, then translate back
+    composeTransforms [translationM (x, y), rotationM radians, translationM (-x, -y)]
+
+-- Wrappers for transforms and operations to call from Style
 
 -- NOTE: Haskell trig is in radians
 rotate :: ConstCompFn
-rotate [Val (FloatV radians)] =
-    Val (HMatrixV $ idH { x_scale = cos radians, 
-                          xy_fac = -(sin radians),
-                          yx_fac = sin radians,
-                          y_scale = cos radians
-        })
+rotate [Val (FloatV radians)] = Val $ HMatrixV $ rotationM radians
 
 rotateAbout :: ConstCompFn
 rotateAbout [Val (FloatV angle), Val (FloatV x), Val (FloatV y)] =
-            error "TODO"
-    -- Val (TransformV $ idT { rotation = angle, center_r = (x, y) })
+    Val $ HMatrixV $ rotationAboutM angle (x, y)
 
 translate :: ConstCompFn
-translate [Val (FloatV x), Val (FloatV y)] =
-    Val (HMatrixV $ idH { dx = x, dy = y })
-    -- Val (TransformV $ idT { dxy = (x, y) })
+translate [Val (FloatV x), Val (FloatV y)] = Val $ HMatrixV $ translationM (x, y)
 
 scale :: ConstCompFn
-scale [Val (FloatV cx), Val (FloatV cy)] =
-    Val (HMatrixV $ idH { x_scale = cx, y_scale = cy })
+scale [Val (FloatV cx), Val (FloatV cy)] = Val $ HMatrixV $ scalingM (cx, cy)
 
--- TODO: make a list
--- Again, this should probably be done at parse-time
-
-composeTransform :: (Autofloat a) => HMatrix a -> HMatrix a -> HMatrix a
-composeTransform t s = error "TODO"
-
-composeTransforms :: (Autofloat a) => [HMatrix a] -> HMatrix a
-composeTransforms ts = error "TODO"
-
+-- Apply transforms from left to right order: do t2, then t1
 andThen :: ConstCompFn
-andThen [Val (HMatrixV t1), Val (HMatrixV t2)] = 
-        error "TODO"
+andThen [Val (HMatrixV t2), Val (HMatrixV t1)] = 
+        Val $ HMatrixV $ composeTransform t1 t2
 
 ------ Transform objectives and constraints
 

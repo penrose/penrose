@@ -38,12 +38,8 @@ Set x {
 	sizeX = 400.0
 	-- sizeY = OPTIMIZED
 	-- rotation = OPTIMIZED
-
-	-- TODO: make sure this starts in the origin of screen space?
-	-- transform = rotate(0.0)
-	-- andThen(andThen(rotate(20.0), translate(3.0, 5.0)), scaleX(10.0))
     }
-
+    -- TODO: make sure this starts in the origin of screen space?
     -- Note: rotations are only applied in frontend, so we don't optimize WRT them yet.
 
     x.text = Text {
@@ -77,13 +73,14 @@ Set `A` {
 
 Set `B` {
     `B`.shape.color = Colors.green
-    -- Rotates CCW about (0,0) (top left of screen)
-    `B`.shape.transform = rotate(global.pi_over_four)
+    -- `B`.shape.transform = andThen(translate(100.0, 0.0), rotate(global.pi_over_four))
+    -- TODO: test/debug rotateAbout
+    `B`.shape.transform = rotateAbout(global.half_pi, 100.0, 100.0)
 }
 
 Set `C` {
     `C`.shape.color = Colors.blue
-    `C`.shape.transform = rotate(global.half_pi)
+    `C`.shape.transform = andThen(rotate(global.half_pi), translate(100.0, 0.0))
 }
 
 Set x; Set y

@@ -30,8 +30,8 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
 
 	const tf = shape.transform.contents;
 	console.log("transform", tf);
-	const transformList = [tf.x_scale, tf.yx_fac, tf.xy_fac,
-			       tf.y_scale, tf.dx, tf.dy];
+	const transformList = [tf.xScale, tf.ySkew, tf.xSkew,
+			       tf.yScale, tf.dx, tf.dy];
 	const penroseTransform = "matrix(" + transformList.join(" ") + ")";
 
 	// Do Penrose transform, then SVG

@@ -75,10 +75,10 @@ instance (ToJSON a)   => ToJSON (Transformation a)
 -- a, b, c, d, e, f as here:
 -- https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
 data HMatrix a = HMatrix {
-     x_scale :: a, -- a
-     xy_fac :: a, -- c -- What are c and b called?
-     yx_fac :: a, -- b
-     y_scale :: a, -- d
+     xScale :: a, -- a
+     xSkew :: a, -- c -- What are c and b called?
+     ySkew :: a, -- b
+     yScale :: a, -- d
      dx     :: a, -- e
      dy     :: a  -- f
 } deriving (Generic, Eq, Show)
@@ -96,16 +96,17 @@ idT = Transformation {
 
 -- TODO: Should this be a map instead of a record?
 -- TODO: Should we extend the path type to access these fields? So it would really be a nested map
+-- How do we start with an idH matrix?
 -- How should the "x" "y" etc properties be treated? Also, where should the init/default values be stored?
 -- Perhaps as "x0" "size0"?
 -- It also depends on how you want to actually apply the matrix to a shape
--- 
+-- Given a shape's parameters, need to generate a unit axis-aligned rect at origin, then do 
 idH :: (Autofloat a) => HMatrix a
 idH = HMatrix {
-    x_scale = 1,
-    xy_fac = 0,
-    yx_fac = 0,
-    y_scale = 1,
+    xScale = 1,
+    xSkew = 0,
+    ySkew = 0,
+    yScale = 1,
     dx = 0,
     dy = 0
 }
@@ -199,10 +200,10 @@ toPolyProperty v = case v of
                                                   center_r = r2 $ center_r t,
                                                   scaleXY = r2 $ scaleXY t,
                                                   dxy = r2 $ dxy t }
-    HMatrixV m -> HMatrixV $ HMatrix { x_scale = r2f $ x_scale m,
-                                       xy_fac = r2f $ xy_fac m,
-                                       yx_fac = r2f $ yx_fac m,
-                                       y_scale = r2f $ y_scale m,
+    HMatrixV m -> HMatrixV $ HMatrix { xScale = r2f $ xScale m,
+                                       xSkew = r2f $ xSkew m,
+                                       ySkew = r2f $ ySkew m,
+                                       yScale = r2f $ yScale m,
                                        dx = r2f $ dx m,
                                        dy = r2f $ dy m
                                      }
@@ -484,8 +485,8 @@ rectType = ("Rectangle", M.fromList
         ("strokeStyle", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultRect"))
     ])
-
 rectTransformType = ("RectangleTransform", M.fromList
+
     [
         ("x", (FloatT, constValue $ FloatV 0.0)),
         ("y", (FloatT, constValue $ FloatV 0.0)),
