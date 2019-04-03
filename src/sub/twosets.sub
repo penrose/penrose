@@ -1,7 +1,8 @@
 Set A
 Set B
 Set C
-Set D
+-- Set D
+-- Doesn't work yet due to HMatrix value
 IsSubset(A,B)
 
 -- Set C
