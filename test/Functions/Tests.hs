@@ -8,6 +8,7 @@ import Debug.Trace
 
 import Functions
 import Shapes
+import Utils
 
 tests :: TestTree
 tests = testGroup "Functions tests" [properties, unitTests]
@@ -15,8 +16,6 @@ tests = testGroup "Functions tests" [properties, unitTests]
 properties :: TestTree
 properties = testGroup "Properties" [scProps, qcProps]
 
---------
-type Pt2 a = (a, a)
 
 eps :: Float
 eps = 10 ** (-3) -- Kind of arbitrarily picked so the tests pass. Not sure about the right precision
@@ -63,6 +62,24 @@ trs1 :: Assertion
 trs1 = ptsEq ((translationM (-1, 1) # rotationM (pi/2) # scalingM (2, 1)) ## (1, 0))
              (-1,3.0) @?= True
 
+-- Starting with some parameters, we show we can extract the same (?) parameters from the composed matrix
+   -- λ> paramsOf $ (rotationM (pi/2) # scalingM (2.0, 1.0))
+   -- (2.000000000025,1.00000000005,1.5707963267948966,0.0,0.0)
+   -- λ> paramsOf $ (rotationM (pi/3) # scalingM (-4.0, 2.0))
+   -- (4.000000000012499,2.000000000025,1.0471975512038145,0.0,0.0)
+   -- λ> pi/3
+   -- 1.0471975511965976
+   -- λ> paramsOf $ (rotationM (-pi/3) # scalingM (-4.0, 2.0))
+   -- (4.000000000012499,2.000000000025,1.0471975512038145,0.0,0.0)
+params_matrix_id' :: (Float, Float, Float, Float, Float) -> Bool
+params_matrix_id' p@(sx, sy, theta, dx, dy) =
+       let p0 = [sx, sy, theta, dx, dy]
+           m = paramsToMatrix p
+           (sx', sy', theta', dx', dy') = paramsOf m 
+           p' = [sx', sy', theta', dx', dy']
+       in if sx < eps || sy < eps then True -- don't scale by 0
+          else norm (p0 -. p') < eps
+
 -- TODO
 -- do we need any checks for numerical stability?
 -- test the canonical order: scale(w, h) then rotate(theta) then translate(x, y) = ???
@@ -90,7 +107,8 @@ qcProps = testGroup "(checked by QuickCheck)"
             QC.testProperty "translate v * translate -v = idH" translate_id,
             QC.testProperty "scale (cx,cy) * scale (-cx, -cy) = idH" scale_id,
             QC.testProperty "id * A = A * id = A" id_mul,
-            QC.testProperty "translate then rotate CCW can equal a translation up" rot_tr
+            QC.testProperty "translate then rotate CCW can equal a translation up" rot_tr,
+            QC.testProperty "(params -> matrix -> solve for params) ~ params" params_matrix_id'
           ]
 
 -- Module: topic: function: property

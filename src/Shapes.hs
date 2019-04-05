@@ -257,7 +257,7 @@ type ShapeTypeStr = String
 -- | the string identifier of a property
 type PropID = String
 
--- new
+--------- new
 type PropertiesDef2 a = M.Map PropID (ValueType, SampledValue a)
 -- | Mutually recursive types because we might want to nest a definition of properties (e.g. A.shape.center.x)
 type PropertyValue a = Either (SampledValue a) (PropertiesDef2 a)
@@ -265,7 +265,7 @@ type PropertyValue a = Either (SampledValue a) (PropertiesDef2 a)
 -- | A dict storing names, types, and default values of properties
 type PropertiesDef1 a = M.Map PropID (ValueType, PropertyValue a)
 type ShapeDef' a = (ShapeTypeStr, PropertiesDef1 a)
----
+----------
 
 -- | A dict storing names, types, and default values of properties
 type PropertiesDef a = M.Map PropID (ValueType, SampledValue a)
@@ -530,18 +530,24 @@ rectType = ("Rectangle", M.fromList
 
 rectTransformType = ("RectangleTransform", M.fromList
     [
-        ("x", (FloatT, constValue $ FloatV 0.0)),
+        ("x", (FloatT, constValue $ FloatV 0.0)), -- TODO: these attributes should no longer matter
         ("y", (FloatT, constValue $ FloatV 0.0)),
-        ("sizeX", (FloatT, constValue $ FloatV 100.0)), -- TODO should be unit size
-        ("sizeY", (FloatT, constValue $ FloatV 100.0)),
+        ("sizeX", (FloatT, constValue $ FloatV 1.0)), -- TODO should be unit size
+        ("sizeY", (FloatT, constValue $ FloatV 1.0)),
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
+
+    -- Are these attributes getters or setters? The frontend, for example, gets them and uses them to draw the shape
+    -- Should the frontend now use a unit square as well?
+    -- If you don't set the x and y in the frontend, will it start with a unit square?
+
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("color", (ColorT, sampleColor)),
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "filled")),
         ("strokeColor", (ColorT, sampleColor)),
         ("strokeStyle", (StrT, constValue $ StrV "none")),
-        ("name", (StrT, constValue $ StrV "defaultRect"))
+        ("name", (StrT, constValue $ StrV "defaultRect")),
+        ("polygon", (PtListT, constValue $ PtListV []))
     ])
 
 squareType = ("Square", M.fromList

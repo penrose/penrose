@@ -1339,6 +1339,37 @@ nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
       let tf = getTransform o in
       distsq (dx tf, dy tf) (x, y) -- TODO: dx, dy from origin
 
+------ Solve for final parameters
+
+-- sx, sy, theta
+paramsOf :: (Autofloat a) => HMatrix a -> (a, a, a, a, a) -- There could be multiple solutions
+paramsOf m = let (sx, sy) = (norm [xScale m, ySkew m], norm [xSkew m, yScale m]) in -- +/-?
+             let theta = acos (yScale m / sy) in -- multiple ways to solve, also +/0
+             (sx, sy, theta, dx m, dy m)
+
+paramsToMatrix :: (Autofloat a) => (a, a, a, a, a) -> HMatrix a
+paramsToMatrix (sx, sy, theta, dx, dy) = -- scale then rotate then translate
+               composeTransforms [translationM (dx, dy), rotationM theta, scalingM (sx, sy)]
+
+-- TODO: after solving for the params, figure out what sign they should be (maybe compare to the original matrix? is this differentiable...?)
+
+------ Polygonization code
+
+unitSq :: (Autofloat a) => [Pt2 a]
+unitSq = [(0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5)]
+
+transformPoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
+transformPoly m = map (applyTransform m)
+
+polygonOf :: (Autofloat a) => Shape a -> [Pt2 a]
+polygonOf s@("RectangleTransform", props) =
+          -- Apply transform to a unit square centered about the origin
+          let m = getTransform s in
+          transformPoly m unitSq
+polygonOf _ = error "TODO: polygonOf not yet implemented for this shape"
+
+-- TODO: function to set polygon property?
+
 --------------------------------------------------------------------------------
 -- Default functions for every shape
 
