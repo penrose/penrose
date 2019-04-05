@@ -111,6 +111,28 @@ idH = HMatrix {
     dy = 0
 }
 
+hmatrixSchema :: (Autofloat a) => PropertiesDef2 a
+hmatrixSchema = M.fromList [
+              ("xScale", (FloatT, constValue $ FloatV 1.0)),
+              ("xSkew", (FloatT, constValue $ FloatV 0.0)),
+              ("ySkew", (FloatT, constValue $ FloatV 0.0)),
+              ("yScale", (FloatT, constValue $ FloatV 1.0)),
+              ("dx", (FloatT, constValue $ FloatV 0.0)),
+              ("dy", (FloatT, constValue $ FloatV 0.0))
+              ]
+
+type HMatrix' a = Properties a
+
+idH' :: (Autofloat a) => HMatrix' a
+idH' = M.fromList [
+     ("xScale", FloatV 1.0),
+     ("xSkew", FloatV 0.0),
+     ("ySkew", FloatV 0.0),
+     ("yScale", FloatV 1.0),
+     ("dx", FloatV 0.0),
+     ("dy", FloatV 0.0)
+     ]
+
 ---------
 
 -- | types of fully evaluated values in Style
@@ -127,6 +149,7 @@ data ValueType
     | StyleT
     | TransformT
     | HMatrixT
+    | MapT
     deriving (Eq, Show)
 
 -- | fully evaluated values in Style
@@ -156,6 +179,8 @@ data Value a
          -- TODO: which to use?
     | TransformV (Transformation a)
     | HMatrixV (HMatrix a)
+    | MapV (Properties a)
+
     deriving (Generic, Eq, Show)
 
 instance (FromJSON a) => FromJSON (Value a)
@@ -176,6 +201,7 @@ typeOf v = case v of
      StyleV _     -> StyleT
      TransformV _ -> TransformT
      HMatrixV _ -> HMatrixT
+     MapV _ -> MapT
 
 toPolymorphics :: [Shape Double] -> (forall a . (Autofloat a) => [Shape a])
 toPolymorphics = map toPolymorphic
@@ -226,8 +252,19 @@ type ShapeTypeStr = String
 -- | the string identifier of a property
 type PropID = String
 
+-- new
+type PropertiesDef2 a = M.Map PropID (ValueType, SampledValue a)
+-- | Mutually recursive types because we might want to nest a definition of properties (e.g. A.shape.center.x)
+type PropertyValue a = Either (SampledValue a) (PropertiesDef2 a)
+
+-- | A dict storing names, types, and default values of properties
+type PropertiesDef1 a = M.Map PropID (ValueType, PropertyValue a)
+type ShapeDef' a = (ShapeTypeStr, PropertiesDef1 a)
+---
+
 -- | A dict storing names, types, and default values of properties
 type PropertiesDef a = M.Map PropID (ValueType, SampledValue a)
+
 -- | definition of a new shape/graphical primitive
 -- TODO: rewrite as a record?
 type ShapeDef a = (ShapeTypeStr, PropertiesDef a)
@@ -485,8 +522,8 @@ rectType = ("Rectangle", M.fromList
         ("strokeStyle", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultRect"))
     ])
-rectTransformType = ("RectangleTransform", M.fromList
 
+rectTransformType = ("RectangleTransform", M.fromList
     [
         ("x", (FloatT, constValue $ FloatV 0.0)),
         ("y", (FloatT, constValue $ FloatV 0.0)),
@@ -572,6 +609,26 @@ exampleCirc = ("Circle", M.fromList
         ("style", StyleV "filled"),
         ("color", ColorV black)
     ])
+
+------------
+
+rectTransformType' :: (Autofloat a) => ShapeDef' a
+rectTransformType' = ("RectangleTransform", M.fromList
+    [
+        ("x", (FloatT, Left $ constValue $ FloatV 0.0)),
+        ("y", (FloatT, Left $ constValue $ FloatV 0.0)),
+        ("sizeX", (FloatT, Left $ constValue $ FloatV 100.0)), -- TODO should be unit size
+        ("sizeY", (FloatT, Left $ constValue $ FloatV 100.0)),
+        ("rotation", (FloatT, Left $ constValue $ FloatV 0.0)),
+        ("transform", (MapT, Right $ hmatrixSchema)),
+        ("color", (ColorT, Left $ sampleColor)),
+        ("strokeWidth", (FloatT, Left $ stroke_sampler)),
+        ("style", (StrT, Left $ constValue $ StrV "filled")),
+        ("strokeColor", (ColorT, Left $ sampleColor)),
+        ("strokeStyle", (StrT, Left $ constValue $ StrV "none")),
+        ("name", (StrT, Left $ constValue $ StrV "defaultRect"))
+    ]
+    )
 
 --------------------------------------------------------------------------------
 -- Parser for shape def DSL (TODO)

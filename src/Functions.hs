@@ -1261,6 +1261,11 @@ composeTransform t1 t2 = HMatrix { xScale = xScale t1 * xScale t2 + xSkew t1  * 
                                    dy     = yScale t1 * dy t2 + ySkew t1 * dx t2 + dy t1 }
 -- TODO: test that this gives expected results for two scalings, translations, rotations, etc.
 
+infixl 7 #
+
+(#) :: (Autofloat a) => HMatrix a -> HMatrix a -> HMatrix a
+(#) = composeTransform
+
 -- Compose all the transforms in RIGHT TO LEFT order:
 -- [t1, t2, t3] means "do t3, then do t2, then do t1" or "t1 * t2 * t3"
 composeTransforms :: (Autofloat a) => [HMatrix a] -> HMatrix a
