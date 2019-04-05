@@ -4,6 +4,7 @@ import Test.Tasty
 import Test.Tasty.SmallCheck as SC
 import Test.Tasty.QuickCheck as QC
 import Test.Tasty.HUnit
+import Debug.Trace
 
 import Functions
 import Shapes
@@ -15,36 +16,65 @@ properties :: TestTree
 properties = testGroup "Properties" [scProps, qcProps]
 
 --------
+type Pt2 a = (a, a)
+
+eps :: Float
+eps = 10 ** (-3) -- Kind of arbitrarily picked so the tests pass. Not sure about the right precision
+
+hmEq :: HMatrix Float -> HMatrix Float -> Bool
+hmEq t1 t2 = hmDiff t1 t2 <= eps
+
+ptsEq :: Pt2 Float -> Pt2 Float -> Bool
+ptsEq (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2) < eps -- Should use a different eps
 
 id_compose_id :: Assertion
 id_compose_id = idH # idH @?= idH
 
 rotate_2pi_id :: Assertion
-rotate_2pi_id = rotationM (2 * pi) @?= idH
+rotate_2pi_id = hmEq idH (rotationM (2 * pi)) @?= True
 
 rotate_rev :: Float -> Bool
-rotate_rev radians = rotationM radians # rotationM (-radians) == idH
+rotate_rev radians = hmEq idH (rotationM radians # rotationM (-radians)) == True
 
--- TODO: 
--- Change record to map
--- Implement generic map function
--- Check WRT tolerance
+rotate_twice :: Float -> Bool
+rotate_twice radians = hmEq (rotationM (2 * radians)) (rotationM radians # rotationM (radians)) 
+                       == True
 
--- forall A, A * id = id * A = A
--- rotate by angle, then rotate by angle = rotate by 2 * angle
--- translate by x, then translate by -x = id
--- scale by c, then scale by -c = id
+translate_id :: Float -> Float -> Bool
+translate_id x y = hmEq idH (translationM (x, y) # translationM (-x, -y)) == True
+
+scale_id :: Float -> Float -> Bool
+scale_id cx cy = let res = (scalingM (1/cx, 1/cy) # scalingM (cx, cy)) in
+                 if cx /= 0.0 && cy /= 0.0 then
+                 hmEq idH res == True
+                 else True -- Ignore scaling by 0
+
+id_mul :: (Float, Float, Float, Float, Float, Float) -> Bool
+id_mul (x1, x2, x3, x4, x5, x6) = let m = listToHm [x1, x2, x3, x4, x5, x6] in
+                                  hmEq (idH # m) (m # idH) && hmEq (m # idH) m
+
+-- Not true in general
+rot_tr :: Float -> Bool
+rot_tr x = if x == 0.0 then True 
+           else ptsEq ((rotationM (pi/2) # translationM (x, 0)) ## (0, 0)) 
+                      (translationM (0, x) ## (0, 0)) == True
+
+trs1 :: Assertion
+trs1 = ptsEq ((translationM (-1, 1) # rotationM (pi/2) # scalingM (2, 1)) ## (1, 0))
+             (-1,3.0) @?= True
+
+-- TODO
 -- do we need any checks for numerical stability?
-
 -- test the canonical order: scale(w, h) then rotate(theta) then translate(x, y) = ???
 -- test skewing
-
--- Should the matrix be a map, not a record??
+-- test things that commute
+-- test things that don't commute
 
 transformsGroup :: TestTree
 transformsGroup = testGroup "Transforms"
                 [ testCase "idH * idH = idH" id_compose_id,
-                  testCase "rotate by 2pi = idH" rotate_2pi_id
+                  testCase "rotate by 2pi = idH" rotate_2pi_id,
+                  testCase "translate, rotate, scale example" trs1
                 ]
 
 --------
@@ -54,7 +84,13 @@ scProps = testGroup "(checked by SmallCheck)"
           ]
 
 qcProps = testGroup "(checked by QuickCheck)" 
-          [ QC.testProperty "forall x, rotate(x) . rotate (-x) = idH" rotate_rev
+          [ QC.testProperty "forall x, rotate(x) . rotate (-x) = idH" rotate_rev,
+            QC.testProperty "rotate t * rotate -t = id" rotate_rev,
+            QC.testProperty "rotate 2t = rotate t * rotate t" rotate_twice,
+            QC.testProperty "translate v * translate -v = idH" translate_id,
+            QC.testProperty "scale (cx,cy) * scale (-cx, -cy) = idH" scale_id,
+            QC.testProperty "id * A = A * id = A" id_mul,
+            QC.testProperty "translate then rotate CCW can equal a translation up" rot_tr
           ]
 
 -- Module: topic: function: property

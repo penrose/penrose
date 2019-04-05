@@ -81,7 +81,12 @@ data HMatrix a = HMatrix {
      yScale :: a, -- d
      dx     :: a, -- e
      dy     :: a  -- f
-} deriving (Generic, Eq, Show)
+} deriving (Generic, Eq)
+
+instance Show a => Show (HMatrix a) where
+         show m = "[ " ++ show (xScale m) ++ " " ++ show (xSkew m) ++ " " ++ show (dx m) ++ " ]\n" ++
+                  "  " ++ show (ySkew m) ++ " " ++ show (yScale m) ++ " " ++ show (dy m) ++ "  \n" ++
+                  "  0.0 0.0 1.0 ]"
 
 instance (FromJSON a) => FromJSON (HMatrix a)
 instance (ToJSON a)   => ToJSON (HMatrix a)

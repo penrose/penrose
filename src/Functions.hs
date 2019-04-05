@@ -1249,6 +1249,26 @@ noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset = -(dist (x1, y1) (x2, y2)
 --------------------------------------------------------------------------------
 -- Transformations
 
+-- First row, then second row
+hmToList :: (Autofloat a) => HMatrix a -> [a]
+hmToList m = [ xScale m, xSkew m, dx m, ySkew m, yScale m, dy m ]
+
+listToHm :: (Autofloat a) => [a] -> HMatrix a
+listToHm l = if length l /= 6 then error "wrong length list for hmatrix"
+             else HMatrix { xScale = l !! 0, xSkew = l !! 1, dx = l !! 2,
+                            ySkew = l !! 3, yScale = l !! 4, dy = l !! 5 }
+
+hmDiff :: (Autofloat a) => HMatrix a -> HMatrix a -> a
+hmDiff t1 t2 = let (l1, l2) = (hmToList t1, hmToList t2) in
+               norm $ l1 -. l2
+
+applyTransform :: (Autofloat a) => HMatrix a -> Pt2 a -> Pt2 a
+applyTransform m (x, y) = (x * xScale m + y * xSkew m + dx m, x * ySkew m + y * yScale m + dy m)
+
+infixl ##
+(##) :: (Autofloat a) => HMatrix a -> Pt2 a -> Pt2 a
+(##) = applyTransform
+
 -- General functions to work with transformations
 
 -- Do t2, then t1. That is, multiply two homogeneous matrices: t1 * t2
@@ -1262,7 +1282,6 @@ composeTransform t1 t2 = HMatrix { xScale = xScale t1 * xScale t2 + xSkew t1  * 
 -- TODO: test that this gives expected results for two scalings, translations, rotations, etc.
 
 infixl 7 #
-
 (#) :: (Autofloat a) => HMatrix a -> HMatrix a -> HMatrix a
 (#) = composeTransform
 
@@ -1286,7 +1305,6 @@ translationM (x, y) = idH { dx = x, dy = y }
 scalingM :: (Autofloat a) => Pt2 a -> HMatrix a
 scalingM (cx, cy) = idH { xScale = cx, yScale = cy }
 
--- TODO: check this, not sure if it's right
 rotationAboutM :: (Autofloat a) => a -> Pt2 a -> HMatrix a
 rotationAboutM radians (x, y) = 
     -- Make the new point the new origin, do a rotation, then translate back
