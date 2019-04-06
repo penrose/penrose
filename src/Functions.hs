@@ -1341,17 +1341,17 @@ nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
 
 ------ Solve for final parameters
 
--- sx, sy, theta
+-- See PR for documentation
+-- Note: returns angle in range [0, 2pi)
 paramsOf :: (Autofloat a) => HMatrix a -> (a, a, a, a, a) -- There could be multiple solutions
-paramsOf m = let (sx, sy) = (norm [xScale m, ySkew m], norm [xSkew m, yScale m]) in -- +/-?
-             let theta = acos (yScale m / sy) in -- multiple ways to solve, also +/0
+paramsOf m = let (sx, sy) = (norm [xScale m, ySkew m], norm [xSkew m, yScale m]) in -- Ignore negative scale factors
+             let theta = atan (ySkew m / (xScale m + epsd)) in -- Prevent atan(0/0) = NaN
+             -- atan returns an angle in [-pi, pi]
              (sx, sy, theta, dx m, dy m)
 
 paramsToMatrix :: (Autofloat a) => (a, a, a, a, a) -> HMatrix a
 paramsToMatrix (sx, sy, theta, dx, dy) = -- scale then rotate then translate
                composeTransforms [translationM (dx, dy), rotationM theta, scalingM (sx, sy)]
-
--- TODO: after solving for the params, figure out what sign they should be (maybe compare to the original matrix? is this differentiable...?)
 
 ------ Polygonization code
 

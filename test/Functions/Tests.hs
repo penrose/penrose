@@ -5,6 +5,7 @@ import Test.Tasty.SmallCheck as SC
 import Test.Tasty.QuickCheck as QC
 import Test.Tasty.HUnit
 import Debug.Trace
+import Data.Fixed
 
 import Functions
 import Shapes
@@ -63,22 +64,24 @@ trs1 = ptsEq ((translationM (-1, 1) # rotationM (pi/2) # scalingM (2, 1)) ## (1,
              (-1,3.0) @?= True
 
 -- Starting with some parameters, we show we can extract the same (?) parameters from the composed matrix
-   -- λ> paramsOf $ (rotationM (pi/2) # scalingM (2.0, 1.0))
-   -- (2.000000000025,1.00000000005,1.5707963267948966,0.0,0.0)
-   -- λ> paramsOf $ (rotationM (pi/3) # scalingM (-4.0, 2.0))
-   -- (4.000000000012499,2.000000000025,1.0471975512038145,0.0,0.0)
-   -- λ> pi/3
-   -- 1.0471975511965976
-   -- λ> paramsOf $ (rotationM (-pi/3) # scalingM (-4.0, 2.0))
-   -- (4.000000000012499,2.000000000025,1.0471975512038145,0.0,0.0)
+-- It's lossy though, so some tests might fail when the angle can't be reconstructed
 params_matrix_id' :: (Float, Float, Float, Float, Float) -> Bool
 params_matrix_id' p@(sx, sy, theta, dx, dy) =
-       let p0 = [sx, sy, theta, dx, dy]
+       let p0 = [sx, sy, theta `mod'` (2.0 * pi), dx, dy]
+           -- might not work with theta out of range [-2pi, 2pi]
            m = paramsToMatrix p
            (sx', sy', theta', dx', dy') = paramsOf m 
            p' = [sx', sy', theta', dx', dy']
        in if sx < eps || sy < eps then True -- don't scale by 0
           else norm (p0 -. p') < eps
+
+-- This also can't test it fully though, for example if the matrix didn't result from 
+-- the canonical scale-then-rotate-then-translate
+-- e.g. if it consists only of a shear: m = listToHm [1.0,0.0,0.0,1.0,1.0,0.0]
+params_matrix_eq :: (Float, Float, Float, Float, Float, Float) -> Bool
+params_matrix_eq (x1, x2, x3, x4, x5, x6) = let m = listToHm [x1, x2, x3, x4, x5, x6] in
+                                  if x1 < eps || x5 < eps then True -- don't scale by 0
+                                  else hmEq m (paramsToMatrix $ paramsOf m)
 
 -- TODO
 -- do we need any checks for numerical stability?
@@ -108,7 +111,8 @@ qcProps = testGroup "(checked by QuickCheck)"
             QC.testProperty "scale (cx,cy) * scale (-cx, -cy) = idH" scale_id,
             QC.testProperty "id * A = A * id = A" id_mul,
             QC.testProperty "translate then rotate CCW can equal a translation up" rot_tr,
-            QC.testProperty "(params -> matrix -> solve for params) ~ params" params_matrix_id'
+            QC.testProperty "(params -> matrix -> solve for params) ~ params" params_matrix_id',
+            QC.testProperty "matrix ~ (matrix -> params -> matrix)" params_matrix_eq
           ]
 
 -- Module: topic: function: property
