@@ -127,6 +127,7 @@ compDict = M.fromList
         ("scale", constComp scale),
         ("translate", constComp translate),
         ("andThen", constComp andThen),
+        ("transformSRT", constComp transformSRT),
 
         ("midpoint", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -229,7 +230,9 @@ objFuncDict = M.fromList
         ("distBetween", distBetween),
         ("sameCenter", sameCenter),
 
-        ("nearT", nearT)
+        -- With the new transforms
+        ("nearT", nearT),
+        ("optTransformedShapes", optTransformedShapes)
 
         -- ("sameX", sameX)
 {-      ("centerLine", centerLine),
@@ -1339,6 +1342,15 @@ nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
       let tf = getTransform o in
       distsq (dx tf, dy tf) (x, y) -- TODO: dx, dy from origin
 
+-- Test energy on two polygons
+testEnergy :: (Autofloat a) => [Pt2 a] -> [Pt2 a] -> a
+testEnergy p1 p2 = distsq (p1 !! 0) (p2 !! 0) -- Get the first two points to be equal? idk
+
+optTransformedShapes :: ObjFn
+optTransformedShapes [GPI o1, GPI o2] =
+      let (p1, p2) = (polygonOf o1, polygonOf o2) in
+      testEnergy p1 p2
+
 ------ Solve for final parameters
 
 -- See PR for documentation
@@ -1352,6 +1364,11 @@ paramsOf m = let (sx, sy) = (norm [xScale m, ySkew m], norm [xSkew m, yScale m])
 paramsToMatrix :: (Autofloat a) => (a, a, a, a, a) -> HMatrix a
 paramsToMatrix (sx, sy, theta, dx, dy) = -- scale then rotate then translate
                composeTransforms [translationM (dx, dy), rotationM theta, scalingM (sx, sy)]
+
+transformSRT :: ConstCompFn
+transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), 
+                      Val (FloatV dx), Val (FloatV dy)] = 
+                 Val $ HMatrixV $ paramsToMatrix (sx, sy, theta, dx, dy)
 
 ------ Polygonization code
 
