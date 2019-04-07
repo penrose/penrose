@@ -17,7 +17,7 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
 	const { canvasSize } = this.props;
 	const { onClick } = this.props;
 
-	const [x, y] = [shape.x.contents, shape.y.contents];
+	// const [x, y] = [shape.x.contents, shape.y.contents];
 	const fillColor = toHex(shape.color.contents);
 	const fillAlpha = shape.color.contents[3];
 	const strokeColor = toHex(shape.strokeColor.contents);
@@ -28,8 +28,10 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
 	// TODO: check that the transform respects screen space, SVG directionality, and the Style writer's intention
 	// Right now increasing the y will move downward. Does that affect the skew factors?
 
-	const tf = shape.transform.contents;
-	console.log("transform", tf);
+	// const tf = shape.transform.contents;
+	// This is the *full* translation, incl. default transformation
+	const tf = shape.transformation.contents;
+	console.log("transformation", tf);
 	const transformList = [tf.xScale, tf.ySkew, tf.xSkew,
 			       tf.yScale, tf.dx, tf.dy];
 	const penroseTransform = "matrix(" + transformList.join(" ") + ")";
@@ -38,12 +40,13 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
 	const transformStr = [penroseToSVG(canvasSize), penroseTransform].join(" ");
 	console.log("transformStr", transformStr);
 
+	// Make a default rectangle whose position, size, angle, etc. is all set by the Penrose transform
 	return (
 		<rect
-            x={x - shape.sizeX.contents / 2}
-            y={y - shape.sizeY.contents / 2}
-            width={shape.sizeX.contents}
-            height={shape.sizeY.contents}
+            x={0.0} // {x - shape.sizeX.contents / 2}
+            y={0.0} // {y - shape.sizeY.contents / 2}
+            width={1.0} // {shape.sizeX.contents}
+            height={1.0} // {shape.sizeY.contents}
             fill={fillColor}
             fillOpacity={fillAlpha}
 

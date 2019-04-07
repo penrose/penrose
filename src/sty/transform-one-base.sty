@@ -25,8 +25,8 @@ global {
 
 Point p {
       p.shape = Circle {
-      	      x = -100.0
-	      y = -200.0
+      	      x = 0.0
+	      y = 0.0
 	      r = 10.0
 	      color = Colors.red
 	      strokeWidth = 0.0
@@ -34,15 +34,18 @@ Point p {
 }
 
 Set X {
-    X.width = 100.0
-    X.height = 200.0
-    X.centerX = OPTIMIZED
-    X.centerY = OPTIMIZED
-    X.angle = OPTIMIZED
+    X.val = OPTIMIZED
 
     X.shape = RectangleTransform {
+    	x = 0.0 -- TODO: deal with different/custom rotation center in frontend
+	y = 0.0
+	sizeX = 200.0
+	sizeY = 100.0
+	rotation = 0.0
         strokeWidth = 0.0
-	transform = transformSRT(X.width, X.height, X.angle, X.centerX, X.centerY)
+	-- transform = ?
+	transformation = andThen(transformSRT(X.shape.sizeX, X.shape.sizeY, X.shape.rotation, X.shape.x, X.shape.y), X.shape.transform)
+	-- TODO: this is for the frontend. Penrose should auto-add this expression to translation
     }
 
     -- TODO: need to apply the transform, otherwise X and y are still 0
@@ -62,8 +65,8 @@ Set `A` {
 }
 
 Set `B` {
-    override `B`.width = 200.0 -- NOT B.shape.width
-    override `B`.height = 100.0
+    override `B`.shape.sizeX = 200.0
+    override `B`.shape.sizeY = 100.0
     override `B`.shape.color = setOpacity(Colors.green, 0.5)
 }
 

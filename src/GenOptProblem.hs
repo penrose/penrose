@@ -362,7 +362,8 @@ shapes2floats shapes varyMap varyingPaths = reverse $ foldl (lookupPathFloat sha
 -- For now, don't optimize these float-valued properties of a GPI 
 -- (use whatever they are initialized to in Shapes or set to in Style)
 unoptimizedFloatProperties :: [String]
-unoptimizedFloatProperties = ["rotation", "strokeWidth", "thickness"]
+unoptimizedFloatProperties = ["rotation", "strokeWidth", "thickness", 
+                              "transform", "transformation"]
 
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying

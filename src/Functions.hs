@@ -1336,19 +1336,19 @@ andThen [Val (HMatrixV t2), Val (HMatrixV t1)] =
 
 ------ Transform objectives and constraints
 
+-- Optimize directly on the transform
 nearT :: ObjFn
 nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
-      -- TODO: transform needs to include DOF. How?
       let tf = getTransform o in
-      distsq (dx tf, dy tf) (x, y) -- TODO: dx, dy from origin
+      distsq (dx tf, dy tf) (x, y)
 
--- Test energy on two polygons
+-- Test energy on two polygons: optimize on the transformed shape
 testEnergy :: (Autofloat a) => [Pt2 a] -> [Pt2 a] -> a
-testEnergy p1 p2 = distsq (p1 !! 0) (p2 !! 0) -- Get the first two points to be equal? idk
+testEnergy p1 p2 = distsq (p1 !! 0) (p2 !! 0) -- Get the first two points to touch
 
 optTransformedShapes :: ObjFn
 optTransformedShapes [GPI o1, GPI o2] =
-      let (p1, p2) = (polygonOf o1, polygonOf o2) in
+      let (p1, p2) = (polygonOf o1, polygonOf o2) in -- So this should just be appled to all shapes first?
       testEnergy p1 p2
 
 ------ Solve for final parameters
@@ -1378,11 +1378,21 @@ unitSq = [(0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5)]
 transformPoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
 transformPoly m = map (applyTransform m)
 
+getParams :: (Autofloat a) => Shape a -> (a, a, a, a, a)
+getParams s@("RectangleTransform", props) =
+          (getNum s "sizeX", getNum s "sizeY", getNum s "rotation", getX s, getY s)
+getParams _ = error "TODO: getParams not yet implemented for this shape"
+
+-- Polygonize shape (or get unit polygon) and apply the transform to it to get a final polygon
 polygonOf :: (Autofloat a) => Shape a -> [Pt2 a]
 polygonOf s@("RectangleTransform", props) =
           -- Apply transform to a unit square centered about the origin
-          let m = getTransform s in
-          transformPoly m unitSq
+          -- First make default transform for scaling, rotation, then translation
+          let params = getParams s in
+          let defaultTransform = paramsToMatrix params in
+          let customTransform = getTransform s in
+          let fullTransform = customTransform # defaultTransform in
+          transformPoly fullTransform unitSq
 polygonOf _ = error "TODO: polygonOf not yet implemented for this shape"
 
 -- TODO: function to set polygon property?
