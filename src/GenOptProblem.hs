@@ -492,6 +492,16 @@ evalBinop op v1 v2 =
         (Val _, GPI _) -> error "binop cannot operate on GPI"
         (GPI _, GPI _) -> error "binop cannot operate on GPIs"
 
+-- | Given a path that is a computed property of a shape (e.g. A.shape.transformation), evaluate each of its arguments (e.g. A.shape.sizeX), pass the results to the property-computing function, and return the result (e.g. an HMatrix)
+computeProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> Property -> VaryMap a -> Translation a -> StdGen -> ComputedValue a -> (ArgVal a, Translation a, StdGen)
+computeProperty limit bvar field property varyMap trans g (props, compFn) =
+                let args = map (\p -> EPath $ PropertyPath bvar field p) props
+                    (argVals, trans', g') = evalExprs limit args trans varyMap g
+                    propertyValue = compFn $ map fromGPI argVals in
+                (Val propertyValue, trans', g')
+                where fromGPI (Val x) = x
+                      fromGPI (GPI x) = error "expected value as prop fn arg, got GPI"
+
 evalProperty :: (Autofloat a)
     => (Int, Int) -> BindingForm -> Field -> VaryMap a -> ([(Property, TagExpr a)], Translation a, StdGen) -> (Property, TagExpr a)
     -> ([(Property, TagExpr a)], Translation a, StdGen)
@@ -579,17 +589,21 @@ evalExpr (i, n) arg trans varyMap g =
                          (GPI (ctor', shapeExprsToVals (bvarToString bvar, field) propertiesVal), trans', g')
 
                   PropertyPath bvar field property ->
-                      let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
-                      case texpr of
-                      Done v -> (Val v, trans, g)
-                      OptEval e ->
-                         let (v, trans', g') = evalExpr limit e trans varyMap g in
-                         case v of
-                         Val fval ->
-                             case insertPath trans' (p, Done fval) of
-                             Right trans' -> (v, trans', g')
-                             Left err -> error $ concat err
-                         GPI _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
+                      let gpiType = shapeType bvar field trans in
+                      case M.lookup (gpiType, property) computedProperties of 
+                      Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
+                      Nothing -> -- Compute the path as usual
+                          let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
+                          case texpr of
+                          Done v -> (Val v, trans, g)
+                          OptEval e ->
+                             let (v, trans', g') = evalExpr limit e trans varyMap g in
+                             case v of
+                             Val fval ->
+                                 case insertPath trans' (p, Done fval) of
+                                 Right trans' -> (v, trans', g')
+                                 Left err -> error $ concat err
+                             GPI _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
 
             -- GPI argument
             Ctor ctor properties -> error "no anonymous/inline GPIs allowed as expressions!"

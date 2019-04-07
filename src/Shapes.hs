@@ -294,32 +294,33 @@ defaultValueOf g prop (t, propDict) =
 --------------------------------------------------------------------------------
 -- Computing derived properties
 
--- Should a property "say" that it's computed in the shape specification?
--- Or should it be more like varyingPaths, which is stored as data?
+-- Initially, a computed property starts with the initial value specified in the shape initialized (e.g. idH)
 
--- Is this really necessary...? You might want to compute many things: finalX for example, or polygonization or transformation -- and you don't want the frontend to be doing it
--- Should this then be stored as a list separate from the GPI properties?
--- This is essentially another hardcoded layer in the computational graph; you could get the same effect by computing it in Style, but we do this as a convenience for the Style writer
+-- To say that a property is computed: add it to the list in `computedProperties`
+-- to say how it is computed: specify the input properties of the shape and write a function that expects them and returns a value
+-- Note: DOFs are preserved through this
 
--- to say that a property is computed: ??
--- to say how it is computed: ??
--- to init a shape: i guess we have to figure out all the paths to the computed properties? maybe we walk the translation in genOptProblem and compute all the computed properties? 
--- to eval a shape: eval the shape then do its computed propertiees?
--- to eval this path: ??
+-- How this feature is implemented: see `computeProperty` in GenOptProblem, which is called by `evalExpr` (as well as anything that calls `evalExpr`, like `evalShape` and `initShape`
+-- evalExpr, for a PropertyPath X.f.p, checks if p is in computedProperties for the type of X.f.
+-- If so, it evaluates the GPI properties requested by the function, passes the values to the function, and returns the value the function returns
+-- If not, then it evaluates the path as usual (by looking up its expr and evaluating it)
+-- TODO: move implementation documentation to the wiki and PR
 
--- the problem with making the arg a ConstCompFn is that we don't know the shape's name?
--- or it could be a Fn but then you write fargs as an expr and you still don't know the shape's name. as a ConstCompFn it's a *function* not a function *call*
+type ComputedValue a = ([Property], [Value a] -> Value a)
 
-type ComputedValue a = (ShapeTypeStr, Property, [Property], [Value a] -> Value a)
+computedProperties :: (Autofloat a) => M.Map (ShapeTypeStr, Property) (ComputedValue a)
+computedProperties = M.fromList [computeTransformation]
 
-computeTransformation :: (Autofloat a) => ComputedValue a
-computeTransformation = ("RectangleTransform", "transformation", props, fn)
+computeTransformation :: (Autofloat a) => ((ShapeTypeStr, Property), ComputedValue a)
+computeTransformation = (("RectangleTransform", "transformation"), (props, fn))
     where props = ["sizeX", "sizeY", "rotation", "x", "y", "transform"]
           fn :: (Autofloat a) => [Value a] -> Value a
           fn [FloatV sizeX, FloatV sizeY, FloatV rotation, 
               FloatV x, FloatV y, HMatrixV customTransform] = 
              let defaultTransform = paramsToMatrix (sizeX, sizeY, rotation, x, y) in
              HMatrixV $ customTransform # defaultTransform
+
+-- TODO: add ones for polygon, final properties; also refactor so it's more generic across shapes
 
 ------ Polygonization code
 
@@ -554,27 +555,24 @@ rectType = ("Rectangle", M.fromList
 
 rectTransformType = ("RectangleTransform", M.fromList
     [
-        ("x", (FloatT, constValue $ FloatV 0.0)), -- TODO: these attributes should no longer matter
+        -- These attributes serve as DOF in the default transformation
+        -- They are NOT the final x, etc.
+        ("x", (FloatT, constValue $ FloatV 0.0)),
         ("y", (FloatT, constValue $ FloatV 0.0)),
-        ("sizeX", (FloatT, constValue $ FloatV 1.0)), -- TODO should be unit size
+        ("sizeX", (FloatT, constValue $ FloatV 1.0)),
         ("sizeY", (FloatT, constValue $ FloatV 1.0)),
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
 
-    -- Are these attributes getters or setters? The frontend, for example, gets them and uses them to draw the shape
-    -- Should the frontend now use a unit square as well?
-    -- If you don't set the x and y in the frontend, will it start with a unit square?
-
-    -- What if we just set the x as usual? But we turn it into a transform?
-    -- When someone gets the x it gets that x, not the final x. Is that an ok convention?
-    -- The key is that the FRONTEND draws the shapes only using the transform
-    -- And when optimizing, you should do it WRT the transform (?????) or the transformed shape, not the x,y stuff? Or maybe that's fine?
-    -- What about the x,y DOFs?
-
         ("transform", (FloatT, constValue $ HMatrixV idH)),
-        ("transformation", (FloatT, constValue $ HMatrixV idH)),
-           -- Instead, can we have it be a computed value? It may depend on the other values of the shape
-           -- Computed value :: [property name] -> value
-           -- Who computes the value? When? How? What guarantees do we have?
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+
+        -- TODO compute these
+        -- ("finalX", (FloatT, constValue $ FloatV 0.0)),
+        -- ("finalY", (FloatT, constValue $ FloatV 0.0)),
+        -- ("finalSizeX", (FloatT, constValue $ FloatV 1.0)),
+        -- ("finalSizeY", (FloatT, constValue $ FloatV 1.0)),
+        -- ("finalRotation", (FloatT, constValue $ FloatV 0.0)),
+
         ("color", (ColorT, sampleColor)),
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "filled")),

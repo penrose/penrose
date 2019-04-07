@@ -1508,6 +1508,12 @@ lookupField bvar field trans =
          Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
          Just fexpr -> fexpr
 
+shapeType :: (Autofloat a) => BindingForm -> Field -> Translation a -> ShapeTypeStr
+shapeType bvar field trans =
+          case lookupField bvar field trans of
+          FGPI stype _ -> stype
+          FExpr _ -> error "path is not a GPI; cannot get type"
+
 lookupStyVal :: (Autofloat a) => String -> String -> StyValMap a -> a
 lookupStyVal subName propName vmap =
     case M.lookup subName vmap of

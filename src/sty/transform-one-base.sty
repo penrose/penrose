@@ -41,16 +41,12 @@ Set X {
 	y = 0.0
 	sizeX = 200.0
 	sizeY = 100.0
-	rotation = global.half_pi
+	rotation = global.pi_over_four
         strokeWidth = 0.0
-	transform = translate(100.0, 200.0)
-	transformation = andThen(transformSRT(X.shape.sizeX, X.shape.sizeY, X.shape.rotation, X.shape.x, X.shape.y), X.shape.transform)
-	-- TODO: this is for the frontend. Penrose should auto-add this expression to translation
+	transform = scale(0.5, 1.0) -- translate(100.0, 200.0)
     }
 
-    -- TODO: need to apply the transform, otherwise X and y are still 0
-    -- Should this get the X.centerX or the finalX?
-
+    -- TODO: this should get the finalX
     X.text = Text {
       string = X.label
       x = X.shape.x 
