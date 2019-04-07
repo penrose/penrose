@@ -37,13 +37,13 @@ Set X {
     X.val = OPTIMIZED
 
     X.shape = RectangleTransform {
-    	x = 0.0 -- TODO: deal with different/custom rotation center in frontend
+    	x = 0.0
 	y = 0.0
 	sizeX = 200.0
 	sizeY = 100.0
-	rotation = 0.0
+	rotation = global.half_pi
         strokeWidth = 0.0
-	-- transform = ?
+	transform = translate(100.0, 200.0)
 	transformation = andThen(transformSRT(X.shape.sizeX, X.shape.sizeY, X.shape.rotation, X.shape.x, X.shape.y), X.shape.transform)
 	-- TODO: this is for the frontend. Penrose should auto-add this expression to translation
     }

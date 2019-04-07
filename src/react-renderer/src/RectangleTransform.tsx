@@ -40,11 +40,12 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
 	const transformStr = [penroseToSVG(canvasSize), penroseTransform].join(" ");
 	console.log("transformStr", transformStr);
 
-	// Make a default rectangle whose position, size, angle, etc. is all set by the Penrose transform
+	// The default rectangle is an axis-aligned unit square centered at the origin 
+	// Its position, size, angle, etc. is all set by the Penrose transform
 	return (
 		<rect
-            x={0.0} // {x - shape.sizeX.contents / 2}
-            y={0.0} // {y - shape.sizeY.contents / 2}
+            x={-0.5} // {x - shape.sizeX.contents / 2}
+            y={-0.5} // {y - shape.sizeY.contents / 2}
             width={1.0} // {shape.sizeX.contents}
             height={1.0} // {shape.sizeY.contents}
             fill={fillColor}

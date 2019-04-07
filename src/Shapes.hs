@@ -5,6 +5,7 @@
 module Shapes where
 
 import Utils
+import Transforms
 import System.Random
 import GHC.Generics
 import Data.Aeson (FromJSON, ToJSON, toJSON)
@@ -72,25 +73,6 @@ data Transformation a = Transformation { -- Should this be quantified individual
 instance (FromJSON a) => FromJSON (Transformation a)
 instance (ToJSON a)   => ToJSON (Transformation a)
 
--- a, b, c, d, e, f as here:
--- https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
-data HMatrix a = HMatrix {
-     xScale :: a, -- a
-     xSkew :: a, -- c -- What are c and b called?
-     ySkew :: a, -- b
-     yScale :: a, -- d
-     dx     :: a, -- e
-     dy     :: a  -- f
-} deriving (Generic, Eq)
-
-instance Show a => Show (HMatrix a) where
-         show m = "[ " ++ show (xScale m) ++ " " ++ show (xSkew m) ++ " " ++ show (dx m) ++ " ]\n" ++
-                  "  " ++ show (ySkew m) ++ " " ++ show (yScale m) ++ " " ++ show (dy m) ++ "  \n" ++
-                  "  0.0 0.0 1.0 ]"
-
-instance (FromJSON a) => FromJSON (HMatrix a)
-instance (ToJSON a)   => ToJSON (HMatrix a)
-
 idT :: (Autofloat a) => Transformation a -- Identity transformation
 idT = Transformation {
     rotation = 0.0,
@@ -106,15 +88,6 @@ idT = Transformation {
 -- Perhaps as "x0" "size0"?
 -- It also depends on how you want to actually apply the matrix to a shape
 -- Given a shape's parameters, need to generate a unit axis-aligned rect at origin, then do 
-idH :: (Autofloat a) => HMatrix a
-idH = HMatrix {
-    xScale = 1,
-    xSkew = 0,
-    ySkew = 0,
-    yScale = 1,
-    dx = 0,
-    dy = 0
-}
 
 hmatrixSchema :: (Autofloat a) => PropertiesDef2 a
 hmatrixSchema = M.fromList [
@@ -317,6 +290,57 @@ defaultValueOf g prop (t, propDict) =
             (noPropError "defaultValueOf" prop t)
             (M.lookup prop propDict)
     in sampleF g
+
+--------------------------------------------------------------------------------
+-- Computing derived properties
+
+-- Should a property "say" that it's computed in the shape specification?
+-- Or should it be more like varyingPaths, which is stored as data?
+
+-- Is this really necessary...? You might want to compute many things: finalX for example, or polygonization or transformation -- and you don't want the frontend to be doing it
+-- Should this then be stored as a list separate from the GPI properties?
+-- This is essentially another hardcoded layer in the computational graph; you could get the same effect by computing it in Style, but we do this as a convenience for the Style writer
+
+-- to say that a property is computed: ??
+-- to say how it is computed: ??
+-- to init a shape: i guess we have to figure out all the paths to the computed properties? maybe we walk the translation in genOptProblem and compute all the computed properties? 
+-- to eval a shape: eval the shape then do its computed propertiees?
+-- to eval this path: ??
+
+-- the problem with making the arg a ConstCompFn is that we don't know the shape's name?
+-- or it could be a Fn but then you write fargs as an expr and you still don't know the shape's name. as a ConstCompFn it's a *function* not a function *call*
+
+type ComputedValue a = (ShapeTypeStr, Property, [Property], [Value a] -> Value a)
+
+computeTransformation :: (Autofloat a) => ComputedValue a
+computeTransformation = ("RectangleTransform", "transformation", props, fn)
+    where props = ["sizeX", "sizeY", "rotation", "x", "y", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV sizeX, FloatV sizeY, FloatV rotation, 
+              FloatV x, FloatV y, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (sizeX, sizeY, rotation, x, y) in
+             HMatrixV $ customTransform # defaultTransform
+
+------ Polygonization code
+
+getParams :: (Autofloat a) => Shape a -> (a, a, a, a, a)
+getParams s@("RectangleTransform", props) =
+          (getNum s "sizeX", getNum s "sizeY", getNum s "rotation", getX s, getY s)
+getParams _ = error "TODO: getParams not yet implemented for this shape"
+
+-- Polygonize shape (or get unit polygon) and apply the transform to it to get a final polygon
+polygonOf :: (Autofloat a) => Shape a -> [Pt2 a]
+polygonOf s@("RectangleTransform", props) =
+          -- Apply transform to a unit square centered about the origin
+          -- First make default transform for scaling, rotation, then translation
+          let params = getParams s in
+          let defaultTransform = paramsToMatrix params in
+          let customTransform = getTransform s in
+          let fullTransform = customTransform # defaultTransform in
+          transformPoly fullTransform unitSq
+polygonOf _ = error "TODO: polygonOf not yet implemented for this shape"
+
+-- TODO: function to set polygon property?
 
 --------------------------------------------------------------------------------
 -- Property samplers
@@ -540,7 +564,17 @@ rectTransformType = ("RectangleTransform", M.fromList
     -- Should the frontend now use a unit square as well?
     -- If you don't set the x and y in the frontend, will it start with a unit square?
 
+    -- What if we just set the x as usual? But we turn it into a transform?
+    -- When someone gets the x it gets that x, not the final x. Is that an ok convention?
+    -- The key is that the FRONTEND draws the shapes only using the transform
+    -- And when optimizing, you should do it WRT the transform (?????) or the transformed shape, not the x,y stuff? Or maybe that's fine?
+    -- What about the x,y DOFs?
+
         ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)),
+           -- Instead, can we have it be a computed value? It may depend on the other values of the shape
+           -- Computed value :: [property name] -> value
+           -- Who computes the value? When? How? What guarantees do we have?
         ("color", (ColorT, sampleColor)),
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "filled")),
