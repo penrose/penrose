@@ -1,10 +1,10 @@
-Point p
+-- Point p
 
 Set A
 Set B
-Set C
+-- Set C
 -- Set D
--- Doesn't work yet due to HMatrix value
+
 IsSubset(A,B)
 
 -- Set C

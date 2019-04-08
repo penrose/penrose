@@ -34,30 +34,29 @@ Point p {
 }
 
 Set X {
-    -- X.dx = OPTIMIZED
-    -- X.dy = OPTIMIZED
-    -- X.angle = OPTIMIZED
+    X.dx = OPTIMIZED
+    X.dy = OPTIMIZED
+    X.angle = OPTIMIZED
 
     X.shape = RectangleTransform {
-    	x = OPTIMIZED -- 0.0
-	y = OPTIMIZED -- 0.0
+    	x = 0.0
+	y = 0.0
 	sizeX = 200.0
 	sizeY = 100.0
-	rotation = OPTIMIZED
+	rotation = 0.0
         strokeWidth = 0.0
 	-- transform = rotate(X.angle)
-	-- TODO: this doesn't work well
-	-- transform = andThen(rotate(X.angle), translate(X.dx, X.dy))
+	transform = andThen(rotate(X.angle), translate(X.dx, X.dy))
     }
 
     -- TODO: this should get the finalX
-    X.text = Text {
-      string = X.label
-      x = X.shape.x 
-      y = X.shape.y
-    }
+    -- X.text = Text {
+    --   string = X.label
+    --   x = X.shape.x 
+    --   y = X.shape.y
+    -- }
 
-    LOCAL.layering  = X.shape below X.text
+    -- LOCAL.layering  = X.shape below X.text
 }
 
 Set `A` {
@@ -70,12 +69,13 @@ Set `B` {
     override `B`.shape.color = setOpacity(Colors.green, 0.5)
 }
 
-Set `C` {
-    override `C`.shape.x = 0.0
-    override `C`.shape.y = 0.0
-    override `C`.shape.rotation = 0.0
-    override `C`.shape.color = setOpacity(Colors.blue, 0.5)
-}
+
+-- Set `C` {
+--     override `C`.shape.x = 0.0
+--     override `C`.shape.y = 0.0
+--     override `C`.shape.rotation = 0.0
+--     override `C`.shape.color = setOpacity(Colors.blue, 0.5)
+-- }
 
 Set `A`; Set `B` {
    LOCAL.objFn = encourage optTransformedShapes(`A`.shape, `B`.shape)
