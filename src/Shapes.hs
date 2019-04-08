@@ -266,7 +266,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -309,10 +309,11 @@ defaultValueOf g prop (t, propDict) =
 type ComputedValue a = ([Property], [Value a] -> Value a)
 
 computedProperties :: (Autofloat a) => M.Map (ShapeTypeStr, Property) (ComputedValue a)
-computedProperties = M.fromList [computeTransformation]
+computedProperties = M.fromList [rectTransformFn, 
+                                 polygonTransformFn]
 
-computeTransformation :: (Autofloat a) => ((ShapeTypeStr, Property), ComputedValue a)
-computeTransformation = (("RectangleTransform", "transformation"), (props, fn))
+rectTransformFn :: (Autofloat a) => ((ShapeTypeStr, Property), ComputedValue a)
+rectTransformFn = (("RectangleTransform", "transformation"), (props, fn))
     where props = ["sizeX", "sizeY", "rotation", "x", "y", "transform"]
           fn :: (Autofloat a) => [Value a] -> Value a
           fn [FloatV sizeX, FloatV sizeY, FloatV rotation, 
@@ -320,13 +321,24 @@ computeTransformation = (("RectangleTransform", "transformation"), (props, fn))
              let defaultTransform = paramsToMatrix (sizeX, sizeY, rotation, x, y) in
              HMatrixV $ customTransform # defaultTransform
 
--- TODO: add ones for polygon, final properties; also refactor so it's more generic across shapes
+polygonTransformFn :: (Autofloat a) => ((ShapeTypeStr, Property), ComputedValue a)
+polygonTransformFn = (("Polygon", "transformation"), (props, fn))
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV dx, FloatV dy, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
+             HMatrixV $ customTransform # defaultTransform
+
+-- TODO: add ones for final properties; also refactor so it's more generic across shapes
 
 ------ Polygonization code
 
 getParams :: (Autofloat a) => Shape a -> (a, a, a, a, a)
 getParams s@("RectangleTransform", props) =
           (getNum s "sizeX", getNum s "sizeY", getNum s "rotation", getX s, getY s)
+getParams s@("Polygon", props) =
+          (getNum s "scaleX", getNum s "scaleY", getNum s "rotation", getNum s "dx", getNum s "dy")
 getParams _ = error "TODO: getParams not yet implemented for this shape"
 
 -- Polygonize shape (or get unit polygon) and apply the transform to it to get a final polygon
@@ -339,6 +351,12 @@ polygonOf s@("RectangleTransform", props) =
           let customTransform = getTransform s in
           let fullTransform = customTransform # defaultTransform in
           transformPoly fullTransform unitSq
+polygonOf s@("Polygon", props) =
+          let params = getParams s in
+          let defaultTransform = paramsToMatrix params in
+          let customTransform = getTransform s in
+          let fullTransform = customTransform # defaultTransform in
+          transformPoly fullTransform $ getPoints s
 polygonOf _ = error "TODO: polygonOf not yet implemented for this shape"
 
 -- TODO: function to set polygon property?
@@ -432,7 +450,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -553,35 +571,6 @@ rectType = ("Rectangle", M.fromList
         ("name", (StrT, constValue $ StrV "defaultRect"))
     ])
 
-rectTransformType = ("RectangleTransform", M.fromList
-    [
-        -- These attributes serve as DOF in the default transformation
-        -- They are NOT the final x, etc.
-        ("x", (FloatT, constValue $ FloatV 0.0)),
-        ("y", (FloatT, constValue $ FloatV 0.0)),
-        ("sizeX", (FloatT, constValue $ FloatV 1.0)),
-        ("sizeY", (FloatT, constValue $ FloatV 1.0)),
-        ("rotation", (FloatT, constValue $ FloatV 0.0)),
-
-        ("transform", (FloatT, constValue $ HMatrixV idH)),
-        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
-
-        -- TODO compute these
-        -- ("finalX", (FloatT, constValue $ FloatV 0.0)),
-        -- ("finalY", (FloatT, constValue $ FloatV 0.0)),
-        -- ("finalSizeX", (FloatT, constValue $ FloatV 1.0)),
-        -- ("finalSizeY", (FloatT, constValue $ FloatV 1.0)),
-        -- ("finalRotation", (FloatT, constValue $ FloatV 0.0)),
-
-        ("color", (ColorT, sampleColor)),
-        ("strokeWidth", (FloatT, stroke_sampler)),
-        ("style", (StrT, constValue $ StrV "filled")),
-        ("strokeColor", (ColorT, sampleColor)),
-        ("strokeStyle", (StrT, constValue $ StrV "none")),
-        ("name", (StrT, constValue $ StrV "defaultRect")),
-        ("polygon", (PtListT, constValue $ PtListV []))
-    ])
-
 squareType = ("Square", M.fromList
     [
         ("x", (FloatT, x_sampler)),
@@ -638,6 +627,63 @@ arcType = ("Arc", M.fromList
         ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultArc"))
+    ])
+
+rectTransformType = ("RectangleTransform", M.fromList
+    [
+        -- These attributes serve as DOF in the default transformation
+        -- They are NOT the final x, etc.
+        ("x", (FloatT, constValue $ FloatV 0.0)),
+        ("y", (FloatT, constValue $ FloatV 0.0)),
+        ("sizeX", (FloatT, constValue $ FloatV 1.0)),
+        ("sizeY", (FloatT, constValue $ FloatV 1.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+
+        -- TODO compute these
+        -- ("finalX", (FloatT, constValue $ FloatV 0.0)),
+        -- ("finalY", (FloatT, constValue $ FloatV 0.0)),
+        -- ("finalSizeX", (FloatT, constValue $ FloatV 1.0)),
+        -- ("finalSizeY", (FloatT, constValue $ FloatV 1.0)),
+        -- ("finalRotation", (FloatT, constValue $ FloatV 0.0)),
+
+        ("color", (ColorT, sampleColor)),
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("style", (StrT, constValue $ StrV "filled")),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("strokeStyle", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultRect")),
+        ("polygon", (PtListT, constValue $ PtListV []))
+    ])
+
+-- Also using the new transforms
+polygonType = ("Polygon", M.fromList
+    [
+        ("points", (PtListT, constValue $ PtListV [(0, 0), (100, 0), (50, 50)])),
+
+        -- These attributes serve as DOF in the default transformation
+        -- They are NOT the final x, etc.
+        ("dx", (FloatT, constValue $ FloatV 0.0)), -- Polygon doesn't have a natural "center"
+        ("dy", (FloatT, constValue $ FloatV 0.0)),
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)),
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        -- TODO: currently rotates about the center of the Penrose canvas, (0, 0)
+
+        ("centerX", (FloatT, constValue $ FloatV 0.0)),
+        ("centerY", (FloatT, constValue $ FloatV 0.0)),
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("strokeStyle", (StrT, constValue $ StrV "solid")),
+        ("strokeColor", (ColorT, sampleColor)),
+
+        ("fillColor", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultPolygon"))
     ])
 
 -----
@@ -806,6 +852,11 @@ getNum :: (Autofloat a) => Shape a -> PropID -> a
 getNum shape prop = case shape .: prop of
     FloatV x -> x
     res -> error ("getNum: expected float but got something else: " ++ show res)
+
+getPoints :: (Autofloat a) => Shape a -> [Pt2 a]
+getPoints shape = case shape .: "points" of
+    PtListV x -> x
+    _ -> error "getPoints: expected [(Float, Float)] but got something else"
 
 getPath :: (Autofloat a) => Shape a -> [Pt2 a]
 getPath shape = case shape .: "path" of

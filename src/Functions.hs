@@ -128,6 +128,7 @@ compDict = M.fromList
         ("translate", constComp translate),
         ("andThen", constComp andThen),
         ("transformSRT", constComp transformSRT),
+        ("mkPoly", constComp mkPoly),
 
         ("midpoint", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -1270,6 +1271,21 @@ scale [Val (FloatV cx), Val (FloatV cy)] = Val $ HMatrixV $ scalingM (cx, cy)
 andThen :: ConstCompFn
 andThen [Val (HMatrixV t2), Val (HMatrixV t1)] = 
         Val $ HMatrixV $ composeTransform t1 t2
+
+------ Sample shapes
+
+-- TODO: parse lists of 2-tuples
+mkPoly :: ConstCompFn
+mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3), 
+           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6)] = 
+           Val $ PtListV [(x1, x2), (x3, x4), (x5, x6)]
+mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3), 
+           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6), Val (FloatV x7), Val (FloatV x8)] = 
+           Val $ PtListV [(x1, x2), (x3, x4), (x5, x6), (x7, x8)]
+mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3), 
+           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6), 
+           Val (FloatV x7), Val (FloatV x8), Val (FloatV x9), Val (FloatV x10)] = 
+           Val $ PtListV [(x1, x2), (x3, x4), (x5, x6), (x7, x8), (x9, x10)]
 
 ------ Transform objectives and constraints
 

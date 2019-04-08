@@ -8,12 +8,14 @@ import Square from "./Square";
 import Curve from "./Curve";
 import Arrow from "./Arrow";
 import Line from "./Line";
+import Polygon from "./Polygon";
 
 // prettier-ignore
 const componentMap = {
   "Circle": Circle,
   "Rectangle": Rectangle,
   "RectangleTransform": RectangleTransform,
+  "Polygon": Polygon,
   "Square": Square,
   "Text": Label,
   "Curve": Curve,
