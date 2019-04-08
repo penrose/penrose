@@ -370,10 +370,11 @@ unoptimizedFloatProperties = ["rotation", "strokeWidth", "thickness",
 findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) ->
                                                                  String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
-    if floatProperty `elem` unoptimizedFloatProperties then acc else
     case M.lookup floatProperty properties of
-    Nothing -> mkPath [name, field, floatProperty] : acc
-    Just expr -> if declaredVarying expr then mkPath [name, field, floatProperty] : acc else acc
+    Nothing -> if floatProperty `elem` unoptimizedFloatProperties then acc 
+               else mkPath [name, field, floatProperty] : acc
+    Just expr -> if declaredVarying expr then mkPath [name, field, floatProperty] : acc
+                 else acc
 
 findFieldVarying :: (Autofloat a) => String -> Field -> FieldExpr a -> [Path] -> [Path]
 findFieldVarying name field (FExpr expr) acc =

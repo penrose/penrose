@@ -34,16 +34,20 @@ Point p {
 }
 
 Set X {
-    X.val = OPTIMIZED
+    -- X.dx = OPTIMIZED
+    -- X.dy = OPTIMIZED
+    -- X.angle = OPTIMIZED
 
     X.shape = RectangleTransform {
-    	x = 0.0
-	y = 0.0
+    	x = OPTIMIZED -- 0.0
+	y = OPTIMIZED -- 0.0
 	sizeX = 200.0
 	sizeY = 100.0
-	rotation = global.pi_over_four
+	rotation = OPTIMIZED
         strokeWidth = 0.0
-	transform = scale(0.5, 1.0) -- translate(100.0, 200.0)
+	-- transform = rotate(X.angle)
+	-- TODO: this doesn't work well
+	-- transform = andThen(rotate(X.angle), translate(X.dx, X.dy))
     }
 
     -- TODO: this should get the finalX
@@ -61,12 +65,15 @@ Set `A` {
 }
 
 Set `B` {
-    override `B`.shape.sizeX = 200.0
-    override `B`.shape.sizeY = 100.0
+    override `B`.shape.sizeX = 100.0
+    override `B`.shape.sizeY = 200.0
     override `B`.shape.color = setOpacity(Colors.green, 0.5)
 }
 
 Set `C` {
+    override `C`.shape.x = 0.0
+    override `C`.shape.y = 0.0
+    override `C`.shape.rotation = 0.0
     override `C`.shape.color = setOpacity(Colors.blue, 0.5)
 }
 
