@@ -864,20 +864,11 @@ genOptProblemAndState trans =
                                                     overallObjFn = overallFn },
                                  rng = g'',
                                  autostep = False, -- default
-                                 policyParams = PolicyParams { policyState = "",
-                                                               policySteps = 0,
-                                                               currFns = [] },
+                                 policyParams = initPolicyParams,
                                  policyFn = policyToUse
                                } in
 
-        -- TODO: make this less verbose
-    let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) (policyParams s) in
-    let newFns = DM.fromJust policyRes in
-    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) 
-                                                                              (filter isConstr newFns) varyingPaths }, 
-                              policyParams = (policyParams s) { policyState = pstate, currFns = newFns } } in
-
-    stateWithPolicy
+    initPolicy s
     -- NOTE: we do not resample the very first initial state. Not sure why the shapes / labels are rendered incorrectly.
     -- resampleBest numStateSamples initFullState
 
@@ -1034,7 +1025,7 @@ resampleBest n s =
               sampledResults = take n $ iterateS resampleVStateConst g
               res = minimumBy (lessEnergyOn f) sampledResults
               {- (trace ("energies: " ++ (show $ map (\((_, x, _), _) -> f x) sampledResults)) -}
-          in updateVState s res
+          in initPolicy $ updateVState s res
 
 ------- Other possibly-useful utility functions (not currently used)
 
@@ -1056,6 +1047,18 @@ lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
 -- Policy step = one optimization through to convergence
 -- TODO: factor out number of policy steps / other boilerplate? or let it remain dynamic?
 -- TODO: factor out the weights on the objective functions / method of combination (in genObjFn)
+
+initPolicyParams :: PolicyParams
+initPolicyParams = PolicyParams { policyState = "", policySteps = 0, currFns = [] }
+
+initPolicy :: State -> State
+initPolicy s = -- TODO: make this less verbose
+    let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) initPolicyParams in
+    let newFns = DM.fromJust policyRes in
+    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) 
+                                                                              (filter isConstr newFns) (varyingPaths s) }, 
+                              policyParams = initPolicyParams { policyState = pstate, currFns = newFns } } in
+    stateWithPolicy
 
 optimizeConstraints :: Policy
 optimizeConstraints objfns constrfns params = 
