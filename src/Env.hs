@@ -139,6 +139,7 @@ eq = void (symbol "=")
 def = void (symbol ":=")
 dollar = void (symbol "$")
 question = void (symbol "?")
+tilde = void (symbol "~")
 
 
 dollars :: Parser a -> Parser a

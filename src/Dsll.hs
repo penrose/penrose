@@ -136,7 +136,7 @@ instance Show Pd2 where
 data Sn = Sn {fromSn :: String, toSn :: String}
           deriving(Eq, Typeable)
 instance Show Sn where
-  show (Sn fromSn toSn) = "(StmtNotation: from: " ++ a ++ " to: " ++ b
+  show (Sn fromSn toSn) = "(notation: from: " ++ a ++ " to: " ++ b
         where a = show fromSn
               b = show toSn
 
@@ -168,7 +168,7 @@ dsllStmt = try snParser <|> try cdParser <|> try vdParser
 cdParser, cd1, cd2 :: Parser DsllStmt
 cdParser = try cd1 <|> cd2
 cd1 = do
-    rword "tconstructor"
+    rword "type"
     name <- identifier
     (y, k) <- parens ykParser
     colon
@@ -176,7 +176,7 @@ cd1 = do
     pos <- getPosition
     return (CdStmt Cd { nameCd = name, inputCd = zip y k, outputCd = t' })
 cd2 = do
-    rword "tconstructor"
+    rword "type"
     name <- identifier
     colon
     t' <- typeParser
@@ -262,26 +262,13 @@ pd2 = do
 
 snParser :: Parser DsllStmt
 snParser = do
-    rword "StmtNotation"
+    rword "notation"
     quote
     toSn' <- manyTill anyChar quote
-    arrow
+    tilde
     quote
     fromSn' <- manyTill anyChar quote
     return (SnStmt (Sn {fromSn = fromSn', toSn = toSn'}))
-
--- | Parse the settings of the expression notations, the precedence of them
---   and their associativity. This parsing is optional
-enSettingsParser :: Parser (String,Integer)
-enSettingsParser = do
-  lparen
-  rword "at level"
-  precedenceEn' <- integer
-  comma
-  associativityEn' <- identifier
-  rword "associativity"
-  rparen
-  return (associativityEn',precedenceEn')
 
 
 -------------------------- DSLL Semantic Checker -------------------------------
