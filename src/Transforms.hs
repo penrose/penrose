@@ -119,11 +119,13 @@ paramsToMatrix (sx, sy, theta, dx, dy) = -- scale then rotate then translate
 unitSq :: (Autofloat a) => [Pt2 a]
 unitSq = [(0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5)]
 
+testTriangle :: (Autofloat a) => [Pt2 a]
+testTriangle = [(0, 0), (100, 0), (50, 50)]
+
 transformPoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
 transformPoly m = map (applyTransform m)
 
 ------ Energies on polygons
 
--- Test energy on two polygons: optimize on the transformed shape
-testEnergy :: (Autofloat a) => [Pt2 a] -> [Pt2 a] -> a
-testEnergy p1 p2 = distsq (p1 !! 0) (p2 !! 0) -- Get the first two points to touch
+firstPointsDist :: (Autofloat a) => [Pt2 a] -> [Pt2 a] -> a
+firstPointsDist p1 p2 = distsq (p1 !! 0) (p2 !! 0) -- Get the first two points to touch

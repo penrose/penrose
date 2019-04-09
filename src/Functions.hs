@@ -233,7 +233,7 @@ objFuncDict = M.fromList
 
         -- With the new transforms
         ("nearT", nearT),
-        ("optTransformedShapes", optTransformedShapes)
+        ("firstPointsSameLoc", firstPointsSameLoc)
 
         -- ("sameX", sameX)
 {-      ("centerLine", centerLine),
@@ -1295,10 +1295,10 @@ nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
       let tf = getTransform o in
       distsq (dx tf, dy tf) (x, y)
 
-optTransformedShapes :: ObjFn
-optTransformedShapes [GPI o1, GPI o2] =
-      let (p1, p2) = (polygonOf o1, polygonOf o2) in -- So this should just be appled to all shapes first?
-      testEnergy p1 p2
+firstPointsSameLoc :: ObjFn
+firstPointsSameLoc [GPI o1, GPI o2] =
+      let (p1, p2) = (polygonOf o1, polygonOf o2) in
+      firstPointsDist p1 p2
 
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), 

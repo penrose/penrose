@@ -35,13 +35,9 @@ Point p {
 
 Set X {
     -- X.dx = OPTIMIZED
-    -- X.dy = OPTIMIZED
-    -- X.angle = OPTIMIZED
-    -- X.cx = OPTIMIZED
 
     X.shape = Polygon {
     	    -- Set to default triangle
-    	    -- points = mkPoly(-100.0, 100.0, 100.0, 100.0, 100.0, -100.0, -100.0, -100.0)
 
 	    dx = OPTIMIZED
 	    dy = OPTIMIZED
@@ -49,10 +45,7 @@ Set X {
 	    scaleY = 0.5
 	    rotation = OPTIMIZED
 
-	    -- centerX = 0.0
-	    -- centerY = 0.0
-
-	    -- transform = scale(X.cx, 1.0)
+	    -- transform = translate(X.dx, 0.0)
 	    strokeWidth = 0.0
 	    fillColor = setOpacity(Colors.blue, 0.5)
     }
@@ -64,5 +57,5 @@ Set `B` {
 }
 
 Set `A`; Set `B` {
-   LOCAL.objFn = encourage optTransformedShapes(`A`.shape, `B`.shape)
+   LOCAL.objFn = encourage firstPointsSameLoc(`A`.shape, `B`.shape)
 }
