@@ -417,7 +417,7 @@ dragUpdate name xm ym client@(clientID, conn, clientState) =
         news = s { G.shapesr = newShapes,
                    G.varyingState = G.shapes2floats newShapes varyMapNew $ G.varyingPaths s,
                    G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter }}
-        nextClientS = updateState clientState news
+        nextClientS = updateState clientState (initPolicy news)
         client' = (clientID, conn, nextClientS)
     in if autostep s
         then stepAndSend client'

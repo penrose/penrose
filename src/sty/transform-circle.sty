@@ -38,8 +38,8 @@ Set X {
     X.dy = OPTIMIZED
 
     X.shape = CircleTransform {
-    	    x = 0.0
-	    y = 0.0
+    	    -- x = 0.0
+	    -- y = 0.0
 	    r = OPTIMIZED
 
 	    transform = translate(X.dx, X.dy)
@@ -54,4 +54,5 @@ Set `B` {
 
 Set `A`; Set `B` {
    LOCAL.objFn = encourage firstPointsSameLoc(`A`.shape, `B`.shape)
+   -- LOCAL.objFn = encourage near(`A`.shape, `B`.shape)
 }

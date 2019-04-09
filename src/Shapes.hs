@@ -652,13 +652,13 @@ rectTransformType = ("RectangleTransform", M.fromList
     [
         -- These attributes serve as DOF in the default transformation
         -- They are NOT the final x, etc.
-        ("x", (FloatT, constValue $ FloatV 0.0)),
-        ("y", (FloatT, constValue $ FloatV 0.0)),
-        ("sizeX", (FloatT, constValue $ FloatV 1.0)),
-        ("sizeY", (FloatT, constValue $ FloatV 1.0)),
-        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("sizeX", (FloatT, width_sampler)),
+        ("sizeY", (FloatT, height_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
 
-        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transform", (FloatT, constValue $ HMatrixV idH)), -- Set in Style
         ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
 
         -- TODO compute these

@@ -34,19 +34,19 @@ Point p {
 }
 
 Set X {
-    X.dx = OPTIMIZED
-    X.dy = OPTIMIZED
+    -- X.dx = OPTIMIZED
+    -- X.dy = OPTIMIZED
     X.angle = OPTIMIZED
 
     X.shape = RectangleTransform {
-    	x = 0.0
-	y = 0.0
+    	x = OPTIMIZED
+	y = OPTIMIZED
 	sizeX = 200.0
 	sizeY = 100.0
-	rotation = 0.0
+	rotation = OPTIMIZED
         strokeWidth = 0.0
 	-- transform = rotate(X.angle)
-	transform = andThen(rotate(X.angle), translate(X.dx, X.dy))
+	-- transform = andThen(rotate(X.angle), translate(X.dx, X.dy))
     }
 
     -- TODO: this should get the finalX
@@ -78,5 +78,5 @@ Set `B` {
 -- }
 
 Set `A`; Set `B` {
-   LOCAL.objFn = encourage optTransformedShapes(`A`.shape, `B`.shape)
+   LOCAL.objFn = encourage firstPointsSameLoc(`A`.shape, `B`.shape)
 }
