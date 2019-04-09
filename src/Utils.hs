@@ -291,3 +291,10 @@ inputsOutput x = let res = fnTypes x in
 inputsOutputStr :: Typeable a => a -> ([String], String)
 inputsOutputStr x = let (args, val) = inputsOutput x in
                     (map show args, show val)
+
+
+rot90 [x,y] = [-y,x]
+
+lerp v1 v2 k = let 
+    lerpNum (a,b) = a*(1.0-k) + b*k
+    in map lerpNum $ zip v1 v2
