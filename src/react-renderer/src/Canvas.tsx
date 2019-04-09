@@ -16,10 +16,11 @@ interface IProps {
 
 interface IState {
   data: any;
+  debugData: any;
 }
 
 class Canvas extends React.Component<IProps, IState> {
-  public readonly state = { data: [] };
+  public readonly state = {data: [], debugData: []};
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
   public sortShapes = (shapes: any[], ordering: string[]) => {
@@ -34,7 +35,7 @@ class Canvas extends React.Component<IProps, IState> {
 
   public onMessage = async (e: MessageEvent) => {
     const myJSON = JSON.parse(e.data).contents;
-    const { flag, shapes, ordering } = myJSON;
+    const {flag, shapes, ordering, debugData} = myJSON;
     // For final frame
     if (flag === "final") {
       Log.info("Fully optimized.");
@@ -45,7 +46,7 @@ class Canvas extends React.Component<IProps, IState> {
     if (flag === "initial") {
       this.sendUpdate(labeledShapes);
     }
-    this.setState({ data: this.sortShapes(labeledShapes, ordering) });
+    this.setState({data: this.sortShapes(labeledShapes, ordering), debugData});
   };
 
   public dragEvent = (id: string, dy: number, dx: number) => {
@@ -132,16 +133,19 @@ class Canvas extends React.Component<IProps, IState> {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
-  }
+  };
 
   public downloadPDF = async () => {
     const content = await this.download();
     const frame = document.createElement("iframe");
     document.body.appendChild(frame);
     const pri = frame.contentWindow;
-    frame.setAttribute("style", "height: 100%; width: 100%; position: absolute");
-    if(content && pri) {
-      console.log('Printing pdf now...');
+    frame.setAttribute(
+      "style",
+      "height: 100%; width: 100%; position: absolute"
+    );
+    if (content && pri) {
+      console.log("Printing pdf now...");
       pri.document.open();
       pri.document.write(content);
       pri.document.close();
@@ -149,7 +153,7 @@ class Canvas extends React.Component<IProps, IState> {
       pri.print();
     }
     frame.remove();
-  }
+  };
 
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     const component = componentMap[name];
@@ -174,6 +178,7 @@ class Canvas extends React.Component<IProps, IState> {
   };
   public renderLayer = (
     shapes: Array<[string, object]>,
+    debugData: any[],
     component: React.ComponentClass<ILayerProps>,
     key: number
   ) => {
@@ -193,12 +198,13 @@ class Canvas extends React.Component<IProps, IState> {
       key,
       ctm,
       shapes,
+      debugData,
       canvasSize: this.canvasSize
     });
   };
   public render() {
     const {lock, layers} = this.props;
-    const { data } = this.state;
+    const {data, debugData} = this.state;
     if (data.length === undefined) {
       return <svg />;
     }
@@ -220,7 +226,12 @@ class Canvas extends React.Component<IProps, IState> {
               return null;
             }
             if (enabled) {
-              return this.renderLayer(nonEmpties, layerMap[layer], key);
+              return this.renderLayer(
+                nonEmpties,
+                debugData,
+                layerMap[layer],
+                key
+              );
             }
             return null;
           })}
