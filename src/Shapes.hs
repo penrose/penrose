@@ -159,6 +159,10 @@ data Value a
     | HMatrixV (HMatrix a)
     | MapV (Properties a)
 
+    -- TODO: 
+    -- | PolygonV (Polygon a)
+    -- Multiple things with holes
+
     deriving (Generic, Eq, Show)
 
 instance (FromJSON a) => FromJSON (Value a)
@@ -316,7 +320,7 @@ findComputedProperty "CircleTransform" "transformation" = Just circTransformFn
 
 findComputedProperty "RectangleTransform" "polygon" = Just rectPolygonFn
 findComputedProperty "Polygon" "polygon" = Just polygonPolygonFn
-findComputedProperty "CircleTrasnform" "polygon" = Just circPolygonFn
+findComputedProperty "CircleTransform" "polygon" = Just circPolygonFn
 
 findComputedProperty _ _ = Nothing
 
@@ -374,47 +378,9 @@ circPolygonFn = (props, fn)
           fn [FloatV x, FloatV y, FloatV r, HMatrixV customTransform] = 
              let defaultTransform = paramsToMatrix (r, r, 0.0, x, y) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform unitCirc
+             PtListV $ transformPoly fullTransform unitCirc -- (sampleUnitCirc r)
 
 -- TODO: add ones for final properties; also refactor so it's more generic across shapes
-
------- Polygonization code
--- TODO: remove this when polygons are auto-computed
-
-getParams :: (Autofloat a) => Shape a -> (a, a, a, a, a)
-getParams s@("RectangleTransform", props) =
-          (getNum s "sizeX", getNum s "sizeY", getNum s "rotation", getX s, getY s)
-getParams s@("Polygon", props) =
-          (getNum s "scaleX", getNum s "scaleY", getNum s "rotation", getNum s "dx", getNum s "dy")
-getParams s@("CircleTransform", props) =
-          (getNum s "r", getNum s "r", 0.0, getNum s "x", getNum s "y")
-getParams _ = error "TODO: getParams not yet implemented for this shape"
-
--- Polygonize shape (or get unit polygon) and apply the transform to it to get a final polygon
-polygonOf :: (Autofloat a) => Shape a -> [Pt2 a]
-polygonOf s@("RectangleTransform", _) =
-          -- Apply transform to a unit square centered about the origin
-          -- First make default transform for scaling, rotation, then translation
-          let params = getParams s in
-          let defaultTransform = paramsToMatrix params in
-          let customTransform = getTransform s in
-          let fullTransform = customTransform # defaultTransform in
-          transformPoly fullTransform unitSq
-polygonOf s@("Polygon", _) =
-          let params = getParams s in
-          let defaultTransform = paramsToMatrix params in
-          let customTransform = getTransform s in
-          let fullTransform = customTransform # defaultTransform in
-          transformPoly fullTransform $ getPolygon s
-polygonOf s@("CircleTransform", _) = 
-          let params = getParams s in
-          let defaultTransform = paramsToMatrix params in
-          let customTransform = getTransform s in
-          let fullTransform = customTransform # defaultTransform in
-          transformPoly fullTransform unitCirc
-polygonOf _ = error "TODO: polygonOf not yet implemented for this shape"
-
--- TODO: function to set polygon property?
 
 --------------------------------------------------------------------------------
 -- Property samplers

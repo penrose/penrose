@@ -60,6 +60,16 @@ export const toScreen = (
   return [width / 2 + x, height / 2 - y];
 };
 
+export const toPointListString = memoize( // Why memoize?
+  (ptList: any[], canvasSize: [number, number]) =>
+    ptList
+      .map((coords: [number, number]) => {
+	  const pt = coords;
+        return pt[0].toString() + " " + pt[1].toString();
+      })
+      .join(" ")
+);
+
 export const toHex = (rgba: [number, number, number, number]) => {
   return rgba.slice(0, 3).reduce((prev, cur) => {
     const hex = Math.round(255 * cur).toString(16);

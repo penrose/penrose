@@ -1,7 +1,6 @@
 import * as React from "react";
-import { toHex } from "./Util";
+import { toHex, toPointListString } from "./Util";
 import draggable from "./Draggable";
-import memoize from "fast-memoize";
 import { IGPIPropsDraggable } from "./types";
 
 const penroseToSVG = (canvasSize: [number, number]) => {
@@ -11,18 +10,6 @@ const penroseToSVG = (canvasSize: [number, number]) => {
     // Flip Y direction, then translate shape to origin mid-canvas
     return [translateStr, flipYStr].join(" "); 
 };
-
-// TODO: move to Utils
-const toPointListString = memoize(
-  (ptList: any[], canvasSize: [number, number]) =>
-    ptList
-      .map((coords: [number, number]) => {
-        // const pt = toScreen(coords, canvasSize);
-	  const pt = coords;
-        return pt[0].toString() + " " + pt[1].toString();
-      })
-      .join(" ")
-);
 
 class Polygon extends React.Component<IGPIPropsDraggable> {
     public render() {

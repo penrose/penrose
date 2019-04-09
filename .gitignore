@@ -40,3 +40,4 @@ Sub_instantiated.sub
 values.json
 *.dslsugared
 geometry-processing-js
+geometric-queries/

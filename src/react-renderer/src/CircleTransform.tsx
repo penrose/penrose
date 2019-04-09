@@ -11,7 +11,7 @@ const penroseToSVG = (canvasSize: [number, number]) => {
     return [translateStr, flipYStr].join(" "); 
 };
 
-class RectangleTransform extends React.Component<IGPIPropsDraggable> {
+class CircleTransform extends React.Component<IGPIPropsDraggable> {
     public render() {
 	const { shape } = this.props;
 	const { canvasSize } = this.props;
@@ -24,12 +24,6 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
 	const strokeAlpha = shape.strokeColor.contents[3];
 	const thickness = shape.strokeWidth.contents;
 
-	// https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
-	// TODO: check that the transform respects screen space, SVG directionality, and the Style writer's intention
-	// Right now increasing the y will move downward. Does that affect the skew factors?
-
-	// const tf = shape.transform.contents;
-	// This is the *full* translation, incl. default transformation
 	const tf = shape.transformation.contents;
 	console.log("transformation", tf);
 	const transformList = [tf.xScale, tf.ySkew, tf.xSkew,
@@ -46,29 +40,24 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
             canvasSize
         );
 
-	// The default rectangle is an axis-aligned unit square centered at the origin 
-	// Its position, size, angle, etc. is all set by the Penrose transform
 	return (
 		<g>
-		<rect
-            x={-0.5}
-            y={-0.5}
-            width={1.0}
-            height={1.0}
-            fill={fillColor}
-            fillOpacity={fillAlpha}
+		<circle
+		  cx={-0.0}
+		  cy={-0.0}
+		  r={1.0}
+		  fill={fillColor}
+		  fillOpacity={fillAlpha}
+		  stroke={strokeColor}
+		  strokeOpacity={strokeAlpha}
+		  strokeDasharray={ shape.strokeStyle.contents === "dashed" ? "7, 5" : "" }
+		  strokeWidth={thickness}
+		  onMouseDown={onClick}
 
-            stroke={strokeColor}
-            strokeOpacity={strokeAlpha}
-            strokeDasharray={ shape.strokeStyle.contents === "dashed" ? "7, 5" : "" }
-            strokeWidth={thickness}
-
-	    transform={transformStr}
-
-            onMouseDown={onClick}
+            	  transform={transformStr}
 		>
-		<title>{shape.name.contents}</title>
-		</rect>
+		  <title>{shape.name.contents}</title>
+		</circle>
 
                 <polygon
                   points={ptListString}
@@ -83,4 +72,4 @@ class RectangleTransform extends React.Component<IGPIPropsDraggable> {
 	);
     }
 }
-export default draggable(RectangleTransform);
+export default draggable(CircleTransform);
