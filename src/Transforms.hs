@@ -119,6 +119,11 @@ paramsToMatrix (sx, sy, theta, dx, dy) = -- scale then rotate then translate
 unitSq :: (Autofloat a) => [Pt2 a]
 unitSq = [(0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5)]
 
+-- TODO: sample the circle with some density according to its radius
+unitCirc :: (Autofloat a) => [Pt2 a]
+unitCirc = [(0, 1), (c, c), (0, 1), (-c, c), (-1, 0), (-c, -c), (0, -1), (c, -c)]
+          where c = sqrt 2 / 2
+
 testTriangle :: (Autofloat a) => [Pt2 a]
 testTriangle = [(0, 0), (100, 0), (50, 50)]
 

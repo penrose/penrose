@@ -591,7 +591,7 @@ evalExpr (i, n) arg trans varyMap g =
 
                   PropertyPath bvar field property ->
                       let gpiType = shapeType bvar field trans in
-                      case M.lookup (gpiType, property) computedProperties of 
+                      case findComputedProperty gpiType property of 
                       Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
                       Nothing -> -- Compute the path as usual
                           let texpr = lookupPropertyWithVarying bvar field property trans varyMap in

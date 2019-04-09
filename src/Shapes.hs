@@ -266,7 +266,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -308,12 +308,20 @@ defaultValueOf g prop (t, propDict) =
 
 type ComputedValue a = ([Property], [Value a] -> Value a)
 
-computedProperties :: (Autofloat a) => M.Map (ShapeTypeStr, Property) (ComputedValue a)
-computedProperties = M.fromList [rectTransformFn, 
-                                 polygonTransformFn]
+-- TODO: should this be data or code? Used to be a map
+findComputedProperty :: (Autofloat a) => ShapeTypeStr -> Property -> Maybe (ComputedValue a)
+findComputedProperty "RectangleTransform" "transformation" = Just rectTransformFn
+findComputedProperty "Polygon" "transformation" = Just polygonTransformFn
+findComputedProperty "CircleTransform" "transformation" = Just circTransformFn
 
-rectTransformFn :: (Autofloat a) => ((ShapeTypeStr, Property), ComputedValue a)
-rectTransformFn = (("RectangleTransform", "transformation"), (props, fn))
+findComputedProperty "RectangleTransform" "polygon" = Just rectPolygonFn
+findComputedProperty "Polygon" "polygon" = Just polygonPolygonFn
+findComputedProperty "CircleTrasnform" "polygon" = Just circPolygonFn
+
+findComputedProperty _ _ = Nothing
+
+rectTransformFn :: (Autofloat a) => ComputedValue a
+rectTransformFn = (props, fn)
     where props = ["sizeX", "sizeY", "rotation", "x", "y", "transform"]
           fn :: (Autofloat a) => [Value a] -> Value a
           fn [FloatV sizeX, FloatV sizeY, FloatV rotation, 
@@ -321,8 +329,8 @@ rectTransformFn = (("RectangleTransform", "transformation"), (props, fn))
              let defaultTransform = paramsToMatrix (sizeX, sizeY, rotation, x, y) in
              HMatrixV $ customTransform # defaultTransform
 
-polygonTransformFn :: (Autofloat a) => ((ShapeTypeStr, Property), ComputedValue a)
-polygonTransformFn = (("Polygon", "transformation"), (props, fn))
+polygonTransformFn :: (Autofloat a) => ComputedValue a
+polygonTransformFn = (props, fn)
     where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform"]
           fn :: (Autofloat a) => [Value a] -> Value a
           fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
@@ -330,20 +338,61 @@ polygonTransformFn = (("Polygon", "transformation"), (props, fn))
              let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
              HMatrixV $ customTransform # defaultTransform
 
+circTransformFn :: (Autofloat a) => ComputedValue a
+circTransformFn = (props, fn)
+    where props = ["x", "y", "r", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV r, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (r, r, 0.0, x, y) in
+             HMatrixV $ customTransform # defaultTransform
+
+-- TODO: there's a bit of redundant computation with recomputing the full transformation
+rectPolygonFn :: (Autofloat a) => ComputedValue a
+rectPolygonFn = (props, fn)
+    where props = ["sizeX", "sizeY", "rotation", "x", "y", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV sizeX, FloatV sizeY, FloatV rotation, 
+              FloatV x, FloatV y, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (sizeX, sizeY, rotation, x, y) in
+             let fullTransform = customTransform # defaultTransform in
+             PtListV $ transformPoly fullTransform unitSq
+
+polygonPolygonFn :: (Autofloat a) => ComputedValue a
+polygonPolygonFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "points"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV dx, FloatV dy, HMatrixV customTransform, PtListV points] = 
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
+             let fullTransform = customTransform # defaultTransform in
+             PtListV $ transformPoly fullTransform points
+
+circPolygonFn :: (Autofloat a) => ComputedValue a
+circPolygonFn = (props, fn)
+    where props = ["x", "y", "r", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV r, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (r, r, 0.0, x, y) in
+             let fullTransform = customTransform # defaultTransform in
+             PtListV $ transformPoly fullTransform unitCirc
+
 -- TODO: add ones for final properties; also refactor so it's more generic across shapes
 
 ------ Polygonization code
+-- TODO: remove this when polygons are auto-computed
 
 getParams :: (Autofloat a) => Shape a -> (a, a, a, a, a)
 getParams s@("RectangleTransform", props) =
           (getNum s "sizeX", getNum s "sizeY", getNum s "rotation", getX s, getY s)
 getParams s@("Polygon", props) =
           (getNum s "scaleX", getNum s "scaleY", getNum s "rotation", getNum s "dx", getNum s "dy")
+getParams s@("CircleTransform", props) =
+          (getNum s "r", getNum s "r", 0.0, getNum s "x", getNum s "y")
 getParams _ = error "TODO: getParams not yet implemented for this shape"
 
 -- Polygonize shape (or get unit polygon) and apply the transform to it to get a final polygon
 polygonOf :: (Autofloat a) => Shape a -> [Pt2 a]
-polygonOf s@("RectangleTransform", props) =
+polygonOf s@("RectangleTransform", _) =
           -- Apply transform to a unit square centered about the origin
           -- First make default transform for scaling, rotation, then translation
           let params = getParams s in
@@ -351,12 +400,18 @@ polygonOf s@("RectangleTransform", props) =
           let customTransform = getTransform s in
           let fullTransform = customTransform # defaultTransform in
           transformPoly fullTransform unitSq
-polygonOf s@("Polygon", props) =
+polygonOf s@("Polygon", _) =
           let params = getParams s in
           let defaultTransform = paramsToMatrix params in
           let customTransform = getTransform s in
           let fullTransform = customTransform # defaultTransform in
-          transformPoly fullTransform $ getPoints s
+          transformPoly fullTransform $ getPolygon s
+polygonOf s@("CircleTransform", _) = 
+          let params = getParams s in
+          let defaultTransform = paramsToMatrix params in
+          let customTransform = getTransform s in
+          let fullTransform = customTransform # defaultTransform in
+          transformPoly fullTransform unitCirc
 polygonOf _ = error "TODO: polygonOf not yet implemented for this shape"
 
 -- TODO: function to set polygon property?
@@ -450,7 +505,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -462,8 +517,6 @@ anchorPointType = ("AnchorPoint", M.fromList
 
 circType = ("Circle", M.fromList
     [
-        -- ("x", (FloatT, constValue $ FloatV 100)),
-        -- ("y", (FloatT, constValue $ FloatV 100)),
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
@@ -662,6 +715,7 @@ rectTransformType = ("RectangleTransform", M.fromList
 polygonType = ("Polygon", M.fromList
     [
         ("points", (PtListT, constValue $ PtListV [(0, 0), (100, 0), (50, 50)])),
+        ("polygon", (PtListT, constValue $ PtListV [])),
 
         -- These attributes serve as DOF in the default transformation
         -- They are NOT the final x, etc.
@@ -684,6 +738,25 @@ polygonType = ("Polygon", M.fromList
 
         ("fillColor", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultPolygon"))
+    ])
+
+circTransformType = ("CircleTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("r", (FloatT, width_sampler)),
+        -- TODO: circle currently has rotations hardcoded to 0.0 (since we aren't yet rotating about a point)
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PtListT, constValue $ PtListV [])),
+
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("style", (StrT, constValue $ StrV "filled")),
+        ("strokeStyle", (StrT, constValue $ StrV "solid")),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
 
 -----
@@ -857,6 +930,11 @@ getPoints :: (Autofloat a) => Shape a -> [Pt2 a]
 getPoints shape = case shape .: "points" of
     PtListV x -> x
     _ -> error "getPoints: expected [(Float, Float)] but got something else"
+
+getPolygon :: (Autofloat a) => Shape a -> [Pt2 a]
+getPolygon shape = case shape .: "polygon" of
+    PtListV x -> x
+    _ -> error "getPolygon: expected [(Float, Float)] but got something else"
 
 getPath :: (Autofloat a) => Shape a -> [Pt2 a]
 getPath shape = case shape .: "path" of
