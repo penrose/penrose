@@ -60,6 +60,29 @@ export const toScreen = (
   return [width / 2 + x, height / 2 - y];
 };
 
+export const penroseToSVG = (canvasSize: [number, number]) => {
+    const [width, height] = canvasSize;
+    const flipYStr = "matrix(1 0 0 -1 0 0)";
+    const translateStr = "translate(" + width / 2 + ", " + height / 2 + ")";
+    // Flip Y direction, then translate shape to origin mid-canvas
+    return [translateStr, flipYStr].join(" "); 
+};
+
+export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+    // `tf` is `shape.transformation.contents`, an HMatrix from the backend
+    // It is the *full* transform, incl. default transform
+    console.log("shape transformation", tf);
+    const transformList = [tf.xScale, tf.ySkew, tf.xSkew,
+			   tf.yScale, tf.dx, tf.dy];
+    const penroseTransform = "matrix(" + transformList.join(" ") + ")";
+
+    // Do Penrose transform, then SVG
+    const transformStr = [penroseToSVG(canvasSize), penroseTransform].join(" ");
+    console.log("transformStr", transformStr);
+    return transformStr;
+};
+
 export const toPointListString = memoize( // Why memoize?
   (ptList: any[], canvasSize: [number, number]) =>
     ptList
