@@ -17,7 +17,7 @@ class PolygonLayer extends React.Component<ILayerProps> {
   public render() {
       const {shapes, canvasSize} = this.props;
       const polygonColor = "red";
-      const shapesWithPolygons = ["CircleTransform", "RectangleTransform", "Polygon"];
+      const shapesWithPolygons = ["CircleTransform", "RectangleTransform", "Polygon", "CurveTransform"];
 
     return (
       <g>
@@ -51,7 +51,7 @@ class PolygonLayer extends React.Component<ILayerProps> {
 
 		return (
               <g key={key}>
-                <polygon
+                <polyline
                   points={ptListString}
 		  fillOpacity="0"
 		  stroke={polygonColor}

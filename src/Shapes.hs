@@ -270,7 +270,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -315,12 +315,14 @@ type ComputedValue a = ([Property], [Value a] -> Value a)
 -- TODO: should this be data or code? Used to be a map
 findComputedProperty :: (Autofloat a) => ShapeTypeStr -> Property -> Maybe (ComputedValue a)
 findComputedProperty "RectangleTransform" "transformation" = Just rectTransformFn
-findComputedProperty "Polygon" "transformation" = Just polygonTransformFn
 findComputedProperty "CircleTransform" "transformation" = Just circTransformFn
+findComputedProperty "Polygon" "transformation" = Just polygonTransformFn
+findComputedProperty "CurveTransform" "transformation" = Just polygonTransformFn -- Same parameters as polygon
 
 findComputedProperty "RectangleTransform" "polygon" = Just rectPolygonFn
-findComputedProperty "Polygon" "polygon" = Just polygonPolygonFn
 findComputedProperty "CircleTransform" "polygon" = Just circPolygonFn
+findComputedProperty "CurveTransform" "polygon" = Just curvePolygonFn
+findComputedProperty "Polygon" "polygon" = Just polygonPolygonFn
 
 findComputedProperty _ _ = Nothing
 
@@ -379,6 +381,18 @@ circPolygonFn = (props, fn)
              let defaultTransform = paramsToMatrix (r, r, 0.0, x, y) in
              let fullTransform = customTransform # defaultTransform in
              PtListV $ transformPoly fullTransform unitCirc -- (sampleUnitCirc r)
+
+-- | Polygonize a Bezier curve, even if the curve was originally made using a list of points.
+curvePolygonFn :: (Autofloat a) => ComputedValue a
+curvePolygonFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "pathData"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV dx, FloatV dy, HMatrixV customTransform, PathDataV path] = 
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
+             let fullTransform = customTransform # defaultTransform in
+             PtListV $ transformPoly fullTransform $ polygonizePath maxIter path
+             where maxIter = 3 -- TODO: what should this be?
 
 -- TODO: add ones for final properties; also refactor so it's more generic across shapes
 
@@ -471,7 +485,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -685,6 +699,7 @@ polygonType = ("Polygon", M.fromList
 
         -- These attributes serve as DOF in the default transformation
         -- They are NOT the final x, etc.
+        -- TODO: should these be sampled?
         ("dx", (FloatT, constValue $ FloatV 0.0)), -- Polygon doesn't have a natural "center"
         ("dy", (FloatT, constValue $ FloatV 0.0)),
         ("scaleX", (FloatT, constValue $ FloatV 1.0)),
@@ -723,6 +738,31 @@ circTransformType = ("CircleTransform", M.fromList
         ("strokeColor", (ColorT, sampleColor)),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultCircle"))
+    ])
+
+curveTransformType = ("CurveTransform", M.fromList
+    [
+        ("dx", (FloatT, constValue $ FloatV 0.0)), -- Curve doesn't have a natural "center"
+        ("dy", (FloatT, constValue $ FloatV 0.0)),
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)),
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        -- TODO: currently rotates about the center of the Penrose canvas, (0, 0)
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PtListT, constValue $ PtListV [])),
+    
+        ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        ("polyline", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("style", (StrT, constValue $ StrV "solid")),
+        ("fill", (ColorT, sampleColor)), -- for no fill, set opacity to 0
+        ("color", (ColorT, sampleColor)),
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("name", (StrT, constValue $ StrV "defaultCurve"))
     ])
 
 -----
@@ -1043,6 +1083,72 @@ white = makeColor 1.0 1.0 1.0 1.0
 
 makeColor' :: (Autofloat a) => a -> a -> a -> a -> Color
 makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
+
+--------------------------------------------------------------------------------
+-- Approximating a Bezier curve via polygon or bbox
+-- TODO: this is a polyline. Should we make a polygon WRT the polyline's thickness?
+
+polygonizePath :: Autofloat a => Int -> PathData a -> [Pt2 a]
+polygonizePath n p = case polygonize n p of
+                     [] -> error "empty curve: did you set the pathdata or path?"
+                     x:xs -> x -- What are the other parts of this list?
+
+polygonize :: Autofloat a => Int -> PathData a -> [[Pt2 a]]
+polygonize maxIter = map go
+    where
+        go (Closed path) = error "TODO"
+        go (Open path) = concatMap (polyCubicBez 0 maxIter) $ expandCurves path
+
+type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
+
+expandCurves :: Autofloat a => [Elem a] -> [CubicBezCoeffs a]
+expandCurves elems = zipWith attach elems $ tail elems
+    where
+        attach (Pt a) (CubicBez (b, c, d)) = (a, b, c, d)
+        attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
+
+-- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
+polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
+polyCubicBez count maxCount curve@(a, b, c, d) =
+    if (tr "count" count) >= maxCount then [a, b, c, d] else
+        concatMapTuple (polyCubicBez (count + 1) maxCount) $ divideCubicBezier curve
+    where concatMapTuple f (a1, a2) = f a1 ++ f a2
+
+isFlat :: Autofloat a => CubicBezCoeffs a -> Bool
+isFlat (a, b, c, d) = True
+
+divideCubicBezier :: Autofloat a => CubicBezCoeffs a -> (CubicBezCoeffs a, CubicBezCoeffs a)
+divideCubicBezier bezier@(a, _, _, d) = (left, right) where
+    left = (a, ab, abbc, abbcbccd)
+    right = (abbcbccd, bccd, cd, d)
+    (ab, _bc, cd, abbc, bccd, abbcbccd) = splitCubicBezier bezier
+
+--                     BC
+--         B X----------X---------X C
+--    ^     /      ___/   \___     \     ^
+--   u \   /   __X------X------X_   \   / v
+--      \ /___/ ABBC       BCCD  \___\ /
+--    AB X/                          \X CD
+--      /                              \
+--     /                                \
+--    /                                  \
+-- A X                                    X D
+splitCubicBezier :: Autofloat a => CubicBezCoeffs a -> (Pt2 a, Pt2 a, Pt2 a, Pt2 a, Pt2 a, Pt2 a)
+splitCubicBezier (a, b, c, d) = (ab, bc, cd, abbc, bccd, abbcbccd)
+    where
+        ab = a `midpoint` b
+        bc = b `midpoint` c
+        cd = c `midpoint` d
+        abbc = ab `midpoint` bc
+        bccd = bc `midpoint` cd
+        abbcbccd = abbc `midpoint` bccd
+
+bezierBbox :: (Autofloat a) => Shape a -> ((a, a), (a, a)) -- poly Point type?
+bezierBbox cb = let path = getPath cb
+                    (xs, ys) = (map fst path, map snd path)
+                    lower_left = (minimum xs, minimum ys)
+                    top_right = (maximum xs, maximum ys) in
+                (lower_left, top_right)
 
 --------------------------------------------------------------------------------
 -- DEBUG: main function to test out the module

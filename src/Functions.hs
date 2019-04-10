@@ -760,64 +760,7 @@ tangentLineEY [Val (PtListV curve), Val (FloatV x), Val (FloatV len)] =
 
 polygonizeCurve :: ConstCompFn
 polygonizeCurve [Val (IntV maxIter), Val (PathDataV curve)] =
-    Val $ PtListV $ head $ polygonize (fromIntegral maxIter) curve
-
-polygonize :: Autofloat a => Int -> PathData a -> [[Pt2 a]]
-polygonize maxIter = map go
-    where
-        go (Closed path) = error "TODO"
-        go (Open path) = concatMap (polyCubicBez 0 maxIter) $ expandCurves path
-
-type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
-
-expandCurves :: Autofloat a => [Elem a] -> [CubicBezCoeffs a]
-expandCurves elems = zipWith attach elems $ tail elems
-    where
-        attach (Pt a) (CubicBez (b, c, d)) = (a, b, c, d)
-        attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
-
--- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
-polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
-polyCubicBez count maxCount curve@(a, b, c, d) =
-    if (tr "count" count) >= maxCount then [a, b, c, d] else
-        concatMapTuple (polyCubicBez (count + 1) maxCount) $ divideCubicBezier curve
-    where concatMapTuple f (a1, a2) = f a1 ++ f a2
-
-isFlat :: Autofloat a => CubicBezCoeffs a -> Bool
-isFlat (a, b, c, d) = True
-
-divideCubicBezier :: Autofloat a => CubicBezCoeffs a -> (CubicBezCoeffs a, CubicBezCoeffs a)
-divideCubicBezier bezier@(a, _, _, d) = (left, right) where
-    left = (a, ab, abbc, abbcbccd)
-    right = (abbcbccd, bccd, cd, d)
-    (ab, _bc, cd, abbc, bccd, abbcbccd) = splitCubicBezier bezier
-
---                     BC
---         B X----------X---------X C
---    ^     /      ___/   \___     \     ^
---   u \   /   __X------X------X_   \   / v
---      \ /___/ ABBC       BCCD  \___\ /
---    AB X/                          \X CD
---      /                              \
---     /                                \
---    /                                  \
--- A X                                    X D
-splitCubicBezier :: Autofloat a => CubicBezCoeffs a -> (Pt2 a, Pt2 a, Pt2 a, Pt2 a, Pt2 a, Pt2 a)
-splitCubicBezier (a, b, c, d) = (ab, bc, cd, abbc, bccd, abbcbccd)
-    where
-        ab = a `midpoint` b
-        bc = b `midpoint` c
-        cd = c `midpoint` d
-        abbc = ab `midpoint` bc
-        bccd = bc `midpoint` cd
-        abbcbccd = abbc `midpoint` bccd
-
-bezierBbox :: (Autofloat a) => Shape a -> ((a, a), (a, a)) -- poly Point type?
-bezierBbox cb = let path = getPath cb
-                    (xs, ys) = (map fst path, map snd path)
-                    lower_left = (minimum xs, minimum ys)
-                    top_right = (maximum xs, maximum ys) in
-                (lower_left, top_right)
+    Val $ PtListV $ polygonizePath (fromIntegral maxIter) curve
 
 bboxHeight :: ConstCompFn
 bboxHeight [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =

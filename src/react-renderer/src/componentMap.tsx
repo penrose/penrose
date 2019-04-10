@@ -7,6 +7,7 @@ import RectangleTransform from "./RectangleTransform";
 import CircleTransform from "./CircleTransform";
 import Square from "./Square";
 import Curve from "./Curve";
+import CurveTransform from "./CurveTransform";
 import Arrow from "./Arrow";
 import Line from "./Line";
 import Polygon from "./Polygon";
@@ -21,6 +22,7 @@ const componentMap = {
   "Square": Square,
   "Text": Label,
   "Curve": Curve,
+  "CurveTransform": CurveTransform,
   "Arrow": Arrow,
   "Image": Image,
   "Line": Line
