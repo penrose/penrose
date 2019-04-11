@@ -18,6 +18,7 @@ import System.Random
 import Debug.Trace
 import Data.Functor.Classes
 import Data.List
+import Data.Tuple
 import Data.Maybe (fromMaybe)
 import Data.Typeable
 import Text.Megaparsec
@@ -106,37 +107,32 @@ data Pd = Pd1Const Pd1
 
 data Pd1 = Pd1 { namePd1  :: String,
                  varsPd1  :: [(Y, K)],
-                 typesPd1 :: [(Var, T)],
-                 toPd1    :: Prop}
+                 typesPd1 :: [(Var, T)]}
            deriving (Eq, Typeable)
 
 instance Show Pd1 where
-    show (Pd1 namePd1 varsPd1 typesPd1 toPd1) =
+    show (Pd1 namePd1 varsPd1 typesPd1) =
      "(Pred, " ++ aString ++ ", forvars " ++ bString ++ ", fortypes " ++ cString
-      ++ ", outputT " ++ dString ++ ")"
+      ++ ", outputT " ++ ")"
         where aString = show namePd1
               bString = show varsPd1
               cString = show typesPd1
-              dString = show toPd1
 
 data Pd2 = Pd2 { namePd2 :: String,
-                 propsPd2 :: [(Var, Prop)],
-                 toPd2 :: Prop}
+                 propsPd2 :: [(Var, Prop)]}
            deriving (Eq, Typeable)
 
 instance Show Pd2 where
-    show (Pd2 namePd2 propsPd2 toPd2) =
-     "(Pred, " ++ aString ++ ", forProps " ++ bString ++ ", outputT "
-     ++ cString ++ ")"
+    show (Pd2 namePd2 propsPd2) =
+     "(Pred, " ++ aString ++ ", forProps " ++ bString ++ ", outputT " ++ ")"
         where aString = show namePd2
               bString = show propsPd2
-              cString = show toPd2
 
 -- | Statement notation (for syntactic sugar)
 data Sn = Sn {fromSn :: String, toSn :: String}
           deriving(Eq, Typeable)
 instance Show Sn where
-  show (Sn fromSn toSn) = "(StmtNotation: from: " ++ a ++ " to: " ++ b
+  show (Sn fromSn toSn) = "(notation: from: " ++ a ++ " to: " ++ b
         where a = show fromSn
               b = show toSn
 
@@ -168,7 +164,7 @@ dsllStmt = try snParser <|> try cdParser <|> try vdParser
 cdParser, cd1, cd2 :: Parser DsllStmt
 cdParser = try cd1 <|> cd2
 cd1 = do
-    rword "tconstructor"
+    rword "type"
     name <- identifier
     (y, k) <- parens ykParser
     colon
@@ -176,7 +172,7 @@ cd1 = do
     pos <- getPosition
     return (CdStmt Cd { nameCd = name, inputCd = zip y k, outputCd = t' })
 cd2 = do
-    rword "tconstructor"
+    rword "type"
     name <- identifier
     colon
     t' <- typeParser
@@ -205,15 +201,27 @@ ykParser :: Parser ([Y], [K])
 ykParser = unzip <$> (yWithKind `sepBy1` comma)
     where yWithKind = (,) <$> (yParser <* colon) <*> kParser
 
+
+varWithTypeParser :: Parser (Var,T)
+varWithTypeParser = do
+  t <- tParser
+  v <- varParser
+  return (v,t)
+
 -- | parser for the (b,t) list
 xtParser :: Parser ([Var], [T])
-xtParser = unzip <$> (varWithType `sepBy1` comma)
-    where varWithType = (,) <$> (varParser <* colon) <*> tParser
+xtParser = unzip <$> (varWithTypeParser `sepBy1` star)
+  --  where varWithType =  -- (,) <$> tParser <*> varParser
+
+vpPairParser :: Parser (Var,Prop)
+vpPairParser = do
+  p <- propParser
+  v <- varParser
+  return (v,p)
 
 -- | parser for the (x, Prop) list
 xPropParser :: Parser ([Var], [Prop])
-xPropParser = unzip <$> (vpPair `sepBy1` comma)
-    where vpPair = (,) <$> (varParser <* colon) <*> propParser
+xPropParser = unzip <$> (vpPairParser `sepBy1` star)
 
 -- | var constructor parser
 vdParser :: Parser DsllStmt
@@ -230,58 +238,43 @@ vdParser = do
 -- | operation parser
 odParser :: Parser DsllStmt
 odParser = do
-  rword "operator"
+  rword "function"
   name <- identifier
-  (y', k') <- option ([], []) $ brackets ykParser
-  (b', t') <- option ([], []) $ parens   xtParser
   colon
+  (y', k') <- option ([], []) $ brackets ykParser
+  (b', t') <- option ([], []) xtParser
+  arrow
   t'' <- tParser
   return (OdStmt Od { nameOd = name, varsOd = zip y' k', typesOd = zip b' t',
                       toOd = t'' })
 
 -- | predicate parser
 pdParser, pd1, pd2 :: Parser DsllStmt
-pdParser = try pd1 <|> pd2
+pdParser = try pd2 <|> pd1
 pd1 = do
   rword "predicate"
   name <- identifier
-  (y', k') <- option ([], []) $ brackets ykParser
-  (b', t') <- option ([], []) $ parens   xtParser
   colon
-  p' <- propParser
+  (y', k') <- option ([], []) $ brackets ykParser
+  (b', t') <- option ([], []) xtParser
   return (PdStmt (Pd1Const (Pd1 { namePd1 = name, varsPd1 = zip y' k',
-          typesPd1 = zip b' t', toPd1 = p' })))
+          typesPd1 = zip b' t'})))
 pd2 = do
   rword "predicate"
   name <- identifier
-  (b', prop') <- parens xPropParser
   colon
-  p' <- propParser
-  return (PdStmt (Pd2Const (Pd2 { namePd2 = name, propsPd2 = zip b' prop',
-                                  toPd2 = p' })))
+  (b', prop') <- xPropParser
+  return (PdStmt (Pd2Const (Pd2 { namePd2 = name, propsPd2 = zip b' prop'})))
 
 snParser :: Parser DsllStmt
 snParser = do
-    rword "StmtNotation"
+    rword "notation"
     quote
     toSn' <- manyTill anyChar quote
-    arrow
+    tilde
     quote
     fromSn' <- manyTill anyChar quote
     return (SnStmt (Sn {fromSn = fromSn', toSn = toSn'}))
-
--- | Parse the settings of the expression notations, the precedence of them
---   and their associativity. This parsing is optional
-enSettingsParser :: Parser (String,Integer)
-enSettingsParser = do
-  lparen
-  rword "at level"
-  precedenceEn' <- integer
-  comma
-  associativityEn' <- identifier
-  rword "associativity"
-  rparen
-  return (associativityEn',precedenceEn')
 
 
 -------------------------- DSLL Semantic Checker -------------------------------
@@ -363,8 +356,7 @@ checkDsllStmt e (PdStmt (Pd1Const v)) =
       args = seconds (typesPd1 v)
       env2 = foldl checkT localEnv args
       pd1 = Pred1 $ Prd1 { namepred1 = namePd1 v,ylspred1  = firsts (varsPd1 v),
-            kindspred1  = seconds (varsPd1 v), tlspred1  = seconds (typesPd1 v),
-            ppred1    = toPd1 v }
+            kindspred1  = seconds (varsPd1 v), tlspred1  = seconds (typesPd1 v)}
       ef = addName (namePd1 v) e
   in if env2 == e || env2 /= e
     then ef { predicates = M.insert (namePd1 v) pd1 $ predicates ef }
@@ -372,7 +364,7 @@ checkDsllStmt e (PdStmt (Pd1Const v)) =
 
 checkDsllStmt e (PdStmt (Pd2Const v)) =
   let pd = Pred2 $ Prd2 { namepred2 = namePd2 v,
-                          plspred2 = seconds (propsPd2 v), ppred2 = toPd2 v }
+                          plspred2 = seconds (propsPd2 v)}
       ef = addName (namePd2 v) e
   in ef { predicates = M.insert (namePd2 v) pd $ predicates ef }
 

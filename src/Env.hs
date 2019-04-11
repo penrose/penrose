@@ -139,6 +139,8 @@ eq = void (symbol "=")
 def = void (symbol ":=")
 dollar = void (symbol "$")
 question = void (symbol "?")
+tilde = void (symbol "~")
+star = void (symbol "*")
 
 
 dollars :: Parser a -> Parser a
@@ -439,13 +441,11 @@ data PredicateEnv = Pred1 Predicate1
 data Predicate1 = Prd1 { namepred1 :: String,
                          ylspred1  :: [Y],
                          kindspred1  :: [K],
-                         tlspred1  :: [T],
-                         ppred1    :: Prop}
+                         tlspred1  :: [T]}
                   deriving (Show, Eq, Typeable)
 
 data Predicate2 = Prd2 { namepred2 :: String,
-                         plspred2  :: [Prop],
-                         ppred2    :: Prop }
+                         plspred2  :: [Prop]}
                   deriving (Show, Eq, Typeable)
 
 data StmtNotationRule =

@@ -1,13 +1,13 @@
-tconstructor Set : type
-tconstructor Reals : type
-tconstructor Real : type
-tconstructor Point : type
-tconstructor Function : type
-tconstructor Interval : type
-tconstructor OpenInterval : type
-tconstructor ClosedInterval : type
-tconstructor LeftClopenInterval : type
-tconstructor RightClopenInterval : type
+type Set : type
+type Reals : type
+type Real : type
+type Point : type
+type Function : type
+type Interval : type
+type OpenInterval : type
+type ClosedInterval : type
+type LeftClopenInterval : type
+type RightClopenInterval : type
 
 vconstructor CreateInterval (left : Real, right : Real) : Interval
 vconstructor CreateOpenInterval (left : Real, right : Real) : OpenInterval
@@ -82,17 +82,17 @@ predicate OpenEnd (p : Real, I : Interval) : Prop
 -- Syntactic Sugars
 
 
-StmtNotation "A := [a,b] ⊆ X" -> "ClosedInterval A; A := CreateClosedInterval(a, b);Subset(A, X)"
-StmtNotation "A := (a,b) ⊆ X" -> "OpenInterval A; A := CreateOpenInterval(a, b);Subset(A, X)"
-StmtNotation "A := [a,b) ⊆ X" -> "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b);Subset(A, X)"
+notation "A := [a,b] ⊆ X" ~ "ClosedInterval A; A := CreateClosedInterval(a, b);Subset(A, X)"
+notation "A := (a,b) ⊆ X" ~ "OpenInterval A; A := CreateOpenInterval(a, b);Subset(A, X)"
+notation "A := [a,b) ⊆ X" ~ "LeftClopenInterval A; A := CreateLeftClopenInterval(a, b);Subset(A, X)"
 
-StmtNotation "X ⊆ Y" -> "Subset(X, Y)"
-StmtNotation "Real X ∈ Y" -> "Real X;In(X, Y)"
-StmtNotation "X ∪ Y" -> "Union(X, Y)"
+notation "X ⊆ Y" ~ "Subset(X, Y)"
+notation "Real X ∈ Y" ~ "Real X;In(X, Y)"
+notation "X ∪ Y" ~ "Union(X, Y)"
 
-StmtNotation "f : A -> B" -> "Function f; f := CreateFunction(A,B)"
-StmtNotation "f(x)" -> "Apply(f, x)"
-StmtNotation "f ` (x)" -> "DerivativeAtP(f, x)"
+notation "f : A ~ B" -> "Function f; f := CreateFunction(A,B)"
+notation "f(x)" ~ "Apply(f, x)"
+notation "f ` (x)" ~ "DerivativeAtP(f, x)"
 
 
 -- Prelude exports
