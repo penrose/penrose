@@ -1241,7 +1241,8 @@ nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
 firstPointsSameLoc :: ObjFn
 firstPointsSameLoc [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      firstPointsDist p1 p2
+      --firstPointsDist p1 p2
+      dsqBB p1 p2
 
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), 

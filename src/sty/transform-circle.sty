@@ -34,15 +34,15 @@ Point p {
 }
 
 Set X {
-    X.dx = OPTIMIZED
-    X.dy = OPTIMIZED
+    -- X.dx = OPTIMIZED
+    -- X.dy = OPTIMIZED
 
     X.shape = CircleTransform {
-    	    -- x = 0.0
-	    -- y = 0.0
+    	x = OPTIMIZED
+	    y = OPTIMIZED
 	    r = OPTIMIZED
 
-	    transform = translate(X.dx, X.dy)
+	    -- transform = translate(X.dx, X.dy)
 	    strokeWidth = 0.0
 	    color = setOpacity(Colors.blue, 0.5)
     }

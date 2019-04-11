@@ -133,36 +133,40 @@ testTriangle = [(0, 0), (100, 0), (50, 50)]
 transformPoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
 transformPoly m = map (applyTransform m)
 
------- Energies on polygons
+------ Energies on polygons ------
 
 ---- some helpers below ----
 
-type Pt2' a = [a] -- in fact takes exactly 2 numbers
-type LineSeg a = (Pt2' a, Pt2' a)
-type Blob a = [Pt2' a] -- temporary type for polygon. Connected, no holes
+-- type Pt2' a = (a, a)
+type LineSeg a = (Pt2 a, Pt2 a)
+type Blob a = [Pt2 a] -- temporary type for polygon. Connected, no holes
+-- would ideally want polygons of type
+-- Autofloat a => ([a], [a])
+-- with one list represents positive regions (not necessarily connected),
+-- another reperesents negative regions (holes).
 
 posInf :: Autofloat a => a
 posInf = 1 / 0
 
 -- input point, query parametric t
-gettPS :: Autofloat a => Pt2' a -> LineSeg a -> a
+gettPS :: Autofloat a => Pt2 a -> LineSeg a -> a
 gettPS p (a,b) = let
-    v_ab = b -. a
-    projl = v_ab `dotL` (p -. a)
-    in projl / (normsq $ a -. b) -- TODO: doublecheck correctness?? norm or normsq?
+    v_ab = b -: a
+    projl = v_ab `dotv` (p -: a)
+    in projl / (magsq $ a -: b) -- TODO: doublecheck correctness?? norm or normsq?
 
-normS :: Autofloat a => LineSeg a -> Pt2' a
-normS (p1, p2) = normalize $ rot90 $ p2 -. p1
+normS :: Autofloat a => LineSeg a -> Pt2 a
+normS (p1, p2) = normalize' $ rot90 $ p2 -: p1
 
 -- test if two segments intersect. Doesn't calculate for ix point though.
 ixSS :: Autofloat a => LineSeg a -> LineSeg a -> Bool
 ixSS (a,b) (c,d) = let
-    ncd = rot90 $ d -. c
-    a_cd = ncd `dotL` (a -. c)
-    b_cd = ncd `dotL` (b -. c)
-    nab = rot90 $ b -. a
-    c_ab = nab `dotL` (c -. a)
-    d_ab = nab `dotL` (d -. a)
+    ncd = rot90 $ d -: c
+    a_cd = ncd `dotv` (a -: c)
+    b_cd = ncd `dotv` (b -: c)
+    nab = rot90 $ b -: a
+    c_ab = nab `dotv` (c -: a)
+    d_ab = nab `dotv` (d -: a)
     in ((a_cd>=0&&b_cd<=0) || (a_cd<=0&&b_cd>=0)) && 
        ((c_ab>=0&&d_ab<=0) || (c_ab<=0&&d_ab>=0))
 
@@ -172,11 +176,11 @@ getSegmentsB pts = let
     f x = if x==lastInd then (pts!!lastInd, pts!!0) else (pts!!x, pts!!(x+1))
     in map f [0..lastInd]
 
--- works well when point not on boundary (handled separately as edge case.)
-isInB :: Autofloat a => Blob a -> Pt2' a -> Bool
-isInB pts [x0,y0] = if (dsqBP pts [x0,y0]) < epsd then True else let
-    diffp = map (\[x,y]->[x-x0,y-y0]) pts
-    getAngle [x,y] = atan2 y x 
+-- works well when point not on boundary (otherwise handled separately as edge case.)
+isInB :: Autofloat a => Blob a -> Pt2 a -> Bool
+isInB pts (x0,y0) = if (dsqBP pts (x0,y0)) < epsd then True else let
+    diffp = map (\(x,y)->(x-x0,y-y0)) pts
+    getAngle (x,y) = atan2 y x 
     sweeps = map (\(p1,p2)->(getAngle p2)-(getAngle p1)) (getSegmentsB diffp)
     adjust sweep = 
         if sweep>pi then sweep-2*pi
@@ -190,15 +194,15 @@ isInB pts [x0,y0] = if (dsqBP pts [x0,y0]) < epsd then True else let
     in res>pi || res<(-pi) 
 
 -- sample points along segment with interval.
-sampleS :: Autofloat a => a -> LineSeg a -> [Pt2' a]
+sampleS :: Autofloat a => a -> LineSeg a -> [Pt2 a]
 sampleS interval (a, b) = let
-    l = norm $ b -. a
+    l = mag $ b -: a
     numSamples = floor $ l/interval
     inds = map realToFrac [0..numSamples-1]
     ks = map (/(realToFrac numSamples)) $ inds
-    in map (lerp a b) ks
+    in map (lerpP a b) ks
 
-sampleB :: Autofloat a => a -> Blob a -> [Pt2' a]
+sampleB :: Autofloat a => a -> Blob a -> [Pt2 a]
 sampleB interval blob = concat $ map (sampleS interval) $ getSegmentsB blob
 
 -- stub
@@ -207,14 +211,14 @@ firstPointsDist p1 p2 = distsq (p1 !! 0) (p2 !! 0) -- Get the first two points t
 
 ---- dsq functions ----
 
-dsqPP :: Autofloat a => Pt2' a -> Pt2' a -> a
-dsqPP a b = normsq $ b -. a
+dsqPP :: Autofloat a => Pt2 a -> Pt2 a -> a
+dsqPP a b = magsq $ b -: a
 
-dsqSP :: Autofloat a => LineSeg a -> Pt2' a -> a
+dsqSP :: Autofloat a => LineSeg a -> Pt2 a -> a
 dsqSP (a,b) p = let t = gettPS p (a,b) in
     if t<0 then dsqPP a p
     else if t>1 then dsqPP b p
-    else (**2) $ (normS (a,b)) `dotL` (p -. a)
+    else (**2) $ (normS (a,b)) `dotv` (p -: a)
 
 dsqSS :: Autofloat a => LineSeg a -> LineSeg a -> a
 dsqSS (a,b) (c,d) = if ixSS (a,b) (c,d) then 0 else let
@@ -224,7 +228,7 @@ dsqSS (a,b) (c,d) = if ixSS (a,b) (c,d) then 0 else let
     dd = dsqSP (a,b) d
     in min (min da db) (min dc dd)
 
-dsqBP :: Autofloat a => Blob a -> Pt2' a -> a
+dsqBP :: Autofloat a => Blob a -> Pt2 a -> a
 dsqBP b p = let
     segments = getSegmentsB b
     d2segments = map (\s -> dsqSP s p) segments

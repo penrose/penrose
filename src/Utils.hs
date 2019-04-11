@@ -292,9 +292,16 @@ inputsOutputStr :: Typeable a => a -> ([String], String)
 inputsOutputStr x = let (args, val) = inputsOutput x in
                     (map show args, show val)
 
+-- other helpers
 
-rot90 [x,y] = [-y,x]
+rot90 (x,y) = (-y,x)
 
-lerp v1 v2 k = let 
-    lerpNum (a,b) = a*(1.0-k) + b*k
-    in map lerpNum $ zip v1 v2
+lerpP (a,b) (c,d) k = let 
+    lerpNum a b = a*(1.0-k) + b*k
+    in (lerpNum a c, lerpNum b d)
+
+mag (a,b) = sqrt $ magsq (a,b)
+
+magsq (a,b) = a**2 + b**2
+
+normalize' (a,b) = let l = mag (a,b) in (a/l, b/l)

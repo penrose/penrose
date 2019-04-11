@@ -971,7 +971,7 @@ castTranslation t =
 -- TODO: should this code go in the optimizer?
 
 numStateSamples :: Int
-numStateSamples = 1000
+numStateSamples = 3 --1000
 
 -- | Resample the varying state.
 -- | We are intentionally using a monomorphic type (float) and NOT using the translation, to avoid slowness.
