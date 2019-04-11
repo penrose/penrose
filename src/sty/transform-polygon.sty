@@ -37,11 +37,11 @@ Set X {
     -- X.dx = OPTIMIZED
 
     X.shape = Polygon {
-    	    -- Set to default triangle
+	    points = testNonconvexPoly()
 
 	    dx = OPTIMIZED
 	    dy = OPTIMIZED
-	    scaleX = 2.0
+	    scaleX = 1.0
 	    scaleY = 0.5
 	    rotation = OPTIMIZED
 
@@ -52,8 +52,13 @@ Set X {
 }
 
 Set `B` {
-    `B`.shape.points = mkPoly(-100.0, 100.0, 100.0, 100.0, 100.0, -100.0, -100.0, -100.0)
-    override `B`.shape.fillColor = setOpacity(Colors.red, 0.5)
+    -- `B`.shape.points = mkPoly(-100.0, 100.0, 100.0, 100.0, 100.0, -100.0, -100.0, -100.0)
+    `B`.shape.points = randomPolygon(5)
+    -- override `B`.shape.dx = -100.0
+    -- override `B`.shape.dy = 200.0
+    override `B`.shape.scaleX = 1.0
+    override `B`.shape.scaleY = 3.0
+    override `B`.shape.fillColor = setOpacity(Colors.green, 0.5)
 }
 
 Set `A`; Set `B` {
