@@ -6,7 +6,7 @@ module Transforms where
 
 import Utils
 import Debug.Trace
-import           Data.List                          (nub, sort, findIndex, find, maximumBy)
+import           Data.List                          (nub, sort, findIndex, find, maximumBy, foldl')
 import qualified Data.Map.Strict as M
 
 import GHC.Generics
@@ -193,7 +193,7 @@ isInB pts (x0,y0) = if (dsqBP pts (x0,y0) 0) < epsd then True else let
     -- if inside pos poly, res would be 2*pi,
     -- if inside neg poly, res would be -2*pi,
     -- else res would be 0
-    res = foldl (+) 0.0 sweepAdjusted
+    res = foldl' (+) 0.0 sweepAdjusted
     in res>pi || res<(-pi) 
 
 -- sample points along segment with interval.
@@ -237,37 +237,38 @@ dsqBP :: Autofloat a => Blob a -> Pt2 a -> a -> a
 dsqBP b p ofs = let
     segments = getSegmentsB b
     d2segments = map (\s -> dsqSP s p ofs) segments
-    in foldl min posInf d2segments
+    in foldl' min posInf d2segments
 
 dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
-dsqBS b s ofs = foldl min posInf $ 
+dsqBS b s ofs = foldl' min posInf $ 
     map (\e -> dsqSS e s ofs) $ getSegmentsB b
 
 dsqBB :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBB b1 b2 ofs = let
-    min1 = foldl min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
-    min2 = foldl min posInf $ map (\e -> dsqBS b1 e ofs) $ getSegmentsB b2
+    min1 = foldl' min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
+    min2 = foldl' min posInf $ map (\e -> dsqBS b1 e ofs) $ getSegmentsB b2
     in min min1 min2
 
 ---- dsq integral along boundary functions ----
 
-density :: Autofloat a => a
-density = 2
+ds :: Autofloat a => a
+ds = 10
 
 dsqBinA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBinA bA bB ofs = let
-    samplesIn = filter (isInB bA) $ sampleB density bB
-    in (*density) $ foldl (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
+    samplesIn = filter (isInB bA) $ sampleB ds bB
+    in (*ds) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
 
 dsqBoutA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBoutA bA bB ofs = let
-    samplesOut = filter (\p -> not $ isInB bA p) $ sampleB density bB
-    in (*density) $ foldl (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesOut
+    samplesOut = filter (\p -> not $ isInB bA p) $ sampleB ds bB
+    in let res = (*ds) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesOut in
+       trace ("|samplesOut|: " ++ show (length samplesOut)) res
 
 ---- query energies ----
 
 eAcontainB :: Autofloat a => Blob a -> Blob a -> a -> a
 eAcontainB bA bB ofs = let
-    eAinB = dsqBinA bB bA ofs
+    -- eAinB = dsqBinA bB bA ofs
     eBoutA = dsqBoutA bA bB ofs
-    in eAinB + eBoutA
+    in {-eAinB + -} eBoutA

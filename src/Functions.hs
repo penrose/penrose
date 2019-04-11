@@ -238,7 +238,8 @@ objFuncDict = M.fromList
 
         -- With the new transforms
         ("nearT", nearT),
-        ("firstPointsSameLoc", firstPointsSameLoc)
+        ("boundaryIntersect", boundaryIntersect),
+        ("containsPoly", containsPoly)
 
         -- ("sameX", sameX)
 {-      ("centerLine", centerLine),
@@ -1264,10 +1265,14 @@ nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
       let tf = getTransform o in
       distsq (dx tf, dy tf) (x, y)
 
-firstPointsSameLoc :: ObjFn
-firstPointsSameLoc [GPI o1, GPI o2] =
+boundaryIntersect :: ObjFn
+boundaryIntersect [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      --firstPointsDist p1 p2
+      dsqBB p1 p2 0
+
+containsPoly :: ObjFn
+containsPoly [GPI o1, GPI o2] =
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eAcontainB p1 p2 0
 
 transformSRT :: ConstCompFn

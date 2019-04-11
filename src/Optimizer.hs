@@ -211,7 +211,7 @@ stepWithObjective g params state =
                                 ++ "\n|f(x') - f(x)|: " ++
                                (show $ abs (fx' - fx))
                                 ++ "\nf(x'): \n" ++ (show fx')
-                                -- ++ "\ngradEval: \n" ++ (show gradEval)
+                                ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
                                 -- ++ "\n original state: \n" ++ (show state)
                                 -- ++ "\n new state: \n" ++ (show state')
