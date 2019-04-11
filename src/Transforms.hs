@@ -130,6 +130,9 @@ sampleUnitCirc r = if r < 0.01 then [(0, 0)] else []
 testTriangle :: (Autofloat a) => [Pt2 a]
 testTriangle = [(0, 0), (100, 0), (50, 50)]
 
+testNonconvex :: (Autofloat a) => [Pt2 a]
+testNonconvex = [(0, 0), (100, 0), (50, 50), (100, 100), (0, 100)]
+
 transformPoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
 transformPoly m = map (applyTransform m)
 

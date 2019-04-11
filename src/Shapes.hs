@@ -694,17 +694,17 @@ rectTransformType = ("RectangleTransform", M.fromList
 -- Also using the new transforms
 polygonType = ("Polygon", M.fromList
     [
-        ("points", (PtListT, constValue $ PtListV [(0, 0), (100, 0), (50, 50)])),
+        ("points", (PtListT, constValue $ PtListV testTriangle)),
         ("polygon", (PtListT, constValue $ PtListV [])),
 
         -- These attributes serve as DOF in the default transformation
         -- They are NOT the final x, etc.
         -- TODO: should these be sampled?
-        ("dx", (FloatT, constValue $ FloatV 0.0)), -- Polygon doesn't have a natural "center"
-        ("dy", (FloatT, constValue $ FloatV 0.0)),
-        ("scaleX", (FloatT, constValue $ FloatV 1.0)),
-        ("scaleY", (FloatT, constValue $ FloatV 1.0)),
-        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        ("dx", (FloatT, x_sampler)), -- Polygon doesn't have a natural "center"
+        ("dy", (FloatT, y_sampler)),
+        ("scaleX", (FloatT, width_sampler)),
+        ("scaleY", (FloatT, height_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
         -- TODO: currently rotates about the center of the Penrose canvas, (0, 0)
 
         ("centerX", (FloatT, constValue $ FloatV 0.0)),

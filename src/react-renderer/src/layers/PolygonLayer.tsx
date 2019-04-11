@@ -51,7 +51,7 @@ class PolygonLayer extends React.Component<ILayerProps> {
 
 		return (
               <g key={key}>
-                <polyline
+                <polygon
                   points={ptListString}
 		  fillOpacity="0"
 		  stroke={polygonColor}

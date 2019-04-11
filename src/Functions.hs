@@ -129,6 +129,11 @@ compDict = M.fromList
         ("andThen", constComp andThen),
         ("transformSRT", constComp transformSRT),
         ("mkPoly", constComp mkPoly),
+        ("unitSquare", constComp unitSquare),
+        ("unitCircle", constComp unitCircle),
+        ("testTriangle", constComp testTri),
+        ("testNonconvexPoly", constComp testNonconvexPoly),
+        ("randomPolygon", randomPolygon),
 
         ("midpoint", noop), -- TODO
         ("sampleMatrix", noop), -- TODO
@@ -1229,6 +1234,27 @@ mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3),
            Val (FloatV x4), Val (FloatV x5), Val (FloatV x6), 
            Val (FloatV x7), Val (FloatV x8), Val (FloatV x9), Val (FloatV x10)] = 
            Val $ PtListV [(x1, x2), (x3, x4), (x5, x6), (x7, x8), (x9, x10)]
+
+unitSquare :: ConstCompFn
+unitSquare [] = Val $ PtListV unitSq
+
+unitCircle :: ConstCompFn
+unitCircle [] = Val $ PtListV unitCirc
+
+testTri :: ConstCompFn
+testTri [] = Val $ PtListV testTriangle
+
+testNonconvexPoly :: ConstCompFn
+testNonconvexPoly [] = Val $ PtListV testNonconvex
+
+-- No guarantees about nonintersection, convexity, etc. Just a bunch of points in a range.
+randomPolygon :: CompFn
+randomPolygon [Val (IntV n)] g =
+              let range = (-100, 100)
+                  (xs, g') = randomsIn g n range
+                  (ys, g'') = randomsIn g' n range
+                  pts = zip xs ys
+              in (Val $ PtListV pts, g'')
 
 ------ Transform objectives and constraints
 
