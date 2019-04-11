@@ -178,7 +178,7 @@ getSegmentsB pts = let
 
 -- works well when point not on boundary (otherwise handled separately as edge case.)
 isInB :: Autofloat a => Blob a -> Pt2 a -> Bool
-isInB pts (x0,y0) = if (dsqBP pts (x0,y0)) < epsd then True else let
+isInB pts (x0,y0) = if (dsqBP pts (x0,y0) 0) < epsd then True else let
     diffp = map (\(x,y)->(x-x0,y-y0)) pts
     getAngle (x,y) = atan2 y x 
     sweeps = map (\(p1,p2)->(getAngle p2)-(getAngle p1)) (getSegmentsB diffp)
@@ -211,39 +211,60 @@ firstPointsDist p1 p2 = distsq (p1 !! 0) (p2 !! 0) -- Get the first two points t
 
 ---- dsq functions ----
 
-dsqPP :: Autofloat a => Pt2 a -> Pt2 a -> a
-dsqPP a b = magsq $ b -: a
+-- ofs: "offset". ofs = k means dsqPP returns 0 when a and b are at most k units apart
+-- might need some sanity check for correctness
+dsqPP :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
+dsqPP a b ofs = max 0 $ (magsq $ b -: a) - (ofs**2)
 
-dsqSP :: Autofloat a => LineSeg a -> Pt2 a -> a
-dsqSP (a,b) p = let t = gettPS p (a,b) in
-    if t<0 then dsqPP a p
-    else if t>1 then dsqPP b p
-    else (**2) $ (normS (a,b)) `dotv` (p -: a)
+dsqSP :: Autofloat a => LineSeg a -> Pt2 a -> a -> a
+dsqSP (a,b) p ofs = let t = gettPS p (a,b) in
+    if t<0 then dsqPP a p ofs
+    else if t>1 then dsqPP b p ofs
+    else max 0 $ ( (**2) $ (normS (a,b)) `dotv` (p -: a) ) - (ofs**2)
 
-dsqSS :: Autofloat a => LineSeg a -> LineSeg a -> a
-dsqSS (a,b) (c,d) = if ixSS (a,b) (c,d) then 0 else let
-    da = dsqSP (c,d) a
-    db = dsqSP (c,d) b
-    dc = dsqSP (a,b) c
-    dd = dsqSP (a,b) d
+dsqSS :: Autofloat a => LineSeg a -> LineSeg a -> a -> a
+dsqSS (a,b) (c,d) ofs = if ixSS (a,b) (c,d) then 0 else let
+    da = dsqSP (c,d) a ofs
+    db = dsqSP (c,d) b ofs
+    dc = dsqSP (a,b) c ofs
+    dd = dsqSP (a,b) d ofs
     in min (min da db) (min dc dd)
 
-dsqBP :: Autofloat a => Blob a -> Pt2 a -> a
-dsqBP b p = let
+dsqBP :: Autofloat a => Blob a -> Pt2 a -> a -> a
+dsqBP b p ofs = let
     segments = getSegmentsB b
-    d2segments = map (\s -> dsqSP s p) segments
+    d2segments = map (\s -> dsqSP s p ofs) segments
     in foldl min posInf d2segments
 
-dsqBS :: Autofloat a => Blob a -> LineSeg a -> a
-dsqBS b s = foldl min posInf $ 
-    map (\e -> dsqSS e s) $ getSegmentsB b
+dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
+dsqBS b s ofs = foldl min posInf $ 
+    map (\e -> dsqSS e s ofs) $ getSegmentsB b
 
-dsqBB :: Autofloat a => Blob a -> Blob a -> a
-dsqBB b1 b2 = let
-    min1 = foldl min posInf $ map (\e -> dsqBS b2 e) $ getSegmentsB b1
-    min2 = foldl min posInf $ map (\e -> dsqBS b1 e) $ getSegmentsB b2
+dsqBB :: Autofloat a => Blob a -> Blob a -> a -> a
+dsqBB b1 b2 ofs = let
+    min1 = foldl min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
+    min2 = foldl min posInf $ map (\e -> dsqBS b1 e ofs) $ getSegmentsB b2
     in min min1 min2
 
 ---- dsq integral along boundary functions ----
 
+density :: Autofloat a => a
+density = 2
 
+dsqBinA :: Autofloat a => Blob a -> Blob a -> a -> a
+dsqBinA bA bB ofs = let
+    samplesIn = filter (isInB bA) $ sampleB density bB
+    in (*density) $ foldl (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
+
+dsqBoutA :: Autofloat a => Blob a -> Blob a -> a -> a
+dsqBoutA bA bB ofs = let
+    samplesOut = filter (\p -> not $ isInB bA p) $ sampleB density bB
+    in (*density) $ foldl (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesOut
+
+---- query energies ----
+
+eAcontainB :: Autofloat a => Blob a -> Blob a -> a -> a
+eAcontainB bA bB ofs = let
+    eAinB = dsqBinA bB bA ofs
+    eBoutA = dsqBoutA bA bB ofs
+    in eAinB + eBoutA
