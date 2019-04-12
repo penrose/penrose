@@ -11,46 +11,46 @@
 -- https://github.com/cmu462/Scotty3D/wiki/Edge-Flip-Tutorial
 -- https://github.com/cmu462/Scotty3D/wiki/Local-Mesh-Operations
 
-tconstructor Vertex : type
-tconstructor Edge : type
-tconstructor Face : type
-tconstructor SSubset : type
-tconstructor SComplex : type -- Mesh := SComplex(2)
-tconstructor Subcomplex : type -- (V, E, F) linked to a mesh
+type Vertex : type
+type Edge : type
+type Face : type
+type SSubset : type
+type SComplex : type -- Mesh := SComplex(2)
+type Subcomplex : type -- (V, E, F) linked to a mesh
 
 SComplex <: SSubset
 Subcomplex <: SSubset
 -- Subcomplex <: SComplex 
 -- TODO: Technically true, but messes up our Style matching
 
-vconstructor MkEdge(v1 : Vertex, v2 : Vertex) : Edge
-vconstructor MkFace(e1 : Edge, e2 : Edge, e3 : Edge) : Face
+constructor MkEdge : Vertex v1 * Vertex v2 -> Edge
+constructor MkFace : Edge e1 * Edge e2 * Edge e3 -> Face
 
-operator Star(c : SComplex) : SSubset
-operator StarV(v : Vertex) : SSubset -- This operator does not include the simplicial complex that v is in
-operator Closure(s : SSubset) : Subcomplex
-operator Link(s : SSubset) : SSubset
-operator LinkV(v : Vertex) : SSubset
-operator Boundary(s : SComplex) : SSubset
-operator Coboundary(s : SSubset) : SSubset
-operator ToSComplex(s : SSubset) : SComplex
+function Star: SComplex c -> SSubset
+function StarV: Vertex v -> SSubset -- This function does not include the simplicial complex that v is in
+function Closure: SSubset s -> Subcomplex
+function Link: SSubset s -> SSubset
+function LinkV: Vertex c -> SSubset
+function Boundary: SComplex s -> SSubset
+function Coboundary: SSubset s -> SSubset
+function ToSComplex: SSubset s -> SComplex
 
 -- Math-related predicates
-predicate IsSubsetOf(s : SSubset, c : SComplex) : Prop
-predicate IsSComplex(s : SSubset) : Prop
-predicate Pure(s : SSubset) : Prop
-predicate IsBoundary(s : SSubset) : Prop -- Not sure how to check it
+predicate IsSubsetOf: SSubset s * SComplex c
+predicate IsSComplex: SSubset s
+predicate Pure: SSubset s
+predicate IsBoundary: SSubset s -- Not sure how to check it
 
 -- Generic connectivity and selection predicates
 -- Does this work WRT subtyping?
-predicate InVE(v : Vertex, e : Edge) : Prop
-predicate InEF(e : Edge, f : Face) : Prop
+predicate InVE: Vertex v * Edge e
+predicate InEF: Edge e * Face f
 
-predicate InVS(v : Vertex, s : SSubset) : Prop
-predicate InES(e : Edge, s : SSubset) : Prop
-predicate InFS(f : Face, s : SSubset) : Prop
+predicate InVS: Vertex v * SSubset s
+predicate InES: Edge e * SSubset s
+predicate InFS: Face f * SSubset s
 
 -- For plugin use
-predicate DeclaredV(v : Vertex) : Prop
-predicate DeclaredE(e : Edge) : Prop
-predicate DeclaredF(f : Face) : Prop
+predicate DeclaredV: Vertex v
+predicate DeclaredE: Edge e
+predicate DeclaredF: Face f
