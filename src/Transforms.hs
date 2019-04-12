@@ -136,6 +136,13 @@ testNonconvex = [(0, 0), (100, 0), (50, 50), (100, 100), (0, 100)]
 transformPoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
 transformPoly m = map (applyTransform m)
 
+-- | Make a rectangular polygon of a line segment, accounting for its thickness.
+-- (Is this usable with autodiff?)
+extrude :: (Autofloat a) => a -> Pt2 a -> Pt2 a -> [Pt2 a]
+extrude c x y = let dir = rot90 $ normalize' (y -: x) in -- normal vector to the line segment
+                let offset = (c / 2) *: dir in -- find offset for each endpoint
+                [x -: offset, x +: offset, y +: offset, y -: offset] -- is this the right order?
+
 ------ Energies on polygons ------
 
 ---- some helpers below ----

@@ -7,7 +7,7 @@ import draggable from "./Draggable";
 const toCmdString = (cmd: any, canvasSize: [number, number]) => {
   switch (cmd.tag) {
     case "Pt":
-      return "L" + cmd.contents.join(" "); // TODO: test this // toScreen
+      return "L" + cmd.contents.join(" ");
     case "CubicBez":
       return pathCommandString("C", cmd.contents, canvasSize);
     case "CubicBezJoin":
@@ -29,13 +29,13 @@ const pathCommandString = (
   command +
   flatten(
     pts.map((coords: [number, number]) => {
-      return coords; // TODO get rid of this // toScreen
+      return coords; // TODO factor this out
     })
   ).join(" ");
 
 const fstCmdString = (pathCmd: any, canvasSize: [number, number]) => {
   if (pathCmd.tag === "Pt") {
-    return "M" + pathCmd.contents.join(" "); // toScreen
+    return "M" + pathCmd.contents.join(" ");
   } else {
     return toCmdString(pathCmd, canvasSize);
   }

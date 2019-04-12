@@ -36,7 +36,9 @@ Point p {
 Set X {
     -- X.dx = OPTIMIZED
     -- X.dy = OPTIMIZED
-    X.angle = OPTIMIZED
+
+    -- Why does introducing this useless variable "improve" the optimization?
+    -- X.thing = OPTIMIZED
 
     X.shape = RectangleTransform {
     	x = OPTIMIZED
@@ -64,6 +66,8 @@ Set `A` {
 }
 
 Set `B` {
+    override `B`.shape.x = -100.0
+    override `B`.shape.y = -200.0
     override `B`.shape.sizeX = 100.0
     override `B`.shape.sizeY = 200.0
     override `B`.shape.color = setOpacity(Colors.green, 0.5)
@@ -78,5 +82,5 @@ Set `B` {
 -- }
 
 Set `A`; Set `B` {
-   LOCAL.objFn = encourage firstPointsSameLoc(`A`.shape, `B`.shape)
+   LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
 }

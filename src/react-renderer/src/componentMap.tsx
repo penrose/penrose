@@ -10,6 +10,7 @@ import Curve from "./Curve";
 import CurveTransform from "./CurveTransform";
 import Arrow from "./Arrow";
 import Line from "./Line";
+import LineTransform from "./LineTransform";
 import Polygon from "./Polygon";
 
 // prettier-ignore
@@ -25,6 +26,7 @@ const componentMap = {
   "CurveTransform": CurveTransform,
   "Arrow": Arrow,
   "Image": Image,
+  "LineTransform": LineTransform,
   "Line": Line
 };
 
