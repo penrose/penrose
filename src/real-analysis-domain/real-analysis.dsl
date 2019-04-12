@@ -9,16 +9,17 @@ type ClosedInterval : type
 type LeftClopenInterval : type
 type RightClopenInterval : type
 
-vconstructor CreateInterval (left : Real, right : Real) : Interval
-vconstructor CreateOpenInterval (left : Real, right : Real) : OpenInterval
-vconstructor CreateClosedInterval (left : Real, right : Real) : ClosedInterval
-vconstructor CreateLeftClopenInterval (left : Real, right : Real) : LeftClopenInterval
-vconstructor CreateRightClopenInterval (left : Real, right : Real) : RightClopenInterval
-vconstructor CreateFunction (domain : Set, codomain : Set) : Function
+constructor CreateInterval: Real left * Real right -> Interval
+constructor CreateOpenInterval: Real left * Real right -> OpenInterval
+constructor CreateClosedInterval: Real left * Real right -> ClosedInterval
+constructor CreateLeftClopenInterval: Real left * Real right -> LeftClopenInterval
+constructor CreateRightClopenInterval: Real left * Real right -> RightClopenInterval
+constructor CreateFunction: Set domain * Set codomain -> Function
 
-vconstructor Pt (x : Real, y : Real) : Point
+constructor Pt: Real x * Real y -> Point
 
 -- Subtyping relationships
+
 Reals <: Set
 Interval <: Set
 Reals <: Interval
@@ -31,53 +32,53 @@ RightClopenInterval <: Interval
 -- AND that the GPIs satisfy the subtyping relationship (e.g. lines, arrows having start/end fields)
 
 -- Operators on intervals
-operator Union (I : Interval, J : Interval) : Interval
-operator Intersection (I : Interval, J : Interval)  : Interval
+function Union: Interval I * Interval J -> Interval
+function Intersection: Interval I * Interval J -> Interval
 
 -- Operators on functions, points, and intervals
-operator DerivativeAtP (f : Function, p : Real) : Real
-operator DerivativeOverD (f : Function) : Function
-operator Integral (I : Interval, f : Function) : Real
-operator Apply (f : Function, p : Real) : Real
+function DerivativeAtP: Function f * Real p -> Real
+function DerivativeOverD: Function f -> Function
+function Integral: Interval I * Function f -> Real
+function Apply: Function f * Real p -> Real
 -- We don't know if applying f to an interval yields an interval. Substance should be able to cast it to an Interval
-operator ApplyOver (f : Function, I : Interval) : Interval
--- operator applyOver (f : Function, I : Interval) : Set
+function ApplyOver: Function f * Interval I -> Interval
+-- operator applyOver (f : Function, I : Interval) -> Set
 -- (g . f): Does not check f's codomain matches g's domain
-operator Compose (f : Function, g : Function) : Function
+function Compose: Function f * Function g -> Function
 
 -- Predicates on reals
-predicate PosInfinite(x : Real) : Prop
-predicate NegInfinite(x : Real) : Prop
+predicate PosInfinite: Real x
+predicate NegInfinite: Real x
 
 -- Predicates on intervals
-predicate Bounded (i : Interval) : Prop
-predicate LeftBounded (i : Interval) : Prop
-predicate RightBounded (i : Interval) : Prop
-predicate Unbounded (i : Interval) : Prop
-predicate Compact (i : Interval) : Prop
-predicate Disconnected (i : Interval) : Prop
-predicate Degenerate (i : Interval) : Prop
-predicate Empty (i : Interval) : Prop
+predicate Bounded: Interval i
+predicate LeftBounded: Interval i
+predicate RightBounded: Interval i
+predicate Unbounded: Interval i
+predicate Compact: Interval i
+predicate Disconnected: Interval i
+predicate Degenerate: Interval i
+predicate Empty: Interval i
 
 -- Predicates on functions
-predicate Continuous (f : Function) : Prop
-predicate Discontinuous (f : Function) : Prop
-predicate Differentiable (f : Function) : Prop
-predicate Integrable (f : Function) : Prop
-predicate Invertible (f : Function) : Prop
-predicate Monotonic (f : Function) : Prop
-predicate Decreasing (f : Function) : Prop
-predicate Increasing (f : Function) : Prop
+predicate Continuous: Function f
+predicate Discontinuous: Function f
+predicate Differentiable: Function f
+predicate Integrable: Function f
+predicate Invertible: Function f
+predicate Monotonic: Function f
+predicate Decreasing: Function f
+predicate Increasing: Function f
 
 -- Predicates for containment
-predicate In (x : Real, X : Set) : Prop
-predicate In2 (p : Point, X : Set, Y : Set) : Prop
-predicate Subset (X : Set, Y : Set) : Prop
+predicate In: Real x * Set X
+predicate In2: Point p * Set X * Set Y
+predicate Subset: Set X * Set Y
 
 -- Predicates on points
-predicate LessThan (p1 : Real, p2 : Real) : Prop
-predicate ClosedEnd (p : Real, I : Interval) : Prop
-predicate OpenEnd (p : Real, I : Interval) : Prop
+predicate LessThan: Real p1 * Real p2
+predicate ClosedEnd: Real p * Interval I
+predicate OpenEnd: Real p * Interval I
 
 -- Syntactic Sugars
 
@@ -90,7 +91,7 @@ notation "X ⊆ Y" ~ "Subset(X, Y)"
 notation "Real X ∈ Y" ~ "Real X;In(X, Y)"
 notation "X ∪ Y" ~ "Union(X, Y)"
 
-notation "f : A ~ B" -> "Function f; f := CreateFunction(A,B)"
+notation "f : A ~ B" ~ "Function f; f := CreateFunction(A,B)"
 notation "f(x)" ~ "Apply(f, x)"
 notation "f ` (x)" ~ "DerivativeAtP(f, x)"
 

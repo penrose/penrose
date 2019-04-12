@@ -205,13 +205,22 @@ ykParser = unzip <$> (yWithKind `sepBy1` comma)
 varWithTypeParser :: Parser (Var,T)
 varWithTypeParser = do
   t <- tParser
+  v <- option (VarConst "") varParser
+  return (v,t)
+
+varWithTypeParserNonOptional :: Parser (Var,T)
+varWithTypeParserNonOptional = do
+  t <- tParser
   v <- varParser
   return (v,t)
 
--- | parser for the (b,t) list
+-- | parser for the (b,t) list with optional var names
 xtParser :: Parser ([Var], [T])
 xtParser = unzip <$> (varWithTypeParser `sepBy1` star)
-  --  where varWithType =  -- (,) <$> tParser <*> varParser
+
+-- | parser for the (b,t) list with mandatory var names
+xtParserNonOptional :: Parser ([Var], [T])
+xtParserNonOptional = unzip <$> (varWithTypeParserNonOptional `sepBy1` star)
 
 vpPairParser :: Parser (Var,Prop)
 vpPairParser = do
@@ -226,12 +235,14 @@ xPropParser = unzip <$> (vpPairParser `sepBy1` star)
 -- | var constructor parser
 vdParser :: Parser DsllStmt
 vdParser = do
-  rword "vconstructor"
+  rword "constructor"
   name <- identifier
-  (y', k') <- option ([], []) $ brackets ykParser
-  (b', t') <- option ([], []) $ parens   xtParser
   colon
+  (y', k') <- option ([], []) $ brackets ykParser
+  (b', t') <- option ([], []) $ xtParserNonOptional
+  arrow
   t'' <- tParser
+  v <- option (VarConst "") varParser
   return (VdStmt Vd { nameVd = name, varsVd = zip y' k',
                       typesVd = zip b' t', toVd = t'' })
 
@@ -245,6 +256,7 @@ odParser = do
   (b', t') <- option ([], []) xtParser
   arrow
   t'' <- tParser
+  v <- option (VarConst "") varParser
   return (OdStmt Od { nameOd = name, varsOd = zip y' k', typesOd = zip b' t',
                       toOd = t'' })
 
