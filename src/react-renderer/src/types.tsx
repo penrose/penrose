@@ -11,6 +11,7 @@ export interface IGPIPropsDraggable extends IGPIProps {
 
 export interface ILayerProps {
   shapes: Array<[string, any]>;
+  debugData: any[];
   ctm: DOMMatrix;
   canvasSize: [number, number];
 }
