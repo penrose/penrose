@@ -1,27 +1,27 @@
-tconstructor Set : type
-tconstructor Point : type
-tconstructor Map : type
+type Set
+type Point
+type Map
 
--- vconstructor EmptySet () : Set
-vconstructor Singleton (p : Point) : Set
+-- constructor EmptySet () : Set
+constructor Singleton : Point p -> Set
 
-operator Intersection (a : Set, b : Set) : Set
-operator Union (a : Set, b : Set) : Set
-operator Subtraction (a : Set, b : Set) : Set
-operator CartesianProduct (a : Set, b : Set) : Set
-operator Difference (a : Set, b : Set) : Set
-operator Subset (a : Set, b : Set) : Set
-operator AddPoint (p1 : Point, s1 : Set) : Set
+function Intersection : Set a * Set b -> Set
+function Union : Set a * Set b -> Set
+function Subtraction : Set a * Set b -> Set
+function CartesianProduct : Set a * Set b -> Set
+function Difference : Set a * Set b -> Set
+function Subset : Set a * Set b -> Set
+function AddPoint : Point p * Set s1 -> Set
 
-predicate From (f : Map, domain : Set, codomain : Set) : Prop
-predicate Empty (s : Set) : Prop
-predicate Nonempty (s : Set) : Prop
-predicate Intersect (s1 : Set, s2 : Set) : Prop
-predicate NotIntersecting (s1 : Set, s2 : Set) : Prop
-predicate IsSubset (s1 : Set, s2 : Set) : Prop
-predicate NotSubset (s1 : Set, s2 : Set) : Prop
-predicate PointIn (s1 : Set, p1 : Point) : Prop
-predicate PointNotIn (s1 : Set, p1 : Point) : Prop
-predicate Injection (m : Map) : Prop
-predicate Surjection (m : Map) : Prop
-predicate Bijection (m : Map) : Prop
+predicate From : Map f * Set domain * Set codomain
+predicate Empty : Set s
+predicate Nonempty : Set s
+predicate Intersect : Set s1 * Set s2
+predicate NotIntersecting : Set s1 * Set s2
+predicate IsSubset : Set s1 * Set s2
+predicate NotSubset : Set s1 * Set s2
+predicate PointIn : Set s * Point p
+predicate PointNotIn : Set s * Point p
+predicate Injection : Map m
+predicate Surjection : Map m
+predicate Bijection : Map m

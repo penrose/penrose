@@ -104,7 +104,7 @@ penroseRenderer subFile styFile dsllFile domain port = do
                                                        -- Do we really need subFileSugared? Doesn't seem to be needed above.
                                                        -- error "stop for now"
                                                        newSubOut <- C.parseSubstance subFileSugared fullSubProg dsllEnv
-                                                       putStrLn "new Substance program after plugin:" 
+                                                       putStrLn "new Substance program after plugin:"
                                                        print newSubOut
                                                        return (newSubOut, styJSON)
                                     _ -> error "Multiple instantiators found in Style; only one allowed"
