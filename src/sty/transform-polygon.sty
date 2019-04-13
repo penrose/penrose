@@ -37,13 +37,15 @@ Set X {
     -- X.dx = OPTIMIZED
 
     X.shape = Polygon {
-	    points = testNonconvexPoly()
+	    points = randomPolygon(6) -- testNonconvexPoly()
 
-	    dx = OPTIMIZED
-	    dy = OPTIMIZED
+	    dx = 100.0 -- OPTIMIZED
+	    dy = 200.0 -- OPTIMIZED
 	    scaleX = 1.0
 	    scaleY = 0.5
 	    rotation = OPTIMIZED
+	    centerX = 0.0
+	    centerY = 0.0
 
 	    -- transform = translate(X.dx, 0.0)
 	    strokeWidth = 0.0
@@ -54,8 +56,9 @@ Set X {
 Set `B` {
     -- `B`.shape.points = mkPoly(-100.0, 100.0, 100.0, 100.0, 100.0, -100.0, -100.0, -100.0)
     `B`.shape.points = randomPolygon(5)
-    -- override `B`.shape.dx = -100.0
-    -- override `B`.shape.dy = 200.0
+    override `B`.shape.dx = -100.0
+    override `B`.shape.dy = 200.0
+    override `B`.shape.rotation = 0.0
     override `B`.shape.scaleX = 1.0
     override `B`.shape.scaleY = 3.0
     override `B`.shape.fillColor = setOpacity(Colors.green, 0.5)

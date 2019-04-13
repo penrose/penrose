@@ -24,63 +24,55 @@ global {
 }
 
 Point p {
-      p.shape = Circle {
+      p.shape = CircleTransform {
       	      x = 0.0
 	      y = 0.0
 	      r = 10.0
-	      color = Colors.red
+	      color = Colors.blue
 	      strokeWidth = 0.0
       }
 }
 
 Set X {
-    -- X.dx = OPTIMIZED
-    -- X.dy = OPTIMIZED
+    X.dx = OPTIMIZED -- Seems wrong with only this
+    X.dy = OPTIMIZED
 
-    -- Why does introducing this useless variable "improve" the optimization?
-    -- X.thing = OPTIMIZED
+    X.shape = LineTransform {
+    	-- TODO: This shouldn't be a DOF when not set. Otherwise it might result in a shear when we don't rotate about the origin.
+        -- startX = 0.0
+	-- startY = 0.0
+	-- endX = -200.0
+	-- endY = 100.0
 
-    X.shape = RectangleTransform {
-    	x = OPTIMIZED
-	y = OPTIMIZED
-	sizeX = 200.0
-	sizeY = 100.0
-	rotation = OPTIMIZED
-        strokeWidth = 0.0
-	-- transform = rotate(X.angle)
-	-- transform = andThen(rotate(X.angle), translate(X.dx, X.dy))
+        startX = -0.5
+	startY = 0.0
+	endX = 0.5
+	endY = 0.0
+
+	-- TODO: should be able to set these to optimized
+    	dx = 100.0
+	dy = 0.0 
+	scaleX = 100.0
+	scaleY = 1.0
+	rotation = 0.0 -- global.pi_over_four
+	thickness = 6.0
+
+	transform = translate(X.dx, X.dy)
+	strokeWidth = 0.0
+	color = setOpacity(Colors.yellow, 0.5)
     }
-
-    -- TODO: this should get the finalX
-    -- X.text = Text {
-    --   string = X.label
-    --   x = X.shape.x 
-    --   y = X.shape.y
-    -- }
-
-    -- LOCAL.layering  = X.shape below X.text
-}
-
-Set `A` {
-    override `A`.shape.color = setOpacity(Colors.red, 0.5)
 }
 
 Set `B` {
-    override `B`.shape.x = -100.0
-    override `B`.shape.y = -200.0
-    override `B`.shape.sizeX = 100.0
-    override `B`.shape.sizeY = 200.0
+    -- `B`.shape.startX = 0.0
+    -- `B`.shape.startY = 0.0
+    -- `B`.shape.endX = 100.0
+    -- `B`.shape.endY = 100.0
+
     override `B`.shape.color = setOpacity(Colors.green, 0.5)
 }
 
-
--- Set `C` {
---     override `C`.shape.x = 0.0
---     override `C`.shape.y = 0.0
---     override `C`.shape.rotation = 0.0
---     override `C`.shape.color = setOpacity(Colors.blue, 0.5)
--- }
-
 Set `A`; Set `B` {
    LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
+   -- LOCAL.objFn = encourage containsPoly(`A`.shape, `B`.shape)
 }

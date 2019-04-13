@@ -17,14 +17,12 @@ class PolygonLayer extends React.Component<ILayerProps> {
   public render() {
       const {shapes, canvasSize} = this.props;
       const polygonColor = "red";
-      const shapesWithPolygons = ["CircleTransform", "RectangleTransform", "Polygon", "CurveTransform"];
 
     return (
       <g>
         {shapes.map(([name, shape]: [string, any], key: number) => {
 
-	    // Curve
-	    // TODO: show control points of curve
+	    // TODO: show control points of bezier curve
           if (name === "Curve") {
             const ptListString = toPointListStringOld(
               shape.polyline.contents,
@@ -42,8 +40,7 @@ class PolygonLayer extends React.Component<ILayerProps> {
           }
 
 	    // Note: the debug polygon already has the Penrose transform applied so we only apply the transform to SVG space
-	    // TODO: refactor this when all shapes have "polygon" property
-	    else if (shapesWithPolygons.includes(name)) {
+	    else if (shape.hasOwnProperty("polygon")) {
 	       const ptListString = toPointListString(
 		   shape.polygon.contents,
 		   canvasSize

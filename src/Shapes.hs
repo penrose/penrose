@@ -270,7 +270,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -318,11 +318,13 @@ findComputedProperty "RectangleTransform" "transformation" = Just rectTransformF
 findComputedProperty "CircleTransform" "transformation" = Just circTransformFn
 findComputedProperty "Polygon" "transformation" = Just polygonTransformFn
 findComputedProperty "CurveTransform" "transformation" = Just polygonTransformFn -- Same parameters as polygon
+findComputedProperty "LineTransform" "transformation" = Just polygonTransformFn -- Same parameters as polygon
 
 findComputedProperty "RectangleTransform" "polygon" = Just rectPolygonFn
 findComputedProperty "CircleTransform" "polygon" = Just circPolygonFn
 findComputedProperty "CurveTransform" "polygon" = Just curvePolygonFn
 findComputedProperty "Polygon" "polygon" = Just polygonPolygonFn
+findComputedProperty "LineTransform" "polygon" = Just linePolygonFn
 
 findComputedProperty _ _ = Nothing
 
@@ -383,6 +385,7 @@ circPolygonFn = (props, fn)
              PtListV $ transformPoly fullTransform unitCirc -- (sampleUnitCirc r)
 
 -- | Polygonize a Bezier curve, even if the curve was originally made using a list of points.
+-- TODO: distinguish between filled curves (polygons) and unfilled ones (polylines)
 curvePolygonFn :: (Autofloat a) => ComputedValue a
 curvePolygonFn = (props, fn)
     where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "pathData"]
@@ -393,6 +396,19 @@ curvePolygonFn = (props, fn)
              let fullTransform = customTransform # defaultTransform in
              PtListV $ transformPoly fullTransform $ polygonizePath maxIter path
              where maxIter = 3 -- TODO: what should this be?
+
+-- | Polygonize a line segment, accounting for its thickness. 
+-- TODO: would it usually be more efficient to just use a polyline?
+linePolygonFn :: (Autofloat a) => ComputedValue a
+linePolygonFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "thickness", "startX", "startY", "endX", "endY"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV dx, FloatV dy, HMatrixV customTransform,
+              FloatV thickness, FloatV startX, FloatV startY, FloatV endX, FloatV endY] = 
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
+             let fullTransform = customTransform # defaultTransform in
+             PtListV $ transformPoly fullTransform $ extrude thickness (startX, startY) (endX, endY)
 
 -- TODO: add ones for final properties; also refactor so it's more generic across shapes
 
@@ -485,7 +501,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -763,6 +779,34 @@ curveTransformType = ("CurveTransform", M.fromList
         ("left-arrowhead", (BoolT, constValue $ BoolV False)),
         ("right-arrowhead", (BoolT, constValue $ BoolV False)),
         ("name", (StrT, constValue $ StrV "defaultCurve"))
+    ])
+
+-- If the start and end are not set, by default, it's a unit line segment aligned w/ x-axis, centered at origin.
+-- If the start and end are set in Style, then that will be the line segment to which all subsequent transforms apply.
+lineTransformType = ("LineTransform", M.fromList
+    [
+        ("startX", (FloatT, constValue $ FloatV $ -0.5)),
+        ("startY", (FloatT, constValue $ FloatV 0)),
+        ("endX", (FloatT, constValue $ FloatV 0.5)),
+        ("endY", (FloatT, constValue $ FloatV 0.0)),
+
+        -- By default, this is NOT set. Should it be?
+        ("dx", (FloatT, constValue $ FloatV 0.0)), -- Curve doesn't have a natural "center"
+        ("dy", (FloatT, constValue $ FloatV 0.0)),
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)),
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        -- TODO: currently rotates about the center of the Penrose canvas, (0, 0)
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PtListT, constValue $ PtListV [])),
+
+        ("thickness", (FloatT, sampleFloatIn (5, 15))),
+        ("color", (ColorT, sampleColor)),
+        ("style", (StrT, constValue $ StrV "solid")),
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultLine"))
     ])
 
 -----

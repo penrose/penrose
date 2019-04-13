@@ -213,8 +213,9 @@ stepWithObjective g params state =
                                 ++ "\nf(x'): \n" ++ (show fx')
                                 ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
-                                -- ++ "\n original state: \n" ++ (show state)
-                                -- ++ "\n new state: \n" ++ (show state')
+                                ++ "\n timestep: \n" ++ (show t')
+                                ++ "\n original state: \n" ++ (show state)
+                                ++ "\n new state: \n" ++ (show state')
                                )
                          state'
 
