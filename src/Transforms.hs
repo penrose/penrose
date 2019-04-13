@@ -196,17 +196,26 @@ isInB pts (x0,y0) = if (dsqBP pts (x0,y0) 0) < epsd then True else let
     res = foldl' (+) 0.0 sweepAdjusted
     in res>pi || res<(-pi) 
 
+scaleB :: Autofloat a => a -> Blob a -> Blob a
+scaleB k b = map (scaleP k) b
+
 -- sample points along segment with interval.
 sampleS :: Autofloat a => a -> LineSeg a -> [Pt2 a]
-sampleS interval (a, b) = let
-    l = mag $ b -: a
-    numSamples = floor $ l/interval
+sampleS numSamplesf (a, b) = let
+    -- l = mag $ b -: a
+    numSamples = (floor numSamplesf) + 1--floor $ l/interval
     inds = map realToFrac [0..numSamples-1]
     ks = map (/(realToFrac numSamples)) $ inds
     in map (lerpP a b) ks
 
-sampleB :: Autofloat a => a -> Blob a -> [Pt2 a]
-sampleB interval blob = concat $ map (sampleS interval) $ getSegmentsB blob
+sampleB :: Autofloat a => a -> Int -> Blob a -> [Pt2 a]
+sampleB circumfrence numSamples blob = let
+    numSamplesf = r2f numSamples
+    segments = getSegmentsB blob
+    seglengths = map (\(a,b)->dist a b) $ segments
+    samplesEach = map (\l->l/circumfrence*numSamplesf) seglengths
+    zp = zip segments samplesEach
+    in concat $ map (\(seg, num) -> sampleS num seg) zp
 
 -- stub
 firstPointsDist :: (Autofloat a) => [Pt2 a] -> [Pt2 a] -> a
@@ -243,32 +252,45 @@ dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
 dsqBS b s ofs = foldl' min posInf $ 
     map (\e -> dsqSS e s ofs) $ getSegmentsB b
 
+-- HACK: scales down polygons beforehand
 dsqBB :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBB b1 b2 ofs = let
-    min1 = foldl' min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
-    min2 = foldl' min posInf $ map (\e -> dsqBS b1 e ofs) $ getSegmentsB b2
-    in min min1 min2
+    b1' = scaleB scalefactor b1
+    b2' = scaleB scalefactor b2
+    min1 = foldl' min posInf $ map (\e -> dsqBS b2' e ofs) $ getSegmentsB b1'
+    -- min2 = foldl' min posInf $ map (\e -> dsqBS b1' e ofs) $ getSegmentsB b2'
+    in min1 -- min1 min2
 
 ---- dsq integral along boundary functions ----
 
-ds :: Autofloat a => a
-ds = 10
+ds :: Int
+ds = 200
+
+scalefactor :: Autofloat a => a
+scalefactor = 1 -- doesn't behave as expected though?
 
 dsqBinA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBinA bA bB ofs = let
-    samplesIn = filter (isInB bA) $ sampleB ds bB
-    in (*ds) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
+    circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
+    interval = (r2f ds) / circumfrence
+    samplesIn = filter (\p -> isInB bA p) $ sampleB circumfrence ds bB
+    res = (*interval) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
+    in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
 
 dsqBoutA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBoutA bA bB ofs = let
-    samplesOut = filter (\p -> not $ isInB bA p) $ sampleB ds bB
-    in let res = (*ds) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesOut in
-       trace ("|samplesOut|: " ++ show (length samplesOut)) res
+    circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
+    interval = (r2f ds) / circumfrence
+    samplesOut = filter (\p -> not $ isInB bA p) $ sampleB circumfrence ds bB
+    res = (*interval) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesOut
+    in {-trace ("|samplesOut|: " ++ show (length samplesOut))-} res
 
 ---- query energies ----
 
 eAcontainB :: Autofloat a => Blob a -> Blob a -> a -> a
 eAcontainB bA bB ofs = let
-    -- eAinB = dsqBinA bB bA ofs
-    eBoutA = dsqBoutA bA bB ofs
-    in {-eAinB + -} eBoutA
+    bA' = scaleB scalefactor bA
+    bB' = scaleB scalefactor bB
+    eAinB = dsqBinA bB' bA' ofs
+    eBoutA = dsqBoutA bA' bB' ofs
+    in eAinB + eBoutA
