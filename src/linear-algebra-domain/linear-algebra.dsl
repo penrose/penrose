@@ -1,9 +1,9 @@
 ------------------- Type Constructors --------------------
 
-type Scalar : type
-type VectorSpace : type
-type Vector : type
-type LinearMap : type
+type Scalar
+type VectorSpace
+type Vector
+type LinearMap
 
 -------------------- Operators -----------------------
 

@@ -1,13 +1,13 @@
-type Set : type
-type Reals : type
-type Real : type
-type Point : type
-type Function : type
-type Interval : type
-type OpenInterval : type
-type ClosedInterval : type
-type LeftClopenInterval : type
-type RightClopenInterval : type
+type Set
+type Reals
+type Real
+type Point
+type Function
+type Interval
+type OpenInterval
+type ClosedInterval
+type LeftClopenInterval
+type RightClopenInterval
 
 constructor CreateInterval: Real left * Real right -> Interval
 constructor CreateOpenInterval: Real left * Real right -> OpenInterval
@@ -91,7 +91,7 @@ notation "X ⊆ Y" ~ "Subset(X, Y)"
 notation "Real X ∈ Y" ~ "Real X;In(X, Y)"
 notation "X ∪ Y" ~ "Union(X, Y)"
 
-notation "f : A ~ B" ~ "Function f; f := CreateFunction(A,B)"
+notation "f : A -> B" ~ "Function f; f := CreateFunction(A,B)"
 notation "f(x)" ~ "Apply(f, x)"
 notation "f ` (x)" ~ "DerivativeAtP(f, x)"
 

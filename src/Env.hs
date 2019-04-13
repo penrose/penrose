@@ -415,8 +415,7 @@ data Ttype = Ttype { yt :: Y,
              deriving (Show, Eq, Typeable)
 
 data TypeConstructor = TypeConstructor { nametc :: String,
-                                         kindstc  :: [K],
-                                         typtc  :: Type }
+                                         kindstc  :: [K]}
                        deriving (Show, Eq, Typeable)
 
 data ValConstructor = ValConstructor { namevc :: String,

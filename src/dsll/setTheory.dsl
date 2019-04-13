@@ -1,6 +1,6 @@
-type Set : type
-type Point : type
-type Map : type
+type Set
+type Point
+type Map
 
 -- constructor EmptySet () : Set
 constructor Singleton : Point p -> Set

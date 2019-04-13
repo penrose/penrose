@@ -11,16 +11,16 @@
 -- https://github.com/cmu462/Scotty3D/wiki/Edge-Flip-Tutorial
 -- https://github.com/cmu462/Scotty3D/wiki/Local-Mesh-Operations
 
-type Vertex : type
-type Edge : type
-type Face : type
-type SSubset : type
-type SComplex : type -- Mesh := SComplex(2)
-type Subcomplex : type -- (V, E, F) linked to a mesh
+type Vertex
+type Edge
+type Face
+type SSubset
+type SComplex -- Mesh := SComplex(2)
+type Subcomplex -- (V, E, F) linked to a mesh
 
 SComplex <: SSubset
 Subcomplex <: SSubset
--- Subcomplex <: SComplex 
+-- Subcomplex <: SComplex
 -- TODO: Technically true, but messes up our Style matching
 
 constructor MkEdge : Vertex v1 * Vertex v2 -> Edge

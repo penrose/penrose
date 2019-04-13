@@ -47,16 +47,14 @@ data DsllStmt = CdStmt Cd
 
 -- | tconstructor
 data Cd = Cd { nameCd   :: String,
-               inputCd  :: [(Y, K)],
-               outputCd :: Type }
+               inputCd  :: [(Y, K)]}
           deriving (Eq, Typeable)
 
 instance Show Cd where
-    show (Cd nameCd inputCd outputCd) = "(TCon, " ++ nString ++ ", ValOfType "
-          ++ iString ++ ", Output " ++ oString ++")"
+    show (Cd nameCd inputCd) = "(TCon, " ++ nString ++ ", ValOfType "
+          ++ iString ++ ")"
         where nString = show nameCd
               iString = show inputCd
-              oString = show outputCd
 
 -- | vconstructor
 data Vd = Vd { nameVd  :: String,
@@ -167,16 +165,12 @@ cd1 = do
     rword "type"
     name <- identifier
     (y, k) <- parens ykParser
-    colon
-    t' <- typeParser
     pos <- getPosition
-    return (CdStmt Cd { nameCd = name, inputCd = zip y k, outputCd = t' })
+    return (CdStmt Cd { nameCd = name, inputCd = zip y k})
 cd2 = do
     rword "type"
     name <- identifier
-    colon
-    t' <- typeParser
-    return (CdStmt Cd { nameCd = name, inputCd = [], outputCd = t' })
+    return (CdStmt Cd { nameCd = name, inputCd = []})
 
 -- | sub type declarations parser
 subtypeDeclParser :: Parser DsllStmt
@@ -312,8 +306,7 @@ checkDsllStmt :: VarEnv -> DsllStmt -> VarEnv
 checkDsllStmt e (CdStmt c) =
    let kinds  = seconds (inputCd c)
        env1 = foldl checkK e kinds
-       tc   = TypeConstructor { nametc = nameCd c, kindstc = kinds,
-        typtc = outputCd c }
+       tc   = TypeConstructor { nametc = nameCd c, kindstc = kinds}
        ef   = addName (nameCd c) env1
    in ef { typeConstructors = M.insert (nameCd c) tc $ typeConstructors ef }
 
