@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-unused-binds -fno-warn-missing-signatures #-}
 {-# LANGUAGE CPP #-}
-{-# LINE 1 "SubstanceTokenizer.x" #-}
+{-# LINE 1 "SubstanceTokens.x" #-}
 
 module SubstanceTokenizer where
 
