@@ -203,10 +203,12 @@ data Expr
     | BinOp BinaryOp Expr Expr
     | UOp UnaryOp Expr
     | List [Expr]
+    | Tuple Expr Expr
     | ListAccess Path Integer
     | Ctor String [PropertyDecl] -- Shouldn't be using this, since we have PropertyDict
     | Layering Path Path -- ^ first GPI is *below* the second GPI
     | PluginAccess String Expr Expr -- ^ Plugin name, Substance name, Key
+    | ThenOp Expr Expr -- COMBAK: double check how transforms are modeled, probably just a list of CompApp
     deriving (Show, Eq, Typeable)
 
 -- DEPRECATED
@@ -346,7 +348,7 @@ stmt :: Parser Stmt
 stmt = tryChoice [assign, override, delete]
 
 assign, override, delete :: Parser Stmt
-assign   = Assign   <$> path <*> (eq >> expr)
+assign   = Assign   <$> path <*> (colon >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
 
@@ -355,10 +357,12 @@ expr = tryChoice [
            constructor,
            objFn,
            constrFn,
+           transformExpr, -- COMBAK: ordering
            layeringExpr,
            arithmeticExpr,
            compFn,
            list,
+           tuple,
            stringLit,
            boolLit
        ]
@@ -414,6 +418,19 @@ layeringExpr = try layeringAbove <|> layeringBelow
             path2 <- path
             return $ Layering path2 path1
 
+transformExpr :: Parser Expr
+transformExpr = makeExprParser tTerm tOperators
+
+tTerm :: Parser Expr
+tTerm = expr
+
+tOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
+tOperators =
+    [   -- Highest precedence
+        [ InfixL (ThenOp <$ string "then") ]
+        -- Lowest precedence
+    ]
+
 -- DEPRECATED
 -- layeringExpr :: Parser LExpr
 -- layeringExpr = makeExprParser lTerm Style.lOperators
@@ -448,8 +465,9 @@ objFn    = ObjFn <$> (rword "encourage" >> identifier) <*> exprsInParens
 constrFn = ConstrFn <$> (rword "ensure" >> identifier) <*> exprsInParens
 exprsInParens = parens $ expr `sepBy` comma
 
-list :: Parser Expr
+list, tuple :: Parser Expr
 list = List <$> brackets (expr `sepBy1` comma)
+tuple = Tuple <$> expr <*> expr
 
 constructor :: Parser Expr
 constructor = do
@@ -469,7 +487,7 @@ stringLit :: Parser Expr
 stringLit = StringLit <$> (symbol "\"" >> manyTill L.charLiteral (try (symbol "\"")))
 
 annotatedFloat :: Parser AnnoFloat
-annotatedFloat = (rword "OPTIMIZED" *> pure Vary) <|> Fix <$> float
+annotatedFloat = (question *> pure Vary) <|> Fix <$> float
 
 ------------------------------------------------------------------------
 -------- STYLE COMPILER
