@@ -34,21 +34,21 @@ Point p {
 }
 
 Set X {
-    -- X.dx = OPTIMIZED
-    -- X.dy = OPTIMIZED
+    X.dx = OPTIMIZED
+    X.dy = OPTIMIZED
+    X.angle = OPTIMIZED
 
     -- Why does introducing this useless variable "improve" the optimization?
     -- X.thing = OPTIMIZED
 
     X.shape = RectangleTransform {
-    	x = OPTIMIZED
-	y = OPTIMIZED
+    	x = 0.0 -- OPTIMIZED
+	y = 0.0 -- OPTIMIZED
 	sizeX = 200.0
 	sizeY = 100.0
-	rotation = OPTIMIZED
+	rotation = 0.0 -- OPTIMIZED
         strokeWidth = 0.0
-	-- transform = rotate(X.angle)
-	-- transform = andThen(rotate(X.angle), translate(X.dx, X.dy))
+	transform = andThen(rotate(X.angle), translate(X.dx, X.dy))
     }
 
     -- TODO: this should get the finalX
@@ -66,8 +66,8 @@ Set `A` {
 }
 
 Set `B` {
-    override `B`.shape.x = -100.0
-    override `B`.shape.y = -200.0
+    -- override `B`.shape.x = -100.0
+    -- override `B`.shape.y = -200.0
     override `B`.shape.sizeX = 100.0
     override `B`.shape.sizeY = 200.0
     override `B`.shape.color = setOpacity(Colors.green, 0.5)

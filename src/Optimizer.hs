@@ -1,5 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE BangPatterns, FlexibleInstances #-}
 
 module Optimizer where
 
@@ -7,6 +7,10 @@ import Utils
 import Style
 import GenOptProblem
 import Numeric.AD
+import Numeric.AD.Internal.On
+import Numeric.AD.Internal.Reverse
+import Numeric.AD.Internal.Sparse
+import qualified Numeric.LinearAlgebra as L
 import Debug.Trace
 import System.Random
 import System.Console.ANSI
@@ -60,7 +64,17 @@ c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
 intervalMin = True
 
 useLineSearch :: Bool
-useLineSearch = True
+useLineSearch = False
+
+constT :: Floating a => a
+constT = 0.1
+
+----- Second-order optimization flags
+
+-- TODO: Newton's method, quasi-Newton methods (Generalized Gauss-Newton, L-BFGS), better first-order methods (momentum)
+
+useNewton :: Bool
+useNewton = True
 
 ----- Convergence criteria
 
@@ -193,6 +207,15 @@ stepShapes params vstate g = -- varying state
 stepT :: Floating a => a -> a -> a -> a
 stepT dt x dfdx = x - dt * dfdx
 
+-- Precondition the gradient
+-- TODO: clean up the numeric type conversion between here and below
+gradP :: [Double] -> [Double] -> (forall a. (Autofloat a => [a]))-- [Double]
+gradP gradEval h =
+      -- Take the pseudoinverse of the hessian
+      let hinv = L.pinv $ L.matrix (length gradEval) $ h in
+      let gradPreconditioned = hinv L.#> (L.vector gradEval) in
+      map r2f $ L.toList gradPreconditioned
+
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
@@ -201,11 +224,16 @@ stepWithObjective g params state =
                   -- if null gradEval then error "empty gradient" else
                   (steppedState, gradEval)
     where (t', gradEval) = timeAndGrad objFnApplied state
+          h = hessian objFnApplied state -- TODO: move this back in scope below so we don't calculate it if newton is off
+          gradToUse = if useNewton then
+                         -- Note liberal use of r2f since dual numbers don't matter after grad
+                         gradP (map r2f gradEval :: [Double]) (map r2f $ concat h :: [Double])
+                      else gradEval
           -- get timestep via line search, and evaluated gradient at the state
           -- step each parameter of the state with the time and gradient
           -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
           steppedState =
-              let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state gradEval) in
+              let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state $ gradToUse) in
               let (fx, fx') = (objFnApplied state, objFnApplied state') in
                          tro ("||x' - x||: " ++ (show $ norm (state -. state'))
                                 ++ "\n|f(x') - f(x)|: " ++
@@ -213,6 +241,9 @@ stepWithObjective g params state =
                                 ++ "\nf(x'): \n" ++ (show fx')
                                 ++ "\ngradEval: \n" ++ (show gradEval)
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
+                                ++ "\ngradToUse: \n" ++ (show gradToUse)
+                                ++ "\n||gradToUse||: \n" ++ (show $ norm gradToUse)
+                                ++ "\nhessian: \n" ++ (show h)
                                 ++ "\n timestep: \n" ++ (show t')
                                 ++ "\n original state: \n" ++ (show state)
                                 ++ "\n new state: \n" ++ (show state')
@@ -227,6 +258,15 @@ stepWithObjective g params state =
 -- a version of grad with a clearer type signature
 appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
 appGrad f l = grad f l
+
+instance Show (Numeric.AD.Internal.On.On
+                             (Numeric.AD.Internal.Reverse.Reverse
+                                s (Numeric.AD.Internal.Sparse.Sparse a))) where
+         show a = "error: not sure how to derive show for hessian element"
+
+-- appHess :: (Num a) => (forall b . (Num b) => [b] -> b) -> [a] -> [[a]]
+appHess :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [[a]]
+appHess f l = hessian f l
 
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
@@ -243,7 +283,7 @@ timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
                   timestep =
                       let resT = if useLineSearch
                                  then awLineSearch f duf descentDir state
-                                 else r2f 0.001 in -- hardcoded timestep
+                                 else constT in -- hardcoded timestep
                           if isNaN resT then tr "returned timestep is NaN" nanSub else resT
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
