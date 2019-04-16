@@ -298,7 +298,7 @@ eAcontainB bA bB ofs = let
     eBoutA = dsqBoutA bA bB ofs
     in eAinB + eBoutA
 
--- disjoint. might be changed later though, bc it gets stuck at local min too often 
+-- disjoint. might be changed later though, bc it gets stuck at local min too often,
 -- resulting in two shapes overlap even more
 eABdisj :: Autofloat a => Blob a -> Blob a -> a -> a
 eABdisj bA bB ofs = let
@@ -309,14 +309,13 @@ eABdisj bA bB ofs = let
 -- A and B tangent, B inside A
 eBinAtangent :: Autofloat a => Blob a -> Blob a -> a -> a
 eBinAtangent bA bB ofs = let
-    eBoutA = dsqBoutA bA bB ofs
+    eContainment = eAcontainB bA bB ofs
     eABbdix = dsqBB bA bB ofs
-    in eBoutA + eABbdix
+    in eContainment + eABbdix
 
 -- A and B tangent, B outside A
 eBoutAtangent :: Autofloat a => Blob a -> Blob a -> a -> a
 eBoutAtangent bA bB ofs = let
-    eBinA = dsqBinA bA bB ofs
+    eDisjoint = eABdisj bA bB ofs
     eABbdix = dsqBB bA bB ofs
-    in eBinA + eABbdix
-
+    in eDisjoint + eABbdix
