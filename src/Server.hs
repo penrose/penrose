@@ -371,8 +371,12 @@ substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
         Right subOut -> do
             logDebug client $ show subOut
             -- TODO: store the Style values to reuse on Substance edit
+            -- TODO: pass in any new optimization config values here?
             let styVals = []
-            styRes <- try (compileStyle styProg subOut styVals)
+            let optConfig = case s of 
+                            Nothing -> G.defaultOptConfig
+                            Just currState -> oConfig currState
+            styRes <- try (compileStyle styProg subOut styVals optConfig)
             case styRes of
                 Right newState -> do
                     wsSendFrame conn Frame {

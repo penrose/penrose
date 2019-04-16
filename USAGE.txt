@@ -7,3 +7,5 @@ Options:
                  server listens on [default: 9160]
   --domain=NAME  Domain of the websocket connection that the backend server
                  listens on [default: 127.0.0.1]
+  --config=PATH  Path to a runtime configuration for the optimization
+  		 [default: opt-config/default.json]

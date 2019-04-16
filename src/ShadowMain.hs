@@ -55,10 +55,11 @@ shadowMain = do
     dsllFile <- args `getArgOrExit` argument "element"
     domain   <- args `getArgOrExit` longOption "domain"
     port     <- args `getArgOrExit` longOption "port"
+    config   <- args `getArgOrExit` longOption "config"
 
     if args `isPresent` argument "substance" then do
         subFile <- args `getArgOrExit` argument "substance"
-        penroseRenderer subFile styFile dsllFile domain $ read port
+        penroseRenderer subFile styFile dsllFile domain config $ read port
     else
         penroseEditor styFile dsllFile domain $ read port
 
@@ -75,8 +76,8 @@ penroseEditor styFile dsllFile domain port = do
 
     Server.servePenrose dsllEnv styProg domain port
 
-penroseRenderer :: String -> String -> String -> String -> Int -> IO ()
-penroseRenderer subFile styFile dsllFile domain port = do
+penroseRenderer :: String -> String -> String -> String -> String -> Int -> IO ()
+penroseRenderer subFile styFile dsllFile domain configPath port = do
     subIn <- readFile subFile
     styIn  <- readFile styFile
     dsllIn <- readFile dsllFile
@@ -114,7 +115,16 @@ penroseRenderer subFile styFile dsllFile domain port = do
     pPrint styProg
     divLine
 
-    initState <- G.compileStyle styProg subProgForStyle styVals -- Includes Substance plugin output
+    -- Read optimization config and so it can be included in the initial state
+    configStr <- B.readFile configPath
+    let configBstr = (decode configStr) :: Maybe G.OptConfig
+    let optConfig = case configBstr of
+                  Nothing -> error "couldn't read opt config JSON"
+                  Just x -> x
+    putStrLn "Opt config:\n"
+    putStrLn $ show optConfig
+
+    initState <- G.compileStyle styProg subProgForStyle styVals optConfig -- Includes Substance plugin output
 
     Server.serveRenderer domain port initState
 

@@ -127,7 +127,7 @@ stepPolicy s =
 -- Main optimization functions
 
 step :: State -> State
-step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
+step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingState s) (rng s)
              s'                = s { varyingState = state', 
                                      paramsr = params' }
              -- NOTE: we intentionally discard the random generator here because
@@ -154,8 +154,8 @@ step s = let (state', params') = stepShapes (paramsr s) (varyingState s) (rng s)
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
-stepShapes :: (Autofloat a) => Params -> [a] -> StdGen -> ([a], Params)
-stepShapes params vstate g = -- varying state
+stepShapes :: (Autofloat a) => OptConfig -> Params -> [a] -> StdGen -> ([a], Params)
+stepShapes config params vstate g = -- varying state
          -- if null vstate then error "empty state in stepshapes" else
          let (epWeight, epStatus) = (weight params, optStatus params) in
          case epStatus of
@@ -198,7 +198,7 @@ stepShapes params vstate g = -- varying state
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
-        where (vstate', gradEval) = stepWithObjective g params vstate
+        where (vstate', gradEval) = stepWithObjective config g params vstate
               objFnApplied = (overallObjFn params) g (r2f $ weight params)
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
@@ -219,11 +219,11 @@ gradP gradEval h =
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: (Autofloat a) => StdGen -> Params -> [a] -> ([a], [a])
-stepWithObjective g params state =
+stepWithObjective :: (Autofloat a) => OptConfig -> StdGen -> Params -> [a] -> ([a], [a])
+stepWithObjective config g params state =
                   -- if null gradEval then error "empty gradient" else
                   (steppedState, gradEval)
-    where (t', gradEval, gradToUse, h) = timeAndGrad objFnApplied state
+    where (t', gradEval, gradToUse, h) = timeAndGrad config objFnApplied state
 
           -- get timestep via line search, and evaluated gradient at the state
           -- step each parameter of the state with the time and gradient
@@ -267,14 +267,14 @@ appHess f l = hessian f l
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: (Autofloat b) => ObjFn1 a -> [b] -> (b, [b], [b], [[b]])
-timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, h)
+timeAndGrad :: (Autofloat b) => OptConfig -> ObjFn1 a -> [b] -> (b, [b], [b], [[b]])
+timeAndGrad config f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, h)
             where gradF :: GradFn a
                   gradF = appGrad f
                   gradEval = gradF state
 
                   h = hessian f state -- TODO: move this back in scope below so we don't calculate it if newton is off?
-                  gradToUse = if useNewton then
+                  gradToUse = if (useSecondOrder config) then
                          -- Note liberal use of r2f since dual numbers don't matter after grad
                          gradP (map r2f gradEval :: [Double]) (map r2f $ concat h :: [Double])
                       else gradEval
@@ -285,7 +285,7 @@ timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, h)
 
                   timestep =
                       let resT = if useLineSearch
-                                 then awLineSearch f duf descentDir state
+                                 then awLineSearch config f duf descentDir state
                                  else constT in -- hardcoded timestep
                           if isNaN resT then tr "returned timestep is NaN" nanSub else resT
 
@@ -306,8 +306,8 @@ linesearch_max = 100 -- TODO what's a reasonable limit (if any)?
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
 -- TODO what happens if there are NaNs in awLineSearch? or infinities
-awLineSearch :: (Autofloat b) => ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
-awLineSearch f duf_noU descentDir x0 =
+awLineSearch :: (Autofloat b) => OptConfig -> ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
+awLineSearch config f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
     --  let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
