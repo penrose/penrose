@@ -64,7 +64,7 @@ c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
 intervalMin = True
 
 useLineSearch :: Bool
-useLineSearch = False
+useLineSearch = True
 
 constT :: Floating a => a
 constT = 0.1
@@ -223,12 +223,8 @@ stepWithObjective :: (Autofloat a) => StdGen -> Params -> [a] -> ([a], [a])
 stepWithObjective g params state =
                   -- if null gradEval then error "empty gradient" else
                   (steppedState, gradEval)
-    where (t', gradEval) = timeAndGrad objFnApplied state
-          h = hessian objFnApplied state -- TODO: move this back in scope below so we don't calculate it if newton is off
-          gradToUse = if useNewton then
-                         -- Note liberal use of r2f since dual numbers don't matter after grad
-                         gradP (map r2f gradEval :: [Double]) (map r2f $ concat h :: [Double])
-                      else gradEval
+    where (t', gradEval, gradToUse, h) = timeAndGrad objFnApplied state
+
           -- get timestep via line search, and evaluated gradient at the state
           -- step each parameter of the state with the time and gradient
           -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
@@ -271,23 +267,33 @@ appHess f l = hessian f l
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: (Autofloat b) => ObjFn1 a -> [b] -> (b, [b])
-timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval)
+timeAndGrad :: (Autofloat b) => ObjFn1 a -> [b] -> (b, [b], [b], [[b]])
+timeAndGrad f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, h)
             where gradF :: GradFn a
                   gradF = appGrad f
-                  gradEval = gradF (tr "STATE: " state)
-                  -- Use line search to find a good timestep.
-                  -- Redo if it's NaN, defaulting to 0 if all NaNs. TODO
-                  descentDir = negL gradEval
-                  -- timestep :: Floating c => c
+                  gradEval = gradF state
+
+                  h = hessian f state -- TODO: move this back in scope below so we don't calculate it if newton is off?
+                  gradToUse = if useNewton then
+                         -- Note liberal use of r2f since dual numbers don't matter after grad
+                         gradP (map r2f gradEval :: [Double]) (map r2f $ concat h :: [Double])
+                      else gradEval
+
+                  -- Use line search to find a good timestep. If we use Newton's method, the descent direction uses the preconditioned gradient.
+                  -- TODO: check on NaNs
+                  descentDir = negL gradToUse
+
                   timestep =
                       let resT = if useLineSearch
                                  then awLineSearch f duf descentDir state
                                  else constT in -- hardcoded timestep
                           if isNaN resT then tr "returned timestep is NaN" nanSub else resT
+
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
+
+                  -- Note: with Newton's method, we find the directional derivative using the preconditioned gradient
                   duf :: (Autofloat a) => [a] -> [a] -> a
                   duf u x = gradF x `dotL` u
 
