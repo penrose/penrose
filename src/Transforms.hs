@@ -119,9 +119,15 @@ paramsToMatrix (sx, sy, theta, dx, dy) = -- scale then rotate then translate
 unitSq :: (Autofloat a) => [Pt2 a]
 unitSq = [(0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5)]
 
-unitCirc :: (Autofloat a) => [Pt2 a]
-unitCirc = [(1, 0), (c, c), (0, 1), (-c, c), (-1, 0), (-c, -c), (0, -1), (c, -c)]
-          where c = sqrt 2 / 2
+circlePoly :: (Autofloat a) => a -> [Pt2 a]
+circlePoly r = let 
+-- currently doesn't use r, so that #sides remains the same throughout opt.
+-- TODO: might want to depend on radius of the original circle in some way?
+    sides = max 8 $ floor (64 / 4.0)
+    indices = [0..sides-1]
+    angles = map (\i -> (r2f i) / (r2f sides) * 2.0 * pi) indices
+    pts = map (\a -> (cos a, sin a)) angles
+    in pts
 
 -- Sample a circle about the origin with some density according to its radius
 sampleUnitCirc :: (Autofloat a) => a -> [Pt2 a]
@@ -279,7 +285,7 @@ dsqBinA bA bB ofs = let
     interval = (r2f ds) / circumfrence
     samplesIn = filter (\p -> isInB bA p) $ sampleB circumfrence ds bB
     res = (*interval) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
-    in trace ("|samplesIn|: " ++ show (length samplesIn)) res
+    in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
 
 dsqBoutA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBoutA bA bB ofs = let

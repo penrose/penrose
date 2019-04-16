@@ -1242,8 +1242,9 @@ mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3),
 unitSquare :: ConstCompFn
 unitSquare [] = Val $ PtListV unitSq
 
+
 unitCircle :: ConstCompFn
-unitCircle [] = Val $ PtListV unitCirc
+unitCircle [] = Val $ PtListV $ circlePoly 1.0 --unitCirc
 
 testTri :: ConstCompFn
 testTri [] = Val $ PtListV testTriangle
