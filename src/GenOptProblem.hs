@@ -5,6 +5,7 @@
 
 {-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE DeriveGeneric #-}
 -- Mostly for autodiff
 
 module GenOptProblem where
@@ -30,6 +31,8 @@ import qualified Data.Set as Set
 import qualified Data.Graph as Graph
 import GHC.Float (float2Double, double2Float)
 import qualified Data.Maybe as DM (fromJust)
+import qualified Data.Aeson as A
+import GHC.Generics
 
 -------------------- Type definitions
 
@@ -97,6 +100,18 @@ instance Show PolicyParams where
          show p = "Policy state: " ++ policyState p ++ " | Policy steps: " ++ show (policySteps p)
                           -- ++ "\nFunctions:\n" ++ ppShow (currFns p)
 
+data OptConfig = OptConfig {
+               useSecondOrder :: Bool
+     } deriving (Eq, Show, Generic)
+
+defaultOptConfig :: OptConfig
+defaultOptConfig = OptConfig { useSecondOrder = True }
+
+instance A.ToJSON OptConfig where
+             toEncoding = A.genericToEncoding A.defaultOptions
+
+instance A.FromJSON OptConfig
+
 data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
                      shapeOrdering :: [String],
@@ -111,7 +126,8 @@ data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      rng :: StdGen,
                      autostep :: Bool,
                      policyFn :: Policy,
-                     policyParams :: PolicyParams }
+                     policyParams :: PolicyParams,
+                     oConfig :: OptConfig }
 
 instance Show State where
          show s = "Shapes: \n" ++ ppShow (shapesr s) ++
@@ -818,8 +834,8 @@ computeLayering trans =
 
 ------------- Main function: what the Style compiler generates
 
-genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> State
-genOptProblemAndState trans =
+genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> OptConfig -> State
+genOptProblemAndState trans optConfig =
     -- Save information about the translation
     let !varyingPaths       = findVarying trans in
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
@@ -865,7 +881,8 @@ genOptProblemAndState trans =
                                  rng = g'',
                                  autostep = False, -- default
                                  policyParams = initPolicyParams,
-                                 policyFn = policyToUse
+                                 policyFn = policyToUse,
+                                 oConfig = optConfig
                                } in
 
     initPolicy s
@@ -875,8 +892,8 @@ genOptProblemAndState trans =
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- NOTE: this function also print information out to stdout
 -- TODO: enable logger
-compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> IO State
-compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals = do
+compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> IO State
+compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
    putStrLn "Running Style semantics\n"
    let selEnvs = checkSels subEnv styProg
 
@@ -901,7 +918,7 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals = do
    pPrint trans
    divLine
 
-   let initState = genOptProblemAndState transAuto
+   let initState = genOptProblemAndState transAuto optConfig
    putStrLn "Generated initial state:\n"
    print initState
    divLine
