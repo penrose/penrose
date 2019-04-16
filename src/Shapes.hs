@@ -53,8 +53,10 @@ instance (ToJSON a)   => ToJSON (Elem a)
 --------- Transforms
 
 data Transform a = RotateAbout a a a
-                    | Scale a a
+                    -- | Scale a a
                     | Translate a a
+                    | Rotate a
+                    -- | ScaleX a
      deriving (Generic, Eq, Show)
 
 instance (FromJSON a) => FromJSON (Transform a)
