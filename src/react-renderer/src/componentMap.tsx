@@ -6,6 +6,7 @@ import Rectangle from "./Rectangle";
 import RectangleTransform from "./RectangleTransform";
 import CircleTransform from "./CircleTransform";
 import Square from "./Square";
+import SquareTransform from "./SquareTransform";
 import Curve from "./Curve";
 import CurveTransform from "./CurveTransform";
 import Arrow from "./Arrow";
@@ -21,6 +22,7 @@ const componentMap = {
   "CircleTransform": CircleTransform,
   "Polygon": Polygon,
   "Square": Square,
+  "SquareTransform" : SquareTransform,
   "Text": Label,
   "Curve": Curve,
   "CurveTransform": CurveTransform,

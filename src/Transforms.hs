@@ -279,7 +279,7 @@ dsqBinA bA bB ofs = let
     interval = (r2f ds) / circumfrence
     samplesIn = filter (\p -> isInB bA p) $ sampleB circumfrence ds bB
     res = (*interval) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
-    in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
+    in trace ("|samplesIn|: " ++ show (length samplesIn)) res
 
 dsqBoutA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBoutA bA bB ofs = let
@@ -292,6 +292,7 @@ dsqBoutA bA bB ofs = let
 ---- query energies ----
 
 -- containment
+-- TODO: when two shapes start disjoint, #samples = 0???
 eAcontainB :: Autofloat a => Blob a -> Blob a -> a -> a
 eAcontainB bA bB ofs = let
     eAinB = dsqBinA bB bA ofs
