@@ -147,7 +147,6 @@ extrude c x y = let dir = rot90 $ normalize' (y -: x) in -- normal vector to the
 
 ---- some helpers below ----
 
--- type Pt2' a = (a, a)
 type LineSeg a = (Pt2 a, Pt2 a)
 type Blob a = [Pt2 a] -- temporary type for polygon. Connected, no holes
 -- would ideally want polygons of type
@@ -259,22 +258,20 @@ dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
 dsqBS b s ofs = foldl' min posInf $ 
     map (\e -> dsqSS e s ofs) $ getSegmentsB b
 
--- HACK: scales down polygons beforehand
+-- this is itself an energy (for boundary intersection)
 dsqBB :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBB b1 b2 ofs = let
-    b1' = scaleB scalefactor b1
-    b2' = scaleB scalefactor b2
-    min1 = foldl' min posInf $ map (\e -> dsqBS b2' e ofs) $ getSegmentsB b1'
-    -- min2 = foldl' min posInf $ map (\e -> dsqBS b1' e ofs) $ getSegmentsB b2'
-    in min1 -- min1 min2
+    min1 = foldl' min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
+    in min1
 
 ---- dsq integral along boundary functions ----
 
+-- actually means "#samples per polygon"
 ds :: Int
 ds = 200
 
-scalefactor :: Autofloat a => a
-scalefactor = 1 -- doesn't behave as expected though?
+-- scalefactor :: Autofloat a => a
+-- scalefactor = 1 -- doesn't behave as expected though?
 
 dsqBinA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBinA bA bB ofs = let
@@ -294,10 +291,32 @@ dsqBoutA bA bB ofs = let
 
 ---- query energies ----
 
+-- containment
 eAcontainB :: Autofloat a => Blob a -> Blob a -> a -> a
 eAcontainB bA bB ofs = let
-    bA' = scaleB scalefactor bA
-    bB' = scaleB scalefactor bB
-    eAinB = dsqBinA bB' bA' ofs
-    eBoutA = dsqBoutA bA' bB' ofs
+    eAinB = dsqBinA bB bA ofs
+    eBoutA = dsqBoutA bA bB ofs
     in eAinB + eBoutA
+
+-- disjoint. might be changed later though, bc it gets stuck at local min too often 
+-- resulting in two shapes overlap even more
+eABdisj :: Autofloat a => Blob a -> Blob a -> a -> a
+eABdisj bA bB ofs = let
+    eAinB = dsqBinA bB bA ofs
+    eBinA = dsqBinA bA bB ofs
+    in eAinB + eBinA
+
+-- A and B tangent, B inside A
+eBinAtangent :: Autofloat a => Blob a -> Blob a -> a -> a
+eBinAtangent bA bB ofs = let
+    eBoutA = dsqBoutA bA bB ofs
+    eABbdix = dsqBB bA bB ofs
+    in eBoutA + eABbdix
+
+-- A and B tangent, B outside A
+eBoutAtangent :: Autofloat a => Blob a -> Blob a -> a -> a
+eBoutAtangent bA bB ofs = let
+    eBinA = dsqBinA bA bB ofs
+    eABbdix = dsqBB bA bB ofs
+    in eBinA + eABbdix
+
