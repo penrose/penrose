@@ -36,20 +36,20 @@ Point p {
 Set X {
     X.val = OPTIMIZED
     X.shape = CurveTransform {
-    	-- dx = OPTIMIZED
-	-- dy = OPTIMIZED
-	-- scaleX = 
-	-- scaleY = 
-	-- rotation = 
+    	-- dx = 0.0
+	-- dy = 0.0
+	-- scaleX = 1.0
+	-- scaleY = 1.0
+	-- rotation = 0.0
 	-- transform = 
 
-	strokeWidth = 3.0
+	strokeWidth = 7.0
 	-- style = 
 	fill = Colors.cyan
 	color = Colors.black
-	left-arrowhead = True
+	left-arrowhead = False
 	right-arrowhead = True
-        pathData = makeCurve(0.0, 0.0, 100.0, 0.0, 10.0, 50.0)
+        pathData = makeCurve(-200.0, 0.0, 200.0, 0.0, 10.0, 50.0)
     }
 }
 
@@ -62,8 +62,9 @@ Set `B` {
     override `B`.shape.dy = 200.0
     override `B`.shape.scaleY = 2.0
     override `B`.shape.color = setOpacity(Colors.green, 0.5)
+    override `B`.shape.pathData = makeCurve(0.0, 0.0, -50.0, 0.0, 10.0, -50.0)
 }
 
 Set `A`; Set `B` {
-   LOCAL.objFn = encourage firstPointsSameLoc(`A`.shape, `B`.shape)
+   LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
 }

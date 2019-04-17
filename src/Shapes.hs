@@ -11,6 +11,7 @@ import GHC.Generics
 import Data.Aeson (FromJSON, ToJSON, toJSON)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as M
+import Debug.Trace
 
 -- import Language.Haskell.TH
 --
@@ -400,13 +401,14 @@ circPolygonFn = (props, fn)
 -- TODO: distinguish between filled curves (polygons) and unfilled ones (polylines)
 curvePolygonFn :: (Autofloat a) => ComputedValue a
 curvePolygonFn = (props, fn)
-    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "pathData"]
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "pathData", "strokeWidth",  "left-arrowhead", "right-arrowhead"]
           fn :: (Autofloat a) => [Value a] -> Value a
           fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
-              FloatV dx, FloatV dy, HMatrixV customTransform, PathDataV path] = 
+              FloatV dx, FloatV dy, HMatrixV customTransform, PathDataV path, 
+              FloatV strokeWidth, BoolV leftArrow, BoolV rightArrow] = 
              let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform $ polygonizePath maxIter path
+             PtListV $ transformPoly fullTransform $ polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
              where maxIter = 3 -- TODO: what should this be?
 
 -- | Polygonize a line segment, accounting for its thickness. 
@@ -1176,6 +1178,61 @@ makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
 -- Approximating a Bezier curve via polygon or bbox
 -- TODO: this is a polyline. Should we make a polygon WRT the polyline's thickness?
 
+-- | Polygonize path by extruding the polyline to account for thickness and adding any arrowheads, if present
+polygonizePathPolygon :: Autofloat a => Int -> a -> Bool -> Bool -> PathData a -> [Pt2 a]
+polygonizePathPolygon n thickness leftArr rightArr p = 
+    let polyline = removeClosePoints $ polygonizePath n p
+    -- For each point, find the corresponding inner and outer points on the extruded line
+    -- by taking the tangent and then taking the inner and outer normal
+    -- Note: not good for steep angles!
+    -- Then make the polygon by joining the points in order
+    -- TODO: remove the ++ and the accesses to last of list
+        tangents = map calcTangent $ zip polyline (tail polyline)
+        tangentsWithLast = tangents ++ [last tangents] -- use the same tangent for the last point
+        (outer, inner) = unzip $ map (extrude thickness) $ zip polyline tangentsWithLast in
+
+       -- TODO: deal with each of the arrow argument cases
+        ltCenter = head polyline
+        atan2' (x, y) = atan2 y x
+        ltAngle = atan2' $ head tangents
+        ltTransform = translationM ltCenter # rotationM ltAngle
+
+        rtCenter = last polyline
+        rtAngle = atan2' $ last tangents
+        rtTransform = translationM rtCenter # rotationM rtAngle
+
+        ltArrow = transformPoly ltTransform $ ltArrowheadPoly thickness
+        rtArrow = transformPoly rtTransform $ rtArrowheadPoly thickness -- Note lt poly
+
+        snipSize = 4 * thickness
+        (outer0, inner0) = (head outer, head inner)
+        outer' = dropWhile (\x -> mag (x -: outer0) < snipSize) outer
+        inner' = dropWhile (\x -> mag (x -: inner0) < snipSize) inner
+
+        (outer1, inner1) = (last outer, last inner)
+        outer'' = reverse $ dropWhile (\x -> mag (x -: outer1) < snipSize) $ reverse outer'
+        inner'' = dropWhile (\x -> mag (x -: inner1) < snipSize) $ reverse inner'
+       -- Be careful with the reverses...
+
+        polygonWithArrows = outer'' ++ rtArrow ++ inner'' ++ ltArrow
+
+    in polygonWithArrows
+    where removeClosePoints :: (Autofloat a) => [Pt2 a] -> [Pt2 a]
+          -- Heuristic: if any two points are too close together, remove the first one
+          -- Not super principled but just to make sure that the tangents don't NaN if two points are too close
+          removeClosePoints ps = let ptsWithNext = zip ps (tail ps) in
+                                 (map fst $ filter (\(p1, p2) -> mag (p2 -: p1) >= epsp) ptsWithNext) ++ [last ps]
+                                 where epsp = 10 ** (-8)
+
+          calcTangent :: (Autofloat a) => (Pt2 a, Pt2 a) -> Pt2 a
+          calcTangent (start, end) = normalize' $ end -: start
+
+          extrude :: (Autofloat a) => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a)
+          extrude thickness (base, tangent) = 
+                  let normal = thickness / 2.0 *: rot90 tangent in
+                  (base +: normal, base -: normal)
+
+-- | Polygonize path as polyline
 polygonizePath :: Autofloat a => Int -> PathData a -> [Pt2 a]
 polygonizePath n p = case polygonize n p of
                      [] -> error "empty curve: did you set the pathdata or path?"
