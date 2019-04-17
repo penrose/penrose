@@ -307,3 +307,5 @@ magsq (a,b) = a**2 + b**2
 normalize' (a,b) = let l = mag (a,b) in (a/l, b/l)
 
 scaleP k (a,b) = (a*k, b*k)
+
+translate2 v pts = map (+: v) pts

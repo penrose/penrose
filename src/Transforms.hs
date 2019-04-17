@@ -148,7 +148,7 @@ rtArrowheadPoly c = let x = 2 * c in -- c is the thickness of the line
                     let twox = x*2 in
               [(-x, x/4), -- Stem top
               (-twox, twox), -- Top left
-              (2*x, 0), -- Point of arrownead
+              (twox, 0), -- Point of arrownead
               (-twox, -twox), -- Bottom left
               (-x, -x/4)] -- Stem bottom
 
@@ -170,14 +170,12 @@ extrude c x y leftArr rightArr =
          trRight = halfLen *: dir
 
          left = if leftArr 
-                then translate trLeft (ltArrowheadPoly c)
+                then translate2 trLeft (ltArrowheadPoly c)
                 else [x -: offset, x +: offset] -- Note: order matters for making the polygon
          right = if rightArr
-                 then translate trRight (rtArrowheadPoly c)
-                 else [y +: offset, y -: offset]
+                 then translate2 trRight (rtArrowheadPoly c)
+                 else [y +: offset, y -: offset] 
      in left ++ right
-
-     where translate v poly = map (+: v) poly
 
 ------ Energies on polygons ------
 
