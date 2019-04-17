@@ -142,12 +142,42 @@ testNonconvex = [(0, 0), (100, 0), (50, 50), (100, 100), (0, 100)]
 transformPoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
 transformPoly m = map (applyTransform m)
 
--- | Make a rectangular polygon of a line segment, accounting for its thickness.
+-- Pointing to the right. Note: doesn't try to approximate the "inset" part of the arrowhead
+rtArrowheadPoly :: (Autofloat a) => a -> [Pt2 a]
+rtArrowheadPoly c = let x = 2 * c in -- c is the thickness of the line
+                    let twox = x*2 in
+              [(-x, x/4), -- Stem top
+              (-twox, twox), -- Top left
+              (2*x, 0), -- Point of arrownead
+              (-twox, -twox), -- Bottom left
+              (-x, -x/4)] -- Stem bottom
+
+ltArrowheadPoly :: (Autofloat a) => a -> [Pt2 a]
+ltArrowheadPoly c = reverse $ map flipX $ rtArrowheadPoly c
+                where flipX (x, y) = (-x, y)
+                -- Reverse so the line polygon can join the stem bottom with the stem bottom
+
+-- | Make a rectangular polygon of a line segment, accounting for its thickness and arrowheads
 -- (Is this usable with autodiff?)
-extrude :: (Autofloat a) => a -> Pt2 a -> Pt2 a -> [Pt2 a]
-extrude c x y = let dir = rot90 $ normalize' (y -: x) in -- normal vector to the line segment
-                let offset = (c / 2) *: dir in -- find offset for each endpoint
-                [x -: offset, x +: offset, y +: offset, y -: offset] -- is this the right order?
+extrude :: (Autofloat a) => a -> Pt2 a -> Pt2 a -> Bool -> Bool -> [Pt2 a]
+extrude c x y leftArr rightArr = 
+     let dir = normalize' (y -: x)
+         normal = rot90 dir -- normal vector to the line segment
+         offset = (c / 2) *: normal -- find offset for each endpoint
+
+         halfLen = mag (y -: x) / 2.0 -- Calculate arrowhead position
+         trLeft = (-halfLen) *: dir
+         trRight = halfLen *: dir
+
+         left = if leftArr 
+                then translate trLeft (ltArrowheadPoly c)
+                else [x -: offset, x +: offset] -- Note: order matters for making the polygon
+         right = if rightArr
+                 then translate trRight (rtArrowheadPoly c)
+                 else [y +: offset, y -: offset]
+     in left ++ right
+
+     where translate v poly = map (+: v) poly
 
 ------ Energies on polygons ------
 

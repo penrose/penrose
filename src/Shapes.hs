@@ -413,14 +413,15 @@ curvePolygonFn = (props, fn)
 -- TODO: would it usually be more efficient to just use a polyline?
 linePolygonFn :: (Autofloat a) => ComputedValue a
 linePolygonFn = (props, fn)
-    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "thickness", "startX", "startY", "endX", "endY"]
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "thickness", "startX", "startY", "endX", "endY", "left-arrowhead", "right-arrowhead"]
           fn :: (Autofloat a) => [Value a] -> Value a
           fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
               FloatV dx, FloatV dy, HMatrixV customTransform,
-              FloatV thickness, FloatV startX, FloatV startY, FloatV endX, FloatV endY] = 
+              FloatV thickness, FloatV startX, FloatV startY, FloatV endX, FloatV endY,
+              BoolV leftArrow, BoolV rightArrow] = 
              let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform $ extrude thickness (startX, startY) (endX, endY)
+             PtListV $ transformPoly fullTransform $ extrude thickness (startX, startY) (endX, endY) leftArrow rightArrow
 
 -- TODO: add ones for final properties; also refactor so it's more generic across shapes
 squarePolygonFn :: (Autofloat a) => ComputedValue a
@@ -822,6 +823,9 @@ lineTransformType = ("LineTransform", M.fromList
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
         ("polygon", (PtListT, constValue $ PtListV [])),
+
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
 
         ("thickness", (FloatT, sampleFloatIn (5, 15))),
         ("color", (ColorT, sampleColor)),

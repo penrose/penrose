@@ -36,6 +36,7 @@ Point p {
 Set X {
     X.dx = OPTIMIZED -- Seems wrong with only this
     X.dy = OPTIMIZED
+    X.angle = OPTIMIZED
 
     X.shape = LineTransform {
     	-- TODO: This shouldn't be a DOF when not set. Otherwise it might result in a shear when we don't rotate about the origin.
@@ -44,20 +45,23 @@ Set X {
 	-- endX = -200.0
 	-- endY = 100.0
 
-        startX = -0.5
+        startX = -100.0
 	startY = 0.0
-	endX = 0.5
+	endX = 100.0
 	endY = 0.0
 
 	-- TODO: should be able to set these to optimized
-    	dx = 100.0
-	dy = 0.0 
-	scaleX = 100.0
+    	dx = X.dx
+	dy = X.dy
+	scaleX = 1.0 -- This distorts the arrowhead
 	scaleY = 1.0
-	rotation = 0.0 -- global.pi_over_four
-	thickness = 6.0
+	rotation = X.angle
+	thickness = 8.0
 
-	transform = translate(X.dx, X.dy)
+	left-arrowhead = True
+	right-arrowhead = True
+
+	-- transform = translate(X.dx, X.dy)
 	strokeWidth = 0.0
 	color = setOpacity(Colors.yellow, 0.5)
     }
@@ -69,6 +73,7 @@ Set `B` {
     -- `B`.shape.endX = 100.0
     -- `B`.shape.endY = 100.0
 
+    override `B`.shape.left-arrowhead = False
     override `B`.shape.color = setOpacity(Colors.green, 0.5)
 }
 
