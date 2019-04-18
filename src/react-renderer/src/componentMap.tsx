@@ -14,6 +14,7 @@ import Line from "./Line";
 import LineTransform from "./LineTransform";
 import Polygon from "./Polygon";
 import ImageTransform from "./ImageTransform";
+import ParallelogramTransform from "./ParallelogramTransform";
 
 // prettier-ignore
 const componentMap = {
@@ -31,7 +32,8 @@ const componentMap = {
   "Image": Image,
   "ImageTransform": ImageTransform,
   "LineTransform": LineTransform,
-  "Line": Line
+  "Line": Line,
+  "ParallelogramTransform": ParallelogramTransform
 };
 
 export default componentMap;

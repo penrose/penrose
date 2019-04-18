@@ -273,7 +273,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, parallelogramTransformType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -324,6 +324,7 @@ findComputedProperty "CurveTransform" "transformation" = Just polygonTransformFn
 findComputedProperty "LineTransform" "transformation" = Just polygonTransformFn -- Same parameters as polygon
 findComputedProperty "SquareTransform" "transformation" = Just squareTransformFn
 findComputedProperty "ImageTransform" "transformation" = Just imageTransformFn
+findComputedProperty "ParallelogramTransform" "transformation" = Just parallelogramTransformFn
 
 findComputedProperty "RectangleTransform" "polygon" = Just rectPolygonFn
 findComputedProperty "CircleTransform" "polygon" = Just circPolygonFn
@@ -332,6 +333,7 @@ findComputedProperty "Polygon" "polygon" = Just polygonPolygonFn
 findComputedProperty "LineTransform" "polygon" = Just linePolygonFn
 findComputedProperty "SquareTransform" "polygon" = Just squarePolygonFn
 findComputedProperty "ImageTransform" "polygon" = Just imagePolygonFn
+findComputedProperty "ParallelogramTransform" "polygon" = Just parallelogramPolygonFn
 
 findComputedProperty _ _ = Nothing
 
@@ -377,6 +379,15 @@ imageTransformFn = (props, fn)
              let defaultTransform = paramsToMatrix (lengthX, lengthY, rotation, centerX, centerY) in
              HMatrixV $ customTransform # defaultTransform
 
+parallelogramTransformFn :: (Autofloat a) => ComputedValue a
+parallelogramTransformFn = (props, fn)
+    where props = ["width", "height", "rotation", "x", "y", "innerAngle", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV width, FloatV height, FloatV rotation, 
+              FloatV x, FloatV y, FloatV innerAngle, HMatrixV customTransform] = 
+             let defaultTransform = toParallelogram (width, height, rotation, x, y, innerAngle) in
+             HMatrixV $ customTransform # defaultTransform
+
 -- TODO: there's a bit of redundant computation with recomputing the full transformation
 rectPolygonFn :: (Autofloat a) => ComputedValue a
 rectPolygonFn = (props, fn)
@@ -419,7 +430,7 @@ curvePolygonFn = (props, fn)
              let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
              let fullTransform = customTransform # defaultTransform in
              PtListV $ transformPoly fullTransform $ polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
-             where maxIter = 3 -- TODO: what should this be?
+             where maxIter = 1 -- TODO: what should this be?
 
 -- | Polygonize a line segment, accounting for its thickness. 
 -- TODO: would it usually be more efficient to just use a polyline?
@@ -453,6 +464,16 @@ imagePolygonFn = (props, fn)
              defaultTransform = paramsToMatrix (lengthX, lengthY, rotation, centerX, centerY)
              fullTransform = customTransform # defaultTransform 
              in PtListV $ transformPoly fullTransform unitSq
+
+parallelogramPolygonFn :: (Autofloat a) => ComputedValue a
+parallelogramPolygonFn = (props, fn)
+    where props = ["width", "height", "rotation", "x", "y", "innerAngle", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV width, FloatV height, FloatV rotation, 
+              FloatV x, FloatV y, FloatV innerAngle, HMatrixV customTransform] = 
+             let defaultTransform = toParallelogram (width, height, rotation, x, y, innerAngle) in
+             let fullTransform = customTransform # defaultTransform in
+             PtListV $ transformPoly fullTransform unitSq
 
 --------------------------------------------------------------------------------
 -- Property samplers
@@ -543,7 +564,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, parallelogramTransformType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -888,6 +909,32 @@ imageTransformType = ("ImageTransform", M.fromList
         ("path", (StrT, constValue $ StrV "missing image path")), -- Absolute path (URL)
         ("name", (StrT, constValue $ StrV "defaultImage")),
         ("polygon", (PtListT, constValue $ PtListV []))
+    ])
+
+-- Starting with a square centered at origin, we apply this transformation:
+--  (in T1 then T2 format)
+-- scale by (lengthX, lengthY)
+-- shear X by lambda = f(angle in radians) = 1 / tan(angle)
+-- rotate by angle
+-- translate by (x, y)
+parallelogramTransformType = ("ParallelogramTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)), -- (x, y) is the CENTER of the parallelogram
+        ("y", (FloatT, y_sampler)),
+        ("width", (FloatT, width_sampler)), -- width of the rectangle pre-shear
+        ("height", (FloatT, height_sampler)), -- height of the rectangle pre-shear
+        ("innerAngle", (FloatT, constValue $ FloatV (pi/3))), -- shear angle of the rectangle
+        ("rotation", (FloatT, constValue $ FloatV 0.0)), -- about the origin
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PtListT, constValue $ PtListV [])),
+    
+        ("color", (ColorT, sampleColor)),
+        ("strokeStyle", (StrT, stroke_style_sampler)),
+        ("strokeColor",  (ColorT, sampleColor)),
+        ("strokeWidth",  (FloatT, constValue $ FloatV 0.0)),
+        ("name", (StrT, constValue $ StrV "defaultParallelogram"))
     ])
 
 -----

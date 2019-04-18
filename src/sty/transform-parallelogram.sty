@@ -27,49 +27,35 @@ Point p {
       p.shape = Circle {
       	      x = 0.0
 	      y = 0.0
-	      r = 10.0
+	      r = 5.0
 	      color = Colors.red
 	      strokeWidth = 0.0
-      }
-
-      p.text = Text {
-      string = p.label
       }
 }
 
 Set X {
-    X.val = OPTIMIZED
-    X.shape = CurveTransform {
-    	-- dx = 0.0
-	-- dy = 0.0
-	-- scaleX = 1.0
-	-- scaleY = 1.0
-	-- rotation = 0.0
-	-- transform = 
+    X.dx = OPTIMIZED
+    X.dy = OPTIMIZED
 
-	strokeWidth = 7.0
-	-- style = 
-	fill = Colors.cyan
-	color = Colors.black
-	left-arrowhead = False
-	right-arrowhead = True
-        pathData = makeCurve(-200.0, 0.0, 200.0, 0.0, 10.0, 50.0)
+    X.shape = ParallelogramTransform {
+    	-- x = 0.0
+	-- y = 0.0
+	width = 100.0
+	height = 200.0
+	innerAngle = global.pi_over_four
+	rotation = 0.0
+
+	-- transform = translate(X.dx, X.dy)
+	color = setOpacity(Colors.blue, 0.5)
     }
 }
 
-Set `A` {
-    override `A`.shape.color = setOpacity(Colors.black, 0.5)
-}
-
 Set `B` {
-    override `B`.shape.dx = 100.0
-    override `B`.shape.dy = 200.0
-    override `B`.shape.scaleY = 2.0
     override `B`.shape.color = setOpacity(Colors.green, 0.5)
-    override `B`.shape.left-arrowhead = True
-    override `B`.shape.pathData = makeCurve(0.0, 0.0, -50.0, 0.0, 10.0, -50.0)
+    override `B`.shape.innerAngle = 3.14159 / 3.0
 }
 
 Set `A`; Set `B` {
    LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
+   -- LOCAL.objFn = encourage containsPoly(`A`.shape, `B`.shape)
 }
