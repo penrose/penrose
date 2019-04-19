@@ -267,10 +267,11 @@ sampleS numSamplesf (a, b) = let
     ks = map (/(realToFrac numSamples)) $ inds
     in map (lerpP a b) ks
 
-sampleB :: Autofloat a => a -> Int -> Blob a -> [Pt2 a]
-sampleB circumfrence numSamples blob = let
+sampleB :: Autofloat a => Int -> Blob a -> [Pt2 a]
+sampleB numSamples blob = let
     numSamplesf = r2f numSamples
     segments = getSegmentsB blob
+    circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) segments
     seglengths = map (\(a,b)->dist a b) $ segments
     samplesEach = map (\l->l/circumfrence*numSamplesf) seglengths
     zp = zip segments samplesEach
@@ -328,18 +329,18 @@ ds = 200
 
 dsqBinA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBinA bA bB ofs = let
-    circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
-    interval = (r2f ds) / circumfrence
-    samplesIn = filter (\p -> isInB bA p) $ sampleB circumfrence ds bB
-    res = (*interval) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
+    -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
+    -- interval = (r2f ds) / circumfrence
+    samplesIn = filter (\p -> isInB bA p) $ sampleB ds bB
+    res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
     in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
 
 dsqBoutA :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBoutA bA bB ofs = let
-    circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
-    interval = (r2f ds) / circumfrence
-    samplesOut = filter (\p -> not $ isInB bA p) $ sampleB circumfrence ds bB
-    res = (*interval) $ foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesOut
+    -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
+    -- interval = (r2f ds) / circumfrence
+    samplesOut = filter (\p -> not $ isInB bA p) $ sampleB ds bB
+    res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesOut
     in {-trace ("|samplesOut|: " ++ show (length samplesOut))-} res
 
 ---- query energies ----
