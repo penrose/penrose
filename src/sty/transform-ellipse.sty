@@ -56,4 +56,5 @@ Set `B` {
 Set `A`; Set `B` {
    -- LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
    LOCAL.objFn = encourage containsPoly(`A`.shape, `B`.shape)
+   -- LOCAL.objFn = encourage disjointPoly(`A`.shape, `B`.shape)
 }

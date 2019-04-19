@@ -206,9 +206,13 @@ type Blob a = [Pt2 a] -- temporary type for polygon. Connected, no holes
 -- Autofloat a => ([a], [a])
 -- with one list represents positive regions (not necessarily connected),
 -- another reperesents negative regions (holes).
+type Polygon a = ([Blob a], [Blob a])
 
 posInf :: Autofloat a => a
 posInf = 1 / 0
+
+negInf :: Autofloat a => a
+negInf = -1 / 0
 
 -- input point, query parametric t
 gettPS :: Autofloat a => Pt2 a -> LineSeg a -> a
@@ -238,9 +242,15 @@ getSegmentsB pts = let
     f x = if x==lastInd then (pts!!lastInd, pts!!0) else (pts!!x, pts!!(x+1))
     in map f [0..lastInd]
 
+getSegmentsG :: Polygon a -> [LineSeg a]
+getSegmentsG (bds, hs) = let
+    bdsegments = map (\b->getSegmentsB b) bds
+    hsegments = map (\h->getSegmentsB h) hs
+    in concat [concat bdsegments, concat hsegments]
+
 -- works well when point not on boundary (otherwise handled separately as edge case.)
 isInB :: Autofloat a => Blob a -> Pt2 a -> Bool
-isInB pts (x0,y0) = if (dsqBP pts (x0,y0) 0) < epsd then True else let
+isInB pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
     diffp = map (\(x,y)->(x-x0,y-y0)) pts
     getAngle (x,y) = atan2 y x 
     sweeps = map (\(p1,p2)->(getAngle p2)-(getAngle p1)) (getSegmentsB diffp)
@@ -255,8 +265,36 @@ isInB pts (x0,y0) = if (dsqBP pts (x0,y0) 0) < epsd then True else let
     res = foldl' (+) 0.0 sweepAdjusted
     in res>pi || res<(-pi) 
 
+isInG :: Autofloat a => Polygon a -> Pt2 a -> Bool
+isInG (bds, hs) p = let
+    inb = foldl (||) False $ map (\b->isInB b p) bds
+    inh = foldl (||) False $ map (\h->isInB h p) hs
+    in (inb) && (not inh)
+
+getBBox :: Autofloat a => Blob a -> (Pt2 a, Pt2 a)
+getBBox pts = let
+    foldfn :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> (Pt2 a, Pt2 a)
+    foldfn ((xlo,ylo), (xhi,yhi)) (x, y) = 
+        ( (min xlo x, min ylo y), (max xhi x, max yhi y) )
+    in foldl' foldfn ((posInf, posInf), (negInf, negInf)) pts
+
+inBBox :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> Bool
+inBBox ((xlo, ylo), (xhi, yhi)) (x,y) = let
+    res = x >= xlo && x <= xhi && y >= ylo && y <= yhi
+    in trace ("in bbox: "++ show res) res
+
+--TODO: offset
+isInB' :: Autofloat a => Blob a -> Pt2 a -> Bool
+isInB' pts (x0, y0) = let
+    bbox = getBBox pts
+    in if not $ inBBox bbox (x0,y0) then False else
+    isInB pts (x0,y0)
+
 scaleB :: Autofloat a => a -> Blob a -> Blob a
 scaleB k b = map (scaleP k) b
+
+circumfrenceB :: Autofloat a => Blob a -> a
+circumfrenceB blob = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB blob
 
 -- sample points along segment with interval.
 sampleS :: Autofloat a => a -> LineSeg a -> [Pt2 a]
@@ -277,9 +315,16 @@ sampleB numSamples blob = let
     zp = zip segments samplesEach
     in concat $ map (\(seg, num) -> sampleS num seg) zp
 
--- stub
-firstPointsDist :: (Autofloat a) => [Pt2 a] -> [Pt2 a] -> a
-firstPointsDist p1 p2 = distsq (p1 !! 0) (p2 !! 0) -- Get the first two points to touch
+-- TODO: be absolutely sure #samples are same as input #
+sampleG :: Autofloat a => Int -> Polygon a -> [Pt2 a]
+sampleG numSamples (bds, hs) = let 
+    numSamplesf = r2f numSamples
+    segments = getSegmentsG (bds, hs)
+    circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) segments
+    seglengths = map (\(a,b)->dist a b) $ segments
+    samplesEach = map (\l->l/circumfrence*numSamplesf) seglengths
+    zp = zip segments samplesEach
+    in concat $ map (\(seg, num) -> sampleS num seg) zp
 
 ---- dsq functions ----
 
@@ -308,6 +353,12 @@ dsqBP b p ofs = let
     d2segments = map (\s -> dsqSP s p ofs) segments
     in foldl' min posInf d2segments
 
+dsqGP :: Autofloat a => Polygon a -> Pt2 a -> a -> a
+dsqGP (bds, hs) p ofs = let
+    dsqBD = foldl' min posInf $ map (\b -> dsqBP b p ofs) bds
+    dsqHS = foldl' min posInf $ map (\h -> dsqBP h p ofs) hs
+    in min dsqBD dsqHS
+
 dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
 dsqBS b s ofs = foldl' min posInf $ 
     map (\e -> dsqSS e s ofs) $ getSegmentsB b
@@ -318,6 +369,14 @@ dsqBB b1 b2 ofs = let
     min1 = foldl' min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
     in min1
 
+dsqGG :: Autofloat a => Polygon a -> Polygon a -> a -> a
+dsqGG (bds1, hs1) (bds2, hs2) ofs = let
+    b1b2 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds1) bds2
+    b1h2 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds1) hs2
+    b2b1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds2) bds1
+    b2h1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds2) hs1
+    in min (min b1b2 b1h2) (min b2b1 b2h1)
+
 ---- dsq integral along boundary functions ----
 
 -- actually means "#samples per polygon"
@@ -327,27 +386,27 @@ ds = 200
 -- scalefactor :: Autofloat a => a
 -- scalefactor = 1 -- doesn't behave as expected though?
 
-dsqBinA :: Autofloat a => Blob a -> Blob a -> a -> a
+dsqBinA :: Autofloat a => Polygon a -> Polygon a -> a -> a
 dsqBinA bA bB ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
     -- interval = (r2f ds) / circumfrence
-    samplesIn = filter (\p -> isInB bA p) $ sampleB ds bB
-    res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesIn
+    samplesIn = filter (\p -> isInG bA p) $ sampleG ds bB
+    res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesIn
     in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
 
-dsqBoutA :: Autofloat a => Blob a -> Blob a -> a -> a
+dsqBoutA :: Autofloat a => Polygon a -> Polygon a -> a -> a
 dsqBoutA bA bB ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
     -- interval = (r2f ds) / circumfrence
-    samplesOut = filter (\p -> not $ isInB bA p) $ sampleB ds bB
-    res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqBP bA p ofs) samplesOut
+    samplesOut = filter (\p -> not $ isInG bA p) $ sampleG ds bB
+    res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesOut
     in {-trace ("|samplesOut|: " ++ show (length samplesOut))-} res
 
 ---- query energies ----
 
 -- containment
 -- TODO: when two shapes start disjoint, #samples = 0???
-eAcontainB :: Autofloat a => Blob a -> Blob a -> a -> a
+eAcontainB :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eAcontainB bA bB ofs = let
     eAinB = dsqBinA bB bA ofs
     eBoutA = dsqBoutA bA bB ofs
@@ -355,22 +414,22 @@ eAcontainB bA bB ofs = let
 
 -- disjoint. might be changed later though, bc it gets stuck at local min too often,
 -- resulting in two shapes overlap even more
-eABdisj :: Autofloat a => Blob a -> Blob a -> a -> a
+eABdisj :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eABdisj bA bB ofs = let
     eAinB = dsqBinA bB bA ofs
     eBinA = dsqBinA bA bB ofs
     in eAinB + eBinA
 
 -- A and B tangent, B inside A
-eBinAtangent :: Autofloat a => Blob a -> Blob a -> a -> a
+eBinAtangent :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eBinAtangent bA bB ofs = let
     eContainment = eAcontainB bA bB ofs
-    eABbdix = dsqBB bA bB ofs
+    eABbdix = dsqGG bA bB ofs
     in eContainment + eABbdix
 
 -- A and B tangent, B outside A
-eBoutAtangent :: Autofloat a => Blob a -> Blob a -> a -> a
+eBoutAtangent :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eBoutAtangent bA bB ofs = let
     eDisjoint = eABdisj bA bB ofs
-    eABbdix = dsqBB bA bB ofs
+    eABbdix = dsqGG bA bB ofs
     in eDisjoint + eABbdix
