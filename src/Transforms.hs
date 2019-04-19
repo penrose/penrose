@@ -158,8 +158,11 @@ testTriangle = [(0, 0), (100, 0), (50, 50)]
 testNonconvex :: (Autofloat a) => [Pt2 a]
 testNonconvex = [(0, 0), (100, 0), (50, 50), (100, 100), (0, 100)]
 
-transformPoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
-transformPoly m = map (applyTransform m)
+transformPoly :: (Autofloat a) => HMatrix a -> Polygon a -> Polygon a
+transformPoly m (blobs, holes) = (map (map (applyTransform m)) blobs, map (map (applyTransform m)) holes)
+
+transformSimplePoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
+transformSimplePoly m = map (applyTransform m)
 
 -- Pointing to the right. Note: doesn't try to approximate the "inset" part of the arrowhead
 rtArrowheadPoly :: (Autofloat a) => a -> [Pt2 a]
@@ -206,6 +209,16 @@ type Blob a = [Pt2 a] -- temporary type for polygon. Connected, no holes
 -- Autofloat a => ([a], [a])
 -- with one list represents positive regions (not necessarily connected),
 -- another reperesents negative regions (holes).
+
+-- A list of positive shapes (regions) and a list of negative shapes (holes)
+-- TODO: assuming that the positive shapes don't overlap and the negative shapes don't overlap (check this)
+type Polygon a = ([[Pt2 a]], [[Pt2 a]])
+
+emptyPoly :: Polygon a
+emptyPoly = ([], [])
+
+toPoly :: [Pt2 a] -> Polygon a
+toPoly pts = ([pts], [])
 
 posInf :: Autofloat a => a
 posInf = 1 / 0

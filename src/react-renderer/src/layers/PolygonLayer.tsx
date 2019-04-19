@@ -41,8 +41,11 @@ class PolygonLayer extends React.Component<ILayerProps> {
 
 	    // Note: the debug polygon already has the Penrose transform applied so we only apply the transform to SVG space
 	    else if (shape.hasOwnProperty("polygon")) {
+		console.log("polygon", shape.polygon.contents);
+		const positiveShape0 = shape.polygon.contents[0][0];
+
 	       const ptListString = toPointListString(
-		   shape.polygon.contents,
+		   positiveShape0,
 		   canvasSize
 	       );
 

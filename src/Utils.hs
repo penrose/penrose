@@ -309,3 +309,5 @@ normalize' (a,b) = let l = mag (a,b) in (a/l, b/l)
 scaleP k (a,b) = (a*k, b*k)
 
 translate2 v pts = map (+: v) pts
+
+map2 f (a, b) = (f a, f b)

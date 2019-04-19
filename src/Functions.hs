@@ -1272,27 +1272,32 @@ nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
 boundaryIntersect :: ObjFn
 boundaryIntersect [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      dsqBB p1 p2 0
+      error "TODO polygon"
+      -- dsqBB p1 p2 0
 
 containsPoly :: ObjFn
 containsPoly [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eAcontainB p1 p2 0
+      error "TODO polygon"
+      -- eAcontainB p1 p2 0
 
 disjointPoly :: ObjFn
 disjointPoly [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eABdisj p1 p2 0
+      error "TODO polygon"
+      -- eABdisj p1 p2 0
 
 containAndTangent :: ObjFn
 containAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eBinAtangent p1 p2 0
+      error "TODO polygon"
+      -- eBinAtangent p1 p2 0
 
 disjointAndTangent :: ObjFn
 disjointAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eBoutAtangent p1 p2 0
+      error "TODO polygon"
+      -- eBoutAtangent p1 p2 0
 
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), 
