@@ -1,5 +1,5 @@
 import * as React from "react";
-import { textTransformString, toHex } from "./Util";
+import { svgTransformString, toHex } from "./Util";
 import draggable from "./Draggable";
 import { IGPIPropsDraggable } from "./types";
 
@@ -17,18 +17,19 @@ class LabelTransform extends React.Component<IGPIPropsDraggable> {
     const { onClick } = this.props;
     const { canvasSize } = this.props;
 
-    // TODO: use new transforms
-    // const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
-    const [x, y] = [shape.x.contents, shape.y.contents];
     const { w, h } = shape;
     const color = toHex(shape.color.contents);
 
-    const transformStr = textTransformString(shape.transformation.contents, canvasSize);
+    const transformStr = svgTransformString(shape.transformation.contents, canvasSize);
+
+      // Move the original label to SVG origin: (-w/2, -h/2) of the original label
+      // Flip it vertically about the origin so the image is right-side up when flipped again to account for SVG y direction
+      // Apply Penrose transform about the SVG origin
+      // Move to canvas space: flip the y coordinate, then translate by center of canvas
 
     return (
       <g
-        // transform={`translate(${x - w.contents / 2},${y - h.contents / 2})`}
-	transform={transformStr + ` translate(${x - w.contents / 2},${y - h.contents / 2})`}
+	transform={transformStr + ` matrix(1 0 0 -1 0 0) translate(${- w.contents / 2},${- h.contents / 2})`}
 
 	// TODO: width and height aren't set correctly WRT transform
 	// will it cause problems to remove this?

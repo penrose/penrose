@@ -28,11 +28,21 @@ Point p {
       	      x = 0.0
 	      y = 0.0
 	      r = 10.0
-	      color = Colors.blue
+	      color = setOpacity(Colors.blue, 0.5)
+	      strokeWidth = 0.0
+      }
+
+      p.shape2 = Circle {
+      	      x = -50.0
+	      y = -100.0
+	      r = 10.0
+	      color = setOpacity(Colors.green, 0.5)
 	      strokeWidth = 0.0
       }
 
       p.text = Text {
+      	     x = 0.0
+	     y = 0.0
             string = p.label
       }
 }
@@ -42,13 +52,13 @@ Set X {
     X.scale = 2.0
 
     X.shape = TextTransform {
-      	    x = 0.0
-	    y = 0.0
+      	    -- x = 0.0
+	    -- y = 0.0
 	    -- This accidentally ends up optimized...
 	    -- not sure how to actually optimize on this, test it
 	    scaleX = X.scale
 	    scaleY = X.scale
-	    rotation = 0.0 -- global.pi_over_four 
+	    rotation = OPTIMIZED -- global.pi_over_four 
 	    -- seems to rotate CCW not CW?
 
     	    string = X.label
@@ -59,7 +69,8 @@ Set X {
 -- }
 
 Set `B` {
-    override `B`.shape.x = -100.0
+    override `B`.shape.x = -50.0
+    override `B`.shape.y = -100.0
 }
 
 Set `A`; Set `B` {

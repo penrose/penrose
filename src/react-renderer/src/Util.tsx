@@ -86,14 +86,6 @@ export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
     return transformStr;
 };
 
-export const textTransformString = (tf: any, canvasSize: [number, number]) => {
-    const [width, height] = canvasSize;
-    const translateStr = "translate(" + width / 2 + ", " + height / 2 + ")";
-    const transformStr = [translateStr, penroseTransformStr(tf)].join(" ");
-
-    return transformStr;
-}
-
 export const toPointListString = memoize( // Why memoize?
   (ptList: any[], canvasSize: [number, number]) =>
     ptList

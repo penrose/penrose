@@ -401,6 +401,7 @@ textTransformFn = (props, fn)
     where props = ["x", "y", "scaleX", "scaleY", "rotation", "transform"]
           fn :: (Autofloat a ) => [Value a] -> Value a
           fn [FloatV x, FloatV y, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
+             -- Note that this overall transformation does NOT use the "w" and "h" parameters set by the frontend
              let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, x, y) in
              HMatrixV $ customTransform # defaultTransform
 
