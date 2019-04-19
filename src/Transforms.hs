@@ -205,15 +205,9 @@ extrude c x y leftArr rightArr =
 
 type LineSeg a = (Pt2 a, Pt2 a)
 type Blob a = [Pt2 a] -- temporary type for polygon. Connected, no holes
--- would ideally want polygons of type
--- Autofloat a => ([a], [a])
--- with one list represents positive regions (not necessarily connected),
--- another reperesents negative regions (holes).
-type Polygon a = ([Blob a], [Blob a])
-
 -- A list of positive shapes (regions) and a list of negative shapes (holes)
 -- TODO: assuming that the positive shapes don't overlap and the negative shapes don't overlap (check this)
-type Polygon a = ([[Pt2 a]], [[Pt2 a]])
+type Polygon a = ([Blob a], [Blob a])
 
 emptyPoly :: Polygon a
 emptyPoly = ([], [])
