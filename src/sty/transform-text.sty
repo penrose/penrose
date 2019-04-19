@@ -28,31 +28,36 @@ Point p {
       	      x = 0.0
 	      y = 0.0
 	      r = 10.0
-	      color = Colors.red
+	      color = Colors.blue
 	      strokeWidth = 0.0
+      }
+
+      p.text = Text {
+            string = p.label
       }
 }
 
 Set X {
-    -- X.dx = OPTIMIZED
-    -- X.dy = OPTIMIZED
+    X.val = OPTIMIZED
+    X.shape = TextTransform {
+      	    -- x = 0.0
+	    -- y = 0.0
+	    -- This accidentally ends up optimized...
+	    -- not sure how to actually optimize on this, test it
+	    -- scaleX = X.val
+	    -- scaleY = X.val
+	    rotation = 0.0
 
-    X.shape = CircleTransform {
-    	x = OPTIMIZED
-	y = OPTIMIZED
-	r = OPTIMIZED
-
-	-- transform = translate(X.dx, X.dy)
-	strokeWidth = 0.0
-	color = setOpacity(Colors.blue, 0.5)
+    	    string = X.label
     }
 }
 
-Set `B` {
-    override `B`.shape.color = setOpacity(Colors.red, 0.5)
-}
+-- Set `A` {
+-- }
+
+-- Set `B` {
+-- }
 
 Set `A`; Set `B` {
-   -- LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
-   LOCAL.objFn = encourage containsPoly(`A`.shape, `B`.shape)
+   LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
 }

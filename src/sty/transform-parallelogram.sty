@@ -27,32 +27,36 @@ Point p {
       p.shape = Circle {
       	      x = 0.0
 	      y = 0.0
-	      r = 10.0
+	      r = 5.0
 	      color = Colors.red
 	      strokeWidth = 0.0
       }
 }
 
 Set X {
-    -- X.dx = OPTIMIZED
-    -- X.dy = OPTIMIZED
+    X.dx = OPTIMIZED
+    X.dy = OPTIMIZED
+    X.angle = OPTIMIZED
 
-    X.shape = CircleTransform {
-    	x = OPTIMIZED
-	y = OPTIMIZED
-	r = OPTIMIZED
+    X.shape = ParallelogramTransform {
+    	x = X.dx -- 0.0
+	y = X.dy -- 0.0
+	width = 100.0
+	height = 200.0
+	innerAngle = global.pi_over_four
+	rotation = X.angle -- 0.0
 
 	-- transform = translate(X.dx, X.dy)
-	strokeWidth = 0.0
 	color = setOpacity(Colors.blue, 0.5)
     }
 }
 
 Set `B` {
-    override `B`.shape.color = setOpacity(Colors.red, 0.5)
+    override `B`.shape.color = setOpacity(Colors.green, 0.5)
+    override `B`.shape.innerAngle = 3.14159 / 3.0
 }
 
 Set `A`; Set `B` {
-   -- LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
-   LOCAL.objFn = encourage containsPoly(`A`.shape, `B`.shape)
+   LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
+   -- LOCAL.objFn = encourage containsPoly(`A`.shape, `B`.shape)
 }

@@ -2,6 +2,7 @@
 import Circle from "./Circle";
 import Image from "./Image";
 import Label from "./Label";
+import LabelTransform from "./LabelTransform";
 import Rectangle from "./Rectangle";
 import RectangleTransform from "./RectangleTransform";
 import CircleTransform from "./CircleTransform";
@@ -14,6 +15,8 @@ import Arrow from "./Arrow";
 import Line from "./Line";
 import LineTransform from "./LineTransform";
 import Polygon from "./Polygon";
+import ImageTransform from "./ImageTransform";
+import ParallelogramTransform from "./ParallelogramTransform";
 
 // prettier-ignore
 const componentMap = {
@@ -26,12 +29,15 @@ const componentMap = {
   "Square": Square,
   "SquareTransform" : SquareTransform,
   "Text": Label,
+  "TextTransform": LabelTransform,
   "Curve": Curve,
   "CurveTransform": CurveTransform,
   "Arrow": Arrow,
   "Image": Image,
+  "ImageTransform": ImageTransform,
   "LineTransform": LineTransform,
-  "Line": Line
+  "Line": Line,
+  "ParallelogramTransform": ParallelogramTransform
 };
 
 export default componentMap;

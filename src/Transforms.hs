@@ -102,6 +102,12 @@ rotationAboutM radians (x, y) =
     -- Make the new point the new origin, do a rotation, then translate back
     composeTransforms [translationM (x, y), rotationM radians, translationM (-x, -y)]
 
+shearingX :: (Autofloat a) => a -> HMatrix a
+shearingX lambda = idH { xSkew = lambda }
+
+shearingY :: (Autofloat a) => a -> HMatrix a
+shearingY lambda = idH { ySkew = lambda }
+
 ------ Solve for final parameters
 
 -- See PR for documentation
@@ -115,6 +121,19 @@ paramsOf m = let (sx, sy) = (norm [xScale m, ySkew m], norm [xSkew m, yScale m])
 paramsToMatrix :: (Autofloat a) => (a, a, a, a, a) -> HMatrix a
 paramsToMatrix (sx, sy, theta, dx, dy) = -- scale then rotate then translate
                composeTransforms [translationM (dx, dy), rotationM theta, scalingM (sx, sy)]
+
+toParallelogram :: (Autofloat a) => (a, a, a, a, a, a) -> HMatrix a
+toParallelogram (w, h, rotation, x, y, shearAngle) =
+                if shearAngle < 10**(-5) then error "shearAngle can't be 0, tangent will NaN" else
+                composeTransforms [translationM (x, y),
+                                   rotationM rotation,
+
+                                   -- translationM (-w/2, -h/2),
+                                   shearingX (1 / tan shearAngle),
+                                   -- translationM (w/2, h/2),
+
+                                   scalingM (w, h)
+                                  ]
 
 unitSq :: (Autofloat a) => [Pt2 a]
 unitSq = [(0.5, 0.5), (-0.5, 0.5), (-0.5, -0.5), (0.5, -0.5)]
