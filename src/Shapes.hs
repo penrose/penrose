@@ -273,7 +273,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, ellipseTransformType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -324,6 +324,7 @@ findComputedProperty "CurveTransform" "transformation" = Just polygonTransformFn
 findComputedProperty "LineTransform" "transformation" = Just polygonTransformFn -- Same parameters as polygon
 findComputedProperty "SquareTransform" "transformation" = Just squareTransformFn
 findComputedProperty "ImageTransform" "transformation" = Just imageTransformFn
+findComputedProperty "EllipseTransform" "transformation" = Just ellipseTransformFn
 
 findComputedProperty "RectangleTransform" "polygon" = Just rectPolygonFn
 findComputedProperty "CircleTransform" "polygon" = Just circPolygonFn
@@ -332,6 +333,7 @@ findComputedProperty "Polygon" "polygon" = Just polygonPolygonFn
 findComputedProperty "LineTransform" "polygon" = Just linePolygonFn
 findComputedProperty "SquareTransform" "polygon" = Just squarePolygonFn
 findComputedProperty "ImageTransform" "polygon" = Just imagePolygonFn
+findComputedProperty "EllipseTransform" "polygon" = Just ellipsePolygonFn
 
 findComputedProperty _ _ = Nothing
 
@@ -375,6 +377,14 @@ imageTransformFn = (props, fn)
           fn :: (Autofloat a ) => [Value a] -> Value a
           fn [FloatV centerX, FloatV centerY, FloatV lengthX, FloatV lengthY, FloatV rotation, HMatrixV customTransform] =
              let defaultTransform = paramsToMatrix (lengthX, lengthY, rotation, centerX, centerY) in
+             HMatrixV $ customTransform # defaultTransform
+
+ellipseTransformFn :: Autofloat a => ComputedValue a
+ellipseTransformFn = (props, fn)
+    where props = ["x", "y", "rx", "ry", "rotation", "transform"]
+          fn :: Autofloat a => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV rx, FloatV ry, FloatV rotation, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (rx, ry, rotation, x, y) in
              HMatrixV $ customTransform # defaultTransform
 
 -- TODO: there's a bit of redundant computation with recomputing the full transformation
@@ -453,6 +463,15 @@ imagePolygonFn = (props, fn)
              defaultTransform = paramsToMatrix (lengthX, lengthY, rotation, centerX, centerY)
              fullTransform = customTransform # defaultTransform 
              in PtListV $ transformPoly fullTransform unitSq
+
+ellipsePolygonFn :: Autofloat a => ComputedValue a
+ellipsePolygonFn = (props, fn)
+    where props = ["x", "y", "rx", "ry", "rotation", "transform"]
+          fn :: Autofloat a => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV rx, FloatV ry, FloatV rotation, HMatrixV customTransform] = let
+             defaultTransform = paramsToMatrix (rx, ry, rotation, x, y)
+             fullTransform = customTransform # defaultTransform 
+             in PtListV $ transformPoly fullTransform $ circlePoly 1
 
 --------------------------------------------------------------------------------
 -- Property samplers
@@ -543,7 +562,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, ellipseTransformType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -856,7 +875,6 @@ lineTransformType = ("LineTransform", M.fromList
 
 squareTransformType = ("SquareTransform", M.fromList
     [
-        -- knowing that the "original" is centered at origin, still need to store?
         ("x", (FloatT, x_sampler)), -- x and y as dx and dy in transform?
         ("y", (FloatT, y_sampler)),
         ("side", (FloatT, width_sampler)), -- as both scaleX and scaleY ? 
@@ -866,7 +884,7 @@ squareTransformType = ("SquareTransform", M.fromList
         ("transformation", (FloatT, constValue $ HMatrixV idH)),
         -- ones that remain the same
         ("color", (ColorT, sampleColor)),
-        ("style", (StrT, constValue $ StrV "none")), -- TODO: what is this?
+        ("style", (StrT, constValue $ StrV "none")),
         ("strokeColor", (ColorT, sampleColor)),
         ("strokeWidth", (FloatT, constValue $ FloatV 0.0)),
         ("name", (StrT, constValue $ StrV "defaultSquare")),
@@ -887,6 +905,23 @@ imageTransformType = ("ImageTransform", M.fromList
         ("stroke", (StrT, constValue $ StrV "none")),
         ("path", (StrT, constValue $ StrV "missing image path")), -- Absolute path (URL)
         ("name", (StrT, constValue $ StrV "defaultImage")),
+        ("polygon", (PtListT, constValue $ PtListV []))
+    ])
+
+ellipseTransformType = ("EllipseTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)), --dx
+        ("y", (FloatT, y_sampler)), --dy
+        ("rx", (FloatT, width_sampler)), --sx
+        ("ry", (FloatT, height_sampler)), --sy
+        ("rotation", (FloatT, constValue $ FloatV 0.0)), --rot
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)),
+        ("stroke-width", (FloatT, stroke_sampler)),
+        ("style", (StrT, sampleDiscrete [StrV "filled"])),
+        ("stroke-style", (StrT, stroke_style_sampler)),
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultEllipse")),
         ("polygon", (PtListT, constValue $ PtListV []))
     ])
 
