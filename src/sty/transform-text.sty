@@ -27,36 +27,37 @@ Point p {
       p.shape = Circle {
       	      x = 0.0
 	      y = 0.0
-	      r = 5.0
-	      color = Colors.red
+	      r = 10.0
+	      color = Colors.blue
 	      strokeWidth = 0.0
+      }
+
+      p.text = Text {
+            string = p.label
       }
 }
 
 Set X {
-    X.dx = OPTIMIZED
-    X.dy = OPTIMIZED
-    X.angle = OPTIMIZED
+    X.val = OPTIMIZED
+    X.shape = TextTransform {
+      	    -- x = 0.0
+	    -- y = 0.0
+	    -- This accidentally ends up optimized...
+	    -- not sure how to actually optimize on this, test it
+	    -- scaleX = X.val
+	    -- scaleY = X.val
+	    rotation = 0.0
 
-    X.shape = ParallelogramTransform {
-    	x = X.dx -- 0.0
-	y = X.dy -- 0.0
-	width = 100.0
-	height = 200.0
-	innerAngle = global.pi_over_four
-	rotation = X.angle -- 0.0
-
-	-- transform = translate(X.dx, X.dy)
-	color = setOpacity(Colors.blue, 0.5)
+    	    string = X.label
     }
 }
 
-Set `B` {
-    override `B`.shape.color = setOpacity(Colors.green, 0.5)
-    override `B`.shape.innerAngle = 3.14159 / 3.0
-}
+-- Set `A` {
+-- }
+
+-- Set `B` {
+-- }
 
 Set `A`; Set `B` {
    LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)
-   -- LOCAL.objFn = encourage containsPoly(`A`.shape, `B`.shape)
 }

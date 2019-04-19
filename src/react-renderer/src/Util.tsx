@@ -172,7 +172,7 @@ export const collectLabels = async (allShapes: any[]) => {
   });
   return Promise.all(
     allShapes.map(async ([type, obj]: [string, any]) => {
-      if (type === "Text") {
+      if (type === "Text" || type === "TextTransform") {
         const { body, width, height } = await tex2svg(
           obj.string.contents,
           obj.name.contents

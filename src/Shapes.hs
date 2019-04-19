@@ -273,7 +273,7 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, parallelogramTransformType ]
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, parallelogramTransformType, textTransformType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -325,6 +325,7 @@ findComputedProperty "LineTransform" "transformation" = Just polygonTransformFn 
 findComputedProperty "SquareTransform" "transformation" = Just squareTransformFn
 findComputedProperty "ImageTransform" "transformation" = Just imageTransformFn
 findComputedProperty "ParallelogramTransform" "transformation" = Just parallelogramTransformFn
+findComputedProperty "TextTransform" "transformation" = Just textTransformFn
 
 findComputedProperty "RectangleTransform" "polygon" = Just rectPolygonFn
 findComputedProperty "CircleTransform" "polygon" = Just circPolygonFn
@@ -334,6 +335,7 @@ findComputedProperty "LineTransform" "polygon" = Just linePolygonFn
 findComputedProperty "SquareTransform" "polygon" = Just squarePolygonFn
 findComputedProperty "ImageTransform" "polygon" = Just imagePolygonFn
 findComputedProperty "ParallelogramTransform" "polygon" = Just parallelogramPolygonFn
+findComputedProperty "TextTransform" "polygon" = Just textPolygonFn
 
 findComputedProperty _ _ = Nothing
 
@@ -377,6 +379,14 @@ imageTransformFn = (props, fn)
           fn :: (Autofloat a ) => [Value a] -> Value a
           fn [FloatV centerX, FloatV centerY, FloatV lengthX, FloatV lengthY, FloatV rotation, HMatrixV customTransform] =
              let defaultTransform = paramsToMatrix (lengthX, lengthY, rotation, centerX, centerY) in
+             HMatrixV $ customTransform # defaultTransform
+
+textTransformFn :: Autofloat a => ComputedValue a
+textTransformFn = (props, fn)
+    where props = ["x", "y", "scaleX", "scaleY", "rotation", "transform"]
+          fn :: (Autofloat a ) => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, x, y) in
              HMatrixV $ customTransform # defaultTransform
 
 parallelogramTransformFn :: (Autofloat a) => ComputedValue a
@@ -475,6 +485,18 @@ parallelogramPolygonFn = (props, fn)
              let fullTransform = customTransform # defaultTransform in
              PtListV $ transformPoly fullTransform unitSq
 
+textPolygonFn :: (Autofloat a) => ComputedValue a
+textPolygonFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "x", "y", "transform", "w", "h"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV x, FloatV y, HMatrixV customTransform, FloatV w, FloatV h] = 
+             -- Note that the unit square is implicitly scaled to (w, h)
+             -- (from the frontend) before having the default transform applied
+             let defaultTransform = paramsToMatrix (scaleX * w, scaleY * h, rotation, x, y) in
+             let fullTransform = customTransform # defaultTransform in
+             PtListV $ transformPoly fullTransform unitSq
+
 --------------------------------------------------------------------------------
 -- Property samplers
 
@@ -564,7 +586,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, parallelogramTransformType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, parallelogramTransformType, textTransformType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -937,6 +959,30 @@ parallelogramTransformType = ("ParallelogramTransform", M.fromList
         ("name", (StrT, constValue $ StrV "defaultParallelogram"))
     ])
 
+textTransformType = ("TextTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)), -- TODO: set text size in points
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+
+        ("w", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
+        ("h", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
+        ("path", (PathDataT, constValue $ PathDataV [])), -- NOTE: updated by front-end
+
+        -- NOTE: the polygon will only show up after a few steps, since we have to wait for the server to set the width/height/path
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PtListT, constValue $ PtListV [])),
+
+        ("string", (StrT, constValue $ StrV "defaultLabelTextTransform")),
+        ("style", (StrT, constValue $ StrV "none")),
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("color", (ColorT, constValue $ ColorV black)),
+        ("name", (StrT, constValue $ StrV "defaultCircle"))
+    ])
+
 -----
 
 exampleCirc :: (Autofloat a) => Shape a
@@ -1174,6 +1220,7 @@ isPending typ propId = propId `elem` pendingProperties typ
 -- | rendered by the frontend
 pendingProperties :: ShapeTypeStr -> [PropID]
 pendingProperties "Text" = ["w", "h"]
+pendingProperties "TextTransform" = ["w", "h"]
 pendingProperties _ = []
 
 -- | Given 'ValueType' and 'ShapeTypeStr', return all props of that ValueType
