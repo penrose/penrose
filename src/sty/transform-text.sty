@@ -39,14 +39,17 @@ Point p {
 
 Set X {
     X.val = OPTIMIZED
+    X.scale = 2.0
+
     X.shape = TextTransform {
-      	    -- x = 0.0
-	    -- y = 0.0
+      	    x = 0.0
+	    y = 0.0
 	    -- This accidentally ends up optimized...
 	    -- not sure how to actually optimize on this, test it
-	    -- scaleX = X.val
-	    -- scaleY = X.val
-	    rotation = 0.0
+	    scaleX = X.scale
+	    scaleY = X.scale
+	    rotation = 0.0 -- global.pi_over_four 
+	    -- seems to rotate CCW not CW?
 
     	    string = X.label
     }
@@ -55,8 +58,9 @@ Set X {
 -- Set `A` {
 -- }
 
--- Set `B` {
--- }
+Set `B` {
+    override `B`.shape.x = -100.0
+}
 
 Set `A`; Set `B` {
    LOCAL.objFn = encourage boundaryIntersect(`A`.shape, `B`.shape)

@@ -114,6 +114,7 @@ idH' = M.fromList [
      ("dy", FloatV 0.0)
      ]
 
+
 ---------
 
 -- | types of fully evaluated values in Style
@@ -131,6 +132,7 @@ data ValueType
     | TransformT
     | HMatrixT
     | MapT
+    | PolygonT
     deriving (Eq, Show)
 
 -- | fully evaluated values in Style
@@ -161,6 +163,7 @@ data Value a
     | TransformV (Transformation a)
     | HMatrixV (HMatrix a)
     | MapV (Properties a)
+    | PolygonV (Polygon a)
 
     -- TODO: 
     -- | PolygonV (Polygon a)
@@ -187,6 +190,7 @@ typeOf v = case v of
      TransformV _ -> TransformT
      HMatrixV _ -> HMatrixT
      MapV _ -> MapT
+     PolygonV _ -> PolygonT
 
 toPolymorphics :: [Shape Double] -> (forall a . (Autofloat a) => [Shape a])
 toPolymorphics = map toPolymorphic
@@ -218,6 +222,7 @@ toPolyProperty v = case v of
                                        dx = r2f $ dx m,
                                        dy = r2f $ dy m
                                      }
+    PolygonV (b, h) -> PolygonV $ (map (map r2) b, map (map r2) h)
     where r2 (x, y) = (r2f x, r2f y)
 
 toPolyPath :: Path' Double -> (forall a . (Autofloat a) => Path' a)
@@ -417,17 +422,17 @@ rectPolygonFn = (props, fn)
               FloatV x, FloatV y, HMatrixV customTransform] = 
              let defaultTransform = paramsToMatrix (sizeX, sizeY, rotation, x, y) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform unitSq
+             PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
 polygonPolygonFn :: (Autofloat a) => ComputedValue a
 polygonPolygonFn = (props, fn)
     where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "points"]
           fn :: (Autofloat a) => [Value a] -> Value a
           fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
-              FloatV dx, FloatV dy, HMatrixV customTransform, PtListV points] = 
+              FloatV dx, FloatV dy, HMatrixV customTransform, PolygonV points] = 
              let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform points
+             PolygonV $ transformPoly fullTransform points
 
 circPolygonFn :: (Autofloat a) => ComputedValue a
 circPolygonFn = (props, fn)
@@ -436,7 +441,7 @@ circPolygonFn = (props, fn)
           fn [FloatV x, FloatV y, FloatV r, HMatrixV customTransform] = 
              let defaultTransform = paramsToMatrix (r, r, 0.0, x, y) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform $ circlePoly r -- (sampleUnitCirc r)
+             PolygonV $ transformPoly fullTransform $ toPoly $ circlePoly r
 
 -- | Polygonize a Bezier curve, even if the curve was originally made using a list of points.
 -- TODO: distinguish between filled curves (polygons) and unfilled ones (polylines)
@@ -449,7 +454,7 @@ curvePolygonFn = (props, fn)
               FloatV strokeWidth, BoolV leftArrow, BoolV rightArrow] = 
              let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform $ polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
+             PolygonV $ transformPoly fullTransform $ toPoly $ polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
              where maxIter = 1 -- TODO: what should this be?
 
 -- | Polygonize a line segment, accounting for its thickness. 
@@ -464,7 +469,7 @@ linePolygonFn = (props, fn)
               BoolV leftArrow, BoolV rightArrow] = 
              let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform $ extrude thickness (startX, startY) (endX, endY) leftArrow rightArrow
+             PolygonV $ transformPoly fullTransform $ toPoly $ extrude thickness (startX, startY) (endX, endY) leftArrow rightArrow
 
 -- TODO: add ones for final properties; also refactor so it's more generic across shapes
 squarePolygonFn :: (Autofloat a) => ComputedValue a
@@ -474,7 +479,7 @@ squarePolygonFn = (props, fn)
           fn [FloatV x, FloatV y, FloatV side, FloatV rotation, HMatrixV customTransform] = let
               defaultTransform = paramsToMatrix (side, side, rotation, x, y)
               fullTransform = customTransform # defaultTransform
-              in PtListV $ transformPoly fullTransform unitSq
+              in PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
 imagePolygonFn :: Autofloat a => ComputedValue a
 imagePolygonFn = (props, fn)
@@ -483,7 +488,7 @@ imagePolygonFn = (props, fn)
           fn [FloatV centerX, FloatV centerY, FloatV lengthX, FloatV lengthY, FloatV rotation, HMatrixV customTransform] = let
              defaultTransform = paramsToMatrix (lengthX, lengthY, rotation, centerX, centerY)
              fullTransform = customTransform # defaultTransform 
-             in PtListV $ transformPoly fullTransform unitSq
+             in PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
 ellipsePolygonFn :: Autofloat a => ComputedValue a
 ellipsePolygonFn = (props, fn)
@@ -492,7 +497,7 @@ ellipsePolygonFn = (props, fn)
           fn [FloatV x, FloatV y, FloatV rx, FloatV ry, FloatV rotation, HMatrixV customTransform] = let
              defaultTransform = paramsToMatrix (rx, ry, rotation, x, y)
              fullTransform = customTransform # defaultTransform 
-             in PtListV $ transformPoly fullTransform $ circlePoly 1
+             in PolygonV $ transformPoly fullTransform $ toPoly $ circlePoly 1
 
 parallelogramPolygonFn :: (Autofloat a) => ComputedValue a
 parallelogramPolygonFn = (props, fn)
@@ -502,7 +507,7 @@ parallelogramPolygonFn = (props, fn)
               FloatV x, FloatV y, FloatV innerAngle, HMatrixV customTransform] = 
              let defaultTransform = toParallelogram (width, height, rotation, x, y, innerAngle) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform unitSq
+             PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
 textPolygonFn :: (Autofloat a) => ComputedValue a
 textPolygonFn = (props, fn)
@@ -514,7 +519,7 @@ textPolygonFn = (props, fn)
              -- (from the frontend) before having the default transform applied
              let defaultTransform = paramsToMatrix (scaleX * w, scaleY * h, rotation, x, y) in
              let fullTransform = customTransform # defaultTransform in
-             PtListV $ transformPoly fullTransform unitSq
+             PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
 --------------------------------------------------------------------------------
 -- Property samplers
@@ -808,7 +813,7 @@ rectTransformType = ("RectangleTransform", M.fromList
         ("strokeColor", (ColorT, sampleColor)),
         ("strokeStyle", (StrT, constValue $ StrV "none")),
         ("name", (StrT, constValue $ StrV "defaultRect")),
-        ("polygon", (PtListT, constValue $ PtListV []))
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
     ])
 
 -- Also using the new transforms
@@ -850,7 +855,7 @@ circTransformType = ("CircleTransform", M.fromList
 
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
-        ("polygon", (PtListT, constValue $ PtListV [])),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
 
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "filled")),
@@ -871,7 +876,7 @@ curveTransformType = ("CurveTransform", M.fromList
 
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
-        ("polygon", (PtListT, constValue $ PtListV [])),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
     
         ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
         ("polyline", (PtListT, constValue $ PtListV [])), -- TODO: sample path
@@ -904,7 +909,7 @@ lineTransformType = ("LineTransform", M.fromList
 
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
-        ("polygon", (PtListT, constValue $ PtListV [])),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
 
         ("left-arrowhead", (BoolT, constValue $ BoolV False)),
         ("right-arrowhead", (BoolT, constValue $ BoolV False)),
@@ -931,7 +936,7 @@ squareTransformType = ("SquareTransform", M.fromList
         ("strokeColor", (ColorT, sampleColor)),
         ("strokeWidth", (FloatT, constValue $ FloatV 0.0)),
         ("name", (StrT, constValue $ StrV "defaultSquare")),
-        ("polygon", (PtListT, constValue $ PtListV []))
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
     ])
 
 imageTransformType = ("ImageTransform", M.fromList
@@ -948,7 +953,7 @@ imageTransformType = ("ImageTransform", M.fromList
         ("stroke", (StrT, constValue $ StrV "none")),
         ("path", (StrT, constValue $ StrV "missing image path")), -- Absolute path (URL)
         ("name", (StrT, constValue $ StrV "defaultImage")),
-        ("polygon", (PtListT, constValue $ PtListV []))
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
     ])
 
 ellipseTransformType = ("EllipseTransform", M.fromList
@@ -965,7 +970,7 @@ ellipseTransformType = ("EllipseTransform", M.fromList
         ("stroke-style", (StrT, stroke_style_sampler)),
         ("color", (ColorT, sampleColor)),
         ("name", (StrT, constValue $ StrV "defaultEllipse")),
-        ("polygon", (PtListT, constValue $ PtListV []))
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
     ])
 
 -- Starting with a square centered at origin, we apply this transformation:
@@ -985,7 +990,7 @@ parallelogramTransformType = ("ParallelogramTransform", M.fromList
 
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
-        ("polygon", (PtListT, constValue $ PtListV [])),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
     
         ("color", (ColorT, sampleColor)),
         ("strokeStyle", (StrT, stroke_style_sampler)),
@@ -1009,7 +1014,7 @@ textTransformType = ("TextTransform", M.fromList
         -- NOTE: the polygon will only show up after a few steps, since we have to wait for the server to set the width/height/path
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
-        ("polygon", (PtListT, constValue $ PtListV [])),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
 
         ("string", (StrT, constValue $ StrV "defaultLabelTextTransform")),
         ("style", (StrT, constValue $ StrV "none")),
@@ -1190,9 +1195,9 @@ getPoints shape = case shape .: "points" of
     PtListV x -> x
     _ -> error "getPoints: expected [(Float, Float)] but got something else"
 
-getPolygon :: (Autofloat a) => Shape a -> [Pt2 a]
+getPolygon :: (Autofloat a) => Shape a -> Polygon a
 getPolygon shape = case shape .: "polygon" of
-    PtListV x -> x
+    PolygonV x -> x
     _ -> error "getPolygon: expected [(Float, Float)] but got something else"
 
 getPath :: (Autofloat a) => Shape a -> [Pt2 a]
@@ -1364,7 +1369,7 @@ polygonizePathPolygon n thickness leftArr rightArr p =
             else let ltCenter = head polyline
                      ltAngle = atan2' $ head tangents
                      ltTransform = translationM ltCenter # rotationM ltAngle
-                     ltArrow = transformPoly ltTransform $ ltArrowheadPoly thickness
+                     ltArrow = transformSimplePoly ltTransform $ ltArrowheadPoly thickness
                      (outerFirst, innerFirst) = (head outer, head inner)
                      outer' = dropWhile (\x -> mag (x -: outerFirst) < snipSize) outer
                      inner' = dropWhile (\x -> mag (x -: innerFirst) < snipSize) inner
@@ -1375,7 +1380,7 @@ polygonizePathPolygon n thickness leftArr rightArr p =
             else let rtCenter = last polyline
                      rtAngle = atan2' $ last tangents
                      rtTransform = translationM rtCenter # rotationM rtAngle
-                     rtArrow = transformPoly rtTransform $ rtArrowheadPoly thickness
+                     rtArrow = transformSimplePoly rtTransform $ rtArrowheadPoly thickness
                      (outerLast, innerLast) = (last outer, last inner)
                      outer'' = reverse $ dropWhile (\x -> mag (x -: outerLast) < snipSize) $ reverse outer'
                      inner'' = reverse $ dropWhile (\x -> mag (x -: innerLast) < snipSize) $ reverse inner'
