@@ -128,7 +128,9 @@ export const collectLabels = async (allShapes: any[]) => {
     extensions: ["tex2jax.js", "TeX/AMSmath.js"],
     jax: ["input/TeX", "output/SVG"],
     SVG: {
-      useGlobalCache: false // Needed for SVG inline export
+      matchFontHeight: false,
+      useGlobalCache: false, // Needed for SVG inline export
+      useFontCache: false    // further reduces the reuse of paths
     },
     tex2jax: {
       inlineMath: [["$", "$"], ["\\(", "\\)"]],
@@ -145,6 +147,7 @@ export const collectLabels = async (allShapes: any[]) => {
         const obj2 = { ...obj };
         obj2.w.contents = width;
         obj2.h.contents = height;
+        console.log(body, obj2);
         // Add omit: true flag so it doesn't get sent to the server
         obj2.rendered = {contents: body, omit: true};
         return [type, obj2];
