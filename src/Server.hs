@@ -140,7 +140,7 @@ handleClient env styProg state pending = do
 
     -- FIXME: for testing purposes, send the env to the frontend
     logInfo client $ show env
-    wsSendPacket conn $ Packet { typ = "Env", contents = env}
+    wsSendPacket conn $ Packet { typ = "env", contents = env}
 
     let logPath = "/tmp/penrose-" ++ idString client ++ ".log"
     myStreamHandler <- streamHandler stderr INFO
