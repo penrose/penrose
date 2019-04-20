@@ -382,10 +382,10 @@ squareTransformFn = (props, fn)
 
 imageTransformFn :: Autofloat a => ComputedValue a
 imageTransformFn = (props, fn)
-    where props = ["centerX", "centerY", "lengthX", "lengthY", "rotation", "transform"]
+    where props = ["centerX", "centerY", "scaleX", "scaleY", "rotation", "transform"]
           fn :: (Autofloat a ) => [Value a] -> Value a
-          fn [FloatV centerX, FloatV centerY, FloatV lengthX, FloatV lengthY, FloatV rotation, HMatrixV customTransform] =
-             let defaultTransform = paramsToMatrix (lengthX, lengthY, rotation, centerX, centerY) in
+          fn [FloatV centerX, FloatV centerY, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, centerX, centerY) in
              HMatrixV $ customTransform # defaultTransform
 
 ellipseTransformFn :: Autofloat a => ComputedValue a
@@ -484,10 +484,12 @@ squarePolygonFn = (props, fn)
 
 imagePolygonFn :: Autofloat a => ComputedValue a
 imagePolygonFn = (props, fn)
-    where props = ["centerX", "centerY", "lengthX", "lengthY", "rotation", "transform"]
+    where props = ["centerX", "centerY", "scaleX", "scaleY", "rotation", "transform", "initWidth", "initHeight"]
           fn :: (Autofloat a ) => [Value a] -> Value a
-          fn [FloatV centerX, FloatV centerY, FloatV lengthX, FloatV lengthY, FloatV rotation, HMatrixV customTransform] = let
-             defaultTransform = paramsToMatrix (lengthX, lengthY, rotation, centerX, centerY)
+          fn [FloatV centerX, FloatV centerY, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform, FloatV initWidth, FloatV initHeight] = let
+             -- Note that the unit square is implicitly scaled to (w, h)
+             -- (from the frontend) before having the default transform applied
+             defaultTransform = paramsToMatrix (scaleX * initWidth, scaleY * initHeight, rotation, centerX, centerY)
              fullTransform = customTransform # defaultTransform 
              in PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
@@ -944,8 +946,12 @@ imageTransformType = ("ImageTransform", M.fromList
     [
         ("centerX", (FloatT, x_sampler)),
         ("centerY", (FloatT, y_sampler)),
-        ("lengthX", (FloatT, width_sampler)), -- set by image file?
-        ("lengthY", (FloatT, height_sampler)), -- ^^
+
+        ("initWidth", (FloatT, constValue $ FloatV 0.0)), -- Set by frontend
+        ("initHeight", (FloatT, constValue $ FloatV 0.0)), -- (same)
+
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)), -- set by image file?
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)), -- ^^
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("transformation", (FloatT, constValue $ HMatrixV idH)),
@@ -1262,6 +1268,7 @@ isPending typ propId = propId `elem` pendingProperties typ
 pendingProperties :: ShapeTypeStr -> [PropID]
 pendingProperties "Text" = ["w", "h"]
 pendingProperties "TextTransform" = ["w", "h"]
+pendingProperties "ImageTransform" = ["initWidth", "initHeight"]
 pendingProperties _ = []
 
 -- | Given 'ValueType' and 'ShapeTypeStr', return all props of that ValueType

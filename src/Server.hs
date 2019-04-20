@@ -293,7 +293,7 @@ waitSubstance client@(clientID, conn, clientState) = do
 -- } COMBAK: abstract this logic out to `wait`
 waitUpdate :: Client -> IO ()
 waitUpdate client@(clientID, conn, clientState) = do
-    logInfo client "Waiting for label dimension update"
+    logInfo client "Waiting for image/label dimension update"
     msg_json <- WS.receiveData conn
     case decode msg_json of
         Just e -> case e of
@@ -301,7 +301,7 @@ waitUpdate client@(clientID, conn, clientState) = do
             _                            -> continue
         Nothing -> continue
     where continue = do
-            warningM (toString clientID) "Invalid command. Returning to wait for label update."
+            warningM (toString clientID) "Invalid command. Returning to wait for image/label update."
             waitUpdate client
 
 substanceError, elementError, styleError :: Client -> ErrorCall -> IO ()
@@ -473,7 +473,7 @@ resampleAndSend client@(clientID, conn, clientState) = do
         }
     let nextClientS = updateState clientState news
     let client' = (clientID, conn, nextClientS)
-    -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled.
+    -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on image/label sizes whenever resampled.
     waitUpdate client'
     where s = getBackendState clientState
 
