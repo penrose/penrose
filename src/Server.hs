@@ -137,6 +137,11 @@ handleClient env styProg state pending = do
     clientID <- newUUID
     let clientState = Editor env styProg Nothing
     let client      = (clientID, conn, clientState)
+
+    -- FIXME: for testing purposes, send the env to the frontend
+    logInfo client $ show env
+    wsSendPacket conn $ Packet { typ = "Env", contents = env}
+
     let logPath = "/tmp/penrose-" ++ idString client ++ ".log"
     myStreamHandler <- streamHandler stderr INFO
     myFileHandler <- fileHandler logPath INFO
@@ -237,7 +242,7 @@ serveEditor domain port env styProg = do
          handler e = putStrLn "Server Error"
 
 editor, renderer :: ClientState -> WS.ServerApp
-editor clientState@Editor {} pending = do
+editor clientState@(Editor elementEnv _ _) pending = do
     conn <- WS.acceptRequest pending
     clientID <- newUUID
     let client = (clientID, conn, clientState)
@@ -352,6 +357,8 @@ recompileDomain element style client@(clientID, conn, Editor {}) = do
     elementRes <- try $ parseDsll "" element
     case elementRes of
         Right elementEnv -> do
+            -- Send Env to the frontend for language services (for now, bag-of-word autocompletion)
+            wsSendPacket conn $ Packet { typ = "Env", contents = elementEnv}
             styRes <- try $ parseStyle "" style elementEnv
             case styRes of
                 Right styProg -> do

@@ -44,7 +44,6 @@ import Data.Aeson.Types (toJSONKeyText)
 instance ToJSON SourcePos where
     toJSON pos = object [ "line" .= unPos (sourceLine pos), "column" .= unPos (sourceColumn pos) ] 
 
-
 --------------------------------------------------------------------------------
 ---- Lexer helper functions
 -- TODO: separate reserved words and keywords for each of the DSLs
