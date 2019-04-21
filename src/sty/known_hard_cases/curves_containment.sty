@@ -1,0 +1,80 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.darkgray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.lightblue2 = rgba(0.82, 0.88, 0.94, 1.0)
+}
+
+global {
+       global.pi_over_four = 0.78
+       global.half_pi = 1.57
+       global.pi = 3.14
+       global.two_pi = 6.28
+}
+
+Point p {
+      p.shape = Circle {
+      	      x = 0.0
+	      y = 0.0
+	      r = 10.0
+	      color = Colors.blue
+	      strokeWidth = 0.0
+      }
+
+      p.text = Text {
+      	    -- x = 0.0
+	    -- y = 0.0
+	    -- scaleX = 1.0
+	    -- scaleY = 1.0
+	    -- rotation = 0.0
+            string = p.label
+      }
+}
+
+Set X {
+    X.val = OPTIMIZED
+    X.shape = CurveTransform {
+     dx = OPTIMIZED
+	   dy = OPTIMIZED
+	   scaleX = OPTIMIZED
+	   scaleY = OPTIMIZED
+	   rotation = OPTIMIZED
+	   transform = translate(X.shape.dx, X.shape.dy)
+
+	strokeWidth = 7.0
+	-- style = 
+	fill = Colors.cyan
+	color = Colors.black
+	left-arrowhead = False
+	right-arrowhead = True
+        pathData = makeCurve(-200.0, 0.0, 200.0, 0.0, 10.0, 50.0)
+    }
+}
+
+Set `A` {
+    override `A`.shape.color = setOpacity(Colors.black, 0.5)
+}
+
+Set `B` {
+    override `B`.shape.dx = 100.0
+    override `B`.shape.dy = 200.0
+    override `B`.shape.scaleY = 2.0
+    override `B`.shape.color = setOpacity(Colors.green, 0.5)
+    override `B`.shape.left-arrowhead = True
+    override `B`.shape.pathData = makeCurve(0.0, 0.0, -50.0, 0.0, 10.0, -50.0)
+}
+
+Set `A`; Set `B` {
+   LOCAL.objFn = encourage containsPoly(`A`.shape, `B`.shape)
+}

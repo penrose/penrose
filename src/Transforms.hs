@@ -255,9 +255,10 @@ getSegmentsG (bds, hs) = let
     hsegments = map (\h->getSegmentsB h) hs
     in concat [concat bdsegments, concat hsegments]
 
--- works well when point not on boundary (otherwise handled separately as edge case.)
-isInB :: Autofloat a => Blob a -> Pt2 a -> Bool
-isInB pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
+-- blob inside/outside test wo testing bbox first
+-- does not use offset.
+isInB' :: Autofloat a => Blob a -> Pt2 a -> Bool
+isInB' pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
     diffp = map (\(x,y)->(x-x0,y-y0)) pts
     getAngle (x,y) = atan2 y x 
     sweeps = map (\(p1,p2)->(getAngle p2)-(getAngle p1)) (getSegmentsB diffp)
@@ -272,11 +273,18 @@ isInB pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
     res = foldl' (+) 0.0 sweepAdjusted
     in res>pi || res<(-pi) 
 
-isInG :: Autofloat a => Polygon a -> Pt2 a -> Bool
-isInG (bds, hs) p = let
+isInG' :: Autofloat a => Polygon a -> Pt2 a -> Bool
+isInG' (bds, hs) p = let
     inb = foldl (||) False $ map (\b->isInB b p) bds
     inh = foldl (||) False $ map (\h->isInB h p) hs
     in (inb) && (not inh)
+
+-- inside/outside test with offset: only true if "very deep inside" or "outside and far enough".
+isInG :: Autofloat a => Polygon a -> Pt2 a -> a -> Bool
+isInG poly p ofs = (isInG' poly p) && (dsqGP poly p 0 >= ofs)
+
+isOutG :: Autofloat a => Polygon a -> Pt2 a -> a -> Bool
+isOutG poly p ofs = (not $ isInG' poly p) && (dsqGP poly p 0 >= ofs)
 
 getBBox :: Autofloat a => Blob a -> (Pt2 a, Pt2 a)
 getBBox pts = let
@@ -285,17 +293,29 @@ getBBox pts = let
         ( (min xlo x, min ylo y), (max xhi x, max yhi y) )
     in foldl' foldfn ((posInf, posInf), (negInf, negInf)) pts
 
+-- true if in bbox and far enough from boundary
 inBBox :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> Bool
 inBBox ((xlo, ylo), (xhi, yhi)) (x,y) = let
-    res = x >= xlo && x <= xhi && y >= ylo && y <= yhi
-    in trace ("in bbox: "++ show res) res
+    res = x >= xlo && x <= xhi &&
+          y >= ylo && y <= yhi
+    in res
 
---TODO: offset
-isInB' :: Autofloat a => Blob a -> Pt2 a -> Bool
-isInB' pts (x0, y0) = let
+{-
+-- true if out of bbox and far enough from boundary
+outBBox :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> a -> Bool
+outBBox ((xlo, ylo), (xhi, yhi)) (x,y) ofs = let
+    res = x-xlo < ofs || xhi-x < ofs ||
+          y-ylo < ofs || yhi-y < ofs
+    in res
+-}
+
+-- polygon inside/outside test by first checking against bbox to opt out early if possible
+-- does not use offset.
+isInB :: Autofloat a => Blob a -> Pt2 a -> Bool
+isInB pts (x0, y0) = let
     bbox = getBBox pts
     in if not $ inBBox bbox (x0,y0) then False else
-    isInB pts (x0,y0)
+    isInB' pts (x0,y0)
 
 scaleB :: Autofloat a => a -> Blob a -> Blob a
 scaleB k b = map (scaleP k) b
@@ -335,8 +355,7 @@ sampleG numSamples (bds, hs) = let
 
 ---- dsq functions ----
 
--- ofs: "offset". ofs = k means dsqPP returns 0 when a and b are at most k units apart
--- might need some sanity check for correctness
+-- ofs: "offset". ofs = k means dsqPP returns 0 when a and b are k units apart.
 dsqPP :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
 dsqPP a b ofs = max 0 $ (magsq $ b -: a) - (ofs**2)
 
@@ -366,11 +385,18 @@ dsqGP (bds, hs) p ofs = let
     dsqHS = foldl' min posInf $ map (\h -> dsqBP h p ofs) hs
     in min dsqBD dsqHS
 
+signedDsqGP :: Autofloat a => Polygon a -> Pt2 a -> a
+signedDsqGP poly p = let 
+    dsq = dsqGP poly p 0.0
+    inside = if dsq < epsd then True else isInG poly p 0.0
+    in if inside then -dsq else dsq
+
+-- TODO: signedDsqGG, implement boundary intersect with offset, other two energies with offset.
+
 dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
 dsqBS b s ofs = foldl' min posInf $ 
     map (\e -> dsqSS e s ofs) $ getSegmentsB b
 
--- this is itself an energy (for boundary intersection)
 dsqBB :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBB b1 b2 ofs = let
     min1 = foldl' min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
@@ -383,6 +409,19 @@ dsqGG (bds1, hs1) (bds2, hs2) ofs = let
     b2b1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds2) bds1
     b2h1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds2) hs1
     in min (min b1b2 b1h2) (min b2b1 b2h1)
+
+polyA :: Autofloat a => Polygon a
+polyA = ([[(1,1),(1,-1),(-1,-1),(-1,1)]],[])
+
+polyB :: Autofloat a => Polygon a
+polyB = ([[(0,0),(2,0),(2,2),(0,2)]],[])
+
+dsqGG' :: Autofloat a => Polygon a -> Polygon a -> a -> a
+dsqGG' polyA (polyB@(bds,hs)) ofs = let
+    dist = sqrt $ dsqGG polyA polyB 0.0
+    inside = if dist < epsd then True -- has part of boundary inside and part of boundary outside
+        else let p = bds!!0!!0 in isInG polyA p 0.0
+    in if inside then (-dist - ofs)**2 else (dist-ofs)**2
 
 ---- dsq integral along boundary functions ----
 
@@ -397,7 +436,7 @@ dsqBinA :: Autofloat a => Polygon a -> Polygon a -> a -> a
 dsqBinA bA bB ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
     -- interval = (r2f ds) / circumfrence
-    samplesIn = filter (\p -> isInG bA p) $ sampleG ds bB
+    samplesIn = filter (\p -> isInG bA p ofs) $ sampleG ds bB
     res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesIn
     in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
 
@@ -405,7 +444,7 @@ dsqBoutA :: Autofloat a => Polygon a -> Polygon a -> a -> a
 dsqBoutA bA bB ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
     -- interval = (r2f ds) / circumfrence
-    samplesOut = filter (\p -> not $ isInG bA p) $ sampleG ds bB
+    samplesOut = filter (\p -> isOutG bA p ofs) $ sampleG ds bB
     res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesOut
     in {-trace ("|samplesOut|: " ++ show (length samplesOut))-} res
 
