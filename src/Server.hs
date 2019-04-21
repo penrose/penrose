@@ -358,7 +358,7 @@ recompileDomain element style client@(clientID, conn, Editor {}) = do
     case elementRes of
         Right elementEnv -> do
             -- Send Env to the frontend for language services (for now, bag-of-word autocompletion)
-            wsSendPacket conn $ Packet { typ = "Env", contents = elementEnv}
+            wsSendPacket conn $ Packet { typ = "env", contents = elementEnv}
             styRes <- try $ parseStyle "" style elementEnv
             case styRes of
                 Right styProg -> do
