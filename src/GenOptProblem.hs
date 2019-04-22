@@ -89,6 +89,7 @@ data Params = Params { weight :: Float,
 
 instance Show Params where
          show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
+                             -- ++ "\nBFGS info:\n" ++ show (bfgsInfo p)
 
 data BfgsParams = BfgsParams {
      lastState :: Maybe (L.Vector L.R), -- x_k
@@ -97,7 +98,8 @@ data BfgsParams = BfgsParams {
 }
 
 instance Show BfgsParams where
-         show s = "lastGrad: \n" ++ ppShow (lastGrad s) ++
+         show s = "\nlastState: \n" ++ ppShow (lastState s) ++
+                  "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
                   "\ninvH: \n" ++ ppShow (invH s)
 
 defaultBfgsParams = BfgsParams { lastState = Nothing, lastGrad = Nothing, invH = Nothing }

@@ -1,4 +1,4 @@
-Point p
+-- Point p
 
 Set A
 Set B
@@ -8,4 +8,4 @@ Set B
 IsSubset(A,B)
 
 AutoLabel All
-Label A $\int_0^{\infty} \alpha$
+-- Label A $\int_0^{\infty} \alpha$

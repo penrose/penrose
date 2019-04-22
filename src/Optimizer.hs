@@ -168,8 +168,8 @@ stepShapes config params vstate g = -- varying state
                -- unconstrainedStopCond gradEval in
            if unconstrConverged then
               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
-              (vstate', params { optStatus = status', bfgsInfo = bfgs' }) -- note vstate' (UO converged), not vstate
-           else (vstate', params) -- update UO state but not EP state; UO still running
+              (vstate', params { optStatus = status', bfgsInfo = defaultBfgsParams }) -- note vstate' (UO converged), not vstate
+           else (vstate', params { bfgsInfo = bfgs' }) -- update UO state but not EP state; UO still running
 
          -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
@@ -179,15 +179,15 @@ stepShapes config params vstate g = -- varying state
                                    (objFnApplied lastEPstate) (objFnApplied (map r2f vstate)) in
            if epConverged then
               let status' = EPConverged in -- no more EP state
-              (vstate, params { optStatus = status', bfgsInfo = bfgs' }) -- do not update UO state
+              (vstate, params { optStatus = status', bfgsInfo = defaultBfgsParams }) -- do not update UO state
            -- update EP state: to be the converged state from the most recent UO
            else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
                 let epWeight' = weightGrowthFactor * epWeight in
                 -- trace ("Unconstrained converged. New weight: " ++ show epWeight') $
-                      (vstate, params { weight = epWeight', optStatus = status', bfgsInfo = bfgs' })
+                      (vstate, params { weight = epWeight', optStatus = status', bfgsInfo = defaultBfgsParams })
 
          -- done; don't update obj state or params; user can now manipulate
-         EPConverged -> (vstate, params { bfgsInfo = bfgs' } )
+         EPConverged -> (vstate, params { bfgsInfo = defaultBfgsParams } )
 
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
@@ -216,7 +216,8 @@ stepWithObjective config g params state =
           steppedState =
               let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state $ gradToUse) in
               let (fx, fx') = (objFnApplied state, objFnApplied state') in
-                         tro ("||x' - x||: " ++ (show $ norm (state -. state'))
+                         tro ("\nopt params: \n" ++ (show params)
+                                ++ "\n||x' - x||: " ++ (show $ norm (state -. state'))
                                 ++ "\n|f(x') - f(x)|: " ++
                                (show $ abs (fx' - fx))
                                 ++ "\nf(x'): \n" ++ (show fx')
@@ -270,7 +271,7 @@ gradP config bfgsParams gradEval f state =
                state_val = lastState bfgsParams
            in case (h_val, grad_val, state_val) of
               (Nothing, Nothing, Nothing) -> -- First step. Initialize the approximation to the identity (not clear how else to approximate it)
-                    -- k=0 steps from x_0 to x_1: This reduces to normal gradient descent with preconditioner = I
+                    -- k=0 steps from x_0 to x_1: so on the first step, we take a normal gradient descent step
                     let h_0 = L.ident $ length gradEval
                     in (gradEval, BfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_0 })
 
@@ -291,7 +292,8 @@ gradP config bfgsParams gradEval f state =
                         v_km1 = L.ident (length gradEval) - (rho_km1 `L.scale` y_km1 `L.outer` s_km1) -- Scaling can happen before outer
                         h_k = (L.tr (v_km1) L.<> h_km1 L.<> v_km1) + (rho_km1 `L.scale` s_km1 `L.outer` s_km1)
                         gradPreconditioned = h_k L.#> grad_fx_k
-                    in (L.toList gradPreconditioned, BfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_k } )
+                    in (L.toList gradPreconditioned, 
+                        BfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_k })
 
               _ -> error "invalid BFGS state"
 
