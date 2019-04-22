@@ -33,6 +33,7 @@ import GHC.Float (float2Double, double2Float)
 import qualified Data.Maybe as DM (fromJust)
 import qualified Data.Aeson as A
 import GHC.Generics
+import qualified Numeric.LinearAlgebra as L
 
 -------------------- Type definitions
 
@@ -90,15 +91,16 @@ instance Show Params where
          show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
 
 data BfgsParams = BfgsParams {
-     lastGrad :: forall a . (Autofloat a) => [a], -- last gradient of f(x)
-     invH :: forall a . (Autofloat a) => [[a]] -- estimate of the inverse of the hessian
+     lastState :: Maybe (L.Vector L.R), -- x_k
+     lastGrad :: Maybe (L.Vector L.R),  -- gradient of f(x_k)
+     invH :: Maybe (L.Matrix L.R)  -- estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
 }
 
 instance Show BfgsParams where
          show s = "lastGrad: \n" ++ ppShow (lastGrad s) ++
                   "\ninvH: \n" ++ ppShow (invH s)
 
-defaultBfgsParams = BfgsParams { lastGrad = [], invH = [] }
+defaultBfgsParams = BfgsParams { lastState = Nothing, lastGrad = Nothing, invH = Nothing }
 
 type PolicyState = String -- Should this include the functions that it returned last time?
 type Policy = [Fn] -> [Fn] -> PolicyParams -> (Maybe [Fn], PolicyState)
@@ -112,11 +114,19 @@ instance Show PolicyParams where
          show p = "Policy state: " ++ policyState p ++ " | Policy steps: " ++ show (policySteps p)
                           -- ++ "\nFunctions:\n" ++ ppShow (currFns p)
 
+data OptMethod = Newton | BFGS | LBFGS | GradientDescent
+     deriving (Eq, Show, Generic)
+
+instance A.ToJSON OptMethod where
+             toEncoding = A.genericToEncoding A.defaultOptions
+
+instance A.FromJSON OptMethod
+
 data OptConfig = OptConfig {
-               useSecondOrder :: Bool
+               optMethod :: OptMethod
      } deriving (Eq, Show, Generic)
 
-defaultOptConfig = OptConfig { useSecondOrder = True }
+defaultOptConfig = OptConfig { optMethod = BFGS }
 
 instance A.ToJSON OptConfig where
              toEncoding = A.genericToEncoding A.defaultOptions

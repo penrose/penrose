@@ -69,18 +69,6 @@ useLineSearch = True
 constT :: Floating a => a
 constT = 0.1
 
------ Second-order optimization flags
-
--- TODO: Newton's method, quasi-Newton methods (Generalized Gauss-Newton, BFGS, L-BFGS), better first-order methods (momentum)
-
--- TODO: replace this by a string specifying the opt method
-
-useNewton :: Bool
-useNewton = True
-
-useBFGS :: Bool
-useBFGS = True
-
 ----- Convergence criteria
 
 -- convergence criterion for EP
@@ -213,16 +201,6 @@ stepShapes config params vstate g = -- varying state
 stepT :: Floating a => a -> a -> a -> a
 stepT dt x dfdx = x - dt * dfdx
 
--- Precondition the gradient
--- TODO: clean up the numeric type conversion between here and below
-gradP :: [Double] -> [Double] -> BfgsParams -> ([Double], BfgsParams)
-gradP gradEval h bfgsParams =
-      -- Take the pseudoinverse of the hessian
-      let hinv = L.pinv $ L.matrix (length gradEval) $ h in
-      let gradPreconditioned = hinv L.#> (L.vector gradEval) in
-      let bfgsParams' = bfgsParams in
-      (L.toList gradPreconditioned, bfgsParams')
-
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
@@ -230,7 +208,7 @@ stepWithObjective :: (Autofloat a) => OptConfig -> StdGen -> Params -> [a] -> ([
 stepWithObjective config g params state =
                   -- if null gradEval then error "empty gradient" else
                   (steppedState, gradEval, bfgs')
-    where (t', gradEval, gradToUse, h, bfgs') = timeAndGrad config params objFnApplied state
+    where (t', gradEval, gradToUse, bfgs') = timeAndGrad config params objFnApplied state
 
           -- get timestep via line search, and evaluated gradient at the state
           -- step each parameter of the state with the time and gradient
@@ -246,7 +224,7 @@ stepWithObjective config g params state =
                                 ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
                                 ++ "\ngradToUse: \n" ++ (show gradToUse)
                                 ++ "\n||gradToUse||: \n" ++ (show $ norm gradToUse)
-                                ++ "\nhessian: \n" ++ (show h)
+                                -- ++ "\nhessian: \n" ++ (show $ h)
                                 ++ "\n timestep: \n" ++ (show t')
                                 ++ "\n original state: \n" ++ (show state)
                                 ++ "\n new state: \n" ++ (show state')
@@ -271,21 +249,68 @@ instance Show (Numeric.AD.Internal.On.On
 appHess :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [[a]]
 appHess f l = hessian f l
 
+-- Precondition the gradient
+gradP :: (Autofloat b) => OptConfig -> BfgsParams -> [Double] -> ObjFn1 a -> [b] -> ([Double], BfgsParams)
+gradP config bfgsParams gradEval f state =
+      let x_k = L.vector $ map r2f state
+          grad_fx_k = L.vector gradEval
+      in case optMethod config of 
+      GradientDescent -> (gradEval, bfgsParams)
+
+      Newton -> -- Precondition gradient with the pseudoinverse of the hessian
+          let h = hessian f state
+              h_list = (map r2f $ concat h) :: [Double]
+              hinv = L.pinv $ L.matrix (length gradEval) $ h_list
+              gradPreconditioned = hinv L.#> (L.vector gradEval) in
+          (L.toList gradPreconditioned, bfgsParams)
+
+      BFGS -> -- Approximate inverse of hessian with the change in gradient (see Nocedal S9.1 p224)
+           let grad_val = lastGrad bfgsParams
+               h_val = invH bfgsParams
+               state_val = lastState bfgsParams
+           in case (h_val, grad_val, state_val) of
+              (Nothing, Nothing, Nothing) -> -- First step. Initialize the approximation to the identity (not clear how else to approximate it)
+                    -- k=0 steps from x_0 to x_1: This reduces to normal gradient descent with preconditioner = I
+                    let h_0 = L.ident $ length gradEval
+                    in (gradEval, BfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_0 })
+
+              (Just h_km1, Just grad_km1, Just x_km1) -> -- For x_{k+1}, to compute H_k, we need the (k-1) info
+                    -- Our convention is that we are always working "at" k to compute k+1
+                    -- x_0 doesn't require any H; x_1 (the first step) with k = 0 requires H_0
+                    -- x_2 (the NEXT step) with k=1 requires H_1. For example>
+                    -- x_2 = x_1 - alpha_1 H_1 grad f(x_1)   [GD step]
+                    -- H_1 = V_0 H_0 V_0 + rho_0 s_0 s_0^T   [This is confusing because the book adds an extra +1 to the H index]
+                    -- V_0 = I - rho_0 y_0 s_0^T
+                    -- rho_0 = 1 / y_0^T s_0
+                    -- s_0 = x_1 - x_0
+                    -- y_0 = grad f(x_1) - grad f(x_0)
+
+                    let s_km1 = x_k - x_km1
+                        y_km1 = grad_fx_k - grad_km1
+                        rho_km1 = 1 / (y_km1 `L.dot` s_km1) -- Scalar
+                        v_km1 = L.ident (length gradEval) - (rho_km1 `L.scale` y_km1 `L.outer` s_km1) -- Scaling can happen before outer
+                        h_k = (L.tr (v_km1) L.<> h_km1 L.<> v_km1) + (rho_km1 `L.scale` s_km1 `L.outer` s_km1)
+                        gradPreconditioned = h_k L.#> grad_fx_k
+                    in (L.toList gradPreconditioned, BfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_k } )
+
+              _ -> error "invalid BFGS state"
+
+      LBFGS -> error "TODO: L-BFGS"
+
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: (Autofloat b) => OptConfig -> Params -> ObjFn1 a -> [b] -> (b, [b], [b], [[b]], BfgsParams)
-timeAndGrad config params f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, h, bfgs')
+timeAndGrad :: (Autofloat b) => OptConfig -> Params -> ObjFn1 a -> [b] -> (b, [b], [b], BfgsParams)
+timeAndGrad config params f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, bfgs')
             where gradF :: GradFn a
                   gradF = appGrad f
                   gradEval = gradF state
 
-                  h = hessian f state -- TODO: move this back in scope below so we don't calculate it if newton is off?
-                  (gradToUse, bfgs') = if (useSecondOrder config) then
+                  -- h = hessian f state -- TODO: move this back in scope below so we don't calculate it if newton is off?
+                  (gradToUse, bfgs') =
                          -- Note liberal use of r2f since dual numbers don't matter after grad
-                         let (gradPre, bfgsInfo') = gradP (map r2f gradEval :: [Double]) (map r2f $ concat h :: [Double]) (bfgsInfo params)
+                         let (gradPre, bfgsInfo') = gradP config (bfgsInfo params) (map r2f gradEval :: [Double]) f state
                          in (map r2f gradPre, bfgsInfo')
-                      else (gradEval, bfgsInfo params)
 
                   -- Use line search to find a good timestep. If we use Newton's method, the descent direction uses the preconditioned gradient.
                   -- TODO: check on NaNs
