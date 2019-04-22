@@ -255,9 +255,10 @@ getSegmentsG (bds, hs) = let
     hsegments = map (\h->getSegmentsB h) hs
     in concat [concat bdsegments, concat hsegments]
 
--- works well when point not on boundary (otherwise handled separately as edge case.)
-isInB :: Autofloat a => Blob a -> Pt2 a -> Bool
-isInB pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
+-- blob inside/outside test wo testing bbox first
+-- does not use offset.
+isInB' :: Autofloat a => Blob a -> Pt2 a -> Bool
+isInB' pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
     diffp = map (\(x,y)->(x-x0,y-y0)) pts
     getAngle (x,y) = atan2 y x 
     sweeps = map (\(p1,p2)->(getAngle p2)-(getAngle p1)) (getSegmentsB diffp)
@@ -272,11 +273,18 @@ isInB pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
     res = foldl' (+) 0.0 sweepAdjusted
     in res>pi || res<(-pi) 
 
-isInG :: Autofloat a => Polygon a -> Pt2 a -> Bool
-isInG (bds, hs) p = let
+isInG' :: Autofloat a => Polygon a -> Pt2 a -> Bool
+isInG' (bds, hs) p = let
     inb = foldl (||) False $ map (\b->isInB b p) bds
     inh = foldl (||) False $ map (\h->isInB h p) hs
     in (inb) && (not inh)
+
+-- inside/outside test with offset: only true if "very deep inside" or "outside and far enough".
+isInG :: Autofloat a => Polygon a -> Pt2 a -> a -> Bool
+isInG poly p ofs = (isInG' poly p) && (dsqGP poly p 0 >= ofs)
+
+isOutG :: Autofloat a => Polygon a -> Pt2 a -> a -> Bool
+isOutG poly p ofs = (not $ isInG' poly p) && (dsqGP poly p 0 >= ofs)
 
 getBBox :: Autofloat a => Blob a -> (Pt2 a, Pt2 a)
 getBBox pts = let
@@ -285,17 +293,29 @@ getBBox pts = let
         ( (min xlo x, min ylo y), (max xhi x, max yhi y) )
     in foldl' foldfn ((posInf, posInf), (negInf, negInf)) pts
 
+-- true if in bbox and far enough from boundary
 inBBox :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> Bool
 inBBox ((xlo, ylo), (xhi, yhi)) (x,y) = let
-    res = x >= xlo && x <= xhi && y >= ylo && y <= yhi
-    in trace ("in bbox: "++ show res) res
+    res = x >= xlo && x <= xhi &&
+          y >= ylo && y <= yhi
+    in res
 
---TODO: offset
-isInB' :: Autofloat a => Blob a -> Pt2 a -> Bool
-isInB' pts (x0, y0) = let
+{-
+-- true if out of bbox and far enough from boundary
+outBBox :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> a -> Bool
+outBBox ((xlo, ylo), (xhi, yhi)) (x,y) ofs = let
+    res = x-xlo < ofs || xhi-x < ofs ||
+          y-ylo < ofs || yhi-y < ofs
+    in res
+-}
+
+-- polygon inside/outside test by first checking against bbox to opt out early if possible
+-- does not use offset.
+isInB :: Autofloat a => Blob a -> Pt2 a -> Bool
+isInB pts (x0, y0) = let
     bbox = getBBox pts
     in if not $ inBBox bbox (x0,y0) then False else
-    isInB pts (x0,y0)
+    isInB' pts (x0,y0)
 
 scaleB :: Autofloat a => a -> Blob a -> Blob a
 scaleB k b = map (scaleP k) b
@@ -335,16 +355,15 @@ sampleG numSamples (bds, hs) = let
 
 ---- dsq functions ----
 
--- ofs: "offset". ofs = k means dsqPP returns 0 when a and b are at most k units apart
--- might need some sanity check for correctness
+-- ofs: "offset". ofs = k means dsqPP returns 0 when a and b are k units apart.
 dsqPP :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
-dsqPP a b ofs = max 0 $ (magsq $ b -: a) - (ofs**2)
+dsqPP a b ofs = magsq $ b -: a
 
 dsqSP :: Autofloat a => LineSeg a -> Pt2 a -> a -> a
 dsqSP (a,b) p ofs = let t = gettPS p (a,b) in
     if t<0 then dsqPP a p ofs
     else if t>1 then dsqPP b p ofs
-    else max 0 $ ( (**2) $ (normS (a,b)) `dotv` (p -: a) ) - (ofs**2)
+    else (**2) $ (normS (a,b)) `dotv` (p -: a)
 
 dsqSS :: Autofloat a => LineSeg a -> LineSeg a -> a -> a
 dsqSS (a,b) (c,d) ofs = if ixSS (a,b) (c,d) then 0 else let
@@ -366,11 +385,17 @@ dsqGP (bds, hs) p ofs = let
     dsqHS = foldl' min posInf $ map (\h -> dsqBP h p ofs) hs
     in min dsqBD dsqHS
 
+-- only the magnitude matches with dsq. Negative when inside A.
+signedDsqGP :: Autofloat a => Polygon a -> Pt2 a -> a
+signedDsqGP poly p = let 
+    dsq = dsqGP poly p 0.0
+    inside = if dsq < epsd then True else isInG poly p 0.0
+    in if inside then -dsq else dsq
+
 dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
 dsqBS b s ofs = foldl' min posInf $ 
     map (\e -> dsqSS e s ofs) $ getSegmentsB b
 
--- this is itself an energy (for boundary intersection)
 dsqBB :: Autofloat a => Blob a -> Blob a -> a -> a
 dsqBB b1 b2 ofs = let
     min1 = foldl' min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
@@ -384,20 +409,30 @@ dsqGG (bds1, hs1) (bds2, hs2) ofs = let
     b2h1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds2) hs1
     in min (min b1b2 b1h2) (min b2b1 b2h1)
 
+polyA :: Autofloat a => Polygon a
+polyA = ([[(1,1),(1,-1),(-1,-1),(-1,1)]],[])
+
+polyB :: Autofloat a => Polygon a
+polyB = ([[(0,0),(2,0),(2,2),(0,2)]],[])
+
+dsqGG' :: Autofloat a => Polygon a -> Polygon a -> a -> a
+dsqGG' polyA (polyB@(bds,hs)) ofs = let
+    dist = sqrt $ dsqGG polyA polyB 0.0
+    inside = if dist < epsd then True -- has part of boundary inside and part of boundary outside
+        else let p = bds!!0!!0 in isInG polyA p 0.0
+    in if inside then (-dist - ofs)**2 else (dist-ofs)**2
+
 ---- dsq integral along boundary functions ----
 
 -- actually means "#samples per polygon"
 ds :: Int
 ds = 200
 
--- scalefactor :: Autofloat a => a
--- scalefactor = 1 -- doesn't behave as expected though?
-
 dsqBinA :: Autofloat a => Polygon a -> Polygon a -> a -> a
 dsqBinA bA bB ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
     -- interval = (r2f ds) / circumfrence
-    samplesIn = filter (\p -> isInG bA p) $ sampleG ds bB
+    samplesIn = filter (\p -> isInG bA p ofs) $ sampleG ds bB
     res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesIn
     in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
 
@@ -405,11 +440,52 @@ dsqBoutA :: Autofloat a => Polygon a -> Polygon a -> a -> a
 dsqBoutA bA bB ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
     -- interval = (r2f ds) / circumfrence
-    samplesOut = filter (\p -> not $ isInG bA p) $ sampleG ds bB
+    samplesOut = filter (\p -> isOutG bA p ofs) $ sampleG ds bB
     res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesOut
     in {-trace ("|samplesOut|: " ++ show (length samplesOut))-} res
 
+-- (mostly for experimentation) signed distances based on sampling
+-- TODO: signedDsqGG, implement boundary intersect with offset, other two energies with offset.
+-- TODO: the following two can both be achieved from the same iteration (thus save some runtime)
+
+minSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
+minSignedDsqGG polyA polyB = let
+    samples = sampleG ds polyB
+    in foldl' min posInf $ map (signedDsqGP polyA) samples
+
+maxSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
+maxSignedDsqGG polyA polyB = let
+    samples = sampleG ds polyB
+    in foldl' max negInf $ map (signedDsqGP polyA) samples
+
 ---- query energies ----
+
+---- 2 NEW below ----
+-- Energy lowest when minimum/maximum signed distance is at ofs pixels.
+-- Both functions have similar runtime compared to earlier inside/outside energies
+-- Both are a bit "unstable" (shapes make unexpected big jumps), likely because of how they're defined
+-- Both become even more "unstable" when used with Newton's method, although Newton's method
+-- doesn't break them right away. For most of the time still give results that are visually correct
+-- (other times stuck at local min, or explode/shrink)
+
+-- ofs = 0: an alternative containment+tangent energy. Can use negative ofs for containment with padding.
+eBoundaryOffsetContain :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoundaryOffsetContain polyA polyB ofs = let
+    sdsq = maxSignedDsqGG polyA polyB
+    sign = if sdsq >= 0 then 1.0 else -1.0
+    sdist = (*sign) $ sqrt $ abs sdsq
+    res = (sdist - ofs)**2
+    in res
+
+-- ofs = 0: an alternative disjoint+tangent energy. Can use positive ofs for disjoint plus margin.
+eBoundaryOffsetDisjoint :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoundaryOffsetDisjoint polyA polyB ofs = let
+    sdsq = minSignedDsqGG polyA polyB
+    sign = if sdsq >= 0 then 1.0 else -1.0
+    sdist = (*sign) $ sqrt $ abs sdsq
+    res = (sdist - ofs)**2
+    in res
+----
 
 -- containment
 -- TODO: when two shapes start disjoint, #samples = 0???
