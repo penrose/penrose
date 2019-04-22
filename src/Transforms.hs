@@ -357,13 +357,13 @@ sampleG numSamples (bds, hs) = let
 
 -- ofs: "offset". ofs = k means dsqPP returns 0 when a and b are k units apart.
 dsqPP :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
-dsqPP a b ofs = max 0 $ (magsq $ b -: a) - (ofs**2)
+dsqPP a b ofs = magsq $ b -: a
 
 dsqSP :: Autofloat a => LineSeg a -> Pt2 a -> a -> a
 dsqSP (a,b) p ofs = let t = gettPS p (a,b) in
     if t<0 then dsqPP a p ofs
     else if t>1 then dsqPP b p ofs
-    else max 0 $ ( (**2) $ (normS (a,b)) `dotv` (p -: a) ) - (ofs**2)
+    else (**2) $ (normS (a,b)) `dotv` (p -: a)
 
 dsqSS :: Autofloat a => LineSeg a -> LineSeg a -> a -> a
 dsqSS (a,b) (c,d) ofs = if ixSS (a,b) (c,d) then 0 else let
@@ -385,13 +385,12 @@ dsqGP (bds, hs) p ofs = let
     dsqHS = foldl' min posInf $ map (\h -> dsqBP h p ofs) hs
     in min dsqBD dsqHS
 
+-- only the magnitude matches with dsq. Negative when inside A.
 signedDsqGP :: Autofloat a => Polygon a -> Pt2 a -> a
 signedDsqGP poly p = let 
     dsq = dsqGP poly p 0.0
     inside = if dsq < epsd then True else isInG poly p 0.0
     in if inside then -dsq else dsq
-
--- TODO: signedDsqGG, implement boundary intersect with offset, other two energies with offset.
 
 dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
 dsqBS b s ofs = foldl' min posInf $ 
@@ -429,9 +428,6 @@ dsqGG' polyA (polyB@(bds,hs)) ofs = let
 ds :: Int
 ds = 200
 
--- scalefactor :: Autofloat a => a
--- scalefactor = 1 -- doesn't behave as expected though?
-
 dsqBinA :: Autofloat a => Polygon a -> Polygon a -> a -> a
 dsqBinA bA bB ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
@@ -448,7 +444,48 @@ dsqBoutA bA bB ofs = let
     res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesOut
     in {-trace ("|samplesOut|: " ++ show (length samplesOut))-} res
 
+-- (mostly for experimentation) signed distances based on sampling
+-- TODO: signedDsqGG, implement boundary intersect with offset, other two energies with offset.
+-- TODO: the following two can both be achieved from the same iteration (thus save some runtime)
+
+minSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
+minSignedDsqGG polyA polyB = let
+    samples = sampleG ds polyB
+    in foldl' min posInf $ map (signedDsqGP polyA) samples
+
+maxSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
+maxSignedDsqGG polyA polyB = let
+    samples = sampleG ds polyB
+    in foldl' max negInf $ map (signedDsqGP polyA) samples
+
 ---- query energies ----
+
+---- 2 NEW below ----
+-- Energy lowest when minimum/maximum signed distance is at ofs pixels.
+-- Both functions have similar runtime compared to earlier inside/outside energies
+-- Both are a bit "unstable" (shapes make unexpected big jumps), likely because of how they're defined
+-- Both become even more "unstable" when used with Newton's method, although Newton's method
+-- doesn't break them right away. For most of the time still give results that are visually correct
+-- (other times stuck at local min, or explode/shrink)
+
+-- ofs = 0: an alternative containment+tangent energy. Can use negative ofs for containment with padding.
+eBoundaryOffsetContain :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoundaryOffsetContain polyA polyB ofs = let
+    sdsq = maxSignedDsqGG polyA polyB
+    sign = if sdsq >= 0 then 1.0 else -1.0
+    sdist = (*sign) $ sqrt $ abs sdsq
+    res = (sdist - ofs)**2
+    in res
+
+-- ofs = 0: an alternative disjoint+tangent energy. Can use positive ofs for disjoint plus margin.
+eBoundaryOffsetDisjoint :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoundaryOffsetDisjoint polyA polyB ofs = let
+    sdsq = minSignedDsqGG polyA polyB
+    sign = if sdsq >= 0 then 1.0 else -1.0
+    sdist = (*sign) $ sqrt $ abs sdsq
+    res = (sdist - ofs)**2
+    in res
+----
 
 -- containment
 -- TODO: when two shapes start disjoint, #samples = 0???
