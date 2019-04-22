@@ -401,7 +401,7 @@ updateShapes newShapes client@(clientID, conn, clientState) =
             G.shapesr = polyShapes,
             G.varyingState = G.shapes2floats polyShapes varyMapNew $ G.varyingPaths s,
             G.transr = trans',
-            G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn }}
+            G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn, G.bfgsInfo = G.defaultBfgsParams }}
         nextClientS = updateState clientState news
         client' = (clientID, conn, nextClientS)
     in if autostep s
@@ -420,7 +420,7 @@ dragUpdate name xm ym client@(clientID, conn, clientState) =
         varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
         news = s { G.shapesr = newShapes,
                    G.varyingState = G.shapes2floats newShapes varyMapNew $ G.varyingPaths s,
-                   G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter }}
+                   G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.bfgsInfo = G.defaultBfgsParams }}
         nextClientS = updateState clientState (initPolicy news)
         client' = (clientID, conn, nextClientS)
     in if autostep s

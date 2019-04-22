@@ -71,10 +71,15 @@ constT = 0.1
 
 ----- Second-order optimization flags
 
--- TODO: Newton's method, quasi-Newton methods (Generalized Gauss-Newton, L-BFGS), better first-order methods (momentum)
+-- TODO: Newton's method, quasi-Newton methods (Generalized Gauss-Newton, BFGS, L-BFGS), better first-order methods (momentum)
+
+-- TODO: replace this by a string specifying the opt method
 
 useNewton :: Bool
 useNewton = True
+
+useBFGS :: Bool
+useBFGS = True
 
 ----- Convergence criteria
 
@@ -116,7 +121,8 @@ stepPolicy s =
                                             currFns = newFns }
                     paramsNew = Params { weight = initWeight,
                                          optStatus = NewIter,
-                                         overallObjFn = objFnNew }
+                                         overallObjFn = objFnNew,
+                                         bfgsInfo = defaultBfgsParams }
                 in tro ("Step policy, EP converged, new params:\n" ++ show (paramsNew, pparamsNew, newFns)) $ (paramsNew, pparamsNew)
 
     -- If not converged, optimize as usual, don't change policy mid-optimization
@@ -162,7 +168,7 @@ stepShapes config params vstate g = -- varying state
 
          -- start the outer EP optimization and the inner unconstrained optimization, recording initial EPstate
          NewIter -> let status' = UnconstrainedRunning (map realToFrac vstate) in
-                    (vstate', params { weight = initWeight, optStatus = status'} )
+                    (vstate', params { weight = initWeight, optStatus = status', bfgsInfo = defaultBfgsParams } )
          -- check *weak* convergence of inner unconstrained opt.
          -- if UO converged, set opt state to converged and update UO state (NOT EP state)
          -- if not, keep running UO (inner state implicitly stored)
@@ -174,7 +180,7 @@ stepShapes config params vstate g = -- varying state
                -- unconstrainedStopCond gradEval in
            if unconstrConverged then
               let status' = UnconstrainedConverged lastEPstate in -- update UO state only!
-              (vstate', params { optStatus = status'}) -- note vstate' (UO converged), not vstate
+              (vstate', params { optStatus = status', bfgsInfo = bfgs' }) -- note vstate' (UO converged), not vstate
            else (vstate', params) -- update UO state but not EP state; UO still running
 
          -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
@@ -185,20 +191,20 @@ stepShapes config params vstate g = -- varying state
                                    (objFnApplied lastEPstate) (objFnApplied (map r2f vstate)) in
            if epConverged then
               let status' = EPConverged in -- no more EP state
-              (vstate, params { optStatus = status'}) -- do not update UO state
+              (vstate, params { optStatus = status', bfgsInfo = bfgs' }) -- do not update UO state
            -- update EP state: to be the converged state from the most recent UO
            else let status' = UnconstrainedRunning (map realToFrac vstate) in -- increase weight
                 let epWeight' = weightGrowthFactor * epWeight in
                 -- trace ("Unconstrained converged. New weight: " ++ show epWeight') $
-                      (vstate, params { weight = epWeight', optStatus = status' })
+                      (vstate, params { weight = epWeight', optStatus = status', bfgsInfo = bfgs' })
 
          -- done; don't update obj state or params; user can now manipulate
-         EPConverged -> (vstate, params)
+         EPConverged -> (vstate, params { bfgsInfo = bfgs' } )
 
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
-        where (vstate', gradEval) = stepWithObjective config g params vstate
+        where (vstate', gradEval, bfgs') = stepWithObjective config g params vstate
               objFnApplied = (overallObjFn params) g (r2f $ weight params)
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
@@ -209,21 +215,22 @@ stepT dt x dfdx = x - dt * dfdx
 
 -- Precondition the gradient
 -- TODO: clean up the numeric type conversion between here and below
-gradP :: [Double] -> [Double] -> (forall a. (Autofloat a => [a]))-- [Double]
-gradP gradEval h =
+gradP :: [Double] -> [Double] -> BfgsParams -> ([Double], BfgsParams)
+gradP gradEval h bfgsParams =
       -- Take the pseudoinverse of the hessian
       let hinv = L.pinv $ L.matrix (length gradEval) $ h in
       let gradPreconditioned = hinv L.#> (L.vector gradEval) in
-      map r2f $ L.toList gradPreconditioned
+      let bfgsParams' = bfgsParams in
+      (L.toList gradPreconditioned, bfgsParams')
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: (Autofloat a) => OptConfig -> StdGen -> Params -> [a] -> ([a], [a])
+stepWithObjective :: (Autofloat a) => OptConfig -> StdGen -> Params -> [a] -> ([a], [a], BfgsParams)
 stepWithObjective config g params state =
                   -- if null gradEval then error "empty gradient" else
-                  (steppedState, gradEval)
-    where (t', gradEval, gradToUse, h) = timeAndGrad config objFnApplied state
+                  (steppedState, gradEval, bfgs')
+    where (t', gradEval, gradToUse, h, bfgs') = timeAndGrad config params objFnApplied state
 
           -- get timestep via line search, and evaluated gradient at the state
           -- step each parameter of the state with the time and gradient
@@ -267,17 +274,18 @@ appHess f l = hessian f l
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: (Autofloat b) => OptConfig -> ObjFn1 a -> [b] -> (b, [b], [b], [[b]])
-timeAndGrad config f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, h)
+timeAndGrad :: (Autofloat b) => OptConfig -> Params -> ObjFn1 a -> [b] -> (b, [b], [b], [[b]], BfgsParams)
+timeAndGrad config params f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, h, bfgs')
             where gradF :: GradFn a
                   gradF = appGrad f
                   gradEval = gradF state
 
                   h = hessian f state -- TODO: move this back in scope below so we don't calculate it if newton is off?
-                  gradToUse = if (useSecondOrder config) then
+                  (gradToUse, bfgs') = if (useSecondOrder config) then
                          -- Note liberal use of r2f since dual numbers don't matter after grad
-                         gradP (map r2f gradEval :: [Double]) (map r2f $ concat h :: [Double])
-                      else gradEval
+                         let (gradPre, bfgsInfo') = gradP (map r2f gradEval :: [Double]) (map r2f $ concat h :: [Double]) (bfgsInfo params)
+                         in (map r2f gradPre, bfgsInfo')
+                      else (gradEval, bfgsInfo params)
 
                   -- Use line search to find a good timestep. If we use Newton's method, the descent direction uses the preconditioned gradient.
                   -- TODO: check on NaNs

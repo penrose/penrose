@@ -82,11 +82,23 @@ instance Eq OptStatus where
 
 data Params = Params { weight :: Float,
                        optStatus :: OptStatus,
-                       overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a
+                       overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a,
+                       bfgsInfo :: BfgsParams
                      }
 
 instance Show Params where
          show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
+
+data BfgsParams = BfgsParams {
+     lastGrad :: forall a . (Autofloat a) => [a], -- last gradient of f(x)
+     invH :: forall a . (Autofloat a) => [[a]] -- estimate of the inverse of the hessian
+}
+
+instance Show BfgsParams where
+         show s = "lastGrad: \n" ++ ppShow (lastGrad s) ++
+                  "\ninvH: \n" ++ ppShow (invH s)
+
+defaultBfgsParams = BfgsParams { lastGrad = [], invH = [] }
 
 type PolicyState = String -- Should this include the functions that it returned last time?
 type Policy = [Fn] -> [Fn] -> PolicyParams -> (Maybe [Fn], PolicyState)
@@ -104,7 +116,6 @@ data OptConfig = OptConfig {
                useSecondOrder :: Bool
      } deriving (Eq, Show, Generic)
 
-defaultOptConfig :: OptConfig
 defaultOptConfig = OptConfig { useSecondOrder = True }
 
 instance A.ToJSON OptConfig where
@@ -877,7 +888,8 @@ genOptProblemAndState trans optConfig =
                                  constrFns = constrsWithDefaults,
                                  paramsr = Params { weight = initWeight,
                                                     optStatus = NewIter,
-                                                    overallObjFn = overallFn },
+                                                    overallObjFn = overallFn,
+                                                    bfgsInfo = defaultBfgsParams },
                                  rng = g'',
                                  autostep = False, -- default
                                  policyParams = initPolicyParams,
