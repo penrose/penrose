@@ -13,20 +13,20 @@ from xeger import Xeger   # string generator from regex
 
 paths = {}
 ids = {
+    '''Type: [prefix, count]'''
     'PathVertex': ['v', 0],
     'DiffuseObject': ['d', 0],
     'SpecularObject': ['s', 0],
     'LightSource': ['l', 0],
     'Camera': ['c', 0]
 }
-numSamples = 0
-scene = ""
 
 def valueOf(json, s):
     res = [v['value'] for v in json['values'] if v['name'] == s]
     return res[0]
 
 def genSubstance():
+    '''Generate a Substance program from the context'''
     res = ''
     for path_id, path in paths.iteritems():
         vertices = []
@@ -111,6 +111,7 @@ def vertexDecl(v, path):
 
 
 def process(json, gen):
+    '''Process JSON input from the backend and populate context'''
     # Go through objects
     for obj in json['objects']:
         type = obj['objType']
@@ -127,8 +128,6 @@ def process(json, gen):
         elif name == 'SceneSatisfies':
             sceneId, pathId = pred['pargNames']
             paths[pathId]['scene'] = sceneId
-
-
 
 if __name__ == '__main__':
     inputFile  = 'Sub_enduser.json'
