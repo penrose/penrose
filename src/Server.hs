@@ -37,7 +37,7 @@ import qualified Sugarer
 --                                                 getNum, getX, getY, sampleShapes, setX,
 --                                                 setY, toPolymorphics, set, is)
 import qualified Style                         as N
-import           Substance                     (parseSubstance)
+import qualified Substance                     -- (parseSubstance, SubOut)
 import qualified System.Console.Pretty         as Console
 import           System.Console.Pretty         (Color (..), Style (..), bgColor,
                                                 color, supportsPretty)
@@ -47,7 +47,7 @@ import           Utils                         (Autofloat, divLine, fromRight,
                                                 r2f, trRaw)
 
 import           Data.UUID
-import           Env                           (VarEnv)
+import           Env                           (VarEnv, declaredNames)
 import           Dsll                          (parseDsll)
 import           GenOptProblem
 import           Style
@@ -373,11 +373,12 @@ substanceEdit subIn _ client@(_, _, Renderer _) =
     logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
 substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
-    subRes <- try (parseSubstance "" (Sugarer.sugarStmts subIn env) env)
+    subRes <- try (Substance.parseSubstance "" (Sugarer.sugarStmts subIn env) env)
     case subRes of
-        Right subOut -> do
-            logDebug client $ show subOut
+        Right subOut@(Substance.SubOut _ (env, _) _) -> do
+            logInfo client $ show subOut
             -- TODO: store the Style values to reuse on Substance edit
+            wsSendPacket conn $ Packet { typ = "env", contents = env }
             let styVals = []
             styRes <- try (compileStyle styProg subOut styVals)
             case styRes of

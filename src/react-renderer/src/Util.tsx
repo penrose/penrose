@@ -147,7 +147,7 @@ export const collectLabels = async (allShapes: any[]) => {
         const obj2 = { ...obj };
         obj2.w.contents = width;
         obj2.h.contents = height;
-        console.log(body, obj2);
+        // console.log(body, obj2);
         // Add omit: true flag so it doesn't get sent to the server
         obj2.rendered = {contents: body, omit: true};
         return [type, obj2];
