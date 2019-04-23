@@ -375,10 +375,10 @@ substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
     subRes <- try (Substance.parseSubstance "" (Sugarer.sugarStmts subIn env) env)
     case subRes of
-        Right subOut@(Substance.SubOut _ (env, _) _) -> do
+        Right subOut@(Substance.SubOut _ (subEnv, _) _) -> do
             logInfo client $ show subOut
             -- TODO: store the Style values to reuse on Substance edit
-            wsSendPacket conn $ Packet { typ = "env", contents = env }
+            wsSendPacket conn $ Packet { typ = "env", contents = subEnv }
             let styVals = []
             styRes <- try (compileStyle styProg subOut styVals)
             case styRes of
