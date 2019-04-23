@@ -12,8 +12,8 @@ from xeger import Xeger   # string generator from regex
 
 
 paths = {}
+# Type: [prefix, count]
 ids = {
-    '''Type: [prefix, count]'''
     'PathVertex': ['v', 0],
     'DiffuseObject': ['d', 0],
     'SpecularObject': ['s', 0],
