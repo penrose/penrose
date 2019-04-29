@@ -1072,6 +1072,9 @@ contains [GPI s@("Square", _), GPI l@("Text", _)] =
 contains [GPI s@("Rectangle", _), GPI l@("Text", _)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
     dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "sizeX"
+contains [GPI s@("Rectangle", _), GPI l@("Image", _)] =
+    -- TODO: implement precisely, max (w, h)? How about diagonal case?
+    dist (getNum l "centerX", getNum l "centerY") (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "sizeX"
 contains [GPI r1@("Rectangle", _), GPI r2@("Rectangle", _)] =
     -- HACK: reusing test impl, revert later
     let r1_l = min (getNum r1 "sizeX") (getNum r1 "sizeY") / 2

@@ -7,7 +7,7 @@ module Shapes where
 import Utils
 import System.Random
 import GHC.Generics
-import Data.Aeson (FromJSON, ToJSON, toJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as M
 

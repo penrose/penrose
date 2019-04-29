@@ -38,7 +38,7 @@ Scene s {
         sizeX = s.sizeX
         sizeY = s.sizeY
         fill  = Colors.none
-        strokeColor = Colors.blue
+        strokeColor = Colors.none
         strokeWidth = 1.5
     }
 }
@@ -56,6 +56,7 @@ where InOS(d, s) with Scene s {
         sizeX = s.sizeX
         sizeY = s.sizeY
     }
+    d.layering = d.shape above s.container
 }
 
 
@@ -67,7 +68,7 @@ SpecularObject o {
         fill = Colors.gray
         -- TODO: sizes are temporary
         sizeX = 100.0
-        sizeY = 30.0
+        sizeY = 20.0
     }
 }
 
@@ -89,6 +90,13 @@ LightSource l {
 
 Camera c {
     -- TODO: has to have a location
+    /*
+    c.shape = Image {
+        lengthX = 20.0
+        lengthY = 20.0
+        path  = "eye.svg"
+    }
+    */
     c.shape = Circle {
         color = Colors.gray
         r = 20.0
@@ -129,6 +137,8 @@ PathVertex v; PathSample ps
 where InVP(v, p); OnEye(v)
 with Path p; Camera c {
 	-- TODO: put the location on E's border
+    -- v.x = c.shape.centerX
+    -- v.y = c.shape.centerY
     v.x = c.shape.x
     v.y = c.shape.y
 }
@@ -184,8 +194,8 @@ with PathVertex v1, v2, v3;
 {
     -- NOTE: trying to control rotation first
     override o.shape.rotation = mirrorAngle(e1.shape, e2.shape)
-    override o.shape.x = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, -15.0)
-    override o.shape.y = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, -15.0)
+    override o.shape.x = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.sizeY / -2.0)
+    override o.shape.y = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.sizeY / -2.0)
 }
 
 ---------------------------NON-COMPILABLE CODE----------------------------------

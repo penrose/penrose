@@ -67,14 +67,20 @@ def genSubstance():
             path['objects'].append((type, id))
 
         # HACK: find first obj of the same type everytime
+        # COMBAK: support multiple specular object??
+        specularCount = 0
         for vType, vId in path['vertices']:
-            oType, oId = findObj(vType, path['objects'])
+            if(vType == 'Specular'): 
+                oType, oId = findObj(vType, path['objects'], specularCount) 
+                specularCount = specularCount + 1
+            else:
+                oType, oId = findObj(vType, path['objects']) 
             res += 'Hits({0}, {1})\n'.format(vId, oId)
 
     return res
 
-def findObj(vType, objList):
-    return filter(lambda (t, i): t == vType, objList)[0]
+def findObj(vType, objList, idx=0):
+    return filter(lambda (t, i): t == vType, objList)[idx]
 
 def nextDecl(type):
     id   = ids[type][0] + str(ids[type][1])
