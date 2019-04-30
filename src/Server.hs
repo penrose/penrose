@@ -37,7 +37,7 @@ import qualified Sugarer
 --                                                 getNum, getX, getY, sampleShapes, setX,
 --                                                 setY, toPolymorphics, set, is)
 import qualified Style                         as N
-import           Substance                     (parseSubstance)
+import qualified Substance                     -- (parseSubstance, SubOut)
 import qualified System.Console.Pretty         as Console
 import           System.Console.Pretty         (Color (..), Style (..), bgColor,
                                                 color, supportsPretty)
@@ -47,7 +47,7 @@ import           Utils                         (Autofloat, divLine, fromRight,
                                                 r2f, trRaw)
 
 import           Data.UUID
-import           Env                           (VarEnv)
+import           Env                           (VarEnv, declaredNames)
 import           Dsll                          (parseDsll)
 import           GenOptProblem
 import           Style
@@ -137,6 +137,11 @@ handleClient env styProg state pending = do
     clientID <- newUUID
     let clientState = Editor env styProg Nothing
     let client      = (clientID, conn, clientState)
+
+    -- FIXME: for testing purposes, send the env to the frontend
+    logInfo client $ show env
+    wsSendPacket conn $ Packet { typ = "env", contents = env}
+
     let logPath = "/tmp/penrose-" ++ idString client ++ ".log"
     myStreamHandler <- streamHandler stderr INFO
     myFileHandler <- fileHandler logPath INFO
@@ -237,7 +242,7 @@ serveEditor domain port env styProg = do
          handler e = putStrLn "Server Error"
 
 editor, renderer :: ClientState -> WS.ServerApp
-editor clientState@Editor {} pending = do
+editor clientState@(Editor elementEnv _ _) pending = do
     conn <- WS.acceptRequest pending
     clientID <- newUUID
     let client = (clientID, conn, clientState)
@@ -352,6 +357,8 @@ recompileDomain element style client@(clientID, conn, Editor {}) = do
     elementRes <- try $ parseDsll "" element
     case elementRes of
         Right elementEnv -> do
+            -- Send Env to the frontend for language services (for now, bag-of-word autocompletion)
+            wsSendPacket conn $ Packet { typ = "env", contents = elementEnv}
             styRes <- try $ parseStyle "" style elementEnv
             case styRes of
                 Right styProg -> do
@@ -366,11 +373,12 @@ substanceEdit subIn _ client@(_, _, Renderer _) =
     logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
 substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
-    subRes <- try (parseSubstance "" (Sugarer.sugarStmts subIn env) env)
+    subRes <- try (Substance.parseSubstance "" (Sugarer.sugarStmts subIn env) env)
     case subRes of
-        Right subOut -> do
-            logDebug client $ show subOut
+        Right subOut@(Substance.SubOut _ (subEnv, _) _) -> do
+            logInfo client $ show subOut
             -- TODO: store the Style values to reuse on Substance edit
+            wsSendPacket conn $ Packet { typ = "env", contents = subEnv }
             let styVals = []
             styRes <- try (compileStyle styProg subOut styVals)
             case styRes of
