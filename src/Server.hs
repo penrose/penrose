@@ -59,6 +59,9 @@ import System.Log.Handler.Simple (fileHandler, streamHandler, GenericHandler)
 import System.Log.Handler (setFormatter)
 import System.Log.Formatter
 import Text.Show.Pretty
+
+default (Int, Float)
+
 --------------------------------------------------------------------------------
 -- Types
 

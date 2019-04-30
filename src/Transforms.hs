@@ -12,6 +12,8 @@ import qualified Data.Map.Strict as M
 import GHC.Generics
 import Data.Aeson (FromJSON, ToJSON, toJSON)
 
+default (Int, Float)
+
 -- a, b, c, d, e, f as here:
 -- https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
 data HMatrix a = HMatrix {
@@ -80,7 +82,7 @@ infixl 7 #
 -- Compose all the transforms in RIGHT TO LEFT order:
 -- [t1, t2, t3] means "do t3, then do t2, then do t1" or "t1 * t2 * t3"
 composeTransforms :: (Autofloat a) => [HMatrix a] -> HMatrix a
-composeTransforms ts = foldr composeTransform idH ts
+composeTransforms ts = foldl' composeTransform idH (reverse ts)
 
 -- Specific transformations
 
@@ -142,7 +144,9 @@ circlePoly :: (Autofloat a) => a -> [Pt2 a]
 circlePoly r = let 
 -- currently doesn't use r, so that #sides remains the same throughout opt.
 -- TODO: might want to depend on radius of the original circle in some way?
+    sides :: Int
     sides = max 8 $ floor (64 / 4.0)
+    indices :: [Int]
     indices = [0..sides-1]
     angles = map (\i -> (r2f i) / (r2f sides) * 2.0 * pi) indices
     pts = map (\a -> (cos a, sin a)) angles
@@ -275,8 +279,8 @@ isInB' pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
 
 isInG' :: Autofloat a => Polygon a -> Pt2 a -> Bool
 isInG' (bds, hs) p = let
-    inb = foldl (||) False $ map (\b->isInB b p) bds
-    inh = foldl (||) False $ map (\h->isInB h p) hs
+    inb = foldl' (||) False $ map (\b->isInB b p) bds
+    inh = foldl' (||) False $ map (\h->isInB h p) hs
     in (inb) && (not inh)
 
 -- inside/outside test with offset: only true if "very deep inside" or "outside and far enough".
@@ -327,6 +331,7 @@ circumfrenceB blob = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB blob
 sampleS :: Autofloat a => a -> LineSeg a -> [Pt2 a]
 sampleS numSamplesf (a, b) = let
     -- l = mag $ b -: a
+    numSamples :: Int
     numSamples = (floor numSamplesf) + 1--floor $ l/interval
     inds = map realToFrac [0..numSamples-1]
     ks = map (/(realToFrac numSamples)) $ inds
@@ -501,7 +506,7 @@ eABdisj :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eABdisj bA bB ofs = let
     eAinB = dsqBinA bB bA ofs
     eBinA = dsqBinA bA bB ofs
-    in eAinB + eBinA
+    in eAinB + eBinA 
 
 -- A and B tangent, B inside A
 eBinAtangent :: Autofloat a => Polygon a -> Polygon a -> a -> a

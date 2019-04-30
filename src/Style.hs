@@ -39,6 +39,8 @@ import Data.Dynamic
 import Data.Typeable
 import Env
 
+default (Int, Float)
+
 --------------------------------------------------------------------------------
 -- Instantiator
 

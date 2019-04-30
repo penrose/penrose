@@ -15,6 +15,8 @@ import Debug.Trace
 import System.Random
 import System.Console.ANSI
 
+default (Int, Float)
+
 ------ Opt types, util functions, and params
 
 type ObjFn1 a = forall a . (Autofloat a) => [a] -> a

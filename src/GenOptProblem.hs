@@ -35,6 +35,8 @@ import qualified Data.Aeson as A
 import GHC.Generics
 import qualified Numeric.LinearAlgebra as L
 
+default (Int, Float)
+
 -------------------- Type definitions
 
 type StyleOptFn = (String, [Expr]) -- Objective or constraint
@@ -369,7 +371,7 @@ getShapes shapenames trans = map (getShape trans) shapenames
 ----- GPI helper functions
 
 shapes2vals :: (Autofloat a) => [Shape a] -> [Path] -> [Value a]
-shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
+shapes2vals shapes paths = reverse $ foldl' (lookupPath shapes) [] paths
     where
         lookupPath shapes acc (PropertyPath s field property) =
             let subID = bvarToString s
@@ -381,7 +383,7 @@ shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
 -- look up property values in the shapes and field values in the varyMap
 -- NOTE: varyState is constructed using a foldl, so to preserve its order, we must reverse the list of values!
 shapes2floats :: (Autofloat a) => [Shape a] -> VaryMap a -> [Path] -> [a]
-shapes2floats shapes varyMap varyingPaths = reverse $ foldl (lookupPathFloat shapes varyMap) [] varyingPaths
+shapes2floats shapes varyMap varyingPaths = reverse $ foldl' (lookupPathFloat shapes varyMap) [] varyingPaths
     where
         lookupPathFloat :: (Autofloat a) => [Shape a] -> VaryMap a -> [a] -> Path -> [a]
         lookupPathFloat shapes _ acc (PropertyPath s field property) =
@@ -559,7 +561,7 @@ evalGPI_withUpdate :: (Autofloat a)
 evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap g =
         -- Fold over the properties, evaluating each path, which will update the translation each time,
         -- and accumulate the new property-value list (WITH varying looked up)
-        let (propertyList', trans', g') = foldl (evalProperty (i, n) bvar field varyMap) ([], trans, g) (M.toList properties) in
+        let (propertyList', trans', g') = foldl' (evalProperty (i, n) bvar field varyMap) ([], trans, g) (M.toList properties) in
         let properties' = M.fromList propertyList' in
         {-trace ("Start eval GPI: " ++ show properties ++ " " ++ "\n\tctor: " ++ "\n\tfield: " ++ show field)-}
         ((ctor, properties'), trans', g')
@@ -662,7 +664,7 @@ evalExprs :: (Autofloat a)
     => (Int, Int) -> [Expr] -> Translation a -> VaryMap a -> StdGen
     -> ([ArgVal a], Translation a, StdGen)
 evalExprs limit args trans varyMap g =
-    foldl (evalExprF limit varyMap) ([], trans, g) args
+    foldl' (evalExprF limit varyMap) ([], trans, g) args
     where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([ArgVal a], Translation a, StdGen) -> Expr -> ([ArgVal a], Translation a, StdGen)
           evalExprF limit varyMap (argvals, trans, rng) arg =
                        let (argVal, trans', rng') = evalExpr limit arg trans varyMap rng in
@@ -680,7 +682,7 @@ evalFnArgs limit varyMap (fnDones, trans, g) fn =
 evalFns :: (Autofloat a)
     => (Int, Int) -> [Fn] -> Translation a -> VaryMap a -> StdGen
     -> ([FnDone a], Translation a, StdGen)
-evalFns limit fns trans varyMap g = foldl (evalFnArgs limit varyMap) ([], trans, g) fns
+evalFns limit fns trans varyMap g = foldl' (evalFnArgs limit varyMap) ([], trans, g) fns
 
 applyOptFn :: (Autofloat a) =>
     M.Map String (OptFn a) -> OptSignatures -> FnDone a -> a
@@ -739,7 +741,7 @@ initShape (trans, g) (n, field) =
 
 initShapes :: (Autofloat a) =>
     Translation a -> [(String, Field)] -> StdGen -> (Translation a, StdGen)
-initShapes trans shapePaths gen = foldl initShape (trans, gen) shapePaths
+initShapes trans shapePaths gen = foldl' initShape (trans, gen) shapePaths
 
 resampleFields :: (Autofloat a) => [Path] -> StdGen -> ([a], StdGen)
 resampleFields varyingPaths g =
@@ -770,7 +772,7 @@ evalShape limit varyMap (shapes, trans, g) shapePath =
 -- recursively evaluate every shape property in the translation
 evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> StdGen -> ([Shape a], Translation a, StdGen)
 evalShapes limit shapeNames trans varyMap rng =
-           let (shapes, trans', rng') = foldl (evalShape limit varyMap) ([], trans, rng) shapeNames in
+           let (shapes, trans', rng') = foldl' (evalShape limit varyMap) ([], trans, rng) shapeNames in
            (reverse shapes, trans', rng')
 
 -- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape

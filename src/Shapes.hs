@@ -8,10 +8,13 @@ import Utils
 import Transforms
 import System.Random
 import GHC.Generics
+import Data.List (foldl')
 import Data.Aeson (FromJSON, ToJSON, toJSON)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as M
 import Debug.Trace
+
+default (Int, Float)
 
 -- import Language.Haskell.TH
 --
@@ -575,7 +578,7 @@ sampleColor rng =
 -- | Samples all properties of input shapes
 sampleShapes :: (Autofloat a) => StdGen -> [Shape a] -> ([Shape a], StdGen)
 sampleShapes g shapes =
-    let (shapes', g') = foldl sampleShape ([], g) shapes
+    let (shapes', g') = foldl' sampleShape ([], g) shapes
     in (reverse shapes', g')
 sampleShape (shapes, g) oldShape@(typ, oldProperties) =
     let (_, propDefs)    = findDef typ
@@ -1110,7 +1113,7 @@ getAll shape = map (get shape)
 
 -- | batch set
 setAll :: (Autofloat a) => Shape a -> [(PropID, Value a)] -> Shape a
-setAll = foldl (\s (k, v) -> set s k v)
+setAll = foldl' (\s (k, v) -> set s k v)
 
 
 -- | reset a property to its default value
@@ -1292,10 +1295,10 @@ mapProperties f (t, propDict) = (t, M.map f propDict)
 -- | fold over all properties of a shape
 -- TODO: withKey?
 foldlProperties :: (Autofloat a) => (b -> Value a -> b) -> b -> Shape a -> b
-foldlProperties f accum (_, propDict)  =  M.foldl f accum propDict
+foldlProperties f accum (_, propDict)  =  M.foldl' f accum propDict
 
 foldlPropertyDefs :: (Autofloat a) => (b -> (ValueType, SampledValue a) -> b) -> b -> ShapeDef a -> b
-foldlPropertyDefs f accum (_, propDict) =  M.foldl f accum propDict
+foldlPropertyDefs f accum (_, propDict) =  M.foldl' f accum propDict
 
 foldlPropertyMappings :: (Autofloat a) =>
     (b -> PropID -> (ValueType, SampledValue a) -> b) -> b -> ShapeDef a -> b

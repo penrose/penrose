@@ -15,6 +15,8 @@ import           System.Random.Shuffle
 import qualified Data.Map.Strict as M
 import qualified Data.MultiMap as MM
 
+default (Int, Float) -- So we don't default to Integer, which is 10x slower than Int (?)
+
 -- genShapeType $ shapeTypes shapeDefs
 -- deriving instance Show ShapeType
 
@@ -298,7 +300,7 @@ objSignatures = MM.fromList
 -- exterior point method: penalty function
 penalty :: (Ord a, Floating a, Show a) => a -> a
 penalty x = max x 0 ^ q -- weights should get progressively larger in cr_dist
-            where q = 2 -- also, may need to sample OUTSIDE feasible set
+            where q = 2 :: Int -- also, may need to sample OUTSIDE feasible set
             -- where q = 3
 {-# INLINE penalty #-}
 
@@ -1267,7 +1269,7 @@ randomPolygon [Val (IntV n)] g =
 nearT :: ObjFn
 nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
       let tf = getTransform o in
-      distsq (dx tf, dy tf) (x, y)
+      distsq (dx tf, dy tf) (x, y) 
 
 boundaryIntersect :: ObjFn
 boundaryIntersect [GPI o1, GPI o2] =

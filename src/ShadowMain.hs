@@ -42,6 +42,8 @@ import qualified Data.List as L (intercalate)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
 import System.Console.Docopt
 
+default (Int, Float)
+
 argPatterns :: Docopt
 argPatterns = [docoptFile|USAGE.txt|]
 

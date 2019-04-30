@@ -9,6 +9,7 @@ import Debug.Trace
 import Data.Typeable
 import Control.Arrow
 
+default (Int, Float)
 
 -- | A more concise typeclass for polymorphism for autodiff
 -- | NiceFloating :: * -> Constraint
