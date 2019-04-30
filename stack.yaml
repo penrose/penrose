@@ -6,7 +6,6 @@ extra-deps:
 - aeson-1.2.3.0
 - binary-0.8.5.1
 - unix-2.7.2.2
-- aeson-1.2.3.0
 - extra-1.6
 - megaparsec-6.4.0
 - parser-combinators-0.4.0
