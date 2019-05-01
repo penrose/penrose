@@ -698,16 +698,22 @@ applyCombined penaltyWeight fns =
 
 -- Main function: generates the objective function, partially applying it with some info
 
+containsRaw :: (Autofloat a) => a -> a -> [a] -> a
+containsRaw w1 w2 [r1, x1, y1, r2, x2, y2] = w1 * w2 * (penalty (dist (x1, y1) (x2, y2) - (r1 - r2))
+                                                             + penalty (20 - r1) + penalty (20 - r2))
+
 genObjfn :: (Autofloat a)
     => Translation a -> [Fn] -> [Fn] -> [Path]
     -> StdGen -> a -> [a]
     -> a
 genObjfn trans objfns constrfns varyingPaths =
      \rng penaltyWeight varyingVals ->
-         let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
-         let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
-         let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
-         tr "Completed applying optimization function" overallEnergy
+          containsRaw penaltyWeight constrWeight varyingVals
+
+         -- let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
+         -- let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
+         -- let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
+         -- tr "Completed applying optimization function" overallEnergy
 
 --------------- Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 -- 1. Initialize all varying fields
