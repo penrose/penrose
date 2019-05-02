@@ -150,7 +150,7 @@ step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingStat
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
-stepShapes :: (Autofloat a) => OptConfig -> Params -> [a] -> StdGen -> ([a], Params)
+stepShapes :: OptConfig -> Params -> [Float] -> StdGen -> ([Float], Params)
 stepShapes config params vstate g = -- varying state
          -- if null vstate then error "empty state in stepshapes" else
          let (epWeight, epStatus) = (weight params, optStatus params) in
@@ -198,15 +198,15 @@ stepShapes config params vstate g = -- varying state
               objFnApplied = (overallObjFn params) g (r2f $ weight params)
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
--- return the new state. Note that the time is treated as `Floating a` (which is internally a Double)
--- not gloss's `Float`
-stepT :: Floating a => a -> a -> a -> a
+-- return the new state
+
+stepT :: Float -> Float -> Float -> Float
 stepT dt x dfdx = x - dt * dfdx
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: (Autofloat a) => OptConfig -> StdGen -> Params -> [a] -> ([a], [a], BfgsParams)
+stepWithObjective :: OptConfig -> StdGen -> Params -> [Float] -> ([Float], [Float], BfgsParams)
 stepWithObjective config g params state =
                   -- if null gradEval then error "empty gradient" else
                   (steppedState, gradEval, bfgs')
@@ -253,7 +253,7 @@ appHess :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [[a
 appHess f l = hessian f l
 
 -- Precondition the gradient
-gradP :: (Autofloat b) => OptConfig -> BfgsParams -> [Double] -> ObjFn1 a -> [b] -> ([Double], BfgsParams)
+gradP :: OptConfig -> BfgsParams -> [Double] -> ObjFn1 a -> [Float] -> ([Double], BfgsParams)
 gradP config bfgsParams gradEval f state =
       let x_k = L.vector $ map r2f state
           grad_fx_k = L.vector gradEval
@@ -304,7 +304,7 @@ gradP config bfgsParams gradEval f state =
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: (Autofloat b) => OptConfig -> Params -> ObjFn1 a -> [b] -> (b, [b], [b], BfgsParams)
+timeAndGrad :: OptConfig -> Params -> ObjFn1 a -> [Float] -> (Float, [Float], [Float], BfgsParams)
 timeAndGrad config params f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, bfgs')
             where gradF :: GradFn a
                   gradF = appGrad f
@@ -343,7 +343,7 @@ linesearch_max = 100 -- TODO what's a reasonable limit (if any)?
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 -- TODO summarize algorithm
 -- TODO what happens if there are NaNs in awLineSearch? or infinities
-awLineSearch :: (Autofloat b) => OptConfig -> ObjFn1 a -> ObjFn2 a -> [b] -> [b] -> b
+awLineSearch :: OptConfig -> ObjFn1 a -> ObjFn2 a -> [Float] -> [Float] -> Float
 awLineSearch config f duf_noU descentDir x0 =
              -- results after a&w are satisfied are junk and can be discarded
              -- drop while a&w are not satisfied OR the interval is large enough
