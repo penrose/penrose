@@ -312,3 +312,5 @@ scaleP k (a,b) = (a*k, b*k)
 translate2 v pts = map (+: v) pts
 
 map2 f (a, b) = (f a, f b)
+
+rotateList l = take (length l) $ drop 1 (cycle l)

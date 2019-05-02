@@ -225,7 +225,8 @@ toPolyProperty v = case v of
                                        dx = r2f $ dx m,
                                        dy = r2f $ dy m
                                      }
-    PolygonV (b, h) -> PolygonV $ (map (map r2) b, map (map r2) h)
+    PolygonV (b, h, bbox, samples) -> PolygonV $ (
+        map (map r2) b, map (map r2) h, map2 r2 bbox, map r2 samples)
     where r2 (x, y) = (r2f x, r2f y)
 
 toPolyPath :: Path' Double -> (forall a . (Autofloat a) => Path' a)
