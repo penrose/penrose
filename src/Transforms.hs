@@ -164,11 +164,13 @@ testNonconvex = [(0, 0), (100, 0), (50, 50), (100, 100), (0, 100)]
 
 -- TODO: the samples be transformed along by transforming here?
 transformPoly :: (Autofloat a) => HMatrix a -> Polygon a -> Polygon a
-transformPoly m (blobs, holes, _, samples) = (
-    map (map (applyTransform m)) blobs, 
-    map (map (applyTransform m)) holes,
-    getBBox (concat blobs),
-    map (applyTransform m) samples
+transformPoly m (blobs, holes, _, samples) = let
+    transformedBlobs = map (map (applyTransform m)) blobs
+    in (
+        transformedBlobs, 
+        map (map (applyTransform m)) holes,
+        getBBox (concat transformedBlobs),
+        map (applyTransform m) samples
     )
 
 transformSimplePoly :: (Autofloat a) => HMatrix a -> [Pt2 a] -> [Pt2 a]
@@ -298,7 +300,7 @@ isInG' (bds, hs, _, _) p = let
 
 -- inside/outside test w polygon by first testing against bbox.
 isInG :: Autofloat a => Polygon a -> Pt2 a -> Bool
-isInG poly@(_,_,bbox,_) p = if True then isInG' poly p else False
+isInG poly@(_,_,bbox,_) p = if inBBox bbox p then isInG' poly p else False
 
 -- isOutG :: Autofloat a => Polygon a -> Pt2 a -> a -> Bool
 -- isOutG poly p ofs = (not $ isInG' poly p) && (dsqGP poly p 0 >= ofs)

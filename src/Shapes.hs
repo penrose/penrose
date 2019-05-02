@@ -446,7 +446,8 @@ circPolygonFn = (props, fn)
           fn [FloatV x, FloatV y, FloatV r, HMatrixV customTransform] = 
              let defaultTransform = paramsToMatrix (r, r, 0.0, x, y) in
              let fullTransform = customTransform # defaultTransform in
-             PolygonV $ transformPoly fullTransform $ toPoly $ circlePoly r
+             let res = PolygonV $ transformPoly fullTransform $ toPoly $ circlePoly r in
+             {-trace ("getting circle polygon output: " ++ show res)-} res
 
 -- | Polygonize a Bezier curve, even if the curve was originally made using a list of points.
 -- TODO: distinguish between filled curves (polygons) and unfilled ones (polylines)
