@@ -128,7 +128,10 @@ penroseRenderer subFile styFile dsllFile domain configPath port = do
 
     initState <- G.compileStyle styProg subProgForStyle styVals optConfig -- Includes Substance plugin output
 
-    Server.serveRenderer domain port initState
+    let res = map (\x -> stepsWithoutServer initState) [1..75]
+    putStrLn $ show res
+
+    -- Server.serveRenderer domain port initState
 
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
@@ -157,7 +160,7 @@ stepsWithoutServer :: G.State -> G.State
 stepsWithoutServer initState =
          let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepAndCount (initState, 0) in
          trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
-         where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
+         where stepAndCount (s, n) = (O.step s, n + 1)
                notConverged (s, n) = G.optStatus (G.paramsr s) /= G.EPConverged
                                      && n < maxSteps
                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge

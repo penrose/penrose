@@ -122,6 +122,7 @@ compDict = M.fromList
         ("polygonizeCurve", constComp polygonizeCurve),
         ("setOpacity", constComp setOpacity),
         ("bbox", constComp bbox'),
+        ("min", constComp min'),
 
         -- Transformations
         ("rotate", constComp rotate),
@@ -802,6 +803,9 @@ bbox a1 a2 =
 
 bbox' :: ConstCompFn
 bbox' [GPI a1, GPI a2] = Val $ PtListV $ bbox a2 a2
+
+min' :: ConstCompFn
+min' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ min x y
 
 noop :: CompFn
 noop [] g = (Val (StrV "TODO"), g)

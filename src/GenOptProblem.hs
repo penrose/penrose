@@ -570,8 +570,7 @@ evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap g =
 evalExpr :: (Autofloat a) => (Int, Int) -> Expr -> Translation a -> VaryMap a -> StdGen -> (ArgVal a, Translation a, StdGen)
 evalExpr (i, n) arg trans varyMap g =
     if i >= n then error ("evalExpr: iteration depth exceeded (" ++ show n ++ ")")
-        else {- trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n) -}
-                   argResult
+        else {-trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n)-} argResult
     where limit = (i + 1, n)
           argResult = case arg of
             -- Already done values; don't change trans
@@ -632,9 +631,10 @@ evalExpr (i, n) arg trans varyMap g =
 
                   PropertyPath bvar field property ->
                       let gpiType = shapeType bvar field trans in
-                      case findComputedProperty gpiType property of 
-                      Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
-                      Nothing -> -- Compute the path as usual
+                      -- TODO revert
+                      -- case findComputedProperty gpiType property of 
+                      -- Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
+                      -- Nothing -> -- Compute the path as usual
                           let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
                           case texpr of
                           Done v -> (Val v, trans, g)
@@ -699,8 +699,16 @@ applyCombined penaltyWeight fns =
 -- Main function: generates the objective function, partially applying it with some info
 
 containsRaw :: (Autofloat a) => [a] -> a
-containsRaw [r1, x1, y1, r2, x2, y2] = (penalty (dist (x1, y1) (x2, y2) - (r1 - r2))
-                                       + penalty (20 - r1) + penalty (20 - r2))
+containsRaw [r1, x1, y1, r2, x2, y2] = (penalty (dist (x1, y1) (x2, y2) - (r1 - r2)) + penalty (20 - r1) + penalty (20 - r2))
+
+-- evalExprGraph 
+-- Paths can occur anywhere though...
+
+-- traverseT :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a
+-- traverseT trans objfns constrfns varyingPaths =
+--          let allArgs = concatMap fargs (objfns ++ constrfns) in
+--          let res = evalExprGraph (head allArgs) in -- Just the first one for now
+--          error ("traverse: " ++ show res)
 
 genObjfn :: (Autofloat a)
     => Translation a -> [Fn] -> [Fn] -> [Path]
@@ -708,12 +716,13 @@ genObjfn :: (Autofloat a)
     -> a
 genObjfn trans objfns constrfns varyingPaths =
      \rng penaltyWeight varyingVals ->
-          constrWeight * penaltyWeight * containsRaw varyingVals
+          -- constrWeight * penaltyWeight * containsRaw varyingVals
+          -- let compGraph = traverseT trans objfns constrfns varyingPaths in
 
-         -- let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
-         -- let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
-         -- let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
-         -- tr "Completed applying optimization function" overallEnergy
+         let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
+         let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
+         let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
+         tr "Completed applying optimization function" overallEnergy 
 
 --------------- Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 -- 1. Initialize all varying fields
