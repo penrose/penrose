@@ -44,6 +44,10 @@ import System.Console.Docopt
 
 default (Int, Float)
 
+-- when false, executes headless for profiling
+useFrontend :: Bool
+useFrontend = False
+
 argPatterns :: Docopt
 argPatterns = [docoptFile|USAGE.txt|]
 
@@ -128,11 +132,11 @@ penroseRenderer subFile styFile dsllFile domain configPath port = do
 
     initState <- G.compileStyle styProg subProgForStyle styVals optConfig -- Includes Substance plugin output
 
-    let res = map (\x -> stepsWithoutServer initState) [1..75]
-    putStrLn $ show res
-
-    -- Server.serveRenderer domain port initState
-
+    if useFrontend
+       then Server.serveRenderer domain port initState
+    else let numTrials = 200 in
+         let res = map (\x -> stepsWithoutServer initState) [1..numTrials] in
+         putStrLn $ show $ map G.varyingState res -- Needed so all of res is evaluated, but don't spend so much time prettyprinting
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
 -- (extracted via unsafePerformIO)

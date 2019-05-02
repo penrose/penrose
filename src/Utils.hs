@@ -43,7 +43,7 @@ debugStyle = False
 -- debugLineSearch = True
 debugLineSearch = False
 -- turn on/off output in obj fn or constraint
-debugObj = True
+debugObj = False
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
 subsetSizeDiff :: Floating a => a
