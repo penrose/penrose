@@ -273,13 +273,12 @@ getSegmentsG (bds, hs, _, _) = let
 -- blob inside/outside test wo testing bbox first
 -- does not use offset.
 isInB' :: Autofloat a => Blob a -> Pt2 a -> Bool
-isInB' pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
+isInB' pts (x0,y0) = let
     diffp = map (\(x,y)->(x-x0,y-y0)) pts
     getAngle (x,y) = atan2 y x 
     angles = map getAngle diffp
     angles' = rotateList angles
     sweeps = map (\(a,b)->b-a) $ zip angles angles'
-    --sweeps = map (\(p1,p2)->(getAngle p2)-(getAngle p1)) (getSegmentsB diffp)
     adjust sweep = 
         if sweep>pi then sweep-2*pi
         else if sweep<(-pi) then 2*pi+sweep
@@ -289,7 +288,7 @@ isInB' pts (x0,y0) = {-if (dsqBP pts (x0,y0) 0) < epsd then True else -} let
     -- if inside neg poly, res would be -2*pi,
     -- else res would be 0
     res = foldl' (+) 0.0 sweepAdjusted
-    in res>pi || res<(-pi) 
+    in res>pi || res<(-pi)
 
 -- general, direct inside/outside test
 isInG' :: Autofloat a => Polygon a -> Pt2 a -> Bool
@@ -456,18 +455,18 @@ ds :: Int
 ds = 200
 
 dsqBinA :: Autofloat a => Polygon a -> Polygon a -> a -> a
-dsqBinA bA bB ofs = let
+dsqBinA bA bB@(_,_,_,samplesB) ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
     -- interval = (r2f ds) / circumfrence
-    samplesIn = filter (\p -> isInG bA p) $ sampleG ds bB
+    samplesIn = filter (\p -> isInG bA p) $ samplesB--sampleG ds bB
     res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesIn
     in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
 
 dsqBoutA :: Autofloat a => Polygon a -> Polygon a -> a -> a
-dsqBoutA bA bB ofs = let
+dsqBoutA bA bB@(_,_,_,samplesB) ofs = let
     -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
     -- interval = (r2f ds) / circumfrence
-    samplesOut = filter (\p -> not $ isInG bA p) $ sampleG ds bB
+    samplesOut = filter (\p -> not $ isInG bA p) $ samplesB--sampleG ds bB
     res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesOut
     in {-trace ("|samplesOut|: " ++ show (length samplesOut))-} res
 
@@ -476,14 +475,14 @@ dsqBoutA bA bB ofs = let
 -- TODO: the following two can both be achieved from the same iteration (thus save some runtime)
 
 minSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
-minSignedDsqGG polyA polyB = let
-    samples = sampleG ds polyB
-    in foldl' min posInf $ map (signedDsqGP polyA) samples
+minSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
+    --samples = sampleG ds polyB
+    in foldl' min posInf $ map (signedDsqGP polyA) samplesB--samples
 
 maxSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
-maxSignedDsqGG polyA polyB = let
-    samples = sampleG ds polyB
-    in foldl' max negInf $ map (signedDsqGP polyA) samples
+maxSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
+    --samples = sampleG ds polyB
+    in foldl' max negInf $ map (signedDsqGP polyA) samplesB
 
 ---- query energies ----
 
