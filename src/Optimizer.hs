@@ -68,8 +68,11 @@ intervalMin = True
 useLineSearch :: Bool
 useLineSearch = True
 
+useAutodiff :: Bool
+useAutodiff = False
+
 constT :: Floating a => a
-constT = 0.1
+constT = 0.001
 
 ----- Convergence criteria
 
@@ -301,6 +304,17 @@ gradP config bfgsParams gradEval f state =
 
       LBFGS -> error "TODO: L-BFGS"
 
+estimateGradient :: ObjFn1 a -> [Float] -> [Float]
+estimateGradient f state =
+      let len = length state in
+      let h = 0.001 in -- Choice of h really matters!!! This is not an accurate estimate.
+      let fx = f state in
+      -- time is O(|state|^2)
+      let dfx i = ((f $ replace i ((state !! i) + h) state) - fx) / h in
+      let dfxs = map dfx [0..(len-1)] in
+      dfxs
+      where replace pos newVal list = take pos list ++ newVal : drop (pos+1) list
+
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
@@ -308,7 +322,10 @@ timeAndGrad :: OptConfig -> Params -> ObjFn1 a -> [Float] -> (Float, [Float], [F
 timeAndGrad config params f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, bfgs')
             where gradF :: GradFn a
                   gradF = appGrad f
-                  gradEval = gradF state
+
+                  gradEval = if useAutodiff 
+                             then gradF state 
+                             else estimateGradient f state
 
                   -- h = hessian f state -- TODO: move this back in scope below so we don't calculate it if newton is off?
                   (gradToUse, bfgs') =
@@ -321,7 +338,7 @@ timeAndGrad config params f state = tr "timeAndGrad: " (timestep, gradEval, grad
                   descentDir = negL gradToUse
 
                   timestep =
-                      let resT = if useLineSearch
+                      let resT = if useLineSearch && useAutodiff
                                  then awLineSearch config f duf descentDir state
                                  else constT in -- hardcoded timestep
                           if isNaN resT then tr "returned timestep is NaN" nanSub else resT

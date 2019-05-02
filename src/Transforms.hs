@@ -82,7 +82,7 @@ infixl 7 #
 -- Compose all the transforms in RIGHT TO LEFT order:
 -- [t1, t2, t3] means "do t3, then do t2, then do t1" or "t1 * t2 * t3"
 composeTransforms :: (Autofloat a) => [HMatrix a] -> HMatrix a
-composeTransforms ts = foldl' composeTransform idH (reverse ts)
+composeTransforms ts = foldr composeTransform idH ts
 
 -- Specific transformations
 

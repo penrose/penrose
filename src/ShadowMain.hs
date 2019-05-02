@@ -46,7 +46,7 @@ default (Int, Float)
 
 -- when false, executes headless for profiling
 useFrontend :: Bool
-useFrontend = False
+useFrontend = True
 
 argPatterns :: Docopt
 argPatterns = [docoptFile|USAGE.txt|]
@@ -130,11 +130,11 @@ penroseRenderer subFile styFile dsllFile domain configPath port = do
     putStrLn "Opt config:\n"
     putStrLn $ show optConfig
 
-    initState <- G.compileStyle styProg subProgForStyle styVals optConfig -- Includes Substance plugin output
+    initState <- G.compileStyle styProg subProgForStyle styVals optConfig -- Includes Substance plugin output 
 
     if useFrontend
        then Server.serveRenderer domain port initState
-    else let numTrials = 200 in
+    else let numTrials = 1000 in
          let res = map (\x -> stepsWithoutServer initState) [1..numTrials] in
          putStrLn $ show $ map G.varyingState res -- Needed so all of res is evaluated, but don't spend so much time prettyprinting
 

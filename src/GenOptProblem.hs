@@ -632,9 +632,9 @@ evalExpr (i, n) arg trans varyMap g =
                   PropertyPath bvar field property ->
                       let gpiType = shapeType bvar field trans in
                       -- TODO revert
-                      -- case findComputedProperty gpiType property of 
-                      -- Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
-                      -- Nothing -> -- Compute the path as usual
+                      case findComputedProperty gpiType property of 
+                      Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
+                      Nothing -> -- Compute the path as usual
                           let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
                           case texpr of
                           Done v -> (Val v, trans, g)
@@ -718,12 +718,13 @@ genObjfn :: (Autofloat a)
 genObjfn trans objfns constrfns varyingPaths =
      \rng penaltyWeight varyingVals ->
           -- let compGraph = traverseT trans objfns constrfns varyingPaths in
-          constrWeight * penaltyWeight * containsRaw varyingVals
 
-         -- let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
-         -- let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
-         -- let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
-         -- tr "Completed applying optimization function" overallEnergy 
+          -- constrWeight * penaltyWeight * containsRaw varyingVals
+
+         let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
+         let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
+         let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
+         tr "Completed applying optimization function" overallEnergy 
 
 --------------- Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 -- 1. Initialize all varying fields
