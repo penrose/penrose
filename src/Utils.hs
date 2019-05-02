@@ -295,22 +295,31 @@ inputsOutputStr x = let (args, val) = inputsOutput x in
 
 -- other helpers
 
+rot90 :: Floating a => (a, a) -> (a, a)
 rot90 (x,y) = (-y,x)
 
+lerpP :: Floating a => (a, a) -> (a, a) -> a -> (a, a)
 lerpP (a,b) (c,d) k = let 
     lerpNum a b = a*(1.0-k) + b*k
     in (lerpNum a c, lerpNum b d)
 
+mag :: Floating a => (a, a) -> a
 mag (a,b) = sqrt $ magsq (a,b)
 
+magsq :: Floating a => (a, a) -> a
 magsq (a,b) = a**2 + b**2
 
+normalize' :: Floating a => (a, a) -> (a, a)
 normalize' (a,b) = let l = mag (a,b) in (a/l, b/l)
 
+scaleP :: Floating a => a -> (a, a) -> (a, a)
 scaleP k (a,b) = (a*k, b*k)
 
+translate2 :: Floating a => (a, a) -> [(a, a)] -> [(a, a)]
 translate2 v pts = map (+: v) pts
 
+map2 :: (a -> b) -> (a, a) -> (b, b)
 map2 f (a, b) = (f a, f b)
 
+rotateList :: [a] -> [a]
 rotateList l = take (length l) $ drop 1 (cycle l)
