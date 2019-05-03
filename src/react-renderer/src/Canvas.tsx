@@ -30,7 +30,7 @@ class Canvas extends React.Component<IProps, IState> {
   };
 
   public notEmptyLabel = ([name, shape]: [string, any]) => {
-    return !(name === "Text" && shape.string.contents === "");
+      return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
   public onMessage = async (e: MessageEvent) => {
@@ -210,10 +210,13 @@ class Canvas extends React.Component<IProps, IState> {
   public render() {
     const {lock, layers} = this.props;
     const {data, debugData} = this.state;
+
     if (data.length === undefined) {
       return <svg />;
     }
-    const nonEmpties = data.filter(this.notEmptyLabel);
+
+      const nonEmpties = data.filter(this.notEmptyLabel);
+
     return (
       <LockContext.Provider value={lock}>
         <svg

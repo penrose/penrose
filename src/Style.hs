@@ -1508,19 +1508,27 @@ lookupField bvar field trans =
     Just fieldDict ->
          case M.lookup field fieldDict of
          Nothing -> error ("path '" ++ pathStr2 name field ++ "'s field doesn't exist in trans")
-         Just fexpr -> 
-              case fexpr of 
-              -- Deal with field aliases, e.g. `f.codomain = R.shape`. Keep looking up paths until we get a GPI or expression.
-              FExpr (OptEval (EPath (FieldPath bvarSynonym fieldSynonym))) ->
-                if bvar == bvarSynonym && field == fieldSynonym
-                then error ("nontermination in lookupField with path '" ++ pathStr2 name field ++ "' set to itself")
-                else lookupField bvarSynonym fieldSynonym trans
-              _ -> fexpr
+         Just fexpr -> fexpr
+              -- TODO: This is the right way to look up fields, but doing so causes a frontend undefined error. Why?
+
+              -- case fexpr of 
+              -- -- Deal with field aliases, e.g. `f.codomain = R.shape`. Keep looking up paths until we get a GPI or expression.
+              -- FExpr (OptEval (EPath (FieldPath bvarSynonym fieldSynonym))) ->
+              --   if bvar == bvarSynonym && field == fieldSynonym
+              --   then error ("nontermination in lookupField with path '" ++ pathStr2 name field ++ "' set to itself")
+              --   else trace ("Recursively looking up field " ++ pathStr (FieldPath bvar field) ++ " -> " ++ pathStr (FieldPath bvarSynonym fieldSynonym)) lookupField bvarSynonym fieldSynonym trans
+              -- _ -> fexpr
 
 shapeType :: (Autofloat a) => BindingForm -> Field -> Translation a -> ShapeTypeStr
 shapeType bvar field trans =
           case lookupField bvar field trans of
           FGPI stype _ -> stype
+              -- -- Deal with field aliases, e.g. `f.codomain = R.shape`. Keep looking up paths until we get a GPI or expression.
+          FExpr (OptEval (EPath (FieldPath bvarSynonym fieldSynonym))) ->
+            if bvar == bvarSynonym && field == fieldSynonym
+            then error ("nontermination in lookupField with path '" ++ pathStr (FieldPath bvar field) ++ "' set to itself")
+            else trace ("Recursively looking up field " ++ pathStr (FieldPath bvar field) ++ " -> " ++ pathStr (FieldPath bvarSynonym fieldSynonym)) shapeType bvarSynonym fieldSynonym trans
+
           FExpr e -> error ("path " ++ show e ++ " is not a GPI; cannot get type")
 
 lookupStyVal :: (Autofloat a) => String -> String -> StyValMap a -> a
