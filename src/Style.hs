@@ -1527,7 +1527,7 @@ shapeType bvar field trans =
           FExpr (OptEval (EPath (FieldPath bvarSynonym fieldSynonym))) ->
             if bvar == bvarSynonym && field == fieldSynonym
             then error ("nontermination in lookupField with path '" ++ pathStr (FieldPath bvar field) ++ "' set to itself")
-            else trace ("Recursively looking up field " ++ pathStr (FieldPath bvar field) ++ " -> " ++ pathStr (FieldPath bvarSynonym fieldSynonym)) shapeType bvarSynonym fieldSynonym trans
+            else {- trace ("Recursively looking up field " ++ pathStr (FieldPath bvar field) ++ " -> " ++ pathStr (FieldPath bvarSynonym fieldSynonym)) -} shapeType bvarSynonym fieldSynonym trans
 
           FExpr e -> error ("path " ++ show e ++ " is not a GPI; cannot get type")
 
