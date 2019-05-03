@@ -14,6 +14,7 @@ import qualified Numeric.LinearAlgebra as L
 import Debug.Trace
 import System.Random
 import System.Console.ANSI
+import Data.List (foldl')
 
 default (Int, Float)
 
@@ -69,7 +70,7 @@ useLineSearch :: Bool
 useLineSearch = True
 
 useAutodiff :: Bool
-useAutodiff = False
+useAutodiff = True
 
 constT :: Floating a => a
 constT = 0.001
@@ -278,9 +279,9 @@ gradP config bfgsParams gradEval f state =
               (Nothing, Nothing, Nothing) -> -- First step. Initialize the approximation to the identity (not clear how else to approximate it)
                     -- k=0 steps from x_0 to x_1: so on the first step, we take a normal gradient descent step
                     let h_0 = L.ident $ length gradEval
-                    in (gradEval, BfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_0 })
+                    in (gradEval, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_0 })
 
-              (Just h_km1, Just grad_km1, Just x_km1) -> -- For x_{k+1}, to compute H_k, we need the (k-1) info
+              (Just h_km1, Just grad_fx_km1, Just x_km1) -> -- For x_{k+1}, to compute H_k, we need the (k-1) info
                     -- Our convention is that we are always working "at" k to compute k+1
                     -- x_0 doesn't require any H; x_1 (the first step) with k = 0 requires H_0
                     -- x_2 (the NEXT step) with k=1 requires H_1. For example>
@@ -292,17 +293,83 @@ gradP config bfgsParams gradEval f state =
                     -- y_0 = grad f(x_1) - grad f(x_0)
 
                     let s_km1 = x_k - x_km1
-                        y_km1 = grad_fx_k - grad_km1
+                        y_km1 = grad_fx_k - grad_fx_km1
                         rho_km1 = 1 / (y_km1 `L.dot` s_km1) -- Scalar
                         v_km1 = L.ident (length gradEval) - (rho_km1 `L.scale` y_km1 `L.outer` s_km1) -- Scaling can happen before outer
                         h_k = (L.tr (v_km1) L.<> h_km1 L.<> v_km1) + (rho_km1 `L.scale` s_km1 `L.outer` s_km1)
                         gradPreconditioned = h_k L.#> grad_fx_k
                     in (L.toList gradPreconditioned, 
-                        BfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_k })
+                        bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_k })
 
               _ -> error "invalid BFGS state"
 
-      LBFGS -> error "TODO: L-BFGS"
+      LBFGS -> -- Approximate the inverse of the Hessian times the gradient
+               -- Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
+            let grad_prev = lastGrad bfgsParams
+                x_prev = lastState bfgsParams
+                ss_val = s_list bfgsParams
+                ys_val = y_list bfgsParams
+                km1 = numUnconstrSteps bfgsParams -- Our current step is k; the last step is km1 (k_minus_1)
+                m = memSize bfgsParams
+            in case (grad_prev, x_prev, ss_val, ys_val, km1) of
+
+               -- Perform normal gradient descent on first step
+               (Nothing, Nothing, [], [], 0) ->
+                   -- Store x_k, grad f(x_k) so we can compute s_k, y_k on next step
+                   let bfgsParams' = bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, 
+                                                  s_list = [], y_list = [], numUnconstrSteps = km1 + 1 } in
+                   (gradEval, bfgsParams')
+
+               (Just grad_fx_km1, Just x_km1, ss, ys, km1) -> 
+                   -- Compute s_{k-1} = x_k - x_{k-1} and y_{k-1} = (analogous with grads)
+                   -- Unlike Nocedal, compute the difference vectors first instead of last (same result, just a loop rewrite)
+                   -- Use the updated {s_i} and {y_i}. (If k < m, this reduces to normal BFGS, i.e. we use all the vectors so far)
+                   let (s_km1, y_km1) = (x_k - x_km1, grad_fx_k - grad_fx_km1) -- Newest vectors added to front
+                       (ss', ys') = (take m $ s_km1 : ss, take m $ y_km1 : ys) -- The limited-memory part: drop stale vectors
+                       gradPreconditioned = lbfgs grad_fx_k ss' ys'
+                       bfgsParams' = bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k,
+                                                  s_list = ss', y_list = ys', numUnconstrSteps = km1 + 1 }
+                   in (L.toList gradPreconditioned, bfgsParams')
+
+               _ -> error "invalid L-BFGS state"
+
+type LVector = L.Vector L.R
+type LMatrix = L.Matrix L.R
+
+-- See Nocedal p225
+-- expects ys and ss to be in order from most recent to oldest (k-1 ... k-m)
+-- expects length ys == length ss, length ys > 0, length ys > 0
+lbfgs :: LVector -> [LVector] -> [LVector] -> LVector
+lbfgs grad_fx_k ss ys =
+    let rhos = map calculate_rho $ zip ss ys in -- The length of any list should be the number of stored vectors
+    let q_k = grad_fx_k in
+    let (q_k_minus_m, alphas) = foldl' pull_q_back (q_k, []) (zip3 rhos ss ys) in -- forward: for i = k-1 ... k-m
+    -- Note the order of alphas will be from k-m through k-1 for the push_r_forward loop
+    let h_0_k = estimate_hess (head ys) (head ss) in
+    let r_k_minus_m = h_0_k L.#> q_k_minus_m in
+    let r_k = foldl' push_r_forward r_k_minus_m (zip (zip rhos alphas) (zip ss ys)) in -- backward: for i = k-m .. k-1
+    r_k -- is H_k * grad f(x_k)
+
+           where calculate_rho :: (LVector, LVector) -> L.R
+                 calculate_rho (s, y) = 1 / (y `L.dot` s)
+
+                 pull_q_back :: (LVector, [L.R]) -> (L.R, LVector, LVector) -> (LVector, [L.R]) -- from i+1 to i
+                 pull_q_back (q_i_plus_1, alphas) (rho_i, s_i, y_i) =
+                        let alpha_i = rho_i * (s_i `L.dot` q_i_plus_1) in -- scalar
+                        let q_i = q_i_plus_1 - (alpha_i `L.scale` y_i) in -- scalar * vector
+                        (q_i, alpha_i : alphas) -- Note the order of alphas
+
+                 -- Scale I by an estimate of the size of the Hessian along the most recent search direction (Nocedal p226)
+                 estimate_hess :: LVector -> LVector -> LMatrix
+                 estimate_hess y_km1 s_km1 = 
+                        let gamma_k = (s_km1 `L.dot` y_km1) / (y_km1 `L.dot` y_km1) in
+                        gamma_k `L.scale` (L.ident (L.size y_km1))
+
+                 push_r_forward :: LVector -> ((L.R, L.R), (LVector, LVector)) -> LVector -- from i to i+1
+                 push_r_forward r_i ((rho_i, alpha_i), (s_i, y_i)) =
+                        let beta_i = rho_i * (y_i `L.dot` r_i) in -- scalar
+                        let r_i_plus_1 = r_i + (alpha_i - beta_i) `L.scale` s_i -- scalar * vector
+                        in r_i_plus_1
 
 estimateGradient :: ObjFn1 a -> [Float] -> [Float]
 estimateGradient f state =

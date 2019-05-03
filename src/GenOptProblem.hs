@@ -96,7 +96,11 @@ instance Show Params where
 data BfgsParams = BfgsParams {
      lastState :: Maybe (L.Vector L.R), -- x_k
      lastGrad :: Maybe (L.Vector L.R),  -- gradient of f(x_k)
-     invH :: Maybe (L.Matrix L.R)  -- estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
+     invH :: Maybe (L.Matrix L.R),  -- (BFGS only) estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
+     s_list :: [L.Vector L.R], -- (L-BFGS only) s_i (state difference) from k-1 to k-m
+     y_list :: [L.Vector L.R],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
+     numUnconstrSteps :: Int, -- (L-BFGS only) number of steps so far, starting at 0
+     memSize :: Int -- (L-BFGS only) number of vectors to retain
 }
 
 instance Show BfgsParams where
@@ -104,7 +108,13 @@ instance Show BfgsParams where
                   "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
                   "\ninvH: \n" ++ ppShow (invH s)
 
-defaultBfgsParams = BfgsParams { lastState = Nothing, lastGrad = Nothing, invH = Nothing }
+defaultBfgsMemSize :: Int
+defaultBfgsMemSize = 4
+-- Shorter memory seems to work better in practice; Nocedal says between 3 and 30 is a good `m` (see p227)
+-- but the choice of `m` is also problem-dependent
+
+defaultBfgsParams = BfgsParams { lastState = Nothing, lastGrad = Nothing, invH = Nothing,
+                                 s_list = [], y_list = [], numUnconstrSteps = 0, memSize = defaultBfgsMemSize }
 
 type PolicyState = String -- Should this include the functions that it returned last time?
 type Policy = [Fn] -> [Fn] -> PolicyParams -> (Maybe [Fn], PolicyState)
@@ -631,7 +641,6 @@ evalExpr (i, n) arg trans varyMap g =
 
                   PropertyPath bvar field property ->
                       let gpiType = shapeType bvar field trans in
-                      -- TODO revert
                       case findComputedProperty gpiType property of 
                       Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
                       Nothing -> -- Compute the path as usual
