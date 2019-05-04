@@ -75,6 +75,18 @@ useAutodiff = True
 constT :: Floating a => a
 constT = 0.001
 
+debugBfgs = True
+
+trb :: String -> a -> a
+trb s x = if debugBfgs then trace "---" $ trace s x else x -- prints in left to right order
+
+-- turn on/off output in obj fn or constraint
+debugOpt = True
+
+tro :: String -> a -> a
+tro s x = if debugOpt then trace "---" $ trace s x else x -- prints in left to right order
+
+
 ----- Convergence criteria
 
 -- convergence criterion for EP
@@ -212,36 +224,34 @@ stepT dt x dfdx = x - dt * dfdx
 -- Also partially applies the objective function.
 stepWithObjective :: OptConfig -> StdGen -> Params -> [Float] -> ([Float], [Float], BfgsParams)
 stepWithObjective config g params state =
-                  -- if null gradEval then error "empty gradient" else
-                  (steppedState, gradEval, bfgs')
-    where (t', gradEval, gradToUse, bfgs') = timeAndGrad config params objFnApplied state
-
           -- get timestep via line search, and evaluated gradient at the state
-          -- step each parameter of the state with the time and gradient
-          -- gradEval :: (Autofloat) a => [a]; gradEval = [dfdx1, dfdy1, dfdsize1, ...]
-          steppedState =
-              let state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state $ gradToUse) in
-              let (fx, fx') = (objFnApplied state, objFnApplied state') in
-                         tro ("\nopt params: \n" ++ (show params)
-                                ++ "\n||x' - x||: " ++ (show $ norm (state -. state'))
-                                ++ "\n|f(x') - f(x)|: " ++
-                               (show $ abs (fx' - fx))
-                                ++ "\nf(x'): \n" ++ (show fx')
-                                ++ "\ngradEval: \n" ++ (show gradEval)
-                                ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
-                                ++ "\ngradToUse: \n" ++ (show gradToUse)
-                                ++ "\n||gradToUse||: \n" ++ (show $ norm gradToUse)
-                                -- ++ "\nhessian: \n" ++ (show $ h)
-                                ++ "\n timestep: \n" ++ (show t')
-                                ++ "\n original state: \n" ++ (show state)
-                                ++ "\n new state: \n" ++ (show state')
-                               )
-                         state'
+          let (t', gradEval, gradToUse, bfgs') = timeAndGrad config params objFnApplied state
+              -- step each parameter of the state with the time and gradient
+              state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state $ gradToUse)
+              (fx, fx') = (objFnApplied state, objFnApplied state') 
+          in if fx' > fx then error ("Error: new energy is greater than old energy: " ++ show (fx', fx)) else
+             tro ("\nopt params: \n" ++ (show params)
+                   ++ "\n||x' - x||: " ++ (show $ norm (state -. state'))
+                   ++ "\n|f(x') - f(x)|: " ++
+                  (show $ abs (fx' - fx))
+                   ++ "\nf(x'): \n" ++ (show fx')
+                   ++ "\ngradEval: \n" ++ (show gradEval)
+                   ++ "\n||gradEval||: \n" ++ (show $ norm gradEval)
+                   ++ "\ngradToUse: \n" ++ (show gradToUse)
+                   ++ "\n||gradToUse||: \n" ++ (show $ norm gradToUse)
+                   -- ++ "\nhessian: \n" ++ (show $ h)
+                   ++ "\nbfgs': \n" ++ (show bfgs') -- TODO: use trb
+                   ++ "\n timestep: \n" ++ (show t')
+                   ++ "\n original state: \n" ++ (show state)
+                   ++ "\n new state: \n" ++ (show state')
+                  )
+             (state', gradEval, bfgs')
 
-          objFnApplied :: ObjFn1 b
-          objFnApplied = (overallObjFn params) g cWeight
-          cWeight = realToFrac $ weight params
-          -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
+          where objFnApplied :: ObjFn1 b
+                objFnApplied = (overallObjFn params) g cWeight
+
+                cWeight = r2f $ weight params
+                -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
 
 -- a version of grad with a clearer type signature
 appGrad :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [a]
@@ -351,7 +361,7 @@ lbfgs grad_fx_k ss ys =
     r_k -- is H_k * grad f(x_k)
 
            where calculate_rho :: (LVector, LVector) -> L.R
-                 calculate_rho (s, y) = 1 / (y `L.dot` s)
+                 calculate_rho (s, y) = 1 / ((y `L.dot` s) + epsd)
 
                  pull_q_back :: (LVector, [L.R]) -> (L.R, LVector, LVector) -> (LVector, [L.R]) -- from i+1 to i
                  pull_q_back (q_i_plus_1, alphas) (rho_i, s_i, y_i) =
@@ -362,7 +372,7 @@ lbfgs grad_fx_k ss ys =
                  -- Scale I by an estimate of the size of the Hessian along the most recent search direction (Nocedal p226)
                  estimate_hess :: LVector -> LVector -> LMatrix
                  estimate_hess y_km1 s_km1 = 
-                        let gamma_k = (s_km1 `L.dot` y_km1) / (y_km1 `L.dot` y_km1) in
+                        let gamma_k = (s_km1 `L.dot` y_km1) / ((y_km1 `L.dot` y_km1) + epsd) in
                         gamma_k `L.scale` (L.ident (L.size y_km1))
 
                  push_r_forward :: LVector -> ((L.R, L.R), (LVector, LVector)) -> LVector -- from i to i+1
@@ -386,34 +396,31 @@ estimateGradient f state =
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
 timeAndGrad :: OptConfig -> Params -> ObjFn1 a -> [Float] -> (Float, [Float], [Float], BfgsParams)
-timeAndGrad config params f state = tr "timeAndGrad: " (timestep, gradEval, gradToUse, bfgs')
+timeAndGrad config params f state = 
+            let gradEval = if useAutodiff then gradF state else estimateGradient f state
+
+                (gradToUse_d, bfgs') = gradP config (bfgsInfo params) (map r2f gradEval :: [Double]) f state
+
+                gradToUse = map r2f gradToUse_d
+
+                -- Use line search to find a good timestep. If we use Newton's method, the descent direction uses the preconditioned gradient.
+                -- TODO: check on NaNs
+                descentDir = negL $ gradToUse
+
+                timestep =
+                    let resT = if useLineSearch && useAutodiff
+                               then awLineSearch config f duf descentDir state
+                               else constT in -- hardcoded timestep
+                        if isNaN resT then tr "returned timestep is NaN" nanSub else resT
+                
+            in tr "timeAndGrad: " (timestep, gradEval, gradToUse, bfgs')
+
             where gradF :: GradFn a
                   gradF = appGrad f
-
-                  gradEval = if useAutodiff 
-                             then gradF state 
-                             else estimateGradient f state
-
-                  -- h = hessian f state -- TODO: move this back in scope below so we don't calculate it if newton is off?
-                  (gradToUse, bfgs') =
-                         -- Note liberal use of r2f since dual numbers don't matter after grad
-                         let (gradPre, bfgsInfo') = gradP config (bfgsInfo params) (map r2f gradEval :: [Double]) f state
-                         in (map r2f gradPre, bfgsInfo')
-
-                  -- Use line search to find a good timestep. If we use Newton's method, the descent direction uses the preconditioned gradient.
-                  -- TODO: check on NaNs
-                  descentDir = negL gradToUse
-
-                  timestep =
-                      let resT = if useLineSearch && useAutodiff
-                                 then awLineSearch config f duf descentDir state
-                                 else constT in -- hardcoded timestep
-                          if isNaN resT then tr "returned timestep is NaN" nanSub else resT
 
                   -- directional derivative at u, where u is the negated gradient in awLineSearch
                   -- descent direction need not have unit norm
                   -- we could also use a different descent direction if desired
-
                   -- Note: with Newton's method, we find the directional derivative using the preconditioned gradient
                   duf :: (Autofloat a) => [a] -> [a] -> a
                   duf u x = gradF x `dotL` u

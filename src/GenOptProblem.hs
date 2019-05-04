@@ -104,9 +104,14 @@ data BfgsParams = BfgsParams {
 }
 
 instance Show BfgsParams where
-         show s = "\nlastState: \n" ++ ppShow (lastState s) ++
+         show s = "\nBFGS params:\n" ++
+                  "\nlastState: \n" ++ ppShow (lastState s) ++
                   "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
-                  "\ninvH: \n" ++ ppShow (invH s)
+                  "\ninvH: \n" ++ ppShow (invH s) ++
+                  "\ns_list:\n" ++ ppShow (s_list s) ++
+                  "\ny_list:\n" ++ ppShow (y_list s) ++
+                  "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
+                  "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
 
 defaultBfgsMemSize :: Int
 defaultBfgsMemSize = 4
