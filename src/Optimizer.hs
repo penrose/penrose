@@ -229,7 +229,7 @@ stepWithObjective config g params state =
               -- step each parameter of the state with the time and gradient
               state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state $ gradToUse)
               (fx, fx') = (objFnApplied state, objFnApplied state') 
-          in if fx' > fx then error ("Error: new energy is greater than old energy: " ++ show (fx', fx)) else
+          in -- if fx' > fx then error ("Error: new energy is greater than old energy: " ++ show (fx', fx)) else
              tro ("\nopt params: \n" ++ (show params)
                    ++ "\n||x' - x||: " ++ (show $ norm (state -. state'))
                    ++ "\n|f(x') - f(x)|: " ++
@@ -398,21 +398,15 @@ estimateGradient f state =
 timeAndGrad :: OptConfig -> Params -> ObjFn1 a -> [Float] -> (Float, [Float], [Float], BfgsParams)
 timeAndGrad config params f state = 
             let gradEval = if useAutodiff then gradF state else estimateGradient f state
-
                 (gradToUse_d, bfgs') = gradP config (bfgsInfo params) (map r2f gradEval :: [Double]) f state
-
                 gradToUse = map r2f gradToUse_d
-
                 -- Use line search to find a good timestep. If we use Newton's method, the descent direction uses the preconditioned gradient.
-                -- TODO: check on NaNs
                 descentDir = negL $ gradToUse
-
-                timestep =
-                    let resT = if useLineSearch && useAutodiff
-                               then awLineSearch config f duf descentDir state
-                               else constT in -- hardcoded timestep
-                        if isNaN resT then tr "returned timestep is NaN" nanSub else resT
-                
+                timestep = let resT = if useLineSearch && useAutodiff
+                                      then awLineSearch config f (duf descentDir) descentDir state
+                                      else constT in -- hardcoded timestep
+                           if isNaN resT then error "returned timestep is NaN" else resT
+            
             in tr "timeAndGrad: " (timestep, gradEval, gradToUse, bfgs')
 
             where gradF :: GradFn a
@@ -423,53 +417,65 @@ timeAndGrad config params f state =
                   -- we could also use a different descent direction if desired
                   -- Note: with Newton's method, we find the directional derivative using the preconditioned gradient
                   duf :: (Autofloat a) => [a] -> [a] -> a
-                  duf u x = gradF x `dotL` u
+                  duf u x = u `dotL` gradF x
 
 linesearch_max :: Int
 linesearch_max = 100 -- TODO what's a reasonable limit (if any)?
 
 -- Implements Armijo-Wolfe line search as specified in Keenan's notes, converges on nonconvex fns as well
--- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods", page TODO
+-- based off Lewis & Overton, "Nonsmooth optimization via quasi-Newton methods
 -- duf = D_u(f), the directional derivative of f at descent direction u
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
--- TODO summarize algorithm
--- TODO what happens if there are NaNs in awLineSearch? or infinities
-awLineSearch :: OptConfig -> ObjFn1 a -> ObjFn2 a -> [Float] -> [Float] -> Float
-awLineSearch config f duf_noU descentDir x0 =
-             -- results after a&w are satisfied are junk and can be discarded
-             -- drop while a&w are not satisfied OR the interval is large enough
-    --  let (af, bf, tf) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
-    --                           $ iterate update (a0, b0, t0) in tf
-     let (numUpdates, (af, bf, tf)) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
-                              $ zip [0..] $ iterate update (a0, b0, t0) in
-                              tro ("Line search # updates: " ++ show numUpdates) $
-                              tf
-          where (a0, b0, t0) = (0, infinity, 1)
-                duf = duf_noU descentDir
+
+awLineSearch :: OptConfig -> ObjFn1 a -> ObjFn1 a -> [Float] -> [Float] -> Float
+awLineSearch config f duf descentDir x0 =
+
+     let (a0, b0, t0) = (0, infinity, 1)
+
+         -- drop while a&w are not satisfied OR the interval is large enough
+         (numUpdates, (af, bf, tf)) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
+                                      $ zip [0..] $ iterate update (a0, b0, t0)
+
+     in tro ("Line search # updates: " ++ show numUpdates) $ tf
+
+          where update :: (Float, Float, Float) -> (Float, Float, Float)
                 update (a, b, t) =
                        let (a', b', sat) | not $ armijo t    = tr' "not armijo" (a, t, False)
-                                         | not $ weakWolfe t =  tr' "not wolfe" (t, b, False)
-                                           -- remember to change both wolfes
+                                         | not $ wolfe t     = tr' "not wolfe" (t, b, False)
                                          | otherwise         = (a, b, True) in
                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
                        else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
                        else tr' "b' = infinity" (a', b', 2 * a')
+
+                intervalOK_or_notArmijoAndWolfe :: (Int, (Float, Float, Float)) -> Bool
                 intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) =
                       not $
-                      if armijo t && weakWolfe t then -- takes precedence
-                           tr ("stop: both sat. |-gradf(x0)| = " ++ show (norm descentDir)) True
+                      if armijo t && wolfe t then
+                           tr ("stop: both sat. |descentDir at x0| = " ++ show (norm descentDir)) True
                       else if abs (b - a) < minInterval then
-                           tr ("stop: interval too small. |-gradf(x0)| = " ++ show (norm descentDir)) True
+                           tr ("stop: interval too small. |descentDir at x0| = " ++ show (norm descentDir)) True
                       else if numUpdates > linesearch_max then
                            tr ("stop: number of line search updates exceeded max") True
-                      else False -- could be shorter; long for debugging purposes
-                armijo t = (f ((tr' "** x0" x0) +. t *. (tr' "descentDir" descentDir))) <= ((tr' "fAtX0"fAtx0) + c1 * t * (tr' "dufAtX0" dufAtx0))
-                strongWolfe t = abs (duf (x0 +. t *. descentDir)) <= c2 * abs dufAtx0
-                weakWolfe t = duf_x_tu >= (c2 * dufAtx0) -- split up for debugging purposes
-                          where duf_x_tu = tr' "Duf(x + tu)" (duf (x0 +. t' *. descentDir'))
-                                t' = tr' "t" t
-                                descentDir' = descentDir --tr' "descentDir" descentDir
-                dufAtx0 = duf x0 -- cache some results, can cache more if needed
-                fAtx0 = f x0 -- TODO debug why NaN. even using removeNaN' didn't help
-                minInterval = if intervalMin then 10 ** (-10) else 0
-                -- stop if the interval gets too small; might not terminate
+                      else False
+
+                armijo :: Float -> Bool
+                armijo t = (f (x0 +. t *. descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
+
+                strongWolfe :: Float -> Bool
+                strongWolfe t = (abs (duf (x0 +. t *. descentDir))) <= (c2 * abs dufAtx0)
+
+                weakWolfe :: Float -> Bool
+                weakWolfe t = (duf (x0 +. t *. descentDir)) >= (c2 * dufAtx0)
+
+                dufAtx0 :: Float
+                dufAtx0 = duf x0
+
+                fAtx0 :: Float
+                fAtx0 = f x0
+
+                minInterval :: Float -- stop if the interval gets too small; might not terminate
+                minInterval = if intervalMin then 10 ** (-20) else 0
+                -- TODO: the line search is very sensitive to this parameter. Blows up with 10**(-5). Why?
+
+                wolfe :: Float -> Bool
+                wolfe = weakWolfe
