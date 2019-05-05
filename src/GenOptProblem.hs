@@ -114,7 +114,7 @@ instance Show BfgsParams where
                   "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
 
 defaultBfgsMemSize :: Int
-defaultBfgsMemSize = 4
+defaultBfgsMemSize = 17
 -- Shorter memory seems to work better in practice; Nocedal says between 3 and 30 is a good `m` (see p227)
 -- but the choice of `m` is also problem-dependent
 

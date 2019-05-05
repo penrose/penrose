@@ -53,15 +53,17 @@ epStop = 10 ** (-5)
 -- Parameters for Armijo-Wolfe line search
 -- NOTE: must maintain 0 < c1 < c2 < 1
 c1 :: Floating a => a
-c1 = 0.4 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
+c1 = 0.001 -- for Armijo, corresponds to alpha in backtracking line search (see below for explanation)
 -- smaller c1 = shallower slope = less of a decrease in fn value needed = easier to satisfy
 -- turn Armijo off: c1 = 0
+-- Nocedal p38: "In practice, c1 is chosen to be quite small, say 10−4."
 
 c2 :: Floating a => a
-c2 = 0.2 -- for Wolfe, is the factor decrease needed in derivative value
+c2 = 0.9 -- for Wolfe, is the factor decrease needed in derivative value
 -- new directional derivative value / old DD value <= c2
 -- smaller c2 = smaller new derivative value = harder to satisfy
 -- turn Wolfe off: c1 = 1 (basically backatracking line search only)
+-- Nocedal p39: "Typical values of c2 are 0.9 when the search direction pk is chosen by a Newton or quasi-Newton method"
 
 -- true = force linesearch halt if interval gets too small; false = no forced halt
 intervalMin = True
@@ -75,17 +77,18 @@ useAutodiff = True
 constT :: Floating a => a
 constT = 0.001
 
+debugOpt = True
+debugLineSearch = False
 debugBfgs = True
 
 trb :: String -> a -> a
 trb s x = if debugBfgs then trace "---" $ trace s x else x -- prints in left to right order
 
--- turn on/off output in obj fn or constraint
-debugOpt = True
-
 tro :: String -> a -> a
 tro s x = if debugOpt then trace "---" $ trace s x else x -- prints in left to right order
 
+trl :: Show a => String -> a -> a
+trl s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 ----- Convergence criteria
 
@@ -230,7 +233,8 @@ stepWithObjective config g params state =
               state' = map (\(v, dfdv) -> stepT t' v dfdv) (zip state $ gradToUse)
               (fx, fx') = (objFnApplied state, objFnApplied state') 
           in -- if fx' > fx then error ("Error: new energy is greater than old energy: " ++ show (fx', fx)) else
-             tro ("\nopt params: \n" ++ (show params)
+             tro ("\n----------------------------------------\n"
+                   ++ "\nopt params: \n" ++ (show params)
                    ++ "\n||x' - x||: " ++ (show $ norm (state -. state'))
                    ++ "\n|f(x') - f(x)|: " ++
                   (show $ abs (fx' - fx))
@@ -337,9 +341,20 @@ gradP config bfgsParams gradEval f state =
                    let (s_km1, y_km1) = (x_k - x_km1, grad_fx_k - grad_fx_km1) -- Newest vectors added to front
                        (ss', ys') = (take m $ s_km1 : ss, take m $ y_km1 : ys) -- The limited-memory part: drop stale vectors
                        gradPreconditioned = lbfgs grad_fx_k ss' ys'
-                       bfgsParams' = bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k,
-                                                  s_list = ss', y_list = ys', numUnconstrSteps = km1 + 1 }
-                   in (L.toList gradPreconditioned, bfgsParams')
+                       descentDirCheck = -gradPreconditioned `L.dot` grad_fx_k
+
+                   -- Reset L-BFGS if the result is not a descent direction, and use steepest descent direction
+                   -- https://github.com/JuliaNLSolvers/Optim.jl/issues/143 https://github.com/JuliaNLSolvers/Optim.jl/pull/144
+
+                   in if descentDirCheck < epsd 
+                      then (L.toList gradPreconditioned, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k,
+                                                                      s_list = ss', y_list = ys', numUnconstrSteps = km1 + 1 })
+                      else tro "L-BFGS did not find a descent direction. Resetting correction vectors." $
+                           (gradEval, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k,
+                                                   s_list = [], y_list = [], numUnconstrSteps = km1 + 1 })
+
+                   -- TODO: check the curvature condition y_k^T s_k > 0 (8.7) (Nocedal 201)
+                   -- https://github.com/JuliaNLSolvers/Optim.jl/issues/26
 
                _ -> error "invalid L-BFGS state"
 
@@ -351,45 +366,46 @@ type LMatrix = L.Matrix L.R
 -- expects length ys == length ss, length ys > 0, length ys > 0
 lbfgs :: LVector -> [LVector] -> [LVector] -> LVector
 lbfgs grad_fx_k ss ys =
-    let rhos = map calculate_rho $ zip ss ys in -- The length of any list should be the number of stored vectors
-    let q_k = grad_fx_k in
-    let (q_k_minus_m, alphas) = foldl' pull_q_back (q_k, []) (zip3 rhos ss ys) in -- forward: for i = k-1 ... k-m
-    -- Note the order of alphas will be from k-m through k-1 for the push_r_forward loop
-    let h_0_k = estimate_hess (head ys) (head ss) in
-    let r_k_minus_m = h_0_k L.#> q_k_minus_m in
-    let r_k = foldl' push_r_forward r_k_minus_m (zip (zip rhos alphas) (zip ss ys)) in -- backward: for i = k-m .. k-1
-    r_k -- is H_k * grad f(x_k)
+    let rhos = map calculate_rho $ zip ss ys -- The length of any list should be the number of stored vectors
+        q_k = grad_fx_k
+        (q_k_minus_m, alphas) = foldl' pull_q_back (q_k, []) (zip3 rhos ss ys) -- backward: for i = k-1 ... k-m
+        -- Note the order of alphas will be from k-m through k-1 for the push_r_forward loop
+        h_0_k = estimate_hess (head ys) (head ss)
+        r_k_minus_m = h_0_k L.#> q_k_minus_m
+        r_k = foldl' push_r_forward r_k_minus_m (zip (zip (reverse rhos) alphas) (zip (reverse ss) (reverse ys)))
+        -- forward: for i = k-m .. k-1 (TODO: optimize out the reverses)
+    in r_k -- is H_k * grad f(x_k)
 
            where calculate_rho :: (LVector, LVector) -> L.R
                  calculate_rho (s, y) = 1 / ((y `L.dot` s) + epsd)
 
                  pull_q_back :: (LVector, [L.R]) -> (L.R, LVector, LVector) -> (LVector, [L.R]) -- from i+1 to i
                  pull_q_back (q_i_plus_1, alphas) (rho_i, s_i, y_i) =
-                        let alpha_i = rho_i * (s_i `L.dot` q_i_plus_1) in -- scalar
-                        let q_i = q_i_plus_1 - (alpha_i `L.scale` y_i) in -- scalar * vector
-                        (q_i, alpha_i : alphas) -- Note the order of alphas
+                        let alpha_i = rho_i * (s_i `L.dot` q_i_plus_1) -- scalar
+                            q_i = q_i_plus_1 - (alpha_i `L.scale` y_i) -- scalar * vector
+                        in (q_i, alpha_i : alphas) -- Note the order of alphas
 
                  -- Scale I by an estimate of the size of the Hessian along the most recent search direction (Nocedal p226)
                  estimate_hess :: LVector -> LVector -> LMatrix
                  estimate_hess y_km1 s_km1 = 
-                        let gamma_k = (s_km1 `L.dot` y_km1) / ((y_km1 `L.dot` y_km1) + epsd) in
-                        gamma_k `L.scale` (L.ident (L.size y_km1))
+                        let gamma_k = (s_km1 `L.dot` y_km1) / ((y_km1 `L.dot` y_km1) + epsd)
+                        in gamma_k `L.scale` (L.ident (L.size y_km1))
 
                  push_r_forward :: LVector -> ((L.R, L.R), (LVector, LVector)) -> LVector -- from i to i+1
                  push_r_forward r_i ((rho_i, alpha_i), (s_i, y_i)) =
-                        let beta_i = rho_i * (y_i `L.dot` r_i) in -- scalar
-                        let r_i_plus_1 = r_i + (alpha_i - beta_i) `L.scale` s_i -- scalar * vector
+                        let beta_i = rho_i * (y_i `L.dot` r_i) -- scalar
+                            r_i_plus_1 = r_i + (alpha_i - beta_i) `L.scale` s_i -- scalar * vector
                         in r_i_plus_1
 
 estimateGradient :: ObjFn1 a -> [Float] -> [Float]
 estimateGradient f state =
-      let len = length state in
-      let h = 0.001 in -- Choice of h really matters!!! This is not an accurate estimate.
-      let fx = f state in
+      let len = length state
+          h = 0.001 -- Choice of h really matters!!! This is not an accurate estimate.
+          fx = f state
       -- time is O(|state|^2)
-      let dfx i = ((f $ replace i ((state !! i) + h) state) - fx) / h in
-      let dfxs = map dfx [0..(len-1)] in
-      dfxs
+          dfx i = ((f $ replace i ((state !! i) + h) state) - fx) / h
+          dfxs = map dfx [0..(len-1)]
+      in dfxs
       where replace pos newVal list = take pos list ++ newVal : drop (pos+1) list
 
 -- Given the objective function, gradient function, timestep, and current state,
@@ -412,10 +428,7 @@ timeAndGrad config params f state =
             where gradF :: GradFn a
                   gradF = appGrad f
 
-                  -- directional derivative at u, where u is the negated gradient in awLineSearch
-                  -- descent direction need not have unit norm
-                  -- we could also use a different descent direction if desired
-                  -- Note: with Newton's method, we find the directional derivative using the preconditioned gradient
+                  -- directional derivative of f at x in the direction of u (descent direction, which may not have unit norm)
                   duf :: (Autofloat a) => [a] -> [a] -> a
                   duf u x = u `dotL` gradF x
 
@@ -430,7 +443,7 @@ linesearch_max = 100 -- TODO what's a reasonable limit (if any)?
 awLineSearch :: OptConfig -> ObjFn1 a -> ObjFn1 a -> [Float] -> [Float] -> Float
 awLineSearch config f duf descentDir x0 =
 
-     let (a0, b0, t0) = (0, infinity, 1)
+     let (a0, b0, t0) = (0, infinity, 1) -- Unit step length should be tried first for quasi-Newton methods. (Nocedal 201)
 
          -- drop while a&w are not satisfied OR the interval is large enough
          (numUpdates, (af, bf, tf)) = head $ dropWhile intervalOK_or_notArmijoAndWolfe
@@ -440,41 +453,44 @@ awLineSearch config f duf descentDir x0 =
 
           where update :: (Float, Float, Float) -> (Float, Float, Float)
                 update (a, b, t) =
-                       let (a', b', sat) | not $ armijo t    = tr' "not armijo" (a, t, False)
-                                         | not $ wolfe t     = tr' "not wolfe" (t, b, False)
+                       let (a', b', sat) | not $ armijo t    = trl "not armijo" (a, t, False)
+                                         | not $ wolfe t     = trl "not wolfe" (t, b, False)
                                          | otherwise         = (a, b, True) in
                        if sat then (a, b, t) -- if armijo and wolfe, then we use (a, b, t) as-is
-                       else if b' < infinity then tr' "b' < infinity" (a', b', (a' + b') / 2)
-                       else tr' "b' = infinity" (a', b', 2 * a')
+                       else if b' < infinity then trl "b' < infinity" (a', b', (a' + b') / 2)
+                       else trl "b' = infinity" (a', b', 2 * a')
 
                 intervalOK_or_notArmijoAndWolfe :: (Int, (Float, Float, Float)) -> Bool
                 intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) =
                       not $
                       if armijo t && wolfe t then
-                           tr ("stop: both sat. |descentDir at x0| = " ++ show (norm descentDir)) True
+                           trl ("stop: both sat. |descentDir at x0| = " ++ show (norm descentDir)) True
                       else if abs (b - a) < minInterval then
-                           tr ("stop: interval too small. |descentDir at x0| = " ++ show (norm descentDir)) True
+                           trl ("stop: interval too small. |descentDir at x0| = " ++ show (norm descentDir)) True
                       else if numUpdates > linesearch_max then
-                           tr ("stop: number of line search updates exceeded max") True
+                           trl ("stop: number of line search updates exceeded max") True
                       else False
 
                 armijo :: Float -> Bool
                 armijo t = (f (x0 +. t *. descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
 
+                weakWolfe :: Float -> Bool -- Better for nonsmooth functions
+                weakWolfe t = (duf (x0 +. t *. descentDir)) >= (c2 * dufAtx0)
+
                 strongWolfe :: Float -> Bool
                 strongWolfe t = (abs (duf (x0 +. t *. descentDir))) <= (c2 * abs dufAtx0)
 
-                weakWolfe :: Float -> Bool
-                weakWolfe t = (duf (x0 +. t *. descentDir)) >= (c2 * dufAtx0)
-
-                dufAtx0 :: Float
-                dufAtx0 = duf x0
+                -- Descent direction (at x0) must have a negative dot product with the gradient of f at x0.
+                dufAtx0 :: Float -- TODO: this is redundant, cache it
+                dufAtx0 = let res = duf x0 in
+                        trl ("<grad f(x0), descent direction at x0>: " ++ show res) $ 
+                        if res > 0 then tro "WARNING: descent direction doesn't satisfy condition" res else res
 
                 fAtx0 :: Float
                 fAtx0 = f x0
 
                 minInterval :: Float -- stop if the interval gets too small; might not terminate
-                minInterval = if intervalMin then 10 ** (-20) else 0
+                minInterval = if intervalMin then 10 ** (-10) else 0
                 -- TODO: the line search is very sensitive to this parameter. Blows up with 10**(-5). Why?
 
                 wolfe :: Float -> Bool

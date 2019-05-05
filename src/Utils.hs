@@ -40,8 +40,6 @@ defaultWeight = 1
 -- debug = True
 debug = False
 debugStyle = False
--- debugLineSearch = True
-debugLineSearch = False
 
 -- used when sampling the inital state, make sure sizes satisfy subset constraints
 subsetSizeDiff :: Floating a => a
@@ -157,9 +155,6 @@ trRaw s x = trace "---" $ trace s $ trace (show x ++ "\n") x -- prints in left t
 
 trStr :: String -> a -> a
 trStr s x = if debug then trace "---" $ trace s x else x -- prints in left to right order
-
-tr' :: Show a => String -> a -> a
-tr' s x = if debugLineSearch then trace "---" $ trace s $ traceShowId x else x -- prints in left to right order
 
 --------------------------------------------------------------------------------
 -- Lists-as-vectors utility functions
