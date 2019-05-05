@@ -108,8 +108,8 @@ instance Show BfgsParams where
                   "\nlastState: \n" ++ ppShow (lastState s) ++
                   "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
                   "\ninvH: \n" ++ ppShow (invH s) ++
-                  "\ns_list:\n" ++ ppShow (s_list s) ++
-                  "\ny_list:\n" ++ ppShow (y_list s) ++
+                  "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
+                  "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
                   "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
                   "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
 
