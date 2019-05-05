@@ -338,7 +338,7 @@ areAllArgTypes = foldl (\b at1 -> b && isJust at1) True
 -- The substitution need not be applied to any types for predicates, because using the argument types to create the
 -- substitution ensures the argument types match the substitution applied to each formal type.
 checkVarPred :: VarEnv -> [PredArg] -> Predicate1 -> VarEnv
-checkVarPred varEnv args (Prd1 name yls kls tls _) =
+checkVarPred varEnv args (Prd1 name yls kls tls) =
              let exprArgs      = map isVarPredicate args
                  errAndTypesLs = map (checkExpression varEnv) exprArgs
                  errls         = firsts errAndTypesLs

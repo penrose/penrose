@@ -4,6 +4,8 @@
 --   Author: Dor Ma'ayan, May 2018
 
 {-# OPTIONS_HADDOCK prune #-}
+{-# LANGUAGE DeriveGeneric, OverloadedStrings #-}
+
 module Env where
 --module Main (main) where -- for debugging purposes
 
@@ -11,6 +13,8 @@ import Utils
 import System.Process
 import Control.Monad (void)
 import Data.Void
+import Data.Aeson
+import GHC.Generics
 import System.IO -- read/write to file
 import System.Environment
 import Control.Arrow ((>>>))
@@ -28,10 +32,17 @@ import Data.Void
 import Control.Monad.State.Lazy (StateT)
 --import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
+-- import qualified Data.Text 
 import qualified Data.Set                   as S
 import qualified Data.Map.Strict            as M
 import qualified Text.Megaparsec.Char.Lexer as L
 import qualified SubstanceTokenizer         as T
+import qualified Data.Text as Text
+
+import Data.Aeson.Types (toJSONKeyText)
+
+instance ToJSON SourcePos where
+    toJSON pos = object [ "line" .= unPos (sourceLine pos), "column" .= unPos (sourceColumn pos) ] 
 
 --------------------------------------------------------------------------------
 ---- Lexer helper functions
@@ -139,6 +150,8 @@ eq = void (symbol "=")
 def = void (symbol ":=")
 dollar = void (symbol "$")
 question = void (symbol "?")
+tilde = void (symbol "~")
+star = void (symbol "*")
 
 
 dollars :: Parser a -> Parser a
@@ -176,11 +189,14 @@ tryChoice list = choice $ map try list
 
 data TypeName = TypeNameConst String  -- these are all names, e.g. “Set”
               | AllT              -- specifically for global selection in Style
-                deriving (Show, Eq, Typeable)
+                deriving (Show, Eq, Typeable, Generic)
+instance ToJSON TypeName
 
 data TypeVar = TypeVar { typeVarName :: String,
                          typeVarPos  :: SourcePos }
-               deriving (Show, Typeable)
+               deriving (Show, Typeable, Generic)
+instance ToJSON TypeVar
+instance ToJSONKey TypeVar
 
 instance Eq TypeVar where
   (TypeVar n1 _) == (TypeVar n2 _) = n1 == n2
@@ -189,21 +205,30 @@ instance Ord TypeVar where
   (TypeVar s1 _) `compare` (TypeVar s2 _) = s1 `compare` s2
 
 newtype Var = VarConst String
-         deriving (Show, Eq, Typeable, Ord)
+         deriving (Show, Eq, Typeable, Ord, Generic)
+var2string (VarConst v) = v
+instance ToJSON Var 
+instance ToJSONKey Var where
+    toJSONKey = toJSONKeyText (Text.pack . var2string)
 
 data Y = TypeVarY TypeVar
        | VarY Var
-         deriving (Show, Eq, Typeable, Ord)
+         deriving (Show, Eq, Typeable, Ord, Generic)
+instance ToJSON Y
 
 data T = TTypeVar TypeVar
        | TConstr TypeCtorApp
        -- TODO: rename to TCtor. Less confusing, more consistent w/ Sty
-         deriving (Show, Eq, Typeable, Ord)
+         deriving (Show, Eq, Typeable, Ord, Generic)
+instance ToJSON T
+instance ToJSONKey T
 
 data TypeCtorApp = TypeCtorApp { nameCons :: String,
                                  argCons  :: [Arg],
                                  constructorInvokerPos :: SourcePos }
-                          deriving (Typeable)
+                          deriving (Typeable, Generic)
+instance ToJSON TypeCtorApp
+instance ToJSONKey TypeCtorApp
 
 instance Show TypeCtorApp where
   show (TypeCtorApp nameCons argCons posCons) = nString ++ "(" ++ aString ++ ")"
@@ -218,22 +243,26 @@ instance Ord TypeCtorApp where
 
 data Arg = AVar Var
          | AT T
-           deriving (Show, Eq, Typeable,Ord)
+           deriving (Show, Eq, Typeable, Ord, Generic)
+instance ToJSON Arg
 
 data K = Ktype Type
        | KT T
-       deriving (Show, Eq, Typeable)
+       deriving (Show, Eq, Typeable, Generic)
+instance ToJSON K
 
 data Type = Type { typeName :: String,
                    typePos  :: SourcePos }
-            deriving (Show, Typeable)
+            deriving (Show, Typeable, Generic)
+instance ToJSON Type 
 
 instance Eq Type where
   (Type n1 _) == (Type n2 _) = n1 == n2
 
 data Prop =  Prop { propName :: String,
                     propPos  :: SourcePos }
-             deriving (Show, Typeable)
+             deriving (Show, Typeable, Generic)
+instance ToJSON Prop
 
 instance Eq Prop where
   (Prop n1 _) == (Prop n2 _) = n1 == n2
@@ -413,9 +442,9 @@ data Ttype = Ttype { yt :: Y,
              deriving (Show, Eq, Typeable)
 
 data TypeConstructor = TypeConstructor { nametc :: String,
-                                         kindstc  :: [K],
-                                         typtc  :: Type }
-                       deriving (Show, Eq, Typeable)
+                                         kindstc  :: [K]}
+                       deriving (Show, Eq, Typeable, Generic)
+instance ToJSON TypeConstructor
 
 data ValConstructor = ValConstructor { namevc :: String,
                                        ylsvc  :: [Y],
@@ -423,30 +452,33 @@ data ValConstructor = ValConstructor { namevc :: String,
                                        nsvc   :: [Var],
                                        tlsvc  :: [T],
                                        tvc    :: T }
-                      deriving (Show, Eq, Typeable)
+                      deriving (Show, Eq, Typeable, Generic)
+instance ToJSON ValConstructor
 
 data Operator = Operator { nameop :: String,
                              ylsop  :: [Y],
                              kindsop  :: [K],
                              tlsop  :: [T],
                              top  :: T}
-                 deriving (Show, Eq, Typeable)
+                 deriving (Show, Eq, Typeable, Generic)
+instance ToJSON Env.Operator 
 
 data PredicateEnv = Pred1 Predicate1
                   | Pred2 Predicate2
-                  deriving (Show, Eq, Typeable)
+                  deriving (Show, Eq, Typeable, Generic)
+instance ToJSON PredicateEnv 
 
 data Predicate1 = Prd1 { namepred1 :: String,
                          ylspred1  :: [Y],
                          kindspred1  :: [K],
-                         tlspred1  :: [T],
-                         ppred1    :: Prop}
-                  deriving (Show, Eq, Typeable)
+                         tlspred1  :: [T]}
+                  deriving (Show, Eq, Typeable, Generic)
+instance ToJSON Predicate1 
 
 data Predicate2 = Prd2 { namepred2 :: String,
-                         plspred2  :: [Prop],
-                         ppred2    :: Prop }
-                  deriving (Show, Eq, Typeable)
+                         plspred2  :: [Prop]}
+                  deriving (Show, Eq, Typeable, Generic)
+instance ToJSON Predicate2
 
 data StmtNotationRule =
    StmtNotationRule { fromSnr :: [T.Token],
@@ -454,7 +486,8 @@ data StmtNotationRule =
                       patternsSnr :: [T.Token],
                       entitiesSnr :: [T.Token] -- all the non pattern sugared entities
                     }
-                    deriving (Show, Eq, Typeable)
+                    deriving (Show, Eq, Typeable, Generic)
+instance ToJSON StmtNotationRule
 
 data ExprNotationRule = ExprNotationRule {fromEnr          :: String,
                                           toEnr            :: String,
@@ -475,7 +508,9 @@ data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
                        declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
                        stmtNotations    :: [StmtNotationRule], -- all the statement notations in the dsll
                        errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
-              deriving (Show, Eq, Typeable)
+              deriving (Show, Eq, Typeable, Generic)
+instance ToJSON VarEnv
+
 
 isDeclared :: String -> VarEnv -> Bool
 isDeclared name varEnv = name `elem` typeCtorNames varEnv
