@@ -101,13 +101,13 @@ with Point p; Point q; Point r {
 Angle theta
 where theta := AngleBetween(a, b)
 with Linelike a; Linelike b {
-     theta.test = Circle {
-         x = 0.0
-	 y = 0.0
-	 r = 10.0
-	 color = Colors.red
-	 strokeWidth = 0.0
-     }
+     -- theta.test = Circle {
+     --     x = 0.0
+     -- 	 y = 0.0
+     -- 	 r = 5.0
+     -- 	 color = setOpacity(Colors.red, 0.5)
+     -- 	 strokeWidth = 0.0
+     -- }
 
      -- Right now, angle between intersecting segments
      theta.shape = Arc {
@@ -124,9 +124,19 @@ with Linelike a; Linelike b {
      }
 }
 
--- Ray as Bisector
+Ray r
+with Angle theta; Linelike a; Linelike b
+where r := Bisector(theta); theta := AngleBetween(a, b) {
 
--- Line as Perpendicular bisector
--- In what order?
+          
+}
 
 -- Midpoint
+Point p
+where p := Midpoint(s)
+with Segment s {
+     override p.shape.x = midpointX(s.shape)
+     override p.shape.y = midpointY(s.shape)
+}
+
+-- TODO: what order should the selectors be in?
