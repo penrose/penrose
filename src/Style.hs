@@ -348,7 +348,7 @@ stmt :: Parser Stmt
 stmt = tryChoice [assign, override, delete]
 
 assign, override, delete :: Parser Stmt
-assign   = Assign   <$> path <*> (colon >> expr)
+assign   = Assign   <$> path <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
 
@@ -422,12 +422,12 @@ transformExpr :: Parser Expr
 transformExpr = makeExprParser tTerm tOperators
 
 tTerm :: Parser Expr
-tTerm = expr
+tTerm = compFn
 
 tOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
 tOperators =
     [   -- Highest precedence
-        [ InfixL (ThenOp <$ string "then") ]
+        [ InfixL (ThenOp <$ symbol "then") ]
         -- Lowest precedence
     ]
 
@@ -467,7 +467,7 @@ exprsInParens = parens $ expr `sepBy` comma
 
 list, tuple :: Parser Expr
 list = List <$> brackets (expr `sepBy1` comma)
-tuple = Tuple <$> expr <*> expr
+tuple = parens (Tuple <$> expr <*> (comma >> expr))
 
 constructor :: Parser Expr
 constructor = do
@@ -476,7 +476,7 @@ constructor = do
     return $ Ctor typ fields
 
 propertyDecl :: Parser PropertyDecl
-propertyDecl = PropertyDecl <$> identifier <*> (eq >> expr)
+propertyDecl = PropertyDecl <$> identifier <*> (colon >> expr)
 
 boolLit :: Parser Expr
 boolLit =  (rword "True" >> return (BoolLit True))
