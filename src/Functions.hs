@@ -115,6 +115,12 @@ compDict = M.fromList
         ("sampleFunctionArea", sampleFunctionArea),
         ("makeCurve", makeCurve),
         ("triangle", constComp triangle),
+        ("shared", constComp sharedP),
+        ("angle", constComp angleOf),
+        ("perpX", constComp perpX),
+        ("perpY", constComp perpY),
+        ("perpPath", constComp perpPath),
+
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
         ("tangentLineEX", constComp tangentLineEX),
@@ -743,6 +749,52 @@ triangle [GPI e1@("Line", _), GPI e2@("Line", _), GPI e3@("Line", _)] =
          furthestFrom (p1, p2) pts = fst $ 
                                      maximumBy (\p1 p2 -> compare (snd p1) (snd p2)) $
                                      map (\p -> (p, dist p p1 + dist p p2)) pts
+
+sharedP :: ConstCompFn
+sharedP [Val (FloatV a), Val (FloatV b), Val (FloatV c), Val (FloatV d)] =
+         let xs = nub [a, b, c, d]
+             common = case xs of
+                      [] -> error "no shared points between segments"
+                      x:xs -> x
+         in Val $ FloatV common
+
+angleOf :: ConstCompFn
+angleOf [GPI l@("Line", _), Val (FloatV originX), Val (FloatV originY)] =
+        let origin = (originX, originY)
+            (start, end) = (getPoint "start" l, getPoint "end" l)
+            endpoint = if origin == start then end else start -- Pick the point that's not the origin
+            (rayX, rayY) = endpoint -: origin
+            angleRad = atan2 rayY rayX
+            angle = (angleRad * 180) / pi
+        in Val $ FloatV angle
+
+perp :: Autofloat a => Pt2 a -> Pt2 a -> Pt2 a -> a -> Pt2 a
+perp start end base len = let dir = normalize' $ end -: start
+                              perpDir = (len *: (rot90 dir)) +: base
+                          in perpDir
+
+perpX :: ConstCompFn
+perpX [GPI l@("Line", _), Val (FloatV baseX), Val (FloatV baseY), Val (FloatV len)] =
+        let (start, end) = (getPoint "start" l, getPoint "end" l)
+        in Val $ FloatV $ fst $ perp start end (baseX, baseY) len
+
+perpY :: ConstCompFn
+perpY [GPI l@("Line", _), Val (FloatV baseX), Val (FloatV baseY), Val (FloatV len)] =
+        let (start, end) = (getPoint "start" l, getPoint "end" l)
+        in Val $ FloatV $ snd $ perp start end (baseX, baseY) len
+
+perpPath :: ConstCompFn
+perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (FloatV size)] =
+         let (startR, endR) = (getPoint "start" r, getPoint "end" r)
+             (startL, endL) = (getPoint "start" l, getPoint "end" l)
+             dirR = normalize' $ endR -: startR
+             dirL = normalize' $ endL -: startL
+             ptL = startR +: (size *: dirL)
+             ptR = startR +: (size *: dirR)
+             ptLR = startR +: (size *: dirL) +: (size *: dirR)
+             -- TODO: clean up this code
+             path = Open $ [Pt ptL, Pt ptLR, Pt ptR]
+         in Val $ PathDataV [path]
 
 -- NOTE: assumes that the curve has at least 3 points
 tangentLine :: Autofloat a => a -> [Pt2 a] -> a -> (Pt2 a, Pt2 a)

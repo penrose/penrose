@@ -34,7 +34,7 @@ Colors {
 }
 
 Point p {
-       p.shape = Circle { 
+       p.shape = Circle {
          x = OPTIMIZED
 	 y = OPTIMIZED
          r = 3.0
@@ -56,7 +56,7 @@ Point p {
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
-     e.shape = Line { 
+     e.shape = Line {
      	     startX = p.shape.x
      	     startY = p.shape.y
      	     endX = q.shape.x
@@ -83,7 +83,7 @@ with Point p; Point q; Point r {
      f.color = setOpacity(Colors.silver, 0.5)
 
      -- TODO: layer all labels on top of filled shapes
-     f.shape = Curve { 
+     f.shape = Curve {
      	     pathData = triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
 	     strokeWidth = 1.0
 	     fill = f.color
@@ -109,26 +109,73 @@ with Linelike a; Linelike b {
      -- 	 strokeWidth = 0.0
      -- }
 
-     -- Right now, angle between intersecting segments
+     theta.originX = shared(a.shape.startX, a.shape.endX, b.shape.startX, b.shape.endX)
+     theta.originY = shared(a.shape.startY, a.shape.endY, b.shape.startY, b.shape.endY)
+
+     -- Right now, angle between segments that share an endpoint
+     -- TODO generalize this, also use pt2
      theta.shape = Arc {
-     	   x = 100.0
-     	   y = -100.0
-     	   r = 50.0
-     	   startAngle = 45.0 -- Degrees
-	   endAngle = 135.0
-     	   isRight = False
-	   strokeWidth = 3.0
+     	   x = theta.originX
+     	   y = theta.originY
+     	   r = 40.0 -- TODO: set this based on the relative lengths of the segment
+     	   startAngle = angle(a.shape, theta.originX, theta.originY) -- Degrees
+	   endAngle = angle(b.shape, theta.originX, theta.originY)
+	   strokeWidth = 2.0
      	   strokeColor = Colors.black
 	   fillColor = Colors.none -- setOpacity(Colors.silver, 0.5)
 	   -- TODO: make a "pie wedge" fill with a path
      }
 }
 
+Ray r {
+    r.length = 100.0
+}
+
 Ray r
 with Angle theta; Linelike a; Linelike b
 where r := Bisector(theta); theta := AngleBetween(a, b) {
 
-          
+      r.shape = Line {
+      	      startX = theta.originX
+	      startY = theta.originY
+	      -- TODO: figure out how long this should be
+	      -- TODO: calculate this location properly; WRT the angle and the non-origin endpoints; this is just a heuristic
+	      endX = average(a.shape.endX, b.shape.endX)
+	      endY = average(a.shape.endY, b.shape.endY)
+	      thickness = 2.0
+	      color = Colors.midnightblue
+	      -- style = "dotted"
+      	      right-arrowhead = True
+      }
+
+      -- TODO: layer above the triangle
+}
+
+
+Ray r
+with Linelike s
+where r := PerpendicularBisector(s) {
+
+      r.shape = Line {
+      	      startX = midpointX(s.shape)
+	      startY = midpointY(s.shape)
+	      endX = perpX(s.shape, r.shape.startX, r.shape.startY, r.length)
+	      endY = perpY(s.shape, r.shape.startX, r.shape.startY, r.length)
+	      thickness = 2.0
+	      color = Colors.midnightblue
+	      style = "dotted"
+      	      right-arrowhead = True
+      }
+
+      r.perpSize = 20.0
+
+      r.perpMark = Curve {
+      		 pathData = perpPath(r.shape, s.shape, r.perpSize)
+		 strokeWidth = 2.0
+		 color = Colors.black
+		 fill = Colors.none
+      }
+      -- TODO: layer above the triangle
 }
 
 -- Midpoint

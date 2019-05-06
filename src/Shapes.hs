@@ -695,8 +695,10 @@ braceType = ("Brace", M.fromList
 
 curveType = ("Curve", M.fromList
     [
+        -- These two fields are for storage.
         ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
         ("polyline", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        -- The frontend only uses pathData to draw the curve.
         ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "solid")),
@@ -713,9 +715,10 @@ lineType = ("Line", M.fromList
         ("startY", (FloatT, y_sampler)),
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
-        -- TODO: deal with derived property "path" here or in the frontend
         ("thickness", (FloatT, sampleFloatIn (5, 15))),
-        -- TODO: list the possible styles for each attribute of each GPI
+
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "solid")),
         ("stroke", (StrT, constValue $ StrV "none")),
