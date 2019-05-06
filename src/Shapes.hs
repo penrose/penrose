@@ -788,10 +788,15 @@ arcType = ("Arc", M.fromList
         ("lengthY", (FloatT, height_sampler)),
         ("angle", (FloatT, angle_sampler)),
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
+
         ("isRight", (BoolT, bool_sampler)), -- This property overrides the angle property
-        ("color", (ColorT, sampleColor)),
-        ("style", (StrT, constValue $ StrV "none")),
-        ("stroke", (StrT, constValue $ StrV "none")),
+
+        ("strokeWidth", (FloatT, constValue $ FloatV 1.0)),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("fillColor", (ColorT, sampleColor)),
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+
         ("name", (StrT, constValue $ StrV "defaultArc"))
     ])
 

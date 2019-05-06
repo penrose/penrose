@@ -77,3 +77,56 @@ with Point p; Point q {
 }
 
 
+Triangle t
+where t := MkTriangleP(p, q, r)
+with Point p; Point q; Point r {
+     f.color = setOpacity(Colors.silver, 0.5)
+
+     -- TODO: layer all labels on top of filled shapes
+     f.shape = Curve { 
+     	     pathData = triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
+	     strokeWidth = 1.0
+	     fill = f.color
+	     color = Colors.black
+	     rotation = 0.0
+     }
+
+     -- f.text = Text {
+     --   string = f.label
+     --   color = f.color
+     --   rotation = 0.0
+     -- }
+}
+
+Angle theta
+where theta := AngleBetween(a, b)
+with Linelike a; Linelike b {
+     theta.test = Circle {
+         x = 0.0
+	 y = 0.0
+	 r = 10.0
+	 color = Colors.red
+	 strokeWidth = 0.0
+     }
+
+     -- Right now, angle between intersecting segments
+     theta.shape = Arc {
+     	   x = 100.0
+     	   y = -100.0
+     	   r = 50.0
+     	   startAngle = 45.0 -- Degrees
+	   endAngle = 135.0
+     	   isRight = False
+	   strokeWidth = 3.0
+     	   strokeColor = Colors.black
+	   fillColor = Colors.none -- setOpacity(Colors.silver, 0.5)
+	   -- TODO: make a "pie wedge" fill with a path
+     }
+}
+
+-- Ray as Bisector
+
+-- Line as Perpendicular bisector
+-- In what order?
+
+-- Midpoint
