@@ -35,19 +35,19 @@ Colors {
 
 Point p {
        p.shape = Circle {
-         x = OPTIMIZED
-	 y = OPTIMIZED
-         r = 3.0
-	 color = Colors.black
-	 strokeWidth = 0.0
+         x : ?
+	 y : ?
+         r : 3.0
+	 color : Colors.black
+	 strokeWidth : 0.0
        }
 
        p.text = Text {
-	 x = p.shape.x + global.padding
-	 y = p.shape.y + global.padding
-	 string = p.label
-	 rotation = 0.0
-	 color = p.shape.color
+	 x : p.shape.x + global.padding
+	 y : p.shape.y + global.padding
+	 string : p.label
+	 rotation : 0.0
+	 color : p.shape.color
        }
 
        -- p.posFn = ensure onCanvas(p.shape)
@@ -57,12 +57,12 @@ Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
      e.shape = Line {
-     	     startX = p.shape.x
-     	     startY = p.shape.y
-     	     endX = q.shape.x
-     	     endY = q.shape.y
-	     color = Colors.midnightblue
-	     thickness = global.stroke
+     	     startX : p.shape.x
+     	     startY : p.shape.y
+     	     endX : q.shape.x
+     	     endY : q.shape.y
+	     color : Colors.midnightblue
+	     thickness : global.stroke
      }
 
      -- e.text = Text {
@@ -84,11 +84,11 @@ with Point p; Point q; Point r {
 
      -- TODO: layer all labels on top of filled shapes
      f.shape = Curve {
-     	     pathData = triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
-	     strokeWidth = 1.0
-	     fill = f.color
-	     color = Colors.black
-	     rotation = 0.0
+     	     pathData : triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
+	     strokeWidth : 1.0
+	     fill : f.color
+	     color : Colors.black
+	     rotation : 0.0
      }
 
      -- f.text = Text {
@@ -115,14 +115,14 @@ with Linelike a; Linelike b {
      -- Right now, angle between segments that share an endpoint
      -- TODO generalize this, also use pt2
      theta.shape = Arc {
-     	   x = theta.originX
-     	   y = theta.originY
-     	   r = 40.0 -- TODO: set this based on the relative lengths of the segment
-     	   startAngle = angle(a.shape, theta.originX, theta.originY) -- Degrees
-	   endAngle = angle(b.shape, theta.originX, theta.originY)
-	   strokeWidth = 2.0
-     	   strokeColor = Colors.black
-	   fillColor = Colors.none -- setOpacity(Colors.silver, 0.5)
+     	   x : theta.originX
+     	   y : theta.originY
+     	   r : 40.0 -- TODO: set this based on the relative lengths of the segment
+     	   startAngle : angle(a.shape, theta.originX, theta.originY) -- Degrees
+	   endAngle : angle(b.shape, theta.originX, theta.originY)
+	   strokeWidth : 2.0
+     	   strokeColor : Colors.black
+	   fillColor : Colors.none -- setOpacity(Colors.silver, 0.5)
 	   -- TODO: make a "pie wedge" fill with a path
      }
 }
@@ -136,16 +136,16 @@ with Angle theta; Linelike a; Linelike b
 where r := Bisector(theta); theta := AngleBetween(a, b) {
 
       r.shape = Line {
-      	      startX = theta.originX
-	      startY = theta.originY
+      	      startX : theta.originX
+	      startY : theta.originY
 	      -- TODO: figure out how long this should be
 	      -- TODO: calculate this location properly; WRT the angle and the non-origin endpoints; this is just a heuristic
-	      endX = average(a.shape.endX, b.shape.endX)
-	      endY = average(a.shape.endY, b.shape.endY)
-	      thickness = 2.0
-	      color = Colors.midnightblue
-	      -- style = "dotted"
-      	      right-arrowhead = True
+	      endX : average(a.shape.endX, b.shape.endX)
+	      endY : average(a.shape.endY, b.shape.endY)
+	      thickness : 2.0
+	      color : Colors.midnightblue
+	      -- style : "dotted"
+      	      right-arrowhead : True
       }
 
       -- TODO: layer above the triangle
@@ -157,23 +157,23 @@ with Linelike s
 where r := PerpendicularBisector(s) {
 
       r.shape = Line {
-      	      startX = midpointX(s.shape)
-	      startY = midpointY(s.shape)
-	      endX = perpX(s.shape, r.shape.startX, r.shape.startY, r.length)
-	      endY = perpY(s.shape, r.shape.startX, r.shape.startY, r.length)
-	      thickness = 2.0
-	      color = Colors.midnightblue
-	      style = "dotted"
-      	      right-arrowhead = True
+      	      startX : midpointX(s.shape)
+	      startY : midpointY(s.shape)
+	      endX : perpX(s.shape, r.shape.startX, r.shape.startY, r.length)
+	      endY : perpY(s.shape, r.shape.startX, r.shape.startY, r.length)
+	      thickness : 2.0
+	      color : Colors.midnightblue
+	      style : "dotted"
+      	      right-arrowhead : True
       }
 
       r.perpSize = 20.0
 
       r.perpMark = Curve {
-      		 pathData = perpPath(r.shape, s.shape, r.perpSize)
-		 strokeWidth = 2.0
-		 color = Colors.black
-		 fill = Colors.none
+      		 pathData : perpPath(r.shape, s.shape, r.perpSize)
+		 strokeWidth : 2.0
+		 color : Colors.black
+		 fill : Colors.none
       }
       -- TODO: layer above the triangle
 }
