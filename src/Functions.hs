@@ -108,7 +108,9 @@ compDict = M.fromList
         ("perpPath", constComp perpPath),
         ("get", constComp get'),
         ("convertAndProjectAndToScreen", constComp convertAndProjectAndToScreen),
+        ("convertAndProjectAndToScreen_list", constComp convertAndProjectAndToScreen_list),
         ("scaleLinear", constComp scaleLinear'), 
+        ("slerp", constComp slerp'), 
 
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
@@ -118,6 +120,7 @@ compDict = M.fromList
         ("setOpacity", constComp setOpacity),
         ("bbox", constComp bbox'),
         ("min", constComp min'),
+        ("pathFromPoints", constComp pathFromPoints),
 
         -- Transformations
         ("rotate", constComp rotate),
@@ -868,26 +871,45 @@ get' [Val (ListV xs), Val (IntV i)] =
      else Val $ FloatV $ xs !! i'
 get' [Val (TupleV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
 
-     -- http://mathworld.wolfram.com/SphericalCoordinates.html
-convertAndProjectAndToScreen :: ConstCompFn
-convertAndProjectAndToScreen [Val (TupleV hfov), Val (TupleV vfov), Val (FloatV r), 
-                              Val (ListV camera@[cx, cy, cz]), Val (ListV dir@[dx, dy, dz]),
-                              Val (TupleV (theta, phi))] = 
+sphereToProj :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> Pt2 a -> [a]
+sphereToProj hfov vfov r camera dir (theta, phi) = 
   let vec_math = [r * cos theta * sin phi, r * sin theta * sin phi, r * cos phi]
       vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
       [px, py, pz] = vec_camera
       vec_proj = [px / pz, py / pz, pz] -- TODO check denom 0. Also note z might be negative?
-
-  in Val $ ListV $ 
-     trace ("(theta, phi): " ++ show (theta, phi) 
+  in trace ("(theta, phi): " ++ show (theta, phi)
            ++ "\nvec_math: " ++ show vec_math
            ++ "\nvec_camera: " ++ show vec_camera
            ++ "\nvec_proj: " ++ show vec_proj ++ "\n")
      vec_proj
 
+slerp' :: ConstCompFn
+slerp' [Val (TupleV range1), Val (TupleV range2), Val (IntV n)] = 
+       Val $ PtListV $ lerp2 range1 range2 (fromIntegral n)
+
+-- http://mathworld.wolfram.com/SphericalCoordinates.html
+convertAndProjectAndToScreen :: ConstCompFn
+convertAndProjectAndToScreen [Val (TupleV hfov), Val (TupleV vfov), Val (FloatV r), 
+                              Val (ListV camera), Val (ListV dir),
+                              Val (TupleV sphereCoords)] = 
+     Val $ ListV $ sphereToProj hfov vfov r camera dir sphereCoords
+
+convertAndProjectAndToScreen_list :: ConstCompFn
+convertAndProjectAndToScreen_list [Val (TupleV hfov), Val (TupleV vfov), Val (FloatV r), 
+                              Val (ListV camera), Val (ListV dir),
+                              Val (PtListV spherePath), Val (FloatV toScreen)] = 
+     Val $ PtListV $ (map (\spherePt -> let res = map (* toScreen) $ sphereToProj hfov vfov r camera dir spherePt 
+                                        in (res !! 0, res !! 1)) spherePath)
+     -- Discard z-coordinate for now
+
 scaleLinear' :: ConstCompFn
 scaleLinear' [Val (FloatV x), Val (TupleV range), Val (TupleV range')] =
              Val $ FloatV $ scaleLinear x range range'
+
+pathFromPoints :: ConstCompFn
+pathFromPoints [Val (PtListV pts)] =
+               let path = Open $ map Pt pts
+               in Val $ PathDataV [path]
 
 --------------------------------------------------------------------------------
 -- Objective Functions

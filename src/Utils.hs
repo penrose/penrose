@@ -323,3 +323,14 @@ scaleLinear x (lower, upper) (lower', upper') =
             then error "invalid value to range"
             else let (range, range') = (upper - lower, upper' - lower')
                  in ((x - lower) / range) * range' + lower'
+
+-- n = number of interpolation points (not counting endpoints)
+-- so with n = 1, we would have [x1, (x1+x2/2), x2]
+lerp :: Autofloat a => a -> a -> Int -> [a]
+lerp x1 x2 n = let dx = (x2 - x1) / (fromIntegral n + 1) in
+               take (n + 2) $ iterate (+ dx) x1
+
+lerp2 :: Autofloat a => Pt2 a -> Pt2 a -> Int -> [Pt2 a]
+lerp2 (x1, y1) (x2, y2) n = let xs = lerp x1 x2 n 
+                                ys = lerp y1 y2 n
+                            in zip xs ys
