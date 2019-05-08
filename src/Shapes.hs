@@ -178,10 +178,9 @@ data Value a
     | FileV String
     -- | dotted, etc.
     | StyleV String
-    -- | Untyped lists and tuples
-    -- | (could hold different types of values or GPIs)
-    | ListV [ArgVal a]
-    | TupleV (ArgVal a, ArgVal a)
+    -- | Lists and tuples of floats
+    | ListV [a]
+    | TupleV (a, a)
 
     -- | single transformation
          -- TODO: which to use?
@@ -238,8 +237,8 @@ toPolyProperty v = case v of
     IntV x    -> IntV x
     PtV p -> PtV $ r2 p
     PtListV xs  -> PtListV $ map r2 xs
-    ListV xs -> ListV $ map toPolyArgVal xs
-    TupleV (x1, x2) -> TupleV $ (toPolyArgVal x1, toPolyArgVal x2)
+    ListV xs -> ListV $ map r2f xs
+    TupleV x -> TupleV $ r2 x
     ColorV x  -> ColorV x
     FileV x   -> FileV x
     StyleV x  -> StyleV x

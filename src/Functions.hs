@@ -106,6 +106,9 @@ compDict = M.fromList
         ("perpX", constComp perpX),
         ("perpY", constComp perpY),
         ("perpPath", constComp perpPath),
+        ("get", constComp get'),
+        ("convertAndProjectAndToScreen", constComp convertAndProjectAndToScreen),
+        ("scaleLinear", constComp scaleLinear'), 
 
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
@@ -855,6 +858,36 @@ noop [] g = (Val (StrV "TODO"), g)
 -- Set the opacity to a given fraction of the value.
 setOpacity :: ConstCompFn
 setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] = Val $ ColorV (RGBA r g b (r2f frac * a))
+
+----------
+
+get' :: ConstCompFn
+get' [Val (ListV xs), Val (IntV i)] = 
+     let i' = (fromIntegral i) :: Int in
+     if i' < 0 || i' >= length xs then error "out of bounds access in get'"
+     else Val $ FloatV $ xs !! i'
+get' [Val (TupleV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
+
+     -- http://mathworld.wolfram.com/SphericalCoordinates.html
+convertAndProjectAndToScreen :: ConstCompFn
+convertAndProjectAndToScreen [Val (TupleV hfov), Val (TupleV vfov), Val (FloatV r), 
+                              Val (ListV camera@[cx, cy, cz]), Val (ListV dir@[dx, dy, dz]),
+                              Val (TupleV (theta, phi))] = 
+  let vec_math = [r * cos theta * sin phi, r * sin theta * sin phi, r * cos phi]
+      vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
+      [px, py, pz] = vec_camera
+      vec_proj = [px / pz, py / pz, pz] -- TODO check denom 0. Also note z might be negative?
+
+  in Val $ ListV $ 
+     trace ("(theta, phi): " ++ show (theta, phi) 
+           ++ "\nvec_math: " ++ show vec_math
+           ++ "\nvec_camera: " ++ show vec_camera
+           ++ "\nvec_proj: " ++ show vec_proj ++ "\n")
+     vec_proj
+
+scaleLinear' :: ConstCompFn
+scaleLinear' [Val (FloatV x), Val (TupleV range), Val (TupleV range')] =
+             Val $ FloatV $ scaleLinear x range range'
 
 --------------------------------------------------------------------------------
 -- Objective Functions

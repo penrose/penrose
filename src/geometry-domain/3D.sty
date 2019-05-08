@@ -1,0 +1,120 @@
+Colors {
+    -- Keenan palette
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.lightpurple = rgba(0.5, 0.0, 0.5, 0.25)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+global {
+    global.padding = 20.0
+    global.stroke = 2.0
+    global.spacing = 150.0
+    global.scaleFactor = 100.0
+
+    global.camera = [0.0, 0.0, -2.0]     -- x, y, z in math space 
+    		  -- Note: Sphere has r=0.5, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
+    global.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
+    global.sphereRadius = 0.5
+    global.hfov = (-5.0, 5.0)
+    global.vfov = (-5.0, 5.0)
+
+    global.toScreen = 200.0
+
+    global.test = Circle {
+    		x : 0.0
+		y : 0.0
+		r : (global.sphereRadius * global.toScreen)
+		color : Colors.none
+		strokeWidth : 1.0
+		strokeColor : Colors.black
+    }
+}
+
+Point p {
+      -- Point on sphere
+      p.theta = ? -- In radians, the angle CCW off the x-axis. This should be sampled properly with angle_sampler.
+      p.phi = ? -- In radians, the angle CW off the z-axis. TODO: custom sampler for optimized vals
+
+      p.sphereCoords = (p.theta, p.phi)
+      p.xyz = convertAndProjectAndToScreen(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, p.sphereCoords)
+
+      -- p.xyz = polarToCartesian(global.sphere_radius, p.sphereCoords)
+      -- p.loc2_mathspace = project(global.camera, p.loc3) -- 2-tuple
+      -- p.loc2_screenspace = toScreenSpace(global.hfov, global.vfov, p.loc2_mathspace) -- 2-tuple
+
+      -- TODO: open parser issue: no inline exprs here?
+       p.shape = Circle {
+         x : (get(p.xyz, 0) * global.toScreen)
+	 y : (get(p.xyz, 1) * global.toScreen)
+	       -- z in [-0.5,0.5] -> [1.5, 2.5] -> [3, 10]
+         r : scaleLinear(get(p.xyz, 2), (1.5, 2.5), (3.0, 10.0))
+	 color : setOpacity(Colors.red, 0.4)
+	 strokeWidth : 1.0
+	 strokeColor : Colors.black
+       }
+
+       p.text = Text {
+	 x : p.shape.x + global.padding
+	 y : p.shape.y + global.padding
+	 string : p.label
+	 rotation : 0.0
+	 color : p.shape.color
+       }
+
+       -- p.posFn = ensure onCanvas(p.shape)
+}
+
+Segment e
+where e := MkSegment(p, q)
+with Point p; Point q {
+     -- Line on sphere. (Arc of a circle, or a geodesic)
+     -- Interpolate between each one's sphere coords to yield several points
+     -- then project all of them into screen space
+
+     -- e.spherePts = slerp(p.sphereCoords, q.sphereCoords)
+     -- e.screenspacePts = convertAndProjectAndToScreen_List(global.hfov, global.vfov, global.sphereRadius, global.camera, e.spherePts)
+
+     -- Draw a path using the slerp'ed points
+
+     -- e.shape = Line {
+     -- 	     startX : p.shape.x
+     -- 	     startY : p.shape.y
+     -- 	     endX : q.shape.x
+     -- 	     endY : q.shape.y
+     -- 	     color : Colors.midnightblue
+     -- 	     thickness : global.stroke
+     -- }
+
+     -- e.text = Text {
+     --   x = midpointX(e.shape) + global.padding
+     --   y = midpointY(e.shape) + global.padding
+     --   string = e.label
+     --   rotation = 0.0
+     -- }
+
+     e.layering1 = p.shape above e.shape
+     e.layering2 = q.shape above e.shape
+}
+
+

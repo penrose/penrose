@@ -313,3 +313,13 @@ map2 f (a, b) = (f a, f b)
 
 rotateList :: [a] -> [a]
 rotateList l = take (length l) $ drop 1 (cycle l)
+
+-- | Scale a value x in [lower, upper] linearly to x' lying in range [lower', upper'].
+scaleLinear :: Autofloat a => a -> Pt2 a -> Pt2 a -> a
+scaleLinear x (lower, upper) (lower', upper') = 
+            if upper <= lower || upper' <= lower'
+            then error "invalid range"
+            else if x < lower || x > upper 
+            then error "invalid value to range"
+            else let (range, range') = (upper - lower, upper' - lower')
+                 in ((x - lower) / range) * range' + lower'
