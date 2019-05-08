@@ -120,6 +120,22 @@ idH' = M.fromList [
 
 ---------
 
+-- Types
+
+-- | possible values in the argument of computation, constraint, or objectives
+data ArgVal a = GPI (Shape a) | Val (Value a)
+     deriving (Eq, Show, Generic)
+
+ -- | possible types in the argument of computation, constraint, or objectives.
+ -- Used for type checking functions
+data ArgType
+    = GPIType ShapeTypeStr
+    | ValueT ValueType
+    | OneOf [ShapeTypeStr]
+    | AnyGPI
+    deriving (Eq, Show)
+
+
 -- | types of fully evaluated values in Style
 data ValueType
     = FloatT
@@ -128,6 +144,8 @@ data ValueType
     | StrT
     | PtT
     | PtListT
+    | ListT
+    | TupleT
     | PathDataT
     | ColorT
     | FileT
@@ -160,22 +178,26 @@ data Value a
     | FileV String
     -- | dotted, etc.
     | StyleV String
+    -- | Untyped lists and tuples
+    -- | (could hold different types of values or GPIs)
+    | ListV [ArgVal a]
+    | TupleV (ArgVal a, ArgVal a)
 
     -- | single transformation
          -- TODO: which to use?
     | TransformV (Transformation a)
     | HMatrixV (HMatrix a)
     | MapV (Properties a)
+    -- | Multiple shapes with holes
     | PolygonV (Polygon a)
-
-    -- TODO: 
-    -- | PolygonV (Polygon a)
-    -- Multiple things with holes
 
     deriving (Generic, Eq, Show)
 
 instance (FromJSON a) => FromJSON (Value a)
 instance (ToJSON a)   => ToJSON (Value a)
+
+instance (FromJSON a) => FromJSON (ArgVal a)
+instance (ToJSON a)   => ToJSON (ArgVal a)
 
 -- | returns the type of a 'Value'
 typeOf :: (Autofloat a) => Value a -> ValueType
@@ -195,11 +217,17 @@ typeOf v = case v of
      MapV _ -> MapT
      PolygonV _ -> PolygonT
 
+-----------------
+
 toPolymorphics :: [Shape Double] -> (forall a . (Autofloat a) => [Shape a])
 toPolymorphics = map toPolymorphic
 
 toPolymorphic :: Shape Double -> (forall a . (Autofloat a) => Shape a)
 toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
+
+toPolyArgVal :: ArgVal Double -> (forall a . (Autofloat a) => ArgVal a)
+toPolyArgVal (GPI x) = GPI $ toPolymorphic x
+toPolyArgVal (Val x) = Val $ toPolyProperty x
 
 toPolyProperty :: Value Double -> (forall a . (Autofloat a) => Value a)
 toPolyProperty v = case v of
@@ -210,6 +238,8 @@ toPolyProperty v = case v of
     IntV x    -> IntV x
     PtV p -> PtV $ r2 p
     PtListV xs  -> PtListV $ map r2 xs
+    ListV xs -> ListV $ map toPolyArgVal xs
+    TupleV (x1, x2) -> TupleV $ (toPolyArgVal x1, toPolyArgVal x2)
     ColorV x  -> ColorV x
     FileV x   -> FileV x
     StyleV x  -> StyleV x

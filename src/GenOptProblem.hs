@@ -615,10 +615,15 @@ evalExpr (i, n) arg trans varyMap g =
                 -- Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
                 -- Just f -> let res = f vs in
                 --           (res, trans')
-            List es -> error "TODO lists"
-                -- let (vs, trans') = evalExprs es trans in
-                -- (vs, trans')
-            ListAccess p i -> error "TODO lists"
+            List es ->
+                let (vs, trans', g') = evalExprs limit es trans varyMap g
+                in (Val $ ListV vs, trans', g')
+
+            ListAccess p i -> error "TODO list accesses"
+
+            Tuple e1 e2 ->
+                let ([v1, v2], trans', g') = evalExprs limit [e1, e2] trans varyMap g
+                in (Val $ TupleV (v1, v2), trans', g')
 
             -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
             EPath p ->
@@ -671,6 +676,9 @@ evalExpr (i, n) arg trans varyMap g =
             AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
             PluginAccess _ _ _ -> error "plugin access should not be evaluated at runtime"
             -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
+
+-- collectArgVals :: Autofloat a => [ArgVal a] -> ArgVal a
+-- collectArgVals 
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)

@@ -873,6 +873,8 @@ substituteBlockExpr lv subst expr =
     BoolLit _         -> expr
     -- TODO: check if this is right
     PluginAccess pluginName e1 e2 -> PluginAccess pluginName (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
+    Tuple e1 e2 -> Tuple (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
+    ThenOp e1 e2 -> ThenOp (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
 
 substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
@@ -1463,6 +1465,8 @@ evalPluginAccess valMap trans =
                   evalPluginExpr vmap (BinOp o e1 e2) = BinOp o (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
                   evalPluginExpr vmap (UOp o e) = UOp o $ evalPluginExpr vmap e
                   evalPluginExpr vmap (List es) = List $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (Tuple e1 e2) = Tuple (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (ThenOp e1 e2) = ThenOp (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
 
                   -- Leaves (no strings should be involved)
                   evalPluginExpr _ e@(IntLit _) = e

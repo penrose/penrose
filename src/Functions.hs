@@ -26,20 +26,6 @@ trOpt :: Show a => String -> a -> a
 trOpt s x = if debugOpt then trace "---" $ trace s $ traceShowId x else x
 
 --------------------------------------------------------------------------------
--- Types
-
--- | possible values in the argument of computation, constraint, or objectives
-data ArgVal a = GPI (Shape a) | Val (Value a)
-     deriving (Eq, Show)
-
- -- | possible types in the argument of computation, constraint, or objectives.
- -- Used for type checking functions
-data ArgType
-    = GPIType ShapeTypeStr
-    | ValueT ValueType
-    | OneOf [ShapeTypeStr]
-    | AnyGPI
-    deriving (Eq, Show)
 
 type FuncName  = String
 type OptSignatures  = MM.MultiMap String [ArgType]
