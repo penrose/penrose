@@ -10,6 +10,7 @@ import Shapes
 import Transforms
 import Data.Aeson (toJSON)
 import Data.Maybe (fromMaybe)
+import Data.Fixed (mod')
 import           Data.List                          (nub, sort, findIndex, find, maximumBy)
 import           System.Random.Shuffle
 import qualified Data.Map.Strict as M
@@ -111,6 +112,7 @@ compDict = M.fromList
         ("convertAndProjectAndToScreen_list", constComp convertAndProjectAndToScreen_list),
         ("scaleLinear", constComp scaleLinear'), 
         ("slerp", constComp slerp'), 
+        ("mod", constComp modSty),
 
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
@@ -873,7 +875,7 @@ get' [Val (TupleV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
 
 sphereToProj :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> Pt2 a -> [a]
 sphereToProj hfov vfov r camera dir (theta, phi) = 
-  let vec_math = [r * cos theta * sin phi, r * sin theta * sin phi, r * cos phi]
+  let vec_math = [r * (cos theta) * (sin phi), r * (sin theta) * (sin phi), r * cos phi]
       vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
       [px, py, pz] = vec_camera
       vec_proj = [px / pz, py / pz, pz] -- TODO check denom 0. Also note z might be negative?
@@ -886,6 +888,10 @@ sphereToProj hfov vfov r camera dir (theta, phi) =
 slerp' :: ConstCompFn
 slerp' [Val (TupleV range1), Val (TupleV range2), Val (IntV n)] = 
        Val $ PtListV $ lerp2 range1 range2 (fromIntegral n)
+
+-- TODO: how does this behave with negative numbers?
+modSty :: ConstCompFn
+modSty [Val (FloatV x), Val (FloatV m)] = Val $ FloatV $ (x `mod'` m) -- Floating mod
 
 -- http://mathworld.wolfram.com/SphericalCoordinates.html
 convertAndProjectAndToScreen :: ConstCompFn

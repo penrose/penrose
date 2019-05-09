@@ -31,24 +31,31 @@ global {
     global.stroke = 2.0
     global.spacing = 150.0
     global.scaleFactor = 100.0
+    global.pi = 3.14159
+    global.two_pi = 6.28319
 
-    global.camera = [0.0, 0.0, -2.0]     -- x, y, z in math space 
+    global.dist_to_sphere = 1.5
+    global.camera_z = global.dist_to_sphere + global.sphereRadius
+    global.camera = [0.0, 0.0, -1.0 * global.camera_z]     -- x, y, z in math space 
     		  -- Note: Sphere has r=0.5, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
     global.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
     global.sphereRadius = 0.5
     global.hfov = (-5.0, 5.0)
     global.vfov = (-5.0, 5.0)
 
-    global.toScreen = 300.0
+    global.toScreen = 400.0
 
     global.test = Circle {
     		x : 0.0
 		y : 0.0
-		r : (global.sphereRadius * global.toScreen)
-		color : Colors.none
+		r : (global.sphereRadius * global.toScreen / 2.0) 
+		-- TODO: I think this is halved because the projective plane is at z=1 and the widest part of the sphere is at z=2
+		color : setOpacity(Colors.blue, 0.2)
 		strokeWidth : 1.0
 		strokeColor : Colors.black
     }
+
+    global.dof = ?
 }
 
 Point p {
@@ -56,7 +63,7 @@ Point p {
       p.theta = ? -- In radians, the angle CCW off the x-axis. This should be sampled properly with angle_sampler.
       p.phi = ? -- In radians, the angle CW off the z-axis. TODO: custom sampler for optimized vals
 
-      p.sphereCoords = (p.theta, p.phi)
+      p.sphereCoords = (mod(p.theta, global.two_pi), mod(p.phi, global.pi))
       p.xyz = convertAndProjectAndToScreen(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, p.sphereCoords)
 
       -- p.xyz = polarToCartesian(global.sphere_radius, p.sphereCoords)
@@ -68,7 +75,7 @@ Point p {
          x : (get(p.xyz, 0) * global.toScreen)
 	 y : (get(p.xyz, 1) * global.toScreen)
 	       -- z in [-0.5,0.5] -> [1.5, 2.5] -> [3, 10]
-         r : scaleLinear(get(p.xyz, 2), (1.5, 2.5), (3.0, 10.0))
+         r : scaleLinear(get(p.xyz, 2), (-1.0 * global.sphereRadius + global.camera_z, global.sphereRadius + global.camera_z), (3.0, 10.0))
 	 color : setOpacity(Colors.red, 0.4)
 	 strokeWidth : 1.0
 	 strokeColor : Colors.black
@@ -85,6 +92,21 @@ Point p {
        -- p.posFn = ensure onCanvas(p.shape)
 }
 
+Point `p` {
+      -- Which axis faces which way?
+      -- Do these angles look as they should?
+      -- Does the interpolation failure have to do with the periodicity of the angles?
+
+      -- (0,0) is center of circle
+      -- override `p`.theta = 0.0
+      -- override `p`.phi = global.pi / 3.0
+}
+
+Point `q` {
+      -- override `q`.theta = global.pi -- Radians, increasing CCW, starting on the right
+      -- override `q`.phi = global.pi / 4.0 -- Widest part of circle at pi/2
+}
+
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
@@ -92,14 +114,14 @@ with Point p; Point q {
      -- Interpolate between each one's sphere coords to yield several points
      -- then project all of them into screen space
 
-     e.numPts = 10
-     e.spherePath = slerp(p.sphereCoords, q.sphereCoords, 10)
+     e.numPts = 20
+     e.spherePath = slerp(p.sphereCoords, q.sphereCoords, e.numPts)
      e.screenspacePath = convertAndProjectAndToScreen_list(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, e.spherePath, global.toScreen)
 
      -- Draw a path using the slerp'ed points
      e.shape = Curve {
      	     pathData : pathFromPoints(e.screenspacePath)
-	     strokeWidth : 1.0
+	     strokeWidth : 2.0
 	     fill : Colors.none
 	     color : Colors.midnightblue
 	     rotation : 0.0

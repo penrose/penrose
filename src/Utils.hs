@@ -333,4 +333,6 @@ lerp x1 x2 n = let dx = (x2 - x1) / (fromIntegral n + 1) in
 lerp2 :: Autofloat a => Pt2 a -> Pt2 a -> Int -> [Pt2 a]
 lerp2 (x1, y1) (x2, y2) n = let xs = lerp x1 x2 n 
                                 ys = lerp y1 y2 n
-                            in zip xs ys
+                            in zip xs ys -- Interp both simultaneously
+                            -- Interp the first, then the second
+                            -- in zip xs (repeat y1) ++ zip (repeat x2) ys
