@@ -1,16 +1,18 @@
-Point p, q
-Point r, s, t, n, o
+-- Point p, q
+-- Point r, s, t, n, o
 
--- Segment s1
--- s1 := MkSegment(p, q)
+-- Segment s4
+-- s4 := MkSegment(p, t)
 
--- Segment s2
--- s2 := MkSegment(q, r)
+Point a, b, c
 
--- Segment s3
--- s3 := MkSegment(r, p)
+Segment s1
+s1 := MkSegment(a, b)
 
-Segment s4
-s4 := MkSegment(p, t)
+Segment s2
+s2 := MkSegment(b, c)
+
+Segment s3
+s3 := MkSegment(c, a)
 
 AutoLabel All

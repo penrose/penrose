@@ -97,6 +97,7 @@ Point p {
 
 -- Works fine for pts with z=0
 -- Although the sphere size still seems to be wrong.... Or maybe the points are rendered wrong?
+/*
 Point `p` {
       -- override `p`.vec_math = [1.0, 0.0, 0.0]
       -- override `p`.vec_math = [G.sqrt_22, G.sqrt_22, 0.0]
@@ -143,7 +144,7 @@ Point `n` {
 
 Point `o` {
       override `o`.vec_math = [0.6614, 0.0, 0.75]
-}
+} */
 
 Segment e
 where e := MkSegment(p, q)
@@ -151,6 +152,9 @@ with Point p; Point q {
      -- Line on sphere. (Arc of a circle, or a geodesic)
      -- Interpolate between each one's sphere coords to yield several points
      -- then project all of them into screen space
+
+     -- TODO: Weird: why are the arcs fixed and only the points changing?? Does it not optimize correctly WRT a varying list?
+     --- Whereas it works fine every time I've hardcoded the parameters... Actually the arcs do change but the points seem to go to the arcs? Maybe something about the vector norms? Or maybe the renderer is wrong? They are definitely not forming great circles but IDK if it's because the renderer is wrong or the walking-along-arc is wrong
 
      e.numPts = 5
      e.arcPath = slerp(p.vec_math, q.vec_math, e.numPts)

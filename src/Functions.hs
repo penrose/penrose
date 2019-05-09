@@ -899,15 +899,16 @@ projectVec hfov vfov r camera dir vec_math toScreen =
 -- Might be e3 = e2 x e1 instead; one or the other
 slerp' :: ConstCompFn
 slerp' [Val (ListV p), Val (ListV q), Val (IntV n)] = -- Assuming unit p, q?
-       let (e1, e2) = (normalize p, normalize $ p `cross` q) -- (e1, e3) span the plane of p and q
-           e3 = e1 `cross` e2 -- Or the other way around? -- e2 is the normal to the plane
-           (t0, t1) = (0.0, angleBetweenRad p q) -- TODO: does this angle need to be positive?
+       let (e1, e2) = (normalize p, normalize (p `cross` q)) -- (e1, e3) span the plane of p and q
+           e3 = normalize (e1 `cross` e2) -- Or the other way around? -- e2 is the normal to the plane
+           (t0, t1) = (0.0, abs $ angleBetweenRad p q) -- TODO: does this angle need to be positive? This is the arc length
            numPts = fromIntegral n
            dt = (t1 - t0) / (fromIntegral numPts + 1)
            ts = take (numPts + 2) $ iterate (+ dt) t0
-           pts = map (\t -> cos t *. e1 +. sin t *. e3) ts
+           pts = map (\t -> cos t *. e1 +. sin t *. e3) ts -- Travel along the arc
        in Val $ LListV $
           trace ("(e1, e2, e3): " ++ show (e1, e2, e3)
+                 ++ "\ndot results: " ++ show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]]
                  ++ "\n(p, q, angleBetweenRad): " ++ show (p, q, t1)
                  ++ "\n(ts, dt): " ++ show (ts, dt)
                  ++ "\npts: " ++ show pts)
