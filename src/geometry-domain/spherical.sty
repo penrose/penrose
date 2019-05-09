@@ -60,23 +60,24 @@ global {
 
 Point p {
       -- Point on sphere
-      p.theta = ? -- In radians, the angle CCW off the x-axis. This should be sampled properly with angle_sampler.
-      p.phi = ? -- In radians, the angle CW off the z-axis. TODO: custom sampler for optimized vals
+      p.x = ?
+      p.y = ?
+      p.z = ?
+      p.vec_math = [p.x, p.y, p.z]
+      p.onSphereFn = ensure hasNorm(p.vec_math, global.sphereRadius) -- 0.5
 
-      p.sphereCoords0 = (p.theta, p.phi)
-      p.sphereCoords = (mod(p.theta, global.two_pi), mod(p.phi, global.pi))
-      p.xyz = convertAndProjectAndToScreen(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, p.sphereCoords)
+      p.vec_screen = projectAndToScreen(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, p.vec_math)
 
-      -- p.xyz = polarToCartesian(global.sphere_radius, p.sphereCoords)
-      -- p.loc2_mathspace = project(global.camera, p.loc3) -- 2-tuple
-      -- p.loc2_screenspace = toScreenSpace(global.hfov, global.vfov, p.loc2_mathspace) -- 2-tuple
+      p.z_sphere_range = (-1.0 * global.sphereRadius + global.camera_z, global.sphereRadius + global.camera_z)
+      p.z_screen_range = (3.0, 15.0)
 
       -- TODO: open parser issue: no inline exprs here?
        p.shape = Circle {
-         x : (get(p.xyz, 0) * global.toScreen)
-	 y : (get(p.xyz, 1) * global.toScreen)
-	       -- z in [-0.5,0.5] -> [1.5, 2.5] -> [3, 10]
-         r : scaleLinear(get(p.xyz, 2), (-1.0 * global.sphereRadius + global.camera_z, global.sphereRadius + global.camera_z), (3.0, 15.0))
+         x : (get(p.vec_screen, 0) * global.toScreen)
+	 y : (get(p.vec_screen, 1) * global.toScreen)
+	       -- z in [-0.5,0.5] -> [1.5, 2.5] -> [3, 10]. 
+	       -- TODO check/update this. This only works if z would lie on the sphere in math space
+         r : max(scaleLinear(get(p.vec_screen, 2), p.z_sphere_range, p.z_screen_range), 0.0)
 	 color : setOpacity(Colors.red, 0.4)
 	 strokeWidth : 1.0
 	 strokeColor : Colors.black
@@ -89,29 +90,12 @@ Point p {
 	 rotation : 0.0
 	 color : p.shape.color
        }
-
-       -- p.posFn = ensure onCanvas(p.shape)
-}
-
-Point `p` {
-      -- Which axis faces which way?
-      -- Do these angles look as they should?
-      -- Does the interpolation failure have to do with the periodicity of the angles?
-
-      -- (0,0) is center of circle
-      -- override `p`.theta = 0.0
-      -- override `p`.phi = global.pi / 3.0
-}
-
-Point `q` {
-      -- override `q`.theta = global.pi -- Radians, increasing CCW, starting on the right
-      -- override `q`.phi = global.pi / 4.0 -- Widest part of circle at pi/2
 }
 
 Point `p`; Point `q`; Point `r` {
-      LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `q`.sphereCoords0)
-      LOCAL.repel_qr = encourage repel(`q`.sphereCoords0, `r`.sphereCoords0)
-      LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `r`.sphereCoords0)
+      -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `q`.sphereCoords0)
+      -- LOCAL.repel_qr = encourage repel(`q`.sphereCoords0, `r`.sphereCoords0)
+      -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `r`.sphereCoords0)
 
       -- LOCAL.repel_pq = encourage repel((`p`.shape.x, `p`.shape.y), (`q`.shape.x, `q`.shape.y))
       -- LOCAL.repel_pr = encourage repel((`p`.shape.x, `p`.shape.y), (`r`.shape.x, `r`.shape.y))
@@ -126,24 +110,17 @@ with Point p; Point q {
      -- then project all of them into screen space
 
      e.numPts = 20
-     e.spherePath = slerp(p.sphereCoords, q.sphereCoords, e.numPts)
-     e.screenspacePath = convertAndProjectAndToScreen_list(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, e.spherePath, global.toScreen)
+     -- e.spherePath = slerp(p.sphereCoords, q.sphereCoords, e.numPts)
+     -- e.screenspacePath = projectAndToScreen_list(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, e.spherePath, global.toScreen)
 
      -- Draw a path using the slerp'ed points
      e.shape = Curve {
-     	     pathData : pathFromPoints(e.screenspacePath)
+     	     -- pathData : pathFromPoints(e.screenspacePath)
 	     strokeWidth : 2.0
 	     fill : Colors.none
 	     color : Colors.midnightblue
 	     rotation : 0.0
      }
-
-     -- e.text = Text {
-     --   x = midpointX(e.shape) + global.padding
-     --   y = midpointY(e.shape) + global.padding
-     --   string = e.label
-     --   rotation = 0.0
-     -- }
 
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape

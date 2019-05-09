@@ -108,8 +108,8 @@ compDict = M.fromList
         ("perpY", constComp perpY),
         ("perpPath", constComp perpPath),
         ("get", constComp get'),
-        ("convertAndProjectAndToScreen", constComp convertAndProjectAndToScreen),
-        ("convertAndProjectAndToScreen_list", constComp convertAndProjectAndToScreen_list),
+        ("projectAndToScreen", constComp projectAndToScreen),
+        ("projectAndToScreen_list", constComp projectAndToScreen_list), 
         ("scaleLinear", constComp scaleLinear'), 
         ("slerp", constComp slerp'), 
         ("mod", constComp modSty),
@@ -122,6 +122,7 @@ compDict = M.fromList
         ("setOpacity", constComp setOpacity),
         ("bbox", constComp bbox'),
         ("min", constComp min'),
+        ("max", constComp max'),
         ("pathFromPoints", constComp pathFromPoints),
 
         -- Transformations
@@ -324,7 +325,9 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("disjoint", disjoint),
                 ("inRange", (*) indivConstrWeight .  inRange'),
                 ("lessThan", lessThan),
-                ("onCanvas", onCanvas)
+                ("onCanvas", onCanvas),
+                ("unit", unit'),
+                ("hasNorm", hasNorm)
             ]
 
 indivConstrWeight :: (Autofloat a) => a
@@ -857,6 +860,9 @@ bbox' [GPI a1, GPI a2] = Val $ PtListV $ bbox a2 a2
 min' :: ConstCompFn
 min' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ min x y
 
+max' :: ConstCompFn
+max' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ max x y
+
 noop :: CompFn
 noop [] g = (Val (StrV "TODO"), g)
 
@@ -873,16 +879,15 @@ get' [Val (ListV xs), Val (IntV i)] =
      else Val $ FloatV $ xs !! i'
 get' [Val (TupV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
 
-sphereToProj :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> Pt2 a -> [a]
-sphereToProj hfov vfov r camera dir (theta, phi) = 
-  let vec_math = [r * (cos theta) * (sin phi), r * (sin theta) * (sin phi), r * cos phi]
-      vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
+projectVec :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> [a]
+projectVec hfov vfov r camera dir vec_math = 
+  let vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
       [px, py, pz] = vec_camera
       vec_proj = [px / pz, py / pz, pz] -- TODO check denom 0. Also note z might be negative?
-  in {- trace ("(theta, phi): " ++ show (theta, phi)
-           ++ "\nvec_math: " ++ show vec_math
+  in trace ("\nvec_math: " ++ show vec_math
+           ++ "\n||vec_math||: " ++ show (norm vec_math) 
            ++ "\nvec_camera: " ++ show vec_camera
-           ++ "\nvec_proj: " ++ show vec_proj ++ "\n") -}
+           ++ "\nvec_proj: " ++ show vec_proj ++ "\n")
      vec_proj
 
 slerp' :: ConstCompFn
@@ -894,18 +899,18 @@ modSty :: ConstCompFn
 modSty [Val (FloatV x), Val (FloatV m)] = Val $ FloatV $ (x `mod'` m) -- Floating mod
 
 -- http://mathworld.wolfram.com/SphericalCoordinates.html
-convertAndProjectAndToScreen :: ConstCompFn
-convertAndProjectAndToScreen [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
+projectAndToScreen :: ConstCompFn
+projectAndToScreen [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
                               Val (ListV camera), Val (ListV dir),
-                              Val (TupV sphereCoords)] = 
-     Val $ ListV $ sphereToProj hfov vfov r camera dir sphereCoords
+                              Val (ListV vec_math)] = 
+     Val $ ListV $ projectVec hfov vfov r camera dir vec_math
 
-convertAndProjectAndToScreen_list :: ConstCompFn
-convertAndProjectAndToScreen_list [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
+projectAndToScreen_list :: ConstCompFn
+projectAndToScreen_list [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
                               Val (ListV camera), Val (ListV dir),
-                              Val (PtListV spherePath), Val (FloatV toScreen)] = 
-     Val $ PtListV $ (map (\spherePt -> let res = map (* toScreen) $ sphereToProj hfov vfov r camera dir spherePt 
-                                        in (res !! 0, res !! 1)) spherePath)
+                              Val (PtListV spherePath), Val (FloatV toScreen)] = Val $ FloatV 0.0
+     -- Val $ PtListV $ (map (\vmath -> let res = map (* toScreen) $ sphereToProj hfov vfov r camera dir vmath 
+     --                                    in (res !! 0, res !! 1)) spherePath)
      -- Discard z-coordinate for now
 
 scaleLinear' :: ConstCompFn
@@ -1188,6 +1193,16 @@ onCanvas [GPI g] =
              (leftY, rightY) = (-canvasWidth / 2, canvasWidth / 2) in
          inRange'' (getX g) (r2f leftX) (r2f rightX) +
          inRange'' (getY g) (r2f leftY) (r2f rightY) 
+
+unit' :: ConstrFn
+unit' [Val (ListV vec)] = hasNorm [Val (ListV vec), Val (FloatV 1)]
+
+-- | This is an equality constraint (x = c) via two inequality constraints (x <= c and x >= c)
+hasNorm :: ConstrFn
+hasNorm [Val (ListV vec), Val (FloatV desired_norm)] = 
+        let norms = (norm vec, desired_norm) -- TODO: Use normal norm or normsq?
+            (norm_max, norm_min) = (uncurry max norms, uncurry min norms)
+        in norm_max - norm_min
 
 -- contains [GPI set@("Circle", _), P' GPI pt@("", _)] = dist (getX pt, getX pt) (getX set, getY set) - 0.5 * r' set
 -- TODO: only approx

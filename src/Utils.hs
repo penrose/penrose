@@ -318,9 +318,10 @@ rotateList l = take (length l) $ drop 1 (cycle l)
 scaleLinear :: Autofloat a => a -> Pt2 a -> Pt2 a -> a
 scaleLinear x (lower, upper) (lower', upper') = 
             if upper <= lower || upper' <= lower'
-            then error "invalid range"
+            then trace "invalid range" x
             else if x < lower || x > upper 
-            then error "invalid value to range"
+            then trace ("invalid value " ++ show x ++ " to range " ++ show (lower, upper)) x
+                 -- Values may be wrong in the intermediate stage due to optimization, so maybe clamp to range anyway
             else let (range, range') = (upper - lower, upper' - lower')
                  in ((x - lower) / range) * range' + lower'
 
