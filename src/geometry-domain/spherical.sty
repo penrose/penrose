@@ -26,36 +26,38 @@ Colors {
     -- Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
-global {
-    global.padding = 20.0
-    global.stroke = 2.0
-    global.spacing = 150.0
-    global.scaleFactor = 100.0
-    global.pi = 3.14159
-    global.two_pi = 6.28319
+G {
+    G.padding = 20.0
+    G.stroke = 2.0
+    G.spacing = 150.0
+    G.scaleFactor = 100.0
+    G.pi = 3.14159
+    G.two_pi = 6.28319
+    G.sqrt_2_2 = 1.414/2.0
 
-    global.sphereRadius = 1.0
-    global.dist_to_sphere = 1.5
-    global.camera_z = global.dist_to_sphere + global.sphereRadius
-    global.camera = [0.0, 0.0, -1.0 * global.camera_z]     -- x, y, z in math space 
+    G.sphereRadius = 1.0
+    G.dist_to_sphere = 2.0
+    G.dist_to_sphere_center = G.dist_to_sphere + G.sphereRadius
+    G.camera_z = G.dist_to_sphere + G.sphereRadius
+    G.camera = [0.0, 0.0, -1.0 * G.camera_z]     -- x, y, z in math space 
     		  -- Note: Sphere has r=0.5, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
-    global.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
-    global.hfov = (-5.0, 5.0)
-    global.vfov = (-5.0, 5.0)
+    G.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
+    G.hfov = (-5.0, 5.0)
+    G.vfov = (-5.0, 5.0)
 
-    global.toScreen = 500.0
+    G.toScreen = 500.0
 
-    global.test = Circle {
+    G.test = Circle {
     		x : 0.0
 		y : 0.0
-		r : (global.sphereRadius * global.toScreen / 2.0) 
-		-- TODO: I think this is halved because the projective plane is at z=1 and the widest part of the sphere is at z=2
+		r : (G.sphereRadius * G.toScreen / G.dist_to_sphere_center) 
+		-- TODO: I think this is halved because the projective plane is at z=1 and the widest part of the sphere is at z=3
 		color : setOpacity(Colors.blue, 0.2)
 		strokeWidth : 1.0
 		strokeColor : Colors.black
     }
 
-    global.dof = ?
+    G.dof = ?
 }
 
 Point p {
@@ -64,13 +66,13 @@ Point p {
       p.y = ?
       p.z = ?
       p.vec_math = [p.x, p.y, p.z]
-      p.onSphereFn = ensure hasNorm(p.vec_math, global.sphereRadius) -- 0.5
+      p.onSphereFn = ensure hasNorm(p.vec_math, G.sphereRadius) -- 0.5
 
       -- x_screen, y_screen, z_projected (not converted to screen)
-      p.vec_screen = projectAndToScreen(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, p.vec_math, global.toScreen)
+      p.vec_screen = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, p.vec_math, G.toScreen)
 
-      p.z_sphere_range = (-1.0 * global.sphereRadius + global.camera_z, global.sphereRadius + global.camera_z)
-      p.z_screen_range = (3.0, 15.0)
+      p.z_sphere_range = (-1.0 * G.sphereRadius + G.camera_z, G.sphereRadius + G.camera_z) -- Closer to camera, farther from camera
+      p.z_screen_range = (15.0, 3.0) -- reverse lerp because it should be bigger if closer to camera
 
       -- TODO: open parser issue: no inline exprs here?
        p.shape = Circle {
@@ -85,20 +87,33 @@ Point p {
        }
 
        p.text = Text {
-	 x : p.shape.x + global.padding
-	 y : p.shape.y + global.padding
+	 x : p.shape.x + G.padding
+	 y : p.shape.y + G.padding
 	 string : p.label
 	 rotation : 0.0
 	 color : p.shape.color
        }
 }
 
-Point `p`; Point `q`; Point `r` {
+-- Works fine for pts with z=0
+-- Although the sphere size still seems to be wrong.... Or maybe the points are rendered wrong?
+Point `p` {
+      -- override `p`.vec_math = [1.0, 0.0, 0.0]
+      -- override `p`.vec_math = [G.sqrt_2_2, G.sqrt_2_2, 0.0]
+      -- override `p`.vec_math = [0.0, 0.0, -1.0] -- Closest to camera
+      override `p`.vec_math = [0.0, 0.0, 1.0] -- Farthest from camera
+}
+
+Point `q` {
+      override `q`.vec_math = [-G.sqrt_2_2, -G.sqrt_2_2, 0.0]
+}
+
+-- Point `p`; Point `q`; Point `r` {
       -- TODO: this should use distance on the sphere in cartesian coords
       -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `q`.sphereCoords0)
       -- LOCAL.repel_qr = encourage repel(`q`.sphereCoords0, `r`.sphereCoords0)
       -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `r`.sphereCoords0)
-}
+-- }
 
 Segment e
 where e := MkSegment(p, q)
@@ -107,13 +122,9 @@ with Point p; Point q {
      -- Interpolate between each one's sphere coords to yield several points
      -- then project all of them into screen space
 
-     -- For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e1 x e2, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q)
-     -- (Assuming p and q are unit)
-     -- Might be e3 = e2 x e1 instead; one or the other
-
-     e.numPts = 10
+     e.numPts = 5
      e.arcPath = slerp(p.vec_math, q.vec_math, e.numPts)
-     e.screenspacePath = projectAndToScreen_list(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, e.arcPath, global.toScreen)
+     e.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, e.arcPath, G.toScreen)
 
      -- Draw a path using the slerp'ed points
      e.shape = Curve {

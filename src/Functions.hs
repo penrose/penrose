@@ -890,16 +890,24 @@ projectVec hfov vfov r camera dir vec_math toScreen =
            ++ "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
      vec_proj_screen
 
+-- For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e1 x e2, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q)
+-- (Assuming p and q are unit)
+-- Might be e3 = e2 x e1 instead; one or the other
 slerp' :: ConstCompFn
 slerp' [Val (ListV p), Val (ListV q), Val (IntV n)] = -- Assuming unit p, q?
-       let (e1, e2) = (normalize p, normalize $ p `cross` q)
-           e3 = e1 `cross` e2 -- Or the other way around?
-           (t0, t1) = (0.0, angleBetweenRad p q) -- TODO: does this need to be positive?
+       let (e1, e2) = (normalize p, normalize $ p `cross` q) -- (e1, e3) span the plane of p and q
+           e3 = e1 `cross` e2 -- Or the other way around? -- e2 is the normal to the plane
+           (t0, t1) = (0.0, angleBetweenRad p q) -- TODO: does this angle need to be positive?
            numPts = fromIntegral n
            dt = (t1 - t0) / (fromIntegral numPts + 1)
            ts = take (numPts + 2) $ iterate (+ dt) t0
            pts = map (\t -> cos t *. e1 +. sin t *. e3) ts
-       in Val $ LListV pts
+       in Val $ LListV $
+          trace ("(e1, e2, e3): " ++ show (e1, e2, e3)
+                 ++ "\n(p, q, angleBetweenRad): " ++ show (p, q, t1)
+                 ++ "\n(ts, dt): " ++ show (ts, dt)
+                 ++ "\npts: " ++ show pts)
+          pts
 
 -- TODO: how does this behave with negative numbers?
 modSty :: ConstCompFn
