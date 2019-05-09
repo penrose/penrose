@@ -145,7 +145,8 @@ data ValueType
     | PtT
     | PtListT
     | ListT
-    | TupleT
+    | TupT
+    | LListT
     | PathDataT
     | ColorT
     | FileT
@@ -181,6 +182,7 @@ data Value a
     -- | Lists and tuples of floats
     | ListV [a]
     | TupV (a, a)
+    | LListV [[a]]
 
     -- | single transformation
          -- TODO: which to use?
@@ -207,6 +209,10 @@ typeOf v = case v of
      StrV   _     -> StrT
      PtV    _     -> PtT
      PtListV    _ -> PtListT
+     TupV _ -> TupT
+     ListV _ -> ListT
+     LListV _ -> LListT
+     
      PathDataV  _ -> PathDataT
      ColorV _     -> ColorT
      FileV  _     -> FileT
@@ -239,6 +245,7 @@ toPolyProperty v = case v of
     PtListV xs  -> PtListV $ map r2 xs
     ListV xs -> ListV $ map r2f xs
     TupV x -> TupV $ r2 x
+    LListV xs -> LListV $ map (map r2f) xs
     ColorV x  -> ColorV x
     FileV x   -> FileV x
     StyleV x  -> StyleV x

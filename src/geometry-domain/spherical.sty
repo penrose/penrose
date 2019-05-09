@@ -34,12 +34,12 @@ global {
     global.pi = 3.14159
     global.two_pi = 6.28319
 
+    global.sphereRadius = 1.0
     global.dist_to_sphere = 1.5
     global.camera_z = global.dist_to_sphere + global.sphereRadius
     global.camera = [0.0, 0.0, -1.0 * global.camera_z]     -- x, y, z in math space 
     		  -- Note: Sphere has r=0.5, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
     global.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
-    global.sphereRadius = 0.5
     global.hfov = (-5.0, 5.0)
     global.vfov = (-5.0, 5.0)
 
@@ -66,15 +66,16 @@ Point p {
       p.vec_math = [p.x, p.y, p.z]
       p.onSphereFn = ensure hasNorm(p.vec_math, global.sphereRadius) -- 0.5
 
-      p.vec_screen = projectAndToScreen(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, p.vec_math)
+      -- x_screen, y_screen, z_projected (not converted to screen)
+      p.vec_screen = projectAndToScreen(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, p.vec_math, global.toScreen)
 
       p.z_sphere_range = (-1.0 * global.sphereRadius + global.camera_z, global.sphereRadius + global.camera_z)
       p.z_screen_range = (3.0, 15.0)
 
       -- TODO: open parser issue: no inline exprs here?
        p.shape = Circle {
-         x : (get(p.vec_screen, 0) * global.toScreen)
-	 y : (get(p.vec_screen, 1) * global.toScreen)
+         x : get(p.vec_screen, 0)
+	 y : get(p.vec_screen, 1)
 	       -- z in [-0.5,0.5] -> [1.5, 2.5] -> [3, 10]. 
 	       -- TODO check/update this. This only works if z would lie on the sphere in math space
          r : max(scaleLinear(get(p.vec_screen, 2), p.z_sphere_range, p.z_screen_range), 0.0)
@@ -93,13 +94,10 @@ Point p {
 }
 
 Point `p`; Point `q`; Point `r` {
+      -- TODO: this should use distance on the sphere in cartesian coords
       -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `q`.sphereCoords0)
       -- LOCAL.repel_qr = encourage repel(`q`.sphereCoords0, `r`.sphereCoords0)
       -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `r`.sphereCoords0)
-
-      -- LOCAL.repel_pq = encourage repel((`p`.shape.x, `p`.shape.y), (`q`.shape.x, `q`.shape.y))
-      -- LOCAL.repel_pr = encourage repel((`p`.shape.x, `p`.shape.y), (`r`.shape.x, `r`.shape.y))
-      -- LOCAL.repel_qr = encourage repel((`q`.shape.x, `q`.shape.y), (`r`.shape.x, `r`.shape.y))
 }
 
 Segment e
@@ -109,13 +107,17 @@ with Point p; Point q {
      -- Interpolate between each one's sphere coords to yield several points
      -- then project all of them into screen space
 
-     e.numPts = 20
-     -- e.spherePath = slerp(p.sphereCoords, q.sphereCoords, e.numPts)
-     -- e.screenspacePath = projectAndToScreen_list(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, e.spherePath, global.toScreen)
+     -- For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e1 x e2, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q)
+     -- (Assuming p and q are unit)
+     -- Might be e3 = e2 x e1 instead; one or the other
+
+     e.numPts = 10
+     e.arcPath = slerp(p.vec_math, q.vec_math, e.numPts)
+     e.screenspacePath = projectAndToScreen_list(global.hfov, global.vfov, global.sphereRadius, global.camera, global.dir, e.arcPath, global.toScreen)
 
      -- Draw a path using the slerp'ed points
      e.shape = Curve {
-     	     -- pathData : pathFromPoints(e.screenspacePath)
+     	     pathData : pathFromPoints(e.screenspacePath)
 	     strokeWidth : 2.0
 	     fill : Colors.none
 	     color : Colors.midnightblue
@@ -125,5 +127,3 @@ with Point p; Point q {
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
 }
-
-

@@ -879,20 +879,27 @@ get' [Val (ListV xs), Val (IntV i)] =
      else Val $ FloatV $ xs !! i'
 get' [Val (TupV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
 
-projectVec :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> [a]
-projectVec hfov vfov r camera dir vec_math = 
+projectVec :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> a -> [a]
+projectVec hfov vfov r camera dir vec_math toScreen = 
   let vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
       [px, py, pz] = vec_camera
-      vec_proj = [px / pz, py / pz, pz] -- TODO check denom 0. Also note z might be negative?
+      vec_proj_screen = [toScreen * (px / pz), toScreen * (py / pz), pz] -- TODO check denom 0. Also note z might be negative?
   in trace ("\nvec_math: " ++ show vec_math
            ++ "\n||vec_math||: " ++ show (norm vec_math) 
            ++ "\nvec_camera: " ++ show vec_camera
-           ++ "\nvec_proj: " ++ show vec_proj ++ "\n")
-     vec_proj
+           ++ "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
+     vec_proj_screen
 
 slerp' :: ConstCompFn
-slerp' [Val (TupV range1), Val (TupV range2), Val (IntV n)] = 
-       Val $ PtListV $ lerp2 range1 range2 (fromIntegral n)
+slerp' [Val (ListV p), Val (ListV q), Val (IntV n)] = -- Assuming unit p, q?
+       let (e1, e2) = (normalize p, normalize $ p `cross` q)
+           e3 = e1 `cross` e2 -- Or the other way around?
+           (t0, t1) = (0.0, angleBetweenRad p q) -- TODO: does this need to be positive?
+           numPts = fromIntegral n
+           dt = (t1 - t0) / (fromIntegral numPts + 1)
+           ts = take (numPts + 2) $ iterate (+ dt) t0
+           pts = map (\t -> cos t *. e1 +. sin t *. e3) ts
+       in Val $ LListV pts
 
 -- TODO: how does this behave with negative numbers?
 modSty :: ConstCompFn
@@ -902,15 +909,15 @@ modSty [Val (FloatV x), Val (FloatV m)] = Val $ FloatV $ (x `mod'` m) -- Floatin
 projectAndToScreen :: ConstCompFn
 projectAndToScreen [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
                               Val (ListV camera), Val (ListV dir),
-                              Val (ListV vec_math)] = 
-     Val $ ListV $ projectVec hfov vfov r camera dir vec_math
+                              Val (ListV vec_math), Val (FloatV toScreen)] = 
+     Val $ ListV $ projectVec hfov vfov r camera dir vec_math toScreen
 
 projectAndToScreen_list :: ConstCompFn
 projectAndToScreen_list [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
                               Val (ListV camera), Val (ListV dir),
-                              Val (PtListV spherePath), Val (FloatV toScreen)] = Val $ FloatV 0.0
-     -- Val $ PtListV $ (map (\vmath -> let res = map (* toScreen) $ sphereToProj hfov vfov r camera dir vmath 
-     --                                    in (res !! 0, res !! 1)) spherePath)
+                              Val (LListV spherePath), Val (FloatV toScreen)] =
+     Val $ PtListV $ (map (\vmath -> let res = projectVec hfov vfov r camera dir vmath toScreen
+                                        in (res !! 0, res !! 1)) spherePath)
      -- Discard z-coordinate for now
 
 scaleLinear' :: ConstCompFn
