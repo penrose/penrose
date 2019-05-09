@@ -883,10 +883,14 @@ projectVec :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> a -> [a
 projectVec hfov vfov r camera dir vec_math toScreen = 
   let vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
       [px, py, pz] = vec_camera
-      vec_proj_screen = [toScreen * (px / pz), toScreen * (py / pz), pz] -- TODO check denom 0. Also note z might be negative?
+      vec_proj = (1 / pz) *. [px, py]
+      vec_screen = toScreen *. vec_proj
+      vec_proj_screen = vec_screen ++ [pz] -- TODO check denom 0. Also note z might be negative?
   in trace ("\nvec_math: " ++ show vec_math
            ++ "\n||vec_math||: " ++ show (norm vec_math) 
            ++ "\nvec_camera: " ++ show vec_camera
+           ++ "\nvec_proj: " ++ show vec_proj
+           ++ "\nvec_screen: " ++ show vec_screen
            ++ "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
      vec_proj_screen
 

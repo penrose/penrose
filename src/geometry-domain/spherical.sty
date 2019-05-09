@@ -33,7 +33,7 @@ G {
     G.scaleFactor = 100.0
     G.pi = 3.14159
     G.two_pi = 6.28319
-    G.sqrt_2_2 = 1.414/2.0
+    G.sqrt_22 = 1.414/2.0
 
     G.sphereRadius = 1.0
     G.dist_to_sphere = 2.0
@@ -99,14 +99,22 @@ Point p {
 -- Although the sphere size still seems to be wrong.... Or maybe the points are rendered wrong?
 Point `p` {
       -- override `p`.vec_math = [1.0, 0.0, 0.0]
-      -- override `p`.vec_math = [G.sqrt_2_2, G.sqrt_2_2, 0.0]
-      -- override `p`.vec_math = [0.0, 0.0, -1.0] -- Closest to camera
-      override `p`.vec_math = [0.0, 0.0, 1.0] -- Farthest from camera
+      -- override `p`.vec_math = [G.sqrt_22, G.sqrt_22, 0.0]
+      override `p`.vec_math = [0.0, 0.0, -1.0] -- Closest to camera
+      -- override `p`.vec_math = [0.0, 0.0, 1.0] -- Farthest from camera
+      -- override `p`.vec_math = [1.0, 0.0, 0.0]
+      -- override `p`.vec_math = [G.sqrt_22, 0.0, -G.sqrt_22]
 }
 
 Point `q` {
-      override `q`.vec_math = [-G.sqrt_2_2, -G.sqrt_2_2, 0.0]
+     override `q`.vec_math = [1.0, 0.0, 0.0]
+      -- override `q`.vec_math = [0.0, 0.0, -1.0] -- Closest to camera
+      -- override `q`.vec_math = [0.0, G.sqrt_22, -G.sqrt_22]
 }
+
+-- Does this seem right? is the perspective projection wrong?
+      -- override `p`.vec_math = [0.0, G.sqrt_22, G.sqrt_22]
+      -- override `q`.vec_math = [0.0, G.sqrt_22, -G.sqrt_22]
 
 -- Point `p`; Point `q`; Point `r` {
       -- TODO: this should use distance on the sphere in cartesian coords
@@ -114,6 +122,28 @@ Point `q` {
       -- LOCAL.repel_qr = encourage repel(`q`.sphereCoords0, `r`.sphereCoords0)
       -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `r`.sphereCoords0)
 -- }
+
+Point `r` {
+      override `r`.vec_math = [G.sqrt_22, G.sqrt_22, 0.0]
+     -- override `r`.vec_math = [0.0, 1.0, 0.0]
+}
+
+Point `s` {
+      -- override `s`.vec_math = [G.sqrt_22, 0.0, -G.sqrt_22] -- Is this right? Seems wrong.
+      override `s`.vec_math = [0.866, 0.0, -0.5]      -- This seems wrong
+}
+
+Point `t` {
+      override `t`.vec_math = [0.6614, 0.0, -0.75]
+}
+
+Point `n` {
+      override `n`.vec_math = [0.4239, 0.0, -0.9]
+}
+
+Point `o` {
+      override `o`.vec_math = [0.6614, 0.0, 0.75]
+}
 
 Segment e
 where e := MkSegment(p, q)
