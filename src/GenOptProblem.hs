@@ -625,7 +625,7 @@ evalExpr (i, n) arg trans varyMap g =
             Tuple e1 e2 ->
                 let (vs, trans', g') = evalExprs limit [e1, e2] trans varyMap g
                     [v1, v2] = map checkFloatType vs
-                in (Val $ TupleV (v1, v2), trans', g')
+                in (Val $ TupV (v1, v2), trans', g')
 
             -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
             EPath p ->

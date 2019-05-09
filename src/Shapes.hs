@@ -180,7 +180,7 @@ data Value a
     | StyleV String
     -- | Lists and tuples of floats
     | ListV [a]
-    | TupleV (a, a)
+    | TupV (a, a)
 
     -- | single transformation
          -- TODO: which to use?
@@ -238,7 +238,7 @@ toPolyProperty v = case v of
     PtV p -> PtV $ r2 p
     PtListV xs  -> PtListV $ map r2 xs
     ListV xs -> ListV $ map r2f xs
-    TupleV x -> TupleV $ r2 x
+    TupV x -> TupV $ r2 x
     ColorV x  -> ColorV x
     FileV x   -> FileV x
     StyleV x  -> StyleV x

@@ -871,7 +871,7 @@ get' [Val (ListV xs), Val (IntV i)] =
      let i' = (fromIntegral i) :: Int in
      if i' < 0 || i' >= length xs then error "out of bounds access in get'"
      else Val $ FloatV $ xs !! i'
-get' [Val (TupleV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
+get' [Val (TupV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
 
 sphereToProj :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> Pt2 a -> [a]
 sphereToProj hfov vfov r camera dir (theta, phi) = 
@@ -879,14 +879,14 @@ sphereToProj hfov vfov r camera dir (theta, phi) =
       vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
       [px, py, pz] = vec_camera
       vec_proj = [px / pz, py / pz, pz] -- TODO check denom 0. Also note z might be negative?
-  in trace ("(theta, phi): " ++ show (theta, phi)
+  in {- trace ("(theta, phi): " ++ show (theta, phi)
            ++ "\nvec_math: " ++ show vec_math
            ++ "\nvec_camera: " ++ show vec_camera
-           ++ "\nvec_proj: " ++ show vec_proj ++ "\n")
+           ++ "\nvec_proj: " ++ show vec_proj ++ "\n") -}
      vec_proj
 
 slerp' :: ConstCompFn
-slerp' [Val (TupleV range1), Val (TupleV range2), Val (IntV n)] = 
+slerp' [Val (TupV range1), Val (TupV range2), Val (IntV n)] = 
        Val $ PtListV $ lerp2 range1 range2 (fromIntegral n)
 
 -- TODO: how does this behave with negative numbers?
@@ -895,13 +895,13 @@ modSty [Val (FloatV x), Val (FloatV m)] = Val $ FloatV $ (x `mod'` m) -- Floatin
 
 -- http://mathworld.wolfram.com/SphericalCoordinates.html
 convertAndProjectAndToScreen :: ConstCompFn
-convertAndProjectAndToScreen [Val (TupleV hfov), Val (TupleV vfov), Val (FloatV r), 
+convertAndProjectAndToScreen [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
                               Val (ListV camera), Val (ListV dir),
-                              Val (TupleV sphereCoords)] = 
+                              Val (TupV sphereCoords)] = 
      Val $ ListV $ sphereToProj hfov vfov r camera dir sphereCoords
 
 convertAndProjectAndToScreen_list :: ConstCompFn
-convertAndProjectAndToScreen_list [Val (TupleV hfov), Val (TupleV vfov), Val (FloatV r), 
+convertAndProjectAndToScreen_list [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
                               Val (ListV camera), Val (ListV dir),
                               Val (PtListV spherePath), Val (FloatV toScreen)] = 
      Val $ PtListV $ (map (\spherePt -> let res = map (* toScreen) $ sphereToProj hfov vfov r camera dir spherePt 
@@ -909,7 +909,7 @@ convertAndProjectAndToScreen_list [Val (TupleV hfov), Val (TupleV vfov), Val (Fl
      -- Discard z-coordinate for now
 
 scaleLinear' :: ConstCompFn
-scaleLinear' [Val (FloatV x), Val (TupleV range), Val (TupleV range')] =
+scaleLinear' [Val (FloatV x), Val (TupV range), Val (TupV range')] =
              Val $ FloatV $ scaleLinear x range range'
 
 pathFromPoints :: ConstCompFn
@@ -1020,6 +1020,7 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
 -- TODO: temporarily written in a generic way
 -- Note: repel's energies are quite small so the function is scaled by repelWeight before being applied
 repel :: ObjFn
+repel [Val (TupV x), Val (TupV y)] = 1 / (distsq x y + epsd)
 repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd)
 repel [GPI a, GPI b, Val (FloatV weight)] = weight / (distsq (getX a, getY a) (getX b, getY b) + epsd)
     -- trace ("REPEL: " ++ show a ++ "\n" ++ show b ++ "\n" ++ show res) res
