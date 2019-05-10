@@ -124,3 +124,42 @@ with Point p; Point q {
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
 }
+
+Triangle t
+where t := MkTriangleP(p, q, r)
+with Point p; Point q; Point r {
+
+}
+
+Angle theta
+where theta := AngleBetween(a, b)
+with Linelike a; Linelike b {
+     -- The angle between lines (pq, pr) is angle of the planes containing the great circles of the arcs
+     -- Find an orthonormal basis with the normal (n) of the sphere at a point, then the tangent vectors (t1, t2) of the plane at the point, where t1 is in the direction of one of the lines
+     -- t1 is found as `p - proj_q(p) |> normalize` (where p is the local origin and q is another poitn on the triangle)
+     -- Then draw the arc in the tangent plane from t1 to the angle, then translate it to the local origin and project it into 2D
+}
+
+Ray r {
+    r.length = 100.0
+}
+
+Ray r
+with Angle theta; Linelike a; Linelike b
+where r := Bisector(theta); theta := AngleBetween(a, b) {
+
+}
+
+
+Ray r
+with Linelike s
+where r := PerpendicularBisector(s) {
+
+}
+
+-- Midpoint
+Point p
+where p := Midpoint(s)
+with Segment s {
+
+}
