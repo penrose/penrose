@@ -1,9 +1,3 @@
--- Point p, q
--- Point r, s, t, n, o
-
--- Segment s4
--- s4 := MkSegment(p, t)
-
 Point a, b, c
 
 Segment s1

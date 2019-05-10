@@ -50,8 +50,14 @@ G {
     G.test = Circle {
     		x : 0.0
 		y : 0.0
-		r : (G.sphereRadius * G.toScreen / G.dist_to_sphere_center) 
-		-- TODO: I think this is halved because the projective plane is at z=1 and the widest part of the sphere is at z=3
+		-- r : (G.sphereRadius * G.toScreen / G.dist_to_sphere_center) 
+		r : 0.353 * G.toScreen
+		-- The projective plane is at z=1 and the widest part of the sphere is at z=3
+		-- Unintuitively, after projection, there is a point wider than the diameter of the sphere. That would project to z = +/- 1/3.
+		-- But here is the widest z:
+		-- circPts = map (\t -> (cos t, sin t)) [0, (2 * pi) / 100 .. 2 * pi] -- Unit circle in (x,z)
+		-- maximum $ map (\(x, z) -> x/(z + 3)) circPts -- Move it forward then project on z=1
+		-- 0.3534234568955392 -- This is wider than 1/3!!!
 		color : setOpacity(Colors.blue, 0.2)
 		strokeWidth : 1.0
 		strokeColor : Colors.black
@@ -69,7 +75,7 @@ Point p {
       p.onSphereFn = ensure hasNorm(p.vec_math, G.sphereRadius) -- 0.5
 
       -- x_screen, y_screen, z_projected (not converted to screen)
-      p.vec_screen = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, p.vec_math, G.toScreen)
+      p.vec_screen = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, p.vec_math, G.toScreen, p.shape.name)
 
       p.z_sphere_range = (-1.0 * G.sphereRadius + G.camera_z, G.sphereRadius + G.camera_z) -- Closer to camera, farther from camera
       p.z_screen_range = (15.0, 3.0) -- reverse lerp because it should be bigger if closer to camera
@@ -95,57 +101,6 @@ Point p {
        }
 }
 
--- Works fine for pts with z=0
--- Although the sphere size still seems to be wrong.... Or maybe the points are rendered wrong?
-/*
-Point `p` {
-      -- override `p`.vec_math = [1.0, 0.0, 0.0]
-      -- override `p`.vec_math = [G.sqrt_22, G.sqrt_22, 0.0]
-      override `p`.vec_math = [0.0, 0.0, -1.0] -- Closest to camera
-      -- override `p`.vec_math = [0.0, 0.0, 1.0] -- Farthest from camera
-      -- override `p`.vec_math = [1.0, 0.0, 0.0]
-      -- override `p`.vec_math = [G.sqrt_22, 0.0, -G.sqrt_22]
-}
-
-Point `q` {
-     override `q`.vec_math = [1.0, 0.0, 0.0]
-      -- override `q`.vec_math = [0.0, 0.0, -1.0] -- Closest to camera
-      -- override `q`.vec_math = [0.0, G.sqrt_22, -G.sqrt_22]
-}
-
--- Does this seem right? is the perspective projection wrong?
-      -- override `p`.vec_math = [0.0, G.sqrt_22, G.sqrt_22]
-      -- override `q`.vec_math = [0.0, G.sqrt_22, -G.sqrt_22]
-
--- Point `p`; Point `q`; Point `r` {
-      -- TODO: this should use distance on the sphere in cartesian coords
-      -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `q`.sphereCoords0)
-      -- LOCAL.repel_qr = encourage repel(`q`.sphereCoords0, `r`.sphereCoords0)
-      -- LOCAL.repel_pq = encourage repel(`p`.sphereCoords0, `r`.sphereCoords0)
--- }
-
-Point `r` {
-      override `r`.vec_math = [G.sqrt_22, G.sqrt_22, 0.0]
-     -- override `r`.vec_math = [0.0, 1.0, 0.0]
-}
-
-Point `s` {
-      -- override `s`.vec_math = [G.sqrt_22, 0.0, -G.sqrt_22] -- Is this right? Seems wrong.
-      override `s`.vec_math = [0.866, 0.0, -0.5]      -- This seems wrong
-}
-
-Point `t` {
-      override `t`.vec_math = [0.6614, 0.0, -0.75]
-}
-
-Point `n` {
-      override `n`.vec_math = [0.4239, 0.0, -0.9]
-}
-
-Point `o` {
-      override `o`.vec_math = [0.6614, 0.0, 0.75]
-} */
-
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
@@ -153,12 +108,9 @@ with Point p; Point q {
      -- Interpolate between each one's sphere coords to yield several points
      -- then project all of them into screen space
 
-     -- TODO: Weird: why are the arcs fixed and only the points changing?? Does it not optimize correctly WRT a varying list?
-     --- Whereas it works fine every time I've hardcoded the parameters... Actually the arcs do change but the points seem to go to the arcs? Maybe something about the vector norms? Or maybe the renderer is wrong? They are definitely not forming great circles but IDK if it's because the renderer is wrong or the walking-along-arc is wrong
-
-     e.numPts = 5
+     e.numPts = 20
      e.arcPath = slerp(p.vec_math, q.vec_math, e.numPts)
-     e.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, e.arcPath, G.toScreen)
+     e.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, e.arcPath, G.toScreen, e.shape.name)
 
      -- Draw a path using the slerp'ed points
      e.shape = Curve {

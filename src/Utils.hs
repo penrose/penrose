@@ -337,10 +337,9 @@ lerp2 (x1, y1) (x2, y2) n = let xs = lerp x1 x2 n
                             -- Interp the first, then the second
                             -- in zip xs (repeat y1) ++ zip (repeat x2) ys
 
--- http://hackage.haskell.org/package/AC-Vector-1.1.1/docs/src/Data-Vector.html#vcross
 cross :: Autofloat a => [a] -> [a] -> [a]
 cross [x1, y1, z1] [x2, y2, z2] = [ y1 * z2   -   y2 * z1,
-                                    x1 * z2   -   x2 * z1,
+                                    x2 * z1   -   x1 * z2,
                                     x1 * y2   -   x2 * y1 ]
 
 angleBetweenRad :: Autofloat a => [a] -> [a] -> a -- Radians

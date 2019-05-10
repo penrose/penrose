@@ -879,14 +879,16 @@ get' [Val (ListV xs), Val (IntV i)] =
      else Val $ FloatV $ xs !! i'
 get' [Val (TupV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
 
-projectVec :: Autofloat a => Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> a -> [a]
-projectVec hfov vfov r camera dir vec_math toScreen = 
+projectVec :: Autofloat a => String -> Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> a -> [a]
+projectVec name hfov vfov r camera dir vec_math toScreen = 
   let vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
       [px, py, pz] = vec_camera
       vec_proj = (1 / pz) *. [px, py]
       vec_screen = toScreen *. vec_proj
       vec_proj_screen = vec_screen ++ [pz] -- TODO check denom 0. Also note z might be negative?
-  in trace ("\nvec_math: " ++ show vec_math
+  in trace ("\n"
+           ++ "name: " ++ name
+           ++ "\nvec_math: " ++ show vec_math
            ++ "\n||vec_math||: " ++ show (norm vec_math) 
            ++ "\nvec_camera: " ++ show vec_camera
            ++ "\nvec_proj: " ++ show vec_proj
@@ -894,14 +896,12 @@ projectVec hfov vfov r camera dir vec_math toScreen =
            ++ "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
      vec_proj_screen
 
--- For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e1 x e2, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q)
--- (Assuming p and q are unit)
--- Might be e3 = e2 x e1 instead; one or the other
+-- | For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e2 x e1, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q) (Assuming p and q are unit)
 slerp' :: ConstCompFn
 slerp' [Val (ListV p), Val (ListV q), Val (IntV n)] = -- Assuming unit p, q?
        let (e1, e2) = (normalize p, normalize (p `cross` q)) -- (e1, e3) span the plane of p and q
-           e3 = normalize (e1 `cross` e2) -- Or the other way around? -- e2 is the normal to the plane
-           (t0, t1) = (0.0, abs $ angleBetweenRad p q) -- TODO: does this angle need to be positive? This is the arc length
+           e3 = normalize (e2 `cross` e1)
+           (t0, t1) = (0.0, angleBetweenRad p q) -- On a unit sphere, the angle between points is the length of the arc b/t them
            numPts = fromIntegral n
            dt = (t1 - t0) / (fromIntegral numPts + 1)
            ts = take (numPts + 2) $ iterate (+ dt) t0
@@ -922,14 +922,14 @@ modSty [Val (FloatV x), Val (FloatV m)] = Val $ FloatV $ (x `mod'` m) -- Floatin
 projectAndToScreen :: ConstCompFn
 projectAndToScreen [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
                               Val (ListV camera), Val (ListV dir),
-                              Val (ListV vec_math), Val (FloatV toScreen)] = 
-     Val $ ListV $ projectVec hfov vfov r camera dir vec_math toScreen
+                              Val (ListV vec_math), Val (FloatV toScreen), Val (StrV name)] = 
+     Val $ ListV $ projectVec name hfov vfov r camera dir vec_math toScreen
 
 projectAndToScreen_list :: ConstCompFn
 projectAndToScreen_list [Val (TupV hfov), Val (TupV vfov), Val (FloatV r), 
                               Val (ListV camera), Val (ListV dir),
-                              Val (LListV spherePath), Val (FloatV toScreen)] =
-     Val $ PtListV $ (map (\vmath -> let res = projectVec hfov vfov r camera dir vmath toScreen
+                              Val (LListV spherePath), Val (FloatV toScreen), Val (StrV name)] =
+     Val $ PtListV $ (map (\vmath -> let res = projectVec name hfov vfov r camera dir vmath toScreen
                                         in (res !! 0, res !! 1)) spherePath)
      -- Discard z-coordinate for now
 
