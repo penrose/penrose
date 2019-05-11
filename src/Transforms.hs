@@ -11,6 +11,7 @@ import qualified Data.Map.Strict as M
 
 import GHC.Generics
 import Data.Aeson (FromJSON, ToJSON, toJSON)
+import Par
 
 default (Int, Float)
 
@@ -217,7 +218,6 @@ extrude c x y leftArr rightArr =
 
 type LineSeg a = (Pt2 a, Pt2 a)
 type Blob a = [Pt2 a] -- temporary type for polygon. Connected, no holes
--- A list of positive shapes (regions) and a list of negative shapes (holes)
 -- TODO: assuming that the positive shapes don't overlap and the negative shapes don't overlap (check this)
 -- (positive shapes, negative shapes, bbox, samples)
 type Polygon a = ([Blob a], [Blob a], (Pt2 a, Pt2 a), [Pt2 a])
@@ -240,6 +240,25 @@ gettPS p (a,b) = let
     v_ab = b -: a
     projl = v_ab `dotv` (p -: a)
     in projl / (magsq v_ab)
+
+closestPointPS :: Autofloat a => Pt2 a -> LineSeg a -> Pt2 a
+closestPointPS p (a,b) = let
+    t = gettPS p (a,b) in
+    if t<0.0 then a else if t>=1 then b else let v_ab = b -: a in
+    a +: (t *: v_ab)
+
+closestPointPG :: Autofloat a => Pt2 a -> Polygon a -> Pt2 a
+closestPointPG p poly = let
+    segments = getSegmentsG poly
+    --
+    mapf s = closestPointPS p s
+    cps = map mapf segments -- parmap?
+    --
+    redf p1 p2 = let
+        d1 = dsqPP p1 p
+        d2 = dsqPP p2 p
+        in if d1 <= d2 then p1 else p2
+    in reduce redf (cps!!0) cps
 
 normS :: Autofloat a => LineSeg a -> Pt2 a
 normS (p1, p2) = normalize' $ rot90 $ p2 -: p1
@@ -292,10 +311,11 @@ isInB'' pts (x0,y0) = let
 isInB' :: Autofloat a => Blob a -> Pt2 a -> Bool
 isInB' pts p@(x0, y0) = let
     segments = getSegmentsB pts
-    wn = foldl' (+) 0 $ map (\(a@(x1,y1), b@(x2,y2)) ->
+    wnf (a@(x1,y1), b@(x2,y2)) = 
         if (y1>y0 && y2>y0) || (y1<y0 && y2<y0) then 0
         else if (rot90(b-:a))`dotv`(p-:a) > 0 then 1 
-        else (-1) ) segments
+        else (-1)
+    wn = foldl' (+) 0 $ map wnf segments
     in if wn==0 then False else True
 
 -- general, direct inside/outside test
@@ -318,6 +338,10 @@ getBBox pts = let
     foldfn ((xlo,ylo), (xhi,yhi)) (x, y) = 
         ( (min xlo x, min ylo y), (max xhi x, max yhi y) )
     in foldl' foldfn ((posInf, posInf), (negInf, negInf)) pts
+
+-- returns the center of the polygon bbox
+getCenter :: Autofloat a => Polygon a -> Pt2 a
+getCenter (_,_,((xlo,ylo), (xhi,yhi)),_) = ((xhi+xlo)/2, (yhi+ylo)/2)
 
 -- true if in bbox and far enough from boundary
 inBBox :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> Bool
@@ -419,6 +443,12 @@ dsqGG (bds1, hs1, _, _) (bds2, hs2, _, _) = let
     b2h1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b') bds2) hs1
     in min (min b1b2 b1h2) (min b2b1 b2h1)
 
+alignPPA :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
+alignPPA a b angle = let
+    angle_radians = angle * pi / 180.0
+    dirN = rot90 (cos angle_radians, sin angle_radians)
+    in (**2) $ (a `dotv` dirN) - (b `dotv` dirN)
+
 -- samples per polygon
 numSamples :: Int
 numSamples = 200
@@ -452,7 +482,7 @@ maxSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
 
 ---- 2 NEW below ----
 -- Energy lowest when minimum/maximum signed distance is at ofs pixels.
--- Both functions have similar runtime compared to earlier inside/outside energies
+-- Both functions have similar runtime compared to other inside/outside energies
 -- Both are a bit "unstable" (shapes make unexpected big jumps), likely because of how they're defined
 -- Both become even more "unstable" when used with Newton's method, although Newton's method
 -- doesn't break them right away. For most of the time still give results that are visually correct
@@ -503,3 +533,37 @@ eBoutAtangent bA bB = let
     eDisjoint = eABdisj bA bB
     eABbdix = dsqGG bA bB
     in eDisjoint + eABbdix
+
+-- A and B align along some direction
+eAlign :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eAlign bA bB angle = alignPPA (getCenter bA) (getCenter bB) angle
+
+---- analytic gradient for dsqPP ---- (not tested) (not in use)
+
+-- using [a] to encode transformation here.
+-- different from HMatrix here bc this one contains DOFs from input (ie. shear term means "amt of shear")
+-- but terms in HMatrix contain numbers combined from DOFs (ie. shear term is some weird combo of shear+scale)
+
+-- input: two points at their original transformation, plus all the transformations that 
+-- brought them here.
+dsqGradPP :: Autofloat a => Pt2 a -> Pt2 a -> [a] -> [a] -> ([a], [a])
+dsqGradPP (px1,py1) (px2,py2) transA transB = let
+    [cx1, cy1, sx1, sy1, kx1, ky1] = transA
+    [cx2, cy2, sx2, sy2, kx2, ky2] = transB
+    term1 = cx2 - cx1 - px1*sx1 - kx1*py1*sx1 + px2*sx2 + kx2*py2*sx2
+    term2 = cy2 - cy1 - ky1*px1*sy1 - py1*(sy1 + kx1*ky1*sy1) + ky2*px2*sy2 + py2*(sy2 + kx2*ky2*sy2)
+    d_kx1 = 2*term1 * (-py1 * sx1) + 2*term2 * (-ky1*py1*sy1)
+    d_ky1 = 2*term2 * (-px1*sy1 - kx1*py1*sy1)
+    d_sx1 = 2*term1 * (-px1 - kx1*py1)
+    d_sy1 = 2*term2 * (-ky1*px1 - (1+kx1*ky1)*py1)
+    d_cx1 = -2 * term1
+    d_cy1 = -2 * term2
+    -- looks like only need to hardcode half of these... anyway,
+    d_kx2 = 2*term1 * (py2 * sx2) + 2*term2 * (ky2*py2*sy2)
+    d_ky2 = 2*term2 * (px2*sy2 + kx2*py2*sy2)
+    d_sx2 = 2*term1 * (px2 + kx2*py2)
+    d_sy2 = 2*term2 * (ky2*px2 + (1+kx2*ky2)*py2)
+    d_cx2 = 2 * term1
+    d_cy2 = 2 * term2
+    in ([d_cx1, d_cy1, d_sx1, d_sy1, d_kx1, d_ky1], 
+        [d_cx2, d_cy2, d_sx2, d_sy2, d_kx2, d_ky2])

@@ -245,7 +245,9 @@ objFuncDict = M.fromList
         ("disjointPoly", disjointPoly),
         ("containAndTangent", containAndTangent),
         ("disjointAndTangent", disjointAndTangent),
-        ("testPolyFn", testPolyFn)
+        ("containsPolyPad", containsPolyPad),
+        ("disjointPolyPad", disjointPolyPad),
+        ("alignAtAngle", alignAtAngle)
 
         -- ("sameX", sameX)
 {-      ("centerLine", centerLine),
@@ -1296,10 +1298,20 @@ disjointAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eBoutAtangent p1 p2
 
-testPolyFn :: ObjFn
-testPolyFn [GPI o1, GPI o2] = 
+disjointPolyPad :: ObjFn
+disjointPolyPad [GPI o1, GPI o2] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eBoundaryOffsetDisjoint p1 p2 10
+
+containsPolyPad :: ObjFn
+containsPolyPad [GPI o1, GPI o2] = 
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eBoundaryOffsetContain p1 p2 (-10)
+
+alignAtAngle :: ObjFn
+alignAtAngle [GPI o1, GPI o2] = 
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eAlign p1 p2 45
 
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), 
