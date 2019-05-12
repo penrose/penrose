@@ -253,6 +253,9 @@ objFuncDict = M.fromList
         ("containAndTangentPad", containAndTangentPad),
         ("disjointAndTangentPad", disjointAndTangentPad),
 
+        ("maximumSize", maximumSize),
+        ("minimumSize", minimumSize),
+
         ("alignAtAngle", alignAtAngle)
 
         -- ("sameX", sameX)
@@ -1328,6 +1331,12 @@ containAndTangentPad :: ObjFn
 containAndTangentPad [GPI o1, GPI o2, Val (FloatV ofs)] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eBinATangentOffset p1 p2 ofs
+
+maximumSize :: ObjFn
+maximumSize [GPI o, Val (FloatV s)] = eMaxSize (getPolygon o) s
+
+minimumSize :: ObjFn
+minimumSize [GPI o, Val (FloatV s)] = eMinSize (getPolygon o) s
 
 alignAtAngle :: ObjFn
 alignAtAngle [GPI o1, GPI o2, Val (FloatV angleInDegrees)] = 

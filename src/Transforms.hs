@@ -343,6 +343,16 @@ getBBox pts = let
 getCenter :: Autofloat a => Polygon a -> Pt2 a
 getCenter (_,_,((xlo,ylo), (xhi,yhi)),_) = ((xhi+xlo)/2, (yhi+ylo)/2)
 
+getDiameter2' :: Autofloat a => [Pt2 a] -> a
+getDiameter2' pts = case pts of
+    [] -> 0
+    p:pts -> foldl' max 0 $ map (dsqPP p) pts
+
+getDiameter :: Autofloat a => Polygon a -> a
+getDiameter (bds,hs,_,_) = let
+    vertices = (concat bds) ++ (concat hs)
+    in sqrt $ getDiameter2' vertices
+
 -- true if in bbox and far enough from boundary
 inBBox :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> Bool
 inBBox ((xlo, ylo), (xhi, yhi)) (x,y) = let
@@ -559,9 +569,22 @@ eBoutAtangent bA bB = let
     eABbdix = dsqGG bA bB
     in eDisjoint + eABbdix
 
+---- Energies defined on polygon sizes (diameter) ----
+
+eMaxSize :: Autofloat a => Polygon a -> a -> a
+eMaxSize poly size = let
+    d = getDiameter poly
+    in (**2) $ max 0 $ d - size
+
+eMinSize :: Autofloat a => Polygon a -> a -> a
+eMinSize poly size = let
+    d = getDiameter poly
+    in (**2) $ max 0 $ size - d
+
 ---- Other energies ----
 
 -- A and B align along some direction (input angle in degrees)
+-- currently uses center of bbox as position. Could alternatively have a version that lets user specify.
 eAlign :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eAlign bA bB angle = alignPPA (getCenter bA) (getCenter bB) angle
 

@@ -10,6 +10,8 @@ Set x {
     }
 
     x.labelFn = encourage containsPoly(x.shape, x.text)
+    x.maxSizeFn = encourage maximumSize(x.shape, 200.0)
+    x.minSizeFn = encourage minimumSize(x.shape, 80.0)
     -- x.minSizeFn = ensure minSize(x.shape)
     -- x.maxSizeFn = ensure maxSize(x.shape)
     -- x.labelPosFn = encourage sameCenter(x.text, x.shape)
@@ -18,7 +20,7 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.containFn = encourage containsPolyPad(y.shape, x.shape, 30.0)
+    LOCAL.containFn = encourage containsPolyPad(y.shape, x.shape, 10.0)
     -- LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
     -- LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
     LOCAL.layering  = x.shape above y.shape
