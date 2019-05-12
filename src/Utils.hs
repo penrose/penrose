@@ -344,3 +344,15 @@ cross [x1, y1, z1] [x2, y2, z2] = [ y1 * z2   -   y2 * z1,
 
 angleBetweenRad :: Autofloat a => [a] -> [a] -> a -- Radians
 angleBetweenRad p q = acos ((p `dotL` q) / (norm p * norm q + epsd))
+
+-- Unit rotation in the plane of the basis vectors (e1, e2) to time t (arc length)
+-- Used for spherical geometry.
+-- NOTE: expects e1 and e2 to be unit vectors
+circPtInPlane :: Autofloat a => [a] -> [a] -> a -> [a]
+circPtInPlane e1 e2 t = cos t *. e1 +. sin t *. e2
+
+-- Assuming unit circle and unit basis vectors. Arc starts at e1.
+slerp :: Autofloat a => Int -> a -> a -> [a] -> [a] -> [[a]]
+slerp n t0 t1 e1 e2 = let dt = (t1 - t0) / (fromIntegral n + 1)
+                          ts = take (n + 2) $ iterate (+ dt) t0
+                       in map (circPtInPlane e1 e2) ts -- Travel along the arc
