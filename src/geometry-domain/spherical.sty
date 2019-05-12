@@ -210,7 +210,26 @@ with Segment a; Segment b; Point p; Point q; Point r {
 }
 
 Ray r
-with Angle theta; Linelike a; Linelike b
-where r := Bisector(theta); theta := AngleBetween(a, b) {
+with Angle theta; Segment a; Segment b; Point x; Point y; Point z
+where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b := MkSegment(x, z) {
+
+      -- TODO: note that there's a decent amount of code shared between here and the PerpendicularBisector selector
+      -- Move some into the basic Ray selector?
+      r.rayArcLen = G.pi / 6.0
+      r.tail_vec_math = x.vec_math
+      r.head_vec_math = angleBisector(x.vec_math, y.vec_math, z.vec_math, r.rayArcLen)
+      r.arcPath = slerp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
+      r.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.arcPath, G.toScreen, r.shape.name)
+
+      r.shape = Curve {
+      	      pathData : pathFromPoints(r.screenspacePath)
+	      strokeWidth : 2.0
+	      fill : Colors.none
+	      color : Colors.midnightblue
+	      rotation : 0.0
+	      right-arrowhead : True
+      }
+
+      -- TODO: make two angle bisector marks
 
 }

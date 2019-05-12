@@ -116,6 +116,7 @@ compDict = M.fromList
         ("halfwayPoint", constComp halfwayPoint'),
         ("normalOnSphere", constComp normalOnSphere'),
         ("arcPath", constComp arcPath'),
+        ("angleBisector", constComp angleBisector'),
 
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
@@ -979,7 +980,19 @@ arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = --
             n = 20
             pts_origin = map (radius *.) $ slerp n 0 theta t1 t2 -- starts at qp segment
             pts = map (+. p) pts_origin -- Why does this arc lie on the sphere?
-        in Val $ LListV $ trace ("theta: " ++ show theta) pts
+        in Val $ LListV pts
+
+-- TODO: share some code betwen this and arcPath'?
+angleBisector' :: ConstCompFn
+angleBisector' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
+        let normal = p
+            (qp, rp) = (q -. p, r -. p)
+            (qp_normal, rp_normal) = (q `cross` p, r `cross` p)
+            theta = (angleBetweenSigned normal qp_normal rp_normal) / 2.0
+            t1 = normalize (qp -. (proj normal qp)) -- tangent in qp direction
+            t2 = t1 `cross` normal
+            pt_origin = (p +.) $ (radius *.) $ circPtInPlane t1 t2 theta -- starts at qp segment
+        in Val $ ListV pt_origin
 
 scaleLinear' :: ConstCompFn
 scaleLinear' [Val (FloatV x), Val (TupV range), Val (TupV range')] =
