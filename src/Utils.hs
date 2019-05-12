@@ -356,3 +356,8 @@ slerp :: Autofloat a => Int -> a -> a -> [a] -> [a] -> [[a]]
 slerp n t0 t1 e1 e2 = let dt = (t1 - t0) / (fromIntegral n + 1)
                           ts = take (n + 2) $ iterate (+ dt) t0
                        in map (circPtInPlane e1 e2) ts -- Travel along the arc
+
+-- Project q onto p, without normalization
+proj :: Autofloat a => [a] -> [a] -> [a]
+proj p q = let unit_p = normalize p
+           in (q `dotL` unit_p) *. unit_p

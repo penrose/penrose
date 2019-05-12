@@ -74,7 +74,8 @@ Point p {
       p.z = ?
       p.vec_math = [p.x, p.y, p.z]
       p.onSphereFn = ensure hasNorm(p.vec_math, G.sphereRadius) -- 0.5
-      -- TODO: for visibility, only pick points on the front of the sphere?
+      -- TODO: for visibility, only pick points on the front of the sphere. This produces really cramped-looking diagrams right now.
+      -- p.visibleFn = ensure lessThan(p.z, 0.0)
 
       -- x_screen, y_screen, z_projected (not converted to screen)
       p.vec_screen = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, p.vec_math, G.toScreen, p.shape.name)
@@ -156,7 +157,6 @@ with Segment s; Point p; Point q
 where r := PerpendicularBisector(s); s := MkSegment(p, q) {
 
       r.rayArcLen = G.pi / 6.0
-
       r.tail_vec_math = halfwayPoint(p.vec_math, q.vec_math) -- The part w/o arrow
       r.head_vec_math = normalOnSphere(p.vec_math, q.vec_math, r.tail_vec_math, r.rayArcLen)
       r.arcPath = slerp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
@@ -173,7 +173,6 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
       }
 
       r.perpArcLen = G.pi / 50.0
-
       r.perpmarkPath = perpPath(p.vec_math, q.vec_math, r.tail_vec_math, r.head_vec_math, r.perpArcLen)
       r.perpmark_screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.perpmarkPath, G.toScreen, r.shape.name)
 
@@ -190,15 +189,24 @@ where p := Midpoint(s); s := MkSegment(a, b)
 with Segment s; Point a; Point b {
      override p.vec_math = halfwayPoint(a.vec_math, b.vec_math)
      delete p.onSphereFn
+     delete p.visibleFn
 }
 
+-- Assuming the segments share a point
 Angle theta
-where theta := AngleBetween(a, b)
-with Linelike a; Linelike b {
-     -- The angle between lines (pq, pr) is angle of the planes containing the great circles of the arcs
-     -- Find an orthonormal basis with the normal (n) of the sphere at a point, then the tangent vectors (t1, t2) of the plane at the point, where t1 is in the direction of one of the lines
-     -- t1 is found as `p - proj_q(p) |> normalize` (where p is the local origin and q is another poitn on the triangle)
-     -- Then draw the arc in the tangent plane from t1 to the angle, then translate it to the local origin and project it into 2D
+where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
+with Segment a; Segment b; Point p; Point q; Point r {
+
+     theta.radius = G.pi / 50.0
+     theta.arcPath = arcPath(p.vec_math, q.vec_math, r.vec_math, theta.radius)
+     theta.arcPath_screenspace = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, theta.arcPath, G.toScreen, theta.shape.name)
+
+     theta.shape = Curve {
+     		 pathData : pathFromPoints(theta.arcPath_screenspace)
+		 strokeWidth : 1.0
+		 color : Colors.red
+		 fill : Colors.none
+     }
 }
 
 Ray r

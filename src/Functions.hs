@@ -115,6 +115,7 @@ compDict = M.fromList
         ("mod", constComp modSty),
         ("halfwayPoint", constComp halfwayPoint'),
         ("normalOnSphere", constComp normalOnSphere'),
+        ("arcPath", constComp arcPath'),
 
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
@@ -961,6 +962,24 @@ normalOnSphere' [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV ar
              let normalv = normalize (p `cross` q)
                  headv = circPtInPlane (normalize tailv) normalv arcLen -- Start at tailv (point on segment), move in normal direction by arcLen
              in Val (ListV headv)
+
+-- Draw the arc on the sphere between the segment (pq) and the segment (qr) with some fixed radius
+-- The angle between lines (pq, pr) is angle of the planes containing the great circles of the arcs
+-- Find an orthonormal basis with the normal (n) of the sphere at a point, then the tangent vectors (t1, t2) of the plane at the point, where t1 is in the direction of one of the lines
+-- t1 is found as `p - proj_q(p) |> normalize` (where p is the local origin and q is another point on the triangle)
+-- Then draw the arc in the tangent plane from t1 to the angle, then translate it to the local origin
+arcPath' :: ConstCompFn
+arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
+        let normal = p
+            (qp, rp) = (q -. p, r -. p)
+            (qp_normal, rp_normal) = (q `cross` p, r `cross` p) -- Directions?
+            theta = angleBetweenRad qp_normal rp_normal -- Angle direction? Also is this angle right?
+            t1 = normalize (qp -. (proj normal qp))
+            t2 = t1 `cross` normal -- Direction?
+            n = 20
+            pts_origin = map (radius *.) $ slerp n 0 theta t1 t2 -- Direction? Is this starting at the right vector?
+            pts = map (+. p) pts_origin -- Why does this arc lie on the sphere?
+        in Val $ LListV pts
 
 scaleLinear' :: ConstCompFn
 scaleLinear' [Val (FloatV x), Val (TupV range), Val (TupV range')] =
