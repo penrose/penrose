@@ -972,14 +972,14 @@ arcPath' :: ConstCompFn
 arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
         let normal = p
             (qp, rp) = (q -. p, r -. p)
-            (qp_normal, rp_normal) = (q `cross` p, r `cross` p) -- Directions?
-            theta = angleBetweenRad qp_normal rp_normal -- Angle direction? Also is this angle right?
-            t1 = normalize (qp -. (proj normal qp))
-            t2 = t1 `cross` normal -- Direction?
+            (qp_normal, rp_normal) = (q `cross` p, r `cross` p)
+            theta = angleBetweenSigned normal qp_normal rp_normal -- The signed angle from qp normal to rp normal (in the tangent plane defined by `p`, where `p` is the normal that points outward from the sphere
+            t1 = normalize (qp -. (proj normal qp)) -- tangent in qp direction
+            t2 = t1 `cross` normal
             n = 20
-            pts_origin = map (radius *.) $ slerp n 0 theta t1 t2 -- Direction? Is this starting at the right vector?
+            pts_origin = map (radius *.) $ slerp n 0 theta t1 t2 -- starts at qp segment
             pts = map (+. p) pts_origin -- Why does this arc lie on the sphere?
-        in Val $ LListV pts
+        in Val $ LListV $ trace ("theta: " ++ show theta) pts
 
 scaleLinear' :: ConstCompFn
 scaleLinear' [Val (FloatV x), Val (TupV range), Val (TupV range')] =

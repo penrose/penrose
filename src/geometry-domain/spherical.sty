@@ -172,13 +172,13 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
 	      right-arrowhead : True
       }
 
-      r.perpArcLen = G.pi / 50.0
+      r.perpArcLen = G.pi / 30.0
       r.perpmarkPath = perpPath(p.vec_math, q.vec_math, r.tail_vec_math, r.head_vec_math, r.perpArcLen)
       r.perpmark_screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.perpmarkPath, G.toScreen, r.shape.name)
 
       r.perpMark = Curve {
       	      pathData : pathFromPoints(r.perpmark_screenspacePath)
-	      strokeWidth : 1.0
+	      strokeWidth : 1.5
 	      color : Colors.lightslategray
 	      fill : Colors.none
       }
@@ -197,14 +197,14 @@ Angle theta
 where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
 with Segment a; Segment b; Point p; Point q; Point r {
 
-     theta.radius = G.pi / 50.0
+     theta.radius = G.pi / 20.0
      theta.arcPath = arcPath(p.vec_math, q.vec_math, r.vec_math, theta.radius)
      theta.arcPath_screenspace = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, theta.arcPath, G.toScreen, theta.shape.name)
 
      theta.shape = Curve {
      		 pathData : pathFromPoints(theta.arcPath_screenspace)
-		 strokeWidth : 1.0
-		 color : Colors.red
+		 strokeWidth : 1.5
+		 color : Colors.lightslategray
 		 fill : Colors.none
      }
 }

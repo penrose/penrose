@@ -345,6 +345,12 @@ cross [x1, y1, z1] [x2, y2, z2] = [ y1 * z2   -   y2 * z1,
 angleBetweenRad :: Autofloat a => [a] -> [a] -> a -- Radians
 angleBetweenRad p q = acos ((p `dotL` q) / (norm p * norm q + epsd))
 
+-- n is the "original" plane normal for pq
+-- https://stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+angleBetweenSigned :: Autofloat a => [a] -> [a] -> [a] -> a -- Radians
+angleBetweenSigned n p q = let sign = -1 * signum ((p `cross` q) `dotL` n) in
+                           sign * angleBetweenRad p q
+
 -- Unit rotation in the plane of the basis vectors (e1, e2) to time t (arc length)
 -- Used for spherical geometry.
 -- NOTE: expects e1 and e2 to be unit vectors
