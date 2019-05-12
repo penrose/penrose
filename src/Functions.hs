@@ -241,12 +241,18 @@ objFuncDict = M.fromList
         -- With the new transforms
         ("nearT", nearT),
         ("boundaryIntersect", boundaryIntersect),
+
         ("containsPoly", containsPoly),
         ("disjointPoly", disjointPoly),
-        ("containAndTangent", containAndTangent),
-        ("disjointAndTangent", disjointAndTangent),
         ("containsPolyPad", containsPolyPad),
         ("disjointPolyPad", disjointPolyPad),
+        ("padding", padding),
+
+        ("containAndTangent", containAndTangent),
+        ("disjointAndTangent", disjointAndTangent),
+        ("containAndTangentPad", containAndTangentPad),
+        ("disjointAndTangentPad", disjointAndTangentPad),
+
         ("alignAtAngle", alignAtAngle)
 
         -- ("sameX", sameX)
@@ -1288,6 +1294,21 @@ disjointPoly [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eABdisj p1 p2
 
+containsPolyPad :: ObjFn
+containsPolyPad [GPI o1, GPI o2, Val (FloatV ofs)] =
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eBinAPad p1 p2 ofs
+
+disjointPolyPad :: ObjFn
+disjointPolyPad [GPI o1, GPI o2, Val (FloatV ofs)] =
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eBoutAPad p1 p2 ofs
+
+padding :: ObjFn
+padding [GPI o1, GPI o2, Val (FloatV ofs)] =
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      ePad p1 p2 ofs
+
 containAndTangent :: ObjFn
 containAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
@@ -1298,20 +1319,20 @@ disjointAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eBoutAtangent p1 p2
 
-disjointPolyPad :: ObjFn
-disjointPolyPad [GPI o1, GPI o2] = 
+disjointAndTangentPad :: ObjFn
+disjointAndTangentPad [GPI o1, GPI o2, Val (FloatV ofs)] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eBoundaryOffsetDisjoint p1 p2 10
+      eBoutATangentOffset p1 p2 ofs
 
-containsPolyPad :: ObjFn
-containsPolyPad [GPI o1, GPI o2] = 
+containAndTangentPad :: ObjFn
+containAndTangentPad [GPI o1, GPI o2, Val (FloatV ofs)] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eBoundaryOffsetContain p1 p2 (-10)
+      eBinATangentOffset p1 p2 ofs
 
 alignAtAngle :: ObjFn
-alignAtAngle [GPI o1, GPI o2] = 
+alignAtAngle [GPI o1, GPI o2, Val (FloatV angleInDegrees)] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eAlign p1 p2 45
+      eAlign p1 p2 angleInDegrees
 
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), 

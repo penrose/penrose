@@ -478,32 +478,57 @@ maxSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
     --samples = sampleG ds polyB
     in foldl' max negInf $ map (signedDsqGP polyA) samplesB
 
----- query energies ----
+-------- top-level query energies --------
 
----- 2 NEW below ----
--- Energy lowest when minimum/maximum signed distance is at ofs pixels.
+-- 2 below: Energy lowest when minimum/maximum signed distance is at ofs pixels.
 -- Both functions have similar runtime compared to other inside/outside energies
 -- Both are a bit "unstable" (shapes make unexpected big jumps), likely because of how they're defined
 -- Both become even more "unstable" when used with Newton's method, although Newton's method
 -- doesn't break them right away. For most of the time still give results that are visually correct
 -- (other times stuck at local min, or explode/shrink)
 
--- ofs = 0: an alternative containment+tangent energy. Can use negative ofs for containment with padding.
-eBoundaryOffsetContain :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eBoundaryOffsetContain polyA polyB ofs = let
+-- ofs = 0: an alternative containment+tangent energy. Can use ofs for containment with padding.
+eBinATangentOffset :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBinATangentOffset polyA polyB ofs = let
     sdsq = maxSignedDsqGG polyA polyB
     sign = if sdsq >= 0 then 1.0 else -1.0
     sdist = (*sign) $ sqrt $ abs sdsq
-    in (sdist - ofs)**2
+    in (sdist + ofs)**2
 
--- ofs = 0: an alternative disjoint+tangent energy. Can use positive ofs for disjoint plus margin.
-eBoundaryOffsetDisjoint :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eBoundaryOffsetDisjoint polyA polyB ofs = let
+-- ofs = 0: an alternative disjoint+tangent energy. Can use ofs for disjoint plus margin.
+eBoutATangentOffset :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoutATangentOffset polyA polyB ofs = let
     sdsq = minSignedDsqGG polyA polyB
     sign = if sdsq >= 0 then 1.0 else -1.0
     sdist = (*sign) $ sqrt $ abs sdsq
     in (sdist - ofs)**2
-----
+
+-- 2 below: Similar to above, but energy lowest when minimum/maximum signed distance is at least ofs pixels.
+
+-- ofs = 0: an alternative containment energy. Can use ofs for containment with minimum padding.
+eBinAPad :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBinAPad polyA polyB ofs = let
+    sdsq = maxSignedDsqGG polyA polyB
+    sign = if sdsq >= 0 then 1.0 else -1.0
+    sdist = (*sign) $ sqrt $ abs sdsq
+    in (max 0 $ sdist + ofs)**2
+
+-- ofs = 0: an alternative disjoint energy. Can use positive ofs for disjoint plus minimum margin.
+eBoutAPad :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoutAPad polyA polyB ofs = let
+    sdsq = minSignedDsqGG polyA polyB
+    sign = if sdsq >= 0 then 1.0 else -1.0
+    sdist = (*sign) $ sqrt $ abs sdsq
+    in (min 0 $ sdist - ofs)**2
+
+-- energy lowest when either of the above two energies are lowest
+ePad :: Autofloat a => Polygon a -> Polygon a -> a -> a
+ePad polyA polyB ofs = let
+    eIn = eBinAPad polyA polyB ofs
+    eOut = eBoutAPad polyA polyB ofs
+    in min eIn eOut
+
+---- energies based on integral along boundary ----
 
 -- containment
 eAcontainB :: Autofloat a => Polygon a -> Polygon a -> a
@@ -534,7 +559,9 @@ eBoutAtangent bA bB = let
     eABbdix = dsqGG bA bB
     in eDisjoint + eABbdix
 
--- A and B align along some direction
+---- Other energies ----
+
+-- A and B align along some direction (input angle in degrees)
 eAlign :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eAlign bA bB angle = alignPPA (getCenter bA) (getCenter bB) angle
 

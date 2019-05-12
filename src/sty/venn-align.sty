@@ -18,7 +18,7 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.alignFn = encourage alignAtAngle(y.shape, x.shape)
+    LOCAL.alignFn = encourage alignAtAngle(y.shape, x.shape, -30.0)
     -- LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
     -- LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
     LOCAL.layering  = x.shape above y.shape
