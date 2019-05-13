@@ -459,6 +459,12 @@ alignPPA a b angle = let
     dirN = rot90 (cos angle_radians, sin angle_radians)
     in (**2) $ (a `dotv` dirN) - (b `dotv` dirN)
 
+orderPPA :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
+orderPPA a b angle = let
+    angle_radians = angle * pi / 180.0
+    dir = (cos angle_radians, sin angle_radians)
+    in (**2) $ max 0 $ (b `dotv` dir) - (a `dotv` dir)
+
 -- samples per polygon
 numSamples :: Int
 numSamples = 200
@@ -488,9 +494,11 @@ maxSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
     --samples = sampleG ds polyB
     in foldl' max negInf $ map (signedDsqGP polyA) samplesB
 
--------- top-level query energies --------
+------------ top-level query energies ------------
 
--- 2 below: Energy lowest when minimum/maximum signed distance is at ofs pixels.
+---- Energies defined with (sampled) minimum/maximum distances ----
+
+---- 2 below: Energy lowest when minimum/maximum signed distance is at ofs pixels.
 -- Both functions have similar runtime compared to other inside/outside energies
 -- Both are a bit "unstable" (shapes make unexpected big jumps), likely because of how they're defined
 -- Both become even more "unstable" when used with Newton's method, although Newton's method
@@ -498,22 +506,35 @@ maxSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
 -- (other times stuck at local min, or explode/shrink)
 
 -- ofs = 0: an alternative containment+tangent energy. Can use ofs for containment with padding.
-eBinATangentOffset :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eBinATangentOffset polyA polyB ofs = let
+eBinAOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBinAOffs polyA polyB ofs = let
     sdsq = maxSignedDsqGG polyA polyB
     sign = if sdsq >= 0 then 1.0 else -1.0
     sdist = (*sign) $ sqrt $ abs sdsq
     in (sdist + ofs)**2
 
 -- ofs = 0: an alternative disjoint+tangent energy. Can use ofs for disjoint plus margin.
-eBoutATangentOffset :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eBoutATangentOffset polyA polyB ofs = let
+eBoutAOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoutAOffs polyA polyB ofs = let
     sdsq = minSignedDsqGG polyA polyB
     sign = if sdsq >= 0 then 1.0 else -1.0
     sdist = (*sign) $ sqrt $ abs sdsq
     in (sdist - ofs)**2
 
--- 2 below: Similar to above, but energy lowest when minimum/maximum signed distance is at least ofs pixels.
+-- energy lowest when either of the above two energies are lowest
+eOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eOffs polyA polyB ofs = let
+    eIn = eBinAOffs polyA polyB ofs
+    eOut = eBoutAOffs polyA polyB ofs
+    in min eIn eOut
+
+-- energy lowest when polygon boundary is ofs px away.
+eOffsP :: Autofloat a => Polygon a -> Pt2 a -> a -> a
+eOffsP poly pt ofs = let
+    d = sqrt $ dsqGP poly pt
+    in (d - ofs)**2
+
+---- 2 below: Similar to above, but energy lowest when minimum/maximum signed distance is at least ofs pixels.
 
 -- ofs = 0: an alternative containment energy. Can use ofs for containment with minimum padding.
 eBinAPad :: Autofloat a => Polygon a -> Polygon a -> a -> a
@@ -538,7 +559,7 @@ ePad polyA polyB ofs = let
     eOut = eBoutAPad polyA polyB ofs
     in min eIn eOut
 
----- energies based on integral along boundary ----
+---- energies based on integral dsq along boundary ----
 
 -- containment
 eAcontainB :: Autofloat a => Polygon a -> Polygon a -> a
@@ -555,6 +576,7 @@ eABdisj bA bB = let
     eBinA = dsqBinA bA bB
     in eAinB + eBinA 
 
+{-
 -- A and B tangent, B inside A
 eBinAtangent :: Autofloat a => Polygon a -> Polygon a -> a
 eBinAtangent bA bB = let
@@ -568,8 +590,9 @@ eBoutAtangent bA bB = let
     eDisjoint = eABdisj bA bB
     eABbdix = dsqGG bA bB
     in eDisjoint + eABbdix
+-}
 
----- Energies defined on polygon sizes (diameter) ----
+---- Energies defined on polygon size (diameter) ----
 
 eMaxSize :: Autofloat a => Polygon a -> a -> a
 eMaxSize poly size = let
@@ -581,12 +604,27 @@ eMinSize poly size = let
     d = getDiameter poly
     in (**2) $ max 0 $ size - d
 
----- Other energies ----
+eSameSize :: Autofloat a => Polygon a -> Polygon a -> a
+eSameSize bA bB = let
+    d1 = getDiameter bA
+    d2 = getDiameter bB
+    in (d1 - d2) ** 2
+
+eSmallerThan :: Autofloat a => Polygon a -> Polygon a -> a
+eSmallerThan bA bB = let
+    d1 = getDiameter bA
+    d2 = getDiameter bB
+    in (max 0 $ d1 - d2) ** 2 -- no penalty if d1 <= d2
+
+---- Other energies (related to alignment) ----
 
 -- A and B align along some direction (input angle in degrees)
 -- currently uses center of bbox as position. Could alternatively have a version that lets user specify.
 eAlign :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eAlign bA bB angle = alignPPA (getCenter bA) (getCenter bB) angle
+
+eOrder :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eOrder bA bB angle = orderPPA (getCenter bA) (getCenter bB) angle
 
 ---- analytic gradient for dsqPP ---- (not tested) (not in use)
 

@@ -9,20 +9,25 @@ Set x {
       string = x.label
     }
 
+    x.origin = CircleTransform {
+      r = 5.0
+      strokeWidth = 0
+      x = 0.0
+      y = 0.0
+    }
+
     x.labelFn = encourage containsPoly(x.shape, x.text)
-    x.maxSizeFn = encourage maximumSize(x.shape, 200.0)
+    x.labelLocFn = encourage nearPoint(x.text, x.shape.x, x.shape.y, 6.0)
+    x.maxSizeFn = encourage maximumSize(x.shape, 300.0)
     x.minSizeFn = encourage minimumSize(x.shape, 80.0)
-    -- x.minSizeFn = ensure minSize(x.shape)
-    -- x.maxSizeFn = ensure maxSize(x.shape)
-    -- x.labelPosFn = encourage sameCenter(x.text, x.shape)
+    x.onCanvasFn = encourage polyOnCanvas(x.shape)
     LOCAL.layering  = x.shape below x.text
 }
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.containFn = encourage containsPolyPad(y.shape, x.shape, 10.0)
-    -- LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    -- LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
+    -- LOCAL.fixFn = encourage atPoint(x.shape, -0.5, 0.5, 0.0, 0.0)
+    LOCAL.containFn = encourage containsPolyPad(x.shape, y.shape, 10.0)
     LOCAL.layering  = x.shape above y.shape
     LOCAL.layering1  = y.text below x.shape
 }
