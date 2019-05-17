@@ -1260,6 +1260,11 @@ getTransform shape = case shape .: "transform" of
     HMatrixV x -> x
     _ -> error "getTransform: expected HMatrix but got something else"
 
+getTransformation :: (Autofloat a) => Shape a -> HMatrix a
+getTransformation shape = case shape .: "transformation" of
+    HMatrixV x -> x
+    _ -> error "getTransformation: expected HMatrix but got something else"
+
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator
 

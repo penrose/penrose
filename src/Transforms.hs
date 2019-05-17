@@ -11,6 +11,7 @@ import qualified Data.Map.Strict as M
 
 import GHC.Generics
 import Data.Aeson (FromJSON, ToJSON, toJSON)
+import Par
 
 default (Int, Float)
 
@@ -217,7 +218,6 @@ extrude c x y leftArr rightArr =
 
 type LineSeg a = (Pt2 a, Pt2 a)
 type Blob a = [Pt2 a] -- temporary type for polygon. Connected, no holes
--- A list of positive shapes (regions) and a list of negative shapes (holes)
 -- TODO: assuming that the positive shapes don't overlap and the negative shapes don't overlap (check this)
 -- (positive shapes, negative shapes, bbox, samples)
 type Polygon a = ([Blob a], [Blob a], (Pt2 a, Pt2 a), [Pt2 a])
@@ -226,7 +226,7 @@ emptyPoly :: Autofloat a => Polygon a
 emptyPoly = ([], [], ((posInf, posInf), (negInf, negInf)), [])
 
 toPoly :: Autofloat a => [Pt2 a] -> Polygon a
-toPoly pts = ([pts], [], getBBox pts, sampleB ds pts)
+toPoly pts = ([pts], [], getBBox pts, sampleB numSamples pts)
 
 posInf :: Autofloat a => a
 posInf = 1 / 0
@@ -240,6 +240,25 @@ gettPS p (a,b) = let
     v_ab = b -: a
     projl = v_ab `dotv` (p -: a)
     in projl / (magsq v_ab)
+
+closestPointPS :: Autofloat a => Pt2 a -> LineSeg a -> Pt2 a
+closestPointPS p (a,b) = let
+    t = gettPS p (a,b) in
+    if t<0.0 then a else if t>=1 then b else let v_ab = b -: a in
+    a +: (t *: v_ab)
+
+closestPointPG :: Autofloat a => Pt2 a -> Polygon a -> Pt2 a
+closestPointPG p poly = let
+    segments = getSegmentsG poly
+    --
+    mapf s = closestPointPS p s
+    cps = map mapf segments -- parmap?
+    --
+    redf p1 p2 = let
+        d1 = dsqPP p1 p
+        d2 = dsqPP p2 p
+        in if d1 <= d2 then p1 else p2
+    in reduce redf (cps!!0) cps
 
 normS :: Autofloat a => LineSeg a -> Pt2 a
 normS (p1, p2) = normalize' $ rot90 $ p2 -: p1
@@ -292,10 +311,11 @@ isInB'' pts (x0,y0) = let
 isInB' :: Autofloat a => Blob a -> Pt2 a -> Bool
 isInB' pts p@(x0, y0) = let
     segments = getSegmentsB pts
-    wn = foldl' (+) 0 $ map (\(a@(x1,y1), b@(x2,y2)) ->
+    wnf (a@(x1,y1), b@(x2,y2)) = 
         if (y1>y0 && y2>y0) || (y1<y0 && y2<y0) then 0
         else if (rot90(b-:a))`dotv`(p-:a) > 0 then 1 
-        else (-1) ) segments
+        else (-1)
+    wn = foldl' (+) 0 $ map wnf segments
     in if wn==0 then False else True
 
 -- general, direct inside/outside test
@@ -318,6 +338,20 @@ getBBox pts = let
     foldfn ((xlo,ylo), (xhi,yhi)) (x, y) = 
         ( (min xlo x, min ylo y), (max xhi x, max yhi y) )
     in foldl' foldfn ((posInf, posInf), (negInf, negInf)) pts
+
+-- returns the center of the polygon bbox
+getCenter :: Autofloat a => Polygon a -> Pt2 a
+getCenter (_,_,((xlo,ylo), (xhi,yhi)),_) = ((xhi+xlo)/2, (yhi+ylo)/2)
+
+getDiameter2' :: Autofloat a => [Pt2 a] -> a
+getDiameter2' pts = case pts of
+    [] -> 0
+    p:pts -> foldl' max 0 $ map (dsqPP p) pts
+
+getDiameter :: Autofloat a => Polygon a -> a
+getDiameter (bds,hs,_,_) = let
+    vertices = (concat bds) ++ (concat hs)
+    in sqrt $ getDiameter2' vertices
 
 -- true if in bbox and far enough from boundary
 inBBox :: Autofloat a => (Pt2 a, Pt2 a) -> Pt2 a -> Bool
@@ -362,26 +396,25 @@ sampleG numSamples poly@(bds, hs, _, _) = let
 
 ---- dsq functions ----
 
--- ofs: "offset". ofs = k means dsqPP returns 0 when a and b are k units apart.
-dsqPP :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
-dsqPP a b ofs = magsq $ b -: a
+dsqPP :: Autofloat a => Pt2 a -> Pt2 a -> a
+dsqPP a b = magsq $ b -: a
 
-dsqSP :: Autofloat a => LineSeg a -> Pt2 a -> a -> a
-dsqSP (a,b) p ofs = let t = gettPS p (a,b) in
-    if t<0 then dsqPP a p ofs
-    else if t>1 then dsqPP b p ofs
+dsqSP :: Autofloat a => LineSeg a -> Pt2 a -> a
+dsqSP (a,b) p = let t = gettPS p (a,b) in
+    if t<0 then dsqPP a p
+    else if t>1 then dsqPP b p
     else (**2) $ (normS (a,b)) `dotv` (p -: a)
 
-dsqSS :: Autofloat a => LineSeg a -> LineSeg a -> a -> a
-dsqSS (a,b) (c,d) ofs = if ixSS (a,b) (c,d) then 0 else let
-    da = dsqSP (c,d) a ofs
-    db = dsqSP (c,d) b ofs
-    dc = dsqSP (a,b) c ofs
-    dd = dsqSP (a,b) d ofs
+dsqSS :: Autofloat a => LineSeg a -> LineSeg a -> a
+dsqSS (a,b) (c,d) = if ixSS (a,b) (c,d) then 0 else let
+    da = dsqSP (c,d) a 
+    db = dsqSP (c,d) b 
+    dc = dsqSP (a,b) c 
+    dd = dsqSP (a,b) d 
     in min (min da db) (min dc dd)
 
-dsqBP :: Autofloat a => Blob a -> Pt2 a -> a -> a
-dsqBP b p ofs = let
+dsqBP :: Autofloat a => Blob a -> Pt2 a -> a
+dsqBP b p = let
     segments = getSegmentsB b
     -- min dist to vertex
     d2v = foldl' min posInf $ map (\q -> magsq $ p -: q) b
@@ -390,65 +423,65 @@ dsqBP b p ofs = let
         if t>1 || t<0 then posInf else (**2) $ (normS (a,b)) `dotv` (p -: a)) segments
     in min d2v d2s
 
-dsqGP :: Autofloat a => Polygon a -> Pt2 a -> a -> a
-dsqGP (bds, hs, _, _) p ofs = let
-    dsqBD = foldl' min posInf $ map (\b -> dsqBP b p ofs) bds
-    dsqHS = foldl' min posInf $ map (\h -> dsqBP h p ofs) hs
+dsqGP :: Autofloat a => Polygon a -> Pt2 a -> a
+dsqGP (bds, hs, _, _) p = let
+    dsqBD = foldl' min posInf $ map (\b -> dsqBP b p) bds
+    dsqHS = foldl' min posInf $ map (\h -> dsqBP h p) hs
     in min dsqBD dsqHS
 
 -- only the magnitude matches with dsq. Negative when inside A.
 signedDsqGP :: Autofloat a => Polygon a -> Pt2 a -> a
 signedDsqGP poly p = let 
-    dsq = dsqGP poly p 0.0
+    dsq = dsqGP poly p
     inside = if dsq < epsd then True else isInG poly p
     in if inside then -dsq else dsq
 
-dsqBS :: Autofloat a => Blob a -> LineSeg a -> a -> a
-dsqBS b s ofs = foldl' min posInf $ 
-    map (\e -> dsqSS e s ofs) $ getSegmentsB b
+dsqBS :: Autofloat a => Blob a -> LineSeg a -> a
+dsqBS b s = foldl' min posInf $ 
+    map (\e -> dsqSS e s) $ getSegmentsB b
 
-dsqBB :: Autofloat a => Blob a -> Blob a -> a -> a
-dsqBB b1 b2 ofs = let
-    min1 = foldl' min posInf $ map (\e -> dsqBS b2 e ofs) $ getSegmentsB b1
+dsqBB :: Autofloat a => Blob a -> Blob a -> a
+dsqBB b1 b2 = let
+    min1 = foldl' min posInf $ map (\e -> dsqBS b2 e) $ getSegmentsB b1
     in min1
 
-dsqGG :: Autofloat a => Polygon a -> Polygon a -> a -> a
-dsqGG (bds1, hs1, _, _) (bds2, hs2, _, _) ofs = let
-    b1b2 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds1) bds2
-    b1h2 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds1) hs2
-    b2b1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds2) bds1
-    b2h1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b' ofs) bds2) hs1
+dsqGG :: Autofloat a => Polygon a -> Polygon a -> a
+dsqGG (bds1, hs1, _, _) (bds2, hs2, _, _) = let
+    b1b2 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b') bds1) bds2
+    b1h2 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b') bds1) hs2
+    b2b1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b') bds2) bds1
+    b2h1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b') bds2) hs1
     in min (min b1b2 b1h2) (min b2b1 b2h1)
 
-dsqGG' :: Autofloat a => Polygon a -> Polygon a -> a -> a
-dsqGG' polyA (polyB@(bds,hs,_,_)) ofs = let
-    dist = sqrt $ dsqGG polyA polyB 0.0
-    inside = if dist < epsd then True -- has part of boundary inside and part of boundary outside
-        else let p = bds!!0!!0 in isInG polyA p
-    in if inside then (-dist - ofs)**2 else (dist-ofs)**2
+alignPPA :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
+alignPPA a b angle = let
+    angle_radians = angle * pi / 180.0
+    dirN = rot90 (cos angle_radians, sin angle_radians)
+    in (**2) $ (a `dotv` dirN) - (b `dotv` dirN)
 
----- dsq integral along boundary functions ----
+orderPPA :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
+orderPPA a b angle = let
+    angle_radians = angle * pi / 180.0
+    dir = (cos angle_radians, sin angle_radians)
+    in (**2) $ max 0 $ (b `dotv` dir) - (a `dotv` dir)
 
--- actually means "#samples per polygon"
-ds :: Int
-ds = 200
+-- samples per polygon
+numSamples :: Int
+numSamples = 200
 
-dsqBinA :: Autofloat a => Polygon a -> Polygon a -> a -> a
-dsqBinA bA bB@(_,_,_,samplesB) ofs = let
-    samplesIn = filter (\p -> isInG bA p) $ samplesB--sampleG ds bB
-    res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesIn
-    in {-trace ("|samplesIn|: " ++ show (length samplesIn))-} res
+-- dsq integral along boundary functions ----
 
-dsqBoutA :: Autofloat a => Polygon a -> Polygon a -> a -> a
-dsqBoutA bA bB@(_,_,_,samplesB) ofs = let
-    -- circumfrence = foldl' (+) 0.0 $ map (\(a,b)->dist a b) $ getSegmentsB bB
-    -- interval = (r2f ds) / circumfrence
-    samplesOut = filter (\p -> not $ isInG bA p) $ samplesB--sampleG ds bB
-    res = {-(*interval) $-} foldl' (+) 0.0 $ map (\p -> dsqGP bA p ofs) samplesOut
-    in {-trace ("|samplesOut|: " ++ show (length samplesOut))-} res
+dsqBinA :: Autofloat a => Polygon a -> Polygon a -> a
+dsqBinA bA bB@(_,_,_,samplesB) = let
+    samplesIn = filter (\p -> isInG bA p) $ samplesB
+    in foldl' (+) 0.0 $ map (\p -> dsqGP bA p) samplesIn
 
--- (mostly for experimentation) signed distances based on sampling
--- TODO: signedDsqGG, implement boundary intersect with offset, other two energies with offset.
+dsqBoutA :: Autofloat a => Polygon a -> Polygon a -> a
+dsqBoutA bA bB@(_,_,_,samplesB) = let
+    samplesOut = filter (\p -> not $ isInG bA p) $ samplesB
+    in foldl' (+) 0.0 $ map (\p -> dsqGP bA p) samplesOut
+
+-- signed distances between polygons based on sampling
 -- TODO: the following two can both be achieved from the same iteration (thus save some runtime)
 
 minSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
@@ -461,61 +494,164 @@ maxSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
     --samples = sampleG ds polyB
     in foldl' max negInf $ map (signedDsqGP polyA) samplesB
 
----- query energies ----
+------------ top-level query energies ------------
 
----- 2 NEW below ----
--- Energy lowest when minimum/maximum signed distance is at ofs pixels.
--- Both functions have similar runtime compared to earlier inside/outside energies
+---- Energies defined with (sampled) minimum/maximum distances ----
+
+---- 2 below: Energy lowest when minimum/maximum signed distance is at ofs pixels.
+-- Both functions have similar runtime compared to other inside/outside energies
 -- Both are a bit "unstable" (shapes make unexpected big jumps), likely because of how they're defined
 -- Both become even more "unstable" when used with Newton's method, although Newton's method
 -- doesn't break them right away. For most of the time still give results that are visually correct
 -- (other times stuck at local min, or explode/shrink)
 
--- ofs = 0: an alternative containment+tangent energy. Can use negative ofs for containment with padding.
-eBoundaryOffsetContain :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eBoundaryOffsetContain polyA polyB ofs = let
+-- ofs = 0: an alternative containment+tangent energy. Can use ofs for containment with padding.
+eBinAOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBinAOffs polyA polyB ofs = let
     sdsq = maxSignedDsqGG polyA polyB
     sign = if sdsq >= 0 then 1.0 else -1.0
     sdist = (*sign) $ sqrt $ abs sdsq
-    res = (sdist - ofs)**2
-    in res
+    in (sdist + ofs)**2
 
--- ofs = 0: an alternative disjoint+tangent energy. Can use positive ofs for disjoint plus margin.
-eBoundaryOffsetDisjoint :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eBoundaryOffsetDisjoint polyA polyB ofs = let
+-- ofs = 0: an alternative disjoint+tangent energy. Can use ofs for disjoint plus margin.
+eBoutAOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoutAOffs polyA polyB ofs = let
     sdsq = minSignedDsqGG polyA polyB
     sign = if sdsq >= 0 then 1.0 else -1.0
     sdist = (*sign) $ sqrt $ abs sdsq
-    res = (sdist - ofs)**2
-    in res
-----
+    in (sdist - ofs)**2
+
+-- energy lowest when either of the above two energies are lowest
+eOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eOffs polyA polyB ofs = let
+    eIn = eBinAOffs polyA polyB ofs
+    eOut = eBoutAOffs polyA polyB ofs
+    in min eIn eOut
+
+-- energy lowest when polygon boundary is ofs px away.
+eOffsP :: Autofloat a => Polygon a -> Pt2 a -> a -> a
+eOffsP poly pt ofs = let
+    d = sqrt $ dsqGP poly pt
+    in (d - ofs)**2
+
+---- 2 below: Similar to above, but energy lowest when minimum/maximum signed distance is at least ofs pixels.
+
+-- ofs = 0: an alternative containment energy. Can use ofs for containment with minimum padding.
+eBinAPad :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBinAPad polyA polyB ofs = let
+    sdsq = maxSignedDsqGG polyA polyB
+    sign = if sdsq >= 0 then 1.0 else -1.0
+    sdist = (*sign) $ sqrt $ abs sdsq
+    in (max 0 $ sdist + ofs)**2
+
+-- ofs = 0: an alternative disjoint energy. Can use positive ofs for disjoint plus minimum margin.
+eBoutAPad :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eBoutAPad polyA polyB ofs = let
+    sdsq = minSignedDsqGG polyA polyB
+    sign = if sdsq >= 0 then 1.0 else -1.0
+    sdist = (*sign) $ sqrt $ abs sdsq
+    in (min 0 $ sdist - ofs)**2
+
+-- energy lowest when either of the above two energies are lowest
+ePad :: Autofloat a => Polygon a -> Polygon a -> a -> a
+ePad polyA polyB ofs = let
+    eIn = eBinAPad polyA polyB ofs
+    eOut = eBoutAPad polyA polyB ofs
+    in min eIn eOut
+
+---- energies based on integral dsq along boundary ----
 
 -- containment
--- TODO: when two shapes start disjoint, #samples = 0???
-eAcontainB :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eAcontainB bA bB ofs = let
-    eAinB = dsqBinA bB bA ofs
-    eBoutA = dsqBoutA bA bB ofs
+eAcontainB :: Autofloat a => Polygon a -> Polygon a -> a
+eAcontainB bA bB = let
+    eAinB = dsqBinA bB bA
+    eBoutA = dsqBoutA bA bB
     in eAinB + eBoutA
 
 -- disjoint. might be changed later though, bc it gets stuck at local min too often,
 -- resulting in two shapes overlap even more
-eABdisj :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eABdisj bA bB ofs = let
-    eAinB = dsqBinA bB bA ofs
-    eBinA = dsqBinA bA bB ofs
+eABdisj :: Autofloat a => Polygon a -> Polygon a -> a
+eABdisj bA bB = let
+    eAinB = dsqBinA bB bA
+    eBinA = dsqBinA bA bB
     in eAinB + eBinA 
 
+{-
 -- A and B tangent, B inside A
-eBinAtangent :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eBinAtangent bA bB ofs = let
-    eContainment = eAcontainB bA bB ofs
-    eABbdix = dsqGG bA bB ofs
+eBinAtangent :: Autofloat a => Polygon a -> Polygon a -> a
+eBinAtangent bA bB = let
+    eContainment = eAcontainB bA bB
+    eABbdix = dsqGG bA bB
     in eContainment + eABbdix
 
 -- A and B tangent, B outside A
-eBoutAtangent :: Autofloat a => Polygon a -> Polygon a -> a -> a
-eBoutAtangent bA bB ofs = let
-    eDisjoint = eABdisj bA bB ofs
-    eABbdix = dsqGG bA bB ofs
+eBoutAtangent :: Autofloat a => Polygon a -> Polygon a -> a
+eBoutAtangent bA bB = let
+    eDisjoint = eABdisj bA bB
+    eABbdix = dsqGG bA bB
     in eDisjoint + eABbdix
+-}
+
+---- Energies defined on polygon size (diameter) ----
+
+eMaxSize :: Autofloat a => Polygon a -> a -> a
+eMaxSize poly size = let
+    d = getDiameter poly
+    in (**2) $ max 0 $ d - size
+
+eMinSize :: Autofloat a => Polygon a -> a -> a
+eMinSize poly size = let
+    d = getDiameter poly
+    in (**2) $ max 0 $ size - d
+
+eSameSize :: Autofloat a => Polygon a -> Polygon a -> a
+eSameSize bA bB = let
+    d1 = getDiameter bA
+    d2 = getDiameter bB
+    in (d1 - d2) ** 2
+
+eSmallerThan :: Autofloat a => Polygon a -> Polygon a -> a
+eSmallerThan bA bB = let
+    d1 = getDiameter bA
+    d2 = getDiameter bB
+    in (max 0 $ d1 - d2) ** 2 -- no penalty if d1 <= d2
+
+---- Other energies (related to alignment) ----
+
+-- A and B align along some direction (input angle in degrees)
+-- currently uses center of bbox as position. Could alternatively have a version that lets user specify.
+eAlign :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eAlign bA bB angle = alignPPA (getCenter bA) (getCenter bB) angle
+
+eOrder :: Autofloat a => Polygon a -> Polygon a -> a -> a
+eOrder bA bB angle = orderPPA (getCenter bA) (getCenter bB) angle
+
+---- analytic gradient for dsqPP ---- (not tested) (not in use)
+
+-- using [a] to encode transformation here.
+-- different from HMatrix here bc this one contains DOFs from input (ie. shear term means "amt of shear")
+-- but terms in HMatrix contain numbers combined from DOFs (ie. shear term is some weird combo of shear+scale)
+
+-- input: two points at their original transformation, plus all the transformations that 
+-- brought them here.
+dsqGradPP :: Autofloat a => Pt2 a -> Pt2 a -> [a] -> [a] -> ([a], [a])
+dsqGradPP (px1,py1) (px2,py2) transA transB = let
+    [cx1, cy1, sx1, sy1, kx1, ky1] = transA
+    [cx2, cy2, sx2, sy2, kx2, ky2] = transB
+    term1 = cx2 - cx1 - px1*sx1 - kx1*py1*sx1 + px2*sx2 + kx2*py2*sx2
+    term2 = cy2 - cy1 - ky1*px1*sy1 - py1*(sy1 + kx1*ky1*sy1) + ky2*px2*sy2 + py2*(sy2 + kx2*ky2*sy2)
+    d_kx1 = 2*term1 * (-py1 * sx1) + 2*term2 * (-ky1*py1*sy1)
+    d_ky1 = 2*term2 * (-px1*sy1 - kx1*py1*sy1)
+    d_sx1 = 2*term1 * (-px1 - kx1*py1)
+    d_sy1 = 2*term2 * (-ky1*px1 - (1+kx1*ky1)*py1)
+    d_cx1 = -2 * term1
+    d_cy1 = -2 * term2
+    -- looks like only need to hardcode half of these... anyway,
+    d_kx2 = 2*term1 * (py2 * sx2) + 2*term2 * (ky2*py2*sy2)
+    d_ky2 = 2*term2 * (px2*sy2 + kx2*py2*sy2)
+    d_sx2 = 2*term1 * (px2 + kx2*py2)
+    d_sy2 = 2*term2 * (ky2*px2 + (1+kx2*ky2)*py2)
+    d_cx2 = 2 * term1
+    d_cy2 = 2 * term2
+    in ([d_cx1, d_cy1, d_sx1, d_sy1, d_kx1, d_ky1], 
+        [d_cx2, d_cy2, d_sx2, d_sy2, d_kx2, d_ky2])

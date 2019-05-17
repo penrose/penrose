@@ -242,11 +242,28 @@ objFuncDict = M.fromList
         -- With the new transforms
         ("nearT", nearT),
         ("boundaryIntersect", boundaryIntersect),
+
         ("containsPoly", containsPoly),
         ("disjointPoly", disjointPoly),
+        ("containsPolyPad", containsPolyPad),
+        ("disjointPolyPad", disjointPolyPad),
+        ("padding", padding),
+
         ("containAndTangent", containAndTangent),
         ("disjointAndTangent", disjointAndTangent),
-        ("testPolyFn", testPolyFn)
+        ("containAndTangentPad", containAndTangentPad),
+        ("disjointAndTangentPad", disjointAndTangentPad),
+
+        ("polyOnCanvas", polyOnCanvas),
+        ("maximumSize", maximumSize),
+        ("minimumSize", minimumSize),
+        ("sameSize", sameSize),
+        ("smaller", smaller),
+
+        ("atPoint", atPoint),
+        ("nearPoint", nearPoint),
+        ("alignAlong", alignAlong),
+        ("orderAlong", orderAlong)
 
         -- ("sameX", sameX)
 {-      ("centerLine", centerLine),
@@ -1271,39 +1288,104 @@ randomPolygon [Val (IntV n)] g =
 
 -- Optimize directly on the transform
 nearT :: ObjFn
-nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
-      let tf = getTransform o in
-      distsq (dx tf, dy tf) (x, y) 
+nearT [GPI o, Val (FloatV x), Val (FloatV y)] = let
+      tf = getTransform o 
+      res = distsq (dx tf, dy tf) (x, y) in
+      trace ("nearT energy: " ++ show res) res
 
 boundaryIntersect :: ObjFn
 boundaryIntersect [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      dsqGG p1 p2 0
+      dsqGG p1 p2
 
 containsPoly :: ObjFn
 containsPoly [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eAcontainB p1 p2 0
+      eAcontainB p1 p2
 
 disjointPoly :: ObjFn
 disjointPoly [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eABdisj p1 p2 0
+      eABdisj p1 p2
+
+containsPolyPad :: ObjFn
+containsPolyPad [GPI o1, GPI o2, Val (FloatV ofs)] =
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eBinAPad p1 p2 ofs
+
+disjointPolyPad :: ObjFn
+disjointPolyPad [GPI o1, GPI o2, Val (FloatV ofs)] =
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eBoutAPad p1 p2 ofs
+
+padding :: ObjFn
+padding [GPI o1, GPI o2, Val (FloatV ofs)] =
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      ePad p1 p2 ofs
 
 containAndTangent :: ObjFn
 containAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eBinAtangent p1 p2 0
+      (eAcontainB p1 p2) + (dsqGG p1 p2)
 
 disjointAndTangent :: ObjFn
 disjointAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eBoutAtangent p1 p2 0
+      (eABdisj p1 p2) + (dsqGG p1 p2)
 
-testPolyFn :: ObjFn
-testPolyFn [GPI o1, GPI o2] = 
+disjointAndTangentPad :: ObjFn
+disjointAndTangentPad [GPI o1, GPI o2, Val (FloatV ofs)] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eBoundaryOffsetDisjoint p1 p2 10
+      eBoutAOffs p1 p2 ofs
+
+containAndTangentPad :: ObjFn
+containAndTangentPad [GPI o1, GPI o2, Val (FloatV ofs)] = 
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eBinAOffs p1 p2 ofs
+
+polyOnCanvas :: ObjFn
+polyOnCanvas [GPI o] = let
+      (halfw, halfh) = (r2f canvasWidth / 2, r2f canvasHeight / 2)
+      canv = [(-halfw, -halfh), (halfw, -halfh), (halfw, halfh), (-halfw, halfh)]
+      in eBinAPad (toPoly canv) (getPolygon o) 0
+
+maximumSize :: ObjFn
+maximumSize [GPI o, Val (FloatV s)] = eMaxSize (getPolygon o) s
+
+minimumSize :: ObjFn
+minimumSize [GPI o, Val (FloatV s)] = eMinSize (getPolygon o) s
+
+atPoint :: ObjFn
+atPoint [GPI o, Val (FloatV ox), Val (FloatV oy), Val (FloatV x), Val (FloatV y)] = let
+      tf = getTransformation o
+      in dsqPP (x,y) $ tf ## (ox,oy)
+
+-- make polygon boundary be ofs px away from specified point
+-- Could have many other versions of "near". 
+nearPoint :: ObjFn
+nearPoint [GPI o, Val (FloatV x), Val (FloatV y), Val (FloatV ofs)] = let
+      -- tf = getTransformation o
+      in eOffsP (getPolygon o) (x,y) ofs
+
+sameSize :: ObjFn
+sameSize [GPI o1, GPI o2] = 
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eSameSize p1 p2
+
+smaller :: ObjFn
+smaller [GPI o1, GPI o2] = 
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eSmallerThan p1 p2
+
+alignAlong :: ObjFn
+alignAlong [GPI o1, GPI o2, Val (FloatV angleInDegrees)] = 
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eAlign p1 p2 angleInDegrees
+
+orderAlong :: ObjFn
+orderAlong [GPI o1, GPI o2, Val (FloatV angleInDegrees)] = 
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eOrder p1 p2 angleInDegrees
 
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), 
