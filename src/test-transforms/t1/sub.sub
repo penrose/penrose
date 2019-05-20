@@ -1,0 +1,10 @@
+Set A
+Set B
+Set C
+
+IsSubset(A,B)
+
+Intersect(B,C)
+NotIntersecting(A,C)
+
+AutoLabel All

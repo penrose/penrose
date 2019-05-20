@@ -251,8 +251,8 @@ objFuncDict = M.fromList
 
         ("containAndTangent", containAndTangent),
         ("disjointAndTangent", disjointAndTangent),
-        ("containAndTangentPad", containAndTangentPad),
-        ("disjointAndTangentPad", disjointAndTangentPad),
+        ("containsPolyOfs", containsPolyOfs),
+        ("disjointPolyOfs", disjointPolyOfs),
 
         ("polyOnCanvas", polyOnCanvas),
         ("maximumSize", maximumSize),
@@ -261,7 +261,9 @@ objFuncDict = M.fromList
         ("smaller", smaller),
 
         ("atPoint", atPoint),
+        ("atPoint2", atPoint2),
         ("nearPoint", nearPoint),
+        ("nearPoint2", nearPoint2),
         ("alignAlong", alignAlong),
         ("orderAlong", orderAlong)
 
@@ -1333,15 +1335,15 @@ disjointAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       (eABdisj p1 p2) + (dsqGG p1 p2)
 
-disjointAndTangentPad :: ObjFn
-disjointAndTangentPad [GPI o1, GPI o2, Val (FloatV ofs)] = 
-      let (p1, p2) = (getPolygon o1, getPolygon o2) in
-      eBoutAOffs p1 p2 ofs
-
-containAndTangentPad :: ObjFn
-containAndTangentPad [GPI o1, GPI o2, Val (FloatV ofs)] = 
+containsPolyOfs :: ObjFn
+containsPolyOfs [GPI o1, GPI o2, Val (FloatV ofs)] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eBinAOffs p1 p2 ofs
+
+disjointPolyOfs :: ObjFn
+disjointPolyOfs [GPI o1, GPI o2, Val (FloatV ofs)] = 
+      let (p1, p2) = (getPolygon o1, getPolygon o2) in
+      eBoutAOffs p1 p2 ofs
 
 polyOnCanvas :: ObjFn
 polyOnCanvas [GPI o] = let
@@ -1360,12 +1362,24 @@ atPoint [GPI o, Val (FloatV ox), Val (FloatV oy), Val (FloatV x), Val (FloatV y)
       tf = getTransformation o
       in dsqPP (x,y) $ tf ## (ox,oy)
 
+atPoint2 :: ObjFn
+atPoint2 [GPI o1, Val (FloatV x1), Val (FloatV y1), GPI o2, Val (FloatV x2), Val (FloatV y2)] = let
+      tf1 = getTransformation o1
+      tf2 = getTransformation o2
+      in dsqPP (tf1 ## (x1,y1)) (tf2 ## (x2,y2))
+
 -- make polygon boundary be ofs px away from specified point
 -- Could have many other versions of "near". 
 nearPoint :: ObjFn
 nearPoint [GPI o, Val (FloatV x), Val (FloatV y), Val (FloatV ofs)] = let
       -- tf = getTransformation o
       in eOffsP (getPolygon o) (x,y) ofs
+
+nearPoint2 :: ObjFn
+nearPoint2 [GPI o1, Val (FloatV x1), Val (FloatV y1), GPI o2, Val (FloatV x2), Val (FloatV y2), Val (FloatV ofs)] = let
+      tf1 = getTransformation o1
+      tf2 = getTransformation o2
+      in eOffsPP (tf1 ## (x1,y1)) (tf2 ## (x2,y2)) ofs
 
 sameSize :: ObjFn
 sameSize [GPI o1, GPI o2] = 

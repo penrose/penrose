@@ -11,7 +11,7 @@ import qualified Data.Map.Strict as M
 
 import GHC.Generics
 import Data.Aeson (FromJSON, ToJSON, toJSON)
-import Par
+--import Par
 
 default (Int, Float)
 
@@ -258,7 +258,7 @@ closestPointPG p poly = let
         d1 = dsqPP p1 p
         d2 = dsqPP p2 p
         in if d1 <= d2 then p1 else p2
-    in reduce redf (cps!!0) cps
+    in foldl' redf (cps!!0) cps -- reduce?
 
 normS :: Autofloat a => LineSeg a -> Pt2 a
 normS (p1, p2) = normalize' $ rot90 $ p2 -: p1
@@ -463,7 +463,7 @@ orderPPA :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
 orderPPA a b angle = let
     angle_radians = angle * pi / 180.0
     dir = (cos angle_radians, sin angle_radians)
-    in (**2) $ max 0 $ (b `dotv` dir) - (a `dotv` dir)
+    in (**2) $ max 0 $ (a `dotv` dir) - (b `dotv` dir)
 
 -- samples per polygon
 numSamples :: Int
@@ -532,6 +532,12 @@ eOffs polyA polyB ofs = let
 eOffsP :: Autofloat a => Polygon a -> Pt2 a -> a -> a
 eOffsP poly pt ofs = let
     d = sqrt $ dsqGP poly pt
+    in (d - ofs)**2
+
+-- energy lowest when polygon boundary is ofs px away.
+eOffsPP :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
+eOffsPP p1 p2 ofs = let
+    d = sqrt $ dsqPP p1 p2
     in (d - ofs)**2
 
 ---- 2 below: Similar to above, but energy lowest when minimum/maximum signed distance is at least ofs pixels.
