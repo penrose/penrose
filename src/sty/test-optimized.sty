@@ -1,15 +1,15 @@
 Set x {
     x.shape = Circle {
-      stroke-width = 0
-      r = OPTIMIZED
+      stroke-width : 0
+      r : ?
     }
 
     x.text = Text {
-      string = x.label
+      string : x.label
     }
 
     -- x.text = Text {
-    -- string = "test Style warnings"
+    -- string : "test Style warnings"
     -- }
 
     x.centerFn = encourage center(x.shape)
@@ -20,10 +20,10 @@ Set x {
 Set x; Set y {
   LOCAL.left = 10.0
   LOCAL.right = 100.0
-  LOCAL.padding = OPTIMIZED
+  LOCAL.padding = ?
 
   LOCAL.paddingFn = ensure inRange(LOCAL.padding, LOCAL.left, LOCAL.right)
   -- Need overlapFn so that betweenFn works
-  LOCAL.overlapFn = ensure nonOverlapping(x.shape, y.shape)
+  LOCAL.overlapFn = ensure disjoint(x.shape, y.shape)
   LOCAL.betweenFn = encourage distBetween(x.shape, y.shape, LOCAL.padding)
 }

@@ -357,11 +357,11 @@ delete   = Delete   <$> (rword "delete"   >> path)
 expr :: Parser Expr
 expr = tryChoice [
            constructor,
+           layeringExpr,
+           arithmeticExpr,
            objFn,
            constrFn,
            transformExpr, -- COMBAK: ordering
-           layeringExpr,
-           arithmeticExpr,
            compFn,
            list,
            tuple,

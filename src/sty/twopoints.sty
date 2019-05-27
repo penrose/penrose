@@ -9,12 +9,12 @@ Colors {
 
 Point p {
   p.shape = Circle {
-    r = 3.0
-    color = Colors.black
-    stroke-width = 0
+    r : 3.0
+    color : Colors.black
+    stroke-width : 0
   }
 
-  p.text = Text { string = p.label }
+  p.text = Text { string : p.label }
 }
 
 Point `a` {
@@ -35,12 +35,12 @@ with Point `a` {
 Set X
 with Point `b` {
   X.shape = Circle {
-    stroke-width = 0
-    color = Colors.pink
-    r = norm_(X.shape.x - `b`.shape.x, X.shape.y -`b`.shape.y)
+    stroke-width : 0
+    color : Colors.pink
+    r : norm_(X.shape.x - `b`.shape.x, X.shape.y -`b`.shape.y)
   }
 
-  X.text = Text { string = X.label }
+  X.text = Text { string : X.label }
   
   X.centerFn = encourage centerLabel(X.shape, X.text)
 }

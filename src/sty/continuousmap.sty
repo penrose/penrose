@@ -11,16 +11,16 @@ Colors {
 
 Set x {
     x.shape = Circle {
-        color = Colors.lightBlue
-        strokeColor = Colors.black
-        strokeStyle = "solid"
-        strokeWidth = 1.0
-        rotation = 0.0
+        color : Colors.lightBlue
+        strokeColor : Colors.black
+        strokeStyle : "solid"
+        strokeWidth : 1.0
+        rotation : 0.0
     }
 
     x.text    = Text {
-      string = x.label
-      rotation = 0.0
+      string : x.label
+      rotation : 0.0
     }
 
     -- TODO
@@ -43,21 +43,21 @@ with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
 
     f.shape = Arrow {
-      startX = R1.shape.x + (R1.shape.side) / 2.0 + f.padding
-      startY = R1.shape.y
-      endX = R2.shape.x - (R2.shape.side) / 2.0 - f.padding
-      endY = R2.shape.y
-      thickness = 2.0
-      color = Colors.black
-        -- style = "curved"
+      startX : R1.shape.x + (R1.shape.side) / 2.0 + f.padding
+      startY : R1.shape.y
+      endX : R2.shape.x - (R2.shape.side) / 2.0 - f.padding
+      endY : R2.shape.y
+      thickness : 2.0
+      color : Colors.black
+        -- style : "curved"
     }
 
     f.text     = Text {
       -- Doesn't seem to work after the first resample. Is the server updating f.text.h on resample?
-      -- x = (f.shape.startX + f.shape.endX) / 2.0
-      -- y = (f.shape.startY + f.shape.endY) / 2.0 + 1.1 * f.text.h
-      string = f.label
-      rotation = 0.0
+      -- x : (f.shape.startX + f.shape.endX) / 2.0
+      -- y : (f.shape.startY + f.shape.endY) / 2.0 + 1.1 * f.text.h
+      string : f.label
+      rotation : 0.0
     }
 
     f.labelFn  = encourage centerLabel(f.shape, f.text, 5.0)
@@ -78,12 +78,12 @@ Set `V` {
 Set `Rn` {
     override `Rn`.shape = Square {
       -- Works but is slow
-      -- x = -100.0
+      -- x : -100.0
       -- y = 0.0
-      color = Colors.lightYellow
-      rotation = 0.0
-      strokeWidth = Const.strokeWidth
-      strokeColor = Colors.black
+      color : Colors.lightYellow
+      rotation : 0.0
+      strokeWidth : Const.strokeWidth
+      strokeColor : Colors.black
     }
 
     `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - Const.padding
@@ -91,18 +91,21 @@ Set `Rn` {
 
     delete `Rn`.labelFn
     delete `Rn`.outsideFn
+    `Rn`.minSizeFn = ensure minSize(`Rn`.shape)
+    `Rn`.maxSizeFn = ensure maxSize(`Rn`.shape)
 }
 
 Set `Rm`
 with Set `Rn` {
     -- TODO: factor this block out
     override `Rm`.shape = Square {
-        color = Colors.lightYellow
-        y = `Rn`.shape.y
-        x = `Rn`.shape.x + 400.0
-        side  = `Rn`.shape.side
-        rotation = 0.0
-        strokeWidth = 1.0
+        color : Colors.lightYellow
+        y : `Rn`.shape.y
+        x : `Rn`.shape.x + 400.0
+        side  : `Rn`.shape.side
+        rotation : 0.0
+        strokeWidth : 1.0
+        strokeColor : Colors.black
     }
 
     `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - Const.padding
@@ -113,4 +116,6 @@ with Set `Rn` {
 
     -- This doesn't seem to work
     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
+    `Rm`.minSizeFn = ensure minSize(`Rm`.shape)
+    `Rm`.maxSizeFn = ensure maxSize(`Rm`.shape)
 }

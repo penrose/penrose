@@ -26,48 +26,48 @@ Scalar c { c.val = sampleReal() }
 
 VectorSpace U {
     U.x_axis = Arrow {
-        -- angle = 0.0
-        -- length = 0.3 * CANVAS.width
-        -- length = 0.3 * 800.0
+        -- angle : 0.0
+        -- length : 0.3 * CANVAS.width
+        -- length : 0.3 * 800.0
     }
 
     U.y_axis = Arrow {
-        -- angle = 90.0
-        -- length = len(U.x_axis)
-        -- pos = midpoint(U.x_axis)
+        -- angle : 90.0
+        -- length : len(U.x_axis)
+        -- pos : midpoint(U.x_axis)
     }
 
     U.shape = Rectangle {
-        -- dim = bbox(U.x_axis, U.y_axis)
-        -- w = bboxWidth(U.x_axis, U.y_axis)
-        -- h = bboxHeight(U.x_axis, U.y_axis)
+        -- dim : bbox(U.x_axis, U.y_axis)
+        -- w : bboxWidth(U.x_axis, U.y_axis)
+        -- h : bboxHeight(U.x_axis, U.y_axis)
     }
     U.containFn = ensure contains(U.shape, U.x_axis)
 
     -- U.origin = AnchorPoint {
-        -- -- location = intersection(U.x_axis, U.y_axis)
-        -- x = intersectionX(U.x_axis, U.y_axis)
-        -- y = intersectionY(U.x_axis, U.y_axis)
+        -- -- location : intersection(U.x_axis, U.y_axis)
+        -- x : intersectionX(U.x_axis, U.y_axis)
+        -- y : intersectionY(U.x_axis, U.y_axis)
     -- }
 
     -- U.angle = Arc {
-        -- from = U.x_axis
-        -- to = U.y_axis
+        -- from : U.x_axis
+        -- to : U.y_axis
     -- }
 
-    U.text = Text { string = U.label }
+    U.text = Text { string : U.label }
     U.topRightFn = encourage topRightOf(U.text, U.shape)
     U.labelFn    = ensure contains(U.shape, U.text)
 }
 
 LinearMap f; VectorSpace U, V
 where From(f, U, V) {
-    f.val = sampleMatrix(2, 2)   -- could be optimized
+    f.val = sampleMatrix(2, 2)   -- could be ?
 
     f.shape = Arrow {
-        -- from = U.shape
-        -- to = V.shape
-        style = LineStyles.curved
+        -- from : U.shape
+        -- to : V.shape
+        style : LineStyles.curved
     }
 
     f.text = Text { }
@@ -82,9 +82,9 @@ where In(v, V) {
     v.val = sampleVectorIn(V.shape)
 
     v.shape = Arrow {
-        -- tail = V.origin
-        head = v.val
-        color = Colors.blue
+        -- tail : V.origin
+        head : v.val
+        color : Colors.blue
     }
 
     v.text = Text { }
@@ -101,15 +101,15 @@ where u := addV(v, w); In(u, U); In(v, U); In(w, U) {
     -- u.shape.head is auto-set to the value at runtime
 
     u.slider_v = Arrow {
-        tail = w.val
-        head = u.val
-        color = Colors.gray
+        tail : w.val
+        head : u.val
+        color : Colors.gray
     }
 
     u.slider_w = Arrow {
-        tail = v.val
-        head = u.val
-        color = Colors.gray
+        tail : v.val
+        head : u.val
+        color : Colors.gray
     }
 }
 
@@ -131,8 +131,8 @@ where c := norm(v); In(v, V) {
     override c.val = len(v.shape)
 
     c.shape = CurlyBrace {
-        -- along = v.shape
-        color = Colors.gray
+        -- along : v.shape
+        color : Colors.gray
     }
 
     c.text = Text { }
@@ -147,9 +147,9 @@ where c := determinant(v, w); In(v, V); In(w, V) {
     override c.val = determinant(v.val, w.val)
 
     c.shape = Parallelogram {
-        -- side1 = v.shape
-        -- side2 = w.shape
-        opacity = 0.5
+        -- side1 : v.shape
+        -- side2 : w.shape
+        opacity : 0.5
     }
 
     c.text = Text { }
