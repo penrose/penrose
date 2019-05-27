@@ -266,7 +266,6 @@ instance Show (Numeric.AD.Internal.On.On
                                 s (Numeric.AD.Internal.Sparse.Sparse a))) where
          show a = "error: not sure how to derive show for hessian element"
 
--- appHess :: (Num a) => (forall b . (Num b) => [b] -> b) -> [a] -> [[a]]
 appHess :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [[a]]
 appHess f l = hessian f l
 
@@ -279,7 +278,7 @@ gradP config bfgsParams gradEval f state =
       GradientDescent -> (gradEval, bfgsParams)
 
       Newton -> -- Precondition gradient with the pseudoinverse of the hessian
-          let h = hessian f state
+          let h = appHess f state
               h_list = (map r2f $ concat h) :: [Double]
               hinv = L.pinv $ L.matrix (length gradEval) $ h_list
               gradPreconditioned = hinv L.#> (L.vector gradEval) in

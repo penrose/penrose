@@ -325,30 +325,30 @@ defaultValueOf g prop (t, propDict) =
 
 type ComputedValue a = ([Property], [Value a] -> Value a)
 
--- TODO: should this be data or code? Used to be a map
-findComputedProperty :: (Autofloat a) => ShapeTypeStr -> Property -> Maybe (ComputedValue a)
-findComputedProperty "RectangleTransform" "transformation" = Just rectTransformFn
-findComputedProperty "CircleTransform" "transformation" = Just circTransformFn
-findComputedProperty "Polygon" "transformation" = Just polygonTransformFn
-findComputedProperty "CurveTransform" "transformation" = Just polygonTransformFn -- Same parameters as polygon
-findComputedProperty "LineTransform" "transformation" = Just polygonTransformFn -- Same parameters as polygon
-findComputedProperty "SquareTransform" "transformation" = Just squareTransformFn
-findComputedProperty "ImageTransform" "transformation" = Just imageTransformFn
-findComputedProperty "EllipseTransform" "transformation" = Just ellipseTransformFn
-findComputedProperty "ParallelogramTransform" "transformation" = Just parallelogramTransformFn
-findComputedProperty "TextTransform" "transformation" = Just textTransformFn
-findComputedProperty "RectangleTransform" "polygon" = Just rectPolygonFn
-findComputedProperty "CircleTransform" "polygon" = Just circPolygonFn
-findComputedProperty "CurveTransform" "polygon" = Just curvePolygonFn
-findComputedProperty "Polygon" "polygon" = Just polygonPolygonFn
-findComputedProperty "LineTransform" "polygon" = Just linePolygonFn
-findComputedProperty "SquareTransform" "polygon" = Just squarePolygonFn
-findComputedProperty "ImageTransform" "polygon" = Just imagePolygonFn
-findComputedProperty "EllipseTransform" "polygon" = Just ellipsePolygonFn
-findComputedProperty "ParallelogramTransform" "polygon" = Just parallelogramPolygonFn
-findComputedProperty "TextTransform" "polygon" = Just textPolygonFn
-
-findComputedProperty _ _ = Nothing
+computedProperties :: (Autofloat a) => M.Map (ShapeTypeStr, Property) (ComputedValue a)
+computedProperties = M.fromList [(("RectangleTransform", "transformation"), rectTransformFn),
+                                 (("CircleTransform", "transformation"), circTransformFn),
+                                 (("Polygon", "transformation"), polygonTransformFn),
+                                 (("CurveTransform", "transformation"), polygonTransformFn),
+                                                     -- Same parameters as polygon
+                                 (("LineTransform", "transformation"), polygonTransformFn),
+                                                    -- Same parameters as polygon
+                                 (("SquareTransform", "transformation"), squareTransformFn),
+                                 (("ImageTransform", "transformation"), imageTransformFn),
+                                 (("EllipseTransform", "transformation"), ellipseTransformFn),
+                                 (("ParallelogramTransform", "transformation"), parallelogramTransformFn),
+                                 (("TextTransform", "transformation"), textTransformFn),
+                                 (("RectangleTransform", "polygon"), rectPolygonFn),
+                                 (("CircleTransform", "polygon"), circPolygonFn),
+                                 (("CurveTransform", "polygon"), curvePolygonFn),
+                                 (("Polygon", "polygon"), polygonPolygonFn),
+                                 (("LineTransform", "polygon"), linePolygonFn),
+                                 (("SquareTransform", "polygon"), squarePolygonFn),
+                                 (("ImageTransform", "polygon"), imagePolygonFn),
+                                 (("EllipseTransform", "polygon"), ellipsePolygonFn),
+                                 (("ParallelogramTransform", "polygon"), parallelogramPolygonFn),
+                                 (("TextTransform", "polygon"), textPolygonFn)
+                                ]
 
 rectTransformFn :: (Autofloat a) => ComputedValue a
 rectTransformFn = (props, fn)

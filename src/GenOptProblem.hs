@@ -108,8 +108,9 @@ instance Show BfgsParams where
                   "\nlastState: \n" ++ ppShow (lastState s) ++
                   "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
                   "\ninvH: \n" ++ ppShow (invH s) ++
-                  "\ns_list:\n" ++ ppShow (s_list s) ++
-                  "\ny_list:\n" ++ ppShow (y_list s) ++
+                  -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
+                  -- "\ns_list:\n" ++ ppShow (s_list s) ++
+                  -- "\ny_list:\n" ++ ppShow (y_list s) ++
                   "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
                   "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
 
@@ -646,7 +647,7 @@ evalExpr (i, n) arg trans varyMap g =
 
                   PropertyPath bvar field property ->
                       let gpiType = shapeType bvar field trans in
-                      case findComputedProperty gpiType property of 
+                      case M.lookup (gpiType, property) computedProperties of 
                       Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
                       Nothing -> -- Compute the path as usual
                           let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
@@ -712,33 +713,15 @@ applyCombined penaltyWeight fns =
 
 -- Main function: generates the objective function, partially applying it with some info
 
-containsRaw :: (Autofloat a) => [a] -> a
-containsRaw [r2, x2, y2, r1, x1, y1] = (penalty (dist (x1, y1) (x2, y2) - (r1 - r2)) + penalty (20 - r1) + penalty (20 - r2))
--- Note the ordering of the shapes
-
--- evalExprGraph 
--- Paths can occur anywhere though...
-
--- traverseT :: (Autofloat a) => Translation a -> [Fn] -> [Fn] -> [Path] -> a
--- traverseT trans objfns constrfns varyingPaths =
---          let allArgs = concatMap fargs (objfns ++ constrfns) in
---          let res = evalExprGraph (head allArgs) in -- Just the first one for now
---          error ("traverse: " ++ show res)
-
 genObjfn :: (Autofloat a)
     => Translation a -> [Fn] -> [Fn] -> [Path]
     -> StdGen -> a -> [a]
     -> a
 genObjfn trans objfns constrfns varyingPaths =
      \rng penaltyWeight varyingVals ->
-          -- let compGraph = traverseT trans objfns constrfns varyingPaths in
-
-          -- constrWeight * penaltyWeight * containsRaw varyingVals
-
          let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
          let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
-         let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
-         tr "Completed applying optimization function" overallEnergy 
+         applyCombined penaltyWeight fnsE
 
 --------------- Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 -- 1. Initialize all varying fields
@@ -1045,7 +1028,7 @@ castTranslation t =
 -- TODO: should this code go in the optimizer?
 
 numStateSamples :: Int
-numStateSamples = 3 --1000
+numStateSamples = 500
 
 -- | Resample the varying state.
 -- | We are intentionally using a monomorphic type (float) and NOT using the translation, to avoid slowness.

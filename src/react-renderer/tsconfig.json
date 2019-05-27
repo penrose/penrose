@@ -22,7 +22,7 @@
         "importHelpers": true,
         "strictNullChecks": true,
         "suppressImplicitAnyIndexErrors": true,
-        "noUnusedLocals": false
+        "noUnusedLocals": true
     },
     "formatCodeOptions": {
         "baseIndentSize": 0,
