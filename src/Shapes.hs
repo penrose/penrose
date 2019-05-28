@@ -54,73 +54,7 @@ data Elem a
 instance (FromJSON a) => FromJSON (Elem a)
 instance (ToJSON a)   => ToJSON (Elem a)
 
---------- Transforms
-
-data Transform a = RotateAbout a a a
-                    -- | Scale a a
-                    | Translate a a
-                    | Rotate a
-                    -- | ScaleX a
-     deriving (Generic, Eq, Show)
-
-instance (FromJSON a) => FromJSON (Transform a)
-instance (ToJSON a)   => ToJSON (Transform a)
-
--- Homogeneous matrix / flat transform type
--- TODO: make it from a list of transforms
--- TODO: specify order of application
-data Transformation a = Transformation { -- Should this be quantified individually?
-     rotation :: a,
-     center_r :: Pt2 a,
-     scaleXY :: Pt2 a,
-     dxy :: Pt2 a
-} deriving (Generic, Eq, Show)
-
-instance (FromJSON a) => FromJSON (Transformation a)
-instance (ToJSON a)   => ToJSON (Transformation a)
-
-idT :: (Autofloat a) => Transformation a -- Identity transformation
-idT = Transformation {
-    rotation = 0.0,
-    center_r = (0.0, 0.0), -- Is this right?
-    scaleXY = (1.0, 1.0),
-    dxy = (0.0, 0.0) 
-}
-
--- TODO: Should this be a map instead of a record?
--- TODO: Should we extend the path type to access these fields? So it would really be a nested map
--- How do we start with an idH matrix?
--- How should the "x" "y" etc properties be treated? Also, where should the init/default values be stored?
--- Perhaps as "x0" "size0"?
--- It also depends on how you want to actually apply the matrix to a shape
--- Given a shape's parameters, need to generate a unit axis-aligned rect at origin, then do 
-
-hmatrixSchema :: (Autofloat a) => PropertiesDef2 a
-hmatrixSchema = M.fromList [
-              ("xScale", (FloatT, constValue $ FloatV 1.0)),
-              ("xSkew", (FloatT, constValue $ FloatV 0.0)),
-              ("ySkew", (FloatT, constValue $ FloatV 0.0)),
-              ("yScale", (FloatT, constValue $ FloatV 1.0)),
-              ("dx", (FloatT, constValue $ FloatV 0.0)),
-              ("dy", (FloatT, constValue $ FloatV 0.0))
-              ]
-
-type HMatrix' a = Properties a
-
-idH' :: (Autofloat a) => HMatrix' a
-idH' = M.fromList [
-     ("xScale", FloatV 1.0),
-     ("xSkew", FloatV 0.0),
-     ("ySkew", FloatV 0.0),
-     ("yScale", FloatV 1.0),
-     ("dx", FloatV 0.0),
-     ("dy", FloatV 0.0)
-     ]
-
-
----------
-
--- Types
+-------------- Types
 
 -- | possible values in the argument of computation, constraint, or objectives
 data ArgVal a = GPI (Shape a) | Val (Value a)
@@ -134,7 +68,6 @@ data ArgType
     | OneOf [ShapeTypeStr]
     | AnyGPI
     deriving (Eq, Show)
-
 
 -- | types of fully evaluated values in Style
 data ValueType
@@ -184,11 +117,9 @@ data Value a
     | TupV (a, a)
     | LListV [[a]]
 
-    -- | single transformation
-         -- TODO: which to use?
-    | TransformV (Transformation a)
+    -- | single transformation (homogeneous transformation)
     | HMatrixV (HMatrix a)
-    | MapV (Properties a)
+
     -- | Multiple shapes with holes
     | PolygonV (Polygon a)
 
@@ -217,9 +148,7 @@ typeOf v = case v of
      ColorV _     -> ColorT
      FileV  _     -> FileT
      StyleV _     -> StyleT
-     TransformV _ -> TransformT
      HMatrixV _ -> HMatrixT
-     MapV _ -> MapT
      PolygonV _ -> PolygonT
 
 -----------------
@@ -250,10 +179,6 @@ toPolyProperty v = case v of
     FileV x   -> FileV x
     StyleV x  -> StyleV x
     PathDataV es -> PathDataV $ map toPolyPath es
-    TransformV t -> TransformV $ Transformation { rotation = r2f $ rotation t,
-                                                  center_r = r2 $ center_r t,
-                                                  scaleXY = r2 $ scaleXY t,
-                                                  dxy = r2 $ dxy t }
     HMatrixV m -> HMatrixV $ HMatrix { xScale = r2f $ xScale m,
                                        xSkew = r2f $ xSkew m,
                                        ySkew = r2f $ ySkew m,
@@ -1091,26 +1016,6 @@ exampleCirc = ("Circle", M.fromList
         ("style", StyleV "filled"),
         ("color", ColorV black)
     ])
-
-------------
-
-rectTransformType' :: (Autofloat a) => ShapeDef' a
-rectTransformType' = ("RectangleTransform", M.fromList
-    [
-        ("x", (FloatT, Left $ constValue $ FloatV 0.0)),
-        ("y", (FloatT, Left $ constValue $ FloatV 0.0)),
-        ("sizeX", (FloatT, Left $ constValue $ FloatV 100.0)), -- TODO should be unit size
-        ("sizeY", (FloatT, Left $ constValue $ FloatV 100.0)),
-        ("rotation", (FloatT, Left $ constValue $ FloatV 0.0)),
-        ("transform", (MapT, Right $ hmatrixSchema)),
-        ("color", (ColorT, Left $ sampleColor)),
-        ("strokeWidth", (FloatT, Left $ stroke_sampler)),
-        ("style", (StrT, Left $ constValue $ StrV "filled")),
-        ("strokeColor", (ColorT, Left $ sampleColor)),
-        ("strokeStyle", (StrT, Left $ constValue $ StrV "none")),
-        ("name", (StrT, Left $ constValue $ StrV "defaultRect"))
-    ]
-    )
 
 --------------------------------------------------------------------------------
 -- Parser for shape def DSL (TODO)
