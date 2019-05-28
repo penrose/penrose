@@ -30,7 +30,7 @@ global {
     -- TODO: compute these more automatically
     -- These numbers (weights on inRange and the range itself) have been heavily tweaked
     -- And it makes convergence hard
-    -- global.scaleFactor = OPTIMIZED
+    -- global.scaleFactor = ?
     -- global.optFn = ensure inRange(global.scaleFactor, 75.0, 150.0)
     global.scaleFactor = 100.0
     -- global.offset = 150.0
@@ -67,29 +67,29 @@ Colors {
 
 -- TODO: this is going to match Subcomplex too... how to fix that?
 SComplex K {
-       K.x_offset = OPTIMIZED
-       K.y_offset = OPTIMIZED
+       K.x_offset = ?
+       K.y_offset = ?
        K.size = 200.0
 
        K.shape = Rectangle {
-       	       x = OPTIMIZED
-	       y = OPTIMIZED
-	       sizeX = K.size
-	       sizeY = K.size
-	       rotation = 0.0
-	       color = Colors.gainsboro
-	       strokeColor = Colors.black
-	       strokeWidth = global.sc_rect_stroke
+       	       x : ?
+	       y : ?
+	       sizeX : K.size
+	       sizeY : K.size
+	       rotation : 0.0
+	       color : Colors.gainsboro
+	       strokeColor : Colors.black
+	       strokeWidth : global.sc_rect_stroke
        }
 
        K.padding = 25.0
 
        K.text = Text {
-	 x = K.shape.x - K.shape.sizeX / 2.0 + K.padding
-	 y = K.shape.y - K.shape.sizeY / 2.0 + K.padding
-	 string = K.label
-	 rotation = 0.0
-	 color = Colors.black
+	 x : K.shape.x - K.shape.sizeX / 2.0 + K.padding
+	 y : K.shape.y - K.shape.sizeY / 2.0 + K.padding
+	 string : K.label
+	 rotation : 0.0
+	 color : Colors.black
        }
 
        K.labelFn = encourage centerLabel(K.shape, K.text)
@@ -114,20 +114,20 @@ with SComplex K {
        v.ypos = ddg[v.name]["y"] * global.scaleFactor
 
        v.shape = Circle { 
-         x = v.xpos -- avoid "x <- f(x)" in override
-	 y = v.ypos
-         r = 0.0
-	 color = Colors.black
-	 strokeWidth = 0.0
+         x : v.xpos -- avoid "x <- f(x)" in override
+	 y : v.ypos
+         r : 0.0
+	 color : Colors.black
+	 strokeWidth : 0.0
        }
 
        -- NOTE: by default, this starts with an empty string, so we only label user-declared vertices
        v.text = Text {
-	 x = v.shape.x + global.padding
-	 y = v.shape.y + global.padding
-	 string = ""
-	 rotation = 0.0
-	 color = v.shape.color
+	 x : v.shape.x + global.padding
+	 y : v.shape.y + global.padding
+	 string : ""
+	 rotation : 0.0
+	 color : v.shape.color
        }
 
        v.layerFnShape = v.shape above K.shape
@@ -144,8 +144,8 @@ with SComplex K {
 
       /*
        -- Optimize the label padding, only for the distinguished vertex
-      v.padding_x = OPTIMIZED
-      v.padding_y = OPTIMIZED
+      v.padding_x = ?
+      v.padding_y = ?
       override v.text.x = v.shape.x + v.padding_x
       override v.text.y = v.shape.y + v.padding_y
 
@@ -173,19 +173,19 @@ Edge e
 where e := MkEdge(v1, v2); InES(e, K)
 with Vertex v1; Vertex v2; SComplex K {
      e.shape = Line { 
-     	     startX = v1.shape.x
-     	     startY = v1.shape.y
-     	     endX = v2.shape.x
-     	     endY = v2.shape.y
-	     color = Colors.black
-	     thickness = global.edgeStroke
+     	     startX : v1.shape.x
+     	     startY : v1.shape.y
+     	     endX : v2.shape.x
+     	     endY : v2.shape.y
+	     color : Colors.black
+	     thickness : global.edgeStroke
      }
 
      -- e.text = Text {
-     --   x = midpointX(e.shape) + global.padding
-     --   y = midpointY(e.shape) + global.padding
-     --   string = e.label
-     --   rotation = 0.0
+     --   x : midpointX(e.shape) + global.padding
+     --   y : midpointY(e.shape) + global.padding
+     --   string : e.label
+     --   rotation : 0.0
      -- }
 
      e.layering1 = v1.shape above e.shape
@@ -199,17 +199,17 @@ with Edge e1; Edge e2; Edge e3; SComplex K {
      f.color = Colors.lightsky
 
      f.shape = Curve { 
-     	     pathData = triangle(e1.shape, e2.shape, e3.shape)
-	     strokeWidth = 0.0
-	     fill = Colors.silver
-	     color = Colors.silver
-	     rotation = 0.0
+     	     pathData : triangle(e1.shape, e2.shape, e3.shape)
+	     strokeWidth : 0.0
+	     fill : Colors.silver
+	     color : Colors.silver
+	     rotation : 0.0
      }
 
      -- f.text = Text {
-     --   string = f.label
-     --   color = f.color
-     --   rotation = 0.0
+     --   string : f.label
+     --   color : f.color
+     --   rotation : 0.0
      -- }
      f.layeringShape = f.shape above K.shape
 }
@@ -357,11 +357,11 @@ where C := Closure(S); IsSubsetOf(S, K); S := StarV(v)
 with SSubset S; SComplex K; Vertex v {
 
        C.text = Text {
-	 x = OPTIMIZED
-	 y = OPTIMIZED
-	 string = C.label
-	 rotation = 0.0
-	 color = global.closureColor
+	 x : ?
+	 y : ?
+	 string : C.label
+	 rotation : 0.0
+	 color : global.closureColor
        }
 
        -- TODO: this actually prefers the center of the shape but it shouldn't

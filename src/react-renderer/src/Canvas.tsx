@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import componentMap from "./componentMap";
 import Log from "./Log";
 import { LockContext } from "./contexts";
-import { collectLabels } from "./Util";
+import { collectLabels, loadImages } from "./Util";
 import {drag, update} from "./packets";
 import {ILayer, ILayerProps} from "./types";
 import {layerMap} from "./layers/layerMap";
@@ -30,23 +30,28 @@ class Canvas extends React.Component<IProps, IState> {
   };
 
   public notEmptyLabel = ([name, shape]: [string, any]) => {
-    return !(name === "Text" && shape.string.contents === "");
+      return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
   public onMessage = async (e: MessageEvent) => {
     const myJSON = JSON.parse(e.data).contents;
     const {flag, shapes, ordering, debugData} = myJSON;
+
     // For final frame
     if (flag === "final") {
       Log.info("Fully optimized.");
     }
-    // Compute (or retrieve from memory) label dimensions
+
+    // Compute (or retrieve from memory) label and image dimensions (as well as the rendered DOM elements)
     const labeledShapes = await collectLabels(shapes);
-    // For initial frame - send dimensions
+    const labeledShapesWithImgs = await loadImages(labeledShapes);
+
+    // For initial frame, send only dimensions to backend (this only sends the Image and Text GPIs)
     if (flag === "initial") {
-      this.sendUpdate(labeledShapes);
+      this.sendUpdate(labeledShapesWithImgs);
     }
-    this.setState({data: this.sortShapes(labeledShapes, ordering), debugData});
+
+    this.setState({data: this.sortShapes(labeledShapesWithImgs, ordering), debugData});
   };
 
   public dragEvent = (id: string, dy: number, dx: number) => {
@@ -205,10 +210,13 @@ class Canvas extends React.Component<IProps, IState> {
   public render() {
     const {lock, layers} = this.props;
     const {data, debugData} = this.state;
+
     if (data.length === undefined) {
       return <svg />;
     }
-    const nonEmpties = data.filter(this.notEmptyLabel);
+
+      const nonEmpties = data.filter(this.notEmptyLabel);
+
     return (
       <LockContext.Provider value={lock}>
         <svg

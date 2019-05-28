@@ -17,6 +17,7 @@ import qualified ShadowMain.Tests
 import qualified Functions.Tests
 import qualified Shapes.Tests
 import qualified Utils.Tests
+import qualified Transforms.Tests
 -- import qualified Substance.Tests
 -- import qualified Style.Tests
 import qualified Server.Tests
@@ -29,6 +30,7 @@ tests = testGroup "Tests"
         Functions.Tests.tests,
         Shapes.Tests.tests,
         Utils.Tests.tests,
+        Transforms.Tests.tests,
         -- NOTE: need better test cases since we cannot parse Substance nor Style progs without element progs
         -- Substance.Tests.tests,
         -- Style.Tests.tests,

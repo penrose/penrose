@@ -5,11 +5,16 @@
 module Shapes where
 
 import Utils
+import Transforms
 import System.Random
 import GHC.Generics
+import Data.List (foldl')
 import Data.Aeson (FromJSON, ToJSON, toJSON)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as M
+import Debug.Trace
+
+default (Int, Float)
 
 -- import Language.Haskell.TH
 --
@@ -49,6 +54,87 @@ data Elem a
 instance (FromJSON a) => FromJSON (Elem a)
 instance (ToJSON a)   => ToJSON (Elem a)
 
+--------- Transforms
+
+data Transform a = RotateAbout a a a
+                    -- | Scale a a
+                    | Translate a a
+                    | Rotate a
+                    -- | ScaleX a
+     deriving (Generic, Eq, Show)
+
+instance (FromJSON a) => FromJSON (Transform a)
+instance (ToJSON a)   => ToJSON (Transform a)
+
+-- Homogeneous matrix / flat transform type
+-- TODO: make it from a list of transforms
+-- TODO: specify order of application
+data Transformation a = Transformation { -- Should this be quantified individually?
+     rotation :: a,
+     center_r :: Pt2 a,
+     scaleXY :: Pt2 a,
+     dxy :: Pt2 a
+} deriving (Generic, Eq, Show)
+
+instance (FromJSON a) => FromJSON (Transformation a)
+instance (ToJSON a)   => ToJSON (Transformation a)
+
+idT :: (Autofloat a) => Transformation a -- Identity transformation
+idT = Transformation {
+    rotation = 0.0,
+    center_r = (0.0, 0.0), -- Is this right?
+    scaleXY = (1.0, 1.0),
+    dxy = (0.0, 0.0) 
+}
+
+-- TODO: Should this be a map instead of a record?
+-- TODO: Should we extend the path type to access these fields? So it would really be a nested map
+-- How do we start with an idH matrix?
+-- How should the "x" "y" etc properties be treated? Also, where should the init/default values be stored?
+-- Perhaps as "x0" "size0"?
+-- It also depends on how you want to actually apply the matrix to a shape
+-- Given a shape's parameters, need to generate a unit axis-aligned rect at origin, then do 
+
+hmatrixSchema :: (Autofloat a) => PropertiesDef2 a
+hmatrixSchema = M.fromList [
+              ("xScale", (FloatT, constValue $ FloatV 1.0)),
+              ("xSkew", (FloatT, constValue $ FloatV 0.0)),
+              ("ySkew", (FloatT, constValue $ FloatV 0.0)),
+              ("yScale", (FloatT, constValue $ FloatV 1.0)),
+              ("dx", (FloatT, constValue $ FloatV 0.0)),
+              ("dy", (FloatT, constValue $ FloatV 0.0))
+              ]
+
+type HMatrix' a = Properties a
+
+idH' :: (Autofloat a) => HMatrix' a
+idH' = M.fromList [
+     ("xScale", FloatV 1.0),
+     ("xSkew", FloatV 0.0),
+     ("ySkew", FloatV 0.0),
+     ("yScale", FloatV 1.0),
+     ("dx", FloatV 0.0),
+     ("dy", FloatV 0.0)
+     ]
+
+
+---------
+
+-- Types
+
+-- | possible values in the argument of computation, constraint, or objectives
+data ArgVal a = GPI (Shape a) | Val (Value a)
+     deriving (Eq, Show, Generic)
+
+ -- | possible types in the argument of computation, constraint, or objectives.
+ -- Used for type checking functions
+data ArgType
+    = GPIType ShapeTypeStr
+    | ValueT ValueType
+    | OneOf [ShapeTypeStr]
+    | AnyGPI
+    deriving (Eq, Show)
+
 
 -- | types of fully evaluated values in Style
 data ValueType
@@ -58,10 +144,17 @@ data ValueType
     | StrT
     | PtT
     | PtListT
+    | ListT
+    | TupT
+    | LListT
     | PathDataT
     | ColorT
     | FileT
     | StyleT
+    | TransformT
+    | HMatrixT
+    | MapT
+    | PolygonT
     deriving (Eq, Show)
 
 -- | fully evaluated values in Style
@@ -86,10 +179,26 @@ data Value a
     | FileV String
     -- | dotted, etc.
     | StyleV String
+    -- | Lists and tuples of floats
+    | ListV [a]
+    | TupV (a, a)
+    | LListV [[a]]
+
+    -- | single transformation
+         -- TODO: which to use?
+    | TransformV (Transformation a)
+    | HMatrixV (HMatrix a)
+    | MapV (Properties a)
+    -- | Multiple shapes with holes
+    | PolygonV (Polygon a)
+
     deriving (Generic, Eq, Show)
 
 instance (FromJSON a) => FromJSON (Value a)
 instance (ToJSON a)   => ToJSON (Value a)
+
+instance (FromJSON a) => FromJSON (ArgVal a)
+instance (ToJSON a)   => ToJSON (ArgVal a)
 
 -- | returns the type of a 'Value'
 typeOf :: (Autofloat a) => Value a -> ValueType
@@ -100,16 +209,30 @@ typeOf v = case v of
      StrV   _     -> StrT
      PtV    _     -> PtT
      PtListV    _ -> PtListT
+     TupV _ -> TupT
+     ListV _ -> ListT
+     LListV _ -> LListT
+     
      PathDataV  _ -> PathDataT
      ColorV _     -> ColorT
      FileV  _     -> FileT
      StyleV _     -> StyleT
+     TransformV _ -> TransformT
+     HMatrixV _ -> HMatrixT
+     MapV _ -> MapT
+     PolygonV _ -> PolygonT
+
+-----------------
 
 toPolymorphics :: [Shape Double] -> (forall a . (Autofloat a) => [Shape a])
 toPolymorphics = map toPolymorphic
 
 toPolymorphic :: Shape Double -> (forall a . (Autofloat a) => Shape a)
 toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
+
+toPolyArgVal :: ArgVal Double -> (forall a . (Autofloat a) => ArgVal a)
+toPolyArgVal (GPI x) = GPI $ toPolymorphic x
+toPolyArgVal (Val x) = Val $ toPolyProperty x
 
 toPolyProperty :: Value Double -> (forall a . (Autofloat a) => Value a)
 toPolyProperty v = case v of
@@ -118,12 +241,29 @@ toPolyProperty v = case v of
     BoolV x   -> BoolV x
     StrV x    -> StrV x
     IntV x    -> IntV x
-    PtV (x,y) -> PtV (r2f x, r2f y)
-    PtListV xs  -> PtListV $ map (\(x,y) -> (r2f x, r2f y)) xs
+    PtV p -> PtV $ r2 p
+    PtListV xs  -> PtListV $ map r2 xs
+    ListV xs -> ListV $ map r2f xs
+    TupV x -> TupV $ r2 x
+    LListV xs -> LListV $ map (map r2f) xs
     ColorV x  -> ColorV x
     FileV x   -> FileV x
     StyleV x  -> StyleV x
     PathDataV es -> PathDataV $ map toPolyPath es
+    TransformV t -> TransformV $ Transformation { rotation = r2f $ rotation t,
+                                                  center_r = r2 $ center_r t,
+                                                  scaleXY = r2 $ scaleXY t,
+                                                  dxy = r2 $ dxy t }
+    HMatrixV m -> HMatrixV $ HMatrix { xScale = r2f $ xScale m,
+                                       xSkew = r2f $ xSkew m,
+                                       ySkew = r2f $ ySkew m,
+                                       yScale = r2f $ yScale m,
+                                       dx = r2f $ dx m,
+                                       dy = r2f $ dy m
+                                     }
+    PolygonV (b, h, bbox, samples) -> PolygonV $ (
+        map (map r2) b, map (map r2) h, map2 r2 bbox, map r2 samples)
+    where r2 (x, y) = (r2f x, r2f y)
 
 toPolyPath :: Path' Double -> (forall a . (Autofloat a) => Path' a)
 toPolyPath (Closed es) = Closed $ map toPolyElem es
@@ -142,8 +282,19 @@ type ShapeTypeStr = String
 -- | the string identifier of a property
 type PropID = String
 
+--------- new
+type PropertiesDef2 a = M.Map PropID (ValueType, SampledValue a)
+-- | Mutually recursive types because we might want to nest a definition of properties (e.g. A.shape.center.x)
+type PropertyValue a = Either (SampledValue a) (PropertiesDef2 a)
+
+-- | A dict storing names, types, and default values of properties
+type PropertiesDef1 a = M.Map PropID (ValueType, PropertyValue a)
+type ShapeDef' a = (ShapeTypeStr, PropertiesDef1 a)
+----------
+
 -- | A dict storing names, types, and default values of properties
 type PropertiesDef a = M.Map PropID (ValueType, SampledValue a)
+
 -- | definition of a new shape/graphical primitive
 -- TODO: rewrite as a record?
 type ShapeDef a = (ShapeTypeStr, PropertiesDef a)
@@ -167,7 +318,8 @@ shapeDefs = M.fromList $ zipWithKey shapeDefList
     where zipWithKey = map (\x -> (fst x, x))
 
 shapeDefList :: (Autofloat a) => [ShapeDef a]
-shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType ]
+
+shapeDefList = [ anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, ellipseTransformType, parallelogramTransformType, textTransformType ]
 
 -- | retrieve type strings of all shapes
 shapeTypes :: (Autofloat a) => ShapeDefs a -> [ShapeTypeStr]
@@ -191,6 +343,227 @@ defaultValueOf g prop (t, propDict) =
             (noPropError "defaultValueOf" prop t)
             (M.lookup prop propDict)
     in sampleF g
+
+--------------------------------------------------------------------------------
+-- Computing derived properties
+
+-- Initially, a computed property starts with the initial value specified in the shape initialized (e.g. idH)
+
+-- To say that a property is computed: add it to the list in `computedProperties`
+-- to say how it is computed: specify the input properties of the shape and write a function that expects them and returns a value
+-- Note: DOFs are preserved through this
+
+-- How this feature is implemented: see `computeProperty` in GenOptProblem, which is called by `evalExpr` (as well as anything that calls `evalExpr`, like `evalShape` and `initShape`
+-- evalExpr, for a PropertyPath X.f.p, checks if p is in computedProperties for the type of X.f.
+-- If so, it evaluates the GPI properties requested by the function, passes the values to the function, and returns the value the function returns
+-- If not, then it evaluates the path as usual (by looking up its expr and evaluating it)
+-- TODO: move implementation documentation to the wiki and PR
+
+type ComputedValue a = ([Property], [Value a] -> Value a)
+
+computedProperties :: (Autofloat a) => M.Map (ShapeTypeStr, Property) (ComputedValue a)
+computedProperties = M.fromList [(("RectangleTransform", "transformation"), rectTransformFn),
+                                 (("CircleTransform", "transformation"), circTransformFn),
+                                 (("Polygon", "transformation"), polygonTransformFn),
+                                 (("CurveTransform", "transformation"), polygonTransformFn),
+                                                     -- Same parameters as polygon
+                                 (("LineTransform", "transformation"), polygonTransformFn),
+                                                    -- Same parameters as polygon
+                                 (("SquareTransform", "transformation"), squareTransformFn),
+                                 (("ImageTransform", "transformation"), imageTransformFn),
+                                 (("EllipseTransform", "transformation"), ellipseTransformFn),
+                                 (("ParallelogramTransform", "transformation"), parallelogramTransformFn),
+                                 (("TextTransform", "transformation"), textTransformFn),
+                                 (("RectangleTransform", "polygon"), rectPolygonFn),
+                                 (("CircleTransform", "polygon"), circPolygonFn),
+                                 (("CurveTransform", "polygon"), curvePolygonFn),
+                                 (("Polygon", "polygon"), polygonPolygonFn),
+                                 (("LineTransform", "polygon"), linePolygonFn),
+                                 (("SquareTransform", "polygon"), squarePolygonFn),
+                                 (("ImageTransform", "polygon"), imagePolygonFn),
+                                 (("EllipseTransform", "polygon"), ellipsePolygonFn),
+                                 (("ParallelogramTransform", "polygon"), parallelogramPolygonFn),
+                                 (("TextTransform", "polygon"), textPolygonFn)
+                                ]
+
+rectTransformFn :: (Autofloat a) => ComputedValue a
+rectTransformFn = (props, fn)
+    where props = ["sizeX", "sizeY", "rotation", "x", "y", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV sizeX, FloatV sizeY, FloatV rotation, 
+              FloatV x, FloatV y, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (sizeX, sizeY, rotation, x, y) in
+             HMatrixV $ customTransform # defaultTransform
+
+polygonTransformFn :: (Autofloat a) => ComputedValue a
+polygonTransformFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV dx, FloatV dy, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
+             HMatrixV $ customTransform # defaultTransform
+
+circTransformFn :: (Autofloat a) => ComputedValue a
+circTransformFn = (props, fn)
+    where props = ["x", "y", "r", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV r, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (r, r, 0.0, x, y) in
+             HMatrixV $ customTransform # defaultTransform
+
+squareTransformFn :: (Autofloat a) => ComputedValue a
+squareTransformFn = (props, fn)
+    where props = ["x", "y", "side", "rotation", "transform"]
+          fn :: (Autofloat a ) => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV side, FloatV rotation, HMatrixV customTransform] =
+             let defaultTransform = paramsToMatrix (side, side, rotation, x, y) in
+             HMatrixV $ customTransform # defaultTransform
+
+imageTransformFn :: Autofloat a => ComputedValue a
+imageTransformFn = (props, fn)
+    where props = ["centerX", "centerY", "scaleX", "scaleY", "rotation", "transform"]
+          fn :: (Autofloat a ) => [Value a] -> Value a
+          fn [FloatV centerX, FloatV centerY, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, centerX, centerY) in
+             HMatrixV $ customTransform # defaultTransform
+
+ellipseTransformFn :: Autofloat a => ComputedValue a
+ellipseTransformFn = (props, fn)
+    where props = ["x", "y", "rx", "ry", "rotation", "transform"]
+          fn :: Autofloat a => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV rx, FloatV ry, FloatV rotation, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (rx, ry, rotation, x, y) in
+             HMatrixV $ customTransform # defaultTransform
+
+textTransformFn :: Autofloat a => ComputedValue a
+textTransformFn = (props, fn)
+    where props = ["x", "y", "scaleX", "scaleY", "rotation", "transform"]
+          fn :: (Autofloat a ) => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
+             -- Note that this overall transformation does NOT use the "w" and "h" parameters set by the frontend
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, x, y) in
+             HMatrixV $ customTransform # defaultTransform
+
+parallelogramTransformFn :: (Autofloat a) => ComputedValue a
+parallelogramTransformFn = (props, fn)
+    where props = ["width", "height", "rotation", "x", "y", "innerAngle", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV width, FloatV height, FloatV rotation, 
+              FloatV x, FloatV y, FloatV innerAngle, HMatrixV customTransform] = 
+             let defaultTransform = toParallelogram (width, height, rotation, x, y, innerAngle) in
+             HMatrixV $ customTransform # defaultTransform
+
+-- TODO: there's a bit of redundant computation with recomputing the full transformation
+rectPolygonFn :: (Autofloat a) => ComputedValue a
+rectPolygonFn = (props, fn)
+    where props = ["sizeX", "sizeY", "rotation", "x", "y", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV sizeX, FloatV sizeY, FloatV rotation, 
+              FloatV x, FloatV y, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (sizeX, sizeY, rotation, x, y) in
+             let fullTransform = customTransform # defaultTransform in
+             PolygonV $ transformPoly fullTransform $ toPoly unitSq
+
+polygonPolygonFn :: (Autofloat a) => ComputedValue a
+polygonPolygonFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "points"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV dx, FloatV dy, HMatrixV customTransform, PolygonV points] = 
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
+             let fullTransform = customTransform # defaultTransform in
+             PolygonV $ transformPoly fullTransform points
+
+circPolygonFn :: (Autofloat a) => ComputedValue a
+circPolygonFn = (props, fn)
+    where props = ["x", "y", "r", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV r, HMatrixV customTransform] = 
+             let defaultTransform = paramsToMatrix (r, r, 0.0, x, y) in
+             let fullTransform = customTransform # defaultTransform in
+             let res = PolygonV $ transformPoly fullTransform $ toPoly $ circlePoly r in
+             {-trace ("getting circle polygon output: " ++ show res)-} res
+
+-- | Polygonize a Bezier curve, even if the curve was originally made using a list of points.
+-- TODO: distinguish between filled curves (polygons) and unfilled ones (polylines)
+curvePolygonFn :: (Autofloat a) => ComputedValue a
+curvePolygonFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "pathData", "strokeWidth",  "left-arrowhead", "right-arrowhead"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV dx, FloatV dy, HMatrixV customTransform, PathDataV path, 
+              FloatV strokeWidth, BoolV leftArrow, BoolV rightArrow] = 
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
+             let fullTransform = customTransform # defaultTransform in
+             PolygonV $ transformPoly fullTransform $ toPoly $ polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
+             where maxIter = 1 -- TODO: what should this be?
+
+-- | Polygonize a line segment, accounting for its thickness. 
+-- TODO: would it usually be more efficient to just use a polyline?
+linePolygonFn :: (Autofloat a) => ComputedValue a
+linePolygonFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "dx", "dy", "transform", "thickness", "startX", "startY", "endX", "endY", "left-arrowhead", "right-arrowhead"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV dx, FloatV dy, HMatrixV customTransform,
+              FloatV thickness, FloatV startX, FloatV startY, FloatV endX, FloatV endY,
+              BoolV leftArrow, BoolV rightArrow] = 
+             let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy) in
+             let fullTransform = customTransform # defaultTransform in
+             PolygonV $ transformPoly fullTransform $ toPoly $ extrude thickness (startX, startY) (endX, endY) leftArrow rightArrow
+
+-- TODO: add ones for final properties; also refactor so it's more generic across shapes
+squarePolygonFn :: (Autofloat a) => ComputedValue a
+squarePolygonFn = (props, fn)
+    where props = ["x", "y", "side", "rotation", "transform"]
+          fn :: (Autofloat a ) => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV side, FloatV rotation, HMatrixV customTransform] = let
+              defaultTransform = paramsToMatrix (side, side, rotation, x, y)
+              fullTransform = customTransform # defaultTransform
+              in PolygonV $ transformPoly fullTransform $ toPoly unitSq
+
+imagePolygonFn :: Autofloat a => ComputedValue a
+imagePolygonFn = (props, fn)
+    where props = ["centerX", "centerY", "scaleX", "scaleY", "rotation", "transform", "initWidth", "initHeight"]
+          fn :: (Autofloat a ) => [Value a] -> Value a
+          fn [FloatV centerX, FloatV centerY, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform, FloatV initWidth, FloatV initHeight] = let
+             -- Note that the unit square is implicitly scaled to (w, h)
+             -- (from the frontend) before having the default transform applied
+             defaultTransform = paramsToMatrix (scaleX * initWidth, scaleY * initHeight, rotation, centerX, centerY)
+             fullTransform = customTransform # defaultTransform 
+             in PolygonV $ transformPoly fullTransform $ toPoly unitSq
+
+ellipsePolygonFn :: Autofloat a => ComputedValue a
+ellipsePolygonFn = (props, fn)
+    where props = ["x", "y", "rx", "ry", "rotation", "transform"]
+          fn :: Autofloat a => [Value a] -> Value a
+          fn [FloatV x, FloatV y, FloatV rx, FloatV ry, FloatV rotation, HMatrixV customTransform] = let
+             defaultTransform = paramsToMatrix (rx, ry, rotation, x, y)
+             fullTransform = customTransform # defaultTransform 
+             in PolygonV $ transformPoly fullTransform $ toPoly $ circlePoly 1
+
+parallelogramPolygonFn :: (Autofloat a) => ComputedValue a
+parallelogramPolygonFn = (props, fn)
+    where props = ["width", "height", "rotation", "x", "y", "innerAngle", "transform"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV width, FloatV height, FloatV rotation, 
+              FloatV x, FloatV y, FloatV innerAngle, HMatrixV customTransform] = 
+             let defaultTransform = toParallelogram (width, height, rotation, x, y, innerAngle) in
+             let fullTransform = customTransform # defaultTransform in
+             PolygonV $ transformPoly fullTransform $ toPoly unitSq
+
+textPolygonFn :: (Autofloat a) => ComputedValue a
+textPolygonFn = (props, fn)
+    where props = ["scaleX", "scaleY", "rotation", "x", "y", "transform", "w", "h"]
+          fn :: (Autofloat a) => [Value a] -> Value a
+          fn [FloatV scaleX, FloatV scaleY, FloatV rotation, 
+              FloatV x, FloatV y, HMatrixV customTransform, FloatV w, FloatV h] = 
+             -- Note that the unit square is implicitly scaled to (w, h)
+             -- (from the frontend) before having the default transform applied
+             let defaultTransform = paramsToMatrix (scaleX * w, scaleY * h, rotation, x, y) in
+             let fullTransform = customTransform # defaultTransform in
+             PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
 --------------------------------------------------------------------------------
 -- Property samplers
@@ -243,7 +616,7 @@ sampleColor rng =
 -- | Samples all properties of input shapes
 sampleShapes :: (Autofloat a) => StdGen -> [Shape a] -> ([Shape a], StdGen)
 sampleShapes g shapes =
-    let (shapes', g') = foldl sampleShape ([], g) shapes
+    let (shapes', g') = foldl' sampleShape ([], g) shapes
     in (reverse shapes', g')
 sampleShape (shapes, g) oldShape@(typ, oldProperties) =
     let (_, propDefs)    = findDef typ
@@ -281,7 +654,7 @@ stroke_sampler = sampleFloatIn (0.5, 3)
 stroke_style_sampler = sampleDiscrete [StrV "dashed", StrV "solid"]
 bool_sampler = sampleDiscrete [BoolV True, BoolV False]
 
-anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType :: (Autofloat a) => ShapeDef a
+anchorPointType, circType, ellipseType, arrowType, braceType, curveType, lineType, rectType, squareType, parallelogramType, imageType, textType, arcType, rectTransformType, polygonType, circTransformType, curveTransformType, lineTransformType, squareTransformType, imageTransformType, ellipseTransformType, parallelogramTransformType, textTransformType :: (Autofloat a) => ShapeDef a
 
 anchorPointType = ("AnchorPoint", M.fromList
     [
@@ -293,8 +666,6 @@ anchorPointType = ("AnchorPoint", M.fromList
 
 circType = ("Circle", M.fromList
     [
-        -- ("x", (FloatT, constValue $ FloatV 100)),
-        -- ("y", (FloatT, constValue $ FloatV 100)),
         ("x", (FloatT, x_sampler)),
         ("y", (FloatT, y_sampler)),
         ("r", (FloatT, width_sampler)),
@@ -360,8 +731,10 @@ braceType = ("Brace", M.fromList
 
 curveType = ("Curve", M.fromList
     [
+        -- These two fields are for storage.
         ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
         ("polyline", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        -- The frontend only uses pathData to draw the curve.
         ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "solid")),
@@ -378,9 +751,10 @@ lineType = ("Line", M.fromList
         ("startY", (FloatT, y_sampler)),
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
-        -- TODO: deal with derived property "path" here or in the frontend
         ("thickness", (FloatT, sampleFloatIn (5, 15))),
-        -- TODO: list the possible styles for each attribute of each GPI
+
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "solid")),
         ("stroke", (StrT, constValue $ StrV "none")),
@@ -453,11 +827,256 @@ arcType = ("Arc", M.fromList
         ("lengthY", (FloatT, height_sampler)),
         ("angle", (FloatT, angle_sampler)),
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
+
         ("isRight", (BoolT, bool_sampler)), -- This property overrides the angle property
+
+        ("strokeWidth", (FloatT, constValue $ FloatV 1.0)),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("fillColor", (ColorT, sampleColor)),
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+
+        ("name", (StrT, constValue $ StrV "defaultArc"))
+    ])
+
+rectTransformType = ("RectangleTransform", M.fromList
+    [
+        -- These attributes serve as DOF in the default transformation
+        -- They are NOT the final x, etc.
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("sizeX", (FloatT, width_sampler)),
+        ("sizeY", (FloatT, height_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)), -- Set in Style
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+
+        -- TODO compute these
+        -- ("finalX", (FloatT, constValue $ FloatV 0.0)),
+        -- ("finalY", (FloatT, constValue $ FloatV 0.0)),
+        -- ("finalSizeX", (FloatT, constValue $ FloatV 1.0)),
+        -- ("finalSizeY", (FloatT, constValue $ FloatV 1.0)),
+        -- ("finalRotation", (FloatT, constValue $ FloatV 0.0)),
+
+        ("color", (ColorT, sampleColor)),
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("style", (StrT, constValue $ StrV "filled")),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("strokeStyle", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultRect")),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
+    ])
+
+-- Also using the new transforms
+polygonType = ("Polygon", M.fromList
+    [
+        ("points", (PtListT, constValue $ PtListV testTriangle)),
+        ("polygon", (PtListT, constValue $ PtListV [])),
+
+        -- These attributes serve as DOF in the default transformation
+        -- They are NOT the final x, etc.
+        -- TODO: should these be sampled?
+        ("dx", (FloatT, x_sampler)), -- Polygon doesn't have a natural "center"
+        ("dy", (FloatT, y_sampler)),
+        ("scaleX", (FloatT, width_sampler)),
+        ("scaleY", (FloatT, height_sampler)),
+        ("rotation", (FloatT, angle_sampler)),
+        -- TODO: currently rotates about the center of the Penrose canvas, (0, 0)
+
+        ("centerX", (FloatT, constValue $ FloatV 0.0)),
+        ("centerY", (FloatT, constValue $ FloatV 0.0)),
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("strokeStyle", (StrT, constValue $ StrV "solid")),
+        ("strokeColor", (ColorT, sampleColor)),
+
+        ("fillColor", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultPolygon"))
+    ])
+
+circTransformType = ("CircleTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("r", (FloatT, width_sampler)),
+        -- TODO: circle currently has rotations hardcoded to 0.0 (since we aren't yet rotating about a point)
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
+
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("style", (StrT, constValue $ StrV "filled")),
+        ("strokeStyle", (StrT, constValue $ StrV "solid")),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultCircle"))
+    ])
+
+curveTransformType = ("CurveTransform", M.fromList
+    [
+        ("dx", (FloatT, constValue $ FloatV 0.0)), -- Curve doesn't have a natural "center"
+        ("dy", (FloatT, constValue $ FloatV 0.0)),
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)),
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        -- TODO: currently rotates about the center of the Penrose canvas, (0, 0)
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
+    
+        ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        ("polyline", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
+        ("strokeWidth", (FloatT, stroke_sampler)),
+        ("style", (StrT, constValue $ StrV "solid")),
+        ("fill", (ColorT, sampleColor)), -- for no fill, set opacity to 0
+        ("color", (ColorT, sampleColor)),
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("name", (StrT, constValue $ StrV "defaultCurve"))
+    ])
+
+-- If the start and end are not set, by default, it's a unit line segment aligned w/ x-axis, centered at origin.
+-- If the start and end are set in Style, then that will be the line segment to which all subsequent transforms apply.
+lineTransformType = ("LineTransform", M.fromList
+    [
+        ("startX", (FloatT, constValue $ FloatV $ -0.5)),
+        ("startY", (FloatT, constValue $ FloatV 0)),
+        ("endX", (FloatT, constValue $ FloatV 0.5)),
+        ("endY", (FloatT, constValue $ FloatV 0.0)),
+
+        -- By default, this is NOT set. Should it be?
+        ("dx", (FloatT, constValue $ FloatV 0.0)), -- Curve doesn't have a natural "center"
+        ("dy", (FloatT, constValue $ FloatV 0.0)),
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)),
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        -- TODO: currently rotates about the center of the Penrose canvas, (0, 0)
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
+
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+
+        ("thickness", (FloatT, sampleFloatIn (5, 15))),
+        ("color", (ColorT, sampleColor)),
+        ("style", (StrT, constValue $ StrV "solid")),
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("name", (StrT, constValue $ StrV "defaultLine"))
+    ])
+
+squareTransformType = ("SquareTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)), -- x and y as dx and dy in transform?
+        ("y", (FloatT, y_sampler)),
+        ("side", (FloatT, width_sampler)), -- as both scaleX and scaleY ? 
+        ("rotation", (FloatT, constValue $ FloatV 0.0)), -- initialize as 0?
+        -- matrices
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)),
+        -- ones that remain the same
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "none")),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("strokeWidth", (FloatT, constValue $ FloatV 0.0)),
+        ("name", (StrT, constValue $ StrV "defaultSquare")),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
+    ])
+
+imageTransformType = ("ImageTransform", M.fromList
+    [
+        ("centerX", (FloatT, x_sampler)),
+        ("centerY", (FloatT, y_sampler)),
+
+        ("initWidth", (FloatT, constValue $ FloatV 0.0)), -- Set by frontend
+        ("initHeight", (FloatT, constValue $ FloatV 0.0)), -- (same)
+
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)), -- set by image file?
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)), -- ^^
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)),
+
+        ("style", (StrT, constValue $ StrV "none")),
         ("stroke", (StrT, constValue $ StrV "none")),
-        ("name", (StrT, constValue $ StrV "defaultArc"))
+        ("path", (StrT, constValue $ StrV "missing image path")), -- Absolute path (URL)
+        ("name", (StrT, constValue $ StrV "defaultImage")),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
+    ])
+
+ellipseTransformType = ("EllipseTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)), --dx
+        ("y", (FloatT, y_sampler)), --dy
+        ("rx", (FloatT, width_sampler)), --sx
+        ("ry", (FloatT, height_sampler)), --sy
+        ("rotation", (FloatT, constValue $ FloatV 0.0)), --rot
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)),
+        ("stroke-width", (FloatT, stroke_sampler)),
+        ("style", (StrT, sampleDiscrete [StrV "filled"])),
+        ("stroke-style", (StrT, stroke_style_sampler)),
+        ("color", (ColorT, sampleColor)),
+        ("name", (StrT, constValue $ StrV "defaultEllipse")),
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
+    ])
+
+-- Starting with a square centered at origin, we apply this transformation:
+--  (in T1 then T2 format)
+-- scale by (lengthX, lengthY)
+-- shear X by lambda = f(angle in radians) = 1 / tan(angle)
+-- rotate by angle
+-- translate by (x, y)
+parallelogramTransformType = ("ParallelogramTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)), -- (x, y) is the CENTER of the parallelogram
+        ("y", (FloatT, y_sampler)),
+        ("width", (FloatT, width_sampler)), -- width of the rectangle pre-shear
+        ("height", (FloatT, height_sampler)), -- height of the rectangle pre-shear
+        ("innerAngle", (FloatT, constValue $ FloatV (pi/3))), -- shear angle of the rectangle
+        ("rotation", (FloatT, constValue $ FloatV 0.0)), -- about the origin
+
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
+    
+        ("color", (ColorT, sampleColor)),
+        ("strokeStyle", (StrT, stroke_style_sampler)),
+        ("strokeColor",  (ColorT, sampleColor)),
+        ("strokeWidth",  (FloatT, constValue $ FloatV 0.0)),
+        ("name", (StrT, constValue $ StrV "defaultParallelogram"))
+    ])
+
+textTransformType = ("TextTransform", M.fromList
+    [
+        ("x", (FloatT, x_sampler)),
+        ("y", (FloatT, y_sampler)),
+        ("scaleX", (FloatT, constValue $ FloatV 1.0)), -- TODO: set text size in points
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)),
+        ("rotation", (FloatT, constValue $ FloatV 0.0)),
+
+        ("w", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
+        ("h", (FloatT, constValue $ FloatV 0)), -- NOTE: updated by front-end
+        ("path", (PathDataT, constValue $ PathDataV [])), -- NOTE: updated by front-end
+
+        -- NOTE: the polygon will only show up after a few steps, since we have to wait for the server to set the width/height/path
+        ("transform", (FloatT, constValue $ HMatrixV idH)),
+        ("transformation", (FloatT, constValue $ HMatrixV idH)), -- Computed
+        ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)),
+
+        ("string", (StrT, constValue $ StrV "defaultLabelTextTransform")),
+        ("style", (StrT, constValue $ StrV "none")),
+        ("stroke", (StrT, constValue $ StrV "none")),
+        ("color", (ColorT, constValue $ ColorV black)),
+        ("name", (StrT, constValue $ StrV "defaultCircle"))
     ])
 
 -----
@@ -472,6 +1091,26 @@ exampleCirc = ("Circle", M.fromList
         ("style", StyleV "filled"),
         ("color", ColorV black)
     ])
+
+------------
+
+rectTransformType' :: (Autofloat a) => ShapeDef' a
+rectTransformType' = ("RectangleTransform", M.fromList
+    [
+        ("x", (FloatT, Left $ constValue $ FloatV 0.0)),
+        ("y", (FloatT, Left $ constValue $ FloatV 0.0)),
+        ("sizeX", (FloatT, Left $ constValue $ FloatV 100.0)), -- TODO should be unit size
+        ("sizeY", (FloatT, Left $ constValue $ FloatV 100.0)),
+        ("rotation", (FloatT, Left $ constValue $ FloatV 0.0)),
+        ("transform", (MapT, Right $ hmatrixSchema)),
+        ("color", (ColorT, Left $ sampleColor)),
+        ("strokeWidth", (FloatT, Left $ stroke_sampler)),
+        ("style", (StrT, Left $ constValue $ StrV "filled")),
+        ("strokeColor", (ColorT, Left $ sampleColor)),
+        ("strokeStyle", (StrT, Left $ constValue $ StrV "none")),
+        ("name", (StrT, Left $ constValue $ StrV "defaultRect"))
+    ]
+    )
 
 --------------------------------------------------------------------------------
 -- Parser for shape def DSL (TODO)
@@ -520,7 +1159,7 @@ getAll shape = map (get shape)
 
 -- | batch set
 setAll :: (Autofloat a) => Shape a -> [(PropID, Value a)] -> Shape a
-setAll = foldl (\s (k, v) -> set s k v)
+setAll = foldl' (\s (k, v) -> set s k v)
 
 
 -- | reset a property to its default value
@@ -607,6 +1246,16 @@ getNum shape prop = case shape .: prop of
     FloatV x -> x
     res -> error ("getNum: expected float but got something else: " ++ show res)
 
+getPoints :: (Autofloat a) => Shape a -> [Pt2 a]
+getPoints shape = case shape .: "points" of
+    PtListV x -> x
+    _ -> error "getPoints: expected [(Float, Float)] but got something else"
+
+getPolygon :: (Autofloat a) => Shape a -> Polygon a
+getPolygon shape = case shape .: "polygon" of
+    PolygonV x -> x
+    _ -> error "getPolygon: expected [(Float, Float)] but got something else"
+
 getPath :: (Autofloat a) => Shape a -> [Pt2 a]
 getPath shape = case shape .: "path" of
     PtListV x -> x
@@ -649,18 +1298,31 @@ movePath offset shape =
       (_:_, _:_) -> error "shape can't have both path manually set and path data"
       ([], []) -> error "shape has no path or data"
 
+-- | Transform utils
+getTransform :: (Autofloat a) => Shape a -> HMatrix a
+getTransform shape = case shape .: "transform" of
+    HMatrixV x -> x
+    _ -> error "getTransform: expected HMatrix but got something else"
+
+getTransformation :: (Autofloat a) => Shape a -> HMatrix a
+getTransformation shape = case shape .: "transformation" of
+    HMatrixV x -> x
+    _ -> error "getTransformation: expected HMatrix but got something else"
+
 -- | ternary op for set (TODO: maybe later)
 -- https://wiki.haskell.org/Ternary_operator
 
 -- | HACK: returns true of a property of a shape is not supposed to be
 -- | changed by the optimizer
-isPending:: ShapeTypeStr -> PropID -> Bool
+isPending :: ShapeTypeStr -> PropID -> Bool
 isPending typ propId = propId `elem` pendingProperties typ
 
 -- | HACK: returns all "pending" properties that are undeterminded until
 -- | rendered by the frontend
 pendingProperties :: ShapeTypeStr -> [PropID]
 pendingProperties "Text" = ["w", "h"]
+pendingProperties "TextTransform" = ["w", "h"]
+pendingProperties "ImageTransform" = ["initWidth", "initHeight"]
 pendingProperties _ = []
 
 -- | Given 'ValueType' and 'ShapeTypeStr', return all props of that ValueType
@@ -684,10 +1346,10 @@ mapProperties f (t, propDict) = (t, M.map f propDict)
 -- | fold over all properties of a shape
 -- TODO: withKey?
 foldlProperties :: (Autofloat a) => (b -> Value a -> b) -> b -> Shape a -> b
-foldlProperties f accum (_, propDict)  =  M.foldl f accum propDict
+foldlProperties f accum (_, propDict)  =  M.foldl' f accum propDict
 
 foldlPropertyDefs :: (Autofloat a) => (b -> (ValueType, SampledValue a) -> b) -> b -> ShapeDef a -> b
-foldlPropertyDefs f accum (_, propDict) =  M.foldl f accum propDict
+foldlPropertyDefs f accum (_, propDict) =  M.foldl' f accum propDict
 
 foldlPropertyMappings :: (Autofloat a) =>
     (b -> PropID -> (ValueType, SampledValue a) -> b) -> b -> ShapeDef a -> b
@@ -742,6 +1404,133 @@ white = makeColor 1.0 1.0 1.0 1.0
 
 makeColor' :: (Autofloat a) => a -> a -> a -> a -> Color
 makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
+
+--------------------------------------------------------------------------------
+-- Approximating a Bezier curve via polygon or bbox
+
+-- | Polygonize path by extruding the polyline to account for thickness and adding any arrowheads, if present.
+-- For each point, find the corresponding inner and outer points on the extruded line
+-- by taking the tangent and then taking the inner and outer normal
+-- Note: not good for steep angles!
+-- Then make the polygon by joining the points in order, accounting for arrowheads
+
+-- TODO: (performance optimization) remove the ++, the accesses to last of list, and the reverses
+
+polygonizePathPolygon :: Autofloat a => Int -> a -> Bool -> Bool -> PathData a -> [Pt2 a]
+polygonizePathPolygon n thickness leftArr rightArr p = 
+    let polyline = removeClosePoints $ polygonizePath n p
+        tangents = map calcTangent $ zip polyline (tail polyline)
+        tangentsWithLast = tangents ++ [last tangents] -- use the same tangent for the last point
+        -- outer and inner are two "copies" of the polyline, offset in the +/- normal directions
+        (outer, inner) = unzip $ map (extrude thickness) $ zip polyline tangentsWithLast
+        snipSize = 4 * thickness 
+       -- snipSize is the amount to remove from the polygonized curve to attach the arrows at either end
+
+        (ltArrow, outer', inner') = 
+            if not leftArr then ([], outer, inner)
+            else let ltCenter = head polyline
+                     ltAngle = atan2' $ head tangents
+                     ltTransform = translationM ltCenter # rotationM ltAngle
+                     ltArrow = transformSimplePoly ltTransform $ ltArrowheadPoly thickness
+                     (outerFirst, innerFirst) = (head outer, head inner)
+                     outer' = dropWhile (\x -> mag (x -: outerFirst) < snipSize) outer
+                     inner' = dropWhile (\x -> mag (x -: innerFirst) < snipSize) inner
+            in (ltArrow, outer', inner')
+
+        (rtArrow, outer'', inner'') = 
+            if not rightArr then ([], outer', inner') 
+            else let rtCenter = last polyline
+                     rtAngle = atan2' $ last tangents
+                     rtTransform = translationM rtCenter # rotationM rtAngle
+                     rtArrow = transformSimplePoly rtTransform $ rtArrowheadPoly thickness
+                     (outerLast, innerLast) = (last outer, last inner)
+                     outer'' = reverse $ dropWhile (\x -> mag (x -: outerLast) < snipSize) $ reverse outer'
+                     inner'' = reverse $ dropWhile (\x -> mag (x -: innerLast) < snipSize) $ reverse inner'
+            in (rtArrow, outer'', inner'')
+
+        polygonWithArrows = outer'' ++ rtArrow ++ reverse inner'' ++ ltArrow
+
+    in polygonWithArrows
+
+    where atan2' (x, y) = atan2 y x
+
+          removeClosePoints :: (Autofloat a) => [Pt2 a] -> [Pt2 a]
+          -- Heuristic: if any two points are too close together, remove the first one
+          -- Not super principled but just to make sure that the tangents don't NaN if two points are too close
+          removeClosePoints ps = let ptsWithNext = zip ps (tail ps) in
+                                 (map fst $ filter (\(p1, p2) -> mag (p2 -: p1) >= epsp) ptsWithNext) ++ [last ps]
+                                 where epsp = 10 ** (-8)
+
+          calcTangent :: (Autofloat a) => (Pt2 a, Pt2 a) -> Pt2 a
+          calcTangent (start, end) = normalize' $ end -: start
+
+          extrude :: (Autofloat a) => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a)
+          extrude thickness (base, tangent) = 
+                  let normal = thickness / 2.0 *: rot90 tangent in
+                  (base +: normal, base -: normal)
+
+-- | Polygonize path as polyline
+polygonizePath :: Autofloat a => Int -> PathData a -> [Pt2 a]
+polygonizePath n p = case polygonize n p of
+                     [] -> error "empty curve: did you set the pathdata or path?"
+                     x:xs -> x -- What are the other parts of this list?
+
+polygonize :: Autofloat a => Int -> PathData a -> [[Pt2 a]]
+polygonize maxIter = map go
+    where
+        go (Closed path) = error "TODO"
+        go (Open path) = concatMap (polyCubicBez 0 maxIter) $ expandCurves path
+
+type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
+
+expandCurves :: Autofloat a => [Elem a] -> [CubicBezCoeffs a]
+expandCurves elems = zipWith attach elems $ tail elems
+    where
+        attach (Pt a) (CubicBez (b, c, d)) = (a, b, c, d)
+        attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
+
+-- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
+polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
+polyCubicBez count maxCount curve@(a, b, c, d) =
+    if (tr "count" count) >= maxCount then [a, b, c, d] else
+        concatMapTuple (polyCubicBez (count + 1) maxCount) $ divideCubicBezier curve
+    where concatMapTuple f (a1, a2) = f a1 ++ f a2
+
+isFlat :: Autofloat a => CubicBezCoeffs a -> Bool
+isFlat (a, b, c, d) = True
+
+divideCubicBezier :: Autofloat a => CubicBezCoeffs a -> (CubicBezCoeffs a, CubicBezCoeffs a)
+divideCubicBezier bezier@(a, _, _, d) = (left, right) where
+    left = (a, ab, abbc, abbcbccd)
+    right = (abbcbccd, bccd, cd, d)
+    (ab, _bc, cd, abbc, bccd, abbcbccd) = splitCubicBezier bezier
+
+--                     BC
+--         B X----------X---------X C
+--    ^     /      ___/   \___     \     ^
+--   u \   /   __X------X------X_   \   / v
+--      \ /___/ ABBC       BCCD  \___\ /
+--    AB X/                          \X CD
+--      /                              \
+--     /                                \
+--    /                                  \
+-- A X                                    X D
+splitCubicBezier :: Autofloat a => CubicBezCoeffs a -> (Pt2 a, Pt2 a, Pt2 a, Pt2 a, Pt2 a, Pt2 a)
+splitCubicBezier (a, b, c, d) = (ab, bc, cd, abbc, bccd, abbcbccd)
+    where
+        ab = a `midpoint` b
+        bc = b `midpoint` c
+        cd = c `midpoint` d
+        abbc = ab `midpoint` bc
+        bccd = bc `midpoint` cd
+        abbcbccd = abbc `midpoint` bccd
+
+bezierBbox :: (Autofloat a) => Shape a -> ((a, a), (a, a)) -- poly Point type?
+bezierBbox cb = let path = getPath cb
+                    (xs, ys) = (map fst path, map snd path)
+                    lower_left = (minimum xs, minimum ys)
+                    top_right = (maximum xs, maximum ys) in
+                (lower_left, top_right)
 
 --------------------------------------------------------------------------------
 -- DEBUG: main function to test out the module

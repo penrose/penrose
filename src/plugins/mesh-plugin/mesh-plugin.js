@@ -45,7 +45,7 @@ const etype = "Edge";
 const ftype = "Face";
 
 const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
-const numPointsRange = [5, 10];
+const numPointsRange = [5, 9];
 
 function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;

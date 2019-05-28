@@ -1,0 +1,72 @@
+Set x {
+    x.shape = CircleTransform {
+        strokeWidth = 0
+    }
+
+    x.text = TextTransform {
+      scaleX = 1.0
+      scaleY = 1.0
+      string = x.label
+    }
+
+    x.origin = CircleTransform {
+      r = 5.0
+      strokeWidth = 0
+      x = 0.0
+      y = 0.0
+    }
+
+    x.labelFn = encourage containsPoly(x.shape, x.text)
+    x.labelLocFn = encourage nearPoint(x.text, x.shape.x, x.shape.y, 6.0)
+    x.maxSizeFn = encourage maximumSize(x.shape, 300.0)
+    x.minSizeFn = encourage minimumSize(x.shape, 80.0)
+    x.onCanvasFn = encourage polyOnCanvas(x.shape)
+    LOCAL.layering  = x.shape below x.text
+}
+
+Set x; Set y
+where IsSubset(x, y) {
+    -- LOCAL.fixFn = encourage atPoint(x.shape, -0.5, 0.5, 0.0, 0.0)
+    LOCAL.containFn = encourage containsPolyPad(x.shape, y.shape, 10.0)
+    LOCAL.layering  = x.shape above y.shape
+    LOCAL.layering1  = y.text below x.shape
+}
+
+
+Set x; Set y
+where Intersect(x, y) {
+    LOCAL.alignFn = encourage disjointAndTangentPad(y.shape, x.shape)
+    LOCAL.layering  = x.shape above y.shape
+    LOCAL.layering1  = y.text below x.shape
+    LOCAL.labelFn1  = encourage disjointPoly(y.text, x.shape)
+    LOCAL.labelFn2  = encourage disjointPoly(x.text, y.shape)
+}
+
+/*
+Set x; Set y
+where NotIntersecting(x, y) {
+    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+}
+
+Set x; Set y
+where Intersect(x, y) {
+    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
+    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
+    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
+}
+
+Point p {
+      p.offset = 10.0
+      p.shape = Circle {
+      	      strokeWidth = 0
+	      color = rgba(0.0, 0.0, 0.0, 1.0)
+	      r = 3.0
+      }
+
+      p.text = Text {
+	string = p.label
+	x = p.shape.x + p.offset
+	y = p.shape.y + p.offset
+      }
+}
+*/

@@ -42,6 +42,12 @@ import qualified Data.List as L (intercalate)
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color, style, supportsPretty)
 import System.Console.Docopt
 
+default (Int, Float)
+
+-- when false, executes headless for profiling
+useFrontend :: Bool
+useFrontend = True
+
 argPatterns :: Docopt
 argPatterns = [docoptFile|USAGE.txt|]
 
@@ -55,10 +61,11 @@ shadowMain = do
     dsllFile <- args `getArgOrExit` argument "element"
     domain   <- args `getArgOrExit` longOption "domain"
     port     <- args `getArgOrExit` longOption "port"
+    config   <- args `getArgOrExit` longOption "config"
 
     if args `isPresent` argument "substance" then do
         subFile <- args `getArgOrExit` argument "substance"
-        penroseRenderer subFile styFile dsllFile domain $ read port
+        penroseRenderer subFile styFile dsllFile domain config $ read port
     else
         penroseEditor styFile dsllFile domain $ read port
 
@@ -75,8 +82,8 @@ penroseEditor styFile dsllFile domain port = do
 
     Server.servePenrose dsllEnv styProg domain port
 
-penroseRenderer :: String -> String -> String -> String -> Int -> IO ()
-penroseRenderer subFile styFile dsllFile domain port = do
+penroseRenderer :: String -> String -> String -> String -> String -> Int -> IO ()
+penroseRenderer subFile styFile dsllFile domain configPath port = do
     subIn <- readFile subFile
     styIn  <- readFile styFile
     dsllIn <- readFile dsllFile
@@ -114,10 +121,22 @@ penroseRenderer subFile styFile dsllFile domain port = do
     pPrint styProg
     divLine
 
-    initState <- G.compileStyle styProg subProgForStyle styVals -- Includes Substance plugin output
+    -- Read optimization config and so it can be included in the initial state
+    configStr <- B.readFile configPath
+    let configBstr = (decode configStr) :: Maybe G.OptConfig
+    let optConfig = case configBstr of
+                  Nothing -> error "couldn't read opt config JSON"
+                  Just x -> x
+    putStrLn "Opt config:\n"
+    putStrLn $ show optConfig
 
-    Server.serveRenderer domain port initState
+    initState <- G.compileStyle styProg subProgForStyle styVals optConfig -- Includes Substance plugin output 
 
+    if useFrontend
+       then Server.serveRenderer domain port initState
+    else let numTrials = 1000 in
+         let res = map (\x -> stepsWithoutServer initState) [1..numTrials] in
+         putStrLn $ show $ map G.varyingState res -- Needed so all of res is evaluated, but don't spend so much time prettyprinting
 
 -- Versions of main for the tests to use that takes arguments internally, and returns initial and final state
 -- (extracted via unsafePerformIO)
@@ -145,7 +164,7 @@ stepsWithoutServer :: G.State -> G.State
 stepsWithoutServer initState =
          let (finalState, numSteps) = head $ dropWhile notConverged $ iterate stepAndCount (initState, 0) in
          trace ("\nnumber of outer steps: " ++ show numSteps) $ finalState
-         where stepAndCount (s, n) = traceShowId (O.step s, n + 1)
+         where stepAndCount (s, n) = (O.step s, n + 1)
                notConverged (s, n) = G.optStatus (G.paramsr s) /= G.EPConverged
                                      && n < maxSteps
                maxSteps = 10 ** 3 -- Not sure how many steps it usually takes to converge

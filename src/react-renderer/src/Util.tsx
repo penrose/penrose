@@ -51,6 +51,7 @@ export const EndArrowhead = (props: {
     </marker>
   );
 };
+
 export const toScreen = (
   [x, y]: [number, number],
   canvasSize: [number, number]
@@ -58,6 +59,43 @@ export const toScreen = (
   const [width, height] = canvasSize;
   return [width / 2 + x, height / 2 - y];
 };
+
+export const penroseToSVG = (canvasSize: [number, number]) => {
+    const [width, height] = canvasSize;
+    const flipYStr = "matrix(1 0 0 -1 0 0)";
+    const translateStr = "translate(" + width / 2 + ", " + height / 2 + ")";
+    // Flip Y direction, then translate shape to origin mid-canvas
+    return [translateStr, flipYStr].join(" "); 
+};
+
+export const penroseTransformStr = (tf: any) => {
+    // console.log("shape transformation", tf);
+    const transformList = [tf.xScale, tf.ySkew, tf.xSkew,
+			   tf.yScale, tf.dx, tf.dy];
+    const penroseTransform = "matrix(" + transformList.join(" ") + ")";
+    return penroseTransform;
+}
+
+export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+    // `tf` is `shape.transformation.contents`, an HMatrix from the backend
+    // It is the *full* transform, incl. default transform
+    // Do Penrose transform, then SVG
+    const transformStr = [penroseToSVG(canvasSize), penroseTransformStr(tf)].join(" ");
+    // console.log("transformStr", transformStr);
+    return transformStr;
+};
+
+export const toPointListString = memoize( // Why memoize?
+  (ptList: any[], canvasSize: [number, number]) =>
+    ptList
+      .map((coords: [number, number]) => {
+	  const pt = coords;
+        return pt[0].toString() + " " + pt[1].toString();
+      })
+      .join(" ")
+);
+
 export const toHex = (rgba: [number, number, number, number]) => {
   return rgba.slice(0, 3).reduce((prev, cur) => {
     const hex = Math.round(255 * cur).toString(16);
@@ -96,6 +134,7 @@ export function svgBBox(svgEl: SVGSVGElement) {
   document.body.removeChild(tempDiv);
   return bb;
 }
+
 const tex2svg = memoize(
   async (contents: string, name: string): Promise<any> =>
     new Promise(resolve => {
@@ -122,6 +161,7 @@ const tex2svg = memoize(
       wrapper.remove();
     })
 );
+
 export const collectLabels = async (allShapes: any[]) => {
   MathJax.Hub.Config({
     skipStartupTypeset: true,
@@ -139,7 +179,7 @@ export const collectLabels = async (allShapes: any[]) => {
   });
   return Promise.all(
     allShapes.map(async ([type, obj]: [string, any]) => {
-      if (type === "Text") {
+      if (type === "Text" || type === "TextTransform") {
         const { body, width, height } = await tex2svg(
           obj.string.contents,
           obj.name.contents
@@ -156,4 +196,38 @@ export const collectLabels = async (allShapes: any[]) => {
       }
     })
   );
+};
+
+export const loadImageElement = memoize(
+    async (url: string): Promise<any> =>
+	new Promise((resolve, reject) => {
+	    const img = new Image();
+	    img.onload = () => resolve(img);
+	    img.onerror = reject;
+	    img.src = url;
+	})
+);
+
+// Load images asynchronously so we can send the dimensions to the backend and use it in the frontend
+
+export const loadImages = async (allShapes: any[]) => {
+    return Promise.all(
+	allShapes.map(async ([type, obj]: [string, any]) => {
+	    if (type === "ImageTransform") {
+		const path = obj.path.contents;
+		const fullPath = process.env.PUBLIC_URL + path;
+		const loadedImage = await loadImageElement(fullPath);
+		const obj2 = { ...obj };
+
+		obj2.initWidth.contents = loadedImage.naturalWidth;
+		obj2.initHeight.contents = loadedImage.naturalHeight;
+		// We discard the loaded image <img> in favor of making an <image> inline in the image GPI file
+		// obj2.rendered = { contents: loadedImage, omit: true };
+
+		return [type, obj2];
+	    } else {
+		return [type, obj];
+	    }
+	})
+    );
 };
