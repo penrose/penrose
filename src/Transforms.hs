@@ -4,6 +4,30 @@
 
 module Transforms where
 
+{-
+Naming conventions in this file:
+
+Postfixes specifying argument types: 
+  P: point
+  S: segment
+  B: blob (simply connected region represented by a list of vertices)
+  G: polygon
+  A: angle in degrees
+
+Other postfixes:
+  Offs: offset, specifies exact separation amount
+  Pad: padding, specifies minimum separation amount
+
+Prefix e: post-level energy
+
+When a function takes multiple blobs/polygons as inputs, name them as A, B, etc. in order
+
+When using angle to specify an axis, let theta be the input angle in radians
+(converted from degrees), then the axis in question is the line containing vector
+(cos theta, sin theta).
+
+-}
+
 import Utils
 import Debug.Trace
 import           Data.List                          (nub, sort, findIndex, find, maximumBy, foldl')
@@ -348,6 +372,8 @@ getDiameter2' pts = case pts of
     [] -> 0
     p:pts -> foldl' max 0 $ map (dsqPP p) pts
 
+-- a shape's diameter is defined as the length of the longest segment connecting 
+-- p1, p2, both of which are on the shape's boundary.
 getDiameter :: Autofloat a => Polygon a -> a
 getDiameter (bds,hs,_,_) = let
     vertices = (concat bds) ++ (concat hs)
@@ -429,6 +455,7 @@ dsqGP (bds, hs, _, _) p = let
     dsqHS = foldl' min posInf $ map (\h -> dsqBP h p) hs
     in min dsqBD dsqHS
 
+-- signed distance squared between polygons: 
 -- only the magnitude matches with dsq. Negative when inside A.
 signedDsqGP :: Autofloat a => Polygon a -> Pt2 a -> a
 signedDsqGP poly p = let 
@@ -445,6 +472,7 @@ dsqBB b1 b2 = let
     min1 = foldl' min posInf $ map (\e -> dsqBS b2 e) $ getSegmentsB b1
     in min1
 
+-- distance squared
 dsqGG :: Autofloat a => Polygon a -> Polygon a -> a
 dsqGG (bds1, hs1, _, _) (bds2, hs2, _, _) = let
     b1b2 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b') bds1) bds2
@@ -453,12 +481,17 @@ dsqGG (bds1, hs1, _, _) (bds2, hs2, _, _) = let
     b2h1 = foldl' min posInf $ map (\b->foldl' min posInf $ map (\b'->dsqBB b b') bds2) hs1
     in min (min b1b2 b1h2) (min b2b1 b2h1)
 
+-- (helper) encourages the line containing two points to be parallel to the specified axis.
 alignPPA :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
 alignPPA a b angle = let
     angle_radians = angle * pi / 180.0
     dirN = rot90 (cos angle_radians, sin angle_radians)
     in (**2) $ (a `dotv` dirN) - (b `dotv` dirN)
 
+-- (helper) Let a' and b' be projections of a and b onto the axis. Encourages positions of a, b 
+-- such that a' appears before b' on the axis
+-- ex: when angle = 0, encourages a to be on the left of b.
+--     when angle = 180, encourages a to be on the right of b
 orderPPA :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
 orderPPA a b angle = let
     angle_radians = angle * pi / 180.0
@@ -469,43 +502,47 @@ orderPPA a b angle = let
 numSamples :: Int
 numSamples = 200
 
--- dsq integral along boundary functions ----
+------------ some energy "building blocks" ------------
 
+---- type 1: dsq integral along boundary functions ----
+
+-- penalize part of B's boundary that's inside A
 dsqBinA :: Autofloat a => Polygon a -> Polygon a -> a
 dsqBinA bA bB@(_,_,_,samplesB) = let
     samplesIn = filter (\p -> isInG bA p) $ samplesB
     in foldl' (+) 0.0 $ map (\p -> dsqGP bA p) samplesIn
 
+-- penalize part of B's boundary that's outside A
 dsqBoutA :: Autofloat a => Polygon a -> Polygon a -> a
 dsqBoutA bA bB@(_,_,_,samplesB) = let
     samplesOut = filter (\p -> not $ isInG bA p) $ samplesB
     in foldl' (+) 0.0 $ map (\p -> dsqGP bA p) samplesOut
 
--- signed distances between polygons based on sampling
--- TODO: the following two can both be achieved from the same iteration (thus save some runtime)
+---- type 2: min/max dsq on boundary functions ----
 
+-- minimum (signed distance squared) between polygons based on sampling
 minSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
-minSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
-    --samples = sampleG ds polyB
-    in foldl' min posInf $ map (signedDsqGP polyA) samplesB--samples
+minSignedDsqGG polyA polyB@(_,_,_,samplesB) = 
+    foldl' min posInf $ map (signedDsqGP polyA) samplesB
 
+-- maximum (signed distance squared) between polygons based on sampling
 maxSignedDsqGG :: Autofloat a => Polygon a -> Polygon a -> a
-maxSignedDsqGG polyA polyB@(_,_,_,samplesB) = let
-    --samples = sampleG ds polyB
-    in foldl' max negInf $ map (signedDsqGP polyA) samplesB
+maxSignedDsqGG polyA polyB@(_,_,_,samplesB) =
+    foldl' max negInf $ map (signedDsqGP polyA) samplesB
 
------------- top-level query energies ------------
+----------------- top-level query energies -----------------
 
----- Energies defined with (sampled) minimum/maximum distances ----
+---- Energies using min/max dsq on boundary (type 2) ----
 
----- 2 below: Energy lowest when minimum/maximum signed distance is at ofs pixels.
+-- eBinAOffs, eBoutAOffs: Energy lowest when minimum/maximum signed distance is at ofs pixels.
 -- Both functions have similar runtime compared to other inside/outside energies
 -- Both are a bit "unstable" (shapes make unexpected big jumps), likely because of how they're defined
--- Both become even more "unstable" when used with Newton's method, although Newton's method
--- doesn't break them right away. For most of the time still give results that are visually correct
--- (other times stuck at local min, or explode/shrink)
+-- to consider only contribution from one sample.
 
--- ofs = 0: an alternative containment+tangent energy. Can use ofs for containment with padding.
+-- Lowest when A contains B with exactly ofs number of pixels between their boundaries.
+-- ofs > 0: A contains B with ofs pixels of padding (general use case)
+-- ofs < 0: A doesn't completely contain B, the point on B furthest from A is |ofs| pixels away.
+-- ofs = 0: an alternative containment+tangent energy
 eBinAOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eBinAOffs polyA polyB ofs = let
     sdsq = maxSignedDsqGG polyA polyB
@@ -513,7 +550,10 @@ eBinAOffs polyA polyB ofs = let
     sdist = (*sign) $ sqrt $ abs sdsq
     in (sdist + ofs)**2
 
--- ofs = 0: an alternative disjoint+tangent energy. Can use ofs for disjoint plus margin.
+-- Lowest when A, B disjoint with exactly ofs number of pixels between their boundaries.
+-- ofs > 0: A, B disjoint with ofs pixels of padding (general use case)
+-- ofs < 0: A and B intersect, B "penetrates into A" |ofs| pixels
+-- ofs = 0: an alternative disjoint+tangent energy
 eBoutAOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eBoutAOffs polyA polyB ofs = let
     sdsq = minSignedDsqGG polyA polyB
@@ -522,27 +562,31 @@ eBoutAOffs polyA polyB ofs = let
     in (sdist - ofs)**2
 
 -- energy lowest when either of the above two energies are lowest
+-- used for specifying amt of distance to boundary but don't care about inside/outside
+-- ex: when placing labels
 eOffs :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eOffs polyA polyB ofs = let
     eIn = eBinAOffs polyA polyB ofs
     eOut = eBoutAOffs polyA polyB ofs
     in min eIn eOut
 
--- energy lowest when polygon boundary is ofs px away.
+-- Same as eOffs except B is a point
 eOffsP :: Autofloat a => Polygon a -> Pt2 a -> a -> a
 eOffsP poly pt ofs = let
     d = sqrt $ dsqGP poly pt
     in (d - ofs)**2
 
--- energy lowest when polygon boundary is ofs px away.
+-- Same as eOffs except both inputs are points
 eOffsPP :: Autofloat a => Pt2 a -> Pt2 a -> a -> a
 eOffsPP p1 p2 ofs = let
     d = sqrt $ dsqPP p1 p2
     in (d - ofs)**2
 
----- 2 below: Similar to above, but energy lowest when minimum/maximum signed distance is at least ofs pixels.
+-- eBinAPad, eBoutAPad: Energy lowest when minimum/maximum signed distance is at least ofs pixels
+-- (compare to eBinAOffs, eBoutAOffs)
 
--- ofs = 0: an alternative containment energy. Can use ofs for containment with minimum padding.
+-- ofs > 0: A contains B with at least ofs pixels of padding (general use case)
+-- ofs = 0: an alternative containment energy
 eBinAPad :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eBinAPad polyA polyB ofs = let
     sdsq = maxSignedDsqGG polyA polyB
@@ -550,7 +594,8 @@ eBinAPad polyA polyB ofs = let
     sdist = (*sign) $ sqrt $ abs sdsq
     in (max 0 $ sdist + ofs)**2
 
--- ofs = 0: an alternative disjoint energy. Can use positive ofs for disjoint plus minimum margin.
+-- ofs > 0: A, B disjoint with at least ofs pixels of padding (general use case)
+-- ofs = 0: an alternative disjoint energy
 eBoutAPad :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eBoutAPad polyA polyB ofs = let
     sdsq = minSignedDsqGG polyA polyB
@@ -558,23 +603,24 @@ eBoutAPad polyA polyB ofs = let
     sdist = (*sign) $ sqrt $ abs sdsq
     in (min 0 $ sdist - ofs)**2
 
--- energy lowest when either of the above two energies are lowest
+-- energy lowest when either eBinAPad or eBoutAPad is lowest
+-- used for specifying amt of minimum separation to boundary but don't care about inside/outside
 ePad :: Autofloat a => Polygon a -> Polygon a -> a -> a
 ePad polyA polyB ofs = let
     eIn = eBinAPad polyA polyB ofs
     eOut = eBoutAPad polyA polyB ofs
     in min eIn eOut
 
----- energies based on integral dsq along boundary ----
+---- energies based on integral of dsq along boundary ----
 
--- containment
+-- A contain B
 eAcontainB :: Autofloat a => Polygon a -> Polygon a -> a
 eAcontainB bA bB = let
     eAinB = dsqBinA bB bA
     eBoutA = dsqBoutA bA bB
     in eAinB + eBoutA
 
--- disjoint. might be changed later though, bc it gets stuck at local min too often,
+-- A, B disjoint. Might need something better, as not all local mins correspond to satisfaction of obj.
 -- resulting in two shapes overlap even more
 eABdisj :: Autofloat a => Polygon a -> Polygon a -> a
 eABdisj bA bB = let
@@ -582,7 +628,8 @@ eABdisj bA bB = let
     eBinA = dsqBinA bA bB
     in eAinB + eBinA 
 
-{-
+{- commented these out bc are just addition of above energies. 
+
 -- A and B tangent, B inside A
 eBinAtangent :: Autofloat a => Polygon a -> Polygon a -> a
 eBinAtangent bA bB = let
@@ -598,66 +645,44 @@ eBoutAtangent bA bB = let
     in eDisjoint + eABbdix
 -}
 
----- Energies defined on polygon size (diameter) ----
+---- Energies defined on polygon size (diameter), see function getDiameter ----
 
+-- penalize if the diameter of poly is too large.
 eMaxSize :: Autofloat a => Polygon a -> a -> a
 eMaxSize poly size = let
     d = getDiameter poly
     in (**2) $ max 0 $ d - size
 
+-- penalize if the diameter of poly is too small.
 eMinSize :: Autofloat a => Polygon a -> a -> a
 eMinSize poly size = let
     d = getDiameter poly
     in (**2) $ max 0 $ size - d
 
+-- penalize if two shapes have different diameters
 eSameSize :: Autofloat a => Polygon a -> Polygon a -> a
 eSameSize bA bB = let
     d1 = getDiameter bA
     d2 = getDiameter bB
     in (d1 - d2) ** 2
 
+-- penalize if A is larger than B
 eSmallerThan :: Autofloat a => Polygon a -> Polygon a -> a
 eSmallerThan bA bB = let
     d1 = getDiameter bA
     d2 = getDiameter bB
     in (max 0 $ d1 - d2) ** 2 -- no penalty if d1 <= d2
 
----- Other energies (related to alignment) ----
+---- Other energies (related to alignment and ordering) ----
 
--- A and B align along some direction (input angle in degrees)
--- currently uses center of bbox as position. Could alternatively have a version that lets user specify.
+-- currently uses center of bbox to represent polygon position.
+
+-- encourages A and B to align along some axis (input angle in degrees)
+-- in other words, encourages the line connecting A and B to be parallel to the given axis
 eAlign :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eAlign bA bB angle = alignPPA (getCenter bA) (getCenter bB) angle
 
+-- encourages A and B to order along some axis (input angle in degrees)
+-- more abt ordering near function orderPPA
 eOrder :: Autofloat a => Polygon a -> Polygon a -> a -> a
 eOrder bA bB angle = orderPPA (getCenter bA) (getCenter bB) angle
-
----- analytic gradient for dsqPP ---- (not tested) (not in use)
-
--- using [a] to encode transformation here.
--- different from HMatrix here bc this one contains DOFs from input (ie. shear term means "amt of shear")
--- but terms in HMatrix contain numbers combined from DOFs (ie. shear term is some weird combo of shear+scale)
-
--- input: two points at their original transformation, plus all the transformations that 
--- brought them here.
-dsqGradPP :: Autofloat a => Pt2 a -> Pt2 a -> [a] -> [a] -> ([a], [a])
-dsqGradPP (px1,py1) (px2,py2) transA transB = let
-    [cx1, cy1, sx1, sy1, kx1, ky1] = transA
-    [cx2, cy2, sx2, sy2, kx2, ky2] = transB
-    term1 = cx2 - cx1 - px1*sx1 - kx1*py1*sx1 + px2*sx2 + kx2*py2*sx2
-    term2 = cy2 - cy1 - ky1*px1*sy1 - py1*(sy1 + kx1*ky1*sy1) + ky2*px2*sy2 + py2*(sy2 + kx2*ky2*sy2)
-    d_kx1 = 2*term1 * (-py1 * sx1) + 2*term2 * (-ky1*py1*sy1)
-    d_ky1 = 2*term2 * (-px1*sy1 - kx1*py1*sy1)
-    d_sx1 = 2*term1 * (-px1 - kx1*py1)
-    d_sy1 = 2*term2 * (-ky1*px1 - (1+kx1*ky1)*py1)
-    d_cx1 = -2 * term1
-    d_cy1 = -2 * term2
-    -- looks like only need to hardcode half of these... anyway,
-    d_kx2 = 2*term1 * (py2 * sx2) + 2*term2 * (ky2*py2*sy2)
-    d_ky2 = 2*term2 * (px2*sy2 + kx2*py2*sy2)
-    d_sx2 = 2*term1 * (px2 + kx2*py2)
-    d_sy2 = 2*term2 * (ky2*px2 + (1+kx2*ky2)*py2)
-    d_cx2 = 2 * term1
-    d_cy2 = 2 * term2
-    in ([d_cx1, d_cy1, d_sx1, d_sy1, d_kx1, d_ky1], 
-        [d_cx2, d_cy2, d_sx2, d_sy2, d_kx2, d_ky2])

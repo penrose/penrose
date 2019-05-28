@@ -1289,6 +1289,7 @@ randomPolygon [Val (IntV n)] g =
 ------ Transform objectives and constraints
 
 -- Optimize directly on the transform
+-- this function is only a demo
 nearT :: ObjFn
 nearT [GPI o, Val (FloatV x), Val (FloatV y)] = let
       tf = getTransform o 
@@ -1309,6 +1310,9 @@ disjointPoly :: ObjFn
 disjointPoly [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eABdisj p1 p2
+
+-- pad / padding: minimum amt of separation between two shapes' boundaries.
+-- See more at energy definitions (eBinAPad, eBoutAPad, ePad, etc.)
 
 containsPolyPad :: ObjFn
 containsPolyPad [GPI o1, GPI o2, Val (FloatV ofs)] =
@@ -1335,6 +1339,9 @@ disjointAndTangent [GPI o1, GPI o2] =
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       (eABdisj p1 p2) + (dsqGG p1 p2)
 
+-- ofs / offset: exact amt of separation between two shapes' boundaries.
+-- See more at energy definitions (eBinAOffs, eBoutAOffs, eOffs, etc.)
+
 containsPolyOfs :: ObjFn
 containsPolyOfs [GPI o1, GPI o2, Val (FloatV ofs)] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
@@ -1357,24 +1364,39 @@ maximumSize [GPI o, Val (FloatV s)] = eMaxSize (getPolygon o) s
 minimumSize :: ObjFn
 minimumSize [GPI o, Val (FloatV s)] = eMinSize (getPolygon o) s
 
+
+-- inputs: shape, p.x, p.y, target.x, target.y, 
+-- where p is some point in local coordinates of shape (ex: (0,0) is the center for most shapes), 
+-- and target is some coordinates on canvas (ex: (0,0) is the origin). 
+-- Encourages transformation to shape so that p is at the location of target.
 atPoint :: ObjFn
 atPoint [GPI o, Val (FloatV ox), Val (FloatV oy), Val (FloatV x), Val (FloatV y)] = let
       tf = getTransformation o
       in dsqPP (x,y) $ tf ## (ox,oy)
 
+-- inputs: shape1, p1.x, p1.y, shape2, p2.x, p2.y, 
+-- where p1 is some point in local coordinates of shape1 (ex: (0,0) is the center for most shapes)
+-- and p2 is some point in local coordinates of shape2. 
+-- Encourages transformation to both shapes so that p1 and p2 overlap.
 atPoint2 :: ObjFn
 atPoint2 [GPI o1, Val (FloatV x1), Val (FloatV y1), GPI o2, Val (FloatV x2), Val (FloatV y2)] = let
       tf1 = getTransformation o1
       tf2 = getTransformation o2
       in dsqPP (tf1 ## (x1,y1)) (tf2 ## (x2,y2))
 
--- make polygon boundary be ofs px away from specified point
+-- inputs: shape, target.x, target.y, offset, 
+-- where target is some coordinates on canvas (ex: (0,0) is the origin). 
+-- Encourages transformation to shape so that its boundary becomes offset pixels away from target.
 -- Could have many other versions of "near". 
 nearPoint :: ObjFn
 nearPoint [GPI o, Val (FloatV x), Val (FloatV y), Val (FloatV ofs)] = let
       -- tf = getTransformation o
       in eOffsP (getPolygon o) (x,y) ofs
 
+-- inputs: shape1, p1.x, p1.y, shape2, p2.x, p2.y, offset, 
+-- where p1 is some point in local coordinates of shape1 (ex: (0,0) is the center for most shapes)
+-- and p2 is some point in local coordinates of shape2. 
+-- Encourages transformation to both shapes so that p1 and p2 are offset pixels apart.
 nearPoint2 :: ObjFn
 nearPoint2 [GPI o1, Val (FloatV x1), Val (FloatV y1), GPI o2, Val (FloatV x2), Val (FloatV y2), Val (FloatV ofs)] = let
       tf1 = getTransformation o1
@@ -1390,6 +1412,9 @@ smaller :: ObjFn
 smaller [GPI o1, GPI o2] = 
       let (p1, p2) = (getPolygon o1, getPolygon o2) in
       eSmallerThan p1 p2
+
+-- alignment and ordering: use center of bbox to represent input shapes, and align/order them
+-- See more at functions alignPPA and orderPPA 
 
 alignAlong :: ObjFn
 alignAlong [GPI o1, GPI o2, Val (FloatV angleInDegrees)] = 
