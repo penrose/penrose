@@ -37,74 +37,74 @@ Colors {
 
 
 Reals R {
-  R.len = 300.0
-  R.thickness = 2.0
-  R.color = Colors.gray
+    R.len = 300.0
+    R.thickness = 2.0
+    R.color = Colors.gray
 
-  -- TODO: draw these axes overlapping
-  R.x_axis = Arrow {
-    startX = origin.x
-    startY = origin.y
-    endX = R.len
-    endY = origin.y
-    thickness = R.thickness
-    color = R.color
-    rotation = 0.0
-  }
+    -- TODO: draw these axes overlapping
+    R.x_axis = Arrow {
+        startX : origin.x
+        startY : origin.y
+        endX : R.len
+        endY : origin.y
+        thickness : R.thickness
+        color : R.color
+        rotation : 0.0
+    }
 
-  R.y_axis = Arrow {
-    startX = origin.x
-    startY = origin.y
-    endX = origin.x
-    endY = R.len
-    thickness = R.thickness
-    color = R.color
-    rotation = 0.0
-  }
+    R.y_axis = Arrow {
+        startX : origin.x
+        startY : origin.y
+        endX : origin.x
+        endY : R.len
+        thickness : R.thickness
+        color : R.color
+        rotation : 0.0
+    }
 
-  R.x_text = Text {
-    x = R.x_axis.endX + global.padding
-    y = R.x_axis.endY + global.padding
-    string = R.label
-    rotation = 0.0
-  }
+    R.x_text = Text {
+        x : R.x_axis.endX + global.padding
+        y : R.x_axis.endY + global.padding
+        string : R.label
+        rotation : 0.0
+    }
 
-  R.y_text = Text {
-    x = R.y_axis.endX + global.padding
-    y = R.y_axis.endY + global.padding
-    string = R.label
-    rotation = 0.0
-  }
+    R.y_text = Text {
+        x : R.y_axis.endX + global.padding
+        y : R.y_axis.endY + global.padding
+        string : R.label
+        rotation : 0.0
+    }
 
-  -- R.xlabelFn = ensure nearHead(R.x_axis, R.x_text, global.padding, global.padding)
-  -- R.ylabelFn = ensure nearHead(R.y_axis, R.y_text, global.padding, global.padding)
+    -- R.xlabelFn = ensure nearHead(R.x_axis, R.x_text, global.padding, global.padding)
+    -- R.ylabelFn = ensure nearHead(R.y_axis, R.y_text, global.padding, global.padding)
 }
 
 Real r
 with Reals R { -- No In(r, `R`)
-  r.val = OPTIMIZED
-  r.len = 20.0
+    r.val = ?
+    r.len = 20.0
 
-  r.shape = Line {
-    startX = r.val
-    startY = origin.y - (r.len / 2.0)
-    endX = r.val
-    endY = origin.y + (r.len / 2.0)
-    thickness = 1.5
-    color = Colors.darkgray
-  }
+    r.shape = Line {
+        startX : r.val
+        startY : origin.y - (r.len / 2.0)
+        endX : r.val
+        endY : origin.y + (r.len / 2.0)
+        thickness : 1.5
+        color : Colors.darkgray
+    }
 
-  r.text = Text {
-    x = r.val
-    y = r.shape.startY - 1.5 * global.padding
-    string = r.label
-    rotation = 0.0
-    color = Colors.black
-  }
+    r.text = Text {
+        x : r.val
+        y : r.shape.startY - 1.5 * global.padding
+        string : r.label
+        rotation : 0.0
+        color : Colors.black
+    }
 
-  r.inFn = ensure inRange(r.val, R.x_axis.startX, R.x_axis.endX)
-  -- r.labelFn = encourage nearHead(r.shape, r.text, 0.0, -30.0)
-  r.layering = r.shape above R.x_axis
+    r.inFn = ensure inRange(r.val, R.x_axis.startX, R.x_axis.endX)
+    -- r.labelFn = encourage nearHead(r.shape, r.text, 0.0, -30.0)
+    r.layering = r.shape above R.x_axis
 }
 
 --------------------------------------------------
@@ -115,21 +115,21 @@ Interval I
 with Real a; Real b; Reals R
 where I := CreateInterval(a, b); Subset(I, R) {
   I.shape = Line {
-    startX = a.val
-    startY = origin.y
-    endX   = b.val
-    endY   = origin.y
-    color = Colors.black
-    thickness = 3.0
+      startX : a.val
+      startY : origin.y
+      endX   : b.val
+      endY   : origin.y
+      color : Colors.black
+      thickness : 3.0
   }
 
-  -- position computed, not optimized
+  -- position computed, not ?
   I.text = Text {
-    string = I.label
-    x = I.shape.startX + (I.shape.endX - I.shape.startX) / 2.0
-    y = origin.y - 3.5 * global.padding
-    rotation = 0.0
-    color = Colors.black
+      string : I.label
+      x : I.shape.startX + (I.shape.endX - I.shape.startX) / 2.0
+      y : origin.y - 3.5 * global.padding
+      rotation : 0.0
+      color : Colors.black
   }
 
   I.orderFn = ensure lessThan(a.val, b.val)
@@ -147,13 +147,13 @@ where I := Union(J, K); Subset(I, R) {
       -- this is a hack
       /*
       I.shape = Line {
-  	      color = Colors.none
+            color : Colors.none
       } */
 
       -- I.text = Text {
-      -- 	     string = I.label
-      -- 	     y = origin.y + global.padding
-      -- 	     rotation = 0.0
+      -- 	     string : I.label
+      -- 	     y : origin.y + global.padding
+      -- 	     rotation : 0.0
       -- }
       -- override J.shape.color = Colors.orange
       -- override K.shape.color = Colors.orange
@@ -166,9 +166,9 @@ where I := Union(J, K); Subset(I, R) {
 Real r
 with Interval I; Reals R; Real a; Real b
 where I := CreateInterval(a, b); In(r, I); Subset(I, R) {
-  override r.inFn = ensure inRange(r.val, a.val, b.val)
+    override r.inFn = ensure inRange(r.val, a.val, b.val)
 
-  r.layering_int = r.shape above I.shape
+    r.layering_int = r.shape above I.shape
 }
 
 
@@ -176,21 +176,21 @@ Real a; Real b
 with ClosedInterval I; Reals R -- TODO: be able to say Interval I?
 where I := CreateClosedInterval(a, b); Subset(I, R) {
     override a.shape = Image {
-        path = "left-bracket.svg"
-        centerX = a.val
-        centerY = origin.y
-        lengthX = 10.0
-        lengthY = 20.0
-	rotation = 0.0
+        path : "left-bracket.svg"
+        centerX : a.val
+        centerY : origin.y
+        lengthX : 10.0
+        lengthY : 20.0
+        rotation : 0.0
     }
 
     override b.shape = Image {
-        path = "right-bracket.svg"
-        centerX = b.val
-        centerY = origin.y
-        lengthX = 10.0
-        lengthY = 20.0
-	rotation = 0.0
+        path : "right-bracket.svg"
+        centerX : b.val
+        centerY : origin.y
+        lengthX : 10.0
+        lengthY : 20.0
+        rotation : 0.0
     }
 
     override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
@@ -206,21 +206,21 @@ Real a; Real b
 with OpenInterval I; Reals R -- TODO: be able to say Interval I?
 where I := CreateOpenInterval(a, b); Subset(I, R) {
     override a.shape = Image {
-        path = "left-paren.svg"
-        centerX = a.val
-        centerY = origin.y
-        lengthX = 10.0
-        lengthY = 20.0
-	rotation = 0.0
+        path : "left-paren.svg"
+        centerX : a.val
+        centerY : origin.y
+        lengthX : 10.0
+        lengthY : 20.0
+        rotation : 0.0
     }
 
     override b.shape = Image {
-        path = "right-paren.svg"
-        centerX = b.val
-        centerY = origin.y
-        lengthX = 10.0
-        lengthY = 20.0
-	rotation = 0.0
+        path : "right-paren.svg"
+        centerX : b.val
+        centerY : origin.y
+        lengthX : 10.0
+        lengthY : 20.0
+        rotation : 0.0
     }
 
     override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
@@ -236,21 +236,21 @@ Real a; Real b
 with LeftClopenInterval I; Reals R
 where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
   override a.shape = Image {
-      path = "left-bracket.svg"
-      centerX = a.val
-      centerY = origin.y
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "left-bracket.svg"
+      centerX : a.val
+      centerY : origin.y
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
   override b.shape = Image {
-      path = "right-paren.svg"
-      centerX = b.val
-      centerY = origin.y
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "right-paren.svg"
+      centerX : b.val
+      centerY : origin.y
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
     override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
@@ -263,29 +263,29 @@ where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
 Interval I
 with Real x; Real y; Reals `R`
 where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
-      override I.shape = Arrow {
-           startX = x.val
-	       startY = origin.y
-	       endX = `R`.x_axis.endX
-	       endY = origin.y
-	       thickness = 3.0
-	       color = Colors.bluegreen
-	       rotation = 0.0
-      }
+    override I.shape = Arrow {
+        startX : x.val
+        startY : origin.y
+        endX : `R`.x_axis.endX
+        endY : origin.y
+        thickness : 3.0
+        color : Colors.bluegreen
+        rotation : 0.0
+    }
 
-      override I.text.color = I.shape.color
-      override x.text.color = I.shape.color
-      override y.val = `R`.x_axis.endX
-      delete y.shape
-      delete y.text
-      delete y.layering
-      delete y.inFn
-      -- delete y.labelFn
+    override I.text.color = I.shape.color
+    override x.text.color = I.shape.color
+    override y.val = `R`.x_axis.endX
+    delete y.shape
+    delete y.text
+    delete y.layering
+    delete y.inFn
+    -- delete y.labelFn
 
-      override I.orderFn = ensure lessThan(x.val, `R`.x_axis.endX)
-      -- delete I.riFn
+    override I.orderFn = ensure lessThan(x.val, `R`.x_axis.endX)
+    -- delete I.riFn
 
-      I.maxSizeFn = ensure maxSize(I.shape, 0.3 * `R`.len)
+    I.maxSizeFn = ensure maxSize(I.shape, 0.3 * `R`.len)
 }
 
 Interval `A`; Interval `K` {
@@ -328,14 +328,14 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
   f.color = Colors.sky
 
   f.shape = Curve {
-    path = f.val
-    pathData = interpolate(f.val)
-    fill = Colors.none
-    color = f.color
-    strokeWidth = 2.0
-    polyline = polygonizeCurve(5, f.shape.pathData)
-    -- right-arrowhead = True
-    -- left-arrowhead = True
+    path : f.val
+    pathData : interpolate(f.val)
+    fill : Colors.none
+    color : f.color
+    strokeWidth : 2.0
+    polyline : polygonizeCurve(5, f.shape.pathData)
+    -- right-arrowhead : True
+    -- left-arrowhead : True
     -- TODO: start and end style depending on the interval
   }
 
@@ -344,11 +344,11 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
 
   -- TODO: position label using midpointPathX(f.val)
   f.text = Text {
-    x = midpointX(I.shape)
-    y = midpointY(R.y_axis)
-    string = f.label
-    rotation = 0.0
-    color = f.shape.color
+    x : midpointX(I.shape)
+    y : midpointY(R.y_axis)
+    string : f.label
+    rotation : 0.0
+    color : f.shape.color
   }
 }
 
@@ -373,62 +373,62 @@ where f := CreateFunction(I, R);
       f.val2 = sampleFunction(f.pts2, K.shape, R.y_axis)
 
       f.shape1 = Curve {
-          path = f.val1
-          pathData = interpolate(f.val1)
-          polyline = polygonizeCurve(5, f.shape1.pathData)
-          fill = Colors.none
-          color = f.color
-	  strokeWidth = global.stroke
+          path : f.val1
+          pathData : interpolate(f.val1)
+          polyline : polygonizeCurve(5, f.shape1.pathData)
+          fill : Colors.none
+          color : f.color
+          strokeWidth : global.stroke
           -- TODO: start and end style depending on the interval
       }
 
       f.text1 = Text {
-          x = midpointPathX(f.val1)
-          y = midpointPathY(f.val1)
-          string = f.label
-          rotation = 0.0
-          color = f.color
+          x : midpointPathX(f.val1)
+          y : midpointPathY(f.val1)
+          string : f.label
+          rotation : 0.0
+          color : f.color
       }
 
       -- TODO: make the 1 and 2 more generic w/ programmatic # shapes
       f.shape2 = Curve {
-    	path = f.val2
-    	pathData = interpolate(f.val2)
-        polyline = polygonizeCurve(5, f.shape2.pathData)
-    	fill = Colors.none
-    	color = f.color
-	strokeWidth = global.stroke
-    	-- TODO: start and end style depending on the interval
+          path : f.val2
+          pathData : interpolate(f.val2)
+          polyline : polygonizeCurve(5, f.shape2.pathData)
+          fill : Colors.none
+          color : f.color
+          strokeWidth : global.stroke
+          -- TODO: start and end style depending on the interval
       }
 
       f.text2 = Text {
-          x = midpointPathX(f.val2)
-          y = midpointPathY(f.val2)
-          string = f.label
-          rotation = 0.0
-          color = f.color
+          x : midpointPathX(f.val2)
+          y : midpointPathY(f.val2)
+          string : f.label
+          rotation : 0.0
+          color : f.color
       }
 
       -- Discontinuity
       f.shape3 = Circle {
-          r = 6.0
-          color = Colors.white
-          strokeWidth = 2.5
-          strokeColor = f.color
-          strokeStyle = "solid"
-          x = fromDomain(f.shape2.polyline)
-          y = applyFn(f.shape2.polyline, f.shape3.x)
+          r : 6.0
+          color : Colors.white
+          strokeWidth : 2.5
+          strokeColor : f.color
+          strokeStyle : "solid"
+          x : fromDomain(f.shape2.polyline)
+          y : applyFn(f.shape2.polyline, f.shape3.x)
       }
 
       -- Value of function
       f.shape4 = Circle {
-          r = 5.0
-          color = Colors.orange
-          strokeWidth = 2.5
-          strokeColor = Colors.orange
-          strokeStyle = "solid"
-          x = f.shape3.x
-          y = 50.0 -- TODO: OPTIMIZED
+          r : 5.0
+          color : Colors.orange
+          strokeWidth : 2.5
+          strokeColor : Colors.orange
+          strokeStyle : "solid"
+          x : f.shape3.x
+          y : 50.0 -- TODO: ?
       }
 
       f.domainFn = ensure disjoint(J.shape, K.shape)
@@ -478,32 +478,32 @@ where p := Pt(x, y);
       In(x, I) {
 
       p.shape = Circle {
-          x = x.val
-	      y = y.val
-	      r = 3.0
-	      color = Colors.sky
-	      strokeColor = Colors.sky
-	      strokeWidth = 0.0
+          x : x.val
+          y : y.val
+          r : 3.0
+          color : Colors.sky
+          strokeColor : Colors.sky
+          strokeWidth : 0.0
       }
 
       p.vert = Line {
-          startX = x.val
-          startY = origin.y
-          endX = x.val
-          endY = y.val
-          thickness = 1.5
-          style = "dashed"
-          color = f.shape.color
+          startX : x.val
+          startY : origin.y
+          endX : x.val
+          endY : y.val
+          thickness : 1.5
+          style : "dashed"
+          color : f.shape.color
       }
 
       p.horiz = Line {
-          startX = origin.x
-          startY = y.val
-          endX = x.val
-          endY = y.val
-          thickness = 1.5
-          style = "dashed"
-          color = f.shape.color
+          startX : origin.x
+          startY : y.val
+          endX : x.val
+          endY : y.val
+          thickness : 1.5
+          style : "dashed"
+          color : f.shape.color
       }
 }
 
@@ -519,12 +519,12 @@ where dfx := DerivativeAtP(f, x); f := CreateFunction(I, R);
       -- delete dfx.labelFn
 
       override dfx.shape = Line {
-          startX = tangentLineSX(f.shape.polyline, x.val, 150.0)
-          startY = tangentLineSY(f.shape.polyline, x.val, 150.0)
-          endX = tangentLineEX(f.shape.polyline, x.val, 150.0)
-          endY = tangentLineEY(f.shape.polyline, x.val, 150.0)
-          thickness = 2.0
-          color = Colors.lightsky
+          startX : tangentLineSX(f.shape.polyline, x.val, 150.0)
+          startY : tangentLineSY(f.shape.polyline, x.val, 150.0)
+          endX : tangentLineEX(f.shape.polyline, x.val, 150.0)
+          endY : tangentLineEY(f.shape.polyline, x.val, 150.0)
+          thickness : 2.0
+          color : Colors.lightsky
       }
       override dfx.layering = dfx.shape above f.shape
 
@@ -548,11 +548,11 @@ where U := Union(I, J);
 
       -- compute Integral as a shape that lies under fn curve
       override ifI.shape = Curve {
-          pathData = makeRegionPath(f.shape1, I.shape)
-          strokeWidth = 0.0
-          fill = Colors.lightorange
-          color = Colors.lightorange
-          rotation = 0.0
+          pathData : makeRegionPath(f.shape1, I.shape)
+          strokeWidth : 0.0
+          fill : Colors.lightorange
+          color : Colors.lightorange
+          rotation : 0.0
       }
 
       override ifI.text.color = ifI.shape.color

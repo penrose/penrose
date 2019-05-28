@@ -1,13 +1,13 @@
 Point p {
   p.shape = RectangleTransform {
-    strokeWidth = 0
-    rotation = 0.35
+    strokeWidth : 0
+    rotation : 0.35
   }
 
   p.text = TextTransform {
-    scaleX = 1.0
-    scaleY = 1.0
-    string = p.label
+    scaleX : 1.0
+    scaleY : 1.0
+    string : p.label
   }
 
   LOCAL.layering = p.shape below p.text

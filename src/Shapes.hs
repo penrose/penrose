@@ -120,6 +120,22 @@ idH' = M.fromList [
 
 ---------
 
+-- Types
+
+-- | possible values in the argument of computation, constraint, or objectives
+data ArgVal a = GPI (Shape a) | Val (Value a)
+     deriving (Eq, Show, Generic)
+
+ -- | possible types in the argument of computation, constraint, or objectives.
+ -- Used for type checking functions
+data ArgType
+    = GPIType ShapeTypeStr
+    | ValueT ValueType
+    | OneOf [ShapeTypeStr]
+    | AnyGPI
+    deriving (Eq, Show)
+
+
 -- | types of fully evaluated values in Style
 data ValueType
     = FloatT
@@ -128,6 +144,9 @@ data ValueType
     | StrT
     | PtT
     | PtListT
+    | ListT
+    | TupT
+    | LListT
     | PathDataT
     | ColorT
     | FileT
@@ -160,22 +179,26 @@ data Value a
     | FileV String
     -- | dotted, etc.
     | StyleV String
+    -- | Lists and tuples of floats
+    | ListV [a]
+    | TupV (a, a)
+    | LListV [[a]]
 
     -- | single transformation
          -- TODO: which to use?
     | TransformV (Transformation a)
     | HMatrixV (HMatrix a)
     | MapV (Properties a)
+    -- | Multiple shapes with holes
     | PolygonV (Polygon a)
-
-    -- TODO: 
-    -- | PolygonV (Polygon a)
-    -- Multiple things with holes
 
     deriving (Generic, Eq, Show)
 
 instance (FromJSON a) => FromJSON (Value a)
 instance (ToJSON a)   => ToJSON (Value a)
+
+instance (FromJSON a) => FromJSON (ArgVal a)
+instance (ToJSON a)   => ToJSON (ArgVal a)
 
 -- | returns the type of a 'Value'
 typeOf :: (Autofloat a) => Value a -> ValueType
@@ -186,6 +209,10 @@ typeOf v = case v of
      StrV   _     -> StrT
      PtV    _     -> PtT
      PtListV    _ -> PtListT
+     TupV _ -> TupT
+     ListV _ -> ListT
+     LListV _ -> LListT
+     
      PathDataV  _ -> PathDataT
      ColorV _     -> ColorT
      FileV  _     -> FileT
@@ -195,11 +222,17 @@ typeOf v = case v of
      MapV _ -> MapT
      PolygonV _ -> PolygonT
 
+-----------------
+
 toPolymorphics :: [Shape Double] -> (forall a . (Autofloat a) => [Shape a])
 toPolymorphics = map toPolymorphic
 
 toPolymorphic :: Shape Double -> (forall a . (Autofloat a) => Shape a)
 toPolymorphic (ctor, properties) = (ctor, M.map toPolyProperty properties)
+
+toPolyArgVal :: ArgVal Double -> (forall a . (Autofloat a) => ArgVal a)
+toPolyArgVal (GPI x) = GPI $ toPolymorphic x
+toPolyArgVal (Val x) = Val $ toPolyProperty x
 
 toPolyProperty :: Value Double -> (forall a . (Autofloat a) => Value a)
 toPolyProperty v = case v of
@@ -210,6 +243,9 @@ toPolyProperty v = case v of
     IntV x    -> IntV x
     PtV p -> PtV $ r2 p
     PtListV xs  -> PtListV $ map r2 xs
+    ListV xs -> ListV $ map r2f xs
+    TupV x -> TupV $ r2 x
+    LListV xs -> LListV $ map (map r2f) xs
     ColorV x  -> ColorV x
     FileV x   -> FileV x
     StyleV x  -> StyleV x
@@ -695,8 +731,10 @@ braceType = ("Brace", M.fromList
 
 curveType = ("Curve", M.fromList
     [
+        -- These two fields are for storage.
         ("path", (PtListT, constValue $ PtListV [])), -- TODO: sample path
         ("polyline", (PtListT, constValue $ PtListV [])), -- TODO: sample path
+        -- The frontend only uses pathData to draw the curve.
         ("pathData", (PathDataT, constValue $ PathDataV [])), -- TODO: sample path
         ("strokeWidth", (FloatT, stroke_sampler)),
         ("style", (StrT, constValue $ StrV "solid")),
@@ -713,9 +751,10 @@ lineType = ("Line", M.fromList
         ("startY", (FloatT, y_sampler)),
         ("endX", (FloatT, x_sampler)),
         ("endY", (FloatT, y_sampler)),
-        -- TODO: deal with derived property "path" here or in the frontend
         ("thickness", (FloatT, sampleFloatIn (5, 15))),
-        -- TODO: list the possible styles for each attribute of each GPI
+
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "solid")),
         ("stroke", (StrT, constValue $ StrV "none")),
@@ -788,10 +827,15 @@ arcType = ("Arc", M.fromList
         ("lengthY", (FloatT, height_sampler)),
         ("angle", (FloatT, angle_sampler)),
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
+
         ("isRight", (BoolT, bool_sampler)), -- This property overrides the angle property
-        ("color", (ColorT, sampleColor)),
-        ("style", (StrT, constValue $ StrV "none")),
-        ("stroke", (StrT, constValue $ StrV "none")),
+
+        ("strokeWidth", (FloatT, constValue $ FloatV 1.0)),
+        ("strokeColor", (ColorT, sampleColor)),
+        ("fillColor", (ColorT, sampleColor)),
+        ("left-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+
         ("name", (StrT, constValue $ StrV "defaultArc"))
     ])
 

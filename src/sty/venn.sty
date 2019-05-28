@@ -1,10 +1,10 @@
 Set x {
     x.shape = Circle {
-        strokeWidth = 0
+        strokeWidth : 0
     }
 
     x.text = Text {
-      string = x.label
+        string : x.label
     }
 
     x.labelFn = ensure contains(x.shape, x.text)
@@ -41,16 +41,16 @@ where Intersect(x, y) {
 }
 
 Point p {
-      p.offset = 10.0
-      p.shape = Circle {
-      	      strokeWidth = 0
-	      color = rgba(0.0, 0.0, 0.0, 1.0)
-	      r = 3.0
-      }
+    p.offset = 10.0
+    p.shape = Circle {
+        strokeWidth : 0
+        color : rgba(0.0, 0.0, 0.0, 1.0)
+        r : 3.0
+    }
 
-      p.text = Text {
-	string = p.label
-	x = p.shape.x + p.offset
-	y = p.shape.y + p.offset
-      }
+    p.text = Text {
+        string : p.label
+        x : p.shape.x + p.offset
+        y : p.shape.y + p.offset
+    }
 }

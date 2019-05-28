@@ -32,7 +32,7 @@ import qualified SubstanceTokenizer         as T
 
 -------------------------------- Sugaring --------------------------------------
 
--- | The top function for translating StmtNotations, gets as an input String of
+-- | The top-level function for translating StmtNotations, gets as an input String of
 --   sugared program + the DSLL env, and returns a string of desugared program.
 --   All the NotationStmts are stored in dsllEnv.
 sugarStmts :: String -> VarEnv -> String

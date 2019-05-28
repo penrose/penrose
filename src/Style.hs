@@ -205,10 +205,12 @@ data Expr
     | BinOp BinaryOp Expr Expr
     | UOp UnaryOp Expr
     | List [Expr]
+    | Tuple Expr Expr
     | ListAccess Path Integer
     | Ctor String [PropertyDecl] -- Shouldn't be using this, since we have PropertyDict
     | Layering Path Path -- ^ first GPI is *below* the second GPI
     | PluginAccess String Expr Expr -- ^ Plugin name, Substance name, Key
+    | ThenOp Expr Expr -- COMBAK: double check how transforms are modeled, probably just a list of CompApp
     deriving (Show, Eq, Typeable)
 
 -- DEPRECATED
@@ -355,12 +357,14 @@ delete   = Delete   <$> (rword "delete"   >> path)
 expr :: Parser Expr
 expr = tryChoice [
            constructor,
-           objFn,
-           constrFn,
            layeringExpr,
            arithmeticExpr,
+           objFn,
+           constrFn,
+           transformExpr, -- COMBAK: ordering
            compFn,
            list,
+           tuple,
            stringLit,
            boolLit
        ]
@@ -416,6 +420,19 @@ layeringExpr = try layeringAbove <|> layeringBelow
             path2 <- path
             return $ Layering path2 path1
 
+transformExpr :: Parser Expr
+transformExpr = makeExprParser tTerm tOperators
+
+tTerm :: Parser Expr
+tTerm = compFn
+
+tOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
+tOperators =
+    [   -- Highest precedence
+        [ InfixL (ThenOp <$ symbol "then") ]
+        -- Lowest precedence
+    ]
+
 -- DEPRECATED
 -- layeringExpr :: Parser LExpr
 -- layeringExpr = makeExprParser lTerm Style.lOperators
@@ -450,8 +467,9 @@ objFn    = ObjFn <$> (rword "encourage" >> identifier) <*> exprsInParens
 constrFn = ConstrFn <$> (rword "ensure" >> identifier) <*> exprsInParens
 exprsInParens = parens $ expr `sepBy` comma
 
-list :: Parser Expr
+list, tuple :: Parser Expr
 list = List <$> brackets (expr `sepBy1` comma)
+tuple = parens (Tuple <$> expr <*> (comma >> expr))
 
 constructor :: Parser Expr
 constructor = do
@@ -460,7 +478,7 @@ constructor = do
     return $ Ctor typ fields
 
 propertyDecl :: Parser PropertyDecl
-propertyDecl = PropertyDecl <$> identifier <*> (eq >> expr)
+propertyDecl = PropertyDecl <$> identifier <*> (colon >> expr)
 
 boolLit :: Parser Expr
 boolLit =  (rword "True" >> return (BoolLit True))
@@ -471,7 +489,7 @@ stringLit :: Parser Expr
 stringLit = StringLit <$> (symbol "\"" >> manyTill L.charLiteral (try (symbol "\"")))
 
 annotatedFloat :: Parser AnnoFloat
-annotatedFloat = (rword "OPTIMIZED" *> pure Vary) <|> Fix <$> float
+annotatedFloat = (question *> pure Vary) <|> Fix <$> float
 
 ------------------------------------------------------------------------
 -------- STYLE COMPILER
@@ -855,6 +873,8 @@ substituteBlockExpr lv subst expr =
     BoolLit _         -> expr
     -- TODO: check if this is right
     PluginAccess pluginName e1 e2 -> PluginAccess pluginName (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
+    Tuple e1 e2 -> Tuple (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
+    ThenOp e1 e2 -> ThenOp (substituteBlockExpr lv subst e1) (substituteBlockExpr lv subst e2)
 
 substituteLine :: LocalVarId -> Subst -> Stmt -> Stmt
 substituteLine lv subst line =
@@ -1445,6 +1465,8 @@ evalPluginAccess valMap trans =
                   evalPluginExpr vmap (BinOp o e1 e2) = BinOp o (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
                   evalPluginExpr vmap (UOp o e) = UOp o $ evalPluginExpr vmap e
                   evalPluginExpr vmap (List es) = List $ map (evalPluginExpr vmap) es
+                  evalPluginExpr vmap (Tuple e1 e2) = Tuple (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
+                  evalPluginExpr vmap (ThenOp e1 e2) = ThenOp (evalPluginExpr vmap e1) (evalPluginExpr vmap e2)
 
                   -- Leaves (no strings should be involved)
                   evalPluginExpr _ e@(IntLit _) = e

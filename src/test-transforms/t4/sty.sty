@@ -1,12 +1,12 @@
 Set x {
     x.shape = CircleTransform {
-        strokeWidth = 0
+        strokeWidth : 0
     }
 
     x.text = TextTransform {
-      scaleX = 1.0
-      scaleY = 1.0
-      string = x.label
+      scaleX : 1.0
+      scaleY : 1.0
+      string : x.label
     }
 
     x.labelFn = encourage containsPoly(x.shape, x.text)
@@ -23,15 +23,15 @@ where NotIntersecting(x, y) {
 
 Point p {
   p.shape = RectangleTransform {
-    strokeWidth = 0
-    sizeX = 140.0
-    sizeY = 8.0
+    strokeWidth : 0
+    sizeX : 140.0
+    sizeY : 8.0
   }
 
   p.text = TextTransform {
-    scaleX = 1.0
-    scaleY = 1.0
-    string = p.label
+    scaleX : 1.0
+    scaleY : 1.0
+    string : p.label
   }
 
   LOCAL.layering = p.shape below p.text

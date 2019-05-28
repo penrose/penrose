@@ -313,3 +313,57 @@ map2 f (a, b) = (f a, f b)
 
 rotateList :: [a] -> [a]
 rotateList l = take (length l) $ drop 1 (cycle l)
+
+-- | Scale a value x in [lower, upper] linearly to x' lying in range [lower', upper'].
+-- (Allow reverse lerping, i.e. upper < lower)
+scaleLinear :: Autofloat a => a -> Pt2 a -> Pt2 a -> a
+scaleLinear x (lower, upper) (lower', upper') = 
+            if x < lower || x > upper 
+            then trace ("invalid value " ++ show x ++ " to range " ++ show (lower, upper)) x
+                 -- Values may be wrong in the intermediate stage due to optimization, so maybe clamp to range anyway
+            else let (range, range') = (upper - lower, upper' - lower')
+                 in ((x - lower) / range) * range' + lower'
+
+-- n = number of interpolation points (not counting endpoints)
+-- so with n = 1, we would have [x1, (x1+x2/2), x2]
+lerp :: Autofloat a => a -> a -> Int -> [a]
+lerp x1 x2 n = let dx = (x2 - x1) / (fromIntegral n + 1) in
+               take (n + 2) $ iterate (+ dx) x1
+
+lerp2 :: Autofloat a => Pt2 a -> Pt2 a -> Int -> [Pt2 a]
+lerp2 (x1, y1) (x2, y2) n = let xs = lerp x1 x2 n 
+                                ys = lerp y1 y2 n
+                            in zip xs ys -- Interp both simultaneously
+                            -- Interp the first, then the second
+                            -- in zip xs (repeat y1) ++ zip (repeat x2) ys
+
+cross :: Autofloat a => [a] -> [a] -> [a]
+cross [x1, y1, z1] [x2, y2, z2] = [ y1 * z2   -   y2 * z1,
+                                    x2 * z1   -   x1 * z2,
+                                    x1 * y2   -   x2 * y1 ]
+
+angleBetweenRad :: Autofloat a => [a] -> [a] -> a -- Radians
+angleBetweenRad p q = acos ((p `dotL` q) / (norm p * norm q + epsd))
+
+-- n is the "original" plane normal for pq
+-- https://stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+angleBetweenSigned :: Autofloat a => [a] -> [a] -> [a] -> a -- Radians
+angleBetweenSigned n p q = let sign = -1 * signum ((p `cross` q) `dotL` n) in
+                           sign * angleBetweenRad p q
+
+-- Unit rotation in the plane of the basis vectors (e1, e2) to time t (arc length)
+-- Used for spherical geometry.
+-- NOTE: expects e1 and e2 to be unit vectors
+circPtInPlane :: Autofloat a => [a] -> [a] -> a -> [a]
+circPtInPlane e1 e2 t = cos t *. e1 +. sin t *. e2
+
+-- Assuming unit circle and unit basis vectors. Arc starts at e1.
+slerp :: Autofloat a => Int -> a -> a -> [a] -> [a] -> [[a]]
+slerp n t0 t1 e1 e2 = let dt = (t1 - t0) / (fromIntegral n + 1)
+                          ts = take (n + 2) $ iterate (+ dt) t0
+                       in map (circPtInPlane e1 e2) ts -- Travel along the arc
+
+-- Project q onto p, without normalization
+proj :: Autofloat a => [a] -> [a] -> [a]
+proj p q = let unit_p = normalize p
+           in (q `dotL` unit_p) *. unit_p

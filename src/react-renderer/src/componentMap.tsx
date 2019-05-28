@@ -4,6 +4,7 @@ import Image from "./Image";
 import Label from "./Label";
 import LabelTransform from "./LabelTransform";
 import Rectangle from "./Rectangle";
+import Arc from "./Arc";
 import RectangleTransform from "./RectangleTransform";
 import CircleTransform from "./CircleTransform";
 import EllipseTransform from "./EllipseTransform";
@@ -22,6 +23,7 @@ import ParallelogramTransform from "./ParallelogramTransform";
 const componentMap = {
   "Circle": Circle,
   "Rectangle": Rectangle,
+  "Arc": Arc,
   "RectangleTransform": RectangleTransform,
   "CircleTransform": CircleTransform,
   "EllipseTransform": EllipseTransform,

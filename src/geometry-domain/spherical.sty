@@ -1,0 +1,235 @@
+Colors {
+    -- Keenan palette
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
+    -- Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    -- Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    -- Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    -- Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    -- Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    -- Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    -- Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    -- Colors.lightpurple = rgba(0.5, 0.0, 0.5, 0.25)
+    -- Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    -- Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+G {
+    G.padding = 20.0
+    G.stroke = 2.0
+    G.spacing = 150.0
+    G.scaleFactor = 100.0
+    G.pi = 3.14159
+    G.two_pi = 6.28319
+    G.sqrt_22 = 1.414/2.0
+    G.numArcPts = 20
+
+    G.sphereRadius = 1.0
+    G.dist_to_sphere = 2.0
+    G.dist_to_sphere_center = G.dist_to_sphere + G.sphereRadius
+    G.camera_z = G.dist_to_sphere + G.sphereRadius
+    G.camera = [0.0, 0.0, -1.0 * G.camera_z]     -- x, y, z in math space 
+    		  -- Note: Sphere has r=0.5, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
+    G.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
+    G.hfov = (-5.0, 5.0)
+    G.vfov = (-5.0, 5.0)
+
+    G.toScreen = 500.0
+
+    G.test = Circle {
+    		x : 0.0
+		y : 0.0
+		-- r : (G.sphereRadius * G.toScreen / G.dist_to_sphere_center) 
+		r : 0.353 * G.toScreen
+		-- The projective plane is at z=1 and the widest part of the sphere is at z=3
+		-- Unintuitively, after projection, there is a point wider than the diameter of the sphere. That would project to z = +/- 1/3.
+		-- But here is the widest z:
+		-- circPts = map (\t -> (cos t, sin t)) [0, (2 * pi) / 100 .. 2 * pi] -- Unit circle in (x,z)
+		-- maximum $ map (\(x, z) -> x/(z + 3)) circPts -- Move it forward then project on z=1
+		-- 0.3534234568955392 -- This is wider than 1/3!!!
+		color : setOpacity(Colors.blue, 0.1)
+		strokeWidth : 1.0
+		strokeColor : Colors.black
+    }
+
+    G.dof = ?
+}
+
+Point p {
+      -- Point on sphere
+      p.x = ?
+      p.y = ?
+      p.z = ?
+      p.vec_math = [p.x, p.y, p.z]
+      p.onSphereFn = ensure hasNorm(p.vec_math, G.sphereRadius) -- 0.5
+      -- TODO: for visibility, only pick points on the front of the sphere. This produces really cramped-looking diagrams right now.
+      -- p.visibleFn = ensure lessThan(p.z, 0.0)
+
+      -- x_screen, y_screen, z_projected (not converted to screen)
+      p.vec_screen = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, p.vec_math, G.toScreen, p.shape.name)
+
+      p.z_sphere_range = (-1.0 * G.sphereRadius + G.camera_z, G.sphereRadius + G.camera_z) -- Closer to camera, farther from camera
+      p.z_screen_range = (4.0, 1.0) -- reverse lerp because it should be bigger if closer to camera
+
+      -- TODO: open parser issue: no inline exprs here?
+       p.shape = Circle {
+         x : get(p.vec_screen, 0)
+	 y : get(p.vec_screen, 1)
+	       -- z in [-0.5,0.5] -> [1.5, 2.5] -> [3, 10]. 
+	       -- TODO check/update this. This only works if z would lie on the sphere in math space
+         r : max(scaleLinear(get(p.vec_screen, 2), p.z_sphere_range, p.z_screen_range), 0.0)
+	 color : Colors.midnightblue -- setOpacity(Colors.red, 0.4)
+	 strokeWidth : 1.0
+	 strokeColor : Colors.midnightblue
+       }
+
+       p.text = Text {
+	 x : p.shape.x + G.padding
+	 y : p.shape.y + G.padding
+	 string : p.label
+	 rotation : 0.0
+	 color : p.shape.color
+       }
+}
+
+Segment e
+where e := MkSegment(p, q)
+with Point p; Point q {
+     -- Line on sphere. (Arc of a circle, or a geodesic)
+     -- Interpolate between each one's sphere coords to yield several points
+     -- then project all of them into screen space
+
+     e.arcPath = slerp(p.vec_math, q.vec_math, G.numArcPts)
+     e.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, e.arcPath, G.toScreen, e.shape.name)
+
+     -- Draw a path using the slerp'ed points
+     e.shape = Curve {
+     	     pathData : pathFromPoints(e.screenspacePath)
+	     strokeWidth : 2.0
+	     fill : Colors.none
+	     color : Colors.midnightblue
+	     rotation : 0.0
+     }
+
+     e.layering1 = p.shape above e.shape
+     e.layering2 = q.shape above e.shape
+}
+
+Ray r {
+    r.length = 100.0
+}
+
+Triangle t
+where t := MkTriangleP(p, q, r)
+with Point p; Point q; Point r {
+     t.arcPath_pq = slerp(p.vec_math, q.vec_math, G.numArcPts)
+     t.screenspacePath_pq = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, t.arcPath_pq, G.toScreen, t.shape.name)
+
+     t.arcPath_qr = slerp(q.vec_math, r.vec_math, G.numArcPts)
+     t.screenspacePath_qr = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, t.arcPath_qr, G.toScreen, t.shape.name)
+
+     t.arcPath_rp = slerp(r.vec_math, p.vec_math, G.numArcPts)
+     t.screenspacePath_rp = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, t.arcPath_rp, G.toScreen, t.shape.name)
+
+     t.shape = Curve {
+     	     pathData : join(t.screenspacePath_pq, t.screenspacePath_qr, t.screenspacePath_rp) -- Connect them in a particular order
+	     strokeWidth : 0.0
+	     fill : setOpacity(Colors.blue, 0.2)
+	     color : Colors.none
+	     rotation : 0.0
+     }
+}
+
+Ray r
+with Segment s; Point p; Point q
+where r := PerpendicularBisector(s); s := MkSegment(p, q) {
+
+      r.rayArcLen = G.pi / 6.0
+      r.tail_vec_math = halfwayPoint(p.vec_math, q.vec_math) -- The part w/o arrow
+      r.head_vec_math = normalOnSphere(p.vec_math, q.vec_math, r.tail_vec_math, r.rayArcLen)
+      r.arcPath = slerp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
+      r.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.arcPath, G.toScreen, r.shape.name)
+
+      -- Ray
+      r.shape = Curve {
+      	      pathData : pathFromPoints(r.screenspacePath)
+	      strokeWidth : 2.0
+	      fill : Colors.none
+	      color : Colors.midnightblue
+	      rotation : 0.0
+	      right-arrowhead : True
+      }
+
+      r.perpArcLen = G.pi / 30.0
+      r.perpmarkPath = perpPath(p.vec_math, q.vec_math, r.tail_vec_math, r.head_vec_math, r.perpArcLen)
+      r.perpmark_screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.perpmarkPath, G.toScreen, r.shape.name)
+
+      r.perpMark = Curve {
+      	      pathData : pathFromPoints(r.perpmark_screenspacePath)
+	      strokeWidth : 1.5
+	      color : Colors.lightslategray
+	      fill : Colors.none
+      }
+}
+
+Point p
+where p := Midpoint(s); s := MkSegment(a, b)
+with Segment s; Point a; Point b {
+     override p.vec_math = halfwayPoint(a.vec_math, b.vec_math)
+     delete p.onSphereFn
+     delete p.visibleFn
+}
+
+-- Assuming the segments share a point
+Angle theta
+where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
+with Segment a; Segment b; Point p; Point q; Point r {
+
+     theta.radius = G.pi / 20.0
+     theta.arcPath = arcPath(p.vec_math, q.vec_math, r.vec_math, theta.radius)
+     theta.arcPath_screenspace = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, theta.arcPath, G.toScreen, theta.shape.name)
+
+     theta.shape = Curve {
+     		 pathData : pathFromPoints(theta.arcPath_screenspace)
+		 strokeWidth : 1.5
+		 color : Colors.lightslategray
+		 fill : Colors.none
+     }
+}
+
+Ray r
+with Angle theta; Segment a; Segment b; Point x; Point y; Point z
+where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b := MkSegment(x, z) {
+
+      -- TODO: note that there's a decent amount of code shared between here and the PerpendicularBisector selector
+      -- Move some into the basic Ray selector?
+      r.rayArcLen = G.pi / 6.0
+      r.tail_vec_math = x.vec_math
+      r.head_vec_math = angleBisector(x.vec_math, y.vec_math, z.vec_math, r.rayArcLen)
+      r.arcPath = slerp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
+      r.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.arcPath, G.toScreen, r.shape.name)
+
+      r.shape = Curve {
+      	      pathData : pathFromPoints(r.screenspacePath)
+	      strokeWidth : 2.0
+	      fill : Colors.none
+	      color : Colors.midnightblue
+	      rotation : 0.0
+	      right-arrowhead : True
+      }
+
+      -- TODO: make two angle bisector marks
+
+}

@@ -1,5 +1,5 @@
 Set x {
-    x.shape = Text { string = x.label }
+    x.shape = Text { string : x.label }
 }
 
 Set x; Set y {
@@ -10,8 +10,8 @@ Set x; Set y {
 Set x; Set y
 where IsSubset(x, y) {
     LOCAL.arrow = Arrow {
-      thickness = 2.0
-      color = rgba(0.0, 0.0, 0.0, 1.0)
+      thickness : 2.0
+      color : rgba(0.0, 0.0, 0.0, 1.0)
     }
 
     -- Draw the arrow from y to x

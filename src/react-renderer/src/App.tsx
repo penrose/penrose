@@ -2,7 +2,7 @@ import * as React from "react";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { autoStepToggle, resample, step } from "./packets";
-import {ILayer} from "./types";
+import { ILayer } from "./types";
 
 interface IState {
   data: any[];
@@ -18,8 +18,8 @@ class App extends React.Component<any, IState> {
     converged: true,
     autostep: false,
     layers: [
-      {layer: "polygon", enabled: false},
-      {layer: "bbox", enabled: false}
+      { layer: "polygon", enabled: false },
+      { layer: "bbox", enabled: false }
     ]
   };
   public readonly canvas = React.createRef<Canvas>();
@@ -50,11 +50,11 @@ class App extends React.Component<any, IState> {
   };
   public toggleLayer = (layerName: string) => {
     this.setState({
-      layers: this.state.layers.map(({layer, enabled}: ILayer) => {
+      layers: this.state.layers.map(({ layer, enabled }: ILayer) => {
         if (layerName === layer) {
-          return {layer, enabled: !enabled};
+          return { layer, enabled: !enabled };
         }
-        return {layer, enabled};
+        return { layer, enabled };
       })
     });
   };
@@ -80,7 +80,7 @@ class App extends React.Component<any, IState> {
     this.setupSockets();
   }
   public render() {
-    const {converged, autostep, layers} = this.state;
+    const { converged, autostep, layers } = this.state;
     const { customButtons } = this.props;
     return (
       <div className="App">

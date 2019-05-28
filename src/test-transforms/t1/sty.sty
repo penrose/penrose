@@ -1,19 +1,19 @@
 Set x {
     x.shape = CircleTransform {
-        strokeWidth = 0
+        strokeWidth : 0
     }
 
     x.text = TextTransform {
-      scaleX = 1.0
-      scaleY = 1.0
-      string = x.label
+      scaleX : 1.0
+      scaleY : 1.0
+      string : x.label
     }
 
     x.origin = CircleTransform {
-      r = 5.0
-      strokeWidth = 0
-      x = 0.0
-      y = 0.0
+      r : 5.0
+      strokeWidth : 0
+      x : 0.0
+      y : 0.0
     }
 
     x.labelFn = encourage containsPoly(x.shape, x.text)

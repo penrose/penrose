@@ -111,6 +111,8 @@ instance Show BfgsParams where
                   -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
                   -- "\ns_list:\n" ++ ppShow (s_list s) ++
                   -- "\ny_list:\n" ++ ppShow (y_list s) ++
+                  "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
+                  "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
                   "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
                   "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
 
@@ -616,10 +618,17 @@ evalExpr (i, n) arg trans varyMap g =
                 -- Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
                 -- Just f -> let res = f vs in
                 --           (res, trans')
-            List es -> error "TODO lists"
-                -- let (vs, trans') = evalExprs es trans in
-                -- (vs, trans')
-            ListAccess p i -> error "TODO lists"
+            List es ->
+                let (vs, trans', g') = evalExprs limit es trans varyMap g
+                    floatvs = map checkFloatType vs
+                in (Val $ ListV floatvs, trans', g')
+
+            ListAccess p i -> error "TODO list accesses"
+
+            Tuple e1 e2 ->
+                let (vs, trans', g') = evalExprs limit [e1, e2] trans varyMap g
+                    [v1, v2] = map checkFloatType vs
+                in (Val $ TupV (v1, v2), trans', g')
 
             -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
             EPath p ->
@@ -672,6 +681,10 @@ evalExpr (i, n) arg trans varyMap g =
             AvoidFn _ _ -> error "avoidfn should not be an objfn arg (or in the children of one)"
             PluginAccess _ _ _ -> error "plugin access should not be evaluated at runtime"
             -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
+
+checkFloatType :: (Autofloat a) => ArgVal a -> a
+checkFloatType (Val (FloatV x)) = x
+checkFloatType _ = error "expected float type"
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)

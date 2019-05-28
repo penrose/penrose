@@ -1,10 +1,10 @@
-tconstructor Set : type -- CircleTransform
-tconstructor Point : type -- RectangleTransform
+type Set -- CircleTransform
+type Point -- RectangleTransform
 
-predicate Intersect (s1 : Set, s2 : Set) : Prop
-predicate NotIntersecting (s1 : Set, s2 : Set) : Prop
-predicate IsSubset (s1 : Set, s2 : Set) : Prop
+predicate Intersect : Set s1 * Set s2
+predicate NotIntersecting : Set s1 * Set s2
+predicate IsSubset : Set s1 * Set s2
 
-predicate Lineup (p1 : Point, p2 : Point) : Prop
-predicate DisjointSP (s : Set, p : Point) : Prop
-predicate Chain (p1 : Point, p2 : Point) : Prop
+predicate Lineup : Point p1 * Point p2
+predicate DisjointSP : Set s * Point p
+predicate Chain : Point p1 * Point p2

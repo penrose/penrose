@@ -10,6 +10,7 @@ import Shapes
 import Transforms
 import Data.Aeson (toJSON)
 import Data.Maybe (fromMaybe)
+import Data.Fixed (mod')
 import           Data.List                          (nub, sort, findIndex, find, maximumBy)
 import           System.Random.Shuffle
 import qualified Data.Map.Strict as M
@@ -26,20 +27,6 @@ trOpt :: Show a => String -> a -> a
 trOpt s x = if debugOpt then trace "---" $ trace s $ traceShowId x else x
 
 --------------------------------------------------------------------------------
--- Types
-
--- | possible values in the argument of computation, constraint, or objectives
-data ArgVal a = GPI (Shape a) | Val (Value a)
-     deriving (Eq, Show)
-
- -- | possible types in the argument of computation, constraint, or objectives.
- -- Used for type checking functions
-data ArgType
-    = GPIType ShapeTypeStr
-    | ValueT ValueType
-    | OneOf [ShapeTypeStr]
-    | AnyGPI
-    deriving (Eq, Show)
 
 type FuncName  = String
 type OptSignatures  = MM.MultiMap String [ArgType]
@@ -115,6 +102,22 @@ compDict = M.fromList
         ("sampleFunctionArea", sampleFunctionArea),
         ("makeCurve", makeCurve),
         ("triangle", constComp triangle),
+        ("shared", constComp sharedP),
+        ("angle", constComp angleOf),
+        ("perpX", constComp perpX),
+        ("perpY", constComp perpY),
+        ("perpPath", constComp perpPath),
+        ("get", constComp get'),
+        ("projectAndToScreen", constComp projectAndToScreen),
+        ("projectAndToScreen_list", constComp projectAndToScreen_list),
+        ("scaleLinear", constComp scaleLinear'),
+        ("slerp", constComp slerp'),
+        ("mod", constComp modSty),
+        ("halfwayPoint", constComp halfwayPoint'),
+        ("normalOnSphere", constComp normalOnSphere'),
+        ("arcPath", constComp arcPath'),
+        ("angleBisector", constComp angleBisector'),
+
         ("tangentLineSX", constComp tangentLineSX),
         ("tangentLineSY", constComp tangentLineSY),
         ("tangentLineEX", constComp tangentLineEX),
@@ -123,6 +126,9 @@ compDict = M.fromList
         ("setOpacity", constComp setOpacity),
         ("bbox", constComp bbox'),
         ("min", constComp min'),
+        ("max", constComp max'),
+        ("pathFromPoints", constComp pathFromPoints),
+        ("join", constComp joinPath),
 
         -- Transformations
         ("rotate", constComp rotate),
@@ -343,7 +349,9 @@ constrFuncDict = M.fromList $ map toPenalty flist
                 ("disjoint", disjoint),
                 ("inRange", (*) indivConstrWeight .  inRange'),
                 ("lessThan", lessThan),
-                ("onCanvas", onCanvas)
+                ("onCanvas", onCanvas),
+                ("unit", unit'),
+                ("hasNorm", hasNorm)
             ]
 
 indivConstrWeight :: (Autofloat a) => a
@@ -745,19 +753,84 @@ makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), V
 
 -- Draw a triangle as the closure of three lines (assuming they define a valid triangle, i.e. intersect exactly at their endpoints)
 triangle :: ConstCompFn
+triangle [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), Val (FloatV x3), Val (FloatV y3)] =
+         let path = Closed [Pt (x1, y1), Pt (x2, y2), Pt (x3, y3)]
+         in Val $ PathDataV [path]
+
 triangle [GPI e1@("Line", _), GPI e2@("Line", _), GPI e3@("Line", _)] =
          -- TODO: what's the convention on the ordering of the lines?
          let (v1, v2) = (getPoint "start" e1, getPoint "end" e1)
-             v3_candidates = [getPoint "start" e2, getPoint "end" e2, 
+             v3_candidates = [getPoint "start" e2, getPoint "end" e2,
                               getPoint "start" e3, getPoint "end" e3]
              v3 = furthestFrom (v1, v2) v3_candidates
              path = Closed [Pt v1, Pt v2, Pt v3]
          in {- trace ("path: " ++ show path) $ -} Val $ PathDataV [path]
-         where 
+         where
          furthestFrom :: (Autofloat a) => (Pt2 a, Pt2 a) -> [Pt2 a] -> Pt2 a
-         furthestFrom (p1, p2) pts = fst $ 
+         furthestFrom (p1, p2) pts = fst $
                                      maximumBy (\p1 p2 -> compare (snd p1) (snd p2)) $
                                      map (\p -> (p, dist p p1 + dist p p2)) pts
+
+sharedP :: ConstCompFn
+sharedP [Val (FloatV a), Val (FloatV b), Val (FloatV c), Val (FloatV d)] =
+         let xs = nub [a, b, c, d]
+             common = case xs of
+                      [] -> error "no shared points between segments"
+                      x:xs -> x
+         in Val $ FloatV common
+
+angleOf :: ConstCompFn
+angleOf [GPI l@("Line", _), Val (FloatV originX), Val (FloatV originY)] =
+        let origin = (originX, originY)
+            (start, end) = (getPoint "start" l, getPoint "end" l)
+            endpoint = if origin == start then end else start -- Pick the point that's not the origin
+            (rayX, rayY) = endpoint -: origin
+            angleRad = atan2 rayY rayX
+            angle = (angleRad * 180) / pi
+        in Val $ FloatV angle
+
+perp :: Autofloat a => Pt2 a -> Pt2 a -> Pt2 a -> a -> Pt2 a
+perp start end base len = let dir = normalize' $ end -: start
+                              perpDir = (len *: (rot90 dir)) +: base
+                          in perpDir
+
+perpX :: ConstCompFn
+perpX [GPI l@("Line", _), Val (FloatV baseX), Val (FloatV baseY), Val (FloatV len)] =
+        let (start, end) = (getPoint "start" l, getPoint "end" l)
+        in Val $ FloatV $ fst $ perp start end (baseX, baseY) len
+
+perpY :: ConstCompFn
+perpY [GPI l@("Line", _), Val (FloatV baseX), Val (FloatV baseY), Val (FloatV len)] =
+        let (start, end) = (getPoint "start" l, getPoint "end" l)
+        in Val $ FloatV $ snd $ perp start end (baseX, baseY) len
+
+perpPath :: ConstCompFn
+perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (FloatV size)] = -- Euclidean
+         let (startR, endR) = (getPoint "start" r, getPoint "end" r)
+             (startL, endL) = (getPoint "start" l, getPoint "end" l)
+             dirR = normalize' $ endR -: startR
+             dirL = normalize' $ endL -: startL
+             ptL = startR +: (size *: dirL)
+             ptR = startR +: (size *: dirR)
+             ptLR = startR +: (size *: dirL) +: (size *: dirR)
+             -- TODO: clean up this code
+             path = Open $ [Pt ptL, Pt ptLR, Pt ptR]
+         in Val $ PathDataV [path]
+
+perpPath [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] = -- Spherical
+         let (p', q') = (normalize p, normalize q) 
+             -- TODO: cache these calculations bc they're recomputed many times in Ray, Triangle, etc.
+             (e1, e2) = (p', normalize (p' `cross` q')) -- e2 is normal to (e1, e3)
+             e3 = normalize (e2 `cross` e1)
+             local_normal_normal = normalize (tailv `cross` headv) -- The normal to the plane defined by the (headv, tailv) vectors, which is tangent to (p,q) at the point tailv
+             pt_along_seg = circPtInPlane tailv local_normal_normal arcLen -- Start at the tail of the ray and move along the segment (pq) using its tangent
+             pt_along_normal = circPtInPlane tailv e2 arcLen -- Start at the tail of the ray and move along the ray in the direction normal to (pq)
+             n = 20
+             arc_parallel_to_normal = slerp n 0.0 arcLen pt_along_seg e2 -- Move from the segment point in the direction normal to (pq)
+             arc_parallel_to_seg = slerp n 0.0 arcLen pt_along_normal local_normal_normal -- Move from the ray point in the direction normal to the ray
+             -- Note that the directions are chosen so that the directionality of the arcs match so they meet at a point
+             pts = arc_parallel_to_normal ++ (tail . reverse) arc_parallel_to_seg -- Drop a point so they join better
+         in Val $ LListV pts
 
 -- NOTE: assumes that the curve has at least 3 points
 tangentLine :: Autofloat a => a -> [Pt2 a] -> a -> (Pt2 a, Pt2 a)
@@ -826,12 +899,133 @@ bbox' [GPI a1, GPI a2] = Val $ PtListV $ bbox a2 a2
 min' :: ConstCompFn
 min' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ min x y
 
+max' :: ConstCompFn
+max' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ max x y
+
 noop :: CompFn
 noop [] g = (Val (StrV "TODO"), g)
 
 -- Set the opacity to a given fraction of the value.
 setOpacity :: ConstCompFn
 setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] = Val $ ColorV (RGBA r g b (r2f frac * a))
+
+----------
+
+get' :: ConstCompFn
+get' [Val (ListV xs), Val (IntV i)] =
+     let i' = (fromIntegral i) :: Int in
+     if i' < 0 || i' >= length xs then error "out of bounds access in get'"
+     else Val $ FloatV $ xs !! i'
+get' [Val (TupV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
+
+projectVec :: Autofloat a => String -> Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> a -> [a]
+projectVec name hfov vfov r camera dir vec_math toScreen =
+  let vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
+      [px, py, pz] = vec_camera
+      vec_proj = (1 / pz) *. [px, py]
+      vec_screen = toScreen *. vec_proj
+      vec_proj_screen = vec_screen ++ [pz] -- TODO check denom 0. Also note z might be negative?
+  in trace ("\n"
+           ++ "name: " ++ name
+           ++ "\nvec_math: " ++ show vec_math
+           ++ "\n||vec_math||: " ++ show (norm vec_math)
+           ++ "\nvec_camera: " ++ show vec_camera
+           ++ "\nvec_proj: " ++ show vec_proj
+           ++ "\nvec_screen: " ++ show vec_screen
+           ++ "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
+     vec_proj_screen
+
+-- | For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e2 x e1, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q) (Assuming p and q are unit)
+slerp' :: ConstCompFn
+slerp' [Val (ListV p), Val (ListV q), Val (IntV n)] = -- Assuming unit p, q?
+       let (e1, e2) = (normalize p, normalize (p `cross` q)) -- (e1, e3) span the plane of p and q
+           e3 = normalize (e2 `cross` e1)
+           (t0, t1) = (0.0, angleBetweenRad p q) -- On a unit sphere, the angle between points is the length of the arc b/t them
+           pts = slerp (fromIntegral n) t0 t1 e1 e3
+       in Val $ LListV $
+          trace ("(e1, e2, e3): " ++ show (e1, e2, e3)
+                 ++ "\ndot results: " ++ show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]]
+                 ++ "\n(p, q, angleBetweenRad): " ++ show (p, q, t1)
+                 ++ "\npts: " ++ show pts)
+          pts
+
+-- TODO: how does this behave with negative numbers?
+modSty :: ConstCompFn
+modSty [Val (FloatV x), Val (FloatV m)] = Val $ FloatV $ (x `mod'` m) -- Floating mod
+
+-- http://mathworld.wolfram.com/SphericalCoordinates.html
+projectAndToScreen :: ConstCompFn
+projectAndToScreen [Val (TupV hfov), Val (TupV vfov), Val (FloatV r),
+                              Val (ListV camera), Val (ListV dir),
+                              Val (ListV vec_math), Val (FloatV toScreen), Val (StrV name)] =
+     Val $ ListV $ projectVec name hfov vfov r camera dir vec_math toScreen
+
+projectAndToScreen_list :: ConstCompFn
+projectAndToScreen_list [Val (TupV hfov), Val (TupV vfov), Val (FloatV r),
+                              Val (ListV camera), Val (ListV dir),
+                              Val (LListV spherePath), Val (FloatV toScreen), Val (StrV name)] =
+     Val $ PtListV $ (map (\vmath -> let res = projectVec name hfov vfov r camera dir vmath toScreen
+                                        in (res !! 0, res !! 1)) spherePath)
+     -- Discard z-coordinate for now
+
+halfwayPoint' :: ConstCompFn -- Based off slerp'
+halfwayPoint' [Val (ListV p), Val (ListV q)] =
+             let (p', q') = (normalize p, normalize q)
+                 (e1, e2) = (p', normalize (p' `cross` q'))
+                 e3 = normalize (e2 `cross` e1)
+                 t = (angleBetweenRad p' q') / 2.0 -- Half the angle, or half the arc length
+                 r = circPtInPlane e1 e3 t
+             in Val (ListV r)
+
+normalOnSphere' :: ConstCompFn
+normalOnSphere' [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV arcLen)] =
+             let normalv = normalize (p `cross` q)
+                 headv = circPtInPlane (normalize tailv) normalv arcLen -- Start at tailv (point on segment), move in normal direction by arcLen
+             in Val (ListV headv)
+
+-- Draw the arc on the sphere between the segment (pq) and the segment (qr) with some fixed radius
+-- The angle between lines (pq, pr) is angle of the planes containing the great circles of the arcs
+-- Find an orthonormal basis with the normal (n) of the sphere at a point, then the tangent vectors (t1, t2) of the plane at the point, where t1 is in the direction of one of the lines
+-- t1 is found as `p - proj_q(p) |> normalize` (where p is the local origin and q is another point on the triangle)
+-- Then draw the arc in the tangent plane from t1 to the angle, then translate it to the local origin
+arcPath' :: ConstCompFn
+arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
+        let normal = p
+            (qp, rp) = (q -. p, r -. p)
+            (qp_normal, rp_normal) = (q `cross` p, r `cross` p)
+            theta = angleBetweenSigned normal qp_normal rp_normal -- The signed angle from qp normal to rp normal (in the tangent plane defined by `p`, where `p` is the normal that points outward from the sphere
+            t1 = normalize (qp -. (proj normal qp)) -- tangent in qp direction
+            t2 = t1 `cross` normal
+            n = 20
+            pts_origin = map (radius *.) $ slerp n 0 theta t1 t2 -- starts at qp segment
+            pts = map (+. p) pts_origin -- Why does this arc lie on the sphere?
+        in Val $ LListV pts
+
+-- TODO: share some code betwen this and arcPath'?
+angleBisector' :: ConstCompFn
+angleBisector' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
+        let normal = p
+            (qp, rp) = (q -. p, r -. p)
+            (qp_normal, rp_normal) = (q `cross` p, r `cross` p)
+            theta = (angleBetweenSigned normal qp_normal rp_normal) / 2.0
+            t1 = normalize (qp -. (proj normal qp)) -- tangent in qp direction
+            t2 = t1 `cross` normal
+            pt_origin = (p +.) $ (radius *.) $ circPtInPlane t1 t2 theta -- starts at qp segment
+        in Val $ ListV pt_origin
+
+scaleLinear' :: ConstCompFn
+scaleLinear' [Val (FloatV x), Val (TupV range), Val (TupV range')] =
+             Val $ FloatV $ scaleLinear x range range'
+
+pathFromPoints :: ConstCompFn
+pathFromPoints [Val (PtListV pts)] =
+               let path = Open $ map Pt pts
+               in Val $ PathDataV [path]
+
+joinPath :: ConstCompFn
+joinPath [Val (PtListV pq), Val (PtListV qr), Val (PtListV rp)] =
+         let path = Closed $ map Pt $ pq ++ qr ++ rp
+         in Val $ PathDataV [path]
 
 --------------------------------------------------------------------------------
 -- Objective Functions
@@ -936,6 +1130,7 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
 -- TODO: temporarily written in a generic way
 -- Note: repel's energies are quite small so the function is scaled by repelWeight before being applied
 repel :: ObjFn
+repel [Val (TupV x), Val (TupV y)] = 1 / (distsq x y + epsd)
 repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd)
 repel [GPI a, GPI b, Val (FloatV weight)] = weight / (distsq (getX a, getY a) (getX b, getY b) + epsd)
     -- trace ("REPEL: " ++ show a ++ "\n" ++ show b ++ "\n" ++ show res) res
@@ -1102,7 +1297,17 @@ onCanvas [GPI g] =
          let (leftX, rightX) = (-canvasHeight / 2, canvasHeight / 2)
              (leftY, rightY) = (-canvasWidth / 2, canvasWidth / 2) in
          inRange'' (getX g) (r2f leftX) (r2f rightX) +
-         inRange'' (getY g) (r2f leftY) (r2f rightY) 
+         inRange'' (getY g) (r2f leftY) (r2f rightY)
+
+unit' :: ConstrFn
+unit' [Val (ListV vec)] = hasNorm [Val (ListV vec), Val (FloatV 1)]
+
+-- | This is an equality constraint (x = c) via two inequality constraints (x <= c and x >= c)
+hasNorm :: ConstrFn
+hasNorm [Val (ListV vec), Val (FloatV desired_norm)] =
+        let norms = (norm vec, desired_norm) -- TODO: Use normal norm or normsq?
+            (norm_max, norm_min) = (uncurry max norms, uncurry min norms)
+        in norm_max - norm_min
 
 -- contains [GPI set@("Circle", _), P' GPI pt@("", _)] = dist (getX pt, getX pt) (getX set, getY set) - 0.5 * r' set
 -- TODO: only approx
@@ -1195,7 +1400,7 @@ disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offs
 disjoint [GPI box@("Text", _), GPI seg@("Line", _), Val (FloatV offset)] =
     let center = (getX box, getY box)
         (v, w) = (getPoint "start" seg, getPoint "end" seg)
-        cp     = closestpt_pt_seg center (v, w) 
+        cp     = closestpt_pt_seg center (v, w)
         len_approx = getNum box "w" / 2.0 -- TODO make this more exact
     in -(dist center cp) + len_approx + offset
     -- i.e. dist from center of box to closest pt on line seg is greater than the approx distance between the box center and the line + some offset
@@ -1247,22 +1452,22 @@ scale [Val (FloatV cx), Val (FloatV cy)] = Val $ HMatrixV $ scalingM (cx, cy)
 
 -- Apply transforms from left to right order: do t2, then t1
 andThen :: ConstCompFn
-andThen [Val (HMatrixV t2), Val (HMatrixV t1)] = 
+andThen [Val (HMatrixV t2), Val (HMatrixV t1)] =
         Val $ HMatrixV $ composeTransform t1 t2
 
 ------ Sample shapes
 
 -- TODO: parse lists of 2-tuples
 mkPoly :: ConstCompFn
-mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3), 
-           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6)] = 
+mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3),
+           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6)] =
            Val $ PtListV [(x1, x2), (x3, x4), (x5, x6)]
-mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3), 
-           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6), Val (FloatV x7), Val (FloatV x8)] = 
+mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3),
+           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6), Val (FloatV x7), Val (FloatV x8)] =
            Val $ PtListV [(x1, x2), (x3, x4), (x5, x6), (x7, x8)]
-mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3), 
-           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6), 
-           Val (FloatV x7), Val (FloatV x8), Val (FloatV x9), Val (FloatV x10)] = 
+mkPoly [Val (FloatV x1), Val (FloatV x2), Val (FloatV x3),
+           Val (FloatV x4), Val (FloatV x5), Val (FloatV x6),
+           Val (FloatV x7), Val (FloatV x8), Val (FloatV x9), Val (FloatV x10)] =
            Val $ PtListV [(x1, x2), (x3, x4), (x5, x6), (x7, x8), (x9, x10)]
 
 unitSquare :: ConstCompFn
@@ -1291,10 +1496,9 @@ randomPolygon [Val (IntV n)] g =
 -- Optimize directly on the transform
 -- this function is only a demo
 nearT :: ObjFn
-nearT [GPI o, Val (FloatV x), Val (FloatV y)] = let
-      tf = getTransform o 
-      res = distsq (dx tf, dy tf) (x, y) in
-      trace ("nearT energy: " ++ show res) res
+nearT [GPI o, Val (FloatV x), Val (FloatV y)] =
+      let tf = getTransform o in
+      distsq (dx tf, dy tf) (x, y)
 
 boundaryIntersect :: ObjFn
 boundaryIntersect [GPI o1, GPI o2] =
@@ -1427,8 +1631,8 @@ orderAlong [GPI o1, GPI o2, Val (FloatV angleInDegrees)] =
       eOrder p1 p2 angleInDegrees
 
 transformSRT :: ConstCompFn
-transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), 
-                      Val (FloatV dx), Val (FloatV dy)] = 
+transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta),
+                      Val (FloatV dx), Val (FloatV dy)] =
                  Val $ HMatrixV $ paramsToMatrix (sx, sy, theta, dx, dy)
 
 --------------------------------------------------------------------------------
