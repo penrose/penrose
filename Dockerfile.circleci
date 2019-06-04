@@ -1,11 +1,8 @@
-FROM ubuntu
+FROM fpco/stack-build:lts-9.10
 
 RUN mkdir -p /opt/penrose
 COPY . /opt/penrose/
 WORKDIR /opt/penrose
-RUN apt-get update && apt-get install -y \
-  ca-certificates \
-  libgmp-dev
 
 ENTRYPOINT ["./penrose"]
 EXPOSE 9160
