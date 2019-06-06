@@ -21,7 +21,7 @@ import           System.IO
 import           System.Process
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
-import           Text.Megaparsec.Expr
+import           Control.Monad.Combinators.Expr
 import           Utils
 
 import qualified Tokenizer

@@ -21,9 +21,9 @@ import           System.Environment
 import           System.IO
 import           System.Process
 import           System.Random
+import           Control.Monad.Combinators.Expr
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
-import           Text.Megaparsec.Expr
 import           Text.Show.Pretty
 import           Utils
 import           Control.Monad.State.Lazy (evalStateT, get)
@@ -207,7 +207,7 @@ predicateParser :: Parser Predicate
 predicateParser = do
   n    <- predicateNameParser
   args <- parens (predicateArgParser `sepBy1` comma)
-  pos  <- getPosition
+  pos  <- getSourcePos
   return Predicate { predicateName = n, predicateArgs = args, predicatePos = pos }
 
 subStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
@@ -721,7 +721,7 @@ subSeparate = foldr separate ([], [])
 parseSubstance :: String -> String -> VarEnv -> IO SubOut
 parseSubstance subFile subIn varEnv =
     case runParser (substanceParser varEnv) subFile subIn of
-        Left err -> error (parseErrorPretty err)
+        Left err -> error (errorBundlePretty err)
         Right subProg -> do
             let subProg' = refineAST subProg varEnv
             let subTypeEnv  = check subProg' varEnv
