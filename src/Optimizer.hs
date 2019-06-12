@@ -45,7 +45,8 @@ epsUnconstr :: Floating a => a
 epsUnconstr = 10 ** (-2)
 
 epStop :: Floating a => a -- for EP diff
-epStop = 10 ** (-5)
+epStop = 10 ** (-3)
+-- epStop = 10 ** (-5)
 -- epStop = 60 ** (-3)
 -- epStop = 10 ** (-1)
 -- epStop = 0.05
