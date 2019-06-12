@@ -4,13 +4,17 @@ import componentMap from "./componentMap";
 import Log from "./Log";
 import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
-import {drag, update} from "./packets";
-import {ILayer, ILayerProps} from "./types";
-import {layerMap} from "./layers/layerMap";
+import { drag, update } from "./packets";
+import { ILayer, ILayerProps } from "./types";
+import { layerMap } from "./layers/layerMap";
 
 interface IProps {
   lock: boolean;
   layers: ILayer[];
+  substanceMetadata?: string;
+  styleMetadata?: string;
+  elementMetadata?: string;
+  otherMetadata?: string;
   sendPacket(packet: string): void;
 }
 
@@ -20,7 +24,7 @@ interface IState {
 }
 
 class Canvas extends React.Component<IProps, IState> {
-  public readonly state = {data: [], debugData: []};
+  public readonly state = { data: [], debugData: [] };
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
   public sortShapes = (shapes: any[], ordering: string[]) => {
@@ -30,12 +34,12 @@ class Canvas extends React.Component<IProps, IState> {
   };
 
   public notEmptyLabel = ([name, shape]: [string, any]) => {
-      return name === "Text" ? !(shape.string.contents === "") : true;
+    return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
   public onMessage = async (e: MessageEvent) => {
     const myJSON = JSON.parse(e.data).contents;
-    const {flag, shapes, ordering, debugData} = myJSON;
+    const { flag, shapes, ordering, debugData } = myJSON;
 
     // For final frame
     if (flag === "final") {
@@ -51,7 +55,10 @@ class Canvas extends React.Component<IProps, IState> {
       this.sendUpdate(labeledShapesWithImgs);
     }
 
-    this.setState({data: this.sortShapes(labeledShapesWithImgs, ordering), debugData});
+    this.setState({
+      data: this.sortShapes(labeledShapesWithImgs, ordering),
+      debugData
+    });
   };
 
   public dragEvent = (id: string, dy: number, dx: number) => {
@@ -168,11 +175,11 @@ class Canvas extends React.Component<IProps, IState> {
     }
     if (this.svg.current === null) {
       Log.error("SVG ref is null");
-      return <g key={key}/>;
+      return <g key={key} />;
     }
     const ctm = this.svg.current.getScreenCTM();
     const canvasSize = this.canvasSize;
-    const {dragEvent} = this;
+    const { dragEvent } = this;
     return React.createElement(component, {
       key,
       shape,
@@ -188,16 +195,16 @@ class Canvas extends React.Component<IProps, IState> {
     key: number
   ) => {
     if (shapes.length === 0) {
-      return <g key={key}/>;
+      return <g key={key} />;
     }
     if (this.svg.current === null) {
       Log.error("SVG ref is null");
-      return <g key={key}/>;
+      return <g key={key} />;
     }
     const ctm = this.svg.current.getScreenCTM();
     if (ctm === null) {
       Log.error("Cannot get CTM");
-      return <g key={key}/>;
+      return <g key={key} />;
     }
     return React.createElement(component, {
       key,
@@ -208,14 +215,21 @@ class Canvas extends React.Component<IProps, IState> {
     });
   };
   public render() {
-    const {lock, layers} = this.props;
-    const {data, debugData} = this.state;
+    const {
+      lock,
+      layers,
+      substanceMetadata,
+      styleMetadata,
+      elementMetadata,
+      otherMetadata
+    } = this.props;
+    const { data, debugData } = this.state;
 
     if (data.length === undefined) {
       return <svg />;
     }
 
-      const nonEmpties = data.filter(this.notEmptyLabel);
+    const nonEmpties = data.filter(this.notEmptyLabel);
 
     return (
       <LockContext.Provider value={lock}>
@@ -227,8 +241,20 @@ class Canvas extends React.Component<IProps, IState> {
           ref={this.svg}
           viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
         >
+          <desc>
+            {`This diagram was created with Penrose (https://penrose.ink) on ${new Date()
+              .toISOString()
+              .slice(
+                0,
+                10
+              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+            {substanceMetadata && `${substanceMetadata}\n`}
+            {styleMetadata && `${styleMetadata}\n`}
+            {elementMetadata && `${elementMetadata}\n`}
+            {otherMetadata && `${otherMetadata}`}
+          </desc>
           {nonEmpties.map(this.renderEntity)}
-          {layers.map(({layer, enabled}: ILayer, key: number) => {
+          {layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
