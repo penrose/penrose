@@ -133,7 +133,7 @@ class Canvas extends React.Component<IProps, IState> {
     }
   };
 
-  public downloadSVG = async () => {
+  public downloadSVG = async (title = "illustration") => {
     const content = await this.download();
     const blob = new Blob([content], {
       type: "image/svg+xml;charset=utf-8"
@@ -141,7 +141,7 @@ class Canvas extends React.Component<IProps, IState> {
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
-    downloadLink.download = "illustration.svg";
+    downloadLink.download = `${title}.svg`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
