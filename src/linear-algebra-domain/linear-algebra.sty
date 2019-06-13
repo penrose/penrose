@@ -319,3 +319,13 @@ where u := scale(c,v); In(u,U); In(v,U){
 
     c.layeringScale = u.shape above v.shape
 }
+
+Vector u; Vector v
+where Orthogonal(u, v) {
+      LOCAL.angle = 0.0
+
+      LOCAL.shape = Square {
+      }
+
+      -- LOCAL.perpFn = ensure equals(dot(u.vector, v.vector), 0.0)
+}
