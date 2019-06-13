@@ -9,7 +9,7 @@ extra-deps:
 - extra-1.6
 - megaparsec-6.4.0
 - parser-combinators-0.4.0
-- pretty-terminal-0.1.0.0
 - ghc-boot-8.0.2
+- pretty-terminal-0.1.0.0
 resolver: lts-9.10
 allow-newer: true

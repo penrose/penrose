@@ -1,8 +1,5 @@
 {
-{-# LANGUAGE DeriveGeneric #-}
 module SubstanceTokenizer where
-import GHC.Generics
-import Data.Aeson
 }
 %wrapper "basic"
 $digit = 0-9
@@ -60,8 +57,7 @@ data Token =
   Comment String                  |
   StartMultiComment String        |
   EndMultiComment String
-  deriving (Show, Generic)
-instance ToJSON Token
+  deriving (Show)
 
 instance Eq Token where
   Bind == Bind = True
