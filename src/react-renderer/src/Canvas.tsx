@@ -15,6 +15,7 @@ interface IProps {
   styleMetadata?: string;
   elementMetadata?: string;
   otherMetadata?: string;
+  style?: any;
   sendPacket(packet: string): void;
 }
 
@@ -221,7 +222,8 @@ class Canvas extends React.Component<IProps, IState> {
       substanceMetadata,
       styleMetadata,
       elementMetadata,
-      otherMetadata
+      otherMetadata,
+      style
     } = this.props;
     const { data, debugData } = this.state;
 
@@ -238,6 +240,7 @@ class Canvas extends React.Component<IProps, IState> {
           version="1.2"
           width="100%"
           height="100%"
+          style={style || {}}
           ref={this.svg}
           viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
         >
