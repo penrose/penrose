@@ -5,7 +5,7 @@ module Serializer where
 import Env
 import Style
 import SubstanceTokenizer
-import GenOptProblem
+-- import GenOptProblem
 
 import Text.Megaparsec
 import Data.Aeson

@@ -155,14 +155,14 @@ instance A.ToJSON OptConfig where
 
 instance A.FromJSON OptConfig
 
-data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
+data State = State { shapesr :: [Shape Double],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
                      shapeOrdering :: [String],
                      shapeProperties :: [(String, Field, Property)],
                      transr :: forall a . (Autofloat a) => Translation a,
                      varyingPaths :: [Path],
                      uninitializedPaths :: [Path],
-                     varyingState :: [Float], -- Note: NOT polymorphic
+                     varyingState :: [Double], -- Note: NOT polymorphic
                      paramsr :: Params,
                      objFns :: [Fn],
                      constrFns :: [Fn],
@@ -804,7 +804,7 @@ evalShapes limit shapeNames trans varyMap rng =
 
 -- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
 -- with respect to the varying values
-evalTranslation :: (Autofloat a) => State -> ([Shape a], Translation a, StdGen)
+evalTranslation :: State -> ([Shape Double], Translation Double, StdGen)
 evalTranslation s =
     let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
     evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap (rng s)
@@ -1103,7 +1103,7 @@ resampleBest n s =
 evalFnOn :: State -> Double
 evalFnOn s = let optInfo = paramsr s
                  f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
-                 args    = map float2Double $ varyingState s
+                 args    = varyingState s
              in f args
 
 -- | Compare two states and return the one with less energy.

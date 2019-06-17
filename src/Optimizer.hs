@@ -16,7 +16,7 @@ import System.Random
 import System.Console.ANSI
 import Data.List (foldl')
 
-default (Int, Float)
+default (Int, Double)
 
 ------ Opt types, util functions, and params
 
@@ -151,7 +151,7 @@ step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingStat
              -- optimization session
              -- For the same reason, all subsequent step* functions such as
              -- stepShapes do not return the new random generator
-            --  (!shapes', _, _)     = evalTranslation s'
+             (!shapes', _, _)     = evalTranslation s'
 
              -- Check the state and see if the overall objective function should be changed
              -- The policy may change EPConverged to a new iteration before the frontend sees it
@@ -162,7 +162,7 @@ step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingStat
 
          in tro ("Params: \n" ++ show oldParams ++ "\n:") $
             s' { 
-                -- shapesr = shapes',
+                shapesr = shapes',
                  paramsr = paramsNew,
                  policyParams = pparamsNew } 
             -- note: trans is not updated in state
@@ -171,7 +171,7 @@ step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingStat
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
-stepShapes :: OptConfig -> Params -> [Float] -> StdGen -> ([Float], Params)
+stepShapes :: OptConfig -> Params -> [Double] -> StdGen -> ([Double], Params)
 stepShapes config params vstate g = -- varying state
          -- if null vstate then error "empty state in stepshapes" else
          let (epWeight, epStatus) = (weight params, optStatus params) in
@@ -221,13 +221,13 @@ stepShapes config params vstate g = -- varying state
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
 -- return the new state
 
-stepT :: Float -> Float -> Float -> Float
+stepT :: Double -> Double -> Double -> Double
 stepT dt x dfdx = x - dt * dfdx
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: OptConfig -> StdGen -> Params -> [Float] -> ([Float], [Float], BfgsParams)
+stepWithObjective :: OptConfig -> StdGen -> Params -> [Double] -> ([Double], [Double], BfgsParams)
 stepWithObjective config g params state =
           -- get timestep via line search, and evaluated gradient at the state
           let (t', gradEval, gradToUse, bfgs') = timeAndGrad config params objFnApplied state
@@ -272,7 +272,7 @@ appHess :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [[a
 appHess f l = hessian f l
 
 -- Precondition the gradient
-gradP :: OptConfig -> BfgsParams -> [Double] -> ObjFn1 a -> [Float] -> ([Double], BfgsParams)
+gradP :: OptConfig -> BfgsParams -> [Double] -> ObjFn1 a -> [Double] -> ([Double], BfgsParams)
 gradP config bfgsParams gradEval f state =
       let x_k = L.vector $ map r2f state
           grad_fx_k = L.vector gradEval
@@ -398,7 +398,7 @@ lbfgs grad_fx_k ss ys =
                             r_i_plus_1 = r_i + (alpha_i - beta_i) `L.scale` s_i -- scalar * vector
                         in r_i_plus_1
 
-estimateGradient :: ObjFn1 a -> [Float] -> [Float]
+estimateGradient :: ObjFn1 a -> [Double] -> [Double]
 estimateGradient f state =
       let len = length state
           h = 0.001 -- Choice of h really matters!!! This is not an accurate estimate.
@@ -412,7 +412,7 @@ estimateGradient f state =
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: OptConfig -> Params -> ObjFn1 a -> [Float] -> (Float, [Float], [Float], BfgsParams)
+timeAndGrad :: OptConfig -> Params -> ObjFn1 a -> [Double] -> (Double, [Double], [Double], BfgsParams)
 timeAndGrad config params f state = 
             let gradEval = if useAutodiff then gradF state else estimateGradient f state
                 (gradToUse_d, bfgs') = gradP config (bfgsInfo params) (map r2f gradEval :: [Double]) f state
@@ -441,7 +441,7 @@ linesearch_max = 100 -- TODO what's a reasonable limit (if any)?
 -- duf = D_u(f), the directional derivative of f at descent direction u
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 
-awLineSearch :: OptConfig -> ObjFn1 a -> ObjFn1 a -> [Float] -> [Float] -> Float
+awLineSearch :: OptConfig -> ObjFn1 a -> ObjFn1 a -> [Double] -> [Double] -> Double
 awLineSearch config f duf descentDir x0 =
 
      let (a0, b0, t0) = (0, infinity, 1) -- Unit step length should be tried first for quasi-Newton methods. (Nocedal 201)
@@ -452,7 +452,7 @@ awLineSearch config f duf descentDir x0 =
 
      in tro ("Line search # updates: " ++ show numUpdates) $ tf
 
-          where update :: (Float, Float, Float) -> (Float, Float, Float)
+          where update :: (Double, Double, Double) -> (Double, Double, Double)
                 update (a, b, t) =
                        let (a', b', sat) | not $ armijo t    = trl "not armijo" (a, t, False)
                                          | not $ wolfe t     = trl "not wolfe" (t, b, False)
@@ -461,7 +461,7 @@ awLineSearch config f duf descentDir x0 =
                        else if b' < infinity then trl "b' < infinity" (a', b', (a' + b') / 2)
                        else trl "b' = infinity" (a', b', 2 * a')
 
-                intervalOK_or_notArmijoAndWolfe :: (Int, (Float, Float, Float)) -> Bool
+                intervalOK_or_notArmijoAndWolfe :: (Int, (Double, Double, Double)) -> Bool
                 intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) =
                       not $
                       if armijo t && wolfe t then
@@ -472,27 +472,27 @@ awLineSearch config f duf descentDir x0 =
                            trl ("stop: number of line search updates exceeded max") True
                       else False
 
-                armijo :: Float -> Bool
+                armijo :: Double -> Bool
                 armijo t = (f (x0 +. t *. descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
 
-                weakWolfe :: Float -> Bool -- Better for nonsmooth functions
+                weakWolfe :: Double -> Bool -- Better for nonsmooth functions
                 weakWolfe t = (duf (x0 +. t *. descentDir)) >= (c2 * dufAtx0)
 
-                strongWolfe :: Float -> Bool
+                strongWolfe :: Double -> Bool
                 strongWolfe t = (abs (duf (x0 +. t *. descentDir))) <= (c2 * abs dufAtx0)
 
                 -- Descent direction (at x0) must have a negative dot product with the gradient of f at x0.
-                dufAtx0 :: Float -- TODO: this is redundant, cache it
+                dufAtx0 :: Double -- TODO: this is redundant, cache it
                 dufAtx0 = let res = duf x0 in
                         trl ("<grad f(x0), descent direction at x0>: " ++ show res) $ 
                         if res > 0 then tro "WARNING: descent direction doesn't satisfy condition" res else res
 
-                fAtx0 :: Float
+                fAtx0 :: Double
                 fAtx0 = f x0
 
-                minInterval :: Float -- stop if the interval gets too small; might not terminate
+                minInterval :: Double -- stop if the interval gets too small; might not terminate
                 minInterval = if intervalMin then 10 ** (-10) else 0
                 -- TODO: the line search is very sensitive to this parameter. Blows up with 10**(-5). Why?
 
-                wolfe :: Float -> Bool
+                wolfe :: Double -> Bool
                 wolfe = weakWolfe
