@@ -8,7 +8,6 @@ import SubstanceTokenizer
 import GenOptProblem
 import Optimizer
 
-import Data.Binary
 import Text.Megaparsec
 import GHC.Generics
 import Data.Aeson
@@ -24,9 +23,6 @@ instance ToJSONKey T
 instance FromJSONKey T
 instance ToJSONKey Var
 instance FromJSONKey Var
--- instance ToJSONKey Var 
--- where
-    -- toJSONKey = toJSONKeyText (Text.pack . var2string)
 
 --------------------------------------------------------------------------------
 -- TODO: slowly move all the JSON decls other than the ones in Server to 
@@ -79,11 +75,4 @@ deriveJSON defaultOptions ''OptType
 deriveJSON defaultOptions ''OptStatus
 deriveJSON defaultOptions ''BfgsParams
 deriveJSON defaultOptions ''GenOptProblem.State
-
-
---------------------------------------------------------------------------------
--- Test driver
-
--- main = do
-
 

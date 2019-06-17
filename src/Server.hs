@@ -498,16 +498,21 @@ resampleAndSend client@(clientID, conn, clientState) = do
     where s = getBackendState clientState
 
 stepAndSend client@(clientID, conn, clientState) = do
+
+--------------------------------------------------------------------------------    
+-- DEBUG: performance test for JSON encode/decode speed
     let s' = getBackendState clientState
     let s = unsafePerformIO $ do
             B.writeFile "state.json" (encode s')
             stateStr <- B.readFile "state.json"
             return (fromMaybe (error "json decode error") $ decode stateStr)
     let nexts = O.step s
+--------------------------------------------------------------------------------    
 
+    -- COMBAK: revert
     -- let s = getBackendState clientState
     -- let nexts = O.step s
-    -- wsSendJSONList conn (shapesr nexts :: [Shape Double])
+
     wsSendFrame conn
         Frame {
             flag = "running",
