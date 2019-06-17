@@ -124,7 +124,7 @@ stepPolicy s =
             Nothing     -> (paramsr s, pparams' { policyState = psNew }) -- steps incremented, policy done
 
             Just newFns -> -- Policy keeps going
-                let objFnNew = genObjfn (transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) 
+                let objFnNew = genObjfn (castTranslation $ transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) 
                     -- TODO: check that these inputs are right
                     -- Change obj function and restart optimization
                     pparamsNew = pparams' { policyState = psNew,

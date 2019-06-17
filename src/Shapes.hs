@@ -92,39 +92,22 @@ data ValueType
 
 -- | fully evaluated values in Style
 data Value a
-    -- | Floating point number
-    = FloatV a
-    -- | integer
-    | IntV Integer
-    -- | boolean value
-    | BoolV Bool
-    -- | string literal
-    | StrV String
-    -- | point in R^2
-    | PtV (Pt2 a)
-    -- | path commands
-    | PathDataV (PathData a)
-    -- | a list of points
-    | PtListV [Pt2 a]
-    -- | an RGBA color value
-    | ColorV Color
-    -- | path for image
-    | FileV String
-    -- | dotted, etc.
-    | StyleV String
-    -- | Lists and tuples of floats
-    | ListV [a]
-    | TupV (a, a)
-    | LListV [[a]]
-
-    -- | single transformation (homogeneous transformation)
-    | HMatrixV (HMatrix a)
-
-    -- | Multiple shapes with holes
-    | PolygonV (Polygon a)
-
+    = FloatV a -- ^ floating point number
+    | IntV Integer -- ^ integer
+    | BoolV Bool -- ^ boolean value
+    | StrV String -- ^ string literal
+    | PtV (Pt2 a) -- ^ point in R^2
+    | PathDataV (PathData a) -- ^ path commands
+    | PtListV [Pt2 a] -- ^ a list of points
+    | ColorV Color -- ^ an RGBA color value
+    | FileV String -- ^ path for image
+    | StyleV String -- ^ dotted, etc.
+    | ListV [a] -- ^ a list of floats
+    | TupV (a, a) -- ^ a tuple of floats
+    | LListV [[a]] -- ^ a 2D list of floats
+    | HMatrixV (HMatrix a) -- ^ single transformation (homogeneous transformation)
+    | PolygonV (Polygon a) -- ^ multiple shapes with holes
     deriving (Generic, Eq, Show)
-
 instance (FromJSON a) => FromJSON (Value a)
 instance (ToJSON a)   => ToJSON (Value a)
 

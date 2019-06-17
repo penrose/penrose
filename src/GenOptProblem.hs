@@ -35,7 +35,7 @@ import qualified Data.Aeson as A
 import GHC.Generics
 import qualified Numeric.LinearAlgebra as L
 
-default (Int, Float)
+-- default (Int, Float)
 
 -------------------- Type definitions
 
@@ -159,7 +159,8 @@ data State = State { shapesr :: [Shape Double],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
                      shapeOrdering :: [String],
                      shapeProperties :: [(String, Field, Property)],
-                     transr :: forall a . (Autofloat a) => Translation a,
+                    --  transr :: forall a . (Autofloat a) => Translation a,
+                     transr :: Translation Double,
                      varyingPaths :: [Path],
                      uninitializedPaths :: [Path],
                      varyingState :: [Double], -- Note: NOT polymorphic
@@ -886,7 +887,7 @@ computeLayering trans =
 
 ------------- Main function: what the Style compiler generates
 
-genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> OptConfig -> State
+genOptProblemAndState :: Translation Double -> OptConfig -> State
 genOptProblemAndState trans optConfig =
     -- Save information about the translation
     let !varyingPaths       = findVarying trans in
@@ -904,7 +905,7 @@ genOptProblemAndState trans optConfig =
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
     let (!objFnsWithDefaults, !constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
-    let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults varyingPaths in
+    let overallFn = genObjfn (castTranslation transInit) objFnsWithDefaults constrsWithDefaults varyingPaths in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 
@@ -960,13 +961,15 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConf
    divLine
 
    let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals
-                       :: Either [Error] (Translation Float)
+                       :: Either [Error] (Translation Double)
                        -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
                        -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
                        -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
                        -- This greatly improves the performance of the system. See #166 for more details.
-   let transAuto = castTranslation $ fromRight trans
-                       :: forall a . (Autofloat a) => Translation a
+--    let transAuto = castTranslation $ fromRight trans
+--                        :: forall a . (Autofloat a) => Translation a
+   let transAuto = fromRight trans 
+
    putStrLn "Translated Style program:\n"
    pPrint trans
    divLine
@@ -991,21 +994,21 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConf
 
 -- | After monomorphizing the translation's type (to make sure it's computed), we generalize the type again, which means
 -- | it's again under a typeclass lambda. (#166)
-castTranslation :: Translation Float -> (forall a . Autofloat a => Translation a)
+castTranslation :: Translation Double -> (forall a . Autofloat a => Translation a)
 castTranslation t =
       let res = M.map castFieldDict (trMap t) in
       t { trMap = res }
       where
-        castFieldDict :: FieldDict Float -> (forall a . Autofloat a => FieldDict a)
+        castFieldDict :: FieldDict Double -> (forall a . Autofloat a => FieldDict a)
         castFieldDict dict = M.map castFieldExpr dict
 
-        castFieldExpr :: FieldExpr Float -> (forall a . (Autofloat a) => FieldExpr a)
+        castFieldExpr :: FieldExpr Double -> (forall a . (Autofloat a) => FieldExpr a)
         castFieldExpr e =
           case e of
              FExpr te -> FExpr $ castTagExpr te
              FGPI n props -> FGPI n $ M.map castTagExpr props
 
-        castTagExpr :: TagExpr Float -> (forall a . Autofloat a => TagExpr a)
+        castTagExpr :: TagExpr Double -> (forall a . Autofloat a => TagExpr a)
         castTagExpr e =
            case e of
              Done v ->
@@ -1020,15 +1023,16 @@ castTranslation t =
                           StrV x -> StrV x
                           FileV x -> FileV x
                           StyleV x -> StyleV x
+                          ColorV (RGBA r g b a) -> ColorV $ RGBA (r2f r) (r2f g) (r2f b) (r2f a)
                 in Done res
              OptEval e -> OptEval e -- Expr only contains floats
 
-        castPath :: Path' Float -> (forall a . Autofloat a => Path' a)
+        castPath :: Path' Double -> (forall a . Autofloat a => Path' a)
         castPath p = case p of
                      Closed elems -> Closed $ map castElem elems
                      Open elems -> Open $ map castElem elems
 
-        castElem :: Elem Float -> (forall a . Autofloat a => Elem a)
+        castElem :: Elem Double -> (forall a . Autofloat a => Elem a)
         castElem e = case e of
                      Pt pt -> Pt $ app2 r2f pt
                      CubicBez pts -> CubicBez $ app3 (app2 r2f) pts
@@ -1125,7 +1129,7 @@ initPolicy :: State -> State
 initPolicy s = -- TODO: make this less verbose
     let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) initPolicyParams in
     let newFns = DM.fromJust policyRes in
-    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) 
+    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (castTranslation $ transr s) (filter isObjFn newFns) 
                                                                               (filter isConstr newFns) (varyingPaths s) }, 
                               policyParams = initPolicyParams { policyState = pstate, currFns = newFns } } in
     stateWithPolicy

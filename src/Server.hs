@@ -407,7 +407,7 @@ updateShapes newShapes client@(clientID, conn, clientState) =
         trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
         -- Respect the optimization policy
         policyFns = currFns $ policyParams s
-        newObjFn = G.genObjfn trans' (filter isObjFn policyFns) (filter isConstr policyFns) (G.varyingPaths s)
+        newObjFn = G.genObjfn (castTranslation trans') (filter isObjFn policyFns) (filter isConstr policyFns) (G.varyingPaths s)
         varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
         news = s {
             G.shapesr = polyShapes,
