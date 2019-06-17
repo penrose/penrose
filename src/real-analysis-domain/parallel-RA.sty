@@ -50,20 +50,20 @@ Reals `R` {
   R.yval = origin.y
 
   R.shape = Arrow {
-    startX = R.left
-    startY = R.yval
-    endX = R.right
-    endY = R.yval
-    thickness = R.thickness
-    color = R.color
-    rotation = 0.0
+    startX : R.left
+    startY : R.yval
+    endX : R.right
+    endY : R.yval
+    thickness : R.thickness
+    color : R.color
+    rotation : 0.0
   }
 
   R.text = Text {
-    x = R.shape.endX + global.padding
-    y = R.shape.endY + global.padding
-    string = R.label
-    rotation = 0.0
+    x : R.shape.endX + global.padding
+    y : R.shape.endY + global.padding
+    string : R.label
+    rotation : 0.0
   }
 
   -- R.labelFn = ensure nearHead(R.shape, R.text, global.padding, global.padding)
@@ -71,27 +71,27 @@ Reals `R` {
 
 Real r  -- no "In(r, `R`)"
 with Reals `R` {
-  r.val = OPTIMIZED
+  r.val = ?
   r.yval = `R`.yval
   r.len = 20.0
 
   r.shape = Line {
-    startX = r.val
-    startY = r.yval - (r.len / 2.0)
-    endX = r.val
-    endY = r.yval + (r.len / 2.0)
-    thickness = 2.5
-    color = Colors.black
-    rotation = 0.0
+    startX : r.val
+    startY : r.yval - (r.len / 2.0)
+    endX : r.val
+    endY : r.yval + (r.len / 2.0)
+    thickness : 2.5
+    color : Colors.black
+    rotation : 0.0
   }
 
   r.text = Text {
-    -- position computed, not optimized
-    x = r.val
-    y = r.shape.endY + 1.5 * global.padding
-    string = r.label
-    color = r.shape.color
-    rotation = 0.0
+    -- position computed, not ?
+    x : r.val
+    y : r.shape.endY + 1.5 * global.padding
+    string : r.label
+    color : r.shape.color
+    rotation : 0.0
   }
 
   r.inFn = ensure inRange(r.val, R.left, R.right)
@@ -104,27 +104,27 @@ with Reals `R` {
 Interval I
 where Subset(I, R)
 with Reals R { -- TODO: more general, with Interval J
-  I.left = OPTIMIZED
-  I.right = OPTIMIZED
+  I.left = ?
+  I.right = ?
   I.yval = R.yval
 
   I.shape = Line { -- horizontal
-    startX = I.left
-    startY = I.yval
-    endX = I.right
-    endY = I.yval
-    thickness = 3
-    color = rgba(0.3, 0.3, 0.9, 0.5)
-    rotation = 0.0
+    startX : I.left
+    startY : I.yval
+    endX : I.right
+    endY : I.yval
+    thickness : 3
+    color : rgba(0.3, 0.3, 0.9, 0.5)
+    rotation : 0.0
   }
 
-  -- position computed, not optimized
+  -- position computed, not ?
   I.text = Text {
-    string = I.label
-    x = midpointX(I.shape)
-    y = I.yval + 3.5 * global.padding
-    rotation = 0.0
-    color = I.shape.color
+    string : I.label
+    x : midpointX(I.shape)
+    y : I.yval + 3.5 * global.padding
+    rotation : 0.0
+    color : I.shape.color
   }
 
   I.wfFn = ensure lessThan(I.left, I.right)
@@ -167,21 +167,21 @@ Real a; Real b
 with OpenInterval I; Reals R
 where I := CreateOpenInterval(a, b); Subset(I, R) {
   override a.shape = Image {
-      path = "left-paren.svg"
-      centerX = a.val
-      centerY = a.yval
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "left-paren.svg"
+      centerX : a.val
+      centerY : a.yval
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
   override b.shape = Image {
-      path = "right-paren.svg"
-      centerX = b.val
-      centerY = b.yval
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "right-paren.svg"
+      centerX : b.val
+      centerY : b.yval
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
@@ -197,21 +197,21 @@ Real a; Real b
 with ClosedInterval I; Reals R
 where I := CreateClosedInterval(a, b); Subset(I, R) {
   override a.shape = Image {
-      path = "left-bracket.svg"
-      centerX = a.val
-      centerY = a.yval
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "left-bracket.svg"
+      centerX : a.val
+      centerY : a.yval
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
   override b.shape = Image {
-      path = "right-bracket.svg"
-      centerX = b.val
-      centerY = b.yval
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "right-bracket.svg"
+      centerX : b.val
+      centerY : b.yval
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
@@ -232,21 +232,21 @@ Real a; Real b
 with LeftClopenInterval I; Reals R
 where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
   override a.shape = Image {
-      path = "left-bracket.svg"
-      centerX = a.val
-      centerY = a.yval
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "left-bracket.svg"
+      centerX : a.val
+      centerY : a.yval
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
   override b.shape = Image {
-      path = "right-paren.svg"
-      centerX = b.val
-      centerY = b.yval
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "right-paren.svg"
+      centerX : b.val
+      centerY : b.yval
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
@@ -262,21 +262,21 @@ Real a; Real b
 with RightClopenInterval I; Reals R
 where I := CreateRightClopenInterval(a, b); Subset(I, R) {
   override a.shape = Image {
-      path = "left-paren.svg"
-      centerX = a.val
-      centerY = a.yval
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "left-paren.svg"
+      centerX : a.val
+      centerY : a.yval
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
   override b.shape = Image {
-      path = "right-bracket.svg"
-      centerX = b.val
-      centerY = b.yval
-      lengthX = 10.0
-      lengthY = 20.0
-      rotation = 0.0
+      path : "right-bracket.svg"
+      centerX : b.val
+      centerY : b.yval
+      lengthX : 10.0
+      lengthY : 20.0
+      rotation : 0.0
   }
 
     override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
@@ -295,13 +295,13 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
       override I.right = `R`.right
 
       override I.shape = Arrow {
-      	       startX = I.left
-	       startY = I.yval
-	       endX = I.right
-	       endY = I.yval
-	       thickness = 3
-	       color = Colors.bluegreen
-	       rotation = 0.0
+      	       startX : I.left
+	       startY : I.yval
+	       endX : I.right
+	       endY : I.yval
+	       thickness : 3
+	       color : Colors.bluegreen
+	       rotation : 0.0
       }
 
       override y.val = `R`.right
@@ -400,20 +400,20 @@ where f := CreateFunction(I, J) {
   `R`.yval2 = `R`.yval - `R`.spacing -- function drawn downward
 
   `R`.shape2 = Arrow {
-    startX = `R`.left
-    startY = `R`.yval2
-    endX = `R`.right
-    endY = `R`.yval2
-    thickness = `R`.thickness
-    color = `R`.color
-    rotation = 0.0
+    startX : `R`.left
+    startY : `R`.yval2
+    endX : `R`.right
+    endY : `R`.yval2
+    thickness : `R`.thickness
+    color : `R`.color
+    rotation : 0.0
   }
 
  `R`.shape2_text = Text {
-    x = R.shape2.endX + global.padding
-    y = R.shape2.endY + global.padding
-    string = `R`.label
-    rotation = 0.0
+    x : R.shape2.endX + global.padding
+    y : R.shape2.endY + global.padding
+    string : `R`.label
+    rotation : 0.0
   }
 
   -- `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
@@ -431,19 +431,19 @@ where f := CreateFunction(I, J) {
   override f.domain.color = f.color2
 
   f.shape = Curve {
-    pathData = sampleFunctionArea(f.domain, f.codomain)
-    strokeWidth = 0.0
-    fill = f.color1
-    color = f.color1
-    rotation = 0.0
+    pathData : sampleFunctionArea(f.domain, f.codomain)
+    strokeWidth : 0.0
+    fill : f.color1
+    color : f.color1
+    rotation : 0.0
   }
 
   f.text = Text {
-    string = f.label
-    x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
-    y = average(f.domain.startY, f.codomain.startY)
-    rotation = 0.0
-    color = f.color2
+    string : f.label
+    x : average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
+    y : average(f.domain.startY, f.codomain.startY)
+    rotation : 0.0
+    color : f.color2
   }
 }
 
@@ -456,28 +456,28 @@ where f := CreateFunction(`R`, `R`) {
   `R`.yval2 = `R`.yval - `R`.spacing -- function drawn downward
 
   `R`.shape2 = Arrow {
-    startX = `R`.left
-    startY = `R`.yval2
-    endX = `R`.right
-    endY = `R`.yval2
-    thickness = `R`.thickness
-    color = `R`.color
-    rotation = 0.0
+    startX : `R`.left
+    startY : `R`.yval2
+    endX : `R`.right
+    endY : `R`.yval2
+    thickness : `R`.thickness
+    color : `R`.color
+    rotation : 0.0
   }
 
  `R`.shape2_text = Text {
-    x = R.shape2.endX + global.padding
-    y = R.shape2.endY + global.padding
-    string = `R`.label
-    rotation = 0.0
-    color = `R`.shape2.color
+    x : R.shape2.endX + global.padding
+    y : R.shape2.endY + global.padding
+    string : `R`.label
+    rotation : 0.0
+    color : `R`.shape2.color
   }
 
   -- `R`.shape2_labelFn = ensure nearHead(`R`.shape2, `R`.shape2_text, global.padding, global.padding)
 
   -------------------------------------------------
 
-  f.val = OPTIMIZED
+  f.val = ?
   f.domain = `R`.shape
   f.codomain = `R`.shape2
   f.color1 = Colors.lightpink
@@ -487,19 +487,19 @@ where f := CreateFunction(`R`, `R`) {
   override f.codomain.color = f.color2
 
   f.shape = Curve {
-    pathData = sampleFunctionArea(f.domain, f.codomain)
-    strokeWidth = 0.0
-    fill = f.color1
-    color = f.color1
-    rotation = 0.0
+    pathData : sampleFunctionArea(f.domain, f.codomain)
+    strokeWidth : 0.0
+    fill : f.color1
+    color : f.color1
+    rotation : 0.0
   }
 
   f.text = Text {
-    string = f.label
-    x = average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
-    y = average(f.domain.startY, f.codomain.startY)
-    rotation = 0.0
-    color = f.color2
+    string : f.label
+    x : average(midpointX(f.domain), midpointX(f.codomain)) + 10.0
+    y : average(f.domain.startY, f.codomain.startY)
+    rotation : 0.0
+    color : f.color2
   }
 }
 
@@ -570,27 +570,27 @@ where f := CreateFunction(I, J);
      -- TODO: have domain intervals be disjoint
 
      f.shape1 = Curve {
-       pathData = sampleFunctionArea(X.shape, f.codomain)
-       strokeWidth = 0.0
-       fill = f.color1
-       color = f.color1
-       rotation = 0.0
+       pathData : sampleFunctionArea(X.shape, f.codomain)
+       strokeWidth : 0.0
+       fill : f.color1
+       color : f.color1
+       rotation : 0.0
      }
 
      f.shape2 = Curve {
-       pathData = sampleFunctionArea(Y.shape, f.codomain)
-       strokeWidth = 0.0
-       fill = f.color1
-       color = f.color1
-       rotation = 0.0
+       pathData : sampleFunctionArea(Y.shape, f.codomain)
+       strokeWidth : 0.0
+       fill : f.color1
+       color : f.color1
+       rotation : 0.0
      }
 
      f.text = Text {
-       string = f.label
-       x = average(midpointX(X.shape), midpointX(Y.shape)) + 10.0
-       y = average(X.shape.startY, f.codomain.startY)
-       rotation = 0.0
-       color = f.color2
+       string : f.label
+       x : average(midpointX(X.shape), midpointX(Y.shape)) + 10.0
+       y : average(X.shape.startY, f.codomain.startY)
+       rotation : 0.0
+       color : f.color2
      }
 
      f.layering1 = f.text above f.shape1
@@ -618,20 +618,20 @@ with Interval A, B, C;
   `R`.yval3 = `R`.yval2 - `R`.spacing -- function drawn downward
 
   `R`.shape3 = Arrow {
-    startX = `R`.left
-    startY = `R`.yval3
-    endX = `R`.right
-    endY = `R`.yval3
-    thickness = `R`.thickness
-    color = `R`.color
-    rotation = 0.0
+    startX : `R`.left
+    startY : `R`.yval3
+    endX : `R`.right
+    endY : `R`.yval3
+    thickness : `R`.thickness
+    color : `R`.color
+    rotation : 0.0
   }
 
  `R`.shape3_text = Text {
-    x = R.shape3.endX + global.padding
-    y = R.shape3.endY + global.padding
-    string = `R`.label
-    rotation = 0.0
+    x : R.shape3.endX + global.padding
+    y : R.shape3.endY + global.padding
+    string : `R`.label
+    rotation : 0.0
   }
 
   -- `R`.shape3_labelFn = ensure nearHead(`R`.shape3, `R`.shape3_text, global.padding, global.padding)
@@ -682,20 +682,20 @@ with Function g, f, e, d;
   `R`.yval4 = `R`.yval3 - `R`.spacing -- function drawn downward
 
   `R`.shape4 = Arrow {
-    startX = `R`.left
-    startY = `R`.yval4
-    endX = `R`.right
-    endY = `R`.yval4
-    thickness = `R`.thickness
-    color = `R`.color
-    rotation = 0.0
+    startX : `R`.left
+    startY : `R`.yval4
+    endX : `R`.right
+    endY : `R`.yval4
+    thickness : `R`.thickness
+    color : `R`.color
+    rotation : 0.0
   }
 
  `R`.shape4_text = Text {
-    x = R.shape4.endX + global.padding
-    y = R.shape4.endY + global.padding
-    string = `R`.label
-    rotation = 0.0
+    x : R.shape4.endX + global.padding
+    y : R.shape4.endY + global.padding
+    string : `R`.label
+    rotation : 0.0
   }
 
   -- `R`.shape4_labelFn = ensure nearHead(`R`.shape4, `R`.shape4_text, global.padding, global.padding)
@@ -737,14 +737,14 @@ where y := Apply(f, x); f := CreateFunction(I, J); In(x, I) {
   -- TODO: change the color of the interval's brackets
 
   f.pointwise_shape = Curve {
-    pathData = makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
+    pathData : makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
 
-    strokeWidth = 2.0
-    fill = Colors.none
-    color = f.color2
-    rotation = 0.0
+    strokeWidth : 2.0
+    fill : Colors.none
+    color : f.color2
+    rotation : 0.0
     -- TODO: rename to account for arrow directionality
-    right-arrowhead = True
+    right-arrowhead : True
   }
 
   -- x.text.x = x.val
@@ -767,13 +767,13 @@ where y := Apply(f, x); f := CreateFunction(`R`, `R`) {
   override y.shape.color = f.color2
 
   f.pointwise_shape = Curve {
-    pathData = makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
+    pathData : makeCurve(x.val, x.shape.startY - global.padding, y.val, y.shape.endY + global.padding, global.curve_dx, global.curve_dy)
 
-    strokeWidth = 2.0
-    fill = Colors.none
-    color = f.color2
-    rotation = 0.0
-    right-arrowhead = True
+    strokeWidth : 2.0
+    fill : Colors.none
+    color : f.color2
+    rotation : 0.0
+    right-arrowhead : True
   }
 
   -- x.text.x = x.val

@@ -1,0 +1,13 @@
+Set x {
+    x.shape = Circle {
+        strokeWidth = 0
+    }
+
+    x.minSizeFn = ensure minSize(x.shape)
+}
+
+Set x; Set y
+where IsSubset(x, y) {
+    LOCAL.containFn = ensure contains(y.shape, x.shape)
+    LOCAL.layering  = x.shape above y.shape
+}

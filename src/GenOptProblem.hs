@@ -5,12 +5,14 @@
 
 {-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
+{-# LANGUAGE DeriveGeneric #-}
 -- Mostly for autodiff
 
 module GenOptProblem where
 
 import Utils
 import Shapes
+import Transforms
 import qualified SubstanceJSON as J
 import qualified Substance as C
 import Env
@@ -29,6 +31,11 @@ import qualified Data.Set as Set
 import qualified Data.Graph as Graph
 import GHC.Float (float2Double, double2Float)
 import qualified Data.Maybe as DM (fromJust)
+import qualified Data.Aeson as A
+import GHC.Generics
+import qualified Numeric.LinearAlgebra as L
+
+default (Int, Float)
 
 -------------------- Type definitions
 
@@ -78,11 +85,44 @@ instance Eq OptStatus where
 
 data Params = Params { weight :: Float,
                        optStatus :: OptStatus,
-                       overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a
+                       overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a,
+                       bfgsInfo :: BfgsParams
                      }
 
 instance Show Params where
          show p = "Weight: " ++ show (weight p) ++ " | Opt status: " ++ show (optStatus p)
+                             -- ++ "\nBFGS info:\n" ++ show (bfgsInfo p)
+
+data BfgsParams = BfgsParams {
+     lastState :: Maybe (L.Vector L.R), -- x_k
+     lastGrad :: Maybe (L.Vector L.R),  -- gradient of f(x_k)
+     invH :: Maybe (L.Matrix L.R),  -- (BFGS only) estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
+     s_list :: [L.Vector L.R], -- (L-BFGS only) s_i (state difference) from k-1 to k-m
+     y_list :: [L.Vector L.R],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
+     numUnconstrSteps :: Int, -- (L-BFGS only) number of steps so far, starting at 0
+     memSize :: Int -- (L-BFGS only) number of vectors to retain
+}
+
+instance Show BfgsParams where
+         show s = "\nBFGS params:\n" ++
+                  "\nlastState: \n" ++ ppShow (lastState s) ++
+                  "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
+                  "\ninvH: \n" ++ ppShow (invH s) ++
+                  -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
+                  -- "\ns_list:\n" ++ ppShow (s_list s) ++
+                  -- "\ny_list:\n" ++ ppShow (y_list s) ++
+                  "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
+                  "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
+                  "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
+                  "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
+
+defaultBfgsMemSize :: Int
+defaultBfgsMemSize = 17
+-- Shorter memory seems to work better in practice; Nocedal says between 3 and 30 is a good `m` (see p227)
+-- but the choice of `m` is also problem-dependent
+
+defaultBfgsParams = BfgsParams { lastState = Nothing, lastGrad = Nothing, invH = Nothing,
+                                 s_list = [], y_list = [], numUnconstrSteps = 0, memSize = defaultBfgsMemSize }
 
 type PolicyState = String -- Should this include the functions that it returned last time?
 type Policy = [Fn] -> [Fn] -> PolicyParams -> (Maybe [Fn], PolicyState)
@@ -95,6 +135,25 @@ data PolicyParams = PolicyParams { policyState :: String,
 instance Show PolicyParams where
          show p = "Policy state: " ++ policyState p ++ " | Policy steps: " ++ show (policySteps p)
                           -- ++ "\nFunctions:\n" ++ ppShow (currFns p)
+
+data OptMethod = Newton | BFGS | LBFGS | GradientDescent
+     deriving (Eq, Show, Generic)
+
+instance A.ToJSON OptMethod where
+             toEncoding = A.genericToEncoding A.defaultOptions
+
+instance A.FromJSON OptMethod
+
+data OptConfig = OptConfig {
+               optMethod :: OptMethod
+     } deriving (Eq, Show, Generic)
+
+defaultOptConfig = OptConfig { optMethod = BFGS }
+
+instance A.ToJSON OptConfig where
+             toEncoding = A.genericToEncoding A.defaultOptions
+
+instance A.FromJSON OptConfig
 
 data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
@@ -110,7 +169,8 @@ data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
                      rng :: StdGen,
                      autostep :: Bool,
                      policyFn :: Policy,
-                     policyParams :: PolicyParams }
+                     policyParams :: PolicyParams,
+                     oConfig :: OptConfig }
 
 instance Show State where
          show s = "Shapes: \n" ++ ppShow (shapesr s) ++
@@ -329,7 +389,7 @@ getShapes shapenames trans = map (getShape trans) shapenames
 ----- GPI helper functions
 
 shapes2vals :: (Autofloat a) => [Shape a] -> [Path] -> [Value a]
-shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
+shapes2vals shapes paths = reverse $ foldl' (lookupPath shapes) [] paths
     where
         lookupPath shapes acc (PropertyPath s field property) =
             let subID = bvarToString s
@@ -341,7 +401,7 @@ shapes2vals shapes paths = reverse $ foldl (lookupPath shapes) [] paths
 -- look up property values in the shapes and field values in the varyMap
 -- NOTE: varyState is constructed using a foldl, so to preserve its order, we must reverse the list of values!
 shapes2floats :: (Autofloat a) => [Shape a] -> VaryMap a -> [Path] -> [a]
-shapes2floats shapes varyMap varyingPaths = reverse $ foldl (lookupPathFloat shapes varyMap) [] varyingPaths
+shapes2floats shapes varyMap varyingPaths = reverse $ foldl' (lookupPathFloat shapes varyMap) [] varyingPaths
     where
         lookupPathFloat :: (Autofloat a) => [Shape a] -> VaryMap a -> [a] -> Path -> [a]
         lookupPathFloat shapes _ acc (PropertyPath s field property) =
@@ -361,17 +421,19 @@ shapes2floats shapes varyMap varyingPaths = reverse $ foldl (lookupPathFloat sha
 -- For now, don't optimize these float-valued properties of a GPI 
 -- (use whatever they are initialized to in Shapes or set to in Style)
 unoptimizedFloatProperties :: [String]
-unoptimizedFloatProperties = ["rotation", "strokeWidth", "thickness"]
+unoptimizedFloatProperties = ["rotation", "strokeWidth", "thickness", 
+                              "transform", "transformation"]
 
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
 findPropertyVarying :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) ->
                                                                  String -> [Path] -> [Path]
 findPropertyVarying name field properties floatProperty acc =
-    if floatProperty `elem` unoptimizedFloatProperties then acc else
     case M.lookup floatProperty properties of
-    Nothing -> mkPath [name, field, floatProperty] : acc
-    Just expr -> if declaredVarying expr then mkPath [name, field, floatProperty] : acc else acc
+    Nothing -> if floatProperty `elem` unoptimizedFloatProperties then acc 
+               else mkPath [name, field, floatProperty] : acc
+    Just expr -> if declaredVarying expr then mkPath [name, field, floatProperty] : acc
+                 else acc
 
 findFieldVarying :: (Autofloat a) => String -> Field -> FieldExpr a -> [Path] -> [Path]
 findFieldVarying name field (FExpr expr) acc =
@@ -490,6 +552,16 @@ evalBinop op v1 v2 =
         (Val _, GPI _) -> error "binop cannot operate on GPI"
         (GPI _, GPI _) -> error "binop cannot operate on GPIs"
 
+-- | Given a path that is a computed property of a shape (e.g. A.shape.transformation), evaluate each of its arguments (e.g. A.shape.sizeX), pass the results to the property-computing function, and return the result (e.g. an HMatrix)
+computeProperty :: (Autofloat a) => (Int, Int) -> BindingForm -> Field -> Property -> VaryMap a -> Translation a -> StdGen -> ComputedValue a -> (ArgVal a, Translation a, StdGen)
+computeProperty limit bvar field property varyMap trans g (props, compFn) =
+                let args = map (\p -> EPath $ PropertyPath bvar field p) props
+                    (argVals, trans', g') = evalExprs limit args trans varyMap g
+                    propertyValue = compFn $ map fromGPI argVals in
+                (Val propertyValue, trans', g')
+                where fromGPI (Val x) = x
+                      fromGPI (GPI x) = error "expected value as prop fn arg, got GPI"
+
 evalProperty :: (Autofloat a)
     => (Int, Int) -> BindingForm -> Field -> VaryMap a -> ([(Property, TagExpr a)], Translation a, StdGen) -> (Property, TagExpr a)
     -> ([(Property, TagExpr a)], Translation a, StdGen)
@@ -507,7 +579,7 @@ evalGPI_withUpdate :: (Autofloat a)
 evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap g =
         -- Fold over the properties, evaluating each path, which will update the translation each time,
         -- and accumulate the new property-value list (WITH varying looked up)
-        let (propertyList', trans', g') = foldl (evalProperty (i, n) bvar field varyMap) ([], trans, g) (M.toList properties) in
+        let (propertyList', trans', g') = foldl' (evalProperty (i, n) bvar field varyMap) ([], trans, g) (M.toList properties) in
         let properties' = M.fromList propertyList' in
         {-trace ("Start eval GPI: " ++ show properties ++ " " ++ "\n\tctor: " ++ "\n\tfield: " ++ show field)-}
         ((ctor, properties'), trans', g')
@@ -516,8 +588,7 @@ evalGPI_withUpdate (i, n) bvar field (ctor, properties) trans varyMap g =
 evalExpr :: (Autofloat a) => (Int, Int) -> Expr -> Translation a -> VaryMap a -> StdGen -> (ArgVal a, Translation a, StdGen)
 evalExpr (i, n) arg trans varyMap g =
     if i >= n then error ("evalExpr: iteration depth exceeded (" ++ show n ++ ")")
-        else {- trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n) -}
-                   argResult
+        else {-trace ("Evaluating expression: " ++ show arg ++ "\n(i, n): " ++ show i ++ ", " ++ show n)-} argResult
     where limit = (i + 1, n)
           argResult = case arg of
             -- Already done values; don't change trans
@@ -547,10 +618,17 @@ evalExpr (i, n) arg trans varyMap g =
                 -- Nothing -> error ("computation '" ++ fname ++ "' doesn't exist")
                 -- Just f -> let res = f vs in
                 --           (res, trans')
-            List es -> error "TODO lists"
-                -- let (vs, trans') = evalExprs es trans in
-                -- (vs, trans')
-            ListAccess p i -> error "TODO lists"
+            List es ->
+                let (vs, trans', g') = evalExprs limit es trans varyMap g
+                    floatvs = map checkFloatType vs
+                in (Val $ ListV floatvs, trans', g')
+
+            ListAccess p i -> error "TODO list accesses"
+
+            Tuple e1 e2 ->
+                let (vs, trans', g') = evalExprs limit [e1, e2] trans varyMap g
+                    [v1, v2] = map checkFloatType vs
+                in (Val $ TupV (v1, v2), trans', g')
 
             -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
             EPath p ->
@@ -577,17 +655,21 @@ evalExpr (i, n) arg trans varyMap g =
                          (GPI (ctor', shapeExprsToVals (bvarToString bvar, field) propertiesVal), trans', g')
 
                   PropertyPath bvar field property ->
-                      let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
-                      case texpr of
-                      Done v -> (Val v, trans, g)
-                      OptEval e ->
-                         let (v, trans', g') = evalExpr limit e trans varyMap g in
-                         case v of
-                         Val fval ->
-                             case insertPath trans' (p, Done fval) of
-                             Right trans' -> (v, trans', g')
-                             Left err -> error $ concat err
-                         GPI _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
+                      let gpiType = shapeType bvar field trans in
+                      case M.lookup (gpiType, property) computedProperties of 
+                      Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
+                      Nothing -> -- Compute the path as usual
+                          let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
+                          case texpr of
+                          Done v -> (Val v, trans, g)
+                          OptEval e ->
+                             let (v, trans', g') = evalExpr limit e trans varyMap g in
+                             case v of
+                             Val fval ->
+                                 case insertPath trans' (p, Done fval) of
+                                 Right trans' -> (v, trans', g')
+                                 Left err -> error $ concat err
+                             GPI _ -> error ("path to property expr '" ++ pathStr p ++ "' evaluated to a GPI")
 
             -- GPI argument
             Ctor ctor properties -> error "no anonymous/inline GPIs allowed as expressions!"
@@ -600,13 +682,17 @@ evalExpr (i, n) arg trans varyMap g =
             PluginAccess _ _ _ -> error "plugin access should not be evaluated at runtime"
             -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
 
+checkFloatType :: (Autofloat a) => ArgVal a -> a
+checkFloatType (Val (FloatV x)) = x
+checkFloatType _ = error "expected float type"
+
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)
 evalExprs :: (Autofloat a)
     => (Int, Int) -> [Expr] -> Translation a -> VaryMap a -> StdGen
     -> ([ArgVal a], Translation a, StdGen)
 evalExprs limit args trans varyMap g =
-    foldl (evalExprF limit varyMap) ([], trans, g) args
+    foldl' (evalExprF limit varyMap) ([], trans, g) args
     where evalExprF :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([ArgVal a], Translation a, StdGen) -> Expr -> ([ArgVal a], Translation a, StdGen)
           evalExprF limit varyMap (argvals, trans, rng) arg =
                        let (argVal, trans', rng') = evalExpr limit arg trans varyMap rng in
@@ -624,7 +710,7 @@ evalFnArgs limit varyMap (fnDones, trans, g) fn =
 evalFns :: (Autofloat a)
     => (Int, Int) -> [Fn] -> Translation a -> VaryMap a -> StdGen
     -> ([FnDone a], Translation a, StdGen)
-evalFns limit fns trans varyMap g = foldl (evalFnArgs limit varyMap) ([], trans, g) fns
+evalFns limit fns trans varyMap g = foldl' (evalFnArgs limit varyMap) ([], trans, g) fns
 
 applyOptFn :: (Autofloat a) =>
     M.Map String (OptFn a) -> OptSignatures -> FnDone a -> a
@@ -648,8 +734,7 @@ genObjfn trans objfns constrfns varyingPaths =
      \rng penaltyWeight varyingVals ->
          let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
          let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
-         let overallEnergy = applyCombined penaltyWeight (tr "Completed evaluating function arguments" fnsE) in
-         tr "Completed applying optimization function" overallEnergy
+         applyCombined penaltyWeight fnsE
 
 --------------- Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 -- 1. Initialize all varying fields
@@ -683,7 +768,7 @@ initShape (trans, g) (n, field) =
 
 initShapes :: (Autofloat a) =>
     Translation a -> [(String, Field)] -> StdGen -> (Translation a, StdGen)
-initShapes trans shapePaths gen = foldl initShape (trans, gen) shapePaths
+initShapes trans shapePaths gen = foldl' initShape (trans, gen) shapePaths
 
 resampleFields :: (Autofloat a) => [Path] -> StdGen -> ([a], StdGen)
 resampleFields varyingPaths g =
@@ -714,7 +799,7 @@ evalShape limit varyMap (shapes, trans, g) shapePath =
 -- recursively evaluate every shape property in the translation
 evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> StdGen -> ([Shape a], Translation a, StdGen)
 evalShapes limit shapeNames trans varyMap rng =
-           let (shapes, trans', rng') = foldl (evalShape limit varyMap) ([], trans, rng) shapeNames in
+           let (shapes, trans', rng') = foldl' (evalShape limit varyMap) ([], trans, rng) shapeNames in
            (reverse shapes, trans', rng')
 
 -- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
@@ -801,8 +886,8 @@ computeLayering trans =
 
 ------------- Main function: what the Style compiler generates
 
-genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> State
-genOptProblemAndState trans =
+genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> OptConfig -> State
+genOptProblemAndState trans optConfig =
     -- Save information about the translation
     let !varyingPaths       = findVarying trans in
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
@@ -844,31 +929,24 @@ genOptProblemAndState trans =
                                  constrFns = constrsWithDefaults,
                                  paramsr = Params { weight = initWeight,
                                                     optStatus = NewIter,
-                                                    overallObjFn = overallFn },
+                                                    overallObjFn = overallFn,
+                                                    bfgsInfo = defaultBfgsParams },
                                  rng = g'',
                                  autostep = False, -- default
-                                 policyParams = PolicyParams { policyState = "",
-                                                               policySteps = 0,
-                                                               currFns = [] },
-                                 policyFn = policyToUse
+                                 policyParams = initPolicyParams,
+                                 policyFn = policyToUse,
+                                 oConfig = optConfig
                                } in
 
-        -- TODO: make this less verbose
-    let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) (policyParams s) in
-    let newFns = DM.fromJust policyRes in
-    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) 
-                                                                              (filter isConstr newFns) varyingPaths }, 
-                              policyParams = (policyParams s) { policyState = pstate, currFns = newFns } } in
-
-    stateWithPolicy
+    initPolicy s
     -- NOTE: we do not resample the very first initial state. Not sure why the shapes / labels are rendered incorrectly.
     -- resampleBest numStateSamples initFullState
 
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- NOTE: this function also print information out to stdout
 -- TODO: enable logger
-compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> IO State
-compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals = do
+compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> IO State
+compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
    putStrLn "Running Style semantics\n"
    let selEnvs = checkSels subEnv styProg
 
@@ -893,7 +971,7 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals = do
    pPrint trans
    divLine
 
-   let initState = genOptProblemAndState transAuto
+   let initState = genOptProblemAndState transAuto optConfig
    putStrLn "Generated initial state:\n"
    print initState
    divLine
@@ -963,7 +1041,7 @@ castTranslation t =
 -- TODO: should this code go in the optimizer?
 
 numStateSamples :: Int
-numStateSamples = 1000
+numStateSamples = 500
 
 -- | Resample the varying state.
 -- | We are intentionally using a monomorphic type (float) and NOT using the translation, to avoid slowness.
@@ -1017,7 +1095,7 @@ resampleBest n s =
               sampledResults = take n $ iterateS resampleVStateConst g
               res = minimumBy (lessEnergyOn f) sampledResults
               {- (trace ("energies: " ++ (show $ map (\((_, x, _), _) -> f x) sampledResults)) -}
-          in updateVState s res
+          in initPolicy $ updateVState s res
 
 ------- Other possibly-useful utility functions (not currently used)
 
@@ -1039,6 +1117,18 @@ lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
 -- Policy step = one optimization through to convergence
 -- TODO: factor out number of policy steps / other boilerplate? or let it remain dynamic?
 -- TODO: factor out the weights on the objective functions / method of combination (in genObjFn)
+
+initPolicyParams :: PolicyParams
+initPolicyParams = PolicyParams { policyState = "", policySteps = 0, currFns = [] }
+
+initPolicy :: State -> State
+initPolicy s = -- TODO: make this less verbose
+    let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) initPolicyParams in
+    let newFns = DM.fromJust policyRes in
+    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) 
+                                                                              (filter isConstr newFns) (varyingPaths s) }, 
+                              policyParams = initPolicyParams { policyState = pstate, currFns = newFns } } in
+    stateWithPolicy
 
 optimizeConstraints :: Policy
 optimizeConstraints objfns constrfns params = 

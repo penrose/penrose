@@ -60,6 +60,9 @@ import System.Log.Handler.Simple (fileHandler, streamHandler, GenericHandler)
 import System.Log.Handler (setFormatter)
 import System.Log.Formatter
 import Text.Show.Pretty
+
+default (Int, Float)
+
 --------------------------------------------------------------------------------
 -- Types
 
@@ -299,7 +302,7 @@ waitSubstance client@(clientID, conn, clientState) = do
 -- } COMBAK: abstract this logic out to `wait`
 waitUpdate :: Client -> IO ()
 waitUpdate client@(clientID, conn, clientState) = do
-    logInfo client "Waiting for label dimension update"
+    logInfo client "Waiting for image/label dimension update"
     msg_json <- WS.receiveData conn
     case decode msg_json of
         Just e -> case e of
@@ -307,7 +310,7 @@ waitUpdate client@(clientID, conn, clientState) = do
             _                            -> continue
         Nothing -> continue
     where continue = do
-            warningM (toString clientID) "Invalid command. Returning to wait for label update."
+            warningM (toString clientID) "Invalid command. Returning to wait for image/label update."
             waitUpdate client
 
 substanceError, elementError, styleError :: Client -> ErrorCall -> IO ()
@@ -379,9 +382,13 @@ substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
         Right subOut@(Substance.SubOut _ (subEnv, _) _) -> do
             logInfo client $ show subOut
             -- TODO: store the Style values to reuse on Substance edit
+            -- TODO: pass in any new optimization config values here?
             wsSendPacket conn $ Packet { typ = "env", contents = subEnv }
             let styVals = []
-            styRes <- try (compileStyle styProg subOut styVals)
+            let optConfig = case s of 
+                            Nothing -> G.defaultOptConfig
+                            Just currState -> oConfig currState
+            styRes <- try (compileStyle styProg subOut styVals optConfig)
             case styRes of
                 Right newState -> do
                     wsSendFrame conn Frame {
@@ -406,7 +413,7 @@ updateShapes newShapes client@(clientID, conn, clientState) =
             G.shapesr = polyShapes,
             G.varyingState = G.shapes2floats polyShapes varyMapNew $ G.varyingPaths s,
             G.transr = trans',
-            G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn }}
+            G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn, G.bfgsInfo = G.defaultBfgsParams }}
         nextClientS = updateState clientState news
         client' = (clientID, conn, nextClientS)
     in if autostep s
@@ -425,8 +432,8 @@ dragUpdate name xm ym client@(clientID, conn, clientState) =
         varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
         news = s { G.shapesr = newShapes,
                    G.varyingState = G.shapes2floats newShapes varyMapNew $ G.varyingPaths s,
-                   G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter }}
-        nextClientS = updateState clientState news
+                   G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.bfgsInfo = G.defaultBfgsParams }}
+        nextClientS = updateState clientState (initPolicy news)
         client' = (clientID, conn, nextClientS)
     in if autostep s
         then stepAndSend client'
@@ -478,7 +485,7 @@ resampleAndSend client@(clientID, conn, clientState) = do
         }
     let nextClientS = updateState clientState news
     let client' = (clientID, conn, nextClientS)
-    -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on label sizes whenever resampled.
+    -- NOTE: could have called `loop` here, but this would result in a race condition between autostep and updateShapes somehow. Therefore, we explicitly transition to waiting for an update on image/label sizes whenever resampled.
     waitUpdate client'
     where s = getBackendState clientState
 

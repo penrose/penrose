@@ -1,10 +1,10 @@
 Set x {
     x.shape = Circle {
-        strokeWidth = 0
+        strokeWidth : 0
     }
 
     x.text = Text {
-      string = x.label
+        string : x.label
     }
 
     x.labelFn = ensure contains(x.shape, x.text)
@@ -14,9 +14,13 @@ Set x {
     LOCAL.layering  = x.shape below x.text
 }
 
+-- Set x {
+--     x.newPath = x.shape
+--     x.testFn = encourage center(x.newPath)
+-- }
+
 Set x; Set y
 where IsSubset(x, y) {
-    -- LOCAL.x = ddg[v.name]["x"]
     LOCAL.containFn = ensure contains(y.shape, x.shape)
     LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
     LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
@@ -37,16 +41,16 @@ where Intersect(x, y) {
 }
 
 Point p {
-      p.offset = 10.0
-      p.shape = Circle {
-      	      strokeWidth = 0
-	      color = rgba(0.0, 0.0, 0.0, 1.0)
-	      r = 3.0
-      }
+    p.offset = 10.0
+    p.shape = Circle {
+        strokeWidth : 0
+        color : rgba(0.0, 0.0, 0.0, 1.0)
+        r : 3.0
+    }
 
-      p.text = Text {
-	string = p.label
-	x = p.shape.x + p.offset
-	y = p.shape.y + p.offset
-      }
+    p.text = Text {
+        string : p.label
+        x : p.shape.x + p.offset
+        y : p.shape.y + p.offset
+    }
 }

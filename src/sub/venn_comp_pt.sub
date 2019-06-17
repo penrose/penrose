@@ -1,6 +1,6 @@
 Point p
 Set X
-PointIn(p, X)
+PointIn(X, p)
 
 -- Test namespace checking:
 -- Point global
