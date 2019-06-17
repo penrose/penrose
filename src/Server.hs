@@ -59,7 +59,11 @@ import System.Log.Logger (rootLoggerName, setHandlers, updateGlobalLogger,
 import System.Log.Handler.Simple (fileHandler, streamHandler, GenericHandler)
 import System.Log.Handler (setFormatter)
 import System.Log.Formatter
-import Text.Show.Pretty
+import Text.Show.Pretty 
+
+import qualified Data.ByteString.Lazy as B
+import System.IO.Unsafe (unsafePerformIO)
+
 
 default (Int, Float)
 
@@ -494,8 +498,15 @@ resampleAndSend client@(clientID, conn, clientState) = do
     where s = getBackendState clientState
 
 stepAndSend client@(clientID, conn, clientState) = do
-    let s = getBackendState clientState
+    let s' = getBackendState clientState
+    let s = unsafePerformIO $ do
+            B.writeFile "state.json" (encode s')
+            stateStr <- B.readFile "state.json"
+            return (fromMaybe (error "json decode error") $ decode stateStr)
     let nexts = O.step s
+
+    -- let s = getBackendState clientState
+    -- let nexts = O.step s
     -- wsSendJSONList conn (shapesr nexts :: [Shape Double])
     wsSendFrame conn
         Frame {

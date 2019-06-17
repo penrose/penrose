@@ -132,6 +132,8 @@ penroseRenderer subFile styFile dsllFile domain configPath port = do
 
     initState <- G.compileStyle styProg subProgForStyle styVals optConfig -- Includes Substance plugin output 
 
+    writeFile "state.json" (show $ encode initState)
+
     if useFrontend
        then Server.serveRenderer domain port initState
     else let numTrials = 1000 in
