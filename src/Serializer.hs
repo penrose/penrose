@@ -1,15 +1,20 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, FlexibleInstances #-}
 
 module Serializer where
 
 import Env
 import Style
 import SubstanceTokenizer
--- import GenOptProblem
+import GenOptProblem
+import Optimizer
 
+import Data.Binary
 import Text.Megaparsec
+import GHC.Generics
 import Data.Aeson
 import Data.Aeson.TH
+import System.Random (StdGen)
+import qualified Numeric.LinearAlgebra as L
 
 instance ToJSONKey Name
 instance FromJSONKey Name
@@ -63,8 +68,17 @@ deriveJSON defaultOptions ''Prop
 deriveJSON defaultOptions ''Predicate2
 deriveJSON defaultOptions ''SubstanceTokenizer.Token
 
+-- TODO: de-lambdaize this to make it serializable
 -- deriveJSON defaultOptions ''Policy
--- deriveJSON defaultOptions ''GenOptProblem.State
+
+deriveJSON defaultOptions ''Params
+deriveJSON defaultOptions ''Fn
+deriveJSON defaultOptions ''StdGen
+deriveJSON defaultOptions ''PolicyParams
+deriveJSON defaultOptions ''OptType
+deriveJSON defaultOptions ''OptStatus
+deriveJSON defaultOptions ''BfgsParams
+deriveJSON defaultOptions ''GenOptProblem.State
 
 
 --------------------------------------------------------------------------------

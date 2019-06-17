@@ -295,16 +295,16 @@ gradP config bfgsParams gradEval f state =
           (L.toList gradPreconditioned, bfgsParams)
 
       BFGS -> -- Approximate inverse of hessian with the change in gradient (see Nocedal S9.1 p224)
-           let grad_val = lastGrad bfgsParams
-               h_val = invH bfgsParams
-               state_val = lastState bfgsParams
+           let grad_val = lastGrad bfgsParams :: Maybe [Double]
+               h_val = invH bfgsParams :: Maybe [[Double]]
+               state_val = lastState bfgsParams :: Maybe [Double]
            in case (h_val, grad_val, state_val) of
               (Nothing, Nothing, Nothing) -> -- First step. Initialize the approximation to the identity (not clear how else to approximate it)
                     -- k=0 steps from x_0 to x_1: so on the first step, we take a normal gradient descent step
                     let h_0 = L.ident $ length gradEval
-                    in (gradEval, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_0 })
+                    in (gradEval, bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k, invH = Just $ L.toLists h_0 })
 
-              (Just h_km1, Just grad_fx_km1, Just x_km1) -> -- For x_{k+1}, to compute H_k, we need the (k-1) info
+              (Just h_km1L, Just grad_fx_km1L, Just x_km1L) -> -- For x_{k+1}, to compute H_k, we need the (k-1) info
                     -- Our convention is that we are always working "at" k to compute k+1
                     -- x_0 doesn't require any H; x_1 (the first step) with k = 0 requires H_0
                     -- x_2 (the NEXT step) with k=1 requires H_1. For example>
@@ -315,6 +315,7 @@ gradP config bfgsParams gradEval f state =
                     -- s_0 = x_1 - x_0
                     -- y_0 = grad f(x_1) - grad f(x_0)
 
+                    let (h_km1, grad_fx_km1, x_km1) = (L.fromLists h_km1L, L.vector grad_fx_km1L, L.vector x_km1L) in
                     let s_km1 = x_k - x_km1
                         y_km1 = grad_fx_k - grad_fx_km1
                         rho_km1 = 1 / (y_km1 `L.dot` s_km1) -- Scalar
@@ -322,7 +323,7 @@ gradP config bfgsParams gradEval f state =
                         h_k = (L.tr (v_km1) L.<> h_km1 L.<> v_km1) + (rho_km1 `L.scale` s_km1 `L.outer` s_km1)
                         gradPreconditioned = h_k L.#> grad_fx_k
                     in (L.toList gradPreconditioned, 
-                        bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_k })
+                        bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k, invH = Just $ L.toLists h_k })
 
               _ -> error "invalid BFGS state"
 
@@ -339,11 +340,12 @@ gradP config bfgsParams gradEval f state =
                -- Perform normal gradient descent on first step
                (Nothing, Nothing, [], [], 0) ->
                    -- Store x_k, grad f(x_k) so we can compute s_k, y_k on next step
-                   let bfgsParams' = bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, 
+                   let bfgsParams' = bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k, 
                                                   s_list = [], y_list = [], numUnconstrSteps = km1 + 1 } in
                    (gradEval, bfgsParams')
 
-               (Just grad_fx_km1, Just x_km1, ss, ys, km1) -> 
+               (Just grad_fx_km1L, Just x_km1L, ssL, ysL, km1) -> 
+                    let (grad_fx_km1, x_km1, ss, ys) = (L.fromList grad_fx_km1L, L.fromList x_km1L, map L.fromList ssL, map L.fromList ysL) in
                    -- Compute s_{k-1} = x_k - x_{k-1} and y_{k-1} = (analogous with grads)
                    -- Unlike Nocedal, compute the difference vectors first instead of last (same result, just a loop rewrite)
                    -- Use the updated {s_i} and {y_i}. (If k < m, this reduces to normal BFGS, i.e. we use all the vectors so far)
@@ -356,10 +358,10 @@ gradP config bfgsParams gradEval f state =
                    -- https://github.com/JuliaNLSolvers/Optim.jl/issues/143 https://github.com/JuliaNLSolvers/Optim.jl/pull/144
 
                    in if descentDirCheck < epsd 
-                      then (L.toList gradPreconditioned, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k,
-                                                                      s_list = ss', y_list = ys', numUnconstrSteps = km1 + 1 })
+                      then (L.toList gradPreconditioned, bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k,
+                                                                      s_list = map L.toList ss', y_list = map L.toList ys', numUnconstrSteps = km1 + 1 })
                       else tro "L-BFGS did not find a descent direction. Resetting correction vectors." $
-                           (gradEval, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k,
+                           (gradEval, bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k,
                                                    s_list = [], y_list = [], numUnconstrSteps = km1 + 1 })
 
                    -- TODO: check the curvature condition y_k^T s_k > 0 (8.7) (Nocedal 201)

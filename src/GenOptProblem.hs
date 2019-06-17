@@ -94,27 +94,37 @@ instance Show Params where
                              -- ++ "\nBFGS info:\n" ++ show (bfgsInfo p)
 
 data BfgsParams = BfgsParams {
-     lastState :: Maybe (L.Vector L.R), -- x_k
-     lastGrad :: Maybe (L.Vector L.R),  -- gradient of f(x_k)
-     invH :: Maybe (L.Matrix L.R),  -- (BFGS only) estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
-     s_list :: [L.Vector L.R], -- (L-BFGS only) s_i (state difference) from k-1 to k-m
-     y_list :: [L.Vector L.R],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
+     lastState :: Maybe [Double], -- x_k
+     lastGrad :: Maybe [Double],  -- gradient of f(x_k)
+     invH :: Maybe [[Double]],  -- (BFGS only) estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
+     s_list :: [[Double]], -- (L-BFGS only) s_i (state difference) from k-1 to k-m
+     y_list :: [[Double]],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
      numUnconstrSteps :: Int, -- (L-BFGS only) number of steps so far, starting at 0
      memSize :: Int -- (L-BFGS only) number of vectors to retain
-}
+} deriving Show
 
-instance Show BfgsParams where
-         show s = "\nBFGS params:\n" ++
-                  "\nlastState: \n" ++ ppShow (lastState s) ++
-                  "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
-                  "\ninvH: \n" ++ ppShow (invH s) ++
-                  -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
-                  -- "\ns_list:\n" ++ ppShow (s_list s) ++
-                  -- "\ny_list:\n" ++ ppShow (y_list s) ++
-                  "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
-                  "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
-                  "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
-                  "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
+-- data BfgsParams = BfgsParams {
+--      lastState :: Maybe (L.Vector L.R), -- x_k
+--      lastGrad :: Maybe (L.Vector L.R),  -- gradient of f(x_k)
+--      invH :: Maybe (L.Matrix L.R),  -- (BFGS only) estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
+--      s_list :: [L.Vector L.R], -- (L-BFGS only) s_i (state difference) from k-1 to k-m
+--      y_list :: [L.Vector L.R],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
+--      numUnconstrSteps :: Int, -- (L-BFGS only) number of steps so far, starting at 0
+--      memSize :: Int -- (L-BFGS only) number of vectors to retain
+-- }
+
+-- instance Show BfgsParams where
+--          show s = "\nBFGS params:\n" ++
+--                   "\nlastState: \n" ++ ppShow (lastState s) ++
+--                   "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
+--                   "\ninvH: \n" ++ ppShow (invH s) ++
+--                   -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
+--                   -- "\ns_list:\n" ++ ppShow (s_list s) ++
+--                   -- "\ny_list:\n" ++ ppShow (y_list s) ++
+--                   "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
+--                   "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
+--                   "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
+--                   "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
 
 defaultBfgsMemSize :: Int
 defaultBfgsMemSize = 17
@@ -159,7 +169,6 @@ data State = State { shapesr :: [Shape Double],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
                      shapeOrdering :: [String],
                      shapeProperties :: [(String, Field, Property)],
-                    --  transr :: forall a . (Autofloat a) => Translation a,
                      transr :: Translation Double,
                      varyingPaths :: [Path],
                      uninitializedPaths :: [Path],
@@ -169,7 +178,7 @@ data State = State { shapesr :: [Shape Double],
                      constrFns :: [Fn],
                      rng :: StdGen,
                      autostep :: Bool,
-                     policyFn :: Policy,
+                    --  policyFn :: Policy,
                      policyParams :: PolicyParams,
                      oConfig :: OptConfig }
 
