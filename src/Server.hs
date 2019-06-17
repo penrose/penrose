@@ -405,15 +405,19 @@ updateShapes newShapes client@(clientID, conn, clientState) =
     let polyShapes = toPolymorphics newShapes
         uninitVals = map G.toTagExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
         trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
-        -- Respect the optimization policy
-        policyFns = currFns $ policyParams s
-        newObjFn = G.genObjfn (castTranslation trans') (filter isObjFn policyFns) (filter isConstr policyFns) (G.varyingPaths s)
+
+        -- -- Respect the optimization policy
+        -- TODO: rewrite this such that it works with the new overallObjFn
+        -- policyFns = currFns $ policyParams s
+        -- newObjFn = G.genObjfn (castTranslation trans') (filter isObjFn policyFns) (filter isConstr policyFns) (G.varyingPaths s)
+
         varyMapNew = G.mkVaryMap (G.varyingPaths s) (G.varyingState s)
         news = s {
             G.shapesr = polyShapes,
             G.varyingState = G.shapes2floats polyShapes varyMapNew $ G.varyingPaths s,
             G.transr = trans',
-            G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn, G.bfgsInfo = G.defaultBfgsParams }}
+            -- G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.overallObjFn = newObjFn, G.bfgsInfo = G.defaultBfgsParams }}
+            G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.bfgsInfo = G.defaultBfgsParams }}
         nextClientS = updateState clientState news
         client' = (clientID, conn, nextClientS)
     in if autostep s
@@ -433,7 +437,7 @@ dragUpdate name xm ym client@(clientID, conn, clientState) =
         news = s { G.shapesr = newShapes,
                    G.varyingState = G.shapes2floats newShapes varyMapNew $ G.varyingPaths s,
                    G.paramsr = (G.paramsr s) { G.weight = G.initWeight, G.optStatus = G.NewIter, G.bfgsInfo = G.defaultBfgsParams }}
-        nextClientS = updateState clientState (initPolicy news)
+        nextClientS = updateState clientState news
         client' = (clientID, conn, nextClientS)
     in if autostep s
         then stepAndSend client'

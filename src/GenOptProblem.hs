@@ -60,7 +60,7 @@ type VaryMap a = M.Map Path (TagExpr a)
 ------- State type definitions
 
 -- Stores the last EP varying state (that is, the state when the unconstrained opt last converged)
-type LastEPstate = [Float] -- Note: NOT polymorphic (due to system slowness with polymorphism)
+type LastEPstate = [Double] -- Note: NOT polymorphic (due to system slowness with polymorphism)
 
 data OptStatus = NewIter
                | UnconstrainedRunning LastEPstate
@@ -85,7 +85,7 @@ instance Eq OptStatus where
 
 data Params = Params { weight :: Float,
                        optStatus :: OptStatus,
-                       overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a,
+                    --    overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a,
                        bfgsInfo :: BfgsParams
                      }
 
@@ -721,6 +721,7 @@ applyOptFn dict sigs finfo =
 
 applyCombined :: (Autofloat a) => a -> [FnDone a] -> a
 applyCombined penaltyWeight fns =
+        -- TODO: pass the functions in separately? The combining + separating seem redundant
         let (objfns, constrfns) = partition (\f -> optType_d f == Objfn) fns in
         sumMap (applyOptFn objFuncDict objSignatures) objfns
                + constrWeight * penaltyWeight * sumMap (applyOptFn constrFuncDict constrSignatures) constrfns
@@ -736,6 +737,22 @@ genObjfn trans objfns constrfns varyingPaths =
          let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
          let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
          applyCombined penaltyWeight fnsE
+
+evalEnergyOn :: (Autofloat a) => State -> [a] -> a    
+evalEnergyOn s vstate = 
+    let varyMap = mkVaryMap (varyingPaths s) vstate
+        fns = objFns s ++ constrFns s
+        (fnsE, transE, rng') = evalFns evalIterRange fns (castTranslation $ transr s) varyMap (rng s)
+        penaltyWeight = r2f $ weight $ paramsr s
+    in applyCombined penaltyWeight fnsE
+
+evalEnergy :: (Autofloat a) => State -> a    
+evalEnergy s = 
+    let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) 
+        fns = objFns s ++ constrFns s
+        (fnsE, transE, rng') = evalFns evalIterRange fns (castTranslation $ transr s) varyMap (rng s)
+        penaltyWeight = r2f $ weight $ paramsr s
+    in applyCombined penaltyWeight fnsE
 
 --------------- Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 -- 1. Initialize all varying fields
@@ -905,7 +922,7 @@ genOptProblemAndState trans optConfig =
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
     let (!objFnsWithDefaults, !constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
-    let overallFn = genObjfn (castTranslation transInit) objFnsWithDefaults constrsWithDefaults varyingPaths in
+    -- let overallFn = genObjfn (castTranslation transInit) objFnsWithDefaults constrsWithDefaults varyingPaths in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 
@@ -930,16 +947,17 @@ genOptProblemAndState trans optConfig =
                                  constrFns = constrsWithDefaults,
                                  paramsr = Params { weight = initWeight,
                                                     optStatus = NewIter,
-                                                    overallObjFn = overallFn,
+                                                    -- overallObjFn = overallFn,
                                                     bfgsInfo = defaultBfgsParams },
                                  rng = g'',
                                  autostep = False, -- default
                                  policyParams = initPolicyParams,
-                                 policyFn = policyToUse,
+                                --  policyFn = policyToUse,
                                  oConfig = optConfig
                                } in
 
-    initPolicy s
+    -- initPolicy  -- TODO: rewrite to avoid the use of lambda functions
+    s
     -- NOTE: we do not resample the very first initial state. Not sure why the shapes / labels are rendered incorrectly.
     -- resampleBest numStateSamples initFullState
 
@@ -1092,27 +1110,30 @@ resampleBest n s =
           if n < 2 then error "Need to sample at least two states" else
           let optInfo = paramsr s
               -- Take out the relevant information for resampling
-              f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
+              f = evalEnergyOn s
+            --   f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
               (varyPaths, shapes, g) = (varyingPaths s, shapesr s, rng s)
               -- Partially apply resampleVState with the params that don't change over a resampling
               resampleVStateConst = resampleVState varyPaths shapes
               sampledResults = take n $ iterateS resampleVStateConst g
               res = minimumBy (lessEnergyOn f) sampledResults
               {- (trace ("energies: " ++ (show $ map (\((_, x, _), _) -> f x) sampledResults)) -}
-          in initPolicy $ updateVState s res
+        --   in initPolicy $ updateVState s res
+          in updateVState s res
 
 ------- Other possibly-useful utility functions (not currently used)
+-- TODO: rewrite these functions to not use the lambdaized overallObjFN
 
 -- | Evaluate the objective function on the varying state (with the penalty weight, which should be the same between state).
-evalFnOn :: State -> Double
-evalFnOn s = let optInfo = paramsr s
-                 f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
-                 args    = varyingState s
-             in f args
+-- evalFnOn :: State -> Double
+-- evalFnOn s = let optInfo = paramsr s
+--                  f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
+--                  args    = varyingState s
+--              in f args
 
 -- | Compare two states and return the one with less energy.
-lessEnergy :: State -> State -> Ordering
-lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
+-- lessEnergy :: State -> State -> Ordering
+-- lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
 
 ---------- List of policies that can be used with the optimizer
 
@@ -1125,14 +1146,14 @@ lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
 initPolicyParams :: PolicyParams
 initPolicyParams = PolicyParams { policyState = "", policySteps = 0, currFns = [] }
 
-initPolicy :: State -> State
-initPolicy s = -- TODO: make this less verbose
-    let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) initPolicyParams in
-    let newFns = DM.fromJust policyRes in
-    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (castTranslation $ transr s) (filter isObjFn newFns) 
-                                                                              (filter isConstr newFns) (varyingPaths s) }, 
-                              policyParams = initPolicyParams { policyState = pstate, currFns = newFns } } in
-    stateWithPolicy
+-- initPolicy :: State -> State
+-- initPolicy s = -- TODO: make this less verbose
+--     let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) initPolicyParams in
+--     let newFns = DM.fromJust policyRes in
+--     let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (castTranslation $ transr s) (filter isObjFn newFns) 
+--                                                                               (filter isConstr newFns) (varyingPaths s) }, 
+--                               policyParams = initPolicyParams { policyState = pstate, currFns = newFns } } in
+--     stateWithPolicy
 
 optimizeConstraints :: Policy
 optimizeConstraints objfns constrfns params = 

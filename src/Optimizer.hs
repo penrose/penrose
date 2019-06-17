@@ -108,42 +108,43 @@ unconstrainedStopCond gradEval = norm gradEval < epsUnconstr
 
 -- Policies
 
-stepPolicy :: State -> (Params, PolicyParams)
-stepPolicy s = 
-    -- Check overall convergence first 
-    let epStatus = optStatus $ (paramsr s) in
-    let pparams = policyParams s in
-    case epStatus of
+-- stepPolicy :: State -> (Params, PolicyParams)
+-- stepPolicy s = 
+--     -- Check overall convergence first 
+--     let epStatus = optStatus $ (paramsr s) in
+--     let pparams = policyParams s in
+--     case epStatus of
 
-    -- Generate new objective function and replace the optimization and policy params accordingly
-    EPConverged -> 
-                -- TODO: clean up the step incrementing
-        let pparams' = pparams { policySteps = 1 + policySteps pparams } in
-        let (policyRes, psNew) = (policyFn s) (objFns s) (constrFns s) pparams' in -- See what the policy function wants
-        case policyRes of
-            Nothing     -> (paramsr s, pparams' { policyState = psNew }) -- steps incremented, policy done
+--     -- Generate new objective function and replace the optimization and policy params accordingly
+--     EPConverged -> 
+--                 -- TODO: clean up the step incrementing
+--         let pparams' = pparams { policySteps = 1 + policySteps pparams } in
+--         let (policyRes, psNew) = (policyFn s) (objFns s) (constrFns s) pparams' in -- See what the policy function wants
+--         case policyRes of
+--             Nothing     -> (paramsr s, pparams' { policyState = psNew }) -- steps incremented, policy done
 
-            Just newFns -> -- Policy keeps going
-                let objFnNew = genObjfn (castTranslation $ transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) 
-                    -- TODO: check that these inputs are right
-                    -- Change obj function and restart optimization
-                    pparamsNew = pparams' { policyState = psNew,
-                                            currFns = newFns }
-                    paramsNew = Params { weight = initWeight,
-                                         optStatus = NewIter,
-                                         overallObjFn = objFnNew,
-                                         bfgsInfo = defaultBfgsParams }
-                in tro ("Step policy, EP converged, new params:\n" ++ show (paramsNew, pparamsNew, newFns)) $ (paramsNew, pparamsNew)
+--             Just newFns -> -- Policy keeps going
+--                 let objFnNew = genObjfn (castTranslation $ transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) 
+--                     -- TODO: check that these inputs are right
+--                     -- Change obj function and restart optimization
+--                     pparamsNew = pparams' { policyState = psNew,
+--                                             currFns = newFns }
+--                     paramsNew = Params { weight = initWeight,
+--                                          optStatus = NewIter,
+--                                          overallObjFn = objFnNew,
+--                                          bfgsInfo = defaultBfgsParams }
+--                 in tro ("Step policy, EP converged, new params:\n" ++ show (paramsNew, pparamsNew, newFns)) $ (paramsNew, pparamsNew)
 
-    -- If not converged, optimize as usual, don't change policy mid-optimization
-    _ -> tro ("Step policy, EP not converged, new params:\n" ++ show (paramsr s, pparams)) $ (paramsr s, pparams)
+--     -- If not converged, optimize as usual, don't change policy mid-optimization
+--     _ -> tro ("Step policy, EP not converged, new params:\n" ++ show (paramsr s, pparams)) $ (paramsr s, pparams)
 
 ---------------------------------------
 
 -- Main optimization functions
 
 step :: State -> State
-step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingState s) (rng s)
+step s = let (state', params') = stepShapes s
+-- (oConfig s) (paramsr s) (varyingState s) (rng s)
              s'                = s { varyingState = state', 
                                      paramsr = params' }
              -- NOTE: we intentionally discard the random generator here because
@@ -155,24 +156,26 @@ step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingStat
 
              -- Check the state and see if the overall objective function should be changed
              -- The policy may change EPConverged to a new iteration before the frontend sees it
-             (paramsNew, pparamsNew) = stepPolicy s'
+            --  (paramsNew, pparamsNew) = stepPolicy s'
 
              -- For debugging
              oldParams = paramsr s
 
          in tro ("Params: \n" ++ show oldParams ++ "\n:") $
             s' { 
+                -- shapesr = shapes',
+                --  paramsr = paramsNew,
+                --  policyParams = pparamsNew } 
                 shapesr = shapes',
-                 paramsr = paramsNew,
-                 policyParams = pparamsNew } 
+                paramsr = params' }
             -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
-stepShapes :: OptConfig -> Params -> [Double] -> StdGen -> ([Double], Params)
-stepShapes config params vstate g = -- varying state
+stepShapes :: State -> ([Double], Params)
+stepShapes s = -- varying state
          -- if null vstate then error "empty state in stepshapes" else
          let (epWeight, epStatus) = (weight params, optStatus params) in
          case epStatus of
@@ -215,8 +218,11 @@ stepShapes config params vstate g = -- varying state
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
-        where (vstate', gradEval, bfgs') = stepWithObjective config g params vstate
-              objFnApplied = (overallObjFn params) g (r2f $ weight params)
+        where 
+            (config, params, vstate, g) = (oConfig s, paramsr s, varyingState s, rng s) 
+            (vstate', gradEval, bfgs') = stepWithObjective s
+            --   objFnApplied = (overallObjFn params) g (r2f $ weight params)
+            objFnApplied = evalEnergyOn s
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
 -- return the new state
@@ -227,8 +233,8 @@ stepT dt x dfdx = x - dt * dfdx
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: OptConfig -> StdGen -> Params -> [Double] -> ([Double], [Double], BfgsParams)
-stepWithObjective config g params state =
+stepWithObjective :: State -> ([Double], [Double], BfgsParams)
+stepWithObjective s =
           -- get timestep via line search, and evaluated gradient at the state
           let (t', gradEval, gradToUse, bfgs') = timeAndGrad config params objFnApplied state
               -- step each parameter of the state with the time and gradient
@@ -253,9 +259,11 @@ stepWithObjective config g params state =
                   )
              (state', gradEval, bfgs')
 
-          where objFnApplied :: ObjFn1 b
-                objFnApplied = (overallObjFn params) g cWeight
-
+          where 
+                (config, params, state, g) = (oConfig s, paramsr s, varyingState s, rng s)
+                -- objFnApplied :: ObjFn1 b
+                -- objFnApplied = (overallObjFn params) g cWeight
+                objFnApplied = evalEnergyOn s
                 cWeight = r2f $ weight params
                 -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
 
