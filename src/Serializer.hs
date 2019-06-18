@@ -17,6 +17,8 @@ import qualified Numeric.LinearAlgebra as L
 import           System.Random         (StdGen)
 import           Text.Megaparsec
 
+import qualified Data.ByteString.Lazy.Char8 as B
+import qualified Data.Aeson as A
 
 instance ToJSONKey Name
 instance FromJSONKey Name
@@ -84,4 +86,19 @@ deriveJSON defaultOptions ''GenOptProblem.State
 
 deriveJSON defaultOptions ''CompilerError
 
+--------------------------------------------------------------------------------
+-- Test
 
+subFile = "sub/tree.sub"
+styFile = "sty/venn.sty"
+elmFile = "set-theory-domain/setTheory.dsl"
+
+testAPI :: IO ()
+testAPI = do
+  sub <- readFile subFile
+  sty <- readFile styFile
+  elm <- readFile elmFile
+  let res = compileTrio sub sty elm
+  case res of
+    Right state -> B.writeFile "state.json" $ A.encode state
+    Left  err   -> putStrLn $ show err

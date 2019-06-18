@@ -11,6 +11,7 @@ import           System.IO.Unsafe  (unsafePerformIO)
 import           Utils
 import           Control.Exception
 
+
 -- | Given Substance, Style, and Element programs, output an initial state.
 -- TODO: rewrite this to be cleaner: (EitherT monad?)
 compileTrio ::
@@ -30,27 +31,6 @@ compileTrio substance style element = do
   case styRes of
     Right initState -> Right initState
     Left styRTError -> Left $ StyleTypecheck $ show styRTError
-  -- let elementRes = parseElement "" element
-  -- in case elementRes of
-  --      Right env ->
-  --        let styRes = parseStyle "" style env
-  --        in case styRes of
-  --             Right styProg ->
-  --               let subRes = parseSubstance "" (sugarStmts substance env) env
-  --               in case subRes of
-  --                    Right subOut@(SubOut _ (subEnv, _) _)
-  --                           -- TODO: leave this for the frontend to decide
-  --                     ->
-  --                      let optConfig = defaultOptConfig
-  --                          styRes =
-  --                            unsafePerformIO $ -- Rewrite this such that it's safe
-  --                            compileStyle styProg subOut [] optConfig
-  --                      in case styRes of
-  --                           Right initState -> Right initState
-  --                           Left styRTError   -> Left $ StyleTypecheck styRTError
-  --                   Left subError -> Left $ SubstanceParse $ show subError
-  --             Left styError   -> Left $ StyleParse styError
-  --      Left elmError -> Left $ ElementParse $ show elmError
 
 step ::
      State -- ^ the initial state
