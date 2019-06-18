@@ -158,7 +158,7 @@ data OptConfig = OptConfig {
                optMethod :: OptMethod
      } deriving (Eq, Show, Generic)
 
-defaultOptConfig = OptConfig { optMethod = BFGS }
+defaultOptConfig = OptConfig { optMethod = LBFGS }
 
 instance A.ToJSON OptConfig where
              toEncoding = A.genericToEncoding A.defaultOptions
