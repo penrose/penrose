@@ -2,19 +2,21 @@
 
 module Serializer where
 
-import Env
-import Style
-import SubstanceTokenizer
-import GenOptProblem
-import Optimizer
-import Interface
+import           Env
+import           GenOptProblem
+import           Interface
+import           Optimizer
+import           Style
+import           SubstanceTokenizer
+import           Utils
 
-import Text.Megaparsec
-import GHC.Generics
-import Data.Aeson
-import Data.Aeson.TH
-import System.Random (StdGen)
+import           Data.Aeson
+import           Data.Aeson.TH
+import           GHC.Generics
 import qualified Numeric.LinearAlgebra as L
+import           System.Random         (StdGen)
+import           Text.Megaparsec
+
 
 instance ToJSONKey Name
 instance FromJSONKey Name

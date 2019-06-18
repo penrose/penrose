@@ -27,7 +27,7 @@ executable penrose
         Server
         Substance
         SubstanceJSON
-        Dsll
+        Element
         Env
         Style
         Optimizer
@@ -37,6 +37,7 @@ executable penrose
         Transforms
         SubstanceTokenizer
         Sugarer
+        Interface
         Tokenizer
         Serializer
     default-language: Haskell2010
@@ -87,7 +88,7 @@ test-suite penrose-testsuite
         Server
         Substance
         SubstanceJSON
-        Dsll
+        Element
         Env
         Style
         GenOptProblem

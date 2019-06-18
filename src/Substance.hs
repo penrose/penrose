@@ -21,16 +21,16 @@ import           System.Environment
 import           System.IO
 import           System.Process
 import           System.Random
+import           Control.Monad.Combinators.Expr
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
-import           Text.Megaparsec.Expr
 import           Text.Show.Pretty
 import           Utils
 import           Control.Monad.State.Lazy (evalStateT, get)
 -- import Text.PrettyPrint
 --import Text.PrettyPrint.HughesPJClass hiding (colon, comma, parens, braces)
 import qualified Data.Map.Strict            as M
-import qualified Dsll                       as D
+import qualified Element                    as D
 import qualified Text.Megaparsec.Char.Lexer as L
 
 ---------------------------- Substance AST -------------------------------------
@@ -207,7 +207,7 @@ predicateParser :: Parser Predicate
 predicateParser = do
   n    <- predicateNameParser
   args <- parens (predicateArgParser `sepBy1` comma)
-  pos  <- getPosition
+  pos  <- getSourcePos
   return Predicate { predicateName = n, predicateArgs = args, predicatePos = pos }
 
 subStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
@@ -718,16 +718,16 @@ subSeparate = foldr separate ([], [])
 
 
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
-parseSubstance :: String -> String -> VarEnv -> IO SubOut
+parseSubstance :: String -> String -> VarEnv -> Either CompilerError SubOut 
 parseSubstance subFile subIn varEnv =
     case runParser (substanceParser varEnv) subFile subIn of
-        Left err -> error (parseErrorPretty err)
+        Left err -> Left $ SubstanceParse (errorBundlePretty err)
         Right subProg -> do
             let subProg' = refineAST subProg varEnv
             let subTypeEnv  = check subProg' varEnv
             let subDynEnv   = loadSubEnv subProg'
             let labelMap    = getLabelMap subProg' subTypeEnv
-            return (SubOut subProg' (subTypeEnv, subDynEnv) labelMap)
+            Right $ (SubOut subProg' (subTypeEnv, subDynEnv) labelMap)
 
 --------------------------------------------------------------------------------
 -- COMBAK: organize this section and maybe rewrite some of the functions

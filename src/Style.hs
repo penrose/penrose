@@ -9,7 +9,7 @@
 module Style where
 
 -- module Main (main) where
--- import Dsll (parseDsll) -- for debugging purposes
+-- import Element (parseElement) -- for debugging purposes
 
 import Utils
 import Shapes hiding (get)
@@ -25,8 +25,8 @@ import Data.List (nubBy, nub, intercalate, partition, sort)
 import Data.Tuple (swap)
 import Text.Megaparsec
 import Text.Megaparsec.Char
-import Text.Megaparsec.Expr
-import Text.Megaparsec.Perm
+import Control.Applicative.Permutations
+import Control.Monad.Combinators.Expr
 import Text.Show.Pretty (ppShow)
 import System.Environment
 import System.Random
@@ -54,7 +54,7 @@ type Plugins = [Plugin]
 parsePlugins :: String -> String -> VarEnv -> IO Plugins
 parsePlugins styFile styIn env =
     case runParser (pluginParser env) styFile styIn of
-    Left err -> error (parseErrorPretty err)
+    Left err -> error (errorBundlePretty err)
     Right instantiation -> return instantiation
 
 pluginParser :: VarEnv -> BaseParser Plugins
@@ -66,7 +66,7 @@ pluginParser' = do
     res <- plugins
     _   <- styProg
     return res
-    where restOfFile = manyTill anyChar eof >> return []
+    where restOfFile = manyTill anySingle eof >> return []
 
 plugins :: Parser Plugins
 plugins = plugin `endBy` newline' -- zero or multiple instantiators
@@ -232,11 +232,11 @@ data BinaryOp = BPlus | BMinus | Multiply | Divide | Exp
 -- Style Parser
 
 -- | 'parseStyle' runs the actual parser function: 'styleParser', taking in a program String and parse it into an AST.
-parseStyle :: String -> String -> VarEnv -> IO StyProg
+parseStyle :: String -> String -> VarEnv -> Either CompilerError StyProg
 parseStyle styFile styIn env =
-    case runParser (styleParser env) styFile styIn of
-    Left err -> error (parseErrorPretty err)
-    Right styProg -> return styProg
+  case runParser (styleParser env) styFile styIn of
+    Left err  -> Left $ StyleParse $ (errorBundlePretty err)
+    Right res -> Right res
 
 -- | 'styleParser' is the top-level function that parses a Style proram
 styleParser :: VarEnv -> BaseParser StyProg
@@ -269,7 +269,7 @@ selector = do
     where wth = fmap concat $ rword "with" *> declPattern `sepEndBy1` semi' <* scn
           whr = rword "where" *> relationPattern `sepEndBy1` semi' <* scn
           namespace = rword "as" >> identifier
-          withAndWhere = makePermParser $ (,) <$?> ([], wth) <|?> ([], whr)
+          withAndWhere = runPermutation $ (,) <$> toPermutationWithDefault [] wth <*> toPermutationWithDefault [] whr
 
 styVar :: Parser StyVar
 styVar = StyVar' <$> identifier
@@ -287,14 +287,14 @@ typeVar :: Parser STypeVar
 typeVar = do
     aps -- COMBAK: get rid of this later once it's consistent with DSLL/Substance
     t   <- identifier
-    pos <- getPosition
+    pos <- getSourcePos
     return STypeVar' { typeVarNameS = t, typeVarPosS = pos}
 
 typeConstructor :: Parser STypeCtor
 typeConstructor = do
     n    <- identifier
     args <- option [] $ parens (styArgument `sepBy1` comma)
-    pos  <- getPosition
+    pos  <- getSourcePos
     return STypeCtor { nameConsS = n, argConsS = args, posConsS = pos }
 
 -- COMBAK: styType will probably not work because of recursion. Test this explicitly
@@ -310,7 +310,7 @@ predicate :: Parser Predicate
 predicate = do
     n    <- identifier
     args <- parens $ predicateArgument `sepBy1` comma
-    pos  <- getPosition
+    pos  <- getSourcePos
     return Predicate { predicateName = n, predicateArgs = args,
                        predicatePos = pos }
 
@@ -391,7 +391,7 @@ aTerm = tryChoice
         IntLit <$> integer
     ]
 
-aOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
+aOperators :: [[Control.Monad.Combinators.Expr.Operator Parser Expr]]
 aOperators =
     [   -- Highest precedence
         [
@@ -426,7 +426,7 @@ transformExpr = makeExprParser tTerm tOperators
 tTerm :: Parser Expr
 tTerm = compFn
 
-tOperators :: [[Text.Megaparsec.Expr.Operator Parser Expr]]
+tOperators :: [[Control.Monad.Combinators.Expr.Operator Parser Expr]]
 tOperators =
     [   -- Highest precedence
         [ InfixL (ThenOp <$ symbol "then") ]
@@ -1570,10 +1570,10 @@ lookupStyVal subName propName vmap =
 -- main = do
 --     let f = "sty/test.sty"
 --
---     let dsllFile = "real-analysis-domain/real-analysis.dsl"
---     dsllIn <- readFile dsllFile
---     dsllEnv <- parseDsll dsllFile dsllIn
+--     let elementFile = "real-analysis-domain/real-analysis.dsl"
+--     elementIn <- readFile elementFile
+--     elementEnv <- parseElement elementFile elementIn
 --
 --     prog <- readFile f
---     res <- parseInstantiation f prog dsllEnv
+--     res <- parseInstantiation f prog elementEnv
 --     print res

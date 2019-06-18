@@ -32,6 +32,7 @@ import           Network.WebSockets.Connection
 import qualified Network.WebSockets.Stream     as Stream
 import qualified Optimizer                     as O
 import           Shapes
+import           Utils
 import           Serializer
 import           Interface
 import qualified Sugarer
@@ -50,7 +51,7 @@ import           Utils                         (Autofloat, divLine, fromRight,
 
 import           Data.UUID
 import           Env                           (VarEnv, declaredNames)
-import           Dsll                          (parseDsll)
+import           Element                          (parseElement)
 import           GenOptProblem
 import           Style
 import System.IO (stderr, Handle)
@@ -77,10 +78,6 @@ data Packet a = Packet {
 } deriving Generic
 instance (ToJSON a) => ToJSON (Packet a) where
     toJSON Packet{typ=t, contents=c} = object ["type" .= t, "contents" .= c]
-
-data CompilerError = SubError String | StyError String | ElmtError String
-    deriving Generic
-instance ToJSON CompilerError
 
 -- | TODO
 type ClientID = UUID
@@ -318,18 +315,23 @@ waitUpdate client@(clientID, conn, clientState) = do
             warningM (toString clientID) "Invalid command. Returning to wait for image/label update."
             waitUpdate client
 
-substanceError, elementError, styleError :: Client -> ErrorCall -> IO ()
+substanceError, elementError, styleError :: Client -> CompilerError -> IO ()
 substanceError client@(_, conn, _) e = do
      logError client $ "Substance compiler error: " ++ show e
-     wsSendPacket conn Packet { typ = "error", contents = SubError $ show e}
+     wsSendPacket conn Packet { typ = "error", contents = e}
      waitSubstance client
 elementError client@(_, conn, _) e = do
      logError client $ "Element parser error: " ++ show e
-     wsSendPacket conn Packet { typ = "error", contents = SubError $ show e}
+     wsSendPacket conn Packet { typ = "error", contents = e}
      waitSubstance client
 styleError client@(_, conn, _) e = do
      logError client $ "Style parser error: " ++ show e
-     wsSendPacket conn Packet { typ = "error", contents = SubError $ show e}
+     wsSendPacket conn Packet { typ = "error", contents = e}
+     waitSubstance client
+styleRuntimeError :: Client -> ErrorCall -> IO ()
+styleRuntimeError client@(_, conn, _) e = do
+     logError client $ "Style runtime error: " ++ show e
+     wsSendPacket conn Packet { typ = "error", contents = show e}
      waitSubstance client
 
 -- -- TODO: this match might be redundant, but not sure why the linter warns that.
@@ -363,12 +365,12 @@ recompileDomain element style client@(clientID, conn, Editor {}) = do
     logInfo client $ "Element program received: " ++ element
     logInfo client $ "Style program received: " ++ style
 
-    elementRes <- try $ parseDsll "" element
+    let elementRes = parseElement "" element
     case elementRes of
         Right elementEnv -> do
             -- Send Env to the frontend for language services (for now, bag-of-word autocompletion)
             wsSendPacket conn $ Packet { typ = "env", contents = elementEnv}
-            styRes <- try $ parseStyle "" style elementEnv
+            let styRes = parseStyle "" style elementEnv
             case styRes of
                 Right styProg -> do
                     logDebug client ("Style AST:\n" ++ ppShow styProg)
@@ -382,7 +384,7 @@ substanceEdit subIn _ client@(_, _, Renderer _) =
     logError client "Server Error: the Substance program cannot be updated when the server is in Renderer mode."
 substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
     logInfo client $ "Substance program received: " ++ subIn
-    subRes <- try (Substance.parseSubstance "" (Sugarer.sugarStmts subIn env) env)
+    let subRes = Substance.parseSubstance "" (Sugarer.sugarStmts subIn env) env
     case subRes of
         Right subOut@(Substance.SubOut _ (subEnv, _) _) -> do
             logInfo client $ show subOut
@@ -402,7 +404,7 @@ substanceEdit subIn auto client@(clientID, conn, Editor env styProg s) = do
                         shapes = shapesr newState :: [Shape Double]
                     }
                     waitUpdate (clientID, conn, Editor env styProg $ Just newState { G.autostep = auto })
-                Left styError -> substanceError client styError
+                Left styError -> styleRuntimeError client styError
         Left subError -> substanceError client subError
 
 updateShapes :: [Shape Double] -> Client -> IO ()
