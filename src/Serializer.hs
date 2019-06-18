@@ -7,6 +7,7 @@ import Style
 import SubstanceTokenizer
 import GenOptProblem
 import Optimizer
+import Interface
 
 import Text.Megaparsec
 import GHC.Generics
@@ -75,4 +76,10 @@ deriveJSON defaultOptions ''OptType
 deriveJSON defaultOptions ''OptStatus
 deriveJSON defaultOptions ''BfgsParams
 deriveJSON defaultOptions ''GenOptProblem.State
+
+--------------------------------------------------------------------------------
+-- Interface
+
+deriveJSON defaultOptions ''CompilerError
+
 

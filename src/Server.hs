@@ -33,6 +33,7 @@ import qualified Network.WebSockets.Stream     as Stream
 import qualified Optimizer                     as O
 import           Shapes
 import           Serializer
+import           Interface
 import qualified Sugarer
 -- (Shape, Value (..), getName,
 --                                                 getNum, getX, getY, sampleShapes, setX,
