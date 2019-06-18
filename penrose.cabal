@@ -45,7 +45,6 @@ executable penrose
                       DuplicateRecordFields
     build-depends:
         base -any,
-        binary -any,
         random -any,
         random-shuffle -any,
         containers -any,
