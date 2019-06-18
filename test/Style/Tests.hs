@@ -9,7 +9,7 @@ import Data.List
 import System.IO (hFlush, stdout)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Directory (listDirectory)
-import Text.Megaparsec (runParser, parseErrorPretty)
+import Text.Megaparsec (runParser, errorBundlePretty)
 
 import Style
 
@@ -59,7 +59,7 @@ parseFile fname = do
     case runParser styleParser fname styIn of
         Left err -> do
             putStrLn ""
-            putStrLn (parseErrorPretty err)
+            putStrLn (errorBundlePretty err)
             hFlush stdout
             return False
         Right xs -> return True

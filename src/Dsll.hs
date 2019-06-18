@@ -23,7 +23,7 @@ import Data.Maybe (fromMaybe)
 import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
-import Text.Megaparsec.Expr
+import Control.Monad.Combinators.Expr
 import Text.Show.Pretty
 import Env
 -- import qualified Text.PrettyPrint as P
@@ -165,7 +165,7 @@ cd1 = do
     rword "type"
     name <- identifier
     (y, k) <- parens ykParser
-    pos <- getPosition
+    pos <- getSourcePos
     return (CdStmt Cd { nameCd = name, inputCd = zip y k})
 cd2 = do
     rword "type"
@@ -276,10 +276,10 @@ snParser :: Parser DsllStmt
 snParser = do
     rword "notation"
     quote
-    toSn' <- manyTill anyChar quote
+    toSn' <- manyTill anySingle quote
     tilde
     quote
-    fromSn' <- manyTill anyChar quote
+    fromSn' <- manyTill anySingle quote
     return (SnStmt (Sn {fromSn = fromSn', toSn = toSn'}))
 
 
@@ -393,7 +393,7 @@ computeSubTypes e = let env1 = e { subTypes = transitiveClosure (subTypes e)}
 parseDsll :: String -> String -> IO VarEnv
 parseDsll dsllFile dsllIn =
           case runParser dsllParser dsllFile dsllIn of
-          Left err -> error (parseErrorPretty err)
+          Left err -> error (errorBundlePretty err)
           Right prog -> do
             --   putStrLn "DSLL AST: \n"
             --   pPrint prog
@@ -414,7 +414,7 @@ main = do
   [dsllFile, outputFile] <- getArgs
   dsllIn <- readFile dsllFile
   case parse dsllParser dsllFile dsllIn of
-    Left err -> putStr (parseErrorPretty err)
+    Left err -> putStr (errorBundlePretty err)
     Right xs -> do
       writeFile outputFile (show xs)
       let o = check xs
