@@ -78,9 +78,10 @@ useAutodiff = True
 constT :: Floating a => a
 constT = 0.001
 
-debugOpt = True
+-- debugOpt = True
+debugOpt = False
 debugLineSearch = False
-debugBfgs = True
+debugBfgs = False
 
 trb :: String -> a -> a
 trb s x = if debugBfgs then trace "---" $ trace s x else x -- prints in left to right order
