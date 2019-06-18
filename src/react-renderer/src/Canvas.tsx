@@ -38,6 +38,7 @@ class Canvas extends React.Component<IProps, IState> {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
+  // replace with componentDidUpdate?
   public onMessage = async (e: MessageEvent) => {
     const myJSON = JSON.parse(e.data).contents;
     const { flag, shapes, ordering, debugData } = myJSON;
@@ -57,7 +58,9 @@ class Canvas extends React.Component<IProps, IState> {
     }
 
     this.setState({
-      data: this.sortShapes(labeledShapesWithImgs, ordering),
+      data: this.sortShapes(labeledShapesWithImgs, ordering).filter(
+        this.notEmptyLabel
+      ),
       debugData
     });
   };
@@ -231,8 +234,6 @@ class Canvas extends React.Component<IProps, IState> {
       return <svg />;
     }
 
-    const nonEmpties = data.filter(this.notEmptyLabel);
-
     return (
       <LockContext.Provider value={lock}>
         <svg
@@ -256,19 +257,14 @@ class Canvas extends React.Component<IProps, IState> {
             {elementMetadata && `${elementMetadata}\n`}
             {otherMetadata && `${otherMetadata}`}
           </desc>
-          {nonEmpties.map(this.renderEntity)}
+          {data.map(this.renderEntity)}
           {layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
             }
             if (enabled) {
-              return this.renderLayer(
-                nonEmpties,
-                debugData,
-                layerMap[layer],
-                key
-              );
+              return this.renderLayer(data, debugData, layerMap[layer], key);
             }
             return null;
           })}
