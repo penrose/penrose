@@ -339,7 +339,7 @@ where Orthogonal( u, v ) {
 Vector u; Vector v
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
-      -- TODO: fix this angle calculation so it works when both vectors are in the second quadrant
+      -- TODO: fix this angle calculation so it works when both vectors are in quadrants 2 or 3
       LOCAL.angle = min(u.angle, v.angle)
       LOCAL.len = 20.0
 
