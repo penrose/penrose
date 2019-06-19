@@ -16,8 +16,6 @@ import qualified Numeric.LinearAlgebra as L
 import           System.Random         (StdGen)
 import           Text.Megaparsec
 
-import qualified Data.ByteString.Lazy.Char8 as B
-import qualified Data.Aeson as A
 
 instance ToJSONKey Name
 instance FromJSONKey Name
@@ -84,3 +82,4 @@ deriveJSON defaultOptions ''GenOptProblem.State
 -- Interface
 
 deriveJSON defaultOptions ''CompilerError
+deriveJSON defaultOptions ''RuntimeError

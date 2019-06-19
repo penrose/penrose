@@ -92,9 +92,39 @@ type Client = (ClientID, WS.Connection, ClientState)
 data ClientState
     = Editor VarEnv StyProg (Maybe BackendState)
     | Renderer BackendState
+    | Stateless
 
 -- | TODO
 type BackendState = GenOptProblem.State
+
+--------------------------------------------------------------------------------
+-- RESTful server
+
+data Request
+    = Step Int State
+    | StepUntilConvergence State
+    | CompileTrio String String String
+    deriving Generic
+instance FromJSON Request
+instance ToJSON Request
+
+processRequests :: Client -> IO ()
+processRequests client@(clientID, conn, s) = do
+    putStrLn "Waiting for Commands"
+    msg_json <- WS.receiveData conn
+    putStrLn $ "Messege received from frontend: \n" ++ show msg_json
+    case decode msg_json of
+        Just e -> case e of
+            Step steps s -> withError $ Interface.step s steps
+            StepUntilConvergence s -> withError $ Interface.stepUntilConvergence s
+            CompileTrio sub sty elm -> withError $ Interface.compileTrio sub sty elm
+        Nothing -> logError client "Error reading JSON"
+    processRequests client
+    where 
+        withError :: ToJSON a => Either a State -> IO ()
+        withError res = case res of 
+            Right state -> wsSendPacket conn Packet { typ = "state", contents = state }
+            Left  error -> wsSendPacket conn Packet { typ = "error", contents = error }
 
 --------------------------------------------------------------------------------
 -- Server-level functions
@@ -143,10 +173,6 @@ handleClient env styProg state pending = do
     clientID <- newUUID
     let clientState = Editor env styProg Nothing
     let client      = (clientID, conn, clientState)
-
-    -- FIXME: for testing purposes, send the env to the frontend
-    logInfo client $ show env
-    wsSendPacket conn $ Packet { typ = "env", contents = env}
 
     let logPath = "/tmp/penrose-" ++ idString client ++ ".log"
     myStreamHandler <- streamHandler stderr INFO
@@ -254,19 +280,28 @@ editor clientState@(Editor elementEnv _ _) pending = do
     let client = (clientID, conn, clientState)
     WS.forkPingThread conn 30 -- To keep the connection alive
     waitSubstance client
+
 renderer (Renderer s) pending = do
     conn <- WS.acceptRequest pending
     WS.forkPingThread conn 30 -- To keep the connection alive
-    wsSendFrame conn
-        Frame {
-            flag = "initial",
-            ordering = shapeOrdering s,
-            shapes = shapesr s :: [Shape Double]
-        }
     clientID <- newUUID
-    let clientState = Renderer $ O.step s
-    let client = (clientID, conn, clientState)
-    waitUpdate client
+    let client = (clientID, conn, Stateless)
+    processRequests client
+
+-- COMBAK: remove this old renderer code
+-- renderer (Renderer s) pending = do
+--     conn <- WS.acceptRequest pending
+--     WS.forkPingThread conn 30 -- To keep the connection alive
+--     wsSendFrame conn
+--         Frame {
+--             flag = "initial",
+--             ordering = shapeOrdering s,
+--             shapes = shapesr s :: [Shape Double]
+--         }
+--     clientID <- newUUID
+--     let clientState = Renderer $ O.step s
+--     let client = (clientID, conn, clientState)
+--     waitUpdate client
 
 loop :: Client -> IO ()
 loop client@(clientID, conn, clientState)
