@@ -1,16 +1,19 @@
 module Interface where
 
-import           Control.Exception (try)
+import           Control.Exception          (try)
+import           Control.Exception
+import qualified Data.Aeson                 as A
+import qualified Data.ByteString.Lazy.Char8 as B
 import           Element
 import           Env
 import           GenOptProblem
+import qualified Optimizer
+import           Serializer
 import           Style
 import           Substance
 import           Sugarer
-import           System.IO.Unsafe  (unsafePerformIO)
+import           System.IO.Unsafe           (unsafePerformIO)
 import           Utils
-import           Control.Exception
-
 
 -- | Given Substance, Style, and Element programs, output an initial state.
 -- TODO: rewrite this to be cleaner: (EitherT monad?)
@@ -35,10 +38,59 @@ compileTrio substance style element = do
 step ::
      State -- ^ the initial state
   -> Int -- ^ the number of steps n for the optimizer to take
-  -> State -- ^ the resulting state after the optimizer takes n steps
-step initState steps = error ""
+  -> Either RuntimeError State -- ^ the resulting state after the optimizer takes n steps
+  -- TODO: rewrite runtime error reporting
+step initState steps = Right $ iterate Optimizer.step initState !! (steps + 1) -- `iterate` applies `id` the first time
 
 stepUntilConvergence ::
      State -- ^ the initial state
-  -> Either State OptimizerError -- ^ the converged state or optimizer errors
-stepUntilConvergence initState = error ""
+  -> Either RuntimeError State -- ^ the converged state or optimizer errors
+stepUntilConvergence state
+  | optStatus (paramsr state) == EPConverged = Right state
+  -- TODO: rewrite runtime error reporting
+  | otherwise = stepUntilConvergence $ Optimizer.step state
+
+--------------------------------------------------------------------------------
+-- Test
+subFile = "sub/tree.sub"
+
+styFile = "sty/venn.sty"
+
+elmFile = "set-theory-domain/setTheory.dsl"
+
+testCompile :: IO ()
+testCompile = do
+  sub <- readFile subFile
+  sty <- readFile styFile
+  elm <- readFile elmFile
+  let res = compileTrio sub sty elm
+  case res of
+    Right state -> B.writeFile "state.json" $ A.encode state
+    Left err    -> putStrLn $ show err
+
+testStep :: Bool -> IO ()
+testStep converge
+  | converge = do
+    sub <- readFile subFile
+    sty <- readFile styFile
+    elm <- readFile elmFile
+    let s = compileTrio sub sty elm
+    case s of
+      Right state ->
+        let res = stepUntilConvergence state
+        in case res of
+             Right state' -> B.writeFile "state-step.json" $ A.encode state'
+             Left err     -> putStrLn $ show err
+      Left err -> putStrLn $ show err
+  | otherwise = do
+    sub <- readFile subFile
+    sty <- readFile styFile
+    elm <- readFile elmFile
+    let s = compileTrio sub sty elm
+    case s of
+      Right state ->
+        let res = step state 2
+        in case res of
+             Right state' -> B.writeFile "state-step.json" $ A.encode state'
+             Left err     -> putStrLn $ show err
+      Left err -> putStrLn $ show err

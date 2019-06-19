@@ -29,13 +29,13 @@ data CompilerError
   | StyleParse String -- ^ an error in Style parsing
   | ElementParse String -- ^ an error in Element parsing
   | SubstanceTypecheck String -- ^ an error in Substance typechecking
-  | StyleTypecheck String -- ^ an error in Style typechecking (TODO: this also includes runtime errors. Rewrite the system to actually throw them)
+  | StyleTypecheck String -- ^ an error in Style typechecking 
   | ElementTypecheck String -- ^ an error in Element typechecking
   deriving (Show)
 
 -- | Errors from the optimizer
-data OptimizerError =
-  OptimizerError String
+data RuntimeError =
+  RuntimeError String
   deriving (Show)
 
 

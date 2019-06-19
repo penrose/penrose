@@ -4,7 +4,6 @@ module Serializer where
 
 import           Env
 import           GenOptProblem
-import           Interface
 import           Optimizer
 import           Style
 import           SubstanceTokenizer
@@ -85,20 +84,3 @@ deriveJSON defaultOptions ''GenOptProblem.State
 -- Interface
 
 deriveJSON defaultOptions ''CompilerError
-
---------------------------------------------------------------------------------
--- Test
-
-subFile = "sub/tree.sub"
-styFile = "sty/venn.sty"
-elmFile = "set-theory-domain/setTheory.dsl"
-
-testAPI :: IO ()
-testAPI = do
-  sub <- readFile subFile
-  sty <- readFile styFile
-  elm <- readFile elmFile
-  let res = compileTrio sub sty elm
-  case res of
-    Right state -> B.writeFile "state.json" $ A.encode state
-    Left  err   -> putStrLn $ show err
