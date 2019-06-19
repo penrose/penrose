@@ -16,7 +16,7 @@ import System.Random
 import System.Console.ANSI
 import Data.List (foldl')
 
-default (Int, Float)
+default (Int, Double)
 
 ------ Opt types, util functions, and params
 
@@ -78,9 +78,10 @@ useAutodiff = True
 constT :: Floating a => a
 constT = 0.001
 
-debugOpt = True
+-- debugOpt = True
+debugOpt = False
 debugLineSearch = False
-debugBfgs = True
+debugBfgs = False
 
 trb :: String -> a -> a
 trb s x = if debugBfgs then trace "---" $ trace s x else x -- prints in left to right order
@@ -108,42 +109,43 @@ unconstrainedStopCond gradEval = norm gradEval < epsUnconstr
 
 -- Policies
 
-stepPolicy :: State -> (Params, PolicyParams)
-stepPolicy s = 
-    -- Check overall convergence first 
-    let epStatus = optStatus $ (paramsr s) in
-    let pparams = policyParams s in
-    case epStatus of
+-- stepPolicy :: State -> (Params, PolicyParams)
+-- stepPolicy s = 
+--     -- Check overall convergence first 
+--     let epStatus = optStatus $ (paramsr s) in
+--     let pparams = policyParams s in
+--     case epStatus of
 
-    -- Generate new objective function and replace the optimization and policy params accordingly
-    EPConverged -> 
-                -- TODO: clean up the step incrementing
-        let pparams' = pparams { policySteps = 1 + policySteps pparams } in
-        let (policyRes, psNew) = (policyFn s) (objFns s) (constrFns s) pparams' in -- See what the policy function wants
-        case policyRes of
-            Nothing     -> (paramsr s, pparams' { policyState = psNew }) -- steps incremented, policy done
+--     -- Generate new objective function and replace the optimization and policy params accordingly
+--     EPConverged -> 
+--                 -- TODO: clean up the step incrementing
+--         let pparams' = pparams { policySteps = 1 + policySteps pparams } in
+--         let (policyRes, psNew) = (policyFn s) (objFns s) (constrFns s) pparams' in -- See what the policy function wants
+--         case policyRes of
+--             Nothing     -> (paramsr s, pparams' { policyState = psNew }) -- steps incremented, policy done
 
-            Just newFns -> -- Policy keeps going
-                let objFnNew = genObjfn (transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) 
-                    -- TODO: check that these inputs are right
-                    -- Change obj function and restart optimization
-                    pparamsNew = pparams' { policyState = psNew,
-                                            currFns = newFns }
-                    paramsNew = Params { weight = initWeight,
-                                         optStatus = NewIter,
-                                         overallObjFn = objFnNew,
-                                         bfgsInfo = defaultBfgsParams }
-                in tro ("Step policy, EP converged, new params:\n" ++ show (paramsNew, pparamsNew, newFns)) $ (paramsNew, pparamsNew)
+--             Just newFns -> -- Policy keeps going
+--                 let objFnNew = genObjfn (castTranslation $ transr s) (filter isObjFn newFns) (filter isConstr newFns) (varyingPaths s) 
+--                     -- TODO: check that these inputs are right
+--                     -- Change obj function and restart optimization
+--                     pparamsNew = pparams' { policyState = psNew,
+--                                             currFns = newFns }
+--                     paramsNew = Params { weight = initWeight,
+--                                          optStatus = NewIter,
+--                                          overallObjFn = objFnNew,
+--                                          bfgsInfo = defaultBfgsParams }
+--                 in tro ("Step policy, EP converged, new params:\n" ++ show (paramsNew, pparamsNew, newFns)) $ (paramsNew, pparamsNew)
 
-    -- If not converged, optimize as usual, don't change policy mid-optimization
-    _ -> tro ("Step policy, EP not converged, new params:\n" ++ show (paramsr s, pparams)) $ (paramsr s, pparams)
+--     -- If not converged, optimize as usual, don't change policy mid-optimization
+--     _ -> tro ("Step policy, EP not converged, new params:\n" ++ show (paramsr s, pparams)) $ (paramsr s, pparams)
 
 ---------------------------------------
 
 -- Main optimization functions
 
 step :: State -> State
-step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingState s) (rng s)
+step s = let (state', params') = stepShapes s
+-- (oConfig s) (paramsr s) (varyingState s) (rng s)
              s'                = s { varyingState = state', 
                                      paramsr = params' }
              -- NOTE: we intentionally discard the random generator here because
@@ -155,23 +157,26 @@ step s = let (state', params') = stepShapes (oConfig s) (paramsr s) (varyingStat
 
              -- Check the state and see if the overall objective function should be changed
              -- The policy may change EPConverged to a new iteration before the frontend sees it
-             (paramsNew, pparamsNew) = stepPolicy s'
+            --  (paramsNew, pparamsNew) = stepPolicy s'
 
              -- For debugging
              oldParams = paramsr s
 
          in tro ("Params: \n" ++ show oldParams ++ "\n:") $
-            s' { shapesr = shapes',
-                 paramsr = paramsNew,
-                 policyParams = pparamsNew } 
+            s' { 
+                -- shapesr = shapes',
+                --  paramsr = paramsNew,
+                --  policyParams = pparamsNew } 
+                shapesr = shapes',
+                paramsr = params' }
             -- note: trans is not updated in state
 
 -- Note use of realToFrac to generalize type variables (on the weight and on the varying state)
 
 -- implements exterior point algo as described on page 6 here:
 -- https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf
-stepShapes :: OptConfig -> Params -> [Float] -> StdGen -> ([Float], Params)
-stepShapes config params vstate g = -- varying state
+stepShapes :: State -> ([Double], Params)
+stepShapes s = -- varying state
          -- if null vstate then error "empty state in stepshapes" else
          let (epWeight, epStatus) = (weight params, optStatus params) in
          case epStatus of
@@ -214,20 +219,23 @@ stepShapes config params vstate g = -- varying state
          -- TODO: implement EPConvergedOverride (for when the magnitude of the gradient is still large)
 
          -- TODO factor out--only unconstrainedRunning needs to run stepObjective, but EPconverged needs objfn
-        where (vstate', gradEval, bfgs') = stepWithObjective config g params vstate
-              objFnApplied = (overallObjFn params) g (r2f $ weight params)
+        where 
+            (config, params, vstate, g) = (oConfig s, paramsr s, varyingState s, rng s) 
+            (vstate', gradEval, bfgs') = stepWithObjective s
+            --   objFnApplied = (overallObjFn params) g (r2f $ weight params)
+            objFnApplied = evalEnergyOn s
 
 -- Given the time, state, and evaluated gradient (or other search direction) at the point,
 -- return the new state
 
-stepT :: Float -> Float -> Float -> Float
+stepT :: Double -> Double -> Double -> Double
 stepT dt x dfdx = x - dt * dfdx
 
 -- Calculates the new state by calculating the directional derivatives (via autodiff)
 -- and timestep (via line search), then using them to step the current state.
 -- Also partially applies the objective function.
-stepWithObjective :: OptConfig -> StdGen -> Params -> [Float] -> ([Float], [Float], BfgsParams)
-stepWithObjective config g params state =
+stepWithObjective :: State -> ([Double], [Double], BfgsParams)
+stepWithObjective s =
           -- get timestep via line search, and evaluated gradient at the state
           let (t', gradEval, gradToUse, bfgs') = timeAndGrad config params objFnApplied state
               -- step each parameter of the state with the time and gradient
@@ -252,9 +260,11 @@ stepWithObjective config g params state =
                   )
              (state', gradEval, bfgs')
 
-          where objFnApplied :: ObjFn1 b
-                objFnApplied = (overallObjFn params) g cWeight
-
+          where 
+                (config, params, state, g) = (oConfig s, paramsr s, varyingState s, rng s)
+                -- objFnApplied :: ObjFn1 b
+                -- objFnApplied = (overallObjFn params) g cWeight
+                objFnApplied = evalEnergyOn s
                 cWeight = r2f $ weight params
                 -- realToFrac generalizes the type variable `a` to the type variable `b`, which timeAndGrad expects
 
@@ -271,7 +281,7 @@ appHess :: (Autofloat a) => (forall b . (Autofloat b) => [b] -> b) -> [a] -> [[a
 appHess f l = hessian f l
 
 -- Precondition the gradient
-gradP :: OptConfig -> BfgsParams -> [Double] -> ObjFn1 a -> [Float] -> ([Double], BfgsParams)
+gradP :: OptConfig -> BfgsParams -> [Double] -> ObjFn1 a -> [Double] -> ([Double], BfgsParams)
 gradP config bfgsParams gradEval f state =
       let x_k = L.vector $ map r2f state
           grad_fx_k = L.vector gradEval
@@ -286,16 +296,16 @@ gradP config bfgsParams gradEval f state =
           (L.toList gradPreconditioned, bfgsParams)
 
       BFGS -> -- Approximate inverse of hessian with the change in gradient (see Nocedal S9.1 p224)
-           let grad_val = lastGrad bfgsParams
-               h_val = invH bfgsParams
-               state_val = lastState bfgsParams
+           let grad_val = lastGrad bfgsParams :: Maybe [Double]
+               h_val = invH bfgsParams :: Maybe [[Double]]
+               state_val = lastState bfgsParams :: Maybe [Double]
            in case (h_val, grad_val, state_val) of
               (Nothing, Nothing, Nothing) -> -- First step. Initialize the approximation to the identity (not clear how else to approximate it)
                     -- k=0 steps from x_0 to x_1: so on the first step, we take a normal gradient descent step
                     let h_0 = L.ident $ length gradEval
-                    in (gradEval, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_0 })
+                    in (gradEval, bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k, invH = Just $ L.toLists h_0 })
 
-              (Just h_km1, Just grad_fx_km1, Just x_km1) -> -- For x_{k+1}, to compute H_k, we need the (k-1) info
+              (Just h_km1L, Just grad_fx_km1L, Just x_km1L) -> -- For x_{k+1}, to compute H_k, we need the (k-1) info
                     -- Our convention is that we are always working "at" k to compute k+1
                     -- x_0 doesn't require any H; x_1 (the first step) with k = 0 requires H_0
                     -- x_2 (the NEXT step) with k=1 requires H_1. For example>
@@ -306,6 +316,7 @@ gradP config bfgsParams gradEval f state =
                     -- s_0 = x_1 - x_0
                     -- y_0 = grad f(x_1) - grad f(x_0)
 
+                    let (h_km1, grad_fx_km1, x_km1) = (L.fromLists h_km1L, L.vector grad_fx_km1L, L.vector x_km1L) in
                     let s_km1 = x_k - x_km1
                         y_km1 = grad_fx_k - grad_fx_km1
                         rho_km1 = 1 / (y_km1 `L.dot` s_km1) -- Scalar
@@ -313,7 +324,7 @@ gradP config bfgsParams gradEval f state =
                         h_k = (L.tr (v_km1) L.<> h_km1 L.<> v_km1) + (rho_km1 `L.scale` s_km1 `L.outer` s_km1)
                         gradPreconditioned = h_k L.#> grad_fx_k
                     in (L.toList gradPreconditioned, 
-                        bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, invH = Just h_k })
+                        bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k, invH = Just $ L.toLists h_k })
 
               _ -> error "invalid BFGS state"
 
@@ -330,11 +341,12 @@ gradP config bfgsParams gradEval f state =
                -- Perform normal gradient descent on first step
                (Nothing, Nothing, [], [], 0) ->
                    -- Store x_k, grad f(x_k) so we can compute s_k, y_k on next step
-                   let bfgsParams' = bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k, 
+                   let bfgsParams' = bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k, 
                                                   s_list = [], y_list = [], numUnconstrSteps = km1 + 1 } in
                    (gradEval, bfgsParams')
 
-               (Just grad_fx_km1, Just x_km1, ss, ys, km1) -> 
+               (Just grad_fx_km1L, Just x_km1L, ssL, ysL, km1) -> 
+                    let (grad_fx_km1, x_km1, ss, ys) = (L.fromList grad_fx_km1L, L.fromList x_km1L, map L.fromList ssL, map L.fromList ysL) in
                    -- Compute s_{k-1} = x_k - x_{k-1} and y_{k-1} = (analogous with grads)
                    -- Unlike Nocedal, compute the difference vectors first instead of last (same result, just a loop rewrite)
                    -- Use the updated {s_i} and {y_i}. (If k < m, this reduces to normal BFGS, i.e. we use all the vectors so far)
@@ -347,10 +359,10 @@ gradP config bfgsParams gradEval f state =
                    -- https://github.com/JuliaNLSolvers/Optim.jl/issues/143 https://github.com/JuliaNLSolvers/Optim.jl/pull/144
 
                    in if descentDirCheck < epsd 
-                      then (L.toList gradPreconditioned, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k,
-                                                                      s_list = ss', y_list = ys', numUnconstrSteps = km1 + 1 })
+                      then (L.toList gradPreconditioned, bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k,
+                                                                      s_list = map L.toList ss', y_list = map L.toList ys', numUnconstrSteps = km1 + 1 })
                       else tro "L-BFGS did not find a descent direction. Resetting correction vectors." $
-                           (gradEval, bfgsParams { lastState = Just x_k, lastGrad = Just grad_fx_k,
+                           (gradEval, bfgsParams { lastState = Just $ L.toList x_k, lastGrad = Just $ L.toList grad_fx_k,
                                                    s_list = [], y_list = [], numUnconstrSteps = km1 + 1 })
 
                    -- TODO: check the curvature condition y_k^T s_k > 0 (8.7) (Nocedal 201)
@@ -397,7 +409,7 @@ lbfgs grad_fx_k ss ys =
                             r_i_plus_1 = r_i + (alpha_i - beta_i) `L.scale` s_i -- scalar * vector
                         in r_i_plus_1
 
-estimateGradient :: ObjFn1 a -> [Float] -> [Float]
+estimateGradient :: ObjFn1 a -> [Double] -> [Double]
 estimateGradient f state =
       let len = length state
           h = 0.001 -- Choice of h really matters!!! This is not an accurate estimate.
@@ -411,7 +423,7 @@ estimateGradient f state =
 -- Given the objective function, gradient function, timestep, and current state,
 -- return the timestep (found via line search) and evaluated gradient at the current state.
 -- the autodiff library requires that objective functions be polymorphic with Floating a
-timeAndGrad :: OptConfig -> Params -> ObjFn1 a -> [Float] -> (Float, [Float], [Float], BfgsParams)
+timeAndGrad :: OptConfig -> Params -> ObjFn1 a -> [Double] -> (Double, [Double], [Double], BfgsParams)
 timeAndGrad config params f state = 
             let gradEval = if useAutodiff then gradF state else estimateGradient f state
                 (gradToUse_d, bfgs') = gradP config (bfgsInfo params) (map r2f gradEval :: [Double]) f state
@@ -440,7 +452,7 @@ linesearch_max = 100 -- TODO what's a reasonable limit (if any)?
 -- duf = D_u(f), the directional derivative of f at descent direction u
 -- D_u(x) = <gradF(x), u>. If u = -gradF(x) (as it is here), then D_u(x) = -||gradF(x)||^2
 
-awLineSearch :: OptConfig -> ObjFn1 a -> ObjFn1 a -> [Float] -> [Float] -> Float
+awLineSearch :: OptConfig -> ObjFn1 a -> ObjFn1 a -> [Double] -> [Double] -> Double
 awLineSearch config f duf descentDir x0 =
 
      let (a0, b0, t0) = (0, infinity, 1) -- Unit step length should be tried first for quasi-Newton methods. (Nocedal 201)
@@ -451,7 +463,7 @@ awLineSearch config f duf descentDir x0 =
 
      in tro ("Line search # updates: " ++ show numUpdates) $ tf
 
-          where update :: (Float, Float, Float) -> (Float, Float, Float)
+          where update :: (Double, Double, Double) -> (Double, Double, Double)
                 update (a, b, t) =
                        let (a', b', sat) | not $ armijo t    = trl "not armijo" (a, t, False)
                                          | not $ wolfe t     = trl "not wolfe" (t, b, False)
@@ -460,7 +472,7 @@ awLineSearch config f duf descentDir x0 =
                        else if b' < infinity then trl "b' < infinity" (a', b', (a' + b') / 2)
                        else trl "b' = infinity" (a', b', 2 * a')
 
-                intervalOK_or_notArmijoAndWolfe :: (Int, (Float, Float, Float)) -> Bool
+                intervalOK_or_notArmijoAndWolfe :: (Int, (Double, Double, Double)) -> Bool
                 intervalOK_or_notArmijoAndWolfe (numUpdates, (a, b, t)) =
                       not $
                       if armijo t && wolfe t then
@@ -471,27 +483,27 @@ awLineSearch config f duf descentDir x0 =
                            trl ("stop: number of line search updates exceeded max") True
                       else False
 
-                armijo :: Float -> Bool
+                armijo :: Double -> Bool
                 armijo t = (f (x0 +. t *. descentDir)) <= (fAtx0 + c1 * t * dufAtx0)
 
-                weakWolfe :: Float -> Bool -- Better for nonsmooth functions
+                weakWolfe :: Double -> Bool -- Better for nonsmooth functions
                 weakWolfe t = (duf (x0 +. t *. descentDir)) >= (c2 * dufAtx0)
 
-                strongWolfe :: Float -> Bool
+                strongWolfe :: Double -> Bool
                 strongWolfe t = (abs (duf (x0 +. t *. descentDir))) <= (c2 * abs dufAtx0)
 
                 -- Descent direction (at x0) must have a negative dot product with the gradient of f at x0.
-                dufAtx0 :: Float -- TODO: this is redundant, cache it
+                dufAtx0 :: Double -- TODO: this is redundant, cache it
                 dufAtx0 = let res = duf x0 in
                         trl ("<grad f(x0), descent direction at x0>: " ++ show res) $ 
                         if res > 0 then tro "WARNING: descent direction doesn't satisfy condition" res else res
 
-                fAtx0 :: Float
+                fAtx0 :: Double
                 fAtx0 = f x0
 
-                minInterval :: Float -- stop if the interval gets too small; might not terminate
+                minInterval :: Double -- stop if the interval gets too small; might not terminate
                 minInterval = if intervalMin then 10 ** (-10) else 0
                 -- TODO: the line search is very sensitive to this parameter. Blows up with 10**(-5). Why?
 
-                wolfe :: Float -> Bool
+                wolfe :: Double -> Bool
                 wolfe = weakWolfe

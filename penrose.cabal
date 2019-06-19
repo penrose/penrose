@@ -38,6 +38,7 @@ executable penrose
         SubstanceTokenizer
         Sugarer
         Tokenizer
+        Serializer
     default-language: Haskell2010
     other-extensions: AllowAmbiguousTypes RankNTypes UnicodeSyntax
                       NoMonomorphismRestriction OverloadedStrings DeriveGeneric

@@ -35,7 +35,7 @@ import qualified Data.Aeson as A
 import GHC.Generics
 import qualified Numeric.LinearAlgebra as L
 
-default (Int, Float)
+-- default (Int, Float)
 
 -------------------- Type definitions
 
@@ -60,7 +60,7 @@ type VaryMap a = M.Map Path (TagExpr a)
 ------- State type definitions
 
 -- Stores the last EP varying state (that is, the state when the unconstrained opt last converged)
-type LastEPstate = [Float] -- Note: NOT polymorphic (due to system slowness with polymorphism)
+type LastEPstate = [Double] -- Note: NOT polymorphic (due to system slowness with polymorphism)
 
 data OptStatus = NewIter
                | UnconstrainedRunning LastEPstate
@@ -85,7 +85,7 @@ instance Eq OptStatus where
 
 data Params = Params { weight :: Float,
                        optStatus :: OptStatus,
-                       overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a,
+                    --    overallObjFn :: forall a . (Autofloat a) => StdGen -> a -> [a] -> a,
                        bfgsInfo :: BfgsParams
                      }
 
@@ -94,27 +94,37 @@ instance Show Params where
                              -- ++ "\nBFGS info:\n" ++ show (bfgsInfo p)
 
 data BfgsParams = BfgsParams {
-     lastState :: Maybe (L.Vector L.R), -- x_k
-     lastGrad :: Maybe (L.Vector L.R),  -- gradient of f(x_k)
-     invH :: Maybe (L.Matrix L.R),  -- (BFGS only) estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
-     s_list :: [L.Vector L.R], -- (L-BFGS only) s_i (state difference) from k-1 to k-m
-     y_list :: [L.Vector L.R],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
+     lastState :: Maybe [Double], -- x_k
+     lastGrad :: Maybe [Double],  -- gradient of f(x_k)
+     invH :: Maybe [[Double]],  -- (BFGS only) estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
+     s_list :: [[Double]], -- (L-BFGS only) s_i (state difference) from k-1 to k-m
+     y_list :: [[Double]],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
      numUnconstrSteps :: Int, -- (L-BFGS only) number of steps so far, starting at 0
      memSize :: Int -- (L-BFGS only) number of vectors to retain
-}
+} deriving Show
 
-instance Show BfgsParams where
-         show s = "\nBFGS params:\n" ++
-                  "\nlastState: \n" ++ ppShow (lastState s) ++
-                  "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
-                  "\ninvH: \n" ++ ppShow (invH s) ++
-                  -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
-                  -- "\ns_list:\n" ++ ppShow (s_list s) ++
-                  -- "\ny_list:\n" ++ ppShow (y_list s) ++
-                  "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
-                  "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
-                  "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
-                  "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
+-- data BfgsParams = BfgsParams {
+--      lastState :: Maybe (L.Vector L.R), -- x_k
+--      lastGrad :: Maybe (L.Vector L.R),  -- gradient of f(x_k)
+--      invH :: Maybe (L.Matrix L.R),  -- (BFGS only) estimate of the inverse of the hessian, H_k (TODO: are these indices right?)
+--      s_list :: [L.Vector L.R], -- (L-BFGS only) s_i (state difference) from k-1 to k-m
+--      y_list :: [L.Vector L.R],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
+--      numUnconstrSteps :: Int, -- (L-BFGS only) number of steps so far, starting at 0
+--      memSize :: Int -- (L-BFGS only) number of vectors to retain
+-- }
+
+-- instance Show BfgsParams where
+--          show s = "\nBFGS params:\n" ++
+--                   "\nlastState: \n" ++ ppShow (lastState s) ++
+--                   "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
+--                   "\ninvH: \n" ++ ppShow (invH s) ++
+--                   -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
+--                   -- "\ns_list:\n" ++ ppShow (s_list s) ++
+--                   -- "\ny_list:\n" ++ ppShow (y_list s) ++
+--                   "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
+--                   "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
+--                   "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
+--                   "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
 
 defaultBfgsMemSize :: Int
 defaultBfgsMemSize = 17
@@ -148,27 +158,27 @@ data OptConfig = OptConfig {
                optMethod :: OptMethod
      } deriving (Eq, Show, Generic)
 
-defaultOptConfig = OptConfig { optMethod = BFGS }
+defaultOptConfig = OptConfig { optMethod = LBFGS }
 
 instance A.ToJSON OptConfig where
              toEncoding = A.genericToEncoding A.defaultOptions
 
 instance A.FromJSON OptConfig
 
-data State = State { shapesr :: forall a . (Autofloat a) => [Shape a],
+data State = State { shapesr :: [Shape Double],
                      shapeNames :: [(String, Field)], -- TODO Sub name type
                      shapeOrdering :: [String],
                      shapeProperties :: [(String, Field, Property)],
-                     transr :: forall a . (Autofloat a) => Translation a,
+                     transr :: Translation Double,
                      varyingPaths :: [Path],
                      uninitializedPaths :: [Path],
-                     varyingState :: [Float], -- Note: NOT polymorphic
+                     varyingState :: [Double], -- Note: NOT polymorphic
                      paramsr :: Params,
                      objFns :: [Fn],
                      constrFns :: [Fn],
                      rng :: StdGen,
                      autostep :: Bool,
-                     policyFn :: Policy,
+                    --  policyFn :: Policy,
                      policyParams :: PolicyParams,
                      oConfig :: OptConfig }
 
@@ -656,9 +666,9 @@ evalExpr (i, n) arg trans varyMap g =
 
                   PropertyPath bvar field property ->
                       let gpiType = shapeType bvar field trans in
-                      case M.lookup (gpiType, property) computedProperties of 
-                      Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
-                      Nothing -> -- Compute the path as usual
+                    --   case M.lookup (gpiType, property) computedProperties of 
+                    --   Just computeValueInfo -> computeProperty limit bvar field property varyMap trans g computeValueInfo
+                    --   Nothing -> -- Compute the path as usual
                           let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
                           case texpr of
                           Done v -> (Val v, trans, g)
@@ -720,6 +730,7 @@ applyOptFn dict sigs finfo =
 
 applyCombined :: (Autofloat a) => a -> [FnDone a] -> a
 applyCombined penaltyWeight fns =
+        -- TODO: pass the functions in separately? The combining + separating seem redundant
         let (objfns, constrfns) = partition (\f -> optType_d f == Objfn) fns in
         sumMap (applyOptFn objFuncDict objSignatures) objfns
                + constrWeight * penaltyWeight * sumMap (applyOptFn constrFuncDict constrSignatures) constrfns
@@ -735,6 +746,22 @@ genObjfn trans objfns constrfns varyingPaths =
          let varyMap = tr "varyingMap: " $ mkVaryMap varyingPaths varyingVals in
          let (fnsE, transE, rng') = evalFns evalIterRange (objfns ++ constrfns) trans varyMap rng in
          applyCombined penaltyWeight fnsE
+
+evalEnergyOn :: (Autofloat a) => State -> [a] -> a    
+evalEnergyOn s vstate = 
+    let varyMap = mkVaryMap (varyingPaths s) vstate
+        fns = objFns s ++ constrFns s
+        (fnsE, transE, rng') = evalFns evalIterRange fns (castTranslation $ transr s) varyMap (rng s)
+        penaltyWeight = r2f $ weight $ paramsr s
+    in applyCombined penaltyWeight fnsE
+
+evalEnergy :: (Autofloat a) => State -> a    
+evalEnergy s = 
+    let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) 
+        fns = objFns s ++ constrFns s
+        (fnsE, transE, rng') = evalFns evalIterRange fns (castTranslation $ transr s) varyMap (rng s)
+        penaltyWeight = r2f $ weight $ paramsr s
+    in applyCombined penaltyWeight fnsE
 
 --------------- Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 -- 1. Initialize all varying fields
@@ -804,7 +831,7 @@ evalShapes limit shapeNames trans varyMap rng =
 
 -- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
 -- with respect to the varying values
-evalTranslation :: (Autofloat a) => State -> ([Shape a], Translation a, StdGen)
+evalTranslation :: State -> ([Shape Double], Translation Double, StdGen)
 evalTranslation s =
     let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
     evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap (rng s)
@@ -886,7 +913,7 @@ computeLayering trans =
 
 ------------- Main function: what the Style compiler generates
 
-genOptProblemAndState :: (forall a. (Autofloat a) => Translation a) -> OptConfig -> State
+genOptProblemAndState :: Translation Double -> OptConfig -> State
 genOptProblemAndState trans optConfig =
     -- Save information about the translation
     let !varyingPaths       = findVarying trans in
@@ -904,7 +931,7 @@ genOptProblemAndState trans optConfig =
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
     let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
     let (!objFnsWithDefaults, !constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
-    let overallFn = genObjfn transInit objFnsWithDefaults constrsWithDefaults varyingPaths in
+    -- let overallFn = genObjfn (castTranslation transInit) objFnsWithDefaults constrsWithDefaults varyingPaths in
     -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
     -- the varying values are re-inserted at each opt step
 
@@ -929,16 +956,17 @@ genOptProblemAndState trans optConfig =
                                  constrFns = constrsWithDefaults,
                                  paramsr = Params { weight = initWeight,
                                                     optStatus = NewIter,
-                                                    overallObjFn = overallFn,
+                                                    -- overallObjFn = overallFn,
                                                     bfgsInfo = defaultBfgsParams },
                                  rng = g'',
                                  autostep = False, -- default
                                  policyParams = initPolicyParams,
-                                 policyFn = policyToUse,
+                                --  policyFn = policyToUse,
                                  oConfig = optConfig
                                } in
 
-    initPolicy s
+    -- initPolicy  -- TODO: rewrite to avoid the use of lambda functions
+    s
     -- NOTE: we do not resample the very first initial state. Not sure why the shapes / labels are rendered incorrectly.
     -- resampleBest numStateSamples initFullState
 
@@ -960,13 +988,15 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConf
    divLine
 
    let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals
-                       :: Either [Error] (Translation Float)
+                       :: Either [Error] (Translation Double)
                        -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
                        -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
                        -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
                        -- This greatly improves the performance of the system. See #166 for more details.
-   let transAuto = castTranslation $ fromRight trans
-                       :: forall a . (Autofloat a) => Translation a
+--    let transAuto = castTranslation $ fromRight trans
+--                        :: forall a . (Autofloat a) => Translation a
+   let transAuto = fromRight trans 
+
    putStrLn "Translated Style program:\n"
    pPrint trans
    divLine
@@ -991,21 +1021,21 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConf
 
 -- | After monomorphizing the translation's type (to make sure it's computed), we generalize the type again, which means
 -- | it's again under a typeclass lambda. (#166)
-castTranslation :: Translation Float -> (forall a . Autofloat a => Translation a)
+castTranslation :: Translation Double -> (forall a . Autofloat a => Translation a)
 castTranslation t =
       let res = M.map castFieldDict (trMap t) in
       t { trMap = res }
       where
-        castFieldDict :: FieldDict Float -> (forall a . Autofloat a => FieldDict a)
+        castFieldDict :: FieldDict Double -> (forall a . Autofloat a => FieldDict a)
         castFieldDict dict = M.map castFieldExpr dict
 
-        castFieldExpr :: FieldExpr Float -> (forall a . (Autofloat a) => FieldExpr a)
+        castFieldExpr :: FieldExpr Double -> (forall a . (Autofloat a) => FieldExpr a)
         castFieldExpr e =
           case e of
              FExpr te -> FExpr $ castTagExpr te
              FGPI n props -> FGPI n $ M.map castTagExpr props
 
-        castTagExpr :: TagExpr Float -> (forall a . Autofloat a => TagExpr a)
+        castTagExpr :: TagExpr Double -> (forall a . Autofloat a => TagExpr a)
         castTagExpr e =
            case e of
              Done v ->
@@ -1020,15 +1050,16 @@ castTranslation t =
                           StrV x -> StrV x
                           FileV x -> FileV x
                           StyleV x -> StyleV x
+                          ColorV (RGBA r g b a) -> ColorV $ RGBA (r2f r) (r2f g) (r2f b) (r2f a)
                 in Done res
              OptEval e -> OptEval e -- Expr only contains floats
 
-        castPath :: Path' Float -> (forall a . Autofloat a => Path' a)
+        castPath :: Path' Double -> (forall a . Autofloat a => Path' a)
         castPath p = case p of
                      Closed elems -> Closed $ map castElem elems
                      Open elems -> Open $ map castElem elems
 
-        castElem :: Elem Float -> (forall a . Autofloat a => Elem a)
+        castElem :: Elem Double -> (forall a . Autofloat a => Elem a)
         castElem e = case e of
                      Pt pt -> Pt $ app2 r2f pt
                      CubicBez pts -> CubicBez $ app3 (app2 r2f) pts
@@ -1088,27 +1119,30 @@ resampleBest n s =
           if n < 2 then error "Need to sample at least two states" else
           let optInfo = paramsr s
               -- Take out the relevant information for resampling
-              f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
+              f = evalEnergyOn s
+            --   f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
               (varyPaths, shapes, g) = (varyingPaths s, shapesr s, rng s)
               -- Partially apply resampleVState with the params that don't change over a resampling
               resampleVStateConst = resampleVState varyPaths shapes
               sampledResults = take n $ iterateS resampleVStateConst g
               res = minimumBy (lessEnergyOn f) sampledResults
               {- (trace ("energies: " ++ (show $ map (\((_, x, _), _) -> f x) sampledResults)) -}
-          in initPolicy $ updateVState s res
+        --   in initPolicy $ updateVState s res
+          in updateVState s res
 
 ------- Other possibly-useful utility functions (not currently used)
+-- TODO: rewrite these functions to not use the lambdaized overallObjFN
 
 -- | Evaluate the objective function on the varying state (with the penalty weight, which should be the same between state).
-evalFnOn :: State -> Double
-evalFnOn s = let optInfo = paramsr s
-                 f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
-                 args    = map float2Double $ varyingState s
-             in f args
+-- evalFnOn :: State -> Double
+-- evalFnOn s = let optInfo = paramsr s
+--                  f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
+--                  args    = varyingState s
+--              in f args
 
 -- | Compare two states and return the one with less energy.
-lessEnergy :: State -> State -> Ordering
-lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
+-- lessEnergy :: State -> State -> Ordering
+-- lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
 
 ---------- List of policies that can be used with the optimizer
 
@@ -1121,14 +1155,14 @@ lessEnergy s1 s2 = compare (evalFnOn s1) (evalFnOn s2)
 initPolicyParams :: PolicyParams
 initPolicyParams = PolicyParams { policyState = "", policySteps = 0, currFns = [] }
 
-initPolicy :: State -> State
-initPolicy s = -- TODO: make this less verbose
-    let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) initPolicyParams in
-    let newFns = DM.fromJust policyRes in
-    let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (transr s) (filter isObjFn newFns) 
-                                                                              (filter isConstr newFns) (varyingPaths s) }, 
-                              policyParams = initPolicyParams { policyState = pstate, currFns = newFns } } in
-    stateWithPolicy
+-- initPolicy :: State -> State
+-- initPolicy s = -- TODO: make this less verbose
+--     let (policyRes, pstate) = (policyFn s) (objFns s) (constrFns s) initPolicyParams in
+--     let newFns = DM.fromJust policyRes in
+--     let stateWithPolicy = s { paramsr = (paramsr s) { overallObjFn = genObjfn (castTranslation $ transr s) (filter isObjFn newFns) 
+--                                                                               (filter isConstr newFns) (varyingPaths s) }, 
+--                               policyParams = initPolicyParams { policyState = pstate, currFns = newFns } } in
+--     stateWithPolicy
 
 optimizeConstraints :: Policy
 optimizeConstraints objfns constrfns params = 
