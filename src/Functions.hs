@@ -130,6 +130,9 @@ compDict = M.fromList
         ("pathFromPoints", constComp pathFromPoints),
         ("join", constComp joinPath),
 
+        ("dot", constComp dotFn),
+        ("angle", constComp angleFn),
+
         -- Transformations
         ("rotate", constComp rotate),
         ("rotateAbout", constComp rotateAbout),
@@ -1026,6 +1029,12 @@ joinPath :: ConstCompFn
 joinPath [Val (PtListV pq), Val (PtListV qr), Val (PtListV rp)] =
          let path = Closed $ map Pt $ pq ++ qr ++ rp
          in Val $ PathDataV [path]
+
+dotFn :: ConstCompFn
+dotFn [Val (TupV u), Val (TupV v)] = Val $ FloatV $ u `dotv` v
+
+angleFn :: ConstCompFn
+angleFn [Val (TupV (v1, v2))] = Val $ FloatV $ atan2 v2 v1
 
 --------------------------------------------------------------------------------
 -- Objective Functions

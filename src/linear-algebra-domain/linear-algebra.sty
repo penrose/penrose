@@ -127,8 +127,6 @@ VectorSpace U; VectorSpace V {
 Vector v
 with VectorSpace U
 where In(v,U) {
-   --v.endXTest = ?
-   --v.endYTest = ?
    v.containFn = ensure contains(U.shape, v.shape)
    v.containLabel = ensure contains(U.shape, v.text)
    v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 , 30.0)
@@ -145,6 +143,9 @@ where In(v,U) {
     -- endY : v.endYTest / const.scaleRatio
     thickness : 3.0
   }
+
+   v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
+   v.angle = angle(v.vector)
 
   v.layeringText1 = v.text above U.xAxisRight
   v.layeringText2 = v.text above U.xAxisLeft
@@ -320,12 +321,46 @@ where u := scale(c,v); In(u,U); In(v,U){
     c.layeringScale = u.shape above v.shape
 }
 
-Vector u; Vector v
-where Orthogonal(u, v) {
-      LOCAL.angle = 0.0
+/*
+Vector u, Vector v
+where Orthogonal( u, v ) {
+   local.angle = angle( u.vector ) 
+   local.shape = Square {
+       center : (0,0)
+       size : .5
+       stroke-color : Black 
+       fill-color : White
+       transform : Rotate(local.angle) then Translate(u.shape.start)
+   }
 
-      LOCAL.shape = Square {
+   ensure Equals( Dot( u.vector, v.vector ), 0 ) }
+*/
+
+Vector u; Vector v
+with VectorSpace U
+where Orthogonal(u, v); In(u, U); In(v, U) {
+      -- TODO: fix this angle calculation so it works when both vectors are in the second quadrant
+      LOCAL.angle = min(u.angle, v.angle)
+      LOCAL.len = 20.0
+
+      -- Scale by side len. Then translate so default square's corner is at (0,0).
+      -- Then rotate by the vector angle. Then translate to the local origin of the vector space.
+      LOCAL.shape = SquareTransform {
+	  -- TODO: unintuitive behavior; need to set these constants otherwise shape is offscreen
+	  x : 0.0
+	  y : 0.0
+	  side : 1.0
+	  rotation : 0.0
+
+	  transform : andThen(andThen(andThen(scale(LOCAL.len, LOCAL.len), translate(LOCAL.len / 2.0, LOCAL.len / 2.0)), rotate(LOCAL.angle)), translate(U.shape.x, U.shape.y))
+	  color : Colors.none
+	  strokeColor : Colors.black
+	  strokeWidth : 0.1
       }
 
       -- LOCAL.perpFn = ensure equals(dot(u.vector, v.vector), 0.0)
+      LOCAL.perpFn = encourage equal(dot(u.vector, v.vector), 0.0)
+
+      LOCAL.layering1 = v.shape above LOCAL.shape
+      LOCAL.layering2 = u.shape above LOCAL.shape
 }
