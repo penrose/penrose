@@ -17,7 +17,7 @@ interface IProps {
   otherMetadata?: string;
   style?: any;
   data: any;
-  updateData(shapes: any): void;
+  updateData(shapes: any, step?: boolean): void;
 }
 
 class Canvas extends React.Component<IProps> {
@@ -80,8 +80,7 @@ class Canvas extends React.Component<IProps> {
     return {
       ...data,
       varyingState: newVaryingState,
-      transr: { ...data.transr, trMap: updatedTranslation },
-      paramsr: { ...data.paramsr, optStatus: { tag: "NewIter" } }
+      transr: { ...data.transr, trMap: updatedTranslation }
     };
   };
 
@@ -97,13 +96,17 @@ class Canvas extends React.Component<IProps> {
       );
 
       const nonEmpties = await sortedShapes.filter(this.notEmptyLabel);
-
-      await this.props.updateData({ ...this.props.data, shapesr: nonEmpties });
+      const data = await this.propagateUpdate({
+        ...this.props.data,
+        shapesr: nonEmpties
+      });
+      await this.props.updateData(data);
     }
   }
   public dragEvent = async (id: string, dy: number, dx: number) => {
     const updated = await this.propagateUpdate({
       ...this.props.data,
+      paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
       shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
         if (shape.name.contents === id) {
           return [
@@ -118,7 +121,7 @@ class Canvas extends React.Component<IProps> {
         return [name, shape];
       })
     });
-    this.props.updateData(updated);
+    this.props.updateData(updated, true);
   };
 
   public download = async () => {
