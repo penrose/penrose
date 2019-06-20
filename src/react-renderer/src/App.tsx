@@ -2,18 +2,19 @@ import * as React from "react";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
+import { Step } from "./packets";
 
 interface IState {
   data: any;
-  converged: boolean;
+  autostep: boolean;
   layers: ILayer[];
 }
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<any, IState> {
   public readonly state = {
-    data: { converged: false, autostep: false },
-    converged: true,
+    data: {} as any,
+    autostep: false,
     layers: [
       { layer: "polygon", enabled: false },
       { layer: "bbox", enabled: false }
@@ -35,13 +36,28 @@ class App extends React.Component<any, IState> {
       this.canvas.current.downloadPDF();
     }
   };
-  public autoStepToggle = () => {
-    console.log("a");
+  public autoStepToggle = async () => {
+    await this.setState({ autostep: !this.state.autostep });
+    if (this.state.autostep) {
+      this.step();
+    }
   };
+  public componentDidUpdate() {
+    /*console.log(
+      "updated",
+      this.state.data.shapesr.filter(
+        ([_, shape]: [any, any]) => shape.name.contents === "A.shape"
+      )[0][1].x
+    );*/
+  }
   public step = () => {
-    /* this.sendPacket(step()); */
-    this.sendPacket(JSON.stringify({ packetType: "step" }));
-    console.log("");
+    console.log(
+      "stepping",
+      this.state.data.shapesr.filter(
+        ([_, shape]: [any, any]) => shape.name.contents === "A.shape"
+      )[0][1].x
+    );
+    this.sendPacket(JSON.stringify(Step(1, this.state.data)));
   };
   public resample = () => {
     /* this.sendPacket(resample()); */
@@ -57,12 +73,26 @@ class App extends React.Component<any, IState> {
       })
     });
   };
-  public onMessage = (e: MessageEvent) => {
-    console.log(e.data);
+  public converged = () =>
+    this.state.data.paramsr &&
+    this.state.data.paramsr.optStatus.tag === "EPConverged";
+  public initial = () =>
+    this.state.data.paramsr &&
+    this.state.data.paramsr.optStatus.tag === "NewIter";
 
+  public onMessage = async (e: MessageEvent) => {
     const data = JSON.parse(e.data).contents;
+    console.log(
+      "received",
+      data.shapesr.filter(
+        ([_, shape]: [any, any]) => shape.name.contents === "A.shape"
+      )[0][1].x
+    );
+    await this.setState({ data });
 
-    this.setState({ data });
+    if (this.state.autostep && !this.converged()) {
+      this.step();
+    }
   };
 
   public setupSockets = () => {
@@ -73,22 +103,21 @@ class App extends React.Component<any, IState> {
   public async componentDidMount() {
     this.setupSockets();
   }
-  public updateData = (updatedData: any[]) => {
-    this.setState({ data: updatedData });
+  public updateData = async (updatedData: any[]) => {
+    await this.setState({ data: { ...this.state.data, shapesr: updatedData } });
   };
   public render() {
-    const { data, layers } = this.state;
-    const converged = data.converged;
+    const { data, layers, autostep } = this.state;
     return (
       <div className="App">
         <ButtonBar
           downloadPDF={this.downloadPDF}
           downloadSVG={this.downloadSVG}
-          autostep={data.autostep}
+          autostep={autostep}
           step={this.step}
           autoStepToggle={this.autoStepToggle}
           resample={this.resample}
-          converged={converged}
+          converged={this.converged()}
           toggleLayer={this.toggleLayer}
           layers={layers}
           ref={this.buttons}
@@ -96,7 +125,7 @@ class App extends React.Component<any, IState> {
         <Canvas
           data={data}
           updateData={this.updateData}
-          lock={!converged && data.autostep}
+          lock={false}
           layers={layers}
           ref={this.canvas}
         />

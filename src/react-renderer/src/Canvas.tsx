@@ -6,7 +6,7 @@ import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
-import { pickBy } from "lodash";
+import { isEqual } from "lodash";
 
 interface IProps {
   lock: boolean;
@@ -17,16 +17,10 @@ interface IProps {
   otherMetadata?: string;
   style?: any;
   data: any;
-  updateData(instance: any): void;
+  updateData(shapes: any[]): void;
 }
 
-interface IState {
-  shapes: any[];
-  debugData: any;
-}
-
-class Canvas extends React.Component<IProps, IState> {
-  public readonly state = { shapes: [], debugData: [] };
+class Canvas extends React.Component<IProps> {
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
   public sortShapes = (shapes: any[], ordering: string[]) => {
@@ -39,58 +33,34 @@ class Canvas extends React.Component<IProps, IState> {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
-  public onMessage = async (e: MessageEvent) => {
-    const myJSON = JSON.parse(e.data).contents;
-    const { flag, shapes } = myJSON;
-
-    // For final frame
-    if (flag === "final") {
-      Log.info("Fully optimized.");
-    }
-
-    // Compute (or retrieve from memory) label and image dimensions (as well as the rendered DOM elements)
-    const labeledShapes = await collectLabels(shapes);
-    const labeledShapesWithImgs = await loadImages(labeledShapes);
-
-    // For initial frame, send only dimensions to backend (this only sends the Image and Text GPIs)
-    if (flag === "initial") {
-      this.props.updateData(labeledShapesWithImgs);
-    }
-  };
   public async componentDidUpdate(prevProps: IProps) {
-    const shapes = this.props.data.shapesr;
-    const labeledShapes = await collectLabels(shapes);
-    const labeledShapesWithImgs = await loadImages(labeledShapes);
+    if (!isEqual(prevProps.data, this.props.data)) {
+      const shapes = this.props.data.shapesr;
+      const labeledShapes = await collectLabels(shapes);
+      const labeledShapesWithImgs = await loadImages(labeledShapes);
 
-    const sortedShapes = this.sortShapes(
-      labeledShapesWithImgs,
-      this.props.data.shapeOrdering
-    );
+      const sortedShapes = this.sortShapes(
+        labeledShapesWithImgs,
+        this.props.data.shapeOrdering
+      );
 
-    const nonEmpties = sortedShapes.filter(this.notEmptyLabel);
-    if (nonEmpties.length !== this.state.shapes.length) {
-      this.setState({ shapes: nonEmpties });
-    }
-    if (this.props.data.flag === "initial") {
-      this.update(labeledShapesWithImgs);
+      const nonEmpties = sortedShapes.filter(this.notEmptyLabel);
+
+      await this.props.updateData(nonEmpties);
     }
   }
-  // IMPORTANT: componentDidUpdate: if un-rendered labels/images, do that first
-  public update = (updatedShapes: any[]) => {
-    this.props.updateData({
-      ...this.props.data,
-      shapesr: updatedShapes.map(([name, shape]: [string, any]) => [
-        name,
-        pickBy(shape, (k: any) => !k.omit)
-      ])
-    });
-  };
-
   public dragEvent = (id: string, dy: number, dx: number) => {
-    this.update(
-      this.state.shapes.map(([name, shape]: [string, any]) => {
+    this.props.updateData(
+      this.props.data.shapesr.map(([name, shape]: [string, any]) => {
         if (shape.name.contents === id) {
-          return [name, { ...shape }];
+          return [
+            name,
+            {
+              ...shape,
+              x: { ...shape.x, contents: shape.x.contents - dx },
+              y: { ...shape.y, contents: shape.y.contents - dy }
+            }
+          ];
         }
         return [name, shape];
       })
@@ -252,11 +222,12 @@ class Canvas extends React.Component<IProps, IState> {
       data,
       style
     } = this.props;
-    const { shapes } = this.state;
+    const { shapesr } = data;
 
-    if (shapes === []) {
-      return <svg />;
+    if (!shapesr) {
+      return <svg ref={this.svg} />;
     }
+
     return (
       <LockContext.Provider value={lock}>
         <svg
@@ -280,14 +251,14 @@ class Canvas extends React.Component<IProps, IState> {
             {elementMetadata && `${elementMetadata}\n`}
             {otherMetadata && `${otherMetadata}`}
           </desc>
-          {shapes.map(this.renderEntity)}
+          {shapesr.map(this.renderEntity)}
           {layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
             }
             if (enabled) {
-              return this.renderLayer(shapes, data, layerMap[layer], key);
+              return this.renderLayer(shapesr, data, layerMap[layer], key);
             }
             return null;
           })}
