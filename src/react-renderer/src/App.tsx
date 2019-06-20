@@ -42,21 +42,7 @@ class App extends React.Component<any, IState> {
       this.step();
     }
   };
-  public componentDidUpdate() {
-    /*console.log(
-      "updated",
-      this.state.data.shapesr.filter(
-        ([_, shape]: [any, any]) => shape.name.contents === "A.shape"
-      )[0][1].x
-    );*/
-  }
   public step = () => {
-    console.log(
-      "stepping",
-      this.state.data.shapesr.filter(
-        ([_, shape]: [any, any]) => shape.name.contents === "A.shape"
-      )[0][1].x
-    );
     this.sendPacket(JSON.stringify(Step(1, this.state.data)));
   };
   public resample = () => {
@@ -82,12 +68,6 @@ class App extends React.Component<any, IState> {
 
   public onMessage = async (e: MessageEvent) => {
     const data = JSON.parse(e.data).contents;
-    console.log(
-      "received",
-      data.shapesr.filter(
-        ([_, shape]: [any, any]) => shape.name.contents === "A.shape"
-      )[0][1].x
-    );
     await this.setState({ data });
 
     if (this.state.autostep && !this.converged()) {
@@ -103,8 +83,8 @@ class App extends React.Component<any, IState> {
   public async componentDidMount() {
     this.setupSockets();
   }
-  public updateData = async (updatedData: any[]) => {
-    await this.setState({ data: { ...this.state.data, shapesr: updatedData } });
+  public updateData = async (data: any) => {
+    await this.setState({ data });
   };
   public render() {
     const { data, layers, autostep } = this.state;

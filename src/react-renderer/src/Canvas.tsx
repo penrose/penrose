@@ -6,7 +6,7 @@ import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
-import { isEqual } from "lodash";
+import { isEqual, mapValues } from "lodash";
 
 interface IProps {
   lock: boolean;
@@ -17,7 +17,7 @@ interface IProps {
   otherMetadata?: string;
   style?: any;
   data: any;
-  updateData(shapes: any[]): void;
+  updateData(shapes: any): void;
 }
 
 class Canvas extends React.Component<IProps> {
@@ -38,7 +38,38 @@ class Canvas extends React.Component<IProps> {
       const shapes = this.props.data.shapesr;
       const labeledShapes = await collectLabels(shapes);
       const labeledShapesWithImgs = await loadImages(labeledShapes);
-
+      const updatedTranslation = this.props.data.transr.trMap.map(
+        ([fst, tr]: [any, any]) => {
+          return [
+            fst,
+            mapValues(tr, (val: any) => {
+              if (val.tag === "FGPI") {
+                const shapeContent = shapes.filter(
+                  ([__, shape]: [string, any]) => {
+                    return (
+                      shape.name.contents ===
+                      val.contents[1].name.contents.contents
+                    );
+                  }
+                )[0][1];
+                const newVal = { ...val };
+                const updateContents = (key: string) => {
+                  if (key in newVal.contents[1]) {
+                    newVal.contents[1][key].contents.contents =
+                      shapeContent[key].contents;
+                  }
+                };
+                updateContents("w");
+                updateContents("h");
+                updateContents("x");
+                updateContents("y");
+                return newVal;
+              }
+              return val;
+            })
+          ];
+        }
+      );
       const sortedShapes = this.sortShapes(
         labeledShapesWithImgs,
         this.props.data.shapeOrdering
@@ -46,12 +77,17 @@ class Canvas extends React.Component<IProps> {
 
       const nonEmpties = sortedShapes.filter(this.notEmptyLabel);
 
-      await this.props.updateData(nonEmpties);
+      await this.props.updateData({
+        ...this.props.data,
+        shapesr: nonEmpties,
+        transr: { ...this.props.data.transr, trMap: updatedTranslation }
+      });
     }
   }
   public dragEvent = (id: string, dy: number, dx: number) => {
-    this.props.updateData(
-      this.props.data.shapesr.map(([name, shape]: [string, any]) => {
+    this.props.updateData({
+      ...this.props.data,
+      shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
         if (shape.name.contents === id) {
           return [
             name,
@@ -64,7 +100,7 @@ class Canvas extends React.Component<IProps> {
         }
         return [name, shape];
       })
-    );
+    });
   };
 
   public download = async () => {
