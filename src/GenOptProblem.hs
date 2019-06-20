@@ -177,7 +177,7 @@ data State = State { shapesr :: [Shape Double],
                      objFns :: [Fn],
                      constrFns :: [Fn],
                      rng :: StdGen,
-                     autostep :: Bool,
+                     autostep :: Bool, -- TODO: deprecate this
                     --  policyFn :: Policy,
                      policyParams :: PolicyParams,
                      oConfig :: OptConfig }
@@ -1114,13 +1114,12 @@ lessEnergyOn f ((_, vs1, _), _) ((_, vs2, _), _) = compare (f vs1) (f vs2)
 
 -- | Resample the varying state some number of times (sampling each new state from the original state, but with an updated rng).
 -- | Pick the one with the lowest energy and update the original state with the lowest-energy-state's info.
+-- | NOTE: Assumes that n is greater than 1
 resampleBest :: Int -> State -> State
 resampleBest n s =
-          if n < 2 then error "Need to sample at least two states" else
           let optInfo = paramsr s
               -- Take out the relevant information for resampling
               f = evalEnergyOn s
-            --   f       = (overallObjFn optInfo) (rng s) (float2Double $ weight optInfo)
               (varyPaths, shapes, g) = (varyingPaths s, shapesr s, rng s)
               -- Partially apply resampleVState with the params that don't change over a resampling
               resampleVStateConst = resampleVState varyPaths shapes

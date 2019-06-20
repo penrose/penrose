@@ -50,6 +50,18 @@ stepUntilConvergence state
   -- TODO: rewrite runtime error reporting
   | otherwise = stepUntilConvergence $ Optimizer.step state
 
+resample ::
+     State -- ^ the initial state
+  -> Int   -- ^ number of samples to choose from (> 0). If it's 1, no selection will occur 
+  -> Either RuntimeError State -- ^ if the number of samples requested is smaller than 1, return error, else return the resulting state
+resample initState numSamples 
+  | numSamples >= 1 = 
+    let newState = resampleBest numSamples initState
+        (newShapes, _, _) = evalTranslation newState
+    in Right $ newState { shapesr = newShapes }
+  | otherwise = Left $ RuntimeError "At least 1 sample should be requested." 
+
+
 --------------------------------------------------------------------------------
 -- Test
 subFile = "sub/tree.sub"

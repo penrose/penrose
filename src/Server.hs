@@ -109,7 +109,7 @@ instance FromJSON Request
 instance ToJSON Request
 
 processRequests :: Client -> IO ()
-processRequests client@(clientID, conn, s) = do
+processRequests client@(_, conn, _) = do
     putStrLn "Waiting for Commands"
     msg_json <- WS.receiveData conn
     putStrLn $ "Messege received from frontend: \n" ++ show msg_json
