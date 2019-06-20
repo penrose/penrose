@@ -84,7 +84,10 @@ class App extends React.Component<any, IState> {
     this.setupSockets();
   }
   public updateData = async (data: any) => {
-    await this.setState({ data });
+    await this.setState({ data: { ...data } });
+    if (data.paramsr.optStatus.tag === "NewIter") {
+      this.step();
+    }
   };
   public render() {
     const { data, layers, autostep } = this.state;
