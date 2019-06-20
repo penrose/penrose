@@ -1,22 +1,19 @@
 import * as React from "react";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
-import { autoStepToggle, resample, step } from "./packets";
 import { ILayer } from "./types";
 
 interface IState {
-  data: any[];
+  data: any;
   converged: boolean;
-  autostep: boolean;
   layers: ILayer[];
 }
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<any, IState> {
   public readonly state = {
-    data: [],
+    data: { converged: false, autostep: false },
     converged: true,
-    autostep: false,
     layers: [
       { layer: "polygon", enabled: false },
       { layer: "bbox", enabled: false }
@@ -39,14 +36,16 @@ class App extends React.Component<any, IState> {
     }
   };
   public autoStepToggle = () => {
-    this.setState({ autostep: !this.state.autostep });
-    this.sendPacket(autoStepToggle());
+    console.log("a");
   };
   public step = () => {
-    this.sendPacket(step());
+    /* this.sendPacket(step()); */
+    this.sendPacket(JSON.stringify({ packetType: "step" }));
+    console.log("");
   };
   public resample = () => {
-    this.sendPacket(resample());
+    /* this.sendPacket(resample()); */
+    console.log("");
   };
   public toggleLayer = (layerName: string) => {
     this.setState({
@@ -59,16 +58,11 @@ class App extends React.Component<any, IState> {
     });
   };
   public onMessage = (e: MessageEvent) => {
-    const myJSON = JSON.parse(e.data).contents;
-    const flag = myJSON.flag;
+    console.log(e.data);
 
-    // Rough inference of whether the diagram converged
-    const converged = flag === "final" || flag === "initial";
+    const data = JSON.parse(e.data).contents;
 
-    this.setState({ converged });
-    if (this.canvas.current) {
-      this.canvas.current.onMessage(e);
-    }
+    this.setState({ data });
   };
 
   public setupSockets = () => {
@@ -79,28 +73,30 @@ class App extends React.Component<any, IState> {
   public async componentDidMount() {
     this.setupSockets();
   }
+  public updateData = (updatedData: any[]) => {
+    this.setState({ data: updatedData });
+  };
   public render() {
-    const { converged, autostep, layers } = this.state;
-    const { customButtons } = this.props;
+    const { data, layers } = this.state;
+    const converged = data.converged;
     return (
       <div className="App">
-        {!customButtons && (
-          <ButtonBar
-            downloadPDF={this.downloadPDF}
-            downloadSVG={this.downloadSVG}
-            autostep={autostep}
-            step={this.step}
-            autoStepToggle={this.autoStepToggle}
-            resample={this.resample}
-            converged={converged}
-            toggleLayer={this.toggleLayer}
-            layers={layers}
-            ref={this.buttons}
-          />
-        )}
+        <ButtonBar
+          downloadPDF={this.downloadPDF}
+          downloadSVG={this.downloadSVG}
+          autostep={data.autostep}
+          step={this.step}
+          autoStepToggle={this.autoStepToggle}
+          resample={this.resample}
+          converged={converged}
+          toggleLayer={this.toggleLayer}
+          layers={layers}
+          ref={this.buttons}
+        />
         <Canvas
-          sendPacket={this.sendPacket}
-          lock={!converged && autostep}
+          data={data}
+          updateData={this.updateData}
+          lock={!converged && data.autostep}
           layers={layers}
           ref={this.canvas}
         />

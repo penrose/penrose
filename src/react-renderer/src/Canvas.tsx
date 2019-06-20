@@ -4,9 +4,9 @@ import componentMap from "./componentMap";
 import Log from "./Log";
 import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
-import { drag, update } from "./packets";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
+import { pickBy } from "lodash";
 
 interface IProps {
   lock: boolean;
@@ -16,16 +16,17 @@ interface IProps {
   elementMetadata?: string;
   otherMetadata?: string;
   style?: any;
-  sendPacket(packet: string): void;
+  data: any;
+  updateData(instance: any): void;
 }
 
 interface IState {
-  data: any;
+  shapes: any[];
   debugData: any;
 }
 
 class Canvas extends React.Component<IProps, IState> {
-  public readonly state = { data: [], debugData: [] };
+  public readonly state = { shapes: [], debugData: [] };
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
   public sortShapes = (shapes: any[], ordering: string[]) => {
@@ -40,7 +41,7 @@ class Canvas extends React.Component<IProps, IState> {
 
   public onMessage = async (e: MessageEvent) => {
     const myJSON = JSON.parse(e.data).contents;
-    const { flag, shapes, ordering, debugData } = myJSON;
+    const { flag, shapes } = myJSON;
 
     // For final frame
     if (flag === "final") {
@@ -53,22 +54,47 @@ class Canvas extends React.Component<IProps, IState> {
 
     // For initial frame, send only dimensions to backend (this only sends the Image and Text GPIs)
     if (flag === "initial") {
-      this.sendUpdate(labeledShapesWithImgs);
+      this.props.updateData(labeledShapesWithImgs);
     }
+  };
+  public async componentDidUpdate(prevProps: IProps) {
+    const shapes = this.props.data.shapesr;
+    const labeledShapes = await collectLabels(shapes);
+    const labeledShapesWithImgs = await loadImages(labeledShapes);
 
-    this.setState({
-      data: this.sortShapes(labeledShapesWithImgs, ordering),
-      debugData
+    const sortedShapes = this.sortShapes(
+      labeledShapesWithImgs,
+      this.props.data.shapeOrdering
+    );
+
+    const nonEmpties = sortedShapes.filter(this.notEmptyLabel);
+    if (nonEmpties.length !== this.state.shapes.length) {
+      this.setState({ shapes: nonEmpties });
+    }
+    if (this.props.data.flag === "initial") {
+      this.update(labeledShapesWithImgs);
+    }
+  }
+  // IMPORTANT: componentDidUpdate: if un-rendered labels/images, do that first
+  public update = (updatedShapes: any[]) => {
+    this.props.updateData({
+      ...this.props.data,
+      shapesr: updatedShapes.map(([name, shape]: [string, any]) => [
+        name,
+        pickBy(shape, (k: any) => !k.omit)
+      ])
     });
   };
 
   public dragEvent = (id: string, dy: number, dx: number) => {
-    this.props.sendPacket(drag(id, dy, dx));
-  };
-
-  public sendUpdate = (updatedShapes: any[]) => {
-    Log.info("Sending an Update packet to the server...");
-    this.props.sendPacket(update(updatedShapes));
+    this.update(
+      this.state.shapes.map(([name, shape]: [string, any]) => {
+        if (shape.name.contents === id) {
+          return [name, { ...shape }];
+        }
+        return [name, shape];
+      })
+    );
   };
 
   public download = async () => {
@@ -223,16 +249,14 @@ class Canvas extends React.Component<IProps, IState> {
       styleMetadata,
       elementMetadata,
       otherMetadata,
+      data,
       style
     } = this.props;
-    const { data, debugData } = this.state;
+    const { shapes } = this.state;
 
-    if (data.length === undefined) {
+    if (shapes === []) {
       return <svg />;
     }
-
-    const nonEmpties = data.filter(this.notEmptyLabel);
-
     return (
       <LockContext.Provider value={lock}>
         <svg
@@ -256,19 +280,14 @@ class Canvas extends React.Component<IProps, IState> {
             {elementMetadata && `${elementMetadata}\n`}
             {otherMetadata && `${otherMetadata}`}
           </desc>
-          {nonEmpties.map(this.renderEntity)}
+          {shapes.map(this.renderEntity)}
           {layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
             }
             if (enabled) {
-              return this.renderLayer(
-                nonEmpties,
-                debugData,
-                layerMap[layer],
-                key
-              );
+              return this.renderLayer(shapes, data, layerMap[layer], key);
             }
             return null;
           })}
