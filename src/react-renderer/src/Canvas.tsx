@@ -4,9 +4,9 @@ import componentMap from "./componentMap";
 import Log from "./Log";
 import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
-import { drag, update } from "./packets";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
+import { isEqual, mapValues } from "lodash";
 
 interface IProps {
   lock: boolean;
@@ -16,16 +16,11 @@ interface IProps {
   elementMetadata?: string;
   otherMetadata?: string;
   style?: any;
-  sendPacket(packet: string): void;
-}
-
-interface IState {
   data: any;
-  debugData: any;
+  updateData(shapes: any): void;
 }
 
-class Canvas extends React.Component<IProps, IState> {
-  public readonly state = { data: [], debugData: [] };
+class Canvas extends React.Component<IProps> {
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
   public sortShapes = (shapes: any[], ordering: string[]) => {
@@ -38,37 +33,74 @@ class Canvas extends React.Component<IProps, IState> {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
-  public onMessage = async (e: MessageEvent) => {
-    const myJSON = JSON.parse(e.data).contents;
-    const { flag, shapes, ordering, debugData } = myJSON;
+  public async componentDidUpdate(prevProps: IProps) {
+    if (!isEqual(prevProps.data, this.props.data)) {
+      const shapes = this.props.data.shapesr;
+      const labeledShapes = await collectLabels(shapes);
+      const labeledShapesWithImgs = await loadImages(labeledShapes);
+      const updatedTranslation = this.props.data.transr.trMap.map(
+        ([fst, tr]: [any, any]) => {
+          return [
+            fst,
+            mapValues(tr, (val: any) => {
+              if (val.tag === "FGPI") {
+                const shapeContent = shapes.filter(
+                  ([__, shape]: [string, any]) => {
+                    return (
+                      shape.name.contents ===
+                      val.contents[1].name.contents.contents
+                    );
+                  }
+                )[0][1];
+                const newVal = { ...val };
+                const updateContents = (key: string) => {
+                  if (key in newVal.contents[1]) {
+                    newVal.contents[1][key].contents.contents =
+                      shapeContent[key].contents;
+                  }
+                };
+                updateContents("w");
+                updateContents("h");
+                updateContents("x");
+                updateContents("y");
+                return newVal;
+              }
+              return val;
+            })
+          ];
+        }
+      );
+      const sortedShapes = this.sortShapes(
+        labeledShapesWithImgs,
+        this.props.data.shapeOrdering
+      );
 
-    // For final frame
-    if (flag === "final") {
-      Log.info("Fully optimized.");
+      const nonEmpties = sortedShapes.filter(this.notEmptyLabel);
+
+      await this.props.updateData({
+        ...this.props.data,
+        shapesr: nonEmpties,
+        transr: { ...this.props.data.transr, trMap: updatedTranslation }
+      });
     }
-
-    // Compute (or retrieve from memory) label and image dimensions (as well as the rendered DOM elements)
-    const labeledShapes = await collectLabels(shapes);
-    const labeledShapesWithImgs = await loadImages(labeledShapes);
-
-    // For initial frame, send only dimensions to backend (this only sends the Image and Text GPIs)
-    if (flag === "initial") {
-      this.sendUpdate(labeledShapesWithImgs);
-    }
-
-    this.setState({
-      data: this.sortShapes(labeledShapesWithImgs, ordering),
-      debugData
-    });
-  };
-
+  }
   public dragEvent = (id: string, dy: number, dx: number) => {
-    this.props.sendPacket(drag(id, dy, dx));
-  };
-
-  public sendUpdate = (updatedShapes: any[]) => {
-    Log.info("Sending an Update packet to the server...");
-    this.props.sendPacket(update(updatedShapes));
+    this.props.updateData({
+      ...this.props.data,
+      shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
+        if (shape.name.contents === id) {
+          return [
+            name,
+            {
+              ...shape,
+              x: { ...shape.x, contents: shape.x.contents - dx },
+              y: { ...shape.y, contents: shape.y.contents - dy }
+            }
+          ];
+        }
+        return [name, shape];
+      })
+    });
   };
 
   public download = async () => {
@@ -223,15 +255,14 @@ class Canvas extends React.Component<IProps, IState> {
       styleMetadata,
       elementMetadata,
       otherMetadata,
+      data,
       style
     } = this.props;
-    const { data, debugData } = this.state;
+    const { shapesr } = data;
 
-    if (data.length === undefined) {
-      return <svg />;
+    if (!shapesr) {
+      return <svg ref={this.svg} />;
     }
-
-    const nonEmpties = data.filter(this.notEmptyLabel);
 
     return (
       <LockContext.Provider value={lock}>
@@ -256,19 +287,14 @@ class Canvas extends React.Component<IProps, IState> {
             {elementMetadata && `${elementMetadata}\n`}
             {otherMetadata && `${otherMetadata}`}
           </desc>
-          {nonEmpties.map(this.renderEntity)}
+          {shapesr.map(this.renderEntity)}
           {layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
             }
             if (enabled) {
-              return this.renderLayer(
-                nonEmpties,
-                debugData,
-                layerMap[layer],
-                key
-              );
+              return this.renderLayer(shapesr, data, layerMap[layer], key);
             }
             return null;
           })}
