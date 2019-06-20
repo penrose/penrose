@@ -5,7 +5,7 @@ Set B
 -- Set C
 -- Set D
 
-IsSubset(A,B)
+-- IsSubset(A,B)
 --Intersect(C,B)
 
 AutoLabel All

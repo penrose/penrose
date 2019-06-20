@@ -32,60 +32,77 @@ class Canvas extends React.Component<IProps> {
   public notEmptyLabel = ([name, shape]: [string, any]) => {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
+  public propagateUpdate = async (data: any) => {
+    const updatedTranslation = await data.transr.trMap.map(
+      ([fst, tr]: [any, any]) => {
+        return [
+          fst,
+          mapValues(tr, (val: any) => {
+            if (val.tag === "FGPI") {
+              const shapeContent = data.shapesr.filter(
+                ([__, shape]: [string, any]) => {
+                  return (
+                    shape.name.contents ===
+                    val.contents[1].name.contents.contents
+                  );
+                }
+              )[0][1];
+              const newVal = { ...val };
+              const updateContents = (key: string) => {
+                if (key in newVal.contents[1]) {
+                  newVal.contents[1][key].contents.contents =
+                    shapeContent[key].contents;
+                }
+              };
+              updateContents("w");
+              updateContents("h");
+              updateContents("x");
+              updateContents("y");
+              return newVal;
+            }
+            return val;
+          })
+        ];
+      }
+    );
+    const newVaryingState = [...data.varyingState];
+    await data.varyingPaths.forEach((path: any, index: number) => {
+      updatedTranslation.forEach(([fst, snd]: [any, any], trIndex: number) => {
+        if (fst.contents === path.contents[0].contents) {
+          newVaryingState[index] =
+            snd[path.contents[1]].contents[1][
+              path.contents[2]
+            ].contents.contents;
+          updatedTranslation[trIndex][1] = snd;
+        }
+      });
+    });
+    return {
+      ...data,
+      varyingState: newVaryingState,
+      transr: { ...data.transr, trMap: updatedTranslation },
+      paramsr: { ...data.paramsr, optStatus: { tag: "NewIter" } }
+    };
+  };
 
   public async componentDidUpdate(prevProps: IProps) {
     if (!isEqual(prevProps.data, this.props.data)) {
       const shapes = this.props.data.shapesr;
       const labeledShapes = await collectLabels(shapes);
       const labeledShapesWithImgs = await loadImages(labeledShapes);
-      const updatedTranslation = this.props.data.transr.trMap.map(
-        ([fst, tr]: [any, any]) => {
-          return [
-            fst,
-            mapValues(tr, (val: any) => {
-              if (val.tag === "FGPI") {
-                const shapeContent = shapes.filter(
-                  ([__, shape]: [string, any]) => {
-                    return (
-                      shape.name.contents ===
-                      val.contents[1].name.contents.contents
-                    );
-                  }
-                )[0][1];
-                const newVal = { ...val };
-                const updateContents = (key: string) => {
-                  if (key in newVal.contents[1]) {
-                    newVal.contents[1][key].contents.contents =
-                      shapeContent[key].contents;
-                  }
-                };
-                updateContents("w");
-                updateContents("h");
-                updateContents("x");
-                updateContents("y");
-                return newVal;
-              }
-              return val;
-            })
-          ];
-        }
-      );
-      const sortedShapes = this.sortShapes(
+
+      const sortedShapes = await this.sortShapes(
         labeledShapesWithImgs,
         this.props.data.shapeOrdering
       );
 
-      const nonEmpties = sortedShapes.filter(this.notEmptyLabel);
+      const nonEmpties = await sortedShapes.filter(this.notEmptyLabel);
 
-      await this.props.updateData({
-        ...this.props.data,
-        shapesr: nonEmpties,
-        transr: { ...this.props.data.transr, trMap: updatedTranslation }
-      });
+      await this.props.updateData({ ...this.props.data, shapesr: nonEmpties });
     }
   }
-  public dragEvent = (id: string, dy: number, dx: number) => {
-    this.props.updateData({
+  public dragEvent = async (id: string, dy: number, dx: number) => {
+    const updated = await this.propagateUpdate({
       ...this.props.data,
       shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
         if (shape.name.contents === id) {
@@ -101,6 +118,7 @@ class Canvas extends React.Component<IProps> {
         return [name, shape];
       })
     });
+    this.props.updateData(updated);
   };
 
   public download = async () => {
