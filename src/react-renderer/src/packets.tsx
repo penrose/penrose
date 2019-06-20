@@ -8,6 +8,11 @@ export const Step = (steps: number, data: any) => ({
   contents: [steps, transformValidJSON(data)]
 });
 
+export const Resample = (samples: number, data: any) => ({
+  tag: "Resample",
+  contents: [samples, transformValidJSON(data)]
+});
+
 export const transformValidJSON = (data: any) => ({
   ...data,
   shapesr: data.shapesr.map(([name, shape]: [string, any]) => [
