@@ -102,6 +102,7 @@ type BackendState = GenOptProblem.State
 
 data Request
     = Step Int State
+    | Resample Int State
     | StepUntilConvergence State
     | CompileTrio String String String
     deriving Generic
@@ -115,6 +116,7 @@ processRequests client@(_, conn, _) = do
     putStrLn $ "Messege received from frontend: \n" ++ show msg_json
     case decode msg_json of
         Just e -> case e of
+            Resample samples s -> withError $ Interface.resample s samples
             Step steps s -> withError $ Interface.step s steps
             StepUntilConvergence s -> withError $ Interface.stepUntilConvergence s
             CompileTrio sub sty elm -> withError $ Interface.compileTrio sub sty elm

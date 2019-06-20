@@ -2,7 +2,7 @@ import * as React from "react";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
-import { Step } from "./packets";
+import { Step, Resample } from "./packets";
 
 interface IState {
   data: any;
@@ -46,8 +46,7 @@ class App extends React.Component<any, IState> {
     this.sendPacket(JSON.stringify(Step(1, this.state.data)));
   };
   public resample = () => {
-    /* this.sendPacket(resample()); */
-    console.log("");
+    this.sendPacket(JSON.stringify(Resample(50, this.state.data)));
   };
   public toggleLayer = (layerName: string) => {
     this.setState({
