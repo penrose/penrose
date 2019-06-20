@@ -286,6 +286,8 @@ renderer (Renderer s) pending = do
     WS.forkPingThread conn 30 -- To keep the connection alive
     clientID <- newUUID
     let client = (clientID, conn, Stateless)
+    -- send the initial state to the frontend renderer first
+    wsSendPacket conn Packet { typ = "state", contents = s }
     processRequests client
 
 -- COMBAK: remove this old renderer code
