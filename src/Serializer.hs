@@ -16,7 +16,6 @@ import qualified Numeric.LinearAlgebra as L
 import           System.Random         (StdGen)
 import           Text.Megaparsec
 
-
 instance ToJSONKey Name
 instance FromJSONKey Name
 instance ToJSONKey TypeVar
