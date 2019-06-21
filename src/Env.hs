@@ -472,21 +472,21 @@ data ExprNotationRule = ExprNotationRule {fromEnr          :: String,
                                           precedenceEnr    :: Integer}
                   deriving (Show, Eq, Typeable)
 
-data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
-                       valConstructors  :: M.Map String ValConstructor,
-                       operators        :: M.Map String Env.Operator,
-                       predicates       :: M.Map String PredicateEnv,
-                       typeVarMap       :: M.Map TypeVar Type,
-                       typeValConstructor :: M.Map T ValConstructor,
-                       varMap           :: M.Map Var T,
-                       preludes        :: [(Var,T)],
-                       subTypes         :: [(T,T)],
-                       typeCtorNames    :: [String],  -- a global list which contains all the names of types in that env
-                       declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
-                       stmtNotations    :: [StmtNotationRule], -- all the statement notations in the dsll
-                       errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
-              deriving (Show, Eq, Typeable)
-
+data VarEnv = VarEnv
+  { typeConstructors   :: M.Map String TypeConstructor
+  , valConstructors    :: M.Map String ValConstructor
+  , operators          :: M.Map String Env.Operator
+  , predicates         :: M.Map String PredicateEnv
+  , typeVarMap         :: M.Map TypeVar Type
+  , typeValConstructor :: M.Map T ValConstructor
+  , varMap             :: M.Map Var T
+  , preludes           :: [(Var, T)]
+  , subTypes           :: [(T, T)]
+  , typeCtorNames      :: [String] -- a global list which contains all the names of types in that env
+  , declaredNames      :: [String] -- a global list which contains all the names of elements declared in that env
+  , stmtNotations      :: [StmtNotationRule] -- all the statement notations in the dsll
+  , errors             :: String -- a string which accumulates all the errors founded during the run of the typechecker
+  } deriving (Show, Eq, Typeable)
 
 isDeclared :: String -> VarEnv -> Bool
 isDeclared name varEnv = name `elem` typeCtorNames varEnv
