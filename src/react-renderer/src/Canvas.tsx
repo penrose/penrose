@@ -17,7 +17,7 @@ interface IProps {
   otherMetadata?: string;
   style?: any;
   data: any;
-  updateData(shapes: any): void;
+  updateData(shapes: any, step?: boolean): void;
 }
 
 class Canvas extends React.Component<IProps> {
@@ -32,56 +32,75 @@ class Canvas extends React.Component<IProps> {
   public notEmptyLabel = ([name, shape]: [string, any]) => {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
+  // HACK: this is a total hack, we want to restructure
+  // data structures in the backend so that we don't need this
   public propagateUpdate = async (data: any) => {
     const updatedTranslation = await data.transr.trMap.map(
-      ([fst, tr]: [any, any]) => {
+      ([subName, fieldDict]: [any, any]) => {
         return [
-          fst,
-          mapValues(tr, (val: any) => {
-            if (val.tag === "FGPI") {
+          subName,
+          mapValues(fieldDict, (field: any) => {
+            if (field.tag === "FGPI") {
               const shapeContent = data.shapesr.filter(
                 ([__, shape]: [string, any]) => {
                   return (
                     shape.name.contents ===
-                    val.contents[1].name.contents.contents
+                    field.contents[1].name.contents.contents
                   );
                 }
               )[0][1];
-              const newVal = { ...val };
-              const updateContents = (key: string) => {
-                if (key in newVal.contents[1]) {
-                  newVal.contents[1][key].contents.contents =
-                    shapeContent[key].contents;
+              const updatedField = { ...field };
+              const updateProperty = (propertyName: string) => {
+                const propertyDict = updatedField.contents[1];
+                // find if the property exists in the propertyDict
+                if (
+                  propertyName in propertyDict &&
+                  propertyDict[propertyName].tag === "Done"
+                ) {
+                  // HACK: this is assuming the property is `Done`. What if it's not?
+                  propertyDict[propertyName].contents.contents =
+                    shapeContent[propertyName].contents;
                 }
               };
-              updateContents("w");
-              updateContents("h");
-              updateContents("x");
-              updateContents("y");
-              return newVal;
+              updateProperty("w");
+              updateProperty("h");
+              // TODO: Drag events do not just update x and y. Factor this out
+              updateProperty("x");
+              updateProperty("y");
+              return updatedField;
             }
-            return val;
+            return field;
           })
         ];
       }
     );
     const newVaryingState = [...data.varyingState];
     await data.varyingPaths.forEach((path: any, index: number) => {
-      updatedTranslation.forEach(([fst, snd]: [any, any], trIndex: number) => {
-        if (fst.contents === path.contents[0].contents) {
-          newVaryingState[index] =
-            snd[path.contents[1]].contents[1][
-              path.contents[2]
-            ].contents.contents;
-          updatedTranslation[trIndex][1] = snd;
+      const [subName, fieldName, propertyName] = [
+        path.contents[0].contents,
+        path.contents[1],
+        path.contents[2]
+      ];
+      updatedTranslation.forEach(
+        ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
+          // HACK: We are only updating properties of GPIs, __not__ optimized fields
+          if (
+            subVar.contents === subName &&
+            fieldDict[fieldName].tag === "FGPI"
+          ) {
+            const propertyDict = fieldDict[fieldName].contents[1];
+            // HACK: this is assuming the property is `Done`. What if it's not?
+            newVaryingState[index] =
+              propertyDict[propertyName].contents.contents;
+            updatedTranslation[fieldIndex][1] = fieldDict;
+          }
         }
-      });
+      );
     });
     return {
       ...data,
       varyingState: newVaryingState,
-      transr: { ...data.transr, trMap: updatedTranslation },
-      paramsr: { ...data.paramsr, optStatus: { tag: "NewIter" } }
+      transr: { ...data.transr, trMap: updatedTranslation }
     };
   };
 
@@ -97,13 +116,17 @@ class Canvas extends React.Component<IProps> {
       );
 
       const nonEmpties = await sortedShapes.filter(this.notEmptyLabel);
-
-      await this.props.updateData({ ...this.props.data, shapesr: nonEmpties });
+      const data = await this.propagateUpdate({
+        ...this.props.data,
+        shapesr: nonEmpties
+      });
+      await this.props.updateData(data);
     }
   }
   public dragEvent = async (id: string, dy: number, dx: number) => {
     const updated = await this.propagateUpdate({
       ...this.props.data,
+      paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
       shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
         if (shape.name.contents === id) {
           return [
@@ -118,7 +141,7 @@ class Canvas extends React.Component<IProps> {
         return [name, shape];
       })
     });
-    this.props.updateData(updated);
+    this.props.updateData(updated, true);
   };
 
   public download = async () => {

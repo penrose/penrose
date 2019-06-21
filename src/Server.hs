@@ -112,13 +112,14 @@ processRequests :: Client -> IO ()
 processRequests client@(_, conn, _) = do
     putStrLn "Waiting for Commands"
     msg_json <- WS.receiveData conn
-    putStrLn $ "Messege received from frontend: \n" ++ show msg_json
+    -- putStrLn $ "Messege received from frontend: \n" ++ show msg_json
     case decode msg_json of
         Just e -> case e of
             Step steps s -> sendSafe "state" $ Interface.step s steps
             StepUntilConvergence s -> sendSafe "state" $ Interface.stepUntilConvergence s
             CompileTrio sub sty elm -> sendSafe "compilerOutput" $ Interface.compileTrio sub sty elm
         Nothing -> logError client "Error reading JSON"
+    putStrLn $ "Messege received and decoded successfully." 
     processRequests client
     where 
         sendSafe :: (ToJSON a, ToJSON b) => String -> Either a b -> IO ()

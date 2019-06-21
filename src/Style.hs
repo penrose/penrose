@@ -1083,20 +1083,12 @@ checkBlock :: SelEnv -> Block -> [Error]
 checkBlock selEnv block = []
 
 ----- Type definitions
-
-newtype SField = Field' String
-    deriving (Show, Eq, Typeable)
-
-newtype SProperty = Prop' String
-    deriving (Show, Eq, Typeable)
-
 type GPICtor = String
 
 data TagExpr a = OptEval Expr      -- Thunk evaluated at each step of optimization-time
                | Done (Value a)    -- A value in the host language, fully evaluated
     deriving (Show, Eq, Typeable)
 
--- Should we use the Property/Field newtypes?
 type PropertyDict a = M.Map Property (TagExpr a)
 type FieldDict a = M.Map Field (FieldExpr a)
 

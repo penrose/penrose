@@ -46,7 +46,7 @@ class App extends React.Component<any, IState> {
     this.sendPacket(JSON.stringify(Step(1, this.state.data)));
   };
   public resample = () => {
-    this.sendPacket(JSON.stringify(Resample(50, this.state.data)));
+    this.sendPacket(JSON.stringify(Resample(150, this.state.data)));
   };
   public toggleLayer = (layerName: string) => {
     this.setState({
@@ -82,9 +82,9 @@ class App extends React.Component<any, IState> {
   public async componentDidMount() {
     this.setupSockets();
   }
-  public updateData = async (data: any) => {
+  public updateData = async (data: any, step?: boolean) => {
     await this.setState({ data: { ...data } });
-    if (data.paramsr.optStatus.tag === "NewIter") {
+    if (step) {
       this.step();
     }
   };
