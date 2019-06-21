@@ -277,9 +277,17 @@ editor, renderer :: ClientState -> WS.ServerApp
 editor clientState@(Editor elementEnv _ _) pending = do
     conn <- WS.acceptRequest pending
     clientID <- newUUID
-    let client = (clientID, conn, clientState)
+    let client = (clientID, conn, Stateless)
     WS.forkPingThread conn 30 -- To keep the connection alive
-    waitSubstance client
+    processRequests client
+
+-- COMBAK: remove this old editor code
+-- editor clientState@(Editor elementEnv _ _) pending = do
+--     conn <- WS.acceptRequest pending
+--     clientID <- newUUID
+--     let client = (clientID, conn, clientState)
+--     WS.forkPingThread conn 30 -- To keep the connection alive
+--     waitSubstance client
 
 renderer (Renderer s) pending = do
     conn <- WS.acceptRequest pending
