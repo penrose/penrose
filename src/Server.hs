@@ -102,6 +102,7 @@ type BackendState = GenOptProblem.State
 
 data Request
     = Step Int State
+    | Resample Int State
     | StepUntilConvergence State
     | CompileTrio String String String
     deriving Generic
@@ -116,6 +117,7 @@ processRequests client@(_, conn, _) = do
     case decode msg_json of
         Just e -> case e of
             Step steps s -> sendSafe "state" $ Interface.step s steps
+            Resample samples s -> sendSafe "state" $ Interface.resample s samples
             StepUntilConvergence s -> sendSafe "state" $ Interface.stepUntilConvergence s
             CompileTrio sub sty elm -> sendSafe "compilerOutput" $ Interface.compileTrio sub sty elm
         Nothing -> logError client "Error reading JSON"
