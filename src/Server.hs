@@ -102,7 +102,6 @@ type BackendState = GenOptProblem.State
 
 data Request
     = Step Int State
-    | Resample Int State
     | StepUntilConvergence State
     | CompileTrio String String String
     deriving Generic
@@ -116,16 +115,15 @@ processRequests client@(_, conn, _) = do
     putStrLn $ "Messege received from frontend: \n" ++ show msg_json
     case decode msg_json of
         Just e -> case e of
-            Resample samples s -> withError $ Interface.resample s samples
-            Step steps s -> withError $ Interface.step s steps
-            StepUntilConvergence s -> withError $ Interface.stepUntilConvergence s
-            CompileTrio sub sty elm -> withError $ Interface.compileTrio sub sty elm
+            Step steps s -> sendSafe "state" $ Interface.step s steps
+            StepUntilConvergence s -> sendSafe "state" $ Interface.stepUntilConvergence s
+            CompileTrio sub sty elm -> sendSafe "compilerOutput" $ Interface.compileTrio sub sty elm
         Nothing -> logError client "Error reading JSON"
     processRequests client
     where 
-        withError :: ToJSON a => Either a State -> IO ()
-        withError res = case res of 
-            Right state -> wsSendPacket conn Packet { typ = "state", contents = state }
+        sendSafe :: (ToJSON a, ToJSON b) => String -> Either a b -> IO ()
+        sendSafe flag res = case res of 
+            Right state -> wsSendPacket conn Packet { typ = flag, contents = state }
             Left  error -> wsSendPacket conn Packet { typ = "error", contents = error }
 
 --------------------------------------------------------------------------------
