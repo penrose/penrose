@@ -6,7 +6,7 @@ import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
-import { isEqual, mapValues } from "lodash";
+import { mapValues } from "lodash";
 
 interface IProps {
   lock: boolean;
@@ -21,20 +21,18 @@ interface IProps {
 }
 
 class Canvas extends React.Component<IProps> {
-  public readonly canvasSize: [number, number] = [800, 700];
-  public readonly svg = React.createRef<SVGSVGElement>();
-  public sortShapes = (shapes: any[], ordering: string[]) => {
+  public static sortShapes = (shapes: any[], ordering: string[]) => {
     return ordering.map(name =>
       shapes.find(([_, shape]) => shape.name.contents === name)
     ); // assumes that all names are unique
   };
 
-  public notEmptyLabel = ([name, shape]: [string, any]) => {
+  public static notEmptyLabel = ([name, shape]: [string, any]) => {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
   // HACK: this is a total hack, we want to restructure
   // data structures in the backend so that we don't need this
-  public propagateUpdate = async (data: any) => {
+  public static propagateUpdate = async (data: any) => {
     const updatedTranslation = await data.transr.trMap.map(
       ([subName, fieldDict]: [any, any]) => {
         return [
@@ -74,7 +72,15 @@ class Canvas extends React.Component<IProps> {
         ];
       }
     );
+
+    return {
+      ...data,
+      transr: { ...data.transr, trMap: updatedTranslation }
+    };
+  };
+  public static updateVaryingState = async (data: any) => {
     const newVaryingState = [...data.varyingState];
+    const updatedTranslation = [...data.transr.trMap];
     await data.varyingPaths.forEach((path: any, index: number) => {
       const [subName, fieldName, propertyName] = [
         path.contents[0].contents,
@@ -92,6 +98,7 @@ class Canvas extends React.Component<IProps> {
             // HACK: this is assuming the property is `Done`. What if it's not?
             newVaryingState[index] =
               propertyDict[propertyName].contents.contents;
+            // HACK: Not sure why this is here, must be some sort of mutation issue
             updatedTranslation[fieldIndex][1] = fieldDict;
           }
         }
@@ -103,28 +110,28 @@ class Canvas extends React.Component<IProps> {
       transr: { ...data.transr, trMap: updatedTranslation }
     };
   };
+  public static processData = async (data: any) => {
+    const shapes = data.shapesr;
+    const labeledShapes = await collectLabels(shapes);
+    const labeledShapesWithImgs = await loadImages(labeledShapes);
 
-  public async componentDidUpdate(prevProps: IProps) {
-    if (!isEqual(prevProps.data, this.props.data)) {
-      const shapes = this.props.data.shapesr;
-      const labeledShapes = await collectLabels(shapes);
-      const labeledShapesWithImgs = await loadImages(labeledShapes);
+    const sortedShapes = await Canvas.sortShapes(
+      labeledShapesWithImgs,
+      data.shapeOrdering
+    );
 
-      const sortedShapes = await this.sortShapes(
-        labeledShapesWithImgs,
-        this.props.data.shapeOrdering
-      );
+    const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
+    const processed = await Canvas.propagateUpdate({
+      ...data,
+      shapesr: nonEmpties
+    });
+    return processed;
+  };
+  public readonly canvasSize: [number, number] = [800, 700];
+  public readonly svg = React.createRef<SVGSVGElement>();
 
-      const nonEmpties = await sortedShapes.filter(this.notEmptyLabel);
-      const data = await this.propagateUpdate({
-        ...this.props.data,
-        shapesr: nonEmpties
-      });
-      await this.props.updateData(data);
-    }
-  }
   public dragEvent = async (id: string, dy: number, dx: number) => {
-    const updated = await this.propagateUpdate({
+    const updated = await Canvas.propagateUpdate({
       ...this.props.data,
       paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
       shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
@@ -141,10 +148,11 @@ class Canvas extends React.Component<IProps> {
         return [name, shape];
       })
     });
-    this.props.updateData(updated, true);
+    const updatedWithVaryingState = await Canvas.updateVaryingState(updated);
+    this.props.updateData(updatedWithVaryingState);
   };
 
-  public download = async () => {
+  public prepareSVGContent = async () => {
     const domnode = ReactDOM.findDOMNode(this);
     if (domnode !== null && domnode instanceof Element) {
       const exportingNode = domnode.cloneNode(true) as any;
@@ -208,7 +216,7 @@ class Canvas extends React.Component<IProps> {
   };
 
   public downloadSVG = async (title = "illustration") => {
-    const content = await this.download();
+    const content = await this.prepareSVGContent();
     const blob = new Blob([content], {
       type: "image/svg+xml;charset=utf-8"
     });
@@ -222,7 +230,7 @@ class Canvas extends React.Component<IProps> {
   };
 
   public downloadPDF = async () => {
-    const content = await this.download();
+    const content = await this.prepareSVGContent();
     const frame = document.createElement("iframe");
     document.body.appendChild(frame);
     const pri = frame.contentWindow;

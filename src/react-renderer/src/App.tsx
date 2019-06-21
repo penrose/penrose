@@ -3,11 +3,13 @@ import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
 import { Step, Resample } from "./packets";
+import { isEqual } from "lodash";
 
 interface IState {
   data: any;
   autostep: boolean;
   layers: ILayer[];
+  processedInitial: boolean;
 }
 const socketAddress = "ws://localhost:9160";
 
@@ -15,6 +17,7 @@ class App extends React.Component<any, IState> {
   public readonly state = {
     data: {} as any,
     autostep: false,
+    processedInitial: false,
     layers: [
       { layer: "polygon", enabled: false },
       { layer: "bbox", enabled: false }
@@ -38,14 +41,15 @@ class App extends React.Component<any, IState> {
   };
   public autoStepToggle = async () => {
     await this.setState({ autostep: !this.state.autostep });
-    if (this.state.autostep) {
+    if (this.state.autostep && this.state.processedInitial) {
       this.step();
     }
   };
   public step = () => {
     this.sendPacket(JSON.stringify(Step(1, this.state.data)));
   };
-  public resample = () => {
+  public resample = async () => {
+    await this.setState({ processedInitial: false });
     this.sendPacket(JSON.stringify(Resample(150, this.state.data)));
   };
   public toggleLayer = (layerName: string) => {
@@ -66,11 +70,14 @@ class App extends React.Component<any, IState> {
     this.state.data.paramsr.optStatus.tag === "NewIter";
 
   public onMessage = async (e: MessageEvent) => {
+    const { autostep } = this.state;
     const data = JSON.parse(e.data).contents;
-    await this.setState({ data });
-
-    if (this.state.autostep && !this.converged()) {
-      this.step();
+    if (!isEqual(data, this.state.data)) {
+      const processedData = await Canvas.processData(data);
+      await this.setState({ data: processedData, processedInitial: true });
+      if (autostep && !this.converged()) {
+        await this.step();
+      }
     }
   };
 
@@ -82,9 +89,9 @@ class App extends React.Component<any, IState> {
   public async componentDidMount() {
     this.setupSockets();
   }
-  public updateData = async (data: any, step?: boolean) => {
+  public updateData = async (data: any) => {
     await this.setState({ data: { ...data } });
-    if (step) {
+    if (this.state.autostep) {
       this.step();
     }
   };
@@ -100,6 +107,7 @@ class App extends React.Component<any, IState> {
           autoStepToggle={this.autoStepToggle}
           resample={this.resample}
           converged={this.converged()}
+          initial={this.initial()}
           toggleLayer={this.toggleLayer}
           layers={layers}
           ref={this.buttons}
