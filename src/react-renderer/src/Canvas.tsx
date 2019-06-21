@@ -32,6 +32,8 @@ class Canvas extends React.Component<IProps> {
   public notEmptyLabel = ([name, shape]: [string, any]) => {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
+  // HACK: this is a total hack, we want to restructure
+  // data structures in the backend so that we don't need this
   public propagateUpdate = async (data: any) => {
     const updatedTranslation = await data.transr.trMap.map(
       ([fst, tr]: [any, any]) => {
