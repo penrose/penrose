@@ -3,7 +3,6 @@ import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
 import { Step, Resample } from "./packets";
-import { isEqual } from "lodash";
 
 interface IState {
   data: any;
@@ -70,14 +69,12 @@ class App extends React.Component<any, IState> {
     this.state.data.paramsr.optStatus.tag === "NewIter";
 
   public onMessage = async (e: MessageEvent) => {
-    const { autostep } = this.state;
     const data = JSON.parse(e.data).contents;
-    if (!isEqual(data, this.state.data)) {
-      const processedData = await Canvas.processData(data);
-      await this.setState({ data: processedData, processedInitial: true });
-      if (autostep && !this.converged()) {
-        await this.step();
-      }
+    const processedData = await Canvas.processData(data);
+    await this.setState({ data: processedData, processedInitial: true });
+    const { autostep } = this.state;
+    if (autostep && !this.converged()) {
+      await this.step();
     }
   };
 

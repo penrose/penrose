@@ -13,6 +13,15 @@ export const Resample = (samples: number, data: any) => ({
   contents: [samples, transformValidJSON(data)]
 });
 
+export const CompileTrio = (
+  substance: string,
+  style: string,
+  element: string
+) => ({
+  tag: "CompileTrio",
+  contents: [substance, style, element]
+});
+
 export const transformValidJSON = (data: any) => ({
   ...data,
   shapesr: data.shapesr.map(([name, shape]: [string, any]) => [

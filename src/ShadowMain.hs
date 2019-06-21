@@ -86,7 +86,7 @@ penroseEditor styFile elementFile domain port = do
   putStrLn "Style AST:\n"
   pPrint styProg
   divLine
-  Server.servePenrose elementEnv styProg domain port
+  Server.serveEditor domain port elementEnv styProg
 
 penroseRenderer ::
      String -> String -> String -> String -> String -> Int -> IO ()
