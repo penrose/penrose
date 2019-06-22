@@ -1,5 +1,6 @@
 module Plugins where
 
+import           Control.Exception          (ErrorCall, try)
 import           Data.Aeson                 (decode)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Map.Strict            as M
@@ -29,7 +30,10 @@ runPlugin subOut stySrc elementEnv
   case instantiations of
     [] -> Right $ Nothing
     [pluginName] ->
-      Right $ Just $ unsafePerformIO $ instantiateSub pluginName subOut
+      let res = unsafePerformIO $ try (instantiateSub pluginName subOut)
+      in case res of
+           Right (subPlugin, styVals) -> Right $ Just $ (subPlugin, styVals)
+           Left err -> Left $ PluginRun $ show (err :: ErrorCall)
     _ ->
       Left $
       PluginParse $ "Multiple instantiators found in Style; only one allowed"
@@ -41,6 +45,7 @@ runPlugin subOut stySrc elementEnv
 -- First entry: plugin name
 -- Second entry: plugin directory (relative path OK), no trailing "/"
 -- Third entry: command to run, relative to plugin directory
+-- TODO: the standard should probably include `configure` and `run`, not just `run`
 pluginDict :: M.Map String (String, String)
 pluginDict =
   M.fromList
@@ -56,6 +61,7 @@ pluginDict =
 type SubstanceRaw = String
 
 -- TODO: add more error checking to deal with paths or files that don't exist
+-- TODO: this functions requires "values.json", which is not outputed by some plugins
 instantiateSub :: String -> SubOut -> IO (SubstanceRaw, [StyVal])
 instantiateSub pluginName parsedSub = do
   originalDir <- getCurrentDirectory

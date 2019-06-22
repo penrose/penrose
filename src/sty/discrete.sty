@@ -58,3 +58,10 @@ where PairIn(p, q, f)
         color  : rgba(0.0, 0.0, 0.0, 1.0)
     }
 }
+
+Point p; Point q
+with Set A
+where PointIn(A, p); PointIn(A, q)
+{
+    -- LOCAL.repelFn = encourage repel(p.shape, q.shape)
+}
