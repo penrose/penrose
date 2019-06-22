@@ -105,11 +105,11 @@ penroseRenderer subFile styFile elementFile domain configPath port = do
           Just x  -> x
   putStrLn "Opt config:\n"
   putStrLn $ show optConfig
-  -- TODO: use the loaded optconfig
+  let state = initState {G.oConfig = optConfig}
   if useFrontend
-    then Server.serveRenderer domain port initState
+    then Server.serveRenderer domain port state
     else let numTrials = 1000
-         in let res = map (\x -> stepsWithoutServer initState) [1 .. numTrials]
+         in let res = map (\x -> stepsWithoutServer state) [1 .. numTrials]
             in putStrLn $ show $ map G.varyingState res -- Needed so all of res is evaluated, but don't spend so much time prettyprinting
 
 stepsWithoutServer :: G.State -> G.State
