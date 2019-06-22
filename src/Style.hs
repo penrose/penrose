@@ -42,20 +42,20 @@ import Env
 default (Int, Float)
 
 --------------------------------------------------------------------------------
--- Instantiator
+-- Plugin Parser
 
 -- | A Style program can have an instantiator, which would expand its corresponding Substance program via an external program. The instantiator is specified with a string
 -- NOTE: for now, we would allow multiple instantiation statements, but only use the __first__ instantiator in the Style program
 type Plugin  = String
 type Plugins = [Plugin]
 
--- | 'parseInstantiation' parses a Style program and return a list of instantiators declared at the __top__ of the program.
+-- | 'parsePlugins' parses a Style program and return a list of instantiators declared at the __top__ of the program.
 -- NOTE: this parse do run the Style parser to check for ill-formed instantiation statements. Therefore, a 'VarEnv' is required to run this parser without any errors
-parsePlugins :: String -> String -> VarEnv -> IO Plugins
+parsePlugins :: String -> String -> VarEnv -> Either CompilerError Plugins
 parsePlugins styFile styIn env =
     case runParser (pluginParser env) styFile styIn of
-    Left err -> error (errorBundlePretty err)
-    Right instantiation -> return instantiation
+    Left err -> Left $ PluginParse $ (errorBundlePretty err)
+    Right instantiation -> Right instantiation
 
 pluginParser :: VarEnv -> BaseParser Plugins
 pluginParser env = evalStateT pluginParser' $ Just env

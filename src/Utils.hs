@@ -29,6 +29,7 @@ data CompilerError
   | StyleParse String -- ^ an error in Style parsing
   | ElementParse String -- ^ an error in Element parsing
   | SubstanceTypecheck String -- ^ an error in Substance typechecking
+  | PluginParse String -- ^ an error in plugin parsing 
   | StyleTypecheck String -- ^ an error in Style typechecking 
   | ElementTypecheck String -- ^ an error in Element typechecking
   deriving (Show)

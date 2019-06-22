@@ -8,6 +8,7 @@ import           Element
 import           Env
 import           GenOptProblem
 import qualified Optimizer
+import           Plugins
 import           Serializer
 import           Style
 import           Substance
@@ -22,15 +23,27 @@ compileTrio ::
   -> String -- ^ a Style program
   -> String -- ^ an Element program
   -> Either CompilerError (State, VarEnv) -- ^ an initial state and compiler context for language services
-compileTrio substance style element = do
+compileTrio substance style element
+  -- Parsing and desugaring phase
+ = do
   env <- parseElement "" element
   styProg <- parseStyle "" style env
-  subOut@(SubOut _ (subEnv, _) _) <-
-    parseSubstance "" (sugarStmts substance env) env
+  let subDesugared = sugarStmts substance env -- TODO: errors?
+  subOut@(SubOut _ (subEnv, _) _) <- parseSubstance "" subDesugared env
+  -- Plugin phase
+  pluginRes <- runPlugin subOut style env
+  (subOut', styVals) <-
+    case pluginRes of
+      Nothing -> pure $ (subOut, [])
+      Just (subPlugin, styVals) -> do
+        subOutPlugin <-
+          parseSubstance "" (subDesugared ++ "\n" ++ subPlugin) env
+        return (subOutPlugin, styVals)
+  -- Compilation phase
   let optConfig = defaultOptConfig
   let styRes =
-        unsafePerformIO $ -- Rewrite this such that it's safe
-        try (compileStyle styProg subOut [] optConfig) :: Either ErrorCall State
+        unsafePerformIO $ -- HACK: rewrite this such that it's safe
+        try (compileStyle styProg subOut' styVals optConfig) :: Either ErrorCall State
   case styRes of
     Right initState -> Right (initState, subEnv)
     Left styRTError -> Left $ StyleTypecheck $ show styRTError
@@ -52,15 +65,14 @@ stepUntilConvergence state
 
 resample ::
      State -- ^ the initial state
-  -> Int   -- ^ number of samples to choose from (> 0). If it's 1, no selection will occur 
+  -> Int -- ^ number of samples to choose from (> 0). If it's 1, no selection will occur
   -> Either RuntimeError State -- ^ if the number of samples requested is smaller than 1, return error, else return the resulting state
-resample initState numSamples 
-  | numSamples >= 1 = 
+resample initState numSamples
+  | numSamples >= 1 =
     let newState = resampleBest numSamples initState
         (newShapes, _, _) = evalTranslation newState
-    in Right $ newState { shapesr = newShapes }
-  | otherwise = Left $ RuntimeError "At least 1 sample should be requested." 
-
+    in Right $ newState {shapesr = newShapes}
+  | otherwise = Left $ RuntimeError "At least 1 sample should be requested."
 
 --------------------------------------------------------------------------------
 -- Test
