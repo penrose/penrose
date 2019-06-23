@@ -30,11 +30,15 @@ class Canvas extends React.Component<IProps> {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
-  public static propagateUpdate = async (data: any) => {
-    // helper for finding a shape by name
-    const findShape = (shapes: any, name: string) =>
-      shapes.find((shape: any) => shape[1].name.contents === name);
+  // helper for finding a shape by name
+  public static findShapeProperty = (
+    shapes: any,
+    name: string,
+    property: string
+  ) =>
+    shapes.find((shape: any) => shape[1].name.contents === name)[1][property];
 
+  public static propagateUpdate = async (data: any) => {
     // helper for updating a pending property given a path
     const updateProperty = (translation: any, shapes: any, path: any) => {
       const [subName, fieldName, propertyName] = path.contents;
@@ -54,7 +58,11 @@ class Canvas extends React.Component<IProps> {
                   const shapeName = propertyDict.name.contents.contents;
                   propertyDict[propertyName] = {
                     tag: "Done",
-                    contents: findShape(shapes, shapeName)[1][propertyName]
+                    contents: Canvas.findShapeProperty(
+                      shapes,
+                      shapeName,
+                      propertyName
+                    )
                   };
                 }
               }
@@ -83,34 +91,35 @@ class Canvas extends React.Component<IProps> {
   };
   public static updateVaryingState = async (data: any) => {
     const newVaryingState = [...data.varyingState];
-    const updatedTranslation = [...data.transr.trMap];
     await data.varyingPaths.forEach((path: any, index: number) => {
       const [subName, fieldName, propertyName] = [
         path.contents[0].contents,
         path.contents[1],
         path.contents[2]
       ];
-      updatedTranslation.forEach(
+      data.transr.trMap.forEach(
         ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
-          // HACK: We are only updating properties of GPIs, __not__ optimized fields
           if (
             subVar.contents === subName &&
             fieldDict[fieldName].tag === "FGPI"
           ) {
             const propertyDict = fieldDict[fieldName].contents[1];
-            // HACK: this is assuming the property is `Done`. What if it's not?
-            newVaryingState[index] =
-              propertyDict[propertyName].contents.contents;
+            const shapeName = propertyDict.name.contents.contents;
+            newVaryingState[index] = Canvas.findShapeProperty(
+              data.shapesr,
+              shapeName,
+              propertyName
+            ).contents;
+
             // HACK: Not sure why this is here, must be some sort of mutation issue
-            updatedTranslation[fieldIndex][1] = fieldDict;
+            // updatedTranslation[fieldIndex][1] = fieldDict;
           }
         }
       );
     });
     return {
       ...data,
-      varyingState: newVaryingState,
-      transr: { ...data.transr, trMap: updatedTranslation }
+      varyingState: newVaryingState
     };
   };
   public static processData = async (data: any) => {
@@ -151,7 +160,9 @@ class Canvas extends React.Component<IProps> {
         return [name, shape];
       })
     });
+    console.log(updated.varyingState);
     const updatedWithVaryingState = await Canvas.updateVaryingState(updated);
+    console.log(updatedWithVaryingState.varyingState);
     this.props.updateData(updatedWithVaryingState);
   };
 
