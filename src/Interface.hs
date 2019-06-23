@@ -47,6 +47,16 @@ compileTrio substance style element
     Right initState -> Right (initState, subEnv)
     Left styRTError -> Left $ StyleTypecheck $ show styRTError
 
+getEnv ::
+     String -- ^ a Substance program
+  -> String -- ^ an Element program
+  -> Either CompilerError VarEnv -- ^ either a compiler error or an environment of the Substance program
+getEnv substance element = do
+  env <- parseElement "" element
+  let subDesugared = sugarStmts substance env -- TODO: errors?
+  subOut@(SubOut _ (subEnv, _) _) <- parseSubstance "" subDesugared env
+  Right $ subEnv
+
 step ::
      State -- ^ the initial state
   -> Int -- ^ the number of steps n for the optimizer to take
