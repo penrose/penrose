@@ -38,45 +38,48 @@ class Canvas extends React.Component<IProps> {
   ) =>
     shapes.find((shape: any) => shape[1].name.contents === name)[1][property];
 
-  public static propagateUpdate = async (data: any) => {
-    // helper for updating a pending property given a path
-    const updateProperty = (translation: any, shapes: any, path: any) => {
-      const [subName, fieldName, propertyName] = path.contents;
-      if (path.tag === "PropertyPath") {
-        return {
-          ...translation,
-          trMap: translation.trMap.map(([sub, fieldDict]: [any, any]) => {
-            if (sub.contents === subName.contents) {
-              const updatedFieldDict = { ...fieldDict };
-              for (const field of Object.keys(fieldDict)) {
-                const {
-                  tag: fieldType,
-                  contents: [, propertyDict]
-                } = fieldDict[field];
-                if (field === fieldName && fieldType === "FGPI") {
-                  // shape name is a done value of type string, hence the two accesses
-                  const shapeName = propertyDict.name.contents.contents;
-                  propertyDict[propertyName] = {
-                    tag: "Done",
-                    contents: Canvas.findShapeProperty(
-                      shapes,
-                      shapeName,
-                      propertyName
-                    )
-                  };
-                }
+  // helper for updating a pending property given a path
+  public static updateProperty = (translation: any, shapes: any, path: any) => {
+    const [subName, fieldName, propertyName] = path.contents;
+    if (path.tag === "PropertyPath") {
+      return {
+        ...translation,
+        trMap: translation.trMap.map(([sub, fieldDict]: [any, any]) => {
+          // match substance name
+          if (sub.contents === subName.contents) {
+            // TODO: functional-style map on objects doesn't seem to be supported by TS well. Write helpfer?
+            const updatedFieldDict = { ...fieldDict };
+            for (const field of Object.keys(fieldDict)) {
+              const {
+                contents: [, propertyDict]
+              } = fieldDict[field];
+              // match field name
+              if (field === fieldName) {
+                // shape name is a done value of type string, hence the two accesses
+                const shapeName = propertyDict.name.contents.contents;
+                // update the pending property in the translated by a Done value retrieved from the shapes, which are already updated by the frontend
+                propertyDict[propertyName] = {
+                  tag: "Done",
+                  contents: Canvas.findShapeProperty(
+                    shapes,
+                    shapeName,
+                    propertyName
+                  )
+                };
               }
-              return [sub, updatedFieldDict];
-            } else {
-              return [sub, fieldDict];
             }
-          })
-        };
-      } else {
-        // TODO: field paths are not supported
-        Log.error("Pending field paths are not supported");
-      }
-    };
+            return [sub, updatedFieldDict];
+          } else {
+            return [sub, fieldDict];
+          }
+        })
+      };
+    } else {
+      Log.error("Pending field paths are not supported");
+    }
+  };
+
+  public static propagateUpdate = async (data: any) => {
     return {
       ...data,
       // clear up pending paths now that they are updated properly
@@ -84,7 +87,7 @@ class Canvas extends React.Component<IProps> {
       // for each of the pending path, update the translation using the updated shapes with new label dimensions etc.
       transr: data.pendingPaths.reduce(
         (trans: any, path: any) =>
-          updateProperty(data.transr, data.shapesr, path),
+          Canvas.updateProperty(data.transr, data.shapesr, path),
         data.transr
       )
     };
@@ -92,30 +95,24 @@ class Canvas extends React.Component<IProps> {
   public static updateVaryingState = async (data: any) => {
     const newVaryingState = [...data.varyingState];
     await data.varyingPaths.forEach((path: any, index: number) => {
-      const [subName, fieldName, propertyName] = [
-        path.contents[0].contents,
-        path.contents[1],
-        path.contents[2]
-      ];
-      data.transr.trMap.forEach(
-        ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
-          if (
-            subVar.contents === subName &&
-            fieldDict[fieldName].tag === "FGPI"
-          ) {
-            const propertyDict = fieldDict[fieldName].contents[1];
-            const shapeName = propertyDict.name.contents.contents;
-            newVaryingState[index] = Canvas.findShapeProperty(
-              data.shapesr,
-              shapeName,
-              propertyName
-            ).contents;
-
-            // HACK: Not sure why this is here, must be some sort of mutation issue
-            // updatedTranslation[fieldIndex][1] = fieldDict;
+      // NOTE: We only update property paths since no frontend interactions can change fields
+      // TODO: add a branch for `FieldPath` when this is no longer the case
+      if (path.tag === "PropertyPath") {
+        const [{ contents: subName }, fieldName, propertyName] = path.contents;
+        data.transr.trMap.forEach(
+          ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
+            if (subVar.contents === subName) {
+              const propertyDict = fieldDict[fieldName].contents[1];
+              const shapeName = propertyDict.name.contents.contents;
+              newVaryingState[index] = Canvas.findShapeProperty(
+                data.shapesr,
+                shapeName,
+                propertyName
+              ).contents;
+            }
           }
-        }
-      );
+        );
+      }
     });
     return {
       ...data,
