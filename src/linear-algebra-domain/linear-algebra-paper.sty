@@ -8,6 +8,7 @@ const {
 -- Global RGB colors in common use
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
     Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
     Colors.darkGray = rgba(0.4, 0.4, 0.4, 1.0)
@@ -131,7 +132,7 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 	  rotation : 0.0
 
 	  transform : andThen(andThen(andThen(scale(LOCAL.len, LOCAL.len), translate(LOCAL.len / 2.0, LOCAL.len / 2.0)), rotate(LOCAL.angle)), translate(U.shape.x, U.shape.y))
-	  color : Colors.none
+	  color : Colors.white
 	  strokeColor : Colors.black
 	  strokeWidth : 0.1
       }
