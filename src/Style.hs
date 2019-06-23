@@ -1,5 +1,5 @@
 -- | The "Style" module contains the compiler for the Style language,
--- and functions to traverse the Style AST, which are used by "Runtime"
+-- and functions to traverse the Style AST.
 
 {-# OPTIONS_HADDOCK prune #-}
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction, FlexibleContexts #-}
@@ -7,9 +7,6 @@
 -- Mostly for autodiff
 
 module Style where
-
--- module Main (main) where
--- import Element (parseElement) -- for debugging purposes
 
 import Utils
 import Shapes hiding (get)
@@ -38,8 +35,6 @@ import SubstanceJSON as J
 import Data.Dynamic
 import Data.Typeable
 import Env
-
-default (Int, Float)
 
 --------------------------------------------------------------------------------
 -- Plugin Parser
@@ -191,7 +186,6 @@ data AnnoFloat = Fix Float | Vary
     deriving (Show, Eq, Typeable)
 
 -- | An expression in the Style language
--- TODO: wrap custom types around the raw strings/typedef them for better error checking??
 data Expr
     = IntLit Integer
     | AFloat AnnoFloat
@@ -212,12 +206,6 @@ data Expr
     | PluginAccess String Expr Expr -- ^ Plugin name, Substance name, Key
     | ThenOp Expr Expr -- COMBAK: double check how transforms are modeled, probably just a list of CompApp
     deriving (Show, Eq, Typeable)
-
--- DEPRECATED
--- data LExpr
---     = LPath Path
---     | LayeringOp LayerOp LExpr LExpr
---     deriving (Show, Eq, Typeable)
 
 data LayerOp  = Less | Seq
     deriving (Show, Eq, Typeable)
@@ -432,29 +420,6 @@ tOperators =
         [ InfixL (ThenOp <$ symbol "then") ]
         -- Lowest precedence
     ]
-
--- DEPRECATED
--- layeringExpr :: Parser LExpr
--- layeringExpr = makeExprParser lTerm Style.lOperators
---
--- lTerm :: Parser LExpr
--- lTerm =
---     tryChoice [
---         parens layeringExpr,
---         LPath <$> path,
---         LId   <$> bindingForm
---     ]
---
--- lOperators :: [[Text.Megaparsec.Expr.Operator Parser LExpr]]
--- lOperators =
---     [   -- Highest precedence
---         [ InfixL (LayeringOp Seq <$ symbol ",") ],
---         [
---             InfixL (LayeringOp Less   <$ symbol "<"),
---             InfixL (LayeringOp Eq     <$ symbol "==")
---         ]
---         -- Lowest precedence
---     ]
 
 path :: Parser Path
 path = try (PropertyPath <$> bindingForm <*> dotId <*> dotId) <|>
@@ -1085,8 +1050,9 @@ checkBlock selEnv block = []
 ----- Type definitions
 type GPICtor = String
 
-data TagExpr a = OptEval Expr      -- Thunk evaluated at each step of optimization-time
-               | Done (Value a)    -- A value in the host language, fully evaluated
+data TagExpr a = OptEval Expr      -- ^ Thunk evaluated at each step of optimization-time
+               | Done (Value a)    -- ^ A value in the host language, fully evaluated
+               | Pending (Value a) -- ^ A value to be updated afterwards (e.g. label dimensions)
     deriving (Show, Eq, Typeable)
 
 type PropertyDict a = M.Map Property (TagExpr a)
@@ -1378,7 +1344,6 @@ insertLabels trans labels =
             case M.lookup s labels of
                 Nothing ->  fieldDict
                 -- NOTE: maybe this is a "namespace," so we pass through
-                -- error $ "insertLabels: Label option does not exist for Substance object " ++ s
                 Just (Just l) -> M.insert labelField (toFieldStr l) fieldDict
                                  -- If "NoLabel", default to an empty string *and* delete any Text GPIs that use it
                 Just Nothing  -> let fd' = M.insert labelField (toFieldStr "") fieldDict in

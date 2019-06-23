@@ -1,7 +1,6 @@
 module Interface where
 
-import           Control.Exception          (try)
-import           Control.Exception
+import           Control.Exception          (ErrorCall, try)
 import qualified Data.Aeson                 as A
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Element

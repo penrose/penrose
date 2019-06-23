@@ -15,7 +15,10 @@ import           System.Process             (callCommand)
 import           Utils
 
 --------------------------------------------------------------------------------
--- | TODO: complete
+-- | 'runPlugin' parses plugin statements from the style program and executes
+-- the plugin if one is found. It returns 'Nothing' of there is no plugin found,
+-- returns an error if more than one is found, or returns a new Substance program
+-- and some Style values if the plugin runs successfully.
 runPlugin ::
      SubOut
   -> String
@@ -35,8 +38,7 @@ runPlugin subOut stySrc elementEnv
            Right (subPlugin, styVals) -> Right $ Just $ (subPlugin, styVals)
            Left err -> Left $ PluginRun $ show (err :: ErrorCall)
     _ ->
-      Left $
-      PluginParse $ "Multiple instantiators found in Style; only one allowed"
+      Left $ PluginParse $ "Multiple plugins found in Style; only one allowed."
 
 -- If no instantiations, proceed with Style compiler.
 --   putStrLn $ "instantiations found: " ++ (show instantiations)

@@ -6,7 +6,6 @@ import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
-import { mapValues } from "lodash";
 
 interface IProps {
   lock: boolean;
@@ -30,52 +29,56 @@ class Canvas extends React.Component<IProps> {
   public static notEmptyLabel = ([name, shape]: [string, any]) => {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
-  // HACK: this is a total hack, we want to restructure
-  // data structures in the backend so that we don't need this
-  public static propagateUpdate = async (data: any) => {
-    const updatedTranslation = await data.transr.trMap.map(
-      ([subName, fieldDict]: [any, any]) => {
-        return [
-          subName,
-          mapValues(fieldDict, (field: any) => {
-            if (field.tag === "FGPI") {
-              const shapeContent = data.shapesr.filter(
-                ([__, shape]: [string, any]) => {
-                  return (
-                    shape.name.contents ===
-                    field.contents[1].name.contents.contents
-                  );
-                }
-              )[0][1];
-              const updatedField = { ...field };
-              const updateProperty = (propertyName: string) => {
-                const propertyDict = updatedField.contents[1];
-                // find if the property exists in the propertyDict
-                if (
-                  propertyName in propertyDict &&
-                  propertyDict[propertyName].tag === "Done"
-                ) {
-                  // HACK: this is assuming the property is `Done`. What if it's not?
-                  propertyDict[propertyName].contents.contents =
-                    shapeContent[propertyName].contents;
-                }
-              };
-              updateProperty("w");
-              updateProperty("h");
-              // TODO: Drag events do not just update x and y. Factor this out
-              updateProperty("x");
-              updateProperty("y");
-              return updatedField;
-            }
-            return field;
-          })
-        ];
-      }
-    );
 
+  public static propagateUpdate = async (data: any) => {
+    // helper for finding a shape by name
+    const findShape = (shapes: any, name: string) =>
+      shapes.find((shape: any) => shape[1].name.contents === name);
+
+    // helper for updating a pending property given a path
+    const updateProperty = (translation: any, shapes: any, path: any) => {
+      const [subName, fieldName, propertyName] = path.contents;
+      if (path.tag === "PropertyPath") {
+        return {
+          ...translation,
+          trMap: translation.trMap.map(([sub, fieldDict]: [any, any]) => {
+            if (sub.contents === subName.contents) {
+              const updatedFieldDict = { ...fieldDict };
+              for (const field of Object.keys(fieldDict)) {
+                const {
+                  tag: fieldType,
+                  contents: [, propertyDict]
+                } = fieldDict[field];
+                if (field === fieldName && fieldType === "FGPI") {
+                  // shape name is a done value of type string, hence the two accesses
+                  const shapeName = propertyDict.name.contents.contents;
+                  propertyDict[propertyName] = {
+                    tag: "Done",
+                    contents: findShape(shapes, shapeName)[1][propertyName]
+                  };
+                }
+              }
+              return [sub, updatedFieldDict];
+            } else {
+              return [sub, fieldDict];
+            }
+          })
+        };
+      } else {
+        // TODO: field paths are not supported
+        Log.error("Pending field paths are not supported");
+      }
+    };
     return {
       ...data,
-      transr: { ...data.transr, trMap: updatedTranslation }
+      // clear up pending paths now that they are updated properly
+      pendingPaths: [],
+      // for each of the pending path, update the translation using the updated shapes with new label dimensions etc.
+      transr: data.pendingPaths.reduce(
+        (trans: any, path: any) =>
+          updateProperty(data.transr, data.shapesr, path),
+        data.transr
+      )
     };
   };
   public static updateVaryingState = async (data: any) => {

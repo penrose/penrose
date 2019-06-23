@@ -120,7 +120,9 @@ processRequests client@(_, conn, _) = do
             Resample samples s -> sendSafe "state" $ Interface.resample s samples
             StepUntilConvergence s -> sendSafe "state" $ Interface.stepUntilConvergence s
             CompileTrio sub sty elm -> sendSafe "compilerOutput" $ Interface.compileTrio sub sty elm
-        Nothing -> logError client "Error reading JSON"
+        Nothing -> do 
+            logError client "Error reading JSON" 
+            processRequests client
     putStrLn $ "Messege received and decoded successfully." 
     processRequests client
     where 

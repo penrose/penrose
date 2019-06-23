@@ -172,6 +172,7 @@ data State = State { shapesr :: [Shape Double],
                      transr :: Translation Double,
                      varyingPaths :: [Path],
                      uninitializedPaths :: [Path],
+                     pendingPaths :: [Path],
                      varyingState :: [Double], -- Note: NOT polymorphic
                      paramsr :: Params,
                      objFns :: [Fn],
@@ -459,6 +460,17 @@ findFieldVarying name field (FGPI typ properties) acc =
 findVarying :: (Autofloat a) => Translation a -> [Path]
 findVarying = foldSubObjs findFieldVarying
 
+--- Find pending paths
+
+-- | Find the paths to all pending, non-float, non-name properties
+findPending :: (Autofloat a) => Translation a -> [Path]
+findPending = foldSubObjs findFieldPending
+    where 
+    findFieldPending name field (FExpr expr) acc = acc
+    findFieldPending name field (FGPI typ properties) acc = 
+        let pendingProps = pendingProperties typ
+        in map (\p -> mkPath [name, field, p]) pendingProps ++ acc
+
 --- Find uninitialized (non-float) paths
 
 findPropertyUninitialized :: (Autofloat a) => String -> Field -> M.Map String (TagExpr a) ->
@@ -580,7 +592,7 @@ evalProperty (i, n) bvar field varyMap (propertiesList, trans, g) (property, exp
     let (res, trans', g') = evalExpr (i, n) path trans varyMap g in
     -- This check might be redundant with the later GPI conversion in evalExpr, TODO factor out
     case res of
-        Val val -> {-trace ("Evaled property " ++ show path)-} ((property, Done val) : propertiesList, trans', g')
+        Val val -> ((property, Done val) : propertiesList, trans', g')
         GPI _ -> error "GPI property should not evaluate to GPI argument" -- TODO: true later? references?
 
 evalGPI_withUpdate :: (Autofloat a)
@@ -671,6 +683,7 @@ evalExpr (i, n) arg trans varyMap g =
                     --   Nothing -> -- Compute the path as usual
                           let texpr = lookupPropertyWithVarying bvar field property trans varyMap in
                           case texpr of
+                          Pending v -> (Val v, trans, g)
                           Done v -> (Val v, trans, g)
                           OptEval e ->
                              let (v, trans', g') = evalExpr limit e trans varyMap g in
@@ -769,23 +782,34 @@ evalEnergy s =
 
 -- NOTE: since we store all varying paths separately, it is okay to mark the default values as Done -- they will still be optimized, if needed.
 -- TODO: document the logic here (e.g. only sampling varying floats) and think about whether to use translation here or [Shape a] since we will expose the sampler to users later
-initProperty :: (Autofloat a) => (PropertyDict a, StdGen) -> String ->
-                                               (ValueType, SampledValue a) -> (PropertyDict a, StdGen)
-initProperty (properties, g) pID (typ, sampleF) =
-    let (v, g')    = sampleF g
-        autoRndVal = Done v in
-    case M.lookup pID properties of
-      Just (OptEval (AFloat Vary)) -> (M.insert pID autoRndVal properties, g')
-      Just (OptEval e) -> (properties, g)
-      Just (Done v)    -> (properties, g)
-      Nothing          -> (M.insert pID autoRndVal properties, g')
+initProperty ::
+     (Autofloat a)
+  => ShapeTypeStr
+  -> (PropertyDict a, StdGen)
+  -> String
+  -> (ValueType, SampledValue a)
+  -> (PropertyDict a, StdGen)
+initProperty shapeType (properties, g) pID (typ, sampleF) =
+  let (v, g') = sampleF g
+      autoRndVal = Done v
+  in case M.lookup pID properties of
+       Just (OptEval (AFloat Vary)) -> (M.insert pID autoRndVal properties, g')
+       Just (OptEval e) -> (properties, g)
+       Just (Done v) -> (properties, g)
+       -- TODO: pending properties are only marked if the Style source does not set them explicitly
+       -- Check if this is the right decision. We still give pending values a default such that the initial list of shapes can be generated without errors.
+       Nothing -> 
+         if isPending shapeType pID
+           then (M.insert pID (Pending v) properties, g')
+           else (M.insert pID autoRndVal properties, g')
+
 
 initShape :: (Autofloat a) => (Translation a, StdGen) -> (String, Field) -> (Translation a, StdGen)
 initShape (trans, g) (n, field) =
     case lookupField (BSubVar (VarConst n)) field trans of
         FGPI shapeType propDict ->
             let def = findDef shapeType
-                (propDict', g') = foldlPropertyMappings initProperty (propDict, g) def
+                (propDict', g') = foldlPropertyMappings (initProperty shapeType) (propDict, g) def
                 -- NOTE: getShapes resolves the names + we don't use the names of the shapes in the translation
                 -- The name-adding logic can be removed but is left in for debugging
                 shapeName = getShapeName n field
@@ -876,7 +900,7 @@ reachableFromAny :: Graph.Graph -> Graph.Vertex -> [Graph.Vertex] -> Bool
 reachableFromAny graph node =
   elem node . concatMap (Graph.reachable graph)
 
--- | 'computeLayering' takes in a list of all GPI names and a list of directed edges [(a -> b)] representing partial layering orders as input and outputs a linear layering order of GPIs
+-- | 'topSortLayering' takes in a list of all GPI names and a list of directed edges [(a -> b)] representing partial layering orders as input and outputs a linear layering order of GPIs
 topSortLayering :: [String] -> [(String, String)] -> [String]
 topSortLayering names partialOrderings =
     let orderedNodes = nodesFromEdges partialOrderings
@@ -919,6 +943,7 @@ genOptProblemAndState trans optConfig =
     let !varyingPaths       = findVarying trans in
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
     let uninitializedPaths = findUninitialized trans in
+    let pendingPaths       = findPending trans in
     let shapeNames         = findShapeNames trans in
 
     -- sample varying fields
@@ -951,6 +976,7 @@ genOptProblemAndState trans optConfig =
                                  transr = transInit, -- note: NOT transEvaled
                                  varyingPaths = varyingPaths,
                                  uninitializedPaths = uninitializedPaths,
+                                 pendingPaths = pendingPaths,
                                  varyingState = initState,
                                  objFns = objFnsWithDefaults,
                                  constrFns = constrsWithDefaults,
@@ -1038,7 +1064,13 @@ castTranslation t =
         castTagExpr :: TagExpr Double -> (forall a . Autofloat a => TagExpr a)
         castTagExpr e =
            case e of
-             Done v ->
+             Done v -> Done $ castValue v
+             Pending v -> Pending $ castValue v
+             OptEval e -> OptEval e -- Expr only contains floats
+        
+    
+        castValue :: Value Double -> (forall a . Autofloat a => Value a)
+        castValue v = 
                 let res = case v of
                           FloatV x -> FloatV (r2f x)
                           PtV (x, y) -> PtV (r2f x, r2f y)
@@ -1051,8 +1083,7 @@ castTranslation t =
                           FileV x -> FileV x
                           StyleV x -> StyleV x
                           ColorV (RGBA r g b a) -> ColorV $ RGBA (r2f r) (r2f g) (r2f b) (r2f a)
-                in Done res
-             OptEval e -> OptEval e -- Expr only contains floats
+                in res
 
         castPath :: Path' Double -> (forall a . Autofloat a => Path' a)
         castPath p = case p of
