@@ -60,31 +60,19 @@ getArgOrExit = getArgOrExitWith argPatterns
 shadowMain :: IO ()
 shadowMain = do
   args <- parseArgsOrExit argPatterns =<< getArgs
-  styFile <- args `getArgOrExit` argument "style"
-  elementFile <- args `getArgOrExit` argument "element"
   domain <- args `getArgOrExit` longOption "domain"
   port <- args `getArgOrExit` longOption "port"
   config <- args `getArgOrExit` longOption "config"
-  if args `isPresent` argument "substance"
-    then do
+  if args `isPresent` (command "editor")
+    then penroseEditor domain $ read port
+    else do
       subFile <- args `getArgOrExit` argument "substance"
+      styFile <- args `getArgOrExit` argument "style"
+      elementFile <- args `getArgOrExit` argument "element"
       penroseRenderer subFile styFile elementFile domain config $ read port
-    else penroseEditor styFile elementFile domain $ read port
 
-penroseEditor :: String -> String -> String -> Int -> IO ()
-penroseEditor styFile elementFile domain port = do
-  styIn <- readFile styFile
-  elementIn <- readFile elementFile
-  let elementEnv =
-        either (\e -> error $ "Element parser errror" ++ show e) id $
-        D.parseElement elementFile elementIn
-  let styProg =
-        either (\e -> error $ "Style parser errror" ++ show e) id $
-        S.parseStyle styFile styIn elementEnv
-  putStrLn "Style AST:\n"
-  pPrint styProg
-  divLine
-  Server.serveEditor domain port elementEnv styProg
+penroseEditor :: String -> Int -> IO ()
+penroseEditor domain port = Server.serveEditor domain port
 
 penroseRenderer ::
      String -> String -> String -> String -> String -> Int -> IO ()

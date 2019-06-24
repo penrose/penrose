@@ -1,6 +1,6 @@
 Usage:
   penrose [options] <substance> <style> <element>
-  penrose [options] <style> <element>
+  penrose editor
 
 Options:
   --port=PORT    Port number of the websocket connection that the backend
