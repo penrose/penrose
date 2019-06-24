@@ -2,18 +2,19 @@
 
 module Serializer where
 
-import Env
-import Style
-import SubstanceTokenizer
-import GenOptProblem
-import Optimizer
+import           Env
+import           GenOptProblem
+import           Optimizer
+import           Style
+import           SubstanceTokenizer
+import           Utils
 
-import Text.Megaparsec
-import GHC.Generics
-import Data.Aeson
-import Data.Aeson.TH
-import System.Random (StdGen)
+import           Data.Aeson
+import           Data.Aeson.TH
+import           GHC.Generics
 import qualified Numeric.LinearAlgebra as L
+import           System.Random         (StdGen)
+import           Text.Megaparsec
 
 instance ToJSONKey Name
 instance FromJSONKey Name
@@ -76,3 +77,8 @@ deriveJSON defaultOptions ''OptStatus
 deriveJSON defaultOptions ''BfgsParams
 deriveJSON defaultOptions ''GenOptProblem.State
 
+--------------------------------------------------------------------------------
+-- Interface
+
+deriveJSON defaultOptions ''CompilerError
+deriveJSON defaultOptions ''RuntimeError

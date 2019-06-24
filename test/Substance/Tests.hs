@@ -9,7 +9,7 @@ import Data.List
 import System.IO (hFlush, stdout)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Directory (listDirectory)
-import Text.Megaparsec (runParser, parseErrorPretty)
+import Text.Megaparsec (runParser, errorBundlePretty)
 
 import Substance
 
@@ -23,6 +23,8 @@ subDir = "src/sub"
 
 
 -- TODO: seems like all tests are pure, but needed to perform IO actions
+-- BUG: now that the Substance parser is parametrized by the Element output, we cannot simply parse substance files anymore. Removing this module for now.
+
 subFilenames :: [String]
 -- subFilenames = unsafePerformIO $ listDirectory subDir
 subFilenames = [
@@ -53,7 +55,7 @@ parseFile fname = do
     case runParser substanceParser fname subIn of
         Left err -> do
             putStrLn ""
-            putStrLn (parseErrorPretty err)
+            putStrLn (errorBundlePretty err)
             hFlush stdout
             return False
         Right xs -> return True

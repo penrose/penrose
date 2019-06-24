@@ -25,3 +25,4 @@ predicate PointNotIn : Set s * Point p
 predicate Injection : Map m
 predicate Surjection : Map m
 predicate Bijection : Map m
+predicate PairIn : Point * Point * Map

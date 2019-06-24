@@ -21,6 +21,27 @@ type Pt2 a = (a, a)
 type Property = String
 
 --------------------------------------------------------------------------------
+-- Errors in the system
+
+-- | Errors from one of the Substance, Style, or Element compilers.
+data CompilerError
+  = SubstanceParse String -- ^ an error in Substance parsing
+  | StyleParse String -- ^ an error in Style parsing
+  | ElementParse String -- ^ an error in Element parsing
+  | SubstanceTypecheck String -- ^ an error in Substance typechecking
+  | PluginParse String -- ^ an error in plugin parsing 
+  | PluginRun String -- ^ an error when running a plugin 
+  | StyleTypecheck String -- ^ an error in Style typechecking 
+  | ElementTypecheck String -- ^ an error in Element typechecking
+  deriving (Show)
+
+-- | Errors from the optimizer
+data RuntimeError =
+  RuntimeError String
+  deriving (Show)
+
+
+--------------------------------------------------------------------------------
 -- Parameters of the system
 
 stepsPerSecond :: Int

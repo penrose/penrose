@@ -1,9 +1,10 @@
 import * as React from "react";
-import {ILayer} from "./types";
+import { ILayer } from "./types";
 
 interface IProps {
   converged: boolean;
   autostep: boolean;
+  initial: boolean;
   layers: ILayer[];
 
   downloadPDF(): void;
@@ -19,6 +20,7 @@ class ButtonBar extends React.Component<IProps> {
   public render() {
     const {
       converged,
+      initial,
       autostep,
       autoStepToggle,
       downloadPDF,
@@ -34,10 +36,15 @@ class ButtonBar extends React.Component<IProps> {
           autostep {autostep ? "(on)" : "(off)"}
         </button>
         <button onClick={step}>step</button>
-        <button onClick={resample}>resample</button>
+        <button
+          onClick={resample}
+          disabled={!converged && !initial && autostep}
+        >
+          resample
+        </button>
         <button onClick={downloadPDF}>download PDF</button>
         <button onClick={downloadSVG}>download SVG</button>
-        {layers.map(({layer, enabled}: ILayer, key: number) => {
+        {layers.map(({ layer, enabled }: ILayer, key: number) => {
           return (
             <button onClick={() => toggleLayer(layer)} key={key}>
               {layer} {enabled ? "(on)" : "(off)"}
@@ -51,7 +58,12 @@ class ButtonBar extends React.Component<IProps> {
             display: "inline-block",
             width: 20,
             height: 20,
-            backgroundColor: converged || !autostep ? "#55de55" : "#ff9d23"
+            backgroundColor:
+              converged || !autostep
+                ? "#55de55"
+                : initial
+                ? "#4286f4"
+                : "#ff9d23"
           }}
         />
       </div>

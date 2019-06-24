@@ -4,7 +4,6 @@ import componentMap from "./componentMap";
 import Log from "./Log";
 import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
-import { drag, update } from "./packets";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
 
@@ -16,65 +15,156 @@ interface IProps {
   elementMetadata?: string;
   otherMetadata?: string;
   style?: any;
-  sendPacket(packet: string): void;
-}
-
-interface IState {
   data: any;
-  debugData: any;
+  updateData(shapes: any, step?: boolean): void;
 }
 
-class Canvas extends React.Component<IProps, IState> {
-  public readonly state = { data: [], debugData: [] };
-  public readonly canvasSize: [number, number] = [800, 700];
-  public readonly svg = React.createRef<SVGSVGElement>();
-  public sortShapes = (shapes: any[], ordering: string[]) => {
+class Canvas extends React.Component<IProps> {
+  public static sortShapes = (shapes: any[], ordering: string[]) => {
     return ordering.map(name =>
       shapes.find(([_, shape]) => shape.name.contents === name)
     ); // assumes that all names are unique
   };
 
-  public notEmptyLabel = ([name, shape]: [string, any]) => {
+  public static notEmptyLabel = ([name, shape]: [string, any]) => {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
-  // replace with componentDidUpdate?
-  public onMessage = async (e: MessageEvent) => {
-    const myJSON = JSON.parse(e.data).contents;
-    const { flag, shapes, ordering, debugData } = myJSON;
+  // helper for finding a shape by name
+  public static findShapeProperty = (
+    shapes: any,
+    name: string,
+    property: string
+  ) =>
+    shapes.find((shape: any) => shape[1].name.contents === name)[1][property];
 
-    // For final frame
-    if (flag === "final") {
-      Log.info("Fully optimized.");
+  // helper for updating a pending property given a path
+  public static updateProperty = (translation: any, shapes: any, path: any) => {
+    const [subName, fieldName, propertyName] = path.contents;
+    if (path.tag === "PropertyPath") {
+      return {
+        ...translation,
+        trMap: translation.trMap.map(([sub, fieldDict]: [any, any]) => {
+          // match substance name
+          if (sub.contents === subName.contents) {
+            // TODO: functional-style map on objects doesn't seem to be supported by TS well. Write helpfer?
+            const updatedFieldDict = { ...fieldDict };
+            for (const field of Object.keys(fieldDict)) {
+              const {
+                contents: [, propertyDict]
+              } = fieldDict[field];
+              // match field name
+              if (field === fieldName) {
+                // shape name is a done value of type string, hence the two accesses
+                const shapeName = propertyDict.name.contents.contents;
+                // update the pending property in the translated by a Done value retrieved from the shapes, which are already updated by the frontend
+                propertyDict[propertyName] = {
+                  tag: "Done",
+                  contents: Canvas.findShapeProperty(
+                    shapes,
+                    shapeName,
+                    propertyName
+                  )
+                };
+              }
+            }
+            return [sub, updatedFieldDict];
+          } else {
+            return [sub, fieldDict];
+          }
+        })
+      };
+    } else {
+      Log.error("Pending field paths are not supported");
     }
+  };
 
-    // Compute (or retrieve from memory) label and image dimensions (as well as the rendered DOM elements)
+  public static propagateUpdate = async (data: any) => {
+    return {
+      ...data,
+      // clear up pending paths now that they are updated properly
+      pendingPaths: [],
+      // for each of the pending path, update the translation using the updated shapes with new label dimensions etc.
+      transr: data.pendingPaths.reduce(
+        (trans: any, path: any) =>
+          Canvas.updateProperty(data.transr, data.shapesr, path),
+        data.transr
+      )
+    };
+  };
+  public static updateVaryingState = async (data: any) => {
+    const newVaryingState = [...data.varyingState];
+    await data.varyingPaths.forEach((path: any, index: number) => {
+      // NOTE: We only update property paths since no frontend interactions can change fields
+      // TODO: add a branch for `FieldPath` when this is no longer the case
+      if (path.tag === "PropertyPath") {
+        const [{ contents: subName }, fieldName, propertyName] = path.contents;
+        data.transr.trMap.forEach(
+          ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
+            if (subVar.contents === subName) {
+              const propertyDict = fieldDict[fieldName].contents[1];
+              const shapeName = propertyDict.name.contents.contents;
+              newVaryingState[index] = Canvas.findShapeProperty(
+                data.shapesr,
+                shapeName,
+                propertyName
+              ).contents;
+            }
+          }
+        );
+      }
+    });
+    return {
+      ...data,
+      varyingState: newVaryingState
+    };
+  };
+  public static processData = async (data: any) => {
+    if (!data.shapesr) {
+      return {};
+    }
+    const shapes = data.shapesr;
     const labeledShapes = await collectLabels(shapes);
     const labeledShapesWithImgs = await loadImages(labeledShapes);
 
-    // For initial frame, send only dimensions to backend (this only sends the Image and Text GPIs)
-    if (flag === "initial") {
-      this.sendUpdate(labeledShapesWithImgs);
-    }
+    const sortedShapes = await Canvas.sortShapes(
+      labeledShapesWithImgs,
+      data.shapeOrdering
+    );
 
-    this.setState({
-      data: this.sortShapes(labeledShapesWithImgs, ordering).filter(
-        this.notEmptyLabel
-      ),
-      debugData
+    const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
+    const processed = await Canvas.propagateUpdate({
+      ...data,
+      shapesr: nonEmpties
     });
+    return processed;
+  };
+  public readonly canvasSize: [number, number] = [800, 700];
+  public readonly svg = React.createRef<SVGSVGElement>();
+
+  public dragEvent = async (id: string, dy: number, dx: number) => {
+    const updated = await Canvas.propagateUpdate({
+      ...this.props.data,
+      paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
+      shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
+        if (shape.name.contents === id) {
+          return [
+            name,
+            {
+              ...shape,
+              x: { ...shape.x, contents: shape.x.contents - dx },
+              y: { ...shape.y, contents: shape.y.contents - dy }
+            }
+          ];
+        }
+        return [name, shape];
+      })
+    });
+    const updatedWithVaryingState = await Canvas.updateVaryingState(updated);
+    this.props.updateData(updatedWithVaryingState);
   };
 
-  public dragEvent = (id: string, dy: number, dx: number) => {
-    this.props.sendPacket(drag(id, dy, dx));
-  };
-
-  public sendUpdate = (updatedShapes: any[]) => {
-    Log.info("Sending an Update packet to the server...");
-    this.props.sendPacket(update(updatedShapes));
-  };
-
-  public download = async () => {
+  public prepareSVGContent = async () => {
     const domnode = ReactDOM.findDOMNode(this);
     if (domnode !== null && domnode instanceof Element) {
       const exportingNode = domnode.cloneNode(true) as any;
@@ -138,7 +228,7 @@ class Canvas extends React.Component<IProps, IState> {
   };
 
   public downloadSVG = async (title = "illustration") => {
-    const content = await this.download();
+    const content = await this.prepareSVGContent();
     const blob = new Blob([content], {
       type: "image/svg+xml;charset=utf-8"
     });
@@ -152,7 +242,7 @@ class Canvas extends React.Component<IProps, IState> {
   };
 
   public downloadPDF = async () => {
-    const content = await this.download();
+    const content = await this.prepareSVGContent();
     const frame = document.createElement("iframe");
     document.body.appendChild(frame);
     const pri = frame.contentWindow;
@@ -226,12 +316,13 @@ class Canvas extends React.Component<IProps, IState> {
       styleMetadata,
       elementMetadata,
       otherMetadata,
+      data,
       style
     } = this.props;
-    const { data, debugData } = this.state;
+    const { shapesr } = data;
 
-    if (data.length === undefined) {
-      return <svg />;
+    if (!shapesr) {
+      return <svg ref={this.svg} />;
     }
 
     return (
@@ -257,14 +348,14 @@ class Canvas extends React.Component<IProps, IState> {
             {elementMetadata && `${elementMetadata}\n`}
             {otherMetadata && `${otherMetadata}`}
           </desc>
-          {data.map(this.renderEntity)}
+          {shapesr.map(this.renderEntity)}
           {layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
             }
             if (enabled) {
-              return this.renderLayer(data, debugData, layerMap[layer], key);
+              return this.renderLayer(shapesr, data, layerMap[layer], key);
             }
             return null;
           })}

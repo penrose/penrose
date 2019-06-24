@@ -26,7 +26,7 @@ import Control.Monad (void)
 import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
-import Text.Megaparsec.Expr
+import Control.Monad.Combinators.Expr
 import Data.Void
 import Control.Monad.State.Lazy (StateT)
 --import Text.PrettyPrint
@@ -83,7 +83,7 @@ validChar = alphaNumChar <|> char '_' <|> char '-'
 
 transPattern :: Parser String
 transPattern = (lexeme . try) (p >>= checkPattern)
-  where p = many anyChar --(:) <$> letterChar <*> many validChar
+  where p = many anySingle --(:) <$> letterChar <*> many validChar
 
 checkPattern :: String -> Parser String
 checkPattern x = if x == "\"" || x == "->"
@@ -259,7 +259,7 @@ typeNameParser = TypeNameConst <$> identifier
 typeParser :: Parser Type
 typeParser = do
     rword "type"
-    pos <- getPosition
+    pos <- getSourcePos
     return Type{ typeName = "type", typePos = pos}
 
 varParser :: Parser Var
@@ -269,7 +269,7 @@ typeVarParser :: Parser TypeVar
 typeVarParser = do
     aps
     i <- identifier
-    pos <- getPosition
+    pos <- getSourcePos
     return TypeVar { typeVarName =  i, typeVarPos = pos}
 
 yParser, y1, y2 :: Parser Y
@@ -280,7 +280,7 @@ y2 = TypeVarY <$> typeVarParser
 propParser :: Parser Prop
 propParser = do
     rword "Prop"
-    pos <- getPosition
+    pos <- getSourcePos
     return Prop { propName = "Prop", propPos = pos}
 
 tParser, tTypeCtorAppParser, typeVarParser' :: Parser T
@@ -291,7 +291,7 @@ tTypeCtorAppParser = do
     --try (parens (argParser `sepBy1` comma)) <|> emptyArgList --option [] $
     -- parens (argParser `sepBy1` comma)
     --try (parens (argParser `sepBy1` comma)) <|> emptyArgList
-    pos <- getPosition
+    pos <- getSourcePos
     return (TConstr (TypeCtorApp { nameCons = i, argCons = arguments,
                                    constructorInvokerPos = pos }))
 typeVarParser' = TTypeVar <$> typeVarParser
@@ -305,7 +305,7 @@ kParser, kTypeParser, tParser'' :: Parser K
 kParser = try kTypeParser <|> try tParser''
 kTypeParser = do
      rword "type"
-     pos <- getPosition
+     pos <- getSourcePos
      return (Ktype (Type { typeName = "type", typePos = pos }))
 tParser'' = KT <$> tParser
 
@@ -472,21 +472,21 @@ data ExprNotationRule = ExprNotationRule {fromEnr          :: String,
                                           precedenceEnr    :: Integer}
                   deriving (Show, Eq, Typeable)
 
-data VarEnv = VarEnv { typeConstructors :: M.Map String TypeConstructor,
-                       valConstructors  :: M.Map String ValConstructor,
-                       operators        :: M.Map String Env.Operator,
-                       predicates       :: M.Map String PredicateEnv,
-                       typeVarMap       :: M.Map TypeVar Type,
-                       typeValConstructor :: M.Map T ValConstructor,
-                       varMap           :: M.Map Var T,
-                       preludes        :: [(Var,T)],
-                       subTypes         :: [(T,T)],
-                       typeCtorNames    :: [String],  -- a global list which contains all the names of types in that env
-                       declaredNames    :: [String],  -- a global list which contains all the names of elements declared in that env
-                       stmtNotations    :: [StmtNotationRule], -- all the statement notations in the dsll
-                       errors           :: String }   -- a string which accumulates all the errors founded during the run of the typechecker
-              deriving (Show, Eq, Typeable)
-
+data VarEnv = VarEnv
+  { typeConstructors   :: M.Map String TypeConstructor
+  , valConstructors    :: M.Map String ValConstructor
+  , operators          :: M.Map String Env.Operator
+  , predicates         :: M.Map String PredicateEnv
+  , typeVarMap         :: M.Map TypeVar Type
+  , typeValConstructor :: M.Map T ValConstructor
+  , varMap             :: M.Map Var T
+  , preludes           :: [(Var, T)]
+  , subTypes           :: [(T, T)]
+  , typeCtorNames      :: [String] -- a global list which contains all the names of types in that env
+  , declaredNames      :: [String] -- a global list which contains all the names of elements declared in that env
+  , stmtNotations      :: [StmtNotationRule] -- all the statement notations in the dsll
+  , errors             :: String -- a string which accumulates all the errors founded during the run of the typechecker
+  } deriving (Show, Eq, Typeable)
 
 isDeclared :: String -> VarEnv -> Bool
 isDeclared name varEnv = name `elem` typeCtorNames varEnv

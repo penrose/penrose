@@ -1,18 +1,18 @@
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric   #-}
+{-# LANGUAGE RankNTypes      #-}
 
 module Shapes where
 
-import Utils
-import Transforms
-import System.Random
-import GHC.Generics
-import Data.List (foldl')
-import Data.Aeson (FromJSON, ToJSON, toJSON)
-import Data.Maybe (fromMaybe)
+import           Data.Aeson      (FromJSON, ToJSON, toJSON)
+import           Data.List       (foldl')
 import qualified Data.Map.Strict as M
-import Debug.Trace
+import           Data.Maybe      (fromMaybe)
+import           Debug.Trace
+import           GHC.Generics
+import           System.Random
+import           Transforms
+import           Utils
 
 default (Int, Float)
 
@@ -20,119 +20,122 @@ default (Int, Float)
 --
 -- type Autofloat a = (RealFloat a, Floating a, Real a, Show a, Ord a)
 -- type Pt2 a = (a, a)
-
 -- genShapeType :: [ShapeTypeStr] -> Q [Dec]
 -- genShapeType shapeTypes = do
 --     let mkconstructor n = NormalC (mkName n) []
 --         constructors    = map mkconstructor shapeTypes
 --     return [DataD [] (mkName "ShapeT") [] Nothing constructors []]
-
 --------------------------------------------------------------------------------
 -- Types
-
 -- | shape can have multiple pieces, e.g. multiple "M"s
 type PathData a = [Path' a]
 
 -- | TODO
 -- NOTE: the order of the elements is important
 data Path' a
-    = Closed [Elem a] -- ^  "Z"
-    | Open [Elem a]   -- ^  no "Z"
-    deriving (Generic, Eq, Show)
+  = Closed [Elem a] -- ^  "Z"
+  | Open [Elem a] -- ^  no "Z"
+  deriving (Generic, Eq, Show)
+
 instance (FromJSON a) => FromJSON (Path' a)
-instance (ToJSON a)   => ToJSON (Path' a)
+
+instance (ToJSON a) => ToJSON (Path' a)
 
 -- | TODO
 data Elem a
-    = Pt (Pt2 a)                   -- ^ Replace "M," "L", "H", "V"
-    | CubicBez (Pt2 a, Pt2 a, Pt2 a) -- ^ "C": two control pts, 1 endpt
-    | CubicBezJoin (Pt2 a, Pt2 a)  -- ^ "S": 1 control pt, 1 endpt
-    | QuadBez (Pt2 a, Pt2 a)       -- ^ "Q": 1 control pt, 1 endpt
-    | QuadBezJoin (Pt2 a)          -- ^ "T": 1 endpt
-    deriving (Generic, Eq, Show)
-    -- | Arc { x, y, sweep1, … }  -- "A" TODO
+  = Pt (Pt2 a) -- ^ Replace "M," "L", "H", "V"
+  | CubicBez (Pt2 a, Pt2 a, Pt2 a) -- ^ "C": two control pts, 1 endpt
+  | CubicBezJoin (Pt2 a, Pt2 a) -- ^ "S": 1 control pt, 1 endpt
+  | QuadBez (Pt2 a, Pt2 a) -- ^ "Q": 1 control pt, 1 endpt
+  | QuadBezJoin (Pt2 a) -- ^ "T": 1 endpt
+  deriving (Generic, Eq, Show)-- | Arc { x, y, sweep1, … }  -- "A" TODO
+
 instance (FromJSON a) => FromJSON (Elem a)
-instance (ToJSON a)   => ToJSON (Elem a)
+
+instance (ToJSON a) => ToJSON (Elem a)
 
 -------------- Types
-
 -- | possible values in the argument of computation, constraint, or objectives
-data ArgVal a = GPI (Shape a) | Val (Value a)
-     deriving (Eq, Show, Generic)
-
- -- | possible types in the argument of computation, constraint, or objectives.
+data ArgVal a
+  = GPI (Shape a)
+  | Val (Value a)
+  deriving (Eq, Show, Generic)-- | possible types in the argument of computation, constraint, or objectives.
  -- Used for type checking functions
+
 data ArgType
-    = GPIType ShapeTypeStr
-    | ValueT ValueType
-    | OneOf [ShapeTypeStr]
-    | AnyGPI
-    deriving (Eq, Show)
+  = GPIType ShapeTypeStr
+  | ValueT ValueType
+  | OneOf [ShapeTypeStr]
+  | AnyGPI
+  deriving (Eq, Show)
 
 -- | types of fully evaluated values in Style
 data ValueType
-    = FloatT
-    | IntT
-    | BoolT
-    | StrT
-    | PtT
-    | PtListT
-    | ListT
-    | TupT
-    | LListT
-    | PathDataT
-    | ColorT
-    | FileT
-    | StyleT
-    | TransformT
-    | HMatrixT
-    | MapT
-    | PolygonT
-    deriving (Eq, Show)
+  = FloatT
+  | IntT
+  | BoolT
+  | StrT
+  | PtT
+  | PtListT
+  | ListT
+  | TupT
+  | LListT
+  | PathDataT
+  | ColorT
+  | FileT
+  | StyleT
+  | TransformT
+  | HMatrixT
+  | MapT
+  | PolygonT
+  deriving (Eq, Show)
 
 -- | fully evaluated values in Style
 data Value a
-    = FloatV a -- ^ floating point number
-    | IntV Integer -- ^ integer
-    | BoolV Bool -- ^ boolean value
-    | StrV String -- ^ string literal
-    | PtV (Pt2 a) -- ^ point in R^2
-    | PathDataV (PathData a) -- ^ path commands
-    | PtListV [Pt2 a] -- ^ a list of points
-    | ColorV Color -- ^ an RGBA color value
-    | FileV String -- ^ path for image
-    | StyleV String -- ^ dotted, etc.
-    | ListV [a] -- ^ a list of floats
-    | TupV (a, a) -- ^ a tuple of floats
-    | LListV [[a]] -- ^ a 2D list of floats
-    | HMatrixV (HMatrix a) -- ^ single transformation (homogeneous transformation)
-    | PolygonV (Polygon a) -- ^ multiple shapes with holes
-    deriving (Generic, Eq, Show)
+  = FloatV a -- ^ floating point number
+  | IntV Integer -- ^ integer
+  | BoolV Bool -- ^ boolean value
+  | StrV String -- ^ string literal
+  | PtV (Pt2 a) -- ^ point in R^2
+  | PathDataV (PathData a) -- ^ path commands
+  | PtListV [Pt2 a] -- ^ a list of points
+  | ColorV Color -- ^ an RGBA color value
+  | FileV String -- ^ path for image
+  | StyleV String -- ^ dotted, etc.
+  | ListV [a] -- ^ a list of floats
+  | TupV (a, a) -- ^ a tuple of floats
+  | LListV [[a]] -- ^ a 2D list of floats
+  | HMatrixV (HMatrix a) -- ^ single transformation (homogeneous transformation)
+  | PolygonV (Polygon a) -- ^ multiple shapes with holes
+  deriving (Generic, Eq, Show)
+
 instance (FromJSON a) => FromJSON (Value a)
-instance (ToJSON a)   => ToJSON (Value a)
+
+instance (ToJSON a) => ToJSON (Value a)
 
 instance (FromJSON a) => FromJSON (ArgVal a)
-instance (ToJSON a)   => ToJSON (ArgVal a)
+
+instance (ToJSON a) => ToJSON (ArgVal a)
 
 -- | returns the type of a 'Value'
 typeOf :: (Autofloat a) => Value a -> ValueType
-typeOf v = case v of
-     FloatV _     -> FloatT
-     IntV   _     -> IntT
-     BoolV  _     -> BoolT
-     StrV   _     -> StrT
-     PtV    _     -> PtT
-     PtListV    _ -> PtListT
-     TupV _ -> TupT
-     ListV _ -> ListT
-     LListV _ -> LListT
-     
-     PathDataV  _ -> PathDataT
-     ColorV _     -> ColorT
-     FileV  _     -> FileT
-     StyleV _     -> StyleT
-     HMatrixV _ -> HMatrixT
-     PolygonV _ -> PolygonT
+typeOf v =
+  case v of
+    FloatV _    -> FloatT
+    IntV _      -> IntT
+    BoolV _     -> BoolT
+    StrV _      -> StrT
+    PtV _       -> PtT
+    PtListV _   -> PtListT
+    TupV _      -> TupT
+    ListV _     -> ListT
+    LListV _    -> LListT
+    PathDataV _ -> PathDataT
+    ColorV _    -> ColorT
+    FileV _     -> FileT
+    StyleV _    -> StyleT
+    HMatrixV _  -> HMatrixT
+    PolygonV _  -> PolygonT
 
 -----------------
 

@@ -61,36 +61,45 @@ export const toScreen = (
 };
 
 export const penroseToSVG = (canvasSize: [number, number]) => {
-    const [width, height] = canvasSize;
-    const flipYStr = "matrix(1 0 0 -1 0 0)";
-    const translateStr = "translate(" + width / 2 + ", " + height / 2 + ")";
-    // Flip Y direction, then translate shape to origin mid-canvas
-    return [translateStr, flipYStr].join(" "); 
+  const [width, height] = canvasSize;
+  const flipYStr = "matrix(1 0 0 -1 0 0)";
+  const translateStr = "translate(" + width / 2 + ", " + height / 2 + ")";
+  // Flip Y direction, then translate shape to origin mid-canvas
+  return [translateStr, flipYStr].join(" ");
 };
 
 export const penroseTransformStr = (tf: any) => {
-    // console.log("shape transformation", tf);
-    const transformList = [tf.xScale, tf.ySkew, tf.xSkew,
-			   tf.yScale, tf.dx, tf.dy];
-    const penroseTransform = "matrix(" + transformList.join(" ") + ")";
-    return penroseTransform;
-}
-
-export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
-    // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
-    // `tf` is `shape.transformation.contents`, an HMatrix from the backend
-    // It is the *full* transform, incl. default transform
-    // Do Penrose transform, then SVG
-    const transformStr = [penroseToSVG(canvasSize), penroseTransformStr(tf)].join(" ");
-    // console.log("transformStr", transformStr);
-    return transformStr;
+  // console.log("shape transformation", tf);
+  const transformList = [
+    tf.xScale,
+    tf.ySkew,
+    tf.xSkew,
+    tf.yScale,
+    tf.dx,
+    tf.dy
+  ];
+  const penroseTransform = "matrix(" + transformList.join(" ") + ")";
+  return penroseTransform;
 };
 
-export const toPointListString = memoize( // Why memoize?
+export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
+  // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+  // `tf` is `shape.transformation.contents`, an HMatrix from the backend
+  // It is the *full* transform, incl. default transform
+  // Do Penrose transform, then SVG
+  const transformStr = [penroseToSVG(canvasSize), penroseTransformStr(tf)].join(
+    " "
+  );
+  // console.log("transformStr", transformStr);
+  return transformStr;
+};
+
+export const toPointListString = memoize(
+  // Why memoize?
   (ptList: any[], canvasSize: [number, number]) =>
     ptList
       .map((coords: [number, number]) => {
-	  const pt = coords;
+        const pt = coords;
         return pt[0].toString() + " " + pt[1].toString();
       })
       .join(" ")
@@ -170,7 +179,7 @@ export const collectLabels = async (allShapes: any[]) => {
     SVG: {
       matchFontHeight: false,
       useGlobalCache: false, // Needed for SVG inline export
-      useFontCache: false    // further reduces the reuse of paths
+      useFontCache: false // further reduces the reuse of paths
     },
     tex2jax: {
       inlineMath: [["$", "$"], ["\\(", "\\)"]],
@@ -189,7 +198,7 @@ export const collectLabels = async (allShapes: any[]) => {
         obj2.h.contents = height;
         // console.log(body, obj2);
         // Add omit: true flag so it doesn't get sent to the server
-        obj2.rendered = {contents: body, omit: true};
+        obj2.rendered = { contents: body, omit: true };
         return [type, obj2];
       } else {
         return [type, obj];
@@ -199,35 +208,35 @@ export const collectLabels = async (allShapes: any[]) => {
 };
 
 export const loadImageElement = memoize(
-    async (url: string): Promise<any> =>
-	new Promise((resolve, reject) => {
-	    const img = new Image();
-	    img.onload = () => resolve(img);
-	    img.onerror = reject;
-	    img.src = url;
-	})
+  async (url: string): Promise<any> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = url;
+    })
 );
 
 // Load images asynchronously so we can send the dimensions to the backend and use it in the frontend
 
 export const loadImages = async (allShapes: any[]) => {
-    return Promise.all(
-	allShapes.map(async ([type, obj]: [string, any]) => {
-	    if (type === "ImageTransform") {
-		const path = obj.path.contents;
-		const fullPath = process.env.PUBLIC_URL + path;
-		const loadedImage = await loadImageElement(fullPath);
-		const obj2 = { ...obj };
+  return Promise.all(
+    allShapes.map(async ([type, obj]: [string, any]) => {
+      if (type === "ImageTransform") {
+        const path = obj.path.contents;
+        const fullPath = process.env.PUBLIC_URL + path;
+        const loadedImage = await loadImageElement(fullPath);
+        const obj2 = { ...obj };
 
-		obj2.initWidth.contents = loadedImage.naturalWidth;
-		obj2.initHeight.contents = loadedImage.naturalHeight;
-		// We discard the loaded image <img> in favor of making an <image> inline in the image GPI file
-		// obj2.rendered = { contents: loadedImage, omit: true };
+        obj2.initWidth.contents = loadedImage.naturalWidth;
+        obj2.initHeight.contents = loadedImage.naturalHeight;
+        // We discard the loaded image <img> in favor of making an <image> inline in the image GPI file
+        // obj2.rendered = { contents: loadedImage, omit: true };
 
-		return [type, obj2];
-	    } else {
-		return [type, obj];
-	    }
-	})
-    );
+        return [type, obj2];
+      } else {
+        return [type, obj];
+      }
+    })
+  );
 };

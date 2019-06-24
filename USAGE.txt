@@ -1,6 +1,6 @@
 Usage:
-  penrose [options] <substance> <style> <element>
-  penrose [options] <style> <element>
+  penrose [--port=PORT --domain=NAME] <substance> <style> <element>
+  penrose [--port=PORT --domain=NAME] editor [-v]
 
 Options:
   --port=PORT    Port number of the websocket connection that the backend
@@ -9,3 +9,4 @@ Options:
                  listens on [default: 127.0.0.1]
   --config=PATH  Path to a runtime configuration for the optimization
   		 [default: opt-config/default.json]
+  -v --verbose   In editor mode, log more information on the console

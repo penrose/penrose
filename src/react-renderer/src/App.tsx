@@ -1,22 +1,22 @@
 import * as React from "react";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
-import { autoStepToggle, resample, step } from "./packets";
 import { ILayer } from "./types";
+import { Step, Resample, converged, initial } from "./packets";
 
 interface IState {
-  data: any[];
-  converged: boolean;
+  data: any;
   autostep: boolean;
   layers: ILayer[];
+  processedInitial: boolean;
 }
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<any, IState> {
   public readonly state = {
-    data: [],
-    converged: true,
+    data: {} as any,
     autostep: false,
+    processedInitial: false,
     layers: [
       { layer: "polygon", enabled: false },
       { layer: "bbox", enabled: false }
@@ -38,15 +38,18 @@ class App extends React.Component<any, IState> {
       this.canvas.current.downloadPDF();
     }
   };
-  public autoStepToggle = () => {
-    this.setState({ autostep: !this.state.autostep });
-    this.sendPacket(autoStepToggle());
+  public autoStepToggle = async () => {
+    await this.setState({ autostep: !this.state.autostep });
+    if (this.state.autostep && this.state.processedInitial) {
+      this.step();
+    }
   };
   public step = () => {
-    this.sendPacket(step());
+    this.sendPacket(JSON.stringify(Step(1, this.state.data)));
   };
-  public resample = () => {
-    this.sendPacket(resample());
+  public resample = async () => {
+    await this.setState({ processedInitial: false });
+    this.sendPacket(JSON.stringify(Resample(150, this.state.data)));
   };
   public toggleLayer = (layerName: string) => {
     this.setState({
@@ -58,16 +61,14 @@ class App extends React.Component<any, IState> {
       })
     });
   };
-  public onMessage = (e: MessageEvent) => {
-    const myJSON = JSON.parse(e.data).contents;
-    const flag = myJSON.flag;
 
-    // Rough inference of whether the diagram converged
-    const converged = flag === "final" || flag === "initial";
-
-    this.setState({ converged });
-    if (this.canvas.current) {
-      this.canvas.current.onMessage(e);
+  public onMessage = async (e: MessageEvent) => {
+    const data = JSON.parse(e.data).contents;
+    const processedData = await Canvas.processData(data);
+    await this.setState({ data: processedData, processedInitial: true });
+    const { autostep } = this.state;
+    if (autostep && !converged(processedData)) {
+      await this.step();
     }
   };
 
@@ -79,28 +80,33 @@ class App extends React.Component<any, IState> {
   public async componentDidMount() {
     this.setupSockets();
   }
+  public updateData = async (data: any) => {
+    await this.setState({ data: { ...data } });
+    if (this.state.autostep) {
+      this.step();
+    }
+  };
   public render() {
-    const { converged, autostep, layers } = this.state;
-    const { customButtons } = this.props;
+    const { data, layers, autostep } = this.state;
     return (
       <div className="App">
-        {!customButtons && (
-          <ButtonBar
-            downloadPDF={this.downloadPDF}
-            downloadSVG={this.downloadSVG}
-            autostep={autostep}
-            step={this.step}
-            autoStepToggle={this.autoStepToggle}
-            resample={this.resample}
-            converged={converged}
-            toggleLayer={this.toggleLayer}
-            layers={layers}
-            ref={this.buttons}
-          />
-        )}
+        <ButtonBar
+          downloadPDF={this.downloadPDF}
+          downloadSVG={this.downloadSVG}
+          autostep={autostep}
+          step={this.step}
+          autoStepToggle={this.autoStepToggle}
+          resample={this.resample}
+          converged={converged(data)}
+          initial={initial(data)}
+          toggleLayer={this.toggleLayer}
+          layers={layers}
+          ref={this.buttons}
+        />
         <Canvas
-          sendPacket={this.sendPacket}
-          lock={!converged && autostep}
+          data={data}
+          updateData={this.updateData}
+          lock={false}
           layers={layers}
           ref={this.canvas}
         />

@@ -21,7 +21,7 @@ import Data.Maybe (fromMaybe)
 import Data.Typeable
 import Text.Megaparsec
 import Text.Megaparsec.Char
-import Text.Megaparsec.Expr
+import Control.Monad.Combinators.Expr
 import Env
 
 import qualified Data.Map.Strict as M

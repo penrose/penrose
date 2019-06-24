@@ -27,7 +27,7 @@ executable penrose
         Server
         Substance
         SubstanceJSON
-        Dsll
+        Element
         Env
         Style
         Optimizer
@@ -37,6 +37,7 @@ executable penrose
         Transforms
         SubstanceTokenizer
         Sugarer
+        Interface
         Tokenizer
         Serializer
     default-language: Haskell2010
@@ -73,6 +74,7 @@ executable penrose
         array -any,
         ansi-terminal -any,
         docopt -any,
+        parser-combinators -any,
         hmatrix -any
 
 test-suite penrose-testsuite
@@ -86,7 +88,7 @@ test-suite penrose-testsuite
         Server
         Substance
         SubstanceJSON
-        Dsll
+        Element
         Env
         Style
         GenOptProblem
@@ -99,11 +101,11 @@ test-suite penrose-testsuite
         Tokenizer
         ShadowMain.Tests
         Server.Tests
-        Substance.Tests
+        -- Substance.Tests
+        -- Style.Tests
         Utils.Tests
         Functions.Tests
         Shapes.Tests
-        Style.Tests
         Transforms.Tests
     default-language: Haskell2010
     build-depends:
@@ -139,4 +141,5 @@ test-suite penrose-testsuite
         uuid -any,
         hslogger -any,
         docopt -any,
+        parser-combinators -any,
         hmatrix -any
