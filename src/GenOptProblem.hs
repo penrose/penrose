@@ -487,7 +487,7 @@ findFieldUninitialized name field (FExpr expr) acc = acc
 findFieldUninitialized name field (FGPI typ properties) acc =
     let ctorNonfloats  = filter (/= "name") $ propertiesNotOf FloatT typ in
     -- TODO: add a separate field (e.g. pendingPaths) in State to store these special properties that needs frontend updates
-    let uninitializedProps = pendingProperties typ ++ ctorNonfloats in
+    let uninitializedProps = ctorNonfloats in
     let vs = foldr (findPropertyUninitialized name field properties) [] uninitializedProps in
     vs ++ acc
 
@@ -1124,10 +1124,13 @@ updateVState s ((resampledShapes, varyingState', fields'), g) =
         trans' = insertPaths (uninitializedPaths s) uninitVals (transr s)
                     -- TODO: shapes', rng' = sampleConstrainedState (rng s) (shapesr s) (constrs s)
         varyMapNew = mkVaryMap (filter isFieldPath $ varyingPaths s) fields'
+        -- TODO: this is not necessary for now since the label dimensions do not change, but added for completeness
+        pendingPaths = findPending trans'
     in s { shapesr = polyShapes,
            rng = g,
            transr = trans' { warnings = [] }, -- Clear the warnings, since they aren't relevant anymore
            varyingState = map r2f varyingState',
+           pendingPaths = pendingPaths,
            paramsr = (paramsr s) { weight = initWeight, optStatus = NewIter } }
     -- NOTE: for now we do not update the new state with the new rng from eval.
     -- The results still look different because resampling updated the rng.
