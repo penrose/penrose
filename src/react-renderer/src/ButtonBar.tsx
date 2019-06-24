@@ -36,7 +36,10 @@ class ButtonBar extends React.Component<IProps> {
           autostep {autostep ? "(on)" : "(off)"}
         </button>
         <button onClick={step}>step</button>
-        <button onClick={resample} disabled={!converged && !initial}>
+        <button
+          onClick={resample}
+          disabled={!converged && !initial && autostep}
+        >
           resample
         </button>
         <button onClick={downloadPDF}>download PDF</button>
@@ -55,11 +58,12 @@ class ButtonBar extends React.Component<IProps> {
             display: "inline-block",
             width: 20,
             height: 20,
-            backgroundColor: converged
-              ? "#55de55"
-              : initial
-              ? "#4286f4"
-              : "#ff9d23"
+            backgroundColor:
+              converged || !autostep
+                ? "#55de55"
+                : initial
+                ? "#4286f4"
+                : "#ff9d23"
           }}
         />
       </div>
