@@ -64,15 +64,13 @@ shadowMain = do
   port <- args `getArgOrExit` longOption "port"
   config <- args `getArgOrExit` longOption "config"
   if args `isPresent` (command "editor")
-    then penroseEditor domain $ read port
+    then let isVerbose = args `isPresent` (longOption "verbose")
+         in Server.serveEditor domain (read port) isVerbose
     else do
       subFile <- args `getArgOrExit` argument "substance"
       styFile <- args `getArgOrExit` argument "style"
       elementFile <- args `getArgOrExit` argument "element"
       penroseRenderer subFile styFile elementFile domain config $ read port
-
-penroseEditor :: String -> Int -> IO ()
-penroseEditor domain port = Server.serveEditor domain port
 
 penroseRenderer ::
      String -> String -> String -> String -> String -> Int -> IO ()
