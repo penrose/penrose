@@ -2,7 +2,7 @@ import * as React from "react";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
-import { Step, Resample } from "./packets";
+import { Step, Resample, converged, initial } from "./packets";
 
 interface IState {
   data: any;
@@ -61,19 +61,13 @@ class App extends React.Component<any, IState> {
       })
     });
   };
-  public converged = () =>
-    this.state.data.paramsr &&
-    this.state.data.paramsr.optStatus.tag === "EPConverged";
-  public initial = () =>
-    this.state.data.paramsr &&
-    this.state.data.paramsr.optStatus.tag === "NewIter";
 
   public onMessage = async (e: MessageEvent) => {
     const data = JSON.parse(e.data).contents;
     const processedData = await Canvas.processData(data);
     await this.setState({ data: processedData, processedInitial: true });
     const { autostep } = this.state;
-    if (autostep && !this.converged()) {
+    if (autostep && !converged(processedData)) {
       await this.step();
     }
   };
@@ -103,8 +97,8 @@ class App extends React.Component<any, IState> {
           step={this.step}
           autoStepToggle={this.autoStepToggle}
           resample={this.resample}
-          converged={this.converged()}
-          initial={this.initial()}
+          converged={converged(data)}
+          initial={initial(data)}
           toggleLayer={this.toggleLayer}
           layers={layers}
           ref={this.buttons}

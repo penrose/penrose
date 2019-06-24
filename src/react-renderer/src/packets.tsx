@@ -30,3 +30,12 @@ export const transformValidJSON = (data: any) => ({
     pickBy(shape, (k: any) => !k.omit)
   ])
 });
+export const converged = (state: any) =>
+  state.paramsr && state.paramsr.optStatus.tag === "EPConverged";
+export const initial = (state: any) =>
+  state.paramsr && state.paramsr.optStatus.tag === "NewIter";
+
+export const running = (state: any) =>
+  state.paramsr &&
+  (state.paramsr.optStatus.tag === "UnconstrainedConverged" ||
+    state.paramsr.optStatus.tag === "UnconstrainedRunning");
