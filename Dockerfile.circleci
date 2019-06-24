@@ -6,4 +6,4 @@ WORKDIR /opt/penrose
 
 ENTRYPOINT ["./penrose"]
 EXPOSE 9160
-CMD ["--domain=0.0.0.0","src/sty/venn.sty","src/set-theory-domain/setTheory.dsl"]
+CMD ["--domain=0.0.0.0","editor"]
