@@ -120,7 +120,9 @@ class Canvas extends React.Component<IProps> {
     };
   };
   public static processData = async (data: any) => {
-    if (!data.shapesr) return {};
+    if (!data.shapesr) {
+      return {};
+    }
     const shapes = data.shapesr;
     const labeledShapes = await collectLabels(shapes);
     const labeledShapesWithImgs = await loadImages(labeledShapes);
