@@ -105,6 +105,7 @@ data Request
     | Resample Int State
     | StepUntilConvergence State
     | CompileTrio String String String
+    | GetEnv String String
     deriving Generic
 instance FromJSON Request
 instance ToJSON Request
@@ -120,6 +121,7 @@ processRequests client@(_, conn, _) = do
             Resample samples s -> sendSafe "state" $ Interface.resample s samples
             StepUntilConvergence s -> sendSafe "state" $ Interface.stepUntilConvergence s
             CompileTrio sub sty elm -> sendSafe "compilerOutput" $ Interface.compileTrio sub sty elm
+            GetEnv sub elm -> sendSafe "varEnv" $ Interface.sendEnv sub elm
         Nothing -> do 
             logError client "Error reading JSON" 
             processRequests client
