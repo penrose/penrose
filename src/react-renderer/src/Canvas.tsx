@@ -160,9 +160,7 @@ class Canvas extends React.Component<IProps> {
         return [name, shape];
       })
     });
-    console.log(updated.varyingState);
     const updatedWithVaryingState = await Canvas.updateVaryingState(updated);
-    console.log(updatedWithVaryingState.varyingState);
     this.props.updateData(updatedWithVaryingState);
   };
 
