@@ -159,25 +159,28 @@ handleClient state isVerbose pending = do
   clients <- readMVar state
   clientID <- newUUID
   let client = (clientID, conn, Stateless)
-  let logPath = "/tmp/penrose-" ++ idString client ++ ".log"
   let logLevel = if isVerbose then DEBUG else INFO
   myStreamHandler <- fmap withColoredFormatter $ streamHandler stderr logLevel
-  myFileHandler <- fmap withFormatter $ fileHandler logPath logLevel
-  updateGlobalLogger
-    rootLoggerName
-    (setHandlers [myStreamHandler, myFileHandler])
+  updateGlobalLogger rootLoggerName (setHandlers [myStreamHandler])
+
+--   let logPath = "/var/log/penrose-" ++ idString client ++ ".log"
+--   myFileHandler <- fmap withFormatter $ fileHandler logPath logLevel
+--   updateGlobalLogger
+--     rootLoggerName
+--     (setHandlers [myStreamHandler, myFileHandler])
+
   updateGlobalLogger rootLoggerName (setLevel DEBUG)
   flip finally (disconnect client) $ do
     modifyMVar_ state $ \s -> do
       let s' = addClient client s
       return s'
     logInfo client $ "Client connected " ++ toString clientID
-        -- start an editor session
+    -- start an editor session
     processRequests client
   where
     disconnect client
-              -- Remove client
      = do
+      -- Remove client
       modifyMVar_ state $ \s -> return $ removeClient client s
       logInfo client (idString client ++ " disconnected")
 
