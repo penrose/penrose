@@ -965,8 +965,6 @@ genOptProblemAndState trans optConfig =
     let (initialGPIs, transEvaled, _) = evalShapes evalIterRange (map (mkPath . list2) shapeNames) transInit initVaryingMap g'' in -- intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
     let initState = lookupPaths varyingPaths transEvaled in
 
-    if null initState then error "empty state in genopt" else
-
     -- This is the final Style compiler output
     let s = trace "genOptProblem init state: " $
                         State { shapesr = initialGPIs,

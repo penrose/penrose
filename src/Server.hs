@@ -88,7 +88,7 @@ processRequests :: Client -> IO ()
 processRequests client@(_, conn, _) = do
   logDebug client "Waiting for Commands"
   msg_json <- WS.receiveData conn
-    -- putStrLn $ "Messege received from frontend: \n" ++ show msg_json
+  logDebug client $ "Messege received from frontend: \n" ++ show msg_json
   case decode msg_json of
     Just e ->
       case e of
