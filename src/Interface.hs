@@ -1,5 +1,6 @@
-module Interface where
 {-# OPTIONS_HADDOCK prune #-}
+
+module Interface where
 
 import           Control.Exception          (ErrorCall, try)
 import qualified Data.Aeson                 as A
@@ -34,7 +35,7 @@ compileTrio substance style element
   pluginRes <- runPlugin subOut style env
   (subOut', styVals) <-
     case pluginRes of
-      Nothing -> pure $ (subOut, [])
+      Nothing -> pure (subOut, [])
       Just (subPlugin, styVals) -> do
         subOutPlugin <-
           parseSubstance "" (subDesugared ++ "\n" ++ subPlugin) env
@@ -56,7 +57,7 @@ getEnv substance element = do
   env <- parseElement "" element
   let subDesugared = sugarStmts substance env -- TODO: errors?
   subOut@(SubOut _ (subEnv, _) _) <- parseSubstance "" subDesugared env
-  Right $ subEnv
+  Right subEnv
 
 step ::
      State -- ^ the initial state
