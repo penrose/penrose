@@ -1,4 +1,5 @@
 module Interface where
+{-# OPTIONS_HADDOCK prune #-}
 
 import           Control.Exception          (ErrorCall, try)
 import qualified Data.Aeson                 as A

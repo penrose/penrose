@@ -1,5 +1,6 @@
 -- {-# LANGUAGE TemplateHaskell, StandaloneDeriving #-}
 {-# LANGUAGE RankNTypes #-}
+{-# OPTIONS_HADDOCK prune #-}
 
 module Functions where
 

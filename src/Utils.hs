@@ -3,6 +3,7 @@
 
 -- This is for the "typeclass synonym"
 {-# LANGUAGE ConstraintKinds #-}
+{-# OPTIONS_HADDOCK prune #-}
 
 module Utils where
 import Debug.Trace

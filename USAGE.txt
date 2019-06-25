@@ -1,5 +1,5 @@
 Usage:
-  penrose [--port=PORT --domain=NAME] <substance> <style> <element>
+  penrose [--port=PORT --domain=NAME --config=PATH] <substance> <style> <element>
   penrose [--port=PORT --domain=NAME] editor [-v]
 
 Options:

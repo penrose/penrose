@@ -1,6 +1,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE RankNTypes      #-}
+{-# OPTIONS_HADDOCK prune #-}
 
 module Shapes where
 
@@ -42,13 +43,14 @@ instance (FromJSON a) => FromJSON (Path' a)
 instance (ToJSON a) => ToJSON (Path' a)
 
 -- | TODO
+-- | Arc { x, y, sweep1, … }  -- "A" TODO
 data Elem a
   = Pt (Pt2 a) -- ^ Replace "M," "L", "H", "V"
   | CubicBez (Pt2 a, Pt2 a, Pt2 a) -- ^ "C": two control pts, 1 endpt
   | CubicBezJoin (Pt2 a, Pt2 a) -- ^ "S": 1 control pt, 1 endpt
   | QuadBez (Pt2 a, Pt2 a) -- ^ "Q": 1 control pt, 1 endpt
   | QuadBezJoin (Pt2 a) -- ^ "T": 1 endpt
-  deriving (Generic, Eq, Show)-- | Arc { x, y, sweep1, … }  -- "A" TODO
+  deriving (Generic, Eq, Show)
 
 instance (FromJSON a) => FromJSON (Elem a)
 
@@ -56,11 +58,11 @@ instance (ToJSON a) => ToJSON (Elem a)
 
 -------------- Types
 -- | possible values in the argument of computation, constraint, or objectives
+-- Used for type checking functions
 data ArgVal a
   = GPI (Shape a)
   | Val (Value a)
-  deriving (Eq, Show, Generic)-- | possible types in the argument of computation, constraint, or objectives.
- -- Used for type checking functions
+  deriving (Eq, Show, Generic)
 
 data ArgType
   = GPIType ShapeTypeStr
@@ -911,7 +913,7 @@ imageTransformType = ("ImageTransform", M.fromList
         ("initHeight", (FloatT, constValue $ FloatV 0.0)), -- (same)
 
         ("scaleX", (FloatT, constValue $ FloatV 1.0)), -- set by image file?
-        ("scaleY", (FloatT, constValue $ FloatV 1.0)), -- ^^
+        ("scaleY", (FloatT, constValue $ FloatV 1.0)), 
         ("rotation", (FloatT, constValue $ FloatV 0.0)),
         ("transform", (FloatT, constValue $ HMatrixV idH)),
         ("transformation", (FloatT, constValue $ HMatrixV idH)),

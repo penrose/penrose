@@ -1,3 +1,5 @@
+{-# OPTIONS_HADDOCK prune #-}
+
 module Plugins where
 
 import           Control.Exception          (ErrorCall, try)

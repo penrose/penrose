@@ -5,6 +5,7 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE RankNTypes                #-}
+{-# OPTIONS_HADDOCK prune #-}
 
 module Server where
 

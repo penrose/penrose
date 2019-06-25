@@ -5,6 +5,7 @@
 {-# LANGUAGE QuasiQuotes               #-}
 {-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE UnicodeSyntax             #-}
+{-# OPTIONS_HADDOCK prune #-}
 
 module ShadowMain where
 

@@ -1,5 +1,6 @@
 {-# LANGUAGE AllowAmbiguousTypes, RankNTypes, UnicodeSyntax, NoMonomorphismRestriction #-}
 {-# LANGUAGE BangPatterns, FlexibleInstances #-}
+{-# OPTIONS_HADDOCK prune #-}
 
 module Optimizer where
 

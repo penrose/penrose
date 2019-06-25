@@ -1,6 +1,8 @@
 {-# LANGUAGE TemplateHaskell, StandaloneDeriving #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# OPTIONS_HADDOCK prune #-}
+
 
 module Transforms where
 

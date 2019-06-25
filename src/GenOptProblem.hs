@@ -966,8 +966,7 @@ genOptProblemAndState trans optConfig =
     let initState = lookupPaths varyingPaths transEvaled in
 
     -- This is the final Style compiler output
-    let s = trace "genOptProblem init state: " $
-                        State { shapesr = initialGPIs,
+    let s = State { shapesr = initialGPIs,
                                  shapeNames = shapeNames,
                                  shapeProperties = shapeProperties,
                                  shapeOrdering = [], -- NOTE: to be populated later

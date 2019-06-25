@@ -1,12 +1,12 @@
 cabal-version: >=1.10
 name: penrose
-version: 0.1.0.2
+version: 0.1.1.0
 license: MIT
 license-file: LICENSE
-maintainer: kqy@cs.cmu.edu
+maintainer: penrose.team@gmail.com
 author: team-penrose
 homepage: http://penrose.ink
-synopsis: A system that automatically visualizes mathematics
+synopsis: Create beautiful diagrams just by typing mathematical notation in plain text.
 build-type: Simple
 extra-source-files:
     ChangeLog.md
@@ -20,6 +20,7 @@ source-repository head
 executable penrose
     main-is: Main.hs
     hs-source-dirs: src
+    build-tools: alex
     other-modules:
         ShadowMain
         Utils
@@ -87,6 +88,8 @@ test-suite penrose-testsuite
         Plugins
         Server
         Substance
+        Interface
+        Serializer
         SubstanceJSON
         Element
         Env
