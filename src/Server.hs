@@ -88,7 +88,7 @@ processRequests :: Client -> IO ()
 processRequests client@(_, conn, _) = do
   logDebug client "Waiting for Commands"
   msg_json <- WS.receiveData conn
-  logDebug client $ "Messege received from frontend: \n" ++ show msg_json
+  logDebug client $ "Message received from frontend: \n" ++ show msg_json
   case decode msg_json of
     Just e ->
       case e of
@@ -102,7 +102,7 @@ processRequests client@(_, conn, _) = do
     Nothing -> do
       logError client "Error reading JSON"
       processRequests client
-  logDebug client $ "Messege received and decoded successfully."
+  logDebug client $ "Message received and decoded successfully."
   processRequests client
   where
     sendSafe :: (ToJSON a, ToJSON b) => String -> Either a b -> IO ()
@@ -176,6 +176,8 @@ handleClient state isVerbose pending = do
       return s'
     logInfo client $ "Client connected " ++ toString clientID
     -- start an editor session
+
+    wsSendPacket conn Packet {typ = "connection", contents = String "connected"}
     processRequests client
   where
     disconnect client
