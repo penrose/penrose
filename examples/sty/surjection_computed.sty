@@ -1,0 +1,138 @@
+Colors {
+  Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
+  Colors.darkBlue = rgba(0.05, 0.05, 0.6, 1.0)
+}
+
+Point p {
+    p.shape = AnchorPoint { }
+}
+
+Set `domainOuter` {
+    `domainOuter`.shape = Arrow {
+        startX : -100.0
+        startY : 0.0
+        endX   : 325.0
+        endY   : 0.0
+        thickness : 10.0
+        color : Colors.black
+    }
+    `domainOuter`.text = Text { string : `domainOuter`.label }
+    `domainOuter`.nearFn = encourage nearHead(`domainOuter`.shape, `domainOuter`.text, 15.0, 0.0)
+}
+
+Set `codomain` {
+    `codomain`.shape = Arrow {
+          startX : -100.0
+          startY : 0.0
+          endX   : -100.0
+          endY   : 200.0
+          thickness : 10.0
+          color : Colors.black
+    }
+
+    -- TODO: refactor rendering code and uncomment
+    -- `codomain`.angleNotation = Arc {
+        -- x : -100.0
+        -- y : 0.0
+        -- isRight : "true"
+        -- style : "wedge"
+    -- }
+
+    `codomain`.text = Text { string : `codomain`.label }
+    `codomain`.nearFn = encourage nearHead(`codomain`.shape, `codomain`.text, 0.0, 20.0)
+}
+
+Set `domain`
+with Set `codomain`, `domainOuter` {
+    `domain`.left_margin  = 0.2
+    `domain`.right_margin = 0.8
+    `domain`.outer_len = `domainOuter`.shape.endX - `domainOuter`.shape.startX
+
+    `domain`.left = Line {
+        thickness : 2.0
+        color : Colors.black
+        style : "dashed"
+        startX : `domainOuter`.shape.startX + `domain`.left_margin * `domain`.outer_len
+        startY : `domainOuter`.shape.startY
+        endX : `domain`.left.startX
+        endY : `codomain`.shape.endY
+    }
+
+    `domain`.right = Line {
+        thickness : 2.0
+        color : Colors.black
+        style : "dashed"
+        startX : `domainOuter`.shape.startX + `domain`.right_margin * `domain`.outer_len
+        startY : `domainOuter`.shape.startY
+        endX : `domain`.right.startX
+        endY : `codomain`.shape.endY
+     }
+
+    `domain`.left_label = Text { string : "A_0" }
+    `domain`.right_label = Text { string : "A_1" }
+    `domain`.leftFn = encourage nearEndVert(`domain`.left, `domain`.left_label)
+    `domain`.rightFn = encourage nearEndVert(`domain`.right, `domain`.right_label)
+}
+
+Set `image`
+with Set `codomain`, `domainOuter`{
+    `image`.bottom_margin  = 0.2 -- TODO: Could these margins be optimized?
+    `image`.top_margin = 0.8
+    `image`.codomain_len = `codomain`.shape.endY - `codomain`.shape.startY
+
+    `image`.bottom = Line {
+        thickness : 2.0
+        color : Colors.black
+        style : "dashed"
+        startX : `codomain`.shape.startX
+        startY : `codomain`.shape.startY + `image`.bottom_margin * `image`.codomain_len
+        endX : `domainOuter`.shape.endX
+        endY : `image`.bottom.startY
+    }
+
+    `image`.top = Line {
+        thickness : 2.0
+        color : Colors.black
+        style : "dashed"
+        startX : `codomain`.shape.startX
+        startY : `codomain`.shape.startY + `image`.top_margin * `image`.codomain_len
+        endX : `domainOuter`.shape.endX
+        endY : `image`.top.startY
+    }
+
+    `image`.top_label = Text { string : "B_1" }
+    `image`.bottom_label = Text { string : "B_0" }
+    `image`.bottomFn = encourage nearEndHoriz(`image`.bottom, `image`.bottom_label)
+    `image`.topFn = encourage nearEndHoriz(`image`.top, `image`.top_label)
+}
+
+Map f
+where From(f, domain, image)
+with Set `domainOuter`; Set domain; Set image {
+    f.shape = Curve {
+        path : computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
+        pathData : interpolate(f.shape.path, "open")
+        color : Colors.darkBlue
+        fill : Colors.none
+    }
+    -- f.shape.pathData = interpolate(f.shape.path)
+
+    f.text = Text {
+        string : f.label
+        x : `domainOuter`.shape.endX / 2.0 - 50.0
+        y : `domainOuter`.shape.endY - 30.0
+    }
+}
+
+Set `cartesianProduct`
+with Set `domain`; Set `image` {
+    `cartesianProduct`.shape = Rectangle {
+        x : (`domain`.left.startX + `domain`.right.startX) / 2.0
+        y : (`image`.bottom.startY + `image`.top.startY) / 2.0
+        sizeX : `domain`.right.startX - `domain`.left.startX
+        sizeY : `image`.top.startY - `image`.bottom.startY
+        color : Colors.lightBlue
+    }
+}

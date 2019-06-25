@@ -1,0 +1,44 @@
+VectorSpace U,V
+
+LinearMap f
+From(f,U,V)
+
+Vector u1
+In(u1,U)
+
+Label u1 $\vec{u_{1}}$
+
+Vector v1
+In(v1,V)
+
+Label v1 $f(\vec{u_{1}})$
+
+Label f $f : U \rightarrow V$
+
+Vector u2
+In(u2, U)
+Label u2 $\vec{u_2}$
+
+Vector u3
+In(u3, U)
+u3 := AddV(u1, u2)
+Label u3 $\vec{u_1} + \vec{u_2}$
+
+Vector v2
+In(v2, V)
+
+Vector v3
+In(v3, V)
+
+-- TODO: there's no style for Apply(f, ui) yet
+v1 := Apply(f, u1)
+v2 := Apply(f, u2)
+v3 := Apply(f, u3)
+
+Label v2 $f(\vec{u_2})$
+Label v3 $f(\vec{u_1} + \vec{u_2})$
+
+-- Matches anyway, without '='
+v3 := AddV(v1, v2)
+
+AutoLabel U,V

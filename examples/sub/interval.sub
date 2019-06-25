@@ -1,0 +1,83 @@
+Reals D
+Reals C
+
+/*
+Point a
+InRealsP(a,D)
+Point b
+InRealsP(b,D)
+Point c
+InRealsP(c,D)
+Point d
+InRealsP(d,D)
+Point e
+InRealsP(e,D)
+Point i
+InRealsP(i,D)
+Point j
+InRealsP(j,D)
+Point k
+InRealsP(k,D)
+Point inf
+InRealsP(inf,D)
+
+Interval A
+A = IntervalCons(a,b)
+InRealsI(A,D)
+Closed(A)
+
+Interval J
+J = IntervalCons(d, e)
+InRealsI(J,D)
+LeftClopen(J)
+
+Interval I
+I = IntervalCons(i, j)
+InRealsI(I,D)
+Open(I)
+
+Interval K
+K = IntervalCons(k, inf)
+InRealsI(K,D)
+Open(K)
+
+LessThan(b,k)
+
+Function f
+f = FunctionConsIntervalD(A,C)
+Differentiable(f)
+
+Interval U
+U = Union(Cons(J,Cons(I)))
+InRealsI(U,D)
+-- union(c, J, I): not supporting mixed unioning of points and intervals yet in DSL “book”
+
+Function h
+h = FunctionConsIntervalD(U,C)
+Discontinuous(h)
+
+Point 𝓁
+InIntervalP(𝓁,A)
+Point m
+InIntervalP(m,I)
+Point p
+p = Apply(c,h)
+InRealsP(p,C)
+Point f𝓁
+f𝓁 = Apply(𝓁,f)
+InRealsP(f𝓁,C)
+
+Point2D p2
+p2 = Point2DCons(𝓁, f𝓁)
+InIntervalRealsP2D(p2,A,C)
+
+Function df
+df = DerivativeOverD(f)
+
+Point df𝓁
+df𝓁 = DerivativeAtP(𝓁,f)
+
+Point ih
+ih = Integral(J,h)
+
+*/

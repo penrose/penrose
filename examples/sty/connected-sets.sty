@@ -1,0 +1,36 @@
+Set x {
+    shape = Circle { }
+    constraint contains(x, x.label)
+}
+
+Intersect x y {
+    constraint overlapping(x, y)
+    constraint outsideOf(y.label, x)
+    constraint outsideOf(x.label, y)
+}
+
+NoIntersect x y {
+    constraint nonOverlapping(x, y)
+}
+
+Subset x y {
+    constraint contains(y, x)
+    constraint smallerThan(x, y)
+    constraint outsideOf(y.label, x)
+}
+
+NoSubset x y {
+    objective repel(x, y)
+    constraint outsideOf(x, y)
+    constraint outsideOf(y.label, x)
+    constraint outsideOf(x.label, y)
+    constraint nonOverlapping(x, y)
+}
+
+Set x, Set y {
+    shape = Arrow {
+        start = x
+        end   = x
+        label = None
+    }
+}

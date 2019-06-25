@@ -1,0 +1,8 @@
+VectorSpace U
+Vector u1 ∈ U
+
+Scalar c := |u1|
+
+Label c $|\vec{u_{1}}|$
+Label u1 $\vec{u_{1}}$
+AutoLabel U

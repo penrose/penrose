@@ -1,0 +1,10 @@
+VectorSpace U
+
+Vector u1 ∈ U
+Vector neg_u1 ∈ U
+
+neg_u1 := -u1
+
+Label u1 $\vec{u_{1}}$
+Label neg_u1 $\vec{-u_{1}}$
+AutoLabel U

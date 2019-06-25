@@ -1,0 +1,67 @@
+Graph G1
+Vertex v1, v2, v3, v4
+
+Edge e1
+e1 := MkEdge(v1, v2)
+
+Edge e2
+e2 := MkEdge(v1, v3)
+
+Edge e3
+e3 := MkEdge(v3, v4)
+
+Edge e4
+e4 := MkEdge(v3, v2)
+
+InV(v1, G1)
+InV(v2, G1)
+InE(e1, G1)
+
+Graph G2
+Face f1
+f1 := FindFace(G2)
+
+Vertex vf1
+vf1 := FindVertex(f1)
+
+Vertex vf2
+vf2 := FindVertex(G2)
+
+Edge ef12
+ef12 := MkEdge(vf1, vf2)
+SelectedE(ef12)
+
+AutoLabel All
+
+-- TODO: rest of In predicates (if we need them?)
+
+-- Style fails on parametric type; Substance fails on Nil constructor and on Cons constructor
+-- List(Vertex) temp
+-- temp := Nil()
+
+-- List(Vertex) V
+-- V := Cons(v1, Cons(v2, temp))
+
+/*
+-- Make a concrete graph
+Vertex v1, v2, v3, v4
+List(Vertex) V := [v1, v2, v3, v4]
+Edge e1 := MkEdge(v1, v2)
+Edge e2 := MkEdge(v2, v3)
+Edge e3 := MkEdge(v3, v4)
+List(Edge) E := [e1, e2, e3]
+Graph G1 := MakeGraph(V, E)
+
+-- Make abstract graphs that satisfy some properties and operate on them
+Graph G2
+FullyConnected(G2)
+
+Tree T
+
+Graph G3 := Product(G2, T)
+
+-- Highlight subparts of each graph (if possible)
+Path p1 := FindPath(G1)
+Graph G4 := Subgraph(G3)
+Selected(e2)
+*/

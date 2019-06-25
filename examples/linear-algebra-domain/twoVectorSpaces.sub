@@ -1,0 +1,10 @@
+VectorSpace U,V
+
+Vector A ∈ U
+Vector B ∈ U
+Vector C ∈ V
+
+Label A $\vec{u_{1}}$
+Label B $\vec{u_{2}}$
+Label C $\vec{v_{1}}$
+AutoLabel U,V

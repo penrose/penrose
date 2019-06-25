@@ -1,0 +1,64 @@
+Const {
+  Const.start = -100.0
+  Const.setLength = 400.0
+}
+
+Colors {
+  Colors.orange = rgba(1.0, 0.25, 0.25, 0.5)
+}
+
+Set X {
+  X.shape = Arrow {
+    thickness : 10.0
+  }
+
+  X.text = Text { string : X.label }
+  X.labelFn = encourage centerLabel(X.shape, X.text)
+}
+
+-- TODO: have consts be calculated off of a Const
+Set `domain` {
+    `domain`.shape.startX = Const.start
+    `domain`.shape.startY = Const.start
+    `domain`.shape.endX   = Const.start + Const.setLength
+    `domain`.shape.endY   = Const.start
+}
+
+Set `codomain` {
+    `codomain`.shape.startX = Const.start
+    `codomain`.shape.startY = Const.start
+    `codomain`.shape.endX   = Const.start
+    `codomain`.shape.endY   = Const.start + Const.setLength
+}
+
+-- Set `domain`; Set `codomain`
+  -- `domain`.angleMark = Arc {
+  --  isRight : "true"
+  -- }
+
+Map f
+with Set domain; Set codomain
+where From(f, domain, codomain) {
+    f.shape = Curve {
+        path : computeSurjectionLines(10, codomain.shape, domain.shape)
+    }
+
+    f.text = Text { string : f.label }
+    
+    f.labelFn = encourage centerLabel(f.shape, f.text) -- offset 10 
+}
+
+-- TODO: add predicate `On(p, f)`, and style `p` accordingly
+Point p {
+    p.shape = Circle {
+        r     : 20.0
+        x     : 130.0
+        y     : 180.0
+        color : Colors.orange
+        stroke-width : 0.0
+    }
+
+    p.text = Text { string : p.label }
+    
+    p.labelFn = encourage centerLabel(p.shape, p.text)
+}

@@ -1,0 +1,10 @@
+Set `A` {
+    shape = Circle { }
+    constraint contains(A, A.shape.label)
+}
+Set `B` {
+    shape = Circle { }
+    constraint contains(B, B.shape.label)
+    objective equal(A.shape.x, B.shape.x)
+    objective ratioOf(A.shape.radius, B.shape.radius, 0.5)
+}

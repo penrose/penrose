@@ -1,0 +1,34 @@
+Set x {
+    shape = Circle { }
+    constraint contains(x, x.shape.label)
+}
+Intersect x y {
+    constraint overlapping(x, y)
+    constraint outsideOf(y.shape.label, x)
+    constraint outsideOf(x.shape.label, y)
+}
+NoIntersect x y {
+    constraint nonOverlapping(x, y)
+}
+Subset x y {
+    constraint contains(y, x)
+    constraint smallerThan(x, y)
+    constraint outsideOf(y.shape.label, x)
+}
+NoSubset x y {
+    objective repel(x, y)
+    constraint outsideOf(x, y)
+    constraint outsideOf(y.shape.label, x)
+    constraint outsideOf(x.shape.label, y)
+    constraint nonOverlapping(x, y)
+}
+Point x {
+    shape = Dot { text = Auto }
+    objective centerLabel(x, x.shape.label)
+}
+In x y {
+    constraint y contains x
+}
+Set x, Set y {
+}
+

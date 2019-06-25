@@ -1,0 +1,49 @@
+AutoLabel All
+
+Reals R
+Label R $\mathbb{R}$
+
+Real a, b
+Interval A
+Subset(A, R) -- just need this line next to draw it
+A := CreateInterval(a, b)
+
+Real l
+In(l, A)
+
+Real c, d
+Interval B
+Subset(B, R)
+B := CreateInterval(c, d)
+
+Function f
+-- if we just type "Function f" and don't see anything, what do we expect to happen?
+
+-- Kinds of functions that work with parallel-reals2.sty: (uncomment one of the below lines)
+-- f := CreateFunction(A, R)
+-- f := CreateFunction(B, R)
+
+-- f := CreateFunction(R, A)
+-- f := CreateFunction(R, B)
+
+-- f := CreateFunction(A, B)
+-- f := CreateFunction(B, B)
+
+f := CreateFunction(R, R)
+
+-- TODO: get it to work in perp style too
+
+-- No style for these in parallel-reals2.sty:
+
+-- f := CreateFunction(A, A) 
+-- f := CreateFunction(B, B)
+
+Real f_l
+f_l := apply(f, l)
+Label f_l $f(l)$
+
+------
+
+-- Next test: all functions between intervals above work if {A,B} are any kind of interval (Interval without endpoints, Interval with endpoints, Open, Closed, LeftClopen, RightClopen)
+-- BUT not necessarily an interval that was created by union or intersection
+-- I feel like I need proofs about the Style program, not tests! e.g. if the interval fields in Style satisfy this interface, then we know anything that depends on a type will work for the subtype.

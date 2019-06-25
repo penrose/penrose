@@ -1,0 +1,10 @@
+Set x {
+    x.shape = Circle {
+        strokeWidth = 0
+    }
+}
+
+Set x; Set y
+where IsSubset(x, y) {
+    LOCAL.layering  = x.shape above y.shape
+}

@@ -1,0 +1,21 @@
+VectorSpace U
+
+Vector u1 ∈ U
+Vector u2 ∈ U
+Vector u3 ∈ U
+Vector u4 ∈ U
+
+Scalar c1 := |u1|
+Scalar c2 := |u2|
+Scalar c3 := addS(c1,c2)
+
+u2 := c1 * u1
+u4 := c3 * u3
+
+Label u1 $\vec{u_{1}}$
+Label u2 $\vec{u_{2}}$
+Label u3 $\vec{u_{3}}$
+Label u4 $\vec{u_{4}}$
+-- Label c1 $|\vec{u_{1}}|$
+-- Label c2 $|\vec{u_{2}}|$
+AutoLabel U

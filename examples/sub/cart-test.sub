@@ -1,0 +1,8 @@
+Set domain
+Set codomain
+
+Map f
+From(f, domain, codomain)
+-- TODO: add Surjection(f) predicate
+
+AutoLabel All

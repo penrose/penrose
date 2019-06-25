@@ -1,0 +1,19 @@
+VectorSpace V,U
+
+Vector v1 ∈ V
+Vector v2 ∈ V
+
+v2 := -v1
+
+Vector u1 ∈ U
+Vector u2 ∈ U
+Vector u3 ∈ U
+
+u3 := u1 + u2
+
+Label v1 $\vec{v_{1}}$
+Label v2 $\vec{-v_{1}}$
+Label u1 $\vec{u_{1}}$
+Label u2 $\vec{u_{2}}$
+Label u3 $\vec{u_{1}+u_{2}}$
+AutoLabel U,V

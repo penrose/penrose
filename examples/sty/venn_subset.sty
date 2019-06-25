@@ -1,0 +1,23 @@
+Set x {
+    shape = Circle {}
+    constraint contains(x, x.shape.label)
+}
+
+Set `D` {
+  shape = Text {}
+
+  constraint contains(C, D.shape.label)
+  constraint contains(B, D.shape.label)
+} 
+
+Intersect x y {
+    constraint overlapping(x, y)
+    constraint outsideOf(y.shape.label, x)
+    constraint outsideOf(x.shape.label, y)
+}
+
+Subset x y {
+    constraint contains(y, x)
+    constraint smallerThan(x, y)
+    constraint outsideOf(y.shape.label, x)
+}

@@ -1,0 +1,24 @@
+Set x {
+    constraint contains(x, x.shape.label)
+}
+
+Set `A` {
+  shape = Circle {
+    color = computeColor()
+  }
+
+  -- TODO: doesn't work; can't find identifier
+  -- constraint at(A, 100, 100)
+}
+
+Set `B` {
+  shape = Circle {
+    color = computeColor2()
+  }
+}
+
+Subset x y {
+    constraint contains(y, x)
+    constraint smallerThan(x, y)
+    constraint outsideOf(y.shape.label, x)
+}

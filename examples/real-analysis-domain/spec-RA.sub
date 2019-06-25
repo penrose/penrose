@@ -1,0 +1,62 @@
+-- This is the desugared version of the full real analysis spec program in the design paper.
+
+AutoLabel All
+
+Label R $\mathbb{R}$
+
+---------------------------------------------------
+
+Real a, b
+ClosedInterval A
+A := CreateClosedInterval(a, b)
+Subset(A, R)
+
+Real l
+In(l, A)
+
+Function f
+f := CreateFunction(A, R)
+Continuous(f)
+
+Real f_l
+f_l := Apply(f, l)
+Label l $x$
+Label f_l $f(x)$
+
+Point p
+p := Pt(l, f_l)
+
+Real dfl
+dfl := DerivativeAtP(f, l)
+Label dfl $f'(x)$
+
+---------------------------------------------------
+
+Real d, e, i, j
+OpenInterval I
+I := CreateOpenInterval(d, e)
+Subset(I, R)
+
+LeftClopenInterval J
+J := CreateLeftClopenInterval(i, j)
+Subset(J, R)
+
+Interval U
+U := Union(I, J)
+Subset(U, R)
+
+Function h
+h := CreateFunction(U, R)
+Discontinuous(h)
+
+Real ifI
+ifI := Integral(I, h)
+Label ifI $\int_{I} h(x) dx$
+
+---------------------------------------------------
+
+Real m, n
+PosInfinite(n)
+OpenInterval K
+K := CreateOpenInterval(m, n)
+Subset(K, R)

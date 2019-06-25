@@ -1,0 +1,48 @@
+VectorSpace U, V, W, X
+
+LinearMap f : U → V
+LinearMap g : V → W
+LinearMap h : W → X
+
+Vector u1 ∈ U
+Vector u2 ∈ U
+Vector u3 ∈ U
+Vector u4 ∈ U
+Vector u5 ∈ U
+
+u3 := u1 + u2
+
+Vector v1 ∈ V
+Vector v2 ∈ V
+Vector v3 ∈ V
+v3 := v1 + v2
+
+Scalar a
+a := det(u1,u3)
+u4 := a * u2
+u5 := -u4
+Scalar m
+m := |v2|
+
+Scalar c
+
+Vector w1 ∈ W
+Vector x1 ∈ X
+
+AutoLabel All
+-- AutoLabel U,V,W,X
+-- Label f $f$
+-- Label g $g$
+-- Label h $h$
+-- Label u1 $u_1$
+-- Label u2 $u_2$
+-- Label u3 $u_3$
+-- Label v1 $v_1$
+-- Label v2 $v_2$
+-- Label v3 $v_3$
+-- Label u4 $u_4 = au_2/2$
+-- Label u5 $u_5 = -u_4$
+-- Label c $|v_1| \langle v_1, v_3 \rangle$
+-- Label w1 $g(v_1)$
+-- Label x1 $(h \circ g)(v_1)$
+-- Label m $|v_{2}|$

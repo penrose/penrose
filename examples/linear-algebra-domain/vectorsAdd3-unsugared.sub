@@ -1,0 +1,23 @@
+VectorSpace V
+
+Vector v1
+In(v1, V)
+Label v1 $\vec{v_1}$
+
+Vector v2
+In(v2, V)
+Label v2 $\vec{v_2}$
+
+Vector sum1
+In(sum1, V)
+sum1 := addV(v1, v2)
+Label sum1 $\vec{v_1} + \vec{v_2}$
+
+Vector v3
+In(v3, V)
+Label v3 $\vec{v_3}$
+
+Vector sum2
+In(sum2, V)
+sum2 := addV(sum1, v3)
+Label sum2 $\vec{v_1} + \vec{v_2} + \vec{v_3}$

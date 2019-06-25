@@ -1,0 +1,52 @@
+global {
+    objective toLeft(A, B)
+    objective sameHeight(A, B)
+    objective sameX(A, B) 
+    constraint sameSizeAs(A, B) 
+    -- objective sameX(A.shape.label, B.shape.label) 
+    -- objective above(x, y)
+    -- objective above(a, b)
+    -- objective above(b, c)
+}
+
+Set s {
+    shape = Ellipse { }
+    -- constraint contains(s, s.shape.label)
+    constraint outsideOf(s.shape.label, s)
+    objective above(s, s.shape.label)
+    objective sameX(s, s.shape.label)
+}
+
+Value f p q {
+    shape = Arrow {
+        start = p
+        end   = q
+        text = None
+    }
+}
+
+
+Point p {
+    shape = Dot {
+        text = Auto
+    }
+    objective centerLabel(p, p.shape.label)
+}
+
+In p s {
+    constraint contains(s, p)
+    -- constraint contains(s, p.shape.label)
+    objective sameX(p, s)
+    objective sameHeight(p, s)
+}
+
+In p `A`, In q `A` {
+    objective sameX(p, q)
+    objective repel(p, q)
+}
+
+In p `B`, In q `B` {
+    objective sameX(p, q)
+    objective repel(p, q)
+}
+

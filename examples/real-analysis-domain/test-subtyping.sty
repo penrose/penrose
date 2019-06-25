@@ -1,0 +1,60 @@
+Colors {
+  Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+  Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+  Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+  Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+  Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+  Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+  Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+  Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+  Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+  Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+  Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+  Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+  Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+  Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+}
+
+-- Should match Real, Interval, and all subtypes of Interval
+Set S {
+    S.shape = Circle {
+    	    color = Colors.green
+    }
+}
+
+Reals R {
+      override R.shape = Line { 
+            color = Colors.black
+      }
+}
+
+Interval I {
+      override I.shape = Circle {
+	      color = Colors.red
+      }
+}
+
+ClosedInterval I {
+      override I.shape.color = Colors.black
+}
+
+Real a {
+     a.shape = Line {
+     	     color = Colors.yellow
+     }
+}
+
+-- Should match `a` AND `b`
+Real x
+with Interval I
+where In(x, I) {
+      override x.shape.color = Colors.cyan
+}
+
+-- Should match `I` AND `C`
+Interval X
+with Real x; Real y; Reals R
+where X := CreateInterval(x, y); Subset(X, R) {
+      X.shape.strokeColor = Colors.orange
+      X.shape.strokeWidth = 10.0
+}

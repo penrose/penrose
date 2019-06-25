@@ -1,0 +1,12 @@
+Set W
+Set X
+Set Y
+Set Z
+Intersect W X
+Intersect X Y
+Intersect Y Z
+Intersect W Z
+NoSubset W X
+NoSubset X Y
+NoSubset Y Z
+NoSubset W Z

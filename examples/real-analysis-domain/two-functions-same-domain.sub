@@ -1,0 +1,37 @@
+Reals R
+
+-- I := [a, b] \subset R
+Real a, b
+OpenInterval I
+I := CreateOpenInterval(a, b)
+Subset(I, R)
+
+-- T := [c, d] \subset R
+Real c, d
+ClosedInterval T
+T := CreateClosedInterval(c, d)
+Subset(T, R)
+
+-- S := [e, f] \subset R
+Real i, j
+OpenInterval S
+S := CreateOpenInterval(i, j)
+Subset(S, R)
+
+Function f
+f := CreateFunction(I, T)
+
+Function g
+g := CreateFunction(I, S)
+
+-- x \in I
+
+Real x
+In(x, I)
+Real y
+y := apply(g, x)
+In(y, S)
+
+AutoLabel All
+NoLabel a, b, c, d, i, j
+Label R $\mathbb{R}$

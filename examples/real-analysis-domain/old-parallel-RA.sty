@@ -1,0 +1,528 @@
+-- Is our DSL / Substance program modeling things correctly? We don't quite have f.domain and f.codomain working, either as anon exprs or as selector matches
+-- What are we learning from this rewritten style?
+
+global {
+  global.axis_separation = OPTIMIZED 
+}
+
+Set X {
+    -- We have no way to construct a set right now,
+    -- but it might be, say a list of reals or a union of intervals
+    -- In which case, we'd want to be able to create a programmatic number of GPIs
+
+    X.val = [1, 2, 3]
+}
+
+-- The selectors for just Substance objects define the "Style API" for the objects
+-- e.g. Intervals have left, right, yval
+-- Reals <: Interval so it has the same S.API
+-- a Real only has a val
+Interval I {
+  -- can be drawn independently of R; horiz
+  I.left = ?
+  I.right = ? -- not specified by an a or b
+
+  -- No brackets b/c we don't know what kind of int.
+  I.yval = ?
+  I.shape = Line { -- horizontal
+    startX = I.left
+    startY = I.yval
+    endX = I.right
+    endY = I.yval
+    thickness = 10
+  }
+
+  I.wfFn = ensure lessThan(I.left, I.right)
+}
+
+-- Should we have Reals <: Interval?
+Reals R {
+  R.left = ?
+  R.right = ?
+  R.yval = ?
+  
+  R.shape = Arrow { -- horiz
+    startX = R.left
+    startY = R.yval
+    endX = R.right
+    endY = R.yval
+    style = "double"
+  }
+}
+
+Real x {
+     x.val = ?
+     x.yval = ? -- We don't know where to draw it!
+
+     x.shape = Tick {
+       x = x.val
+       y = x.yval
+     }    
+}
+
+Real x
+with Reals `R` {
+  -- If not ``In'' a copy of R, then implicitly in R
+  override x.yval = `R`.yval
+
+  x.rFn = ensure inRange(x.val, R.left, R.right)
+}
+
+-- Now add visual constraints to correspond to more specific Substance types/predicates
+
+-- The previous selectors style all reals; now this one overrides the styling for any ones that are explicitly declared to be in an interval
+Real x
+with Interval I
+where In(x, I) {
+  override x.yval = I.yval
+
+  -- all of the reals will already have rFn from `R`
+  override x.rFn = ensure inRange(x.val, I.left, I.right)
+}
+
+-- Next four selectors deal with x \in Dom(f), y \in Cod(f)
+-- for various kinds of f and fields
+
+-- First: case of f : R -> R
+-- Draw x in f's domain, regardless of whether I = J
+Real x
+with Function f; Interval I, J
+where In(x, f.domain); f := CreateFunction(I, J); I ?= J {
+  override x.yval = I.yval
+}
+
+-- next, the above for (same or different) codomain
+-- note we need two selectors, so we know whether to use
+-- I.yval2 or not
+
+Real y
+with Function f; Interval I, J -- NOT I ?= J
+where In(y, f.codomain); f := CreateFunction(I, J) {
+  override y.yval = J.yval
+}
+
+Real y
+with Function f; Interval I
+where In(y, f.codomain); f := CreateFunction(I, I) {
+  override y.yval = f.yval2 -- note: yval2 belongs to f!
+}
+
+/* Notes on implementing `x \in Dom(f); y \in Cod(f)`:
+
+A value decon. means a different thing from a Style path:
+  "g.domain" in a selector vs. "x.shape.y" in a block
+so change Style parser so "." in sel is interpreted as a path
+
+Style matching on value deconstructors/nested exprs:
+In "f.domain", "domain" is a field. treat it as a Sub var: 
+  Access(`g`, `domain`) <| Access(f, `domain`)
+  with substitution [f => g]
+
+Also, In(`x`, `g`.`domain`) does NOT match `In(x, I)` according to the current matching semantics, because we don't know what type "f.domain" is and because we aren't doing variable unification. */
+
+Interval I
+where Subset(I, J)
+with Interval J { -- Reals <: Interval
+/* If I \subset J and I \subset R, 
+ which constraints should apply?
+ i.e. if it's a subset of multiple intervals, names may clash
+ (also, we know that only one of them matters)
+ maybe they should be assigned programmatically? */
+
+ I.liFn = ensure inRange(I.left, J.left, J.right)
+ I.riFn = ensure inRange(I.right, J.left, J.right)
+}
+
+-- `I` should be related to a and b
+Interval I
+where I := CreateInterval(a, b)
+with Real a, b {
+  -- Is there such a thing as generic value deconstructors with subtyping?
+  -- This would hopefully match 'OpenInterval I := CreateOpenInterval(a, b)'
+  
+  -- Don't need to include In/Subset predicates
+  -- since prior selectors should have covered In
+  -- on I, a, and b
+  -- Better to override a and b since left < right
+  
+  override a.val = I.left
+  override b.val = I.right
+}
+
+-- The other selectors should have already dealt with the subset and endpoint relationships
+-- Now we just need brackets
+ClosedInterval I
+where I := CreateClosedInterval(a, b)
+with Real a, b {
+  -- TODO aligned with R.shape
+  -- this is why it's important to pull out the vals:
+  -- so shapes can be overridden
+  override a.shape = Bracket {
+    side = "left"
+    x = a.val
+    y = I.yval
+  }
+  
+  override b.shape = Bracket {
+    side = "right"
+    x = b.val
+    y = I.yval
+  }
+}
+
+-- (Omitted other interval styles, e.g. clopen)
+-- Interval should have been styled already
+
+-- generic function selector
+Function f
+where f := CreateFunction(A, B); A ?= B {
+  -- function drawn from top down
+  f.dirFn = ensure greaterThan(A.shape.y, B.shape.y)
+
+  -- fields for later use by those that override functions
+  f.domain   = A.shape
+  f.codomain = B.shape
+
+  f.val = sampleFunction(f.domain, f.codomain)
+  -- each is a list of floats
+  f.x_vals = sampleFrom(A.left, A.right, 10)
+  f.y_vals = map(applyFn, f.val, f.x_vals)
+
+  -- TODO: lambda (i => Curve) for making the shapes?
+  f.shape = List(Curve) {
+    xs = f.x_vals
+    ys = f.y_vals
+    arrows = "true"
+    -- how is the curving calculated?
+  }
+
+  -- style individual curve GPIs
+  f.shape.first.style = "bold"
+  f.shape.last.style = "bold"
+
+  -- TODO: design and use custom shape API
+  f.shading = Region {
+    fill = "true"
+    -- should we allow a list of GPIs?
+    sides = [f.shape.first.eqn, f.shape.last.eqn,
+             A.shape, Line(f.y_vals)]
+  }
+}
+
+-- overrides the generic function selector to model
+-- f : R -> R, f : I -> I
+Function f
+where f := CreateFunction(A, A)
+with Interval A {
+  -- make a second shape for A
+  -- another horizontal line, lined up with A.shape
+  -- with some margin between them
+  -- this belongs to f, NOT A, because 
+  -- there can be multiple fns : R -> R
+  f.yval2 = A.yval + global.axis_separation
+
+  f.shape2 = Line {
+    startX = A.left 
+    -- or I.shape.startX? what overriding behavior do we want?
+    startY = f.yval2
+    endX = f.right
+    endY = f.yval2
+    thickness = 10
+  }
+
+  -- since there is no B.shape, set the codomain appropriately. other selectors depend on this
+  override f.codomain = f.shape2
+  delete f.dirFn -- this is satisfied by A.yval2
+}
+
+-- Function applications/compositions: to a real, to an interval, to a function
+
+-- y := f(x)
+-- More complicated test case: g = f, so Real y := f(f(x))
+Real y
+where y := apply(f, x); 
+      f := CreateFunction(A, B); 
+      -- this only matches "base" functions,
+      -- not composed functions
+      A ?= B -- y ?= x
+with Real x; Function f; Interval A, B {
+  -- highlight an existing x-y pair
+  -- delete existing tick style and constraints
+  delete y.shape
+  delete y.rFn
+
+  delete x.shape
+  delete x.rFn
+  -- alternatively, could keep the tick marks + make them bold
+
+  x.index = choose(range(f.x_vals))
+  TODO -- figure out how this interacts w/ z := g(f(x)) sel
+  y.index = x.index
+  
+  override x.val = f.x_vals[x.index]
+  override y.val = f.y_vals[y.index]
+  override f.shape[x.index].style = "bold"
+
+/* for z := g(y), writing out the substitution:
+
+	delete `z`.shape
+	delete `z`.rFn
+	delete `y`.shape
+	delete `y`.rFn
+
+	-- this is the line that needs to be overridden
+	-- since y and x are linked
+	`y`.index = choose(range(`h`.x_vals))
+	`z`.index = `y`.index
+
+	override `y`.val = `h`.x_vals[`y`.index]
+	override `z`.val = `h`.y_vals[`z`.index]
+	override `h`.shape[`y`.index].style = "bold" */
+}
+
+-- z := g(f(x))
+-- this should work for an arbitrarily long chain of function compositions, propagating the index down from the original x to the last application (x,y is matched first, then y,z, etc.)
+Real z
+where z := apply(g, y); 
+      y := apply(f, x); -- note: z and x are linked via y
+      f := CreateFunction(A, B); 
+      g := CreateFunction(B, C);
+      A ?= B; B ?= C -- TODO: what if A = B and/or B = C?
+      -- x ?= y; f ?= g
+with Real x, y; Function f, g; Interval A, B, C {
+  -- What assumptions can we make in this selector?
+  -- What assumptions do later selectors make about this one?
+
+  override y.index = x.index
+  -- the rest of the references should now be accurate
+  -- there's going to be a multiple delete for y's shape/rFn
+  -- for the above selector. not sure how to get around that
+}   
+
+-- Set J
+-- where J := applyInterval(f, I); f := CreateFunction(?, ?)
+-- with Interval I {
+--      ?
+-- }
+
+/* Does the function composition selector work for compositions of arbitrary #s of fns?
+
+Example: Function i = h . g . f
+
+Desugared: (Not dealing with equality now)
+Interval A, B, C, D
+Function f := MkFunction(A, B)
+Function g := MkFunction(B, C)
+Function h := MkFunction(C, D)
+Function i0 := compose(g, f)
+Function i := compose(h, i0)
+
+First, the interval selector will match A, B, C, and D.
+This will style them as horizontal lines on the screen.
+
+Next, the function selector will match f, g, h, i0, and i,
+      pulling in A, B, C, D as needed
+This will style the intervals/functions as A -> B -> C -> D (horizontally). But the functions will likely be drawn on A -> B, B -> C in such a way that they don't "align."
+
+Next, the function composition selector below will match the variables around i0 and i: (Sty var => Sub var)
+
+1. h => i0, g => g, f => f
+2. h => i,  g => h, f => i0
+
+Match 1: (with substitution applied to body)
+1. h => i0, g => g, f => f
+
+override `g`.domain = `f`.codomain
+override `g`.x_vals = `f`.y_vals
+override `i0`.domain = `f`.domain
+override `i0`.codomain = `g`.codomain
+-- more overrides and deletes on i0...
+
+This will draw `g` and `f` such that they "align", set the fields of i0 to point to its constituent functions, and delete i0's shape (since we are not drawing the composed function beyond its parts).
+
+Match 2: (with substitution applied to body)
+2. h => i,  g => h, f => i0
+
+override `h`.domain = `i0`.codomain
+override `h`.x_vals = `i0`.y_vals
+override `i`.domain = `i0`.domain (= `f`.domain)
+override `i`.codomain = `h`.codomain
+-- more overrides and deletes on `i`...
+
+This will draw `h` in such a way that it "aligns" with the previous (composite) function `i0`, and set the fields of `i` accordingly (as it encompasses all three functions `f`, `g`, and `h`).
+
+(Reason by induction to see the behavior on the composition of more functions.)
+
+Therefore, yes, this function composition selector works for compositions of arbitrary #s of functions! 
+
+Future questions: Does it work over any kinds of intervals, regardless of whether they are "equal"? */
+
+-- h = g . f
+Function h; Function g; Function f
+where h := Compose(g, f); 
+      h := CreateFunction(C, A);
+      g := CreateFunction(C, B); 
+      f := CreateFunction(B, A)
+      -- disallow equality for simplicity
+      -- TODO: deal with these later
+      -- A ?= B;
+      -- B ?= C;
+      -- h ?= g;
+      -- g ?= f
+with Interval A, B, C {
+  -- link f's codomain and g's domain
+  -- namely, set g's codomain to be f's domain
+  override g.domain = f.codomain
+  override g.x_vals = f.y_vals
+
+  -- What do we do with h? should we still draw it?
+  -- depends on the style!
+  -- h needs to be correctly set for future fn compositions
+  override h.domain = f.domain
+  override h.codomain = g.codomain
+  override h.val = composeFns(g.val, f.val)
+  override h.x_vals = f.x_vals
+  override h.y_vals = g.y_vals
+  delete h.shape
+  delete h.shape2 -- only exists for h : R -> R
+  delete h.shading
+  delete h.dirFn
+}
+
+/* What happens if we compose two functions from R to R?
+
+f : R -> R
+g : R -> R
+h := g . f
+
+Function f := CreateFunction(R, R) -- R in prelude
+Function g := CreateFunction(R, R)
+Function h := CreateFunction(R, R) -- need to make the fields
+	 h := compose(g, f)
+
+The function composition selector will do:
+(currently it has no ?= but maybe it'll work regardless)
+
+override `g`.domain = `f`.codomain
+	 -- `g`.domain was `R`.shape, now is `f`.shape2
+...
+override `h`.domain = `f`.domain
+	 -- `h`.domain was `R`.shape, now is `R`.shape
+
+override `h`.codomain = `g`.codomain
+	 -- `h`.codomain was `h`.shape2, now is `g`.shape2
+	 -- `g`.codomain is `g`.shape2
+(etc.)
+
+This all seems reasonable, and will draw what we expect, (three "copies" of R) except `h`.shape2 is going to be floating around, so I deleted it in the `h = g . f` sel */
+
+/* Another question: what diagram does this program create?
+
+Interval A, B, C
+Function f : A -> B
+Function g : B -> C
+Function h : A -> C
+Function h := g . f
+Real x
+Real z := h(x)
+
+Desugared: 
+Interval A, B, C
+Function f := CreateFunction(A, B)
+Function g := CreateFunction(B, C)
+Function h := CreateFunction(A, C)
+	 h := compose(g, f) 
+	 -- maybe not CreateFunction(A, C), so it doesn't 
+	 -- match the base "y := f(x)" selector?
+Real     x
+Real     y := apply(h, x)
+
+In order:
+The Real selectors match
+The Interval selectors match
+The Function selectors match
+The apply selector matches
+The function composition selector matches
+
+Problem: "apply" depends on the function having a shape.
+But, a composed function has its shape deleted (or it has two shapes).
+So, do we need a new selector for the composition of two functions?
+
+Actually, the semantics of CreateFunction are unclear. 
+Does f : A -> B mean that f is NOT the composition of two functions?
+
+Design decision in writing the Sub program: 
+don't say Function h := compose(g, f)?
+
+After the next selector: this program creates a diagram that draws the functions composed, and bolds the line from x to f(x), then f(x) to g(f(x)) */
+
+Real y
+where y := apply(h, x);
+      f := CreateFunction(A, B); 
+      g := CreateFunction(B, C);
+      h := CreateFunction(A, C);
+      h := compose(g, f)
+with Function f, g, h; Interval A, B, C; Real x {
+  -- if `f` is a composition of functions itself... works?
+  -- am I trying too hard to make Style perfectly compositional and modular and reusable?
+  -- we could always write a LOT of ugly/overlapping selectors
+  -- is this in scope for the first paper?
+
+     -- inherits stuff from the y:= f(x) selector
+     -- which is refined here WRT composition
+
+     -- the line
+     -- `override `h`.shape[x.index].style = "bold"`
+     -- is going to be invalid since `h`.shape doesn't exist
+     -- instead, proceed (ignoring the warning) and 
+     -- and bold the line from x to f(x), then f(x) to g(f(x))
+
+     -- x0 := f(x)
+     -- LOCAL.x0 = f.y_vals[x.index]
+     override f.shape[x.index].style = "bold"
+     override g.shape[x.index].style = "bold"
+}
+
+-- image of an interval J := f(I)
+-- where should this selector go?
+-- how does it interact with the y := f(x) selector
+-- and the interval / set selectors?
+
+-- let's say the Substance writer decided that the function should have returned an interval
+-- what function value could have generated it?
+-- I guess we can hardcode it
+-- then we need to deal with all the math-scale and function visualization stuff
+
+-- Draw the pushed-forward interval in the codomain of f
+-- and draw an arrow from the interval to its image
+-- (also, pick an f where this could plausibly result?)
+-- (I mean, the way we draw the function defines the function, unless we draw something that contradicts what a function looks like)
+Interval J
+where J := applyOver(f, I);
+      f := CreateFunction(A, B)
+      -- A ?= I; B ?= I; A ?= J; B ?= J
+with Interval A, B, I; Function f {
+   override J.yval = B.yval
+   -- push forward the interval's endpoints
+   -- ignoring the points in the interval
+   -- (this is good enough for a diagram)
+
+   override J.left = applyFn(f.val, I.left)
+   override J.right = applyFn(f.val, I.right)
+
+   -- the function may reverse the interval
+   delete J.wfFn
+
+   -- could param. the naming: `f.intervalArrow(I, J)`...
+   -- could also draw arrows between left/right pts if desired
+   LOCAL.intervalArrow = Arrow {
+       startX = midpoint(I.shape)
+       endX   = midpoint(J.shape)
+       startY = I.yval
+       endY   = J.yval
+   }  
+}
+
+-- TODO in the future: fn applied to an interval yields a set
+
+-- TODO: this Sub/Sty doesn't include labels

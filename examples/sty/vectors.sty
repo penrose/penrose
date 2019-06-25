@@ -1,0 +1,124 @@
+VectorSpace u {
+
+    shape = Box {
+
+     }
+       xPos = Arrow {
+          start = u.shape.center
+          end = toRightSquare(u.shape)
+          text = "x"
+    }
+
+    xNeg = Arrow {
+          start = u.shape.center
+          end = toLeftSquare(u.shape)
+          text = None
+    }
+
+    yPos = Arrow {
+          start = u.shape.center
+          end = toAboveSquare(u.shape)
+          text = "y"
+    }
+
+    yNeg = Arrow {
+          start = u.shape.center
+          end = toBelowSquare(u.shape)
+          text = None
+    }
+
+/*
+    angleNotation = Arc {
+      start = u.shape.center
+      isRight = "true"
+      style = "wedge"
+      text = None
+    }
+*/
+    objective nearHead(u.xPos, u.xPos.label, 0, 20)
+    objective nearHead(u.yPos, u.yPos.label, 0, 20)
+
+    constraint contains(u.shape,u.shape.label)
+    constraint contains(u.shape,u.xPos)
+    constraint contains(u.shape,u.xNeg)
+    constraint contains(u.shape,u.yPos)
+    constraint contains(u.shape,u.yNeg)
+
+}
+
+VectorSpace u, VectorSpace v{
+    constraint nonOverlapping(u.shape,v.shape)
+    objective sameHeight(u.shape, v.shape)
+}
+
+
+LinearMap f x y {
+    shape = Arrow {
+        start = rightSquare(x.shape)
+        end   = leftSquare(y.shape)
+        style = "curved"
+        text = Auto
+    }
+
+    objective centerLabel(f, f.shape.label)
+}
+
+Vector v vecSpace {
+    shape = Arrow {
+        start = vecSpace.shape.center
+    }
+
+    objective nearHead(v.shape, v.shape.label, 0, 20)
+    constraint contains(vecSpace.shape,v.shape)
+
+}
+
+
+Neg v{
+
+    shape = Arrow {
+        start = v.shape.start
+        end = reverseEndArrow(v.shape)
+        text = None
+    }
+
+    objective nearHead(v.shape, v.shape.label, 0, 20)
+}
+
+Norm v {
+
+    shape = Arrow {
+        start = toBelowStartArrow(v.shape)
+        end = toBelowEndArrow(v.shape)
+        style = "length"
+        text = None
+    }
+
+    objective nearHead(shape, shape.label, 0, 20)
+    constraint contains(vecSpace.shape, shape)
+}
+
+
+AddV v1 v2 {
+
+    shape = Arrow {
+        start = v1.shape.start
+        end = addVecEnd(v1.shape,v2.shape)
+        text = None
+    }
+
+    s1 = Line {
+        start = v1.shape.end
+        end = addVecEnd(v1.shape, v2.shape)
+        style = "dashed"
+        text = None
+   }
+
+   s2 = Line {
+        start = v2.shape.end
+        end = addVecEnd(v1.shape,v2.shape)
+        style = "dashed"
+        text = None
+    }
+
+}

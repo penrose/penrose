@@ -1,0 +1,6 @@
+Set A, B
+Map f
+From(f, A, B)
+Injection(f)
+
+AutoLabel All

@@ -1,0 +1,28 @@
+VectorSpace U
+VectorSpace V
+VectorSpace W
+Vector a
+Vector b
+Vector c
+LinearMap f
+LinearMap g
+LinearMap h
+
+
+Vector d
+d := AddV(a, b)
+In(d, U)
+
+Vector e
+e := AddV(c, c)
+In(e, V)
+
+In(a, U)
+In(b, U)
+In(c, V)
+From(f, U, V)
+From(g, V, U)
+From(h, U, U)
+
+-- a := Neg(y)
+-- b := Add(a, y)
