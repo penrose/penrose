@@ -22,8 +22,10 @@ import qualified Data.List.Split            as LS (splitOn)
 import qualified Data.Map.Strict            as M
 import qualified Data.Text.Lazy             as T
 import           Data.Text.Lazy.Encoding    (decodeUtf8)
+import           Data.Version               (showVersion)
 import           Debug.Trace
 import           Network.HTTP.Types.Status
+import           Paths_penrose              (version)
 import qualified Penrose.Element            as D
 import qualified Penrose.Env                as E
 import qualified Penrose.GenOptProblem      as G
@@ -63,17 +65,22 @@ getArgOrExit = getArgOrExitWith argPatterns
 shadowMain :: IO ()
 shadowMain = do
   args <- parseArgsOrExit argPatterns =<< getArgs
-  domain <- args `getArgOrExit` longOption "domain"
-  port <- args `getArgOrExit` longOption "port"
-  config <- args `getArgOrExit` longOption "config"
-  if args `isPresent` (command "editor")
-    then let isVerbose = args `isPresent` (longOption "verbose")
-         in Server.serveEditor domain (read port) isVerbose
+  if args `isPresent` longOption "version"
+    then do
+      putStrLn $ showVersion version
+      return ()
     else do
-      subFile <- args `getArgOrExit` argument "substance"
-      styFile <- args `getArgOrExit` argument "style"
-      elementFile <- args `getArgOrExit` argument "element"
-      penroseRenderer subFile styFile elementFile domain config $ read port
+      domain <- args `getArgOrExit` longOption "domain"
+      port <- args `getArgOrExit` longOption "port"
+      config <- args `getArgOrExit` longOption "config"
+      if args `isPresent` command "editor"
+        then let isVerbose = args `isPresent` longOption "verbose"
+             in Server.serveEditor domain (read port) isVerbose
+        else do
+          subFile <- args `getArgOrExit` argument "substance"
+          styFile <- args `getArgOrExit` argument "style"
+          elementFile <- args `getArgOrExit` argument "element"
+          penroseRenderer subFile styFile elementFile domain config $ read port
 
 penroseRenderer ::
      String -> String -> String -> String -> String -> Int -> IO ()
