@@ -1,4 +1,5 @@
 import * as React from "react";
+import Log from "./Log";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
@@ -63,7 +64,12 @@ class App extends React.Component<any, IState> {
   };
 
   public onMessage = async (e: MessageEvent) => {
-    const data = JSON.parse(e.data).contents;
+    const parsed = JSON.parse(e.data);
+    if (parsed.type === "connection") {
+      Log.info(`Connection status: ${parsed.contents}`);
+      return;
+    }
+    const data = parsed.contents;
     const processedData = await Canvas.processData(data);
     await this.setState({ data: processedData, processedInitial: true });
     const { autostep } = this.state;
