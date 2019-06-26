@@ -79,7 +79,7 @@ library
     buildable:       True
 
 executable penrose
-    main-is: Main.hs
+    main-is: penrose.hs
     hs-source-dirs: .
     other-modules:
     default-language: Haskell2010

@@ -1,5 +1,3 @@
-{-# OPTIONS_HADDOCK prune #-}
-
 module Penrose.Interface
   ( compileTrio
   , step
