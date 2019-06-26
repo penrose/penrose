@@ -5,7 +5,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: fpco/stack-build:lts-13.24
+      - image: fpco/stack-build-small:lts-13.24
     #    parallelism: 4
     steps:
       - checkout
