@@ -1,13 +1,10 @@
 FROM ubuntu:16.04
+# Based on https://raw.githubusercontent.com/fpco/stackage/9f2b7ab95c711794257b059604e80ab9ad3c0c45/debian-bootstrap.sh
 RUN apt-get update
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:hvr/ghc -y
-RUN add-apt-repository -y ppa:marutter/rrutter
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-RUN add-apt-repository -y --keyserver hkp://keyserver.ubuntu.com:80 'deb http://download.mono-project.com/repo/debian wheezy main'
-RUN add-apt-repository -y --keyserver hkp://keyserver.ubuntu.com:80 'deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main'
-RUN add-apt-repository -y --keyserver hkp://keyserver.ubuntu.com:80 'deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main'
-RUN apt-get install -y \
+RUN echo "deb http://ppa.launchpad.net/hvr/ghc/ubuntu xenial main" >>/etc/apt/sources.list && \
+  echo "deb-src http://ppa.launchpad.net/hvr/ghc/ubuntu xenial main" >>/etc/apt/sources.list
+
+RUN apt-get clean && apt-get install -y \
   git \
   libblas-dev \
   libbz2-dev \
@@ -16,11 +13,7 @@ RUN apt-get install -y \
   libcurl4-openssl-dev \
   libcwiid-dev \
   libdevil-dev \
-  libedit-dev \
-  libedit2 \
   libfftw3-dev \
-  libflac-dev \
-  libfreenect-dev \
   libgd2-xpm-dev \
   libgeoip-dev \
   libgirepository1.0-dev \
@@ -29,46 +22,27 @@ RUN apt-get install -y \
   libglu1-mesa-dev \
   libgnutls-dev \
   libgsasl7-dev \
-  libgtksourceview-3.0-dev \
-  libhidapi-dev \
-  libi2c-dev \
   libicu-dev \
   libimlib2-dev \
-  libjack-jackd2-dev \
   libjudy-dev \
   liblapack-dev \
-  libleveldb-dev \
   liblmdb-dev \
   liblzma-dev \
   libncurses-dev \
   libnfc-dev \
   liboath-dev \
-  libnotify-dev \
   libopenal-dev \
   libopenmpi-dev \
   libpango1.0-dev \
-  libpcap0.8-dev \
-  libpq-dev \
   libre2-dev \
   librocksdb-dev \
-  libsdl1.2-dev \
-  libsdl2-dev \
-  libsdl2-gfx-dev \
-  libsdl2-image-dev \
-  libsdl2-mixer-dev \
-  libsdl2-ttf-dev \
   libsnappy-dev \
-  libsndfile1-dev \
-  libsox-dev \
-  libsqlite3-dev \
   libssl-dev \
   libsystemd-dev \
   libtagc0-dev \
   libtre-dev \
   libudev-dev \
-  libusb-1.0-0-dev \
   libvte-2.91-dev \
-  libwebkitgtk-3.0-dev \
   libxau-dev \
   libxml2-dev \
   z3 \
