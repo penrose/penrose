@@ -7,9 +7,3 @@ extra-deps:
 
 resolver: lts-13.24
 allow-newer: true
-ghc-options:
-  "$everything": -threaded -static -O2 -optl-static
-cc-options:
-  "$everything": -static
-ld-options:
-  "$everything": -static -pthread

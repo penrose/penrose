@@ -1,4 +1,72 @@
 FROM ubuntu:16.04
+RUN apt-get update
+RUN apt-get install -y \
+  g++-7
+  git
+  libblas-dev \
+  libbz2-dev \
+  libcairo2-dev \
+  libclang-3.9-dev \
+  libcurl4-openssl-dev \
+  libcwiid-dev \
+  libdevil-dev \
+  libedit-dev \
+  libedit2 \
+  libfftw3-dev \
+  libflac-dev \
+  libfreenect-dev \
+  libgd2-xpm-dev \
+  libgeoip-dev \
+  libgirepository1.0-dev \
+  libglfw3-dev \
+  libglib2.0-dev \
+  libglu1-mesa-dev \
+  libgnutls-dev \
+  libgsasl7-dev \
+  libgtksourceview-3.0-dev \
+  libhidapi-dev \
+  libi2c-dev \
+  libicu-dev \
+  libimlib2-dev \
+  libjack-jackd2-dev \
+  libjudy-dev \
+  liblapack-dev \
+  libleveldb-dev \
+  liblmdb-dev \
+  liblzma-dev \
+  libncurses-dev \
+  libnfc-dev \
+  liboath-dev \
+  libnotify-dev \
+  libopenal-dev \
+  libopenmpi-dev \
+  libpango1.0-dev \
+  libpcap0.8-dev \
+  libpq-dev \
+  libre2-dev \
+  librocksdb-dev \
+  libsdl1.2-dev \
+  libsdl2-dev \
+  libsdl2-gfx-dev \
+  libsdl2-image-dev \
+  libsdl2-mixer-dev \
+  libsdl2-ttf-dev \
+  libsnappy-dev \
+  libsndfile1-dev \
+  libsox-dev \
+  libsqlite3-dev \
+  libssl-dev \
+  libsystemd-dev \
+  libtagc0-dev \
+  libtre-dev \
+  libudev-dev \
+  libusb-1.0-0-dev \
+  libvte-2.91-dev \
+  libwebkitgtk-3.0-dev \
+  libxau-dev \
+  libxml2-dev \
+  z3
+  zliblg-dev
 
 RUN mkdir -p /opt/penrose
 COPY . /opt/penrose/
