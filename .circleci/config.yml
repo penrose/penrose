@@ -25,7 +25,7 @@ jobs:
           command: stack test
       - run:
           name: Install executable
-          command: stack install --ghc-options -static --ghc-options='-optl-static -optl-pthread'
+          command: stack install 
       - save_cache:
           name: Cache Dependencies
           key: penrose-cache-{{ checksum "penrose.cabal" }}
