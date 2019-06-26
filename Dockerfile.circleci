@@ -1,8 +1,14 @@
 FROM ubuntu:16.04
 RUN apt-get update
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:hvr/ghc -y
+RUN add-apt-repository -y ppa:marutter/rrutter
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+RUN add-apt-repository -y --keyserver hkp://keyserver.ubuntu.com:80 'deb http://download.mono-project.com/repo/debian wheezy main'
+RUN add-apt-repository -y --keyserver hkp://keyserver.ubuntu.com:80 'deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main'
+RUN add-apt-repository -y --keyserver hkp://keyserver.ubuntu.com:80 'deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main'
 RUN apt-get install -y \
-  g++-7
-  git
+  git \
   libblas-dev \
   libbz2-dev \
   libcairo2-dev \
@@ -65,8 +71,8 @@ RUN apt-get install -y \
   libwebkitgtk-3.0-dev \
   libxau-dev \
   libxml2-dev \
-  z3
-  zliblg-dev
+  z3 \
+  zlib1g-dev
 
 RUN mkdir -p /opt/penrose
 COPY . /opt/penrose/
