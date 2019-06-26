@@ -1,4 +1,4 @@
-version: '3.2'
+version: "3.2"
 services:
   penrose:
     build:
@@ -18,7 +18,7 @@ services:
     ports:
       - "3500:3500"
     volumes:
-      - "./src/react-renderer:/home/node/react-renderer"
+      - "./react-renderer:/home/node/react-renderer"
     tty: true # needed for ctrl-C graceful shutdown of whole system
   domain-server:
     build:
@@ -31,4 +31,3 @@ services:
       - "./src:/home/node/src"
     logging:
       driver: "none"
-
