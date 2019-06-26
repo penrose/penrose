@@ -1,4 +1,4 @@
-FROM fpco/stack-build-small:lts-13.24
+FROM ubuntu:16.04
 
 RUN mkdir -p /opt/penrose
 COPY . /opt/penrose/
