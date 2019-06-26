@@ -1,4 +1,4 @@
-FROM fpco/stack-build-small:lts-13.24
+FROM fpco/stack-build:lts-13.24
 
 RUN echo 'alias runpenrose=""' >> ~/.bashrc
 
