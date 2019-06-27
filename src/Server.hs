@@ -257,7 +257,9 @@ runServer ::
   -> WS.ServerApp -- ^ Application
   -> IO () -- ^ Never returns
 runServer host port app =
-  runServerWith host port WS.defaultConnectionOptions app
+  runServerWith host port options app
+  where
+    options = WS.defaultConnectionOptions {WS.connectionCompressionOptions = WS.PermessageDeflateCompression WS.defaultPermessageDeflate}
 
 -- | A version of 'runServer' which allows you to customize some options.
 runServerWith :: String -> Int -> WS.ConnectionOptions -> WS.ServerApp -> IO ()
