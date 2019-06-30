@@ -1,13 +1,15 @@
 {-# OPTIONS_HADDOCK prune #-}
 
-module Penrose.Plugins where
+module Penrose.Plugins
+  ( runPlugin
+  ) where
 
 import           Control.Exception          (ErrorCall, try)
 import           Data.Aeson                 (decode)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Map.Strict            as M
 import           Penrose.Env
-import           Penrose.Style
+import           Penrose.Style              (parsePlugins)
 import           Penrose.Substance
 import           Penrose.SubstanceJSON
 import           Penrose.Util
@@ -33,14 +35,13 @@ runPlugin subOut stySrc elementEnv
     -- If 1 instantiation, run the plugin, append the resulting Substance program, re-check the full program, and use it in the Style compiler.
     -- If >1 instantiation, throw an error.
   case instantiations of
-    [] -> Right $ Nothing
+    [] -> Right Nothing
     [pluginName] ->
       let res = unsafePerformIO $ try (instantiateSub pluginName subOut)
       in case res of
-           Right (subPlugin, styVals) -> Right $ Just $ (subPlugin, styVals)
+           Right (subPlugin, styVals) -> Right $ Just (subPlugin, styVals)
            Left err -> Left $ PluginRun $ show (err :: ErrorCall)
-    _ ->
-      Left $ PluginParse $ "Multiple plugins found in Style; only one allowed."
+    _ -> Left $ PluginParse "Multiple plugins found in Style; only one allowed."
 
 -- If no instantiations, proceed with Style compiler.
 --   putStrLn $ "instantiations found: " ++ (show instantiations)

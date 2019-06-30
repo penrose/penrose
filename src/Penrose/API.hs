@@ -1,4 +1,4 @@
-module Penrose.Interface
+module Penrose.API
   ( compileTrio
   , step
   , stepUntilConvergence

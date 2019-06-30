@@ -24,7 +24,7 @@ import qualified Network.Socket            as S
 import qualified Network.WebSockets        as WS
 import           Penrose.Env               (VarEnv)
 import           Penrose.GenOptProblem     as GenOptProblem
-import           Penrose.Interface
+import           Penrose.API
 import           Penrose.Style
 import           System.Console.Pretty     (Color (..), Style (..), bgColor)
 import qualified System.Console.Pretty     as Console

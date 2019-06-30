@@ -26,16 +26,15 @@ import           Data.Version               (showVersion)
 import           Debug.Trace
 import           Network.HTTP.Types.Status
 import           Paths_penrose              (version)
+import           Penrose.API
 import qualified Penrose.Element            as D
 import qualified Penrose.Env                as E
 import qualified Penrose.GenOptProblem      as G
-import           Penrose.Interface
 import qualified Penrose.Optimizer          as O
 import           Penrose.Plugins
 import qualified Penrose.Server             as Server
 import qualified Penrose.Style              as S
 import qualified Penrose.Substance          as C
-import qualified Penrose.SubstanceJSON      as J
 import qualified Penrose.Sugarer
 import           Penrose.Util
 import           Prelude                    hiding (catch)
@@ -94,19 +93,19 @@ penroseRenderer subFile styFile elementFile domain configPath port = do
       Right (s, _) -> return s
   -- Read optimization config and so it can be included in the initial state
   configStr <- B.readFile configPath
-  let configBstr = (decode configStr) :: Maybe G.OptConfig
+  let configBstr = decode configStr :: Maybe G.OptConfig
   let optConfig =
         case configBstr of
           Nothing -> error "couldn't read opt config JSON"
           Just x  -> x
   putStrLn "Opt config:\n"
-  putStrLn $ show optConfig
+  print optConfig
   let state = initState {G.oConfig = optConfig}
   if useFrontend
     then Server.serveRenderer domain port state
     else let numTrials = 1000
          in let res = map (\x -> stepsWithoutServer state) [1 .. numTrials]
-            in putStrLn $ show $ map G.varyingState res -- Needed so all of res is evaluated, but don't spend so much time prettyprinting
+            in print $ map G.varyingState res -- Needed so all of res is evaluated, but don't spend so much time prettyprinting
 
 stepsWithoutServer :: G.State -> G.State
 stepsWithoutServer initState =

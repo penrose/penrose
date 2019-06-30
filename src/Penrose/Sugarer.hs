@@ -4,7 +4,9 @@
 -- which will be passed to the Substance parser
 {-# OPTIONS_HADDOCK prune #-}
 
-module Penrose.Sugarer where
+module Penrose.Sugarer
+  ( sugarStmts
+  ) where
 
 --module Main (main) where -- for debugging purposes
 import           Control.Arrow                  ((>>>))

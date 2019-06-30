@@ -2,7 +2,9 @@
 --    Element language
 {-# OPTIONS_HADDOCK prune #-}
 
-module Penrose.Element where
+module Penrose.Element
+  ( parseElement
+  ) where
 
 import           Control.Arrow                  ((>>>))
 import           Control.Monad                  (void)

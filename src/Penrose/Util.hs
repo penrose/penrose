@@ -9,6 +9,8 @@ module Penrose.Util where
 import           Control.Arrow
 import           Data.Typeable
 import           Debug.Trace
+import           System.Random
+import           System.Random.Shuffle
 
 default (Int, Float)
 
@@ -73,6 +75,20 @@ epsd = 10 ** (-10)
 
 --------------------------------------------------------------------------------
 -- General helper functions
+type Interval = (Float, Float) -- which causes type inference problems in Style for some reason.
+
+-- Generate n random values uniformly randomly sampled from interval and return generator.
+-- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
+-- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
+-- Also apparently using Autofloat here with typeable causes problems for generality of returned StdGen.
+-- But it works fine without Typeable.
+randomsIn :: (Autofloat a) => StdGen -> Integer -> Interval -> ([a], StdGen)
+randomsIn g 0 _ = ([], g)
+randomsIn g n interval =
+  let (x, g') = randomR interval g -- First value
+      (xs, g'') = randomsIn g' (n - 1) interval -- Rest of values
+  in (r2f x : xs, g'')
+
 fromRight :: (Show a, Show b) => Either a b -> b
 fromRight (Left x)  = error ("Failed with error: " ++ show x)
 fromRight (Right y) = y

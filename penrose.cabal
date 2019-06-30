@@ -71,7 +71,7 @@ library
             Penrose.Transforms
             Penrose.SubstanceTokenizer
             Penrose.Sugarer
-            Penrose.Interface
+            Penrose.API
             Penrose.Tokenizer
             Penrose.Serializer
             Penrose.ShadowMain
@@ -98,7 +98,7 @@ test-suite penrose-testsuite
         Penrose.Server
         Paths_penrose
         Penrose.Substance
-        Penrose.Interface
+        Penrose.API
         Penrose.Serializer
         Penrose.SubstanceJSON
         Penrose.Element
