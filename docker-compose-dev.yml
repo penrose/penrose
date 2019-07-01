@@ -28,6 +28,6 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - "./src:/home/node/src"
+      - "./examples:/home/node/examples"
     logging:
       driver: "none"
