@@ -1,5 +1,6 @@
 Usage:
-  penrose [--port=PORT --domain=NAME] <substance> <style> <element>
+  penrose --version
+  penrose [--port=PORT --domain=NAME --config=PATH] <substance> <style> <element>
   penrose [--port=PORT --domain=NAME] editor [-v]
 
 Options:
@@ -10,3 +11,4 @@ Options:
   --config=PATH  Path to a runtime configuration for the optimization
   		 [default: opt-config/default.json]
   -v --verbose   In editor mode, log more information on the console
+  --version      Show the current version of Penrose

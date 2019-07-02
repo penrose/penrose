@@ -1,0 +1,241 @@
+plugin "regexExpander"
+
+global { global.padding = 10 }
+
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.darkgray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.sky = rgba(0.42, 0.65, 0.77, 1.0)
+    Colors.lightsky = rgba(0.252, 0.65, 0.77, 0.25)
+    Colors.pink = rgba(0.78, 0.256, 0.53, 1.0)
+    Colors.lightpink = rgba(0.78, 0.256, 0.53, 0.25)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+Scene s {
+    -- optimized fields to be shared with diffuse obj
+    s.x = OPTIMIZED
+    s.y = OPTIMIZED
+    s.sizeX = OPTIMIZED
+    s.sizeY = OPTIMIZED
+
+    s.container = Rectangle {
+        x = s.x
+        y = s.y
+        sizeX = s.sizeX
+        sizeY = s.sizeY
+        fill  = Colors.none
+        strokeColor = Colors.none
+        strokeWidth = 1.5
+    }
+}
+
+DiffuseObject d
+where InOS(d, s) with Scene s {
+    d.shape = Rectangle {
+        angle  = 0
+        fill   = Colors.none
+        strokeColor = Colors.black
+        strokeWidth = 1.5
+        -- optimize height, width, location
+        x = s.x
+        y = s.y
+        sizeX = s.sizeX
+        sizeY = s.sizeY
+    }
+    d.layering = d.shape above s.container
+}
+
+
+-- No "in path" predicate because scene geometry shouldn't depend directly on a path
+SpecularObject o {
+	-- create mirror shape and put it in scene
+    -- TODO: import SVG?
+    o.shape = Rectangle {
+        fill = Colors.gray
+        -- TODO: sizes are temporary
+        sizeX = 100.0
+        sizeY = 20.0
+    }
+}
+
+LightSource l {
+    -- TODO: has to have a location
+    l.shape = Circle {
+        color = Colors.yellow
+        r = 20.0
+        strokeWidth = 0.0
+    }
+    l.text = Text {
+        x = l.shape.x
+        y = l.shape.y
+        string = "L"
+        color = Colors.black
+    }
+    l.textLayering = l.text above l.shape
+}
+
+Camera c {
+    -- TODO: has to have a location
+    /*
+    c.shape = Image {
+        lengthX = 20.0
+        lengthY = 20.0
+        path  = "eye.svg"
+    }
+    */
+    c.shape = Circle {
+        color = Colors.gray
+        r = 20.0
+        strokeWidth = 0.0
+    }
+    c.text = Text {
+        x = c.shape.x
+        y = c.shape.y
+        string = "C"
+        color = Colors.black
+    }
+    c.textLayering = c.text above c.shape
+}
+
+-- applies to all scene geometries
+SceneGeometry o
+where InOS(o, s) with Scene s {
+    o.containFn = ensure contains(s.container, o.shape)
+    o.layering  = o.shape above s.container
+}
+
+-- HACK: to make diffuse room below everybody
+DiffuseObject d
+where InOS(d, s) with Scene s {
+    d.layering = d.shape below s.container
+}
+
+PathVertex v; PathSample ps
+where InVP(v, p); OnLight(v)
+with Path p; LightSource L {
+	-- TODO: put the location on L's border
+    v.x = L.shape.x
+    v.y = L.shape.y
+}
+
+-- going into the eye
+PathVertex v; PathSample ps
+where InVP(v, p); OnEye(v)
+with Path p; Camera c {
+	-- TODO: put the location on E's border
+    -- v.x = c.shape.centerX
+    -- v.y = c.shape.centerY
+    v.x = c.shape.x
+    v.y = c.shape.y
+}
+
+PathVertex v; PathSample ps
+where InVP(v, p); Hits(v, o)
+with Path p; SpecularObject o {
+    -- TODO: on border of mirror
+    v.x = OPTIMIZED
+    v.y = OPTIMIZED
+}
+
+PathVertex v; PathSample ps
+where InVP(v, p); Hits(v, o)
+with Path p; DiffuseObject o {
+    -- TODO: pretty much anywhere on the room?
+    v.x = OPTIMIZED
+    v.y = OPTIMIZED
+    v.onFn = ensure pointOn(v.x, v.y, o.shape, 0.0)
+}
+
+-- PathVertex v
+-- where InVP(v, p); Hits(v, o) {
+--     -- v.locationFn = ensure
+-- }
+
+PathEdge e; PathSample ps
+where e := CreateEdge(v1, v2)
+     -- Hits(v1, o1); Hits(v2, o2) -- for layering
+with PathVertex v1, v2
+     -- SceneGeometry o1, o2  -- for layering
+{
+     -- draw an arrow from v1's location to v2's location
+     e.shape = Arrow {
+         startX = v1.x
+         startY = v1.y
+         endX   = v2.x
+         endY   = v2.y
+         color  = Colors.black
+         thickness = 1.5
+     }
+     -- e.layering1 = e.shape above o1.shape
+     -- e.layering2 = e.shape above o2.shape
+}
+
+PathEdge e1; PathEdge e2; PathSample ps
+where e1 := CreateEdge(v1, v2);
+      e2 := CreateEdge(v2, v3);
+      IsSpecular(v2);
+      Hits(v2, o)
+with PathVertex v1, v2, v3;
+     SpecularObject o
+{
+    -- NOTE: trying to control rotation first
+    override o.shape.rotation = mirrorAngle(e1.shape, e2.shape)
+    override o.shape.x = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.sizeY / -2.0)
+    override o.shape.y = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.sizeY / -2.0)
+}
+
+---------------------------NON-COMPILABLE CODE----------------------------------
+
+
+/*
+Path p; PathSample ps
+where In(p, S) with Scene S {
+      -- make path sample color
+      -- label path with its string
+}
+
+-- Path vertex with various kinds of bounces
+
+PathVertex v; PathSample ps
+where InVP(v, p) with Path p {
+     -- v.location = (?, ?)
+}
+
+-- TODO: work out the pathsample???
+
+
+-- Rays
+
+
+PathEdge e; SceneGeometry o; PathSample ps {
+	 -- ray should not intersect scene geometry
+}
+
+-- Do something at bounce point
+
+-- Two edges that share a vertex
+PathEdge e1; PathEdge e2; PathSample ps
+where InVE(v1, e1); InVE(v2, e1); InVE(v2, e2); InVE(v3, e2);
+      Hits(v2, o)
+with PathVertex v1, v2, v3;
+     SceneGeometry o {
+     -- draw bounce normal for all bounces
+}
+
+-- Do something at specular bounce point
+
+*/

@@ -1,15 +1,17 @@
-module Functions.Tests (tests) where
+module Functions.Tests
+  ( tests
+  ) where
 
-import Test.Tasty
-import Test.Tasty.SmallCheck as SC
-import Test.Tasty.QuickCheck as QC
-import Test.Tasty.HUnit
-import Debug.Trace
-import Data.Fixed
+import           Data.Fixed
+import           Debug.Trace
+import           Test.Tasty
+import           Test.Tasty.HUnit
+import           Test.Tasty.QuickCheck as QC
+import           Test.Tasty.SmallCheck as SC
 
-import Functions
-import Shapes
-import Utils
+import           Penrose.Functions
+import           Penrose.Shapes
+import           Penrose.Util
 
 tests :: TestTree
 tests = testGroup "Functions tests" [properties, unitTests]
@@ -17,25 +19,14 @@ tests = testGroup "Functions tests" [properties, unitTests]
 properties :: TestTree
 properties = testGroup "Properties" [scProps, qcProps]
 
-
-
 group1 :: TestTree
-group1 = testGroup "Group"
-                [ 
-                ]
+group1 = testGroup "Group" []
 
 --------
+scProps = testGroup "(checked by SmallCheck)" []
 
-scProps = testGroup "(checked by SmallCheck)" 
-          [ 
-          ]
-
-qcProps = testGroup "(checked by QuickCheck)" 
-          [ 
-          ]
+qcProps = testGroup "(checked by QuickCheck)" []
 
 -- Module: topic: function: property
 unitTests :: TestTree
-unitTests = testGroup "Unit tests" 
-          [ group1
-          ]
+unitTests = testGroup "Unit tests" [group1]

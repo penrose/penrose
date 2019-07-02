@@ -6,7 +6,7 @@ RUN npm config set prefix "/home/node/.npm-packages"
 
 ENV PATH="=/home/node/.npm-packages/bin:${PATH}"
 
-WORKDIR /home/node/src
+WORKDIR /home/node/examples
 
 ENTRYPOINT ["sh", "-c", "npx http-server . -p 9090 -d false -i false --cors -c-1"]
 
