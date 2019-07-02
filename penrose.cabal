@@ -20,7 +20,7 @@ source-repository head
 library
     build-tools: alex
     build-depends:
-            base -any,
+            base >= 4.12 && < 5,
             containers -any,
             random -any,
             random-shuffle -any,
