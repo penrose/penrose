@@ -22,10 +22,8 @@ import qualified Data.List.Split            as LS (splitOn)
 import qualified Data.Map.Strict            as M
 import qualified Data.Text.Lazy             as T
 import           Data.Text.Lazy.Encoding    (decodeUtf8)
-import           Data.Version               (showVersion)
 import           Debug.Trace
 import           Network.HTTP.Types.Status
-import           Paths_penrose              (version)
 import           Penrose.API
 import qualified Penrose.Element            as D
 import qualified Penrose.Env                as E
@@ -66,7 +64,7 @@ shadowMain = do
   args <- parseArgsOrExit argPatterns =<< getArgs
   if args `isPresent` longOption "version"
     then do
-      putStrLn $ showVersion version
+      putStrLn getVersion
       return ()
     else do
       domain <- args `getArgOrExit` longOption "domain"

@@ -82,6 +82,7 @@ data Request
                 String
   | GetEnv String
            String
+  | GetVersion
   deriving (Generic)
 
 instance FromJSON Request
@@ -102,12 +103,14 @@ processRequests client@(_, conn, _) = do
         CompileTrio sub sty elm ->
           sendSafe "compilerOutput" $ compileTrio sub sty elm
         GetEnv sub elm -> sendSafe "varEnv" $ getEnv sub elm
+        GetVersion -> send "version" getVersion
     Nothing -> do
       logError client "Error reading JSON"
       processRequests client
   logDebug client "Messege received and decoded successfully."
   processRequests client
   where
+    send flag content = wsSendPacket conn Packet {typ = flag, contents = content}
     sendSafe :: (ToJSON a, ToJSON b) => String -> Either a b -> IO ()
     sendSafe flag res =
       case res of

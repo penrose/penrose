@@ -2,13 +2,16 @@ module Penrose.API
   ( compileTrio
   , step
   , stepUntilConvergence
-  , resample
   , getEnv
+  , getVersion
+  , resample
   ) where
 
 import           Control.Exception          (ErrorCall, try)
 import qualified Data.Aeson                 as A
 import qualified Data.ByteString.Lazy.Char8 as B
+import           Data.Version               (showVersion)
+import           Paths_penrose              (version)
 import           Penrose.Element
 import           Penrose.Env
 import           Penrose.GenOptProblem
@@ -53,6 +56,7 @@ compileTrio substance style element
     Right initState -> Right (initState, subEnv)
     Left styRTError -> Left $ StyleTypecheck $ show styRTError
 
+-- | Given Substance and ELement programs, return a context after parsing Substance and ELement.
 getEnv ::
      String -- ^ a Substance program
   -> String -- ^ an Element program
@@ -63,6 +67,7 @@ getEnv substance element = do
   subOut@(SubOut _ (subEnv, _) _) <- parseSubstance "" subDesugared env
   Right subEnv
 
+-- | Take n steps in the optimizer and return a new state
 step ::
      State -- ^ the initial state
   -> Int -- ^ the number of steps n for the optimizer to take
@@ -70,6 +75,7 @@ step ::
   -- TODO: rewrite runtime error reporting
 step initState steps = Right $ iterate Optimizer.step initState !! (steps + 1) -- `iterate` applies `id` the first time
 
+-- | Take multiple steps until the optimizer converges
 stepUntilConvergence ::
      State -- ^ the initial state
   -> Either RuntimeError State -- ^ the converged state or optimizer errors
@@ -78,6 +84,7 @@ stepUntilConvergence state
   -- TODO: rewrite runtime error reporting
   | otherwise = stepUntilConvergence $ Optimizer.step state
 
+-- | Resample the current state and return the new initial state
 resample ::
      State -- ^ the initial state
   -> Int -- ^ number of samples to choose from (> 0). If it's 1, no selection will occur
@@ -88,6 +95,9 @@ resample initState numSamples
         (newShapes, _, _) = evalTranslation newState
     in Right $ newState {shapesr = newShapes}
   | otherwise = Left $ RuntimeError "At least 1 sample should be requested."
+
+getVersion :: String
+getVersion = showVersion version
 
 --------------------------------------------------------------------------------
 -- Test
