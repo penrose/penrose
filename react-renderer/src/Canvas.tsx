@@ -79,7 +79,7 @@ class Canvas extends React.Component<IProps> {
     }
   };
 
-  public static propagateUpdate = async (data: any) => {
+  public static insertPending = async (data: any) => {
     return {
       ...data,
       // clear up pending paths now that they are updated properly
@@ -92,6 +92,13 @@ class Canvas extends React.Component<IProps> {
       )
     };
   };
+
+  /**
+   * Update the varying state with values from `shapes`
+   *
+   * @static
+   * @memberof Canvas
+   */
   public static updateVaryingState = async (data: any) => {
     const newVaryingState = [...data.varyingState];
     await data.varyingPaths.forEach((path: any, index: number) => {
@@ -119,6 +126,11 @@ class Canvas extends React.Component<IProps> {
       varyingState: newVaryingState
     };
   };
+
+  /**
+   * process a packet from the backend to (1) render the initial state and (2) update the state of the renderer.
+   * @memberof Canvas
+   */
   public static processData = async (data: any) => {
     if (!data.shapesr) {
       return {};
@@ -133,35 +145,86 @@ class Canvas extends React.Component<IProps> {
     );
 
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
-    const processed = await Canvas.propagateUpdate({
+    const processed = await Canvas.insertPending({
       ...data,
       shapesr: nonEmpties
     });
     return processed;
   };
+
+  /**
+   * Hard-coded canvas size
+   * @type {[number, number]}
+   * @memberof Canvas
+   */
   public readonly canvasSize: [number, number] = [800, 700];
   public readonly svg = React.createRef<SVGSVGElement>();
 
-  public dragEvent = async (id: string, dy: number, dx: number) => {
-    const updated = await Canvas.propagateUpdate({
+  /**
+   * Retrieve data from drag events and update varying state accordingly
+   * @memberof Canvas
+   */
+  public dragEvent = async (id: string, dx: number, dy: number) => {
+    const updated = {
       ...this.props.data,
       paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
-      shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
-        if (shape.name.contents === id) {
-          return [
-            name,
-            {
-              ...shape,
-              x: { ...shape.x, contents: shape.x.contents - dx },
-              y: { ...shape.y, contents: shape.y.contents - dy }
-            }
-          ];
+      shapesr: this.props.data.shapesr.map(
+        ([type, properties]: [string, any]) => {
+          if (properties.name.contents === id) {
+            return this.dragShape([type, properties], dx, dy);
+          }
+          return [type, properties];
         }
-        return [name, shape];
-      })
-    });
+      )
+    };
     const updatedWithVaryingState = await Canvas.updateVaryingState(updated);
     this.props.updateData(updatedWithVaryingState);
+  };
+
+  public dragShape = ([type, properties]: any, dx: number, dy: number) => {
+    switch (type) {
+      case "Line":
+        return [
+          type,
+          this.moveProperties(properties, [
+            ["startX", dx],
+            ["startY", dy],
+            ["endX", dx],
+            ["endY", dy]
+          ])
+        ];
+      case "Image":
+        return [
+          type,
+          this.moveProperties(properties, [["centerX", dx], ["centerY", dy]])
+        ];
+      case "Arrow":
+        console.log("ha");
+        return [
+          type,
+          this.moveProperties(properties, [
+            ["startX", dx],
+            ["startY", dy],
+            ["endX", dx],
+            ["endY", dy]
+          ])
+        ];
+      default:
+        return [type, this.moveProperties(properties, [["x", dx], ["y", dy]])];
+    }
+  };
+
+  /**
+   * For each of the specified properties listed in `propPairs`, subtract a number from the orginal value.
+   *
+   * @memberof Canvas
+   */
+  public moveProperties = (properties: any, propPairs: [string, number][]) => {
+    const moveProperty = (props: any, [propertyID, n]: [string, number]) => {
+      props[propertyID].contents -= n;
+      return props;
+    };
+    return propPairs.reduce(moveProperty, properties);
   };
 
   public prepareSVGContent = async () => {
