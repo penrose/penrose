@@ -22,6 +22,8 @@ export const CompileTrio = (
   contents: [substance, style, element]
 });
 
+export const GetVersion = () => ({tag: "GetVersion"});
+
 export const transformValidJSON = (data: any) => ({
   ...data,
   shapesr: data.shapesr.map(([name, shape]: [string, any]) => [

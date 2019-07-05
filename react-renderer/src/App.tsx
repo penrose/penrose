@@ -3,13 +3,14 @@ import Log from "./Log";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
-import { Step, Resample, converged, initial } from "./packets";
+import { Step, Resample, converged, initial, GetVersion } from "./packets";
 
 interface IState {
   data: any;
   autostep: boolean;
   layers: ILayer[];
   processedInitial: boolean;
+  penroseVersion: string;
 }
 const socketAddress = "ws://localhost:9160";
 
@@ -21,7 +22,8 @@ class App extends React.Component<any, IState> {
     layers: [
       { layer: "polygon", enabled: false },
       { layer: "bbox", enabled: false }
-    ]
+    ],
+    penroseVersion: ""
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
@@ -67,7 +69,15 @@ class App extends React.Component<any, IState> {
     const parsed = JSON.parse(e.data);
     if (parsed.type === "connection") {
       Log.info(`Connection status: ${parsed.contents}`);
+
       return;
+    } else if (parsed.type === "version") {
+      this.setState({ penroseVersion: parsed.contents });
+
+      return;
+    }
+    if (this.state.penroseVersion === "") {
+      this.sendPacket(JSON.stringify(GetVersion()));
     }
     const data = parsed.contents;
     const processedData = await Canvas.processData(data);
@@ -93,7 +103,7 @@ class App extends React.Component<any, IState> {
     }
   };
   public render() {
-    const { data, layers, autostep } = this.state;
+    const { data, layers, autostep, penroseVersion } = this.state;
     return (
       <div className="App">
         <ButtonBar
@@ -115,6 +125,7 @@ class App extends React.Component<any, IState> {
           lock={false}
           layers={layers}
           ref={this.canvas}
+          penroseVersion={`Penrose version ${penroseVersion}`}
         />
       </div>
     );

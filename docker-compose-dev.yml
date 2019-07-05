@@ -19,7 +19,7 @@ services:
       - "3500:3500"
     volumes:
       - "./react-renderer:/home/node/react-renderer"
-    tty: true # needed for ctrl-C graceful shutdown of whole system
+    # tty: true # needed for ctrl-C graceful shutdown of whole system
   domain-server:
     build:
       context: .
