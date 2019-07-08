@@ -125,7 +125,7 @@ class App extends React.Component<any, IState> {
           lock={false}
           layers={layers}
           ref={this.canvas}
-          penroseVersion={`Penrose version ${penroseVersion}`}
+          penroseVersion={penroseVersion}
         />
       </div>
     );
