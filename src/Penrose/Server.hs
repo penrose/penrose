@@ -22,9 +22,9 @@ import           Data.UUID
 import           GHC.Generics
 import qualified Network.Socket            as S
 import qualified Network.WebSockets        as WS
+import           Penrose.API
 import           Penrose.Env               (VarEnv)
 import           Penrose.GenOptProblem     as GenOptProblem
-import           Penrose.API
 import           Penrose.Style
 import           System.Console.Pretty     (Color (..), Style (..), bgColor)
 import qualified System.Console.Pretty     as Console
@@ -80,6 +80,10 @@ data Request
   | CompileTrio String
                 String
                 String
+  | ReconcileNext State
+                  String
+                  String
+                  String
   | GetEnv String
            String
   | GetVersion
@@ -102,6 +106,8 @@ processRequests client@(_, conn, _) = do
         StepUntilConvergence s -> sendSafe "state" $ stepUntilConvergence s
         CompileTrio sub sty elm ->
           sendSafe "compilerOutput" $ compileTrio sub sty elm
+        ReconcileNext s sub sty elm ->
+          sendSafe "state" $ reconcileNext s sub sty elm
         GetEnv sub elm -> sendSafe "varEnv" $ getEnv sub elm
         GetVersion -> send "version" getVersion
     Nothing -> do

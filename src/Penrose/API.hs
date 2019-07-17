@@ -2,6 +2,7 @@ module Penrose.API
   ( compileTrio
   , step
   , stepUntilConvergence
+  , reconcileNext
   , getEnv
   , getVersion
   , resample
@@ -18,6 +19,7 @@ import           Penrose.GenOptProblem
 import qualified Penrose.Optimizer          as Optimizer
 import           Penrose.Plugins
 import           Penrose.Serializer
+import           Penrose.Shapes
 import           Penrose.Style
 import           Penrose.Substance
 import           Penrose.Sugarer
@@ -98,6 +100,28 @@ resample initState numSamples
 
 getVersion :: String
 getVersion = showVersion version
+
+reconcileNext ::
+  State
+  -> String
+  -> String
+  -> String
+  -> Either CompilerError (State, VarEnv)
+reconcileNext prevState substance style element
+ = do
+  (state, varenv) <- compileTrio substance style element
+
+  let (paths, values) = unzip $ map (go $ shapesr prevState) $ shapeProperties state
+  let oldTrans = transr prevState
+  let newState = state { transr = insertPaths paths values oldTrans }
+  return (newState, varenv)
+  where
+    go shapes (name, field, property) =
+      let shape = findShape (getShapeName name field) shapes
+          propValue = Done $ shape `get` property
+          path = mkPath [name, field, property]
+      in (path, propValue)
+
 
 --------------------------------------------------------------------------------
 -- Test
