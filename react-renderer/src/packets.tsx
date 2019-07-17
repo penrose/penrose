@@ -29,7 +29,7 @@ export const ReconcileNext = (
   state: any
 ) => ({
   tag: "ReconcileNext",
-  contents: [substance, style, element, transformValidJSON(state)]
+  contents: [transformValidJSON(state), substance, style, element]
 });
 
 export const GetVersion = () => ({ tag: "GetVersion" });
