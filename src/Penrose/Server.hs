@@ -107,7 +107,7 @@ processRequests client@(_, conn, _) = do
         CompileTrio sub sty elm ->
           sendSafe "compilerOutput" $ compileTrio sub sty elm
         ReconcileNext s sub sty elm ->
-          sendSafe "state" $ reconcileNext s sub sty elm
+          sendSafe "compilerOutput" $ reconcileNext s sub sty elm
         GetEnv sub elm -> sendSafe "varEnv" $ getEnv sub elm
         GetVersion -> send "version" getVersion
     Nothing -> do
