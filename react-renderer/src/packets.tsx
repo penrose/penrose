@@ -22,7 +22,17 @@ export const CompileTrio = (
   contents: [substance, style, element]
 });
 
-export const GetVersion = () => ({tag: "GetVersion"});
+export const ReconcileNext = (
+  substance: string,
+  style: string,
+  element: string,
+  state: any
+) => ({
+  tag: "ReconcileNext",
+  contents: [substance, style, element, transformValidJSON(state)]
+});
+
+export const GetVersion = () => ({ tag: "GetVersion" });
 
 export const transformValidJSON = (data: any) => ({
   ...data,
