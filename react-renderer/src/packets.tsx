@@ -34,6 +34,11 @@ export const ReconcileNext = (
 
 export const GetVersion = () => ({ tag: "GetVersion" });
 
+export const GetEnv = (substance: string, element: string) => ({
+  tag: "GetEnv",
+  contents: [substance, element]
+});
+
 export const transformValidJSON = (data: any) => ({
   ...data,
   shapesr: data.shapesr.map(([name, shape]: [string, any]) => [
