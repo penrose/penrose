@@ -107,10 +107,10 @@ getVersion = showVersion version
 reconcileNext ::
      State -> String -> String -> String -> Either CompilerError (State, VarEnv)
 reconcileNext prevState substance style element = do
-  (state, varenv) <- compileTrio substance style element
-  let fixedProps@(paths, values) =
+  (state', varenv) <- compileTrio substance style element
+  let state = removeFixed (zip (varyingPaths prevState) (varyingState prevState)) state'
+  let (paths, values) =
         unzip $ mapMaybe (go $ shapesr prevState) $ shapeProperties state
-  let oldTrans = transr prevState
   let newTrans = insertPaths paths values $ transr state
   let (newShapes, _, _) =
         evalShapes
@@ -120,7 +120,6 @@ reconcileNext prevState substance style element = do
           (mkVaryMap (varyingPaths state) (varyingState state))
           (rng state)
   let newState =
-        removeFixed (zip (varyingPaths prevState) (varyingState prevState)) $
         state {transr = newTrans, shapesr = newShapes}
   return (newState, varenv)
   where
