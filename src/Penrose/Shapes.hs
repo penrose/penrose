@@ -1026,11 +1026,18 @@ exampleCirc = ("Circle", M.fromList
 -- generateShapes trans = []
     -- TODO write out full procedure
 
+findShapeSafe :: (Autofloat a) => String -> [Shape a] -> Maybe (Shape a)
+findShapeSafe shapeName shapes =
+    case filter (\s -> getName s == shapeName) shapes of
+        [x] -> Just x
+        []  -> Nothing
+        _   -> error ("findShape: expected one shape for \"" ++ shapeName ++ "\", but did not find just one (returned 1+ shapes).")
+
 findShape :: (Autofloat a) => String -> [Shape a] -> Shape a
 findShape shapeName shapes =
     case filter (\s -> getName s == shapeName) shapes of
         [x] -> x
-        _   -> error ("findShape: expected one shape for \"" ++ shapeName ++ "\", but did not find just one (returned zero or many).")
+        _   -> error ("findShape: expected one shape for \"" ++ shapeName ++ "\", but did not find just one (returned one or many).")
 
 -- TODO: can use alter, update, adjust here. Come back if performance matters
 -- | Setting the value of a property

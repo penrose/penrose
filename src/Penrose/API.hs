@@ -11,7 +11,10 @@ module Penrose.API
 import           Control.Exception          (ErrorCall, try)
 import qualified Data.Aeson                 as A
 import qualified Data.ByteString.Lazy.Char8 as B
+import           Data.List                  (deleteFirstsBy)
+import           Data.Maybe                 (mapMaybe)
 import           Data.Version               (showVersion)
+import           Debug.Trace                (traceShowId)
 import           Paths_penrose              (version)
 import           Penrose.Element
 import           Penrose.Env
@@ -102,26 +105,40 @@ getVersion :: String
 getVersion = showVersion version
 
 reconcileNext ::
-  State
-  -> String
-  -> String
-  -> String
-  -> Either CompilerError (State, VarEnv)
-reconcileNext prevState substance style element
- = do
+     State -> String -> String -> String -> Either CompilerError (State, VarEnv)
+reconcileNext prevState substance style element = do
   (state, varenv) <- compileTrio substance style element
-
-  let (paths, values) = unzip $ map (go $ shapesr prevState) $ shapeProperties state
+  let fixedProps@(paths, values) =
+        unzip $ mapMaybe (go $ shapesr prevState) $ shapeProperties state
   let oldTrans = transr prevState
-  let newState = state { transr = insertPaths paths values oldTrans }
+  let newTrans = insertPaths paths values $ transr state
+  let (newShapes, _, _) =
+        evalShapes
+          evalIterRange
+          (map (mkPath . list2) $ shapeNames state)
+          newTrans
+          (mkVaryMap (varyingPaths state) (varyingState state))
+          (rng state)
+  let newState =
+        removeFixed (zip (varyingPaths prevState) (varyingState prevState)) $
+        state {transr = newTrans, shapesr = newShapes}
   return (newState, varenv)
   where
     go shapes (name, field, property) =
-      let shape = findShape (getShapeName name field) shapes
-          propValue = Done $ shape `get` property
-          path = mkPath [name, field, property]
-      in (path, propValue)
-
+      let shape = findShapeSafe (getShapeName name field) shapes
+      in case shape of
+           Nothing -> Nothing
+           Just s ->
+             Just (mkPath [name, field, property], Done $ s `get` property)
+    removeFixed oldVaryingProps state =
+      let propsWithFixed = zip (varyingPaths state) (varyingState state)
+          (paths, vstate) =
+            unzip $
+            deleteFirstsBy
+              (\p1 p2 -> fst p1 == fst p2)
+              propsWithFixed
+              oldVaryingProps
+      in state {varyingPaths = paths, varyingState = vstate}
 
 --------------------------------------------------------------------------------
 -- Test
