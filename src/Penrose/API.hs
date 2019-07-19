@@ -11,7 +11,8 @@ module Penrose.API
 import           Control.Exception          (ErrorCall, try)
 import qualified Data.Aeson                 as A
 import qualified Data.ByteString.Lazy.Char8 as B
-import           Data.List                  (deleteFirstsBy)
+import           Data.List                  (deleteFirstsBy, (\\))
+import qualified Data.Map.Strict            as M
 import           Data.Maybe                 (mapMaybe)
 import           Data.Version               (showVersion)
 import           Debug.Trace                (traceShowId)
@@ -108,36 +109,60 @@ reconcileNext ::
      State -> String -> String -> String -> Either CompilerError (State, VarEnv)
 reconcileNext prevState substance style element = do
   (state', varenv) <- compileTrio substance style element
-  let state = removeFixed (zip (varyingPaths prevState) (varyingState prevState)) state'
-  let (paths, values) =
-        unzip $ mapMaybe (go $ shapesr prevState) $ shapeProperties state
-  let newTrans = insertPaths paths values $ transr state
-  let (newShapes, _, _) =
-        evalShapes
-          evalIterRange
-          (map (mkPath . list2) $ shapeNames state)
-          newTrans
-          (mkVaryMap (varyingPaths state) (varyingState state))
-          (rng state)
-  let newState =
-        state {transr = newTrans, shapesr = newShapes}
+  -- remove varyings from the new state
+  let state = diffStates prevState state'
+  -- find new fixed values from the previous state
+  let fixedValues =
+        mapMaybe (getFixed $ shapesr prevState) $ shapeProperties state
+  -- insert these new fixed values into the new translation
+  newTrans <- fromStyleErrs $ addPaths True (transr state) fixedValues
+  -- generate a new set of shapes
+  let newState = syncShapes $ state {transr = newTrans}
   return (newState, varenv)
   where
-    go shapes (name, field, property) =
+    getFixed shapes (name, field, property) =
       let shape = findShapeSafe (getShapeName name field) shapes
       in case shape of
            Nothing -> Nothing
            Just s ->
              Just (mkPath [name, field, property], Done $ s `get` property)
-    removeFixed oldVaryingProps state =
-      let propsWithFixed = zip (varyingPaths state) (varyingState state)
-          (paths, vstate) =
-            unzip $
-            deleteFirstsBy
-              (\p1 p2 -> fst p1 == fst p2)
-              propsWithFixed
-              oldVaryingProps
-      in state {varyingPaths = paths, varyingState = vstate}
+
+--------------------------------------------------------------------------------
+-- Helpers
+-- | Produce a new state by diff'ing a state generated with new Substance statements and a previous state. This functions (1) moves all occurances of varying paths and corresponding entries in the varying state from the previous state and (2) remove all occurances of uninitialzed paths from the previous state. NOTE: this function is designed to be called only once per edit and is not idempotent.
+diffStates :: State -> State -> State
+diffStates prevState state =
+  let propsWithFixed = zip (varyingPaths state) (varyingState state)
+      (paths, vstate) =
+        unzip $
+        deleteFirstsBy
+          (\p1 p2 -> fst p1 == fst p2)
+          propsWithFixed
+          (zip (varyingPaths prevState) (varyingState prevState))
+  in state
+     { varyingPaths = paths
+     , varyingState = vstate
+     , uninitializedPaths =
+         uninitializedPaths state \\ uninitializedPaths prevState
+     }
+
+-- | Transform style compiler functions to be compatible with the uniformed error types
+fromStyleErrs :: Either [Error] a -> Either CompilerError a
+fromStyleErrs v =
+  case v of
+    Left errs -> Left $ StyleTypecheck $ show errs
+    Right res -> Right res
+
+syncShapes :: State -> State
+syncShapes state =
+  let (shapes, _, _) =
+        evalShapes
+          evalIterRange
+          (map (mkPath . list2) $ shapeNames state)
+          (transr state)
+          M.empty
+          (rng state)
+  in state {shapesr = shapes}
 
 --------------------------------------------------------------------------------
 -- Test
