@@ -12,11 +12,36 @@ import           Penrose.Util
 
 import           Data.Aeson
 import           Data.Aeson.TH
+import           Data.Char                  (toLower)
 import           GHC.Generics
 import qualified Numeric.LinearAlgebra      as L
 import           System.Random              (StdGen)
 import           Text.Megaparsec
 
+--------------------------------------------------------------------------------
+-- Packet serialization for server
+data Packet a = Packet
+  { packetType     :: String
+  , packetSession  :: Maybe String
+  , packetContents :: a
+  }
+
+$(deriveJSON
+    defaultOptions
+    {fieldLabelModifier = map toLower . drop 6, omitNothingFields = True}
+    ''Packet)
+
+data Request a = Request
+  { requestSession :: Maybe String
+  , requestCall    :: a
+  }
+
+$(deriveJSON
+    defaultOptions
+    {fieldLabelModifier = map toLower . drop 7, omitNothingFields = True}
+    ''Request)
+
+--------------------------------------------------------------------------------
 instance ToJSONKey Name
 
 instance FromJSONKey Name

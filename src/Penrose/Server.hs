@@ -7,10 +7,11 @@
 {-# LANGUAGE RankNTypes                #-}
 {-# OPTIONS_HADDOCK prune #-}
 
-module Penrose.Server
-  ( serveEditor
-  , serveRenderer
-  ) where
+module Penrose.Server where
+  -- ( serveEditor
+  -- , serveRenderer
+  -- ) 
+  -- where
 
 import           Control.Concurrent        (MVar, forkIOWithUnmask, modifyMVar_,
                                             newMVar, readMVar)
@@ -25,6 +26,7 @@ import qualified Network.WebSockets        as WS
 import           Penrose.API
 import           Penrose.Env               (VarEnv)
 import           Penrose.GenOptProblem     as GenOptProblem
+import           Penrose.Serializer
 import           Penrose.Style
 import           System.Console.Pretty     (Color (..), Style (..), bgColor)
 import qualified System.Console.Pretty     as Console
@@ -41,37 +43,25 @@ import           System.Random
 
 --------------------------------------------------------------------------------
 -- Types
-data Packet a = Packet
-  { typ      :: String
-  , contents :: a
-  } deriving (Generic)
-
-instance (ToJSON a) => ToJSON (Packet a) where
-  toJSON Packet {typ = t, contents = c} = object ["type" .= t, "contents" .= c]
-
--- | TODO
+-- | Each client has a unique ID
 type ClientID = UUID
 
--- | TODO
+-- | The server maintains a list of clients
 type ServerState = [Client]
 
--- | TODO
+-- | A client has an ID, a connection handle, and can optionally be stateful
 type Client = (ClientID, WS.Connection, ClientState)
 
--- | TODO
+-- | Clients can either be stateless or stateful
 data ClientState
-  = Editor VarEnv
-           StyProg
-           (Maybe BackendState) -- TODO: no longer used, remove
-  | Renderer BackendState -- TODO: no longer used, remove
+  = CachedState BackendState -- ^ unused option that caches a state in the client
   | Stateless
 
--- | TODO
 type BackendState = GenOptProblem.State
 
 --------------------------------------------------------------------------------
 -- RESTful server
-data Request
+data APICall
   = Step Int
          State
   | Resample Int
@@ -89,9 +79,12 @@ data Request
   | GetVersion
   deriving (Generic)
 
-instance FromJSON Request
+instance FromJSON APICall
 
-instance ToJSON Request
+instance ToJSON APICall
+
+type Session = String
+
 
 processRequests :: Client -> IO ()
 processRequests client@(_, conn, _) = do
@@ -99,29 +92,44 @@ processRequests client@(_, conn, _) = do
   msg_json <- WS.receiveData conn
   logDebug client $ "Message received from frontend: \n" ++ show msg_json
   case decode msg_json of
-    Just e ->
-      case e of
-        Step steps s -> sendSafe "state" $ step s steps
-        Resample samples s -> sendSafe "state" $ resample s samples
-        StepUntilConvergence s -> sendSafe "state" $ stepUntilConvergence s
+    Just Request{requestSession=session, requestCall=call} ->
+      case call of
+        Step steps s -> sendSafe session "state" $ step s steps
+        Resample samples s -> sendSafe session "state" $ resample s samples
+        StepUntilConvergence s ->
+          sendSafe session "state" $ stepUntilConvergence s
         CompileTrio sub sty elm ->
-          sendSafe "compilerOutput" $ compileTrio sub sty elm
+          sendSafe session "compilerOutput" $ compileTrio sub sty elm
         ReconcileNext s sub sty elm ->
-          sendSafe "compilerOutput" $ reconcileNext s sub sty elm
-        GetEnv sub elm -> sendSafe "varEnv" $ getEnv sub elm
-        GetVersion -> send "version" getVersion
+          sendSafe session "compilerOutput" $ reconcileNext s sub sty elm
+        GetEnv sub elm -> sendSafe session "varEnv" $ getEnv sub elm
+        GetVersion -> send session "version" getVersion
     Nothing -> do
       logError client "Error reading JSON"
       processRequests client
   logDebug client "Messege received and decoded successfully."
   processRequests client
   where
-    send flag content = wsSendPacket conn Packet {typ = flag, contents = content}
-    sendSafe :: (ToJSON a, ToJSON b) => String -> Either a b -> IO ()
-    sendSafe flag res =
-      case res of
-        Right state -> wsSendPacket conn Packet {typ = flag, contents = state}
-        Left error -> wsSendPacket conn Packet {typ = "error", contents = error}
+    send session flag content =
+      sendPacket
+        conn
+        Packet
+        {packetType = flag, packetContents = content, packetSession = session}
+    sendSafe session flag output =
+      case output of
+        Right res ->
+          sendPacket
+            conn
+            Packet
+            {packetType = flag, packetContents = res, packetSession = session}
+        Left err ->
+          sendPacket
+            conn
+            Packet
+            { packetType = "error"
+            , packetContents = err
+            , packetSession = session
+            }
 
 --------------------------------------------------------------------------------
 -- Server-level functions
@@ -184,8 +192,13 @@ handleClient state isVerbose pending = do
       return s'
     logInfo client $ "Client connected " ++ toString clientID
     -- start an editor session
-
-    wsSendPacket conn Packet {typ = "connection", contents = String "connected"}
+    sendPacket
+      conn
+      Packet
+      { packetType = "connection"
+      , packetContents = String "connected"
+      , packetSession = Nothing
+      }
     processRequests client
   where
     disconnect client
@@ -211,20 +224,21 @@ serveRenderer ::
 serveRenderer domain port initState = do
   putStrLn $ "Penrose renderer server started on " ++ prettyAddress domain port
   putStrLn "Waiting for the frontend UI to connect..."
-  let s = Renderer initState
-  catch (runServer domain port $ renderer s) handler
+  catch (runServer domain port $ renderer initState) handler
   where
     handler :: ErrorCall -> IO ()
     handler _ = putStrLn "Server Error"
 
-renderer :: ClientState -> WS.ServerApp
-renderer (Renderer s) pending = do
+renderer :: BackendState -> WS.ServerApp
+renderer s pending = do
   conn <- WS.acceptRequest pending
   WS.forkPingThread conn 30 -- To keep the connection alive
   clientID <- newUUID
   let client = (clientID, conn, Stateless)
     -- send the initial state to the frontend renderer first
-  wsSendPacket conn Packet {typ = "state", contents = s}
+  sendPacket
+    conn
+    Packet {packetType = "state", packetContents = s, packetSession = Nothing}
   processRequests client
 
 --------------------------------------------------------------------------------
@@ -260,8 +274,8 @@ logError client = errorM (idString client)
 
 --------------------------------------------------------------------------------
 -- WebSocket utils
-wsSendPacket :: ToJSON a => WS.Connection -> Packet a -> IO ()
-wsSendPacket conn packet = WS.sendTextData conn $ encode packet
+sendPacket :: ToJSON a => WS.Connection -> Packet a -> IO ()
+sendPacket conn packet = WS.sendTextData conn $ encode packet
 
 -- | This 'runServer' is exactly the same as the one in "Network.WebSocket". Duplicated for calling a customized version of 'runServerWith' with error messages enabled.
 runServer ::
@@ -269,10 +283,13 @@ runServer ::
   -> Int -- ^ Port to listen on
   -> WS.ServerApp -- ^ Application
   -> IO () -- ^ Never returns
-runServer host port app =
-  runServerWith host port options app
+runServer host port app = runServerWith host port options app
   where
-    options = WS.defaultConnectionOptions {WS.connectionCompressionOptions = WS.PermessageDeflateCompression WS.defaultPermessageDeflate}
+    options =
+      WS.defaultConnectionOptions
+      { WS.connectionCompressionOptions =
+          WS.PermessageDeflateCompression WS.defaultPermessageDeflate
+      }
 
 -- | A version of 'runServer' which allows you to customize some options.
 runServerWith :: String -> Int -> WS.ConnectionOptions -> WS.ServerApp -> IO ()
@@ -472,7 +489,7 @@ runApp socket opts app = do
 -- updateShapes :: [Shape Double] -> Client -> IO ()
 -- updateShapes newShapes client@(clientID, conn, clientState) =
 --     let polyShapes = toPolymorphics newShapes
---         uninitVals = map G.toTagExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
+--         uninitVals = map G.toSessionExpr $ G.shapes2vals polyShapes $ G.uninitializedPaths s
 --         trans' = G.insertPaths (G.uninitializedPaths s) uninitVals (G.transr s)
 --         -- -- Respect the optimization policy
 --         -- TODO: rewrite this such that it works with the new overallObjFn
