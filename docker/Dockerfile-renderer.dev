@@ -6,11 +6,13 @@ RUN npm config set prefix "/home/node/.npm-packages"
 
 ENV PATH="=/home/node/.npm-packages/bin:${PATH}"
 
-COPY ./src/react-renderer/package.json /home/node/react-renderer/package.json
+COPY ./react-renderer/package.json /home/node/react-renderer/package.json
 
 WORKDIR /home/node/react-renderer
 
 RUN npm install
+
+ENV CHOKIDAR_USEPOLLING=true
 
 ENTRYPOINT ["sh", "-c", "PORT=3500 npm start"]
 

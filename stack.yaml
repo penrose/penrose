@@ -3,14 +3,7 @@ extra-package-dbs: []
 packages:
 - .
 extra-deps:
-- aeson-1.2.3.0
-- binary-0.8.5.1
-- unix-2.7.2.2
-- extra-1.6
-- megaparsec-6.4.0
-- parser-combinators-0.4.0
 - pretty-terminal-0.1.0.0
-- ghc-boot-8.0.2
 
-resolver: lts-9.10
+resolver: lts-13.24
 allow-newer: true

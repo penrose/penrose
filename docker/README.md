@@ -30,11 +30,11 @@
 
 All the files in `TOP` are mounted into the `penrose` container.
 
-Rebuild using `make dev-build`, and run penrose using `make penrose [args]`.
+Rebuild using `make dev-build`, and run penrose using `make penrose [args]` as if you were in the `src/` folder.
 E,g:
 ```
 make dev-build
-make penrose src/linear-algebra-domain/determinants.sub src/linear-algebra-domain/linear-algebra.sty src/linear-algebra-domain/linear-algebra.dsl
+make penrose linear-algebra-domain/determinants.sub linear-algebra-domain/linear-algebra.sty linear-algebra-domain/linear-algebra.dsl
 ```
 
 Alternatively, use `make shell-dev` in another terminal to enter an interactive bash shell and run your stack/ghc build commands, and run penrose itself using the `penrose` command.
