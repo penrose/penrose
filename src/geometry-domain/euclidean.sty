@@ -118,8 +118,8 @@ with Linelike a; Linelike b {
      	   x : theta.originX
      	   y : theta.originY
      	   r : 40.0 -- TODO: set this based on the relative lengths of the segment
-     	   startAngle : angle(a.shape, theta.originX, theta.originY) -- Degrees
-	   endAngle : angle(b.shape, theta.originX, theta.originY)
+     	   startAngle : angleOf(a.shape, theta.originX, theta.originY) -- Degrees
+	   endAngle : angleOf(b.shape, theta.originX, theta.originY)
 	   strokeWidth : 2.0
      	   strokeColor : Colors.black
 	   fillColor : Colors.none -- setOpacity(Colors.silver, 0.5)

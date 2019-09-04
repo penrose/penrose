@@ -103,7 +103,7 @@ compDict = M.fromList
         ("makeCurve", makeCurve),
         ("triangle", constComp triangle),
         ("shared", constComp sharedP),
-        ("angle", constComp angleOf),
+        ("angleOf", constComp angleOf),
         ("perpX", constComp perpX),
         ("perpY", constComp perpY),
         ("perpPath", constComp perpPath),
