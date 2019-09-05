@@ -4,7 +4,7 @@ import {
   IRendererEvents,
   ConnectionStatus,
   IEditorEvents
-} from "src/protocol";
+} from "src/Protocol";
 
 declare module "mathjax";
 
