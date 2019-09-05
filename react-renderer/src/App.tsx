@@ -3,7 +3,8 @@ import Log from "./Log";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
-import { Step, Resample, converged, initial, GetVersion } from "./packets";
+import { Step, Resample, converged, initial } from "./packets";
+import { Protocol, ConnectionStatus } from "./Protocol";
 
 interface IState {
   data: any;
@@ -27,9 +28,19 @@ class App extends React.Component<any, IState> {
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
-  public ws: any = null;
-  public sendPacket = (packet: string) => {
-    this.ws.send(packet);
+  public protocol: Protocol;
+  public onConnectionStatus = (conn: ConnectionStatus) => {
+    Log.info(`Connection status: ${conn}`);
+  };
+  public onVersion = (version: string) => {
+    this.setState({ penroseVersion: version });
+  };
+  public onCanvasState = async (canvasState: any, _: any) => {
+    await this.setState({ data: canvasState, processedInitial: true });
+    const { autostep } = this.state;
+    if (autostep && !converged(canvasState)) {
+      await this.step();
+    }
   };
   public downloadSVG = () => {
     if (this.canvas.current !== null) {
@@ -48,11 +59,11 @@ class App extends React.Component<any, IState> {
     }
   };
   public step = () => {
-    this.sendPacket(JSON.stringify(Step(1, this.state.data)));
+    this.protocol.sendPacket(Step(1, this.state.data));
   };
   public resample = async () => {
     await this.setState({ processedInitial: false });
-    this.sendPacket(JSON.stringify(Resample(150, this.state.data)));
+    this.protocol.sendPacket(Resample(150, this.state.data));
   };
   public toggleLayer = (layerName: string) => {
     this.setState({
@@ -65,43 +76,25 @@ class App extends React.Component<any, IState> {
     });
   };
 
-  public onMessage = async (e: MessageEvent) => {
-    const parsed = JSON.parse(e.data);
-    if (parsed.type === "connection") {
-      Log.info(`Connection status: ${parsed.contents}`);
-
-      return;
-    } else if (parsed.type === "version") {
-      this.setState({ penroseVersion: parsed.contents });
-
-      return;
-    }
-    if (this.state.penroseVersion === "") {
-      this.sendPacket(JSON.stringify(GetVersion()));
-    }
-    const data = parsed.contents;
-    const processedData = await Canvas.processData(data);
-    await this.setState({ data: processedData, processedInitial: true });
-    const { autostep } = this.state;
-    if (autostep && !converged(processedData)) {
-      await this.step();
-    }
-  };
-
-  public setupSockets = () => {
-    this.ws = new WebSocket(socketAddress);
-    this.ws.onmessage = this.onMessage;
-    this.ws.onclose = this.setupSockets;
-  };
   public async componentDidMount() {
-    this.setupSockets();
+    this.protocol = new Protocol(socketAddress, {
+      onConnectionStatus: this.onConnectionStatus,
+      onVersion: this.onVersion,
+      onCanvasState: this.onCanvasState,
+      onError: console.warn,
+      kind: "renderer"
+    });
+
+    this.protocol.setupSockets();
   }
+
   public updateData = async (data: any) => {
     await this.setState({ data: { ...data } });
     if (this.state.autostep) {
       this.step();
     }
   };
+
   public render() {
     const { data, layers, autostep, penroseVersion } = this.state;
     return (
