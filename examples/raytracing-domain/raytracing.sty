@@ -26,35 +26,35 @@ Colors {
 }
 
 Scene s {
-    -- optimized fields to be shared with diffuse obj
-    s.x = OPTIMIZED
-    s.y = OPTIMIZED
-    s.sizeX = OPTIMIZED
-    s.sizeY = OPTIMIZED
+    -- ? fields to be shared with diffuse obj
+    s.x = ?
+    s.y = ?
+    s.sizeX = ?
+    s.sizeY = ?
 
     s.container = Rectangle {
-        x = s.x
-        y = s.y
-        sizeX = s.sizeX
-        sizeY = s.sizeY
-        fill  = Colors.none
-        strokeColor = Colors.none
-        strokeWidth = 1.5
+        x : s.x
+        y : s.y
+        sizeX : s.sizeX
+        sizeY : s.sizeY
+        fill  : Colors.none
+        strokeColor : Colors.none
+        strokeWidth : 1.5
     }
 }
 
 DiffuseObject d
 where InOS(d, s) with Scene s {
     d.shape = Rectangle {
-        angle  = 0
-        fill   = Colors.none
-        strokeColor = Colors.black
-        strokeWidth = 1.5
+        angle  : 0
+        fill   : Colors.none
+        strokeColor : Colors.black
+        strokeWidth : 1.5
         -- optimize height, width, location
-        x = s.x
-        y = s.y
-        sizeX = s.sizeX
-        sizeY = s.sizeY
+        x : s.x
+        y : s.y
+        sizeX : s.sizeX
+        sizeY : s.sizeY
     }
     d.layering = d.shape above s.container
 }
@@ -62,28 +62,28 @@ where InOS(d, s) with Scene s {
 
 -- No "in path" predicate because scene geometry shouldn't depend directly on a path
 SpecularObject o {
-	-- create mirror shape and put it in scene
+    -- create mirror shape and put it in scene
     -- TODO: import SVG?
     o.shape = Rectangle {
-        fill = Colors.gray
+        fill : Colors.gray
         -- TODO: sizes are temporary
-        sizeX = 100.0
-        sizeY = 20.0
+        sizeX : 100.0
+        sizeY : 20.0
     }
 }
 
 LightSource l {
     -- TODO: has to have a location
     l.shape = Circle {
-        color = Colors.yellow
-        r = 20.0
-        strokeWidth = 0.0
+        color : Colors.yellow
+        r : 20.0
+        strokeWidth : 0.0
     }
     l.text = Text {
-        x = l.shape.x
-        y = l.shape.y
-        string = "L"
-        color = Colors.black
+        x : l.shape.x
+        y : l.shape.y
+        string : "L"
+        color : Colors.black
     }
     l.textLayering = l.text above l.shape
 }
@@ -92,21 +92,21 @@ Camera c {
     -- TODO: has to have a location
     /*
     c.shape = Image {
-        lengthX = 20.0
-        lengthY = 20.0
-        path  = "eye.svg"
+        lengthX : 20.0
+        lengthY : 20.0
+        path  : "eye.svg"
     }
     */
     c.shape = Circle {
-        color = Colors.gray
-        r = 20.0
-        strokeWidth = 0.0
+        color : Colors.gray
+        r : 20.0
+        strokeWidth : 0.0
     }
     c.text = Text {
-        x = c.shape.x
-        y = c.shape.y
-        string = "C"
-        color = Colors.black
+        x : c.shape.x
+        y : c.shape.y
+        string : "C"
+        color : Colors.black
     }
     c.textLayering = c.text above c.shape
 }
@@ -127,7 +127,7 @@ where InOS(d, s) with Scene s {
 PathVertex v; PathSample ps
 where InVP(v, p); OnLight(v)
 with Path p; LightSource L {
-	-- TODO: put the location on L's border
+    -- TODO: put the location on L's border
     v.x = L.shape.x
     v.y = L.shape.y
 }
@@ -136,7 +136,7 @@ with Path p; LightSource L {
 PathVertex v; PathSample ps
 where InVP(v, p); OnEye(v)
 with Path p; Camera c {
-	-- TODO: put the location on E's border
+    -- TODO: put the location on E's border
     -- v.x = c.shape.centerX
     -- v.y = c.shape.centerY
     v.x = c.shape.x
@@ -147,16 +147,16 @@ PathVertex v; PathSample ps
 where InVP(v, p); Hits(v, o)
 with Path p; SpecularObject o {
     -- TODO: on border of mirror
-    v.x = OPTIMIZED
-    v.y = OPTIMIZED
+    v.x = ?
+    v.y = ?
 }
 
 PathVertex v; PathSample ps
 where InVP(v, p); Hits(v, o)
 with Path p; DiffuseObject o {
     -- TODO: pretty much anywhere on the room?
-    v.x = OPTIMIZED
-    v.y = OPTIMIZED
+    v.x = ?
+    v.y = ?
     v.onFn = ensure pointOn(v.x, v.y, o.shape, 0.0)
 }
 
@@ -173,12 +173,12 @@ with PathVertex v1, v2
 {
      -- draw an arrow from v1's location to v2's location
      e.shape = Arrow {
-         startX = v1.x
-         startY = v1.y
-         endX   = v2.x
-         endY   = v2.y
-         color  = Colors.black
-         thickness = 1.5
+         startX : v1.x
+         startY : v1.y
+         endX   : v2.x
+         endY   : v2.y
+         color  : Colors.black
+         thickness : 1.5
      }
      -- e.layering1 = e.shape above o1.shape
      -- e.layering2 = e.shape above o2.shape
@@ -222,7 +222,7 @@ where InVP(v, p) with Path p {
 
 
 PathEdge e; SceneGeometry o; PathSample ps {
-	 -- ray should not intersect scene geometry
+     -- ray should not intersect scene geometry
 }
 
 -- Do something at bounce point
