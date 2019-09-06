@@ -1,5 +1,5 @@
 import * as React from "react";
-import { svgTransformString, toHex, StartArrowhead, EndArrowhead } from "./Util";
+import { svgTransformString, toHex, Arrowhead } from "./Util";
 import { flatten } from "lodash";
 import { IGPIPropsDraggable } from "./types";
 import draggable from "./Draggable";
@@ -64,7 +64,7 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
     const { canvasSize } = this.props;
     const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.color.contents);
-      console.log("strokeColor", shape.color.contents, strokeColor);
+    console.log("strokeColor", shape.color.contents, strokeColor);
     const fillColor = toHex(shape.fill.contents);
     const strokeOpacity = shape.color.contents[3];
     const fillOpacity = shape.fill.contents[3];
@@ -72,14 +72,28 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
     const rightArrowId = shape.name.contents + "-rightArrowhead";
     // TODO: distinguish between fill opacity and stroke opacity
 
-    const transformStr = svgTransformString(shape.transformation.contents, canvasSize);
+    const transformStr = svgTransformString(
+      shape.transformation.contents,
+      canvasSize
+    );
 
-      console.log("path string", toPathString(shape.pathData.contents, canvasSize));
+    console.log(
+      "path string",
+      toPathString(shape.pathData.contents, canvasSize)
+    );
 
     return (
       <g>
-        <StartArrowhead id={leftArrowId} color={strokeColor} opacity={strokeOpacity} />
-        <EndArrowhead id={rightArrowId} color={strokeColor} opacity={strokeOpacity} />
+        <Arrowhead
+          id={leftArrowId}
+          color={strokeColor}
+          opacity={strokeOpacity}
+        />
+        <Arrowhead
+          id={rightArrowId}
+          color={strokeColor}
+          opacity={strokeOpacity}
+        />
         <path
           stroke={strokeColor}
           fill={fillColor}
@@ -98,8 +112,7 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
               ? `url(#${rightArrowId})`
               : ""
           }
-
-	  transform={transformStr}
+          transform={transformStr}
         >
           <title>{shape.name.contents}</title>
         </path>
