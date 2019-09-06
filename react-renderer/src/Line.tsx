@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { IGPIPropsDraggable } from "./types";
 import draggable from "./Draggable";
-import { toScreen, toHex, StartArrowhead, EndArrowhead } from "./Util";
+import { toScreen, toHex, Arrowhead } from "./Util";
 
 class Line extends React.Component<IGPIPropsDraggable> {
   public render() {
@@ -26,33 +26,32 @@ class Line extends React.Component<IGPIPropsDraggable> {
     const rightArrowId = shape.name.contents + "-rightArrowhead";
 
     return (
-	<g>
-        <StartArrowhead id={leftArrowId} color={color} opacity={opacity} />
-        <EndArrowhead id={rightArrowId} color={color} opacity={opacity} />
+      <g>
+        <Arrowhead id={leftArrowId} color={color} opacity={opacity} />
+        <Arrowhead id={rightArrowId} color={color} opacity={opacity} />
 
-      <path
-        d={path}
-        onMouseDown={onClick}
-        fillOpacity={opacity}
-        strokeOpacity={opacity}
-        stroke={color}
-        strokeWidth={thickness}
-        strokeDasharray={strokeDasharray}
-
-	markerStart={
-	  shape["left-arrowhead"].contents === true
-	    ? `url(#${leftArrowId})`
-	    : ""
-	}
-	markerEnd={
-	  shape["right-arrowhead"].contents === true
-	    ? `url(#${rightArrowId})`
-	    : ""
-	}
-      >
-        <title>{shape.name.contents}</title>
-      </path>
-	    </g>
+        <path
+          d={path}
+          onMouseDown={onClick}
+          fillOpacity={opacity}
+          strokeOpacity={opacity}
+          stroke={color}
+          strokeWidth={thickness}
+          strokeDasharray={strokeDasharray}
+          markerStart={
+            shape["left-arrowhead"].contents === true
+              ? `url(#${leftArrowId})`
+              : ""
+          }
+          markerEnd={
+            shape["right-arrowhead"].contents === true
+              ? `url(#${rightArrowId})`
+              : ""
+          }
+        >
+          <title>{shape.name.contents}</title>
+        </path>
+      </g>
     );
   }
 }

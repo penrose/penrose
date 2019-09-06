@@ -1,5 +1,5 @@
 import * as React from "react";
-import { toScreen, toHex, StartArrowhead, EndArrowhead } from "./Util";
+import { toScreen, toHex, Arrowhead } from "./Util";
 import { flatten } from "lodash";
 import { IGPIPropsDraggable } from "./types";
 import draggable from "./Draggable";
@@ -73,8 +73,16 @@ class Curve extends React.Component<IGPIPropsDraggable> {
 
     return (
       <g>
-        <StartArrowhead id={leftArrowId} color={strokeColor} opacity={strokeOpacity} />
-        <EndArrowhead id={rightArrowId} color={strokeColor} opacity={strokeOpacity} />
+        <Arrowhead
+          id={leftArrowId}
+          color={strokeColor}
+          opacity={strokeOpacity}
+        />
+        <Arrowhead
+          id={rightArrowId}
+          color={strokeColor}
+          opacity={strokeOpacity}
+        />
         <path
           stroke={strokeColor}
           fill={fillColor}
