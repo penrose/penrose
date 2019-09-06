@@ -8,6 +8,7 @@ $symbol = [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\
 tokens :-
   -- digits
   -- alphabetic characters
+  \".*\"                            { \s -> StringLit s }
   "Label".*                         { \s -> Label s }
   "AutoLabel".*                     { \s -> AutoLabel s }
   "--".*                            { \s -> Comment s }
@@ -46,6 +47,7 @@ data Token =
   Space                           |
   Sym Char                        |
   Var String                      |
+  StringLit String                |
   RecursivePattern [Token]        |
   RecursivePatternElement [Token] |
   SinglePatternElement [Token]    |
@@ -69,6 +71,7 @@ instance Eq Token where
   Rparen == Rparen = True
   Space == Space = True
   Sym c1 == Sym c2 = c1 == c2
+  StringLit s1 == StringLit s2 = s1 == s2
   Var c1 == Var c2 = c1 == c2
   Pattern c1 b1 == Pattern c2 b2 = True
   Entitiy c1 == Entitiy c2 = c1 == c2

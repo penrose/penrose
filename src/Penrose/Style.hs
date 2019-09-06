@@ -73,7 +73,7 @@ plugin :: Parser Plugin
 plugin = symbol "plugin" >> stringLiteral
 
 stringLiteral :: Parser String
-stringLiteral = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
+stringLiteral = doubleQuotedString
 
 --------------------------------------------------------------------------------
 -- Style AST

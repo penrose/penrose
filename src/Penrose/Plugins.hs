@@ -57,7 +57,7 @@ pluginDict =
     [ ("haskell-test", ("plugins/haskell-instantiator", "./Main"))
     , ("ddgjs", ("plugins/mesh-plugin", "node mesh-plugin.js"))
     , ("alloy", ("plugins/alloy", "java -cp \"*:.\" AlloyPlugin"))
-    , ("raytracing", ("TODO: path", "TODO: command"))
+    , ("regexExpander", ("plugins/regex", "python regex.py"))
     ]
 
 --------------------------------------------------------------------------------
