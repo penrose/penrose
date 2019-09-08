@@ -41,6 +41,8 @@ Scene s {
         strokeColor : Colors.none
         strokeWidth : 1.5
     }
+    s.minSizeFn = ensure minSize(s.container)
+    s.maxSizeFn = ensure maxSize(s.container)
 }
 
 DiffuseObject d
@@ -59,6 +61,10 @@ where InOS(d, s) with Scene s {
     d.layering = d.shape above s.container
 }
 
+-- No two specular objects should overlap
+SpecularObject o1; SpecularObject o2 {
+    LOCAL.disjointFn = ensure disjoint(o1.shape, o2.shape, 10.0)
+}
 
 -- No "in path" predicate because scene geometry shouldn't depend directly on a path
 SpecularObject o {
@@ -198,6 +204,18 @@ with PathVertex v1, v2, v3;
     override o.shape.x = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.sizeY / -2.0)
     override o.shape.y = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.sizeY / -2.0)
 }
+
+PathEdge e; SpecularObject o {
+     -- ray should not intersect scene geometry
+     LOCAL.disjointFn = ensure disjoint(o.shape, e.shape, 10.0)
+}
+PathEdge e; LightSource l {
+     LOCAL.disjointFn = ensure disjoint(l.shape, e.shape, 10.0)
+}
+PathEdge e; Camera c {
+     LOCAL.disjointFn = ensure disjoint(c.shape, e.shape, 10.0)
+}
+
 
 ---------------------------NON-COMPILABLE CODE----------------------------------
 

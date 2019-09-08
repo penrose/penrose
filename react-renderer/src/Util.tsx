@@ -13,12 +13,12 @@ export const arrowheads = {
     path: "M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
   },
   "arrowhead-2": {
-    width: 30,
-    height: 14,
-    viewbox: "0 0 30 14",
-    refX: "25", // HACK: to avoid paths from bleeding through the arrowhead
-    refY: "7",
-    path: "M29.05 7 19.1 11.06 21.46 7 19.1 2.94 29.05 7z"
+    width: 18.95,
+    height: 8.12,
+    viewbox: "0 0 18.95 8.12",
+    refX: "9.475",
+    refY: "4.06",
+    path: "M9.95 4.06 0 8.12 2.35 4.06 0 0 9.95 4.06z"
   }
 };
 

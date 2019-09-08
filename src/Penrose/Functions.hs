@@ -1686,11 +1686,21 @@ disjoint [GPI box@("Rectangle", _), GPI seg, Val (FloatV offset)] =
     let center = (getX box, getY box)
         (v, w) = (getPoint "start" seg, getPoint "end" seg)
         cp = closestpt_pt_seg center (v, w)
-        len_approx = getNum box "width" / 2.0 -- TODO make this more exact
+        len_approx = getNum box "sizeX" / 2.0 -- TODO make this more exact
   in -(dist center cp) + len_approx + offset
   else error "expected the second GPI to be linelike in `disjoint`"
 
     -- i.e. dist from center of box to closest pt on line seg is greater than the approx distance between the box center and the line + some offset
+
+disjoint [GPI circle@("Circle", _), GPI seg, Val (FloatV offset)] =
+  if linelike seg then
+    let center = (getX circle, getY circle)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp = closestpt_pt_seg center (v, w)
+        len_approx = getNum circle "r" / 2.0 
+  in -(dist center cp) + len_approx + offset
+  else error "expected the second GPI to be linelike in `disjoint`"
+
 -- For horizontally collinear line segments only
 -- with endpoints (si, ei), assuming si < ei (e.g. enforced by some other constraint)
 -- Make sure the closest endpoints are separated by some padding
