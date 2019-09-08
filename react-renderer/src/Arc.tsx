@@ -56,6 +56,8 @@ class Arc extends React.Component<IGPIPropsDraggable> {
     const strokeOpacity = shape.strokeColor.contents[3];
     const fillColor = toHex(shape.fillColor.contents);
     const fillOpacity = shape.fillColor.contents[3];
+    const arrowheadStyle = shape.arrowheadStyle.contents;
+    const arrowheadSize = shape.arrowheadSize.contents;
     const leftArrowId = shape.name.contents + "-leftArrowhead";
     const rightArrowId = shape.name.contents + "-rightArrowhead";
 
@@ -77,11 +79,15 @@ class Arc extends React.Component<IGPIPropsDraggable> {
           id={leftArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
+          style={arrowheadStyle}
+          size={arrowheadSize}
         />
         <Arrowhead
           id={rightArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
+          style={arrowheadStyle}
+          size={arrowheadSize}
         />
         <path
           stroke={strokeColor}
@@ -92,12 +98,10 @@ class Arc extends React.Component<IGPIPropsDraggable> {
           onMouseDown={onClick}
           d={describeArc(x, y, shape.r.contents, startAngle, endAngle)}
           markerStart={
-            shape["left-arrowhead"].contents === true
-              ? `url(#${leftArrowId})`
-              : ""
+            shape.leftArrowhead.contents === true ? `url(#${leftArrowId})` : ""
           }
           markerEnd={
-            shape["right-arrowhead"].contents === true
+            shape.rightArrowhead.contents === true
               ? `url(#${rightArrowId})`
               : ""
           }
