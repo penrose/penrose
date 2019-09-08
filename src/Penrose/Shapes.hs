@@ -668,6 +668,8 @@ lineType = ("Line", M.fromList
 
         ("left-arrowhead", (BoolT, constValue $ BoolV False)),
         ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("arrowhead-style", (BoolT, constValue $ StrV "arrowhead-2")),
+        ("arrowhead-size", (BoolT, constValue $ FloatV 1.0)),
         ("color", (ColorT, sampleColor)),
         ("style", (StrT, constValue $ StrV "solid")),
         ("stroke", (StrT, constValue $ StrV "none")),
@@ -748,7 +750,8 @@ arcType = ("Arc", M.fromList
         ("fillColor", (ColorT, sampleColor)),
         ("left-arrowhead", (BoolT, constValue $ BoolV False)),
         ("right-arrowhead", (BoolT, constValue $ BoolV False)),
-
+        ("arrowhead-style", (BoolT, constValue $ StrV "arrowhead-2")),
+        ("arrowhead-size", (BoolT, constValue $ FloatV 1.0)),
         ("name", (StrT, constValue $ StrV "defaultArc"))
     ])
 
@@ -852,6 +855,8 @@ curveTransformType = ("CurveTransform", M.fromList
         ("color", (ColorT, sampleColor)),
         ("left-arrowhead", (BoolT, constValue $ BoolV False)),
         ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("arrowhead-style", (BoolT, constValue $ StrV "arrowhead-2")),
+        ("arrowhead-size", (BoolT, constValue $ FloatV 1.0)),
         ("name", (StrT, constValue $ StrV "defaultCurve"))
     ])
 
@@ -878,6 +883,8 @@ lineTransformType = ("LineTransform", M.fromList
 
         ("left-arrowhead", (BoolT, constValue $ BoolV False)),
         ("right-arrowhead", (BoolT, constValue $ BoolV False)),
+        ("arrowhead-style", (BoolT, constValue $ StrV "arrowhead-2")),
+        ("arrowhead-size", (BoolT, constValue $ FloatV 1.0)),
 
         ("thickness", (FloatT, sampleFloatIn (5, 15))),
         ("color", (ColorT, sampleColor)),

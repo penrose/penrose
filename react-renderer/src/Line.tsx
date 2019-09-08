@@ -27,8 +27,20 @@ class Line extends React.Component<IGPIPropsDraggable> {
 
     return (
       <g>
-        <Arrowhead id={leftArrowId} color={color} opacity={opacity} />
-        <Arrowhead id={rightArrowId} color={color} opacity={opacity} />
+        <Arrowhead
+          id={leftArrowId}
+          color={color}
+          opacity={opacity}
+          size={1.0}
+          style={"arrowhead-2"}
+        />
+        <Arrowhead
+          id={rightArrowId}
+          color={color}
+          opacity={opacity}
+          size={1.0}
+          style={"arrowhead-2"}
+        />
 
         <path
           d={path}

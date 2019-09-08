@@ -18,12 +18,22 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
     );
     const color = toHex(shape.color.contents);
     const alpha = shape.color.contents[3];
+    // const arrowHeadStyle = shape.arrowHeadStyle.contents;
+    // const arrowHeadSize = shape.arrowHeadSize.contents;
     const arrowHeadId = "arrowhead_" + shape.name.contents;
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
 
     return (
       <g pointerEvents="bounding-box" onMouseDown={onClick}>
-        <Arrowhead id={arrowHeadId} color={color} opacity={alpha} />
+        <Arrowhead
+          id={arrowHeadId}
+          color={color}
+          opacity={alpha}
+          style="arrowhead-2"
+          size={0.9}
+          // style={arrowHeadStyle}
+          // size={arrowHeadSize}
+        />
         <path
           d={`M${sx} ${sy} L${ex} ${ey}`}
           fill={color}

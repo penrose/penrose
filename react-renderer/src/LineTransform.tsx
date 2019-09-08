@@ -31,11 +31,15 @@ class LineTransform extends React.Component<IGPIPropsDraggable> {
           id={leftArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
+          size={1.0}
+          style={"arrowhead-2"}
         />
         <Arrowhead
           id={rightArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
+          size={1.0}
+          style={"arrowhead-2"}
         />
 
         <path
