@@ -68,6 +68,9 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
     const fillColor = toHex(shape.fill.contents);
     const strokeOpacity = shape.color.contents[3];
     const fillOpacity = shape.fill.contents[3];
+    const arrowheadStyle = shape.arrowheadStyle.contents;
+    const arrowheadSize = shape.arrowheadSize.contents;
+
     const leftArrowId = shape.name.contents + "-leftArrowhead";
     const rightArrowId = shape.name.contents + "-rightArrowhead";
     // TODO: distinguish between fill opacity and stroke opacity
@@ -88,15 +91,15 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
           id={leftArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
-          size={1.0}
-          style={"arrowhead-2"}
+          style={arrowheadStyle}
+          size={arrowheadSize}
         />
         <Arrowhead
           id={rightArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
-          size={1.0}
-          style={"arrowhead-2"}
+          style={arrowheadStyle}
+          size={arrowheadSize}
         />
         <path
           stroke={strokeColor}
@@ -107,12 +110,10 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
           onMouseDown={onClick}
           d={toPathString(shape.pathData.contents, canvasSize)}
           markerStart={
-            shape["left-arrowhead"].contents === true
-              ? `url(#${leftArrowId})`
-              : ""
+            shape.leftArrowhead.contents === true ? `url(#${leftArrowId})` : ""
           }
           markerEnd={
-            shape["right-arrowhead"].contents === true
+            shape.rightArrowhead.contents === true
               ? `url(#${rightArrowId})`
               : ""
           }

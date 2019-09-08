@@ -15,6 +15,8 @@ class LineTransform extends React.Component<IGPIPropsDraggable> {
     const thickness = shape.thickness.contents;
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
     const strokeOpacity = shape.color.contents[3];
+    const arrowheadStyle = shape.arrowheadStyle.contents;
+    const arrowheadSize = shape.arrowheadSize.contents;
 
     const leftArrowId = shape.name.contents + "-leftArrowhead";
     const rightArrowId = shape.name.contents + "-rightArrowhead";
@@ -31,15 +33,15 @@ class LineTransform extends React.Component<IGPIPropsDraggable> {
           id={leftArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
-          size={1.0}
-          style={"arrowhead-2"}
+          style={arrowheadStyle}
+          size={arrowheadSize}
         />
         <Arrowhead
           id={rightArrowId}
           color={strokeColor}
           opacity={strokeOpacity}
-          size={1.0}
-          style={"arrowhead-2"}
+          style={arrowheadStyle}
+          size={arrowheadSize}
         />
 
         <path
@@ -51,12 +53,10 @@ class LineTransform extends React.Component<IGPIPropsDraggable> {
           strokeWidth={thickness}
           strokeDasharray={strokeDasharray}
           markerStart={
-            shape["left-arrowhead"].contents === true
-              ? `url(#${leftArrowId})`
-              : ""
+            shape.leftArrowhead.contents === true ? `url(#${leftArrowId})` : ""
           }
           markerEnd={
-            shape["right-arrowhead"].contents === true
+            shape.rightArrowhead.contents === true
               ? `url(#${rightArrowId})`
               : ""
           }
