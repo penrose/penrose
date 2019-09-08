@@ -3,18 +3,18 @@ import * as React from "react";
 declare const MathJax: any;
 import memoize from "fast-memoize";
 
-const arrows = {
+export const arrowheads = {
   "arrowhead-1": {
-    width: "12",
-    height: "12",
+    width: 12,
+    height: 12,
     viewbox: "0 0 12 12",
     refX: "6",
     refY: "6", // HACK: to avoid paths from bleeding through the arrowhead
     path: "M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
   },
   "arrowhead-2": {
-    width: "30",
-    height: "14",
+    width: 30,
+    height: 14,
     viewbox: "0 0 30 14",
     refX: "25", // HACK: to avoid paths from bleeding through the arrowhead
     refY: "7",
@@ -26,17 +26,17 @@ export const Arrowhead = (props: {
   id: string;
   color: string;
   opacity: number;
-  style?: string;
+  style: string;
+  size: number;
 }) => {
-  // HACK: default props? The default style is 2
-  const style = props.style ? props.style : "arrowhead-2";
-  const arrow = arrows[style];
+  const { size, style } = props;
+  const arrow = arrowheads[style];
   return (
     <marker
       id={props.id}
       markerUnits="strokeWidth"
-      markerWidth={arrow.width}
-      markerHeight={arrow.height}
+      markerWidth={arrow.width * size}
+      markerHeight={arrow.height * size}
       viewBox={arrow.viewbox}
       refX={arrow.refX}
       refY={arrow.refY}
