@@ -23,12 +23,11 @@ class Rectangle extends React.Component<IGPIPropsDraggable> {
         height={shape.sizeY.contents}
         fill={fillColor}
         fillOpacity={fillAlpha}
-
         stroke={strokeColor}
         strokeOpacity={strokeAlpha}
-        strokeDasharray={ shape.strokeStyle.contents === "dashed" ? "7, 5" : "" }
+        strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
         strokeWidth={thickness}
-
+        transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
         onMouseDown={onClick}
       >
         <title>{shape.name.contents}</title>

@@ -3,101 +3,46 @@ import * as React from "react";
 declare const MathJax: any;
 import memoize from "fast-memoize";
 
-// const arrows = [
-//   {
-//     start: ,
-//     end:
-//   },
-//   {
-//     start:,
-//     end:
-//   }
-// ]
-
-export const StartArrowhead = (props: {
-  id: string;
-  color: string;
-  opacity: number;
-}) => {
-  return (
-    // COMBAK: Style 1 deprecated for now
-    // <marker
-    //   id={props.id}
-    //   markerUnits="strokeWidth"
-    //   markerWidth="12"
-    //   markerHeight="12"
-    //   viewBox="0 0 12 12"
-    //   refX="6"
-    //   refY="6"
-    //   orient="auto"
-    // >
-    //   <path
-    //     d="M10,10 A30,30,0,0,0,2,6 A30,30,0,0,0,10,2 L7.5,6 z"
-    //     fill={props.color}
-    //     fillOpacity={props.opacity}
-    //   />
-    // </marker>
-
-    // Style 2
-    <marker
-      id={props.id}
-      markerUnits="strokeWidth"
-      markerWidth="30"
-      markerHeight="14"
-      viewBox="0 0 30 14"
-      refX="21.46"
-      refY="7"
-      orient="auto"
-    >
-      <path
-        d="M19.1 7 29.05 2.94 27.09 7 29.05 11.06 19.1 7z"
-        fill={props.color}
-        fillOpacity={props.opacity}
-      />
-    </marker>
-  );
+const arrows = {
+  "arrowhead-1": {
+    width: "12",
+    height: "12",
+    viewbox: "0 0 12 12",
+    refX: "6",
+    refY: "6", // HACK: to avoid paths from bleeding through the arrowhead
+    path: "M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
+  },
+  "arrowhead-2": {
+    width: "30",
+    height: "14",
+    viewbox: "0 0 30 14",
+    refX: "25", // HACK: to avoid paths from bleeding through the arrowhead
+    refY: "7",
+    path: "M29.05 7 19.1 11.06 21.46 7 19.1 2.94 29.05 7z"
+  }
 };
 
-export const EndArrowhead = (props: {
+export const Arrowhead = (props: {
   id: string;
   color: string;
   opacity: number;
+  style?: string;
 }) => {
+  // HACK: default props? The default style is 2
+  const style = props.style ? props.style : "arrowhead-2";
+  const arrow = arrows[style];
   return (
-    // COMBAK: Style 1 deprecated for now
-    // <marker
-    //   id={props.id}
-    //   markerUnits="strokeWidth"
-    //   markerWidth="12"
-    //   markerHeight="12"
-    //   viewBox="0 0 12 12"
-    //   refX="6"
-    //   refY="6"
-    //   orient="auto"
-    // >
-    //   <path
-    //     d="M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
-    //     fill={props.color}
-    //     fillOpacity={props.opacity}
-    //   />
-    // </marker>
-
-    // Style 2
     <marker
       id={props.id}
       markerUnits="strokeWidth"
-      markerWidth="30"
-      markerHeight="14"
-      viewBox="0 0 30 14"
-      refX="21.46"
-      refY="7"
-      orient="auto"
+      markerWidth={arrow.width}
+      markerHeight={arrow.height}
+      viewBox={arrow.viewbox}
+      refX={arrow.refX}
+      refY={arrow.refY}
+      orient="auto-start-reverse"
     >
-      <path
-        d="M29.05 7 19.1 11.06 21.46 7 19.1 2.94 29.05 7z"
-        fill={props.color}
-        fillOpacity={props.opacity}
-      />
+      <path d={arrow.path} fill={props.color} fillOpacity={props.opacity} />
     </marker>
   );
 };

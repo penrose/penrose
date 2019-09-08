@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { IGPIPropsDraggable } from "./types";
 import draggable from "./Draggable";
-import { toHex, svgTransformString, StartArrowhead, EndArrowhead } from "./Util";
+import { toHex, svgTransformString, Arrowhead } from "./Util";
 
 class LineTransform extends React.Component<IGPIPropsDraggable> {
   public render() {
@@ -20,38 +20,47 @@ class LineTransform extends React.Component<IGPIPropsDraggable> {
     const rightArrowId = shape.name.contents + "-rightArrowhead";
     // TODO: distinguish between fill opacity and stroke opacity
 
-    const transformStr = svgTransformString(shape.transformation.contents, canvasSize);
+    const transformStr = svgTransformString(
+      shape.transformation.contents,
+      canvasSize
+    );
 
     return (
       <g>
-        <StartArrowhead id={leftArrowId} color={strokeColor} opacity={strokeOpacity} />
-        <EndArrowhead id={rightArrowId} color={strokeColor} opacity={strokeOpacity} />
+        <Arrowhead
+          id={leftArrowId}
+          color={strokeColor}
+          opacity={strokeOpacity}
+        />
+        <Arrowhead
+          id={rightArrowId}
+          color={strokeColor}
+          opacity={strokeOpacity}
+        />
 
-      <path
-        d={path}
-        onMouseDown={onClick}
-        fillOpacity={strokeOpacity}
-        strokeOpacity={strokeOpacity}
-        stroke={strokeColor}
-        strokeWidth={thickness}
-        strokeDasharray={strokeDasharray}
-
-	markerStart={
-	  shape["left-arrowhead"].contents === true
-	    ? `url(#${leftArrowId})`
-	    : ""
-	}
-	markerEnd={
-	  shape["right-arrowhead"].contents === true
-	    ? `url(#${rightArrowId})`
-	    : ""
-	}
-
-	transform={transformStr}
-      >
-        <title>{shape.name.contents}</title>
-      </path>
-     </g>
+        <path
+          d={path}
+          onMouseDown={onClick}
+          fillOpacity={strokeOpacity}
+          strokeOpacity={strokeOpacity}
+          stroke={strokeColor}
+          strokeWidth={thickness}
+          strokeDasharray={strokeDasharray}
+          markerStart={
+            shape["left-arrowhead"].contents === true
+              ? `url(#${leftArrowId})`
+              : ""
+          }
+          markerEnd={
+            shape["right-arrowhead"].contents === true
+              ? `url(#${rightArrowId})`
+              : ""
+          }
+          transform={transformStr}
+        >
+          <title>{shape.name.contents}</title>
+        </path>
+      </g>
     );
   }
 }

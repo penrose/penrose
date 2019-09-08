@@ -37,7 +37,7 @@ Scene s {
         y : s.y
         sizeX : s.sizeX
         sizeY : s.sizeY
-        fill  : Colors.none
+        color  : Colors.none
         strokeColor : Colors.none
         strokeWidth : 1.5
     }
@@ -47,7 +47,7 @@ DiffuseObject d
 where InOS(d, s) with Scene s {
     d.shape = Rectangle {
         angle  : 0
-        fill   : Colors.none
+        color   : Colors.none
         strokeColor : Colors.black
         strokeWidth : 1.5
         -- optimize height, width, location
@@ -65,7 +65,8 @@ SpecularObject o {
     -- create mirror shape and put it in scene
     -- TODO: import SVG?
     o.shape = Rectangle {
-        fill : Colors.gray
+        color : Colors.gray
+        strokeWidth : 0.0
         -- TODO: sizes are temporary
         sizeX : 100.0
         sizeY : 20.0

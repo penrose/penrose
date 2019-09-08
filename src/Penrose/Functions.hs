@@ -139,7 +139,7 @@ compDict =
     , ("makeCurve", makeCurve)
     , ("triangle", constComp triangle)
     , ("shared", constComp sharedP)
-    , ("angle", constComp angleOf)
+    , ("angleOf", constComp angleOf)
     , ("perpX", constComp perpX)
     , ("perpY", constComp perpY)
     , ("perpPath", constComp perpPath)
@@ -164,6 +164,9 @@ compDict =
     , ("max", constComp max')
     , ("pathFromPoints", constComp pathFromPoints)
     , ("join", constComp joinPath)
+    , ("dot", constComp dotFn)
+    , ("angle", constComp angleFn)
+
         -- Transformations
     , ("rotate", constComp rotate)
     , ("rotateAbout", constComp rotateAbout)
@@ -1185,6 +1188,11 @@ mirrorAngle [GPI a1, GPI a2] =
       (x, y) = v1 +: v2
   in Val . FloatV $ atan2 y x * (180 / pi)
 
+dotFn :: ConstCompFn
+dotFn [Val (TupV u), Val (TupV v)] = Val $ FloatV $ u `dotv` v
+
+angleFn :: ConstCompFn
+angleFn [Val (TupV (v1, v2))] = Val $ FloatV $ atan2 v2 v1
 
 --------------------------------------------------------------------------------
 -- Objective Functions
@@ -1664,12 +1672,24 @@ disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offs
     , [getX yset, getY yset, 0.5 * getNum yset "sizeX"]
     ]
     offset
-disjoint [GPI box@("Text", _), GPI seg@("Line", _), Val (FloatV offset)] =
-  let center = (getX box, getY box)
-      (v, w) = (getPoint "start" seg, getPoint "end" seg)
-      cp = closestpt_pt_seg center (v, w)
-      len_approx = getNum box "w" / 2.0 -- TODO make this more exact
+disjoint [GPI box@("Text", _), GPI seg, Val (FloatV offset)] =
+  if linelike seg then
+    let center = (getX box, getY box)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp = closestpt_pt_seg center (v, w)
+        len_approx = getNum box "w" / 2.0 -- TODO make this more exact
   in -(dist center cp) + len_approx + offset
+  else error "expected the second GPI to be linelike in `disjoint`"
+
+disjoint [GPI box@("Rectangle", _), GPI seg, Val (FloatV offset)] =
+  if linelike seg then
+    let center = (getX box, getY box)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp = closestpt_pt_seg center (v, w)
+        len_approx = getNum box "width" / 2.0 -- TODO make this more exact
+  in -(dist center cp) + len_approx + offset
+  else error "expected the second GPI to be linelike in `disjoint`"
+
     -- i.e. dist from center of box to closest pt on line seg is greater than the approx distance between the box center and the line + some offset
 -- For horizontally collinear line segments only
 -- with endpoints (si, ei), assuming si < ei (e.g. enforced by some other constraint)
