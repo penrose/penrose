@@ -8,12 +8,13 @@ import           Control.Exception          (ErrorCall, try)
 import           Data.Aeson                 (decode)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Map.Strict            as M
+import           Data.Maybe                 (fromMaybe)
 import           Penrose.Env
 import           Penrose.Style              (parsePlugins)
 import           Penrose.Substance
 import           Penrose.SubstanceJSON
 import           Penrose.Util
-import           System.Directory           (getCurrentDirectory,
+import           System.Directory           (doesFileExist, getCurrentDirectory,
                                              setCurrentDirectory)
 import           System.IO.Unsafe           (unsafePerformIO)
 import           System.Process             (callCommand)
@@ -83,19 +84,25 @@ instantiateSub pluginName parsedSub = do
   callCommand pluginCmd
   setCurrentDirectory originalDir -- Return to original directory
   newSubProg <- readFile subInFile
-  styVals <- readFile styInFile
-  styVals' <- B.readFile styInFile
   putStrLn "Penrose received Sub file: "
   putStrLn newSubProg
-  putStrLn "---------------------------"
-  putStrLn "Penrose received Sty file: "
-  putStrLn styVals
-  let styRes = (decode styVals') :: Maybe [StyVal]
-  let styJSON =
-        case styRes of
-          Nothing -> error "couldn't read plugin JSON"
-          Just x  -> x
+  styJSON <- readStyleVals styInFile
   return (newSubProg, styJSON)
+
+readStyleVals :: String -> IO [StyVal]
+readStyleVals styInFile = do
+  exists <- doesFileExist styInFile
+  if exists
+    then do
+      styVals <- readFile styInFile
+      styVals' <- B.readFile styInFile
+      putStrLn "---------------------------"
+      putStrLn "Penrose received Sty file: "
+      putStrLn styVals
+      let styRes = decode styVals' :: Maybe [StyVal]
+      let styJSON = fromMaybe (error "couldn't read plugin JSON") styRes
+      return styJSON
+    else return []
 
 catchPathError :: String -> Maybe (FilePath, String) -> (FilePath, String)
 catchPathError name Nothing =
