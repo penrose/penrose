@@ -3,7 +3,7 @@ Path p
 In(p, S)
 
 String s
-s := "LDS*E"
+s := "LDSSE"
 
 HasForm(p, s)
 

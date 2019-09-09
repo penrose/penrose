@@ -107,6 +107,10 @@ compDict =
   M.fromList
     [ ("rgba", constComp rgba)
     , ("atan", constComp arctangent)
+    , ("atan2", constComp arctangent2)
+    , ("cos", constComp cosine)
+    , ("sin", constComp sine)
+    , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
     , ("generateRandomReal", constComp generateRandomReal)
@@ -580,6 +584,13 @@ rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
 
 arctangent :: ConstCompFn
 arctangent [Val (FloatV d)] = Val (FloatV $ (atan d) / pi * 180)
+arctangent2 :: ConstCompFn
+arctangent2 [Val (FloatV y), Val (FloatV x)] = Val (FloatV $ (atan2 y x) / pi * 180)
+
+cosine :: ConstCompFn
+cosine [Val (FloatV d)] = Val (FloatV $ cos (d * pi / 180))
+sine :: ConstCompFn
+sine [Val (FloatV d)] = Val (FloatV $ sin (d * pi / 180))
 
 calcVectorsAngle :: ConstCompFn
 calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1), Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2), Val (FloatV ex2), Val (FloatV ey2)] =
@@ -878,17 +889,19 @@ sharedP [Val (FloatV a), Val (FloatV b), Val (FloatV c), Val (FloatV d)] =
   in Val $ FloatV common
 
 angleOf :: ConstCompFn
-angleOf [GPI l@("Line", _), Val (FloatV originX), Val (FloatV originY)] =
-  let origin = (originX, originY)
-      (start, end) = (getPoint "start" l, getPoint "end" l)
-      endpoint =
-        if origin == start
-          then end
-          else start -- Pick the point that's not the origin
-      (rayX, rayY) = endpoint -: origin
-      angleRad = atan2 rayY rayX
-      angle = (angleRad * 180) / pi
-  in Val $ FloatV angle
+angleOf [GPI l, Val (FloatV originX), Val (FloatV originY)] 
+  | linelike l = 
+      let origin = (originX, originY)
+          (start, end) = (getPoint "start" l, getPoint "end" l)
+          endpoint =
+            if origin == start
+              then end
+              else start -- Pick the point that's not the origin
+          (rayX, rayY) = endpoint -: origin
+          angleRad = atan2 rayY rayX
+          angle = (angleRad * 180) / pi
+      in Val $ FloatV angle
+  | otherwise = error "angleOf: expecting a line-like GPI."
 
 perp :: Autofloat a => Pt2 a -> Pt2 a -> Pt2 a -> a -> Pt2 a
 perp start end base len =
