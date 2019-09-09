@@ -22,6 +22,7 @@ class Image extends React.Component<IGPIPropsDraggable> {
         y={y - lengthY / 2}
         width={lengthX}
         height={lengthY}
+        transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
         onMouseDown={onClick}
       />
     );

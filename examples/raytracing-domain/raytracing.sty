@@ -98,24 +98,29 @@ LightSource l {
 Camera c {
     -- TODO: has to have a location
     /*
-    c.shape = Image {
-        lengthX : 20.0
-        lengthY : 20.0
-        path  : "eye.svg"
-    }
-    */
     c.shape = Circle {
         color : Colors.gray
         r : 20.0
         strokeWidth : 0.0
     }
+    */
+    c.shape = Image {
+        lengthX : 20.0
+        lengthY : 20.0
+        r : max(c.shape.lengthX, c.shape.lengthY) / 2.0
+        path  : "eye.svg"
+        x: c.shape.centerX
+        y: c.shape.centerY
+        -- HACK: who's looking for sizeX and sizeY, and the length* naming convention is weird
+        sizeX: c.shape.lengthX
+        sizeY: c.shape.lengthY
+    }
     c.text = Text {
-        x : c.shape.x
-        y : c.shape.y
         string : "C"
         color : Colors.black
     }
     c.textLayering = c.text above c.shape
+    c.positionFn = encourage near(c.shape, c.text, 0.0, 20.0)
 }
 
 -- applies to all scene geometries
@@ -140,13 +145,14 @@ with Path p; LightSource L {
 }
 
 -- going into the eye
-PathVertex v; PathSample ps
+PathVertex v; Camera c; PathSample ps
 where InVP(v, p); OnEye(v); e:= CreateEdge(v0, v)
-with PathVertex v0; PathEdge e; Path p; Camera c {
+with PathVertex v0; PathEdge e; Path p {
     -- TODO: put the location on E's border
     LOCAL.angle = atan2(v0.y - c.shape.y, v0.x - c.shape.x)
     v.x = c.shape.x + cos(LOCAL.angle) * c.shape.r
     v.y = c.shape.y + sin(LOCAL.angle) * c.shape.r
+    c.shape.rotation = 180.0 + LOCAL.angle
 }
 
 PathVertex v; PathSample ps

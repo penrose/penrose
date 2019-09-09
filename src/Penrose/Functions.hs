@@ -1685,6 +1685,22 @@ disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offs
     , [getX yset, getY yset, 0.5 * getNum yset "sizeX"]
     ]
     offset
+disjoint [GPI xset@("Image", _), GPI yset@("Rectangle", _), Val (FloatV offset)]
+    -- Arbitrarily using x size
+ =
+  noIntersectOffset
+    [ [getX xset, getY xset, 0.5 * getNum xset "lengthX"]
+    , [getX yset, getY yset, 0.5 * getNum yset "sizeX"]
+    ]
+    offset
+disjoint [GPI xset@("Image", _), GPI yset@("Circle", _), Val (FloatV offset)]
+    -- Arbitrarily using x size
+ =
+  noIntersectOffset
+    [ [getX xset, getY xset, 0.5 * getNum xset "lengthX"]
+    , [getX yset, getY yset, 0.5 * getNum yset "r"]
+    ]
+    offset
 disjoint [GPI box@("Text", _), GPI seg, Val (FloatV offset)] =
   if linelike seg then
     let center = (getX box, getY box)
@@ -1704,6 +1720,15 @@ disjoint [GPI box@("Rectangle", _), GPI seg, Val (FloatV offset)] =
   else error "expected the second GPI to be linelike in `disjoint`"
 
     -- i.e. dist from center of box to closest pt on line seg is greater than the approx distance between the box center and the line + some offset
+
+disjoint [GPI box@("Image", _), GPI seg, Val (FloatV offset)] =
+  if linelike seg then
+    let center = (getX box, getY box)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp = closestpt_pt_seg center (v, w)
+        len_approx = max (getNum box "lengthX") (getNum box "lengthY") / 2.0 -- TODO make this more exact
+  in -(dist center cp) + len_approx + offset
+  else error "expected the second GPI to be linelike in `disjoint`"
 
 disjoint [GPI circle@("Circle", _), GPI seg, Val (FloatV offset)] =
   if linelike seg then
