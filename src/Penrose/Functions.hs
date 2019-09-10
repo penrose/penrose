@@ -1685,6 +1685,14 @@ disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offs
     , [getX yset, getY yset, 0.5 * getNum yset "sizeX"]
     ]
     offset
+disjoint [GPI xset@("Image", _), GPI yset@("Image", _), Val (FloatV offset)]
+    -- Arbitrarily using x size
+ =
+  noIntersectOffset
+    [ [getX xset, getY xset, 0.5 * getNum xset "lengthX"]
+    , [getX yset, getY yset, 0.5 * getNum yset "lengthX"]
+    ]
+    offset
 disjoint [GPI xset@("Image", _), GPI yset@("Rectangle", _), Val (FloatV offset)]
     -- Arbitrarily using x size
  =

@@ -8,7 +8,7 @@ export const arrowheads = {
     width: 12,
     height: 12,
     viewbox: "0 0 12 12",
-    refX: "6",
+    refX: "8",
     refY: "6", // HACK: to avoid paths from bleeding through the arrowhead
     path: "M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
   },

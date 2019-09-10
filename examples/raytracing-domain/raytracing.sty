@@ -70,6 +70,7 @@ SpecularObject o1; SpecularObject o2 {
 SpecularObject o {
     -- create mirror shape and put it in scene
     -- TODO: import SVG?
+    /*
     o.shape = Rectangle {
         color : Colors.gray
         strokeWidth : 0.0
@@ -77,13 +78,23 @@ SpecularObject o {
         sizeX : 100.0
         sizeY : 20.0
     }
+    */
+    o.shape = Image {
+        lengthX : 100.0
+        lengthY : 10.0
+        sizeX : o.shape.lengthX
+        sizeY : o.shape.lengthY
+        path  : "mirror.svg"
+        x: o.shape.centerX
+        y: o.shape.centerY
+    }
 }
 
 LightSource l {
     -- TODO: has to have a location
     l.shape = Circle {
         color : Colors.yellow
-        r : 20.0
+        r : 15.0
         strokeWidth : 0.0
     }
     l.text = Text {
@@ -191,6 +202,8 @@ with PathVertex v1, v2
          endY   : v2.y
          color  : Colors.black
          thickness : 1.5
+         arrowheadSize: 0.7
+         -- arrowheadStyle: "arrowhead-1"  
      }
      -- e.layering1 = e.shape above o1.shape
      -- e.layering2 = e.shape above o2.shape
@@ -206,8 +219,8 @@ with PathVertex v1, v2, v3;
 {
     -- NOTE: trying to control rotation first
     override o.shape.rotation = mirrorAngle(e1.shape, e2.shape)
-    override o.shape.x = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.sizeY / -2.0)
-    override o.shape.y = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.sizeY / -2.0)
+    override o.shape.centerX = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / -2.0)
+    override o.shape.centerY = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / -2.0)
 }
 
 PathEdge e; SpecularObject o {
