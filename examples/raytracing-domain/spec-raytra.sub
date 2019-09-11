@@ -3,7 +3,7 @@ Path p
 In(p, S)
 
 String s
-s := "LDSSE"
+s := "LD(D|S)DE"
 
 HasForm(p, s)
 
@@ -12,6 +12,8 @@ p1 := Sample(p)
 
 SceneSatisfies(S, p)
 
+AutoLabel All
+
 -- PathSample p1, p2
 -- p1 := Sample(p)
 -- p2 := Sample(p)
@@ -19,4 +21,3 @@ SceneSatisfies(S, p)
 -- let PathVertex v[, T2 x2...] in p1,... where IsSpecular(v)...
 -- Label v "special vertex"
 
-AutoLabel All

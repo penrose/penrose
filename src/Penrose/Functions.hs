@@ -1520,9 +1520,12 @@ contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
       (rx, ry) = (x + w / 2, y + h / 2)
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
      inRange endY ly ry
-contains [GPI s@("Rectangle", _), GPI l@("Image", _)] =
+contains [GPI rect@("Rectangle", _), GPI img@("Image", _)] =
   -- TODO: implement precisely, max (w, h)? How about diagonal case?
-  dist (getNum l "centerX", getNum l "centerY") (getX s, getY s) - getNum s "sizeX" / 2 + getNum l "sizeX"
+  let rect_l = min (getNum rect "sizeX") (getNum rect "sizeY") / 2
+      img_l  = max (getNum img "sizeX") (getNum img "sizeY") / 2
+      diff = rect_l - img_l
+  in dist (getX rect, getY rect) (getNum img "centerX", getNum img "centerY") - diff
 contains [GPI r1@("Rectangle", _), GPI r2@("Rectangle", _)] =
     -- HACK: reusing test impl, revert later
     let r1_l = min (getNum r1 "sizeX") (getNum r1 "sizeY") / 2

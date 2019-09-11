@@ -9,6 +9,7 @@ Colors {
     Colors.darkgray = rgba(0.6, 0.6, 0.6, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
     Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.lightKhaki = rgba(0.941, 0.902, 0.549, 1.0)
     Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
     Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
     Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
@@ -93,7 +94,7 @@ SpecularObject o {
 LightSource l {
     -- TODO: has to have a location
     l.shape = Circle {
-        color : Colors.yellow
+        color : Colors.lightKhaki
         r : 15.0
         strokeWidth : 0.0
     }
@@ -200,7 +201,7 @@ with PathVertex v1, v2
          startY : v1.y
          endX   : v2.x
          endY   : v2.y
-         color  : Colors.black
+         color  : Colors.lightKhaki
          thickness : 1.5
          arrowheadSize: 0.7
          -- arrowheadStyle: "arrowhead-1"  
@@ -217,10 +218,11 @@ where e1 := CreateEdge(v1, v2);
 with PathVertex v1, v2, v3;
      SpecularObject o
 {
+    LOCAL.mirrorPadding = 1.0
     -- NOTE: trying to control rotation first
     override o.shape.rotation = mirrorAngle(e1.shape, e2.shape)
-    override o.shape.centerX = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / -2.0)
-    override o.shape.centerY = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / -2.0)
+    override o.shape.centerX = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / -2.0 + LOCAL.mirrorPadding)
+    override o.shape.centerY = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / -2.0 - LOCAL.mirrorPadding)
 }
 
 PathEdge e; SpecularObject o {
