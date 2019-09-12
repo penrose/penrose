@@ -1,10 +1,10 @@
 import { Packets, Canvas } from "./module";
 
 export enum ConnectionStatus {
-  socketOpen,
-  penroseConnected,
-  ready,
-  socketError
+  socketOpen = "SOCKET_OPEN",
+  penroseConnected = "PENROSE_CONNECTED",
+  ready = "PENROSE_READY",
+  socketError = "SOCKET_ERR"
 }
 export interface ICoreEvents {
   onConnectionStatus(status: ConnectionStatus): void;
