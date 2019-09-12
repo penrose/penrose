@@ -6,7 +6,7 @@ import {
   IRendererEvents,
   ConnectionStatus,
   IEditorEvents
-} from "src/Protocol";
+} from "./Protocol";
 
 export {
   Canvas,
