@@ -1,6 +1,6 @@
 plugin "regexExpander"
 
-global { global.padding = 10 }
+global { global.padding = 3.0 }
 
 
 Colors {
@@ -149,11 +149,11 @@ where InOS(d, s) with Scene s {
 }
 
 PathVertex v; PathSample ps
-where InVP(v, p); OnLight(v)
-with Path p; LightSource L {
-    -- TODO: put the location on L's border
-    v.x = L.shape.x
-    v.y = L.shape.y
+where InVP(v, p); OnLight(v); e:= CreateEdge(v, v0)
+with PathVertex v0; PathEdge e; Path p; LightSource L {
+    LOCAL.angle = atan2(v0.y - L.shape.y, v0.x - L.shape.x)
+    v.x = L.shape.x + cos(LOCAL.angle) * (L.shape.r + global.padding)
+    v.y = L.shape.y + sin(LOCAL.angle) * (L.shape.r + global.padding)
 }
 
 -- going into the eye
