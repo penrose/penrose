@@ -22,6 +22,23 @@ export const CompileTrio = (
   contents: [substance, style, element]
 });
 
+export const ReconcileNext = (
+  substance: string,
+  style: string,
+  element: string,
+  state: any
+) => ({
+  tag: "ReconcileNext",
+  contents: [transformValidJSON(state), substance, style, element]
+});
+
+export const GetVersion = () => ({ tag: "GetVersion" });
+
+export const GetEnv = (substance: string, element: string) => ({
+  tag: "GetEnv",
+  contents: [substance, element]
+});
+
 export const transformValidJSON = (data: any) => ({
   ...data,
   shapesr: data.shapesr.map(([name, shape]: [string, any]) => [

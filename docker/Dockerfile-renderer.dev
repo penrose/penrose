@@ -12,6 +12,8 @@ WORKDIR /home/node/react-renderer
 
 RUN npm install
 
+ENV CHOKIDAR_USEPOLLING=true
+
 ENTRYPOINT ["sh", "-c", "PORT=3500 npm start"]
 
 EXPOSE 3500

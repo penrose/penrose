@@ -15,6 +15,7 @@ interface IProps {
   elementMetadata?: string;
   otherMetadata?: string;
   style?: any;
+  penroseVersion?: string;
   data: any;
   updateData(shapes: any, step?: boolean): void;
 }
@@ -380,6 +381,7 @@ class Canvas extends React.Component<IProps> {
       elementMetadata,
       otherMetadata,
       data,
+      penroseVersion,
       style
     } = this.props;
     const { shapesr } = data;
@@ -400,7 +402,7 @@ class Canvas extends React.Component<IProps> {
           viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
         >
           <desc>
-            {`This diagram was created with Penrose (https://penrose.ink) on ${new Date()
+            {`This diagram was created with Penrose (https://penrose.ink)${penroseVersion ? " version " + penroseVersion : ""} on ${new Date()
               .toISOString()
               .slice(
                 0,

@@ -1279,6 +1279,9 @@ addPath override trans path expr =
            trans' = addProperty override trans name field property expr in
        Right trans'
 
+addPaths :: (Autofloat a) => OverrideFlag -> Translation a -> [(Path, TagExpr a)] -> Either [Error] (Translation a)
+addPaths override = foldM (\trans (p, e) -> addPath override trans p e) 
+
 ----- Translation judgments
 
 {- Note: All of the folds below use foldM.
