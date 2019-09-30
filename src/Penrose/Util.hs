@@ -224,12 +224,13 @@ infixl 7 *., /.
 
 -- assumes lists are of the same length
 dotL :: (RealFloat a, Floating a) => [a] -> [a] -> a
-dotL u v =
-  if not $ length u == length v
-    then error $
-         "can't dot-prod different-len lists: " ++
-         (show $ length u) ++ " " ++ (show $ length v)
-    else sum $ zipWith (*) u v
+dotL u v = sum $ zipWith (*) u v
+  -- Omitted for speed
+  -- if not $ length u == length v
+  --   then error $
+  --        "can't dot-prod different-len lists: " ++
+  --        (show $ length u) ++ " " ++ (show $ length v)
+  --   else sum $ zipWith (*) u v
 
 (+.) :: Floating a => [a] -> [a] -> [a] -- add two vectors
 (+.) u v =
@@ -448,3 +449,25 @@ proj :: Autofloat a => [a] -> [a] -> [a]
 proj p q =
   let unit_p = normalize p
   in (q `dotL` unit_p) *. unit_p
+
+------- | Hyperbolic geometry
+
+-- Lorenz inner product
+-- Assuming x and y have equal lengths that are greater than 0 (omitted for speed)
+-- Like the normal dot product but we swap the last sign
+-- [x1, x2, x3] .L [y1, y2, y3] = x1 * y1 + x2 * y2 - x3 * y3
+-- In a hyperboloid, <x,x> = 1
+dotLor :: Autofloat a => [a] -> [a] -> a
+dotLor x y = let nm1 = length x - 1
+                 ((xs1, xs2), (ys1, ys2)) = (splitAt nm1 x, splitAt nm1 y)
+                 (s1, s2) = (dotL xs1 ys1, -1 * dotL xs2 ys2)
+             in s1 + s2
+
+-- Lorenz norm
+-- TODO: parameterize everything by the Lorenz inner product instead of rewriting code
+normsqLor :: Autofloat a => [a] -> a
+normsqLor x = dotLor x x 
+
+-- This won't work -- can't ask that sqrt(<x,x>) = -1
+-- normLor :: Autofloat a => [a] -> a
+-- normLor x = sqrt (normsqLor x + epsd)

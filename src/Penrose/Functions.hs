@@ -164,6 +164,12 @@ compDict =
     , ("dot", constComp dotFn)
     , ("angle", constComp angleFn)
 
+  -- Hyperbolic funcions
+  , ("toDisk", constComp toDisk)
+  , ("diskToScreen", constComp diskToScreen)
+  , ("slerpHyp", constComp slerpHyp)
+  , ("pathToDiskAndScreen", constComp pathToDiskAndScreen)
+
         -- Transformations
     , ("rotate", constComp rotate)
     , ("rotateAbout", constComp rotateAbout)
@@ -422,6 +428,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("onCanvas", onCanvas)
       , ("unit", unit')
       , ("hasNorm", hasNorm)
+      , ("hasLorenzNorm", hasLorenzNorm)
       ]
 
 indivConstrWeight :: (Autofloat a) => a
@@ -1159,6 +1166,29 @@ dotFn [Val (TupV u), Val (TupV v)] = Val $ FloatV $ u `dotv` v
 angleFn :: ConstCompFn
 angleFn [Val (TupV (v1, v2))] = Val $ FloatV $ atan2 v2 v1
 
+-- | Hyperbolic functions
+
+toDisk' :: Autofloat a => [a] -> [a]
+toDisk' [x, y, z] = [x / (z + 1), y / (z + 1)]
+
+diskToScreen' :: Autofloat a => a -> [a] -> [a]
+diskToScreen' toScreen v = map (* toScreen) v
+
+toDisk :: ConstCompFn -- Project to Poincare disk
+toDisk [Val (ListV v)] = Val $ ListV $ toDisk' v
+
+diskToScreen :: ConstCompFn
+diskToScreen [Val (ListV v), Val (FloatV toScreen)] =
+             Val $ ListV $ diskToScreen' toScreen v
+
+slerpHyp :: ConstCompFn
+slerpHyp [Val (ListV p), Val (ListV q), Val (IntV n)] =
+         Val $ LListV [p, q] -- TODO
+
+pathToDiskAndScreen :: ConstCompFn
+pathToDiskAndScreen [Val (LListV hypPath), Val (FloatV c)] =
+   Val $ PtListV $ map (\v -> tuplify2 $ diskToScreen' c $ toDisk' v) hypPath 
+
 --------------------------------------------------------------------------------
 -- Objective Functions
 near :: ObjFn
@@ -1507,6 +1537,12 @@ hasNorm [Val (ListV vec), Val (FloatV desired_norm)] =
   let norms = (norm vec, desired_norm) -- TODO: Use normal norm or normsq?
       (norm_max, norm_min) = (uncurry max norms, uncurry min norms)
   in norm_max - norm_min
+
+hasLorenzNorm :: ConstrFn
+hasLorenzNorm [Val (ListV vec), Val (FloatV desired_norm)] =
+  let norms = (normsqLor vec, desired_norm)
+      (norm_max, norm_min) = (uncurry max norms, uncurry min norms)
+  in trace ("vector: " ++ show vec ++ "| normsqLor vec: " ++ show (normsqLor vec)) $ norm_max - norm_min
 
 -- contains [GPI set@("Circle", _), P' GPI pt@("", _)] = dist (getX pt, getX pt) (getX set, getY set) - 0.5 * r' set
 -- TODO: only approx

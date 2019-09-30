@@ -1,0 +1,121 @@
+Colors {
+    -- Keenan palette
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+}
+
+G {
+  -- Drawing parameters
+  G.numArcPts = 20
+  G.stroke = 2.0
+  G.spacing = 150.0
+  G.pi = 3.14159
+  G.two_pi = 6.28319
+  G.toScreen = 200.0 -- Math space to screen space
+
+  -- Poincare disk: Unit disk at the origin
+  G.diskRadius = 1.0
+
+  G.disk = Circle {
+  	 x : 0.0
+	 y : 0.0
+	 r : G.toScreen * G.diskRadius
+	 color : setOpacity(Colors.blue, 0.1)
+	 strokeWidth : 1.0
+	 strokeColor : Colors.black
+  }
+}
+
+Point p {
+      -- Point on hyperboloid of two sheets: x^2 + y^2 - z^2 = -1
+      -- That is, <p, p>_L = 1 (with the Lorenz inner product)
+      p.x = ?
+      p.y = ?
+      p.z = ?
+      p.vec_math = [p.x, p.y, p.z]
+
+      -- Is there a nicer way to state this (or easier way to satisfy this?)
+      p.onHyperbolaFn = ensure hasLorenzNorm(p.vec_math, -1.0 * G.diskRadius)
+      p.topSheetFn = ensure lessThan(-1.0 * p.z, 0.0) -- z > 0 (TODO write greaterThan)
+      -- TODO: the vectors don't seem to quite satisfy all the constraints...
+
+      p.vec_disk = toDisk(p.vec_math)
+      p.vec_screen = diskToScreen(p.vec_disk, G.toScreen)
+
+      p.shape = Circle {
+	x : get(p.vec_screen, 0)
+	y : get(p.vec_screen, 1)
+	r : 3.0
+	color : Colors.midnightblue
+	strokeWidth : 1.0
+	strokeColor : Colors.midnightblue
+      }
+}
+
+Segment e
+where e := MkSegment(p, q)
+with Point p; Point q {
+     -- Line on hyperbola (geodesic)
+
+     e.arcPath = slerpHyp(p.vec_math, q.vec_math, G.numArcPts)
+     e.screenspacePath = pathToDiskAndScreen(e.arcPath, G.toScreen)
+
+     -- Draw a path using the slerp'ed points
+     e.shape = Curve {
+     	     pathData : pathFromPoints(e.screenspacePath)
+	     strokeWidth : 2.0
+	     fill : Colors.none
+	     color : Colors.midnightblue
+	     rotation : 0.0
+     }
+
+     e.layering1 = p.shape above e.shape
+     e.layering2 = q.shape above e.shape
+}
+
+Ray r {
+
+}
+
+Triangle t
+where t := MkTriangleP(p, q, r)
+with Point p; Point q; Point r {
+
+}
+
+Ray r
+with Segment s; Point p; Point q
+where r := PerpendicularBisector(s); s := MkSegment(p, q) {
+
+}
+
+Point p
+where p := Midpoint(s); s := MkSegment(a, b)
+with Segment s; Point a; Point b {
+
+}
+
+-- Assuming the segments share a point
+Angle theta
+where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
+with Segment a; Segment b; Point p; Point q; Point r {
+
+}
+
+Ray r
+with Angle theta; Segment a; Segment b; Point x; Point y; Point z
+where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b := MkSegment(x, z) {
+
+}
