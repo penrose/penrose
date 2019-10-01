@@ -12,4 +12,13 @@ c := MkSegment(r, p)
 Triangle t
 t := MkTriangleP(p, q, r)
 
+Ray h
+h := PerpendicularBisector(a)
+
+Ray i
+i := PerpendicularBisector(b)
+
+Ray j
+j := PerpendicularBisector(c)
+
 AutoLabel All

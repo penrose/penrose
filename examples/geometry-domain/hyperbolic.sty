@@ -44,12 +44,12 @@ Point p {
       -- That is, <p, p>_L = 1 (with the Lorenz inner product)
       p.x = ?
       p.y = ?
-      p.z = ?
+      p.z = calcZ(p.x, p.y) -- Satisfies hyperbola by construction
       p.vec_math = [p.x, p.y, p.z]
 
       -- Is there a nicer way to state this (or easier way to satisfy this?)
-      p.onHyperbolaFn = ensure hasLorenzNorm(p.vec_math, -1.0 * G.diskRadius)
-      p.topSheetFn = ensure lessThan(-1.0 * p.z, 0.0) -- z > 0 (TODO write greaterThan)
+      -- p.onHyperbolaFn = ensure hasLorenzNorm(p.vec_math, -1.0 * G.diskRadius)
+      -- p.topSheetFn = ensure lessThan(-1.0 * p.z, 0.0) -- z > 0 (TODO write greaterThan)
       -- TODO: the vectors don't seem to quite satisfy all the constraints...
 
       p.vec_disk = toDisk(p.vec_math)
@@ -71,26 +71,27 @@ Point p {
       }
 
       -- p.labelFn = encourage near(p.shape, p.text, G.padding)
+      p.layering = p.shape above G.disk
 }
 
 -- Some test points on the hyperboloid
-Point `p` {
-      override `p`.x = -5000.0
-      override `p`.y = -250.0
-      override `p`.z = calcZ(`p`.x, `p`.y)
-}
+-- Point `p` {
+--       override `p`.x = -5000.0
+--       override `p`.y = -250.0
+--       override `p`.z = calcZ(`p`.x, `p`.y)
+-- }
 
-Point `q` {
-      override `q`.x = 10.0
-      override `q`.y = 20.0
-      override `q`.z = calcZ(`q`.x, `q`.y)
-}
+-- Point `q` {
+--       override `q`.x = 10.0
+--       override `q`.y = 20.0
+--       override `q`.z = calcZ(`q`.x, `q`.y)
+-- }
 
-Point `r` {
-      override `r`.x = -100.0
-      override `r`.y = 200.0
-      override `r`.z = calcZ(`r`.x, `r`.y)
-}
+-- Point `r` {
+--       override `r`.x = -100.0
+--       override `r`.y = 200.0
+--       override `r`.z = calcZ(`r`.x, `r`.y)
+-- }
 
 Segment e
 where e := MkSegment(p, q)
@@ -114,7 +115,7 @@ with Point p; Point q {
 }
 
 Ray r {
-
+    r.length = 100.0
 }
 
 -- Maybe it would make more sense to make the triangle from the segments that have already been made.
@@ -143,7 +144,23 @@ with Point p; Point q; Point r {
 Ray r
 with Segment s; Point p; Point q
 where r := PerpendicularBisector(s); s := MkSegment(p, q) {
+      r.rayDist = 5.0 -- TODO: what's the right length to use here?
+      r.tail_vec_math = halfwayPointHyp(p.vec_math, q.vec_math) -- The part w/o arrow, TODO
+      r.head_vec_math = normalOnHyp(p.vec_math, q.vec_math, r.tail_vec_math, r.rayDist) -- TODO
 
+      r.arcPath = slerpHyp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
+      r.screenspacePath = pathToDiskAndScreen(r.arcPath, G.toScreen)
+      
+      r.shape = Curve {
+      	      pathData : pathFromPoints(r.screenspacePath) -- TODO: why are these NaNing?
+	      strokeWidth : 2.0
+	      fill : Colors.none
+	      color : Colors.midnightblue
+	      rotation : 0.0
+	      rightArrowhead : True
+      }
+
+      -- TODO: perpendicular mark
 }
 
 Point p

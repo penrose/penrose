@@ -420,6 +420,8 @@ lerp2 (x1, y1) (x2, y2) n =
 cross :: Autofloat a => [a] -> [a] -> [a]
 cross [x1, y1, z1] [x2, y2, z2] =
   [y1 * z2 - y2 * z1, x2 * z1 - x1 * z2, x1 * y2 - x2 * y1]
+-- cross [x1, x2, x3] [y1, y2, y3] =
+-- [x2 * y3 - x3 * y2, x3 * y1 - x1 * y3, x1 * y2 - x2 * y1]
 
 angleBetweenRad :: Autofloat a => [a] -> [a] -> a -- Radians
 angleBetweenRad p q = acos ((p `dotL` q) / (norm p * norm q + epsd))
@@ -462,6 +464,19 @@ dotLor x y = let nm1 = length x - 1
                  ((xs1, xs2), (ys1, ys2)) = (splitAt nm1 x, splitAt nm1 y)
                  (s1, s2) = (dotL xs1 ys1, -1 * dotL xs2 ys2)
              in s1 + s2
+
+-- For Lorenz cross product, this is the matrix J, which just changes the sign of the last element
+-- p20: http://www.maths.dur.ac.uk/Ug/projects/highlights/CM3/Hayter_Hyperbolic_report.pdf
+-- https://math.stackexchange.com/questions/3017728/an-identity-for-the-lorentz-cross-product
+negLast :: Autofloat a => [a] -> [a]
+negLast x = let (xs1, xs2) = splitAt (length x - 1) x
+            in xs1 ++ ((-1.0) *. xs2)
+
+-- crossLor [x1, x2, x3] [y1, y2, y3] = 
+-- [x2 * y3 - x3 * y2, x3 * y1 - x1 * y3, x2 * y1 - x1 * y2]
+
+crossLor :: Autofloat a => [a] -> [a] -> [a]
+crossLor x y = negLast $ x `cross` y -- x (*) y = J(x * y) = J(y) * J(x)
 
 -- Lorenz norm
 -- TODO: parameterize everything by the Lorenz inner product instead of rewriting code

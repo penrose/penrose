@@ -170,6 +170,8 @@ compDict =
   , ("diskToScreen", constComp diskToScreen)
   , ("slerpHyp", constComp slerpHyp)
   , ("pathToDiskAndScreen", constComp pathToDiskAndScreen)
+  , ("halfwayPointHyp", constComp halfwayPointHyp)
+  , ("normalOnHyp", constComp normalOnHyp)
 
         -- Transformations
     , ("rotate", constComp rotate)
@@ -1212,6 +1214,24 @@ slerpHyp [Val (ListV a), Val (ListV b), Val (IntV n)] =
 pathToDiskAndScreen :: ConstCompFn
 pathToDiskAndScreen [Val (LListV hypPath), Val (FloatV c)] =
    Val $ PtListV $ map (\v -> tuplify2 $ diskToScreen' c $ toDisk' v) hypPath 
+
+halfwayPointHyp :: ConstCompFn
+halfwayPointHyp [Val (ListV a), Val (ListV b)] =
+         let e1 = a
+             e2 = gramSchmidtHyp e1 b
+             d = (hypDist a b) / 2.0 -- Walk halfway along segment
+             pt = hypPtInPlane e1 e2 d
+         in Val $ ListV $ pt
+
+normalOnHyp :: ConstCompFn
+normalOnHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV arcLen)] =
+            -- TODO: is this a hack? do we take a cross product in R3?
+            -- let e1 = p
+            --     e2 = gramSchmidtHyp e1 q
+            --     normalv = normalizeLor (e1 `cross` e2)
+            let normalv = normalizeLor (p `crossLor` q) -- or q x p?
+                headv = hypPtInPlane tailv normalv arcLen
+            in Val $ ListV headv
 
 --------------------------------------------------------------------------------
 -- Objective Functions
