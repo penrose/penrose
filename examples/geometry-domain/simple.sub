@@ -1,2 +1,15 @@
-Point a, b, c
+Point p, q, r
+
+Segment a
+a := MkSegment(p, q)
+
+Segment b
+b := MkSegment(q, r)
+
+Segment c
+c := MkSegment(r, p)
+
+Triangle t
+t := MkTriangleP(p, q, r)
+
 AutoLabel All

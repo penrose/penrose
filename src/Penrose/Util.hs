@@ -468,6 +468,41 @@ dotLor x y = let nm1 = length x - 1
 normsqLor :: Autofloat a => [a] -> a
 normsqLor x = dotLor x x 
 
--- This won't work -- can't ask that sqrt(<x,x>) = -1
--- normLor :: Autofloat a => [a] -> a
--- normLor x = sqrt (normsqLor x + epsd)
+-- Abs value because we can't ask that sqrt(<x,x>) = -1
+-- See email thread with H. Segerman
+normLor :: Autofloat a => [a] -> a
+normLor x = sqrt (abs (normsqLor x + epsd)) -- Is this numerically okay to optimize?
+
+normalizeLor :: Autofloat a => [a] -> [a]
+normalizeLor x = (1 / normLor x) *. x
+
+-- TODO: comment these
+-- TODO: Use numerically nicer versions of cosh and sinh
+-- TODO: implement checks for these vectors (like they are on the hyperboloid or are basis vectors
+
+-- If we start with two vectors a, b on the hyperboloid, 
+-- then we find an orthonormal basis for the plane that they span by using Gram-Schmidt:
+-- e1 = a
+-- e2 = normalize(b + <a, b>L * a)
+
+-- Make the second vector orthogonal to the first
+gramSchmidtHyp :: (Autofloat a) => [a] -> [a] -> [a]
+gramSchmidtHyp a b =
+               let proj_b_a = (a `dotLor` b) *. a
+                   basis = b +. proj_b_a
+               in normalizeLor basis
+
+hypDist :: (Autofloat a) => [a] -> [a] -> a
+hypDist p q = acosh (-1 * (p `dotLor` q))
+-- TODO check this on cases
+
+-- Note that `d` is hyperbolic distance, NOT time
+hypPtInPlane :: Autofloat a => [a] -> [a] -> a -> [a]
+hypPtInPlane e1 e2 d = cosh d *. e1 +. sinh d *. e2
+
+-- Assuming unit hyp and unit basis vectors. Arc starts at e1.
+hlerp :: Autofloat a => Int -> a -> a -> [a] -> [a] -> [[a]]
+hlerp n t0 t1 e1 e2 =
+  let dt = (t1 - t0) / (fromIntegral n + 1)
+      ts = take (n + 2) $ iterate (+ dt) t0
+  in map (hypPtInPlane e1 e2) ts -- Travel along the arc

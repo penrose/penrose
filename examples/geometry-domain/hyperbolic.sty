@@ -18,7 +18,8 @@ Colors {
 
 G {
   -- Drawing parameters
-  G.numArcPts = 20
+  G.padding = 10.0
+  G.numArcPts = 30
   G.stroke = 2.0
   G.spacing = 150.0
   G.pi = 3.14159
@@ -39,7 +40,7 @@ G {
 }
 
 Point p {
-      -- Point on hyperboloid of two sheets: x^2 + y^2 - z^2 = -1
+      -- Point on hyperboloid of two sheets: x^2 + y^2 - z^2 = -1, where z > 0
       -- That is, <p, p>_L = 1 (with the Lorenz inner product)
       p.x = ?
       p.y = ?
@@ -62,6 +63,33 @@ Point p {
 	strokeWidth : 1.0
 	strokeColor : Colors.midnightblue
       }
+
+      p.text = Text {
+      	     x : p.shape.x + 10.0
+      	     y : p.shape.y + 10.0
+      	     string : p.label
+      }
+
+      -- p.labelFn = encourage near(p.shape, p.text, G.padding)
+}
+
+-- Some test points on the hyperboloid
+Point `p` {
+      override `p`.x = -5000.0
+      override `p`.y = -250.0
+      override `p`.z = calcZ(`p`.x, `p`.y)
+}
+
+Point `q` {
+      override `q`.x = 10.0
+      override `q`.y = 20.0
+      override `q`.z = calcZ(`q`.x, `q`.y)
+}
+
+Point `r` {
+      override `r`.x = -100.0
+      override `r`.y = 200.0
+      override `r`.z = calcZ(`r`.x, `r`.y)
 }
 
 Segment e
@@ -89,10 +117,27 @@ Ray r {
 
 }
 
+-- Maybe it would make more sense to make the triangle from the segments that have already been made.
+
 Triangle t
 where t := MkTriangleP(p, q, r)
 with Point p; Point q; Point r {
+     t.arcPath_pq = slerpHyp(p.vec_math, q.vec_math, G.numArcPts)
+     t.screenspacePath_pq = pathToDiskAndScreen(t.arcPath_pq, G.toScreen)
 
+     t.arcPath_qr = slerpHyp(q.vec_math, r.vec_math, G.numArcPts)
+     t.screenspacePath_qr = pathToDiskAndScreen(t.arcPath_qr, G.toScreen)
+
+     t.arcPath_rp = slerpHyp(r.vec_math, p.vec_math, G.numArcPts)
+     t.screenspacePath_rp = pathToDiskAndScreen(t.arcPath_rp, G.toScreen)
+
+     t.shape = Curve {
+     	     pathData : join(t.screenspacePath_pq, t.screenspacePath_qr, t.screenspacePath_rp) -- Connect them in a particular order
+	     strokeWidth : 0.0
+	     fill : setOpacity(Colors.blue, 0.2)
+	     color : Colors.none
+	     rotation : 0.0
+     }
 }
 
 Ray r

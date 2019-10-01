@@ -165,6 +165,7 @@ compDict =
     , ("angle", constComp angleFn)
 
   -- Hyperbolic funcions
+  , ("calcZ", constComp calcZ)
   , ("toDisk", constComp toDisk)
   , ("diskToScreen", constComp diskToScreen)
   , ("slerpHyp", constComp slerpHyp)
@@ -1071,12 +1072,9 @@ slerp' [Val (ListV p), Val (ListV q), Val (IntV n)] -- Assuming unit p, q?
   in Val $
      LListV $
      trace
-       ("(e1, e2, e3): " ++
-        show (e1, e2, e3) ++
-        "\ndot results: " ++
-        show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
-        "\n(p, q, angleBetweenRad): " ++
-        show (p, q, t1) ++ "\npts: " ++ show pts)
+       ("(e1, e2, e3): " ++ show (e1, e2, e3) ++
+        "\ndot results: " ++ show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
+        "\n(p, q, angleBetweenRad): " ++ show (p, q, t1) ++ "\npts: " ++ show pts)
        pts
 
 -- TODO: how does this behave with negative numbers?
@@ -1168,6 +1166,9 @@ angleFn [Val (TupV (v1, v2))] = Val $ FloatV $ atan2 v2 v1
 
 -- | Hyperbolic functions
 
+calcZ' :: Autofloat a => a -> a -> a
+calcZ' x y = sqrt (1 + x * x + y * y) -- For x^2 + y^2 - z^2 = -1, just take the positive solution for z
+
 toDisk' :: Autofloat a => [a] -> [a]
 toDisk' [x, y, z] = [x / (z + 1), y / (z + 1)]
 
@@ -1177,13 +1178,36 @@ diskToScreen' toScreen v = map (* toScreen) v
 toDisk :: ConstCompFn -- Project to Poincare disk
 toDisk [Val (ListV v)] = Val $ ListV $ toDisk' v
 
+calcZ :: ConstCompFn
+calcZ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ calcZ' x y
+
 diskToScreen :: ConstCompFn
 diskToScreen [Val (ListV v), Val (FloatV toScreen)] =
              Val $ ListV $ diskToScreen' toScreen v
 
+-- Denote the Lorenz inner product x1y1 + x2y2 - x3y3 as <x, y>L.
+-- Assuming a and b lie on the hyperboloid (x^2 + y^2 - z^2 = -1, z > 0)
+-- For a vector v on the hyperboloid, <v, v>L = -1
+-- If we start with two vectors a, b on the hyperboloid, 
+-- then we find an orthonormal basis for the plane that they span by using Gram-Schmidt:
+-- e1 = a
+-- e2 = normalize(b + <a, b>L * a)
+-- (note the sign change: b + proj_a(b), NOT -)
+-- e2 is the unit tangent vector at a in the direction of b. (This is a general method for finding that tangent vector)
+-- (See the picture on the blackboard)
+-- Then we walk starting at a to b, using e1 cosh d + e2 sinh d, where d is the hyperbolic distance between a and b
 slerpHyp :: ConstCompFn
-slerpHyp [Val (ListV p), Val (ListV q), Val (IntV n)] =
-         Val $ LListV [p, q] -- TODO
+slerpHyp [Val (ListV a), Val (ListV b), Val (IntV n)] =
+         let e1 = a
+             e2 = gramSchmidtHyp e1 b
+             d = hypDist a b
+             pts = hlerp (fromIntegral n) 0.0 d e1 e2
+         in Val $ LListV $ 
+         trace
+         ("\n(e1, e2): " ++ show (e1, e2) ++
+         -- "\ndot results: " ++ -- show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
+         "\n(a, b, d): " ++ show (a, b, d) ++ "\npts: " ++ show pts)
+         pts
 
 pathToDiskAndScreen :: ConstCompFn
 pathToDiskAndScreen [Val (LListV hypPath), Val (FloatV c)] =
