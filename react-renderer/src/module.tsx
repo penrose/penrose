@@ -7,13 +7,7 @@ import {
   ConnectionStatus,
   IEditorEvents
 } from "./Protocol";
-
-export {
-  Canvas,
-  Packets,
-  ILayer,
-  Protocol,
-  IRendererEvents,
-  ConnectionStatus,
-  IEditorEvents
-};
+export type IRendererEvents = IRendererEvents;
+export type ConnectionStatus = ConnectionStatus;
+export type IEditorEvents = IEditorEvents;
+export { Canvas, Packets, ILayer, Protocol };
