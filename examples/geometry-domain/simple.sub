@@ -21,4 +21,10 @@ i := PerpendicularBisector(b)
 Ray j
 j := PerpendicularBisector(c)
 
+Angle theta
+theta := AngleBetween(a, b)
+
+Ray w
+w := Bisector(theta)
+
 AutoLabel All

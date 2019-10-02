@@ -166,7 +166,7 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
 Point p
 where p := Midpoint(s); s := MkSegment(a, b)
 with Segment s; Point a; Point b {
-
+     override p.vec_math = halfwayPointHyp(a.vec_math, b.vec_math)
 }
 
 -- Assuming the segments share a point
@@ -174,10 +174,39 @@ Angle theta
 where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
 with Segment a; Segment b; Point p; Point q; Point r {
 
+     theta.radius = G.pi / 20.0
+     theta.arcPath = arcPathHyp(p.vec_math, q.vec_math, r.vec_math, theta.radius)
+     theta.arcPath_screenspace = pathToDiskAndScreen(theta.arcPath, G.toScreen)
+
+     theta.shape = Curve {
+     		 pathData : pathFromPoints(theta.arcPath_screenspace)
+		 strokeWidth : 1.5
+		 color : Colors.lightslategray
+		 fill : Colors.none
+     }
 }
 
 Ray r
 with Angle theta; Segment a; Segment b; Point x; Point y; Point z
 where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b := MkSegment(x, z) {
 
+      -- TODO: note that there's a decent amount of code shared between here and the PerpendicularBisector selector
+      -- Move some into the basic Ray selector?
+      r.rayDist = 5.0 -- TODO: what's the right length to use here?
+      r.tail_vec_math = x.vec_math
+      r.head_vec_math = angleBisectorHyp(x.vec_math, y.vec_math, z.vec_math, r.rayDist)
+
+      r.arcPath = slerpHyp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
+      r.screenspacePath = pathToDiskAndScreen(r.arcPath, G.toScreen)
+      
+      r.shape = Curve {
+      	      pathData : pathFromPoints(r.screenspacePath) -- TODO: why are these NaNing?
+	      strokeWidth : 2.0
+	      fill : Colors.none
+	      color : Colors.midnightblue
+	      rotation : 0.0
+	      rightArrowhead : True
+      }
+
+      -- TODO: make two angle bisector marks
 }

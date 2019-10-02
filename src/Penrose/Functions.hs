@@ -172,6 +172,8 @@ compDict =
   , ("pathToDiskAndScreen", constComp pathToDiskAndScreen)
   , ("halfwayPointHyp", constComp halfwayPointHyp)
   , ("normalOnHyp", constComp normalOnHyp)
+  , ("arcPathHyp", constComp arcPathHyp)
+  , ("angleBisectorHyp", constComp angleBisectorHyp)
 
         -- Transformations
     , ("rotate", constComp rotate)
@@ -1232,6 +1234,43 @@ normalOnHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV arcLen
             let normalv = normalizeLor (p `crossLor` q) -- or q x p?
                 headv = hypPtInPlane tailv normalv arcLen
             in Val $ ListV headv
+
+-- Angle where P is the central point (qpr or rpq)
+arcPathHyp :: ConstCompFn
+arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
+  let normal = p
+      (qp, rp) = (q -. p, r -. p)
+      (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
+      theta = (angleBetweenSignedLor normal qp_normal rp_normal) / 2.0 -- TODO: do we need the signed angle?
+      t1 = normalizeLor (qp -. (projLor normal qp)) -- tangent in qp direction (SIGN CHANGE?)
+      t2 = t1 `crossLor` normal
+      pt_origin = (p +.) $ (arcLen *.) $ hypPtInPlane t1 t2 theta -- starts at qp segment
+
+      n = 20
+      pts_origin = map (arcLen *.) $ hlerp n 0 theta t1 t2 -- starts at qp segment
+      pts = map (+. p) pts_origin -- Why does this arc lie on the sphere?
+
+  -- TODO: check that this is right (it's probably not)
+  in Val $ LListV pts
+  
+-- Angle where P is the central point (qpr or rpq)
+-- TODO: share some code betwen this and arcPathHyp?
+angleBisectorHyp :: ConstCompFn
+angleBisectorHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
+  let normal = p
+      (qp, rp) = (q -. p, r -. p)
+      (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
+      theta = (angleBetweenSignedLor normal qp_normal rp_normal) / 2.0 -- TODO: do we need the signed angle?
+      t1 = normalizeLor (qp -. (projLor normal qp)) -- tangent in qp direction (SIGN CHANGE?)
+      t2 = t1 `crossLor` normal
+      pt_origin = (p +.) $ (arcLen *.) $ hypPtInPlane t1 t2 theta -- starts at qp segment
+
+      -- TODO: hypPtInPlane should use a length, not an angle, right?
+  in Val $ ListV pt_origin
+           -- let pt_origin = p
+           --     half_angle_qpr = angleLor (q -. p) (r -. p) / 2.0
+           -- Rotate vector q by angle (toward r)
+      
 
 --------------------------------------------------------------------------------
 -- Objective Functions

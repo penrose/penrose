@@ -521,3 +521,19 @@ hlerp n t0 t1 e1 e2 =
   let dt = (t1 - t0) / (fromIntegral n + 1)
       ts = take (n + 2) $ iterate (+ dt) t0
   in map (hypPtInPlane e1 e2) ts -- Travel along the arc
+
+-- Angle between two vectors (assumed to be unit in Lorenz space)
+angleLor :: Autofloat a => [a] -> [a] -> a
+angleLor a b = acosh (a `dotLor` b)
+
+-- Project q onto p, without normalization
+projLor :: Autofloat a => [a] -> [a] -> [a]
+projLor p q =
+  let unit_p = normalizeLor p
+  in (q `dotLor` unit_p) *. unit_p
+
+-- https://stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+angleBetweenSignedLor :: Autofloat a => [a] -> [a] -> [a] -> a -- Radians
+angleBetweenSignedLor n p q =
+  let sign = -1 * signum ((p `crossLor` q) `dotLor` n)
+  in sign * angleLor p q
