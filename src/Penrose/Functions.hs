@@ -1242,7 +1242,7 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
       (qp, rp) = (q -. p, r -. p)
       (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
       theta = (angleBetweenSignedLor normal qp_normal rp_normal) / 2.0 -- TODO: do we need the signed angle?
-      t1 = normalizeLor (qp -. (projLor normal qp)) -- tangent in qp direction (SIGN CHANGE?)
+      t1 = gramSchmidtHyp normal qp -- tangent in qp direction (SIGN CHANGE?)
       t2 = t1 `crossLor` normal
       pt_origin = (p +.) $ (arcLen *.) $ hypPtInPlane t1 t2 theta -- starts at qp segment
 
@@ -1261,7 +1261,7 @@ angleBisectorHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLe
       (qp, rp) = (q -. p, r -. p)
       (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
       theta = (angleBetweenSignedLor normal qp_normal rp_normal) / 2.0 -- TODO: do we need the signed angle?
-      t1 = normalizeLor (qp -. (projLor normal qp)) -- tangent in qp direction (SIGN CHANGE?)
+      t1 = gramSchmidtHyp normal qp -- tangent in qp direction (SIGN CHANGE?)
       t2 = t1 `crossLor` normal
       pt_origin = (p +.) $ (arcLen *.) $ hypPtInPlane t1 t2 theta -- starts at qp segment
 
