@@ -76,7 +76,11 @@ workflows:
   version: 2.1
   build_other_branches:
     jobs:
-      - build_frontend
+      - build_frontend:
+        filters:
+          branches:
+            ignore:
+              - master
       - build:
         filters:
           branches:
@@ -84,7 +88,11 @@ workflows:
               - master
   build_master_deploy:
     jobs:
-      - build_frontend
+      - build_frontend:
+        filters:
+          branches:
+            only:
+              - master
       - build:
           filters:
             branches:
