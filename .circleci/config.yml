@@ -3,6 +3,29 @@ orbs:
   aws-ecr: circleci/aws-ecr@3.0.0
   aws-ecs: circleci/aws-ecs@0.0.6
 jobs:
+  build_frontend:
+    docker:
+      - image: circleci/node:11.10.1
+    steps:
+      - checkout:
+          path: ~/penrose
+      - restore_cache:
+          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}
+      - run:
+          name: Install npm deps
+          command: npm install
+          working_directory: ~/penrose/react-renderer
+      - run:
+          name: Build normally
+          command: npm run build
+          working_directory: ~/penrose/react-renderer
+      - run:
+          name: Build-lib
+          command: npm run build-lib
+          working_directory: ~/penrose/react-renderer
+      - store_artifacts:
+          path: ~/penrose/react-renderer/build
+          destination: react-renderer-built
   build:
     docker:
       - image: fpco/stack-build:lts-13.24
@@ -25,7 +48,7 @@ jobs:
           command: stack test
       - run:
           name: Install executable
-          command: stack install 
+          command: stack install
       - save_cache:
           name: Cache Dependencies
           key: penrose-cache-{{ checksum "penrose.cabal" }}
@@ -53,6 +76,7 @@ workflows:
   version: 2.1
   build_other_branches:
     jobs:
+      - build_frontend
       - build:
         filters:
           branches:
@@ -60,6 +84,7 @@ workflows:
               - master
   build_master_deploy:
     jobs:
+      - build_frontend
       - build:
           filters:
             branches:
