@@ -152,20 +152,12 @@ def genPathString(form):
     '''Generate a path string given canvas dimensions (globals) and a path form'''
     # determine the number of objects in the scene by some heuristics
     # 2 (L and E) + whatever that fits
-    maxObjects = int(CANVAS_HEIGHT * CANVAS_WIDTH / (200 * 100))
+    maxObjects = int(CANVAS_HEIGHT * CANVAS_WIDTH / (100 * 100))
     
     # Stats about the path form
-    numPatterns = len(filter(lambda c: c.isalpha(), form))
     numIndefinites = len(re.findall(r"\w(?=(\+|\*))", form))
 
-    shortestForm = re.sub(r"\w(\?|\*)", '', form)
-    minObjects = len(shortestForm)
     limit = int(maxObjects / numIndefinites)
-
-    if maxObjects < minObjects:
-        form = shortestForm
-        limit = 1
-        print "The scene is too small to fit more objects. Generating the minimal string: ", shortestForm
 
     print 'Limit per expansion computed via canvas dimensions: \n', limit
     gen = Xeger(limit=limit)
