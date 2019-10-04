@@ -14,6 +14,7 @@ import           Penrose.Substance
 
 -------------------------------------------------------
 -- | JSON schemas and derivations using Aeson
+
 data FunctionSchema = FunctionSchema
   { varName   :: String
   , fname     :: String
@@ -177,7 +178,7 @@ writeSubstanceToJSON file (SubOut subprog envs labels) = do
   let bytestr = encode substanceSchema
   BL.writeFile file bytestr
 
----------------------------------------------------------
+--k-------------------------------------------------------
 --- | JSON format for parsing Style values from plugins
 data KeyValPair = KeyValPair
   { propertyName :: String

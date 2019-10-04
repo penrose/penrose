@@ -4,9 +4,11 @@
 - Assumes only one path sample
 - Generates exactly as many objects as vertices
 - One-to-one relationship between specular objects and vertices
+- Takes two constants as parameters: CANVAS_WIDTH, CANVAS_HEIGHT of type `AnnoFloat`, specially `Fix` instances. Otherwise the plugin throws an error
 '''
 
 import json
+import re
 import random
 from pprint import pprint
 from xeger import Xeger   # string generator from regex
@@ -21,6 +23,8 @@ ids = {
     'LightSource': ['l', 0],
     'Camera': ['c', 0]
 }
+CANVAS_WIDTH = 0
+CANVAS_HEIGHT = 0
 
 def valueOf(json, s):
     res = [v['value'] for v in json['values'] if v['name'] == s]
@@ -31,7 +35,7 @@ def genSubstance():
     res = ''
     for path_id, path in paths.iteritems():
         vertices = []
-        pathString = gen.xeger(path['form'])
+        pathString = genPathString(path['form'])
         print "generated an instance of a sampled path: ", pathString
 
         # declare verts
@@ -117,30 +121,59 @@ def vertexDecl(v, path):
     return type, id, res
 
 
-def process(json, gen):
+def process(json):
     '''Process JSON input from the backend and populate context'''
+    substance = json['substance']
+    params = json['params']
+
     # Go through objects
-    for obj in json['objects']:
+    for obj in substance['objects']:
         type = obj['objType']
         name = obj['objName']
         if type == 'Path':
             paths[name] = {}
 
     # Go through predicates
-    for pred in json['constraints']['predicates']:
+    for pred in substance['constraints']['predicates']:
         name = pred['pname']
         if name == 'HasForm':
             pathName, form = pred['pargNames']
-            paths[pathName]['form'] = valueOf(json, form)
+            paths[pathName]['form'] = valueOf(substance, form)
         elif name == 'SceneSatisfies':
             sceneId, pathId = pred['pargNames']
             paths[pathId]['scene'] = sceneId
 
+    # Retrieve parameters 
+    global CANVAS_WIDTH, CANVAS_HEIGHT
+    CANVAS_WIDTH = params[0]['contents']['contents']
+    CANVAS_HEIGHT = params[1]['contents']['contents']
+
+def genPathString(form):
+    '''Generate a path string given canvas dimensions (globals) and a path form'''
+    # determine the number of objects in the scene by some heuristics
+    # 2 (L and E) + whatever that fits
+    maxObjects = int(CANVAS_HEIGHT * CANVAS_WIDTH / (200 * 100))
+    
+    # Stats about the path form
+    numPatterns = len(filter(lambda c: c.isalpha(), form))
+    numIndefinites = len(re.findall(r"\w(?=(\+|\*))", form))
+
+    shortestForm = re.sub(r"\w(\?|\*)", '', form)
+    minObjects = len(shortestForm)
+    limit = int(maxObjects / numIndefinites)
+
+    if maxObjects < minObjects:
+        form = shortestForm
+        limit = 1
+        print "The scene is too small to fit more objects. Generating the minimal string: ", shortestForm
+
+    print 'Limit per expansion computed via canvas dimensions: \n', limit
+    gen = Xeger(limit=limit)
+    return gen.xeger(form)
+
 if __name__ == '__main__':
     inputFile  = 'Sub_enduser.json'
     outputFile = 'Sub_instantiated.sub'
-    limit = 5
-    gen = Xeger(limit=limit)
 
     # load json data from input file
     with open(inputFile) as f:
@@ -149,7 +182,7 @@ if __name__ == '__main__':
 
     # process data
     print 'received JSON: ', data
-    process(data, gen)
+    process(data)
 
     # emit Substance code
     subOut = genSubstance()
