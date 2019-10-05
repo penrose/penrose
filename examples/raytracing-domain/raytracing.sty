@@ -1,9 +1,9 @@
-plugin "regexExpander" (200.0, 200.0)
+plugin "regexExpander" (150.0, 150.0)
 
 global { 
     global.padding = 10 
-    global.CANVAS_WIDTH = 200.0
-    global.CANVAS_HEIGHT = 200.0
+    global.CANVAS_WIDTH = 150.0
+    global.CANVAS_HEIGHT = 150.0
 }
 
 
@@ -68,24 +68,9 @@ where InOS(d, s) with Scene s {
     d.layering = d.shape above s.container
 }
 
--- No two specular objects should overlap
-SpecularObject o1; SpecularObject o2 {
-    LOCAL.disjointFn = ensure disjoint(o1.shape, o2.shape, 10.0)
-}
-
 -- No "in path" predicate because scene geometry shouldn't depend directly on a path
 SpecularObject o {
     -- create mirror shape and put it in scene
-    -- TODO: import SVG?
-    /*
-    o.shape = Rectangle {
-        color : Colors.gray
-        strokeWidth : 0.0
-        -- TODO: sizes are temporary
-        sizeX : 100.0
-        sizeY : 20.0
-    }
-    */
     o.shape = Image {
         lengthX : 100.0
         lengthY : 10.0
@@ -98,7 +83,6 @@ SpecularObject o {
 }
 
 LightSource l {
-    -- TODO: has to have a location
     l.shape = Circle {
         color : Colors.lightKhaki
         r : 15.0
@@ -114,14 +98,6 @@ LightSource l {
 }
 
 Camera c {
-    -- TODO: has to have a location
-    /*
-    c.shape = Circle {
-        color : Colors.gray
-        r : 20.0
-        strokeWidth : 0.0
-    }
-    */
     c.shape = Image {
         lengthX : 20.0
         lengthY : 20.0
@@ -134,7 +110,7 @@ Camera c {
         sizeY: c.shape.lengthY
     }
     c.text = Text {
-        string : "C"
+        string : "E"
         color : Colors.black
     }
     c.textLayering = c.text above c.shape
@@ -184,22 +160,15 @@ with Path p; SpecularObject o {
 PathVertex v; PathSample ps
 where InVP(v, p); Hits(v, o)
 with Path p; DiffuseObject o {
-    -- TODO: pretty much anywhere on the room?
+    -- TODO: exclude corners
     v.x = ?
     v.y = ?
     v.onFn = ensure pointOn(v.x, v.y, o.shape, 0.0)
 }
 
--- PathVertex v
--- where InVP(v, p); Hits(v, o) {
---     -- v.locationFn = ensure
--- }
-
 PathEdge e; PathSample ps
 where e := CreateEdge(v1, v2)
-     -- Hits(v1, o1); Hits(v2, o2) -- for layering
 with PathVertex v1, v2
-     -- SceneGeometry o1, o2  -- for layering
 {
      -- draw an arrow from v1's location to v2's location
      e.shape = Arrow {
@@ -210,10 +179,7 @@ with PathVertex v1, v2
          color  : Colors.lightKhaki
          thickness : 1.5
          arrowheadSize: 0.7
-         -- arrowheadStyle: "arrowhead-1"  
      }
-     -- e.layering1 = e.shape above o1.shape
-     -- e.layering2 = e.shape above o2.shape
 }
 
 PathEdge e1; PathEdge e2; PathSample ps
@@ -242,11 +208,23 @@ PathEdge e; Camera c {
      LOCAL.disjointFn = ensure disjoint(c.shape, e.shape, 10.0)
 }
 
+-- No two specular objects should overlap
+SpecularObject o1; SpecularObject o2 {
+    LOCAL.disjointFn = ensure disjoint(o1.shape, o2.shape, 10.0)
+}
+
 
 ---------------------------NON-COMPILABLE CODE----------------------------------
 
 
 /*
+PathEdge e 
+where e := CreateEdge(v1, v2)
+with PathVertex v1, v2; IsDiffuse(v1); IsDiffuse(v2)
+{
+    -- TODO: make sure the angle is angle is not 0 or 180
+}
+
 Path p; PathSample ps
 where In(p, S) with Scene S {
       -- make path sample color

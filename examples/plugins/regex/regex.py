@@ -26,63 +26,74 @@ ids = {
 CANVAS_WIDTH = 0
 CANVAS_HEIGHT = 0
 
+def genSubstance():
+    '''Generate a Substance program from the context'''
+
+    res = '' # Substance program to be returned
+
+    for path_id, path in paths.iteritems():
+
+        # for each path form, generate a path string
+        pathString = genPathString(path['form'])
+        print "generated an instance of a path: ", pathString
+
+        # NOTE: we are not generating different strings for each sample yet
+        for sample in path['samples']:
+            vertices = []
+            # declare verts
+            for v in pathString:
+                type, id, decl = vertexDecl(v, path_id)
+                res += decl
+                vertices.append((type, id))
+
+            # declare edges
+            vertexIds = [v for typ, v in vertices]
+            for v0, v1 in zip(vertexIds, vertexIds[1:]):
+                res += edgeDecl(v0, v1)
+
+            sample['vertices'] = vertices
+
+        if len(path['samples']) > 0:
+            # if there are path samples, declare scene objs
+            # NOTE: using just the first sample to declare objects
+            diffuseExists = False
+            path['objects'] = []
+            for type, v in path['samples'][0]['vertices']:
+                if type == 'Diffuse':
+                    if not diffuseExists:
+                        diffuseExists = True
+                        line, id = nextDecl('DiffuseObject')
+                    else: continue
+                elif type == 'Specular':
+                    line, id = nextDecl('SpecularObject')
+                elif type == 'Eye':
+                    line, id = nextDecl('Camera')
+                elif type == 'Light':
+                    line, id = nextDecl('LightSource')
+                else:
+                    exit('unrecognized vertex type {0} when generating scene obj'.format(type))
+                res += line
+                res += 'InOS({0}, {1})\n'.format(id, path['scene'])
+                path['objects'].append((type, id))
+
+        # Generate hits
+        # HACK: find first obj of the same type everytime
+        # COMBAK: support multiple specular object??
+        for sample in path['samples']:
+            specularCount = 0
+            for vType, vId in sample['vertices']:
+                if(vType == 'Specular'): 
+                    oType, oId = findObj(vType, path['objects'], specularCount) 
+                    specularCount = specularCount + 1
+                else:
+                    oType, oId = findObj(vType, path['objects']) 
+                res += 'Hits({0}, {1})\n'.format(vId, oId)
+
+    return res
+
 def valueOf(json, s):
     res = [v['value'] for v in json['values'] if v['name'] == s]
     return res[0]
-
-def genSubstance():
-    '''Generate a Substance program from the context'''
-    res = ''
-    for path_id, path in paths.iteritems():
-        vertices = []
-        pathString = genPathString(path['form'])
-        print "generated an instance of a sampled path: ", pathString
-
-        # declare verts
-        for v in pathString:
-            type, id, decl = vertexDecl(v, path_id)
-            res += decl
-            vertices.append((type, id))
-        path['vertices'] = vertices
-
-        # declare edges
-        vertexIds = [v for typ, v in vertices]
-        for v0, v1 in zip(vertexIds, vertexIds[1:]):
-            res += edgeDecl(v0, v1)
-
-        # declare scene objs
-        diffuseExists = False
-        path['objects'] = []
-        for type, v in path['vertices']:
-            if type == 'Diffuse':
-                if not diffuseExists:
-                    diffuseExists = True
-                    line, id = nextDecl('DiffuseObject')
-                else: continue
-            elif type == 'Specular':
-                line, id = nextDecl('SpecularObject')
-            elif type == 'Eye':
-                line, id = nextDecl('Camera')
-            elif type == 'Light':
-                line, id = nextDecl('LightSource')
-            else:
-                exit('unrecognized vertex type {0} when generating scene obj'.format(type))
-            res += line
-            res += 'InOS({0}, {1})\n'.format(id, path['scene'])
-            path['objects'].append((type, id))
-
-        # HACK: find first obj of the same type everytime
-        # COMBAK: support multiple specular object??
-        specularCount = 0
-        for vType, vId in path['vertices']:
-            if(vType == 'Specular'): 
-                oType, oId = findObj(vType, path['objects'], specularCount) 
-                specularCount = specularCount + 1
-            else:
-                oType, oId = findObj(vType, path['objects']) 
-            res += 'Hits({0}, {1})\n'.format(vId, oId)
-
-    return res
 
 def findObj(vType, objList, idx=0):
     return filter(lambda (t, i): t == vType, objList)[idx]
@@ -131,7 +142,7 @@ def process(json):
         type = obj['objType']
         name = obj['objName']
         if type == 'Path':
-            paths[name] = {}
+            paths[name] = { 'samples': [] }
 
     # Go through predicates
     for pred in substance['constraints']['predicates']:
@@ -142,6 +153,14 @@ def process(json):
         elif name == 'SceneSatisfies':
             sceneId, pathId = pred['pargNames']
             paths[pathId]['scene'] = sceneId
+
+    # Go through functions
+    for func in substance['constraints']['functions']:
+        name = func['fname']
+        if name == 'Sample':
+            pname = func['fargNames'][0]
+            sample = func['varName']
+            paths[pname]['samples'].append({ 'name': sample, 'vertices': [] })
 
     # Retrieve parameters 
     global CANVAS_WIDTH, CANVAS_HEIGHT
