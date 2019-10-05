@@ -276,6 +276,9 @@ infixl 7 *:, /:
 (/:) :: Floating a => (a, a) -> a -> (a, a)
 (/:) (x, y) c = (c / x, c / y)
 
+neg :: Floating a => (a, a) -> (a, a)
+neg (x, y) = (-x, -y)
+
 dotv :: Floating a => (a, a) -> (a, a) -> a
 dotv (x, y) (a, b) = x * a + y * b
 

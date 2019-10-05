@@ -225,10 +225,10 @@ with PathVertex v1, v2, v3;
      SpecularObject o
 {
     LOCAL.mirrorPadding = 1.0
-    -- NOTE: trying to control rotation first
+    LOCAL.horizontalShift = sampleReal(o.shape.lengthX / -2.0 + 20.0, o.shape.lengthX / 2.0 - 20.0)
     override o.shape.rotation = mirrorAngle(e1.shape, e2.shape)
-    override o.shape.centerX = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / -2.0 + LOCAL.mirrorPadding)
-    override o.shape.centerY = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / -2.0 - LOCAL.mirrorPadding)
+    override o.shape.centerX = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / 2.0 + LOCAL.mirrorPadding, LOCAL.horizontalShift)
+    override o.shape.centerY = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / 2.0 + LOCAL.mirrorPadding, LOCAL.horizontalShift)
 }
 
 PathEdge e; SpecularObject o {
