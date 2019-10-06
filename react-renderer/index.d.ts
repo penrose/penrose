@@ -8,6 +8,5 @@ import {
 
 declare module "mathjax";
 export type IRendererEvents = IRendererEvents;
-export type ConnectionStatus = ConnectionStatus;
 export type IEditorEvents = IEditorEvents;
-export { Canvas, Packets, Protocol, ILayer };
+export { Canvas, Packets, Protocol, ILayer, ConnectionStatus };
