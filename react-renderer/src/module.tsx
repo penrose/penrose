@@ -8,6 +8,5 @@ import {
   IEditorEvents
 } from "./Protocol";
 export type IRendererEvents = IRendererEvents;
-export type ConnectionStatus = ConnectionStatus;
 export type IEditorEvents = IEditorEvents;
-export { Canvas, Packets, ILayer, Protocol };
+export { Canvas, Packets, ILayer, Protocol, ConnectionStatus };
