@@ -1236,8 +1236,8 @@ normalOnHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV arcLen
             in Val $ ListV headv
 
 -- Angle where P is the central point (qpr or rpq)
-arcPathHyp :: ConstCompFn
-arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
+arcPathHyp_old :: ConstCompFn
+arcPathHyp_old [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
   let normal = p
       (qp, rp) = (q -. p, r -. p)
       (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
@@ -1252,6 +1252,22 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
 
   -- TODO: check that this is right (it's probably not)
   in Val $ LListV pts
+
+-- Angle where P is the central point (qpr or rpq), moving from q to r
+arcPathHyp :: ConstCompFn
+arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
+  let x = 0
+  -- Find the tangent vector tq at p in the direction of q
+  -- Find the tangent vector tr at p in the direction of r
+  -- Measure the angle between tq and tr
+  -- Find the orthonormal vectors (e1, e2) spanning the tangent plane at p, where e1 starts at q
+  -- Draw the arc centered at p, with radius arcLen, from q to p
+  -- This works by drawing a circle in the tangent plane by varying theta
+  -- Each point on the circle corresponds to a tangent direction e at p
+  -- And then you just walk in that direction from p along the hyperbolic geodesic
+  -- And connect up all those geodesic points to yield an arc on the hyperboloid
+
+  in Val $ LListV [q, r]
   
 -- Angle where P is the central point (qpr or rpq)
 -- TODO: share some code betwen this and arcPathHyp?
