@@ -1227,10 +1227,6 @@ halfwayPointHyp [Val (ListV a), Val (ListV b)] =
 
 normalOnHyp :: ConstCompFn
 normalOnHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV arcLen)] =
-            -- TODO: is this a hack? do we take a cross product in R3?
-            -- let e1 = p
-            --     e2 = gramSchmidtHyp e1 q
-            --     normalv = normalizeLor (e1 `cross` e2)
             let normalv = normalizeLor (p `crossLor` q) -- or q x p?
                 headv = hypPtInPlane tailv normalv arcLen
             in Val $ ListV headv
@@ -1253,26 +1249,10 @@ arcPathHyp_old [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)
   -- TODO: check that this is right (it's probably not)
   in Val $ LListV pts
 
--- Angle where P is the central point (qpr or rpq), moving from q to r
-arcPathHyp :: ConstCompFn
-arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
-  let x = 0
-  -- Find the tangent vector tq at p in the direction of q
-  -- Find the tangent vector tr at p in the direction of r
-  -- Measure the angle between tq and tr
-  -- Find the orthonormal vectors (e1, e2) spanning the tangent plane at p, where e1 starts at q
-  -- Draw the arc centered at p, with radius arcLen, from q to p
-  -- This works by drawing a circle in the tangent plane by varying theta
-  -- Each point on the circle corresponds to a tangent direction e at p
-  -- And then you just walk in that direction from p along the hyperbolic geodesic
-  -- And connect up all those geodesic points to yield an arc on the hyperboloid
-
-  in Val $ LListV [q, r]
-  
 -- Angle where P is the central point (qpr or rpq)
 -- TODO: share some code betwen this and arcPathHyp?
-angleBisectorHyp :: ConstCompFn
-angleBisectorHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
+angleBisectorHyp_old :: ConstCompFn
+angleBisectorHyp_old [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
   let normal = p
       (qp, rp) = (q -. p, r -. p)
       (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
@@ -1287,6 +1267,54 @@ angleBisectorHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLe
            --     half_angle_qpr = angleLor (q -. p) (r -. p) / 2.0
            -- Rotate vector q by angle (toward r)
       
+-- Angle where P is the central point (qpr or rpq), moving from q to r
+-- arcPathHyp :: ConstCompFn
+arcPathHyp :: ConstCompFn
+arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
+  let x = 0
+      -- TODO: check if any of these need to be normalized or have their signs/directions swapped
+      -- TODO: do these still work if p,q,r are on "different sides" of the hyperboloid? Or the sphere?
+
+      -- Find the tangent vector tq at p in the direction of q
+      tq = gramSchmidtHyp p q
+      -- Find the tangent vector tr at p in the direction of r
+      tr = gramSchmidtHyp p r
+      -- Measure the angle between tq and tr
+      theta = angleLor tq tr -- TODO: check this
+      -- Find the orthonormal vectors (e1, e2) spanning the tangent plane at p, where e1 starts at q
+      e1 = tq
+      e2 = gramSchmidtHyp tq tr -- TODO: Assuming there's a unique tangent plane, should 'warp` tr into the second basis vector
+      -- How to check that this is true? Alternatively, could cross tq and tr to get a normal, then cross tq and the normal
+
+      -- Draw the arc centered at p, with radius arcLen, from q to p
+      -- This works by drawing a circle in the tangent plane by varying theta
+      dtheta = 0.01
+      thetas = if theta > 0 then takeWhile (<= theta) $ iterate (+ dtheta) 0 
+               else takeWhile (>= theta) $ iterate ((-) dtheta) 0 -- TODO: nicer way to do this?
+               -- Equivalent to [0, dtheta .. theta] but we don't have Enum a
+      -- Each point on the circle corresponds to a tangent direction e at p
+      tangentVecs = map (\angle -> circPtInPlane e1 e2 angle) thetas
+      -- And then you just walk in that direction from p along the hyperbolic geodesic
+      -- And connect up all those geodesic points to yield an arc on the hyperboloid
+      arcPoints = map (\tangentVec -> hypPtInPlane p tangentVec arcLen) tangentVecs
+
+      -- TODO: check that the first and last points on the arcpath are q and r
+  in Val $ LListV $
+     trace ("\n(p, q, r): " ++ show (p, q, r) ++
+           "\n(tq, tr): " ++ show (tq,tr) ++
+            "\ntheta: " ++ show theta ++
+            "\n(e1, e2): " ++ show (e1,e2) ++
+            "\nthetas: " ++ show thetas ++
+            "\ntangentVecs: " ++ show tangentVecs ++
+            "\narcPoints: " ++ show arcPoints)
+     arcPoints
+
+-- Angle where P is the central point (qpr or rpq)
+-- TODO: share some code betwen this and arcPathHyp?
+angleBisectorHyp :: ConstCompFn
+angleBisectorHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
+    let x = 0 
+    in Val $ ListV r
 
 --------------------------------------------------------------------------------
 -- Objective Functions

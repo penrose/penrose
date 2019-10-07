@@ -499,6 +499,8 @@ normalizeLor x = (1 / normLor x) *. x
 -- then we find an orthonormal basis for the plane that they span by using Gram-Schmidt:
 -- e1 = a
 -- e2 = normalize(b + <a, b>L * a)
+-- `e1` obviously points in the direction of `a`
+-- and `e2` can be understoood as the unit tangent vector from `a` in the direction of `b`
 
 -- Make the second vector orthogonal to the first
 gramSchmidtHyp :: (Autofloat a) => [a] -> [a] -> [a]

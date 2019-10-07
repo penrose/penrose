@@ -7,7 +7,7 @@ Segment b
 b := MkSegment(q, r)
 
 Segment c
-c := MkSegment(r, p)
+c := MkSegment(p, r)
 
 Triangle t
 t := MkTriangleP(p, q, r)
@@ -22,9 +22,9 @@ Ray j
 j := PerpendicularBisector(c)
 
 Angle theta
-theta := AngleBetween(a, b)
+theta := AngleBetween(a, c)
 
-Ray w
-w := Bisector(theta)
+-- Ray w
+-- w := Bisector(theta)
 
 AutoLabel All
