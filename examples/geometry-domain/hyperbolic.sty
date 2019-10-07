@@ -75,23 +75,23 @@ Point p {
 }
 
 -- Some test points on the hyperboloid
--- Point `p` {
---       override `p`.x = -5000.0
---       override `p`.y = -250.0
---       override `p`.z = calcZ(`p`.x, `p`.y)
--- }
+Point `p` {
+      override `p`.x = -1.5
+      override `p`.y = -1.0
+      override `p`.z = calcZ(`p`.x, `p`.y)
+}
 
--- Point `q` {
---       override `q`.x = 10.0
---       override `q`.y = 20.0
---       override `q`.z = calcZ(`q`.x, `q`.y)
--- }
+Point `q` {
+      override `q`.x = 2.0
+      override `q`.y = 1.0
+      override `q`.z = calcZ(`q`.x, `q`.y)
+}
 
--- Point `r` {
---       override `r`.x = -100.0
---       override `r`.y = 200.0
---       override `r`.z = calcZ(`r`.x, `r`.y)
--- }
+Point `r` {
+      override `r`.x = 1.0
+      override `r`.y = -2.0
+      override `r`.z = calcZ(`r`.x, `r`.y)
+}
 
 Segment e
 where e := MkSegment(p, q)

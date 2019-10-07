@@ -1208,9 +1208,9 @@ slerpHyp [Val (ListV a), Val (ListV b), Val (IntV n)] =
              pts = hlerp (fromIntegral n) 0.0 d e1 e2
          in Val $ LListV $ 
          trace
-         ("\n(e1, e2): " ++ show (e1, e2) ++
+         ("\n(a, b, d): " ++ show (a, b, d) ++ "\npts: " ++ show pts ++
+          "\n(e1, e2): " ++ show (e1, e2))
          -- "\ndot results: " ++ -- show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
-         "\n(a, b, d): " ++ show (a, b, d) ++ "\npts: " ++ show pts)
          pts
 
 pathToDiskAndScreen :: ConstCompFn

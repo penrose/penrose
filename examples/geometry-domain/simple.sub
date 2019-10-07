@@ -3,23 +3,23 @@ Point p, q, r
 Segment a
 a := MkSegment(p, q)
 
-Segment b
-b := MkSegment(q, r)
+-- Segment b
+-- b := MkSegment(q, r)
 
 Segment c
 c := MkSegment(p, r)
 
-Triangle t
-t := MkTriangleP(p, q, r)
+-- Triangle t
+-- t := MkTriangleP(p, q, r)
 
-Ray h
-h := PerpendicularBisector(a)
+-- Ray h
+-- h := PerpendicularBisector(a)
 
-Ray i
-i := PerpendicularBisector(b)
+-- Ray i
+-- i := PerpendicularBisector(b)
 
-Ray j
-j := PerpendicularBisector(c)
+-- Ray j
+-- j := PerpendicularBisector(c)
 
 Angle theta
 theta := AngleBetween(a, c)
