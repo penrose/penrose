@@ -76,8 +76,11 @@ Point p {
 
 -- Some test points on the hyperboloid
 Point `p` {
-      override `p`.x = -1.5
-      override `p`.y = -1.0
+      override `p`.x = -3.0
+      override `p`.y = -5.0
+      -- override `p`.x = 0.0
+      -- override `p`.y = 0.0
+
       override `p`.z = calcZ(`p`.x, `p`.y)
 }
 
@@ -174,7 +177,7 @@ Angle theta
 where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
 with Segment a; Segment b; Point p; Point q; Point r {
 
-     theta.radius = G.pi / 4.0
+     theta.radius = G.pi / 3.0
      theta.arcPath = arcPathHyp(p.vec_math, q.vec_math, r.vec_math, theta.radius)
      theta.arcPath_screenspace = pathToDiskAndScreen(theta.arcPath, G.toScreen)
 

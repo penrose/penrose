@@ -1285,12 +1285,16 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
       -- theta = angleLor tq tr -- TODO: check this
       -- theta = angleBetweenRad tq tr -- TODO: check this
 
-      theta = 2 * pi -- Should at least be able to draw a circle!
+      theta = 2 * pi -- Should at least be able to draw a circle! TODO: check that 2*pi indeed draws exactly a circle (and not more)
 
       -- Find the orthonormal vectors (e1, e2) spanning the tangent plane at p, where e1 starts at q
       e1 = tq
-      e2 = gramSchmidtHyp tq tr -- TODO: Assuming there's a unique tangent plane, should 'warp` tr into the second basis vector
-      -- How to check that this is true? Alternatively, could cross tq and tr to get a normal, then cross tq and the normal
+      -- e2 = gramSchmidtHyp tq tr -- TODO: Assuming there's a unique tangent plane, should 'warp` tr into the second basis vector
+      -- TODO: these definitely don't seem orthogonal... in fact, they are in the same direction??? Why?
+
+      -- cross tq and tr to get a normal, then cross tq and the normal
+      e3 = normalizeLor (tq `crossLor` tr) -- normal
+      e2 = normalizeLor (tq `crossLor` e3)
 
       -- Draw the arc centered at p, with radius arcLen, from q to p
       -- This works by drawing a circle in the tangent plane by varying theta
@@ -1311,6 +1315,7 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
            "\n(tq, tr): " ++ show (tq,tr) ++
            "\n(|tq|^2, |tr|^2): " ++ show (normsqLor tq, normsqLor tr) ++
            "\n(tq dotLor tr): " ++ show (tq `dotLor` tr) ++
+           "\ndot results: " ++ show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
             "\ntheta: " ++ show theta ++
             "\n(e1, e2): " ++ show (e1,e2) ++
             "\n\nthetas: " ++ show thetas ++
