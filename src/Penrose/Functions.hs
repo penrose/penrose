@@ -1231,42 +1231,6 @@ normalOnHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV arcLen
                 headv = hypPtInPlane tailv normalv arcLen
             in Val $ ListV headv
 
--- Angle where P is the central point (qpr or rpq)
-arcPathHyp_old :: ConstCompFn
-arcPathHyp_old [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
-  let normal = p
-      (qp, rp) = (q -. p, r -. p)
-      (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
-      theta = (angleBetweenSignedLor normal qp_normal rp_normal) / 2.0 -- TODO: do we need the signed angle?
-      t1 = gramSchmidtHyp normal qp -- tangent in qp direction (SIGN CHANGE?)
-      t2 = t1 `crossLor` normal
-      pt_origin = (p +.) $ (arcLen *.) $ hypPtInPlane t1 t2 theta -- starts at qp segment
-
-      n = 20
-      pts_origin = map (arcLen *.) $ hlerp n 0 theta t1 t2 -- starts at qp segment
-      pts = map (+. p) pts_origin -- Why does this arc lie on the sphere?
-
-  -- TODO: check that this is right (it's probably not)
-  in Val $ LListV pts
-
--- Angle where P is the central point (qpr or rpq)
--- TODO: share some code betwen this and arcPathHyp?
-angleBisectorHyp_old :: ConstCompFn
-angleBisectorHyp_old [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
-  let normal = p
-      (qp, rp) = (q -. p, r -. p)
-      (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
-      theta = (angleBetweenSignedLor normal qp_normal rp_normal) / 2.0 -- TODO: do we need the signed angle?
-      t1 = gramSchmidtHyp normal qp -- tangent in qp direction (SIGN CHANGE?)
-      t2 = t1 `crossLor` normal
-      pt_origin = (p +.) $ (arcLen *.) $ hypPtInPlane t1 t2 theta -- starts at qp segment
-
-      -- TODO: hypPtInPlane should use a length, not an angle, right?
-  in Val $ ListV pt_origin
-           -- let pt_origin = p
-           --     half_angle_qpr = angleLor (q -. p) (r -. p) / 2.0
-           -- Rotate vector q by angle (toward r)
-      
 -- Angle where P is the central point (qpr or rpq), moving from q to r
 -- arcPathHyp :: ConstCompFn
 arcPathHyp :: ConstCompFn
@@ -1281,11 +1245,28 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
       tr = gramSchmidtHyp p r
       -- Should these vectors have Lorenz norm -1?? No, HS says they are not "time-like vectors, i.e. does not describe a point of the hyperbolic plane"
 
-      -- Measure the angle between tq and tr
+      -- Measure the angle between tq and tr -- Actually, I don't think you can measure the angle in the tangent plane...
       -- theta = angleLor tq tr -- TODO: check this
       -- theta = angleBetweenRad tq tr -- TODO: check this
+      -- theta = angleBetweenSigned tq tr -- TODO: check this -- You should be able to measure angle in the tangent plane, no?
+      -- theta = angleLor q r
 
-      theta = 2 * pi -- Should at least be able to draw a circle! TODO: check that 2*pi indeed draws exactly a circle (and not more)
+      -- (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
+      -- theta = angleBetweenSigned p qp_normal rp_normal -- Do we use signed angle? Signed lorentz angle? Is p the normal?
+      -- theta = angleLor qp_normal rp_normal -- these don't lie on the hyperboloid
+
+      -- https://en.wikipedia.org/wiki/Hyperbolic_law_of_cosines#Hyperbolic_law_of_cosines
+      -- B and C are the legs of the arc on the triangle (they should be equidistant from A)
+      ptA = p
+      ptB = hypPtInPlane p tq arcLen
+      ptC = hypPtInPlane p tr arcLen
+      lenAB = arcLen
+      lenAC = arcLen
+      lenBC = hypDist ptB ptC
+      theta = acos ((-cosh(lenBC) + cosh(lenAC) * cosh(lenAB)) / (sinh(lenAC) * sinh(lenAB)))
+      -- TODO: Will the sign be right? Do we need to do numeric stuff if any of these goes out of range for acos, cosh, sinh, or (/)??
+
+      -- theta = 2 * pi -- Should at least be able to draw a circle! TODO: check that 2*pi indeed draws exactly a circle (and not more)
 
       -- Find the orthonormal vectors (e1, e2) spanning the tangent plane at p, where e1 starts at q
       e1 = tq
@@ -1298,7 +1279,7 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
 
       -- Draw the arc centered at p, with radius arcLen, from q to p
       -- This works by drawing a circle in the tangent plane by varying theta
-      dtheta = 0.01
+      dtheta = 0.02
       thetas = if theta > 0 then takeWhile (<= theta) $ iterate (+ dtheta) 0 
                else takeWhile (>= theta) $ iterate ((-) dtheta) 0 -- TODO: nicer way to do this?
                -- Equivalent to [0, dtheta .. theta] but we don't have Enum a
@@ -1320,7 +1301,7 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
             "\n(e1, e2): " ++ show (e1,e2) ++
             "\n\nthetas: " ++ show thetas ++
             "\n\ntangentVecs: " ++ show tangentVecs ++
-            "\n\n2arcPoints: " ++ show arcPoints)
+            "\n\narcPoints: " ++ show arcPoints)
      arcPoints
 
 -- Angle where P is the central point (qpr or rpq)
