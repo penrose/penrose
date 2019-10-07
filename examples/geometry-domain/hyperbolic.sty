@@ -174,7 +174,7 @@ Angle theta
 where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
 with Segment a; Segment b; Point p; Point q; Point r {
 
-     theta.radius = G.pi / 20.0
+     theta.radius = G.pi / 4.0
      theta.arcPath = arcPathHyp(p.vec_math, q.vec_math, r.vec_math, theta.radius)
      theta.arcPath_screenspace = pathToDiskAndScreen(theta.arcPath, G.toScreen)
 

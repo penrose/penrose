@@ -490,6 +490,7 @@ normLor x = sqrt (abs (normsqLor x + epsd)) -- Is this numerically okay to optim
 
 normalizeLor :: Autofloat a => [a] -> [a]
 normalizeLor x = (1 / normLor x) *. x
+-- TODO: should these be a sign change so a vector has Lorenz norm -1?
 
 -- TODO: comment these
 -- TODO: Use numerically nicer versions of cosh and sinh
@@ -507,7 +508,7 @@ gramSchmidtHyp :: (Autofloat a) => [a] -> [a] -> [a]
 gramSchmidtHyp a b =
                let proj_b_a = (a `dotLor` b) *. a
                    basis = b +. proj_b_a
-               in normalizeLor basis
+               in trace ("\nbasis: " ++ show basis) $ normalizeLor basis
 
 hypDist :: (Autofloat a) => [a] -> [a] -> a
 hypDist p q = acosh (-1 * (p `dotLor` q))
@@ -526,7 +527,10 @@ hlerp n t0 t1 e1 e2 =
 
 -- Angle between two vectors (assumed to be unit in Lorenz space)
 angleLor :: Autofloat a => [a] -> [a] -> a
-angleLor a b = acosh (a `dotLor` b)
+-- TODO: should this have a negative sign? So the distance and angle are same? Is that ok?
+-- TODO: note that acosh(x) is only defined if x >= 1
+angleLor a b = hypDist a b
+-- angleLor a b = acosh (a `dotLor` b)
 
 -- Project q onto p, without normalization
 projLor :: Autofloat a => [a] -> [a] -> [a]

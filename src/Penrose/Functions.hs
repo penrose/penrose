@@ -1279,8 +1279,14 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
       tq = gramSchmidtHyp p q
       -- Find the tangent vector tr at p in the direction of r
       tr = gramSchmidtHyp p r
+      -- Should these vectors have Lorenz norm -1?? No, HS says they are not "time-like vectors, i.e. does not describe a point of the hyperbolic plane"
+
       -- Measure the angle between tq and tr
-      theta = angleLor tq tr -- TODO: check this
+      -- theta = angleLor tq tr -- TODO: check this
+      -- theta = angleBetweenRad tq tr -- TODO: check this
+
+      theta = 2 * pi -- Should at least be able to draw a circle!
+
       -- Find the orthonormal vectors (e1, e2) spanning the tangent plane at p, where e1 starts at q
       e1 = tq
       e2 = gramSchmidtHyp tq tr -- TODO: Assuming there's a unique tangent plane, should 'warp` tr into the second basis vector
@@ -1301,12 +1307,15 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
       -- TODO: check that the first and last points on the arcpath are q and r
   in Val $ LListV $
      trace ("\n(p, q, r): " ++ show (p, q, r) ++
+           "\n(|p|^2, |q|^2, |r|^2): " ++ show (normsqLor p, normsqLor q, normsqLor r) ++
            "\n(tq, tr): " ++ show (tq,tr) ++
+           "\n(|tq|^2, |tr|^2): " ++ show (normsqLor tq, normsqLor tr) ++
+           "\n(tq dotLor tr): " ++ show (tq `dotLor` tr) ++
             "\ntheta: " ++ show theta ++
             "\n(e1, e2): " ++ show (e1,e2) ++
-            "\nthetas: " ++ show thetas ++
-            "\ntangentVecs: " ++ show tangentVecs ++
-            "\narcPoints: " ++ show arcPoints)
+            "\n\nthetas: " ++ show thetas ++
+            "\n\ntangentVecs: " ++ show tangentVecs ++
+            "\n\n2arcPoints: " ++ show arcPoints)
      arcPoints
 
 -- Angle where P is the central point (qpr or rpq)
