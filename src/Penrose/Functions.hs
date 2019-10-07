@@ -184,9 +184,9 @@ compDict =
     , ("testTriangle", constComp testTri)
     , ("testNonconvexPoly", constComp testNonconvexPoly)
     , ("randomPolygon", randomPolygon)
+    , ("sampleReal", sampleReal) 
     , ("midpoint", noop) -- TODO
     , ("sampleMatrix", noop) -- TODO
-    , ("sampleReal", noop) -- TODO
     , ("sampleVectorIn", noop) -- TODO
     , ("intersection", noop) -- TODO
     , ("determinant", noop) -- TODO
@@ -505,6 +505,13 @@ checkReturn (GPI v) _ = error "checkReturn: Computations cannot return GPIs"
 
 --------------------------------------------------------------------------------
 -- Computation Functions
+
+sampleReal :: CompFn
+sampleReal [Val (FloatV low), Val (FloatV high)] g = 
+  let interval = (r2f low, r2f high) :: Interval
+      (res, g') = randomR interval g :: (Float, StdGen)
+  in (Val $ FloatV $ r2f res, g')
+
 sampleFunction :: CompFn
 -- Assuming domain and range are lines or arrows, TODO deal w/ points
 -- TODO: discontinuous functions? not sure how to sample/model/draw consistently
@@ -1181,19 +1188,19 @@ toVector (x0, y0, x1, y1) = [x1 - x0, y1 - y0]
 
 toTup [x, y] = (x, y)
 
+-- NOTE: intentionally not renewing the random seed because we want consistant results from the same function call (?)
 mirrorPosX, mirrorPosY :: ConstCompFn
 mirrorPosX args = Val $ FloatV $ fst $ mirrorPos args
-
 mirrorPosY args = Val $ FloatV $ snd $ mirrorPos args
 
 mirrorPos :: (Autofloat a) => [ArgVal a] -> (a, a)
-mirrorPos [GPI a1, GPI a2, Val (FloatV rx), Val (FloatV ry), Val (FloatV offset)] =
-  let [(x0, y0, x1, y1), pts2] = map arrowPts [a1, a2]
-      pts1 = (x1, y1, x0, y0)
-      [v1, v2] = map (toTup . normalize . toVector) [pts1, pts2]
-      (x, y) = v1 +: v2
-      [x', y'] = normalize [x, y]
-  in (rx + x' * offset, ry + y' * offset)
+mirrorPos [GPI a1, GPI a2, Val (FloatV rx), Val (FloatV ry), Val (FloatV verticalOffset), Val (FloatV horizontalOffset)] =
+  let [v1, v2] = map (toTup . normalize . toVector . arrowPts) [a1, a2]
+      (hx, hy) = v1 +: v2
+      [hx', hy'] = normalize [hx, hy]
+      (vx, vy) = v1 -: v2
+      [vx', vy'] = normalize [vx, vy]
+  in (rx + hx' * horizontalOffset + vx' * verticalOffset, ry + hy' * horizontalOffset + vy' * verticalOffset)
 
 mirrorAngle :: ConstCompFn
 mirrorAngle [GPI a1, GPI a2] =

@@ -1,23 +1,41 @@
 {-# OPTIONS_HADDOCK prune #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Penrose.Plugins
   ( runPlugin
+  , PluginInput
   ) where
 
 import           Control.Exception          (ErrorCall, try)
-import           Data.Aeson                 (decode)
+import           Data.Aeson                 (decode, encode, ToJSON)
+import qualified Data.ByteString.Lazy       as BL
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Map.Strict            as M
 import           Data.Maybe                 (fromMaybe)
 import           Penrose.Env
-import           Penrose.Style              (parsePlugins)
-import           Penrose.Substance
+import           Penrose.Style              (Expr (..), Plugin (..),
+                                             parsePlugins)
+import           Penrose.Substance          (SubOut (..))
+import           Penrose.Serializer
 import           Penrose.SubstanceJSON
 import           Penrose.Util
 import           System.Directory           (doesFileExist, getCurrentDirectory,
                                              setCurrentDirectory)
 import           System.IO.Unsafe           (unsafePerformIO)
-import           System.Process             (callCommand)
+import           System.Process             (callCommand, readCreateProcess,
+                                             shell)
+import           GHC.Generics
+
+--------------------------------------------------------------------------------
+-- Types
+
+-- TODO: this should really be in the Serializer module. Sort out the module dependencies
+data PluginInput = PluginInput
+  { substance :: SubSchema
+  , params    :: [Expr]
+  } deriving (Generic, Show)
+
+instance ToJSON PluginInput
 
 --------------------------------------------------------------------------------
 -- | 'runPlugin' parses plugin statements from the style program and executes
@@ -37,8 +55,8 @@ runPlugin subOut stySrc elementEnv
     -- If >1 instantiation, throw an error.
   case instantiations of
     [] -> Right Nothing
-    [pluginName] ->
-      let res = unsafePerformIO $ try (instantiateSub pluginName subOut)
+    [Plugin pluginName exprs] ->
+      let res = unsafePerformIO $ try (instantiateSub pluginName subOut exprs)
       in case res of
            Right (subPlugin, styVals) -> Right $ Just (subPlugin, styVals)
            Left err -> Left $ PluginRun $ show (err :: ErrorCall)
@@ -68,20 +86,25 @@ type SubstanceRaw = String
 
 -- TODO: add more error checking to deal with paths or files that don't exist
 -- TODO: this functions requires "values.json", which is not outputed by some plugins
-instantiateSub :: String -> SubOut -> IO (SubstanceRaw, [StyVal])
-instantiateSub pluginName parsedSub = do
+instantiateSub :: String -> SubOut -> [Expr] -> IO (SubstanceRaw, [StyVal])
+instantiateSub pluginName parsedSub@(SubOut subProg _ _) pluginParams = do
   originalDir <- getCurrentDirectory
   let (dirPath, pluginCmd) =
         catchPathError pluginName (M.lookup pluginName pluginDict)
   putStrLn $ "plugin directory: " ++ dirPath
   putStrLn $ "plugin command: " ++ pluginCmd
-    -- NOTE: we are not expecting multiple processes to use these tempfiles
+  -- NOTE: we are not expecting multiple processes to use these tempfiles
   let outFile = dirPath ++ "/Sub_enduser.json"
   let subInFile = dirPath ++ "/Sub_instantiated.sub"
   let styInFile = dirPath ++ "/values.json"
-  writeSubstanceToJSON outFile parsedSub
-  setCurrentDirectory dirPath -- Change to plugin dir so the plugin gets the right path. Otherwise pwd sees "penrose/src"
+  let pluginIn =
+        PluginInput {substance = subToSchema subProg, params = pluginParams}
+  BL.writeFile outFile $ encode pluginIn
+  -- Change to plugin dir so the plugin gets the right path. Otherwise pwd sees "penrose/src"
+  setCurrentDirectory dirPath
   callCommand pluginCmd
+  -- TODO: pass the JSON via stdin? Is this scalable to multiple concurrent sessions?
+  -- readCreateProcess (shell pluginCmd) pluginInput
   setCurrentDirectory originalDir -- Return to original directory
   newSubProg <- readFile subInFile
   putStrLn "Penrose received Sub file: "

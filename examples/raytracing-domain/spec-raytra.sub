@@ -3,12 +3,13 @@ Path p
 In(p, S)
 
 String s
-s := "LD(D|S)DE"
+s := "LS+S+E"
 
 HasForm(p, s)
 
-PathSample p1
+PathSample p1, p2
 p1 := Sample(p)
+p2 := Sample(p)
 
 SceneSatisfies(S, p)
 
