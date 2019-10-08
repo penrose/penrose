@@ -111,6 +111,7 @@ compDict =
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
     , ("generateRandomReal", constComp generateRandomReal)
     , ("calcNorm", constComp calcNorm)
+    , ("normSq", constComp normSq')
     , ("bboxWidth", constComp bboxWidth)
     , ("bboxHeight", constComp bboxHeight)
     , ("intersectionX", constComp intersectionX)
@@ -621,6 +622,9 @@ calcNorm [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1), Val (FloatV ey1)
       ny = (ey1 - sy1) ** 2.0
       norm = sqrt (nx + ny + 0.5)
   in Val (FloatV norm)
+
+normSq' :: ConstCompFn
+normSq' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ x * x + y * y
 
 linePts, arrowPts :: (Autofloat a) => Shape a -> (a, a, a, a)
 linePts = arrowPts

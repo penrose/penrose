@@ -25,9 +25,12 @@ G {
   G.pi = 3.14159
   G.two_pi = 6.28319
   G.toScreen = 200.0 -- Math space to screen space
+  G.rayLen = 2.5
 
   -- Poincare disk: Unit disk at the origin
   G.diskRadius = 1.0
+  G.maxVal = 15.0 -- So the points don't look too much like ideal points
+  G.maxValNorm = 10.0 -- So the points don't look too much like ideal points
 
   G.disk = Circle {
   	 x : 0.0
@@ -46,6 +49,11 @@ Point p {
       p.y = ?
       p.z = calcZ(p.x, p.y) -- Satisfies hyperbola by construction
       p.vec_math = [p.x, p.y, p.z]
+
+      -- p.xFn = ensure lessThan(p.x, G.maxVal)
+      -- p.yFn = ensure lessThan(p.y, G.maxVal)
+
+      p.normFn = ensure lessThan(normSq(p.x, p.y), G.maxValNorm) -- Probably faster to inline all this
 
       -- Is there a nicer way to state this (or easier way to satisfy this?)
       -- p.onHyperbolaFn = ensure hasLorenzNorm(p.vec_math, -1.0 * G.diskRadius)
@@ -75,26 +83,26 @@ Point p {
 }
 
 -- Some test points on the hyperboloid
-Point `p` {
-      override `p`.x = -5.0
-      override `p`.y = -5.0
-      -- override `p`.x = 0.0
-      -- override `p`.y = 0.0
+-- Point `p` {
+--       override `p`.x = -10.0
+--       override `p`.y = -10.0
+--       -- override `p`.x = 0.0
+--       -- override `p`.y = 0.0
 
-      override `p`.z = calcZ(`p`.x, `p`.y)
-}
+--       override `p`.z = calcZ(`p`.x, `p`.y)
+-- }
 
-Point `q` {
-      override `q`.x = 4.0
-      override `q`.y = -3.0
-      override `q`.z = calcZ(`q`.x, `q`.y)
-}
+-- Point `q` {
+--       override `q`.x = 4.0
+--       override `q`.y = -3.0
+--       override `q`.z = calcZ(`q`.x, `q`.y)
+-- }
 
-Point `r` {
-      override `r`.x = -1.0
-      override `r`.y = 2.0
-      override `r`.z = calcZ(`r`.x, `r`.y)
-}
+-- Point `r` {
+--       override `r`.x = -1.0
+--       override `r`.y = 2.0
+--       override `r`.z = calcZ(`r`.x, `r`.y)
+-- }
 
 Segment e
 where e := MkSegment(p, q)
@@ -147,7 +155,7 @@ with Point p; Point q; Point r {
 Ray r
 with Segment s; Point p; Point q
 where r := PerpendicularBisector(s); s := MkSegment(p, q) {
-      r.rayDist = 5.0 -- TODO: what's the right length to use here?
+      r.rayDist = G.rayLen -- TODO: what's the right length to use here?
       r.tail_vec_math = halfwayPointHyp(p.vec_math, q.vec_math) -- The part w/o arrow, TODO
       r.head_vec_math = normalOnHyp(p.vec_math, q.vec_math, r.tail_vec_math, r.rayDist) -- TODO
 
@@ -188,7 +196,7 @@ Angle theta
 where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
 with Segment a; Segment b; Point p; Point q; Point r {
 
-     theta.radius = G.pi / 5.0 -- TODO: should this depend on distance from the center?
+     theta.radius = G.pi / 3.0 -- TODO: should this depend on distance from the center?
      theta.arcPath = arcPathHyp(p.vec_math, q.vec_math, r.vec_math, theta.radius)
      theta.arcPath_screenspace = pathToDiskAndScreen(theta.arcPath, G.toScreen)
 
@@ -206,7 +214,7 @@ where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b
 
       -- TODO: note that there's a decent amount of code shared between here and the PerpendicularBisector selector
       -- Move some into the basic Ray selector?
-      r.rayDist = 5.0 -- TODO: what's the right length to use here?
+      r.rayDist = G.rayLen -- TODO: what's the right length to use here?
       r.tail_vec_math = x.vec_math
       r.head_vec_math = angleBisectorHyp(x.vec_math, y.vec_math, z.vec_math, r.rayDist)
 
