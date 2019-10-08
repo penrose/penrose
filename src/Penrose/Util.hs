@@ -518,6 +518,12 @@ hypDist p q = acosh (-1 * (p `dotLor` q))
 hypPtInPlane :: Autofloat a => [a] -> [a] -> a -> [a]
 hypPtInPlane e1 e2 d = cosh d *. e1 +. sinh d *. e2
 
+-- Walk a distance d along the geodesic from p to q (in that direction)
+hwalk :: Autofloat a => [a] -> [a] -> a -> [a]
+hwalk p q d = let e1 = p
+                  e2 = gramSchmidtHyp e1 q
+              in hypPtInPlane e1 e2 d
+
 -- Assuming unit hyp and unit basis vectors. Arc starts at e1.
 hlerp :: Autofloat a => Int -> a -> a -> [a] -> [a] -> [[a]]
 hlerp n t0 t1 e1 e2 =

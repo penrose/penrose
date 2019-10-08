@@ -1316,11 +1316,22 @@ perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv),
       (tq, tr, e1, e2, e3, theta) = tangentsAndBasis a b c arcLen
       -- TODO: do we want to draw this ON the hyperboloid? How would you draw a right angle on it?
       -- Could we use two geodesics?
+      -- Walk along BA toward A
+      pt_BA = hwalk b a arcLen
+      -- Walk the same length along BC toward C
+      pt_BC = hwalk b c arcLen
+      -- If the angles are actually perpendicular, you should be able to turn 90deg at one, and 90deg at the other, and meet at the same point, which is a right angle. Is that true on a hyperboloid? Well, it has to be true in the projection, if the Poincare disk is really conformal
 
-      segPt = p
-      rayPt = headv
-      corner = headv -- TODO
-  in Val $ LListV [segPt, corner, rayPt] -- TODO: is the order right?
+      pt_BA_n = normalizeLor (b `cross` a) -- TODO: check these `n`s point in right direction
+      pt_BC_n = normalizeLor (c `cross` b)
+
+      corner_BA = hypPtInPlane pt_BA pt_BA_n arcLen
+      corner_BC = hypPtInPlane pt_BC pt_BC_n arcLen -- This should be the same as corner_BA
+
+      -- TODO: we could draw the geodesics (not just the straight lines), but it seems like they don't actually meet at the same corner?
+      path = [pt_BA, corner_BA, corner_BC, pt_BC]
+
+  in Val $ LListV $ trace ("\n[pt_BA, corner_BA, corner_BC, pt_BC]: \n" ++ show path) path
 
 --------------------------------------------------------------------------------
 -- Objective Functions
