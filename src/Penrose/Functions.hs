@@ -174,6 +174,7 @@ compDict =
   , ("normalOnHyp", constComp normalOnHyp)
   , ("arcPathHyp", constComp arcPathHyp)
   , ("angleBisectorHyp", constComp angleBisectorHyp)
+  , ("perpPathHyp", constComp perpPathHyp)
 
         -- Transformations
     , ("rotate", constComp rotate)
@@ -1231,29 +1232,20 @@ normalOnHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV arcLen
                 headv = hypPtInPlane tailv normalv arcLen
             in Val $ ListV headv
 
--- Angle where P is the central point (qpr or rpq), moving from q to r
--- arcPathHyp :: ConstCompFn
-arcPathHyp :: ConstCompFn
-arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
-  let x = 0
-      -- TODO: check if any of these need to be normalized or have their signs/directions swapped
-      -- TODO: do these still work if p,q,r are on "different sides" of the hyperboloid? Or the sphere?
-
-      -- Find the tangent vector tq at p in the direction of q
+-- Given 3 vectors (p,q,r) on the hyperboloid, for the arc from QP to RP with arc len arcLen,
+-- Find the tangent vectors tq, and tr, as well as an orthonormal basis at p, where the tangent plane at e is (e1,e2)
+-- And the arc angle is theta
+tangentsAndBasis :: Autofloat a => [a] -> [a] -> [a] -> a -> ([a], [a], [a], [a], [a], a)
+tangentsAndBasis p q r arcLen = 
+  -- TODO: do these still work if p,q,r are on "different sides" of the hyperboloid? Or the sphere?
+  let -- Find the tangent vector tq at p in the direction of q
       tq = gramSchmidtHyp p q
       -- Find the tangent vector tr at p in the direction of r
       tr = gramSchmidtHyp p r
-      -- Should these vectors have Lorenz norm -1?? No, HS says they are not "time-like vectors, i.e. does not describe a point of the hyperbolic plane"
+      -- NOTE: these vectors don't have Lorenz norm -1. They are not "time-like vectors, i.e. does not describe a point of the hyperbolic plane"
 
-      -- Measure the angle between tq and tr -- Actually, I don't think you can measure the angle in the tangent plane...
-      -- theta = angleLor tq tr -- TODO: check this
-      -- theta = angleBetweenRad tq tr -- TODO: check this
-      -- theta = angleBetweenSigned tq tr -- TODO: check this -- You should be able to measure angle in the tangent plane, no?
-      -- theta = angleLor q r
-
-      -- (qp_normal, rp_normal) = (q `crossLor` p, r `crossLor` p)
-      -- theta = angleBetweenSigned p qp_normal rp_normal -- Do we use signed angle? Signed lorentz angle? Is p the normal?
-      -- theta = angleLor qp_normal rp_normal -- these don't lie on the hyperboloid
+      -- Note: measuring the angle between tq and tr doesn't seem to work.
+      -- Not clear whether to use Lorentz or classical angle, signed angle or not, whether the Lorentz angle is the hyp length
 
       -- https://en.wikipedia.org/wiki/Hyperbolic_law_of_cosines#Hyperbolic_law_of_cosines
       -- B and C are the legs of the arc on the triangle (they should be equidistant from A)
@@ -1264,19 +1256,20 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
       lenAC = arcLen
       lenBC = hypDist ptB ptC
       theta = acos ((-cosh(lenBC) + cosh(lenAC) * cosh(lenAB)) / (sinh(lenAC) * sinh(lenAB)))
-      -- TODO: Will the sign be right? Do we need to do numeric stuff if any of these goes out of range for acos, cosh, sinh, or (/)??
-
-      -- theta = 2 * pi -- Should at least be able to draw a circle! TODO: check that 2*pi indeed draws exactly a circle (and not more)
+      -- TODO: Is the sign right? Do we need to do numeric stuff if any of these goes out of range for acos, cosh, sinh, (/)??
+      -- theta = 2 * pi -- Test drawing a circle
 
       -- Find the orthonormal vectors (e1, e2) spanning the tangent plane at p, where e1 starts at q
       e1 = tq
-      -- e2 = gramSchmidtHyp tq tr -- TODO: Assuming there's a unique tangent plane, should 'warp` tr into the second basis vector
-      -- TODO: these definitely don't seem orthogonal... in fact, they are in the same direction??? Why?
-
-      -- cross tq and tr to get a normal, then cross tq and the normal
-      e3 = normalizeLor (tq `crossLor` tr) -- normal
+      -- e2 = gramSchmidtHyp tq tr -- This doesn't seem to produce an orthogonal vector. Not sure why.
+      e3 = normalizeLor (tq `crossLor` tr) -- normal vector
       e2 = normalizeLor (tq `crossLor` e3)
+  in (tq, tr, e1, e2, e3, theta)
 
+-- Angle where P is the central point (qpr or rpq), moving from q to r
+arcPathHyp :: ConstCompFn
+arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] = 
+  let (tq, tr, e1, e2, e3, theta) = tangentsAndBasis p q r arcLen
       -- Draw the arc centered at p, with radius arcLen, from q to p
       -- This works by drawing a circle in the tangent plane by varying theta
       dtheta = 0.02
@@ -1284,11 +1277,10 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
                else takeWhile (>= theta) $ iterate ((-) dtheta) 0 -- TODO: nicer way to do this?
                -- Equivalent to [0, dtheta .. theta] but we don't have Enum a
       -- Each point on the circle corresponds to a tangent direction e at p
-      tangentVecs = map (\angle -> circPtInPlane e1 e2 angle) thetas
+      tangentVecs = map (circPtInPlane e1 e2) thetas
       -- And then you just walk in that direction from p along the hyperbolic geodesic
       -- And connect up all those geodesic points to yield an arc on the hyperboloid
       arcPoints = map (\tangentVec -> hypPtInPlane p tangentVec arcLen) tangentVecs
-
       -- TODO: check that the first and last points on the arcpath are q and r
   in Val $ LListV $
      trace ("\n(p, q, r): " ++ show (p, q, r) ++
@@ -1296,7 +1288,7 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
            "\n(tq, tr): " ++ show (tq,tr) ++
            "\n(|tq|^2, |tr|^2): " ++ show (normsqLor tq, normsqLor tr) ++
            "\n(tq dotLor tr): " ++ show (tq `dotLor` tr) ++
-           "\ndot results: " ++ show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
+           "\ndot results: " ++ show [ei `dotLor` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
             "\ntheta: " ++ show theta ++
             "\n(e1, e2): " ++ show (e1,e2) ++
             "\n\nthetas: " ++ show thetas ++
@@ -1305,11 +1297,30 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
      arcPoints
 
 -- Angle where P is the central point (qpr or rpq)
--- TODO: share some code betwen this and arcPathHyp?
+-- For angle QPR, calculate that angle, 
+-- move along a circle in the tangent plane at P to find the tangent vector at the angle bisector,
+-- then move along the hyperbolic geodesic along the tangent vector by arcLen to find the point whose ray bisects the angle.
+-- See arcPathHyp for more about how this works
 angleBisectorHyp :: ConstCompFn
 angleBisectorHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
-    let x = 0 
-    in Val $ ListV r
+    let (tq, tr, e1, e2, e3, theta) = tangentsAndBasis p q r arcLen
+        angle = theta / 2.0
+        tangentVec = circPtInPlane e1 e2 angle
+        rayHead = hypPtInPlane p tangentVec arcLen
+    in Val $ ListV rayHead
+
+-- {p,q} is the segment that ray {tailv, headv} bisects (the head sticks out). Draw the mark with length arcLen
+perpPathHyp :: ConstCompFn
+perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] =
+  let (a, b, c) = (headv, tailv, p) -- the angle ABC that is a right angle
+      (tq, tr, e1, e2, e3, theta) = tangentsAndBasis a b c arcLen
+      -- TODO: do we want to draw this ON the hyperboloid? How would you draw a right angle on it?
+      -- Could we use two geodesics?
+
+      segPt = p
+      rayPt = headv
+      corner = headv -- TODO
+  in Val $ LListV [segPt, corner, rayPt] -- TODO: is the order right?
 
 --------------------------------------------------------------------------------
 -- Objective Functions

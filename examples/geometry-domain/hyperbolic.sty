@@ -75,26 +75,26 @@ Point p {
 }
 
 -- Some test points on the hyperboloid
-Point `p` {
-      override `p`.x = -5.0
-      override `p`.y = -5.0
-      -- override `p`.x = 0.0
-      -- override `p`.y = 0.0
+-- Point `p` {
+--       override `p`.x = -5.0
+--       override `p`.y = -5.0
+--       -- override `p`.x = 0.0
+--       -- override `p`.y = 0.0
 
-      override `p`.z = calcZ(`p`.x, `p`.y)
-}
+--       override `p`.z = calcZ(`p`.x, `p`.y)
+-- }
 
-Point `q` {
-      override `q`.x = -1.0
-      override `q`.y = -3.0
-      override `q`.z = calcZ(`q`.x, `q`.y)
-}
+-- Point `q` {
+--       override `q`.x = -1.0
+--       override `q`.y = -3.0
+--       override `q`.z = calcZ(`q`.x, `q`.y)
+-- }
 
-Point `r` {
-      override `r`.x = -1.0
-      override `r`.y = 2.0
-      override `r`.z = calcZ(`r`.x, `r`.y)
-}
+-- Point `r` {
+--       override `r`.x = -1.0
+--       override `r`.y = 2.0
+--       override `r`.z = calcZ(`r`.x, `r`.y)
+-- }
 
 Segment e
 where e := MkSegment(p, q)
@@ -163,7 +163,16 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
 	      rightArrowhead : True
       }
 
-      -- TODO: perpendicular mark
+      r.perpArcLen = G.pi / 5.0
+      r.perpmarkPath = perpPathHyp(p.vec_math, q.vec_math, r.tail_vec_math, r.head_vec_math, r.perpArcLen)
+      r.perpmark_screenspacePath = pathToDiskAndScreen(r.perpmarkPath, G.toScreen)
+
+      r.perpMark = Curve {
+      	      pathData : pathFromPoints(r.perpmark_screenspacePath)
+	      strokeWidth : 1.5
+	      color : Colors.lightslategray
+	      fill : Colors.none
+      }
 }
 
 Point p
