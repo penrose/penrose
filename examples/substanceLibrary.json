@@ -54,5 +54,26 @@
     "style": 7,
     "previewURI": "https://gist.githubusercontent.com/maxkrieger/24b3981a868daa6ed1742af764287def/raw/2fd1dd42b08a5d87c481f2eaf406302e59a21f94/continuousmap.svg?sanitize=true",
     "name": "continuous map"
+  },
+  {
+    "substanceURI": "geometry-domain/teaser.sub",
+    "element": 3,
+    "style": 8,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/24b3981a868daa6ed1742af764287def/raw/2fd1dd42b08a5d87c481f2eaf406302e59a21f94/continuousmap.svg?sanitize=true",
+    "name": "euclidean geometry"
+  },
+  {
+    "substanceURI": "geometry-domain/teaser.sub",
+    "element": 3,
+    "style": 9,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/24b3981a868daa6ed1742af764287def/raw/2fd1dd42b08a5d87c481f2eaf406302e59a21f94/continuousmap.svg?sanitize=true",
+    "name": "spherical geometry"
+  },
+  {
+    "substanceURI": "geometry-domain/teaser.sub",
+    "element": 3,
+    "style": 10,
+    "previewURI": "https://gist.githubusercontent.com/maxkrieger/24b3981a868daa6ed1742af764287def/raw/2fd1dd42b08a5d87c481f2eaf406302e59a21f94/continuousmap.svg?sanitize=true",
+    "name": "hyperbolic geometry"
   }
 ]

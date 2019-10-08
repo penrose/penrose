@@ -13,10 +13,10 @@ theta := AngleBetween(a, b)
 Triangle t
 t := MkTriangleP(p, r, s)
 
--- Ray w
--- w := Bisector(theta)
+Ray w
+w := Bisector(theta)
 
--- Ray h
--- h := PerpendicularBisector(a)
+Ray h
+h := PerpendicularBisector(a)
 
 AutoLabel All
