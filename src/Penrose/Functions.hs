@@ -909,21 +909,26 @@ perpY [GPI l@("Line", _), Val (FloatV baseX), Val (FloatV baseY), Val (FloatV le
   let (start, end) = (getPoint "start" l, getPoint "end" l)
   in Val $ FloatV $ snd $ perp start end (baseX, baseY) len
 
-perpPath :: ConstCompFn
-perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (FloatV size)] -- Euclidean
- =
-  let (startR, endR) = (getPoint "start" r, getPoint "end" r)
-      (startL, endL) = (getPoint "start" l, getPoint "end" l)
-      dirR = normalize' $ endR -: startR
+-- Given two orthogonal segments that intersect at startR (or startL, should be the same point)
+-- and a size, make three points that describe a perpendicular mark at the angle where the segments intersect.
+perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
+perpPathFlat size (startR, endR) (startL, endL) =
+  let dirR = normalize' $ endR -: startR
       dirL = normalize' $ endL -: startL
       ptL = startR +: (size *: dirL)
       ptR = startR +: (size *: dirR)
       ptLR = startR +: (size *: dirL) +: (size *: dirR)
-             -- TODO: clean up this code
+  in (ptL, ptLR, ptR)
+
+perpPath :: ConstCompFn
+perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (FloatV size)] = -- Euclidean
+  let seg1 = (getPoint "start" r, getPoint "end" r)
+      seg2 = (getPoint "start" l, getPoint "end" l)
+      (ptL, ptLR, ptR) = perpPathFlat size seg1 seg2
       path = Open $ [Pt ptL, Pt ptLR, Pt ptR]
   in Val $ PathDataV [path]
-perpPath [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] -- Spherical
- =
+
+perpPath [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] = -- Spherical
   let (p', q') = (normalize p, normalize q)
              -- TODO: cache these calculations bc they're recomputed many times in Ray, Triangle, etc.
       (e1, e2) = (p', normalize (p' `cross` q')) -- e2 is normal to (e1, e3)
@@ -1214,9 +1219,15 @@ slerpHyp [Val (ListV a), Val (ListV b), Val (IntV n)] =
          -- "\ndot results: " ++ -- show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
          pts
 
+toDiskAndScreen' :: Autofloat a => a -> [a] -> (a,a)
+toDiskAndScreen' c pt = tuplify2 $ diskToScreen' c $ toDisk' pt
+
+pathToDiskAndScreen' :: Autofloat a => [[a]] -> a -> [(a,a)]
+pathToDiskAndScreen' hypPath c = map (toDiskAndScreen' c) hypPath 
+
 pathToDiskAndScreen :: ConstCompFn
 pathToDiskAndScreen [Val (LListV hypPath), Val (FloatV c)] =
-   Val $ PtListV $ map (\v -> tuplify2 $ diskToScreen' c $ toDisk' v) hypPath 
+   Val $ PtListV $ pathToDiskAndScreen' hypPath c
 
 halfwayPointHyp :: ConstCompFn
 halfwayPointHyp [Val (ListV a), Val (ListV b)] =
@@ -1309,9 +1320,11 @@ angleBisectorHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLe
         rayHead = hypPtInPlane p tangentVec arcLen
     in Val $ ListV rayHead
 
+-- Conclusion: this isn't quite able to draw a square on the hyperboloid. Not sure why.
+
 -- {p,q} is the segment that ray {tailv, headv} bisects (the head sticks out). Draw the mark with length arcLen
-perpPathHyp :: ConstCompFn
-perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] =
+perpPathHyp_old :: ConstCompFn
+perpPathHyp_old [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] =
   let (a, b, c) = (headv, tailv, p) -- the angle ABC that is a right angle
       (tq, tr, e1, e2, e3, theta) = tangentsAndBasis a b c arcLen
       -- TODO: do we want to draw this ON the hyperboloid? How would you draw a right angle on it?
@@ -1325,13 +1338,42 @@ perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv),
       pt_BA_n = normalizeLor (b `cross` a) -- TODO: check these `n`s point in right direction
       pt_BC_n = normalizeLor (c `cross` b)
 
-      corner_BA = hypPtInPlane pt_BA pt_BA_n arcLen
+      corner_BA = hypPtInPlane pt_BA pt_BA_n arcLen -- Not used
       corner_BC = hypPtInPlane pt_BC pt_BC_n arcLen -- This should be the same as corner_BA
 
+      -- Draw geodesics out of both normal directions. But we don't know when they intersect, so just use a longer arcLen.
+      n = 100
+      corner_BA_path = hlerp (fromIntegral n) 0.0 (arcLen) pt_BA pt_BA_n
+      corner_BC_path = hlerp (fromIntegral n) 0.0 (arcLen) pt_BC pt_BC_n
+
       -- TODO: we could draw the geodesics (not just the straight lines), but it seems like they don't actually meet at the same corner?
-      path = [pt_BA, corner_BA, corner_BC, pt_BC]
+      -- path = [pt_BA, corner_BA, corner_BC, pt_BC]
+      path = pt_BA : corner_BA_path ++ (reverse corner_BC_path) ++ [pt_BC]
 
   in Val $ LListV $ trace ("\n[pt_BA, corner_BA, corner_BC, pt_BC]: \n" ++ show path) path
+
+-- {p,q} is the segment that ray {tailv, headv} bisects (the head sticks out). Draw the mark with length arcLen
+-- Note this is *already* in screen space!
+perpPathHyp :: ConstCompFn
+perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen), Val (FloatV hypArcLen), Val (FloatV toScreen)] =
+
+  let (a, b, c) = (headv, tailv, p) -- the angle ABC that is a right angle
+      -- Walk along BA toward A
+      pt_BA = hwalk b a hypArcLen
+      -- Walk the same length along BC toward C
+      pt_BC = hwalk b c hypArcLen
+ 
+      -- Draw the perpendicular mark in *screen space*
+      (b', pt_BA', pt_BC') = app3 (toDiskAndScreen' toScreen) (b, pt_BA, pt_BC)
+
+      -- Constuct a square with side len |first path_BA - last path_BA| whose corner is diagonal from B in the BA*BC direction
+      -- TODO: the segments aren't quite orthogonal, so this doesn't quite work; ptL and ptR don't quite lie on the geodesics
+      seg1 = (b', pt_BA')
+      seg2 = (b', pt_BC')
+      (ptL, ptLR, ptR) = perpPathFlat arcLen seg1 seg2 -- Note we use the screenspace length (arcLen) not the hypArcLen
+ 
+  in Val $ PtListV [ptL, ptLR, ptR]
+     -- [pt_BA', ptLR, pt_BC']
 
 --------------------------------------------------------------------------------
 -- Objective Functions

@@ -519,6 +519,7 @@ hypPtInPlane :: Autofloat a => [a] -> [a] -> a -> [a]
 hypPtInPlane e1 e2 d = cosh d *. e1 +. sinh d *. e2
 
 -- Walk a distance d along the geodesic from p to q (in that direction)
+-- p and q lie on the hyperboloid (are NOT tangent vectors)
 hwalk :: Autofloat a => [a] -> [a] -> a -> [a]
 hwalk p q d = let e1 = p
                   e2 = gramSchmidtHyp e1 q
