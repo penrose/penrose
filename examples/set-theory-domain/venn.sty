@@ -33,7 +33,7 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.containFn = ensure contains(y.shape, x.shape)
+    LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
     LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
     LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
     LOCAL.layering  = x.shape above y.shape
