@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 877.51 921.88">
+  <defs>
+    <linearGradient id="linear-gradient" x1="216.6" y1="131.26" x2="998.5" y2="1461.87" gradientUnits="userSpaceOnUse">
+      <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"/>
+      <stop offset="0.16" stop-color="#d7d7d7" stop-opacity="0.03"/>
+      <stop offset="0.48" stop-color="#8f8f8f" stop-opacity="0.56"/>
+      <stop offset="0.73" stop-color="#626262" stop-opacity="0.88"/>
+      <stop offset="0.88" stop-color="#525252"/>
+    </linearGradient>
+    <radialGradient id="radial-gradient" cx="439.72" cy="510.96" r="424.57" gradientUnits="userSpaceOnUse">
+      <stop offset="0.14" stop-color="#dbdbdb"/>
+      <stop offset="0.27" stop-color="#c9c9c9" stop-opacity="0.9"/>
+      <stop offset="0.55" stop-color="#9c9c9c" stop-opacity="0.66"/>
+      <stop offset="0.72" stop-color="gray" stop-opacity="0.5"/>
+      <stop offset="0.76" stop-color="#8c8c8c" stop-opacity="0.55"/>
+      <stop offset="0.83" stop-color="#adadad" stop-opacity="0.68"/>
+      <stop offset="0.94" stop-color="#e0e0e0" stop-opacity="0.88"/>
+      <stop offset="1" stop-color="#fff"/>
+    </radialGradient>
+    <radialGradient id="radial-gradient-2" cx="388.77" cy="378.93" fx="227.19844299493337" fy="199.3018850052363" r="571.68" gradientUnits="userSpaceOnUse">
+      <stop offset="0.14" stop-color="#dbdbdb"/>
+      <stop offset="0.29" stop-color="#bdbdbd"/>
+      <stop offset="0.6" stop-color="#707070"/>
+      <stop offset="0.72" stop-color="#525252"/>
+      <stop offset="0.76" stop-color="#656565"/>
+      <stop offset="0.84" stop-color="#959595"/>
+      <stop offset="0.96" stop-color="#e2e2e2"/>
+      <stop offset="1" stop-color="#fff"/>
+    </radialGradient>
+  </defs>
+  <title>shape-with-shadows</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="Layer_1-2" data-name="Layer 1">
+      <g>
+        <ellipse cx="439.72" cy="510.96" rx="437.29" ry="410.42" stroke-miterlimit="10" fill="url(#linear-gradient)" stroke="url(#radial-gradient)"/>
+        <circle cx="414.78" cy="414.78" r="414.78" fill="url(#radial-gradient-2)"/>
+      </g>
+    </g>
+  </g>
+</svg>

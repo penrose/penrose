@@ -188,9 +188,10 @@ export const collectLabels = async (allShapes: any[]) => {
           obj.string.contents,
           obj.name.contents
         );
+        // Instead of directly overwriting the properties, cache them temporarily and let `propogateUpdate` decide what to do
         const obj2 = { ...obj };
-        obj2.w.contents = width;
-        obj2.h.contents = height;
+        obj2.w.updated = width;
+        obj2.h.updated = height;
         // console.log(body, obj2);
         // Add omit: true flag so it doesn't get sent to the server
         obj2.rendered = { contents: body, omit: true };
