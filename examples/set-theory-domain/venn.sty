@@ -4,11 +4,12 @@ Set x {
     }
 
     x.shading = Image {
-        centerX : x.shape.x
-        centerY : x.shape.y
-        lengthX : x.shape.r * 2.0
-        lengthY : x.shape.r * 2.0
-        path : "shading.svg"
+        centerX : x.shape.x + 0.03 * x.shading.lengthX
+        centerY : x.shape.y - 0.051 * x.shading.lengthY
+        lengthX : x.shape.r * 2.15
+        lengthY : x.shape.r * 2.22
+        -- path : "shading.svg"
+        path : "shading-with-shadows.svg"
     }
 
     -- x.shape.color = setOpacity(x.shape.color, 0.4)
@@ -33,7 +34,7 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
+    LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
     LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
     LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
     LOCAL.layering  = x.shape above y.shape
