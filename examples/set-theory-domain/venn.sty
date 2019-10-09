@@ -3,8 +3,19 @@ Set x {
         strokeWidth : 0
     }
 
+    x.shading = Image {
+        centerX : x.shape.x
+        centerY : x.shape.y
+        lengthX : x.shape.r * 2.0
+        lengthY : x.shape.r * 2.0
+        path : "shading.svg"
+    }
+
+    -- x.shape.color = setOpacity(x.shape.color, 0.4)
+
     x.text = Text {
         string : x.label
+        color: rgba(1.0, 1.0, 1.0, 1.0)
     }
 
     x.labelFn = ensure contains(x.shape, x.text)
@@ -12,6 +23,7 @@ Set x {
     x.maxSizeFn = ensure maxSize(x.shape)
     x.labelPosFn = encourage sameCenter(x.text, x.shape)
     LOCAL.layering  = x.shape below x.text
+    LOCAL.shadeLayering  = x.shading below x.shape
 }
 
 -- Set x {
@@ -26,6 +38,7 @@ where IsSubset(x, y) {
     LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
     LOCAL.layering  = x.shape above y.shape
     LOCAL.layering1  = y.text below x.shape
+    LOCAL.layering2  = x.shading above y.shape
 }
 
 Set x; Set y
