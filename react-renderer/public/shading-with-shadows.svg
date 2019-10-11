@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 877.01 921.38">
+  <defs>
+    <linearGradient id="linear-gradient" x1="216.6" y1="131.26" x2="998.5" y2="1461.87" gradientUnits="userSpaceOnUse">
+      <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"/>
+      <stop offset="0.88"/>
+    </linearGradient>
+    <radialGradient id="radial-gradient" cx="388.77" cy="378.93" fx="226.6996254989069" fy="145.98382705296297" r="671.48" gradientUnits="userSpaceOnUse">
+      <stop offset="0.15" stop-color="#dbdbdb"/>
+      <stop offset="0.37" stop-color="#a1a1a1"/>
+      <stop offset="0.65" stop-color="#525252"/>
+      <stop offset="0.7" stop-color="#656565"/>
+      <stop offset="0.8" stop-color="#959595"/>
+      <stop offset="0.95" stop-color="#e2e2e2"/>
+      <stop offset="1" stop-color="#fff"/>
+    </radialGradient>
+  </defs>
+  <title>shading-with-shadows</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="Layer_1-2" data-name="Layer 1">
+      <ellipse cx="439.72" cy="510.96" rx="437.29" ry="410.42" opacity="0.3" fill="url(#linear-gradient)"/>
+      <circle cx="414.78" cy="414.78" r="414.78" fill="url(#radial-gradient)"/>
+    </g>
+  </g>
+</svg>
