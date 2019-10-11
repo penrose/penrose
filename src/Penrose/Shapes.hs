@@ -869,6 +869,7 @@ imageType =
       , ("lengthX", (FloatT, width_sampler))
       , ("lengthY", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
+      , ("opacity", (FloatT, constValue $ FloatV 1.0))
       , ("style", (StrT, constValue $ StrV "none"))
       , ("stroke", (StrT, constValue $ StrV "none"))
       , ("path", (StrT, constValue $ StrV "missing image path")) -- Absolute path (URL)

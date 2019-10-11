@@ -161,6 +161,7 @@ compDict =
     , ("min", constComp min')
     , ("max", constComp max')
     , ("pathFromPoints", constComp pathFromPoints)
+    , ("polygonFromPoints", constComp polygonFromPoints)
     , ("join", constComp joinPath)
     , ("dot", constComp dotFn)
     , ("angle", constComp angleFn)
@@ -1167,6 +1168,11 @@ pathFromPoints [Val (PtListV pts)] =
   let path = Open $ map Pt pts
   in Val $ PathDataV [path]
 
+polygonFromPoints :: ConstCompFn
+polygonFromPoints [Val (PtListV pts)] =
+  let path = Closed $ map Pt pts
+  in Val $ PathDataV [path]
+
 joinPath :: ConstCompFn
 joinPath [Val (PtListV pq), Val (PtListV qr), Val (PtListV rp)] =
   let path = Closed $ map Pt $ pq ++ qr ++ rp
@@ -1217,9 +1223,9 @@ slerpHyp [Val (ListV a), Val (ListV b), Val (IntV n)] =
              d = hypDist a b
              pts = hlerp (fromIntegral n) 0.0 d e1 e2
          in Val $ LListV $ 
-         trace
-         ("\n(a, b, d): " ++ show (a, b, d) ++ "\npts: " ++ show pts ++
-          "\n(e1, e2): " ++ show (e1, e2))
+         -- trace
+         -- ("\n(a, b, d): " ++ show (a, b, d) ++ "\npts: " ++ show pts ++
+         --  "\n(e1, e2): " ++ show (e1, e2))
          -- "\ndot results: " ++ -- show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
          pts
 
@@ -1282,6 +1288,7 @@ tangentsAndBasis p q r arcLen =
   in (tq, tr, e1, e2, e3, theta)
 
 -- Angle where P is the central point (qpr or rpq), moving from q to r
+-- Including the paths to the arc endpoints so we can draw a wedge
 arcPathHyp :: ConstCompFn
 arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] = 
   let (tq, tr, e1, e2, e3, theta) = tangentsAndBasis p q r arcLen
@@ -1295,21 +1302,28 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
       tangentVecs = map (circPtInPlane e1 e2) thetas
       -- And then you just walk in that direction from p along the hyperbolic geodesic
       -- And connect up all those geodesic points to yield an arc on the hyperboloid
-      arcPoints = map (\tangentVec -> hypPtInPlane p tangentVec arcLen) tangentVecs
-      -- TODO: check that the first and last points on the arcpath are q and r
+      -- From (arclen along q) to (arclen along r)
+      arcPoints_qr = map (\tangentVec -> hypPtInPlane p tangentVec arcLen) tangentVecs 
+      -- Geodesic from p in the direction of q
+      arcLeg_pq = hFromTo p (arcPoints_qr !! 0)
+      -- Geodesic from p in the direction of r
+      arcLeg_rp = hFromTo (last arcPoints_qr) p
+      arcWedgePath = arcLeg_pq ++ arcPoints_qr ++ arcLeg_rp
+      -- NOTE: we include p (which doesn't lie on the arc path) so we can draw a filled arc mark
   in Val $ LListV $
-     trace ("\n(p, q, r): " ++ show (p, q, r) ++
-           "\n(|p|^2, |q|^2, |r|^2): " ++ show (normsqLor p, normsqLor q, normsqLor r) ++
-           "\n(tq, tr): " ++ show (tq,tr) ++
-           "\n(|tq|^2, |tr|^2): " ++ show (normsqLor tq, normsqLor tr) ++
-           "\n(tq dotLor tr): " ++ show (tq `dotLor` tr) ++
-           "\ndot results: " ++ show [ei `dotLor` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
-            "\ntheta: " ++ show theta ++
-            "\n(e1, e2): " ++ show (e1,e2) ++
-            "\n\nthetas: " ++ show thetas ++
-            "\n\ntangentVecs: " ++ show tangentVecs ++
-            "\n\narcPoints: " ++ show arcPoints)
-     arcPoints
+     -- trace ("\n(p, q, r): " ++ show (p, q, r) ++
+     --       "\n(|p|^2, |q|^2, |r|^2): " ++ show (normsqLor p, normsqLor q, normsqLor r) ++
+     --       "\n(tq, tr): " ++ show (tq,tr) ++
+     --       "\n(|tq|^2, |tr|^2): " ++ show (normsqLor tq, normsqLor tr) ++
+     --       "\n(tq dotLor tr): " ++ show (tq `dotLor` tr) ++
+     --       "\ndot results: " ++ show [ei `dotLor` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
+     --        "\ntheta: " ++ show theta ++
+     --        "\n(e1, e2): " ++ show (e1,e2) ++
+     --        "\n\nthetas: " ++ show thetas ++
+     --        "\n\ntangentVecs: " ++ show tangentVecs ++
+     --        "\n\narcPoints: " ++ show arcPoints_qr ++
+     --        "\n\narcWedgePath: " ++ show arcWedgePath)
+     arcWedgePath
 
 -- Angle where P is the central point (qpr or rpq)
 -- For angle QPR, calculate that angle, 
@@ -1354,7 +1368,9 @@ perpPathHyp_old [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV hea
       -- path = [pt_BA, corner_BA, corner_BC, pt_BC]
       path = pt_BA : corner_BA_path ++ (reverse corner_BC_path) ++ [pt_BC]
 
-  in Val $ LListV $ trace ("\n[pt_BA, corner_BA, corner_BC, pt_BC]: \n" ++ show path) path
+  in Val $ LListV $ 
+     -- trace ("\n[pt_BA, corner_BA, corner_BC, pt_BC]: \n" ++ show path) 
+     path
 
 -- {p,q} is the segment that ray {tailv, headv} bisects (the head sticks out). Draw the mark with length arcLen
 -- Note this is *already* in screen space!
@@ -1376,7 +1392,7 @@ perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv),
       seg2 = (b', pt_BC')
       (ptL, ptLR, ptR) = perpPathFlat arcLen seg1 seg2 -- Note we use the screenspace length (arcLen) not the hypArcLen
  
-  in Val $ PtListV [ptL, ptLR, ptR]
+  in Val $ PtListV [ptL, ptLR, ptR, b'] -- b' so the path can be closed
      -- [pt_BA', ptLR, pt_BC']
 
 --------------------------------------------------------------------------------

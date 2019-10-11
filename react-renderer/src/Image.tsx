@@ -14,12 +14,14 @@ class Image extends React.Component<IGPIPropsDraggable> {
     );
     const [lengthX, lengthY] = [shape.lengthX.contents, shape.lengthY.contents];
     const path = shape.path.contents;
+    const opacity = shape.opacity.contents;
 
     return (
       <image
         href={process.env.PUBLIC_URL + path}
         x={x - lengthX / 2}
         y={y - lengthY / 2}
+        opacity={opacity}
         width={lengthX}
         height={lengthY}
         onMouseDown={onClick}

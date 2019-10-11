@@ -5,7 +5,9 @@ Colors {
     Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
     Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
     Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+    Colors.lightpink = rgba(0.90, 0.90, 1.0, 1.0)
 
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
     Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
     Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
@@ -26,20 +28,36 @@ G {
   G.two_pi = 6.28319
   G.toScreen = 200.0 -- Math space to screen space
   G.rayLen = 2.5
+  G.arrowheadSize = 0.75
 
   -- Poincare disk: Unit disk at the origin
   G.diskRadius = 1.0
   G.maxVal = 15.0 -- So the points don't look too much like ideal points
-  G.maxValNorm = 10.0 -- So the points don't look too much like ideal points
+  G.maxValNorm = 20.0 -- So the points don't look too much like ideal points
 
+  -- TODO: It would be nice to be able to specify that the disk goes underneath everything
   G.disk = Circle {
   	 x : 0.0
 	 y : 0.0
 	 r : G.toScreen * G.diskRadius
+	 -- color : Colors.lightpink
 	 color : setOpacity(Colors.blue, 0.1)
 	 strokeWidth : 1.0
 	 strokeColor : Colors.black
   }
+
+  -- https://commons.wikimedia.org/wiki/File:Ideal-triangle_hyperbolic_tiling.svg
+  G.shading = Image {
+	 centerX : G.disk.x
+	 centerY : G.disk.y
+	 lengthX : G.disk.r * 2.0
+	 lengthY : G.disk.r * 2.0
+	 rotation: 0.0
+	 path : "ideal_triangle_hyperbolic_tiling.svg"
+	 opacity : 0.07
+  }
+
+  G.textureLayering = G.shading below G.disk
 }
 
 Point p {
@@ -80,6 +98,7 @@ Point p {
 
       -- p.labelFn = encourage near(p.shape, p.text, G.padding)
       p.layering = p.shape above G.disk
+      p.textLayering = p.text above G.disk
 }
 
 -- Some test points on the hyperboloid
@@ -123,10 +142,12 @@ with Point p; Point q {
 
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
+     e.layering3 = e.shape above G.disk
 }
 
 Ray r {
     r.length = 100.0
+    r.layeringDisk = r.shape above G.disk
 }
 
 -- Maybe it would make more sense to make the triangle from the segments that have already been made.
@@ -150,6 +171,8 @@ with Point p; Point q; Point r {
 	     color : Colors.none
 	     rotation : 0.0
      }
+
+     t.layering = t.shape above G.disk
 }
 
 Ray r
@@ -169,6 +192,7 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
 	      color : Colors.midnightblue
 	      rotation : 0.0
 	      rightArrowhead : True
+	      arrowheadSize : G.arrowheadSize
       }
 
       -- Note this draws a mark in (flat) screen space because it's hard to draw a mark on the hyperboloid. 
@@ -178,11 +202,15 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
       r.perpmark_screenspacePath = perpPathHyp(p.vec_math, q.vec_math, r.tail_vec_math, r.head_vec_math, r.perpArcLen, r.hypArcLen, G.toScreen)
 
       r.perpMark = Curve {
-      	      pathData : pathFromPoints(r.perpmark_screenspacePath)
+      	      pathData : polygonFromPoints(r.perpmark_screenspacePath) -- For the fill
 	      strokeWidth : 1.5
 	      color : Colors.lightslategray
-	      fill : Colors.none
+	      fill : Colors.white
       }
+
+      r.markLayering1 = r.perpMark below s.shape
+      r.markLayering2 = r.perpMark below r.shape
+      r.markLayering3 = r.perpMark above G.disk
 }
 
 Point p
@@ -201,11 +229,15 @@ with Segment a; Segment b; Point p; Point q; Point r {
      theta.arcPath_screenspace = pathToDiskAndScreen(theta.arcPath, G.toScreen)
 
      theta.shape = Curve {
-     		 pathData : pathFromPoints(theta.arcPath_screenspace)
+     		 pathData : polygonFromPoints(theta.arcPath_screenspace)
 		 strokeWidth : 1.5
 		 color : Colors.lightslategray
-		 fill : Colors.none
+		 fill : Colors.white
      }
+
+     theta.layering1 = theta.shape above G.disk
+     theta.layering2 = theta.shape below a.shape
+     theta.layering3 = theta.shape below b.shape
 }
 
 Ray r
@@ -228,7 +260,9 @@ where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b
 	      color : Colors.midnightblue
 	      rotation : 0.0
 	      rightArrowhead : True
+	      arrowheadSize : G.arrowheadSize
       }
 
       -- TODO: make two angle bisector marks
+      r.layeringArc = r.shape above theta.shape
 }

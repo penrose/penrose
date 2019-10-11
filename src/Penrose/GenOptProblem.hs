@@ -440,7 +440,7 @@ shapes2floats shapes varyMap varyingPaths = reverse $ foldl' (lookupPathFloat sh
 -- (use whatever they are initialized to in Shapes or set to in Style)
 unoptimizedFloatProperties :: [String]
 unoptimizedFloatProperties = ["rotation", "strokeWidth", "thickness", 
-                              "transform", "transformation"]
+                              "transform", "transformation", "opacity"]
 
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying

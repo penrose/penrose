@@ -508,7 +508,8 @@ gramSchmidtHyp :: (Autofloat a) => [a] -> [a] -> [a]
 gramSchmidtHyp a b =
                let proj_b_a = (a `dotLor` b) *. a
                    basis = b +. proj_b_a
-               in trace ("\nbasis: " ++ show basis) $ normalizeLor basis
+               in -- trace ("\nbasis: " ++ show basis) $ 
+                  normalizeLor basis
 
 hypDist :: (Autofloat a) => [a] -> [a] -> a
 hypDist p q = acosh (-1 * (p `dotLor` q))
@@ -517,6 +518,15 @@ hypDist p q = acosh (-1 * (p `dotLor` q))
 -- Note that `d` is hyperbolic distance, NOT time
 hypPtInPlane :: Autofloat a => [a] -> [a] -> a -> [a]
 hypPtInPlane e1 e2 d = cosh d *. e1 +. sinh d *. e2
+
+-- Walk the path from p to q
+-- p and q lie on the hyperboloid (are NOT tangent vectors)
+hFromTo :: Autofloat a => [a] -> [a] -> [[a]]
+hFromTo p q = let e1 = p
+                  e2 = gramSchmidtHyp e1 q
+                  n = 50
+              -- in hypPtInPlane e1 e2 (hypDist p q)
+              in hlerp n 0 (hypDist p q) e1 e2
 
 -- Walk a distance d along the geodesic from p to q (in that direction)
 -- p and q lie on the hyperboloid (are NOT tangent vectors)
