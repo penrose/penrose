@@ -4,7 +4,7 @@
 <svg
     xmlns="http://www.w3.org/2000/svg" version="1.1"
     xmlns:xlink="http://www.w3.org/1999/xlink"
-    width='800.0' height='800.0'>
+    width='800.0' height='800.0' viewBox="0 0 800 800" opacity="0.07">
 <title>Ideal-triangle hyperbolic tiling</title>
 
 <!--
