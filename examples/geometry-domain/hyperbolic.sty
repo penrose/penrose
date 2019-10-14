@@ -175,8 +175,8 @@ with Point p; Point q; Point r {
 }
 
 Ray r
-with Segment s; Point p; Point q
-where r := PerpendicularBisector(s); s := MkSegment(p, q) {
+with Segment s; Point p; Point q; Point m
+where r := PerpendicularBisector(s); s := MkSegment(p, q); m := Midpoint(s) {
       r.rayDist = G.rayLen -- TODO: what's the right length to use here?
       r.tail_vec_math = halfwayPointHyp(p.vec_math, q.vec_math) -- The part w/o arrow, TODO
       r.head_vec_math = normalOnHyp(p.vec_math, q.vec_math, r.tail_vec_math, r.rayDist) -- TODO
@@ -210,6 +210,10 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
       r.markLayering1 = r.perpMark below s.shape
       r.markLayering2 = r.perpMark below r.shape
       r.markLayering3 = r.perpMark above G.disk
+      r.markLayering4 = r.perpMark below p.shape
+      r.markLayering5 = r.perpMark below q.shape
+      r.markLayering6 = r.perpMark below r.shape
+      r.markLayering7 = r.perpMark below m.shape
 }
 
 Point p
@@ -218,10 +222,9 @@ with Segment s; Point a; Point b {
      override p.vec_math = halfwayPointHyp(a.vec_math, b.vec_math)
 }
 
--- Assuming the segments share a point
-Angle theta
-where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
-with Segment a; Segment b; Point p; Point q; Point r {
+Angle theta -- Angle QPR (i.e. the vertex point is p)
+where theta := AngleBetween(q, p, r)
+with Point p; Point q; Point r {
 
      theta.radius = G.pi / 3.0 -- TODO: should this depend on distance from the center?
      theta.arcPath = arcPathHyp(p.vec_math, q.vec_math, r.vec_math, theta.radius)
@@ -235,13 +238,14 @@ with Segment a; Segment b; Point p; Point q; Point r {
      }
 
      theta.layering1 = theta.shape above G.disk
-     theta.layering2 = theta.shape below a.shape
-     theta.layering3 = theta.shape below b.shape
+     theta.layering2 = theta.shape below p.shape
+     theta.layering3 = theta.shape below q.shape
+     theta.layering4 = theta.shape below r.shape
 }
 
 Ray r
-with Angle theta; Segment a; Segment b; Point x; Point y; Point z
-where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b := MkSegment(x, z) {
+with Angle theta; Point x; Point y; Point z
+where r := Bisector(theta); theta := AngleBetween(y, x, z) {
 
       -- TODO: note that there's a decent amount of code shared between here and the PerpendicularBisector selector
       -- Move some into the basic Ray selector?

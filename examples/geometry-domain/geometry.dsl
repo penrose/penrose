@@ -20,12 +20,14 @@ Segment <: Linelike
 
 -- TODO: optional naming for constructors
 
+-- TODO: rename to MakeSegment and MakeTriangle (etc.) everywhere
 constructor Intersection : Linelike l * Linelike m -> Point
 constructor MkSegment : Point p * Point q -> Segment
 constructor MkRay : Point base * Point direction -> Ray
 constructor MkLine : Point p * Point q -> Point
 
-constructor AngleBetween : Linelike l * Linelike m -> Angle
+-- constructor AngleBetween : Linelike l * Linelike m -> Angle
+constructor AngleBetween : Point p * Point q * Point r -> Angle
 constructor TriangleVertex : Point p * Point q * Point r -> Angle
 
 constructor MkTriangleP : Point p * Point q * Point r -> Triangle
@@ -51,5 +53,5 @@ predicate RightT : Triangle
 predicate Scalene : Triangle
 predicate Similar : Triangle * Triangle
 
--- TODO: syntactic sugar
--- notation "det(v1, v2)" ~ "determinant(v1 , v2)"
+notation "{p, q}" ~ "MkSegment(p, q)"
+notation "{p, q, r}" ~ "MkTriangleP(p, q, r)"
