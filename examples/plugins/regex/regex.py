@@ -1,5 +1,4 @@
 '''
-- Assumes only one scene
 - Assumes only one DiffuseObject
 - Assumes only one path sample
 - Generates exactly as many objects as vertices
@@ -73,7 +72,7 @@ def genSubstance():
                 else:
                     exit('unrecognized vertex type {0} when generating scene obj'.format(type))
                 res += line
-                res += 'InOS({0}, {1})\n'.format(id, path['scene'])
+                # res += 'InOS({0}, {1})\n'.format(id, path['scene'])
                 path['objects'].append((type, id))
 
         # Generate hits
@@ -141,7 +140,7 @@ def process(json):
     for obj in substance['objects']:
         type = obj['objType']
         name = obj['objName']
-        if type == 'Path':
+        if type == 'PathType':
             paths[name] = { 'samples': [] }
 
     # Go through predicates
@@ -149,10 +148,10 @@ def process(json):
         name = pred['pname']
         if name == 'HasForm':
             pathName, form = pred['pargNames']
-            paths[pathName]['form'] = valueOf(substance, form)
-        elif name == 'SceneSatisfies':
-            sceneId, pathId = pred['pargNames']
-            paths[pathId]['scene'] = sceneId
+            paths[pathName]['form'] = form
+        # elif name == 'SceneSatisfies':
+        #     sceneId, pathId = pred['pargNames']
+        #     paths[pathId]['scene'] = sceneId
 
     # Go through functions
     for func in substance['constraints']['functions']:

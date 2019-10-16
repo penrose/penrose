@@ -1,17 +1,9 @@
-Scene S
-Path p
-In(p, S)
+PathType t
 
-String s
--- s := "LS+S+E"
-s := "L(D|S)S*E"
+HasForm(t, "L(D|S)S*E")
 
-HasForm(p, s)
-
-PathSample p1
-p1 := Sample(p)
-
-SceneSatisfies(S, p)
+Path p1
+p1 := Sample(t)
 
 AutoLabel All
 

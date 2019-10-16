@@ -4,6 +4,18 @@ global {
     global.padding = 5.0 
     global.CANVAS_WIDTH = 250.0
     global.CANVAS_HEIGHT = 250.0
+
+    global.container = Rectangle {
+        x : ?
+        y : ?
+        sizeX : global.CANVAS_WIDTH
+        sizeY : global.CANVAS_HEIGHT
+        color   : Colors.none
+        strokeColor : Colors.black
+        strokeWidth : 1.5
+    }
+    global.minSizeFn = ensure minSize(global.container)
+    global.maxSizeFn = ensure maxSize(global.container)
 }
 
 
@@ -30,38 +42,17 @@ Colors {
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
-Scene s {
-    -- ? fields to be shared with diffuse obj
-    s.x = ?
-    s.y = ?
-    s.sizeX = global.CANVAS_WIDTH
-    s.sizeY = global.CANVAS_HEIGHT
 
-    s.container = Rectangle {
-        x : s.x
-        y : s.y
-        sizeX : s.sizeX
-        sizeY : s.sizeY
-        color   : Colors.none
-        strokeColor : Colors.black
-        strokeWidth : 1.5
-    }
-    s.minSizeFn = ensure minSize(s.container)
-    s.maxSizeFn = ensure maxSize(s.container)
-}
-
-DiffuseObject d
-where InOS(d, s) with Scene s {
+DiffuseObject d {
     d.shape = Rectangle {
         angle  : 0
         color   : Colors.none
         strokeColor : Colors.black
         strokeWidth : 1.5
-        -- optimize height, width, location
-        x : s.x
-        y : s.y
-        sizeX : s.sizeX
-        sizeY : s.sizeY
+        x : global.container.x
+        y : global.container.y
+        sizeX : global.container.sizeX
+        sizeY : global.container.sizeY
     }
     d.layering = d.shape above s.container
 }
@@ -116,30 +107,28 @@ Camera c {
 }
 
 -- applies to all scene geometries
-SceneGeometry o
-where InOS(o, s) with Scene s {
-    o.containFn = ensure contains(s.container, o.shape)
-    o.layering  = o.shape above s.container
+SceneGeometry o {
+    o.containFn = ensure contains(global.container, o.shape)
+    o.layering  = o.shape above global.container
 }
 
 -- HACK: to make diffuse room below everybody
-DiffuseObject d
-where InOS(d, s) with Scene s {
-    d.layering = d.shape below s.container
+DiffuseObject d {
+    d.layering = d.shape below global.container
 }
 
-PathVertex v; PathSample ps
+PathVertex v; Path ps
 where InVP(v, p); OnLight(v); e:= CreateEdge(v, v0)
-with PathVertex v0; PathEdge e; Path p; LightSource L {
+with PathVertex v0; PathEdge e; PathType p; LightSource L {
     LOCAL.angle = atan2(v0.y - L.shape.y, v0.x - L.shape.x)
     v.x = L.shape.x + cos(LOCAL.angle) * (L.shape.r + global.padding)
     v.y = L.shape.y + sin(LOCAL.angle) * (L.shape.r + global.padding)
 }
 
 -- going into the eye
-PathVertex v; Camera c; PathSample ps
+PathVertex v; Camera c; Path ps
 where InVP(v, p); OnEye(v); e:= CreateEdge(v0, v)
-with PathVertex v0; PathEdge e; Path p {
+with PathVertex v0; PathEdge e; PathType p {
     -- TODO: put the location on E's border
     LOCAL.angle = atan2(v0.y - c.shape.y, v0.x - c.shape.x)
     v.x = c.shape.x + cos(LOCAL.angle) * c.shape.r
@@ -147,24 +136,24 @@ with PathVertex v0; PathEdge e; Path p {
     c.shape.rotation = 180.0 + LOCAL.angle
 }
 
-PathVertex v; PathSample ps
+PathVertex v; Path ps
 where InVP(v, p); Hits(v, o)
-with Path p; SpecularObject o {
+with PathType p; SpecularObject o {
     -- TODO: on border of mirror
     v.x = ?
     v.y = ?
 }
 
-PathVertex v; PathSample ps
+PathVertex v; Path ps
 where InVP(v, p); Hits(v, o)
-with Path p; DiffuseObject o {
+with PathType p; DiffuseObject o {
     -- TODO: exclude corners
     v.x = ?
     v.y = ?
     v.onFn = ensure pointOn(v.x, v.y, o.shape, 0.0)
 }
 
-PathEdge e; PathSample ps
+PathEdge e; Path ps
 where e := CreateEdge(v1, v2)
 with PathVertex v1, v2
 {
@@ -180,7 +169,7 @@ with PathVertex v1, v2
      }
 }
 
-PathEdge e1; PathEdge e2; PathSample ps
+PathEdge e1; PathEdge e2; Path ps
 where e1 := CreateEdge(v1, v2);
       e2 := CreateEdge(v2, v3);
       IsSpecular(v2);
@@ -223,33 +212,33 @@ with PathVertex v1, v2; IsDiffuse(v1); IsDiffuse(v2)
     -- TODO: make sure the angle is angle is not 0 or 180
 }
 
-Path p; PathSample ps
-where In(p, S) with Scene S {
+Path p; Path ps
+where In(p, S)  {
       -- make path sample color
       -- label path with its string
 }
 
 -- Path vertex with various kinds of bounces
 
-PathVertex v; PathSample ps
+PathVertex v; Path ps
 where InVP(v, p) with Path p {
      -- v.location = (?, ?)
 }
 
--- TODO: work out the pathsample???
+-- TODO: work out the Path???
 
 
 -- Rays
 
 
-PathEdge e; SceneGeometry o; PathSample ps {
+PathEdge e; SceneGeometry o; Path ps {
      -- ray should not intersect scene geometry
 }
 
 -- Do something at bounce point
 
 -- Two edges that share a vertex
-PathEdge e1; PathEdge e2; PathSample ps
+PathEdge e1; PathEdge e2; Path ps
 where InVE(v1, e1); InVE(v2, e1); InVE(v2, e2); InVE(v3, e2);
       Hits(v2, o)
 with PathVertex v1, v2, v3;

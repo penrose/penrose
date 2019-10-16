@@ -95,6 +95,8 @@ tToSchema (E.TConstr typeCtorApp) =
 
 exprToSchema :: Expr -> String
 exprToSchema (VarE (E.VarConst v)) = v
+-- HACK: pass through string literals as it is for now
+exprToSchema (StringLit s) = s
 exprToSchema _ =
   error
     "Cannot convert anonymous expressions in function/val ctor arguments to JSON; must name them first"
