@@ -22,6 +22,7 @@ import           Data.Fixed            (mod')
 import           Data.List             (find, findIndex, maximumBy, nub, sort)
 import qualified Data.Map.Strict       as M
 import           Data.Maybe            (fromMaybe)
+-- import           Data.Colour
 import qualified Data.MultiMap         as MM
 import           Debug.Trace
 import           Penrose.Shapes
@@ -170,6 +171,7 @@ compDict =
     , ("join", constComp joinPath)
     , ("dot", constComp dotFn)
     , ("angle", constComp angleFn)
+    , ("randomColor", randomColor) 
 
         -- Transformations
     , ("rotate", constComp rotate)
@@ -584,6 +586,11 @@ lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
   in let a1_len = abs (getNum a1 "endY" - a1_start)
      in let ypos = a1_start + lineFrac * a1_len
         in Val $ PtListV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
+
+randomColor :: CompFn
+randomColor [] rnd =
+  let ([r, g, b], rnd') = randomsIn rnd 3 (0, 1)
+  in (Val (ColorV $ makeColor' r g b 1.0), rnd')
 
 rgba :: ConstCompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =

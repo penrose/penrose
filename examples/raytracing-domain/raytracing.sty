@@ -1,9 +1,9 @@
-plugin "regexExpander" (250.0, 250.0)
+plugin "regexExpander" (200.0, 200.0)
 
 global { 
     global.padding = 5.0 
-    global.CANVAS_WIDTH = 250.0
-    global.CANVAS_HEIGHT = 250.0
+    global.CANVAS_WIDTH = 200.0
+    global.CANVAS_HEIGHT = 200.0
 
     global.container = Rectangle {
         x : ?
@@ -41,6 +41,25 @@ Colors {
     Colors.lightpink = rgba(0.78, 0.256, 0.53, 0.25)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
+
+PathType t {
+    t.color = randomColor()
+}
+
+/*
+PathType `t1` {
+    `t1`.color = global.color1
+}
+
+PathType `t2` {
+    `t2`.color = global.color2
+}
+
+PathType `t3` {
+    `t3`.color = global.color1
+}
+*/
+
 
 
 DiffuseObject d {
@@ -120,16 +139,18 @@ DiffuseObject d {
 PathVertex v; Path ps
 where InVP(v, p); OnLight(v); e:= CreateEdge(v, v0)
 with PathVertex v0; PathEdge e; PathType p; LightSource L {
-    LOCAL.angle = atan2(v0.y - L.shape.y, v0.x - L.shape.x)
-    v.x = L.shape.x + cos(LOCAL.angle) * (L.shape.r + global.padding)
-    v.y = L.shape.y + sin(LOCAL.angle) * (L.shape.r + global.padding)
+    -- Add padding between arrow and light source
+    -- LOCAL.angle = atan2(v0.y - L.shape.y, v0.x - L.shape.x)
+    -- v.x = L.shape.x + cos(LOCAL.angle) * (L.shape.r) 
+    -- v.y = L.shape.y + sin(LOCAL.angle) * (L.shape.r)
+    v.x = L.shape.x 
+    v.y = L.shape.y 
 }
 
 -- going into the eye
 PathVertex v; Camera c; Path ps
 where InVP(v, p); OnEye(v); e:= CreateEdge(v0, v)
 with PathVertex v0; PathEdge e; PathType p {
-    -- TODO: put the location on E's border
     LOCAL.angle = atan2(v0.y - c.shape.y, v0.x - c.shape.x)
     v.x = c.shape.x + cos(LOCAL.angle) * c.shape.r
     v.y = c.shape.y + sin(LOCAL.angle) * c.shape.r
@@ -153,9 +174,9 @@ with PathType p; DiffuseObject o {
     v.onFn = ensure pointOn(v.x, v.y, o.shape, 0.0)
 }
 
-PathEdge e; Path ps
-where e := CreateEdge(v1, v2)
-with PathVertex v1, v2
+PathEdge e 
+where e := CreateEdge(v1, v2); InVP(v1, t); InVP(v2, t)
+with PathVertex v1, v2; PathType t
 {
      -- draw an arrow from v1's location to v2's location
      e.shape = Arrow {
@@ -163,7 +184,8 @@ with PathVertex v1, v2
          startY : v1.y
          endX   : v2.x
          endY   : v2.y
-         color  : Colors.lightKhaki
+         -- color  : Colors.lightKhaki
+         color  : t.color
          thickness : 1.5
          arrowheadSize: 0.7
      }
@@ -199,6 +221,8 @@ PathEdge e; Camera c {
 SpecularObject o1; SpecularObject o2 {
     LOCAL.disjointFn = ensure disjoint(o1.shape, o2.shape, 10.0)
 }
+
+
 
 
 ---------------------------NON-COMPILABLE CODE----------------------------------

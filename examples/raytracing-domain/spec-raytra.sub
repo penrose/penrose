@@ -1,9 +1,13 @@
-PathType t
+PathType t1, t2, t3
+HasForm(t1, "L(D|S)SE")
+-- HasForm(t1, "LDE")
+HasForm(t2, "LSDE")
+HasForm(t3, "LE")
 
-HasForm(t, "L(D|S)S*E")
-
-Path p1
-p1 := Sample(t)
+Path p1, p2, p3
+p1 := Sample(t1)
+p2 := Sample(t2)
+p3 := Sample(t3)
 
 AutoLabel All
 

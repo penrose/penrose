@@ -14,21 +14,66 @@ from xeger import Xeger   # string generator from regex
 
 
 paths = {}
-# Type: [prefix, count]
-ids = {
-    'PathVertex': ['v', 0],
-    'DiffuseObject': ['d', 0],
-    'SpecularObject': ['s', 0],
-    'LightSource': ['l', 0],
-    'Camera': ['c', 0]
-}
+
 CANVAS_WIDTH = 0
 CANVAS_HEIGHT = 0
 
-def genSubstance():
+class Context:
+    def __init__(self):
+        self._substanceOut = ""
+        # Type: [prefix, count]
+        self._ids = {
+            'PathVertex': ['v', 0],
+            'DiffuseObject': ['d', 0],
+            'SpecularObject': ['s', 0],
+            'LightSource': ['l', 0],
+            'Camera': ['c', 0]
+        }
+
+    def nextDecl(self, type):
+        prefix, count = self._ids[type]
+        id   = prefix + str(count)
+        self.incrementCounter(type)
+        self._substanceOut += type + ' ' + id + '\n'
+        return id
+
+    def incrementCounter(self, type):
+        self._ids[type][1] = self._ids[type][1] + 1
+
+    def edgeDecl(self, v0, v1):
+        id = 'e_' + v0 + '_' + v1
+        self.addLine('PathEdge {0}'.format(id))
+        self.addLine('{0} := CreateEdge({1}, {2})'.format(id, v0, v1))
+
+    def vertexDecl(self, v, path):
+        id = self.nextDecl('PathVertex')
+        if v == 'L':
+            self.addLine('OnLight(' + id + ')')
+            type = 'Light'
+        elif v == 'S':
+            self.addLine('IsSpecular(' + id + ')')
+            type = 'Specular'
+        elif v == 'D':
+            self.addLine('IsDiffuse(' + id + ')')
+            type = 'Diffuse'
+        elif v == 'E':
+            self.addLine('OnEye(' + id + ')')
+            type = 'Eye'
+        else:
+            exit('unrecognized path vertex string: ' + v)
+        self.addLine('InVP({0}, {1})'.format(id, path))
+        return type, id 
+
+    def addLine(self, s):
+        self._substanceOut += s + '\n'
+
+
+def genSubstance(ctx):
     '''Generate a Substance program from the context'''
 
-    res = '' # Substance program to be returned
+    diffuseObject = ctx.nextDecl("DiffuseObject") 
+    eye = ctx.nextDecl("Camera")
+    light = ctx.nextDecl("LightSource")
 
     for path_id, path in paths.iteritems():
 
@@ -41,38 +86,31 @@ def genSubstance():
             vertices = []
             # declare verts
             for v in pathString:
-                type, id, decl = vertexDecl(v, path_id)
-                res += decl
+                type, id = ctx.vertexDecl(v, path_id)
                 vertices.append((type, id))
 
             # declare edges
             vertexIds = [v for typ, v in vertices]
             for v0, v1 in zip(vertexIds, vertexIds[1:]):
-                res += edgeDecl(v0, v1)
+                ctx.edgeDecl(v0, v1)
 
             sample['vertices'] = vertices
 
         if len(path['samples']) > 0:
             # if there are path samples, declare scene objs
             # NOTE: using just the first sample to declare objects
-            diffuseExists = False
             path['objects'] = []
             for type, v in path['samples'][0]['vertices']:
                 if type == 'Diffuse':
-                    if not diffuseExists:
-                        diffuseExists = True
-                        line, id = nextDecl('DiffuseObject')
-                    else: continue
+                    id = diffuseObject
                 elif type == 'Specular':
-                    line, id = nextDecl('SpecularObject')
-                elif type == 'Eye':
-                    line, id = nextDecl('Camera')
-                elif type == 'Light':
-                    line, id = nextDecl('LightSource')
+                    id = ctx.nextDecl('SpecularObject')
+                elif type == 'Eye': 
+                    id = eye
+                elif type == 'Light': 
+                    id = light
                 else:
                     exit('unrecognized vertex type {0} when generating scene obj'.format(type))
-                res += line
-                # res += 'InOS({0}, {1})\n'.format(id, path['scene'])
                 path['objects'].append((type, id))
 
         # Generate hits
@@ -86,9 +124,7 @@ def genSubstance():
                     specularCount = specularCount + 1
                 else:
                     oType, oId = findObj(vType, path['objects']) 
-                res += 'Hits({0}, {1})\n'.format(vId, oId)
-
-    return res
+                ctx.addLine('Hits({0}, {1})'.format(vId, oId))
 
 def valueOf(json, s):
     res = [v['value'] for v in json['values'] if v['name'] == s]
@@ -96,40 +132,6 @@ def valueOf(json, s):
 
 def findObj(vType, objList, idx=0):
     return filter(lambda (t, i): t == vType, objList)[idx]
-
-def nextDecl(type):
-    id   = ids[type][0] + str(ids[type][1])
-    ids[type][1] = ids[type][1] + 1
-    line = type + ' ' + id + '\n'
-    return line, id
-
-def edgeDecl(v0, v1):
-    res = ''
-    id = 'e_' + v0 + '_' + v1
-    res += 'PathEdge {0}\n'.format(id)
-    res += '{0} := CreateEdge({1}, {2})\n'.format(id, v0, v1)
-    return res
-
-def vertexDecl(v, path):
-    line, id = nextDecl('PathVertex')
-    res = line
-    if v == 'L':
-        res += 'OnLight(' + id + ')\n'
-        type = 'Light'
-    elif v == 'S':
-        res += 'IsSpecular(' + id + ')\n'
-        type = 'Specular'
-    elif v == 'D':
-        res += 'IsDiffuse(' + id + ')\n'
-        type = 'Diffuse'
-    elif v == 'E':
-        res += 'OnEye(' + id + ')\n'
-        type = 'Eye'
-    else:
-        exit('unrecognized path vertex string: ' + v)
-    res += 'InVP({0}, {1})\n'.format(id, path)
-    return type, id, res
-
 
 def process(json):
     '''Process JSON input from the backend and populate context'''
@@ -141,7 +143,7 @@ def process(json):
         type = obj['objType']
         name = obj['objName']
         if type == 'PathType':
-            paths[name] = { 'samples': [] }
+            paths[name] = { 'samples': [], 'form': None }
 
     # Go through predicates
     for pred in substance['constraints']['predicates']:
@@ -149,9 +151,6 @@ def process(json):
         if name == 'HasForm':
             pathName, form = pred['pargNames']
             paths[pathName]['form'] = form
-        # elif name == 'SceneSatisfies':
-        #     sceneId, pathId = pred['pargNames']
-        #     paths[pathId]['scene'] = sceneId
 
     # Go through functions
     for func in substance['constraints']['functions']:
@@ -160,6 +159,7 @@ def process(json):
             pname = func['fargNames'][0]
             sample = func['varName']
             paths[pname]['samples'].append({ 'name': sample, 'vertices': [] })
+    print 'loaded paths: ', paths
 
     # Retrieve parameters 
     global CANVAS_WIDTH, CANVAS_HEIGHT
@@ -175,7 +175,10 @@ def genPathString(form):
     # Stats about the path form
     numIndefinites = len(re.findall(r"\w(?=(\+|\*))", form))
 
-    limit = int(maxObjects / numIndefinites)
+    if numIndefinites == 0:
+        limit = 1
+    else:
+        limit = int(maxObjects / numIndefinites)
 
     print 'Limit per expansion computed via canvas dimensions: \n', limit
     gen = Xeger(limit=limit)
@@ -195,9 +198,10 @@ if __name__ == '__main__':
     process(data)
 
     # emit Substance code
-    subOut = genSubstance()
-    print 'Substance code generated: \n', subOut
+    ctx = Context()
+    genSubstance(ctx)
+    print 'Substance code generated: \n', ctx._substanceOut
 
     # Write results to the output file
     with open(outputFile, 'w') as the_file:
-        the_file.write(subOut)
+        the_file.write(ctx._substanceOut)
