@@ -58,14 +58,21 @@ class Canvas extends React.Component<IProps> {
               if (field === fieldName) {
                 // shape name is a done value of type string, hence the two accesses
                 const shapeName = propertyDict.name.contents.contents;
-                // update the pending property in the translated by a Done value retrieved from the shapes, which are already updated by the frontend
+                // find property and updated value
+                const propWithUpdate = Canvas.findShapeProperty(
+                  shapes,
+                  shapeName,
+                  propertyName
+                );
+                // update the property in the shape list
+                propWithUpdate.contents = propWithUpdate.updated;
+                const { tag, contents } = propWithUpdate;
+                delete propWithUpdate.updated;
+
+                // update the pending property in the translated by a Done value retrieved from the shapes, which are already updated (in the two lines above)
                 propertyDict[propertyName] = {
                   tag: "Done",
-                  contents: Canvas.findShapeProperty(
-                    shapes,
-                    shapeName,
-                    propertyName
-                  )
+                  contents: { tag, contents }
                 };
               }
             }
@@ -302,6 +309,11 @@ class Canvas extends React.Component<IProps> {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+  };
+
+  public getRawSVG = async () => {
+    const content = await this.prepareSVGContent();
+    return content;
   };
 
   public downloadPDF = async () => {

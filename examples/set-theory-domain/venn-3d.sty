@@ -3,8 +3,27 @@ Set x {
         strokeWidth : 0
     }
 
+    x.shading = Image {
+        centerX : x.shape.x 
+        centerY : x.shape.y
+        lengthX : x.shape.r * 2.0
+        lengthY : x.shape.r * 2.0
+        path : "shading.svg"
+    }
+
+    x.shadow = Image {
+        path : "shadow.svg"
+        lengthX : x.shape.r * 2.15
+        lengthY : x.shape.r * 2.22
+        centerX : x.shape.x + 0.03 * x.shading.lengthX
+        centerY : x.shape.y - 0.051 * x.shading.lengthY
+    }
+
     x.text = Text {
         string : x.label
+        color: rgba(1.0, 1.0, 1.0, 1.0)
+        w: 0.5 * x.shape.r
+        h: 0.5 * x.shape.r
     }
 
     x.labelFn = ensure contains(x.shape, x.text)
@@ -12,6 +31,8 @@ Set x {
     x.maxSizeFn = ensure maxSize(x.shape)
     x.labelPosFn = encourage sameCenter(x.text, x.shape)
     LOCAL.layering  = x.shape below x.text
+    LOCAL.shadeLayering  = x.shading below x.shape
+    LOCAL.shadowLayering  = x.shadow below x.shading
 }
 
 -- Set x {
@@ -21,11 +42,12 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.containFn = ensure contains(y.shape, x.shape)
+    LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
     LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
     LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
     LOCAL.layering  = x.shape above y.shape
     LOCAL.layering1  = y.text below x.shape
+    LOCAL.layering2  = x.shadow above y.shape
 }
 
 Set x; Set y
