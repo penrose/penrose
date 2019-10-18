@@ -1,20 +1,14 @@
-PathType t1, t2, t3
+PathType t1, t2
 HasForm(t1, "L(D|S)SE")
--- HasForm(t1, "LDE")
 HasForm(t2, "LSDE")
-HasForm(t3, "LE")
 
-Path p1, p2, p3
+
+Path p1, p2
 p1 := Sample(t1)
 p2 := Sample(t2)
-p3 := Sample(t3)
+
 
 AutoLabel All
 
--- PathSample p1, p2
--- p1 := Sample(p)
--- p2 := Sample(p)
 
--- let PathVertex v[, T2 x2...] in p1,... where IsSpecular(v)...
--- Label v "special vertex"
 

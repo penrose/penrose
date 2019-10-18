@@ -46,22 +46,6 @@ PathType t {
     t.color = randomColor()
 }
 
-/*
-PathType `t1` {
-    `t1`.color = global.color1
-}
-
-PathType `t2` {
-    `t2`.color = global.color2
-}
-
-PathType `t3` {
-    `t3`.color = global.color1
-}
-*/
-
-
-
 DiffuseObject d {
     d.shape = Rectangle {
         angle  : 0
@@ -91,10 +75,21 @@ SpecularObject o {
 }
 
 LightSource l {
-    l.shape = Circle {
-        color : Colors.lightKhaki
-        r : 15.0
-        strokeWidth : 0.0
+    -- l.shape = Circle {
+        -- color : Colors.lightKhaki
+        -- r : 15.0
+        -- strokeWidth : 0.0
+    -- }
+    l.shape = Image {
+        lengthX : 40.0
+        lengthY : 40.0
+        r : max(l.shape.lengthX, l.shape.lengthY) / 2.0
+        path  : "sun.svg"
+        x: l.shape.centerX
+        y: l.shape.centerY
+        -- HACK: who's looking for sizeX and sizeY, and the length* naming convention is weird
+        sizeX: l.shape.lengthX
+        sizeY: l.shape.lengthY
     }
     l.text = Text {
         x : l.shape.x

@@ -18,6 +18,7 @@ paths = {}
 CANVAS_WIDTH = 0
 CANVAS_HEIGHT = 0
 
+
 class Context:
     def __init__(self):
         self._substanceOut = ""
@@ -32,7 +33,7 @@ class Context:
 
     def nextDecl(self, type):
         prefix, count = self._ids[type]
-        id   = prefix + str(count)
+        id = prefix + str(count)
         self.incrementCounter(type)
         self._substanceOut += type + ' ' + id + '\n'
         return id
@@ -62,7 +63,7 @@ class Context:
         else:
             exit('unrecognized path vertex string: ' + v)
         self.addLine('InVP({0}, {1})'.format(id, path))
-        return type, id 
+        return type, id
 
     def addLine(self, s):
         self._substanceOut += s + '\n'
@@ -71,7 +72,7 @@ class Context:
 def genSubstance(ctx):
     '''Generate a Substance program from the context'''
 
-    diffuseObject = ctx.nextDecl("DiffuseObject") 
+    diffuseObject = ctx.nextDecl("DiffuseObject")
     eye = ctx.nextDecl("Camera")
     light = ctx.nextDecl("LightSource")
 
@@ -105,12 +106,13 @@ def genSubstance(ctx):
                     id = diffuseObject
                 elif type == 'Specular':
                     id = ctx.nextDecl('SpecularObject')
-                elif type == 'Eye': 
+                elif type == 'Eye':
                     id = eye
-                elif type == 'Light': 
+                elif type == 'Light':
                     id = light
                 else:
-                    exit('unrecognized vertex type {0} when generating scene obj'.format(type))
+                    exit(
+                        'unrecognized vertex type {0} when generating scene obj'.format(type))
                 path['objects'].append((type, id))
 
         # Generate hits
@@ -119,19 +121,22 @@ def genSubstance(ctx):
         for sample in path['samples']:
             specularCount = 0
             for vType, vId in sample['vertices']:
-                if(vType == 'Specular'): 
-                    oType, oId = findObj(vType, path['objects'], specularCount) 
+                if(vType == 'Specular'):
+                    oType, oId = findObj(vType, path['objects'], specularCount)
                     specularCount = specularCount + 1
                 else:
-                    oType, oId = findObj(vType, path['objects']) 
+                    oType, oId = findObj(vType, path['objects'])
                 ctx.addLine('Hits({0}, {1})'.format(vId, oId))
+
 
 def valueOf(json, s):
     res = [v['value'] for v in json['values'] if v['name'] == s]
     return res[0]
 
+
 def findObj(vType, objList, idx=0):
     return filter(lambda (t, i): t == vType, objList)[idx]
+
 
 def process(json):
     '''Process JSON input from the backend and populate context'''
@@ -143,7 +148,7 @@ def process(json):
         type = obj['objType']
         name = obj['objName']
         if type == 'PathType':
-            paths[name] = { 'samples': [], 'form': None }
+            paths[name] = {'samples': [], 'form': ""}
 
     # Go through predicates
     for pred in substance['constraints']['predicates']:
@@ -158,20 +163,21 @@ def process(json):
         if name == 'Sample':
             pname = func['fargNames'][0]
             sample = func['varName']
-            paths[pname]['samples'].append({ 'name': sample, 'vertices': [] })
+            paths[pname]['samples'].append({'name': sample, 'vertices': []})
     print 'loaded paths: ', paths
 
-    # Retrieve parameters 
+    # Retrieve parameters
     global CANVAS_WIDTH, CANVAS_HEIGHT
     CANVAS_WIDTH = params[0]['contents']['contents']
     CANVAS_HEIGHT = params[1]['contents']['contents']
+
 
 def genPathString(form):
     '''Generate a path string given canvas dimensions (globals) and a path form'''
     # determine the number of objects in the scene by some heuristics
     # 2 (L and E) + whatever that fits
     maxObjects = int(CANVAS_HEIGHT * CANVAS_WIDTH / (100 * 100))
-    
+
     # Stats about the path form
     numIndefinites = len(re.findall(r"\w(?=(\+|\*))", form))
 
@@ -184,8 +190,9 @@ def genPathString(form):
     gen = Xeger(limit=limit)
     return gen.xeger(form)
 
+
 if __name__ == '__main__':
-    inputFile  = 'Sub_enduser.json'
+    inputFile = 'Sub_enduser.json'
     outputFile = 'Sub_instantiated.sub'
 
     # load json data from input file

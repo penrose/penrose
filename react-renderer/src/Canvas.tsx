@@ -252,6 +252,7 @@ class Canvas extends React.Component<IProps> {
           const height = image.getAttribute("height");
           const x = image.getAttribute("x");
           const y = image.getAttribute("y");
+          const transform = image.getAttribute("transform");
 
           const wrapper = document.createElement("div");
           wrapper.innerHTML = contents;
@@ -262,7 +263,11 @@ class Canvas extends React.Component<IProps> {
           const outer = s.outerHTML;
           const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
           g.innerHTML = outer;
-          g.setAttributeNS(null, "transform", `translate(${x},${y})`);
+          g.setAttributeNS(
+            null,
+            "transform",
+            `${transform} translate(${x},${y})`
+          );
           // HACK: generate unique ids
           const defs = g.getElementsByTagName("defs");
           if (defs.length > 0) {

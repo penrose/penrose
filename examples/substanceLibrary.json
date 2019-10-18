@@ -61,5 +61,12 @@
     "style": 8,
     "previewURI": "https://gist.githubusercontent.com/wodeni/54fdcafc3cf9cf0c14b68868893db1dd/raw/80976b0fd68ee2dac52bdc17d107104dde14d3c1/sets-3d.svg?sanitize=true",
     "name": "venn 3d"
+  },
+  {
+    "substanceURI": "raytracing-domain/spec-raytra.sub",
+    "element": 5,
+    "style": 9,
+    "previewURI": "https://gist.githubusercontent.com/wodeni/54fdcafc3cf9cf0c14b68868893db1dd/raw/80976b0fd68ee2dac52bdc17d107104dde14d3c1/sets-3d.svg?sanitize=true",
+    "name": "Ray tracing"
   }
 ]
