@@ -32,31 +32,50 @@ G {
 
   -- Poincare disk: Unit disk at the origin
   G.diskRadius = 1.0
+  G.screenRadius = G.toScreen * G.diskRadius
+
   G.maxVal = 15.0 -- So the points don't look too much like ideal points
   G.maxValNorm = 20.0 -- So the points don't look too much like ideal points
 
   -- TODO: It would be nice to be able to specify that the disk goes underneath everything
-  G.disk = Circle {
+  G.oldDisk = Circle {
   	 x : 0.0
-	 y : 0.0
-	 r : G.toScreen * G.diskRadius
-	 -- color : Colors.lightpink
-	 color : setOpacity(Colors.blue, 0.1)
-	 strokeWidth : 1.0
-	 strokeColor : Colors.black
+  	 y : 0.0
+  	 r : G.toScreen * G.diskRadius
+  	 -- color : Colors.lightpink
+  	 -- color : setOpacity(Colors.blue, 0.1)
+	 color : Colors.none
+  	 strokeWidth : 1.0
+  	 strokeColor : Colors.black
   }
 
-  -- https://commons.wikimedia.org/wiki/File:Ideal-triangle_hyperbolic_tiling.svg
-  G.shading = Image {
-	 centerX : G.disk.x
-	 centerY : G.disk.y
-	 lengthX : G.disk.r * 2.0
-	 lengthY : G.disk.r * 2.0
+  -- TODO: This doesn't seem to be the same dimensions as the oldDisk
+  -- TODO: remove 3px by 3px border from SVG
+  G.disk = Image {
+	 centerX : 0.0
+	 centerY : 0.0
+	 lengthX : G.screenRadius * 2.0
+	 lengthY : G.screenRadius * 2.0
 	 rotation: 0.0
-	 path : "ideal_triangle_hyperbolic_tiling.svg"
+	 path : "HyperbolicBackground.svg"
   }
 
-  G.textureLayering = G.shading below G.disk
+  -- TODO: looks like we can't parse an inline label??
+  -- G.label = "$\mathbb{H}^2$"
+  -- G.label = "\mathbb{H}^2"
+  G.label = "H^2"
+  G.textPadding = 20.0 -- TODO: position by angle?
+  G.textPosX = G.disk.centerX + G.screenRadius - G.textPadding
+  G.textPosY = G.disk.centerY + G.screenRadius - G.textPadding
+
+  G.text = Text {
+  	 -- TODO: position in top right
+  	 x : G.textPosX
+	 y : G.textPosY
+	 string : G.label
+  }
+
+  G.textLayering = G.text above G.disk
 }
 
 Point p {
@@ -135,7 +154,7 @@ with Point p; Point q {
      	     pathData : pathFromPoints(e.screenspacePath)
 	     strokeWidth : 2.0
 	     fill : Colors.none
-	     color : Colors.midnightblue
+	     color : Colors.black
 	     rotation : 0.0
      }
 
