@@ -34,6 +34,7 @@ G {
   G.toScreen = 200.0 -- Math space to screen space
   G.rayLen = 2.5
   G.arrowheadSize = 0.65
+  G.textPadding = 18.0
 
   -- Poincare disk: Unit disk at the origin
   G.diskRadius = 1.0
@@ -55,9 +56,9 @@ G {
   -- G.label = "$\mathbb{H}^2$"
   -- G.label = "\mathbb{H}^2"
   G.label = "H^2"
-  G.textPadding = 20.0 -- TODO: position by angle?
-  G.textPosX = G.disk.centerX + G.screenRadius - G.textPadding
-  G.textPosY = G.disk.centerY + G.screenRadius - G.textPadding
+  G.labelPadding = 33.0 -- TODO: position by angle?
+  G.textPosX = G.disk.centerX + G.screenRadius - G.labelPadding
+  G.textPosY = G.disk.centerY + G.screenRadius - G.labelPadding
 
   G.text = Text {
   	 -- TODO: position in top right
@@ -100,8 +101,8 @@ Point p {
       }
 
       p.text = Text {
-      	     x : p.shape.x + 10.0
-      	     y : p.shape.y + 10.0
+      	     x : p.shape.x + G.textPadding
+      	     y : p.shape.y + G.textPadding
       	     string : p.label
       }
 
