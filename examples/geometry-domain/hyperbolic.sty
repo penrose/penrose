@@ -35,6 +35,7 @@ G {
   G.rayLen = 2.5
   G.arrowheadSize = 0.65
   G.textPadding = 18.0
+  G.textScale = 1.75
 
   -- Poincare disk: Unit disk at the origin
   G.diskRadius = 1.0
@@ -64,6 +65,7 @@ G {
   	 -- TODO: position in top right
   	 x : G.textPosX
 	 y : G.textPosY
+	 scale : G.textScale
 	 string : G.label
   }
 
@@ -103,6 +105,7 @@ Point p {
       p.text = Text {
       	     x : p.shape.x + G.textPadding
       	     y : p.shape.y + G.textPadding
+	     scale : G.textScale
       	     string : p.label
       }
 

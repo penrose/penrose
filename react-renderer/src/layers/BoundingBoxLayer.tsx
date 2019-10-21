@@ -14,14 +14,15 @@ class BoundingBoxLayer extends React.Component<ILayerProps> {
               [shape.x.contents, shape.y.contents],
               canvasSize
             );
-            const {w, h} = shape;
+            // const {w, h} = shape;
+            const {finalW, finalH} = shape;
             return (
               <rect
                 key={key}
-                width={w.contents}
-                height={h.contents}
-                transform={`translate(${x - w.contents / 2},${y -
-                h.contents / 2})`}
+                width={finalW.contents}
+                height={finalH.contents}
+                transform={`translate(${x - finalW.contents / 2},${y -
+                finalH.contents / 2})`}
                 fill={"none"}
                 pointerEvents={"none"}
                 stroke={"blue"}
