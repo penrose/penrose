@@ -106,6 +106,7 @@ compDict :: (Autofloat a) => M.Map String (CompFnOn a)
 compDict =
   M.fromList
     [ ("rgba", constComp rgba)
+    , ("rgba2", constComp rgba2)
     , ("atan", constComp arctangent)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
@@ -582,6 +583,10 @@ lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
 rgba :: ConstCompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
   Val (ColorV $ makeColor' r g b a)
+
+rgba2 :: ConstCompFn
+rgba2 [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
+  Val (ColorV $ makeColor' (r / 255) (g / 255) (b / 255) (a / 255))
 
 arctangent :: ConstCompFn
 arctangent [Val (FloatV d)] = Val (FloatV $ (atan d) / pi * 180)

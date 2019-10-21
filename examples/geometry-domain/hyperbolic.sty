@@ -1,6 +1,11 @@
 Colors {
     -- Keenan palette
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+
+    Colors.darkpurple = rgba(0.549,0.565,0.757, 1.0)
+    Colors.purple2 = rgba(0.106, 0.122, 0.54, 0.2)
+    Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
+
     Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
     Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
     Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
@@ -22,13 +27,13 @@ G {
   -- Drawing parameters
   G.padding = 10.0
   G.numArcPts = 30
-  G.stroke = 2.0
+  G.strokeWidth = 1.75
   G.spacing = 150.0
   G.pi = 3.14159
   G.two_pi = 6.28319
   G.toScreen = 200.0 -- Math space to screen space
   G.rayLen = 2.5
-  G.arrowheadSize = 0.75
+  G.arrowheadSize = 0.65
 
   -- Poincare disk: Unit disk at the origin
   G.diskRadius = 1.0
@@ -37,20 +42,6 @@ G {
   G.maxVal = 15.0 -- So the points don't look too much like ideal points
   G.maxValNorm = 20.0 -- So the points don't look too much like ideal points
 
-  -- TODO: It would be nice to be able to specify that the disk goes underneath everything
-  G.oldDisk = Circle {
-  	 x : 0.0
-  	 y : 0.0
-  	 r : G.toScreen * G.diskRadius
-  	 -- color : Colors.lightpink
-  	 -- color : setOpacity(Colors.blue, 0.1)
-	 color : Colors.none
-  	 strokeWidth : 1.0
-  	 strokeColor : Colors.black
-  }
-
-  -- TODO: This doesn't seem to be the same dimensions as the oldDisk
-  -- TODO: remove 3px by 3px border from SVG
   G.disk = Image {
 	 centerX : 0.0
 	 centerY : 0.0
@@ -103,7 +94,7 @@ Point p {
 	x : get(p.vec_screen, 0)
 	y : get(p.vec_screen, 1)
 	r : 3.0
-	color : Colors.midnightblue
+	color : Colors.black
 	strokeWidth : 1.0
 	strokeColor : Colors.midnightblue
       }
@@ -152,7 +143,7 @@ with Point p; Point q {
      -- Draw a path using the slerp'ed points
      e.shape = Curve {
      	     pathData : pathFromPoints(e.screenspacePath)
-	     strokeWidth : 2.0
+	     strokeWidth : G.strokeWidth
 	     fill : Colors.none
 	     color : Colors.black
 	     rotation : 0.0
@@ -185,7 +176,8 @@ with Point p; Point q; Point r {
      t.shape = Curve {
      	     pathData : join(t.screenspacePath_pq, t.screenspacePath_qr, t.screenspacePath_rp) -- Connect them in a particular order
 	     strokeWidth : 0.0
-	     fill : setOpacity(Colors.blue, 0.2)
+	     fill : setOpacity(Colors.darkpurple, 0.3)
+	     -- fill : setOpacity(Colors.purple2, 0.2)
 	     color : Colors.none
 	     rotation : 0.0
      }
@@ -205,9 +197,9 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q); m := Midpoint(s) {
       
       r.shape = Curve {
       	      pathData : pathFromPoints(r.screenspacePath) -- TODO: why are these NaNing?
-	      strokeWidth : 2.0
+	      strokeWidth : G.strokeWidth
 	      fill : Colors.none
-	      color : Colors.midnightblue
+	      color : Colors.darkpurple
 	      rotation : 0.0
 	      rightArrowhead : True
 	      arrowheadSize : G.arrowheadSize
@@ -221,8 +213,8 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q); m := Midpoint(s) {
 
       r.perpMark = Curve {
       	      pathData : polygonFromPoints(r.perpmark_screenspacePath) -- For the fill
-	      strokeWidth : 1.5
-	      color : Colors.lightslategray
+	      strokeWidth : 1.25
+	      color : Colors.black
 	      fill : Colors.white
       }
 
@@ -239,6 +231,9 @@ Point p
 where p := Midpoint(s); s := MkSegment(a, b)
 with Segment s; Point a; Point b {
      override p.vec_math = halfwayPointHyp(a.vec_math, b.vec_math)
+
+     override p.shape.color = Colors.white
+     p.midLayering = p.shape above s.shape
 }
 
 Angle theta -- Angle QPR (i.e. the vertex point is p)
@@ -251,9 +246,9 @@ with Point p; Point q; Point r {
 
      theta.shape = Curve {
      		 pathData : polygonFromPoints(theta.arcPath_screenspace)
-		 strokeWidth : 1.5
+		 strokeWidth : G.strokeWidth
 		 color : Colors.lightslategray
-		 fill : Colors.white
+		 fill : setOpacity(Colors.white, 0.5)
      }
 
      theta.layering1 = theta.shape above G.disk
@@ -277,14 +272,18 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) {
       
       r.shape = Curve {
       	      pathData : pathFromPoints(r.screenspacePath) -- TODO: why are these NaNing?
-	      strokeWidth : 2.0
+	      strokeWidth : G.strokeWidth
 	      fill : Colors.none
-	      color : Colors.midnightblue
+	      color : Colors.darkpurple
 	      rotation : 0.0
 	      rightArrowhead : True
 	      arrowheadSize : G.arrowheadSize
       }
 
       -- TODO: make two angle bisector marks
-      r.layeringArc = r.shape above theta.shape
+      r.layeringArc = r.shape below theta.shape
+}
+
+Triangle t; Angle theta {
+	 LOCAL.layering = theta.shape above t.shape
 }
