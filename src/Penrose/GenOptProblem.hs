@@ -473,9 +473,11 @@ findVarying = foldSubObjs findFieldVarying
 findPending :: (Autofloat a) => Translation a -> [Path]
 findPending = foldSubObjs findFieldPending
     where 
+    pendingProp _ (Pending _) = True
+    pendingProp _ _ = False
     findFieldPending name field (FExpr expr) acc = acc
     findFieldPending name field (FGPI typ properties) acc = 
-        let pendingProps = pendingProperties typ
+        let pendingProps = M.keys $ M.filterWithKey pendingProp properties
         in map (\p -> mkPath [name, field, p]) pendingProps ++ acc
 
 --- Find uninitialized (non-float) paths
@@ -493,7 +495,6 @@ findFieldUninitialized :: (Autofloat a) => String -> Field -> FieldExpr a -> [Pa
 findFieldUninitialized name field (FExpr expr) acc = acc
 findFieldUninitialized name field (FGPI typ properties) acc =
     let ctorNonfloats  = filter (/= "name") $ propertiesNotOf FloatT typ in
-    -- TODO: add a separate field (e.g. pendingPaths) in State to store these special properties that needs frontend updates
     let uninitializedProps = ctorNonfloats in
     let vs = foldr (findPropertyUninitialized name field properties) [] uninitializedProps in
     vs ++ acc
@@ -950,7 +951,6 @@ genOptProblemAndState trans optConfig =
     let !varyingPaths       = findVarying trans in
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
     let uninitializedPaths = findUninitialized trans in
-    let pendingPaths       = findPending trans in
     let shapeNames         = findShapeNames trans in
 
     -- sample varying fields
@@ -980,7 +980,7 @@ genOptProblemAndState trans optConfig =
                                  transr = transInit, -- note: NOT transEvaled
                                  varyingPaths = varyingPaths,
                                  uninitializedPaths = uninitializedPaths,
-                                 pendingPaths = pendingPaths,
+                                 pendingPaths = findPending transInit,
                                  varyingState = initState,
                                  objFns = objFnsWithDefaults,
                                  constrFns = constrsWithDefaults,

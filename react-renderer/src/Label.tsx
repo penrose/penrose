@@ -3,12 +3,19 @@ import { toScreen, toHex } from "./Util";
 import draggable from "./Draggable";
 import { IGPIPropsDraggable } from "./types";
 
-const styleLabel = (label : HTMLElement, color: string) => {
+const styleLabel = (
+  label: HTMLElement,
+  color: string,
+  w: string,
+  h: string
+) => {
   label.getElementsByTagName("g")[0].setAttribute("fill", color);
   // HACK: pdf output seems to apply `stroke: black` automatically, so we make it explicit now
   label.getElementsByTagName("g")[0].setAttribute("stroke", "none");
   label.getElementsByTagName("g")[0].setAttribute("stroke-width", "0");
-  return label.outerHTML
+  label.setAttribute("width", w);
+  label.setAttribute("height", h);
+  return label.outerHTML;
 };
 
 class Label extends React.Component<IGPIPropsDraggable> {
@@ -28,7 +35,7 @@ class Label extends React.Component<IGPIPropsDraggable> {
         pointerEvents="bounding-box"
         dangerouslySetInnerHTML={{
           __html: shape.rendered
-            ? styleLabel(shape.rendered.contents, color)
+            ? styleLabel(shape.rendered.contents, color, w.contents, h.contents)
             : `<text>${shape.string.contents}</text>`
         }}
       />
