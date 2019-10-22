@@ -172,12 +172,14 @@ compDict =
   , ("toDisk", constComp toDisk)
   , ("diskToScreen", constComp diskToScreen)
   , ("slerpHyp", constComp slerpHyp)
+  , ("ptToDiskAndScreen", constComp ptToDiskAndScreen)
   , ("pathToDiskAndScreen", constComp pathToDiskAndScreen)
   , ("halfwayPointHyp", constComp halfwayPointHyp)
   , ("normalOnHyp", constComp normalOnHyp)
   , ("arcPathHyp", constComp arcPathHyp)
   , ("angleBisectorHyp", constComp angleBisectorHyp)
   , ("perpPathHyp", constComp perpPathHyp)
+  , ("makeBisectorMarks", constComp makeBisectorMarks)
 
         -- Transformations
     , ("rotate", constComp rotate)
@@ -1237,6 +1239,10 @@ slerpHyp [Val (ListV a), Val (ListV b), Val (IntV n)] =
 toDiskAndScreen' :: Autofloat a => a -> [a] -> (a,a)
 toDiskAndScreen' c pt = tuplify2 $ diskToScreen' c $ toDisk' pt
 
+ptToDiskAndScreen :: ConstCompFn
+ptToDiskAndScreen [Val (ListV pt), Val (FloatV c)] =
+   Val $ PtV $ toDiskAndScreen' c pt
+
 pathToDiskAndScreen' :: Autofloat a => [[a]] -> a -> [(a,a)]
 pathToDiskAndScreen' hypPath c = map (toDiskAndScreen' c) hypPath 
 
@@ -1399,6 +1405,23 @@ perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv),
  
   in Val $ PtListV [ptL, ptLR, ptR, b'] -- b' so the path can be closed
      -- [pt_BA', ptLR, pt_BC']
+
+angleMark :: Autofloat a => (a, a) -> (a, a) -> a -> ((a, a), (a, a))
+angleMark root arcPt len =
+          let dir   = (len / 2) *: (normalize' $ arcPt -: root)
+              botPt = arcPt -: dir
+              topPt = arcPt +: dir
+          in (botPt, topPt)
+
+-- Make two marks along the straight lines (in Euclidean space) from commonPt to bis1, then commonPt to bis2
+makeBisectorMarks :: ConstCompFn
+makeBisectorMarks [Val (ListV bis1), Val (ListV bis2), Val (ListV commonPt), Val (FloatV markLen)] =
+  let (botPt1, topPt1) = angleMark (tuplify2 commonPt) (tuplify2 bis1) markLen
+      path1 = Open $ map Pt [botPt1, topPt1]
+
+      (botPt2, topPt2) = angleMark (tuplify2 commonPt) (tuplify2 bis2) markLen
+      path2 = Open $ map Pt [botPt2, topPt2]
+  in Val $ PathDataV [path1, path2]
 
 --------------------------------------------------------------------------------
 -- Objective Functions

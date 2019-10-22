@@ -237,6 +237,7 @@ with Segment s; Point a; Point b {
      override p.vec_math = halfwayPointHyp(a.vec_math, b.vec_math)
 
      override p.shape.color = Colors.white
+     override p.shape.r = 3.2
      p.midLayering = p.shape above s.shape
 }
 
@@ -251,7 +252,7 @@ with Point p; Point q; Point r {
      theta.shape = Curve {
      		 pathData : polygonFromPoints(theta.arcPath_screenspace)
 		 strokeWidth : G.strokeWidth
-		 color : Colors.lightslategray
+		 color : Colors.darkpurple
 		 fill : setOpacity(Colors.white, 0.5)
      }
 
@@ -263,7 +264,7 @@ with Point p; Point q; Point r {
 
 Ray r
 with Angle theta; Point x; Point y; Point z
-where r := Bisector(theta); theta := AngleBetween(y, x, z) {
+where r := Bisector(theta); theta := AngleBetween(y, x, z) { -- Angle YXZ (where X is the central point)
 
       -- TODO: note that there's a decent amount of code shared between here and the PerpendicularBisector selector
       -- Move some into the basic Ray selector?
@@ -275,7 +276,7 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) {
       r.screenspacePath = pathToDiskAndScreen(r.arcPath, G.toScreen)
       
       r.shape = Curve {
-      	      pathData : pathFromPoints(r.screenspacePath) -- TODO: why are these NaNing?
+      	      pathData : pathFromPoints(r.screenspacePath)
 	      strokeWidth : G.strokeWidth
 	      fill : Colors.none
 	      color : Colors.darkpurple
@@ -284,8 +285,32 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) {
 	      arrowheadSize : G.arrowheadSize
       }
 
-      -- TODO: make two angle bisector marks
       r.layeringArc = r.shape below theta.shape
+
+      -- Bisect the arc twice more to get the bisector mark locations
+      theta.bisectpt1 = angleBisectorHyp(x.vec_math, y.vec_math, r.head_vec_math, theta.radius)
+      theta.vec_disk1 = toDisk(theta.bisectpt1)
+      theta.vec_screen1 = diskToScreen(theta.vec_disk1, G.toScreen)
+
+      theta.bisectpt2 = angleBisectorHyp(x.vec_math, z.vec_math, r.head_vec_math, theta.radius)
+      theta.vec_disk2 = toDisk(theta.bisectpt2)
+      theta.vec_screen2 = diskToScreen(theta.vec_disk2, G.toScreen)
+
+      theta.markLen = 10.0
+
+      -- Angle bisector marks: a path of two pieces (two tick marks)
+      -- Making this in screen space because we are drawing two straight (Euclidean) lines
+      theta.bisectMarks = Curve {
+      	      pathData : makeBisectorMarks(theta.vec_screen1, theta.vec_screen2, x.vec_screen, theta.markLen)
+      	      strokeWidth : G.strokeWidth
+      	      fill : Colors.none
+      	      color : Colors.darkpurple
+      	      rotation : 0.0
+      	      rightArrowhead : False
+      	      arrowheadSize : G.arrowheadSize
+      }
+
+      theta.layeringMarks = theta.bisectMarks above theta.shape
 }
 
 Triangle t; Angle theta {
