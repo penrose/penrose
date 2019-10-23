@@ -1421,7 +1421,8 @@ makeBisectorMark [Val (ListV bis), Val (ListV commonPt), Val (FloatV markLen)] =
   in Val $ PathDataV [path]
 
 --------------------------------------------------------------------------------
--- path1 Functions
+-- Objective Functions
+-- TODO: this should take into account the boundaries / thicknesses of all the objects
 near :: ObjFn
 near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)

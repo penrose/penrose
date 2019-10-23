@@ -25,7 +25,7 @@ Colors {
 
 G {
   -- Drawing parameters
-  G.padding = 10.0
+  G.padding = 20.0
   G.numArcPts = 30
   G.strokeWidth = 1.75
   G.spacing = 150.0
@@ -103,13 +103,13 @@ Point p {
       }
 
       p.text = Text {
-      	     x : p.shape.x + G.textPadding
-      	     y : p.shape.y + G.textPadding
+      	     x : ? -- p.shape.x + G.textPadding
+      	     y : ? -- p.shape.y + G.textPadding
 	     scale : G.textScale
       	     string : p.label
       }
 
-      -- p.labelFn = encourage near(p.shape, p.text, G.padding)
+      p.labelFn = encourage near(p.shape, p.text, G.padding)
       p.layering = p.shape above G.disk
       p.textLayering = p.text above G.disk
 }
@@ -160,9 +160,9 @@ with Point p; Point q {
 
 Ray r {
     r.length = 100.0
-    r.shape = Line { 
-       color : Colors.red
-    } -- Otherwise can't write layering statement
+    -- r.shape = Line { 
+    --    color : Colors.red
+    -- } -- Otherwise can't write layering statement
     r.layeringDisk = r.shape above G.disk
 }
 

@@ -154,10 +154,23 @@ class Canvas extends React.Component<IProps> {
     const updated = await Canvas.propagateUpdate({
       ...this.props.data,
       paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
-      shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
+      shapesr: this.props.data.shapesr.map(([shapeType, shape]: [string, any]) => {
+
         if (shape.name.contents === id) {
+	    // Image has properties "centerX" and "centerY" instead of "x" and "y"
+	    if (shapeType === "Image") {
+		return [
+		    shapeType,
+		    {
+			...shape,
+			x: { ...shape.centerX, contents: shape.centerX.contents - dx },
+			y: { ...shape.centerY, contents: shape.centerY.contents - dy }
+		    }
+		];
+	    }
+
           return [
-            name,
+            shapeType,
             {
               ...shape,
               x: { ...shape.x, contents: shape.x.contents - dx },
@@ -165,7 +178,8 @@ class Canvas extends React.Component<IProps> {
             }
           ];
         }
-        return [name, shape];
+
+        return [shapeType, shape];
       })
     });
     const updatedWithVaryingState = await Canvas.updateVaryingState(updated);
