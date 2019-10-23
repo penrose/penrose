@@ -2133,15 +2133,17 @@ labelDisjoint [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV padding)
       qInBox = inBBox textBbox q
       intersectPts = findIntersections (p, q) segs
       energy = if pInBox && qInBox -- Whole segment in box
-             then distsq p q -- TODO: should this energy also penalize the "deepness" in the label?
+             then distsq p q - padding^2 -- TODO: should this energy also penalize the "deepness" in the label?
              -- Whole segment passes through box
              else if (not pInBox) && (not qInBox) && (not $ null intersectPts)
-             then distsq (intersectPts !! 0) (intersectPts !! 1) -- TODO improve this
+             then if length intersectPts < 2
+                  then trace ("\ncase 1a: " ++ show intersectPts) $ 0.0
+                  else trace ("\ncase 1b: " ++ show intersectPts) $ distsq (intersectPts !! 0) (intersectPts !! 1) - padding^2 -- TODO improve this
              -- Segment overlaps one wall of box
              else if qInBox && (not $ null intersectPts)
-             then distsq q (intersectPts !! 0)
+             then trace ("\ncase 2: " ++ show intersectPts) $ distsq q (intersectPts !! 0) - padding^2
              else if pInBox && (not $ null intersectPts)
-             then distsq p (intersectPts !! 0)
+             then trace ("\ncase 3: " ++ show intersectPts) $ distsq p (intersectPts !! 0) - padding^2
              else 0.0 -- Segment lies outside of box. TODO fail first
 
   -- Energy = amount of overlap between the curve (approximated as a segment) and the bbox

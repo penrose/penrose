@@ -1,0 +1,7 @@
+Point p, q
+Segment a := {p, q}
+
+-- Point r
+-- Segment b := {p, r}
+
+AutoLabel All

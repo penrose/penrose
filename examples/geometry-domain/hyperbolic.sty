@@ -25,7 +25,7 @@ Colors {
 
 G {
   -- Drawing parameters
-  G.padding = 20.0
+  G.padding = 60.0
   G.numArcPts = 30
   G.strokeWidth = 1.75
   G.spacing = 150.0
@@ -109,7 +109,8 @@ Point p {
       	     string : p.label
       }
 
-      p.labelFn = encourage near(p.shape, p.text, G.padding)
+      -- p.labelFn = encourage near(p.shape, p.text, G.padding)
+      p.labelFn = encourage near(p.shape, p.text)
       p.layering = p.shape above G.disk
       p.textLayering = p.text above G.disk
 }
@@ -158,8 +159,10 @@ with Point p; Point q {
      e.layering3 = e.shape above G.disk
 
      -- Should these be objectives or constraints?
-     p.labelAvoidFn = encourage labelDisjoint(e.shape, p.text, G.padding)
-     q.labelAvoidFn = encourage labelDisjoint(e.shape, q.text, G.padding)
+     -- If a point is in more than one segment, apply the objective to both
+     -- TODO: which one should have the padding?
+     LOCAL.labelAvoidFn_p = encourage labelDisjoint(e.shape, p.text, G.padding)
+     LOCAL.labelAvoidFn_q = encourage labelDisjoint(e.shape, q.text, G.padding)
 }
 
 Ray r {
