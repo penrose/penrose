@@ -156,6 +156,10 @@ with Point p; Point q {
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
      e.layering3 = e.shape above G.disk
+
+     -- Should these be objectives or constraints?
+     p.labelAvoidFn = encourage labelDisjoint(e.shape, p.text, G.padding)
+     q.labelAvoidFn = encourage labelDisjoint(e.shape, q.text, G.padding)
 }
 
 Ray r {

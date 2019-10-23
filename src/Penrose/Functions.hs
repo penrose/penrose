@@ -360,6 +360,7 @@ objFuncDict =
     , ("nearPoint2", nearPoint2)
     , ("alignAlong", alignAlong)
     , ("orderAlong", orderAlong)
+    , ("labelDisjoint", labelDisjoint)
         -- ("sameX", sameX)
     ]
 
@@ -2122,6 +2123,42 @@ orderAlong :: ObjFn
 orderAlong [GPI o1, GPI o2, Val (FloatV angleInDegrees)] =
   let (p1, p2) = (getPolygon o1, getPolygon o2)
   in eOrder p1 p2 angleInDegrees
+
+labelDisjoint :: ObjFn
+labelDisjoint [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV padding)] =
+  let (p, q) = segOf $ polyPts $ getPolygon curve
+      ([textPts], _, textBbox, _) = getPolygon lab 
+      segs = ptsToPolySegs textPts
+      pInBox = inBBox textBbox p
+      qInBox = inBBox textBbox q
+      intersectPts = findIntersections (p, q) segs
+      energy = if pInBox && qInBox -- Whole segment in box
+             then distsq p q -- TODO: should this energy also penalize the "deepness" in the label?
+             -- Whole segment passes through box
+             else if (not pInBox) && (not qInBox) && (not $ null intersectPts)
+             then distsq (intersectPts !! 0) (intersectPts !! 1) -- TODO improve this
+             -- Segment overlaps one wall of box
+             else if qInBox && (not $ null intersectPts)
+             then distsq q (intersectPts !! 0)
+             else if pInBox && (not $ null intersectPts)
+             then distsq p (intersectPts !! 0)
+             else 0.0 -- Segment lies outside of box. TODO fail first
+
+  -- Energy = amount of overlap between the curve (approximated as a segment) and the bbox
+  -- TODO: nicer way is to approximate only the overlapping part of the curve as a segment, or do a higher-fidelity calculation on just the parts that overlap with the label
+  in trace ("\n(p, q): " ++ show (p, q) ++
+            "\ntextPts: " ++ show textPts ++
+            "\nsegs: " ++ show segs ++
+            "\npInBox: " ++ show pInBox ++
+            "\nqInBox: " ++ show qInBox ++
+            "\nintersectPts: " ++ show intersectPts ++
+            "\nenergy: " ++ show energy)
+     energy
+  where polyPts :: Autofloat a => Polygon a -> [Pt2 a]
+        polyPts (pos, neg, bbox, samples) = pos !! 0
+        segOf :: Autofloat a => [Pt2 a] -> (Pt2 a, Pt2 a)
+        segOf es = (es !! 0, last es)
+        -- TODO: catch runime errors
 
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), Val (FloatV dx), Val (FloatV dy)] =

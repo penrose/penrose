@@ -348,6 +348,7 @@ computedProperties =
 
     , (("Text", "finalW"), textWidthFn)
     , (("Text", "finalH"), textHeightFn)
+    , (("Text", "polygon"), textPolygonFn2)
     , (("Curve", "polygon"), curvePolygonFn2)
     ]
 
@@ -602,6 +603,16 @@ textPolygonFn = (props, fn)
       in let fullTransform = customTransform # defaultTransform
          in PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
+textPolygonFn2 :: (Autofloat a) => ComputedValue a
+textPolygonFn2 = (props, fn)
+  where
+    props = ["x", "y", "finalW", "finalH"]
+    fn :: (Autofloat a) => [Value a] -> Value a
+    fn [FloatV x, FloatV y, FloatV finalW, FloatV finalH] =
+      let defaultTransform = paramsToMatrix (finalW, finalH, 0.0, x, y)
+          fullTransform    = defaultTransform
+      in PolygonV $ transformPoly fullTransform $ toPoly unitSq
+
 textWidthFn :: (Autofloat a) => ComputedValue a
 textWidthFn = (props, fn)
   where
@@ -776,6 +787,9 @@ textType =
       , ("finalH", (FloatT, constValue $ FloatV 1)) -- computed as scale * h (for bbox)
       -- You should only set either the `w` and `h` (absolute) or the `scale` (relative). Setting both will cause both effects to be applied in some indeterminate order.
       -- NOTE: If a piece of text has been *scaled*, then you should optimize with respect to the finalW and finalH, NOT w and h (which would hopefully retain their original values)
+
+      -- Computed
+      , ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
 
       , ("string", (StrT, constValue $ StrV "defaultLabelText"))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))

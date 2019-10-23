@@ -33,6 +33,7 @@ When using angle to specify an axis, let theta be the input angle in radians
 import Penrose.Util
 import Debug.Trace
 import           Data.List                          (nub, sort, findIndex, find, maximumBy, foldl')
+import Data.Maybe (catMaybes)
 import qualified Data.Map.Strict as M
 
 import GHC.Generics
@@ -254,6 +255,10 @@ emptyPoly = ([], [], ((posInf, posInf), (negInf, negInf)), [])
 toPoly :: Autofloat a => [Pt2 a] -> Polygon a
 toPoly pts = ([pts], [], getBBox pts, sampleB numSamples pts)
 
+-- Assuming this bbox is in CCW or CW order and does NOT include the last point
+ptsToPolySegs :: Autofloat a => [Pt2 a] -> [(Pt2 a, Pt2 a)]
+ptsToPolySegs pts@(x:xs) = zip pts (tail pts ++ [x])
+
 posInf :: Autofloat a => a
 posInf = 1 / 0
 
@@ -301,6 +306,29 @@ ixSS (a,b) (c,d) = let
     in ((a_cd>=0&&b_cd<=0) || (a_cd<=0&&b_cd>=0)) && 
        ((c_ab>=0&&d_ab<=0) || (c_ab<=0&&d_ab>=0))
 
+-- https://rosettacode.org/wiki/Find_the_intersection_of_two_lines#Haskell
+-- https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function   
+
+-- TODO Is this code fast and numerically-stable?? Not tested.
+segSegIntersect :: (Autofloat a) => LineSeg a -> LineSeg a -> Maybe (Pt2 a)
+segSegIntersect ab pq =
+     if determinant < eps
+     then Nothing
+     else let [abD, pqD] = (\(a, b) -> diff ([fst, snd] <*> [a, b])) <$> [ab, pq]
+              [ix, iy] =
+                [\(ab, pq) -> diff [abD, ab, pqD, pq] / determinant] <*>
+                [(abDX, pqDX), (abDY, pqDY)]
+       in Just (ix, iy)
+   where
+     eps = 1e-4
+     delta f x = f (fst x) - f (snd x)
+     diff [a, b, c, d] = a * d - b * c
+     [abDX, pqDX, abDY, pqDY] = [delta fst, delta snd] <*> [ab, pq]
+     determinant = diff [abDX, abDY, pqDX, pqDY]
+
+findIntersections :: Autofloat a => LineSeg a -> [LineSeg a] -> [Pt2 a]
+findIntersections seg segs = catMaybes $ map (segSegIntersect seg) segs
+                  
 getSegmentsB :: Autofloat a => Blob a -> [LineSeg a]
 getSegmentsB pts = let 
     pts' = rotateList pts
