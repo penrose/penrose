@@ -116,20 +116,20 @@ Point p {
 }
 
 -- Some test points on the hyperboloid
--- Point `p` {
---       override `p`.x = -10.0
---       override `p`.y = -10.0
---       -- override `p`.x = 0.0
---       -- override `p`.y = 0.0
+Point `p` {
+      override `p`.x = -10.0
+      override `p`.y = -10.0
+      -- override `p`.x = 0.0
+      -- override `p`.y = 0.0
 
---       override `p`.z = calcZ(`p`.x, `p`.y)
--- }
+      override `p`.z = calcZ(`p`.x, `p`.y)
+}
 
--- Point `q` {
---       override `q`.x = 4.0
---       override `q`.y = -3.0
---       override `q`.z = calcZ(`q`.x, `q`.y)
--- }
+Point `q` {
+      override `q`.x = 4.0
+      override `q`.y = -3.0
+      override `q`.z = calcZ(`q`.x, `q`.y)
+}
 
 -- Point `r` {
 --       override `r`.x = -1.0

@@ -2141,10 +2141,12 @@ labelDisjoint [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV padding)
                   else trace ("\ncase 1b: " ++ show intersectPts) $ distsq (intersectPts !! 0) (intersectPts !! 1) - padding^2 -- TODO improve this
              -- Segment overlaps one wall of box
              else if qInBox && (not $ null intersectPts)
-             then trace ("\ncase 2: " ++ show intersectPts) $ distsq q (intersectPts !! 0) - padding^2
+             then trace ("\ncase 2a: " ++ show intersectPts) $ distsq q (intersectPts !! 0) - padding^2
              else if pInBox && (not $ null intersectPts)
-             then trace ("\ncase 3: " ++ show intersectPts) $ distsq p (intersectPts !! 0) - padding^2
-             else 0.0 -- Segment lies outside of box. TODO fail first
+             then trace ("\ncase 2b: " ++ show intersectPts) $ distsq p (intersectPts !! 0) - padding^2
+             else -- Segment lies outside of box. TODO fail first
+                  trace ("\ncase 3: " ++ show intersectPts) $ dsqBS textPts (p, q) - padding^2
+                  -- TODO: closest distance from segment end to bbox boundary, minus offset
 
   -- Energy = amount of overlap between the curve (approximated as a segment) and the bbox
   -- TODO: nicer way is to approximate only the overlapping part of the curve as a segment, or do a higher-fidelity calculation on just the parts that overlap with the label
