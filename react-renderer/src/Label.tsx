@@ -21,7 +21,8 @@ const styleLabel = (
 
 class Label extends React.Component<IGPIPropsDraggable> {
   public render() {
-  console.log("label props", this.props);
+      /*   console.log("label props", this.props);*/
+
     const { shape } = this.props;
     const { onClick } = this.props;
     const { canvasSize } = this.props;

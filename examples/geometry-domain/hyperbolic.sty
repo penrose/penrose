@@ -160,6 +160,9 @@ with Point p; Point q {
 
 Ray r {
     r.length = 100.0
+    r.shape = Line { 
+       color : Colors.red
+    } -- Otherwise can't write layering statement
     r.layeringDisk = r.shape above G.disk
 }
 
@@ -189,6 +192,7 @@ with Point p; Point q; Point r {
      t.layering = t.shape above G.disk
 }
 
+-- TODO: Should this require a midpoint statement?
 Ray r
 with Segment s; Point p; Point q; Point m
 where r := PerpendicularBisector(s); s := MkSegment(p, q); m := Midpoint(s) {
@@ -298,10 +302,12 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) { -- Angle YXZ (where
 
       theta.markLen = 10.0
 
-      -- Angle bisector marks: a path of two pieces (two tick marks)
+      -- Angle bisector marks: two tick marks
       -- Making this in screen space because we are drawing two straight (Euclidean) lines
-      theta.bisectMarks = Curve {
-      	      pathData : makeBisectorMarks(theta.vec_screen1, theta.vec_screen2, x.vec_screen, theta.markLen)
+
+      -- TODO: this should be two lines!
+      theta.bisectMark1 = Curve {
+      	      pathData : makeBisectorMark(theta.vec_screen1, x.vec_screen, theta.markLen)
       	      strokeWidth : G.strokeWidth
       	      fill : Colors.none
       	      color : Colors.darkpurple
@@ -310,7 +316,18 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) { -- Angle YXZ (where
       	      arrowheadSize : G.arrowheadSize
       }
 
-      theta.layeringMarks = theta.bisectMarks above theta.shape
+      theta.bisectMark2 = Curve {
+      	      pathData : makeBisectorMark(theta.vec_screen2, x.vec_screen, theta.markLen)
+      	      strokeWidth : G.strokeWidth
+      	      fill : Colors.none
+      	      color : Colors.darkpurple
+      	      rotation : 0.0
+      	      rightArrowhead : False
+      	      arrowheadSize : G.arrowheadSize
+      }
+
+      theta.layeringMark1 = theta.bisectMark1 above theta.shape
+      theta.layeringMark2 = theta.bisectMark2 above theta.shape
 }
 
 Triangle t; Angle theta {

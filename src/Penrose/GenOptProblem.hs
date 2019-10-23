@@ -776,13 +776,15 @@ evalEnergyOn s vstate =
         penaltyWeight = r2f $ weight $ paramsr s
     in applyCombined penaltyWeight fnsE
 
-evalEnergy :: (Autofloat a) => State -> a    
-evalEnergy s = 
-    let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) 
-        fns = objFns s ++ constrFns s
-        (fnsE, transE, rng') = evalFns evalIterRange fns (castTranslation $ transr s) varyMap (rng s)
-        penaltyWeight = r2f $ weight $ paramsr s
-    in applyCombined penaltyWeight fnsE
+-- TODO: This doesn't seem to be used anywhere. Why is it here?
+
+-- evalEnergy :: (Autofloat a) => State -> a    
+-- evalEnergy s = 
+--     let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) 
+--         fns = objFns s ++ constrFns s
+--         (fnsE, transE, rng') = evalFns evalIterRange fns (castTranslation $ transr s) varyMap (rng s)
+--         penaltyWeight = r2f $ weight $ paramsr s
+--     in applyCombined penaltyWeight fnsE
 
 --------------- Generating an initial state (concrete values for all fields/properties needed to draw the GPIs)
 -- 1. Initialize all varying fields

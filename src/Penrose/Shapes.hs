@@ -345,8 +345,10 @@ computedProperties =
     , (("EllipseTransform", "polygon"), ellipsePolygonFn)
     , (("ParallelogramTransform", "polygon"), parallelogramPolygonFn)
     , (("TextTransform", "polygon"), textPolygonFn)
+
     , (("Text", "finalW"), textWidthFn)
     , (("Text", "finalH"), textHeightFn)
+    , (("Curve", "polygon"), curvePolygonFn2)
     ]
 
 rectTransformFn :: (Autofloat a) => ComputedValue a
@@ -464,17 +466,8 @@ curvePolygonFn :: (Autofloat a) => ComputedValue a
 curvePolygonFn = (props, fn)
   where
     props =
-      [ "scaleX"
-      , "scaleY"
-      , "rotation"
-      , "dx"
-      , "dy"
-      , "transform"
-      , "pathData"
-      , "strokeWidth"
-      , "leftArrowhead"
-      , "rightArrowhead"
-      ]
+      [ "scaleX", "scaleY", "rotation", "dx", "dy", "transform",
+         "pathData", "strokeWidth", "leftArrowhead", "rightArrowhead"]
     fn :: (Autofloat a) => [Value a] -> Value a
     fn [FloatV scaleX, FloatV scaleY, FloatV rotation, FloatV dx, FloatV dy, HMatrixV customTransform, PathDataV path, FloatV strokeWidth, BoolV leftArrow, BoolV rightArrow] =
       let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy)
@@ -483,8 +476,28 @@ curvePolygonFn = (props, fn)
             transformPoly fullTransform $
             toPoly $
             polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
-      where
-        maxIter = 1 -- TODO: what should this be?
+      where maxIter = 1 -- TODO: what should this be?
+
+-- | Polygonize a Bezier curve (WITHOUT TRANSFORM), even if the curve was originally made using a list of points.
+-- TODO: distinguish between filled curves (polygons) and unfilled ones (polylines)
+curvePolygonFn2 :: (Autofloat a) => ComputedValue a
+curvePolygonFn2 = (props, fn)
+  where
+    props = ["pathData" , "strokeWidth", "leftArrowhead", "rightArrowhead"]
+    fn :: (Autofloat a) => [Value a] -> Value a
+    fn [PathDataV path, FloatV strokeWidth, BoolV leftArrow, BoolV rightArrow] =
+           case path of
+           [piece] -> if all (\e -> elemIsPt e) (elemsOf piece) -- If path only consists of points, it's already a polygon
+                      then PolygonV $ toPoly $ map (\e -> elemToPt e) (elemsOf piece)
+                      else PolygonV $ toPoly $ polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
+           _ -> error "unimplemented: polygonizing path of multiple pieces"
+
+      where maxIter = 1 -- TODO: what should this be?
+            elemIsPt (Pt _) = True
+            elemIsPt _ = False
+            elemToPt (Pt e) = e
+            elemsOf (Closed es) = es
+            elemsOf (Open es) = es
 
 -- | Polygonize a line segment, accounting for its thickness.
 -- TODO: would it usually be more efficient to just use a polyline?
@@ -806,6 +819,10 @@ curveType =
         -- These two fields are for storage.
       [ ("path", (PtListT, constValue $ PtListV [])) -- TODO: sample path
       , ("polyline", (PtListT, constValue $ PtListV [])) -- TODO: sample path
+
+      -- Computed
+      , ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
+
         -- The frontend only uses pathData to draw the curve.
       , ("pathData", (PathDataT, constValue $ PathDataV [])) -- TODO: sample path
       , ("strokeWidth", (FloatT, stroke_sampler))
@@ -1575,7 +1592,11 @@ polygonizePath n p =
 polygonize :: Autofloat a => Int -> PathData a -> [[Pt2 a]]
 polygonize maxIter = map go
   where
-    go (Closed path) = error "TODO"
+    go (Closed path) =
+       case path of
+       -- A closed path is equivalent to the same open path, ending at the head point (TODO: check that this makes sense)
+       ((Pt e):_) -> go (Open $ path ++ [Pt e])
+       _ -> error "unimplemented: polygonizing a closed path that doesn't start with a point"
     go (Open path)   = concatMap (polyCubicBez 0 maxIter) $ expandCurves path
 
 type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
@@ -1583,8 +1604,10 @@ type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
 expandCurves :: Autofloat a => [Elem a] -> [CubicBezCoeffs a]
 expandCurves elems = zipWith attach elems $ tail elems
   where
+    attach :: Autofloat a => Elem a -> Elem a -> (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
     attach (Pt a) (CubicBez (b, c, d))               = (a, b, c, d)
     attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
+    attach x y = error ("Can't attach: " ++ show x ++ ", " ++ show y)
 
 -- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
 polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]

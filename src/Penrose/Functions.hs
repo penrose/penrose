@@ -179,7 +179,7 @@ compDict =
   , ("arcPathHyp", constComp arcPathHyp)
   , ("angleBisectorHyp", constComp angleBisectorHyp)
   , ("perpPathHyp", constComp perpPathHyp)
-  , ("makeBisectorMarks", constComp makeBisectorMarks)
+  , ("makeBisectorMark", constComp makeBisectorMark)
 
         -- Transformations
     , ("rotate", constComp rotate)
@@ -1413,18 +1413,15 @@ angleMark root arcPt len =
               topPt = arcPt +: dir
           in (botPt, topPt)
 
--- Make two marks along the straight lines (in Euclidean space) from commonPt to bis1, then commonPt to bis2
-makeBisectorMarks :: ConstCompFn
-makeBisectorMarks [Val (ListV bis1), Val (ListV bis2), Val (ListV commonPt), Val (FloatV markLen)] =
-  let (botPt1, topPt1) = angleMark (tuplify2 commonPt) (tuplify2 bis1) markLen
-      path1 = Open $ map Pt [botPt1, topPt1]
-
-      (botPt2, topPt2) = angleMark (tuplify2 commonPt) (tuplify2 bis2) markLen
-      path2 = Open $ map Pt [botPt2, topPt2]
-  in Val $ PathDataV [path1, path2]
+-- Make a mark along the straight line (in Euclidean space) from commonPt to bisector
+makeBisectorMark :: ConstCompFn
+makeBisectorMark [Val (ListV bis), Val (ListV commonPt), Val (FloatV markLen)] =
+  let (botPt, topPt) = angleMark (tuplify2 commonPt) (tuplify2 bis) markLen
+      path = Open $ map Pt [botPt, topPt]
+  in Val $ PathDataV [path]
 
 --------------------------------------------------------------------------------
--- Objective Functions
+-- path1 Functions
 near :: ObjFn
 near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
