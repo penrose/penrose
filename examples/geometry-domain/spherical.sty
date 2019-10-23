@@ -194,8 +194,8 @@ with Segment s; Point a; Point b {
 
 -- Assuming the segments share a point
 Angle theta
-where theta := AngleBetween(a, b); a := MkSegment(p, q); b := MkSegment(p, r) 
-with Segment a; Segment b; Point p; Point q; Point r {
+where theta := AngleBetween(q, p, r)
+with Point p; Point q; Point r {
 
      theta.radius = G.pi / 20.0
      theta.arcPath = arcPath(p.vec_math, q.vec_math, r.vec_math, theta.radius)
@@ -210,8 +210,8 @@ with Segment a; Segment b; Point p; Point q; Point r {
 }
 
 Ray r
-with Angle theta; Segment a; Segment b; Point x; Point y; Point z
-where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b := MkSegment(x, z) {
+with Angle theta; Point x; Point y; Point z
+where r := Bisector(theta); theta := AngleBetween(y, x, z) {
 
       -- TODO: note that there's a decent amount of code shared between here and the PerpendicularBisector selector
       -- Move some into the basic Ray selector?

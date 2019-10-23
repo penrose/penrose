@@ -1051,17 +1051,7 @@ get' [Val (ListV xs), Val (IntV i)] =
        else Val $ FloatV $ xs !! i'
 get' [Val (TupV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
 
-projectVec ::
-     Autofloat a
-  => String
-  -> Pt2 a
-  -> Pt2 a
-  -> a
-  -> [a]
-  -> [a]
-  -> [a]
-  -> a
-  -> [a]
+projectVec :: Autofloat a => String -> Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> a -> [a]
 projectVec name hfov vfov r camera dir vec_math toScreen =
   let vec_camera = vec_math -. camera -- Camera at origin. TODO: rotate with dir
       [px, py, pz] = vec_camera

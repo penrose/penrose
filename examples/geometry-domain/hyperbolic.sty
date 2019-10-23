@@ -109,8 +109,8 @@ Point p {
       	     string : p.label
       }
 
-      -- p.labelFn = encourage near(p.shape, p.text, G.padding)
-      p.labelFn = encourage near(p.shape, p.text)
+      p.labelFn = encourage near(p.shape, p.text, G.padding)
+      -- p.labelFn = encourage near(p.shape, p.text)
       p.layering = p.shape above G.disk
       p.textLayering = p.text above G.disk
 }
@@ -161,8 +161,8 @@ with Point p; Point q {
      -- Should these be objectives or constraints?
      -- If a point is in more than one segment, apply the objective to both
      -- TODO: which one should have the padding?
-     LOCAL.labelAvoidFn_p = encourage labelDisjoint(e.shape, p.text, G.padding)
-     LOCAL.labelAvoidFn_q = encourage labelDisjoint(e.shape, q.text, G.padding)
+     -- LOCAL.labelAvoidFn_p = encourage labelDisjoint(e.shape, p.text, G.padding)
+     -- LOCAL.labelAvoidFn_q = encourage labelDisjoint(e.shape, q.text, G.padding)
 }
 
 Ray r {
