@@ -109,27 +109,35 @@ Point p {
       	     string : p.label
       }
 
-      p.labelFn = encourage near(p.shape, p.text, G.padding)
+      -- This doesn't work because it doesn't shift the local minimum to be a "ring" of minima.
+      -- p.labelFn = encourage near(p.shape, p.text, G.padding)
       -- p.labelFn = encourage near(p.shape, p.text)
+
+      -- TODO have any segment sample / other point repel the label
+      p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)
+      -- So if the label is big, the vertex doesn't end up INSIDE the label w/ some offset
+      -- (Don't need it for small labels)
+      -- p.labelFnOutside = encourage repel(p.shape, p.text)
+
       p.layering = p.shape above G.disk
       p.textLayering = p.text above G.disk
 }
 
 -- Some test points on the hyperboloid
-Point `p` {
-      override `p`.x = -10.0
-      override `p`.y = -10.0
-      -- override `p`.x = 0.0
-      -- override `p`.y = 0.0
+-- Point `p` {
+--       override `p`.x = -10.0
+--       override `p`.y = -10.0
+--       -- override `p`.x = 0.0
+--       -- override `p`.y = 0.0
 
-      override `p`.z = calcZ(`p`.x, `p`.y)
-}
+--       override `p`.z = calcZ(`p`.x, `p`.y)
+-- }
 
-Point `q` {
-      override `q`.x = 4.0
-      override `q`.y = -3.0
-      override `q`.z = calcZ(`q`.x, `q`.y)
-}
+-- Point `q` {
+--       override `q`.x = 4.0
+--       override `q`.y = -3.0
+--       override `q`.z = calcZ(`q`.x, `q`.y)
+-- }
 
 -- Point `r` {
 --       override `r`.x = -1.0

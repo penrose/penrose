@@ -5,3 +5,4 @@ Segment a := {p, q}
 -- Segment b := {p, r}
 
 AutoLabel All
+Label q $\int_1^\infty x^2 + y^2$

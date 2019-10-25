@@ -169,6 +169,14 @@ class Canvas extends React.Component<IProps> {
 		];
 	    }
 
+	    if (shapeType === "Curve") {
+		console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
+		return [
+		    shapeType,
+		    { ...shape } // TODO: need to map (-dx, -dy) over all the path pieces
+		];
+	    }
+
           return [
             shapeType,
             {

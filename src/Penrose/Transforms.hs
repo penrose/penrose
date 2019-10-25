@@ -469,6 +469,10 @@ dsqSS (a,b) (c,d) = if ixSS (a,b) (c,d) then 0 else let
     dd = dsqSP (a,b) d 
     in min (min da db) (min dc dd)
 
+signedDsqBP :: Autofloat a => Blob a -> Pt2 a -> a
+signedDsqBP b p = let sgn = if isInB' b p then -1 else 1
+            in sgn * dsqBP b p
+
 dsqBP :: Autofloat a => Blob a -> Pt2 a -> a
 dsqBP b p = let
     segments = getSegmentsB b

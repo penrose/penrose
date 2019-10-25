@@ -439,8 +439,10 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("lessThan", lessThan)
       , ("onCanvas", onCanvas)
       , ("unit", unit')
+      , ("equal", equalFn)
       , ("hasNorm", hasNorm)
       , ("hasLorenzNorm", hasLorenzNorm)
+      , ("atDist", atDist)
       ]
 
 indivConstrWeight :: (Autofloat a) => a
@@ -1418,7 +1420,9 @@ near :: ObjFn
 near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
 near [GPI o1, GPI o2, Val (FloatV offset)] =
-  distsq (getX o1, getY o1) (getX o2, getY o2) - offset ^ 2
+  let res = distsq (getX o1, getY o1) (getX o2, getY o2) - offset ^ 2 in
+  trace ("\n\nEnergy: " ++ show res ++
+        "\nShapes: " ++ show (o1, o2)) res
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
   let center = (getNum img "centerX", getNum img "centerY")
       offset = (xoff, yoff)
@@ -1755,11 +1759,17 @@ unit' :: ConstrFn
 unit' [Val (ListV vec)] = hasNorm [Val (ListV vec), Val (FloatV 1)]
 
 -- | This is an equality constraint (x = c) via two inequality constraints (x <= c and x >= c)
+equal' :: Autofloat a => a -> a -> a
+equal' x y = let vals = (x, y)
+                 (val_max, val_min) = (uncurry max vals, uncurry min vals)
+             in val_max - val_min
+
+equalFn :: ConstrFn
+equalFn [Val (FloatV x), Val (FloatV y)] = equal' x y
+
 hasNorm :: ConstrFn
-hasNorm [Val (ListV vec), Val (FloatV desired_norm)] =
-  let norms = (norm vec, desired_norm) -- TODO: Use normal norm or normsq?
-      (norm_max, norm_min) = (uncurry max norms, uncurry min norms)
-  in norm_max - norm_min
+hasNorm [Val (ListV vec), Val (FloatV desired_norm)] = -- TODO: Use normal norm or normsq?
+        equal' (norm vec) desired_norm
 
 hasLorenzNorm :: ConstrFn
 hasLorenzNorm [Val (ListV vec), Val (FloatV desired_norm)] =
@@ -1923,6 +1933,16 @@ noIntersect [[x1, y1, s1], [x2, y2, s2]] =
 noIntersectOffset :: (Autofloat a) => [[a]] -> a -> a
 noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset =
   -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset
+
+-- Uses the closest distance between object center and text bbox
+atDist :: ConstrFn
+atDist [GPI o, GPI txt@("Text", _), Val (FloatV offset)] =
+  -- TODO: also account for boundary/radius of `o`, rather than just using center
+  let ([textPts], _, textBbox, _) = getPolygon txt
+      dsq_res = dsqBP textPts (getX o, getY o) -- Note this does NOT use the signed distance
+      constrEnergy = equal' dsq_res (offset * offset)
+  in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
+            "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
 
 --------------------------------------------------------------------------------
 -- Wrappers for transforms and operations to call from Style
