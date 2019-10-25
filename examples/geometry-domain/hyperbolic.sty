@@ -42,7 +42,7 @@ G {
   G.screenRadius = G.toScreen * G.diskRadius
 
   G.maxVal = 15.0 -- So the points don't look too much like ideal points
-  G.maxValNorm = 20.0 -- So the points don't look too much like ideal points
+  G.maxValNorm = 10.0 -- So the points don't look too much like ideal points
 
   G.disk = Image {
 	 centerX : 0.0
@@ -171,6 +171,9 @@ with Point p; Point q {
      -- TODO: which one should have the padding?
      -- LOCAL.labelAvoidFn_p = encourage labelDisjoint(e.shape, p.text, G.padding)
      -- LOCAL.labelAvoidFn_q = encourage labelDisjoint(e.shape, q.text, G.padding)
+
+     LOCAL.labelAvoidFn_p = ensure labelDisjoint(e.shape, p.text, G.padding)
+     LOCAL.labelAvoidFn_q = ensure labelDisjoint(e.shape, q.text, G.padding)
 }
 
 Ray r {
@@ -248,6 +251,8 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q); m := Midpoint(s) {
       r.markLayering5 = r.perpMark below q.shape
       r.markLayering6 = r.perpMark below r.shape
       r.markLayering7 = r.perpMark below m.shape
+
+     -- LOCAL.labelAvoidFn_Ray = ensure labelDisjoint(r.shape, m.text, G.padding)
 }
 
 Point p
@@ -258,6 +263,9 @@ with Segment s; Point a; Point b {
      override p.shape.color = Colors.white
      override p.shape.r = 3.2
      p.midLayering = p.shape above s.shape
+
+     delete p.normFn
+     LOCAL.labelAvoidFn_Midpt = ensure labelDisjoint(s.shape, p.text, G.padding)
 }
 
 Angle theta -- Angle QPR (i.e. the vertex point is p)
@@ -347,4 +355,13 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) { -- Angle YXZ (where
 
 Triangle t; Angle theta {
 	 LOCAL.layering = theta.shape above t.shape
+}
+
+Point p; Point q {
+      LOCAL.labelRepelFn = encourage repel(p.text, q.text)
+}
+
+Point p; Ray r {
+      -- TODO: seems to make things really slow. Remove?
+     LOCAL.labelAvoidFn_Ray = ensure labelDisjoint(r.shape, p.text, G.padding)
 }

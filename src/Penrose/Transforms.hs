@@ -255,6 +255,14 @@ emptyPoly = ([], [], ((posInf, posInf), (negInf, negInf)), [])
 toPoly :: Autofloat a => [Pt2 a] -> Polygon a
 toPoly pts = ([pts], [], getBBox pts, sampleB numSamples pts)
 
+-- TODO: catch runime errors
+polyPts :: Autofloat a => Polygon a -> [Pt2 a]
+polyPts (pos, neg, bbox, samples) = pos !! 0
+
+-- TODO: catch runime errors
+segOf :: Autofloat a => [Pt2 a] -> (Pt2 a, Pt2 a)
+segOf es = (es !! 0, last es)
+
 -- Assuming this bbox is in CCW or CW order and does NOT include the last point. Redundant with getSegmentsB?
 ptsToPolySegs :: Autofloat a => [Pt2 a] -> [(Pt2 a, Pt2 a)]
 ptsToPolySegs pts@(x:xs) = zip pts (tail pts ++ [x])

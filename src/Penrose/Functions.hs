@@ -443,6 +443,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("hasNorm", hasNorm)
       , ("hasLorenzNorm", hasLorenzNorm)
       , ("atDist", atDist)
+      , ("labelDisjoint", labelDisjointConstr)
       ]
 
 indivConstrWeight :: (Autofloat a) => a
@@ -1944,6 +1945,21 @@ atDist [GPI o, GPI txt@("Text", _), Val (FloatV offset)] =
   in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
             "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
 
+-- If the point is in the blob, it should have a penalty. If the point is outside the blob, ignore it.
+polyPtDisjoint :: Autofloat a => Blob a -> Pt2 a -> a
+polyPtDisjoint b p = max (-1 * signedDsqBP b p) 0
+
+labelDisjointConstr :: ConstrFn
+labelDisjointConstr [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV padding)] =
+    let curvePts = polyPts $ getPolygon curve
+        ([textPts], _, textBbox, _) = getPolygon lab 
+        segs = ptsToPolySegs textPts
+        numCurvePts = length curvePts
+        sumEnergies = sum $ map (polyPtDisjoint textPts) curvePts
+    in {- trace ("\nsumEnergies: " ++ show sumEnergies ++
+              "\nnumCurvePts: " ++ show numCurvePts) -}
+       sumEnergies
+
 --------------------------------------------------------------------------------
 -- Wrappers for transforms and operations to call from Style
 -- NOTE: Haskell trig is in radians
@@ -2168,11 +2184,6 @@ labelDisjoint [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV padding)
             "\nintersectPts: " ++ show intersectPts ++
             "\nenergy: " ++ show energy)
      energy
-  where polyPts :: Autofloat a => Polygon a -> [Pt2 a]
-        polyPts (pos, neg, bbox, samples) = pos !! 0
-        segOf :: Autofloat a => [Pt2 a] -> (Pt2 a, Pt2 a)
-        segOf es = (es !! 0, last es)
-        -- TODO: catch runime errors
 
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), Val (FloatV dx), Val (FloatV dy)] =
