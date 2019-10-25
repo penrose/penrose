@@ -1946,6 +1946,7 @@ atDist [GPI o, GPI txt@("Text", _), Val (FloatV offset)] =
             "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
 
 -- If the point is in the blob, it should have a penalty. If the point is outside the blob, ignore it.
+-- TODO: Should we use a bbox on curve to accelerate queries?
 polyPtDisjoint :: Autofloat a => Blob a -> Pt2 a -> a
 polyPtDisjoint b p = max (-1 * signedDsqBP b p) 0
 

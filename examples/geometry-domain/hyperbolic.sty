@@ -42,7 +42,7 @@ G {
   G.screenRadius = G.toScreen * G.diskRadius
 
   G.maxVal = 15.0 -- So the points don't look too much like ideal points
-  G.maxValNorm = 10.0 -- So the points don't look too much like ideal points
+  G.maxValNorm = 5.0 -- So the points don't look too much like ideal points
 
   G.disk = Image {
 	 centerX : 0.0
@@ -358,6 +358,7 @@ Triangle t; Angle theta {
 }
 
 Point p; Point q {
+      LOCAL.shapeRepelFn = encourage repel(p.shape, q.shape)
       LOCAL.labelRepelFn = encourage repel(p.text, q.text)
 }
 

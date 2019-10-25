@@ -108,7 +108,7 @@ data BfgsParams = BfgsParams {
      y_list :: [[Double]],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
      numUnconstrSteps :: Int, -- (L-BFGS only) number of steps so far, starting at 0
      memSize :: Int -- (L-BFGS only) number of vectors to retain
-} deriving Show
+}
 
 -- data BfgsParams = BfgsParams {
 --      lastState :: Maybe (L.Vector L.R), -- x_k
@@ -120,18 +120,18 @@ data BfgsParams = BfgsParams {
 --      memSize :: Int -- (L-BFGS only) number of vectors to retain
 -- }
 
--- instance Show BfgsParams where
---          show s = "\nBFGS params:\n" ++
---                   "\nlastState: \n" ++ ppShow (lastState s) ++
---                   "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
---                   "\ninvH: \n" ++ ppShow (invH s) ++
---                   -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
---                   -- "\ns_list:\n" ++ ppShow (s_list s) ++
---                   -- "\ny_list:\n" ++ ppShow (y_list s) ++
---                   "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
---                   "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
---                   "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
---                   "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
+instance Show BfgsParams where
+         show s = "\nBFGS params:\n" ++
+                  "\nlastState: \n" ++ show (lastState s) ++
+                  "\nlastGrad: \n" ++ show (lastGrad s) ++
+                  "\ninvH: \n" ++ show (invH s) ++
+                  -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
+                  -- "\ns_list:\n" ++ show (s_list s) ++
+                  -- "\ny_list:\n" ++ show (y_list s) ++
+                  "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
+                  "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
+                  "\nnumUnconstrSteps:\n" ++ show (numUnconstrSteps s) ++
+                  "\nmemSize:\n" ++ show (memSize s) ++ "\n"
 
 defaultBfgsMemSize :: Int
 defaultBfgsMemSize = 17

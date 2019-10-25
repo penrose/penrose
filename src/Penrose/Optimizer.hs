@@ -79,8 +79,8 @@ useAutodiff = True
 constT :: Floating a => a
 constT = 0.001
 
--- debugOpt = True
-debugOpt = False
+debugOpt = True
+-- debugOpt = False
 debugLineSearch = False
 debugBfgs = False
 
