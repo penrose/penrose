@@ -34,8 +34,10 @@ G {
   G.toScreen = 200.0 -- Math space to screen space
   G.rayLen = 2.5
   G.arrowheadSize = 0.65
-  G.textPadding = 18.0
-  G.textScale = 1.75
+  G.textPadding = 7.0
+  G.textScale = 1.75 -- TODO
+
+  G.repelWeight = 0.7
 
   -- Poincare disk: Unit disk at the origin
   G.diskRadius = 1.0
@@ -80,15 +82,7 @@ Point p {
       p.z = calcZ(p.x, p.y) -- Satisfies hyperbola by construction
       p.vec_math = [p.x, p.y, p.z]
 
-      -- p.xFn = ensure lessThan(p.x, G.maxVal)
-      -- p.yFn = ensure lessThan(p.y, G.maxVal)
-
       p.normFn = ensure lessThan(normSq(p.x, p.y), G.maxValNorm) -- Probably faster to inline all this
-
-      -- Is there a nicer way to state this (or easier way to satisfy this?)
-      -- p.onHyperbolaFn = ensure hasLorenzNorm(p.vec_math, -1.0 * G.diskRadius)
-      -- p.topSheetFn = ensure lessThan(-1.0 * p.z, 0.0) -- z > 0 (TODO write greaterThan)
-      -- TODO: the vectors don't seem to quite satisfy all the constraints...
 
       p.vec_disk = toDisk(p.vec_math)
       p.vec_screen = diskToScreen(p.vec_disk, G.toScreen)
@@ -103,21 +97,17 @@ Point p {
       }
 
       p.text = Text {
-      	     x : ? -- p.shape.x + G.textPadding
-      	     y : ? -- p.shape.y + G.textPadding
+      	     x : ?
+      	     y : ?
 	     scale : G.textScale
       	     string : p.label
       }
 
-      -- This doesn't work because it doesn't shift the local minimum to be a "ring" of minima.
-      -- p.labelFn = encourage near(p.shape, p.text, G.padding)
-      -- p.labelFn = encourage near(p.shape, p.text)
-
-      -- TODO have any segment sample / other point repel the label
       p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)
       -- So if the label is big, the vertex doesn't end up INSIDE the label w/ some offset
       -- (Don't need it for small labels)
       -- p.labelFnOutside = encourage repel(p.shape, p.text)
+      -- p.labelFnNear = encourage near(p.shape, p.text)
 
       p.layering = p.shape above G.disk
       p.textLayering = p.text above G.disk
@@ -142,7 +132,7 @@ Point p {
 -- Point `r` {
 --       override `r`.x = -1.0
 --       override `r`.y = 2.0
---       override `r`.z = calcZ(`r`.x, `r`.y)
+--       override `r`.z = calcZ(`r`.xsh, `r`.y)
 -- }
 
 Segment e
@@ -156,6 +146,8 @@ with Point p; Point q {
      -- Draw a path using the slerp'ed points
      e.shape = Curve {
      	     pathData : pathFromPoints(e.screenspacePath)
+     	     -- polyline : e.screenspacePath
+	     -- pathData : interpolate(e.shape.polyline)
 	     strokeWidth : G.strokeWidth
 	     fill : Colors.none
 	     color : Colors.black
@@ -166,14 +158,12 @@ with Point p; Point q {
      e.layering2 = q.shape above e.shape
      e.layering3 = e.shape above G.disk
 
-     -- Should these be objectives or constraints?
      -- If a point is in more than one segment, apply the objective to both
-     -- TODO: which one should have the padding?
-     -- LOCAL.labelAvoidFn_p = encourage labelDisjoint(e.shape, p.text, G.padding)
-     -- LOCAL.labelAvoidFn_q = encourage labelDisjoint(e.shape, q.text, G.padding)
+     -- LOCAL.labelAvoidFn_p = ensure labelDisjoint(e.shape, p.text, G.padding)
+     -- LOCAL.labelAvoidFn_q = ensure labelDisjoint(e.shape, q.text, G.padding)
 
-     LOCAL.labelAvoidFn_p = ensure labelDisjoint(e.shape, p.text, G.padding)
-     LOCAL.labelAvoidFn_q = ensure labelDisjoint(e.shape, q.text, G.padding)
+     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, G.repelWeight)
+     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, G.repelWeight)
 }
 
 Ray r {
@@ -252,7 +242,8 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q); m := Midpoint(s) {
       r.markLayering6 = r.perpMark below r.shape
       r.markLayering7 = r.perpMark below m.shape
 
-     -- LOCAL.labelAvoidFn_Ray = ensure labelDisjoint(r.shape, m.text, G.padding)
+     LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, G.repelWeight)
+     LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, G.repelWeight)
 }
 
 Point p
@@ -364,5 +355,7 @@ Point p; Point q {
 
 Point p; Ray r {
       -- TODO: seems to make things really slow. Remove?
-     LOCAL.labelAvoidFn_Ray = ensure labelDisjoint(r.shape, p.text, G.padding)
+     -- LOCAL.labelAvoidFn_Ray = ensure labelDisjoint(r.shape, p.text, G.padding)
+
+     LOCAL.labelAvoidFn_Ray = encourage repel(r.shape, p.text, G.repelWeight)
 }

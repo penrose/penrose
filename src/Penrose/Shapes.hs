@@ -491,7 +491,7 @@ curvePolygonFn2 = (props, fn)
            case path of
            [piece] -> if all (\e -> elemIsPt e) (elemsOf piece) -- If path only consists of points, it's already a polygon
                       then PolygonV $ toPoly $ map (\e -> elemToPt e) (elemsOf piece)
-                      else PolygonV $ toPoly $ polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
+                      else PolygonV $ toPoly $ polygonizePath maxIter path -- Not including polygonizing arrowheads or thickness
            _ -> error "unimplemented: polygonizing path of multiple pieces"
 
       where maxIter = 1 -- TODO: what should this be?

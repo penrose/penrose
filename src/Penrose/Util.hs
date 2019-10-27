@@ -324,6 +324,9 @@ closestpt_pt_seg p@(px, py) (v@(vx, vy), w@(wx, wy)) =
 clamp :: (Floating a, Ord a) => (a, a) -> a -> a
 clamp (l, r) x = max l $ min r x
 
+subsampleEvery :: Int -> [a] -> [a]
+subsampleEvery n xs = map fst $ filter (\(e, i) -> i `mod` n == 0) $ zip xs ([0..length xs])
+
 --------------------------------------
 -- Reflection capabilities to typecheck Computation functions
 -- Typeable doesn't works with polymorphism (e.g. `id`) but works with `Floating a` by replacing it with `Double`

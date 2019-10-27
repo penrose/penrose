@@ -317,9 +317,7 @@ repelWeight :: (Autofloat a) => a
 repelWeight = 10000000
 
 -- | 'objFuncDict' stores a mapping from the name of objective functions to the actual implementation
-objFuncDict ::
-     forall a. (Autofloat a)
-  => M.Map String (ObjFnOn a)
+objFuncDict :: forall a. (Autofloat a) => M.Map String (ObjFnOn a)
 objFuncDict =
   M.fromList
     [ ("near", near)
@@ -1554,6 +1552,17 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
 -- TODO: temporarily written in a generic way
 -- Note: repel's energies are quite small so the function is scaled by repelWeight before being applied
 repel :: ObjFn
+
+-- Repel an object and a curve by summing repel forces over the (subsampled) body of the surve
+repel [GPI curve@("Curve", _), GPI a, Val (FloatV weight)] =
+  let curvePts = subsampleEvery sampleNum $ polyPts $ getPolygon curve
+      allForces = sum $ map (repelPt weight (getX a, getY a)) curvePts
+      res = weight * allForces
+  in {- trace ("numPoints: " ++ show (length curvePts)) -}
+     res
+  where repelPt c a b = c / (distsq a b + epsd)
+        sampleNum = 3
+  
 repel [Val (TupV x), Val (TupV y)] = 1 / (distsq x y + epsd)
 repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd)
 repel [GPI a, GPI b, Val (FloatV weight)] =
@@ -1952,10 +1961,9 @@ polyPtDisjoint b p = max (-1 * signedDsqBP b p) 0
 
 labelDisjointConstr :: ConstrFn
 labelDisjointConstr [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV padding)] =
-    let curvePts = polyPts $ getPolygon curve
+    let curvePts = polyPts $ getPolygon curve -- TODO: maybe we should re-polygonize the curve instead of using the original points, which are equally distributed in hyperbolic space but not 2D space
         ([textPts], _, textBbox, _) = getPolygon lab 
-        segs = ptsToPolySegs textPts
-        numCurvePts = length curvePts
+        -- numCurvePts = length curvePts
         sumEnergies = sum $ map (polyPtDisjoint textPts) curvePts
     in {- trace ("\nsumEnergies: " ++ show sumEnergies ++
               "\nnumCurvePts: " ++ show numCurvePts) -}
