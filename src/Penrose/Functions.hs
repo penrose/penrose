@@ -107,6 +107,7 @@ compDict =
   M.fromList
     [ ("rgba", constComp rgba)
     , ("rgba2", constComp rgba2)
+    , ("xy", constComp xy)
     , ("atan", constComp arctangent)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
@@ -166,6 +167,8 @@ compDict =
     , ("join", constComp joinPath)
     , ("dot", constComp dotFn)
     , ("angle", constComp angleFn)
+
+  , ("calcZSphere", constComp calcZSphere)
 
   -- Hyperbolic funcions
   , ("calcZ", constComp calcZ)
@@ -591,6 +594,9 @@ rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
 rgba2 :: ConstCompFn
 rgba2 [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
   Val (ColorV $ makeColor' (r / 255) (g / 255) (b / 255) (a / 255))
+
+xy :: ConstCompFn
+xy [Val (ListV xs)] = Val $ ListV $ take 2 xs
 
 arctangent :: ConstCompFn
 arctangent [Val (FloatV d)] = Val (FloatV $ (atan d) / pi * 180)
@@ -1063,19 +1069,13 @@ projectVec name hfov vfov r camera dir vec_math toScreen =
       vec_screen = toScreen *. vec_proj
       vec_proj_screen = vec_screen ++ [pz] -- TODO check denom 0. Also note z might be negative?
   in trace
-       ("\n" ++
-        "name: " ++
-        name ++
-        "\nvec_math: " ++
-        show vec_math ++
-        "\n||vec_math||: " ++
-        show (norm vec_math) ++
-        "\nvec_camera: " ++
-        show vec_camera ++
-        "\nvec_proj: " ++
-        show vec_proj ++
-        "\nvec_screen: " ++
-        show vec_screen ++ "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
+       ("\n" ++ "name: " ++ name ++
+        "\nvec_math: " ++ show vec_math ++
+        "\n||vec_math||: " ++ show (norm vec_math) ++
+        "\nvec_camera: " ++ show vec_camera ++
+        "\nvec_proj: " ++ show vec_proj ++
+        "\nvec_screen: " ++ show vec_screen ++ 
+        "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
        vec_proj_screen
 
 -- | For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e2 x e1, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q) (Assuming p and q are unit)
@@ -1199,6 +1199,9 @@ toDisk [Val (ListV v)] = Val $ ListV $ toDisk' v
 
 calcZ :: ConstCompFn
 calcZ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ calcZ' x y
+
+calcZSphere :: ConstCompFn
+calcZSphere [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ sqrt (1 - x * x - y * y) -- For x^2 + y^2 + z^2 = 1
 
 diskToScreen :: ConstCompFn
 diskToScreen [Val (ListV v), Val (FloatV toScreen)] =

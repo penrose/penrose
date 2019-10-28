@@ -47,6 +47,7 @@ G {
 
     G.arrowheadSize = 0.65
     G.strokeWidth = 1.75
+    G.textPadding = 7.0
     G.textScale = 1.75 -- TODO
 
     -- Needed to hand-tune the G.bgScaleFactor and G.sphere.centerY
@@ -87,8 +88,14 @@ Point p {
       p.x = ?
       p.y = ?
       p.z = ?
+
+      -- x^2 + y^2 + z^2 = 1
+      -- z = sqrt (1 - x^2 - y^2) -- This won't work b/c some (x,y) pairs won't be on the sphere no matter what. But we could project the whole (x,y,z) ray onto the sphere.
+      -- p.z = calcZSphere(p.x, p.y)
+
       p.vec_math = [p.x, p.y, p.z]
-      p.onSphereFn = ensure hasNorm(p.vec_math, G.sphereRadius) -- 0.5
+      p.onSphereFn = ensure hasNorm(p.vec_math, G.sphereRadius)
+
       -- TODO: for visibility, only pick points on the front of the sphere. This produces really cramped-looking diagrams right now.
       -- p.visibleFn = ensure lessThan(p.z, 0.0)
 
@@ -114,12 +121,17 @@ Point p {
        p.text = Text {
 	 x : p.shape.x + G.padding
 	 y : p.shape.y + G.padding
+	 -- x : ?
+	 -- y : ?
 	 scale : G.textScale
 	 string : p.label
 	 rotation : 0.0
 	 color : Colors.black
        }
-       
+
+       -- TODO: this is not working well. Instead, construct a point on the sphere? (If you sample (x,y) and calculate z, will it work?)
+       -- p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)       
+
        p.layeringSphere = p.shape above G.sphere
        p.layeringSphereText = p.text above G.sphere
 }
@@ -234,6 +246,7 @@ Angle theta
 where theta := AngleBetween(q, p, r)
 with Point p; Point q; Point r {
 
+     -- TODO: if the radius is larger, it becomes clear that the arc doesn't quite lie on the sphere. Fix this
      theta.radius = G.pi / 20.0
      theta.arcPath = arcPath(p.vec_math, q.vec_math, r.vec_math, theta.radius)
      theta.arcPath_screenspace = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, theta.arcPath, G.toScreen, theta.shape.name)
@@ -273,8 +286,46 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) {
 	      arrowheadSize : G.arrowheadSize
       }
 
-      -- TODO: make two angle bisector marks
+      -- Bisect the arc twice more to get the bisector mark locations
+      -- Throw away z coordinate for each
+      theta.bisectpt1 = angleBisector(x.vec_math, y.vec_math, r.head_vec_math, theta.radius)
+      theta.vec_screen1 = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, theta.bisectpt1, G.toScreen, theta.bisectMark1.name)
+      theta.vec_pt1 = xy(theta.vec_screen1)
 
+      theta.bisectpt2 = angleBisector(x.vec_math, z.vec_math, r.head_vec_math, theta.radius)
+      theta.vec_screen2 = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, theta.bisectpt2, G.toScreen, theta.bisectMark2.name)
+      theta.vec_pt2 = xy(theta.vec_screen2)
+
+      theta.markLen = 10.0
+
+      LOCAL.x_proj = xy(x.vec_screen)
+
+      -- Angle bisector marks: two tick marks
+      -- NOTE: seems to make things slower
+      -- Also note: drawing as straight lines, not geodesics on sphere
+
+      theta.bisectMark1 = Curve {
+      	      pathData : makeBisectorMark(theta.vec_pt1, LOCAL.x_proj, theta.markLen)
+      	      strokeWidth : G.strokeWidth
+      	      fill : Colors.none
+      	      color : Colors.darkPurple
+      	      rotation : 0.0
+      	      rightArrowhead : False
+      	      arrowheadSize : 0.0
+      }
+
+      theta.bisectMark2 = Curve {
+      	      pathData : makeBisectorMark(theta.vec_pt2, LOCAL.x_proj, theta.markLen)
+      	      strokeWidth : G.strokeWidth
+      	      fill : Colors.none
+      	      color : Colors.darkPurple
+      	      rotation : 0.0
+      	      rightArrowhead : False
+      	      arrowheadSize : 0.0
+      }
+
+      theta.layeringMark1 = theta.bisectMark1 above theta.shape
+      theta.layeringMark2 = theta.bisectMark2 above theta.shape
 }
 
 Triangle t; Angle theta {
