@@ -231,7 +231,7 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q); m := Midpoint(s) {
       	      pathData : polygonFromPoints(r.perpmark_screenspacePath) -- For the fill
 	      strokeWidth : 1.25
 	      color : Colors.black
-	      fill : Colors.white
+	      fill : setOpacity(Colors.white, 0.5)
       }
 
       r.markLayering1 = r.perpMark below s.shape

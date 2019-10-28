@@ -449,6 +449,18 @@ slerp n t0 t1 e1 e2 =
       ts = take (n + 2) $ iterate (+ dt) t0
   in map (circPtInPlane e1 e2) ts -- Travel along the arc
 
+slerpPts :: Autofloat a => Int -> [a] -> [a] -> [[a]]
+slerpPts n p q = 
+  let (e1, e2) = (normalize p, normalize (p `cross` q)) -- (e1, e3) span the plane of p and q
+      e3 = normalize (e2 `cross` e1)
+      (t0, t1) = (0.0, angleBetweenRad p q) -- On a unit sphere, the angle between points is the length of the arc b/t them
+      pts = slerp (fromIntegral n) t0 t1 e1 e3 
+  in {- trace
+       ("(e1, e2, e3): " ++ show (e1, e2, e3) ++
+        "\ndot results: " ++ show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
+        "\n(p, q, angleBetweenRad): " ++ show (p, q, t1) ++ "\npts: " ++ show pts) -}
+     pts
+
 -- Project q onto p, without normalization
 proj :: Autofloat a => [a] -> [a] -> [a]
 proj p q =

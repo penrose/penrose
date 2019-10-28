@@ -955,8 +955,11 @@ perpPath [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Va
       arc_parallel_to_seg =
         slerp n 0.0 arcLen pt_along_normal local_normal_normal -- Move from the ray point in the direction normal to the ray
              -- Note that the directions are chosen so that the directionality of the arcs match so they meet at a point
-      pts = arc_parallel_to_normal ++ (tail . reverse) arc_parallel_to_seg -- Drop a point so they join better
-  in Val $ LListV pts
+      perpPathPts = arc_parallel_to_normal ++ (tail . reverse) arc_parallel_to_seg -- Drop a point so they join better
+      arc_pt_to_seg = slerpPts n tailv (perpPathPts !! 0)
+      arc_ray_to_pt = slerpPts n (last perpPathPts) tailv
+      perpPathSquare = arc_pt_to_seg ++ perpPathPts ++ arc_ray_to_pt
+  in Val $ LListV perpPathSquare
 
 -- NOTE: assumes that the curve has at least 3 points
 tangentLine :: Autofloat a => a -> [Pt2 a] -> a -> (Pt2 a, Pt2 a)
@@ -1077,19 +1080,9 @@ projectVec name hfov vfov r camera dir vec_math toScreen =
 
 -- | For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e2 x e1, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q) (Assuming p and q are unit)
 slerp' :: ConstCompFn
-slerp' [Val (ListV p), Val (ListV q), Val (IntV n)] -- Assuming unit p, q?
- =
-  let (e1, e2) = (normalize p, normalize (p `cross` q)) -- (e1, e3) span the plane of p and q
-      e3 = normalize (e2 `cross` e1)
-      (t0, t1) = (0.0, angleBetweenRad p q) -- On a unit sphere, the angle between points is the length of the arc b/t them
-      pts = slerp (fromIntegral n) t0 t1 e1 e3
-  in Val $
-     LListV $
-     trace
-       ("(e1, e2, e3): " ++ show (e1, e2, e3) ++
-        "\ndot results: " ++ show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
-        "\n(p, q, angleBetweenRad): " ++ show (p, q, t1) ++ "\npts: " ++ show pts)
-       pts
+slerp' [Val (ListV p), Val (ListV q), Val (IntV n)] = -- Assuming unit p, q?
+   let pts = slerpPts (fromIntegral n) p q
+   in Val $ LListV $ pts
 
 -- TODO: how does this behave with negative numbers?
 modSty :: ConstCompFn
@@ -1141,9 +1134,16 @@ arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] -- R
       t1 = normalize (qp -. (proj normal qp)) -- tangent in qp direction
       t2 = t1 `cross` normal
       n = 20
-      pts_origin = map (radius *.) $ slerp n 0 theta t1 t2 -- starts at qp segment
-      pts = map (+. p) pts_origin -- Why does this arc lie on the sphere?
-  in Val $ LListV pts
+      -- starts at qp segment (from q to r). Why does this arc lie on the sphere?
+      arcPoints_qr = transformPts p radius $ slerp n 0 theta t1 t2
+      -- Geodesic from p in the direction of q
+      arcLeg_pq = slerpPts n p (arcPoints_qr !! 0)
+      -- Geodesic from p in the direction of r
+      arcLeg_rp = slerpPts n (last arcPoints_qr) p
+      arcWedgePath = arcLeg_pq ++ arcPoints_qr ++ arcLeg_rp
+  in Val $ LListV arcWedgePath
+  where transformPts :: Autofloat a => [a] -> a -> [[a]] -> [[a]]
+        transformPts p radius pts = map ((p +.) . (radius *.)) pts
 
 -- TODO: share some code betwen this and arcPath'?
 angleBisector' :: ConstCompFn
