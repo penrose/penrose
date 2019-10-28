@@ -941,11 +941,11 @@ perpPathFlat size (startR, endR) (startL, endL) =
   in (ptL, ptLR, ptR)
 
 perpPath :: ConstCompFn
-perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (FloatV size)] = -- Euclidean
+perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (TupV midpt), Val (FloatV size)] = -- Euclidean
   let seg1 = (getPoint "start" r, getPoint "end" r)
       seg2 = (getPoint "start" l, getPoint "end" l)
       (ptL, ptLR, ptR) = perpPathFlat size seg1 seg2
-      path = Open $ [Pt ptL, Pt ptLR, Pt ptR]
+      path = Closed $ [Pt ptL, Pt ptLR, Pt ptR, Pt midpt]
   in Val $ PathDataV [path]
 
 perpPath [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] = -- Spherical
@@ -1119,7 +1119,7 @@ normalOnSphere' [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV ar
       headv = circPtInPlane (normalize tailv) normalv arcLen -- Start at tailv (point on segment), move in normal direction by arcLen
   in Val (ListV headv)
 
--- Draw the arc on the sphere between the segment (pq) and the segment (qr) with some fixed radius
+-- Draw the arc on the sphere between the segment (pq) and the segment (pr) with some fixed radius
 -- The angle between lines (pq, pr) is angle of the planes containing the great circles of the arcs
 -- Find an orthonormal basis with the normal (n) of the sphere at a point, then the tangent vectors (t1, t2) of the plane at the point, where t1 is in the direction of one of the lines
 -- t1 is found as `p - proj_q(p) |> normalize` (where p is the local origin and q is another point on the triangle)
