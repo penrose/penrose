@@ -519,6 +519,14 @@ normalizeLor x = (1 / normLor x) *. x
 -- and `e2` can be understoood as the unit tangent vector from `a` in the direction of `b`
 
 -- Make the second vector orthogonal to the first
+gramSchmidt :: (Autofloat a) => [a] -> [a] -> [a]
+gramSchmidt a b =
+               let proj_b_a = ((a `dotL` b) / (a `dotL` a)) *. a -- Projection onto `a` of `b`
+                   basis = b -. proj_b_a
+               in -- trace ("\nbasis: " ++ show basis) $ 
+                  normalize basis
+
+-- Make the second vector orthogonal to the first
 gramSchmidtHyp :: (Autofloat a) => [a] -> [a] -> [a]
 gramSchmidtHyp a b =
                let proj_b_a = (a `dotLor` b) *. a

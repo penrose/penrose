@@ -39,6 +39,7 @@ Colors {
 }
 
 G {
+    G.pi = 3.14159
     G.arrowheadSize = 0.65
     G.strokeWidth = 1.75
     G.textPadding = 7.0
@@ -46,9 +47,13 @@ G {
 }
 
 Point p {
+      p.x = ?
+      p.y = ?
+      p.vec_math = [p.x, p.y]
+
        p.shape = Circle {
-         x : ?
-	 y : ?
+         x : get(p.vec_math, 0)
+	 y : get(p.vec_math, 1)
          r : 3.0
 	 color : Colors.black
 	 strokeWidth : 1.0
@@ -119,22 +124,36 @@ Angle theta
 where theta := AngleBetween(q, p, r)
 with Point p; Point q; Point r {
 
-     theta.originX = p.shape.x
-     theta.originY = p.shape.y
+     theta.radius = 40.0
+     -- TODO: always take the acute angle, not the obtuse angle
+     theta.arcPath = arcPathEuclidean(p.vec_math, q.vec_math, r.vec_math, theta.radius)
 
-     -- Right now, angle between segments that share an endpoint
-     -- TODO generalize this, also use pt2
-     theta.shape = Arc {
-     	   x : theta.originX
-     	   y : theta.originY
-     	   r : 40.0 -- TODO: set this based on the relative lengths of the segment
-     	   startAngle : angleOf(a.shape, theta.originX, theta.originY) -- Degrees
-	   endAngle : angleOf(b.shape, theta.originX, theta.originY)
-	   strokeWidth : G.strokeWidth
-     	   strokeColor : Colors.darkpurple
-	   fillColor : setOpacity(Colors.white, 0.5)
-	   -- TODO: make a "pie wedge" fill with a path
+     theta.shape = Curve {
+     		 pathData : polygonFromPoints(theta.arcPath)
+		 strokeWidth : G.strokeWidth
+		 color : Colors.darkpurple
+		 fill : setOpacity(Colors.white, 0.5)
      }
+
+     -- theta.layeringSphere = theta.shape above G.sphere
+     theta.layering2 = theta.shape below p.shape
+     theta.layering3 = theta.shape below q.shape
+     theta.layering4 = theta.shape below r.shape
+
+     -- theta.originX = p.shape.x
+     -- theta.originY = p.shape.y
+
+     -- theta.shape = Arc {
+     -- 	   x : theta.originX
+     -- 	   y : theta.originY
+     -- 	   r : 40.0 -- TODO: set this based on the relative lengths of the segment
+     -- 	   startAngle : angleOf(a.shape, theta.originX, theta.originY) -- Degrees
+     -- 	   endAngle : angleOf(b.shape, theta.originX, theta.originY)
+     -- 	   strokeWidth : G.strokeWidth
+     -- 	   strokeColor : Colors.darkpurple
+     -- 	   fillColor : setOpacity(Colors.white, 0.5)
+     -- 	   -- TODO: make a "pie wedge" fill with a path
+     -- }
 }
 
 Ray r {
@@ -146,12 +165,12 @@ with Angle theta; Point x; Point y; Point z
 where r := Bisector(theta); theta := AngleBetween(y, x, z) {
 
       r.shape = Line {
-      	      startX : theta.originX
-	      startY : theta.originY
+      	      startX : x.x
+	      startY : x.y
 	      -- TODO: figure out how long this should be
 	      -- TODO: calculate this location properly; WRT the angle and the non-origin endpoints; this is just a heuristic
-	      endX : average(y.shape.x, z.shape.x)
-	      endY : average(y.shape.y, z.shape.y)
+	      endX : average(y.x, z.x)
+	      endY : average(y.y, z.y)
 	      thickness : G.strokeWidth
 	      color : Colors.darkpurple
       	      rightArrowhead : True

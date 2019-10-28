@@ -152,6 +152,7 @@ compDict =
     , ("halfwayPoint", constComp halfwayPoint')
     , ("normalOnSphere", constComp normalOnSphere')
     , ("arcPath", constComp arcPath')
+    , ("arcPathEuclidean", constComp arcPathEuclidean)
     , ("angleBisector", constComp angleBisector')
     , ("tangentLineSX", constComp tangentLineSX)
     , ("tangentLineSY", constComp tangentLineSY)
@@ -1119,14 +1120,21 @@ normalOnSphere' [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV ar
       headv = circPtInPlane (normalize tailv) normalv arcLen -- Start at tailv (point on segment), move in normal direction by arcLen
   in Val (ListV headv)
 
+arcPathEuclidean :: ConstCompFn
+arcPathEuclidean [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
+  let (v, w) = (q -. p, r -. p) -- Move to origin, create orthonormal basis, walk in plane, translate/scale back
+      e1 = normalize v
+      e2 = gramSchmidt e1 w
+      res = transformPts p radius $ slerp 20 0 (angleBetweenRad v w) e1 e2
+  in Val $ PtListV $ map tuplify2 (p : res) -- Make a wedge
+  
 -- Draw the arc on the sphere between the segment (pq) and the segment (pr) with some fixed radius
 -- The angle between lines (pq, pr) is angle of the planes containing the great circles of the arcs
 -- Find an orthonormal basis with the normal (n) of the sphere at a point, then the tangent vectors (t1, t2) of the plane at the point, where t1 is in the direction of one of the lines
 -- t1 is found as `p - proj_q(p) |> normalize` (where p is the local origin and q is another point on the triangle)
 -- Then draw the arc in the tangent plane from t1 to the angle, then translate it to the local origin
 arcPath' :: ConstCompFn
-arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] -- Radius is arc len
- =
+arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
   let normal = p
       (qp, rp) = (q -. p, r -. p)
       (qp_normal, rp_normal) = (q `cross` p, r `cross` p)
@@ -1142,13 +1150,13 @@ arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] -- R
       arcLeg_rp = slerpPts n (last arcPoints_qr) p
       arcWedgePath = arcLeg_pq ++ arcPoints_qr ++ arcLeg_rp
   in Val $ LListV arcWedgePath
-  where transformPts :: Autofloat a => [a] -> a -> [[a]] -> [[a]]
-        transformPts p radius pts = map ((p +.) . (radius *.)) pts
+
+transformPts :: Autofloat a => [a] -> a -> [[a]] -> [[a]]
+transformPts p radius pts = map ((p +.) . (radius *.)) pts
 
 -- TODO: share some code betwen this and arcPath'?
 angleBisector' :: ConstCompFn
-angleBisector' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] -- Radius is arc len
- =
+angleBisector' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
   let normal = p
       (qp, rp) = (q -. p, r -. p)
       (qp_normal, rp_normal) = (q `cross` p, r `cross` p)
