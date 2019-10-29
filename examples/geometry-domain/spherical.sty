@@ -2,7 +2,7 @@ Colors {
     -- Keenan palette
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
 
-    Colors.darkPurple = rgba(0.549,0.565,0.757, 1.0)
+    Colors.darkpurple = rgba(0.549,0.565,0.757, 1.0)
     Colors.purple2 = rgba(0.106, 0.122, 0.54, 0.2)
     Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
 
@@ -180,7 +180,7 @@ with Point p; Point q; Point r {
      t.shape = Curve {
      	     pathData : join(t.screenspacePath_pq, t.screenspacePath_qr, t.screenspacePath_rp) -- Connect them in a particular order
 	     strokeWidth : 0.0
-	     fill : setOpacity(Colors.darkPurple, 0.4)
+	     fill : setOpacity(Colors.darkpurple, 0.4)
 	     color : Colors.none
 	     rotation : 0.0
      }
@@ -203,7 +203,7 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
       	      pathData : pathFromPoints(r.screenspacePath)
 	      strokeWidth : G.strokeWidth
 	      fill : Colors.none
-	      color : Colors.darkPurple
+	      color : Colors.darkpurple
 	      rotation : 0.0
 	      rightArrowhead : True
 	      arrowheadSize : G.arrowheadSize
@@ -254,7 +254,7 @@ with Point p; Point q; Point r {
      theta.shape = Curve {
      		 pathData : polygonFromPoints(theta.arcPath_screenspace)
 		 strokeWidth : G.strokeWidth
-		 color : Colors.darkPurple
+		 color : Colors.darkpurple
 		 fill : setOpacity(Colors.white, 0.5)
      }
 
@@ -280,7 +280,7 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) {
       	      pathData : pathFromPoints(r.screenspacePath)
 	      strokeWidth : G.strokeWidth
 	      fill : Colors.none
-	      color : Colors.darkPurple
+	      color : Colors.darkpurple
 	      rotation : 0.0
 	      rightArrowhead : True
 	      arrowheadSize : G.arrowheadSize
@@ -308,7 +308,7 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) {
       	      pathData : makeBisectorMark(theta.vec_pt1, LOCAL.x_proj, theta.markLen)
       	      strokeWidth : G.strokeWidth
       	      fill : Colors.none
-      	      color : Colors.darkPurple
+      	      color : Colors.darkpurple
       	      rotation : 0.0
       	      rightArrowhead : False
       	      arrowheadSize : 0.0
@@ -318,7 +318,7 @@ where r := Bisector(theta); theta := AngleBetween(y, x, z) {
       	      pathData : makeBisectorMark(theta.vec_pt2, LOCAL.x_proj, theta.markLen)
       	      strokeWidth : G.strokeWidth
       	      fill : Colors.none
-      	      color : Colors.darkPurple
+      	      color : Colors.darkpurple
       	      rotation : 0.0
       	      rightArrowhead : False
       	      arrowheadSize : 0.0

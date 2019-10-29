@@ -154,6 +154,7 @@ compDict =
     , ("arcPath", constComp arcPath')
     , ("arcPathEuclidean", constComp arcPathEuclidean)
     , ("angleBisector", constComp angleBisector')
+    , ("angleBisectorEuclidean", constComp angleBisectorEuclidean)
     , ("tangentLineSX", constComp tangentLineSX)
     , ("tangentLineSY", constComp tangentLineSY)
     , ("tangentLineEX", constComp tangentLineEX)
@@ -1127,6 +1128,15 @@ arcPathEuclidean [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radiu
       e2 = gramSchmidt e1 w
       res = transformPts p radius $ slerp 20 0 (angleBetweenRad v w) e1 e2
   in Val $ PtListV $ map tuplify2 (p : res) -- Make a wedge
+
+-- TODO: share some code between this and arcPathEuclidean?
+angleBisectorEuclidean :: ConstCompFn
+angleBisectorEuclidean [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] =
+  let (v, w) = (q -. p, r -. p) -- Move to origin, create orthonormal basis, walk in plane, translate/scale back
+      e1 = normalize v
+      e2 = gramSchmidt e1 w
+      bis_pt = transformPt p radius $ circPtInPlane e1 e2 ((angleBetweenRad v w) / 2.0)
+  in Val $ ListV bis_pt
   
 -- Draw the arc on the sphere between the segment (pq) and the segment (pr) with some fixed radius
 -- The angle between lines (pq, pr) is angle of the planes containing the great circles of the arcs
@@ -1151,8 +1161,11 @@ arcPath' [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = --
       arcWedgePath = arcLeg_pq ++ arcPoints_qr ++ arcLeg_rp
   in Val $ LListV arcWedgePath
 
+transformPt :: Autofloat a => [a] -> a -> [a] -> [a]
+transformPt origin r p = ((origin +.) . (r *.)) p
+
 transformPts :: Autofloat a => [a] -> a -> [[a]] -> [[a]]
-transformPts p radius pts = map ((p +.) . (radius *.)) pts
+transformPts origin radius pts = map ((origin +.) . (radius *.)) pts
 
 -- TODO: share some code betwen this and arcPath'?
 angleBisector' :: ConstCompFn
