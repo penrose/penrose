@@ -69,6 +69,8 @@ Point p {
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
+     e.vec = [q.x - p.x, q.y - p.y]
+
      e.shape = Line {
      	     startX : p.shape.x
      	     startY : p.shape.y
@@ -88,8 +90,11 @@ with Point p; Point q {
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
 
-     -- LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, G.repelWeight)
-     -- LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, G.repelWeight)
+     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, G.repelWeight)
+     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, G.repelWeight)
+
+     e.norm = 200.0
+     e.normFn = ensure hasNorm(e.vec, 200.0)
 }
 
 
@@ -231,7 +236,7 @@ where r := PerpendicularBisector(s); m := Midpoint(s) {
       r.markLayering7 = r.perpMark below m.shape
 
      LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, G.repelWeight)
-     -- LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, G.repelWeight)
+     LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, G.repelWeight)
 }
 
 -- TODO: what order should the selectors be in?

@@ -1572,20 +1572,34 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
         ]
   in (fromx - sx) ^ 2 + (fromy - sy) ^ 2 + (tox - ex) ^ 2 + (toy - ey) ^ 2
 
+
+repelPt :: Autofloat a => a -> Pt2 a -> Pt2 a -> a
+repelPt c a b = c / (distsq a b + epsd)
+
 -- | 'repel' exert an repelling force between objects
 -- TODO: temporarily written in a generic way
 -- Note: repel's energies are quite small so the function is scaled by repelWeight before being applied
 repel :: ObjFn
 
+-- Repel an object and a line by summing repel forces over the (sampled) body of the line
+repel [GPI line@("Line", _), GPI a, Val (FloatV weight)] =
+  let (sx, sy, ex, ey) = linePts line
+      objCenter = (getX a, getY a)
+      numSamples = 15
+      lineSamplePts = sampleS numSamples ((sx, sy), (ex, ey))
+      allForces = sum $ map (repelPt weight objCenter) lineSamplePts
+      res = weight * allForces
+  in {- trace ("numPoints: " ++ show (length lineSamplePts)) -} res
+
 -- Repel an object and a curve by summing repel forces over the (subsampled) body of the surve
 repel [GPI curve@("Curve", _), GPI a, Val (FloatV weight)] =
   let curvePts = subsampleEvery sampleNum $ polyPts $ getPolygon curve
-      allForces = sum $ map (repelPt weight (getX a, getY a)) curvePts
+      objCenter = (getX a, getY a)
+      allForces = sum $ map (repelPt weight objCenter) curvePts
       res = weight * allForces
   in {- trace ("numPoints: " ++ show (length curvePts)) -}
      res
-  where repelPt c a b = c / (distsq a b + epsd)
-        sampleNum = 3
+  where sampleNum = 3
   
 repel [Val (TupV x), Val (TupV y)] = 1 / (distsq x y + epsd)
 repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd)
