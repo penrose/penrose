@@ -742,6 +742,7 @@ textType =
       , ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)))
       , ("w", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
       , ("h", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
+      , ("fontSize", (FloatT, constValue $ StrV "12pt")) 
       , ("string", (StrT, constValue $ StrV "defaultLabelText"))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
       , ("style", (StrT, constValue $ StrV "none"))
