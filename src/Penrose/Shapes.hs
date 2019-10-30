@@ -735,6 +735,8 @@ ellipseType =
       , ("name", (StrT, constValue $ StrV "defaultEllipse"))
       ])
 
+-- When explicitly declared or computed in Style programs, w and h take precedence over fontSize.
+-- Therefore, custom fontSize in Style will only work when w and h are not specified or computed.
 textType =
   ( "Text"
   , M.fromList
