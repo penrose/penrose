@@ -1,0 +1,7 @@
+Set A, B
+Map f
+From(f, A, B)
+Surjection(f)
+Not(injection(f))
+
+AutoLabel All
