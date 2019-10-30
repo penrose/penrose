@@ -14,11 +14,6 @@ Set x {
     LOCAL.layering  = x.shape below x.text
 }
 
--- Set x {
---     x.newPath = x.shape
---     x.testFn = encourage center(x.newPath)
--- }
-
 Set x; Set y
 where IsSubset(x, y) {
     LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
