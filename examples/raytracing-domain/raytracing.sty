@@ -61,7 +61,8 @@ DiffuseObject d {
 }
 
 -- No "in path" predicate because scene geometry shouldn't depend directly on a path
-SpecularObject o {
+SpecularObject o
+{
     -- create mirror shape and put it in scene
     o.shape = Image {
         lengthX : 100.0
@@ -210,6 +211,7 @@ PathEdge e; LightSource l {
 }
 PathEdge e; Camera c {
      LOCAL.disjointFn = ensure disjoint(c.shape, e.shape, 10.0)
+     LOCAL.disjointFn = ensure disjoint(c.text, e.shape, 10.0)
 }
 
 -- No two specular objects should overlap
@@ -217,7 +219,10 @@ SpecularObject o1; SpecularObject o2 {
     LOCAL.disjointFn = ensure disjoint(o1.shape, o2.shape, 10.0)
 }
 
-
+-- No two specular objects should overlap
+Camera c; LightSource l {
+    LOCAL.repelFn = encourage repel(c.shape, l.shape, 0.1)
+}
 
 
 ---------------------------NON-COMPILABLE CODE----------------------------------

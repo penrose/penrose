@@ -8,6 +8,11 @@ export const Step = (steps: number, data: any) => ({
   contents: [steps, transformValidJSON(data)]
 });
 
+export const StepUntilConvergence = (data: any) => ({
+  tag: "StepUntilConvergence",
+  contents: transformValidJSON(data)
+});
+
 export const Resample = (samples: number, data: any) => ({
   tag: "Resample",
   contents: [samples, transformValidJSON(data)]
