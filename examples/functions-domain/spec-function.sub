@@ -2,6 +2,7 @@ Set A, B
 Map f
 From(f, A, B)
 Surjection(f)
-Not(injection(f))
+-- TODO: why doesn't this parse?
+-- Not(Injection(f))
 
 AutoLabel All
