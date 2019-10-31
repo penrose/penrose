@@ -14,13 +14,14 @@ Set x {
 
     x.minSizeFn = ensure minSize(x.shape)
     x.maxSizeFn = ensure maxSize(x.shape)
+    x.centerFn = encourage center(x.shape)
     LOCAL.layering  = x.shape below x.text
 }
 
 Point p
 with Set A
 where PointIn(A, p) {
-    p.offset = 10.0
+    p.offset = 20.0
     p.shape = Circle {
         strokeWidth : 0
         color : rgba(0.0, 0.0, 0.0, 1.0)
@@ -35,6 +36,9 @@ where PointIn(A, p) {
     }
     p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.ry)
     p.layering = p.shape above A.shape
+    p.textLayering = p.text above p.shape
+    p.centerFn = encourage center(p.shape)
+    p.centerFn = encourage center(p.text)
 }
 
 Map f

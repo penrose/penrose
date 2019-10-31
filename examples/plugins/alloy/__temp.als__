@@ -2,7 +2,8 @@ sig B {  }
 sig A { f : B }
 
 fact {
-    all b : B | some a : A | a.f = b
+    not(all b : B | some a : A | a.f = b)
+    not(all a1, a2: A | a1.f = a2.f implies a1 = a2)
 }
 pred show() { }
 run show for 5

@@ -3,19 +3,8 @@
 Set A, B
 Map f
 From(f, A, B)
-
--- TODO: parse Not(Injection(f))
-Surjection(f)
-NotInjection(f)
-
--- NotSurjection(f)
--- Injection(f)
-
--- Surjection(f)
--- Injection(f)
-
--- NotSurjection(f)
--- NotInjection(f)
+Not(Surjection(f))
+Not(Injection(f))
 
 AutoLabel All
 Label A $x$

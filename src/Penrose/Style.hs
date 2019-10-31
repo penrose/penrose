@@ -314,7 +314,7 @@ selectorExpr =
         SEBind       <$> bindingForm
 
 bindingForm :: Parser BindingForm
-bindingForm = BSubVar <$> backticks varParser <|> BStyVar <$> styVar
+bindingForm = BSubVar <$> backticks var <|> BStyVar <$> styVar
 
 -- NOTE: this is a duplication of "valConsOrFunc" in Substance parser, with selector specific types
 selectorValConsOrFunc :: Parser SelExpr

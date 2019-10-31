@@ -25,3 +25,5 @@ predicate In : Point p * Set s
 predicate Injection : Map m
 predicate Surjection : Map m
 predicate Bijection : Map m
+predicate PointIn : Set s * Point p
+predicate PairIn : Point * Point * Map

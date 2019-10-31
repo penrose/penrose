@@ -333,8 +333,8 @@ typeParser = do
   pos <- getSourcePos
   return Type {typeName = "type", typePos = pos}
 
-varParser :: Parser Var
-varParser = VarConst <$> identifier
+var :: Parser Var
+var = VarConst <$> identifier
 
 typeVarParser :: Parser TypeVar
 typeVarParser = do
@@ -346,7 +346,7 @@ typeVarParser = do
 yParser, y1, y2 :: Parser Y
 yParser = try y1 <|> y2
 
-y1 = VarY <$> varParser
+y1 = VarY <$> var
 
 y2 = TypeVarY <$> typeVarParser
 
@@ -376,7 +376,7 @@ typeVarParser' = TTypeVar <$> typeVarParser
 argParser, varParser', tParser' :: Parser Arg
 argParser = try tParser' <|> varParser'
 
-varParser' = AVar <$> varParser
+varParser' = AVar <$> var
 
 tParser' = AT <$> tParser
 
