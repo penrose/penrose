@@ -1,8 +1,23 @@
+-- Code adapted from surjection_computed.sub
+
 Set A, B
 Map f
 From(f, A, B)
+
+-- TODO: parse Not(Injection(f))
 Surjection(f)
--- TODO: why doesn't this parse?
--- Not(Injection(f))
+NotInjection(f)
+
+-- NotSurjection(f)
+-- Injection(f)
+
+-- Surjection(f)
+-- Injection(f)
+
+-- NotSurjection(f)
+-- NotInjection(f)
 
 AutoLabel All
+Label A $x$
+Label B $f(x)$
+Label f $\text{(surjection)}$

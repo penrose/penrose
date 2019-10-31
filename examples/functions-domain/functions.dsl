@@ -16,6 +16,10 @@ constructor CreateInterval: Real left * Real right -> Interval
 constructor CreateFunction: Set domain * Set codomain -> Function
 
 predicate Not: Prop p1 -- higher-order predicate 
+-- Temporary hacks to get around parsing
+predicate NotInjection : Map m
+predicate NotSurjection : Map m
+
 predicate From : Map f * Set domain * Set codomain
 predicate In : Point p * Set s
 predicate Injection : Map m
