@@ -1454,8 +1454,16 @@ contains [GPI outc@("Circle", _), GPI inc@("Square", _)] =
   (getNum outc "r" - 0.5 * getNum inc "side")
 contains [GPI set@("Ellipse", _), GPI label@("Text", _)] =
   dist (getX label, getY label) (getX set, getY set) -
-  max (getNum set "r") (getNum set "r") +
+  max (getNum set "rx") (getNum set "ry") +
   getNum label "w"
+contains [GPI e@("Ellipse", _), GPI c@("Circle", _)] =
+  dist (getX c, getY c) (getX e, getY e) -
+  max (getNum e "rx") (getNum e "ry") +
+  getNum c "r"
+contains [GPI e@("Ellipse", _), GPI c@("Circle", _), Val (FloatV padding)] =
+  dist (getX c, getY c) (getX e, getY e) -
+  max (getNum e "rx") (getNum e "ry") +
+  getNum c "r" + padding
 contains [GPI sq@("Square", _), GPI ar@("Arrow", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
       (x, y) = (getX sq, getY sq)
@@ -1529,7 +1537,7 @@ maxSize [GPI im@("Image", _)] =
   let max_side = max (getNum im "lengthX") (getNum im "lengthY")
   in max_side - r2f (limit / 3)
 maxSize [GPI e@("Ellipse", _)] =
-  max (getNum e "r") (getNum e "r") - r2f (limit / 3)
+  max (getNum e "rx") (getNum e "ry") - r2f (limit / 6)
 maxSize _ = 0
 
 -- NOTE/HACK: all objects will have min/max size attached, but not all of them are implemented
@@ -1539,7 +1547,7 @@ minSize [GPI s@("Square", _)] = 20 - getNum s "side"
 minSize [GPI r@("Rectangle", _)] =
   let min_side = min (getNum r "sizeX") (getNum r "sizeY")
   in 20 - min_side
-minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "r") (getNum e "r")
+minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "rx") (getNum e "ry")
 minSize [GPI g] =
   if fst g == "Line" || fst g == "Arrow"
     then let vec =

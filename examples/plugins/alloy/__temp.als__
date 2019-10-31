@@ -2,7 +2,7 @@ sig B {  }
 sig A { f : B }
 
 fact {
-    all a1, a2: A | a1.f = a2.f implies a1 = a2
+    all b : B | some a : A | a.f = b
 }
 pred show() { }
 run show for 5
