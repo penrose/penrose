@@ -140,7 +140,7 @@ export function svgBBox(svgEl: SVGSVGElement) {
 }
 
 const tex2svg = memoize(
-  async (contents: string, name: string): Promise<any> =>
+  async (contents: string, name: string, fontSize: string): Promise<any> =>
     new Promise(resolve => {
       const wrapper = document.createElement("div");
       // HACK: Style compiler decides to give empty labels if not specified
@@ -150,13 +150,14 @@ const tex2svg = memoize(
         MathJax.Hub.Queue(() => {
           const output = wrapper.getElementsByTagName("svg")[0];
           output.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          output.setAttribute("style", `font-size: ${fontSize}`);
           // TODO: need to check whether MathJax returns a non-null response
           // NOTE: This is where you can directly control the width/height of the LaTeX
           const { width, height } = svgBBox(output);
-          output.setAttribute("width", width.toString());
-          output.setAttribute("height", height.toString());
+          // TODO: These seem to be extraneous. Remove?
+          // output.setAttribute("width", width.toString());
+          // output.setAttribute("height", height.toString());
           const body = output;
-          // const body = output.outerHTML + `<title>${name}</title>`; // need to keep properties in <svg>
           resolve({ body, width, height });
         });
       } else {
@@ -186,7 +187,8 @@ export const collectLabels = async (allShapes: any[]) => {
       if (type === "Text" || type === "TextTransform") {
         const { body, width, height } = await tex2svg(
           obj.string.contents,
-          obj.name.contents
+          obj.name.contents,
+          obj.fontSize.contents
         );
         // Instead of directly overwriting the properties, cache them temporarily and let `propogateUpdate` decide what to do
         const obj2 = { ...obj };

@@ -736,6 +736,8 @@ ellipseType =
       , ("name", (StrT, constValue $ StrV "defaultEllipse"))
       ])
 
+-- When explicitly declared or computed in Style programs, w and h take precedence over fontSize.
+-- Therefore, custom fontSize in Style will only work when w and h are not specified or computed.
 textType =
   ( "Text"
   , M.fromList
@@ -743,6 +745,7 @@ textType =
       , ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)))
       , ("w", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
       , ("h", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
+      , ("fontSize", (StrT, constValue $ StrV "12pt")) 
       , ("string", (StrT, constValue $ StrV "defaultLabelText"))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
       , ("style", (StrT, constValue $ StrV "none"))
