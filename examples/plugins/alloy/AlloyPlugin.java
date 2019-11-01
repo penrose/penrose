@@ -112,9 +112,10 @@ public class AlloyPlugin {
     }
 
     public void mkFunction(String f, String domain, String codomain) {
-        // sig A { f : B }
-        String sig1 = "sig " + codomain + " {  }\n";
-        String sig2 = "sig " + domain + " { " + f + " : " + codomain + " }\n";
+        // some sig A { f : B } 
+        // `some` for non-empty: http://alloytools.org/tutorials/day-course/s2_language.pdf
+        String sig1 = "some sig " + codomain + " {  }\n";
+        String sig2 = "some sig " + domain + " { " + f + " : " + codomain + " }\n";
         this.alloyProg.append(sig1);
         this.alloyProg.append(sig2);
         String[] args = {domain, codomain};

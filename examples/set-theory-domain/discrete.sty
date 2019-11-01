@@ -42,7 +42,7 @@ Map f
 with Set A; Set B
 where From(f, A, B)
 {
-    B.shape.x = A.shape.rx * 3.5 + A.shape.x
+    A.shape.x = B.shape.x - A.shape.rx * 3.5
     B.shape.y = A.shape.y
     B.shape.rx = A.shape.rx
 }
