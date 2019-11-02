@@ -507,8 +507,7 @@ sampleFunction [Val (IntV n), Val (FloatV xmin), Val (FloatV xmax), Val (FloatV 
         (pts, g') = computeSurjection g n lower_left top_right
     in (Val $ PtListV pts, g')
 
-computeSurjection ::
-     Autofloat a => StdGen -> Int -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
+computeSurjection :: Autofloat a => StdGen -> Int -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
   let xs = linspace numPoints (lowerx, topx)
       xs_increasing = sort xs
@@ -518,17 +517,16 @@ computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
       ys_perm = shuffle' ys (length ys) g' -- Random permutation. TODO return g3?
   in (zip xs_increasing ys_perm, g') -- len xs == len ys
 
-computeBijection ::
-     Autofloat a => StdGen -> Int -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
+computeBijection :: Autofloat a => StdGen -> Int -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
 computeBijection g numPoints (lowerx, lowery) (topx, topy) =
-  let xs = linspace numPoints (lowerx, topx)
-      xs_plot = xs
-      (ys_inner, g')
-        = randomsIn g (numPoints - 2) (r2f lowery, r2f topy)
-      ys = lowery : ys_inner ++ [topy]
-      (ys_plot, g'') = pickOne [nub $ reverse $ sort ys, nub (sort ys)] g'
-  in (zip xs_plot ys_plot, g'')
-
+  let (ys_inner, g') = randomsIn g (numPoints - 2) (r2f lowery, r2f topy)
+      -- if two adjacent y-coords y2 and y1 are closer than y_tol, drop the latter coord (so the curve doesn't look flat)
+      ys_diff = removeClosePts y_tol $ sort $ nub ys_inner
+      ys = lowery : ys_diff ++ [topy]
+      (ys_plot, g'') = pickOne [reverse ys, ys] g'
+      xs = linspace (length ys) (lowerx, topx)
+  in (zip xs ys_plot, g'')
+  where y_tol = 10.0
 
 -- calculates a line (of two points) intersecting the first axis, stopping before it leaves bbox of second axis
 -- TODO rename lineLeft and lineRight

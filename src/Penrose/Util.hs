@@ -398,6 +398,9 @@ map2 f (a, b) = (f a, f b)
 rotateList :: [a] -> [a]
 rotateList l = take (length l) $ drop 1 (cycle l)
 
+removeClosePts :: Autofloat a => a -> [a] -> [a]
+removeClosePts dx xs = map fst $ filter (\(x0, x1) -> (x1 - x0) > dx) $ zip xs (tail xs)
+
 -- | Scale a value x in [lower, upper] linearly to x' lying in range [lower', upper'].
 -- (Allow reverse lerping, i.e. upper < lower)
 scaleLinear :: Autofloat a => a -> Pt2 a -> Pt2 a -> a

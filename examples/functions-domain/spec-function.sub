@@ -4,10 +4,10 @@
 -- Map f
 -- From(f, A, B)
 f: A -> B
-Not(Onto(f))
--- Not(OneToOne(f))
-OneToOne(f)
--- Onto(f)
+-- Not(Onto(f))
+Not(OneToOne(f))
+-- OneToOne(f)
+Onto(f)
 
 AutoLabel All
 Label A $x$

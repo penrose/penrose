@@ -136,8 +136,9 @@ where From(f, domain, image) {
 
 Map f
 with Set domain; Set image
-where From(f, domain, image); 
-{
+where From(f, domain, image) {
+    f.numPoints = 5
+
     f.text = Text {
         string : f.label
         x : domain.shape.endX / 2.0 - 50.0
@@ -158,23 +159,23 @@ where From(f, domain, image);
 Map f
 with Set domain; Set image
 where From(f, domain, image); Onto(f); Not(OneToOne(f)) {
-      override f.shape.path = sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
+      override f.shape.path = sampleFunction(f.numPoints, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
 }
 
 Map f
 with Set domain; Set image
 where From(f, domain, image); Not(Onto(f)); OneToOne(f) {
-      override f.shape.path = sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "injection")
+      override f.shape.path = sampleFunction(f.numPoints, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "injection")
 }
 
 Map f
 with Set domain; Set image
 where From(f, domain, image); Not(Onto(f)); Not(OneToOne(f)) {
-      override f.shape.path = sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "general")
+      override f.shape.path = sampleFunction(f.numPoints, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "general")
 }
 
 Map f
 with Set domain; Set image
 where From(f, domain, image); Onto(f); OneToOne(f) {
-      override f.shape.path = sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "bijection")
+      override f.shape.path = sampleFunction(f.numPoints, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "bijection")
 }
