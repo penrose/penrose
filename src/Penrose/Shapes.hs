@@ -634,9 +634,8 @@ sampleColor rng =
       (r, rng1) = randomR interval rng
       (g, rng2) = randomR interval rng1
       (b, rng3) = randomR interval rng2
-  in (ColorV $ makeColor r g b 0.5, rng3)
-        -- (a, rng4)  = randomR (0.3, 0.7) rng3
-    -- in (ColorV $ makeColor r g b a, rng4)
+      a = 0.5
+  in (ColorV $ makeColor r g b a, rng3)
 
 -- | Samples all properties of input shapes
 sampleShapes :: (Autofloat a) => StdGen -> [Shape a] -> ([Shape a], StdGen)

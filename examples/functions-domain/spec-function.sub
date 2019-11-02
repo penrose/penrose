@@ -4,9 +4,8 @@ Set A, B
 Map f
 From(f, A, B)
 Not(Surjection(f))
-Not(Injection(f))
+Injection(f)
 
 AutoLabel All
 Label A $x$
 Label B $f(x)$
-Label f $\text{(surjection)}$

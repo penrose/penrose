@@ -42,3 +42,4 @@ values.json
 geometry-processing-js
 geometric-queries/
 dist-newstyle/
+examples/plugins/alloy/__temp.als__

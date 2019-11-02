@@ -158,6 +158,8 @@ compDict =
     , ("tangentLineEY", constComp tangentLineEY)
     , ("polygonizeCurve", constComp polygonizeCurve)
     , ("setOpacity", constComp setOpacity)
+    , ("scaleColor", constComp scaleColor)
+    , ("sampleColor", sampleColor')
     , ("bbox", constComp bbox')
     , ("min", constComp min')
     , ("max", constComp max')
@@ -760,7 +762,7 @@ chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
   in CubicBez ((cp1x, cp1y), (cp2x, cp2y), (x2, y2))
 
 -- COMBAK: finish this
--- sampleCurve :: Autofloat a =>
+-- sampleCturve :: Autofloat a =>
 --     StdGen -> Integer -> Pt2 a -> Pt2 a -> Bool -> Bool -> [Pt2 a]
 -- sampleCurve g numPoints (lowerx, lowery) (topx, topy) =
 --     if numPoints < 2 then error "Surjection needs to have >= 2 points"
@@ -1075,6 +1077,15 @@ setOpacity :: ConstCompFn
 setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] =
   Val $ ColorV (RGBA r g b (r2f frac * a))
 
+sampleColor' :: CompFn
+sampleColor' [Val (FloatV a)] g = 
+             let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
+             in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
+
+scaleColor :: ConstCompFn
+scaleColor [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] =
+  Val $ ColorV (RGBA (r2f frac * r) (r2f frac * g) (r2f frac * b) a)
+
 ----------
 get' :: ConstCompFn
 get' [Val (ListV xs), Val (IntV i)] =
@@ -1360,6 +1371,8 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
 -- TODO: temporarily written in a generic way
 -- Note: repel's energies are quite small so the function is scaled by repelWeight before being applied
 repel :: ObjFn
+repel [Val (FloatV x), Val (FloatV y)] = 1 / ((x-y)*(x-y) + epsd)
+repel [Val (FloatV x), Val (FloatV y), Val (FloatV weight)] = weight / ((x-y)*(x-y) + epsd)
 repel [Val (TupV x), Val (TupV y)] = 1 / (distsq x y + epsd)
 repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd)
 repel [GPI a, GPI b, Val (FloatV weight)] =
