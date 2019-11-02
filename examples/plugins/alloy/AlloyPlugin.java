@@ -13,17 +13,16 @@ import org.json.*;
 
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
-import edu.mit.csail.sdg.alloy4.XMLNode;
-import edu.mit.csail.sdg.alloy4compiler.ast.Command;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.Module;
-import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4SolutionReader;
-import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
+import edu.mit.csail.sdg.ast.Command;
+import edu.mit.csail.sdg.ast.Expr;
+import edu.mit.csail.sdg.ast.Module;
+import edu.mit.csail.sdg.parser.CompUtil;
+import edu.mit.csail.sdg.translator.A4Options;
+import edu.mit.csail.sdg.translator.A4Solution;
+import edu.mit.csail.sdg.translator.A4Tuple;
+import edu.mit.csail.sdg.translator.A4TupleSet;
+import edu.mit.csail.sdg.translator.A4SolutionReader;
+import edu.mit.csail.sdg.translator.TranslateAlloyToKodkod;
 
 
 /**
@@ -61,7 +60,7 @@ public class AlloyPlugin {
     public String mkInjection(String f, String domain) {
         // all a1,a2 : A | a1.f = a2.f implies a1 = a2
         String def = "all a1, a2: " + domain + " | a1." + f + " = a2." + f + " implies a1 = a2";
-        if(this.truthValues.get("Injection" + f)) {
+        if(this.truthValues.get("OneToOne" + f)) {
             return def + "\n";
         } else {
             return "not(" + def + ")\n";
@@ -70,7 +69,7 @@ public class AlloyPlugin {
     public String mkSurjection(String f, String domain, String codomain) {
         // all b : B | some a : A | a.f = b
         String def = "all b : " + codomain + " | some a : " + domain + " | a." + f + " = b";
-        if(this.truthValues.get("Surjection" + f)) {
+        if(this.truthValues.get("Onto" + f)) {
             return def + "\n";
         } else {
             return "not(" + def + ")\n";
@@ -212,7 +211,7 @@ public class AlloyPlugin {
     }
 
     public void processJSON(JSONObject json) {
-        List<String> defs = Arrays.asList( "Surjection", "Injection", "Bijection" );
+        List<String> defs = Arrays.asList( "Onto", "OneToOne", "Bijection" );
         // process predicates
         for(Object o : json.getJSONObject("constraints").getJSONArray("predicates")) {
             JSONObject obj = (JSONObject) o;
@@ -247,9 +246,9 @@ public class AlloyPlugin {
 
     public String processDef(String type, JSONArray arr) {
         String name = idArg(arr.getJSONObject(0));
-        if(type.equals("Surjection")) {
+        if(type.equals("Onto")) {
             this.surjections.add(name);
-        } else if(type.equals("Injection")) {
+        } else if(type.equals("OneToOne")) {
             this.injections.add(name);
         } else if(type.equals("Bijection")) {
             this.bijections.add(name);
