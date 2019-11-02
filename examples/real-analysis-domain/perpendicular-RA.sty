@@ -135,7 +135,7 @@ where I := CreateInterval(a, b); Subset(I, R) {
   I.orderFn = ensure lessThan(a.val, b.val)
   -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
 
-  I.minSize = 0.15 * R.len
+  I.minSize = 0.3 * R.len
   I.minSizeFn = ensure minSize(I.shape, I.minSize)
   -- I.labelFn = encourage nearHead(I.shape, I.text, 0.0, 10.0)
 }
@@ -324,7 +324,8 @@ with Interval I; Reals R
 where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
   f.pts = 3
   -- TODO: use a more general function than computeSurjection
-  f.val = sampleFunction(f.pts, I.shape, R.y_axis)
+  f.ypad = 100.0
+  f.val = sampleFunction(f.pts, I.shape.startX, I.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad)
   f.color = Colors.sky
 
   f.shape = Curve {
@@ -334,8 +335,6 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
     color : f.color
     strokeWidth : 2.0
     polyline : polygonizeCurve(5, f.shape.pathData)
-    -- right-arrowhead : True
-    -- left-arrowhead : True
     -- TODO: start and end style depending on the interval
   }
 
@@ -368,9 +367,10 @@ where f := CreateFunction(I, R);
 
       f.pts1 = 4
       f.pts2 = 3
+      f.ypad = 100.0
 
-      f.val1 = sampleFunction(f.pts1, J.shape, R.y_axis)
-      f.val2 = sampleFunction(f.pts2, K.shape, R.y_axis)
+      f.val1 = sampleFunction(f.pts1, J.shape.startX, J.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad)
+      f.val2 = sampleFunction(f.pts2, K.shape.startX, K.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad)
 
       f.shape1 = Curve {
           path : f.val1

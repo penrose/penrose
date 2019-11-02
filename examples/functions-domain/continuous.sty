@@ -145,7 +145,7 @@ where From(f, domain, image);
 {
     f.shape = Curve {
         path : computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
-        pathData : interpolate(f.shape.path, 1.0)
+        pathData : interpolate(f.shape.path)
         color : Colors.darkBlue
         fill : Colors.none
         arrowheadSize : 0.0

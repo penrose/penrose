@@ -496,23 +496,13 @@ checkReturn (GPI v) _ = error "checkReturn: Computations cannot return GPIs"
 --------------------------------------------------------------------------------
 -- Computation Functions
 sampleFunction :: CompFn
--- Assuming domain and range are lines or arrows, TODO deal w/ points
 -- TODO: discontinuous functions? not sure how to sample/model/draw consistently
-sampleFunction [Val (IntV n), GPI domain, GPI range] g =
-  let (dsx, dsy, dex, dey) =
-        ( getNum domain "startX"
-        , getNum domain "startY"
-        , getNum domain "endX"
-        , getNum domain "endY")
-      (rsx, rsy, rex, rey) =
-        ( getNum range "startX"
-        , getNum range "startY"
-        , getNum range "endX"
-        , getNum range "endY")
-      lower_left = (min dsx dex, min rsy rey)
-      top_right = (max dsx dex, max rsy rey)
+sampleFunction [Val (IntV n), Val (FloatV xmin), Val (FloatV xmax), Val (FloatV ymin), Val (FloatV ymax)] g =
+  let lower_left = (xmin, ymin)
+      top_right = (xmax, ymax)
       (pts, g') = computeSurjection g n lower_left top_right
   in (Val $ PtListV pts, g')
+
 
 -- Computes the surjection to lie inside a bounding box defined by the corners of a box
 -- defined by four straight lines, assuming their lower/left coordinates come first.
@@ -900,8 +890,8 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV xFrac), Val (FloatV yFrac
              pt_midright = midpoint pt_tr pt_br -: x_offset +: y_offset
              pt_midleft = midpoint pt_bl pt_tl +: x_offset +: y_offset
              -- FIXME: take k as arg
-             right_curve = interpolateFn [pt_tr, pt_midright, pt_br] 1.5
-             left_curve = interpolateFn [pt_bl, pt_midleft, pt_tl] 1.5
+             right_curve = interpolateFn [pt_tr, pt_midright, pt_br] 1.0
+             left_curve = interpolateFn [pt_bl, pt_midleft, pt_tl] 1.0
                         -- TODO: not sure if this is right. do any points need to be included in the path?
              path =
                Closed $
@@ -1500,7 +1490,7 @@ at :: ConstrFn
 at [GPI o, Val (FloatV x), Val (FloatV y)] = (getX o - x) ^ 2 + (getY o - y) ^ 2
 
 lessThan :: ConstrFn
-lessThan [Val (FloatV x), Val (FloatV y)] = x - y
+lessThan [Val (FloatV x), Val (FloatV y)] = if x < y then 0 else (x - y)^2
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
