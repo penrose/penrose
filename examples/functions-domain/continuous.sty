@@ -145,6 +145,7 @@ where From(f, domain, image);
     }
     -- TODO: move to the following blocks once selector matching supports nested ones
     f.shape = Curve {
+    	-- Default
         path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
         pathData : interpolate(f.shape.path)
         color : Colors.darkBlue
@@ -156,36 +157,24 @@ where From(f, domain, image);
 
 Map f
 with Set domain; Set image
-where From(f, domain, image); 
-Not(Onto(f)); OneToOne(f) {
-    f.shape = Curve {
-        path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "bijection")
-    }
+where From(f, domain, image); Onto(f); Not(OneToOne(f)) {
+      override f.shape.path = sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
 }
 
 Map f
 with Set domain; Set image
 where From(f, domain, image); Not(Onto(f)); OneToOne(f) {
-    f.shape = Curve {
-        path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "injection")
-    }
-
+      override f.shape.path = sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "injection")
 }
 
 Map f
 with Set domain; Set image
 where From(f, domain, image); Not(Onto(f)); Not(OneToOne(f)) {
-    f.shape = Curve {
-        path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "general")
-    }
-
+      override f.shape.path = sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "general")
 }
 
 Map f
 with Set domain; Set image
 where From(f, domain, image); Onto(f); OneToOne(f) {
-    f.shape = Curve {
-        path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "bijection")
-    }
-
+      override f.shape.path = sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "bijection")
 }

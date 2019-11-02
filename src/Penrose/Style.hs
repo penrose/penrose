@@ -914,13 +914,14 @@ relMatchesLine typeEnv subEnv s1@(C.Bind var expr) s2@(RelBind bvar sExpr) =
                        let selExpr = toSubExpr sExpr in
                        let res = (varsEq var sVar && exprsMatch typeEnv expr selExpr)
                                  || C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
-                       in trM1 ("trying to match exprs \n'" ++ show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $ res
+                       in trM1 ("Bind-Match: trying to match exprs \n'" ++ show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $ res
 
 -- rule Pred-Match
-relMatchesLine typeEnv subEnv (C.ApplyP pred) (RelPred sPred) =
-               let selPred = toSubPred sPred in
-               C.predsEq pred selPred -- self-equal
-               || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
+relMatchesLine typeEnv subEnv s1@(C.ApplyP pred) s2@(RelPred sPred) =
+               let selPred = toSubPred sPred
+                   res = pred == selPred -- self-equal
+                         || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
+               in trM1 ("Pred-Match: trying to match exprs \n'" ++ show pred ++ "'\n'" ++ show selPred ++ "'\n'" ++ "res: " ++ show res ++ "'\n\n") $ res
 relMatchesLine _ _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
 
 -- Judgment 13. b |- [S] <| |S_r

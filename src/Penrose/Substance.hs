@@ -80,7 +80,12 @@ data Predicate = Predicate
   { predicateName :: PredicateName
   , predicateArgs :: [PredArg]
   , predicatePos  :: SourcePos
-  } deriving (Eq, Typeable)
+  } deriving (Typeable)
+
+-- Equality function that doesn't compare SourcePos
+-- TODO: use correct equality comparison in typechecker?
+instance Eq Predicate where
+         p1 == p2 = predicateName p1 == predicateName p2 && predicateArgs p1 == predicateArgs p2
 
 instance Show Predicate where
   show (Predicate predicateName predicateArgs pos) =
@@ -270,11 +275,6 @@ predicateArg :: Parser PredArg
 predicateArg = tryChoice [PP <$> predicate, PE <$> exprParser]
 
 ----------------------------------- Utility functions ------------------------------------------
--- Equality functions that don't compare SourcePos
--- TODO: use correct equality comparison in typechecker
-predsEq :: Predicate -> Predicate -> Bool
-predsEq p1 p2 =
-  predicateName p1 == predicateName p2 && predicateArgs p1 == predicateArgs p2
 
 refineAST :: SubProg -> VarEnv -> SubProg
 refineAST subProg varEnv =
