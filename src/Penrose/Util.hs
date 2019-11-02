@@ -77,12 +77,16 @@ epsd = 10 ** (-10)
 -- General helper functions
 type Interval = (Float, Float) -- which causes type inference problems in Style for some reason.
 
+linspace :: (Autofloat a) => Int -> (a, a) -> [a]
+linspace n (xmin, xmax) = [xmin + fromIntegral i * dx | i <- [0..n]] 
+    where dx = (xmax - xmin) / fromIntegral (n - 1)
+
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
 -- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
 -- Also apparently using Autofloat here with typeable causes problems for generality of returned StdGen.
 -- But it works fine without Typeable.
-randomsIn :: (Autofloat a) => StdGen -> Integer -> Interval -> ([a], StdGen)
+randomsIn :: (Autofloat a) => StdGen -> Int -> Interval -> ([a], StdGen)
 randomsIn g 0 _ = ([], g)
 randomsIn g n interval =
   let (x, g') = randomR interval g -- First value

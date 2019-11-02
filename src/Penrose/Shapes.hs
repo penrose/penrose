@@ -95,7 +95,7 @@ data ValueType
 -- | fully evaluated values in Style
 data Value a
   = FloatV a -- ^ floating point number
-  | IntV Integer -- ^ integer
+  | IntV Int -- ^ integer
   | BoolV Bool -- ^ boolean value
   | StrV String -- ^ string literal
   | PtV (Pt2 a) -- ^ point in R^2
@@ -1569,7 +1569,7 @@ expandCurves elems = zipWith attach elems $ tail elems
 -- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
 polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
 polyCubicBez count maxCount curve@(a, b, c, d) =
-  if (tr "count" count) >= maxCount
+  if count >= maxCount
     then [a, b, c, d]
     else concatMapTuple (polyCubicBez (count + 1) maxCount) $
          divideCubicBezier curve

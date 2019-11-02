@@ -190,7 +190,7 @@ data AnnoFloat = Fix Float | Vary
 
 -- | An expression in the Style language
 data Expr
-    = IntLit Integer
+    = IntLit Int
     | AFloat AnnoFloat
     | StringLit String
     | BoolLit Bool
@@ -379,7 +379,7 @@ aTerm = tryChoice
         parens arithmeticExpr,
         AFloat <$> annotatedFloat,
         EPath  <$> path,
-        IntLit <$> integer
+        IntLit . fromIntegral <$> integer
     ]
 
 aOperators :: [[Control.Monad.Combinators.Expr.Operator Parser Expr]]
