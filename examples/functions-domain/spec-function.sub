@@ -4,8 +4,8 @@
 -- Map f
 -- From(f, A, B)
 f: A -> B
-Not(Surjection(f))
-Injection(f)
+Not(Onto(f))
+OneToOne(f)
 
 AutoLabel All
 Label A $x$

@@ -12,10 +12,8 @@ G {
     G.padding2 = 25.0
 }
 
--- Note: this style doesn't handle multiple functions in one axis setting
+-- NOTE: this style doesn't handle multiple functions in one axis setting
 -- Multiple From statements will result in multiple superimposed axis settings
-
--- Code adapted from `surjection_computed.sty`
 
 Set domain; Set image
 with Map f
@@ -145,8 +143,9 @@ where From(f, domain, image);
         x : domain.shape.endX / 2.0 - 50.0
         y : domain.shape.endY - 30.0
     }
+    -- TODO: move to the following blocks once selector matching supports nested ones
     f.shape = Curve {
-        path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "general")
+        path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
         pathData : interpolate(f.shape.path)
         color : Colors.darkBlue
         fill : Colors.none
@@ -158,7 +157,7 @@ where From(f, domain, image);
 Map f
 with Set domain; Set image
 where From(f, domain, image); 
-Not(Surjection(f)); Injection(f) {
+Not(Onto(f)); OneToOne(f) {
     f.shape = Curve {
         path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "bijection")
     }
@@ -166,7 +165,7 @@ Not(Surjection(f)); Injection(f) {
 
 Map f
 with Set domain; Set image
-where From(f, domain, image); NotSurjection(f); Injection(f) {
+where From(f, domain, image); Not(Onto(f)); OneToOne(f) {
     f.shape = Curve {
         path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "injection")
     }
@@ -175,7 +174,7 @@ where From(f, domain, image); NotSurjection(f); Injection(f) {
 
 Map f
 with Set domain; Set image
-where From(f, domain, image); NotSurjection(f); NotInjection(f) {
+where From(f, domain, image); Not(Onto(f)); Not(OneToOne(f)) {
     f.shape = Curve {
         path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "general")
     }
@@ -184,7 +183,7 @@ where From(f, domain, image); NotSurjection(f); NotInjection(f) {
 
 Map f
 with Set domain; Set image
-where From(f, domain, image); Surjection(f); Injection(f) {
+where From(f, domain, image); Onto(f); OneToOne(f) {
     f.shape = Curve {
         path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "bijection")
     }
