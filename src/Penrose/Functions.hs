@@ -119,9 +119,6 @@ compDict =
     , ("midpointY", constComp midpointY)
     , ("average", constComp average)
     , ("len", constComp len)
-    , ("computeSurjectionLines", computeSurjectionLines)
-    -- , ("computeBijectionLines", computeBijectionLines)
-    -- , ("computeInjectionLines", computeInjectionLines)
     , ("lineLeft", constComp lineLeft)
     , ("lineRight", constComp lineRight)
     , ("interpolate", constComp interpolate)
@@ -239,14 +236,6 @@ compSignatures =
     , ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT))
     , ("bboxWidth", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT))
     , ("len", ([GPIType "Arrow"], ValueT FloatT))
-    , ( "computeSurjectionLines"
-      , ( [ ValueT IntT
-          , GPIType "Line"
-          , GPIType "Line"
-          , GPIType "Line"
-          , GPIType "Line"
-          ]
-        , ValueT PtListT))
     , ( "lineLeft"
       , ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PtListT))
     , ("interpolate", ([ValueT PtListT, ValueT StrT], ValueT PathDataT))
@@ -496,113 +485,50 @@ checkReturn (GPI v) _ = error "checkReturn: Computations cannot return GPIs"
 --------------------------------------------------------------------------------
 -- Computation Functions
 sampleFunction :: CompFn
--- TODO: discontinuous functions? not sure how to sample/model/draw consistently
-sampleFunction [Val (IntV n), Val (FloatV xmin), Val (FloatV xmax), Val (FloatV ymin), Val (FloatV ymax)] g =
-  let lower_left = (xmin, ymin)
-      top_right = (xmax, ymax)
-      (pts, g') = computeSurjection g n lower_left top_right
-  in (Val $ PtListV pts, g')
-
-
--- Computes the surjection to lie inside a bounding box defined by the corners of a box
--- defined by four straight lines, assuming their lower/left coordinates come first.
--- Their intersections give the corners.
-computeSurjectionLines :: CompFn
-computeSurjectionLines args g =
-  let (pts, g') = computeSurjectionLines' g args
-  in (Val $ PtListV pts, g')
-
-computeSurjectionLines' ::
-     (Autofloat a) => StdGen -> [ArgVal a] -> ([Pt2 a], StdGen)
-computeSurjectionLines' g args@[Val (IntV n), GPI left@("Line", _), GPI right@("Line", _), GPI bottom@("Line", _), GPI top@("Line", _)] =
-  let lower_left = (getNum left "startX", getNum bottom "startY")
-  in let top_right = (getNum right "startX", getNum top "startY")
-     in computeSurjection g n lower_left top_right
--- Assuming left and bottom are perpendicular and share one point
-computeSurjectionLines' g [Val (IntV n), GPI left@("Arrow", _), GPI bottom@("Arrow", _)] =
-  let lower_left = (getNum left "startX", getNum left "startY")
-  in let top_right = (getNum bottom "endX", getNum left "endY")
-     in computeSurjection g n lower_left top_right
+sampleFunction [Val (IntV n), Val (FloatV xmin), Val (FloatV xmax), Val (FloatV ymin), Val (FloatV ymax), Val (StrV typ)] g 
+  | n < 2 = 
+    error "A function needs to have >= 2 points" 
+  | typ == "surjection" =
+    let (pts, g') = computeSurjection g n (xmin, ymin) (xmax, ymax)
+    in (Val $ PtListV pts, g')
+  | typ == "injection" =
+    let pad = 0.25
+        lower_left = (xmin, ymin)
+        top_right = (xmax, ymax * (1-pad))
+        (pts, g') = computeBijection g n lower_left top_right
+    in (Val $ PtListV pts, g')
+  | typ == "bijection" =
+    let (pts, g') = computeBijection g n (xmin, ymin) (xmax, ymax)
+    in (Val $ PtListV pts, g')
+  | typ == "general" =
+    let pad = 0.1
+        lower_left = (xmin, ymin * (1-pad))
+        top_right = (xmax, ymax * (1-pad))
+        (pts, g') = computeSurjection g n lower_left top_right
+    in (Val $ PtListV pts, g')
 
 computeSurjection ::
      Autofloat a => StdGen -> Int -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
-  if numPoints < 2
-    then error "Surjection needs to have >= 2 points"
-    else let g' = g
-      -- (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
-            -- (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
-            --  xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
-             xs = linspace numPoints (lowerx, topx)
-             xs_increasing = sort xs
-             (ys_inner, g'') =
-               randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
-             ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
-             ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
-         in (zip xs_increasing ys_perm, g'') -- len xs == len ys
+  let xs = linspace numPoints (lowerx, topx)
+      xs_increasing = sort xs
+      (ys_inner, g') =
+        randomsIn g (numPoints - 2) (r2f lowery, r2f topy)
+      ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
+      ys_perm = shuffle' ys (length ys) g' -- Random permutation. TODO return g3?
+  in (zip xs_increasing ys_perm, g') -- len xs == len ys
 
-
--- TODO: ported from old code
-{-
--- Given a generator, number of points, and lower left and top right of bbox, return points for a bijection.
--- Points generated lie in the bbox given, whether in math space or screen space
--- TODO pass randomness around in Runtime
-computeBijection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
+computeBijection ::
+     Autofloat a => StdGen -> Int -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
 computeBijection g numPoints (lowerx, lowery) (topx, topy) =
-                  if numPoints < 2 then error "Bijection needs to have >= 2 points"
-                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
-                           xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
-                           xs_plot = nub (reverse (sort xs))
-                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
-                           ys = lowery : ys_inner ++ [topy] --clude endpts so function is onto
-                           ys_plot = (nub (sort ys)) in -- Random permutation. TODO return g3?
-                           (zip xs_plot ys_plot, g'') -- len xs == len ys
+  let xs = linspace numPoints (lowerx, topx)
+      xs_plot = xs
+      (ys_inner, g')
+        = randomsIn g (numPoints - 2) (r2f lowery, r2f topy)
+      ys = lowery : ys_inner ++ [topy]
+      (ys_plot, g'') = pickOne [nub $ reverse $ sort ys, nub (sort ys)] g'
+  in (zip xs_plot ys_plot, g'')
 
-
--- Given a generator, number of points, and lower left and top right of bbox, return points for a injection.
--- Points generated lie in the bbox given, whether in math space or screen space
--- TODO pass randomness around in Runtime
-computeInjection :: Autofloat a => StdGen -> Integer -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
-computeInjection g numPoints (lowerx, lowery) (topx, topy) =
-                  if numPoints < 2 then error "Injection needs to have >= 2 points"
-                  else let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
-                           xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
-                           xs_plot = nub (reverse (sort xs))
-                           (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f (lowery + (topy - lowery)/4), r2f (topy - (topy - lowery)/4))
-                           ys = (lowery + (topy - lowery)/4) : ys_inner ++ [topy - (topy - lowery)/4] --clude endpts so function is onto
-                           ys_plot = (nub (sort ys)) in -- Random permutation. TODO return g3?
-                           (zip xs_plot ys_plot, g'') -- len xs == len ys
-
--- Computes the bijection to lie inside a bounding box defined by the corners of a box
-   -- defined by four straight lines, assuming their lower/left coordinates come first.
-   -- Their intersections give the corners.
-computeBijectionLines :: (Autofloat a) => StdGen -> Integer
-                                   -> Line' a -> Line' a -> Line' a -> Line' a -> ([Pt2 a], StdGen)
-computeBijectionLines g n left right bottom top =
-                       let lower_left = (startx_l' left, starty_l' bottom) in
-                       let top_right = (startx_l' right, starty_l' top) in
-                       computeBijection g n lower_left top_right
-
--- Computes the injection to lie inside a bounding box defined by the corners of a box
--- defined by four straight lines, assuming their lower/left coordinates come first.
--- Their intersections give the corners.
-computeInjectionLines :: (Autofloat a) => StdGen -> Integer
-                                   -> Line' a -> Line' a -> Line' a -> Line' a -> ([Pt2 a], StdGen)
-computeInjectionLines g n left right bottom top =
-                       let lower_left = (startx_l' left, starty_l' bottom) in
-                       let top_right = (startx_l' right, starty_l' top) in
-                       computeInjection g n lower_left top_right
-
-computeBijectionLines' :: CompFn a
-computeBijectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] =
-                        TPath $ fst $ computeBijectionLines compRng (floor x) l1 l2 l3 l4
-computeBijectionLines' v o = error' "computeBijectionLines" v o
-
-computeInjectionLines' :: CompFn a
-computeInjectionLines' [TNum x] [LN' l1, LN' l2, LN' l3, LN' l4] =
-                        TPath $ fst $ computeInjectionLines compRng (floor x) l1 l2 l3 l4
-computeInjectionLines' v o = error' "computeInjectionLines" v o
--}
 
 -- calculates a line (of two points) intersecting the first axis, stopping before it leaves bbox of second axis
 -- TODO rename lineLeft and lineRight
@@ -756,34 +682,6 @@ chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
       cp2y = y2 - (y3 - y1) / 6 * k
   in CubicBez ((cp1x, cp1y), (cp2x, cp2y), (x2, y2))
 
--- chain :: Autofloat a => [(a, a)] -> a -> Elem a
--- chain points@[(x0, y0), (x1, y1), (x2, y2), (x3, y3)] alpha =
---   let cp1x = x1 + (x2 - x0) / 6 * k
---       cp1y = y1 + (y2 - y0) / 6 * k
---       cp2x = x2 - (x3 - x1) / 6 * k
---       cp2y = y2 - (y3 - y1) / 6 * k
---   in CubicBez ((cp1x, cp1y), (cp2x, cp2y), (x2, y2))
---   where 
---     findT t0 (pi, pj) = t0 + dist pi pj ^ alpha
---     ts = foldl findT 0 $ zip points $ init points
---     linspace 
-
-
--- COMBAK: finish this
--- sampleCturve :: Autofloat a =>
---     StdGen -> Integer -> Pt2 a -> Pt2 a -> Bool -> Bool -> [Pt2 a]
--- sampleCurve g numPoints (lowerx, lowery) (topx, topy) =
---     if numPoints < 2 then error "Surjection needs to have >= 2 points"
---     else
---         let (xs_inner, g') = randomsIn g (numPoints - 2) (r2f lowerx, r2f topx)
---             xs = lowerx : xs_inner ++ [topx] -- Include endpts so function covers domain
---             (ys_inner, g'') = randomsIn g' (numPoints - 2) (r2f lowery, r2f topy)
---             ys = lowery : ys_inner ++ [topy] -- Include endpts so function is onto
---             xs_increasing = sort xs
---             ys_perm = shuffle' ys (length ys) g'' -- Random permutation. TODO return g3?
---         -- in (zip xs_increasing ys_perm, g'') -- len xs == len ys
---         in zip xs_increasing ys_perm -- len xs == len ys
--- From Shapes.hs, TODO factor out
 sampleList :: (Autofloat a) => [a] -> StdGen -> (a, StdGen)
 sampleList list g =
   let (idx, g') = randomR (0, length list - 1) g

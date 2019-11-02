@@ -27,3 +27,5 @@ predicate Surjection : Map m
 predicate Bijection : Map m
 predicate PointIn : Set s * Point p
 predicate PairIn : Point * Point * Map
+
+notation "f: A -> B" ~ "Set A, B; Map f; From(f, A, B)"

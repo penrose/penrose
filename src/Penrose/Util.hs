@@ -93,6 +93,11 @@ randomsIn g n interval =
       (xs, g'') = randomsIn g' (n - 1) interval -- Rest of values
   in (r2f x : xs, g'')
 
+pickOne :: [a] -> StdGen -> (a, StdGen)
+pickOne list g =
+  let (idx, g') = randomR (0, length list - 1) g
+  in (list !! idx, g')
+
 fromRight :: (Show a, Show b) => Either a b -> b
 fromRight (Left x)  = error ("Failed with error: " ++ show x)
 fromRight (Right y) = y

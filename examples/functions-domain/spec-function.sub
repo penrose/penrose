@@ -1,8 +1,9 @@
 -- Code adapted from surjection_computed.sub
 
-Set A, B
-Map f
-From(f, A, B)
+-- Set A, B
+-- Map f
+-- From(f, A, B)
+f: A -> B
 Not(Surjection(f))
 Injection(f)
 

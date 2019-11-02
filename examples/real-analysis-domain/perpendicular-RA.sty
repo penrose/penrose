@@ -325,7 +325,7 @@ where f := CreateFunction(I, R); Continuous(f); Subset(I, R) {
   f.pts = 3
   -- TODO: use a more general function than computeSurjection
   f.ypad = 100.0
-  f.val = sampleFunction(f.pts, I.shape.startX, I.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad)
+  f.val = sampleFunction(f.pts, I.shape.startX, I.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "surjection")
   f.color = Colors.sky
 
   f.shape = Curve {
@@ -369,8 +369,8 @@ where f := CreateFunction(I, R);
       f.pts2 = 3
       f.ypad = 100.0
 
-      f.val1 = sampleFunction(f.pts1, J.shape.startX, J.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad)
-      f.val2 = sampleFunction(f.pts2, K.shape.startX, K.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad)
+      f.val1 = sampleFunction(f.pts1, J.shape.startX, J.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "surjection")
+      f.val2 = sampleFunction(f.pts2, K.shape.startX, K.shape.endX, R.y_axis.startY + f.ypad, R.y_axis.endY - f.ypad, "bijection")
 
       f.shape1 = Curve {
           path : f.val1
