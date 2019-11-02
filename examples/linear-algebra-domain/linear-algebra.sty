@@ -136,12 +136,16 @@ where In(v,U) {
     color : v.shape.color
   }
 
+  v.color = sampleColor(1.0) -- Full opacity to hide arrowhead layering
+
   v.shape = Arrow {
     startX : U.shape.x
     startY : U.shape.y
     -- endX : v.endXTest / const.scaleRatio
     -- endY : v.endYTest / const.scaleRatio
     thickness : 3.0
+    color : v.color
+    arrowheadSize : 0.5
   }
 
    v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
@@ -166,6 +170,8 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
    u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
    u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
 
+   -- TODO: fix placement of dashed arrow. Is this due to arrowhead size?
+   -- TODO: fix this opacity too -- lighter color
     u.slider_v = Arrow {
         endX : u.shape.endX
         endY : u.shape.endY
@@ -173,7 +179,8 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
         startX : w.shape.endX
         startY : w.shape.endY
         thickness : 1.5
-        color : setOpacity(v.shape.color, 0.5)
+        -- color : setOpacity(v.shape.color, 0.5)
+        color : scaleColor(v.color, 1.25) -- TODO: make sure this doesn't go out of bounds (stil lighter)
         style : "dashed"
     }
 
