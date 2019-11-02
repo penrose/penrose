@@ -140,7 +140,7 @@ where From(f, domain, image) {
 
 Map f
 with Set domain; Set image
-where From(f, domain, image); Surjection(f); NotInjection(f) {
+where From(f, domain, image); Not(Surjection(f)); Injection(f) {
     f.shape = Curve {
         path : computeSurjectionLines(5, domain.left, domain.right, image.bottom, image.top)
         pathData : interpolate(f.shape.path)

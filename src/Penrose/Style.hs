@@ -306,7 +306,7 @@ predicate = do
                        predicatePos = pos }
 
 predicateArgument :: Parser PredArg
-predicateArgument = PE <$> selectorExpr <|> PP <$> predicate
+predicateArgument = tryChoice [PP <$> predicate, PE <$> selectorExpr]
 
 selectorExpr :: Parser SelExpr
 selectorExpr =
