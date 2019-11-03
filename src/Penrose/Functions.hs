@@ -988,6 +988,7 @@ sampleColor' [Val (FloatV a)] g =
              let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
              in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
 
+-- https://stackoverflow.com/questions/141855/programmatically-lighten-a-color
 scaleColor :: ConstCompFn
 scaleColor [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] =
   Val $ ColorV (RGBA (r2f frac * r) (r2f frac * g) (r2f frac * b) a)

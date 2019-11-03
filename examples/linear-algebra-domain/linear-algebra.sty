@@ -8,6 +8,7 @@ const {
   const.axisSize = const.vectorSpaceSize * 0.4
   const.distVectorSpaces = 50.0
   const.scaleRatio = 200.0
+  const.fontSize = "18pt"
 }
 
 -- Global RGB colors in common use
@@ -51,11 +52,13 @@ VectorSpace U {
     U.textX = Text {
         string : "x"
         color : Colors.darkGray
+        fontSize : const.fontSize
     }
 
     U.textY = Text {
         string : "y"
         color : Colors.darkGray
+        fontSize : const.fontSize
     }
 
     /*
@@ -111,6 +114,7 @@ VectorSpace U {
         x : U.shape.x - const.axisSize
         y : U.shape.y + const.axisSize
         color : U.axisColor
+        fontSize : const.fontSize
     }
 
     U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
@@ -136,6 +140,7 @@ where In(v,U) {
   v.text = Text {
     string : v.label
     color : v.shape.color
+    fontSize : const.fontSize
   }
 
   v.color = sampleColor(1.0) -- Full opacity to hide arrowhead layering
@@ -194,7 +199,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
         thickness : 1.5
         color : setOpacity(v.shape.color, 0.5)
         -- color : scaleColor(v.color, 1.25) -- TODO: make sure this doesn't go out of bounds (stil lighter)
-        -- style : "dashed"
+        style : "dashed"
         -- arrowheadSize : 0.5
     }
 
@@ -206,7 +211,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
        startY : v.shape.endY
        thickness : 1.5
        color : setOpacity(w.shape.color, 0.5)
-       -- style : "dashed"
+       style : "dashed"
        -- arrowheadSize : 0.5
     }
 }
@@ -235,6 +240,7 @@ where From(f,U,V) {
      x : (U.shape.x + V.shape.x) / 2.0
      y : U.shape.y + 50.0
      color : f.shape.color
+     fontSize : const.fontSize
    }
 
    f.orderFn = ensure lessThan(U.shape.x + 20.0, V.shape.x)
@@ -271,6 +277,7 @@ where c := determinant(a,b); In(a,U); In(b,U) {
      x : (a.shape.endX + b.shape.endX - a.shape.startX) / 2.0
      y : (a.shape.endY + b.shape.endY - a.shape.startY) / 2.0
      color : Colors.sky
+     fontSize : const.fontSize
    }
 
    c.layering = c.text above c.shape
@@ -329,6 +336,7 @@ where c := norm(a); In(a,U) {
         x : c.padding + midpointX(c.shape) 
         y : c.padding + midpointY(c.shape) 
         color : c.shape.color
+        fontSize : const.fontSize
    }
 }
 
