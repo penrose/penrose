@@ -41,6 +41,8 @@ VectorSpace U {
     U.axisColor = Colors.darkGray
 
     U.shape = Square {
+	x : 0.0
+	y : 0.0
         side : const.vectorSpaceSize
         color : Colors.lightBlue
     }
@@ -148,6 +150,15 @@ where In(v,U) {
     arrowheadSize : 0.5
   }
 
+  -- v.shape1 = Line {
+  --   startX : U.shape.x
+  --   startY : U.shape.y
+  --   endX : v.shape.endX
+  --   endY : v.shape.endY
+  --   thickness : 5.0
+  --   color : setOpacity(v.color, 0.5)
+  -- }
+
    v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
    v.angle = angle(v.vector)
 
@@ -170,7 +181,9 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
    u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
    u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
 
-   -- TODO: fix placement of dashed arrow. Is this due to arrowhead size?
+   -- TODO: Arrow shape has a length slightly longer than the line's ending position
+   -- I'm not sure how to scale the arrow to deal with arrowhead size either
+
    -- TODO: fix this opacity too -- lighter color
     u.slider_v = Arrow {
         endX : u.shape.endX
@@ -179,9 +192,10 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
         startX : w.shape.endX
         startY : w.shape.endY
         thickness : 1.5
-        -- color : setOpacity(v.shape.color, 0.5)
-        color : scaleColor(v.color, 1.25) -- TODO: make sure this doesn't go out of bounds (stil lighter)
-        style : "dashed"
+        color : setOpacity(v.shape.color, 0.5)
+        -- color : scaleColor(v.color, 1.25) -- TODO: make sure this doesn't go out of bounds (stil lighter)
+        -- style : "dashed"
+        -- arrowheadSize : 0.5
     }
 
     u.slider_w = Arrow {
@@ -192,7 +206,8 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
        startY : v.shape.endY
        thickness : 1.5
        color : setOpacity(w.shape.color, 0.5)
-       style : "dashed"
+       -- style : "dashed"
+       -- arrowheadSize : 0.5
     }
 }
 

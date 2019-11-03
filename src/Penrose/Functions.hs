@@ -1447,6 +1447,8 @@ contains [GPI e@("Ellipse", _), GPI c@("Circle", _), Val (FloatV padding)] =
   dist (getX c, getY c) (getX e, getY e) -
   max (getNum e "rx") (getNum e "ry") +
   getNum c "r" + padding
+
+-- TODO: combine Line and Arrow cases (the code is the same!!)
 contains [GPI sq@("Square", _), GPI ar@("Arrow", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
       (x, y) = (getX sq, getY sq)
@@ -1456,6 +1458,23 @@ contains [GPI sq@("Square", _), GPI ar@("Arrow", _)] =
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
      inRange endY ly ry
 contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
+  let (startX, startY, endX, endY) = arrowPts ar
+      (x, y) = (getX rt, getY rt)
+      (w, h) = (getNum rt "sizeX", getNum rt "sizeY")
+      (lx, ly) = (x - w / 2, y - h / 2)
+      (rx, ry) = (x + w / 2, y + h / 2)
+  in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
+     inRange endY ly ry
+
+contains [GPI sq@("Square", _), GPI ar@("Line", _)] =
+  let (startX, startY, endX, endY) = arrowPts ar
+      (x, y) = (getX sq, getY sq)
+      side = getNum sq "side"
+      (lx, ly) = ((x - side / 2) * 0.75, (y - side / 2) * 0.75)
+      (rx, ry) = ((x + side / 2) * 0.75, (y + side / 2) * 0.75)
+  in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
+     inRange endY ly ry
+contains [GPI rt@("Rectangle", _), GPI ar@("Line", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
       (x, y) = (getX rt, getY rt)
       (w, h) = (getNum rt "sizeX", getNum rt "sizeY")
