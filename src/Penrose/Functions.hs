@@ -156,6 +156,7 @@ compDict =
     , ("polygonizeCurve", constComp polygonizeCurve)
     , ("setOpacity", constComp setOpacity)
     , ("scaleColor", constComp scaleColor)
+    , ("blendColor", constComp blendColor)
     , ("sampleColor", sampleColor')
     , ("bbox", constComp bbox')
     , ("min", constComp min')
@@ -988,10 +989,21 @@ sampleColor' [Val (FloatV a)] g =
              let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
              in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
 
+-- Interpolate between the color and white
+-- The alternative is to uniformly scale up the color and clamp when it hits 255, 
+-- but that changes the hue of the color.
 -- https://stackoverflow.com/questions/141855/programmatically-lighten-a-color
 scaleColor :: ConstCompFn
 scaleColor [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] =
-  Val $ ColorV (RGBA (r2f frac * r) (r2f frac * g) (r2f frac * b) a)
+  let c = r2f frac
+      max_val = 1
+      (r', g', b') = (lerp r 1 c, lerp g 1 c, lerp b 1 c)
+  in Val $ ColorV (RGBA r' g' b' a)
+
+blendColor :: ConstCompFn
+blendColor [Val (ColorV (RGBA r0 g0 b0 a0)), Val (ColorV (RGBA r1 g1 b1 a1))] =
+  -- Assuming both colors are at full opacity, returns a color at full opacity
+  Val $ ColorV (RGBA ((r0 + r1)/2) ((g0 + g1)/2) ((b0 + b1)/2) 1.0)
 
 ----------
 get' :: ConstCompFn

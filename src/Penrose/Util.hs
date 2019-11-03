@@ -370,10 +370,12 @@ inputsOutputStr x =
 rot90 :: Floating a => (a, a) -> (a, a)
 rot90 (x, y) = (-y, x)
 
+-- `k` is the fraction of interpolation
+lerp :: Floating a => a -> a -> a -> a
+lerp a b k = a * (1.0 - k) + b * k
+
 lerpP :: Floating a => (a, a) -> (a, a) -> a -> (a, a)
-lerpP (a, b) (c, d) k =
-  let lerpNum a b = a * (1.0 - k) + b * k
-  in (lerpNum a c, lerpNum b d)
+lerpP (a, b) (c, d) k = (lerp a c k, lerp b d k)
 
 mag :: Floating a => (a, a) -> a
 mag (a, b) = sqrt $ magsq (a, b)
@@ -415,15 +417,15 @@ scaleLinear x (lower, upper) (lower', upper') =
 
 -- n = number of interpolation points (not counting endpoints)
 -- so with n = 1, we would have [x1, (x1+x2/2), x2]
-lerp :: Autofloat a => a -> a -> Int -> [a]
-lerp x1 x2 n =
+lerpN :: Autofloat a => a -> a -> Int -> [a]
+lerpN x1 x2 n =
   let dx = (x2 - x1) / (fromIntegral n + 1)
   in take (n + 2) $ iterate (+ dx) x1
 
 lerp2 :: Autofloat a => Pt2 a -> Pt2 a -> Int -> [Pt2 a]
 lerp2 (x1, y1) (x2, y2) n =
-  let xs = lerp x1 x2 n
-      ys = lerp y1 y2 n
+  let xs = lerpN x1 x2 n
+      ys = lerpN y1 y2 n
   in zip xs ys -- Interp both simultaneously
                             -- Interp the first, then the second
                             -- in zip xs (repeat y1) ++ zip (repeat x2) ys

@@ -5,10 +5,14 @@
 -- Global constants and sizes
 const {
   const.vectorSpaceSize = 400.0
-  const.axisSize = const.vectorSpaceSize * 0.4
+  const.axisSize = const.vectorSpaceSize * 0.45
   const.distVectorSpaces = 50.0
   const.scaleRatio = 200.0
-  const.fontSize = "18pt"
+  const.fontSize = "14pt"
+  const.lightenFrac = 0.5
+  const.arrowThickness = 3.0
+  const.arrowThickness2 = 2.0
+  const.arrowheadSize = 0.5
 }
 
 -- Global RGB colors in common use
@@ -48,18 +52,17 @@ VectorSpace U {
         color : Colors.lightBlue
     }
 
+    -- U.textX = Text {
+    --     string : "x"
+    --     color : Colors.darkGray
+    --     fontSize : const.fontSize
+    -- }
 
-    U.textX = Text {
-        string : "x"
-        color : Colors.darkGray
-        fontSize : const.fontSize
-    }
-
-    U.textY = Text {
-        string : "y"
-        color : Colors.darkGray
-        fontSize : const.fontSize
-    }
+    -- U.textY = Text {
+    --     string : "y"
+    --     color : Colors.darkGray
+    --     fontSize : const.fontSize
+    -- }
 
     /*
     U.perpMark = Arc {
@@ -73,7 +76,7 @@ VectorSpace U {
     */
 
     -- TODO: double-headed arrows
-    U.xAxisRight = Arrow {
+    U.xAxisRight = Line {
         startX : U.shape.x
         startY : U.shape.y
         endX : U.shape.x + const.axisSize
@@ -82,7 +85,7 @@ VectorSpace U {
         color : U.axisColor
     }
 
-    U.xAxisLeft = Arrow {
+    U.xAxisLeft = Line {
         startX : U.shape.x
         startY : U.shape.y
         endX : U.shape.x - const.axisSize
@@ -91,7 +94,7 @@ VectorSpace U {
         color : U.axisColor
     }
 
-    U.yAxisUp = Arrow {
+    U.yAxisUp = Line {
         startX : U.shape.x
         startY : U.shape.y
         endX : U.shape.x
@@ -100,7 +103,7 @@ VectorSpace U {
         color : U.axisColor
     }
 
-    U.yAxisDown = Arrow {
+    U.yAxisDown = Line {
         startX : U.shape.x
         startY : U.shape.y
         endX : U.shape.x
@@ -117,8 +120,8 @@ VectorSpace U {
         fontSize : const.fontSize
     }
 
-    U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
-    U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0, 20.0)
+    -- U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
+    -- U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0, 20.0)
 }
 
 -- TODO: generates too many constraints?
@@ -134,8 +137,8 @@ Vector v
 with VectorSpace U
 where In(v,U) {
    v.containFn = ensure contains(U.shape, v.shape)
-   v.containLabel = ensure contains(U.shape, v.text)
-   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 , 30.0)
+   -- v.containLabel = ensure contains(U.shape, v.text)
+   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
 
   v.text = Text {
     string : v.label
@@ -148,11 +151,9 @@ where In(v,U) {
   v.shape = Arrow {
     startX : U.shape.x
     startY : U.shape.y
-    -- endX : v.endXTest / const.scaleRatio
-    -- endY : v.endYTest / const.scaleRatio
-    thickness : 3.0
+    thickness : const.arrowThickness
     color : v.color
-    arrowheadSize : 0.5
+    arrowheadSize : const.arrowheadSize
   }
 
   -- v.shape1 = Line {
@@ -186,6 +187,8 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
    u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
    u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
 
+   override u.shape.color = blendColor(v.shape.color, w.shape.color)
+
    -- TODO: Arrow shape has a length slightly longer than the line's ending position
    -- I'm not sure how to scale the arrow to deal with arrowhead size either
 
@@ -196,11 +199,10 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 
         startX : w.shape.endX
         startY : w.shape.endY
-        thickness : 1.5
-        color : setOpacity(v.shape.color, 0.5)
-        -- color : scaleColor(v.color, 1.25) -- TODO: make sure this doesn't go out of bounds (stil lighter)
+        thickness : const.arrowThickness2
+        color : scaleColor(v.color, const.lightenFrac)
         style : "dashed"
-        -- arrowheadSize : 0.5
+        arrowheadSize : const.arrowheadSize
     }
 
     u.slider_w = Arrow {
@@ -209,11 +211,14 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 
        startX : v.shape.endX
        startY : v.shape.endY
-       thickness : 1.5
-       color : setOpacity(w.shape.color, 0.5)
+       thickness : const.arrowThickness2
+        color : scaleColor(w.color, const.lightenFrac)
        style : "dashed"
-       -- arrowheadSize : 0.5
+       arrowheadSize : const.arrowheadSize
     }
+
+    u.sw_layering = u.slider_w below u.shape
+    u.sv_layering = u.slider_v below u.shape
 }
 
 LinearMap f
@@ -394,3 +399,5 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       LOCAL.layering1 = v.shape above LOCAL.shape
       LOCAL.layering2 = u.shape above LOCAL.shape
 }
+
+-- No label overlaps with any other label, vector, slider vector, or axis line.
