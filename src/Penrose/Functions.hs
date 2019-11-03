@@ -1286,10 +1286,35 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
         ]
   in (fromx - sx) ^ 2 + (fromy - sy) ^ 2 + (tox - ex) ^ 2 + (toy - ey) ^ 2
 
+repelPt :: Autofloat a => a -> Pt2 a -> Pt2 a -> a 
+repelPt c a b = c / (distsq a b + epsd)
+
 -- | 'repel' exert an repelling force between objects
 -- TODO: temporarily written in a generic way
 -- Note: repel's energies are quite small so the function is scaled by repelWeight before being applied
 repel :: ObjFn
+
+-- TODO: factor line & arrow together OR account for the arrowhead
+
+repel [GPI line@("Arrow", _), GPI a, Val (FloatV weight)] =
+  let (sx, sy, ex, ey) = linePts line
+      objCenter = (getX a, getY a)
+      numSamples = 15
+      lineSamplePts = sampleS numSamples ((sx, sy), (ex, ey))
+      allForces = sum $ map (repelPt weight objCenter) lineSamplePts
+      res = weight * allForces
+  in {- trace ("numPoints: " ++ show (length lineSamplePts)) -} res
+
+-- Repel an object and a line by summing repel forces over the (sampled) body of the line
+repel [GPI line@("Line", _), GPI a, Val (FloatV weight)] =
+  let (sx, sy, ex, ey) = linePts line
+      objCenter = (getX a, getY a)
+      numSamples = 15
+      lineSamplePts = sampleS numSamples ((sx, sy), (ex, ey))
+      allForces = sum $ map (repelPt weight objCenter) lineSamplePts
+      res = weight * allForces
+  in {- trace ("numPoints: " ++ show (length lineSamplePts)) -} res
+
 repel [Val (FloatV x), Val (FloatV y)] = 1 / ((x-y)*(x-y) + epsd)
 repel [Val (FloatV x), Val (FloatV y), Val (FloatV weight)] = weight / ((x-y)*(x-y) + epsd)
 repel [Val (TupV x), Val (TupV y)] = 1 / (distsq x y + epsd)

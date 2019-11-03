@@ -13,6 +13,7 @@ const {
   const.arrowThickness = 3.0
   const.arrowThickness2 = 2.0
   const.arrowheadSize = 0.5
+  const.repelWeight = 0.7
 }
 
 -- Global RGB colors in common use
@@ -75,9 +76,8 @@ VectorSpace U {
     }
     */
 
-    -- TODO: double-headed arrows
-    U.xAxisRight = Line {
-        startX : U.shape.x
+    U.xAxis = Line {
+        startX : U.shape.x - const.axisSize
         startY : U.shape.y
         endX : U.shape.x + const.axisSize
         endY : U.shape.y
@@ -85,29 +85,11 @@ VectorSpace U {
         color : U.axisColor
     }
 
-    U.xAxisLeft = Line {
+    U.yAxis = Line {
         startX : U.shape.x
-        startY : U.shape.y
-        endX : U.shape.x - const.axisSize
-        endY : U.shape.y
-        thickness : U.thickness
-        color : U.axisColor
-    }
-
-    U.yAxisUp = Line {
-        startX : U.shape.x
-        startY : U.shape.y
+        startY : U.shape.y - const.axisSize
         endX : U.shape.x
         endY : U.shape.y + const.axisSize
-        thickness : U.thickness
-        color : U.axisColor
-    }
-
-    U.yAxisDown = Line {
-        startX : U.shape.x
-        startY : U.shape.y
-        endX : U.shape.x
-        endY : U.shape.y - const.axisSize
         thickness : U.thickness
         color : U.axisColor
     }
@@ -119,9 +101,6 @@ VectorSpace U {
         color : U.axisColor
         fontSize : const.fontSize
     }
-
-    -- U.xLabelLocation = ensure nearHead(U.xAxisRight, U.textX, 20.0, 0.0)
-    -- U.yLabelLocation = ensure nearHead(U.yAxisUp, U.textY, 0.0, 20.0)
 }
 
 -- TODO: generates too many constraints?
@@ -136,10 +115,6 @@ VectorSpace U; VectorSpace V {
 Vector v
 with VectorSpace U
 where In(v,U) {
-   v.containFn = ensure contains(U.shape, v.shape)
-   -- v.containLabel = ensure contains(U.shape, v.text)
-   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
-
   v.text = Text {
     string : v.label
     color : v.shape.color
@@ -168,10 +143,19 @@ where In(v,U) {
    v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
    v.angle = angle(v.vector)
 
-  v.layeringText1 = v.text above U.xAxisRight
-  v.layeringText2 = v.text above U.xAxisLeft
-  v.layeringText3 = v.text above U.yAxisUp
-  v.layeringText4 = v.text above U.yAxisDown
+  v.layeringText1 = v.text above U.xAxis
+  v.layeringText2 = v.text above U.yAxis
+
+   v.containFn = ensure contains(U.shape, v.shape)
+   -- v.containLabel = ensure contains(U.shape, v.text)
+   -- NOTE: nearHead is actually an objective. Use the other constraint form?
+   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
+   v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
+
+   -- TODO: repel only if it overlaps? (Do a bbox check before doing the expensive sample + sum operation)
+   v.labelAvoidAxisFn1 = encourage repel(U.xAxis, v.text, const.repelWeight)
+   v.labelAvoidAxisFn2 = encourage repel(U.yAxis, v.text, const.repelWeight)
+   v.labelAvoidAxisText = encourage repel(U.text, v.text, const.repelWeight)
 }
 
 Vector u
@@ -400,4 +384,10 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       LOCAL.layering2 = u.shape above LOCAL.shape
 }
 
--- No label overlaps with any other label, vector, slider vector, or axis line.
+-- No label overlaps with any other label, vector, slider vector, or axis line. (This doesn't match the same vector twice, right?)
+Vector u; Vector v {
+
+       -- TODO: this currently makes diagrams too symmetrical. Maybe do a second labeling pass?
+       LOCAL.labelAvoidSegFn = encourage repel(v.shape, u.text, const.repelWeight)
+      LOCAL.labelAvoidTextFn = encourage repel(v.text, u.text, const.repelWeight)
+}

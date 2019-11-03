@@ -8,5 +8,5 @@ C := A + B
 
 Label A $\vec{u_{1}}$
 Label B $\vec{u_{2}}$
-Label C $\vec{u_{1} + u_{2}}$
+Label C $\vec{u_{1}} + \vec{u_{2}}$
 AutoLabel U
