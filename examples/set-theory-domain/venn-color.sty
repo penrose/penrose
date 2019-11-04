@@ -1,0 +1,99 @@
+-- TODO: Just optimize locations in 1D for now, and `r` proportional to `x` location
+-- Need to make sure color stays in range [0,1] -- clamp?
+-- Objective: for Sets (s1,s2), encourage invProportional(d(c(s1), c(s2)), d(r(s1), r(s2)))
+-- invProportional c1 c2 = c2 / c1 = d(r(s1), r(s2)) / d(c(s1), c(s2))
+-- Maybe need to multiply something by some weight for the magnitude, since the top is around [0,1]^2 and bottom is around [0,400]^2
+-- I think this will usually try to make the distances farther though...
+-- Another option is to directly calculate (r,g,b) as a function of distance (?)
+-- Or to reverse the numerator and denominator?
+
+-- If closer ones have more dissimilar colors, is 1D enough?
+
+Set x {
+    x.red = ?
+    x.green = ?
+    x.blue = ?
+
+    x.color = rgba(x.red, x.green, x.blue, 1.0)
+    -- Sometimes this fails, so it's clamped in the frontend
+    x.colorFn1 = ensure inRange(x.red, 0.0, 1.0)
+    x.colorFn2 = ensure inRange(x.green, 0.0, 1.0)
+    x.colorFn3 = ensure inRange(x.blue, 0.0, 1.0)
+
+    x.shape = Circle {
+        color : x.color
+        strokeWidth : 1
+	strokeColor : rgba(0.5, 0.5, 0.5, 1.0)
+	x : ?
+	y : 0.0
+	r : 60.0
+    }
+
+    x.text = Text {
+        string : x.label
+    }
+
+    -- x.labelFn = ensure contains(x.shape, x.text)
+    -- x.minSizeFn = ensure minSize(x.shape)
+    -- x.maxSizeFn = ensure maxSize(x.shape)
+    -- The color objective seems to work less with the label objective added
+    x.labelPosFn = encourage sameCenter(x.text, x.shape)
+    LOCAL.layering  = x.shape below x.text
+}
+
+-- TODO: test subsets and overlapping sets, and ones w/ different radii
+
+Set `A` {
+ override `A`.shape.x = -100.0
+ -- override `A`.shape.y = 100.0
+}
+
+Set `B` {
+ override `B`.shape.x = 0.0
+}
+
+Set `C` {
+ override `C`.shape.x = 100.0
+ -- override `C`.shape.x = 300.0
+ -- override `C`.shape.y = 300.0
+}
+
+Set x; Set y {
+    LOCAL.colorFn = encourage invProportionalColorDist(x.shape, y.shape, 1000000.0)
+}
+
+Set x; Set y
+where IsSubset(x, y) {
+    LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
+    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
+    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
+    LOCAL.layering  = x.shape above y.shape
+    LOCAL.layering1  = y.text below x.shape
+}
+
+Set x; Set y
+where NotIntersecting(x, y) {
+    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+}
+
+Set x; Set y
+where Intersect(x, y) {
+    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
+    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
+    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
+}
+
+Point p {
+    p.offset = 10.0
+    p.shape = Circle {
+        strokeWidth : 0
+        color : rgba(0.0, 0.0, 0.0, 1.0)
+        r : 3.0
+    }
+
+    p.text = Text {
+        string : p.label
+        x : p.shape.x + p.offset
+        y : p.shape.y + p.offset
+    }
+}
