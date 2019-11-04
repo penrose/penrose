@@ -158,6 +158,7 @@ compDict =
     , ("scaleColor", constComp scaleColor)
     , ("blendColor", constComp blendColor)
     , ("sampleColor", sampleColor')
+    , ("sampleNum", sampleNum')
     , ("bbox", constComp bbox')
     , ("min", constComp min')
     , ("max", constComp max')
@@ -988,6 +989,15 @@ sampleColor' :: CompFn
 sampleColor' [Val (FloatV a)] g = 
              let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
              in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
+
+sampleNum' :: CompFn
+sampleNum' [Val (FloatV x), Val (FloatV y)] g = -- Sample in range
+         let (res, g') = sampleFloatIn (r2f x, r2f y) g
+         in (Val res, g')
+
+sampleNum' [] g = 
+         let (res, g') = sampleFloatIn canvasDims g
+         in (Val res, g')
 
 -- Interpolate between the color and white
 -- The alternative is to uniformly scale up the color and clamp when it hits 255, 

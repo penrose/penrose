@@ -53,6 +53,9 @@ VectorSpace U {
         color : Colors.lightBlue
     }
 
+    U.left = U.shape.x + (U.shape.side/2.0)
+    U.right = U.shape.x - (U.shape.side/2.0)
+
     -- U.textX = Text {
     --     string : "x"
     --     color : Colors.darkGray
@@ -123,9 +126,18 @@ where In(v,U) {
 
   v.color = sampleColor(1.0) -- Full opacity to hide arrowhead layering
 
+  v.pad1 = ?
+  v.pad2 = ?
+
   v.shape = Arrow {
     startX : U.shape.x
     startY : U.shape.y
+    -- endX : ?
+    -- endY : ?
+    -- So the labels can be optimized separately
+    endX : sampleNum(U.left, U.right) + v.pad1
+    endY : sampleNum(U.left, U.right) + v.pad2
+
     thickness : const.arrowThickness
     color : v.color
     arrowheadSize : const.arrowheadSize
@@ -147,7 +159,7 @@ where In(v,U) {
   v.layeringText2 = v.text above U.yAxis
 
    v.containFn = ensure contains(U.shape, v.shape)
-   -- v.containLabel = ensure contains(U.shape, v.text)
+   v.containLabel = ensure contains(U.shape, v.text)
    -- NOTE: nearHead is actually an objective. Use the other constraint form?
    v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
    v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
@@ -161,16 +173,15 @@ where In(v,U) {
 Vector u
 with Vector v; VectorSpace U
 where u := neg(v); In(v,U); In(u, U) {
-  u.shape.endX = 2.0 * v.shape.startX - v.shape.endX
-  u.shape.endY = 2.0 * v.shape.startY - v.shape.endY
+  override u.shape.endX = 2.0 * v.shape.startX - v.shape.endX
+  override u.shape.endY = 2.0 * v.shape.startY - v.shape.endY
 }
 
 Vector u
 with Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
-   u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
-   u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
-
+   override u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
+   override u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
    override u.shape.color = blendColor(v.shape.color, w.shape.color)
 
    -- TODO: Arrow shape has a length slightly longer than the line's ending position
@@ -386,6 +397,9 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
 -- No label overlaps with any other label, vector, slider vector, or axis line. (This doesn't match the same vector twice, right?)
 Vector u; Vector v {
+       -- NOTE: This matches (u,v) and (v,u), generating double objectives
+
+       -- TODO: this doesn't quite work b/c it doesn't account for the thickness of the label
 
        -- TODO: this currently makes diagrams too symmetrical. Maybe do a second labeling pass?
        LOCAL.labelAvoidSegFn = encourage repel(v.shape, u.text, const.repelWeight)

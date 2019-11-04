@@ -1,12 +1,25 @@
+-- VectorSpace U
+
+-- Vector A ∈ U
+-- Vector B ∈ U
+-- Vector C ∈ U
+
+-- C := A + B
+
+-- Label A $\vec{u_{1}}$
+-- Label B $\vec{u_{2}}$
+-- Label C $\vec{u_{1}} + \vec{u_{2}}$
+-- AutoLabel U
+
 VectorSpace U
 
-Vector A ∈ U
-Vector B ∈ U
-Vector C ∈ U
+Vector u1 ∈ U
+Vector u2 ∈ U
+Vector u3 ∈ U
 
-C := A + B
+u3 := u1 + u2
 
-Label A $\vec{u_{1}}$
-Label B $\vec{u_{2}}$
-Label C $\vec{u_{1}} + \vec{u_{2}}$
+Label u1 $\vec{u_{1}}$
+Label u2 $\vec{u_{2}}$
+Label u3 $\vec{u_{1}} + \vec{u_{2}}$
 AutoLabel U
