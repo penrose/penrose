@@ -42,7 +42,9 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
           size={arrowheadSize}
         />
         <path
-          d={`M${sx} ${sy} L${ex - offsetX} ${ey - offsetY}`}
+          d={`M${sx} ${sy} L${
+            Math.abs(offsetX) < Math.abs(ex - sx) ? ex - offsetX : ex
+          } ${Math.abs(offsetY) < Math.abs(ey - sy) ? ey - offsetY : ey}`}
           fill={color}
           stroke={color}
           fillOpacity={alpha}
