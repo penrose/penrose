@@ -347,8 +347,6 @@ computedProperties =
     -- , (("ParallelogramTransform", "polygon"), parallelogramPolygonFn)
     -- , (("TextTransform", "polygon"), textPolygonFn)
 
-      (("Text", "finalW"), textWidthFn)
-    , (("Text", "finalH"), textHeightFn)
     , (("Text", "polygon"), textPolygonFn2)
     , (("Curve", "polygon"), curvePolygonFn2)
     ]
@@ -607,26 +605,12 @@ textPolygonFn = (props, fn)
 textPolygonFn2 :: (Autofloat a) => ComputedValue a
 textPolygonFn2 = (props, fn)
   where
-    props = ["x", "y", "finalW", "finalH"]
+    props = ["x", "y", "w", "h"]
     fn :: (Autofloat a) => [Value a] -> Value a
-    fn [FloatV x, FloatV y, FloatV finalW, FloatV finalH] =
-      let defaultTransform = paramsToMatrix (finalW, finalH, 0.0, x, y)
+    fn [FloatV x, FloatV y, FloatV w, FloatV h] =
+      let defaultTransform = paramsToMatrix (w, h, 0.0, x, y)
           fullTransform    = defaultTransform
       in PolygonV $ transformPoly fullTransform $ toPoly unitSq
-
-textWidthFn :: (Autofloat a) => ComputedValue a
-textWidthFn = (props, fn)
-  where
-    props = ["scale", "w"]
-    fn :: (Autofloat a) => [Value a] -> Value a
-    fn [FloatV scale, FloatV w] = FloatV $ scale * w
-
-textHeightFn :: (Autofloat a) => ComputedValue a
-textHeightFn = (props, fn)
-  where
-    props = ["scale", "h"]
-    fn :: (Autofloat a) => [Value a] -> Value a
-    fn [FloatV scale, FloatV h] = FloatV $ scale * h
 
 --------------------------------------------------------------------------------
 -- Property samplers
@@ -781,16 +765,10 @@ textType =
   , M.fromList
       [ ("x", (FloatT, sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)))
       , ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)))
-      , ("w", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end (original w, should really be immutable, but can currently be set by user)
-      , ("h", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end (original h, should really be immutable, but can currently be set by user)
-      , ("scale", (FloatT, constValue $ FloatV 1)) -- can be set by user
-      , ("finalW", (FloatT, constValue $ FloatV 1)) -- computed as scale * w (for bbox)
-      , ("finalH", (FloatT, constValue $ FloatV 1)) -- computed as scale * h (for bbox)
-      -- You should only set either the `w` and `h` (absolute) or the `scale` (relative). Setting both will cause both effects to be applied in some indeterminate order.
-      -- NOTE: If a piece of text has been *scaled*, then you should optimize with respect to the finalW and finalH, NOT w and h (which would hopefully retain their original values)
-
-      -- Computed
-      , ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
+ 
+      , ("w", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
+      , ("h", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
+      , ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)) -- Computed
 
       , ("string", (StrT, constValue $ StrV "defaultLabelText"))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))

@@ -153,8 +153,10 @@ const tex2svg = memoize(
           // TODO: need to check whether MathJax returns a non-null response
           // NOTE: This is where you can directly control the width/height of the LaTeX
           const { width, height } = svgBBox(output);
-          output.setAttribute("width", width.toString());
-          output.setAttribute("height", height.toString());
+	  const fontScale = 1.75;
+	  const [ scaledWidth, scaledHeight ] = [width, height].map(e => fontScale * e);
+          output.setAttribute("width", scaledWidth.toString());
+          output.setAttribute("height", scaledHeight.toString());
           const body = output;
           // const body = output.outerHTML + `<title>${name}</title>`; // need to keep properties in <svg>
           resolve({ body, width, height });
