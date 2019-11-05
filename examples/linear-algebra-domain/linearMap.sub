@@ -1,11 +1,20 @@
-VectorSpace U,V
-
+VectorSpace U, V
 LinearMap f : U → V
 Vector u1 ∈ U
+Vector u2 ∈ U
+Vector u3 ∈ U
 Vector v1 ∈ V
+Vector v2 ∈ V
+Vector v3 ∈ V
 
+v1 := f(u1)
+v2 := f(u2)
+v3 := f(u3)
 
-Label v1 $f(\vec{u_{1}})$
-Label f $f : U \rightarrow V$
-Label u1 $\vec{u_{1}}$
-AutoLabel U,V
+AutoLabel All
+Label u1 $\mathbf{u}_1$
+Label u2 $\mathbf{u}_2$
+Label u3 $\mathbf{u}_3$
+Label v1 $f(\mathbf{u}_1)$
+Label v2 $f(\mathbf{u}_2)$
+Label v3 $f(\mathbf{u}_3)$

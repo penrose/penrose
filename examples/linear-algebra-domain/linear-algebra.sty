@@ -4,8 +4,11 @@
 
 -- Global constants and sizes
 const {
-  const.vectorSpaceSize = 400.0
-  const.axisSize = const.vectorSpaceSize * 0.45
+  -- const.vectorSpaceSize = 400.0
+  -- const.axisSize = const.vectorSpaceSize * 0.45
+  const.vectorSpaceSize = 300.0
+  const.vectorSpaceGap = 150.0
+  const.axisSize = const.vectorSpaceSize * 0.4
   const.distVectorSpaces = 50.0
   const.scaleRatio = 200.0
   const.fontSize = "14pt"
@@ -43,7 +46,7 @@ Colors {
 }
 
 VectorSpace U {
-    U.thickness = 2.0
+    U.thickness = 1.5
     U.axisColor = Colors.darkGray
 
     U.shape = Square {
@@ -56,30 +59,7 @@ VectorSpace U {
     U.left = U.shape.x + (U.shape.side/2.0)
     U.right = U.shape.x - (U.shape.side/2.0)
 
-    -- U.textX = Text {
-    --     string : "x"
-    --     color : Colors.darkGray
-    --     fontSize : const.fontSize
-    -- }
-
-    -- U.textY = Text {
-    --     string : "y"
-    --     color : Colors.darkGray
-    --     fontSize : const.fontSize
-    -- }
-
-    /*
-    U.perpMark = Arc {
-        x : U.shape.x
-        y : U.shape.y
-        size : 10
-        rotation : 0
-        isRight : "true"
-        color : Colors.black
-    }
-    */
-
-    U.xAxis = Line {
+    U.xAxis = Arrow {
         startX : U.shape.x - const.axisSize
         startY : U.shape.y
         endX : U.shape.x + const.axisSize
@@ -88,7 +68,7 @@ VectorSpace U {
         color : U.axisColor
     }
 
-    U.yAxis = Line {
+    U.yAxis = Arrow {
         startX : U.shape.x
         startY : U.shape.y - const.axisSize
         endX : U.shape.x
@@ -104,15 +84,40 @@ VectorSpace U {
         color : U.axisColor
         fontSize : const.fontSize
     }
+
+    U.textX = Text {
+        string : "x"
+        color : Colors.darkGray
+        x : U.xAxis.endX
+        y : U.xAxis.endY
+    }
+
+    U.textY = Text {
+        string : "y"
+        color : Colors.darkGray
+        x : U.yAxis.endX + 10.0
+        y : U.yAxis.endY
+    }
+
+    U.perpMark = Square {
+        x : U.shape.x + 5.0
+        y : U.shape.y + 5.0
+        side : 10.0
+        color : Colors.white
+    }
+
+    --U.xLabelLocation = ensure nearHead(U.xAxis, U.textX, 20.0, 0.0)
+    --U.yLabelLocation = ensure nearHead(U.yAxis, U.textY, 0.0, 20.0)
 }
 
 -- TODO: generates too many constraints?
 
 VectorSpace U; VectorSpace V {
-    LOCAL.sameHeight = ensure sameHeight(U.shape, V.shape)
-    LOCAL.nonIntersect = ensure disjoint(U.shape, V.shape)
-    --V.shape.y = U.shape.y
-    --V.shape.x = U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
+    --LOCAL.sameHeight = ensure sameHeight(U.shape, V.shape)
+    --LOCAL.nonIntersect = ensure disjoint(U.shape, V.shape)
+    --V.shape.y = 0.0
+    --U.shape.x = 0.0
+    --V.shape.x = 0.0
 }
 
 Vector v
@@ -143,15 +148,6 @@ where In(v,U) {
     arrowheadSize : const.arrowheadSize
   }
 
-  -- v.shape1 = Line {
-  --   startX : U.shape.x
-  --   startY : U.shape.y
-  --   endX : v.shape.endX
-  --   endY : v.shape.endY
-  --   thickness : 5.0
-  --   color : setOpacity(v.color, 0.5)
-  -- }
-
    v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
    v.angle = angle(v.vector)
 
@@ -162,12 +158,12 @@ where In(v,U) {
    v.containLabel = ensure contains(U.shape, v.text)
    -- NOTE: nearHead is actually an objective. Use the other constraint form?
    v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
-   v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
+   -- v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
 
    -- TODO: repel only if it overlaps? (Do a bbox check before doing the expensive sample + sum operation)
-   v.labelAvoidAxisFn1 = encourage repel(U.xAxis, v.text, const.repelWeight)
-   v.labelAvoidAxisFn2 = encourage repel(U.yAxis, v.text, const.repelWeight)
-   v.labelAvoidAxisText = encourage repel(U.text, v.text, const.repelWeight)
+   -- v.labelAvoidAxisFn1 = encourage repel(U.xAxis, v.text, const.repelWeight)
+   -- v.labelAvoidAxisFn2 = encourage repel(U.yAxis, v.text, const.repelWeight)
+   -- v.labelAvoidAxisText = encourage repel(U.text, v.text, const.repelWeight)
 }
 
 Vector u
@@ -219,17 +215,20 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 LinearMap f
 with VectorSpace U; VectorSpace V
 where From(f,U,V) {
-   /* f.shape = Arrow {
+   /*f.shape = Arrow {
       startX : U.shape.x
       startY : U.shape.y + const.vectorSpaceSize/2.0
       endX : V.shape.x
       endY : V.shape.y + const.vectorSpaceSize/2.0
       style : "curved"
       rotation : 0.0
-   } */
+   }*/
+
+   V.shape.x = U.shape.x + const.vectorSpaceSize + const.vectorSpaceGap
+   V.shape.y = U.shape.y
 
    f.shape = Curve {
-     pathData : makeCurve(U.shape.x + const.vectorSpaceSize/2.0, U.shape.y, V.shape.x - const.vectorSpaceSize/2.0, V.shape.y, 0.0, 30.0)
+     pathData : makeCurve(0.65*U.shape.x+0.35*V.shape.x,0.65*U.shape.y+0.35*V.shape.y,0.35*U.shape.x+0.65*V.shape.x,0.35*U.shape.y+0.65*V.shape.y, 0.0, 30.0)
      fill : Colors.none
      strokeWidth : 1.5
      rightArrowhead : True
@@ -242,6 +241,11 @@ where From(f,U,V) {
      color : f.shape.color
      fontSize : const.fontSize
    }
+
+   -- define an actual linear map f(x,y) = ax + by
+   -- TODO should pick this at random, rather than using a fixed map...
+   f.c0 = (-1.0,0.0)
+   f.c1 = (0.0,0.5)
 
    f.orderFn = ensure lessThan(U.shape.x + 20.0, V.shape.x)
 }
@@ -404,4 +408,29 @@ Vector u; Vector v {
        -- TODO: this currently makes diagrams too symmetrical. Maybe do a second labeling pass?
        LOCAL.labelAvoidSegFn = encourage repel(v.shape, u.text, const.repelWeight)
       LOCAL.labelAvoidTextFn = encourage repel(v.text, u.text, const.repelWeight)
+}
+
+/*Vector x, Vector y
+with LinearMap L
+where From(L,x,y) {
+   y.shape.color = x.shape.color
+}*/
+
+/* For vectors that are mapped from one vector space to another,
+actually define the target geometry by applying a linear
+map to the input geometry.  This map is given by the two (column)
+vectors L.c0, L.c1, which together make a matrix.*/
+Vector y
+with Vector x; VectorSpace X; VectorSpace Y; LinearMap L
+where In(x,X); In(y,Y); From(f,X,Y); y := apply(L,x) {
+
+   -- apply the linear map
+   y.shape.endX = dot( L.c0, x.vector ) + Y.shape.x
+   y.shape.endY = dot( L.c1, x.vector ) + Y.shape.y
+
+   -- update the 
+   y.vector = (y.shape.endX - y.shape.startX, y.shape.end - y.shape.startY)
+
+   -- also inherit the color
+   y.shape.color = x.shape.color
 }
