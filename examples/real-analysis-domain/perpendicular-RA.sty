@@ -177,24 +177,24 @@ with ClosedInterval I; Reals R -- TODO: be able to say Interval I?
 where I := CreateClosedInterval(a, b); Subset(I, R) {
     override a.shape = Image {
         path : "left-bracket.svg"
-        centerX : a.val
-        centerY : origin.y
-        lengthX : 10.0
-        lengthY : 20.0
+        x : a.val
+        y : origin.y
+        w : 10.0
+        h : 20.0
         rotation : 0.0
     }
 
     override b.shape = Image {
         path : "right-bracket.svg"
-        centerX : b.val
-        centerY : origin.y
-        lengthX : 10.0
-        lengthY : 20.0
+        x : b.val
+        y : origin.y
+        w : 10.0
+        h : 20.0
         rotation : 0.0
     }
 
-    override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
-    override b.text.y = b.shape.centerY - b.shape.lengthY - global.padding
+    override a.text.y = a.shape.y - a.shape.h - global.padding
+    override b.text.y = b.shape.y - b.shape.h - global.padding
     override a.text.color = I.shape.color
     override b.text.color = I.shape.color
 
@@ -207,24 +207,24 @@ with OpenInterval I; Reals R -- TODO: be able to say Interval I?
 where I := CreateOpenInterval(a, b); Subset(I, R) {
     override a.shape = Image {
         path : "left-paren.svg"
-        centerX : a.val
-        centerY : origin.y
-        lengthX : 10.0
-        lengthY : 20.0
+        x : a.val
+        y : origin.y
+        w : 10.0
+        h : 20.0
         rotation : 0.0
     }
 
     override b.shape = Image {
         path : "right-paren.svg"
-        centerX : b.val
-        centerY : origin.y
-        lengthX : 10.0
-        lengthY : 20.0
+        x : b.val
+        y : origin.y
+        w : 10.0
+        h : 20.0
         rotation : 0.0
     }
 
-    override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
-    override b.text.y = b.shape.centerY - b.shape.lengthY - global.padding
+    override a.text.y = a.shape.y - a.shape.h - global.padding
+    override b.text.y = b.shape.y - b.shape.h - global.padding
     override a.text.color = I.shape.color
     override b.text.color = I.shape.color
 
@@ -237,24 +237,24 @@ with LeftClopenInterval I; Reals R
 where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
   override a.shape = Image {
       path : "left-bracket.svg"
-      centerX : a.val
-      centerY : origin.y
-      lengthX : 10.0
-      lengthY : 20.0
+      x : a.val
+      y : origin.y
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
   override b.shape = Image {
       path : "right-paren.svg"
-      centerX : b.val
-      centerY : origin.y
-      lengthX : 10.0
-      lengthY : 20.0
+      x : b.val
+      y : origin.y
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
-    override a.text.y = a.shape.centerY - a.shape.lengthY - global.padding
-    override b.text.y = b.shape.centerY - b.shape.lengthY - global.padding
+    override a.text.y = a.shape.y - a.shape.h - global.padding
+    override b.text.y = b.shape.y - b.shape.h - global.padding
     override a.text.color = I.shape.color
     override b.text.color = I.shape.color
 }

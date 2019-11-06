@@ -154,10 +154,19 @@ class Canvas extends React.Component<IProps> {
     const updated = await Canvas.propagateUpdate({
       ...this.props.data,
       paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
-      shapesr: this.props.data.shapesr.map(([name, shape]: [string, any]) => {
+      shapesr: this.props.data.shapesr.map(([shapeType, shape]: [string, any]) => {
+
         if (shape.name.contents === id) {
+	    if (shapeType === "Curve") {
+		console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
+		return [
+		    shapeType,
+		    { ...shape } // TODO: need to map (-dx, -dy) over all the path pieces
+		];
+	    }
+
           return [
-            name,
+            shapeType,
             {
               ...shape,
               x: { ...shape.x, contents: shape.x.contents - dx },
@@ -165,7 +174,8 @@ class Canvas extends React.Component<IProps> {
             }
           ];
         }
-        return [name, shape];
+
+        return [shapeType, shape];
       })
     });
     const updatedWithVaryingState = await Canvas.updateVaryingState(updated);

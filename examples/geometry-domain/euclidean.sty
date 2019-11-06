@@ -1,13 +1,11 @@
-global {
-    global.padding = 20.0
-    global.stroke = 2.0
-    global.spacing = 150.0
-    global.scaleFactor = 100.0
-}
-
 Colors {
     -- Keenan palette
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+
+    Colors.darkpurple = rgba(0.549,0.565,0.757, 1.0)
+    Colors.purple2 = rgba(0.106, 0.122, 0.54, 0.2)
+    Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
+
     Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
     Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
     Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
@@ -27,42 +25,59 @@ Colors {
     Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
     Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
     Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
-    Colors.lightpurple = rgba(0.5, 0.0, 0.5, 0.25)
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
+G {
+    G.pi = 3.14159
+    G.arrowheadSize = 0.65
+    G.strokeWidth = 1.75
+    G.textPadding = 7.0
+    G.repelWeight = 0.7
+    G.fontSize = "18pt"
+}
+
 Point p {
+      p.x = ?
+      p.y = ?
+      p.vec = [p.x, p.y]
+
        p.shape = Circle {
-         x : ?
-	 y : ?
+         x : get(p.vec, 0)
+	 y : get(p.vec, 1)
          r : 3.0
 	 color : Colors.black
-	 strokeWidth : 0.0
+	 strokeWidth : 1.0
+	 strokeColor : Colors.black
        }
 
        p.text = Text {
-	 x : p.shape.x + global.padding
-	 y : p.shape.y + global.padding
+         x : ?
+	 y : ?
 	 string : p.label
 	 rotation : 0.0
 	 color : p.shape.color
+	 fontSize : G.fontSize
        }
 
+       p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)
        -- p.posFn = ensure onCanvas(p.shape)
 }
 
 Segment e
 where e := MkSegment(p, q)
 with Point p; Point q {
+     e.vec = [q.x - p.x, q.y - p.y]
+
      e.shape = Line {
      	     startX : p.shape.x
      	     startY : p.shape.y
      	     endX : q.shape.x
      	     endY : q.shape.y
-	     color : Colors.midnightblue
-	     thickness : global.stroke
+	     color : Colors.black
+	     thickness : G.strokeWidth
      }
 
      -- e.text = Text {
@@ -74,24 +89,30 @@ with Point p; Point q {
 
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
+
+     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, G.repelWeight)
+     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, G.repelWeight)
+
+     e.norm = 200.0
+     e.normFn = ensure hasNorm(e.vec, 200.0)
 }
 
 
 Triangle t
 where t := MkTriangleP(p, q, r)
 with Point p; Point q; Point r {
-     f.color = setOpacity(Colors.silver, 0.5)
+     t.color = setOpacity(Colors.darkpurple, 0.4)
 
      -- TODO: layer all labels on top of filled shapes
-     f.shape = Curve {
+     t.shape = Curve {
      	     pathData : triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
-	     strokeWidth : 1.0
-	     fill : f.color
+	     strokeWidth : 0.0
+	     fill : t.color
 	     color : Colors.black
 	     rotation : 0.0
      }
 
-     -- f.text = Text {
+     -- t.text = Text {
      --   string = f.label
      --   color = f.color
      --   rotation = 0.0
@@ -99,86 +120,30 @@ with Point p; Point q; Point r {
 }
 
 Angle theta
-where theta := AngleBetween(a, b)
-with Linelike a; Linelike b {
-     -- theta.test = Circle {
-     --     x = 0.0
-     -- 	 y = 0.0
-     -- 	 r = 5.0
-     -- 	 color = setOpacity(Colors.red, 0.5)
-     -- 	 strokeWidth = 0.0
-     -- }
+where theta := InteriorAngle(q, p, r)
+with Point p; Point q; Point r {
 
-     theta.originX = shared(a.shape.startX, a.shape.endX, b.shape.startX, b.shape.endX)
-     theta.originY = shared(a.shape.startY, a.shape.endY, b.shape.startY, b.shape.endY)
+     theta.radius = 40.0
+     -- TODO: always take the acute angle, not the obtuse angle
+     theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius)
 
-     -- Right now, angle between segments that share an endpoint
-     -- TODO generalize this, also use pt2
-     theta.shape = Arc {
-     	   x : theta.originX
-     	   y : theta.originY
-     	   r : 40.0 -- TODO: set this based on the relative lengths of the segment
-     	   startAngle : angleOf(a.shape, theta.originX, theta.originY) -- Degrees
-	   endAngle : angleOf(b.shape, theta.originX, theta.originY)
-	   strokeWidth : 2.0
-     	   strokeColor : Colors.black
-	   fillColor : Colors.none -- setOpacity(Colors.silver, 0.5)
-	   -- TODO: make a "pie wedge" fill with a path
+     theta.shape = Curve {
+     		 pathData : polygonFromPoints(theta.arcPath)
+		 strokeWidth : G.strokeWidth
+		 color : Colors.darkpurple
+		 fill : setOpacity(Colors.white, 0.5)
      }
+
+     -- theta.layeringSphere = theta.shape above G.sphere
+     theta.layering2 = theta.shape below p.shape
+     theta.layering3 = theta.shape below q.shape
+     theta.layering4 = theta.shape below r.shape
 }
 
 Ray r {
-    r.length = 100.0
+    r.length = 200.0
 }
 
-Ray r
-with Angle theta; Linelike a; Linelike b
-where r := Bisector(theta); theta := AngleBetween(a, b) {
-
-      r.shape = Line {
-      	      startX : theta.originX
-	      startY : theta.originY
-	      -- TODO: figure out how long this should be
-	      -- TODO: calculate this location properly; WRT the angle and the non-origin endpoints; this is just a heuristic
-	      endX : average(a.shape.endX, b.shape.endX)
-	      endY : average(a.shape.endY, b.shape.endY)
-	      thickness : 2.0
-	      color : Colors.midnightblue
-	      -- style : "dotted"
-      	      rightArrowhead : True
-      }
-
-      -- TODO: layer above the triangle
-}
-
-
-Ray r
-with Linelike s
-where r := PerpendicularBisector(s) {
-
-      r.shape = Line {
-      	      startX : midpointX(s.shape)
-	      startY : midpointY(s.shape)
-	      endX : perpX(s.shape, r.shape.startX, r.shape.startY, r.length)
-	      endY : perpY(s.shape, r.shape.startX, r.shape.startY, r.length)
-	      thickness : 2.0
-	      color : Colors.midnightblue
-	      style : "dotted"
-      	      rightArrowhead : True
-      }
-
-      r.perpSize = 20.0
-
-      r.perpMark = Curve {
-      		 pathData : perpPath(r.shape, s.shape, r.perpSize)
-		 strokeWidth : 2.0
-		 color : Colors.black
-		 fill : Colors.none
-      }
-      -- TODO: layer above the triangle
-}
-
--- Midpoint
 Point p
 where p := Midpoint(s)
 with Segment s {
@@ -186,4 +151,104 @@ with Segment s {
      override p.shape.y = midpointY(s.shape)
 }
 
+Ray r
+with Angle theta; Point x; Point y; Point z
+where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
+
+      r.tail = [x.x, x.y]
+      r.head = angleBisectorEuclidean(x.vec, y.vec, z.vec, r.length)
+
+      r.shape = Line {
+      	      startX : x.x
+	      startY : x.y
+	      -- TODO: figure out how long this should be
+	      -- TODO: calculate this location properly; WRT the angle and the non-origin endpoints; this is just a heuristic
+	      endX : get(r.head, 0)
+	      endY : get(r.head, 1)
+	      thickness : G.strokeWidth
+	      color : Colors.darkpurple
+      	      rightArrowhead : True
+	      arrowheadSize : G.arrowheadSize
+      }
+
+      -- Bisect the arc twice more to get the bisector mark locations
+      -- Throw away z coordinate for each
+      theta.bisectpt1 = angleBisectorEuclidean(x.vec, y.vec, r.head, theta.radius)
+      theta.bisectpt2 = angleBisectorEuclidean(x.vec, z.vec, r.head, theta.radius)
+      theta.markLen = 10.0
+
+      -- Angle bisector marks: two tick marks
+      theta.bisectMark1 = Curve {
+      	      pathData : makeBisectorMark(theta.bisectpt1, x.vec, theta.markLen)
+      	      strokeWidth : G.strokeWidth
+      	      fill : Colors.none
+      	      color : Colors.darkpurple
+      	      rotation : 0.0
+      	      rightArrowhead : False
+      	      arrowheadSize : 0.0
+      }
+
+      theta.bisectMark2 = Curve {
+      	      pathData : makeBisectorMark(theta.bisectpt2, x.vec, theta.markLen)
+      	      strokeWidth : G.strokeWidth
+      	      fill : Colors.none
+      	      color : Colors.darkpurple
+      	      rotation : 0.0
+      	      rightArrowhead : False
+      	      arrowheadSize : 0.0
+      }
+
+      theta.layeringMark1 = theta.bisectMark1 above theta.shape
+      theta.layeringMark2 = theta.bisectMark2 above theta.shape
+}
+
+Ray r
+with Linelike s; Point m
+where r := PerpendicularBisector(s); m := Midpoint(s) {
+
+      r.shape = Line {
+      	      startX : midpointX(s.shape)
+	      startY : midpointY(s.shape)
+	      endX : perpX(s.shape, r.shape.startX, r.shape.startY, r.length)
+	      endY : perpY(s.shape, r.shape.startX, r.shape.startY, r.length)
+	      thickness : G.strokeWidth
+	      color : Colors.darkpurple
+	      style : "dotted"
+      	      rightArrowhead : True
+	      arrowheadSize : G.arrowheadSize
+      }
+
+      r.perpSize = 10.0
+
+      r.perpMark = Curve {
+      		 pathData : perpPath(r.shape, s.shape, (r.shape.startX, r.shape.startY), r.perpSize)
+		 strokeWidth : 1.25
+		 color : Colors.black
+		 fill : setOpacity(Colors.white, 0.5)
+      }
+
+      r.markLayering1 = r.perpMark below s.shape
+      r.markLayering2 = r.perpMark below r.shape
+      -- r.markLayering3 = r.perpMark above G.sphere
+      r.markLayering4 = r.perpMark below p.shape
+      r.markLayering5 = r.perpMark below q.shape
+      r.markLayering6 = r.perpMark below r.shape
+      r.markLayering7 = r.perpMark below m.shape
+
+     LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, G.repelWeight)
+     LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, G.repelWeight)
+}
+
 -- TODO: what order should the selectors be in?
+
+Ray r; Point p {
+    LOCAL.layering = r.shape below p.shape
+}
+
+Triangle t; Point p {
+    LOCAL.layering = t.shape below p.shape
+}
+
+Triangle t; Angle theta {
+	 LOCAL.layering = theta.shape above t.shape
+}

@@ -154,6 +154,7 @@ const tex2svg = memoize(
           // TODO: need to check whether MathJax returns a non-null response
           // NOTE: This is where you can directly control the width/height of the LaTeX
           const { width, height } = svgBBox(output);
+
           // TODO: These seem to be extraneous. Remove?
           // output.setAttribute("width", width.toString());
           // output.setAttribute("height", height.toString());
@@ -172,7 +173,9 @@ export const collectLabels = async (allShapes: any[]) => {
     skipStartupTypeset: true,
     extensions: ["tex2jax.js", "TeX/AMSmath.js"],
     jax: ["input/TeX", "output/SVG"],
+    // https://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html 
     SVG: {
+      // font: "Gyre-Pagella", // TODO: This doesn't seem to work
       matchFontHeight: false,
       useGlobalCache: false, // Needed for SVG inline export
       useFontCache: false // further reduces the reuse of paths
