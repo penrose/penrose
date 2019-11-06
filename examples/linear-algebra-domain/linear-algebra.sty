@@ -422,7 +422,7 @@ map to the input geometry.  This map is given by the two (column)
 vectors L.c0, L.c1, which together make a matrix.*/
 Vector y
 with Vector x; VectorSpace X; VectorSpace Y; LinearMap L
-where In(x,X); In(y,Y); From(f,X,Y); y := apply(L,x) {
+where In(x,X); In(y,Y); From(L,X,Y); y := apply(L,x) {
 
    -- apply the linear map
    y.shape.endX = dot( L.c0, x.vector ) + Y.shape.x
