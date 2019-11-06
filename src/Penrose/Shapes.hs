@@ -1475,27 +1475,6 @@ white = makeColor 1.0 1.0 1.0 1.0
 makeColor' :: (Autofloat a) => a -> a -> a -> a -> Color
 makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
 
-colToList :: Autofloat a => Color -> [a]
-colToList (RGBA r g b a) = [r2f r, r2f g, r2f b, r2f a]
-
-listToCol :: Autofloat a => [a] -> Color
-listToCol [r, g, b, a] = RGBA (r2f r) (r2f g) (r2f b) (r2f a)
-
-dsqEuclideanColor :: Autofloat a => Color -> Color -> a
-dsqEuclideanColor c1 c2 = normsq $ (255 *. colToList c1) -. (255 *. colToList c2)
-
--- https://en.wikipedia.org/wiki/Color_difference
--- http://zschuessler.github.io/DeltaE/learn/
-dsqApproxColor :: Autofloat a => Color -> Color -> a
-dsqApproxColor c1 c2 =
-   let ([r1, g1, b1, a1], [r2, g2, b2, a2]) = (255 *. colToList c1, 255 *. colToList c2) -- Ignoring opacity
-       r' = (r1 + r2) / 2
-       rf = 2 + r' / 256
-       gf = 4
-       bf = 2 + (255 - r') / 256
-       inner = rf * (r2 - r1)^2 + gf * (g2 - g1)^2 + bf * (b2 - b1)^2 -- sqrt $ inner + epsd
-   in inner -- TODO: do we need the sqrt? Note that if the values are not in color range, this will go negative with sqrt and NaN
-
 --------------------------------------------------------------------------------
 -- Approximating a Bezier curve via polygon or bbox
 -- | Polygonize path by extruding the polyline to account for thickness and adding any arrowheads, if present.

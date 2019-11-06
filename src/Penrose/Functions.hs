@@ -154,7 +154,6 @@ compDict =
     , ("tangentLineEX", constComp tangentLineEX)
     , ("tangentLineEY", constComp tangentLineEY)
     , ("polygonizeCurve", constComp polygonizeCurve)
-    , ("clamp", constComp clamp')
     , ("setOpacity", constComp setOpacity)
     , ("scaleColor", constComp scaleColor)
     , ("blendColor", constComp blendColor)
@@ -339,7 +338,6 @@ objFuncDict =
     , ("nearPoint2", nearPoint2)
     , ("alignAlong", alignAlong)
     , ("orderAlong", orderAlong)
-    , ("invProportionalColorDist", invProportionalColorDist)
         -- ("sameX", sameX)
     ]
 
@@ -1000,10 +998,6 @@ sampleNum' [Val (FloatV x), Val (FloatV y)] g = -- Sample in range
 sampleNum' [] g = 
          let (res, g') = sampleFloatIn canvasDims g
          in (Val res, g')
-
-clamp' :: ConstCompFn
-clamp' [Val (FloatV v), Val (FloatV l), Val (FloatV r)] =
-         Val $ FloatV $ clamp (l, r) v
 
 -- Interpolate between the color and white
 -- The alternative is to uniformly scale up the color and clamp when it hits 255, 
@@ -1922,23 +1916,6 @@ orderAlong [GPI o1, GPI o2, Val (FloatV angleInDegrees)] =
 transformSRT :: ConstCompFn
 transformSRT [Val (FloatV sx), Val (FloatV sy), Val (FloatV theta), Val (FloatV dx), Val (FloatV dy)] =
   Val $ HMatrixV $ paramsToMatrix (sx, sy, theta, dx, dy)
-
--- Colors
--- TODO: feels like we need more granular fixed/varying language
-invProportionalColorDist :: ObjFn
-invProportionalColorDist [GPI o1, GPI o2, Val (FloatV weight)] =
-  let (p1, p2) = ((getX o1, getY o1), (getX o2, getY o2))
-      (ColorV c1, ColorV c2) = (get o1 "color", get o2 "color")
-      dsq_loc = distsq p1 p2
-      -- dsq_col = dsqEuclideanColor c1 c2
-      dsq_col = dsqApproxColor c1 c2
-      -- res = weight * dsq_loc / (dsq_col + epsd)
-      res = weight / (dsq_loc * dsq_col + epsd)
-  in trace ("dsq_loc: " ++ show dsq_loc ++
-            "  dsq_col: " ++ show dsq_col ++
-            "  (c1, c2): " ++ show (c1, c2) ++
-            "  res: " ++ show res)
-     res
 
 --------------------------------------------------------------------------------
 -- Default functions for every shape

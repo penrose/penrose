@@ -119,13 +119,9 @@ export const toPointListString = memoize(
       .join(" ")
 );
 
-export const clamp = (x: number, l: number, r: number) =>
-  Math.max(Math.min(r, x), l);
-
 export const toHex = (rgba: [number, number, number, number]) => {
   return rgba.slice(0, 3).reduce((prev, cur) => {
-    const curClamped = clamp(cur, 0.0, 1.0); // So it's in color range, otherwise the generated hex is invalid
-    const hex = Math.round(255 * curClamped).toString(16);
+    const hex = Math.round(255 * cur).toString(16);
     const padded = hex.length === 1 ? "0" + hex : hex;
     return prev + padded;
   }, "#");
