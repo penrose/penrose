@@ -22,6 +22,25 @@ export const arrowheads = {
   }
 };
 
+export const Shadow = (props: {
+  id: string 
+}) => {
+  return (
+    <filter id={props.id} x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+  	  <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+    	<feFuncA type="linear" slope="0.5"/>
+  	  </feComponentTransfer>
+      <feMerge> 
+    	<feMergeNode/>
+    	<feMergeNode in="SourceGraphic"/> 
+  	  </feMerge>
+    </filter>
+  )
+}
+
 export const Arrowhead = (props: {
   id: string;
   color: string;

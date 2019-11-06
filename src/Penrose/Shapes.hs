@@ -791,6 +791,7 @@ curveType =
       , ("pathData", (PathDataT, constValue $ PathDataV [])) -- TODO: sample path
       , ("strokeWidth", (FloatT, stroke_sampler))
       , ("style", (StrT, constValue $ StrV "solid"))
+      , ("effect", (StrT, constValue $ StrV "none"))
       , ("fill", (ColorT, sampleColor)) -- for no fill, set opacity to 0
       , ("color", (ColorT, sampleColor))
       , ("leftArrowhead", (BoolT, constValue $ BoolV False))

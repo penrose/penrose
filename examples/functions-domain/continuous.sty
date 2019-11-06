@@ -1,5 +1,6 @@
 Colors {
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
     Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.2)
     Colors.darkBlue = rgba(0.05, 0.05, 0.6, 1.0)
@@ -124,14 +125,14 @@ where From(f, domain, image) {
     }
 
     -- Cartesian product
-    LOCAL.shape = Rectangle {
-        x : (domain.left.startX + domain.right.startX) / 2.0
-        y : (image.bottom.startY + image.top.startY) / 2.0
-        sizeX : domain.right.startX - domain.left.startX
-        sizeY : image.top.startY - image.bottom.startY
-        color : Colors.lightBlue
-	strokeColor : Colors.none
-    }
+    -- LOCAL.shape = Rectangle {
+        -- x : (domain.left.startX + domain.right.startX) / 2.0
+        -- y : (image.bottom.startY + image.top.startY) / 2.0
+        -- sizeX : domain.right.startX - domain.left.startX
+        -- sizeY : image.top.startY - image.bottom.startY
+        -- color : Colors.lightBlue
+        -- strokeColor : Colors.none
+    -- }
 }
 
 Map f
@@ -149,10 +150,11 @@ where From(f, domain, image) {
     	-- Default
         path : sampleFunction(5, domain.left.startX, domain.right.startX, image.bottom.startY + 2.0, image.top.startY - 2.0, "surjection")
         pathData : interpolate(f.shape.path)
-        color : Colors.darkBlue
+        -- color : Colors.darkBlue
         fill : Colors.none
         arrowheadSize : 0.0
         strokeWidth : 2.5
+        effect : "dropShadow"
     }
 }
 
