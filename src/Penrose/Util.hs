@@ -296,6 +296,10 @@ normalize v = (1 / norm v) *. v
 findAngle :: Floating a => (a, a) -> (a, a) -> a
 findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
 
+radians, degrees :: Floating a => a -> a
+radians degrees = degrees * (pi/180)
+degrees radians = radians * (180/pi)
+
 midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
 midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)
 

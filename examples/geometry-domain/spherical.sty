@@ -47,6 +47,24 @@ G {
     G.vfov = (-5.0, 5.0)
 
     G.toScreen = 500.0
+    G.imageSize = G.sphereRadius * G.toScreen * 2.0
+
+    G.arrowheadSize = 0.65
+    G.strokeWidth = 1.75
+    G.textPadding = 7.0
+    G.fontSize = "18pt"
+
+    -- Needed to hand-tune the G.bgScaleFactor and G.sphere.y
+    G.bgScaleFactor = 1.11
+
+    G.sphere = Image {
+	 x : 0.0
+	 y : -19.0
+	 w : G.circle.r * 2.0 * G.bgScaleFactor
+	 h : G.circle.r * 2.0 * G.bgScaleFactor
+	 rotation: 0.0
+	 path : "SphereBackground.svg"
+    }
 
     G.test = Circle {
     		x : 0.0
@@ -233,3 +251,10 @@ where r := Bisector(theta); theta := AngleBetween(a, b); a := MkSegment(x, y); b
       -- TODO: make two angle bisector marks
 
 }
+<<<<<<< HEAD
+=======
+
+Triangle t; Ray r {
+	 LOCAL.layering = r.shape above t.shape
+}
+>>>>>>> b11878d... [geom] add preview thumbnails and standardize image property names in backend, renderer, and style files (centerX -> x, lengthX -> w, etc.)

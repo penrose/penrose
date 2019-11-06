@@ -353,10 +353,10 @@ where I := CreateClosedInterval(a, b); Subset(I, R)
 {
     override b.shape = Image {
         path = "right-bracket.svg"
-        centerX = b.val
-        centerY = origin.y
-        lengthY = 20.0
-        lengthX = 5.0
+        x = b.val
+        y = origin.y
+        h = 20.0
+        w = 5.0
     }
     delete b.labelFn
 }
@@ -367,10 +367,10 @@ where I := CreateClosedInterval(a, b); Subset(I, R)
 {
     override a.shape = Image {
         path = "left-bracket.svg"
-        centerX = a.val
-        centerY = origin.y
-        lengthY = 20.0
-        lengthX = 5.0
+        x = a.val
+        y = origin.y
+        h = 20.0
+        w = 5.0
     }
     delete a.labelFn
 }
