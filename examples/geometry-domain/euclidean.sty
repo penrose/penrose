@@ -35,8 +35,8 @@ G {
     G.arrowheadSize = 0.65
     G.strokeWidth = 1.75
     G.textPadding = 7.0
-    G.textScale = 1.75 -- TODO
     G.repelWeight = 0.7
+    G.fontSize = "18pt"
 }
 
 Point p {
@@ -59,7 +59,7 @@ Point p {
 	 string : p.label
 	 rotation : 0.0
 	 color : p.shape.color
-	 scale : G.textScale
+	 fontSize : G.fontSize
        }
 
        p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)

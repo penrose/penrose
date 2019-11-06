@@ -347,7 +347,7 @@ computedProperties =
     -- , (("ParallelogramTransform", "polygon"), parallelogramPolygonFn)
     -- , (("TextTransform", "polygon"), textPolygonFn)
 
-    , (("Text", "polygon"), textPolygonFn2)
+      (("Text", "polygon"), textPolygonFn2)
     , (("Curve", "polygon"), curvePolygonFn2)
     ]
 
@@ -760,6 +760,8 @@ ellipseType =
       , ("name", (StrT, constValue $ StrV "defaultEllipse"))
       ])
 
+-- When explicitly declared or computed in Style programs, w and h take precedence over fontSize.
+-- Therefore, custom fontSize in Style will only work when w and h are not specified or computed.
 textType =
   ( "Text"
   , M.fromList
@@ -768,6 +770,7 @@ textType =
  
       , ("w", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
       , ("h", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
+      , ("fontSize", (StrT, constValue $ StrV "12pt")) 
       , ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)) -- Computed
 
       , ("string", (StrT, constValue $ StrV "defaultLabelText"))

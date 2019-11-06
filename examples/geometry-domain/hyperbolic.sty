@@ -35,7 +35,7 @@ G {
   G.rayLen = 2.5
   G.arrowheadSize = 0.65
   G.textPadding = 7.0
-  G.textScale = 1.75 -- TODO
+  G.fontSize = "18pt"
   G.repelWeight = 0.7
 
   -- Poincare disk: Unit disk at the origin
@@ -67,6 +67,7 @@ G {
   	 x : G.textPosX
 	 y : G.textPosY
 	 string : G.label
+	 fontSize : G.fontSize
   }
 
   G.textLayering = G.text above G.disk
@@ -98,6 +99,7 @@ Point p {
       	     x : ?
       	     y : ?
       	     string : p.label
+	     fontSize : G.fontSize
       }
 
       p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)
