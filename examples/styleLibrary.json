@@ -57,7 +57,6 @@
   },
   {
     "value": 8,
-<<<<<<< HEAD
     "label": "euclidean",
     "icon": "https://gist.githubusercontent.com/maxkrieger/24d8457908eba438927a9ef818d8fddd/raw/e6fc00dc6faa4abeb6329bac3f4711a12584a37a/Continuous.svg?sanitize=true",
     "element": 3,
@@ -76,11 +75,12 @@
     "icon": "https://gist.githubusercontent.com/maxkrieger/24d8457908eba438927a9ef818d8fddd/raw/e6fc00dc6faa4abeb6329bac3f4711a12584a37a/Continuous.svg?sanitize=true",
     "element": 3,
     "uri": "geometry-domain/hyperbolic.sty"
-=======
+  },
+  {
+    "value": 11,
     "label": "venn-3d",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Venn.svg?sanitize=true",
     "element": 0,
     "uri": "set-theory-domain/venn-3d.sty"
->>>>>>> 746296e4f997713f028eb78cf8fc0f9c7b785903
   }
 ]
