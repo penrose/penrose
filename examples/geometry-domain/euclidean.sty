@@ -120,7 +120,7 @@ with Point p; Point q; Point r {
 }
 
 Angle theta
-where theta := AngleBetween(q, p, r)
+where theta := InteriorAngle(q, p, r)
 with Point p; Point q; Point r {
 
      theta.radius = 40.0
@@ -153,7 +153,7 @@ with Segment s {
 
 Ray r
 with Angle theta; Point x; Point y; Point z
-where r := Bisector(theta); theta := AngleBetween(y, x, z) {
+where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
 
       r.tail = [x.x, x.y]
       r.head = angleBisectorEuclidean(x.vec, y.vec, z.vec, r.length)

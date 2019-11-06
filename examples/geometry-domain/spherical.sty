@@ -243,7 +243,7 @@ with Segment s; Point a; Point b {
 
 -- Assuming the segments share a point
 Angle theta
-where theta := AngleBetween(q, p, r)
+where theta := InteriorAngle(q, p, r)
 with Point p; Point q; Point r {
 
      -- TODO: if the radius is larger, it becomes clear that the arc doesn't quite lie on the sphere. Fix this
@@ -266,7 +266,7 @@ with Point p; Point q; Point r {
 
 Ray r
 with Angle theta; Point x; Point y; Point z
-where r := Bisector(theta); theta := AngleBetween(y, x, z) {
+where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
 
       -- TODO: note that there's a decent amount of code shared between here and the PerpendicularBisector selector
       -- Move some into the basic Ray selector?

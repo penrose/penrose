@@ -3,7 +3,7 @@ Point p, q, r, s
 Segment a := {p, q}
 Segment b := {p, r}
 Point m := Midpoint(a)
-Angle theta := AngleBetween(q, p, r)
+Angle theta := ∠(q, p, r)
 Triangle t := {p, r, s}
 Ray w := Bisector(theta)
 Ray h := PerpendicularBisector(a)

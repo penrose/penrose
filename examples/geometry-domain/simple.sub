@@ -21,8 +21,8 @@ c := MkSegment(p, r)
 -- Ray j
 -- j := PerpendicularBisector(c)
 
-Angle theta
-theta := AngleBetween(a, c)
+-- Angle theta
+-- theta := AngleBetween(a, c)
 
 -- Ray w
 -- w := Bisector(theta)

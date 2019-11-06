@@ -26,8 +26,8 @@ constructor MkSegment : Point p * Point q -> Segment
 constructor MkRay : Point base * Point direction -> Ray
 constructor MkLine : Point p * Point q -> Point
 
--- constructor AngleBetween : Linelike l * Linelike m -> Angle
-constructor AngleBetween : Point p * Point q * Point r -> Angle
+-- constructor InteriorAngle : Linelike l * Linelike m -> Angle
+constructor InteriorAngle : Point p * Point q * Point r -> Angle
 constructor TriangleVertex : Point p * Point q * Point r -> Angle
 
 constructor MkTriangleP : Point p * Point q * Point r -> Triangle
@@ -55,3 +55,4 @@ predicate Similar : Triangle * Triangle
 
 notation "{p, q}" ~ "MkSegment(p, q)"
 notation "{p, q, r}" ~ "MkTriangleP(p, q, r)"
+notation "∠(p, q, r)" ~ "InteriorAngle(p, q, r)"
