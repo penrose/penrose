@@ -390,11 +390,11 @@ squareTransformFn = (props, fn)
 imageTransformFn :: Autofloat a => ComputedValue a
 imageTransformFn = (props, fn)
   where
-    props = ["centerX", "centerY", "scaleX", "scaleY", "rotation", "transform"]
+    props = ["x", "y", "scaleX", "scaleY", "rotation", "transform"]
     fn :: (Autofloat a) => [Value a] -> Value a
-    fn [FloatV centerX, FloatV centerY, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
+    fn [FloatV x, FloatV y, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
       let defaultTransform =
-            paramsToMatrix (scaleX, scaleY, rotation, centerX, centerY)
+            paramsToMatrix (scaleX, scaleY, rotation, x, y)
       in HMatrixV $ customTransform # defaultTransform
 
 ellipseTransformFn :: Autofloat a => ComputedValue a
@@ -543,8 +543,8 @@ imagePolygonFn :: Autofloat a => ComputedValue a
 imagePolygonFn = (props, fn)
   where
     props =
-      [ "centerX"
-      , "centerY"
+      [ "x"
+      , "y"
       , "scaleX"
       , "scaleY"
       , "rotation"
@@ -553,7 +553,7 @@ imagePolygonFn = (props, fn)
       , "initHeight"
       ]
     fn :: (Autofloat a) => [Value a] -> Value a
-    fn [FloatV centerX, FloatV centerY, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform, FloatV initWidth, FloatV initHeight]
+    fn [FloatV x, FloatV y, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform, FloatV initWidth, FloatV initHeight]
              -- Note that the unit square is implicitly scaled to (w, h)
              -- (from the frontend) before having the default transform applied
      =
@@ -562,8 +562,8 @@ imagePolygonFn = (props, fn)
               ( scaleX * initWidth
               , scaleY * initHeight
               , rotation
-              , centerX
-              , centerY)
+              , x
+              , y)
           fullTransform = customTransform # defaultTransform
       in PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
@@ -899,10 +899,10 @@ parallelogramType =
 imageType =
   ( "Image"
   , M.fromList
-      [ ("centerX", (FloatT, x_sampler))
-      , ("centerY", (FloatT, y_sampler))
-      , ("lengthX", (FloatT, width_sampler))
-      , ("lengthY", (FloatT, height_sampler))
+      [ ("x", (FloatT, x_sampler))
+      , ("y", (FloatT, y_sampler))
+      , ("w", (FloatT, width_sampler))
+      , ("h", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
       , ("opacity", (FloatT, constValue $ FloatV 1.0))
       , ("style", (StrT, constValue $ StrV "none"))

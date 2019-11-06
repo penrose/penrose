@@ -46,10 +46,10 @@ G {
   G.maxValNorm = 5.0 -- So the points don't look too much like ideal points
 
   G.disk = Image {
-	 centerX : 0.0
-	 centerY : 0.0
-	 lengthX : G.screenRadius * 2.0
-	 lengthY : G.screenRadius * 2.0
+	 x : 0.0
+	 y : 0.0
+	 w : G.screenRadius * 2.0
+	 h : G.screenRadius * 2.0
 	 rotation: 0.0
 	 path : "HyperbolicBackground.svg"
   }
@@ -59,8 +59,8 @@ G {
   -- G.label = "\mathbb{H}^2"
   G.label = "H^2"
   G.labelPadding = 33.0 -- TODO: position by angle?
-  G.textPosX = G.disk.centerX + G.screenRadius - G.labelPadding
-  G.textPosY = G.disk.centerY + G.screenRadius - G.labelPadding
+  G.textPosX = G.disk.x + G.screenRadius - G.labelPadding
+  G.textPosY = G.disk.y + G.screenRadius - G.labelPadding
 
   G.text = Text {
   	 -- TODO: position in top right

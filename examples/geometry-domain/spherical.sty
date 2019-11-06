@@ -50,14 +50,14 @@ G {
     G.textPadding = 7.0
     G.fontSize = "18pt"
 
-    -- Needed to hand-tune the G.bgScaleFactor and G.sphere.centerY
+    -- Needed to hand-tune the G.bgScaleFactor and G.sphere.y
     G.bgScaleFactor = 1.11
 
     G.sphere = Image {
-	 centerX : 0.0
-	 centerY : -19.0
-	 lengthX : G.circle.r * 2.0 * G.bgScaleFactor
-	 lengthY : G.circle.r * 2.0 * G.bgScaleFactor
+	 x : 0.0
+	 y : -19.0
+	 w : G.circle.r * 2.0 * G.bgScaleFactor
+	 h : G.circle.r * 2.0 * G.bgScaleFactor
 	 rotation: 0.0
 	 path : "SphereBackground.svg"
     }

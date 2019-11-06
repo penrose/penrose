@@ -9,21 +9,21 @@ class Image extends React.Component<IGPIPropsDraggable> {
     const { onClick } = this.props;
     const { canvasSize } = this.props;
     const [x, y] = toScreen(
-      [shape.centerX.contents, shape.centerY.contents],
+      [shape.x.contents, shape.y.contents],
       canvasSize
     );
-    const [lengthX, lengthY] = [shape.lengthX.contents, shape.lengthY.contents];
+    const [w, h] = [shape.w.contents, shape.h.contents];
     const path = shape.path.contents;
     const opacity = shape.opacity.contents;
 
     return (
       <image
         href={process.env.PUBLIC_URL + path}
-        x={x - lengthX / 2}
-        y={y - lengthY / 2}
+        x={x - w / 2}
+        y={y - h / 2}
         opacity={opacity}
-        width={lengthX}
-        height={lengthY}
+        width={w}
+        height={h}
         onMouseDown={onClick}
       />
     );

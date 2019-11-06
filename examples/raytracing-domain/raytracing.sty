@@ -92,8 +92,8 @@ Camera c {
     -- TODO: has to have a location
     /*
     c.shape = Image {
-        lengthX = 20.0
-        lengthY = 20.0
+        w = 20.0
+        h = 20.0
         path  = "eye.svg"
     }
     */
@@ -137,8 +137,8 @@ PathVertex v; PathSample ps
 where InVP(v, p); OnEye(v)
 with Path p; Camera c {
 	-- TODO: put the location on E's border
-    -- v.x = c.shape.centerX
-    -- v.y = c.shape.centerY
+    -- v.x = c.shape.x
+    -- v.y = c.shape.y
     v.x = c.shape.x
     v.y = c.shape.y
 }

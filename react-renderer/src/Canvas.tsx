@@ -157,18 +157,6 @@ class Canvas extends React.Component<IProps> {
       shapesr: this.props.data.shapesr.map(([shapeType, shape]: [string, any]) => {
 
         if (shape.name.contents === id) {
-	    // Image has properties "centerX" and "centerY" instead of "x" and "y"
-	    if (shapeType === "Image") {
-		return [
-		    shapeType,
-		    {
-			...shape,
-			x: { ...shape.centerX, contents: shape.centerX.contents - dx },
-			y: { ...shape.centerY, contents: shape.centerY.contents - dy }
-		    }
-		];
-	    }
-
 	    if (shapeType === "Curve") {
 		console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
 		return [

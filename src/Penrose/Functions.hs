@@ -1447,7 +1447,7 @@ near [GPI o1, GPI o2, Val (FloatV offset)] =
   trace ("\n\nEnergy: " ++ show res ++
         "\nShapes: " ++ show (o1, o2)) res
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
-  let center = (getNum img "centerX", getNum img "centerY")
+  let center = (getX img, getY img)
       offset = (xoff, yoff)
   in distsq (getX lab, getY lab) (center `plus2` offset)
   where
@@ -1843,7 +1843,7 @@ maxSize [GPI r@("Rectangle", _)] =
   let max_side = max (getNum r "sizeX") (getNum r "sizeY")
   in max_side - r2f (limit / 3)
 maxSize [GPI im@("Image", _)] =
-  let max_side = max (getNum im "lengthX") (getNum im "lengthY")
+  let max_side = max (getNum im "w") (getNum im "h")
   in max_side - r2f (limit / 3)
 maxSize [GPI e@("Ellipse", _)] =
   max (getNum e "r") (getNum e "r") - r2f (limit / 3)
