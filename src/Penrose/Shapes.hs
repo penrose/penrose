@@ -322,8 +322,8 @@ type ComputedValue a = ([Property], [Value a] -> Value a)
 computedProperties ::
      (Autofloat a) => M.Map (ShapeTypeStr, Property) (ComputedValue a)
 computedProperties =
-  M.fromList [] -- TODO: makes things really alow
-    -- [ (("RectangleTransform", "transformation"), rectTransformFn)
+  M.fromList [ -- TODO: makes things really alow
+    -- (("RectangleTransform", "transformation"), rectTransformFn)
     -- , (("CircleTransform", "transformation"), circTransformFn)
     -- , (("Polygon", "transformation"), polygonTransformFn)
     -- , (("CurveTransform", "transformation"), polygonTransformFn)
@@ -345,9 +345,9 @@ computedProperties =
     -- , (("EllipseTransform", "polygon"), ellipsePolygonFn)
     -- , (("ParallelogramTransform", "polygon"), parallelogramPolygonFn)
     -- , (("TextTransform", "polygon"), textPolygonFn)
-    -- , (("Text", "polygon"), textPolygonFn2)
-    -- , (("Curve", "polygon"), curvePolygonFn2)
-    -- ]
+    (("Text", "polygon"), textPolygonFn2)
+    , (("Curve", "polygon"), curvePolygonFn2)
+    ]
 
 rectTransformFn :: (Autofloat a) => ComputedValue a
 rectTransformFn = (props, fn)

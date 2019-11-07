@@ -132,7 +132,7 @@ where I := CreateInterval(a, b); Subset(I, R) {
       color : Colors.black
   }
 
-  I.orderFn = ensure lessThan(a.val, b.val)
+  I.orderFn = ensure lessThanSq(a.val, b.val)
   -- I.labelFn = ensure inRange(I.text.x, a.val, b.val)
 
   I.minSize = 0.3 * R.len
@@ -282,7 +282,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
     delete y.inFn
     -- delete y.labelFn
 
-    override I.orderFn = ensure lessThan(x.val, `R`.x_axis.endX)
+    override I.orderFn = ensure lessThanSq(x.val, `R`.x_axis.endX)
     -- delete I.riFn
 
     I.maxSizeFn = ensure maxSize(I.shape, 0.3 * `R`.len)

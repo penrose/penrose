@@ -435,6 +435,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("disjoint", disjoint)
       , ("inRange", (*) indivConstrWeight . inRange')
       , ("lessThan", lessThan)
+      , ("lessThanSq", lessThanSq)
       , ("onCanvas", onCanvas)
       , ("unit", unit')
       , ("equal", equalFn)
@@ -1314,7 +1315,12 @@ tangentsAndBasis p q r arcLen =
       -- e2 = gramSchmidtHyp tq tr -- This doesn't seem to produce an orthogonal vector. Not sure why.
       e3 = normalizeLor (tq `crossLor` tr) -- normal vector
       e2 = normalizeLor (tq `crossLor` e3)
-  in (tq, tr, e1, e2, e3, theta)
+      res = (tq, tr, e1, e2, e3, theta) in
+  -- trace ("\n(p, q, r, arcLen): " ++ show (p, q, r, arcLen) ++
+  --         "\n(ptA, ptB, ptC): " ++ show (ptA, ptB, ptC) ++
+  --         "\n(lenAC, lenBC, lenAB): " ++ show (lenAC, lenBC, lenAB) ++
+  --        "\n(tq, tr, e1, e2, e3, theta): " ++ show res) 
+   res
 
 -- Angle where P is the central point (qpr or rpq), moving from q to r
 -- Including the paths to the arc endpoints so we can draw a wedge
@@ -1328,31 +1334,32 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
                else takeWhile (>= theta) $ iterate ((-) dtheta) 0 -- TODO: nicer way to do this?
                -- Equivalent to [0, dtheta .. theta] but we don't have Enum a
       -- Each point on the circle corresponds to a tangent direction e at p
-      tangentVecs = map (circPtInPlane e1 e2) thetas
-      -- And then you just walk in that direction from p along the hyperbolic geodesic
-      -- And connect up all those geodesic points to yield an arc on the hyperboloid
-      -- From (arclen along q) to (arclen along r)
-      arcPoints_qr = map (\tangentVec -> hypPtInPlane p tangentVec arcLen) tangentVecs 
-      -- Geodesic from p in the direction of q
-      arcLeg_pq = hFromTo p (arcPoints_qr !! 0)
-      -- Geodesic from p in the direction of r
-      arcLeg_rp = hFromTo (last arcPoints_qr) p
-      arcWedgePath = arcLeg_pq ++ arcPoints_qr ++ arcLeg_rp
-      -- NOTE: we include p (which doesn't lie on the arc path) so we can draw a filled arc mark
-  in Val $ LListV $
-     -- trace ("\n(p, q, r): " ++ show (p, q, r) ++
-     --       "\n(|p|^2, |q|^2, |r|^2): " ++ show (normsqLor p, normsqLor q, normsqLor r) ++
-     --       "\n(tq, tr): " ++ show (tq,tr) ++
-     --       "\n(|tq|^2, |tr|^2): " ++ show (normsqLor tq, normsqLor tr) ++
-     --       "\n(tq dotLor tr): " ++ show (tq `dotLor` tr) ++
-     --       "\ndot results: " ++ show [ei `dotLor` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
-     --        "\ntheta: " ++ show theta ++
-     --        "\n(e1, e2): " ++ show (e1,e2) ++
-     --        "\n\nthetas: " ++ show thetas ++
-     --        "\n\ntangentVecs: " ++ show tangentVecs ++
-     --        "\n\narcPoints: " ++ show arcPoints_qr ++
-     --        "\n\narcWedgePath: " ++ show arcWedgePath)
-     arcWedgePath
+      in if null thetas then trace "WARNING: empty thetas" $ Val $ LListV [] -- if theta goes NaN
+         else let tangentVecs = map (circPtInPlane e1 e2) thetas
+                  -- And then you just walk in that direction from p along the hyperbolic geodesic
+                  -- And connect up all those geodesic points to yield an arc on the hyperboloid
+                  -- From (arclen along q) to (arclen along r)
+                  arcPoints_qr = map (\tangentVec -> hypPtInPlane p tangentVec arcLen) tangentVecs 
+                  -- Geodesic from p in the direction of q
+                  arcLeg_pq = hFromTo p (arcPoints_qr !! 0)
+                  -- Geodesic from p in the direction of r
+                  arcLeg_rp = hFromTo (last arcPoints_qr) p
+                  arcWedgePath = arcLeg_pq ++ arcPoints_qr ++ arcLeg_rp
+                  -- NOTE: we include p (which doesn't lie on the arc path) so we can draw a filled arc mark
+              in Val $ LListV $
+                 -- trace ("\n(p, q, r): " ++ show (p, q, r) ++
+                 --       "\n(|p|^2, |q|^2, |r|^2): " ++ show (normsqLor p, normsqLor q, normsqLor r) ++
+                 --       "\n(tq, tr): " ++ show (tq,tr) ++
+                 --       "\n(|tq|^2, |tr|^2): " ++ show (normsqLor tq, normsqLor tr) ++
+                 --       "\n(tq dotLor tr): " ++ show (tq `dotLor` tr) ++
+                 --       "\ndot results: " ++ show [ei `dotLor` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
+                 --        "\ntheta: " ++ show theta ++
+                 --        "\n(e1, e2): " ++ show (e1,e2) ++
+                 --        "\n\nthetas: " ++ show thetas ++
+                 --        "\n\ntangentVecs: " ++ show tangentVecs ++
+                 --        "\n\narcPoints: " ++ show arcPoints_qr ++
+                 --        "\n\narcWedgePath: " ++ show arcWedgePath)
+                 arcWedgePath
 
 -- Angle where P is the central point (qpr or rpq)
 -- For angle QPR, calculate that angle, 
@@ -1722,7 +1729,10 @@ at :: ConstrFn
 at [GPI o, Val (FloatV x), Val (FloatV y)] = (getX o - x) ^ 2 + (getY o - y) ^ 2
 
 lessThan :: ConstrFn
-lessThan [Val (FloatV x), Val (FloatV y)] = if x < y then 0 else (x - y)^2
+lessThan [Val (FloatV x), Val (FloatV y)] = x - y
+
+lessThanSq :: ConstrFn
+lessThanSq [Val (FloatV x), Val (FloatV y)] = if x < y then 0 else (x - y)^2
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
