@@ -14,9 +14,31 @@ Colors {
 
 Set x {
     x.shape = Ellipse {
-        strokeWidth : 0.0
+        strokeWidth : 2.0
+        strokeColor : Colors.black
+        strokeStyle : "solid"
         ry: 1.5 * x.shape.rx
+        color: Colors.none
     }
+
+    x.shading = Image {
+        path : "ellipse-shading.svg"
+        centerX: x.shape.x
+        centerY: x.shape.y
+        lengthX : x.shape.rx * 2.0
+        lengthY : x.shape.ry * 2.0
+    }
+
+    LOCAL.shadingLayering = x.shading below x.shape
+
+    x.shadow = Image {
+        path : "ellipse-shadow.svg"
+        centerX: x.shape.x - 0.1 * x.shape.rx
+        centerY: x.shape.y - 0.1 * x.shape.ry
+        lengthX : x.shape.rx * 2.0
+        lengthY : x.shape.ry * 2.0
+    }
+    LOCAL.shadowLayering = x.shadow below x.shading
 
     x.text = Text {
       string : x.label
@@ -34,23 +56,18 @@ Set x {
 
 Point p
 with Set A
-where PointIn(A, p) {
+where In(p, A) {
     p.shape = Circle {
-        strokeWidth : 0.0
-	strokeColor : Colors.none
-        color : scaleColor(A.shape.color, 0.5)
+        strokeWidth : 2.5
+        strokeColor : Colors.black
+        color : Colors.black
+        --  scaleColor(A.shape.color, 0.5)
         r : 10.0
         x : A.shape.x
     }
 
-    -- p.text = Text {
-    --     string : p.label
-    --     x : p.shape.x + G.pointOffset
-    --     y : p.shape.y + G.pointOffset
-    -- }
-
     p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.ry)
-    p.layering = p.shape above A.shape
+    p.layering   = p.shape above A.shape
     -- p.textLayering = p.text above A.shape
 }
 
@@ -87,8 +104,11 @@ where PairIn(p, q, f) {
         thickness : 4.0
         arrowheadSize : 0.6
         color  : q.inverseColor
-	-- TODO: Might be easier to distinguish between the arrows if they were different colors, but can't sample solid colors
+        -- TODO: Might be easier to distinguish between the arrows if they were different colors, but can't sample solid colors
     }
+
+    q.shape.color = q.inverseColor
+    p.shape.strokeWidth = 0.0
 
     -- Try to get the arrowheads to point at the right mapped point
     LOCAL.equalFn = encourage equal(p.mapShape.endY, q.shape.y)
@@ -109,7 +129,7 @@ where PairIn(p1, q, f); PairIn(p2, q, f) {
 
 Point p; Point q
 with Set A
-where PointIn(A, p); PointIn(A, q) {
+where In(p, A); In(q, A) {
     LOCAL.repelFn = encourage repel(p.shape, q.shape, 0.001)
     LOCAL.sameXFn = encourage equal(p.shape.x, q.shape.x)
 }
