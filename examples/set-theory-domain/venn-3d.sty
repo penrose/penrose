@@ -4,19 +4,19 @@ Set x {
     }
 
     x.shading = Image {
-        centerX : x.shape.x 
-        centerY : x.shape.y
-        lengthX : x.shape.r * 2.0
-        lengthY : x.shape.r * 2.0
+        x : x.shape.x 
+        y : x.shape.y
+        w : x.shape.r * 2.0
+        h : x.shape.r * 2.0
         path : "shading.svg"
     }
 
     x.shadow = Image {
         path : "shadow.svg"
-        lengthX : x.shape.r * 2.15
-        lengthY : x.shape.r * 2.22
-        centerX : x.shape.x + 0.03 * x.shading.lengthX
-        centerY : x.shape.y - 0.051 * x.shading.lengthY
+        w : x.shape.r * 2.15
+        h : x.shape.r * 2.22
+        x : x.shape.x + 0.03 * x.shading.w
+        y : x.shape.y - 0.051 * x.shading.h
     }
 
     x.text = Text {

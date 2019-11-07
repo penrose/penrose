@@ -43,7 +43,7 @@ Colors {
 }
 
 VectorSpace U {
-    U.thickness = 2.0
+    U.thickness = 1.5
     U.axisColor = Colors.darkGray
 
     U.shape = Square {
@@ -109,10 +109,11 @@ VectorSpace U {
 -- TODO: generates too many constraints?
 
 VectorSpace U; VectorSpace V {
-    LOCAL.sameHeight = ensure sameHeight(U.shape, V.shape)
-    LOCAL.nonIntersect = ensure disjoint(U.shape, V.shape)
-    --V.shape.y = U.shape.y
-    --V.shape.x = U.shape.x + const.vectorSpaceSize / 2.0 + const.distVectorSpaces
+    --LOCAL.sameHeight = ensure sameHeight(U.shape, V.shape)
+    --LOCAL.nonIntersect = ensure disjoint(U.shape, V.shape)
+    --V.shape.y = 0.0
+    --U.shape.x = 0.0
+    --V.shape.x = 0.0
 }
 
 Vector v
@@ -219,17 +220,20 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 LinearMap f
 with VectorSpace U; VectorSpace V
 where From(f,U,V) {
-   /* f.shape = Arrow {
+   /*f.shape = Arrow {
       startX : U.shape.x
       startY : U.shape.y + const.vectorSpaceSize/2.0
       endX : V.shape.x
       endY : V.shape.y + const.vectorSpaceSize/2.0
       style : "curved"
       rotation : 0.0
-   } */
+   }*/
+
+   V.shape.x = U.shape.x + const.vectorSpaceSize + const.vectorSpaceGap
+   V.shape.y = U.shape.y
 
    f.shape = Curve {
-     pathData : makeCurve(U.shape.x + const.vectorSpaceSize/2.0, U.shape.y, V.shape.x - const.vectorSpaceSize/2.0, V.shape.y, 0.0, 30.0)
+     pathData : makeCurve(0.65*U.shape.x+0.35*V.shape.x,0.65*U.shape.y+0.35*V.shape.y,0.35*U.shape.x+0.65*V.shape.x,0.35*U.shape.y+0.65*V.shape.y, 0.0, 30.0)
      fill : Colors.none
      strokeWidth : 1.5
      rightArrowhead : True
@@ -242,6 +246,11 @@ where From(f,U,V) {
      color : f.shape.color
      fontSize : const.fontSize
    }
+
+   -- define an actual linear map f(x,y) = ax + by
+   -- TODO should pick this at random, rather than using a fixed map...
+   f.c0 = (-1.0,0.0)
+   f.c1 = (0.0,0.5)
 
    f.orderFn = ensure lessThan(U.shape.x + 20.0, V.shape.x)
 }
@@ -264,8 +273,8 @@ where c := determinant(a,b); In(a,U); In(b,U) {
 /* c.shape = Parallelogram {
       x : U.shape.x
       y : U.shape.y
-      lengthX : len(a.shape)
-      lengthY : len(b.shape)
+      w : len(a.shape)
+      h : len(b.shape)
       angle : calcVectorsAngle(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
       rotation : calcVectorsAngleWithOrigin(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
       stroke-style : "dashed"

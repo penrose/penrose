@@ -88,34 +88,27 @@ instance Eq Predicate where
          p1 == p2 = predicateName p1 == predicateName p2 && predicateArgs p1 == predicateArgs p2
 
 instance Show Predicate where
-  show (Predicate predicateName predicateArgs pos) =
-    nString ++ "(" ++ aString ++ ")"
-    where
-      nString = show predicateName
-      aString = show predicateArgs
+    show (Predicate predicateName predicateArgs pos) = nString ++ "(" ++ aString ++ ")"
+        where nString = show predicateName
+              aString = show predicateArgs
 
-data SubStmt
-  = Decl T
-         Var
-  | DeclList T
-             [Var]
-  | Bind Var
-         Expr
-  | EqualE Expr
-           Expr
-  | EqualQ Predicate
-           Predicate
-  | ApplyP Predicate
-  | LabelDecl Var
-              String
-  | AutoLabel LabelOption
-  | NoLabel [Var]
-  deriving (Show, Eq, Typeable)
+-- | Special construct added for "declare and bind" statements, which get parsed into a declare and then a bind in the Substance core language
+data SubStmt' = DeclBind T Var Expr
+              | CoreStmt SubStmt
 
-data LabelOption
-  = Default
-  | IDs [Var]
-  deriving (Show, Eq, Typeable)
+data SubStmt = Decl T Var
+             | DeclList T [Var]
+             | Bind Var Expr
+             | EqualE Expr Expr
+             | EqualQ Predicate Predicate
+             | ApplyP Predicate
+             | LabelDecl Var String
+             | AutoLabel LabelOption
+             | NoLabel   [Var]
+             deriving (Show, Eq, Typeable)
+
+data LabelOption = Default | IDs [Var]
+    deriving (Show, Eq, Typeable)
 
 -- | Program is a sequence of statements
 type SubProg = [SubStmt]
@@ -161,17 +154,27 @@ data SubObj
   | LC SubConstr
   deriving (Show, Eq, Typeable)
 
---------------------------------------------------------------------------------
--- Substance Parser
--- TODO: Unify the Substance and Style parsers to maximize reuse
--- TODO: revert the record based Style and write purer parsers!
-
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
-substanceParser :: VarEnv -> BaseParser [SubStmt]
+substanceParser :: VarEnv -> BaseParser [SubStmt']
 substanceParser env = evalStateT substanceParser' $ Just env
+substanceParser' = between scn eof subProg' -- Parse all the statemnts between the spaces to the end of the input file
 
-substanceParser' = between scn eof subProg -- Parse all the statemnts between the spaces to the end of the input file
+subProg' :: Parser [SubStmt']
+subProg' = subStmt' `sepEndBy` newline'
+
+subStmt' :: Parser SubStmt'
+subStmt' = tryChoice [declBind,
+                      singleSubStmt]
+
+declBind :: Parser SubStmt'
+declBind = do t <- tParser
+              v <- var
+              rword ":="
+              DeclBind t v <$> exprParser
+
+singleSubStmt :: Parser SubStmt'
+singleSubStmt = CoreStmt <$> subStmt
 
 -- |'subProg' parses the entire actual Substance Core language program which is a collection of statements
 subProg :: Parser [SubStmt]
@@ -753,16 +756,22 @@ collectLabels ids =
   where
     initmap = M.fromList $ map (\i -> (i, Nothing)) ids
 
+-- | Convert a "declare and bind" to a "declare, then bind" as separate statements
+toSubCore :: [SubStmt'] -> [SubStmt]
+toSubCore stmts = concatMap toCoreStmt stmts
+          where toCoreStmt (DeclBind t v e) = [Decl t v, Bind v e]
+                toCoreStmt (CoreStmt s)     = [s]
+
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
 parseSubstance :: String -> String -> VarEnv -> Either CompilerError SubOut
 parseSubstance subFile subIn varEnv =
   case runParser (substanceParser varEnv) subFile subIn of
     Left err -> Left $ SubstanceParse (errorBundlePretty err)
     Right subProg -> do
-      let subProg' = refineAST subProg varEnv
+      let subProg'   = refineAST (toSubCore subProg) varEnv
       let subTypeEnv = check subProg' varEnv
-      let subDynEnv = loadSubEnv subProg'
-      let labelMap = getLabelMap subProg' subTypeEnv
+      let subDynEnv  = loadSubEnv subProg'
+      let labelMap   = getLabelMap subProg' subTypeEnv
       Right $ SubOut subProg' (subTypeEnv, subDynEnv) labelMap
 
 -- --------------------------------------- Test Driver -------------------------

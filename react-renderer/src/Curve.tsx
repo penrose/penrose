@@ -42,6 +42,9 @@ const fstCmdString = (pathCmd: any, canvasSize: [number, number]) => {
 };
 
 const toSubPathString = (commands: any[], canvasSize: [number, number]) => {
+    // TODO: deal with an empty list more gracefully. This next line will crash with undefined head command if empty.
+    if (!commands || !commands.length) { console.error("WARNING: empty path"); return ""; }
+
   const [headCommand, ...tailCommands] = commands;
   return (
     fstCmdString(headCommand, canvasSize) +
