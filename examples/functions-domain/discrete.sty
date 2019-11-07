@@ -2,20 +2,23 @@ plugin "alloy"
 
 G {
   G.textTopOffset = 30.0
+  G.textBottomOffset = 30.0
   G.pointOffset = 10.0
   G.arrowOffset = 20.0
-  G.fontSize = "30pt"
+  G.fontSize = "22pt"
+  G.domainPointSize = 8.0
 }
 
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
 }
 
 Set x {
     x.shape = Ellipse {
         strokeWidth : 2.0
-        strokeColor : Colors.black
+        strokeColor : Colors.gray
         strokeStyle : "solid"
         ry: 1.5 * x.shape.rx
         color: Colors.none
@@ -61,18 +64,14 @@ where In(p, A) {
         strokeWidth : 2.5
         strokeColor : Colors.black
         color : Colors.black
-        --  scaleColor(A.shape.color, 0.5)
         r : 10.0
         x : A.shape.x
     }
 
     p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.ry)
     p.layering   = p.shape above A.shape
-    -- p.textLayering = p.text above A.shape
 }
 
--- TODO: It would be cool to apply a linear gradient between the set colors to the map
--- https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient
 Map f
 with Set A; Set B
 where From(f, A, B) {
@@ -83,7 +82,7 @@ where From(f, A, B) {
     f.text = Text {
         string : f.label
         x : average(A.shape.x, B.shape.x)
-        y : A.shape.y + A.shape.ry + G.textTopOffset
+        y : A.shape.y - A.shape.ry - G.textBottomOffset
         fontSize : G.fontSize
     }
 }
@@ -107,8 +106,8 @@ where PairIn(p, q, f) {
         -- TODO: Might be easier to distinguish between the arrows if they were different colors, but can't sample solid colors
     }
 
-    q.shape.color = q.inverseColor
-    p.shape.strokeWidth = 0.0
+    override q.shape.color = q.inverseColor
+    override p.shape.r = q.shape.r * 0.7
 
     -- Try to get the arrowheads to point at the right mapped point
     LOCAL.equalFn = encourage equal(p.mapShape.endY, q.shape.y)
@@ -132,4 +131,28 @@ with Set A
 where In(p, A); In(q, A) {
     LOCAL.repelFn = encourage repel(p.shape, q.shape, 0.001)
     LOCAL.sameXFn = encourage equal(p.shape.x, q.shape.x)
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Onto(f); Not(OneToOne(f)) {
+      override f.text.string = "\\textbf{surjection}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Not(Onto(f)); OneToOne(f) {
+      override f.text.string = "\\textbf{injection}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Not(Onto(f)); Not(OneToOne(f)) {
+      override f.text.string = "\\textbf{general}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Onto(f); OneToOne(f) {
+      override f.text.string = "\\textbf{bijection}"
 }
