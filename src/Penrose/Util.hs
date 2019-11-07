@@ -77,10 +77,6 @@ epsd = 10 ** (-10)
 -- General helper functions
 type Interval = (Float, Float) -- which causes type inference problems in Style for some reason.
 
-linspace :: (Autofloat a) => Int -> (a, a) -> [a]
-linspace n (xmin, xmax) = [xmin + fromIntegral i * dx | i <- [0..n]] 
-    where dx = (xmax - xmin) / fromIntegral (n - 1)
-
 -- Generate n random values uniformly randomly sampled from interval and return generator.
 -- NOTE: I'm not sure how backprop works WRT randomness, so the gradients might be inconsistent here.
 -- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
@@ -401,7 +397,8 @@ rotateList :: [a] -> [a]
 rotateList l = take (length l) $ drop 1 (cycle l)
 
 removeClosePts :: Autofloat a => a -> [a] -> [a]
-removeClosePts dx xs = map fst $ filter (\(x0, x1) -> (x1 - x0) > dx) $ zip xs (tail xs)
+removeClosePts dx xs =
+  map fst $ filter (\(x0, x1) -> (x1 - x0) > dx) $ zip xs (tail xs)
 
 -- | Scale a value x in [lower, upper] linearly to x' lying in range [lower', upper'].
 -- (Allow reverse lerping, i.e. upper < lower)

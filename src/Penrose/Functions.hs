@@ -511,7 +511,7 @@ sampleFunction [Val (IntV n), Val (FloatV xmin), Val (FloatV xmax), Val (FloatV 
 
 computeSurjection :: Autofloat a => StdGen -> Int -> Pt2 a -> Pt2 a -> ([Pt2 a], StdGen)
 computeSurjection g numPoints (lowerx, lowery) (topx, topy) =
-  let xs = linspace numPoints (lowerx, topx)
+  let xs = lerpN lowerx topx (numPoints - 2)
       xs_increasing = sort xs
       (ys_inner, g') =
         randomsIn g (numPoints - 2) (r2f lowery, r2f topy)
@@ -526,7 +526,7 @@ computeBijection g numPoints (lowerx, lowery) (topx, topy) =
       ys_diff = removeClosePts y_tol $ sort $ nub ys_inner
       ys = lowery : ys_diff ++ [topy]
       (ys_plot, g'') = pickOne [reverse ys, ys] g'
-      xs = linspace (length ys) (lowerx, topx)
+      xs = lerpN lowerx topx $ length ys - 2
   in (zip xs ys_plot, g'')
   where y_tol = 10.0
 
@@ -654,6 +654,15 @@ average [Val (FloatV x), Val (FloatV y)] =
 norm_ :: ConstCompFn
 norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
 
+-- Wrapper for interpolateFn
+interpolate :: ConstCompFn
+interpolate [Val (PtListV pts)] =
+  let pathRes = interpolateFn pts 1.0
+  in Val $ PathDataV [Open pathRes]
+interpolate [Val (PtListV pts), Val (FloatV k)] =
+  let pathRes = interpolateFn pts k
+  in Val $ PathDataV [Open pathRes]
+
 -- | Catmull-Rom spline interpolation algorithm
 interpolateFn :: Autofloat a => [Pt2 a] -> a -> [Elem a]
 interpolateFn pts k =
@@ -664,15 +673,6 @@ interpolateFn pts k =
   in finalPath
   where
     repeat4 xs = [take 4 . drop n $ xs | n <- [0 .. length xs - 4]]
-
--- Wrapper for interpolateFn
-interpolate :: ConstCompFn
-interpolate [Val (PtListV pts)] =
-  let pathRes = interpolateFn pts 1.0
-  in Val $ PathDataV [Open pathRes]
-interpolate [Val (PtListV pts), Val (FloatV k)] =
-  let pathRes = interpolateFn pts k
-  in Val $ PathDataV [Open pathRes]
 
 chain :: Autofloat a => a -> [(a, a)] -> Elem a
 chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
@@ -787,7 +787,6 @@ sampleFunctionArea [GPI domain, GPI range, Val (FloatV xFrac), Val (FloatV yFrac
              y_offset = (0, dy)
              pt_midright = midpoint pt_tr pt_br -: x_offset +: y_offset
              pt_midleft = midpoint pt_bl pt_tl +: x_offset +: y_offset
-             -- FIXME: take k as arg
              right_curve = interpolateFn [pt_tr, pt_midright, pt_br] 1.0
              left_curve = interpolateFn [pt_bl, pt_midleft, pt_tl] 1.0
                         -- TODO: not sure if this is right. do any points need to be included in the path?
@@ -803,8 +802,7 @@ makeCurve :: CompFn
 makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), Val (FloatV dx), Val (FloatV dy)] g =
   let offset = (dx, dy)
       midpt = midpoint (x1, y1) (x2, y2) +: offset
-             -- FIXME: take k as arg
-      path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)] 1.5
+      path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)] 1.0
   in (Val $ PathDataV [path], g)
 
 -- Draw a triangle as the closure of three lines (assuming they define a valid triangle, i.e. intersect exactly at their endpoints)

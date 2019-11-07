@@ -156,6 +156,8 @@ where From(f, domain, image) {
         strokeWidth : 2.5
         effect : "dropShadow"
     }
+    f.layering = f.shape above image.top
+    f.layering2 = f.shape above image.bottom
 }
 
 Map f

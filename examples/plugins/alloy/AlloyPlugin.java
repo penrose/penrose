@@ -28,6 +28,7 @@ import edu.mit.csail.sdg.translator.TranslateAlloyToKodkod;
 /**
  * @author: Wode "Nimo" Ni
  * @version: 02/20/2019
+ * This plugin takes in a Substance program in the set theory or functions domain, translates it into an Alloy program, invoke Alloy to solve for an instance, and parse the instance back into Substance code. For each `Map`, the plugin declares non-empty signatures for the domain and codomain and a relation between them in the body of the signature for the domain. For each of the predicates on a certain function, the plugin generates a corresponding "fact" in Alloy terms, which is a logical statement about a relations. 
  * NOTE: to bulld the plugin, run `make`; to run it, run `java -cp ".:alloy4.2.jar" AlloyPlugin <input-file-name>`
  * NOTE: this plugin requires Java 1.6. On Mac OS Sierra and above, please install "https://support.apple.com/kb/DL1572?locale=en_US"
  */
@@ -154,7 +155,7 @@ public class AlloyPlugin {
         for(A4Tuple t : tups) {
             String id = t.atom(0).replace('$', '_');
             res += "Point " + id + "\n";
-            res += "PointIn(" + set + ", " + id + ")\n";
+            res += "In(" + id + ", " + set + ")\n";
         }
         return res;
     }
