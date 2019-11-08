@@ -1589,33 +1589,34 @@ polygonize maxIter = map go
   where
     go (Closed path) =
        case path of
-       -- A closed path is equivalent to the same open path, ending at the head point (TODO: check that this makes sense)
-       ((Pt e):_) -> go (Open $ path ++ [Pt e])
+       -- HACK: A closed path is equivalent to the same open path, ending at the head point (TODO: check that this makes sense)
+       Pt e:_ -> go (Open $ path ++ [Pt e])
        _ -> error "unimplemented: polygonizing a closed path that doesn't start with a point"
     go (Open path)   = concatMap (polyCubicBez 0 maxIter) $ expandCurves path
 
 type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
 
-expandCurves :: Autofloat a => [Elem a] -> [CubicBezCoeffs a]
+-- | Expand composite bezier curve and skip polyline segments
+expandCurves :: Autofloat a => [Elem a] -> [Either (CubicBezCoeffs a) [Pt2 a]] 
 expandCurves elems = zipWith attach elems $ tail elems
   where
-    attach :: Autofloat a => Elem a -> Elem a -> (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
-    attach (Pt a) (CubicBez (b, c, d))               = (a, b, c, d)
-    attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
+    attach (Pt a) (CubicBez (b, c, d))               = Left (a, b, c, d)
+    attach (Pt a) (Pt b)                             = Right [a, b]
+    attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = Left (a, b, c, d)
+    attach (CubicBez (_, _, a)) (Pt b) = Right [a, b]
     attach x y = error ("Can't attach: " ++ show x ++ ", " ++ show y)
 
 -- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
-polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
-polyCubicBez count maxCount curve@(a, b, c, d) =
+-- NOTE: if the input is an already polygonize segment, do nothing.
+polyCubicBez :: Autofloat a => Int -> Int -> Either (CubicBezCoeffs a) [Pt2 a] -> [Pt2 a]
+polyCubicBez count maxCount (Left (a, b, c, d)) =
   if count >= maxCount
     then [a, b, c, d]
-    else concatMapTuple (polyCubicBez (count + 1) maxCount) $
-         divideCubicBezier curve
+    else concatMapTuple (polyCubicBez (count + 1) maxCount . Left) $
+         divideCubicBezier (a, b, c, d)
   where
     concatMapTuple f (a1, a2) = f a1 ++ f a2
-
-isFlat :: Autofloat a => CubicBezCoeffs a -> Bool
-isFlat (a, b, c, d) = True
+polyCubicBez count maxCount (Right pts) = pts
 
 divideCubicBezier ::
      Autofloat a => CubicBezCoeffs a -> (CubicBezCoeffs a, CubicBezCoeffs a)
