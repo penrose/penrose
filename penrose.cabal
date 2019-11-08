@@ -24,7 +24,6 @@ library
             containers -any,
             random -any,
             random-shuffle -any,
-            containers -any,
             megaparsec -any,
             ad -any,
             aeson -any,
@@ -86,6 +85,19 @@ executable penrose
     build-depends:
         penrose,
         base -any
+
+executable penrose-synthesizer
+    main-is: synthesizer.hs
+    hs-source-dirs: .
+    other-modules:
+    default-language: Haskell2010
+    build-depends:
+        penrose,
+        base -any,
+        containers -any,
+        random -any,
+        mtl -any,
+        pretty-show -any
 
 test-suite penrose-testsuite
     type: exitcode-stdio-1.0
