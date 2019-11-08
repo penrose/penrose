@@ -110,9 +110,6 @@ toSchema acc@(objSchs, fnSchs, predSchs) subLine =
     Decl t (E.VarConst v) ->
       let res = ObjectSchema {objType = tToSchema t, objName = v}
       in (res : objSchs, fnSchs, predSchs)
-    DeclList t vs ->
-      let decls = map (\v -> Decl t v) vs
-      in foldl toSchema acc decls
     Bind (E.VarConst v) (ApplyFunc f) ->
       let res =
             FunctionSchema

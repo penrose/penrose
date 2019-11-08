@@ -85,7 +85,8 @@ data Predicate = Predicate
 -- Equality function that doesn't compare SourcePos
 -- TODO: use correct equality comparison in typechecker?
 instance Eq Predicate where
-         p1 == p2 = predicateName p1 == predicateName p2 && predicateArgs p1 == predicateArgs p2
+  p1 == p2 =
+    predicateName p1 == predicateName p2 && predicateArgs p1 == predicateArgs p2
 
 instance Show Predicate where
   show (Predicate predicateName predicateArgs pos) =
@@ -94,11 +95,18 @@ instance Show Predicate where
       nString = show predicateName
       aString = show predicateArgs
 
+-- | Special construct added for "declare and bind" statements, which get parsed into a declare and then a bind in the Substance core language
+data SubStmt'
+  = DeclBind T
+             Var
+             Expr
+  | DeclList T
+             [Var]
+  | CoreStmt SubStmt
+
 data SubStmt
   = Decl T
          Var
-  | DeclList T
-             [Var]
   | Bind Var
          Expr
   | EqualE Expr
@@ -161,42 +169,43 @@ data SubObj
   | LC SubConstr
   deriving (Show, Eq, Typeable)
 
---------------------------------------------------------------------------------
--- Substance Parser
--- TODO: Unify the Substance and Style parsers to maximize reuse
--- TODO: revert the record based Style and write purer parsers!
-
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
-substanceParser :: VarEnv -> BaseParser [SubStmt]
-substanceParser env = evalStateT substanceParser' $ Just env
+substanceParser :: VarEnv -> BaseParser [SubStmt']
+substanceParser env = evalStateT parser $ Just env
+  where
+    parser = between scn eof subProg' -- Parse all the statemnts between the spaces to the end of the input file
 
-substanceParser' = between scn eof subProg -- Parse all the statemnts between the spaces to the end of the input file
+subProg' :: Parser [SubStmt']
+subProg' = subStmt' `sepEndBy` newline'
 
--- |'subProg' parses the entire actual Substance Core language program which is a collection of statements
-subProg :: Parser [SubStmt]
-subProg = subStmt `sepEndBy` newline'
+subStmt', declBind, declList :: Parser SubStmt'
+-- NOTE: order matters here. We first parse label statements _and then_ decl list to avoid consuming regular decls
+subStmt' = tryChoice [declBind, CoreStmt <$> labelStmt, declList, CoreStmt <$> subStmt]
 
-subStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
-subStmt =
-  tryChoice [labelDecl, autoLabel, noLabel, equalE, equalQ, bind, decl, applyP]
+declList = DeclList <$> tParser <*> var `sepBy2` comma
 
-decl = do
-  t' <- tParser
-  vars <- var `sepBy1` comma
-  if length vars == 1
-    then return (Decl t' (head vars))
-    else return (DeclList t' vars)
+declBind = do
+  t <- tParser
+  v <- var
+  rword ":="
+  DeclBind t v <$> expr
+
+subStmt, labelStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
+subStmt = tryChoice [ equalE, equalQ, bind, decl, applyP ]
+labelStmt = tryChoice [ labelDecl, autoLabel, noLabel ]
+
+decl = Decl <$> tParser <*> var
 
 bind = do
   v' <- var
   rword ":="
-  Bind v' <$> exprParser
+  Bind v' <$> expr
 
 equalE = do
-  e1 <- exprParser
+  e1 <- expr
   eq
-  EqualE e1 <$> exprParser
+  EqualE e1 <$> expr
 
 equalQ = do
   q1 <- predicate
@@ -222,14 +231,14 @@ autoLabel = rword "AutoLabel" >> AutoLabel <$> (defaultLabels <|> idList)
 function :: Parser Func
 function = do
   n <- identifier
-  args <- parens (exprParser `sepBy1` comma)
+  args <- parens (expr `sepBy1` comma)
   return Func {nameFunc = n, argFunc = args}
 
 field :: Parser Field
 field = FieldConst <$> identifier
 
-exprParser, valConsOrFunc, deconstructorE :: Parser Expr
-exprParser = tryChoice [deconstructorE, valConsOrFunc, VarE <$> var]
+expr, valConsOrFunc, deconstructorE :: Parser Expr
+expr = tryChoice [deconstructorE, valConsOrFunc, VarE <$> var]
 
 deconstructorE = do
   v <- var
@@ -247,7 +256,7 @@ valConsOrFunc = do
         fromMaybe
           (error "Substance parser: variable environment is not intiialized.")
           e
-  args <- parens (exprParser `sepBy1` comma)
+  args <- parens (expr `sepBy1` comma)
   case (M.lookup n $ valConstructors env, M.lookup n $ operators env)
         -- the id is a value constructor
         of
@@ -270,26 +279,16 @@ predicate = do
     Predicate
     {predicateName = PredicateConst n, predicateArgs = args, predicatePos = pos}
 
--- FIXME: ordering matters here because expr might succeed first by parsing the predicate name as a var. In general, it's not a good idea to start any parser with an id that's not unique to a type. Fix this later when rewriting the whole thing.
+-- NOTE: ordering matters here because expr might succeed first by parsing the predicate name as a var. In general, it's not a good idea to start any parser with an id that's not unique to a type. Fix this later when rewriting the whole thing.
 predicateArg :: Parser PredArg
-predicateArg = tryChoice [PP <$> predicate, PE <$> exprParser]
+predicateArg = tryChoice [PP <$> predicate, PE <$> expr]
 
 ----------------------------------- Utility functions ------------------------------------------
-
-refineAST :: SubProg -> VarEnv -> SubProg
-refineAST subProg varEnv =
-  let subProg' = map preludesToDeclarations (preludes varEnv) ++ subProg
-  in foldl refineDeclList [] subProg'
+-- | Convert prelude statemnts from the .dsl file into declaration Statements in the Substance program AST
+addPrelude :: SubProg -> VarEnv -> SubProg
+addPrelude subProg varEnv = map toDecl (preludes varEnv) ++ subProg
   where
-    refineDeclList accumProg (DeclList t vars) =
-      accumProg ++ foldl (convertDeclList t) [] vars
-    refineDeclList accumProg stmt = accumProg ++ [stmt]
-    convertDeclList t vars var = vars ++ [Decl t var]
-
--- | Convert prelude statemnts from the .dsl file into declaration Statements
---   in the Substance program AST
-preludesToDeclarations :: (Var, T) -> SubStmt
-preludesToDeclarations (v, t) = Decl t v
+    toDecl (v, t) = Decl t v
 
 ----------------------------------------- Substance Typechecker ---------------------------
 -- | 'check' is the top level function for checking a substance program which calls checkSubStmt on each statement in the
@@ -753,13 +752,23 @@ collectLabels ids =
   where
     initmap = M.fromList $ map (\i -> (i, Nothing)) ids
 
+-- | Convert a list of sugared Substance statements to core statements
+toSubCore :: [SubStmt'] -> [SubStmt]
+toSubCore = concatMap toCoreStmt
+    -- Convert a "declare and bind" to a "declare, then bind" as separate statements
+  where
+    toCoreStmt (DeclBind t v e) = [Decl t v, Bind v e]
+    -- Convert a list of declarations to individual ones
+    toCoreStmt (DeclList t vs)  = map (Decl t) vs
+    toCoreStmt (CoreStmt s)     = [s]
+
 -- | 'parseSubstance' runs the actual parser function: 'substanceParser', taking in a program String, parses it, semantically checks it, and eventually invoke Alloy if needed. It outputs a collection of Substance objects at the end.
 parseSubstance :: String -> String -> VarEnv -> Either CompilerError SubOut
 parseSubstance subFile subIn varEnv =
   case runParser (substanceParser varEnv) subFile subIn of
     Left err -> Left $ SubstanceParse (errorBundlePretty err)
     Right subProg -> do
-      let subProg' = refineAST subProg varEnv
+      let subProg' = addPrelude (toSubCore subProg) varEnv
       let subTypeEnv = check subProg' varEnv
       let subDynEnv = loadSubEnv subProg'
       let labelMap = getLabelMap subProg' subTypeEnv

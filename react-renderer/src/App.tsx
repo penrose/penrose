@@ -62,8 +62,9 @@ class App extends React.Component<any, IState> {
     this.protocol.sendPacket(Step(1, this.state.data));
   };
   public resample = async () => {
+      const NUM_SAMPLES = 50;
     await this.setState({ processedInitial: false });
-    this.protocol.sendPacket(Resample(150, this.state.data));
+    this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };
   public toggleLayer = (layerName: string) => {
     this.setState({
