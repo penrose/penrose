@@ -26,20 +26,20 @@ Set x {
 
     x.shading = Image {
         path : "ellipse-shading.svg"
-        centerX: x.shape.x
-        centerY: x.shape.y
-        lengthX : x.shape.rx * 2.0
-        lengthY : x.shape.ry * 2.0
+        x: x.shape.x
+        y: x.shape.y
+        w: x.shape.rx * 2.0
+        h : x.shape.ry * 2.0
     }
 
     LOCAL.shadingLayering = x.shading below x.shape
 
     x.shadow = Image {
         path : "ellipse-shadow.svg"
-        centerX: x.shape.x - 0.1 * x.shape.rx
-        centerY: x.shape.y - 0.1 * x.shape.ry
-        lengthX : x.shape.rx * 2.0
-        lengthY : x.shape.ry * 2.0
+        x: x.shape.x - 0.1 * x.shape.rx
+        y: x.shape.y - 0.1 * x.shape.ry
+        w : x.shape.rx * 2.0
+        h : x.shape.ry * 2.0
     }
     LOCAL.shadowLayering = x.shadow below x.shading
 
