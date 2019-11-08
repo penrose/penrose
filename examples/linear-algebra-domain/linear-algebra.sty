@@ -40,11 +40,16 @@ Colors {
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+
+    -- TODO: should we require S,V in %? (in [0,1])
+    Colors.red2 = hsva(0.0, 100.0, 100.0, 1.0)
+    Colors.green2 = hsva(140.0, 23.0, 100.0, 1.0)
 }
 
 VectorSpace U {
     U.thickness = 1.5
     U.axisColor = Colors.darkGray
+    -- U.axisColor = Colors.green2
 
     U.shape = Square {
 	x : 0.0
