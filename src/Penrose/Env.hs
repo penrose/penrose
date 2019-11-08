@@ -12,7 +12,7 @@ module Penrose.Env where
   -- ) 
 
 import           Control.Arrow                  ((>>>))
-import           Control.Monad                  (void)
+import           Control.Monad                  (void, MonadPlus)
 import           Control.Monad.Combinators.Expr hiding (Operator)
 import           Control.Monad.State.Lazy       (StateT)
 import           Data.Functor.Classes
@@ -244,6 +244,12 @@ rword w = lexeme (string w *> notFollowedBy alphaNumChar)
 
 tryChoice :: [Parser a] -> Parser a
 tryChoice list = choice $ map try list
+
+sepBy2 :: MonadPlus m => m a -> m sep -> m [a]
+sepBy2 p sep = do
+  x <- p
+  (x:) <$> some (sep >> p)
+{-# INLINE sepBy2 #-}
 
 ----------------------------------- AST ----------------------------------------
 data TypeName
