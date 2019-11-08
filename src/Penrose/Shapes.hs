@@ -1507,6 +1507,11 @@ white = makeColor 1.0 1.0 1.0 1.0
 makeColor' :: (Autofloat a) => a -> a -> a -> a -> Color
 makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
 
+-- TODO: clamp hsva?
+-- TODO: clampColor could interfere w/ rgb opt?
+makeColorHsv :: (Autofloat a) => a -> a -> a -> a -> Color
+makeColorHsv h s v a = HSVA (r2f h) (r2f s) (r2f v) (r2f a)
+
 --------------------------------------------------------------------------------
 -- Approximating a Bezier curve via polygon or bbox
 -- | Polygonize path by extruding the polyline to account for thickness and adding any arrowheads, if present.
