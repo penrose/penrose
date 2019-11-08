@@ -119,12 +119,23 @@ export const toPointListString = memoize(
       .join(" ")
 );
 
-export const toHex = (rgba: [number, number, number, number]) => {
-  return rgba.slice(0, 3).reduce((prev, cur) => {
-    const hex = Math.round(255 * cur).toString(16);
-    const padded = hex.length === 1 ? "0" + hex : hex;
-    return prev + padded;
-  }, "#");
+export const getAlpha = (color: any) => color.contents[3];
+
+export const toHex = (color: any) => {
+    console.log("color", color);
+    if (color.tag === "RGBA") {
+	const rgba = color.contents;
+
+	return rgba.slice(0, 3).reduce((prev: string, cur: number) => {
+	    const hex = Math.round(255 * cur).toString(16);
+	    const padded = hex.length === 1 ? "0" + hex : hex;
+	    return prev + padded;
+	}, "#");
+    } else if (color.tag === "HSVA") {
+	console.error("HSVA unimplemented");
+    } else {
+	console.error("color type", color.tag, "unimplemented");
+    }
 };
 
 export const getAngle = (x1: number, y1: number, x2: number, y2: number) => {

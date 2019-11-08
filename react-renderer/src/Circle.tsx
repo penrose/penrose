@@ -10,9 +10,9 @@ class Circle extends React.Component<IGPIPropsDraggable> {
     const { canvasSize } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const fillColor = toHex(shape.color.contents);
-    const fillAlpha = shape.color.contents[3];
+    const fillAlpha = shape.color.contents.contents[3];
     const strokeColor = toHex(shape.strokeColor.contents);
-    const strokeAlpha = shape.strokeColor.contents[3];
+    const strokeAlpha = shape.strokeColor.contents.contents[3];
     const thickness = shape.strokeWidth.contents;
 
     return (

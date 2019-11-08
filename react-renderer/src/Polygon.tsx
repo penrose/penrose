@@ -12,7 +12,7 @@ class Polygon extends React.Component<IGPIPropsDraggable> {
 	const fillColor = toHex(shape.fillColor.contents);
 	const fillAlpha = shape.fillColor.contents[3];
 	const strokeColor = toHex(shape.strokeColor.contents);
-	const strokeAlpha = shape.strokeColor.contents[3];
+	const strokeAlpha = shape.strokeColor.contents.contents[3];
 	const thickness = shape.strokeWidth.contents;
 
         const ptListString = toPointListString(

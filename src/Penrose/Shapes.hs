@@ -1471,6 +1471,7 @@ data Color
        !Float
        !Float
        !Float
+  | HSVA !Float !Float !Float !Float
   deriving (Show, Eq, Generic)
 
 instance ToJSON Color
