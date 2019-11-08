@@ -30,8 +30,80 @@ import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer     as L
 import           Text.Show.Pretty
 
+-- | 'SubOut' is the output of the Substance compiler, comprised of:
+-- * Substance AST
+-- * (Variable environment, Substance environment)
+-- * A mapping from Substance ids to their coresponding labels
+data SubOut =
+  SubOut SubProg
+         (VarEnv, SubEnv)
+         LabelMap
+instance Show SubOut where
+  show (SubOut subProg (subEnv, eqEnv) labelMap) =
+    "Parsed Substance program:\n" ++
+    ppShow subProg ++
+    "\nSubstance type env:\n" ++
+    ppShow subEnv ++
+    "\nSubstance dyn env:\n" ++
+    ppShow eqEnv ++ "\nLabel mappings:\n" ++ ppShow labelMap
+
 --------------------------------------------------------------------------------
 -- Substance AST
+
+-- | Program is a sequence of statements
+type SubProg = [SubStmt]
+
+-- | Special construct added for "declare and bind" statements, which get parsed into a declare and then a bind in the Substance core language
+data SubStmt'
+  = DeclBind T
+             Var
+             Expr
+  | DeclList T
+             [Var]
+  | CoreStmt SubStmt
+
+-- | A Substance statement
+data SubStmt
+  = Decl T
+         Var
+  | Bind Var
+         Expr
+  | EqualE Expr
+           Expr
+  | EqualQ Predicate
+           Predicate
+  | ApplyP Predicate
+  | LabelDecl Var
+              String
+  | AutoLabel LabelOption
+  | NoLabel [Var]
+  deriving (Show, Eq, Typeable)
+
+data LabelOption
+  = Default
+  | IDs [Var]
+  deriving (Show, Eq, Typeable)
+
+------------------------------------
+-- | Declaration of Substance objects
+data SubDecl =
+  SubDeclConst T
+               Var
+  deriving (Show, Eq, Typeable)
+
+-- | Declaration of Substance constaints
+data SubConstr =
+  SubConstrConst String
+                 [PredArg]
+  deriving (Show, Eq, Typeable)
+
+-- | Both declarations and constaints in Substance are regarded as objects,
+--   which is possible for Style to select later.
+data SubObj
+  = LD SubDecl
+  | LC SubConstr
+  deriving (Show, Eq, Typeable)
+
 newtype ValConstructorName =
   ValConst String
   deriving (Show, Eq, Typeable)
@@ -95,79 +167,7 @@ instance Show Predicate where
       nString = show predicateName
       aString = show predicateArgs
 
--- | Special construct added for "declare and bind" statements, which get parsed into a declare and then a bind in the Substance core language
-data SubStmt'
-  = DeclBind T
-             Var
-             Expr
-  | DeclList T
-             [Var]
-  | CoreStmt SubStmt
 
-data SubStmt
-  = Decl T
-         Var
-  | Bind Var
-         Expr
-  | EqualE Expr
-           Expr
-  | EqualQ Predicate
-           Predicate
-  | ApplyP Predicate
-  | LabelDecl Var
-              String
-  | AutoLabel LabelOption
-  | NoLabel [Var]
-  deriving (Show, Eq, Typeable)
-
-data LabelOption
-  = Default
-  | IDs [Var]
-  deriving (Show, Eq, Typeable)
-
--- | Program is a sequence of statements
-type SubProg = [SubStmt]
-
-type SubObjDiv = ([SubDecl], [SubConstr])
-
--- | 'SubOut' is the output of the Substance compuler, comprised of:
--- * Substance AST
--- * (Variable environment (?), Substance environment)
--- * A mapping from Substance ids to their coresponding labels
-data SubOut =
-  SubOut SubProg
-         (VarEnv, SubEnv)
-         LabelMap
-
-instance Show SubOut where
-  show (SubOut subProg (subEnv, eqEnv) labelMap) =
-    "Parsed Substance program:\n" ++
-    ppShow subProg ++
-    "\nSubstance type env:\n" ++
-    ppShow subEnv ++
-    "\nSubstance dyn env:\n" ++
-    ppShow eqEnv ++ "\nLabel mappings:\n" ++ ppShow labelMap
-
-------------------------------------
--- Special data types for passing on to the style parser
--- | Declaration of Substance objects
-data SubDecl =
-  SubDeclConst T
-               Var
-  deriving (Show, Eq, Typeable)
-
--- | Declaration of Substance constaints
-data SubConstr =
-  SubConstrConst String
-                 [PredArg]
-  deriving (Show, Eq, Typeable)
-
--- | Both declarations and constaints in Substance are regarded as objects,
---   which is possible for Style to select later.
-data SubObj
-  = LD SubDecl
-  | LC SubConstr
-  deriving (Show, Eq, Typeable)
 
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.

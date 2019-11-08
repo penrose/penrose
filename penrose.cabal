@@ -73,6 +73,7 @@ library
             Penrose.API
             Penrose.Tokenizer
             Penrose.Serializer
+            Penrose.Pretty
             Penrose.ShadowMain
     autogen-modules: Penrose.SubstanceTokenizer, Paths_penrose
     buildable:       True
