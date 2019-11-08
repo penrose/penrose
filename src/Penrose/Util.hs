@@ -82,12 +82,17 @@ type Interval = (Float, Float) -- which causes type inference problems in Style 
 -- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
 -- Also apparently using Autofloat here with typeable causes problems for generality of returned StdGen.
 -- But it works fine without Typeable.
-randomsIn :: (Autofloat a) => StdGen -> Integer -> Interval -> ([a], StdGen)
+randomsIn :: (Autofloat a) => StdGen -> Int -> Interval -> ([a], StdGen)
 randomsIn g 0 _ = ([], g)
 randomsIn g n interval =
   let (x, g') = randomR interval g -- First value
       (xs, g'') = randomsIn g' (n - 1) interval -- Rest of values
   in (r2f x : xs, g'')
+
+pickOne :: [a] -> StdGen -> (a, StdGen)
+pickOne list g =
+  let (idx, g') = randomR (0, length list - 1) g
+  in (list !! idx, g')
 
 fromRight :: (Show a, Show b) => Either a b -> b
 fromRight (Left x)  = error ("Failed with error: " ++ show x)
@@ -365,10 +370,12 @@ inputsOutputStr x =
 rot90 :: Floating a => (a, a) -> (a, a)
 rot90 (x, y) = (-y, x)
 
+-- `k` is the fraction of interpolation
+lerp :: Floating a => a -> a -> a -> a
+lerp a b k = a * (1.0 - k) + b * k
+
 lerpP :: Floating a => (a, a) -> (a, a) -> a -> (a, a)
-lerpP (a, b) (c, d) k =
-  let lerpNum a b = a * (1.0 - k) + b * k
-  in (lerpNum a c, lerpNum b d)
+lerpP (a, b) (c, d) k = (lerp a c k, lerp b d k)
 
 mag :: Floating a => (a, a) -> a
 mag (a, b) = sqrt $ magsq (a, b)
@@ -393,6 +400,10 @@ map2 f (a, b) = (f a, f b)
 rotateList :: [a] -> [a]
 rotateList l = take (length l) $ drop 1 (cycle l)
 
+removeClosePts :: Autofloat a => a -> [a] -> [a]
+removeClosePts dx xs =
+  map fst $ filter (\(x0, x1) -> (x1 - x0) > dx) $ zip xs (tail xs)
+
 -- | Scale a value x in [lower, upper] linearly to x' lying in range [lower', upper'].
 -- (Allow reverse lerping, i.e. upper < lower)
 scaleLinear :: Autofloat a => a -> Pt2 a -> Pt2 a -> a
@@ -407,15 +418,15 @@ scaleLinear x (lower, upper) (lower', upper') =
 
 -- n = number of interpolation points (not counting endpoints)
 -- so with n = 1, we would have [x1, (x1+x2/2), x2]
-lerp :: Autofloat a => a -> a -> Int -> [a]
-lerp x1 x2 n =
+lerpN :: Autofloat a => a -> a -> Int -> [a]
+lerpN x1 x2 n =
   let dx = (x2 - x1) / (fromIntegral n + 1)
   in take (n + 2) $ iterate (+ dx) x1
 
 lerp2 :: Autofloat a => Pt2 a -> Pt2 a -> Int -> [Pt2 a]
 lerp2 (x1, y1) (x2, y2) n =
-  let xs = lerp x1 x2 n
-      ys = lerp y1 y2 n
+  let xs = lerpN x1 x2 n
+      ys = lerpN y1 y2 n
   in zip xs ys -- Interp both simultaneously
                             -- Interp the first, then the second
                             -- in zip xs (repeat y1) ++ zip (repeat x2) ys

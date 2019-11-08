@@ -7,6 +7,7 @@ import Rectangle from "./Rectangle";
 import Arc from "./Arc";
 import RectangleTransform from "./RectangleTransform";
 import CircleTransform from "./CircleTransform";
+import Ellipse from "./Ellipse";
 import EllipseTransform from "./EllipseTransform";
 import Square from "./Square";
 import SquareTransform from "./SquareTransform";
@@ -26,6 +27,7 @@ const componentMap = {
   "Arc": Arc,
   "RectangleTransform": RectangleTransform,
   "CircleTransform": CircleTransform,
+  "Ellipse": Ellipse,
   "EllipseTransform": EllipseTransform,
   "Polygon": Polygon,
   "Square": Square,

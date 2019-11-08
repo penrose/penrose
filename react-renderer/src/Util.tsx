@@ -5,22 +5,41 @@ import memoize from "fast-memoize";
 
 export const arrowheads = {
   "arrowhead-1": {
-    width: 12,
-    height: 12,
-    viewbox: "0 0 12 12",
-    refX: "6",
-    refY: "6", // HACK: to avoid paths from bleeding through the arrowhead
-    path: "M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
+    width: 8,
+    height: 8,
+    viewbox: "0 0 8 8",
+    refX: "4",
+    refY: "4", // HACK: to avoid paths from bleeding through the arrowhead
+    path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
   },
   "arrowhead-2": {
-    width: 30,
-    height: 14,
-    viewbox: "0 0 30 14",
-    refX: "25", // HACK: to avoid paths from bleeding through the arrowhead
-    refY: "7",
-    path: "M29.05 7 19.1 11.06 21.46 7 19.1 2.94 29.05 7z"
+    width: 9.95,
+    height: 11.06,
+    viewbox: "0 0 9.95 11.06",
+    refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
+    refY: "5.52",
+    path: "M9.95 5.52 0 11.06 2.36 5.52 0 0 9.95 5.52z"
   }
 };
+
+export const Shadow = (props: {
+  id: string 
+}) => {
+  return (
+    <filter id={props.id} x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+  	  <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+    	<feFuncA type="linear" slope="0.5"/>
+  	  </feComponentTransfer>
+      <feMerge> 
+    	<feMergeNode/>
+    	<feMergeNode in="SourceGraphic"/> 
+  	  </feMerge>
+    </filter>
+  )
+}
 
 export const Arrowhead = (props: {
   id: string;

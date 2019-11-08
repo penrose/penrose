@@ -13,26 +13,27 @@ import org.json.*;
 
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
-import edu.mit.csail.sdg.alloy4.XMLNode;
-import edu.mit.csail.sdg.alloy4compiler.ast.Command;
-import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
-import edu.mit.csail.sdg.alloy4compiler.ast.Module;
-import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Options;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
-import edu.mit.csail.sdg.alloy4compiler.translator.A4SolutionReader;
-import edu.mit.csail.sdg.alloy4compiler.translator.TranslateAlloyToKodkod;
+import edu.mit.csail.sdg.ast.Command;
+import edu.mit.csail.sdg.ast.Expr;
+import edu.mit.csail.sdg.ast.Module;
+import edu.mit.csail.sdg.parser.CompUtil;
+import edu.mit.csail.sdg.translator.A4Options;
+import edu.mit.csail.sdg.translator.A4Solution;
+import edu.mit.csail.sdg.translator.A4Tuple;
+import edu.mit.csail.sdg.translator.A4TupleSet;
+import edu.mit.csail.sdg.translator.A4SolutionReader;
+import edu.mit.csail.sdg.translator.TranslateAlloyToKodkod;
 
 
 /**
  * @author: Wode "Nimo" Ni
  * @version: 02/20/2019
+ * This plugin takes in a Substance program in the set theory or functions domain, translates it into an Alloy program, invoke Alloy to solve for an instance, and parse the instance back into Substance code. For each `Map`, the plugin declares non-empty signatures for the domain and codomain and a relation between them in the body of the signature for the domain. For each of the predicates on a certain function, the plugin generates a corresponding "fact" in Alloy terms, which is a logical statement about a relations. 
  * NOTE: to bulld the plugin, run `make`; to run it, run `java -cp ".:alloy4.2.jar" AlloyPlugin <input-file-name>`
  * NOTE: this plugin requires Java 1.6. On Mac OS Sierra and above, please install "https://support.apple.com/kb/DL1572?locale=en_US"
  */
 
+@SuppressWarnings( "deprecation" )
 public class AlloyPlugin {
 
     private Random rnd;
@@ -41,6 +42,7 @@ public class AlloyPlugin {
     private int numInstances; // number of total instances generated to be picked at random
     private int maxPts;
     private Map<String, String[]> functions;
+    private Map<String, Boolean> truthValues;
     private List<String> surjections, injections, bijections;
 
     public AlloyPlugin(int numInstances, int maxPts) {
@@ -53,15 +55,26 @@ public class AlloyPlugin {
         this.surjections  = new ArrayList<String>();
         this.injections   = new ArrayList<String>();
         this.bijections   = new ArrayList<String>();
+        this.truthValues  = new HashMap<String, Boolean>();
     }
 
     public String mkInjection(String f, String domain) {
         // all a1,a2 : A | a1.f = a2.f implies a1 = a2
-        return "all a1, a2: " + domain + " | a1." + f + " = a2." + f + " implies a1 = a2\n";
+        String def = "all a1, a2: " + domain + " | a1." + f + " = a2." + f + " implies a1 = a2";
+        if(this.truthValues.get("OneToOne" + f)) {
+            return def + "\n";
+        } else {
+            return "not(" + def + ")\n";
+        }
     }
     public String mkSurjection(String f, String domain, String codomain) {
         // all b : B | some a : A | a.f = b
-        return "all b : " + codomain + " | some a : " + domain + " | a." + f + " = b\n";
+        String def = "all b : " + codomain + " | some a : " + domain + " | a." + f + " = b";
+        if(this.truthValues.get("Onto" + f)) {
+            return def + "\n";
+        } else {
+            return "not(" + def + ")\n";
+        }
     }
 
     public void genFacts() {
@@ -99,9 +112,10 @@ public class AlloyPlugin {
     }
 
     public void mkFunction(String f, String domain, String codomain) {
-        // sig A { f : B }
-        String sig1 = "sig " + codomain + " {  }\n";
-        String sig2 = "sig " + domain + " { " + f + " : " + codomain + " }\n";
+        // some sig A { f : B } 
+        // `some` for non-empty: http://alloytools.org/tutorials/day-course/s2_language.pdf
+        String sig1 = "some sig " + codomain + " {  }\n";
+        String sig2 = "some sig " + domain + " { " + f + " : " + codomain + " }\n";
         this.alloyProg.append(sig1);
         this.alloyProg.append(sig2);
         String[] args = {domain, codomain};
@@ -141,7 +155,7 @@ public class AlloyPlugin {
         for(A4Tuple t : tups) {
             String id = t.atom(0).replace('$', '_');
             res += "Point " + id + "\n";
-            res += "PointIn(" + set + ", " + id + ")\n";
+            res += "In(" + id + ", " + set + ")\n";
         }
         return res;
     }
@@ -174,11 +188,7 @@ public class AlloyPlugin {
                 // System.out.println(sol.toString());
                 // sol.writeXML("bijection.xml");
                 String curSolStr = "";
-                List<String> targets = new ArrayList<String>();
-                targets.addAll(surjections);
-                targets.addAll(injections);
-                targets.addAll(bijections);
-                for(String f : targets) {
+                for(String f : this.functions.keySet()) {
                     String[] sets = this.functions.get(f);
                     String domain = sets[0]; String codomain = sets[1];
                     curSolStr += translateSet(domain, world, sol);
@@ -202,23 +212,50 @@ public class AlloyPlugin {
     }
 
     public void processJSON(JSONObject json) {
+        List<String> defs = Arrays.asList( "Onto", "OneToOne", "Bijection" );
         // process predicates
         for(Object o : json.getJSONObject("constraints").getJSONArray("predicates")) {
             JSONObject obj = (JSONObject) o;
-            JSONArray arr = obj.getJSONArray("pargNames");
-            if(obj.getString("pname").equals("From")) {
-                this.mkFunction(arr.getString(0), arr.getString(1), arr.getString(2));
-            } else if(obj.getString("pname").equals("Surjection")) {
-                this.surjections.add(arr.getString(0));
-            } else if(obj.getString("pname").equals("Injection")) {
-                this.injections.add(arr.getString(0));
-            } else if(obj.getString("pname").equals("Bijection")) {
-                this.bijections.add(arr.getString(0));
+            JSONArray arr = obj.getJSONArray("pargs");
+            String name = obj.getString("pname");
+            if(name.equals("From")) {
+                this.mkFunction(idArg(arr.get(0)), idArg(arr.get(1)), idArg(arr.get(2)));
+            } else if(defs.contains(name)) {
+                this.processDef(name, arr);
+            } else if(name.equals("Not")) {
+                JSONObject def = nestedPred(arr.getJSONObject(0));
+                String type = def.getString("pname");
+                String f = processDef(type, def.getJSONArray("pargs"));
+                this.truthValues.put(type + f, false);
             }
         }
 
+        System.out.println(this.truthValues.toString());
+
         // Post-processing
         this.genFacts();
+    }
+
+    public String idArg(Object o) {
+        JSONObject obj = (JSONObject) o;
+        return obj.getString("Left");
+    }
+    public JSONObject nestedPred(Object o) {
+        JSONObject obj = (JSONObject) o;
+        return obj.getJSONObject("Right");
+    }
+
+    public String processDef(String type, JSONArray arr) {
+        String name = idArg(arr.getJSONObject(0));
+        if(type.equals("Onto")) {
+            this.surjections.add(name);
+        } else if(type.equals("OneToOne")) {
+            this.injections.add(name);
+        } else if(type.equals("Bijection")) {
+            this.bijections.add(name);
+        } 
+        this.truthValues.put(type + name, true);
+        return name;
     }
 
     public static void main(String[] args) throws Exception {

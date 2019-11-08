@@ -95,7 +95,7 @@ data ValueType
 -- | fully evaluated values in Style
 data Value a
   = FloatV a -- ^ floating point number
-  | IntV Integer -- ^ integer
+  | IntV Int -- ^ integer
   | BoolV Bool -- ^ boolean value
   | StrV String -- ^ string literal
   | PtV (Pt2 a) -- ^ point in R^2
@@ -322,9 +322,8 @@ type ComputedValue a = ([Property], [Value a] -> Value a)
 computedProperties ::
      (Autofloat a) => M.Map (ShapeTypeStr, Property) (ComputedValue a)
 computedProperties =
-  M.fromList
-    [ 
-    --   (("RectangleTransform", "transformation"), rectTransformFn)
+  M.fromList [ -- TODO: makes things really alow
+    -- (("RectangleTransform", "transformation"), rectTransformFn)
     -- , (("CircleTransform", "transformation"), circTransformFn)
     -- , (("Polygon", "transformation"), polygonTransformFn)
     -- , (("CurveTransform", "transformation"), polygonTransformFn)
@@ -346,8 +345,7 @@ computedProperties =
     -- , (("EllipseTransform", "polygon"), ellipsePolygonFn)
     -- , (("ParallelogramTransform", "polygon"), parallelogramPolygonFn)
     -- , (("TextTransform", "polygon"), textPolygonFn)
-
-      (("Text", "polygon"), textPolygonFn2)
+    (("Text", "polygon"), textPolygonFn2)
     , (("Curve", "polygon"), curvePolygonFn2)
     ]
 
@@ -659,9 +657,8 @@ sampleColor rng =
       (r, rng1) = randomR interval rng
       (g, rng2) = randomR interval rng1
       (b, rng3) = randomR interval rng2
-  in (ColorV $ makeColor r g b 0.5, rng3)
-        -- (a, rng4)  = randomR (0.3, 0.7) rng3
-    -- in (ColorV $ makeColor r g b a, rng4)
+      a = 0.5
+  in (ColorV $ makeColor r g b a, rng3)
 
 -- | Samples all properties of input shapes
 sampleShapes :: (Autofloat a) => StdGen -> [Shape a] -> ([Shape a], StdGen)
@@ -753,9 +750,10 @@ ellipseType =
       , ("rx", (FloatT, width_sampler))
       , ("ry", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
-      , ("stroke-width", (FloatT, stroke_sampler))
+      , ("strokeWidth", (FloatT, stroke_sampler))
       , ("style", (StrT, sampleDiscrete [StrV "filled"]))
-      , ("stroke-style", (StrT, stroke_style_sampler))
+      , ("strokeColor", (ColorT, sampleColor))
+      , ("strokeStyle", (StrT, stroke_style_sampler))
       , ("color", (ColorT, sampleColor))
       , ("name", (StrT, constValue $ StrV "defaultEllipse"))
       ])
@@ -823,6 +821,7 @@ curveType =
       , ("pathData", (PathDataT, constValue $ PathDataV [])) -- TODO: sample path
       , ("strokeWidth", (FloatT, stroke_sampler))
       , ("style", (StrT, constValue $ StrV "solid"))
+      , ("effect", (StrT, constValue $ StrV "none"))
       , ("fill", (ColorT, sampleColor)) -- for no fill, set opacity to 0
       , ("color", (ColorT, sampleColor))
       , ("leftArrowhead", (BoolT, constValue $ BoolV False))
@@ -1590,33 +1589,34 @@ polygonize maxIter = map go
   where
     go (Closed path) =
        case path of
-       -- A closed path is equivalent to the same open path, ending at the head point (TODO: check that this makes sense)
-       ((Pt e):_) -> go (Open $ path ++ [Pt e])
+       -- HACK: A closed path is equivalent to the same open path, ending at the head point (TODO: check that this makes sense)
+       Pt e:_ -> go (Open $ path ++ [Pt e])
        _ -> error "unimplemented: polygonizing a closed path that doesn't start with a point"
     go (Open path)   = concatMap (polyCubicBez 0 maxIter) $ expandCurves path
 
 type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
 
-expandCurves :: Autofloat a => [Elem a] -> [CubicBezCoeffs a]
+-- | Expand composite bezier curve and skip polyline segments
+expandCurves :: Autofloat a => [Elem a] -> [Either (CubicBezCoeffs a) [Pt2 a]] 
 expandCurves elems = zipWith attach elems $ tail elems
   where
-    attach :: Autofloat a => Elem a -> Elem a -> (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
-    attach (Pt a) (CubicBez (b, c, d))               = (a, b, c, d)
-    attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
+    attach (Pt a) (CubicBez (b, c, d))               = Left (a, b, c, d)
+    attach (Pt a) (Pt b)                             = Right [a, b]
+    attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = Left (a, b, c, d)
+    attach (CubicBez (_, _, a)) (Pt b) = Right [a, b]
     attach x y = error ("Can't attach: " ++ show x ++ ", " ++ show y)
 
 -- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
-polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
-polyCubicBez count maxCount curve@(a, b, c, d) =
-  if (tr "count" count) >= maxCount
+-- NOTE: if the input is an already polygonize segment, do nothing.
+polyCubicBez :: Autofloat a => Int -> Int -> Either (CubicBezCoeffs a) [Pt2 a] -> [Pt2 a]
+polyCubicBez count maxCount (Left (a, b, c, d)) =
+  if count >= maxCount
     then [a, b, c, d]
-    else concatMapTuple (polyCubicBez (count + 1) maxCount) $
-         divideCubicBezier curve
+    else concatMapTuple (polyCubicBez (count + 1) maxCount . Left) $
+         divideCubicBezier (a, b, c, d)
   where
     concatMapTuple f (a1, a2) = f a1 ++ f a2
-
-isFlat :: Autofloat a => CubicBezCoeffs a -> Bool
-isFlat (a, b, c, d) = True
+polyCubicBez count maxCount (Right pts) = pts
 
 divideCubicBezier ::
      Autofloat a => CubicBezCoeffs a -> (CubicBezCoeffs a, CubicBezCoeffs a)

@@ -4,11 +4,16 @@
 
 -- Global constants and sizes
 const {
-  const.vectorSpaceSize = 300.0
-  const.vectorSpaceGap = 150.0
-  const.axisSize = const.vectorSpaceSize * 0.4
+  const.vectorSpaceSize = 400.0
+  const.axisSize = const.vectorSpaceSize * 0.45
   const.distVectorSpaces = 50.0
   const.scaleRatio = 200.0
+  const.fontSize = "14pt"
+  const.lightenFrac = 0.5
+  const.arrowThickness = 3.0
+  const.arrowThickness2 = 2.0
+  const.arrowheadSize = 0.5
+  const.repelWeight = 0.7
 }
 
 -- Global RGB colors in common use
@@ -42,11 +47,39 @@ VectorSpace U {
     U.axisColor = Colors.darkGray
 
     U.shape = Square {
+	x : 0.0
+	y : 0.0
         side : const.vectorSpaceSize
         color : Colors.lightBlue
     }
 
-    U.xAxis = Arrow {
+    U.left = U.shape.x + (U.shape.side/2.0)
+    U.right = U.shape.x - (U.shape.side/2.0)
+
+    -- U.textX = Text {
+    --     string : "x"
+    --     color : Colors.darkGray
+    --     fontSize : const.fontSize
+    -- }
+
+    -- U.textY = Text {
+    --     string : "y"
+    --     color : Colors.darkGray
+    --     fontSize : const.fontSize
+    -- }
+
+    /*
+    U.perpMark = Arc {
+        x : U.shape.x
+        y : U.shape.y
+        size : 10
+        rotation : 0
+        isRight : "true"
+        color : Colors.black
+    }
+    */
+
+    U.xAxis = Line {
         startX : U.shape.x - const.axisSize
         startY : U.shape.y
         endX : U.shape.x + const.axisSize
@@ -55,7 +88,7 @@ VectorSpace U {
         color : U.axisColor
     }
 
-    U.yAxis = Arrow {
+    U.yAxis = Line {
         startX : U.shape.x
         startY : U.shape.y - const.axisSize
         endX : U.shape.x
@@ -69,31 +102,8 @@ VectorSpace U {
         x : U.shape.x - const.axisSize
         y : U.shape.y + const.axisSize
         color : U.axisColor
+        fontSize : const.fontSize
     }
-
-    U.textX = Text {
-        string : "x"
-        color : Colors.darkGray
-        x : U.xAxis.endX
-        y : U.xAxis.endY
-    }
-
-    U.textY = Text {
-        string : "y"
-        color : Colors.darkGray
-        x : U.yAxis.endX + 10.0
-        y : U.yAxis.endY
-    }
-
-    U.perpMark = Square {
-        x : U.shape.x + 5.0
-        y : U.shape.y + 5.0
-        side : 10.0
-        color : Colors.white
-    }
-
-    --U.xLabelLocation = ensure nearHead(U.xAxis, U.textX, 20.0, 0.0)
-    --U.yLabelLocation = ensure nearHead(U.yAxis, U.textY, 0.0, 20.0)
 }
 
 -- TODO: generates too many constraints?
@@ -109,52 +119,86 @@ VectorSpace U; VectorSpace V {
 Vector v
 with VectorSpace U
 where In(v,U) {
-   v.containFn = ensure contains(U.shape, v.shape)
-   v.containLabel = ensure contains(U.shape, v.text)
-   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0 , 10.0)
-
   v.text = Text {
     string : v.label
     color : v.shape.color
+    fontSize : const.fontSize
   }
+
+  v.color = sampleColor(1.0) -- Full opacity to hide arrowhead layering
+
+  v.pad1 = ?
+  v.pad2 = ?
 
   v.shape = Arrow {
     startX : U.shape.x
     startY : U.shape.y
-    -- endX : v.endXTest / const.scaleRatio
-    -- endY : v.endYTest / const.scaleRatio
-    thickness : 2.0
+    -- endX : ?
+    -- endY : ?
+    -- So the labels can be optimized separately
+    endX : sampleNum(U.left, U.right) + v.pad1
+    endY : sampleNum(U.left, U.right) + v.pad2
+
+    thickness : const.arrowThickness
+    color : v.color
+    arrowheadSize : const.arrowheadSize
   }
+
+  -- v.shape1 = Line {
+  --   startX : U.shape.x
+  --   startY : U.shape.y
+  --   endX : v.shape.endX
+  --   endY : v.shape.endY
+  --   thickness : 5.0
+  --   color : setOpacity(v.color, 0.5)
+  -- }
 
    v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
    v.angle = angle(v.vector)
 
   v.layeringText1 = v.text above U.xAxis
   v.layeringText2 = v.text above U.yAxis
+
+   v.containFn = ensure contains(U.shape, v.shape)
+   v.containLabel = ensure contains(U.shape, v.text)
+   -- NOTE: nearHead is actually an objective. Use the other constraint form?
+   v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
+   v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
+
+   -- TODO: repel only if it overlaps? (Do a bbox check before doing the expensive sample + sum operation)
+   v.labelAvoidAxisFn1 = encourage repel(U.xAxis, v.text, const.repelWeight)
+   v.labelAvoidAxisFn2 = encourage repel(U.yAxis, v.text, const.repelWeight)
+   v.labelAvoidAxisText = encourage repel(U.text, v.text, const.repelWeight)
 }
 
 Vector u
 with Vector v; VectorSpace U
 where u := neg(v); In(v,U); In(u, U) {
-  u.shape.endX = 2.0 * v.shape.startX - v.shape.endX
-  u.shape.endY = 2.0 * v.shape.startY - v.shape.endY
+  override u.shape.endX = 2.0 * v.shape.startX - v.shape.endX
+  override u.shape.endY = 2.0 * v.shape.startY - v.shape.endY
 }
 
 Vector u
 with Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
-   u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
-   u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
+   override u.shape.endX = v.shape.endX + w.shape.endX - U.shape.x
+   override u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
+   override u.shape.color = blendColor(v.shape.color, w.shape.color)
 
+   -- TODO: Arrow shape has a length slightly longer than the line's ending position
+   -- I'm not sure how to scale the arrow to deal with arrowhead size either
+
+   -- TODO: fix this opacity too -- lighter color
     u.slider_v = Arrow {
         endX : u.shape.endX
         endY : u.shape.endY
 
         startX : w.shape.endX
         startY : w.shape.endY
-        thickness : 1.5
-        color : setOpacity(v.shape.color, 0.5)
+        thickness : const.arrowThickness2
+        color : scaleColor(v.color, const.lightenFrac)
         style : "dashed"
+        arrowheadSize : const.arrowheadSize
     }
 
     u.slider_w = Arrow {
@@ -163,10 +207,14 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 
        startX : v.shape.endX
        startY : v.shape.endY
-       thickness : 1.5
-       color : setOpacity(w.shape.color, 0.5)
+       thickness : const.arrowThickness2
+        color : scaleColor(w.color, const.lightenFrac)
        style : "dashed"
+       arrowheadSize : const.arrowheadSize
     }
+
+    u.sw_layering = u.slider_w below u.shape
+    u.sv_layering = u.slider_v below u.shape
 }
 
 LinearMap f
@@ -196,6 +244,7 @@ where From(f,U,V) {
      x : (U.shape.x + V.shape.x) / 2.0
      y : U.shape.y + 50.0
      color : f.shape.color
+     fontSize : const.fontSize
    }
 
    -- define an actual linear map f(x,y) = ax + by
@@ -237,6 +286,7 @@ where c := determinant(a,b); In(a,U); In(b,U) {
      x : (a.shape.endX + b.shape.endX - a.shape.startX) / 2.0
      y : (a.shape.endY + b.shape.endY - a.shape.startY) / 2.0
      color : Colors.sky
+     fontSize : const.fontSize
    }
 
    c.layering = c.text above c.shape
@@ -295,6 +345,7 @@ where c := norm(a); In(a,U) {
         x : c.padding + midpointX(c.shape) 
         y : c.padding + midpointY(c.shape) 
         color : c.shape.color
+        fontSize : const.fontSize
    }
 }
 
@@ -353,27 +404,13 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       LOCAL.layering2 = u.shape above LOCAL.shape
 }
 
-/*Vector x, Vector y
-with LinearMap L
-where From(L,x,y) {
-   y.shape.color = x.shape.color
-}*/
+-- No label overlaps with any other label, vector, slider vector, or axis line. (This doesn't match the same vector twice, right?)
+Vector u; Vector v {
+       -- NOTE: This matches (u,v) and (v,u), generating double objectives
 
-/* For vectors that are mapped from one vector space to another,
-actually define the target geometry by applying a linear
-map to the input geometry.  This map is given by the two (column)
-vectors L.c0, L.c1, which together make a matrix.*/
-Vector y
-with Vector x; VectorSpace X; VectorSpace Y; LinearMap L
-where In(x,X); In(y,Y); From(L,X,Y); y := apply(L,x) {
+       -- TODO: this doesn't quite work b/c it doesn't account for the thickness of the label
 
-   -- apply the linear map
-   y.shape.endX = dot( L.c0, x.vector ) + Y.shape.x
-   y.shape.endY = dot( L.c1, x.vector ) + Y.shape.y
-
-   -- update the 
-   y.vector = (y.shape.endX - y.shape.startX, y.shape.end - y.shape.startY)
-
-   -- also inherit the color
-   y.shape.color = x.shape.color
+       -- TODO: this currently makes diagrams too symmetrical. Maybe do a second labeling pass?
+       LOCAL.labelAvoidSegFn = encourage repel(v.shape, u.text, const.repelWeight)
+      LOCAL.labelAvoidTextFn = encourage repel(v.text, u.text, const.repelWeight)
 }

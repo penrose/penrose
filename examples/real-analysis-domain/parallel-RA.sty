@@ -127,7 +127,7 @@ with Reals R { -- TODO: more general, with Interval J
     color : I.shape.color
   }
 
-  I.wfFn = ensure lessThan(I.left, I.right)
+  I.wfFn = ensure lessThanSq(I.left, I.right)
   I.liFn = ensure inRange(I.left, R.left, R.right)
   I.riFn = ensure inRange(I.right, R.left, R.right)
 
@@ -310,7 +310,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
       -- delete y.labelFn
       delete I.riFn
 
-      override I.wfFn = ensure lessThan(x.val, I.right)
+      override I.wfFn = ensure lessThanSq(x.val, I.right)
       override x.text.color = I.shape.color
 }
 

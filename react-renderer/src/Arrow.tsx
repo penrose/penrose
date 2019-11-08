@@ -22,13 +22,14 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
     const arrowheadSize = shape.arrowheadSize.contents;
     const arrowHeadId = "arrowhead_" + shape.name.contents;
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
+    const strokeWidth = shape.thickness.contents;
 
-    // HACK: fix arrow position
-    const { width, height } = arrowheads[arrowheadStyle];
+    // HACK: scale path down a bit to accommodate arrow length
+    const { width, refX } = arrowheads[arrowheadStyle];
     const slope = Math.atan2(ey - sy, ex - sx);
     const [offsetX, offsetY] = [
-      (Math.cos(slope) * width) / 2,
-      (Math.sin(slope) * height) / 2
+      Math.cos(slope) * (width - refX) * strokeWidth * arrowheadSize,
+      Math.sin(slope) * (width - refX) * strokeWidth * arrowheadSize
     ];
 
     return (
@@ -41,12 +42,14 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
           size={arrowheadSize}
         />
         <path
-          d={`M${sx} ${sy} L${ex - offsetX} ${ey - offsetY}`}
+          d={`M${sx} ${sy} L${
+            Math.abs(offsetX) < Math.abs(ex - sx) ? ex - offsetX : ex
+          } ${Math.abs(offsetY) < Math.abs(ey - sy) ? ey - offsetY : ey}`}
           fill={color}
           stroke={color}
           fillOpacity={alpha}
           strokeOpacity={alpha}
-          strokeWidth={shape.thickness.contents}
+          strokeWidth={strokeWidth}
           strokeDasharray={strokeDasharray}
           markerEnd={`url(#${arrowHeadId})`}
         />

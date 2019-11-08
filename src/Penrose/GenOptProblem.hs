@@ -1077,10 +1077,12 @@ castTranslation t =
     
         castValue :: Value Double -> (forall a . Autofloat a => Value a)
         castValue v = 
-                let res = case v of
+                let castPtList = map (app2 r2f)
+                    castPolys  = map castPtList
+                    res = case v of
                           FloatV x -> FloatV (r2f x)
                           PtV (x, y) -> PtV (r2f x, r2f y)
-                          PtListV pts -> PtListV $ map (app2 r2f) pts
+                          PtListV pts -> PtListV $ castPtList pts
                           PathDataV d -> PathDataV $ map castPath d
                           -- More boilerplate not involving floats
                           IntV x -> IntV x
@@ -1089,6 +1091,7 @@ castTranslation t =
                           FileV x -> FileV x
                           StyleV x -> StyleV x
                           ColorV (RGBA r g b a) -> ColorV $ RGBA (r2f r) (r2f g) (r2f b) (r2f a)
+                          PolygonV (pos, neg, (p1, p2), samples) -> PolygonV (castPolys pos, castPolys neg, (app2 r2f p1, app2 r2f p2), castPtList samples)
                 in res
 
         castPath :: Path' Double -> (forall a . Autofloat a => Path' a)

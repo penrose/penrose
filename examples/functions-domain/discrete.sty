@@ -1,0 +1,158 @@
+plugin "alloy"
+
+G {
+  G.textTopOffset = 30.0
+  G.textBottomOffset = 30.0
+  G.pointOffset = 10.0
+  G.arrowOffset = 20.0
+  G.fontSize = "22pt"
+  G.domainPointSize = 8.0
+}
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+}
+
+Set x {
+    x.shape = Ellipse {
+        strokeWidth : 2.0
+        strokeColor : Colors.gray
+        strokeStyle : "solid"
+        ry: 1.5 * x.shape.rx
+        color: Colors.none
+    }
+
+    x.shading = Image {
+        path : "ellipse-shading.svg"
+        x: x.shape.x
+        y: x.shape.y
+        w: x.shape.rx * 2.0
+        h : x.shape.ry * 2.0
+    }
+
+    LOCAL.shadingLayering = x.shading below x.shape
+
+    x.shadow = Image {
+        path : "ellipse-shadow.svg"
+        x: x.shape.x - 0.1 * x.shape.rx
+        y: x.shape.y - 0.1 * x.shape.ry
+        w : x.shape.rx * 2.0
+        h : x.shape.ry * 2.0
+    }
+    LOCAL.shadowLayering = x.shadow below x.shading
+
+    x.text = Text {
+      string : x.label
+      x : x.shape.x
+      y : x.shape.y + x.shape.ry + G.textTopOffset
+      fontSize : G.fontSize
+      color : x.shape.color
+    }
+
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
+    x.visibleFn = ensure onCanvas(x.shape)
+    LOCAL.layering  = x.shape below x.text
+}
+
+Point p
+with Set A
+where In(p, A) {
+    p.shape = Circle {
+        strokeWidth : 2.5
+        strokeColor : Colors.black
+        color : Colors.black
+        r : 10.0
+        x : A.shape.x
+    }
+
+    p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.ry)
+    p.layering   = p.shape above A.shape
+}
+
+Map f
+with Set A; Set B
+where From(f, A, B) {
+    B.shape.x = A.shape.rx * 3.5 + A.shape.x
+    B.shape.y = A.shape.y
+    B.shape.rx = A.shape.rx
+
+    f.text = Text {
+        string : f.label
+        x : average(A.shape.x, B.shape.x)
+        y : A.shape.y - A.shape.ry - G.textBottomOffset
+        fontSize : G.fontSize
+    }
+}
+
+Point p; Point q
+with Map f
+where PairIn(p, q, f) {
+    LOCAL.mapPaddingY = ?
+
+    q.inverseColor = sampleColor(1.0)
+    -- This will get overridden if multiple `p` map to a `q`, but only the final color will be used for all `p`
+
+    p.mapShape = Arrow {
+        startX : p.shape.x + G.arrowOffset
+        startY : p.shape.y
+        endX   : q.shape.x - G.arrowOffset
+        endY   : q.shape.y + LOCAL.mapPaddingY
+        thickness : 4.0
+        arrowheadSize : 0.6
+        color  : q.inverseColor
+        -- TODO: Might be easier to distinguish between the arrows if they were different colors, but can't sample solid colors
+    }
+
+    override q.shape.color = q.inverseColor
+    override p.shape.r = q.shape.r * 0.7
+
+    -- Try to get the arrowheads to point at the right mapped point
+    LOCAL.equalFn = encourage equal(p.mapShape.endY, q.shape.y)
+
+    p.arrowLayering1 = p.mapShape above p.shape
+    p.arrowLayering2 = p.mapShape above q.shape
+}
+
+Point p1; Point p2; Point q
+with Map f
+where PairIn(p1, q, f); PairIn(p2, q, f) {
+   override p1.mapShape.color = q.inverseColor
+   override p2.mapShape.color = q.inverseColor
+
+   -- If two points map to the same point, try to make sure no arrowheads overlap (have the y-positions repel each other)
+   LOCAL.arrowRepelFn = encourage repel(p1.mapShape.endY, p2.mapShape.endY, 0.001)
+}
+
+Point p; Point q
+with Set A
+where In(p, A); In(q, A) {
+    LOCAL.repelFn = encourage repel(p.shape, q.shape, 0.001)
+    LOCAL.sameXFn = encourage equal(p.shape.x, q.shape.x)
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Onto(f); Not(OneToOne(f)) {
+      override f.text.string = "\\textbf{surjection}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Not(Onto(f)); OneToOne(f) {
+      override f.text.string = "\\textbf{injection}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Not(Onto(f)); Not(OneToOne(f)) {
+      override f.text.string = "\\textbf{general}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Onto(f); OneToOne(f) {
+      override f.text.string = "\\textbf{bijection}"
+}

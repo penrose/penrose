@@ -1,5 +1,5 @@
 import * as React from "react";
-import { toScreen, toHex, Arrowhead } from "./Util";
+import { toScreen, toHex, Arrowhead, Shadow } from "./Util";
 import { flatten } from "lodash";
 import { IGPIPropsDraggable } from "./types";
 import draggable from "./Draggable";
@@ -75,6 +75,7 @@ class Curve extends React.Component<IGPIPropsDraggable> {
 
     const leftArrowId = shape.name.contents + "-leftArrowhead";
     const rightArrowId = shape.name.contents + "-rightArrowhead";
+    const shadowId = shape.name.contents + "-shadow";
     // TODO: distinguish between fill opacity and stroke opacity
 
     return (
@@ -93,6 +94,7 @@ class Curve extends React.Component<IGPIPropsDraggable> {
           style={arrowheadStyle}
           size={arrowheadSize}
         />
+        <Shadow id={shadowId}/>>
         <path
           stroke={strokeColor}
           fill={fillColor}
@@ -108,6 +110,11 @@ class Curve extends React.Component<IGPIPropsDraggable> {
             shape.rightArrowhead.contents === true
               ? `url(#${rightArrowId})`
               : ""
+          }
+          filter={
+            shape.effect.contents === "dropShadow" 
+            ? `url(#${shadowId})`
+            : ""
           }
         >
           <title>{shape.name.contents}</title>
