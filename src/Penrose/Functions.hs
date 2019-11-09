@@ -1033,9 +1033,16 @@ setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] =
   Val $ ColorV (RGBA r g b (r2f frac * a))
 
 sampleColor' :: CompFn
-sampleColor' [Val (FloatV a)] g = 
-             let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
-             in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
+sampleColor' [Val (FloatV a), Val (StrV colorType)] g = 
+             if colorType == "rgb" then
+                 let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
+                 in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
+             else if colorType == "hsv" then
+                 let (h, g') = randomR (0, 360) g
+                     s = 100
+                     v = 80
+                 in (Val $ ColorV $ HSVA h s v (r2f a), g')
+             else error ("invalid color string: " ++ colorType)
 
 sampleNum' :: CompFn
 sampleNum' [Val (FloatV x), Val (FloatV y)] g = -- Sample in range
