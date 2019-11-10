@@ -153,16 +153,13 @@ export const hsvToRGB = (hsv: [number, number, number]): [number, number, number
 }
 
 export const toHex = (color: any): string => {
-    console.log("color", color);
     if (color.tag === "RGBA") {
 	const rgba = color.contents;
 	return toHexRGB(rgba.slice(0, 3));
     } else if (color.tag === "HSVA") {
-	console.log("HSVA", color);
 	const hsv = color.contents.slice(0, 3);
 	console.log("HSV", hsv);
 	const rgb = hsvToRGB(hsv);
-	console.log("RGB", rgb);
 	return toHexRGB(rgb);
     } else {
 	console.error("color type", color.tag, "unimplemented");
