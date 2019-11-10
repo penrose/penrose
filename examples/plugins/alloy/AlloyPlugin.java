@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.io.*;
 import org.json.*;
@@ -165,7 +166,7 @@ public class AlloyPlugin {
         A4Reporter rep = new A4Reporter();
         ArrayList<String> solStrings = new ArrayList<String>();
 
-        String tempFilename = "__temp.als__";
+        String tempFilename = "temp.als";
         PrintWriter out = new PrintWriter(tempFilename);
         out.println(this.getAlloyProg());
         out.close();
@@ -191,6 +192,7 @@ public class AlloyPlugin {
                 for(String f : this.functions.keySet()) {
                     String[] sets = this.functions.get(f);
                     String domain = sets[0]; String codomain = sets[1];
+                    Set<String> imgPoints = new HashSet<String>();
                     curSolStr += translateSet(domain, world, sol);
                     curSolStr += translateSet(codomain, world, sol);
                     Expr e = CompUtil.parseOneExpression_fromString(world, f);
@@ -201,7 +203,12 @@ public class AlloyPlugin {
                         String p = t.atom(0).replace('$', '_');
                         String q = t.atom(1).replace('$', '_');
                         curSolStr += ("PairIn(" + p + ", " + q + ", " + f + ")\n");
+                        imgPoints.add(q);
                     }
+                    // add unique predicates for each point in the image
+                    for(String p : imgPoints) {
+                        curSolStr += ("InImage(" + p + ", " + f + ")\n");
+                    };
                 }
                 solStrings.add(curSolStr);
                 sol = sol.next();
