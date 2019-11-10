@@ -133,28 +133,12 @@ where PairIn(p1, q, f); PairIn(p2, q, f) {
    LOCAL.arrowRepelFn = encourage repel(p1.mapShape.endY, p2.mapShape.endY, 0.001)
 }
 
-Point q1; Point q2 -- All points in codomain that get mapped to
-with Point p1; Map f; Point p2 -- Do we know if p1=p2?
-where PairIn(p1, q1, f); PairIn(p2, q2, f) {
-    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle") -- Uses closest distance
-
-    -- TODO: a point in the codomain will get matched more often (and hence receive extra repel objectives) if multiple points map to it
-    -- however, the opt seems to work fine because this just multiplies the fn by a constant
-    -- For example, a set of matches might look like this if `b` gets mapped to twice
-    -- (a,b), (a,b), 
-    -- (b,a), (b,a), 
-    -- (b,d), (b,d), 
-    -- (d,b), (d,b),
-    -- (a,d), 
-    -- (d,a), 
+-- Pairwise repel between the hue of each color in the image of the function
+Point q1; Point q2
+with Map f
+where InImage(q1, f); InImage(q2, f) {
+    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle")
 }
-
--- ISSUE #289: Ideally, the selector looks like this:
--- Point q1; Point q2
--- with Map f
--- where InImage(q1, f); InImage(q2, f) {
---     LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle")
--- }
 
 Point p; Point q
 with Set A
