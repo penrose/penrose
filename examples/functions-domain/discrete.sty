@@ -7,6 +7,8 @@ G {
   G.arrowOffset = 20.0
   G.fontSize = "22pt"
   G.domainPointSize = 8.0
+  G.pointRadius = 7.0
+  G.pointRadiusLarge = G.pointRadius * 1.4
 }
 
 Colors {
@@ -64,7 +66,7 @@ where In(p, A) {
         strokeWidth : 2.5
         strokeColor : Colors.black
         color : Colors.black
-        r : 7.0
+        r : G.pointRadius
         x : A.shape.x
     }
 
@@ -109,7 +111,10 @@ where PairIn(p, q, f) {
     }
 
     override q.shape.color = q.inverseColor
-    override q.shape.r = p.shape.r * 1.4
+    override q.shape.r = G.pointRadiusLarge
+
+    override p.shape.color = q.inverseColor
+    override p.shape.r = G.pointRadiusLarge
 
     -- Try to get the arrowheads to point at the right mapped point
     LOCAL.equalFn = encourage equal(p.mapShape.endY, q.shape.y)
@@ -131,7 +136,8 @@ where PairIn(p1, q, f); PairIn(p2, q, f) {
 Point q1; Point q2 -- All points in codomain that get mapped to
 with Point p1; Map f; Point p2 -- Do we know if p1=p2?
 where PairIn(p1, q1, f); PairIn(p2, q2, f) {
-    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle") -- Uses closest distance between angles
+    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle") -- Uses closest distance
+
     -- TODO: a point in the codomain will get matched more often (and hence receive extra repel objectives) if multiple points map to it
     -- however, the opt seems to work fine because this just multiplies the fn by a constant
     -- For example, a set of matches might look like this if `b` gets mapped to twice
@@ -142,6 +148,13 @@ where PairIn(p1, q1, f); PairIn(p2, q2, f) {
     -- (a,d), 
     -- (d,a), 
 }
+
+-- ISSUE #289: Ideally, the selector looks like this:
+-- Point q1; Point q2
+-- with Map f
+-- where InImage(q1, f); InImage(q2, f) {
+--     LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle")
+-- }
 
 Point p; Point q
 with Set A
