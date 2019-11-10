@@ -16,7 +16,7 @@ Map f
 From(f, A, B)
 PairIn(x, a, f)
 PairIn(y, b, f)
-PairIn(z, b, f)
+PairIn(z, c, f)
 PairIn(w, d, f)
 
 AutoLabel All

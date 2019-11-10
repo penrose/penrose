@@ -1623,7 +1623,13 @@ repel [GPI line@("Line", _), GPI a, Val (FloatV weight)] =
   in {- trace ("numPoints: " ++ show (length lineSamplePts)) -} res
 
 repel [Val (FloatV x), Val (FloatV y)] = 1 / ((x-y)*(x-y) + epsd)
+
 repel [Val (FloatV x), Val (FloatV y), Val (FloatV weight)] = weight / ((x-y)*(x-y) + epsd)
+
+repel [Val (FloatV u), Val (FloatV v), Val(FloatV weight), Val (StrV "angle")] = 
+           let duv = angleDist u v
+           in weight / (duv * duv + epsd)
+
 -- Repel an object and a curve by summing repel forces over the (subsampled) body of the surve
 repel [GPI curve@("Curve", _), GPI a, Val (FloatV weight)] =
   let curvePts = subsampleEvery sampleNum $ polyPts $ getPolygon curve

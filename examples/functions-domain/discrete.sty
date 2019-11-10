@@ -1,4 +1,4 @@
--- plugin "alloy"
+plugin "alloy"
 
 G {
   G.textTopOffset = 30.0
@@ -87,26 +87,15 @@ where From(f, A, B) {
     }
 }
 
--- TODO: this doesn't specify points in the codomain
--- Maybe we need an "exists p" instead of "for each p" statement...
--- Also maybe a "forall" statement? Or an if statement?
-Point q
-with Set A; Set B; Map f
-where From(f, A, B) {
-    q.hue = -1.0 -- TODO, ignore the points that don't get mapped onto
-} 
-
 Point p; Point q
 with Map f
 where PairIn(p, q, f) {
     LOCAL.mapPaddingY = ?
 
-    override q.hue = ?
+    q.hue = ?
     q.hueFn = ensure inRange(q.hue, 0.0, 360.0)
-    -- q.inverseColor = sampleColor(1.0, "hsv")
     q.inverseColor = hsva(q.hue, 100.0, 80.0, 1.0)
-
-    -- This will get overridden if multiple `p` map to a `q`, but only the final color will be used for all `p`
+    -- The `q` properties will get overridden if multiple `p` map to a `q`, but only the final color will be used for all `p`
 
     p.mapShape = Arrow {
         startX : p.shape.x + G.arrowOffset
@@ -139,28 +128,20 @@ where PairIn(p1, q, f); PairIn(p2, q, f) {
    LOCAL.arrowRepelFn = encourage repel(p1.mapShape.endY, p2.mapShape.endY, 0.001)
 }
 
--- (a,b), (a,b), 
--- (b,a), (b,a), 
--- (b,d), (b,d), 
--- (d,b), (d,b),
--- (a,d), 
--- (d,a), 
-
--- Point q1; Point q2 -- All points in codomain that get mapped to
--- with Point p1; Map f; Point p2 -- Do we know if p1=p2?
--- where PairIn(p1, q1, f); PairIn(p2, q2, f) {
---     LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue) -- Maybe this should actually be angular distance?
---     -- I think this gets matched more often if a point has more input points...
--- }
-
-Point q1; Point q2
-with Set A; Set B; Map f
-where From(f, A, B) {
-    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue) -- Maybe this should actually be angular distance?
-    -- TODO, ignore the points that don't get mapped onto
-   -- TODO: this also messes with the positions...
-   -- TODO: Also why is this matching points in the domain??
-} 
+Point q1; Point q2 -- All points in codomain that get mapped to
+with Point p1; Map f; Point p2 -- Do we know if p1=p2?
+where PairIn(p1, q1, f); PairIn(p2, q2, f) {
+    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle") -- Uses closest distance between angles
+    -- TODO: a point in the codomain will get matched more often (and hence receive extra repel objectives) if multiple points map to it
+    -- however, the opt seems to work fine because this just multiplies the fn by a constant
+    -- For example, a set of matches might look like this if `b` gets mapped to twice
+    -- (a,b), (a,b), 
+    -- (b,a), (b,a), 
+    -- (b,d), (b,d), 
+    -- (d,b), (d,b),
+    -- (a,d), 
+    -- (d,a), 
+}
 
 Point p; Point q
 with Set A
