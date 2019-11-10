@@ -1,6 +1,11 @@
 Set x {
+    x.hue = ?
+    x.hueFn = ensure inRange(x.hue, 0.0, 360.0)
+    x.color = hsva(x.hue, 100.0, 80.0, 0.5)
+
     x.shape = Circle {
         strokeWidth : 0
+	color : x.color
     }
 
     x.text = Text {
@@ -16,6 +21,8 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
+    LOCAL.hueDistFn = encourage repel(x.hue, y.hue, 1.0, "angle")
+
     LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
     LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
     LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
