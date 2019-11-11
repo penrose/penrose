@@ -777,12 +777,12 @@ parseSubstance subFile subIn varEnv =
 -- --------------------------------------- Test Driver -------------------------
 -- | For testing: first uncomment the module definition to make this module the
 -- Main module. Usage: ghc SubstanceCore.hs; ./SubstanceCore <substance core-file>
-main :: IO ()
-main = do
-  args <- getArgs
-  let subFile = head args
-  subIn <- readFile subFile
-    -- parseTest substanceParser subIn
-    --parsed <- parseFromFile
-    --mapM_ print parsed
-  return ()
+-- main :: IO ()
+-- main = do
+--   args <- getArgs
+--   let subFile = head args
+--   subIn <- readFile subFile
+--     -- parseTest substanceParser subIn
+--     --parsed <- parseFromFile
+--     --mapM_ print parsed
+--   return ()
