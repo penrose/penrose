@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE UnicodeSyntax             #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 import           Control.Applicative
 import           Control.Monad                  (when)
@@ -21,18 +22,23 @@ import           Penrose.Pretty
 import           Penrose.Substance
 import           Penrose.Util                   (pickOne)
 import           System.Environment
+import           System.Directory (createDirectoryIfMissing)
 import           System.Exit
 import           System.IO
 import           System.IO.Unsafe
 import           System.Random
 import           Text.PrettyPrint.HughesPJClass
+import System.Console.Docopt
+import           System.Console.Pretty (Color (..), Style (..), bgColor, color,
+                                        style, supportsPretty)
+
 
 -----------------------------  Randomness Definitions --------------------------
 type Interval = (Int, Int)
 
 {-# NOINLINE seedRnd #-}
 seedRnd :: Int
-seedRnd = unsafePerformIO $ getStdRandom (randomR (9, 99))
+seedRnd = 7
 
 rndNum :: Interval -> Synthesize Int
 rndNum interval = do
@@ -65,63 +71,69 @@ data GenericOption = Concrete | General VarEnv
 
 data Context = Context
   { names           :: Names
-  , declaredTypes   :: M.Map String [String] -- | Map from type name to a list of names with the type
-  -- , pred1Lst        :: [Predicate1]
-  -- , pred2Lst        :: [Predicate2]
-  , preDeclarations :: String -- | Store all the pre declarations in a current situation
+  , declaredTypes   :: M.Map String [Name] -- | Map from type name to a list of names with the type
   , prog            :: SubProg -- | AST of the generated program
   , gen             :: StdGen -- | A random generator which will be updated regulary
   , seed            :: Int -- | random seed
-  , nestingLevel    :: Int -- | the nesting level of the system in a current position
+  -- , nestingLevel    :: Int -- | the nesting level of the system in a current position
   } deriving (Show)
 
--- | Add statement to the AST
-appendStmt :: SubStmt -> Synthesize ()
-appendStmt stmt = modify $ \cxt -> cxt {prog = prog cxt ++ [stmt]}
 
 initContext :: VarEnv -> Context
 initContext domainEnv =
   Context
   { declaredTypes = M.empty
   , names = M.empty
-  -- , pred1Lst = getPred1Lst domainEnv
-  -- , pred2Lst = getPred2Lst domainEnv
   , gen = mkStdGen seedRnd
   , seed = seedRnd
   , prog = []
-  , preDeclarations = ""
-  , nestingLevel = 0
+  -- , nestingLevel = 0
   }
 
--- | Zero the nesting level of the current environemt
-zeroNestingLevel :: Context -> Context
-zeroNestingLevel context = context {nestingLevel = 0}
+-- | Add statement to the AST
+appendStmt :: SubStmt -> Synthesize ()
+appendStmt stmt = modify $ \cxt -> cxt {prog = prog cxt ++ [stmt]}
 
------------------------------- Substance Generator -----------------------------
+--------------------------------------------------------------------------------
+-- CLI
+
+argPatterns :: Docopt
+argPatterns = [docoptFile|penrose-synthesizer/USAGE.txt|]
+
+getArgOrExit = getArgOrExitWith argPatterns
+
+--------------------------------------------------------------------------------
+-- The Substance synthesizer 
+
 -- | The main function of the genrator.
--- TODO: use DOCOPT
 main :: IO ()
 main = do
-  args <- getArgs
-  when (length args /= 2) $ die "Usage: ./Main prog.dsl outputPath"
-  let [domainFile, outputPath] = args
+  -- Read command line options
+  args <- parseArgsOrExit argPatterns =<< getArgs
+  domainFile <- args `getArgOrExit` argument "domain"
+  -- substance <- args `getArgOrExit` longOption "substance"
+  -- style <- args `getArgOrExit` longOption "style"
+  path <- args `getArgOrExit` longOption "path"
+  numProgs <- args `getArgOrExit` longOption "num-programs" 
+  let n = read numProgs :: Int -- convert to int
+  createDirectoryIfMissing True path -- create output dir if missing
+
   domainIn <- readFile domainFile
   let domainEnv = D.parseElement domainFile domainIn
   case domainEnv of
     Left err -> error $ show err
     Right domainEnv -> do
-      let (prog, cxt) =
-            runState (generateProgram domainEnv) (initContext domainEnv)
+      let files = map (\i -> path ++ "/prog-" ++ show i ++ ".sub") [1 .. n]
+      foldM_ (go domainEnv) (initContext domainEnv) files
+  where 
+    go env cxt file = do
+      putStrLn (bgColor Red $ "Generated new program (" ++ file ++ "): ")
+      let cxt' = initContext env 
+      let (prog, cxt'') = runState (generateProgram env) (cxt' {gen = gen cxt})
       putStrLn prog
-    -- [path ++ "/prog-" ++ show i ++ ".sub" | i <- [1 .. n]]
-  -- writeFile outputPath (prog context4)
+      writeFile file prog
+      return cxt''
 
--- | Generate n random programs
--- generatePrograms :: VarEnv -> Context -> String -> Int -> IO ()
--- generatePrograms domainEnv context path n =
---   foldM_
---     (generateProgram domainEnv)
---     (initContext domainEnv)
 -- | The top level function for automatic generation of substance programs,
 --   calls other functions to generate specific statements
 generateProgram :: VarEnv -> Synthesize String
@@ -181,18 +193,9 @@ generatePredicate domainEnv = do
   let preds = M.toList (predicates domainEnv)
   (_, p) <- choice preds
   gen p
-    -- gen (Pred1 p1) True = generatePredicate1Nested domainEnv
   where
     gen (Pred1 p1) = generatePredicate1 domainEnv
     gen (Pred2 p2) = generatePredicate2 domainEnv
-  -- if isNested && nestingLvl > 2
-  --   then generatePredicate1Nested domainEnv context1
-  --   else case predicate of
-  --         Pred1 p1 ->
-  --         Pred2 p2 ->
-  --           let context2 =
-  --                 context1 {nestingLevel = nestingLevel context1 + 1}
-  --           in generatePredicate2 domainEnv context2
 
 generatePredicate1, generatePredicate2 :: VarEnv -> Synthesize SubStmt
 generatePredicate1 domainEnv = do
@@ -220,23 +223,7 @@ generatePredArgs domainEnv = mapM gen
         Just lst -> do
           n <- choice lst -- pick one existing id
           return $ PE $ VarE $ VarConst n
-      -- FIXME: weird heuristic. Ask Dor to clarify
-      -- let (i, context1) = rndNum context (0, length lst)
-      -- in if i == 0 || i == 1
-      --      then generateSpecificGeneralType domainEnv context1 t
-      --      else context1
 
--- generatePredicate1Nested :: VarEnv -> Context -> Context
--- generatePredicate1Nested domainEnv context =
---   if length (pred1Lst context) > 2
---     then let (p, context1) = rndNum context (0, length (pred1Lst context) - 1)
---              predicate = pred1Lst context1 !! p
---              context2 = context1 {prog = prog context1 ++ namepred1 predicate}
---          in generateArguments
---               domainEnv
---               (getTypeNames (tlspred1 predicate))
---               context2
---     else context
 -- generatePredicate2 :: VarEnv -> Context -> Context
 -- generatePredicate2 domainEnv context
 --             --allPreds = M.toAscList (predicates domainEnv)

@@ -1,0 +1,10 @@
+Usage:
+  penrose-synthesizer [--num-programs=NUM --substance=SUB --style=STY --path=PATH] <domain>
+
+Options:
+  --substance=SUB     A Substance program that will be included in every synthesized program
+  --style=STY         A Style program that the synthesized programs work with
+  --num-programs=NUM  The number of programs to generate 
+                      [default: 1]
+  --path=PATH         Output path for the generated programs (Trailing slash not needed)
+                      [default: synthesized-progs]

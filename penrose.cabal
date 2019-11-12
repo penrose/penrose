@@ -89,12 +89,15 @@ executable penrose
 
 executable penrose-synthesizer
     main-is: synthesizer.hs
-    hs-source-dirs: .
+    hs-source-dirs: penrose-synthesizer
     other-modules:
     default-language: Haskell2010
     build-depends:
         penrose,
         base -any,
+        docopt -any,
+        pretty-terminal -any,
+        directory -any,
         containers -any,
         random -any,
         mtl -any,
