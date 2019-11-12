@@ -775,14 +775,17 @@ parseSubstance subFile subIn varEnv =
       Right $ SubOut subProg' (subTypeEnv, subDynEnv) labelMap
 
 -- --------------------------------------- Test Driver -------------------------
--- | For testing: first uncomment the module definition to make this module the
--- Main module. Usage: ghc SubstanceCore.hs; ./SubstanceCore <substance core-file>
--- main :: IO ()
--- main = do
---   args <- getArgs
---   let subFile = head args
+-- | For testing: run this function in GHCI
+-- testSubstance :: String -> String -> IO ()
+-- testSubstance subFile elmFile = do
 --   subIn <- readFile subFile
---     -- parseTest substanceParser subIn
---     --parsed <- parseFromFile
---     --mapM_ print parsed
+--   elmIn <- readFile elmFile
+--   case parseElement "" elmIn of
+--     Left e -> error $ show e
+--     Right env ->
+--       case parseSubstance "" subIn env of
+--         Left e -> error $ show e
+--         Right (SubOut prog _ _) -> do
+--           print prog
+--           print $ prettySubstance prog
 --   return ()

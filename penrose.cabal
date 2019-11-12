@@ -87,18 +87,18 @@ executable penrose
         penrose,
         base -any
 
--- executable penrose-synthesizer
---     main-is: synthesizer.hs
---     hs-source-dirs: .
---     other-modules:
---     default-language: Haskell2010
---     build-depends:
---         penrose,
---         base -any,
---         containers -any,
---         random -any,
---         mtl -any,
---         pretty-show -any
+executable penrose-synthesizer
+    main-is: synthesizer.hs
+    hs-source-dirs: .
+    other-modules:
+    default-language: Haskell2010
+    build-depends:
+        penrose,
+        base -any,
+        containers -any,
+        random -any,
+        mtl -any,
+        pretty -any
 
 test-suite penrose-testsuite
     type: exitcode-stdio-1.0
