@@ -109,6 +109,8 @@ compDict =
     , ("hsva", constComp hsva)
     , ("rgba2", constComp rgba2)
     , ("xy", constComp xy)
+    , ("cos", constComp cosFn)
+    , ("sin", constComp sinFn)
     , ("atan", constComp arctangent)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
@@ -591,7 +593,13 @@ rgba2 [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
 xy :: ConstCompFn
 xy [Val (ListV xs)] = Val $ ListV $ take 2 xs
 
-arctangent :: ConstCompFn
+cosFn :: ConstCompFn -- In radians
+cosFn [Val (FloatV d)] = Val $ FloatV $ cos d
+
+sinFn :: ConstCompFn -- In radians
+sinFn [Val (FloatV d)] = Val $ FloatV $ sin d
+
+arctangent :: ConstCompFn -- In degrees
 arctangent [Val (FloatV d)] = Val (FloatV $ (atan d) / pi * 180)
 
 calcVectorsAngle :: ConstCompFn

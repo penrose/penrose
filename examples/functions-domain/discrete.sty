@@ -11,6 +11,32 @@ G {
   G.pointRadiusLarge = G.pointRadius * 1.4
 }
 
+-- For hue wheel
+const {
+  const.pi = 3.14159
+  const.debugDotRadius = 5.0
+  const.debugX = -250.0
+  const.debugY = 250.0
+  const.debugR = 50.0
+
+  const.debugCircle = Circle {
+    x : const.debugX
+    y : const.debugY
+    r : const.debugR
+    strokeWidth : 3
+    strokeColor : Colors.gray
+    color : Colors.none
+  }
+
+  const.wheelLabel = Text {
+    string : "\\text{hue}"
+    x : const.debugX
+    y : const.debugY
+    fontSize : "15pt"
+    color : Colors.gray
+  }
+}
+
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
@@ -89,15 +115,39 @@ where From(f, A, B) {
     }
 }
 
+Point q
+with Map f
+where InImage(q, f) {
+    q.hue = ?
+    q.inverseColor = hsva(q.hue, 100.0, 80.0, 1.0)
+
+    override q.shape.color = q.inverseColor
+    override q.shape.r = G.pointRadiusLarge
+
+    -- Hue wheel debugging
+    q.hueRad = const.pi * q.hue / 180.0
+
+    q.hueDebug = Circle {
+        x : const.debugX + const.debugR * cos(q.hueRad)
+	y : const.debugY + const.debugR * sin(q.hueRad)
+	r : const.debugDotRadius
+	strokeWidth : 0.0
+	strokeColor : Colors.none
+	color : q.shape.color
+    }
+}
+
+-- Pairwise repel between the hue of each color in the image of the function
+Point q1; Point q2
+with Map f
+where InImage(q1, f); InImage(q2, f) {
+    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle")
+}
+
 Point p; Point q
 with Map f
 where PairIn(p, q, f) {
     LOCAL.mapPaddingY = ?
-
-    q.hue = ?
-    q.hueFn = ensure inRange(q.hue, 0.0, 360.0)
-    q.inverseColor = hsva(q.hue, 100.0, 80.0, 1.0)
-    -- The `q` properties will get overridden if multiple `p` map to a `q`, but only the final color will be used for all `p`
 
     p.mapShape = Arrow {
         startX : p.shape.x + G.arrowOffset
@@ -109,9 +159,6 @@ where PairIn(p, q, f) {
         color  : q.inverseColor
         -- TODO: Might be easier to distinguish between the arrows if they were different colors, but can't sample solid colors
     }
-
-    override q.shape.color = q.inverseColor
-    override q.shape.r = G.pointRadiusLarge
 
     override p.shape.color = q.inverseColor
     override p.shape.r = G.pointRadiusLarge
@@ -131,13 +178,6 @@ where PairIn(p1, q, f); PairIn(p2, q, f) {
 
    -- If two points map to the same point, try to make sure no arrowheads overlap (have the y-positions repel each other)
    LOCAL.arrowRepelFn = encourage repel(p1.mapShape.endY, p2.mapShape.endY, 0.001)
-}
-
--- Pairwise repel between the hue of each color in the image of the function
-Point q1; Point q2
-with Map f
-where InImage(q1, f); InImage(q2, f) {
-    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle")
 }
 
 Point p; Point q
