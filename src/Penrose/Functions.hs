@@ -2039,15 +2039,21 @@ noIntersectOffset :: (Autofloat a) => [[a]] -> a -> a
 noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset =
   -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset
 
--- Uses the closest distance between object center and text bbox
-atDist :: ConstrFn
-atDist [GPI o, GPI txt@("Text", _), Val (FloatV offset)] =
+atDistFn :: (Autofloat a) => Pt2 a -> Shape a -> a -> a
+atDistFn (x, y) txt offset = 
   -- TODO: also account for boundary/radius of `o`, rather than just using center
   let ([textPts], _, textBbox, _) = getPolygon txt
-      dsq_res = dsqBP textPts (getX o, getY o) -- Note this does NOT use the signed distance
+      dsq_res = dsqBP textPts (x, y)
       constrEnergy = equal' dsq_res (offset * offset)
   in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
             "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
+
+-- Uses the closest distance between object center and text bbox
+atDist :: ConstrFn
+atDist [GPI o, GPI txt@("Text", _), Val (FloatV offset)] =
+       atDistFn (getX o, getY o) txt offset
+atDist [Val (TupV p), GPI txt@("Text", _), Val (FloatV offset)] =
+       atDistFn p txt offset
 
 -- If the point is in the blob, it should have a penalty. If the point is outside the blob, ignore it.
 -- TODO: Should we use a bbox on curve to accelerate queries?
