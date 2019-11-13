@@ -113,6 +113,7 @@ compDict =
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
     , ("generateRandomReal", constComp generateRandomReal)
     , ("calcNorm", constComp calcNorm)
+    , ("dist", constComp distFn)
     , ("normSq", constComp normSq')
     , ("bboxWidth", constComp bboxWidth)
     , ("bboxHeight", constComp bboxHeight)
@@ -624,8 +625,12 @@ calcNorm :: ConstCompFn
 calcNorm [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1), Val (FloatV ey1)] =
   let nx = (ex1 - sx1) ** 2.0
       ny = (ey1 - sy1) ** 2.0
-      norm = sqrt (nx + ny + 0.5)
+      norm = sqrt (nx + ny + epsd)
   in Val (FloatV norm)
+
+distFn :: ConstCompFn
+distFn [Val (ListV v), Val (ListV w)] =
+         Val $ FloatV $ norm $ v -. w
 
 normSq' :: ConstCompFn
 normSq' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ x * x + y * y
@@ -1125,12 +1130,13 @@ normalOnSphere' [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV ar
   in Val (ListV headv)
 
 arcPathEuclidean :: ConstCompFn
-arcPathEuclidean [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius)] = -- Radius is arc len
+arcPathEuclidean [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV radius), Val (StrV ptype)] = -- Radius is arc len
   let (v, w) = (q -. p, r -. p) -- Move to origin, create orthonormal basis, walk in plane, translate/scale back
       e1 = normalize v
       e2 = gramSchmidt e1 w
       res = transformPts p radius $ slerp 20 0 (angleBetweenRad v w) e1 e2
-  in Val $ PtListV $ map tuplify2 (p : res) -- Make a wedge
+      res' = if ptype == "Closed" then p : res else res  -- Make a wedge
+  in Val $ PtListV $ map tuplify2 res'
 
 -- TODO: share some code between this and arcPathEuclidean?
 angleBisectorEuclidean :: ConstCompFn

@@ -4,19 +4,19 @@
 
 -- Global constants and sizes
 const {
-  -- const.vectorSpaceSize = 400.0
-  -- const.axisSize = const.vectorSpaceSize * 0.45
   const.vectorSpaceSize = 300.0
+  const.vectorSpaceOffset = 225.0
   const.vectorSpaceGap = 150.0
   const.axisSize = const.vectorSpaceSize * 0.4
   const.distVectorSpaces = 50.0
   const.scaleRatio = 200.0
   const.fontSize = "14pt"
   const.lightenFrac = 0.5
-  const.arrowThickness = 3.0
-  const.arrowThickness2 = 2.0
+  const.arrowThickness = 2.5
+  const.arrowThickness2 = 1.5
   const.arrowheadSize = 0.5
   const.repelWeight = 0.7
+  const.textPadding = 15.0
 }
 
 -- Global RGB colors in common use
@@ -48,9 +48,10 @@ Colors {
 VectorSpace U {
     U.thickness = 1.5
     U.axisColor = Colors.darkGray
+    U.originX = 0.0
 
     U.shape = Square {
-	x : 0.0
+	x : U.originX
 	y : 0.0
         side : const.vectorSpaceSize
         color : Colors.lightBlue
@@ -66,6 +67,7 @@ VectorSpace U {
         endY : U.shape.y
         thickness : U.thickness
         color : U.axisColor
+        arrowheadSize : const.arrowheadSize
     }
 
     U.yAxis = Arrow {
@@ -75,6 +77,7 @@ VectorSpace U {
         endY : U.shape.y + const.axisSize
         thickness : U.thickness
         color : U.axisColor
+        arrowheadSize : const.arrowheadSize
     }
 
     U.text = Text {
@@ -89,13 +92,13 @@ VectorSpace U {
         string : "x"
         color : Colors.darkGray
         x : U.xAxis.endX
-        y : U.xAxis.endY
+        y : U.xAxis.endY + const.textPadding
     }
 
     U.textY = Text {
         string : "y"
         color : Colors.darkGray
-        x : U.yAxis.endX + 10.0
+        x : U.yAxis.endX + const.textPadding
         y : U.yAxis.endY
     }
 
@@ -104,7 +107,13 @@ VectorSpace U {
         y : U.shape.y + 5.0
         side : 10.0
         color : Colors.white
+	strokeColor : Colors.black
+	strokeWidth : 1.0
     }
+
+    U.perpLayering1 = U.perpMark below U.xAxis
+    U.perpLayering2 = U.perpMark below U.yAxis
+    U.perpLayering3 = U.perpMark above U.shape
 
     --U.xLabelLocation = ensure nearHead(U.xAxis, U.textX, 20.0, 0.0)
     --U.yLabelLocation = ensure nearHead(U.yAxis, U.textY, 0.0, 20.0)
@@ -131,17 +140,17 @@ where In(v,U) {
 
   v.color = sampleColor(1.0) -- Full opacity to hide arrowhead layering
 
-  v.pad1 = ?
-  v.pad2 = ?
+  -- v.pad1 = ?
+  -- v.pad2 = ?
 
   v.shape = Arrow {
     startX : U.shape.x
     startY : U.shape.y
-    -- endX : ?
-    -- endY : ?
+    endX : ?
+    endY : ?
     -- So the labels can be optimized separately
-    endX : sampleNum(U.left, U.right) + v.pad1
-    endY : sampleNum(U.left, U.right) + v.pad2
+    -- endX : sampleNum(U.left, U.right) + v.pad1
+    -- endY : sampleNum(U.left, U.right) + v.pad2
 
     thickness : const.arrowThickness
     color : v.color
@@ -153,12 +162,16 @@ where In(v,U) {
 
   v.layeringText1 = v.text above U.xAxis
   v.layeringText2 = v.text above U.yAxis
+  v.layeringPerp1 = v.shape above U.perpMark
 
    v.containFn = ensure contains(U.shape, v.shape)
    v.containLabel = ensure contains(U.shape, v.text)
    -- NOTE: nearHead is actually an objective. Use the other constraint form?
    v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
-   -- v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
+   -- v.labelLocation = encourage nearHead(v.shape, v.text, 0.0, 30.0)
+   -- TODO: also try atDist
+
+   v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
 
    -- TODO: repel only if it overlaps? (Do a bbox check before doing the expensive sample + sum operation)
    -- v.labelAvoidAxisFn1 = encourage repel(U.xAxis, v.text, const.repelWeight)
@@ -180,10 +193,6 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
    override u.shape.endY = v.shape.endY + w.shape.endY - U.shape.y
    override u.shape.color = blendColor(v.shape.color, w.shape.color)
 
-   -- TODO: Arrow shape has a length slightly longer than the line's ending position
-   -- I'm not sure how to scale the arrow to deal with arrowhead size either
-
-   -- TODO: fix this opacity too -- lighter color
     u.slider_v = Arrow {
         endX : u.shape.endX
         endY : u.shape.endY
@@ -214,30 +223,35 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
 
 LinearMap f
 with VectorSpace U; VectorSpace V
-where From(f,U,V) {
-   /*f.shape = Arrow {
-      startX : U.shape.x
-      startY : U.shape.y + const.vectorSpaceSize/2.0
-      endX : V.shape.x
-      endY : V.shape.y + const.vectorSpaceSize/2.0
-      style : "curved"
-      rotation : 0.0
-   }*/
+where From(f, U, V) {
+   override U.shape.x = U.originX - const.vectorSpaceOffset
+   override V.shape.x = U.shape.x + const.vectorSpaceSize + const.vectorSpaceGap
+   override V.shape.y = U.shape.y
 
-   V.shape.x = U.shape.x + const.vectorSpaceSize + const.vectorSpaceGap
-   V.shape.y = U.shape.y
+   f.arcRadius = -175.0
+   f.left  = [0.65 * U.shape.x + 0.35 * V.shape.x, 0.65 * U.shape.y + 0.35 * V.shape.y]
+   -- TODO: the arrowhead doesn't appear at the end of the line, so need to fudge a little.
+   f.arrowheadLen = 10.0
+   f.right = [0.35 * U.shape.x + 0.65 * V.shape.x - f.arrowheadLen, 0.35 * U.shape.y + 0.65 * V.shape.y]
+   f.center = [(get(f.left, 0) + get(f.right, 0)) / 2.0, f.arcRadius]
+   f.radius = dist(f.left, f.center)
+   f.arcPath = arcPathEuclidean(f.center, f.left, f.right, f.radius, "Open")
 
    f.shape = Curve {
-     pathData : makeCurve(0.65*U.shape.x+0.35*V.shape.x,0.65*U.shape.y+0.35*V.shape.y,0.35*U.shape.x+0.65*V.shape.x,0.35*U.shape.y+0.65*V.shape.y, 0.0, 30.0)
+     pathData : pathFromPoints(f.arcPath)
      fill : Colors.none
-     strokeWidth : 1.5
+     color : Colors.black
+     strokeWidth : 2.5
      rightArrowhead : True
+     arrowheadSize : const.arrowheadSize     
    }
+
+   f.labelOffset = 30.0
 
    f.text = Text {
      string : f.label
      x : (U.shape.x + V.shape.x) / 2.0
-     y : U.shape.y + 50.0
+     y : U.shape.y + f.labelOffset
      color : f.shape.color
      fontSize : const.fontSize
    }
@@ -250,8 +264,7 @@ where From(f,U,V) {
    f.orderFn = ensure lessThan(U.shape.x + 20.0, V.shape.x)
 }
 
--- | Sclar is not visualized in any concrete way but insteat it contains a
---   Real value
+-- Scalar is not visualized in any concrete way but instead it contains a scalar value
 Scalar c {
   c.val = generateRandomReal()
 }
@@ -264,16 +277,6 @@ where c := determinant(a,b); In(a,U); In(b,U) {
 	   strokeWidth : 0.0
 	   fill : setOpacity(Colors.sky, 0.25)
    }
-
-/* c.shape = Parallelogram {
-      x : U.shape.x
-      y : U.shape.y
-      w : len(a.shape)
-      h : len(b.shape)
-      angle : calcVectorsAngle(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
-      rotation : calcVectorsAngleWithOrigin(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY, b.shape.startX,b.shape.startY,b.shape.endX,b.shape.endY)
-      stroke-style : "dashed"
-   } */
 
    c.text = Text {
      string : c.label
@@ -308,21 +311,13 @@ where c := innerProduct(a,b); In(a,U); In(b,U) {
         thickness : 2.5
         style : "dashed"
     }
-
-    /*
-        c.line1 =
-        u.shape.endX = v.shape.endX * c.val - v.shape.startX * (c.val - 1.0)
-        u.shape.endY = v.shape.endY * c.val - v.shape.startY * (c.val - 1.0)
-        c.line1 =
-        */
 }
 
 Scalar c
 with Vector a;  VectorSpace U
 where c := norm(a); In(a,U) {
    c.norm = len(a.shape)
-   override c.val = c.norm / const.scaleRatio --calcnorm(a.shape.startX,a.shape.startY,a.shape.endX,a.shape.endY)
-
+   override c.val = c.norm / const.scaleRatio 
    c.padding = 20.0
 
    -- c.shape = Brace {
@@ -346,29 +341,12 @@ where c := norm(a); In(a,U) {
 
 Vector u
 with Scalar c; VectorSpace U; Vector v
-where u := scale(c,v); In(u,U); In(v,U){
-    u.shape.endX = v.shape.endX * c.val - v.shape.startX * (c.val - 1.0)
-    u.shape.endY = v.shape.endY * c.val - v.shape.startY * (c.val - 1.0)
+where u := scale(c, v); In(u, U); In(v, U) {
+    override u.shape.endX = v.shape.endX * c.val - v.shape.startX * (c.val - 1.0)
+    override u.shape.endY = v.shape.endY * c.val - v.shape.startY * (c.val - 1.0)
 
-    -- u.shape.color = setOpacity(v.shape.color, 0.75)
-
-    c.layeringScale = u.shape above v.shape
+    c.layeringScale = u.shape below v.shape
 }
-
-/*
-Vector u, Vector v
-where Orthogonal( u, v ) {
-   local.angle = angle( u.vector ) 
-   local.shape = Square {
-       center : (0,0)
-       size : .5
-       stroke-color : Black 
-       fill-color : White
-       transform : Rotate(local.angle) then Translate(u.shape.start)
-   }
-
-   ensure Equals( Dot( u.vector, v.vector ), 0 ) }
-*/
 
 Vector u; Vector v
 with VectorSpace U
@@ -400,37 +378,64 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 }
 
 -- No label overlaps with any other label, vector, slider vector, or axis line. (This doesn't match the same vector twice, right?)
-Vector u; Vector v {
+-- Only if in the same vectorspace!
+Vector u1; Vector u2
+with VectorSpace U
+where In(u1, U); In(u2, U) {
        -- NOTE: This matches (u,v) and (v,u), generating double objectives
-
        -- TODO: this doesn't quite work b/c it doesn't account for the thickness of the label
-
        -- TODO: this currently makes diagrams too symmetrical. Maybe do a second labeling pass?
-       LOCAL.labelAvoidSegFn = encourage repel(v.shape, u.text, const.repelWeight)
-      LOCAL.labelAvoidTextFn = encourage repel(v.text, u.text, const.repelWeight)
+
+      -- LOCAL.labelAvoidSegFn = encourage repel(v.shape, u.text, const.repelWeight)
+
+      LOCAL.labelAvoidTextFn = encourage repel(u1.text, u2.text, 1000.0 * const.repelWeight)
+
+      -- LOCAL.labelAvoidTextFn = encourage disjointPoly(u1.text, u2.text)
 }
 
-/*Vector x, Vector y
-with LinearMap L
-where From(L,x,y) {
-   y.shape.color = x.shape.color
-}*/
+-- For vectors that are mapped from one vector space to another,
+-- actually define the target geometry by applying a linear
+-- map to the input geometry.  This map is given by the two (column)
+-- vectors L.c0, L.c1, which together make a matrix.
 
-/* For vectors that are mapped from one vector space to another,
-actually define the target geometry by applying a linear
-map to the input geometry.  This map is given by the two (column)
-vectors L.c0, L.c1, which together make a matrix.*/
 Vector y
-with Vector x; VectorSpace X; VectorSpace Y; LinearMap L
-where In(x,X); In(y,Y); From(L,X,Y); y := apply(L,x) {
+with Vector x; VectorSpace X; VectorSpace Y; LinearMap f
+where In(x, X); In(y, Y); From(f, X, Y); y := apply(f, x) {
 
    -- apply the linear map
-   y.shape.endX = dot( L.c0, x.vector ) + Y.shape.x
-   y.shape.endY = dot( L.c1, x.vector ) + Y.shape.y
+   override y.shape.endX = dot( f.c0, x.vector ) + Y.shape.x
+   override y.shape.endY = dot( f.c1, x.vector ) + Y.shape.y
 
-   -- update the 
-   y.vector = (y.shape.endX - y.shape.startX, y.shape.end - y.shape.startY)
+   -- update the underlying vector (TODO check this)
+   override y.vector = (y.shape.endX - y.shape.startX, y.shape.end - y.shape.startY)
 
    -- also inherit the color
-   y.shape.color = x.shape.color
+   override y.shape.color = x.shape.color
+}
+
+-- v4 = v3, so use its sliders for v3, and hide its label
+-- NOTE: this matching scales very badly...
+Vector v4
+with Vector u1; Vector u2; Vector u3; Vector v1; Vector v2; Vector v3; LinearMap f; VectorSpace U; VectorSpace V
+where From(f, U, V); u3 := addV(u1, u2); v1 := apply(f, u1); v2 := apply(f, u2); v3 := apply(f, u3); v4 := addV(v1, v2) {
+      override v4.slider_v.color = u3.slider_v.color
+      override v4.slider_w.color = u3.slider_w.color
+      override v4.text.string = "\\text{ }" -- TODO: fails on empty label
+      delete v4.containFn
+      delete v4.containLabel
+      delete v4.labelLocation
+      delete v4.labelAvoidFn
+}
+
+-- v2 = v3, so have its scalar be colored the same, and hide its label
+Vector v3
+with Vector u1; Vector u2; Vector v1; Vector v2; Scalar c; LinearMap f; VectorSpace U; VectorSpace V
+where From(f, U, V); u2 := scale(c, u1); v1 := apply(f, u1); v2 := apply(f, u2); v3 := scale(c, v1) {
+      v3.layeringFn1 = v3.shape below v2.shape
+      override v3.shape.color = v2.shape.color
+      override v3.text.string = "\\text{ }" -- TODO: fails on empty label
+      delete v3.containFn
+      delete v3.containLabel
+      delete v3.labelLocation
+      delete v3.labelAvoidFn
 }
