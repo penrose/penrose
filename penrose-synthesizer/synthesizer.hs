@@ -2,9 +2,9 @@
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE QuasiQuotes               #-}
 {-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE UnicodeSyntax             #-}
-{-# LANGUAGE QuasiQuotes #-}
 
 import           Control.Applicative
 import           Control.Monad                  (when)
@@ -21,26 +21,256 @@ import           Penrose.Env                    hiding (typeName)
 import           Penrose.Pretty
 import           Penrose.Substance
 import           Penrose.Util                   (pickOne)
+import           System.Console.Docopt
+import           System.Console.Pretty          (Color (..), bgColor, color,
+                                                 style)
+import           System.Directory               (createDirectoryIfMissing)
 import           System.Environment
-import           System.Directory (createDirectoryIfMissing)
-import           System.Exit
-import           System.IO
-import           System.IO.Unsafe
 import           System.Random
 import           Text.PrettyPrint.HughesPJClass
-import System.Console.Docopt
-import           System.Console.Pretty (Color (..), Style (..), bgColor, color,
-                                        style, supportsPretty)
 
+--------------------------------------------------------------------------------
+-- Synthesizer context
+--------------------------------------------------------------------------------
+type Name = String
 
------------------------------  Randomness Definitions --------------------------
-type Interval = (Int, Int)
+type Names = M.Map String Int
 
-{-# NOINLINE seedRnd #-}
+type Synthesize a = State Context a
+
+data GenericOption
+  = Concrete
+  | General VarEnv
+  deriving (Show)
+
+data ArgOption
+  = Generated
+  | Existing
+  | Mixed
+  deriving (Show)
+
+data AllowDuplicates
+  = Distinct
+  | Repeated
+  deriving (Show)
+
+data Context = Context
+  { names         :: Names
+  , declaredTypes :: M.Map String [Name] -- | Map from type name to a list of names with the type
+  , prog          :: SubProg -- | AST of the generated program
+  , gen           :: StdGen -- | A random generator which will be updated regulary
+  , setting       :: Setting -- | Synthesizer settings
+  -- , nestingLevel    :: Int -- | the nesting level of the system in a current position
+  } deriving (Show)
+
+data Setting = Setting
+  { lengthRange :: (Int, Int)
+  , argOption   :: ArgOption
+  } deriving (Show)
+
+initContext :: Setting -> Context
+initContext setting =
+  Context
+  { declaredTypes = M.empty
+  , names = M.empty
+  , gen = mkStdGen seedRnd
+  , prog = []
+  , setting = setting
+  }
+
+reset :: Synthesize ()
+reset =
+  modify $ \cxt -> cxt {declaredTypes = M.empty, names = M.empty, prog = []}
+
+--------------------------------------------------------------------------------
+-- CLI
+--------------------------------------------------------------------------------
+argPatterns :: Docopt
+argPatterns = [docoptFile|penrose-synthesizer/USAGE.txt|]
+
+getArgOrExit = getArgOrExitWith argPatterns
+
+-- | The main function of the genrator.
+main :: IO ()
+main = do
+  args <- parseArgsOrExit argPatterns =<< getArgs
+  domainFile <- args `getArgOrExit` argument "domain"
+  -- substance <- args `getArgOrExit` longOption "substance"
+  -- style <- args `getArgOrExit` longOption "style"
+  path <- args `getArgOrExit` longOption "path"
+  numProgs <- args `getArgOrExit` longOption "num-programs"
+  maxLength <- args `getArgOrExit` longOption "max-length"
+  minLength <- args `getArgOrExit` longOption "min-length"
+  let [n, lmin, lmax] = map read [numProgs, minLength, maxLength] :: [Int]
+  createDirectoryIfMissing True path -- create output dir if missing
+  domainIn <- readFile domainFile
+  let env = D.parseElement domainFile domainIn
+  -- TODO: take in argoption as param
+  let setting = Setting {lengthRange = (lmin, lmax), argOption = Mixed}
+  case env of
+    Left err -> error $ show err
+    Right env -> do
+      let files = map (\i -> path ++ "/prog-" ++ show i ++ ".sub") [1 .. n]
+      let (progs, cxt) = runState (generatePrograms env n) (initContext setting)
+      mapM_ go $ zip progs files
+  where
+    go (prog, file) = do
+      putStrLn (bgColor Red $ "Generated new program (" ++ file ++ "): ")
+      let progStr = show $ prettySubstance prog
+      putStrLn progStr
+      writeFile file progStr
+
+--------------------------------------------------------------------------------
+-- The Substance synthesizer
+--------------------------------------------------------------------------------
+generatePrograms :: VarEnv -> Int -> Synthesize [SubProg]
+generatePrograms env n = replicateM n (generateProgram env <* reset)
+
+-- | The top level function for automatic generation of substance programs,
+--   calls other functions to generate specific statements
+generateProgram :: VarEnv -> Synthesize SubProg
+generateProgram env = do
+  i <- rndNum (1, 2) -- FIXME: get rid of the hard-coded numbers
+  (lmin, lmax) <- gets (lengthRange . setting)
+  j <- rndNum (lmin, lmax)
+  generateTypes env i
+  generateStatements env j
+  -- return $ ts ++ stmts
+  gets prog
+
+-- | Generate random Substance statements
+generateStatements :: VarEnv -> Int -> Synthesize [SubStmt]
+generateStatements env n = replicateM n (generateStatement env)
+
+-- | Generate single random Substance statement
+-- NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
+generateStatement :: VarEnv -> Synthesize SubStmt
+generateStatement env = do
+  stmtF <- choice stmts
+  stmtF env
+  where
+    stmts =
+      [ generatePredicate
+      , generateType
+      -- , generateValueBinding env context1
+      ]
+
+-- | Generate object declarations
+generateTypes :: VarEnv -> Int -> Synthesize [SubStmt]
+generateTypes env n = replicateM n (generateType env)
+
+-- | Generate a single object declaration randomly
+generateType :: VarEnv -> Synthesize SubStmt
+generateType env = do
+  let types = M.toList (typeConstructors env)
+  (typ, _) <- choice types -- COMBAK: check for empty list
+  generateType' typ Concrete
+
+-- | Generate a single object declaration given the type name. 'Concrete' generic option will only genrate an object of the designated type, whereas 'General' option allows parent types and (?) child types.
+-- TODO: make sure which types are supported
+-- NOTE: general option currently not used
+generateType' :: String -> GenericOption -> Synthesize SubStmt
+generateType' typ Concrete = do
+  name <- freshName typ
+  let stmt =
+        Decl
+          (TConstr $ TypeCtorApp {nameCons = typ, argCons = []})
+          (VarConst name)
+  appendStmt stmt
+  return stmt
+generateType' typ (General env) = do
+  name <- freshName typ
+  let types = possibleTypes env typ
+  typ' <- choice types
+  generateType' typ' Concrete
+
+-- | Generate a single predicate
+-- FIXME: currently not handling nesting
+generatePredicate :: VarEnv -> Synthesize SubStmt
+generatePredicate env = do
+  let preds = M.toList (predicates env)
+  (_, p) <- choice preds
+  gen p
+  where
+    gen (Pred1 p1) = generatePredicate1 env
+    gen (Pred2 p2) = generatePredicate2 env
+
+generatePredicate1, generatePredicate2 :: VarEnv -> Synthesize SubStmt
+generatePredicate1 env = do
+  pred <- choice (pred1s env)
+  opt <- gets (argOption . setting)
+  args <- map PE <$> generateArgs env opt (map typeName $ tlspred1 pred)
+  let stmt =
+        ApplyP $
+        Predicate
+        {predicateName = PredicateConst $ namepred1 pred, predicateArgs = args}
+  appendStmt stmt
+  return stmt
+
+-- TODO: make sure pred2 is higher-level predicates?
+generatePredicate2 env = do
+  pred <- choice (pred2s env)
+  let args = []
+  let stmt =
+        ApplyP $
+        Predicate
+        {predicateName = PredicateConst $ namepred2 pred, predicateArgs = args}
+  appendStmt stmt
+  return stmt
+
+-- | Generate a list of arguments for predicates or functions
+generateArgs :: VarEnv -> ArgOption -> [String] -> Synthesize [Expr]
+generateArgs env opt = mapM (generateArg env opt)
+
+-- | Generate a list of arguments for predicates or functions
+generateArg :: VarEnv -> ArgOption -> String -> Synthesize Expr
+generateArg env Existing typ = do
+  existingTypes <- gets declaredTypes
+  case M.lookup typ existingTypes of
+    Nothing -> generateArg env Generated typ
+    Just lst -> do
+      n <- choice lst -- pick one existing id
+      return $ VarE $ VarConst n
+generateArg env Generated typ = do
+  generateType' typ Concrete -- TODO: concrete types for now
+  generateArg env Existing typ
+generateArg e Mixed typ
+  -- TODO: check lazy eval and see if both branches actually get executed
+ = do
+  f <- choice [generateArg e Existing, generateArg e Generated]
+  f typ
+
+-- FIXME: finish the implementation
+-- generateBinding :: VarEnv -> Synthesize SubStmt
+-- generateBinding env =
+--   op <- choice $ operators env
+--   f  <- generate
+--------------------------------------------------------------------------------
+-- Substance Helpers
+--------------------------------------------------------------------------------
+pred1s :: VarEnv -> [Predicate1]
+pred1s env = map (\(Pred1 p) -> p) $ M.elems $ predicates env
+
+pred2s :: VarEnv -> [Predicate2]
+pred2s env = map (\(Pred2 p) -> p) $ M.elems $ predicates env
+
+possibleTypes :: VarEnv -> String -> [String]
+possibleTypes env t =
+  let subt = subTypes env
+      allTypes = [typeName t1 | (t1, t2) <- subt, typeName t2 == t]
+  in (t : allTypes)
+
+typeName :: T -> String
+typeName (TTypeVar t) = typeVarName t
+typeName (TConstr t)  = nameCons t
+
+--------------------------------------------------------------------------------
+-- Randomness Helpers
+--------------------------------------------------------------------------------
 seedRnd :: Int
 seedRnd = 7
 
-rndNum :: Interval -> Synthesize Int
+rndNum :: (Int, Int) -> Synthesize Int
 rndNum interval = do
   (n, g') <- gets (randomR interval . gen)
   modify $ \c -> c {gen = g'}
@@ -60,276 +290,8 @@ choiceSafe lst = do
   return $ Just (lst !! i)
 
 --------------------------------------------------------------------------------
--- Synthesizer context
-type Name = String
-
-type Names = M.Map String Int
-
-type Synthesize a = State Context a
-
-data GenericOption = Concrete | General VarEnv
-
-data Context = Context
-  { names           :: Names
-  , declaredTypes   :: M.Map String [Name] -- | Map from type name to a list of names with the type
-  , prog            :: SubProg -- | AST of the generated program
-  , gen             :: StdGen -- | A random generator which will be updated regulary
-  , seed            :: Int -- | random seed
-  -- , nestingLevel    :: Int -- | the nesting level of the system in a current position
-  } deriving (Show)
-
-
-initContext :: VarEnv -> Context
-initContext domainEnv =
-  Context
-  { declaredTypes = M.empty
-  , names = M.empty
-  , gen = mkStdGen seedRnd
-  , seed = seedRnd
-  , prog = []
-  -- , nestingLevel = 0
-  }
-
--- | Add statement to the AST
-appendStmt :: SubStmt -> Synthesize ()
-appendStmt stmt = modify $ \cxt -> cxt {prog = prog cxt ++ [stmt]}
-
+-- Name generation
 --------------------------------------------------------------------------------
--- CLI
-
-argPatterns :: Docopt
-argPatterns = [docoptFile|penrose-synthesizer/USAGE.txt|]
-
-getArgOrExit = getArgOrExitWith argPatterns
-
---------------------------------------------------------------------------------
--- The Substance synthesizer 
-
--- | The main function of the genrator.
-main :: IO ()
-main = do
-  -- Read command line options
-  args <- parseArgsOrExit argPatterns =<< getArgs
-  domainFile <- args `getArgOrExit` argument "domain"
-  -- substance <- args `getArgOrExit` longOption "substance"
-  -- style <- args `getArgOrExit` longOption "style"
-  path <- args `getArgOrExit` longOption "path"
-  numProgs <- args `getArgOrExit` longOption "num-programs" 
-  let n = read numProgs :: Int -- convert to int
-  createDirectoryIfMissing True path -- create output dir if missing
-
-  domainIn <- readFile domainFile
-  let domainEnv = D.parseElement domainFile domainIn
-  case domainEnv of
-    Left err -> error $ show err
-    Right domainEnv -> do
-      let files = map (\i -> path ++ "/prog-" ++ show i ++ ".sub") [1 .. n]
-      foldM_ (go domainEnv) (initContext domainEnv) files
-  where 
-    go env cxt file = do
-      putStrLn (bgColor Red $ "Generated new program (" ++ file ++ "): ")
-      let cxt' = initContext env 
-      let (prog, cxt'') = runState (generateProgram env) (cxt' {gen = gen cxt})
-      putStrLn prog
-      writeFile file prog
-      return cxt''
-
--- | The top level function for automatic generation of substance programs,
---   calls other functions to generate specific statements
-generateProgram :: VarEnv -> Synthesize String
-generateProgram domainEnv = do
-  i <- rndNum (1, 2) -- FIXME: get rid of the hard-coded numbers
-  j <- rndNum (1, 4) -- FIXME: get rid of the hard-coded numbers
-  generateTypes domainEnv i
-  generateStatements domainEnv j
-  prog <- gets prog
-  return $ render $ prettySubstance prog
-
--- | Generate random Substance statements
-generateStatements :: VarEnv -> Int -> Synthesize ()
-generateStatements domainEnv n = replicateM_ n (generateStatement domainEnv)
-
--- | Generate single random Substance statement
-generateStatement :: VarEnv -> Synthesize ()
-generateStatement domainEnv = do
-  stmtF <- choice stmts
-  stmt <- stmtF domainEnv
-  appendStmt stmt
-  where
-    stmts =
-      [ generatePredicate 
-        -- generateBinding
-      -- , generateValueBinding domainEnv context1
-      ]
-
--- zeroNestingLevel( generatePredicateEquality domainEnv context1)
--- | Generate object declarations
-generateTypes :: VarEnv -> Int -> Synthesize [SubStmt]
-generateTypes domainEnv n = replicateM n (generateType domainEnv)
-
--- | Generate a single object declaration
-generateType :: VarEnv -> Synthesize SubStmt
-generateType domainEnv = do
-  let types = M.toList (typeConstructors domainEnv)
-  (typ, _) <- choice types -- COMBAK: check for empty list
-  generateType' typ Concrete
-
-generateType' :: String -> GenericOption -> Synthesize SubStmt
-generateType' typ Concrete = do
-  name <- freshName typ
-  let stmt = Decl (TConstr $ TypeCtorApp {nameCons = typ, argCons = []}) (VarConst name)
-  appendStmt stmt -- TODO: find a less redundant way to synthesize the AST
-  return stmt
-generateType' typ (General env) = do
-  name <- freshName typ
-  let types = possibleTypes env typ
-  typ' <- choice types 
-  generateType' typ' Concrete
-
--- | Generate a single predicate
--- FIXME: currently not handling nesting
-generatePredicate :: VarEnv -> Synthesize SubStmt
-generatePredicate domainEnv = do
-  let preds = M.toList (predicates domainEnv)
-  (_, p) <- choice preds
-  gen p
-  where
-    gen (Pred1 p1) = generatePredicate1 domainEnv
-    gen (Pred2 p2) = generatePredicate2 domainEnv
-
-generatePredicate1, generatePredicate2 :: VarEnv -> Synthesize SubStmt
-generatePredicate1 domainEnv = do
-  pred <- choice (pred1s domainEnv)
-  args <- generatePredArgs domainEnv (map typeName $ tlspred1 pred)
-  let stmt = ApplyP $ Predicate { predicateName = PredicateConst $ namepred1 pred, predicateArgs = args }
-  return stmt
--- TODO: make sure pred2 is higher-level predicates?
-generatePredicate2 domainEnv = do
-  pred <- choice (pred2s domainEnv)
-  let args = []
-  return $ ApplyP $ Predicate { predicateName = PredicateConst $ namepred2 pred, predicateArgs = args }
-
--- | Get a list of all the types needed for a specific statement and
---   add type declrations for them in case needed
-generatePredArgs :: VarEnv -> [String] -> Synthesize [PredArg]
-generatePredArgs domainEnv = mapM gen 
-  where 
-    gen t = do
-      existingTypes <- gets declaredTypes
-      case M.lookup t existingTypes of
-        Nothing -> do 
-          generateType' t Concrete -- FIXME: concrete types for now
-          gen t -- NOTE: slightly costly to do the extra loopup. Optimize when needed
-        Just lst -> do
-          n <- choice lst -- pick one existing id
-          return $ PE $ VarE $ VarConst n
-
--- generatePredicate2 :: VarEnv -> Context -> Context
--- generatePredicate2 domainEnv context
---             --allPreds = M.toAscList (predicates domainEnv)
---  =
---   let g = mkStdGen 9
---       l = length (pred2Lst context) - 1
---       p = fst (randomR (0, l) g)
---       predicate = pred2Lst context !! p
---       context1 = context {prog = prog context ++ namepred2 predicate ++ "("}
---       n = length (plspred2 predicate)
---       context2 = generatePred2Args domainEnv context1 n
---   in context2
--- | Generate single random binding statement
--- FIXME: this function seems to generate types retroactively... We shouldn't do that in general??
--- generateBinding :: VarEnv -> Context -> Context
--- generateBinding domainEnv context = do
---   let operations = M.toAscList (operators domainEnv)
---   operation <- choice operations
---   allTypes = top operation : tlsop operation
---   generatePreDeclarations domainEnv (getTypeNames allTypes)
---              context3 = generateArgument context2 (convert (top operation))
---              context4 =
---                context3 {prog = prog context3 ++ " := " ++ nameop operation}
---          in generateArguments
---               domainEnv
---               (getTypeNames (tlsop operation))
---               context4
---     else context
--- -- | Generate single random binding statement
--- generateValueBinding :: VarEnv -> Context -> Context
--- generateValueBinding domainEnv context =
---   if not (null (valConstructors domainEnv))
---     then let valConsts = M.toAscList (valConstructors domainEnv)
---              (v, context1) = rndNum context (0, length valConsts - 1)
---              valConstructor = snd (valConsts !! v)
---              allTypes = tvc valConstructor : tlsvc valConstructor
---              context2 =
---                generatePreDeclarations
---                  domainEnv
---                  context1
---                  (getTypeNames allTypes)
---              context3 = generateArgument context2 (convert (tvc valConstructor))
---              context4 =
---                context3
---                {prog = prog context3 ++ " := " ++ namevc valConstructor}
---          in generateArguments
---               domainEnv
---               (getTypeNames (tlsvc valConstructor))
---               context4
---     else context
--- -- | Generate single random predicate equality
--- -- generatePredicateEquality :: VarEnv -> Context -> Context
--- -- generatePredicateEquality domainEnv context =
--- --   let context1 = generatePredicate domainEnv context False
--- --       context2 = context1 {prog = prog context1 ++ " <-> "}
--- --   in generatePredicate domainEnv context2 True
--- generatePred2Args :: VarEnv -> Context -> Int -> Context
--- generatePred2Args domainEnv context n =
---   let context1 = generatePred2Arg domainEnv context
---   in if n /= 1
---        then let context2 = context1 {prog = prog context1 ++ ","}
---             in generatePred2Args domainEnv context2 (n - 1)
---        else context1 {prog = prog context1 ++ ")"}
--- generatePred2Arg :: VarEnv -> Context -> Context
--- generatePred2Arg domainEnv context = generatePredicate domainEnv context True
---------------------------------------------------------------------------------
--- Helpers
-pred1s :: VarEnv -> [Predicate1]
-pred1s domainEnv = map (\(Pred1 p) -> p) $ M.elems $ predicates domainEnv
-
-pred2s :: VarEnv -> [Predicate2]
-pred2s domainEnv = map (\(Pred2 p) -> p) $ M.elems $ predicates domainEnv
-
-possibleTypes :: VarEnv -> String -> [String]
-possibleTypes domainEnv t =
-  let subt = subTypes domainEnv
-      allTypes = [typeName t1 | (t1, t2) <- subt, typeName t2 == t]
-  in (t : allTypes)
-
-typeName :: T -> String
-typeName (TTypeVar t) = typeVarName t
-typeName (TConstr t)  = nameCons t
-
-
--- -- | Get an argument for operations / predicates / val constructors
--- generateArgument :: Context -> String -> Context
--- generateArgument context t =
---   case M.lookup t (declaredTypes context) of
---     Nothing -> error "Generation Error!"
---     Just lst ->
---       let (a, context1) = rndNum context (0, length lst - 1)
---       in context1 {prog = prog context1 ++ lst !! a}
--- -- | Get an argument for operations / predicates / val constructors
--- generateFullArgument :: VarEnv -> Context -> String -> Context
--- generateFullArgument domainEnv context t =
---   let allPossibleArguments = getAllPossibleArguments domainEnv context t
---       (a, context1) = rndNum context (0, length allPossibleArguments - 1)
---   in context1 {prog = prog context1 ++ allPossibleArguments !! a ++ ","}
--- getAllPossibleArguments :: VarEnv -> Context -> String -> [String]
--- getAllPossibleArguments domainEnv context t =
---   concatMap (getIdentifiers context) (getAllPossibleTypes domainEnv context t)
-
--- getIdentifiers :: Context -> String -> [String]
--- getIdentifiers context t = fromMaybe [] (M.lookup t (declaredTypes context))
---------------------------------------------------------------------------------
--- Names generation
 -- | Generate a new name given a type
 freshName :: String -> Synthesize String
 freshName typ = do
@@ -350,3 +312,10 @@ uniqueName nm ns =
   case M.lookup nm ns of
     Nothing -> (nm, M.insert nm 1 ns)
     Just ix -> (nm ++ show ix, M.insert nm (ix + 1) ns)
+
+--------------------------------------------------------------------------------
+-- Synthesis helpers
+--------------------------------------------------------------------------------
+-- | Add statement to the AST
+appendStmt :: SubStmt -> Synthesize ()
+appendStmt stmt = modify $ \cxt -> cxt {prog = prog cxt ++ [stmt]}
