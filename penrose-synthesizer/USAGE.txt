@@ -2,7 +2,8 @@ Usage:
   penrose-synthesizer [--num-programs=NUM --min-length=MINLEN --max-length=MAXLEN --substance=SUB --style=STY --path=PATH] <domain>
 
 Options:
-  --substance=SUB      A Substance program that will be included in every synthesized                           program
+  --substance=SUB      A Substance program that will be included in every synthesized program     
+                       
   --style=STY          A Style program that the synthesized programs work with
   --num-programs=NUM   The number of programs to generate 
                        [default: 1]

@@ -55,12 +55,8 @@ compileTrio substance style element
         return (subOutPlugin, styVals)
   -- Compilation phase
   let optConfig = defaultOptConfig
-  let styRes =
-        unsafePerformIO $ -- HACK: rewrite this such that it's safe
-        try (compileStyle styProg subOut' styVals optConfig) :: Either ErrorCall State
-  case styRes of
-    Right initState -> Right (initState, subEnv)
-    Left styRTError -> Left $ StyleTypecheck $ show styRTError
+  state <- compileStyle styProg subOut' styVals optConfig
+  return (state, env)
 
 -- | Given Substance and ELement programs, return a context after parsing Substance and ELement.
 getEnv ::
@@ -150,7 +146,7 @@ diffStates prevState state =
 fromStyleErrs :: Either [Error] a -> Either CompilerError a
 fromStyleErrs v =
   case v of
-    Left errs -> Left $ StyleTypecheck $ show errs
+    Left errs -> Left $ StyleTypecheck errs
     Right res -> Right res
 
 syncShapes :: State -> State

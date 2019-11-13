@@ -9,6 +9,8 @@
 import           Control.Applicative
 import           Control.Monad                  (when)
 import           Control.Monad.State
+import           Data.Aeson                     (encode)
+import qualified Data.ByteString.Lazy.Char8     as B
 import           Data.Char                      (toLower)
 import           Data.List
 import qualified Data.Map.Strict                as M
@@ -16,14 +18,14 @@ import           Data.Maybe
 import           Data.String
 import           Data.Typeable
 import           Debug.Trace
+import           Penrose.API
 import qualified Penrose.Element                as D
 import           Penrose.Env                    hiding (typeName)
 import           Penrose.Pretty
 import           Penrose.Substance
 import           Penrose.Util                   (pickOne)
 import           System.Console.Docopt
-import           System.Console.Pretty          (Color (..), bgColor, color,
-                                                 style)
+import           System.Console.Pretty          as CP
 import           System.Directory               (createDirectoryIfMissing)
 import           System.Environment
 import           System.Random
@@ -96,7 +98,6 @@ main = do
   args <- parseArgsOrExit argPatterns =<< getArgs
   domainFile <- args `getArgOrExit` argument "domain"
   -- substance <- args `getArgOrExit` longOption "substance"
-  -- style <- args `getArgOrExit` longOption "style"
   path <- args `getArgOrExit` longOption "path"
   numProgs <- args `getArgOrExit` longOption "num-programs"
   maxLength <- args `getArgOrExit` longOption "max-length"
@@ -106,19 +107,39 @@ main = do
   domainIn <- readFile domainFile
   let env = D.parseElement domainFile domainIn
   -- TODO: take in argoption as param
-  let setting = Setting {lengthRange = (lmin, lmax), argOption = Mixed}
+  let settings = Setting {lengthRange = (lmin, lmax), argOption = Mixed}
   case env of
     Left err -> error $ show err
     Right env -> do
-      let files = map (\i -> path ++ "/prog-" ++ show i ++ ".sub") [1 .. n]
-      let (progs, cxt) = runState (generatePrograms env n) (initContext setting)
-      mapM_ go $ zip progs files
-  where
-    go (prog, file) = do
-      putStrLn (bgColor Red $ "Generated new program (" ++ file ++ "): ")
-      let progStr = show $ prettySubstance prog
-      putStrLn progStr
-      writeFile file progStr
+      let (progs, _) = runState (generatePrograms env n) (initContext settings)
+      if args `isPresent` longOption "style"
+        then do
+          let files = map (\i -> path ++ "/prog-" ++ show i) [1 .. n]
+          styleFile <- args `getArgOrExit` longOption "style"
+          style <- readFile styleFile
+          mapM_ (compileProg style domainIn) $ zip progs files
+        else do
+          let files = map (\i -> path ++ "/prog-" ++ show i ++ ".sub") [1 .. n]
+          mapM_ writeSubstance $ zip progs files
+
+compileProg :: String -> String -> (SubProg, String) -> IO ()
+compileProg style domain (subAST, prefix) = do
+  let sub = show $ prettySubstance subAST
+  case compileTrio sub style domain of
+    Right (state, _) -> do
+      putStrLn
+        (CP.bgColor CP.Green $ "Generated new program (" ++ prefix ++ "): ")
+      putStrLn sub
+      putStrLn (CP.bgColor CP.Red $ "Compiled new program (" ++ prefix ++ "): ")
+      B.writeFile (prefix ++ ".json") (encode state)
+    Left err -> error $ show err
+
+writeSubstance :: (SubProg, String) -> IO ()
+writeSubstance (prog, file) = do
+  putStrLn (CP.bgColor CP.Red $ "Generated new program (" ++ file ++ "): ")
+  let progStr = show $ prettySubstance prog
+  putStrLn progStr
+  writeFile file progStr
 
 --------------------------------------------------------------------------------
 -- The Substance synthesizer
@@ -136,7 +157,9 @@ generateProgram env = do
   generateTypes env i
   generateStatements env j
   -- return $ ts ++ stmts
-  gets prog
+  p <- gets prog
+  let labelOption = AutoLabel Penrose.Substance.Default -- TODO: enfore export list in Substance module
+  return $ labelOption : p
 
 -- | Generate random Substance statements
 generateStatements :: VarEnv -> Int -> Synthesize [SubStmt]

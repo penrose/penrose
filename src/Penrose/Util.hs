@@ -11,6 +11,8 @@ import           Data.Typeable
 import           Debug.Trace
 import           System.Random
 import           System.Random.Shuffle
+import           Data.List (intercalate)
+
 
 default (Int, Float)
 
@@ -31,18 +33,30 @@ type Property = String
 data CompilerError
   = SubstanceParse String -- ^ an error in Substance parsing
   | StyleParse String -- ^ an error in Style parsing
+  | StyleLayering String -- ^ an error in Style parsing
   | ElementParse String -- ^ an error in Element parsing
   | SubstanceTypecheck String -- ^ an error in Substance typechecking
   | PluginParse String -- ^ an error in plugin parsing
   | PluginRun String -- ^ an error when running a plugin
-  | StyleTypecheck String -- ^ an error in Style typechecking
+  | StyleTypecheck [String] -- ^ an error in Style typechecking
   | ElementTypecheck String -- ^ an error in Element typechecking
-  deriving (Show)
+
+instance Show CompilerError where
+  show (SubstanceParse err) = "Error when parsing Substance: \n" ++ err
+  show (StyleParse err) = "Error when parsing Style: \n" ++ err
+  show (ElementParse err) = "Error when parsing Domain: \n" ++ err
+  show (SubstanceTypecheck err) = "Error when type-checking Substance: \n" ++ err
+  show (PluginParse err) = "Error when parsing plugins: \n" ++ err
+  show (PluginRun err) = "Error when running plugins: \n" ++ err
+  show (StyleTypecheck err) = "Error when type-checking Style: \n" ++ intercalate "\n" err
+  show (StyleLayering err) = "Error when computing the shape ordering in Style: \n" ++ err
+  show (ElementTypecheck err) = "Error when type-checking Domain: \n" ++ err
+
 
 -- | Errors from the optimizer
-data RuntimeError =
-  RuntimeError String
-  deriving (Show)
+data RuntimeError = RuntimeError String
+instance Show RuntimeError where
+  show (RuntimeError err) = "Error in Penrose runtime: \n" ++ err
 
 --------------------------------------------------------------------------------
 -- Parameters of the system

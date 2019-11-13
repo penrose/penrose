@@ -1026,7 +1026,6 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
         initSubsts       = []
         rawSubsts        = matchDecls varEnv subProg decls initSubsts
         subst_candidates = filter (fullSubst selEnv)
-                           $ trace ("rawSubsts: # " ++ show (length rawSubsts))
                            rawSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
@@ -1466,7 +1465,7 @@ translateStyProg varEnv subEnv subProg styProg labelMap styVals =
                   transWithNamesAndLabels = insertLabels transWithNames labelMap 
                   styValMap = styJsonToMap styVals
                   transWithPlugins = evalPluginAccess styValMap transWithNamesAndLabels
-              in trace "translateStyProg: " $ Right transWithPlugins
+              in Right transWithPlugins
         Left errors -> Left errors
 
 ---------- Plugin accessors

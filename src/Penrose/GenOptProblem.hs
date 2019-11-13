@@ -911,17 +911,21 @@ reachableFromAny graph node =
   elem node . concatMap (Graph.reachable graph)
 
 -- | 'topSortLayering' takes in a list of all GPI names and a list of directed edges [(a -> b)] representing partial layering orders as input and outputs a linear layering order of GPIs
-topSortLayering :: [String] -> [(String, String)] -> [String]
+topSortLayering :: [String] -> [(String, String)] -> Maybe [String]
 topSortLayering names partialOrderings =
-    let orderedNodes = nodesFromEdges partialOrderings
-        freeNodes = Set.difference (Set.fromList names) orderedNodes
-        edges = map (\(x, y) -> (x, x, y)) $ adjList partialOrderings
-                    ++ (map (\x -> (x, [])) $ Set.toList freeNodes)
-        (graph, nodeFromVertex, vertexFromKey) = Graph.graphFromEdges edges
-        cyclic = not . null $ cyclicNodes graph
-    in if cyclic then error "The graph is cyclic!" else map (getNodePart . nodeFromVertex) $ Graph.topSort graph
-    where
-        getNodePart (n, _, _) = n
+  let orderedNodes = nodesFromEdges partialOrderings
+      freeNodes = Set.difference (Set.fromList names) orderedNodes
+      edges =
+        map (\(x, y) -> (x, x, y)) $
+        adjList partialOrderings ++ (map (\x -> (x, [])) $ Set.toList freeNodes)
+      (graph, nodeFromVertex, vertexFromKey) = Graph.graphFromEdges edges
+      cyclic = not . null $ cyclicNodes graph
+  in if cyclic
+       then Nothing
+       else Just $ map (getNodePart . nodeFromVertex) $ Graph.topSort graph
+  where
+    getNodePart (n, _, _) = n
+
 
 nodesFromEdges edges = Set.fromList $ concatMap (\(a, b) -> [a, b]) edges
 
@@ -931,7 +935,7 @@ adjList edges =
     in map (\x -> (x, findNeighbors x)) nodes
     where findNeighbors node = map snd $ filter ((==) node . fst) edges
 
-computeLayering :: (Autofloat a) => Translation a -> [String]
+computeLayering :: (Autofloat a) => Translation a -> Maybe [String]
 computeLayering trans =
     let layeringExprs = findLayeringExprs trans
         partialOrderings = map findNames layeringExprs
@@ -1003,53 +1007,44 @@ genOptProblemAndState trans optConfig =
     -- resampleBest numStateSamples initFullState
 
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
--- NOTE: this function also print information out to stdout
 -- TODO: enable logger
-compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> IO State
+compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> Either CompilerError State
 compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
-   putStrLn "Running Style semantics\n"
-   let selEnvs = checkSels subEnv styProg
+--    let selEnvs = checkSels subEnv styProg
+    --   let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
+    -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
+    -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
+    -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
+    -- This greatly improves the performance of the system. See #166 for more details.
+    let trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals :: Either [Error] (Translation Double)
+    case trans of
+        Left errs -> Left $ StyleTypecheck errs
+        Right transAuto -> do
+            let initState = genOptProblemAndState transAuto optConfig
+            case computeLayering transAuto of 
+                Just gpiOrdering -> Right $ initState { shapeOrdering = gpiOrdering } 
+                Nothing -> Left $ StyleLayering "The graph formed by partial ordering of GPIs is cyclic and therefore can't be sorted." 
 
-   putStrLn "Selector static semantics and local envs:\n"
-   forM_ selEnvs pPrint
-   divLine
-
-   let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
-   putStrLn "Selector matches:\n"
-   forM_ subss pPrint
-   divLine
-
-   let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals
-                       :: Either [Error] (Translation Double)
-                       -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
-                       -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
-                       -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
-                       -- This greatly improves the performance of the system. See #166 for more details.
---    let transAuto = castTranslation $ fromRight trans
---                        :: forall a . (Autofloat a) => Translation a
-   let transAuto = fromRight trans 
-
-   putStrLn "Translated Style program:\n"
-   pPrint trans
-   divLine
-
-   let initState = genOptProblemAndState transAuto optConfig
-   putStrLn "Generated initial state:\n"
-   print initState
-   divLine
-
-   -- global layering order computation
-   let gpiOrdering = computeLayering transAuto
-   putStrLn "Generated GPI global layering:\n"
-   print gpiOrdering
-   divLine
-
-   let initState' = initState { shapeOrdering = gpiOrdering }
-
-   putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
-   let warns = warnings transAuto
-   putStrLn (color Red $ intercalate "\n" warns ++ "\n")
-   return initState'
+--    putStrLn "Running Style semantics\n"
+--    putStrLn "Selector static semantics and local envs:\n"
+--    forM_ selEnvs pPrint
+--    divLine
+--    putStrLn "Selector matches:\n"
+--    forM_ subss pPrint
+--    divLine
+--    putStrLn "Translated Style program:\n"
+--    pPrint trans
+--    divLine
+--    putStrLn "Generated initial state:\n"
+--    print initState
+--    divLine
+--    putStrLn "Generated GPI global layering:\n"
+--    print gpiOrdering
+--    divLine
+--    putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
+--    let warns = warnings transAuto
+--    putStrLn (color Red $ intercalate "\n" warns ++ "\n")
+--    return initState'
 
 -- | After monomorphizing the translation's type (to make sure it's computed), we generalize the type again, which means
 -- | it's again under a typeclass lambda. (#166)
