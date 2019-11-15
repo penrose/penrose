@@ -53,6 +53,16 @@ G {
     -- Needed to hand-tune the G.bgScaleFactor and G.sphere.y
     G.bgScaleFactor = 1.11
 
+    G.labelPadding = -33.0
+    G.label = "S^2"
+
+    G.text = Text {
+	x : G.circle.x + G.circle.r + G.labelPadding
+	y : G.circle.y + G.circle.r + G.labelPadding
+	string : G.label
+	fontSize : G.fontSize
+    }
+
     G.sphere = Image {
 	 x : 0.0
 	 y : -19.0
@@ -61,6 +71,8 @@ G {
 	 rotation: 0.0
 	 path : "SphereBackground.svg"
     }
+
+    G.labelLayering = G.text above G.sphere
 
     G.circle = Circle {
     		x : 0.0
