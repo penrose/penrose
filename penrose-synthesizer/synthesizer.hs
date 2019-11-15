@@ -51,12 +51,6 @@ data ArgOption
   | Mixed
   deriving (Show)
 
-data SubStmtT
-  = DeclT
-  | BindT
-  | PredT
-  deriving (Show, Eq)
-
 data AllowDuplicates
   = Distinct
   | Repeated
@@ -74,7 +68,6 @@ data Context = Context
 data Setting = Setting
   { lengthRange :: (Int, Int)
   , argOption   :: ArgOption
-  , stmtTypes   :: [SubStmtT]
   } deriving (Show)
 
 reset :: Synthesize ()
@@ -100,10 +93,6 @@ initContext Nothing _ setting =
   , initProg = []
   , setting = setting
   }
-
--- TODO: add binding
-stmtTypeArgs :: [(String, SubStmtT)]
-stmtTypeArgs = [("predicate", PredT), ("declaration", DeclT)]
 
 getArgMode :: String -> ArgOption
 getArgMode "mixed" = Mixed
@@ -138,20 +127,13 @@ main = do
   maxLength <- args `getArgOrExit` longOption "max-length"
   minLength <- args `getArgOrExit` longOption "min-length"
   argModeStr <- args `getArgOrExit` longOption "arg-mode"
-  let stmtTs =
-        getStmtTypes $
-        map snd $ filter (isPresent args . longOption . fst) stmtTypeArgs
   let [n, lmin, lmax] = map read [numProgs, minLength, maxLength] :: [Int]
   createDirectoryIfMissing True path -- create output dir if missing
   domainIn <- readFile domainFile
   let env = D.parseElement domainFile domainIn
   -- TODO: take in argoption as param
   let settings =
-        Setting
-        { lengthRange = (lmin, lmax)
-        , argOption = getArgMode argModeStr
-        , stmtTypes = stmtTs
-        }
+        Setting {lengthRange = (lmin, lmax), argOption = getArgMode argModeStr}
   case env of
     Left err -> error $ show err
     Right env -> do
@@ -177,8 +159,6 @@ main = do
           let files = map (\i -> path ++ "/prog-" ++ show i ++ ".sub") [1 .. n]
           mapM_ writeSubstance $ zip progs files
   where
-    getStmtTypes [] = map snd stmtTypeArgs
-    getStmtTypes ss = ss
     safeReadFile Nothing  = return Nothing
     safeReadFile (Just s) = Just <$> readFile s
 
@@ -229,15 +209,18 @@ generateStatements env n = replicateM n (generateStatement env)
 -- NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
 generateStatement :: VarEnv -> Synthesize SubStmt
 generateStatement env = do
-  allowedStmts <- gets (stmtTypes . setting)
-  let stmtFs = map snd $ filter (\(s, _) -> s `elem` allowedStmts) stmts
-  stmtF <- choice stmtFs
+  stmtF <- choice $ stmtTypes env
   stmtF env
+
+stmtTypes :: VarEnv -> [VarEnv -> Synthesize SubStmt]
+stmtTypes env =
+  let typesExist = [M.null $ typeConstructors env, M.null $ predicates env]
+      validGens = map snd $ filter fst $ zip typesExist stmtGens
+  in validGens
   where
-    stmts :: [(SubStmtT, VarEnv -> Synthesize SubStmt)]
-    stmts =
-      [ (PredT, generatePredicate)
-      , (DeclT, generateType)
+    stmtGens =
+      [ generatePredicate
+      , generateType
       -- , (BindT, generateValueBinding)
       ]
 
