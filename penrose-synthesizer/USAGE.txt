@@ -4,6 +4,7 @@ Usage:
 Options:
   --substance=SUB      A Substance program that will be included in every synthesized program     
   --style=STY          A Style program that the synthesized programs work with
+  --spec=SPEC          A domain program used as a specification for synthesis 
   --num-programs=NUM   The number of programs to generate 
                        [default: 1]
   --path=PATH          Output path for the generated programs (Trailing slash not needed)

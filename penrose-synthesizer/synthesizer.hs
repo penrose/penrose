@@ -113,6 +113,16 @@ getArgMode _ =
   error
     "Invalid argument generation mode. Must be one of: mixed, generated, existing."
 
+parseSpec :: Maybe String -> IO (Maybe VarEnv)
+parseSpec Nothing = return Nothing
+parseSpec (Just specFile) = do
+  specStr <- readFile specFile
+  case D.parseElement specFile specStr of
+    Left err ->
+      error $
+      "Cannot parse the specification file at " ++ specFile ++ "\n" ++ show err
+    Right env -> return $ Just env
+
 argPatterns :: Docopt
 argPatterns = [docoptFile|penrose-synthesizer/USAGE.txt|]
 
@@ -146,9 +156,13 @@ main = do
     Left err -> error $ show err
     Right env -> do
       let subFile = args `getArg` longOption "substance"
+      let specFile = args `getArg` longOption "spec"
       initSub <- safeReadFile subFile
+      spec <- fromMaybe env <$> parseSpec specFile
       let (progs, _) =
-            runState (generatePrograms env n) (initContext initSub env settings)
+            runState
+              (generatePrograms spec n)
+              (initContext initSub env settings)
       -- let (prog, cxt) =
       --       runState (generateProgram env) (initContext initSub env settings)
       -- let progs = [prog]
