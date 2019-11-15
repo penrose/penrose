@@ -13,7 +13,7 @@ import           Data.Aeson                     (encode)
 import qualified Data.ByteString.Lazy.Char8     as B
 import           Data.Char                      (toLower)
 import           Data.Either                    (fromRight)
-import           Data.List                      (elem, group, lookup, sort)
+import           Data.List                      (elem, group, lookup, nub, sort)
 import qualified Data.Map.Strict                as M
 import           Data.Maybe
 import           Data.String
@@ -197,7 +197,7 @@ generateProgram env = do
   n <- rndNum (lmin, lmax)
   generateStatements env n
   -- return $ ts ++ stmts
-  p <- gets prog
+  p <- nub <$> gets prog
   let labelOption = AutoLabel Penrose.Substance.Default -- TODO: enfore export list in Substance module
   return $ labelOption : p0 ++ p
 
