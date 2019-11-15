@@ -77,6 +77,13 @@ data Setting = Setting
   , stmtTypes   :: [SubStmtT]
   } deriving (Show)
 
+reset :: Synthesize ()
+reset =
+  modify $ \cxt -> cxt {declaredTypes = M.empty, names = M.empty, prog = []}
+
+--------------------------------------------------------------------------------
+-- CLI
+--------------------------------------------------------------------------------
 initContext :: Maybe String -> VarEnv -> Setting -> Context
 initContext (Just subIn) env setting =
   let (SubOut subProg _ _) =
@@ -106,13 +113,6 @@ getArgMode _ =
   error
     "Invalid argument generation mode. Must be one of: mixed, generated, existing."
 
-reset :: Synthesize ()
-reset =
-  modify $ \cxt -> cxt {declaredTypes = M.empty, names = M.empty, prog = []}
-
---------------------------------------------------------------------------------
--- CLI
---------------------------------------------------------------------------------
 argPatterns :: Docopt
 argPatterns = [docoptFile|penrose-synthesizer/USAGE.txt|]
 
@@ -264,6 +264,8 @@ generatePredicate env = do
   let preds = filter (filterPred cxt) (M.elems $ predicates env)
   generatePredicateIn preds
 
+-- | Generate a single predicate given a list of predicates of choice
+-- FIXME: handle the case of empty list -> randomly pick another predicate in Generate mode?
 generatePredicateIn :: [PredicateEnv] -> Synthesize SubStmt
 generatePredicateIn preds = do
   p <- choice preds
@@ -340,6 +342,7 @@ typeName :: T -> String
 typeName (TTypeVar t) = typeVarName t
 typeName (TConstr t)  = nameCons t
 
+-- | Given a predicate and the current context, return if this predicate can be generated with _only the existing declarations_.
 filterPred :: Context -> PredicateEnv -> Bool
 filterPred cxt (Pred1 Prd1 {tlspred1 = types}) =
   let typeAndVars = M.toList $ declaredTypes cxt
