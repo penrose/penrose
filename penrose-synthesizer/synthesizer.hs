@@ -12,7 +12,7 @@ import           Control.Monad.State
 import           Data.Aeson                     (encode)
 import qualified Data.ByteString.Lazy.Char8     as B
 import           Data.Char                      (toLower)
-import           Data.List
+import           Data.List                      (elem)
 import qualified Data.Map.Strict                as M
 import           Data.Maybe
 import           Data.String
@@ -51,6 +51,12 @@ data ArgOption
   | Mixed
   deriving (Show)
 
+data SubStmtT
+  = DeclT
+  | BindT
+  | PredT
+  deriving (Show, Eq)
+
 data AllowDuplicates
   = Distinct
   | Repeated
@@ -60,7 +66,7 @@ data Context = Context
   { names         :: Names
   , declaredTypes :: M.Map String [Name] -- | Map from type name to a list of names with the type
   , prog          :: SubProg -- | AST of the generated program
-  , gen           :: StdGen -- | A random generator which will be updated regulary
+  , gen           :: StdGen -- | A random generator
   , setting       :: Setting -- | Synthesizer settings
   -- , nestingLevel    :: Int -- | the nesting level of the system in a current position
   } deriving (Show)
@@ -68,6 +74,7 @@ data Context = Context
 data Setting = Setting
   { lengthRange :: (Int, Int)
   , argOption   :: ArgOption
+  , stmtTypes   :: [SubStmtT]
   } deriving (Show)
 
 initContext :: Setting -> Context
@@ -79,6 +86,10 @@ initContext setting =
   , prog = []
   , setting = setting
   }
+
+-- TODO: add binding
+stmtTypeArgs :: [(String, SubStmtT)]
+stmtTypeArgs = [("predicate", PredT), ("declaration", DeclT)]
 
 reset :: Synthesize ()
 reset =
@@ -102,16 +113,25 @@ main = do
   numProgs <- args `getArgOrExit` longOption "num-programs"
   maxLength <- args `getArgOrExit` longOption "max-length"
   minLength <- args `getArgOrExit` longOption "min-length"
+  let stmtTs =
+        getStmtTypes $
+        map snd $ filter (isPresent args . longOption . fst) stmtTypeArgs
   let [n, lmin, lmax] = map read [numProgs, minLength, maxLength] :: [Int]
   createDirectoryIfMissing True path -- create output dir if missing
   domainIn <- readFile domainFile
   let env = D.parseElement domainFile domainIn
   -- TODO: take in argoption as param
-  let settings = Setting {lengthRange = (lmin, lmax), argOption = Mixed}
+  let settings =
+        Setting
+        {lengthRange = (lmin, lmax), argOption = Mixed, stmtTypes = stmtTs}
   case env of
     Left err -> error $ show err
-    Right env -> do
-      let (progs, _) = runState (generatePrograms env n) (initContext settings)
+    Right env
+      -- let (progs, _) = runState (generatePrograms env n) (initContext settings)
+     -> do
+      let (prog, cxt) = runState (generateProgram env) (initContext settings)
+      let progs = [prog]
+      print cxt
       if args `isPresent` longOption "style"
         then do
           let files = map (\i -> path ++ "/prog-" ++ show i) [1 .. n]
@@ -121,6 +141,9 @@ main = do
         else do
           let files = map (\i -> path ++ "/prog-" ++ show i ++ ".sub") [1 .. n]
           mapM_ writeSubstance $ zip progs files
+  where
+    getStmtTypes [] = map snd stmtTypeArgs
+    getStmtTypes ss = ss
 
 compileProg :: String -> String -> (SubProg, String) -> IO ()
 compileProg style domain (subAST, prefix) = do
@@ -169,13 +192,16 @@ generateStatements env n = replicateM n (generateStatement env)
 -- NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
 generateStatement :: VarEnv -> Synthesize SubStmt
 generateStatement env = do
-  stmtF <- choice stmts
+  allowedStmts <- gets (stmtTypes . setting)
+  let stmtFs = map snd $ filter (\(s, _) -> s `elem` allowedStmts) stmts
+  stmtF <- choice stmtFs
   stmtF env
   where
+    stmts :: [(SubStmtT, VarEnv -> Synthesize SubStmt)]
     stmts =
-      [ generatePredicate
-      , generateType
-      -- , generateValueBinding env context1
+      [ (PredT, generatePredicate)
+      , (DeclT, generateType)
+      -- , (BindT, generateValueBinding)
       ]
 
 -- | Generate object declarations

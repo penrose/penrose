@@ -1,9 +1,8 @@
 Usage:
-  penrose-synthesizer [--num-programs=NUM --min-length=MINLEN --max-length=MAXLEN --substance=SUB --style=STY --path=PATH] <domain>
+  penrose-synthesizer [--num-programs=NUM --min-length=MINLEN --max-length=MAXLEN --substance=SUB --style=STY --path=PATH --declaration --predicate --binding] <domain>
 
 Options:
   --substance=SUB      A Substance program that will be included in every synthesized program     
-                       
   --style=STY          A Style program that the synthesized programs work with
   --num-programs=NUM   The number of programs to generate 
                        [default: 1]
@@ -13,3 +12,6 @@ Options:
                        [default: 1]
   --max-length=MAXLEN  Maximum number of statements in each generated program
                        [default: 10]
+  --declaration        A flag telling the synthesizer to generate new declarations
+  --predicate          A flag telling the synthesizer to generate new predicates
+  --binding            A flag telling the synthesizer to generate new bindings
