@@ -12,6 +12,8 @@ import           Control.Monad.State
 import           Data.Aeson                     (encode)
 import qualified Data.ByteString.Lazy.Char8     as B
 import           Data.Char                      (toLower)
+import           Data.Either                    (fromRight)
+
 import           Data.List                      (elem)
 import qualified Data.Map.Strict                as M
 import           Data.Maybe
@@ -77,8 +79,14 @@ data Setting = Setting
   , stmtTypes   :: [SubStmtT]
   } deriving (Show)
 
-initContext :: Setting -> Context
-initContext setting =
+initContext :: Maybe String -> VarEnv -> Setting -> Context
+initContext (Just subIn) env setting =
+  let (SubOut subProg _ _) =
+        fromRight (error "Failed to parse the input Substance program") $
+        parseSubstance "" subIn env
+      cxt = initContext Nothing env setting
+  in cxt {prog = subProg}
+initContext Nothing _ setting =
   Context
   { declaredTypes = M.empty
   , names = M.empty
@@ -108,7 +116,6 @@ main :: IO ()
 main = do
   args <- parseArgsOrExit argPatterns =<< getArgs
   domainFile <- args `getArgOrExit` argument "domain"
-  -- substance <- args `getArgOrExit` longOption "substance"
   path <- args `getArgOrExit` longOption "path"
   numProgs <- args `getArgOrExit` longOption "num-programs"
   maxLength <- args `getArgOrExit` longOption "max-length"
@@ -126,12 +133,14 @@ main = do
         {lengthRange = (lmin, lmax), argOption = Mixed, stmtTypes = stmtTs}
   case env of
     Left err -> error $ show err
-    Right env
-      -- let (progs, _) = runState (generatePrograms env n) (initContext settings)
-     -> do
-      let (prog, cxt) = runState (generateProgram env) (initContext settings)
-      let progs = [prog]
-      print cxt
+    Right env -> do
+      let subFile = args `getArg` longOption "substance"
+      initSub <- safeReadFile subFile
+      let (progs, _) =
+            runState (generatePrograms env n) (initContext initSub env settings)
+      -- let (prog, cxt) = runState (generateProgram env) (initContext initSub settings)
+      -- let progs = [prog]
+      -- print cxt
       if args `isPresent` longOption "style"
         then do
           let files = map (\i -> path ++ "/prog-" ++ show i) [1 .. n]
@@ -144,6 +153,8 @@ main = do
   where
     getStmtTypes [] = map snd stmtTypeArgs
     getStmtTypes ss = ss
+    safeReadFile Nothing  = return Nothing
+    safeReadFile (Just s) = Just <$> readFile s
 
 compileProg :: String -> String -> (SubProg, String) -> IO ()
 compileProg style domain (subAST, prefix) = do
