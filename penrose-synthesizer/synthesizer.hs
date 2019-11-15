@@ -13,19 +13,17 @@ import           Data.Aeson                     (encode)
 import qualified Data.ByteString.Lazy.Char8     as B
 import           Data.Char                      (toLower)
 import           Data.Either                    (fromRight)
-
-import           Data.List                      (elem)
+import           Data.List                      (elem, group, lookup, sort)
 import qualified Data.Map.Strict                as M
 import           Data.Maybe
 import           Data.String
 import           Data.Typeable
-import           Debug.Trace
 import           Penrose.API
 import qualified Penrose.Element                as D
 import           Penrose.Env                    hiding (typeName)
 import           Penrose.Pretty
 import           Penrose.Substance
-import           Penrose.Util                   (pickOne)
+import           Penrose.Util                   (pickOne, trRaw)
 import           System.Console.Docopt
 import           System.Console.Pretty          as CP
 import           System.Directory               (createDirectoryIfMissing)
@@ -68,9 +66,9 @@ data Context = Context
   { names         :: Names
   , declaredTypes :: M.Map String [Name] -- | Map from type name to a list of names with the type
   , prog          :: SubProg -- | AST of the generated program
+  , initProg      :: SubProg -- | AST of an input Substance program
   , gen           :: StdGen -- | A random generator
   , setting       :: Setting -- | Synthesizer settings
-  -- , nestingLevel    :: Int -- | the nesting level of the system in a current position
   } deriving (Show)
 
 data Setting = Setting
@@ -85,19 +83,28 @@ initContext (Just subIn) env setting =
         fromRight (error "Failed to parse the input Substance program") $
         parseSubstance "" subIn env
       cxt = initContext Nothing env setting
-  in cxt {prog = subProg}
+  in cxt {initProg = subProg}
 initContext Nothing _ setting =
   Context
   { declaredTypes = M.empty
   , names = M.empty
   , gen = mkStdGen seedRnd
   , prog = []
+  , initProg = []
   , setting = setting
   }
 
 -- TODO: add binding
 stmtTypeArgs :: [(String, SubStmtT)]
 stmtTypeArgs = [("predicate", PredT), ("declaration", DeclT)]
+
+getArgMode :: String -> ArgOption
+getArgMode "mixed" = Mixed
+getArgMode "generated" = Generated
+getArgMode "existing" = Existing
+getArgMode _ =
+  error
+    "Invalid argument generation mode. Must be one of: mixed, generated, existing."
 
 reset :: Synthesize ()
 reset =
@@ -120,6 +127,7 @@ main = do
   numProgs <- args `getArgOrExit` longOption "num-programs"
   maxLength <- args `getArgOrExit` longOption "max-length"
   minLength <- args `getArgOrExit` longOption "min-length"
+  argModeStr <- args `getArgOrExit` longOption "arg-mode"
   let stmtTs =
         getStmtTypes $
         map snd $ filter (isPresent args . longOption . fst) stmtTypeArgs
@@ -130,7 +138,10 @@ main = do
   -- TODO: take in argoption as param
   let settings =
         Setting
-        {lengthRange = (lmin, lmax), argOption = Mixed, stmtTypes = stmtTs}
+        { lengthRange = (lmin, lmax)
+        , argOption = getArgMode argModeStr
+        , stmtTypes = stmtTs
+        }
   case env of
     Left err -> error $ show err
     Right env -> do
@@ -138,7 +149,8 @@ main = do
       initSub <- safeReadFile subFile
       let (progs, _) =
             runState (generatePrograms env n) (initContext initSub env settings)
-      -- let (prog, cxt) = runState (generateProgram env) (initContext initSub settings)
+      -- let (prog, cxt) =
+      --       runState (generateProgram env) (initContext initSub env settings)
       -- let progs = [prog]
       -- print cxt
       if args `isPresent` longOption "style"
@@ -185,15 +197,15 @@ generatePrograms env n = replicateM n (generateProgram env <* reset)
 --   calls other functions to generate specific statements
 generateProgram :: VarEnv -> Synthesize SubProg
 generateProgram env = do
-  i <- rndNum (1, 2) -- FIXME: get rid of the hard-coded numbers
+  p0 <- gets initProg -- TODO: move the loading phase to another function
+  mapM_ loadStmt p0
   (lmin, lmax) <- gets (lengthRange . setting)
-  j <- rndNum (lmin, lmax)
-  generateTypes env i
-  generateStatements env j
+  n <- rndNum (lmin, lmax)
+  generateStatements env n
   -- return $ ts ++ stmts
   p <- gets prog
   let labelOption = AutoLabel Penrose.Substance.Default -- TODO: enfore export list in Substance module
-  return $ labelOption : p
+  return $ labelOption : p0 ++ p
 
 -- | Generate random Substance statements
 generateStatements :: VarEnv -> Int -> Synthesize [SubStmt]
@@ -248,18 +260,22 @@ generateType' typ (General env) = do
 -- FIXME: currently not handling nesting
 generatePredicate :: VarEnv -> Synthesize SubStmt
 generatePredicate env = do
-  let preds = M.toList (predicates env)
-  (_, p) <- choice preds
+  cxt <- get
+  let preds = filter (filterPred cxt) (M.elems $ predicates env)
+  generatePredicateIn preds
+
+generatePredicateIn :: [PredicateEnv] -> Synthesize SubStmt
+generatePredicateIn preds = do
+  p <- choice preds
   gen p
   where
-    gen (Pred1 p1) = generatePredicate1 env
-    gen (Pred2 p2) = generatePredicate2 env
+    gen (Pred1 p1) = generatePredicate1 p1
+    gen (Pred2 p2) = generatePredicate2 p2
 
-generatePredicate1, generatePredicate2 :: VarEnv -> Synthesize SubStmt
-generatePredicate1 env = do
-  pred <- choice (pred1s env)
+generatePredicate1 :: Predicate1 -> Synthesize SubStmt
+generatePredicate1 pred = do
   opt <- gets (argOption . setting)
-  args <- map PE <$> generateArgs env opt (map typeName $ tlspred1 pred)
+  args <- map PE <$> generateArgs opt (map typeName $ tlspred1 pred)
   let stmt =
         ApplyP $
         Predicate
@@ -267,9 +283,9 @@ generatePredicate1 env = do
   appendStmt stmt
   return stmt
 
+generatePredicate2 :: Predicate2 -> Synthesize SubStmt
 -- TODO: make sure pred2 is higher-level predicates?
-generatePredicate2 env = do
-  pred <- choice (pred2s env)
+generatePredicate2 pred = do
   let args = []
   let stmt =
         ApplyP $
@@ -279,25 +295,25 @@ generatePredicate2 env = do
   return stmt
 
 -- | Generate a list of arguments for predicates or functions
-generateArgs :: VarEnv -> ArgOption -> [String] -> Synthesize [Expr]
-generateArgs env opt = mapM (generateArg env opt)
+generateArgs :: ArgOption -> [String] -> Synthesize [Expr]
+generateArgs opt = mapM (generateArg opt)
 
 -- | Generate a list of arguments for predicates or functions
-generateArg :: VarEnv -> ArgOption -> String -> Synthesize Expr
-generateArg env Existing typ = do
+generateArg :: ArgOption -> String -> Synthesize Expr
+generateArg Existing typ = do
   existingTypes <- gets declaredTypes
   case M.lookup typ existingTypes of
-    Nothing -> generateArg env Generated typ
+    Nothing -> error $ "No existing types for: " ++ show typ
     Just lst -> do
       n <- choice lst -- pick one existing id
       return $ VarE $ VarConst n
-generateArg env Generated typ = do
+generateArg Generated typ = do
   generateType' typ Concrete -- TODO: concrete types for now
-  generateArg env Existing typ
-generateArg e Mixed typ
+  generateArg Existing typ
+generateArg Mixed typ
   -- TODO: check lazy eval and see if both branches actually get executed
  = do
-  f <- choice [generateArg e Existing, generateArg e Generated]
+  f <- choice [generateArg Existing, generateArg Generated]
   f typ
 
 -- FIXME: finish the implementation
@@ -323,6 +339,21 @@ possibleTypes env t =
 typeName :: T -> String
 typeName (TTypeVar t) = typeVarName t
 typeName (TConstr t)  = nameCons t
+
+filterPred :: Context -> PredicateEnv -> Bool
+filterPred cxt (Pred1 Prd1 {tlspred1 = types}) =
+  let typeAndVars = M.toList $ declaredTypes cxt
+      existingFreq = map (\(t, ns) -> (t, length ns)) typeAndVars
+      predFreq = countTypes types
+  in all
+       (\(t, n) -> compareFreq n $ filter ((==) t . fst) existingFreq)
+       predFreq
+  where
+    countTypes ts = freq $ map typeName ts
+    freq = map (\x -> (head x, length x)) . group . sort
+    compareFreq predCount [(typ, typCount)] = predCount <= typCount
+    compareFreq predCount _                 = False
+filterPred pred (Pred2 _) = True -- NOTE: higher-order predicates are always allowed
 
 --------------------------------------------------------------------------------
 -- Randomness Helpers
@@ -350,6 +381,15 @@ choiceSafe lst = do
   return $ Just (lst !! i)
 
 --------------------------------------------------------------------------------
+-- Substance loader
+--------------------------------------------------------------------------------
+-- | Load a statement from a supplied Substance program to be used as the template for synthesis
+loadStmt :: SubStmt -> Synthesize ()
+loadStmt (Decl (TConstr TypeCtorApp {nameCons = typ}) (VarConst v)) =
+  insertName typ v
+loadStmt _ = return ()
+
+--------------------------------------------------------------------------------
 -- Name generation
 --------------------------------------------------------------------------------
 -- | Generate a new name given a type
@@ -363,6 +403,16 @@ freshName typ = do
     , names = names'
     }
   return n
+
+insertName :: String -> String -> Synthesize ()
+insertName typ name = do
+  cxt <- get
+  let (n, names') = uniqueName name $ names cxt
+  modify $ \cxt ->
+    cxt
+    { declaredTypes = M.insertWith (++) typ [n] (declaredTypes cxt)
+    , names = names'
+    }
 
 prefixOf :: String -> String
 prefixOf = map toLower . take 1

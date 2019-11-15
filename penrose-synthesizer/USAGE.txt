@@ -1,5 +1,5 @@
 Usage:
-  penrose-synthesizer [--num-programs=NUM --min-length=MINLEN --max-length=MAXLEN --substance=SUB --style=STY --path=PATH --declaration --predicate --binding] <domain>
+  penrose-synthesizer <domain> [options]
 
 Options:
   --substance=SUB      A Substance program that will be included in every synthesized program     
@@ -15,3 +15,5 @@ Options:
   --declaration        A flag telling the synthesizer to generate new declarations
   --predicate          A flag telling the synthesizer to generate new predicates
   --binding            A flag telling the synthesizer to generate new bindings
+  --arg-mode=MODE      Argument generation mode: (1) generated: always generate new type declarations; (2) existing: attempt to search for constructs that apply to existing statements and switch to (1) after exhaustive search; (3) 50% chance of (1) or (2)
+                       [default: mixed]
