@@ -48,4 +48,19 @@ Point p {
         x : p.shape.x + p.offset
         y : p.shape.y + p.offset
     }
+
+    p.textLayering = p.text above p.shape
+}
+
+Point p
+with Set A
+where PointIn(A, p) {
+    p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
+    p.layering = p.shape above A.shape
+}
+
+Point p
+with Set A
+where Not(PointIn(A, p)) {
+    p.notContainsFn = ensure disjoint(A.shape, p.shape)
 }
