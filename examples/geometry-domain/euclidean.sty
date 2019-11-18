@@ -37,6 +37,16 @@ G {
     G.textPadding = 7.0
     G.repelWeight = 0.7
     G.fontSize = "18pt"
+
+    G.label = "E^2"
+    G.text = Text {
+	x : 100.0
+	y : 100.0
+	string : G.label
+	fontSize : G.fontSize
+    }
+
+   -- G.textLayering = G.text above G.disk
 }
 
 Point p {
@@ -141,7 +151,7 @@ with Point p; Point q; Point r {
 }
 
 Ray r {
-    r.length = 200.0
+    r.length = 150.0
 }
 
 Point p
@@ -235,6 +245,7 @@ where r := PerpendicularBisector(s); m := Midpoint(s) {
       r.markLayering6 = r.perpMark below r.shape
       r.markLayering7 = r.perpMark below m.shape
 
+     LOCAL.labelAvoidFn_Mark = encourage repel(r.shape, m.text, G.repelWeight)
      LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, G.repelWeight)
      LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, G.repelWeight)
 }
