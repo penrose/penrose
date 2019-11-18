@@ -209,7 +209,9 @@ generateStatements env n = replicateM n (generateStatement env)
 -- NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
 generateStatement :: VarEnv -> Synthesize SubStmt
 generateStatement env = do
-  stmtF <- choice $ stmtTypes env
+  stmtF <-
+    fromMaybe (error "No valid statement types to be generated.") <$>
+    choiceSafe (stmtTypes env)
   stmtF env
 
 stmtTypes :: VarEnv -> [VarEnv -> Synthesize SubStmt]
@@ -232,7 +234,9 @@ generateTypes env n = replicateM n (generateType env)
 generateType :: VarEnv -> Synthesize SubStmt
 generateType env = do
   let types = M.toList (typeConstructors env)
-  (typ, _) <- choice types -- COMBAK: check for empty list
+  (typ, _) <-
+    fromMaybe (error "No type constructor found in the Domain program.") <$>
+    choiceSafe types
   generateType' typ Concrete
 
 -- | Generate a single object declaration given the type name. 'Concrete' generic option will only genrate an object of the designated type, whereas 'General' option allows parent types and (?) child types.
@@ -264,6 +268,7 @@ generatePredicate env = do
 -- | Generate a single predicate given a list of predicates of choice
 -- FIXME: handle the case of empty list -> randomly pick another predicate in Generate mode?
 generatePredicateIn :: [PredicateEnv] -> Synthesize SubStmt
+generatePredicateIn [] = error "No predicates found for synthesis."
 generatePredicateIn preds = do
   p <- choice preds
   gen p
