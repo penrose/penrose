@@ -347,8 +347,8 @@ function findMesh(vname, json, objs) {
 
     // TODO: write a "find" function
     let meshNames = json.constraints.predicates
-	.filter(o => o.pname === "InVS" && vname === o.pargNames[0])
-        .map(o => o.pargNames[1]);
+	.filter(o => o.pname === "InVS" && vname === o.pargs[0].Left)
+        .map(o => o.pargs[1].Left);
 
     if (meshNames.length !== 1) {
 	console.log("expected to find vertex " + vname + " in exactly one mesh, but found " + meshNames.length);
@@ -573,7 +573,7 @@ function makeSub(json) {
     // P([x]): ignore predicates for now
 
     let subDecls = json.objects;
-    let subPreds = json.constraints.predicates;
+    // let subPreds = json.constraints.predicates;
     let subFnCalls = json.constraints.functions;
 
     let objs_flat = subDecls.map(decl => makeObj(decl))

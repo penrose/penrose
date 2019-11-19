@@ -125,7 +125,8 @@ with SComplex K {
        v.text = Text {
 	 x : v.shape.x + global.padding
 	 y : v.shape.y + global.padding
-	 string : ""
+	 string : "\\text{ }" 
+	 -- string : " " -- TODO: the frontend does not deal with empty strings well! Doesn't seem to generate a label with dimensions. See above for how to get around this
 	 rotation : 0.0
 	 color : v.shape.color
        }
