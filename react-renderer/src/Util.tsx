@@ -13,13 +13,30 @@ export const arrowheads = {
     path: "M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
   },
   "arrowhead-2": {
-    width: 18.95,
+    width: 9.95,
     height: 8.12,
-    viewbox: "0 0 18.95 8.12",
-    refX: "9.475",
+    viewbox: "0 0 9.95 8.12",
+    refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
     refY: "4.06",
-    path: "M9.95 4.06 0 8.12 2.35 4.06 0 0 9.95 4.06z"
+    path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
   }
+};
+
+export const Shadow = (props: { id: string }) => {
+  return (
+    <filter id={props.id} x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  );
 };
 
 export const Arrowhead = (props: {
@@ -171,6 +188,7 @@ export const collectLabels = async (allShapes: any[]) => {
     skipStartupTypeset: true,
     extensions: ["tex2jax.js", "TeX/AMSmath.js"],
     jax: ["input/TeX", "output/SVG"],
+    // https://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html
     SVG: {
       matchFontHeight: false,
       useGlobalCache: false, // Needed for SVG inline export
