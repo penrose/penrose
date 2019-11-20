@@ -1,6 +1,41 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+}
+
+const {
+  const.pi = 3.14159
+  const.debugDotRadius = 5.0
+  const.debugX = -200.0
+  const.debugY = 200.0
+  const.debugR = 50.0
+
+  const.debugCircle = Circle {
+    x : const.debugX
+    y : const.debugY
+    r : const.debugR
+    strokeWidth : 3
+    strokeColor : Colors.gray
+    color : Colors.none
+  }
+
+  const.wheelLabel = Text {
+    string : "\\text{hue}"
+    x : const.debugX
+    y : const.debugY
+    fontSize : "15pt"
+    color : Colors.gray
+  }
+}
+
 Set x {
+    x.hue = ? -- In degrees
+    x.color = hsva(x.hue, 100.0, 80.0, 0.5)
+
     x.shape = Circle {
         strokeWidth : 0
+	color : x.color
     }
 
     x.text = Text {
@@ -12,10 +47,24 @@ Set x {
     x.maxSizeFn = ensure maxSize(x.shape)
     x.labelPosFn = encourage sameCenter(x.text, x.shape)
     LOCAL.layering  = x.shape below x.text
+
+    -- Hue wheel debugging
+    x.hueRad = const.pi * x.hue / 180.0
+
+    x.hueDebug = Circle {
+        x : const.debugX + const.debugR * cos(x.hueRad)
+	y : const.debugY + const.debugR * sin(x.hueRad)
+	r : const.debugDotRadius
+	strokeWidth : 0.0
+	strokeColor : Colors.none
+	color : x.color
+    }
 }
 
 Set x; Set y
 where IsSubset(x, y) {
+    LOCAL.hueDistFn = encourage repel(x.hue, y.hue, 1.0, "angle")
+
     LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
     LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
     LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)

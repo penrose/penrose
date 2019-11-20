@@ -53,7 +53,7 @@ class Arc extends React.Component<IGPIPropsDraggable> {
     const { canvasSize } = this.props;
     const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.strokeColor.contents);
-    const strokeOpacity = shape.strokeColor.contents[3];
+    const strokeOpacity = shape.strokeColor.contents.contents[3];
     const fillColor = toHex(shape.fillColor.contents);
     const fillOpacity = shape.fillColor.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;

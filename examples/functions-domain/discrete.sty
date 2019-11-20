@@ -7,6 +7,34 @@ G {
   G.arrowOffset = 20.0
   G.fontSize = "22pt"
   G.domainPointSize = 8.0
+  G.pointRadius = 7.0
+  G.pointRadiusLarge = G.pointRadius * 1.4
+}
+
+-- For hue wheel
+const {
+  const.pi = 3.14159
+  const.debugDotRadius = 5.0
+  const.debugX = -250.0
+  const.debugY = 250.0
+  const.debugR = 50.0
+
+  const.debugCircle = Circle {
+    x : const.debugX
+    y : const.debugY
+    r : const.debugR
+    strokeWidth : 3
+    strokeColor : Colors.gray
+    color : Colors.none
+  }
+
+  const.wheelLabel = Text {
+    string : "\\text{hue}"
+    x : const.debugX
+    y : const.debugY
+    fontSize : "15pt"
+    color : Colors.gray
+  }
 }
 
 Colors {
@@ -64,7 +92,7 @@ where In(p, A) {
         strokeWidth : 2.5
         strokeColor : Colors.black
         color : Colors.black
-        r : 10.0
+        r : G.pointRadius
         x : A.shape.x
     }
 
@@ -87,13 +115,39 @@ where From(f, A, B) {
     }
 }
 
+Point q
+with Map f
+where InImage(q, f) {
+    q.hue = ?
+    q.inverseColor = hsva(q.hue, 100.0, 80.0, 1.0)
+
+    override q.shape.color = q.inverseColor
+    override q.shape.r = G.pointRadiusLarge
+
+    -- Hue wheel debugging
+    q.hueRad = const.pi * q.hue / 180.0
+
+    q.hueDebug = Circle {
+        x : const.debugX + const.debugR * cos(q.hueRad)
+	y : const.debugY + const.debugR * sin(q.hueRad)
+	r : const.debugDotRadius
+	strokeWidth : 0.0
+	strokeColor : Colors.none
+	color : q.shape.color
+    }
+}
+
+-- Pairwise repel between the hue of each color in the image of the function
+Point q1; Point q2
+with Map f
+where InImage(q1, f); InImage(q2, f) {
+    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle")
+}
+
 Point p; Point q
 with Map f
 where PairIn(p, q, f) {
     LOCAL.mapPaddingY = ?
-
-    q.inverseColor = sampleColor(1.0)
-    -- This will get overridden if multiple `p` map to a `q`, but only the final color will be used for all `p`
 
     p.mapShape = Arrow {
         startX : p.shape.x + G.arrowOffset
@@ -106,8 +160,8 @@ where PairIn(p, q, f) {
         -- TODO: Might be easier to distinguish between the arrows if they were different colors, but can't sample solid colors
     }
 
-    override q.shape.color = q.inverseColor
-    override p.shape.r = q.shape.r * 0.7
+    override p.shape.color = q.inverseColor
+    override p.shape.r = G.pointRadiusLarge
 
     -- Try to get the arrowheads to point at the right mapped point
     LOCAL.equalFn = encourage equal(p.mapShape.endY, q.shape.y)

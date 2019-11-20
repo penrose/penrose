@@ -66,7 +66,7 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
     const strokeColor = toHex(shape.color.contents);
     console.log("strokeColor", shape.color.contents, strokeColor);
     const fillColor = toHex(shape.fill.contents);
-    const strokeOpacity = shape.color.contents[3];
+    const strokeOpacity = shape.color.contents.contents[3];
     const fillOpacity = shape.fill.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
     const arrowheadSize = shape.arrowheadSize.contents;

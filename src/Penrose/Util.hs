@@ -11,6 +11,7 @@ import           Data.Typeable
 import           Debug.Trace
 import           System.Random
 import           System.Random.Shuffle
+import           Data.Fixed            (mod')
 
 default (Int, Float)
 
@@ -331,6 +332,13 @@ clamp (l, r) x = max l $ min r x
 
 subsampleEvery :: Int -> [a] -> [a]
 subsampleEvery n xs = map fst $ filter (\(e, i) -> i `mod` n == 0) $ zip xs ([0..length xs])
+
+-- Angle in degrees, doesn't need to be in [0,360], takes the smallest distance between them
+-- How do derivatives work here?
+-- From: https://stackoverflow.com/questions/1878907/the-smallest-difference-between-2-angles
+angleDist :: Autofloat a => a -> a -> a
+angleDist u v = let a' = v - u
+                in abs $ (a' + 180) `mod'` 360 - 180
 
 --------------------------------------
 -- Reflection capabilities to typecheck Computation functions
