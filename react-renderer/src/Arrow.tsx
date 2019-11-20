@@ -24,11 +24,11 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
 
     // HACK: fix arrow position
-    const { width, height } = arrowheads[arrowheadStyle];
+    const { width, height, refX, refY } = arrowheads[arrowheadStyle];
     const slope = Math.atan2(ey - sy, ex - sx);
     const [offsetX, offsetY] = [
-      (Math.cos(slope) * width) / 2,
-      (Math.sin(slope) * height) / 2
+      Math.cos(slope) * (width - refX),
+      Math.sin(slope) * (height - refY)
     ];
 
     return (
@@ -41,8 +41,8 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
           size={arrowheadSize}
         />
         <path
-          d={`M${sx} ${sy} L${ex} ${ey}`}
-          // d={`M${sx} ${sy} L${ex - offsetX} ${ey - offsetY}`}
+          // d={`M${sx} ${sy} L${ex} ${ey}`}
+          d={`M${sx} ${sy} L${ex - offsetX} ${ey - offsetY}`}
           fill={color}
           stroke={color}
           fillOpacity={alpha}
