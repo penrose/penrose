@@ -903,7 +903,7 @@ angleOf [GPI l@("Line", _), Val (FloatV originX), Val (FloatV originY)] =
 
 perp :: Autofloat a => Pt2 a -> Pt2 a -> Pt2 a -> a -> Pt2 a
 perp start end base len =
-  let dir = normalize' $ end -: start
+  let dir = normalize' $ start -: end -- Draw it the other way
       perpDir = (len *: (rot90 dir)) +: base
   in perpDir
 
@@ -1790,10 +1790,10 @@ contains [GPI c@("Circle", _), GPI t@("Text", _)] =
 contains [GPI s@("Square", _), GPI l@("Text", _)] =
   dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 +
   getNum l "w" / 2
-contains [GPI s@("Rectangle", _), GPI l@("Text", _)] =
+contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
-  dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 +
-  getNum l "w" / 2
+  dist (getX l, getY l) (getX r, getY r) - getNum r "sizeX" / 2 +
+  getNum l "w" / 2 + padding
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
   dist (getX outc, getY outc) (getX inc, getY inc) -
   (0.5 * getNum outc "side" - 0.5 * getNum inc "side")
@@ -1837,11 +1837,15 @@ contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
      inRange endY ly ry
 
-contains [GPI r@("Rectangle", _), GPI c@("Circle", _)] =
+contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
              -- HACK: reusing test impl, revert later
              let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
                  diff = r_l - getNum c "r"
-             in dist (getX r, getY r) (getX c, getY c) - diff
+             in dist (getX r, getY r) (getX c, getY c) - diff + padding
+
+contains [GPI r@("Rectangle", _), Val (TupV (x, y)), Val (FloatV padding)] =
+             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+             in dist (getX r, getY r) (x, y) - r_l + padding
 
 contains [GPI sq@("Square", _), GPI ar@("Line", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
@@ -2069,10 +2073,13 @@ atDist :: ConstrFn
 atDist [GPI o, GPI txt@("Text", _), Val (FloatV offset)] =
   -- TODO: also account for boundary/radius of `o`, rather than just using center
   let ([textPts], _, textBbox, _) = getPolygon txt
-      dsq_res = dsqBP textPts (getX o, getY o) -- Note this does NOT use the signed distance
-      constrEnergy = equal' dsq_res (offset * offset)
-  in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
-            "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
+      oPt = (getX o, getY o)
+  in if isInB' textPts oPt -- The point is inside the box, so push it outside
+     then noIntersect [[getX txt, getY txt, getNum txt "w"], [fst oPt, snd oPt, 2.0]] -- TODO use better sizes for each object
+     else let dsq_res = dsqBP textPts (getX o, getY o) -- Note this does NOT use the signed distance
+              constrEnergy = equal' dsq_res (offset * offset)
+          in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
+                    "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
 
 -- If the point is in the blob, it should have a penalty. If the point is outside the blob, ignore it.
 -- TODO: Should we use a bbox on curve to accelerate queries?

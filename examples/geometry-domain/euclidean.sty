@@ -1,24 +1,21 @@
-/* TODO
+/* # TODO
 
-- fits in box with custom margin around labels
+- make the diagram the right size for the PDF
+
+# OBJECTS TODO
+
 - ray head is contained in box and is not fixed length
-- angle is minimum size
+  - Add a rect-point constraint (or just use inRange?)
+- rays don't overlap other rays (or segments)
+- Maybe it would make more sense to sample in range of the box, rather than the canvas, and then optimize?? Can that be customizable in Style?
+
+# LABELS TODO
 
 - make `m` and `s` labels better (esp placing above segment)
-- nothing overlaps the E^2 label (no other labels or primitives)
-- rays don't overlap other rays (or segments)
-- labels are not placed to top right?
 - labels don't pairwise overlap
-
-- Check that the rect-circle constraint is written right
-- Check that the rect-label constraint is written right (and acccount for label size)
-- Add a rect-point constraint (or just use inRange?)
-
-Because the segments are super long it always ends up squishing the angle very small and placing it along a diagonal of the box. Make the segments a lot smaller?
-
-Also sometimes the labels end up on TOP of the points due to the distance objective not being signed
-
-Maybe it would make more sense to sample in range of the box, rather than the canvas, and then optimize?? Can that be customizable in Style?
+  - nothing overlaps the E^2 label (no other labels or primitives)
+- sometimes the labels end up on TOP of the points due to the distance objective not being signed -- fix that
+- account for label size in rect-label constraint (doesn't deal w/ non-square labels)
 
 */
 
@@ -64,7 +61,10 @@ G {
     G.textPadding = 7.0
     G.textPadding2 = 25.0
     G.repelWeight = 0.7
+    G.repelWeight2 = 0.5
     G.fontSize = "18pt"
+    G.containPadding = 40.0
+    G.rayLength = 70.0
 
     G.label = "E^2"
     G.text = Text {
@@ -110,13 +110,15 @@ Point p {
 	 y : ?
 	 string : p.label
 	 rotation : 0.0
-	 color : p.shape.color
+	 color : Colors.black
 	 fontSize : G.fontSize
        }
 
        p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)
-       p.posFn = ensure contains(G.plane, p.shape)
-       p.labelFn = ensure contains(G.plane, p.text)
+       -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
+       -- There's a choice of whether to put padding on the point or the text for containment
+       p.posFn = ensure contains(G.plane, p.shape, G.containPadding)
+       p.labelFn = ensure contains(G.plane, p.text, 0.0)
 
        p.layering1 = p.shape above G.plane
        p.layering2 = p.text above G.plane
@@ -186,10 +188,13 @@ with Point p; Point q; Point r {
      theta.layering2 = theta.shape below p.shape
      theta.layering3 = theta.shape below q.shape
      theta.layering4 = theta.shape below r.shape
+
+     -- TODO: or could be minimum constraint function
+     theta.sizeFn = encourage repel(q.shape, r.shape, 100.0)
 }
 
 Ray r {
-    r.length = 150.0
+    r.length = G.rayLength
 }
 
 Point p
@@ -197,6 +202,10 @@ where p := Midpoint(s)
 with Segment s {
      override p.shape.x = midpointX(s.shape)
      override p.shape.y = midpointY(s.shape)
+
+     override p.shape.color = Colors.white
+     override p.shape.r = 3.2
+     p.midLayering = p.shape above s.shape
 }
 
 Ray r
@@ -292,10 +301,17 @@ where r := PerpendicularBisector(s); m := Midpoint(s) {
      LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, G.repelWeight)
 }
 
--- TODO: what order should the selectors be in?
+-- TODO: trying to just add a repel function on the point that's not in a segment... this might be too many repels for the ones that are in a segment though
+
+-- TODO: should we use G.repelWeight below?
 
 Ray r; Point p {
+    LOCAL.labelAvoidFn = encourage repel(r.shape, p.text, G.repelWeight)
     LOCAL.layering = r.shape below p.shape
+}
+
+Segment s; Point p {
+     LOCAL.labelAvoidFn_p = encourage repel(s.shape, p.text, G.repelWeight)
 }
 
 Triangle t; Point p {
