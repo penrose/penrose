@@ -1,3 +1,27 @@
+/* TODO
+
+- fits in box with custom margin around labels
+- ray head is contained in box and is not fixed length
+- angle is minimum size
+
+- make `m` and `s` labels better (esp placing above segment)
+- nothing overlaps the E^2 label (no other labels or primitives)
+- rays don't overlap other rays (or segments)
+- labels are not placed to top right?
+- labels don't pairwise overlap
+
+- Check that the rect-circle constraint is written right
+- Check that the rect-label constraint is written right (and acccount for label size)
+- Add a rect-point constraint (or just use inRange?)
+
+Because the segments are super long it always ends up squishing the angle very small and placing it along a diagonal of the box. Make the segments a lot smaller?
+
+Also sometimes the labels end up on TOP of the points due to the distance objective not being signed
+
+Maybe it would make more sense to sample in range of the box, rather than the canvas, and then optimize?? Can that be customizable in Style?
+
+*/
+
 Colors {
     -- Keenan palette
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
@@ -5,6 +29,9 @@ Colors {
     Colors.darkpurple = rgba(0.549,0.565,0.757, 1.0)
     Colors.purple2 = rgba(0.106, 0.122, 0.54, 0.2)
     Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
+
+    Colors.verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
+    Colors.purple3 = rgba(0.557, 0.627, 0.769, 1.0)
 
     Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
     Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
@@ -35,18 +62,33 @@ G {
     G.arrowheadSize = 0.65
     G.strokeWidth = 1.75
     G.textPadding = 7.0
+    G.textPadding2 = 25.0
     G.repelWeight = 0.7
     G.fontSize = "18pt"
 
     G.label = "E^2"
     G.text = Text {
-	x : 100.0
-	y : 100.0
+	x : (G.dim / 2.0) - G.textPadding2
+	y : (G.dim / 2.0) - G.textPadding2
 	string : G.label
 	fontSize : G.fontSize
     }
 
-   -- G.textLayering = G.text above G.disk
+    G.dim = 250.0
+
+    -- inner: #f3f4f9, outer: #8e93c4
+    G.plane = Rectangle {
+    	    angle : 0.0
+	    color : Colors.verylightpurple
+	    strokeColor : Colors.purple3
+	    strokeWidth : 2.0
+	    x : 0.0
+	    y : 0.0
+	    sizeX : G.dim
+	    sizeY : G.dim
+    }
+
+   G.textLayering = G.text above G.plane
 }
 
 Point p {
@@ -73,7 +115,11 @@ Point p {
        }
 
        p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)
-       -- p.posFn = ensure onCanvas(p.shape)
+       p.posFn = ensure contains(G.plane, p.shape)
+       p.labelFn = ensure contains(G.plane, p.text)
+
+       p.layering1 = p.shape above G.plane
+       p.layering2 = p.text above G.plane
 }
 
 Segment e
@@ -90,23 +136,19 @@ with Point p; Point q {
 	     thickness : G.strokeWidth
      }
 
-     -- e.text = Text {
-     --   x = midpointX(e.shape) + global.padding
-     --   y = midpointY(e.shape) + global.padding
-     --   string = e.label
-     --   rotation = 0.0
-     -- }
-
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
 
      LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, G.repelWeight)
      LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, G.repelWeight)
 
-     e.norm = 200.0
-     e.normFn = ensure hasNorm(e.vec, 200.0)
-}
+     -- e.norm = 200.0
 
+     -- TODO: ensure norm > 10.0
+     -- e.normFn = ensure hasNorm(e.vec, 200.0)
+
+     e.layering = e.shape above G.plane
+}
 
 Triangle t
 where t := MkTriangleP(p, q, r)
@@ -122,11 +164,7 @@ with Point p; Point q; Point r {
 	     rotation : 0.0
      }
 
-     -- t.text = Text {
-     --   string = f.label
-     --   color = f.color
-     --   rotation = 0.0
-     -- }
+     t.layering = t.shape above G.plane
 }
 
 Angle theta
@@ -144,7 +182,7 @@ with Point p; Point q; Point r {
 		 fill : setOpacity(Colors.white, 0.5)
      }
 
-     -- theta.layeringSphere = theta.shape above G.sphere
+     theta.layering1 = theta.shape above G.plane
      theta.layering2 = theta.shape below p.shape
      theta.layering3 = theta.shape below q.shape
      theta.layering4 = theta.shape below r.shape
@@ -210,6 +248,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
 
       theta.layeringMark1 = theta.bisectMark1 above theta.shape
       theta.layeringMark2 = theta.bisectMark2 above theta.shape
+      r.layering = r.shape above G.plane
 }
 
 Ray r
@@ -236,6 +275,9 @@ where r := PerpendicularBisector(s); m := Midpoint(s) {
 		 color : Colors.black
 		 fill : setOpacity(Colors.white, 0.5)
       }
+
+      r.layering1 = r.shape above G.plane
+      r.layering2 = r.perpMark above G.plane
 
       r.markLayering1 = r.perpMark below s.shape
       r.markLayering2 = r.perpMark below r.shape

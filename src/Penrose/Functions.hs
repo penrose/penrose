@@ -1764,9 +1764,8 @@ contains [GPI c@("Circle", _), GPI t@("Text", _)] =
 contains [GPI s@("Square", _), GPI l@("Text", _)] =
   dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 +
   getNum l "w" / 2
-contains [GPI s@("Rectangle", _), GPI l@("Text", _)]
+contains [GPI s@("Rectangle", _), GPI l@("Text", _)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
- =
   dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 +
   getNum l "w" / 2
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
@@ -1811,6 +1810,12 @@ contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
       (rx, ry) = (x + w / 2, y + h / 2)
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
      inRange endY ly ry
+
+contains [GPI r@("Rectangle", _), GPI c@("Circle", _)] =
+             -- HACK: reusing test impl, revert later
+             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+                 diff = r_l - getNum c "r"
+             in dist (getX r, getY r) (getX c, getY c) - diff
 
 contains [GPI sq@("Square", _), GPI ar@("Line", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
