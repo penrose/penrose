@@ -23,7 +23,7 @@ Colors {
 }
 
 G {
-    G.padding = 20.0
+    G.textMargin = 15.0
     G.stroke = 2.0
     G.spacing = 150.0
     G.scaleFactor = 100.0
@@ -96,20 +96,21 @@ G {
 }
 
 Point p {
-      -- Point on sphere
-      p.x = ?
-      p.y = ?
-      p.z = ?
+      p.x0 = ?
+      p.y0 = ?
+      p.z0 = ?
 
-      -- x^2 + y^2 + z^2 = 1
-      -- z = sqrt (1 - x^2 - y^2) -- This won't work b/c some (x,y) pairs won't be on the sphere no matter what. But we could project the whole (x,y,z) ray onto the sphere.
-      -- p.z = calcZSphere(p.x, p.y)
+      -- Point in R^2, not on sphere
+      p.vec_original = [p.x0, p.y0, p.z0]
 
-      p.vec_math = [p.x, p.y, p.z]
-      p.onSphereFn = ensure hasNorm(p.vec_math, G.sphereRadius)
+      -- Project point onto sphere (optimizing to have norm 1 does not interact well with the labeling objectives/constraints)
+      p.vec_math = normalize(p.vec_original)
+      p.x = get(p.vec_math, 0)
+      p.y = get(p.vec_math, 1)
+      p.z = get(p.vec_math, 2)
 
-      -- TODO: for visibility, only pick points on the front of the sphere. This produces really cramped-looking diagrams right now.
-      -- p.visibleFn = ensure lessThan(p.z, 0.0)
+      -- TODO: for visibility, only pick points on the front of the sphere. This produces really cramped-looking diagrams right now. perhaps because the resulting point doesn't lie on the sphere?
+      p.visibleFn = ensure lessThanSq(p.z, 0.0) -- `lessThan` doesn't seem to have any effect
 
       -- x_screen, y_screen, z_projected (not converted to screen)
       p.vec_screen = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, p.vec_math, G.toScreen, p.shape.name)
@@ -131,10 +132,10 @@ Point p {
        }
 
        p.text = Text {
-	 x : p.shape.x + G.padding
-	 y : p.shape.y + G.padding
-	 -- x : ?
-	 -- y : ?
+	 -- x : p.shape.x + G.textMargin
+	 -- y : p.shape.y + G.textMargin
+	 x : ?
+	 y : ?
 	 fontSize : G.fontSize
 	 string : p.label
 	 rotation : 0.0
@@ -142,7 +143,7 @@ Point p {
        }
 
        -- TODO: this is not working well. Instead, construct a point on the sphere? (If you sample (x,y) and calculate z, will it work?)
-       -- p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)       
+       p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)       
 
        p.layeringSphere = p.shape above G.sphere
        p.layeringSphereText = p.text above G.sphere
