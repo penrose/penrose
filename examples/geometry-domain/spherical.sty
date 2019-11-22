@@ -24,7 +24,7 @@ Colors {
 
 G {
     G.repelWeight = 0.7
-    G.repelWeight2 = 0.001 * G.repelWeight
+    G.repelWeight2 = 1.0 * G.repelWeight
     G.textMargin = 15.0
     G.stroke = 2.0
     G.spacing = 150.0
@@ -35,7 +35,7 @@ G {
     G.numArcPts = 20
 
     G.max_z = 0.0
-    G.max_r = 0.5
+    G.max_r = 0.65
 
     G.sphereRadius = 1.0
     G.dist_to_sphere = 2.0
@@ -98,26 +98,31 @@ G {
     G.layering = G.circle below G.sphere
     -- For testing that the image is in the right location
     -- G.layering = G.circle above G.sphere
+
+    -- G.debugX = Line {
+    -- 	     startX = 100.0
+    -- 	     startY = 
+    -- }
 }
 
 Point p {
       p.x0 = ?
       p.y0 = ?
-      p.z0 = ?
 
-      -- Point in R^2, not on sphere
-      p.vec_original = [p.x0, p.y0, p.z0]
-
-      -- Project point onto sphere (optimizing to have norm 1 does not interact well with the labeling objectives/constraints)
-      p.vec_math = normalize(p.vec_original)
+      p.vec_math = calcZSphere(p.x0, p.y0, G.max_r)
       p.x = get(p.vec_math, 0)
       p.y = get(p.vec_math, 1)
       p.z = get(p.vec_math, 2)
 
-      -- TODO: for visibility, only pick points on the front of the sphere. This produces really cramped-looking diagrams right now. perhaps because the resulting point doesn't lie on the sphere?
+      -- TODO: for visibility, only pick points on the front of the sphere
+      -- These need to be inside the disk in order to satisfy the constraint.
 
-      p.visibleFn = ensure lessThanSq(p.z0, G.max_z) -- `lessThan` doesn't seem to have any effect
-      p.insetFn = ensure lessThanSq(normSq(p.x, p.y), G.max_r * G.max_r) -- Inset so it's not stuck at boundary
+      -- p.insetFn = ensure lessThanSq(normSq(p.x, p.y), G.max_r * G.max_r) -- Inset so it's not stuck at boundary
+
+      -- p.insetFn = ensure lessThan(normSq(p.x, p.y), G.max_r * G.max_r) -- Inset so it's not stuck at boundary
+
+      -- p.visibleFn = ensure lessThanSq(p.z0, G.max_z) -- `lessThan` doesn't seem to have any effect
+
       -- p.insetFn = ensure lessThanSq(calcNorm(p.x, p.y), G.max_r) -- Inset so it's not stuck at boundary
 
       -- x_screen, y_screen, z_projected (not converted to screen)
@@ -150,7 +155,6 @@ Point p {
 	 color : Colors.black
        }
 
-       -- TODO: this is not working well. Instead, construct a point on the sphere? (If you sample (x,y) and calculate z, will it work?)
        p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)       
 
        p.layeringSphere = p.shape above G.sphere
@@ -217,7 +221,7 @@ Ray r
 with Segment s; Point p; Point q
 where r := PerpendicularBisector(s); s := MkSegment(p, q) {
 
-      r.rayArcLen = G.pi / 12.0
+      r.rayArcLen = G.pi / 15.0
       r.tail_vec_math = halfwayPoint(p.vec_math, q.vec_math) -- The part w/o arrow
       r.head_vec_math = normalOnSphere(p.vec_math, q.vec_math, r.tail_vec_math, r.rayArcLen)
       r.arcPath = slerp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
