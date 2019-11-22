@@ -34,11 +34,13 @@ G {
     G.sqrt_22 = 1.414/2.0
     G.numArcPts = 20
 
+    G.max_z = 0.0
+    G.max_r = 0.5
+
     G.sphereRadius = 1.0
     G.dist_to_sphere = 2.0
     G.dist_to_sphere_center = G.dist_to_sphere + G.sphereRadius
     G.camera_z = G.dist_to_sphere + G.sphereRadius
-    G.max_z = -10.0
     G.camera = [0.0, 0.0, -1.0 * G.camera_z]     -- x, y, z in math space 
     		  -- Note: Sphere has r=0.5, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
     G.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
@@ -115,6 +117,8 @@ Point p {
       -- TODO: for visibility, only pick points on the front of the sphere. This produces really cramped-looking diagrams right now. perhaps because the resulting point doesn't lie on the sphere?
 
       p.visibleFn = ensure lessThanSq(p.z0, G.max_z) -- `lessThan` doesn't seem to have any effect
+      p.insetFn = ensure lessThanSq(normSq(p.x, p.y), G.max_r * G.max_r) -- Inset so it's not stuck at boundary
+      -- p.insetFn = ensure lessThanSq(calcNorm(p.x, p.y), G.max_r) -- Inset so it's not stuck at boundary
 
       -- x_screen, y_screen, z_projected (not converted to screen)
       p.vec_screen = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, p.vec_math, G.toScreen, p.shape.name)
