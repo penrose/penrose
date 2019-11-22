@@ -23,6 +23,8 @@ Colors {
 }
 
 G {
+    G.repelWeight = 0.7
+    G.repelWeight2 = 0.001 * G.repelWeight
     G.textMargin = 15.0
     G.stroke = 2.0
     G.spacing = 150.0
@@ -36,6 +38,7 @@ G {
     G.dist_to_sphere = 2.0
     G.dist_to_sphere_center = G.dist_to_sphere + G.sphereRadius
     G.camera_z = G.dist_to_sphere + G.sphereRadius
+    G.max_z = -10.0
     G.camera = [0.0, 0.0, -1.0 * G.camera_z]     -- x, y, z in math space 
     		  -- Note: Sphere has r=0.5, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
     G.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
@@ -110,7 +113,8 @@ Point p {
       p.z = get(p.vec_math, 2)
 
       -- TODO: for visibility, only pick points on the front of the sphere. This produces really cramped-looking diagrams right now. perhaps because the resulting point doesn't lie on the sphere?
-      p.visibleFn = ensure lessThanSq(p.z, 0.0) -- `lessThan` doesn't seem to have any effect
+
+      p.visibleFn = ensure lessThanSq(p.z0, G.max_z) -- `lessThan` doesn't seem to have any effect
 
       -- x_screen, y_screen, z_projected (not converted to screen)
       p.vec_screen = projectAndToScreen(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, p.vec_math, G.toScreen, p.shape.name)
@@ -156,6 +160,8 @@ with Point p; Point q {
      -- Interpolate between each one's sphere coords to yield several points
      -- then project all of them into screen space
 
+     -- TODO: need to optimize or compute so that the *segments* also lie on the front of the sphere. How to do that?
+
      e.arcPath = slerp(p.vec_math, q.vec_math, G.numArcPts)
      e.screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, e.arcPath, G.toScreen, e.shape.name)
 
@@ -171,10 +177,12 @@ with Point p; Point q {
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
      e.layeringSphere = e.shape above G.sphere
+
+     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, G.repelWeight)
+     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, G.repelWeight)
 }
 
 Ray r {
-    r.length = 100.0
     r.layeringSphere = r.shape above G.sphere
 }
 
@@ -205,7 +213,7 @@ Ray r
 with Segment s; Point p; Point q
 where r := PerpendicularBisector(s); s := MkSegment(p, q) {
 
-      r.rayArcLen = G.pi / 6.0
+      r.rayArcLen = G.pi / 12.0
       r.tail_vec_math = halfwayPoint(p.vec_math, q.vec_math) -- The part w/o arrow
       r.head_vec_math = normalOnSphere(p.vec_math, q.vec_math, r.tail_vec_math, r.rayArcLen)
       r.arcPath = slerp(r.tail_vec_math, r.head_vec_math, G.numArcPts)
@@ -222,7 +230,7 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
 	      arrowheadSize : G.arrowheadSize
       }
 
-      r.perpArcLen = G.pi / 30.0
+      r.perpArcLen = G.pi / 40.0
       r.perpmarkPath = perpPath(p.vec_math, q.vec_math, r.tail_vec_math, r.head_vec_math, r.perpArcLen)
       r.perpmark_screenspacePath = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, r.perpmarkPath, G.toScreen, r.shape.name)
 
@@ -240,14 +248,17 @@ where r := PerpendicularBisector(s); s := MkSegment(p, q) {
       r.markLayering5 = r.perpMark below q.shape
       r.markLayering6 = r.perpMark below r.shape
       r.markLayering7 = r.perpMark below m.shape
+
+     LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, G.repelWeight)
+     LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, G.repelWeight)
 }
 
 Point p
 where p := Midpoint(s); s := MkSegment(a, b)
 with Segment s; Point a; Point b {
      override p.vec_math = halfwayPoint(a.vec_math, b.vec_math)
-     delete p.onSphereFn
-     delete p.visibleFn
+     
+     -- delete p.visibleFn
 
      override p.shape.color = Colors.white
      override p.shape.r = 3.2
@@ -275,6 +286,8 @@ with Point p; Point q; Point r {
      theta.layering2 = theta.shape below p.shape
      theta.layering3 = theta.shape below q.shape
      theta.layering4 = theta.shape below r.shape
+
+     LOCAL.labelAvoidFn_Seg = encourage repel(theta.shape, p.text, G.repelWeight)
 }
 
 Ray r
@@ -339,6 +352,8 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
 
       theta.layeringMark1 = theta.bisectMark1 above theta.shape
       theta.layeringMark2 = theta.bisectMark2 above theta.shape
+
+     LOCAL.labelAvoidFn_Ray = encourage repel(r.shape, x.text, G.repelWeight)
 }
 
 Triangle t; Angle theta {
@@ -347,4 +362,17 @@ Triangle t; Angle theta {
 
 Triangle t; Ray r {
 	 LOCAL.layering = r.shape above t.shape
+}
+
+Point p; Point q {
+      LOCAL.shapeRepelFn = encourage repel(p.shape, q.shape, G.repelWeight2)
+      LOCAL.labelRepelFn = encourage repel(p.text, q.text, G.repelWeight2)
+}
+
+Point p; Ray r {
+     LOCAL.labelAvoidFn_Ray = encourage repel(r.shape, p.text, G.repelWeight2)
+}
+
+Point p; Segment s {
+     LOCAL.labelAvoidFn_Ray = encourage repel(s.shape, p.text, G.repelWeight2)
 }
