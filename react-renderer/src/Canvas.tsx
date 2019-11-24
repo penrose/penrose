@@ -6,6 +6,7 @@ import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
+import { propagateUpdate, updateVaryingState } from "./PropagateUpdate";
 
 interface IProps {
   lock: boolean;
@@ -31,102 +32,6 @@ class Canvas extends React.Component<IProps> {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
-  // helper for finding a shape by name
-  public static findShapeProperty = (
-    shapes: any,
-    name: string,
-    property: string
-  ) =>
-    shapes.find((shape: any) => shape[1].name.contents === name)[1][property];
-
-  // helper for updating a pending property given a path
-  public static updateProperty = (translation: any, shapes: any, path: any) => {
-    const [subName, fieldName, propertyName] = path.contents;
-    if (path.tag === "PropertyPath") {
-      return {
-        ...translation,
-        trMap: translation.trMap.map(([sub, fieldDict]: [any, any]) => {
-          // match substance name
-          if (sub.contents === subName.contents) {
-            // TODO: functional-style map on objects doesn't seem to be supported by TS well. Write helpfer?
-            const updatedFieldDict = { ...fieldDict };
-            for (const field of Object.keys(fieldDict)) {
-              const {
-                contents: [, propertyDict]
-              } = fieldDict[field];
-              // match field name
-              if (field === fieldName) {
-                // shape name is a done value of type string, hence the two accesses
-                const shapeName = propertyDict.name.contents.contents;
-                // find property and updated value
-                const propWithUpdate = Canvas.findShapeProperty(
-                  shapes,
-                  shapeName,
-                  propertyName
-                );
-                // update the property in the shape list
-                propWithUpdate.contents = propWithUpdate.updated;
-                const { tag, contents } = propWithUpdate;
-                delete propWithUpdate.updated;
-
-                // update the pending property in the translated by a Done value retrieved from the shapes, which are already updated (in the two lines above)
-                propertyDict[propertyName] = {
-                  tag: "Done",
-                  contents: { tag, contents }
-                };
-              }
-            }
-            return [sub, updatedFieldDict];
-          } else {
-            return [sub, fieldDict];
-          }
-        })
-      };
-    } else {
-      Log.error("Pending field paths are not supported");
-    }
-  };
-
-  public static propagateUpdate = async (data: any) => {
-    return {
-      ...data,
-      // clear up pending paths now that they are updated properly
-      pendingPaths: [],
-      // for each of the pending path, update the translation using the updated shapes with new label dimensions etc.
-      transr: data.pendingPaths.reduce(
-        (trans: any, path: any) =>
-          Canvas.updateProperty(data.transr, data.shapesr, path),
-        data.transr
-      )
-    };
-  };
-  public static updateVaryingState = async (data: any) => {
-    const newVaryingState = [...data.varyingState];
-    await data.varyingPaths.forEach((path: any, index: number) => {
-      // NOTE: We only update property paths since no frontend interactions can change fields
-      // TODO: add a branch for `FieldPath` when this is no longer the case
-      if (path.tag === "PropertyPath") {
-        const [{ contents: subName }, fieldName, propertyName] = path.contents;
-        data.transr.trMap.forEach(
-          ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
-            if (subVar.contents === subName) {
-              const propertyDict = fieldDict[fieldName].contents[1];
-              const shapeName = propertyDict.name.contents.contents;
-              newVaryingState[index] = Canvas.findShapeProperty(
-                data.shapesr,
-                shapeName,
-                propertyName
-              ).contents;
-            }
-          }
-        );
-      }
-    });
-    return {
-      ...data,
-      varyingState: newVaryingState
-    };
-  };
   public static processData = async (data: any) => {
     if (!data.shapesr) {
       return {};
@@ -141,7 +46,7 @@ class Canvas extends React.Component<IProps> {
     );
 
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
-    const processed = await Canvas.propagateUpdate({
+    const processed = await propagateUpdate({
       ...data,
       shapesr: nonEmpties
     });
@@ -151,34 +56,35 @@ class Canvas extends React.Component<IProps> {
   public readonly svg = React.createRef<SVGSVGElement>();
 
   public dragEvent = async (id: string, dy: number, dx: number) => {
-    const updated = await Canvas.propagateUpdate({
+    const updated = await propagateUpdate({
       ...this.props.data,
       paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
-      shapesr: this.props.data.shapesr.map(([shapeType, shape]: [string, any]) => {
-
-        if (shape.name.contents === id) {
-	    if (shapeType === "Curve") {
-		console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
-		return [
-		    shapeType,
-		    { ...shape } // TODO: need to map (-dx, -dy) over all the path pieces
-		];
-	    }
-
-          return [
-            shapeType,
-            {
-              ...shape,
-              x: { ...shape.x, contents: shape.x.contents - dx },
-              y: { ...shape.y, contents: shape.y.contents - dy }
+      shapesr: this.props.data.shapesr.map(
+        ([shapeType, shape]: [string, any]) => {
+          if (shape.name.contents === id) {
+            if (shapeType === "Curve") {
+              console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
+              return [
+                shapeType,
+                { ...shape } // TODO: need to map (-dx, -dy) over all the path pieces
+              ];
             }
-          ];
-        }
 
-        return [shapeType, shape];
-      })
+            return [
+              shapeType,
+              {
+                ...shape,
+                x: { ...shape.x, contents: shape.x.contents - dx },
+                y: { ...shape.y, contents: shape.y.contents - dy }
+              }
+            ];
+          }
+
+          return [shapeType, shape];
+        }
+      )
     });
-    const updatedWithVaryingState = await Canvas.updateVaryingState(updated);
+    const updatedWithVaryingState = await updateVaryingState(updated);
     this.props.updateData(updatedWithVaryingState);
   };
 
