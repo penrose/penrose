@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Penrose.API
   ( compileTrio
   , step
@@ -6,6 +8,7 @@ module Penrose.API
   , getEnv
   , getVersion
   , resample
+  , APICall(..)
   ) where
 
 import           Control.Exception          (ErrorCall, try)
@@ -16,6 +19,7 @@ import qualified Data.Map.Strict            as M
 import           Data.Maybe                 (mapMaybe)
 import           Data.Version               (showVersion)
 import           Debug.Trace                (traceShowId)
+import           GHC.Generics
 import           Paths_penrose              (version)
 import           Penrose.Element
 import           Penrose.Env
@@ -30,6 +34,31 @@ import           Penrose.Sugarer
 import           Penrose.Util
 import           System.IO.Unsafe           (unsafePerformIO)
 
+--------------------------------------------------------------------------------
+-- Types for decoding API calls
+data APICall
+  = Step Int
+         State
+  | Resample Int
+             State
+  | StepUntilConvergence State
+  | CompileTrio String
+                String
+                String
+  | ReconcileNext State
+                  String
+                  String
+                  String
+  | GetEnv String
+           String
+  | GetVersion
+  deriving (Generic)
+
+instance A.FromJSON APICall
+
+instance A.ToJSON APICall
+
+--------------------------------------------------------------------------------
 -- | Given Substance, Style, and Element programs, output an initial state.
 -- TODO: allow cached intermediate outputs such as ASTs to be passed in?
 compileTrio ::

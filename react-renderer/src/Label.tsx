@@ -29,8 +29,6 @@ class Label extends React.Component<IGPIPropsDraggable> {
     return (
       <g
         transform={`translate(${x - w.contents / 2},${y - h.contents / 2})`}
-        width={w.contents}
-        height={h.contents}
         onMouseDown={onClick}
         pointerEvents="bounding-box"
         dangerouslySetInnerHTML={{

@@ -22,24 +22,22 @@ export const arrowheads = {
   }
 };
 
-export const Shadow = (props: {
-  id: string 
-}) => {
+export const Shadow = (props: { id: string }) => {
   return (
     <filter id={props.id} x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-  	  <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
       <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-    	<feFuncA type="linear" slope="0.5"/>
-  	  </feComponentTransfer>
-      <feMerge> 
-    	<feMergeNode/>
-    	<feMergeNode in="SourceGraphic"/> 
-  	  </feMerge>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
-  )
-}
+  );
+};
 
 export const Arrowhead = (props: {
   id: string;
@@ -83,7 +81,6 @@ export const penroseToSVG = (canvasSize: [number, number]) => {
 };
 
 export const penroseTransformStr = (tf: any) => {
-  // console.log("shape transformation", tf);
   const transformList = [
     tf.xScale,
     tf.ySkew,
@@ -104,7 +101,6 @@ export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
   const transformStr = [penroseToSVG(canvasSize), penroseTransformStr(tf)].join(
     " "
   );
-  // console.log("transformStr", transformStr);
   return transformStr;
 };
 
@@ -192,9 +188,8 @@ export const collectLabels = async (allShapes: any[]) => {
     skipStartupTypeset: true,
     extensions: ["tex2jax.js", "TeX/AMSmath.js"],
     jax: ["input/TeX", "output/SVG"],
-    // https://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html 
+    // https://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html
     SVG: {
-      // font: "Gyre-Pagella", // TODO: This doesn't seem to work
       matchFontHeight: false,
       useGlobalCache: false, // Needed for SVG inline export
       useFontCache: false // further reduces the reuse of paths

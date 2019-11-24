@@ -30,6 +30,7 @@ import qualified Penrose.Env                as E
 import qualified Penrose.GenOptProblem      as G
 import qualified Penrose.Optimizer          as O
 import           Penrose.Plugins
+import           Penrose.Serializer         (Packet (..))
 import qualified Penrose.Server             as Server
 import qualified Penrose.Style              as S
 import qualified Penrose.Substance          as C
@@ -39,7 +40,7 @@ import           Prelude                    hiding (catch)
 import           System.Console.Docopt
 import           System.Console.Pretty      (Color (..), Style (..), bgColor,
                                              color, style, supportsPretty)
-import           System.Environment
+import           System.Environment         hiding (getEnv)
 import           System.Exit
 import           System.IO
 import           System.IO.Error            hiding (catch)
@@ -58,27 +59,62 @@ argPatterns = [docoptFile|USAGE.txt|]
 
 getArgOrExit = getArgOrExitWith argPatterns
 
--- | `shadowMain` runs the Penrose system
+-- | 'shadowMain' runs the Penrose system
 shadowMain :: IO ()
-shadowMain = do
-  args <- parseArgsOrExit argPatterns =<< getArgs
-  if args `isPresent` longOption "version"
-    then do
-      putStrLn getVersion
-      return ()
-    else do
-      domain <- args `getArgOrExit` longOption "domain"
-      port <- args `getArgOrExit` longOption "port"
-      config <- args `getArgOrExit` longOption "config"
-      if args `isPresent` command "editor"
-        then let isVerbose = args `isPresent` longOption "verbose"
-             in Server.serveEditor domain (read port) isVerbose
-        else do
-          subFile <- args `getArgOrExit` argument "substance"
-          styFile <- args `getArgOrExit` argument "style"
-          elementFile <- args `getArgOrExit` argument "element"
-          penroseRenderer subFile styFile elementFile domain config $ read port
+shadowMain = processArgs =<< parseArgsOrExit argPatterns =<< getArgs
 
+-- | 'processArgs` takes in a list of arguments passed to the `penrose` binary and determine what's next.
+processArgs :: Arguments -> IO ()
+processArgs args
+  | args `isPresent` longOption "version" = putStrLn getVersion
+  | args `isPresent` command "runAPI" = do
+    x <- B.getContents
+    let y = runAPI x
+    B.putStr y
+  | otherwise = do
+    domain <- args `getArgOrExit` longOption "domain"
+    port <- args `getArgOrExit` longOption "port"
+    config <- args `getArgOrExit` longOption "config"
+    if args `isPresent` command "editor"
+      then let isVerbose = args `isPresent` longOption "verbose"
+           in Server.serveEditor domain (read port) isVerbose
+      else do
+        subFile <- args `getArgOrExit` argument "substance"
+        styFile <- args `getArgOrExit` argument "style"
+        elementFile <- args `getArgOrExit` argument "element"
+        penroseRenderer subFile styFile elementFile domain config $ read port
+
+--------------------------------------------------------------------------------
+-- CLI wrapper
+-- 'runAPI' takes a string of a JSON-encoded APICall read from stdin as an input and return another JSON-encoded Packet as the output.
+runAPI :: B.ByteString -> B.ByteString
+runAPI strIn =
+  case decode strIn of
+    Just call ->
+      case call of
+        Step steps s -> toStdout "state" $ step s steps
+        Resample samples s -> toStdout "state" $ resample s samples
+        StepUntilConvergence s -> toStdout "state" $ stepUntilConvergence s
+        CompileTrio sub sty elm ->
+          toStdout "compilerOutput" $ compileTrio sub sty elm
+        ReconcileNext s sub sty elm ->
+          toStdout "compilerOutput" $ reconcileNext s sub sty elm
+        GetEnv sub elm -> toStdout "varEnv" $ getEnv sub elm
+    Nothing -> error "Error reading JSON string."
+  where
+    toStdout :: (ToJSON a, ToJSON b) => String -> Either a b -> B.ByteString
+    toStdout flag output =
+      case output of
+        Right res ->
+          encode $
+          Packet
+          {packetType = flag, packetContents = output, packetSession = Nothing}
+        Left err ->
+          encode $
+          Packet
+          {packetType = "error", packetContents = err, packetSession = Nothing}
+
+--------------------------------------------------------------------------------
 penroseRenderer ::
      String -> String -> String -> String -> String -> Int -> IO ()
 penroseRenderer subFile styFile elementFile domain configPath port = do
