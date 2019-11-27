@@ -223,7 +223,7 @@ stmtTypes env =
     stmtGens =
       [ generatePredicate
       , generateType
-      -- , (BindT, generateValueBinding)
+      , generateValueBinding
       ]
 
 -- | Generate object declarations

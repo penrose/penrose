@@ -6,7 +6,6 @@ const findShapeProperty = (shapes: any, name: string, property: string) =>
 const updateProperty = (translation: any, shapes: any, path: any) => {
   const [subName, fieldName, propertyName] = path.contents;
   if (path.tag === "PropertyPath") {
-    console.log(translation.trMap, translation.trMap.map);
     return {
       ...translation,
       trMap: translation.trMap.map(([sub, fieldDict]: [any, any]) => {
@@ -15,11 +14,11 @@ const updateProperty = (translation: any, shapes: any, path: any) => {
           // TODO: functional-style map on objects doesn't seem to be supported by TS well. Write helpfer?
           const updatedFieldDict = { ...fieldDict };
           for (const field of Object.keys(fieldDict)) {
-            const {
-              contents: [, propertyDict]
-            } = updatedFieldDict[field];
             // match field name
             if (field === fieldName) {
+              const {
+                contents: [, propertyDict]
+              } = updatedFieldDict[field];
               // shape name is a done value of type string, hence the two accesses
               const shapeName = propertyDict.name.contents.contents;
               // find property and updated value
