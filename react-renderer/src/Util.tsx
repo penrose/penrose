@@ -183,6 +183,7 @@ const tex2svg = memoize(
     })
 );
 
+// https://stackoverflow.com/a/44564236
 export const collectLabels = async (allShapes: any[]) => {
   MathJax.Hub.Config({
     skipStartupTypeset: true,

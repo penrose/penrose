@@ -21,7 +21,7 @@ const allShapes = state.shapesr;
           svgNode: true,
           useFontCache: false,
           useGlobalCache: false,
-          ex: 1
+          ex: 12
         });
         if (data.errors) {
           console.error(
@@ -32,16 +32,17 @@ const allShapes = state.shapesr;
         }
         const { width, height } = data;
         const obj2 = { ...obj };
+        const SCALE_FACTOR = 7;
         // Take substring to omit `ex`
-        obj2.w.updated = width.substring(width.length - 2);
-        obj2.h.updated = height.substring(height.length - 2);
-
-        return [type, obj, data.svgNode];
-      } else {
-        return [type, obj];
+        obj2.w.updated = +width.substring(0, width.length - 2) * 7;
+        obj2.h.updated = +height.substring(0, height.length - 2) * 7;
+        // console.log(obj2.w.updated, obj2.h.updated);
+        data.svgNode.setAttribute("width", obj2.w.updated);
+        data.svgNode.setAttribute("height", obj2.h.updated);
+        obj2.rendered.contents = data.svgNode.outerHTML;
       }
+      return [type, obj];
     })
   );
   const updated = await propagateUpdate({ ...state, shapesr: collected });
-  console.log(updated);
 })();
