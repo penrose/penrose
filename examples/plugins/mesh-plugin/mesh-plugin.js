@@ -116,17 +116,11 @@ function makeSComplex(cname) {
     console.log("mesh input", mesh_input);
 
     let polygonSoup = MeshIO.readOBJ(mesh_input);
-    console.log("polygon soup", polygonSoup);
     let mesh = new Mesh.Mesh();
     mesh.build(polygonSoup);
-
-    // TODO: FIX THIS to pass args and update makeSty (the mesh or otherwise)
-    console.log("sending mesh to be optimized");
-    let optimizedMesh = OptMesh.optimizeMesh(mesh);
-    console.log("crashing program");
-    console.log(null[0]);
-
     let v1 = mesh.vertices.length;
+
+    // Note: the positions are that of a random mesh with a Delaunay triangulation. The positions do not affect the connectivity, so we ignore the positions until we need to to output it for the Style plugin.
 
     // Construct a simplicial complex for a mesh
     // NOTE: this changes the indices of the mesh
@@ -550,11 +544,16 @@ function makeSty(objs, plugin2sub) {
 	console.log("positions length", Object.keys(positions).length);
 	console.log("vertices length", mesh.vertices.length);
 
+	// Optimize the vertex positions of the mesh so each triangle looks close to equilateral.
+	console.log("sending mesh to be optimized");
+	let optimizedPositions = OptMesh.optimizeMesh(mesh, geometry, positions);
+
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
 	    let vname = substitute(plugin2sub, objName(cname, vtype, vi));
-	    let vpos = positions[v]; // Vector object, throw away z pos
-	    console.log("positions inner", positions);
+	    // let vpos = positions[v]; // Vector object, throw away z pos
+	    let vpos = optimizedPositions[v]; // Vector object, throw away z pos
+	    console.log("positions inner", optimizedPositions);
 	    console.log("v index", vi);
 
 	    let pos_json_x = { propertyName: "x",

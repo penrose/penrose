@@ -56,28 +56,9 @@ function energy(mesh, positions, avgLen) {
 const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
 const numPointsRange = [5, 9];
 
-function optimizeMesh() {
+function optimizeMesh(mesh, geometry, positions) { // See `main` for usage example
     console.log("optimize mesh");
 
-    // --------------- Set up mesh
-    const numPts = 7; // Math.floor(RandMesh.sampleFrom(numPointsRange));
-    console.log("num pts", numPts);
-    let mesh_input = RandMesh.makeRandMesh(numPts, pointRange);
-    console.log("mesh input", mesh_input);
-    let polygonSoup = MeshIO.readOBJ(mesh_input);
-    console.log("polygon soup", polygonSoup);
-    let mesh = new Mesh.Mesh();
-    mesh.build(polygonSoup);
-    console.log("mesh", mesh);
-
-    // Note: geometry is rebuilt after SCO is built, so mesh indices are accurate
-    let geometry = new Geometry.Geometry(mesh, polygonSoup["v"], false);
-    let positions = geometry.positions;
-    console.log("positions", positions);
-    console.log("positions length", Object.keys(positions).length);
-    console.log("vertices length", mesh.vertices.length);
-
-    // --------------- Optimize mesh
     // parameters for energy
     const L = geometry.meanEdgeLength(); // target edge length---note that we shouldn't compute this within energh() since the mean edge length will change throughout optimization
     const A0 = L * Math.sqrt(3.0) / 2.0; // (twice) the area of corresponding equilateral triangle
@@ -207,10 +188,28 @@ function optimizeMesh() {
 }
 
 function main() {
-    let res = optimizeMesh();
-    console.log("optimize mesh results", res);
+    // Set up mesh
+    const numPts = Math.floor(RandMesh.sampleFrom(numPointsRange));
+    console.log("num pts", numPts);
+    let mesh_input = RandMesh.makeRandMesh(numPts, pointRange);
+    console.log("mesh input", mesh_input);
+    let polygonSoup = MeshIO.readOBJ(mesh_input);
+    console.log("polygon soup", polygonSoup);
+    let mesh = new Mesh.Mesh();
+    mesh.build(polygonSoup);
+    console.log("mesh", mesh);
+
+    // Note: geometry is rebuilt after SCO is built, so mesh indices are accurate
+    let geometry = new Geometry.Geometry(mesh, polygonSoup["v"], false);
+    let positions = geometry.positions;
+    console.log("positions", positions);
+    console.log("positions length", Object.keys(positions).length);
+    console.log("vertices length", mesh.vertices.length);
+
+    let final_pos = optimizeMesh(mesh, geometry, positions);
+    console.log("optimize mesh results", final_pos);
 }
 
-main();
+// main();
 
 module.exports = { energy, optimizeMesh };
