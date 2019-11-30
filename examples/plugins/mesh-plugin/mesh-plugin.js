@@ -30,6 +30,9 @@ const Mesh = require('./geometry-processing-js/node/core/mesh.js');
 const Geometry = require('./geometry-processing-js/node/core/geometry.js');
 const MeshIO = require('./geometry-processing-js/node/utils/meshio.js');
 const SC = require('./geometry-processing-js/node/projects/simplicial-complex-operators/simplicial-complex-operators.js');
+
+// Personal library imports
+const OptMesh = require('./optimize-mesh.js');
 const RandMesh = require('./rand-mesh.js');
 
 // Input meshes
@@ -116,6 +119,13 @@ function makeSComplex(cname) {
     console.log("polygon soup", polygonSoup);
     let mesh = new Mesh.Mesh();
     mesh.build(polygonSoup);
+
+    // TODO: FIX THIS to pass args and update makeSty (the mesh or otherwise)
+    console.log("sending mesh to be optimized");
+    let optimizedMesh = OptMesh.optimizeMesh(mesh);
+    console.log("crashing program");
+    console.log(null[0]);
+
     let v1 = mesh.vertices.length;
 
     // Construct a simplicial complex for a mesh
