@@ -4,7 +4,7 @@ InVS(i, K)
 
 SSubset S1
 IsSubsetOf(S1, K)
-S1 := StarV(i)
+S1 := Star(i)
 
 AutoLabel i
 AutoLabel K

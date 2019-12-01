@@ -249,31 +249,31 @@ with Subcomplex C; SSubset S {
       override f.shape.color = global.closureColor2
 }
 
------------------- Things in a subset that result from a star
+------------------ Things in a subset that result from a star of a *vertex*
 
 Vertex v
-where InVS(v, S); S := StarV(v); IsSubsetOf(S, K)
+where InVS(v, S); S := Star(v); IsSubsetOf(S, K)
 with SSubset S; SComplex K {
      override v.shape.r = global.selectedRadius
       override v.shape.color = global.starColor
 }
 
 Edge e
-where InES(e, S); S := StarV(v); IsSubsetOf(S, K)
+where InES(e, S); S := Star(v); IsSubsetOf(S, K)
 with SSubset S; SComplex K; Vertex v {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.starColor
 }
 
 Face f
-where InFS(f, S); S := StarV(v); IsSubsetOf(S, K)
+where InFS(f, S); S := Star(v); IsSubsetOf(S, K)
 with SSubset S; SComplex K; Vertex v {
       override f.shape.fill = global.starColor2
       override f.shape.color = global.starColor2
 }
 
 SSubset S1
-where S1 := StarV(i); IsSubsetOf(S1, K); InVS(i, K)
+where S1 := Star(i); IsSubsetOf(S1, K); InVS(i, K)
 with SComplex K; Vertex i {
 
        S1.text = Text {
@@ -353,7 +353,7 @@ with SComplex K {
 -- Label the closure of a star
 
 Subcomplex C
-where C := Closure(S); IsSubsetOf(S, K); S := StarV(v)
+where C := Closure(S); IsSubsetOf(S, K); S := Star(v)
 with SSubset S; SComplex K; Vertex v {
 
        C.text = Text {

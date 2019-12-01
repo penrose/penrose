@@ -163,6 +163,22 @@ function doStarV(stmt, nameMappings, scObj) {
 	   };
 }
 
+function doStar(stmt, subsetObj) {
+    let subcomplexName = stmt.varName;
+    let cname = subsetObj.scName;
+    let SCO = subsetObj.sc;
+
+    let meshSubset = subsetObj.meshSubset;
+    let star_ms = SCO.star(meshSubset);
+
+    return { type: 'MeshSubset',
+	     name: subcomplexName,
+	     scName: cname,
+	     sc: SCO,
+	     meshSubset: star_ms
+	   };
+}
+
 function doClosure(stmt, subsetObj) {
     let subcomplexName = stmt.varName;
     let cname = subsetObj.scName;
@@ -246,7 +262,7 @@ function doLinkV(stmt, nameMappings, scObj) {
 	   };
 }
 
-function doBoundary(stmt, nameMappings, subsetObj) {
+function doBoundary(stmt, subsetObj) {
     let subcomplexName = stmt.varName;
     let cname = subsetObj.scName;
     let SCO = subsetObj.sc;
@@ -259,6 +275,35 @@ function doBoundary(stmt, nameMappings, subsetObj) {
 	     scName: cname,
 	     sc: SCO,
 	     meshSubset: boundary_ms
+	   };
+}
+
+function doSetMinus(stmt, o1, o2) {
+    console.log("doSetMinus", stmt, o1, o2);
+    let subcomplexName = stmt.varName;
+
+    let cname1 = o1.scName;
+    let SCO1 = o1.sc;
+    let meshSubset1 = o1.meshSubset;
+
+    // let cname2 = o2.scName;
+    // let SCO2 = o2.sc;
+    let meshSubset2 = o2.meshSubset;
+
+    let meshSubset3 = MeshSubset.deepCopy(meshSubset1);
+
+    // console.log("meshSubset 1,2,3", meshSubset1, meshSubset2, meshSubset3);
+    // `delete` mutates it. So you need to copy
+    meshSubset3.deleteSubset(meshSubset2);
+
+    // console.log("meshSubset 1,2,3", meshSubset1, meshSubset2, meshSubset3);
+
+    // TODO: Does it matter which scName and sc I attach?
+    return { type: 'MeshSubset',
+	     name: subcomplexName,
+	     scName: cname1, // TODO: OK to use this?
+	     sc: SCO1, // TODO: OK to use this?
+	     meshSubset: meshSubset3
 	   };
 }
 
@@ -531,46 +576,56 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
     // Do different things based on the type of argument (since Domain program uses subtyping)
     // There's probably a more generic way to do this based on the Element type and geometry-processing.js types of the function
 
-    if (fname === "StarV") {
-	let argObj = findMesh(fnArgs[0], json, objs);
-	res = doStarV(fnCall, mappings, argObj);
-    } else if (fname === "Closure") {
-	let argObjName = fnArgs[0];
-	let argObj0 = objs[argObjName];
-	let argType = argObj0.type;
-	console.log("closure: arg name", argObjName, "of type", argType);
+    let argName0 = fnArgs[0];
+    let argObj0 = objs[argName0];
+    let argType0 = argObj0.type;
+    console.log("function call", fname, "with arg name 0", argName0, "of type", argType0);
 
-	if (argType === "MeshSubset") {
+    if (fname === "Star") {
+	if (argType0 === "MeshSubset") {
+	    let argObj = argObj0;
+	    res = doStar(fnCall, argObj);
+	} else if (argType0 === "Vertex") {
+	    let argObj = findMesh(argName0, json, objs);
+	    res = doStarV(fnCall, mappings, argObj);
+	} else {
+	    console.error("Unknown type", argType0, "for call to `Star`; crash");
+	    res = undefined;
+	    console.log(null[0]); // Just crash it
+	}
+    } else if (fname === "Closure") {
+	if (argType0 === "MeshSubset") {
 	    let argObj = argObj0;
 	    res = doClosure(fnCall, argObj);
-	} else if (argType === "Vertex") {
-	    let argObj = findMesh(argObjName, json, objs);
+	} else if (argType0 === "Vertex") {
+	    let argObj = findMesh(argName0, json, objs);
 	    res = doClosureV(fnCall, mappings, argObj);
 	} else {
-	    console.error("Unknown type", argType, "for call to `Closure`; crash");
+	    console.error("Unknown type", argType0, "for call to `Closure`; crash");
 	    res = undefined;
 	    console.log(null[0]); // Just crash it
 	}
     } else if (fname === "Link") {
-	let argObjName = fnArgs[0];
-	let argObj0 = objs[argObjName];
-	let argType = argObj0.type;
-	console.log("link: arg name", argObjName, "of type", argType);
-
-	if (argType === "MeshSubset") {
+	if (argType0 === "MeshSubset") {
 	    let argObj = argObj0;
 	    res = doLink(fnCall, argObj);
-	} else if (argType === "Vertex") {
-	    let argObj = findMesh(argObjName, json, objs);
+	} else if (argType0 === "Vertex") {
+	    let argObj = findMesh(argName0, json, objs);
 	    res = doLinkV(fnCall, mappings, argObj);
 	} else {
-	    console.error("Unknown type", argType, "for call to `Link`; crash");
+	    console.error("Unknown type", argType0, "for call to `Link`; crash");
 	    res = undefined;
 	    console.log(null[0]); // Just crash it
 	}
     } else if (fname === "Boundary") { // Supposed to only operate on a SComplex; here we look for a mesh subset
-	let argObj = objs[fnArgs[0]];
-	res = doBoundary(fnCall, mappings, argObj);
+	res = doBoundary(fnCall, argObj0);
+    } else if (fname === "SetMinus") {
+	let argName1 = fnArgs[1];
+	let argObj1 = objs[argName1];
+	let argType1 = argObj1.type;
+	console.log("function call", fname, "with arg name 1", argName1, "of type", argType1);
+
+	res = doSetMinus(fnCall, argObj0, argObj1);
     } else {
 	console.log("unimplemented function", fname);
 	console.log(null[0]);

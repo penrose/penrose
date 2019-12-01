@@ -4,7 +4,7 @@ InVS(i, K1)
 
 SSubset S1
 IsSubsetOf(S1, K1)
-S1 := StarV(i)
+S1 := Star(i)
 
 Subcomplex A
 A := Closure(S1)
@@ -21,7 +21,7 @@ InVS(j, K2)
 
 SSubset S2
 IsSubsetOf(S2, K2)
-S2 := StarV(j)
+S2 := Star(j)
 
 SSubset S3
 IsSubsetOf(S3, K2)
