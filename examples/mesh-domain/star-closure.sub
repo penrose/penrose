@@ -1,0 +1,14 @@
+SComplex K
+Vertex i
+InVS(i, K)
+
+Subcomplex A
+A := Closure(i)
+
+SSubset S1
+IsSubsetOf(S1, K) -- TODO: Should this be A or K? Or both?
+S1 := Star(A)
+
+Label S1 $St(Cl(i))$
+AutoLabel i
+AutoLabel K

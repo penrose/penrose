@@ -1,0 +1,36 @@
+SComplex K
+Vertex i
+InVS(i, K)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := StarV(i)
+
+Subcomplex A
+A := Closure(S1)
+
+Label A $Cl(St(i))$
+AutoLabel i
+AutoLabel K
+AutoLabel S1
+
+----------------
+
+Subcomplex B
+B := Closure(i)
+
+SSubset S2
+IsSubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
+S2 := Star(B)
+
+Label S2 $St(Cl(i))$
+AutoLabel i
+AutoLabel K
+
+----------------
+
+SSubset S3
+IsSubsetOf(S3, K)
+S3 := SetMinus(A, S2)
+
+Label S3 $Cl(St(i)) \setminus St(Cl(i))$

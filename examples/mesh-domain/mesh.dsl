@@ -14,24 +14,27 @@
 type Vertex
 type Edge
 type Face
-type SSubset
-type SComplex -- Mesh := SComplex(2)
-type Subcomplex -- (V, E, F) linked to a mesh
+type SSubset -- Subset of a mesh; might not be a simplicial complex
+type SComplex -- Mesh := SComplex(2); simplicial complex
+type Subcomplex -- (V, E, F) linked to a mesh; is a simplicial complex
 
 SComplex <: SSubset
 Subcomplex <: SSubset
+Vertex <: Subcomplex -- TODO: plugin doesn't deal w/ this
 -- Subcomplex <: SComplex
 -- TODO: Technically true, but messes up our Style matching
 
 constructor MkEdge : Vertex v1 * Vertex v2 -> Edge
 constructor MkFace : Edge e1 * Edge e2 * Edge e3 -> Face
 
-function Star: SComplex c -> SSubset
+function Star: SSubset s -> SSubset
 function StarV: Vertex v -> SSubset -- This function does not include the simplicial complex that v is in
 function Closure: SSubset s -> Subcomplex
+function ClosureV: Vertex v -> Subcomplex
 function Link: SSubset s -> SSubset
-function LinkV: Vertex c -> SSubset
-function Boundary: SComplex s -> SSubset
+function LinkV: Vertex v -> SSubset
+function SetMinus: SSubset s * SSubset t -> SSubset
+function Boundary: SSubset s -> SSubset
 function Coboundary: SSubset s -> SSubset
 function ToSComplex: SSubset s -> SComplex
 

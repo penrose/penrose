@@ -32,7 +32,7 @@ global {
     -- And it makes convergence hard
     -- global.scaleFactor = ?
     -- global.optFn = ensure inRange(global.scaleFactor, 75.0, 150.0)
-    global.scaleFactor = 100.0
+    global.scaleFactor = 90.0
     -- global.offset = 150.0
 }
 
@@ -229,7 +229,7 @@ Vertex v
 where InVS(v, C); C := Closure(S)
 with Subcomplex C; SSubset S {
      override v.shape.r = global.selectedRadius
-      override v.shape.color = global.closureColor
+     override v.shape.color = global.closureColor
 }
 
 Edge e
@@ -267,6 +267,25 @@ where InFS(f, S); S := StarV(v); IsSubsetOf(S, K)
 with SSubset S; SComplex K; Vertex v {
       override f.shape.fill = global.starColor2
       override f.shape.color = global.starColor2
+}
+
+SSubset S1
+where S1 := StarV(i); IsSubsetOf(S1, K); InVS(i, K)
+with SComplex K; Vertex i {
+
+       S1.text = Text {
+	 x : ?
+	 y : ?
+	 string : S1.label
+	 rotation : 0.0
+	 color : global.starColor
+       }
+
+       -- TODO: this actually prefers the center of the shape but it shouldn't
+       S1.labelFn = ensure contains(K.shape, S1.text)
+       S1.layerFn = S1.text above K.shape
+       S1.layerFn2 = S1.text above i.shape
+
 }
 
 ------------------ Things in a link of a subset

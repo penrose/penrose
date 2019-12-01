@@ -14,7 +14,7 @@ Then, it performs simplicial complex operations by calling the corresponding fun
 
 Then, with all the objects that have been made, the plugin outputs Substance code for the meshes and subsets. This is done in `makeProg`. For a simplicial complex, for each vertex, edge, and face in it, it outputs a declaration, In statement, and labeling statement. (It has to build simple connectivity info to create the edge and face value constructors.) For a mesh subset, it outputs In statements for each vertex, edge, and face in it. All statements are output with respect to any names bound in Substance, if they exist, by substituting them for generated names.
 
-Finally, it makes a JSON file for Style that contains the vertex positions of each mesh. This is done in `makeSty`. Note that it builds the geometry of the mesh here by calling geometry-processing-js. It also ignores any z-positions of the vertices. 
+Finally, it makes a JSON file for Style that contains the vertex positions of each mesh. This is done in `makeSty`. Note that it builds the geometry of the mesh here by calling geometry-processing-js. (It samples a random mesh, runs a Delaunay triangulation on it, and optimizes it so the triangles are near equilateral.) It also ignores any z-positions of the vertices. 
 
 Some parts are unfinished and the plugin hasn't been completely tested over general Substance programs. See the PR for further documentation. */
 

@@ -1,0 +1,10 @@
+SComplex K
+Vertex i
+InVS(i, K)
+
+Subcomplex A
+A := Closure(i)
+
+Label A $Cl(i)$
+AutoLabel i
+AutoLabel K

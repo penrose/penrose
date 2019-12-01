@@ -1,0 +1,14 @@
+SComplex K
+Vertex i
+InVS(i, K)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := StarV(i)
+
+Subcomplex A
+A := Closure(S1)
+
+Label A $Cl(St(i))$
+AutoLabel i
+AutoLabel K
