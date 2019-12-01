@@ -27,20 +27,19 @@ Vertex <: Subcomplex -- TODO: plugin doesn't deal w/ this
 constructor MkEdge : Vertex v1 * Vertex v2 -> Edge
 constructor MkFace : Edge e1 * Edge e2 * Edge e3 -> Face
 
-function Star: SSubset s -> SSubset
-function StarV: Vertex v -> SSubset -- This function does not include the simplicial complex that v is in
+function Star: SSubset s -> SSubset -- This function does not include the simplicial complex that v is in (?)
+function StarV: Vertex v -> SSubset 
 function Closure: SSubset s -> Subcomplex
-function ClosureV: Vertex v -> Subcomplex
 function Link: SSubset s -> SSubset
 function SetMinus: SSubset s * SSubset t -> SSubset
 function Boundary: SSubset s -> SSubset
-function Coboundary: SSubset s -> SSubset
-function ToSComplex: SSubset s -> SComplex
+-- function Coboundary: SSubset s -> SSubset
+-- function ToSComplex: SSubset s -> SComplex
 
 -- Math-related predicates
 predicate IsSubsetOf: SSubset s * SComplex c
 predicate IsSComplex: SSubset s
-predicate Pure: SSubset s
+-- predicate Pure: SSubset s
 predicate IsBoundary: SSubset s -- Not sure how to check it
 
 -- Generic connectivity and selection predicates

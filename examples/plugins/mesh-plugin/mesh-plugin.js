@@ -138,7 +138,7 @@ function makeSComplex(cname) {
 }
 
 // Expects a mesh made by makeSComplex
-function doStar(stmt, nameMappings, scObj) {
+function doStarV(stmt, nameMappings, scObj) {
     let starName = stmt.varName;
     let vertexName = stmt.fargNames[0];
     // Take the star at a specific vertex
@@ -163,7 +163,7 @@ function doStar(stmt, nameMappings, scObj) {
 	   };
 }
 
-function doClosure(stmt, nameMappings, subsetObj) {
+function doClosure(stmt, subsetObj) {
     let subcomplexName = stmt.varName;
     let cname = subsetObj.scName;
     let SCO = subsetObj.sc;
@@ -176,6 +176,31 @@ function doClosure(stmt, nameMappings, subsetObj) {
 	     scName: cname,
 	     sc: SCO,
 	     meshSubset: closure_ms
+	   };
+}
+
+function doClosureV(stmt, nameMappings, scObj) {
+    let subsetName = stmt.varName;
+    console.log("do closure v", scObj);
+
+    let cname = scObj.name;
+    let SCO = scObj.sc;
+
+    let vertexName = stmt.fargNames[0];
+    let vertexIndex = nameMappings.sub2plugin[vertexName].index;
+
+    let selectedSimplices = new MeshSubset();
+    selectedSimplices.addVertices([vertexIndex]);
+    selectedSimplices.addEdges([]);
+    selectedSimplices.addFaces([]);
+
+    let link_ms = SCO.closure(selectedSimplices);
+
+    return { type: 'MeshSubset',
+	     name: subsetName,
+	     scName: cname,
+	     sc: SCO,
+	     meshSubset: link_ms
 	   };
 }
 
@@ -503,22 +528,36 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
     }
 
     // Do the fn call based on the fn's name
+    // Do different things based on the type of argument (since Domain program uses subtyping)
     // There's probably a more generic way to do this based on the Element type and geometry-processing.js types of the function
+
     if (fname === "StarV") {
 	let argObj = findMesh(fnArgs[0], json, objs);
-	res = doStar(fnCall, mappings, argObj);
+	res = doStarV(fnCall, mappings, argObj);
     } else if (fname === "Closure") {
-	let argObj = objs[fnArgs[0]];
-	res = doClosure(fnCall, mappings, argObj);
+	let argObjName = fnArgs[0];
+	let argObj0 = objs[argObjName];
+	let argType = argObj0.type;
+	console.log("closure: arg name", argObjName, "of type", argType);
+
+	if (argType === "MeshSubset") {
+	    let argObj = argObj0;
+	    res = doClosure(fnCall, argObj);
+	} else if (argType === "Vertex") {
+	    let argObj = findMesh(argObjName, json, objs);
+	    res = doClosureV(fnCall, mappings, argObj);
+	} else {
+	    console.error("Unknown type", argType, "for call to `Closure`; crash");
+	    res = undefined;
+	    console.log(null[0]); // Just crash it
+	}
     } else if (fname === "Link") {
 	let argObjName = fnArgs[0];
 	let argObj0 = objs[argObjName];
 	let argType = argObj0.type;
 	console.log("link: arg name", argObjName, "of type", argType);
-	// console.log(null[0]);
 
-	// Do different things based on the type of argument (since Domain program uses subtyping)
-	if (argType === "SSubset") {
+	if (argType === "MeshSubset") {
 	    let argObj = argObj0;
 	    res = doLink(fnCall, argObj);
 	} else if (argType === "Vertex") {
@@ -532,6 +571,9 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
     } else if (fname === "Boundary") { // Supposed to only operate on a SComplex; here we look for a mesh subset
 	let argObj = objs[fnArgs[0]];
 	res = doBoundary(fnCall, mappings, argObj);
+    } else {
+	console.log("unimplemented function", fname);
+	console.log(null[0]);
     }
 
     if (res) { objs[bindVar] = res; }
