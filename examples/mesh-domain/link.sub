@@ -1,0 +1,14 @@
+SComplex K
+Vertex i
+InVS(i, K)
+
+SSubset S1
+IsSubsetOf(S1, K)
+-- S1 := LinkV(i)
+S1 := Link(i) -- Final
+-- S1 := Link(T) -- Test
+-- Using subtyping, Vertex <: Subcomplex <: SSubset
+
+AutoLabel i
+Label S1 $S_1$
+Label K $K_2$

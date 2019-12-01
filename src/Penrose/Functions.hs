@@ -1453,8 +1453,8 @@ near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
 near [GPI o1, GPI o2, Val (FloatV offset)] =
   let res = distsq (getX o1, getY o1) (getX o2, getY o2) - offset ^ 2 in
-  trace ("\n\nEnergy: " ++ show res ++
-        "\nShapes: " ++ show (o1, o2)) res
+  {- trace ("\n\nEnergy: " ++ show res ++
+        "\nShapes: " ++ show (o1, o2)) -} res
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
   let center = (getX img, getY img)
       offset = (xoff, yoff)

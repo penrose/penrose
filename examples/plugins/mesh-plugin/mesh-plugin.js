@@ -511,11 +511,24 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	let argObj = objs[fnArgs[0]];
 	res = doClosure(fnCall, mappings, argObj);
     } else if (fname === "Link") {
-	let argObj = objs[fnArgs[0]];
-	res = doLink(fnCall, argObj);
-    } else if (fname === "LinkV") {
-	let argObj = findMesh(fnArgs[0], json, objs);
-	res = doLinkV(fnCall, mappings, argObj);
+	let argObjName = fnArgs[0];
+	let argObj0 = objs[argObjName];
+	let argType = argObj0.type;
+	console.log("link: arg name", argObjName, "of type", argType);
+	// console.log(null[0]);
+
+	// Do different things based on the type of argument (since Domain program uses subtyping)
+	if (argType === "SSubset") {
+	    let argObj = argObj0;
+	    res = doLink(fnCall, argObj);
+	} else if (argType === "Vertex") {
+	    let argObj = findMesh(argObjName, json, objs);
+	    res = doLinkV(fnCall, mappings, argObj);
+	} else {
+	    console.error("Unknown type", argType, "for call to `Link`; crash");
+	    res = undefined;
+	    console.log(null[0]); // Just crash it
+	}
     } else if (fname === "Boundary") { // Supposed to only operate on a SComplex; here we look for a mesh subset
 	let argObj = objs[fnArgs[0]];
 	res = doBoundary(fnCall, mappings, argObj);

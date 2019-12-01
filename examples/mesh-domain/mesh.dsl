@@ -32,7 +32,6 @@ function StarV: Vertex v -> SSubset -- This function does not include the simpli
 function Closure: SSubset s -> Subcomplex
 function ClosureV: Vertex v -> Subcomplex
 function Link: SSubset s -> SSubset
-function LinkV: Vertex v -> SSubset
 function SetMinus: SSubset s * SSubset t -> SSubset
 function Boundary: SSubset s -> SSubset
 function Coboundary: SSubset s -> SSubset
