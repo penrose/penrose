@@ -49,12 +49,12 @@ const etype = "Edge";
 const ftype = "Face";
 
 const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
-const numPointsRange = [5, 9];
+const numPointsRange = [8, 11];
 
-// Global PRNG: set Math.random.
-// TODO: pass in seed; pass to rand-mesh and back
-const seed = 'hello.'
-seedrandom(seed, { global: true });
+var seed0; // MUTABLE: gets set by random seed from Style and is reused in rand-mesh
+var prg; // MUTABLE (used in lieu of Math.Random which is globally set in rand-mesh, so we can control both the vertex selection and the number of them)
+
+const crash = () => { console.log("crashing"); console.log(null[0]); }
 
 function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;
@@ -477,7 +477,8 @@ function makeNameMappings(json, objs) {
 	if (mesh.vertices.length == 0) {
 	    console.log("error: mesh has no vertices!");
 	} else {
-	    let vi = Math.floor(Math.random() * mesh.vertices.length);
+	    // let vi = Math.floor(Math.random() * mesh.vertices.length);
+	    let vi = Math.floor(prg() * mesh.vertices.length);
 	    // let vi = 7;
 	    let vertex = mesh.vertices[vi];
 	    // TODO: this doesn't seem to fit my understanding of what a boundary is. Is the vertex being mislabeled, the simplicial complex drawn in a misleading manner, the other code wrong, or something else?
@@ -603,7 +604,7 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	} else {
 	    console.error("Unknown type", argType0, "for call to `Star`; crash");
 	    res = undefined;
-	    console.log(null[0]); // Just crash it
+	    crash();
 	}
     } else if (fname === "Closure") {
 	if (argType0 === "MeshSubset") {
@@ -615,7 +616,7 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	} else {
 	    console.error("Unknown type", argType0, "for call to `Closure`; crash");
 	    res = undefined;
-	    console.log(null[0]); // Just crash it
+	    crash();
 	}
     } else if (fname === "Link") {
 	if (argType0 === "MeshSubset") {
@@ -627,7 +628,7 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	} else {
 	    console.error("Unknown type", argType0, "for call to `Link`; crash");
 	    res = undefined;
-	    console.log(null[0]); // Just crash it
+	    crash();
 	}
     } else if (fname === "Boundary") { // Supposed to only operate on a SComplex; here we look for a mesh subset
 	res = doBoundary(fnCall, argObj0);
@@ -640,7 +641,7 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	res = doSetMinus(fnCall, argObj0, argObj1);
     } else {
 	console.log("unimplemented function", fname);
-	console.log(null[0]);
+	crash();
     }
 
     if (res) { objs[bindVar] = res; }
@@ -759,9 +760,16 @@ function main() {
     let rawdata = Fs.readFileSync('Sub_enduser.json');
     let subJSON = JSON.parse(rawdata);
     console.log("Received JSON", subJSON);
-    console.log("Received JSON", subJSON.constraints);
 
-    let results = makeSubAndValues(subJSON);
+    let seeds = subJSON.params.map(x => x.contents.contents);
+    console.log("seeds", seeds);
+    seed0 = seeds[0];
+    // Use a prg here and set Math.random globally in rand-mesh so we can have different seeds controlling different aspects (vertex choice or mesh topology)
+    prg = seedrandom(seed0);
+    RandMesh.setUpRand(seeds[1]);
+    console.log("Math.rand in plugin", Math.random());
+
+    let results = makeSubAndValues(subJSON.substance);
     let [newSub, styVals] = [results.newSub, results.styVals];
 
     console.log("writing Substance program: ", newSub);

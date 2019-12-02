@@ -8,10 +8,7 @@ const _ = require('lodash');
 var seedrandom = require('seedrandom');
 const Delaunator = require('delaunator');
 
-// Global PRNG: set Math.random.
-// TODO: pass in seed
-const seed = 'hello.'
-seedrandom(seed, { global: true });
+var seed1; // MUTABLE STATE, set up in setUpRand
 
 // uniform sampling
 function sampleFrom(range) {
@@ -84,10 +81,17 @@ function makeRandMesh(numPts, range) {
     return obj_final;
 }
 
+function setUpRand(seed) {
+    seed1 = seed;
+    // Global PRNG: set Math.random.
+    seedrandom(seed1, { global: true });
+    console.log("Math.rand in rand-mesh", Math.random());
+}
+
 function main() { // An example use
     const numPts = 4;
     const range = [-5, 5];
     let res = makeRandMesh(numPts, range);
 }
 
-module.exports = { makeRandMesh, sampleFrom };
+module.exports = { setUpRand, makeRandMesh, sampleFrom };
