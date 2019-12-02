@@ -39,8 +39,10 @@ function Boundary: SSubset s -> SSubset
 -- Math-related predicates
 predicate IsSubsetOf: SSubset s * SComplex c
 predicate IsSComplex: SSubset s
--- predicate Pure: SSubset s
 predicate IsBoundary: SSubset s -- Not sure how to check it
+
+predicate InBoundary: Vertex v
+predicate InInterior: Vertex v
 
 -- Generic connectivity and selection predicates
 -- Does this work WRT subtyping?

@@ -5,8 +5,13 @@
 
 const Fs = require('fs');
 const _ = require('lodash');
-
+var seedrandom = require('seedrandom');
 const Delaunator = require('delaunator');
+
+// Global PRNG: set Math.random.
+// TODO: pass in seed
+const seed = 'hello.'
+seedrandom(seed, { global: true });
 
 // uniform sampling
 function sampleFrom(range) {

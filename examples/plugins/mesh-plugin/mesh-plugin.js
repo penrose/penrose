@@ -20,6 +20,7 @@ Some parts are unfinished and the plugin hasn't been completely tested over gene
 
 const Fs = require('fs');
 const _ = require('lodash');
+var seedrandom = require('seedrandom');
 
 // Geometry processing imports
 const Vertex = require('./geometry-processing-js/node/core/vertex.js');
@@ -49,6 +50,11 @@ const ftype = "Face";
 
 const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
 const numPointsRange = [5, 9];
+
+// Global PRNG: set Math.random.
+// TODO: pass in seed; pass to rand-mesh and back
+const seed = 'hello.'
+seedrandom(seed, { global: true });
 
 function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;
@@ -472,6 +478,12 @@ function makeNameMappings(json, objs) {
 	    console.log("error: mesh has no vertices!");
 	} else {
 	    let vi = Math.floor(Math.random() * mesh.vertices.length);
+	    // let vi = 7;
+	    let vertex = mesh.vertices[vi];
+	    // TODO: this doesn't seem to fit my understanding of what a boundary is. Is the vertex being mislabeled, the simplicial complex drawn in a misleading manner, the other code wrong, or something else?
+	    // TODO: An edge is on the boundary if it's incident to only one face
+	    console.error("vertex", vname, "index", vi, "onBoundary", vertex.onBoundary());
+
 	    // let vi = 4; // TODO: hardcode to the center vertex
 	    let assignedName = objName(scName, vtype, vi); // K1_V0
 
@@ -661,7 +673,6 @@ function makeSty(objs, plugin2sub) {
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
 	    let vname = substitute(plugin2sub, objName(cname, vtype, vi));
-	    // let vpos = positions[v]; // Vector object, throw away z pos
 	    let vpos = optimizedPositions[v]; // Vector object, throw away z pos
 	    console.log("positions inner", optimizedPositions);
 	    console.log("v index", vi);
