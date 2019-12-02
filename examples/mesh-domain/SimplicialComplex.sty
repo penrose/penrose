@@ -12,7 +12,7 @@ global {
     global.selectedRadius = 3.0
     global.selectedThickness = 2.5
 
-    global.selectedColor = Colors.red
+    global.selectedColor = Colors.midnightblue
     global.selectedColor2 = setOpacity(global.selectedColor, 0.25)
 
     global.starColor = Colors.midnightblue
@@ -20,9 +20,9 @@ global {
 
     global.closureColor = Colors.midnightblue
     global.closureColor2 = Colors.lightslategray
-    global.closureColor3 = Colors.red
+    global.closureColor3 = Colors.midnightblue
 
-    global.linkColor = Colors.green
+    global.linkColor = Colors.blue
     global.linkColor2 = setOpacity(global.linkColor, 0.25)
 
     global.boundaryColor = Colors.yellow
@@ -34,7 +34,7 @@ global {
     -- And it makes convergence hard
     -- global.scaleFactor = ?
     -- global.optFn = ensure inRange(global.scaleFactor, 75.0, 150.0)
-    global.scaleFactor = 90.0
+    global.scaleFactor = 70.0
     -- global.offset = 150.0
 }
 
@@ -66,7 +66,6 @@ Colors {
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
-
 -- TODO: this is going to match Subcomplex too... how to fix that?
 SComplex K {
        K.x_offset = ?
@@ -74,8 +73,8 @@ SComplex K {
        K.size = 200.0
 
        K.shape = Rectangle {
-       	       x : ?
-	       y : ?
+       	       x : 0.0
+	       y : 0.0
 	       sizeX : K.size
 	       sizeY : K.size
 	       rotation : 0.0
@@ -97,24 +96,27 @@ SComplex K {
        K.labelFn = encourage centerLabel(K.shape, K.text)
 
        K.layerTextFn = K.text above K.shape
+
+       -- Expression label
+
+       K.const_text = Text {
+       	 x : K.shape.x 
+       	 y : K.shape.y - (K.size / 2.0) - 20.0
+       	 string : "\\text{ }"
+       	 rotation : 0.0
+       	 color : global.starColor
+       }
+
+       K.const_layerFn = K.const_text above K.shape
 }
 
 -- Label SSubsets
+-- TODO: this currently seems to be too general
 SSubset S
 where IsSubsetOf(S, K)
 with SComplex K {
-       S.text = Text {
-	 x : ?
-	 y : ?
-	 string : S.label
-	 rotation : 0.0
-	 color : global.starColor
-       }
-
-       -- TODO: actually label S properly (not just via containment)
-       S.labelFn = ensure contains(K.shape, S.text)
-       S.layerFn = S.text above K.shape
-       S.layerFn2 = S.text above i.shape
+     S.val = 0.0 -- TODO: need to make a fake field so the label can be inserted
+     override K.const_text.string = S.label -- Just label one thing
 }
 
 -- TODO: this generates a (K1, K2) and (K2, K1) match
@@ -205,13 +207,6 @@ with Vertex v1; Vertex v2; SComplex K {
 	     thickness : global.edgeStroke
      }
 
-     -- e.text = Text {
-     --   x : midpointX(e.shape) + global.padding
-     --   y : midpointY(e.shape) + global.padding
-     --   string : e.label
-     --   rotation : 0.0
-     -- }
-
      e.layering1 = v1.shape above e.shape
      e.layering2 = v2.shape above e.shape
      e.layering3 = e.shape above K.shape
@@ -230,11 +225,6 @@ with Edge e1; Edge e2; Edge e3; SComplex K {
 	     rotation : 0.0
      }
 
-     -- f.text = Text {
-     --   string : f.label
-     --   color : f.color
-     --   rotation : 0.0
-     -- }
      f.layeringShape = f.shape above K.shape
 }
 
@@ -391,19 +381,28 @@ Subcomplex C
 where C := Closure(S); IsSubsetOf(S, K); S := Star(i)
 with SSubset S; SComplex K; SSubset i {
 
-       C.text = Text {
-	 x : ?
-	 y : ?
-	 string : C.label
-	 rotation : 0.0
-	 color : global.closureColor
-       }
+       override K.const_text.string = C.label
 
-       -- TODO: this actually prefers the center of the shape but it shouldn't
-       C.labelFn = ensure contains(K.shape, C.text)
-       C.layerFn = C.text above K.shape
+       -- override C.text = Text {
+       -- 	 x : ?
+       -- 	 y : ?
+       -- 	 string : C.label
+       -- 	 rotation : 0.0
+       -- 	 color : global.closureColor
+       -- }
+
+       -- C.labelFn = ensure contains(K.shape, C.text)
+       -- C.layerFn2 = C.text above K.shape
 
        -- TODO
        -- Does not overlap any other shape (maybe just disjoint with edges?)
        -- Close to the V/E/F of the Subcomplex in question
+}
+
+-- Label setminus
+
+SSubset S
+where S := SetMinus(T, Q); IsSubsetOf(S, K)
+with SSubset T; SSubset Q; SComplex K {
+     override K.const_text.string = S.label
 }

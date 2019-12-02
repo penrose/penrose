@@ -3,6 +3,7 @@ Vertex i
 InVS(i, K)
 
 Subcomplex A
+IsSubsetOf(A, K)
 A := Closure(i)
 
 Label A $Cl(i)$

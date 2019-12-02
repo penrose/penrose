@@ -7,6 +7,7 @@ IsSubsetOf(S1, K)
 S1 := Star(i)
 
 Subcomplex A
+IsSubsetOf(A, K)
 A := Closure(S1)
 
 Label A $Cl(St(i))$

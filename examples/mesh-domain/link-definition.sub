@@ -7,6 +7,7 @@ IsSubsetOf(S1, K)
 S1 := Star(i)
 
 Subcomplex A
+IsSubsetOf(A, K)
 A := Closure(S1)
 
 Label A $Cl(St(i))$
@@ -23,9 +24,8 @@ SSubset S2
 IsSubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
 S2 := Star(B)
 
+AutoLabel B
 Label S2 $St(Cl(i))$ -- TODO: remove these labels
-AutoLabel i
-AutoLabel K
 
 ----------------
 
