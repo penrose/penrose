@@ -19,8 +19,9 @@ global {
 
     global.closureColor = Colors.midnightblue
     global.closureColor2 = Colors.lightslategray
+    global.closureColor3 = Colors.red
 
-    global.linkColor = Colors.blue
+    global.linkColor = Colors.green
     global.linkColor2 = setOpacity(global.linkColor, 0.25)
 
     global.boundaryColor = Colors.yellow
@@ -95,6 +96,24 @@ SComplex K {
        K.labelFn = encourage centerLabel(K.shape, K.text)
 
        K.layerTextFn = K.text above K.shape
+}
+
+-- Label SSubsets
+SSubset S
+where IsSubsetOf(S, K)
+with SComplex K {
+       S.text = Text {
+	 x : ?
+	 y : ?
+	 string : S.label
+	 rotation : 0.0
+	 color : global.starColor
+       }
+
+       -- TODO: actually label S properly (not just via containment)
+       S.labelFn = ensure contains(K.shape, S.text)
+       S.layerFn = S.text above K.shape
+       S.layerFn2 = S.text above i.shape
 }
 
 -- TODO: this generates a (K1, K2) and (K2, K1) match
@@ -226,7 +245,18 @@ with SComplex K {
       LOCAL.textLayering2 = v.text above e.shape
 }
 
------------------- Things in a closure
+------------------ Things in a closure of a vertex 
+-- (we know it's the same vertex, so we need to write a match that uses the same variable)
+
+Vertex v
+where InVS(v, C); C := Closure(v)
+with Subcomplex C {
+     override v.shape.r = global.selectedRadius
+     override v.shape.color = global.closureColor3
+     -- This is being selected; it's just too dark to tell...
+}
+
+------------------ Things in a closure of a subset
 
 Vertex v
 where InVS(v, C); C := Closure(S)
@@ -249,46 +279,27 @@ with Subcomplex C; SSubset S {
       override f.shape.color = global.closureColor2
 }
 
------------------- Things in a subset that result from a star of a *vertex*
+------------------ Things in a subset that result from a star of a subset (vertex or subset)
 
 Vertex v
-where InVS(v, S); S := Star(v); IsSubsetOf(S, K)
-with SSubset S; SComplex K {
+where InVS(v, S); S := Star(i); IsSubsetOf(S, K)
+with SSubset S; SComplex K; SSubset i {
      override v.shape.r = global.selectedRadius
-      override v.shape.color = global.starColor
+     override v.shape.color = global.starColor
 }
 
 Edge e
-where InES(e, S); S := Star(v); IsSubsetOf(S, K)
-with SSubset S; SComplex K; Vertex v {
+where InES(e, S); S := Star(i); IsSubsetOf(S, K)
+with SSubset S; SComplex K; SSubset i {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.starColor
 }
 
 Face f
-where InFS(f, S); S := Star(v); IsSubsetOf(S, K)
-with SSubset S; SComplex K; Vertex v {
+where InFS(f, S); S := Star(i); IsSubsetOf(S, K)
+with SSubset S; SComplex K; SSubset i {
       override f.shape.fill = global.starColor2
       override f.shape.color = global.starColor2
-}
-
-SSubset S1
-where S1 := Star(i); IsSubsetOf(S1, K); InVS(i, K)
-with SComplex K; Vertex i {
-
-       S1.text = Text {
-	 x : ?
-	 y : ?
-	 string : S1.label
-	 rotation : 0.0
-	 color : global.starColor
-       }
-
-       -- TODO: this actually prefers the center of the shape but it shouldn't
-       S1.labelFn = ensure contains(K.shape, S1.text)
-       S1.layerFn = S1.text above K.shape
-       S1.layerFn2 = S1.text above i.shape
-
 }
 
 ------------------ Things in a link of a subset
@@ -297,7 +308,7 @@ Vertex v
 where InVS(v, S2); S2 := Link(S1)
 with SSubset S2; SSubset S1 {
      override v.shape.r = global.selectedRadius
-      override v.shape.color = global.linkColor
+     override v.shape.color = global.linkColor
 }
 
 Edge e
@@ -314,13 +325,36 @@ with SSubset S2; SSubset S1 {
       override f.shape.color = global.linkColor2
 }
 
+------------------ Things in setminus of two subsets
+
+Vertex v
+where InVS(v, S3); S3 := SetMinus(S1, S2)
+with SSubset S3; SSubset S2; SSubset S1 {
+     override v.shape.r = global.selectedRadius
+     override v.shape.color = global.linkColor
+}
+
+Edge e
+where InES(e, S3); S3 := SetMinus(S1, S2)
+with SSubset S3; SSubset S2; SSubset S1 {
+      override e.shape.thickness = global.selectedThickness
+      override e.shape.color = global.linkColor
+}
+
+Face f
+where InFS(f, S3); S3 := SetMinus(S1, S2)
+with SSubset S3; SSubset S2; SSubset S1 {
+      override f.shape.fill = global.linkColor2
+      override f.shape.color = global.linkColor2
+}
+
 ------------------ Things in boundary of a subcomplex
 
 Vertex v
 where InVS(v, S); S := Boundary(C)
 with SSubset S; SComplex C {
      override v.shape.r = global.selectedRadius
-      override v.shape.color = global.boundaryColor
+     override v.shape.color = global.boundaryColor
 }
 
 Edge e
@@ -353,8 +387,8 @@ with SComplex K {
 -- Label the closure of a star
 
 Subcomplex C
-where C := Closure(S); IsSubsetOf(S, K); S := Star(v)
-with SSubset S; SComplex K; Vertex v {
+where C := Closure(S); IsSubsetOf(S, K); S := Star(i)
+with SSubset S; SComplex K; SSubset i {
 
        C.text = Text {
 	 x : ?

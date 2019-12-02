@@ -23,7 +23,7 @@ SSubset S2
 IsSubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
 S2 := Star(B)
 
-Label S2 $St(Cl(i))$
+Label S2 $St(Cl(i))$ -- TODO: remove these labels
 AutoLabel i
 AutoLabel K
 

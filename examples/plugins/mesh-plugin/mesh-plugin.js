@@ -292,11 +292,11 @@ function doSetMinus(stmt, o1, o2) {
 
     let meshSubset3 = MeshSubset.deepCopy(meshSubset1);
 
-    // console.log("meshSubset 1,2,3", meshSubset1, meshSubset2, meshSubset3);
+    // console.log("meshSubset 1,2,3 before setminus", meshSubset1, meshSubset2, meshSubset3);
     // `delete` mutates it. So you need to copy
     meshSubset3.deleteSubset(meshSubset2);
 
-    // console.log("meshSubset 1,2,3", meshSubset1, meshSubset2, meshSubset3);
+    // console.log("meshSubset 1,2,3 after setminus", meshSubset1, meshSubset2, meshSubset3);
 
     // TODO: Does it matter which scName and sc I attach?
     return { type: 'MeshSubset',
