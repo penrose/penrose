@@ -42,13 +42,19 @@ G {
     G.dist_to_sphere_center = G.dist_to_sphere + G.sphereRadius
     G.camera_z = G.dist_to_sphere + G.sphereRadius
     G.camera = [0.0, 0.0, -1.0 * G.camera_z]     -- x, y, z in math space 
-    		  -- Note: Sphere has r=0.5, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
+    		  -- Note: Sphere has r=1.0, so the camera needs to be at sufficient distance from the sphere to be able to project on the near plane z=1
     G.dir = [0.0, 0.0, 1.0] -- looking down the +z-axis
     G.hfov = (-5.0, 5.0)
     G.vfov = (-5.0, 5.0)
 
-    G.toScreen = 500.0
-    G.imageSize = G.sphereRadius * G.toScreen * 2.0
+    -- G.toScreen is calculated as such:
+    -- imageSize (total width) = G.circle.r * 2.0
+    --           = 0.353 * G.toScreen * 2.0
+    -- Therefore, if imageSize = 400 (for the paper),
+    -- then G.toScreen = 400 / (0.353 * 2) = 566.57
+
+    G.toScreen = 566.5722
+    G.imageSize = G.circle.r * G.toScreen * 2.0
 
     G.arrowheadSize = 0.65
     G.strokeWidth = 1.75
@@ -70,7 +76,7 @@ G {
 
     G.sphere = Image {
 	 x : 0.0
-	 y : -19.0
+	 y : -21.0 -- Hand-tuned
 	 w : G.circle.r * 2.0 * G.bgScaleFactor
 	 h : G.circle.r * 2.0 * G.bgScaleFactor
 	 rotation: 0.0
@@ -90,19 +96,16 @@ G {
 		-- circPts = map (\t -> (cos t, sin t)) [0, (2 * pi) / 100 .. 2 * pi] -- Unit circle in (x,z)
 		-- maximum $ map (\(x, z) -> x/(z + 3)) circPts -- Move it forward then project on z=1
 		-- 0.3534234568955392 -- This is wider than 1/3!!!
-		color : setOpacity(Colors.blue, 0.1)
+		-- color : setOpacity(Colors.blue, 0.1)
+		color : Colors.none
 		strokeWidth : 1.0
-		strokeColor : Colors.red
+		-- strokeColor : Colors.red
+		strokeColor : Colors.none
     }
 
     G.layering = G.circle below G.sphere
     -- For testing that the image is in the right location
     -- G.layering = G.circle above G.sphere
-
-    -- G.debugX = Line {
-    -- 	     startX = 100.0
-    -- 	     startY = 
-    -- }
 }
 
 Point p {
