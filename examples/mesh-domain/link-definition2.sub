@@ -1,0 +1,45 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+Face f
+InFS(f, K)
+
+SSubset S
+IsSubsetOf(S, K)
+S := Union(e, f)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := Star(S)
+
+Subcomplex A
+IsSubsetOf(A, K)
+A := Closure(S1)
+
+Label A $Cl(St(S))$
+AutoLabel e
+AutoLabel f
+AutoLabel K
+AutoLabel S1
+
+----------------
+
+Subcomplex B
+B := Closure(S)
+
+SSubset S2
+IsSubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
+S2 := Star(B)
+
+AutoLabel B
+Label S2 $St(Cl(S))$ -- TODO: remove these labels
+
+----------------
+
+SSubset S3
+IsSubsetOf(S3, K)
+S3 := SetMinus(A, S2)
+
+Label S3 $Cl(St(S)) \setminus St(Cl(S))$

@@ -1,0 +1,20 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+Face f
+InFS(f, K)
+
+SSubset S
+IsSubsetOf(S, K)
+S := Union(e, f)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := Link(S)
+
+AutoLabel e
+AutoLabel f
+Label S1 $Lk(S)$
+Label K $K_2$

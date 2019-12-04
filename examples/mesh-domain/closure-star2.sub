@@ -1,0 +1,25 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+Face f
+InFS(f, K)
+
+SSubset S
+IsSubsetOf(S, K)
+S := Union(e, f)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := Star(S)
+
+Subcomplex A
+IsSubsetOf(A, K)
+A := Closure(S1)
+
+Label A $Cl(St(S))$
+AutoLabel e
+AutoLabel f
+AutoLabel K
+Label S1 $S_1$
