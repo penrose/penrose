@@ -2,11 +2,13 @@
 
 It does the following:
 
+It sets up a pseudorandom generator for both rand-mesh (via seedrandom replacing Math.random) and mesh-plugin (called `prg`).
+
 First, it instantiates every declared simplicial complex. This is done in `makeObj`. To make a random mesh, it calls rand-mesh.js, using parameters `pointRange` and `numPointsRange`. To make the data structure, it calls geometry-processing-js to make a mesh and its simplicial complex. All objects are created and stored in the `objs` key-value store in `makeSub`, indexed by name. 
 
 It names and refers to objects by the convention defined in `objName`, which relies on the internal index of an object in geometry-processing-js. For example, a vertex belonging to the simplicial complex `K1` might be called `K1_V1`.
 
-Next, it binds and manages names that are declared in the Substance, like `Vertex i` (currently only supports vertices). It does this in `makeNameMappings` by selecting a random vertex (by index) and keeping track of which Substance name is bound to which generated name. It also, later, says that these have been declared in `makeUserLines`.
+Next, it binds and manages names that are declared in the Substance, like `Vertex i`, `Face f`, and `Edge e`. It does this in `makeNameMappings` by selecting a random primitive object (by index) and keeping track of which Substance name is bound to which generated name. It also, later, says that these have been declared in `makeUserLines`. (A primitive object is a vertex, edge, or face.)
 
 Then, it performs simplicial complex operations by calling the corresponding function in geometry-processing-js.
   The supported functions can be found in `doFnCall` and are currently `StarV`, `Closure`, `Link`, `LinkV`, and `Boundary`.
@@ -49,12 +51,18 @@ const etype = "Edge";
 const ftype = "Face";
 
 const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
-const numPointsRange = [8, 11];
+const numPointsRange = [6, 10];
 
 var seed0; // MUTABLE: gets set by random seed from Style and is reused in rand-mesh
 var prg; // MUTABLE (used in lieu of Math.Random which is globally set in rand-mesh, so we can control both the vertex selection and the number of them)
 
 const crash = () => { console.log("crashing"); console.log(null[0]); }
+
+const isInPred = s => s === "InVS" || s === "InES" || s === "InFS";
+// doesn't check that the type matches pred type--presumably the substance typechecker dealt with that
+
+const isPrimitiveType = t => t === "Vertex" || t === "Edge" || t === "Face";
+// i.e. is not a composite object (mesh subset or simplicial complex)
 
 function objName(cname, objType, index) {
     return cname + "_" + tstr(objType) + index;
@@ -113,6 +121,22 @@ function tstr(objType) {
 
 function selected(objType, objName) {
     return "Selected" + tstr(objType) + "(" + objName + ")";
+}
+
+// `subset` should be a MeshSubset object from gp.js
+// `prim` should have schema like this: { scName: 'K', type: 'Face', assignedName: 'K_F2', index: 2 }
+// NOTE: mutates the input subset; does not return
+function addPrimitiveToSubset(subset, prim) {
+    if (prim.type === "Vertex") {
+	subset.addVertex(prim.index);
+    } else if (prim.type === "Edge") {
+	subset.addEdge(prim.index);
+    } else if (prim.type === "Face") {
+	subset.addFace(prim.index);
+    } else {
+	console.error("Unsupported type to add to MeshSubset", prim.type);
+	crash();
+    }
 }
 
 function makeSComplex(cname) {
@@ -191,6 +215,8 @@ function doClosure(stmt, subsetObj) {
     let SCO = subsetObj.sc;
 
     let meshSubset = subsetObj.meshSubset;
+    // console.log(stmt, subsetObj);
+
     let closure_ms = SCO.closure(meshSubset);
 
     return { type: 'MeshSubset',
@@ -313,6 +339,50 @@ function doSetMinus(stmt, o1, o2) {
 	   };
 }
 
+function doUnion(stmt, o1, o2, json, objs) {
+    console.log("doUnion", stmt, o1, o2);
+
+    let subcomplexName = stmt.varName;
+
+    if (o1.type === "MeshSubset" && o2.type === "MeshSubset") {
+	let cname1 = o1.scName;
+	let SCO1 = o1.sc;
+	let meshSubset1 = o1.meshSubset;
+	let meshSubset2 = o2.meshSubset;
+	let meshSubset3 = MeshSubset.deepCopy(meshSubset1);
+	meshSubset3.addSubset(meshSubset2);
+
+	// TODO: Does it matter which scName and sc I attach?
+	return { type: 'MeshSubset',
+		 name: subcomplexName,
+		 scName: cname1, // TODO: OK to use this?
+		 sc: SCO1, // TODO: OK to use this?
+		 meshSubset: meshSubset3
+	       };
+    } else if (isPrimitiveType(o1.type) && isPrimitiveType(o2.type)) {
+	let argObj1 = findMesh(stmt.fargNames[0], json, objs);
+	let argObj2 = findMesh(stmt.fargNames[1], json, objs);
+	let cname1 = o1.scName;
+	let SCO1 = argObj1.sc;	
+
+	let subsetUnion = new MeshSubset();
+	addPrimitiveToSubset(subsetUnion, o1);
+	addPrimitiveToSubset(subsetUnion, o2);
+	// console.log("subsetUnion", subsetUnion);
+
+	// TODO: Does it matter which scName and sc I attach?
+	return { type: 'MeshSubset',
+		 name: subcomplexName,
+		 scName: cname1, // TODO: OK to use this?
+		 sc: SCO1, // TODO: OK to use this?
+		 meshSubset: subsetUnion
+	       };
+    } else {
+	console.error("Unsupported types for Union", o1.type, o2.type);
+	crash();
+    }
+}
+
 // Return the Substance programs
 function scToSub(mappings, scObj) {
     let mesh = scObj.mesh;
@@ -326,6 +396,7 @@ function scToSub(mappings, scObj) {
     // SC names can't be remapped
     prog.push(labelSC(cname));
 
+    // TODO: the declarations should really be happening in a separate function call before this...
     // Emit all declarations first, since objects need to be defined in Substance before they're referenced
     // TODO factor out V,E,F code and 3-tuple
     for (let v of mesh.vertices) {
@@ -365,7 +436,7 @@ function scToSub(mappings, scObj) {
 	let v1 = h.vertex;
 	let v2 = h.twin.vertex;
 
-	let ename = objName(cname, etype, e.index);
+	let ename = substitute(plugin2sub, objName(cname, etype, e.index));
 	let vname1 = substitute(plugin2sub, objName(cname, vtype, v1.index));
 	let vname2 = substitute(plugin2sub, objName(cname, vtype, v2.index));
 	
@@ -383,10 +454,11 @@ function scToSub(mappings, scObj) {
 	let enames = edges.map(i => substitute(plugin2sub, objName(cname, etype, i)));
 
 	if (enames.length == 3) {
-	    prog.push(mkF(objName(cname, ftype, f.index),
-			  cname, enames[0], enames[1], enames[2]));
+	    let fname = substitute(plugin2sub, objName(cname, ftype, f.index));
+	    prog.push(mkF(fname, cname, enames[0], enames[1], enames[2]));
 	} else {
 	    console.log("malformed face: ", f);
+	    crash();
 	}
     }
 
@@ -420,19 +492,19 @@ function subsetToSub(mappings, subsetWrapper) {
     return prog;
 }
 
-// find the mesh object that the vertex belongs to (if any)
-// should be declared with an InVS statement in substance, assuming a valid substance program with parg order preserved
-function findMesh(vname, json, objs) {
+// find the mesh object that the vertex/edge/face belongs to (if any)
+// should be declared with an InVS/InFS/InES statement in substance, assuming a valid substance program with parg order preserved
+function findMesh(name, json, objs) {
     // first find the name of the mesh, then look it up in the objects we made
 
     // TODO: write a "find" function
     let meshNames = json.constraints.predicates
-	.filter(o => o.pname === "InVS" && vname === o.pargs[0].Left)
+	.filter(o => isInPred(o.pname) && name === o.pargs[0].Left)
         .map(o => o.pargs[1].Left);
 
     if (meshNames.length !== 1) {
-	console.log("expected to find vertex " + vname + " in exactly one mesh, but found " + meshNames.length);
-	return undefined;
+	console.log("expected to find vertex/edge/face " + name + " in exactly one mesh, but found " + meshNames.length);
+	crash();
     }
 
     console.log("found mesh: " + meshNames[0]);
@@ -446,7 +518,7 @@ function findSubset(subsetName, subsets) {
 }
 
 function makeNameMappings(json, objs) {
-    // Deal with named vertex statements.
+    // Deal with named vertex, edge, and face statements. For example (just for vertices):
     // Choose a random vertex in the mesh (fail if no vertices)
     // Make a mapping from Substance name ("v") to that vertex's index, simplicial complex, and generated name ("K1_v1")
     // What info do we need about "v"? Do we ever need a reverse mapping?
@@ -460,42 +532,45 @@ function makeNameMappings(json, objs) {
     // Mappings from Substance name to subpart of structure (name assigned in code here), as well as the reverse mapping
     let subToAssignedMapping = {};
     let assignedToSubMapping = {};
-    let vertexMappings = json.objects
-	.filter(o => o.objType === 'Vertex');
 
-    for (let v of vertexMappings) {
-	let vname = v.objName;
-	let scObj = findMesh(vname, json, objs);
+    let objMappings = json.objects
+	.filter(o => isPrimitiveType(o.objType)); // [ { objName : String, objType : String } ]
+
+    for (let o of objMappings) {
+	let oname = o.objName;
+	let otype = o.objType;
+	let scObj = findMesh(oname, json, objs);
 	let mesh = scObj.mesh;
 	let scName = scObj.name;
 
-	subToAssignedMapping[vname] = { scName: scName, // Should this be a pointer to the SC?
-					type: vtype,
+	subToAssignedMapping[oname] = { scName: scName, // Should this be a pointer to the SC?
+					type: otype,
 					assignedName: undefined,
 					index: undefined };
 
-	if (mesh.vertices.length == 0) {
-	    console.log("error: mesh has no vertices!");
+	let objList; // List of objects to choose from
+
+	if (otype === "Vertex") { objList = mesh.vertices; }
+	else if (otype === "Edge") { objList = mesh.edges; }
+	else if (otype === "Face") { objList = mesh.faces; }
+	else { console.error("Type", otype, "not found"); crash(); }
+
+	if (objList.length == 0) {
+	    console.log("error: mesh has no objects of type", otype, "!");
 	} else {
-	    // let vi = Math.floor(Math.random() * mesh.vertices.length);
-	    let vi = Math.floor(prg() * mesh.vertices.length);
-	    // let vi = 7;
-	    let vertex = mesh.vertices[vi];
-	    // TODO: this doesn't seem to fit my understanding of what a boundary is. Is the vertex being mislabeled, the simplicial complex drawn in a misleading manner, the other code wrong, or something else?
-	    // TODO: An edge is on the boundary if it's incident to only one face
-	    console.error("vertex", vname, "index", vi, "onBoundary", vertex.onBoundary());
+	    let oi = Math.floor(prg() * objList.length); // NOT Math.random (which is now a PRG), but a PRG with a separate seed
+	    let selectedObj = objList[oi];
+	    let assignedName = objName(scName, otype, oi); // this is a name generated by the plugin, such as `K1_V0`
 
-	    // let vi = 4; // TODO: hardcode to the center vertex
-	    let assignedName = objName(scName, vtype, vi); // K1_V0
+	    subToAssignedMapping[oname].assignedName = assignedName;
+	    subToAssignedMapping[oname].index = oi;
 
-	    subToAssignedMapping[vname].assignedName = assignedName;
-	    subToAssignedMapping[vname].index = vi;
-
-	    assignedToSubMapping[assignedName] = vname;
+	    assignedToSubMapping[assignedName] = oname;
 	}
     }
 
     console.log("name mappings, sub2plugin", subToAssignedMapping);
+
     return { sub2plugin: subToAssignedMapping,
 	     plugin2sub: assignedToSubMapping };
 }
@@ -639,6 +714,13 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	console.log("function call", fname, "with arg name 1", argName1, "of type", argType1);
 
 	res = doSetMinus(fnCall, argObj0, argObj1);
+    } else if (fname === "Union") {
+	let argName1 = fnArgs[1];
+	let argObj1 = objs[argName1];
+	let argType1 = argObj1.type;
+	console.log("function call", fname, "with arg name 1", argName1, "of type", argType1);
+
+	res = doUnion(fnCall, argObj0, argObj1, json, objs);
     } else {
 	console.log("unimplemented function", fname);
 	crash();
@@ -670,13 +752,12 @@ function makeSty(objs, plugin2sub) {
 	// Optimize the vertex positions of the mesh so each triangle looks close to equilateral.
 	console.log("sending mesh to be optimized");
 	let optimizedPositions = OptMesh.optimizeMesh(mesh, geometry, positions);
+	    console.log("optimized positions", optimizedPositions);
 
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
 	    let vname = substitute(plugin2sub, objName(cname, vtype, vi));
 	    let vpos = optimizedPositions[v]; // Vector object, throw away z pos
-	    console.log("positions inner", optimizedPositions);
-	    console.log("v index", vi);
 
 	    let pos_json_x = { propertyName: "x",
 			       propertyVal: vpos.x };

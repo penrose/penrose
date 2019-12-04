@@ -37,11 +37,11 @@ function samplePts(numPts, range) {
 
 function makeRandMesh(numPts, range) {
     const points = samplePts(numPts, range);
-    console.log("points", points);
+    // console.log("points", points);
 
     const delaunay = Delaunator.from(points);
     const triangles = delaunay.triangles
-    console.log("triangles", triangles);
+    // console.log("triangles", triangles);
 
     // let coordinates = [];
 

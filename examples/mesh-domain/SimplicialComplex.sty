@@ -8,6 +8,9 @@ global {
 
     global.sc_rect_stroke = 2.0
     global.edgeStroke = 1.5
+    global.selectedEdgeStroke = 3.0
+
+    global.selectedFaceColor = Colors.red
 
     global.selectedRadius = 3.0
     global.selectedThickness = 2.5
@@ -212,28 +215,75 @@ with Vertex v1; Vertex v2; SComplex K {
      e.layering3 = e.shape above K.shape
 }
 
+-- Style and label a distinguished edge
+Edge e
+where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K)
+with Vertex v1; Vertex v2; SComplex K {
+     override e.shape.thickness = global.selectedEdgeStroke
+
+     e.text = Text {
+       x : average(e.shape.startX, e.shape.endX) + global.padding
+       y : average(e.shape.startY, e.shape.endY) + global.padding
+       string : e.label
+       rotation : 0.0
+       color : e.shape.color
+     }
+
+     e.layerFnText = e.text above K.shape
+}
+
 Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
 where f := MkFace(e1, e2, e3); InFS(f, K)
 with Edge e1; Edge e2; Edge e3; SComplex K {
-     f.color = Colors.lightsky
+     f.color = Colors.silver
 
      f.shape = Curve { 
      	     pathData : triangle(e1.shape, e2.shape, e3.shape)
 	     strokeWidth : 0.0
-	     fill : Colors.silver
-	     color : Colors.silver
+	     fill : f.color
+	     color : f.color
 	     rotation : 0.0
      }
 
      f.layeringShape = f.shape above K.shape
 }
 
+-- Style and label a distinguished face
+Face f
+where DeclaredF(f); f := MkFace(e1, e2, e3); InFS(f, K)
+with Edge e1; Edge e2; Edge e3; SComplex K {
+     
+     -- Need to pick a color that doesn't "override" the selected edges and vertices!
+     override f.shape.fill = global.selectedFaceColor
+     override f.shape.color = global.selectedFaceColor
+
+     -- f.text = Text {
+     --   x : ?
+     --   y : ?
+     --   string : f.label
+     --   rotation : 0.0
+     --   color : f.shape.color
+     -- }
+
+     -- f.layerFnText = f.text above K.shape
+}
+
 -- Relative layerings within a simplicial complex
 Vertex v; Edge e; Face f
 where InVS(v, K); InES(e, K); InFS(f, K)
 with SComplex K {
-      LOCAL.textLayering1 = v.text above f.shape
+      LOCAL.textLayering1 = v.text above f.shape 
+      -- TODO: this fails because `f` doesn't have its own match
       LOCAL.textLayering2 = v.text above e.shape
+}
+
+-- Style a SSubset union (of edge and face only! not in general)
+SSubset S
+where IsSubsetOf(S, K); IsSubsetOf(S, K); S := Union(e, f)
+with SComplex K; Edge e; Face f {
+     override e.shape.color = Colors.green
+     override f.shape.color = setOpacity(Colors.green, 0.2)
+     override f.shape.fill = setOpacity(Colors.green, 0.2)
 }
 
 ------------------ Things in a closure of a vertex 
@@ -259,8 +309,10 @@ with Subcomplex C; SSubset S {
 Edge e
 where InES(e, C); C := Closure(S)
 with Subcomplex C; SSubset S {
-      override e.shape.thickness = global.selectedThickness
+     -- TODO: edge positions might look weird due to layering with faces?
+      override e.shape.thickness = global.selectedEdgeStroke
       override e.shape.color = global.closureColor
+      -- override e.shape.color = Colors.red
 }
 
 Face f
@@ -405,4 +457,8 @@ SSubset S
 where S := SetMinus(T, Q); IsSubsetOf(S, K)
 with SSubset T; SSubset Q; SComplex K {
      override K.const_text.string = S.label
+}
+
+Edge e; Face f {
+     LOCAL.layering = e.shape above f.shape
 }

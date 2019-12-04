@@ -17,7 +17,7 @@ const RandMesh = require('./rand-mesh.js');
 const square = (x) => x * x;
 
 function energy(mesh, positions, avgLen) {
-    console.log("energy avgLen", avgLen);
+    // console.log("energy avgLen", avgLen);
 
     // initialize energy to 0
     let e_sum = 0.0;
@@ -77,7 +77,7 @@ function optimizeMesh(mesh, geometry, positions) { // See `main` for usage examp
 	    gradients[v] = new Vector(0.0, 0.0, 0.0);
 	}
 
-	console.log("gradients", gradients);
+	// console.log("gradients", gradients);
 
 	// add gradient of edge length energy
 	for (let e of mesh.edges) {
@@ -94,7 +94,7 @@ function optimizeMesh(mesh, geometry, positions) { // See `main` for usage examp
 	    gradients[v2] = gradients[v2].minus(u_scaled);
 	}
 
-	console.log("gradients", gradients);
+	// console.log("gradients", gradients);
 
         // add gradient of (signed) triangle area energy
 	for (let f of mesh.faces) {
@@ -111,8 +111,8 @@ function optimizeMesh(mesh, geometry, positions) { // See `main` for usage examp
             // compute (twice) the triangle area
 	    let A = b.minus(a).cross(c.minus(a)).z; // (b-a) X (c-a)
 
-	    console.log("A", A);
-	    console.log("va grad x", gradients[va].x);
+	    // console.log("A", A);
+	    // console.log("va grad x", gradients[va].x);
 
             // add gradient contribution at vertex a
             gradients[va].x += (A0-A)*(c.y-b.y);
@@ -127,11 +127,11 @@ function optimizeMesh(mesh, geometry, positions) { // See `main` for usage examp
             gradients[vc].y += (A0-A)*(a.x-b.x);
 	}
 
-	console.log("gradients", gradients);
+	// console.log("gradients", gradients);
 
         // Part 2: Take a gradient step =========================
 	let E0 = energy(mesh, positions, L); // get the energy of the current configuration
-	console.log("E0", E0);
+	// console.log("E0", E0);
 
         // compute the squared norm of the gradient
         let gradNormSquared = 0.0;
@@ -143,8 +143,8 @@ function optimizeMesh(mesh, geometry, positions) { // See `main` for usage examp
 	    gradNormSquared += gradients[v].norm2();
 	}
 
-	console.log("originalPositions", originalPositions);
-	console.log("gradNormSquared", gradNormSquared);
+	// console.log("originalPositions", originalPositions);
+	// console.log("gradNormSquared", gradNormSquared);
 
         // perform backtracking line search, as described in
         // Body & Vandenberghe, "Convex Optimization" (Algorithm 9.2)
@@ -154,7 +154,7 @@ function optimizeMesh(mesh, geometry, positions) { // See `main` for usage examp
         const nMaxBacktrackingSteps = 100;
 
         for (let i = 0; i < nMaxBacktrackingSteps; i++) {
-	    console.log("tau", tau);
+	    // console.log("tau", tau);
 
             // move to tentative new configuration
 	    for (let v of mesh.vertices) {
@@ -164,13 +164,16 @@ function optimizeMesh(mesh, geometry, positions) { // See `main` for usage examp
 
             // evaluate energy at new configuration
             const E = energy(mesh, positions, L);
-	    console.log("new E", E);
+	    // console.log("new E", E);
 
             // if there was a sufficient decrease in energy, stop
-            if (E < (E0 - alpha * tau * gradNormSquared)) { console.log("sufficient decrease in energy"); break; }
+            if (E < (E0 - alpha * tau * gradNormSquared)) { 
+		// console.log("sufficient decrease in energy");
+ 		break; 
+	    }
 
             // otherwise, shrink the time step
-	    console.log("shrinking timestep");
+	    // console.log("shrinking timestep");
             tau *= beta;
 	}
 

@@ -21,6 +21,9 @@ type Subcomplex -- (V, E, F) linked to a mesh; is a simplicial complex
 SComplex <: SSubset
 Subcomplex <: SSubset
 Vertex <: Subcomplex -- TODO: plugin doesn't deal w/ this
+Edge <: SSubset
+Face <: SSubset
+
 -- Subcomplex <: SComplex
 -- TODO: Technically true, but messes up our Style matching
 
@@ -33,6 +36,7 @@ function Closure: SSubset s -> Subcomplex
 function Link: SSubset s -> SSubset
 function SetMinus: SSubset s * SSubset t -> SSubset
 function Boundary: SSubset s -> SSubset
+function Union: SSubset s * SSubset t -> SSubset
 -- function Coboundary: SSubset s -> SSubset
 -- function ToSComplex: SSubset s -> SComplex
 

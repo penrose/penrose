@@ -1,0 +1,15 @@
+SComplex K
+-- Vertex i
+-- InVS(i, K)
+
+Edge e
+InES(e, K)
+
+Face f
+InFS(f, K)
+
+SSubset S
+IsSubsetOf(S, K)
+S := Union(e, f)
+
+AutoLabel All
