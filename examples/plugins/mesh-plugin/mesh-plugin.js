@@ -51,7 +51,7 @@ const etype = "Edge";
 const ftype = "Face";
 
 const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
-const numPointsRange = [6, 10];
+const numPointsRange = [10, 20];
 
 var seed0; // MUTABLE: gets set by random seed from Style and is reused in rand-mesh
 var prg; // MUTABLE (used in lieu of Math.Random which is globally set in rand-mesh, so we can control both the vertex selection and the number of them)

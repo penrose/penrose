@@ -250,8 +250,8 @@ with Edge e1; Edge e2; Edge e3; SComplex K {
 
 -- Style and label a distinguished face
 Face f
-where DeclaredF(f); f := MkFace(e1, e2, e3); InFS(f, K)
-with Edge e1; Edge e2; Edge e3; SComplex K {
+where DeclaredF(f); InFS(f, K)
+with SComplex K {
      
      -- Need to pick a color that doesn't "override" the selected edges and vertices!
      override f.shape.fill = global.selectedFaceColor
@@ -279,7 +279,7 @@ with SComplex K {
 
 -- Style a SSubset union (of edge and face only! not in general)
 SSubset S
-where IsSubsetOf(S, K); IsSubsetOf(S, K); S := Union(e, f)
+where IsSubsetOf(S, K); S := Union(e, f)
 with SComplex K; Edge e; Face f {
      override e.shape.color = Colors.green
      override f.shape.color = setOpacity(Colors.green, 0.2)
