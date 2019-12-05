@@ -1,0 +1,16 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+Subcomplex A
+A := Closure(e)
+
+SSubset S1
+IsSubsetOf(S1, K) -- TODO: Should this be A or K? Or both?
+S1 := Star(A)
+
+Label A $Cl(e)$
+Label S1 $St(Cl(e))$
+AutoLabel e
+AutoLabel K

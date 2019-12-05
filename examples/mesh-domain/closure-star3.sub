@@ -1,0 +1,17 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := Star(e)
+
+Subcomplex A
+IsSubsetOf(A, K)
+A := Closure(S1)
+
+Label A $Cl(St(e))$
+AutoLabel e
+AutoLabel K
+Label S1 $S_1$

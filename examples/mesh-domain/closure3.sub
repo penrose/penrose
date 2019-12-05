@@ -1,0 +1,12 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+Subcomplex A
+IsSubsetOf(A, K)
+A := Closure(e)
+
+Label A $Cl(e)$
+AutoLabel K
+AutoLabel e

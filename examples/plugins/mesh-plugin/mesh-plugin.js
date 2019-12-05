@@ -1,3 +1,6 @@
+const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
+const numPointsRange = [7, 11];
+
 /* This is a plugin for the mesh domain, meant to be used with mesh-domain/mesh.dsl and mesh-domain/SimplicialComplex.sty.
 
 It does the following:
@@ -49,9 +52,6 @@ const newline = "\n";
 const vtype = "Vertex";
 const etype = "Edge";
 const ftype = "Face";
-
-const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
-const numPointsRange = [10, 20];
 
 var seed0; // MUTABLE: gets set by random seed from Style and is reused in rand-mesh
 var prg; // MUTABLE (used in lieu of Math.Random which is globally set in rand-mesh, so we can control both the vertex selection and the number of them)
@@ -168,18 +168,16 @@ function makeSComplex(cname) {
 }
 
 // Expects a mesh made by makeSComplex
-function doStarV(stmt, nameMappings, scObj) {
+function doStarV(stmt, nameMappings, argObj, scObj) {
     let starName = stmt.varName;
-    let vertexName = stmt.fargNames[0];
-    // Take the star at a specific vertex
+    let objName = stmt.fargNames[0];
+    // Take the star at a specific obj
     let cname = scObj.name;
     let SCO = scObj.sc;
-    let vertexIndex = nameMappings.sub2plugin[vertexName].index;
+    let objIndex = nameMappings.sub2plugin[objName].index;
 
     let selectedSimplices = new MeshSubset();
-    selectedSimplices.addVertices([vertexIndex]);
-    selectedSimplices.addEdges([]);
-    selectedSimplices.addFaces([]);
+    addPrimitiveToSubset(selectedSimplices, argObj);
 
     let star_sc = SCO.star(selectedSimplices);
 
@@ -227,20 +225,18 @@ function doClosure(stmt, subsetObj) {
 	   };
 }
 
-function doClosureV(stmt, nameMappings, scObj) {
+function doClosureV(stmt, nameMappings, argObj, scObj) {
     let subsetName = stmt.varName;
     console.log("do closure v", scObj);
 
     let cname = scObj.name;
     let SCO = scObj.sc;
 
-    let vertexName = stmt.fargNames[0];
-    let vertexIndex = nameMappings.sub2plugin[vertexName].index;
+    let objName = stmt.fargNames[0];
+    let objIndex = nameMappings.sub2plugin[objName].index;
 
     let selectedSimplices = new MeshSubset();
-    selectedSimplices.addVertices([vertexIndex]);
-    selectedSimplices.addEdges([]);
-    selectedSimplices.addFaces([]);
+    addPrimitiveToSubset(selectedSimplices, argObj);
 
     let link_ms = SCO.closure(selectedSimplices);
 
@@ -269,20 +265,18 @@ function doLink(stmt, subsetObj) {
 	   };
 }
 
-function doLinkV(stmt, nameMappings, scObj) {
+function doLinkV(stmt, nameMappings, argObj, scObj) {
     let subsetName = stmt.varName;
     console.log("do link v", scObj);
 
     let cname = scObj.name;
     let SCO = scObj.sc;
 
-    let vertexName = stmt.fargNames[0];
-    let vertexIndex = nameMappings.sub2plugin[vertexName].index;
+    let objName = stmt.fargNames[0];
+    let objIndex = nameMappings.sub2plugin[objName].index;
 
     let selectedSimplices = new MeshSubset();
-    selectedSimplices.addVertices([vertexIndex]);
-    selectedSimplices.addEdges([]);
-    selectedSimplices.addFaces([]);
+    addPrimitiveToSubset(selectedSimplices, argObj);
 
     let link_ms = SCO.link(selectedSimplices);
 
@@ -673,9 +667,9 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	if (argType0 === "MeshSubset") {
 	    let argObj = argObj0;
 	    res = doStar(fnCall, argObj);
-	} else if (argType0 === "Vertex") {
-	    let argObj = findMesh(argName0, json, objs);
-	    res = doStarV(fnCall, mappings, argObj);
+	} else if (isPrimitiveType(argType0)) {
+	    let scObj = findMesh(argName0, json, objs);
+	    res = doStarV(fnCall, mappings, argObj0, scObj);
 	} else {
 	    console.error("Unknown type", argType0, "for call to `Star`; crash");
 	    res = undefined;
@@ -685,9 +679,9 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	if (argType0 === "MeshSubset") {
 	    let argObj = argObj0;
 	    res = doClosure(fnCall, argObj);
-	} else if (argType0 === "Vertex") {
-	    let argObj = findMesh(argName0, json, objs);
-	    res = doClosureV(fnCall, mappings, argObj);
+	} else if (isPrimitiveType(argType0)) {
+	    let scObj = findMesh(argName0, json, objs);
+	    res = doClosureV(fnCall, mappings, argObj0, scObj);
 	} else {
 	    console.error("Unknown type", argType0, "for call to `Closure`; crash");
 	    res = undefined;
@@ -697,17 +691,19 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 	if (argType0 === "MeshSubset") {
 	    let argObj = argObj0;
 	    res = doLink(fnCall, argObj);
-	} else if (argType0 === "Vertex") {
-	    let argObj = findMesh(argName0, json, objs);
-	    res = doLinkV(fnCall, mappings, argObj);
+	} else if (isPrimitiveType(argType0)) {
+	    let scObj = findMesh(argName0, json, objs);
+	    res = doLinkV(fnCall, mappings, argObj0, scObj);
 	} else {
 	    console.error("Unknown type", argType0, "for call to `Link`; crash");
 	    res = undefined;
 	    crash();
 	}
     } else if (fname === "Boundary") { // Supposed to only operate on a SComplex; here we look for a mesh subset
+	// TODO: check types
 	res = doBoundary(fnCall, argObj0);
     } else if (fname === "SetMinus") {
+	// TODO: check types
 	let argName1 = fnArgs[1];
 	let argObj1 = objs[argName1];
 	let argType1 = argObj1.type;
@@ -715,6 +711,7 @@ function doFnCall(json, objs, mappings, fnCall) { // TODO factor out mappings
 
 	res = doSetMinus(fnCall, argObj0, argObj1);
     } else if (fname === "Union") {
+	// TODO: check types
 	let argName1 = fnArgs[1];
 	let argObj1 = objs[argName1];
 	let argType1 = argObj1.type;

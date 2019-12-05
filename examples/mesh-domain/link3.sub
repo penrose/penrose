@@ -1,0 +1,12 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := Link(e)
+
+AutoLabel e
+Label S1 $Lk(e)$
+Label K $K_2$
