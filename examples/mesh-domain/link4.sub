@@ -1,0 +1,17 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+Subcomplex E
+IsSubsetOf(E, K)
+E := Closure(e)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := Link(E)
+
+AutoLabel e
+AutoLabel E
+Label S1 $Lk(E)$
+Label K $K_2$

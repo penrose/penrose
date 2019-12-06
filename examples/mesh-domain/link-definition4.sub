@@ -1,0 +1,42 @@
+SComplex K
+
+Edge e
+InES(e, K)
+
+Subcomplex E
+IsSubsetOf(E, K)
+E := Closure(e)
+
+SSubset S1
+IsSubsetOf(S1, K)
+S1 := Star(E)
+
+Subcomplex A
+IsSubsetOf(A, K)
+A := Closure(S1)
+
+Label A $Cl(St(E))$
+AutoLabel E
+AutoLabel e
+AutoLabel K
+AutoLabel S1
+
+----------------
+
+Subcomplex B
+B := Closure(E)
+
+SSubset S2
+IsSubsetOf(S2, K)
+S2 := Star(B)
+
+AutoLabel B
+Label S2 $St(Cl(E))$
+
+----------------
+
+SSubset S3
+IsSubsetOf(S3, K)
+S3 := SetMinus(A, S2)
+
+Label S3 $Cl(St(E)) \setminus St(Cl(E))$

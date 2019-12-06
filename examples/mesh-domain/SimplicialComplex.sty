@@ -1,5 +1,5 @@
 -- Random seeds; first seed controls the vertex selection, second seed controls the mesh topology
-plugin "ddgjs" (7.0, 3.0)
+plugin "ddgjs" (8.0, 3.0)
 
 global {
     global.padding = 20.0
@@ -273,7 +273,6 @@ Vertex v; Edge e; Face f
 where InVS(v, K); InES(e, K); InFS(f, K)
 with SComplex K {
       LOCAL.textLayering1 = v.text above f.shape 
-      -- TODO: this fails because `f` doesn't have its own match
       LOCAL.textLayering2 = v.text above e.shape
 }
 

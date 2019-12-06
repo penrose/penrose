@@ -3,14 +3,19 @@ SComplex K
 Edge e
 InES(e, K)
 
+Subcomplex E
+IsSubsetOf(E, K)
+E := Closure(e)
+
 Subcomplex A
-A := Closure(e)
+A := Closure(E)
 
 SSubset S1
 IsSubsetOf(S1, K)
 S1 := Star(A)
 
-Label A $Cl(e)$
-Label S1 $St(Cl(e))$
+Label A $Cl(E)$
+Label S1 $St(Cl(E))$
 AutoLabel e
+AutoLabel E
 AutoLabel K
