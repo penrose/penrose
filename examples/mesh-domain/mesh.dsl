@@ -14,36 +14,36 @@
 type Vertex
 type Edge
 type Face
-type SSubset -- Subset of a mesh; might not be a simplicial complex
-type SComplex -- Mesh := SComplex(2); simplicial complex
+type SimplicialSubset -- Subset of a mesh; might not be a simplicial complex
+type SimplicialComplex -- Mesh := SimplicialComplex(2); simplicial complex
 type Subcomplex -- (V, E, F) linked to a mesh; is a simplicial complex
 
-SComplex <: SSubset
-Subcomplex <: SSubset
+SimplicialComplex <: SimplicialSubset
+Subcomplex <: SimplicialSubset
 Vertex <: Subcomplex -- TODO: plugin doesn't deal w/ this
-Edge <: SSubset
-Face <: SSubset
+Edge <: SimplicialSubset
+Face <: SimplicialSubset
 
--- Subcomplex <: SComplex
+-- Subcomplex <: SimplicialComplex
 -- TODO: Technically true, but messes up our Style matching
 
 constructor MkEdge : Vertex v1 * Vertex v2 -> Edge
 constructor MkFace : Edge e1 * Edge e2 * Edge e3 -> Face
 
-function Star: SSubset s -> SSubset -- This function does not include the simplicial complex that v is in (?)
-function StarV: Vertex v -> SSubset 
-function Closure: SSubset s -> Subcomplex
-function Link: SSubset s -> SSubset
-function SetMinus: SSubset s * SSubset t -> SSubset
-function Boundary: SSubset s -> SSubset
-function Union: SSubset s * SSubset t -> SSubset
--- function Coboundary: SSubset s -> SSubset
--- function ToSComplex: SSubset s -> SComplex
+function Star: SimplicialSubset s -> SimplicialSubset -- This function does not include the simplicial complex that v is in (?)
+function StarV: Vertex v -> SimplicialSubset 
+function Closure: SimplicialSubset s -> Subcomplex
+function Link: SimplicialSubset s -> SimplicialSubset
+function SetMinus: SimplicialSubset s * SimplicialSubset t -> SimplicialSubset
+function Boundary: SimplicialSubset s -> SimplicialSubset
+function Union: SimplicialSubset s * SimplicialSubset t -> SimplicialSubset
+-- function Coboundary: SimplicialSubset s -> SimplicialSubset
+-- function ToSimplicialComplex: SimplicialSubset s -> SimplicialComplex
 
 -- Math-related predicates
-predicate IsSubsetOf: SSubset s * SComplex c
-predicate IsSComplex: SSubset s
-predicate IsBoundary: SSubset s -- Not sure how to check it
+predicate IsSubsetOf: SimplicialSubset s * SimplicialComplex c
+predicate IsSimplicialComplex: SimplicialSubset s
+predicate IsBoundary: SimplicialSubset s -- Not sure how to check it
 
 predicate InBoundary: Vertex v
 predicate InInterior: Vertex v
@@ -53,9 +53,9 @@ predicate InInterior: Vertex v
 predicate InVE: Vertex v * Edge e
 predicate InEF: Edge e * Face f
 
-predicate InVS: Vertex v * SSubset s
-predicate InES: Edge e * SSubset s
-predicate InFS: Face f * SSubset s
+predicate InVS: Vertex v * SimplicialSubset s
+predicate InES: Edge e * SimplicialSubset s
+predicate InFS: Face f * SimplicialSubset s
 
 -- For plugin use
 predicate DeclaredV: Vertex v

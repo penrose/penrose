@@ -1,4 +1,4 @@
-SComplex K
+SimplicialComplex K
 
 Edge e
 InES(e, K)

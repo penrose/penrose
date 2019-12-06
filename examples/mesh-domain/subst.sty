@@ -4,7 +4,7 @@ plugin "ddgjs" (7.0, 3.0)
 -- Style and label a distinguished face
 Face f
 where DeclaredF(f); InFS(f, K)
-with SComplex K {
+with SimplicialComplex K {
      
      -- Need to pick a color that doesn't "override" the selected edges and vertices!
      override f.shape.fill = global.selectedFaceColor
@@ -14,16 +14,16 @@ with SComplex K {
 -- Relative layerings within a simplicial complex
 Vertex v; Edge e; Face f
 where InVS(v, K); InES(e, K); InFS(f, K)
-with SComplex K {
+with SimplicialComplex K {
       LOCAL.textLayering1 = v.text above f.shape 
       -- TODO: this fails because `f` doesn't have its own match
       LOCAL.textLayering2 = v.text above e.shape
 }
 
--- Style a SSubset union (of edge and face only! not in general)
-SSubset S
+-- Style a SimplicialSubset union (of edge and face only! not in general)
+SimplicialSubset S
 where IsSubsetOf(S, K); S := Union(e, f)
-with SComplex K; Edge e; Face f {
+with SimplicialComplex K; Edge e; Face f {
      override e.shape.color = Colors.green
      override f.shape.color = setOpacity(Colors.green, 0.2)
      override f.shape.fill = setOpacity(Colors.green, 0.2)
@@ -41,14 +41,14 @@ with Subcomplex C {
 
 Vertex v
 where InVS(v, C); C := Closure(S)
-with Subcomplex C; SSubset S {
+with Subcomplex C; SimplicialSubset S {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.closureColor
 }
 
 Edge e
 where InES(e, C); C := Closure(S)
-with Subcomplex C; SSubset S {
+with Subcomplex C; SimplicialSubset S {
      -- TODO: edge positions might look weird due to layering with faces?
       override e.shape.thickness = global.selectedEdgeStroke
       override e.shape.color = global.closureColor
@@ -57,14 +57,14 @@ with Subcomplex C; SSubset S {
 
 Face f
 where InFS(f, C); C := Closure(S)
-with Subcomplex C; SSubset S {
+with Subcomplex C; SimplicialSubset S {
       override f.shape.fill = global.closureColor2
       override f.shape.color = global.closureColor2
 }
 
-SSubset S
+SimplicialSubset S
 where S := SetMinus(T, Q); IsSubsetOf(S, K)
-with SSubset T; SSubset Q; SComplex K {
+with SimplicialSubset T; SimplicialSubset Q; SimplicialComplex K {
      override K.const_text.string = S.label
 }
 

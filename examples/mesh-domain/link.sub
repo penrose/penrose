@@ -1,8 +1,8 @@
-SComplex K
+SimplicialComplex K
 Vertex i
 InVS(i, K)
 
-SSubset S1
+SimplicialSubset S1
 IsSubsetOf(S1, K)
 S1 := Link(i) -- Final
 

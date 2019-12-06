@@ -1,4 +1,4 @@
-SComplex K
+SimplicialComplex K
 
 Edge e
 InES(e, K)
@@ -6,14 +6,14 @@ InES(e, K)
 Face f
 InFS(f, K)
 
-SSubset S
+SimplicialSubset S
 IsSubsetOf(S, K)
 S := Union(e, f)
 
 Subcomplex A
 A := Closure(S)
 
-SSubset S1
+SimplicialSubset S1
 IsSubsetOf(S1, K) -- TODO: Should this be A or K? Or both?
 S1 := Star(A)
 

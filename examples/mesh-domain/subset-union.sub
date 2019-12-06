@@ -1,4 +1,4 @@
-SComplex K
+SimplicialComplex K
 -- Vertex i
 -- InVS(i, K)
 
@@ -8,7 +8,7 @@ InES(e, K)
 Face f
 InFS(f, K)
 
-SSubset S
+SimplicialSubset S
 IsSubsetOf(S, K)
 S := Union(e, f)
 

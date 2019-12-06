@@ -1,4 +1,4 @@
-SComplex K
+SimplicialComplex K
 
 Edge e
 InES(e, K)
@@ -7,7 +7,7 @@ Subcomplex E
 IsSubsetOf(E, K)
 E := Closure(e)
 
-SSubset S1
+SimplicialSubset S1
 IsSubsetOf(S1, K)
 S1 := Link(E)
 

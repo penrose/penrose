@@ -1,4 +1,4 @@
-SComplex K
+SimplicialComplex K
 Vertex i
 InVS(i, K)
 

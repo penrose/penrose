@@ -1,4 +1,4 @@
-SComplex K
+SimplicialComplex K
 
 Edge e
 InES(e, K)
@@ -6,7 +6,7 @@ InES(e, K)
 Subcomplex A
 A := Closure(e)
 
-SSubset S1
+SimplicialSubset S1
 IsSubsetOf(S1, K)
 S1 := Star(A)
 

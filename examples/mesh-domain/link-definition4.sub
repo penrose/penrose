@@ -1,4 +1,4 @@
-SComplex K
+SimplicialComplex K
 
 Edge e
 InES(e, K)
@@ -7,7 +7,7 @@ Subcomplex E
 IsSubsetOf(E, K)
 E := Closure(e)
 
-SSubset S1
+SimplicialSubset S1
 IsSubsetOf(S1, K)
 S1 := Star(E)
 
@@ -26,7 +26,7 @@ AutoLabel S1
 Subcomplex B
 B := Closure(E)
 
-SSubset S2
+SimplicialSubset S2
 IsSubsetOf(S2, K)
 S2 := Star(B)
 
@@ -35,7 +35,7 @@ Label S2 $St(Cl(E))$
 
 ----------------
 
-SSubset S3
+SimplicialSubset S3
 IsSubsetOf(S3, K)
 S3 := SetMinus(A, S2)
 

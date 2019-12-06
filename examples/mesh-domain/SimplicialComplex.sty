@@ -70,7 +70,7 @@ Colors {
 }
 
 -- TODO: this is going to match Subcomplex too... how to fix that?
-SComplex K {
+SimplicialComplex K {
        K.x_offset = ?
        K.y_offset = ?
        K.size = 200.0
@@ -113,17 +113,17 @@ SComplex K {
        K.const_layerFn = K.const_text above K.shape
 }
 
--- Label SSubsets
+-- Label SimplicialSubsets
 -- TODO: this currently seems to be too general
-SSubset S
+SimplicialSubset S
 where IsSubsetOf(S, K)
-with SComplex K {
+with SimplicialComplex K {
      S.val = 0.0 -- TODO: need to make a fake field so the label can be inserted
      override K.const_text.string = S.label -- Just label one thing
 }
 
 -- TODO: this generates a (K1, K2) and (K2, K1) match
-SComplex K1; SComplex K2 {
+SimplicialComplex K1; SimplicialComplex K2 {
 	 LOCAL.padding = 30.0
 
 	 -- TODO: improve this for rectangles by not just using the x size
@@ -134,7 +134,7 @@ SComplex K1; SComplex K2 {
 
 Vertex v 
 where InVS(v, K)
-with SComplex K {
+with SimplicialComplex K {
        v.xpos = ddg[v.name]["x"] * global.scaleFactor
        v.ypos = ddg[v.name]["y"] * global.scaleFactor
 
@@ -165,7 +165,7 @@ with SComplex K {
 -- Label a distinguished vertex
 Vertex v
 where DeclaredV(v); InVS(v, K)
-with SComplex K {
+with SimplicialComplex K {
       override v.text.string = v.label
       override v.shape.r = global.selectedRadius
 
@@ -191,7 +191,7 @@ with SComplex K {
 
 Vertex v; Edge e
 where DeclaredV(v); InVS(v, K); InES(e, K)
-with SComplex K {
+with SimplicialComplex K {
      LOCAL.offset = 5.0
      -- Make sure the label doesn't overlap with any edge
      -- TODO: this is NaNing
@@ -200,7 +200,7 @@ with SComplex K {
 
 Edge e
 where e := MkEdge(v1, v2); InES(e, K)
-with Vertex v1; Vertex v2; SComplex K {
+with Vertex v1; Vertex v2; SimplicialComplex K {
      e.shape = Line { 
      	     startX : v1.shape.x
      	     startY : v1.shape.y
@@ -218,7 +218,7 @@ with Vertex v1; Vertex v2; SComplex K {
 -- Style and label a distinguished edge
 Edge e
 where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K)
-with Vertex v1; Vertex v2; SComplex K {
+with Vertex v1; Vertex v2; SimplicialComplex K {
      override e.shape.thickness = global.selectedEdgeStroke
 
      e.text = Text {
@@ -234,7 +234,7 @@ with Vertex v1; Vertex v2; SComplex K {
 
 Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
 where f := MkFace(e1, e2, e3); InFS(f, K)
-with Edge e1; Edge e2; Edge e3; SComplex K {
+with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
      f.color = Colors.silver
 
      f.shape = Curve { 
@@ -251,7 +251,7 @@ with Edge e1; Edge e2; Edge e3; SComplex K {
 -- Style and label a distinguished face
 Face f
 where DeclaredF(f); InFS(f, K)
-with SComplex K {
+with SimplicialComplex K {
      
      -- Need to pick a color that doesn't "override" the selected edges and vertices!
      override f.shape.fill = global.selectedFaceColor
@@ -271,15 +271,15 @@ with SComplex K {
 -- Relative layerings within a simplicial complex
 Vertex v; Edge e; Face f
 where InVS(v, K); InES(e, K); InFS(f, K)
-with SComplex K {
+with SimplicialComplex K {
       LOCAL.textLayering1 = v.text above f.shape 
       LOCAL.textLayering2 = v.text above e.shape
 }
 
--- Style a SSubset union (of edge and face only! not in general)
-SSubset S
+-- Style a SimplicialSubset union (of edge and face only! not in general)
+SimplicialSubset S
 where IsSubsetOf(S, K); S := Union(e, f)
-with SComplex K; Edge e; Face f {
+with SimplicialComplex K; Edge e; Face f {
      override e.shape.color = Colors.green
      override f.shape.color = setOpacity(Colors.green, 0.2)
      override f.shape.fill = setOpacity(Colors.green, 0.2)
@@ -300,14 +300,14 @@ with Subcomplex C {
 
 Vertex v
 where InVS(v, C); C := Closure(S)
-with Subcomplex C; SSubset S {
+with Subcomplex C; SimplicialSubset S {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.closureColor
 }
 
 Edge e
 where InES(e, C); C := Closure(S)
-with Subcomplex C; SSubset S {
+with Subcomplex C; SimplicialSubset S {
      -- TODO: edge positions might look weird due to layering with faces?
       override e.shape.thickness = global.selectedEdgeStroke
       override e.shape.color = global.closureColor
@@ -316,7 +316,7 @@ with Subcomplex C; SSubset S {
 
 Face f
 where InFS(f, C); C := Closure(S)
-with Subcomplex C; SSubset S {
+with Subcomplex C; SimplicialSubset S {
       override f.shape.fill = global.closureColor2
       override f.shape.color = global.closureColor2
 }
@@ -325,21 +325,21 @@ with Subcomplex C; SSubset S {
 
 Vertex v
 where InVS(v, S); S := Star(i); IsSubsetOf(S, K)
-with SSubset S; SComplex K; SSubset i {
+with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.starColor
 }
 
 Edge e
 where InES(e, S); S := Star(i); IsSubsetOf(S, K)
-with SSubset S; SComplex K; SSubset i {
+with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.starColor
 }
 
 Face f
 where InFS(f, S); S := Star(i); IsSubsetOf(S, K)
-with SSubset S; SComplex K; SSubset i {
+with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
       override f.shape.fill = global.starColor2
       override f.shape.color = global.starColor2
 }
@@ -348,21 +348,21 @@ with SSubset S; SComplex K; SSubset i {
 
 Vertex v
 where InVS(v, S2); S2 := Link(S1)
-with SSubset S2; SSubset S1 {
+with SimplicialSubset S2; SimplicialSubset S1 {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.linkColor
 }
 
 Edge e
 where InES(e, S2); S2 := Link(S1)
-with SSubset S2; SSubset S1 {
+with SimplicialSubset S2; SimplicialSubset S1 {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.linkColor
 }
 
 Face f
 where InFS(f, S2); S2 := Link(S1)
-with SSubset S2; SSubset S1 {
+with SimplicialSubset S2; SimplicialSubset S1 {
       override f.shape.fill = global.linkColor2
       override f.shape.color = global.linkColor2
 }
@@ -371,21 +371,21 @@ with SSubset S2; SSubset S1 {
 
 Vertex v
 where InVS(v, S3); S3 := SetMinus(S1, S2)
-with SSubset S3; SSubset S2; SSubset S1 {
+with SimplicialSubset S3; SimplicialSubset S2; SimplicialSubset S1 {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.linkColor
 }
 
 Edge e
 where InES(e, S3); S3 := SetMinus(S1, S2)
-with SSubset S3; SSubset S2; SSubset S1 {
+with SimplicialSubset S3; SimplicialSubset S2; SimplicialSubset S1 {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.linkColor
 }
 
 Face f
 where InFS(f, S3); S3 := SetMinus(S1, S2)
-with SSubset S3; SSubset S2; SSubset S1 {
+with SimplicialSubset S3; SimplicialSubset S2; SimplicialSubset S1 {
       override f.shape.fill = global.linkColor2
       override f.shape.color = global.linkColor2
 }
@@ -394,21 +394,21 @@ with SSubset S3; SSubset S2; SSubset S1 {
 
 Vertex v
 where InVS(v, S); S := Boundary(C)
-with SSubset S; SComplex C {
+with SimplicialSubset S; SimplicialComplex C {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.boundaryColor
 }
 
 Edge e
 where InES(e, S); S := Boundary(C)
-with SSubset S; SComplex C {
+with SimplicialSubset S; SimplicialComplex C {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.boundaryColor
 }
 
 Face f
 where InFS(f, S); S := Boundary(C)
-with SSubset S; SComplex C {
+with SimplicialSubset S; SimplicialComplex C {
       override f.shape.fill = global.boundaryColor2
       override f.shape.color = global.boundaryColor2
 }
@@ -419,7 +419,7 @@ with SSubset S; SComplex C {
 -- Should this go in the vertex selector?
 Vertex v
 where InVS(v, K)
-with SComplex K {
+with SimplicialComplex K {
      override v.shape.x = v.xpos + K.x_offset
      override v.shape.y = v.ypos + K.y_offset
 
@@ -430,7 +430,7 @@ with SComplex K {
 
 Subcomplex C
 where C := Closure(S); IsSubsetOf(S, K); S := Star(i)
-with SSubset S; SComplex K; SSubset i {
+with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
 
        override K.const_text.string = C.label
 
@@ -452,9 +452,9 @@ with SSubset S; SComplex K; SSubset i {
 
 -- Label setminus
 
-SSubset S
+SimplicialSubset S
 where S := SetMinus(T, Q); IsSubsetOf(S, K)
-with SSubset T; SSubset Q; SComplex K {
+with SimplicialSubset T; SimplicialSubset Q; SimplicialComplex K {
      override K.const_text.string = S.label
 }
 

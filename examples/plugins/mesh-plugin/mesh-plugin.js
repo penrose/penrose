@@ -613,7 +613,7 @@ function makeObj(decl) {
     let sname = decl.objName;
     let res = undefined;
 
-    if (stype === "SComplex") { res = makeSComplex(sname); }
+    if (stype === "SimplicialComplex") { res = makeSComplex(sname); }
     return res;
 }
 

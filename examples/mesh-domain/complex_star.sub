@@ -2,8 +2,8 @@
 Subset S in K, A in K
 A = Star(S) */
 
-SComplex K
-SSubset S, A
+SimplicialComplex K
+SimplicialSubset S, A
 IsSubsetOf(S, K)
 IsSubsetOf(A, K)
 
