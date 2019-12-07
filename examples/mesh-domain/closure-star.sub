@@ -3,14 +3,14 @@ Vertex i
 InVS(i, K)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K)
+SubsetOf(S1, K)
 S1 := Star(i)
 
 Subcomplex A
-IsSubsetOf(A, K)
+SubsetOf(A, K)
 A := Closure(S1)
 
-Label A $Cl(St(i))$
+Label A $\mathrm{Cl}(\mathrm{St}(i))$
 AutoLabel i
 AutoLabel K
 Label S1 $S_1$

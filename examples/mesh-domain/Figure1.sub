@@ -3,14 +3,14 @@ Vertex i
 InVS(i, K1)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K1)
+SubsetOf(S1, K1)
 S1 := Star(i)
 
 Subcomplex A
 A := Closure(S1)
 
 -- SimplicialSubset S4
--- IsSubsetOf(S4, K1)
+-- SubsetOf(S4, K1)
 -- S4 := Boundary(A)
 
 -------------------------
@@ -20,14 +20,14 @@ Vertex j
 InVS(j, K2)
 
 SimplicialSubset S2
-IsSubsetOf(S2, K2)
+SubsetOf(S2, K2)
 S2 := Star(j)
 
 SimplicialSubset S3
-IsSubsetOf(S3, K2)
+SubsetOf(S3, K2)
 S3 := Link(j)
 
-Label A $Cl(St(i))$
+Label A $\mathrm{Cl}(\mathrm{St}(i))$
 AutoLabel i
 AutoLabel j
 Label S1 $S_1$

@@ -4,8 +4,8 @@ A = Star(S) */
 
 SimplicialComplex K
 SimplicialSubset S, A
-IsSubsetOf(S, K)
-IsSubsetOf(A, K)
+SubsetOf(S, K)
+SubsetOf(A, K)
 
 Vertex v
 InVS(v, S)

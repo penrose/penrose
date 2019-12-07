@@ -6,10 +6,10 @@ Subcomplex A
 A := Closure(i)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K) -- TODO: Should this be A or K? Or both?
+SubsetOf(S1, K) -- TODO: Should this be A or K? Or both?
 S1 := Star(A)
 
-Label A $Cl(i)$
-Label S1 $St(Cl(i))$
+Label A $\mathrm{Cl}(i)$
+Label S1 $\mathrm{St}(\mathrm{Cl}(i))$
 AutoLabel i
 AutoLabel K

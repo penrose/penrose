@@ -3,14 +3,14 @@ Vertex i
 InVS(i, K)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K)
+SubsetOf(S1, K)
 S1 := Star(i)
 
 Subcomplex A
-IsSubsetOf(A, K)
+SubsetOf(A, K)
 A := Closure(S1)
 
-Label A $Cl(St(i))$
+Label A $\mathrm{Cl}(\mathrm{St}(i))$
 AutoLabel i
 AutoLabel K
 AutoLabel S1
@@ -21,16 +21,16 @@ Subcomplex B
 B := Closure(i)
 
 SimplicialSubset S2
-IsSubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
+SubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
 S2 := Star(B)
 
 AutoLabel B
-Label S2 $St(Cl(i))$ -- TODO: remove these labels
+Label S2 $\mathrm{St}(\mathrm{Cl}(i))$ -- TODO: remove these labels
 
 ----------------
 
 SimplicialSubset S3
-IsSubsetOf(S3, K)
+SubsetOf(S3, K)
 S3 := SetMinus(A, S2)
 
-Label S3 $Cl(St(i)) \setminus St(Cl(i))$
+Label S3 $\mathrm{Cl}(\mathrm{St}(i)) \setminus \mathrm{St}(\mathrm{Cl}(i))$

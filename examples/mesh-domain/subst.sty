@@ -22,7 +22,7 @@ with SimplicialComplex K {
 
 -- Style a SimplicialSubset union (of edge and face only! not in general)
 SimplicialSubset S
-where IsSubsetOf(S, K); S := Union(e, f)
+where SubsetOf(S, K); S := Union(e, f)
 with SimplicialComplex K; Edge e; Face f {
      override e.shape.color = Colors.green
      override f.shape.color = setOpacity(Colors.green, 0.2)
@@ -63,7 +63,7 @@ with Subcomplex C; SimplicialSubset S {
 }
 
 SimplicialSubset S
-where S := SetMinus(T, Q); IsSubsetOf(S, K)
+where S := SetMinus(T, Q); SubsetOf(S, K)
 with SimplicialSubset T; SimplicialSubset Q; SimplicialComplex K {
      override K.const_text.string = S.label
 }

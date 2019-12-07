@@ -7,10 +7,10 @@ Subcomplex A
 A := Closure(e)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K)
+SubsetOf(S1, K)
 S1 := Star(A)
 
-Label A $Cl(e)$
-Label S1 $St(Cl(e))$
+Label A $\mathrm{Cl}(e)$
+Label S1 $\mathrm{St}(\mathrm{Cl}(e))$
 AutoLabel e
 AutoLabel K

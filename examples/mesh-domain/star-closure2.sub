@@ -7,18 +7,18 @@ Face f
 InFS(f, K)
 
 SimplicialSubset S
-IsSubsetOf(S, K)
+SubsetOf(S, K)
 S := Union(e, f)
 
 Subcomplex A
 A := Closure(S)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K) -- TODO: Should this be A or K? Or both?
+SubsetOf(S1, K) -- TODO: Should this be A or K? Or both?
 S1 := Star(A)
 
-Label A $Cl(S)$
-Label S1 $St(Cl(S))$
+Label A $\mathrm{Cl}(S)$
+Label S1 $\mathrm{St}(\mathrm{Cl}(S))$
 AutoLabel e
 AutoLabel f
 AutoLabel K

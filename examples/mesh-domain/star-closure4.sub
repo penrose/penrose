@@ -4,18 +4,18 @@ Edge e
 InES(e, K)
 
 Subcomplex E
-IsSubsetOf(E, K)
+SubsetOf(E, K)
 E := Closure(e)
 
 Subcomplex A
 A := Closure(E)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K)
+SubsetOf(S1, K)
 S1 := Star(A)
 
-Label A $Cl(E)$
-Label S1 $St(Cl(E))$
+Label A $\mathrm{Cl}(E)$
+Label S1 $\mathrm{St}(\mathrm{Cl}(E))$
 AutoLabel e
 AutoLabel E
 AutoLabel K

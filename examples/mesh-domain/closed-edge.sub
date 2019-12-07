@@ -4,7 +4,7 @@ Edge e
 InES(e, K)
 
 Subcomplex E
-IsSubsetOf(E, K)
+SubsetOf(E, K)
 E := Closure(e)
 
 AutoLabel E

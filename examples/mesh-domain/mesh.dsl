@@ -23,33 +23,23 @@ Subcomplex <: SimplicialSubset
 Vertex <: Subcomplex -- TODO: plugin doesn't deal w/ this
 Edge <: SimplicialSubset
 Face <: SimplicialSubset
-
 -- Subcomplex <: SimplicialComplex
 -- TODO: Technically true, but messes up our Style matching
 
 constructor MkEdge : Vertex v1 * Vertex v2 -> Edge
 constructor MkFace : Edge e1 * Edge e2 * Edge e3 -> Face
 
-function Star: SimplicialSubset s -> SimplicialSubset -- This function does not include the simplicial complex that v is in (?)
-function StarV: Vertex v -> SimplicialSubset 
+function Star: SimplicialSubset s -> SimplicialSubset
 function Closure: SimplicialSubset s -> Subcomplex
 function Link: SimplicialSubset s -> SimplicialSubset
 function SetMinus: SimplicialSubset s * SimplicialSubset t -> SimplicialSubset
 function Boundary: SimplicialSubset s -> SimplicialSubset
 function Union: SimplicialSubset s * SimplicialSubset t -> SimplicialSubset
--- function Coboundary: SimplicialSubset s -> SimplicialSubset
--- function ToSimplicialComplex: SimplicialSubset s -> SimplicialComplex
 
 -- Math-related predicates
-predicate IsSubsetOf: SimplicialSubset s * SimplicialComplex c
-predicate IsSimplicialComplex: SimplicialSubset s
-predicate IsBoundary: SimplicialSubset s -- Not sure how to check it
-
-predicate InBoundary: Vertex v
-predicate InInterior: Vertex v
+predicate SubsetOf: SimplicialSubset s * SimplicialComplex c
 
 -- Generic connectivity and selection predicates
--- Does this work WRT subtyping?
 predicate InVE: Vertex v * Edge e
 predicate InEF: Edge e * Face f
 
@@ -61,3 +51,9 @@ predicate InFS: Face f * SimplicialSubset s
 predicate DeclaredV: Vertex v
 predicate DeclaredE: Edge e
 predicate DeclaredF: Face f
+
+-- Syntactic sugar
+notation "Vertex v ∈ K" ~ "Vertex v; InVS(v, K)"
+notation "Edge e ∈ K" ~ "Edge e; InES(e, K)"
+notation "Face f ∈ K" ~ "Face f; InFS(f, K)"
+notation "Subset S ⊆ K" ~ "Subset S; SubsetOf(S, K)"

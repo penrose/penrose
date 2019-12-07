@@ -3,9 +3,9 @@ Vertex i
 InVS(i, K)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K)
+SubsetOf(S1, K)
 S1 := Star(i)
 
 AutoLabel i
 AutoLabel K
-Label S1 $St(i)$
+Label S1 $\mathrm{St}(i)$

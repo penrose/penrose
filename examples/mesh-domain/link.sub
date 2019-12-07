@@ -3,7 +3,7 @@ Vertex i
 InVS(i, K)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K)
+SubsetOf(S1, K)
 S1 := Link(i) -- Final
 
 AutoLabel i

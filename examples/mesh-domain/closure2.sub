@@ -7,14 +7,14 @@ Face f
 InFS(f, K)
 
 SimplicialSubset S
-IsSubsetOf(S, K)
+SubsetOf(S, K)
 S := Union(e, f)
 
 Subcomplex A
-IsSubsetOf(A, K)
+SubsetOf(A, K)
 A := Closure(S)
 
-Label A $Cl(S)$
+Label A $\mathrm{Cl}(S)$
 AutoLabel K
 AutoLabel e
 AutoLabel f

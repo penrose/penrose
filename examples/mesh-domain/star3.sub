@@ -4,9 +4,9 @@ Edge e
 InES(e, K)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K)
+SubsetOf(S1, K)
 S1 := Star(e)
 
-Label S1 $St(e)$
+Label S1 $\mathrm{St}(e)$
 AutoLabel K
 AutoLabel e

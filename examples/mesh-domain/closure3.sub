@@ -4,9 +4,9 @@ Edge e
 InES(e, K)
 
 Subcomplex A
-IsSubsetOf(A, K)
+SubsetOf(A, K)
 A := Closure(e)
 
-Label A $Cl(e)$
+Label A $\mathrm{Cl}(e)$
 AutoLabel K
 AutoLabel e

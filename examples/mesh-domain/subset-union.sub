@@ -9,7 +9,7 @@ Face f
 InFS(f, K)
 
 SimplicialSubset S
-IsSubsetOf(S, K)
+SubsetOf(S, K)
 S := Union(e, f)
 
 AutoLabel All

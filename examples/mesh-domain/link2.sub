@@ -7,11 +7,11 @@ Face f
 InFS(f, K)
 
 SimplicialSubset S
-IsSubsetOf(S, K)
+SubsetOf(S, K)
 S := Union(e, f)
 
 SimplicialSubset S1
-IsSubsetOf(S1, K)
+SubsetOf(S1, K)
 S1 := Link(S)
 
 AutoLabel e

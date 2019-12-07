@@ -116,7 +116,7 @@ SimplicialComplex K {
 -- Label SimplicialSubsets
 -- TODO: this currently seems to be too general
 SimplicialSubset S
-where IsSubsetOf(S, K)
+where SubsetOf(S, K)
 with SimplicialComplex K {
      S.val = 0.0 -- TODO: need to make a fake field so the label can be inserted
      override K.const_text.string = S.label -- Just label one thing
@@ -278,7 +278,7 @@ with SimplicialComplex K {
 
 -- Style a SimplicialSubset union (of edge and face only! not in general)
 SimplicialSubset S
-where IsSubsetOf(S, K); S := Union(e, f)
+where SubsetOf(S, K); S := Union(e, f)
 with SimplicialComplex K; Edge e; Face f {
      override e.shape.color = Colors.green
      override f.shape.color = setOpacity(Colors.green, 0.2)
@@ -324,21 +324,21 @@ with Subcomplex C; SimplicialSubset S {
 ------------------ Things in a subset that result from a star of a subset (vertex or subset)
 
 Vertex v
-where InVS(v, S); S := Star(i); IsSubsetOf(S, K)
+where InVS(v, S); S := Star(i); SubsetOf(S, K)
 with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.starColor
 }
 
 Edge e
-where InES(e, S); S := Star(i); IsSubsetOf(S, K)
+where InES(e, S); S := Star(i); SubsetOf(S, K)
 with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.starColor
 }
 
 Face f
-where InFS(f, S); S := Star(i); IsSubsetOf(S, K)
+where InFS(f, S); S := Star(i); SubsetOf(S, K)
 with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
       override f.shape.fill = global.starColor2
       override f.shape.color = global.starColor2
@@ -429,7 +429,7 @@ with SimplicialComplex K {
 -- Label the closure of a star
 
 Subcomplex C
-where C := Closure(S); IsSubsetOf(S, K); S := Star(i)
+where C := Closure(S); SubsetOf(S, K); S := Star(i)
 with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
 
        override K.const_text.string = C.label
@@ -453,7 +453,7 @@ with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
 -- Label setminus
 
 SimplicialSubset S
-where S := SetMinus(T, Q); IsSubsetOf(S, K)
+where S := SetMinus(T, Q); SubsetOf(S, K)
 with SimplicialSubset T; SimplicialSubset Q; SimplicialComplex K {
      override K.const_text.string = S.label
 }

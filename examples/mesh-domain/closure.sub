@@ -3,9 +3,9 @@ Vertex i
 InVS(i, K)
 
 Subcomplex A
-IsSubsetOf(A, K)
+SubsetOf(A, K)
 A := Closure(i)
 
-Label A $Cl(i)$
+Label A $\mathrm{Cl}(i)$
 AutoLabel i
 AutoLabel K
