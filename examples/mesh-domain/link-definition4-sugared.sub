@@ -1,18 +1,14 @@
 SimplicialComplex K
 
-Edge e
-InES(e, K)
+Edge e ∈ K
 
-Subcomplex E
-SubsetOf(E, K)
+Subcomplex E ⊆ K
 E := Closure(e)
 
-SimplicialSubset S1
-SubsetOf(S1, K)
+SimplicialSubset S1 ⊆ K
 S1 := Star(E)
 
-Subcomplex A
-SubsetOf(A, K)
+Subcomplex A ⊆ K
 A := Closure(S1)
 
 Label A $\mathrm{Cl}(\mathrm{St}(E))$
@@ -23,12 +19,10 @@ AutoLabel S1
 
 ----------------
 
-Subcomplex B
-SubsetOf(B, K)
+Subcomplex B ⊆ K
 B := Closure(E)
 
-SimplicialSubset S2
-SubsetOf(S2, K)
+SimplicialSubset S2 ⊆ K
 S2 := Star(B)
 
 AutoLabel B
@@ -36,8 +30,7 @@ Label S2 $\mathrm{St}(\mathrm{Cl}(E))$
 
 ----------------
 
-SimplicialSubset S3
-SubsetOf(S3, K)
+SimplicialSubset S3 ⊆ K
 S3 := SetMinus(A, S2)
 
 Label S3 $\mathrm{Cl}(\mathrm{St}(E)) \setminus \mathrm{St}(\mathrm{Cl}(E))$

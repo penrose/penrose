@@ -56,4 +56,5 @@ predicate DeclaredF: Face f
 notation "Vertex v ∈ K" ~ "Vertex v; InVS(v, K)"
 notation "Edge e ∈ K" ~ "Edge e; InES(e, K)"
 notation "Face f ∈ K" ~ "Face f; InFS(f, K)"
-notation "Subset S ⊆ K" ~ "Subset S; SubsetOf(S, K)"
+notation "SimplicialSubset S ⊆ K" ~ "SimplicialSubset S; SubsetOf(S, K)"
+notation "Subcomplex S ⊆ K" ~ "Subcomplex S; SubsetOf(S, K)"
