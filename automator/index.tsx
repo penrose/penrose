@@ -49,15 +49,25 @@ const allShapes = state.shapesr;
         data.svgNode.setAttribute("height", textGPI.h.updated);
 
         // TODO: can't store this in the state, return it separately (3 tuple?)
-        textGPI.rendered = data.svgNode.outerHTML;
+        textGPI.rendered = {
+          contents: data.svgNode.outerHTML
+        };
+        return [type, textGPI];
       }
       return [type, obj];
     })
   );
 
   // update the state with newly generated labels and label dimensions
-  // const updated = await propagateUpdate({ ...state, shapesr: collected });
+  const updated = await propagateUpdate({ ...state, shapesr: collected });
+  console.log(updated);
 
-  const canvas = ReactDOMServer.renderToString(<Canvas state={state}></Canvas>);
+  const canvas = ReactDOMServer.renderToString(
+    <Canvas state={updated}></Canvas>
+  );
   console.log(canvas);
+  fs.writeFile("output.svg", canvas, err => {
+    if (err) throw err;
+    console.log("The file has been saved!");
+  });
 })();

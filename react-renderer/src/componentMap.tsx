@@ -32,7 +32,7 @@ const componentMap = {
   "Polygon": Polygon,
   "Square": Square,
   "SquareTransform" : SquareTransform,
-  "Text": Label,
+  // "Text": Label,
   "TextTransform": LabelTransform,
   "Curve": Curve,
   "CurveTransform": CurveTransform,
@@ -42,6 +42,11 @@ const componentMap = {
   "LineTransform": LineTransform,
   "Line": Line,
   "ParallelogramTransform": ParallelogramTransform
+};
+
+export const staticShapes = {
+  Circle: Circle,
+  Text: Label
 };
 
 export default componentMap;

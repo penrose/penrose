@@ -1,6 +1,5 @@
 import * as React from "react";
-// import componentMap from "./componentMap";
-import Circle from "./Circle";
+import { staticShapes } from "./componentMap";
 
 interface IProps {
   substanceMetadata?: string;
@@ -18,7 +17,6 @@ class StaticCanvas extends React.Component<IProps> {
 
   public renderEntity = ([name, shape]: [string, object], key: number) => {
     // const component = componentMap[name];
-    const component = Circle;
     // if (component === undefined) {
     //   console.log(`Could not render GPI ${name}.`);
     //   return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
@@ -29,7 +27,8 @@ class StaticCanvas extends React.Component<IProps> {
     // }
     // const ctm = this.svg.current.getScreenCTM();
 
-    if (name === "Circle") {
+    if (name === "Circle" || name === "Text") {
+      const component = staticShapes[name];
       const canvasSize = this.canvasSize;
       return React.createElement(component, {
         key,
@@ -38,7 +37,7 @@ class StaticCanvas extends React.Component<IProps> {
         //   ctm
       });
     } else {
-      return <g />;
+      return <g key={key} />;
     }
   };
 

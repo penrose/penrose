@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IGPIPropsDraggable, IGPIProps } from "./types";
-import * as isEqual from "react-fast-compare";
+import isEqual from "react-fast-compare";
 import { LockContext } from "./contexts";
 interface IState {
   tempX: number;
