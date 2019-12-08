@@ -16,7 +16,7 @@ interface IState {
 */
 
 const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
-  return class extends React.Component<IGPIProps, IState> {
+  return class extends React.Component<IGPIPropsDraggable, IState> {
     public static contextType = LockContext;
     public static getDerivedStateFromProps(props: IGPIProps, state: IState) {
       if (!isEqual(state.shapeSnapshot, props.shape)) {

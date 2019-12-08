@@ -1,6 +1,11 @@
+import Canvas from "../react-renderer/src/StaticCanvas";
+import * as React from "react";
+
 const fs = require("fs");
 const mathjax = require("mathjax-node");
 const { propagateUpdate } = require("../react-renderer/src/PropagateUpdate");
+// const Canvas = require("../react-renderer/src/Canvas");
+const ReactDOMServer = require("react-dom/server");
 
 const args = process.argv.slice(2);
 
@@ -31,18 +36,28 @@ const allShapes = state.shapesr;
           return;
         }
         const { width, height } = data;
-        const obj2 = { ...obj };
+        const textGPI = { ...obj };
         const SCALE_FACTOR = 7;
+
         // Take substring to omit `ex`
-        obj2.w.updated = +width.substring(0, width.length - 2) * 7;
-        obj2.h.updated = +height.substring(0, height.length - 2) * 7;
-        // console.log(obj2.w.updated, obj2.h.updated);
-        data.svgNode.setAttribute("width", obj2.w.updated);
-        data.svgNode.setAttribute("height", obj2.h.updated);
-        obj2.rendered.contents = data.svgNode.outerHTML;
+        textGPI.w.updated =
+          +width.substring(0, width.length - 2) * SCALE_FACTOR;
+        textGPI.h.updated =
+          +height.substring(0, height.length - 2) * SCALE_FACTOR;
+
+        data.svgNode.setAttribute("width", textGPI.w.updated);
+        data.svgNode.setAttribute("height", textGPI.h.updated);
+
+        // TODO: can't store this in the state, return it separately (3 tuple?)
+        textGPI.rendered = data.svgNode.outerHTML;
       }
       return [type, obj];
     })
   );
-  const updated = await propagateUpdate({ ...state, shapesr: collected });
+
+  // update the state with newly generated labels and label dimensions
+  // const updated = await propagateUpdate({ ...state, shapesr: collected });
+
+  const canvas = ReactDOMServer.renderToString(<Canvas state={state}></Canvas>);
+  console.log(canvas);
 })();

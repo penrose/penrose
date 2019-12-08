@@ -22,7 +22,7 @@ import ParallelogramTransform from "./ParallelogramTransform";
 
 // prettier-ignore
 const componentMap = {
-  "Circle": Circle,
+  // "Circle": Circle,
   "Rectangle": Rectangle,
   "Arc": Arc,
   "RectangleTransform": RectangleTransform,

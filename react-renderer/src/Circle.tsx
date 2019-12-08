@@ -1,12 +1,15 @@
 import * as React from "react";
 import { toScreen, toHex } from "./Util";
-import draggable from "./Draggable";
-import { IGPIPropsDraggable } from "./types";
+// import draggable from "./Draggable";
+// import { IGPIPropsDraggable } from "./types";
+import { IGPIProps } from "./types";
 
-class Circle extends React.Component<IGPIPropsDraggable> {
+// class Circle extends React.Component<IGPIPropsDraggable> {
+class Circle extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
-    const { onClick } = this.props;
+
+    // const { onClick } = this.props;
     const { canvasSize } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const fillColor = toHex(shape.color.contents);
@@ -26,7 +29,7 @@ class Circle extends React.Component<IGPIPropsDraggable> {
         strokeOpacity={strokeAlpha}
         strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
         strokeWidth={thickness}
-        onMouseDown={onClick}
+        // onMouseDown={onClick}
       >
         <title>{shape.name.contents}</title>
         <desc>Circle representing {shape.name.contents}</desc>
@@ -34,4 +37,5 @@ class Circle extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(Circle);
+export default Circle;
+// export default draggable(Circle);
