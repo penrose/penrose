@@ -10,5 +10,5 @@ S1 := Link(E)
 
 AutoLabel e
 AutoLabel E
-Label S1 $\mathrm{$Lk}(E)$
+Label S1 $\mathrm{Lk}(E)$
 Label K $K_2$
