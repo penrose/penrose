@@ -52,8 +52,8 @@ export const Arrowhead = (props: {
     <marker
       id={props.id}
       markerUnits="strokeWidth"
-      markerWidth={arrow.width * size}
-      markerHeight={arrow.height * size}
+      markerWidth={round2(arrow.width * size)}
+      markerHeight={round2(arrow.height * size)}
       viewBox={arrow.viewbox}
       refX={arrow.refX}
       refY={arrow.refY}
@@ -300,3 +300,31 @@ export const loadImages = async (allShapes: any[]) => {
     })
   );
 };
+
+export const round2 = (n : number) => roundTo(n, 2);
+
+// https://stackoverflow.com/questions/15762768/javascript-math-round-to-two-decimal-places
+// Ported so string conversion works in typescript...
+export const roundTo = (n: number, digits: number) => {
+    let negative = false;
+
+    if (digits === undefined) {
+	digits = 0;
+    }
+
+    if (n < 0) {
+	negative = true;
+	n = n * -1;
+    }
+
+    const multiplicator = Math.pow(10, digits);
+    const nNum = parseFloat((n * multiplicator).toFixed(11));
+    const n2 = parseFloat((Math.round(nNum) / multiplicator).toFixed(2));
+    let n3 = n2;
+
+    if (negative) {
+	n3 = parseFloat((n2 * -1).toFixed(2));
+    }
+
+    return n3;
+}
