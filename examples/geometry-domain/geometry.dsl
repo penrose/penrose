@@ -9,6 +9,7 @@ type Angle
 
 type Triangle
 type Square
+type Rectangle
 type Circle
 
 -- TOOD: fix my syntax highlighting
@@ -17,11 +18,11 @@ type Circle
 Ray <: Linelike
 Line <: Linelike
 Segment <: Linelike
+Square <: Rectangle
 
 -- TODO: optional naming for constructors
 
 -- TODO: rename to MakeSegment and MakeTriangle (etc.) everywhere
-constructor Intersection : Linelike l * Linelike m -> Point
 constructor MkSegment : Point p * Point q -> Segment
 constructor MkRay : Point base * Point direction -> Ray
 constructor MkLine : Point p * Point q -> Point
@@ -34,17 +35,20 @@ constructor MkTriangleP : Point p * Point q * Point r -> Triangle
 constructor MkTriangleL : Linelike l * Linelike m * Linelike n -> Triangle
 constructor MkCircleR : Point center * Point radius -> Circle
 constructor MkCircleD : Point diam1 * Point diam2 -> Circle
+constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
+constructor MkRectangleP : Point p * Point q * Point r * Point s -> Rectangle
 
 -- TODO: subtyping on the return types
 function Midpoint : Linelike -> Point
 function Bisector : Angle -> Ray
 function PerpendicularBisector : Linelike -> Ray
 function Sum : Angle * Angle -> Angle
+function Intersection : Linelike * Linelike -> Point
 
 predicate Acute : Angle
 predicate Obtuse : Angle
 predicate Right : Angle
-predicate In : Point * Line
+predicate On : Point * Linelike
 predicate Not : Predicate
 predicate Parallel : Linelike * Linelike
 predicate Perpendicular : Linelike * Linelike

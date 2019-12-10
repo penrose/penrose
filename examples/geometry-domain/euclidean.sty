@@ -54,41 +54,41 @@ Colors {
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
 }
 
-G {
-    G.pi = 3.14159
-    G.arrowheadSize = 0.65
-    G.strokeWidth = 1.75
-    G.textPadding = 7.0
-    G.textPadding2 = 25.0
-    G.repelWeight = 0.7
-    G.repelWeight2 = 0.5
-    G.fontSize = "18pt"
-    G.containPadding = 40.0
-    G.rayLength = 70.0
+const {
+    const.pi = 3.14159
+    const.arrowheadSize = 0.65
+    const.strokeWidth = 1.75
+    const.textPadding = 7.0
+    const.textPadding2 = 25.0
+    const.repelWeight = 0.7
+    const.repelWeight2 = 0.5
+    const.fontSize = "18pt"
+    const.containPadding = 40.0
+    const.rayLength = 70.0
 
-    G.label = "E^2"
-    G.text = Text {
-	x : (G.dim / 2.0) - G.textPadding2
-	y : (G.dim / 2.0) - G.textPadding2
-	string : G.label
-	fontSize : G.fontSize
+    const.label = "E^2"
+    const.text = Text {
+	x : (const.dim / 2.0) - const.textPadding2
+	y : (const.dim / 2.0) - const.textPadding2
+	string : const.label
+	fontSize : const.fontSize
     }
 
-    G.dim = 250.0
+    const.dim = 250.0
 
     -- inner: #f3f4f9, outer: #8e93c4
-    G.plane = Rectangle {
+    const.plane = Rectangle {
     	    angle : 0.0
 	    color : Colors.verylightpurple
 	    strokeColor : Colors.purple3
 	    strokeWidth : 2.0
 	    x : 0.0
 	    y : 0.0
-	    sizeX : G.dim
-	    sizeY : G.dim
+	    sizeX : const.dim
+	    sizeY : const.dim
     }
 
-   G.textLayering = G.text above G.plane
+   const.textLayering = const.text above const.plane
 }
 
 Point p {
@@ -111,17 +111,17 @@ Point p {
 	 string : p.label
 	 rotation : 0.0
 	 color : Colors.black
-	 fontSize : G.fontSize
+	 fontSize : const.fontSize
        }
 
-       p.labelFnMargin = ensure atDist(p.shape, p.text, G.textPadding)
+       p.labelFnMargin = ensure atDist(p.shape, p.text, const.textPadding)
        -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
        -- There's a choice of whether to put padding on the point or the text for containment
-       p.posFn = ensure contains(G.plane, p.shape, G.containPadding)
-       p.labelFn = ensure contains(G.plane, p.text, 0.0)
+       p.posFn = ensure contains(const.plane, p.shape, const.containPadding)
+       p.labelFn = ensure contains(const.plane, p.text, 0.0)
 
-       p.layering1 = p.shape above G.plane
-       p.layering2 = p.text above G.plane
+       p.layering1 = p.shape above const.plane
+       p.layering2 = p.text above const.plane
 }
 
 Segment e
@@ -135,21 +135,21 @@ with Point p; Point q {
      	     endX : q.shape.x
      	     endY : q.shape.y
 	     color : Colors.black
-	     thickness : G.strokeWidth
+	     thickness : const.strokeWidth
      }
 
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
 
-     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, G.repelWeight)
-     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, G.repelWeight)
+     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, const.repelWeight)
+     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, const.repelWeight)
 
      -- e.norm = 200.0
 
      -- TODO: ensure norm > 10.0
      -- e.normFn = ensure hasNorm(e.vec, 200.0)
 
-     e.layering = e.shape above G.plane
+     e.layering = e.shape above const.plane
 }
 
 Triangle t
@@ -166,7 +166,7 @@ with Point p; Point q; Point r {
 	     rotation : 0.0
      }
 
-     t.layering = t.shape above G.plane
+     t.layering = t.shape above const.plane
 }
 
 Angle theta
@@ -179,12 +179,12 @@ with Point p; Point q; Point r {
 
      theta.shape = Curve {
      		 pathData : polygonFromPoints(theta.arcPath)
-		 strokeWidth : G.strokeWidth
+		 strokeWidth : const.strokeWidth
 		 color : Colors.darkpurple
 		 fill : setOpacity(Colors.white, 0.5)
      }
 
-     theta.layering1 = theta.shape above G.plane
+     theta.layering1 = theta.shape above const.plane
      theta.layering2 = theta.shape below p.shape
      theta.layering3 = theta.shape below q.shape
      theta.layering4 = theta.shape below r.shape
@@ -194,7 +194,7 @@ with Point p; Point q; Point r {
 }
 
 Ray r {
-    r.length = G.rayLength
+    r.length = const.rayLength
 }
 
 Point p
@@ -222,10 +222,10 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
 	      -- TODO: calculate this location properly; WRT the angle and the non-origin endpoints; this is just a heuristic
 	      endX : get(r.head, 0)
 	      endY : get(r.head, 1)
-	      thickness : G.strokeWidth
+	      thickness : const.strokeWidth
 	      color : Colors.darkpurple
       	      rightArrowhead : True
-	      arrowheadSize : G.arrowheadSize
+	      arrowheadSize : const.arrowheadSize
       }
 
       -- Bisect the arc twice more to get the bisector mark locations
@@ -237,7 +237,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
       -- Angle bisector marks: two tick marks
       theta.bisectMark1 = Curve {
       	      pathData : makeBisectorMark(theta.bisectpt1, x.vec, theta.markLen)
-      	      strokeWidth : G.strokeWidth
+      	      strokeWidth : const.strokeWidth
       	      fill : Colors.none
       	      color : Colors.darkpurple
       	      rotation : 0.0
@@ -247,7 +247,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
 
       theta.bisectMark2 = Curve {
       	      pathData : makeBisectorMark(theta.bisectpt2, x.vec, theta.markLen)
-      	      strokeWidth : G.strokeWidth
+      	      strokeWidth : const.strokeWidth
       	      fill : Colors.none
       	      color : Colors.darkpurple
       	      rotation : 0.0
@@ -257,7 +257,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
 
       theta.layeringMark1 = theta.bisectMark1 above theta.shape
       theta.layeringMark2 = theta.bisectMark2 above theta.shape
-      r.layering = r.shape above G.plane
+      r.layering = r.shape above const.plane
 }
 
 Ray r
@@ -269,11 +269,11 @@ where r := PerpendicularBisector(s); m := Midpoint(s) {
 	      startY : midpointY(s.shape)
 	      endX : perpX(s.shape, r.shape.startX, r.shape.startY, r.length)
 	      endY : perpY(s.shape, r.shape.startX, r.shape.startY, r.length)
-	      thickness : G.strokeWidth
+	      thickness : const.strokeWidth
 	      color : Colors.darkpurple
 	      style : "dotted"
       	      rightArrowhead : True
-	      arrowheadSize : G.arrowheadSize
+	      arrowheadSize : const.arrowheadSize
       }
 
       r.perpSize = 10.0
@@ -285,33 +285,33 @@ where r := PerpendicularBisector(s); m := Midpoint(s) {
 		 fill : setOpacity(Colors.white, 0.5)
       }
 
-      r.layering1 = r.shape above G.plane
-      r.layering2 = r.perpMark above G.plane
+      r.layering1 = r.shape above const.plane
+      r.layering2 = r.perpMark above const.plane
 
       r.markLayering1 = r.perpMark below s.shape
       r.markLayering2 = r.perpMark below r.shape
-      -- r.markLayering3 = r.perpMark above G.sphere
+      -- r.markLayering3 = r.perpMark above const.sphere
       r.markLayering4 = r.perpMark below p.shape
       r.markLayering5 = r.perpMark below q.shape
       r.markLayering6 = r.perpMark below r.shape
       r.markLayering7 = r.perpMark below m.shape
 
-     LOCAL.labelAvoidFn_Mark = encourage repel(r.shape, m.text, G.repelWeight)
-     LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, G.repelWeight)
-     LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, G.repelWeight)
+     LOCAL.labelAvoidFn_Mark = encourage repel(r.shape, m.text, const.repelWeight)
+     LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, const.repelWeight)
+     LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, const.repelWeight)
 }
 
 -- TODO: trying to just add a repel function on the point that's not in a segment... this might be too many repels for the ones that are in a segment though
 
--- TODO: should we use G.repelWeight below?
+-- TODO: should we use const.repelWeight below?
 
 Ray r; Point p {
-    LOCAL.labelAvoidFn = encourage repel(r.shape, p.text, G.repelWeight)
+    LOCAL.labelAvoidFn = encourage repel(r.shape, p.text, const.repelWeight)
     LOCAL.layering = r.shape below p.shape
 }
 
 Segment s; Point p {
-     LOCAL.labelAvoidFn_p = encourage repel(s.shape, p.text, G.repelWeight)
+     LOCAL.labelAvoidFn_p = encourage repel(s.shape, p.text, const.repelWeight)
 }
 
 Triangle t; Point p {
