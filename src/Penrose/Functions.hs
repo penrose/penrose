@@ -116,6 +116,7 @@ compDict =
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
     , ("generateRandomReal", constComp generateRandomReal)
     , ("calcNorm", constComp calcNorm)
+    , ("normalize", constComp normalizeFn)
     , ("normSq", constComp normSq')
     , ("bboxWidth", constComp bboxWidth)
     , ("bboxHeight", constComp bboxHeight)
@@ -640,6 +641,9 @@ calcNorm [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1), Val (FloatV ey1)
       norm = sqrt (nx + ny + 0.5)
   in Val (FloatV norm)
 
+normalizeFn :: ConstCompFn
+normalizeFn [Val (ListV xs)] = Val $ ListV $ normalize xs
+
 normSq' :: ConstCompFn
 normSq' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ x * x + y * y
 
@@ -1093,14 +1097,14 @@ projectVec name hfov vfov r camera dir vec_math toScreen =
       vec_proj = (1 / pz) *. [px, py]
       vec_screen = toScreen *. vec_proj
       vec_proj_screen = vec_screen ++ [pz] -- TODO check denom 0. Also note z might be negative?
-  in trace
-       ("\n" ++ "name: " ++ name ++
-        "\nvec_math: " ++ show vec_math ++
-        "\n||vec_math||: " ++ show (norm vec_math) ++
-        "\nvec_camera: " ++ show vec_camera ++
-        "\nvec_proj: " ++ show vec_proj ++
-        "\nvec_screen: " ++ show vec_screen ++ 
-        "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
+  in -- trace
+       -- ("\n" ++ "name: " ++ name ++
+       --  "\nvec_math: " ++ show vec_math ++
+       --  "\n||vec_math||: " ++ show (norm vec_math) ++
+       --  "\nvec_camera: " ++ show vec_camera ++
+       --  "\nvec_proj: " ++ show vec_proj ++
+       --  "\nvec_screen: " ++ show vec_screen ++ 
+       --  "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
        vec_proj_screen
 
 -- | For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e2 x e1, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q) (Assuming p and q are unit)
@@ -1244,8 +1248,22 @@ toDisk [Val (ListV v)] = Val $ ListV $ toDisk' v
 calcZ :: ConstCompFn
 calcZ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ calcZ' x y
 
+-- For x^2 + y^2 + z^2 = 1, but make sure `z` is negative (so it's on the visible side, closer to the camera) and the `abs` to make sure it doesn't go out of bounds
 calcZSphere :: ConstCompFn
-calcZSphere [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ sqrt (1 - x * x - y * y) -- For x^2 + y^2 + z^2 = 1
+calcZSphere [Val (FloatV x), Val (FloatV y), Val (FloatV r)] = 
+            -- Val $ FloatV $ -1.0 * sqrt (abs(1 - x * x - y * y)) 
+            let (x', y') = if (x * x + y * y) > (r * r)
+                           then r *: normalize' (x, y)
+                           else (x, y)
+                inner = 1 - x' * x' - y' * y' + epsd
+                z' = -1.0 * sqrt inner
+            in Val $ ListV $ 
+               -- trace 
+               --       ("sqrt inner: " ++ show inner
+               --        ++ "\nsqrt z': " ++ show z'
+               --        ++ "\nvec: " ++ show [x', y', z']
+               --        ++ "\nnorm: " ++ show (norm [x', y', z']))
+               [x', y', z']
 
 diskToScreen :: ConstCompFn
 diskToScreen [Val (ListV v), Val (FloatV toScreen)] =
@@ -1758,7 +1776,9 @@ lessThan :: ConstrFn
 lessThan [Val (FloatV x), Val (FloatV y)] = x - y
 
 lessThanSq :: ConstrFn
-lessThanSq [Val (FloatV x), Val (FloatV y)] = if x < y then 0 else (x - y)^2
+lessThanSq [Val (FloatV x), Val (FloatV y)] = 
+           let res = if x < y then 0 else (x - y)^2
+           in trace ("lessThan, x: " ++ show x ++ ", y: " ++ show y ++ ", res: " ++ show res) res
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =

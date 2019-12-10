@@ -14,32 +14,30 @@ export const arrowheads = {
   },
   "arrowhead-2": {
     width: 9.95,
-    height: 11.06,
-    viewbox: "0 0 9.95 11.06",
+    height: 8.12,
+    viewbox: "0 0 9.95 8.12",
     refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
-    refY: "5.52",
-    path: "M9.95 5.52 0 11.06 2.36 5.52 0 0 9.95 5.52z"
+    refY: "4.06",
+    path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
   }
 };
 
-export const Shadow = (props: {
-  id: string 
-}) => {
+export const Shadow = (props: { id: string }) => {
   return (
     <filter id={props.id} x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-  	  <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
       <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-    	<feFuncA type="linear" slope="0.5"/>
-  	  </feComponentTransfer>
-      <feMerge> 
-    	<feMergeNode/>
-    	<feMergeNode in="SourceGraphic"/> 
-  	  </feMerge>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
-  )
-}
+  );
+};
 
 export const Arrowhead = (props: {
   id: string;
@@ -54,8 +52,8 @@ export const Arrowhead = (props: {
     <marker
       id={props.id}
       markerUnits="strokeWidth"
-      markerWidth={arrow.width * size}
-      markerHeight={arrow.height * size}
+      markerWidth={round2(arrow.width * size)}
+      markerHeight={round2(arrow.height * size)}
       viewBox={arrow.viewbox}
       refX={arrow.refX}
       refY={arrow.refY}
@@ -234,7 +232,7 @@ export const collectLabels = async (allShapes: any[]) => {
     skipStartupTypeset: true,
     extensions: ["tex2jax.js", "TeX/AMSmath.js"],
     jax: ["input/TeX", "output/SVG"],
-    // https://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html 
+    // https://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html
     SVG: {
       // font: "Gyre-Pagella", // TODO: This doesn't seem to work
       matchFontHeight: false,
@@ -302,3 +300,31 @@ export const loadImages = async (allShapes: any[]) => {
     })
   );
 };
+
+export const round2 = (n : number) => roundTo(n, 2);
+
+// https://stackoverflow.com/questions/15762768/javascript-math-round-to-two-decimal-places
+// Ported so string conversion works in typescript...
+export const roundTo = (n: number, digits: number) => {
+    let negative = false;
+
+    if (digits === undefined) {
+	digits = 0;
+    }
+
+    if (n < 0) {
+	negative = true;
+	n = n * -1;
+    }
+
+    const multiplicator = Math.pow(10, digits);
+    const nNum = parseFloat((n * multiplicator).toFixed(11));
+    const n2 = parseFloat((Math.round(nNum) / multiplicator).toFixed(2));
+    let n3 = n2;
+
+    if (negative) {
+	n3 = parseFloat((n2 * -1).toFixed(2));
+    }
+
+    return n3;
+}
