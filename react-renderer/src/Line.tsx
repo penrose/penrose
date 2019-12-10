@@ -2,30 +2,26 @@ import * as React from "react";
 
 import { IGPIPropsDraggable } from "./types";
 import draggable from "./Draggable";
-import { toScreen, toHex, Arrowhead, round2 } from "./Util";
-
+import { toScreen, toHex, Arrowhead } from "./Util";
 
 class Line extends React.Component<IGPIPropsDraggable> {
   public render() {
     const { shape, canvasSize, onClick } = this.props;
     const style = shape.style.contents;
-    let [sx, sy] = toScreen(
+    const [sx, sy] = toScreen(
       [shape.startX.contents, shape.startY.contents],
       canvasSize
     );
-    let [ex, ey] = toScreen(
+    const [ex, ey] = toScreen(
       [shape.endX.contents, shape.endY.contents],
       canvasSize
     );
 
-      // Rounding for illustrator?
-      console.log("sx", sx, round2(sx));
-      sx = round2(sx);
-      sy = round2(sy);
-      ex = round2(ex);
-      ey = round2(ey);
-      // offsetX = roundTo(offsetX, 2);
-      // offsetY = roundTo(offsetY, 2);
+      // Rounding for illustrator? Doesn't seem to work
+      /* sx = round2(sx);
+       * sy = round2(sy);
+       * ex = round2(ex);
+       * ey = round2(ey);*/
 
     const path = `M ${sx} ${sy} L ${ex} ${ey}`;
     const color = toHex(shape.color.contents);
