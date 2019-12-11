@@ -1,3 +1,4 @@
+type Set
 type Point
 
 type Linelike
@@ -20,6 +21,13 @@ Line <: Linelike
 Segment <: Linelike
 Square <: Rectangle
 
+Point <: Set
+Linelike <: Set
+Triangle <: Set
+Square <: Set
+Rectangle <: Set
+Circle <: Set
+
 -- TODO: optional naming for constructors
 
 -- TODO: rename to MakeSegment and MakeTriangle (etc.) everywhere
@@ -36,6 +44,7 @@ constructor MkTriangleL : Linelike l * Linelike m * Linelike n -> Triangle
 constructor MkCircleR : Point center * Point radius -> Circle
 constructor MkCircleD : Point diam1 * Point diam2 -> Circle
 constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
+constructor MkSquareSegP : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
 constructor MkRectangleP : Point p * Point q * Point r * Point s -> Rectangle
 
 -- TODO: subtyping on the return types
@@ -57,6 +66,7 @@ predicate EquilateralT : Triangle
 predicate RightT : Triangle
 predicate Scalene : Triangle
 predicate Similar : Triangle * Triangle
+predicate Disjoint : Set * Set
 
 notation "{p, q}" ~ "MkSegment(p, q)"
 notation "{p, q, r}" ~ "MkTriangleP(p, q, r)"

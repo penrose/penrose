@@ -95,6 +95,7 @@ Point p {
       p.x = ?
       p.y = ?
       p.vec = [p.x, p.y]
+      p.tup = (p.x, p.y)
 
        p.shape = Circle {
          x : get(p.vec, 0)
@@ -190,10 +191,10 @@ with Point p; Point q; Point r {
 Rectangle R
 where R := MkRectangleP(p, q, r, s) 
 with Point p; Point q; Point r; Point s {
-     R.color = setOpacity(Colors.red, 0.4)
+     R.color = setOpacity(Colors.blue, 0.2)
 
      R.shape = Curve {
-     	     pathData : rectangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y, s.shape.x, s.shape.y)
+     	     pathData : rectangle(p.x, p.y, q.x, q.y, r.x, r.y, s.x, s.y)
 	     strokeWidth : 0.0
 	     fill : R.color
 	     color : Colors.black
@@ -212,6 +213,73 @@ with Point p; Point q; Point r; Point s {
     -- 	    sizeX : ?
     -- 	    sizeY : ?
     -- }
+}
+
+-- We don't know if the points in the triangle actually include the points in the square or not
+-- TODO: this doesn't seem to match -- and the matches take way too long!!
+
+-- Square S
+-- where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(a, b, c)
+-- with Point p; Point q; Point r; Point s; Triangle T; Point a; Point b; Point c {
+
+Square S
+where S := MkSquareSegP(p, q, r, s)
+with Point p; Point q; Point r; Point s {
+
+     -- Assuming (p,q) are the segment of a triangle
+     -- TODO: this should really do that match in Style...
+     -- and r,s are the other two points of the square
+
+    S.color = setOpacity(Colors.green, 0.4)
+
+    S.path = squareAt(p.tup, q.tup)
+
+    S.shape = Curve {
+	    pathData : polygonFromPoints(S.path)
+	    -- Assumes that the last two points are the new corners (r, s) that need to be set
+	    strokeWidth : 0.0
+	    fill : S.color
+	    color : Colors.black
+	    rotation : 0.0
+    }
+
+    override a.shape.color = Colors.blue
+    override b.shape.color = Colors.red
+
+    -- Position the points at the corner of the square
+    override r.tup = get(S.path, 2)
+    override r.x = get(r.tup, 0)
+    override r.y = get(r.tup, 1)
+
+    override s.tup = get(S.path, 3)
+    override s.x = get(s.tup, 0)
+    override s.y = get(s.tup, 1)
+
+    S.layering = S.shape above const.plane
+}
+
+-- These more specific matches are so we can figure out which third point of the triangle to push the square away from
+-- Note: order of the variables really matters!
+
+Square S
+where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(c, q, p)
+with Point p; Point q; Point r; Point s; Triangle T; Point c {
+
+    override S.path = squareAt(p.tup, q.tup, c.tup)
+}
+
+Square S
+where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(q, p, c)
+with Point p; Point q; Point r; Point s; Triangle T; Point c {
+
+    override S.path = squareAt(p.tup, q.tup, c.tup)
+}
+
+Square S
+where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(p, c, q)
+with Point p; Point q; Point r; Point s; Triangle T; Point c {
+
+    override S.path = squareAt(p.tup, q.tup, c.tup)
 }
 
 Angle theta
@@ -236,6 +304,23 @@ with Point p; Point q; Point r {
 
      -- TODO: or could be minimum constraint function
      theta.sizeFn = encourage repel(q.shape, r.shape, 100.0)
+}
+
+Angle theta
+where theta := InteriorAngle(q, p, r); Right(theta)
+with Point p; Point q; Point r {
+
+      theta.perpSize = 15.0
+
+      override theta.shape = Curve {
+      		 pathData : perpPath(q.tup, p.tup, r.tup, theta.perpSize)
+      		 strokeWidth : 1.25
+      		 color : Colors.black
+      		 fill : setOpacity(Colors.white, 0.5)
+      }
+
+      theta.perpFn = ensure perpendicular(q.tup, p.tup, r.tup)
+
 }
 
 Ray r {

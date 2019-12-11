@@ -6,21 +6,28 @@ Right(CAB)
 
 -- And draw the area of each side of the right triangle as a square
 Point D, E, F, G, H, I
-Square CBDE := MkSquareP(C, B, D, E)
-Square BAGF := MkSquareP(B, A, G, F)
-Square ACIH := MkSquareP(A, C, I, H)
+-- TODO: MkSquareSegP -> MkSquare
+-- NOTE: these variables really need to be in the right order for Style to match...
+Square CBDE := MkSquareSegP(C, B, D, E)
+Disjoint(CBDE, ABC)
+Square BAGF := MkSquareSegP(B, A, G, F)
+Disjoint(BAGF, ABC)
+Square ACIH := MkSquareSegP(A, C, I, H)
+Disjoint(ACIH, ABC)
 
 -- Construct two rectangles that split the hypotenuse's area by dropping an altitude from the right angle through to the square
+
 Point K
-Segment AK := Altitude(ABC, CAB)
+-- Segment AK := Altitude(ABC, CAB)
 Point L
 Segment KL := MkSegment(K, L)
 Segment DE := MkSegment(D, E)
 On(L, DE)
 Perpendicular(KL, DE)
 
-Rectangle BDLK := MkRectangleP(B, D, L, K)
-Rectangle CKLE := MkRectangleP(C, K, L, E)
+-- TODO: put these back in
+-- Rectangle BDLK := MkRectangleP(B, D, L, K)
+-- Rectangle CKLE := MkRectangleP(C, K, L, E)
 
 -- Drop two lines that describe the triangles used to prove area equality between BAGF~BDKL and ACIH~CKLE
 Segment CF := MkSegment(C, F)

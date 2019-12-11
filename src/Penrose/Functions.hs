@@ -142,6 +142,7 @@ compDict =
     , ("makeCurve", makeCurve)
     , ("triangle", constComp triangle)
     , ("rectangle", constComp mkRectangle)
+    , ("squareAt", constComp squareAtFn)
     , ("shared", constComp sharedP)
     , ("angleOf", constComp angleOf)
     , ("perpX", constComp perpX)
@@ -448,6 +449,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("hasLorenzNorm", hasLorenzNorm)
       , ("atDist", atDist)
       , ("labelDisjoint", labelDisjointConstr)
+      , ("perpendicular", perpendicularConstr)
       ]
 
 indivConstrWeight :: (Autofloat a) => a
@@ -940,6 +942,14 @@ perpPathFlat size (startR, endR) (startL, endL) =
   in (ptL, ptLR, ptR)
 
 perpPath :: ConstCompFn
+
+perpPath [Val (TupV q), Val (TupV p), Val (TupV r), Val (FloatV size)] = -- Euclidean
+  let seg1 = (p, q)
+      seg2 = (p, r)
+      (ptL, ptLR, ptR) = perpPathFlat size seg1 seg2
+      path = Closed $ [Pt ptL, Pt ptLR, Pt ptR, Pt p]
+  in Val $ PathDataV [path]
+
 perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (TupV midpt), Val (FloatV size)] = -- Euclidean
   let seg1 = (getPoint "start" r, getPoint "end" r)
       seg2 = (getPoint "start" l, getPoint "end" l)
@@ -1090,6 +1100,8 @@ blendColor [Val (ColorV (RGBA r0 g0 b0 a0)), Val (ColorV (RGBA r1 g1 b1 a1))] =
 
 ----------
 get' :: ConstCompFn
+get' [Val (PtListV xs), Val (IntV i)] = Val $ TupV $ xs !! i
+get' [Val (LListV xs), Val (IntV i)] = Val $ ListV $ xs !! i
 get' [Val (ListV xs), Val (IntV i)] =
   let i' = (fromIntegral i) :: Int
   in if i' < 0 || i' >= length xs
@@ -1237,6 +1249,30 @@ dotFn [Val (TupV u), Val (TupV v)] = Val $ FloatV $ u `dotv` v
 
 angleFn :: ConstCompFn
 angleFn [Val (TupV (v1, v2))] = Val $ FloatV $ atan2 v2 v1
+
+-- Given a side of the square (p,q), calculate the exterior side of the square (r,s) (TODO: on the "outside" of the triangle)
+squareAtFn :: ConstCompFn
+squareAtFn [Val (TupV p), Val (TupV q)] = 
+  let v1 = q -: p
+      v2 = rot90 v1
+      v3 = rot90 v2
+      r = q +: v2
+      s = r +: v3
+      pts = [p, q, r, s]
+  in Val $ PtListV pts
+
+-- Given a third point (`r` of the triangle), rotate in direction so the square doesn't overlap with the triangle
+-- TODO: combine with the above
+squareAtFn [Val (TupV p), Val (TupV q), Val (TupV triPt)] = 
+  let sgnRes = crossSgn (triPt -: q) (p -: q)
+      rotDir = if sgnRes < 0 then rot90 else rotNeg90
+      v1 = q -: p
+      v2 = rotDir v1
+      v3 = rotDir v2
+      r = q +: v2
+      s = r +: v3
+      pts = [p, q, r, s]
+  in Val $ PtListV pts
 
 -- | Hyperbolic functions
 
@@ -2122,6 +2158,13 @@ labelDisjointConstr [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV pa
     in {- trace ("\nsumEnergies: " ++ show sumEnergies ++
               "\nnumCurvePts: " ++ show numCurvePts) -}
        sumEnergies
+
+perpendicularConstr :: ConstrFn
+perpendicularConstr [Val (TupV q), Val (TupV p), Val (TupV r)] =
+                    let v1 = q -: p
+                        v2 = r -: p
+                        dotprod = v1 `dotv` v2
+                    in equal' dotprod 0
 
 --------------------------------------------------------------------------------
 -- Wrappers for transforms and operations to call from Style
