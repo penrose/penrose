@@ -152,6 +152,23 @@ with Point p; Point q {
      e.layering = e.shape above const.plane
 }
 
+
+Segment e
+where e := Altitude(t, theta)
+with Triangle t; Angle theta {
+     -- TODO
+
+     e.shape = Line {
+     	     startX : 0.0
+     	     startY : 0.0
+     	     endX : 100.0
+     	     endY : 100.0
+	     color : Colors.blue
+	     thickness : const.strokeWidth
+     }
+
+}
+
 Triangle t
 where t := MkTriangleP(p, q, r)
 with Point p; Point q; Point r {
@@ -167,6 +184,34 @@ with Point p; Point q; Point r {
      }
 
      t.layering = t.shape above const.plane
+}
+
+-- Should the rectangle be constructed from the points, or vice versa?
+Rectangle R
+where R := MkRectangleP(p, q, r, s) 
+with Point p; Point q; Point r; Point s {
+     R.color = setOpacity(Colors.red, 0.4)
+
+     R.shape = Curve {
+     	     pathData : rectangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y, s.shape.x, s.shape.y)
+	     strokeWidth : 0.0
+	     fill : R.color
+	     color : Colors.black
+	     rotation : 0.0
+     }
+
+     R.layering = R.shape above const.plane
+
+    -- r.shape = Rectangle {
+    -- 	    angle : ?
+    -- 	    color : Colors.verylightpurple
+    -- 	    strokeColor : Colors.purple3
+    -- 	    strokeWidth : 2.0
+    -- 	    x : ?
+    -- 	    y : ?
+    -- 	    sizeX : ?
+    -- 	    sizeY : ?
+    -- }
 }
 
 Angle theta

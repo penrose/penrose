@@ -141,6 +141,7 @@ compDict =
     , ("sampleFunctionArea", sampleFunctionArea)
     , ("makeCurve", makeCurve)
     , ("triangle", constComp triangle)
+    , ("rectangle", constComp mkRectangle)
     , ("shared", constComp sharedP)
     , ("angleOf", constComp angleOf)
     , ("perpX", constComp perpX)
@@ -857,6 +858,12 @@ makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), V
       midpt = midpoint (x1, y1) (x2, y2) +: offset
       path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)] 1.0
   in (Val $ PathDataV [path], g)
+
+-- Draw a rectangle via three points
+mkRectangle :: ConstCompFn
+mkRectangle [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), Val (FloatV x3), Val (FloatV y3), Val (FloatV x4), Val (FloatV y4)] =
+  let path = Closed [Pt (x1, y1), Pt (x2, y2), Pt (x3, y3), Pt (x4, y4)]
+  in Val $ PathDataV [path]
 
 -- Draw a triangle as the closure of three lines (assuming they define a valid triangle, i.e. intersect exactly at their endpoints)
 triangle :: ConstCompFn

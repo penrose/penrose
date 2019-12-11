@@ -44,6 +44,7 @@ function Bisector : Angle -> Ray
 function PerpendicularBisector : Linelike -> Ray
 function Sum : Angle * Angle -> Angle
 function Intersection : Linelike * Linelike -> Point
+function Altitude : Triangle * Angle -> Segment
 
 predicate Acute : Angle
 predicate Obtuse : Angle

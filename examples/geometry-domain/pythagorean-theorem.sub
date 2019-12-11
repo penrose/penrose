@@ -1,75 +1,42 @@
--- | Sugared version from paper
--- The expansion process could be done automatically by a plugin...
--- Point A, B, C, D, E, F, G, H, I, K, L
--- Triangle ABC, BCF, BDA, ABD, FBC
--- RightAngle CAB
--- Segment CB, BD, DE, EC, AL, CF, AD 
--- Square CBDE, BAGF, ACIH
--- Rectangle BDLK, CKLE
-
--- On(L, DE)
--- Parallel(AL, BD, CE)
--- -- AL // BD // CE or Perpendicular(AL, DE)
-
--- -- These statements make sure the three squares (CBDE, BAGF, ACIH) are ``outside'' of the triangle
--- Angle CBF, BCI, ABD
--- Obtuse(CBF)
--- Obtuse(BCI)
--- Obtuse(ABD)
-
--- K := Intersect(AL, CB)
-
-Point A, B, C, D, E, F, G, H, I, K, L
+-- First construct the right triangle
+Point A, B, C
 Triangle ABC := MkTriangleP(A, B, C) 
-Triangle BCF := MkTriangleP(B, C, F)
-Triangle BDA := MkTriangleP(B, D, A)
-Triangle ABD := MkTriangleP(A, B, D)
-Triangle FBC := MkTriangleP(F, B, C)
-
 Angle CAB := InteriorAngle(C, A, B)
+Right(CAB)
 
-Segment CB := MkSegment(C, B)
-Segment BD := MkSegment(B, D)
-Segment DE := MkSegment(D, E)
-Segment EC := MkSegment(E, C)
-Segment AL := MkSegment(A, L)
-Segment CF := MkSegment(C, F)
-Segment AD := MkSegment(A, D) 
-
+-- And draw the area of each side of the right triangle as a square
+Point D, E, F, G, H, I
 Square CBDE := MkSquareP(C, B, D, E)
 Square BAGF := MkSquareP(B, A, G, F)
 Square ACIH := MkSquareP(A, C, I, H)
 
+-- Construct two rectangles that split the hypotenuse's area by dropping an altitude from the right angle through to the square
+Point K
+Segment AK := Altitude(ABC, CAB)
+Point L
+Segment KL := MkSegment(K, L)
+Segment DE := MkSegment(D, E)
+On(L, DE)
+Perpendicular(KL, DE)
+
 Rectangle BDLK := MkRectangleP(B, D, L, K)
 Rectangle CKLE := MkRectangleP(C, K, L, E)
 
-On(L, DE)
-Perpendicular(AL, DE) -- Alternatively: AL || BD || CE 
+-- Drop two lines that describe the triangles used to prove area equality between BAGF~BDKL and ACIH~CKLE
+Segment CF := MkSegment(C, F)
+Segment AD := MkSegment(A, D) 
+
+-- These are part of the proof, but not shown in the construction
+-- Triangle BCF := MkTriangleP(B, C, F)
+-- Triangle BDA := MkTriangleP(B, D, A)
+-- Angle CAB := InteriorAngle(C, A, B)
 
 -- These statements make sure the three squares (CBDE, BAGF, ACIH) are ``outside'' of the triangle
-
-Angle CBF := InteriorAngle(C, B, F)
-Angle BCI := InteriorAngle(B, C, I)
-Angle DBA := InteriorAngle(D, B, A) -- Can't name an angle the same thing as a triangle, even though they are different types and the same name is allowed
-Obtuse(CBF)
-Obtuse(BCI)
-Obtuse(DBA)
-
-K := Intersection(AL, CB)
+-- Angle CBF := InteriorAngle(C, B, F)
+-- Angle BCI := InteriorAngle(B, C, I)
+-- Angle DBA := InteriorAngle(D, B, A)
+-- Obtuse(CBF)
+-- Obtuse(BCI)
+-- Obtuse(DBA)
 
 AutoLabel All
-
--- Substance TODO:
--- revise Substance to work
--- add Shown predicates?
-
--- Style TODO:
--- figure out what should be computed vs. optimized
--- render squares
--- render rectangles
--- style On
--- style Parallel
--- style Obtuse
--- style Intersection
--- Make the labels smaller?
--- Should all this be in the same Style program or not?
