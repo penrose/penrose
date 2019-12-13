@@ -154,7 +154,8 @@ def process(json):
     for pred in substance['constraints']['predicates']:
         name = pred['pname']
         if name == 'HasForm':
-            pathName, form = pred['pargNames']
+            pathName, form = fromLeft(pred['pargs'])
+            # HasForm predicate is not nested
             paths[pathName]['form'] = form
 
     # Go through functions
@@ -189,6 +190,10 @@ def genPathString(form):
     print 'Limit per expansion computed via canvas dimensions: \n', limit
     gen = Xeger(limit=limit)
     return gen.xeger(form)
+
+
+def fromLeft(maybes):
+    return map(lambda m: m['Left'], maybes)
 
 
 if __name__ == '__main__':

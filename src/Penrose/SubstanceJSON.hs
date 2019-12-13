@@ -122,7 +122,7 @@ toSchema acc@(objSchs, fnSchs, predSchs, valSchs) subLine =
   case subLine of
     Decl t (E.VarConst v) ->
       let res = ObjectSchema {objType = tToSchema t, objName = v}
-      in (res : objSchs, fnSchs, predSchs)
+      in (res : objSchs, fnSchs, predSchs, valSchs)
     Bind (E.VarConst v) (ApplyFunc f) ->
       let res =
             FunctionSchema
