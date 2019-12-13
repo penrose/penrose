@@ -108,7 +108,7 @@ data BfgsParams = BfgsParams {
      y_list :: [[Double]],  -- (L-BFGS only) y_i (grad difference) from k-1 to k-m
      numUnconstrSteps :: Int, -- (L-BFGS only) number of steps so far, starting at 0
      memSize :: Int -- (L-BFGS only) number of vectors to retain
-} deriving Show
+}
 
 -- data BfgsParams = BfgsParams {
 --      lastState :: Maybe (L.Vector L.R), -- x_k
@@ -120,18 +120,18 @@ data BfgsParams = BfgsParams {
 --      memSize :: Int -- (L-BFGS only) number of vectors to retain
 -- }
 
--- instance Show BfgsParams where
---          show s = "\nBFGS params:\n" ++
---                   "\nlastState: \n" ++ ppShow (lastState s) ++
---                   "\nlastGrad: \n" ++ ppShow (lastGrad s) ++
---                   "\ninvH: \n" ++ ppShow (invH s) ++
---                   -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
---                   -- "\ns_list:\n" ++ ppShow (s_list s) ++
---                   -- "\ny_list:\n" ++ ppShow (y_list s) ++
---                   "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
---                   "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
---                   "\nnumUnconstrSteps:\n" ++ ppShow (numUnconstrSteps s) ++
---                   "\nmemSize:\n" ++ ppShow (memSize s) ++ "\n\n"
+instance Show BfgsParams where
+         show s = "\nBFGS params:\n" ++
+                  "\nlastState: \n" ++ show (lastState s) ++
+                  "\nlastGrad: \n" ++ show (lastGrad s) ++
+                  "\ninvH: \n" ++ show (invH s) ++
+                  -- This is a lot of output (can be 2 * defaultBfgsMemSize * state size)
+                  -- "\ns_list:\n" ++ show (s_list s) ++
+                  -- "\ny_list:\n" ++ show (y_list s) ++
+                  "\nlength of s_list:\n" ++ (show $ length $ s_list s) ++
+                  "\nlength of y_list:\n" ++ (show $ length $ y_list s) ++
+                  "\nnumUnconstrSteps:\n" ++ show (numUnconstrSteps s) ++
+                  "\nmemSize:\n" ++ show (memSize s) ++ "\n"
 
 defaultBfgsMemSize :: Int
 defaultBfgsMemSize = 17
@@ -440,7 +440,7 @@ shapes2floats shapes varyMap varyingPaths = reverse $ foldl' (lookupPathFloat sh
 -- (use whatever they are initialized to in Shapes or set to in Style)
 unoptimizedFloatProperties :: [String]
 unoptimizedFloatProperties = ["rotation", "strokeWidth", "thickness", 
-                              "transform", "transformation"]
+                              "transform", "transformation", "opacity", "finalW", "finalH", "arrowheadSize"]
 
 -- If any float property is not initialized in properties,
 -- or it's in properties and declared varying, it's varying
@@ -776,6 +776,8 @@ evalEnergyOn s vstate =
         penaltyWeight = r2f $ weight $ paramsr s
     in applyCombined penaltyWeight fnsE
 
+-- TODO: `evalEnergy` is not used anywhere but is meant to be an API call exposed to our future benchmarking frontend.
+
 evalEnergy :: (Autofloat a) => State -> a    
 evalEnergy s = 
     let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) 
@@ -1075,10 +1077,12 @@ castTranslation t =
     
         castValue :: Value Double -> (forall a . Autofloat a => Value a)
         castValue v = 
-                let res = case v of
+                let castPtList = map (app2 r2f)
+                    castPolys  = map castPtList
+                    res = case v of
                           FloatV x -> FloatV (r2f x)
                           PtV (x, y) -> PtV (r2f x, r2f y)
-                          PtListV pts -> PtListV $ map (app2 r2f) pts
+                          PtListV pts -> PtListV $ castPtList pts
                           PathDataV d -> PathDataV $ map castPath d
                           -- More boilerplate not involving floats
                           IntV x -> IntV x
@@ -1087,6 +1091,7 @@ castTranslation t =
                           FileV x -> FileV x
                           StyleV x -> StyleV x
                           ColorV (RGBA r g b a) -> ColorV $ RGBA (r2f r) (r2f g) (r2f b) (r2f a)
+                          PolygonV (pos, neg, (p1, p2), samples) -> PolygonV (castPolys pos, castPolys neg, (app2 r2f p1, app2 r2f p2), castPtList samples)
                 in res
 
         castPath :: Path' Double -> (forall a . Autofloat a => Path' a)

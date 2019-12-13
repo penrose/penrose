@@ -191,7 +191,7 @@ data AnnoFloat = Fix Float | Vary
 
 -- | An expression in the Style language
 data Expr
-    = IntLit Integer
+    = IntLit Int
     | AFloat AnnoFloat
     | StringLit String
     | BoolLit Bool
@@ -307,7 +307,7 @@ predicate = do
                        predicatePos = pos }
 
 predicateArgument :: Parser PredArg
-predicateArgument = PE <$> selectorExpr <|> PP <$> predicate
+predicateArgument = tryChoice [PP <$> predicate, PE <$> selectorExpr]
 
 selectorExpr :: Parser SelExpr
 selectorExpr =
@@ -315,7 +315,7 @@ selectorExpr =
         SEBind       <$> bindingForm
 
 bindingForm :: Parser BindingForm
-bindingForm = BSubVar <$> backticks varParser <|> BStyVar <$> styVar
+bindingForm = BSubVar <$> backticks var <|> BStyVar <$> styVar
 
 -- NOTE: this is a duplication of "valConsOrFunc" in Substance parser, with selector specific types
 selectorValConsOrFunc :: Parser SelExpr
@@ -380,7 +380,7 @@ aTerm = tryChoice
         parens arithmeticExpr,
         AFloat <$> annotatedFloat,
         EPath  <$> path,
-        IntLit <$> integer
+        IntLit . fromIntegral <$> integer
     ]
 
 aOperators :: [[Control.Monad.Combinators.Expr.Operator Parser Expr]]
@@ -917,13 +917,14 @@ relMatchesLine typeEnv subEnv s1@(C.Bind var expr) s2@(RelBind bvar sExpr) =
                        let selExpr = toSubExpr sExpr in
                        let res = (varsEq var sVar && exprsMatch typeEnv expr selExpr)
                                  || C.exprsDeclaredEqual subEnv expr selExpr -- B |- E = |E
-                       in trM1 ("trying to match exprs \n'" ++ show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $ res
+                       in trM1 ("Bind-Match: trying to match exprs \n'" ++ show s1 ++ "'\n'" ++ show s2 ++ "'\n\n") $ res
 
 -- rule Pred-Match
-relMatchesLine typeEnv subEnv (C.ApplyP pred) (RelPred sPred) =
-               let selPred = toSubPred sPred in
-               C.predsEq pred selPred -- self-equal
-               || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
+relMatchesLine typeEnv subEnv s1@(C.ApplyP pred) s2@(RelPred sPred) =
+               let selPred = toSubPred sPred
+                   res = pred == selPred -- self-equal
+                         || C.predsDeclaredEqual subEnv pred selPred -- B |- Q <-> |Q
+               in trM1 ("Pred-Match: trying to match exprs \n'" ++ show pred ++ "'\n'" ++ show selPred ++ "'\n'" ++ "res: " ++ show res ++ "'\n\n") $ res
 relMatchesLine _ _ _ _ = False -- no other line forms match each other (decl, equality, etc.)
 
 -- Judgment 13. b |- [S] <| |S_r

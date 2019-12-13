@@ -208,7 +208,7 @@ subtypeDeclParser = do
 preludeParser :: Parser ElementStmt
 preludeParser = do
   rword "value"
-  pvar <- varParser
+  pvar <- var
   rword ":"
   ptype <- tParser
   return $ PreludeDeclStmt pvar ptype
@@ -222,13 +222,13 @@ ykParser = unzip <$> (yWithKind `sepBy1` comma)
 varWithTypeParser :: Parser (Var, T)
 varWithTypeParser = do
   t <- tParser
-  v <- option (VarConst "") varParser
+  v <- option (VarConst "") var
   return (v, t)
 
 varWithTypeParserNonOptional :: Parser (Var, T)
 varWithTypeParserNonOptional = do
   t <- tParser
-  v <- varParser
+  v <- var
   return (v, t)
 
 -- | parser for the (b,t) list with optional var names
@@ -242,7 +242,7 @@ xtParserNonOptional = unzip <$> (varWithTypeParserNonOptional `sepBy1` star)
 vpPairParser :: Parser (Var, Prop)
 vpPairParser = do
   p <- propParser
-  v <- varParser
+  v <- var
   return (v, p)
 
 -- | parser for the (x, Prop) list
@@ -259,7 +259,7 @@ vdParser = do
   (b', t') <- option ([], []) $ xtParserNonOptional
   arrow
   t'' <- tParser
-  v <- option (VarConst "") varParser
+  v <- option (VarConst "") var
   return
     (VdStmt
        Vd {nameVd = name, varsVd = zip y' k', typesVd = zip b' t', toVd = t''})
@@ -274,7 +274,7 @@ odParser = do
   (b', t') <- option ([], []) xtParser
   arrow
   t'' <- tParser
-  v <- option (VarConst "") varParser
+  v <- option (VarConst "") var
   return
     (OdStmt
        Od {nameOd = name, varsOd = zip y' k', typesOd = zip b' t', toOd = t''})

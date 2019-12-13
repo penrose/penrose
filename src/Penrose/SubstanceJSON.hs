@@ -14,7 +14,6 @@ import           Penrose.Substance
 
 -------------------------------------------------------
 -- | JSON schemas and derivations using Aeson
-
 data FunctionSchema = FunctionSchema
   { varName   :: String
   , fname     :: String
@@ -22,8 +21,8 @@ data FunctionSchema = FunctionSchema
   } deriving (Generic, Show)
 
 data PredicateSchema = PredicateSchema
-  { pname     :: String
-  , pargNames :: [String]
+  { pname :: String
+  , pargs :: [Either String PredicateSchema]
   } deriving (Generic, Show)
 
 data ConstraintSchema = ConstraintSchema
@@ -90,8 +89,7 @@ tToSchema (E.TConstr typeCtorApp) =
   in case args of
        [] -> ctorString -- "Set"
        _ ->
-         ctorString ++
-         "(" ++ (L.intercalate ", " $ map targToSchema args) ++ ")"
+         ctorString ++ "(" ++ L.intercalate ", " (map targToSchema args) ++ ")"
 
 exprToSchema :: Expr -> String
 exprToSchema (VarE (E.VarConst v)) = v
@@ -104,10 +102,14 @@ exprToSchema _ =
 prednameToSchema :: PredicateName -> String
 prednameToSchema (PredicateConst s) = s
 
-predargToSchema :: PredArg -> String
-predargToSchema (PE expr) = exprToSchema expr
+predargToSchema :: PredArg -> Either String PredicateSchema
+predargToSchema (PE expr) = Left $ exprToSchema expr
 predargToSchema (PP pred) =
-  error "Cannot convert nested predicate in predicate argument to JSON"
+  Right $
+  PredicateSchema
+  { pname = prednameToSchema $ predicateName pred
+  , pargs = map predargToSchema $ predicateArgs pred
+  }
 
 -- | Convert a Substance statement to a JSON format and adds it to the right list
 -- | Note: do not rely on ordering in JSON, as this function does not guarantee preserving Substance program order.
@@ -120,10 +122,7 @@ toSchema acc@(objSchs, fnSchs, predSchs, valSchs) subLine =
   case subLine of
     Decl t (E.VarConst v) ->
       let res = ObjectSchema {objType = tToSchema t, objName = v}
-      in (res : objSchs, fnSchs, predSchs, valSchs)
-    DeclList t vs ->
-      let decls = map (\v -> Decl t v) vs
-      in foldl toSchema acc decls
+      in (res : objSchs, fnSchs, predSchs)
     Bind (E.VarConst v) (ApplyFunc f) ->
       let res =
             FunctionSchema
@@ -147,7 +146,7 @@ toSchema acc@(objSchs, fnSchs, predSchs, valSchs) subLine =
       let res =
             PredicateSchema
             { pname = prednameToSchema $ predicateName p
-            , pargNames = map predargToSchema $ predicateArgs p
+            , pargs = map predargToSchema $ predicateArgs p
             }
       in (objSchs, fnSchs, res : predSchs, valSchs)
          -- TODO: these forms are not sent to plugins
@@ -195,28 +194,26 @@ data StyVal = StyVal
 instance FromJSON KeyValPair
 
 instance FromJSON StyVal
-
---- Plugin output parsed as [StyVal]
+-- Plugin output parsed as [StyVal]
 --------------------------------------------------------
 -- | Test writing a Substance program in JSON format
-main :: IO ()
-main
-     -- let subProg = "Set A\nSet B\n IsSubset(A,B)\nSet C\nC := Union(A, B)\n\nPoint p\n PointIn(C, p)\nC := AddPoint(p, C)\n\nAutoLabel All"
- = do
-  let testFile = "testSubstanceJSON.json"
-  let info =
-        SubSchema
-        { objects = [ObjectSchema {objType = "Set", objName = "A"}]
-        , constraints =
-            ConstraintSchema
-            { functions =
-                [ FunctionSchema
-                  {varName = "C", fname = "Union", fargNames = ["A", "B"]}
-                ]
-            , predicates =
-                [PredicateSchema {pname = "IsSubset", pargNames = ["C", "p"]}]
-            }
-        , values = []
-        }
-  let res = encode info
-  BL.writeFile testFile res
+-- main :: IO ()
+-- main
+--      -- let subProg = "Set A\nSet B\n IsSubset(A,B)\nSet C\nC := Union(A, B)\n\nPoint p\n PointIn(C, p)\nC := AddPoint(p, C)\n\nAutoLabel All"
+--  = do
+--   let testFile = "testSubstanceJSON.json"
+--   let info =
+--         SubSchema
+--         { objects = [ObjectSchema {objType = "Set", objName = "A"}]
+--         , constraints =
+--             ConstraintSchema
+--             { functions =
+--                 [ FunctionSchema
+--                   {varName = "C", fname = "Union", fargNames = ["A", "B"]}
+--                 ]
+--             , predicates =
+--                 [PredicateSchema {pname = "IsSubset", pargs = ["C", "p"]}]
+--             }
+--         }
+--   let res = encode info
+--   BL.writeFile testFile res

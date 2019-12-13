@@ -191,6 +191,9 @@ class Canvas extends React.Component<IProps> {
 
   public dragShape = ([type, properties]: any, dx: number, dy: number) => {
     switch (type) {
+      case "Curve":
+        console.log("Curve drag unimplemented", [type, properties]); // Just to prevent crashing on accidental drag
+        return [type, properties];
       case "Line":
         return [
           type,

@@ -127,7 +127,7 @@ with Reals R { -- TODO: more general, with Interval J
     color : I.shape.color
   }
 
-  I.wfFn = ensure lessThan(I.left, I.right)
+  I.wfFn = ensure lessThanSq(I.left, I.right)
   I.liFn = ensure inRange(I.left, R.left, R.right)
   I.riFn = ensure inRange(I.right, R.left, R.right)
 
@@ -168,24 +168,24 @@ with OpenInterval I; Reals R
 where I := CreateOpenInterval(a, b); Subset(I, R) {
   override a.shape = Image {
       path : "left-paren.svg"
-      centerX : a.val
-      centerY : a.yval
-      lengthX : 10.0
-      lengthY : 20.0
+      x : a.val
+      y : a.yval
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
   override b.shape = Image {
       path : "right-paren.svg"
-      centerX : b.val
-      centerY : b.yval
-      lengthX : 10.0
-      lengthY : 20.0
+      x : b.val
+      y : b.yval
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
-    override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
-    override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+    override a.text.y = a.shape.y + a.shape.h + global.padding
+    override b.text.y = b.shape.y + b.shape.h + global.padding
 
   override a.text.color = I.shape.color
   override b.text.color = I.shape.color
@@ -198,24 +198,24 @@ with ClosedInterval I; Reals R
 where I := CreateClosedInterval(a, b); Subset(I, R) {
   override a.shape = Image {
       path : "left-bracket.svg"
-      centerX : a.val
-      centerY : a.yval
-      lengthX : 10.0
-      lengthY : 20.0
+      x : a.val
+      y : a.yval
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
   override b.shape = Image {
       path : "right-bracket.svg"
-      centerX : b.val
-      centerY : b.yval
-      lengthX : 10.0
-      lengthY : 20.0
+      x : b.val
+      y : b.yval
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
-    override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
-    override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+    override a.text.y = a.shape.y + a.shape.h + global.padding
+    override b.text.y = b.shape.y + b.shape.h + global.padding
 
 
 
@@ -233,24 +233,24 @@ with LeftClopenInterval I; Reals R
 where I := CreateLeftClopenInterval(a, b); Subset(I, R) {
   override a.shape = Image {
       path : "left-bracket.svg"
-      centerX : a.val
-      centerY : a.yval
-      lengthX : 10.0
-      lengthY : 20.0
+      x : a.val
+      y : a.yval
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
   override b.shape = Image {
       path : "right-paren.svg"
-      centerX : b.val
-      centerY : b.yval
-      lengthX : 10.0
-      lengthY : 20.0
+      x : b.val
+      y : b.yval
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
-    override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
-    override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+    override a.text.y = a.shape.y + a.shape.h + global.padding
+    override b.text.y = b.shape.y + b.shape.h + global.padding
 
   override a.text.color = I.shape.color
   override b.text.color = I.shape.color
@@ -263,24 +263,24 @@ with RightClopenInterval I; Reals R
 where I := CreateRightClopenInterval(a, b); Subset(I, R) {
   override a.shape = Image {
       path : "left-paren.svg"
-      centerX : a.val
-      centerY : a.yval
-      lengthX : 10.0
-      lengthY : 20.0
+      x : a.val
+      y : a.yval
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
   override b.shape = Image {
       path : "right-bracket.svg"
-      centerX : b.val
-      centerY : b.yval
-      lengthX : 10.0
-      lengthY : 20.0
+      x : b.val
+      y : b.yval
+      w : 10.0
+      h : 20.0
       rotation : 0.0
   }
 
-    override a.text.y = a.shape.centerY + a.shape.lengthY + global.padding
-    override b.text.y = b.shape.centerY + b.shape.lengthY + global.padding
+    override a.text.y = a.shape.y + a.shape.h + global.padding
+    override b.text.y = b.shape.y + b.shape.h + global.padding
 
   override a.text.color = I.shape.color
   override b.text.color = I.shape.color
@@ -310,7 +310,7 @@ where I := CreateInterval(x, y); PosInfinite(y); Subset(I, `R`) {
       -- delete y.labelFn
       delete I.riFn
 
-      override I.wfFn = ensure lessThan(x.val, I.right)
+      override I.wfFn = ensure lessThanSq(x.val, I.right)
       override x.text.color = I.shape.color
 }
 

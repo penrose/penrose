@@ -95,7 +95,7 @@ data ValueType
 -- | fully evaluated values in Style
 data Value a
   = FloatV a -- ^ floating point number
-  | IntV Integer -- ^ integer
+  | IntV Int -- ^ integer
   | BoolV Bool -- ^ boolean value
   | StrV String -- ^ string literal
   | PtV (Pt2 a) -- ^ point in R^2
@@ -322,29 +322,31 @@ type ComputedValue a = ([Property], [Value a] -> Value a)
 computedProperties ::
      (Autofloat a) => M.Map (ShapeTypeStr, Property) (ComputedValue a)
 computedProperties =
-  M.fromList
-    [ (("RectangleTransform", "transformation"), rectTransformFn)
-    , (("CircleTransform", "transformation"), circTransformFn)
-    , (("Polygon", "transformation"), polygonTransformFn)
-    , (("CurveTransform", "transformation"), polygonTransformFn)
-                                                     -- Same parameters as polygon
-    , (("LineTransform", "transformation"), polygonTransformFn)
-                                                    -- Same parameters as polygon
-    , (("SquareTransform", "transformation"), squareTransformFn)
-    , (("ImageTransform", "transformation"), imageTransformFn)
-    , (("EllipseTransform", "transformation"), ellipseTransformFn)
-    , (("ParallelogramTransform", "transformation"), parallelogramTransformFn)
-    , (("TextTransform", "transformation"), textTransformFn)
-    , (("RectangleTransform", "polygon"), rectPolygonFn)
-    , (("CircleTransform", "polygon"), circPolygonFn)
-    , (("CurveTransform", "polygon"), curvePolygonFn)
-    , (("Polygon", "polygon"), polygonPolygonFn)
-    , (("LineTransform", "polygon"), linePolygonFn)
-    , (("SquareTransform", "polygon"), squarePolygonFn)
-    , (("ImageTransform", "polygon"), imagePolygonFn)
-    , (("EllipseTransform", "polygon"), ellipsePolygonFn)
-    , (("ParallelogramTransform", "polygon"), parallelogramPolygonFn)
-    , (("TextTransform", "polygon"), textPolygonFn)
+  M.fromList [ -- TODO: makes things really alow
+    -- (("RectangleTransform", "transformation"), rectTransformFn)
+    -- , (("CircleTransform", "transformation"), circTransformFn)
+    -- , (("Polygon", "transformation"), polygonTransformFn)
+    -- , (("CurveTransform", "transformation"), polygonTransformFn)
+    --                                                  -- Same parameters as polygon
+    -- , (("LineTransform", "transformation"), polygonTransformFn)
+    --                                                 -- Same parameters as polygon
+    -- , (("SquareTransform", "transformation"), squareTransformFn)
+    -- , (("ImageTransform", "transformation"), imageTransformFn)
+    -- , (("EllipseTransform", "transformation"), ellipseTransformFn)
+    -- , (("ParallelogramTransform", "transformation"), parallelogramTransformFn)
+    -- , (("TextTransform", "transformation"), textTransformFn)
+    -- , (("RectangleTransform", "polygon"), rectPolygonFn)
+    -- , (("CircleTransform", "polygon"), circPolygonFn)
+    -- , (("CurveTransform", "polygon"), curvePolygonFn)
+    -- , (("Polygon", "polygon"), polygonPolygonFn)
+    -- , (("LineTransform", "polygon"), linePolygonFn)
+    -- , (("SquareTransform", "polygon"), squarePolygonFn)
+    -- , (("ImageTransform", "polygon"), imagePolygonFn)
+    -- , (("EllipseTransform", "polygon"), ellipsePolygonFn)
+    -- , (("ParallelogramTransform", "polygon"), parallelogramPolygonFn)
+    -- , (("TextTransform", "polygon"), textPolygonFn)
+    (("Text", "polygon"), textPolygonFn2)
+    , (("Curve", "polygon"), curvePolygonFn2)
     ]
 
 rectTransformFn :: (Autofloat a) => ComputedValue a
@@ -386,11 +388,11 @@ squareTransformFn = (props, fn)
 imageTransformFn :: Autofloat a => ComputedValue a
 imageTransformFn = (props, fn)
   where
-    props = ["centerX", "centerY", "scaleX", "scaleY", "rotation", "transform"]
+    props = ["x", "y", "scaleX", "scaleY", "rotation", "transform"]
     fn :: (Autofloat a) => [Value a] -> Value a
-    fn [FloatV centerX, FloatV centerY, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
+    fn [FloatV x, FloatV y, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform] =
       let defaultTransform =
-            paramsToMatrix (scaleX, scaleY, rotation, centerX, centerY)
+            paramsToMatrix (scaleX, scaleY, rotation, x, y)
       in HMatrixV $ customTransform # defaultTransform
 
 ellipseTransformFn :: Autofloat a => ComputedValue a
@@ -462,17 +464,8 @@ curvePolygonFn :: (Autofloat a) => ComputedValue a
 curvePolygonFn = (props, fn)
   where
     props =
-      [ "scaleX"
-      , "scaleY"
-      , "rotation"
-      , "dx"
-      , "dy"
-      , "transform"
-      , "pathData"
-      , "strokeWidth"
-      , "leftArrowhead"
-      , "rightArrowhead"
-      ]
+      [ "scaleX", "scaleY", "rotation", "dx", "dy", "transform",
+         "pathData", "strokeWidth", "leftArrowhead", "rightArrowhead"]
     fn :: (Autofloat a) => [Value a] -> Value a
     fn [FloatV scaleX, FloatV scaleY, FloatV rotation, FloatV dx, FloatV dy, HMatrixV customTransform, PathDataV path, FloatV strokeWidth, BoolV leftArrow, BoolV rightArrow] =
       let defaultTransform = paramsToMatrix (scaleX, scaleY, rotation, dx, dy)
@@ -481,8 +474,28 @@ curvePolygonFn = (props, fn)
             transformPoly fullTransform $
             toPoly $
             polygonizePathPolygon maxIter strokeWidth leftArrow rightArrow path
-      where
-        maxIter = 1 -- TODO: what should this be?
+      where maxIter = 1 -- TODO: what should this be?
+
+-- | Polygonize a Bezier curve (WITHOUT TRANSFORM), even if the curve was originally made using a list of points.
+-- TODO: distinguish between filled curves (polygons) and unfilled ones (polylines)
+curvePolygonFn2 :: (Autofloat a) => ComputedValue a
+curvePolygonFn2 = (props, fn)
+  where
+    props = ["pathData" , "strokeWidth", "leftArrowhead", "rightArrowhead"]
+    fn :: (Autofloat a) => [Value a] -> Value a
+    fn [PathDataV path, FloatV strokeWidth, BoolV leftArrow, BoolV rightArrow] =
+           case path of
+           [piece] -> if all (\e -> elemIsPt e) (elemsOf piece) -- If path only consists of points, it's already a polygon
+                      then PolygonV $ toPoly $ map (\e -> elemToPt e) (elemsOf piece)
+                      else PolygonV $ toPoly $ polygonizePath maxIter path -- Not including polygonizing arrowheads or thickness
+           _ -> error "unimplemented: polygonizing path of multiple pieces"
+
+      where maxIter = 1 -- TODO: what should this be?
+            elemIsPt (Pt _) = True
+            elemIsPt _ = False
+            elemToPt (Pt e) = e
+            elemsOf (Closed es) = es
+            elemsOf (Open es) = es
 
 -- | Polygonize a line segment, accounting for its thickness.
 -- TODO: would it usually be more efficient to just use a polyline?
@@ -528,8 +541,8 @@ imagePolygonFn :: Autofloat a => ComputedValue a
 imagePolygonFn = (props, fn)
   where
     props =
-      [ "centerX"
-      , "centerY"
+      [ "x"
+      , "y"
       , "scaleX"
       , "scaleY"
       , "rotation"
@@ -538,7 +551,7 @@ imagePolygonFn = (props, fn)
       , "initHeight"
       ]
     fn :: (Autofloat a) => [Value a] -> Value a
-    fn [FloatV centerX, FloatV centerY, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform, FloatV initWidth, FloatV initHeight]
+    fn [FloatV x, FloatV y, FloatV scaleX, FloatV scaleY, FloatV rotation, HMatrixV customTransform, FloatV initWidth, FloatV initHeight]
              -- Note that the unit square is implicitly scaled to (w, h)
              -- (from the frontend) before having the default transform applied
      =
@@ -547,8 +560,8 @@ imagePolygonFn = (props, fn)
               ( scaleX * initWidth
               , scaleY * initHeight
               , rotation
-              , centerX
-              , centerY)
+              , x
+              , y)
           fullTransform = customTransform # defaultTransform
       in PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
@@ -586,6 +599,16 @@ textPolygonFn = (props, fn)
             paramsToMatrix (scaleX * w, scaleY * h, rotation, x, y)
       in let fullTransform = customTransform # defaultTransform
          in PolygonV $ transformPoly fullTransform $ toPoly unitSq
+
+textPolygonFn2 :: (Autofloat a) => ComputedValue a
+textPolygonFn2 = (props, fn)
+  where
+    props = ["x", "y", "w", "h"]
+    fn :: (Autofloat a) => [Value a] -> Value a
+    fn [FloatV x, FloatV y, FloatV w, FloatV h] =
+      let defaultTransform = paramsToMatrix (w, h, 0.0, x, y)
+          fullTransform    = defaultTransform
+      in PolygonV $ transformPoly fullTransform $ toPoly unitSq
 
 --------------------------------------------------------------------------------
 -- Property samplers
@@ -634,9 +657,8 @@ sampleColor rng =
       (r, rng1) = randomR interval rng
       (g, rng2) = randomR interval rng1
       (b, rng3) = randomR interval rng2
-  in (ColorV $ makeColor r g b 0.5, rng3)
-        -- (a, rng4)  = randomR (0.3, 0.7) rng3
-    -- in (ColorV $ makeColor r g b a, rng4)
+      a = 0.5
+  in (ColorV $ makeColor r g b a, rng3)
 
 -- | Samples all properties of input shapes
 sampleShapes :: (Autofloat a) => StdGen -> [Shape a] -> ([Shape a], StdGen)
@@ -728,20 +750,27 @@ ellipseType =
       , ("rx", (FloatT, width_sampler))
       , ("ry", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
-      , ("stroke-width", (FloatT, stroke_sampler))
+      , ("strokeWidth", (FloatT, stroke_sampler))
       , ("style", (StrT, sampleDiscrete [StrV "filled"]))
-      , ("stroke-style", (StrT, stroke_style_sampler))
+      , ("strokeColor", (ColorT, sampleColor))
+      , ("strokeStyle", (StrT, stroke_style_sampler))
       , ("color", (ColorT, sampleColor))
       , ("name", (StrT, constValue $ StrV "defaultEllipse"))
       ])
 
+-- When explicitly declared or computed in Style programs, w and h take precedence over fontSize.
+-- Therefore, custom fontSize in Style will only work when w and h are not specified or computed.
 textType =
   ( "Text"
   , M.fromList
       [ ("x", (FloatT, sampleFloatIn (-canvasWidth / 2, canvasWidth / 2)))
       , ("y", (FloatT, sampleFloatIn (-canvasHeight / 2, canvasHeight / 2)))
+ 
       , ("w", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
       , ("h", (FloatT, constValue $ FloatV 0)) -- NOTE: updated by front-end
+      , ("fontSize", (StrT, constValue $ StrV "12pt")) 
+      , ("polygon", (PolygonT, constValue $ PolygonV emptyPoly)) -- Computed
+
       , ("string", (StrT, constValue $ StrV "defaultLabelText"))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
       , ("style", (StrT, constValue $ StrV "none"))
@@ -784,10 +813,15 @@ curveType =
         -- These two fields are for storage.
       [ ("path", (PtListT, constValue $ PtListV [])) -- TODO: sample path
       , ("polyline", (PtListT, constValue $ PtListV [])) -- TODO: sample path
+
+      -- Computed
+      , ("polygon", (PolygonT, constValue $ PolygonV emptyPoly))
+
         -- The frontend only uses pathData to draw the curve.
       , ("pathData", (PathDataT, constValue $ PathDataV [])) -- TODO: sample path
       , ("strokeWidth", (FloatT, stroke_sampler))
       , ("style", (StrT, constValue $ StrV "solid"))
+      , ("effect", (StrT, constValue $ StrV "none"))
       , ("fill", (ColorT, sampleColor)) -- for no fill, set opacity to 0
       , ("color", (ColorT, sampleColor))
       , ("leftArrowhead", (BoolT, constValue $ BoolV False))
@@ -864,11 +898,12 @@ parallelogramType =
 imageType =
   ( "Image"
   , M.fromList
-      [ ("centerX", (FloatT, x_sampler))
-      , ("centerY", (FloatT, y_sampler))
-      , ("lengthX", (FloatT, width_sampler))
-      , ("lengthY", (FloatT, height_sampler))
+      [ ("x", (FloatT, x_sampler))
+      , ("y", (FloatT, y_sampler))
+      , ("w", (FloatT, width_sampler))
+      , ("h", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
+      , ("opacity", (FloatT, constValue $ FloatV 1.0))
       , ("style", (StrT, constValue $ StrV "none"))
       , ("stroke", (StrT, constValue $ StrV "none"))
       , ("path", (StrT, constValue $ StrV "missing image path")) -- Absolute path (URL)
@@ -1552,29 +1587,36 @@ polygonizePath n p =
 polygonize :: Autofloat a => Int -> PathData a -> [[Pt2 a]]
 polygonize maxIter = map go
   where
-    go (Closed path) = error "TODO"
+    go (Closed path) =
+       case path of
+       -- HACK: A closed path is equivalent to the same open path, ending at the head point (TODO: check that this makes sense)
+       Pt e:_ -> go (Open $ path ++ [Pt e])
+       _ -> error "unimplemented: polygonizing a closed path that doesn't start with a point"
     go (Open path)   = concatMap (polyCubicBez 0 maxIter) $ expandCurves path
 
 type CubicBezCoeffs a = (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
 
-expandCurves :: Autofloat a => [Elem a] -> [CubicBezCoeffs a]
+-- | Expand composite bezier curve and skip polyline segments
+expandCurves :: Autofloat a => [Elem a] -> [Either (CubicBezCoeffs a) [Pt2 a]] 
 expandCurves elems = zipWith attach elems $ tail elems
   where
-    attach (Pt a) (CubicBez (b, c, d))               = (a, b, c, d)
-    attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = (a, b, c, d)
+    attach (Pt a) (CubicBez (b, c, d))               = Left (a, b, c, d)
+    attach (Pt a) (Pt b)                             = Right [a, b]
+    attach (CubicBez (_, _, a)) (CubicBez (b, c, d)) = Left (a, b, c, d)
+    attach (CubicBez (_, _, a)) (Pt b) = Right [a, b]
+    attach x y = error ("Can't attach: " ++ show x ++ ", " ++ show y)
 
 -- | implements http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.86.162&rep=rep1&type=pdf
-polyCubicBez :: Autofloat a => Int -> Int -> CubicBezCoeffs a -> [Pt2 a]
-polyCubicBez count maxCount curve@(a, b, c, d) =
-  if (tr "count" count) >= maxCount
+-- NOTE: if the input is an already polygonize segment, do nothing.
+polyCubicBez :: Autofloat a => Int -> Int -> Either (CubicBezCoeffs a) [Pt2 a] -> [Pt2 a]
+polyCubicBez count maxCount (Left (a, b, c, d)) =
+  if count >= maxCount
     then [a, b, c, d]
-    else concatMapTuple (polyCubicBez (count + 1) maxCount) $
-         divideCubicBezier curve
+    else concatMapTuple (polyCubicBez (count + 1) maxCount . Left) $
+         divideCubicBezier (a, b, c, d)
   where
     concatMapTuple f (a1, a2) = f a1 ++ f a2
-
-isFlat :: Autofloat a => CubicBezCoeffs a -> Bool
-isFlat (a, b, c, d) = True
+polyCubicBez count maxCount (Right pts) = pts
 
 divideCubicBezier ::
      Autofloat a => CubicBezCoeffs a -> (CubicBezCoeffs a, CubicBezCoeffs a)

@@ -36,17 +36,17 @@ Point p {
 Set X {
     X.width = 100.0
     X.height = 200.0
-    X.centerX = OPTIMIZED
-    X.centerY = OPTIMIZED
+    X.x = OPTIMIZED
+    X.y = OPTIMIZED
     X.angle = OPTIMIZED
 
     X.shape = RectangleTransform {
         strokeWidth = 0.0
-	transform = transformSRT(X.width, X.height, X.angle, X.centerX, X.centerY)
+	transform = transformSRT(X.width, X.height, X.angle, X.x, X.y)
     }
 
     -- TODO: need to apply the transform, otherwise X and y are still 0
-    -- Should this get the X.centerX or the finalX?
+    -- Should this get the X.x or the finalX?
 
     X.text = Text {
       string = X.label

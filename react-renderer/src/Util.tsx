@@ -5,21 +5,38 @@ import memoize from "fast-memoize";
 
 export const arrowheads = {
   "arrowhead-1": {
-    width: 12,
-    height: 12,
-    viewbox: "0 0 12 12",
-    refX: "8",
-    refY: "6", // HACK: to avoid paths from bleeding through the arrowhead
-    path: "M2,2 A30,30,0,0,0,10,6 A30,30,0,0,0,2,10 L4.5,6 z"
+    width: 8,
+    height: 8,
+    viewbox: "0 0 8 8",
+    refX: "4",
+    refY: "4", // HACK: to avoid paths from bleeding through the arrowhead
+    path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
   },
   "arrowhead-2": {
-    width: 18.95,
+    width: 9.95,
     height: 8.12,
-    viewbox: "0 0 18.95 8.12",
-    refX: "9.475",
+    viewbox: "0 0 9.95 8.12",
+    refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
     refY: "4.06",
-    path: "M9.95 4.06 0 8.12 2.35 4.06 0 0 9.95 4.06z"
+    path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
   }
+};
+
+export const Shadow = (props: { id: string }) => {
+  return (
+    <filter id={props.id} x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  );
 };
 
 export const Arrowhead = (props: {
@@ -140,7 +157,7 @@ export function svgBBox(svgEl: SVGSVGElement) {
 }
 
 const tex2svg = memoize(
-  async (contents: string, name: string): Promise<any> =>
+  async (contents: string, name: string, fontSize: string): Promise<any> =>
     new Promise(resolve => {
       const wrapper = document.createElement("div");
       // HACK: Style compiler decides to give empty labels if not specified
@@ -150,13 +167,15 @@ const tex2svg = memoize(
         MathJax.Hub.Queue(() => {
           const output = wrapper.getElementsByTagName("svg")[0];
           output.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          output.setAttribute("style", `font-size: ${fontSize}`);
           // TODO: need to check whether MathJax returns a non-null response
           // NOTE: This is where you can directly control the width/height of the LaTeX
           const { width, height } = svgBBox(output);
-          output.setAttribute("width", width.toString());
-          output.setAttribute("height", height.toString());
+
+          // TODO: These seem to be extraneous. Remove?
+          // output.setAttribute("width", width.toString());
+          // output.setAttribute("height", height.toString());
           const body = output;
-          // const body = output.outerHTML + `<title>${name}</title>`; // need to keep properties in <svg>
           resolve({ body, width, height });
         });
       } else {
@@ -171,7 +190,9 @@ export const collectLabels = async (allShapes: any[]) => {
     skipStartupTypeset: true,
     extensions: ["tex2jax.js", "TeX/AMSmath.js"],
     jax: ["input/TeX", "output/SVG"],
+    // https://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html
     SVG: {
+      // font: "Gyre-Pagella", // TODO: This doesn't seem to work
       matchFontHeight: false,
       useGlobalCache: false, // Needed for SVG inline export
       useFontCache: false // further reduces the reuse of paths
@@ -186,7 +207,8 @@ export const collectLabels = async (allShapes: any[]) => {
       if (type === "Text" || type === "TextTransform") {
         const { body, width, height } = await tex2svg(
           obj.string.contents,
-          obj.name.contents
+          obj.name.contents,
+          obj.fontSize.contents
         );
         // Instead of directly overwriting the properties, cache them temporarily and let `propogateUpdate` decide what to do
         const obj2 = { ...obj };

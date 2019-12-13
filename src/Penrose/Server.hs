@@ -534,8 +534,8 @@ runApp socket opts app = do
 --         move "endX"   dx $
 --         move "endY"   dy shape
 --     | shape `is` "Image" =
---         move "centerX" dx $
---         move "centerY" dy shape
+--         move "x" dx $
+--         move "y" dy shape
 --     | shape `is` "Arrow" =
 --         move "startX" dx $
 --         move "startY" dy $

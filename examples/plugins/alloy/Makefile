@@ -1,4 +1,4 @@
-JFLAGS = -g -cp "*:."
+JFLAGS = -nowarn -g -cp "*:."
 JC = javac
 .SUFFIXES: .java .class
 
@@ -6,7 +6,6 @@ JC = javac
 	$(JC) $(JFLAGS) $*.java
 
 CLASSES = AlloyPlugin.java
-# CLASSES = Evaluator.java
 
 default: classes
 

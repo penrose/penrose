@@ -12,7 +12,7 @@ module Penrose.Env where
   -- )
 
 import           Control.Arrow                  ((>>>))
-import           Control.Monad                  (void)
+import           Control.Monad                  (void, MonadPlus)
 import           Control.Monad.Combinators.Expr hiding (Operator)
 import           Control.Monad.State.Lazy       (StateT)
 import           Data.Functor.Classes
@@ -249,6 +249,12 @@ rword w = lexeme (string w *> notFollowedBy alphaNumChar)
 tryChoice :: [Parser a] -> Parser a
 tryChoice list = choice $ map try list
 
+sepBy2 :: MonadPlus m => m a -> m sep -> m [a]
+sepBy2 p sep = do
+  x <- p
+  (x:) <$> some (sep >> p)
+{-# INLINE sepBy2 #-}
+
 ----------------------------------- AST ----------------------------------------
 data TypeName
   = TypeNameConst String -- these are all names, e.g. “Set”
@@ -337,8 +343,8 @@ typeParser = do
   pos <- getSourcePos
   return Type {typeName = "type", typePos = pos}
 
-varParser :: Parser Var
-varParser = VarConst <$> identifier
+var :: Parser Var
+var = VarConst <$> identifier
 
 typeVarParser :: Parser TypeVar
 typeVarParser = do
@@ -350,7 +356,7 @@ typeVarParser = do
 yParser, y1, y2 :: Parser Y
 yParser = try y1 <|> y2
 
-y1 = VarY <$> varParser
+y1 = VarY <$> var
 
 y2 = TypeVarY <$> typeVarParser
 
@@ -380,7 +386,7 @@ typeVarParser' = TTypeVar <$> typeVarParser
 argParser, varParser', tParser' :: Parser Arg
 argParser = try tParser' <|> varParser'
 
-varParser' = AVar <$> varParser
+varParser' = AVar <$> var
 
 tParser' = AT <$> tParser
 

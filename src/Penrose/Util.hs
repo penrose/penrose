@@ -82,12 +82,17 @@ type Interval = (Float, Float) -- which causes type inference problems in Style 
 -- Interval is not polymorphic because I want to avoid using the Random typeclass (Random a)
 -- Also apparently using Autofloat here with typeable causes problems for generality of returned StdGen.
 -- But it works fine without Typeable.
-randomsIn :: (Autofloat a) => StdGen -> Integer -> Interval -> ([a], StdGen)
+randomsIn :: (Autofloat a) => StdGen -> Int -> Interval -> ([a], StdGen)
 randomsIn g 0 _ = ([], g)
 randomsIn g n interval =
   let (x, g') = randomR interval g -- First value
       (xs, g'') = randomsIn g' (n - 1) interval -- Rest of values
   in (r2f x : xs, g'')
+
+pickOne :: [a] -> StdGen -> (a, StdGen)
+pickOne list g =
+  let (idx, g') = randomR (0, length list - 1) g
+  in (list !! idx, g')
 
 fromRight :: (Show a, Show b) => Either a b -> b
 fromRight (Left x)  = error ("Failed with error: " ++ show x)
@@ -224,12 +229,13 @@ infixl 7 *., /.
 
 -- assumes lists are of the same length
 dotL :: (RealFloat a, Floating a) => [a] -> [a] -> a
-dotL u v =
-  if not $ length u == length v
-    then error $
-         "can't dot-prod different-len lists: " ++
-         (show $ length u) ++ " " ++ (show $ length v)
-    else sum $ zipWith (*) u v
+dotL u v = sum $ zipWith (*) u v
+  -- Omitted for speed
+  -- if not $ length u == length v
+  --   then error $
+  --        "can't dot-prod different-len lists: " ++
+  --        (show $ length u) ++ " " ++ (show $ length v)
+  --   else sum $ zipWith (*) u v
 
 (+.) :: Floating a => [a] -> [a] -> [a] -- add two vectors
 (+.) u v =
@@ -326,6 +332,9 @@ closestpt_pt_seg p@(px, py) (v@(vx, vy), w@(wx, wy)) =
 clamp :: (Floating a, Ord a) => (a, a) -> a -> a
 clamp (l, r) x = max l $ min r x
 
+subsampleEvery :: Int -> [a] -> [a]
+subsampleEvery n xs = map fst $ filter (\(e, i) -> i `mod` n == 0) $ zip xs ([0..length xs])
+
 --------------------------------------
 -- Reflection capabilities to typecheck Computation functions
 -- Typeable doesn't works with polymorphism (e.g. `id`) but works with `Floating a` by replacing it with `Double`
@@ -364,10 +373,12 @@ inputsOutputStr x =
 rot90 :: Floating a => (a, a) -> (a, a)
 rot90 (x, y) = (-y, x)
 
+-- `k` is the fraction of interpolation
+lerp :: Floating a => a -> a -> a -> a
+lerp a b k = a * (1.0 - k) + b * k
+
 lerpP :: Floating a => (a, a) -> (a, a) -> a -> (a, a)
-lerpP (a, b) (c, d) k =
-  let lerpNum a b = a * (1.0 - k) + b * k
-  in (lerpNum a c, lerpNum b d)
+lerpP (a, b) (c, d) k = (lerp a c k, lerp b d k)
 
 mag :: Floating a => (a, a) -> a
 mag (a, b) = sqrt $ magsq (a, b)
@@ -392,6 +403,10 @@ map2 f (a, b) = (f a, f b)
 rotateList :: [a] -> [a]
 rotateList l = take (length l) $ drop 1 (cycle l)
 
+removeClosePts :: Autofloat a => a -> [a] -> [a]
+removeClosePts dx xs =
+  map fst $ filter (\(x0, x1) -> (x1 - x0) > dx) $ zip xs (tail xs)
+
 -- | Scale a value x in [lower, upper] linearly to x' lying in range [lower', upper'].
 -- (Allow reverse lerping, i.e. upper < lower)
 scaleLinear :: Autofloat a => a -> Pt2 a -> Pt2 a -> a
@@ -406,15 +421,15 @@ scaleLinear x (lower, upper) (lower', upper') =
 
 -- n = number of interpolation points (not counting endpoints)
 -- so with n = 1, we would have [x1, (x1+x2/2), x2]
-lerp :: Autofloat a => a -> a -> Int -> [a]
-lerp x1 x2 n =
+lerpN :: Autofloat a => a -> a -> Int -> [a]
+lerpN x1 x2 n =
   let dx = (x2 - x1) / (fromIntegral n + 1)
   in take (n + 2) $ iterate (+ dx) x1
 
 lerp2 :: Autofloat a => Pt2 a -> Pt2 a -> Int -> [Pt2 a]
 lerp2 (x1, y1) (x2, y2) n =
-  let xs = lerp x1 x2 n
-      ys = lerp y1 y2 n
+  let xs = lerpN x1 x2 n
+      ys = lerpN y1 y2 n
   in zip xs ys -- Interp both simultaneously
                             -- Interp the first, then the second
                             -- in zip xs (repeat y1) ++ zip (repeat x2) ys
@@ -422,6 +437,8 @@ lerp2 (x1, y1) (x2, y2) n =
 cross :: Autofloat a => [a] -> [a] -> [a]
 cross [x1, y1, z1] [x2, y2, z2] =
   [y1 * z2 - y2 * z1, x2 * z1 - x1 * z2, x1 * y2 - x2 * y1]
+-- cross [x1, x2, x3] [y1, y2, y3] =
+-- [x2 * y3 - x3 * y2, x3 * y1 - x1 * y3, x1 * y2 - x2 * y1]
 
 angleBetweenRad :: Autofloat a => [a] -> [a] -> a -- Radians
 angleBetweenRad p q = acos ((p `dotL` q) / (norm p * norm q + epsd))
@@ -446,8 +463,137 @@ slerp n t0 t1 e1 e2 =
       ts = take (n + 2) $ iterate (+ dt) t0
   in map (circPtInPlane e1 e2) ts -- Travel along the arc
 
+slerpPts :: Autofloat a => Int -> [a] -> [a] -> [[a]]
+slerpPts n p q = 
+  let (e1, e2) = (normalize p, normalize (p `cross` q)) -- (e1, e3) span the plane of p and q
+      e3 = normalize (e2 `cross` e1)
+      (t0, t1) = (0.0, angleBetweenRad p q) -- On a unit sphere, the angle between points is the length of the arc b/t them
+      pts = slerp (fromIntegral n) t0 t1 e1 e3 
+  in {- trace
+       ("(e1, e2, e3): " ++ show (e1, e2, e3) ++
+        "\ndot results: " ++ show [ei `dotL` ej | ei <- [e1, e2, e3], ej <- [e1, e2, e3]] ++
+        "\n(p, q, angleBetweenRad): " ++ show (p, q, t1) ++ "\npts: " ++ show pts) -}
+     pts
+
 -- Project q onto p, without normalization
 proj :: Autofloat a => [a] -> [a] -> [a]
 proj p q =
   let unit_p = normalize p
   in (q `dotL` unit_p) *. unit_p
+
+------- | Hyperbolic geometry
+
+-- Lorenz inner product
+-- Assuming x and y have equal lengths that are greater than 0 (omitted for speed)
+-- Like the normal dot product but we swap the last sign
+-- [x1, x2, x3] .L [y1, y2, y3] = x1 * y1 + x2 * y2 - x3 * y3
+-- In a hyperboloid, <x,x> = 1
+dotLor :: Autofloat a => [a] -> [a] -> a
+dotLor x y = let nm1 = length x - 1
+                 ((xs1, xs2), (ys1, ys2)) = (splitAt nm1 x, splitAt nm1 y)
+                 (s1, s2) = (dotL xs1 ys1, -1 * dotL xs2 ys2)
+             in s1 + s2
+
+-- For Lorenz cross product, this is the matrix J, which just changes the sign of the last element
+-- p20: http://www.maths.dur.ac.uk/Ug/projects/highlights/CM3/Hayter_Hyperbolic_report.pdf
+-- https://math.stackexchange.com/questions/3017728/an-identity-for-the-lorentz-cross-product
+negLast :: Autofloat a => [a] -> [a]
+negLast x = let (xs1, xs2) = splitAt (length x - 1) x
+            in xs1 ++ ((-1.0) *. xs2)
+
+-- crossLor [x1, x2, x3] [y1, y2, y3] = 
+-- [x2 * y3 - x3 * y2, x3 * y1 - x1 * y3, x2 * y1 - x1 * y2]
+
+crossLor :: Autofloat a => [a] -> [a] -> [a]
+crossLor x y = negLast $ x `cross` y -- x (*) y = J(x * y) = J(y) * J(x)
+
+-- Lorenz norm
+-- TODO: parameterize everything by the Lorenz inner product instead of rewriting code
+normsqLor :: Autofloat a => [a] -> a
+normsqLor x = dotLor x x 
+
+-- Abs value because we can't ask that sqrt(<x,x>) = -1
+-- See email thread with H. Segerman
+normLor :: Autofloat a => [a] -> a
+normLor x = sqrt (abs (normsqLor x + epsd)) -- Is this numerically okay to optimize?
+
+normalizeLor :: Autofloat a => [a] -> [a]
+normalizeLor x = (1 / normLor x) *. x
+-- TODO: should these be a sign change so a vector has Lorenz norm -1?
+
+-- TODO: comment these
+-- TODO: Use numerically nicer versions of cosh and sinh
+-- TODO: implement checks for these vectors (like they are on the hyperboloid or are basis vectors
+
+-- If we start with two vectors a, b on the hyperboloid, 
+-- then we find an orthonormal basis for the plane that they span by using Gram-Schmidt:
+-- e1 = a
+-- e2 = normalize(b + <a, b>L * a)
+-- `e1` obviously points in the direction of `a`
+-- and `e2` can be understoood as the unit tangent vector from `a` in the direction of `b`
+
+-- Make the second vector orthogonal to the first
+gramSchmidt :: (Autofloat a) => [a] -> [a] -> [a]
+gramSchmidt a b =
+               let proj_b_a = ((a `dotL` b) / (a `dotL` a)) *. a -- Projection onto `a` of `b`
+                   basis = b -. proj_b_a
+               in -- trace ("\nbasis: " ++ show basis) $ 
+                  normalize basis
+
+-- Make the second vector orthogonal to the first
+gramSchmidtHyp :: (Autofloat a) => [a] -> [a] -> [a]
+gramSchmidtHyp a b =
+               let proj_b_a = (a `dotLor` b) *. a
+                   basis = b +. proj_b_a
+               in -- trace ("\nbasis: " ++ show basis) $ 
+                  normalizeLor basis
+
+hypDist :: (Autofloat a) => [a] -> [a] -> a
+hypDist p q = acosh (-1 * (p `dotLor` q))
+-- TODO check this on cases
+
+-- Note that `d` is hyperbolic distance, NOT time
+hypPtInPlane :: Autofloat a => [a] -> [a] -> a -> [a]
+hypPtInPlane e1 e2 d = cosh d *. e1 +. sinh d *. e2
+
+-- Walk the path from p to q
+-- p and q lie on the hyperboloid (are NOT tangent vectors)
+hFromTo :: Autofloat a => [a] -> [a] -> [[a]]
+hFromTo p q = let e1 = p
+                  e2 = gramSchmidtHyp e1 q
+                  n = 50
+              -- in hypPtInPlane e1 e2 (hypDist p q)
+              in hlerp n 0 (hypDist p q) e1 e2
+
+-- Walk a distance d along the geodesic from p to q (in that direction)
+-- p and q lie on the hyperboloid (are NOT tangent vectors)
+hwalk :: Autofloat a => [a] -> [a] -> a -> [a]
+hwalk p q d = let e1 = p
+                  e2 = gramSchmidtHyp e1 q
+              in hypPtInPlane e1 e2 d
+
+-- Assuming unit hyp and unit basis vectors. Arc starts at e1.
+hlerp :: Autofloat a => Int -> a -> a -> [a] -> [a] -> [[a]]
+hlerp n t0 t1 e1 e2 =
+  let dt = (t1 - t0) / (fromIntegral n + 1)
+      ts = take (n + 2) $ iterate (+ dt) t0
+  in map (hypPtInPlane e1 e2) ts -- Travel along the arc
+
+-- Angle between two vectors (assumed to be unit in Lorenz space)
+angleLor :: Autofloat a => [a] -> [a] -> a
+-- TODO: should this have a negative sign? So the distance and angle are same? Is that ok?
+-- TODO: note that acosh(x) is only defined if x >= 1
+angleLor a b = hypDist a b
+-- angleLor a b = acosh (a `dotLor` b)
+
+-- Project q onto p, without normalization
+projLor :: Autofloat a => [a] -> [a] -> [a]
+projLor p q =
+  let unit_p = normalizeLor p
+  in (q `dotLor` unit_p) *. unit_p
+
+-- https://stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+angleBetweenSignedLor :: Autofloat a => [a] -> [a] -> [a] -> a -- Radians
+angleBetweenSignedLor n p q =
+  let sign = -1 * signum ((p `crossLor` q) `dotLor` n)
+  in sign * angleLor p q
