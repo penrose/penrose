@@ -204,11 +204,6 @@ class Canvas extends React.Component<IProps> {
             ["endY", dy]
           ])
         ];
-      case "Image":
-        return [
-          type,
-          this.moveProperties(properties, [["centerX", dx], ["centerY", dy]])
-        ];
       case "Arrow":
         return [
           type,

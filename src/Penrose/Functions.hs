@@ -1514,9 +1514,10 @@ near :: ObjFn
 near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
 near [GPI o1, GPI o2, Val (FloatV offset)] =
-  let res = distsq (getX o1, getY o1) (getX o2, getY o2) - offset ^ 2 in
-  trace ("\n\nEnergy: " ++ show res ++
-        "\nShapes: " ++ show (o1, o2)) res
+  let res = abs $ distsq (getX o1, getY o1) (getX o2, getY o2) - offset ^ 2 in
+  -- trace ("\n\nEnergy: " ++ show res ++
+  --       "\nShapes: " ++ show (o1, o2)) res
+  res
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
   let center = (getX img, getY img)
       offset = (xoff, yoff)
@@ -1712,7 +1713,7 @@ topRightOf [GPI l@("Text", _), GPI s@("Square", _)] =
 topRightOf [GPI l@("Text", _), GPI s@("Rectangle", _)] =
   dist
     (getX l, getY l)
-    (getX s + 0.5 * getNum s "sizeX", getY s + 0.5 * getNum s "sizeY")
+    (getX s + 0.5 * getNum s "w", getY s + 0.5 * getNum s "h")
 
 topLeftOf :: ObjFn
 topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] =
@@ -1722,7 +1723,7 @@ topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] =
 topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] =
   dist
     (getX l, getY l)
-    (getX s - 0.5 * getNum s "sizeX", getY s - 0.5 * getNum s "sizeY")
+    (getX s - 0.5 * getNum s "w", getY s - 0.5 * getNum s "h")
 
 nearHead :: ObjFn
 nearHead [GPI l, GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
@@ -1804,7 +1805,7 @@ contains [GPI outc@("Circle", _), GPI inc@("Circle", _), Val (FloatV padding)] =
   (getNum outc "r" - padding - getNum inc "r")
 contains [GPI c@("Circle", _), GPI rect@("Rectangle", _)] =
   let (x, y, w, h) =
-        (getX rect, getY rect, getNum rect "sizeX", getNum rect "sizeY")
+        (getX rect, getY rect, getNum rect "w", getNum rect "h")
       [x0, x1, y0, y1] = [x - w / 2, x + w / 2, y - h / 2, y + h / 2]
       pts = [(x0, y0), (x0, y1), (x1, y0), (x1, y1)]
       (cx, cy, radius) = (getX c, getY c, getNum c "r")
@@ -1829,7 +1830,7 @@ contains [GPI s@("Square", _), GPI l@("Text", _)] =
 contains [GPI s@("Rectangle", _), GPI l@("Text", _)]
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
  =
-  dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 +
+  dist (getX l, getY l) (getX s, getY s) - getNum s "w" / 2 +
   getNum l "w" / 2
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
   dist (getX outc, getY outc) (getX inc, getY inc) -
@@ -1868,26 +1869,28 @@ contains [GPI sq@("Square", _), GPI ar@("Arrow", _)] =
 contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
       (x, y) = (getX rt, getY rt)
-      (w, h) = (getNum rt "sizeX", getNum rt "sizeY")
+      (w, h) = (getNum rt "w", getNum rt "h")
       (lx, ly) = (x - w / 2, y - h / 2)
       (rx, ry) = (x + w / 2, y + h / 2)
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
      inRange endY ly ry
 contains [GPI rect@("Rectangle", _), GPI img@("Image", _)] =
-  -- TODO: implement precisely, max (w, h)? How about diagonal case?
-  let rect_l = min (getNum rect "sizeX") (getNum rect "sizeY") / 2
-      img_l  = max (getNum img "sizeX") (getNum img "sizeY") / 2
-      diff = rect_l - img_l
-  in dist (getX rect, getY rect) (getNum img "centerX", getNum img "centerY") - diff
+-- NOTE: assume axis-aligned rectangle
+-- TODO: the image can be rotated, take that into account
+    let [(lx, ly), (rx, ry)] = cornerPts rect
+        verts = vertices img
+    in sum $ map (\(x, y) -> inRange x lx rx + inRange y ly ry) verts 
+
 contains [GPI r1@("Rectangle", _), GPI r2@("Rectangle", _)] =
-    -- HACK: reusing test impl, revert later
-    let r1_l = min (getNum r1 "sizeX") (getNum r1 "sizeY") / 2
-        r2_l = max (getNum r2 "sizeX") (getNum r2 "sizeY") / 2
-        diff = r1_l - r2_l
-    in dist (getX r1, getY r1) (getX r2, getY r2) - diff
+-- NOTE: assume axis-aligned containing rectangle
+    let [(lx1, ly1), (rx1, ry1)] = cornerPts r1
+        [(lx2, ly2), (rx2, ry2)] = cornerPts r2
+    in inRange lx2 lx1 rx1 + inRange ly2 ly1 ry1 + inRange rx1 lx2 rx2 + inRange ry2 ly1 ry1
+
 contains [GPI r@("Rectangle", _), GPI c@("Circle", _)] =
+-- NOTE: assume axis-aligned rectangle
     -- HACK: reusing test impl, revert later
-    let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+    let r_l = min (getNum r "w") (getNum r "h") / 2
         diff = r_l - getNum c "r"
     in dist (getX r, getY r) (getX c, getY c) - diff
 
@@ -1912,6 +1915,25 @@ inRange a l r
   | a < l = (a - l) ^ 2
   | a > r = (a - r) ^ 2
   | otherwise = 0
+
+-- Helper for getting the lower-left and upper-right corner points of rectangular shapes (e.g. Rectangle and Image)
+cornerPts rt = 
+  let (x, y) = (getX rt, getY rt)
+      (w, h) = (getNum rt "w", getNum rt "h")
+  in [(x - w / 2, y - h / 2), (x + w / 2, y + h / 2)]
+
+vertices rt = 
+  let r = radians $ getNum rt "rotation" 
+      (dx, dy) = (getNum rt "w" / 2, getNum rt "h"/ 2)
+      corners = [(cx - dx, cy - dy), (cx - dx, cy + dy), (cx + dx, cy - dy), (cx + dx, cy + dy)]
+  in map (rotate r . toOrigin) corners
+  where 
+    (cx, cy) = (getX rt, getY rt)
+    toOrigin (x, y) = (x - cx, y - cy)
+    rotate theta (x, y) = 
+      let x' = x * cos theta - y * sin theta
+          y' = x * sin theta + y * cos theta
+      in (x' + cx, y' + cy)
 
 inRange'' :: (Autofloat a) => a -> a -> a -> a
 inRange'' v left right
@@ -1970,7 +1992,7 @@ limit = max canvasWidth canvasHeight
 maxSize [GPI c@("Circle", _)] = getNum c "r" - r2f (limit / 6)
 maxSize [GPI s@("Square", _)] = getNum s "side" - r2f (limit / 3)
 maxSize [GPI r@("Rectangle", _)] =
-  let max_side = max (getNum r "sizeX") (getNum r "sizeY")
+  let max_side = max (getNum r "w") (getNum r "h")
   in max_side - r2f (limit / 3)
 maxSize [GPI im@("Image", _)] =
   let max_side = max (getNum im "w") (getNum im "h")
@@ -1984,7 +2006,7 @@ minSize :: ConstrFn
 minSize [GPI c@("Circle", _)] = 20 - getNum c "r"
 minSize [GPI s@("Square", _)] = 20 - getNum s "side"
 minSize [GPI r@("Rectangle", _)] =
-  let min_side = min (getNum r "sizeX") (getNum r "sizeY")
+  let min_side = min (getNum r "w") (getNum r "h")
   in 20 - min_side
 minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "rx") (getNum e "ry")
 minSize [GPI g] =
@@ -2066,31 +2088,31 @@ disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offs
     -- Arbitrarily using x size
  =
   noIntersectOffset
-    [ [getX xset, getY xset, 0.5 * getNum xset "sizeX"]
-    , [getX yset, getY yset, 0.5 * getNum yset "sizeX"]
+    [ [getX xset, getY xset, 0.5 * getNum xset "w"]
+    , [getX yset, getY yset, 0.5 * getNum yset "w"]
     ]
     offset
 disjoint [GPI xset@("Image", _), GPI yset@("Image", _), Val (FloatV offset)]
     -- Arbitrarily using x size
  =
   noIntersectOffset
-    [ [getX xset, getY xset, 0.5 * getNum xset "lengthX"]
-    , [getX yset, getY yset, 0.5 * getNum yset "lengthX"]
+    [ [getX xset, getY xset, 0.5 * getNum xset "w"]
+    , [getX yset, getY yset, 0.5 * getNum yset "w"]
     ]
     offset
 disjoint [GPI xset@("Image", _), GPI yset@("Rectangle", _), Val (FloatV offset)]
     -- Arbitrarily using x size
  =
   noIntersectOffset
-    [ [getX xset, getY xset, 0.5 * getNum xset "lengthX"]
-    , [getX yset, getY yset, 0.5 * getNum yset "sizeX"]
+    [ [getX xset, getY xset, 0.5 * getNum xset "w"]
+    , [getX yset, getY yset, 0.5 * getNum yset "w"]
     ]
     offset
 disjoint [GPI xset@("Image", _), GPI yset@("Circle", _), Val (FloatV offset)]
     -- Arbitrarily using x size
  =
   noIntersectOffset
-    [ [getX xset, getY xset, 0.5 * getNum xset "lengthX"]
+    [ [getX xset, getY xset, 0.5 * getNum xset "w"]
     , [getX yset, getY yset, 0.5 * getNum yset "r"]
     ]
     offset
@@ -2108,7 +2130,7 @@ disjoint [GPI box@("Rectangle", _), GPI seg, Val (FloatV offset)] =
     let center = (getX box, getY box)
         (v, w) = (getPoint "start" seg, getPoint "end" seg)
         cp = closestpt_pt_seg center (v, w)
-        len_approx = getNum box "sizeX" / 2.0 -- TODO make this more exact
+        len_approx = getNum box "w" / 2.0 -- TODO make this more exact
   in -(dist center cp) + len_approx + offset
   else error "expected the second GPI to be linelike in `disjoint`"
 
@@ -2119,7 +2141,7 @@ disjoint [GPI box@("Image", _), GPI seg, Val (FloatV offset)] =
     let center = (getX box, getY box)
         (v, w) = (getPoint "start" seg, getPoint "end" seg)
         cp = closestpt_pt_seg center (v, w)
-        len_approx = max (getNum box "lengthX") (getNum box "lengthY") / 2.0 -- TODO make this more exact
+        len_approx = max (getNum box "w") (getNum box "h") / 2.0 -- TODO make this more exact
   in -(dist center cp) + len_approx + offset
   else error "expected the second GPI to be linelike in `disjoint`"
 
@@ -2170,7 +2192,7 @@ noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset =
 pointOn :: ConstrFn
 pointOn [Val (FloatV px), Val (FloatV py), GPI rect@("Rectangle", _), Val (FloatV offset)] =
     -- NOTE: assumes axis-aligned rectangles
-    let [w, h, x, y] = map (getNum rect) ["sizeX", "sizeY", "x", "y"]
+    let [w, h, x, y] = map (getNum rect) ["w", "h", "x", "y"]
         dx = abs (px - x) - w / 2 + offset
         dy = abs (py - y) - h / 2 + offset
     in if dx == 0 || dy == 0 then 0 else sqrt $ (max dx dy) ^ 2

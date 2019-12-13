@@ -1,15 +1,15 @@
-plugin "regexExpander" (200.0, 200.0)
+plugin "regexExpander" (400.0, 230.0)
 
 global { 
     global.padding = 5.0 
-    global.CANVAS_WIDTH = 200.0
-    global.CANVAS_HEIGHT = 200.0
+    global.CANVAS_WIDTH = 400.0
+    global.CANVAS_HEIGHT = 230.0
 
     global.container = Rectangle {
         x : ?
         y : ?
-        sizeX : global.CANVAS_WIDTH
-        sizeY : global.CANVAS_HEIGHT
+        w : global.CANVAS_WIDTH
+        h : global.CANVAS_HEIGHT
         color   : Colors.none
         strokeColor : Colors.black
         strokeWidth : 1.5
@@ -43,7 +43,8 @@ Colors {
 }
 
 PathType t {
-    t.color = randomColor()
+    -- t.color = randomColor()
+    t.color = Colors.orange
 }
 
 DiffuseObject d {
@@ -54,8 +55,8 @@ DiffuseObject d {
         strokeWidth : 1.5
         x : global.container.x
         y : global.container.y
-        sizeX : global.container.sizeX
-        sizeY : global.container.sizeY
+        w : global.container.w
+        h : global.container.h
     }
     d.layering = d.shape above s.container
 }
@@ -65,12 +66,10 @@ SpecularObject o
 {
     -- create mirror shape and put it in scene
     o.shape = Image {
-        lengthX : 100.0
-        lengthY : 10.0
-        sizeX : o.shape.lengthX
-        sizeY : o.shape.lengthY
+        w : 100.0
+        h : 10.0
         path  : "mirror.svg"
-        x: o.shape.centerX
+        x: o.shape.x
         y: o.shape.centerY
     }
 }
@@ -82,15 +81,10 @@ LightSource l {
         -- strokeWidth : 0.0
     -- }
     l.shape = Image {
-        lengthX : 40.0
-        lengthY : 40.0
-        r : max(l.shape.lengthX, l.shape.lengthY) / 2.0
+        w : 40.0
+        h : 40.0
+        r : max(l.shape.w, l.shape.h) / 2.0
         path  : "sun.svg"
-        x: l.shape.centerX
-        y: l.shape.centerY
-        -- HACK: who's looking for sizeX and sizeY, and the length* naming convention is weird
-        sizeX: l.shape.lengthX
-        sizeY: l.shape.lengthY
     }
     l.text = Text {
         x : l.shape.x
@@ -103,22 +97,17 @@ LightSource l {
 
 Camera c {
     c.shape = Image {
-        lengthX : 20.0
-        lengthY : 20.0
-        r : max(c.shape.lengthX, c.shape.lengthY) / 2.0
+        w : 20.0
+        h : 20.0
+        r : max(c.shape.w, c.shape.h) / 2.0
         path  : "eye.svg"
-        x: c.shape.centerX
-        y: c.shape.centerY
-        -- HACK: who's looking for sizeX and sizeY, and the length* naming convention is weird
-        sizeX: c.shape.lengthX
-        sizeY: c.shape.lengthY
     }
     c.text = Text {
         string : "E"
         color : Colors.black
     }
     c.textLayering = c.text above c.shape
-    c.positionFn = encourage near(c.shape, c.text, 0.0, 20.0)
+    c.positionFn = encourage near(c.shape, c.text, c.shape.r + c.shape.w / 2.0)
 }
 
 -- applies to all scene geometries
@@ -196,32 +185,33 @@ with PathVertex v1, v2, v3;
      SpecularObject o
 {
     LOCAL.mirrorPadding = 1.0
-    LOCAL.horizontalShift = sampleReal(o.shape.lengthX / -2.0 + 20.0, o.shape.lengthX / 2.0 - 20.0)
+    LOCAL.horizontalShift = sampleReal(o.shape.w / -2.0 + 20.0, o.shape.w / 2.0 - 20.0)
     override o.shape.rotation = mirrorAngle(e1.shape, e2.shape)
-    override o.shape.centerX = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / 2.0 + LOCAL.mirrorPadding, LOCAL.horizontalShift)
-    override o.shape.centerY = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.lengthY / 2.0 + LOCAL.mirrorPadding, LOCAL.horizontalShift)
+    override o.shape.x = mirrorPosX(e1.shape, e2.shape, v2.x, v2.y, o.shape.h / 2.0 + LOCAL.mirrorPadding, LOCAL.horizontalShift)
+    override o.shape.centerY = mirrorPosY(e1.shape, e2.shape, v2.x, v2.y, o.shape.h / 2.0 + LOCAL.mirrorPadding, LOCAL.horizontalShift)
 }
 
 PathEdge e; SpecularObject o {
      -- ray should not intersect scene geometry
-     LOCAL.disjointFn = ensure disjoint(o.shape, e.shape, 10.0)
+     LOCAL.disjointFn = ensure disjoint(o.shape, e.shape, 5.0)
 }
 PathEdge e; LightSource l {
-     LOCAL.disjointFn = ensure disjoint(l.shape, e.shape, 10.0)
+     LOCAL.disjointFn = ensure disjoint(l.shape, e.shape, 5.0)
 }
 PathEdge e; Camera c {
-     LOCAL.disjointFn = ensure disjoint(c.shape, e.shape, 10.0)
-     LOCAL.disjointFn = ensure disjoint(c.text, e.shape, 10.0)
+     -- LOCAL.disjointFn = ensure disjoint(c.shape, e.shape, 5.0)
+     -- LOCAL.disjointFn = ensure disjoint(c.text, e.shape, 5.0)
 }
 
 -- No two specular objects should overlap
 SpecularObject o1; SpecularObject o2 {
     LOCAL.disjointFn = ensure disjoint(o1.shape, o2.shape, 10.0)
+    -- LOCAL.repelFn = encourage repel(o1.shape, o2.shape, 0.001)
 }
 
 -- No two specular objects should overlap
 Camera c; LightSource l {
-    LOCAL.repelFn = encourage repel(c.shape, l.shape, 0.1)
+    -- LOCAL.repelFn = encourage repel(c.shape, l.shape, 0.001)
 }
 
 
