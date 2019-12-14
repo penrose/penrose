@@ -62,7 +62,7 @@ class App extends React.Component<any, IState> {
     this.protocol.sendPacket(Step(1, this.state.data));
   };
   public resample = async () => {
-      const NUM_SAMPLES = 50;
+    const NUM_SAMPLES = 50;
     await this.setState({ processedInitial: false });
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };
@@ -99,7 +99,7 @@ class App extends React.Component<any, IState> {
   public render() {
     const { data, layers, autostep, penroseVersion } = this.state;
     return (
-      <div className="App">
+      <div className="App" style={{ height: "100vh" }}>
         <ButtonBar
           downloadPDF={this.downloadPDF}
           downloadSVG={this.downloadSVG}

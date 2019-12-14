@@ -1,6 +1,6 @@
 PathType t1, t2
-HasForm(t1, "L(D|S)SE")
-HasForm(t2, "LSDE")
+HasForm(t1, "L(D|S)*S*E")
+HasForm(t2, "LS*DE")
 Path p1, p2
 p1 := Sample(t1)
 p2 := Sample(t2)

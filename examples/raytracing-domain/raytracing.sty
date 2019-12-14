@@ -1,23 +1,20 @@
-plugin "regexExpander" (400.0, 230.0)
+plugin "regexExpander" (340.0, 200.0)
 
 global { 
     global.padding = 5.0 
-    global.CANVAS_WIDTH = 400.0
-    global.CANVAS_HEIGHT = 230.0
+    global.CANVAS_WIDTH = 340.0
+    global.CANVAS_HEIGHT = 200.0
 
     global.container = Rectangle {
-        x : ?
-        y : ?
+        x : 0.0
+        y : 0.0
         w : global.CANVAS_WIDTH
         h : global.CANVAS_HEIGHT
         color   : Colors.none
         strokeColor : Colors.black
         strokeWidth : 1.5
     }
-    global.minSizeFn = ensure minSize(global.container)
-    global.maxSizeFn = ensure maxSize(global.container)
 }
-
 
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
@@ -108,6 +105,7 @@ Camera c {
     }
     c.textLayering = c.text above c.shape
     c.positionFn = encourage near(c.shape, c.text, c.shape.r + c.shape.w / 2.0)
+    c.containsFn = ensure contains(global.container, c.text)
 }
 
 -- applies to all scene geometries
@@ -199,19 +197,19 @@ PathEdge e; LightSource l {
      LOCAL.disjointFn = ensure disjoint(l.shape, e.shape, 5.0)
 }
 PathEdge e; Camera c {
-     -- LOCAL.disjointFn = ensure disjoint(c.shape, e.shape, 5.0)
-     -- LOCAL.disjointFn = ensure disjoint(c.text, e.shape, 5.0)
+    LOCAL.disjointFn1 = ensure disjoint(c.shape, e.shape, 5.0)
+    LOCAL.disjointFn2 = ensure disjoint(c.text, e.shape, 5.0)
 }
 
 -- No two specular objects should overlap
 SpecularObject o1; SpecularObject o2 {
     LOCAL.disjointFn = ensure disjoint(o1.shape, o2.shape, 10.0)
-    -- LOCAL.repelFn = encourage repel(o1.shape, o2.shape, 0.001)
+    LOCAL.repelFn = encourage repel(o1.shape, o2.shape, 0.001)
 }
 
--- No two specular objects should overlap
+-- the camera and light source should be far away from each other
 Camera c; LightSource l {
-    -- LOCAL.repelFn = encourage repel(c.shape, l.shape, 0.001)
+    LOCAL.repelFn = encourage repel(c.shape, l.shape, 0.1)
 }
 
 
