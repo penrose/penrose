@@ -19,7 +19,7 @@ Disjoint(ACIH, ABC)
 
 Segment AK := Altitude(ABC, CAB)
 -- TODO: now position points K and L.
-Point K := Endpoint(AK) -- TODO: The endpoint of an altitude is pretty clear. The endpoint of a generic segment is not so clear.
+Point K := Endpoint(AK) -- Note: The endpoint of an altitude is pretty clear. The endpoint of a generic segment is not as clear
 Segment DE := MkSegment(D, E)
 Point L
 On(L, DE)
@@ -27,8 +27,8 @@ Segment KL := MkSegment(K, L)
 Perpendicular(KL, DE) -- TODO: Can we state L as a calculation?
 
 -- TODO: put these back in
--- Rectangle BDLK := MkRectangleP(B, D, L, K)
--- Rectangle CKLE := MkRectangleP(C, K, L, E)
+Rectangle BDLK := MkRectangleP(B, D, L, K)
+Rectangle CKLE := MkRectangleP(C, K, L, E)
 
 -- Drop two lines that describe the triangles used to prove area equality between BAGF~BDKL and ACIH~CKLE
 Segment CF := MkSegment(C, F)

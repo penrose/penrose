@@ -36,6 +36,7 @@ Colors {
     Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
 
     Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.mediumgray = rgba(0.5, 0.5, 0.5, 1.0)
     Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
     Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
@@ -52,6 +53,12 @@ Colors {
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+
+    -- Wikipedia palette
+    Colors.opacity = 0.2
+    Colors.lighterred = setOpacity(Colors.red, Colors.opacity)
+    Colors.lighterblue = setOpacity(Colors.blue, Colors.opacity)
+    Colors.lighterwhite = setOpacity(Colors.white, Colors.opacity)
 }
 
 const {
@@ -65,6 +72,8 @@ const {
     const.fontSize = "18pt"
     const.containPadding = 50.0
     const.rayLength = 100.0
+    const.pointSize = 4.0
+    const.pointStroke = 0.0
 
     const.label = "E^2"
     const.text = Text {
@@ -100,9 +109,9 @@ Point p {
        p.shape = Circle {
          x : get(p.vec, 0)
 	 y : get(p.vec, 1)
-         r : 3.0
+         r : const.pointSize
 	 color : Colors.black
-	 strokeWidth : 1.0
+	 strokeWidth : 0.0
 	 strokeColor : Colors.black
        }
 
@@ -130,13 +139,16 @@ where e := MkSegment(p, q)
 with Point p; Point q {
      e.vec = [q.x - p.x, q.y - p.y]
 
+     e.color = Colors.black
+
      e.shape = Line {
      	     startX : p.shape.x
      	     startY : p.shape.y
      	     endX : q.shape.x
      	     endY : q.shape.y
-	     color : Colors.black
+	     color : e.color
 	     thickness : const.strokeWidth
+	     stroke : "none"
      }
 
      e.layering1 = p.shape above e.shape
@@ -144,11 +156,6 @@ with Point p; Point q {
 
      LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, const.repelWeight)
      LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, const.repelWeight)
-
-     -- e.norm = 200.0
-
-     -- TODO: ensure norm > 10.0
-     -- e.normFn = ensure hasNorm(e.vec, 200.0)
 
      e.layering = e.shape above const.plane
 }
@@ -167,11 +174,33 @@ with Triangle t; Angle theta; Point p; Point q; Point r {
      	     endX : get(e.proj_pt, 0)
      	     endY : get(e.proj_pt, 1)
 	     style : "dashed"
-	     color : Colors.black
+	     color : e.color
 	     thickness : const.strokeWidth
+	     stroke : "none"
      }
 
      -- TODO: layering
+}
+
+-- Set the location of an endpoint of an altitude to be the result of the altitude on the edge
+Point p
+with Segment e; Triangle t; Angle theta
+where p := Endpoint(e); e := Altitude(t, theta) {
+
+      override p.x = get(e.proj_pt, 0)
+      override p.y = get(e.proj_pt, 1)
+}
+
+-- Special case for KL
+Point p
+with Segment ba; Segment cp; Point a; Point b; Point c
+where ba := MkSegment(b, a); On(p, ba); cp := MkSegment(c, p); Perpendicular(cp, ba) {
+
+      -- BA is the existing segment; C is an existing point that defines the angle
+      -- p's location is really another altitude of the angle ACB
+      override p.tup = project(a.tup, c.tup, b.tup) 
+      override p.x = get(p.tup, 0)
+      override p.y = get(p.tup, 1)
 }
 
 Triangle t
@@ -199,24 +228,13 @@ with Point p; Point q; Point r; Point s {
 
      R.shape = Curve {
      	     pathData : rectangle(p.x, p.y, q.x, q.y, r.x, r.y, s.x, s.y)
-	     strokeWidth : 0.0
+	     strokeWidth : const.strokeWidth
 	     fill : R.color
 	     color : Colors.black
 	     rotation : 0.0
      }
 
      R.layering = R.shape above const.plane
-
-    -- r.shape = Rectangle {
-    -- 	    angle : ?
-    -- 	    color : Colors.verylightpurple
-    -- 	    strokeColor : Colors.purple3
-    -- 	    strokeWidth : 2.0
-    -- 	    x : ?
-    -- 	    y : ?
-    -- 	    sizeX : ?
-    -- 	    sizeY : ?
-    -- }
 }
 
 -- We don't know if the points in the triangle actually include the points in the square or not
@@ -226,6 +244,8 @@ with Point p; Point q; Point r; Point s {
 -- where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(a, b, c)
 -- with Point p; Point q; Point r; Point s; Triangle T; Point a; Point b; Point c {
 
+-- Need overrides because Square <: Rectangle
+
 Square S
 where S := MkSquareSegP(p, q, r, s)
 with Point p; Point q; Point r; Point s {
@@ -234,14 +254,14 @@ with Point p; Point q; Point r; Point s {
      -- TODO: this should really do that match in Style...
      -- and r,s are the other two points of the square
 
-    S.color = setOpacity(Colors.green, 0.4)
+    override S.color = setOpacity(Colors.green, 0.4)
 
     S.path = squareAt(p.tup, q.tup)
 
-    S.shape = Curve {
+    override S.shape = Curve {
 	    pathData : polygonFromPoints(S.path)
 	    -- Assumes that the last two points are the new corners (r, s) that need to be set
-	    strokeWidth : 0.0
+	    strokeWidth : const.strokeWidth
 	    fill : S.color
 	    color : Colors.black
 	    rotation : 0.0
@@ -255,8 +275,6 @@ with Point p; Point q; Point r; Point s {
     override s.tup = get(S.path, 3)
     override s.x = get(s.tup, 0)
     override s.y = get(s.tup, 1)
-
-    S.layering = S.shape above const.plane
 }
 
 -- These more specific matches are so we can figure out which third point of the triangle to push the square away from
@@ -311,7 +329,7 @@ Angle theta
 where theta := InteriorAngle(q, p, r); Right(theta)
 with Point p; Point q; Point r {
 
-      theta.perpSize = 15.0
+      theta.perpSize = 13.0
 
       override theta.shape = Curve {
       		 pathData : perpPath(q.tup, p.tup, r.tup, theta.perpSize)
@@ -442,13 +460,169 @@ Ray r; Point p {
 }
 
 Segment s; Point p {
+     -- TODO: Maybe the optimization would be faster if I used lines instead of curves for the segments?	
      LOCAL.labelAvoidFn_p = encourage repel(s.shape, p.text, const.repelWeight)
 }
 
 Triangle t; Point p {
-    LOCAL.layering = t.shape below p.shape
+    LOCAL.layering1 = t.shape below p.shape
+    LOCAL.layering2 = t.shape below p.text
+}
+
+Square s; Point p {
+    LOCAL.layering1 = s.shape below p.shape
+    LOCAL.layering2 = s.shape below p.text
+}
+
+Rectangle r; Point p {
+    LOCAL.layering1 = r.shape below p.shape
+    LOCAL.layering2 = r.shape below p.text
+}
+
+Triangle t; Segment e {
+    LOCAL.layering1 = t.shape below e.shape
+}
+
+Square s; Segment e {
+    LOCAL.layering1 = s.shape below e.shape
+}
+
+Rectangle r; Segment e {
+    LOCAL.layering1 = r.shape below e.shape
 }
 
 Triangle t; Angle theta {
 	 LOCAL.layering = theta.shape above t.shape
+}
+
+-- Wikipedia colors and style
+
+const {
+      override const.pointSize = 0.0
+      override const.strokeWidth = 1.5
+      override const.fontSize = "14pt"
+      const.mainFontSize = "18pt"
+      const.secondaryColor = Colors.mediumgray
+}
+
+Point `A` {
+      override `A`.text.fontSize = const.mainFontSize
+}
+
+Point `B` {
+      override `B`.text.fontSize = const.mainFontSize
+}
+
+Point `C` {
+      override `C`.text.fontSize = const.mainFontSize
+}
+
+Segment `AK` {
+	override `AK`.color = const.secondaryColor
+}
+
+Segment `KL` {
+	override `KL`.color = const.secondaryColor
+}
+
+Segment `AD` {
+	override `AD`.color = const.secondaryColor
+}
+
+Segment `CF` {
+	override `CF`.color = const.secondaryColor
+}
+
+Angle `CAB` {
+      override `CAB`.shape.color = const.secondaryColor
+}
+
+Square `BAGF` {
+	  override `BAGF`.color = Colors.lighterred
+}
+
+Square `ACIH` {
+	  override `ACIH`.color = Colors.lighterblue
+}
+
+Square `CBDE` {
+	  override `CBDE`.color = Colors.none
+}
+
+Rectangle `BDLK` {
+	  override `BDLK`.color = Colors.lighterred
+}
+
+Rectangle `CKLE` {
+	  override `CKLE`.color = Colors.lighterblue
+}
+
+Triangle `ABC` {
+	 override `ABC`.color = Colors.lighterwhite
+}
+
+-- Wikipedia colors and style
+
+const {
+      override const.pointSize = 0.0
+      override const.strokeWidth = 1.5
+      override const.fontSize = "14pt"
+      const.mainFontSize = "18pt"
+      const.secondaryColor = Colors.mediumgray
+}
+
+Point `A` {
+      override `A`.text.fontSize = const.mainFontSize
+}
+
+Point `B` {
+      override `B`.text.fontSize = const.mainFontSize
+}
+
+Point `C` {
+      override `C`.text.fontSize = const.mainFontSize
+}
+
+Segment `AK` {
+	override `AK`.color = const.secondaryColor
+}
+
+Segment `KL` {
+	override `KL`.color = const.secondaryColor
+}
+
+Segment `AD` {
+	override `AD`.color = const.secondaryColor
+}
+
+Segment `CF` {
+	override `CF`.color = const.secondaryColor
+}
+
+Angle `CAB` {
+      override `CAB`.shape.color = const.secondaryColor
+}
+
+Square `BAGF` {
+	  override `BAGF`.color = Colors.lighterred
+}
+
+Square `ACIH` {
+	  override `ACIH`.color = Colors.lighterblue
+}
+
+Square `CBDE` {
+	  override `CBDE`.color = Colors.none
+}
+
+Rectangle `BDLK` {
+	  override `BDLK`.color = Colors.lighterred
+}
+
+Rectangle `CKLE` {
+	  override `CKLE`.color = Colors.lighterblue
+}
+
+Triangle `ABC` {
+	 override `ABC`.color = Colors.lighterwhite
 }
