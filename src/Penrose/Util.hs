@@ -495,6 +495,12 @@ proj p q =
   let unit_p = normalize p
   in (q `dotL` unit_p) *. unit_p
 
+-- Project q onto p, without normalization (note the order: NOT p onto q)
+proj2 :: Autofloat a => Pt2 a -> Pt2 a -> Pt2 a
+proj2 p q =
+  let unit_p = normalize' p
+  in (q `dotv` unit_p) *: unit_p
+
 ------- | Hyperbolic geometry
 
 -- Lorenz inner product

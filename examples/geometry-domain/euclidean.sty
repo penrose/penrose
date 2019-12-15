@@ -153,21 +153,25 @@ with Point p; Point q {
      e.layering = e.shape above const.plane
 }
 
-
+-- TODO: Take the altitude at a particular angle that happens to be right
+-- Might not need to specify the angle if we know the triangle's right
 Segment e
-where e := Altitude(t, theta)
-with Triangle t; Angle theta {
-     -- TODO
+where e := Altitude(t, theta); Right(theta); theta := InteriorAngle(q, p, r) -- `p` is the point of the angle
+with Triangle t; Angle theta; Point p; Point q; Point r {
+
+     e.proj_pt = project(q.tup, p.tup, r.tup)
 
      e.shape = Line {
-     	     startX : 0.0
-     	     startY : 0.0
-     	     endX : 100.0
-     	     endY : 100.0
-	     color : Colors.blue
+     	     startX : p.x
+     	     startY : p.y
+     	     endX : get(e.proj_pt, 0)
+     	     endY : get(e.proj_pt, 1)
+	     style : "dashed"
+	     color : Colors.black
 	     thickness : const.strokeWidth
      }
 
+     -- TODO: layering
 }
 
 Triangle t
@@ -242,9 +246,6 @@ with Point p; Point q; Point r; Point s {
 	    color : Colors.black
 	    rotation : 0.0
     }
-
-    override a.shape.color = Colors.blue
-    override b.shape.color = Colors.red
 
     -- Position the points at the corner of the square
     override r.tup = get(S.path, 2)

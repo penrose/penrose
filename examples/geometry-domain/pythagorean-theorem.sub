@@ -17,13 +17,14 @@ Disjoint(ACIH, ABC)
 
 -- Construct two rectangles that split the hypotenuse's area by dropping an altitude from the right angle through to the square
 
-Point K
--- Segment AK := Altitude(ABC, CAB)
-Point L
-Segment KL := MkSegment(K, L)
+Segment AK := Altitude(ABC, CAB)
+-- TODO: now position points K and L.
+Point K := Endpoint(AK) -- TODO: The endpoint of an altitude is pretty clear. The endpoint of a generic segment is not so clear.
 Segment DE := MkSegment(D, E)
+Point L
 On(L, DE)
-Perpendicular(KL, DE)
+Segment KL := MkSegment(K, L)
+Perpendicular(KL, DE) -- TODO: Can we state L as a calculation?
 
 -- TODO: put these back in
 -- Rectangle BDLK := MkRectangleP(B, D, L, K)

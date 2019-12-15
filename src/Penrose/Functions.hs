@@ -145,6 +145,7 @@ compDict =
     , ("squareAt", constComp squareAtFn)
     , ("shared", constComp sharedP)
     , ("angleOf", constComp angleOf)
+    , ("project", constComp projectFn)
     , ("perpX", constComp perpX)
     , ("perpY", constComp perpY)
     , ("perpPath", constComp perpPath)
@@ -900,6 +901,16 @@ sharedP [Val (FloatV a), Val (FloatV b), Val (FloatV c), Val (FloatV d)] =
           []   -> error "no shared points between segments"
           x:xs -> x
   in Val $ FloatV common
+
+-- | Given points (q, p, r) that define a triangle (where `p` is the point of the right angle)
+-- Centered at Q, project QP (the leg) onto QR (the side opposite the right angle) to give the location of the altitude, then decenter from Q
+projectFn :: ConstCompFn
+projectFn [Val (TupV q), Val (TupV p), Val (TupV r)] =
+  let qp = p -: q
+      qr = r -: q
+      altitude = proj2 qr qp
+      res = altitude +: q
+  in Val $ TupV res
 
 angleOf :: ConstCompFn
 angleOf [GPI l@("Line", _), Val (FloatV originX), Val (FloatV originY)] =
