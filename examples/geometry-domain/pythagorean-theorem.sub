@@ -1,40 +1,35 @@
 -- First construct the right triangle
 Point A, B, C
-Triangle ABC := MkTriangleP(A, B, C) 
+Triangle ABC := MkTriangle(A, B, C) 
 Angle CAB := InteriorAngle(C, A, B)
 Right(CAB)
 
 -- And draw the area of each side of the right triangle as a square
 Point D, E, F, G, H, I
--- TODO: MkSquareSegP -> MkSquare
--- NOTE: these variables really need to be in the right order for Style to match...
-Square CBDE := MkSquareSegP(C, B, D, E)
+Square CBDE := MkSquare(C, B, D, E)
 Disjoint(CBDE, ABC)
-Square BAGF := MkSquareSegP(B, A, G, F)
+Square BAGF := MkSquare(B, A, G, F)
 Disjoint(BAGF, ABC)
-Square ACIH := MkSquareSegP(A, C, I, H)
+Square ACIH := MkSquare(A, C, I, H)
 Disjoint(ACIH, ABC)
 
 -- Construct two rectangles that split the hypotenuse's area by dropping an altitude from the right angle through to the square
-
 Segment AK := Altitude(ABC, CAB)
--- TODO: now position points K and L.
-Point K := Endpoint(AK) -- Note: The endpoint of an altitude is pretty clear. The endpoint of a generic segment is not as clear
+Point K := Endpoint(AK)
 Segment DE := MkSegment(D, E)
 Point L
 On(L, DE)
 Segment KL := MkSegment(K, L)
-Perpendicular(KL, DE) -- TODO: Can we state L as a calculation?
+Perpendicular(KL, DE)
 
--- TODO: put these back in
-Rectangle BDLK := MkRectangleP(B, D, L, K)
-Rectangle CKLE := MkRectangleP(C, K, L, E)
+Rectangle BDLK := MkRectangle(B, D, L, K)
+Rectangle CKLE := MkRectangle(C, K, L, E)
 
 -- Drop two lines that describe the triangles used to prove area equality between BAGF~BDKL and ACIH~CKLE
 Segment CF := MkSegment(C, F)
 Segment AD := MkSegment(A, D) 
 
--- These are only present in the Byrne style
+-- These objects are only present in the Byrne style
 Segment AB := MkSegment(A, B)
 Segment BC := MkSegment(B, C)
 Segment CA := MkSegment(C, A)
@@ -46,16 +41,8 @@ Angle CBA := InteriorAngle(C, B, A)
 Angle CBD := InteriorAngle(C, B, D)
 
 -- These are part of the proof, but not shown in the construction
--- Triangle BCF := MkTriangleP(B, C, F)
--- Triangle BDA := MkTriangleP(B, D, A)
+-- Triangle BCF := MkTriangle(B, C, F)
+-- Triangle BDA := MkTriangle(B, D, A)
 -- Angle CAB := InteriorAngle(C, A, B)
-
--- These statements make sure the three squares (CBDE, BAGF, ACIH) are ``outside'' of the triangle
--- Angle CBF := InteriorAngle(C, B, F)
--- Angle BCI := InteriorAngle(B, C, I)
--- Angle DBA := InteriorAngle(D, B, A)
--- Obtuse(CBF)
--- Obtuse(BCI)
--- Obtuse(DBA)
 
 AutoLabel All

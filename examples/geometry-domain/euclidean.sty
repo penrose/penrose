@@ -206,7 +206,7 @@ where ba := MkSegment(b, a); On(p, ba); cp := MkSegment(c, p); Perpendicular(cp,
 }
 
 Triangle t
-where t := MkTriangleP(p, q, r)
+where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
      t.color = setOpacity(Colors.darkpurple, 0.4)
 
@@ -224,7 +224,7 @@ with Point p; Point q; Point r {
 
 -- Should the rectangle be constructed from the points, or vice versa?
 Rectangle R
-where R := MkRectangleP(p, q, r, s) 
+where R := MkRectangle(p, q, r, s) 
 with Point p; Point q; Point r; Point s {
      R.color = setOpacity(Colors.blue, 0.2)
 
@@ -243,13 +243,13 @@ with Point p; Point q; Point r; Point s {
 -- TODO: this doesn't seem to match -- and the matches take way too long!!
 
 -- Square S
--- where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(a, b, c)
+-- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(a, b, c)
 -- with Point p; Point q; Point r; Point s; Triangle T; Point a; Point b; Point c {
 
 -- Need overrides because Square <: Rectangle
 
 Square S
-where S := MkSquareSegP(p, q, r, s)
+where S := MkSquare(p, q, r, s)
 with Point p; Point q; Point r; Point s {
 
      -- Assuming (p,q) are the segment of a triangle
@@ -283,21 +283,21 @@ with Point p; Point q; Point r; Point s {
 -- Note: order of the variables really matters!
 
 Square S
-where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(c, q, p)
+where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(c, q, p)
 with Point p; Point q; Point r; Point s; Triangle T; Point c {
 
     override S.path = squareAt(p.tup, q.tup, c.tup)
 }
 
 Square S
-where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(q, p, c)
+where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(q, p, c)
 with Point p; Point q; Point r; Point s; Triangle T; Point c {
 
     override S.path = squareAt(p.tup, q.tup, c.tup)
 }
 
 Square S
-where S := MkSquareSegP(p, q, r, s); Disjoint(S, T); T := MkTriangleP(p, c, q)
+where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(p, c, q)
 with Point p; Point q; Point r; Point s; Triangle T; Point c {
 
     override S.path = squareAt(p.tup, q.tup, c.tup)

@@ -39,13 +39,13 @@ constructor MkLine : Point p * Point q -> Point
 constructor InteriorAngle : Point p * Point q * Point r -> Angle
 constructor TriangleVertex : Point p * Point q * Point r -> Angle
 
-constructor MkTriangleP : Point p * Point q * Point r -> Triangle
+constructor MkTriangle : Point p * Point q * Point r -> Triangle
 constructor MkTriangleL : Linelike l * Linelike m * Linelike n -> Triangle
 constructor MkCircleR : Point center * Point radius -> Circle
 constructor MkCircleD : Point diam1 * Point diam2 -> Circle
 constructor MkSquareP : Point p * Point q * Point r * Point s -> Square
-constructor MkSquareSegP : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
-constructor MkRectangleP : Point p * Point q * Point r * Point s -> Rectangle
+constructor MkSquare : Point p * Point q * Point r * Point s -> Square -- Assuming the first two points are the segment of a triangle
+constructor MkRectangle : Point p * Point q * Point r * Point s -> Rectangle
 
 -- TODO: subtyping on the return types
 function Midpoint : Linelike -> Point
@@ -70,5 +70,7 @@ predicate Similar : Triangle * Triangle
 predicate Disjoint : Set * Set
 
 notation "{p, q}" ~ "MkSegment(p, q)"
-notation "{p, q, r}" ~ "MkTriangleP(p, q, r)"
+notation "{p, q, r}" ~ "MkTriangle(p, q, r)"
+notation "{p, q, r, s}" ~ "MkRectangle(p, q, r, s)"
+notation "[p, q, r, s]" ~ "MkSquare(p, q, r, s)"
 notation "∠(p, q, r)" ~ "InteriorAngle(p, q, r)"
