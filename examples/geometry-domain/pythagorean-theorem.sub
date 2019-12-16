@@ -34,6 +34,17 @@ Rectangle CKLE := MkRectangleP(C, K, L, E)
 Segment CF := MkSegment(C, F)
 Segment AD := MkSegment(A, D) 
 
+-- These are only present in the Byrne style
+Segment AB := MkSegment(A, B)
+Segment BC := MkSegment(B, C)
+Segment CA := MkSegment(C, A)
+Segment AL := MkSegment(A, L)
+Segment BF := MkSegment(B, F)
+Segment DB := MkSegment(D, B)
+Angle FBA := InteriorAngle(F, B, A)
+Angle CBA := InteriorAngle(C, B, A)
+Angle CBD := InteriorAngle(C, B, D)
+
 -- These are part of the proof, but not shown in the construction
 -- Triangle BCF := MkTriangleP(B, C, F)
 -- Triangle BDA := MkTriangleP(B, D, A)
