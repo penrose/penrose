@@ -52,6 +52,16 @@ predicate DeclaredV: Vertex v
 predicate DeclaredE: Edge e
 predicate DeclaredF: Face f
 
+type Object
+Vertex <: Object
+Edge <: Object
+Face <: Object
+SimplicialSubset <: Object
+SimplicialComplex <: Object
+Subcomplex <: Object
+
+predicate Result: Object o -- The Style only draws objects that are declared as results
+
 -- Syntactic sugar
 notation "Vertex v ∈ K" ~ "Vertex v; InVS(v, K)"
 notation "Edge e ∈ K" ~ "Edge e; InES(e, K)"

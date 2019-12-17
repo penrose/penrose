@@ -1019,6 +1019,11 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConf
    forM_ subss pPrint
    divLine
 
+   let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
+   putStrLn "(Selector * matches for that selector):\n"
+   forM_ (zip selEnvs subss) pPrint
+   divLine
+
    let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals
                        :: Either [Error] (Translation Double)
                        -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)

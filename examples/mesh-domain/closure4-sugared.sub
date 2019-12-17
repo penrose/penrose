@@ -8,6 +8,8 @@ E := Closure(e)
 Subcomplex A ⊆ K
 A := Closure(E)
 
+Result(A)
+
 Label A $\mathrm{Cl}(E)$
 AutoLabel K
 AutoLabel e

@@ -16,20 +16,22 @@ global {
     global.selectedThickness = 3.1
 
     global.selectedColor = Colors.midnightblue
-    global.selectedColor2 = setOpacity(global.selectedColor, 0.25)
+    global.selectedColor2 = Colors.lightslategray
 
-    global.starColor = Colors.midnightblue
-    global.starColor2 = Colors.lightslategray
+    global.starColor = global.selectedColor
+    global.starColor2 = global.selectedColor2
 
-    global.closureColor = Colors.midnightblue
-    global.closureColor2 = Colors.lightslategray
-    global.closureColor3 = Colors.midnightblue
+    global.closureColor = global.selectedColor
+    global.closureColor2 = global.selectedColor2
 
-    global.linkColor = Colors.blue
-    global.linkColor2 = setOpacity(global.linkColor, 0.25)
+    global.linkColor = global.selectedColor
+    global.linkColor2 = global.selectedColor2
 
-    global.boundaryColor = Colors.yellow
-    global.boundaryColor2 = setOpacity(global.boundaryColor, 0.25)
+    global.setminusColor = global.selectedColor
+    global.setminusColor2 = global.selectedColor2
+
+    global.boundaryColor = global.selectedColor
+    global.boundaryColor2 = global.selectedColor2
 
     -- For conversion from math space to screen space
     -- TODO: compute these more automatically
@@ -225,7 +227,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
 
 -- Style and label a distinguished edge
 Edge e
-where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K)
+where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K); Result(e)
 with Vertex v1; Vertex v2; SimplicialComplex K {
      override e.shape.thickness = global.selectedEdgeStroke
 
@@ -297,33 +299,40 @@ with SimplicialComplex K; Edge e; Face f {
 -- (we know it's the same vertex, so we need to write a match that uses the same variable)
 
 Vertex v
-where InVS(v, C); C := Closure(v)
+where InVS(v, C); C := Closure(v); Result(C)
 with Subcomplex C {
      override v.shape.r = global.selectedRadius
-     override v.shape.color = global.closureColor3
+     override v.shape.color = global.closureColor
      -- This is being selected; it's just too dark to tell...
 }
 
 ------------------ Things in a closure of a subset
 
 Vertex v
-where InVS(v, C); C := Closure(S)
+where InVS(v, C); C := Closure(S); Result(C)
 with Subcomplex C; SimplicialSubset S {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.closureColor
 }
 
 Edge e
-where InES(e, C); C := Closure(S)
+where InES(e, C); C := Closure(S); Result(C)
 with Subcomplex C; SimplicialSubset S {
      -- TODO: edge positions might look weird due to layering with faces?
       override e.shape.thickness = global.selectedEdgeStroke
       override e.shape.color = global.closureColor
-      -- override e.shape.color = Colors.red
+}
+
+-- Case when the edge is in its own closure... TODO fix this matching semantics so the variable substitution w/ subtyping works above
+Edge e
+where InES(e, C); C := Closure(e); Result(C)
+with Subcomplex C {
+      override e.shape.thickness = global.selectedEdgeStroke
+      override e.shape.color = global.closureColor
 }
 
 Face f
-where InFS(f, C); C := Closure(S)
+where InFS(f, C); C := Closure(S); Result(C)
 with Subcomplex C; SimplicialSubset S {
       override f.shape.fill = global.closureColor2
       override f.shape.color = global.closureColor2
@@ -332,21 +341,21 @@ with Subcomplex C; SimplicialSubset S {
 ------------------ Things in a subset that result from a star of a subset (vertex or subset)
 
 Vertex v
-where InVS(v, S); S := Star(i); SubsetOf(S, K)
+where InVS(v, S); S := Star(i); SubsetOf(S, K); Result(S)
 with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.starColor
 }
 
 Edge e
-where InES(e, S); S := Star(i); SubsetOf(S, K)
+where InES(e, S); S := Star(i); SubsetOf(S, K); Result(S)
 with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.starColor
 }
 
 Face f
-where InFS(f, S); S := Star(i); SubsetOf(S, K)
+where InFS(f, S); S := Star(i); SubsetOf(S, K); Result(S)
 with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
       override f.shape.fill = global.starColor2
       override f.shape.color = global.starColor2
@@ -355,21 +364,21 @@ with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
 ------------------ Things in a link of a subset
 
 Vertex v
-where InVS(v, S2); S2 := Link(S1)
+where InVS(v, S2); S2 := Link(S1); Result(S2)
 with SimplicialSubset S2; SimplicialSubset S1 {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.linkColor
 }
 
 Edge e
-where InES(e, S2); S2 := Link(S1)
+where InES(e, S2); S2 := Link(S1); Result(S2)
 with SimplicialSubset S2; SimplicialSubset S1 {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.linkColor
 }
 
 Face f
-where InFS(f, S2); S2 := Link(S1)
+where InFS(f, S2); S2 := Link(S1); Result(S2)
 with SimplicialSubset S2; SimplicialSubset S1 {
       override f.shape.fill = global.linkColor2
       override f.shape.color = global.linkColor2
@@ -378,44 +387,44 @@ with SimplicialSubset S2; SimplicialSubset S1 {
 ------------------ Things in setminus of two subsets
 
 Vertex v
-where InVS(v, S3); S3 := SetMinus(S1, S2)
+where InVS(v, S3); S3 := SetMinus(S1, S2); Result(S3)
 with SimplicialSubset S3; SimplicialSubset S2; SimplicialSubset S1 {
      override v.shape.r = global.selectedRadius
-     override v.shape.color = global.linkColor
+     override v.shape.color = global.setminusColor
 }
 
 Edge e
-where InES(e, S3); S3 := SetMinus(S1, S2)
+where InES(e, S3); S3 := SetMinus(S1, S2); Result(S3)
 with SimplicialSubset S3; SimplicialSubset S2; SimplicialSubset S1 {
       override e.shape.thickness = global.selectedThickness
-      override e.shape.color = global.linkColor
+      override e.shape.color = global.setminusColor
 }
 
 Face f
-where InFS(f, S3); S3 := SetMinus(S1, S2)
+where InFS(f, S3); S3 := SetMinus(S1, S2); Result(S3)
 with SimplicialSubset S3; SimplicialSubset S2; SimplicialSubset S1 {
-      override f.shape.fill = global.linkColor2
-      override f.shape.color = global.linkColor2
+      override f.shape.fill = global.setminusColor2
+      override f.shape.color = global.setminusColor2
 }
 
 ------------------ Things in boundary of a subcomplex
 
 Vertex v
-where InVS(v, S); S := Boundary(C)
+where InVS(v, S); S := Boundary(C); Result(S)
 with SimplicialSubset S; SimplicialComplex C {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.boundaryColor
 }
 
 Edge e
-where InES(e, S); S := Boundary(C)
+where InES(e, S); S := Boundary(C); Result(S)
 with SimplicialSubset S; SimplicialComplex C {
       override e.shape.thickness = global.selectedThickness
       override e.shape.color = global.boundaryColor
 }
 
 Face f
-where InFS(f, S); S := Boundary(C)
+where InFS(f, S); S := Boundary(C); Result(S)
 with SimplicialSubset S; SimplicialComplex C {
       override f.shape.fill = global.boundaryColor2
       override f.shape.color = global.boundaryColor2
@@ -438,7 +447,7 @@ with SimplicialComplex K {
 -- Label the closure of a star
 
 Subcomplex C
-where C := Closure(S); SubsetOf(S, K); S := Star(i)
+where C := Closure(S); SubsetOf(S, K); S := Star(i); Result(C)
 with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
 
        override K.const_text.string = C.label
@@ -462,7 +471,7 @@ with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
 -- Label setminus
 
 SimplicialSubset S
-where S := SetMinus(T, Q); SubsetOf(S, K)
+where S := SetMinus(T, Q); SubsetOf(S, K); Result(S)
 with SimplicialSubset T; SimplicialSubset Q; SimplicialComplex K {
      override K.const_text.string = S.label
 }

@@ -8,6 +8,8 @@ E := Closure(e)
 SimplicialSubset S1 ⊆ K
 S1 := Link(E)
 
+Result(S1)
+
 AutoLabel e
 AutoLabel E
 Label S1 $\mathrm{Lk}(E)$

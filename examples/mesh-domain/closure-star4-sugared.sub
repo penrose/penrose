@@ -11,6 +11,8 @@ S1 := Star(E)
 Subcomplex A ⊆ K
 A := Closure(S1)
 
+Result(A)
+
 Label A $\mathrm{Cl}(\mathrm{St}(E))$
 AutoLabel E
 AutoLabel e

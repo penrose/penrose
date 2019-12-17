@@ -5,6 +5,8 @@ Edge e ∈ K
 Subcomplex E ⊆ K
 E := Closure(e)
 
+Result(E)
+
 AutoLabel E
 AutoLabel e
 AutoLabel K

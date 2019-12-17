@@ -247,13 +247,13 @@ function doClosureV(stmt, nameMappings, argObj, scObj) {
     let selectedSimplices = new MeshSubset();
     addPrimitiveToSubset(selectedSimplices, argObj);
 
-    let link_ms = SCO.closure(selectedSimplices);
+    let closure_res = SCO.closure(selectedSimplices);
 
     return { type: 'MeshSubset',
 	     name: subsetName,
 	     scName: cname,
 	     sc: SCO,
-	     meshSubset: link_ms
+	     meshSubset: closure_res
 	   };
 }
 
