@@ -1,18 +1,14 @@
 SimplicialComplex K
 
-Edge e
-InES(e, K)
+Edge e ∈ K
 
-Subcomplex E
-SubsetOf(E, K)
+Subcomplex E ⊆ K
 E := Closure(e)
 
-Subcomplex A
-SubsetOf(A, K)
+Subcomplex A ⊆ K
 A := Closure(E)
 
-SimplicialSubset S1
-SubsetOf(S1, K)
+SimplicialSubset S1 ⊆ K
 S1 := Star(A)
 
 Label A $\mathrm{Cl}(E)$

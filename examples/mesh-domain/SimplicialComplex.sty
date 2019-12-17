@@ -71,15 +71,22 @@ Colors {
 
 -- TODO: this is going to match Subcomplex too... how to fix that?
 SimplicialComplex K {
-       K.x_offset = ?
-       K.y_offset = ?
-       K.size = 200.0
+       -- No longer necessary, as box size is being computed
+       -- K.x_offset = ?
+       -- K.y_offset = ?
+
+       -- Plugin computes mesh's bbox center and dimensions; Style scales it and adds padding
+       K.box_padding = 50.0
+       K.center_x = ddg[K.name]["center_x"] * global.scaleFactor
+       K.center_y = ddg[K.name]["center_y"] * global.scaleFactor
+       K.size_x = ddg[K.name]["size_x"] * global.scaleFactor + K.box_padding
+       K.size_y = ddg[K.name]["size_y"] * global.scaleFactor + K.box_padding
 
        K.shape = Rectangle {
-       	       x : 0.0
-	       y : 0.0
-	       sizeX : K.size
-	       sizeY : K.size
+       	       x : K.center_x
+	       y : K.center_y
+	       sizeX : K.size_x
+	       sizeY : K.size_y
 	       rotation : 0.0
 	       color : Colors.gainsboro
 	       strokeColor : Colors.black
@@ -101,10 +108,11 @@ SimplicialComplex K {
        K.layerTextFn = K.text above K.shape
 
        -- Expression label
+       K.expr_padding = 25.0
 
        K.const_text = Text {
        	 x : K.shape.x 
-       	 y : K.shape.y - (K.size / 2.0) - 20.0
+       	 y : K.shape.y - (K.size_y / 2.0) - K.expr_padding
        	 string : "\\text{ }"
        	 rotation : 0.0
        	 color : global.starColor
@@ -420,10 +428,11 @@ with SimplicialSubset S; SimplicialComplex C {
 Vertex v
 where InVS(v, K)
 with SimplicialComplex K {
-     override v.shape.x = v.xpos + K.x_offset
-     override v.shape.y = v.ypos + K.y_offset
+     -- No longer necessary, as box size is being computed
+     -- override v.shape.x = v.xpos + K.x_offset
+     -- override v.shape.y = v.ypos + K.y_offset
 
-     v.inSCFn = ensure contains(v.shape, K.shape)
+     -- v.inSCFn = ensure contains(v.shape, K.shape)
 }
 
 -- Label the closure of a star

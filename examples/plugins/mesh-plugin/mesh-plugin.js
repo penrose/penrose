@@ -1,5 +1,6 @@
 const pointRange = [-1, 1]; // Range to sample mesh points from (geometry)
-const numPointsRange = [7, 11];
+const numPointsRange = [7, 11]; // This is the right range
+// const numPointsRange = [5, 8]; // Just for testing with fewer vertices
 
 /* This is a plugin for the mesh domain, meant to be used with mesh-domain/mesh.dsl and mesh-domain/SimplicialComplex.sty.
 
@@ -19,9 +20,9 @@ Then, it performs simplicial complex operations by calling the corresponding fun
 
 Then, with all the objects that have been made, the plugin outputs Substance code for the meshes and subsets. This is done in `makeProg`. For a simplicial complex, for each vertex, edge, and face in it, it outputs a declaration, In statement, and labeling statement. (It has to build simple connectivity info to create the edge and face value constructors.) For a mesh subset, it outputs In statements for each vertex, edge, and face in it. All statements are output with respect to any names bound in Substance, if they exist, by substituting them for generated names.
 
-Finally, it makes a JSON file for Style that contains the vertex positions of each mesh. This is done in `makeSty`. Note that it builds the geometry of the mesh here by calling geometry-processing-js. (It samples a random mesh, runs a Delaunay triangulation on it, and optimizes it so the triangles are near equilateral.) It also ignores any z-positions of the vertices. 
+Finally, it makes a JSON file for Style that contains the vertex positions of each mesh. This is done in `makeSty`. Note that it builds the geometry of the mesh here by calling geometry-processing-js. (It samples a random mesh, runs a Delaunay triangulation on it, and optimizes it so the triangles are near equilateral.) It also ignores any z-positions of the vertices. The plugin also computes the mesh's bbox center and dimensions and includes it in the json for Style to use.
 
-Some parts are unfinished and the plugin hasn't been completely tested over general Substance programs. See the PR for further documentation. */
+The plugin is reasonably general over subtyping, etc. but it hasn't been completely tested over general Substance programs. See the PR for further documentation. */
 
 const Fs = require('fs');
 const _ = require('lodash');
@@ -57,6 +58,14 @@ var seed0; // MUTABLE: gets set by random seed from Style and is reused in rand-
 var prg; // MUTABLE (used in lieu of Math.Random which is globally set in rand-mesh, so we can control both the vertex selection and the number of them)
 
 const crash = () => { console.log("crashing"); console.log(null[0]); }
+
+const bbox1D = (l) => {
+    let max = Math.max(...l);
+    let min = Math.min(...l);
+    let size = max - min;
+    let center = (max + min) / 2.0;
+    return {max, min, size, center};
+}
 
 const isInPred = s => s === "InVS" || s === "InES" || s === "InFS";
 // doesn't check that the type matches pred type--presumably the substance typechecker dealt with that
@@ -749,8 +758,9 @@ function makeSty(objs, plugin2sub) {
 	// Optimize the vertex positions of the mesh so each triangle looks close to equilateral.
 	console.log("sending mesh to be optimized");
 	let optimizedPositions = OptMesh.optimizeMesh(mesh, geometry, positions);
-	    console.log("optimized positions", optimizedPositions);
+	console.log("optimized positions", optimizedPositions);
 
+	// Insert vertex positions into json
 	for (let v of mesh.vertices) {
 	    let vi = v.index;
 	    let vname = substitute(plugin2sub, objName(cname, vtype, vi));
@@ -767,6 +777,31 @@ function makeSty(objs, plugin2sub) {
 	    local_json["nameVals"] = local_positions;
 	    vals.push(local_json);
 	}
+
+	// Insert mesh bbox center and dimensions into json
+	let points = Object.values(optimizedPositions).map(v => [v.x, v.y]);
+	let xs = points.map(p => p[0]);
+	let ys = points.map(p => p[1]);
+
+	// Calculate the bbox
+	let xs_info = bbox1D(xs);
+	let ys_info = bbox1D(ys);
+	console.log("bbox info", xs_info, ys_info);
+
+	// Put it in the right output format
+	let center_x_json = { propertyName: "center_x",
+			      propertyVal: xs_info.center };
+	let center_y_json = { propertyName: "center_y",
+			      propertyVal: ys_info.center };
+	let size_x_json = { propertyName: "size_x",
+			      propertyVal: xs_info.size };
+	let size_y_json = { propertyName: "size_y",
+			      propertyVal: ys_info.size };
+	let bbox_json = [center_x_json, center_y_json, size_x_json, size_y_json];
+	let bbox_json_container = {};
+	bbox_json_container["subName"] = cname;
+	bbox_json_container["nameVals"] = bbox_json;
+	vals.push(bbox_json_container);
     }
 
     return JSON.stringify(vals);

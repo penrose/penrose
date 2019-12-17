@@ -1,0 +1,10 @@
+SimplicialComplex K
+
+Edge e ∈ K
+
+Subcomplex E ⊆ K
+E := Closure(e)
+
+AutoLabel E
+AutoLabel e
+AutoLabel K
