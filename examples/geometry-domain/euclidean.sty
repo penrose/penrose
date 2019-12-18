@@ -605,10 +605,15 @@ const {
       const.black = Colors.black
       const.lightyellow = rgba(0.992, 0.957, 0.855, 1.0)
 
+      -- TODO: can't use the generic list type. (Need to change how lists are evaluated into values in evalExpr.) Instead, need to use a special Palette constructor so the backend knows that this is a list of colors
+      -- const.palette = [const.red, const.blue, const.yellow, const.black]
+      const.palette = makePalette(const.red, const.blue, const.yellow)
+
       override const.plane.color = const.lightyellow
       override const.plane.strokeWidth = 0.0
       override const.text.string = "\\textrm{ }"
       override const.plane.sizeY = const.dim + 50.0
+      override const.arrowheadSize = 0.5
 }
 
 -- No labels!!!
@@ -625,170 +630,223 @@ Point p {
       -- TODO: how to delete all the other objfns about the labels...?
 }
 
-Point `A` {
-      override `A`.text.fontSize = const.mainFontSize
+-- Generic Byrne style
+Segment s {
+	override s.color = const.secondaryColor
+	override s.shape.thickness = const.secondaryStrokeWidth
 }
 
-Point `B` {
-      override `B`.text.fontSize = const.mainFontSize
+Triangle t {
+	 -- override t.color = const.red -- TODO: choose randomly
+	 override t.color = sampleUniform(const.palette)
+
 }
 
-Point `C` {
-      override `C`.text.fontSize = const.mainFontSize
+Angle theta {
+      -- override theta.shape.fill = const.yellow -- TODO: choose randomly
+	 override theta.shape.fill = sampleUniform(const.palette)
 }
 
--- Since AL is dashed, we just draw AL and not AK and KL (since the dashes won't line up)
-Segment `AK` {
-	override `AK`.color = Colors.none
-	override `AK`.shape.thickness = const.secondaryStrokeWidth
-}
+-- Revert the perpmark back to the wedge...
+Ray r
+with Linelike s; Point m
+where r := PerpendicularBisector(s); m := Midpoint(s) {
+     r.theta_radius = const.thetaRadius
+     -- r.theta_arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, r.theta_radius)
+     r.theta_arcPath = arcPathEuclidean([r.shape.startX, r.shape.startY], [r.shape.endX, r.shape.endY], [s.shape.startX, s.shape.startY], r.theta_radius)
 
-Segment `KL` {
-	override `KL`.color = Colors.none
-	override `KL`.shape.thickness = const.secondaryStrokeWidth
-	override `KL`.shape.style = "dashed"
-}
-
-Segment `AD` {
-	override `AD`.color = const.secondaryColor
-	override `AD`.shape.thickness = const.secondaryStrokeWidth
-}
-
-Segment `CF` {
-	override `CF`.color = const.secondaryColor
-	override `CF`.shape.thickness = const.secondaryStrokeWidth
-}
-
-Segment `AB` {
-	override `AB`.color = const.blue
-	override `AB`.shape.thickness = const.secondaryStrokeWidth
-}
-
-Segment `BC` {
-	override `BC`.color = const.red
-	override `BC`.shape.thickness = const.secondaryStrokeWidth
-}
-
-Segment `CA` {
-	override `CA`.color = const.yellow
-	override `CA`.shape.thickness = const.secondaryStrokeWidth
-}
-
-Segment `DB` {
-	override `DB`.color = const.red
-	override `DB`.shape.thickness = const.secondaryStrokeWidth
-	override `DB`.shape.style = "dashed"
-
-     `DB`.shape2 = Line {
-     	     startX : `DB`.shape.startX
-     	     startY : `DB`.shape.startY
-     	     endX : `DB`.shape.endX
-     	     endY : `DB`.shape.endY
-	     color : const.lightyellow
-	     thickness : const.secondaryStrokeWidth
-	     stroke : "none"
+     override r.perpMark = Curve {
+     		 pathData : polygonFromPoints(r.theta_arcPath)
+		 strokeWidth : const.strokeWidth
+		 color : Colors.none
+		 fill : sampleUniform(const.palette)
      }
-
-     `DB`.linesLayering1 = `DB`.shape above `DB`.shape2
-     `DB`.linesLayering2 = `DB`.shape2 above const.plane
 }
 
-Segment `BF` {
-	override `BF`.color = const.blue
-	override `BF`.shape.thickness = const.secondaryStrokeWidth
-	override `BF`.shape.style = "dashed"
-
-     `BF`.shape2 = Line {
-     	     startX : `BF`.shape.startX
-     	     startY : `BF`.shape.startY
-     	     endX : `BF`.shape.endX
-     	     endY : `BF`.shape.endY
-	     color : const.lightyellow
-	     thickness : const.secondaryStrokeWidth
-	     stroke : "none"
-     }
-
-     `BF`.linesLayering1 = `BF`.shape above `BF`.shape2
-     `BF`.linesLayering2 = `BF`.shape2 above const.plane
+Ray r {
+    override r.shape.thickness = const.secondaryStrokeWidth
+    override r.shape.color = const.black -- TODO: choose randomly
 }
 
-Segment `AL` {
-	override `AL`.color = const.black
-	override `AL`.shape.thickness = const.secondaryStrokeWidth
-	override `AL`.shape.style = "dashed"
-
-     `AL`.shape2 = Line {
-     	     startX : `AL`.shape.startX
-     	     startY : `AL`.shape.startY
-     	     endX : `AL`.shape.endX
-     	     endY : `AL`.shape.endY
-	     color : const.lightyellow
-	     thickness : const.secondaryStrokeWidth
-	     stroke : "none"
-     }
-
-     `AL`.linesLayering1 = `AL`.shape above `AL`.shape2
-     `AL`.linesLayering2 = `AL`.shape2 above const.plane
-
+Ray r; Triangle t {
+    LOCAL.layering = r.shape above t.shape
 }
 
-Angle `CAB` {
-      override `CAB`.shape.color = Colors.none
-      override `CAB`.shape.strokeWidth = 0.0
+Ray r; Angle t {
+    LOCAL.layering = r.shape above t.shape
 }
 
-Square `BAGF` {
-	  override `BAGF`.color = const.red
+Point p
+with Segment s
+where p := Midpoint(s) {
+      override p.shape.r = 0.0
+      override p.shape.strokeWidth = 0.0
 }
 
-Square `ACIH` {
-	  override `ACIH`.color = const.black
-}
+-- Point `A` {
+--       override `A`.text.fontSize = const.mainFontSize
+-- }
 
-Square `CBDE` {
-	  override `CBDE`.color = Colors.none
-}
+-- Point `B` {
+--       override `B`.text.fontSize = const.mainFontSize
+-- }
 
-Rectangle `BDLK` {
-	  override `BDLK`.color = const.blue
-}
+-- Point `C` {
+--       override `C`.text.fontSize = const.mainFontSize
+-- }
 
-Rectangle `CKLE` {
-	  override `CKLE`.color = const.yellow
-}
+-- -- Since AL is dashed, we just draw AL and not AK and KL (since the dashes won't line up)
+-- Segment `AK` {
+-- 	override `AK`.color = Colors.none
+-- 	override `AK`.shape.thickness = const.secondaryStrokeWidth
+-- }
 
-Rectangle `BDLK`; Segment `DB` {
-	  LOCAL.layering = `DB`.shape2 above `BDLK`.shape
-}
+-- Segment `KL` {
+-- 	override `KL`.color = Colors.none
+-- 	override `KL`.shape.thickness = const.secondaryStrokeWidth
+-- 	override `KL`.shape.style = "dashed"
+-- }
 
-Square `BAGF`; Segment `BF` {
-	  LOCAL.layering = `BF`.shape2 above `BAGF`.shape
-}
+-- Segment `AD` {
+-- 	override `AD`.color = const.secondaryColor
+-- 	override `AD`.shape.thickness = const.secondaryStrokeWidth
+-- }
 
-Triangle `ABC` {
-	 override `ABC`.color = Colors.lighterwhite
-}
+-- Segment `CF` {
+-- 	override `CF`.color = const.secondaryColor
+-- 	override `CF`.shape.thickness = const.secondaryStrokeWidth
+-- }
 
-Segment `AB`; Segment `CF` {
-	LOCAL.layering = `CF`.shape above `AB`.shape
-}
+-- Segment `AB` {
+-- 	override `AB`.color = const.blue
+-- 	override `AB`.shape.thickness = const.secondaryStrokeWidth
+-- }
 
-Segment `AL`; Segment `BC` {
-	LOCAL.layering = `AL`.shape above `BC`.shape
-}
+-- Segment `BC` {
+-- 	override `BC`.color = const.red
+-- 	override `BC`.shape.thickness = const.secondaryStrokeWidth
+-- }
 
-Segment `AD`; Segment `DB` {
-	LOCAL.layering = `AD`.shape above `DB`.shape
-}
+-- Segment `CA` {
+-- 	override `CA`.color = const.yellow
+-- 	override `CA`.shape.thickness = const.secondaryStrokeWidth
+-- }
 
-Angle `FBA` {
-      override `FBA`.shape.fill = const.yellow
-}
+-- Segment `DB` {
+-- 	override `DB`.color = const.red
+-- 	override `DB`.shape.thickness = const.secondaryStrokeWidth
+-- 	override `DB`.shape.style = "dashed"
 
-Angle `CBA` {
-      override `CBA`.shape.fill = const.black
-}
+--      `DB`.shape2 = Line {
+--      	     startX : `DB`.shape.startX
+--      	     startY : `DB`.shape.startY
+--      	     endX : `DB`.shape.endX
+--      	     endY : `DB`.shape.endY
+-- 	     color : const.lightyellow
+-- 	     thickness : const.secondaryStrokeWidth
+-- 	     stroke : "none"
+--      }
 
-Angle `CBD` {
-      override `CBD`.shape.fill = const.yellow
-}
+--      `DB`.linesLayering1 = `DB`.shape above `DB`.shape2
+--      `DB`.linesLayering2 = `DB`.shape2 above const.plane
+-- }
+
+-- Segment `BF` {
+-- 	override `BF`.color = const.blue
+-- 	override `BF`.shape.thickness = const.secondaryStrokeWidth
+-- 	override `BF`.shape.style = "dashed"
+
+--      `BF`.shape2 = Line {
+--      	     startX : `BF`.shape.startX
+--      	     startY : `BF`.shape.startY
+--      	     endX : `BF`.shape.endX
+--      	     endY : `BF`.shape.endY
+-- 	     color : const.lightyellow
+-- 	     thickness : const.secondaryStrokeWidth
+-- 	     stroke : "none"
+--      }
+
+--      `BF`.linesLayering1 = `BF`.shape above `BF`.shape2
+--      `BF`.linesLayering2 = `BF`.shape2 above const.plane
+-- }
+
+-- Segment `AL` {
+-- 	override `AL`.color = const.black
+-- 	override `AL`.shape.thickness = const.secondaryStrokeWidth
+-- 	override `AL`.shape.style = "dashed"
+
+--      `AL`.shape2 = Line {
+--      	     startX : `AL`.shape.startX
+--      	     startY : `AL`.shape.startY
+--      	     endX : `AL`.shape.endX
+--      	     endY : `AL`.shape.endY
+-- 	     color : const.lightyellow
+-- 	     thickness : const.secondaryStrokeWidth
+-- 	     stroke : "none"
+--      }
+
+--      `AL`.linesLayering1 = `AL`.shape above `AL`.shape2
+--      `AL`.linesLayering2 = `AL`.shape2 above const.plane
+
+-- }
+
+-- Angle `CAB` {
+--       override `CAB`.shape.color = Colors.none
+--       override `CAB`.shape.strokeWidth = 0.0
+-- }
+
+-- Square `BAGF` {
+-- 	  override `BAGF`.color = const.red
+-- }
+
+-- Square `ACIH` {
+-- 	  override `ACIH`.color = const.black
+-- }
+
+-- Square `CBDE` {
+-- 	  override `CBDE`.color = Colors.none
+-- }
+
+-- Rectangle `BDLK` {
+-- 	  override `BDLK`.color = const.blue
+-- }
+
+-- Rectangle `CKLE` {
+-- 	  override `CKLE`.color = const.yellow
+-- }
+
+-- Rectangle `BDLK`; Segment `DB` {
+-- 	  LOCAL.layering = `DB`.shape2 above `BDLK`.shape
+-- }
+
+-- Square `BAGF`; Segment `BF` {
+-- 	  LOCAL.layering = `BF`.shape2 above `BAGF`.shape
+-- }
+
+-- Triangle `ABC` {
+-- 	 override `ABC`.color = Colors.lighterwhite
+-- }
+
+-- Segment `AB`; Segment `CF` {
+-- 	LOCAL.layering = `CF`.shape above `AB`.shape
+-- }
+
+-- Segment `AL`; Segment `BC` {
+-- 	LOCAL.layering = `AL`.shape above `BC`.shape
+-- }
+
+-- Segment `AD`; Segment `DB` {
+-- 	LOCAL.layering = `AD`.shape above `DB`.shape
+-- }
+
+-- Angle `FBA` {
+--       override `FBA`.shape.fill = const.yellow
+-- }
+
+-- Angle `CBA` {
+--       override `CBA`.shape.fill = const.black
+-- }
+
+-- Angle `CBD` {
+--       override `CBD`.shape.fill = const.yellow
+-- }

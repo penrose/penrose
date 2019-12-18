@@ -179,6 +179,8 @@ compDict =
     , ("join", constComp joinPath)
     , ("dot", constComp dotFn)
     , ("angle", constComp angleFn)
+    , ("sampleUniform", sampleUniformFn)
+    , ("makePalette", constComp makePalette)
 
   , ("calcZSphere", constComp calcZSphere)
 
@@ -739,6 +741,11 @@ chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
       cp2y = y2 - (y3 - y1) / 6 * k
   in CubicBez ((cp1x, cp1y), (cp2x, cp2y), (x2, y2))
 
+sampleList2 :: [a] -> StdGen -> (a, StdGen)
+sampleList2 list g =
+  let (idx, g') = randomR (0, length list - 1) g
+  in (list !! idx, g')
+
 sampleList :: (Autofloat a) => [a] -> StdGen -> (a, StdGen)
 sampleList list g =
   let (idx, g') = randomR (0, length list - 1) g
@@ -1260,6 +1267,24 @@ dotFn [Val (TupV u), Val (TupV v)] = Val $ FloatV $ u `dotv` v
 
 angleFn :: ConstCompFn
 angleFn [Val (TupV (v1, v2))] = Val $ FloatV $ atan2 v2 v1
+
+-- TODO: yeah... get rid of this function
+makePalette :: ConstCompFn
+makePalette [Val (ColorV c1), Val (ColorV c2), Val (ColorV c3)] = 
+        Val $ PaletteV [c1, c2, c3]
+
+makePalette [Val (ColorV c1), Val (ColorV c2), Val (ColorV c3), Val (ColorV c4)] = 
+        Val $ PaletteV [c1, c2, c3, c4]
+
+-- TODO: only works for color lists right now
+sampleUniformFn :: CompFn
+-- sampleUniformFn [Val (ListV xs)] g = 
+--                 let (v, g') = sampleList2 xs g
+--                 in (Val $ v, g')
+
+sampleUniformFn [Val (PaletteV xs)] g = 
+                let (v, g') = sampleList2 xs g
+                in (Val $ ColorV v, g')
 
 -- Given a side of the square (p,q), calculate the exterior side of the square (r,s) (TODO: on the "outside" of the triangle)
 squareAtFn :: ConstCompFn
