@@ -166,7 +166,7 @@ class Canvas extends React.Component<IProps> {
    * @memberof Canvas
    */
   // public readonly canvasSize: [number, number] = [800, 700];
-  public readonly canvasSize: [number, number] = [400, 230];
+  public readonly canvasSize: [number, number] = [400, 220];
   public readonly svg = React.createRef<SVGSVGElement>();
 
   /**
