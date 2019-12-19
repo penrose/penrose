@@ -1,10 +1,9 @@
-import Canvas from "../react-renderer/src/StaticCanvas";
 import * as React from "react";
 
 const fs = require("fs");
 const mathjax = require("mathjax-node");
 const { propagateUpdate } = require("../react-renderer/src/PropagateUpdate");
-// const Canvas = require("../react-renderer/src/Canvas");
+const Canvas = require("../react-renderer/src/Canvas");
 const ReactDOMServer = require("react-dom/server");
 
 const args = process.argv.slice(2);
@@ -50,7 +49,7 @@ const allShapes = state.shapesr;
 
         // TODO: can't store this in the state, return it separately (3 tuple?)
         textGPI.rendered = {
-          contents: data.svgNode.outerHTML
+          contents: data.svgNode
         };
         return [type, textGPI];
       }
@@ -60,10 +59,9 @@ const allShapes = state.shapesr;
 
   // update the state with newly generated labels and label dimensions
   const updated = await propagateUpdate({ ...state, shapesr: collected });
-  console.log(updated);
 
   const canvas = ReactDOMServer.renderToString(
-    <Canvas state={updated}></Canvas>
+    <Canvas.default data={updated} lock={true} />
   );
   console.log(canvas);
   fs.writeFile("output.svg", canvas, err => {

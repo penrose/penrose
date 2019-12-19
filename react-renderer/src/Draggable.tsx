@@ -1,7 +1,6 @@
 import * as React from "react";
 import { IGPIPropsDraggable, IGPIProps } from "./types";
 import isEqual from "react-fast-compare";
-import { LockContext } from "./contexts";
 interface IState {
   tempX: number;
   tempY: number;
@@ -17,7 +16,6 @@ interface IState {
 
 const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
   return class extends React.Component<IGPIPropsDraggable, IState> {
-    public static contextType = LockContext;
     public static getDerivedStateFromProps(props: IGPIProps, state: IState) {
       if (!isEqual(state.shapeSnapshot, props.shape)) {
         return {
@@ -61,19 +59,15 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
     };
     public handleMouseDown = (e: React.PointerEvent<any>) => {
       const [x, y] = this.getPosition(e.clientX, e.clientY);
-      const shouldInteract = !this.context;
-      if (shouldInteract) {
-        this.setState({
-          tempX: x + this.state.dx,
-          tempY: y - this.state.dy
-        });
-        // These listeners are applied to the document
-        // because shape-specific listeners don't fire if there's overlapping issues
-        document.addEventListener("mousemove", this.handleMouseMove);
-        document.addEventListener("mouseup", this.handleMouseUp);
-        return this.handleMouseMove;
-      }
-      return null;
+      this.setState({
+        tempX: x + this.state.dx,
+        tempY: y - this.state.dy
+      });
+      // These listeners are applied to the document
+      // because shape-specific listeners don't fire if there's overlapping issues
+      document.addEventListener("mousemove", this.handleMouseMove);
+      document.addEventListener("mouseup", this.handleMouseUp);
+      return this.handleMouseMove;
     };
     public render() {
       const { dy, dx } = this.state;
