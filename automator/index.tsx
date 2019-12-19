@@ -9,23 +9,19 @@ const { loadImages } = require("../react-renderer/src/Util");
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
 
-const args = process.argv.slice(2);
+const runPenrose = (packet: object) =>
+  new Promise((resolve, reject) => {
+    const penrose = spawn("penrose", ["runAPI"]);
+    penrose.stdin.setEncoding("utf-8");
+    penrose.stdin.write(JSON.stringify(packet) + "\n");
+    let data = "";
+    penrose.stdout.on("data", async d => (data += d.toString()));
+    penrose.stdout.on("close", async cl => resolve(data));
 
-const fetched = args.map(arg =>
-  fs.readFileSync(`../examples/${arg}`, "utf8").toString()
-);
+    penrose.stdin.end();
+  }) as any;
 
-const compilePacket = JSON.stringify(Packets.CompileTrio(...fetched));
-
-const penrose = spawn("penrose", ["runAPI"]);
-penrose.stdin.setEncoding("utf-8");
-penrose.stdin.write(compilePacket + "\n");
-let data = "";
-penrose.stdout.on("data", async d => (data += d.toString()));
-penrose.stdout.on("close", async cl => {
-  console.log(data);
-  const state = JSON.parse(data).contents[0];
-
+const collectLabels = async (state: any, includeRendered: boolean) => {
   const allShapes = state.shapesr;
 
   const collected = await Promise.all(
@@ -60,10 +56,11 @@ penrose.stdout.on("close", async cl => {
         data.svgNode.setAttribute("width", textGPI.w.updated);
         data.svgNode.setAttribute("height", textGPI.h.updated);
 
-        // TODO: can't store this in the state, return it separately (3 tuple?)
-        textGPI.rendered = {
-          contents: data.svgNode
-        };
+        if (includeRendered) {
+          textGPI.rendered = {
+            contents: data.svgNode
+          };
+        }
         return [type, textGPI];
       }
       return [type, obj];
@@ -76,15 +73,34 @@ penrose.stdout.on("close", async cl => {
   );
   // update the state with newly generated labels and label dimensions
   const updated = await propagateUpdate({ ...state, shapesr: sortedShapes });
+  return updated;
+};
+
+// Process command-line arguments
+const args = process.argv.slice(2);
+
+const trio = args.map(arg =>
+  fs.readFileSync(`../examples/${arg}`, "utf8").toString()
+);
+
+(async () => {
+  console.log("Compiling ...");
+  const compilePacket = Packets.CompileTrio(...trio);
+  const data = await runPenrose(compilePacket);
+  const state = JSON.parse(data).contents[0];
+  const updated = await collectLabels(state, false);
+  console.log("Stepping ...");
+  const convergePacket = Packets.StepUntilConvergence(updated);
+  const newData = await runPenrose(convergePacket);
+  const newState = JSON.parse(newData).contents;
+  const newUpdated = await collectLabels(newState, true);
 
   const canvas = ReactDOMServer.renderToString(
-    <Canvas.default data={updated} lock={true} />
+    <Canvas.default data={newUpdated} lock={true} />
   );
   console.log(canvas);
   fs.writeFile("output.svg", canvas, err => {
     if (err) throw err;
     console.log("The file has been saved!");
   });
-});
-
-penrose.stdin.end();
+})();
