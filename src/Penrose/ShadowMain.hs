@@ -108,7 +108,7 @@ runAPI strIn =
         Right res ->
           encode $
           Packet
-          {packetType = flag, packetContents = output, packetSession = Nothing}
+          {packetType = flag, packetContents = res, packetSession = Nothing}
         Left err ->
           encode $
           Packet
