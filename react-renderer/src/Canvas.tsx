@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import componentMap from "./componentMap";
+import { interactiveMap } from "./componentMap";
 import Log from "./Log";
 import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
@@ -191,7 +191,7 @@ class Canvas extends React.Component<IProps> {
   };
 
   public renderEntity = ([name, shape]: [string, object], key: number) => {
-    const component = componentMap[name];
+    const component = interactiveMap[name];
     if (component === undefined) {
       Log.error(`Could not render GPI ${name}.`);
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;

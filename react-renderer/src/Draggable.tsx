@@ -15,7 +15,7 @@ interface IState {
     Don't use pointerEvents="bounding-box" on paths (like Line.tsx) is broken
 */
 
-const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
+const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
   return class extends React.Component<IGPIPropsDraggable, IState> {
     public static contextType = LockContext;
     public static getDerivedStateFromProps(props: IGPIProps, state: IState) {
@@ -79,8 +79,12 @@ const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
       const { dy, dx } = this.state;
       // TODO: change opacity effect on mousedown
       return (
-        <g transform={`translate(${-dx},${dy})`}>
-          <Child onClick={this.handleMouseDown} {...this.props} />
+        <g
+          transform={`translate(${-dx},${dy})`}
+          onMouseDown={this.handleMouseDown}
+          // pointerEvents="bounding-box"
+        >
+          <Child {...this.props} />
         </g>
       );
     }

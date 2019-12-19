@@ -1,17 +1,12 @@
 import * as React from "react";
 import { toScreen } from "./Util";
-import draggable from "./Draggable";
-import { IGPIPropsDraggable } from "./types";
+import { IGPIProps } from "./types";
 
-class Image extends React.Component<IGPIPropsDraggable> {
+class Image extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
-    const { onClick } = this.props;
     const { canvasSize } = this.props;
-    const [x, y] = toScreen(
-      [shape.x.contents, shape.y.contents],
-      canvasSize
-    );
+    const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const [w, h] = [shape.w.contents, shape.h.contents];
     const path = shape.path.contents;
     const opacity = shape.opacity.contents;
@@ -24,11 +19,10 @@ class Image extends React.Component<IGPIPropsDraggable> {
         opacity={opacity}
         width={w}
         height={h}
-        onMouseDown={onClick}
       />
     );
   }
   //   <title>{shape.name.contents}</title>
   // </image>
 }
-export default draggable(Image);
+export default Image;

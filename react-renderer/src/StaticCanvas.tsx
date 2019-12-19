@@ -1,5 +1,5 @@
 import * as React from "react";
-import { staticShapes } from "./componentMap";
+import { staticMap } from "./componentMap";
 
 interface IProps {
   substanceMetadata?: string;
@@ -28,7 +28,7 @@ class StaticCanvas extends React.Component<IProps> {
     // const ctm = this.svg.current.getScreenCTM();
 
     if (name === "Circle" || name === "Text") {
-      const component = staticShapes[name];
+      const component = staticMap[name];
       const canvasSize = this.canvasSize;
       return React.createElement(component, {
         key,

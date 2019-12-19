@@ -1,12 +1,11 @@
 import * as React from "react";
 
-import { IGPIPropsDraggable } from "./types";
-import draggable from "./Draggable";
 import { toScreen, toHex, Arrowhead, arrowheads } from "./Util";
+import { IGPIProps } from "./types";
 
-class Arrow extends React.Component<IGPIPropsDraggable> {
+class Arrow extends React.Component<IGPIProps> {
   public render() {
-    const { shape, canvasSize, onClick } = this.props;
+    const { shape, canvasSize } = this.props;
     const style = shape.style.contents;
     const [sx, sy] = toScreen(
       [shape.startX.contents, shape.startY.contents],
@@ -33,7 +32,7 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
     ];
 
     return (
-      <g pointerEvents="bounding-box" onMouseDown={onClick}>
+      <g pointerEvents="bounding-box">
         <Arrowhead
           id={arrowHeadId}
           color={color}
@@ -58,4 +57,4 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(Arrow);
+export default Arrow;

@@ -7,9 +7,9 @@ export interface IGPIProps {
 }
 
 export interface IGPIPropsDraggable extends IGPIProps {
+  ctm: DOMMatrix;
   onClick(e: React.MouseEvent<any>): void;
   dragEvent?(id: string, dy: number, dx: number): void;
-  ctm: DOMMatrix;
 }
 
 export interface ILayerProps {
