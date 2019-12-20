@@ -95,16 +95,15 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
 // Process command-line arguments
 // const args = process.argv.slice(2);
 const args = neodoc.run(USAGE, { smartOptions: true });
-console.log(args);
 
 // Fetch Substance, Style, and Domain files
+// TODO: make this optional in the command line args
 const trio = [args.SUBSTANCE, args.STYLE, args.DOMAIN].map(arg =>
   fs.readFileSync(`../examples/${arg}`, "utf8").toString()
 );
 
 // Determine the output file path
 const outFile = args["--outFile"] ? args["--outFile"] : "output.svg";
-console.log(outFile);
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 (async () => {
