@@ -33,7 +33,7 @@ Label S2 $\mathrm{St}(\mathrm{Cl}(E))$
 SimplicialSubset S3 ⊆ K
 S3 := SetMinus(A, S2)
 
-Label S3 $\mathrm{Cl}(\mathrm{St}(E)) \setminus \mathrm{St}(\mathrm{Cl}(E))$
+Label S3 $\mathrm{Lk}(E) := \mathrm{Cl}(\mathrm{St}(E)) \setminus \mathrm{St}(\mathrm{Cl}(E))$
 
 ----------------
 
@@ -49,5 +49,5 @@ Label S4 $\mathrm{Lk}(E)$
 -- Result(S1) -- Star(E)
 -- Result(A) -- Cl(S1)
 -- Result(S2) -- St(B)
--- Result(S3) -- A \ S2
-Result(S4) -- Lk(E)
+Result(S3) -- A \ S2
+-- Result(S4) -- Lk(E)
