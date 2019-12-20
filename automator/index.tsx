@@ -5,10 +5,21 @@ const mathjax = require("mathjax-node");
 const { propagateUpdate } = require("../react-renderer/src/PropagateUpdate");
 const Canvas = require("../react-renderer/src/Canvas");
 const Packets = require("../react-renderer/src/packets");
-const { loadImages } = require("../react-renderer/src/Util");
+// const { loadImages } = require("../react-renderer/src/Util"); // TODO: implement image import
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
+const neodoc = require("neodoc");
 
+const USAGE = `
+Usage: automator SUBSTANCE STYLE DOMAIN [--outFile=PATH]
+Options:
+  -o, --outFile PATH
+`;
+
+/**
+ * Run the penrose binary using the supplied packet as the input
+ * @param packet packet to be processed by the backend
+ */
 const runPenrose = (packet: object) =>
   new Promise((resolve, reject) => {
     const penrose = spawn("penrose", ["runAPI"]);
@@ -21,6 +32,11 @@ const runPenrose = (packet: object) =>
     penrose.stdin.end();
   }) as any;
 
+/**
+ * Collect all the labels in the state by calling MathJax
+ * @param state initial state
+ * @param includeRendered whether to include the rendered SVG nodes in the output state
+ */
 const collectLabels = async (state: any, includeRendered: boolean) => {
   const allShapes = state.shapesr;
 
@@ -45,7 +61,7 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
         }
         const { width, height } = data;
         const textGPI = { ...obj };
-        const SCALE_FACTOR = 7;
+        const SCALE_FACTOR = 7; // HACK: empirically determined conversion factor from em to Penrose unit
 
         // Take substring to omit `ex`
         textGPI.w.updated =
@@ -77,30 +93,40 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
 };
 
 // Process command-line arguments
-const args = process.argv.slice(2);
+// const args = process.argv.slice(2);
+const args = neodoc.run(USAGE, { smartOptions: true });
+console.log(args);
 
-const trio = args.map(arg =>
+// Fetch Substance, Style, and Domain files
+const trio = [args.SUBSTANCE, args.STYLE, args.DOMAIN].map(arg =>
   fs.readFileSync(`../examples/${arg}`, "utf8").toString()
 );
 
+// Determine the output file path
+const outFile = args["--outFile"] ? args["--outFile"] : "output.svg";
+console.log(outFile);
+
+// In an async context, communicate with the backend to compile and optimize the diagram
 (async () => {
   console.log("Compiling ...");
   const compilePacket = Packets.CompileTrio(...trio);
-  const data = await runPenrose(compilePacket);
-  const state = JSON.parse(data).contents[0];
-  const updated = await collectLabels(state, false);
+  const compilerOutput = await runPenrose(compilePacket);
+  if (compilerOutput.type === "error") {
+    console.error("Compilation failed: " + compilerOutput.contents);
+  }
+  const compiledState = JSON.parse(compilerOutput).contents[0];
+  const initialState = await collectLabels(compiledState, false);
   console.log("Stepping ...");
-  const convergePacket = Packets.StepUntilConvergence(updated);
-  const newData = await runPenrose(convergePacket);
-  const newState = JSON.parse(newData).contents;
-  const newUpdated = await collectLabels(newState, true);
+  const convergePacket = Packets.StepUntilConvergence(initialState);
+  const optimizerOutput = await runPenrose(convergePacket);
+  const optimizedState = JSON.parse(optimizerOutput).contents;
+  const state = await collectLabels(optimizedState, true);
 
   const canvas = ReactDOMServer.renderToString(
-    <Canvas.default data={newUpdated} lock={true} />
+    <Canvas.default data={state} lock={true} />
   );
-  console.log(canvas);
-  fs.writeFile("output.svg", canvas, err => {
+  fs.writeFile(outFile, canvas, err => {
     if (err) throw err;
-    console.log("The file has been saved!");
+    console.log(`The diagram has been saved to ${outFile}`);
   });
 })();
