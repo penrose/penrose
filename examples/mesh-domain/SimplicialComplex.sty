@@ -432,50 +432,25 @@ with SimplicialSubset S; SimplicialComplex C {
 
 -------------------
 
--- Try to position the vertices to be inside the bbox
--- Should this go in the vertex selector?
-Vertex v
-where InVS(v, K)
-with SimplicialComplex K {
-     -- No longer necessary, as box size is being computed
-     -- override v.shape.x = v.xpos + K.x_offset
-     -- override v.shape.y = v.ypos + K.y_offset
-
-     -- v.inSCFn = ensure contains(v.shape, K.shape)
-}
-
--- Label the closure of a star
-
-Subcomplex C
-where C := Closure(S); SubsetOf(S, K); S := Star(i); Result(C)
-with SimplicialSubset S; SimplicialComplex K; SimplicialSubset i {
-
-       override K.const_text.string = C.label
-
-       -- override C.text = Text {
-       -- 	 x : ?
-       -- 	 y : ?
-       -- 	 string : C.label
-       -- 	 rotation : 0.0
-       -- 	 color : global.closureColor
-       -- }
-
-       -- C.labelFn = ensure contains(K.shape, C.text)
-       -- C.layerFn2 = C.text above K.shape
-
-       -- TODO
-       -- Does not overlap any other shape (maybe just disjoint with edges?)
-       -- Close to the V/E/F of the Subcomplex in question
-}
-
--- Label setminus
-
-SimplicialSubset S
-where S := SetMinus(T, Q); SubsetOf(S, K); Result(S)
-with SimplicialSubset T; SimplicialSubset Q; SimplicialComplex K {
-     override K.const_text.string = S.label
+-- Only label the (last) result of an operation
+Object e
+with SimplicialComplex K
+where Result(e) {
+      override K.const_text.string = e.label
 }
 
 Edge e; Face f {
      LOCAL.layering = e.shape above f.shape
 }
+
+-- Try to position the vertices to be inside the bbox
+-- Should this go in the vertex selector?
+-- Vertex v
+-- where InVS(v, K)
+-- with SimplicialComplex K {
+     -- No longer necessary, as box size is being computed
+     -- override v.shape.x = v.xpos + K.x_offset
+     -- override v.shape.y = v.ypos + K.y_offset
+
+     -- v.inSCFn = ensure contains(v.shape, K.shape)
+-- }

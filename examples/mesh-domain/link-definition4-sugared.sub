@@ -11,11 +11,11 @@ S1 := Star(E)
 Subcomplex A ⊆ K
 A := Closure(S1)
 
-Label A $\mathrm{Cl}(\mathrm{St}(E))$
 AutoLabel E
 AutoLabel e
 AutoLabel K
-AutoLabel S1
+Label S1 $\mathrm{St}(E)$
+Label A $\mathrm{Cl}(\mathrm{St}(E))$
 
 ----------------
 
@@ -25,7 +25,7 @@ B := Closure(E)
 SimplicialSubset S2 ⊆ K
 S2 := Star(B)
 
-AutoLabel B
+Label B $\mathrm{Cl}(E)$
 Label S2 $\mathrm{St}(\mathrm{Cl}(E))$
 
 ----------------
@@ -33,6 +33,21 @@ Label S2 $\mathrm{St}(\mathrm{Cl}(E))$
 SimplicialSubset S3 ⊆ K
 S3 := SetMinus(A, S2)
 
-Result(S3)
-
 Label S3 $\mathrm{Cl}(\mathrm{St}(E)) \setminus \mathrm{St}(\mathrm{Cl}(E))$
+
+----------------
+
+SimplicialSubset S4 ⊆ K
+S4 := Link(E)
+
+Label S4 $\mathrm{Lk}(E)$
+
+----------------
+
+-- Result(E) -- Cl(e)
+-- Result(B) -- Cl(E)
+-- Result(S1) -- Star(E)
+-- Result(A) -- Cl(S1)
+-- Result(S2) -- St(B)
+-- Result(S3) -- A \ S2
+Result(S4) -- Lk(E)
