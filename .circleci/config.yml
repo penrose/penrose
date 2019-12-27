@@ -15,6 +15,10 @@ jobs:
           name: Install npm deps
           command: npm install
           working_directory: ~/penrose/react-renderer
+      - save_cache:
+          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}
+          paths:
+            - ~/penrose/react-renderer/node_modules
       - run:
           name: Build normally
           command: npm run build
@@ -76,6 +80,7 @@ jobs:
   headless_test:
     docker:
       - image: circleci/node:11.10.1
+      - image: fpco/stack-build:lts-13.24
     steps:
       - checkout:
           path: ~/penrose
@@ -91,10 +96,19 @@ jobs:
           name: Install deps for automator
           command: npm install
           working_directory: ~/penrose/automator
+      - save_cache:
+          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
+          paths:
+            - ~/penrose/react-renderer/node_modules
+            - ~/penrose/automator/node_modules
       - run:
           name: Make output dir
           command: mkdir -p ~/out
-          working_directory: ~
+          working_directory: ~/
+      - run:
+          name: Alias penrose command
+          command: echo 'alias penrose=~/.local/bin/penrose' >> ~/.bashrc && source ~/.bashrc
+          working_directory: ~/
       - run:
           name: Run nested.sub
           command: npm start set-theory-domain/nested.sub set-theory-domain/venn.sty set-theory-domain/setTheory.dsl --outFile=~/out/nested.svg
