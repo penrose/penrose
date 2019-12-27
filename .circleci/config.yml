@@ -79,9 +79,11 @@ jobs:
       #       - src/
   headless_test:
     docker:
-      - image: circleci/node:11.10.1
       - image: fpco/stack-build:lts-13.24
     steps:
+      - run:
+          name: Install nodejs/npm
+          command: sudo apt update && sudo apt install -y nodejs npm
       - checkout:
           path: ~/penrose
       - attach_workspace:
