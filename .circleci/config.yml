@@ -58,6 +58,8 @@ jobs:
             - "$HOME/.ghc"
             - "$HOME/.cabal"
             - "$HOME/.stack"
+            - "/root/.stack"
+            - "/root/.stack-work"
 
       - store_artifacts:
           # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
