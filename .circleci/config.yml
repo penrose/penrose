@@ -67,16 +67,18 @@ jobs:
           root: ~/.local/bin
           paths:
             - penrose
-      - persist_to_workspace:
-          root: .
-          paths:
-            - src/
+      # - persist_to_workspace:
+      #     root: .
+      #     paths:
+      #       - src/
   headless_test:
     docker:
       - image: circleci/node:11.10.1
     steps:
       - checkout:
           path: ~/penrose
+      - attach_workspace:
+          at: ~/.local/bin
       - restore_cache:
           key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
       - run:
@@ -93,7 +95,7 @@ jobs:
           working_directory: ~
       - run:
           name: Run nested.sub
-          command: npm start -o set-theory-domain/nested.sub set-theory-domain/venn.sty set-theory-domain/setTheory.dsl ~/out/nested.svg
+          command: npm start set-theory-domain/nested.sub set-theory-domain/venn.sty set-theory-domain/setTheory.dsl --outFile=~/out/nested.svg
           working_directory: ~/penrose/automator
       - store_artifacts:
           path: ~/out
