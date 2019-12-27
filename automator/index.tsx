@@ -97,7 +97,6 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
 };
 
 // Process command-line arguments
-// const args = process.argv.slice(2);
 const args = neodoc.run(USAGE, { smartOptions: true });
 
 // Fetch Substance, Style, and Domain files
@@ -114,11 +113,13 @@ const outFile = args["--outFile"] ? args["--outFile"] : "output.svg";
   console.log("Compiling ...");
   const compilePacket = Packets.CompileTrio(...trio);
   const compilerOutput = await runPenrose(compilePacket);
-  if (compilerOutput.type === "error") {
-    console.error("Compilation failed: " + compilerOutput.contents);
+  const compiledState = JSON.parse(compilerOutput);
+  if (compiledState.type === "error") {
+    const err = compiledState.contents;
+    console.error(`Compilation failed:\n${err.tag}\n${err.contents}`);
+    process.exit(1);
   }
-  const compiledState = JSON.parse(compilerOutput).contents[0];
-  const initialState = await collectLabels(compiledState, false);
+  const initialState = await collectLabels(compiledState.contents[0], false);
   console.log("Stepping ...");
   const convergePacket = Packets.StepUntilConvergence(initialState);
   const optimizerOutput = await runPenrose(convergePacket);
