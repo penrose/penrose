@@ -76,10 +76,8 @@ jobs:
     docker:
       - image: circleci/node:11.10.1
     steps:
-      # - checkout:
-      #     path: ~/penrose
-      - attach_workspace:
-          at: ~/
+      - checkout:
+          path: ~/penrose
       - restore_cache:
           key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
       - run:
