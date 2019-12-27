@@ -71,6 +71,32 @@ jobs:
           root: .
           paths:
             - src/
+  headless_test:
+    # TODO: does react-renderer need built deps?
+    docker:
+      - image: circleci/node:11.10.1
+    steps:
+      # - checkout:
+      #     path: ~/penrose
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
+      - run:
+          name: Install deps
+          command: npm install
+          working_directory: ~/penrose/automator
+      - run:
+          name: Make output dir
+          command: mkdir -p ~/out
+          working_directory: ~
+      - run:
+          name: Run nested.sub
+          command: npm start -o set-theory-domain/nested.sub set-theory-domain/venn.sty set-theory-domain/setTheory.dsl ~/out/nested.svg
+          working_directory: ~/penrose/automator
+      - store_artifacts:
+          path: ~/out
+          destination: output
 
 workflows:
   version: 2.1
@@ -86,6 +112,13 @@ workflows:
             branches:
               ignore:
                 - master
+      - headless_test:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore:
+                - master
   build_master_deploy:
     jobs:
       - build_frontend:
@@ -96,6 +129,13 @@ workflows:
           filters:
             branches:
               only: master
+      - headless_test:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore:
+                - master
       - aws-ecr/build_and_push_image:
           filters:
             branches:

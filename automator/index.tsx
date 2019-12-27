@@ -38,6 +38,10 @@ const runPenrose = (packet: object) =>
  * @param includeRendered whether to include the rendered SVG nodes in the output state
  */
 const collectLabels = async (state: any, includeRendered: boolean) => {
+  if (!state.shapesr) {
+    console.error(`Could not find shapesr key in returned state: ${state}`);
+    return;
+  }
   const allShapes = state.shapesr;
 
   const collected = await Promise.all(
