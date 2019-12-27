@@ -72,7 +72,6 @@ jobs:
           paths:
             - src/
   headless_test:
-    # TODO: does react-renderer need built deps?
     docker:
       - image: circleci/node:11.10.1
     steps:
@@ -81,7 +80,11 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ checksum "~/penrose/automator/package.json" }}
       - run:
-          name: Install deps
+          name: Install deps for react-renderer
+          command: npm install
+          working_directory: ~/penrose/react-renderer
+      - run:
+          name: Install deps for automator
           command: npm install
           working_directory: ~/penrose/automator
       - run:
