@@ -115,8 +115,8 @@ jobs:
           command: echo 'alias penrose=~/.local/bin/penrose' >> ~/.bashrc && source ~/.bashrc
           working_directory: ~/
       - run:
-          name: Run nested.sub
-          command: npm start -- set-theory-domain/nested.sub set-theory-domain/venn.sty set-theory-domain/setTheory.dsl --outFile=/root/out/nested.svg
+          name: Run all in registry
+          command: npm start -- batch substanceLibrary.json styleLibrary.json elementLibrary.json --outFile=/root/out
           working_directory: ~/penrose/automator
       - store_artifacts:
           path: ~/out

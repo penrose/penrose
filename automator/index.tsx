@@ -11,7 +11,12 @@ const { spawn } = require("child_process");
 const neodoc = require("neodoc");
 
 const USAGE = `
-Usage: automator SUBSTANCE STYLE DOMAIN [--outFile=PATH]
+Penrose Automator.
+
+Usage:
+  automator SUBSTANCE STYLE DOMAIN [--outFile=PATH]
+  automator batch SUBSTANCELIB STYLELIB DOMAINLIB [--outFile=PATH]
+
 Options:
   -o, --outFile PATH
 `;
@@ -26,8 +31,12 @@ const runPenrose = (packet: object) =>
     penrose.stdin.setEncoding("utf-8");
     penrose.stdin.write(JSON.stringify(packet) + "\n");
     let data = "";
-    penrose.stdout.on("data", async d => (data += d.toString()));
-    penrose.stdout.on("close", async cl => resolve(data));
+    penrose.stdout.on("data", async d => {
+      data += d.toString();
+    });
+    penrose.stdout.on("close", async cl => {
+      resolve(data);
+    });
 
     penrose.stdin.end();
   }) as any;
@@ -96,31 +105,29 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
   return updated;
 };
 
-// Process command-line arguments
-const args = neodoc.run(USAGE, { smartOptions: true });
-
-// Fetch Substance, Style, and Domain files
-// TODO: make this optional in the command line args
-const trio = [args.SUBSTANCE, args.STYLE, args.DOMAIN].map(arg =>
-  fs.readFileSync(`../examples/${arg}`, "utf8").toString()
-);
-
-// Determine the output file path
-const outFile = args["--outFile"] ? args["--outFile"] : "output.svg";
-
 // In an async context, communicate with the backend to compile and optimize the diagram
-(async () => {
-  console.log("Compiling ...");
+const singleProcess = async (sub, sty, dsl, out: string) => {
+  // Fetch Substance, Style, and Domain files
+  const trio = [sub, sty, dsl].map(arg =>
+    fs.readFileSync(`../examples/${arg}`, "utf8").toString()
+  );
+  console.log(`Compiling for ${out} ...`);
   const compilePacket = Packets.CompileTrio(...trio);
   const compilerOutput = await runPenrose(compilePacket);
-  const compiledState = JSON.parse(compilerOutput);
+  let compiledState;
+  try {
+    compiledState = JSON.parse(compilerOutput);
+  } catch (e) {
+    console.error(`Cannot parse compiler output "${compilerOutput}": ${e}`);
+    process.exit(1);
+  }
   if (compiledState.type === "error") {
     const err = compiledState.contents;
     console.error(`Compilation failed:\n${err.tag}\n${err.contents}`);
     process.exit(1);
   }
   const initialState = await collectLabels(compiledState.contents[0], false);
-  console.log("Stepping ...");
+  console.log(`Stepping for ${out} ...`);
   const convergePacket = Packets.StepUntilConvergence(initialState);
   const optimizerOutput = await runPenrose(convergePacket);
   const optimizedState = JSON.parse(optimizerOutput).contents;
@@ -129,8 +136,71 @@ const outFile = args["--outFile"] ? args["--outFile"] : "output.svg";
   const canvas = ReactDOMServer.renderToString(
     <Canvas.default data={state} lock={true} />
   );
-  fs.writeFile(outFile, canvas, err => {
-    if (err) throw err;
-    console.log(`The diagram has been saved to ${outFile}`);
-  });
+  fs.writeFileSync(out, canvas);
+  console.log(`The diagram has been saved to ${out}`);
+};
+
+// Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
+const batchProcess = async (sublib, stylib, dsllib, out: string) => {
+  const substanceLibrary = JSON.parse(
+    fs.readFileSync(`../examples/${sublib}`).toString()
+  );
+  const styleLibrary = JSON.parse(
+    fs.readFileSync(`../examples/${stylib}`).toString()
+  );
+  const domainLibrary = JSON.parse(
+    fs.readFileSync(`../examples/${dsllib}`).toString()
+  );
+  console.log(`Processing ${substanceLibrary.length} substance files...`);
+  // NOTE: for parallelism, use forEach.
+  // But beware the console gets messy and it's hard to track what failed
+  for (const { name, substanceURI, element, style } of substanceLibrary) {
+    // HACK: ignore domains with plugins for now
+    if (element === 4 || style === 9 || style === 10) {
+      console.log(
+        `Skipping "${name}" (${substanceURI}) for now; this domain requires a plugin or has known issues.`
+      );
+      continue;
+    }
+    const foundStyle = styleLibrary.find(({ value }: any) => value === style);
+    const foundDomain = domainLibrary.find(
+      ({ value }: any) => value === element
+    );
+
+    const stylePath = foundStyle.uri;
+    const domainPath = foundDomain.uri;
+    const styleName = foundStyle.label;
+    const domainName = foundDomain.label;
+    await singleProcess(
+      substanceURI,
+      stylePath,
+      domainPath,
+      `${out}/${domainName}-${styleName}-${name}.svg`
+    );
+  }
+  console.log("done.");
+};
+
+(async () => {
+  // Process command-line arguments
+  const args = neodoc.run(USAGE, { smartOptions: true });
+
+  // Determine the output file path
+  const outFile = args["--outFile"];
+
+  if (args.batch) {
+    await batchProcess(
+      args.SUBSTANCELIB,
+      args.STYLELIB,
+      args.DOMAINLIB,
+      outFile || "."
+    );
+  } else {
+    await singleProcess(
+      args.SUBSTANCE,
+      args.STYLE,
+      args.DOMAIN,
+      outFile || `output.svg`
+    );
+  }
 })();
