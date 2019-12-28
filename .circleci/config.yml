@@ -86,7 +86,7 @@ jobs:
           command: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
       - run:
           name: Install nodejs/npm
-          command: sudo apt-get update && sudo apt-get upgrade -y nodejs
+          command: sudo apt-get update && sudo apt-get install -y nodejs
       - checkout:
           path: ~/penrose
       - attach_workspace:
