@@ -108,7 +108,7 @@ jobs:
             - ~/penrose/automator/node_modules
       - run:
           name: Make output dir
-          command: mkdir -p ~/out
+          command: mkdir -p /root/out
           working_directory: ~/
       - run:
           name: Alias penrose command
@@ -116,7 +116,7 @@ jobs:
           working_directory: ~/
       - run:
           name: Run nested.sub
-          command: npm start set-theory-domain/nested.sub set-theory-domain/venn.sty set-theory-domain/setTheory.dsl --outFile=~/out/nested.svg
+          command: npm start -- set-theory-domain/nested.sub set-theory-domain/venn.sty set-theory-domain/setTheory.dsl --outFile=/root/out/nested.svg
           working_directory: ~/penrose/automator
       - store_artifacts:
           path: ~/out
