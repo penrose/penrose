@@ -1,5 +1,5 @@
 -- Random seeds; first seed controls the vertex selection, second seed controls the mesh topology
-plugin "ddgjs" (8.0, 3.0)
+plugin "ddgjs" (11.0, 9.0)
 
 global {
     global.padding = 20.0
@@ -10,7 +10,7 @@ global {
     global.edgeStroke = 1.5
     global.selectedEdgeStroke = 3.0
 
-    global.selectedFaceColor = setOpacity(Colors.green, 0.5)
+    global.selectedFaceColor = global.selectedColor
 
     global.selectedRadius = 3.6
     global.selectedThickness = 3.1
@@ -172,12 +172,15 @@ with SimplicialComplex K {
        -- v.posFn = encourage center(v.shape)
 }
 
--- Label a distinguished vertex
+-- Style a distinguished vertex (only if it's a result)
 Vertex v
-where DeclaredV(v); InVS(v, K)
+where DeclaredV(v); InVS(v, K); Result(v)
 with SimplicialComplex K {
-      override v.text.string = v.label
+      -- Don't label the vertex because then we need to position it...
+      -- override v.text.string = v.label
+
       override v.shape.r = global.selectedRadius
+      override v.shape.color = global.closureColor
 
       v.offset = 10.0
       v.labelCloseFn = encourage near(v.text, v.shape, v.offset)
@@ -225,16 +228,18 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
      e.layering3 = e.shape above K.shape
 }
 
--- Style and label a distinguished edge
+-- Style a distinguished edge (only if it's declared to be a result)
 Edge e
 where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K); Result(e)
 with Vertex v1; Vertex v2; SimplicialComplex K {
      override e.shape.thickness = global.selectedEdgeStroke
+     override e.shape.color = global.closureColor
 
      e.text = Text {
        x : average(e.shape.startX, e.shape.endX) + global.padding
        y : average(e.shape.startY, e.shape.endY) + global.padding
-       string : e.label
+       -- string : e.label
+       string : "\\text{ }" 
        rotation : 0.0
        color : e.shape.color
      }
@@ -262,7 +267,6 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
 Face f
 where DeclaredF(f); InFS(f, K)
 with SimplicialComplex K {
-     
      -- Need to pick a color that doesn't "override" the selected edges and vertices!
      override f.shape.fill = global.selectedFaceColor
      override f.shape.color = global.selectedFaceColor
@@ -286,13 +290,24 @@ with SimplicialComplex K {
       LOCAL.textLayering2 = v.text above e.shape
 }
 
+-- Style a SimplicialSubset union of vertices (TODO: figure out how to match more generically)
+SimplicialSubset S
+where SubsetOf(S, K); S := Union(v1, v2); Result(S)
+with SimplicialComplex K; Vertex v1; Vertex v2 {
+     override v1.shape.r = global.selectedRadius
+     override v1.shape.color = global.selectedColor
+
+     override v2.shape.r = global.selectedRadius
+     override v2.shape.color = global.selectedColor
+}
+
 -- Style a SimplicialSubset union (of edge and face only! not in general)
 SimplicialSubset S
-where SubsetOf(S, K); S := Union(e, f)
+where SubsetOf(S, K); S := Union(e, f); Result(S)
 with SimplicialComplex K; Edge e; Face f {
-     override e.shape.color = Colors.green
-     override f.shape.color = setOpacity(Colors.green, 0.2)
-     override f.shape.fill = setOpacity(Colors.green, 0.2)
+     override e.shape.color = global.selectedColor
+     override f.shape.color = global.selectedColor
+     override f.shape.fill = global.selectedColor
 }
 
 ------------------ Things in a closure of a vertex 

@@ -2,13 +2,10 @@ SimplicialComplex K
 
 Edge e ∈ K
 
-Subcomplex E ⊆ K
-E := Closure(e)
-
 SimplicialSubset S1 ⊆ K
-S1 := Link(E)
+S1 := Link(e)
 
 Result(S1)
 
 AutoLabel All
-Label S1 $\mathrm{Lk}(E)$
+Label S1 $\mathrm{Lk}(e)$

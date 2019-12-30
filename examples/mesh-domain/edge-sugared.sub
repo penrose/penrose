@@ -1,10 +1,5 @@
 SimplicialComplex K
-
 Edge e ∈ K
-
-Subcomplex E ⊆ K
-E := Closure(e)
-
-Result(E)
+Result(e)
 
 AutoLabel All
