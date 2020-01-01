@@ -499,15 +499,67 @@ Triangle t; Angle theta {
 	 LOCAL.layering = theta.shape above t.shape
 }
 
+-- ------------------------------------------------------------
+
 -- -- Wikipedia colors and style
 
--- const {
---       override const.pointSize = 0.0
---       override const.strokeWidth = 1.75
---       override const.fontSize = "14pt"
---       const.mainFontSize = "18pt"
---       const.secondaryColor = Colors.mediumgray
+const {
+      override const.pointSize = 0.0
+      override const.strokeWidth = 1.75
+      override const.fontSize = "14pt"
+      const.mainFontSize = "18pt"
+      const.secondaryColor = Colors.mediumgray
+}
+
+-- -----------------------------------------------------
+
+-- Generic Wikipedia style
+
+Segment s {
+	override s.color = const.secondaryColor
+	override s.shape.thickness = const.strokeWidth
+}
+
+Triangle t {
+	 -- override t.color = const.red -- TODO: choose randomly
+	 override t.color = Colors.lighterred
+}
+
+Angle theta {
+      -- override theta.shape.fill = const.yellow -- TODO: choose randomly
+	 -- override theta.shape.fill = sampleUniform(const.palette)
+	 -- TODO: nothing for angle
+}
+
+-- Ray r
+-- with Linelike s; Point m
+-- where r := PerpendicularBisector(s); m := Midpoint(s) {
+
 -- }
+
+Ray r {
+    override r.shape.thickness = const.strokeWidth
+    override r.shape.color = Colors.black -- TODO: choose randomly
+}
+
+Ray r; Triangle t {
+    LOCAL.layering = r.shape above t.shape
+}
+
+Ray r; Angle t {
+    LOCAL.layering = r.shape above t.shape
+}
+
+Point p
+with Segment s
+where p := Midpoint(s) {
+      override p.shape.r = 0.0
+      override p.shape.strokeWidth = 0.0
+}
+
+-- -----------------------------------------------------
+
+-- Specific Wikipedia style
 
 -- Point `A` {
 --       override `A`.text.fontSize = const.mainFontSize
@@ -582,106 +634,115 @@ Triangle t; Angle theta {
 -- 	override `AL`.color = Colors.none
 -- }
 
+-- ------------------------------------------------------------
+
 -- C82 (Byrne) colors and style
 -- https://www.c82.net/blog/?id=79
 
-const {
-      override const.pointSize = 0.0
-      override const.strokeWidth = 0.0
-      override const.fontSize = "14pt"
-      override const.thetaRadius = 30.0
-      const.mainFontSize = "18pt"
-      const.secondaryColor = Colors.black
-      const.secondaryStrokeWidth = 4.0
+-- const {
+--       override const.pointSize = 0.0
+--       override const.strokeWidth = 0.0
+--       override const.fontSize = "14pt"
+--       override const.thetaRadius = 30.0
+--       const.mainFontSize = "18pt"
+--       const.secondaryColor = Colors.black
+--       const.secondaryStrokeWidth = 4.0
 
-      -- Red: d52a22
-      -- Blue: 0f638f
-      -- Yellow: fbc22b
-      -- Black: black
-      -- Light yellow: 282828
-      const.red = rgba(0.835, 0.165, 0.133, 1.0)
-      const.blue = rgba(0.059, 0.388, 0.56, 1.0)
-      const.yellow = rgba(0.984, 0.761, 0.169, 1.0)
-      const.black = Colors.black
-      const.lightyellow = rgba(0.992, 0.957, 0.855, 1.0)
+--       -- Red: d52a22
+--       -- Blue: 0f638f
+--       -- Yellow: fbc22b
+--       -- Black: black
+--       -- Light yellow: 282828
+--       const.red = rgba(0.835, 0.165, 0.133, 1.0)
+--       const.blue = rgba(0.059, 0.388, 0.56, 1.0)
+--       const.yellow = rgba(0.984, 0.761, 0.169, 1.0)
+--       const.black = Colors.black
+--       const.lightyellow = rgba(0.992, 0.957, 0.855, 1.0)
 
-      -- TODO: can't use the generic list type. (Need to change how lists are evaluated into values in evalExpr.) Instead, need to use a special Palette constructor so the backend knows that this is a list of colors
-      -- const.palette = [const.red, const.blue, const.yellow, const.black]
-      const.palette = makePalette(const.red, const.blue, const.yellow)
+--       -- TODO: can't use the generic list type. (Need to change how lists are evaluated into values in evalExpr.) Instead, need to use a special Palette constructor so the backend knows that this is a list of colors
+--       -- const.palette = [const.red, const.blue, const.yellow, const.black]
+--       const.palette = makePalette(const.red, const.blue, const.yellow)
 
-      override const.plane.color = const.lightyellow
-      override const.plane.strokeWidth = 0.0
-      override const.text.string = "\\textrm{ }"
-      override const.plane.sizeY = const.dim + 50.0
-      override const.arrowheadSize = 0.5
-}
+--       override const.plane.color = const.lightyellow
+--       override const.plane.strokeWidth = 0.0
+--       override const.text.string = "\\textrm{ }"
+--       override const.plane.sizeY = const.dim + 50.0
+--       override const.arrowheadSize = 0.5
+-- }
 
--- No labels!!!
+-- -- No labels!!!
 
-Point p {
-      -- Still seems to need these DOF, otherwise diagram looks cramped....
-      -- Why does the diagram keep rotating?
-      -- override p.text.x = 0.0
-      -- override p.text.y = 0.0
-      override p.text.string = "\\textrm{ }"
-      delete p.labelFnMargin
-      delete p.labelFn
+-- Point p {
+--       -- Still seems to need these DOF, otherwise diagram looks cramped....
+--       -- Why does the diagram keep rotating?
+--       -- override p.text.x = 0.0
+--       -- override p.text.y = 0.0
+--       override p.text.string = "\\textrm{ }"
+--       delete p.labelFnMargin
+--       delete p.labelFn
 
-      -- TODO: how to delete all the other objfns about the labels...?
-}
+--       -- TODO: how to delete all the other objfns about the labels...?
+-- }
 
--- Generic Byrne style
-Segment s {
-	override s.color = const.secondaryColor
-	override s.shape.thickness = const.secondaryStrokeWidth
-}
+-- -- ------------------------------------------------------------
 
-Triangle t {
-	 -- override t.color = const.red -- TODO: choose randomly
-	 override t.color = sampleUniform(const.palette)
+-- -- Generic Byrne style
 
-}
+-- Segment s {
+-- 	override s.color = const.secondaryColor
+-- 	override s.shape.thickness = const.secondaryStrokeWidth
+-- }
 
-Angle theta {
-      -- override theta.shape.fill = const.yellow -- TODO: choose randomly
-	 override theta.shape.fill = sampleUniform(const.palette)
-}
+-- Triangle t {
+-- 	 -- override t.color = const.red -- TODO: choose randomly
+-- 	 override t.color = sampleUniform(const.palette)
 
--- Revert the perpmark back to the wedge...
-Ray r
-with Linelike s; Point m
-where r := PerpendicularBisector(s); m := Midpoint(s) {
-     r.theta_radius = const.thetaRadius
-     -- r.theta_arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, r.theta_radius)
-     r.theta_arcPath = arcPathEuclidean([r.shape.startX, r.shape.startY], [r.shape.endX, r.shape.endY], [s.shape.startX, s.shape.startY], r.theta_radius)
+-- }
 
-     override r.perpMark = Curve {
-     		 pathData : polygonFromPoints(r.theta_arcPath)
-		 strokeWidth : const.strokeWidth
-		 color : Colors.none
-		 fill : sampleUniform(const.palette)
-     }
-}
+-- Angle theta {
+--       -- override theta.shape.fill = const.yellow -- TODO: choose randomly
+-- 	 override theta.shape.fill = sampleUniform(const.palette)
+-- }
 
-Ray r {
-    override r.shape.thickness = const.secondaryStrokeWidth
-    override r.shape.color = const.black -- TODO: choose randomly
-}
+-- -- Revert the perpmark back to the wedge...
+-- Ray r
+-- with Linelike s; Point m
+-- where r := PerpendicularBisector(s); m := Midpoint(s) {
+--      r.theta_radius = const.thetaRadius
+--      -- r.theta_arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, r.theta_radius)
+--      r.theta_arcPath = arcPathEuclidean([r.shape.startX, r.shape.startY], [r.shape.endX, r.shape.endY], [s.shape.startX, s.shape.startY], r.theta_radius)
 
-Ray r; Triangle t {
-    LOCAL.layering = r.shape above t.shape
-}
+--      override r.perpMark = Curve {
+--      		 pathData : polygonFromPoints(r.theta_arcPath)
+-- 		 strokeWidth : const.strokeWidth
+-- 		 color : Colors.none
+-- 		 fill : sampleUniform(const.palette)
+--      }
+-- }
 
-Ray r; Angle t {
-    LOCAL.layering = r.shape above t.shape
-}
+-- Ray r {
+--     override r.shape.thickness = const.secondaryStrokeWidth
+--     override r.shape.color = const.black -- TODO: choose randomly
+-- }
 
-Point p
-with Segment s
-where p := Midpoint(s) {
-      override p.shape.r = 0.0
-      override p.shape.strokeWidth = 0.0
-}
+-- Ray r; Triangle t {
+--     LOCAL.layering = r.shape above t.shape
+-- }
+
+-- Ray r; Angle t {
+--     LOCAL.layering = r.shape above t.shape
+-- }
+
+-- Point p
+-- with Segment s
+-- where p := Midpoint(s) {
+--       override p.shape.r = 0.0
+--       override p.shape.strokeWidth = 0.0
+-- }
+
+-- ------------------------------------------------------------
+
+-- Specific Byrne style
 
 -- Point `A` {
 --       override `A`.text.fontSize = const.mainFontSize
