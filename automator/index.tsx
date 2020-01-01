@@ -113,9 +113,9 @@ const singleProcess = async (
   folders: boolean,
   out: string,
   meta = {
-    substanceName: "untitled",
-    styleName: "untitled",
-    domainName: "untitled"
+    substanceName: sub,
+    styleName: sty,
+    domainName: dsl
   }
 ) => {
   // Fetch Substance, Style, and Domain files
