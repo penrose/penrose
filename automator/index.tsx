@@ -14,8 +14,8 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator SUBSTANCE STYLE DOMAIN [--outFile=PATH]
-  automator batch SUBSTANCELIB STYLELIB DOMAINLIB [--outFile=PATH]
+  automator SUBSTANCE STYLE DOMAIN [--folders] [--outFile=PATH]
+  automator batch SUBSTANCELIB STYLELIB DOMAINLIB [--folders] [--outFile=PATH]
 
 Options:
   -o, --outFile PATH
@@ -106,7 +106,18 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
 };
 
 // In an async context, communicate with the backend to compile and optimize the diagram
-const singleProcess = async (sub, sty, dsl, out: string) => {
+const singleProcess = async (
+  sub,
+  sty,
+  dsl: string,
+  folders: boolean,
+  out: string,
+  meta = {
+    substanceName: "untitled",
+    styleName: "untitled",
+    domainName: "untitled"
+  }
+) => {
   // Fetch Substance, Style, and Domain files
   const trio = [sub, sty, dsl].map(arg =>
     fs.readFileSync(`../examples/${arg}`, "utf8").toString()
@@ -133,15 +144,39 @@ const singleProcess = async (sub, sty, dsl, out: string) => {
   const optimizedState = JSON.parse(optimizerOutput).contents;
   const state = await collectLabels(optimizedState, true);
 
+  // TODO: include metadata prop?
   const canvas = ReactDOMServer.renderToString(
     <Canvas.default data={state} lock={true} />
   );
-  fs.writeFileSync(out, canvas);
+
+  if (folders) {
+    // TODO: add performance data
+    const metadata = {
+      ...meta,
+      renderedOn: Date.now()
+    };
+    if (!fs.existsSync(out)) {
+      fs.mkdirSync(out);
+    }
+    fs.writeFileSync(`${out}/output.svg`, canvas);
+    fs.writeFileSync(`${out}/substance.sub`, trio[0]);
+    fs.writeFileSync(`${out}/style.sty`, trio[1]);
+    fs.writeFileSync(`${out}/domain.dsl`, trio[2]);
+    fs.writeFileSync(`${out}/meta.json`, JSON.stringify(metadata));
+  } else {
+    fs.writeFileSync(out, canvas);
+  }
   console.log(`The diagram has been saved to ${out}`);
 };
 
 // Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
-const batchProcess = async (sublib, stylib, dsllib, out: string) => {
+const batchProcess = async (
+  sublib,
+  stylib,
+  dsllib: string,
+  folders: boolean,
+  out: string
+) => {
   const substanceLibrary = JSON.parse(
     fs.readFileSync(`../examples/${sublib}`).toString()
   );
@@ -175,7 +210,13 @@ const batchProcess = async (sublib, stylib, dsllib, out: string) => {
       substanceURI,
       stylePath,
       domainPath,
-      `${out}/${domainName}-${styleName}-${name}.svg`
+      folders,
+      `${out}/${domainName}-${styleName}-${name}${folders ? "" : ".svg"}`,
+      {
+        substanceName: name,
+        styleName,
+        domainName
+      }
     );
   }
   console.log("done.");
@@ -187,12 +228,14 @@ const batchProcess = async (sublib, stylib, dsllib, out: string) => {
 
   // Determine the output file path
   const outFile = args["--outFile"];
+  const folders = args["--folders"] || false;
 
   if (args.batch) {
     await batchProcess(
       args.SUBSTANCELIB,
       args.STYLELIB,
       args.DOMAINLIB,
+      folders,
       outFile || "."
     );
   } else {
@@ -200,7 +243,8 @@ const batchProcess = async (sublib, stylib, dsllib, out: string) => {
       args.SUBSTANCE,
       args.STYLE,
       args.DOMAIN,
-      outFile || `output.svg`
+      folders,
+      outFile || folders ? `output` : `output.svg`
     );
   }
 })();
