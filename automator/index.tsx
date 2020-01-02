@@ -9,13 +9,14 @@ const Packets = require("../react-renderer/src/packets");
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
 const neodoc = require("neodoc");
+const uniqid = require("uniqid");
 
 const USAGE = `
 Penrose Automator.
 
 Usage:
   automator SUBSTANCE STYLE DOMAIN [--folders] [--outFile=PATH]
-  automator batch SUBSTANCELIB STYLELIB DOMAINLIB [--folders] [--outFile=PATH]
+  automator batch SUBSTANCELIB STYLELIB DOMAINLIB OUTFOLDER [--folders] 
 
 Options:
   -o, --outFile PATH
@@ -115,7 +116,8 @@ const singleProcess = async (
   meta = {
     substanceName: sub,
     styleName: sty,
-    domainName: dsl
+    domainName: dsl,
+    id: uniqid("instance-")
   }
 ) => {
   // Fetch Substance, Style, and Domain files
@@ -206,16 +208,19 @@ const batchProcess = async (
     const domainPath = foundDomain.uri;
     const styleName = foundStyle.label;
     const domainName = foundDomain.label;
+    // Warning: will face id conflicts if parallelism used
+    const id = uniqid("instance-");
     await singleProcess(
       substanceURI,
       stylePath,
       domainPath,
       folders,
-      `${out}/${domainName}-${styleName}-${name}${folders ? "" : ".svg"}`,
+      `${out}/${id}${folders ? "" : ".svg"}`,
       {
         substanceName: name,
         styleName,
-        domainName
+        domainName,
+        id
       }
     );
   }
@@ -236,7 +241,7 @@ const batchProcess = async (
       args.STYLELIB,
       args.DOMAINLIB,
       folders,
-      outFile || "."
+      args.OUTFOLDER
     );
   } else {
     await singleProcess(
