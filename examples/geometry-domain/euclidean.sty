@@ -53,12 +53,6 @@ Colors {
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
-
-    -- Wikipedia palette
-    Colors.opacity = 0.2
-    Colors.lighterred = setOpacity(Colors.red, Colors.opacity)
-    Colors.lighterblue = setOpacity(Colors.blue, Colors.opacity)
-    Colors.lighterwhite = setOpacity(Colors.white, Colors.opacity)
 }
 
 const {
@@ -509,6 +503,16 @@ Triangle t; Angle theta {
 --       override const.fontSize = "14pt"
 --       const.mainFontSize = "18pt"
 --       const.secondaryColor = Colors.mediumgray
+
+--       -- Don't show bounding box or plane label (but things still have to fit in the bounding box)
+--       override const.plane.color = Colors.none
+--       override const.plane.strokeColor = Colors.none
+--       override const.label = "\\textrm{ }"
+
+--       -- Wikipedia palette
+--       Colors.lighterred = rgba(1.0, 0.851, 0.922, 1.0)
+--       Colors.lighterblue = rgba(0.851, 0.914, 1.0, 1.0)
+--       Colors.lighterwhite = Colors.white
 -- }
 
 -- -----------------------------------------------------
@@ -526,6 +530,8 @@ Triangle t; Angle theta {
 -- }
 
 -- Angle theta {
+--       override theta.shape.color = const.secondaryColor
+
 --       -- override theta.shape.fill = const.yellow -- TODO: choose randomly
 -- 	 -- override theta.shape.fill = sampleUniform(const.palette)
 -- 	 -- TODO: nothing for angle
@@ -542,12 +548,23 @@ Triangle t; Angle theta {
 --     override r.shape.color = Colors.black -- TODO: choose randomly
 -- }
 
+-- Ray r
+-- with Angle theta; Point x; Point y; Point z
+-- where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
+--       override theta.bisectMark1.color = const.secondaryColor
+--       override theta.bisectMark2.color = const.secondaryColor
+-- }
+
 -- Ray r; Triangle t {
 --     LOCAL.layering = r.shape above t.shape
 -- }
 
 -- Ray r; Angle t {
 --     LOCAL.layering = r.shape above t.shape
+-- }
+
+-- Square s; Triangle t {
+--     LOCAL.layering = t.shape below s.shape
 -- }
 
 -- Point p
@@ -589,6 +606,34 @@ Triangle t; Angle theta {
 -- 	override `CF`.color = const.secondaryColor
 -- }
 
+-- -- These segments are only styled in the Byrne style
+
+-- Segment `AB` {
+-- 	override `AB`.shape.color = Colors.none
+-- }
+
+-- Segment `BC` {
+-- 	override `BC`.shape.color = Colors.none
+-- }
+
+-- Segment `CA` {
+-- 	override `CA`.shape.color = Colors.none
+-- }
+
+-- Segment `AL` {
+-- 	override `AL`.color = Colors.none
+-- }
+
+-- Segment `BF` {
+-- 	override `BF`.shape.color = Colors.none
+-- }
+
+-- Segment `DB` {
+-- 	override `DB`.shape.color = Colors.none
+-- }
+
+-- -- ^ End byrne segments
+
 -- Angle `CAB` {
 --       override `CAB`.shape.color = const.secondaryColor
 -- }
@@ -628,10 +673,6 @@ Triangle t; Angle theta {
 -- Angle `CAB` {
 --       override `CAB`.shape.fill = setOpacity(Colors.white, 0.5)
 --       override `CAB`.shape.strokeWidth = 1.25
--- }
-
--- Segment `AL` {
--- 	override `AL`.color = Colors.none
 -- }
 
 -- ------------------------------------------------------------
