@@ -198,7 +198,7 @@ Ray r {
 }
 
 Triangle t
-where t := MkTriangleP(p, q, r)
+where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
      t.arcPath_pq = slerp(p.vec_math, q.vec_math, G.numArcPts)
      t.screenspacePath_pq = projectAndToScreen_list(G.hfov, G.vfov, G.sphereRadius, G.camera, G.dir, t.arcPath_pq, G.toScreen, t.shape.name)

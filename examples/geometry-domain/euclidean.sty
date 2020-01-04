@@ -503,59 +503,59 @@ Triangle t; Angle theta {
 
 -- -- Wikipedia colors and style
 
-const {
-      override const.pointSize = 0.0
-      override const.strokeWidth = 1.75
-      override const.fontSize = "14pt"
-      const.mainFontSize = "18pt"
-      const.secondaryColor = Colors.mediumgray
-}
+-- const {
+--       override const.pointSize = 0.0
+--       override const.strokeWidth = 1.75
+--       override const.fontSize = "14pt"
+--       const.mainFontSize = "18pt"
+--       const.secondaryColor = Colors.mediumgray
+-- }
 
 -- -----------------------------------------------------
 
 -- Generic Wikipedia style
 
-Segment s {
-	override s.color = const.secondaryColor
-	override s.shape.thickness = const.strokeWidth
-}
-
-Triangle t {
-	 -- override t.color = const.red -- TODO: choose randomly
-	 override t.color = Colors.lighterred
-}
-
-Angle theta {
-      -- override theta.shape.fill = const.yellow -- TODO: choose randomly
-	 -- override theta.shape.fill = sampleUniform(const.palette)
-	 -- TODO: nothing for angle
-}
-
--- Ray r
--- with Linelike s; Point m
--- where r := PerpendicularBisector(s); m := Midpoint(s) {
-
+-- Segment s {
+-- 	override s.color = const.secondaryColor
+-- 	override s.shape.thickness = const.strokeWidth
 -- }
 
-Ray r {
-    override r.shape.thickness = const.strokeWidth
-    override r.shape.color = Colors.black -- TODO: choose randomly
-}
+-- Triangle t {
+-- 	 -- override t.color = const.red -- TODO: choose randomly
+-- 	 override t.color = Colors.lighterred
+-- }
 
-Ray r; Triangle t {
-    LOCAL.layering = r.shape above t.shape
-}
+-- Angle theta {
+--       -- override theta.shape.fill = const.yellow -- TODO: choose randomly
+-- 	 -- override theta.shape.fill = sampleUniform(const.palette)
+-- 	 -- TODO: nothing for angle
+-- }
 
-Ray r; Angle t {
-    LOCAL.layering = r.shape above t.shape
-}
+-- -- Ray r
+-- -- with Linelike s; Point m
+-- -- where r := PerpendicularBisector(s); m := Midpoint(s) {
 
-Point p
-with Segment s
-where p := Midpoint(s) {
-      override p.shape.r = 0.0
-      override p.shape.strokeWidth = 0.0
-}
+-- -- }
+
+-- Ray r {
+--     override r.shape.thickness = const.strokeWidth
+--     override r.shape.color = Colors.black -- TODO: choose randomly
+-- }
+
+-- Ray r; Triangle t {
+--     LOCAL.layering = r.shape above t.shape
+-- }
+
+-- Ray r; Angle t {
+--     LOCAL.layering = r.shape above t.shape
+-- }
+
+-- Point p
+-- with Segment s
+-- where p := Midpoint(s) {
+--       override p.shape.r = 0.0
+--       override p.shape.strokeWidth = 0.0
+-- }
 
 -- -----------------------------------------------------
 
@@ -639,6 +639,8 @@ where p := Midpoint(s) {
 -- C82 (Byrne) colors and style
 -- https://www.c82.net/blog/?id=79
 
+-- Generic Byrne style
+
 -- const {
 --       override const.pointSize = 0.0
 --       override const.strokeWidth = 0.0
@@ -683,10 +685,6 @@ where p := Midpoint(s) {
 
 --       -- TODO: how to delete all the other objfns about the labels...?
 -- }
-
--- -- ------------------------------------------------------------
-
--- -- Generic Byrne style
 
 -- Segment s {
 -- 	override s.color = const.secondaryColor
