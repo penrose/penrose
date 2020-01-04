@@ -5,11 +5,22 @@
 -- p1 := Sample(t1)
 -- p2 := Sample(t2)
 
-PathType t
-HasForm(t, "LD*S*E")
-Path p
-p := Sample(t)
+-- PathType t
+-- HasForm(t, "LD*S*E")
+-- Path p
+-- p := Sample(t)
 
+PathType t1, t2, t3
+HasForm(t1, "L(D|S)SE")
+HasForm(t2, "LSDE")
+HasForm(t3, "LE")
+
+Path p1, p2, p3
+p1 := Sample(t1)
+p2 := Sample(t2)
+p3 := Sample(t3)
+
+AutoLabel All
 
 AutoLabel All
 
