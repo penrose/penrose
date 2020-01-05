@@ -169,7 +169,7 @@ where In(v,U) {
 
    -- NOTE: nearHead is actually an objective. Use the other constraint form?
    -- v.labelLocation = ensure nearHead(v.shape, v.text, 0.0, 30.0)
-   v.labelLocation = ensure atDist((v.shape.endX, v.shape.endY), v.text, 20.0)
+   v.labelLocation = ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
 
    v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
 

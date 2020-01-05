@@ -28,5 +28,3 @@ Label v2 $f(u_2)$
 -- Label v3 $f(u_1 + u_2)$
 Label v3 $f(u_1 + u_2) = \\ f(u_1) + f(u_2)$
 -- Label v4 $f(u_1 + u_2) = \\ f(u_1) + f(u_2)$
--- Label v4 $test$
--- Label v4 $f(u_1) + f(u_2)$
