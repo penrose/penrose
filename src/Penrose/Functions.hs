@@ -1769,6 +1769,11 @@ contains [GPI s@("Rectangle", _), GPI l@("Text", _)]
  =
   dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 +
   getNum l "w" / 2
+contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
+             -- HACK: reusing test impl, revert later
+             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+                 diff = r_l - getNum c "r"
+             in dist (getX r, getY r) (getX c, getY c) - diff + padding
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
   dist (getX outc, getY outc) (getX inc, getY inc) -
   (0.5 * getNum outc "side" - 0.5 * getNum inc "side")

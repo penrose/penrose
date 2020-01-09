@@ -4,7 +4,7 @@ module Penrose.SubstanceTokenizer (Token (..), alexScanTokens) where
 %wrapper "basic"
 $digit = 0-9
 $alpha = [a-zA-Z]
-$symbol = [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\⟵\⟶\⟷\<\>\|\;\~\`\!\#\%\&\*\±\§\?\$\<\>\⊆\∪\∩\`\∫\[\]\^\{\}\∠]
+$symbol = [\=\+\-\*\/\:\∈\←\→\↑\↓\↔\↕\↖\↗\↘\↙\↚\↛\↮\⟵\⟶\⟷\<\>\|\;\~\`\!\#\%\&\*\±\§\?\$\<\>\⊆\∪\∩\`\∫\[\]\^\{\}\∠\⊂\∉]
 tokens :-
   -- digits
   -- alphabetic characters
