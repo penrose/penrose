@@ -106,6 +106,8 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
   return updated;
 };
 
+const toMs = (hr: any) => hr[1] / 1000000;
+
 // In an async context, communicate with the backend to compile and optimize the diagram
 const singleProcess = async (
   sub,
@@ -125,8 +127,11 @@ const singleProcess = async (
     fs.readFileSync(`../examples/${arg}`, "utf8").toString()
   );
   console.log(`Compiling for ${out} ...`);
+  const overallStart = process.hrtime();
   const compilePacket = Packets.CompileTrio(...trio);
+  const compileStart = process.hrtime();
   const compilerOutput = await runPenrose(compilePacket);
+  const compileEnd = process.hrtime(compileStart);
   let compiledState;
   try {
     compiledState = JSON.parse(compilerOutput);
@@ -139,23 +144,40 @@ const singleProcess = async (
     console.error(`Compilation failed:\n${err.tag}\n${err.contents}`);
     process.exit(1);
   }
+  const labelStart = process.hrtime();
   const initialState = await collectLabels(compiledState.contents[0], false);
+  const labelEnd = process.hrtime(labelStart);
+
   console.log(`Stepping for ${out} ...`);
   const convergePacket = Packets.StepUntilConvergence(initialState);
+  const convergeStart = process.hrtime();
   const optimizerOutput = await runPenrose(convergePacket);
+  const convergeEnd = process.hrtime(convergeStart);
+
   const optimizedState = JSON.parse(optimizerOutput).contents;
+  // We don't time this individually since it's usually memoized anyway
   const state = await collectLabels(optimizedState, true);
 
   // TODO: include metadata prop?
+  const reactRenderStart = process.hrtime();
   const canvas = ReactDOMServer.renderToString(
     <Canvas.default data={state} lock={true} />
   );
-
+  const reactRenderEnd = process.hrtime(reactRenderStart);
+  const overallEnd = process.hrtime(overallStart);
   if (folders) {
     // TODO: add performance data
     const metadata = {
       ...meta,
-      renderedOn: Date.now()
+      renderedOn: Date.now(),
+      timeTaken: {
+        // includes overhead like JSON, recollecting labels
+        overall: toMs(overallEnd),
+        compilation: toMs(compileEnd),
+        labelling: toMs(labelEnd),
+        optimization: toMs(convergeEnd),
+        rendering: toMs(reactRenderEnd)
+      }
     };
     if (!fs.existsSync(out)) {
       fs.mkdirSync(out);
