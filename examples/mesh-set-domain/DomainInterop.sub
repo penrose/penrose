@@ -13,10 +13,10 @@ Edge e3 ∈ K
 Edge e4 ∈ K
 Face f ∈ K
 
-e1 := {v2,v3}
-e2 := {v3,v1}
-e3 := {v1,v2}
-e4 := {v3,v4}
+e1 := {v2, v3}
+e2 := {v3, v1}
+e3 := {v1, v2}
+e4 := {v3, v4}
 f := {e1, e2, e3}
 
 AutoLabel All
@@ -39,16 +39,22 @@ Point p1, p2, p3, p4
 B1 ⊂ A
 B2 ⊂ A
 B3 ⊂ A
-p1 ∉ B1
+
 p1 ∈ B2
 p1 ∈ B3
-p2 ∉ B2
+p1 ∉ B1
+p1 ∉ B4
+
 p2 ∈ B3
 p2 ∈ B1
-p3 ∉ B3
+p2 ∉ B2
+p2 ∉ B4
+
 p3 ∈ B1
 p3 ∈ B2
 p3 ∈ B4
+p3 ∉ B3
+
 p4 ∈ B4
 p4 ∉ A
 
@@ -75,3 +81,6 @@ Identified(e1, B1)
 Identified(e2, B2)
 Identified(e3, B3)
 Identified(e4, B4)
+
+-- Also identify faces with sets
+Identified(f, A)

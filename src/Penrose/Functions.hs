@@ -686,6 +686,10 @@ average :: ConstCompFn
 average [Val (FloatV x), Val (FloatV y)] =
   let res = (x + y) / 2
   in Val $ FloatV res
+average [Val (ListV xs)] =
+  let len' = if null xs then 1 else length xs -- avoid divide by 0
+      res  = sum xs / (r2f len')
+  in Val $ FloatV res
 
 norm_ :: ConstCompFn
 norm_ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ norm [x, y]
