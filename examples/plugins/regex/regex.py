@@ -180,7 +180,7 @@ def genPathString(form):
     maxObjects = int(CANVAS_HEIGHT * CANVAS_WIDTH / (100 * 100))
 
     # Stats about the path form
-    numIndefinites = len(re.findall(r"\w(?=(\+|\*))", form))
+    numIndefinites = len(re.findall(r"(?=(\+|\*))", form))
 
     if numIndefinites == 0:
         limit = 1
