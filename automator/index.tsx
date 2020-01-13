@@ -19,7 +19,8 @@ Usage:
   automator batch SUBSTANCELIB STYLELIB DOMAINLIB OUTFOLDER [--folders] 
 
 Options:
-  -o, --outFile PATH
+  -o, --outFile Path to either an SVG file or a folder, depending on the value of --folders.
+  --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
 `;
 
 /**
@@ -271,7 +272,7 @@ const batchProcess = async (
       args.STYLE,
       args.DOMAIN,
       folders,
-      outFile || folders ? `output` : `output.svg`
+      outFile && folders ? `output` : `output.svg`
     );
   }
 })();
