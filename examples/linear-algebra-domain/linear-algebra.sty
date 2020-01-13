@@ -359,11 +359,18 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       -- Then rotate by the vector angle. Then translate to the local origin of the vector space.
       LOCAL.shape = SquareTransform {
 	  -- TODO: unintuitive behavior; need to set these constants otherwise shape is offscreen
+
+	  -- TODO: this currently isn't working because we commented out transforms in computedProperties (they were slowing down the system)
+
+	  -- x : 0.0
+	  -- y : 0.0
+	  -- side : 100.0
+	  -- rotation : 0.0
+
 	  x : 0.0
 	  y : 0.0
 	  side : 1.0
 	  rotation : 0.0
-
 	  transform : andThen(andThen(andThen(scale(LOCAL.len, LOCAL.len), translate(LOCAL.len / 2.0, LOCAL.len / 2.0)), rotate(LOCAL.angle)), translate(U.shape.x, U.shape.y))
 	  color : Colors.none
 	  strokeColor : Colors.black
