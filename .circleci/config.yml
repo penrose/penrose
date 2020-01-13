@@ -116,7 +116,7 @@ jobs:
           working_directory: ~/
       - run:
           name: Run all in registry
-          command: npm start -- batch substanceLibrary.json styleLibrary.json elementLibrary.json --outFile=/root/out
+          command: npm start -- batch substanceLibrary.json styleLibrary.json elementLibrary.json /root/out
           working_directory: ~/penrose/automator
       - store_artifacts:
           path: ~/out
