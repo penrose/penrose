@@ -18,6 +18,7 @@ import qualified Data.Map.Strict                as M
 import           Data.Maybe
 import           Data.String
 import           Data.Typeable
+import           Debug.Trace                    (traceShowId)
 import           Penrose.API
 import qualified Penrose.Element                as D
 import           Penrose.Env                    hiding (typeName)
@@ -216,14 +217,20 @@ generateStatement env = do
 
 stmtTypes :: VarEnv -> [VarEnv -> Synthesize SubStmt]
 stmtTypes env =
-  let typesExist = [M.null $ typeConstructors env, M.null $ predicates env]
-      validGens = map snd $ filter fst $ zip typesExist stmtGens
+  let typesExist =
+        [ M.null $ typeConstructors env
+        , M.null $ predicates env
+        , M.null $ valConstructors env
+        ]
+      validGens = map snd $ filter (not . fst) $ zip typesExist stmtGens
   in validGens
+    -- Ordering must be consistent with typesExist
   where
     stmtGens =
-      [ generatePredicate
-      , generateType
-      -- , generateValueBinding
+      [ generateType
+      , generatePredicate
+      , generateConstructor
+      -- , generateFunction -- TODO: implement this
       ]
 
 -- | Generate object declarations
@@ -262,7 +269,8 @@ generateType' typ (General env) = do
 generatePredicate :: VarEnv -> Synthesize SubStmt
 generatePredicate env = do
   cxt <- get
-  let preds = filter (filterPred cxt) (M.elems $ predicates env)
+  -- let preds = filter (filterPred cxt) (M.elems $ predicates env)
+  let preds = M.elems $ predicates env
   generatePredicateIn preds
 
 -- | Generate a single predicate given a list of predicates of choice
@@ -307,7 +315,11 @@ generateArg :: ArgOption -> String -> Synthesize Expr
 generateArg Existing typ = do
   existingTypes <- gets declaredTypes
   case M.lookup typ existingTypes of
-    Nothing -> error $ "No existing types for: " ++ show typ
+    Nothing
+      -- error $ "No existing types for: " ++ show typ
+     -> do
+      generateType' typ Concrete
+      generateArg Existing typ
     Just lst -> do
       n <- choice lst -- pick one existing id
       return $ VarE $ VarConst n
@@ -321,10 +333,19 @@ generateArg Mixed typ
   f typ
 
 -- FIXME: finish the implementation
--- generateBinding :: VarEnv -> Synthesize SubStmt
--- generateBinding env =
---   op <- choice $ operators env
---   f  <- generate
+generateConstructor :: VarEnv -> Synthesize SubStmt
+generateConstructor env = do
+  cons <- choice $ M.elems $ valConstructors env
+  opt <- gets (argOption . setting)
+  let argTypes = map typeName $ tlsvc cons
+  args <- generateArgs opt argTypes
+  decl <- generateType' (typeName $ tvc cons) Concrete
+  let (Decl _ name) = decl
+  let stmt =
+        Bind name $ ApplyValCons $ Func {nameFunc = namevc cons, argFunc = args}
+  appendStmt stmt
+  return stmt
+
 --------------------------------------------------------------------------------
 -- Substance Helpers
 --------------------------------------------------------------------------------
