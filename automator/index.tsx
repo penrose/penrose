@@ -19,7 +19,7 @@ Usage:
   automator batch SUBSTANCELIB STYLELIB DOMAINLIB OUTFOLDER [--folders] 
 
 Options:
-  -o, --outFile Path to either an SVG file or a folder, depending on the value of --folders.
+  -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
 `;
 
@@ -255,8 +255,8 @@ const batchProcess = async (
   const args = neodoc.run(USAGE, { smartOptions: true });
 
   // Determine the output file path
-  const outFile = args["--outFile"];
   const folders = args["--folders"] || false;
+  const outFile = args["--outFile"];
 
   if (args.batch) {
     await batchProcess(
@@ -272,7 +272,7 @@ const batchProcess = async (
       args.STYLE,
       args.DOMAIN,
       folders,
-      outFile && folders ? `output` : `output.svg`
+      outFile
     );
   }
 })();
