@@ -223,7 +223,7 @@ stmtTypes env =
     stmtGens =
       [ generatePredicate
       , generateType
-      , generateValueBinding
+      , generateBinding
       ]
 
 -- | Generate object declarations
@@ -321,10 +321,11 @@ generateArg Mixed typ
   f typ
 
 -- FIXME: finish the implementation
--- generateBinding :: VarEnv -> Synthesize SubStmt
--- generateBinding env =
---   op <- choice $ operators env
---   f  <- generate
+generateBinding :: VarEnv -> Synthesize SubStmt
+generateBinding env =
+  op <- choice $ operators env
+  f  <- generate
+
 --------------------------------------------------------------------------------
 -- Substance Helpers
 --------------------------------------------------------------------------------
