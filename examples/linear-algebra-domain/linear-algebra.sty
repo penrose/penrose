@@ -165,6 +165,8 @@ where In(v,U) {
   v.layeringPerp1 = v.shape above U.perpMark
 
    v.containFn = ensure contains(U.shape, v.shape)
+
+   -- TODO: This constraint is overly harsh -- results in vector addition diagrams that are too similar. Same w/ pairwise repulsion
    v.containLabel = ensure contains(U.shape, v.text)
 
    -- NOTE: nearHead is actually an objective. Use the other constraint form?
