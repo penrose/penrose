@@ -269,7 +269,8 @@ generateType' typ (General env) = do
 generatePredicate :: VarEnv -> Synthesize SubStmt
 generatePredicate env = do
   cxt <- get
-  let preds = filter (filterPred cxt) (M.elems $ predicates env)
+  -- let preds = filter (filterPred cxt) (M.elems $ predicates env)
+  let preds = M.elems $ predicates env
   generatePredicateIn preds
 
 -- | Generate a single predicate given a list of predicates of choice
@@ -314,8 +315,9 @@ generateArg :: ArgOption -> String -> Synthesize Expr
 generateArg Existing typ = do
   existingTypes <- gets declaredTypes
   case M.lookup typ existingTypes of
-    Nothing -> do
+    Nothing
       -- error $ "No existing types for: " ++ show typ
+     -> do
       generateType' typ Concrete
       generateArg Existing typ
     Just lst -> do
