@@ -1,12 +1,11 @@
 import * as React from "react";
 
-import { IGPIPropsDraggable } from "./types";
-import draggable from "./Draggable";
+import { IGPIProps } from "./types";
 import { toScreen, toHex, Arrowhead } from "./Util";
 
-class Line extends React.Component<IGPIPropsDraggable> {
+class Line extends React.Component<IGPIProps> {
   public render() {
-    const { shape, canvasSize, onClick } = this.props;
+    const { shape, canvasSize } = this.props;
     const style = shape.style.contents;
     const [sx, sy] = toScreen(
       [shape.startX.contents, shape.startY.contents],
@@ -46,7 +45,6 @@ class Line extends React.Component<IGPIPropsDraggable> {
 
         <path
           d={path}
-          onMouseDown={onClick}
           fillOpacity={opacity}
           strokeOpacity={opacity}
           stroke={color}
@@ -67,4 +65,4 @@ class Line extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(Line);
+export default Line;

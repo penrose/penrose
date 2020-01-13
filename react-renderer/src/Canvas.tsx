@@ -1,8 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import componentMap from "./componentMap";
+import { interactiveMap, staticMap } from "./componentMap";
 import Log from "./Log";
-import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
@@ -10,7 +9,7 @@ import { propagateUpdate, updateVaryingState } from "./PropagateUpdate";
 
 interface IProps {
   lock: boolean;
-  layers: ILayer[];
+  layers?: ILayer[];
   substanceMetadata?: string;
   styleMetadata?: string;
   elementMetadata?: string;
@@ -18,7 +17,7 @@ interface IProps {
   style?: any;
   penroseVersion?: string;
   data: any;
-  updateData(shapes: any, step?: boolean): void;
+  updateData?: (shapes: any, step?: boolean) => void;
 }
 
 class Canvas extends React.Component<IProps> {
@@ -56,36 +55,38 @@ class Canvas extends React.Component<IProps> {
   public readonly svg = React.createRef<SVGSVGElement>();
 
   public dragEvent = async (id: string, dy: number, dx: number) => {
-    const updated = await propagateUpdate({
-      ...this.props.data,
-      paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
-      shapesr: this.props.data.shapesr.map(
-        ([shapeType, shape]: [string, any]) => {
-          if (shape.name.contents === id) {
-            if (shapeType === "Curve") {
-              console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
+    if (this.props.updateData) {
+      const updated = await propagateUpdate({
+        ...this.props.data,
+        paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
+        shapesr: this.props.data.shapesr.map(
+          ([shapeType, shape]: [string, any]) => {
+            if (shape.name.contents === id) {
+              if (shapeType === "Curve") {
+                console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
+                return [
+                  shapeType,
+                  { ...shape } // TODO: need to map (-dx, -dy) over all the path pieces
+                ];
+              }
+
               return [
                 shapeType,
-                { ...shape } // TODO: need to map (-dx, -dy) over all the path pieces
+                {
+                  ...shape,
+                  x: { ...shape.x, contents: shape.x.contents - dx },
+                  y: { ...shape.y, contents: shape.y.contents - dy }
+                }
               ];
             }
 
-            return [
-              shapeType,
-              {
-                ...shape,
-                x: { ...shape.x, contents: shape.x.contents - dx },
-                y: { ...shape.y, contents: shape.y.contents - dy }
-              }
-            ];
+            return [shapeType, shape];
           }
-
-          return [shapeType, shape];
-        }
-      )
-    });
-    const updatedWithVaryingState = await updateVaryingState(updated);
-    this.props.updateData(updatedWithVaryingState);
+        )
+      });
+      const updatedWithVaryingState = await updateVaryingState(updated);
+      this.props.updateData(updatedWithVaryingState);
+    }
   };
 
   public prepareSVGContent = async () => {
@@ -191,16 +192,15 @@ class Canvas extends React.Component<IProps> {
   };
 
   public renderEntity = ([name, shape]: [string, object], key: number) => {
-    const component = componentMap[name];
+    const component = this.props.lock ? staticMap[name] : interactiveMap[name];
     if (component === undefined) {
       Log.error(`Could not render GPI ${name}.`);
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
-    if (this.svg.current === null) {
+    if (!this.props.lock && this.svg.current === null) {
       Log.error("SVG ref is null");
-      return <g key={key} />;
+      return <g key={key}>broken!</g>;
     }
-    const ctm = this.svg.current.getScreenCTM();
     const canvasSize = this.canvasSize;
     const { dragEvent } = this;
     return React.createElement(component, {
@@ -208,7 +208,7 @@ class Canvas extends React.Component<IProps> {
       shape,
       canvasSize,
       dragEvent,
-      ctm
+      ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null
     });
   };
   public renderLayer = (
@@ -239,7 +239,6 @@ class Canvas extends React.Component<IProps> {
   };
   public render() {
     const {
-      lock,
       layers,
       substanceMetadata,
       styleMetadata,
@@ -256,32 +255,32 @@ class Canvas extends React.Component<IProps> {
     }
 
     return (
-      <LockContext.Provider value={lock}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          version="1.2"
-          width="100%"
-          height="100%"
-          style={style || {}}
-          ref={this.svg}
-          viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
-        >
-          <desc>
-            {`This diagram was created with Penrose (https://penrose.ink)${
-              penroseVersion ? " version " + penroseVersion : ""
-            } on ${new Date()
-              .toISOString()
-              .slice(
-                0,
-                10
-              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
-            {substanceMetadata && `${substanceMetadata}\n`}
-            {styleMetadata && `${styleMetadata}\n`}
-            {elementMetadata && `${elementMetadata}\n`}
-            {otherMetadata && `${otherMetadata}`}
-          </desc>
-          {shapesr.map(this.renderEntity)}
-          {layers.map(({ layer, enabled }: ILayer, key: number) => {
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        version="1.2"
+        width="100%"
+        height="100%"
+        style={style || {}}
+        ref={this.svg}
+        viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
+      >
+        <desc>
+          {`This diagram was created with Penrose (https://penrose.ink)${
+            penroseVersion ? " version " + penroseVersion : ""
+          } on ${new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+          {substanceMetadata && `${substanceMetadata}\n`}
+          {styleMetadata && `${styleMetadata}\n`}
+          {elementMetadata && `${elementMetadata}\n`}
+          {otherMetadata && `${otherMetadata}`}
+        </desc>
+        {shapesr.map(this.renderEntity)}
+        {layers &&
+          layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
@@ -291,8 +290,7 @@ class Canvas extends React.Component<IProps> {
             }
             return null;
           })}
-        </svg>
-      </LockContext.Provider>
+      </svg>
     );
   }
 }

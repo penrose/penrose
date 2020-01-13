@@ -127,7 +127,7 @@ resample initState numSamples
     in Right $ newState {shapesr = newShapes}
   | otherwise = Left $ RuntimeError "At least 1 sample should be requested."
 
-getVersion :: String
+getVersion :: String -- ^ the current version of the Penrose binary
 getVersion = showVersion version
 
 reconcileNext ::
