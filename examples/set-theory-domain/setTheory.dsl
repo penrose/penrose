@@ -26,3 +26,8 @@ predicate Injection : Map m
 predicate Surjection : Map m
 predicate Bijection : Map m
 predicate PairIn : Point * Point * Map
+
+notation "A ⊂ B" ~ "IsSubset(A, B)"
+notation "p ∈ A" ~ "PointIn(A, p)"
+notation "p ∉ A" ~ "PointNotIn(A, p)"
+notation "A ∩ B = ∅" ~ "NotIntersecting(A, B)"
