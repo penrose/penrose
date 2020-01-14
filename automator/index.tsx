@@ -15,12 +15,13 @@ const USAGE = `
 Penrose Automator.
 
 Usage:
-  automator SUBSTANCE STYLE DOMAIN [--folders] [--outFile=PATH]
-  automator batch SUBSTANCELIB STYLELIB DOMAINLIB OUTFOLDER [--folders] 
+  automator SUBSTANCE STYLE DOMAIN [--folders] [--outFile=PATH] [--src-prefix=PREFIX]
+  automator batch SUBSTANCELIB STYLELIB DOMAINLIB OUTFOLDER [--folders]  [--src-prefix=PREFIX]
 
 Options:
   -o, --outFile PATH Path to either an SVG file or a folder, depending on the value of --folders. [default: output.svg]
   --folders Include metadata about each output diagram. If enabled, outFile has to be a path to a folder.
+  --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: ../examples]
 `;
 
 /**
@@ -116,6 +117,7 @@ const singleProcess = async (
   dsl: string,
   folders: boolean,
   out: string,
+  prefix: string,
   meta = {
     substanceName: sub,
     styleName: sty,
@@ -125,9 +127,9 @@ const singleProcess = async (
 ) => {
   // Fetch Substance, Style, and Domain files
   const trio = [sub, sty, dsl].map(arg =>
-    fs.readFileSync(`../examples/${arg}`, "utf8").toString()
+    fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
   );
-  console.log(`Compiling for ${out} ...`);
+  console.log(`Compiling for ${out}/${sub} ...`);
   const overallStart = process.hrtime();
   const compilePacket = Packets.CompileTrio(...trio);
   const compileStart = process.hrtime();
@@ -200,16 +202,17 @@ const batchProcess = async (
   stylib,
   dsllib: string,
   folders: boolean,
-  out: string
+  out: string,
+  prefix: string
 ) => {
   const substanceLibrary = JSON.parse(
-    fs.readFileSync(`../examples/${sublib}`).toString()
+    fs.readFileSync(`${prefix}/${sublib}`).toString()
   );
   const styleLibrary = JSON.parse(
-    fs.readFileSync(`../examples/${stylib}`).toString()
+    fs.readFileSync(`${prefix}/${stylib}`).toString()
   );
   const domainLibrary = JSON.parse(
-    fs.readFileSync(`../examples/${dsllib}`).toString()
+    fs.readFileSync(`${prefix}/${dsllib}`).toString()
   );
   console.log(`Processing ${substanceLibrary.length} substance files...`);
   // NOTE: for parallelism, use forEach.
@@ -233,12 +236,14 @@ const batchProcess = async (
     const domainName = foundDomain.label;
     // Warning: will face id conflicts if parallelism used
     const id = uniqid("instance-");
+
     await singleProcess(
       substanceURI,
       stylePath,
       domainPath,
       folders,
       `${out}/${id}${folders ? "" : ".svg"}`,
+      prefix,
       {
         substanceName: name,
         styleName,
@@ -257,6 +262,7 @@ const batchProcess = async (
   // Determine the output file path
   const folders = args["--folders"] || false;
   const outFile = args["--outFile"];
+  const prefix = args["--src-prefix"];
 
   if (args.batch) {
     await batchProcess(
@@ -264,7 +270,8 @@ const batchProcess = async (
       args.STYLELIB,
       args.DOMAINLIB,
       folders,
-      args.OUTFOLDER
+      args.OUTFOLDER,
+      prefix
     );
   } else {
     await singleProcess(
@@ -272,7 +279,8 @@ const batchProcess = async (
       args.STYLE,
       args.DOMAIN,
       folders,
-      outFile
+      outFile,
+      prefix
     );
   }
 })();
