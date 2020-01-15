@@ -4,12 +4,14 @@
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE QuasiQuotes               #-}
 {-# LANGUAGE RankNTypes                #-}
+{-# LANGUAGE TemplateHaskell           #-}
 {-# LANGUAGE UnicodeSyntax             #-}
 
 import           Control.Applicative
 import           Control.Monad                  (when)
 import           Control.Monad.State
-import           Data.Aeson                     (encode)
+import           Data.Aeson                     (decode, encode)
+import           Data.Aeson.TH
 import qualified Data.ByteString.Lazy.Char8     as B
 import           Data.Char                      (toLower)
 import           Data.Either                    (fromRight)
@@ -40,8 +42,6 @@ type Name = String
 
 type Names = M.Map String Int
 
-type Synthesize a = State Context a
-
 data GenericOption
   = Concrete
   | General VarEnv
@@ -53,10 +53,24 @@ data ArgOption
   | Mixed
   deriving (Show)
 
+$(deriveJSON defaultOptions {constructorTagModifier = map toLower} ''ArgOption)
+
 data AllowDuplicates
   = Distinct
   | Repeated
   deriving (Show)
+
+type Weight = Float
+
+data StmtWeights = StmtWeights
+  { weightType        :: Weight
+  , weightPredicate   :: Weight
+  , weightConstructor :: Weight
+  } deriving (Show)
+
+$(deriveJSON
+    defaultOptions {fieldLabelModifier = map toLower . drop 6}
+    ''StmtWeights)
 
 -- | When generating arguments, maintain a context of generated names to avoid duplicates
 type ArgContext = [String]
@@ -74,7 +88,13 @@ data Context = Context
 data Setting = Setting
   { lengthRange :: (Int, Int)
   , argOption   :: ArgOption
+  , weights     :: StmtWeights
+  -- , numPrograms :: Int
   } deriving (Show)
+
+$(deriveJSON defaultOptions ''Setting)
+
+type Synthesize a = State Context a
 
 reset :: Synthesize ()
 reset =
@@ -129,17 +149,15 @@ main = do
   args <- parseArgsOrExit argPatterns =<< getArgs
   domainFile <- args `getArgOrExit` argument "domain"
   path <- args `getArgOrExit` longOption "path"
+  settingPath <- args `getArgOrExit` longOption "synth-setting"
   numProgs <- args `getArgOrExit` longOption "num-programs"
-  maxLength <- args `getArgOrExit` longOption "max-length"
-  minLength <- args `getArgOrExit` longOption "min-length"
-  argModeStr <- args `getArgOrExit` longOption "arg-mode"
-  let [n, lmin, lmax] = map read [numProgs, minLength, maxLength] :: [Int]
+  let n = read numProgs :: Int
   createDirectoryIfMissing True path -- create output dir if missing
   domainIn <- readFile domainFile
   let env = D.parseElement domainFile domainIn
-  -- TODO: take in argoption as param
+  settingStr <- B.readFile settingPath
   let settings =
-        Setting {lengthRange = (lmin, lmax), argOption = getArgMode argModeStr}
+        fromMaybe (error "couldn't read setting JSON") $ decode settingStr
   case env of
     Left err -> error $ show err
     Right env -> do
@@ -215,13 +233,14 @@ generateStatements env n = replicateM n (generateStatement env)
 -- NOTE: every synthesizer that 'generateStatement' calls is expected to append its result to the AST, instead of just returning it. This is because certain lower-level functions are allowed to append new statements (e.g. 'generateArg'). Otherwise, we could write this module as a combinator.
 generateStatement :: VarEnv -> Synthesize SubStmt
 generateStatement env = do
+  weights <- gets (weights . setting)
   stmtF <-
     fromMaybe (error "No valid statement types to be generated.") <$>
-    choiceSafe (stmtTypes env)
+    choiceSafeW (stmtTypes env weights)
   stmtF env
 
-stmtTypes :: VarEnv -> [VarEnv -> Synthesize SubStmt]
-stmtTypes env =
+stmtTypes :: VarEnv -> StmtWeights -> [(Weight, VarEnv -> Synthesize SubStmt)]
+stmtTypes env ws =
   let typesExist =
         [ M.null $ typeConstructors env
         , M.null $ predicates env
@@ -232,9 +251,9 @@ stmtTypes env =
     -- Ordering must be consistent with typesExist
   where
     stmtGens =
-      [ generateType
-      , generatePredicate
-      , generateConstructor
+      [ (weightType ws, generateType)
+      , (weightPredicate ws, generatePredicate)
+      , (weightConstructor ws, generateConstructor)
       -- , generateFunction -- TODO: implement this
       ]
 
@@ -430,6 +449,25 @@ choiceSafe lst = do
   (i, g') <- gets (randomR (0, length lst - 1) . gen)
   modify $ \c -> c {gen = g'}
   return $ Just (lst !! i)
+
+choiceSafeW :: [(Weight, a)] -> Synthesize (Maybe a)
+choiceSafeW [] = return Nothing
+choiceSafeW lst = do
+  (e, g') <- gets (frequency lst . gen)
+  modify $ \c -> c {gen = g'}
+  return $ Just e
+
+-- https://hackage.haskell.org/package/Euterpea-1.0.0/docs/src/System-Random-Distributions.html#frequency
+frequency ::
+     (Floating w, Ord w, Random w, RandomGen g) => [(w, a)] -> g -> (a, g)
+frequency xs g0 = (pick r xs, g1)
+  where
+    (r, g1) = randomR (0, tot) g0
+    tot = sum (map fst xs)
+    pick n ((w, a):xs)
+      | n <= w = a
+      | otherwise = pick (n - w) xs
+    pick _ [] = error "frequency: pick used with empty list"
 
 --------------------------------------------------------------------------------
 -- Substance loader

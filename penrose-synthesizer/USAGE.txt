@@ -5,13 +5,8 @@ Options:
   --substance=SUB      A Substance program that will be included in every synthesized program     
   --style=STY          A Style program that the synthesized programs work with
   --spec=SPEC          A domain program used as a specification for synthesis 
-  --num-programs=NUM   The number of programs to generate 
-                       [default: 1]
   --path=PATH          Output path for the generated programs (Trailing slash not needed)
                        [default: synthesized-progs]
-  --min-length=MINLEN  Minimum number of statements in each generated program
+  --num-programs=NUM   The number of programs to generate 
                        [default: 1]
-  --max-length=MAXLEN  Maximum number of statements in each generated program
-                       [default: 10]
-  --arg-mode=MODE      Argument generation mode: (1) generated: always generate new type declarations; (2) existing: attempt to search for constructs that apply to existing statements and switch to (1) after exhaustive search; (3) 50% chance of (1) or (2)
-                       [default: mixed]
+  --synth-setting=SET  A JSON file containing parameters for the synthesizer
