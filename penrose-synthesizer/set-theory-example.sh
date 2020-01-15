@@ -4,7 +4,7 @@
 rm -rf synthesized-progs
 
 # Synthesize n Substance programs
-penrose-synthesizer ../examples/set-theory-domain/setTheory.dsl --spec=spec.dsl --num-programs=$1 --max-length=10
+penrose-synthesizer ../examples/set-theory-domain/setTheory.dsl --spec=sets-spec.dsl --num-programs=$1 --max-length=10
 
 # Generate registries for Substance, Style, and Domain programs
 python3 generateRegistry.py synthesized-progs $1 ./venn-synth.sty venn ../examples/set-theory-domain/setTheory.dsl set-theory
