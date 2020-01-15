@@ -13,7 +13,8 @@ import           Data.Aeson                     (encode)
 import qualified Data.ByteString.Lazy.Char8     as B
 import           Data.Char                      (toLower)
 import           Data.Either                    (fromRight)
-import           Data.List                      (elem, group, lookup, nub, sort)
+import           Data.List                      (elem, group, lookup, nub, sort,
+                                                 (\\))
 import qualified Data.Map.Strict                as M
 import           Data.Maybe
 import           Data.String
@@ -57,6 +58,9 @@ data AllowDuplicates
   | Repeated
   deriving (Show)
 
+-- | When generating arguments, maintain a context of generated names to avoid duplicates
+type ArgContext = [String]
+
 data Context = Context
   { names         :: Names
   , declaredTypes :: M.Map String [Name] -- | Map from type name to a list of names with the type
@@ -64,6 +68,7 @@ data Context = Context
   , initProg      :: SubProg -- | AST of an input Substance program
   , gen           :: StdGen -- | A random generator
   , setting       :: Setting -- | Synthesizer settings
+  , argContext    :: ArgContext -- | Context for generating arguments. Needs to be reinitialized for generating each set of arguments
   } deriving (Show)
 
 data Setting = Setting
@@ -308,7 +313,11 @@ generatePredicate2 pred = do
 
 -- | Generate a list of arguments for predicates or functions
 generateArgs :: ArgOption -> [String] -> Synthesize [Expr]
-generateArgs opt = mapM (generateArg opt)
+generateArgs opt types = do
+  resetArgContext
+  let res = mapM (generateArg opt) types
+  resetArgContext
+  res
 
 -- | Generate a list of arguments for predicates or functions
 generateArg :: ArgOption -> String -> Synthesize Expr
@@ -317,18 +326,24 @@ generateArg Existing typ = do
   case M.lookup typ existingTypes of
     Nothing
       -- error $ "No existing types for: " ++ show typ
-     -> do
-      generateType' typ Concrete
-      generateArg Existing typ
+     -> insertDecl typ
     Just lst -> do
-      n <- choice lst -- pick one existing id
-      return $ VarE $ VarConst n
+      existingNames <- generatedNames
+      let validNames = lst \\ existingNames
+      case validNames of
+        [] -> insertDecl typ
+        ns -> do
+          n <- choice ns -- pick one existing id
+          updateArgContext n
+          return $ VarE $ VarConst n
+  where
+    insertDecl t = do
+      generateType' t Concrete
+      generateArg Existing t
 generateArg Generated typ = do
   generateType' typ Concrete -- TODO: concrete types for now
   generateArg Existing typ
-generateArg Mixed typ
-  -- TODO: check lazy eval and see if both branches actually get executed
- = do
+generateArg Mixed typ = do
   f <- choice [generateArg Existing, generateArg Generated]
   f typ
 
@@ -381,6 +396,16 @@ filterPred cxt (Pred1 Prd1 {tlspred1 = types}) =
     compareFreq predCount _                 = False
 filterPred pred (Pred2 _) = True -- NOTE: higher-order predicates are always allowed
 
+-- | Keep calling the input synthesizer if it returns a duplicate
+-- TODO: find a better way to make sure no infinite loops happen
+-- mapUnique :: (a -> Synthesize b) -> [a] -> [Synthesize b]
+-- mapUnique synthesize xs = reverse $ foldl go [] xs
+--   where
+--     go ys x = do
+--       y <- synthesize x
+--       if y `elem` ys
+--         then go ys x
+--         else y : ys
 --------------------------------------------------------------------------------
 -- Randomness Helpers
 --------------------------------------------------------------------------------
@@ -447,7 +472,7 @@ uniqueName :: String -> Names -> (String, Names)
 uniqueName nm ns =
   case M.lookup nm ns of
     Nothing -> (nm, M.insert nm 1 ns)
-    Just ix -> (nm ++ show ix, M.insert nm (ix + 1) ns)
+    Just ix -> (nm ++ "_" ++ show ix, M.insert nm (ix + 1) ns)
 
 --------------------------------------------------------------------------------
 -- Synthesis helpers
@@ -455,3 +480,15 @@ uniqueName nm ns =
 -- | Add statement to the AST
 appendStmt :: SubStmt -> Synthesize ()
 appendStmt stmt = modify $ \cxt -> cxt {prog = prog cxt ++ [stmt]}
+
+-- | Reset arg context
+resetArgContext :: Synthesize ()
+resetArgContext = modify $ \cxt -> cxt {argContext = []}
+
+-- | Update arg context
+updateArgContext :: String -> Synthesize ()
+updateArgContext newName =
+  modify $ \cxt -> cxt {argContext = newName : argContext cxt}
+
+generatedNames :: Synthesize [String]
+generatedNames = gets argContext
