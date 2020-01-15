@@ -12,8 +12,12 @@ Set x {
     x.labelFn = ensure contains(x.shape, x.text)
     x.minSizeFn = ensure minSize(x.shape)
     x.maxSizeFn = ensure maxSize(x.shape)
-    x.labelPosFn = encourage sameCenter(x.text, x.shape)
+    --x.labelPosFn = encourage sameCenter(x.text, x.shape)
     LOCAL.layering  = x.shape below x.text
+}
+
+Set x; Set y {
+    LOCAL.labelDisjoint = encourage repel(x.text, y.text, 0.0001)
 }
 
 Set x; Set y
