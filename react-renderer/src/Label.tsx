@@ -1,7 +1,5 @@
 import * as React from "react";
 import { toScreen, toHex } from "./Util";
-// import draggable from "./Draggable";
-// import { IGPIPropsDraggable } from "./types";
 import { IGPIProps } from "./types";
 
 // TODO: use JSDOM

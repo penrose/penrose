@@ -5,8 +5,9 @@ Set x {
 
     x.text = Text {
         string : x.label
-        fontSize: "20pt"
-        -- w : 30.0
+        -- fontSize: "50pt"
+        w : 30.0
+        h : 30.0
     }
 
     x.labelFn = ensure contains(x.shape, x.text)
@@ -56,7 +57,7 @@ where Intersect(x, y) {
 }
 
 Point p {
-    p.offset = 10.0
+    p.offset = 15.0
     p.shape = Circle {
         strokeWidth : 0
         color : rgba(0.0, 0.0, 0.0, 1.0)
@@ -69,6 +70,7 @@ Point p {
         y : p.shape.y + p.offset
         -- fontSize: "30pt"
         w : 30.0
+        h : 30.0
     }
 
     p.textLayering = p.text above p.shape

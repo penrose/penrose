@@ -87,6 +87,10 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
 
         data.svgNode.setAttribute("width", textGPI.w.updated);
         data.svgNode.setAttribute("height", textGPI.h.updated);
+        data.svgNode.setAttribute(
+          "style",
+          `font-size: ${obj.fontSize.contents}`
+        );
 
         if (includeRendered) {
           textGPI.rendered = {
