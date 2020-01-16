@@ -14,7 +14,7 @@ module Penrose.API
 import           Control.Exception          (ErrorCall, try)
 import qualified Data.Aeson                 as A
 import qualified Data.ByteString.Lazy.Char8 as B
-import           Data.List                  (deleteFirstsBy, (\\))
+import           Data.List                  (deleteFirstsBy, partition, (\\))
 import qualified Data.Map.Strict            as M
 import           Data.Maybe                 (mapMaybe)
 import           Data.Version               (showVersion)
@@ -23,6 +23,7 @@ import           GHC.Generics
 import           Paths_penrose              (version)
 import           Penrose.Element
 import           Penrose.Env
+import           Penrose.Functions
 import           Penrose.GenOptProblem
 import qualified Penrose.Optimizer          as Optimizer
 import           Penrose.Plugins
@@ -151,6 +152,17 @@ reconcileNext prevState substance style element = do
            Nothing -> Nothing
            Just s ->
              Just (mkPath [name, field, property], Done $ s `get` property)
+
+energyValues :: State -> ([Double], [Double])
+energyValues s =
+  let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s)
+      fns = objFns s ++ constrFns s
+      (fnsE, transE, rng') =
+        evalFns evalIterRange fns (castTranslation $ transr s) varyMap (rng s)
+      penaltyWeight = r2f $ weight $ paramsr s
+      (objfns, constrfns) = partition (\f -> optType_d f == Objfn) fnsE
+  in ( map (applyOptFn objFuncDict objSignatures) objfns
+     , map (applyOptFn constrFuncDict constrSignatures) constrfns)
 
 --------------------------------------------------------------------------------
 -- Helpers
