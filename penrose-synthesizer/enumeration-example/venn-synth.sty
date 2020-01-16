@@ -43,6 +43,9 @@ where IsSubset(x, y); IsSubset(y, x) {
 }
 
 
+-- TODO: match on circular dependencies
+-- TODO: make contains take in a flag
+
 Set x; Set y
 where NotIntersecting(x, y) {
     LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)

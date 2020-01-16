@@ -509,7 +509,7 @@ prefixOf = map toLower . take 1
 uniqueName :: String -> Names -> (String, Names)
 uniqueName nm ns =
   case M.lookup nm ns of
-    Nothing -> (nm, M.insert nm 1 ns)
+    Nothing -> (nm ++ "_1", M.insert nm 2 ns)
     Just ix -> (nm ++ "_" ++ show ix, M.insert nm (ix + 1) ns)
 
 --------------------------------------------------------------------------------

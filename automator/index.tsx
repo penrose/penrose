@@ -184,6 +184,11 @@ const singleProcess = async (
         labelling: toMs(labelEnd),
         optimization: toMs(convergeEnd),
         rendering: toMs(reactRenderEnd)
+      },
+      selectorMatches: optimizedState.selectorMatches,
+      optProblem: {
+        constraintCount: optimizedState.constrFns.length,
+        objectiveCount: optimizedState.objFns.length
       }
     };
     if (!fs.existsSync(out)) {
@@ -194,10 +199,15 @@ const singleProcess = async (
     fs.writeFileSync(`${out}/style.sty`, trio[1]);
     fs.writeFileSync(`${out}/domain.dsl`, trio[2]);
     fs.writeFileSync(`${out}/meta.json`, JSON.stringify(metadata));
+    console.log(`The diagram and metadata has been saved to ${out}`);
+    // returning metadata for aggregation
+    return metadata;
   } else {
     fs.writeFileSync(out, canvas);
+    console.log(`The diagram has been saved as ${out}`);
+    // HACK: return empty metadata??
+    return null;
   }
-  console.log(`The diagram has been saved to ${out}`);
 };
 
 // Takes a trio of registries/libraries and runs `singleProcess` on each substance program.
@@ -219,6 +229,8 @@ const batchProcess = async (
     fs.readFileSync(`${prefix}/${dsllib}`).toString()
   );
   console.log(`Processing ${substanceLibrary.length} substance files...`);
+
+  var finalMetadata = {};
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
   for (const { name, substanceURI, element, style } of substanceLibrary) {
@@ -241,7 +253,7 @@ const batchProcess = async (
     // Warning: will face id conflicts if parallelism used
     const id = uniqid("instance-");
 
-    await singleProcess(
+    const meta = await singleProcess(
       substanceURI,
       stylePath,
       domainPath,
@@ -255,6 +267,14 @@ const batchProcess = async (
         id
       }
     );
+    if (folders) finalMetadata[id] = meta;
+  }
+  if (folders) {
+    fs.writeFileSync(
+      `${out}/aggregateData.json`,
+      JSON.stringify(finalMetadata)
+    );
+    console.log(`The Aggregate metadata has been saved to ${out}.`);
   }
   console.log("done.");
 };

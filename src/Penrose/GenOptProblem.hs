@@ -186,6 +186,7 @@ data State = State { shapesr :: [Shape Double],
                      constrFns :: [Fn],
                      rng :: StdGen,
                      autostep :: Bool, -- TODO: deprecate this
+                     selectorMatches :: [Int],
                     --  policyFn :: Policy,
                      policyParams :: PolicyParams,
                      oConfig :: OptConfig }
@@ -998,7 +999,8 @@ genOptProblemAndState trans optConfig =
                                  autostep = False, -- default
                                  policyParams = initPolicyParams,
                                 --  policyFn = policyToUse,
-                                 oConfig = optConfig
+                                 oConfig = optConfig,
+                                 selectorMatches = [] -- to be filled in by caller (compileStyle)
                                } in
 
     -- initPolicy  -- TODO: rewrite to avoid the use of lambda functions
@@ -1010,8 +1012,8 @@ genOptProblemAndState trans optConfig =
 -- TODO: enable logger
 compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> Either CompilerError State
 compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
---    let selEnvs = checkSels subEnv styProg
-    --   let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
+    let selEnvs = checkSels subEnv styProg
+    let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
     -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
     -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
     -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
@@ -1022,7 +1024,7 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConf
         Right transAuto -> do
             let initState = genOptProblemAndState transAuto optConfig
             case computeLayering transAuto of 
-                Just gpiOrdering -> Right $ initState { shapeOrdering = gpiOrdering } 
+                Just gpiOrdering -> Right $ initState { selectorMatches = map length subss, shapeOrdering = gpiOrdering } 
                 Nothing -> Left $ StyleLayering "The graph formed by partial ordering of GPIs is cyclic and therefore can't be sorted." 
 
 --    putStrLn "Running Style semantics\n"
