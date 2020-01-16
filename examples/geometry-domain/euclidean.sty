@@ -960,3 +960,22 @@ Angle `CBA` {
 Angle `CBD` {
       override `CBD`.shape.fill = const.yellow
 }
+
+-- Specific Byrne style ONLY for staged diagrams
+
+Point `A` {
+      override `A`.x = -50.0
+      override `A`.y = ?
+      -- Ensure positive (`A`.y > 0). This is so we don't have to compute the exact coordinate, but can rely on the right angle objective
+      `A`.locFn = ensure lessThanSq(-1.0 * `A`.y, 0.0)
+}
+
+Point `B` {
+      override `B`.x = 80.0
+      override `B`.y = 0.0
+}
+
+Point `C`; Point `B` {
+      override `C`.x = -80.0
+      override `C`.y = 0.0
+}

@@ -1856,8 +1856,8 @@ lessThan [Val (FloatV x), Val (FloatV y)] = x - y
 
 lessThanSq :: ConstrFn
 lessThanSq [Val (FloatV x), Val (FloatV y)] = 
-           let res = if x < y then 0 else (x - y)^2
-           in trace ("lessThan, x: " ++ show x ++ ", y: " ++ show y ++ ", res: " ++ show res) res
+           if x < y then 0 else (x - y)^2
+           -- in trace ("lessThan, x: " ++ show x ++ ", y: " ++ show y ++ ", res: " ++ show res) res
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
