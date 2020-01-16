@@ -169,10 +169,6 @@ main = do
             runState
               (generatePrograms spec n)
               (initContext initSub env settings)
-      -- let (prog, cxt) =
-      --       runState (generateProgram env) (initContext initSub env settings)
-      -- let progs = [prog]
-      -- print cxt
       if args `isPresent` longOption "style"
         then do
           let files = map (\i -> path ++ "/prog-" ++ show i) [1 .. n]
@@ -343,9 +339,8 @@ generateArg :: ArgOption -> String -> Synthesize Expr
 generateArg Existing typ = do
   existingTypes <- gets declaredTypes
   case M.lookup typ existingTypes of
-    Nothing
-      -- error $ "No existing types for: " ++ show typ
-     -> insertDecl typ
+    Nothing -> error $ "No existing types for: " ++ show typ
+    --  -> insertDecl typ
     Just lst -> do
       existingNames <- generatedNames
       let validNames = lst \\ existingNames
@@ -475,12 +470,16 @@ frequency xs g0 = (pick r xs, g1)
 -- | Load a statement from a supplied Substance program to be used as the template for synthesis
 loadStmt :: SubStmt -> Synthesize ()
 loadStmt (Decl (TConstr TypeCtorApp {nameCons = typ}) (VarConst v)) =
-  insertName typ v
+  insertName typ v ExistingName
 loadStmt _ = return ()
 
 --------------------------------------------------------------------------------
 -- Name generation
 --------------------------------------------------------------------------------
+data NameType
+  = GeneratedName
+  | ExistingName
+
 -- | Generate a new name given a type
 freshName :: String -> Synthesize String
 freshName typ = do
@@ -493,8 +492,15 @@ freshName typ = do
     }
   return n
 
-insertName :: String -> String -> Synthesize ()
-insertName typ name = do
+insertName :: String -> String -> NameType -> Synthesize ()
+insertName typ name ExistingName = do
+  cxt <- get
+  modify $ \cxt ->
+    cxt
+    { declaredTypes = M.insertWith (++) typ [name] (declaredTypes cxt)
+    , names = M.insert name 1 $ names cxt
+    }
+insertName typ name GeneratedName = do
   cxt <- get
   let (n, names') = uniqueName name $ names cxt
   modify $ \cxt ->

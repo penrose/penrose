@@ -24,6 +24,17 @@ Options:
   --src-prefix PREFIX the prefix to SUBSTANCE, STYLE, and DOMAIN, or the library equivalent in batch mode. No trailing "/" required. [default: ../examples]
 `;
 
+const nonZeroConstraints = (
+  state: any,
+  constrVals: [number],
+  threshold: number
+) => {
+  const constrFns = state.constrFns;
+  const fnsWithVals = constrFns.map((f, i) => [f, constrVals[i]]);
+  const nonzeroConstr = fnsWithVals.filter(c => +c[1] > threshold);
+  return nonzeroConstr;
+};
+
 /**
  * Run the penrose binary using the supplied packet as the input
  * @param packet packet to be processed by the backend
@@ -165,17 +176,6 @@ const singleProcess = async (
   // We don't time this individually since it's usually memoized anyway
   const state = await collectLabels(optimizedState, true);
 
-  const energyPacket = {
-    tag: "EnergyValues",
-    contents: optimizedState
-  };
-  fs.writeFileSync(`packet.json`, JSON.stringify(energyPacket));
-
-  // const energyString = await runPenrose(energyPacket);
-  // console.log(energyString);
-  // const energyValues = JSON.parse(energyString).contents;
-  // console.log(energyValues);
-
   // TODO: include metadata prop?
   const reactRenderStart = process.hrtime();
   const canvas = ReactDOMServer.renderToString(
@@ -184,7 +184,17 @@ const singleProcess = async (
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
   if (folders) {
-    // TODO: add performance data
+    // Check for non-zero constraints
+    const energies = JSON.parse(
+      await runPenrose(Packets.EnergyValues(optimizedState))
+    );
+    const constrs = nonZeroConstraints(optimizedState, energies.contents[1], 1);
+    if (constrs.length > 0) {
+      console.log("This instance has non-zero constraints: ");
+      console.log(constrs);
+      return;
+    }
+
     const metadata = {
       ...meta,
       renderedOn: Date.now(),
@@ -196,6 +206,8 @@ const singleProcess = async (
         optimization: toMs(convergeEnd),
         rendering: toMs(reactRenderEnd)
       },
+      violatingConstraints: constrs,
+      nonzeroConstraints: constrs.length > 0,
       selectorMatches: optimizedState.selectorMatches,
       optProblem: {
         constraintCount: optimizedState.constrFns.length,
@@ -269,7 +281,7 @@ const batchProcess = async (
       stylePath,
       domainPath,
       folders,
-      `${out}/${id}${folders ? "" : ".svg"}`,
+      `${out}/${name}-${id}${folders ? "" : ".svg"}`,
       prefix,
       {
         substanceName: name,
