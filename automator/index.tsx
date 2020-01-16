@@ -165,6 +165,17 @@ const singleProcess = async (
   // We don't time this individually since it's usually memoized anyway
   const state = await collectLabels(optimizedState, true);
 
+  const energyPacket = {
+    tag: "EnergyValues",
+    contents: optimizedState
+  };
+  fs.writeFileSync(`packet.json`, JSON.stringify(energyPacket));
+
+  // const energyString = await runPenrose(energyPacket);
+  // console.log(energyString);
+  // const energyValues = JSON.parse(energyString).contents;
+  // console.log(energyValues);
+
   // TODO: include metadata prop?
   const reactRenderStart = process.hrtime();
   const canvas = ReactDOMServer.renderToString(

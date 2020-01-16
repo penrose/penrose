@@ -81,6 +81,7 @@ processRequests client@(_, conn, _) = do
         ReconcileNext s sub sty elm ->
           sendSafe session "compilerOutput" $ reconcileNext s sub sty elm
         GetEnv sub elm -> sendSafe session "varEnv" $ getEnv sub elm
+        EnergyValues s -> send session "energies" $ energyValues s
         GetVersion -> send session "version" getVersion
     Nothing -> do
       logError client "Error reading JSON"

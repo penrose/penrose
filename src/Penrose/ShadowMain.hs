@@ -100,6 +100,13 @@ runAPI strIn =
         ReconcileNext s sub sty elm ->
           toStdout "compilerOutput" $ reconcileNext s sub sty elm
         GetEnv sub elm -> toStdout "varEnv" $ getEnv sub elm
+        EnergyValues s ->
+          encode $
+          Packet
+          { packetType = "energies"
+          , packetContents = energyValues s
+          , packetSession = Nothing
+          }
     Nothing -> error "Error reading JSON string."
   where
     toStdout :: (ToJSON a, ToJSON b) => String -> Either a b -> B.ByteString

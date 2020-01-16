@@ -8,6 +8,7 @@ module Penrose.API
   , getEnv
   , getVersion
   , resample
+  , energyValues
   , APICall(..)
   ) where
 
@@ -52,6 +53,7 @@ data APICall
                   String
   | GetEnv String
            String
+  | EnergyValues State
   | GetVersion
   deriving (Generic)
 
