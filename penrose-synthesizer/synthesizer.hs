@@ -339,8 +339,9 @@ generateArg :: ArgOption -> String -> Synthesize Expr
 generateArg Existing typ = do
   existingTypes <- gets declaredTypes
   case M.lookup typ existingTypes of
-    Nothing -> error $ "No existing types for: " ++ show typ
-    --  -> insertDecl typ
+    Nothing
+      -- error $ "No existing types for: " ++ show typ
+     -> insertDecl typ
     Just lst -> do
       existingNames <- generatedNames
       let validNames = lst \\ existingNames

@@ -191,8 +191,7 @@ const singleProcess = async (
     const constrs = nonZeroConstraints(optimizedState, energies.contents[1], 1);
     if (constrs.length > 0) {
       console.log("This instance has non-zero constraints: ");
-      console.log(constrs);
-      return;
+      // return;
     }
 
     const metadata = {
@@ -254,6 +253,7 @@ const batchProcess = async (
   console.log(`Processing ${substanceLibrary.length} substance files...`);
 
   var finalMetadata = {};
+  var nonzeroDiagrams = 0;
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
   for (const { name, substanceURI, element, style } of substanceLibrary) {
@@ -290,9 +290,15 @@ const batchProcess = async (
         id
       }
     );
-    if (folders) finalMetadata[id] = meta;
+    if (folders) {
+      finalMetadata[id] = meta;
+      if (meta.nonzeroConstraints) {
+        nonzeroDiagrams++;
+      }
+    }
   }
   if (folders) {
+    finalMetadata["nonzeroDiagrams"] = nonzeroDiagrams;
     fs.writeFileSync(
       `${out}/aggregateData.json`,
       JSON.stringify(finalMetadata)
