@@ -149,12 +149,44 @@ with VectorSpace U {
 }
 
 Vector v
-with Scalar m; Vector u; Scalar c; VectorSpace U
-where In(v,U); In(u,U); m := norm(u); u := scale(c,v){
+with Vector u; Scalar c; VectorSpace U
+where In(v,U); In(u,U); v := scale(c,u){
 
   override v.shape = Rectangle {
-
-
+    x : (u.shape.startX + u.shape.endX)/2.0
+    y : u.shape.startY + lineLength(c.shape)/2.0
+    sizeX : len(u.shape)
+    sizeY : lineLength(c.shape)
+    color : Colors.gray
+    strokeWidth : 0.0
   }
 
+  v.line = Line {
+    startX : u.shape.startX
+    startY : u.shape.startY
+    endX : u.shape.startX
+    endY : u.shape.startY + lineLength(c.shape)
+    thickness : 1.5
+    color : Colors.green
+    rotation : 0.0
+  }
+
+  override v.text = Text {
+      string : v.label
+      x : v.shape.x
+      y : v.shape.y
+      color : Colors.black
+      fontSize : const.fontSize
+  }
+
+  c.below = ensure lessThan(c.shape.endY, u.shape.endY)
+  v.textLocation = v.text above v.shape
+
+
+  delete v.vector
+  delete v.maxHeight1
+  delete v.maxHeight2
+  delete v.maxSize1
+  delete v.labelLocation
+  delete v.labelAvoidFn
 }
