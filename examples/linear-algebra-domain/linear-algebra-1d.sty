@@ -1,0 +1,160 @@
+-- | The full generic Style file for the linear algebra domain
+-- | Author: Dor Ma'ayan
+--   August, 2018
+
+-- Global constants and sizes
+const {
+  const.vectorSpaceSize = 300.0
+  const.vectorSpaceOffset = 225.0
+  const.vectorSpaceGap = 150.0
+  const.axisSize = const.vectorSpaceSize * 0.4
+  const.distVectorSpaces = 50.0
+  const.scaleRatio = 200.0
+  const.fontSize = "14pt"
+  const.lightenFrac = 0.5
+  const.arrowThickness = 2.5
+  const.arrowThickness2 = 1.5
+  const.arrowheadSize = 0.5
+  const.repelWeight = 0.7
+  const.textPadding = 15.0
+}
+
+-- Global RGB colors in common use
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.lightBlue = rgba(0.1, 0.1, 0.9, 0.1)
+    Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
+    Colors.lightGray = rgba(200.0,200.0,200.0,1.0)
+    Colors.darkGray = rgba(0.4, 0.4, 0.4, 1.0)
+
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 0.8, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+VectorSpace U {
+    U.thickness = 1.5
+    U.axisColor = Colors.darkGray
+    U.originX = 0.0
+
+
+    U.shape = Arrow {
+        x : U.originX
+        y : 0.0
+        startX : U.shape.x - const.vectorSpaceSize/2.0
+        startY : U.shape.y - const.vectorSpaceSize/2.0
+        endX : U.shape.x + const.vectorSpaceSize/2.0
+        endY : U.shape.y - const.vectorSpaceSize/2.0
+        thickness : U.thickness
+        color : U.axisColor
+        arrowheadSize : const.arrowheadSize
+    }
+
+    U.origin = Line {
+        startX : U.originX
+        startY : U.shape.startY - 5.0
+        endX : U.originX
+        endY : U.shape.startY + 5.0
+        thickness : 1.5
+        color : Colors.black
+        rotation : 0.0
+    }
+
+    origin.text = Text {
+        string : 0
+        x : U.origin.startX
+        y : U.origin.startY - 10.0
+        color : U.origin.color
+        fontSize : const.fontSize
+   }
+
+    U.text = Text {
+        string : U.label
+        color : Colors.darkGray
+        x : U.shape.endX
+        y : U.shape.endY + const.textPadding
+    }
+}
+
+
+Vector v
+with VectorSpace U
+where In(v,U) {
+  v.text = Text {
+    string : v.label
+    color : v.shape.color
+    fontSize : const.fontSize
+  }
+
+  v.color = sampleColor(1.0) -- Full opacity to hide arrowhead layering
+
+
+  v.shape = Arrow {
+    startX : U.originX
+    startY : ?
+    endX : ?
+    endY :  v.shape.startY
+    thickness : const.arrowThickness
+    color : v.color
+    arrowheadSize : const.arrowheadSize
+  }
+
+   v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
+   v.maxHeight1 = ensure lessThan(U.shape.endY, v.shape.endY)
+   v.maxHeight2 = ensure lessThan(v.shape.endY, const.vectorSpaceSize/10.0)
+   v.maxSize1 = ensure lessThan(len(v.shape), len(U.shape)/2.0)
+   v.labelLocation = ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
+   v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
+
+}
+
+Scalar v
+with VectorSpace U {
+
+  v.text = Text {
+    string : v.label
+    color : v.shape.color
+    fontSize : const.fontSize
+  }
+
+  v.shape = Line {
+      startX : U.originX
+      startY : ?
+      endX : ?
+      endY : v.shape.startY
+      thickness : 1.5
+      color : Colors.green
+      rotation : 0.0
+  }
+
+  v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
+  v.maxHeight1 = ensure lessThan(U.shape.endY, v.shape.endY)
+  v.maxHeight2 = ensure lessThan(v.shape.endY, const.vectorSpaceSize/10.0)
+  v.maxSize1 = ensure lessThan(lineLength(v.shape), len(U.shape)/2.0)
+  v.labelLocation = ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
+  v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
+}
+
+Vector v
+with Scalar m; Vector u; Scalar c; VectorSpace U
+where In(v,U); In(u,U); m := norm(u); u := scale(c,v){
+
+  override v.shape = Rectangle {
+
+
+  }
+
+}

@@ -123,6 +123,7 @@ compDict =
     , ("midpointY", constComp midpointY)
     , ("average", constComp average)
     , ("len", constComp len)
+    , ("lineLength", constComp lineLength)
     , ("lineLeft", constComp lineLeft)
     , ("lineRight", constComp lineRight)
     , ("interpolate", constComp interpolate)
@@ -261,6 +262,7 @@ compSignatures =
     , ("bboxHeight", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT))
     , ("bboxWidth", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT))
     , ("len", ([GPIType "Arrow"], ValueT FloatT))
+    , ("lineLength", ([GPIType "Line"], ValueT FloatT))
     , ( "lineLeft"
       , ([ValueT FloatT, GPIType "Arrow", GPIType "Arrow"], ValueT PtListT))
     , ("interpolate", ([ValueT PtListT, ValueT StrT], ValueT PathDataT))
@@ -514,9 +516,9 @@ checkReturn (GPI v) _ = error "checkReturn: Computations cannot return GPIs"
 --------------------------------------------------------------------------------
 -- Computation Functions
 sampleFunction :: CompFn
-sampleFunction [Val (IntV n), Val (FloatV xmin), Val (FloatV xmax), Val (FloatV ymin), Val (FloatV ymax), Val (StrV typ)] g 
-  | n < 2 = 
-    error "A function needs to have >= 2 points" 
+sampleFunction [Val (IntV n), Val (FloatV xmin), Val (FloatV xmax), Val (FloatV ymin), Val (FloatV ymax), Val (StrV typ)] g
+  | n < 2 =
+    error "A function needs to have >= 2 points"
   | typ == "surjection" =
     let (pts, g') = computeSurjection g n (xmin, ymin) (xmax, ymax)
     in (Val $ PtListV pts, g')
@@ -670,6 +672,11 @@ intersectionY [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
 
 len :: ConstCompFn
 len [GPI a@("Arrow", _)] =
+  let (x0, y0, x1, y1) = arrowPts a
+  in Val $ FloatV $ dist (x0, y0) (x1, y1)
+
+lineLength :: ConstCompFn
+lineLength [GPI a@("Line", _)] =
   let (x0, y0, x1, y1) = arrowPts a
   in Val $ FloatV $ dist (x0, y0) (x1, y1)
 
@@ -1033,7 +1040,7 @@ setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] =
   Val $ ColorV (RGBA r g b (r2f frac * a))
 
 sampleColor' :: CompFn
-sampleColor' [Val (FloatV a)] g = 
+sampleColor' [Val (FloatV a)] g =
              let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
              in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
 
@@ -1042,12 +1049,12 @@ sampleNum' [Val (FloatV x), Val (FloatV y)] g = -- Sample in range
          let (res, g') = sampleFloatIn (r2f x, r2f y) g
          in (Val res, g')
 
-sampleNum' [] g = 
+sampleNum' [] g =
          let (res, g') = sampleFloatIn canvasDims g
          in (Val res, g')
 
 -- Interpolate between the color and white
--- The alternative is to uniformly scale up the color and clamp when it hits 255, 
+-- The alternative is to uniformly scale up the color and clamp when it hits 255,
 -- but that changes the hue of the color.
 -- https://stackoverflow.com/questions/141855/programmatically-lighten-a-color
 scaleColor :: ConstCompFn
@@ -1084,7 +1091,7 @@ projectVec name hfov vfov r camera dir vec_math toScreen =
         "\n||vec_math||: " ++ show (norm vec_math) ++
         "\nvec_camera: " ++ show vec_camera ++
         "\nvec_proj: " ++ show vec_proj ++
-        "\nvec_screen: " ++ show vec_screen ++ 
+        "\nvec_screen: " ++ show vec_screen ++
         "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
        vec_proj_screen
 
@@ -1146,7 +1153,7 @@ angleBisectorEuclidean [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV
       e2 = gramSchmidt e1 w
       bis_pt = transformPt p radius $ circPtInPlane e1 e2 ((angleBetweenRad v w) / 2.0)
   in Val $ ListV bis_pt
-  
+
 -- Draw the arc on the sphere between the segment (pq) and the segment (pr) with some fixed radius
 -- The angle between lines (pq, pr) is angle of the planes containing the great circles of the arcs
 -- Find an orthonormal basis with the normal (n) of the sphere at a point, then the tangent vectors (t1, t2) of the plane at the point, where t1 is in the direction of one of the lines
@@ -1240,7 +1247,7 @@ diskToScreen [Val (ListV v), Val (FloatV toScreen)] =
 -- Denote the Lorenz inner product x1y1 + x2y2 - x3y3 as <x, y>L.
 -- Assuming a and b lie on the hyperboloid (x^2 + y^2 - z^2 = -1, z > 0)
 -- For a vector v on the hyperboloid, <v, v>L = -1
--- If we start with two vectors a, b on the hyperboloid, 
+-- If we start with two vectors a, b on the hyperboloid,
 -- then we find an orthonormal basis for the plane that they span by using Gram-Schmidt:
 -- e1 = a
 -- e2 = normalize(b + <a, b>L * a)
@@ -1254,7 +1261,7 @@ slerpHyp [Val (ListV a), Val (ListV b), Val (IntV n)] =
              e2 = gramSchmidtHyp e1 b
              d = hypDist a b
              pts = hlerp (fromIntegral n) 0.0 d e1 e2
-         in Val $ LListV $ 
+         in Val $ LListV $
          -- trace
          -- ("\n(a, b, d): " ++ show (a, b, d) ++ "\npts: " ++ show pts ++
          --  "\n(e1, e2): " ++ show (e1, e2))
@@ -1269,7 +1276,7 @@ ptToDiskAndScreen [Val (ListV pt), Val (FloatV c)] =
    Val $ PtV $ toDiskAndScreen' c pt
 
 pathToDiskAndScreen' :: Autofloat a => [[a]] -> a -> [(a,a)]
-pathToDiskAndScreen' hypPath c = map (toDiskAndScreen' c) hypPath 
+pathToDiskAndScreen' hypPath c = map (toDiskAndScreen' c) hypPath
 
 pathToDiskAndScreen :: ConstCompFn
 pathToDiskAndScreen [Val (LListV hypPath), Val (FloatV c)] =
@@ -1293,7 +1300,7 @@ normalOnHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (FloatV arcLen
 -- Find the tangent vectors tq, and tr, as well as an orthonormal basis at p, where the tangent plane at e is (e1,e2)
 -- And the arc angle is theta
 tangentsAndBasis :: Autofloat a => [a] -> [a] -> [a] -> a -> ([a], [a], [a], [a], [a], a)
-tangentsAndBasis p q r arcLen = 
+tangentsAndBasis p q r arcLen =
   -- TODO: do these still work if p,q,r are on "different sides" of the hyperboloid? Or the sphere?
   let -- Find the tangent vector tq at p in the direction of q
       tq = gramSchmidtHyp p q
@@ -1325,18 +1332,18 @@ tangentsAndBasis p q r arcLen =
   -- trace ("\n(p, q, r, arcLen): " ++ show (p, q, r, arcLen) ++
   --         "\n(ptA, ptB, ptC): " ++ show (ptA, ptB, ptC) ++
   --         "\n(lenAC, lenBC, lenAB): " ++ show (lenAC, lenBC, lenAB) ++
-  --        "\n(tq, tr, e1, e2, e3, theta): " ++ show res) 
+  --        "\n(tq, tr, e1, e2, e3, theta): " ++ show res)
    res
 
 -- Angle where P is the central point (qpr or rpq), moving from q to r
 -- Including the paths to the arc endpoints so we can draw a wedge
 arcPathHyp :: ConstCompFn
-arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] = 
+arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
   let (tq, tr, e1, e2, e3, theta) = tangentsAndBasis p q r arcLen
       -- Draw the arc centered at p, with radius arcLen, from q to p
       -- This works by drawing a circle in the tangent plane by varying theta
       dtheta = 0.02
-      thetas = if theta > 0 then takeWhile (<= theta) $ iterate (+ dtheta) 0 
+      thetas = if theta > 0 then takeWhile (<= theta) $ iterate (+ dtheta) 0
                else takeWhile (>= theta) $ iterate ((-) dtheta) 0 -- TODO: nicer way to do this?
                -- Equivalent to [0, dtheta .. theta] but we don't have Enum a
       -- Each point on the circle corresponds to a tangent direction e at p
@@ -1345,7 +1352,7 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
                   -- And then you just walk in that direction from p along the hyperbolic geodesic
                   -- And connect up all those geodesic points to yield an arc on the hyperboloid
                   -- From (arclen along q) to (arclen along r)
-                  arcPoints_qr = map (\tangentVec -> hypPtInPlane p tangentVec arcLen) tangentVecs 
+                  arcPoints_qr = map (\tangentVec -> hypPtInPlane p tangentVec arcLen) tangentVecs
                   -- Geodesic from p in the direction of q
                   arcLeg_pq = hFromTo p (arcPoints_qr !! 0)
                   -- Geodesic from p in the direction of r
@@ -1368,7 +1375,7 @@ arcPathHyp [Val (ListV p), Val (ListV q), Val (ListV r), Val (FloatV arcLen)] =
                  arcWedgePath
 
 -- Angle where P is the central point (qpr or rpq)
--- For angle QPR, calculate that angle, 
+-- For angle QPR, calculate that angle,
 -- move along a circle in the tangent plane at P to find the tangent vector at the angle bisector,
 -- then move along the hyperbolic geodesic along the tangent vector by arcLen to find the point whose ray bisects the angle.
 -- See arcPathHyp for more about how this works
@@ -1410,8 +1417,8 @@ perpPathHyp_old [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV hea
       -- path = [pt_BA, corner_BA, corner_BC, pt_BC]
       path = pt_BA : corner_BA_path ++ (reverse corner_BC_path) ++ [pt_BC]
 
-  in Val $ LListV $ 
-     -- trace ("\n[pt_BA, corner_BA, corner_BC, pt_BC]: \n" ++ show path) 
+  in Val $ LListV $
+     -- trace ("\n[pt_BA, corner_BA, corner_BC, pt_BC]: \n" ++ show path)
      path
 
 -- {p,q} is the segment that ray {tailv, headv} bisects (the head sticks out). Draw the mark with length arcLen
@@ -1424,7 +1431,7 @@ perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv),
       pt_BA = hwalk b a hypArcLen
       -- Walk the same length along BC toward C
       pt_BC = hwalk b c hypArcLen
- 
+
       -- Draw the perpendicular mark in *screen space*
       (b', pt_BA', pt_BC') = app3 (toDiskAndScreen' toScreen) (b, pt_BA, pt_BC)
 
@@ -1433,7 +1440,7 @@ perpPathHyp [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv),
       seg1 = (b', pt_BA')
       seg2 = (b', pt_BC')
       (ptL, ptLR, ptR) = perpPathFlat arcLen seg1 seg2 -- Note we use the screenspace length (arcLen) not the hypArcLen
- 
+
   in Val $ PtListV [ptL, ptLR, ptR, b'] -- b' so the path can be closed
      -- [pt_BA', ptLR, pt_BC']
 
@@ -1587,7 +1594,7 @@ _centerArrow arr@("Arrow", _) s1@[x1, y1] s2@[x2, y2] [o1, o2] =
         ]
   in (fromx - sx) ^ 2 + (fromy - sy) ^ 2 + (tox - ex) ^ 2 + (toy - ey) ^ 2
 
-repelPt :: Autofloat a => a -> Pt2 a -> Pt2 a -> a 
+repelPt :: Autofloat a => a -> Pt2 a -> Pt2 a -> a
 repelPt c a b = c / (distsq a b + epsd)
 
 -- | 'repel' exert an repelling force between objects
@@ -1627,7 +1634,7 @@ repel [GPI curve@("Curve", _), GPI a, Val (FloatV weight)] =
   in {- trace ("numPoints: " ++ show (length curvePts)) -}
      res
   where sampleNum = 3
-  
+
 repel [Val (TupV x), Val (TupV y)] = 1 / (distsq x y + epsd)
 repel [GPI a, GPI b] = 1 / (distsq (getX a, getY a) (getX b, getY b) + epsd)
 repel [GPI a, GPI b, Val (FloatV weight)] =
@@ -2040,7 +2047,7 @@ noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset =
   -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset
 
 atDistFn :: (Autofloat a) => Pt2 a -> Shape a -> a -> a
-atDistFn (x, y) txt offset = 
+atDistFn (x, y) txt offset =
   -- TODO: also account for boundary/radius of `o`, rather than just using center
   let ([textPts], _, textBbox, _) = getPolygon txt
       dsq_res = dsqBP textPts (x, y)
@@ -2063,7 +2070,7 @@ polyPtDisjoint b p = max (-1 * signedDsqBP b p) 0
 labelDisjointConstr :: ConstrFn
 labelDisjointConstr [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV padding)] =
     let curvePts = polyPts $ getPolygon curve -- TODO: maybe we should re-polygonize the curve instead of using the original points, which are equally distributed in hyperbolic space but not 2D space
-        ([textPts], _, textBbox, _) = getPolygon lab 
+        ([textPts], _, textBbox, _) = getPolygon lab
         -- numCurvePts = length curvePts
         sumEnergies = sum $ map (polyPtDisjoint textPts) curvePts
     in {- trace ("\nsumEnergies: " ++ show sumEnergies ++
@@ -2263,7 +2270,7 @@ orderAlong [GPI o1, GPI o2, Val (FloatV angleInDegrees)] =
 labelDisjoint :: ObjFn
 labelDisjoint [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV padding)] =
   let (p, q) = segOf $ polyPts $ getPolygon curve
-      ([textPts], _, textBbox, _) = getPolygon lab 
+      ([textPts], _, textBbox, _) = getPolygon lab
       segs = ptsToPolySegs textPts
       pInBox = inBBox textBbox p
       qInBox = inBBox textBbox q
