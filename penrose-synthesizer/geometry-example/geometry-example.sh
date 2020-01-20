@@ -20,7 +20,7 @@ rsync -a -v --delete-after synthesized-progs/ $AUTOMATOR/synthesized-progs
 cd $AUTOMATOR
 
 # CLean up output dir
-rm -rf $ARTIFACT/artifacts/$NAME/*
+rm -rf $ARTIFACT/artifacts/$NAME/
 rm -rf $ARTIFACT/browser/*
 mkdir $ARTIFACT/artifacts/$NAME
 

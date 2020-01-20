@@ -19,7 +19,7 @@ module Penrose.Functions
 
 import           Data.Aeson            (toJSON)
 import           Data.Fixed            (mod')
-import           Data.List             (find, findIndex, maximumBy, nub, sort)
+import           Data.List             (find, findIndex, maximumBy, nub, sort, intercalate)
 import qualified Data.Map.Strict       as M
 import           Data.Maybe            (fromMaybe)
 import qualified Data.MultiMap         as MM
@@ -29,6 +29,7 @@ import           Penrose.Transforms
 import           Penrose.Util
 import           System.Random         (StdGen, mkStdGen, randomR)
 import           System.Random.Shuffle (shuffle')
+import Prelude hiding (concat)
 
 default (Int, Float) -- So we don't default to Integer, which is 10x slower than Int (?)
 
@@ -202,6 +203,7 @@ compDict =
     , ("testTriangle", constComp testTri)
     , ("testNonconvexPoly", constComp testNonconvexPoly)
     , ("randomPolygon", randomPolygon)
+    , ("concat", constComp concat)
     , ("midpoint", noop) -- TODO
     , ("sampleMatrix", noop) -- TODO
     , ("sampleReal", noop) -- TODO
@@ -1444,6 +1446,12 @@ makeBisectorMark [Val (ListV bis), Val (ListV commonPt), Val (FloatV markLen)] =
   let (botPt, topPt) = angleMark (tuplify2 commonPt) (tuplify2 bis) markLen
       path = Open $ map Pt [botPt, topPt]
   in Val $ PathDataV [path]
+
+concat :: ConstCompFn
+concat strs = toVal $ concatMap rawString strs
+  where 
+    rawString (Val (StrV s)) = s
+    toVal s = Val $ StrV s
 
 --------------------------------------------------------------------------------
 -- Objective Functions

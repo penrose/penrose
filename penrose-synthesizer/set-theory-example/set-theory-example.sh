@@ -31,7 +31,7 @@ npm start -- batch substance.json style.json domain.json $ARTIFACT/artifacts/$NA
 cd $ARTIFACT
 
 # Generate a static artifact page
-npm start -- ./artifacts ./browser
+npm start -- ./artifacts/$NAME ./browser
 
 # Open the page
 open browser/index.html
