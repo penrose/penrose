@@ -66,6 +66,7 @@ data StmtWeights = StmtWeights
   { weightType        :: Weight
   , weightPredicate   :: Weight
   , weightConstructor :: Weight
+  , weightFunction    :: Weight
   } deriving (Show)
 
 $(deriveJSON
@@ -250,6 +251,7 @@ stmtTypes env ws =
       [ (weightType ws, generateType)
       , (weightPredicate ws, generatePredicate)
       , (weightConstructor ws, generateConstructor)
+      , (weightFunction ws, generateFunction)
       -- , generateFunction -- TODO: implement this
       ]
 
@@ -362,7 +364,6 @@ generateArg Mixed typ = do
   f <- choice [generateArg Existing, generateArg Generated]
   f typ
 
--- FIXME: finish the implementation
 generateConstructor :: VarEnv -> Synthesize SubStmt
 generateConstructor env = do
   cons <- choice $ M.elems $ valConstructors env
@@ -373,6 +374,19 @@ generateConstructor env = do
   let (Decl _ name) = decl
   let stmt =
         Bind name $ ApplyValCons $ Func {nameFunc = namevc cons, argFunc = args}
+  appendStmt stmt
+  return stmt
+
+generateFunction :: VarEnv -> Synthesize SubStmt
+generateFunction env = do
+  cons <- choice $ M.elems $ operators env
+  opt <- gets (argOption . setting)
+  let argTypes = map typeName $ tlsop cons
+  args <- generateArgs opt argTypes
+  decl <- generateType' (typeName $ top cons) Concrete
+  let (Decl _ name) = decl
+  let stmt =
+        Bind name $ ApplyFunc $ Func {nameFunc = nameop cons, argFunc = args}
   appendStmt stmt
   return stmt
 

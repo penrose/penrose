@@ -4,6 +4,7 @@
   "weights": {
     "type": 0.1,
     "predicate": 0.3,
-    "constructor": 0.3
+    "constructor": 0.3,
+    "function": 0.1
   }
 }

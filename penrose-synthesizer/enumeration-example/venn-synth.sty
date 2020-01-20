@@ -5,7 +5,7 @@ Colors {
 
 Set x {
     x.shape = Circle {
-        strokeWidth : 0.5
+        strokeWidth : 1.0
         strokeColor : Colors.black
         color: Colors.darkpurple
     }
@@ -27,6 +27,12 @@ where IsSubset(x, y) {
     x.containFn = ensure contains(y.shape, x.shape, 20.0)
     x.sizeFn    = ensure smallerThan(x.shape, y.shape)
     y.outsideFn = ensure outsideOf(y.text, x.shape)
+}
+
+Set x; Set y; Set z
+where IsSubset(x, y); IsSubset(y, z); {
+    z.outsideFn = ensure outsideOf(z.text, x.shape)
+    z.outsideFn = ensure outsideOf(z.text, y.shape)
 }
 
 
