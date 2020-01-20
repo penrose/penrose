@@ -253,7 +253,6 @@ const batchProcess = async (
   console.log(`Processing ${substanceLibrary.length} substance files...`);
 
   var finalMetadata = {};
-  var nonzeroDiagrams = 0;
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
   for (const { name, substanceURI, element, style } of substanceLibrary) {
@@ -292,13 +291,9 @@ const batchProcess = async (
     );
     if (folders) {
       finalMetadata[id] = meta;
-      if (meta.nonzeroConstraints) {
-        nonzeroDiagrams++;
-      }
     }
   }
   if (folders) {
-    finalMetadata["nonzeroDiagrams"] = nonzeroDiagrams;
     fs.writeFileSync(
       `${out}/aggregateData.json`,
       JSON.stringify(finalMetadata)
