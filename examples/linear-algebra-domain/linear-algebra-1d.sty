@@ -59,7 +59,7 @@ VectorSpace U {
         endX : U.shape.x + const.vectorSpaceSize/2.0
         endY : U.shape.y - const.vectorSpaceSize/2.0
         thickness : U.thickness
-        color : U.axisColor
+        color : Colors.black
         arrowheadSize : const.arrowheadSize
     }
 
@@ -83,7 +83,7 @@ VectorSpace U {
 
     U.text = Text {
         string : U.label
-        color : Colors.darkGray
+        color : Colors.black
         x : U.shape.endX
         y : U.shape.endY + const.textPadding
     }
@@ -108,13 +108,14 @@ where In(v,U) {
     endX : ?
     endY :  v.shape.startY
     thickness : const.arrowThickness
-    color : v.color
+    color : Colors.black --v.color
     arrowheadSize : const.arrowheadSize
   }
 
    v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
    v.maxHeight1 = ensure lessThan(U.shape.endY, v.shape.endY)
-   v.maxHeight2 = ensure lessThan(v.shape.endY, const.vectorSpaceSize/10.0)
+   v.maxHeight2 = ensure lessThan(v.shape.endY, U.shape.endY + 70.0)
+   -- v.maxHeight2 = ensure lessThan(v.shape.endY, const.vectorSpaceSize/10.0)
    v.maxSize1 = ensure lessThan(len(v.shape), len(U.shape)/2.0)
    v.labelLocation = ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
    v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
@@ -140,10 +141,10 @@ with VectorSpace U {
       rotation : 0.0
   }
 
-  v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
+  -- v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
   v.maxHeight1 = ensure lessThan(U.shape.endY, v.shape.endY)
   v.maxHeight2 = ensure lessThan(v.shape.endY, const.vectorSpaceSize/10.0)
-  v.maxSize1 = ensure lessThan(lineLength(v.shape), len(U.shape)/2.0)
+  -- v.maxSize1 = ensure lessThan(lineLength(v.shape), len(U.shape)/2.0)
   v.labelLocation = ensure atDist((v.shape.endX, v.shape.endY), v.text, 10.0)
   v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
 }
@@ -179,7 +180,14 @@ where In(v,U); In(u,U); v := scale(c,u){
       fontSize : const.fontSize
   }
 
-  c.below = ensure lessThan(c.shape.endY, u.shape.endY)
+  c.below1 = ensure lessThan(c.shape.endY, u.shape.endY)
+  c.below2 = ensure lessThan(c.shape.endY + 30.0 , u.shape.endY)
+
+  c.location1 = ensure lessThan(c.shape.endX, u.shape.endX / 2.0)
+  c.location2 = ensure lessThan(u.shape.startX, u.shape.endX)
+  c.location3 = ensure lessThan(c.shape.startX, c.shape.endX)
+
+
   v.textLocation = v.text above v.shape
 
 
