@@ -22,7 +22,7 @@ cd $AUTOMATOR
 # CLean up output dir
 rm -rf $ARTIFACT/artifacts/$NAME
 rm -rf $ARTIFACT/browser/*
-mkdir $ARTIFACT/artifacts/$NAME
+mkdir -p $ARTIFACT/artifacts/$NAME
 
 # Render all diagrams
 npm start -- batch substance.json style.json domain.json $ARTIFACT/artifacts/$NAME --folders --src-prefix="synthesized-progs"

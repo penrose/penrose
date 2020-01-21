@@ -43,7 +43,7 @@ where IsSubset(x, y); IsSubset(y, x); {
     delete x.outsideFn 
 
     y.text = Text {
-        string: concat(x.label, "=", y.label)
+        string: concat(y.label, "=", x.label)
     }
 
     y.labelFn = ensure contains(y.shape, y.text)
@@ -58,31 +58,23 @@ where IsSubset(x, y); IsSubset(y, x); {
     delete x.eqFn 
 }
 
+-- This block is just for A=B<-C
 Set x; Set y; Set z
-where IsSubset(x, y); IsSubset(y, x); IsSubset(x, z) {
-    z.containFn = ensure contains(z.shape, x.shape, 20.0)
+where IsSubset(x, y); IsSubset(y, x); IsSubset(z, x) {
+    delete x.labelFn 
+    delete x.text 
+    delete x.outsideFn 
+
+    y.text = Text {
+        string: concat(y.label, "=", x.label)
+    } 
+    y.labelFn = ensure contains(y.shape, y.text)
+    y.outsideFn = ensure outsideOf(y.text, z.shape)
 }
 
 Set x; Set y; Set z
-where IsSubset(x, z); IsSubset(y, z); IsSubset(z, y); IsSubset(z, x) {
-    delete x.text
-    delete x.labelFn
-    delete x.layering
-    delete y.text
-    delete y.labelFn
-    delete y.layering
-    delete z.containFn
-    delete x.containFn
-    delete y.containFn
-
-    z.text = Text {
-        string: concat(x.label, "=", y.label, "=", z.label)
-    }
-    z.labelFn = ensure contains(z.shape, z.text)
-    z.centerFn = encourage sameCenter(x.shape, y.shape)
-    z.centerFn2 = encourage sameCenter(x.shape, z.shape)
-    z.eqFn = encourage equal(x.shape.r, y.shape.r)
-    z.eqFn2 = encourage equal(z.shape.r, y.shape.r)
+where IsSubset(x, y); IsSubset(y, x); IsSubset(x, z) {
+    z.containFn = ensure contains(z.shape, x.shape, 20.0)
 }
 
 Set x; Set y; Set z
@@ -98,8 +90,34 @@ where IsSubset(x, y); IsSubset(y, z); IsSubset(z, x) {
     delete y.containFn
 
     z.text = Text {
-        string: concat(x.label, "=", y.label, "=", z.label)
+        string: concat(z.label, "=", y.label, "=", x.label)
     }
+    z.labelFn = ensure contains(z.shape, z.text)
+    z.centerFn = encourage sameCenter(x.shape, y.shape)
+    z.centerFn2 = encourage sameCenter(x.shape, z.shape)
+    z.eqFn = encourage equal(x.shape.r, y.shape.r)
+    z.eqFn2 = encourage equal(z.shape.r, y.shape.r)
+}
+
+Set x; Set y; Set z
+where IsSubset(x, z); IsSubset(y, z); IsSubset(z, x); IsSubset(z, y) {
+    delete x.text
+    delete x.labelFn
+    delete x.layering
+    delete y.text
+    delete y.labelFn
+    delete y.layering
+    delete z.containFn
+    delete x.containFn
+    delete y.containFn
+    delete z.outsideFn
+    delete x.outsideFn
+    delete y.outsideFn
+
+    z.text = Text {
+        string: concat(z.label, "=", y.label, "=", x.label)
+    }
+    z.labelFn = ensure contains(z.shape, z.text)
     z.centerFn = encourage sameCenter(x.shape, y.shape)
     z.centerFn2 = encourage sameCenter(x.shape, z.shape)
     z.eqFn = encourage equal(x.shape.r, y.shape.r)
