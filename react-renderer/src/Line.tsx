@@ -16,6 +16,13 @@ class Line extends React.Component<IGPIPropsDraggable> {
       [shape.endX.contents, shape.endY.contents],
       canvasSize
     );
+
+      // Rounding for illustrator? Doesn't seem to work
+      /* sx = round2(sx);
+       * sy = round2(sy);
+       * ex = round2(ex);
+       * ey = round2(ey);*/
+
     const path = `M ${sx} ${sy} L ${ex} ${ey}`;
     const color = toHex(shape.color.contents);
     const thickness = shape.thickness.contents;

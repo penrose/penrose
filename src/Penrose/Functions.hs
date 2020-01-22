@@ -116,6 +116,7 @@ compDict =
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
     , ("generateRandomReal", constComp generateRandomReal)
     , ("calcNorm", constComp calcNorm)
+    , ("normalize", constComp normalizeFn)
     , ("dist", constComp distFn)
     , ("normSq", constComp normSq')
     , ("bboxWidth", constComp bboxWidth)
@@ -142,8 +143,11 @@ compDict =
     , ("sampleFunctionArea", sampleFunctionArea)
     , ("makeCurve", makeCurve)
     , ("triangle", constComp triangle)
+    , ("rectangle", constComp mkRectangle)
+    , ("squareAt", constComp squareAtFn)
     , ("shared", constComp sharedP)
     , ("angleOf", constComp angleOf)
+    , ("project", constComp projectFn)
     , ("perpX", constComp perpX)
     , ("perpY", constComp perpY)
     , ("perpPath", constComp perpPath)
@@ -177,6 +181,8 @@ compDict =
     , ("join", constComp joinPath)
     , ("dot", constComp dotFn)
     , ("angle", constComp angleFn)
+    , ("sampleUniform", sampleUniformFn)
+    , ("makePalette", constComp makePalette)
 
   , ("calcZSphere", constComp calcZSphere)
 
@@ -449,6 +455,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("hasLorenzNorm", hasLorenzNorm)
       , ("atDist", atDist)
       , ("labelDisjoint", labelDisjointConstr)
+      , ("perpendicular", perpendicularConstr)
       ]
 
 indivConstrWeight :: (Autofloat a) => a
@@ -643,6 +650,9 @@ calcNorm [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1), Val (FloatV ey1)
       norm = sqrt (nx + ny + epsd)
   in Val (FloatV norm)
 
+normalizeFn :: ConstCompFn
+normalizeFn [Val (ListV xs)] = Val $ ListV $ normalize xs
+
 distFn :: ConstCompFn
 distFn [Val (ListV v), Val (ListV w)] =
          Val $ FloatV $ norm $ v -. w
@@ -746,6 +756,11 @@ chain k [(x0, y0), (x1, y1), (x2, y2), (x3, y3)] =
       cp2x = x2 - (x3 - x1) / 6 * k
       cp2y = y2 - (y3 - y1) / 6 * k
   in CubicBez ((cp1x, cp1y), (cp2x, cp2y), (x2, y2))
+
+sampleList2 :: [a] -> StdGen -> (a, StdGen)
+sampleList2 list g =
+  let (idx, g') = randomR (0, length list - 1) g
+  in (list !! idx, g')
 
 sampleList :: (Autofloat a) => [a] -> StdGen -> (a, StdGen)
 sampleList list g =
@@ -870,6 +885,12 @@ makeCurve [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), V
       path = Open $ interpolateFn [(x1, y1), midpt, (x2, y2)] 1.0
   in (Val $ PathDataV [path], g)
 
+-- Draw a rectangle via three points
+mkRectangle :: ConstCompFn
+mkRectangle [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), Val (FloatV x3), Val (FloatV y3), Val (FloatV x4), Val (FloatV y4)] =
+  let path = Closed [Pt (x1, y1), Pt (x2, y2), Pt (x3, y3), Pt (x4, y4)]
+  in Val $ PathDataV [path]
+
 -- Draw a triangle as the closure of three lines (assuming they define a valid triangle, i.e. intersect exactly at their endpoints)
 triangle :: ConstCompFn
 triangle [Val (FloatV x1), Val (FloatV y1), Val (FloatV x2), Val (FloatV y2), Val (FloatV x3), Val (FloatV y3)] =
@@ -904,6 +925,16 @@ sharedP [Val (FloatV a), Val (FloatV b), Val (FloatV c), Val (FloatV d)] =
           x:xs -> x
   in Val $ FloatV common
 
+-- | Given points (q, p, r) that define a triangle (where `p` is the point of the right angle)
+-- Centered at Q, project QP (the leg) onto QR (the side opposite the right angle) to give the location of the altitude, then decenter from Q
+projectFn :: ConstCompFn
+projectFn [Val (TupV q), Val (TupV p), Val (TupV r)] =
+  let qp = p -: q
+      qr = r -: q
+      altitude = proj2 qr qp
+      res = altitude +: q
+  in Val $ TupV res
+
 angleOf :: ConstCompFn
 angleOf [GPI l@("Line", _), Val (FloatV originX), Val (FloatV originY)] =
   let origin = (originX, originY)
@@ -919,7 +950,7 @@ angleOf [GPI l@("Line", _), Val (FloatV originX), Val (FloatV originY)] =
 
 perp :: Autofloat a => Pt2 a -> Pt2 a -> Pt2 a -> a -> Pt2 a
 perp start end base len =
-  let dir = normalize' $ end -: start
+  let dir = normalize' $ start -: end -- Draw it the other way
       perpDir = (len *: (rot90 dir)) +: base
   in perpDir
 
@@ -945,6 +976,14 @@ perpPathFlat size (startR, endR) (startL, endL) =
   in (ptL, ptLR, ptR)
 
 perpPath :: ConstCompFn
+
+perpPath [Val (TupV q), Val (TupV p), Val (TupV r), Val (FloatV size)] = -- Euclidean
+  let seg1 = (p, q)
+      seg2 = (p, r)
+      (ptL, ptLR, ptR) = perpPathFlat size seg1 seg2
+      path = Closed $ [Pt ptL, Pt ptLR, Pt ptR, Pt p]
+  in Val $ PathDataV [path]
+
 perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (TupV midpt), Val (FloatV size)] = -- Euclidean
   let seg1 = (getPoint "start" r, getPoint "end" r)
       seg2 = (getPoint "start" l, getPoint "end" l)
@@ -1095,6 +1134,8 @@ blendColor [Val (ColorV (RGBA r0 g0 b0 a0)), Val (ColorV (RGBA r1 g1 b1 a1))] =
 
 ----------
 get' :: ConstCompFn
+get' [Val (PtListV xs), Val (IntV i)] = Val $ TupV $ xs !! i
+get' [Val (LListV xs), Val (IntV i)] = Val $ ListV $ xs !! i
 get' [Val (ListV xs), Val (IntV i)] =
   let i' = (fromIntegral i) :: Int
   in if i' < 0 || i' >= length xs
@@ -1109,14 +1150,14 @@ projectVec name hfov vfov r camera dir vec_math toScreen =
       vec_proj = (1 / pz) *. [px, py]
       vec_screen = toScreen *. vec_proj
       vec_proj_screen = vec_screen ++ [pz] -- TODO check denom 0. Also note z might be negative?
-  in trace
-       ("\n" ++ "name: " ++ name ++
-        "\nvec_math: " ++ show vec_math ++
-        "\n||vec_math||: " ++ show (norm vec_math) ++
-        "\nvec_camera: " ++ show vec_camera ++
-        "\nvec_proj: " ++ show vec_proj ++
-        "\nvec_screen: " ++ show vec_screen ++
-        "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
+  in -- trace
+       -- ("\n" ++ "name: " ++ name ++
+       --  "\nvec_math: " ++ show vec_math ++
+       --  "\n||vec_math||: " ++ show (norm vec_math) ++
+       --  "\nvec_camera: " ++ show vec_camera ++
+       --  "\nvec_proj: " ++ show vec_proj ++
+       --  "\nvec_screen: " ++ show vec_screen ++ 
+       --  "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
        vec_proj_screen
 
 -- | For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e2 x e1, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q) (Assuming p and q are unit)
@@ -1244,6 +1285,48 @@ dotFn [Val (TupV u), Val (TupV v)] = Val $ FloatV $ u `dotv` v
 angleFn :: ConstCompFn
 angleFn [Val (TupV (v1, v2))] = Val $ FloatV $ atan2 v2 v1
 
+-- TODO: yeah... get rid of this function
+makePalette :: ConstCompFn
+makePalette [Val (ColorV c1), Val (ColorV c2), Val (ColorV c3)] = 
+        Val $ PaletteV [c1, c2, c3]
+
+makePalette [Val (ColorV c1), Val (ColorV c2), Val (ColorV c3), Val (ColorV c4)] = 
+        Val $ PaletteV [c1, c2, c3, c4]
+
+-- TODO: only works for color lists right now
+sampleUniformFn :: CompFn
+-- sampleUniformFn [Val (ListV xs)] g = 
+--                 let (v, g') = sampleList2 xs g
+--                 in (Val $ v, g')
+
+sampleUniformFn [Val (PaletteV xs)] g = 
+                let (v, g') = sampleList2 xs g
+                in (Val $ ColorV v, g')
+
+-- Given a side of the square (p,q), calculate the exterior side of the square (r,s) (TODO: on the "outside" of the triangle)
+squareAtFn :: ConstCompFn
+squareAtFn [Val (TupV p), Val (TupV q)] = 
+  let v1 = q -: p
+      v2 = rot90 v1
+      v3 = rot90 v2
+      r = q +: v2
+      s = r +: v3
+      pts = [p, q, r, s]
+  in Val $ PtListV pts
+
+-- Given a third point (`r` of the triangle), rotate in direction so the square doesn't overlap with the triangle
+-- TODO: combine with the above
+squareAtFn [Val (TupV p), Val (TupV q), Val (TupV triPt)] = 
+  let sgnRes = crossSgn (triPt -: q) (p -: q)
+      rotDir = if sgnRes < 0 then rot90 else rotNeg90
+      v1 = q -: p
+      v2 = rotDir v1
+      v3 = rotDir v2
+      r = q +: v2
+      s = r +: v3
+      pts = [p, q, r, s]
+  in Val $ PtListV pts
+
 -- | Hyperbolic functions
 
 calcZ' :: Autofloat a => a -> a -> a
@@ -1261,8 +1344,22 @@ toDisk [Val (ListV v)] = Val $ ListV $ toDisk' v
 calcZ :: ConstCompFn
 calcZ [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ calcZ' x y
 
+-- For x^2 + y^2 + z^2 = 1, but make sure `z` is negative (so it's on the visible side, closer to the camera) and the `abs` to make sure it doesn't go out of bounds
 calcZSphere :: ConstCompFn
-calcZSphere [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ sqrt (1 - x * x - y * y) -- For x^2 + y^2 + z^2 = 1
+calcZSphere [Val (FloatV x), Val (FloatV y), Val (FloatV r)] = 
+            -- Val $ FloatV $ -1.0 * sqrt (abs(1 - x * x - y * y)) 
+            let (x', y') = if (x * x + y * y) > (r * r)
+                           then r *: normalize' (x, y)
+                           else (x, y)
+                inner = 1 - x' * x' - y' * y' + epsd
+                z' = -1.0 * sqrt inner
+            in Val $ ListV $ 
+               -- trace 
+               --       ("sqrt inner: " ++ show inner
+               --        ++ "\nsqrt z': " ++ show z'
+               --        ++ "\nvec: " ++ show [x', y', z']
+               --        ++ "\nnorm: " ++ show (norm [x', y', z']))
+               [x', y', z']
 
 diskToScreen :: ConstCompFn
 diskToScreen [Val (ListV v), Val (FloatV toScreen)] =
@@ -1775,7 +1872,9 @@ lessThan :: ConstrFn
 lessThan [Val (FloatV x), Val (FloatV y)] = x - y
 
 lessThanSq :: ConstrFn
-lessThanSq [Val (FloatV x), Val (FloatV y)] = if x < y then 0 else (x - y)^2
+lessThanSq [Val (FloatV x), Val (FloatV y)] = 
+           if x < y then 0 else (x - y)^2
+           -- in trace ("lessThan, x: " ++ show x ++ ", y: " ++ show y ++ ", res: " ++ show res) res
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
@@ -1807,11 +1906,10 @@ contains [GPI c@("Circle", _), GPI t@("Text", _)] =
 contains [GPI s@("Square", _), GPI l@("Text", _)] =
   dist (getX l, getY l) (getX s, getY s) - getNum s "side" / 2 +
   getNum l "w" / 2
-contains [GPI s@("Rectangle", _), GPI l@("Text", _)]
+contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
- =
-  dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 +
-  getNum l "w" / 2
+  dist (getX l, getY l) (getX r, getY r) - getNum r "sizeX" / 2 +
+  getNum l "w" / 2 + padding
 contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
              -- HACK: reusing test impl, revert later
              let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
@@ -1859,7 +1957,9 @@ contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
       (rx, ry) = (x + w / 2, y + h / 2)
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
      inRange endY ly ry
-
+contains [GPI r@("Rectangle", _), Val (TupV (x, y)), Val (FloatV padding)] =
+             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+             in dist (getX r, getY r) (x, y) - r_l + padding
 contains [GPI sq@("Square", _), GPI ar@("Line", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
       (x, y) = (getX sq, getY sq)
@@ -2082,13 +2182,15 @@ noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset =
   -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset
 
 atDistFn :: (Autofloat a) => Pt2 a -> Shape a -> a -> a
-atDistFn (x, y) txt offset =
+atDistFn oPt txt offset =
   -- TODO: also account for boundary/radius of `o`, rather than just using center
   let ([textPts], _, textBbox, _) = getPolygon txt
-      dsq_res = dsqBP textPts (x, y)
-      constrEnergy = equal' dsq_res (offset * offset)
-  in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
-            "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
+  in if isInB' textPts oPt -- The point is inside the box, so push it outside
+     then noIntersect [[getX txt, getY txt, getNum txt "w"], [fst oPt, snd oPt, 2.0]] -- TODO use better sizes for each object
+     else let dsq_res = dsqBP textPts oPt -- Note this does NOT use the signed distance
+              constrEnergy = equal' dsq_res (offset * offset)
+          in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
+                    "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
 
 -- Uses the closest distance between object center and text bbox
 atDist :: ConstrFn
@@ -2111,6 +2213,13 @@ labelDisjointConstr [GPI curve@("Curve", _), GPI lab@("Text", _), Val (FloatV pa
     in {- trace ("\nsumEnergies: " ++ show sumEnergies ++
               "\nnumCurvePts: " ++ show numCurvePts) -}
        sumEnergies
+
+perpendicularConstr :: ConstrFn
+perpendicularConstr [Val (TupV q), Val (TupV p), Val (TupV r)] =
+                    let v1 = q -: p
+                        v2 = r -: p
+                        dotprod = v1 `dotv` v2
+                    in equal' dotprod 0
 
 --------------------------------------------------------------------------------
 -- Wrappers for transforms and operations to call from Style

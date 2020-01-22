@@ -650,14 +650,14 @@ evalExpr (i, n) arg trans varyMap g =
                 --           (res, trans')
             List es ->
                 let (vs, trans', g') = evalExprs limit es trans varyMap g
-                    floatvs = map checkFloatType vs
+                    floatvs = map checkListElemType vs
                 in (Val $ ListV floatvs, trans', g')
 
             ListAccess p i -> error "TODO list accesses"
 
             Tuple e1 e2 ->
                 let (vs, trans', g') = evalExprs limit [e1, e2] trans varyMap g
-                    [v1, v2] = map checkFloatType vs
+                    [v1, v2] = map checkListElemType vs
                 in (Val $ TupV (v1, v2), trans', g')
 
             -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
@@ -713,9 +713,9 @@ evalExpr (i, n) arg trans varyMap g =
             PluginAccess _ _ _ -> error "plugin access should not be evaluated at runtime"
             -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
 
-checkFloatType :: (Autofloat a) => ArgVal a -> a
-checkFloatType (Val (FloatV x)) = x
-checkFloatType _ = error "expected float type"
+checkListElemType :: (Autofloat a) => ArgVal a -> a
+checkListElemType (Val (FloatV x)) = x
+checkListElemType _ = error "expected float type"
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)

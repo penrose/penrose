@@ -489,7 +489,9 @@ trM3 = mkTr debugM3
 -- g ::= B => |T
 -- Assumes nullary type constructors (i.e. Style type = Substance type)
 data SelEnv = SelEnv { sTypeVarMap :: M.Map BindingForm StyT, -- B : |T
-                       sErrors :: [String] }
+                       sErrors :: [String],
+                       skipBlock :: Bool }
+                       -- Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
               deriving (Show, Eq, Typeable)
 
 type Error = String
@@ -497,7 +499,7 @@ type Error = String
 ------------ Helper functions on envs
 
 initSelEnv :: SelEnv
-initSelEnv = SelEnv { sTypeVarMap = M.empty, sErrors = [] }
+initSelEnv = SelEnv { sTypeVarMap = M.empty, sErrors = [], skipBlock = False }
 
 -- g, x : |T
 addMapping :: BindingForm -> StyT -> SelEnv -> SelEnv
@@ -642,9 +644,12 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
                          -- G(x) = T
                          let subType = M.lookup subVar $ varMap varEnv in
                          case subType of
-                         Nothing -> let err = "Substance variable '" ++ show subVar ++
+                         Nothing -> selEnv' { skipBlock = True } 
+                                    -- If any Substance variable doesn't exist in env, ignore it, 
+                                    -- but flag it so we know to not translate the lines in the block later.
+                                    {- let err = "Substance variable '" ++ show subVar ++
                                               "' does not exist in environment. \n" {- ++ show varEnv -} in
-                                    addErr err selEnv'
+                                    addErr err selEnv' -}
                          Just subType' ->
                              -- check "T <: |T", assuming type constructors are nullary
                              let declType = toSubType styType in
@@ -1332,11 +1337,14 @@ translatePair varEnv subEnv subProg trans ((Namespace styVar, block), blockNum) 
 translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNum) =
     let selEnv = checkSel varEnv sel
         bErrs  = checkBlock selEnv block in
-    if null (sErrors selEnv) && null bErrs
-        then let substs = find_substs_sel varEnv subEnv subProg (header, selEnv) in
-             let numberedSubsts = zip substs [0..] in -- For creating unique local var names
-             translateSubstsBlock trans numberedSubsts (block, blockNum)
-        else Left $ sErrors selEnv ++ bErrs
+    -- If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`), 
+    -- skip this block (because the Substance variable won't exist in the translation)
+    if skipBlock selEnv then Right trans
+    else if null (sErrors selEnv) && null bErrs
+         then let substs = find_substs_sel varEnv subEnv subProg (header, selEnv) in
+              let numberedSubsts = zip substs [0..] in -- For creating unique local var names
+              translateSubstsBlock trans numberedSubsts (block, blockNum)
+         else Left $ sErrors selEnv ++ bErrs
 
 insertLabels :: (Autofloat a, Eq a) => Translation a -> C.LabelMap -> Translation a
 insertLabels trans labels =

@@ -378,6 +378,9 @@ inputsOutputStr x =
 rot90 :: Floating a => (a, a) -> (a, a)
 rot90 (x, y) = (-y, x)
 
+rotNeg90 :: Floating a => (a, a) -> (a, a)
+rotNeg90 (x, y) = (y, -x)
+
 -- `k` is the fraction of interpolation
 lerp :: Floating a => a -> a -> a -> a
 lerp a b k = a * (1.0 - k) + b * k
@@ -439,6 +442,12 @@ lerp2 (x1, y1) (x2, y2) n =
                             -- Interp the first, then the second
                             -- in zip xs (repeat y1) ++ zip (repeat x2) ys
 
+-- Return the sign of the cross of 2D vectors (for winding, etc.)
+crossSgn :: Autofloat a => Pt2 a -> Pt2 a -> a
+crossSgn (x1, y1) (x2, y2) = 
+         let [x, y, z] = cross [x1, y1, 0] [x2, y2, 0]
+         in signum z
+
 cross :: Autofloat a => [a] -> [a] -> [a]
 cross [x1, y1, z1] [x2, y2, z2] =
   [y1 * z2 - y2 * z1, x2 * z1 - x1 * z2, x1 * y2 - x2 * y1]
@@ -485,6 +494,12 @@ proj :: Autofloat a => [a] -> [a] -> [a]
 proj p q =
   let unit_p = normalize p
   in (q `dotL` unit_p) *. unit_p
+
+-- Project q onto p, without normalization (note the order: NOT p onto q)
+proj2 :: Autofloat a => Pt2 a -> Pt2 a -> Pt2 a
+proj2 p q =
+  let unit_p = normalize' p
+  in (q `dotv` unit_p) *: unit_p
 
 ------- | Hyperbolic geometry
 
