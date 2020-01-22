@@ -1,0 +1,20 @@
+SimplicialComplex K
+
+Edge e ∈ K
+
+Subcomplex E ⊆ K
+E := Closure(e)
+
+Subcomplex A ⊆ K
+A := Closure(E)
+
+SimplicialSubset S1 ⊆ K
+S1 := Star(A)
+
+Result(S1)
+
+Label A $\mathrm{Cl}(E)$
+Label S1 $\mathrm{St}(\mathrm{Cl}(E))$
+AutoLabel e
+AutoLabel E
+AutoLabel K

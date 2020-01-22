@@ -44,3 +44,4 @@ geometric-queries/
 dist-newstyle/
 examples/plugins/alloy/__temp.als__
 .java-version
+temp.als

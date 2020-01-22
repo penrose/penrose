@@ -1,0 +1,12 @@
+SimplicialComplex K
+
+Edge e
+InES(e, K)
+
+Subcomplex A
+SubsetOf(A, K)
+A := Closure(e)
+
+Label A $\mathrm{Cl}(e)$
+AutoLabel K
+AutoLabel e
