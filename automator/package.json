@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^3.0.0",
+    "convert-hrtime": "^3.0.0",
     "mathjax-node": "^2.1.1",
     "neodoc": "^2.0.2",
     "react": "^16.12.0",
