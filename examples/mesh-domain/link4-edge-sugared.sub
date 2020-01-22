@@ -1,0 +1,11 @@
+SimplicialComplex K
+
+Edge e ∈ K
+
+SimplicialSubset S1 ⊆ K
+S1 := Link(e)
+
+Result(S1)
+
+AutoLabel All
+Label S1 $\mathrm{Lk}(e)$

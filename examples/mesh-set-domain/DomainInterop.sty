@@ -1,0 +1,458 @@
+-- Random seeds; first seed controls the vertex selection, second seed controls the mesh topology
+-- plugin "ddgjs" (11.0, 9.0)
+
+-- | Set Style program
+
+const {
+      const.subsetColor = sampleColor(0.2, "rgb")
+      const.repelWeight = 0.7
+}
+
+Set x {
+    x.shape = Circle {
+        strokeWidth : 0
+    }
+
+    x.text = Text {
+        string : x.label
+	color : setOpacity(x.shape.color, 1.0)
+    }
+
+    x.labelFn = ensure contains(x.shape, x.text)
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
+    -- x.labelPosFn = encourage sameCenter(x.text, x.shape)
+    LOCAL.layering  = x.shape below x.text
+}
+
+Set x; Set y
+where IsSubset(x, y) {
+    LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
+    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
+    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape) -- Is this not working?
+    LOCAL.layering  = x.shape above y.shape
+    -- LOCAL.layering1  = y.text below x.shape
+}
+
+Set x; Set y
+where NotIntersecting(x, y) {
+    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+}
+
+Set x; Set y
+where Intersect(x, y) {
+    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
+    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
+    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
+}
+
+Point p {
+    p.offset = 10.0
+    p.shape = Circle {
+        strokeWidth : 0
+        color : rgba(0.0, 0.0, 0.0, 1.0)
+        r : 3.0
+    }
+
+    p.text = Text {
+        string : p.label
+        x : p.shape.x + p.offset
+        y : p.shape.y + p.offset
+    }
+}
+
+Point p
+with Set A
+where PointIn(A, p) {
+    LOCAL.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
+    LOCAL.layeringShape = p.shape above A.shape
+    LOCAL.layeringText = p.text above A.shape
+}
+
+Point p
+with Set A
+where PointNotIn(A, p) {
+-- where Not(PointIn(A, p)) {
+    LOCAL.notContainsFn = ensure disjoint(A.shape, p.shape)
+}
+
+-- Put all the text on top of everything
+Set x; Set y {
+    LOCAL.labelRepelFn = encourage repel(x.text, y.text, const.repelWeight)
+    LOCAL.layering = x.shape below y.text
+}
+
+Point p; Point q {
+      -- LOCAL.shapeRepelFn = encourage repel(p.shape, q.shape, G.repelWeight2)
+      LOCAL.labelRepelFn = encourage repel(p.text, q.text, const.repelWeight)
+}
+
+Set x; Point p {
+    LOCAL.layering1 = p.shape above x.shape
+    LOCAL.layering2 = p.text above x.shape
+
+      LOCAL.labelRepelFn = encourage repel(p.text, x.text, const.repelWeight)
+}
+
+--------------------------------------
+-- | Mesh Style program
+
+global {
+       global.labelPadding2 = 10.0
+    global.padding = 20.0
+    global.stroke = 2.0
+    global.spacing = 150.0
+
+    global.sc_rect_stroke = 2.0
+    global.edgeStroke = 1.5
+    global.selectedEdgeStroke = 3.0
+
+    global.selectedFaceColor = global.selectedColor
+
+    global.selectedRadius = 3.6
+    global.selectedThickness = 3.1
+
+    global.selectedColor = Colors.midnightblue
+    global.selectedColor2 = Colors.lightslategray
+
+    global.starColor = global.selectedColor
+    global.starColor2 = global.selectedColor2
+
+    global.closureColor = global.selectedColor
+    global.closureColor2 = global.selectedColor2
+
+    global.linkColor = global.selectedColor
+    global.linkColor2 = global.selectedColor2
+
+    global.setminusColor = global.selectedColor
+    global.setminusColor2 = global.selectedColor2
+
+    global.boundaryColor = global.selectedColor
+    global.boundaryColor2 = global.selectedColor2
+
+    -- For conversion from math space to screen space
+    -- TODO: compute these more automatically
+    -- These numbers (weights on inRange and the range itself) have been heavily tweaked
+    -- And it makes convergence hard
+    -- global.scaleFactor = ?
+    -- global.optFn = ensure inRange(global.scaleFactor, 75.0, 150.0)
+    global.scaleFactor = 70.0
+    -- global.offset = 150.0
+}
+
+Colors {
+    -- Keenan palette
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.lightpurple = rgba(0.5, 0.0, 0.5, 0.25)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+-- TODO: this is going to match Subcomplex too... how to fix that?
+SimplicialComplex K {
+       -- No longer necessary, as box size is being computed
+       -- K.x_offset = ?
+       -- K.y_offset = ?
+
+       -- Plugin computes mesh's bbox center and dimensions; Style scales it and adds padding
+       -- K.box_padding = 50.0
+       K.center_x = -200.0
+       K.center_y = 0.0
+       K.size_x = 250.0
+       K.size_y = 300.0
+
+       -- K.center_x = ddg[K.name]["center_x"] * global.scaleFactor
+       -- K.center_y = ddg[K.name]["center_y"] * global.scaleFactor
+       -- K.size_x = ddg[K.name]["size_x"] * global.scaleFactor + K.box_padding
+       -- K.size_y = ddg[K.name]["size_y"] * global.scaleFactor + K.box_padding
+
+       K.shape = Rectangle {
+       	       x : K.center_x
+	       y : K.center_y
+	       sizeX : K.size_x
+	       sizeY : K.size_y
+	       rotation : 0.0
+	       color : setOpacity(Colors.gainsboro, 0.2)
+	       strokeColor : Colors.black
+	       strokeWidth : global.sc_rect_stroke
+       }
+
+       K.padding = 25.0
+
+       K.text = Text {
+	 x : K.shape.x - K.shape.sizeX / 2.0 + K.padding
+	 y : K.shape.y - K.shape.sizeY / 2.0 + K.padding
+	 string : K.label
+	 rotation : 0.0
+	 color : Colors.black
+       }
+
+       K.labelFn = encourage centerLabel(K.shape, K.text)
+
+       K.layerTextFn = K.text above K.shape
+
+       -- Expression label
+       K.expr_padding = 25.0
+
+       K.const_text = Text {
+       	 x : K.shape.x 
+       	 y : K.shape.y - (K.size_y / 2.0) - K.expr_padding
+       	 string : "\\text{ }"
+       	 rotation : 0.0
+       	 color : global.starColor
+       }
+
+       K.const_layerFn = K.const_text above K.shape
+}
+
+-- TODO: this generates a (K1, K2) and (K2, K1) match
+SimplicialComplex K1; SimplicialComplex K2 {
+	 LOCAL.padding = 30.0
+
+	 -- TODO: improve this for rectangles by not just using the x size
+	 LOCAL.overlapFn = ensure disjoint(K1.shape, K2.shape, LOCAL.padding)
+	 LOCAL.alignFn = ensure sameHeight(K1.shape, K2.shape)
+	 -- LOCAL.distFn = ensure distBetween(K1.shape, K2.shape, LOCAL.padding)
+}
+
+Vertex v 
+where InVS(v, K)
+with SimplicialComplex K {
+     v.xpos = ?
+     v.ypos = ?
+       -- v.xpos = ddg[v.name]["x"] * global.scaleFactor
+       -- v.ypos = ddg[v.name]["y"] * global.scaleFactor
+
+       v.shape = Circle { 
+         x : v.xpos -- avoid "x <- f(x)" in override
+	 y : v.ypos
+         r : global.selectedRadius
+	 color : Colors.black
+	 strokeWidth : 0.0
+       }
+
+       -- NOTE: by default, this starts with an empty string, so we only label user-declared vertices
+       v.text = Text {
+	 x : ? -- v.shape.x + global.padding
+	 y : ? -- v.shape.y + global.padding
+	 string : v.label
+	 -- string : " " -- TODO: the frontend does not deal with empty strings well! Doesn't seem to generate a label with dimensions. See above for how to get around this
+	 rotation : 0.0
+	 color : v.shape.color
+       }
+
+       v.layerFnShape = v.shape above K.shape
+       v.layerFnText = v.text above K.shape
+
+       v.posFn = ensure contains(K.shape, v.shape, v.shape.r) -- padding
+
+       v.labelFnMargin = ensure atDist(v.shape, v.text, global.labelPadding2)
+       v.labelFn = ensure contains(K.shape, v.text)
+}
+
+-- Style a distinguished vertex (only if it's a result)
+Vertex v
+where DeclaredV(v); InVS(v, K); Result(v)
+with SimplicialComplex K {
+      -- Don't label the vertex because then we need to position it...
+      -- override v.text.string = v.label
+
+      override v.shape.r = global.selectedRadius
+      override v.shape.color = global.closureColor
+
+      v.offset = 10.0
+      v.labelCloseFn = encourage near(v.text, v.shape, v.offset)
+
+      /*
+       -- Optimize the label padding, only for the distinguished vertex
+      v.padding_x = ?
+      v.padding_y = ?
+      override v.text.x = v.shape.x + v.padding_x
+      override v.text.y = v.shape.y + v.padding_y
+
+      v.offset = 30.0
+      -- This is trying to place the labels but it's very slow, goes from 40s to 3min
+      v.labelInComplexFn = ensure contains(K.shape, v.text)
+      -- Label's color might need to be programmatically set depending on its location
+
+      v.padding_range = 20.0
+      v.labelRangeXFn = ensure inRange(v.padding_x, v.shape.x - v.padding_range, v.shape.x + v.padding_range)
+      v.labelRangeYFn = ensure inRange(v.padding_y, v.shape.y - v.padding_range, v.shape.y + v.padding_range) */
+}
+
+Vertex v; Edge e
+where DeclaredV(v); InVS(v, K); InES(e, K)
+with SimplicialComplex K {
+     LOCAL.offset = 5.0
+     -- Make sure the label doesn't overlap with any edge
+     -- TODO: this is NaNing
+     LOCAL.edgeLabelFn = ensure disjoint(v.text, e.shape, LOCAL.offset)
+}
+
+Edge e
+where e := MkEdge(v1, v2); InES(e, K)
+with Vertex v1; Vertex v2; SimplicialComplex K {
+     e.shape = Line { 
+     	     startX : v1.shape.x
+     	     startY : v1.shape.y
+     	     endX : v2.shape.x
+     	     endY : v2.shape.y
+	     color : Colors.black
+	     thickness : global.edgeStroke
+     }
+
+     e.text = Text {
+       x : ?
+       y : ?
+       string : e.label
+       rotation : 0.0
+       color : Colors.black
+     }
+
+     e.closeFn = encourage near(e.text, average(v1.xpos, v2.xpos), average(v1.ypos, v2.ypos))
+     e.nonoverlapFn = ensure disjoint(e.text, e.shape, 5.0)
+
+     e.layering1 = v1.shape above e.shape
+     e.layering2 = v2.shape above e.shape
+     e.layering3 = e.shape above K.shape
+}
+
+-- Style a distinguished edge (only if it's declared to be a result)
+Edge e
+where DeclaredE(e); e := MkEdge(v1, v2); InES(e, K); Result(e)
+with Vertex v1; Vertex v2; SimplicialComplex K {
+     override e.shape.thickness = global.selectedEdgeStroke
+     override e.shape.color = global.closureColor
+
+     e.text = Text {
+       x : average(e.shape.startX, e.shape.endX) + global.padding
+       y : average(e.shape.startY, e.shape.endY) + global.padding
+       -- string : e.label
+       string : "\\text{ }" 
+       rotation : 0.0
+       color : e.shape.color
+     }
+
+     e.layerFnText = e.text above K.shape
+}
+
+Face f -- 255,552 substitutions = 22 e * 22 e * 22 e * 12 f * 2 sc
+where f := MkFace(e1, e2, e3); InFS(f, K)
+with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
+     f.color = Colors.silver
+
+     f.shape = Curve { 
+     	     pathData : triangle(e1.shape, e2.shape, e3.shape)
+	     strokeWidth : 0.0
+	     fill : setOpacity(f.color, 0.8)
+	     color : setOpacity(f.color, 0.8)
+	     rotation : 0.0
+     }
+
+     f.text = Text {
+       -- Makes assumptions about vertex order in constructor
+       x : average([e1.shape.startX, e2.shape.startX, e3.shape.startX])
+       y : average([e1.shape.startY, e2.shape.startY, e3.shape.startY])
+       string : f.label
+       rotation : 0.0
+       color : Colors.black
+     }
+
+     f.layerFnText = f.text above K.shape
+
+     f.layeringShape = f.shape above K.shape
+}
+
+-- Style and label a distinguished face
+Face f
+where DeclaredF(f); InFS(f, K)
+with SimplicialComplex K {
+     -- Need to pick a color that doesn't "override" the selected edges and vertices!
+     override f.shape.fill = global.selectedFaceColor
+     override f.shape.color = global.selectedFaceColor
+}
+
+-- Relative layerings within a simplicial complex
+Vertex v; Edge e; Face f
+where InVS(v, K); InES(e, K); InFS(f, K)
+with SimplicialComplex K {
+      LOCAL.textLayering1 = v.text above f.shape 
+      LOCAL.textLayering2 = v.text above e.shape
+}
+
+-- Only label the (last) result of an operation
+Object e
+with SimplicialComplex K
+where Result(e) {
+      override K.const_text.string = e.label
+}
+
+Edge e; Face f {
+     LOCAL.layering = e.shape above f.shape
+     LOCAL.layeringText = e.text above f.shape
+}
+
+Vertex v; Vertex w {
+       LOCAL.repelFn = encourage repel(v.shape, w.shape, 1.0)
+}
+
+--------------------------------------
+-- | above this line, concatenate the two .sty files for Sets and Meshes
+
+Point p; Vertex v
+where Identified(p, v) {
+   LOCAL.shape = Line {
+      startX: p.shape.x
+      startY: p.shape.y
+      endX: v.shape.x
+      endY: v.shape.y
+      color: setOpacity(Colors.black, 0.25)
+      thickness : 2.0
+      style: "dashed"
+   }
+
+   LOCAL.layering1 = LOCAL.shape above p.shape
+   LOCAL.layering2 = LOCAL.shape above v.shape
+   
+   -- rather than worry about the two diagrams colliding, just add some penalty that tries to make all the connecting lines fairly long
+   -- p.vector = (p.shape.x, p.shape.y)
+   -- v.vector = (v.shape.x, v.shape.y)
+   LOCAL.vec = (p.shape.x - v.shape.x, p.shape.y - v.shape.y)
+
+   -- TODO: encourage or ensure?
+   -- TODO: make this better
+   -- LOCAL.lenFn = encourage equal(norm_(p.shape.x - v.shape.x, p.shape.y - v.shape.y), 100.0)
+}
+
+Set s; Edge e
+where Identified(e, s) {
+      -- Make all edge subsets the same random color
+      s.shape.color = setOpacity(Colors.purple, 0.2) -- const.subsetColor
+}
+
+-- TODO: hack for position; assuming there's only one face
+Set s; Face f
+where Identified(f, s) {
+    s.shape.x = 200.0
+    s.shape.y = 0.0
+}

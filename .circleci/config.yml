@@ -10,11 +10,15 @@ jobs:
       - checkout:
           path: ~/penrose
       - restore_cache:
-          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}
+          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ arch }}
       - run:
           name: Install npm deps
           command: npm install
           working_directory: ~/penrose/react-renderer
+      - save_cache:
+          key: dependency-cache-{{ checksum "~/penrose/react-renderer/package.json" }}-{{ arch }}
+          paths:
+            - ~/penrose/react-renderer/node_modules
       - run:
           name: Build normally
           command: npm run build

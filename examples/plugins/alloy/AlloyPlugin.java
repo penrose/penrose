@@ -221,7 +221,7 @@ public class AlloyPlugin {
     public void processJSON(JSONObject json) {
         List<String> defs = Arrays.asList( "Onto", "OneToOne", "Bijection" );
         // process predicates
-        for(Object o : json.getJSONObject("constraints").getJSONArray("predicates")) {
+        for(Object o : json.getJSONObject("substance").getJSONObject("constraints").getJSONArray("predicates")) {
             JSONObject obj = (JSONObject) o;
             JSONArray arr = obj.getJSONArray("pargs");
             String name = obj.getString("pname");

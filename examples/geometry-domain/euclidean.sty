@@ -304,7 +304,7 @@ with Point p; Point q; Point r {
 
      theta.radius = const.thetaRadius
      -- TODO: always take the acute angle, not the obtuse angle
-     theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius)
+     theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius, "Closed")
 
      theta.shape = Curve {
      		 pathData : polygonFromPoints(theta.arcPath)
