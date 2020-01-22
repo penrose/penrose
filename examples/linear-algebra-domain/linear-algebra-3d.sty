@@ -43,10 +43,6 @@ Colors {
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
-
-    -- TODO: should we require S,V in %? (in [0,1])
-    Colors.red2 = hsva(0.0, 100.0, 100.0, 1.0)
-    Colors.green2 = hsva(140.0, 23.0, 100.0, 1.0)
 }
 
 VectorSpace U {
@@ -65,7 +61,17 @@ VectorSpace U {
     U.right = U.shape.x - (U.shape.side/2.0)
 
     U.xAxis = Arrow {
-        startX : U.shape.x - const.axisSize
+        startX : U.shape.x
+        startY : U.shape.y
+        endX : U.shape.x
+        endY : U.shape.y + const.axisSize
+        thickness : U.thickness
+        color : U.axisColor
+        arrowheadSize : const.arrowheadSize
+    }
+
+    U.yAxis = Arrow {
+        startX : U.shape.x
         startY : U.shape.y
         endX : U.shape.x + const.axisSize
         endY : U.shape.y
@@ -74,15 +80,16 @@ VectorSpace U {
         arrowheadSize : const.arrowheadSize
     }
 
-    U.yAxis = Arrow {
+    U.zAxis = Arrow {
         startX : U.shape.x
-        startY : U.shape.y - const.axisSize
-        endX : U.shape.x
-        endY : U.shape.y + const.axisSize
+        startY : U.shape.y
+        endX : U.shape.x - const.axisSize * 0.5
+        endY : U.shape.y - const.axisSize * 0.5
         thickness : U.thickness
         color : U.axisColor
         arrowheadSize : const.arrowheadSize
     }
+
 
     U.text = Text {
         string : U.label
@@ -92,8 +99,8 @@ VectorSpace U {
         fontSize : const.fontSize
     }
 
-    U.textX = Text {
-        string : "x"
+    U.textZ = Text {
+        string : "z"
         color : Colors.darkGray
         x : U.xAxis.endX
         y : U.xAxis.endY + const.textPadding
@@ -106,32 +113,39 @@ VectorSpace U {
         y : U.yAxis.endY
     }
 
+    U.textX = Text {
+        string : "x"
+        color : Colors.darkGray
+        x : U.zAxis.endX + const.textPadding
+        y : U.zAxis.endY
+    }
+
     U.perpMark = Square {
         x : U.shape.x + 5.0
         y : U.shape.y + 5.0
         side : 10.0
         color : Colors.white
-	strokeColor : Colors.black
-	strokeWidth : 1.0
-    }
+	      strokeColor : Colors.black
+	      strokeWidth : 1.0
+   }
 
-    U.perpLayering1 = U.perpMark below U.xAxis
-    U.perpLayering2 = U.perpMark below U.yAxis
-    U.perpLayering3 = U.perpMark above U.shape
 
-    --U.xLabelLocation = ensure nearHead(U.xAxis, U.textX, 20.0, 0.0)
-    --U.yLabelLocation = ensure nearHead(U.yAxis, U.textY, 0.0, 20.0)
+   --U.perpMark2 = Rectangle {
+  --      x : 0.0
+  --      y : 0.0
+  --      color : Colors.white
+        --angle = 45.0
+        --rotation = 120.0
+  -- }
+
+  U.perpLayering1 = U.perpMark below U.xAxis
+  U.perpLayering2 = U.perpMark below U.yAxis
+  U.perpLayering2 = U.perpMark below U.zAxis
+  U.perpLayering3 = U.perpMark above U.shape
+
 }
 
--- TODO: generates too many constraints?
 
-VectorSpace U; VectorSpace V {
-    --LOCAL.sameHeight = ensure sameHeight(U.shape, V.shape)
-    --LOCAL.nonIntersect = ensure disjoint(U.shape, V.shape)
-    --V.shape.y = 0.0
-    --U.shape.x = 0.0
-    --V.shape.x = 0.0
-}
 
 Vector v
 with VectorSpace U
@@ -249,7 +263,7 @@ where From(f, U, V) {
      color : Colors.black
      strokeWidth : 2.5
      rightArrowhead : True
-     arrowheadSize : const.arrowheadSize     
+     arrowheadSize : const.arrowheadSize
    }
 
    f.labelOffset = 30.0
@@ -323,7 +337,7 @@ Scalar c
 with Vector a;  VectorSpace U
 where c := norm(a); In(a,U) {
    c.norm = len(a.shape)
-   override c.val = c.norm / const.scaleRatio 
+   override c.val = c.norm / const.scaleRatio
    c.padding = 20.0
 
    -- c.shape = Brace {
@@ -338,8 +352,8 @@ where c := norm(a); In(a,U) {
 
    c.text = Text {
         string : c.label
-        x : c.padding + midpointX(c.shape) 
-        y : c.padding + midpointY(c.shape) 
+        x : c.padding + midpointX(c.shape)
+        y : c.padding + midpointY(c.shape)
         color : c.shape.color
         fontSize : const.fontSize
    }

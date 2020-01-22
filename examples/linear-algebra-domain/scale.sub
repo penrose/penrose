@@ -6,6 +6,7 @@ Vector u2 ∈ U
 Scalar c
 u2 := c  * u1
 
-Label u2 $c*\vec{u_{1}}$
+Label u2 $|c\vec{u_{1}}|$
+Label c $c$
 Label u1 $\vec{u_{1}}$
 AutoLabel U
