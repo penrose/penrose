@@ -20,7 +20,7 @@ class Line extends React.Component<IGPIPropsDraggable> {
     const color = toHex(shape.color.contents);
     const thickness = shape.thickness.contents;
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
-    const opacity = shape.color.contents[3];
+    const opacity = shape.color.contents.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
     const arrowheadSize = shape.arrowheadSize.contents;
 

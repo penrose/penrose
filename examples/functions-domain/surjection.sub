@@ -1,0 +1,7 @@
+f: A -> B
+Not(OneToOne(f))
+Onto(f)
+
+AutoLabel All
+Label A $x$
+Label B $f(x)$
