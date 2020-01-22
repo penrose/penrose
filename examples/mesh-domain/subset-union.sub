@@ -1,0 +1,16 @@
+SimplicialComplex K
+-- Vertex i
+-- InVS(i, K)
+
+Edge e
+InES(e, K)
+
+Face f
+InFS(f, K)
+
+SimplicialSubset S
+SubsetOf(S, K)
+S := Union(e, f)
+
+AutoLabel All
+-- TODO: Label S?

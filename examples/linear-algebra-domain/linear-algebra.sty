@@ -43,6 +43,10 @@ Colors {
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+
+    -- TODO: should we require S,V in %? (in [0,1])
+    Colors.red2 = hsva(0.0, 100.0, 100.0, 1.0)
+    Colors.green2 = hsva(140.0, 23.0, 100.0, 1.0)
 }
 
 VectorSpace U {
@@ -138,7 +142,7 @@ where In(v,U) {
     fontSize : const.fontSize
   }
 
-  v.color = sampleColor(1.0) -- Full opacity to hide arrowhead layering
+  v.color = sampleColor(1.0, "rgb") -- Full opacity to hide arrowhead layering
 
   -- v.pad1 = ?
   -- v.pad2 = ?

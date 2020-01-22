@@ -6,6 +6,7 @@ module Penrose.Serializer where
 import           Penrose.Env
 import           Penrose.GenOptProblem
 import           Penrose.Optimizer
+-- import           Penrose.Plugins
 import           Penrose.Style
 import           Penrose.SubstanceTokenizer
 import           Penrose.Util
@@ -150,3 +151,8 @@ deriveJSON defaultOptions ''Penrose.GenOptProblem.State
 deriveJSON defaultOptions ''CompilerError
 
 deriveJSON defaultOptions ''RuntimeError
+
+--------------------------------------------------------------------------------
+-- Plugins
+
+-- deriveJSON defaultOptions ''PluginInput

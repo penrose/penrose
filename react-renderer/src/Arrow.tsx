@@ -17,7 +17,7 @@ class Arrow extends React.Component<IGPIPropsDraggable> {
       canvasSize
     );
     const color = toHex(shape.color.contents);
-    const alpha = shape.color.contents[3];
+    const alpha = shape.color.contents.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
     const arrowheadSize = shape.arrowheadSize.contents;
     const arrowHeadId = "arrowhead_" + shape.name.contents;

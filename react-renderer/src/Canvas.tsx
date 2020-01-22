@@ -36,8 +36,16 @@ class Canvas extends React.Component<IProps> {
     shapes: any,
     name: string,
     property: string
-  ) =>
-    shapes.find((shape: any) => shape[1].name.contents === name)[1][property];
+  ) => { 
+      const res = shapes.find((shape: any) => shape[1].name.contents === name);
+
+      if (!res) {
+	  console.error("Could not find shape with name", name);
+	  return undefined;
+      } 
+
+      return res[1][property];
+  };
 
   // helper for updating a pending property given a path
   public static updateProperty = (translation: any, shapes: any, path: any) => {

@@ -106,8 +106,11 @@ compDict :: (Autofloat a) => M.Map String (CompFnOn a)
 compDict =
   M.fromList
     [ ("rgba", constComp rgba)
+    , ("hsva", constComp hsva)
     , ("rgba2", constComp rgba2)
     , ("xy", constComp xy)
+    , ("cos", constComp cosFn)
+    , ("sin", constComp sinFn)
     , ("atan", constComp arctangent)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
@@ -582,6 +585,10 @@ rgba :: ConstCompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
   Val (ColorV $ makeColor' r g b a)
 
+hsva :: ConstCompFn
+hsva [Val (FloatV h), Val (FloatV s), Val (FloatV v), Val (FloatV a)] =
+  Val $ ColorV $ makeColorHsv h s v a
+
 rgba2 :: ConstCompFn
 rgba2 [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
   Val (ColorV $ makeColor' (r / 255) (g / 255) (b / 255) (a / 255))
@@ -589,7 +596,13 @@ rgba2 [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
 xy :: ConstCompFn
 xy [Val (ListV xs)] = Val $ ListV $ take 2 xs
 
-arctangent :: ConstCompFn
+cosFn :: ConstCompFn -- In radians
+cosFn [Val (FloatV d)] = Val $ FloatV $ cos d
+
+sinFn :: ConstCompFn -- In radians
+sinFn [Val (FloatV d)] = Val $ FloatV $ sin d
+
+arctangent :: ConstCompFn -- In degrees
 arctangent [Val (FloatV d)] = Val (FloatV $ (atan d) / pi * 180)
 
 calcVectorsAngle :: ConstCompFn
@@ -697,6 +710,10 @@ midpointY [GPI l] =
 average :: ConstCompFn
 average [Val (FloatV x), Val (FloatV y)] =
   let res = (x + y) / 2
+  in Val $ FloatV res
+average [Val (ListV xs)] =
+  let len' = if null xs then 1 else length xs -- avoid divide by 0
+      res  = sum xs / (r2f len')
   in Val $ FloatV res
 
 norm_ :: ConstCompFn
@@ -1040,9 +1057,16 @@ setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] =
   Val $ ColorV (RGBA r g b (r2f frac * a))
 
 sampleColor' :: CompFn
-sampleColor' [Val (FloatV a)] g =
-             let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
-             in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
+sampleColor' [Val (FloatV a), Val (StrV colorType)] g = 
+             if colorType == "rgb" then
+                 let (ColorV (RGBA r0 g0 b0 a0), g') = sampleColor g
+                 in (Val $ ColorV $ RGBA r0 g0 b0 (r2f a), g')
+             else if colorType == "hsv" then
+                 let (h, g') = randomR (0, 360) g
+                     s = 100
+                     v = 80
+                 in (Val $ ColorV $ HSVA h s v (r2f a), g')
+             else error ("invalid color string: " ++ colorType)
 
 sampleNum' :: CompFn
 sampleNum' [Val (FloatV x), Val (FloatV y)] g = -- Sample in range
@@ -1466,8 +1490,8 @@ near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
 near [GPI o1, GPI o2, Val (FloatV offset)] =
   let res = distsq (getX o1, getY o1) (getX o2, getY o2) - offset ^ 2 in
-  trace ("\n\nEnergy: " ++ show res ++
-        "\nShapes: " ++ show (o1, o2)) res
+  {- trace ("\n\nEnergy: " ++ show res ++
+        "\nShapes: " ++ show (o1, o2)) -} res
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
   let center = (getX img, getY img)
       offset = (xoff, yoff)
@@ -1624,7 +1648,13 @@ repel [GPI line@("Line", _), GPI a, Val (FloatV weight)] =
   in {- trace ("numPoints: " ++ show (length lineSamplePts)) -} res
 
 repel [Val (FloatV x), Val (FloatV y)] = 1 / ((x-y)*(x-y) + epsd)
+
 repel [Val (FloatV x), Val (FloatV y), Val (FloatV weight)] = weight / ((x-y)*(x-y) + epsd)
+
+repel [Val (FloatV u), Val (FloatV v), Val(FloatV weight), Val (StrV "angle")] = 
+           let duv = angleDist u v
+           in weight / (duv * duv + epsd)
+
 -- Repel an object and a curve by summing repel forces over the (subsampled) body of the surve
 repel [GPI curve@("Curve", _), GPI a, Val (FloatV weight)] =
   let curvePts = subsampleEvery sampleNum $ polyPts $ getPolygon curve
@@ -1782,6 +1812,11 @@ contains [GPI s@("Rectangle", _), GPI l@("Text", _)]
  =
   dist (getX l, getY l) (getX s, getY s) - getNum s "sizeX" / 2 +
   getNum l "w" / 2
+contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
+             -- HACK: reusing test impl, revert later
+             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+                 diff = r_l - getNum c "r"
+             in dist (getX r, getY r) (getX c, getY c) - diff + padding
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
   dist (getX outc, getY outc) (getX inc, getY inc) -
   (0.5 * getNum outc "side" - 0.5 * getNum inc "side")

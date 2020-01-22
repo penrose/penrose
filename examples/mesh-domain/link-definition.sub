@@ -1,0 +1,36 @@
+SimplicialComplex K
+Vertex i
+InVS(i, K)
+
+SimplicialSubset S1
+SubsetOf(S1, K)
+S1 := Star(i)
+
+Subcomplex A
+SubsetOf(A, K)
+A := Closure(S1)
+
+Label A $\mathrm{Cl}(\mathrm{St}(i))$
+AutoLabel i
+AutoLabel K
+AutoLabel S1
+
+----------------
+
+Subcomplex B
+B := Closure(i)
+
+SimplicialSubset S2
+SubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
+S2 := Star(B)
+
+AutoLabel B
+Label S2 $\mathrm{St}(\mathrm{Cl}(i))$ -- TODO: remove these labels
+
+----------------
+
+SimplicialSubset S3
+SubsetOf(S3, K)
+S3 := SetMinus(A, S2)
+
+Label S3 $\mathrm{Cl}(\mathrm{St}(i)) \setminus \mathrm{St}(\mathrm{Cl}(i))$

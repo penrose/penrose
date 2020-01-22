@@ -1,0 +1,5 @@
+SimplicialComplex K
+Vertex v ∈ K
+Result(v)
+
+AutoLabel All
