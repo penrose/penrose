@@ -19,6 +19,7 @@ predicate Not: Prop p1 -- higher-order predicate
 
 predicate From : Map f * Set domain * Set codomain
 predicate In : Point p * Set s
+predicate InImage : Point p * Map f
 predicate OneToOne : Map m
 predicate Onto : Map m
 predicate Bijection : Map m
