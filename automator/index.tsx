@@ -8,8 +8,10 @@ const Packets = require("../react-renderer/src/packets");
 // const { loadImages } = require("../react-renderer/src/Util"); // TODO: implement image import
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
+const chalk = require("chalk");
 const neodoc = require("neodoc");
 const uniqid = require("uniqid");
+const convertHrtime = require("convert-hrtime");
 
 const USAGE = `
 Penrose Automator.
@@ -199,11 +201,11 @@ const singleProcess = async (
       renderedOn: Date.now(),
       timeTaken: {
         // includes overhead like JSON, recollecting labels
-        overall: toMs(overallEnd),
-        compilation: toMs(compileEnd),
-        labelling: toMs(labelEnd),
-        optimization: toMs(convergeEnd),
-        rendering: toMs(reactRenderEnd)
+        overall: convertHrtime(overallEnd).milliseconds,
+        compilation: convertHrtime(compileEnd).milliseconds,
+        labelling: convertHrtime(labelEnd).milliseconds,
+        optimization: convertHrtime(convergeEnd).milliseconds,
+        rendering: convertHrtime(reactRenderEnd).milliseconds
       },
       violatingConstraints: constrs,
       nonzeroConstraints: constrs.length > 0,
@@ -256,10 +258,12 @@ const batchProcess = async (
   // NOTE: for parallelism, use forEach.
   // But beware the console gets messy and it's hard to track what failed
   for (const { name, substanceURI, element, style } of substanceLibrary) {
-    // HACK: ignore domains with plugins for now
-    if (element === 4 || style === 9 || style === 10) {
+    // TODO: find JSON by value
+    if (styleLibrary[style].plugin) {
       console.log(
-        `Skipping "${name}" (${substanceURI}) for now; this domain requires a plugin or has known issues.`
+        chalk.red(
+          `Skipping "${name}" (${substanceURI}) for now; this domain requires a plugin or has known issues.`
+        )
       );
       continue;
     }

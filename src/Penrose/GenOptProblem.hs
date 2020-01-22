@@ -218,9 +218,9 @@ evalIterRange :: (Int, Int)
 evalIterRange = (startingIteration, maxEvalIteration)
 
 initRng :: StdGen
--- initRng = mkStdGen seed
-    -- where seed = 17 -- deterministic RNG with seed
-initRng = unsafePerformIO newStdGen -- random RNG with seed
+initRng = mkStdGen seed
+    where seed = 17 -- deterministic RNG with seed
+-- initRng = unsafePerformIO newStdGen -- random RNG with seed
 
 --------------- Parameters used in optimization
 -- Should really be in Optimizer, but need to fix module import structure
