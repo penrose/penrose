@@ -51,7 +51,8 @@ G {
 	 w : G.screenRadius * 2.0
 	 h : G.screenRadius * 2.0
 	 rotation: 0.0
-	 path : "HyperbolicBackground.svg"
+	 -- path : "HyperbolicBackground.svg"
+	 path : "HyperbolicBackground2.svg"
   }
 
   -- TODO: looks like we can't parse an inline label??
@@ -176,7 +177,7 @@ Ray r {
 -- Maybe it would make more sense to make the triangle from the segments that have already been made.
 
 Triangle t
-where t := MkTriangleP(p, q, r)
+where t := MkTriangle(p, q, r)
 with Point p; Point q; Point r {
      t.arcPath_pq = slerpHyp(p.vec_math, q.vec_math, G.numArcPts)
      t.screenspacePath_pq = pathToDiskAndScreen(t.arcPath_pq, G.toScreen)

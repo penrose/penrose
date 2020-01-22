@@ -1,0 +1,11 @@
+SimplicialComplex K
+
+Vertex v ∈ K
+
+SimplicialSubset S1 ⊆ K
+S1 := Link(v)
+
+Result(S1)
+
+AutoLabel All
+Label S1 $\mathrm{Lk}(v)$

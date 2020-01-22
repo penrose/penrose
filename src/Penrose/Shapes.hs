@@ -79,6 +79,7 @@ data ValueType
   | StrT
   | PtT
   | PtListT
+  | PaletteT
   | ListT
   | TupT
   | LListT
@@ -101,6 +102,7 @@ data Value a
   | PtV (Pt2 a) -- ^ point in R^2
   | PathDataV (PathData a) -- ^ path commands
   | PtListV [Pt2 a] -- ^ a list of points
+  | PaletteV [Color] -- ^ a color palette (TODO: deal with generic lists of values?)
   | ColorV Color -- ^ an RGBA color value
   | FileV String -- ^ path for image
   | StyleV String -- ^ dotted, etc.
@@ -129,6 +131,7 @@ typeOf v =
     StrV _      -> StrT
     PtV _       -> PtT
     PtListV _   -> PtListT
+    PaletteV _   -> PaletteT
     TupV _      -> TupT
     ListV _     -> ListT
     LListV _    -> LListT
@@ -173,6 +176,7 @@ toPolyProperty v =
     IntV x -> IntV x
     PtV p -> PtV $ r2 p
     PtListV xs -> PtListV $ map r2 xs
+    PaletteV xs -> PaletteV xs
     ListV xs -> ListV $ map r2f xs
     TupV x -> TupV $ r2 x
     LListV xs -> LListV $ map (map r2f) xs
@@ -1471,6 +1475,7 @@ data Color
        !Float
        !Float
        !Float
+  | HSVA !Float !Float !Float !Float
   deriving (Show, Eq, Generic)
 
 instance ToJSON Color
@@ -1505,6 +1510,11 @@ white = makeColor 1.0 1.0 1.0 1.0
 
 makeColor' :: (Autofloat a) => a -> a -> a -> a -> Color
 makeColor' r g b a = makeColor (r2f r) (r2f g) (r2f b) (r2f a)
+
+-- TODO: clamp hsva?
+-- TODO: clampColor could interfere w/ rgb opt?
+makeColorHsv :: (Autofloat a) => a -> a -> a -> a -> Color
+makeColorHsv h s v a = HSVA (r2f h) (r2f s) (r2f v) (r2f a)
 
 --------------------------------------------------------------------------------
 -- Approximating a Bezier curve via polygon or bbox

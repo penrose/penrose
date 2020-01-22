@@ -70,8 +70,8 @@ class Curve extends React.Component<IGPIProps> {
     const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.color.contents);
     const fillColor = toHex(shape.fill.contents);
-    const strokeOpacity = shape.color.contents[3];
-    const fillOpacity = shape.fill.contents[3];
+    const strokeOpacity = shape.color.contents.contents[3];
+    const fillOpacity = shape.fill.contents.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
     const arrowheadSize = shape.arrowheadSize.contents;
 
@@ -81,20 +81,24 @@ class Curve extends React.Component<IGPIProps> {
     // TODO: distinguish between fill opacity and stroke opacity
     return (
       <g>
-        <Arrowhead
-          id={leftArrowId}
-          color={strokeColor}
-          opacity={strokeOpacity}
-          style={arrowheadStyle}
-          size={arrowheadSize}
-        />
-        <Arrowhead
-          id={rightArrowId}
-          color={strokeColor}
-          opacity={strokeOpacity}
-          style={arrowheadStyle}
-          size={arrowheadSize}
-        />
+        {shape.leftArrowhead.contents === true ? (
+          <Arrowhead
+            id={leftArrowId}
+            color={strokeColor}
+            opacity={strokeOpacity}
+            style={arrowheadStyle}
+            size={arrowheadSize}
+          />
+        ) : null}
+        {shape.rightArrowhead.contents === true ? (
+          <Arrowhead
+            id={rightArrowId}
+            color={strokeColor}
+            opacity={strokeOpacity}
+            style={arrowheadStyle}
+            size={arrowheadSize}
+          />
+        ) : null}
         <Shadow id={shadowId} />>
         <path
           stroke={strokeColor}

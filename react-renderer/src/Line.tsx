@@ -15,11 +15,18 @@ class Line extends React.Component<IGPIProps> {
       [shape.endX.contents, shape.endY.contents],
       canvasSize
     );
+
+      // Rounding for illustrator? Doesn't seem to work
+      /* sx = round2(sx);
+       * sy = round2(sy);
+       * ex = round2(ex);
+       * ey = round2(ey);*/
+
     const path = `M ${sx} ${sy} L ${ex} ${ey}`;
     const color = toHex(shape.color.contents);
     const thickness = shape.thickness.contents;
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
-    const opacity = shape.color.contents[3];
+    const opacity = shape.color.contents.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
     const arrowheadSize = shape.arrowheadSize.contents;
 

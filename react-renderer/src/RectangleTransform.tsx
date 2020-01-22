@@ -8,9 +8,9 @@ class RectangleTransform extends React.Component<IGPIProps> {
     const { canvasSize } = this.props;
 
     const fillColor = toHex(shape.color.contents);
-    const fillAlpha = shape.color.contents[3];
+    const fillAlpha = shape.color.contents.contents[3];
     const strokeColor = toHex(shape.strokeColor.contents);
-    const strokeAlpha = shape.strokeColor.contents[3];
+    const strokeAlpha = shape.strokeColor.contents.contents[3];
     const thickness = shape.strokeWidth.contents;
 
     const transformStr = svgTransformString(
