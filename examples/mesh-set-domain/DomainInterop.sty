@@ -267,7 +267,7 @@ with SimplicialComplex K {
        v.posFn = ensure contains(K.shape, v.shape, v.shape.r) -- padding
 
        v.labelFnMargin = ensure atDist(v.shape, v.text, global.labelPadding2)
-       v.labelFn = ensure contains(K.shape, v.text)
+       v.labelFn = ensure contains(K.shape, v.text, 0.0)
 }
 
 -- Style a distinguished vertex (only if it's a result)
