@@ -5,6 +5,10 @@ const {
   const.scaleRatio = 200.0
   const.perpLen = 25.0
   const.repelWeight = 0.7
+  const.arrowheadSize = 0.6
+  -- For unit mark
+  const.markerPadding = 15.0
+  const.barSize = 5.0
 }
 
 -- Global RGB colors in common use
@@ -24,8 +28,10 @@ VectorSpace U {
     U.thickness = 2.0
     U.axisColor = Colors.gray
 
-    U.originX = ?
-    U.originY = ?
+    -- U.originX = ?
+    -- U.originY = ?
+    U.originX = 0.0
+    U.originY = 0.0
     U.origin = (U.originX, U.originY)
 
     -- TODO: get rid of this?
@@ -37,41 +43,24 @@ VectorSpace U {
 	stroke : Colors.black
     }
 
-    -- TODO: double-headed arrows
-    U.xAxisRight = Arrow {
-        startX : U.shape.x
+    U.xAxis = Arrow {
+        startX : U.shape.x - const.axisSize
         startY : U.shape.y
         endX : U.shape.x + const.axisSize
         endY : U.shape.y
         thickness : U.thickness
         color : U.axisColor
+        arrowheadSize : const.arrowheadSize
     }
 
-    U.xAxisLeft = Arrow {
+    U.yAxis = Arrow {
         startX : U.shape.x
-        startY : U.shape.y
-        endX : U.shape.x - const.axisSize
-        endY : U.shape.y
-        thickness : U.thickness
-        color : U.axisColor
-    }
-
-    U.yAxisUp = Arrow {
-        startX : U.shape.x
-        startY : U.shape.y
+        startY : U.shape.y - const.axisSize
         endX : U.shape.x
         endY : U.shape.y + const.axisSize
         thickness : U.thickness
         color : U.axisColor
-    }
-
-    U.yAxisDown = Arrow {
-        startX : U.shape.x
-        startY : U.shape.y
-        endX : U.shape.x
-        endY : U.shape.y - const.axisSize
-        thickness : U.thickness
-        color : U.axisColor
+        arrowheadSize : const.arrowheadSize
     }
 
     U.text = Text {
@@ -98,7 +87,7 @@ where In(v,U) {
     startY : U.shape.y
     thickness : 3.0
     color : Colors.blue
-    arrowheadSize : 0.8
+    arrowheadSize : const.arrowheadSize
   }
 
    v.vector = (v.shape.endX - v.shape.startX, v.shape.endY - v.shape.startY)
@@ -114,10 +103,8 @@ where In(v,U) {
    -- This objective gives better visual results but causes vectors to be the same length?
    -- v.labelAvoidFn = encourage repel(v.shape, v.text, const.repelWeight)
 
-  v.layeringText1 = v.text above U.xAxisRight
-  v.layeringText2 = v.text above U.xAxisLeft
-  v.layeringText3 = v.text above U.yAxisUp
-  v.layeringText4 = v.text above U.yAxisDown
+  v.layeringText1 = v.text above U.xAxis
+  v.layeringText2 = v.text above U.yAxis
 }
 
 Vector u; Vector v
@@ -136,6 +123,48 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
 
       LOCAL.layering1 = v.shape above LOCAL.perpMark
       LOCAL.layering2 = u.shape above LOCAL.perpMark
+}
+
+-- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
+Vector v
+with VectorSpace U; Vector w
+where In(v, U); Unit(v); Orthogonal(v, w) {
+
+      -- The start and end of the body of the unit marker line
+      v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
+      v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
+
+      v.unitMarkerLine = Curve {
+          pathData : pathFromPoints(v.offsetVec)
+	  strokeWidth : 2.0
+	  color : Colors.black
+	  fill : Colors.none
+      }
+
+      v.unitMarkerEnd1 = Curve {
+          pathData : unitMark(v.offsetVec, "start", const.markerPadding, const.barSize)
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
+
+      v.unitMarkerEnd2 = Curve {
+          pathData : unitMark(v.offsetVec, "end", const.markerPadding, const.barSize)
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
+
+      v.unitMarkerText = Text {
+          string : "1"
+	  x : get(v.labelPosition, 0)
+	  y : get(v.labelPosition, 1)
+	  color : Colors.black
+      }
+
+      v.layeringUnit1 = v.unitMarkerLine above U.xAxis
+      v.layeringUnit2 = v.unitMarkerLine above U.yAxis
+      -- v.unitLabelAvoidFn = encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
 }
 
 Vector `x2` {

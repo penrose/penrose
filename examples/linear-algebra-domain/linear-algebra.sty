@@ -18,6 +18,9 @@ const {
   const.repelWeight = 0.7
   const.textPadding = 15.0
   const.perpLen = 15.0
+  -- For unit mark
+  const.markerPadding = 15.0
+  const.barSize = 5.0
 }
 
 -- Global RGB colors in common use
@@ -435,4 +438,46 @@ where From(f, U, V); u2 := scale(c, u1); v1 := apply(f, u1); v2 := apply(f, u2);
       delete v3.containLabel
       delete v3.labelLocation
       delete v3.labelAvoidFn
+}
+
+-- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
+Vector v
+with VectorSpace U; Vector w
+where In(v, U); Unit(v); Orthogonal(v, w) {
+
+      -- The start and end of the body of the unit marker line
+      v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
+      v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
+
+      v.unitMarkerLine = Curve {
+          pathData : pathFromPoints(v.offsetVec)
+	  strokeWidth : 2.0
+	  color : Colors.black
+	  fill : Colors.none
+      }
+
+      v.unitMarkerEnd1 = Curve {
+          pathData : unitMark(v.offsetVec, "start", const.markerPadding, const.barSize)
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
+
+      v.unitMarkerEnd2 = Curve {
+          pathData : unitMark(v.offsetVec, "end", const.markerPadding, const.barSize)
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
+
+      v.unitMarkerText = Text {
+          string : "1"
+	  x : get(v.labelPosition, 0)
+	  y : get(v.labelPosition, 1)
+	  color : Colors.black
+      }
+
+      v.layeringUnit1 = v.unitMarkerLine above U.xAxis
+      v.layeringUnit2 = v.unitMarkerLine above U.yAxis
+      -- v.unitLabelAvoidFn = encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
 }
