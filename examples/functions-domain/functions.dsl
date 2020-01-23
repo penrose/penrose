@@ -29,3 +29,4 @@ predicate PairIn : Point * Point * Map
 
 notation "f: A -> B" ~ "Map f; From(f, A, B)"
 notation "Function fg = g(f)" ~ "Map fg; fg := Compose(g, f)"
+notation "(a, b) ∈ f" ~ "PairIn(a, b, f)"
