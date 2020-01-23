@@ -5,7 +5,7 @@ Edge e ∈ K
 Subcomplex E ⊆ K
 E := Closure(e)
 
-SimplicialSubset S1 ⊆ K
+SimplicialSet S1 ⊆ K
 S1 := Star(E)
 
 Result(S1)

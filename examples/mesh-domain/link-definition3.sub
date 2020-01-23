@@ -3,7 +3,7 @@ SimplicialComplex K
 Edge e
 InES(e, K)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Star(e)
 
@@ -21,7 +21,7 @@ AutoLabel S1
 Subcomplex B
 B := Closure(e)
 
-SimplicialSubset S2
+SimplicialSet S2
 SubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
 S2 := Star(B)
 
@@ -30,7 +30,7 @@ Label S2 $\mathrm{St}(\mathrm{Cl}(e))$ -- TODO: remove these labels
 
 ----------------
 
-SimplicialSubset S3
+SimplicialSet S3
 SubsetOf(S3, K)
 S3 := SetMinus(A, S2)
 

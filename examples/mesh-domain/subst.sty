@@ -20,8 +20,8 @@ with SimplicialComplex K {
       LOCAL.textLayering2 = v.text above e.shape
 }
 
--- Style a SimplicialSubset union (of edge and face only! not in general)
-SimplicialSubset S
+-- Style a SimplicialSet union (of edge and face only! not in general)
+SimplicialSet S
 where SubsetOf(S, K); S := Union(e, f)
 with SimplicialComplex K; Edge e; Face f {
      override e.shape.color = Colors.green
@@ -41,14 +41,14 @@ with Subcomplex C {
 
 Vertex v
 where InVS(v, C); C := Closure(S)
-with Subcomplex C; SimplicialSubset S {
+with Subcomplex C; SimplicialSet S {
      override v.shape.r = global.selectedRadius
      override v.shape.color = global.closureColor
 }
 
 Edge e
 where InES(e, C); C := Closure(S)
-with Subcomplex C; SimplicialSubset S {
+with Subcomplex C; SimplicialSet S {
      -- TODO: edge positions might look weird due to layering with faces?
       override e.shape.thickness = global.selectedEdgeStroke
       override e.shape.color = global.closureColor
@@ -57,14 +57,14 @@ with Subcomplex C; SimplicialSubset S {
 
 Face f
 where InFS(f, C); C := Closure(S)
-with Subcomplex C; SimplicialSubset S {
+with Subcomplex C; SimplicialSet S {
       override f.shape.fill = global.closureColor2
       override f.shape.color = global.closureColor2
 }
 
-SimplicialSubset S
+SimplicialSet S
 where S := SetMinus(T, Q); SubsetOf(S, K)
-with SimplicialSubset T; SimplicialSubset Q; SimplicialComplex K {
+with SimplicialSet T; SimplicialSet Q; SimplicialComplex K {
      override K.const_text.string = S.label
 }
 

@@ -6,14 +6,14 @@ InES(e, K)
 Face f
 InFS(f, K)
 
-SimplicialSubset S
+SimplicialSet S
 SubsetOf(S, K)
 S := Union(e, f)
 
 Subcomplex A
 A := Closure(S)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K) -- TODO: Should this be A or K? Or both?
 S1 := Star(A)
 

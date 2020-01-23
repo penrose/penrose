@@ -6,11 +6,11 @@ InES(e, K)
 Face f
 InFS(f, K)
 
-SimplicialSubset S
+SimplicialSet S
 SubsetOf(S, K)
 S := Union(e, f)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Link(S)
 

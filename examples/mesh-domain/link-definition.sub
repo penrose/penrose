@@ -2,7 +2,7 @@ SimplicialComplex K
 Vertex i
 InVS(i, K)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Star(i)
 
@@ -20,7 +20,7 @@ AutoLabel S1
 Subcomplex B
 B := Closure(i)
 
-SimplicialSubset S2
+SimplicialSet S2
 SubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
 S2 := Star(B)
 
@@ -29,7 +29,7 @@ Label S2 $\mathrm{St}(\mathrm{Cl}(i))$ -- TODO: remove these labels
 
 ----------------
 
-SimplicialSubset S3
+SimplicialSet S3
 SubsetOf(S3, K)
 S3 := SetMinus(A, S2)
 

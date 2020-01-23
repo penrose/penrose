@@ -3,7 +3,7 @@ SimplicialComplex K
 Edge e
 InES(e, K)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Star(e)
 

@@ -7,7 +7,7 @@ Subcomplex E
 SubsetOf(E, K)
 E := Closure(e)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Star(E)
 
@@ -27,7 +27,7 @@ Subcomplex B
 SubsetOf(B, K)
 B := Closure(E)
 
-SimplicialSubset S2
+SimplicialSet S2
 SubsetOf(S2, K)
 S2 := Star(B)
 
@@ -36,7 +36,7 @@ Label S2 $\mathrm{St}(\mathrm{Cl}(E))$
 
 ----------------
 
-SimplicialSubset S3
+SimplicialSet S3
 SubsetOf(S3, K)
 S3 := SetMinus(A, S2)
 

@@ -6,11 +6,11 @@ InES(e, K)
 Face f
 InFS(f, K)
 
-SimplicialSubset S
+SimplicialSet S
 SubsetOf(S, K)
 S := Union(e, f)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Star(S)
 
@@ -29,7 +29,7 @@ AutoLabel S1
 Subcomplex B
 B := Closure(S)
 
-SimplicialSubset S2
+SimplicialSet S2
 SubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
 S2 := Star(B)
 
@@ -38,7 +38,7 @@ Label S2 $\mathrm{St}(\mathrm{Cl}(S))$ -- TODO: remove these labels
 
 ----------------
 
-SimplicialSubset S3
+SimplicialSet S3
 SubsetOf(S3, K)
 S3 := SetMinus(A, S2)
 

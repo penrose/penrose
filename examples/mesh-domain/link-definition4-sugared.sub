@@ -5,7 +5,7 @@ Edge e ∈ K
 Subcomplex E ⊆ K
 E := Closure(e)
 
-SimplicialSubset S1 ⊆ K
+SimplicialSet S1 ⊆ K
 S1 := Star(E)
 
 Subcomplex A ⊆ K
@@ -22,7 +22,7 @@ Label A $\mathrm{Cl}(\mathrm{St}(E))$
 Subcomplex B ⊆ K
 B := Closure(E)
 
-SimplicialSubset S2 ⊆ K
+SimplicialSet S2 ⊆ K
 S2 := Star(B)
 
 Label B $\mathrm{Cl}(E)$
@@ -30,14 +30,14 @@ Label S2 $\mathrm{St}(\mathrm{Cl}(E))$
 
 ----------------
 
-SimplicialSubset S3 ⊆ K
+SimplicialSet S3 ⊆ K
 S3 := SetMinus(A, S2)
 
 Label S3 $\mathrm{Lk}(E) := \mathrm{Cl}(\mathrm{St}(E)) \setminus \mathrm{St}(\mathrm{Cl}(E))$
 
 ----------------
 
-SimplicialSubset S4 ⊆ K
+SimplicialSet S4 ⊆ K
 S4 := Link(E)
 
 Label S4 $\mathrm{Lk}(E)$
@@ -49,5 +49,5 @@ Label S4 $\mathrm{Lk}(E)$
 -- Result(S1) -- Star(E)
 -- Result(A) -- Cl(S1)
 -- Result(S2) -- St(B)
-Result(S3) -- A \ S2
--- Result(S4) -- Lk(E)
+-- Result(S3) -- A \ S2
+Result(S4) -- Lk(E)

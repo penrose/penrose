@@ -8,7 +8,7 @@ E := Closure(e)
 Subcomplex A ⊆ K
 A := Closure(E)
 
-SimplicialSubset S1 ⊆ K
+SimplicialSet S1 ⊆ K
 S1 := Star(A)
 
 Result(S1)

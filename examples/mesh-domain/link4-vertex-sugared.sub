@@ -2,7 +2,7 @@ SimplicialComplex K
 
 Vertex v ∈ K
 
-SimplicialSubset S1 ⊆ K
+SimplicialSet S1 ⊆ K
 S1 := Link(v)
 
 Result(S1)

@@ -3,7 +3,7 @@ Subset S in K, A in K
 A = Star(S) */
 
 SimplicialComplex K
-SimplicialSubset S, A
+SimplicialSet S, A
 SubsetOf(S, K)
 SubsetOf(A, K)
 

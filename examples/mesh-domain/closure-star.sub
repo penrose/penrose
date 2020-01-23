@@ -2,7 +2,7 @@ SimplicialComplex K
 Vertex i
 InVS(i, K)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Star(i)
 

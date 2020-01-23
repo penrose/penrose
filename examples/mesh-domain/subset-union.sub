@@ -8,7 +8,7 @@ InES(e, K)
 Face f
 InFS(f, K)
 
-SimplicialSubset S
+SimplicialSet S
 SubsetOf(S, K)
 S := Union(e, f)
 

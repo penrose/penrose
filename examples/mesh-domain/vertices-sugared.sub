@@ -4,9 +4,9 @@ Vertex v1 ∈ K
 Vertex v2 ∈ K
 -- These might be the same; Style may fail if these randomly end up being the same vertex
 
-SimplicialSubset S
+SimplicialSet S
 SubsetOf(S, K)
-S := {{v1}, {v2}} -- Union(v1, v2)
+S := {{v1}, {v2}}
 
 Result(S)
 

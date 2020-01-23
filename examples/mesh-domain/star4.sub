@@ -7,7 +7,7 @@ Subcomplex E
 SubsetOf(E, K)
 E := Closure(e)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Star(E)
 

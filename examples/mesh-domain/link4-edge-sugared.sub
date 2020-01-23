@@ -2,7 +2,7 @@ SimplicialComplex K
 
 Edge e ∈ K
 
-SimplicialSubset S1 ⊆ K
+SimplicialSet S1 ⊆ K
 S1 := Link(e)
 
 Result(S1)

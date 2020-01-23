@@ -6,7 +6,7 @@ InES(e, K)
 Subcomplex A
 A := Closure(e)
 
-SimplicialSubset S1
+SimplicialSet S1
 SubsetOf(S1, K)
 S1 := Star(A)
 

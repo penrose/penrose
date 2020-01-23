@@ -14,38 +14,38 @@
 type Vertex
 type Edge
 type Face
-type SimplicialSubset -- Subset of a mesh; might not be a simplicial complex
+type SimplicialSet -- Subset of a mesh; might not be a simplicial complex
 type SimplicialComplex -- Mesh := SimplicialComplex(2); simplicial complex
 type Subcomplex -- (V, E, F) linked to a mesh; is a simplicial complex
 
-SimplicialComplex <: SimplicialSubset
-Subcomplex <: SimplicialSubset
+SimplicialComplex <: SimplicialSet
+Subcomplex <: SimplicialSet
 Vertex <: Subcomplex -- TODO: plugin doesn't deal w/ this
-Edge <: SimplicialSubset
-Face <: SimplicialSubset
+Edge <: SimplicialSet
+Face <: SimplicialSet
 -- Subcomplex <: SimplicialComplex
 -- TODO: Technically true, but messes up our Style matching
 
 constructor MkEdge : Vertex v1 * Vertex v2 -> Edge
 constructor MkFace : Edge e1 * Edge e2 * Edge e3 -> Face
 
-function Star: SimplicialSubset s -> SimplicialSubset
-function Closure: SimplicialSubset s -> Subcomplex
-function Link: SimplicialSubset s -> SimplicialSubset
-function SetMinus: SimplicialSubset s * SimplicialSubset t -> SimplicialSubset
-function Boundary: SimplicialSubset s -> SimplicialSubset
-function Union: SimplicialSubset s * SimplicialSubset t -> SimplicialSubset
+function Star: SimplicialSet s -> SimplicialSet
+function Closure: SimplicialSet s -> Subcomplex
+function Link: SimplicialSet s -> SimplicialSet
+function SetMinus: SimplicialSet s * SimplicialSet t -> SimplicialSet
+function Boundary: SimplicialSet s -> SimplicialSet
+function Union: SimplicialSet s * SimplicialSet t -> SimplicialSet
 
 -- Math-related predicates
-predicate SubsetOf: SimplicialSubset s * SimplicialComplex c
+predicate SubsetOf: SimplicialSet s * SimplicialComplex c
 
 -- Generic connectivity and selection predicates
 predicate InVE: Vertex v * Edge e
 predicate InEF: Edge e * Face f
 
-predicate InVS: Vertex v * SimplicialSubset s
-predicate InES: Edge e * SimplicialSubset s
-predicate InFS: Face f * SimplicialSubset s
+predicate InVS: Vertex v * SimplicialSet s
+predicate InES: Edge e * SimplicialSet s
+predicate InFS: Face f * SimplicialSet s
 
 -- For plugin use
 predicate DeclaredV: Vertex v
@@ -56,7 +56,7 @@ type Object
 Vertex <: Object
 Edge <: Object
 Face <: Object
-SimplicialSubset <: Object
+SimplicialSet <: Object
 SimplicialComplex <: Object
 Subcomplex <: Object
 
@@ -66,6 +66,6 @@ predicate Result: Object o -- The Style only draws objects that are declared as 
 notation "Vertex v ∈ K" ~ "Vertex v; InVS(v, K)"
 notation "Edge e ∈ K" ~ "Edge e; InES(e, K)"
 notation "Face f ∈ K" ~ "Face f; InFS(f, K)"
-notation "SimplicialSubset S ⊆ K" ~ "SimplicialSubset S; SubsetOf(S, K)"
+notation "SimplicialSet S ⊆ K" ~ "SimplicialSet S; SubsetOf(S, K)"
 notation "Subcomplex S ⊆ K" ~ "Subcomplex S; SubsetOf(S, K)"
 notation "{{a},{b}}" ~ "Union(a, b)"
