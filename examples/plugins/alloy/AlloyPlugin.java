@@ -318,7 +318,7 @@ public class AlloyPlugin {
         // write result to file
         List<String> res = a.run();
         // int index = a.rnd.nextInt(res.size());
-        int index = 4;
+        int index = 5;
         String output = res.get(index);
         System.out.println("Output from Alloy, translated to Substance: ");
         System.out.println(output);

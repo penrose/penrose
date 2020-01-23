@@ -18,6 +18,7 @@ predicate Empty : Set s
 predicate Intersecting : Set s1 * Set s2
 predicate IsSubset : Set s1 * Set s2
 predicate PointIn : Set s * Point p
+predicate In : Point p * Set s
 predicate Injection : Map m
 predicate Surjection : Map m
 predicate Bijection : Map m
@@ -27,3 +28,4 @@ notation "A ⊂ B" ~ "IsSubset(A, B)"
 notation "p ∈ A" ~ "PointIn(A, p)"
 notation "p ∉ A" ~ "PointNotIn(A, p)"
 notation "A ∩ B = ∅" ~ "Not(Intersecting(A, B))"
+notation "f: A -> B" ~ "Map f; From(f, A, B)"

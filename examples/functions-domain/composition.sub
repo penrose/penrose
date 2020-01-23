@@ -1,7 +1,7 @@
 AutoLabel All
 Set A, B, C
 f: A -> B
-g: C -> A
+g: B -> C
 OneToOne(f)
 Bijection(g)
 Function gf = g(f)
