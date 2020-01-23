@@ -18,7 +18,7 @@ const {
 
 Vector v {
        v.x = 0.0
-       v.x = 1.0 -- NOT "x = 1.0"
+       LOCAL.x = 1.0 -- NOT "x = 1.0"
        v.z = v.x + v.x
        v.shape = Circle {
        	       color : setOpacity(Colors.blue, 0.5)
@@ -29,7 +29,7 @@ Vector v {
        }
 
        encourage near(v.shape, const.shape) -- Both go on top
-       v.shape above const.shape
+       layer v.shape above const.shape
 }
 
 Vector v; Vector w {
@@ -45,25 +45,23 @@ Vector v; Vector w {
        }
 
        encourage near(LOCAL.shape, const.shape)
-       LOCAL.shape above const.shape
+       layer LOCAL.shape above const.shape
        -- ensure ...
 }
 
--- I guess there are several issues here:
+-- There are several options here:
 
--- 1. optionally COMPLETELY anonymous STATEMENTS expressions 
+-- 1. optionally completely anonymous *statement* expressions 
        -- ensure near(...) ==> local.id = ensure near(...)
        -- or with keyword: [layering] x.shape above y.shape
-       -- these really CANNOT be referred to, bc person can't guess id
+       -- these really cannot be referred to, bc person can't guess id
 
--- 2. UNSCOPED but named expressions (e.g. 'x = 5')
+-- 2. *unscoped* but named expressions (e.g. 'x = 5')
    -- then should "local" be implicitly prepended to them?
    -- ===> x = 5 => local.x = 5
    -- they don't belong to a particular substance object anymore--will those objectives, etc. still be found?
-   -- in that case we need to totally change the expression parser too
-   -- these should still be referrable because 
-
--- 3. ?
+   -- in that case we need to change the expression parser
+   -- these should still be referrable
 
 -- What do we actually write in the paper? #1 only (see the sets listing, and the layer directive)
 -- Which one is higher priority?
