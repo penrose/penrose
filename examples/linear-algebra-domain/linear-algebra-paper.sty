@@ -112,7 +112,7 @@ with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
       -- Draw perpendicular mark
       LOCAL.perpMark = Curve {
-	   pathData : perpPath(u.shape, v.shape, U.origin, const.perpLen)
+	   pathData : orientedSquare(u.shape, v.shape, U.origin, const.perpLen)
 	   strokeWidth : 2.0
 	   color : Colors.black
 	   fill : Colors.white

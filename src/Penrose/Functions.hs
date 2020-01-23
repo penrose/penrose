@@ -151,6 +151,7 @@ compDict =
     , ("project", constComp projectFn)
     , ("perpX", constComp perpX)
     , ("perpY", constComp perpY)
+    , ("orientedSquare", constComp perpPath) -- Named for the paper
     , ("perpPath", constComp perpPath)
     , ("get", constComp get')
     , ("projectAndToScreen", constComp projectAndToScreen)
