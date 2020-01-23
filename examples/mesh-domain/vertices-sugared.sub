@@ -6,7 +6,7 @@ Vertex v2 ∈ K
 
 SimplicialSubset S
 SubsetOf(S, K)
-S := Union(v1, v2)
+S := {{v1}, {v2}} -- Union(v1, v2)
 
 Result(S)
 

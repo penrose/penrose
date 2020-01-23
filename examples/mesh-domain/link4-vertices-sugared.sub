@@ -6,7 +6,7 @@ Vertex v2 ∈ K
 
 SimplicialSubset S
 SubsetOf(S, K)
-S := Union(v1, v2)
+S := {{v1}, {v2}}
 
 SimplicialSubset S1 ⊆ K
 S1 := Link(S)
