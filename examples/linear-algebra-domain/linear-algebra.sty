@@ -17,6 +17,10 @@ const {
   const.arrowheadSize = 0.5
   const.repelWeight = 0.7
   const.textPadding = 15.0
+  const.perpLen = 15.0
+  -- For unit mark
+  const.markerPadding = 15.0
+  const.barSize = 5.0
 }
 
 -- Global RGB colors in common use
@@ -53,10 +57,12 @@ VectorSpace U {
     U.thickness = 1.5
     U.axisColor = Colors.darkGray
     U.originX = 0.0
+    U.originY = 0.0
+    U.origin = (U.originX, U.originY)
 
     U.shape = Square {
 	x : U.originX
-	y : 0.0
+	y : U.originY
         side : const.vectorSpaceSize
         color : Colors.lightBlue
     }
@@ -357,37 +363,19 @@ where u := scale(c, v); In(u, U); In(v, U) {
 Vector u; Vector v
 with VectorSpace U
 where Orthogonal(u, v); In(u, U); In(v, U) {
-      -- TODO: fix this angle calculation so it works when both vectors are in quadrants 2 or 3
-      LOCAL.angle = min(u.angle, v.angle)
-      LOCAL.len = 20.0
-
-      -- Scale by side len. Then translate so default square's corner is at (0,0).
-      -- Then rotate by the vector angle. Then translate to the local origin of the vector space.
-      LOCAL.shape = SquareTransform {
-	  -- TODO: unintuitive behavior; need to set these constants otherwise shape is offscreen
-
-	  -- TODO: this currently isn't working because we commented out transforms in computedProperties (they were slowing down the system)
-
-	  -- x : 0.0
-	  -- y : 0.0
-	  -- side : 100.0
-	  -- rotation : 0.0
-
-	  x : 0.0
-	  y : 0.0
-	  side : 1.0
-	  rotation : 0.0
-	  transform : andThen(andThen(andThen(scale(LOCAL.len, LOCAL.len), translate(LOCAL.len / 2.0, LOCAL.len / 2.0)), rotate(LOCAL.angle)), translate(U.shape.x, U.shape.y))
-	  color : Colors.none
-	  strokeColor : Colors.black
-	  strokeWidth : 0.1
+      -- Draw perpendicular mark
+      LOCAL.perpMark = Curve {
+	   pathData : perpPath(u.shape, v.shape, U.origin, const.perpLen)
+	   strokeWidth : 2.0
+	   color : Colors.black
+	   fill : Colors.white
       }
 
-      -- LOCAL.perpFn = ensure equals(dot(u.vector, v.vector), 0.0)
+      -- Make sure vectors are orthogonal
       LOCAL.perpFn = encourage equal(dot(u.vector, v.vector), 0.0)
 
-      LOCAL.layering1 = v.shape above LOCAL.shape
-      LOCAL.layering2 = u.shape above LOCAL.shape
+      LOCAL.layering1 = v.shape above LOCAL.perpMark
+      LOCAL.layering2 = u.shape above LOCAL.perpMark
 }
 
 -- No label overlaps with any other label, vector, slider vector, or axis line. (This doesn't match the same vector twice, right?)
@@ -450,4 +438,46 @@ where From(f, U, V); u2 := scale(c, u1); v1 := apply(f, u1); v2 := apply(f, u2);
       delete v3.containLabel
       delete v3.labelLocation
       delete v3.labelAvoidFn
+}
+
+-- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
+Vector v
+with VectorSpace U; Vector w
+where In(v, U); Unit(v); Orthogonal(v, w) {
+
+      -- The start and end of the body of the unit marker line
+      v.offsetVec = unitMark(v.shape, w.shape, "body", const.markerPadding, const.barSize)
+      v.labelPosition = midpointOffset(v.offsetVec, w.shape, const.markerPadding)
+
+      v.unitMarkerLine = Curve {
+          pathData : pathFromPoints(v.offsetVec)
+	  strokeWidth : 2.0
+	  color : Colors.black
+	  fill : Colors.none
+      }
+
+      v.unitMarkerEnd1 = Curve {
+          pathData : unitMark(v.offsetVec, "start", const.markerPadding, const.barSize)
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
+
+      v.unitMarkerEnd2 = Curve {
+          pathData : unitMark(v.offsetVec, "end", const.markerPadding, const.barSize)
+      	  strokeWidth : 2.0
+      	  color : Colors.black
+      	  fill : Colors.none
+      }
+
+      v.unitMarkerText = Text {
+          string : "1"
+	  x : get(v.labelPosition, 0)
+	  y : get(v.labelPosition, 1)
+	  color : Colors.black
+      }
+
+      v.layeringUnit1 = v.unitMarkerLine above U.xAxis
+      v.layeringUnit2 = v.unitMarkerLine above U.yAxis
+      -- v.unitLabelAvoidFn = encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
 }

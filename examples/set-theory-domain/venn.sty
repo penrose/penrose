@@ -42,11 +42,11 @@ Set x {
         string : x.label
     }
 
-    x.labelFn = ensure contains(x.shape, x.text)
-    x.minSizeFn = ensure minSize(x.shape)
-    x.maxSizeFn = ensure maxSize(x.shape)
-    x.labelPosFn = encourage sameCenter(x.text, x.shape)
-    LOCAL.layering  = x.shape below x.text
+    ensure contains(x.shape, x.text)
+    ensure minSize(x.shape)
+    ensure maxSize(x.shape)
+    encourage sameCenter(x.text, x.shape)
+    x.shape below x.text
 
     -- Hue wheel debugging
     x.hueRad = const.pi * x.hue / 180.0
@@ -63,25 +63,25 @@ Set x {
 
 Set x; Set y
 where IsSubset(x, y) {
-    LOCAL.hueDistFn = encourage repel(x.hue, y.hue, 1.0, "angle")
+    encourage repel(x.hue, y.hue, 1.0, "angle")
 
-    LOCAL.containFn = ensure contains(y.shape, x.shape, 5.0)
-    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
-    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
-    LOCAL.layering  = x.shape above y.shape
-    LOCAL.layering1  = y.text below x.shape
+    ensure contains(y.shape, x.shape, 5.0)
+    ensure smallerThan(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    x.shape above y.shape
+    y.text below x.shape
 }
 
 Set x; Set y
 where Not(Intersecting(x, y)) {
-    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+    ensure disjoint(x.shape, y.shape)
 }
 
 Set x; Set y
 where Intersecting(x, y) {
-    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
-    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
-    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
+    ensure overlapping(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure outsideOf(x.text, y.shape)
 }
 
 Point p {

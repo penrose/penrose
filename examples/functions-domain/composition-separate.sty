@@ -11,32 +11,6 @@ G {
   G.pointRadiusLarge = G.pointRadius * 1.4
 }
 
--- For hue wheel
-const {
-  const.pi = 3.14159
-  const.debugDotRadius = 5.0
-  const.debugX = -250.0
-  const.debugY = 250.0
-  const.debugR = 50.0
-
-  const.debugCircle = Circle {
-    x : const.debugX
-    y : const.debugY
-    r : const.debugR
-    strokeWidth : 3
-    strokeColor : Colors.gray
-    color : Colors.none
-  }
-
-  const.wheelLabel = Text {
-    string : "\\text{hue}"
-    x : const.debugX
-    y : const.debugY
-    fontSize : "15pt"
-    color : Colors.gray
-  }
-}
-
 Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
@@ -117,35 +91,6 @@ where From(f, A, B) {
         y : A.shape.y - A.shape.ry - G.textBottomOffset
         fontSize : G.fontSize
     }
-}
-
-Point q
-with Map f
-where InImage(q, f) {
-    q.hue = ?
-    q.inverseColor = hsva(q.hue, 100.0, 80.0, 1.0)
-
-    -- override q.shape.color = q.inverseColor
-    -- override q.shape.r = G.pointRadiusLarge
-
-    -- Hue wheel debugging
-    q.hueRad = const.pi * q.hue / 180.0
-
-    q.hueDebug = Circle {
-        x : const.debugX + const.debugR * cos(q.hueRad)
-        y : const.debugY + const.debugR * sin(q.hueRad)
-        r : const.debugDotRadius
-        strokeWidth : 0.0
-        strokeColor : Colors.none
-        color : q.shape.color
-    }
-}
-
--- Pairwise repel between the hue of each color in the image of the function
-Point q1; Point q2
-with Map f
-where InImage(q1, f); InImage(q2, f) {
-    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle")
 }
 
 Point p; Point q

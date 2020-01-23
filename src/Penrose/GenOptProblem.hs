@@ -1013,9 +1013,12 @@ genOptProblemAndState trans optConfig =
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- TODO: enable logger
 compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> Either CompilerError State
-compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
-    let selEnvs = checkSels subEnv styProg
-    let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
+compileStyle styProgInit (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
+    let selEnvs = checkSels subEnv styProgInit
+    let subss = find_substs_prog subEnv eqEnv subProg styProgInit selEnvs
+    -- Preprocess Style program to turn anonymous assignments into named ones
+    let styProg = nameAnonStatements styProgInit
+
     -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
     -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
     -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
@@ -1029,26 +1032,48 @@ compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConf
                 Just gpiOrdering -> Right $ initState { selectorMatches = map length subss, shapeOrdering = gpiOrdering } 
                 Nothing -> Left $ StyleLayering "The graph formed by partial ordering of GPIs is cyclic and therefore can't be sorted." 
 
+ -- putStrLn "Parsed Style program\n"
+   -- pPrint styProgInit
+   -- divLine
+
+   -- Preprocess Style program to turn anonymous assignments into named ones
+--    let styProg = nameAnonStatements styProgInit
+
+   -- putStrLn "Named Style program\n"
+   -- pPrint styProg
+   -- divLine
+
 --    putStrLn "Running Style semantics\n"
+--    let selEnvs = checkSels subEnv styProg
+
 --    putStrLn "Selector static semantics and local envs:\n"
 --    forM_ selEnvs pPrint
 --    divLine
+
+--    let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
 --    putStrLn "Selector matches:\n"
 --    forM_ subss pPrint
 --    divLine
+
+--    let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
+--    putStrLn "(Selector * matches for that selector):\n"
+--    forM_ (zip selEnvs subss) pPrint
+--    divLine
+
 --    putStrLn "Translated Style program:\n"
 --    pPrint trans
 --    divLine
+
+--    let initState = genOptProblemAndState transAuto optConfig
 --    putStrLn "Generated initial state:\n"
 --    print initState
 --    divLine
+
+--    -- global layering order computation
+--    let gpiOrdering = computeLayering transAuto
 --    putStrLn "Generated GPI global layering:\n"
 --    print gpiOrdering
 --    divLine
---    putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
---    let warns = warnings transAuto
---    putStrLn (color Red $ intercalate "\n" warns ++ "\n")
---    return initState'
 
 -- | After monomorphizing the translation's type (to make sure it's computed), we generalize the type again, which means
 -- | it's again under a typeclass lambda. (#166)
