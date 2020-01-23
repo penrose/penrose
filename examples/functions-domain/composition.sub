@@ -1,0 +1,9 @@
+AutoLabel All
+Set A, B, C
+f: A -> B
+g: C -> A
+OneToOne(f)
+Bijection(g)
+Function gf = g(f)
+
+Label gf $g \circ f$

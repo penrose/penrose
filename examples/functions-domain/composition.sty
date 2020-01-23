@@ -41,6 +41,7 @@ Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
 }
 
 Set x {
@@ -50,28 +51,8 @@ Set x {
         strokeStyle : "solid"
         rx: 60.0
         ry: 1.5 * x.shape.rx
-        -- color: Colors.none
+        color: Colors.lightpurple
     }
-
-    -- x.shading = Image {
-        -- path : "ellipse-shading.svg"
-        -- x: x.shape.x
-        -- y: x.shape.y
-        -- w: x.shape.rx * 2.0
-        -- h : x.shape.ry * 2.0
-    -- }
-
-    -- LOCAL.shadingLayering = x.shading below x.shape
-
-    -- x.shadow = Image {
-        -- path : "ellipse-shadow.svg"
-        -- x: x.shape.x - 0.1 * x.shape.rx
-        -- y: x.shape.y - 0.1 * x.shape.ry
-        -- w : x.shape.rx * 2.0
-        -- h : x.shape.ry * 2.0
-    -- }
-    -- LOCAL.shadowLayering = x.shadow below x.shading
-
     x.text = Text {
       string : x.label
       x : x.shape.x
@@ -83,14 +64,25 @@ Set x {
     x.minSizeFn = ensure minSize(x.shape)
     x.maxSizeFn = ensure maxSize(x.shape)
     x.visibleFn = ensure onCanvas(x.shape)
-    LOCAL.layering  = x.shape below x.text
+    x.layering  = x.shape below x.text
+}
+
+Set B
+with Set A; Set C; Map f; Map g
+where From(f, A, B); From(g, B, C)
+{
+    delete B.shape
+    delete B.text
+    delete B.minSizeFn
+    delete B.maxSizeFn
+    delete B.visibleFn
+    delete B.layering
 }
 
 Point p
 with Set A
-where In(p, A) {
+where  In(p, A) {
     p.shape = Circle {
-        -- strokeWidth : 2.5
         strokeWidth : 0.0
         strokeColor : Colors.black
         color : Colors.black
@@ -102,93 +94,74 @@ where In(p, A) {
     p.layering   = p.shape above A.shape
 }
 
-Map f
-with Set A; Set B
-where From(f, A, B) {
-    B.shape.x = A.shape.rx * 3.5 + A.shape.x
-    B.shape.y = A.shape.y
-    B.shape.rx = A.shape.rx
-
-    f.text = Text {
-        string : f.label
-        x : average(A.shape.x, B.shape.x)
-        y : A.shape.y - A.shape.ry - G.textBottomOffset
-        fontSize : G.fontSize
-    }
+Point p
+with Set A; Set B; Set C; Map f; Map g
+where From(f, A, B); From(g, B, C); In(p, B) {
+    delete p.shape
+    delete p.containsFn
+    delete p.layering
 }
 
-Point q
-with Map f
-where InImage(q, f) {
-    q.hue = ?
-    q.inverseColor = hsva(q.hue, 100.0, 80.0, 1.0)
-
-    -- override q.shape.color = q.inverseColor
-    -- override q.shape.r = G.pointRadiusLarge
-
-    -- Hue wheel debugging
-    q.hueRad = const.pi * q.hue / 180.0
-
-    q.hueDebug = Circle {
-        x : const.debugX + const.debugR * cos(q.hueRad)
-        y : const.debugY + const.debugR * sin(q.hueRad)
-        r : const.debugDotRadius
-        strokeWidth : 0.0
-        strokeColor : Colors.none
-        color : q.shape.color
-    }
-}
-
--- Pairwise repel between the hue of each color in the image of the function
-Point q1; Point q2
-with Map f
-where InImage(q1, f); InImage(q2, f) {
-    LOCAL.hueDistFn = encourage repel(q1.hue, q2.hue, 1.0, "angle")
-}
-
-Point p; Point q
-with Map f
-where PairIn(p, q, f) {
+Point p; Point r
+with Map f; Map g; Point q
+where PairIn(p, q, f); PairIn(q, r, g) {
     LOCAL.mapPaddingY = ?
 
     p.mapShape = Arrow {
         startX : p.shape.x + G.arrowOffset
         startY : p.shape.y
-        endX   : q.shape.x - G.arrowOffset
-        endY   : q.shape.y + LOCAL.mapPaddingY
+        endX   : r.shape.x - G.arrowOffset
+        endY   : r.shape.y + LOCAL.mapPaddingY
         thickness : 3.0
         arrowheadSize : 0.6
         color  : Colors.black
-        -- color  : q.inverseColor
-        -- TODO: Might be easier to distinguish between the arrows if they were different colors, but can't sample solid colors
     }
 
-    -- override p.shape.color = q.inverseColor
-    -- override p.shape.r = G.pointRadiusLarge
-
     -- Try to get the arrowheads to point at the right mapped point
-    LOCAL.equalFn = encourage equal(p.mapShape.endY, q.shape.y)
-
+    LOCAL.equalFn = encourage equal(p.mapShape.endY, r.shape.y)
     p.arrowLayering1 = p.mapShape above p.shape
-    p.arrowLayering2 = p.mapShape above q.shape
+    p.arrowLayering2 = p.mapShape above r.shape
 }
+
+Map fg
+with Set A; Set C; Set B; Map f; Map g
+where fg := Compose(g, f); From(f, A, B); From(g, B, C) {
+    C.shape.x = A.shape.rx * 3.5 + A.shape.x
+    C.shape.y = A.shape.y
+    C.shape.rx = A.shape.rx
+
+    fg.text = Text {
+        string : fg.label
+        x : average(A.shape.x, C.shape.x)
+        y : A.shape.y - A.shape.ry - G.textBottomOffset
+        fontSize : G.fontSize
+    }
+}
+
+Point p; Point q
+with Set A; Set B; Set C; Map f; Map g
+where From(f, A, B); From(g, B, C); In(p, A); In(q, A) {
+    LOCAL.repelFn = encourage repel(p.shape, q.shape, 0.001)
+    LOCAL.sameXFn = encourage equal(p.shape.x, q.shape.x)
+}
+
+Point p; Point q
+with Set A; Set B; Set C; Map f; Map g
+where From(f, A, B); From(g, B, C); In(p, C); In(q, C) {
+    LOCAL.repelFn = encourage repel(p.shape, q.shape, 0.001)
+    LOCAL.sameXFn = encourage equal(p.shape.x, q.shape.x)
+}
+
+
+/*
 
 Point p1; Point p2; Point q
 with Map f
 where PairIn(p1, q, f); PairIn(p2, q, f) {
-   -- override p1.mapShape.color = q.inverseColor
-   -- override p2.mapShape.color = q.inverseColor
-
    -- If two points map to the same point, try to make sure no arrowheads overlap (have the y-positions repel each other)
    LOCAL.arrowRepelFn = encourage repel(p1.mapShape.endY, p2.mapShape.endY, 0.001)
 }
 
-Point p; Point q
-with Set A
-where In(p, A); In(q, A) {
-    LOCAL.repelFn = encourage repel(p.shape, q.shape, 0.001)
-    LOCAL.sameXFn = encourage equal(p.shape.x, q.shape.x)
-}
 
 Map f
 with Set domain; Set image
@@ -213,3 +186,4 @@ with Set domain; Set image
 where From(f, domain, image); Onto(f); OneToOne(f) {
       override f.text.string = "\\textbf{bijection}"
 }
+*/
