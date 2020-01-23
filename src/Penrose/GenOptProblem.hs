@@ -1006,7 +1006,18 @@ genOptProblemAndState trans optConfig =
 -- NOTE: this function also print information out to stdout
 -- TODO: enable logger
 compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> IO State
-compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
+compileStyle styProgInit (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
+   putStrLn "Parsed Style program\n"
+   pPrint styProgInit
+   divLine
+
+   -- Preprocess Style program to turn anonymous assignments into named ones
+   let styProg = nameAnonStatements styProgInit
+
+   putStrLn "Named Style program\n"
+   pPrint styProg
+   divLine
+
    putStrLn "Running Style semantics\n"
    let selEnvs = checkSels subEnv styProg
 
