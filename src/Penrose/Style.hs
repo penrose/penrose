@@ -342,8 +342,12 @@ block = stmt `sepEndBy` newline'
 stmt :: Parser Stmt
 stmt = tryChoice [assign, anonAssign, override, delete]
 
+-- Only certain kinds of "imperative" expressions can be anonymous (i.e. `1+5` can't be)
+anonExpr :: Parser Expr
+anonExpr = tryChoice [layeringExpr, objFn, constrFn]
+
 anonAssign, assign, override, delete :: Parser Stmt
-anonAssign = AnonAssign <$> expr
+anonAssign = AnonAssign <$> anonExpr
 assign   = Assign   <$> path <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)

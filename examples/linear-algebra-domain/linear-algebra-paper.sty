@@ -121,8 +121,8 @@ where Orthogonal(u, v); In(u, U); In(v, U) {
       -- Make sure vectors are orthogonal
       encourage equal(dot(u.vector, v.vector), 0.0)
 
-      v.shape above LOCAL.perpMark
-      u.shape above LOCAL.perpMark
+      layer v.shape above LOCAL.perpMark
+      layer u.shape above LOCAL.perpMark
 }
 
 -- Usually, the unit vector shouldn't need to know about orthogonal vectors, but we need to position the unit mark so that it doesn't overlap with the "inside" of the two vectors
@@ -162,8 +162,8 @@ where In(v, U); Unit(v); Orthogonal(v, w) {
 	  color : Colors.black
       }
 
-      v.unitMarkerLine above U.xAxis
-      v.unitMarkerLine above U.yAxis
+      layer v.unitMarkerLine above U.xAxis
+      layer v.unitMarkerLine above U.yAxis
       -- encourage repel(v.unitMarkerLine, v.unitMarkerText, const.repelWeight)
 }
 
