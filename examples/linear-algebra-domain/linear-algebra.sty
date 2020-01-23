@@ -1,6 +1,5 @@
--- | The full generic Style file for the linear algebra domain
--- | Author: Dor Ma'ayan
---   August, 2018
+-- | The Style file for the linear algebra domain
+-- | Author: Dor Ma'ayan, Katherine Ye
 
 -- Global constants and sizes
 const {
@@ -30,7 +29,6 @@ Colors {
     Colors.darkBlue = rgba(0.05, 0.05, 0.6, 0.5)
     Colors.lightGray = rgba(200.0,200.0,200.0,1.0)
     Colors.darkGray = rgba(0.4, 0.4, 0.4, 1.0)
-
     Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
     Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
@@ -47,8 +45,6 @@ Colors {
     Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
-
-    -- TODO: should we require S,V in %? (in [0,1])
     Colors.red2 = hsva(0.0, 100.0, 100.0, 1.0)
     Colors.green2 = hsva(140.0, 23.0, 100.0, 1.0)
 }
@@ -66,9 +62,6 @@ VectorSpace U {
         side : const.vectorSpaceSize
         color : Colors.lightBlue
     }
-
-    U.left = U.shape.x + (U.shape.side/2.0)
-    U.right = U.shape.x - (U.shape.side/2.0)
 
     U.xAxis = Arrow {
         startX : U.shape.x - const.axisSize
@@ -124,19 +117,6 @@ VectorSpace U {
     U.perpLayering1 = U.perpMark below U.xAxis
     U.perpLayering2 = U.perpMark below U.yAxis
     U.perpLayering3 = U.perpMark above U.shape
-
-    --U.xLabelLocation = ensure nearHead(U.xAxis, U.textX, 20.0, 0.0)
-    --U.yLabelLocation = ensure nearHead(U.yAxis, U.textY, 0.0, 20.0)
-}
-
--- TODO: generates too many constraints?
-
-VectorSpace U; VectorSpace V {
-    --LOCAL.sameHeight = ensure sameHeight(U.shape, V.shape)
-    --LOCAL.nonIntersect = ensure disjoint(U.shape, V.shape)
-    --V.shape.y = 0.0
-    --U.shape.x = 0.0
-    --V.shape.x = 0.0
 }
 
 Vector v
@@ -150,17 +130,11 @@ where In(v,U) {
 
   v.color = sampleColor(1.0, "rgb") -- Full opacity to hide arrowhead layering
 
-  -- v.pad1 = ?
-  -- v.pad2 = ?
-
   v.shape = Arrow {
     startX : U.shape.x
     startY : U.shape.y
     endX : ?
     endY : ?
-    -- So the labels can be optimized separately
-    -- endX : sampleNum(U.left, U.right) + v.pad1
-    -- endY : sampleNum(U.left, U.right) + v.pad2
 
     thickness : const.arrowThickness
     color : v.color
@@ -389,8 +363,6 @@ where In(u1, U); In(u2, U) {
 
       LOCAL.labelAvoidSegFn = encourage repel(u1.shape, u2.text, const.repelWeight)
       LOCAL.labelAvoidTextFn = encourage repel(u1.text, u2.text, 1000.0 * const.repelWeight)
-
-      -- LOCAL.labelAvoidTextFn = encourage disjointPoly(u1.text, u2.text)
 }
 
 -- For vectors that are mapped from one vector space to another,
