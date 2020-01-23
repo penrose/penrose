@@ -179,6 +179,7 @@ data Stmt
     = Assign Path Expr
     | Override Path Expr
     | Delete Path
+    | AnonAssign Expr -- Anonymous statement; expression which is automatically given a name by the compiler (LOCAL.id)
     deriving (Show, Eq, Typeable)
 
 -- | A field declaration in a Style constructor binds an expression to a
@@ -339,9 +340,14 @@ block :: Parser [Stmt]
 block = stmt `sepEndBy` newline'
 
 stmt :: Parser Stmt
-stmt = tryChoice [assign, override, delete]
+stmt = tryChoice [assign, anonAssign, override, delete]
 
-assign, override, delete :: Parser Stmt
+-- Only certain kinds of "imperative" expressions can be anonymous (i.e. `1+5` can't be)
+anonExpr :: Parser Expr
+anonExpr = tryChoice [layeringExpr, objFn, constrFn]
+
+anonAssign, assign, override, delete :: Parser Stmt
+anonAssign = AnonAssign <$> anonExpr
 assign   = Assign   <$> path <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
@@ -402,13 +408,28 @@ aOperators =
         -- Lowest precedence
     ]
 
+-- Parse permissively with or without the `layer` keyword (so we don't need to port all the old Style programs for now)
+-- TODO: port them to use `layer`
 layeringExpr :: Parser Expr
-layeringExpr = try layeringAbove <|> layeringBelow
+-- layeringExpr = try layeringAbove <|> layeringBelow
+layeringExpr = tryChoice [layeringAbove, layeringBelow, layeringAboveKeyword, layeringBelowKeyword]
     where
         layeringBelow = Layering <$> path <* rword "below" <*> path
         layeringAbove = do
             path1 <- path
             rword "above"
+            path2 <- path
+            return $ Layering path2 path1
+        layeringAboveKeyword = do
+            rword "layer"
+            path1 <- path
+            rword "above"
+            path2 <- path
+            return $ Layering path2 path1
+        layeringBelowKeyword = do
+            rword "layer"
+            path1 <- path
+            rword "below"
             path2 <- path
             return $ Layering path2 path1
 
@@ -1479,6 +1500,28 @@ translateStyProg varEnv subEnv subProg styProg labelMap styVals =
                   transWithPlugins = evalPluginAccess styValMap transWithNamesAndLabels
               in trace "translateStyProg: " $ Right transWithPlugins
         Left errors -> Left errors
+
+-- Style AST preprocessing:
+-- For any anonymous statement only (e.g. `encourage near(x.shape, y.shape)`), 
+-- replace it with a named statement (`local.<UNIQUE_ID> = encourage near(x.shape, y.shape)`)
+-- Note the UNIQUE_ID only needs to be unique within a block (since local will assign another ID that's globally-unique)
+-- Leave all other statements unchanged
+
+anonKeyword :: String
+anonKeyword = "ANON"
+
+nameAnonStatements :: StyProg -> StyProg
+nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
+                   where nameAnonBlock :: Block -> Block
+                         nameAnonBlock b = let (count, res) = foldl nameAnonStatement (0, []) b in res
+
+                         nameAnonStatement :: (Int, Block) -> Stmt -> (Int, Block)
+                         -- Assign the path "local.ANON_$counter" and increment counter
+                         nameAnonStatement (i, b) (AnonAssign e) = 
+                                           let path = FieldPath (BStyVar (StyVar' localKeyword)) (anonKeyword ++ "_" ++ show i)
+                                               stmt = Assign path e in
+                                           (i + 1, b ++ [stmt])
+                         nameAnonStatement (i, b) s = (i, b ++ [s])
 
 ---------- Plugin accessors
 
