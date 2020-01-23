@@ -991,6 +991,14 @@ perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (TupV midpt), Val (FloatV si
       path = Closed $ [Pt ptL, Pt ptLR, Pt ptR, Pt midpt]
   in Val $ PathDataV [path]
 
+-- TODO: Merge withe the linelike selectors; this is duplicated code
+perpPath [GPI r@("Arrow", _), GPI l@("Arrow", _), Val (TupV midpt), Val (FloatV size)] = -- Euclidean
+  let seg1 = (getPoint "start" r, getPoint "end" r)
+      seg2 = (getPoint "start" l, getPoint "end" l)
+      (ptL, ptLR, ptR) = perpPathFlat size seg1 seg2
+      path = Closed $ [Pt ptL, Pt ptLR, Pt ptR, Pt midpt]
+  in Val $ PathDataV [path]
+
 perpPath [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] = -- Spherical
   let (p', q') = (normalize p, normalize q)
              -- TODO: cache these calculations bc they're recomputed many times in Ray, Triangle, etc.
