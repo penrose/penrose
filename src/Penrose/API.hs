@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Penrose.API
   ( compileTrio
   , step
@@ -6,19 +8,23 @@ module Penrose.API
   , getEnv
   , getVersion
   , resample
+  , energyValues
+  , APICall(..)
   ) where
 
 import           Control.Exception          (ErrorCall, try)
 import qualified Data.Aeson                 as A
 import qualified Data.ByteString.Lazy.Char8 as B
-import           Data.List                  (deleteFirstsBy, (\\))
+import           Data.List                  (deleteFirstsBy, partition, (\\))
 import qualified Data.Map.Strict            as M
 import           Data.Maybe                 (mapMaybe)
 import           Data.Version               (showVersion)
 import           Debug.Trace                (traceShowId)
+import           GHC.Generics
 import           Paths_penrose              (version)
 import           Penrose.Element
 import           Penrose.Env
+import           Penrose.Functions
 import           Penrose.GenOptProblem
 import qualified Penrose.Optimizer          as Optimizer
 import           Penrose.Plugins
@@ -30,6 +36,32 @@ import           Penrose.Sugarer
 import           Penrose.Util
 import           System.IO.Unsafe           (unsafePerformIO)
 
+--------------------------------------------------------------------------------
+-- Types for decoding API calls
+data APICall
+  = Step Int
+         State
+  | Resample Int
+             State
+  | StepUntilConvergence State
+  | CompileTrio String
+                String
+                String
+  | ReconcileNext State
+                  String
+                  String
+                  String
+  | GetEnv String
+           String
+  | EnergyValues State
+  | GetVersion
+  deriving (Generic)
+
+instance A.FromJSON APICall
+
+instance A.ToJSON APICall
+
+--------------------------------------------------------------------------------
 -- | Given Substance, Style, and Element programs, output an initial state.
 -- TODO: allow cached intermediate outputs such as ASTs to be passed in?
 compileTrio ::
@@ -55,12 +87,8 @@ compileTrio substance style element
         return (subOutPlugin, styVals)
   -- Compilation phase
   let optConfig = defaultOptConfig
-  let styRes =
-        unsafePerformIO $ -- HACK: rewrite this such that it's safe
-        try (compileStyle styProg subOut' styVals optConfig) :: Either ErrorCall State
-  case styRes of
-    Right initState -> Right (initState, subEnv)
-    Left styRTError -> Left $ StyleTypecheck $ show styRTError
+  state <- compileStyle styProg subOut' styVals optConfig
+  return (state, env)
 
 -- | Given Substance and ELement programs, return a context after parsing Substance and ELement.
 getEnv ::
@@ -102,7 +130,7 @@ resample initState numSamples
     in Right $ newState {shapesr = newShapes}
   | otherwise = Left $ RuntimeError "At least 1 sample should be requested."
 
-getVersion :: String
+getVersion :: String -- ^ the current version of the Penrose binary
 getVersion = showVersion version
 
 reconcileNext ::
@@ -127,6 +155,17 @@ reconcileNext prevState substance style element = do
            Just s ->
              Just (mkPath [name, field, property], Done $ s `get` property)
 
+energyValues :: State -> ([Double], [Double])
+energyValues s =
+  let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s)
+      fns = objFns s ++ constrFns s
+      (fnsE, transE, rng') =
+        evalFns evalIterRange fns (castTranslation $ transr s) varyMap (rng s)
+      penaltyWeight = r2f $ weight $ paramsr s
+      (objfns, constrfns) = partition (\f -> optType_d f == Objfn) fnsE
+  in ( map (applyOptFn objFuncDict objSignatures) objfns
+     , map (applyOptFn constrFuncDict constrSignatures) constrfns)
+
 --------------------------------------------------------------------------------
 -- Helpers
 -- | Produce a new state by diff'ing a state generated with new Substance statements and a previous state. This functions (1) moves all occurances of varying paths and corresponding entries in the varying state from the previous state and (2) remove all occurances of uninitialzed paths from the previous state. NOTE: this function is designed to be called only once per edit and is not idempotent.
@@ -150,7 +189,7 @@ diffStates prevState state =
 fromStyleErrs :: Either [Error] a -> Either CompilerError a
 fromStyleErrs v =
   case v of
-    Left errs -> Left $ StyleTypecheck $ show errs
+    Left errs -> Left $ StyleTypecheck errs
     Right res -> Right res
 
 syncShapes :: State -> State

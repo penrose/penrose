@@ -19,7 +19,7 @@ module Penrose.Functions
 
 import           Data.Aeson            (toJSON)
 import           Data.Fixed            (mod')
-import           Data.List             (find, findIndex, maximumBy, nub, sort)
+import           Data.List             (find, findIndex, maximumBy, nub, sort, intercalate)
 import qualified Data.Map.Strict       as M
 import           Data.Maybe            (fromMaybe)
 import qualified Data.MultiMap         as MM
@@ -29,6 +29,7 @@ import           Penrose.Transforms
 import           Penrose.Util
 import           System.Random         (StdGen, mkStdGen, randomR)
 import           System.Random.Shuffle (shuffle')
+import Prelude hiding (concat)
 
 default (Int, Float) -- So we don't default to Integer, which is 10x slower than Int (?)
 
@@ -215,6 +216,7 @@ compDict =
     , ("testTriangle", constComp testTri)
     , ("testNonconvexPoly", constComp testNonconvexPoly)
     , ("randomPolygon", randomPolygon)
+    , ("concat", constComp concat)
     , ("midpoint", noop) -- TODO
     , ("sampleMatrix", noop) -- TODO
     , ("sampleReal", noop) -- TODO
@@ -1161,14 +1163,15 @@ projectVec name hfov vfov r camera dir vec_math toScreen =
       vec_proj = (1 / pz) *. [px, py]
       vec_screen = toScreen *. vec_proj
       vec_proj_screen = vec_screen ++ [pz] -- TODO check denom 0. Also note z might be negative?
-  in -- trace
-       -- ("\n" ++ "name: " ++ name ++
-       --  "\nvec_math: " ++ show vec_math ++
-       --  "\n||vec_math||: " ++ show (norm vec_math) ++
-       --  "\nvec_camera: " ++ show vec_camera ++
-       --  "\nvec_proj: " ++ show vec_proj ++
-       --  "\nvec_screen: " ++ show vec_screen ++ 
-       --  "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
+  in 
+    -- trace
+      --  ("\n" ++ "name: " ++ name ++
+      --   "\nvec_math: " ++ show vec_math ++
+      --   "\n||vec_math||: " ++ show (norm vec_math) ++
+      --   "\nvec_camera: " ++ show vec_camera ++
+      --   "\nvec_proj: " ++ show vec_proj ++
+      --   "\nvec_screen: " ++ show vec_screen ++ 
+      --   "\nvec_proj_screen: " ++ show vec_proj_screen ++ "\n")
        vec_proj_screen
 
 -- | For two points p, q, the easiest thing is to form an orthonormal basis e1=p, e2=(p x q)/|p x q|, e3=e2 x e1, then draw the arc as cos(t)e1 + sin(t)e3 for t between 0 and arccos(p . q) (Assuming p and q are unit)
@@ -1633,6 +1636,12 @@ makeBisectorMark [Val (ListV bis), Val (ListV commonPt), Val (FloatV markLen)] =
   let (botPt, topPt) = angleMark (tuplify2 commonPt) (tuplify2 bis) markLen
       path = Open $ map Pt [botPt, topPt]
   in Val $ PathDataV [path]
+
+concat :: ConstCompFn
+concat strs = toVal $ concatMap rawString strs
+  where 
+    rawString (Val (StrV s)) = s
+    toVal s = Val $ StrV s
 
 --------------------------------------------------------------------------------
 -- Objective Functions

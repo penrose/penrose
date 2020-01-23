@@ -15,6 +15,8 @@ Function <: Map
 constructor CreateInterval: Real left * Real right -> Interval
 constructor CreateFunction: Set domain * Set codomain -> Function
 
+function Compose: Map f * Map g -> Map
+
 predicate Not: Prop p1 -- higher-order predicate 
 
 predicate From : Map f * Set domain * Set codomain
@@ -25,4 +27,6 @@ predicate Onto : Map m
 predicate Bijection : Map m
 predicate PairIn : Point * Point * Map
 
-notation "f: A -> B" ~ "Set A, B; Map f; From(f, A, B)"
+notation "f: A -> B" ~ "Map f; From(f, A, B)"
+notation "Function fg = g(f)" ~ "Map fg; fg := Compose(g, f)"
+notation "(a, b) ∈ f" ~ "PairIn(a, b, f)"

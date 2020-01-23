@@ -1,8 +1,7 @@
 import * as React from "react";
 import { toScreen, toHex, Arrowhead, Shadow } from "./Util";
 import { flatten } from "lodash";
-import { IGPIPropsDraggable } from "./types";
-import draggable from "./Draggable";
+import { IGPIProps } from "./types";
 
 const toCmdString = (cmd: any, canvasSize: [number, number]) => {
   switch (cmd.tag) {
@@ -64,9 +63,9 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
     })
     .join(" ");
 
-class Curve extends React.Component<IGPIPropsDraggable> {
+class Curve extends React.Component<IGPIProps> {
   public render() {
-    const { shape, onClick } = this.props;
+    const { shape } = this.props;
     const { canvasSize } = this.props;
     const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.color.contents);
@@ -80,7 +79,6 @@ class Curve extends React.Component<IGPIPropsDraggable> {
     const rightArrowId = shape.name.contents + "-rightArrowhead";
     const shadowId = shape.name.contents + "-shadow";
     // TODO: distinguish between fill opacity and stroke opacity
-
     return (
       <g>
         {shape.leftArrowhead.contents === true ? (
@@ -108,7 +106,6 @@ class Curve extends React.Component<IGPIPropsDraggable> {
           strokeWidth={strokeWidth}
           strokeOpacity={strokeOpacity}
           fillOpacity={fillOpacity}
-          onMouseDown={onClick}
           d={toPathString(shape.pathData.contents, canvasSize)}
           markerStart={
             shape.leftArrowhead.contents === true ? `url(#${leftArrowId})` : ""
@@ -128,4 +125,4 @@ class Curve extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(Curve);
+export default Curve;

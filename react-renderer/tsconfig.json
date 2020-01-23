@@ -17,7 +17,9 @@
     "importHelpers": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true
+    "allowSyntheticDefaultImports": true,
+    // "noUnusedLocals": true
+    "noUnusedLocals": false
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,

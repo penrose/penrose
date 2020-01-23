@@ -250,6 +250,7 @@ xPropParser :: Parser ([Var], [Prop])
 xPropParser = unzip <$> (vpPairParser `sepBy1` star)
 
 -- | var constructor parser
+-- TODO: rename variables for better readability
 vdParser :: Parser ElementStmt
 vdParser = do
   rword "constructor"

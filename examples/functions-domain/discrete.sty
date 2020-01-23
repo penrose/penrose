@@ -45,31 +45,32 @@ Colors {
 
 Set x {
     x.shape = Ellipse {
-        strokeWidth : 2.0
+        strokeWidth : 0.0
         strokeColor : Colors.gray
         strokeStyle : "solid"
+        rx: 60.0
         ry: 1.5 * x.shape.rx
-        color: Colors.none
+        -- color: Colors.none
     }
 
-    x.shading = Image {
-        path : "ellipse-shading.svg"
-        x: x.shape.x
-        y: x.shape.y
-        w: x.shape.rx * 2.0
-        h : x.shape.ry * 2.0
-    }
+    -- x.shading = Image {
+        -- path : "ellipse-shading.svg"
+        -- x: x.shape.x
+        -- y: x.shape.y
+        -- w: x.shape.rx * 2.0
+        -- h : x.shape.ry * 2.0
+    -- }
 
-    LOCAL.shadingLayering = x.shading below x.shape
+    -- LOCAL.shadingLayering = x.shading below x.shape
 
-    x.shadow = Image {
-        path : "ellipse-shadow.svg"
-        x: x.shape.x - 0.1 * x.shape.rx
-        y: x.shape.y - 0.1 * x.shape.ry
-        w : x.shape.rx * 2.0
-        h : x.shape.ry * 2.0
-    }
-    LOCAL.shadowLayering = x.shadow below x.shading
+    -- x.shadow = Image {
+        -- path : "ellipse-shadow.svg"
+        -- x: x.shape.x - 0.1 * x.shape.rx
+        -- y: x.shape.y - 0.1 * x.shape.ry
+        -- w : x.shape.rx * 2.0
+        -- h : x.shape.ry * 2.0
+    -- }
+    -- LOCAL.shadowLayering = x.shadow below x.shading
 
     x.text = Text {
       string : x.label
@@ -89,7 +90,8 @@ Point p
 with Set A
 where In(p, A) {
     p.shape = Circle {
-        strokeWidth : 2.5
+        -- strokeWidth : 2.5
+        strokeWidth : 0.0
         strokeColor : Colors.black
         color : Colors.black
         r : G.pointRadius
@@ -121,19 +123,19 @@ where InImage(q, f) {
     q.hue = ?
     q.inverseColor = hsva(q.hue, 100.0, 80.0, 1.0)
 
-    override q.shape.color = q.inverseColor
-    override q.shape.r = G.pointRadiusLarge
+    -- override q.shape.color = q.inverseColor
+    -- override q.shape.r = G.pointRadiusLarge
 
     -- Hue wheel debugging
     q.hueRad = const.pi * q.hue / 180.0
 
     q.hueDebug = Circle {
         x : const.debugX + const.debugR * cos(q.hueRad)
-	y : const.debugY + const.debugR * sin(q.hueRad)
-	r : const.debugDotRadius
-	strokeWidth : 0.0
-	strokeColor : Colors.none
-	color : q.shape.color
+        y : const.debugY + const.debugR * sin(q.hueRad)
+        r : const.debugDotRadius
+        strokeWidth : 0.0
+        strokeColor : Colors.none
+        color : q.shape.color
     }
 }
 
@@ -154,14 +156,15 @@ where PairIn(p, q, f) {
         startY : p.shape.y
         endX   : q.shape.x - G.arrowOffset
         endY   : q.shape.y + LOCAL.mapPaddingY
-        thickness : 4.0
+        thickness : 3.0
         arrowheadSize : 0.6
-        color  : q.inverseColor
+        color  : Colors.black
+        -- color  : q.inverseColor
         -- TODO: Might be easier to distinguish between the arrows if they were different colors, but can't sample solid colors
     }
 
-    override p.shape.color = q.inverseColor
-    override p.shape.r = G.pointRadiusLarge
+    -- override p.shape.color = q.inverseColor
+    -- override p.shape.r = G.pointRadiusLarge
 
     -- Try to get the arrowheads to point at the right mapped point
     LOCAL.equalFn = encourage equal(p.mapShape.endY, q.shape.y)
@@ -173,8 +176,8 @@ where PairIn(p, q, f) {
 Point p1; Point p2; Point q
 with Map f
 where PairIn(p1, q, f); PairIn(p2, q, f) {
-   override p1.mapShape.color = q.inverseColor
-   override p2.mapShape.color = q.inverseColor
+   -- override p1.mapShape.color = q.inverseColor
+   -- override p2.mapShape.color = q.inverseColor
 
    -- If two points map to the same point, try to make sure no arrowheads overlap (have the y-positions repel each other)
    LOCAL.arrowRepelFn = encourage repel(p1.mapShape.endY, p2.mapShape.endY, 0.001)

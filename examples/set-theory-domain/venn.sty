@@ -29,7 +29,7 @@ const {
   }
 }
 
-Set x {
+forall Set x {
     x.hue = ? -- In degrees
     x.color = hsva(x.hue, 100.0, 80.0, 0.5)
 
@@ -61,7 +61,7 @@ Set x {
     }
 }
 
-Set x; Set y
+forall Set x; Set y
 where IsSubset(x, y) {
     encourage repel(x.hue, y.hue, 1.0, "angle")
 
@@ -72,19 +72,19 @@ where IsSubset(x, y) {
     y.text below x.shape
 }
 
-Set x; Set y
+forall Set x; Set y
 where Not(Intersecting(x, y)) {
     ensure disjoint(x.shape, y.shape)
 }
 
-Set x; Set y
+forall Set x; Set y
 where Intersecting(x, y) {
     ensure overlapping(x.shape, y.shape)
     ensure outsideOf(y.text, x.shape)
     ensure outsideOf(x.text, y.shape)
 }
 
-Point p {
+forall Point p {
     p.offset = 10.0
     p.shape = Circle {
         strokeWidth : 0
@@ -97,4 +97,19 @@ Point p {
         x : p.shape.x + p.offset
         y : p.shape.y + p.offset
     }
+
+    p.textLayering = p.text above p.shape
+}
+
+Point p
+with Set A
+where PointIn(A, p) {
+    p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
+    p.layering = p.shape above A.shape
+}
+
+Point p
+with Set A
+where Not(PointIn(A, p)) {
+    p.notContainsFn = ensure disjoint(A.shape, p.shape)
 }

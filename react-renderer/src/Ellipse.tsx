@@ -1,13 +1,11 @@
 import * as React from "react";
 import { toScreen, toHex } from "./Util";
-import draggable from "./Draggable";
-import { IGPIPropsDraggable } from "./types";
+import { IGPIProps } from "./types";
 
-class Ellipse extends React.Component<IGPIPropsDraggable> {
+class Ellipse extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
-    const { onClick } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
 
     const fillColor = toHex(shape.color.contents);
@@ -28,11 +26,10 @@ class Ellipse extends React.Component<IGPIPropsDraggable> {
         strokeOpacity={strokeAlpha}
         strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
         strokeWidth={stokeWidth}
-        onMouseDown={onClick}
       >
         <title>{shape.name.contents}</title>
       </ellipse>
     );
   }
 }
-export default draggable(Ellipse);
+export default Ellipse;

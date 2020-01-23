@@ -1,0 +1,189 @@
+plugin "alloy"
+
+G {
+  G.textTopOffset = 30.0
+  G.textBottomOffset = 30.0
+  G.pointOffset = 10.0
+  G.arrowOffset = 20.0
+  G.fontSize = "22pt"
+  G.domainPointSize = 8.0
+  G.pointRadius = 7.0
+  G.pointRadiusLarge = G.pointRadius * 1.4
+}
+
+-- For hue wheel
+const {
+  const.pi = 3.14159
+  const.debugDotRadius = 5.0
+  const.debugX = -250.0
+  const.debugY = 250.0
+  const.debugR = 50.0
+
+  -- const.debugCircle = Circle {
+    -- x : const.debugX
+    -- y : const.debugY
+    -- r : const.debugR
+    -- strokeWidth : 3
+    -- strokeColor : Colors.gray
+    -- color : Colors.none
+  -- }
+
+  -- const.wheelLabel = Text {
+    -- string : "\\text{hue}"
+    -- x : const.debugX
+    -- y : const.debugY
+    -- fontSize : "15pt"
+    -- color : Colors.gray
+  -- }
+}
+
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
+}
+
+Set x {
+    x.shape = Ellipse {
+        strokeWidth : 0.0
+        strokeColor : Colors.gray
+        strokeStyle : "solid"
+        rx: 60.0
+        ry: 1.5 * x.shape.rx
+        color: Colors.lightpurple
+    }
+    x.text = Text {
+      string : x.label
+      x : x.shape.x
+      y : x.shape.y + x.shape.ry + G.textTopOffset
+      fontSize : G.fontSize
+      color : x.shape.color
+    }
+
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
+    x.visibleFn = ensure onCanvas(x.shape)
+    x.layering  = x.shape below x.text
+}
+
+Set B
+with Set A; Set C; Map f; Map g
+where From(f, A, B); From(g, B, C)
+{
+    delete B.shape
+    delete B.text
+    delete B.minSizeFn
+    delete B.maxSizeFn
+    delete B.visibleFn
+    delete B.layering
+}
+
+Point p
+with Set A
+where  In(p, A) {
+    p.shape = Circle {
+        strokeWidth : 0.0
+        strokeColor : Colors.black
+        color : Colors.black
+        r : G.pointRadius
+        x : A.shape.x
+    }
+
+    p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.ry)
+    p.layering   = p.shape above A.shape
+}
+
+Point p
+with Set A; Set B; Set C; Map f; Map g
+where From(f, A, B); From(g, B, C); In(p, B) {
+    delete p.shape
+    delete p.containsFn
+    delete p.layering
+}
+
+Point p; Point r
+with Map f; Map g; Point q
+where PairIn(p, q, f); PairIn(q, r, g) {
+    LOCAL.mapPaddingY = ?
+
+    p.mapShape = Arrow {
+        startX : p.shape.x + G.arrowOffset
+        startY : p.shape.y
+        endX   : r.shape.x - G.arrowOffset
+        endY   : r.shape.y + LOCAL.mapPaddingY
+        thickness : 3.0
+        arrowheadSize : 0.6
+        color  : Colors.black
+    }
+
+    -- Try to get the arrowheads to point at the right mapped point
+    LOCAL.equalFn = encourage equal(p.mapShape.endY, r.shape.y)
+    p.arrowLayering1 = p.mapShape above p.shape
+    p.arrowLayering2 = p.mapShape above r.shape
+}
+
+Map fg
+with Set A; Set C; Set B; Map f; Map g
+where fg := Compose(g, f); From(f, A, B); From(g, B, C) {
+    C.shape.x = A.shape.rx * 3.5 + A.shape.x
+    C.shape.y = A.shape.y
+    C.shape.rx = A.shape.rx
+
+    fg.text = Text {
+        string : fg.label
+        x : average(A.shape.x, C.shape.x)
+        y : A.shape.y - A.shape.ry - G.textBottomOffset
+        fontSize : G.fontSize
+    }
+}
+
+Point p; Point q
+with Set A; Set B; Set C; Map f; Map g
+where From(f, A, B); From(g, B, C); In(p, A); In(q, A) {
+    LOCAL.repelFn = encourage repel(p.shape, q.shape, 0.001)
+    LOCAL.sameXFn = encourage equal(p.shape.x, q.shape.x)
+}
+
+Point p; Point q
+with Set A; Set B; Set C; Map f; Map g
+where From(f, A, B); From(g, B, C); In(p, C); In(q, C) {
+    LOCAL.repelFn = encourage repel(p.shape, q.shape, 0.001)
+    LOCAL.sameXFn = encourage equal(p.shape.x, q.shape.x)
+}
+
+
+/*
+
+Point p1; Point p2; Point q
+with Map f
+where PairIn(p1, q, f); PairIn(p2, q, f) {
+   -- If two points map to the same point, try to make sure no arrowheads overlap (have the y-positions repel each other)
+   LOCAL.arrowRepelFn = encourage repel(p1.mapShape.endY, p2.mapShape.endY, 0.001)
+}
+
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Onto(f); Not(OneToOne(f)) {
+      override f.text.string = "\\textbf{surjection}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Not(Onto(f)); OneToOne(f) {
+      override f.text.string = "\\textbf{injection}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Not(Onto(f)); Not(OneToOne(f)) {
+      override f.text.string = "\\textbf{general}"
+}
+
+Map f
+with Set domain; Set image
+where From(f, domain, image); Onto(f); OneToOne(f) {
+      override f.text.string = "\\textbf{bijection}"
+}
+*/

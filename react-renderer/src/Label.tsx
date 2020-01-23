@@ -1,8 +1,8 @@
 import * as React from "react";
 import { toScreen, toHex } from "./Util";
-import draggable from "./Draggable";
-import { IGPIPropsDraggable } from "./types";
+import { IGPIProps } from "./types";
 
+// TODO: use JSDOM
 const styleLabel = (
   label: HTMLElement,
   color: string,
@@ -18,21 +18,18 @@ const styleLabel = (
   return label.outerHTML;
 };
 
-class Label extends React.Component<IGPIPropsDraggable> {
+class Label extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
-    const { onClick } = this.props;
+
     const { canvasSize } = this.props;
     const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const { w, h } = shape;
     const color = toHex(shape.color.contents);
     return (
       <g
-        transform={`translate(${x - w.contents / 2},${y - h.contents / 2})`}
-        width={w.contents}
-        height={h.contents}
-        onMouseDown={onClick}
         pointerEvents="bounding-box"
+        transform={`translate(${x - w.contents / 2},${y - h.contents / 2})`}
         dangerouslySetInnerHTML={{
           __html: shape.rendered
             ? styleLabel(shape.rendered.contents, color, w.contents, h.contents)
@@ -42,4 +39,5 @@ class Label extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(Label);
+
+export default Label;

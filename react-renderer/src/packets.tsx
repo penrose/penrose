@@ -13,6 +13,11 @@ export const StepUntilConvergence = (data: any) => ({
   contents: transformValidJSON(data)
 });
 
+export const EnergyValues = (data: any) => ({
+  tag: "EnergyValues",
+  contents: transformValidJSON(data)
+});
+
 export const Resample = (samples: number, data: any) => ({
   tag: "Resample",
   contents: [samples, transformValidJSON(data)]

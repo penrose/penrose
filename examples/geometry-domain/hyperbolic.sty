@@ -36,7 +36,7 @@ G {
   G.arrowheadSize = 0.65
   G.textPadding = 7.0
   G.fontSize = "18pt"
-  G.repelWeight = 0.7
+  G.repelWeight = 0.0
 
   -- Poincare disk: Unit disk at the origin
   G.diskRadius = 1.0
@@ -349,8 +349,8 @@ Triangle t; Angle theta {
 }
 
 Point p; Point q {
-      LOCAL.shapeRepelFn = encourage repel(p.shape, q.shape)
-      LOCAL.labelRepelFn = encourage repel(p.text, q.text)
+      -- LOCAL.shapeRepelFn = encourage repel(p.shape, q.shape)
+      -- LOCAL.labelRepelFn = encourage repel(p.text, q.text)
 }
 
 Point p; Ray r {
