@@ -183,6 +183,8 @@ compDict =
     , ("angle", constComp angleFn)
     , ("sampleUniform", sampleUniformFn)
     , ("makePalette", constComp makePalette)
+    , ("unitMark", constComp unitMark)
+    , ("midpointOffset", constComp midpointOffset)
 
   , ("calcZSphere", constComp calcZSphere)
 
@@ -991,6 +993,14 @@ perpPath [GPI r@("Line", _), GPI l@("Line", _), Val (TupV midpt), Val (FloatV si
       path = Closed $ [Pt ptL, Pt ptLR, Pt ptR, Pt midpt]
   in Val $ PathDataV [path]
 
+-- TODO: Merge withe the linelike selectors; this is duplicated code
+perpPath [GPI r@("Arrow", _), GPI l@("Arrow", _), Val (TupV midpt), Val (FloatV size)] = -- Euclidean
+  let seg1 = (getPoint "start" r, getPoint "end" r)
+      seg2 = (getPoint "start" l, getPoint "end" l)
+      (ptL, ptLR, ptR) = perpPathFlat size seg1 seg2
+      path = Closed $ [Pt ptL, Pt ptLR, Pt ptR, Pt midpt]
+  in Val $ PathDataV [path]
+
 perpPath [Val (ListV p), Val (ListV q), Val (ListV tailv), Val (ListV headv), Val (FloatV arcLen)] = -- Spherical
   let (p', q') = (normalize p, normalize q)
              -- TODO: cache these calculations bc they're recomputed many times in Ray, Triangle, etc.
@@ -1142,6 +1152,7 @@ get' [Val (ListV xs), Val (IntV i)] =
        then error "out of bounds access in get'"
        else Val $ FloatV $ xs !! i'
 get' [Val (TupV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
+get' [Val (PtV (x1, x2)), index] = get' [Val (ListV [x1, x2]), index]
 
 projectVec :: Autofloat a => String -> Pt2 a -> Pt2 a -> a -> [a] -> [a] -> [a] -> a -> [a]
 projectVec name hfov vfov r camera dir vec_math toScreen =
@@ -1292,6 +1303,50 @@ makePalette [Val (ColorV c1), Val (ColorV c2), Val (ColorV c3)] =
 
 makePalette [Val (ColorV c1), Val (ColorV c2), Val (ColorV c3), Val (ColorV c4)] = 
         Val $ PaletteV [c1, c2, c3, c4]
+
+-- padding: distance between arrow and unit marker
+-- size: length of bars on end of unit marker
+unitMark :: ConstCompFn
+-- TODO: Factor out the repeated computations below
+unitMark [GPI v@("Arrow", _), GPI w@("Arrow", _), Val (StrV "body"), Val (FloatV padding), Val (FloatV size)] =
+  let (start, end) = (getPoint "start" v, getPoint "end" v)
+      -- dir = normalize' $ end -: start
+      -- normalDir = rot90 dir
+      -- Assuming w is orthogonal to v, use its opposite dir as the normal, so the unit mark goes to the "outside" of the two vecs
+      (start2, end2) = (getPoint "start" w, getPoint "end" w)
+      dir = normalize' $ end2 -: start2
+      normalDir = (-1.0) *: dir
+      markStart = start +: padding *: normalDir
+      markEnd = end +: padding *: normalDir
+  in Val $ PtListV [markStart, markEnd]
+
+unitMark [Val (PtListV [start, end]), Val (StrV "start"), Val (FloatV padding), Val (FloatV size)] =
+  let dir = normalize' $ end -: start
+      normalDir = rot90 dir
+      markStart = start +: size *: normalDir
+      markEnd = start -: size *: normalDir
+      path = Open $ [Pt markStart, Pt markEnd]
+  in Val $ PathDataV [path]
+
+unitMark [Val (PtListV [start, end]), Val (StrV "end"), Val (FloatV padding), Val (FloatV size)] =
+  let dir = normalize' $ end -: start
+      normalDir = rot90 dir
+      markStart = end +: size *: normalDir
+      markEnd = end -: size *: normalDir
+      path = Open $ [Pt markStart, Pt markEnd]
+  in Val $ PathDataV [path]
+
+midpointOffset :: ConstCompFn
+-- TODO: Factor out the repeated computations below
+midpointOffset [Val (PtListV [start, end]), GPI w@("Arrow", _), Val (FloatV padding)] =
+  let (start2, end2) = (getPoint "start" w, getPoint "end" w) -- Use orthogonal vector to position label in the right direction
+      dir = normalize' $ end2 -: start2
+      normalDir = (-1.0) *: dir
+      -- dir = normalize' $ end -: start
+      -- normalDir = rot90 dir
+      midpointLoc = 0.5 *: (start +: end)
+      midpointOffsetLoc = midpointLoc +: padding *: normalDir
+  in Val $ TupV midpointOffsetLoc
 
 -- TODO: only works for color lists right now
 sampleUniformFn :: CompFn
