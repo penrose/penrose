@@ -158,8 +158,7 @@ workflows:
             - build
           filters:
             branches:
-              ignore:
-                - master
+              only: master
       - aws-ecr/build_and_push_image:
           filters:
             branches:
