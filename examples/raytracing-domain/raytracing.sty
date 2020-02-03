@@ -106,7 +106,7 @@ Camera c {
     }
     c.textLayering = c.text above c.shape
     c.positionFn = encourage near(c.shape, c.text, c.shape.r + c.shape.w / 2.0)
-    c.containsFn = ensure contains(global.container, c.text)
+    c.containsFn = ensure contains(global.container, c.text, 0.0)
 }
 
 -- applies to all scene geometries
@@ -138,7 +138,7 @@ with PathVertex v0; PathEdge e; PathType p {
     LOCAL.angle = atan2(v0.y - c.shape.y, v0.x - c.shape.x)
     v.x = c.shape.x + cos(LOCAL.angle) * c.shape.r
     v.y = c.shape.y + sin(LOCAL.angle) * c.shape.r
-    c.shape.rotation = 180.0 + LOCAL.angle
+    c.shape.rotation = LOCAL.angle
 }
 
 PathVertex v; Path ps

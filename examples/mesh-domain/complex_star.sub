@@ -2,10 +2,10 @@
 Subset S in K, A in K
 A = Star(S) */
 
-SComplex K
-SSubset S, A
-IsSubsetOf(S, K)
-IsSubsetOf(A, K)
+SimplicialComplex K
+SimplicialSet S, A
+SubsetOf(S, K)
+SubsetOf(A, K)
 
 Vertex v
 InVS(v, S)

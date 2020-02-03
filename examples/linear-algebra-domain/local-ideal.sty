@@ -1,0 +1,67 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.green = rgba(0.0, 0.8, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+}
+
+const {
+      const.shape = Circle {
+       	       color : setOpacity(Colors.black, 0.5)
+       	       x : 0.0
+	       y : 0.0
+	       r : 10.0
+	       strokeWidth : 0.0
+       }
+}
+
+Vector v {
+       v.x = 0.0
+       LOCAL.x = 1.0 -- NOT "x = 1.0"
+       v.z = v.x + v.x
+       v.shape = Circle {
+       	       color : setOpacity(Colors.blue, 0.5)
+       	       x : ?
+	       y : ?
+	       r : ?
+	       strokeWidth : 0.0
+       }
+
+       encourage near(v.shape, const.shape) -- Both go on top
+       layer v.shape above const.shape
+}
+
+Vector v; Vector w {
+       v.u = 0.0
+       LOCAL.u = 0.5
+       LOCAL.new = LOCAL.u + v.u
+       LOCAL.shape = Circle {
+       	       color : setOpacity(Colors.green, 0.5)
+       	       x : ?
+	       y : ?
+	       r : 10.0
+	       strokeWidth : 0.0
+       }
+
+       encourage near(LOCAL.shape, const.shape)
+       layer LOCAL.shape above const.shape
+       -- ensure ...
+}
+
+-- There are several options here:
+
+-- 1. optionally completely anonymous *statement* expressions 
+       -- ensure near(...) ==> local.id = ensure near(...)
+       -- or with keyword: [layering] x.shape above y.shape
+       -- these really cannot be referred to, bc person can't guess id
+
+-- 2. *unscoped* but named expressions (e.g. 'x = 5')
+   -- then should "local" be implicitly prepended to them?
+   -- ===> x = 5 => local.x = 5
+   -- they don't belong to a particular substance object anymore--will those objectives, etc. still be found?
+   -- in that case we need to change the expression parser
+   -- these should still be referrable
+
+-- What do we actually write in the paper? #1 only (see the sets listing, and the layer directive)
+-- Which one is higher priority?

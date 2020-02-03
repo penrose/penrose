@@ -1,7 +1,6 @@
 import * as React from "react";
 import { IGPIPropsDraggable, IGPIProps } from "./types";
-import * as isEqual from "react-fast-compare";
-import { LockContext } from "./contexts";
+import isEqual from "react-fast-compare";
 interface IState {
   tempX: number;
   tempY: number;
@@ -15,9 +14,8 @@ interface IState {
     Don't use pointerEvents="bounding-box" on paths (like Line.tsx) is broken
 */
 
-const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
-  return class extends React.Component<IGPIProps, IState> {
-    public static contextType = LockContext;
+const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
+  return class extends React.Component<IGPIPropsDraggable, IState> {
     public static getDerivedStateFromProps(props: IGPIProps, state: IState) {
       if (!isEqual(state.shapeSnapshot, props.shape)) {
         return {
@@ -61,26 +59,26 @@ const draggable = (Child: React.ComponentClass<IGPIPropsDraggable, any>) => {
     };
     public handleMouseDown = (e: React.PointerEvent<any>) => {
       const [x, y] = this.getPosition(e.clientX, e.clientY);
-      const shouldInteract = !this.context;
-      if (shouldInteract) {
-        this.setState({
-          tempX: x + this.state.dx,
-          tempY: y - this.state.dy
-        });
-        // These listeners are applied to the document
-        // because shape-specific listeners don't fire if there's overlapping issues
-        document.addEventListener("mousemove", this.handleMouseMove);
-        document.addEventListener("mouseup", this.handleMouseUp);
-        return this.handleMouseMove;
-      }
-      return null;
+      this.setState({
+        tempX: x + this.state.dx,
+        tempY: y - this.state.dy
+      });
+      // These listeners are applied to the document
+      // because shape-specific listeners don't fire if there's overlapping issues
+      document.addEventListener("mousemove", this.handleMouseMove);
+      document.addEventListener("mouseup", this.handleMouseUp);
+      return this.handleMouseMove;
     };
     public render() {
       const { dy, dx } = this.state;
       // TODO: change opacity effect on mousedown
       return (
-        <g transform={`translate(${-dx},${dy})`}>
-          <Child onClick={this.handleMouseDown} {...this.props} />
+        <g
+          transform={`translate(${-dx},${dy})`}
+          onMouseDown={this.handleMouseDown}
+          // pointerEvents="bounding-box"
+        >
+          <Child {...this.props} />
         </g>
       );
     }

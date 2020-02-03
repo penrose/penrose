@@ -1,0 +1,17 @@
+SimplicialComplex K
+
+Edge e
+InES(e, K)
+
+Subcomplex E
+SubsetOf(E, K)
+E := Closure(e)
+
+SimplicialSet S1
+SubsetOf(S1, K)
+S1 := Link(E)
+
+AutoLabel e
+AutoLabel E
+Label S1 $\mathrm{Lk}(E)$
+Label K $K_2$

@@ -1,0 +1,61 @@
+-- | Sugared version from paper
+-- The expansion process could be done automatically by a plugin...
+-- Point A, B, C, D, E, F, G, H, I, K, L
+-- Triangle ABC, BCF, BDA, ABD, FBC
+-- RightAngle CAB
+-- Segment CB, BD, DE, EC, AL, CF, AD 
+-- Square CBDE, BAGF, ACIH
+-- Rectangle BDLK, CKLE
+
+-- On(L, DE)
+-- Parallel(AL, BD, CE)
+-- -- AL // BD // CE or Perpendicular(AL, DE)
+
+-- -- These statements make sure the three squares (CBDE, BAGF, ACIH) are ``outside'' of the triangle
+-- Angle CBF, BCI, ABD
+-- Obtuse(CBF)
+-- Obtuse(BCI)
+-- Obtuse(ABD)
+
+-- K := Intersect(AL, CB)
+
+Point A, B, C, D, E, F, G, H, I, K, L
+Triangle ABC := MkTriangleP(A, B, C) 
+Triangle BCF := MkTriangleP(B, C, F)
+Triangle BDA := MkTriangleP(B, D, A)
+Triangle ABD := MkTriangleP(A, B, D)
+Triangle FBC := MkTriangleP(F, B, C)
+
+Angle CAB := InteriorAngle(C, A, B)
+Right(CAB)
+
+Segment CB := MkSegment(C, B)
+Segment BD := MkSegment(B, D)
+Segment DE := MkSegment(D, E)
+Segment EC := MkSegment(E, C)
+Segment AL := MkSegment(A, L)
+Segment CF := MkSegment(C, F)
+Segment AD := MkSegment(A, D) 
+
+Square CBDE := MkSquareP(C, B, D, E)
+Square BAGF := MkSquareP(B, A, G, F)
+Square ACIH := MkSquareP(A, C, I, H)
+
+Rectangle BDLK := MkRectangleP(B, D, L, K)
+Rectangle CKLE := MkRectangleP(C, K, L, E)
+
+On(L, DE)
+Perpendicular(AL, DE) -- Alternatively: AL || BD || CE 
+
+-- These statements make sure the three squares (CBDE, BAGF, ACIH) are ``outside'' of the triangle
+
+Angle CBF := InteriorAngle(C, B, F)
+Angle BCI := InteriorAngle(B, C, I)
+Angle DBA := InteriorAngle(D, B, A) -- Can't name an angle the same thing as a triangle, even though they are different types and the same name is allowed
+Obtuse(CBF)
+Obtuse(BCI)
+Obtuse(DBA)
+
+K := Intersection(AL, CB)
+
+AutoLabel All

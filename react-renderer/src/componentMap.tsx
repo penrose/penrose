@@ -19,9 +19,10 @@ import LineTransform from "./LineTransform";
 import Polygon from "./Polygon";
 import ImageTransform from "./ImageTransform";
 import ParallelogramTransform from "./ParallelogramTransform";
+import draggable from "./Draggable";
 
 // prettier-ignore
-const componentMap = {
+export const staticMap = {
   "Circle": Circle,
   "Rectangle": Rectangle,
   "Arc": Arc,
@@ -44,4 +45,7 @@ const componentMap = {
   "ParallelogramTransform": ParallelogramTransform
 };
 
-export default componentMap;
+export const interactiveMap = { ...staticMap };
+Object.keys(interactiveMap).forEach(
+  (key: string) => (interactiveMap[key] = draggable(interactiveMap[key]))
+);

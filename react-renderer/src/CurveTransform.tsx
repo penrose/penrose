@@ -1,8 +1,7 @@
 import * as React from "react";
 import { svgTransformString, toHex, Arrowhead } from "./Util";
 import { flatten } from "lodash";
-import { IGPIPropsDraggable } from "./types";
-import draggable from "./Draggable";
+import { IGPIProps } from "./types";
 
 const toCmdString = (cmd: any, canvasSize: [number, number]) => {
   switch (cmd.tag) {
@@ -58,15 +57,15 @@ const toPathString = (pathData: any[], canvasSize: [number, number]) =>
     })
     .join(" ");
 
-class CurveTransform extends React.Component<IGPIPropsDraggable> {
+class CurveTransform extends React.Component<IGPIProps> {
   public render() {
-    const { shape, onClick } = this.props;
+    const { shape } = this.props;
     const { canvasSize } = this.props;
     const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.color.contents);
     console.log("strokeColor", shape.color.contents, strokeColor);
     const fillColor = toHex(shape.fill.contents);
-    const strokeOpacity = shape.color.contents[3];
+    const strokeOpacity = shape.color.contents.contents[3];
     const fillOpacity = shape.fill.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
     const arrowheadSize = shape.arrowheadSize.contents;
@@ -107,7 +106,6 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
           strokeWidth={strokeWidth}
           strokeOpacity={strokeOpacity}
           fillOpacity={fillOpacity}
-          onMouseDown={onClick}
           d={toPathString(shape.pathData.contents, canvasSize)}
           markerStart={
             shape.leftArrowhead.contents === true ? `url(#${leftArrowId})` : ""
@@ -125,4 +123,4 @@ class CurveTransform extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(CurveTransform);
+export default CurveTransform;

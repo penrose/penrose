@@ -25,6 +25,7 @@ utils/penroseDB.py
 __temp__.als
 *.class
 node_modules/
+**/node_modules/
 *~
 .stack-work/
 build/
@@ -44,3 +45,4 @@ geometric-queries/
 dist-newstyle/
 examples/plugins/alloy/__temp.als__
 .java-version
+temp.als

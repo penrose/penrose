@@ -1,15 +1,15 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import componentMap from "./componentMap";
+import { interactiveMap, staticMap } from "./componentMap";
 import Log from "./Log";
-import { LockContext } from "./contexts";
 import { collectLabels, loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
+import { propagateUpdate, updateVaryingState } from "./PropagateUpdate";
 
 interface IProps {
   lock: boolean;
-  layers: ILayer[];
+  layers?: ILayer[];
   substanceMetadata?: string;
   styleMetadata?: string;
   elementMetadata?: string;
@@ -17,7 +17,7 @@ interface IProps {
   style?: any;
   penroseVersion?: string;
   data: any;
-  updateData(shapes: any, step?: boolean): void;
+  updateData?: (shapes: any, step?: boolean) => void;
 }
 
 class Canvas extends React.Component<IProps> {
@@ -31,114 +31,6 @@ class Canvas extends React.Component<IProps> {
     return name === "Text" ? !(shape.string.contents === "") : true;
   };
 
-  // helper for finding a shape by name
-  public static findShapeProperty = (
-    shapes: any,
-    name: string,
-    property: string
-  ) =>
-    shapes.find((shape: any) => shape[1].name.contents === name)[1][property];
-
-  // helper for updating a pending property given a path
-  public static updateProperty = (translation: any, shapes: any, path: any) => {
-    const [subName, fieldName, propertyName] = path.contents;
-    if (path.tag === "PropertyPath") {
-      return {
-        ...translation,
-        trMap: translation.trMap.map(([sub, fieldDict]: [any, any]) => {
-          // match substance name
-          if (sub.contents === subName.contents) {
-            // TODO: functional-style map on objects doesn't seem to be supported by TS well. Write helpfer?
-            const updatedFieldDict = { ...fieldDict };
-            for (const field of Object.keys(fieldDict)) {
-              const {
-                contents: [, propertyDict]
-              } = fieldDict[field];
-              // match field name
-              if (field === fieldName) {
-                // shape name is a done value of type string, hence the two accesses
-                const shapeName = propertyDict.name.contents.contents;
-                // find property and updated value
-                const propWithUpdate = Canvas.findShapeProperty(
-                  shapes,
-                  shapeName,
-                  propertyName
-                );
-                // update the property in the shape list
-                propWithUpdate.contents = propWithUpdate.updated;
-                const { tag, contents } = propWithUpdate;
-                delete propWithUpdate.updated;
-
-                // update the pending property in the translated by a Done value retrieved from the shapes, which are already updated (in the two lines above)
-                propertyDict[propertyName] = {
-                  tag: "Done",
-                  contents: { tag, contents }
-                };
-              }
-            }
-            return [sub, updatedFieldDict];
-          } else {
-            return [sub, fieldDict];
-          }
-        })
-      };
-    } else {
-      Log.error("Pending field paths are not supported");
-    }
-  };
-
-  public static insertPending = async (data: any) => {
-    return {
-      ...data,
-      // clear up pending paths now that they are updated properly
-      pendingPaths: [],
-      // for each of the pending path, update the translation using the updated shapes with new label dimensions etc.
-      transr: data.pendingPaths.reduce(
-        (trans: any, path: any) =>
-          Canvas.updateProperty(data.transr, data.shapesr, path),
-        data.transr
-      )
-    };
-  };
-
-  /**
-   * Update the varying state with values from `shapes`
-   *
-   * @static
-   * @memberof Canvas
-   */
-  public static updateVaryingState = async (data: any) => {
-    const newVaryingState = [...data.varyingState];
-    await data.varyingPaths.forEach((path: any, index: number) => {
-      // NOTE: We only update property paths since no frontend interactions can change fields
-      // TODO: add a branch for `FieldPath` when this is no longer the case
-      if (path.tag === "PropertyPath") {
-        const [{ contents: subName }, fieldName, propertyName] = path.contents;
-        data.transr.trMap.forEach(
-          ([subVar, fieldDict]: [any, any], fieldIndex: number) => {
-            if (subVar.contents === subName) {
-              const propertyDict = fieldDict[fieldName].contents[1];
-              const shapeName = propertyDict.name.contents.contents;
-              newVaryingState[index] = Canvas.findShapeProperty(
-                data.shapesr,
-                shapeName,
-                propertyName
-              ).contents;
-            }
-          }
-        );
-      }
-    });
-    return {
-      ...data,
-      varyingState: newVaryingState
-    };
-  };
-
-  /**
-   * process a packet from the backend to (1) render the initial state and (2) update the state of the renderer.
-   * @memberof Canvas
-   */
   public static processData = async (data: any) => {
     if (!data.shapesr) {
       return {};
@@ -153,7 +45,7 @@ class Canvas extends React.Component<IProps> {
     );
 
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
-    const processed = await Canvas.insertPending({
+    const processed = await propagateUpdate({
       ...data,
       shapesr: nonEmpties
     });
@@ -174,20 +66,22 @@ class Canvas extends React.Component<IProps> {
    * @memberof Canvas
    */
   public dragEvent = async (id: string, dx: number, dy: number) => {
-    const updated = {
-      ...this.props.data,
-      paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
-      shapesr: this.props.data.shapesr.map(
-        ([type, properties]: [string, any]) => {
-          if (properties.name.contents === id) {
-            return this.dragShape([type, properties], dx, dy);
+    if (this.props.updateData) {
+      const updated = {
+        ...this.props.data,
+        paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
+        shapesr: this.props.data.shapesr.map(
+          ([type, properties]: [string, any]) => {
+            if (properties.name.contents === id) {
+              return this.dragShape([type, properties], dx, dy);
+            }
+            return [type, properties];
           }
-          return [type, properties];
-        }
-      )
-    };
-    const updatedWithVaryingState = await Canvas.updateVaryingState(updated);
-    this.props.updateData(updatedWithVaryingState);
+        )
+      };
+      const updatedWithVaryingState = await updateVaryingState(updated);
+      this.props.updateData(updatedWithVaryingState);
+    }
   };
 
   public dragShape = ([type, properties]: any, dx: number, dy: number) => {
@@ -341,16 +235,15 @@ class Canvas extends React.Component<IProps> {
   };
 
   public renderEntity = ([name, shape]: [string, object], key: number) => {
-    const component = componentMap[name];
+    const component = this.props.lock ? staticMap[name] : interactiveMap[name];
     if (component === undefined) {
       Log.error(`Could not render GPI ${name}.`);
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
-    if (this.svg.current === null) {
+    if (!this.props.lock && this.svg.current === null) {
       Log.error("SVG ref is null");
-      return <g key={key} />;
+      return <g key={key}>broken!</g>;
     }
-    const ctm = this.svg.current.getScreenCTM();
     const canvasSize = this.canvasSize;
     const { dragEvent } = this;
     return React.createElement(component, {
@@ -358,7 +251,7 @@ class Canvas extends React.Component<IProps> {
       shape,
       canvasSize,
       dragEvent,
-      ctm
+      ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null
     });
   };
   public renderLayer = (
@@ -389,7 +282,6 @@ class Canvas extends React.Component<IProps> {
   };
   public render() {
     const {
-      lock,
       layers,
       substanceMetadata,
       styleMetadata,
@@ -406,32 +298,32 @@ class Canvas extends React.Component<IProps> {
     }
 
     return (
-      <LockContext.Provider value={lock}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          version="1.2"
-          width="100%"
-          height="100%"
-          style={style || {}}
-          ref={this.svg}
-          viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
-        >
-          <desc>
-            {`This diagram was created with Penrose (https://penrose.ink)${
-              penroseVersion ? " version " + penroseVersion : ""
-            } on ${new Date()
-              .toISOString()
-              .slice(
-                0,
-                10
-              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
-            {substanceMetadata && `${substanceMetadata}\n`}
-            {styleMetadata && `${styleMetadata}\n`}
-            {elementMetadata && `${elementMetadata}\n`}
-            {otherMetadata && `${otherMetadata}`}
-          </desc>
-          {shapesr.map(this.renderEntity)}
-          {layers.map(({ layer, enabled }: ILayer, key: number) => {
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        version="1.2"
+        width="100%"
+        height="100%"
+        style={style || {}}
+        ref={this.svg}
+        viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
+      >
+        <desc>
+          {`This diagram was created with Penrose (https://penrose.ink)${
+            penroseVersion ? " version " + penroseVersion : ""
+          } on ${new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+          {substanceMetadata && `${substanceMetadata}\n`}
+          {styleMetadata && `${styleMetadata}\n`}
+          {elementMetadata && `${elementMetadata}\n`}
+          {otherMetadata && `${otherMetadata}`}
+        </desc>
+        {shapesr.map(this.renderEntity)}
+        {layers &&
+          layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
               Log.error(`Layer does not exist in deck: ${layer}`);
               return null;
@@ -441,8 +333,7 @@ class Canvas extends React.Component<IProps> {
             }
             return null;
           })}
-        </svg>
-      </LockContext.Provider>
+      </svg>
     );
   }
 }

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { toScreen, toHex, Arrowhead } from "./Util";
-import { IGPIPropsDraggable } from "./types";
-import draggable from "./Draggable";
+import { IGPIPropsDraggable, IGPIProps } from "./types";
 
 const polarToCartesian = (
   centerX: number,
@@ -47,13 +46,13 @@ const describeArc = (
   return d;
 };
 
-class Arc extends React.Component<IGPIPropsDraggable> {
+class Arc extends React.Component<IGPIProps> {
   public render() {
-    const { shape, onClick } = this.props;
+    const { shape } = this.props;
     const { canvasSize } = this.props;
     const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.strokeColor.contents);
-    const strokeOpacity = shape.strokeColor.contents[3];
+    const strokeOpacity = shape.strokeColor.contents.contents[3];
     const fillColor = toHex(shape.fillColor.contents);
     const fillOpacity = shape.fillColor.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
@@ -95,7 +94,6 @@ class Arc extends React.Component<IGPIPropsDraggable> {
           strokeWidth={strokeWidth}
           strokeOpacity={strokeOpacity}
           fillOpacity={fillOpacity}
-          onMouseDown={onClick}
           d={describeArc(x, y, shape.r.contents, startAngle, endAngle)}
           markerStart={
             shape.leftArrowhead.contents === true ? `url(#${leftArrowId})` : ""
@@ -112,4 +110,4 @@ class Arc extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(Arc);
+export default Arc;

@@ -1,0 +1,73 @@
+-- Random seeds; first seed controls the vertex selection, second seed controls the mesh topology
+plugin "ddgjs" (7.0, 3.0)
+
+-- Style and label a distinguished face
+Face f
+where DeclaredF(f); InFS(f, K)
+with SimplicialComplex K {
+     
+     -- Need to pick a color that doesn't "override" the selected edges and vertices!
+     override f.shape.fill = global.selectedFaceColor
+     override f.shape.color = global.selectedFaceColor
+}
+
+-- Relative layerings within a simplicial complex
+Vertex v; Edge e; Face f
+where InVS(v, K); InES(e, K); InFS(f, K)
+with SimplicialComplex K {
+      LOCAL.textLayering1 = v.text above f.shape 
+      -- TODO: this fails because `f` doesn't have its own match
+      LOCAL.textLayering2 = v.text above e.shape
+}
+
+-- Style a SimplicialSet union (of edge and face only! not in general)
+SimplicialSet S
+where SubsetOf(S, K); S := Union(e, f)
+with SimplicialComplex K; Edge e; Face f {
+     override e.shape.color = Colors.green
+     override f.shape.color = setOpacity(Colors.green, 0.2)
+     override f.shape.fill = setOpacity(Colors.green, 0.2)
+}
+
+Vertex v
+where InVS(v, C); C := Closure(v)
+with Subcomplex C {
+     override v.shape.r = global.selectedRadius
+     override v.shape.color = global.closureColor3
+     -- This is being selected; it's just too dark to tell...
+}
+
+------------------ Things in a closure of a subset
+
+Vertex v
+where InVS(v, C); C := Closure(S)
+with Subcomplex C; SimplicialSet S {
+     override v.shape.r = global.selectedRadius
+     override v.shape.color = global.closureColor
+}
+
+Edge e
+where InES(e, C); C := Closure(S)
+with Subcomplex C; SimplicialSet S {
+     -- TODO: edge positions might look weird due to layering with faces?
+      override e.shape.thickness = global.selectedEdgeStroke
+      override e.shape.color = global.closureColor
+      -- override e.shape.color = Colors.red
+}
+
+Face f
+where InFS(f, C); C := Closure(S)
+with Subcomplex C; SimplicialSet S {
+      override f.shape.fill = global.closureColor2
+      override f.shape.color = global.closureColor2
+}
+
+SimplicialSet S
+where S := SetMinus(T, Q); SubsetOf(S, K)
+with SimplicialSet T; SimplicialSet Q; SimplicialComplex K {
+     override K.const_text.string = S.label
+}
+
+Edge e; Face f {
+     LOCAL.layering = e.shape above f.shape
+}

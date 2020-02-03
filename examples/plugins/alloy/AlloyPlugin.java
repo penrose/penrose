@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.io.*;
 import org.json.*;
@@ -31,6 +32,7 @@ import edu.mit.csail.sdg.translator.TranslateAlloyToKodkod;
  * This plugin takes in a Substance program in the set theory or functions domain, translates it into an Alloy program, invoke Alloy to solve for an instance, and parse the instance back into Substance code. For each `Map`, the plugin declares non-empty signatures for the domain and codomain and a relation between them in the body of the signature for the domain. For each of the predicates on a certain function, the plugin generates a corresponding "fact" in Alloy terms, which is a logical statement about a relations. 
  * NOTE: to bulld the plugin, run `make`; to run it, run `java -cp ".:alloy4.2.jar" AlloyPlugin <input-file-name>`
  * NOTE: this plugin requires Java 1.6. On Mac OS Sierra and above, please install "https://support.apple.com/kb/DL1572?locale=en_US"
+ * NOTE: assume each set only to be the domain of __one__ function
  */
 
 @SuppressWarnings( "deprecation" )
@@ -42,6 +44,7 @@ public class AlloyPlugin {
     private int numInstances; // number of total instances generated to be picked at random
     private int maxPts;
     private Map<String, String[]> functions;
+    private Map<String, String> funcByDomain;
     private Map<String, Boolean> truthValues;
     private List<String> surjections, injections, bijections;
 
@@ -52,6 +55,7 @@ public class AlloyPlugin {
         this.numInstances = numInstances;
         this.maxPts       = maxPts;
         this.functions    = new HashMap<String, String[]>();
+        this.funcByDomain = new HashMap<String, String>();
         this.surjections  = new ArrayList<String>();
         this.injections   = new ArrayList<String>();
         this.bijections   = new ArrayList<String>();
@@ -111,21 +115,36 @@ public class AlloyPlugin {
         return this.alloyProg.toString() + "\n" + factString;
     }
 
+    public void mkFunctions() {
+        // for all domains
+        for(String domain : this.funcByDomain.keySet()) {
+            String sig = "some sig " + domain + " { ";
+            String f = this.funcByDomain.get(domain);
+            String[] sets = this.functions.get(f);
+            String codomain = sets[1];
+            if(!funcByDomain.keySet().contains(codomain)) {
+                this.alloyProg.append("some sig " + codomain + " {  }\n");
+            }
+            sig += f + " : " + codomain + " }\n";
+            this.alloyProg.append(sig);
+        }
+    }
+
     public void mkFunction(String f, String domain, String codomain) {
         // some sig A { f : B } 
         // `some` for non-empty: http://alloytools.org/tutorials/day-course/s2_language.pdf
-        String sig1 = "some sig " + codomain + " {  }\n";
-        String sig2 = "some sig " + domain + " { " + f + " : " + codomain + " }\n";
-        this.alloyProg.append(sig1);
-        this.alloyProg.append(sig2);
-        String[] args = {domain, codomain};
-        functions.put(f, args);
+        // String sig2 = "some sig " + domain + " { " + f + " : " + codomain + " }\n";
+        // this.alloyProg.append(sig1);
+        // this.alloyProg.append(sig2);
+        // String[] args = {domain, codomain};
+        // functions.put(f, args);
     }
 
     // Printing solutions randomly
     public void printSols(ArrayList<String> sols) {
         for(int i = 0; i < this.numInstances; i++) {
-            int index = rnd.nextInt(sols.size());
+            // int index = rnd.nextInt(sols.size());
+            int index = 0;
             System.out.println(sols.get(index));
             sols.remove(index);
         }
@@ -147,14 +166,17 @@ public class AlloyPlugin {
         return sb.toString();
     }
 
-    public String translateSet(String set, Module world, A4Solution sol) throws Exception {
+    public String translateSet(Set <String> points, String set, Module world, A4Solution sol) throws Exception {
         Expr e = CompUtil.parseOneExpression_fromString(world, set);
         A4TupleSet tups = (A4TupleSet) sol.eval(e);
         String res = "";
 
         for(A4Tuple t : tups) {
             String id = t.atom(0).replace('$', '_');
-            res += "Point " + id + "\n";
+            if(!points.contains(id)) {
+                res += "Point " + id + "\n";
+                points.add(id);
+            }
             res += "In(" + id + ", " + set + ")\n";
         }
         return res;
@@ -165,7 +187,7 @@ public class AlloyPlugin {
         A4Reporter rep = new A4Reporter();
         ArrayList<String> solStrings = new ArrayList<String>();
 
-        String tempFilename = "__temp.als__";
+        String tempFilename = "temp.als";
         PrintWriter out = new PrintWriter(tempFilename);
         out.println(this.getAlloyProg());
         out.close();
@@ -188,11 +210,13 @@ public class AlloyPlugin {
                 // System.out.println(sol.toString());
                 // sol.writeXML("bijection.xml");
                 String curSolStr = "";
+                Set<String> points = new HashSet<String>();
                 for(String f : this.functions.keySet()) {
                     String[] sets = this.functions.get(f);
                     String domain = sets[0]; String codomain = sets[1];
-                    curSolStr += translateSet(domain, world, sol);
-                    curSolStr += translateSet(codomain, world, sol);
+                    Set<String> imgPoints = new HashSet<String>();
+                    curSolStr += translateSet(points, domain, world, sol);
+                    curSolStr += translateSet(points, codomain, world, sol);
                     Expr e = CompUtil.parseOneExpression_fromString(world, f);
                     //  If this solution is solved and satisfiable, evaluates the
                     //  given expression and returns an A4TupleSet, a java Integer, or a java Boolean.
@@ -201,7 +225,12 @@ public class AlloyPlugin {
                         String p = t.atom(0).replace('$', '_');
                         String q = t.atom(1).replace('$', '_');
                         curSolStr += ("PairIn(" + p + ", " + q + ", " + f + ")\n");
+                        imgPoints.add(q);
                     }
+                    // add unique predicates for each point in the image
+                    for(String p : imgPoints) {
+                        curSolStr += ("InImage(" + p + ", " + f + ")\n");
+                    };
                 }
                 solStrings.add(curSolStr);
                 sol = sol.next();
@@ -214,12 +243,17 @@ public class AlloyPlugin {
     public void processJSON(JSONObject json) {
         List<String> defs = Arrays.asList( "Onto", "OneToOne", "Bijection" );
         // process predicates
-        for(Object o : json.getJSONObject("constraints").getJSONArray("predicates")) {
+        for(Object o : json.getJSONObject("substance").getJSONObject("constraints").getJSONArray("predicates")) {
             JSONObject obj = (JSONObject) o;
             JSONArray arr = obj.getJSONArray("pargs");
             String name = obj.getString("pname");
             if(name.equals("From")) {
-                this.mkFunction(idArg(arr.get(0)), idArg(arr.get(1)), idArg(arr.get(2)));
+                String id = idArg(arr.get(0));
+                String domain = idArg(arr.get(1));
+                String codomain = idArg(arr.get(2));
+                this.funcByDomain.put(domain, id);
+                String[] args = {domain, codomain};
+                this.functions.put(id, args);
             } else if(defs.contains(name)) {
                 this.processDef(name, arr);
             } else if(name.equals("Not")) {
@@ -230,9 +264,9 @@ public class AlloyPlugin {
             }
         }
 
-        System.out.println(this.truthValues.toString());
-
+        // System.out.println(this.truthValues.toString());
         // Post-processing
+        this.mkFunctions();
         this.genFacts();
     }
 
@@ -253,6 +287,8 @@ public class AlloyPlugin {
             this.injections.add(name);
         } else if(type.equals("Bijection")) {
             this.bijections.add(name);
+            this.truthValues.put("Onto" + name, true);
+            this.truthValues.put("OneToOne" + name, true);
         } 
         this.truthValues.put(type + name, true);
         return name;
@@ -281,7 +317,8 @@ public class AlloyPlugin {
 
         // write result to file
         List<String> res = a.run();
-        int index = a.rnd.nextInt(res.size());
+        // int index = a.rnd.nextInt(res.size());
+        int index = 5;
         String output = res.get(index);
         System.out.println("Output from Alloy, translated to Substance: ");
         System.out.println(output);
@@ -324,3 +361,4 @@ public class AlloyPlugin {
 //     this.forAll()
 // }
 //
+

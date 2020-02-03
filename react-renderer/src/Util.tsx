@@ -52,8 +52,8 @@ export const Arrowhead = (props: {
     <marker
       id={props.id}
       markerUnits="strokeWidth"
-      markerWidth={arrow.width * size}
-      markerHeight={arrow.height * size}
+      markerWidth={round2(arrow.width * size)}
+      markerHeight={round2(arrow.height * size)}
       viewBox={arrow.viewbox}
       refX={arrow.refX}
       refY={arrow.refY}
@@ -81,7 +81,6 @@ export const penroseToSVG = (canvasSize: [number, number]) => {
 };
 
 export const penroseTransformStr = (tf: any) => {
-  // console.log("shape transformation", tf);
   const transformList = [
     tf.xScale,
     tf.ySkew,
@@ -102,7 +101,6 @@ export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
   const transformStr = [penroseToSVG(canvasSize), penroseTransformStr(tf)].join(
     " "
   );
-  // console.log("transformStr", transformStr);
   return transformStr;
 };
 
@@ -117,12 +115,65 @@ export const toPointListString = memoize(
       .join(" ")
 );
 
-export const toHex = (rgba: [number, number, number, number]) => {
-  return rgba.slice(0, 3).reduce((prev, cur) => {
+export const getAlpha = (color: any) => color.contents[3];
+
+export const toHexRGB = (color: [number, number, number]): string => {
+  return color.reduce((prev: string, cur: number) => {
     const hex = Math.round(255 * cur).toString(16);
     const padded = hex.length === 1 ? "0" + hex : hex;
     return prev + padded;
   }, "#");
+};
+
+// TODO nest this
+function hsv2rgb(
+  r1: number,
+  g1: number,
+  b1: number,
+  m: number
+): [number, number, number] {
+  return [r1 + m, g1 + m, b1 + m];
+}
+
+// Expects H as angle in degrees, S in [0,100], L in [0,100] and converts the latter two to fractions.
+// Returns rgb in range [0, 1]
+// From https://github.com/d3/d3-hsv/blob/master/src/hsv.js
+export const hsvToRGB = (
+  hsv: [number, number, number]
+): [number, number, number] => {
+  const [h0, s0, v0] = hsv;
+  const h = isNaN(h0) ? 0 : (h0 % 360) + Number(h0 < 0) * 360;
+  const s = isNaN(h0) || isNaN(s0) ? 0 : s0 / 100.0;
+  const v = v0 / 100.0;
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = v - c;
+
+  return h < 60
+    ? hsv2rgb(c, x, 0, m)
+    : h < 120
+    ? hsv2rgb(x, c, 0, m)
+    : h < 180
+    ? hsv2rgb(0, c, x, m)
+    : h < 240
+    ? hsv2rgb(0, x, c, m)
+    : h < 300
+    ? hsv2rgb(x, 0, c, m)
+    : hsv2rgb(c, 0, x, m);
+};
+
+export const toHex = (color: any): string => {
+  if (color.tag === "RGBA") {
+    const rgba = color.contents;
+    return toHexRGB(rgba.slice(0, 3));
+  } else if (color.tag === "HSVA") {
+    const hsv = color.contents.slice(0, 3);
+    const rgb = hsvToRGB(hsv);
+    return toHexRGB(rgb);
+  } else {
+    console.error("color type", color.tag, "unimplemented");
+    return "";
+  }
 };
 
 export const getAngle = (x1: number, y1: number, x2: number, y2: number) => {
@@ -185,6 +236,7 @@ const tex2svg = memoize(
     })
 );
 
+// https://stackoverflow.com/a/44564236
 export const collectLabels = async (allShapes: any[]) => {
   MathJax.Hub.Config({
     skipStartupTypeset: true,
@@ -192,7 +244,6 @@ export const collectLabels = async (allShapes: any[]) => {
     jax: ["input/TeX", "output/SVG"],
     // https://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html
     SVG: {
-      // font: "Gyre-Pagella", // TODO: This doesn't seem to work
       matchFontHeight: false,
       useGlobalCache: false, // Needed for SVG inline export
       useFontCache: false // further reduces the reuse of paths
@@ -257,4 +308,32 @@ export const loadImages = async (allShapes: any[]) => {
       }
     })
   );
+};
+
+export const round2 = (n: number) => roundTo(n, 2);
+
+// https://stackoverflow.com/questions/15762768/javascript-math-round-to-two-decimal-places
+// Ported so string conversion works in typescript...
+export const roundTo = (n: number, digits: number) => {
+  let negative = false;
+
+  if (digits === undefined) {
+    digits = 0;
+  }
+
+  if (n < 0) {
+    negative = true;
+    n = n * -1;
+  }
+
+  const multiplicator = Math.pow(10, digits);
+  const nNum = parseFloat((n * multiplicator).toFixed(11));
+  const n2 = parseFloat((Math.round(nNum) / multiplicator).toFixed(2));
+  let n3 = n2;
+
+  if (negative) {
+    n3 = parseFloat((n2 * -1).toFixed(2));
+  }
+
+  return n3;
 };

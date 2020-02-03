@@ -35,6 +35,7 @@ import           Penrose.Shapes
 import           Penrose.Style
 import qualified Penrose.Substance     as C
 import qualified Penrose.SubstanceJSON as J
+import System.IO.Unsafe (unsafePerformIO)
 import           Penrose.Transforms
 import           Penrose.Util
 import           System.Console.Pretty (Color (..), Style (..), bgColor, color,
@@ -186,6 +187,7 @@ data State = State { shapesr :: [Shape Double],
                      constrFns :: [Fn],
                      rng :: StdGen,
                      autostep :: Bool, -- TODO: deprecate this
+                     selectorMatches :: [Int],
                     --  policyFn :: Policy,
                      policyParams :: PolicyParams,
                      oConfig :: OptConfig }
@@ -218,6 +220,7 @@ evalIterRange = (startingIteration, maxEvalIteration)
 initRng :: StdGen
 initRng = mkStdGen seed
     where seed = 17 -- deterministic RNG with seed
+-- initRng = unsafePerformIO newStdGen -- random RNG with seed
 
 --------------- Parameters used in optimization
 -- Should really be in Optimizer, but need to fix module import structure
@@ -650,14 +653,14 @@ evalExpr (i, n) arg trans varyMap g =
                 --           (res, trans')
             List es ->
                 let (vs, trans', g') = evalExprs limit es trans varyMap g
-                    floatvs = map checkFloatType vs
+                    floatvs = map checkListElemType vs
                 in (Val $ ListV floatvs, trans', g')
 
             ListAccess p i -> error "TODO list accesses"
 
             Tuple e1 e2 ->
                 let (vs, trans', g') = evalExprs limit [e1, e2] trans varyMap g
-                    [v1, v2] = map checkFloatType vs
+                    [v1, v2] = map checkListElemType vs
                 in (Val $ TupV (v1, v2), trans', g')
 
             -- Needs a recursive lookup that may change trans. The path case is where trans is actually changed.
@@ -713,9 +716,9 @@ evalExpr (i, n) arg trans varyMap g =
             PluginAccess _ _ _ -> error "plugin access should not be evaluated at runtime"
             -- xs -> error ("unmatched case in evalExpr with argument: " ++ show xs)
 
-checkFloatType :: (Autofloat a) => ArgVal a -> a
-checkFloatType (Val (FloatV x)) = x
-checkFloatType _ = error "expected float type"
+checkListElemType :: (Autofloat a) => ArgVal a -> a
+checkListElemType (Val (FloatV x)) = x
+checkListElemType _ = error "expected float type"
 
 -- Any evaluated exprs are cached in the translation for future evaluation
 -- The varyMap is not changed because its values are final (set by the optimization)
@@ -911,17 +914,21 @@ reachableFromAny graph node =
   elem node . concatMap (Graph.reachable graph)
 
 -- | 'topSortLayering' takes in a list of all GPI names and a list of directed edges [(a -> b)] representing partial layering orders as input and outputs a linear layering order of GPIs
-topSortLayering :: [String] -> [(String, String)] -> [String]
+topSortLayering :: [String] -> [(String, String)] -> Maybe [String]
 topSortLayering names partialOrderings =
-    let orderedNodes = nodesFromEdges partialOrderings
-        freeNodes = Set.difference (Set.fromList names) orderedNodes
-        edges = map (\(x, y) -> (x, x, y)) $ adjList partialOrderings
-                    ++ (map (\x -> (x, [])) $ Set.toList freeNodes)
-        (graph, nodeFromVertex, vertexFromKey) = Graph.graphFromEdges edges
-        cyclic = not . null $ cyclicNodes graph
-    in if cyclic then error "The graph is cyclic!" else map (getNodePart . nodeFromVertex) $ Graph.topSort graph
-    where
-        getNodePart (n, _, _) = n
+  let orderedNodes = nodesFromEdges partialOrderings
+      freeNodes = Set.difference (Set.fromList names) orderedNodes
+      edges =
+        map (\(x, y) -> (x, x, y)) $
+        adjList partialOrderings ++ (map (\x -> (x, [])) $ Set.toList freeNodes)
+      (graph, nodeFromVertex, vertexFromKey) = Graph.graphFromEdges edges
+      cyclic = not . null $ cyclicNodes graph
+  in if cyclic
+       then Nothing
+       else Just $ map (getNodePart . nodeFromVertex) $ Graph.topSort graph
+  where
+    getNodePart (n, _, _) = n
+
 
 nodesFromEdges edges = Set.fromList $ concatMap (\(a, b) -> [a, b]) edges
 
@@ -931,7 +938,7 @@ adjList edges =
     in map (\x -> (x, findNeighbors x)) nodes
     where findNeighbors node = map snd $ filter ((==) node . fst) edges
 
-computeLayering :: (Autofloat a) => Translation a -> [String]
+computeLayering :: (Autofloat a) => Translation a -> Maybe [String]
 computeLayering trans =
     let layeringExprs = findLayeringExprs trans
         partialOrderings = map findNames layeringExprs
@@ -994,7 +1001,8 @@ genOptProblemAndState trans optConfig =
                                  autostep = False, -- default
                                  policyParams = initPolicyParams,
                                 --  policyFn = policyToUse,
-                                 oConfig = optConfig
+                                 oConfig = optConfig,
+                                 selectorMatches = [] -- to be filled in by caller (compileStyle)
                                } in
 
     -- initPolicy  -- TODO: rewrite to avoid the use of lambda functions
@@ -1003,53 +1011,69 @@ genOptProblemAndState trans optConfig =
     -- resampleBest numStateSamples initFullState
 
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
--- NOTE: this function also print information out to stdout
 -- TODO: enable logger
-compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> IO State
-compileStyle styProg (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
-   putStrLn "Running Style semantics\n"
-   let selEnvs = checkSels subEnv styProg
+compileStyle :: StyProg -> C.SubOut -> [J.StyVal] -> OptConfig -> Either CompilerError State
+compileStyle styProgInit (C.SubOut subProg (subEnv, eqEnv) labelMap) styVals optConfig = do
+    let selEnvs = checkSels subEnv styProgInit
+    let subss = find_substs_prog subEnv eqEnv subProg styProgInit selEnvs
+    -- Preprocess Style program to turn anonymous assignments into named ones
+    let styProg = nameAnonStatements styProgInit
 
-   putStrLn "Selector static semantics and local envs:\n"
-   forM_ selEnvs pPrint
-   divLine
+    -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
+    -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
+    -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
+    -- This greatly improves the performance of the system. See #166 for more details.
+    let trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals :: Either [Error] (Translation Double)
+    case trans of
+        Left errs -> Left $ StyleTypecheck errs
+        Right transAuto -> do
+            let initState = genOptProblemAndState transAuto optConfig
+            case computeLayering transAuto of 
+                Just gpiOrdering -> Right $ initState { selectorMatches = map length subss, shapeOrdering = gpiOrdering } 
+                Nothing -> Left $ StyleLayering "The graph formed by partial ordering of GPIs is cyclic and therefore can't be sorted." 
 
-   let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
-   putStrLn "Selector matches:\n"
-   forM_ subss pPrint
-   divLine
+ -- putStrLn "Parsed Style program\n"
+   -- pPrint styProgInit
+   -- divLine
 
-   let !trans = translateStyProg subEnv eqEnv subProg styProg labelMap styVals
-                       :: Either [Error] (Translation Double)
-                       -- NOT :: forall a . (Autofloat a) => Either [Error] (Translation a)
-                       -- We intentionally specialize/monomorphize the translation to Float so it can be fully evaluated
-                       -- and is not trapped under the lambda of the typeclass (Autofloat a) => ...
-                       -- This greatly improves the performance of the system. See #166 for more details.
---    let transAuto = castTranslation $ fromRight trans
---                        :: forall a . (Autofloat a) => Translation a
-   let transAuto = fromRight trans 
+   -- Preprocess Style program to turn anonymous assignments into named ones
+--    let styProg = nameAnonStatements styProgInit
 
-   putStrLn "Translated Style program:\n"
-   pPrint trans
-   divLine
+   -- putStrLn "Named Style program\n"
+   -- pPrint styProg
+   -- divLine
 
-   let initState = genOptProblemAndState transAuto optConfig
-   putStrLn "Generated initial state:\n"
-   print initState
-   divLine
+--    putStrLn "Running Style semantics\n"
+--    let selEnvs = checkSels subEnv styProg
 
-   -- global layering order computation
-   let gpiOrdering = computeLayering transAuto
-   putStrLn "Generated GPI global layering:\n"
-   print gpiOrdering
-   divLine
+--    putStrLn "Selector static semantics and local envs:\n"
+--    forM_ selEnvs pPrint
+--    divLine
 
-   let initState' = initState { shapeOrdering = gpiOrdering }
+--    let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
+--    putStrLn "Selector matches:\n"
+--    forM_ subss pPrint
+--    divLine
 
-   putStrLn (bgColor Cyan $ style Italic "   Style program warnings   ")
-   let warns = warnings transAuto
-   putStrLn (color Red $ intercalate "\n" warns ++ "\n")
-   return initState'
+--    let subss = find_substs_prog subEnv eqEnv subProg styProg selEnvs
+--    putStrLn "(Selector * matches for that selector):\n"
+--    forM_ (zip selEnvs subss) pPrint
+--    divLine
+
+--    putStrLn "Translated Style program:\n"
+--    pPrint trans
+--    divLine
+
+--    let initState = genOptProblemAndState transAuto optConfig
+--    putStrLn "Generated initial state:\n"
+--    print initState
+--    divLine
+
+--    -- global layering order computation
+--    let gpiOrdering = computeLayering transAuto
+--    putStrLn "Generated GPI global layering:\n"
+--    print gpiOrdering
+--    divLine
 
 -- | After monomorphizing the translation's type (to make sure it's computed), we generalize the type again, which means
 -- | it's again under a typeclass lambda. (#166)

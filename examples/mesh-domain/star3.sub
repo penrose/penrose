@@ -1,0 +1,12 @@
+SimplicialComplex K
+
+Edge e
+InES(e, K)
+
+SimplicialSet S1
+SubsetOf(S1, K)
+S1 := Star(e)
+
+Label S1 $\mathrm{St}(e)$
+AutoLabel K
+AutoLabel e

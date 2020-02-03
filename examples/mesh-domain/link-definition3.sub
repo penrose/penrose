@@ -1,0 +1,37 @@
+SimplicialComplex K
+
+Edge e
+InES(e, K)
+
+SimplicialSet S1
+SubsetOf(S1, K)
+S1 := Star(e)
+
+Subcomplex A
+SubsetOf(A, K)
+A := Closure(S1)
+
+Label A $\mathrm{Cl}(\mathrm{St}(e))$
+AutoLabel e
+AutoLabel K
+AutoLabel S1
+
+----------------
+
+Subcomplex B
+B := Closure(e)
+
+SimplicialSet S2
+SubsetOf(S2, K) -- TODO: Should this be A or K? Or both?
+S2 := Star(B)
+
+AutoLabel B
+Label S2 $\mathrm{St}(\mathrm{Cl}(e))$ -- TODO: remove these labels
+
+----------------
+
+SimplicialSet S3
+SubsetOf(S3, K)
+S3 := SetMinus(A, S2)
+
+Label S3 $\mathrm{Cl}(\mathrm{St}(e)) \setminus \mathrm{St}(\mathrm{Cl}(e))$

@@ -7,7 +7,7 @@ tconstructor Halfedge : type
 tconstructor Vertex : type
 tconstructor Face : type
 -- tconstructor SimplicialComplex : type
--- tconstructor SimplicialSubset : type
+-- tconstructor SimplicialSet : type
 tconstructor Mesh : type
 tconstructor MeshSubset : type
 

@@ -1,12 +1,11 @@
 import * as React from "react";
 
-import { IGPIPropsDraggable } from "./types";
-import draggable from "./Draggable";
+import { IGPIProps } from "./types";
 import { toHex, svgTransformString, Arrowhead } from "./Util";
 
-class LineTransform extends React.Component<IGPIPropsDraggable> {
+class LineTransform extends React.Component<IGPIProps> {
   public render() {
-    const { shape, canvasSize, onClick } = this.props;
+    const { shape, canvasSize } = this.props;
     const style = shape.style.contents;
     const [sx, sy] = [shape.startX.contents, shape.startY.contents];
     const [ex, ey] = [shape.endX.contents, shape.endY.contents];
@@ -14,7 +13,7 @@ class LineTransform extends React.Component<IGPIPropsDraggable> {
     const strokeColor = toHex(shape.color.contents);
     const thickness = shape.thickness.contents;
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
-    const strokeOpacity = shape.color.contents[3];
+    const strokeOpacity = shape.color.contents.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
     const arrowheadSize = shape.arrowheadSize.contents;
 
@@ -46,7 +45,6 @@ class LineTransform extends React.Component<IGPIPropsDraggable> {
 
         <path
           d={path}
-          onMouseDown={onClick}
           fillOpacity={strokeOpacity}
           strokeOpacity={strokeOpacity}
           stroke={strokeColor}
@@ -68,4 +66,4 @@ class LineTransform extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(LineTransform);
+export default LineTransform;

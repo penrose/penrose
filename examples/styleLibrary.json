@@ -3,6 +3,7 @@
     "value": 0,
     "label": "venn",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Venn.svg?sanitize=true",
+    "plugin": false,
     "element": 0,
     "uri": "set-theory-domain/venn.sty"
   },
@@ -10,6 +11,7 @@
     "value": 1,
     "label": "tree",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Tree.svg?sanitize=true",
+    "plugin": false,
     "element": 0,
     "uri": "set-theory-domain/tree.sty"
   },
@@ -17,6 +19,7 @@
     "value": 2,
     "label": "points",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Points.svg?sanitize=true",
+    "plugin": false,
     "element": 0,
     "uri": "set-theory-domain/venn-pt.sty"
   },
@@ -24,6 +27,7 @@
     "value": 3,
     "label": "cartesian",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Cartesian.svg?sanitize=true",
+    "plugin": false,
     "element": 1,
     "uri": "linear-algebra-domain/linear-algebra.sty"
   },
@@ -31,6 +35,7 @@
     "value": 4,
     "label": "perpendicular",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Reals.svg?sanitize=true",
+    "plugin": false,
     "element": 2,
     "uri": "real-analysis-domain/perpendicular-RA.sty"
   },
@@ -38,6 +43,7 @@
     "value": 5,
     "label": "discrete",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Surjection.svg?sanitize=true",
+    "plugin": true,
     "element": 3,
     "uri": "set-theory-domain/discrete.sty"
   },
@@ -45,6 +51,7 @@
     "value": 6,
     "label": "parallel",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Reals.svg?sanitize=true",
+    "plugin": false,
     "element": 2,
     "uri": "real-analysis-domain/parallel-RA.sty"
   },
@@ -52,6 +59,7 @@
     "value": 7,
     "label": "continuous",
     "icon": "https://gist.githubusercontent.com/maxkrieger/24d8457908eba438927a9ef818d8fddd/raw/e6fc00dc6faa4abeb6329bac3f4711a12584a37a/Continuous.svg?sanitize=true",
+    "plugin": false,
     "element": 0,
     "uri": "set-theory-domain/continuousmap.sty"
   },
@@ -59,6 +67,7 @@
     "value": 8,
     "label": "euclidean",
     "icon": "https://gist.githubusercontent.com/maxkrieger/24d8457908eba438927a9ef818d8fddd/raw/e6fc00dc6faa4abeb6329bac3f4711a12584a37a/Continuous.svg?sanitize=true",
+    "plugin": false,
     "element": 3,
     "uri": "geometry-domain/euclidean.sty"
   },
@@ -67,6 +76,7 @@
     "label": "spherical",
     "icon": "https://gist.githubusercontent.com/maxkrieger/24d8457908eba438927a9ef818d8fddd/raw/e6fc00dc6faa4abeb6329bac3f4711a12584a37a/Continuous.svg?sanitize=true",
     "element": 3,
+    "plugin": false,
     "uri": "geometry-domain/spherical.sty"
   },
   {
@@ -74,6 +84,7 @@
     "label": "hyperbolic",
     "icon": "https://gist.githubusercontent.com/maxkrieger/24d8457908eba438927a9ef818d8fddd/raw/e6fc00dc6faa4abeb6329bac3f4711a12584a37a/Continuous.svg?sanitize=true",
     "element": 3,
+    "plugin": false,
     "uri": "geometry-domain/hyperbolic.sty"
   },
   {
@@ -81,6 +92,7 @@
     "label": "venn-3d",
     "icon": "https://gist.githubusercontent.com/maxkrieger/65b0f7e2a151bb95e2913fda6ad7eaaa/raw/d5e80084cb5d907d3a2a5375c76d5c51ce8c30da/Venn.svg?sanitize=true",
     "element": 0,
+    "plugin": false,
     "uri": "set-theory-domain/venn-3d.sty"
   },
   {
@@ -88,6 +100,7 @@
     "label": "discrete",
     "icon": "https://gist.githubusercontent.com/wodeni/e79dcfc82504796cd169ad5e44c7c970/raw/fc9f3008643839dcf284b45b251915366ea98eed/continuous-function.svg?sanitize=true",
     "element": 4,
+    "plugin": true,
     "uri": "functions-domain/discrete.sty"
   },
   {
@@ -95,6 +108,7 @@
     "label": "continuous",
     "icon": "https://gist.githubusercontent.com/maxkrieger/24d8457908eba438927a9ef818d8fddd/raw/e6fc00dc6faa4abeb6329bac3f4711a12584a37a/Continuous.svg?sanitize=true",
     "element": 4,
+    "plugin": false,
     "uri": "functions-domain/continuous.sty"
   },
   {

@@ -1,0 +1,17 @@
+SimplicialComplex K
+
+Edge e
+InES(e, K)
+
+SimplicialSet S1
+SubsetOf(S1, K)
+S1 := Star(e)
+
+Subcomplex A
+SubsetOf(A, K)
+A := Closure(S1)
+
+Label A $\mathrm{Cl}(\mathrm{St}(e))$
+AutoLabel e
+AutoLabel K
+Label S1 $S_1$

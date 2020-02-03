@@ -179,6 +179,7 @@ data Stmt
     = Assign Path Expr
     | Override Path Expr
     | Delete Path
+    | AnonAssign Expr -- Anonymous statement; expression which is automatically given a name by the compiler (LOCAL.id)
     deriving (Show, Eq, Typeable)
 
 -- | A field declaration in a Style constructor binds an expression to a
@@ -253,6 +254,7 @@ header = tryChoice [Select <$> selector, Namespace <$> styVar]
 -- TODO: clear up the `scn` calls for all parsers and establish the convention of calling scn AFTER each parser
 selector :: Parser Selector
 selector = do
+    optional $ rword "forall"
     hd       <- fmap concat $ declPattern `sepBy1` semi' <* scn
     (wi, wh) <- withAndWhere
     ns       <- optional $ namespace <* scn
@@ -339,9 +341,14 @@ block :: Parser [Stmt]
 block = stmt `sepEndBy` newline'
 
 stmt :: Parser Stmt
-stmt = tryChoice [assign, override, delete]
+stmt = tryChoice [assign, anonAssign, override, delete]
 
-assign, override, delete :: Parser Stmt
+-- Only certain kinds of "imperative" expressions can be anonymous (i.e. `1+5` can't be)
+anonExpr :: Parser Expr
+anonExpr = tryChoice [layeringExpr, objFn, constrFn]
+
+anonAssign, assign, override, delete :: Parser Stmt
+anonAssign = AnonAssign <$> anonExpr
 assign   = Assign   <$> path <*> (eq >> expr)
 override = Override <$> (rword "override" >> path) <*> (eq >> expr)
 delete   = Delete   <$> (rword "delete"   >> path)
@@ -402,13 +409,28 @@ aOperators =
         -- Lowest precedence
     ]
 
+-- Parse permissively with or without the `layer` keyword (so we don't need to port all the old Style programs for now)
+-- TODO: port them to use `layer`
 layeringExpr :: Parser Expr
-layeringExpr = try layeringAbove <|> layeringBelow
+-- layeringExpr = try layeringAbove <|> layeringBelow
+layeringExpr = tryChoice [layeringAbove, layeringBelow, layeringAboveKeyword, layeringBelowKeyword]
     where
         layeringBelow = Layering <$> path <* rword "below" <*> path
         layeringAbove = do
             path1 <- path
             rword "above"
+            path2 <- path
+            return $ Layering path2 path1
+        layeringAboveKeyword = do
+            rword "layer"
+            path1 <- path
+            rword "above"
+            path2 <- path
+            return $ Layering path2 path1
+        layeringBelowKeyword = do
+            rword "layer"
+            path1 <- path
+            rword "below"
             path2 <- path
             return $ Layering path2 path1
 
@@ -489,7 +511,9 @@ trM3 = mkTr debugM3
 -- g ::= B => |T
 -- Assumes nullary type constructors (i.e. Style type = Substance type)
 data SelEnv = SelEnv { sTypeVarMap :: M.Map BindingForm StyT, -- B : |T
-                       sErrors :: [String] }
+                       sErrors :: [String],
+                       skipBlock :: Bool }
+                       -- Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
               deriving (Show, Eq, Typeable)
 
 type Error = String
@@ -497,7 +521,7 @@ type Error = String
 ------------ Helper functions on envs
 
 initSelEnv :: SelEnv
-initSelEnv = SelEnv { sTypeVarMap = M.empty, sErrors = [] }
+initSelEnv = SelEnv { sTypeVarMap = M.empty, sErrors = [], skipBlock = False }
 
 -- g, x : |T
 addMapping :: BindingForm -> StyT -> SelEnv -> SelEnv
@@ -642,9 +666,12 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
                          -- G(x) = T
                          let subType = M.lookup subVar $ varMap varEnv in
                          case subType of
-                         Nothing -> let err = "Substance variable '" ++ show subVar ++
+                         Nothing -> selEnv' { skipBlock = True } 
+                                    -- If any Substance variable doesn't exist in env, ignore it, 
+                                    -- but flag it so we know to not translate the lines in the block later.
+                                    {- let err = "Substance variable '" ++ show subVar ++
                                               "' does not exist in environment. \n" {- ++ show varEnv -} in
-                                    addErr err selEnv'
+                                    addErr err selEnv' -}
                          Just subType' ->
                              -- check "T <: |T", assuming type constructors are nullary
                              let declType = toSubType styType in
@@ -1029,7 +1056,6 @@ find_substs_sel varEnv subEnv subProg (Select sel, selEnv) =
         initSubsts       = []
         rawSubsts        = matchDecls varEnv subProg decls initSubsts
         subst_candidates = filter (fullSubst selEnv)
-                           $ trace ("rawSubsts: # " ++ show (length rawSubsts))
                            rawSubsts
         -- TODO: check validity of subst_candidates (all StyVars have exactly one SubVar)
         filtered_substs  = trM1 ("candidates: " ++ show subst_candidates) $
@@ -1332,11 +1358,14 @@ translatePair varEnv subEnv subProg trans ((Namespace styVar, block), blockNum) 
 translatePair varEnv subEnv subProg trans ((header@(Select sel), block), blockNum) =
     let selEnv = checkSel varEnv sel
         bErrs  = checkBlock selEnv block in
-    if null (sErrors selEnv) && null bErrs
-        then let substs = find_substs_sel varEnv subEnv subProg (header, selEnv) in
-             let numberedSubsts = zip substs [0..] in -- For creating unique local var names
-             translateSubstsBlock trans numberedSubsts (block, blockNum)
-        else Left $ sErrors selEnv ++ bErrs
+    -- If any Substance variable in the selector environment doesn't exist in the Substance program (e.g. Set `A`), 
+    -- skip this block (because the Substance variable won't exist in the translation)
+    if skipBlock selEnv then Right trans
+    else if null (sErrors selEnv) && null bErrs
+         then let substs = find_substs_sel varEnv subEnv subProg (header, selEnv) in
+              let numberedSubsts = zip substs [0..] in -- For creating unique local var names
+              translateSubstsBlock trans numberedSubsts (block, blockNum)
+         else Left $ sErrors selEnv ++ bErrs
 
 insertLabels :: (Autofloat a, Eq a) => Translation a -> C.LabelMap -> Translation a
 insertLabels trans labels =
@@ -1469,8 +1498,30 @@ translateStyProg varEnv subEnv subProg styProg labelMap styVals =
                   transWithNamesAndLabels = insertLabels transWithNames labelMap 
                   styValMap = styJsonToMap styVals
                   transWithPlugins = evalPluginAccess styValMap transWithNamesAndLabels
-              in trace "translateStyProg: " $ Right transWithPlugins
+              in Right transWithPlugins
         Left errors -> Left errors
+
+-- Style AST preprocessing:
+-- For any anonymous statement only (e.g. `encourage near(x.shape, y.shape)`), 
+-- replace it with a named statement (`local.<UNIQUE_ID> = encourage near(x.shape, y.shape)`)
+-- Note the UNIQUE_ID only needs to be unique within a block (since local will assign another ID that's globally-unique)
+-- Leave all other statements unchanged
+
+anonKeyword :: String
+anonKeyword = "ANON"
+
+nameAnonStatements :: StyProg -> StyProg
+nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
+                   where nameAnonBlock :: Block -> Block
+                         nameAnonBlock b = let (count, res) = foldl nameAnonStatement (0, []) b in res
+
+                         nameAnonStatement :: (Int, Block) -> Stmt -> (Int, Block)
+                         -- Assign the path "local.ANON_$counter" and increment counter
+                         nameAnonStatement (i, b) (AnonAssign e) = 
+                                           let path = FieldPath (BStyVar (StyVar' localKeyword)) (anonKeyword ++ "_" ++ show i)
+                                               stmt = Assign path e in
+                                           (i + 1, b ++ [stmt])
+                         nameAnonStatement (i, b) s = (i, b ++ [s])
 
 ---------- Plugin accessors
 

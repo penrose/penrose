@@ -494,7 +494,7 @@ addDeclaredName a e =
   if a `elem` declaredNames e
     then e
          { errors =
-             errors e ++ "Name " ++ a ++ " already exsist in the context \n"
+             errors e ++ "Name " ++ a ++ " already exists in the context \n"
          }
     else e {declaredNames = a : declaredNames e}
 
@@ -662,7 +662,7 @@ checkDeclaredType e (TConstr t) =
     else e
          { errors =
              errors e ++
-             "Type " ++ nameCons t ++ " does not exsist in the context \n"
+             "Type " ++ nameCons t ++ " does not exist in the context \n"
          }
 checkDeclaredType e _ =
   e

@@ -1,0 +1,11 @@
+SimplicialComplex K
+Vertex i
+InVS(i, K)
+
+SimplicialSet S1
+SubsetOf(S1, K)
+S1 := Link(i) -- Final
+
+AutoLabel i
+Label S1 $Lk(i)$
+Label K $K_2$

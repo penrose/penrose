@@ -1,12 +1,11 @@
 import * as React from "react";
 
-import { IGPIPropsDraggable } from "./types";
-import draggable from "./Draggable";
+import { IGPIProps } from "./types";
 import { toScreen, toHex, Arrowhead } from "./Util";
 
-class Line extends React.Component<IGPIPropsDraggable> {
+class Line extends React.Component<IGPIProps> {
   public render() {
-    const { shape, canvasSize, onClick } = this.props;
+    const { shape, canvasSize } = this.props;
     const style = shape.style.contents;
     const [sx, sy] = toScreen(
       [shape.startX.contents, shape.startY.contents],
@@ -16,11 +15,18 @@ class Line extends React.Component<IGPIPropsDraggable> {
       [shape.endX.contents, shape.endY.contents],
       canvasSize
     );
+
+      // Rounding for illustrator? Doesn't seem to work
+      /* sx = round2(sx);
+       * sy = round2(sy);
+       * ex = round2(ex);
+       * ey = round2(ey);*/
+
     const path = `M ${sx} ${sy} L ${ex} ${ey}`;
     const color = toHex(shape.color.contents);
     const thickness = shape.thickness.contents;
     const strokeDasharray = style === "dashed" ? "7, 5" : "";
-    const opacity = shape.color.contents[3];
+    const opacity = shape.color.contents.contents[3];
     const arrowheadStyle = shape.arrowheadStyle.contents;
     const arrowheadSize = shape.arrowheadSize.contents;
 
@@ -46,7 +52,6 @@ class Line extends React.Component<IGPIPropsDraggable> {
 
         <path
           d={path}
-          onMouseDown={onClick}
           fillOpacity={opacity}
           strokeOpacity={opacity}
           stroke={color}
@@ -67,4 +72,4 @@ class Line extends React.Component<IGPIPropsDraggable> {
     );
   }
 }
-export default draggable(Line);
+export default Line;
