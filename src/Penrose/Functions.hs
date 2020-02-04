@@ -1908,7 +1908,7 @@ repel [GPI a, GPI b, Val (FloatV weight)] =
 --         repel' (endx' c, endy' c) (xl' d, yl' d)
 -- repel [A' c, C' d] [] = repel' (startx' c, starty' c) (xc' d, yc' d) +
 --         repel' (endx' c, endy' c) (xc' d, yc' d)
--- repel [IM' c, IM' d] [] = 1 / (distsq (xim' c, yim' c) (xim' d, yim' d) + epsd) - sizeXim' c - sizeXim' d --TODO Lily check this math is correct
+-- repel [IM' c, IM' d] [] = 1 / (distsq (xim' c, yim' c) (xim' d, yim' d) + epsd) - wim' c - wim' d --TODO Lily check this math is correct
 -- repel [a, b] [] = if a == b then 0 else 1 / (distsq (getX a, getY a) (getX b, getY b) )
 topRightOf :: ObjFn
 topRightOf [GPI l@("Text", _), GPI s@("Square", _)] =
@@ -2036,11 +2036,11 @@ contains [GPI s@("Square", _), GPI l@("Text", _)] =
   getNum l "w" / 2
 contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
-  dist (getX l, getY l) (getX r, getY r) - getNum r "sizeX" / 2 +
+  dist (getX l, getY l) (getX r, getY r) - getNum r "w" / 2 +
   getNum l "w" / 2 + padding
 contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
              -- HACK: reusing test impl, revert later
-             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+             let r_l = min (getNum r "w") (getNum r "h") / 2
                  diff = r_l - getNum c "r"
              in dist (getX r, getY r) (getX c, getY c) - diff + padding
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
@@ -2106,7 +2106,7 @@ contains [GPI r@("Rectangle", _), GPI c@("Circle", _)] =
     in dist (getX r, getY r) (getX c, getY c) - diff
 
 contains [GPI r@("Rectangle", _), Val (TupV (x, y)), Val (FloatV padding)] =
-             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+             let r_l = min (getNum r "w") (getNum r "h") / 2
              in dist (getX r, getY r) (x, y) - r_l + padding
 contains [GPI sq@("Square", _), GPI ar@("Line", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
@@ -2119,7 +2119,7 @@ contains [GPI sq@("Square", _), GPI ar@("Line", _)] =
 contains [GPI rt@("Rectangle", _), GPI ar@("Line", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
       (x, y) = (getX rt, getY rt)
-      (w, h) = (getNum rt "sizeX", getNum rt "sizeY")
+      (w, h) = (getNum rt "w", getNum rt "h")
       (lx, ly) = (x - w / 2, y - h / 2)
       (rx, ry) = (x + w / 2, y + h / 2)
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +

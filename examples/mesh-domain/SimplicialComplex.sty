@@ -87,8 +87,8 @@ SimplicialComplex K {
        K.shape = Rectangle {
        	       x : K.center_x
 	       y : K.center_y
-	       sizeX : K.size_x
-	       sizeY : K.size_y
+	       w : K.size_x
+	       h : K.size_y
 	       rotation : 0.0
 	       color : Colors.gainsboro
 	       strokeColor : Colors.black
@@ -98,8 +98,8 @@ SimplicialComplex K {
        K.padding = 25.0
 
        K.text = Text {
-	 x : K.shape.x - K.shape.sizeX / 2.0 + K.padding
-	 y : K.shape.y - K.shape.sizeY / 2.0 + K.padding
+	 x : K.shape.x - K.shape.w / 2.0 + K.padding
+	 y : K.shape.y - K.shape.h / 2.0 + K.padding
 	 string : K.label
 	 rotation : 0.0
 	 color : Colors.black
