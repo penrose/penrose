@@ -12,11 +12,13 @@ interface IState {
   layers: ILayer[];
   processedInitial: boolean;
   penroseVersion: string;
+  showInspector: boolean;
 }
 const socketAddress = "ws://localhost:9160";
 
 class App extends React.Component<any, IState> {
   public readonly state = {
+    showInspector: true,
     data: {} as any,
     autostep: false,
     processedInitial: false,
@@ -62,7 +64,7 @@ class App extends React.Component<any, IState> {
     this.protocol.sendPacket(Step(1, this.state.data));
   };
   public resample = async () => {
-      const NUM_SAMPLES = 50;
+    const NUM_SAMPLES = 50;
     await this.setState({ processedInitial: false });
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };
@@ -78,14 +80,22 @@ class App extends React.Component<any, IState> {
   };
 
   public async componentDidMount() {
-    this.protocol = new Protocol(socketAddress, {
-      onConnectionStatus: this.onConnectionStatus,
-      onVersion: this.onVersion,
-      onCanvasState: this.onCanvasState,
-      onError: console.warn,
-      kind: "renderer"
-    });
+    this.protocol = new Protocol(
+      socketAddress,
+      [
+        {
+          onConnectionStatus: this.onConnectionStatus,
+          onVersion: this.onVersion,
+          onCanvasState: this.onCanvasState,
+          onError: console.warn,
+          kind: "renderer"
+        }
+      ],
+      true
+    );
 
+    // const showInspector = localStorage.getItem("showInspector") === "true";
+    // this.setState({ showInspector });
     this.protocol.setupSockets();
   }
 
@@ -95,9 +105,25 @@ class App extends React.Component<any, IState> {
       this.step();
     }
   };
+  public setInspector = async (showInspector: boolean) => {
+    await this.setState({ showInspector });
+    // localStorage.setItem("showInspector", showInspector ? "true" : "false");
+  };
+  public toggleInspector = async () => {
+    await this.setInspector(!this.state.showInspector);
+  };
+  public hideInspector = async () => {
+    await this.setInspector(false);
+  };
 
   public render() {
-    const { data, layers, autostep, penroseVersion } = this.state;
+    const {
+      data,
+      layers,
+      autostep,
+      penroseVersion,
+      showInspector
+    } = this.state;
     return (
       <div className="App">
         <ButtonBar
@@ -111,6 +137,8 @@ class App extends React.Component<any, IState> {
           initial={initial(data)}
           toggleLayer={this.toggleLayer}
           layers={layers}
+          toggleInspector={this.toggleInspector}
+          showInspector={showInspector}
           ref={this.buttons}
         />
         <Canvas
@@ -121,6 +149,8 @@ class App extends React.Component<any, IState> {
           ref={this.canvas}
           penroseVersion={penroseVersion}
         />
+        {this.protocol &&
+          this.protocol.Inspector(showInspector, this.hideInspector)}
       </div>
     );
   }

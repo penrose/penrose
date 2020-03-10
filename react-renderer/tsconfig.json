@@ -18,8 +18,8 @@
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
-    // "noUnusedLocals": true
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "types": ["react", "jest", "node", "tslib"]
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,

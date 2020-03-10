@@ -12,7 +12,11 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-fast-compare": "^2.0.4",
-    "react-scripts-ts": "^4.0.8"
+    "react-inspector": "^4.0.1",
+    "react-popout-component": "^1.8.5",
+    "react-scripts-ts": "^4.0.8",
+    "react-styled-flexboxgrid": "^3.2.1",
+    "styled-components": "^5.0.1"
   },
   "scripts": {
     "start": "react-scripts-ts start",
@@ -28,7 +32,10 @@
     "@types/node": "^10.14.8",
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
+    "@types/react-inspector": "^4.0.0",
+    "@types/styled-components": "^5.0.1",
     "prettier": "^1.16.4",
+    "tslib": "^1.11.1",
     "tslint": "^5.17.0",
     "typescript": "^3.5.1"
   },
