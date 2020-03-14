@@ -6,6 +6,8 @@
   "types": "build/dist/types.js",
   "private": true,
   "dependencies": {
+    "@reach/tabs": "^0.9.0",
+    "console-feed": "^2.8.11",
     "debug": "^4.1.1",
     "fast-memoize": "^2.5.1",
     "lodash": "^4.17.13",
@@ -13,8 +15,11 @@
     "react-dom": "^16.8.6",
     "react-fast-compare": "^2.0.4",
     "react-inspector": "^4.0.1",
+    "react-new-window": "^0.1.2",
+    "react-popout": "^1.0.2",
     "react-popout-component": "^1.8.5",
     "react-scripts-ts": "^4.0.8",
+    "react-split-pane": "^0.1.89",
     "react-styled-flexboxgrid": "^3.2.1",
     "styled-components": "^5.0.1"
   },

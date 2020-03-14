@@ -1,8 +1,7 @@
-import { IInstanceMap } from "src/Protocol";
+import { IInspectState } from "../Inspector";
 
-interface IViewProps {
-  instances: IInstanceMap;
-  selectedInstance: string;
-  selectedInstanceFrame: number;
+export interface IViewMethods {
+  selectInstanceFrame(frame: number): void;
 }
+type IViewProps = IViewMethods & IInspectState;
 export default IViewProps;

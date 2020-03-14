@@ -21,7 +21,7 @@ export interface IEditorEvents extends ICoreEvents {
 export interface IRendererEvents extends ICoreEvents {
   kind: "renderer";
 }
-type EventHandler = IEditorEvents | IRendererEvents;
+export type EventHandler = IEditorEvents | IRendererEvents;
 type EventHandlers = IEditorEvents[] | IRendererEvents[];
 export interface IInstanceMap {
   [id: string]: any[];
@@ -33,9 +33,6 @@ export class Protocol {
   private connectionStatus: ConnectionStatus;
   private eventHandlers: EventHandlers;
 
-  private instanceLogs: IInstanceMap = {};
-  private inspectorref = React.createRef<Inspector>();
-
   constructor(
     addr: string,
     eventHandlers: EventHandlers,
@@ -45,13 +42,12 @@ export class Protocol {
     this.eventHandlers = eventHandlers;
     this.enableInspector = enableInspector;
   }
-  public setRef = (ref: any) => {
-    this.inspectorref = ref;
-    this.eventHandlers.push(ref.Events);
-    (this.inspectorref as any).setInstanceMap(this.instanceLogs);
+  public inspectorReady = (handler: EventHandler) => {
+    this.eventHandlers.push(handler as any);
+    this.setupSockets();
   };
-  public Inspector = (show: boolean, onClose: () => void) => {
-    return <Inspector show={show} onClose={onClose} ref={this.setRef} />;
+  public Inspector = (onClose: () => void) => {
+    return <Inspector onClose={onClose} onReady={this.inspectorReady} />;
   };
   public setupSockets = () => {
     this.ws = new WebSocket(this.addr);
@@ -91,9 +87,6 @@ export class Protocol {
     id: string = ""
   ) => {
     const processedData = await Canvas.processData(canvasState);
-    const instanceLog = this.instanceLogs[id] || [];
-    const newArr = [...instanceLog, processedData];
-    this.instanceLogs[id] = newArr;
     this.eventHandlers.forEach((events: EventHandler) =>
       events.onCanvasState(processedData, id)
     );
@@ -132,9 +125,6 @@ export class Protocol {
       );
     } else {
       console.warn(`Unknown packet type: ${type}`);
-    }
-    if ((this.inspectorref as any).setInstanceMap) {
-      (this.inspectorref as any).setInstanceMap({ ...this.instanceLogs });
     }
   };
 }

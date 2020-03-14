@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ObjectInspector } from "react-inspector";
 import IViewProps from "./IViewProps";
+// https://goessner.net/articles/JsonPath/
 class Frames extends React.Component<IViewProps> {
   public render() {
     const { instances, selectedInstance, selectedInstanceFrame } = this.props;
