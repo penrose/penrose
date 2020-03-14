@@ -1,12 +1,28 @@
+html,
 body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
   height: 100%;
+  overflow: auto;
+}
+
+#root {
+  height: 100%;
 }
 
 [data-reach-tab] {
   border-bottom: solid 2px transparent;
+}
+[data-reach-tabs] {
+  height: 100%;
+}
+
+[data-reach-tab-panels] {
+  height: 100%;
+}
+[data-reach-tab-panel] {
+  height: 100%;
 }
 
 [data-reach-tab][data-selected] {

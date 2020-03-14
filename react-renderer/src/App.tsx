@@ -130,10 +130,11 @@ class App extends React.Component<any, IState> {
         style={{
           height: "100%",
           display: "flex",
-          flexFlow: "column"
+          flexFlow: "column",
+          overflow: "hidden"
         }}
       >
-        <div style={{ flexGrow: 0 }}>
+        <div style={{ flexShrink: 0 }}>
           <ButtonBar
             downloadPDF={this.downloadPDF}
             downloadSVG={this.downloadSVG}
@@ -150,12 +151,13 @@ class App extends React.Component<any, IState> {
             ref={this.buttons}
           />
         </div>
-        <div style={{ flexGrow: 1, position: "relative" }}>
+        <div style={{ flexGrow: 1, position: "relative", overflow: "hidden" }}>
           <SplitPane
             split="horizontal"
             defaultSize={400}
             style={{ position: "inherit" }}
             className={this.state.showInspector ? "" : "soloPane1"}
+            pane2Style={{ overflow: "hidden" }}
           >
             <Canvas
               data={data}

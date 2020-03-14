@@ -57,28 +57,39 @@ class Inspector extends React.Component<IProps, IInspectState> {
   };
   public render() {
     return (
-      <div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          overflow: "hidden"
+        }}
+      >
         <Timeline
           selectInstanceFrame={this.selectInstanceFrame}
           {...this.state}
         />
-        <Tabs>
-          <TabList>
-            {Object.keys(viewMap).map((view: string) => (
-              <Tab key={`tab-${view}`}>{view}</Tab>
-            ))}
-          </TabList>
-          <TabPanels>
-            {Object.keys(viewMap).map((view: string) => (
-              <TabPanel key={`panel-${view}`}>
-                {React.createElement(viewMap[view], {
-                  ...this.state,
-                  selectInstanceFrame: this.selectInstanceFrame
-                })}
-              </TabPanel>
-            ))}
-          </TabPanels>
-        </Tabs>
+        <div style={{ overflow: "hidden", flexGrow: 1, flexShrink: 1 }}>
+          <Tabs>
+            <TabList>
+              {Object.keys(viewMap).map((view: string) => (
+                <Tab key={`tab-${view}`}>{view}</Tab>
+              ))}
+            </TabList>
+            <TabPanels>
+              {Object.keys(viewMap).map((view: string) => (
+                <TabPanel key={`panel-${view}`}>
+                  <div style={{ height: "100%", overflow: "scroll" }}>
+                    {React.createElement(viewMap[view], {
+                      ...this.state,
+                      selectInstanceFrame: this.selectInstanceFrame
+                    })}
+                  </div>
+                </TabPanel>
+              ))}
+            </TabPanels>
+          </Tabs>
+        </div>
       </div>
     );
   }
