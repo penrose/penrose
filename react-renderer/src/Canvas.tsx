@@ -191,7 +191,7 @@ class Canvas extends React.Component<IProps> {
     frame.remove();
   };
 
-  public renderEntity = ([name, shape]: [string, object], key: number) => {
+  public renderGPI = ([name, shape]: [string, object], key: number) => {
     const component = this.props.lock ? staticMap[name] : interactiveMap[name];
     if (component === undefined) {
       Log.error(`Could not render GPI ${name}.`);
@@ -278,7 +278,7 @@ class Canvas extends React.Component<IProps> {
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapesr.map(this.renderEntity)}
+        {shapesr.map(this.renderGPI)}
         {layers &&
           layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {

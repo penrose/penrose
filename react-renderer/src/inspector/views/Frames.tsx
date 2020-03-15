@@ -6,19 +6,16 @@ class Frames extends React.Component<IViewProps> {
   public render() {
     const { instances, selectedInstance, selectedInstanceFrame } = this.props;
     const selected = instances[selectedInstance];
+    if (!selected) {
+      return <p>empty</p>;
+    }
+    const frame =
+      selectedInstanceFrame === -1
+        ? selected[selected.length - 1]
+        : selected[selectedInstanceFrame];
     return (
       <div style={{ padding: "1em" }}>
-        {selected && selected.length > 0 ? (
-          <ObjectInspector
-            data={
-              selectedInstanceFrame === -1
-                ? selected[selected.length - 1]
-                : selected[selectedInstanceFrame]
-            }
-          />
-        ) : (
-          <p>empty</p>
-        )}
+        {selected.length > 0 ? <ObjectInspector data={frame} /> : <p>empty</p>}
       </div>
     );
   }

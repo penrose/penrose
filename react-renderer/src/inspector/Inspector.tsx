@@ -6,6 +6,7 @@ import { ConnectionStatus } from "src/module";
 import viewMap from "./views/viewMap";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@reach/tabs";
 import "@reach/tabs/styles.css";
+import ErrorBoundary from "./ErrorBoundary";
 
 interface IProps {
   onReady(handler: EventHandler): void;
@@ -80,10 +81,12 @@ class Inspector extends React.Component<IProps, IInspectState> {
               {Object.keys(viewMap).map((view: string) => (
                 <TabPanel key={`panel-${view}`}>
                   <div style={{ height: "100%", overflow: "scroll" }}>
-                    {React.createElement(viewMap[view], {
-                      ...this.state,
-                      selectInstanceFrame: this.selectInstanceFrame
-                    })}
+                    <ErrorBoundary>
+                      {React.createElement(viewMap[view], {
+                        ...this.state,
+                        selectInstanceFrame: this.selectInstanceFrame
+                      })}
+                    </ErrorBoundary>
                   </div>
                 </TabPanel>
               ))}
