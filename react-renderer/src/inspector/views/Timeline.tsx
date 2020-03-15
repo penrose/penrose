@@ -9,14 +9,13 @@ const TimelineStyled = styled.ul`
   overflow-x: auto;
   overflow-y: hidden;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   flex-wrap: nowrap;
   box-sizing: border-box;
-  padding-top: 1em;
-  padding-bottom: 1em;
   margin: 0;
   padding-left: 0.5em;
-  padding-right: 1em;
+  padding-right: 2em;
   width: 100%;
   list-style-type: none;
 `;
@@ -30,6 +29,8 @@ const TimelineItem = styled.li<any>`
   border: ${({ selected }: any) => (selected ? "3px" : "1px")} solid
     ${({ selected }: any) => (selected ? "#40B4F7" : "gray")};
   margin-left: 0.5em;
+  margin-top: 5px;
+  margin-bottom: 5px;
   border-radius: 5px;
   overflow: hidden;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 3px 0px;

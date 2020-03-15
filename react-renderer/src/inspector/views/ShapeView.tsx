@@ -96,7 +96,7 @@ class ShapeView extends React.Component<IViewProps, IState> {
         </div>
         <div
           style={{
-            padding: "1em 1em 2em 1em",
+            padding: "1em 1em 1em 1em",
             overflow: "auto",
             height: "100%",
             flexGrow: 1,
