@@ -2,6 +2,7 @@ import * as React from "react";
 import IViewProps from "./IViewProps";
 import { staticMap } from "src/componentMap";
 import styled from "styled-components";
+import { ObjectInspector } from "react-inspector";
 
 const ShapeItem = styled.li<any>`
   display: block;
@@ -40,38 +41,72 @@ class ShapeView extends React.Component<IViewProps, IState> {
 
     const { selectedShape } = this.state;
     return (
-      <div style={{ display: "flex", width: "100%" }}>
-        <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
-          {frame.shapesr.map(([name, shape]: any, key: number) => {
-            const [w, h] =
-              name === "Circle"
-                ? [shape.r.contents * 2, shape.r.contents * 2]
-                : [shape.w.contents, shape.h.contents];
-            return (
-              <ShapeItem
-                key={`shapePreview-${key}`}
-                selected={selectedShape === key}
-                onClick={() => this.setSelectedShape(key)}
-              >
-                <div>
-                  <svg viewBox={`0 0 ${w} ${h}`} width="50" height="50">
-                    {React.createElement(staticMap[name], {
-                      shape: {
-                        ...shape,
-                        x: { tag: "FloatV", contents: 0 },
-                        y: { tag: "FloatV", contents: 0 }
-                      },
-                      canvasSize: [w, h]
-                    })}
-                  </svg>
-                </div>
-                <div style={{ margin: "0.5em" }}>
-                  <span>{shape.name.contents}</span>
-                </div>
-              </ShapeItem>
-            );
-          })}
-        </ul>
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          boxSizing: "border-box"
+        }}
+      >
+        <div
+          style={{ overflowY: "auto", height: "100%", boxSizing: "border-box" }}
+        >
+          <ul
+            style={{
+              listStyleType: "none",
+              padding: "0 0 1em 0",
+              margin: 0,
+              top: 0,
+              left: 0,
+              right: 0
+            }}
+          >
+            {frame.shapesr.map(([name, shape]: any, key: number) => {
+              const [w, h] =
+                name === "Circle"
+                  ? [shape.r.contents * 2, shape.r.contents * 2]
+                  : [shape.w.contents, shape.h.contents];
+              return (
+                <ShapeItem
+                  key={`shapePreview-${key}`}
+                  selected={selectedShape === key}
+                  onClick={() => this.setSelectedShape(key)}
+                >
+                  <div>
+                    <svg viewBox={`0 0 ${w} ${h}`} width="50" height="50">
+                      {React.createElement(staticMap[name], {
+                        shape: {
+                          ...shape,
+                          x: { tag: "FloatV", contents: 0 },
+                          y: { tag: "FloatV", contents: 0 }
+                        },
+                        canvasSize: [w, h]
+                      })}
+                    </svg>
+                  </div>
+                  <div style={{ margin: "0.5em" }}>
+                    <span>{shape.name.contents}</span>
+                  </div>
+                </ShapeItem>
+              );
+            })}
+          </ul>
+        </div>
+        <div
+          style={{
+            padding: "1em 1em 2em 1em",
+            overflow: "auto",
+            height: "100%",
+            flexGrow: 1,
+            boxSizing: "border-box"
+          }}
+        >
+          {frame.shapesr[selectedShape] && (
+            <ObjectInspector data={frame.shapesr[selectedShape]} />
+          )}
+        </div>
       </div>
     );
   }

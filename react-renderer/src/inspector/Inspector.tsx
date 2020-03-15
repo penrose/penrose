@@ -80,7 +80,13 @@ class Inspector extends React.Component<IProps, IInspectState> {
             <TabPanels>
               {Object.keys(viewMap).map((view: string) => (
                 <TabPanel key={`panel-${view}`}>
-                  <div style={{ height: "100%", overflow: "scroll" }}>
+                  <div
+                    style={{
+                      height: "100%",
+                      overflow: "auto",
+                      boxSizing: "border-box"
+                    }}
+                  >
                     <ErrorBoundary>
                       {React.createElement(viewMap[view], {
                         ...this.state,
