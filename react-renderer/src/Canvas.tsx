@@ -2,10 +2,11 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { interactiveMap, staticMap } from "./componentMap";
 import Log from "./Log";
-import { collectLabels, loadImages } from "./Util";
+import { loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
 import { propagateUpdate, updateVaryingState } from "./PropagateUpdate";
+import { collectLabels } from "./utills/CollectLabels";
 
 interface IProps {
   lock: boolean;
