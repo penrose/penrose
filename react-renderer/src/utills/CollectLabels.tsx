@@ -1,5 +1,4 @@
 import memoize from "fast-memoize";
-import Log from "src/Log";
 const mathjax = require("mathjax-full/js/mathjax.js").mathjax;
 const TeX = require("mathjax-full/js/input/tex.js").TeX;
 const SVG = require("mathjax-full/js/output/svg.js").SVG;
@@ -53,7 +52,7 @@ const tex2svg = memoize(
       if (contents !== "") {
         const output = convert(contents, fontSize);
         if (!output) {
-          Log.error(`MathJax could not render ${contents}`);
+          console.error(`MathJax could not render ${contents}`);
           resolve({ output: undefined, width: 0, height: 0 });
           return;
         }
