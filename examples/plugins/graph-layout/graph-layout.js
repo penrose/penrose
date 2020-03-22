@@ -4,7 +4,17 @@ const Fs = require('fs');
 const _ = require('lodash');
 const dagre = require("dagre");
 
-function makeSampleGraph() {
+const crash = () => { console.log("crashing"); console.log(null[0]); }
+
+// TODO: Estimate these constants better
+const letterWidth = 21; // Pixels
+const letterHeight = 50;
+
+function buildGraph(json) {
+    let subDecls = json.objects;
+    let subPreds = json.constraints.predicates;
+    // let subFnCalls = json.constraints.functions;
+
     // Create a new directed graph
     var g = new dagre.graphlib.Graph();
 
@@ -14,22 +24,29 @@ function makeSampleGraph() {
     // Default to assigning a new object as a label for each new edge.
     g.setDefaultEdgeLabel(function() { return {}; });
 
-    // Add nodes to the graph. The first argument is the node id. The second is
-    // metadata about the node. In this case we're going to add labels to each of
-    // our nodes.
-    g.setNode("kspacey",    { label: "Kevin Spacey",  width: 144, height: 100 });
-    g.setNode("swilliams",  { label: "Saul Williams", width: 160, height: 100 });
-    g.setNode("bpitt",      { label: "Brad Pitt",     width: 108, height: 100 });
-    g.setNode("hford",      { label: "Harrison Ford", width: 168, height: 100 });
-    g.setNode("lwilson",    { label: "Luke Wilson",   width: 144, height: 100 });
-    g.setNode("kbacon",     { label: "Kevin Bacon",   width: 121, height: 100 });
+    // Add nodes to the graph. The first argument is the node id. The second is metadata about the node (labels)
+    for (let obj of subDecls) {
+	// console.log("obj", obj);
+	if (obj.objType !== 'Node') {
+	    console.error("Note: object type is not Node, but", obj.objType);
+	    // TODO: If there are any non-node subtypes, check for them
+	    // crash();
+	}
+
+	g.setNode(obj.objName, { label: "", width: obj.objName.length * letterWidth, height : letterHeight });
+    }
 
     // Add edges to the graph.
-    g.setEdge("kspacey",   "swilliams");
-    g.setEdge("swilliams", "kbacon");
-    g.setEdge("bpitt",     "kbacon");
-    g.setEdge("hford",     "lwilson");
-    g.setEdge("lwilson",   "kbacon");
+    for (let pred of subPreds) {
+	// console.log("pred", pred);
+	if (pred.pname !== 'to') {
+	    console.error("Note: predicate type is not `to`, but", pred.pname);
+	    crash();
+	}
+
+	let predArgs = pred.pargs.map(arg => arg.Left);
+	g.setEdge(predArgs[0], predArgs[1]);
+    }
 
     // Lay out graph
     // TODO: Explore layout configuration options
@@ -76,17 +93,6 @@ function makeSty(layout_info) {
     return JSON.stringify(vals);
 }
 
-function makeSubAndValues(json, layout_info) {
-    // let res = makeSub(json);
-
-    let subProgStr = "";
-    let styVals = makeSty(layout_info);
-
-    return { newSub: subProgStr,
-	     styVals: styVals
-	   };
-}
-
 function main() {
     console.log("starting graph-layout plugin");
 
@@ -97,12 +103,10 @@ function main() {
     let seeds = subJSON.params.map(x => x.contents.contents);
     console.log("seeds", seeds);
 
-    // TODO: Build graph from Substance program in makeSampleGraph
-    // TODO: We don't have node dimensions from the frontend, so just estimate them in the plugin
-    let layout_info = makeSampleGraph();
-
-    let results = makeSubAndValues(subJSON.substance, layout_info);
-    let [newSub, styVals] = [results.newSub, results.styVals];
+    // TODO: We don't have node dimensions from the frontend, so we just estimate them in the plugin
+    let layout_info = buildGraph(subJSON.substance);
+    let newSub = ""; // No new Substance lines
+    let styVals = makeSty(layout_info); // Convert laid-out graph (node coords) to JSON format for Style
 
     console.log("writing Substance program: ", newSub);
     Fs.writeFileSync('Sub_instantiated.sub', newSub);
