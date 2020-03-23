@@ -116,6 +116,7 @@
     "label": "raytracing-2d",
     "icon": "https://gist.githubusercontent.com/wodeni/7ba0c3ffa4096e7b058ea9af7e3641f4/raw/9dfd0a90f3ec4b99aa8fa260e736b65a8d904104/icon.svg?sanitize=true",
     "element": 5,
+    "plugin": true,
     "uri": "raytracing-domain/raytracing.sty"
   }
 ]
