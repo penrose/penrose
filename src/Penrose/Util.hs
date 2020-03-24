@@ -296,6 +296,9 @@ infixl 7 *:, /:
 (/:) :: Floating a => (a, a) -> a -> (a, a)
 (/:) (x, y) c = (c / x, c / y)
 
+neg :: Floating a => (a, a) -> (a, a)
+neg (x, y) = (-x, -y)
+
 dotv :: Floating a => (a, a) -> (a, a) -> a
 dotv (x, y) (a, b) = x * a + y * b
 
@@ -312,6 +315,10 @@ normalize v = (1 / norm v) *. v
 -- Find the angle between x-axis and a line passing points, reporting in radians
 findAngle :: Floating a => (a, a) -> (a, a) -> a
 findAngle (x1, y1) (x2, y2) = atan $ (y2 - y1) / (x2 - x1)
+
+radians, degrees :: Floating a => a -> a
+radians degrees = degrees * (pi/180)
+degrees radians = radians * (180/pi)
 
 midpoint :: Floating a => (a, a) -> (a, a) -> (a, a) -- mid point
 midpoint (x1, y1) (x2, y2) = ((x1 + x2) / 2, (y1 + y2) / 2)

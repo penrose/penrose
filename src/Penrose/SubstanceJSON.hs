@@ -38,7 +38,18 @@ data ObjectSchema = ObjectSchema
 data SubSchema = SubSchema
   { objects     :: [ObjectSchema]
   , constraints :: ConstraintSchema
+  , values      :: [ValueSchema]
   } deriving (Generic, Show)
+
+data ValueSchema = ValueSchema
+  { name  :: String
+  , value :: String -- TODO: support more formats in the future
+  } deriving (Generic, Show)
+
+instance FromJSON ValueSchema
+
+instance ToJSON ValueSchema where
+  toEncoding = genericToEncoding defaultOptions
 
 instance ToJSON ObjectSchema where
   toEncoding = genericToEncoding defaultOptions
@@ -82,6 +93,8 @@ tToSchema (E.TConstr typeCtorApp) =
 
 exprToSchema :: Expr -> String
 exprToSchema (VarE (E.VarConst v)) = v
+-- HACK: pass through string literals as it is for now
+exprToSchema (StringLit s) = s
 exprToSchema _ =
   error
     "Cannot convert anonymous expressions in function/val ctor arguments to JSON; must name them first"
@@ -102,14 +115,14 @@ predargToSchema (PP pred) =
 -- | Note: do not rely on ordering in JSON, as this function does not guarantee preserving Substance program order.
 -- | However, we do guarantee preserving argument order in function/valcons/predicate applications.
 toSchema ::
-     ([ObjectSchema], [FunctionSchema], [PredicateSchema])
+     ([ObjectSchema], [FunctionSchema], [PredicateSchema], [ValueSchema])
   -> SubStmt
-  -> ([ObjectSchema], [FunctionSchema], [PredicateSchema])
-toSchema acc@(objSchs, fnSchs, predSchs) subLine =
+  -> ([ObjectSchema], [FunctionSchema], [PredicateSchema], [ValueSchema])
+toSchema acc@(objSchs, fnSchs, predSchs, valSchs) subLine =
   case subLine of
     Decl t (E.VarConst v) ->
       let res = ObjectSchema {objType = tToSchema t, objName = v}
-      in (res : objSchs, fnSchs, predSchs)
+      in (res : objSchs, fnSchs, predSchs, valSchs)
     Bind (E.VarConst v) (ApplyFunc f) ->
       let res =
             FunctionSchema
@@ -117,7 +130,7 @@ toSchema acc@(objSchs, fnSchs, predSchs) subLine =
             , fname = nameFunc f
             , fargNames = map exprToSchema $ argFunc f
             }
-      in (objSchs, res : fnSchs, predSchs)
+      in (objSchs, res : fnSchs, predSchs, valSchs)
     Bind (E.VarConst v) (ApplyValCons f) ->
       let res =
             FunctionSchema
@@ -125,14 +138,17 @@ toSchema acc@(objSchs, fnSchs, predSchs) subLine =
             , fname = nameFunc f
             , fargNames = map exprToSchema $ argFunc f
             }
-      in (objSchs, res : fnSchs, predSchs)
+      in (objSchs, res : fnSchs, predSchs, valSchs)
+    Bind (E.VarConst v) (StringLit s) ->
+      let res = ValueSchema {name = v, value = s}
+      in (objSchs, fnSchs, predSchs, res : valSchs)
     ApplyP p ->
       let res =
             PredicateSchema
             { pname = prednameToSchema $ predicateName p
             , pargs = map predargToSchema $ predicateArgs p
             }
-      in (objSchs, fnSchs, res : predSchs)
+      in (objSchs, fnSchs, res : predSchs, valSchs)
          -- TODO: these forms are not sent to plugins
     Bind _ (VarE _) ->
       trace "WARNING: not sending Substance form to plugin!" acc
@@ -147,11 +163,13 @@ toSchema acc@(objSchs, fnSchs, predSchs) subLine =
 -- | Turn a Substance prog into the schema format defined above
 subToSchema :: SubProg -> SubSchema
 subToSchema prog =
-  let (objSchs, fnSchs, predSchs) = foldl toSchema ([], [], []) prog
+  let (objSchs, fnSchs, predSchs, valSchs) =
+        foldl toSchema ([], [], [], []) prog
   in SubSchema
      { objects = objSchs
      , constraints =
          ConstraintSchema {functions = fnSchs, predicates = predSchs}
+     , values = valSchs
      }
 
 -- | This is the main function for converting a parsed Substance program to JSON format, called in ShadowMain
@@ -161,8 +179,8 @@ writeSubstanceToJSON file (SubOut subprog envs labels) = do
   let bytestr = encode substanceSchema
   BL.writeFile file bytestr
 
---------------------------------------------------------
--- | JSON format for parsing Style values from plugins
+--k-------------------------------------------------------
+--- | JSON format for parsing Style values from plugins
 data KeyValPair = KeyValPair
   { propertyName :: String
   , propertyVal  :: Float -- TODO: generalize this

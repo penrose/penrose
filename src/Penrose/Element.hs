@@ -318,12 +318,13 @@ snParser = do
 -- typechecking rules, and outputs a collection of information.
 check :: ElementProg -> VarEnv
 check p =
-  let env = foldl checkElementStmt initE p
+  let loadedEnv = loadBuiltInTypes initE
+      env = foldl checkElementStmt loadedEnv p
   in if null (errors env)
        then env
        else error $
             "Element type checking failed with the following problems: \n" ++
-            (ppShow $ errors env) ++ ppShow env
+            ppShow (errors env) ++ ppShow env
   where
     initE =
       VarEnv
@@ -341,6 +342,23 @@ check p =
       , declaredNames = []
       , errors = ""
       }
+
+-- | Load the initial environemt with built in types and predicates
+loadBuiltInTypes :: VarEnv -> VarEnv
+loadBuiltInTypes initEnv = foldl go initEnv builtInTypes
+  where
+    go env typeCons =
+      let typeName = nametc typeCons
+          env' = addName typeName initEnv
+      in env'
+         {typeConstructors = M.insert typeName typeCons $ typeConstructors env'}
+
+-- | all the built-in types supported by all Element programs
+builtInTypes :: [TypeConstructor]
+builtInTypes = [stringType]
+
+stringType :: TypeConstructor
+stringType = TypeConstructor {nametc = "String", kindstc = []}
 
 checkElementStmt :: VarEnv -> ElementStmt -> VarEnv
 checkElementStmt e (CdStmt c) =

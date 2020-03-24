@@ -74,7 +74,7 @@ plugin :: Parser Plugin
 plugin = symbol "plugin" >> (Plugin <$> stringLiteral <*> option [] exprsInParens)
 
 stringLiteral :: Parser String
-stringLiteral = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
+stringLiteral = doubleQuotedString
 
 --------------------------------------------------------------------------------
 -- Style AST

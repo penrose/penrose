@@ -52,12 +52,12 @@ forall Set x {
     x.hueRad = const.pi * x.hue / 180.0
 
     x.hueDebug = Circle {
-        x : const.debugX + const.debugR * cos(x.hueRad)
-	y : const.debugY + const.debugR * sin(x.hueRad)
-	r : const.debugDotRadius
-	strokeWidth : 0.0
-	strokeColor : Colors.none
-	color : x.color
+        x : const.debugX + const.debugR * cos(x.hue)
+        y : const.debugY + const.debugR * sin(x.hue)
+        r : const.debugDotRadius
+        strokeWidth : 0.0
+        strokeColor : Colors.none
+        color : x.color
     }
 }
 

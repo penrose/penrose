@@ -22,6 +22,7 @@ import           Data.Fixed            (mod')
 import           Data.List             (find, findIndex, maximumBy, nub, sort, intercalate)
 import qualified Data.Map.Strict       as M
 import           Data.Maybe            (fromMaybe)
+-- import           Data.Colour
 import qualified Data.MultiMap         as MM
 import           Debug.Trace
 import           Penrose.Shapes
@@ -110,9 +111,13 @@ compDict =
     , ("hsva", constComp hsva)
     , ("rgba2", constComp rgba2)
     , ("xy", constComp xy)
-    , ("cos", constComp cosFn)
-    , ("sin", constComp sinFn)
+    -- , ("cos", constComp cosFn)
+    -- , ("sin", constComp sinFn)
     , ("atan", constComp arctangent)
+    , ("atan2", constComp arctangent2)
+    , ("cos", constComp cosine)
+    , ("sin", constComp sine)
+    , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
     , ("generateRandomReal", constComp generateRandomReal)
@@ -126,6 +131,9 @@ compDict =
     , ("intersectionY", constComp intersectionY)
     , ("midpointX", constComp midpointX)
     , ("midpointY", constComp midpointY)
+    , ("mirrorAngle", constComp mirrorAngle)
+    , ("mirrorPosX", constComp mirrorPosX)
+    , ("mirrorPosY", constComp mirrorPosY)
     , ("average", constComp average)
     , ("len", constComp len)
     , ("lineLength", constComp lineLength)
@@ -183,6 +191,7 @@ compDict =
     , ("join", constComp joinPath)
     , ("dot", constComp dotFn)
     , ("angle", constComp angleFn)
+    , ("randomColor", randomColor) 
     , ("sampleUniform", sampleUniformFn)
     , ("makePalette", constComp makePalette)
     , ("unitMark", constComp unitMark)
@@ -217,10 +226,10 @@ compDict =
     , ("testTriangle", constComp testTri)
     , ("testNonconvexPoly", constComp testNonconvexPoly)
     , ("randomPolygon", randomPolygon)
+    , ("sampleReal", sampleReal) 
     , ("concat", constComp concat)
     , ("midpoint", noop) -- TODO
     , ("sampleMatrix", noop) -- TODO
-    , ("sampleReal", noop) -- TODO
     , ("sampleVectorIn", noop) -- TODO
     , ("intersection", noop) -- TODO
     , ("determinant", noop) -- TODO
@@ -295,6 +304,9 @@ compSignatures =
     , ("tangentLineEX", ([ValueT PtListT, ValueT FloatT], ValueT FloatT))
     , ("tangentLineEY", ([ValueT PtListT, ValueT FloatT], ValueT FloatT))
     , ("makeRegionPath", ([GPIType "Curve", GPIType "Line"], ValueT PathDataT))
+    , ("mirrorAngle", ([GPIType "Arrow", GPIType "Arrow"], ValueT FloatT))
+    , ("mirrorPosX", ([GPIType "Arrow", GPIType "Arrow", ValueT FloatT, ValueT FloatT], ValueT FloatT))
+    , ("mirrorPosY", ([GPIType "Arrow", GPIType "Arrow", ValueT FloatT, ValueT FloatT], ValueT FloatT))
         -- ("len", ([GPIType "Arrow"], ValueT FloatT))
         -- ("bbox", ([GPIType "Arrow", GPIType "Arrow"], ValueT StrT)), -- TODO
         -- ("sampleMatrix", ([], ValueT StrT)), -- TODO
@@ -457,6 +469,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("unit", unit')
       , ("equal", equalFn)
       , ("hasNorm", hasNorm)
+      , ("pointOn", pointOn)
       , ("hasLorenzNorm", hasLorenzNorm)
       , ("atDist", atDist)
       , ("labelDisjoint", labelDisjointConstr)
@@ -487,12 +500,15 @@ constrSignatures =
     , ("contains", [GPIType "Square", GPIType "Circle"])
     , ("contains", [GPIType "Circle", GPIType "Square"])
     , ("contains", [GPIType "Circle", GPIType "Rectangle"])
+    , ("contains", [GPIType "Rectangle", GPIType "Rectangle"])
+    , ("contains", [GPIType "Rectangle", GPIType "Circle"])
     , ("overlapping", [GPIType "Circle", GPIType "Circle"])
     , ("overlapping", [GPIType "Square", GPIType "Circle"])
     , ("overlapping", [GPIType "Circle", GPIType "Square"])
     , ("overlapping", [GPIType "Square", GPIType "Square"])
     , ("disjoint", [GPIType "Circle", GPIType "Circle"])
     , ("disjoint", [GPIType "Square", GPIType "Square"])
+    , ("pointOn", [ValueT FloatT, ValueT FloatT, GPIType "Rectangle", ValueT FloatT])
         -- ("lessThan", []) --TODO
     ]
 
@@ -530,6 +546,13 @@ checkReturn (GPI v) _ = error "checkReturn: Computations cannot return GPIs"
 
 --------------------------------------------------------------------------------
 -- Computation Functions
+
+sampleReal :: CompFn
+sampleReal [Val (FloatV low), Val (FloatV high)] g = 
+  let interval = (r2f low, r2f high) :: Interval
+      (res, g') = randomR interval g :: (Float, StdGen)
+  in (Val $ FloatV $ r2f res, g')
+
 sampleFunction :: CompFn
 sampleFunction [Val (IntV n), Val (FloatV xmin), Val (FloatV xmax), Val (FloatV ymin), Val (FloatV ymax), Val (StrV typ)] g
   | n < 2 =
@@ -593,6 +616,11 @@ lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
      in let ypos = a1_start + lineFrac * a1_len
         in Val $ PtListV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
 
+randomColor :: CompFn
+randomColor [] rnd =
+  let ([r, g, b], rnd') = randomsIn rnd 3 (0, 1)
+  in (Val (ColorV $ makeColor' r g b 1.0), rnd')
+
 rgba :: ConstCompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
   Val (ColorV $ makeColor' r g b a)
@@ -616,6 +644,13 @@ sinFn [Val (FloatV d)] = Val $ FloatV $ sin d
 
 arctangent :: ConstCompFn -- In degrees
 arctangent [Val (FloatV d)] = Val (FloatV $ (atan d) / pi * 180)
+arctangent2 :: ConstCompFn
+arctangent2 [Val (FloatV y), Val (FloatV x)] = Val (FloatV $ (atan2 y x) / pi * 180)
+
+cosine :: ConstCompFn
+cosine [Val (FloatV d)] = Val (FloatV $ cos (d * pi / 180))
+sine :: ConstCompFn
+sine [Val (FloatV d)] = Val (FloatV $ sin (d * pi / 180))
 
 calcVectorsAngle :: ConstCompFn
 calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1), Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2), Val (FloatV ex2), Val (FloatV ey2)] =
@@ -941,17 +976,19 @@ projectFn [Val (TupV q), Val (TupV p), Val (TupV r)] =
   in Val $ TupV res
 
 angleOf :: ConstCompFn
-angleOf [GPI l@("Line", _), Val (FloatV originX), Val (FloatV originY)] =
-  let origin = (originX, originY)
-      (start, end) = (getPoint "start" l, getPoint "end" l)
-      endpoint =
-        if origin == start
-          then end
-          else start -- Pick the point that's not the origin
-      (rayX, rayY) = endpoint -: origin
-      angleRad = atan2 rayY rayX
-      angle = (angleRad * 180) / pi
-  in Val $ FloatV angle
+angleOf [GPI l, Val (FloatV originX), Val (FloatV originY)] 
+  | linelike l = 
+      let origin = (originX, originY)
+          (start, end) = (getPoint "start" l, getPoint "end" l)
+          endpoint =
+            if origin == start
+              then end
+              else start -- Pick the point that's not the origin
+          (rayX, rayY) = endpoint -: origin
+          angleRad = atan2 rayY rayX
+          angle = (angleRad * 180) / pi
+      in Val $ FloatV angle
+  | otherwise = error "angleOf: expecting a line-like GPI."
 
 perp :: Autofloat a => Pt2 a -> Pt2 a -> Pt2 a -> a -> Pt2 a
 perp start end base len =
@@ -1293,6 +1330,31 @@ joinPath :: ConstCompFn
 joinPath [Val (PtListV pq), Val (PtListV qr), Val (PtListV rp)] =
   let path = Closed $ map Pt $ pq ++ qr ++ rp
   in Val $ PathDataV [path]
+
+-- TODO: move to Util?
+toVector (x0, y0, x1, y1) = [x1 - x0, y1 - y0]
+
+toTup [x, y] = (x, y)
+
+-- NOTE: intentionally not renewing the random seed because we want consistant results from the same function call (?)
+mirrorPosX, mirrorPosY :: ConstCompFn
+mirrorPosX args = Val $ FloatV $ fst $ mirrorPos args
+mirrorPosY args = Val $ FloatV $ snd $ mirrorPos args
+
+mirrorPos :: (Autofloat a) => [ArgVal a] -> (a, a)
+mirrorPos [GPI a1, GPI a2, Val (FloatV rx), Val (FloatV ry), Val (FloatV verticalOffset), Val (FloatV horizontalOffset)] =
+  let [v1, v2] = map (toTup . normalize . toVector . arrowPts) [a1, a2]
+      (hx, hy) = v1 +: v2
+      [hx', hy'] = normalize [hx, hy]
+      (vx, vy) = v1 -: v2
+      [vx', vy'] = normalize [vx, vy]
+  in (rx + hx' * horizontalOffset + vx' * verticalOffset, ry + hy' * horizontalOffset + vy' * verticalOffset)
+
+mirrorAngle :: ConstCompFn
+mirrorAngle [GPI a1, GPI a2] =
+  let [v1, v2] = map (toTup . normalize . toVector . arrowPts) [a1, a2]
+      (x, y) = v1 +: v2
+  in Val . FloatV $ 180 - (atan2 y x * (180 / pi))
 
 dotFn :: ConstCompFn
 dotFn [Val (TupV u), Val (TupV v)] = Val $ FloatV $ u `dotv` v
@@ -1651,9 +1713,10 @@ near :: ObjFn
 near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
 near [GPI o1, GPI o2] = distsq (getX o1, getY o1) (getX o2, getY o2)
 near [GPI o1, GPI o2, Val (FloatV offset)] =
-  let res = distsq (getX o1, getY o1) (getX o2, getY o2) - offset ^ 2 in
-  {- trace ("\n\nEnergy: " ++ show res ++
-        "\nShapes: " ++ show (o1, o2)) -} res
+  let res = abs $ distsq (getX o1, getY o1) (getX o2, getY o2) - offset ^ 2 in
+  -- trace ("\n\nEnergy: " ++ show res ++
+  --       "\nShapes: " ++ show (o1, o2)) res
+  res
 near [GPI img@("Image", _), GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
   let center = (getX img, getY img)
       offset = (xoff, yoff)
@@ -1845,7 +1908,7 @@ repel [GPI a, GPI b, Val (FloatV weight)] =
 --         repel' (endx' c, endy' c) (xl' d, yl' d)
 -- repel [A' c, C' d] [] = repel' (startx' c, starty' c) (xc' d, yc' d) +
 --         repel' (endx' c, endy' c) (xc' d, yc' d)
--- repel [IM' c, IM' d] [] = 1 / (distsq (xim' c, yim' c) (xim' d, yim' d) + epsd) - sizeXim' c - sizeXim' d --TODO Lily check this math is correct
+-- repel [IM' c, IM' d] [] = 1 / (distsq (xim' c, yim' c) (xim' d, yim' d) + epsd) - wim' c - wim' d --TODO Lily check this math is correct
 -- repel [a, b] [] = if a == b then 0 else 1 / (distsq (getX a, getY a) (getX b, getY b) )
 topRightOf :: ObjFn
 topRightOf [GPI l@("Text", _), GPI s@("Square", _)] =
@@ -1855,7 +1918,7 @@ topRightOf [GPI l@("Text", _), GPI s@("Square", _)] =
 topRightOf [GPI l@("Text", _), GPI s@("Rectangle", _)] =
   dist
     (getX l, getY l)
-    (getX s + 0.5 * getNum s "sizeX", getY s + 0.5 * getNum s "sizeY")
+    (getX s + 0.5 * getNum s "w", getY s + 0.5 * getNum s "h")
 
 topLeftOf :: ObjFn
 topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] =
@@ -1865,7 +1928,7 @@ topLeftOf [GPI l@("Text", _), GPI s@("Square", _)] =
 topLeftOf [GPI l@("Text", _), GPI s@("Rectangle", _)] =
   dist
     (getX l, getY l)
-    (getX s - 0.5 * getNum s "sizeX", getY s - 0.5 * getNum s "sizeY")
+    (getX s - 0.5 * getNum s "w", getY s - 0.5 * getNum s "h")
 
 nearHead :: ObjFn
 nearHead [GPI l, GPI lab@("Text", _), Val (FloatV xoff), Val (FloatV yoff)] =
@@ -1949,7 +2012,7 @@ contains [GPI outc@("Circle", _), GPI inc@("Circle", _), Val (FloatV padding)] =
   (getNum outc "r" - padding - getNum inc "r")
 contains [GPI c@("Circle", _), GPI rect@("Rectangle", _)] =
   let (x, y, w, h) =
-        (getX rect, getY rect, getNum rect "sizeX", getNum rect "sizeY")
+        (getX rect, getY rect, getNum rect "w", getNum rect "h")
       [x0, x1, y0, y1] = [x - w / 2, x + w / 2, y - h / 2, y + h / 2]
       pts = [(x0, y0), (x0, y1), (x1, y0), (x1, y1)]
       (cx, cy, radius) = (getX c, getY c, getNum c "r")
@@ -1973,11 +2036,11 @@ contains [GPI s@("Square", _), GPI l@("Text", _)] =
   getNum l "w" / 2
 contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
     -- TODO: implement precisely, max (w, h)? How about diagonal case?
-  dist (getX l, getY l) (getX r, getY r) - getNum r "sizeX" / 2 +
+  dist (getX l, getY l) (getX r, getY r) - getNum r "w" / 2 +
   getNum l "w" / 2 + padding
 contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
              -- HACK: reusing test impl, revert later
-             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+             let r_l = min (getNum r "w") (getNum r "h") / 2
                  diff = r_l - getNum c "r"
              in dist (getX r, getY r) (getX c, getY c) - diff + padding
 contains [GPI outc@("Square", _), GPI inc@("Square", _)] =
@@ -2017,13 +2080,33 @@ contains [GPI sq@("Square", _), GPI ar@("Arrow", _)] =
 contains [GPI rt@("Rectangle", _), GPI ar@("Arrow", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
       (x, y) = (getX rt, getY rt)
-      (w, h) = (getNum rt "sizeX", getNum rt "sizeY")
+      (w, h) = (getNum rt "w", getNum rt "h")
       (lx, ly) = (x - w / 2, y - h / 2)
       (rx, ry) = (x + w / 2, y + h / 2)
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
      inRange endY ly ry
+contains [GPI rect@("Rectangle", _), GPI img@("Image", _)] =
+-- NOTE: assume axis-aligned rectangle
+-- TODO: the image can be rotated, take that into account
+    let [(lx, ly), (rx, ry)] = cornerPts rect
+        verts = vertices img
+    in sum $ map (\(x, y) -> inRange x lx rx + inRange y ly ry) verts 
+
+contains [GPI r1@("Rectangle", _), GPI r2@("Rectangle", _)] =
+-- NOTE: assume axis-aligned containing rectangle
+    let [(lx1, ly1), (rx1, ry1)] = cornerPts r1
+        [(lx2, ly2), (rx2, ry2)] = cornerPts r2
+    in inRange lx2 lx1 rx1 + inRange ly2 ly1 ry1 + inRange rx1 lx2 rx2 + inRange ry2 ly1 ry1
+
+contains [GPI r@("Rectangle", _), GPI c@("Circle", _)] =
+-- NOTE: assume axis-aligned rectangle
+    -- HACK: reusing test impl, revert later
+    let r_l = min (getNum r "w") (getNum r "h") / 2
+        diff = r_l - getNum c "r"
+    in dist (getX r, getY r) (getX c, getY c) - diff
+
 contains [GPI r@("Rectangle", _), Val (TupV (x, y)), Val (FloatV padding)] =
-             let r_l = min (getNum r "sizeX") (getNum r "sizeY") / 2
+             let r_l = min (getNum r "w") (getNum r "h") / 2
              in dist (getX r, getY r) (x, y) - r_l + padding
 contains [GPI sq@("Square", _), GPI ar@("Line", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
@@ -2036,7 +2119,7 @@ contains [GPI sq@("Square", _), GPI ar@("Line", _)] =
 contains [GPI rt@("Rectangle", _), GPI ar@("Line", _)] =
   let (startX, startY, endX, endY) = arrowPts ar
       (x, y) = (getX rt, getY rt)
-      (w, h) = (getNum rt "sizeX", getNum rt "sizeY")
+      (w, h) = (getNum rt "w", getNum rt "h")
       (lx, ly) = (x - w / 2, y - h / 2)
       (rx, ry) = (x + w / 2, y + h / 2)
   in inRange startX lx rx + inRange startY ly ry + inRange endX lx rx +
@@ -2046,6 +2129,25 @@ inRange a l r
   | a < l = (a - l) ^ 2
   | a > r = (a - r) ^ 2
   | otherwise = 0
+
+-- Helper for getting the lower-left and upper-right corner points of rectangular shapes (e.g. Rectangle and Image)
+cornerPts rt = 
+  let (x, y) = (getX rt, getY rt)
+      (w, h) = (getNum rt "w", getNum rt "h")
+  in [(x - w / 2, y - h / 2), (x + w / 2, y + h / 2)]
+
+vertices rt = 
+  let r = radians $ getNum rt "rotation" 
+      (dx, dy) = (getNum rt "w" / 2, getNum rt "h"/ 2)
+      corners = [(cx - dx, cy - dy), (cx - dx, cy + dy), (cx + dx, cy - dy), (cx + dx, cy + dy)]
+  in map (rotate r . toOrigin) corners
+  where 
+    (cx, cy) = (getX rt, getY rt)
+    toOrigin (x, y) = (x - cx, y - cy)
+    rotate theta (x, y) = 
+      let x' = x * cos theta - y * sin theta
+          y' = x * sin theta + y * cos theta
+      in (x' + cx, y' + cy)
 
 inRange'' :: (Autofloat a) => a -> a -> a -> a
 inRange'' v left right
@@ -2104,7 +2206,7 @@ limit = max canvasWidth canvasHeight
 maxSize [GPI c@("Circle", _)] = getNum c "r" - r2f (limit / 6)
 maxSize [GPI s@("Square", _)] = getNum s "side" - r2f (limit / 3)
 maxSize [GPI r@("Rectangle", _)] =
-  let max_side = max (getNum r "sizeX") (getNum r "sizeY")
+  let max_side = max (getNum r "w") (getNum r "h")
   in max_side - r2f (limit / 3)
 maxSize [GPI im@("Image", _)] =
   let max_side = max (getNum im "w") (getNum im "h")
@@ -2118,7 +2220,7 @@ minSize :: ConstrFn
 minSize [GPI c@("Circle", _)] = 20 - getNum c "r"
 minSize [GPI s@("Square", _)] = 20 - getNum s "side"
 minSize [GPI r@("Rectangle", _)] =
-  let min_side = min (getNum r "sizeX") (getNum r "sizeY")
+  let min_side = min (getNum r "w") (getNum r "h")
   in 20 - min_side
 minSize [GPI e@("Ellipse", _)] = 20 - min (getNum e "rx") (getNum e "ry")
 minSize [GPI g] =
@@ -2200,17 +2302,72 @@ disjoint [GPI xset@("Rectangle", _), GPI yset@("Rectangle", _), Val (FloatV offs
     -- Arbitrarily using x size
  =
   noIntersectOffset
-    [ [getX xset, getY xset, 0.5 * getNum xset "sizeX"]
-    , [getX yset, getY yset, 0.5 * getNum yset "sizeX"]
+    [ [getX xset, getY xset, 0.5 * getNum xset "w"]
+    , [getX yset, getY yset, 0.5 * getNum yset "w"]
     ]
     offset
-disjoint [GPI box@("Text", _), GPI seg@("Line", _), Val (FloatV offset)] =
-  let center = (getX box, getY box)
-      (v, w) = (getPoint "start" seg, getPoint "end" seg)
-      cp = closestpt_pt_seg center (v, w)
-      len_approx = getNum box "w" / 2.0 -- TODO make this more exact
+disjoint [GPI xset@("Image", _), GPI yset@("Image", _), Val (FloatV offset)]
+    -- Arbitrarily using x size
+ =
+  noIntersectOffset
+    [ [getX xset, getY xset, 0.5 * getNum xset "w"]
+    , [getX yset, getY yset, 0.5 * getNum yset "w"]
+    ]
+    offset
+disjoint [GPI xset@("Image", _), GPI yset@("Rectangle", _), Val (FloatV offset)]
+    -- Arbitrarily using x size
+ =
+  noIntersectOffset
+    [ [getX xset, getY xset, 0.5 * getNum xset "w"]
+    , [getX yset, getY yset, 0.5 * getNum yset "w"]
+    ]
+    offset
+disjoint [GPI xset@("Image", _), GPI yset@("Circle", _), Val (FloatV offset)]
+    -- Arbitrarily using x size
+ =
+  noIntersectOffset
+    [ [getX xset, getY xset, 0.5 * getNum xset "w"]
+    , [getX yset, getY yset, 0.5 * getNum yset "r"]
+    ]
+    offset
+disjoint [GPI box@("Text", _), GPI seg, Val (FloatV offset)] =
+  if linelike seg then
+    let center = (getX box, getY box)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp = closestpt_pt_seg center (v, w)
+        len_approx = getNum box "w" / 2.0 -- TODO make this more exact
   in -(dist center cp) + len_approx + offset
+  else error "expected the second GPI to be linelike in `disjoint`"
+
+disjoint [GPI box@("Rectangle", _), GPI seg, Val (FloatV offset)] =
+  if linelike seg then
+    let center = (getX box, getY box)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp = closestpt_pt_seg center (v, w)
+        len_approx = getNum box "w" / 2.0 -- TODO make this more exact
+  in -(dist center cp) + len_approx + offset
+  else error "expected the second GPI to be linelike in `disjoint`"
+
     -- i.e. dist from center of box to closest pt on line seg is greater than the approx distance between the box center and the line + some offset
+
+disjoint [GPI box@("Image", _), GPI seg, Val (FloatV offset)] =
+  if linelike seg then
+    let center = (getX box, getY box)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp = closestpt_pt_seg center (v, w)
+        len_approx = max (getNum box "w") (getNum box "h") / 2.0 -- TODO make this more exact
+  in -(dist center cp) + len_approx + offset
+  else error "expected the second GPI to be linelike in `disjoint`"
+
+disjoint [GPI circle@("Circle", _), GPI seg, Val (FloatV offset)] =
+  if linelike seg then
+    let center = (getX circle, getY circle)
+        (v, w) = (getPoint "start" seg, getPoint "end" seg)
+        cp = closestpt_pt_seg center (v, w)
+        len_approx = getNum circle "r" / 2.0 
+  in -(dist center cp) + len_approx + offset
+  else error "expected the second GPI to be linelike in `disjoint`"
+
 -- For horizontally collinear line segments only
 -- with endpoints (si, ei), assuming si < ei (e.g. enforced by some other constraint)
 -- Make sure the closest endpoints are separated by some padding
@@ -2246,6 +2403,14 @@ noIntersectOffset :: (Autofloat a) => [[a]] -> a -> a
 noIntersectOffset [[x1, y1, s1], [x2, y2, s2]] offset =
   -(dist (x1, y1) (x2, y2)) + s1 + s2 + offset
 
+pointOn :: ConstrFn
+pointOn [Val (FloatV px), Val (FloatV py), GPI rect@("Rectangle", _), Val (FloatV offset)] =
+    -- NOTE: assumes axis-aligned rectangles
+    let [w, h, x, y] = map (getNum rect) ["w", "h", "x", "y"]
+        dx = abs (px - x) - w / 2 + offset
+        dy = abs (py - y) - h / 2 + offset
+    in if dx == 0 || dy == 0 then 0 else sqrt $ (max dx dy) ^ 2
+  
 atDistFn :: (Autofloat a) => Pt2 a -> Shape a -> a -> a
 atDistFn oPt txt offset =
   -- TODO: also account for boundary/radius of `o`, rather than just using center

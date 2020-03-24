@@ -12,7 +12,8 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-fast-compare": "^2.0.4",
-    "react-scripts-ts": "^4.0.8"
+    "react-scripts-ts": "^4.0.8",
+    "svg2pdf.js": "^1.5.0"
   },
   "scripts": {
     "start": "react-scripts-ts start",

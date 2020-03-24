@@ -15,16 +15,17 @@ class Rectangle extends React.Component<IGPIProps> {
 
     return (
       <rect
-        x={x - shape.sizeX.contents / 2}
-        y={y - shape.sizeY.contents / 2}
-        width={shape.sizeX.contents}
-        height={shape.sizeY.contents}
+        x={x - shape.w.contents / 2}
+        y={y - shape.h.contents / 2}
+        width={shape.w.contents}
+        height={shape.h.contents}
         fill={fillColor}
         fillOpacity={fillAlpha}
         stroke={strokeColor}
         strokeOpacity={strokeAlpha}
         strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
         strokeWidth={thickness}
+        // transform={`rotate(${180 - shape.rotation.contents}, ${x}, ${y})`}
       >
         <title>{shape.name.contents}</title>
       </rect>

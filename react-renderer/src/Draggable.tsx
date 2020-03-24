@@ -54,7 +54,7 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
       const { dy, dx } = this.state;
       const { shape } = this.props;
       if (this.props.dragEvent) {
-        this.props.dragEvent(shape.name.contents, dy, dx);
+        this.props.dragEvent(shape.name.contents, dx, dy);
       }
     };
     public handleMouseDown = (e: React.PointerEvent<any>) => {

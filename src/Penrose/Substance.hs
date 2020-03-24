@@ -136,6 +136,7 @@ data Expr
   | ApplyFunc Func
   | ApplyValCons Func
   | DeconstructorE Deconstructor
+  | StringLit String
   deriving (Show, Eq, Typeable)
 
 data Deconstructor = Deconstructor
@@ -238,7 +239,7 @@ field :: Parser Field
 field = FieldConst <$> identifier
 
 expr, valConsOrFunc, deconstructorE :: Parser Expr
-expr = tryChoice [deconstructorE, valConsOrFunc, VarE <$> var]
+expr = tryChoice [deconstructorE, valConsOrFunc, VarE <$> var, StringLit <$> doubleQuotedString]
 
 deconstructorE = do
   v <- var
@@ -447,6 +448,8 @@ checkExpression varEnv (DeconstructorE d) --checkVarE varEnv (varDeconstructor d
   in case t of
        Just t' -> checkField varEnv (fieldDeconstructor d) t'
        Nothing -> (err, Nothing)
+checkExpression varEnv (StringLit v)    = ("", Nothing)
+
 
 -- Type checking for fields in value deconstructor, check that there is a
 -- matched value deconstructor with a matching field a retrieve the type,

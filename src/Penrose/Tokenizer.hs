@@ -158,6 +158,7 @@ translate prog (T.StartMultiComment c) = prog ++ c
 translate prog (T.EndMultiComment c) = prog ++ c
 translate prog (T.Label l) = prog ++ l
 translate prog (T.AutoLabel l) = prog ++ l
+translate prog (T.StringLit s) = prog ++ s
 translate prog (T.DSLLEntity d) = prog ++ d
 translate prog (T.Pattern p b) = prog ++ p ++ " "
 translate prog (T.Entitiy e) = prog ++ e ++ " "
