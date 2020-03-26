@@ -1,17 +1,26 @@
 plugin "graphLayout" (400.0, 400.0)
 
-global {
-    global.padding = 10.0
-    global.edgeStroke = 2.0
-    global.nodeSize = 5.0
-    global.nodeColor = Colors.lightblue
-    global.arrowColor = Colors.black
+-- TODO: Maybe apply the SVG transforms at the end of the program here:
+-- https://dagrejs.github.io/project/dagre-d3/latest/demo/sentence-tokenization.html
+
+-- TODO: Style the different node types differently
+
+const {
+    const.padding = 10.0
+    const.edgeStroke = 2.0
+    const.nodeSize = 5.0
+    const.nodeColor = Colors.lightblue
+    const.arrowColor = Colors.black
 
     -- Convert from "dagre space" to Penrose canvas space
     -- TODO: deal with (invariant) font sizes
-    global.scaleFactor = 0.3
-    global.xShift = -200.0
-    global.yShift = -200.0
+    const.scaleFactor = 0.3
+    const.xShift = -200.0
+    -- const.yShift = -200.0
+    -- const.xShift = 0.0
+    const.yShift = 0.0
+    const.xFactor = 1.0
+    const.yFactor = -1.0 -- Why is this flipped?
 }
 
 Colors {
@@ -37,16 +46,16 @@ Colors {
 
 Node n {
        n.shape = Circle { 
-         x : graphLayout[n.name]["x"] * global.scaleFactor + global.xShift
-	 y : graphLayout[n.name]["y"] * global.scaleFactor + global.yShift
-         r : global.nodeSize
-	 color : global.nodeColor
+         x : const.xFactor * graphLayout[n.name]["x"] * const.scaleFactor + const.xShift
+	 y : const.yFactor * graphLayout[n.name]["y"] * const.scaleFactor + const.yShift
+         r : const.nodeSize
+	 color : const.nodeColor
 	 strokeWidth : 0.0
        }
 
        n.text = Text {
-	 x : n.shape.x + global.padding
-	 y : n.shape.y + global.padding
+	 x : n.shape.x + const.padding
+	 y : n.shape.y + const.padding
 	 string : n.label
 	 rotation : 0.0
 	 color : n.shape.color -- Why is this color wrong?
@@ -68,8 +77,8 @@ where to(p, c) {
       		  startY : p.shape.y
       		  endX : c.shape.x
       		  endY : c.shape.y
-		  color : global.arrowColor
-		  thickness : global.edgeStroke
+		  color : const.arrowColor
+		  thickness : const.edgeStroke
       }
 
     -- Draw the arrow from y to x
@@ -89,8 +98,8 @@ where to(p, c) {
 --       		  startY : p.shape.y
 --       		  endX : c1.shape.x
 --       		  endY : c1.shape.y
--- 		  color : global.arrowColor
--- 		  thickness : global.edgeStroke
+-- 		  color : const.arrowColor
+-- 		  thickness : const.edgeStroke
 
 --       }
 
@@ -99,8 +108,8 @@ where to(p, c) {
 --       		  startY : p.shape.y
 --       		  endX : c2.shape.x
 --       		  endY : c2.shape.y
--- 		  color : global.arrowColor
--- 		  thickness : global.edgeStroke
+-- 		  color : const.arrowColor
+-- 		  thickness : const.edgeStroke
 
 --       }
 -- }
@@ -112,8 +121,8 @@ where to(p, c) {
 --       		  startY : p.shape.y
 --       		  endX : c1.shape.x
 --       		  endY : c1.shape.y
--- 		  color : global.arrowColor
--- 		  thickness : global.edgeStroke
+-- 		  color : const.arrowColor
+-- 		  thickness : const.edgeStroke
 --       }
 
 --       LOCAL.shape2 = Arrow {
@@ -121,8 +130,8 @@ where to(p, c) {
 --       		  startY : p.shape.y
 --       		  endX : c2.shape.x
 --       		  endY : c2.shape.y
--- 		  color : global.arrowColor
--- 		  thickness : global.edgeStroke
+-- 		  color : const.arrowColor
+-- 		  thickness : const.edgeStroke
 --       }
 
 --       LOCAL.shape3 = Arrow {
@@ -130,7 +139,7 @@ where to(p, c) {
 --       		  startY : p.shape.y
 --       		  endX : c3.shape.x
 --       		  endY : c3.shape.y
--- 		  color : global.arrowColor
--- 		  thickness : global.edgeStroke
+-- 		  color : const.arrowColor
+-- 		  thickness : const.edgeStroke
 --       }
 -- }

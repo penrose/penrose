@@ -18,10 +18,9 @@ Function <: Node
 Arg <: Node
 Const <: Node
 
--- function apply: Node parent -> Node child1 -> Node child2 -> 
-
--- TODO: we can't take lists rn!!!
+-- TODO: we can't make lists right now
 -- would like to write y = f[x]
+
 predicate to: Node parent * Node child
 predicate ParentOf2: Node parent * Node child1 * Node child2
 predicate ParentOf3: Node parent * Node child1 * Node child2 * Node child3
