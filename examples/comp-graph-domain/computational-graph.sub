@@ -1,0 +1,58 @@
+-- Source: https://github.com/penrose/TOG-2019/blob/master/Media/CompilerDiagrams/ComputationalGraph.gv
+
+VaryingArg X
+VaryingArg xAxis
+VaryingArg origin
+VaryingArg start
+VaryingArg end
+
+ConstArg thickness
+ConstArg style
+ConstArg color
+
+Const onepointfive
+Const solid
+Const lightGray
+Const plusStart
+Const plusEnd
+Const shiftStart
+Const shiftEnd
+Const pending
+
+X -> xAxis
+xAxis -> start
+xAxis -> end
+X -> origin
+xAxis -> thickness
+xAxis -> style
+xAxis -> color
+start -> plusStart
+end -> plusEnd
+plusStart -> shiftStart
+plusStart -> pending
+plusEnd -> shiftEnd
+plusEnd -> pending
+origin -> pending
+thickness -> onepointfive
+style -> solid
+color -> lightGray
+
+AutoLabel All
+
+Label X $\text{X}$
+Label xAxis $\text{xAxis}$
+Label origin $\text{origin}$
+Label thickness $\text{thickness}$
+Label style $\text{style}$
+Label color $\text{color}$
+Label start $\text{start}$
+Label end $\text{end}$
+Label onepointfive $1.5$
+Label solid $\text{solid}$
+Label lightGray $\text{LightGray}$
+
+Label plusStart $+$
+Label plusEnd $+$
+Label shiftStart $(-1,0)$
+Label shiftEnd $(1,0)$
+Label pending $(?,?)$
