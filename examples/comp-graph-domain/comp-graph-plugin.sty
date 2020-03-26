@@ -6,19 +6,24 @@ plugin "graphLayout" (400.0, 400.0)
 -- TODO: Style the different node types differently
 
 const {
-    const.padding = 10.0
+    -- const.padding = 10.0
+    const.padding = 0.0
     const.edgeStroke = 2.0
-    const.nodeSize = 5.0
+    const.nodeWidth = 40.0
+    const.nodeHeight = 20.0
     const.nodeColor = Colors.lightblue
     const.arrowColor = Colors.black
 
     -- Convert from "dagre space" to Penrose canvas space
     -- TODO: deal with (invariant) font sizes
-    const.scaleFactor = 0.3
+
+    const.scaleFactor = 0.3 -- For comp. graph
+    const.scaleFactor = 0.22 -- For opt. graph
+
     const.xShift = -200.0
-    -- const.yShift = -200.0
+    const.yShift = 200.0
     -- const.xShift = 0.0
-    const.yShift = 0.0
+    -- const.yShift = 0.0
     const.xFactor = 1.0
     const.yFactor = -1.0 -- Why is this flipped?
 }
@@ -45,10 +50,17 @@ Colors {
 }
 
 Node n {
-       n.shape = Circle { 
+       n.shape = Ellipse { 
          x : const.xFactor * graphLayout[n.name]["x"] * const.scaleFactor + const.xShift
 	 y : const.yFactor * graphLayout[n.name]["y"] * const.scaleFactor + const.yShift
-         r : const.nodeSize
+
+         rx : const.nodeWidth
+	 ry : const.nodeHeight
+
+	 -- TODO: Don't seem to be able to get text dims here
+         -- rx : n.text.w
+	 -- ry : n.text.h
+
 	 color : const.nodeColor
 	 strokeWidth : 0.0
        }
@@ -58,11 +70,25 @@ Node n {
 	 y : n.shape.y + const.padding
 	 string : n.label
 	 rotation : 0.0
-	 color : n.shape.color -- Why is this color wrong?
+	 color : Colors.black
        }
+
+       n.text above n.shape
 }
 
 -- Ported from sty/tree.sty
+
+ConstArg n {
+	   override n.shape.color = setOpacity(Colors.sky, 0.9)
+}
+
+VaryingArg n {
+	   override n.shape.color = setOpacity(Colors.orange, 0.9)
+}
+
+Const n {
+            override n.shape.color = Colors.none
+}
 
 Node x; Node y {
    -- Try to make sure no labels overlap
@@ -79,7 +105,11 @@ where to(p, c) {
       		  endY : c.shape.y
 		  color : const.arrowColor
 		  thickness : const.edgeStroke
+		  arrowheadSize : 0.5
       }
+
+      p.shape above LOCAL.shape
+      c.shape above LOCAL.shape
 
     -- Draw the arrow from y to x
     LOCAL.centerFn = encourage centerArrow(LOCAL.shape, p.shape, c.shape)

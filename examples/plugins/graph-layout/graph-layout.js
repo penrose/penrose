@@ -7,8 +7,8 @@ const dagre = require("dagre");
 const crash = () => { console.log("crashing"); console.log(null[0]); }
 
 // TODO: Estimate these constants better
-const letterWidth = 21; // Pixels
-const letterHeight = 50;
+const letterWidth = 28; // Pixels
+const letterHeight = 55;
 
 function buildGraph(json) {
     let subDecls = json.objects;
