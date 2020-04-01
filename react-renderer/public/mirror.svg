@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 6.01">
+  <title>mirror</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="geometry">
+      <g>
+        <polygon points="36.4 0.01 14.06 6 19 6.01 41.34 0.01 36.4 0.01" fill="#ccc"/>
+        <polygon points="0 0 0 6 10.54 6 32.88 0.01 0 0" fill="#ccc"/>
+        <polygon points="45 0.01 44.6 0.01 44.61 0.06 22.43 6.01 45 6.01 45 0.01" fill="#ccc"/>
+        <polygon points="36.44 0 32.91 0 32.88 0.01 10.54 6 10.51 6.01 14.03 6.01 14.06 6 36.4 0.01 36.44 0" fill="#fff"/>
+        <polygon points="44.6 0.01 44.6 0 41.38 0 41.34 0.01 19 6.01 18.97 6.01 22.41 6.01 22.43 6.01 44.61 0.06 44.6 0.01" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

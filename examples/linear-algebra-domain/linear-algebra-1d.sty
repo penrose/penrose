@@ -156,8 +156,8 @@ where In(v,U); In(u,U); v := scale(c,u){
   override v.shape = Rectangle {
     x : (u.shape.startX + u.shape.endX)/2.0
     y : u.shape.startY + lineLength(c.shape)/2.0
-    sizeX : len(u.shape)
-    sizeY : lineLength(c.shape)
+    w : len(u.shape)
+    h : lineLength(c.shape)
     color : Colors.gray
     strokeWidth : 0.0
   }

@@ -858,8 +858,8 @@ rectType =
   , M.fromList
       [ ("x", (FloatT, x_sampler))
       , ("y", (FloatT, y_sampler))
-      , ("sizeX", (FloatT, width_sampler))
-      , ("sizeY", (FloatT, height_sampler))
+      , ("w", (FloatT, width_sampler))
+      , ("h", (FloatT, height_sampler))
       , ("rotation", (FloatT, constValue $ FloatV 0.0))
       , ("color", (ColorT, sampleColor))
       , ("strokeWidth", (FloatT, stroke_sampler))

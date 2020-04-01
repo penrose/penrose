@@ -11,6 +11,13 @@ packages:
       sha256: fecec01e618890c284e57cb873b8f9531f479562b7cf08497aef097da3ef90ec
   original:
     hackage: pretty-terminal-0.1.0.0
+- completed:
+    hackage: palette-0.3.0.2@sha256:50e210b7d21a0c394a6d672cc3c6d3bffcfa1be07419d72b99e68cfb65d6ca3c,1485
+    pantry-tree:
+      size: 6342
+      sha256: 9285e95a5701636961e83ed2036cca52a6b66e5ea809500ed6b845bc920f2791
+  original:
+    hackage: palette-0.3.0.2@sha256:50e210b7d21a0c394a6d672cc3c6d3bffcfa1be07419d72b99e68cfb65d6ca3c,1485
 snapshots:
 - completed:
     size: 498402

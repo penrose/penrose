@@ -9,7 +9,7 @@ module Penrose.Env where
   -- ( VarEnv(..)
   -- , isDeclared
   -- , StmtNotationRule(..)
-  -- ) 
+  -- )
 
 import           Control.Arrow                  ((>>>))
 import           Control.Monad                  (void, MonadPlus)
@@ -117,6 +117,10 @@ lowerId = (lexeme . try) (p >>= checkId)
     p = (:) <$> lowerChar <*> many validChar
 
 validChar = alphaNumChar <|> char '_' <|> char '-'
+
+doubleQuotedString :: Parser String
+-- NOTE: overlapping parsers 'charLiteral' and 'char '"'', so we use 'try'
+doubleQuotedString = symbol "\"" >> manyTill L.charLiteral (try (symbol "\""))
 
 transPattern :: Parser String
 transPattern = (lexeme . try) (p >>= checkPattern)
@@ -644,8 +648,9 @@ checkTypeCtorApp e const =
               then env1
                    { errors =
                        errors env1 ++
-                       ("Args do not match: " ++
-                        show kinds1 ++ " != " ++ show kinds2 ++ "\n")
+                       ("Args do not match for type constructor " ++
+                        name ++
+                        ": " ++ show kinds1 ++ " != " ++ show kinds2 ++ "\n")
                    }
               else env1
        Left err -> env1 {errors = errors env1 ++ err}

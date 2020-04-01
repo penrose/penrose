@@ -52,42 +52,80 @@ class Canvas extends React.Component<IProps> {
     });
     return processed;
   };
+
+  /**
+   * Hard-coded canvas size
+   * @type {[number, number]}
+   * @memberof Canvas
+   */
   public readonly canvasSize: [number, number] = [800, 700];
+  // public readonly canvasSize: [number, number] = [400, 400];
   public readonly svg = React.createRef<SVGSVGElement>();
 
-  public dragEvent = async (id: string, dy: number, dx: number) => {
+  /**
+   * Retrieve data from drag events and update varying state accordingly
+   * @memberof Canvas
+   */
+  public dragEvent = async (id: string, dx: number, dy: number) => {
     if (this.props.updateData) {
-      const updated = await propagateUpdate({
+      const updated = {
         ...this.props.data,
         paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
         shapesr: this.props.data.shapesr.map(
-          ([shapeType, shape]: [string, any]) => {
-            if (shape.name.contents === id) {
-              if (shapeType === "Curve") {
-                console.log("Curve drag unimplemented", shape); // Just to prevent crashing on accidental drag
-                return [
-                  shapeType,
-                  { ...shape } // TODO: need to map (-dx, -dy) over all the path pieces
-                ];
-              }
-
-              return [
-                shapeType,
-                {
-                  ...shape,
-                  x: { ...shape.x, contents: shape.x.contents - dx },
-                  y: { ...shape.y, contents: shape.y.contents - dy }
-                }
-              ];
+          ([type, properties]: [string, any]) => {
+            if (properties.name.contents === id) {
+              return this.dragShape([type, properties], dx, dy);
             }
-
-            return [shapeType, shape];
+            return [type, properties];
           }
         )
-      });
+      };
       const updatedWithVaryingState = await updateVaryingState(updated);
       this.props.updateData(updatedWithVaryingState);
     }
+  };
+
+  public dragShape = ([type, properties]: any, dx: number, dy: number) => {
+    switch (type) {
+      case "Curve":
+        console.log("Curve drag unimplemented", [type, properties]); // Just to prevent crashing on accidental drag
+        return [type, properties];
+      case "Line":
+        return [
+          type,
+          this.moveProperties(properties, [
+            ["startX", dx],
+            ["startY", dy],
+            ["endX", dx],
+            ["endY", dy]
+          ])
+        ];
+      case "Arrow":
+        return [
+          type,
+          this.moveProperties(properties, [
+            ["startX", dx],
+            ["startY", dy],
+            ["endX", dx],
+            ["endY", dy]
+          ])
+        ];
+      default:
+        return [type, this.moveProperties(properties, [["x", dx], ["y", dy]])];
+    }
+  };
+
+  /**
+   * For each of the specified properties listed in `propPairs`, subtract a number from the original value.
+   *
+   * @memberof Canvas
+   */
+  public moveProperties = (properties: any, propPairs: [string, number][]) => {
+    const moveProperty = (props: any, [propertyID, n]: [string, number]) => {
+      props[propertyID].contents -= n;
+      return props;
+    };
+    return propPairs.reduce(moveProperty, properties);
   };
 
   public prepareSVGContent = async () => {
@@ -108,6 +146,7 @@ class Canvas extends React.Component<IProps> {
           const height = image.getAttribute("height");
           const x = image.getAttribute("x");
           const y = image.getAttribute("y");
+          const transform = image.getAttribute("transform");
 
           const wrapper = document.createElement("div");
           wrapper.innerHTML = contents;
@@ -118,7 +157,11 @@ class Canvas extends React.Component<IProps> {
           const outer = s.outerHTML;
           const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
           g.innerHTML = outer;
-          g.setAttributeNS(null, "transform", `translate(${x},${y})`);
+          g.setAttributeNS(
+            null,
+            "transform",
+            `${transform} translate(${x},${y})`
+          );
           // HACK: generate unique ids
           const defs = g.getElementsByTagName("defs");
           if (defs.length > 0) {

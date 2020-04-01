@@ -96,5 +96,12 @@
     "style": 13,
     "previewURI": "https://gist.githubusercontent.com/wodeni/e79dcfc82504796cd169ad5e44c7c970/raw/fc9f3008643839dcf284b45b251915366ea98eed/continuous-function.svg?sanitize=true",
     "name": "continuous function"
+  },
+  {
+    "substanceURI": "raytracing-domain/spec-raytra.sub",
+    "element": 5,
+    "style": 14,
+    "previewURI": "https://gist.githubusercontent.com/wodeni/54fdcafc3cf9cf0c14b68868893db1dd/raw/80976b0fd68ee2dac52bdc17d107104dde14d3c1/sets-3d.svg?sanitize=true",
+    "name": "Ray tracing"
   }
 ]

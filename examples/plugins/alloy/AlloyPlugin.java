@@ -326,11 +326,6 @@ public class AlloyPlugin {
         out.println(output);
         out.close();
 
-        // HACK: the backend requires values.json, consider removal
-        out = new PrintWriter("values.json");
-        out.println("[ ]");
-        out.close();
-
         // DEBUG
         // AlloyPlugin a = new AlloyPlugin(numSamples);
         //

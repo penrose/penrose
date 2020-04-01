@@ -19,6 +19,7 @@ class Image extends React.Component<IGPIProps> {
         opacity={opacity}
         width={w}
         height={h}
+        transform={`rotate(${shape.rotation.contents}, ${x}, ${y})`}
       />
     );
   }
