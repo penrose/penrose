@@ -7,8 +7,11 @@ const dagre = require("dagre");
 const crash = () => { console.log("crashing"); console.log(null[0]); }
 
 // TODO: Estimate these constants better
-const letterWidth = 28; // Pixels
-const letterHeight = 55;
+// TODO: This should actually be the size of the ellipse that contains the node, not the text size
+const letterWidth = 200; // Pixels
+const letterHeight = 80;
+const ellipseLR_Padding = 600;
+const ellipseTB_Padding = 600;
 
 function buildGraph(json) {
     let subDecls = json.objects;
@@ -33,7 +36,7 @@ function buildGraph(json) {
 	    // crash();
 	}
 
-	g.setNode(obj.objName, { label: "", width: obj.objName.length * letterWidth, height : letterHeight });
+	g.setNode(obj.objName, { label: "", width: obj.objName.length * letterWidth + ellipseLR_Padding, height : letterHeight + ellipseTB_Padding });
     }
 
     // Add edges to the graph.
@@ -49,8 +52,12 @@ function buildGraph(json) {
     }
 
     // Lay out graph
+    // https://github.com/dagrejs/dagre/wiki#configuring-the-layout
     // TODO: Explore layout configuration options
-    dagre.layout(g);
+    // TODO: This does not seem to work
+    let layout_config = { nodesep: 100, edgesep: 100, ranksep: 500 };
+    g.nodesep = 1000;
+    dagre.layout(g, layout_config);
 
     let layout_info = {};
 

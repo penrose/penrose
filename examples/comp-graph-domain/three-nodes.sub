@@ -1,0 +1,6 @@
+Node testNode1
+Node node2
+Node newNodesThree
+testNode1 -> node2
+testNode1 -> newNodesThree
+AutoLabel All

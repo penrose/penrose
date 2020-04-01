@@ -4,6 +4,14 @@ plugin "graphLayout" (400.0, 400.0)
 -- https://dagrejs.github.io/project/dagre-d3/latest/demo/sentence-tokenization.html
 
 -- TODO: Style the different node types differently
+-- TODO: Penrose needs to draw the arrows to the edge of the ellipse only
+-- TODO: Size graph to fit on the page
+
+-- TODO: What are the varying values??
+-- TODO: What are the objectives and constraints generated??
+-- TODO: Maybe the right thing to do is do the conversion to Penrose space in the plugin
+   -- Center the graph bbox at (0,0) (Penrose)
+   -- Normalize all other coordinates to fit in (800,700)
 
 const {
     -- const.padding = 10.0
@@ -17,15 +25,43 @@ const {
     -- Convert from "dagre space" to Penrose canvas space
     -- TODO: deal with (invariant) font sizes
 
-    const.scaleFactor = 0.3 -- For comp. graph
-    const.scaleFactor = 0.22 -- For opt. graph
+    -- const.scaleFactor = 0.3 -- For comp. graph
+    -- const.scaleFactor = 0.22 -- For opt. graph
+    const.scaleFactor = ?
+    const.xShift = ?
+    const.yShift = ?
 
-    const.xShift = -200.0
-    const.yShift = 200.0
+    -- const.xShift = -200.0
+    -- const.yShift = 200.0
     -- const.xShift = 0.0
     -- const.yShift = 0.0
+    -- const.xShift = -550.0
+    -- const.yShift = 300.0
     const.xFactor = 1.0
+    -- const.yFactor = 1.0
     const.yFactor = -1.0 -- Why is this flipped?
+
+    const.origin = Circle {
+    		 x : 0.0
+		 y : 0.0
+		 r : 10
+		 color : Colors.red
+    }
+
+    const.canvas = Rectangle {
+    		 x : 0.0
+		 y : 0.0
+		 sizeX : 800.0
+		 sizeY : 700.0
+		 rotation : 0
+		 strokeWidth : 3.0
+		 strokeColor : Colors.blue
+		 color : Colors.none
+    }
+
+    -- c > 0.2 ==> -c < -0.2
+    -- ensure lessThanSq(-1.0 * const.scaleFactor, -0.5)
+    ensure inRange(const.scaleFactor, 0.15, 1.0)
 }
 
 Colors {
@@ -65,6 +101,16 @@ Node n {
 	 strokeWidth : 0.0
        }
 
+       -- Conservative approximation of ellipse (for `contains` function)
+       n.shape2 = Circle {
+         x : n.shape.x
+       	 y : n.shape.y
+       	 r : n.shape.rx
+       	 color : Colors.none
+       	 strokeWidth : 1.0
+       	 strokeColor : setOpacity(Colors.red, 0.2)
+       }
+
        n.text = Text {
 	 x : n.shape.x + const.padding
 	 y : n.shape.y + const.padding
@@ -74,6 +120,9 @@ Node n {
        }
 
        n.text above n.shape
+
+       encourage center(n.shape2)
+       ensure contains(const.canvas, n.shape2, 5.0)
 }
 
 -- Ported from sty/tree.sty
@@ -111,14 +160,14 @@ where to(p, c) {
       p.shape above LOCAL.shape
       c.shape above LOCAL.shape
 
-    -- Draw the arrow from y to x
-    LOCAL.centerFn = encourage centerArrow(LOCAL.shape, p.shape, c.shape)
+    -- -- Draw the arrow from y to x
+    -- LOCAL.centerFn = encourage centerArrow(LOCAL.shape, p.shape, c.shape)
 
-    -- Position y above x
-    LOCAL.aboveFn = encourage above(p.shape, c.shape)
+    -- -- Position y above x
+    -- LOCAL.aboveFn = encourage above(p.shape, c.shape)
 
-    -- Have sets 'fight' to be aligned with the superset's x-position
-    LOCAL.equalFn = encourage equal(p.shape.x, c.shape.x)
+    -- -- Have sets 'fight' to be aligned with the superset's x-position
+    -- LOCAL.equalFn = encourage equal(p.shape.x, c.shape.x)
 }
 
 -- Node p; Node c1; Node c2
