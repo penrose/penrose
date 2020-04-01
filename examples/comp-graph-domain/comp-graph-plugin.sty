@@ -25,11 +25,17 @@ const {
     -- Convert from "dagre space" to Penrose canvas space
     -- TODO: deal with (invariant) font sizes
 
+    const.graphWidth = graphLayout["dagre_graph"]["width"]
+    const.graphHeight = graphLayout["dagre_graph"]["height"]
+
+    -- const.graphWidthHalf = const.graphWidth * 0.5
+    -- const.graphHeightHalf = const.graphHeight * 0.5
+
     -- const.scaleFactor = 0.3 -- For comp. graph
     -- const.scaleFactor = 0.22 -- For opt. graph
-    const.scaleFactor = ?
-    const.xShift = ?
-    const.yShift = ?
+    const.scaleFactor = 1.0
+    const.xShift = 0.0 -- const.graphWidth * 0.5
+    const.yShift = 0.0 -- const.graphHeight * 0.5
 
     -- const.xShift = -200.0
     -- const.yShift = 200.0
@@ -41,18 +47,21 @@ const {
     -- const.yFactor = 1.0
     const.yFactor = -1.0 -- Why is this flipped?
 
-    const.origin = Circle {
-    		 x : 0.0
-		 y : 0.0
-		 r : 10
-		 color : Colors.red
-    }
+    -- const.origin = Circle {
+    -- 		 x : 0.0
+    -- 		 y : 0.0
+    -- 		 r : 10
+    -- 		 color : Colors.red
+    -- }
+
+    const.canvasWidth = 800.0
+    const.canvasHeight = 700.0
 
     const.canvas = Rectangle {
     		 x : 0.0
 		 y : 0.0
-		 sizeX : 800.0
-		 sizeY : 700.0
+		 sizeX : const.canvasWidth
+ 		 sizeY : const.canvasHeight
 		 rotation : 0
 		 strokeWidth : 3.0
 		 strokeColor : Colors.blue
@@ -86,9 +95,17 @@ Colors {
 }
 
 Node n {
+
+-- Normalization approach borrowed from here: https://dagrejs.github.io/project/dagre-d3/latest/demo/sentence-tokenization.html
+
        n.shape = Ellipse { 
-         x : const.xFactor * graphLayout[n.name]["x"] * const.scaleFactor + const.xShift
-	 y : const.yFactor * graphLayout[n.name]["y"] * const.scaleFactor + const.yShift
+         -- x : const.xFactor * graphLayout[n.name]["x"] * const.scaleFactor + const.xShift
+	 -- y : const.yFactor * graphLayout[n.name]["y"] * const.scaleFactor + const.yShift
+
+	 -- Normalize to [0,1], then to [-0.5,0.5], then scale to canvas dims
+	 -- TODO: Preserve original graph ratio; don't stretch out
+         x : (graphLayout[n.name]["x"] / const.graphWidth - 0.5) * const.canvasWidth
+	 y : (graphLayout[n.name]["y"] / const.graphHeight - 0.5) * const.canvasHeight * const.yFactor
 
          rx : const.nodeWidth
 	 ry : const.nodeHeight
@@ -102,14 +119,14 @@ Node n {
        }
 
        -- Conservative approximation of ellipse (for `contains` function)
-       n.shape2 = Circle {
-         x : n.shape.x
-       	 y : n.shape.y
-       	 r : n.shape.rx
-       	 color : Colors.none
-       	 strokeWidth : 1.0
-       	 strokeColor : setOpacity(Colors.red, 0.2)
-       }
+       -- n.shape2 = Circle {
+       --   x : n.shape.x
+       -- 	 y : n.shape.y
+       -- 	 r : n.shape.rx
+       -- 	 color : Colors.none
+       -- 	 strokeWidth : 1.0
+       -- 	 strokeColor : setOpacity(Colors.red, 0.2)
+       -- }
 
        n.text = Text {
 	 x : n.shape.x + const.padding

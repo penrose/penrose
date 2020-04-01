@@ -8,10 +8,10 @@ const crash = () => { console.log("crashing"); console.log(null[0]); }
 
 // TODO: Estimate these constants better
 // TODO: This should actually be the size of the ellipse that contains the node, not the text size
-const letterWidth = 200; // Pixels
+const letterWidth = 80; // Pixels
 const letterHeight = 80;
 const ellipseLR_Padding = 600;
-const ellipseTB_Padding = 600;
+const ellipseTB_Padding = 300;
 
 function buildGraph(json) {
     let subDecls = json.objects;
@@ -75,11 +75,13 @@ function buildGraph(json) {
     });
 
     console.log("layout info", layout_info);
-    return layout_info;
+    return { graph: g, layout_info: layout_info };
 }
 
 // TODO: This does not yet read the Substance graph yet, so it's just rendering part of the premade sample graph above if the names in the given Substance program are the same
-function makeSty(layout_info) {
+function makeSty(layout_result) {
+    let layout_info = layout_result.layout_info;
+    let graph = layout_result.graph;
     let vals = [];
 
     for (let nodeName of Object.keys(layout_info)) {
@@ -97,6 +99,17 @@ function makeSty(layout_info) {
 	vals.push(local_json);
     }
 
+    let graph_json = {
+	subName : "dagre_graph",
+	nameVals : [ { propertyName: "width",
+		       propertyVal: graph.graph().width },
+		     { propertyName: "height",
+		       propertyVal: graph.graph().height } 
+		   ]
+    };
+
+    vals.push(graph_json);
+
     return JSON.stringify(vals);
 }
 
@@ -111,9 +124,9 @@ function main() {
     console.log("seeds", seeds);
 
     // TODO: We don't have node dimensions from the frontend, so we just estimate them in the plugin
-    let layout_info = buildGraph(subJSON.substance);
+    let layout_result = buildGraph(subJSON.substance);
     let newSub = ""; // No new Substance lines
-    let styVals = makeSty(layout_info); // Convert laid-out graph (node coords) to JSON format for Style
+    let styVals = makeSty(layout_result); // Convert laid-out graph (node coords) to JSON format for Style
 
     console.log("writing Substance program: ", newSub);
     Fs.writeFileSync('Sub_instantiated.sub', newSub);
