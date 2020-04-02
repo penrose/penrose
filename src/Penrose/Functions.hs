@@ -131,6 +131,7 @@ compDict =
     , ("lineLength", constComp lineLength)
     , ("lineLeft", constComp lineLeft)
     , ("lineRight", constComp lineRight)
+    , ("lineBetween", constComp lineBetween)
     , ("interpolate", constComp interpolate)
     , ("sampleFunction", sampleFunction)
     , ("fromDomain", fromDomain)
@@ -592,6 +593,30 @@ lineRight [Val (FloatV lineFrac), GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
   in let a1_len = abs (getNum a1 "endY" - a1_start)
      in let ypos = a1_start + lineFrac * a1_len
         in Val $ PtListV [(getNum a2 "startX", ypos), (getNum a2 "endX", ypos)]
+
+-- Offset a line (from cp to q, where cp is the center of shape p, bboxp is the bbox of that shape, and q is another point on the line that is outside of the bbox) to cp' which is shifted to lie outside of the bbox.
+-- Input:  (bboxp) [  cp--]-----> q
+-- Output: (bboxp) [      ]cp'--> q
+
+offsetFromShape :: Autofloat a => Pt2 a -> Pt2 a -> (Pt2 a, Pt2 a) -> Pt2 a
+offsetFromShape cp q bboxp = 
+   let (left, top, right, bottom) = bboxPtsToSegsSorted $ bboxToPts bboxp
+       hits = findIntersectionsAABB (cp, q) [top, bottom] [left, right]
+   in case hits of
+      [] -> {- trace "No hits" -} cp
+      [hit] -> {- trace "One intersection" $ -} hit
+      (hit:hits) -> error "Two+ hits found between segment and bbox. Are you sure `cp` lies in `bboxp`?"
+
+-- Accounting for the bboxes of the shape
+lineBetween :: ConstCompFn
+lineBetween [GPI p, GPI q] =
+   let (cp, cq) = (getCenter' p, getCenter' q)
+       (bboxp, bboxq) = (bbox p, bbox q)
+       -- Test (cp, bboxc) and return new endpoint cp'
+       -- Test (cq, bboxq) and return new endpoint cq'
+       (cp', cq') = (offsetFromShape cp cq bboxp, offsetFromShape cq cp bboxq)
+       path = Open $ map Pt [cp', cq']
+   in Val $ PathDataV [path]
 
 rgba :: ConstCompFn
 rgba [Val (FloatV r), Val (FloatV g), Val (FloatV b), Val (FloatV a)] =
@@ -1077,8 +1102,8 @@ bboxWidth [GPI a1@("Arrow", _), GPI a2@("Arrow", _)] =
   where
     getXs a = [getNum a "startX", getNum a "endX"]
 
-bbox :: (Autofloat a) => Shape a -> Shape a -> [(a, a)]
-bbox a1 a2 =
+bboxLines :: (Autofloat a) => Shape a -> Shape a -> [(a, a)]
+bboxLines a1 a2 =
   if not (linelike a1 && linelike a2)
     then error "expected two linelike GPIs"
     else let xs@[x0, x1, x2, x3] = getXs a1 ++ getXs a2
@@ -1091,8 +1116,33 @@ bbox a1 a2 =
     getXs a = [getNum a "startX", getNum a "endX"]
     getYs a = [getNum a "startY", getNum a "endY"]
 
+-- Clockwise: Left, top, right, bottom (with points in CW order)
+bboxPtsToSegs :: Autofloat a => (Pt2 a, Pt2 a, Pt2 a, Pt2 a) -> (LineSeg a, LineSeg a, LineSeg a, LineSeg a)
+bboxPtsToSegs (bl, tl, tr, br) = ((bl, tl), (tl, tr), (tr, br), (br, bl))
+
+-- Clockwise: Left, top, right, bottom (with ascending x or y values for points for AABB check)
+bboxPtsToSegsSorted :: Autofloat a => (Pt2 a, Pt2 a, Pt2 a, Pt2 a) -> (LineSeg a, LineSeg a, LineSeg a, LineSeg a)
+bboxPtsToSegsSorted (bl, tl, tr, br) = ((bl, tl), (tl, tr), (br, tr), (bl, br))
+
+-- Clockwise starting from bl
+bboxToPts :: Autofloat a => (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a, Pt2 a)
+bboxToPts (bl, tr) =
+               let (xmin, ymin) = bl
+                   (xmax, ymax) = tr
+                   tl = (xmin, ymax)
+                   br = (xmax, ymin)
+               in (bl, tl, tr, br)
+
+-- Two bbox points (bottom left, top right)
+bbox :: (Autofloat a) => Shape a -> (Pt2 a, Pt2 a)
+bbox e@("Ellipse", _) = 
+     let c = getCenter' e
+         rvec = (getNum e "rx", getNum e "ry")
+         (bl, tr) = (c -: rvec, c +: rvec)
+     in (bl, tr)
+
 bbox' :: ConstCompFn
-bbox' [GPI a1, GPI a2] = Val $ PtListV $ bbox a2 a2
+bbox' [GPI a1, GPI a2] = Val $ PtListV $ bboxLines a2 a2
 
 min' :: ConstCompFn
 min' [Val (FloatV x), Val (FloatV y)] = Val $ FloatV $ min x y

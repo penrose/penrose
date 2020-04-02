@@ -87,6 +87,12 @@ subsetSizeDiff = 10.0
 epsd :: Floating a => a -- to prevent 1/0 (infinity). put it in the denominator
 epsd = 10 ** (-10)
 
+epsc :: Floating a => a -- For tolerance checks
+epsc = 10 ** (-4)
+
+floatNeq :: Autofloat a => a -> a -> Bool
+floatNeq x y = abs (x - y) > epsc
+
 --------------------------------------------------------------------------------
 -- General helper functions
 type Interval = (Float, Float) -- which causes type inference problems in Style for some reason.

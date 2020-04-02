@@ -16,9 +16,9 @@ plugin "graphLayout" (400.0, 400.0)
 const {
     -- const.padding = 10.0
     const.padding = 0.0
+    const.nodePaddingX = 5.0
+    const.nodePaddingY = 5.0
     const.edgeStroke = 2.0
-    const.nodeWidth = 40.0
-    const.nodeHeight = 20.0
     const.nodeColor = Colors.lightblue
     const.arrowColor = Colors.black
 
@@ -28,12 +28,11 @@ const {
     const.graphWidth = graphLayout["dagre_graph"]["width"]
     const.graphHeight = graphLayout["dagre_graph"]["height"]
 
-    -- const.graphWidthHalf = const.graphWidth * 0.5
-    -- const.graphHeightHalf = const.graphHeight * 0.5
+    const.graphWidthHalf = const.graphWidth * 0.5
+    const.graphHeightHalf = const.graphHeight * 0.5
 
-    -- const.scaleFactor = 0.3 -- For comp. graph
-    -- const.scaleFactor = 0.22 -- For opt. graph
-    const.scaleFactor = 1.0
+    -- This is hand-tuned to just about fit the widest graph, optimization-graph.sub, because it makes more sense for all the examples to have the same scale factor
+    const.scaleFactor = 0.065
     const.xShift = 0.0 -- const.graphWidth * 0.5
     const.yShift = 0.0 -- const.graphHeight * 0.5
 
@@ -99,20 +98,19 @@ Node n {
 -- Normalization approach borrowed from here: https://dagrejs.github.io/project/dagre-d3/latest/demo/sentence-tokenization.html
 
        n.shape = Ellipse { 
-         -- x : const.xFactor * graphLayout[n.name]["x"] * const.scaleFactor + const.xShift
-	 -- y : const.yFactor * graphLayout[n.name]["y"] * const.scaleFactor + const.yShift
-
 	 -- Normalize to [0,1], then to [-0.5,0.5], then scale to canvas dims
-	 -- TODO: Preserve original graph ratio; don't stretch out
-         x : (graphLayout[n.name]["x"] / const.graphWidth - 0.5) * const.canvasWidth
-	 y : (graphLayout[n.name]["y"] / const.graphHeight - 0.5) * const.canvasHeight * const.yFactor
+         -- x : (graphLayout[n.name]["x"] / const.graphWidth - 0.5) * const.canvasWidth
+	 -- y : (graphLayout[n.name]["y"] / const.graphHeight - 0.5) * const.canvasHeight * const.yFactor
 
-         rx : const.nodeWidth
-	 ry : const.nodeHeight
+	 -- Preserve original graph ratio; don't stretch out
+	 -- Transform first to be about (0,0)
+	 -- Then scale both dimensions uniformly to fit exactly on the canvas (width or height) (TODO: Calculate scale factor?)
+         x : (graphLayout[n.name]["x"] - const.graphWidthHalf) * const.scaleFactor
+	 y : (graphLayout[n.name]["y"] - const.graphHeightHalf) * const.scaleFactor * const.yFactor
 
-	 -- TODO: Don't seem to be able to get text dims here
-         -- rx : n.text.w
-	 -- ry : n.text.h
+	 -- Note: you need to step the system to see this take effect
+         rx : n.text.w / 2.0 + const.nodePaddingX
+	 ry : n.text.h / 2.0 + const.nodePaddingY
 
 	 color : const.nodeColor
 	 strokeWidth : 0.0
@@ -164,27 +162,20 @@ Node x; Node y {
 -- TODO: factor out redundant code w/ lists
 Node p; Node c
 where to(p, c) {
-      LOCAL.shape = Arrow {
-      		  startX : p.shape.x
-      		  startY : p.shape.y
-      		  endX : c.shape.x
-      		  endY : c.shape.y
+      LOCAL.shape = Curve {
+		  -- Shorten arrow to account for the bboxes of the shape
+		  -- TODO: Account for arrowhead size in offset
+      		  pathData : lineBetween(p.shape, c.shape)
+		  strokeWidth : const.edgeStroke
 		  color : const.arrowColor
-		  thickness : const.edgeStroke
+		  fill : Colors.none
+		  rotation : 0.0
+		  rightArrowhead : True
 		  arrowheadSize : 0.5
       }
 
       p.shape above LOCAL.shape
       c.shape above LOCAL.shape
-
-    -- -- Draw the arrow from y to x
-    -- LOCAL.centerFn = encourage centerArrow(LOCAL.shape, p.shape, c.shape)
-
-    -- -- Position y above x
-    -- LOCAL.aboveFn = encourage above(p.shape, c.shape)
-
-    -- -- Have sets 'fight' to be aligned with the superset's x-position
-    -- LOCAL.equalFn = encourage equal(p.shape.x, c.shape.x)
 }
 
 -- Node p; Node c1; Node c2

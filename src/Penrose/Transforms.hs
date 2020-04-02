@@ -314,8 +314,76 @@ ixSS (a,b) (c,d) = let
     in ((a_cd>=0&&b_cd<=0) || (a_cd<=0&&b_cd>=0)) && 
        ((c_ab>=0&&d_ab<=0) || (c_ab<=0&&d_ab>=0))
 
--- https://rosettacode.org/wiki/Find_the_intersection_of_two_lines#Haskell
--- https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function   
+-- Below functions for findIntersectionsAABB adapted from seg-seg code here: http://hackage.haskell.org/package/gloss-1.13.1.1/docs/Graphics-Gloss-Geometry-Line.html#g:4
+
+-- Omitting general seg-seg intersection point code because this is for axis-aligned bounding box (AABB)
+
+-- | Check if line segment (P1-P2) clears a box (P3-P4) by being well outside it.
+segClearsBox :: Autofloat a => 
+      Pt2 a        -- ^ P1 First point of segment.
+   -> Pt2 a        -- ^ P2 Second point of segment.
+   -> Pt2 a        -- ^ P3 Lower left point of box.
+   -> Pt2 a        -- ^ P4 Upper right point of box.
+   -> Bool
+segClearsBox (x1, y1) (x2, y2) (xa, ya) (xb, yb)
+   | x1 < xa, x2 < xa      = True
+   | x1 > xb, x2 > xb      = True
+   | y1 < ya, y2 < ya      = True
+   | y1 > yb, y2 > yb      = True
+   | otherwise             = False
+
+-- | Check if an arbitrary segment intersects a horizontal segment.
+intersectSegHorzSeg :: Autofloat a => 
+          Pt2 a        -- ^ P1 First point of segment.
+       -> Pt2 a        -- ^ P2 Second point of segment.
+       -> a            -- ^ (y3) y value of horizontal segment.
+       -> a            -- ^ (xa) Leftmost x value of horizontal segment.
+       -> a            -- ^ (xb) Rightmost x value of horizontal segment.
+       -> Maybe (Pt2 a)  -- ^ (x3, y3) Intersection point, if any.
+intersectSegHorzSeg p1@(x1, y1) p2@(x2, y2) y0 xa xb
+       | segClearsBox p1 p2 (xa, y0) (xb, y0) = Nothing
+       | x0 < xa       = Nothing
+       | x0 > xb       = Nothing
+       | otherwise     = Just (x0, y0)
+
+       where x0 | (y2 - y1) == 0 = x1
+                | otherwise      = (y0 - y1) * (x2 - x1) / (y2 - y1) + x1
+
+-- | Check if an arbitrary segment intersects a vertical segment.
+intersectSegVertSeg :: Autofloat a => 
+           Pt2 a        -- ^ P1 First point of segment.
+        -> Pt2 a        -- ^ P2 Second point of segment.
+        -> a            -- ^ (x3) x value of vertical segment
+        -> a            -- ^ (ya) Lowest y value of vertical segment.
+        -> a            -- ^ (yb) Highest y value of vertical segment.
+        -> Maybe (Pt2 a)  -- ^ (x3, y3) Intersection point, if any.
+intersectSegVertSeg p1@(x1, y1) p2@(x2, y2) x0 ya yb
+        | segClearsBox p1 p2 (x0, ya) (x0, yb) = Nothing
+        | y0 < ya       = Nothing
+        | y0 > yb       = Nothing
+        | otherwise     = Just (x0, y0)
+        where y0 | (x2 - x1) == 0 = y1
+                 | otherwise      = (x0 - x1) * (y2 - y1) / (x2 - x1) + y1
+
+-- ab is a general segment; pq must be vertical
+segVertSegIntersect :: (Autofloat a) => LineSeg a -> LineSeg a -> Maybe (Pt2 a)
+segVertSegIntersect (a, b) (p, q) = 
+   if floatNeq (fst p) (fst q) then error "Not a vertical segment"
+   else intersectSegVertSeg a b (fst p) (snd p) (snd q)
+
+-- ab is a general segment; pq must be horizontal
+segHorizSegIntersect :: (Autofloat a) => LineSeg a -> LineSeg a -> Maybe (Pt2 a)
+segHorizSegIntersect (a, b) (p, q) = 
+   if floatNeq (snd p) (snd q) then error "Not a horizontal segment" 
+   else intersectSegHorzSeg a b (snd p) (fst p) (fst q)
+
+findIntersectionsAABB :: Autofloat a => LineSeg a -> [LineSeg a] -> [LineSeg a] -> [Pt2 a]
+findIntersectionsAABB seg horizSegs vertSegs = 
+                  let resH = catMaybes $ map (segHorizSegIntersect seg) horizSegs
+                      resV = catMaybes $ map (segVertSegIntersect seg) vertSegs
+                  in resH ++ resV
+
+-- More general segment code
 
 -- TODO Is this code fast and numerically-stable?? Not tested.
 segSegIntersect :: (Autofloat a) => LineSeg a -> LineSeg a -> Maybe (Pt2 a)
@@ -336,7 +404,7 @@ segSegIntersect ab pq =
 
 findIntersections :: Autofloat a => LineSeg a -> [LineSeg a] -> [Pt2 a]
 findIntersections seg segs = catMaybes $ map (segSegIntersect seg) segs
-                  
+
 getSegmentsB :: Autofloat a => Blob a -> [LineSeg a]
 getSegmentsB pts = let 
     pts' = rotateList pts

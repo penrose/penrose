@@ -1284,6 +1284,9 @@ getY shape =
     FloatV y -> y
     _        -> error "getY: expected float but got something else"
 
+getCenter' :: (Autofloat a) => Shape a -> (a, a)
+getCenter' shape = (getX shape, getY shape)
+
 getPoint :: (Autofloat a) => String -> Shape a -> (a, a)
 getPoint "start" shape =
   case (shape .: "startX", shape .: "startY") of

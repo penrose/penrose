@@ -8,10 +8,10 @@ const crash = () => { console.log("crashing"); console.log(null[0]); }
 
 // TODO: Estimate these constants better
 // TODO: This should actually be the size of the ellipse that contains the node, not the text size
-const letterWidth = 80; // Pixels
+const letterWidth = 100; // Pixels
 const letterHeight = 80;
 const ellipseLR_Padding = 600;
-const ellipseTB_Padding = 300;
+const ellipseTB_Padding = 600;
 
 function buildGraph(json) {
     let subDecls = json.objects;
