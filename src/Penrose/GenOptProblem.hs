@@ -272,7 +272,7 @@ isFieldPath (PropertyPath _ _ _) = False
 
 bvarToString :: BindingForm -> String
 bvarToString (BSubVar (VarConst s)) = s
-bvarToString (BStyVar (StyVar' s)) = s -- For namespaces
+bvarToString (BStyVar (StyVar s)) = s -- For namespaces
              -- error ("bvarToString: cannot handle Style variable: " ++ show v)
 
 getShapeName :: String -> Field -> String

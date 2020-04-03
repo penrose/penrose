@@ -82,7 +82,7 @@ stringLiteral = doubleQuotedString
 -------------------- Style Program grammar
 
 -- | A variable in Style
-newtype StyVar  = StyVar' String
+newtype StyVar  = StyVar String
     deriving (Show, Eq, Ord, Typeable)
 
 -- | A header of a block is either a selector or a namespace declaration
@@ -266,7 +266,7 @@ selector = do
           withAndWhere = runPermutation $ (,) <$> toPermutationWithDefault [] wth <*> toPermutationWithDefault [] whr
 
 styVar :: Parser StyVar
-styVar = StyVar' <$> identifier
+styVar = StyVar <$> identifier
 
 declPattern :: Parser [DeclPattern]
 declPattern = do
@@ -541,7 +541,7 @@ mergeEnv varEnv selEnv = foldl mergeMapping varEnv (M.assocs $ sTypeVarMap selEn
                -- G || (x : |T) |-> G
                mergeMapping varEnv (BSubVar var, styType) = varEnv
                -- G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
-               mergeMapping varEnv (BStyVar (StyVar' var), styType) =
+               mergeMapping varEnv (BStyVar (StyVar var), styType) =
                             varEnv { varMap = M.insert (VarConst var) (toSubType styType) (varMap varEnv) }
 
 ----------- Converting Style values to Env/Substance values for two reasons:
@@ -550,7 +550,7 @@ mergeEnv varEnv selEnv = foldl mergeMapping varEnv (M.assocs $ sTypeVarMap selEn
 -- | All Style variables "y" are converted to Substance vars "`x`"
 toSubVar :: BindingForm -> Var
 toSubVar (BSubVar subv)           = subv
-toSubVar (BStyVar (StyVar' styv)) = VarConst styv
+toSubVar (BStyVar (StyVar styv)) = VarConst styv
 
 toSubTArg :: SArg -> Arg
 toSubTArg (SAVar bVar) = AVar $ toSubVar bVar
@@ -637,7 +637,7 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
              let selEnv' = addErr errT selEnv in
              case bVar of
              -- rule Decl-Sty-Context
-             bsv@(BStyVar (StyVar' styVar)) ->
+             bsv@(BStyVar (StyVar styVar)) ->
                      -- NOTE: this does not aggregate *all* possible error May just return first error.
                      -- y \not\in dom(g)
                      if M.member bsv (sTypeVarMap selEnv')
@@ -657,7 +657,7 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
                      then let err = "Style pattern statement " ++ show stmt ++
                                     " declares Substance variable '" ++ sVar ++ "' twice"
                           in addErr err selEnv'
-                     else if M.member (BStyVar (StyVar' sVar)) (sTypeVarMap selEnv')
+                     else if M.member (BStyVar (StyVar sVar)) (sTypeVarMap selEnv')
                      then let err = "Style pattern statement " ++ show stmt ++
                                     " declares Substance variable '" ++ sVar  ++ "'" ++
                                     " in the same selector as a Style variable of the same name"
@@ -713,7 +713,7 @@ checkSels varEnv prog =
           else error $ intercalate "\n" errors
           where checkPair :: VarEnv -> (Header, Block) -> SelEnv
                 checkPair varEnv (Select sel, _) = checkSel varEnv sel
-                checkPair varEnv (Namespace (StyVar' name), _) = checkNamespace name varEnv
+                checkPair varEnv (Namespace (StyVar name), _) = checkNamespace name varEnv
                 -- TODO: for now, namespace has no local context
 
 -- TODO: namespaces are implicitly converted to Substance variables somewhere (not sure where)
@@ -767,8 +767,8 @@ fullSubst selEnv subst =
         res = sort selStyVars == sort substStyVars in
     -- Equal up to permutation (M.keys ensures that there are no dups)
     trM1 ("fullSubst: \nselEnv: " ++ ppShow selEnv ++ "\nsubst: " ++ ppShow subst ++ "\nres: " ++ ppShow res ++ "\n") res
-    where styVarToString  (BStyVar (StyVar' v)) = v
-          styVarToString' (StyVar' v) = v
+    where styVarToString  (BStyVar (StyVar v)) = v
+          styVarToString' (StyVar v) = v
 
 -- Check that there are no duplicate keys or vals in the substitution
 uniqueKeysAndVals :: Subst -> Bool
@@ -791,7 +791,7 @@ substituteBform _ subst sv@(BSubVar _) = sv
 
 -- If the Style variable is "LOCAL", then resolve it to a unique id for the block and selector
 -- Otherwise, look up the substitution for the Style variable and return a Substance variable
-substituteBform lv subst sv@(BStyVar sv'@(StyVar' vn)) =
+substituteBform lv subst sv@(BStyVar sv'@(StyVar vn)) =
    if vn == localKeyword
    then case lv of
         -- lv = Nothing: substituting into selector, so local vars don't matter
@@ -1100,11 +1100,9 @@ data Name = Sub String   -- Sub obj name
             | Gen String -- randomly generated name
     deriving (Show, Eq, Ord, Typeable)
 
-data Translation a = Trans
-  { trMap    :: M.Map Name (FieldDict a)
-  , warnings :: [Warning]
-  } deriving (Show, Eq, Typeable)
-
+data Translation a = Trans { trMap    :: M.Map Name (FieldDict a),
+                             warnings :: [Warning] }
+    deriving (Show, Eq, Typeable)
 
 type OverrideFlag = Bool
 
@@ -1122,7 +1120,7 @@ initTrans = Trans { trMap = M.empty, warnings = [] }
 -- Convert Sub bvar name to Sub name in Translation
 trName :: BindingForm -> Name
 trName (BSubVar (VarConst nm)) = Sub nm
-trName (BStyVar (StyVar' nm))  = Sub nm
+trName (BStyVar (StyVar nm))  = Sub nm
        -- error ("Style variable '" ++ show bv ++ "' in block! Was a non-full substitution applied?") -- TODO/URGENT fix for namespaces
 
 nameStr :: Name -> String
@@ -1520,7 +1518,7 @@ nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
                          nameAnonStatement :: (Int, Block) -> Stmt -> (Int, Block)
                          -- Assign the path "local.ANON_$counter" and increment counter
                          nameAnonStatement (i, b) (AnonAssign e) = 
-                                           let path = FieldPath (BStyVar (StyVar' localKeyword)) (anonKeyword ++ "_" ++ show i)
+                                           let path = FieldPath (BStyVar (StyVar localKeyword)) (anonKeyword ++ "_" ++ show i)
                                                stmt = Assign path e in
                                            (i + 1, b ++ [stmt])
                          nameAnonStatement (i, b) s = (i, b ++ [s])

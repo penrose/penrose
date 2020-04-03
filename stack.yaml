@@ -5,5 +5,6 @@ packages:
 extra-deps:
 - pretty-terminal-0.1.0.0
 - palette-0.3.0.2@sha256:50e210b7d21a0c394a6d672cc3c6d3bffcfa1be07419d72b99e68cfb65d6ca3c,1485
+- aeson-typescript-0.2.0.0
 resolver: lts-13.24
 allow-newer: true

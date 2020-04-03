@@ -27,6 +27,8 @@ library
             megaparsec -any,
             ad -any,
             aeson -any,
+            aeson-typescript == 0.2.0.0,
+            template-haskell,
             text -any,
             websockets -any,
             old-time -any,
@@ -79,6 +81,18 @@ library
             Penrose.ShadowMain
     autogen-modules: Penrose.SubstanceTokenizer, Paths_penrose
     buildable:       True
+
+executable tsdef
+    main-is: Main.hs
+    hs-source-dirs: tsdef
+    other-modules:
+    default-language: Haskell2010
+    build-depends:
+        penrose,
+        aeson,
+        aeson-typescript,
+        containers,
+        base -any
 
 executable penrose
     main-is: penrose.hs
