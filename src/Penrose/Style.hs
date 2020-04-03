@@ -1100,9 +1100,11 @@ data Name = Sub String   -- Sub obj name
             | Gen String -- randomly generated name
     deriving (Show, Eq, Ord, Typeable)
 
-data Translation a = Trans { trMap    :: M.Map Name (FieldDict a),
-                             warnings :: [Warning] }
-    deriving (Show, Eq, Typeable)
+data Translation a = Trans
+  { trMap    :: M.Map Name (FieldDict a)
+  , warnings :: [Warning]
+  } deriving (Show, Eq, Typeable)
+
 
 type OverrideFlag = Bool
 

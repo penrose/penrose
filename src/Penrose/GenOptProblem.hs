@@ -173,36 +173,36 @@ instance A.ToJSON OptConfig where
 
 instance A.FromJSON OptConfig
 
-data State = State { shapesr :: [Shape Double],
-                     shapeNames :: [(String, Field)], -- TODO Sub name type
-                     shapeOrdering :: [String],
-                     shapeProperties :: [(String, Field, Property)],
-                     transr :: Translation Double,
-                     varyingPaths :: [Path],
-                     uninitializedPaths :: [Path],
-                     pendingPaths :: [Path],
-                     varyingState :: [Double], -- Note: NOT polymorphic
-                     paramsr :: Params,
-                     objFns :: [Fn],
-                     constrFns :: [Fn],
-                     rng :: StdGen,
-                     autostep :: Bool, -- TODO: deprecate this
-                     selectorMatches :: [Int],
+data State = State
+  { shapesr            :: [Shape Double]
+  , shapePaths         :: [(String, Field)] -- TODO Sub name type
+  , shapeOrdering      :: [String]
+  , shapeProperties    :: [(String, Field, Property)]
+  , transr             :: Translation Double
+  , varyingPaths       :: [Path]
+  , uninitializedPaths :: [Path]
+  , pendingPaths       :: [Path]
+  , varyingState       :: [Double] -- Note: NOT polymorphic
+  , paramsr            :: Params
+  , objFns             :: [Fn]
+  , constrFns          :: [Fn]
+  , rng                :: StdGen
+  , selectorMatches    :: [Int]
                     --  policyFn :: Policy,
-                     policyParams :: PolicyParams,
-                     oConfig :: OptConfig }
+  , policyParams       :: PolicyParams
+  , oConfig            :: OptConfig
+  }
 
 instance Show State where
          show s = "Shapes: \n" ++ ppShow (shapesr s) ++
-                  "\nShape names: \n" ++ ppShow (shapeNames s) ++
+                  "\nShape names: \n" ++ ppShow (shapePaths s) ++
                   "\nTranslation: \n" ++ ppShow (transr s) ++
                   "\nVarying paths: \n" ++ ppShow (varyingPaths s) ++
                   "\nUninitialized paths: \n" ++ ppShow (uninitializedPaths s) ++
                   "\nVarying state: \n" ++ ppShow (varyingState s) ++
                   "\nParams: \n" ++ ppShow (paramsr s) ++
                   "\nObjective Functions: \n" ++ ppShowList (objFns s) ++
-                  "\nConstraint Functions: \n" ++ ppShowList (constrFns s) ++
-                  "\nAutostep: \n" ++ ppShow (autostep s)
+                  "\nConstraint Functions: \n" ++ ppShowList (constrFns s) 
 
 -- Reimplementation of 'ppShowList' from pretty-show. Not sure why it cannot be imported at all
 ppShowList = concatMap ((++) "\n" . ppShow)
@@ -399,7 +399,7 @@ shapeExprsToVals (subName, field) properties =
           in M.insert "name" (StrV shapeName) properties'
 
 getShapes :: (Autofloat a) => [(String, Field)] -> Translation a -> [Shape a]
-getShapes shapenames trans = map (getShape trans) shapenames
+getShapes shapePaths trans = map (getShape trans) shapePaths
           -- TODO: fix use of Sub/Sty name here
           where getShape trans (name, field) =
                     let fexpr = lookupField (BSubVar $ VarConst name) field trans in
@@ -862,8 +862,8 @@ evalShape limit varyMap (shapes, trans, g) shapePath =
 
 -- recursively evaluate every shape property in the translation
 evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> StdGen -> ([Shape a], Translation a, StdGen)
-evalShapes limit shapeNames trans varyMap rng =
-           let (shapes, trans', rng') = foldl' (evalShape limit varyMap) ([], trans, rng) shapeNames in
+evalShapes limit shapePaths trans varyMap rng =
+           let (shapes, trans', rng') = foldl' (evalShape limit varyMap) ([], trans, rng) shapePaths in
            (reverse shapes, trans', rng')
 
 -- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
@@ -871,7 +871,7 @@ evalShapes limit shapeNames trans varyMap rng =
 evalTranslation :: State -> ([Shape Double], Translation Double, StdGen)
 evalTranslation s =
     let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
-    evalShapes evalIterRange (map (mkPath . list2) $ shapeNames s) (transr s) varyMap (rng s)
+    evalShapes evalIterRange (map (mkPath . list2) $ shapePaths s) (transr s) varyMap (rng s)
 
 ------------- Compute global layering of GPIs
 
@@ -960,13 +960,13 @@ genOptProblemAndState trans optConfig =
     let !varyingPaths       = findVarying trans in
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
     let uninitializedPaths = findUninitialized trans in
-    let shapeNames         = findShapeNames trans in
+    let shapePaths         = findShapeNames trans in
 
     -- sample varying fields
     let (transInitFields, g') = initFields varyingPaths trans initRng in
 
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
-    let (!transInit, g'') = initShapes transInitFields shapeNames g' in
+    let (!transInit, g'') = initShapes transInitFields shapePaths g' in
     let shapeProperties  = transInit `seq` findShapesProperties transInit in
 
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
@@ -978,12 +978,12 @@ genOptProblemAndState trans optConfig =
 
     -- Evaluate all expressions once to get the initial shapes
     let initVaryingMap = M.empty in -- No optimization has happened. Sampled varying vals are in transInit
-    let (initialGPIs, transEvaled, _) = evalShapes evalIterRange (map (mkPath . list2) shapeNames) transInit initVaryingMap g'' in -- intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
+    let (initialGPIs, transEvaled, _) = evalShapes evalIterRange (map (mkPath . list2) shapePaths) transInit initVaryingMap g'' in -- intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
     let initState = lookupPaths varyingPaths transEvaled in
 
     -- This is the final Style compiler output
     let s = State { shapesr = initialGPIs,
-                                 shapeNames = shapeNames,
+                                 shapePaths = shapePaths,
                                  shapeProperties = shapeProperties,
                                  shapeOrdering = [], -- NOTE: to be populated later
                                  transr = transInit, -- note: NOT transEvaled
@@ -998,7 +998,6 @@ genOptProblemAndState trans optConfig =
                                                     -- overallObjFn = overallFn,
                                                     bfgsInfo = defaultBfgsParams },
                                  rng = g'',
-                                 autostep = False, -- default
                                  policyParams = initPolicyParams,
                                 --  policyFn = policyToUse,
                                  oConfig = optConfig,
