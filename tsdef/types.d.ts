@@ -1,3 +1,34 @@
+type Translation<T> = ITrans<T>;
+
+interface ITrans<T> {
+  trMap: Map<Name, Map<string, FieldExpr<T>>>;
+  warnings: string[];
+}
+
+type FieldExpr<T> = IFExpr<T> | IFGPI<T>;
+
+interface IFExpr<T> {
+  tag: "FExpr";
+  contents: TagExpr<T>;
+}
+
+interface IFGPI<T> {
+  tag: "FGPI";
+  contents: [string, Map<string, TagExpr<T>>];
+}
+
+type Name = ISub | IGen;
+
+interface ISub {
+  tag: "Sub";
+  contents: string;
+}
+
+interface IGen {
+  tag: "Gen";
+  contents: string;
+}
+
 type Expr = IIntLit | IAFloat | IStringLit | IBoolLit | IEPath | ICompApp | IObjFn | IConstrFn | IAvoidFn | IBinOp | IUOp | IList | ITuple | IListAccess | ICtor | ILayering | IPluginAccess | IThenOp;
 
 interface IIntLit {
@@ -140,3 +171,164 @@ interface IBStyVar {
 type StyVar = IStyVar;
 
 type IStyVar = string;
+
+type Value<T> = IFloatV<T> | IIntV<T> | IBoolV<T> | IStrV<T> | IPtV<T> | IPathDataV<T> | IPtListV<T> | IPaletteV<T> | IColorV<T> | IFileV<T> | IStyleV<T> | IListV<T> | ITupV<T> | ILListV<T> | IHMatrixV<T> | IPolygonV<T>;
+
+interface IFloatV<T> {
+  tag: "FloatV";
+  contents: T;
+}
+
+interface IIntV<T> {
+  tag: "IntV";
+  contents: number;
+}
+
+interface IBoolV<T> {
+  tag: "BoolV";
+  contents: boolean;
+}
+
+interface IStrV<T> {
+  tag: "StrV";
+  contents: string;
+}
+
+interface IPtV<T> {
+  tag: "PtV";
+  contents: [T, T];
+}
+
+interface IPathDataV<T> {
+  tag: "PathDataV";
+  contents: SubPath<T>[];
+}
+
+interface IPtListV<T> {
+  tag: "PtListV";
+  contents: [T, T][];
+}
+
+interface IPaletteV<T> {
+  tag: "PaletteV";
+  contents: Color[];
+}
+
+interface IColorV<T> {
+  tag: "ColorV";
+  contents: Color;
+}
+
+interface IFileV<T> {
+  tag: "FileV";
+  contents: string;
+}
+
+interface IStyleV<T> {
+  tag: "StyleV";
+  contents: string;
+}
+
+interface IListV<T> {
+  tag: "ListV";
+  contents: T[];
+}
+
+interface ITupV<T> {
+  tag: "TupV";
+  contents: [T, T];
+}
+
+interface ILListV<T> {
+  tag: "LListV";
+  contents: T[][];
+}
+
+interface IHMatrixV<T> {
+  tag: "HMatrixV";
+  contents: HMatrix<T>;
+}
+
+interface IPolygonV<T> {
+  tag: "PolygonV";
+  contents: [[T, T][][], [T, T][][], [[T, T], [T, T]], [T, T][]];
+}
+
+type SubPath<T> = IClosed<T> | IOpen<T>;
+
+interface IClosed<T> {
+  tag: "Closed";
+  contents: Elem<T>[];
+}
+
+interface IOpen<T> {
+  tag: "Open";
+  contents: Elem<T>[];
+}
+
+type HMatrix<T> = IHMatrix<T>;
+
+interface IHMatrix<T> {
+  xScale: T;
+  xSkew: T;
+  ySkew: T;
+  yScale: T;
+  dx: T;
+  dy: T;
+}
+
+type TagExpr<T> = IOptEval<T> | IDone<T> | IPending<T>;
+
+interface IOptEval<T> {
+  tag: "OptEval";
+  contents: Expr;
+}
+
+interface IDone<T> {
+  tag: "Done";
+  contents: Value<T>;
+}
+
+interface IPending<T> {
+  tag: "Pending";
+  contents: Value<T>;
+}
+
+type Color = IRGBA | IHSVA;
+
+interface IRGBA {
+  tag: "RGBA";
+  contents: [number, number, number, number];
+}
+
+interface IHSVA {
+  tag: "HSVA";
+  contents: [number, number, number, number];
+}
+
+type Elem<T> = IPt<T> | ICubicBez<T> | ICubicBezJoin<T> | IQuadBez<T> | IQuadBezJoin<T>;
+
+interface IPt<T> {
+  tag: "Pt";
+  contents: [T, T];
+}
+
+interface ICubicBez<T> {
+  tag: "CubicBez";
+  contents: [[T, T], [T, T], [T, T]];
+}
+
+interface ICubicBezJoin<T> {
+  tag: "CubicBezJoin";
+  contents: [[T, T], [T, T]];
+}
+
+interface IQuadBez<T> {
+  tag: "QuadBez";
+  contents: [[T, T], [T, T]];
+}
+
+interface IQuadBezJoin<T> {
+  tag: "QuadBezJoin";
+  contents: [T, T];
+}

@@ -29,18 +29,18 @@ default (Int, Float)
 --------------------------------------------------------------------------------
 -- Types
 -- | shape can have multiple pieces, e.g. multiple "M"s
-type PathData a = [Path' a]
+type PathData a = [SubPath a]
 
 -- | TODO
 -- NOTE: the order of the elements is important
-data Path' a
+data SubPath a
   = Closed [Elem a] -- ^  "Z"
   | Open [Elem a] -- ^  no "Z"
   deriving (Generic, Eq, Show)
 
-instance (FromJSON a) => FromJSON (Path' a)
+instance (FromJSON a) => FromJSON (SubPath a)
 
-instance (ToJSON a) => ToJSON (Path' a)
+instance (ToJSON a) => ToJSON (SubPath a)
 
 -- | TODO
 -- | Arc { x, y, sweep1, … }  -- "A" TODO
@@ -200,9 +200,9 @@ toPolyProperty v =
     r2 (x, y) = (r2f x, r2f y)
 
 toPolyPath ::
-     Path' Double
+     SubPath Double
   -> (forall a. (Autofloat a) =>
-                  Path' a)
+                  SubPath a)
 toPolyPath (Closed es) = Closed $ map toPolyElem es
 toPolyPath (Open es)   = Open $ map toPolyElem es
 
@@ -1357,7 +1357,7 @@ getPathData shape =
 mapPathData :: (Autofloat a) => (Pt2 a -> Pt2 a) -> PathData a -> PathData a
 mapPathData f pd = map (mapPath f) pd
 
-mapPath :: (Autofloat a) => (Pt2 a -> Pt2 a) -> Path' a -> Path' a
+mapPath :: (Autofloat a) => (Pt2 a -> Pt2 a) -> SubPath a -> SubPath a
 mapPath f (Closed es) = Closed $ map (mapElem f) es
 mapPath f (Open es)   = Open $ map (mapElem f) es
 

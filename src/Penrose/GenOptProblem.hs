@@ -1117,7 +1117,7 @@ castTranslation t =
                           PolygonV (pos, neg, (p1, p2), samples) -> PolygonV (castPolys pos, castPolys neg, (app2 r2f p1, app2 r2f p2), castPtList samples)
                 in res
 
-        castPath :: Path' Double -> (forall a . Autofloat a => Path' a)
+        castPath :: SubPath Double -> (forall a . Autofloat a => SubPath a)
         castPath p = case p of
                      Closed elems -> Closed $ map castElem elems
                      Open elems -> Open $ map castElem elems
