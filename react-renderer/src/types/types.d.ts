@@ -7,10 +7,19 @@ interface IShape {
 
 type Translation<T> = ITrans<T>;
 
+type TransDict<T> = Map<string, FieldDict<T>>;
+type FieldDict<T> = Map<string, FieldExpr<T>>;
+type PropertyDict<T> = Map<string, TagExpr<T>>;
+
 interface ITrans<T> {
-  trMap: Map<string, Map<string, FieldExpr<T>>>;
+  trMap: TransDict<T>;
   warnings: string[];
 }
+
+// interface ITrans<T> {
+//   trMap: Map<string, Map<string, FieldExpr<T>>>;
+//   warnings: string[];
+// }
 
 type FieldExpr<T> = IFExpr<T> | IFGPI<T>;
 
@@ -41,7 +50,25 @@ interface IPending<T> {
   contents: Value<T>;
 }
 
-type Expr = IIntLit | IAFloat | IStringLit | IBoolLit | IEPath | ICompApp | IObjFn | IConstrFn | IAvoidFn | IBinOp | IUOp | IList | ITuple | IListAccess | ICtor | ILayering | IPluginAccess | IThenOp;
+type Expr =
+  | IIntLit
+  | IAFloat
+  | IStringLit
+  | IBoolLit
+  | IEPath
+  | ICompApp
+  | IObjFn
+  | IConstrFn
+  | IAvoidFn
+  | IBinOp
+  | IUOp
+  | IList
+  | ITuple
+  | IListAccess
+  | ICtor
+  | ILayering
+  | IPluginAccess
+  | IThenOp;
 
 interface IIntLit {
   tag: "IntLit";
@@ -184,7 +211,23 @@ type StyVar = IStyVar;
 
 type IStyVar = string;
 
-type Value<T> = IFloatV<T> | IIntV<T> | IBoolV<T> | IStrV<T> | IPtV<T> | IPathDataV<T> | IPtListV<T> | IPaletteV<T> | IColorV<T> | IFileV<T> | IStyleV<T> | IListV<T> | ITupV<T> | ILListV<T> | IHMatrixV<T> | IPolygonV<T>;
+type Value<T> =
+  | IFloatV<T>
+  | IIntV<T>
+  | IBoolV<T>
+  | IStrV<T>
+  | IPtV<T>
+  | IPathDataV<T>
+  | IPtListV<T>
+  | IPaletteV<T>
+  | IColorV<T>
+  | IFileV<T>
+  | IStyleV<T>
+  | IListV<T>
+  | ITupV<T>
+  | ILListV<T>
+  | IHMatrixV<T>
+  | IPolygonV<T>;
 
 interface IFloatV<T> {
   tag: "FloatV";
@@ -301,7 +344,12 @@ interface IHSVA {
   contents: [number, number, number, number];
 }
 
-type Elem<T> = IPt<T> | ICubicBez<T> | ICubicBezJoin<T> | IQuadBez<T> | IQuadBezJoin<T>;
+type Elem<T> =
+  | IPt<T>
+  | ICubicBez<T>
+  | ICubicBezJoin<T>
+  | IQuadBez<T>
+  | IQuadBezJoin<T>;
 
 interface IPt<T> {
   tag: "Pt";

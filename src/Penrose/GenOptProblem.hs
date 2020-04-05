@@ -175,7 +175,7 @@ instance A.FromJSON OptConfig
 
 data State = State
   { shapesr            :: [Shape Double]
-  , shapePaths         :: [(String, Field)] -- TODO Sub name type
+  , shapePaths         :: [Path]
   , shapeOrdering      :: [String]
   , shapeProperties    :: [(String, Field, Property)]
   , transr             :: Translation Double
@@ -309,8 +309,7 @@ mkVaryMap varyPaths varyVals = M.fromList $ zip varyPaths (map floatToTagExpr va
 foldFields :: (Autofloat a) => (String -> Field -> FieldExpr a -> [b] -> [b]) ->
                                        Name -> FieldDict a -> [b] -> [b]
 foldFields f name fieldDict acc =
-    let name' = nameStr name in -- TODO do we need do anything with Sub vs Gen names?
-    let res = M.foldrWithKey (f name') [] fieldDict in
+    let res = M.foldrWithKey (f name) [] fieldDict in
     res ++ acc
 
 foldSubObjs :: (Autofloat a) => (String -> Field -> FieldExpr a -> [b] -> [b]) -> Translation a -> [b]
@@ -321,11 +320,11 @@ foldSubObjs f trans = M.foldrWithKey (foldFields f) [] (trMap trans)
 insertGPI :: (Autofloat a) =>
     Translation a -> String -> Field -> ShapeTypeStr -> PropertyDict a
     -> Translation a
-insertGPI trans n field t propDict = case M.lookup (Sub n) $ trMap trans of
+insertGPI trans n field t propDict = case M.lookup n $ trMap trans of
     Nothing        -> error "Substance ID does not exist"
     Just fieldDict ->
         let fieldDict' = M.insert field (FGPI t propDict) fieldDict
-            trMap'     = M.insert (Sub n) fieldDict' $ trMap trans
+            trMap'     = M.insert n fieldDict' $ trMap trans
         in trans { trMap = trMap' }
 
 insertPath :: (Autofloat a) => Translation a -> (Path, TagExpr a) -> Either [Error] (Translation a)
@@ -871,7 +870,7 @@ evalShapes limit shapePaths trans varyMap rng =
 evalTranslation :: State -> ([Shape Double], Translation Double, StdGen)
 evalTranslation s =
     let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
-    evalShapes evalIterRange (map (mkPath . list2) $ shapePaths s) (transr s) varyMap (rng s)
+    evalShapes evalIterRange (shapePaths s) (transr s) varyMap (rng s)
 
 ------------- Compute global layering of GPIs
 
@@ -960,13 +959,14 @@ genOptProblemAndState trans optConfig =
     let !varyingPaths       = findVarying trans in
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
     let uninitializedPaths = findUninitialized trans in
-    let shapePaths         = findShapeNames trans in
+    let shapePathList      = findShapeNames trans in
+    let shapePaths         = map (mkPath . list2) shapePathList in
 
     -- sample varying fields
     let (transInitFields, g') = initFields varyingPaths trans initRng in
 
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
-    let (!transInit, g'') = initShapes transInitFields shapePaths g' in
+    let (!transInit, g'') = initShapes transInitFields shapePathList g' in
     let shapeProperties  = transInit `seq` findShapesProperties transInit in
 
     let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
@@ -978,7 +978,7 @@ genOptProblemAndState trans optConfig =
 
     -- Evaluate all expressions once to get the initial shapes
     let initVaryingMap = M.empty in -- No optimization has happened. Sampled varying vals are in transInit
-    let (initialGPIs, transEvaled, _) = evalShapes evalIterRange (map (mkPath . list2) shapePaths) transInit initVaryingMap g'' in -- intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
+    let (initialGPIs, transEvaled, _) = evalShapes evalIterRange shapePaths transInit initVaryingMap g'' in -- intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
     let initState = lookupPaths varyingPaths transEvaled in
 
     -- This is the final Style compiler output

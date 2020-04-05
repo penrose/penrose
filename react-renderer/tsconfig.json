@@ -46,6 +46,7 @@
   "exclude": [
     "node_modules",
     "build",
+    "docs",
     "dist",
     "scripts",
     "acceptance-tests",

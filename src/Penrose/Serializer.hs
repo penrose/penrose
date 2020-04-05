@@ -61,10 +61,6 @@ $(deriveJSON
     ''Request)
 
 --------------------------------------------------------------------------------
-instance ToJSONKey Name
-
-instance FromJSONKey Name
-
 instance ToJSONKey TypeVar
 
 instance FromJSONKey TypeVar
@@ -85,8 +81,6 @@ deriveJSON defaultOptions ''SourcePosition
 deriveJSON defaultOptions ''Pos
 
 deriveJSON defaultOptions ''SourcePos
-
-deriveJSON defaultOptions ''Name
 
 deriveJSON defaultOptions ''TagExpr
 

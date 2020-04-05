@@ -197,7 +197,7 @@ syncShapes state =
   let (shapes, _, _) =
         evalShapes
           evalIterRange
-          (map (mkPath . list2) $ shapePaths state)
+          (shapePaths state)
           (transr state)
           M.empty
           (rng state)
