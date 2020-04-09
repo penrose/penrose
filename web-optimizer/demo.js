@@ -15,7 +15,7 @@ g(x).print();
 
 const a = tf.scalar(Math.random()).variable();
 
-const learningRate = 0.01;
+const learningRate = 0.01; // TODO Try different learning rates
 const optimizer1 = tf.train.sgd(learningRate);
 const optimizer2 = tf.train.adam(learningRate);
 
@@ -74,14 +74,21 @@ dy.print();
 
 const c = tf.scalar(Math.random()).variable();
 const d = tf.scalar(Math.random()).variable();
+const vars = [c, d];
 
-let res2;
+const optimize = (vars) => {
+    // Using the same optimizer from above
+    // TODO benchmark how long these take (it pauses a bit in the browser)
+    let res2;
 
-// Using the same optimizer from above
-// TODO benchmark how long these take (it pauses a bit in the browser)
-for (let i = 0; i < 100; i++) {
-    res2 = optimizer2.minimize(() => centerFn3(c, d), returnCost=true);
-}
+    for (let i = 0; i < 100; i++) {
+	res2 = optimizer2.minimize(() => centerFn3(...vars), returnCost=true, varList=vars);
+    }
+
+    return res2;
+};
+
+let res3 = optimize(vars);
 
 console.log(`c: ${c.dataSync()}, d: ${d.dataSync()}`);
-console.log(`f(a): ${res2}`);
+console.log(`f(a): ${res3}`);
