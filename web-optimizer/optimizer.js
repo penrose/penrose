@@ -27,6 +27,8 @@
 
 // ------------------------------
 
+// SYSTEM COMPILER + OPTIMIZATION CODE
+
 // TODO: remove the first script, which clobbers the scope
 
 // CONSTS
@@ -34,7 +36,7 @@
 // const optimizer1 = tf.train.sgd(learningRate);
 // const optimizer2 = tf.train.adam(learningRate);
 
-const evalEnergyOn = (tr, varying) => {
+const evalEnergyOn = (compGraph, varying) => {
     console.log("TODO: evalEnergyOn");
 };
 
@@ -51,7 +53,41 @@ const minimize = (f, x) => {
     return res;
 };
 
-// UTILS
+// NOTE: This compiles the arg into code ... by evaluating it? or returning it as data? or? (TODO figure out what's going on here)
+let compileArg = (argName, compGraph) => {
+    
+    let res = compGraph[argName];
+
+    // Problem: Need to disciminate on type
+
+    return res;
+};
+
+// Compile the opt problem in `objFns_input` (which uses names) into a multivariate function on floats, and look up the initial state
+let compileOptProblem = (compGraph, objFns_input, varyingMap) => {
+    // Look up function name in function library
+    let overallFn = objFn_library[objFns_input[0].fnName];
+
+    // TODO: for each function's argument, look it up / evaluate it in compGraph
+    // Why don't you use function composition to actually evaluate it...?
+    // The intuition is that you don't have to keep looking up the graph's references, you can just evaluate it
+    // And the *compiler* should optimize the translation first
+
+    // The question is -- should the function be built into F, or into its argVals??
+    // Maybe it should really be: (x, y, z) => F (x, g(y, z)) -- i.e. building F(_, g(_, _)) -- on the varying vals as args
+    // NOT: (a, b) => F (a, b) (evaluate all the args individually and pass them to F) -- I think?
+
+    // Look up each argument's varying value in varyingMap (currently a TF variable, TODO make this an expr?)
+    let argVals = objFns_input[0].args.map(argName => compileArg(argName, compGraph));
+
+    return { F: overallFn,
+	     x: argVals };
+};
+
+// ----------------------
+
+// SYSTEM LIBRARIES
+// All currently written with tfjs types
 
 // TODO: Figure out how to schedule computations as tensors?
 // objFn :: [a] -> a
@@ -61,33 +97,59 @@ let objFn_library = {
     equal2 : (x, y) => x.sub(y).square() // (x - y)^2
 };
 
+let compFn_library = {
+    plus2 : (x, y) => x.add(y);
+}
+
+// -----------------------
+
+// POSSIBLE STYLE INPUTS
+
 // TODO: Make this more generic (multiple fns and args) and test the compilation behaves correctly programmatically
 // (With test cases)
-let objFns_input = [ { fnName: "min2",
+let objFns_input0 = [ { fnName: "min2",
 		       args: ["A.shape.x", "B.shape.y"] }
-		   ];
+		    ];
 
-// Compile the opt problem in `objFns_input` (which uses names) into a multivariate function on floats, and look up the initial state
-let compileOptProblem = (tr, objFns_input, varyingMap) => {
-    // Look up function name in function library
-    let overallFn = objFn_library[objFns_input[0].fnName];
-    // Look up each argument's varying value in varyingMap (currently a TF variable, TODO make this an expr?)
-    let argVals = objFns_input[0].args.map(argName => varyingMap[argName]);
+// No intermediate nodes
+let compGraph0 = {};
 
-    return { F: overallFn,
-	     x: argVals };
-};
-
-let varyingMap =
+// Varying leaf nodes of computational graph
+let varyingMap0 =
     { "A.shape.x" : tf.scalar(Math.random()).variable(),
       "B.shape.y" : tf.scalar(Math.random()).variable()
     };
 
-let tr = {}; // TODO: fill in
+// ------
+
+let objFns_input1 = [ { fnName: "min2",
+		       args: ["A.shape.x", "B.shape.y"] }
+		    ];
+
+// One intermediate node
+// (Combined with varyingMap)
+let compGraph1 = {
+    "A.shape.x" : tf.scalar(Math.random()).variable(),
+    "B.shape.y" : ["plus", "C.shape.r", 4.0], // B.shape.y := C.shape.r + 4.0
+    "C.shape.r" : tf.scalar(Math.random()).variable()
+};
+
+let varyingMap1 = {};
+
+// ----------------------
+
+// CHOSEN STYLE INPUT
+
+let compGraph = compGraph1;
+let varyingMap = varyingMap1;
+let objFns_input = objFns_input1;
+
+// SYSTEM RUNTIME CODE
+
 let varyingVals = Object.values(varyingMap); // TODO standardize order of values (alphabetical by varyingMap order? use a list?)
 
 // Compile out all names/references? F : [a] -> a, X0 : [a]
-let pure_opt_problem = compileOptProblem(tr, objFns_input, varyingMap)
+let pure_opt_problem = compileOptProblem(compGraph, objFns_input, varyingMap)
 console.log(pure_opt_problem);
 
 // TODO: Compose `f` from smaller functions
