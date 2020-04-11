@@ -36,18 +36,45 @@
 // const optimizer1 = tf.train.sgd(learningRate);
 // const optimizer2 = tf.train.adam(learningRate);
 
+// e : Num
+const tfVar = e => tf.scalar(e).variable();
+
+// [a] -> [b] -> { a : b }
+const tups2obj = (xs, ys) => Object.fromEntries(_.zip(xs, ys));
+
+const getVaryingState = (paths, graph) => paths.map(path => graph[path]);
+
+const genState = (objFns, compGraph, varyingPaths) => {
+    console.log("vp", varyingPaths);
+    // Look up in comp graph
+    let varyingState = getVaryingState(varyingPaths, compGraph); // these are NOT tf vars
+
+    let state = {
+	compGraph : compGraph,
+	objFns : objFns,
+	varyingPaths : varyingPaths,
+	varyingState : varyingState
+    }
+
+    return state;
+};
+
 const evalEnergyOn = (compGraph, varying) => {
     console.log("TODO: evalEnergyOn");
 };
 
 // Minimize f over x
-const minimize = (f, x) => {
+const minimize = (f, xs, names) => {
     let res;
 
     // Use included tf.js optimizer for now
     // TODO profile this; change # iterations (test for convergence) and LR
     for (let i = 0; i < 100; i++) {
-    	res = optimizer2.minimize(() => f(...x), returnCost=true, varList=x);
+    	res = optimizer2.minimize(() => f(...xs), returnCost=true, varList=xs);
+
+	let vals = xs.map(v => v.dataSync()[0]);
+	console.log("state", tups2obj(names, vals));
+	console.log(`F[v]: ${res}`);
     }
 
     return res;
@@ -55,11 +82,8 @@ const minimize = (f, x) => {
 
 // NOTE: This compiles the arg into code ... by evaluating it? or returning it as data? or? (TODO figure out what's going on here)
 let compileArg = (argName, compGraph) => {
-    
     let res = compGraph[argName];
-
-    // Problem: Need to disciminate on type
-
+    // Problem: Need to discriminate on type
     return res;
 };
 
@@ -72,9 +96,13 @@ let compileArg = (argName, compGraph) => {
 // This should really be evalEnergyOn, which requires functions: evalFns, mkVaryMap, applyCombined
 
 // Compile the opt problem in `objFns_input` (which uses names) into a multivariate function on floats, and look up the initial state
-let compileOptProblem = (compGraph, objFns_input, varyingMap) => {
+let compileOptProblem = (state) => { // State -> ([a] -> a)
+    ({compGraph, objFns, varyingPaths, varyingState} = state);
+
+    let varyingMap = tups2obj(varyingPaths, varyingState);
+
     // Look up function name in function library
-    let overallFn = objFn_library[objFns_input[0].fnName];
+    let overallFn = objFn_library[objFns[0].fnName];
 
     // TODO: for each function's argument, look it up / evaluate it in compGraph
     // TODO: Make the evaluation of `F` richer to account for the compGraph, using the three inputs
@@ -84,10 +112,12 @@ let compileOptProblem = (compGraph, objFns_input, varyingMap) => {
     // Need to write a lookupPath function and all of the helpers
 
     // Look up each argument's varying value in varyingMap (currently a TF variable, TODO make this an expr?)
-    let argVals = objFns_input[0].args.map(argName => compileArg(argName, compGraph));
+    // NOTE: These are the tfVars, so only *these* will be mutated by the TF optimization
+    let argVals = objFns[0].args.map(argName => compileArg(argName, compGraph));
+    let argValsTF = argVals.map(tfVar);
 
     return { F: overallFn,
-	     x: argVals };
+	     x: argValsTF }; // TODO: When should things become TF-ified?
 };
 
 // ----------------------
@@ -104,8 +134,8 @@ let objFn_library = {
 };
 
 let compFn_library = {
-    plus2 : (x, y) => x.add(y);
-}
+    plus2 : (x, y) => x.add(y)
+};
 
 // -----------------------
 
@@ -113,55 +143,61 @@ let compFn_library = {
 
 // TODO: Make this more generic (multiple fns and args) and test the compilation behaves correctly programmatically
 // (With test cases)
-let objFns_input0 = [ { fnName: "min2",
-		       args: ["A.shape.x", "B.shape.y"] }
-		    ];
+let objFns0 = [ { fnName: "min2",
+		  args: ["A.shape.x", "B.shape.y"] }
+	      ];
 
 // No intermediate nodes
-let compGraph0 = {};
+let compGraph0 = {
+    "A.shape.x" : 0.5, // TODO: Initialize varying vars in the right way
+    "B.shape.y" : -0.5
+};
 
-// Varying leaf nodes of computational graph
-let varyingMap0 =
-    { "A.shape.x" : tf.scalar(Math.random()).variable(),
-      "B.shape.y" : tf.scalar(Math.random()).variable()
-    };
+let varyingPaths0 = ["A.shape.x", "B.shape.y"];
 
+let state0 = genState(objFns0, compGraph0, varyingPaths0);
+    
 // ------
 
-let objFns_input1 = [ { fnName: "min2",
+// NOTE: state1 doesn't work yet
+
+let objFns1 = [ { fnName: "min2",
 			args: ["A.shape.x", "B.shape.y"] }
 		    ];
 
 // One intermediate node
 // (Combined with varyingMap)
 let compGraph1 = {
-    "A.shape.x" : tf.scalar(Math.random()).variable(),
+    "A.shape.x" : Math.random(),
     "B.shape.y" : ["plus", "C.shape.r", 4.0], // B.shape.y := C.shape.r + 4.0
-    "C.shape.r" : tf.scalar(Math.random()).variable()
+    "C.shape.r" : 1.0
 };
 
-let varyingMap1 = {};
+let varyingPaths1 = ["A.shape.x", "C.shape.r"];
+
+let state1 = genState(objFns1, compGraph1, varyingPaths1);
 
 // ----------------------
 
-// CHOSEN STYLE INPUT
+// CHOSEN STYLE INPUT (State)
 
-let compGraph = compGraph1;
-let varyingMap = varyingMap1;
-let objFns_input = objFns_input1;
+let state = state0; // <--- This is the only changeable input
 
 // SYSTEM RUNTIME CODE
 
-let varyingVals = Object.values(varyingMap); // TODO standardize order of values (alphabetical by varyingMap order? use a list?)
-
 // Compile out all names/references? F : [a] -> a, X0 : [a]
-let pure_opt_problem = compileOptProblem(compGraph, objFns_input, varyingMap)
-console.log(pure_opt_problem);
+let pure_opt_problem = compileOptProblem(state)
+console.log("opt problem", pure_opt_problem);
 
-// TODO: Compose `f` from smaller functions
-let lastEnergy = minimize(pure_opt_problem.F, pure_opt_problem.x);
+// the pure_opt_problem.x gets mutated by the tf optimization on each round
+let lastEnergy = minimize(pure_opt_problem.F, pure_opt_problem.x, varyingPaths);
 
-// TODO: do generically
+// NOTE: The varyingState in the state is going to be stale, as is the compGraph, since they are not tfVars they don't get updated
+let varyingStateFinal = pure_opt_problem.x;
+let varyingMap = tups2obj(state.varyingPaths, varyingStateFinal);
+
+console.log("varyingMap", varyingMap);
+
 // For some reason it comes out as a list of single-elem-list of Float32Array
 console.log("varyingMap", Object.values(varyingMap).map(v => v.dataSync()[0]));
 console.log(`F[v]: ${lastEnergy}`);
