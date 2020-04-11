@@ -63,30 +63,25 @@ let compileArg = (argName, compGraph) => {
     return res;
 };
 
+// type Translation<T> = ITrans<T>;
+// interface ITrans<T> {
+//     trMap: Map<string, Map<string, FieldExpr<T>>>;
+//     warnings: string[];
+// }
+
+// This should really be evalEnergyOn, which requires functions: evalFns, mkVaryMap, applyCombined
+
 // Compile the opt problem in `objFns_input` (which uses names) into a multivariate function on floats, and look up the initial state
 let compileOptProblem = (compGraph, objFns_input, varyingMap) => {
     // Look up function name in function library
     let overallFn = objFn_library[objFns_input[0].fnName];
 
     // TODO: for each function's argument, look it up / evaluate it in compGraph
-    // Why don't you use function composition to actually evaluate it...?
-    // The intuition is that you don't have to keep looking up the graph's references, you can just evaluate it
-    // And the *compiler* should optimize the translation first
+    // TODO: Make the evaluation of `F` richer to account for the compGraph, using the three inputs
+    // Need to eval all args, create composite function
 
-    // The question is -- should the function be built into F, or into its argVals??
-    // Maybe it should really be: (x, y, z) => F (x, g(y, z)) -- i.e. building F(_, g(_, _)) -- on the varying vals as args
-    // NOT: (a, b) => F (a, b) (evaluate all the args individually and pass them to F) -- I think?
-    // The recursive way was building it bottom-up, by evaluating args
-    // I think the compilation way is building it top-down, by *substituting* / composing results?
-    // Isn't it a standard PL thing to do? Wrap it in a lambda
-    // Is it ok/slow for TF to diff. through this?
-    // if you have \x -> f x
-    // and you want to sub in a function \y ... TODO I don't know the question but the answer is
-    // \y -> (\x -> f x) (g y)
-    // (Isn't this some kind of compiler pattern? Like, CPS or a thunk or something?)
-    // (Why don't you rewrite it this way in Haskell as well...?)
-    // I think one problem is that you have to deal with expression types (but if you just use them correctly in the functions, there's no need to discriminate in js, which makes this easier?)
-    // The problem with this strategy is that you can't cache intermediat results, unless you use a let binding, but then you have to know which ones to bind ahead of time. Also, I think this is premature optimization. You should get to parity first
+    // TODO: Make the varyingMap from the compGraph
+    // Need to write a lookupPath function and all of the helpers
 
     // Look up each argument's varying value in varyingMap (currently a TF variable, TODO make this an expr?)
     let argVals = objFns_input[0].args.map(argName => compileArg(argName, compGraph));
