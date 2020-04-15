@@ -72,6 +72,8 @@ const minimize = (f, xs, names) => {
     for (let i = 0; i < 100; i++) {
     	res = optimizer2.minimize(() => f(...xs), returnCost=true, varList=xs);
 
+	// TODO: note clearly that `xs` is mutable; maybe make a copy of it at beginning. Does it do it for speed?
+	// TODO: this printing could tank the performance
 	let vals = xs.map(v => v.dataSync()[0]);
 	console.log("state", tups2obj(names, vals));
 	console.log(`F[v]: ${res}`);
@@ -81,6 +83,7 @@ const minimize = (f, xs, names) => {
 };
 
 // NOTE: This compiles the arg into code ... by evaluating it? or returning it as data? or? (TODO figure out what's going on here)
+// WN suggestion: just have a dictionary and look up as if already evaluated. Just want entries in compGraph of different data types, and make sure it works. Plain js `typeof` is fine?
 let compileArg = (argName, compGraph) => {
     let res = compGraph[argName];
     // Problem: Need to discriminate on type
@@ -124,6 +127,10 @@ let compileOptProblem = (state) => { // State -> ([a] -> a)
 
 // SYSTEM LIBRARIES
 // All currently written with tfjs types
+
+// TODO (4/15): Figure out how to use function composition
+// Need to keep track of gradients / impl chain rule by hand? Change fn schema? 
+// If dy is passed when calling g(), the gradient of f(x1,...).mul(dy).sum() with respect to each input is computed instead. The provided f must take one or more tensors and return a single tensor y. If f() takes a single input, we recommend using tf.grad() instead.
 
 // TODO: Figure out how to schedule computations as tensors?
 // objFn :: [a] -> a
@@ -169,7 +176,7 @@ let objFns1 = [ { fnName: "min2",
 // (Combined with varyingMap)
 let compGraph1 = {
     "A.shape.x" : Math.random(),
-    "B.shape.y" : ["plus", "C.shape.r", 4.0], // B.shape.y := C.shape.r + 4.0
+    "B.shape.y" : ["plus2", "C.shape.r", 4.0], // B.shape.y := C.shape.r + 4.0
     "C.shape.r" : 1.0
 };
 
