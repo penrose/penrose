@@ -14,6 +14,8 @@ import           Penrose.Env
 import           Penrose.GenOptProblem
 import           Penrose.Optimizer
 
+import           Data.String.Interpolate.IsString
+
 -- import           Penrose.Plugins
 import           Penrose.Style
 import           Penrose.SubstanceTokenizer
@@ -22,20 +24,21 @@ import           Penrose.Util
 import           Data.Aeson
 import           Data.Aeson.TH
 import           Data.Aeson.TypeScript.TH
-import Data.Data
-import Data.Proxy
-import Data.String
-import Data.Typeable
-import           Data.Char                  (toLower)
-import qualified Data.Map.Strict            as M
+import           Data.Char                        (toLower)
+import           Data.Data
+import qualified Data.Map.Strict                  as M
+import           Data.Proxy
+import           Data.String
+import           Data.Typeable
 import           GHC.Generics
-import qualified Numeric.LinearAlgebra      as L
-import           System.Random              (StdGen)
+import qualified Numeric.LinearAlgebra            as L
+import           System.Random                    (StdGen)
 import           Text.Megaparsec
 
 instance (TypeScript a, TypeScript b) => TypeScript (M.Map a b) where
-  -- getTypeScriptType _ = [i| {[k: #{getTypeScriptType (Proxy :: Proxy a)}]: #{getTypeScriptType (Proxy :: Proxy b)}} |]
-  getTypeScriptType _ = getTypeScriptType (Proxy :: Proxy a) <> "[]";
+  getTypeScriptType _ =
+    [i| {[k: #{getTypeScriptType (Proxy :: Proxy a)}]: #{getTypeScriptType (Proxy :: Proxy b)}} |]
+  -- getTypeScriptType _ = getTypeScriptType (Proxy :: Proxy a) <> "[]";
 
 --------------------------------------------------------------------------------
 -- Packet serialization for server
@@ -86,9 +89,7 @@ deriveJSON defaultOptions ''TagExpr
 
 deriveJSON defaultOptions ''FieldExpr
 
-
 deriveJSON defaultOptions ''Translation
-
 
 deriveJSON defaultOptions ''Expr
 
@@ -165,6 +166,5 @@ deriveJSON defaultOptions ''Penrose.GenOptProblem.State
 deriveJSON defaultOptions ''CompilerError
 
 deriveJSON defaultOptions ''RuntimeError
-
 --------------------------------------------------------------------------------
 -- Plugins

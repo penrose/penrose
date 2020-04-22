@@ -72,12 +72,12 @@ $(deriveTypeScript defaultOptions ''Elem)
 -- NOTE: omitting all the varenv related types because the evaluator doesn't need them
 instance (TypeScript a, TypeScript b) => TypeScript (Map a b) where
   getTypeScriptType _ =
-    "Map<" <> getTypeScriptType (Proxy :: Proxy a) <> ", " <>
-    getTypeScriptType (Proxy :: Proxy b) <>
-    ">"
+    [i|{[k: #{getTypeScriptType (Proxy :: Proxy a)}]: #{getTypeScriptType (Proxy :: Proxy b)}}|]
 
 --   getTypeScriptType _ =
---     [i|{[k: #{getTypeScriptType (Proxy :: Proxy a)}]: #{getTypeScriptType (Proxy :: Proxy b)}}|]
+--     "Map<" <> getTypeScriptType (Proxy :: Proxy a) <> ", " <>
+--     getTypeScriptType (Proxy :: Proxy b) <>
+--     ">"
 main =
   putStrLn $
   formatTSDeclarations

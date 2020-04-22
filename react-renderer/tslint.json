@@ -4,10 +4,12 @@
     "exclude": [
       "config/**/*.js",
       "node_modules/**/*.ts",
-      "coverage/lcov-report/*.js"
+      "coverage/lcov-report/*.js",
+      "**/__test__/**"
     ]
   },
   "rules": {
+    "curly": [true, "ignore-same-line"],
     "no-console": false,
     "jsx-no-lambda": false,
     "object-literal-sort-keys": false,

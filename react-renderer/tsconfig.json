@@ -11,7 +11,6 @@
     "moduleResolution": "node",
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
     "importHelpers": true,
@@ -52,6 +51,7 @@
     "acceptance-tests",
     "webpack",
     "jest",
+    "src/__tests__",
     "src/setupTests.ts"
   ]
 }

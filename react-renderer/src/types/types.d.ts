@@ -2,24 +2,27 @@ type Shape = IShape;
 
 interface IShape {
   shapeName: string;
-  properties: Map<string, Value<number>>;
+  properties: { [k: string]: Value<number> };
+}
+
+type ArgVal<T> = IGPI<T> | IVal<T>;
+
+interface IGPI<T> {
+  tag: "GPI";
+  contents: [string, { [k: string]: Value<T> }];
+}
+
+interface IVal<T> {
+  tag: "Val";
+  contents: Value<T>;
 }
 
 type Translation<T> = ITrans<T>;
 
-type TransDict<T> = Map<string, FieldDict<T>>;
-type FieldDict<T> = Map<string, FieldExpr<T>>;
-type PropertyDict<T> = Map<string, TagExpr<T>>;
-
 interface ITrans<T> {
-  trMap: TransDict<T>;
+  trMap: { [k: string]: { [k: string]: FieldExpr<T> } };
   warnings: string[];
 }
-
-// interface ITrans<T> {
-//   trMap: Map<string, Map<string, FieldExpr<T>>>;
-//   warnings: string[];
-// }
 
 type FieldExpr<T> = IFExpr<T> | IFGPI<T>;
 
@@ -30,7 +33,7 @@ interface IFExpr<T> {
 
 interface IFGPI<T> {
   tag: "FGPI";
-  contents: [string, Map<string, TagExpr<T>>];
+  contents: [string, { [k: string]: TagExpr<T> }];
 }
 
 type TagExpr<T> = IOptEval<T> | IDone<T> | IPending<T>;

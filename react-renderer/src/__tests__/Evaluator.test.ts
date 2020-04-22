@@ -1,7 +1,7 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import { decodeState, findExpr, evalTranslation } from "../Evaluator";
+import { decodeState, findExpr, evalTranslation, evalExpr } from "../Evaluator";
 import { PropertyPath } from "lodash";
 
 const stateJSON = require("./state.json");
@@ -14,9 +14,8 @@ describe("state operations tests", () => {
   });
 
   it("finds a shape in the decoded state", () => {
-    const name1 = state.translation.trMap.keys().next().value;
-    expect(state.translation.trMap.get("A")).not.toEqual(undefined);
-    expect(state.translation.trMap.get(name1)).not.toEqual(undefined);
+    const trans = state.translation.trMap;
+    expect(trans["A"]).not.toEqual(undefined);
   });
 
   it("finds all shape expressions in a state using shapePaths", () => {
@@ -46,7 +45,21 @@ describe("state operations tests", () => {
 });
 
 describe("evaluation functions tests", () => {
-  it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
-    evalTranslation(state);
+  it("evaluates a single unary operation A.shape.strokeWidth", () => {
+    const path: IPropertyPath = {
+      tag: "PropertyPath",
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "strokeWidth"],
+    };
+    const prop = findExpr(state.translation, path);
+    console.log(prop);
+
+    expect(prop.contents.tag).toEqual("UOp");
+    expect(
+      evalExpr(prop.contents, state.translation, state.varyingMap).contents
+        .contents
+    ).toEqual(-0);
   });
+  // it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
+  // evalTranslation(state);
+  // });
 });
