@@ -1,7 +1,7 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import { decodeState, findExpr } from "../Evaluator";
+import { decodeState, findExpr, evalTranslation } from "../Evaluator";
 import { PropertyPath } from "lodash";
 
 const stateJSON = require("./state.json");
@@ -42,5 +42,11 @@ describe("state operations tests", () => {
     const prop = findExpr(state.translation, path);
     console.log("Found A.shape.x", prop);
     expect(prop.contents.tag).toEqual("FloatV");
+  });
+});
+
+describe("evaluation functions tests", () => {
+  it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
+    evalTranslation(state);
   });
 });

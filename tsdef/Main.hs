@@ -11,7 +11,7 @@ import           Data.Map.Strict
 import           Data.Monoid
 import           Data.Proxy
 import           Penrose.Env
-import           Penrose.Shapes hiding (Shape)
+import           Penrose.Shapes                   hiding (Shape)
 import           Penrose.Style
 import           Penrose.SubstanceTokenizer
 import           Penrose.Transforms
@@ -25,19 +25,20 @@ import           Data.String.Interpolate.IsString
 import qualified Data.Text                        as T
 import qualified Data.Text.Lazy                   as TL
 
-data Shape = Shape {
-  shapeName :: String,
-  properties :: Map PropID (Value Double)
-}
+data Shape = Shape
+  { shapeName  :: String
+  , properties :: Map PropID (Value Double)
+  }
 
 $(deriveTypeScript defaultOptions ''Shape)
+
+$(deriveTypeScript defaultOptions ''ArgVal)
 
 $(deriveTypeScript defaultOptions ''Translation)
 
 $(deriveTypeScript defaultOptions ''FieldExpr)
 
 -- $(deriveTypeScript defaultOptions ''Name)
-
 $(deriveTypeScript defaultOptions ''TagExpr)
 
 $(deriveTypeScript defaultOptions ''Expr)
@@ -81,6 +82,7 @@ main =
   putStrLn $
   formatTSDeclarations
     ((getTypeScriptDeclarations (Proxy :: Proxy Shape)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy ArgVal)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy Translation)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy FieldExpr)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy TagExpr)) <>

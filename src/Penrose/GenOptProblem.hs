@@ -348,15 +348,15 @@ insertPaths varyingPaths varying trans =
 lookupFieldWithVarying :: (Autofloat a) => BindingForm -> Field -> Translation a -> VaryMap a -> FieldExpr a
 lookupFieldWithVarying bvar field trans varyMap =
     case M.lookup (mkPath [bvarToString bvar, field]) varyMap of
-    Just varyVal -> {-trace "field lookup was vary" $ -} FExpr varyVal
-    Nothing -> {-trace "field lookup was not vary" $ -} lookupField bvar field trans
+    Just varyVal -> FExpr varyVal
+    Nothing -> lookupField bvar field trans
 
 lookupPropertyWithVarying :: (Autofloat a) => BindingForm -> Field -> Property
                                               -> Translation a -> VaryMap a -> TagExpr a
 lookupPropertyWithVarying bvar field property trans varyMap =
     case M.lookup (mkPath [bvarToString bvar, field, property]) varyMap of
-    Just varyVal -> {-trace "property lookup was vary" $ -} varyVal
-    Nothing -> {- trace "property lookup was not vary" $ -} lookupProperty bvar field property trans
+    Just varyVal -> varyVal
+    Nothing -> lookupProperty bvar field property trans
 
 lookupProperty :: (Autofloat a) => BindingForm -> Field -> Property -> Translation a -> TagExpr a
 lookupProperty bvar field property trans =
@@ -731,6 +731,110 @@ evalExprs limit args trans varyMap g =
                        let (argVal, trans', rng') = evalExpr limit arg trans varyMap rng in
                        (argvals ++ [argVal], trans', rng') -- So returned exprs are in same order
 
+------------- Evaluating all shapes in a translation
+
+evalShape :: (Autofloat a) =>
+    (Int, Int) -> VaryMap a
+    -> ([Shape a], Translation a, StdGen) -> Path
+    -> ([Shape a], Translation a, StdGen)
+evalShape limit varyMap (shapes, trans, g) shapePath =
+    let (res, trans', g') = evalExpr limit (EPath shapePath) trans varyMap g in
+    case res of
+    GPI shape -> (shape : shapes, trans', g')
+    _ -> error "evaluating a GPI path did not result in a GPI"
+
+-- recursively evaluate every shape property in the translation
+evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> StdGen -> ([Shape a], Translation a, StdGen)
+evalShapes limit shapePaths trans varyMap rng =
+           let (shapes, trans', rng') = foldl' (evalShape limit varyMap) ([], trans, rng) shapePaths in
+           (reverse shapes, trans', rng')
+
+-- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
+-- with respect to the varying values
+evalTranslation :: State -> ([Shape Double], Translation Double, StdGen)
+evalTranslation s =
+    let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
+    evalShapes evalIterRange (shapePaths s) (transr s) varyMap (rng s)
+
+------------- Compute global layering of GPIs
+
+lookupGPIName :: (Autofloat a) => Path -> Translation a -> String
+lookupGPIName path@(FieldPath v field) trans =
+    case lookupField v field trans of
+        FExpr e  -> 
+           -- to deal with path synonyms in a layering statement (see `lookupProperty` for more explanation)
+           case e of
+               OptEval (EPath pathSynonym@(FieldPath vSynonym fieldSynonym)) ->
+                   if v == vSynonym && field == fieldSynonym
+                   then error ("nontermination in lookupGPIName w/ path '" ++ show path ++ "' set to itself")
+                   else lookupGPIName pathSynonym trans
+               _ -> notGPIError
+        FGPI _ _ -> getShapeName (bvarToString v) field
+
+lookupGPIName _ _ = notGPIError
+notGPIError = error "Layering expressions can only operate on GPIs."
+
+-- | Walk the translation to find all layering statements.
+findLayeringExprs :: (Autofloat a) => Translation a -> [Expr]
+findLayeringExprs t = foldSubObjs findLayeringExpr t
+  where findLayeringExpr :: (Autofloat a) => String -> Field -> FieldExpr a -> [Expr] -> [Expr]
+        findLayeringExpr name field fexpr acc =
+          case fexpr of
+          FExpr (OptEval x@(Layering _ _)) -> x : acc
+          _ -> acc
+
+-- | Calculates all the nodes that are part of cycles in a graph.
+cyclicNodes :: Graph.Graph -> [Graph.Vertex]
+cyclicNodes graph =
+  map fst . filter isCyclicAssoc . assocs $ graph
+  where
+    isCyclicAssoc = uncurry $ reachableFromAny graph
+
+-- | In the specified graph, can the specified node be reached, starting out
+-- from any of the specified vertices?
+reachableFromAny :: Graph.Graph -> Graph.Vertex -> [Graph.Vertex] -> Bool
+reachableFromAny graph node =
+  elem node . concatMap (Graph.reachable graph)
+
+-- | 'topSortLayering' takes in a list of all GPI names and a list of directed edges [(a -> b)] representing partial layering orders as input and outputs a linear layering order of GPIs
+topSortLayering :: [String] -> [(String, String)] -> Maybe [String]
+topSortLayering names partialOrderings =
+  let orderedNodes = nodesFromEdges partialOrderings
+      freeNodes = Set.difference (Set.fromList names) orderedNodes
+      edges =
+        map (\(x, y) -> (x, x, y)) $
+        adjList partialOrderings ++ (map (\x -> (x, [])) $ Set.toList freeNodes)
+      (graph, nodeFromVertex, vertexFromKey) = Graph.graphFromEdges edges
+      cyclic = not . null $ cyclicNodes graph
+  in if cyclic
+       then Nothing
+       else Just $ map (getNodePart . nodeFromVertex) $ Graph.topSort graph
+  where
+    getNodePart (n, _, _) = n
+
+
+nodesFromEdges edges = Set.fromList $ concatMap (\(a, b) -> [a, b]) edges
+
+adjList :: [(String, String)] -> [(String, [String])]
+adjList edges =
+    let nodes = Set.toList $ nodesFromEdges edges
+    in map (\x -> (x, findNeighbors x)) nodes
+    where findNeighbors node = map snd $ filter ((==) node . fst) edges
+
+computeLayering :: (Autofloat a) => Translation a -> Maybe [String]
+computeLayering trans =
+    let layeringExprs = findLayeringExprs trans
+        partialOrderings = map findNames layeringExprs
+        gpiNames  = map (uncurry getShapeName) $ findShapeNames trans
+    in topSortLayering gpiNames partialOrderings
+    where
+        unused = -1
+        substitute res (block, substs) =
+            let block'  = (block, unused)
+                substs' = map (\s -> (s, unused)) substs
+            in res ++ map (`substituteBlock` block') substs'
+        findNames (Layering path1 path2) = (lookupGPIName path1 trans, lookupGPIName path2 trans)
+
 ------------------- Generating and evaluating the objective function
 
 evalFnArgs :: (Autofloat a) => (Int, Int) -> VaryMap a -> ([FnDone a], Translation a, StdGen) -> Fn -> ([FnDone a], Translation a, StdGen)
@@ -846,168 +950,60 @@ initFields varyingPaths trans g =
         (sampledVals, g') = randomsIn g (fromIntegral $ length varyingFields) canvasDims
         trans' = insertPaths varyingFields (map (Done . FloatV) sampledVals) trans in
     (trans', g')
-
-------------- Evaluating all shapes in a translation
-
-evalShape :: (Autofloat a) =>
-    (Int, Int) -> VaryMap a
-    -> ([Shape a], Translation a, StdGen) -> Path
-    -> ([Shape a], Translation a, StdGen)
-evalShape limit varyMap (shapes, trans, g) shapePath =
-    let (res, trans', g') = evalExpr limit (EPath shapePath) trans varyMap g in
-    case res of
-    GPI shape -> (shape : shapes, trans', g')
-    _ -> error "evaluating a GPI path did not result in a GPI"
-
--- recursively evaluate every shape property in the translation
-evalShapes :: (Autofloat a) => (Int, Int) -> [Path] -> Translation a -> VaryMap a -> StdGen -> ([Shape a], Translation a, StdGen)
-evalShapes limit shapePaths trans varyMap rng =
-           let (shapes, trans', rng') = foldl' (evalShape limit varyMap) ([], trans, rng) shapePaths in
-           (reverse shapes, trans', rng')
-
--- Given the shape names, use the translation and the varying paths/values in order to evaluate each shape
--- with respect to the varying values
-evalTranslation :: State -> ([Shape Double], Translation Double, StdGen)
-evalTranslation s =
-    let varyMap = mkVaryMap (varyingPaths s) (map r2f $ varyingState s) in
-    evalShapes evalIterRange (shapePaths s) (transr s) varyMap (rng s)
-
-------------- Compute global layering of GPIs
-
-lookupGPIName :: (Autofloat a) => Path -> Translation a -> String
-lookupGPIName path@(FieldPath v field) trans =
-    case lookupField v field trans of
-        FExpr e  -> 
-           -- to deal with path synonyms in a layering statement (see `lookupProperty` for more explanation)
-           case e of
-               OptEval (EPath pathSynonym@(FieldPath vSynonym fieldSynonym)) ->
-                   if v == vSynonym && field == fieldSynonym
-                   then error ("nontermination in lookupGPIName w/ path '" ++ show path ++ "' set to itself")
-                   else lookupGPIName pathSynonym trans
-               _ -> notGPIError
-        FGPI _ _ -> getShapeName (bvarToString v) field
-
-lookupGPIName _ _ = notGPIError
-notGPIError = error "Layering expressions can only operate on GPIs."
-
--- | Walk the translation to find all layering statements.
-findLayeringExprs :: (Autofloat a) => Translation a -> [Expr]
-findLayeringExprs t = foldSubObjs findLayeringExpr t
-  where findLayeringExpr :: (Autofloat a) => String -> Field -> FieldExpr a -> [Expr] -> [Expr]
-        findLayeringExpr name field fexpr acc =
-          case fexpr of
-          FExpr (OptEval x@(Layering _ _)) -> x : acc
-          _ -> acc
-
--- | Calculates all the nodes that are part of cycles in a graph.
-cyclicNodes :: Graph.Graph -> [Graph.Vertex]
-cyclicNodes graph =
-  map fst . filter isCyclicAssoc . assocs $ graph
-  where
-    isCyclicAssoc = uncurry $ reachableFromAny graph
-
--- | In the specified graph, can the specified node be reached, starting out
--- from any of the specified vertices?
-reachableFromAny :: Graph.Graph -> Graph.Vertex -> [Graph.Vertex] -> Bool
-reachableFromAny graph node =
-  elem node . concatMap (Graph.reachable graph)
-
--- | 'topSortLayering' takes in a list of all GPI names and a list of directed edges [(a -> b)] representing partial layering orders as input and outputs a linear layering order of GPIs
-topSortLayering :: [String] -> [(String, String)] -> Maybe [String]
-topSortLayering names partialOrderings =
-  let orderedNodes = nodesFromEdges partialOrderings
-      freeNodes = Set.difference (Set.fromList names) orderedNodes
-      edges =
-        map (\(x, y) -> (x, x, y)) $
-        adjList partialOrderings ++ (map (\x -> (x, [])) $ Set.toList freeNodes)
-      (graph, nodeFromVertex, vertexFromKey) = Graph.graphFromEdges edges
-      cyclic = not . null $ cyclicNodes graph
-  in if cyclic
-       then Nothing
-       else Just $ map (getNodePart . nodeFromVertex) $ Graph.topSort graph
-  where
-    getNodePart (n, _, _) = n
-
-
-nodesFromEdges edges = Set.fromList $ concatMap (\(a, b) -> [a, b]) edges
-
-adjList :: [(String, String)] -> [(String, [String])]
-adjList edges =
-    let nodes = Set.toList $ nodesFromEdges edges
-    in map (\x -> (x, findNeighbors x)) nodes
-    where findNeighbors node = map snd $ filter ((==) node . fst) edges
-
-computeLayering :: (Autofloat a) => Translation a -> Maybe [String]
-computeLayering trans =
-    let layeringExprs = findLayeringExprs trans
-        partialOrderings = map findNames layeringExprs
-        gpiNames  = map (uncurry getShapeName) $ findShapeNames trans
-    in topSortLayering gpiNames partialOrderings
-    where
-        unused = -1
-        substitute res (block, substs) =
-            let block'  = (block, unused)
-                substs' = map (\s -> (s, unused)) substs
-            in res ++ map (`substituteBlock` block') substs'
-        findNames (Layering path1 path2) = (lookupGPIName path1 trans, lookupGPIName path2 trans)
-
 ------------- Main function: what the Style compiler generates
 
 genOptProblemAndState :: Translation Double -> OptConfig -> State
-genOptProblemAndState trans optConfig =
+genOptProblemAndState trans optConfig
     -- Save information about the translation
-    let !varyingPaths       = findVarying trans in
+ =
+  let varyingPaths = findVarying trans
     -- NOTE: the properties in uninitializedPaths are NOT floats. Floats are included in varyingPaths already
-    let uninitializedPaths = findUninitialized trans in
-    let shapePathList      = findShapeNames trans in
-    let shapePaths         = map (mkPath . list2) shapePathList in
-
+      uninitializedPaths = findUninitialized trans
+      shapePathList = findShapeNames trans
+      shapePaths = map (mkPath . list2) shapePathList
     -- sample varying fields
-    let (transInitFields, g') = initFields varyingPaths trans initRng in
-
+      (transInitFields, g') = initFields varyingPaths trans initRng
     -- sample varying vals and instantiate all the non-float base properties of every GPI in the translation
-    let (!transInit, g'') = initShapes transInitFields shapePathList g' in
-    let shapeProperties  = transInit `seq` findShapesProperties transInit in
-
-    let (objfns, constrfns) = (toFns . partitionEithers . findObjfnsConstrs) transInit in
-    let (defaultObjFns, defaultConstrs) = (toFns . partitionEithers . findDefaultFns) transInit in
-    let (!objFnsWithDefaults, !constrsWithDefaults) = (objfns ++ defaultObjFns, constrfns ++ defaultConstrs) in
-    -- let overallFn = genObjfn (castTranslation transInit) objFnsWithDefaults constrsWithDefaults varyingPaths in
-    -- NOTE: this does NOT use transEvaled because it needs to be re-evaled at each opt step
-    -- the varying values are re-inserted at each opt step
-
+      (transInit, g'') = initShapes transInitFields shapePathList g'
+      shapeProperties = findShapesProperties transInit
+      (objfns, constrfns) =
+        (toFns . partitionEithers . findObjfnsConstrs) transInit
+      (defaultObjFns, defaultConstrs) =
+        (toFns . partitionEithers . findDefaultFns) transInit
+      (objFnsWithDefaults, constrsWithDefaults) =
+        (objfns ++ defaultObjFns, constrfns ++ defaultConstrs)
     -- Evaluate all expressions once to get the initial shapes
-    let initVaryingMap = M.empty in -- No optimization has happened. Sampled varying vals are in transInit
-    let (initialGPIs, transEvaled, _) = evalShapes evalIterRange shapePaths transInit initVaryingMap g'' in -- intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
-    let initState = lookupPaths varyingPaths transEvaled in
-
+      initVaryingMap = M.empty -- No optimization has happened. Sampled varying vals are in transInit
+      (initialGPIs, transEvaled, _) =
+        evalShapes evalIterRange shapePaths transInit initVaryingMap g'' -- NOTE: intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
+      initState = lookupPaths varyingPaths transEvaled
     -- This is the final Style compiler output
-    let s = State { shapesr = initialGPIs,
-                                 shapePaths = shapePaths,
-                                 shapeProperties = shapeProperties,
-                                 shapeOrdering = [], -- NOTE: to be populated later
-                                 transr = transInit, -- note: NOT transEvaled
-                                 varyingPaths = varyingPaths,
-                                 uninitializedPaths = uninitializedPaths,
-                                 pendingPaths = findPending transInit,
-                                 varyingState = initState,
-                                 objFns = objFnsWithDefaults,
-                                 constrFns = constrsWithDefaults,
-                                 paramsr = Params { weight = initWeight,
-                                                    optStatus = NewIter,
-                                                    -- overallObjFn = overallFn,
-                                                    bfgsInfo = defaultBfgsParams },
-                                 rng = g'',
-                                 policyParams = initPolicyParams,
+  in State
+     { shapesr = initialGPIs
+     , shapePaths = shapePaths
+     , shapeProperties = shapeProperties
+     , shapeOrdering = [] -- NOTE: to be populated later
+     , transr = transInit -- note: NOT transEvaled
+     , varyingPaths = varyingPaths
+     , uninitializedPaths = uninitializedPaths
+     , pendingPaths = findPending transInit
+     , varyingState = initState
+     , objFns = objFnsWithDefaults
+     , constrFns = constrsWithDefaults
+     , paramsr =
+         Params
+         { weight = initWeight
+         , optStatus = NewIter
+         , bfgsInfo = defaultBfgsParams
+         }
+     , rng = g''
+     , policyParams = initPolicyParams
                                 --  policyFn = policyToUse,
-                                 oConfig = optConfig,
-                                 selectorMatches = [] -- to be filled in by caller (compileStyle)
-                               } in
+     , oConfig = optConfig
+     , selectorMatches = [] -- to be filled in by caller (compileStyle)
+     }
 
     -- initPolicy  -- TODO: rewrite to avoid the use of lambda functions
-    s
-    -- NOTE: we do not resample the very first initial state. Not sure why the shapes / labels are rendered incorrectly.
-    -- resampleBest numStateSamples initFullState
 
 -- | 'compileStyle' runs the main Style compiler on the AST of Style and output from the Substance compiler and outputs the initial state for the optimization problem. This function is a top-level function used by "Server" and "ShadowMain"
 -- TODO: enable logger
@@ -1090,7 +1086,8 @@ castTranslation t =
              FExpr te -> FExpr $ castTagExpr te
              FGPI n props -> FGPI n $ M.map castTagExpr props
 
-        castTagExpr :: TagExpr Double -> (forall a . Autofloat a => TagExpr a)
+        castTagExpr :: TagExpr Double -> (forall a. Autofloat a =>
+                      TagExpr a)
         castTagExpr e =
            case e of
              Done v -> Done $ castValue v
@@ -1104,8 +1101,8 @@ castTranslation t =
                     castPolys  = map castPtList
                     res = case v of
                           FloatV x -> FloatV (r2f x)
-                          PtV (x, y) -> PtV (r2f x, r2f y)
-                          PtListV pts -> PtListV $ castPtList pts
+                        PtV (x, y) -> PtV (r2f x, r2f y)
+                PtListV pts -> PtListV $ castPtList pts
                           PathDataV d -> PathDataV $ map castPath d
                           -- More boilerplate not involving floats
                           IntV x -> IntV x

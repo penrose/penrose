@@ -3,18 +3,62 @@ import { zip } from "lodash";
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
 
-// TODO: return type; break cycles
-// const evalExpr = (
-//   e: Expr,
-//   trans: Translation,
-//   varyingVars: [[Path, number]]
-// ) : Shape =>
-// {
+export const evalShape = (e: IFGPI<number>, trans: Translation, varyingVars: [[Path, number]], shapes: Shape[]) : [Shape[], Translation] => {
+  // TODO
+  const shape = {
+    shapeName: "TODO",
+    properties: new Map()
+  }
+  return [[...shapes, shape], trans]
+}
 
-// };
+/**
+ * Evaluate the input expression to a `Done` value.
+ * TODO: return type; break cycles; optimize lookup
+ * NOTE: This implementation needs the `Done` status of the values for optimizing evaluation and breaking cycles
+ * @param e the expression to be evaluated.
+ * @param trans the `Translation` so far
+ * @param varyingVars pairs of (path, value) for all optimized/"varying" values.
+ */
+export const evalExpr = (
+  e: TagExpr<number>,
+  trans: Translation,
+  varyingVars: [[Path, number]]
+): TagExpr<number> => {
+  // If the expression is `Done` or `Pending`, just return
+  if (e.tag == "Done") return e;
+  if (e.tag == "Pending") return e;
+
+  // Else pattern match on the type of expression and execute evaluation accordingly
+  const { tag: exprType, contents: expr } = e.contents;
+  switch (exprType) {
+    case "UOp":
+      evalUOp(...expr);
+    case "BinOp":
+    case "UOp":
+    case "UOp":
+    default 
+  }
+
+  // Simplest implementation: look up all necessary arguments recursively
+};
+
+export const evalUOp = (op: UnaryOp, expr: Expr): TagExpr<number> => {
+  switch (op) {
+    case "UPlus":
+      return expr as IAFloat;
+    case "UMinus":
+      throw new Error("unary plus is undefined");
+  }
+};
 
 // TODO: return type
-const evalTranslation = (s: State) => {
+/**
+ * Evaluate all shapes in the `State` by walking the `Translation` data structure, finding out all shape expressions (`FGPI` expressions computed by the Style compiler), and evaluating every property in each shape.
+ * @param s the current state, which contains the `Translation` to be evaluated
+ * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
+ */
+export const evalTranslation = (s: State) => {
   // Find out the values of varying variables
   const varyMap = zip(s.varyingPaths, s.varyingValues) as [[Path, number]];
 
@@ -24,7 +68,7 @@ const evalTranslation = (s: State) => {
   // TODO: make sure the types are okay, i.e. all shape exprs are GPIs (via type assertion?)
 
   // Evaluate each of the shapes
-  // const [shapes, trans] = shapeExprs.reduce(([shapes, tr]: [Shape[], Translation], e: any) => evalExpr(e, s.translation, varyMap));
+  const [shapes, trans] = shapeExprs.reduce(([shapes, tr]: [Shape[], Translation], e: any) => evalShape(e, s.translation, varyMap));
 
   // Update the state with the new list of shapes and translation
   // return { shapes: shapes, translation: trans, ...s};
@@ -50,8 +94,9 @@ export const findExpr = (trans: Translation, path: Path): TagExpr<number> => {
       [name, field, prop] = path.contents;
       // Type cast to FGPI and get the properties
       const gpi = trans.trMap.get(name.contents)?.get(field) as IFGPI<number>;
+      const [_, propDict] = gpi.contents;
 
-      return gpi.contents[1].get(prop)!;
+      return propDict.get(prop)!;
   }
 };
 
