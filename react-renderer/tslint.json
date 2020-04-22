@@ -12,7 +12,7 @@
     "jsx-no-lambda": false,
     "object-literal-sort-keys": false,
     "ordered-imports": false,
-    "no-var-requires": false
+    "no-var-requires": false,
     "array-type": false
   }
 }
