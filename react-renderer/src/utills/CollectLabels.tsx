@@ -12,7 +12,11 @@ const AllPackages = require("mathjax-full/js/input/tex/AllPackages.js")
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 const adaptor = liteAdaptor();
 RegisterHTMLHandler(adaptor);
-const tex = new TeX({ packages: AllPackages });
+const tex = new TeX({
+  packages: AllPackages,
+  inlineMath: [["$", "$"], ["\\(", "\\)"]],
+  processEscapes: true,
+});
 const svg = new SVG({ fontCache: "none" });
 const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
@@ -47,7 +51,7 @@ const convert = (input: string, fontSize: string) => {
 
 const tex2svg = memoize(
   async (contents: string, name: string, fontSize: string): Promise<any> =>
-    new Promise(resolve => {
+    new Promise((resolve) => {
       // HACK: Style compiler decides to give empty labels if not specified
       if (contents !== "") {
         const output = convert(contents, fontSize);
