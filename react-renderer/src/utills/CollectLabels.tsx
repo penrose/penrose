@@ -12,7 +12,11 @@ const AllPackages = require("mathjax-full/js/input/tex/AllPackages.js")
 // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
 const adaptor = liteAdaptor();
 RegisterHTMLHandler(adaptor);
-const tex = new TeX({ packages: AllPackages });
+const tex = new TeX({
+  packages: AllPackages,
+  inlineMath: [["$", "$"], ["\\(", "\\)"]],
+  processEscapes: true,
+});
 const svg = new SVG({ fontCache: "none" });
 const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
@@ -35,7 +39,9 @@ export function svgBBox(svgEl: SVGSVGElement) {
 }
 
 const convert = (input: string, fontSize: string) => {
-  const node = html.convert(input, {});
+  // HACK: workaround for newlines
+  // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
+  const node = html.convert(`\\displaylines{${input}}`, {});
   // Not sure if this call does anything:
   adaptor.setStyle(node, "font-size", fontSize);
   const inner = adaptor.innerHTML(node);
@@ -47,7 +53,7 @@ const convert = (input: string, fontSize: string) => {
 
 const tex2svg = memoize(
   async (contents: string, name: string, fontSize: string): Promise<any> =>
-    new Promise(resolve => {
+    new Promise((resolve) => {
       // HACK: Style compiler decides to give empty labels if not specified
       if (contents !== "") {
         const output = convert(contents, fontSize);
