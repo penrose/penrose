@@ -51,13 +51,20 @@ describe("evaluation functions tests", () => {
       contents: [{ tag: "BSubVar", contents: "A" }, "shape", "strokeWidth"],
     };
     const prop = findExpr(state.translation, path);
-    console.log(prop);
-
     expect(prop.contents.tag).toEqual("UOp");
     expect(
       evalExpr(prop.contents, state.translation, state.varyingMap).contents
         .contents
     ).toEqual(-0);
+  });
+  it("evaluates a single computation A.text.color", () => {
+    const path: IPropertyPath = {
+      tag: "PropertyPath",
+      contents: [{ tag: "BSubVar", contents: "A" }, "text", "color"],
+    };
+    const prop = findExpr(state.translation, path);
+    expect(prop.contents.tag).toEqual("CompApp");
+    console.log(evalExpr(prop.contents, state.translation, state.varyingMap));
   });
   // it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
   // evalTranslation(state);

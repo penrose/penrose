@@ -3,6 +3,18 @@ import { zip } from "lodash";
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
 
+const compDict = {
+  rgba: (r: number, g: number, b: number, a: number): IColorV<number> => {
+    return {
+      tag: "ColorV",
+      contents: {
+        tag: "RGBA",
+        contents: [r, g, b, a],
+      },
+    };
+  },
+};
+
 export const evalShape = (
   e: IFGPI<number>,
   trans: Translation,
@@ -12,6 +24,13 @@ export const evalShape = (
   // TODO: finish
   return [[...shapes], trans];
 };
+
+// TODO: cache translation in intermediate steps
+export const evalExprs = (
+  es: Expr[],
+  trans: Translation,
+  varyingVars: VaryMap
+): ArgVal<number>[] => es.map((e) => evalExpr(e, trans, varyingVars));
 
 /**
  * Evaluate the input expression to a `Done` value.
@@ -37,21 +56,49 @@ export const evalExpr = (
   switch (e.tag) {
     case "IntLit":
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
+    case "StringLit":
+      return { tag: "Val", contents: { tag: "StrV", contents: e.contents } };
+    case "BoolLit":
+      return { tag: "Val", contents: { tag: "BoolV", contents: e.contents } };
+    case "AFloat":
+      if (e.contents.tag === "Vary")
+        throw new Error("encountered an unsubstituted varying value");
+      else
+        return {
+          tag: "Val",
+          contents: { tag: "FloatV", contents: e.contents.contents },
+        };
     case "UOp":
       const {
         contents: [op, expr],
       } = e as IUOp;
       const { contents: arg } = evalExpr(expr, trans, varyingVars);
-
       return { tag: "Val", contents: evalUOp(op, arg) };
     case "BinOp":
       // TODO:
       return { tag: "Val", contents: { tag: "FloatV", contents: NaN } };
+    case "CompApp":
+      const [fnName, argExprs] = e.contents;
+      // eval all args
+      const args = evalExprs(argExprs, trans, varyingVars);
+      const argValues = args.map((e) => argValue(e));
+      // retrieve comp function from a global dict and call the function
+      return compDict[fnName](...argValues);
     default:
       // TODO: error
       return { tag: "Val", contents: { tag: "FloatV", contents: NaN } };
   }
   // Simplest implementation: look up all necessary arguments recursively
+};
+
+// remove the type wrapper for the argument
+const argValue = (e: ArgVal<number>) => {
+  switch (e.tag) {
+    case "GPI": // strip the `GPI` tag
+      return e.contents;
+    case "Val": // strip both `Val` and type annotation like `FloatV`
+      return e.contents.contents;
+  }
 };
 
 /**
@@ -114,7 +161,6 @@ export const findExpr = (trans: Translation, path: Path): TagExpr<number> => {
       // Type cast to FGPI and get the properties
       const gpi = trans.trMap[name.contents][field] as IFGPI<number>;
       const [_, propDict] = gpi.contents;
-
       return propDict[prop];
   }
 };
