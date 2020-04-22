@@ -39,7 +39,9 @@ export function svgBBox(svgEl: SVGSVGElement) {
 }
 
 const convert = (input: string, fontSize: string) => {
-  const node = html.convert(input, {});
+  // HACK: workaround for newlines
+  // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
+  const node = html.convert(`\\displaylines{${input}}`, {});
   // Not sure if this call does anything:
   adaptor.setStyle(node, "font-size", fontSize);
   const inner = adaptor.innerHTML(node);
