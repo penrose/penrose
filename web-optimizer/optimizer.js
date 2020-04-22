@@ -69,6 +69,7 @@ const minimize = (f, xs, names) => {
 
     // Use included tf.js optimizer for now
     // TODO profile this; change # iterations (test for convergence) and LR
+    // TODO: Calculate + print norm of gradient; evaluate until convergence, and check against the right answer
     for (let i = 0; i < 100; i++) {
     	res = optimizer2.minimize(() => f(...xs), returnCost=true, varList=xs);
 
@@ -105,6 +106,7 @@ let compileOptProblem = (state) => { // State -> ([a] -> a)
     let varyingMap = tups2obj(varyingPaths, varyingState);
 
     // Look up function name in function library
+    // TODO: look up all functions, not just the first
     let overallFn = objFn_library[objFns[0].fnName];
 
     // TODO: for each function's argument, look it up / evaluate it in compGraph
@@ -127,10 +129,6 @@ let compileOptProblem = (state) => { // State -> ([a] -> a)
 
 // SYSTEM LIBRARIES
 // All currently written with tfjs types
-
-// TODO (4/15): Figure out how to use function composition
-// Need to keep track of gradients / impl chain rule by hand? Change fn schema? 
-// If dy is passed when calling g(), the gradient of f(x1,...).mul(dy).sum() with respect to each input is computed instead. The provided f must take one or more tensors and return a single tensor y. If f() takes a single input, we recommend using tf.grad() instead.
 
 // TODO: Figure out how to schedule computations as tensors?
 // objFn :: [a] -> a
@@ -156,8 +154,8 @@ let objFns0 = [ { fnName: "min2",
 
 // No intermediate nodes
 let compGraph0 = {
-    "A.shape.x" : 0.5, // TODO: Initialize varying vars in the right way
-    "B.shape.y" : -0.5
+    "A.shape.x" : 1.0, // TODO: Initialize varying vars in the right way
+    "B.shape.y" : 5.0
 };
 
 let varyingPaths0 = ["A.shape.x", "B.shape.y"];
@@ -175,9 +173,9 @@ let objFns1 = [ { fnName: "min2",
 // One intermediate node
 // (Combined with varyingMap)
 let compGraph1 = {
-    "A.shape.x" : Math.random(),
+    "A.shape.x" : 1.0,
     "B.shape.y" : ["plus2", "C.shape.r", 4.0], // B.shape.y := C.shape.r + 4.0
-    "C.shape.r" : 1.0
+    "C.shape.r" : 5.0
 };
 
 let varyingPaths1 = ["A.shape.x", "C.shape.r"];
