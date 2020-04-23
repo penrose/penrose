@@ -3,6 +3,79 @@ OptType constraints
 Union plus
 Union and
 
+objective -> plus
+constraints -> and
+
+-------------- Set 1
+
+-- HigherArg set1
+Arg set1_shape
+Arg set1_text
+
+Constraint contains1
+Constraint minSize1
+Constraint maxSize1
+Objective sameCenter1
+
+contains1 -> set1_shape
+contains1 -> set1_text
+minSize1 -> set1_shape
+maxSize1 -> set1_shape
+sameCenter1 -> set1_text
+sameCenter1 -> set1_shape
+
+plus -> sameCenter1
+and -> contains1
+and -> minSize1
+and -> maxSize1
+
+--------------- Set 2
+
+-- HigherArg set2
+Arg set2_shape
+Arg set2_text
+
+Constraint contains2
+Constraint minSize2
+Constraint maxSize2
+Objective sameCenter2
+
+contains2 -> set2_shape
+contains2 -> set2_text
+minSize2 -> set2_shape
+maxSize2 -> set2_shape
+sameCenter2 -> set2_text
+sameCenter2 -> set2_shape
+
+plus -> sameCenter2
+and -> contains2
+and -> minSize2
+and -> maxSize2
+
+--------------- Set 1 subset Set 2
+
+Constraint contains21
+Constraint smallerThan12
+Constraint outsideOf21
+
+Const ten
+
+contains21 -> set2_shape
+contains21 -> set1_shape
+contains21 -> ten
+
+smallerThan12 -> set1_shape
+smallerThan12 -> set2_shape
+
+outsideOf21 -> set2_text
+outsideOf21 -> set1_shape
+
+and -> contains21
+and -> smallerThan12
+and -> outsideOf21
+
+----------------
+
 AutoLabel All
 
 Label objective $\text{Objective}$
@@ -10,7 +83,24 @@ Label constraints $\text{Constraints}$
 Label plus $+$
 Label and $\&$
 
--- Label equal $\text{equal}$
--- Label contained $\text{contained}$
--- Label near1 $\text{near}$
--- Label near2 $\text{near}$
+Label set1_shape $\text{set1.shape}$
+Label set1_text $\text{set1.text}$
+
+Label set2_shape $\text{set2.shape}$
+Label set2_text $\text{set2.text}$
+
+Label contains1 $\text{c1}$
+Label minSize1 $\text{minS1}$
+Label maxSize1 $\text{maxS1}$
+Label sameCenter1 $\text{sc1}$
+
+Label contains2 $\text{c2}$
+Label minSize2 $\text{minS2}$
+Label maxSize2 $\text{maxS2}$
+Label sameCenter2 $\text{sc2}$
+
+Label contains21 $\text{c21}$
+Label smallerThan12 $\text{st12}$
+Label outsideOf21 $\text{os21}$
+
+Label ten $10$

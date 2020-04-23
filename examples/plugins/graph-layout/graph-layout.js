@@ -11,7 +11,8 @@ const crash = () => { console.log("crashing"); console.log(null[0]); }
 const letterWidth = 100; // Pixels
 const letterHeight = 80;
 const ellipseLR_Padding = 600;
-const ellipseTB_Padding = 600;
+// const ellipseTB_Padding = 600;
+const ellipseTB_Padding = 1800;
 
 function buildGraph(json) {
     let subDecls = json.objects;

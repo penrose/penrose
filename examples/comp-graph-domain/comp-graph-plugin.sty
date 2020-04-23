@@ -38,7 +38,8 @@ const {
     const.graphHeightHalf = const.graphHeight * 0.5
 
     -- This is hand-tuned to just about fit the widest graph, optimization-graph.sub, because it makes more sense for all the examples to have the same scale factor
-    const.scaleFactor = 0.065
+    -- const.scaleFactor = 0.065
+    const.scaleFactor = 0.04
     const.xShift = 0.0 -- const.graphWidth * 0.5
     const.yShift = 0.0 -- const.graphHeight * 0.5
 
@@ -111,6 +112,7 @@ Node n {
 	 -- Preserve original graph ratio; don't stretch out
 	 -- Transform first to be about (0,0)
 	 -- Then scale both dimensions uniformly to fit exactly on the canvas (width or height) (TODO: Calculate scale factor?)
+
          x : (graphLayout[n.name]["x"] - const.graphWidthHalf) * const.scaleFactor
 	 y : (graphLayout[n.name]["y"] - const.graphHeightHalf) * const.scaleFactor * const.yFactor
 
