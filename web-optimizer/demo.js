@@ -15,7 +15,7 @@ g(x).print();
 
 const a = tf.scalar(Math.random()).variable();
 
-const learningRate = 0.01; // TODO Try different learning rates
+const learningRate = 0.1; // TODO Try different learning rates
 const optimizer1 = tf.train.sgd(learningRate);
 const optimizer2 = tf.train.adam(learningRate);
 
