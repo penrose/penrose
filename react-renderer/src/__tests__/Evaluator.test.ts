@@ -5,6 +5,7 @@ import {
   evalExpr,
   resolvePath,
   evalShape,
+  evalTranslation,
 } from "../Evaluator";
 import * as stateJSON from "./state.json";
 import _ from "lodash";
@@ -144,8 +145,9 @@ describe("evaluation functions tests", () => {
     );
     expect(shape).toEqual(backendShape);
   });
-  // it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
-
-  // evalTranslation(state);
-  // });
+  it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
+    const oldShapes = state.shapes;
+    const stateEvaled = evalTranslation(state);
+    expect(stateEvaled.shapes).toEqual(oldShapes);
+  });
 });
