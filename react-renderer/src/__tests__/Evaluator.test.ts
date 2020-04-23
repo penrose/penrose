@@ -1,11 +1,13 @@
 import {
   decodeState,
   findExpr,
-  evalTranslation,
+  // evalTranslation,
   evalExpr,
   resolvePath,
+  evalShape,
 } from "../Evaluator";
 import * as stateJSON from "./state.json";
+import _ from "lodash";
 
 // TODO: there are type errors in this file, but `npm test` seems to run just fine, why?
 
@@ -19,7 +21,7 @@ describe("state operations tests", () => {
 
   it("finds a shape in the decoded state", () => {
     const trans = state.translation.trMap;
-    expect(trans["A"]).not.toEqual(undefined);
+    expect(trans.A).not.toEqual(undefined);
   });
 
   it("finds all shape expressions in a state using shapePaths", () => {
@@ -78,7 +80,7 @@ describe("evaluation functions tests", () => {
     const propVal = resolvePath(path, state.translation, []).contents as Value<
       number
     >;
-    expect(propVal.contents).toEqual(42);
+    expect(propVal.contents).toEqual(1);
   });
   it("resolve a property path A.shading.x", () => {
     const path1: IPropertyPath = {
@@ -107,16 +109,43 @@ describe("evaluation functions tests", () => {
       contents: [{ tag: "BSubVar", contents: "A" }, "shape", "r"],
     };
     // NOTE: not using varying values
-    const propVal1: ArgVal<number> = resolvePath(path1, state.translation, []);
+    const propVal1 = resolvePath(path1, state.translation, []) as IVal<number>;
     const propVal2: TagExpr<number> = findExpr(
       state.translation,
       path2
     ) as IDone<number>;
     expect(propVal1.contents.contents).toEqual(
-      propVal2.contents.contents * 2.15
+      (propVal2.contents.contents as number) * 2.15
     );
   });
+  it("evaluate A.text", () => {
+    const path: IFieldPath = {
+      tag: "FieldPath",
+      contents: [{ tag: "BSubVar", contents: "A" }, "text"],
+    };
+    const shapeExpr = findExpr(state.translation, path) as IFGPI<number>;
+    const [[shape]] = evalShape(shapeExpr, state.translation, [], []);
+    const backendShape = _.find(
+      state.shapes,
+      (s) => s.properties.name.contents === "A.text"
+    );
+    expect(shape).toEqual(backendShape);
+  });
+  it("evaluate A.shape", () => {
+    const path: IFieldPath = {
+      tag: "FieldPath",
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape"],
+    };
+    const shapeExpr = findExpr(state.translation, path) as IFGPI<number>;
+    const [[shape]] = evalShape(shapeExpr, state.translation, [], []);
+    const backendShape = _.find(
+      state.shapes,
+      (s) => s.properties.name.contents === "A.shape"
+    );
+    expect(shape).toEqual(backendShape);
+  });
   // it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
+
   // evalTranslation(state);
   // });
 });

@@ -3,8 +3,13 @@ import _ from "lodash";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
+/**
+ * NOTE: possible eval optimization:
+ * - Analyze the comp graph first and mark all non-varying props or fields (including those that don't depend on varying vals) permanantly "Done".
+ */
 
 // TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
+// TODO: think about user extension of computation dict and evaluation of functions in there
 const compDict = {
   rgba: (r: number, g: number, b: number, a: number): IColorV<number> => {
     return {
@@ -17,14 +22,22 @@ const compDict = {
   },
 };
 
+// TODO: update trans
 export const evalShape = (
-  e: IFGPI<number>,
+  shapeExpr: IFGPI<number>,
   trans: Translation,
-  varyingVars: [[Path, number]],
+  varyingVars: VaryMap,
   shapes: Shape[]
 ): [Shape[], Translation] => {
-  // TODO: finish
-  return [[...shapes], trans];
+  const [shapeName, propExprs] = shapeExpr.contents;
+  // Make sure all props are evaluated to values instead of shapes
+  const props = _.mapValues(propExprs, (prop: TagExpr<number>) =>
+    prop.tag === "OptEval"
+      ? (evalExpr(prop.contents, trans, varyingVars) as IVal<number>).contents
+      : prop.contents
+  );
+  const shape: Shape = { shapeName, properties: props };
+  return [[...shapes, shape], trans];
 };
 
 // TODO: cache translation in intermediate steps
@@ -35,11 +48,11 @@ export const evalExprs = (
 ): ArgVal<number>[] => es.map((e) => evalExpr(e, trans, varyingVars));
 
 /**
- * Evaluate the input expression to a `Done` value.
- * TODO: return type; break cycles; optimize lookup
+ * Evaluate the input expression to a value.
  * NOTE: This implementation needs the `Done` status of the values for optimizing evaluation and breaking cycles
  * TODO: maybe use a more OOP approach to encode current value and done status
  * TODO: deal with translation update
+ * TODO: break cycles; optimize lookup
  * @param e the expression to be evaluated.
  * @param trans the `Translation` so far
  * @param varyingVars pairs of (path, value) for all optimized/"varying" values.
@@ -49,12 +62,6 @@ export const evalExpr = (
   trans: Translation,
   varyingVars: VaryMap
 ): ArgVal<number> => {
-  // TODO: all of below are TagExpr specific. Figure out where best to strip the tag away
-  // If the expression is `Pending`, just return
-  // if (e.tag === "Done") return e; // TODO: `done` is overloaded here, figure out exactly what it means for the current impl vs. scott's algorithm
-  // if (e.tag === "Pending") return e;
-  // Else pattern match on the type of expression and execute evaluation accordingly
-
   switch (e.tag) {
     case "IntLit":
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
@@ -102,12 +109,10 @@ export const evalExpr = (
       const args = evalExprs(argExprs, trans, varyingVars);
       const argValues = args.map((a) => argValue(a));
       // retrieve comp function from a global dict and call the function
-      return compDict[fnName](...argValues);
+      return { tag: "Val", contents: compDict[fnName](...argValues) };
     default:
-      // TODO: error
-      return { tag: "Val", contents: { tag: "FloatV", contents: NaN } };
+      throw new Error(`cannot evaluate expression of type ${e.tag}`);
   }
-  // Simplest implementation: look up all necessary arguments recursively
 };
 
 /**
@@ -213,20 +218,21 @@ export const evalUOp = (
  */
 export const evalTranslation = (s: State) => {
   // Find out all the GPI expressions in the translation
-  const shapeExprs = s.shapePaths.map((p: any) => findExpr(s.translation, p));
+  const shapeExprs = s.shapePaths.map(
+    (p: any) => findExpr(s.translation, p) as IFGPI<number>
+  );
 
   // TODO: make sure the types are okay, i.e. all shape exprs are GPIs (via type assertion?)
 
   // Evaluate each of the shapes
-  // const [
-  //   shapes,
-  //   trans,
-  // ] = shapeExprs.reduce(([shapes, tr]: [Shape[], Translation], e: any) =>
-  //   evalShape(e, s.translation, varyMap)
-  // );
+  const [shapes, trans] = shapeExprs.reduce(
+    ([shapes, tr]: [Shape[], Translation], e: IFGPI<number>) =>
+      evalShape(e, tr, s.varyingMap, shapes),
+    [[], s.translation]
+  );
 
   // Update the state with the new list of shapes and translation
-  // return { shapes: shapes, translation: trans, ...s};
+  return { shapes: shapes, translation: trans, ...s };
 };
 
 /**
@@ -279,7 +285,9 @@ export const decodeState = (json: any): State => {
     varyingValues: json.varyingState,
     // translation: decodeTranslation(json.transr),
     translation: json.transr,
-    shapes: json.shapesr,
+    shapes: json.shapesr.map(([n, props]: any) => {
+      return { shapeName: n, properties: props };
+    }),
     varyingMap: zip(json.varyingPaths, json.varyingValues),
   };
   return state as State;
