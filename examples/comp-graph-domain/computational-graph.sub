@@ -1,7 +1,8 @@
 -- Source: https://github.com/penrose/TOG-2019/blob/master/Media/CompilerDiagrams/ComputationalGraph.gv
 
-VaryingArg X
-VaryingArg xAxis
+HigherArg X
+HigherArg xAxis
+
 VaryingArg origin
 VaryingArg start
 VaryingArg end
@@ -13,11 +14,11 @@ ConstArg color
 Const onepointfive
 Const solid
 Const lightGray
-Const plusStart
-Const plusEnd
+Function plusStart
+Function plusEnd
 Const shiftStart
 Const shiftEnd
-Const pending
+VaryingConst pending
 
 X -> xAxis
 xAxis -> start

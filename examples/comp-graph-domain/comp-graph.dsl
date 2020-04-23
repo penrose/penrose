@@ -10,6 +10,8 @@ type Arg
 type Const
 type ConstArg -- Any node that only depends on constants
 type VaryingArg -- Any node that depends on a varying value, directly or indirectly
+type VaryingConst -- "?" type
+type HigherArg
 
 OptType <: Node
 Union <: Node
@@ -19,8 +21,11 @@ Label <: Node
 Function <: Node
 Arg <: Node
 Const <: Node
+
 ConstArg <: Arg
 VaryingArg <: Arg
+VaryingConst <: Const
+HigherArg <: Arg
 
 -- TODO: we can't make lists right now
 -- would like to write y = f[x]

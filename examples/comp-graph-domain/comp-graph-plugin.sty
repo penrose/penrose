@@ -21,6 +21,12 @@ const {
     const.edgeStroke = 2.0
     const.nodeColor = Colors.lightblue
     const.arrowColor = Colors.black
+    const.varyingColor = setOpacity(Colors.orange, 0.8)
+    const.constColor = setOpacity(Colors.sky, 0.8)
+    const.funcColor = setOpacity(Colors.green, 0.7)
+    const.optTypeColor = setOpacity(Colors.purple, 0.3)
+    const.unionColor = setOpacity(Colors.pink, 0.9)
+    const.higherColor = setOpacity(Colors.gray, 0.9)
 
     -- Convert from "dagre space" to Penrose canvas space
     -- TODO: deal with (invariant) font sizes
@@ -140,18 +146,49 @@ Node n {
        ensure contains(const.canvas, n.shape2, 5.0)
 }
 
--- Ported from sty/tree.sty
+Const n {
+      override n.text.color = const.constColor
+}
 
 ConstArg n {
-	   override n.shape.color = setOpacity(Colors.sky, 0.9)
+	   override n.shape.color = const.constColor
 }
 
 VaryingArg n {
-	   override n.shape.color = setOpacity(Colors.orange, 0.9)
+	   override n.shape.color = const.varyingColor
 }
 
 Const n {
             override n.shape.color = Colors.none
+}
+
+VaryingConst n {
+	     override n.text.color = const.varyingColor
+}
+
+Function f {
+	 override f.shape.color = const.funcColor
+}
+
+
+Objective f {
+	 override f.shape.color = const.funcColor
+}
+
+Constraint f {
+	 override f.shape.color = const.funcColor
+}
+
+OptType n {
+	 override n.shape.color = const.optTypeColor
+}
+
+Union n {
+	 override n.shape.color = const.unionColor
+}
+
+HigherArg n {
+	  override n.shape.color = const.higherColor
 }
 
 Node x; Node y {
@@ -178,55 +215,6 @@ where to(p, c) {
       c.shape above LOCAL.shape
 }
 
--- Node p; Node c1; Node c2
--- where ParentOf2(p, c1, c2) {
---       LOCAL.shape1 = Arrow {
---       		  startX : p.shape.x
---       		  startY : p.shape.y
---       		  endX : c1.shape.x
---       		  endY : c1.shape.y
--- 		  color : const.arrowColor
--- 		  thickness : const.edgeStroke
-
---       }
-
---       LOCAL.shape2 = Arrow {
---       		  startX : p.shape.x
---       		  startY : p.shape.y
---       		  endX : c2.shape.x
---       		  endY : c2.shape.y
--- 		  color : const.arrowColor
--- 		  thickness : const.edgeStroke
-
---       }
--- }
-
--- Node p; Node c1; Node c2; Node c3
--- where ParentOf3(p, c1, c2, c3) {
---       LOCAL.shape1 = Arrow {
---       		  startX : p.shape.x
---       		  startY : p.shape.y
---       		  endX : c1.shape.x
---       		  endY : c1.shape.y
--- 		  color : const.arrowColor
--- 		  thickness : const.edgeStroke
---       }
-
---       LOCAL.shape2 = Arrow {
---       		  startX : p.shape.x
---       		  startY : p.shape.y
---       		  endX : c2.shape.x
---       		  endY : c2.shape.y
--- 		  color : const.arrowColor
--- 		  thickness : const.edgeStroke
---       }
-
---       LOCAL.shape3 = Arrow {
---       		  startX : p.shape.x
---       		  startY : p.shape.y
---       		  endX : c3.shape.x
---       		  endY : c3.shape.y
--- 		  color : const.arrowColor
--- 		  thickness : const.edgeStroke
---       }
--- }
+-- TODO: Can't make all the children arrows gray
+-- HigherArg h; Node n 
+-- where to(h, n) { ... }

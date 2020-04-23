@@ -12,15 +12,15 @@ Constraint equal
 
 Function dotProduct
 Const zero
-Arg X_bbox
+VaryingArg X_bbox
 
-Arg x1_text_position
-Arg x1_shape_end
-Arg x1_vector
+VaryingArg x1_text_position
+VaryingArg x1_shape_end
+VaryingArg x1_vector
 
-Arg x2_text_position
-Arg x2_shape_end
-Arg x2_vector
+VaryingArg x2_text_position
+VaryingArg x2_shape_end
+VaryingArg x2_vector
 
 objective -> plus
 constraints -> and
