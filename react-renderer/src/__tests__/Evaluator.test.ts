@@ -1,6 +1,3 @@
-import React from "react";
-import { render, unmountComponentAtNode } from "react-dom";
-import { act } from "react-dom/test-utils";
 import {
   decodeState,
   findExpr,
@@ -8,9 +5,10 @@ import {
   evalExpr,
   resolvePath,
 } from "../Evaluator";
-import { PropertyPath } from "lodash";
+import * as stateJSON from "./state.json";
 
-const stateJSON = require("./state.json");
+// TODO: there are type errors in this file, but `npm test` seems to run just fine, why?
+
 // throwing away the flag
 const state = decodeState(stateJSON.contents);
 
@@ -56,7 +54,7 @@ describe("evaluation functions tests", () => {
       tag: "PropertyPath",
       contents: [{ tag: "BSubVar", contents: "A" }, "shape", "strokeWidth"],
     };
-    const prop = findExpr(state.translation, path);
+    const prop = findExpr(state.translation, path) as TagExpr<number>;
     expect(prop.contents.tag).toEqual("UOp");
     expect(
       evalExpr(prop.contents, state.translation, state.varyingMap).contents
@@ -70,9 +68,18 @@ describe("evaluation functions tests", () => {
     };
     const prop = findExpr(state.translation, path);
     expect(prop.contents.tag).toEqual("CompApp");
-    console.log(evalExpr(prop.contents, state.translation, state.varyingMap));
   });
-  it("resolve a path A.shading.x", () => {
+  it("resolve a field path const.num", () => {
+    const path: IFieldPath = {
+      tag: "FieldPath",
+      contents: [{ tag: "BStyVar", contents: "const" }, "num"],
+    };
+    // NOTE: not using varying values
+    const propVal: Value<number> = resolvePath(path, state.translation, [])
+      .contents;
+    expect(propVal.contents).toEqual(42);
+  });
+  it("resolve a property path A.shading.x", () => {
     const path1: IPropertyPath = {
       tag: "PropertyPath",
       contents: [{ tag: "BSubVar", contents: "A" }, "shading", "x"],
@@ -85,6 +92,22 @@ describe("evaluation functions tests", () => {
     const propVal1: ArgVal<number> = resolvePath(path1, state.translation, []);
     const propVal2: TagExpr<number> = findExpr(state.translation, path2);
     expect(propVal1.contents).toEqual(propVal2.contents);
+  });
+  it("resolve a property path A.shadow.w, which is computed via A.shape.r", () => {
+    const path1: IPropertyPath = {
+      tag: "PropertyPath",
+      contents: [{ tag: "BSubVar", contents: "A" }, "shadow", "w"],
+    };
+    const path2: IPropertyPath = {
+      tag: "PropertyPath",
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "r"],
+    };
+    // NOTE: not using varying values
+    const propVal1: ArgVal<number> = resolvePath(path1, state.translation, []);
+    const propVal2: TagExpr<number> = findExpr(state.translation, path2);
+    expect(propVal1.contents.contents).toEqual(
+      propVal2.contents.contents * 2.15
+    );
   });
   // it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
   // evalTranslation(state);

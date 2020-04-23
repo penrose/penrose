@@ -29,11 +29,16 @@
   },
   "devDependencies": {
     "@types/debug": "0.0.31",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^23.3.14",
     "@types/lodash": "^4.14.149",
     "@types/node": "^10.17.21",
     "@types/react": "^16.9.32",
     "@types/react-dom": "^16.9.6",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "enzyme-to-json": "^3.4.4",
     "prettier": "^1.19.1",
     "tslint": "^5.20.1",
     "typescript": "^3.8.3"
@@ -43,5 +48,10 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "jest": {
+    "snapshotSerializers": [
+      "enzyme-to-json"
+    ]
+  }
 }

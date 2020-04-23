@@ -17,6 +17,7 @@
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     // "noUnusedLocals": true
     "noUnusedLocals": false
   },
@@ -51,7 +52,6 @@
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/__tests__",
     "src/setupTests.ts"
   ]
 }

@@ -4367,6 +4367,855 @@
             ]
           }
         },
+        "Colors": {
+          "black": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "blue": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "bluegreen": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.44 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.68 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.6 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "cyan": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "darkgray": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.1 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.1 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.1 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "darkpurple": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.549 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.565 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.757 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "gainsboro": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.87 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.87 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.87 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "gray": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.8 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.8 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.8 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "green": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "lightblue": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.25 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "lightorange": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.6 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.25 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "lightpurple": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.816 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.824 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.902 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "lightsky": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.325 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.718 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.769 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.25 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "lightslategray": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.5 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.51 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.69 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "mediumgray": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.5 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.5 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.5 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "midnightblue": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.14 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.16 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.52 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "name": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "Done",
+              "contents": { "tag": "StrV", "contents": "Colors" }
+            }
+          },
+          "none": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "orange": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.6 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "pink": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.4 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.7 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "purple": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.5 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.5 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "purple2": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.106 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.122 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.54 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.2 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "purple3": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.557 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.627 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.769 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "red": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "silver": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.71 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.72 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.79 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "sky": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.325 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.718 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.769 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "verylightpurple": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.953 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.957 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.977 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "white": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "yellow": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "CompApp",
+                "contents": [
+                  "rgba",
+                  [
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 0.0 }
+                    },
+                    {
+                      "tag": "AFloat",
+                      "contents": { "tag": "Fix", "contents": 1.0 }
+                    }
+                  ]
+                ]
+              }
+            }
+          }
+        },
         "D": {
           "label": {
             "tag": "FExpr",
@@ -6803,7 +7652,7 @@
             ]
           }
         },
-        "LOCAL_b0_s0": {
+        "LOCAL_b2_s0": {
           "layering": {
             "tag": "FExpr",
             "contents": {
@@ -6827,7 +7676,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b0_s0" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s0" }
             }
           },
           "shadeLayering": {
@@ -6878,7 +7727,7 @@
             }
           }
         },
-        "LOCAL_b0_s1": {
+        "LOCAL_b2_s1": {
           "layering": {
             "tag": "FExpr",
             "contents": {
@@ -6902,7 +7751,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b0_s1" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s1" }
             }
           },
           "shadeLayering": {
@@ -6953,7 +7802,7 @@
             }
           }
         },
-        "LOCAL_b0_s2": {
+        "LOCAL_b2_s2": {
           "layering": {
             "tag": "FExpr",
             "contents": {
@@ -6977,7 +7826,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b0_s2" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s2" }
             }
           },
           "shadeLayering": {
@@ -7028,7 +7877,7 @@
             }
           }
         },
-        "LOCAL_b0_s3": {
+        "LOCAL_b2_s3": {
           "layering": {
             "tag": "FExpr",
             "contents": {
@@ -7052,7 +7901,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b0_s3" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s3" }
             }
           },
           "shadeLayering": {
@@ -7103,7 +7952,7 @@
             }
           }
         },
-        "LOCAL_b0_s4": {
+        "LOCAL_b2_s4": {
           "layering": {
             "tag": "FExpr",
             "contents": {
@@ -7127,7 +7976,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b0_s4" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s4" }
             }
           },
           "shadeLayering": {
@@ -7178,7 +8027,7 @@
             }
           }
         },
-        "LOCAL_b0_s5": {
+        "LOCAL_b2_s5": {
           "layering": {
             "tag": "FExpr",
             "contents": {
@@ -7202,7 +8051,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b0_s5" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s5" }
             }
           },
           "shadeLayering": {
@@ -7253,7 +8102,7 @@
             }
           }
         },
-        "LOCAL_b0_s6": {
+        "LOCAL_b2_s6": {
           "layering": {
             "tag": "FExpr",
             "contents": {
@@ -7277,7 +8126,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b0_s6" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s6" }
             }
           },
           "shadeLayering": {
@@ -7328,7 +8177,7 @@
             }
           }
         },
-        "LOCAL_b1_s0": {
+        "LOCAL_b3_s0": {
           "containFn": {
             "tag": "FExpr",
             "contents": {
@@ -7431,7 +8280,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b1_s0" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b3_s0" }
             }
           },
           "outsideFn": {
@@ -7503,7 +8352,7 @@
             }
           }
         },
-        "LOCAL_b1_s1": {
+        "LOCAL_b3_s1": {
           "containFn": {
             "tag": "FExpr",
             "contents": {
@@ -7606,7 +8455,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b1_s1" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b3_s1" }
             }
           },
           "outsideFn": {
@@ -7678,7 +8527,7 @@
             }
           }
         },
-        "LOCAL_b1_s2": {
+        "LOCAL_b3_s2": {
           "containFn": {
             "tag": "FExpr",
             "contents": {
@@ -7781,7 +8630,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b1_s2" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b3_s2" }
             }
           },
           "outsideFn": {
@@ -7853,7 +8702,7 @@
             }
           }
         },
-        "LOCAL_b1_s3": {
+        "LOCAL_b3_s3": {
           "containFn": {
             "tag": "FExpr",
             "contents": {
@@ -7956,7 +8805,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b1_s3" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b3_s3" }
             }
           },
           "outsideFn": {
@@ -8028,7 +8877,7 @@
             }
           }
         },
-        "LOCAL_b1_s4": {
+        "LOCAL_b3_s4": {
           "containFn": {
             "tag": "FExpr",
             "contents": {
@@ -8131,7 +8980,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b1_s4" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b3_s4" }
             }
           },
           "outsideFn": {
@@ -8203,7 +9052,7 @@
             }
           }
         },
-        "LOCAL_b1_s5": {
+        "LOCAL_b3_s5": {
           "containFn": {
             "tag": "FExpr",
             "contents": {
@@ -8306,7 +9155,7 @@
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b1_s5" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b3_s5" }
             }
           },
           "outsideFn": {
@@ -8378,12 +9227,12 @@
             }
           }
         },
-        "LOCAL_b2_s0": {
+        "LOCAL_b4_s0": {
           "name": {
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s0" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b4_s0" }
             }
           },
           "notIntersectFn": {
@@ -8421,12 +9270,12 @@
             }
           }
         },
-        "LOCAL_b2_s1": {
+        "LOCAL_b4_s1": {
           "name": {
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s1" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b4_s1" }
             }
           },
           "notIntersectFn": {
@@ -8464,12 +9313,12 @@
             }
           }
         },
-        "LOCAL_b2_s2": {
+        "LOCAL_b4_s2": {
           "name": {
             "tag": "FExpr",
             "contents": {
               "tag": "Done",
-              "contents": { "tag": "StrV", "contents": "LOCAL_b2_s2" }
+              "contents": { "tag": "StrV", "contents": "LOCAL_b4_s2" }
             }
           },
           "notIntersectFn": {
@@ -8503,6 +9352,25 @@
                     }
                   ]
                 ]
+              }
+            }
+          }
+        },
+        "const": {
+          "name": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "Done",
+              "contents": { "tag": "StrV", "contents": "const" }
+            }
+          },
+          "num": {
+            "tag": "FExpr",
+            "contents": {
+              "tag": "OptEval",
+              "contents": {
+                "tag": "AFloat",
+                "contents": { "tag": "Fix", "contents": 42.0 }
               }
             }
           }
@@ -9992,7 +10860,7 @@
       }
     ],
     "rng": [1565404315, 1137674036],
-    "selectorMatches": [7, 6, 3, 0, 0],
+    "selectorMatches": [0, 0, 7, 6, 3, 0, 0],
     "policyParams": { "policyState": "", "policySteps": 0, "currFns": [] },
     "oConfig": { "optMethod": "LBFGS" }
   }

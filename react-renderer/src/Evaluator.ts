@@ -4,6 +4,7 @@ import _ from "lodash";
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
 
+// TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
 const compDict = {
   rgba: (r: number, g: number, b: number, a: number): IColorV<number> => {
     return {
@@ -62,29 +63,44 @@ export const evalExpr = (
     case "BoolLit":
       return { tag: "Val", contents: { tag: "BoolV", contents: e.contents } };
     case "AFloat":
-      if (e.contents.tag === "Vary")
+      if (e.contents.tag === "Vary") {
         throw new Error("encountered an unsubstituted varying value");
-      else
+      } else {
         return {
           tag: "Val",
           contents: { tag: "FloatV", contents: e.contents.contents },
         };
+      }
     case "UOp":
       const {
-        contents: [op, expr],
+        contents: [uOp, expr],
       } = e as IUOp;
-      const { contents: arg } = evalExpr(expr, trans, varyingVars);
-      return { tag: "Val", contents: evalUOp(op, arg) };
+      // TODO: use the type system to narrow down Value to Float and Int?
+      const arg = evalExpr(expr, trans, varyingVars).contents;
+      return {
+        tag: "Val",
+        // HACK: coerce the type for now to let the compiler finish
+        contents: evalUOp(uOp, arg as IFloatV<number> | IIntV<number>),
+      };
     case "BinOp":
-      // TODO:
-      return { tag: "Val", contents: { tag: "FloatV", contents: NaN } };
+      const [binOp, e1, e2] = e.contents;
+      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+      return {
+        tag: "Val",
+        // HACK: coerce the type for now to let the compiler finish
+        contents: evalBinOp(
+          binOp,
+          val1.contents as Value<number>,
+          val2.contents as Value<number>
+        ),
+      };
     case "EPath":
       return resolvePath(e.contents, trans, varyingVars);
     case "CompApp":
       const [fnName, argExprs] = e.contents;
       // eval all args
       const args = evalExprs(argExprs, trans, varyingVars);
-      const argValues = args.map((e) => argValue(e));
+      const argValues = args.map((a) => argValue(a));
       // retrieve comp function from a global dict and call the function
       return compDict[fnName](...argValues);
     default:
@@ -121,13 +137,13 @@ export const resolvePath = (
     default:
       const expr: TagExpr<number> = gpiOrExpr;
       // TODO: cache results
-      if (expr.tag === "OptEval")
+      if (expr.tag === "OptEval") {
         return evalExpr(expr.contents, trans, varyingVars);
-      else return { tag: "Val", contents: expr.contents };
+      } else return { tag: "Val", contents: expr.contents };
   }
 };
 
-// remove the type wrapper for the argument
+// HACX: remove the type wrapper for the argument
 const argValue = (e: ArgVal<number>) => {
   switch (e.tag) {
     case "GPI": // strip the `GPI` tag
@@ -138,8 +154,43 @@ const argValue = (e: ArgVal<number>) => {
 };
 
 /**
+ * Evaluate a binary operation such as +, -, *, /, or ^.
+ * @param op a binary operater
+ * @param arg the argument, must be float or int
+ */
+export const evalBinOp = (
+  op: BinaryOp,
+  v1: Value<number>,
+  v2: Value<number>
+): Value<number> => {
+  let returnType: "FloatV" | "IntV";
+  // NOTE: need to explicitly check the types so the compiler will understand
+  if (v1.tag === "FloatV" && v2.tag === "FloatV") returnType = "FloatV";
+  else if (v1.tag === "IntV" && v2.tag === "IntV") returnType = "IntV";
+  else throw new Error(`the types of two operands to ${op} must match`);
+
+  switch (op) {
+    case "BPlus":
+      return { tag: returnType, contents: v1.contents + v2.contents };
+    case "BMinus":
+      return { tag: returnType, contents: v1.contents - v2.contents };
+    case "Multiply":
+      return { tag: returnType, contents: v1.contents * v2.contents };
+    case "Divide":
+      if (v2.contents === 0) throw new Error("divided by zero");
+      const res = v1.contents / v2.contents;
+      return {
+        tag: returnType,
+        contents: returnType === "IntV" ? Math.floor(res) : res,
+      };
+    case "Exp":
+      return { tag: returnType, contents: Math.pow(v1.contents, v2.contents) };
+  }
+};
+
+/**
  * Evaluate an unary operation such as + and -.
- * @param op Unary operater
+ * @param op an unary operater
  * @param arg the argument, must be float or int
  */
 export const evalUOp = (
@@ -210,7 +261,7 @@ export const findExpr = (
         case "FExpr":
           throw new Error("field path leads to an expression, not a GPI");
         case "FGPI":
-          const [_, propDict] = gpi.contents;
+          const [, propDict] = gpi.contents;
           return propDict[prop];
       }
   }
@@ -292,36 +343,36 @@ data State = State
  * Gives types to a serialized `Translation`
  * @param json plain object encoding `Translation`
  */
-const decodeTranslation = (json: any): Translation => {
-  const decodeFieldExpr = (expr: any): FieldExpr<number> => {
-    switch (expr.tag) {
-      case "FGPI":
-        const [shapeType, properties] = expr.contents;
-        return {
-          tag: "FGPI",
-          contents: [shapeType],
-        };
-      case "FExpr":
-        return expr;
-      default:
-        throw new Error(`error decoding field expression ${expr}`);
-    }
-  };
+// const decodeTranslation = (json: any): Translation => {
+//   const decodeFieldExpr = (expr: any): FieldExpr<number> => {
+//     switch (expr.tag) {
+//       case "FGPI":
+//         const [shapeType, properties] = expr.contents;
+//         return {
+//           tag: "FGPI",
+//           contents: [shapeType],
+//         };
+//       case "FExpr":
+//         return expr;
+//       default:
+//         throw new Error(`error decoding field expression ${expr}`);
+//     }
+//   };
 
-  const trans = new Map(
-    Object.entries(json.trMap).map(([subName, es]: any) => [
-      subName,
-      new Map(
-        Object.entries(es).map(([fieldName, e]: any) => [
-          fieldName,
-          decodeFieldExpr(e),
-        ])
-      ) as FieldDict<number>,
-    ])
-  ) as TransDict<number>;
+//   const trans = new Map(
+//     Object.entries(json.trMap).map(([subName, es]: any) => [
+//       subName,
+//       new Map(
+//         Object.entries(es).map(([fieldName, e]: any) => [
+//           fieldName,
+//           decodeFieldExpr(e),
+//         ])
+//       ) as FieldDict<number>,
+//     ])
+//   ) as TransDict<number>;
 
-  return {
-    warnings: json.warnings,
-    compGraph: trans,
-  };
-};
+//   return {
+//     warnings: json.warnings,
+//     compGraph: trans,
+//   };
+// };

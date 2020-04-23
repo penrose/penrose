@@ -22,9 +22,9 @@ class App extends React.Component<any, IState> {
     processedInitial: false,
     layers: [
       { layer: "polygon", enabled: false },
-      { layer: "bbox", enabled: false }
+      { layer: "bbox", enabled: false },
     ],
-    penroseVersion: ""
+    penroseVersion: "",
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
@@ -73,7 +73,7 @@ class App extends React.Component<any, IState> {
           return { layer, enabled: !enabled };
         }
         return { layer, enabled };
-      })
+      }),
     });
   };
 
@@ -83,7 +83,7 @@ class App extends React.Component<any, IState> {
       onVersion: this.onVersion,
       onCanvasState: this.onCanvasState,
       onError: console.warn,
-      kind: "renderer"
+      kind: "renderer",
     });
 
     this.protocol.setupSockets();
