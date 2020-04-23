@@ -1,0 +1,16 @@
+OptType objective
+OptType constraints
+Union plus
+Union and
+
+AutoLabel All
+
+Label objective $\text{Objective}$
+Label constraints $\text{Constraints}$
+Label plus $+$
+Label and $\&$
+
+-- Label equal $\text{equal}$
+-- Label contained $\text{contained}$
+-- Label near1 $\text{near}$
+-- Label near2 $\text{near}$

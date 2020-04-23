@@ -120,6 +120,7 @@ Node n {
 
 	 color : const.nodeColor
 	 strokeWidth : 0.0
+	 strokeStyle : "solid"
        }
 
        -- Conservative approximation of ellipse (for `contains` function)
@@ -160,6 +161,8 @@ VaryingArg n {
 
 Const n {
             override n.shape.color = Colors.none
+	    override n.shape.strokeWidth = 1.0
+	    override n.shape.strokeColor = n.text.color
 }
 
 VaryingConst n {

@@ -1,0 +1,39 @@
+OptType objective
+Objective min2
+VaryingArg A_shape_x
+VaryingArg B_shape_y
+VaryingArg C_shape_r
+
+VaryingConst pending1
+VaryingConst pending2
+
+Const four
+Function mul2
+
+objective -> min2
+min2 -> A_shape_x
+A_shape_x -> pending1
+min2 -> B_shape_y
+
+B_shape_y -> mul2
+mul2 -> four
+mul2 -> C_shape_r
+C_shape_r -> pending2
+
+AutoLabel All
+
+Label objective $\text{Objective}$
+Label pending1 $\text{?}$
+Label pending2 $\text{?}$
+
+Label A_shape_x $\text{A.shape.x}$
+Label B_shape_y $\text{B.shape.y}$
+Label C_shape_r $\text{C.shape.r}$
+
+Label four $4$
+
+-- Notes: nice if graph displays live per-step
+-- Want to label edges. How?
+-- Annoying to have to decl everything, just want to write notation: A -> B -> C, B -> D -> E
+-- VERY annoying to have to name and label underscore-node separately
+-- How to draw expr nodes? B.shape.y := C.shape.r * 4.0
