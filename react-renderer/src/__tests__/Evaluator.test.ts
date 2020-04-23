@@ -1,7 +1,13 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import { decodeState, findExpr, evalTranslation, evalExpr } from "../Evaluator";
+import {
+  decodeState,
+  findExpr,
+  evalTranslation,
+  evalExpr,
+  resolvePath,
+} from "../Evaluator";
 import { PropertyPath } from "lodash";
 
 const stateJSON = require("./state.json");
@@ -65,6 +71,20 @@ describe("evaluation functions tests", () => {
     const prop = findExpr(state.translation, path);
     expect(prop.contents.tag).toEqual("CompApp");
     console.log(evalExpr(prop.contents, state.translation, state.varyingMap));
+  });
+  it("resolve a path A.shading.x", () => {
+    const path1: IPropertyPath = {
+      tag: "PropertyPath",
+      contents: [{ tag: "BSubVar", contents: "A" }, "shading", "x"],
+    };
+    const path2: IPropertyPath = {
+      tag: "PropertyPath",
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "x"],
+    };
+    // NOTE: not using varying values
+    const propVal1: ArgVal<number> = resolvePath(path1, state.translation, []);
+    const propVal2: TagExpr<number> = findExpr(state.translation, path2);
+    expect(propVal1.contents).toEqual(propVal2.contents);
   });
   // it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
   // evalTranslation(state);

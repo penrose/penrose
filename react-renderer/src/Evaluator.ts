@@ -1,4 +1,5 @@
 import { zip } from "lodash";
+import _ from "lodash";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -47,10 +48,10 @@ export const evalExpr = (
   trans: Translation,
   varyingVars: VaryMap
 ): ArgVal<number> => {
+  // TODO: all of below are TagExpr specific. Figure out where best to strip the tag away
   // If the expression is `Pending`, just return
   // if (e.tag === "Done") return e; // TODO: `done` is overloaded here, figure out exactly what it means for the current impl vs. scott's algorithm
   // if (e.tag === "Pending") return e;
-
   // Else pattern match on the type of expression and execute evaluation accordingly
 
   switch (e.tag) {
@@ -77,6 +78,8 @@ export const evalExpr = (
     case "BinOp":
       // TODO:
       return { tag: "Val", contents: { tag: "FloatV", contents: NaN } };
+    case "EPath":
+      return resolvePath(e.contents, trans, varyingVars);
     case "CompApp":
       const [fnName, argExprs] = e.contents;
       // eval all args
@@ -89,6 +92,39 @@ export const evalExpr = (
       return { tag: "Val", contents: { tag: "FloatV", contents: NaN } };
   }
   // Simplest implementation: look up all necessary arguments recursively
+};
+
+/**
+ * Given a path to a field or property, resolve to a fully evaluated GPI (where all props are evaluated) or an evaluated value.
+ * TODO: lookup varying vars first?
+ * TODO: cache done values somewhere, maybe by mutating the translation?
+ * @param path path to a field (GPI or Expr) or a property (Expr only)
+ * @param trans current computational graph
+ * @param varyingVars list of varying variables and their values
+ */
+export const resolvePath = (
+  path: Path,
+  trans: Translation,
+  varyingVars: VaryMap
+): ArgVal<number> => {
+  const gpiOrExpr = findExpr(trans, path);
+  switch (gpiOrExpr.tag) {
+    case "FGPI":
+      const [type, props] = gpiOrExpr.contents;
+      // TODO: cache results
+      const evaledProps = _.mapValues(props, (p) =>
+        p.tag === "OptEval"
+          ? evalExpr(p.contents, trans, varyingVars)
+          : p.contents
+      );
+      return { tag: "GPI", contents: [type, evaledProps] as GPI<number> };
+    default:
+      const expr: TagExpr<number> = gpiOrExpr;
+      // TODO: cache results
+      if (expr.tag === "OptEval")
+        return evalExpr(expr.contents, trans, varyingVars);
+      else return { tag: "Val", contents: expr.contents };
+  }
 };
 
 // remove the type wrapper for the argument
@@ -143,25 +179,40 @@ export const evalTranslation = (s: State) => {
 };
 
 /**
- * Finds an expression in a translation given a field or property path
+ * Finds an expression in a translation given a field or property path.
+ * NOTE: assumes that the path points to an
  * @param trans - a translation from `State`
  * @param path - a path to an expression
  * @returns an expression
  */
-export const findExpr = (trans: Translation, path: Path): TagExpr<number> => {
+export const findExpr = (
+  trans: Translation,
+  path: Path
+): TagExpr<number> | IFGPI<number> => {
   let name, field, prop;
   switch (path.tag) {
     case "FieldPath":
       [name, field] = path.contents;
       // Type cast to field expression
-      const fieldExpr = trans.trMap[name.contents][field] as IFExpr<number>;
-      return fieldExpr.contents;
+      const fieldExpr = trans.trMap[name.contents][field];
+      switch (fieldExpr.tag) {
+        case "FGPI":
+          return fieldExpr;
+        case "FExpr":
+          return fieldExpr.contents;
+      }
+
     case "PropertyPath":
       [name, field, prop] = path.contents;
       // Type cast to FGPI and get the properties
-      const gpi = trans.trMap[name.contents][field] as IFGPI<number>;
-      const [_, propDict] = gpi.contents;
-      return propDict[prop];
+      const gpi = trans.trMap[name.contents][field];
+      switch (gpi.tag) {
+        case "FExpr":
+          throw new Error("field path leads to an expression, not a GPI");
+        case "FGPI":
+          const [_, propDict] = gpi.contents;
+          return propDict[prop];
+      }
   }
 };
 
@@ -188,7 +239,7 @@ export const decodeState = (json: any): State => {
 
 type State = IState; // TODO
 type Translation = ITrans<number>;
-type VaryMap = [[Path, number]];
+type VaryMap = [Path, number][];
 
 interface IState {
   varyingPaths: Path[];
@@ -241,39 +292,36 @@ data State = State
  * Gives types to a serialized `Translation`
  * @param json plain object encoding `Translation`
  */
-// const decodeTranslation = (json: any): Translation => {
-//   const decodeFieldExpr = (expr: any): FieldExpr<number> => {
-//     switch (expr.tag) {
-//       case "FGPI":
-//         const [shapeType, properties] = expr.contents;
-//         return {
-//           tag: "FGPI",
-//           contents: [
-//             shapeType,
-//             new Map(Object.entries(properties)) as PropertyDict<number>,
-//           ],
-//         };
-//       case "FExpr":
-//         return expr;
-//       default:
-//         throw new Error(`error decoding field expression ${expr}`);
-//     }
-//   };
+const decodeTranslation = (json: any): Translation => {
+  const decodeFieldExpr = (expr: any): FieldExpr<number> => {
+    switch (expr.tag) {
+      case "FGPI":
+        const [shapeType, properties] = expr.contents;
+        return {
+          tag: "FGPI",
+          contents: [shapeType],
+        };
+      case "FExpr":
+        return expr;
+      default:
+        throw new Error(`error decoding field expression ${expr}`);
+    }
+  };
 
-//   const trans = new Map(
-//     Object.entries(json.trMap).map(([subName, es]: any) => [
-//       subName,
-//       new Map(
-//         Object.entries(es).map(([fieldName, e]: any) => [
-//           fieldName,
-//           decodeFieldExpr(e),
-//         ])
-//       ) as FieldDict<number>,
-//     ])
-//   ) as TransDict<number>;
+  const trans = new Map(
+    Object.entries(json.trMap).map(([subName, es]: any) => [
+      subName,
+      new Map(
+        Object.entries(es).map(([fieldName, e]: any) => [
+          fieldName,
+          decodeFieldExpr(e),
+        ])
+      ) as FieldDict<number>,
+    ])
+  ) as TransDict<number>;
 
-//   return {
-//     warnings: json.warnings,
-//     trMap: trans,
-//   };
-// };
+  return {
+    warnings: json.warnings,
+    compGraph: trans,
+  };
+};

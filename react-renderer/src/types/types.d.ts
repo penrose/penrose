@@ -9,8 +9,10 @@ type ArgVal<T> = IGPI<T> | IVal<T>;
 
 interface IGPI<T> {
   tag: "GPI";
-  contents: [string, { [k: string]: Value<T> }];
+  contents: GPI<T>;
 }
+
+type GPI<T> = [string, { [k: string]: Value<T> }];
 
 interface IVal<T> {
   tag: "Val";
@@ -20,11 +22,27 @@ interface IVal<T> {
 type Translation<T> = ITrans<T>;
 
 interface ITrans<T> {
+  // TODO: compGraph
   trMap: { [k: string]: { [k: string]: FieldExpr<T> } };
   warnings: string[];
 }
 
 type FieldExpr<T> = IFExpr<T> | IFGPI<T>;
+
+// TODO: annotate the comp graph with their derivatives
+// NOTE: the point is to have a better type that allows annotation of the comp graph
+// interface FieldExpr<T> {
+//   tag: "FGPI" | "FExpr";
+//   done: boolean;
+//   value: ?;
+//   contents: [string, { [k: string]: TagExpr<T> }] | TagExpr<T>;
+// }
+// TagExpr is either Value or Expr
+interface CompNode<T> {
+  status: "Done" | "Uninitialized" | "Pending";
+  def: Expr | GPIExpr<T>;
+  value: Value<T> | undefined;
+}
 
 interface IFExpr<T> {
   tag: "FExpr";
@@ -33,9 +51,10 @@ interface IFExpr<T> {
 
 interface IFGPI<T> {
   tag: "FGPI";
-  contents: [string, { [k: string]: TagExpr<T> }];
+  contents: GPIExpr<T>;
 }
 
+type GPIExpr<T> = [string, { [k: string]: TagExpr<T> }];
 type TagExpr<T> = IOptEval<T> | IDone<T> | IPending<T>;
 
 interface IOptEval<T> {
@@ -52,6 +71,15 @@ interface IPending<T> {
   tag: "Pending";
   contents: Value<T>;
 }
+
+// interface Expr {
+//   tag: string;
+//   contents: any;
+// }
+
+// interface IIntLit extends Expr {
+//   tag: "IntLit";
+// }
 
 type Expr =
   | IIntLit
@@ -96,6 +124,7 @@ interface IBoolLit {
 interface IEPath {
   tag: "EPath";
   contents: Path;
+  // value
 }
 
 interface ICompApp {
