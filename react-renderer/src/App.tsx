@@ -8,7 +8,7 @@ import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
 
 interface ICanvasState {
-  data: State | undefined;
+  data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
   autostep: boolean;
   layers: ILayer[];
   processedInitial: boolean;
@@ -111,8 +111,8 @@ class App extends React.Component<any, ICanvasState> {
           step={this.step}
           autoStepToggle={this.autoStepToggle}
           resample={this.resample}
-          converged={data ? converged(data) : false}
-          initial={data ? initial(data) : true}
+          converged={data ? converged(data) : false} // TODO: what should be the default value here?
+          initial={data ? initial(data) : false}
           toggleLayer={this.toggleLayer}
           layers={layers}
           ref={this.buttons}

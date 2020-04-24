@@ -5,7 +5,7 @@ import Log from "./Log";
 import { loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
-import { propagateUpdate } from "./PropagateUpdate";
+import { insertPending } from "./PropagateUpdate";
 import { collectLabels } from "./utills/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
 
@@ -44,7 +44,7 @@ class Canvas extends React.Component<IProps> {
     );
 
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
-    const processed = await propagateUpdate({
+    const processed = await insertPending({
       ...state,
       shapes: nonEmpties,
     });

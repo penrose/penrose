@@ -1,6 +1,10 @@
 import { insertExpr } from "./Evaluator";
 
-// helper for finding a shape by name
+/**
+ * Find the value of a property in a list of fully evaluated shapes.
+ * @param shapes a list of shapes
+ * @param path a path to a property value in one of the shapes
+ */
 const findShapeProperty = (shapes: any, path: Path): Value<number> => {
   if (path.tag === "FieldPath") {
     throw new Error("pending paths must be property paths");
@@ -17,7 +21,14 @@ const findShapeProperty = (shapes: any, path: Path): Value<number> => {
   }
 };
 
-export const propagateUpdate = (state: State) => {
+/**
+ * Take all pending paths in the state, find values for them from shapes in the state, insert these values in the translation, and finally clear pending paths.
+ * @param state initial state with pending values
+ *
+ * TODO: state shouldn't have the type `State` yet because the shapes are augumented with extra properties.
+ * TODO: test with an initial state that has pending values
+ */
+export const insertPending = (state: State) => {
   return {
     ...state,
     // clear up pending paths now that they are updated properly
