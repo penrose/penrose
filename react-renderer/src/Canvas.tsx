@@ -9,7 +9,7 @@ import { insertPending } from "./PropagateUpdate";
 import { collectLabels } from "./utills/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
 
-interface IProps {
+interface ICanvasProps {
   lock: boolean;
   layers?: ILayer[];
   substanceMetadata?: string;
@@ -18,11 +18,11 @@ interface IProps {
   otherMetadata?: string;
   style?: any;
   penroseVersion?: string;
-  data: any;
+  data: State | undefined;
   updateData?: (shapes: any, step?: boolean) => void;
 }
 
-class Canvas extends React.Component<IProps> {
+class Canvas extends React.Component<ICanvasProps> {
   public static sortShapes = (shapes: Shape[], ordering: string[]) => {
     return ordering.map((name) =>
       shapes.find(({ properties }) => properties.name.contents === name)
@@ -65,16 +65,16 @@ class Canvas extends React.Component<IProps> {
    * @memberof Canvas
    */
   public dragEvent = async (id: string, dx: number, dy: number) => {
-    if (this.props.updateData) {
+    if (this.props.updateData && this.props.data) {
       const updated = {
         ...this.props.data,
         paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
-        shapesr: this.props.data.shapesr.map(
-          ([type, properties]: [string, any]) => {
+        shapes: this.props.data.shapes.map(
+          ({ shapeType, properties }: Shape) => {
             if (properties.name.contents === id) {
-              return this.dragShape([type, properties], dx, dy);
+              return this.dragShape([shapeType, properties], dx, dy);
             }
-            return [type, properties];
+            return [shapeType, properties];
           }
         ),
       };
@@ -240,7 +240,7 @@ class Canvas extends React.Component<IProps> {
     frame.remove();
   };
 
-  public renderEntity = ({ shapeType, properties }: any, key: number) => {
+  public renderEntity = ({ shapeType, properties }: Shape, key: number) => {
     const component = this.props.lock
       ? staticMap[shapeType]
       : interactiveMap[shapeType];
@@ -263,7 +263,7 @@ class Canvas extends React.Component<IProps> {
     });
   };
   public renderLayer = (
-    shapes: Array<[string, object]>,
+    shapes: Shape[],
     debugData: any[],
     component: React.ComponentClass<ILayerProps>,
     key: number
@@ -305,6 +305,7 @@ class Canvas extends React.Component<IProps> {
     }
 
     const { shapes } = data;
+
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -337,7 +338,13 @@ class Canvas extends React.Component<IProps> {
               return null;
             }
             if (enabled) {
-              return this.renderLayer(shapes, data, layerMap[layer], key);
+              // TODO: what does data refer to here? Why is it a list?
+              return this.renderLayer(
+                shapes,
+                data as any,
+                layerMap[layer],
+                key
+              );
             }
             return null;
           })}

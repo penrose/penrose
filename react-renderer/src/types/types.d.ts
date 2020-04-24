@@ -1,6 +1,9 @@
 type Translation = ITrans<number>; // TODO: number type might be different
 type VaryMap = [Path, number][];
 
+/**
+ * The diagram state modeling the original Haskell types
+ */
 interface IState {
   varyingPaths: Path[];
   shapePaths: Path[];

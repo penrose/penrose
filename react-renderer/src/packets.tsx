@@ -49,11 +49,8 @@ export const GetEnv = (substance: string, element: string) => ({
   contents: [substance, element],
 });
 
-export const converged = (state: State) => {
-  console.log(state);
-
-  return state.paramsr.optStatus.tag === "EPConverged";
-};
+export const converged = (state: State) =>
+  state.paramsr.optStatus.tag === "EPConverged";
 export const initial = (state: State) =>
   state.paramsr.optStatus.tag === "NewIter";
 
