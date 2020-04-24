@@ -53,5 +53,9 @@
     "webpack",
     "jest",
     "src/setupTests.ts"
-  ]
+  ],
+  "typedocOptions": {
+    "mode": "modules",
+    "out": "docs"
+  }
 }

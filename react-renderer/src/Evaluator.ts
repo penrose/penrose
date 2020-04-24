@@ -8,8 +8,34 @@ import _ from "lodash";
  * - Analyze the comp graph first and mark all non-varying props or fields (including those that don't depend on varying vals) permanantly "Done".
  */
 
-// TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
-// TODO: think about user extension of computation dict and evaluation of functions in there
+/**
+ * Evaluate all shapes in the `State` by walking the `Translation` data structure, finding out all shape expressions (`FGPI` expressions computed by the Style compiler), and evaluating every property in each shape.
+ * @param s the current state, which contains the `Translation` to be evaluated
+ *
+ * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
+ */
+export const evalTranslation = (s: State): State => {
+  // Find out all the GPI expressions in the translation
+  const shapeExprs = s.shapePaths.map(
+    (p: Path) => findExpr(s.translation, p) as IFGPI<number>
+  );
+
+  // Evaluate each of the shapes
+  const [shapes, trans] = shapeExprs.reduce(
+    ([shapes, tr]: [Shape[], Translation], e: IFGPI<number>) =>
+      evalShape(e, tr, s.varyingMap, shapes),
+    [[], s.translation]
+  );
+
+  // Update the state with the new list of shapes and translation
+  return { shapes: shapes, translation: trans, ...s };
+};
+
+/**
+ * Static dictionary of computation functions
+ * TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db
+ * TODO: think about user extension of computation dict and evaluation of functions in there
+ */
 const compDict = {
   rgba: (r: number, g: number, b: number, a: number): IColorV<number> => {
     return {
@@ -22,7 +48,15 @@ const compDict = {
   },
 };
 
-// TODO: update trans
+/**
+ * Evaluate all properties in a shape.
+ * @param shapeExpr unevaluated shape expression, where all props are expressions
+ * @param trans current translation
+ * @param varyingVars varying variables and their values
+ * @param shapes current list of shapes (for folding)
+ *
+ * TODO: update trans
+ */
 export const evalShape = (
   shapeExpr: IFGPI<number>,
   trans: Translation,
@@ -40,7 +74,14 @@ export const evalShape = (
   return [[...shapes, shape], trans];
 };
 
-// TODO: cache translation in intermediate steps
+/**
+ * Evaluate a list of expressions.
+ * @param es a list of expressions
+ * @param trans current translation
+ * @param varyingVars varying variables and their values
+ *
+ * TODO: cache translation in intermediate steps
+ */
 export const evalExprs = (
   es: Expr[],
   trans: Translation,
@@ -49,13 +90,14 @@ export const evalExprs = (
 
 /**
  * Evaluate the input expression to a value.
+ * @param e the expression to be evaluated.
+ * @param trans the `Translation` so far
+ * @param varyingVars pairs of (path, value) for all optimized/"varying" values.
+ *
  * NOTE: This implementation needs the `Done` status of the values for optimizing evaluation and breaking cycles
  * TODO: maybe use a more OOP approach to encode current value and done status
  * TODO: deal with translation update
  * TODO: break cycles; optimize lookup
- * @param e the expression to be evaluated.
- * @param trans the `Translation` so far
- * @param varyingVars pairs of (path, value) for all optimized/"varying" values.
  */
 export const evalExpr = (
   e: Expr,
@@ -117,11 +159,12 @@ export const evalExpr = (
 
 /**
  * Given a path to a field or property, resolve to a fully evaluated GPI (where all props are evaluated) or an evaluated value.
- * TODO: lookup varying vars first?
- * TODO: cache done values somewhere, maybe by mutating the translation?
  * @param path path to a field (GPI or Expr) or a property (Expr only)
  * @param trans current computational graph
  * @param varyingVars list of varying variables and their values
+ *
+ * TODO: lookup varying vars first?
+ * TODO: cache done values somewhere, maybe by mutating the translation?
  */
 export const resolvePath = (
   path: Path,
@@ -210,37 +253,13 @@ export const evalUOp = (
   }
 };
 
-// TODO: return type
-/**
- * Evaluate all shapes in the `State` by walking the `Translation` data structure, finding out all shape expressions (`FGPI` expressions computed by the Style compiler), and evaluating every property in each shape.
- * @param s the current state, which contains the `Translation` to be evaluated
- * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
- */
-export const evalTranslation = (s: State) => {
-  // Find out all the GPI expressions in the translation
-  const shapeExprs = s.shapePaths.map(
-    (p: any) => findExpr(s.translation, p) as IFGPI<number>
-  );
-
-  // TODO: make sure the types are okay, i.e. all shape exprs are GPIs (via type assertion?)
-
-  // Evaluate each of the shapes
-  const [shapes, trans] = shapeExprs.reduce(
-    ([shapes, tr]: [Shape[], Translation], e: IFGPI<number>) =>
-      evalShape(e, tr, s.varyingMap, shapes),
-    [[], s.translation]
-  );
-
-  // Update the state with the new list of shapes and translation
-  return { shapes: shapes, translation: trans, ...s };
-};
-
 /**
  * Finds an expression in a translation given a field or property path.
- * NOTE: assumes that the path points to an
  * @param trans - a translation from `State`
  * @param path - a path to an expression
  * @returns an expression
+ *
+ * TODO: the optional type here exist because GPI is not an expression in Style yet. It's not the most sustainable pattern w.r.t to our current way to typecasting the result using `as`.
  */
 export const findExpr = (
   trans: Translation,

@@ -23,7 +23,7 @@
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "build-lib": "tsc",
-    "docs": "typedoc --mode modules --out docs src",
+    "docs": "npx typedoc src",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
@@ -41,6 +41,7 @@
     "enzyme-to-json": "^3.4.4",
     "prettier": "^1.19.1",
     "tslint": "^5.20.1",
+    "typedoc": "^0.17.4",
     "typescript": "^3.8.3"
   },
   "browserslist": [
