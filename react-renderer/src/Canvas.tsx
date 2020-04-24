@@ -35,10 +35,9 @@ class Canvas extends React.Component<ICanvasProps> {
 
   // TODO: simplify this function and get rid of the property addition hack
   public static processData = async (data: any) => {
-    const state: State = evalTranslation(decodeState(data));
-    console.log("evaled", state.shapes);
-
-    const labeledShapes: any = await collectLabels(state.shapes);
+    const state: State = decodeState(data);
+    const stateEvaled: State = evalTranslation(state);
+    const labeledShapes: any = await collectLabels(stateEvaled.shapes);
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);
 
     const sortedShapes: any = await Canvas.sortShapes(
@@ -48,10 +47,9 @@ class Canvas extends React.Component<ICanvasProps> {
 
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
     const processed = await insertPending({
-      ...state,
+      ...stateEvaled,
       shapes: nonEmpties,
     });
-    console.log("processed", processed.shapes);
     return processed;
   };
 

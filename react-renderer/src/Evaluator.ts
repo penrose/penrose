@@ -15,11 +15,6 @@ import { mapValues } from "lodash";
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
 export const evalTranslation = (s: State): State => {
-  // Find out all the GPI expressions in the translation
-  const shapeExprs = s.shapePaths.map(
-    (p: Path) => findExpr(s.translation, p) as IFGPI<number>
-  );
-
   // Insert all varying vals
   const doneFloat = (n: number): TagExpr<number> => ({
     tag: "Done",
@@ -31,15 +26,21 @@ export const evalTranslation = (s: State): State => {
     s.translation
   );
 
+  // Find out all the GPI expressions in the translation
+  const shapeExprs = s.shapePaths.map(
+    (p: Path) => findExpr(trans, p) as IFGPI<number>
+  );
+
   // Evaluate each of the shapes
-  const [shapes, transEvaled] = shapeExprs.reduce(
+  const [shapesEvaled, transEvaled] = shapeExprs.reduce(
     ([currShapes, tr]: [Shape[], Translation], e: IFGPI<number>) =>
       evalShape(e, tr, s.varyingMap, currShapes),
     [[], trans]
   );
 
   // Update the state with the new list of shapes and translation
-  return { shapes, translation: transEvaled, ...s };
+  // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
+  return { ...s, shapes: shapesEvaled, translation: transEvaled };
 };
 
 /**
@@ -81,6 +82,7 @@ export const evalShape = (
       ? (evalExpr(prop.contents, trans, varyingVars) as IVal<number>).contents
       : prop.contents
   );
+
   const shape: Shape = { shapeType, properties: props };
   return [[...shapes, shape], trans];
 };
@@ -326,7 +328,9 @@ export const insertExpr = (
     case "PropertyPath":
       // TODO: why do I need to typecast this path? Maybe arrays are not checked properly in TS?
       [name, field, prop] = (path as IPropertyPath).contents;
-      trans.trMap[name.contents][field][prop] = expr;
+      const gpi = trans.trMap[name.contents][field] as IFGPI<number>;
+      const [, properties] = gpi.contents;
+      properties[prop] = expr;
   }
   return trans;
 };
@@ -371,7 +375,6 @@ export const encodeState = (state: State): any => {
   delete json.translation;
   delete json.varyingValues;
   delete json.shapes;
-  console.log(json);
 
   return json;
 };

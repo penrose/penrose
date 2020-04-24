@@ -8,7 +8,7 @@ import {
   evalTranslation,
   encodeState,
 } from "../Evaluator";
-import * as stateJSON from "./state.json";
+import * as stateJSON from "./final-state.json";
 import { find, keys } from "lodash";
 
 // TODO: there are type errors in this file, but `npm test` seems to run just fine, why?
@@ -153,7 +153,7 @@ describe("evaluation functions tests", () => {
     );
     expect(shape).toEqual(backendShape);
   });
-  it("evaluates the whole translation and output a list of fully evaluated shapes", () => {
+  it("evaluates the whole translation and check if the evaled shapes are the same as the backend evaled ones", () => {
     const oldShapes = state.shapes;
     const stateEvaled = evalTranslation(state);
     expect(stateEvaled.shapes).toEqual(oldShapes);
