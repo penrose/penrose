@@ -33,8 +33,11 @@ class Canvas extends React.Component<ICanvasProps> {
     return name === "Text" ? !(properties.string.contents === "") : true;
   };
 
+  // TODO: simplify this function and get rid of the property addition hack
   public static processData = async (data: any) => {
     const state: State = evalTranslation(decodeState(data));
+    console.log("evaled", state.shapes);
+
     const labeledShapes: any = await collectLabels(state.shapes);
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);
 
@@ -48,6 +51,7 @@ class Canvas extends React.Component<ICanvasProps> {
       ...state,
       shapes: nonEmpties,
     });
+    console.log("processed", processed.shapes);
     return processed;
   };
 

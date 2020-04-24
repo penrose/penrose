@@ -1,4 +1,4 @@
-import { zip, toPairs } from "lodash";
+import { zip, toPairs, values, pickBy } from "lodash";
 import { mapValues } from "lodash";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -20,15 +20,26 @@ export const evalTranslation = (s: State): State => {
     (p: Path) => findExpr(s.translation, p) as IFGPI<number>
   );
 
+  // Insert all varying vals
+  const doneFloat = (n: number): TagExpr<number> => ({
+    tag: "Done",
+    contents: { tag: "FloatV", contents: n },
+  });
+  const trans = s.varyingMap.reduce(
+    (tr: Translation, [path, val]: [Path, number]) =>
+      insertExpr(path, doneFloat(val), tr),
+    s.translation
+  );
+
   // Evaluate each of the shapes
-  const [shapes, trans] = shapeExprs.reduce(
+  const [shapes, transEvaled] = shapeExprs.reduce(
     ([currShapes, tr]: [Shape[], Translation], e: IFGPI<number>) =>
       evalShape(e, tr, s.varyingMap, currShapes),
-    [[], s.translation]
+    [[], trans]
   );
 
   // Update the state with the new list of shapes and translation
-  return { shapes, translation: trans, ...s };
+  return { shapes, translation: transEvaled, ...s };
 };
 
 /**
@@ -292,12 +303,19 @@ export const findExpr = (
   }
 };
 
+/**
+ * Insert an expression into the translation an return a new one.
+ * @param path path to a field or property
+ * @param expr new expression
+ * @param initTrans initial translation
+ *
+ * TODO: make sure this function is a deep enough copy of `initTrans`
+ */
 export const insertExpr = (
   path: Path,
   expr: TagExpr<number>,
   initTrans: Translation
 ): Translation => {
-  // TODO: make sure this is a deep enough copy
   const trans = { ...initTrans };
   let name, field, prop;
   switch (path.tag) {
@@ -327,8 +345,11 @@ export const decodeState = (json: any): State => {
     shapes: json.shapesr.map(([n, props]: any) => {
       return { shapeType: n, properties: props };
     }),
-    varyingMap: zip(json.varyingPaths, json.varyingValues),
+    varyingMap: zip(json.varyingPaths, json.varyingState),
   };
+  delete state.shapesr;
+  delete state.transr;
+  delete state.varyingState;
   return state as State;
 };
 
@@ -341,9 +362,17 @@ export const encodeState = (state: State): any => {
     ...state,
     varyingState: state.varyingValues,
     transr: state.translation,
-    shapes: toPairs(state.shapes),
+    // NOTE: clean up all additional props and turn objects into lists
+    shapesr: state.shapes
+      .map(values)
+      .map(([n, props]) => [n, pickBy(props, (p: any) => !p.omit)]),
   };
   delete json.varyingMap;
+  delete json.translation;
+  delete json.varyingValues;
+  delete json.shapes;
+  console.log(json);
+
   return json;
 };
 

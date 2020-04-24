@@ -103,6 +103,7 @@ export const svgTransformString = (tf: any, canvasSize: [number, number]) => {
   return transformStr;
 };
 
+// BUG: ptList needs to be properly typed
 export const toPointListString = memoize(
   // Why memoize?
   (ptList: any[], canvasSize: [number, number]) =>

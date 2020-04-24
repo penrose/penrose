@@ -120,7 +120,7 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
     state.shapeOrdering
   );
   // update the state with newly generated labels and label dimensions
-  const updated = await propagateUpdate({ ...state, shapesr: sortedShapes });
+  const updated = await propagateUpdate({ ...state, shapes: sortedShapes });
   return updated;
 };
 

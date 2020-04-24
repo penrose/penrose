@@ -6,14 +6,22 @@ import {
   resolvePath,
   evalShape,
   evalTranslation,
+  encodeState,
 } from "../Evaluator";
 import * as stateJSON from "./state.json";
-import { find } from "lodash";
+import { find, keys } from "lodash";
 
 // TODO: there are type errors in this file, but `npm test` seems to run just fine, why?
 
 // throwing away the flag
 const state = decodeState(stateJSON.contents);
+
+describe("state serialization tests", () => {
+  it("decodes an existing state, encode it, and compare it with the raw JSON", () => {
+    const json = encodeState(state);
+    expect(json).toEqual(stateJSON.contents);
+  });
+});
 
 describe("state operations tests", () => {
   it("decodes an existing state and make sure nothing is undefined", () => {
