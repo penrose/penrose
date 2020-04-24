@@ -1,7 +1,48 @@
+type Translation = ITrans<number>; // TODO: number type might be different
+type VaryMap = [Path, number][];
+
+interface IState {
+  varyingPaths: Path[];
+  shapePaths: Path[];
+  shapeProperties: any; // TODO: types
+  uninitializedPaths: any; // TODO: types
+  paramsr: Params; // TODO: types
+  objFns: any; // TODO: types
+  constrFns: any; // TODO: types
+  rng: any; // TODO: types
+  selecterMatches: any; // TODO: types
+  policyParams: any; // TODO: types
+  oConfig: any; // TODO: types
+  pendingPaths: Path[];
+  varyingValues: number[];
+  translation: Translation;
+  shapeOrdering: string[];
+  shapes: Shape[];
+  varyingMap: VaryMap;
+}
+type State = IState; // TODO
+
+// TODO: annotate the comp graph with their derivatives
+// NOTE: the point is to have a better type that allows annotation of the comp graph
+// interface FieldExpr<T> {
+//   tag: "FGPI" | "FExpr";
+//   done: boolean;
+//   value: ?;
+//   contents: [string, { [k: string]: TagExpr<T> }] | TagExpr<T>;
+// }
+// TagExpr is either Value or Expr
+interface CompNode<T> {
+  status: "Done" | "Uninitialized" | "Pending";
+  def: Expr | GPIExpr<T>;
+  value: Value<T> | undefined;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 type Shape = IShape;
 
 interface IShape {
-  shapeName: string;
+  shapeType: string;
   properties: { [k: string]: Value<number> };
 }
 
@@ -19,7 +60,7 @@ interface IVal<T> {
   contents: Value<T>;
 }
 
-type Translation<T> = ITrans<T>;
+// type Translation<T> = ITrans<T>;
 
 interface ITrans<T> {
   // TODO: compGraph
@@ -28,21 +69,6 @@ interface ITrans<T> {
 }
 
 type FieldExpr<T> = IFExpr<T> | IFGPI<T>;
-
-// TODO: annotate the comp graph with their derivatives
-// NOTE: the point is to have a better type that allows annotation of the comp graph
-// interface FieldExpr<T> {
-//   tag: "FGPI" | "FExpr";
-//   done: boolean;
-//   value: ?;
-//   contents: [string, { [k: string]: TagExpr<T> }] | TagExpr<T>;
-// }
-// TagExpr is either Value or Expr
-interface CompNode<T> {
-  status: "Done" | "Uninitialized" | "Pending";
-  def: Expr | GPIExpr<T>;
-  value: Value<T> | undefined;
-}
 
 interface IFExpr<T> {
   tag: "FExpr";
@@ -406,4 +432,48 @@ interface IQuadBez<T> {
 interface IQuadBezJoin<T> {
   tag: "QuadBezJoin";
   contents: [T, T];
+}
+
+type OptStatus =
+  | INewIter
+  | IUnconstrainedRunning
+  | IUnconstrainedConverged
+  | IEPConverged;
+
+interface INewIter {
+  tag: "NewIter";
+}
+
+interface IUnconstrainedRunning {
+  tag: "UnconstrainedRunning";
+  contents: number[];
+}
+
+interface IUnconstrainedConverged {
+  tag: "UnconstrainedConverged";
+  contents: number[];
+}
+
+interface IEPConverged {
+  tag: "EPConverged";
+}
+
+type BfgsParams = IBfgsParams;
+
+interface IBfgsParams {
+  lastState?: number[];
+  lastGrad?: number[];
+  invH?: number[][];
+  s_list: number[][];
+  y_list: number[][];
+  numUnconstrSteps: number;
+  memSize: number;
+}
+
+type Params = IParams;
+
+interface IParams {
+  weight: number;
+  optStatus: OptStatus;
+  bfgsInfo: BfgsParams;
 }

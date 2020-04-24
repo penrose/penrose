@@ -8,7 +8,7 @@ import {
   evalTranslation,
 } from "../Evaluator";
 import * as stateJSON from "./state.json";
-import _ from "lodash";
+import { find } from "lodash";
 
 // TODO: there are type errors in this file, but `npm test` seems to run just fine, why?
 
@@ -126,7 +126,7 @@ describe("evaluation functions tests", () => {
     };
     const shapeExpr = findExpr(state.translation, path) as IFGPI<number>;
     const [[shape]] = evalShape(shapeExpr, state.translation, [], []);
-    const backendShape = _.find(
+    const backendShape = find(
       state.shapes,
       (s) => s.properties.name.contents === "A.text"
     );
@@ -139,7 +139,7 @@ describe("evaluation functions tests", () => {
     };
     const shapeExpr = findExpr(state.translation, path) as IFGPI<number>;
     const [[shape]] = evalShape(shapeExpr, state.translation, [], []);
-    const backendShape = _.find(
+    const backendShape = find(
       state.shapes,
       (s) => s.properties.name.contents === "A.shape"
     );

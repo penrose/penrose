@@ -9,7 +9,7 @@ export const arrowheads = {
     viewbox: "0 0 8 8",
     refX: "4",
     refY: "4", // HACK: to avoid paths from bleeding through the arrowhead
-    path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
+    path: "M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z",
   },
   "arrowhead-2": {
     width: 9.95,
@@ -17,8 +17,8 @@ export const arrowheads = {
     viewbox: "0 0 9.95 8.12",
     refX: "2.36", // HACK: to avoid paths from bleeding through the arrowhead
     refY: "4.06",
-    path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-  }
+    path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
+  },
 };
 
 export const Shadow = (props: { id: string }) => {
@@ -86,7 +86,7 @@ export const penroseTransformStr = (tf: any) => {
     tf.xSkew,
     tf.yScale,
     tf.dx,
-    tf.dy
+    tf.dy,
   ];
   const penroseTransform = "matrix(" + transformList.join(" ") + ")";
   return penroseTransform;
@@ -202,21 +202,19 @@ export const loadImageElement = memoize(
 
 export const loadImages = async (allShapes: any[]) => {
   return Promise.all(
-    allShapes.map(async ([type, obj]: [string, any]) => {
-      if (type === "ImageTransform") {
-        const path = obj.path.contents;
+    allShapes.map(async ({ shapeType, properties }: any) => {
+      if (shapeType === "ImageTransform") {
+        const path = properties.path.contents;
         const fullPath = process.env.PUBLIC_URL + path;
         const loadedImage = await loadImageElement(fullPath);
-        const obj2 = { ...obj };
+        const obj2 = { ...properties };
 
         obj2.initWidth.contents = loadedImage.naturalWidth;
         obj2.initHeight.contents = loadedImage.naturalHeight;
-        // We discard the loaded image <img> in favor of making an <image> inline in the image GPI file
-        // obj2.rendered = { contents: loadedImage, omit: true };
 
-        return [type, obj2];
+        return { shapeType, properties: obj2 };
       } else {
-        return [type, obj];
+        return { shapeType, properties };
       }
     })
   );

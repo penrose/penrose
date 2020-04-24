@@ -1,5 +1,5 @@
-import { zip } from "lodash";
-import _ from "lodash";
+import { zip, toPairs } from "lodash";
+import { mapValues } from "lodash";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -22,13 +22,13 @@ export const evalTranslation = (s: State): State => {
 
   // Evaluate each of the shapes
   const [shapes, trans] = shapeExprs.reduce(
-    ([shapes, tr]: [Shape[], Translation], e: IFGPI<number>) =>
-      evalShape(e, tr, s.varyingMap, shapes),
+    ([currShapes, tr]: [Shape[], Translation], e: IFGPI<number>) =>
+      evalShape(e, tr, s.varyingMap, currShapes),
     [[], s.translation]
   );
 
   // Update the state with the new list of shapes and translation
-  return { shapes: shapes, translation: trans, ...s };
+  return { shapes, translation: trans, ...s };
 };
 
 /**
@@ -63,14 +63,14 @@ export const evalShape = (
   varyingVars: VaryMap,
   shapes: Shape[]
 ): [Shape[], Translation] => {
-  const [shapeName, propExprs] = shapeExpr.contents;
+  const [shapeType, propExprs] = shapeExpr.contents;
   // Make sure all props are evaluated to values instead of shapes
-  const props = _.mapValues(propExprs, (prop: TagExpr<number>) =>
+  const props = mapValues(propExprs, (prop: TagExpr<number>) =>
     prop.tag === "OptEval"
       ? (evalExpr(prop.contents, trans, varyingVars) as IVal<number>).contents
       : prop.contents
   );
-  const shape: Shape = { shapeName, properties: props };
+  const shape: Shape = { shapeType, properties: props };
   return [[...shapes, shape], trans];
 };
 
@@ -176,7 +176,7 @@ export const resolvePath = (
     case "FGPI":
       const [type, props] = gpiOrExpr.contents;
       // TODO: cache results
-      const evaledProps = _.mapValues(props, (p) =>
+      const evaledProps = mapValues(props, (p) =>
         p.tag === "OptEval"
           ? evalExpr(p.contents, trans, varyingVars)
           : p.contents
@@ -292,6 +292,27 @@ export const findExpr = (
   }
 };
 
+export const insertExpr = (
+  path: Path,
+  expr: TagExpr<number>,
+  initTrans: Translation
+): Translation => {
+  // TODO: make sure this is a deep enough copy
+  const trans = { ...initTrans };
+  let name, field, prop;
+  switch (path.tag) {
+    case "FieldPath":
+      [name, field] = path.contents;
+      // Type cast to field expression
+      trans.trMap[name.contents][field] = { tag: "FExpr", contents: expr };
+    case "PropertyPath":
+      // TODO: why do I need to typecast this path? Maybe arrays are not checked properly in TS?
+      [name, field, prop] = (path as IPropertyPath).contents;
+      trans.trMap[name.contents][field][prop] = expr;
+  }
+  return trans;
+};
+
 /**
  * Gives types to a serialized `State`
  * @param json plain object encoding `State` of the diagram
@@ -299,70 +320,36 @@ export const findExpr = (
 export const decodeState = (json: any): State => {
   // Find out the values of varying variables
   const state = {
-    varyingPaths: json.varyingPaths as Path[],
-    shapePaths: json.shapePaths,
+    ...json,
     varyingValues: json.varyingState,
     // translation: decodeTranslation(json.transr),
     translation: json.transr,
     shapes: json.shapesr.map(([n, props]: any) => {
-      return { shapeName: n, properties: props };
+      return { shapeType: n, properties: props };
     }),
     varyingMap: zip(json.varyingPaths, json.varyingValues),
   };
   return state as State;
 };
 
+/**
+ * Serialize the state to match the backend format
+ * @param state typed `State` object
+ */
+export const encodeState = (state: State): any => {
+  const json = {
+    ...state,
+    varyingState: state.varyingValues,
+    transr: state.translation,
+    shapes: toPairs(state.shapes),
+  };
+  delete json.varyingMap;
+  return json;
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 // Types
 
-type State = IState; // TODO
-type Translation = ITrans<number>;
-type VaryMap = [Path, number][];
-
-interface IState {
-  varyingPaths: Path[];
-  shapePaths: Path[];
-  varyingValues: number[];
-  translation: Translation;
-  shapes: Shape[];
-  varyingMap: VaryMap;
-}
-
-// interface IGeneratedName { tag: "gen", contents: string }
-// interface ISubstanceName { tag: "sub", contents: string }
-
-// type Name = IGeneratedName | ISubstanceName
-// type Translation = Record<Name, FieldDict>
-// type FieldDict = Record<
-
-/* Relevant Haskell types
-
-data Translation a = Trans
-  { trMap    :: M.Map Name (FieldDict a)
-  , warnings :: [Warning]
-  } deriving (Show, Eq, Typeable)
-
-data State = State
-  { shapesr            :: [Shape Double]
-  , shapePaths         :: [Path]
-  , shapeOrdering      :: [String]
-  , shapeProperties    :: [(String, Field, Property)]
-  , transr             :: Translation Double
-  , varyingPaths       :: [Path]
-  , uninitializedPaths :: [Path]
-  , pendingPaths       :: [Path]
-  , varyingState       :: [Double] -- Note: NOT polymorphic
-  , paramsr            :: Params
-  , objFns             :: [Fn]
-  , constrFns          :: [Fn]
-  , rng                :: StdGen
-  , selectorMatches    :: [Int]
-                    --  policyFn :: Policy,
-  , policyParams       :: PolicyParams
-  , oConfig            :: OptConfig
-  }
-
-*/
 ////////////////////////////////////////////////////////////////////////////////
 // Unused functions
 

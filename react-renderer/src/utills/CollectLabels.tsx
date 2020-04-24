@@ -47,7 +47,7 @@ const convert = (input: string, fontSize: string) => {
 
 const tex2svg = memoize(
   async (contents: string, name: string, fontSize: string): Promise<any> =>
-    new Promise(resolve => {
+    new Promise((resolve) => {
       // HACK: Style compiler decides to give empty labels if not specified
       if (contents !== "") {
         const output = convert(contents, fontSize);
@@ -67,24 +67,27 @@ const tex2svg = memoize(
 );
 
 // https://stackoverflow.com/a/44564236
-export const collectLabels = async (allShapes: any[]) => {
+export const collectLabels = async (allShapes: Shape[]) => {
   return Promise.all(
-    allShapes.map(async ([type, obj]: [string, any]) => {
-      if (type === "Text" || type === "TextTransform") {
+    allShapes.map(async ({ shapeType, properties }: Shape) => {
+      if (shapeType === "Text" || shapeType === "TextTransform") {
+        // HACK: getting type errors for not being able to resolve the Value type
         const { body, width, height } = await tex2svg(
-          obj.string.contents,
-          obj.name.contents,
-          obj.fontSize.contents
+          properties.string.contents as string,
+          properties.name.contents as string,
+          properties.fontSize.contents as string
         );
         // Instead of directly overwriting the properties, cache them temporarily and let `propogateUpdate` decide what to do
-        const obj2 = { ...obj };
+        // TODO: need to give a type to this kind of updated shape
+        const obj2: any = { ...properties };
         obj2.w.updated = width;
         obj2.h.updated = height;
+        // HACK: this behavior needs to be encoded in our type system
         // Add omit: true flag so it doesn't get sent to the server
         obj2.rendered = { contents: body, omit: true };
-        return [type, obj2];
+        return { shapeType, properties: obj2 };
       } else {
-        return [type, obj];
+        return { shapeType, properties };
       }
     })
   );

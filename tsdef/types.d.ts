@@ -1,7 +1,7 @@
 type Shape = IShape;
 
 interface IShape {
-  shapeName: string;
+  shapeType: string;
   properties: {[k: string]: Value<number>};
 }
 
@@ -338,4 +338,44 @@ interface IQuadBez<T> {
 interface IQuadBezJoin<T> {
   tag: "QuadBezJoin";
   contents: [T, T];
+}
+
+type OptStatus = INewIter | IUnconstrainedRunning | IUnconstrainedConverged | IEPConverged;
+
+interface INewIter {
+  tag: "NewIter";
+}
+
+interface IUnconstrainedRunning {
+  tag: "UnconstrainedRunning";
+  contents: number[];
+}
+
+interface IUnconstrainedConverged {
+  tag: "UnconstrainedConverged";
+  contents: number[];
+}
+
+interface IEPConverged {
+  tag: "EPConverged";
+}
+
+type BfgsParams = IBfgsParams;
+
+interface IBfgsParams {
+  lastState?: number[];
+  lastGrad?: number[];
+  invH?: number[][];
+  s_list: number[][];
+  y_list: number[][];
+  numUnconstrSteps: number;
+  memSize: number;
+}
+
+type Params = IParams;
+
+interface IParams {
+  weight: number;
+  optStatus: OptStatus;
+  bfgsInfo: BfgsParams;
 }

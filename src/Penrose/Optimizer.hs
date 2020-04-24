@@ -1,5 +1,4 @@
 {-# LANGUAGE AllowAmbiguousTypes       #-}
-{-# LANGUAGE BangPatterns              #-}
 {-# LANGUAGE FlexibleInstances         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE RankNTypes                #-}
@@ -165,13 +164,13 @@ step s =
              -- optimization session
              -- For the same reason, all subsequent step* functions such as
              -- stepShapes do not return the new random generator
-      (!shapes', trans, _) = evalTranslation s'
+    --   (!shapes', trans, _) = evalTranslation s'
              -- Check the state and see if the overall objective function should be changed
              -- The policy may change EPConverged to a new iteration before the frontend sees it
             --  (paramsNew, pparamsNew) = stepPolicy s'
              -- For debugging
       oldParams = paramsr s
-  in s' {shapesr = shapes', paramsr = params'}
+  in s' {paramsr = params'}
                 -- shapesr = shapes',
                 --  paramsr = paramsNew,
                 --  policyParams = pparamsNew }
@@ -216,7 +215,9 @@ stepShapes s -- varying state
               then let status' = UnconstrainedConverged lastEPstate -- update UO state only!
                    in ( vstate'
                       , params
-                        {optStatus = status', bfgsInfo = defaultBfgsParams}) -- note vstate' (UO converged), not vstate
+                        { optStatus = status'
+                        , bfgsInfo = defaultBfgsParams -- note vstate' (UO converged), not vstate
+                        })
               else (vstate', params {bfgsInfo = bfgs'}) -- update UO state but not EP state; UO still running
          -- check EP convergence. if converged then stop, else increase weight, update states, and run UO again
          -- TODO some trickiness about whether unconstrained-converged has updated the correct state
@@ -232,7 +233,9 @@ stepShapes s -- varying state
               then let status' = EPConverged -- no more EP state
                    in ( vstate
                       , params
-                        {optStatus = status', bfgsInfo = defaultBfgsParams}) -- do not update UO state
+                        { optStatus = status'
+                        , bfgsInfo = defaultBfgsParams -- do not update UO state
+                        })
            -- update EP state: to be the converged state from the most recent UO
               else let status' = UnconstrainedRunning (map realToFrac vstate) -- increase weight
                    in let epWeight' = weightGrowthFactor * epWeight
@@ -471,7 +474,9 @@ lbfgs grad_fx_k ss ys =
     calculate_rho :: (LVector, LVector) -> L.R
     calculate_rho (s, y) = 1 / ((y `L.dot` s) + epsd)
     pull_q_back ::
-         (LVector, [L.R]) -> (L.R, LVector, LVector) -> (LVector, [L.R]) -- from i+1 to i
+         (LVector, [L.R])
+      -> (L.R, LVector, LVector)
+      -> (LVector, [L.R])
     pull_q_back (q_i_plus_1, alphas) (rho_i, s_i, y_i) =
       let alpha_i = rho_i * (s_i `L.dot` q_i_plus_1) -- scalar
           q_i = q_i_plus_1 - (alpha_i `L.scale` y_i) -- scalar * vector

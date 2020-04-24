@@ -5,9 +5,10 @@ import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
+import { evalTranslation, decodeState } from "./Evaluator";
 
-interface IState {
-  data: any;
+interface ICanvasState {
+  data: State | undefined;
   autostep: boolean;
   layers: ILayer[];
   processedInitial: boolean;
@@ -15,9 +16,9 @@ interface IState {
 }
 const socketAddress = "ws://localhost:9160";
 
-class App extends React.Component<any, IState> {
-  public readonly state = {
-    data: {} as any,
+class App extends React.Component<any, ICanvasState> {
+  public readonly state: ICanvasState = {
+    data: undefined,
     autostep: false,
     processedInitial: false,
     layers: [
@@ -35,8 +36,11 @@ class App extends React.Component<any, IState> {
   public onVersion = (version: string) => {
     this.setState({ penroseVersion: version });
   };
-  public onCanvasState = async (canvasState: any, _: any) => {
-    await this.setState({ data: canvasState, processedInitial: true });
+  public onCanvasState = async (canvasState: State, _: any) => {
+    await this.setState({
+      data: canvasState,
+      processedInitial: true,
+    });
     const { autostep } = this.state;
     if (autostep && !converged(canvasState)) {
       await this.step();
@@ -107,8 +111,8 @@ class App extends React.Component<any, IState> {
           step={this.step}
           autoStepToggle={this.autoStepToggle}
           resample={this.resample}
-          converged={converged(data)}
-          initial={initial(data)}
+          converged={data ? converged(data) : false}
+          initial={data ? initial(data) : true}
           toggleLayer={this.toggleLayer}
           layers={layers}
           ref={this.buttons}

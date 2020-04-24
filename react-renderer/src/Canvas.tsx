@@ -5,8 +5,9 @@ import Log from "./Log";
 import { loadImages } from "./Util";
 import { ILayer, ILayerProps } from "./types";
 import { layerMap } from "./layers/layerMap";
-import { propagateUpdate, updateVaryingState } from "./PropagateUpdate";
+import { propagateUpdate } from "./PropagateUpdate";
 import { collectLabels } from "./utills/CollectLabels";
+import { evalTranslation, decodeState } from "./Evaluator";
 
 interface IProps {
   lock: boolean;
@@ -22,33 +23,30 @@ interface IProps {
 }
 
 class Canvas extends React.Component<IProps> {
-  public static sortShapes = (shapes: any[], ordering: string[]) => {
-    return ordering.map(name =>
-      shapes.find(([_, shape]) => shape.name.contents === name)
+  public static sortShapes = (shapes: Shape[], ordering: string[]) => {
+    return ordering.map((name) =>
+      shapes.find(({ properties }) => properties.name.contents === name)
     ); // assumes that all names are unique
   };
 
-  public static notEmptyLabel = ([name, shape]: [string, any]) => {
-    return name === "Text" ? !(shape.string.contents === "") : true;
+  public static notEmptyLabel = ({ properties }: any) => {
+    return name === "Text" ? !(properties.string.contents === "") : true;
   };
 
   public static processData = async (data: any) => {
-    if (!data.shapesr) {
-      return {};
-    }
-    const shapes = data.shapesr;
-    const labeledShapes = await collectLabels(shapes);
-    const labeledShapesWithImgs = await loadImages(labeledShapes);
+    const state: State = evalTranslation(decodeState(data));
+    const labeledShapes: any = await collectLabels(state.shapes);
+    const labeledShapesWithImgs: any = await loadImages(labeledShapes);
 
-    const sortedShapes = await Canvas.sortShapes(
+    const sortedShapes: any = await Canvas.sortShapes(
       labeledShapesWithImgs,
       data.shapeOrdering
     );
 
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
     const processed = await propagateUpdate({
-      ...data,
-      shapesr: nonEmpties
+      ...state,
+      shapes: nonEmpties,
     });
     return processed;
   };
@@ -78,10 +76,11 @@ class Canvas extends React.Component<IProps> {
             }
             return [type, properties];
           }
-        )
+        ),
       };
-      const updatedWithVaryingState = await updateVaryingState(updated);
-      this.props.updateData(updatedWithVaryingState);
+      // TODO: need to retrofit this implementation to the new State type
+      // const updatedWithVaryingState = await updateVaryingState(updated);
+      // this.props.updateData(updatedWithVaryingState);
     }
   };
 
@@ -97,8 +96,8 @@ class Canvas extends React.Component<IProps> {
             ["startX", dx],
             ["startY", dy],
             ["endX", dx],
-            ["endY", dy]
-          ])
+            ["endY", dy],
+          ]),
         ];
       case "Arrow":
         return [
@@ -107,11 +106,17 @@ class Canvas extends React.Component<IProps> {
             ["startX", dx],
             ["startY", dy],
             ["endX", dx],
-            ["endY", dy]
-          ])
+            ["endY", dy],
+          ]),
         ];
       default:
-        return [type, this.moveProperties(properties, [["x", dx], ["y", dy]])];
+        return [
+          type,
+          this.moveProperties(properties, [
+            ["x", dx],
+            ["y", dy],
+          ]),
+        ];
     }
   };
 
@@ -199,7 +204,7 @@ class Canvas extends React.Component<IProps> {
   public downloadSVG = async (title = "illustration") => {
     const content = await this.prepareSVGContent();
     const blob = new Blob([content], {
-      type: "image/svg+xml;charset=utf-8"
+      type: "image/svg+xml;charset=utf-8",
     });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
@@ -235,10 +240,12 @@ class Canvas extends React.Component<IProps> {
     frame.remove();
   };
 
-  public renderEntity = ([name, shape]: [string, object], key: number) => {
-    const component = this.props.lock ? staticMap[name] : interactiveMap[name];
+  public renderEntity = ({ shapeType, properties }: any, key: number) => {
+    const component = this.props.lock
+      ? staticMap[shapeType]
+      : interactiveMap[shapeType];
     if (component === undefined) {
-      Log.error(`Could not render GPI ${name}.`);
+      Log.error(`Could not render GPI ${shapeType}.`);
       return <rect fill="red" x={0} y={0} width={100} height={100} key={key} />;
     }
     if (!this.props.lock && this.svg.current === null) {
@@ -249,10 +256,10 @@ class Canvas extends React.Component<IProps> {
     const { dragEvent } = this;
     return React.createElement(component, {
       key,
-      shape,
+      shape: properties,
       canvasSize,
       dragEvent,
-      ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null
+      ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null,
     });
   };
   public renderLayer = (
@@ -278,7 +285,7 @@ class Canvas extends React.Component<IProps> {
       ctm,
       shapes,
       debugData,
-      canvasSize: this.canvasSize
+      canvasSize: this.canvasSize,
     });
   };
   public render() {
@@ -290,14 +297,14 @@ class Canvas extends React.Component<IProps> {
       otherMetadata,
       data,
       penroseVersion,
-      style
+      style,
     } = this.props;
-    const { shapesr } = data;
 
-    if (!shapesr) {
+    if (!data) {
       return <svg ref={this.svg} />;
     }
 
+    const { shapes } = data;
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -322,7 +329,7 @@ class Canvas extends React.Component<IProps> {
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapesr.map(this.renderEntity)}
+        {shapes.map(this.renderEntity)}
         {layers &&
           layers.map(({ layer, enabled }: ILayer, key: number) => {
             if (layerMap[layer] === undefined) {
@@ -330,7 +337,7 @@ class Canvas extends React.Component<IProps> {
               return null;
             }
             if (enabled) {
-              return this.renderLayer(shapesr, data, layerMap[layer], key);
+              return this.renderLayer(shapes, data, layerMap[layer], key);
             }
             return null;
           })}

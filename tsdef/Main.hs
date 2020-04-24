@@ -11,6 +11,7 @@ import           Data.Map.Strict
 import           Data.Monoid
 import           Data.Proxy
 import           Penrose.Env
+import           Penrose.GenOptProblem
 import           Penrose.Shapes                   hiding (Shape)
 import           Penrose.Style
 import           Penrose.SubstanceTokenizer
@@ -26,7 +27,7 @@ import qualified Data.Text                        as T
 import qualified Data.Text.Lazy                   as TL
 
 data Shape = Shape
-  { shapeName  :: String
+  { shapeType  :: String
   , properties :: Map PropID (Value Double)
   }
 
@@ -69,6 +70,12 @@ $(deriveTypeScript defaultOptions ''Color)
 
 $(deriveTypeScript defaultOptions ''Elem)
 
+$(deriveTypeScript defaultOptions ''BfgsParams)
+
+$(deriveTypeScript defaultOptions ''Params)
+
+$(deriveTypeScript defaultOptions ''OptStatus)
+
 -- NOTE: omitting all the varenv related types because the evaluator doesn't need them
 instance (TypeScript a, TypeScript b) => TypeScript (Map a b) where
   getTypeScriptType _ =
@@ -100,4 +107,7 @@ main =
      (getTypeScriptDeclarations (Proxy :: Proxy SubPath)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy HMatrix)) <>
      (getTypeScriptDeclarations (Proxy :: Proxy Color)) <>
-     (getTypeScriptDeclarations (Proxy :: Proxy Elem)))
+     (getTypeScriptDeclarations (Proxy :: Proxy Elem)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy OptStatus)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy BfgsParams)) <>
+     (getTypeScriptDeclarations (Proxy :: Proxy Params)))
