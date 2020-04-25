@@ -273,18 +273,19 @@ console.log("f(x0) = ", tfStr(pure_opt_problem(mutableState)));
 let f_tup = (x, y) => pure_opt_problem([x, y]);
 // let lastEnergy = minimizeCustom(f_tup, mutableState);
 
-let gradF = tf.grads(f_tup);
+// let gradF = tf.grads(f_tup);
+let gradF = tf.grads(pure_opt_problem); // This (grad of a function accepting lists) works using the forked version of tf.js (scripts/tfjs/dist/tf.js) that just changes the `grads` function to not apply function with spread on the arguments
 let gradFx0 = gradF(mutableState); // type: list of (one-element) tensors
 // These can be combined as such: tf.stack(gradFx0).print()
 console.log("f'(x0)", tfsStr(gradFx0));
 
 // ------------------ Opt with list instead (knowing the # of variables at runtime)
 
-globalObjective = pure_opt_problem;
-fTup = tuplifyArgs(2);
-gradF = tf.grads(fTup);
-gradFX0 = gradF(mutableState);
-console.log("new f'(x0)", tfsStr(gradFx0));
+// globalObjective = pure_opt_problem;
+// fTup = tuplifyArgs(2);
+// gradF = tf.grads(fTup);
+// gradFX0 = gradF(mutableState);
+// console.log("new f'(x0)", tfsStr(gradFx0));
 
 // ------------------ Opt with tf
 

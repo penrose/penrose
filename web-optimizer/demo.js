@@ -1,3 +1,5 @@
+// t.apply(void 0, r);
+
 // Use: open index.html in browser; check console
 
 // Simple example of computing grad of a function evaluated at a point
@@ -67,7 +69,7 @@ centerFn2(gpi2).print();
 
 let objFn = { name: "centerFn", args: "circA" };
 
-const gradFn2 = tf.grads(centerFn3); // Use grads for multi-args
+const gradFn2 = tf.grads(centerFn4); // Use grads for multi-args
 console.log("centerFn3'(gpi2) = ");
 let [dx, dy] = gradFn2(gpi2_varying_vals);
 // the x passed in grad(f)(x) must be a tensor
@@ -97,7 +99,7 @@ let fTupRes = fTup(gpi2_varying_vals[0], gpi2_varying_vals[1]);
 console.log("fTup, fTupRes", fTup);
 fTupRes.print();
 
-const gradFn4 = tf.grads(fTup); // Use grads for multi-args
+const gradFn4 = tf.grads(centerFn4); // Use grads for multi-args
 console.log("centerFn4'(gpi2) = ");
 let [dx4, dy4] = gradFn4(gpi2_varying_vals);
 // the x passed in grad(f)(x) must be a tensor
