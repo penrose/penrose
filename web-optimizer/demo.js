@@ -57,6 +57,10 @@ let centerFn2 = shape => (shape.x).square().add((shape.y).square());
 // Be careful not to use normal ops in any tf code!
 // This is (x,y) not ([x,y])
 let centerFn3 = (x, y) => x.square().add(y.square());
+let centerFn4 = ([x, y]) => {
+    // let [x, y] = xs;
+    return x.square().add(y.square());
+}
 
 console.log("centerFn2(gpi2) = ");
 centerFn2(gpi2).print();
@@ -69,6 +73,38 @@ let [dx, dy] = gradFn2(gpi2_varying_vals);
 // the x passed in grad(f)(x) must be a tensor
 dx.print();
 dy.print();
+
+// ---------------------
+// With list as input
+
+// Converts a function in global scope, named `$globalObjective`, that takes a list of size `n` as an argument, to a function that takes a tuple of length `n` as an argument
+// e.g. mkfn(2) yields:
+// ($var0,$var1) => { return globalObjective([$var0, $var1]); }
+// The point of this is to create a function that `grads` can take as an argument, since it only accepts tuples
+// (The alternative is to fork the tfjs function `grads` in `gradients.ts` to not do a spread)
+// (Using the Function constructor requires references in the body to be in global scope)
+
+// TODO: Benchmark speed hit of this
+let tuplifyArgs = (n) => {
+    let args = _.range(0, n).map(e => "$var" + String(e));
+    let body = "return globalObjective([" + args.toString() + "]);";
+    return new Function(args, body);
+}
+
+let fTup = tuplifyArgs(2); // You just need to know the number of arguments ahead of time
+let globalObjective = centerFn4;
+let fTupRes = fTup(gpi2_varying_vals[0], gpi2_varying_vals[1]);
+console.log("fTup, fTupRes", fTup);
+fTupRes.print();
+
+const gradFn4 = tf.grads(fTup); // Use grads for multi-args
+console.log("centerFn4'(gpi2) = ");
+let [dx4, dy4] = gradFn4(gpi2_varying_vals);
+// the x passed in grad(f)(x) must be a tensor
+dx4.print();
+dy4.print();
+
+// ---------------------
 
 // Optimize params (c,d)
 

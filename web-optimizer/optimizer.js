@@ -90,6 +90,7 @@ const minimizeTF = (f, gradf, xs, names) => {
     	energy = optimizer2.minimize(() => f(xs), returnCost=true);
 	gradfx = gradF(xs);
 	norm_grad = tf.stack(gradfx).norm().dataSync()[0]; // not sure how to compare a tensor to a scalar
+	// TODO: use tf logical operator
 
 	// note: this printing could tank the performance
 	// vals = xs.map(v => v.dataSync()[0]);
@@ -277,6 +278,14 @@ let gradFx0 = gradF(mutableState); // type: list of (one-element) tensors
 // These can be combined as such: tf.stack(gradFx0).print()
 console.log("f'(x0)", tfsStr(gradFx0));
 
+// ------------------ Opt with list instead (knowing the # of variables at runtime)
+
+globalObjective = pure_opt_problem;
+fTup = tuplifyArgs(2);
+gradF = tf.grads(fTup);
+gradFX0 = gradF(mutableState);
+console.log("new f'(x0)", tfsStr(gradFx0));
+
 // ------------------ Opt with tf
 
 // TODO: Check whether the opt results are right
@@ -292,3 +301,10 @@ let varyingMap = tups2obj(state.varyingPaths, varyingStateFinal.map(v => v.dataS
 
 console.log("converged after", info.i, "steps with energy", tfStr(info.energy), "and grad norm", info.norm_grad);
 console.log("state (varyingMap): ", varyingMap);
+
+// TODO: check usage with tf.memory; keep/clean up with tf.keep and tf.tidy
+// TODO: check performance with tf.time
+// TODO: try to use tf.setBackend for webgl
+// TODO: try tf constraints on layers
+
+// TODO: Alternative is to pack all elements into one tensor, but then it's hard to do sophisticated numerical ops on each element of the tensor --- and not even sure if gradients work that way
