@@ -69,36 +69,47 @@ const genState = (objFns, compGraph, varyingPaths) => {
     return state;
 };
 
-// Minimize f over x
-const minimize = (f, xs, names) => {
-    let res;
+// Use included tf.js optimizer to minimize f over xs (note: xs is mutable)
+const minimizeTF = (f, gradf, xs, names) => {
+    // optimization hyperparameters
+    const EPS = 1e-6;
+    const MAX_STEPS = 1000;
 
-    console.log("f", f);
-    console.log("xs", tfsStr(xs));
+    let energy;
+    let vals;
+    let gradfx;
+    let norm_grad = Number.MAX_SAFE_INTEGER;
+    let i = 0;
 
-    // Use included tf.js optimizer for now
-    // TODO profile this; change # iterations (test for convergence) and LR
-    // TODO: Calculate + print norm of gradient; evaluate until convergence, and check against the right answer
-    const n = 300;
-    for (let i = 0; i < n; i++) {
+    console.log("xs0", tfsStr(xs));
+    console.log("f'(xs0)", tfsStr(gradF(xs)));
+
+    // TODO profile this
+    while (norm_grad > EPS && i < MAX_STEPS) {
 	// TODO: use/revert spread, also doesn't work with varList=xs and compGraph1
-    	res = optimizer2.minimize(() => f(xs), returnCost=true);
+    	energy = optimizer2.minimize(() => f(xs), returnCost=true);
+	gradfx = gradF(xs);
+	norm_grad = tf.stack(gradfx).norm().dataSync()[0]; // not sure how to compare a tensor to a scalar
 
-	// TODO: note clearly that `xs` is mutable; maybe make a copy of it at beginning. Does it do it for speed?
-	// TODO: this printing could tank the performance
-	let vals = xs.map(v => v.dataSync()[0]);
-	console.log("state", tups2obj(names, vals));
-	console.log(`f(xs): ${res}`);
+	// note: this printing could tank the performance
+	// vals = xs.map(v => v.dataSync()[0]);
+	// console.log("i=", i);
+	// console.log("state", tups2obj(names, vals));
+	// console.log(`f(xs): ${energy}`);
+	// console.log("f'(xs)", tfsStr(gradfx));
+	// console.log("||f'(xs)||", norm_grad);
+	// console.log("cond", norm_grad > EPS, i < MAX_STEPS);
+	i++;
     }
 
-    return res;
+    return { energy, norm_grad, i };
 };
 
-// expr should be an expr (of the kind stored in the compgraph -- either string or number)
+// Expr should be an expr (of the kind stored in the compgraph -- either string or number)
 // returns a tfvar (of float)
 // NOTE: DO NOT MAKE NEW TFVARS
 let evalExprVarying = (compGraph, varyingMap, expr) => {
-    console.log("eval", expr);
+    // console.log("eval", expr);
 
     // NOTE: tfvars are made on the fly from consts so we can do math with them, but they are not (should not be) mutable vars, since they are not in mutableState
 
@@ -126,7 +137,7 @@ let evalExprVarying = (compGraph, varyingMap, expr) => {
     // Evaluate each arg, then apply the function and return the result
     // TODO: cache the results (do a fold with compGraph)
     let exprArgVals = exprDef.args.map(arg => evalExprVarying(compGraph, varyingMap, arg));
-    console.log("exprArgValsTF", tfsStr(exprArgVals));
+    // console.log("exprArgValsTF", tfsStr(exprArgVals));
     let val = exprFn(...exprArgVals);
     // TODO: fix/note spread
 
@@ -139,10 +150,10 @@ let evalOptProblem = (state) => { // State -> ([a] -> a)
     ({compGraph, objFns, varyingPaths, varyingState} = state);
 
     return (vstate) => { // [a] (tfvars)
-	console.log("vstate", vstate);
-	console.log("vstate str", tfsStr(vstate));
+	// console.log("vstate str", tfsStr(vstate));
+
 	let varyingMap = tups2obj(varyingPaths, vstate); // NOTE: Need to use vstate, obviously, otherwise tfjs will complain
-	console.log("varyingMap", varyingMap);
+	// console.log("varyingMap", varyingMap);
 
 	let objFn = objFns[0]; // TODO: write evalFns (across multiple fns)
 	let objFnCode = objFn_library[objFn.fnName];
@@ -152,7 +163,7 @@ let evalOptProblem = (state) => { // State -> ([a] -> a)
 	// TODO: compGraph might be stale?
 	let argValsTF = argNames.map(argName => evalExprVarying(compGraph, varyingMap, argName)); // NOTE: These are already tfvars
 
-	console.log("argValsTF", tfsStr(argValsTF));
+	// console.log("argValsTF", tfsStr(argValsTF));
 
 	return objFnCode(...argValsTF);
     };
@@ -258,8 +269,12 @@ console.log("f(x0) = ", tfStr(pure_opt_problem(mutableState)));
 
 // NOTE: grad works for state1; haven't checked opt for state1
 
-let gradF = tf.grads((x, y) => pure_opt_problem([x, y]));
-let gradFx0 = gradF(mutableState);
+let f_tup = (x, y) => pure_opt_problem([x, y]);
+// let lastEnergy = minimizeCustom(f_tup, mutableState);
+
+let gradF = tf.grads(f_tup);
+let gradFx0 = gradF(mutableState); // type: list of (one-element) tensors
+// These can be combined as such: tf.stack(gradFx0).print()
 console.log("f'(x0)", tfsStr(gradFx0));
 
 // ------------------ Opt with tf
@@ -268,13 +283,12 @@ console.log("f'(x0)", tfsStr(gradFx0));
 // TODO: For instance, equal2 on state1 doesn't seem to make A.shape.x = B.shape.y?
 
 // the mutableState gets mutated by the tf optimization on each round
-let lastEnergy = minimize(pure_opt_problem, mutableState, varyingPaths);
-// let lastEnergy = minimize(objFn_library["min2"], mutableState, varyingPaths);
-// let lastEnergy = minimize(objFn_library["min2"], [tfVar(1.0), tfVar(5.0)], varyingPaths);
+let info = minimizeTF(pure_opt_problem, gradF, mutableState, varyingPaths);
+// let lastEnergy = minimizeTF(objFn_library["min2"], mutableState, varyingPaths);
+// let lastEnergy = minimizeTF(objFn_library["min2"], [tfVar(1.0), tfVar(5.0)], varyingPaths);
 
 let varyingStateFinal = mutableState;
-let varyingMap = tups2obj(state.varyingPaths, varyingStateFinal);
+let varyingMap = tups2obj(state.varyingPaths, varyingStateFinal.map(v => v.dataSync()[0]));
 
-// For some reason it comes out as a list of single-elem-list of Float32Array
-console.log("varyingMap", Object.values(varyingMap).map(v => v.dataSync()[0]));
-console.log(`f(x_f): ${lastEnergy}`);
+console.log("converged after", info.i, "steps with energy", tfStr(info.energy), "and grad norm", info.norm_grad);
+console.log("state (varyingMap): ", varyingMap);
