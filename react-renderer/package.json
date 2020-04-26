@@ -9,7 +9,6 @@
     "@types/seedrandom": "^2.4.28",
     "debug": "^4.1.1",
     "fast-memoize": "^2.5.2",
-    "fsevents": "^2.1.2",
     "lodash": "^4.17.15",
     "mathjax-full": "^3.0.1",
     "react": "^16.13.1",
