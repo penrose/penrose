@@ -16,6 +16,12 @@ const tex = new TeX({ packages: AllPackages });
 const svg = new SVG({ fontCache: "none" });
 const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
+/**
+ * Find bounding box of an SVG element.
+ * NOTE: this is a wrapper around `getBBox`, which is known to have problems in certain browsers
+ *
+ * @param svgEl rendered SvG element
+ */
 export function svgBBox(svgEl: SVGSVGElement) {
   const tempDiv = document.createElement("div");
   tempDiv.setAttribute(
@@ -45,6 +51,10 @@ const convert = (input: string, fontSize: string) => {
   return doc as SVGSVGElement;
 };
 
+/**
+ * Call MathJax to render __non-empty__ labels.
+ * NOTE: this function is memoized.
+ */
 const tex2svg = memoize(
   async (contents: string, name: string, fontSize: string): Promise<any> =>
     new Promise((resolve) => {
@@ -80,8 +90,8 @@ export const collectLabels = async (allShapes: Shape[]) => {
         // Instead of directly overwriting the properties, cache them temporarily and let `propogateUpdate` decide what to do
         // TODO: need to give a type to this kind of updated shape
         const obj2: any = { ...properties };
-        obj2.w.updated = width;
-        obj2.h.updated = height;
+        obj2.w.updated = { tag: "FloatV", contents: width };
+        obj2.h.updated = { tag: "FloatV", contents: height };
         // HACK: this behavior needs to be encoded in our type system
         // Add omit: true flag so it doesn't get sent to the server
         obj2.rendered = { contents: body, omit: true };

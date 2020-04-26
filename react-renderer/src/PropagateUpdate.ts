@@ -5,7 +5,7 @@ import { insertExpr } from "./Evaluator";
  * @param shapes a list of shapes
  * @param path a path to a property value in one of the shapes
  */
-const findShapeProperty = (shapes: any, path: Path): Value<number> => {
+const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
   if (path.tag === "FieldPath") {
     throw new Error("pending paths must be property paths");
   } else {
@@ -35,7 +35,7 @@ export const insertPending = (state: State) => {
     pendingPaths: [],
     // for each of the pending path, update the translation using the updated shapes with new label dimensions etc.
     translation: state.pendingPaths
-      .map((p: Path) => [p, findShapeProperty(state.shapes, p)])
+      .map((p: Path) => [p, findShapeProperty(state.shapes, p).updated])
       .reduce(
         (trans: Translation, [path, v]: [Path, Value<number>]) =>
           insertExpr(path, { tag: "Done", contents: v }, trans),

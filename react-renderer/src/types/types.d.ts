@@ -1,3 +1,12 @@
+/**
+ * Output of label generation.
+ */
+interface LabelData {
+  rendered: SVGSVGElement;
+  width: number;
+  height: number;
+}
+
 type Translation = ITrans<number>; // TODO: number type might be different
 type VaryMap = [Path, number][];
 
@@ -40,13 +49,15 @@ interface CompNode<T> {
   value: Value<T> | undefined;
 }
 
+type Properties = { [k: string]: Value<number> };
+
 ////////////////////////////////////////////////////////////////////////////
 
 type Shape = IShape;
 
 interface IShape {
   shapeType: string;
-  properties: { [k: string]: Value<number> };
+  properties: Properties;
 }
 
 type ArgVal<T> = IGPI<T> | IVal<T>;

@@ -1,5 +1,6 @@
-import { zip, toPairs, values, pickBy } from "lodash";
+import { zip, toPairs, values, pickBy, range } from "lodash";
 import { mapValues } from "lodash";
+import seedrandom from "seedrandom";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -58,6 +59,82 @@ const compDict = {
       },
     };
   },
+  hsva: (h: number, s: number, v: number, a: number): IColorV<number> => {
+    return {
+      tag: "ColorV",
+      contents: {
+        tag: "HSVA",
+        contents: [h, s, v, a],
+      },
+    };
+  },
+  cos: (d: number): IFloatV<number> => {
+    return { tag: "FloatV", contents: Math.cos((d * Math.PI) / 180) };
+  },
+  sin: (d: number): IFloatV<number> => {
+    return { tag: "FloatV", contents: Math.sin((d * Math.PI) / 180) };
+  },
+  lineLength: ([type, props]: [string, any]) => {
+    const [p1, p2] = arrowPts(props);
+    return { tag: "FloatV", contents: dist(p1, p2) };
+  },
+  len: ([type, props]: [string, any]) => {
+    const [p1, p2] = arrowPts(props);
+    return { tag: "FloatV", contents: dist(p1, p2) };
+  },
+  sampleColor: (alpha: number, colorType: string) => {
+    if (colorType === "rgb") {
+      const rgb = range(3).map((_) => randFloat(0.1, 0.9));
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: "RGBA",
+          contents: [...rgb, alpha],
+        },
+      };
+    } else if (colorType === "hsv") {
+      const h = randFloat(0, 360);
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: "HSVA",
+          contents: [h, 100, 80, alpha], // HACK: for the color to look good
+        },
+      };
+    } else throw new Error("unknown color type");
+  },
+};
+
+/**
+ * Generate a random float. The maximum is exclusive and the minimum is inclusive
+ * @param min minimum (inclusive)
+ * @param max maximum (exclusive)
+ */
+const randFloat = (min: number, max: number) =>
+  Math.random() * (max - min) + min;
+
+/**
+ * Generate a random integer. The maximum is exclusive and the minimum is inclusive
+ * @param min minimum (inclusive)
+ * @param max maximum (exclusive)
+ */
+const randInt = (min: number, max: number) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+};
+
+const arrowPts = ({ startX, startY, endX, endY }: Properties) =>
+  [
+    [startX.contents, startY.contents],
+    [endX.contents, endY.contents],
+  ] as [[number, number], [number, number]];
+
+const dist = ([x1, y1]: [number, number], [x2, y2]: [number, number]) =>
+  Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+
+const checkComp = (fn: string, args: ArgVal<number>[]) => {
+  if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
 
 /**
@@ -163,6 +240,7 @@ export const evalExpr = (
       // eval all args
       const args = evalExprs(argExprs, trans, varyingVars);
       const argValues = args.map((a) => argValue(a));
+      checkComp(fnName, args);
       // retrieve comp function from a global dict and call the function
       return { tag: "Val", contents: compDict[fnName](...argValues) };
     default:
@@ -189,15 +267,14 @@ export const resolvePath = (
     case "FGPI":
       const [type, props] = gpiOrExpr.contents;
       // TODO: cache results
-      const evaledProps = mapValues(props, (p) =>
+      const evaledProps: Properties = mapValues(props, (p) =>
         p.tag === "OptEval"
-          ? evalExpr(p.contents, trans, varyingVars)
+          ? (evalExpr(p.contents, trans, varyingVars) as IVal<number>).contents
           : p.contents
       );
       return { tag: "GPI", contents: [type, evaledProps] as GPI<number> };
     default:
       const expr: TagExpr<number> = gpiOrExpr;
-      // TODO: cache results
       if (expr.tag === "OptEval") {
         return evalExpr(expr.contents, trans, varyingVars);
       } else return { tag: "Val", contents: expr.contents };
@@ -323,16 +400,17 @@ export const insertExpr = (
   switch (path.tag) {
     case "FieldPath":
       [name, field] = path.contents;
-      // Type cast to field expression
+      // NOTE: this will overwrite existing expressions
       trans.trMap[name.contents][field] = { tag: "FExpr", contents: expr };
+      return trans;
     case "PropertyPath":
       // TODO: why do I need to typecast this path? Maybe arrays are not checked properly in TS?
       [name, field, prop] = (path as IPropertyPath).contents;
       const gpi = trans.trMap[name.contents][field] as IFGPI<number>;
       const [, properties] = gpi.contents;
       properties[prop] = expr;
+      return trans;
   }
-  return trans;
 };
 
 /**
@@ -351,6 +429,7 @@ export const decodeState = (json: any): State => {
     }),
     varyingMap: zip(json.varyingPaths, json.varyingState),
   };
+  seedrandom(json.rng, { global: true });
   delete state.shapesr;
   delete state.transr;
   delete state.varyingState;
