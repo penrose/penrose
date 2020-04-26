@@ -19,7 +19,8 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     // "noUnusedLocals": true
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "skipLibCheck": true // for Tensorflow JS
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,

@@ -6,9 +6,9 @@ import {
   resolvePath,
   evalShape,
   evalTranslation,
-  encodeState,
+  encodeState
 } from "../Evaluator";
-import * as stateJSON from "./final-state.json";
+import * as stateJSON from "./state.json";
 import { find, keys } from "lodash";
 
 // TODO: there are type errors in this file, but `npm test` seems to run just fine, why?
@@ -34,14 +34,14 @@ describe("state operations tests", () => {
   });
 
   it("finds all shape expressions in a state using shapePaths", () => {
-    const shapes = state.shapePaths.map((p) => findExpr(state.translation, p));
+    const shapes = state.shapePaths.map(p => findExpr(state.translation, p));
     expect(shapes).not.toContain(undefined);
   });
 
   it("gets the value of the field `A.shape`", () => {
     const path: IFieldPath = {
       tag: "FieldPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "shape"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape"]
     };
     const shape = findExpr(state.translation, path);
     expect(shape).not.toEqual(undefined);
@@ -50,7 +50,7 @@ describe("state operations tests", () => {
   it("gets the value of the property `A.shape.x`", () => {
     const path: IPropertyPath = {
       tag: "PropertyPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "x"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "x"]
     };
     const prop = findExpr(state.translation, path) as TagExpr<number>;
     expect(prop.contents.tag).toEqual("FloatV");
@@ -61,7 +61,7 @@ describe("evaluation functions tests", () => {
   it("evaluates a single unary operation A.shape.strokeWidth", () => {
     const path: IPropertyPath = {
       tag: "PropertyPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "strokeWidth"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "strokeWidth"]
     };
     const prop = findExpr(state.translation, path) as IOptEval<number>;
     const propEvaled = evalExpr(
@@ -75,7 +75,7 @@ describe("evaluation functions tests", () => {
   it("evaluates a single computation A.text.color", () => {
     const path: IPropertyPath = {
       tag: "PropertyPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "text", "color"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "text", "color"]
     };
     const prop = findExpr(state.translation, path) as IOptEval<number>;
     expect(prop.contents.tag).toEqual("CompApp");
@@ -83,7 +83,7 @@ describe("evaluation functions tests", () => {
   it("resolve a field path const.num", () => {
     const path: IFieldPath = {
       tag: "FieldPath",
-      contents: [{ tag: "BStyVar", contents: "const" }, "num"],
+      contents: [{ tag: "BStyVar", contents: "const" }, "num"]
     };
     // NOTE: not using varying values
     const propVal = resolvePath(path, state.translation, []).contents as Value<
@@ -94,11 +94,11 @@ describe("evaluation functions tests", () => {
   it("resolve a property path A.shading.x", () => {
     const path1: IPropertyPath = {
       tag: "PropertyPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "shading", "x"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "shading", "x"]
     };
     const path2: IPropertyPath = {
       tag: "PropertyPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "x"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "x"]
     };
     // NOTE: not using varying values
     const propVal1: ArgVal<number> = resolvePath(path1, state.translation, []);
@@ -111,11 +111,11 @@ describe("evaluation functions tests", () => {
   it("resolve a property path A.shadow.w, which is computed via A.shape.r", () => {
     const path1: IPropertyPath = {
       tag: "PropertyPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "shadow", "w"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "shadow", "w"]
     };
     const path2: IPropertyPath = {
       tag: "PropertyPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "r"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape", "r"]
     };
     // NOTE: not using varying values
     const propVal1 = resolvePath(path1, state.translation, []) as IVal<number>;
@@ -130,26 +130,26 @@ describe("evaluation functions tests", () => {
   it("evaluate A.text", () => {
     const path: IFieldPath = {
       tag: "FieldPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "text"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "text"]
     };
     const shapeExpr = findExpr(state.translation, path) as IFGPI<number>;
     const [[shape]] = evalShape(shapeExpr, state.translation, [], []);
     const backendShape = find(
       state.shapes,
-      (s) => s.properties.name.contents === "A.text"
+      s => s.properties.name.contents === "A.text"
     );
     expect(shape).toEqual(backendShape);
   });
   it("evaluate A.shape", () => {
     const path: IFieldPath = {
       tag: "FieldPath",
-      contents: [{ tag: "BSubVar", contents: "A" }, "shape"],
+      contents: [{ tag: "BSubVar", contents: "A" }, "shape"]
     };
     const shapeExpr = findExpr(state.translation, path) as IFGPI<number>;
     const [[shape]] = evalShape(shapeExpr, state.translation, [], []);
     const backendShape = find(
       state.shapes,
-      (s) => s.properties.name.contents === "A.shape"
+      s => s.properties.name.contents === "A.shape"
     );
     expect(shape).toEqual(backendShape);
   });
