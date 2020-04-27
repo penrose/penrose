@@ -2,6 +2,8 @@ import { zip, toPairs, values, pickBy, range } from "lodash";
 import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
+import { Scalar, scalar } from "@tensorflow/tfjs";
+import { tfStr } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -37,6 +39,11 @@ export const evalTranslation = (s: State): State => {
   return { ...s, shapes: shapesEvaled, translation: transEvaled };
 };
 
+const doneFloat = (n: number): TagExpr<number> => ({
+  tag: "Done",
+  contents: { tag: "FloatV", contents: n },
+});
+
 /**
  * Insert a set of varying values into the translation
  *
@@ -48,10 +55,6 @@ export const insertVaryings = (
   trans: Translation,
   varyingMap: VaryMap
 ): Translation => {
-  const doneFloat = (n: number): TagExpr<number> => ({
-    tag: "Done",
-    contents: { tag: "FloatV", contents: n },
-  });
   return varyingMap.reduce(
     (tr: Translation, [path, val]: [Path, number]) =>
       insertExpr(path, doneFloat(val), tr),
@@ -62,11 +65,11 @@ export const insertVaryings = (
 export const evalFn = (
   fn: Fn,
   trans: Translation,
-  varyingMap: VaryMap
-): FnDone => {
+  varyingMap: VaryMap<Scalar>
+): FnDone<Scalar> => {
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap),
+    args: evalExprs(fn.fargs, trans, varyingMap, true) as ArgVal<Scalar>[],
     optType: fn.optType,
   };
 };
@@ -180,8 +183,10 @@ export const evalShape = (
 export const evalExprs = (
   es: Expr[],
   trans: Translation,
-  varyingVars: VaryMap
-): ArgVal<number>[] => es.map((e) => evalExpr(e, trans, varyingVars));
+  varyingVars?: VaryMap<number | Scalar>,
+  tf = false
+): ArgVal<number | Scalar>[] =>
+  es.map((e) => evalExpr(e, trans, varyingVars, tf));
 
 /**
  * Evaluate the input expression to a value.
@@ -197,8 +202,9 @@ export const evalExprs = (
 export const evalExpr = (
   e: Expr,
   trans: Translation,
-  varyingVars: VaryMap
-): ArgVal<number> => {
+  varyingVars?: VaryMap<number | Scalar>,
+  tf = false
+): ArgVal<number | Scalar> => {
   switch (e.tag) {
     case "IntLit":
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
@@ -210,9 +216,10 @@ export const evalExpr = (
       if (e.contents.tag === "Vary") {
         throw new Error("encountered an unsubstituted varying value");
       } else {
+        const val = e.contents.contents;
         return {
           tag: "Val",
-          contents: { tag: "FloatV", contents: e.contents.contents },
+          contents: { tag: "FloatV", contents: tf ? scalar(val) : val },
         };
       }
     case "UOp":
@@ -239,11 +246,12 @@ export const evalExpr = (
         ),
       };
     case "EPath":
-      return resolvePath(e.contents, trans, varyingVars);
+      return resolvePath(e.contents, trans, varyingVars, tf);
     case "CompApp":
       const [fnName, argExprs] = e.contents;
       // eval all args
-      const args = evalExprs(argExprs, trans, varyingVars);
+      // TODO: how should computations be written? TF numbers?
+      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<number>[];
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
       // retrieve comp function from a global dict and call the function
@@ -265,29 +273,47 @@ export const evalExpr = (
 export const resolvePath = (
   path: Path,
   trans: Translation,
-  varyingVars: VaryMap
-): ArgVal<number> => {
-  const gpiOrExpr = findExpr(trans, path);
-  switch (gpiOrExpr.tag) {
-    case "FGPI":
-      const [type, props] = gpiOrExpr.contents;
-      // TODO: cache results
-      const evaledProps: Properties = mapValues(props, (p) =>
-        p.tag === "OptEval"
-          ? (evalExpr(p.contents, trans, varyingVars) as IVal<number>).contents
-          : p.contents
-      );
-      return { tag: "GPI", contents: [type, evaledProps] as GPI<number> };
-    default:
-      const expr: TagExpr<number> = gpiOrExpr;
-      if (expr.tag === "OptEval") {
-        return evalExpr(expr.contents, trans, varyingVars);
-      } else return { tag: "Val", contents: expr.contents };
+  varyingVars?: VaryMap<number | Scalar>,
+  tf = false
+): ArgVal<number | Scalar> => {
+  const varyingVal = varyingVars?.find(([p, _]) => path === p);
+  if (varyingVal) {
+    const [_, v] = varyingVal;
+    return {
+      tag: "Val",
+      contents: {
+        tag: "FloatV",
+        contents: v,
+      },
+    };
+  } else {
+    const gpiOrExpr = findExpr(trans, path);
+    switch (gpiOrExpr.tag) {
+      case "FGPI":
+        const [type, props] = gpiOrExpr.contents;
+        // TODO: cache results
+        const evaledProps = mapValues(props, (p) =>
+          p.tag === "OptEval"
+            ? (evalExpr(p.contents, trans, varyingVars, tf) as IVal<
+                number | Scalar
+              >).contents
+            : p.contents
+        );
+        return {
+          tag: "GPI",
+          contents: [type, evaledProps] as GPI<number | Scalar>,
+        };
+      default:
+        const expr: TagExpr<number> = gpiOrExpr;
+        if (expr.tag === "OptEval") {
+          return evalExpr(expr.contents, trans, varyingVars, tf);
+        } else return { tag: "Val", contents: expr.contents };
+    }
   }
 };
 
 // HACX: remove the type wrapper for the argument
-export const argValue = (e: ArgVal<number>) => {
+export const argValue = (e: ArgVal<number | Scalar>) => {
   switch (e.tag) {
     case "GPI": // strip the `GPI` tag
       return e.contents;

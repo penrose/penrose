@@ -30,19 +30,19 @@ describe("minimize a simple function", () => {
   });
   it("minimize a simple state with L2 norm", () => {
     const { energy, normGrad, i } = minimize(fn, gradF(fn) as any, state, []);
-    console.log(
-      "converged after",
-      i,
-      "steps with energy",
-      tfStr(energy),
-      "and grad norm",
-      normGrad
-    );
-    console.log("state (varyingMap): ", tfsStr(state));
+    //   console.log(
+    //     "converged after",
+    //     i,
+    //     "steps with energy",
+    //     tfStr(energy),
+    //     "and grad norm",
+    //     normGrad
+    //   );
+    //   console.log("state (varyingMap): ", tfsStr(state));
   });
 
   it("evaluate a single energy function f(x)", () => {
-    console.log(fn(...state).print());
+    console.log("The value of the function is: ", fn(...state).toString());
   });
 });
 
@@ -68,10 +68,8 @@ describe("Whole optimizer pipeline tests", () => {
     const f = evalEnergyOn(vennState);
     const xs = vennState.varyingValues.map(tfVar);
     f(...xs).print();
-    const gradf = gradF(f);
-    // gradf(xs)
   });
   it("steps the initial state until convergence", () => {
-    // console.log(stepUntilConvergence(vennState));
+    console.log(stepUntilConvergence(vennState));
   });
 });

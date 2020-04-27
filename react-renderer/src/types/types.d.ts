@@ -8,12 +8,12 @@ interface LabelData {
 }
 
 type Translation = ITrans<number>; // TODO: number type might be different
-type VaryMap = [Path, number][];
+type VaryMap<T = number> = [Path, T][];
 
-type FnDone = IFnDone;
-interface IFnDone {
+type FnDone<T> = IFnDone<T>;
+interface IFnDone<T> {
   name: string;
-  args: ArgVal<number>[];
+  args: ArgVal<T>[];
   optType: OptType;
 }
 
