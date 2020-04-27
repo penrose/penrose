@@ -10,6 +10,21 @@ interface LabelData {
 type Translation = ITrans<number>; // TODO: number type might be different
 type VaryMap = [Path, number][];
 
+type FnDone = IFnDone;
+interface IFnDone {
+  name: string;
+  args: ArgVal<number>[];
+  optType: OptType;
+}
+
+type Fn = IFn;
+interface IFn {
+  fname: string;
+  fargs: Expr[];
+  optType: OptType;
+}
+type OptType = "ObjFn" | "ConstrFn";
+
 /**
  * The diagram state modeling the original Haskell types
  */
@@ -19,8 +34,8 @@ interface IState {
   shapeProperties: any; // TODO: types
   uninitializedPaths: any; // TODO: types
   paramsr: Params; // TODO: types
-  objFns: any; // TODO: types
-  constrFns: any; // TODO: types
+  objFns: Fn[];
+  constrFns: Fn[];
   rng: any; // TODO: types
   selecterMatches: any; // TODO: types
   policyParams: any; // TODO: types

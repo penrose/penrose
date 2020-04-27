@@ -1,5 +1,6 @@
 import { zip, toPairs, values, pickBy, range } from "lodash";
 import { mapValues } from "lodash";
+import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +43,18 @@ export const evalTranslation = (s: State): State => {
   // Update the state with the new list of shapes and translation
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
   return { ...s, shapes: shapesEvaled, translation: transEvaled };
+};
+
+export const evalFn = (
+  fn: Fn,
+  trans: Translation,
+  varyingMap: VaryMap
+): FnDone => {
+  return {
+    name: fn.fname,
+    args: evalExprs(fn.fargs, trans, varyingMap),
+    optType: fn.optType,
+  };
 };
 
 /**
@@ -105,33 +118,11 @@ const compDict = {
   },
 };
 
-/**
- * Generate a random float. The maximum is exclusive and the minimum is inclusive
- * @param min minimum (inclusive)
- * @param max maximum (exclusive)
- */
-const randFloat = (min: number, max: number) =>
-  Math.random() * (max - min) + min;
-
-/**
- * Generate a random integer. The maximum is exclusive and the minimum is inclusive
- * @param min minimum (inclusive)
- * @param max maximum (exclusive)
- */
-const randInt = (min: number, max: number) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min;
-};
-
 const arrowPts = ({ startX, startY, endX, endY }: Properties) =>
   [
     [startX.contents, startY.contents],
     [endX.contents, endY.contents],
   ] as [[number, number], [number, number]];
-
-const dist = ([x1, y1]: [number, number], [x2, y2]: [number, number]) =>
-  Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 
 const checkComp = (fn: string, args: ArgVal<number>[]) => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);

@@ -2,6 +2,33 @@ import * as React from "react";
 
 import memoize from "fast-memoize";
 
+/**
+ * Generate a random float. The maximum is exclusive and the minimum is inclusive
+ * @param min minimum (inclusive)
+ * @param max maximum (exclusive)
+ */
+export const randFloat = (min: number, max: number) =>
+  Math.random() * (max - min) + min;
+
+/**
+ * Generate a random integer. The maximum is exclusive and the minimum is inclusive
+ * @param min minimum (inclusive)
+ * @param max maximum (exclusive)
+ */
+export const randInt = (min: number, max: number) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+};
+
+/**
+ * Find the Euclidean distance between two points
+ * @param param0 point 1 [x1, y1]
+ * @param param1 point 2 [x2, y2]
+ */
+export const dist = ([x1, y1]: [number, number], [x2, y2]: [number, number]) =>
+  Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+
 export const arrowheads = {
   "arrowhead-1": {
     width: 8,

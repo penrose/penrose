@@ -91,9 +91,9 @@ executable tsdef
     build-depends:
         penrose,
         aeson,
-        aeson-typescript,
         containers,
         text,
+        aeson-typescript,
         interpolate,
         unordered-containers,
         base -any

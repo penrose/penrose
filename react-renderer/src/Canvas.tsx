@@ -22,6 +22,12 @@ interface ICanvasProps {
   updateData?: (shapes: any, step?: boolean) => void;
 }
 
+/**
+ * Hard-coded canvas size
+ * @type {[number, number]}
+ */
+export const canvasSize: [number, number] = [800, 700];
+
 class Canvas extends React.Component<ICanvasProps> {
   public static sortShapes = (shapes: Shape[], ordering: string[]) => {
     return ordering.map((name) =>
@@ -53,12 +59,6 @@ class Canvas extends React.Component<ICanvasProps> {
     return processed;
   };
 
-  /**
-   * Hard-coded canvas size
-   * @type {[number, number]}
-   * @memberof Canvas
-   */
-  public readonly canvasSize: [number, number] = [800, 700];
   // public readonly canvasSize: [number, number] = [400, 400];
   public readonly svg = React.createRef<SVGSVGElement>();
 
@@ -139,8 +139,8 @@ class Canvas extends React.Component<ICanvasProps> {
     const domnode = ReactDOM.findDOMNode(this);
     if (domnode !== null && domnode instanceof Element) {
       const exportingNode = domnode.cloneNode(true) as any;
-      exportingNode.setAttribute("width", this.canvasSize[0].toString());
-      exportingNode.setAttribute("height", this.canvasSize[1].toString());
+      exportingNode.setAttribute("width", canvasSize[0].toString());
+      exportingNode.setAttribute("height", canvasSize[1].toString());
 
       const images = exportingNode.getElementsByTagName("image");
       for (let i = images.length - 1; i >= 0; i--) {
@@ -254,7 +254,6 @@ class Canvas extends React.Component<ICanvasProps> {
       Log.error("SVG ref is null");
       return <g key={key}>broken!</g>;
     }
-    const canvasSize = this.canvasSize;
     const { dragEvent } = this;
     return React.createElement(component, {
       key,
@@ -287,7 +286,7 @@ class Canvas extends React.Component<ICanvasProps> {
       ctm,
       shapes,
       debugData,
-      canvasSize: this.canvasSize,
+      canvasSize,
     });
   };
   public render() {
@@ -316,7 +315,7 @@ class Canvas extends React.Component<ICanvasProps> {
         height="100%"
         style={style || {}}
         ref={this.svg}
-        viewBox={`0 0 ${this.canvasSize[0]} ${this.canvasSize[1]}`}
+        viewBox={`0 0 ${canvasSize[0]} ${canvasSize[1]}`}
       >
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${

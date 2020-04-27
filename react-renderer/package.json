@@ -17,7 +17,7 @@
     "react-dom": "^16.13.1",
     "react-fast-compare": "^2.0.4",
     "react-scripts": "^3.4.1",
-    "react-scripts-ts": "^4.0.8",
+    "react-scripts-ts": "^3.1.0",
     "seedrandom": "^3.0.5",
     "svg2pdf.js": "^1.5.0",
     "tslib": "^1.11.1"
