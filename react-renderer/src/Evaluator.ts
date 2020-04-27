@@ -18,15 +18,7 @@ import seedrandom from "seedrandom";
  */
 export const evalTranslation = (s: State): State => {
   // Insert all varying vals
-  const doneFloat = (n: number): TagExpr<number> => ({
-    tag: "Done",
-    contents: { tag: "FloatV", contents: n },
-  });
-  const trans = s.varyingMap.reduce(
-    (tr: Translation, [path, val]: [Path, number]) =>
-      insertExpr(path, doneFloat(val), tr),
-    s.translation
-  );
+  const trans = insertVaryings(s.translation, s.varyingMap);
 
   // Find out all the GPI expressions in the translation
   const shapeExprs = s.shapePaths.map(
@@ -43,6 +35,28 @@ export const evalTranslation = (s: State): State => {
   // Update the state with the new list of shapes and translation
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
   return { ...s, shapes: shapesEvaled, translation: transEvaled };
+};
+
+/**
+ * Insert a set of varying values into the translation
+ *
+ * @param {Translation} trans initial translation without varying values
+ * @param {VaryMap} varyingMap varying paths and their values
+ * @returns {Translation}
+ */
+export const insertVaryings = (
+  trans: Translation,
+  varyingMap: VaryMap
+): Translation => {
+  const doneFloat = (n: number): TagExpr<number> => ({
+    tag: "Done",
+    contents: { tag: "FloatV", contents: n },
+  });
+  return varyingMap.reduce(
+    (tr: Translation, [path, val]: [Path, number]) =>
+      insertExpr(path, doneFloat(val), tr),
+    trans
+  );
 };
 
 export const evalFn = (
@@ -273,7 +287,7 @@ export const resolvePath = (
 };
 
 // HACX: remove the type wrapper for the argument
-const argValue = (e: ArgVal<number>) => {
+export const argValue = (e: ArgVal<number>) => {
   switch (e.tag) {
     case "GPI": // strip the `GPI` tag
       return e.contents;

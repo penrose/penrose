@@ -7,8 +7,12 @@ import {
   constrDict,
   dist,
   center,
-} from "./Optimizer";
+  evalEnergyOn,
+  stepUntilConvergence,
+} from "../Optimizer";
 import * as tf from "@tensorflow/tfjs";
+import * as stateJSON from "./venn-opt-initial.json";
+import { decodeState } from "../Evaluator";
 
 const fn = (...args: tf.Scalar[]) =>
   args.reduce((res, n) => res.add(n.square()), tf.scalar(0));
@@ -44,7 +48,7 @@ describe("minimize a simple function", () => {
 
 describe("contraint functions test", () => {
   it("tests opt function contains", () => {
-    const fn = constrDict["contains"];
+    const contains = constrDict.contains;
     const c1: [string, any] = [
       "Circle",
       { x: { contents: 0 }, y: { contents: 0 }, r: { contents: 10 } },
@@ -54,6 +58,20 @@ describe("contraint functions test", () => {
       { x: { contents: 0 }, y: { contents: 0 }, r: { contents: 5 } },
     ];
     expect(tfStr(dist(center(c1[1]), center(c2[1])))).toEqual(0);
-    expect(tfStr(fn(c1, c2, 0))).toEqual(-5);
+    expect(tfStr(contains(c1, c2, 0))).toEqual(-5);
+  });
+});
+
+describe("Whole optimizer pipeline tests", () => {
+  const vennState = decodeState(stateJSON.contents);
+  it("evaluates the energy and its gradient of an initial state", () => {
+    const f = evalEnergyOn(vennState);
+    const xs = vennState.varyingValues.map(tfVar);
+    f(...xs).print();
+    const gradf = gradF(f);
+    // gradf(xs)
+  });
+  it("steps the initial state until convergence", () => {
+    // console.log(stepUntilConvergence(vennState));
   });
 });

@@ -1,17 +1,20 @@
 import * as tf from "@tensorflow/tfjs";
 import { Tensor1D } from "@tensorflow/tfjs";
 import { canvasSize } from "./Canvas";
+import { argValue, evalFn, evalTranslation, insertVaryings } from "./Evaluator";
+import { zip } from "lodash";
+import { insertPending } from "./PropagateUpdate";
 
 // HACK: constant constraint weight
 const constraintWeight = 10e4;
 
-const toPenalty = (x: number): number => Math.pow(Math.max(x, 0), 2);
+export const objDict = {};
 export const constrDict = {
   maxSize: ([shapeType, props]: [string, any]) => {
     const limit = Math.max(...canvasSize);
     switch (shapeType) {
       case "Circle":
-        return props.r.contents - limit / 6;
+        return tf.tensor1d([props.r.contents - limit / 6]).sum();
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a maxSize`);
@@ -21,7 +24,7 @@ export const constrDict = {
     const limit = 20;
     switch (shapeType) {
       case "Circle":
-        return limit - props.r.contents;
+        return tf.tensor1d([limit, -props.r.contents]).sum();
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a minSize`);
@@ -35,10 +38,17 @@ export const constrDict = {
     if (t1 === "Circle" && t2 === "Circle") {
       const d = dist(center(s1), center(s2));
       const o = offset
-        ? tf.tensor1d([s1.r.contents, -s2.r.contents])
-        : tf.tensor1d([s1.r.contents, -s2.r.contents, -offset]);
+        ? tf.tensor1d([s1.r.contents, -s2.r.contents, -offset])
+        : tf.tensor1d([s1.r.contents, -s2.r.contents]);
       return d.sub(o.sum());
     } else throw new Error(`${[t1, t2]} not supported for contains`);
+  },
+  disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    if (t1 === "Circle" && t2 === "Circle") {
+      const d = dist(center(s1), center(s2));
+      const o = tf.tensor1d([s1.r.contents, s2.r.contents, 10]);
+      return o.sum().sub(d);
+    } else throw new Error(`${[t1, t2]} not supported for disjoint`);
   },
 };
 
@@ -46,21 +56,68 @@ export const center = (props: any): Tensor1D =>
   tf.tensor1d([props.x.contents, props.y.contents]);
 export const dist = (p1: Tensor1D, p2: Tensor1D) => p1.sub(p2).norm(); // NOTE: or tf.squaredDifference
 
+// TODO: use it
 const getConstraint = (name: string) => {
   if (!constrDict[name]) throw new Error(`Constraint "${name}" not found`);
   // TODO: types for args
   return (...args: any[]) => toPenalty(constrDict[name]);
 };
 
-const evalEnergyOn = (state: State) => (varyings: tf.Scalar[]): tf.Scalar => {
-  const { objFns, constrFns } = state;
-  // TODO: return
-  return tfVar(0);
+const toPenalty = (x: tf.Scalar): tf.Scalar => {
+  return tf.pow(tf.maximum(x, tf.scalar(0)), tf.scalar(2));
 };
 
-// export const stepUntilConvergence = (varyingValues: number[]): number[] => {
-//   const overallObj =
-// };
+export const evalEnergyOn = (state: State) => (
+  ...varyingValuesTF: tf.Scalar[]
+): tf.Scalar => {
+  const { objFns, constrFns, translation, varyingPaths } = state;
+  // HACK: convert the new varying values to normal js values first, probably need to let eval fn return shapes with tf vars?
+  const toNumber = tfStr;
+  const varyingValues = varyingValuesTF.map(toNumber);
+  const varyingMap = zip(varyingPaths, varyingValues);
+  const evalFns = (fns: Fn[]): FnDone[] =>
+    fns.map((f) => evalFn(f, translation, varyingMap as VaryMap));
+  const objEvaled = evalFns(objFns);
+  const constrEvaled = evalFns(constrFns);
+  // TODO: types
+  const applyFn = (f: FnDone, dict: any) => {
+    if (dict[f.name]) {
+      return dict[f.name](...f.args.map(argValue));
+    } else {
+      throw new Error(
+        `constraint or objective ${f.name} not found in dirctionary`
+      );
+    }
+  };
+  const objEng: tf.Scalar = objEvaled.reduce(
+    (sum, o) => applyFn(o, objDict).add(sum),
+    tf.scalar(0)
+  );
+  const constrEng: tf.Scalar = constrEvaled.reduce(
+    (sum, c) => toPenalty(applyFn(c, constrDict)).add(sum),
+    // (sum, c) => applyFn(c, constrDict).add(sum),
+    tf.scalar(0)
+  );
+  return objEng.add(
+    constrEng.mul(tf.scalar(constraintWeight * state.paramsr.weight))
+  );
+};
+
+export const stepUntilConvergence = (state: State) => {
+  const f = evalEnergyOn(state);
+  const fgrad = gradF(f);
+  const xs = state.varyingValues.map(tfVar);
+  minimize(f, fgrad as any, xs, []);
+  const trans = insertVaryings(
+    state.translation,
+    xs.map((x) => tfStr(x))
+  );
+  const newState = {
+    ...state,
+    translation: trans,
+  };
+  return evalTranslation(newState);
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // All TFjs related functions
