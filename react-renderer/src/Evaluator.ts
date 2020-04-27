@@ -1,9 +1,18 @@
-import { zip, toPairs, values, pickBy, range } from "lodash";
+import {
+  zip,
+  toPairs,
+  values,
+  pickBy,
+  range,
+  map,
+  mapKeys,
+  concat,
+} from "lodash";
 import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
-import { Scalar, scalar } from "@tensorflow/tfjs";
-import { tfStr } from "./Optimizer";
+import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs";
+import { tfStr, tfVar } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -65,11 +74,11 @@ export const insertVaryings = (
 export const evalFn = (
   fn: Fn,
   trans: Translation,
-  varyingMap: VaryMap<Scalar>
-): FnDone<Scalar> => {
+  varyingMap: VaryMap<Tensor>
+): FnDone<Tensor> => {
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap, true) as ArgVal<Scalar>[],
+    args: evalExprs(fn.fargs, trans, varyingMap, true) as ArgVal<Tensor>[],
     optType: fn.optType,
   };
 };
@@ -183,9 +192,9 @@ export const evalShape = (
 export const evalExprs = (
   es: Expr[],
   trans: Translation,
-  varyingVars?: VaryMap<number | Scalar>,
+  varyingVars?: VaryMap<number | Tensor>,
   tf = false
-): ArgVal<number | Scalar>[] =>
+): ArgVal<number | Tensor>[] =>
   es.map((e) => evalExpr(e, trans, varyingVars, tf));
 
 /**
@@ -202,9 +211,9 @@ export const evalExprs = (
 export const evalExpr = (
   e: Expr,
   trans: Translation,
-  varyingVars?: VaryMap<number | Scalar>,
+  varyingVars?: VaryMap<number | Tensor>,
   tf = false
-): ArgVal<number | Scalar> => {
+): ArgVal<number | Tensor> => {
   switch (e.tag) {
     case "IntLit":
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
@@ -219,7 +228,7 @@ export const evalExpr = (
         const val = e.contents.contents;
         return {
           tag: "Val",
-          contents: { tag: "FloatV", contents: tf ? scalar(val) : val },
+          contents: { tag: "FloatV", contents: tf ? tfVar(val) : val },
         };
       }
     case "UOp":
@@ -261,12 +270,12 @@ export const evalExpr = (
   }
 };
 
-const toTF = (v: Value<number>): Value<Scalar> => {
+const toTF = (v: Value<number>): Value<Tensor> => {
   if (v.tag === "FloatV" || v.tag === "IntV") {
-    return { ...v, contents: scalar(v.contents) } as
-      | IFloatV<Scalar>
-      | IIntV<Scalar>;
-  } else return v as Value<Scalar>;
+    return { ...v, contents: tfVar(v.contents) } as
+      | IFloatV<Tensor>
+      | IIntV<Tensor>;
+  } else return v as Value<Tensor>;
 };
 
 /**
@@ -281,38 +290,50 @@ const toTF = (v: Value<number>): Value<Scalar> => {
 export const resolvePath = (
   path: Path,
   trans: Translation,
-  varyingVars?: VaryMap<number | Scalar>,
+  varyingVars?: VaryMap<number | Tensor>,
   tf = false
-): ArgVal<number | Scalar> => {
-  const varyingVal = varyingVars?.find(([p, _]) => path === p);
+): ArgVal<number | Tensor> => {
+  const floatVal = (v: number | Tensor): ArgVal<Tensor | number> => ({
+    tag: "Val",
+    contents: {
+      tag: "FloatV",
+      contents: v,
+    },
+  });
+  // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
+  let varyingVal = varyingVars?.find(
+    ([p, _]) => JSON.stringify(path) === JSON.stringify(p)
+  );
   if (varyingVal) {
     const [_, v] = varyingVal;
-    return {
-      tag: "Val",
-      contents: {
-        tag: "FloatV",
-        contents: v,
-      },
-    };
+    return floatVal(v);
   } else {
     const gpiOrExpr = findExpr(trans, path);
     switch (gpiOrExpr.tag) {
       case "FGPI":
         const [type, props] = gpiOrExpr.contents;
         // TODO: cache results
-        const evaledProps = mapValues(props, (p) => {
+        const evaledProps = mapValues(props, (p, propName) => {
           if (p.tag === "OptEval") {
             return (evalExpr(p.contents, trans, varyingVars, tf) as IVal<
-              number | Scalar
+              number | Tensor
             >).contents;
           } else {
-            const val: Value<number> = p.contents;
-            return tf ? toTF(val) : val;
+            const propPath = {
+              tag: "PropertyPath",
+              contents: concat(path.contents, propName),
+            };
+            varyingVal = varyingVars?.find(
+              ([vp, _]) => JSON.stringify(propPath) === JSON.stringify(vp)
+            );
+            if (varyingVal) {
+              return { tag: "FloatV", contents: varyingVal[1] };
+            } else return tf ? toTF(p.contents) : p.contents;
           }
         });
         return {
           tag: "GPI",
-          contents: [type, evaledProps] as GPI<number | Scalar>,
+          contents: [type, evaledProps] as GPI<number | Tensor>,
         };
       default:
         const expr: TagExpr<number> = gpiOrExpr;
@@ -324,7 +345,7 @@ export const resolvePath = (
 };
 
 // HACX: remove the type wrapper for the argument
-export const argValue = (e: ArgVal<number | Scalar>) => {
+export const argValue = (e: ArgVal<number | Tensor>) => {
   switch (e.tag) {
     case "GPI": // strip the `GPI` tag
       return e.contents;

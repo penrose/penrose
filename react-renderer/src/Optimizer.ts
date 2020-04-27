@@ -1,5 +1,5 @@
 import * as tf from "@tensorflow/tfjs";
-import { Tensor1D, Scalar, stack, scalar } from "@tensorflow/tfjs";
+import { Tensor1D, Tensor, stack, scalar } from "@tensorflow/tfjs";
 import { canvasSize } from "./Canvas";
 import { argValue, evalFn, evalTranslation, insertVaryings } from "./Evaluator";
 import { zip } from "lodash";
@@ -20,20 +20,23 @@ export const constrDict = {
         throw new Error(`${shapeType} doesn't have a maxSize`);
     }
   },
-  minSize: ([shapeType, props]: [string, any]) => {
-    const limit = 20;
-    switch (shapeType) {
-      case "Circle":
-        return tf.stack([limit, props.r.contents.neg()]).sum();
-      default:
-        // HACK: report errors systematically
-        throw new Error(`${shapeType} doesn't have a minSize`);
-    }
+  minSize: (nums: any) => {
+    return nums.square();
   },
+  // minSize: ([shapeType, props]: [string, any]) => {
+  //   const limit = scalar(20);
+  //   switch (shapeType) {
+  //     case "Circle":
+  //       return tf.stack([limit, props.r.contents.neg()]).sum();
+  //     default:
+  //       // HACK: report errors systematically
+  //       throw new Error(`${shapeType} doesn't have a minSize`);
+  //   }
+  // },
   contains: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    offset: Scalar
+    offset: Tensor
   ) => {
     if (t1 === "Circle" && t2 === "Circle") {
       const d = dist(center(s1), center(s2));
@@ -53,7 +56,7 @@ export const constrDict = {
 };
 
 export const center = (props: any): Tensor1D =>
-  tf.stack([props.x.contents, props.y.contents]) as Tensor1D; // HACK: need to annotate the types of x and y to be Scalar
+  tf.stack([props.x.contents, props.y.contents]) as Tensor1D; // HACK: need to annotate the types of x and y to be Tensor
 export const dist = (p1: Tensor1D, p2: Tensor1D) => p1.sub(p2).norm(); // NOTE: or tf.squaredDifference
 
 // TODO: use it
@@ -63,15 +66,14 @@ const getConstraint = (name: string) => {
   return (...args: any[]) => toPenalty(constrDict[name]);
 };
 
-const toPenalty = (x: tf.Scalar): tf.Scalar => {
+const toPenalty = (x: tf.Tensor): tf.Tensor => {
   return tf.pow(tf.maximum(x, tf.scalar(0)), tf.scalar(2));
 };
 
 export const evalEnergyOn = (state: State) => {
   const { objFns, constrFns, translation, varyingPaths } = state;
-  const toNumber = tfStr;
   // TODO: types
-  const applyFn = (f: FnDone<Scalar>, dict: any) => {
+  const applyFn = (f: FnDone<Tensor>, dict: any) => {
     if (dict[f.name]) {
       return dict[f.name](...f.args.map(argValue));
     } else {
@@ -81,37 +83,44 @@ export const evalEnergyOn = (state: State) => {
     }
   };
 
-  return (...varyingValuesTF: Scalar[]): Scalar => {
+  return (...varyingValuesTF: Tensor[]): Tensor => {
     // HACK: convert the new varying values to normal js values first, probably need to let eval fn return shapes with tf vars?
-    const varyingMap = zip(varyingPaths, varyingValuesTF) as VaryMap<Scalar>;
-    const evalFns = (fns: Fn[]): FnDone<Scalar>[] =>
+    const varyingMap = zip(varyingPaths, varyingValuesTF) as VaryMap<Tensor>;
+    const evalFns = (fns: Fn[]): FnDone<Tensor>[] =>
       fns.map((f) => evalFn(f, translation, varyingMap));
     const objEvaled = evalFns(objFns);
     const constrEvaled = evalFns(constrFns);
-    const objEngs: Scalar[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: Scalar[] = constrEvaled.map(
-      (c) => toPenalty(applyFn(c, constrDict))
-      // (sum, c) => applyFn(c, constrDict).add(sum),
-    );
+
+    // const objEngs: Tensor[] = objEvaled.map((o) => applyFn(o, objDict));
+    // const constrEngs: Tensor[] = constrEvaled.map(
+    //   (c) => toPenalty(applyFn(c, constrDict))
+    //   // (sum, c) => applyFn(c, constrDict).add(sum),
+    // );
 
     // Printing to check for NaNs
-    console.log(
-      zip(
-        constrEngs.map((e) => e.toString()),
-        constrEvaled.map((c) => c.name)
-      )
-    );
+    // console.log(
+    //   zip(
+    //     constrEngs.map((e) => e.toString()),
+    //     constrEvaled.map((c) => c.name)
+    //   )
+    // );
 
-    const objEng: Scalar =
-      objEngs.length === 0 ? scalar(0) : stack(objEngs).sum();
-    const constrEng: Scalar =
-      constrEngs.length === 0 ? scalar(0) : stack(constrEngs).sum();
-    // return constrEng;
-    return objEng.add(
-      constrEng
-        .mul(tf.scalar(constraintWeight * state.paramsr.weight))
-        .asScalar()
-    );
+    // const objEng: Tensor =
+    //   objEngs.length === 0 ? tfVar(0) : stack(objEngs).sum();
+    // const constrEng: Tensor =
+    //   constrEngs.length === 0 ? scalar(0) : stack(constrEngs).sum();
+
+    // console.log("haha", varyingValuesTF[0]);
+    // return varyingValuesTF[0].square(); // TODO: this doesn't work
+    // return stack(varyingValuesTF).sum(); // TODO: this works
+    // return constrDict["minSize"](varyingValuesTF[0]);
+
+    return applyFn(constrEvaled[0], constrDict);
+    // return objEng.add(
+    //   constrEng
+    //     .mul(tf.scalar(constraintWeight * state.paramsr.weight))
+    //     .asScalar()
+    // );
   };
 };
 
@@ -148,16 +157,16 @@ export const gradF = (fn: any) => tf.grads(fn);
 /**
  * Use included tf.js optimizer to minimize f over xs (note: xs is mutable)
  *
- * @param {(...arg: tf.Scalar[]) => tf.Scalar} f overall energy function
- * @param {(...arg: tf.Scalar[]) => tf.Scalar[]} gradf gradient function
- * @param {tf.Scalar[]} xs varying state
+ * @param {(...arg: tf.Tensor[]) => tf.Tensor} f overall energy function
+ * @param {(...arg: tf.Tensor[]) => tf.Tensor[]} gradf gradient function
+ * @param {tf.Tensor[]} xs varying state
  * @param {*} names // TODO: what is this
  * @returns // TODO: document
  */
 export const minimize = (
-  f: (...arg: tf.Scalar[]) => tf.Scalar,
-  gradf: (arg: tf.Scalar[]) => tf.Scalar[],
-  xs: tf.Scalar[],
+  f: (...arg: tf.Tensor[]) => tf.Tensor,
+  gradf: (arg: tf.Tensor[]) => tf.Tensor[],
+  xs: tf.Tensor[],
   names: any
 ) => {
   // optimization hyperparameters
@@ -174,7 +183,7 @@ export const minimize = (
   // TODO profile this
   while (normGrad > EPS && i < MAX_STEPS) {
     // TODO: use/revert spread, also doesn't work with varList=xs and compGraph1
-    energy = optimizer2.minimize(() => f(...xs), true);
+    energy = optimizer2.minimize(() => f(...xs) as any, true);
     const gradfx = gradf(xs);
     normGrad = tf
       .stack(gradfx)

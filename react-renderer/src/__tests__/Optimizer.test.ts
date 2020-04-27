@@ -15,7 +15,7 @@ import * as stateJSON from "./venn-opt-initial.json";
 import { decodeState } from "../Evaluator";
 import { scalar } from "@tensorflow/tfjs";
 
-const fn = (...args: tf.Scalar[]) =>
+const fn = (...args: tf.Tensor[]) =>
   args.reduce((res, n) => res.add(n.square()), tf.scalar(0));
 const state = [tfVar(100), tfVar(25), tfVar(0)];
 
@@ -31,6 +31,8 @@ describe("Whole optimizer pipeline tests", () => {
     const xs = vennState.varyingValues.map(tfVar);
     console.log("Overall energy of the state is:");
     f(...xs).print();
+    const gf = gradF(f);
+    tf.stack(gf(xs)).print();
   });
   it("steps the initial state until convergence", () => {
     // console.log(stepUntilConvergence(vennState));
