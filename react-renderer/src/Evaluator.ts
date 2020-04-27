@@ -261,6 +261,14 @@ export const evalExpr = (
   }
 };
 
+const toTF = (v: Value<number>): Value<Scalar> => {
+  if (v.tag === "FloatV" || v.tag === "IntV") {
+    return { ...v, contents: scalar(v.contents) } as
+      | IFloatV<Scalar>
+      | IIntV<Scalar>;
+  } else return v as Value<Scalar>;
+};
+
 /**
  * Given a path to a field or property, resolve to a fully evaluated GPI (where all props are evaluated) or an evaluated value.
  * @param path path to a field (GPI or Expr) or a property (Expr only)
@@ -292,13 +300,16 @@ export const resolvePath = (
       case "FGPI":
         const [type, props] = gpiOrExpr.contents;
         // TODO: cache results
-        const evaledProps = mapValues(props, (p) =>
-          p.tag === "OptEval"
-            ? (evalExpr(p.contents, trans, varyingVars, tf) as IVal<
-                number | Scalar
-              >).contents
-            : p.contents
-        );
+        const evaledProps = mapValues(props, (p) => {
+          if (p.tag === "OptEval") {
+            return (evalExpr(p.contents, trans, varyingVars, tf) as IVal<
+              number | Scalar
+            >).contents;
+          } else {
+            const val: Value<number> = p.contents;
+            return tf ? toTF(val) : val;
+          }
+        });
         return {
           tag: "GPI",
           contents: [type, evaledProps] as GPI<number | Scalar>,

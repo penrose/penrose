@@ -11,10 +11,10 @@ const constraintWeight = 10e4;
 export const objDict = {};
 export const constrDict = {
   maxSize: ([shapeType, props]: [string, any]) => {
-    const limit = Math.max(...canvasSize);
+    const limit = scalar(Math.max(...canvasSize) / 6);
     switch (shapeType) {
       case "Circle":
-        return tf.stack([props.r.contents - limit / 6]).sum();
+        return tf.stack([props.r.contents.sub(limit)]).sum();
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a maxSize`);
@@ -24,7 +24,7 @@ export const constrDict = {
     const limit = 20;
     switch (shapeType) {
       case "Circle":
-        return tf.stack([limit, -props.r.contents]).sum();
+        return tf.stack([limit, props.r.contents.neg()]).sum();
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a minSize`);
@@ -106,12 +106,12 @@ export const evalEnergyOn = (state: State) => {
       objEngs.length === 0 ? scalar(0) : stack(objEngs).sum();
     const constrEng: Scalar =
       constrEngs.length === 0 ? scalar(0) : stack(constrEngs).sum();
-    return constrEng;
-    // objEng.add(
-    //   constrEng
-    //     .mul(tf.scalar(constraintWeight * state.paramsr.weight))
-    //     .asScalar()
-    // );
+    // return constrEng;
+    return objEng.add(
+      constrEng
+        .mul(tf.scalar(constraintWeight * state.paramsr.weight))
+        .asScalar()
+    );
   };
 };
 

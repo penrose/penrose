@@ -102,11 +102,8 @@ describe("evaluation functions tests", () => {
       contents: [{ tag: "BSubVar", contents: "A" }, "shape", "x"],
     };
     // NOTE: not using varying values
-    const propVal1: ArgVal<number> = resolvePath(path1, state.translation, []);
-    const propVal2: TagExpr<number> = findExpr(
-      state.translation,
-      path2
-    ) as TagExpr<number>;
+    const propVal1 = resolvePath(path1, state.translation, []);
+    const propVal2 = findExpr(state.translation, path2) as TagExpr<number>;
     expect(propVal1.contents).toEqual(propVal2.contents);
   });
   it("resolve a property path A.shadow.w, which is computed via A.shape.r", () => {
@@ -167,10 +164,10 @@ describe("evaluation opt functions tests", () => {
     // let state = decodeState(stateJSON.contents);
     const { objFns, constrFns } = state;
     const objEvaled = objFns.map((f) =>
-      evalFn(f, state.translation, state.varyingMap)
+      evalFn(f, state.translation, state.varyingMap as any)
     );
     const constrEvaled = constrFns.map((f) =>
-      evalFn(f, state.translation, state.varyingMap)
+      evalFn(f, state.translation, state.varyingMap as any)
     );
     objEvaled.map((f) => console.log(f));
     constrEvaled.map((f) => console.log(f));
