@@ -20,7 +20,8 @@
     "resolveJsonModule": true,
     // "noUnusedLocals": true
     "noUnusedLocals": false,
-    "skipLibCheck": true // for Tensorflow JS
+    "skipLibCheck": true, // for Tensorflow JS
+    "downlevelIteration": true
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,

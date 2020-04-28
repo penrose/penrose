@@ -7,7 +7,7 @@ import {
   evalShape,
   evalTranslation,
   encodeState,
-  evalFn,
+  evalFns,
 } from "../Evaluator";
 import * as stateJSON from "./state.json";
 import { find, keys } from "lodash";
@@ -87,9 +87,8 @@ describe("evaluation functions tests", () => {
       contents: [{ tag: "BStyVar", contents: "const" }, "num"],
     };
     // NOTE: not using varying values
-    const propVal = resolvePath(path, state.translation, []).contents as Value<
-      number
-    >;
+    const propVal = resolvePath(path, state.translation, new Map())
+      .contents as Value<number>;
     expect(propVal.contents).toEqual(1);
   });
   it("resolve a property path A.shading.x", () => {
@@ -102,7 +101,7 @@ describe("evaluation functions tests", () => {
       contents: [{ tag: "BSubVar", contents: "A" }, "shape", "x"],
     };
     // NOTE: not using varying values
-    const propVal1 = resolvePath(path1, state.translation, []);
+    const propVal1 = resolvePath(path1, state.translation, new Map());
     const propVal2 = findExpr(state.translation, path2) as TagExpr<number>;
     expect(propVal1.contents).toEqual(propVal2.contents);
   });
@@ -116,7 +115,9 @@ describe("evaluation functions tests", () => {
       contents: [{ tag: "BSubVar", contents: "A" }, "shape", "r"],
     };
     // NOTE: not using varying values
-    const propVal1 = resolvePath(path1, state.translation, []) as IVal<number>;
+    const propVal1 = resolvePath(path1, state.translation, new Map()) as IVal<
+      number
+    >;
     const propVal2: TagExpr<number> = findExpr(
       state.translation,
       path2
@@ -131,7 +132,7 @@ describe("evaluation functions tests", () => {
       contents: [{ tag: "BSubVar", contents: "A" }, "text"],
     };
     const shapeExpr = findExpr(state.translation, path) as IFGPI<number>;
-    const [[shape]] = evalShape(shapeExpr, state.translation, [], []);
+    const [[shape]] = evalShape(shapeExpr, state.translation, new Map(), []);
     const backendShape = find(
       state.shapes,
       (s) => s.properties.name.contents === "A.text"
@@ -144,7 +145,7 @@ describe("evaluation functions tests", () => {
       contents: [{ tag: "BSubVar", contents: "A" }, "shape"],
     };
     const shapeExpr = findExpr(state.translation, path) as IFGPI<number>;
-    const [[shape]] = evalShape(shapeExpr, state.translation, [], []);
+    const [[shape]] = evalShape(shapeExpr, state.translation, new Map(), []);
     const backendShape = find(
       state.shapes,
       (s) => s.properties.name.contents === "A.shape"
@@ -163,13 +164,17 @@ describe("evaluation opt functions tests", () => {
   it("evaluate all objectives and constraints in the state", () => {
     // let state = decodeState(stateJSON.contents);
     const { objFns, constrFns } = state;
-    const objEvaled = objFns.map((f) =>
-      evalFn(f, state.translation, state.varyingMap as any)
+    const objEvaled = evalFns(
+      objFns,
+      state.translation,
+      state.varyingMap as any
     );
-    const constrEvaled = constrFns.map((f) =>
-      evalFn(f, state.translation, state.varyingMap as any)
+    const constrEvaled = evalFns(
+      constrFns,
+      state.translation,
+      state.varyingMap as any
     );
-    objEvaled.map((f) => console.log(f));
-    constrEvaled.map((f) => console.log(f));
+    // objEvaled.map((f) => console.log(f));
+    // constrEvaled.map((f) => console.log(f));
   });
 });

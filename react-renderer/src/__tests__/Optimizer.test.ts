@@ -3,7 +3,7 @@ import {
   gradF,
   tfStr,
   tfsStr,
-  tfVar,
+  differentiable,
   constrDict,
   dist,
   center,
@@ -17,7 +17,7 @@ import { scalar } from "@tensorflow/tfjs";
 
 const fn = (...args: tf.Tensor[]) =>
   args.reduce((res, n) => res.add(n.square()), tf.scalar(0));
-const state = [tfVar(100), tfVar(25), tfVar(0)];
+const state = [differentiable(100), differentiable(25), differentiable(0)];
 
 // const fn = (x, y) => x.sub(y).square();
 // const state = [tfVar(20), tfVar(5)];
@@ -28,14 +28,14 @@ describe("Whole optimizer pipeline tests", () => {
   const vennState = decodeState(stateJSON.contents);
   it("evaluates the energy and its gradient of an initial state", () => {
     const f = evalEnergyOn(vennState);
-    const xs = vennState.varyingValues.map(tfVar);
+    const xs = vennState.varyingValues.map(differentiable);
     console.log("Overall energy of the state is:");
     f(...xs).print();
     const gf = gradF(f);
     tf.stack(gf(xs)).print();
   });
   it("steps the initial state until convergence", () => {
-    // console.log(stepUntilConvergence(vennState));
+    stepUntilConvergence(vennState);
   });
 });
 
@@ -48,15 +48,15 @@ describe("minimize a simple function", () => {
   });
   it("minimize a simple state with L2 norm", () => {
     const { energy, normGrad, i } = minimize(fn, gradF(fn) as any, state, []);
-    //   console.log(
-    //     "converged after",
-    //     i,
-    //     "steps with energy",
-    //     tfStr(energy),
-    //     "and grad norm",
-    //     normGrad
-    //   );
-    //   console.log("state (varyingMap): ", tfsStr(state));
+    console.log(
+      "converged after",
+      i,
+      "steps with energy",
+      tfStr(energy),
+      "and grad norm",
+      normGrad
+    );
+    console.log("state (varyingMap): ", tfsStr(state));
   });
 });
 

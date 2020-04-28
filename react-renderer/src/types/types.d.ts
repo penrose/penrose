@@ -8,7 +8,8 @@ interface LabelData {
 }
 
 type Translation = ITrans<number>; // TODO: number type might be different
-type VaryMap<T = number> = [Path, T][];
+// type VaryMap<T = number> = [Path, T][];
+type VaryMap<T = number> = Map<Path, T>;
 
 type FnDone<T> = IFnDone<T>;
 interface IFnDone<T> {

@@ -1,5 +1,4 @@
 import {
-  zip,
   toPairs,
   values,
   pickBy,
@@ -7,12 +6,13 @@ import {
   map,
   mapKeys,
   concat,
+  PropertyPath,
 } from "lodash";
 import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
-import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs";
-import { tfStr, tfVar } from "./Optimizer";
+import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs-node";
+import { tfStr, differentiable } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -64,14 +64,26 @@ export const insertVaryings = (
   trans: Translation,
   varyingMap: VaryMap
 ): Translation => {
-  return varyingMap.reduce(
+  return [...varyingMap].reduce(
     (tr: Translation, [path, val]: [Path, number]) =>
       insertExpr(path, doneFloat(val), tr),
     trans
   );
 };
 
-export const evalFn = (
+/**
+ * Given a list of objectives or constraints, evaluate all of their arguments and replace pure JS numbers with autodiff numbers.
+ * @param fns A list of function expressions
+ * @param trans The current translation
+ * @param varyingMap Varying paths and values
+ */
+export const evalFns = (
+  fns: Fn[],
+  trans: Translation,
+  varyingMap: VaryMap<Tensor>
+): FnDone<Tensor>[] => fns.map((f) => evalFn(f, trans, varyingMap));
+
+const evalFn = (
   fn: Fn,
   trans: Translation,
   varyingMap: VaryMap<Tensor>
@@ -193,9 +205,9 @@ export const evalExprs = (
   es: Expr[],
   trans: Translation,
   varyingVars?: VaryMap<number | Tensor>,
-  tf = false
+  autodiff = false
 ): ArgVal<number | Tensor>[] =>
-  es.map((e) => evalExpr(e, trans, varyingVars, tf));
+  es.map((e) => evalExpr(e, trans, varyingVars, autodiff));
 
 /**
  * Evaluate the input expression to a value.
@@ -212,7 +224,7 @@ export const evalExpr = (
   e: Expr,
   trans: Translation,
   varyingVars?: VaryMap<number | Tensor>,
-  tf = false
+  autodiff = false
 ): ArgVal<number | Tensor> => {
   switch (e.tag) {
     case "IntLit":
@@ -228,7 +240,10 @@ export const evalExpr = (
         const val = e.contents.contents;
         return {
           tag: "Val",
-          contents: { tag: "FloatV", contents: tf ? tfVar(val) : val },
+          contents: {
+            tag: "FloatV",
+            contents: autodiff ? differentiable(val) : val,
+          },
         };
       }
     case "UOp":
@@ -255,7 +270,7 @@ export const evalExpr = (
         ),
       };
     case "EPath":
-      return resolvePath(e.contents, trans, varyingVars, tf);
+      return resolvePath(e.contents, trans, varyingVars, autodiff);
     case "CompApp":
       const [fnName, argExprs] = e.contents;
       // eval all args
@@ -272,7 +287,7 @@ export const evalExpr = (
 
 const toTF = (v: Value<number>): Value<Tensor> => {
   if (v.tag === "FloatV" || v.tag === "IntV") {
-    return { ...v, contents: tfVar(v.contents) } as
+    return { ...v, contents: differentiable(v.contents) } as
       | IFloatV<Tensor>
       | IIntV<Tensor>;
   } else return v as Value<Tensor>;
@@ -282,7 +297,7 @@ const toTF = (v: Value<number>): Value<Tensor> => {
  * Given a path to a field or property, resolve to a fully evaluated GPI (where all props are evaluated) or an evaluated value.
  * @param path path to a field (GPI or Expr) or a property (Expr only)
  * @param trans current computational graph
- * @param varyingVars list of varying variables and their values
+ * @param varyingMap list of varying variables and their values
  *
  * TODO: lookup varying vars first?
  * TODO: cache done values somewhere, maybe by mutating the translation?
@@ -290,7 +305,7 @@ const toTF = (v: Value<number>): Value<Tensor> => {
 export const resolvePath = (
   path: Path,
   trans: Translation,
-  varyingVars?: VaryMap<number | Tensor>,
+  varyingMap?: VaryMap<number | Tensor>,
   tf = false
 ): ArgVal<number | Tensor> => {
   const floatVal = (v: number | Tensor): ArgVal<Tensor | number> => ({
@@ -301,12 +316,9 @@ export const resolvePath = (
     },
   });
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
-  let varyingVal = varyingVars?.find(
-    ([p, _]) => JSON.stringify(path) === JSON.stringify(p)
-  );
+  let varyingVal = varyingMap?.get(path);
   if (varyingVal) {
-    const [_, v] = varyingVal;
-    return floatVal(v);
+    return floatVal(varyingVal);
   } else {
     const gpiOrExpr = findExpr(trans, path);
     switch (gpiOrExpr.tag) {
@@ -315,17 +327,19 @@ export const resolvePath = (
         // TODO: cache results
         const evaledProps = mapValues(props, (p, propName) => {
           if (p.tag === "OptEval") {
-            return (evalExpr(p.contents, trans, varyingVars, tf) as IVal<
+            return (evalExpr(p.contents, trans, varyingMap, tf) as IVal<
               number | Tensor
             >).contents;
           } else {
-            const propPath = {
+            const propPath: IPropertyPath = {
               tag: "PropertyPath",
-              contents: concat(path.contents, propName),
+              contents: concat(path.contents, propName) as [
+                BindingForm,
+                string,
+                string
+              ], // TODO: check if this is true
             };
-            varyingVal = varyingVars?.find(
-              ([vp, _]) => JSON.stringify(propPath) === JSON.stringify(vp)
-            );
+            varyingVal = varyingMap?.get(propPath);
             if (varyingVal) {
               return { tag: "FloatV", contents: varyingVal[1] };
             } else return tf ? toTF(p.contents) : p.contents;
@@ -338,7 +352,7 @@ export const resolvePath = (
       default:
         const expr: TagExpr<number> = gpiOrExpr;
         if (expr.tag === "OptEval") {
-          return evalExpr(expr.contents, trans, varyingVars, tf);
+          return evalExpr(expr.contents, trans, varyingMap, tf);
         } else return { tag: "Val", contents: expr.contents };
     }
   }
@@ -490,7 +504,7 @@ export const decodeState = (json: any): State => {
     shapes: json.shapesr.map(([n, props]: any) => {
       return { shapeType: n, properties: props };
     }),
-    varyingMap: zip(json.varyingPaths, json.varyingState),
+    varyingMap: genVaryMap(json.varyingPaths, json.varyingState),
   };
   seedrandom(json.rng, { global: true });
   delete state.shapesr;
@@ -519,6 +533,18 @@ export const encodeState = (state: State): any => {
   delete json.shapes;
 
   return json;
+};
+
+export const genVaryMap = (
+  varyingPaths: Path[],
+  varyingValues: number[] | Variable[]
+) => {
+  if (varyingValues.length !== varyingPaths.length) {
+    throw new Error("Different numbers of varying vars vs. paths");
+  }
+  const res = new Map();
+  varyingPaths.forEach((path, index) => res.set(path, varyingValues[index]));
+  return res;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
