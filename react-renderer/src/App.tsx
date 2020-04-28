@@ -6,6 +6,8 @@ import { ILayer } from "./types";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
+import { step } from "./Optimizer";
+import { unwatchFile } from "fs";
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
@@ -63,8 +65,24 @@ class App extends React.Component<any, ICanvasState> {
     }
   };
   public step = () => {
-    this.protocol.sendPacket(Step(1, this.state.data));
+    // this.protocol.sendPacket(Step(1, this.state.data));
+    const newState = step(this.state.data!, 10);
+    this.setState(
+      {
+        processedInitial: true,
+        data: newState,
+      }
+      // () => {
+      // if (this.state.autostep && !converged(this.state.data!)) this.step();
+      // }
+    );
   };
+
+  // TODO: now that we step and restep within the browser. Can we force sequential evaluation of `step`?
+  public componentDidUpdate = (props: any, state: ICanvasState) => {
+    if (state.autostep && !converged(state.data!)) this.step();
+  };
+
   public resample = async () => {
     const NUM_SAMPLES = 50;
     await this.setState({ processedInitial: false });

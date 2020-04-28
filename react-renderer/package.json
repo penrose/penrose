@@ -13,6 +13,7 @@
     "fast-memoize": "^2.5.2",
     "lodash": "^4.17.15",
     "mathjax-full": "^3.0.1",
+    "node-pre-gyp": "^0.14.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-fast-compare": "^2.0.4",

@@ -8,10 +8,11 @@ import {
   dist,
   center,
   evalEnergyOn,
-  stepUntilConvergence,
+  step,
 } from "../Optimizer";
 import * as tf from "@tensorflow/tfjs";
-import * as stateJSON from "./venn-opt-initial.json";
+// import * as stateJSON from "./venn-opt-initial.json";
+import * as stateJSON from "./venn-opt-sm-initial.json";
 import { decodeState } from "../Evaluator";
 import { scalar, variableGrads } from "@tensorflow/tfjs";
 
@@ -38,7 +39,7 @@ describe("Whole optimizer pipeline tests", () => {
     tf.stack(gf(xs)).print();
   });
   it("steps the initial state until convergence", () => {
-    stepUntilConvergence(vennState);
+    step(vennState, 5);
   });
 });
 
@@ -50,7 +51,7 @@ describe("minimize a simple function", () => {
     console.log("The value of the function is: ", fn(...state).toString());
   });
   it("minimize a simple state with L2 norm", () => {
-    const { energy, normGrad, i } = minimize(fn, gradF(fn) as any, state, []);
+    const { energy, normGrad, i } = minimize(fn, gradF(fn) as any, state);
     console.log(
       "converged after",
       i,

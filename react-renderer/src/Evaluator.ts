@@ -7,11 +7,12 @@ import {
   mapKeys,
   concat,
   PropertyPath,
+  zip,
 } from "lodash";
 import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
-import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs-node";
+import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs";
 import { tfStr, differentiable } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +30,10 @@ import { tfStr, differentiable } from "./Optimizer";
  */
 export const evalTranslation = (s: State): State => {
   // Insert all varying vals
-  const trans = insertVaryings(s.translation, s.varyingMap);
+  const trans = insertVaryings(
+    s.translation,
+    zip(s.varyingPaths, s.varyingValues) as [Path, number][]
+  );
 
   // Find out all the GPI expressions in the translation
   const shapeExprs = s.shapePaths.map(
@@ -62,9 +66,9 @@ const doneFloat = (n: number): TagExpr<number> => ({
  */
 export const insertVaryings = (
   trans: Translation,
-  varyingMap: VaryMap
+  varyingMap: [Path, number][]
 ): Translation => {
-  return [...varyingMap].reduce(
+  return varyingMap.reduce(
     (tr: Translation, [path, val]: [Path, number]) =>
       insertExpr(path, doneFloat(val), tr),
     trans
@@ -285,7 +289,7 @@ export const evalExpr = (
   }
 };
 
-const toTF = (v: Value<number>): Value<Tensor> => {
+const differentiableValue = (v: Value<number>): Value<Tensor> => {
   if (v.tag === "FloatV" || v.tag === "IntV") {
     return { ...v, contents: differentiable(v.contents) } as
       | IFloatV<Tensor>
@@ -306,7 +310,7 @@ export const resolvePath = (
   path: Path,
   trans: Translation,
   varyingMap?: VaryMap<number | Tensor>,
-  tf = false
+  autodiff = false
 ): ArgVal<number | Tensor> => {
   const floatVal = (v: number | Tensor): ArgVal<Tensor | number> => ({
     tag: "Val",
@@ -316,7 +320,7 @@ export const resolvePath = (
     },
   });
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
-  let varyingVal = varyingMap?.get(path);
+  let varyingVal = varyingMap?.get(JSON.stringify(path));
   if (varyingVal) {
     return floatVal(varyingVal);
   } else {
@@ -327,7 +331,7 @@ export const resolvePath = (
         // TODO: cache results
         const evaledProps = mapValues(props, (p, propName) => {
           if (p.tag === "OptEval") {
-            return (evalExpr(p.contents, trans, varyingMap, tf) as IVal<
+            return (evalExpr(p.contents, trans, varyingMap, autodiff) as IVal<
               number | Tensor
             >).contents;
           } else {
@@ -339,10 +343,12 @@ export const resolvePath = (
                 string
               ], // TODO: check if this is true
             };
-            varyingVal = varyingMap?.get(propPath);
+            varyingVal = varyingMap?.get(JSON.stringify(propPath));
             if (varyingVal) {
-              return { tag: "FloatV", contents: varyingVal[1] };
-            } else return tf ? toTF(p.contents) : p.contents;
+              return { tag: "FloatV", contents: varyingVal };
+            } else {
+              return autodiff ? differentiableValue(p.contents) : p.contents;
+            }
           }
         });
         return {
@@ -352,7 +358,7 @@ export const resolvePath = (
       default:
         const expr: TagExpr<number> = gpiOrExpr;
         if (expr.tag === "OptEval") {
-          return evalExpr(expr.contents, trans, varyingMap, tf);
+          return evalExpr(expr.contents, trans, varyingMap, autodiff);
         } else return { tag: "Val", contents: expr.contents };
     }
   }
@@ -544,7 +550,9 @@ export const genVaryMap = (
     throw new Error("Different numbers of varying vars vs. paths");
   }
   const res = new Map();
-  varyingPaths.forEach((path, index) => res.set(path, varyingValues[index]));
+  varyingPaths.forEach((path, index) =>
+    res.set(JSON.stringify(path), varyingValues[index])
+  );
   return res;
 };
 
