@@ -23,7 +23,7 @@ const constraintWeight = 10e4;
 
 export const objDict = {};
 export const constrDict = {
-  min1: (number: Tensor) => number.square(),
+  min1: (n: Tensor) => n.square(),
   minAll: (...numbers: Tensor[]) =>
     stack(numbers)
       .square()
@@ -43,7 +43,7 @@ export const constrDict = {
     switch (shapeType) {
       case "Circle":
         // return tf.stack([limit, props.r.contents.neg()]).sum();
-        return props.r.contents.square();
+        return tf.stack([limit, props.r.contents.neg()]).sum();
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a minSize`);
@@ -91,8 +91,7 @@ export const evalEnergyOn = (state: State) => {
   // TODO: types
   const applyFn = (f: FnDone<Tensor>, dict: any) => {
     if (dict[f.name]) {
-      // return dict[f.name](...f.args.map(argValue));
-      return dict[f.name](argValue(f.args[0]));
+      return dict[f.name](...f.args.map(argValue));
     } else {
       throw new Error(
         `constraint or objective ${f.name} not found in dirctionary`
@@ -100,69 +99,46 @@ export const evalEnergyOn = (state: State) => {
     }
   };
 
-  return (...varyingValuesTF: Variable[]): Tensor => {
+  return (...varyingValuesTF: Variable[]): Scalar => {
     // construct a new varying map
     const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<
       Variable
     >;
+
     const objEvaled = evalFns(objFns, translation, varyingMap);
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
-    // const objEngs: Tensor[] = objEvaled.map((o) => applyFn(o, objDict));
-    // const constrEngs: Tensor[] = constrEvaled.map(
-    //   (c) => toPenalty(applyFn(c, constrDict))
-    //   // (sum, c) => applyFn(c, constrDict).add(sum),
+    const objEngs: Tensor[] = objEvaled.map((o) => applyFn(o, objDict));
+    const constrEngs: Tensor[] = constrEvaled.map((c) =>
+      toPenalty(applyFn(c, constrDict))
+    );
+
+    // Printing to check for NaNs
+    console.log(
+      zip(
+        constrEngs.map((e) => e.toString()),
+        constrEvaled.map((c) => c.name)
+      )
+    );
+
+    const objEng: Tensor =
+      objEngs.length === 0 ? differentiable(0) : stack(objEngs).sum();
+    const constrEng: Tensor =
+      constrEngs.length === 0 ? differentiable(0) : stack(constrEngs).sum();
+
+    const dummyVal = stack(varyingValuesTF)
+      .square()
+      .sum();
+    return dummyVal.add(constrEng);
+
+    // return constrEng.add(
+    //   stack(varyingValuesTF)
+    //     .sum()
+    //     .mul(0)
     // );
-
-    // // Printing to check for NaNs
-    // console.log(
-    //   zip(
-    //     constrEngs.map((e) => e.toString()),
-    //     constrEvaled.map((c) => c.name)
-    //   )
-    // );
-
-    // const objEng: Tensor =
-    //   objEngs.length === 0 ? tfVar(0) : stack(objEngs).sum();
-    // const constrEng: Tensor =
-    //   constrEngs.length === 0 ? scalar(0) : stack(constrEngs).sum();
-
-    return varyingValuesTF[0].square(); // TODO: FAIL
-    // return stack(varyingValuesTF).sum(); // TODO: OKAY
-    // return constrDict["minAll"](...varyingMap.values()); // TODO: OKAY
-    // return constrDict["min1"](varyingValuesTF[3]);
-    // return applyFn(constrEvaled[0], constrDict);
-
-    // A single obj with a prop that's __one of__ the tfVars retrieved from a dict
-    // const varyingMap2 = zip(
-    //   varyingPaths.map((p) => JSON.stringify(p)),
-    //   varyingValuesTF
-    // );
-    // const gpi = ["Circle", { r: varyingValuesTF[0] }];
-    // const gpi = ["Circle", { r: varyingMap.get(varyingPaths[0]) }];
-    // const gpi = ["Circle", { r: varyingMap2[JSON.stringify(varyingPaths[0])] }];
-    // Another obj with a props that's the entire varying state
-    // const gpi2 = ["Circle", { r: varyingValuesTF[0] }];
-
-    // Just square the property
-    // const func = ([_, props]: any) => props.r.square();
-    // Square and add everybody
-    // const func2 = ([_, props]: any) =>
-    //   stack(props.r)
-    //     .square()
-    //     .sum();
-    // return func(gpi2); // Does __not__ work
-    // return func2(gpi2); // Works
-
-    // testing a single constraint
-    // const { name, args } = constrEvaled[0]; // minsize
-    // console.log(args[0].contents);
-    // return constrDict[name](args[0].contents);
 
     // return objEng.add(
-    //   constrEng
-    //     .mul(tf.scalar(constraintWeight * state.paramsr.weight))
-    //     .asScalar()
+    //   constrEng.mul(tf.scalar(constraintWeight * state.paramsr.weight))
     // );
   };
 };
@@ -194,7 +170,7 @@ export const stepUntilConvergence = (state: State) => {
 // TODO: types
 export const tfStr = (x: any) => x.dataSync()[0];
 export const tfsStr = (xs: any[]) => xs.map((e) => tfStr(e));
-export const differentiable = (e: number) => tf.scalar(e).variable();
+export const differentiable = (e: number): Variable => tf.scalar(e).variable();
 // const learningRate = 0.5; // TODO Try different learning rates
 const learningRate = 2; // TODO Try different learning rates
 const optimizer2 = tf.train.adam(learningRate);
@@ -212,8 +188,8 @@ export const gradF = (fn: any) => tf.grads(fn);
  */
 export const minimize = (
   f: (...arg: Variable[]) => Scalar,
-  gradf: (arg: tf.Tensor[]) => tf.Tensor[],
-  xs: tf.Tensor[],
+  gradf: (arg: Tensor[]) => Tensor[],
+  xs: Variable[],
   names: any
 ) => {
   // optimization hyperparameters

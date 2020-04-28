@@ -13,10 +13,10 @@ import {
 import * as tf from "@tensorflow/tfjs";
 import * as stateJSON from "./venn-opt-initial.json";
 import { decodeState } from "../Evaluator";
-import { scalar } from "@tensorflow/tfjs";
+import { scalar, variableGrads } from "@tensorflow/tfjs";
 
-const fn = (...args: tf.Tensor[]) =>
-  args.reduce((res, n) => res.add(n.square()), tf.scalar(0));
+const fn = (...args: tf.Tensor[]): tf.Scalar =>
+  args.reduce((res, n) => res.add(n.square()), tf.scalar(0)).asScalar();
 const state = [differentiable(100), differentiable(25), differentiable(0)];
 
 // const fn = (x, y) => x.sub(y).square();
@@ -29,8 +29,11 @@ describe("Whole optimizer pipeline tests", () => {
   it("evaluates the energy and its gradient of an initial state", () => {
     const f = evalEnergyOn(vennState);
     const xs = vennState.varyingValues.map(differentiable);
+
     console.log("Overall energy of the state is:");
     f(...xs).print();
+    console.log("Gradients: ");
+    // variableGrads(f, xs);
     const gf = gradF(f);
     tf.stack(gf(xs)).print();
   });

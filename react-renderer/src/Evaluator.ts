@@ -540,6 +540,7 @@ export const genVaryMap = (
   varyingValues: number[] | Variable[]
 ) => {
   if (varyingValues.length !== varyingPaths.length) {
+    console.log(varyingPaths, varyingValues);
     throw new Error("Different numbers of varying vars vs. paths");
   }
   const res = new Map();
