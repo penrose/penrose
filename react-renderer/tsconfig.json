@@ -50,6 +50,7 @@
     "build",
     "docs",
     "dist",
+    "src/__tests__",
     "scripts",
     "acceptance-tests",
     "webpack",
