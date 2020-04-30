@@ -39,13 +39,18 @@ class Canvas extends React.Component<ICanvasProps> {
     return name === "Text" ? !(properties.string.contents === "") : true;
   };
 
-  // TODO: simplify this function and get rid of the property addition hack
+  /**
+   * Decode
+   * NOTE: this function is only used for resample now. Will deprecate as soon as shapedefs are in the frontend
+   * @static
+   * @memberof Canvas
+   */
   public static processData = async (data: any) => {
     const state: State = decodeState(data);
     const stateEvaled: State = evalTranslation(state);
+    // TODO: return types
     const labeledShapes: any = await collectLabels(stateEvaled.shapes);
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);
-
     const sortedShapes: any = await Canvas.sortShapes(
       labeledShapesWithImgs,
       data.shapeOrdering

@@ -8,6 +8,7 @@ import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
 import { step } from "./Optimizer";
 import { unwatchFile } from "fs";
+import { collectLabels } from "./utills/CollectLabels";
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
@@ -18,11 +19,18 @@ interface ICanvasState {
 }
 const socketAddress = "ws://localhost:9160";
 
+const stepState = async (state: State, onUpdate: any) => {
+  const newState = step(state!, 2);
+  // onUpdate(newState);
+  const labeledShapes: any = await collectLabels(newState.shapes);
+  onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update
+};
+
 class App extends React.Component<any, ICanvasState> {
   public readonly state: ICanvasState = {
     data: undefined,
     autostep: false,
-    processedInitial: false,
+    processedInitial: false, // TODO: clarify the semantics of this flag
     layers: [
       { layer: "polygon", enabled: false },
       { layer: "bbox", enabled: false },
@@ -39,6 +47,9 @@ class App extends React.Component<any, ICanvasState> {
     this.setState({ penroseVersion: version });
   };
   public onCanvasState = async (canvasState: State, _: any) => {
+    // HACK: this will enable the "animation" that we normally expect
+    await new Promise((r) => setTimeout(r, 1));
+
     await this.setState({
       data: canvasState,
       processedInitial: true,
@@ -66,21 +77,7 @@ class App extends React.Component<any, ICanvasState> {
   };
   public step = () => {
     // this.protocol.sendPacket(Step(1, this.state.data));
-    const newState = step(this.state.data!, 10);
-    this.setState(
-      {
-        processedInitial: true,
-        data: newState,
-      }
-      // () => {
-      // if (this.state.autostep && !converged(this.state.data!)) this.step();
-      // }
-    );
-  };
-
-  // TODO: now that we step and restep within the browser. Can we force sequential evaluation of `step`?
-  public componentDidUpdate = (props: any, state: ICanvasState) => {
-    if (state.autostep && !converged(state.data!)) this.step();
+    stepState(this.state.data!, this.onCanvasState);
   };
 
   public resample = async () => {
@@ -114,7 +111,7 @@ class App extends React.Component<any, ICanvasState> {
   public updateData = async (data: any) => {
     await this.setState({ data: { ...data } });
     if (this.state.autostep) {
-      this.step();
+      stepState(data, this.state.autostep);
     }
   };
 

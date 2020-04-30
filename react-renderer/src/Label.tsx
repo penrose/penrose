@@ -33,7 +33,7 @@ class Label extends React.Component<IGPIProps> {
         dangerouslySetInnerHTML={{
           __html: shape.rendered
             ? styleLabel(shape.rendered.contents, color, w.contents, h.contents)
-            : `<text>${shape.string.contents}</text>`
+            : `<text>${shape.string.contents}</text>`,
         }}
       />
     );

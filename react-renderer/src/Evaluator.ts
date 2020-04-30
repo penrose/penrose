@@ -13,7 +13,7 @@ import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
 import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs";
-import { tfStr, differentiable } from "./Optimizer";
+import { scalarValue, differentiable, evalEnergyOn } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -505,6 +505,7 @@ export const decodeState = (json: any): State => {
   const state = {
     ...json,
     varyingValues: json.varyingState,
+    varyingState: json.varyingState.map(differentiable),
     // translation: decodeTranslation(json.transr),
     translation: json.transr,
     shapes: json.shapesr.map(([n, props]: any) => {
@@ -512,10 +513,12 @@ export const decodeState = (json: any): State => {
     }),
     varyingMap: genVaryMap(json.varyingPaths, json.varyingState),
   };
+  // cache energy function
+  // state.overallObjective = evalEnergyOn(state);
   seedrandom(json.rng, { global: true });
   delete state.shapesr;
   delete state.transr;
-  delete state.varyingState;
+  // delete state.varyingState;
   return state as State;
 };
 

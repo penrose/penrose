@@ -47,6 +47,8 @@ interface IState {
   shapeOrdering: string[];
   shapes: Shape[];
   varyingMap: VaryMap;
+  varyingState: Variable[];
+  // overallObjective(xs: Variable[]): Scalar;
 }
 type State = IState; // TODO
 
