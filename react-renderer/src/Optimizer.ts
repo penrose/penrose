@@ -17,28 +17,142 @@ import {
 import { zip } from "lodash";
 import { constrDict, objDict } from "./Constraints";
 
-// HACK: constant constraint weight
-const constraintWeight = 10e4;
+////////////////////////////////////////////////////////////////////////////////
+// Globals
+
+// growth factor for constraint weights
+const weightGrowthFactor = 10;
+// weight for constraints
+const constraintWeight = 10e4; // HACK: constant constraint weight
+// Intial weight for constraints
+const initConstraintWeight = 10e-3;
+// learning rate for the tfjs optimizer
+const learningRate = 50;
+const optimizer = tf.train.adam(learningRate, 0.9, 0.999);
+// EP method convergence criteria
+const epStop = 1e-3;
+
+////////////////////////////////////////////////////////////////////////////////
 
 const toPenalty = (x: Tensor): Tensor => {
   return tf.pow(tf.maximum(x, tf.scalar(0)), tf.scalar(2));
 };
+const epConverged = (normGrad: Scalar): boolean => {
+  // energy heuristic
+  // return scalarValue(energy) > 10;
+  // via @hypotext
+  return scalarValue(normGrad) < epStop;
+  // return normGrad.less(scalar(epStop)).dataSync()[0];
+  // .then((data) => data);
+};
+const applyFn = (f: FnDone<Tensor>, dict: any) => {
+  if (dict[f.name]) {
+    return dict[f.name](...f.args.map(argValue));
+  } else {
+    throw new Error(
+      `constraint or objective ${f.name} not found in dirctionary`
+    );
+  }
+};
 
+/**
+ * Given a `State`, take n steps by evaluating the overall objective function
+ *
+ * @param {State} state
+ * @param {number} steps
+ * @returns
+ */
+export const stepEP = (state: State, steps: number, evaluate = true) => {
+  const { optStatus, weight } = state.params;
+  let newState = { ...state };
+  let xs: Variable[] = []; // guaranteed to be assigned
+  switch (optStatus.tag) {
+    case "NewIter": {
+      // Collect the overall objective and varying values
+      const overallObjective = evalEnergyOn(state);
+      const newParams: Params = {
+        ...state.params,
+        weight: initConstraintWeight,
+        optStatus: {
+          tag: "UnconstrainedRunning",
+          contents: state.varyingValues.map(differentiable),
+        },
+      };
+      return { ...state, params: newParams, overallObjective };
+    }
+    case "UnconstrainedRunning": {
+      // NOTE: use cached varying values
+      xs = optStatus.contents;
+      const f = state.overallObjective;
+      const fgrad = gradF(f);
+      // NOTE: minimize will mutates xs
+      const { energy, normGrad } = minimize(f, fgrad, xs, steps);
+      // TODO: we could mutate the state, but is this what we want?
+      if (!epConverged(normGrad)) {
+        newState.params.optStatus = {
+          tag: "UnconstrainedRunning",
+          contents: xs,
+        };
+        console.log(`Took ${steps} steps. Current energy`, scalarValue(energy));
+      } else {
+        newState.params.optStatus = {
+          tag: "UnconstrainedConverged",
+          contents: xs,
+        };
+        console.log(
+          "Unconstrainted converged with energy",
+          scalarValue(energy)
+        );
+      }
+      break;
+    }
+    case "UnconstrainedConverged": {
+      xs = optStatus.contents;
+      const f = state.overallObjective;
+      const fgrad = gradF(f);
+      // NOTE: minimize will mutates xs
+      const { energy, normGrad } = minimize(f, fgrad, xs, steps);
+      if (epConverged(normGrad)) {
+        newState.params.optStatus.tag = "EPConverged";
+        console.log("EP converged with energy", scalarValue(energy));
+      } else {
+        // if EP has not converged, increate weight and continue
+        newState.params = {
+          ...newState.params,
+          optStatus: { tag: "UnconstrainedRunning", contents: xs }, // TODO: use which state again?
+          weight: weightGrowthFactor * weight,
+        };
+      }
+      break;
+    }
+    case "EPConverged": // do nothing if converged
+      return state;
+  }
+  // return the state with a new set of shapes
+  if (evaluate) {
+    const varyingValues = xs.map((x) => scalarValue(x as Scalar));
+    newState.translation = insertVaryings(
+      state.translation,
+      zip(state.varyingPaths, varyingValues) as [Path, number][]
+    );
+    newState.varyingValues = varyingValues;
+    newState = evalTranslation(newState);
+  }
+  return newState;
+};
+
+/**
+ * Generate an energy function from the current state
+ *
+ * @param {State} state
+ * @returns a function that takes in a list of `Variable`s and return a `Scaler`
+ */
 export const evalEnergyOn = (state: State) => {
   // NOTE: this will greatly improve the performance of the optmizer
   // TODO: move this decl to somewhere else
   tf.setBackend("cpu");
   const { objFns, constrFns, translation, varyingPaths } = state;
   // TODO: types
-  const applyFn = (f: FnDone<Tensor>, dict: any) => {
-    if (dict[f.name]) {
-      return dict[f.name](...f.args.map(argValue));
-    } else {
-      throw new Error(
-        `constraint or objective ${f.name} not found in dirctionary`
-      );
-    }
-  };
   return (...varyingValuesTF: Variable[]): Scalar => {
     // construct a new varying map
     const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<
@@ -52,55 +166,30 @@ export const evalEnergyOn = (state: State) => {
     const constrEngs: Tensor[] = constrEvaled.map((c) =>
       toPenalty(applyFn(c, constrDict))
     );
-
-    // Printing to check for NaNs
-    // console.log(
-    //   zip(
-    //     constrEngs.map((e) => e.toString()),
-    //     constrEvaled.map((c) => c.name)
-    //   ),
-    //   varyingMap
-    // );
-
     const objEng: Tensor =
       objEngs.length === 0 ? differentiable(0) : stack(objEngs).sum();
     const constrEng: Tensor =
       constrEngs.length === 0 ? differentiable(0) : stack(constrEngs).sum();
     const overallEng = objEng.add(
-      constrEng.mul(scalar(constraintWeight * state.paramsr.weight))
+      constrEng.mul(scalar(constraintWeight * state.params.weight))
     );
 
     // NOTE: the current version of tfjs requires all input variables to have gradients (i.e. actually involved when computing the overall energy). See https://github.com/tensorflow/tfjs-core/blob/8c2d9e05643988fa7f4575c30a5ad3e732d189b2/tfjs-core/src/engine.ts#L726
     // HACK: therefore, we try to work around it by using all varying values without affecting the value and gradients of the energy function
     const dummyVal = stack(varyingValuesTF).sum();
     return overallEng.add(dummyVal.mul(scalar(0)));
-
-    // DEBUG: manually constructed comp graph and gradient tests
-    // const [r1, x1, y1, r2, x2, y2] = varyingValuesTF;
-    // const contains = dist(stack([x1, y1]), stack([x2, y2]));
-    // const limit = scalar(20);
-    // const minsize1 = stack([r1, limit.neg()]).sum();
-    // const minsize2 = stack([r2, limit.neg()]).sum();
-    // const limit2 = scalar(Math.max(...canvasSize) / 6);
-    // const maxSize1 = stack([r1.neg(), limit2]).sum();
-    // // const maxSize2 = stack([r1.neg(), limit2]).sum();
-    // const eng = stack([contains, minsize1, minsize2]).sum();
-    // return eng
-    //   .asScalar()
-    //   .add(dummyVal)
-    //   .sub(dummyVal);
   };
 };
 
 export const step = (state: State, steps: number) => {
   const f = evalEnergyOn(state);
   const fgrad = gradF(f);
-  // const xs = state.varyingValues.map(differentiable);
-  const xs = state.varyingState; // NOTE: use cached varying values
+  const xs = state.varyingValues.map(differentiable);
+  // const xs = state.varyingState; // NOTE: use cached varying values
   // NOTE: minimize will mutates xs
   const { energy } = minimize(f, fgrad, xs, steps);
   // insert the resulting variables back into the translation for rendering
-  const varyingValues = xs.map((x) => scalarValue(x));
+  const varyingValues = xs.map((x) => scalarValue(x as Scalar));
   const trans = insertVaryings(
     state.translation,
     zip(state.varyingPaths, varyingValues) as [Path, number][]
@@ -108,7 +197,7 @@ export const step = (state: State, steps: number) => {
   const newState = { ...state, translation: trans, varyingValues };
   if (scalarValue(energy) > 10) {
     // const newState = { ...state, varyingState: xs };
-    newState.paramsr.optStatus.tag = "UnconstrainedRunning";
+    newState.params.optStatus.tag = "UnconstrainedRunning";
     console.log(`Took ${steps} steps. Current energy`, scalarValue(energy));
     // return newState;
   } else {
@@ -118,7 +207,7 @@ export const step = (state: State, steps: number) => {
     //   zip(state.varyingPaths, varyingValues) as [Path, number][]
     // );
     // const newState = { ...state, translation: trans, varyingValues };
-    newState.paramsr.optStatus.tag = "EPConverged";
+    newState.params.optStatus.tag = "EPConverged";
     console.log("Converged with energy", scalarValue(energy));
     // return evalTranslation(newState);
   }
@@ -133,11 +222,6 @@ export const step = (state: State, steps: number) => {
 export const scalarValue = (x: Scalar): number => x.dataSync()[0];
 export const tfsStr = (xs: any[]) => xs.map((e) => scalarValue(e));
 export const differentiable = (e: number): Variable => tf.scalar(e).variable();
-// const learningRate = 0.5; // TODO Try different learning rates
-const learningRate = 50; // TODO Try different learning rates
-// const optimizer = tf.train.adam(learningRate);
-const optimizer = tf.train.adam(learningRate, 0.9, 0.999);
-
 export const gradF = (fn: any) => tf.grads(fn);
 
 /**
@@ -156,31 +240,14 @@ export const minimize = (
   maxSteps = 100
 ): {
   energy: Scalar;
-  normGrad: number;
+  normGrad: Scalar;
   i: number;
 } => {
-  // optimization hyperparameters
-  const EPS = 1e-3;
-
-  let energy; // to be returned
-  // let normGrad = Number.MAX_SAFE_INTEGER;
-  const normGrad = Number.MAX_SAFE_INTEGER;
+  // values to be returned
+  let energy;
   let i = 0;
-
-  // console.log("xs0", tfsStr(xs));
-  // console.log("f'(xs0)", tfsStr(gradf(xs)));
-
-  // TODO profile this
   while (i < maxSteps) {
-    // while (normGrad > EPS && i < MAX_STEPS) {
-    // TODO: use/revert spread, also doesn't work with varList=xs and compGraph1
     energy = optimizer.minimize(() => f(...xs) as any, true);
-    // const gradfx = gradf(xs);
-    // normGrad = tf
-    //   .stack(gradfx)
-    //   .norm()
-    //   .dataSync()[0]; // not sure how to compare a tensor to a scalar
-    // TODO: use tf logical operator
 
     // note: this printing could tank the performance
     // vals = xs.map(v => v.dataSync()[0]);
@@ -192,6 +259,8 @@ export const minimize = (
     // console.log("cond", norm_grad > EPS, i < MAX_STEPS);
     i++;
   }
-
-  return { energy: energy as Scalar, normGrad, i };
+  // find the current
+  const gradfx = gradf(xs);
+  const normGrad = tf.stack(gradfx).norm();
+  return { energy: energy as Scalar, normGrad: normGrad as Scalar, i };
 };

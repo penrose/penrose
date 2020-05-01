@@ -512,24 +512,28 @@ export const decodeState = (json: any): State => {
       return { shapeType: n, properties: props };
     }),
     varyingMap: genVaryMap(json.varyingPaths, json.varyingState),
+    params: json.paramsr,
   };
   // cache energy function
   // state.overallObjective = evalEnergyOn(state);
   seedrandom(json.rng, { global: true });
   delete state.shapesr;
   delete state.transr;
+  delete state.paramsr;
   // delete state.varyingState;
   return state as State;
 };
 
 /**
  * Serialize the state to match the backend format
+ * NOTE: only called on resample now
  * @param state typed `State` object
  */
 export const encodeState = (state: State): any => {
   const json = {
     ...state,
     varyingState: state.varyingValues,
+    paramsr: state.params, // TODO: careful about the list of variables
     transr: state.translation,
     // NOTE: clean up all additional props and turn objects into lists
     shapesr: state.shapes
@@ -540,7 +544,8 @@ export const encodeState = (state: State): any => {
   delete json.translation;
   delete json.varyingValues;
   delete json.shapes;
-
+  delete json.params;
+  json.paramsr.optStatus = { tag: "NewIter" };
   return json;
 };
 

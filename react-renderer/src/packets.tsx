@@ -50,10 +50,10 @@ export const GetEnv = (substance: string, element: string) => ({
 });
 
 export const converged = (state: State) =>
-  state.paramsr.optStatus.tag === "EPConverged";
+  state.params.optStatus.tag === "EPConverged";
 export const initial = (state: State) =>
-  state.paramsr.optStatus.tag === "NewIter";
+  state.params.optStatus.tag === "NewIter";
 
 export const running = (state: State) =>
-  state.paramsr.optStatus.tag === "UnconstrainedRunning" ||
-  state.paramsr.optStatus.tag === "UnconstrainedConverged";
+  state.params.optStatus.tag === "UnconstrainedRunning" ||
+  state.params.optStatus.tag === "UnconstrainedConverged";

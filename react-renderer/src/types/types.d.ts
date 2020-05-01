@@ -34,7 +34,7 @@ interface IState {
   shapePaths: Path[];
   shapeProperties: any; // TODO: types
   uninitializedPaths: any; // TODO: types
-  paramsr: Params; // TODO: types
+  params: Params;
   objFns: Fn[];
   constrFns: Fn[];
   rng: any; // TODO: types
@@ -47,8 +47,7 @@ interface IState {
   shapeOrdering: string[];
   shapes: Shape[];
   varyingMap: VaryMap;
-  varyingState: Variable[];
-  // overallObjective(xs: Variable[]): Scalar;
+  overallObjective(...xs: Variable[]): Scalar;
 }
 type State = IState; // TODO
 
@@ -478,12 +477,12 @@ interface INewIter {
 
 interface IUnconstrainedRunning {
   tag: "UnconstrainedRunning";
-  contents: number[];
+  contents: Variable[];
 }
 
 interface IUnconstrainedConverged {
   tag: "UnconstrainedConverged";
-  contents: number[];
+  contents: Variable[];
 }
 
 interface IEPConverged {

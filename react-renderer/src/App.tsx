@@ -6,7 +6,7 @@ import { ILayer } from "./types";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
-import { step } from "./Optimizer";
+import { step, stepEP } from "./Optimizer";
 import { unwatchFile } from "fs";
 import { collectLabels } from "./utills/CollectLabels";
 

@@ -75,7 +75,7 @@ class Canvas extends React.Component<ICanvasProps> {
     if (this.props.updateData && this.props.data) {
       const updated = {
         ...this.props.data,
-        paramsr: { ...this.props.data.paramsr, optStatus: { tag: "NewIter" } },
+        params: { ...this.props.data.params, optStatus: { tag: "NewIter" } },
         shapes: this.props.data.shapes.map(
           ({ shapeType, properties }: Shape) => {
             if (properties.name.contents === id) {
