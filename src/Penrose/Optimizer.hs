@@ -212,7 +212,7 @@ stepShapes s -- varying state
                -- Two stopping conditions
                -- unconstrainedStopCond gradEval in
          in if unconstrConverged
-              then let status' = UnconstrainedConverged lastEPstate -- update UO state only!
+              then let status' = UnconstrainedConverged lastEPstate -- update UO state only! (note this does NOT change the EP state to be vstate', which happens on the branch for UnconstrainedConverged, which is next)
                    in ( vstate'
                       , params
                         { optStatus = status'

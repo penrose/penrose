@@ -473,6 +473,7 @@ export const findExpr = (
  *
  * TODO: make sure this function is a deep enough copy of `initTrans`
  */
+// TODO: Is it inefficient (space/time) to copy the whole translation every time an expression is inserted?
 export const insertExpr = (
   path: Path,
   expr: TagExpr<number>,

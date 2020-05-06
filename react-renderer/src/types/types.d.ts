@@ -475,14 +475,17 @@ interface INewIter {
   tag: "NewIter";
 }
 
+// TODO. Note that we don't store the last unconstrained-opt state, because we always generate a new one (by taking minimize step(s))
+// TODO. If we are taking multiple steps via tfjs/minimize, is that ok? Or does EP work with one step only?
+
 interface IUnconstrainedRunning {
   tag: "UnconstrainedRunning";
-  contents: Variable[];
+  contents: Variable[]; // TODO. This should store the last EP state (i.e. the last unconstrained-opt-state when it converged for a certain weight). We need this because the convergence check is on the EP states
 }
 
 interface IUnconstrainedConverged {
   tag: "UnconstrainedConverged";
-  contents: Variable[];
+  contents: Variable[]; // TODO. This should store the last EP state
 }
 
 interface IEPConverged {

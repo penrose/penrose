@@ -5,7 +5,7 @@ import {
   scalar,
   Variable,
   Scalar,
-  maximum,
+  // maximum,
 } from "@tensorflow/tfjs";
 import {
   argValue,
@@ -37,6 +37,10 @@ const epStop = 1e-3;
 const toPenalty = (x: Tensor): Tensor => {
   return tf.pow(tf.maximum(x, tf.scalar(0)), tf.scalar(2));
 };
+
+// TODO. change to `(norm (x -. x') <= epStop) || (abs (fx - fx') <= epStop)`
+// where epStop is 10**-3
+// and move this to unconstrainedStopCond
 const epConverged = (normGrad: Scalar): boolean => {
   // energy heuristic
   // return scalarValue(energy) > 10;
@@ -45,6 +49,7 @@ const epConverged = (normGrad: Scalar): boolean => {
   // return normGrad.less(scalar(epStop)).dataSync()[0];
   // .then((data) => data);
 };
+
 const applyFn = (f: FnDone<Tensor>, dict: any) => {
   if (dict[f.name]) {
     return dict[f.name](...f.args.map(argValue));
@@ -62,33 +67,44 @@ const applyFn = (f: FnDone<Tensor>, dict: any) => {
  * @param {number} steps
  * @returns
  */
+// TODO. Annotate the return type: a new (copied?) state with the varyingState and opt params set?
+
 export const stepEP = (state: State, steps: number, evaluate = true) => {
+  // TODO. Maybe factor this back out into `State -> (VaryingState, OptParams)`?
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   let xs: Variable[] = []; // guaranteed to be assigned
   switch (optStatus.tag) {
     case "NewIter": {
       // Collect the overall objective and varying values
-      const overallObjective = evalEnergyOn(state);
+      const overallObjective = evalEnergyOn(state); // TODO. Why is this being generated here?
       const newParams: Params = {
-        ...state.params,
+        ...state.params, // TODO. does this make a copy?
         weight: initConstraintWeight,
         optStatus: {
           tag: "UnconstrainedRunning",
           contents: state.varyingValues.map(differentiable),
-        },
+        }, // TODO. set `bfgsInfo: defaultBfgsParams`
       };
       return { ...state, params: newParams, overallObjective };
     }
     case "UnconstrainedRunning": {
       // NOTE: use cached varying values
+      // TODO. we should be using `varyingValues` below in place of `xs`, not the `xs` from optStatus
+      // (basically use the last UO state, not last EP state)
       xs = optStatus.contents;
       const f = state.overallObjective;
       const fgrad = gradF(f);
-      // NOTE: minimize will mutates xs
+      // NOTE: minimize will mutate xs
       const { energy, normGrad } = minimize(f, fgrad, xs, steps);
       // TODO: we could mutate the state, but is this what we want?
-      if (!epConverged(normGrad)) {
+
+      // TODO. you have to save the previous state (and previous energy) to do the EP convergence check. What is the right way to do this? Copy tfvars into scalars?
+      // TODO. test unconstrained convergence instead, and remove the (!) and swap the two cases
+      // (TODO. `varyingValues` is updated `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state)
+
+      // TODO. these below are both doing the equivalent of returning `vstate'`
+      if (!epConverged(normGrad)) { // UO didn't converge; keep running UO
         newState.params.optStatus = {
           tag: "UnconstrainedRunning",
           contents: xs,
@@ -98,11 +114,8 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
         newState.params.optStatus = {
           tag: "UnconstrainedConverged",
           contents: xs,
-        };
-        console.log(
-          "Unconstrainted converged with energy",
-          scalarValue(energy)
-        );
+        }; // TODO. reset bfgs params to default
+        console.log("Unconstrained converged with energy", scalarValue(energy));
       }
       break;
     }
@@ -110,13 +123,17 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
       xs = optStatus.contents;
       const f = state.overallObjective;
       const fgrad = gradF(f);
-      // NOTE: minimize will mutates xs
+      // NOTE: minimize will mutate xs
       const { energy, normGrad } = minimize(f, fgrad, xs, steps);
+
+      // TODO. Do EP convergence check on the last EP state (and its energy), and last UO state (xs) (and its energy) 
+      // TODO. Make a diagram to clarify vocabulary
       if (epConverged(normGrad)) {
         newState.params.optStatus.tag = "EPConverged";
         console.log("EP converged with energy", scalarValue(energy));
       } else {
-        // if EP has not converged, increate weight and continue
+        // if EP has not converged, increase weight and continue
+        // TODO. the point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round -- starting with a harsher penalty. but these should be separate
         newState.params = {
           ...newState.params,
           optStatus: { tag: "UnconstrainedRunning", contents: xs }, // TODO: use which state again?
@@ -145,7 +162,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
  * Generate an energy function from the current state
  *
  * @param {State} state
- * @returns a function that takes in a list of `Variable`s and return a `Scaler`
+ * @returns a function that takes in a list of `Variable`s and return a `Scalar`
  */
 export const evalEnergyOn = (state: State) => {
   // NOTE: this will greatly improve the performance of the optmizer
@@ -189,6 +206,7 @@ export const step = (state: State, steps: number) => {
   // NOTE: minimize will mutates xs
   const { energy } = minimize(f, fgrad, xs, steps);
   // insert the resulting variables back into the translation for rendering
+  // NOTE: this is a synchronous operation on all varying values; may block
   const varyingValues = xs.map((x) => scalarValue(x as Scalar));
   const trans = insertVaryings(
     state.translation,
