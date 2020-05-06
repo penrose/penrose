@@ -475,17 +475,12 @@ interface INewIter {
   tag: "NewIter";
 }
 
-// TODO. Note that we don't store the last unconstrained-opt state, because we always generate a new one (by taking minimize step(s))
-// TODO. If we are taking multiple steps via tfjs/minimize, is that ok? Or does EP work with one step only?
-
 interface IUnconstrainedRunning {
   tag: "UnconstrainedRunning";
-  contents: Variable[]; // TODO. This should store the last EP state (i.e. the last unconstrained-opt-state when it converged for a certain weight). We need this because the convergence check is on the EP states
 }
 
 interface IUnconstrainedConverged {
   tag: "UnconstrainedConverged";
-  contents: Variable[]; // TODO. This should store the last EP state
 }
 
 interface IEPConverged {
@@ -507,7 +502,20 @@ interface IBfgsParams {
 type Params = IParams;
 
 interface IParams {
-  weight: number;
   optStatus: OptStatus;
+  weight: number; // Constraint weight for exterior point method
+  mutableUOstate: Variable[]; // Don't forget... it's mutable!
+
+  // Info for unconstrained optimization
+  UOround: number;
+  lastUOstate: Tensor;
+  lastUOenergy: Scalar;
+
+  // Info for exterior point method
+  EPround: number;
+  lastEPstate: Tensor;
+  lastEPenergy: Scalar;
+
+  // For L-BFGS (TODO)
   bfgsInfo: BfgsParams;
 }
