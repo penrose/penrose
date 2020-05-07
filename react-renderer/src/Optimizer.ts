@@ -185,6 +185,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   if (evaluate) {
     const varyingValues = xs.map((x) => scalarValue(x as Scalar));
     // console.log("evaluating state with varying values", varyingValues);
+    // console.log("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
 
     newState.translation = insertVaryings(
       state.translation,

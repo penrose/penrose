@@ -1,6 +1,8 @@
--- Point p
+Point p
 
 Set A
+PointIn(A, p)
+
 Set B
 -- Set C
 -- Set D

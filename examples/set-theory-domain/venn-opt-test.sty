@@ -25,3 +25,46 @@ forall Set x; Set y
 where Not(Intersecting(x, y)) {
     ensure disjoint(x.shape, y.shape)
 }
+
+--------- NEW
+
+-- forall Set x; Set y
+-- where Intersecting(x, y) {
+--     ensure overlapping(x.shape, y.shape)
+--     ensure outsideOf(y.text, x.shape)
+--     ensure outsideOf(x.text, y.shape)
+-- }
+
+forall Point p {
+    p.offset = 20.0
+    p.shape = Circle {
+        x : ?
+        y : ?
+        strokeWidth : 0
+        color : rgba(0.0, 0.0, 0.0, 1.0)
+        r : 3.0
+    }
+
+    p.text = Text {
+        string : p.label
+        x : p.shape.x + p.offset
+        y : p.shape.y + p.offset
+    }
+
+    -- TODO: Why isn't the offset working?
+    -- TODO: Port atDist?
+    p.textLayering = p.text above p.shape
+}
+
+Point p
+with Set A
+where PointIn(A, p) {
+    p.containsFn = ensure contains(A.shape, p.shape, 0.3 * A.shape.r)
+    p.layering = p.shape above A.shape
+}
+
+Point p
+with Set A
+where Not(PointIn(A, p)) {
+    p.notContainsFn = ensure disjoint(A.shape, p.shape)
+}

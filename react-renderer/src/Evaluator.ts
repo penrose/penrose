@@ -29,11 +29,12 @@ import { scalarValue, differentiable, evalEnergyOn } from "./Optimizer";
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
 export const evalTranslation = (s: State): State => {
+  // Update the stale varyingMap from the translation. TODO: Where is the right place to do this?
+  s.varyingMap = genVaryMap(s.varyingPaths, s.varyingValues);
+  const varyingMapList = zip(s.varyingPaths, s.varyingValues) as [Path, number][];
+
   // Insert all varying vals
-  const trans = insertVaryings(
-    s.translation,
-    zip(s.varyingPaths, s.varyingValues) as [Path, number][]
-  );
+  const trans = insertVaryings(s.translation, varyingMapList);
 
   // Find out all the GPI expressions in the translation
   const shapeExprs = s.shapePaths.map(
@@ -114,6 +115,7 @@ const compDict = {
       },
     };
   },
+
   hsva: (h: number, s: number, v: number, a: number): IColorV<number> => {
     return {
       tag: "ColorV",
@@ -123,20 +125,25 @@ const compDict = {
       },
     };
   },
+
   cos: (d: number): IFloatV<number> => {
     return { tag: "FloatV", contents: Math.cos((d * Math.PI) / 180) };
   },
+
   sin: (d: number): IFloatV<number> => {
     return { tag: "FloatV", contents: Math.sin((d * Math.PI) / 180) };
   },
+
   lineLength: ([type, props]: [string, any]) => {
     const [p1, p2] = arrowPts(props);
-    return { tag: "FloatV", contents: dist(p1, p2) };
+    return { tag: "FloatV", contents: dist(p1, p2) }; // TODO: Shouldn't this be written in terms of tf.js?
   },
+
   len: ([type, props]: [string, any]) => {
     const [p1, p2] = arrowPts(props);
     return { tag: "FloatV", contents: dist(p1, p2) };
   },
+
   sampleColor: (alpha: number, colorType: string) => {
     if (colorType === "rgb") {
       const rgb = range(3).map((_) => randFloat(0.1, 0.9));
@@ -158,6 +165,7 @@ const compDict = {
       };
     } else throw new Error("unknown color type");
   },
+
 };
 
 const arrowPts = ({ startX, startY, endX, endY }: Properties) =>
@@ -185,6 +193,7 @@ export const evalShape = (
   varyingVars: VaryMap,
   shapes: Shape[]
 ): [Shape[], Translation] => {
+
   const [shapeType, propExprs] = shapeExpr.contents;
   // Make sure all props are evaluated to values instead of shapes
   const props = mapValues(propExprs, (prop: TagExpr<number>) =>
@@ -194,6 +203,7 @@ export const evalShape = (
   );
 
   const shape: Shape = { shapeType, properties: props };
+
   return [[...shapes, shape], trans];
 };
 
@@ -230,6 +240,7 @@ export const evalExpr = (
   varyingVars?: VaryMap<number | Tensor>,
   autodiff = false
 ): ArgVal<number | Tensor> => {
+
   switch (e.tag) {
     case "IntLit":
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
