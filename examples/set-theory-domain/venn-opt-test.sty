@@ -28,12 +28,12 @@ where Not(Intersecting(x, y)) {
 
 --------- NEW
 
--- forall Set x; Set y
--- where Intersecting(x, y) {
---     ensure overlapping(x.shape, y.shape)
---     ensure outsideOf(y.text, x.shape)
---     ensure outsideOf(x.text, y.shape)
--- }
+forall Set x; Set y
+where Intersecting(x, y) {
+    ensure overlapping(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure outsideOf(x.text, y.shape)
+}
 
 forall Point p {
     p.offset = 20.0

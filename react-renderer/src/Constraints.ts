@@ -78,7 +78,22 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
   },
 
+  overlapping: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    padding = 10
+  ) => {
+    if (t1 === "Circle" && t2 === "Circle") {
+      return looseIntersect(center(s1), s1.r.contents,
+        center(s2), s2.r.contents, padding);
+    } else throw new Error(`${[t1, t2]} not supported for overlapping`);
+  },
+
 };
+
+export const looseIntersect = (center1: Tensor, r1: Tensor, center2: Tensor, r2: Tensor, padding: number) =>
+  dist(center1, center2).sub(r1.add(r2).sub(scalar(padding)));
+// dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
 export const center = (props: any): Tensor =>
   stack([props.x.contents, props.y.contents]); // HACK: need to annotate the types of x and y to be Tensor
