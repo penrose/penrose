@@ -27,7 +27,8 @@ const constraintWeight = 10e4; // HACK: constant constraint weight
 // Intial weight for constraints
 const initConstraintWeight = 10e-3;
 // learning rate for the tfjs optimizer
-const learningRate = 50;
+// const learningRate = 50; // TODO: Behaves terribly with tree.sub / tree.sty
+const learningRate = 30;
 const optimizer = tf.train.adam(learningRate, 0.9, 0.999);
 // EP method convergence criteria
 const epStop = 1e-3;
@@ -224,6 +225,9 @@ export const evalEnergyOn = (state: State) => {
     const constrEngs: Tensor[] = constrEvaled.map((c) =>
       toPenalty(applyFn(c, constrDict))
     );
+
+    // console.log("objEngs", objFns, objEngs, objEngs.map(o => o.dataSync()));
+
     const objEng: Tensor =
       objEngs.length === 0 ? differentiable(0) : stack(objEngs).sum();
     const constrEng: Tensor =

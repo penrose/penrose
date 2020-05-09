@@ -1,10 +1,39 @@
-import { Tensor, stack, scalar, maximum } from "@tensorflow/tfjs";
+import { Tensor, Scalar, Rank, stack, scalar, maximum, tensor, norm, abs, square, squaredDifference } from "@tensorflow/tfjs";
 import { canvasSize } from "./Canvas";
+import * as _ from "lodash";
 
 export const objDict = {
+  equal: (x: Tensor, y: Tensor) => squaredDifference(x, y),
+
+  above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
+    // (getY top - getY bottom - offset) ^ 2
+    square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
+
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     return distsq(center(s1), center(s2));
   },
+
+  // Generic repel function for two GPIs with centers
+  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
+    // TODO: find this out programmatically
+    const repelWeight = 10e6;
+    // 1 / (d^2(cx, cy) + eps)
+    return distsq(center(s1), center(s2)).add(epsd).reciprocal().mul(repelWeight);
+  },
+
+  centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): Tensor => {
+    const spacing = scalar(1.1); // arbitrary
+
+    if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
+      // HACK: Arbitrarily pick the height of the text
+      // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
+      return centerArrow2(arr, center(text1), center(text2),
+        [spacing.mul(text1.h.contents),
+        text2.h.contents.mul(spacing).mul(scalar(1.0)).neg()]);
+    } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
+  },
+
 };
 
 export const constrDict = {
@@ -91,6 +120,43 @@ export const constrDict = {
 
 };
 
+// -------- Helpers for writing objectives
+
+const typesAre = (inputs: string[], expected: string[]) =>
+  (inputs.length === expected.length) && _.zip(inputs, expected).map(([i, e]) => i === e);
+
+// -------- (Hidden) helpers for objective/constraints/computations
+
+const centerArrow2 = (arr: any, center1: Tensor, center2: Tensor, [o1, o2]: Tensor[]): Tensor => {
+  const vec = center2.sub(center1); // direction the arrow should point to
+  const dir = normalize(vec);
+
+  let start = center1;
+  let end = center2;
+
+  // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
+  if (norm(vec).greater(o1.add(abs(o2)))) {
+    start = center1.add(o1.mul(dir));
+    end = center2.add(o2.mul(dir));
+  }
+
+  const fromPt = stack([arr.startX.contents, arr.startY.contents]);
+  const toPt = stack([arr.endX.contents, arr.endY.contents]);
+
+  return distsq(fromPt, start).add(distsq(toPt, end));
+}
+
+
+// -------- Utils for objective/constraints/computations
+
+const sc = (x: any): number => x.dataSync()[0];
+const scs = (xs: any[]) => xs.map((e) => sc(e));
+
+export const zero: Tensor = scalar(0);
+
+// to prevent 1/0 (infinity). put it in the denominator
+export const epsd: Tensor = scalar(10e-10);
+
 export const looseIntersect = (center1: Tensor, r1: Tensor, center2: Tensor, r2: Tensor, padding: number) =>
   dist(center1, center2).sub(r1.add(r2).sub(scalar(padding)));
 // dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
@@ -98,9 +164,17 @@ export const looseIntersect = (center1: Tensor, r1: Tensor, center2: Tensor, r2:
 export const center = (props: any): Tensor =>
   stack([props.x.contents, props.y.contents]); // HACK: need to annotate the types of x and y to be Tensor
 
-export const dist = (p1: Tensor, p2: Tensor) => p1.sub(p2).norm();
+export const dist = (p1: Tensor, p2: Tensor): Tensor => p1.sub(p2).norm();
 
-export const distsq = (p1: Tensor, p2: Tensor) => p1.squaredDifference(p2);
+// Be careful not to use element-wise operations. This should return a scalar.
+// Apparently typescript can't check a return type of `Tensor<Rank.R0>`?
+export const distsq = (p1: Tensor, p2: Tensor): Tensor => {
+  const dp = p1.sub(p2);
+  return dp.dot(dp);
+}
+
+// with epsilon to avoid NaNs
+export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));
 
 // TODO: use it
 // const getConstraint = (name: string) => {
