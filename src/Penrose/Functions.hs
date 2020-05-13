@@ -1816,7 +1816,7 @@ centerArrow [GPI arr@("Arrow", _), GPI text1@("Text", _), GPI text2@("Text", _)]
     arr
     [getX text1, getY text1]
     [getX text2, getY text2]
-    [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
+    [spacing * getNum text1 "h", negate $ spacing * getNum text2 "h"]
 centerArrow [GPI arr@("Arrow", _), GPI text@("Text", _), GPI circ@("Circle", _)] =
   _centerArrow
     arr

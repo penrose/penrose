@@ -1,5 +1,10 @@
 Set x {
-    x.shape = Text { string : x.label }
+    x.shape = Text { 
+        -- h : 20.0
+        fontSize: "12pt"
+        -- HACK: To get consistent-looking labels since we they have the same height in this example
+       string : x.label 
+    }
 }
 
 Set x; Set y {

@@ -40,7 +40,9 @@ forall Set x {
 
     x.text = Text {
         string : x.label
-        fontSize : "15pt"
+        h : 50.0
+        -- HACK: To get consistent-looking labels since we they have the same height in this example
+        -- fontSize : "15pt"
     }
 
     -- These statements are named because may delete a shape
