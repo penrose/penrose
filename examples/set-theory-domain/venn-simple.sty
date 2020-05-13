@@ -1,0 +1,29 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+}
+
+
+forall Set x {
+    x.hue = ? -- In degrees
+    x.color = hsva(x.hue, 100.0, 80.0, 0.5)
+
+    x.shape = Circle {
+        y : 0.0
+        strokeWidth : 0
+	color : x.color
+    }
+
+    x.text = Text {
+        string : x.label
+        fontSize : "15pt"
+    }
+
+    -- These statements are named because may delete a shape
+    x.containFn = ensure contains(x.shape, x.text)
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
+    x.centerFn = encourage sameCenter(x.text, x.shape)
+    x.layerFn = x.shape below x.text
+}
