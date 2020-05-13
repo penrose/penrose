@@ -1,0 +1,50 @@
+forall Set x {
+    x.hue = ? -- In degrees
+    x.color = hsva(x.hue, 100.0, 80.0, 0.5)
+
+    x.shape = Circle {
+        strokeWidth : 3.5
+        strokeStyle : "dotted"
+        strokeColor : setOpacity(x.color, 2.0)
+	color : x.color
+    }
+
+    x.text = Text {
+        string : x.label
+        h : 50.0
+        color : x.color
+        -- HACK: To get consistent-looking labels since we they have the same height in this example
+        -- fontSize : "15pt"
+    }
+
+    -- These statements are named because we may delete a shape
+    x.containFn = ensure contains(x.shape, x.text)
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
+    x.centerFn = encourage sameCenter(x.text, x.shape)
+    x.layerFn = x.shape below x.text
+}
+
+forall Set x; Set y
+where Intersecting(x, y) {
+    ensure overlapping(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
+    ensure outsideOf(x.text, y.shape)
+}
+
+forall Set Z
+with Set X; Set Y
+where Z := Intersection(X, Y) {
+      -- Rely on the transparency of set X and Y's shapes to denote the shape of their intersection
+      delete Z.shape
+      delete Z.containFn
+      delete Z.minSizeFn
+      delete Z.maxSizeFn
+      delete Z.centerFn
+      delete Z.layerFn
+      ensure contains(X.shape, Z.text)
+      ensure contains(Y.shape, Z.text)
+      Z.text above X.shape
+      Z.text above Y.shape
+      override Z.hue = blendColor(X.hue, Y.hue, "hue")
+}
