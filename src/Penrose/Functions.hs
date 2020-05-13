@@ -1144,6 +1144,8 @@ noop [] g = (Val (StrV "TODO"), g)
 setOpacity :: ConstCompFn
 setOpacity [Val (ColorV (RGBA r g b a)), Val (FloatV frac)] =
   Val $ ColorV (RGBA r g b (r2f frac * a))
+setOpacity [Val (ColorV (HSVA h s v a)), Val (FloatV frac)] =
+  Val $ ColorV (HSVA h s v (r2f frac * a))
 
 sampleColor' :: CompFn
 sampleColor' [Val (FloatV a), Val (StrV colorType)] g = 
@@ -1181,6 +1183,20 @@ blendColor :: ConstCompFn
 blendColor [Val (ColorV (RGBA r0 g0 b0 a0)), Val (ColorV (RGBA r1 g1 b1 a1))] =
   -- Assuming both colors are at full opacity, returns a color at full opacity
   Val $ ColorV (RGBA ((r0 + r1)/2) ((g0 + g1)/2) ((b0 + b1)/2) 1.0)
+
+blendColor [Val (ColorV (HSVA h0 s0 v0 a0)), Val (ColorV (HSVA h1 s1 v1 a1))] =
+  -- Assuming they have the same saturation and value (as e.g. in venn.sty), blend the hues by using the shortest angle between them
+  -- https://rosettacode.org/wiki/Averages/Mean_angle
+  -- Hues are in degrees
+  let d = signedAngleDist h0 h1
+      h' = (h0 + d / 2.0) `mod'` 360
+  in Val $ ColorV (HSVA h' s0 v0 1.0)
+
+blendColor [Val (FloatV h0), Val (FloatV h1), Val (StrV "hue")] =
+  -- See above. Hues in degrees
+  let d = signedAngleDist h0 h1
+      h' = (h0 + d / 2.0) `mod'` 360
+  in Val $ FloatV h'
 
 ----------
 get' :: ConstCompFn

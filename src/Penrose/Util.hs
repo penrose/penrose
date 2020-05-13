@@ -357,8 +357,11 @@ subsampleEvery n xs = map fst $ filter (\(e, i) -> i `mod` n == 0) $ zip xs ([0.
 -- How do derivatives work here?
 -- From: https://stackoverflow.com/questions/1878907/the-smallest-difference-between-2-angles
 angleDist :: Autofloat a => a -> a -> a
-angleDist u v = let a' = v - u
-                in abs $ (a' + 180) `mod'` 360 - 180
+angleDist u v = abs $ signedAngleDist u v
+
+signedAngleDist :: Autofloat a => a -> a -> a
+signedAngleDist u v = let a' = v - u
+                      in (a' + 180) `mod'` 360 - 180
 
 --------------------------------------
 -- Reflection capabilities to typecheck Computation functions
