@@ -40,13 +40,15 @@ forall Set x {
 
     x.text = Text {
         string : x.label
+        fontSize : "15pt"
     }
 
-    ensure contains(x.shape, x.text)
-    ensure minSize(x.shape)
-    ensure maxSize(x.shape)
-    encourage sameCenter(x.text, x.shape)
-    x.shape below x.text
+    -- These statements are named because may delete a shape
+    x.containFn = ensure contains(x.shape, x.text)
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
+    x.centerFn = encourage sameCenter(x.text, x.shape)
+    x.layerFn = x.shape below x.text
 
     -- Hue wheel debugging
     x.hueRad = const.pi * x.hue / 180.0
@@ -82,6 +84,22 @@ where Intersecting(x, y) {
     ensure overlapping(x.shape, y.shape)
     ensure outsideOf(y.text, x.shape)
     ensure outsideOf(x.text, y.shape)
+}
+
+forall Set Z
+with Set X; Set Y
+where Z := Intersection(X, Y) {
+      -- Rely on the transparency of set X and Y's shapes to denote the shape of their intersection
+      delete Z.shape
+      delete Z.containFn
+      delete Z.minSizeFn
+      delete Z.maxSizeFn
+      delete Z.centerFn
+      delete Z.layerFn
+      ensure contains(X.shape, Z.text)
+      ensure contains(Y.shape, Z.text)
+      Z.text above X.shape
+      Z.text above Y.shape
 }
 
 forall Point p {

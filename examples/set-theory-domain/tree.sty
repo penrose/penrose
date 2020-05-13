@@ -14,6 +14,7 @@ where IsSubset(x, y) {
       color : rgba(0.0, 0.0, 0.0, 1.0)
     }
 
+    -- x C y, so y -> x
     -- Draw the arrow from y to x
     LOCAL.centerFn = encourage centerArrow(LOCAL.arrow, x.shape, y.shape)
 
@@ -23,6 +24,42 @@ where IsSubset(x, y) {
     -- Have sets 'fight' to be aligned with the superset's x-position
     LOCAL.equalFn = encourage equal(x.shape.x, y.shape.x)
 }
+
+Set z
+with Set x; Set y
+where z := Intersection(x, y) {
+    -- Arrow points from parent to child
+    -- i.e. z C x and z C y, so x -> z and y -> z
+
+    LOCAL.arrow_xz = Arrow {
+      thickness : 2.0
+      color : rgba(0.0, 0.0, 0.0, 1.0)
+    }
+
+    LOCAL.centerFn_xz = encourage centerArrow(LOCAL.arrow_xz, x.shape, z.shape)
+
+    -- Position x above z
+    LOCAL.aboveFn_xz = encourage above(x.shape, z.shape)
+
+    -- Have sets 'fight' to be aligned with the superset's x-position
+    LOCAL.equalFn_xz = encourage equal(z.shape.x, x.shape.x)
+
+    -----
+
+    LOCAL.arrow_yz = Arrow {
+      thickness : 2.0
+      color : rgba(0.0, 0.0, 0.0, 1.0)
+    }
+
+    LOCAL.centerFn_yz = encourage centerArrow(LOCAL.arrow_yz, y.shape, z.shape)
+
+    -- Position y above z
+    LOCAL.aboveFn_yz = encourage above(y.shape, z.shape)
+
+    -- Have sets 'fight' to be aligned with the superset's x-position
+    LOCAL.equalFn_yz = encourage equal(z.shape.x, y.shape.x)
+}
+
 
 /*
 -- This one currently causes convergence to become very slow but works eventually
