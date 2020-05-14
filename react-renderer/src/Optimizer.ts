@@ -310,21 +310,44 @@ export const minimize = (
   // values to be returned
   let energy;
   let i = 0;
+  let gradfx;
+  let normGrad;
+
+  // TODO: Check that the way this loop is being called (and with # steps) satisfies the requirements of EP (e.g. minimizing an unconstrained problem)
+
   while (i < maxSteps) {
-    energy = optimizer.minimize(() => f(...xs) as any, true);
+    // TFJS optimizer
+    // energy = optimizer.minimize(() => f(...xs) as any, true);
+
+    // custom optimizer (TODO: factor out)
+    // right now, just does vanilla gradient descent
+    // Note: tf.clone can clone a variable into a tensor, and after that, the two are unrelated
+    // TODO: figure out the best way to dispose/tidy the intermediate tensors
+    const stepSize = 0.002; // for venn_simple.sty
+    // const stepSize = 0.1; // for tree.sty
+    gradfx = tf.stack(gradf(xs));
+    // xs' = xs - dt * grad(f(xs))
+    // `stack` makes a new immutable tensor of the vars: Tensor [ v1, v2, v3 ] (where each var is a single-elem list [x])
+    // TODO: Can we do this without the arraySync call?
+    const xsNew = tf.stack(xs).sub(gradfx.mul(stepSize)).arraySync();
+    // Set each variable to the result
+    xs.forEach((e, j) => e.assign(tf.tensor(xsNew[j])));
+    energy = f(...xs);
+    normGrad = gradfx.norm();
 
     // note: this printing could tank the performance
-    // vals = xs.map(v => v.dataSync()[0]);
+    // const vals = xs.map(v => v.dataSync()[0]);
     // console.log("i=", i);
-    // console.log("state", tups2obj(names, vals));
     // console.log(`f(xs): ${energy}`);
     // console.log("f'(xs)", tfsStr(gradfx));
-    // console.log("||f'(xs)||", norm_grad);
-    // console.log("cond", norm_grad > EPS, i < MAX_STEPS);
+    // console.log("||f'(xs)||", sc(normGrad));
+
     i++;
   }
-  // find the current
-  const gradfx = gradf(xs);
-  const normGrad = tf.stack(gradfx).norm();
+
+  // const gradfxLast = gradf(xs);
+  // Note that tf.stack(gradfx) gives a Tensor of single-element tensors, e.g. Tensor [[-2], [2]]
+  // const normGradLast = tf.stack(gradfxLast).norm();
+
   return { energy: energy as Scalar, normGrad: normGrad as Scalar, i };
 };
