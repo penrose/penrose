@@ -287,6 +287,42 @@ export const scalarValue = (x: Scalar): number => x.dataSync()[0];
 export const tfsStr = (xs: any[]) => xs.map((e) => scalarValue(e));
 export const differentiable = (e: number): Variable => tf.scalar(e).variable();
 export const gradF = (fn: any) => tf.grads(fn);
+export const flatten = (t: Tensor): Tensor => tf.reshape(t, [-1]); // flattens something like Tensor [[1], [2], [3]] (3x1 tensor) into Tensor [1, 2, 3] (1x3)
+export const flatten2 = (t: Tensor[]): Tensor => flatten(tf.stack(t));
+export const unflatten = (t: Tensor): Tensor[] => tf.reshape(t, [t.size, 1]).unstack(); // unflatten Tensor [1,2,3] (1x3) into [Tensor [1], Tensor [2], Tensor [3]] (3x1) -- since this is the type that f and gradf require as input and output
+
+const awLineSearch = (
+  f: (...arg: Tensor[]) => Scalar,
+  gradf: (arg: Tensor[]) => Tensor[],
+  xs: Tensor,
+  gradfx: Tensor, // not nested
+  maxSteps = 100
+) => {
+
+  const t = 0.002; // for venn_simple.sty
+  // const t = 0.1; // for tree.sty
+  const descentDir = tf.neg(gradfx);
+  const duf = (u: Tensor, xs2: Tensor) => {
+    // let res = u.dot(flatten2(gradf(unflatten(xs2))));
+    console.log("u,xs2", u.arraySync(), xs2.arraySync());
+    //       gradf(unflatten(xs2)));
+    // TODO: Fix this type
+
+    return u;
+  };
+
+  // TODO: port comments from original
+  const a0 = 0;
+  const b0 = Infinity;
+  const t0 = 1.0;
+
+  console.log("line search", xs.arraySync(),
+    gradfx.arraySync(),
+    duf(xs, xs).arraySync());
+
+  return t;
+
+};
 
 /**
  * Use included tf.js optimizer to minimize f over xs (note: xs is mutable)
@@ -320,12 +356,16 @@ export const minimize = (
     // energy = optimizer.minimize(() => f(...xs) as any, true);
 
     // custom optimizer (TODO: factor out)
-    // right now, just does vanilla gradient descent
+    // right now, just does vanilla gradient descent with line search
     // Note: tf.clone can clone a variable into a tensor, and after that, the two are unrelated
     // TODO: figure out the best way to dispose/tidy the intermediate tensors
-    const stepSize = 0.002; // for venn_simple.sty
-    // const stepSize = 0.1; // for tree.sty
+
+    // TODO: clean this up with the `flatten` function
     gradfx = tf.stack(gradf(xs));
+
+    const xsCopy = flatten2(xs);
+    const stepSize = awLineSearch(f, gradf, xsCopy, flatten(gradfx));
+
     // xs' = xs - dt * grad(f(xs))
     // `stack` makes a new immutable tensor of the vars: Tensor [ v1, v2, v3 ] (where each var is a single-elem list [x])
     // TODO: Can we do this without the arraySync call?
