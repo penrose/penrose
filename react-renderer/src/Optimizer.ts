@@ -302,26 +302,119 @@ const awLineSearch = (
   maxSteps = 100
 ) => {
 
-  const t = 0.002; // for venn_simple.sty
+  // const t = 0.002; // for venn_simple.sty
   // const t = 0.1; // for tree.sty
-  const descentDir = tf.neg(gradfx);
+  const descentDir = tf.neg(gradfx); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
 
-  const duf = (u: Tensor, xs2: Tensor) => {
-    const res = u.dot(flatten2(gradf(unflatten(xs2))));
-    // console.log("u,xs2", u.arraySync(), xs2.arraySync());
-    // console.log("input", unflatten(xs2));
-    // console.log("e", f(...unflatten(xs2)));
-    // console.log("gu", gradf(unflatten(xs2)));
-    // console.log("gu2", flatten2(gradf(unflatten(xs2))));
-    return res;
+  const fFlat = (ys: Tensor) => f(...unflatten(ys));
+  const gradfxsFlat = (ys: Tensor) => flatten2(gradf(unflatten(ys)));
+
+  const duf = (u: Tensor) => {
+    return (ys: Tensor) => {
+      const res = u.dot(gradfxsFlat(ys));
+      // console.log("u,xs2", u.arraySync(), xs2.arraySync());
+      // console.log("input", unflatten(xs2));
+      // console.log("e", f(...unflatten(xs2)));
+      // console.log("gu", gradf(unflatten(xs2)));
+      // console.log("gu2", flatten2(gradf(unflatten(xs2))));
+      return res;
+    }
   };
 
-  // TODO: port comments from original
-  const a0 = 0;
-  const b0 = Infinity;
-  const t0 = 1.0;
+  const dufDescent = duf(descentDir);
+  const dufAtx0 = dufDescent(xs);
+  const fAtx0 = fFlat(xs);
+  const minInterval = 10e-10;
 
-  console.log("line search", xs.arraySync(), gradfx.arraySync(), duf(xs, xs).arraySync());
+  // HS: duf, TS: dufDescent
+  // HS: x0, TS: xs
+
+  // Hyperparameters
+  const c1 = 0.001; // Armijo
+  const c2 = 0.9; // Wolfe
+  // TODO: Will it cause precision issues to use both tf.scalar and `number`?
+
+  // Armijo condition
+  // f(x0 + t * descentDir) <= (f(x0) + c1 * t * <grad(f)(x0), x0>)
+  const armijo = (ti: number) => {
+    // TODO: Use addStrict (etc.) everywhere?
+    const cond1 = fFlat(xs.addStrict(descentDir.mul(ti)));
+    const cond2 = fAtx0.add(dufAtx0.mul(ti * c1));
+    console.log("armijo", cond1.arraySync(), cond2.arraySync());
+    return sc(tf.lessEqualStrict(cond1, cond2));
+  };
+
+  // D(u) := <grad f, u>
+  // D(u, f, x) = <grad f(x), u>
+  // u is the descentDir (i.e. -grad(f)(x))
+
+  // Strong Wolfe condition
+  // |<grad(f)(x0 + t * descentDir), u>| <= c2 * |<grad f(x0), u>|
+  const strongWolfe = (ti: number) => {
+    const cond1 = tf.abs(dufDescent(xs.addStrict(descentDir.mul(ti))));
+    const cond2 = tf.abs(dufAtx0).mul(c2);
+    return sc(tf.lessEqualStrict(cond1, cond2));
+  };
+
+  // Weak Wolfe condition
+  // <grad(f)(x0 + t * descentDir), u> <= c2 * <grad f(x0), u>
+  const weakWolfe = (ti: number) => {
+    const cond1 = dufDescent(xs.addStrict(descentDir.mul(ti)));
+    const cond2 = dufAtx0.mul(c2);
+    console.log("weakWolfe", cond1.arraySync(), cond2.arraySync());
+    return sc(tf.lessEqualStrict(cond1, cond2));
+  };
+
+  const wolfe = weakWolfe; // TODO: Set this if using strongWolfe instead
+
+  // Interval check
+  const shouldStop = (numUpdates: number, ai: number, bi: number) => {
+    const intervalTooSmall = Math.abs(bi - ai) < minInterval;
+    const tooManySteps = numUpdates > maxSteps;
+
+    if (intervalTooSmall) { console.log("interval too small"); }
+    if (tooManySteps) { console.log("too many steps"); }
+
+    return intervalTooSmall || tooManySteps;
+  }
+
+  // Consts / initial values
+  // TODO: port comments from original
+  let a = 0;
+  let b = Infinity;
+  let t = 1.0;
+  let i = 0;
+
+  console.log("line search", xs.arraySync(), gradfx.arraySync(), duf(xs)(xs).arraySync());
+  console.log("armijo", armijo(t));
+  console.log("weak wolfe", weakWolfe(t));
+
+  // Main loop + update check
+  while (true) {
+    const needToStop = shouldStop(i, a, b);
+
+    if (needToStop) {
+      console.log("stopping early: (i, a, b, t) = ", i, a, b, t);
+      break;
+    }
+
+    const isArmijo = armijo(t);
+    const isWolfe = wolfe(t);
+    console.log("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
+
+    if (!isArmijo) { console.log("not armijo"); b = t; }
+    else if (!isWolfe) { console.log("not wolfe"); a = t; }
+    else {
+      console.log("found good interval");
+      console.log("stopping: (i, a, b, t) = ", i, a, b, t);
+      break;
+    }
+
+    if (b < Infinity) { console.log("already found armijo"); t = (a + b) / 2.0; }
+    else { console.log("did not find armijo"); t = 2.0 * a; }
+
+    i++;
+  }
 
   return t;
 };
