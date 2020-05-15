@@ -20,8 +20,11 @@ interface ICanvasState {
 const socketAddress = "ws://localhost:9160";
 
 const stepState = async (state: State, onUpdate: any) => {
-  // const newState = step(state!, 2);
-  const newState = stepEP(state!, 2);
+  const numSteps = 10;
+  // const numSteps = 2;
+
+  // const newState = step(state!, numSteps);
+  const newState = stepEP(state!, numSteps);
   // onUpdate(newState);
   const labeledShapes: any = await collectLabels(newState.shapes);
   onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update

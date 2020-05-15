@@ -302,8 +302,8 @@ const awLineSearch = (
   maxSteps = 100
 ) => {
 
-  // const t = 0.002; // for venn_simple.sty
-  // const t = 0.1; // for tree.sty
+  // TODO: Do console logs with a debug flag
+
   const descentDir = tf.neg(gradfx); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
 
   const fFlat = (ys: Tensor) => f(...unflatten(ys));
@@ -336,11 +336,12 @@ const awLineSearch = (
 
   // Armijo condition
   // f(x0 + t * descentDir) <= (f(x0) + c1 * t * <grad(f)(x0), x0>)
+  // TODO: Check that these inner lines behave as expected with tf.js
   const armijo = (ti: number) => {
     // TODO: Use addStrict (etc.) everywhere?
     const cond1 = fFlat(xs.addStrict(descentDir.mul(ti)));
     const cond2 = fAtx0.add(dufAtx0.mul(ti * c1));
-    console.log("armijo", cond1.arraySync(), cond2.arraySync());
+    // console.log("armijo", cond1.arraySync(), cond2.arraySync());
     return sc(tf.lessEqualStrict(cond1, cond2));
   };
 
@@ -357,12 +358,12 @@ const awLineSearch = (
   };
 
   // Weak Wolfe condition
-  // <grad(f)(x0 + t * descentDir), u> <= c2 * <grad f(x0), u>
+  // <grad(f)(x0 + t * descentDir), u> >= c2 * <grad f(x0), u>
   const weakWolfe = (ti: number) => {
     const cond1 = dufDescent(xs.addStrict(descentDir.mul(ti)));
     const cond2 = dufAtx0.mul(c2);
-    console.log("weakWolfe", cond1.arraySync(), cond2.arraySync());
-    return sc(tf.lessEqualStrict(cond1, cond2));
+    // console.log("weakWolfe", cond1.arraySync(), cond2.arraySync());
+    return sc(tf.greaterEqualStrict(cond1, cond2));
   };
 
   const wolfe = weakWolfe; // TODO: Set this if using strongWolfe instead
@@ -380,14 +381,16 @@ const awLineSearch = (
 
   // Consts / initial values
   // TODO: port comments from original
+
+  // const t = 0.002; // for venn_simple.sty
+  // const t = 0.1; // for tree.sty
+
   let a = 0;
   let b = Infinity;
   let t = 1.0;
   let i = 0;
 
-  console.log("line search", xs.arraySync(), gradfx.arraySync(), duf(xs)(xs).arraySync());
-  console.log("armijo", armijo(t));
-  console.log("weak wolfe", weakWolfe(t));
+  // console.log("line search", xs.arraySync(), gradfx.arraySync(), duf(xs)(xs).arraySync());
 
   // Main loop + update check
   while (true) {
@@ -400,18 +403,27 @@ const awLineSearch = (
 
     const isArmijo = armijo(t);
     const isWolfe = wolfe(t);
-    console.log("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
+    // console.log("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
 
-    if (!isArmijo) { console.log("not armijo"); b = t; }
-    else if (!isWolfe) { console.log("not wolfe"); a = t; }
-    else {
-      console.log("found good interval");
-      console.log("stopping: (i, a, b, t) = ", i, a, b, t);
+    if (!isArmijo) {
+      // console.log("not armijo"); 
+      b = t;
+    } else if (!isWolfe) {
+      // console.log("not wolfe"); 
+      a = t;
+    } else {
+      // console.log("found good interval");
+      // console.log("stopping: (i, a, b, t) = ", i, a, b, t);
       break;
     }
 
-    if (b < Infinity) { console.log("already found armijo"); t = (a + b) / 2.0; }
-    else { console.log("did not find armijo"); t = 2.0 * a; }
+    if (b < Infinity) {
+      // console.log("already found armijo"); 
+      t = (a + b) / 2.0;
+    } else {
+      // console.log("did not find armijo"); 
+      t = 2.0 * a;
+    }
 
     i++;
   }
@@ -461,9 +473,9 @@ export const minimize = (
     gradfx = tf.stack(gradf(xs));
 
     const xsCopy = flatten2(xs);
-    console.log("original xs", xs);
     const stepSize = awLineSearch(f, gradf, xsCopy, flatten(gradfx));
     // const stepSize = 0.002;
+    console.log("stepSize via line search:", stepSize);
 
     // xs' = xs - dt * grad(f(xs))
     // `stack` makes a new immutable tensor of the vars: Tensor [ v1, v2, v3 ] (where each var is a single-elem list [x])
