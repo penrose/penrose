@@ -289,7 +289,10 @@ export const differentiable = (e: number): Variable => tf.scalar(e).variable();
 export const gradF = (fn: any) => tf.grads(fn);
 export const flatten = (t: Tensor): Tensor => tf.reshape(t, [-1]); // flattens something like Tensor [[1], [2], [3]] (3x1 tensor) into Tensor [1, 2, 3] (1x3)
 export const flatten2 = (t: Tensor[]): Tensor => flatten(tf.stack(t));
-export const unflatten = (t: Tensor): Tensor[] => tf.reshape(t, [t.size, 1]).unstack(); // unflatten Tensor [1,2,3] (1x3) into [Tensor [1], Tensor [2], Tensor [3]] (3x1) -- since this is the type that f and gradf require as input and output
+
+export const unflatten = (t: Tensor): Tensor[] => tf.reshape(t, [t.size, 1]).unstack().map(e => e.asScalar());
+// unflatten Tensor [1,2,3] (1x3) into [Tensor 1, Tensor 2, Tensor 3] (3x1) -- since this is the type that f and gradf require as input and output
+// The problem is that our data representation assumes a Tensor of size zero (i.e. scalar(3) = Tensor 3), not of size 1 (i.e. Tensor [3])
 
 const awLineSearch = (
   f: (...arg: Tensor[]) => Scalar,
@@ -302,13 +305,15 @@ const awLineSearch = (
   const t = 0.002; // for venn_simple.sty
   // const t = 0.1; // for tree.sty
   const descentDir = tf.neg(gradfx);
-  const duf = (u: Tensor, xs2: Tensor) => {
-    // let res = u.dot(flatten2(gradf(unflatten(xs2))));
-    console.log("u,xs2", u.arraySync(), xs2.arraySync());
-    //       gradf(unflatten(xs2)));
-    // TODO: Fix this type
 
-    return u;
+  const duf = (u: Tensor, xs2: Tensor) => {
+    const res = u.dot(flatten2(gradf(unflatten(xs2))));
+    // console.log("u,xs2", u.arraySync(), xs2.arraySync());
+    // console.log("input", unflatten(xs2));
+    // console.log("e", f(...unflatten(xs2)));
+    // console.log("gu", gradf(unflatten(xs2)));
+    // console.log("gu2", flatten2(gradf(unflatten(xs2))));
+    return res;
   };
 
   // TODO: port comments from original
@@ -316,12 +321,9 @@ const awLineSearch = (
   const b0 = Infinity;
   const t0 = 1.0;
 
-  console.log("line search", xs.arraySync(),
-    gradfx.arraySync(),
-    duf(xs, xs).arraySync());
+  console.log("line search", xs.arraySync(), gradfx.arraySync(), duf(xs, xs).arraySync());
 
   return t;
-
 };
 
 /**
@@ -361,10 +363,14 @@ export const minimize = (
     // TODO: figure out the best way to dispose/tidy the intermediate tensors
 
     // TODO: clean this up with the `flatten` function
+    // TODO: On iteration, can we save time/space by not reshaping/assigning all these tensors??
+
     gradfx = tf.stack(gradf(xs));
 
     const xsCopy = flatten2(xs);
+    console.log("original xs", xs);
     const stepSize = awLineSearch(f, gradf, xsCopy, flatten(gradfx));
+    // const stepSize = 0.002;
 
     // xs' = xs - dt * grad(f(xs))
     // `stack` makes a new immutable tensor of the vars: Tensor [ v1, v2, v3 ] (where each var is a single-elem list [x])
@@ -377,7 +383,7 @@ export const minimize = (
 
     // note: this printing could tank the performance
     // const vals = xs.map(v => v.dataSync()[0]);
-    // console.log("i=", i);
+    console.log("i = ", i);
     // console.log(`f(xs): ${energy}`);
     // console.log("f'(xs)", tfsStr(gradfx));
     // console.log("||f'(xs)||", sc(normGrad));
