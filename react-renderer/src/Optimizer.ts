@@ -207,9 +207,6 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
  * @returns a function that takes in a list of `Variable`s and return a `Scalar`
  */
 export const evalEnergyOn = (state: State) => {
-  // NOTE: this will greatly improve the performance of the optmizer
-  // TODO: move this decl to somewhere else
-  tf.setBackend("cpu");
   const { objFns, constrFns, translation, varyingPaths } = state;
   // TODO: types
   return (...varyingValuesTF: Variable[]): Scalar => {
@@ -473,8 +470,8 @@ export const minimize = (
     gradfx = tf.stack(gradf(xs));
 
     const xsCopy = flatten2(xs);
-    const stepSize = awLineSearch(f, gradf, xsCopy, flatten(gradfx));
-    // const stepSize = 0.002;
+    // const stepSize = awLineSearch(f, gradf, xsCopy, flatten(gradfx));
+    const stepSize = 0.002;
     console.log("stepSize via line search:", stepSize);
 
     // xs' = xs - dt * grad(f(xs))

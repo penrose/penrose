@@ -9,6 +9,7 @@ import { evalTranslation, decodeState } from "./Evaluator";
 import { step, stepEP } from "./Optimizer";
 import { unwatchFile } from "fs";
 import { collectLabels } from "./utills/CollectLabels";
+import * as tf from "@tensorflow/tfjs";
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
@@ -20,6 +21,11 @@ interface ICanvasState {
 const socketAddress = "ws://localhost:9160";
 
 const stepState = async (state: State, onUpdate: any) => {
+  // NOTE: this will greatly improve the performance of the optmizer
+  // TODO: where's the right place to put this? Is there an "on start up" place?
+  tf.setBackend("cpu");
+  tf.enableProdMode();
+
   const numSteps = 10;
   // const numSteps = 2;
 
