@@ -103,7 +103,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   switch (optStatus.tag) {
     case "NewIter": {
       // Collect the overall objective and varying values
-      const overallObjective = evalEnergyOn(state, false); // TODO. Why is this being generated here?
+      const overallObjective = evalEnergyOn(state, true); // TODO. Why is this being generated here?
 
       const newParams: Params = {
         ...state.params,
