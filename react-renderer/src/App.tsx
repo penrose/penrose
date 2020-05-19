@@ -6,7 +6,7 @@ import { ILayer } from "./types";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
-import { step, stepEP } from "./Optimizer";
+import { step, stepEP, stepBasic } from "./Optimizer";
 import { unwatchFile } from "fs";
 import { collectLabels } from "./utills/CollectLabels";
 import * as tf from "@tensorflow/tfjs";
@@ -30,7 +30,9 @@ const stepState = async (state: State, onUpdate: any) => {
   // const numSteps = 2;
 
   // const newState = step(state!, numSteps);
-  const newState = stepEP(state!, numSteps);
+  // const newState = stepEP(state!, numSteps);
+  const newState = stepBasic(state!, numSteps);
+
   // onUpdate(newState);
   const labeledShapes: any = await collectLabels(newState.shapes);
   onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update

@@ -103,7 +103,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   switch (optStatus.tag) {
     case "NewIter": {
       // Collect the overall objective and varying values
-      const overallObjective = evalEnergyOn(state, true); // TODO. Why is this being generated here?
+      const overallObjective = evalEnergyOn(state, false); // TODO. Why is this being generated here?
 
       const newParams: Params = {
         ...state.params,
@@ -124,7 +124,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
       // (basically use the last UO state, not last EP state)
 
       const f = state.overallObjective;
-      const fgrad = gradF(f, true);
+      const fgrad = gradF(f, false);
       // NOTE: minimize will mutate xs
       const { energy, normGrad } = minimize(f, fgrad, xs, steps);
 
@@ -200,6 +200,105 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   }
 
   return newState;
+};
+
+export const stepBasic = (state: State, steps: number, evaluate = true) => {
+
+  console.log("stepBasic");
+  const { optStatus, weight } = state.params;
+  let newState = { ...state };
+  const optParams = newState.params; // this is just a reference, so updating this will update newState as well
+  // const xs: Variable[] = optParams.mutableUOstate; // also a reference
+  let xs: number[] = state.varyingValues;
+
+  console.log("fns: ", prettyPrintFns(state));
+  console.log("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
+
+  switch (optStatus.tag) {
+    case "NewIter": {
+      console.log("stepBasic newIter, xs", xs);
+
+      // Collect the overall objective and varying values
+      const overallObjective = evalEnergyOn(state, true); // TODO. Why is this being generated here?
+
+      const newParams: Params = {
+        ...state.params,
+        weight: initConstraintWeight,
+        UOround: 0,
+        EPround: 0,
+        optStatus: { tag: "UnconstrainedRunning" },
+      };
+
+      return { ...state, params: newParams, overallObjective };
+    }
+
+    default: {
+      console.log("stepBasic step, xs", xs);
+      xs = minimizeBasic(xs); // mutates xs
+    }
+  }
+
+  // return the state with a new set of shapes
+  if (evaluate) {
+    const varyingValues = xs;
+    // console.log("evaluating state with varying values", varyingValues);
+    // console.log("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
+
+    newState.translation = insertVaryings(
+      state.translation,
+      zip(state.varyingPaths, varyingValues) as [Path, number][]
+    );
+
+    newState.varyingValues = varyingValues;
+    newState = evalTranslation(newState);
+  }
+
+  return newState;
+};
+
+// Mutates the input list
+const minimizeBasic = (xs: number[]) => {
+  // FNS: ["sameCenter(A.text, A.shape)", "sameCenter(B.text, B.shape)"] => [f(s1, s2), f(s3, s4)]
+  // VARS: [
+  // "A.shape.x" (0), "A.shape.y" (1), 
+  // "A.text.x" (2), "A.text.y" (3), 
+  // "B.shape.x" (4), "B.shape.y" (5), 
+  // "B.text.x" (6), "B.text.y" (7)]
+
+  // GRAD:
+  // (In general, df(s1, s2)/d(s1x) = d((a-b)^2)/da = 2(a-b) = basically a-b
+  // [ A.shape.x - A.text.x, A.shape.y - A.text.y,
+  //   A.text.x - A.shape.x, A.text.y - A.shape.y, 
+  //   B.shape.x - B.text.x, B.shape.y - B.text.y,
+  //   B.text.x - B.shape.x, B.text.y - B.shape.y ]
+  // [ xs[0] - xs[2], xs[1] - xs[3],
+  //   xs[2] - xs[0], xs[3] - xs[1],
+  //   xs[4] - xs[6], xs[5] - xs[7],
+  //   xs[6] - xs[4], xs[7] - xs[5] ] 
+  // Pretty sure you could implement this as a matrix
+
+  let ys = [...xs];
+
+  const gradf = (zs: number[]) =>
+    [zs[0] - zs[2], zs[1] - zs[3],
+    zs[2] - zs[0], zs[3] - zs[1],
+    zs[4] - zs[6], zs[5] - zs[7],
+    zs[6] - zs[4], zs[7] - zs[5]];
+
+  const numSteps = 10000;
+  let i = 0;
+  const t = 0.01;
+
+  while (i < numSteps) {
+    // console.log("i", i);
+    // ys' = ys - t * gradf(ys)
+    const gradres = gradf(ys);
+    ys = ys.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
+    // console.log("gradres", gradres, "ys", ys);
+    i++;
+  }
+
+  return ys;
 };
 
 // TODO: move these fns to utils
