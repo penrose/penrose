@@ -1,0 +1,23 @@
+forall Set x {
+    x.shape = Circle {
+        strokeWidth : 0
+    }
+
+    x.text = Text {
+        string : x.label
+    }
+
+    -- ensure contains(x.shape, x.text)
+    encourage sameCenter(x.text, x.shape)
+    -- ensure minSize(x.shape)
+    -- ensure maxSize(x.shape)
+}
+
+-- forall Set x; Set y
+-- where IsSubset(x, y) {
+
+--     ensure smallerThan(x.shape, y.shape)
+--     ensure outsideOf(y.text, x.shape)
+--     ensure contains(y.shape, x.shape, 5.0)
+--     x.shape above y.shape
+-- }

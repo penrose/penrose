@@ -170,6 +170,7 @@ export const dist = (p1: Tensor, p2: Tensor): Tensor => p1.sub(p2).norm();
 // Apparently typescript can't check a return type of `Tensor<Rank.R0>`?
 export const distsq = (p1: Tensor, p2: Tensor): Tensor => {
   const dp = p1.sub(p2);
+  // console.log("p1, p2", p1, p2, p1.arraySync(), p2.arraySync(), dp.arraySync());
   return dp.dot(dp);
 }
 

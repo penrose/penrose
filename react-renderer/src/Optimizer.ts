@@ -96,12 +96,14 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 
   console.log("step EP | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
   console.log("params: ", optParams);
-  // console.log("state: ", state);
+  console.log("state: ", state);
+  console.log("fns: ", prettyPrintFns(state));
+  console.log("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
 
   switch (optStatus.tag) {
     case "NewIter": {
       // Collect the overall objective and varying values
-      const overallObjective = evalEnergyOn(state); // TODO. Why is this being generated here?
+      const overallObjective = evalEnergyOn(state, false); // TODO. Why is this being generated here?
 
       const newParams: Params = {
         ...state.params,
@@ -122,7 +124,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
       // (basically use the last UO state, not last EP state)
 
       const f = state.overallObjective;
-      const fgrad = gradF(f);
+      const fgrad = gradF(f, true);
       // NOTE: minimize will mutate xs
       const { energy, normGrad } = minimize(f, fgrad, xs, steps);
 
@@ -200,13 +202,39 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   return newState;
 };
 
+// TODO: move these fns to utils
+const prettyPrintExpr = (arg: any) => {
+  // TODO: only handles paths for now; generalize to other exprs
+  const obj = arg.contents.contents;
+  const varName = obj[0].contents;
+  const varField = obj[1];
+  return [varName, varField].join(".");
+};
+
+const prettyPrintFn = (fn: any) => {
+  const name = fn.fname;
+  const args = fn.fargs.map(prettyPrintExpr).join(", ");
+  return [name, "(", args, ")"].join("");
+};
+
+const prettyPrintFns = (state: any) => state.objFns.concat(state.constrFns).map(prettyPrintFn);
+
+// TODO: only handles property paths for now
+const prettyPrintProperty = (arg: any) => {
+  const obj = arg.contents;
+  const varName = obj[0].contents;
+  const varField = obj[1];
+  const property = obj[2];
+  return [varName, varField, property].join(".");
+};
+
 /**
  * Generate an energy function from the current state
  *
  * @param {State} state
  * @returns a function that takes in a list of `Variable`s and return a `Scalar`
  */
-export const evalEnergyOn = (state: State) => {
+export const evalEnergyOn = (state: State, inlined = false) => {
   const { objFns, constrFns, translation, varyingPaths } = state;
   // TODO: types
   return (...varyingValuesTF: Variable[]): Scalar => {
@@ -214,6 +242,15 @@ export const evalEnergyOn = (state: State) => {
     const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<
       Variable
     >;
+
+    if (inlined) {
+      console.log("returning inlined function for `tree-small.sub` and `venn-small.sub`");
+
+      // TODO: Put inlined function here
+
+      const res = stack(varyingValuesTF).sum();
+      return res.mul(scalar(0));
+    }
 
     const objEvaled = evalFns(objFns, translation, varyingMap);
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
@@ -278,12 +315,31 @@ export const step = (state: State, steps: number) => {
 ////////////////////////////////////////////////////////////////////////////////
 // All TFjs related functions
 
+export const gradF = (fn: any, inlined = false) => {
+  if (inlined) {
+    // gradf: (arg: Tensor[]) => Tensor[],
+    // TODO: Where do I have access to the state?
+    return (args: Scalar[]) => [tf.scalar(0.0),
+    tf.scalar(0.0),
+    tf.scalar(0.0),
+    tf.scalar(0.0),
+    tf.scalar(0.0),
+    tf.scalar(0.0),
+    tf.scalar(0.0),
+    tf.scalar(0.0),
+    tf.scalar(0.0),
+    tf.scalar(0.0)
+    ];
+  }
+
+  return tf.grads(fn);
+}
+
 // TODO: types
 export const sc = (x: any): number => x.dataSync()[0];
 export const scalarValue = (x: Scalar): number => x.dataSync()[0];
 export const tfsStr = (xs: any[]) => xs.map((e) => scalarValue(e));
 export const differentiable = (e: number): Variable => tf.scalar(e).variable();
-export const gradF = (fn: any) => tf.grads(fn);
 export const flatten = (t: Tensor): Tensor => tf.reshape(t, [-1]); // flattens something like Tensor [[1], [2], [3]] (3x1 tensor) into Tensor [1, 2, 3] (1x3)
 export const flatten2 = (t: Tensor[]): Tensor => flatten(tf.stack(t));
 
@@ -450,7 +506,7 @@ export const minimize = (
   // values to be returned
   let energy;
   let i = 0;
-  let gradfx;
+  let gradfx = tf.stack(gradf(xs));;
   let normGrad;
 
   // TODO: Check that the way this loop is being called (and with # steps) satisfies the requirements of EP (e.g. minimizing an unconstrained problem)
@@ -468,11 +524,12 @@ export const minimize = (
     // TODO: On iteration, can we save time/space by not reshaping/assigning all these tensors??
 
     gradfx = tf.stack(gradf(xs));
+    // TODO: Put inlined gradient here. Or just use JS lists (vectors? Is there a better data structure?) and inlined gradient, idk
 
-    const xsCopy = flatten2(xs);
+    // const xsCopy = flatten2(xs);
     // const stepSize = awLineSearch(f, gradf, xsCopy, flatten(gradfx));
-    const stepSize = 0.002;
-    console.log("stepSize via line search:", stepSize);
+    const stepSize = 0.001;
+    // console.log("stepSize via line search:", stepSize);
 
     // xs' = xs - dt * grad(f(xs))
     // `stack` makes a new immutable tensor of the vars: Tensor [ v1, v2, v3 ] (where each var is a single-elem list [x])
@@ -481,12 +538,12 @@ export const minimize = (
     // Set each variable to the result
     xs.forEach((e, j) => e.assign(tf.tensor(xsNew[j])));
     energy = f(...xs);
-    normGrad = gradfx.norm();
+    // normGrad = gradfx.norm();
 
     // note: this printing could tank the performance
+    // console.log("i = ", i);
     // const vals = xs.map(v => v.dataSync()[0]);
-    console.log("i = ", i);
-    // console.log(`f(xs): ${energy}`);
+    console.log(`f(xs): ${energy}`);
     // console.log("f'(xs)", tfsStr(gradfx));
     // console.log("||f'(xs)||", sc(normGrad));
 
@@ -496,6 +553,9 @@ export const minimize = (
   // const gradfxLast = gradf(xs);
   // Note that tf.stack(gradfx) gives a Tensor of single-element tensors, e.g. Tensor [[-2], [2]]
   // const normGradLast = tf.stack(gradfxLast).norm();
+
+  energy = f(...xs);
+  normGrad = gradfx.norm();
 
   return { energy: energy as Scalar, normGrad: normGrad as Scalar, i };
 };
