@@ -519,3 +519,37 @@ interface IParams {
   // For L-BFGS (TODO)
   bfgsInfo: BfgsParams;
 }
+
+// ------------ Types for reverse-mode autodiff
+
+// ----- Helper types
+
+interface Nothing<T> {
+  tag: "Nothing";
+}
+
+interface Just<T> {
+  tag: "Just";
+  contents: T;
+}
+
+type MaybeVal<T> =
+  | Nothing<T>
+  | Just<T>;
+
+// ----- Core types
+
+interface INodeAD {
+  node: IVarAD;
+  differential: number; // Value "flowing down" from parent z (output, which is THIS NODE) to child x (input), dz/dx
+};
+
+type NodeAD = INodeAD;
+
+interface IVarAD {
+  val: number;
+  parents: NodeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  gradVal: MaybeVal<number>;
+}
+
+type VarAD = IVarAD;

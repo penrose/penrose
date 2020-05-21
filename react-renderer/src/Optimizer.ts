@@ -15,7 +15,7 @@ import {
   evalFns,
 } from "./Evaluator";
 import { zip, sum } from "lodash";
-import { constrDict, objDict } from "./Constraints";
+import { constrDict, objDict, testReverseAD, energyAndGradAD } from "./Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -310,18 +310,28 @@ const minimizeBasic = (xs: number[]) => {
   const t = 0.01;
   let ys = [...xs];
   let gradres = [...xs];
+  let adRes = energyAndGradAD(ys); // TODO: remove redundant
   let i = 0;
 
+  // TODO: TEST, REMOVE
+  // testReverseAD();
+
   while (i < numSteps) {
+    adRes = energyAndGradAD(ys)
+    console.log("auto energy", adRes.energyVal, adRes.gradVal);
+
     // console.log("i", i);
     // ys' = ys - t * gradf(ys)
-    gradres = gradf(ys);
+
+    gradres = adRes.gradVal; // gradf(ys);
+
     ys = ys.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
     i++;
   }
 
   // console.log("gradres", gradres, "ys", ys);
-  console.log("f(x)", energy(ys));
+  // console.log("f(x)", energy(ys));
+  console.log("f(x)", adRes.energyVal);
   console.log("|grad f(x)|:", norm(gradres));
 
   return ys;

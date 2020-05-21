@@ -183,3 +183,239 @@ export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));
 //   // TODO: types for args
 //   return (...args: any[]) => toPenalty(constrDict[name]);
 // };
+
+// -----------------
+
+// Reverse-mode AD
+// Implementation adapted from https://rufflewind.com/2016-12-30/reverse-mode-automatic-differentiation and https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
+
+// TODO: Are there specific things that need to be done for consts, not vars?
+// NOTE: VARIABLES ARE MUTATED DURING AD CALCULATION
+
+// ----- Core AD code
+
+const variable = (x: number): VarAD => {
+  return {
+    val: x,
+    parents: [],
+    gradVal: { tag: "Nothing" }
+  };
+};
+
+// TODO: Do we need to "flush" the cached vals and reseed after computing the grad once? 
+
+// This should only be applied to a leaf node (TODO: fix API) 
+// It moves forward from the leaf in question, then recursively arrives at the seed node (one output parent), then spreads back down to all leaves. End: all gradients are set
+
+//            (ds/ds = 1)
+//                s
+//               ^ ^
+//              /   \
+//               ...
+//        z1 = ...  z2 = ...
+//              ^   ^
+//  dz1/dv = ... \ / dz2/dv = ...
+//               (v) = ...
+//          
+//  ds/dv = ds/sz1 * dz1/dv + ds/dz2 * dz2/dv + ...
+// The recursive parts are ds/dzi (the parents further up)
+
+// grad(v) means ds/dv (s is the single output seed)
+
+const grad = (v: VarAD): number => {
+  // Already computed/cached the gradient
+  if (v.gradVal.tag === "Just") {
+    return v.gradVal.contents;
+  }
+
+  // TODO: What's the most efficient way to do this recursion?
+  // parent.differential = dzi/dv (in expression above)
+  // grad(parent.node) = ds/dzi
+  const res = _.sum(v.parents.map(parent => parent.differential * grad(parent.node)));
+
+  // Note we both set the gradVal and return it
+  v.gradVal = { tag: "Just", contents: res };
+
+  return res;
+};
+
+// ----- Ops (extensible)
+// NOTE: These all update the graph and return new variables that should be used to build the ops
+
+// NOTE: For the resulting var `z`, z's parents and grad are uninitialized
+
+// TODO: Factor out op helper to deal with graph-building boilerplate
+
+// --- Binary ops
+
+//                (+) (z := v + w)     -- parent
+//               ^   ^
+// dz/dv = 1    /     \    dz/dw = 1   -- differentials
+//             v       w               -- children
+
+const add = (v: VarAD, w: VarAD): VarAD => {
+  const z = variable(v.val + w.val);
+  v.parents.push({ node: z, differential: 1.0 });
+  w.parents.push({ node: z, differential: 1.0 });
+  return z;
+};
+
+const mul = (v: VarAD, w: VarAD): VarAD => {
+  const z = variable(v.val * w.val);
+  v.parents.push({ node: z, differential: w.val });
+  w.parents.push({ node: z, differential: v.val });
+  return z;
+};
+
+const sub = (v: VarAD, w: VarAD): VarAD => {
+  const z = variable(v.val - w.val);
+  v.parents.push({ node: z, differential: 1.0 });
+  w.parents.push({ node: z, differential: -1.0 });
+  return z;
+};
+
+// --- Unary ops
+
+const sin = (v: VarAD): VarAD => {
+  const z = variable(Math.sin(v.val));
+  v.parents.push({ node: z, differential: Math.cos(v.val) });
+  return z;
+};
+
+const neg = (v: VarAD): VarAD => {
+  const z = variable(-v.val);
+  v.parents.push({ node: z, differential: -1.0 });
+  return z;
+};
+
+// TODO: rename to `square` after tf.js dependency is removed
+const squared = (v: VarAD): VarAD => {
+  const z = variable(v.val * v.val);
+  v.parents.push({ node: z, differential: 2.0 * v.val });
+  return z;
+};
+
+// ----- Helper functions
+
+const fromJust = (n: MaybeVal<number>): number => {
+  if (n.tag === "Just") {
+    return n.contents;
+  }
+
+  console.error("expected value in fromJust but got Nothing");
+  return 0;
+}
+
+const assert = (b: boolean, s: any[]) => {
+  const res = b ? "passed" : "failed";
+  console.assert(b);
+  console.log("Assertion", res, ...s);
+}
+
+const close = (x: number, y: number) => {
+  const EPS = 1e-15;
+  console.log("x, y", x, y); // TODO make the assert better
+  return Math.abs(x - y) < EPS;
+};
+
+// ----- Tests
+
+const testAD1 = () => {
+  console.log("Testing z := x + y");
+  const x = variable(0.5);
+  const y = variable(4.2);
+  const z = add(x, y);
+
+  z.gradVal = { tag: "Just", contents: 1.0 }; // seed: dz/d(x_i) (there's only one output)
+  const dx = grad(x);
+  const dy = grad(y);
+  console.log("z, x, y", z, x, y);
+  console.log("dx, dy", dx, dy);
+
+  const vals = [z, x, y];
+  assert(close(z.val, x.val + y.val), ["z = x + y", vals]);
+  assert(close(fromJust(x.gradVal), 1.0), ["dz/dx = 1", vals]);
+  assert(close(fromJust(y.gradVal), 1.0), ["dz/dy = 1", vals]);
+};
+
+// From https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
+const testAD2 = () => {
+  console.log("Testing z := (x * y) + sin(x)");
+  const x = variable(0.5);
+  const y = variable(4.2);
+  const z = add(mul(x, y), sin(x)); // x * y + sin(x)
+
+  z.gradVal = { tag: "Just", contents: 1.0 };
+  const dx = grad(x);
+  const dy = grad(y);
+  console.log("z, x, y", z, x, y);
+  console.log("dx, dy", dx, dy);
+
+  const vals = [z, x, y, dx, dy];
+  assert(close(z.val, (x.val * y.val) + Math.sin(x.val)), ["z := (x * y) + sin(x)", vals]);
+  assert(close(fromJust(x.gradVal), (y.val + Math.cos(x.val))), ["dz/dx", vals]);
+  assert(close(fromJust(y.gradVal), x.val), ["dz/dy", vals]);
+};
+
+// TODO: Test for numerical instability
+
+const testAD3 = () => {
+  console.log("Testing z := (x - y)^2"); // x^2 - 2xy + y^2
+  const x = variable(0.5);
+  const y = variable(4.2);
+  const z = squared(sub(x, y));
+
+  z.gradVal = { tag: "Just", contents: 1.0 };
+  const dx = grad(x);
+  const dy = grad(y);
+  console.log("z, x, y", z, x, y);
+  console.log("dx, dy", dx, dy);
+
+  const vals = [z, x, y, dx, dy];
+  assert(close(z.val, Math.pow(x.val - y.val, 2.0)), ["z := (x - y)^2", vals]);
+  assert(close(fromJust(x.gradVal), (2.0 * x.val - 2.0 * y.val)), ["dz/dx", vals]);
+  assert(close(fromJust(y.gradVal), (2.0 * y.val - 2.0 * x.val)), ["dz/dy", vals]);
+};
+
+// Helpers for programmatic testing
+
+export const energyAndGradAD = (state: number[]) => {
+  const stateCopy = [...state];
+  const xs = stateCopy.map(x => variable(x));
+  // TODO: Can I use intermediate expressions?
+  const z =
+    add(
+      add(
+        squared(sub(xs[2], xs[0])),
+        squared(sub(xs[3], xs[1]))
+      ),
+      add(
+        squared(sub(xs[6], xs[4])),
+        squared(sub(xs[7], xs[5]))
+      )
+    );
+
+  z.gradVal = { tag: "Just", contents: 1.0 };
+  // This will evaluate the energy
+  const energyZ = z.val;
+  console.log("energyZ", energyZ);
+
+  // This will take the grad of all of them, TODO note cache / mutability
+  const dxs = xs.map(x => grad(xs[0]));
+  const gradxs = xs.map(x => fromJust(x.gradVal));
+  console.log("gradxs", gradxs);
+
+  return { energyVal: energyZ, gradVal: gradxs };
+};
+
+// Main
+
+export const testReverseAD = () => {
+  console.log("testing reverse AD");
+
+  // TODO: Generalize these tests to be parametrized/fuzzed etc
+  // TODO: Have nodes store their names/ops?
+  testAD1();
+  testAD2();
+  testAD3();
+};
