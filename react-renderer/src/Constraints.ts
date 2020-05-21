@@ -172,7 +172,7 @@ export const distsq = (p1: Tensor, p2: Tensor): Tensor => {
   const dp = p1.sub(p2);
   // console.log("p1, p2", p1, p2, p1.arraySync(), p2.arraySync(), dp.arraySync());
   return dp.dot(dp);
-}
+};
 
 // with epsilon to avoid NaNs
 export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));

@@ -14,7 +14,7 @@ import {
   genVaryMap,
   evalFns,
 } from "./Evaluator";
-import { zip } from "lodash";
+import { zip, sum } from "lodash";
 import { constrDict, objDict } from "./Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -256,7 +256,6 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
   return newState;
 };
 
-// Mutates the input list
 const minimizeBasic = (xs: number[]) => {
   // FNS: ["sameCenter(A.text, A.shape)", "sameCenter(B.text, B.shape)"] => [f(s1, s2), f(s3, s4)]
   // VARS: [
@@ -277,26 +276,53 @@ const minimizeBasic = (xs: number[]) => {
   //   xs[6] - xs[4], xs[7] - xs[5] ] 
   // Pretty sure you could implement this as a matrix
 
-  let ys = [...xs];
+  // TODO: find the derivative of this example using reverse-mode AD
+  // I wonder if fwd-mode AD, though horribly inefficient, might be fast enough for our immediate purposes
 
+  // 1) Inlined energy
+  // distsq(center(A.text), center(A.shape)) + distsq(center(B.text), center(B.shape))
+  // distsq([zs[2], zs[3]], [zs[0], zs[1]]) + distsq([zs[6], zs[7]], [zs[4], zs[5]])
+  // (zs[2] - zs[0])^2 + (zs[3] - zs[1])^2 + (zs[6] - zs[4])^2 + (zs[7] - zs[5])^2
+  const energy = (zs: number[]) => {
+    const res1 = zs[2] - zs[0];
+    const res2 = zs[3] - zs[1];
+    const res3 = zs[6] - zs[4];
+    const res4 = zs[7] - zs[5];
+    return res1 * res1 + res2 * res2 + res3 * res3 + res4 * res4;
+  };
+
+  // 2) Inlined gradient
   const gradf = (zs: number[]) =>
     [zs[0] - zs[2], zs[1] - zs[3],
     zs[2] - zs[0], zs[3] - zs[1],
     zs[4] - zs[6], zs[5] - zs[7],
     zs[6] - zs[4], zs[7] - zs[5]];
 
+  // a) How to automatically get from 1) to 2)? Then how to automatically get 1)?
+  // The only ops in the energy are (-), (+), and (^2) / (alternately, (*) and assignment)
+  // What data structure should the energy be written in? Is there an easy way to do this statically, instead of dynamically?
+  // TODO
+
+  const norm = (zs: number[]) =>
+    Math.sqrt(sum(zs.map(e => e * e)));
+
   const numSteps = 10000;
-  let i = 0;
   const t = 0.01;
+  let ys = [...xs];
+  let gradres = [...xs];
+  let i = 0;
 
   while (i < numSteps) {
     // console.log("i", i);
     // ys' = ys - t * gradf(ys)
-    const gradres = gradf(ys);
+    gradres = gradf(ys);
     ys = ys.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
-    // console.log("gradres", gradres, "ys", ys);
     i++;
   }
+
+  // console.log("gradres", gradres, "ys", ys);
+  console.log("f(x)", energy(ys));
+  console.log("|grad f(x)|:", norm(gradres));
 
   return ys;
 };
