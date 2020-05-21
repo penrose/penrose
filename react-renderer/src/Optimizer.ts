@@ -257,6 +257,8 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 };
 
 const minimizeBasic = (xs: number[]) => {
+  console.log("minimizeBasic");
+
   // FNS: ["sameCenter(A.text, A.shape)", "sameCenter(B.text, B.shape)"] => [f(s1, s2), f(s3, s4)]
   // VARS: [
   // "A.shape.x" (0), "A.shape.y" (1), 
@@ -318,7 +320,7 @@ const minimizeBasic = (xs: number[]) => {
 
   while (i < numSteps) {
     adRes = energyAndGradAD(ys)
-    console.log("auto energy", adRes.energyVal, adRes.gradVal);
+    // console.log("auto energy", adRes.energyVal, adRes.gradVal);
 
     // console.log("i", i);
     // ys' = ys - t * gradf(ys)

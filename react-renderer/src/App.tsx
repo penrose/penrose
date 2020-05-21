@@ -26,7 +26,8 @@ const stepState = async (state: State, onUpdate: any) => {
   tf.setBackend("cpu");
   tf.enableProdMode();
 
-  const numSteps = 10;
+  // TODO: Redo perf numbers for this extra factor of 10??
+  const numSteps = 1;
   // const numSteps = 2;
 
   // const newState = step(state!, numSteps);

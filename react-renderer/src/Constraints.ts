@@ -205,7 +205,8 @@ const variable = (x: number): VarAD => {
 // TODO: Do we need to "flush" the cached vals and reseed after computing the grad once? 
 
 // This should only be applied to a leaf node (TODO: fix API) 
-// It moves forward from the leaf in question, then recursively arrives at the seed node (one output parent), then spreads back down to all leaves. End: all gradients are set
+// It moves forward from the leaf in question, then recursively arrives at the seed node (one output parent), caching each gradient value for an intermediate note
+// (However, it doesn't calculate gradient for any other leaf nodes, though they do use the cached intermediate values)
 
 //            (ds/ds = 1)
 //                s
@@ -382,7 +383,11 @@ const testAD3 = () => {
 export const energyAndGradAD = (state: number[]) => {
   const stateCopy = [...state];
   const xs = stateCopy.map(x => variable(x));
-  // TODO: Can I use intermediate expressions?
+
+  // This `z` expression will do two things:
+  // 1) Evaluate the expression (forward), resulting in the value of z
+  // 2) Dynamically build the computational graph: mutate the `xs` and automatically create anonymous intermediate nodes (parents) that the leaf nodes `xs` hold references to
+
   const z =
     add(
       add(
@@ -398,13 +403,18 @@ export const energyAndGradAD = (state: number[]) => {
   z.gradVal = { tag: "Just", contents: 1.0 };
   // This will evaluate the energy
   const energyZ = z.val;
-  console.log("energyZ", energyZ);
+  // console.log("energyZ", energyZ);
 
   // This will take the grad of all of them, TODO note cache / mutability
-  const dxs = xs.map(x => grad(xs[0]));
+  const dxs = xs.map(grad);
   const gradxs = xs.map(x => fromJust(x.gradVal));
-  console.log("gradxs", gradxs);
 
+  // console.log("xs", xs);
+  // console.log("gradxs", gradxs);
+
+  // TODO: check correctness against analytic energy/gradient
+
+  // TODO: Need to free the memory of this comp graph on later runs?
   return { energyVal: energyZ, gradVal: gradxs };
 };
 

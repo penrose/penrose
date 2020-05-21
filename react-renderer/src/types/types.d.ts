@@ -539,16 +539,27 @@ type MaybeVal<T> =
 
 // ----- Core types
 
-interface INodeAD {
+//      s ("single output" node)
+//     ... 
+//     PARENT node (z) -- has refs to its parents
+//      ^
+//      | differential (dz/dv)
+//      |
+//     var (v)         -- has refs to its parents
+// (carries gradVal: ds/dv)
+
+// (var and node are used interchangeably)
+
+interface IEdgeAD {
   node: IVarAD;
-  differential: number; // Value "flowing down" from parent z (output, which is THIS NODE) to child x (input), dz/dx
+  differential: number; // Value "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
 };
 
-type NodeAD = INodeAD;
+type EdgeAD = IEdgeAD;
 
 interface IVarAD {
   val: number;
-  parents: NodeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
   gradVal: MaybeVal<number>;
 }
 
