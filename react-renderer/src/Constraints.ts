@@ -380,6 +380,32 @@ const testAD3 = () => {
 
 // Helpers for programmatic testing
 
+// TODO: Probably the right thing to do is make the objectives/constraints/computations agnostic to the choice of number, autodiff library, and representation -- i.e. make it swappable with a flag -- esp since most energy evaluations don't need a gradient (so don't use vars for that)
+
+// TODO: Another next step is to make the evaluator work with these vars instead, so the system can use the existing infra for programmatically composing an energy fn (which doesn't seem to matter for speed, since it's just the bare ops)
+
+// TODO: Use type like in evalExprs: varyingVars?: VaryMap<number | Tensor>`
+
+// Functions for new kinds of vars (TODO: get rid of tensors everywhere)
+
+const objDict2 = {
+  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    return ops.distsq(ops.center(s1), ops.center(s2));
+  }
+};
+
+const constrDict2 = {};
+
+const ops = {
+  distsq: (p1: Tensor, p2: Tensor): Tensor => {
+    const dp = p1.sub(p2);
+    return dp.dot(dp);
+  },
+
+  center: (props: any): Tensor =>
+    stack([props.x.contents, props.y.contents])
+};
+
 export const energyAndGradAD = (state: number[]) => {
   const stateCopy = [...state];
   const xs = stateCopy.map(x => variable(x));
@@ -387,6 +413,8 @@ export const energyAndGradAD = (state: number[]) => {
   // This `z` expression will do two things:
   // 1) Evaluate the expression (forward), resulting in the value of z
   // 2) Dynamically build the computational graph: mutate the `xs` and automatically create anonymous intermediate nodes (parents) that the leaf nodes `xs` hold references to
+
+  // TODO: Use an n-ary add to save intermediate nodes!
 
   const z =
     add(
