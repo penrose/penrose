@@ -8,7 +8,7 @@ import {
 import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
-import { Variable } from "@tensorflow/tfjs";
+// import { Variable } from "@tensorflow/tfjs";
 import { differentiable } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -559,7 +559,7 @@ export const encodeState = (state: State): any => {
 
 export const genVaryMap = (
   varyingPaths: Path[],
-  varyingValues: number[] | Variable[]
+  varyingValues: number[] | DiffVar[]
 ) => {
   if (varyingValues.length !== varyingPaths.length) {
     console.log(varyingPaths, varyingValues);

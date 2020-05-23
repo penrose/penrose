@@ -94,7 +94,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
-  const xs: Variable[] = optParams.mutableUOstate; // also a reference
+  const xs: DiffVar[] = optParams.mutableUOstate; // also a reference
 
   console.log("step EP | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
   console.log("params: ", optParams);
@@ -210,7 +210,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
-  // const xs: Variable[] = optParams.mutableUOstate; // also a reference
+  // const xs: DiffVar[] = optParams.mutableUOstate; // also a reference
   let xs: number[] = state.varyingValues;
 
   console.log("fns: ", prettyPrintFns(state));
@@ -370,15 +370,15 @@ const prettyPrintProperty = (arg: any) => {
  * Generate an energy function from the current state
  *
  * @param {State} state
- * @returns a function that takes in a list of `Variable`s and return a `Scalar`
+ * @returns a function that takes in a list of `DiffVar`s and return a `Scalar`
  */
 export const evalEnergyOn = (state: State, inlined = false) => {
   const { objFns, constrFns, translation, varyingPaths } = state;
   // TODO: types
-  return (...varyingValuesTF: Variable[]): Scalar => {
+  return (...varyingValuesTF: DiffVar[]): Scalar => {
     // construct a new varying map
     const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<
-      Variable
+      DiffVar
     >;
 
     if (inlined) {
@@ -634,9 +634,9 @@ const awLineSearch = (
  * @returns // TODO: document
  */
 export const minimize = (
-  f: (...arg: Variable[]) => Scalar,
+  f: (...arg: DiffVar[]) => Scalar,
   gradf: (arg: Tensor[]) => Tensor[],
-  xs: Variable[],
+  xs: DiffVar[],
   maxSteps = 100
 ): {
   energy: Scalar;

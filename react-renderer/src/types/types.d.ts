@@ -47,7 +47,7 @@ interface IState {
   shapeOrdering: string[];
   shapes: Shape[];
   varyingMap: VaryMap;
-  overallObjective(...xs: Variable[]): Scalar;
+  overallObjective(...xs: DiffVar[]): Scalar;
 }
 type State = IState; // TODO
 
@@ -504,7 +504,7 @@ type Params = IParams;
 interface IParams {
   optStatus: OptStatus;
   weight: number; // Constraint weight for exterior point method
-  mutableUOstate: Variable[]; // Don't forget... it's mutable!
+  mutableUOstate: DiffVar[]; // Don't forget... it's mutable!
 
   // Info for unconstrained optimization
   UOround: number;
@@ -569,5 +569,6 @@ type VarAD = IVarAD;
 // ----- Types for generalizing our system autodiff
 
 // Tag is for distinguishing between tf var and custom var (use `if (x.tag)`)
+// NOTE: Variable is a subtype of Tensor, so it can be used here with no problem
 
 type DiffVar = VarAD | Tensor;
