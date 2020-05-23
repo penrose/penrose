@@ -15,7 +15,7 @@ import {
   evalFns,
 } from "./Evaluator";
 import { zip, sum } from "lodash";
-import { constrDict, objDict, testReverseAD, energyAndGradAD } from "./Constraints";
+import { constrDict, objDict, testReverseAD, energyAndGradAD, variableAD } from "./Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -205,12 +205,10 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 };
 
 export const stepBasic = (state: State, steps: number, evaluate = true) => {
-
   console.log("stepBasic");
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
-  // const xs: DiffVar[] = optParams.mutableUOstate; // also a reference
   let xs: number[] = state.varyingValues;
 
   console.log("fns: ", prettyPrintFns(state));
@@ -221,10 +219,11 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       console.log("stepBasic newIter, xs", xs);
 
       // Collect the overall objective and varying values
-      const overallObjective = evalEnergyOn(state, true); // TODO. Why is this being generated here?
+      const overallObjective = evalEnergyOn(state, false); // TODO. Why is this being generated here?
 
       const newParams: Params = {
         ...state.params,
+        mutableUOstate: state.varyingValues.map(v => variableAD(v)),
         weight: initConstraintWeight,
         UOround: 0,
         EPround: 0,
@@ -236,6 +235,16 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
     default: {
       console.log("stepBasic step, xs", xs);
+
+      // TODO: Slowly port the rest of stepEP here
+      const f = state.overallObjective;
+      // const fgrad = gradF(f, false);
+
+      const xsVars: DiffVar[] = xs.map(x => variableAD(x));
+
+      const energy = f(...xsVars); // Note NOT tensors anymore
+      console.log("eval energy in stepBasic", energy);
+
       xs = minimizeBasic(xs); // mutates xs
     }
   }
@@ -393,13 +402,18 @@ export const evalEnergyOn = (state: State, inlined = false) => {
     const objEvaled = evalFns(objFns, translation, varyingMap);
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
+    console.log("objEvaled", objEvaled);
+
     // TODO. These should just be scalars now
-    const objEngs: Tensor[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: Tensor[] = constrEvaled.map((c) =>
+    const objEngs: DiffVar[] = objEvaled.map((o) => applyFn(o, objDict));
+    const constrEngs: DiffVar[] = constrEvaled.map((c) =>
       toPenalty(applyFn(c, constrDict))
     );
 
-    // console.log("objEngs", objFns, objEngs, objEngs.map(o => o.dataSync()));
+    // TODO: Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
+    // NOTE: The energies are in the val field of the results (w/o grads)
+    console.log("objEngs", objFns, objEngs);
+    console.log("vars", varyingValuesTF);
 
     const objEng: Tensor =
       objEngs.length === 0 ? differentiable(0) : stack(objEngs).sum();

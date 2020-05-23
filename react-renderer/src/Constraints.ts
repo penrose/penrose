@@ -1,4 +1,4 @@
-import { stack, scalar, maximum, tensor, norm, abs, square, squaredDifference } from "@tensorflow/tfjs";
+import { Tensor, stack, scalar, maximum, norm, abs, square, squaredDifference } from "@tensorflow/tfjs";
 import { canvasSize } from "./Canvas";
 import * as _ from "lodash";
 
@@ -9,9 +9,8 @@ export const objDict = {
     // (getY top - getY bottom - offset) ^ 2
     square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
 
-  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    return distsq(center(s1), center(s2));
-  },
+  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
+    distsq(center(s1), center(s2)),
 
   // Generic repel function for two GPIs with centers
   repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
@@ -161,17 +160,38 @@ export const looseIntersect = (center1: DiffVar, r1: DiffVar, center2: DiffVar, 
   dist(center1, center2).sub(r1.add(r2).sub(scalar(padding)));
 // dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
-export const center = (props: any): DiffVar =>
-  stack([props.x.contents, props.y.contents]); // HACK: need to annotate the types of x and y to be DiffVar
+export const center = (props: any): VecAD | Tensor => {
+  const [x, y] = [props.x.contents, props.y.contents];
+
+  console.log("center", [x, y]);
+
+  if (props.x.contents.tag) {
+    return { tag: "VecAD", contents: [x, y] } as VecAD;
+  }
+
+  return stack([props.x.contents, props.y.contents]);
+};
 
 export const dist = (p1: DiffVar, p2: DiffVar): DiffVar => p1.sub(p2).norm();
 
 // Be careful not to use element-wise operations. This should return a scalar.
 // Apparently typescript can't check a return type of `DiffVar<Rank.R0>`?
-export const distsq = (p1: DiffVar, p2: DiffVar): DiffVar => {
-  const dp = p1.sub(p2);
-  // console.log("p1, p2", p1, p2, p1.arraySync(), p2.arraySync(), dp.arraySync());
-  return dp.dot(dp);
+export const distsq = (p1: Tensor | VecAD, p2: Tensor | VecAD): DiffVar => {
+  console.log("distsq", p1, p2);
+
+  if ("tag" in p1 && "tag" in p2) { // assume both tensors
+    // both are VecADs
+    const [v1, v2] = [p1.contents, p2.contents];
+    const dv = ops.vsub(v1, v2);
+    const res = ops.vnormsq(dv);
+    console.log("distsq res", res);
+    return res;
+  } else if (!("tag" in p1) && !("tag" in p2)) { // Need this check, otherwise Typescript can't figure out they are both tensors
+    const dp = p1.sub(p2);
+    return dp.dot(dp);
+  }
+
+  throw Error("p1 and p2 not the same type");
 };
 
 // with epsilon to avoid NaNs
@@ -194,9 +214,12 @@ export const normalize = (v: DiffVar): DiffVar => v.div(v.norm().add(epsd));
 
 // ----- Core AD code
 
-const variable = (x: number): VarAD => {
+export const variableAD = (x: number, vname = ""): VarAD => {
+  const nameVal = vname ? vname : String(x);
+
   return {
     tag: "custom",
+    name: nameVal,
     val: x,
     parents: [],
     gradVal: { tag: "Nothing" }
@@ -224,7 +247,7 @@ const variable = (x: number): VarAD => {
 
 // grad(v) means ds/dv (s is the single output seed)
 
-const grad = (v: VarAD): number => {
+export const grad = (v: VarAD): number => {
   // Already computed/cached the gradient
   if (v.gradVal.tag === "Just") {
     return v.gradVal.contents;
@@ -256,21 +279,21 @@ const grad = (v: VarAD): number => {
 //             v       w               -- children
 
 const add = (v: VarAD, w: VarAD): VarAD => {
-  const z = variable(v.val + w.val);
+  const z = variableAD(v.val + w.val, "+");
   v.parents.push({ node: z, differential: 1.0 });
   w.parents.push({ node: z, differential: 1.0 });
   return z;
 };
 
 const mul = (v: VarAD, w: VarAD): VarAD => {
-  const z = variable(v.val * w.val);
+  const z = variableAD(v.val * w.val, "*");
   v.parents.push({ node: z, differential: w.val });
   w.parents.push({ node: z, differential: v.val });
   return z;
 };
 
 const sub = (v: VarAD, w: VarAD): VarAD => {
-  const z = variable(v.val - w.val);
+  const z = variableAD(v.val - w.val, "-");
   v.parents.push({ node: z, differential: 1.0 });
   w.parents.push({ node: z, differential: -1.0 });
   return z;
@@ -279,20 +302,20 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
 // --- Unary ops
 
 const sin = (v: VarAD): VarAD => {
-  const z = variable(Math.sin(v.val));
+  const z = variableAD(Math.sin(v.val), "sin");
   v.parents.push({ node: z, differential: Math.cos(v.val) });
   return z;
 };
 
 const neg = (v: VarAD): VarAD => {
-  const z = variable(-v.val);
+  const z = variableAD(-v.val, "- (unary)");
   v.parents.push({ node: z, differential: -1.0 });
   return z;
 };
 
 // TODO: rename to `square` after tf.js dependency is removed
 const squared = (v: VarAD): VarAD => {
-  const z = variable(v.val * v.val);
+  const z = variableAD(v.val * v.val, "^2");
   v.parents.push({ node: z, differential: 2.0 * v.val });
   return z;
 };
@@ -324,8 +347,8 @@ const close = (x: number, y: number) => {
 
 const testAD1 = () => {
   console.log("Testing z := x + y");
-  const x = variable(0.5);
-  const y = variable(4.2);
+  const x = variableAD(0.5);
+  const y = variableAD(4.2);
   const z = add(x, y);
 
   z.gradVal = { tag: "Just", contents: 1.0 }; // seed: dz/d(x_i) (there's only one output)
@@ -343,8 +366,8 @@ const testAD1 = () => {
 // From https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
 const testAD2 = () => {
   console.log("Testing z := (x * y) + sin(x)");
-  const x = variable(0.5);
-  const y = variable(4.2);
+  const x = variableAD(0.5);
+  const y = variableAD(4.2);
   const z = add(mul(x, y), sin(x)); // x * y + sin(x)
 
   z.gradVal = { tag: "Just", contents: 1.0 };
@@ -363,8 +386,8 @@ const testAD2 = () => {
 
 const testAD3 = () => {
   console.log("Testing z := (x - y)^2"); // x^2 - 2xy + y^2
-  const x = variable(0.5);
-  const y = variable(4.2);
+  const x = variableAD(0.5);
+  const y = variableAD(4.2);
   const z = squared(sub(x, y));
 
   z.gradVal = { tag: "Just", contents: 1.0 };
@@ -403,40 +426,52 @@ const testAD3 = () => {
 
 // TODO: How to modify this grad code to deal with non-variable constants?? I guess it depends on how the code handles constants (are there special ops for "c * x" or do you convert "c" into a variable and not take the gradient with respect to it?)
 
-const objDict2 = {
-  sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    return ops.distsq(ops.center(s1), ops.center(s2));
-  }
-};
+const objDict2 = {};
 
 const constrDict2 = {};
 
+// Note that these ops MUST use the custom var ops for grads
 const ops = {
-  distsq: (p1: DiffVar, p2: DiffVar): DiffVar => {
-    const dp = p1.sub(p2);
-    return dp.dot(dp);
+  vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+    console.log("vsub", v1, v2);
+    const res = _.zipWith(v1, v2, sub);
+    console.log("vsub res", res); // parents?
+    return res;
   },
 
-  center: (props: any): DiffVar =>
-    stack([props.x.contents, props.y.contents])
+  vnormsq: (v: VarAD[]) => {
+    console.log("vnormsq", v);
+    const res = v.map(e => squared(e));
+    console.log("vnormsq res", res);
+    return _.reduce(res, add); // TODO: Will this one (var(0)) have its memory freed?        
+  },
+
+  // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
+  vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
+    console.log("vdot", v1, v2);
+    const res = _.zipWith(v1, v2, mul);
+    console.log("vdot res", res);
+    return _.reduce(res, add, variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?
+  },
+
 };
 
 export const energyAndGradAD = (state: number[]) => {
 
-  const testTypes = (x: DiffVar) => {
-    console.log("testTypes", x);
-    if (x.tag) {
-      console.log("x tagged", x.tag);
-    } else {
-      console.log("x not tagged");
-    }
-  };
+  // const testTypes = (x: DiffVar) => {
+  //   console.log("testTypes", x);
+  //   if (x.tag) {
+  //     console.log("x tagged", x.tag);
+  //   } else {
+  //     console.log("x not tagged");
+  //   }
+  // };
 
-  testTypes(variable(5.0));
-  testTypes(tensor([5.0]));
+  // testTypes(variable(5.0));
+  // testTypes(tensor([5.0]));
 
   const stateCopy = [...state];
-  const xs = stateCopy.map(x => variable(x));
+  const xs = stateCopy.map(x => variableAD(x));
 
   // This `z` expression will do two things:
   // 1) Evaluate the expression (forward), resulting in the value of z

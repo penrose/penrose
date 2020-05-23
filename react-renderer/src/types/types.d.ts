@@ -559,6 +559,7 @@ type EdgeAD = IEdgeAD;
 
 interface IVarAD {
   tag: "custom";
+  name: string;
   val: number;
   parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
   gradVal: MaybeVal<number>;
@@ -570,5 +571,14 @@ type VarAD = IVarAD;
 
 // Tag is for distinguishing between tf var and custom var (use `if (x.tag)`)
 // NOTE: Variable is a subtype of Tensor, so it can be used here with no problem
+
+// TODO: Should VarAD provide a mutable API??
+
+interface IVecAD {
+  tag: "VecAD";
+  contents: VarAD[];
+}
+
+type VecAD = IVecAD;
 
 type DiffVar = VarAD | Tensor;
