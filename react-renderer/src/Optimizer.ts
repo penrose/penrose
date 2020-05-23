@@ -308,7 +308,7 @@ const minimizeBasic = (xs: number[]) => {
   const norm = (zs: number[]) =>
     Math.sqrt(sum(zs.map(e => e * e)));
 
-  const numSteps = 10000;
+  const numSteps = 1; // TODO revert
   const t = 0.01;
   let ys = [...xs];
   let gradres = [...xs];
@@ -320,12 +320,11 @@ const minimizeBasic = (xs: number[]) => {
 
   while (i < numSteps) {
     adRes = energyAndGradAD(ys)
+    // console.log("i", i);
     // console.log("auto energy", adRes.energyVal, adRes.gradVal);
 
-    // console.log("i", i);
     // ys' = ys - t * gradf(ys)
-
-    gradres = adRes.gradVal; // gradf(ys);
+    gradres = adRes.gradVal;
 
     ys = ys.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
     i++;

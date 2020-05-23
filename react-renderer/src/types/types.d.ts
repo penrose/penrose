@@ -558,9 +558,14 @@ interface IEdgeAD {
 type EdgeAD = IEdgeAD;
 
 interface IVarAD {
+  tag: "custom";
   val: number;
   parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
   gradVal: MaybeVal<number>;
 }
 
 type VarAD = IVarAD;
+
+// ----- Types for generalizing our system autodiff
+
+type DiffVar = VarAD | Tensor;

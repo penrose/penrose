@@ -1,19 +1,15 @@
 import {
-  toPairs,
   values,
   pickBy,
   range,
-  map,
-  mapKeys,
   concat,
-  PropertyPath,
   zip,
 } from "lodash";
 import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
-import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs";
-import { scalarValue, differentiable, evalEnergyOn } from "./Optimizer";
+import { Tensor, Variable } from "@tensorflow/tfjs";
+import { differentiable } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -134,12 +130,12 @@ const compDict = {
     return { tag: "FloatV", contents: Math.sin((d * Math.PI) / 180) };
   },
 
-  lineLength: ([type, props]: [string, any]) => {
+  lineLength: ([_, props]: [string, any]) => {
     const [p1, p2] = arrowPts(props);
     return { tag: "FloatV", contents: dist(p1, p2) }; // TODO: Shouldn't this be written in terms of tf.js?
   },
 
-  len: ([type, props]: [string, any]) => {
+  len: ([_, props]: [string, any]) => {
     const [p1, p2] = arrowPts(props);
     return { tag: "FloatV", contents: dist(p1, p2) };
   },
@@ -174,7 +170,7 @@ const arrowPts = ({ startX, startY, endX, endY }: Properties) =>
     [endX.contents, endY.contents],
   ] as [[number, number], [number, number]];
 
-const checkComp = (fn: string, args: ArgVal<number>[]) => {
+const checkComp = (fn: string, _: ArgVal<number>[]) => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };
 
@@ -278,7 +274,7 @@ export const evalExpr = (
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalBinOp(
+        contents: evalBinOp( // TODO. Why doesn't this return a Value<Tensor>?
           binOp,
           val1.contents as Value<number>,
           val2.contents as Value<number>
@@ -306,6 +302,14 @@ const differentiableValue = (v: Value<number>): Value<Tensor> => {
       | IFloatV<Tensor>
       | IIntV<Tensor>;
   } else return v as Value<Tensor>;
+};
+
+const differentiableValue2 = (v: Value<number>): Value<DiffVar> => {
+  if (v.tag === "FloatV" || v.tag === "IntV") {
+    return { ...v, contents: differentiable(v.contents) } as
+      | IFloatV<DiffVar>
+      | IIntV<DiffVar>;
+  } else return v as Value<DiffVar>;
 };
 
 /**

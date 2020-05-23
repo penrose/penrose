@@ -196,6 +196,7 @@ export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));
 
 const variable = (x: number): VarAD => {
   return {
+    tag: "custom",
     val: x,
     parents: [],
     gradVal: { tag: "Nothing" }
@@ -388,6 +389,20 @@ const testAD3 = () => {
 
 // Functions for new kinds of vars (TODO: get rid of tensors everywhere)
 
+// TODO: Write a variation on evalEnergyOn that works on State and IVarAD, then write a variation on stepEP
+// --> requires variation on evalFns, evalFn, evalExprs, evalExpr, compDict?, 
+// --> requires variation on evalFn
+// Remove Tensor and Scalar types from types.d.ts
+
+// NOTE: Only when you apply a special operation, it mutates the variable(s) (IVarAD reference(s)) to add a reference to its parent (the result of the op) to both. That means the rest of the code doesn't matter, only the ops do (except for keeping the objfn's form constant between iterations). 
+// You just need to hold onto the references to your vars
+
+// TODO: You will need to zero grads on all the bottom nodes (varying vars) because they will still have the parent refs and grad vals attached (Unless that's done automatically by the grad function)
+
+// NOTE: `evalFn` calls `evalExpr` with `autodiff = true`. It makes everything (base vals) differentiable when encountered
+
+// TODO: How to modify this grad code to deal with non-variable constants?? I guess it depends on how the code handles constants (are there special ops for "c * x" or do you convert "c" into a variable and not take the gradient with respect to it?)
+
 const objDict2 = {
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     return ops.distsq(ops.center(s1), ops.center(s2));
@@ -407,6 +422,19 @@ const ops = {
 };
 
 export const energyAndGradAD = (state: number[]) => {
+
+  const testTypes = (x: DiffVar) => {
+    console.log("testTypes", x);
+    if (x.tag) {
+      console.log("x tagged", x.tag);
+    } else {
+      console.log("x not tagged");
+    }
+  };
+
+  testTypes(variable(5.0));
+  testTypes(tensor([5.0]));
+
   const stateCopy = [...state];
   const xs = stateCopy.map(x => variable(x));
 
