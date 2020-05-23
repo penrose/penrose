@@ -42,6 +42,8 @@ const uoStop = 1e-2;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// TODO. These checks should really just be on numbers now
+
 const toPenalty = (x: Tensor): Tensor => {
   return tf.pow(tf.maximum(x, tf.scalar(0)), tf.scalar(2));
 };
@@ -60,7 +62,7 @@ const unconstrainedConverged = (normGrad: Scalar): boolean => {
   return scalarValue(normGrad) < uoStop;
 };
 
-const applyFn = (f: FnDone<Tensor>, dict: any) => {
+const applyFn = (f: FnDone<DiffVar>, dict: any) => {
   if (dict[f.name]) {
     return dict[f.name](...f.args.map(argValue));
   } else {
@@ -391,6 +393,7 @@ export const evalEnergyOn = (state: State, inlined = false) => {
     const objEvaled = evalFns(objFns, translation, varyingMap);
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
+    // TODO. These should just be scalars now
     const objEngs: Tensor[] = objEvaled.map((o) => applyFn(o, objDict));
     const constrEngs: Tensor[] = constrEvaled.map((c) =>
       toPenalty(applyFn(c, constrDict))
@@ -483,6 +486,7 @@ export const unflatten = (t: Tensor): Tensor[] => tf.reshape(t, [t.size, 1]).uns
 // unflatten Tensor [1,2,3] (1x3) into [Tensor 1, Tensor 2, Tensor 3] (3x1) -- since this is the type that f and gradf require as input and output
 // The problem is that our data representation assumes a Tensor of size zero (i.e. scalar(3) = Tensor 3), not of size 1 (i.e. Tensor [3])
 
+// TODO. This should be ported to work on scalars
 const awLineSearch = (
   f: (...arg: Tensor[]) => Scalar,
   gradf: (arg: Tensor[]) => Tensor[],

@@ -508,12 +508,12 @@ interface IParams {
 
   // Info for unconstrained optimization
   UOround: number;
-  lastUOstate: Tensor;
+  lastUOstate: DiffVar;
   lastUOenergy: Scalar;
 
   // Info for exterior point method
   EPround: number;
-  lastEPstate: Tensor;
+  lastEPstate: DiffVar;
   lastEPenergy: Scalar;
 
   // For L-BFGS (TODO)
@@ -567,5 +567,7 @@ interface IVarAD {
 type VarAD = IVarAD;
 
 // ----- Types for generalizing our system autodiff
+
+// Tag is for distinguishing between tf var and custom var (use `if (x.tag)`)
 
 type DiffVar = VarAD | Tensor;

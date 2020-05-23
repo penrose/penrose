@@ -8,7 +8,7 @@ import {
 import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
-import { Tensor, Variable } from "@tensorflow/tfjs";
+import { Variable } from "@tensorflow/tfjs";
 import { differentiable } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,17 +81,17 @@ export const insertVaryings = (
 export const evalFns = (
   fns: Fn[],
   trans: Translation,
-  varyingMap: VaryMap<Tensor>
-): FnDone<Tensor>[] => fns.map((f) => evalFn(f, trans, varyingMap));
+  varyingMap: VaryMap<DiffVar>
+): FnDone<DiffVar>[] => fns.map((f) => evalFn(f, trans, varyingMap));
 
 const evalFn = (
   fn: Fn,
   trans: Translation,
-  varyingMap: VaryMap<Tensor>
-): FnDone<Tensor> => {
+  varyingMap: VaryMap<DiffVar>
+): FnDone<DiffVar> => {
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap, true) as ArgVal<Tensor>[],
+    args: evalExprs(fn.fargs, trans, varyingMap, true) as ArgVal<DiffVar>[],
     optType: fn.optType,
   };
 };
@@ -214,9 +214,9 @@ export const evalShape = (
 export const evalExprs = (
   es: Expr[],
   trans: Translation,
-  varyingVars?: VaryMap<number | Tensor>,
+  varyingVars?: VaryMap<number | DiffVar>,
   autodiff = false
-): ArgVal<number | Tensor>[] =>
+): ArgVal<number | DiffVar>[] =>
   es.map((e) => evalExpr(e, trans, varyingVars, autodiff));
 
 /**
@@ -233,9 +233,9 @@ export const evalExprs = (
 export const evalExpr = (
   e: Expr,
   trans: Translation,
-  varyingVars?: VaryMap<number | Tensor>,
+  varyingVars?: VaryMap<number | DiffVar>,
   autodiff = false
-): ArgVal<number | Tensor> => {
+): ArgVal<number | DiffVar> => {
 
   switch (e.tag) {
     case "IntLit":
@@ -274,7 +274,7 @@ export const evalExpr = (
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalBinOp( // TODO. Why doesn't this return a Value<Tensor>?
+        contents: evalBinOp( // TODO. Why doesn't this return a Value<DiffVar>?
           binOp,
           val1.contents as Value<number>,
           val2.contents as Value<number>
@@ -296,15 +296,7 @@ export const evalExpr = (
   }
 };
 
-const differentiableValue = (v: Value<number>): Value<Tensor> => {
-  if (v.tag === "FloatV" || v.tag === "IntV") {
-    return { ...v, contents: differentiable(v.contents) } as
-      | IFloatV<Tensor>
-      | IIntV<Tensor>;
-  } else return v as Value<Tensor>;
-};
-
-const differentiableValue2 = (v: Value<number>): Value<DiffVar> => {
+const differentiableValue = (v: Value<number>): Value<DiffVar> => {
   if (v.tag === "FloatV" || v.tag === "IntV") {
     return { ...v, contents: differentiable(v.contents) } as
       | IFloatV<DiffVar>
@@ -324,10 +316,10 @@ const differentiableValue2 = (v: Value<number>): Value<DiffVar> => {
 export const resolvePath = (
   path: Path,
   trans: Translation,
-  varyingMap?: VaryMap<number | Tensor>,
+  varyingMap?: VaryMap<number | DiffVar>,
   autodiff = false
-): ArgVal<number | Tensor> => {
-  const floatVal = (v: number | Tensor): ArgVal<Tensor | number> => ({
+): ArgVal<number | DiffVar> => {
+  const floatVal = (v: number | DiffVar): ArgVal<DiffVar | number> => ({
     tag: "Val",
     contents: {
       tag: "FloatV",
@@ -347,7 +339,7 @@ export const resolvePath = (
         const evaledProps = mapValues(props, (p, propName) => {
           if (p.tag === "OptEval") {
             return (evalExpr(p.contents, trans, varyingMap, autodiff) as IVal<
-              number | Tensor
+              number | DiffVar
             >).contents;
           } else {
             const propPath: IPropertyPath = {
@@ -368,7 +360,7 @@ export const resolvePath = (
         });
         return {
           tag: "GPI",
-          contents: [type, evaledProps] as GPI<number | Tensor>,
+          contents: [type, evaledProps] as GPI<number | DiffVar>,
         };
       default:
         const expr: TagExpr<number> = gpiOrExpr;
@@ -380,7 +372,7 @@ export const resolvePath = (
 };
 
 // HACX: remove the type wrapper for the argument
-export const argValue = (e: ArgVal<number | Tensor>) => {
+export const argValue = (e: ArgVal<number | DiffVar>) => {
   switch (e.tag) {
     case "GPI": // strip the `GPI` tag
       return e.contents;

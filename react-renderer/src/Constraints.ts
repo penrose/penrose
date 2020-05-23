@@ -1,9 +1,9 @@
-import { Tensor, Scalar, Rank, stack, scalar, maximum, tensor, norm, abs, square, squaredDifference } from "@tensorflow/tfjs";
+import { stack, scalar, maximum, tensor, norm, abs, square, squaredDifference } from "@tensorflow/tfjs";
 import { canvasSize } from "./Canvas";
 import * as _ from "lodash";
 
 export const objDict = {
-  equal: (x: Tensor, y: Tensor) => squaredDifference(x, y),
+  equal: (x: DiffVar, y: DiffVar) => squaredDifference(x, y),
 
   above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
     // (getY top - getY bottom - offset) ^ 2
@@ -22,7 +22,7 @@ export const objDict = {
     return distsq(center(s1), center(s2)).add(epsd).reciprocal().mul(repelWeight);
   },
 
-  centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): Tensor => {
+  centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): DiffVar => {
     const spacing = scalar(1.1); // arbitrary
 
     if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
@@ -62,7 +62,7 @@ export const constrDict = {
   contains: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    offset: Tensor
+    offset: DiffVar
   ) => {
     if (t1 === "Circle" && t2 === "Circle") {
       const d = dist(center(s1), center(s2));
@@ -127,7 +127,7 @@ const typesAre = (inputs: string[], expected: string[]) =>
 
 // -------- (Hidden) helpers for objective/constraints/computations
 
-const centerArrow2 = (arr: any, center1: Tensor, center2: Tensor, [o1, o2]: Tensor[]): Tensor => {
+const centerArrow2 = (arr: any, center1: DiffVar, center2: DiffVar, [o1, o2]: DiffVar[]): DiffVar => {
   const vec = center2.sub(center1); // direction the arrow should point to
   const dir = normalize(vec);
 
@@ -152,30 +152,30 @@ const centerArrow2 = (arr: any, center1: Tensor, center2: Tensor, [o1, o2]: Tens
 const sc = (x: any): number => x.dataSync()[0];
 const scs = (xs: any[]) => xs.map((e) => sc(e));
 
-export const zero: Tensor = scalar(0);
+export const zero: DiffVar = scalar(0);
 
 // to prevent 1/0 (infinity). put it in the denominator
-export const epsd: Tensor = scalar(10e-10);
+export const epsd: DiffVar = scalar(10e-10);
 
-export const looseIntersect = (center1: Tensor, r1: Tensor, center2: Tensor, r2: Tensor, padding: number) =>
+export const looseIntersect = (center1: DiffVar, r1: DiffVar, center2: DiffVar, r2: DiffVar, padding: number) =>
   dist(center1, center2).sub(r1.add(r2).sub(scalar(padding)));
 // dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
-export const center = (props: any): Tensor =>
-  stack([props.x.contents, props.y.contents]); // HACK: need to annotate the types of x and y to be Tensor
+export const center = (props: any): DiffVar =>
+  stack([props.x.contents, props.y.contents]); // HACK: need to annotate the types of x and y to be DiffVar
 
-export const dist = (p1: Tensor, p2: Tensor): Tensor => p1.sub(p2).norm();
+export const dist = (p1: DiffVar, p2: DiffVar): DiffVar => p1.sub(p2).norm();
 
 // Be careful not to use element-wise operations. This should return a scalar.
-// Apparently typescript can't check a return type of `Tensor<Rank.R0>`?
-export const distsq = (p1: Tensor, p2: Tensor): Tensor => {
+// Apparently typescript can't check a return type of `DiffVar<Rank.R0>`?
+export const distsq = (p1: DiffVar, p2: DiffVar): DiffVar => {
   const dp = p1.sub(p2);
   // console.log("p1, p2", p1, p2, p1.arraySync(), p2.arraySync(), dp.arraySync());
   return dp.dot(dp);
 };
 
 // with epsilon to avoid NaNs
-export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));
+export const normalize = (v: DiffVar): DiffVar => v.div(v.norm().add(epsd));
 
 // TODO: use it
 // const getConstraint = (name: string) => {
@@ -412,12 +412,12 @@ const objDict2 = {
 const constrDict2 = {};
 
 const ops = {
-  distsq: (p1: Tensor, p2: Tensor): Tensor => {
+  distsq: (p1: DiffVar, p2: DiffVar): DiffVar => {
     const dp = p1.sub(p2);
     return dp.dot(dp);
   },
 
-  center: (props: any): Tensor =>
+  center: (props: any): DiffVar =>
     stack([props.x.contents, props.y.contents])
 };
 
