@@ -23,11 +23,8 @@ export interface IRendererEvents extends ICoreEvents {
 }
 export type EventHandler = IEditorEvents | IRendererEvents;
 type EventHandlers = IEditorEvents[] | IRendererEvents[];
-export interface IInstanceMap {
-  [id: string]: any[];
-}
+
 export class Protocol {
-  public enableInspector: boolean;
   private addr: string;
   private ws: WebSocket;
   private connectionStatus: ConnectionStatus;
@@ -36,19 +33,15 @@ export class Protocol {
   constructor(
     addr: string,
     eventHandlers: EventHandlers,
-    enableInspector: boolean
   ) {
     this.addr = addr;
     this.eventHandlers = eventHandlers;
-    this.enableInspector = enableInspector;
   }
   public inspectorReady = (handler: EventHandler) => {
     this.eventHandlers.push(handler as any);
     this.setupSockets();
   };
-  public Inspector = (onClose: () => void) => {
-    return <Inspector onClose={onClose} onReady={this.inspectorReady} />;
-  };
+  
   public setupSockets = () => {
     this.ws = new WebSocket(this.addr);
     this.ws.onopen = this.onSocketOpen;

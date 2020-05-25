@@ -29,15 +29,10 @@ class ShapeView extends React.Component<IViewProps, IState> {
     this.setState({ selectedShape: key });
   };
   public render() {
-    const { instances, selectedInstance, selectedInstanceFrame } = this.props;
-    const selected = instances[selectedInstance];
-    if (!selected) {
+    const { frame } = this.props;
+    if (frame === null) {
       return <div />;
     }
-    const frame =
-      selectedInstanceFrame === -1
-        ? selected[selected.length - 1]
-        : selected[selectedInstanceFrame];
 
     const { selectedShape } = this.state;
     return (
@@ -47,11 +42,10 @@ class ShapeView extends React.Component<IViewProps, IState> {
           width: "100%",
           height: "100%",
           overflow: "hidden",
-          boxSizing: "border-box"
         }}
       >
         <div
-          style={{ overflowY: "auto", height: "100%", boxSizing: "border-box" }}
+          style={{ overflowY: "auto", height: "100%", }}
         >
           <ul
             style={{
@@ -60,42 +54,48 @@ class ShapeView extends React.Component<IViewProps, IState> {
               margin: 0,
               top: 0,
               left: 0,
-              right: 0
+              right: 0,
             }}
           >
-            {frame.shapesr.map(([name, shape]: any, key: number) => {
-              const [w, h] =
-                name === "Circle"
-                  ? [shape.r.contents * 2, shape.r.contents * 2]
-                  : [shape.w.contents, shape.h.contents];
-              return (
-                <ShapeItem
-                  key={`shapePreview-${key}`}
-                  selected={selectedShape === key}
-                  onClick={() => this.setSelectedShape(key)}
-                >
-                  <div>
-                    <svg viewBox={`0 0 ${w} ${h}`} width="50" height="50">
-                      {React.createElement(staticMap[name], {
-                        shape: {
-                          ...shape,
-                          x: { tag: "FloatV", contents: 0 },
-                          y: { tag: "FloatV", contents: 0 }
-                        },
-                        canvasSize: [w, h]
-                      })}
-                    </svg>
-                  </div>
-                  <div style={{ margin: "0.5em" }}>
-                    <span>{shape.name.contents}</span>
-                  </div>
-                </ShapeItem>
-              );
-            })}
+            {frame.shapes.map(
+              ({ properties, shapeType }: Shape, key: number) => {
+                const [w, h] =
+                  shapeType === "Circle"
+                    ? [
+                        (properties.r.contents as number) * 2,
+                        (properties.r.contents as number) * 2,
+                      ]
+                    : [properties.w.contents, properties.h.contents];
+                return (
+                  <ShapeItem
+                    key={`shapePreview-${key}`}
+                    selected={selectedShape === key}
+                    onClick={() => this.setSelectedShape(key)}
+                  >
+                    <div>
+                      <svg viewBox={`0 0 ${w} ${h}`} width="50" height="50">
+                        {React.createElement(staticMap[shapeType], {
+                          shape: {
+                            ...properties,
+                            x: { tag: "FloatV", contents: 0 },
+                            y: { tag: "FloatV", contents: 0 },
+                          },
+                          canvasSize: [w, h],
+                        })}
+                      </svg>
+                    </div>
+                    <div style={{ margin: "0.5em" }}>
+                      <span>{properties.name.contents}</span>
+                    </div>
+                  </ShapeItem>
+                );
+              }
+            )}
           </ul>
         </div>
         <div
           style={{
+            // BUG: scroll doesnt really work
             padding: "1em 1em 1em 1em",
             overflow: "auto",
             height: "100%",
@@ -103,8 +103,8 @@ class ShapeView extends React.Component<IViewProps, IState> {
             boxSizing: "border-box"
           }}
         >
-          {frame.shapesr[selectedShape] && (
-            <ObjectInspector data={frame.shapesr[selectedShape]} />
+          {frame.shapes[selectedShape] && (
+            <ObjectInspector data={frame.shapes[selectedShape].properties} />
           )}
         </div>
       </div>

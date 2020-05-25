@@ -3,7 +3,7 @@ import LogView from "./LogView";
 import ShapeView from "./ShapeView";
 const viewMap = {
   frames: Frames,
-  logs: LogView,
+  // logs: LogView,
   shapes: ShapeView
 };
 export default viewMap;

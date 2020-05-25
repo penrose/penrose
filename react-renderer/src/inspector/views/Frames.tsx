@@ -4,18 +4,13 @@ import IViewProps from "./IViewProps";
 // https://goessner.net/articles/JsonPath/
 class Frames extends React.Component<IViewProps> {
   public render() {
-    const { instances, selectedInstance, selectedInstanceFrame } = this.props;
-    const selected = instances[selectedInstance];
-    if (!selected) {
+    const {history, frame} = this.props;
+    if (frame === null) {
       return <p>empty</p>;
     }
-    const frame =
-      selectedInstanceFrame === -1
-        ? selected[selected.length - 1]
-        : selected[selectedInstanceFrame];
     return (
       <div style={{ padding: "1em" }}>
-        {selected.length > 0 ? <ObjectInspector data={frame} /> : <p>empty</p>}
+        {history.length > 0 ? <ObjectInspector data={frame} /> : <p>empty</p>}
       </div>
     );
   }

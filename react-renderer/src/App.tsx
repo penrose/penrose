@@ -2,22 +2,21 @@ import * as React from "react";
 import Log from "./Log";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
-import { ILayer } from "./types";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
 import { step, stepEP } from "./Optimizer";
-import { unwatchFile } from "fs";
 import { collectLabels } from "./utills/CollectLabels";
 import * as tf from "@tensorflow/tfjs";
 import SplitPane from "react-split-pane";
+import Inspector from './inspector/Inspector';
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
   autostep: boolean;
-  layers: ILayer[];
   processedInitial: boolean;
   penroseVersion: string;
+  history: State[];
   showInspector: boolean;
 }
 const socketAddress = "ws://localhost:9160";
@@ -41,13 +40,11 @@ const stepState = async (state: State, onUpdate: any) => {
 class App extends React.Component<any, ICanvasState> {
   public readonly state: ICanvasState = {
     data: undefined,
+    history: [],
     autostep: false,
     processedInitial: false, // TODO: clarify the semantics of this flag
-    layers: [
-      { layer: "polygon", enabled: false },
-      { layer: "bbox", enabled: false },
-    ],
     penroseVersion: "",
+    showInspector: true
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
@@ -64,6 +61,7 @@ class App extends React.Component<any, ICanvasState> {
 
     await this.setState({
       data: canvasState,
+      history: [...this.state.history, canvasState],
       processedInitial: true,
     });
     const { autostep } = this.state;
@@ -98,7 +96,6 @@ class App extends React.Component<any, ICanvasState> {
         kind: "renderer"
       }
     ],
-    true
   );
   public step = () => {
     // this.protocol.sendPacket(Step(1, this.state.data));
@@ -110,25 +107,16 @@ class App extends React.Component<any, ICanvasState> {
     await this.setState({ processedInitial: false });
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };
-  public toggleLayer = (layerName: string) => {
-    this.setState({
-      layers: this.state.layers.map(({ layer, enabled }: ILayer) => {
-        if (layerName === layer) {
-          return { layer, enabled: !enabled };
-        }
-        return { layer, enabled };
-      }),
-    });
-  };
+  
 
   public async componentDidMount() {
-    this.protocol = new Protocol(socketAddress, {
+    this.protocol = new Protocol(socketAddress, [{
       onConnectionStatus: this.onConnectionStatus,
       onVersion: this.onVersion,
       onCanvasState: this.onCanvasState,
       onError: console.warn,
       kind: "renderer",
-    }, false);
+    }]);
 
     this.protocol.setupSockets();
   }
@@ -153,10 +141,10 @@ class App extends React.Component<any, ICanvasState> {
   public render() {
     const {
       data,
-      layers,
       autostep,
       penroseVersion,
-      showInspector
+      showInspector,
+      history
     } = this.state;
     return (
       <div
@@ -178,8 +166,6 @@ class App extends React.Component<any, ICanvasState> {
             resample={this.resample}
             converged={data ? converged(data) : false}
             initial={data ? initial(data) : false}
-            toggleLayer={this.toggleLayer}
-            layers={layers}
             toggleInspector={this.toggleInspector}
             showInspector={showInspector}
             ref={this.buttons}
@@ -197,11 +183,10 @@ class App extends React.Component<any, ICanvasState> {
               data={data}
               updateData={this.updateData}
               lock={false}
-              layers={layers}
               ref={this.canvas}
               penroseVersion={penroseVersion}
             />
-            {this.protocol && this.protocol.Inspector(this.hideInspector)}
+            {showInspector && <Inspector history={history} onClose={this.toggleInspector} />}
           </SplitPane>
         </div>
       </div>

@@ -14,7 +14,8 @@ const LogLine = styled.li`
 
 class LogView extends React.Component<IViewProps> {
   public render() {
-    const { connectionLog } = this.props;
+    // const { connectionLog } = this.props;
+    const connectionLog: ConnectionStatus[] = [];
     return (
       <ul style={{ padding: 0 }}>
         {connectionLog.map((log: ConnectionStatus | string, k: number) => (

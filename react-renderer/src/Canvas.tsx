@@ -3,15 +3,12 @@ import * as ReactDOM from "react-dom";
 import { interactiveMap, staticMap } from "./componentMap";
 import Log from "./Log";
 import { loadImages } from "./Util";
-import { ILayer, ILayerProps } from "./types";
-import { layerMap } from "./layers/layerMap";
 import { insertPending } from "./PropagateUpdate";
 import { collectLabels } from "./utills/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
 
 interface ICanvasProps {
   lock: boolean;
-  layers?: ILayer[];
   substanceMetadata?: string;
   styleMetadata?: string;
   elementMetadata?: string;
@@ -271,7 +268,6 @@ class Canvas extends React.Component<ICanvasProps> {
   
   public render() {
     const {
-      layers,
       substanceMetadata,
       styleMetadata,
       elementMetadata,

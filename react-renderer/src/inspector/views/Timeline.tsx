@@ -38,38 +38,26 @@ const TimelineItem = styled.li<any>`
 
 class Timeline extends React.Component<IViewProps> {
   public timelineRef = React.createRef<any>();
-  public componentDidUpdate = ({ instances, selectedInstance }: IViewProps) => {
-    if (
-      instances[selectedInstance] &&
-      this.props.instances[selectedInstance] &&
-      instances[selectedInstance].length !==
-        this.props.instances[selectedInstance].length
-    ) {
+  public componentDidUpdate = ({ history }: IViewProps) => {
+    if (history.length !== this.props.history.length) {
       this.timelineRef.current.scrollLeft = this.timelineRef.current.scrollWidth;
     }
   };
   public render() {
-    const { instances, selectedInstance, selectedInstanceFrame } = this.props;
+    const { frameIndex, history } = this.props;
     return (
       <TimelineStyled ref={this.timelineRef}>
-        {instances[selectedInstance]
-          ? instances[selectedInstance].map((instance: any, k: number) => {
-              return (
-                <TimelineItem
-                  selected={k === selectedInstanceFrame}
-                  key={k}
-                  onClick={() => this.props.selectInstanceFrame(k)}
-                >
-                  <Canvas
-                    data={instance}
-                    layers={[]}
-                    lock={true}
-                    updateData={() => void 0}
-                  />
-                </TimelineItem>
-              );
-            })
-          : "none"}
+        {history.map((frame: State, k: number) => {
+          return (
+            <TimelineItem
+              selected={k === frameIndex}
+              key={k}
+              onClick={() => this.props.selectFrame(k)}
+            >
+              <Canvas data={frame} lock={true} updateData={() => void 0} />
+            </TimelineItem>
+          );
+        })}
       </TimelineStyled>
     );
   }

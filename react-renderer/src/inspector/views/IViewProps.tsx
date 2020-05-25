@@ -1,7 +1,7 @@
-import { IInspectState } from "../Inspector";
-
-export interface IViewMethods {
-  selectInstanceFrame(frame: number): void;
+export interface IViewProps {
+  selectFrame(frame: number): void;
+  history: State[];
+  frame: State | null;
+  frameIndex: number;
 }
-type IViewProps = IViewMethods & IInspectState;
 export default IViewProps;

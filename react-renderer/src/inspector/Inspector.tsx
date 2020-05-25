@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { IRendererEvents, IInstanceMap, EventHandler } from "../Protocol";
+import { IRendererEvents, EventHandler } from "../Protocol";
 import Timeline from "./views/Timeline";
 import { ConnectionStatus } from "src/module";
 import viewMap from "./views/viewMap";
@@ -9,67 +9,58 @@ import "@reach/tabs/styles.css";
 import ErrorBoundary from "./ErrorBoundary";
 
 interface IProps {
-  onReady(handler: EventHandler): void;
+  history: State[];
   onClose(): void;
 }
 
 export interface IInspectState {
-  instances: IInstanceMap;
   connectionLog: Array<ConnectionStatus | string>;
-  selectedInstance: string;
-  selectedInstanceFrame: number;
+  selectedFrame: number;
   selectedView: string;
 }
 
 class Inspector extends React.Component<IProps, IInspectState> {
   public readonly state = {
-    instances: {},
     connectionLog: [],
-    selectedInstance: "",
-    selectedInstanceFrame: -1,
-    selectedView: "frames"
+    selectedFrame: -1,
+    selectedView: "frames",
   };
   public appendToConnectionLog = (status: ConnectionStatus | string) =>
     this.setState({ connectionLog: [...this.state.connectionLog, status] });
-  public readonly Events: IRendererEvents = {
-    kind: "renderer",
-    onConnectionStatus: this.appendToConnectionLog,
-    onVersion: this.appendToConnectionLog,
-    onCanvasState: (canvasState: any, id: string) => {
-      const { selectedInstance, instances } = this.state;
-      let instance = instances[id] || [];
-      instance = [...instance, canvasState];
-      this.setState({
-        selectedInstance: selectedInstance === "" ? id : selectedInstance,
-        instances: { ...instances, [id]: instance }
-      });
-    },
-    onError: this.appendToConnectionLog
-  };
 
-  public componentDidMount() {
-    this.props.onReady(this.Events);
-  }
-  public selectInstanceFrame = (frame: number) => {
+  public selectFrame = (frame: number) => {
     this.setState({
-      selectedInstanceFrame:
-        frame === this.state.selectedInstanceFrame ? -1 : frame
+      selectedFrame: frame === this.state.selectedFrame ? -1 : frame,
     });
   };
   public render() {
+    const { selectedFrame } = this.state;
+    const { history } = this.props;
+    const currentFrame =
+      history.length === 0
+        ? null
+        : selectedFrame === -1
+        ? history[history.length - 1]
+        : history[selectedFrame];
+    const commonProps = {
+      selectFrame: this.selectFrame,
+      frame: currentFrame,
+      frameIndex: selectedFrame,
+      history,
+    };
+    console.log(currentFrame);
     return (
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           height: "100%",
-          overflow: "hidden"
+          overflow: "hidden",
+          boxSizing: "border-box",
+          paddingBottom: "1em"
         }}
       >
-        <Timeline
-          selectInstanceFrame={this.selectInstanceFrame}
-          {...this.state}
-        />
+        <Timeline {...commonProps} />
         <div style={{ overflow: "hidden", flexGrow: 1, flexShrink: 1 }}>
           <Tabs>
             <TabList>
@@ -84,14 +75,11 @@ class Inspector extends React.Component<IProps, IInspectState> {
                     style={{
                       height: "100%",
                       overflow: "auto",
-                      boxSizing: "border-box"
+                      boxSizing: "border-box",
                     }}
                   >
                     <ErrorBoundary>
-                      {React.createElement(viewMap[view], {
-                        ...this.state,
-                        selectInstanceFrame: this.selectInstanceFrame
-                      })}
+                      {React.createElement(viewMap[view], commonProps)}
                     </ErrorBoundary>
                   </div>
                 </TabPanel>
