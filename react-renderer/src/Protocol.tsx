@@ -1,4 +1,6 @@
 import { Packets, Canvas } from "./module";
+import Inspector from "./inspector/Inspector";
+import * as React from "react";
 
 export enum ConnectionStatus {
   socketOpen = "SOCKET_OPEN",
@@ -19,16 +21,34 @@ export interface IEditorEvents extends ICoreEvents {
 export interface IRendererEvents extends ICoreEvents {
   kind: "renderer";
 }
+export type EventHandler = IEditorEvents | IRendererEvents;
+type EventHandlers = IEditorEvents[] | IRendererEvents[];
+export interface IInstanceMap {
+  [id: string]: any[];
+}
 export class Protocol {
+  public enableInspector: boolean;
   private addr: string;
   private ws: WebSocket;
   private connectionStatus: ConnectionStatus;
-  private events: IEditorEvents | IRendererEvents;
+  private eventHandlers: EventHandlers;
 
-  constructor(addr: string, events: IEditorEvents | IRendererEvents) {
+  constructor(
+    addr: string,
+    eventHandlers: EventHandlers,
+    enableInspector: boolean
+  ) {
     this.addr = addr;
-    this.events = events;
+    this.eventHandlers = eventHandlers;
+    this.enableInspector = enableInspector;
   }
+  public inspectorReady = (handler: EventHandler) => {
+    this.eventHandlers.push(handler as any);
+    this.setupSockets();
+  };
+  public Inspector = (onClose: () => void) => {
+    return <Inspector onClose={onClose} onReady={this.inspectorReady} />;
+  };
   public setupSockets = () => {
     this.ws = new WebSocket(this.addr);
     this.ws.onopen = this.onSocketOpen;
@@ -57,15 +77,19 @@ export class Protocol {
   };
   private setConnectionStatus = (status: ConnectionStatus) => {
     this.connectionStatus = status;
-    this.events.onConnectionStatus(status);
+    this.eventHandlers.forEach((events: EventHandler) =>
+      events.onConnectionStatus(status)
+    );
   };
 
   private sendProcessedCanvasState = async (
     canvasState: any,
-    id: string | undefined
+    id: string = ""
   ) => {
     const processedData = await Canvas.processData(canvasState);
-    this.events.onCanvasState(processedData, id || "");
+    this.eventHandlers.forEach((events: EventHandler) =>
+      events.onCanvasState(processedData, id)
+    );
   };
   private onMessage = async (e: MessageEvent) => {
     const parsed = JSON.parse(e.data);
@@ -76,21 +100,29 @@ export class Protocol {
       this.setConnectionStatus(ConnectionStatus.penroseConnected);
       this.sendPacket(Packets.GetVersion());
     } else if (type === "version") {
-      this.events.onVersion(data);
+      this.eventHandlers.forEach((events: EventHandler) =>
+        events.onVersion(data)
+      );
       this.setConnectionStatus(ConnectionStatus.ready);
     } else if (type === "varEnv") {
-      if (this.events.kind === "editor") {
-        this.events.onVarEnv(data);
+      if (this.eventHandlers[0].kind === "editor") {
+        this.eventHandlers.forEach((events: EventHandler) =>
+          (events as IEditorEvents).onVarEnv(data)
+        );
       }
     } else if (type === "compilerOutput") {
-      if (this.events.kind === "editor") {
+      if (this.eventHandlers[0].kind === "editor") {
         this.sendProcessedCanvasState(data[0], id);
-        this.events.onVarEnv(data[1]);
+        this.eventHandlers.forEach((events: EventHandler) =>
+          (events as IEditorEvents).onVarEnv(data[1])
+        );
       }
     } else if (type === "state") {
       this.sendProcessedCanvasState(data, id);
     } else if (type === "error") {
-      this.events.onError(data.contents);
+      this.eventHandlers.forEach((events: EventHandler) =>
+        events.onError(data.contents)
+      );
     } else {
       console.warn(`Unknown packet type: ${type}`);
     }

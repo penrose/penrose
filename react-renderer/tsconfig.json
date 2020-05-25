@@ -21,7 +21,8 @@
     // "noUnusedLocals": true
     "noUnusedLocals": false,
     "skipLibCheck": true, // for Tensorflow JS
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "types": ["react", "jest", "node", "tslib"]
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,

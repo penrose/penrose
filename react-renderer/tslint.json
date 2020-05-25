@@ -17,6 +17,7 @@
     "ordered-imports": false,
     "no-var-requires": false,
     "array-type": false,
-    "one-variable-per-declaration": false
+    "one-variable-per-declaration": false,
+    "member-ordering": false
   }
 }

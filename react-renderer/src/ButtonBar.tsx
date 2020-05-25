@@ -6,7 +6,9 @@ interface IProps {
   autostep: boolean;
   initial: boolean;
   layers: ILayer[];
+  showInspector: boolean;
 
+  toggleInspector(): void;
   downloadPDF(): void;
 
   downloadSVG(): void;
@@ -28,7 +30,9 @@ class ButtonBar extends React.Component<IProps> {
       step,
       resample,
       toggleLayer,
-      layers
+      layers,
+      toggleInspector,
+      showInspector
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -44,6 +48,9 @@ class ButtonBar extends React.Component<IProps> {
         </button>
         <button onClick={downloadPDF}>download PDF</button>
         <button onClick={downloadSVG}>download SVG</button>
+        <button onClick={toggleInspector}>
+          {showInspector ? "hide" : "show"} inspector
+        </button>
         {layers.map(({ layer, enabled }: ILayer, key: number) => {
           return (
             <button onClick={() => toggleLayer(layer)} key={key}>

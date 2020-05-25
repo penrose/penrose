@@ -247,7 +247,7 @@ class Canvas extends React.Component<ICanvasProps> {
     frame.remove();
   };
 
-  public renderEntity = ({ shapeType, properties }: Shape, key: number) => {
+  public renderGPI = ({ shapeType, properties }: Shape, key: number) => {
     const component = this.props.lock
       ? staticMap[shapeType]
       : interactiveMap[shapeType];
@@ -268,32 +268,7 @@ class Canvas extends React.Component<ICanvasProps> {
       ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null,
     });
   };
-  public renderLayer = (
-    shapes: Shape[],
-    debugData: any[],
-    component: React.ComponentClass<ILayerProps>,
-    key: number
-  ) => {
-    if (shapes.length === 0) {
-      return <g key={key} />;
-    }
-    if (this.svg.current === null) {
-      Log.error("SVG ref is null");
-      return <g key={key} />;
-    }
-    const ctm = this.svg.current.getScreenCTM();
-    if (ctm === null) {
-      Log.error("Cannot get CTM");
-      return <g key={key} />;
-    }
-    return React.createElement(component, {
-      key,
-      ctm,
-      shapes,
-      debugData,
-      canvasSize,
-    });
-  };
+  
   public render() {
     const {
       layers,
@@ -336,24 +311,7 @@ class Canvas extends React.Component<ICanvasProps> {
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapes.map(this.renderEntity)}
-        {layers &&
-          layers.map(({ layer, enabled }: ILayer, key: number) => {
-            if (layerMap[layer] === undefined) {
-              Log.error(`Layer does not exist in deck: ${layer}`);
-              return null;
-            }
-            if (enabled) {
-              // TODO: what does data refer to here? Why is it a list?
-              return this.renderLayer(
-                shapes,
-                data as any,
-                layerMap[layer],
-                key
-              );
-            }
-            return null;
-          })}
+        {shapes.map(this.renderGPI)}
       </svg>
     );
   }
