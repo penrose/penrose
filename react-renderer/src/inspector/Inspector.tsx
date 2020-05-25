@@ -14,19 +14,19 @@ interface IProps {
 }
 
 export interface IInspectState {
-  connectionLog: Array<ConnectionStatus | string>;
+  // connectionLog: Array<ConnectionStatus | string>;
   selectedFrame: number;
   selectedView: string;
 }
 
 class Inspector extends React.Component<IProps, IInspectState> {
   public readonly state = {
-    connectionLog: [],
+    // connectionLog: [],
     selectedFrame: -1,
     selectedView: "frames",
   };
-  public appendToConnectionLog = (status: ConnectionStatus | string) =>
-    this.setState({ connectionLog: [...this.state.connectionLog, status] });
+  // public appendToConnectionLog = (status: ConnectionStatus | string) =>
+    // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
   public selectFrame = (frame: number) => {
     this.setState({
