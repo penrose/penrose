@@ -163,8 +163,6 @@ export const looseIntersect = (center1: DiffVar, r1: DiffVar, center2: DiffVar, 
 export const center = (props: any): VecAD | Tensor => {
   const [x, y] = [props.x.contents, props.y.contents];
 
-  console.log("center", [x, y]);
-
   if (props.x.contents.tag) {
     return { tag: "VecAD", contents: [x, y] } as VecAD;
   }
@@ -177,14 +175,11 @@ export const dist = (p1: DiffVar, p2: DiffVar): DiffVar => p1.sub(p2).norm();
 // Be careful not to use element-wise operations. This should return a scalar.
 // Apparently typescript can't check a return type of `DiffVar<Rank.R0>`?
 export const distsq = (p1: Tensor | VecAD, p2: Tensor | VecAD): DiffVar => {
-  console.log("distsq", p1, p2);
 
-  if ("tag" in p1 && "tag" in p2) { // assume both tensors
-    // both are VecADs
+  if ("tag" in p1 && "tag" in p2) { // both are VecADs
     const [v1, v2] = [p1.contents, p2.contents];
     const dv = ops.vsub(v1, v2);
     const res = ops.vnormsq(dv);
-    console.log("distsq res", res);
     return res;
   } else if (!("tag" in p1) && !("tag" in p2)) { // Need this check, otherwise Typescript can't figure out they are both tensors
     const dp = p1.sub(p2);
@@ -247,16 +242,16 @@ export const variableAD = (x: number, vname = ""): VarAD => {
 
 // grad(v) means ds/dv (s is the single output seed)
 
-export const grad = (v: VarAD): number => {
+export const gradAD = (v: VarAD): number => {
   // Already computed/cached the gradient
   if (v.gradVal.tag === "Just") {
     return v.gradVal.contents;
   }
 
   // TODO: What's the most efficient way to do this recursion?
-  // parent.differential = dzi/dv (in expression above)
+  // parent.sensitivity = dzi/dv (in expression above)
   // grad(parent.node) = ds/dzi
-  const res = _.sum(v.parents.map(parent => parent.differential * grad(parent.node)));
+  const res = _.sum(v.parents.map(parent => parent.sensitivity * gradAD(parent.node)));
 
   // Note we both set the gradVal and return it
   v.gradVal = { tag: "Just", contents: res };
@@ -275,27 +270,29 @@ export const grad = (v: VarAD): number => {
 
 //                (+) (z := v + w)     -- parent
 //               ^   ^
-// dz/dv = 1    /     \    dz/dw = 1   -- differentials
+// dz/dv = 1    /     \    dz/dw = 1   -- sensitivities
 //             v       w               -- children
 
-const add = (v: VarAD, w: VarAD): VarAD => {
+// TODO: Put these in ops dict
+
+export const add = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val + w.val, "+");
-  v.parents.push({ node: z, differential: 1.0 });
-  w.parents.push({ node: z, differential: 1.0 });
+  v.parents.push({ node: z, sensitivity: 1.0 });
+  w.parents.push({ node: z, sensitivity: 1.0 });
   return z;
 };
 
-const mul = (v: VarAD, w: VarAD): VarAD => {
+export const mul = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val * w.val, "*");
-  v.parents.push({ node: z, differential: w.val });
-  w.parents.push({ node: z, differential: v.val });
+  v.parents.push({ node: z, sensitivity: w.val });
+  w.parents.push({ node: z, sensitivity: v.val });
   return z;
 };
 
 const sub = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val - w.val, "-");
-  v.parents.push({ node: z, differential: 1.0 });
-  w.parents.push({ node: z, differential: -1.0 });
+  v.parents.push({ node: z, sensitivity: 1.0 });
+  w.parents.push({ node: z, sensitivity: -1.0 });
   return z;
 };
 
@@ -303,20 +300,20 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
 
 const sin = (v: VarAD): VarAD => {
   const z = variableAD(Math.sin(v.val), "sin");
-  v.parents.push({ node: z, differential: Math.cos(v.val) });
+  v.parents.push({ node: z, sensitivity: Math.cos(v.val) });
   return z;
 };
 
 const neg = (v: VarAD): VarAD => {
   const z = variableAD(-v.val, "- (unary)");
-  v.parents.push({ node: z, differential: -1.0 });
+  v.parents.push({ node: z, sensitivity: -1.0 });
   return z;
 };
 
 // TODO: rename to `square` after tf.js dependency is removed
 const squared = (v: VarAD): VarAD => {
   const z = variableAD(v.val * v.val, "^2");
-  v.parents.push({ node: z, differential: 2.0 * v.val });
+  v.parents.push({ node: z, sensitivity: 2.0 * v.val });
   return z;
 };
 
@@ -352,8 +349,8 @@ const testAD1 = () => {
   const z = add(x, y);
 
   z.gradVal = { tag: "Just", contents: 1.0 }; // seed: dz/d(x_i) (there's only one output)
-  const dx = grad(x);
-  const dy = grad(y);
+  const dx = gradAD(x);
+  const dy = gradAD(y);
   console.log("z, x, y", z, x, y);
   console.log("dx, dy", dx, dy);
 
@@ -371,8 +368,8 @@ const testAD2 = () => {
   const z = add(mul(x, y), sin(x)); // x * y + sin(x)
 
   z.gradVal = { tag: "Just", contents: 1.0 };
-  const dx = grad(x);
-  const dy = grad(y);
+  const dx = gradAD(x);
+  const dy = gradAD(y);
   console.log("z, x, y", z, x, y);
   console.log("dx, dy", dx, dy);
 
@@ -391,8 +388,8 @@ const testAD3 = () => {
   const z = squared(sub(x, y));
 
   z.gradVal = { tag: "Just", contents: 1.0 };
-  const dx = grad(x);
-  const dy = grad(y);
+  const dx = gradAD(x);
+  const dy = gradAD(y);
   console.log("z, x, y", z, x, y);
   console.log("dx, dy", dx, dy);
 
@@ -431,44 +428,67 @@ const objDict2 = {};
 const constrDict2 = {};
 
 // Note that these ops MUST use the custom var ops for grads
-const ops = {
+export const ops = {
   vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
-    console.log("vsub", v1, v2);
     const res = _.zipWith(v1, v2, sub);
-    console.log("vsub res", res); // parents?
     return res;
   },
 
-  vnormsq: (v: VarAD[]) => {
-    console.log("vnormsq", v);
+  vnormsq: (v: VarAD[]): VarAD => {
     const res = v.map(e => squared(e));
-    console.log("vnormsq res", res);
-    return _.reduce(res, add); // TODO: Will this one (var(0)) have its memory freed?        
+    return _.reduce(res, add, variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?        
+    // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
   },
 
   // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
   vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
-    console.log("vdot", v1, v2);
     const res = _.zipWith(v1, v2, mul);
-    console.log("vdot res", res);
-    return _.reduce(res, add, variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?
+    return _.reduce(res, add, variableAD(0.0));
   },
+
+  vsum: (v: VarAD[]): VarAD => {
+    return _.reduce(v, add, variableAD(0.0));
+  }
 
 };
 
-export const energyAndGradAD = (state: number[]) => {
+// Returns true if x is a VarAD, false if x is a Tensor
+export const isCustom = (x: DiffVar): boolean => {
+  return x.tag;
+};
 
-  // const testTypes = (x: DiffVar) => {
-  //   console.log("testTypes", x);
-  //   if (x.tag) {
-  //     console.log("x tagged", x.tag);
-  //   } else {
-  //     console.log("x not tagged");
-  //   }
-  // };
+export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
+  // NOTE: mutates xsVars
+  // console.log("energy and grad with vars", xs);
 
-  // testTypes(variable(5.0));
-  // testTypes(tensor([5.0]));
+  // Questions/assumptions: TODO 
+  // Who calls the energy?
+  // 1) Who sets the seed??
+  // 2) What if someone has already called energy? (vars will already exist) -- I guess just re-evaluates and makes a new comp graph. Does the memory get cleared right?
+  // 3) what if someone has already called the grad? (vals will be cached)
+  // Who zeroes the variables? 
+  // Who zeroes the gradients?
+
+  // TODO: Why is the grad twice the right value when using xsVarsInit? Each var seems to have 3 parents when it should just have one--maybe due to extra calls
+
+  // For now, just make the vars from scratch
+  const xsCopy = [...xs];
+  const xsVars = xsCopy.map(x => variableAD(x));
+
+  const z = f(...xsVars);
+  z.gradVal = { tag: "Just", contents: 1.0 }; // just in case, but it's also auto-set in `f`
+  const energyZ = z.val;
+
+  // This will take the grad of all of them, mutating xsVars to store grad values (OR lookup if already cached -- TODO note this!)
+  const dxs = xsVars.map(gradAD);
+  // console.log("xsVars with grads", xsVars);
+  const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
+
+  return { energyVal: energyZ, gradVal: gradxs };
+};
+
+export const energyAndGradADHardcoded = (state: number[]) => {
+  // TODO: You probably want to hold onto the vars at the top level
 
   const stateCopy = [...state];
   const xs = stateCopy.map(x => variableAD(x));
@@ -497,7 +517,7 @@ export const energyAndGradAD = (state: number[]) => {
   // console.log("energyZ", energyZ);
 
   // This will take the grad of all of them, TODO note cache / mutability
-  const dxs = xs.map(grad);
+  const dxs = xs.map(gradAD);
   const gradxs = xs.map(x => fromJust(x.gradVal));
 
   // console.log("xs", xs);
@@ -520,3 +540,46 @@ export const testReverseAD = () => {
   testAD2();
   testAD3();
 };
+
+// ------ Hardcoded energy and its grad (for testing only)
+
+// FNS: ["sameCenter(A.text, A.shape)", "sameCenter(B.text, B.shape)"] => [f(s1, s2), f(s3, s4)]
+// VARS: [
+// "A.shape.x" (0), "A.shape.y" (1), 
+// "A.text.x" (2), "A.text.y" (3), 
+// "B.shape.x" (4), "B.shape.y" (5), 
+// "B.text.x" (6), "B.text.y" (7)]
+
+// GRAD:
+// (In general, df(s1, s2)/d(s1x) = d((a-b)^2)/da = 2(a-b) = basically a-b
+// [ A.shape.x - A.text.x, A.shape.y - A.text.y,
+//   A.text.x - A.shape.x, A.text.y - A.shape.y, 
+//   B.shape.x - B.text.x, B.shape.y - B.text.y,
+//   B.text.x - B.shape.x, B.text.y - B.shape.y ]
+// [ xs[0] - xs[2], xs[1] - xs[3],
+//   xs[2] - xs[0], xs[3] - xs[1],
+//   xs[4] - xs[6], xs[5] - xs[7],
+//   xs[6] - xs[4], xs[7] - xs[5] ] 
+// Pretty sure you could implement this as a matrix
+
+// 1) Inlined energy
+// distsq(center(A.text), center(A.shape)) + distsq(center(B.text), center(B.shape))
+// distsq([zs[2], zs[3]], [zs[0], zs[1]]) + distsq([zs[6], zs[7]], [zs[4], zs[5]])
+// (zs[2] - zs[0])^2 + (zs[3] - zs[1])^2 + (zs[6] - zs[4])^2 + (zs[7] - zs[5])^2
+export const energyHardcoded = (zs: number[]) => {
+  const res1 = zs[2] - zs[0];
+  const res2 = zs[3] - zs[1];
+  const res3 = zs[6] - zs[4];
+  const res4 = zs[7] - zs[5];
+  return res1 * res1 + res2 * res2 + res3 * res3 + res4 * res4;
+};
+
+// 2) Inlined gradient
+export const gradfHardcoded = (zs: number[]) =>
+  [zs[0] - zs[2], zs[1] - zs[3],
+  zs[2] - zs[0], zs[3] - zs[1],
+  zs[4] - zs[6], zs[5] - zs[7],
+  zs[6] - zs[4], zs[7] - zs[5]].map(x => x * 2.0);
+
+export const normList = (xs: number[]) =>
+  Math.sqrt(_.sum(xs.map(e => e * e)));

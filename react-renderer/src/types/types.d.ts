@@ -543,7 +543,7 @@ type MaybeVal<T> =
 //     ... 
 //     PARENT node (z) -- has refs to its parents
 //      ^
-//      | differential (dz/dv)
+//      | sensitivity (dz/dv)
 //      |
 //     var (v)         -- has refs to its parents
 // (carries gradVal: ds/dv)
@@ -552,7 +552,8 @@ type MaybeVal<T> =
 
 interface IEdgeAD {
   node: IVarAD;
-  differential: number; // Value "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
+  sensitivity: number; // Value "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
+  // Aka how sensitive the output is to this input
 };
 
 type EdgeAD = IEdgeAD;

@@ -14,8 +14,21 @@ import {
   genVaryMap,
   evalFns,
 } from "./Evaluator";
-import { zip, sum } from "lodash";
-import { constrDict, objDict, testReverseAD, energyAndGradAD, variableAD } from "./Constraints";
+import { zip } from "lodash";
+import {
+  constrDict,
+  objDict,
+  energyHardcoded,
+  gradfHardcoded,
+  normList,
+  energyAndGradADHardcoded,
+  energyAndGradAD,
+  variableAD,
+  isCustom,
+  ops,
+  add,
+  mul
+} from "./Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -242,10 +255,10 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
       const xsVars: DiffVar[] = xs.map(x => variableAD(x));
 
-      const energy = f(...xsVars); // Note NOT tensors anymore
+      const energy = f(...xsVars); // Note NOT tensors anymore, also `f` should mutate `xsVars`
       console.log("eval energy in stepBasic", energy);
 
-      xs = minimizeBasic(xs); // mutates xs
+      xs = minimizeBasic(f, xs, xsVars); // NOTE: mutates xsVars
     }
   }
 
@@ -267,85 +280,39 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
   return newState;
 };
 
-const minimizeBasic = (xs: number[]) => {
+const minimizeBasic = (
+  f: (...arg: DiffVar[]) => DiffVar,
+  xs: number[],
+  xsVars: DiffVar[]) => {
+
   console.log("minimizeBasic");
 
-  // FNS: ["sameCenter(A.text, A.shape)", "sameCenter(B.text, B.shape)"] => [f(s1, s2), f(s3, s4)]
-  // VARS: [
-  // "A.shape.x" (0), "A.shape.y" (1), 
-  // "A.text.x" (2), "A.text.y" (3), 
-  // "B.shape.x" (4), "B.shape.y" (5), 
-  // "B.text.x" (6), "B.text.y" (7)]
-
-  // GRAD:
-  // (In general, df(s1, s2)/d(s1x) = d((a-b)^2)/da = 2(a-b) = basically a-b
-  // [ A.shape.x - A.text.x, A.shape.y - A.text.y,
-  //   A.text.x - A.shape.x, A.text.y - A.shape.y, 
-  //   B.shape.x - B.text.x, B.shape.y - B.text.y,
-  //   B.text.x - B.shape.x, B.text.y - B.shape.y ]
-  // [ xs[0] - xs[2], xs[1] - xs[3],
-  //   xs[2] - xs[0], xs[3] - xs[1],
-  //   xs[4] - xs[6], xs[5] - xs[7],
-  //   xs[6] - xs[4], xs[7] - xs[5] ] 
-  // Pretty sure you could implement this as a matrix
-
-  // TODO: find the derivative of this example using reverse-mode AD
-  // I wonder if fwd-mode AD, though horribly inefficient, might be fast enough for our immediate purposes
-
-  // 1) Inlined energy
-  // distsq(center(A.text), center(A.shape)) + distsq(center(B.text), center(B.shape))
-  // distsq([zs[2], zs[3]], [zs[0], zs[1]]) + distsq([zs[6], zs[7]], [zs[4], zs[5]])
-  // (zs[2] - zs[0])^2 + (zs[3] - zs[1])^2 + (zs[6] - zs[4])^2 + (zs[7] - zs[5])^2
-  const energy = (zs: number[]) => {
-    const res1 = zs[2] - zs[0];
-    const res2 = zs[3] - zs[1];
-    const res3 = zs[6] - zs[4];
-    const res4 = zs[7] - zs[5];
-    return res1 * res1 + res2 * res2 + res3 * res3 + res4 * res4;
-  };
-
-  // 2) Inlined gradient
-  const gradf = (zs: number[]) =>
-    [zs[0] - zs[2], zs[1] - zs[3],
-    zs[2] - zs[0], zs[3] - zs[1],
-    zs[4] - zs[6], zs[5] - zs[7],
-    zs[6] - zs[4], zs[7] - zs[5]];
-
-  // a) How to automatically get from 1) to 2)? Then how to automatically get 1)?
-  // The only ops in the energy are (-), (+), and (^2) / (alternately, (*) and assignment)
-  // What data structure should the energy be written in? Is there an easy way to do this statically, instead of dynamically?
-  // TODO
-
-  const norm = (zs: number[]) =>
-    Math.sqrt(sum(zs.map(e => e * e)));
-
-  const numSteps = 1; // TODO revert
+  // const numSteps = 1;
+  // TODO: Why does it not converge (or behave differently) w/ a diff # steps?! 10 is fine, 50 is not
+  const numSteps = 10000;
   const t = 0.01;
-  let ys = [...xs];
+  let ys = [...xs]; // Don't use xs
   let gradres = [...xs];
-  let adRes = energyAndGradAD(ys); // TODO: remove redundant
+  let adRes = energyAndGradAD(f, ys, xsVars); // TODO: remove redundant
   let i = 0;
 
-  // TODO: TEST, REMOVE
-  // testReverseAD();
-
   while (i < numSteps) {
-    adRes = energyAndGradAD(ys)
+    adRes = energyAndGradAD(f, ys, xsVars);
+
     // console.log("i", i);
-    // console.log("auto energy", adRes.energyVal, adRes.gradVal);
+    // console.log("ground-truth energy and grad", energyHardcoded(ys), gradfHardcoded(ys));
+    // adResHardcoded = energyAndGradADHardcoded(ys);
+    // console.log("auto energy and grad (hardcoded problem)", adResHardcoded.energyVal, adResHardcoded.gradVal);
+    // console.log("auto energy and grad (programmatic)", adRes.energyVal, adRes.gradVal);
 
-    // ys' = ys - t * gradf(ys)
     gradres = adRes.gradVal;
-
+    // ys' = ys - t * gradf(ys)
     ys = ys.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
     i++;
   }
 
-  // console.log("gradres", gradres, "ys", ys);
-  // console.log("f(x)", energy(ys));
   console.log("f(x)", adRes.energyVal);
-  console.log("|grad f(x)|:", norm(gradres));
-
+  console.log("|grad f(x)|:", normList(gradres));
   return ys;
 };
 
@@ -384,7 +351,7 @@ const prettyPrintProperty = (arg: any) => {
 export const evalEnergyOn = (state: State, inlined = false) => {
   const { objFns, constrFns, translation, varyingPaths } = state;
   // TODO: types
-  return (...varyingValuesTF: DiffVar[]): Scalar => {
+  return (...varyingValuesTF: DiffVar[]): DiffVar => {
     // construct a new varying map
     const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<
       DiffVar
@@ -399,12 +366,10 @@ export const evalEnergyOn = (state: State, inlined = false) => {
       return res.mul(scalar(0));
     }
 
+    // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(objFns, translation, varyingMap);
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
-    console.log("objEvaled", objEvaled);
-
-    // TODO. These should just be scalars now
     const objEngs: DiffVar[] = objEvaled.map((o) => applyFn(o, objDict));
     const constrEngs: DiffVar[] = constrEvaled.map((c) =>
       toPenalty(applyFn(c, constrDict))
@@ -412,21 +377,34 @@ export const evalEnergyOn = (state: State, inlined = false) => {
 
     // TODO: Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
     // NOTE: The energies are in the val field of the results (w/o grads)
-    console.log("objEngs", objFns, objEngs);
-    console.log("vars", varyingValuesTF);
+    // console.log("objEngs", objFns, objEngs);
+    // console.log("vars", varyingValuesTF);
 
-    const objEng: Tensor =
+    if (isCustom(objEngs[0])) { // TODO make more robust to empty lists
+      const objEng: VarAD = ops.vsum(objEngs);
+      const constrEng: VarAD = ops.vsum(constrEngs);
+      const overallEng: VarAD = add(objEng,
+        mul(constrEng,
+          variableAD(constraintWeight * state.params.weight)));
+
+      // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
+      overallEng.gradVal = { tag: "Just", contents: 1.0 };
+      // console.log("overall eng from custom AD", overallEng, overallEng.val);
+      return overallEng;
+    }
+
+    const objEng2: Tensor =
       objEngs.length === 0 ? differentiable(0) : stack(objEngs).sum();
-    const constrEng: Tensor =
+    const constrEng2: Tensor =
       constrEngs.length === 0 ? differentiable(0) : stack(constrEngs).sum();
-    const overallEng = objEng.add(
-      constrEng.mul(scalar(constraintWeight * state.params.weight))
+    const overallEng2 = objEng2.add(
+      constrEng2.mul(scalar(constraintWeight * state.params.weight))
     );
 
     // NOTE: the current version of tfjs requires all input variables to have gradients (i.e. actually involved when computing the overall energy). See https://github.com/tensorflow/tfjs-core/blob/8c2d9e05643988fa7f4575c30a5ad3e732d189b2/tfjs-core/src/engine.ts#L726
     // HACK: therefore, we try to work around it by using all varying values without affecting the value and gradients of the energy function
     const dummyVal = stack(varyingValuesTF).sum();
-    return overallEng.add(dummyVal.mul(scalar(0)));
+    return overallEng2.add(dummyVal.mul(scalar(0)));
   };
 };
 
