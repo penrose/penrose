@@ -255,8 +255,8 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
       const xsVars: DiffVar[] = xs.map(x => variableAD(x));
 
-      const energy = f(...xsVars); // Note NOT tensors anymore, also `f` should mutate `xsVars`
-      console.log("eval energy in stepBasic", energy);
+      // const energy = f(...xsVars); // Note NOT tensors anymore, also `f` should mutate `xsVars`
+      // console.log("eval energy in stepBasic", energy);
 
       xs = minimizeBasic(f, xs, xsVars); // NOTE: mutates xsVars
     }
@@ -288,16 +288,19 @@ const minimizeBasic = (
   console.log("minimizeBasic");
 
   // const numSteps = 1;
-  // TODO: Why does it not converge (or behave differently) w/ a diff # steps?! 10 is fine, 50 is not
-  const numSteps = 10000;
+  const numSteps = 10000; // NOTE: The memory profile seems to be different for a different # steps for the leaky version? 10 vs 10k looks different
+  // TODO: Why are tf.js / webgl textures showing up in the memory profile? Because turning on `differentiable` flag in `evalExprs` causes evaled shaped to get tensors. That causes memory leak
+
   const t = 0.01;
   let ys = [...xs]; // Don't use xs
   let gradres = [...xs];
   let adRes = energyAndGradAD(f, ys, xsVars); // TODO: remove redundant
+  // let adRes = energyAndGradADHardcoded(ys);
   let i = 0;
 
   while (i < numSteps) {
     adRes = energyAndGradAD(f, ys, xsVars);
+    // adRes = energyAndGradADHardcoded(ys);
 
     // console.log("i", i);
     // console.log("ground-truth energy and grad", energyHardcoded(ys), gradfHardcoded(ys));
@@ -349,19 +352,17 @@ const prettyPrintProperty = (arg: any) => {
  * @returns a function that takes in a list of `DiffVar`s and return a `Scalar`
  */
 export const evalEnergyOn = (state: State, inlined = false) => {
-  const { objFns, constrFns, translation, varyingPaths } = state;
   // TODO: types
   return (...varyingValuesTF: DiffVar[]): DiffVar => {
+    // TODO: Could this line be causing a memory leak?
+    const { objFns, constrFns, translation, varyingPaths } = state;
+
     // construct a new varying map
-    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<
-      DiffVar
-    >;
+    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<DiffVar>;
 
     if (inlined) {
       console.log("returning inlined function for `tree-small.sub` and `venn-small.sub`");
-
       // TODO: Put inlined function here
-
       const res = stack(varyingValuesTF).sum();
       return res.mul(scalar(0));
     }
@@ -371,9 +372,7 @@ export const evalEnergyOn = (state: State, inlined = false) => {
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
     const objEngs: DiffVar[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: DiffVar[] = constrEvaled.map((c) =>
-      toPenalty(applyFn(c, constrDict))
-    );
+    const constrEngs: DiffVar[] = constrEvaled.map((c) => toPenalty(applyFn(c, constrDict)));
 
     // TODO: Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
     // NOTE: The energies are in the val field of the results (w/o grads)

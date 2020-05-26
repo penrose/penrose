@@ -23,8 +23,8 @@ const socketAddress = "ws://localhost:9160";
 const stepState = async (state: State, onUpdate: any) => {
   // NOTE: this will greatly improve the performance of the optmizer
   // TODO: where's the right place to put this? Is there an "on start up" place?
-  tf.setBackend("cpu");
-  tf.enableProdMode();
+  // tf.setBackend("cpu");
+  // tf.enableProdMode();
 
   // TODO: Redo perf numbers for this extra factor of 10??
   const numSteps = 1;

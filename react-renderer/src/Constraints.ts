@@ -182,6 +182,7 @@ export const distsq = (p1: Tensor | VecAD, p2: Tensor | VecAD): DiffVar => {
     const res = ops.vnormsq(dv);
     return res;
   } else if (!("tag" in p1) && !("tag" in p2)) { // Need this check, otherwise Typescript can't figure out they are both tensors
+    console.error("both tensors");
     const dp = p1.sub(p2);
     return dp.dot(dp);
   }

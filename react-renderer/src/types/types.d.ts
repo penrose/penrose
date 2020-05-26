@@ -47,7 +47,7 @@ interface IState {
   shapeOrdering: string[];
   shapes: Shape[];
   varyingMap: VaryMap;
-  overallObjective(...xs: DiffVar[]): Scalar;
+  overallObjective(...xs: DiffVar[]): DiffVar;
 }
 type State = IState; // TODO
 
@@ -509,12 +509,12 @@ interface IParams {
   // Info for unconstrained optimization
   UOround: number;
   lastUOstate: DiffVar;
-  lastUOenergy: Scalar;
+  lastUOenergy: DiffVar;
 
   // Info for exterior point method
   EPround: number;
   lastEPstate: DiffVar;
-  lastEPenergy: Scalar;
+  lastEPenergy: DiffVar;
 
   // For L-BFGS (TODO)
   bfgsInfo: BfgsParams;

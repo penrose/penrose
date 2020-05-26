@@ -10,6 +10,7 @@ import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
 // import { Variable } from "@tensorflow/tfjs";
 import { differentiable } from "./Optimizer";
+import { variableAD } from "./Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -89,9 +90,10 @@ const evalFn = (
   trans: Translation,
   varyingMap: VaryMap<DiffVar>
 ): FnDone<DiffVar> => {
+  // TODO: Turn off differentiable tensors for now; we only look up custom variables in the varyingMap
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap, true) as ArgVal<DiffVar>[],
+    args: evalExprs(fn.fargs, trans, varyingMap, false) as ArgVal<DiffVar>[],
     optType: fn.optType,
   };
 };
