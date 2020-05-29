@@ -437,7 +437,7 @@ const awLineSearch = (
  * @param {*} names // TODO: what is this
  * @returns // TODO: document
  */
-export const minimize = (
+export const minimizePenrose = (
   f: (...arg: Variable[]) => Scalar,
   gradf: (arg: Tensor[]) => Tensor[],
   xs: Variable[],
@@ -499,3 +499,46 @@ export const minimize = (
 
   return { energy: energy as Scalar, normGrad: normGrad as Scalar, i };
 };
+
+/**
+ * Use included tf.js optimizer to minimize f over xs (note: xs is mutable)
+ *
+ * @param {(...arg: tf.Tensor[]) => tf.Tensor} f overall energy function
+ * @param {(...arg: tf.Tensor[]) => tf.Tensor[]} gradf gradient function
+ * @param {tf.Tensor[]} xs varying state
+ * @param {*} names // TODO: what is this
+ * @returns // TODO: document
+ */
+export const minimizeTF = (
+  f: (...arg: Variable[]) => Scalar,
+  gradf: (arg: Tensor[]) => Tensor[],
+  xs: Variable[],
+  maxSteps = 100
+): {
+  energy: Scalar;
+  normGrad: Scalar;
+  i: number;
+} => {
+  // values to be returned
+  let energy;
+  let i = 0;
+  while (i < maxSteps) {
+    energy = optimizer.minimize(() => f(...xs) as any, true);
+
+    // note: this printing could tank the performance
+    // vals = xs.map(v => v.dataSync()[0]);
+    // console.log("i=", i);
+    // console.log("state", tups2obj(names, vals));
+    // console.log(`f(xs): ${energy}`);
+    // console.log("f'(xs)", tfsStr(gradfx));
+    // console.log("||f'(xs)||", norm_grad);
+    // console.log("cond", norm_grad > EPS, i < MAX_STEPS);
+    i++;
+  }
+  // find the current
+  const gradfx = gradf(xs);
+  const normGrad = tf.stack(gradfx).norm();
+  return { energy: energy as Scalar, normGrad: normGrad as Scalar, i };
+};
+
+export const minimize = minimizeTF;
