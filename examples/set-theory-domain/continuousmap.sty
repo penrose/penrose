@@ -43,9 +43,9 @@ with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
 
     f.shape = Arrow {
-      startX : R1.shape.x + (R1.shape.side) / 2.0 + f.padding
+      startX : 0.0
       startY : R1.shape.y
-      endX : R2.shape.x - (R2.shape.side) / 2.0 - f.padding
+      endX : 100.0
       endY : R2.shape.y
       thickness : 2.0
       color : Colors.black
@@ -78,7 +78,7 @@ Set `V` {
 Set `Rn` {
     override `Rn`.shape = Square {
       -- Works but is slow
-      -- x : -100.0
+      x : -100.0
       -- y = 0.0
       color : Colors.lightYellow
       rotation : 0.0
@@ -86,7 +86,8 @@ Set `Rn` {
       strokeColor : Colors.black
     }
 
-    `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - Const.padding
+    -- `Rn`.text.x = `Rn`.shape.x + `Rn`.shape.side / 2.0 - Const.padding
+    `Rn`.text.x = -100.0 + `Rn`.shape.side / 2.0 - Const.padding
     `Rn`.text.y = `Rn`.shape.y + `Rn`.shape.side / 2.0 - Const.padding
 
     delete `Rn`.labelFn
@@ -101,14 +102,16 @@ with Set `Rn` {
     override `Rm`.shape = Square {
         color : Colors.lightYellow
         y : `Rn`.shape.y
-        x : `Rn`.shape.x + 400.0
+        -- x : `Rn`.shape.x + 400.0
+        x : 300.0
         side  : `Rn`.shape.side
         rotation : 0.0
         strokeWidth : 1.0
         strokeColor : Colors.black
     }
 
-    `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - Const.padding
+    -- `Rm`.text.x = `Rm`.shape.x + `Rm`.shape.side / 2.0 - Const.padding
+    `Rm`.text.x = 300.0 + `Rm`.shape.side / 2.0 - Const.padding
     `Rm`.text.y = `Rm`.shape.y + `Rm`.shape.side / 2.0 - Const.padding
 
     delete `Rm`.labelFn
