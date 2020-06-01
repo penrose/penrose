@@ -59,14 +59,37 @@ class ShapeView extends React.Component<IViewProps, IState> {
           >
             {frame.shapes.map(
               ({ properties, shapeType }: Shape, key: number) => {
-                const [w, h] =
-                  shapeType === "Circle"
-                    ? [
-                        (properties.r.contents as number) * 2,
-                        (properties.r.contents as number) * 2,
-                      ]
-                    : [properties.w.contents, properties.h.contents];
-                return (
+		  // If the inspector is crashing around here, then probably the shape doesn't have the width/height properties, so add a special case as below
+		  // console.log("properties, shapeType", properties, shapeType, properties.w, properties.h);
+
+                  let [w, h] = [0, 0];
+
+                  if (shapeType === "Circle") {
+		      [w, h] = 
+			  [
+                              (properties.r.contents as number) * 2,
+                              (properties.r.contents as number) * 2,
+			  ];
+		  } else if (shapeType === "Square") {
+		      [w, h] = 
+			  [
+			      (properties.side.contents as number),
+			      (properties.side.contents as number),
+			  ];
+		  } else if (shapeType === "Arrow") {
+		      const [sx, sy, ex, ey] = [properties.startX.contents as number, 
+						properties.startY.contents as number, 
+						properties.endX.contents as number, 
+						properties.endY.contents as number];
+
+		      const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
+		      // size of bbox of arrow
+		      [w, h] = [Math.max(Math.abs(ex - sx), padding), Math.max(Math.abs(ey - sy), padding)];
+		  } else {
+		      [w, h] = [properties.w.contents as number, properties.h.contents as number];
+		  }
+
+                  return (
                   <ShapeItem
                     key={`shapePreview-${key}`}
                     selected={selectedShape === key}
