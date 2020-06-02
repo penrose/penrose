@@ -211,13 +211,14 @@ export const normalize = (v: DiffVar): DiffVar => v.div(v.norm().add(epsd));
 // ----- Core AD code
 
 export const variableAD = (x: number, vname = ""): VarAD => {
-  const nameVal = vname ? vname : String(x);
+  const opName = vname ? vname : String(x);
 
   return {
     tag: "custom",
-    name: nameVal,
+    op: opName,
     val: x,
     parents: [],
+    children: [],
     gradVal: { tag: "Nothing" }
   };
 };
@@ -280,6 +281,11 @@ export const add = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val + w.val, "+");
   v.parents.push({ node: z, sensitivity: 1.0 });
   w.parents.push({ node: z, sensitivity: 1.0 });
+
+  // TODO: Check if the sensitivities are right
+  z.children.push({ node: v, sensitivity: 1.0 });
+  z.children.push({ node: w, sensitivity: 1.0 });
+
   return z;
 };
 
@@ -287,6 +293,10 @@ export const mul = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val * w.val, "*");
   v.parents.push({ node: z, sensitivity: w.val });
   w.parents.push({ node: z, sensitivity: v.val });
+
+  z.children.push({ node: v, sensitivity: w.val });
+  z.children.push({ node: w, sensitivity: v.val });
+
   return z;
 };
 
@@ -294,6 +304,10 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val - w.val, "-");
   v.parents.push({ node: z, sensitivity: 1.0 });
   w.parents.push({ node: z, sensitivity: -1.0 });
+
+  z.children.push({ node: v, sensitivity: 1.0 });
+  z.children.push({ node: w, sensitivity: -1.0 });
+
   return z;
 };
 
@@ -302,12 +316,19 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
 const sin = (v: VarAD): VarAD => {
   const z = variableAD(Math.sin(v.val), "sin");
   v.parents.push({ node: z, sensitivity: Math.cos(v.val) });
+
+  // TODO: cache values
+  z.children.push({ node: v, sensitivity: Math.cos(v.val) });
+
   return z;
 };
 
 const neg = (v: VarAD): VarAD => {
   const z = variableAD(-v.val, "- (unary)");
   v.parents.push({ node: z, sensitivity: -1.0 });
+
+  z.children.push({ node: v, sensitivity: -1.0 });
+
   return z;
 };
 
@@ -315,7 +336,77 @@ const neg = (v: VarAD): VarAD => {
 const squared = (v: VarAD): VarAD => {
   const z = variableAD(v.val * v.val, "^2");
   v.parents.push({ node: z, sensitivity: 2.0 * v.val });
+
+  z.children.push({ node: v, sensitivity: 2.0 * v.val });
+
   return z;
+};
+
+// ----- Codegen
+
+// Initial parameters for generating var names. Start with 0, children name themselves with the passed-in index (so you know the child's name) and pass an incremented counter upward (for the next child's name OR the parent's name, after all the children are done)
+const traverseGraphInit = (z: IVarAD): string[] => {
+  const res = traverseGraph(0, z);
+  return res.prog;
+};
+
+const traverseGraph = (i: number, z: IVarAD): any => {
+  const c = "x";
+
+  // Parents do the work of incrementing
+  if (z.children.length === 0) {
+    const leafName = c + String(i);
+    const stmt = `const ${leafName} = ${z.op};`
+    return {
+      counter: i,
+      prog: [stmt]
+    };
+
+  } else if (z.children.length === 1) { // Unary op
+    const child = z.children[0].node;
+    const res = traverseGraph(i, child);
+
+    const childName = c + String(res.counter);
+    const parCounter = res.counter + 1;
+    const parName = c + String(parCounter);
+
+    const op = z.op;
+    // TODO: Hack for now, since we only use ^2
+    // const stmt = `const ${parName} = (${op})(${childName});`;
+    const stmt = `const ${parName} = Math.pow(${childName}, 2);`;
+
+    return {
+      counter: parCounter,
+      prog: res.prog.concat([stmt])
+    };
+
+  } else if (z.children.length === 2) { // Binary op
+    const child0 = z.children[0].node;
+    const child1 = z.children[1].node;
+
+    const res0 = traverseGraph(i, child0);
+    const childName0 = c + String(res0.counter);
+
+    const nextCounter = res0.counter + 1;
+
+    const res1 = traverseGraph(nextCounter, child1);
+    const childName1 = c + String(res1.counter);
+
+    const parCounter = res1.counter + 1;
+    const parName = c + String(parCounter);
+
+    const op = z.op;
+    const stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
+
+    // Array efficiency?
+    return {
+      counter: parCounter,
+      prog: res0.prog.concat(res1.prog).concat([stmt])
+    };
+
+  } else {
+    throw Error("Ops that are not nullary, unary, or binary are not supported");
+  }
 };
 
 // ----- Helper functions
@@ -460,7 +551,7 @@ export const isCustom = (x: DiffVar): boolean => {
 
 export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
   // NOTE: mutates xsVars
-  // console.log("energy and grad with vars", xs);
+  console.log("energy and grad with vars", xs, xsVarsInit);
 
   // Questions/assumptions: TODO 
   // Who calls the energy?
@@ -476,14 +567,58 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   const xsCopy = [...xs];
   const xsVars = xsCopy.map(x => variableAD(x));
 
+  // ---- FORWARD
   const z = f(...xsVars);
+
+  // const z = sub(variableAD(1.0), variableAD(2.0));
+
+  // const z = add(
+  //   squared(sub(variableAD(1.0), variableAD(2.0))),
+  //   squared(sub(variableAD(3.0), variableAD(4.0))),
+  // );
+
   z.gradVal = { tag: "Just", contents: 1.0 }; // just in case, but it's also auto-set in `f`
   const energyZ = z.val;
 
+  console.log("xsVars with ops (forward only)", xsVars);
+  // Note that chrome seems to print by reference, so if the grad is calculated, this will actually show it unless you throw the error directly after
+  // throw Error("test");
+
+  // ----- TRAVERSE/PRINT GRAPH AS CODE 
+  // from bottom up. (No grads, just energy)
+  // Depth-first or breadth-first?
+
+  // The graph is built from top-down though. Should we also have nodes store their children?
+  console.log("z (with children)", z);
+
+  // Example:
+  //       Z (+)
+  //      / \
+  //     v   v
+  //  X (^2)  Y (-)
+  //     \   / \
+  //      v v   v
+  //       A    B
+  // That generates the code:
+  // TODO: name vars correctly in example
+  // x0 := X + Y
+  // X := A^2
+  // Y := A - B
+  // A := 5.0
+  // B := 2.4
+
+  console.log("traverse graph");
+  console.log(traverseGraphInit(z).join("\n"));
+
+  // ---- BACKWARD
   // This will take the grad of all of them, mutating xsVars to store grad values (OR lookup if already cached -- TODO note this!)
   const dxs = xsVars.map(gradAD);
-  // console.log("xsVars with grads", xsVars);
+  console.log("xsVars with grads (backward)", xsVars);
+
   const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
+  console.log("xsVars grad values", gradxs);
+
+  throw Error("test");
 
   return { energyVal: energyZ, gradVal: gradxs };
 };

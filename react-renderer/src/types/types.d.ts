@@ -560,9 +560,10 @@ type EdgeAD = IEdgeAD;
 
 interface IVarAD {
   tag: "custom";
-  name: string;
+  op: string;
   val: number;
   parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  children: EdgeAD[];
   gradVal: MaybeVal<number>;
 }
 
