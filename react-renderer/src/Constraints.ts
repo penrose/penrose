@@ -13,6 +13,31 @@ export const objDict = {
     return distsq(center(s1), center(s2));
   },
 
+  // Stella function for testing (TODO: Replace w/ most recent version)
+  centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): Tensor => {
+
+    // For debugging, TODO remove
+    console.log("t1, arr, w", t1, arr, w);
+    console.log(typeof (arr.startX.contents));
+    console.log(typeof (arr.startY.contents));
+    console.log(typeof (arr.endX.contents));
+    console.log(typeof (arr.endY.contents));
+    console.log(arr.startX.contents.dataSync()[0]);
+    console.log(arr.startY.contents.dataSync()[0]);
+    console.log(arr.endX.contents.dataSync()[0]);
+    console.log(arr.endY.contents.dataSync()[0]);
+    // The tensors seem to have different disposed values, but their numeric values all seem to be available, so this is fine?
+
+    if (typesAre([t1, t2], ["Arrow", "Text"])) {
+      const mx = arr.startX.contents.add(arr.endX.contents).div(scalar(2.0));
+      const my = arr.startY.contents.add(arr.endY.contents).div(scalar(2.0));
+      // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
+      const lh = mx.sub(text1.x.contents).square();
+      const rh = my.add(text1.h.contents.mul(scalar(1.1))).sub(text1.y.contents).square();
+      return lh.add(rh).mul(w);
+    } else throw new Error(`${[t1, t2]} not supported for centerLabel`)
+  },
+
   // Generic repel function for two GPIs with centers
   repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
@@ -75,7 +100,13 @@ export const constrDict = {
       const d = dist(center(s1), center(s2));
       const textR = maximum(s2.w.contents, s2.h.contents);
       return d.sub(s1.r.contents).add(textR);
-    } else throw new Error(`${[t1, t2]} not supported for contains`);
+    } else {
+      console.error(`${[t1, t2]} not supported for contains`);
+      return scalar(0.0);
+
+      // TODO revert
+      // throw new Error(`${[t1, t2]} not supported for contains`);
+    }
   },
 
   disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
@@ -102,7 +133,7 @@ export const constrDict = {
       const d = dist(center(s1), center(s2));
       return s2.r.contents
         .add(textR)
-        .add(scalar(padding))
+        .add(padding)
         .sub(d);
     } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
   },

@@ -266,7 +266,7 @@ export const evalExpr = (
         contents: [uOp, expr],
       } = e as IUOp;
       // TODO: use the type system to narrow down Value to Float and Int?
-      const arg = evalExpr(expr, trans, varyingVars).contents;
+      const arg = evalExpr(expr, trans, varyingVars, autodiff).contents;
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
@@ -274,14 +274,14 @@ export const evalExpr = (
       };
     case "BinOp":
       const [binOp, e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, autodiff);
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
         contents: evalBinOp(
           binOp,
-          val1.contents as Value<number>,
-          val2.contents as Value<number>
+          val1.contents as Value<number | Tensor>,
+          val2.contents as Value<number | Tensor>
         ),
       };
     case "EPath":
@@ -300,8 +300,8 @@ export const evalExpr = (
   }
 };
 
-const differentiableValue = (v: Value<number>): Value<Tensor> => {
-  if (v.tag === "FloatV" || v.tag === "IntV") {
+const differentiableValue = (v: Value<number | Tensor>): Value<Tensor> => {
+  if ((v.tag === "FloatV" || v.tag === "IntV") && typeof v.contents === "number") {
     return { ...v, contents: differentiable(v.contents) } as
       | IFloatV<Tensor>
       | IIntV<Tensor>;
@@ -385,6 +385,9 @@ export const argValue = (e: ArgVal<number | Tensor>) => {
   }
 };
 
+const bothTensors = (v1: IFloatV<number | Tensor>, v2: IFloatV<number | Tensor>): boolean =>
+  typeof v1.contents === "number" && typeof v2.contents === "number";
+
 /**
  * Evaluate a binary operation such as +, -, *, /, or ^.
  * @param op a binary operater
@@ -392,32 +395,86 @@ export const argValue = (e: ArgVal<number | Tensor>) => {
  */
 export const evalBinOp = (
   op: BinaryOp,
-  v1: Value<number>,
-  v2: Value<number>
-): Value<number> => {
-  let returnType: "FloatV" | "IntV";
-  // NOTE: need to explicitly check the types so the compiler will understand
-  if (v1.tag === "FloatV" && v2.tag === "FloatV") returnType = "FloatV";
-  else if (v1.tag === "IntV" && v2.tag === "IntV") returnType = "IntV";
-  else throw new Error(`the types of two operands to ${op} must match`);
+  v1: Value<number | Tensor>,
+  v2: Value<number | Tensor>
+): Value<number | Tensor> => {
 
-  switch (op) {
-    case "BPlus":
-      return { tag: returnType, contents: v1.contents + v2.contents };
-    case "BMinus":
-      return { tag: returnType, contents: v1.contents - v2.contents };
-    case "Multiply":
-      return { tag: returnType, contents: v1.contents * v2.contents };
-    case "Divide":
-      if (v2.contents === 0) throw new Error("divided by zero");
-      const res = v1.contents / v2.contents;
-      return {
-        tag: returnType,
-        contents: returnType === "IntV" ? Math.floor(res) : res,
-      };
-    case "Exp":
-      return { tag: returnType, contents: Math.pow(v1.contents, v2.contents) };
+  let returnType: "FloatV" | "IntV";
+  // TODO: deal with Int ops/conversion for binops
+  // res = returnType === "IntV" ? Math.floor(res) : res;
+
+  // NOTE: need to explicitly check the types so the compiler will understand
+  if (v1.tag === "FloatV" && v2.tag === "FloatV") {
+    let res;
+
+    switch (op) {
+      case "BPlus":
+        if (typeof v1.contents === "number" && typeof v2.contents === "number") {
+          res = v1.contents + v2.contents;
+        } else if (!(typeof v1.contents === "number") && !(typeof v2.contents === "number")) {
+          res = v1.contents.addStrict(v2.contents);
+        } else {
+          throw Error("Types don't match for v1, v2");
+        }
+        break;
+
+      case "BMinus":
+        if (typeof v1.contents === "number" && typeof v2.contents === "number") {
+          res = v1.contents - v2.contents;
+        } else if (!(typeof v1.contents === "number") && !(typeof v2.contents === "number")) {
+          res = v1.contents.subStrict(v2.contents);
+        } else {
+          throw Error("Types don't match for v1, v2");
+        }
+        break;
+
+      case "Multiply":
+        if (typeof v1.contents === "number" && typeof v2.contents === "number") {
+          res = v1.contents * v2.contents;
+        } else if (!(typeof v1.contents === "number") && !(typeof v2.contents === "number")) {
+          res = v1.contents.mulStrict(v2.contents);
+        } else {
+          throw Error("Types don't match for v1, v2");
+        }
+        break;
+
+      case "Divide":
+        if (typeof v1.contents === "number" && typeof v2.contents === "number") {
+          if (v2.contents === 0) throw new Error("divided by zero");
+          res = v1.contents / v2.contents;
+        } else if (!(typeof v1.contents === "number") && !(typeof v2.contents === "number")) {
+          // two tensors
+          res = v1.contents.divStrict(v2.contents);
+        } else {
+          throw Error("Types don't match for v1, v2");
+        }
+        break;
+
+      case "Exp":
+        if (typeof v1.contents === "number" && typeof v2.contents === "number") {
+          if (v2.contents === 0) throw new Error("divided by zero");
+          res = Math.pow(v1.contents, v2.contents);
+        } else if (!(typeof v1.contents === "number") && !(typeof v2.contents === "number")) {
+          // two tensors
+          res = v1.contents.powStrict(v2.contents);
+        } else {
+          throw Error("Types don't match for v1, v2");
+        }
+        break;
+    }
+
+    returnType = "FloatV";
+    return { tag: returnType, contents: res };
   }
+
+  else if (v1.tag === "IntV" && v2.tag === "IntV") {
+    returnType = "IntV";
+  }
+  else {
+    throw new Error(`the types of two operands to ${op} must match`);
+  }
+
+  return v1; // TODO hack
 };
 
 /**
@@ -427,14 +484,29 @@ export const evalBinOp = (
  */
 export const evalUOp = (
   op: UnaryOp,
-  arg: IFloatV<number> | IIntV<number>
-): Value<number> => {
-  switch (op) {
-    case "UPlus":
-      throw new Error("unary plus is undefined");
-    case "UMinus":
-      return { ...arg, contents: -arg.contents };
+  arg: IFloatV<number | Tensor> | IIntV<number>
+): Value<number | Tensor> => {
+
+  if (arg.tag === "FloatV") {
+    switch (op) {
+      case "UPlus":
+        throw new Error("unary plus is undefined");
+      case "UMinus":
+        if (typeof arg.contents === "number") {
+          return { ...arg, contents: -arg.contents };
+        } else {
+          return { ...arg, contents: arg.contents.neg() }; // tensor
+        }
+    }
+  } else { // IntV
+    switch (op) {
+      case "UPlus":
+        throw new Error("unary plus is undefined");
+      case "UMinus":
+        return { ...arg, contents: -arg.contents };
+    }
   }
+
 };
 
 /**
