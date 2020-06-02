@@ -13,11 +13,11 @@ export const objDict = {
     return distsq(center(s1), center(s2));
   },
 
-  // stella
 
   below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) => 
     square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
-    // can this be made more efficient (code-wise) by calling "above" and swapping arguments?
+    // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
+
 
   centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): Tensor => {
     if (typesAre([t1,t2], ["Arrow", "Text"])) {
@@ -178,11 +178,6 @@ const centerArrow2 = (arr: any, center1: Tensor, center2: Tensor, [o1, o2]: Tens
 const sc = (x: any): number => x.dataSync()[0];
 const scs = (xs: any[]) => xs.map((e) => sc(e));
 
-// const point2Tensor = (x : number, y: number): Tensor => {
-//   return stack([x, y])
-// } 
-// // can be factored in but I didn't want to change anybody else's code
-
 export const zero: Tensor = scalar(0);
 
 // to prevent 1/0 (infinity). put it in the denominator
@@ -204,9 +199,6 @@ export const distsq = (p1: Tensor, p2: Tensor): Tensor => {
   return dp.dot(dp);
 }
 
-// export const midpoint = (p1: Tensor, p2: Tensor): Tensor => {
-//   return p1.add(p2).div(scalar(2.0));
-// }
 
 // with epsilon to avoid NaNs
 export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));
