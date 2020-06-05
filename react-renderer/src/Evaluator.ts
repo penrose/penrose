@@ -242,13 +242,19 @@ export const evalExpr = (
 ): ArgVal<number | Tensor> => {
 
   switch (e.tag) {
-    case "IntLit":
-      return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
-    case "StringLit":
-      return { tag: "Val", contents: { tag: "StrV", contents: e.contents } };
-    case "BoolLit":
-      return { tag: "Val", contents: { tag: "BoolV", contents: e.contents } };
-    case "AFloat":
+    case "IntLit": {
+      return { tag: "Val", contents: { tag: "IntV", contents: e.contents } }
+    } break;
+
+    case "StringLit": {
+      return { tag: "Val", contents: { tag: "StrV", contents: e.contents } }
+    } break;
+
+    case "BoolLit": {
+      return { tag: "Val", contents: { tag: "BoolV", contents: e.contents } }
+    } break
+      ;
+    case "AFloat": {
       if (e.contents.tag === "Vary") {
         throw new Error("encountered an unsubstituted varying value");
       } else {
@@ -261,7 +267,33 @@ export const evalExpr = (
           },
         };
       }
-    case "UOp":
+    } break;
+
+    case "Tuple": {
+      const [e1, e2] = e.contents;
+      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, autodiff);
+
+      // TODO: Is there a neater way to do this check? (`checkListElemType` in GenOptProblem.hs)
+      if (val1.tag === "Val" && val2.tag === "Val") {
+        if (val1.contents.tag === "FloatV" && val2.contents.tag === "FloatV") {
+          return { // Value<number | Tensor>
+            tag: "Val",
+            contents:
+            {
+              tag: "TupV",
+              contents: [val1.contents.contents,
+              val2.contents.contents]
+            }
+          }
+        } else {
+          throw Error("Tuple needs to contain two Float elements");
+        }
+      } else {
+        throw Error("Tuple needs to evaluate to two values (no GPI allowed)");
+      }
+    } break;
+
+    case "UOp": {
       const {
         contents: [uOp, expr],
       } = e as IUOp;
@@ -271,8 +303,10 @@ export const evalExpr = (
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
         contents: evalUOp(uOp, arg as IFloatV<number> | IIntV<number>),
-      };
-    case "BinOp":
+      }
+    } break;
+
+    case "BinOp": {
       const [binOp, e1, e2] = e.contents;
       const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, autodiff);
       return {
@@ -283,10 +317,14 @@ export const evalExpr = (
           val1.contents as Value<number | Tensor>,
           val2.contents as Value<number | Tensor>
         ),
-      };
-    case "EPath":
+      }
+    } break;
+
+    case "EPath": {
       return resolvePath(e.contents, trans, varyingVars, autodiff);
-    case "CompApp":
+    } break;
+
+    case "CompApp": {
       const [fnName, argExprs] = e.contents;
       // eval all args
       // TODO: how should computations be written? TF numbers?
@@ -295,8 +333,11 @@ export const evalExpr = (
       checkComp(fnName, args);
       // retrieve comp function from a global dict and call the function
       return { tag: "Val", contents: compDict[fnName](...argValues) };
-    default:
+    } break;
+
+    default: {
       throw new Error(`cannot evaluate expression of type ${e.tag}`);
+    }
   }
 };
 
