@@ -562,9 +562,11 @@ interface IVarAD {
   tag: "custom";
   op: string;
   val: number;
+  isInput: boolean; // These inputs need to be distinguished as bindings in the function (e.g. \x y -> x + y)
   parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
   children: EdgeAD[];
   gradVal: MaybeVal<number>;
+  index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
 }
 
 type VarAD = IVarAD;

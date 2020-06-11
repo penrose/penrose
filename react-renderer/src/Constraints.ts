@@ -216,11 +216,31 @@ export const variableAD = (x: number, vname = ""): VarAD => {
   return {
     tag: "custom",
     op: opName,
+    isInput: false,
     val: x,
     parents: [],
     children: [],
-    gradVal: { tag: "Nothing" }
+    gradVal: { tag: "Nothing" },
+    index: -1
   };
+};
+
+const markInput = (v: VarAD, i: number) => {
+  v.isInput = true;
+  v.index = i;
+  return v;
+};
+
+const inputVarAD = (x: number, i: number, vname = ""): VarAD => {
+  return markInput(variableAD(x), i);
+};
+
+// Copies the input numbers and returns a new list of vars marked as inputs
+const makeADInputVars = (xs: number[]): VarAD[] => {
+  const xsCopy = [...xs];
+  const xsVars = xsCopy.map((x, i) => markInput(variableAD(x), i));
+  // Need to mark these so we know what's special when generating the function code
+  return xsVars;
 };
 
 // TODO: Do we need to "flush" the cached vals and reseed after computing the grad once? 
@@ -344,10 +364,32 @@ const squared = (v: VarAD): VarAD => {
 
 // ----- Codegen
 
-// Initial parameters for generating var names. Start with 0, children name themselves with the passed-in index (so you know the child's name) and pass an incremented counter upward (for the next child's name OR the parent's name, after all the children are done)
-const traverseGraphInit = (z: IVarAD): string[] => {
+// Traverses the computational graph of ops obtained by interpreting the energy function, and generates code corresponding to just the ops (in plain js), which is then turned into an evaluable js function via the Function constructor
+
+// Example of constructing an n-ary function by calling the Function constructor: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/Function
+
+// const args = ["x0", "x1", "x2"];
+// const inputs = [0, 1, 2];
+// const f = new Function(...args, 'return x0 + x1 + x2');
+// console.log(f(...inputs));
+
+// (Returns `3`)
+
+const genEnergyFn = (z: IVarAD): any => {
+
+  // Initial parameters for generating var names
+  // Start with 0, children name themselves with the passed-in index (so you know the child's name) and pass their counter back up. Parents do the work of incrementing
   const res = traverseGraph(0, z);
-  return res.prog;
+  const returnStmt = `return ${res.output};`;
+
+  const progStr = res.prog.concat([returnStmt]).join("\n");
+  // Have to sort the inputs to match the order of the initial variable list of xs
+  const progInputs = _.sortBy(res.inputs, e => e.index).map(e => e.name);
+
+  const f = new Function(...progInputs, progStr);
+  const g = (xs: number[]) => f(...xs); // So you can call the function without spread
+
+  return g;
 };
 
 const traverseGraph = (i: number, z: IVarAD): any => {
@@ -356,10 +398,25 @@ const traverseGraph = (i: number, z: IVarAD): any => {
   // Parents do the work of incrementing
   if (z.children.length === 0) {
     const leafName = c + String(i);
+    // Distinguish between inputs and constants
+
+    if (z.isInput) { // Just return self name for function binding
+      return {
+        counter: i,
+        prog: [],
+        inputs: [{ name: leafName, index: z.index }],
+        output: []
+      };
+    }
+
+    // Otherwise bind const in body
     const stmt = `const ${leafName} = ${z.op};`
+
     return {
       counter: i,
-      prog: [stmt]
+      prog: [stmt],
+      inputs: [],
+      output: leafName
     };
 
   } else if (z.children.length === 1) { // Unary op
@@ -377,7 +434,9 @@ const traverseGraph = (i: number, z: IVarAD): any => {
 
     return {
       counter: parCounter,
-      prog: res.prog.concat([stmt])
+      prog: res.prog.concat([stmt]),
+      inputs: res.inputs,
+      output: parName
     };
 
   } else if (z.children.length === 2) { // Binary op
@@ -401,7 +460,9 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     // Array efficiency?
     return {
       counter: parCounter,
-      prog: res0.prog.concat(res1.prog).concat([stmt])
+      prog: res0.prog.concat(res1.prog).concat([stmt]),
+      inputs: res0.inputs.concat(res1.inputs),
+      output: parName
     };
 
   } else {
@@ -564,17 +625,19 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   // TODO: Why is the grad twice the right value when using xsVarsInit? Each var seems to have 3 parents when it should just have one--maybe due to extra calls
 
   // For now, just make the vars from scratch
-  const xsCopy = [...xs];
-  const xsVars = xsCopy.map(x => variableAD(x));
+  // const xsCopy = [...xs];
+  // const xsVars = xsCopy.map(x => variableAD(x));
+  const xsVars = makeADInputVars(xs);
 
   // ---- FORWARD
   const z = f(...xsVars);
 
-  // const z = sub(variableAD(1.0), variableAD(2.0));
+  // TODO: Make proper unit tests
+  // const z = sub(inputVarAD(1.0), inputVarAD(2.0));
 
   // const z = add(
-  //   squared(sub(variableAD(1.0), variableAD(2.0))),
-  //   squared(sub(variableAD(3.0), variableAD(4.0))),
+  //   squared(sub(inputVarAD(1.0), inputVarAD(2.0))),
+  //   squared(sub(inputVarAD(3.0), inputVarAD(4.0))),
   // );
 
   z.gradVal = { tag: "Just", contents: 1.0 }; // just in case, but it's also auto-set in `f`
@@ -608,7 +671,25 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   // B := 2.4
 
   console.log("traverse graph");
-  console.log(traverseGraphInit(z).join("\n"));
+  const newF = genEnergyFn(z);
+
+  console.log("normal f result", z.val);
+  // TODO: Use g?
+  // const xsIn = [1.0, 2.0, 3.0, 4.0];
+  console.log("generated f result", newF, xs, newF(xs));
+
+  const t0 = performance.now();
+
+  let fRes;
+  for (let i = 0; i < 10000000; i++) {
+    fRes = newF(xs);
+  }
+
+  const t1 = performance.now();
+  console.error("Call to fns took " + (t1 - t0) + " milliseconds.")
+  // 10 000 000 calls / 24,281 ms = 411.8 calls/ms = 411845 calls/s
+  // = ~500k calls/s (for a small energy function)
+  // (Earlier we could do maybe 5k calls/second? since we did 5k steps/s)
 
   // ---- BACKWARD
   // This will take the grad of all of them, mutating xsVars to store grad values (OR lookup if already cached -- TODO note this!)
