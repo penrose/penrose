@@ -265,16 +265,22 @@ const makeADInputVars = (xs: number[]): VarAD[] => {
 // grad(v) means ds/dv (s is the single output seed)
 
 export const gradAD = (v: VarAD): number => {
+  console.log("grad", v.op);
+
   // Already computed/cached the gradient
   if (v.gradVal.tag === "Just") {
+    console.log("return cached", v.gradVal.contents);
     return v.gradVal.contents;
   }
 
   // TODO: What's the most efficient way to do this recursion?
   // parent.sensitivity = dzi/dv (in expression above)
   // grad(parent.node) = ds/dzi
+
+  console.log("sum parents", v.parents, v.parents.map(parent => parent.sensitivity));
   const res = _.sum(v.parents.map(parent => parent.sensitivity * gradAD(parent.node)));
 
+  console.log("return calculated", res);
   // Note we both set the gradVal and return it
   v.gradVal = { tag: "Just", contents: res };
 
@@ -387,6 +393,7 @@ const genEnergyFn = (z: IVarAD): any => {
   const progInputs = _.sortBy(res.inputs, e => e.index).map(e => e.name);
 
   const f = new Function(...progInputs, progStr);
+  console.log('generated f', f)
   const g = (xs: number[]) => f(...xs); // So you can call the function without spread
 
   return g;
@@ -630,18 +637,23 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   const xsVars = makeADInputVars(xs);
 
   // ---- FORWARD
-  const z = f(...xsVars);
+  // const z = f(...xsVars);
 
   // TODO: Make proper unit tests
-  // const z = sub(inputVarAD(1.0), inputVarAD(2.0));
+  const [v0, v1] = [inputVarAD(1.0, 0), inputVarAD(2.0, 1)];
+  const z = sub(v0, v1);
 
   // const z = add(
-  //   squared(sub(inputVarAD(1.0), inputVarAD(2.0))),
-  //   squared(sub(inputVarAD(3.0), inputVarAD(4.0))),
+  //   squared(sub(inputVarAD(1.0, 0), inputVarAD(2.0, 1))),
+  //   squared(sub(inputVarAD(3.0, 2), inputVarAD(4.0, 3))),
   // );
 
   z.gradVal = { tag: "Just", contents: 1.0 }; // just in case, but it's also auto-set in `f`
   const energyZ = z.val;
+
+  const dxs01 = [v0, v1].map(gradAD);
+  console.log("z", z);
+  console.log("xsVars with grads (backward one)", dxs01);
 
   console.log("xsVars with ops (forward only)", xsVars);
   // Note that chrome seems to print by reference, so if the grad is calculated, this will actually show it unless you throw the error directly after
@@ -664,11 +676,16 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   //       A    B
   // That generates the code:
   // TODO: name vars correctly in example
-  // x0 := X + Y
+  // Z := X + Y
   // X := A^2
   // Y := A - B
   // A := 5.0
   // B := 2.4
+
+  // TODO: Should the generated gradient code be interleaved with the generated energy code?
+  // Basically what should be generated is the unrolled version of gradAD, right? How long is that function?
+  // TODO: Problem: How to do the caching of gradient values??
+  // Grad Z(A, B) = [dZ/dA, dZ/dB] = [d(X+Y)/dA, d(Z+Y)/dB] = [d( ...
 
   console.log("traverse graph");
   const newF = genEnergyFn(z);
@@ -678,15 +695,18 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   // const xsIn = [1.0, 2.0, 3.0, 4.0];
   console.log("generated f result", newF, xs, newF(xs));
 
-  const t0 = performance.now();
+  // -------------- PERF
 
-  let fRes;
-  for (let i = 0; i < 10000000; i++) {
-    fRes = newF(xs);
-  }
+  // const t0 = performance.now();
 
-  const t1 = performance.now();
-  console.error("Call to fns took " + (t1 - t0) + " milliseconds.")
+  // let fRes;
+  // for (let i = 0; i < 10000000; i++) {
+  //   fRes = newF(xs);
+  // }
+
+  // const t1 = performance.now();
+  // console.error("Call to fns took " + (t1 - t0) + " milliseconds.")
+
   // 10 000 000 calls / 24,281 ms = 411.8 calls/ms = 411845 calls/s
   // = ~500k calls/s (for a small energy function)
   // (Earlier we could do maybe 5k calls/second? since we did 5k steps/s)
