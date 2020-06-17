@@ -617,6 +617,18 @@ export const isCustom = (x: DiffVar): boolean => {
   return x.tag;
 };
 
+// API:
+// Interpret energy: xs -> list of xs vars
+// Compile energy: the var result (z) -> function ([x] -> x)
+// Grad (f, xs): takes the list of xs vars, (which carry f) as well as a list of scalars
+//   zeroes the whole graph's sensitivities, vals, gradVals --- I guess this should be stored as a function?
+//   evaluates the computational graph on the values
+//     TODO: I guess then the sensitivity has to be stored as an op to be applied anyway! So then you evaluate the computational graph and then transform it into the gradient expression graph?
+//   computes the gradient on the computational graph for each var
+// What gets evaluated more, the energy or the grad?
+// Don't I still have to port the line search, etc to this new format?
+// Is there some way to instead construct the computational graph for the gradient instead, and then compile it?
+
 export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
   // NOTE: mutates xsVars
   console.log("energy and grad with vars", xs, xsVarsInit);
@@ -682,10 +694,13 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   // A := 5.0
   // B := 2.4
 
+  // TODO: What does this *gradient expression graph* look like? How/when is it created? (On evaluating the existing computational graph?) What information is needed to create it? What information does it need to provide? (To compile it into gradient code)
+
   // TODO: Should the generated gradient code be interleaved with the generated energy code?
   // Basically what should be generated is the unrolled version of gradAD, right? How long is that function?
   // TODO: Problem: How to do the caching of gradient values??
-  // Grad Z(A, B) = [dZ/dA, dZ/dB] = [d(X+Y)/dA, d(Z+Y)/dB] = [d( ...
+  // Grad Z(A, B) = [dZ/dA, dZ/dB]
+  // Z = X + Y = A^2 + (A - B) ==> Grad Z(A, B) = [2A + 1, -1]
 
   console.log("traverse graph");
   const newF = genEnergyFn(z);
