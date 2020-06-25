@@ -554,6 +554,9 @@ interface IEdgeAD {
   node: IVarAD;
   sensitivity: number; // Value "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
   // Aka how sensitive the output is to this input
+
+  // closure of the sensitivity with the relevant variables, so it can be called when the energy is updated
+  sensitivityFn(arg: "unit"): number;
 };
 
 type EdgeAD = IEdgeAD;

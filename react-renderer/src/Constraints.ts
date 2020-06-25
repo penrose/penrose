@@ -2,6 +2,8 @@ import { Tensor, stack, scalar, maximum, norm, abs, square, squaredDifference } 
 import { canvasSize } from "./Canvas";
 import * as _ from "lodash";
 
+const TOL = 1e-4;
+
 export const objDict = {
   equal: (x: DiffVar, y: DiffVar) => squaredDifference(x, y),
 
@@ -265,11 +267,11 @@ const makeADInputVars = (xs: number[]): VarAD[] => {
 // grad(v) means ds/dv (s is the single output seed)
 
 export const gradAD = (v: VarAD): number => {
-  console.log("grad", v.op);
+  // console.log("grad", v.op);
 
   // Already computed/cached the gradient
   if (v.gradVal.tag === "Just") {
-    console.log("return cached", v.gradVal.contents);
+    // console.log("return cached", v.gradVal.contents);
     return v.gradVal.contents;
   }
 
@@ -277,10 +279,10 @@ export const gradAD = (v: VarAD): number => {
   // parent.sensitivity = dzi/dv (in expression above)
   // grad(parent.node) = ds/dzi
 
-  console.log("sum parents", v.parents, v.parents.map(parent => parent.sensitivity));
-  const res = _.sum(v.parents.map(parent => parent.sensitivity * gradAD(parent.node)));
+  // console.log("sum parents", v.parents, v.parents.map(parent => parent.sensitivity));
+  const res = _.sum(v.parents.map(parent => parent.sensitivityFn("unit") * gradAD(parent.node)));
 
-  console.log("return calculated", res);
+  // console.log("return calculated", res);
   // Note we both set the gradVal and return it
   v.gradVal = { tag: "Just", contents: res };
 
@@ -302,37 +304,38 @@ export const gradAD = (v: VarAD): number => {
 //             v       w               -- children
 
 // TODO: Put these in ops dict
+// NOTE: The names of these ops matter for opMap, don't change them
 
 export const add = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val + w.val, "+");
-  v.parents.push({ node: z, sensitivity: 1.0 });
-  w.parents.push({ node: z, sensitivity: 1.0 });
+  v.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0 });
+  w.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0 });
 
   // TODO: Check if the sensitivities are right
-  z.children.push({ node: v, sensitivity: 1.0 });
-  z.children.push({ node: w, sensitivity: 1.0 });
+  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0 });
+  z.children.push({ node: w, sensitivity: 1.0, sensitivityFn: () => 1.0 });
 
   return z;
 };
 
 export const mul = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val * w.val, "*");
-  v.parents.push({ node: z, sensitivity: w.val });
-  w.parents.push({ node: z, sensitivity: v.val });
+  v.parents.push({ node: z, sensitivity: w.val, sensitivityFn: () => w.val, });
+  w.parents.push({ node: z, sensitivity: v.val, sensitivityFn: () => v.val, });
 
-  z.children.push({ node: v, sensitivity: w.val });
-  z.children.push({ node: w, sensitivity: v.val });
+  z.children.push({ node: v, sensitivity: w.val, sensitivityFn: () => w.val, });
+  z.children.push({ node: w, sensitivity: v.val, sensitivityFn: () => v.val, });
 
   return z;
 };
 
 const sub = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val - w.val, "-");
-  v.parents.push({ node: z, sensitivity: 1.0 });
-  w.parents.push({ node: z, sensitivity: -1.0 });
+  v.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, });
+  w.parents.push({ node: z, sensitivity: -1.0, sensitivityFn: () => -1.0, });
 
-  z.children.push({ node: v, sensitivity: 1.0 });
-  z.children.push({ node: w, sensitivity: -1.0 });
+  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, });
+  z.children.push({ node: w, sensitivity: -1.0, sensitivityFn: () => -1.0, });
 
   return z;
 };
@@ -341,19 +344,19 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
 
 const sin = (v: VarAD): VarAD => {
   const z = variableAD(Math.sin(v.val), "sin");
-  v.parents.push({ node: z, sensitivity: Math.cos(v.val) });
+  v.parents.push({ node: z, sensitivity: Math.cos(v.val), sensitivityFn: () => Math.cos(v.val), });
 
   // TODO: cache values
-  z.children.push({ node: v, sensitivity: Math.cos(v.val) });
+  z.children.push({ node: v, sensitivity: Math.cos(v.val), sensitivityFn: () => Math.cos(v.val), });
 
   return z;
 };
 
 const neg = (v: VarAD): VarAD => {
   const z = variableAD(-v.val, "- (unary)");
-  v.parents.push({ node: z, sensitivity: -1.0 });
+  v.parents.push({ node: z, sensitivity: -1.0, sensitivityFn: () => -1.0, });
 
-  z.children.push({ node: v, sensitivity: -1.0 });
+  z.children.push({ node: v, sensitivity: -1.0, sensitivityFn: () => -1.0, });
 
   return z;
 };
@@ -361,12 +364,21 @@ const neg = (v: VarAD): VarAD => {
 // TODO: rename to `square` after tf.js dependency is removed
 const squared = (v: VarAD): VarAD => {
   const z = variableAD(v.val * v.val, "^2");
-  v.parents.push({ node: z, sensitivity: 2.0 * v.val });
+  v.parents.push({ node: z, sensitivity: 2.0 * v.val, sensitivityFn: () => 2.0 * v.val, });
 
-  z.children.push({ node: v, sensitivity: 2.0 * v.val });
+  z.children.push({ node: v, sensitivity: 2.0 * v.val, sensitivityFn: () => 2.0 * v.val, });
 
   return z;
 };
+
+const opMap = {
+  "+": (x: number, y: number): number => x + y,
+  "*": (x: number, y: number): number => x * y,
+  "-": (x: number, y: number): number => x - y,
+  "sin": (x: number): number => Math.sin(x),
+  "- (unary)": (x: number): number => -x,
+  "^2": (x: number): number => x * x,
+}
 
 // ----- Codegen
 
@@ -617,6 +629,180 @@ export const isCustom = (x: DiffVar): boolean => {
   return x.tag;
 };
 
+export const eqNum = (x: number, y: number): boolean => {
+  return Math.abs(x - y) < TOL;
+};
+
+export const eqList = (xs: number[], ys: number[]): boolean => {
+  if (xs == null || ys == null) return false;
+  if (xs.length !== ys.length) return false;
+
+  // let xys = _.zip(xs, ys);
+  // return xys?.every(e => e ? Math.abs(e[1] - e[0]) < TOL : false) ?? false;
+  // Typescript won't pass this code no matter how many undefined-esque checks I put in??
+
+  for (let i = 0; i < xs.length; i++) {
+    if (!eqNum(xs[i], ys[i])) return false;
+  }
+
+  return true;
+};
+
+export const repeatList = (e: any, n: number): any[] => {
+  const xs = [];
+  for (let i = 0; i < n; i++) {
+    xs.push(e);
+  }
+  return xs;
+};
+
+export const randList = (n: number): number[] => {
+  return repeatList(0, n).map(e => Math.random());
+};
+
+// Mutates z (top node) to clear all vals and gradients of its children
+const clearGraph = (z: VarAD) => {
+  z.val = 0;
+  z.gradVal = { tag: "Nothing" };
+  z.children.forEach(e => clearGraph(e.node));
+}
+
+// Mutates xsVars (leaf nodes) to set their values to the inputs in xs (and name them accordingly by value)
+// NOTE: the xsVars should already have been set as inputs via makeAdInputVars
+// NOTE: implicitly, the orders of the values need to match the order of variables
+const setInputs = (xsVars: VarAD[], xs: number[]) => {
+  xsVars.forEach((v, i) => {
+    const val = xs[i];
+    v.val = val;
+    v.op = String(val);
+  });
+};
+
+// Mutates graph (defined by z, the head) to evaluate the comp graph from top down, setting all values in children (intermediate node). Returns energy.
+// We have to do this in the graph, not the compiled energy, because we need the values of the intermediate nodes to compute the gradient.
+const evalEnergyOnGraph = (z: VarAD) => {
+  const zFn = opMap[z.op];
+
+  // Catch leaf nodes first
+  // TODO: Make this code more generic/neater over the # children
+  if (!z.children || !z.children.length) return z.val;
+
+  // TODO: Fix how leaf nodes are stored as numbers, not strings (for the second check)
+  // TODO: Check that leaf nodes (numbers) don't have children (this also fails if the leaf val is 0...)
+  if (!zFn && !Number(z.op)) throw Error(`invalid op ${z.op}`);
+
+  if (z.children.length === 1) {
+    const childVal = evalEnergyOnGraph(z.children[0].node);
+    const res = zFn(childVal);
+    z.val = res;
+    return z.val;
+  } else if (z.children.length === 2) {
+    const childVal0 = evalEnergyOnGraph(z.children[0].node);
+    const childVal1 = evalEnergyOnGraph(z.children[1].node);
+    const res = zFn(childVal0, childVal1);
+    z.val = res;
+    return z.val;
+  } else throw Error(`invalid # children: ${z.children.length}`);
+};
+
+export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
+  // NOTE: mutates xsVars
+  console.log("energy and grad NEW with vars", xs, xsVarsInit);
+
+  const xsToUse = randList(xs.length); // TODO: use xs; this is just for testing
+  const xsVars = makeADInputVars(xsToUse);
+
+  // ---- FORWARD
+  // TEST A
+  // This makes a NEW computational graph by interpreting `f` on xsVars
+  const z = f(...xsVars);
+
+  // TODO: Make proper unit tests
+  // TEST B
+  // const [v0, v1] = [inputVarAD(1.0, 0), inputVarAD(2.0, 1)];
+  // const z = sub(v0, v1);
+
+  // const dxs01 = [v0, v1].map(gradAD);
+  // console.log("z", z);
+  // console.log("xsVars with grads (backward one)", dxs01);
+  // throw Error("after dxs01");
+
+  // TEST C
+  // const z = add(
+  //   squared(sub(inputVarAD(1.0, 0), inputVarAD(2.0, 1))),
+  //   squared(sub(inputVarAD(3.0, 2), inputVarAD(4.0, 3))),
+  // );
+
+  z.gradVal = { tag: "Just", contents: 1.0 }; // just in case, but it's also auto-set in `f`
+  const energyZ = z.val;
+
+  console.log("xsVars with ops (forward only)", xsVars);
+
+  // ----- TRAVERSE/PRINT GRAPH AS CODE 
+  // from bottom up. (No grads, just energy)
+  console.log("z (with children)", z);
+  console.log("traverse graph");
+  const newF = genEnergyFn(z);
+
+  console.log("normal f result", z.val);
+  // TODO: Use g?
+  // const xsIn = [1.0, 2.0, 3.0, 4.0];
+  console.log("generated f result", newF, xs, newF(xsToUse));
+
+  // ---- BACKWARD
+  // This will take the grad of all of them, mutating xsVars to store grad values (OR lookup if already cached -- TODO note this!)
+  const dxs = xsVars.map(gradAD);
+  console.log("xsVars with grads (backward)", xsVars);
+
+  const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
+  console.log("xsVars grad values", gradxs);
+
+  const testResult = energyAndGradADHardcoded(xsToUse);
+
+  console.log("correct gradient?", eqList(gradxs, testResult.gradVal));
+  console.log("custom grad val", gradxs);
+  console.log("hardcoded (golden) grad val", testResult.gradVal);
+
+  // ------------- ROUND 2
+  console.error("ROUND 2");
+
+  // Zero xsvars vals and gradients
+  clearGraph(z); // TODO
+  console.log("cleared", z);
+
+  // Evaluate energy with a different xsvars/vals setting (with z=1)
+  const xs2 = randList(xs.length);
+  setInputs(xsVars, xs2); // TODO
+  console.log("set inputs", xsVars, xs2);
+
+  const energyVal2 = evalEnergyOnGraph(z);
+
+  // Check correctness of energy
+  const testResult2 = energyAndGradADHardcoded(xs2);
+  console.log("NEW correct energy?", eqNum(energyVal2, testResult2.energyVal));
+  console.log("NEW custom energy val", energyVal2);
+  console.log("NEW hardcoded (golden) energy val", testResult2.energyVal);
+
+  // Evaluate gradient
+  z.gradVal = { tag: "Just", contents: 1.0 };
+  const dxs2 = xsVars.map(gradAD);
+  console.log("NEW xsVars with grads (backward)", xsVars);
+  const gradxs2 = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
+  console.log("xsVars grad values", gradxs);
+
+  // Check correctness of gradient
+  console.log("NEW correct gradient?", eqList(gradxs2, testResult2.gradVal));
+  console.log("NEW custom grad val", gradxs2);
+  console.log("NEW hardcoded (golden) grad val", testResult2.gradVal);
+
+  // TODO: Integrate with minimizeBasic
+  // TODO: Benchmark speed
+
+  throw Error("after backward of general xs");
+
+  return { energyVal: energyZ, gradVal: gradxs };
+};
+
 // API:
 // Interpret energy: xs -> list of xs vars
 // Compile energy: the var result (z) -> function ([x] -> x)
@@ -629,7 +815,7 @@ export const isCustom = (x: DiffVar): boolean => {
 // Don't I still have to port the line search, etc to this new format?
 // Is there some way to instead construct the computational graph for the gradient instead, and then compile it?
 
-export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
+export const energyAndGradADOld = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
   // NOTE: mutates xsVars
   console.log("energy and grad with vars", xs, xsVarsInit);
 
@@ -739,7 +925,7 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   return { energyVal: energyZ, gradVal: gradxs };
 };
 
-export const energyAndGradADHardcoded = (state: number[]) => {
+const energyAndGradADHardcoded = (state: number[]) => {
   // TODO: You probably want to hold onto the vars at the top level
 
   const stateCopy = [...state];
