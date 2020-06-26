@@ -21,7 +21,7 @@ import {
   energyHardcoded,
   gradfHardcoded,
   normList,
-  energyAndGradADHardcoded,
+  // energyAndGradADHardcoded,
   energyAndGradAD,
   variableAD,
   isCustom,

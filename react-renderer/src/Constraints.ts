@@ -705,6 +705,14 @@ const evalEnergyOnGraph = (z: VarAD) => {
   } else throw Error(`invalid # children: ${z.children.length}`);
 };
 
+export const energyAndGradDynamic = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
+
+  // TODO: Fill in
+
+  // Return the energy and grad on the input
+
+};
+
 export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
   // NOTE: mutates xsVars
   console.log("energy and grad NEW with vars", xs, xsVarsInit);
