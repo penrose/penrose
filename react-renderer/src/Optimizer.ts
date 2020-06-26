@@ -97,6 +97,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   console.log("step EP | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
   console.log("params: ", optParams);
   // console.log("state: ", state);
+  console.log("number of varying variables", state.varyingValues, state.varyingValues.length);
 
   switch (optStatus.tag) {
     case "NewIter": {
@@ -117,6 +118,11 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
     }
 
     case "UnconstrainedRunning": {
+      if (!state.varyingValues.length) {
+        console.error("NOTE: empty state; skipping optimization to evaluate state:", evaluate); // Empty state, so don't optimize
+        break;
+      }
+
       // NOTE: use cached varying values
       // TODO. we should be using `varyingValues` below in place of `xs`, not the `xs` from optStatus
       // (basically use the last UO state, not last EP state)
