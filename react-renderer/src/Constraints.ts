@@ -13,19 +13,14 @@ export const objDict = {
     return distsq(center(s1), center(s2));
   },
 
+  nearHead: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    return distsq(center(s1), stack([s2.endX.contents.add(10.0), s2.endY.contents.add(10.0)]));
+  },
+  // distsq (getX lab, getY lab) (end `plus2` offset)
+
   // Stella function for testing (TODO: Replace w/ most recent version)
   centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): Tensor => {
 
-    // For debugging, TODO remove
-    console.log("t1, arr, w", t1, arr, w);
-    console.log(typeof (arr.startX.contents));
-    console.log(typeof (arr.startY.contents));
-    console.log(typeof (arr.endX.contents));
-    console.log(typeof (arr.endY.contents));
-    console.log(arr.startX.contents.dataSync()[0]);
-    console.log(arr.startY.contents.dataSync()[0]);
-    console.log(arr.endX.contents.dataSync()[0]);
-    console.log(arr.endY.contents.dataSync()[0]);
     // The tensors seem to have different disposed values, but their numeric values all seem to be available, so this is fine?
 
     if (typesAre([t1, t2], ["Arrow", "Text"])) {
@@ -82,6 +77,14 @@ export const constrDict = {
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a minSize`);
     }
+  },
+
+  at: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    return squaredDifference(s1.x.contents, s2.x.contents).add(squaredDifference(s1.y.contents, s2.y.contents))
+  },
+
+  sameHeight: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    return squaredDifference(s1.h.contents, s2.h.contents);
   },
 
   contains: (
@@ -166,6 +169,7 @@ const centerArrow2 = (arr: any, center1: Tensor, center2: Tensor, [o1, o2]: Tens
   let end = center2;
 
   // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
+  // won't this always return true? greater returns an array of values
   if (norm(vec).greater(o1.add(abs(o2)))) {
     start = center1.add(o1.mul(dir));
     end = center2.add(o2.mul(dir));

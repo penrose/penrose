@@ -3,29 +3,24 @@ Colors {
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
-    Colors.yellow = rgba(0.980, 1.0, 0.490, 1.0)
-    Colors.darkyellow = rgba(0.929, 0.820, 0.0, 1.0)
+    Colors.lightblue = rgba(0.580, 0.910, 1.0, 1.0)
+    Colors.darkblue = rgba(0.078, 0.255, 0.788, 1.0)
 }
 
-Sq x {
-  x.shape = Square {
+Circ x {
+  x.shape = Circle {
     strokeWidth : 2.0
-    strokeColor : Colors.darkyellow
+    strokeColor : Colors.darkblue
     strokeStyle : "solid"
     x: 0.0
     y: 0.0
-    side: 150.0
-    color: Colors.yellow
-  }
-  x.s = Text {
-     string: "side"
-     x: x.shape.x + x.shape.side / 2.0 + 25.0
-     y: x.shape.y
+    r: 100.0
+    color: Colors.lightblue
   }
 }
 
 Box b 
-with Sq `A`{
+with Circ `A`{
   b.shape = Rectangle {
      strokeColor: Colors.black
      color: Colors.none
@@ -60,7 +55,7 @@ with Sq `A`{
       endX: b.shape.x + b.shape.w / 2.0 - 37.0
       endY: b.text1.y
       style: `A`.shape.strokeStyle
-      color: Colors.black
+      color: `A`.shape.strokeColor
       thickness: 2.0
   }
   b.text2 = Text {
@@ -101,13 +96,12 @@ with Sq `A`{
 }
 
 Point p 
-with Sq e {
+with Circ e {
     p.shape = Circle{
         x: e.shape.x
         y: e.shape.x
         r: 4.0
         color: Colors.black
-        strokeWidth: 0.0
     }
     p.text = Text{
     string: p.label
@@ -117,3 +111,22 @@ with Sq e {
     LOCAL.layering = p.shape above e.shape
     LOCAL.layering2 = p.text above e.shape
 }
+
+ Rad x
+ with Circ e {
+   x.shape = Line{
+     startX : e.shape.x
+     startY : e.shape.y
+     endX : 70.7
+     endY : 70.7
+     thickness : 2.0
+     color: Colors.gray
+   }
+   x.text = Text{
+       string : x.label
+       x : 30.0
+       y : 50.0
+   }
+   LOCAL.layering = x.shape above e.shape
+   LOCAL.layering2 = x.text above e.shape
+ }

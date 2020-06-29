@@ -11,6 +11,7 @@ import ErrorBoundary from "./ErrorBoundary";
 interface IProps {
   history: State[];
   onClose(): void;
+  modShapes(state: State): void;
 }
 
 export interface IInspectState {
@@ -35,7 +36,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
   };
   public render() {
     const { selectedFrame } = this.state;
-    const { history } = this.props;
+    const { history, modShapes } = this.props;
     const currentFrame =
       history.length === 0
         ? null
@@ -47,8 +48,9 @@ class Inspector extends React.Component<IProps, IInspectState> {
       frame: currentFrame,
       frameIndex: selectedFrame,
       history,
+      modShapes,
     };
-    console.log(currentFrame);
+    // console.log(currentFrame);
     return (
       <div
         style={{

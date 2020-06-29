@@ -49,12 +49,27 @@ class App extends React.Component<any, ICanvasState> {
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
 
+  public modShapes = async (state: State) => {
+    this.modCanvas(state); // is this the right way to call it
+  };
+
   public onConnectionStatus = (conn: ConnectionStatus) => {
     Log.info(`Connection status: ${conn}`);
   };
   public onVersion = (version: string) => {
     this.setState({ penroseVersion: version });
   };
+  // same as onCanvasState but doesn't alter timeline or involve optimization
+  // used only in modshapes
+  public modCanvas = async (canvasState: State) => {
+    await new Promise((r) => setTimeout(r, 1));
+
+    await this.setState({
+      data: canvasState,
+      history: [...this.state.history],
+      processedInitial: true,
+    });
+  }
   public onCanvasState = async (canvasState: State, _: any) => {
     // HACK: this will enable the "animation" that we normally expect
     await new Promise((r) => setTimeout(r, 1));
@@ -186,7 +201,7 @@ class App extends React.Component<any, ICanvasState> {
               ref={this.canvas}
               penroseVersion={penroseVersion}
             />
-            {showInspector && <Inspector history={history} onClose={this.toggleInspector} />}
+            {showInspector && <Inspector history={history} onClose={this.toggleInspector} modShapes={this.modShapes} />}
           </SplitPane>
         </div>
       </div>

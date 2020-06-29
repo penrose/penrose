@@ -1,0 +1,119 @@
+Colors {
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.lightblue = rgba(0.580, 0.910, 1.0, 1.0)
+    Colors.darkblue = rgba(0.078, 0.255, 0.788, 1.0)
+}
+
+Img x {
+  x.shape = Image {
+    x: 0.0
+    y: 0.0
+    w: 200.0
+    h: 200.0
+    path : "HyperbolicBackground.svg"
+  }
+  x.bbox = Rectangle{
+      x: x.shape.x
+      y: x.shape.y
+      w: x.shape.w + 20.0
+      h: x.shape.h + 20.0
+      color: Colors.none
+      strokeStyle: "dashed"
+      strokeWidth: 2.0
+      strokeColor: Colors.gray
+  }
+  x.bbox2 = Rectangle{
+      x: x.shape.x + 400.0
+      y: x.shape.y
+      w: x.shape.w + 20.0
+      h: x.shape.h + 20.0
+      color: Colors.none
+      strokeStyle: "dashed"
+      strokeWidth: 2.0
+      strokeColor: Colors.gray
+  }
+  x.w = Text {
+     string: "w"
+     x: x.bbox.x
+     y: x.bbox.y + x.bbox.h / 2.0 + 15.0
+  }
+  x.h = Text {
+     string: "h"
+     x: x.bbox.x + x.bbox.w / 2.0 + 15.0
+     y: x.bbox.y
+  }
+
+}
+
+Box b 
+with Img z{
+  b.shape = Rectangle {
+     strokeColor: Colors.black
+     color: Colors.none
+     strokeStyle : "solid"
+     strokeWidth: 1.0
+     x: -320.0
+     y: 110.0
+     w: 150.0
+     h: 75.0
+  }
+  b.text0 = Text {
+    string: "\\text{opacity: }"
+    x: b.shape.x - 20.0
+    y: 130.0
+   }
+
+  b.cb = Square {
+      x : b.text0.x + b.text0.w / 2.0 + 17.0
+      y: b.text0.y
+      side : 20.0
+      color: rgba(0.0, 0.0, 0.0, 0.5)
+  }
+  b.sl1 = Line {
+      color: Colors.red
+      startX: b.cb.x - 10.0
+      startY: b.cb.y + 10.0
+      endX: b.cb.x + 10.0
+      endY: b.cb.y - 10.0
+      thickness: 2.0
+  }
+  b.text2 = Text {
+    string: "\\text{path: }"
+    x: b.shape.x - 10.0
+    y: 100.0
+  }
+  b.sw = Text {
+      x: b.text2.x + b.text2.w / 2.0 + 30.0
+      y : b.text2.y
+      string : "\\text{X.svg}"
+      color: Colors.black
+  }
+}
+
+Point p 
+with Img z {
+    p.shape = Circle{
+        x: z.bbox2.x
+        y: z.bbox2.y
+        r: 4.0
+        color: Colors.black
+        strokeWidth: 0.0
+    }
+    p.text = Text{
+    string: p.label
+    x : p.shape.x
+    --w: 20.0
+    --h: 40.0
+    -- fontSize: "12pt"
+    y: p.shape.y - 20.0
+    color: Colors.black
+    }
+    LOCAL.layering = p.shape above z.bbox2
+    LOCAL.layering2 = p.text above z.bbox2
+}
+
+
+

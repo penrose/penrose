@@ -12,6 +12,7 @@ class Square extends React.Component<IGPIProps> {
     const strokeColor = toHex(shape.strokeColor.contents);
     const side = shape.side.contents;
     const strokeWidth = shape.strokeWidth.contents;
+    const strokeStyle = shape.strokeStyle.contents;
 
     return (
       <rect
@@ -22,6 +23,7 @@ class Square extends React.Component<IGPIProps> {
         fill={color}
         fillOpacity={alpha}
         strokeWidth={strokeWidth}
+        strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
         stroke={strokeColor}
       >
         <title>{shape.name.contents}</title>

@@ -2,25 +2,25 @@ Colors {
     Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
     Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
     Colors.gray = rgba(0.6, 0.6, 0.6, 1.0)
+    Colors.lightgreen = rgba(0.718, 0.988, 0.584, 1.0)
     Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
-    Colors.lightblue = rgba(0.580, 0.910, 1.0, 1.0)
-    Colors.darkblue = rgba(0.078, 0.255, 0.788, 1.0)
 }
 
-Circ x {
-  x.shape = Circle {
+Ell x {
+  x.shape = Ellipse {
     strokeWidth : 2.0
-    strokeColor : Colors.darkblue
-    strokeStyle : "solid"
+    strokeColor : Colors.gray
+    strokeStyle : "dashed"
     x: 0.0
     y: 0.0
-    r: 100.0
-    color: Colors.lightblue
+    rx: 100.0
+    ry: 1.5 * x.shape.rx
+    color: Colors.lightgreen
   }
 }
 
 Box b 
-with Circ `A`{
+with Ell `A`{
   b.shape = Rectangle {
      strokeColor: Colors.black
      color: Colors.none
@@ -55,7 +55,7 @@ with Circ `A`{
       endX: b.shape.x + b.shape.w / 2.0 - 37.0
       endY: b.text1.y
       style: `A`.shape.strokeStyle
-      color: Colors.black
+      color: `A`.shape.strokeColor
       thickness: 2.0
   }
   b.text2 = Text {
@@ -79,9 +79,9 @@ with Circ `A`{
       startY : b.text2.y
       endX: b.shape.x + b.shape.w / 2.0 - 37.0
       endY: b.text2.y
-      style: `A`.shape.strokeStyle
+      style: "dashed"
       color: Colors.black
-      thickness: 12.0
+      thickness: 15.0
   }
   b.sw2 = Line {
       startX: b.shape.x + b.shape.w / 2.0 - 27.0
@@ -96,7 +96,7 @@ with Circ `A`{
 }
 
 Point p 
-with Circ e {
+with Ell e {
     p.shape = Circle{
         x: e.shape.x
         y: e.shape.x
@@ -113,20 +113,33 @@ with Circ e {
 }
 
  Rad x
- with Circ e {
+ with Ell e {
    x.shape = Line{
      startX : e.shape.x
      startY : e.shape.y
-     endX : 70.7
-     endY : 70.7
      thickness : 2.0
-     color: Colors.gray
+     color: Colors.red
    }
    x.text = Text{
        string : x.label
-       x : 30.0
-       y : 50.0
+       rotation : 0.0
    }
    LOCAL.layering = x.shape above e.shape
    LOCAL.layering2 = x.text above e.shape
  }
+
+Rad `rx` 
+with Ell `A`{
+  override `rx`.shape.endX = `A`.shape.x + `A`.shape.rx
+  override `rx`.shape.endY = `A`.shape.y
+  override `rx`.text.x = `A`.shape.x + `A`.shape.rx / 2.0
+  override `rx`.text.y = `A`.shape.y + 15.0
+}
+
+Rad `ry` 
+with Ell `A`{
+  override `ry`.shape.endX = `A`.shape.x
+  override `ry`.shape.endY = `A`.shape.y + `A`.shape.ry
+  override `ry`.text.x = `A`.shape.x + 20.0
+  override `ry`.text.y = `A`.shape.y + `A`.shape.ry / 2.0
+}

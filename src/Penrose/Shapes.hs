@@ -883,6 +883,7 @@ squareType =
       , ("color", (ColorT, sampleColor))
       , ("style", (StrT, constValue $ StrV "none")) -- TODO: what is this?
       , ("strokeColor", (ColorT, sampleColor))
+      , ("strokeStyle", (StrT, constValue $ StrV "none"))
       , ("strokeWidth", (FloatT, constValue $ FloatV 0.0))
       , ("name", (StrT, constValue $ StrV "defaultSquare"))
       ])
