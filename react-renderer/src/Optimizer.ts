@@ -21,8 +21,10 @@ import {
   energyHardcoded,
   gradfHardcoded,
   normList,
+  makeADInputVars,
   // energyAndGradADHardcoded,
   energyAndGradAD,
+  energyAndGradDynamic,
   variableAD,
   isCustom,
   ops,
@@ -231,12 +233,20 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
     case "NewIter": {
       console.log("stepBasic newIter, xs", xs);
 
-      // Collect the overall objective and varying values
-      const overallObjective = evalEnergyOn(state, false); // TODO. Why is this being generated here?
+      // `overallEnergy` is a partially applied function, waiting for an input. 
+      // When applied, it will interpret the energy via lookups on the computational graph
+      const overallObjective = evalEnergyOn(state, false);
+      const xsVars: VarAD[] = makeADInputVars(xs);
+      const energyGraph = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+      // `energyGraph` is a VarAD that is a handle to the top of the graph
+
+      console.log("interpreted energy graph", energyGraph);
 
       const newParams: Params = {
         ...state.params,
-        mutableUOstate: state.varyingValues.map(v => variableAD(v)),
+        mutableUOstate: xsVars, // TODO: Unused; remove
+        xsVars,
+        energyGraph,
         weight: initConstraintWeight,
         UOround: 0,
         EPround: 0,
@@ -250,15 +260,13 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       console.log("stepBasic step, xs", xs);
 
       // TODO: Slowly port the rest of stepEP here
-      const f = state.overallObjective;
-      // const fgrad = gradF(f, false);
+      const f = state.overallObjective; // TODO: Remove this if unused
+      const xsVars = state.params.xsVars;
+      const energyGraph = state.params.energyGraph;
 
-      const xsVars: DiffVar[] = xs.map(x => variableAD(x));
-
-      // const energy = f(...xsVars); // Note NOT tensors anymore, also `f` should mutate `xsVars`
-      // console.log("eval energy in stepBasic", energy);
-
-      xs = minimizeBasic(f, xs, xsVars); // NOTE: mutates xsVars
+      xs = minimizeBasic(f, xs, xsVars, energyGraph); // NOTE: mutates xsVars
+      // the new `xs` is put into the `newState`, which is returned at end of function
+      // we don't need the updated xsVars and energyGraph as they are always cleared on evaluation; only their structure matters
     }
   }
 
@@ -283,40 +291,34 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 const minimizeBasic = (
   f: (...arg: DiffVar[]) => DiffVar,
   xs: number[],
-  xsVars: DiffVar[]) => {
-
+  xsVars: DiffVar[],
+  energyGraph: VarAD
+) => {
   console.log("minimizeBasic");
-
   // const numSteps = 1;
-  const numSteps = 10000; // NOTE: The memory profile seems to be different for a different # steps for the leaky version? 10 vs 10k looks different
-  // TODO: Why are tf.js / webgl textures showing up in the memory profile? Because turning on `differentiable` flag in `evalExprs` causes evaled shaped to get tensors. That causes memory leak
+  const numSteps = 10000;
+  // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem, with no line search, and not sure about mem use)
 
   const t = 0.01;
-  let ys = [...xs]; // Don't use xs
+  let xs2 = [...xs]; // Don't use xs
   let gradres = [...xs];
-  let adRes = energyAndGradAD(f, ys, xsVars); // TODO: remove redundant
-  // let adRes = energyAndGradADHardcoded(ys);
+  let adRes = energyAndGradDynamic(xs2, xsVars, energyGraph);
   let i = 0;
 
   while (i < numSteps) {
-    adRes = energyAndGradAD(f, ys, xsVars);
-    // adRes = energyAndGradADHardcoded(ys);
-
-    // console.log("i", i);
-    // console.log("ground-truth energy and grad", energyHardcoded(ys), gradfHardcoded(ys));
-    // adResHardcoded = energyAndGradADHardcoded(ys);
-    // console.log("auto energy and grad (hardcoded problem)", adResHardcoded.energyVal, adResHardcoded.gradVal);
-    // console.log("auto energy and grad (programmatic)", adRes.energyVal, adRes.gradVal);
-
+    adRes = energyAndGradDynamic(xs2, xsVars, energyGraph);
     gradres = adRes.gradVal;
-    // ys' = ys - t * gradf(ys)
-    ys = ys.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
+    // xs2' = xs2 - t * gradf(xs2)
+    xs2 = xs2.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
     i++;
   }
 
+  // TODO: Benchmark speed
+  // TODO: Integrate line search on this simple example
+
   console.log("f(x)", adRes.energyVal);
   console.log("|grad f(x)|:", normList(gradres));
-  return ys;
+  return xs2;
 };
 
 // TODO: move these fns to utils
@@ -372,6 +374,7 @@ export const evalEnergyOn = (state: State, inlined = false) => {
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
     const objEngs: DiffVar[] = objEvaled.map((o) => applyFn(o, objDict));
+    // TODO: toPenalty needs to use the new ops
     const constrEngs: DiffVar[] = constrEvaled.map((c) => toPenalty(applyFn(c, constrDict)));
 
     // TODO: Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents

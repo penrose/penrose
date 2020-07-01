@@ -506,6 +506,10 @@ interface IParams {
   weight: number; // Constraint weight for exterior point method
   mutableUOstate: DiffVar[]; // Don't forget... it's mutable!
 
+  xsVars: VarAD[]; // Using this instead of mutableUOstate for testing custom AD; TODO phase out one of them
+  // `xsVars` are all the leaves of the energy graph
+  energyGraph: VarAD; // This is the top of the energy graph (parent node)
+
   // Info for unconstrained optimization
   UOround: number;
   lastUOstate: DiffVar;
@@ -566,6 +570,7 @@ interface IVarAD {
   op: string;
   val: number;
   valDone: boolean; // TODO: really should be `val: MaybeVal<number>` but just don't want to refactor the graph-building code now
+  // It's used to cache energy values in the computational graph, evalEnergyOnGraph
   isInput: boolean; // These inputs need to be distinguished as bindings in the function (e.g. \x y -> x + y)
   parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
   children: EdgeAD[];

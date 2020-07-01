@@ -239,7 +239,7 @@ const inputVarAD = (x: number, i: number, vname = ""): VarAD => {
 };
 
 // Copies the input numbers and returns a new list of vars marked as inputs
-const makeADInputVars = (xs: number[]): VarAD[] => {
+export const makeADInputVars = (xs: number[]): VarAD[] => {
   const xsCopy = [...xs];
   const xsVars = xsCopy.map((x, i) => markInput(variableAD(x), i));
   // Need to mark these so we know what's special when generating the function code
@@ -267,7 +267,7 @@ const makeADInputVars = (xs: number[]): VarAD[] => {
 
 // grad(v) means ds/dv (s is the single output seed)
 
-export const gradAD = (v: VarAD): number => {
+const gradAD = (v: VarAD): number => {
   // console.log("grad", v.op);
 
   // Already computed/cached the gradient
@@ -288,6 +288,17 @@ export const gradAD = (v: VarAD): number => {
   v.gradVal = { tag: "Just", contents: res };
 
   return res;
+};
+
+// (Don't use this, you probably want energyAndGradDynamic)
+// Computes the gradient for each (mutable) variable, and sets the results in the computational graph.
+// The variables passed in should be all the leaves of the graph.
+// Returns a vector of the same length
+const gradAll = (energyGraph: VarAD, xsVars: VarAD[]): number[] => {
+  energyGraph.gradVal = { tag: "Just", contents: 1.0 };
+  const dxs = xsVars.map(gradAD); // Computes it per variable, mutating the graph to set cached results and reuse them
+  const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
+  return gradxs;
 };
 
 // ----- Ops (extensible)
@@ -709,12 +720,47 @@ const evalEnergyOnGraph = (z: VarAD) => {
   } else throw Error(`invalid # children: ${z.children.length}`);
 };
 
-export const energyAndGradDynamic = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
+// Given an energyGraph of f, clears the graph and returns the energy and gradient of f at xs (by walking the graph and mutating values)
+// The returned energyGraph will have intermediate values set
+export const energyAndGradDynamic = (xs: number[], xsVars: DiffVar[], energyGraph: VarAD, debug = false) => {
 
-  // TODO: Fill in
+  // Zero xsvars vals, gradients, and caching setting
+  clearGraph(energyGraph);
 
-  // Return the energy and grad on the input
+  // Set the leaves of the graph to have the new input values
+  setInputs(xsVars, xs);
 
+  // Evaluate energy at the new xs, setting the values of the intermediate nodes
+  const energyVal = evalEnergyOnGraph(energyGraph);
+  // (NOTE: It's only necessary to evaluate the energy on the graph first if you're taking the gradient afterward)
+  // (If you just want the energy, you can use the compiled energy function)
+
+  // Evaluate gradient of f at xs on the energy graph
+  const gradVal = gradAll(energyGraph, xsVars);
+
+  if (debug) {
+    console.log("====== Test results for energyAndGradDynamic (vs. hardcoded energy) ======");
+    // TODO: This needs to change when we build a more general energy
+    const testResult = energyAndGradADHardcoded(xs);
+
+    // TEST: Check correctness of energy vs. the hardcoded sum-of-squares energy
+    console.log("correct energy?", eqNum(energyVal, testResult.energyVal));
+    console.log("custom energy val", energyVal);
+    console.log("hardcoded (golden) energy val", testResult.energyVal);
+
+    // TEST: Check correctness of gradient vs. the gradient of hardcoded sum-of-squares energy
+    console.log("correct gradient?", eqList(gradVal, testResult.gradVal));
+    console.log("custom grad val", gradVal);
+    console.log("hardcoded (golden) grad val", testResult.gradVal);
+    console.log("xsVars with grads (backward)", xsVars);
+  }
+
+  // Return the energy and grad on the input, as well as updated energy graph
+  return {
+    energyVal,
+    gradVal,
+    energyGraph
+  };
 };
 
 export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
