@@ -565,6 +565,7 @@ interface IVarAD {
   tag: "custom";
   op: string;
   val: number;
+  valDone: boolean; // TODO: really should be `val: MaybeVal<number>` but just don't want to refactor the graph-building code now
   isInput: boolean; // These inputs need to be distinguished as bindings in the function (e.g. \x y -> x + y)
   parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
   children: EdgeAD[];

@@ -220,6 +220,7 @@ export const variableAD = (x: number, vname = ""): VarAD => {
     op: opName,
     isInput: false,
     val: x,
+    valDone: true,
     parents: [],
     children: [],
     gradVal: { tag: "Nothing" },
@@ -663,6 +664,7 @@ export const randList = (n: number): number[] => {
 // Mutates z (top node) to clear all vals and gradients of its children
 const clearGraph = (z: VarAD) => {
   z.val = 0;
+  z.valDone = false; // This is necessary so we can cache energy values in comp graph
   z.gradVal = { tag: "Nothing" };
   z.children.forEach(e => clearGraph(e.node));
 }
@@ -683,9 +685,9 @@ const setInputs = (xsVars: VarAD[], xs: number[]) => {
 const evalEnergyOnGraph = (z: VarAD) => {
   const zFn = opMap[z.op];
 
-  // Catch leaf nodes first
+  // Catch leaf nodes first, or nodes whose values have already been computed and set
   // TODO: Make this code more generic/neater over the # children
-  if (!z.children || !z.children.length) return z.val;
+  if (z.valDone || !z.children || !z.children.length) return z.val;
 
   // TODO: Fix how leaf nodes are stored as numbers, not strings (for the second check)
   // TODO: Check that leaf nodes (numbers) don't have children (this also fails if the leaf val is 0...)
@@ -695,12 +697,14 @@ const evalEnergyOnGraph = (z: VarAD) => {
     const childVal = evalEnergyOnGraph(z.children[0].node);
     const res = zFn(childVal);
     z.val = res;
+    z.valDone = true;
     return z.val;
   } else if (z.children.length === 2) {
     const childVal0 = evalEnergyOnGraph(z.children[0].node);
     const childVal1 = evalEnergyOnGraph(z.children[1].node);
     const res = zFn(childVal0, childVal1);
     z.val = res;
+    z.valDone = true;
     return z.val;
   } else throw Error(`invalid # children: ${z.children.length}`);
 };
@@ -775,15 +779,17 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   console.error("ROUND 2");
 
   // Zero xsvars vals and gradients
-  clearGraph(z); // TODO
+  clearGraph(z);
   console.log("cleared", z);
 
   // Evaluate energy with a different xsvars/vals setting (with z=1)
   const xs2 = randList(xs.length);
-  setInputs(xsVars, xs2); // TODO
+  setInputs(xsVars, xs2);
   console.log("set inputs", xsVars, xs2);
 
   const energyVal2 = evalEnergyOnGraph(z);
+  // It's only necessary to evaluate the energy on the graph first if you're taking the gradient afterward
+  // If you just want the energy, you can use the compiled energy function
 
   // Check correctness of energy
   const testResult2 = energyAndGradADHardcoded(xs2);
