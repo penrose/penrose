@@ -649,6 +649,8 @@ export const eqList = (xs: number[], ys: number[]): boolean => {
   if (xs == null || ys == null) return false;
   if (xs.length !== ys.length) return false;
 
+  //   _.every(_.zip(xs, ys), e => eqNum(e[0], e[1]));
+
   // let xys = _.zip(xs, ys);
   // return xys?.every(e => e ? Math.abs(e[1] - e[0]) < TOL : false) ?? false;
   // Typescript won't pass this code no matter how many undefined-esque checks I put in??
@@ -854,9 +856,6 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   console.log("NEW correct gradient?", eqList(gradxs2, testResult2.gradVal));
   console.log("NEW custom grad val", gradxs2);
   console.log("NEW hardcoded (golden) grad val", testResult2.gradVal);
-
-  // TODO: Integrate with minimizeBasic
-  // TODO: Benchmark speed
 
   throw Error("after backward of general xs");
 

@@ -14,7 +14,8 @@ import {
   genVaryMap,
   evalFns,
 } from "./Evaluator";
-import { zip } from "lodash";
+// import { zip } from "lodash";
+import * as _ from "lodash";
 import {
   constrDict,
   objDict,
@@ -76,6 +77,20 @@ const unconstrainedConverged = (normGrad: Scalar): boolean => {
   console.log("UO convergence check: ||grad f(x)||", scalarValue(normGrad));
   return scalarValue(normGrad) < uoStop;
 };
+
+const unconstrainedConverged2 = (normGrad: number): boolean => {
+  console.log("UO convergence check: ||grad f(x)||", normGrad);
+  return normGrad < uoStop;
+};
+
+const epConverged2 = (xs0: number[], xs1: number[], fxs0: number, fxs1: number): boolean => {
+  // TODO: These dx and dfx should really be scaled to account for magnitudes
+  const stateChange = normList(vecSub(xs1, xs0));
+  const energyChange = Math.abs(fxs1 - fxs0);
+  console.log("epConverged?: stateChange: ", stateChange, " | energyChange: ", energyChange);
+
+  return stateChange < epStop || energyChange < epStop;
+}
 
 const applyFn = (f: FnDone<DiffVar>, dict: any) => {
   if (dict[f.name]) {
@@ -209,7 +224,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 
     newState.translation = insertVaryings(
       state.translation,
-      zip(state.varyingPaths, varyingValues) as [Path, number][]
+      _.zip(state.varyingPaths, varyingValues) as [Path, number][]
     );
 
     newState.varyingValues = varyingValues;
@@ -226,6 +241,9 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
   let xs: number[] = state.varyingValues;
 
+  console.log("step BASIC | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
+  console.log("params: ", optParams);
+  // console.log("state: ", state);
   console.log("fns: ", prettyPrintFns(state));
   console.log("variables: ", state.varyingPaths.map(p => prettyPrintProperty(p)));
 
@@ -235,6 +253,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
       // `overallEnergy` is a partially applied function, waiting for an input. 
       // When applied, it will interpret the energy via lookups on the computational graph
+      // TODO: Could save the interpreted energy graph across amples
       const overallObjective = evalEnergyOn(state, false);
       const xsVars: VarAD[] = makeADInputVars(xs);
       const energyGraph = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
@@ -256,7 +275,10 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       return { ...state, params: newParams, overallObjective };
     }
 
-    default: {
+    case "UnconstrainedRunning": {
+      // NOTE: use cached varying values
+      // TODO. we should be using `varyingValues` below in place of `xs`, not the `xs` from optStatus
+      // (basically use the last UO state, not last EP state)
       console.log("stepBasic step, xs", xs);
 
       // TODO: Slowly port the rest of stepEP here
@@ -264,9 +286,66 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       const xsVars = state.params.xsVars;
       const energyGraph = state.params.energyGraph;
 
-      xs = minimizeBasic(f, xs, xsVars, energyGraph); // NOTE: mutates xsVars
+      const res = minimizeBasic(f, xs, xsVars, energyGraph); // NOTE: mutates xsVars
+      xs = res.xs;
       // the new `xs` is put into the `newState`, which is returned at end of function
       // we don't need the updated xsVars and energyGraph as they are always cleared on evaluation; only their structure matters
+      const { energyVal, normGrad } = res;
+
+      optParams._lastUOstate = xs;
+      optParams._lastUOenergy = energyVal;
+      optParams.UOround = optParams.UOround + 1;
+
+      // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
+
+      // TODO. In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
+      if (unconstrainedConverged2(normGrad)) {
+        optParams.optStatus.tag = "UnconstrainedConverged"; // TODO. reset bfgs params to default
+        console.log("Unconstrained converged with energy", energyVal);
+      } else {
+        optParams.optStatus.tag = "UnconstrainedRunning";
+        console.log(`Took ${steps} steps. Current energy`, energyVal);
+      }
+
+      break;
+    }
+
+    case "UnconstrainedConverged": {
+      // No minimization step should be taken. Just figure out if we should start another UO round with higher EP weight.
+      // We are using the last UO state and energy because they serve as the current EP state and energy, and comparing it to the last EP stuff.
+
+      // Do EP convergence check on the last EP state (and its energy), and curr EP state (and its energy)
+      // (There is no EP state or energy on the first round)
+      // TODO. Make a diagram to clarify vocabulary
+      console.log("stepBasic: unconstrained converged", optParams);
+
+      // We force EP to run at least two rounds (State 0 -> State 1 -> State 2; the first check is only between States 1 and 2)
+      if (optParams.EPround > 1 &&
+        epConverged2(optParams._lastEPstate, optParams._lastUOstate, optParams._lastEPenergy, optParams._lastUOenergy)) {
+
+        optParams.optStatus.tag = "EPConverged";
+        console.log("EP converged with energy", optParams._lastUOenergy);
+
+      } else {
+        // If EP has not converged, increase weight and continue.
+        // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
+        console.log("stepBasic: EP did not converge; starting next round");
+        optParams.optStatus.tag = "UnconstrainedRunning";
+        optParams.weight = weightGrowthFactor * weight;
+        optParams.EPround = optParams.EPround + 1;
+        optParams.UOround = 0;
+      }
+
+      // Done with EP check, so save the curr EP state as the last EP state for the future.
+      optParams._lastEPstate = optParams._lastUOstate;
+      optParams._lastEPenergy = optParams._lastUOenergy;
+
+      break;
+    }
+
+    case "EPConverged": { // do nothing if converged
+      console.log("stepBasic: EP converged");
+      return state;
     }
   }
 
@@ -278,7 +357,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
     newState.translation = insertVaryings(
       state.translation,
-      zip(state.varyingPaths, varyingValues) as [Path, number][]
+      _.zip(state.varyingPaths, varyingValues) as [Path, number][]
     );
 
     newState.varyingValues = varyingValues;
@@ -296,8 +375,11 @@ const minimizeBasic = (
 ) => {
   console.log("minimizeBasic");
   // const numSteps = 1;
-  const numSteps = 10000;
+  const numSteps = 1000;
+  // const numSteps = 10000; // Value for speed testing
+
   // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem, with no line search, and not sure about mem use)
+  // this is just a factor of 5 slowdown over the compiled energy function
 
   const t = 0.01;
   let xs2 = [...xs]; // Don't use xs
@@ -306,19 +388,24 @@ const minimizeBasic = (
   let i = 0;
 
   while (i < numSteps) {
-    adRes = energyAndGradDynamic(xs2, xsVars, energyGraph);
+    adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, false);
     gradres = adRes.gradVal;
     // xs2' = xs2 - t * gradf(xs2)
     xs2 = xs2.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
     i++;
   }
 
-  // TODO: Benchmark speed
-  // TODO: Integrate line search on this simple example
+  const energyVal = adRes.energyVal;
+  const normGrad = normList(gradres);
 
-  console.log("f(x)", adRes.energyVal);
-  console.log("|grad f(x)|:", normList(gradres));
-  return xs2;
+  console.log("f(x)");
+  console.log("|grad f(x)|:", normGrad);
+
+  return {
+    xs: xs2,
+    energyVal,
+    normGrad
+  };
 };
 
 // TODO: move these fns to utils
@@ -422,7 +509,7 @@ export const step = (state: State, steps: number) => {
   const varyingValues = xs.map((x) => scalarValue(x as Scalar));
   const trans = insertVaryings(
     state.translation,
-    zip(state.varyingPaths, varyingValues) as [Path, number][]
+    _.zip(state.varyingPaths, varyingValues) as [Path, number][]
   );
   const newState = { ...state, translation: trans, varyingValues };
   if (scalarValue(energy) > 10) {
@@ -691,5 +778,15 @@ export const minimize = (
   energy = f(...xs);
   normGrad = gradfx.norm();
 
-  return { energy: energy as Scalar, normGrad: normGrad as Scalar, i };
+  return {
+    energy: energy as Scalar,
+    normGrad: normGrad as Scalar,
+    i
+  };
 };
+
+// ---------- Vector utils 
+// TODO: factor out
+
+const vecSub = (xs: number[], ys: number[]): number[] =>
+  _.zipWith([xs, ys], e => e[1] - e[0]);

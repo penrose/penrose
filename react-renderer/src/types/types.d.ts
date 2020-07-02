@@ -506,10 +506,6 @@ interface IParams {
   weight: number; // Constraint weight for exterior point method
   mutableUOstate: DiffVar[]; // Don't forget... it's mutable!
 
-  xsVars: VarAD[]; // Using this instead of mutableUOstate for testing custom AD; TODO phase out one of them
-  // `xsVars` are all the leaves of the energy graph
-  energyGraph: VarAD; // This is the top of the energy graph (parent node)
-
   // Info for unconstrained optimization
   UOround: number;
   lastUOstate: DiffVar;
@@ -522,6 +518,17 @@ interface IParams {
 
   // For L-BFGS (TODO)
   bfgsInfo: BfgsParams;
+
+  // ------- Forked vars for new AD
+
+  xsVars: VarAD[]; // Using this instead of mutableUOstate for testing custom AD; TODO phase out one of them
+  // `xsVars` are all the leaves of the energy graph
+  energyGraph: VarAD; // This is the top of the energy graph (parent node)
+
+  _lastUOstate: number[];
+  _lastUOenergy: number;
+  _lastEPstate: number[];
+  _lastEPenergy: number;
 }
 
 // ------------ Types for reverse-mode autodiff

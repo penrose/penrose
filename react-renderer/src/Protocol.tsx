@@ -40,6 +40,15 @@ export class Protocol {
     };
     this.ws.onerror = this.onSocketError;
   };
+
+  public clearPacket = (packet: any) => {
+    // TODO: Make this more principled (clear it in the right place, rather than right before the point of failure)
+    console.error("clearing AD state from packet", packet);
+    packet.contents[1].paramsr.energyGraph = {};
+    packet.contents[1].paramsr.xsVars = [];
+    packet.contents[1].paramsr.mutableUOstate = [];
+  };
+
   public sendPacket = async (packet: any, id?: string) => {
     const p = { session: id, call: packet };
     if (this.connectionStatus === ConnectionStatus.socketError) {
@@ -47,6 +56,8 @@ export class Protocol {
         "May not be able to send packet, encountered connection error"
       );
     }
+
+    this.clearPacket(packet);
     await this.ws.send(JSON.stringify(p));
   };
   private onSocketError = (e: any) => {
