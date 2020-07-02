@@ -383,7 +383,7 @@ const minimizeBasic = (
 ) => {
   console.log("minimizeBasic");
   // const numSteps = 1;
-  const numSteps = 1000;
+  const numSteps = 3;
   // const numSteps = 10000; // Value for speed testing
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
@@ -399,6 +399,10 @@ const minimizeBasic = (
   while (i < numSteps) {
     adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, false);
     gradres = adRes.gradVal;
+
+    console.log("res energy, grad:", adRes.energyVal, adRes.gradVal);
+    console.log("vars:", xs2, xsVars, energyGraph);
+
     // xs2' = xs2 - t * gradf(xs2)
     xs2 = xs2.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
     i++;
@@ -419,11 +423,18 @@ const minimizeBasic = (
 
 // TODO: move these fns to utils
 const prettyPrintExpr = (arg: any) => {
-  // TODO: only handles paths for now; generalize to other exprs
-  const obj = arg.contents.contents;
-  const varName = obj[0].contents;
-  const varField = obj[1];
-  return [varName, varField].join(".");
+  // TODO: only handles paths and floats for now; generalize to other exprs
+  if (arg.tag === "EPath") {
+    const obj = arg.contents.contents;
+    const varName = obj[0].contents;
+    const varField = obj[1];
+    return [varName, varField].join(".");
+  } else if (arg.tag === "AFloat") {
+    const val = arg.contents.contents;
+    return String(val);
+  } else {
+    throw Error(`argument of type ${arg.tag} not yet handled in pretty-printer`);
+  }
 };
 
 const prettyPrintFn = (fn: any) => {
@@ -477,12 +488,19 @@ export const evalEnergyOn = (state: State, inlined = false) => {
     // console.log("objEngs", objFns, objEngs);
     // console.log("vars", varyingValuesTF);
 
-    if (isCustom(objEngs[0])) { // TODO make more robust to empty lists
+    // TODO make this check more robust to empty lists of objectives/constraints
+    if (!objEngs[0] && !constrEngs[0]) { throw Error("no objectives and no constraints"); }
+    const useCustom = objEngs[0] ? isCustom(objEngs[0]) : isCustom(constrEngs[0]);
+
+    if (useCustom) {
       const objEng: VarAD = ops.vsum(objEngs);
       const constrEng: VarAD = ops.vsum(constrEngs);
       const overallEng: VarAD = add(objEng,
         mul(constrEng,
           variableAD(constraintWeight * state.params.weight)));
+
+      // console.error("weight", constraintWeight, state.params.weight, constraintWeight * state.params.weight);
+      // throw Error("stop");
 
       // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
       overallEng.gradVal = { tag: "Just", contents: 1.0 };

@@ -87,8 +87,17 @@ export const constrDict = {
   ) => {
 
     if (t1 === "Circle" && t2 === "Circle") {
-      console.error("circle, circle", s1, s2);
-      return variableAD(0.0);
+      console.error("circle, circle", s1, s2, offset);
+
+      const d = ops.vdist(centerList(s1), centerList(s2));
+      const o = offset
+        ? sub(sub(s1.r.contents, s2.r.contents), offset)
+        : sub(s1.r.contents, s2.r.contents);
+      const res = sub(d, o);
+
+      console.error("contains circle circle res", res, res.val);
+
+      return res;
 
     } else if (t1 === "Circle" && t2 === "Text") {
       // Note: The print/debug output will be compiled out in the computational graph! (So it will not display)
@@ -99,11 +108,6 @@ export const constrDict = {
       // TODO: Check the gradients for 'contains' as well (automatically, e.g. manual diff?)
 
       console.error("circle, text", s1, s2);
-
-      // const d = ops.vdist(centerList(s1), centerList(s2));
-      // const textR = max(varOf(s2.w.contents), varOf(s2.h.contents));
-      // const res = add(sub(d, varOf(s1.r.contents)), textR);
-      // console.log("contains2 circle text res", res);
 
       const d = ops.vdist(centerList(s1), centerList(s2));
       const textR = max((s2.w.contents), s2.h.contents);
@@ -398,8 +402,6 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
 const max = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(Math.max(v.val, w.val), "max");
 
-  console.log("max(v,w)", v, w)
-
   const vFn = (arg: "unit"): number => v.val > w.val ? 1.0 : 0.0;
   const wFn = (arg: "unit"): number => v.val > w.val ? 0.0 : 1.0;
 
@@ -437,7 +439,7 @@ const neg = (v: VarAD): VarAD => {
 
 // TODO: rename to `square` after tf.js dependency is removed
 const squared = (v: VarAD): VarAD => {
-  const z = variableAD(v.val * v.val, "^2");
+  const z = variableAD(v.val * v.val, "squared");
   v.parents.push({ node: z, sensitivity: 2.0 * v.val, sensitivityFn: () => 2.0 * v.val, });
 
   z.children.push({ node: v, sensitivity: 2.0 * v.val, sensitivityFn: () => 2.0 * v.val, });
@@ -465,8 +467,9 @@ const sqrt = (v: VarAD): VarAD => {
 };
 
 // ADDING A NEW OP: (TODO: document furtehr)
-// Add it above
+// Add its definition above
 // Add it to the opMap
+// Add its js mapping (code) to traverseGraph
 
 const opMap = {
   "+": (x: number, y: number): number => x + y,
@@ -475,7 +478,7 @@ const opMap = {
   "max": (x: number, y: number): number => Math.max(x, y),
   "sin": (x: number): number => Math.sin(x),
   "- (unary)": (x: number): number => -x,
-  "^2": (x: number): number => x * x,
+  "squared": (x: number): number => x * x,
   "sqrt": (x: number): number => {
     if (x <= 0) { throw Error(`non-positive arg ${x} in sqrt`); }
     return Math.sqrt(x);
@@ -505,6 +508,9 @@ const genEnergyFn = (z: IVarAD): any => {
   const progStr = res.prog.concat([returnStmt]).join("\n");
   // Have to sort the inputs to match the order of the initial variable list of xs
   const progInputs = _.sortBy(res.inputs, e => e.index).map(e => e.name);
+
+  // console.error("progInputs", progInputs);
+  // console.error("progStr", progStr);
 
   const f = new Function(...progInputs, progStr);
   console.log('generated f', f)
@@ -549,9 +555,15 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     const parName = c + String(parCounter);
 
     const op = z.op;
-    // TODO: Hack for now, since we only use ^2
-    // const stmt = `const ${parName} = (${op})(${childName});`;
-    const stmt = `const ${parName} = Math.pow(${childName}, 2);`;
+    let stmt;
+
+    if (z.op === "squared") {
+      stmt = `const ${parName} = Math.pow(${childName}, 2);`;
+    } else if (z.op === "sqrt") {
+      stmt = `const ${parName} = Math.sqrt(${childName}, 2);`;
+    } else {
+      stmt = `const ${parName} = (${op})(${childName});`;
+    }
 
     return {
       counter: parCounter,
@@ -576,7 +588,13 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     const parName = c + String(parCounter);
 
     const op = z.op;
-    const stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
+    let stmt;
+    if (op === "max") {
+      stmt = `const ${parName} = Math.max(${childName0}, ${childName1});`;
+    } else {
+      stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
+    }
+    // TODO: Add the rest of the ops to codegen
 
     // Array efficiency?
     return {
@@ -807,7 +825,10 @@ const evalEnergyOnGraph = (z: VarAD) => {
 
   // Catch leaf nodes first, or nodes whose values have already been computed and set
   // TODO: Make this code more generic/neater over the # children
-  if (z.valDone || !z.children || !z.children.length) return z.val;
+  if (z.valDone || !z.children || !z.children.length) {
+    console.log("z.result", z.val);
+    return z.val;
+  }
 
   // TODO: Fix how leaf nodes are stored as numbers, not strings (for the second check)
   // TODO: Check that leaf nodes (numbers) don't have children (this also fails if the leaf val is 0...)
@@ -818,6 +839,8 @@ const evalEnergyOnGraph = (z: VarAD) => {
     const res = zFn(childVal);
     z.val = res;
     z.valDone = true;
+
+    console.log("z result:", z.op, childVal, "=", z.val);
     return z.val;
   } else if (z.children.length === 2) {
     const childVal0 = evalEnergyOnGraph(z.children[0].node);
@@ -825,6 +848,8 @@ const evalEnergyOnGraph = (z: VarAD) => {
     const res = zFn(childVal0, childVal1);
     z.val = res;
     z.valDone = true;
+
+    console.log("z result:", z.op, childVal0, childVal1, "=", z.val);
     return z.val;
   } else throw Error(`invalid # children: ${z.children.length}`);
 };
@@ -834,10 +859,14 @@ const evalEnergyOnGraph = (z: VarAD) => {
 export const energyAndGradDynamic = (xs: number[], xsVars: DiffVar[], energyGraph: VarAD, debug = false) => {
 
   // Zero xsvars vals, gradients, and caching setting
+  // TODO: The graph should only be cleared from bottom-up
   clearGraph(energyGraph);
 
   // Set the leaves of the graph to have the new input values
   setInputs(xsVars, xs);
+
+  console.log("xsVars", xsVars);
+  console.error("stop");
 
   // Evaluate energy at the new xs, setting the values of the intermediate nodes
   const energyVal = evalEnergyOnGraph(energyGraph);
@@ -846,6 +875,8 @@ export const energyAndGradDynamic = (xs: number[], xsVars: DiffVar[], energyGrap
 
   // Evaluate gradient of f at xs on the energy graph
   const gradVal = gradAll(energyGraph, xsVars);
+
+  console.error("generated energy function", genEnergyFn(energyGraph), genEnergyFn(energyGraph)(xs));
 
   if (debug) {
     console.log("====== Test results for energyAndGradDynamic (vs. hardcoded energy) ======");
