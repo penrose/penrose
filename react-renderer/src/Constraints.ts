@@ -60,7 +60,7 @@ export const constrDict = {
     }
   },
 
-  contains: (
+  containsOld: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     offset: DiffVar
@@ -79,15 +79,8 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for contains`);
   },
 
-  disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
-    if (t1 === "Circle" && t2 === "Circle") {
-      const d = dist(center(s1), center(s2));
-      const o = stack([s1.r.contents, s2.r.contents, 10]);
-      return o.sum().sub(d);
-    } else throw new Error(`${[t1, t2]} not supported for disjoint`);
-  },
-
-  contains2: (
+  // TODO: Had to rename due to needing to match funciton names in backend
+  contains: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     offset: DiffVar
@@ -95,15 +88,40 @@ export const constrDict = {
 
     if (t1 === "Circle" && t2 === "Circle") {
       console.error("circle, circle", s1, s2);
-      return 0;
+      return variableAD(0.0);
 
     } else if (t1 === "Circle" && t2 === "Text") {
       // Note: The print/debug output will be compiled out in the computational graph! (So it will not display)
+      // Note: The shapes' properties are still floats, so each time it's used, it's compiled to a NEW var here
+      // (TODO: One question is whether they should be shared root variables?)
+
+      // The problem is that: when a GPI is passed in here, is one of its properties varying? If so, was it looked up from varyingMap? Looks like it gets looked up in varyingMap first; if so, then non-varying properties should be var-ified beforehand so the objective function doesn't have to deal with var-ifying constants
+      // TODO: Check the gradients for 'contains' as well (automatically, e.g. manual diff?)
+
       console.error("circle, text", s1, s2);
 
-      return variableAD(0.0);
+      // const d = ops.vdist(centerList(s1), centerList(s2));
+      // const textR = max(varOf(s2.w.contents), varOf(s2.h.contents));
+      // const res = add(sub(d, varOf(s1.r.contents)), textR);
+      // console.log("contains2 circle text res", res);
+
+      const d = ops.vdist(centerList(s1), centerList(s2));
+      const textR = max((s2.w.contents), s2.h.contents);
+      const res = add(sub(d, s1.r.contents), textR);
+      console.log("contains2 circle text res", res);
+
+      return res;
+
     } else throw new Error(`${[t1, t2]} not supported for contains2`);
 
+  },
+
+  disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    if (t1 === "Circle" && t2 === "Circle") {
+      const d = dist(center(s1), center(s2));
+      const o = stack([s1.r.contents, s2.r.contents, 10]);
+      return o.sum().sub(d);
+    } else throw new Error(`${[t1, t2]} not supported for disjoint`);
   },
 
   smallerThan: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
@@ -191,6 +209,10 @@ export const center = (props: any): VecAD | Tensor => {
   return stack([props.x.contents, props.y.contents]);
 };
 
+export const centerList = (props: any): VarAD[] => {
+  return [props.x.contents, props.y.contents];
+};
+
 export const dist = (p1: DiffVar, p2: DiffVar): DiffVar => p1.sub(p2).norm();
 
 // Be careful not to use element-wise operations. This should return a scalar.
@@ -230,6 +252,8 @@ export const normalize = (v: DiffVar): DiffVar => v.div(v.norm().add(epsd));
 // NOTE: VARIABLES ARE MUTATED DURING AD CALCULATION
 
 // ----- Core AD code
+
+export const varOf = (x: number, vname = ""): VarAD => variableAD(x, vname);
 
 export const variableAD = (x: number, vname = ""): VarAD => {
   const opName = vname ? vname : String(x);
@@ -373,6 +397,8 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
 
 const max = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(Math.max(v.val, w.val), "max");
+
+  console.log("max(v,w)", v, w)
 
   const vFn = (arg: "unit"): number => v.val > w.val ? 1.0 : 0.0;
   const wFn = (arg: "unit"): number => v.val > w.val ? 0.0 : 1.0;
@@ -686,6 +712,15 @@ export const ops = {
     const res = v.map(e => squared(e));
     return _.reduce(res, add, variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?        
     // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
+  },
+
+  vnorm: (v: VarAD[]): VarAD => {
+    const res = ops.vnormsq(v);
+    return sqrt(res);
+  },
+
+  vdist: (v: VarAD[], w: VarAD[]): VarAD => {
+    return ops.vnorm(ops.vsub(v, w));
   },
 
   // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph

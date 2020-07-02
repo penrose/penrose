@@ -9,7 +9,7 @@ import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
 // import { Variable } from "@tensorflow/tfjs";
-import { differentiable } from "./Optimizer";
+import { differentiable, differentiable2 } from "./Optimizer";
 import { variableAD } from "./Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,10 +90,10 @@ const evalFn = (
   trans: Translation,
   varyingMap: VaryMap<DiffVar>
 ): FnDone<DiffVar> => {
-  // TODO: Turn off differentiable tensors for now; we only look up custom variables in the varyingMap
+  // TODO: Turned on differentiable variables (below) -- is this right?
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap, false) as ArgVal<DiffVar>[],
+    args: evalExprs(fn.fargs, trans, varyingMap, true) as ArgVal<DiffVar>[],
     optType: fn.optType,
   };
 };
@@ -196,7 +196,7 @@ export const evalShape = (
   // Make sure all props are evaluated to values instead of shapes
   const props = mapValues(propExprs, (prop: TagExpr<number>) =>
     prop.tag === "OptEval"
-      ? (evalExpr(prop.contents, trans, varyingVars) as IVal<number>).contents
+      ? (evalExpr(prop.contents, trans, varyingVars, false) as IVal<number>).contents
       : prop.contents
   );
 
@@ -239,6 +239,8 @@ export const evalExpr = (
   autodiff = false
 ): ArgVal<number | DiffVar> => {
 
+  console.log("evalExpr autodiff", autodiff);
+
   switch (e.tag) {
     case "IntLit":
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
@@ -264,7 +266,7 @@ export const evalExpr = (
         contents: [uOp, expr],
       } = e as IUOp;
       // TODO: use the type system to narrow down Value to Float and Int?
-      const arg = evalExpr(expr, trans, varyingVars).contents;
+      const arg = evalExpr(expr, trans, varyingVars, autodiff).contents;
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
@@ -272,7 +274,7 @@ export const evalExpr = (
       };
     case "BinOp":
       const [binOp, e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars, autodiff);
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
@@ -288,7 +290,7 @@ export const evalExpr = (
       const [fnName, argExprs] = e.contents;
       // eval all args
       // TODO: how should computations be written? TF numbers?
-      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<number>[];
+      const args = evalExprs(argExprs, trans, varyingVars, autodiff) as ArgVal<number>[];
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
       // retrieve comp function from a global dict and call the function

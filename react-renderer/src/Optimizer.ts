@@ -31,7 +31,8 @@ import {
   ops,
   fns,
   add,
-  mul
+  mul,
+  varOf
 } from "./Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -566,7 +567,16 @@ export const gradF = (fn: any, inlined = false) => {
 export const sc = (x: any): number => x.dataSync()[0];
 export const scalarValue = (x: Scalar): number => x.dataSync()[0];
 export const tfsStr = (xs: any[]) => xs.map((e) => scalarValue(e));
-export const differentiable = (e: number): Variable => tf.scalar(e).variable();
+
+// export const differentiable = (e: number): Variable => tf.scalar(e).variable();
+export const differentiable2 = (e: number): VarAD => varOf(e);
+
+// TODO: permissive typing for now on DiffVar; it really should be VarAD
+export const differentiable = (e: number): DiffVar => {
+  console.error("making it differentiable", e);
+  return varOf(e);
+}
+
 export const flatten = (t: Tensor): Tensor => tf.reshape(t, [-1]); // flattens something like Tensor [[1], [2], [3]] (3x1 tensor) into Tensor [1, 2, 3] (1x3)
 export const flatten2 = (t: Tensor[]): Tensor => flatten(tf.stack(t));
 
