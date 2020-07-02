@@ -87,6 +87,25 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for disjoint`);
   },
 
+  contains2: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    offset: DiffVar
+  ) => {
+
+    if (t1 === "Circle" && t2 === "Circle") {
+      console.error("circle, circle", s1, s2);
+      return 0;
+
+    } else if (t1 === "Circle" && t2 === "Text") {
+      // Note: The print/debug output will be compiled out in the computational graph! (So it will not display)
+      console.error("circle, text", s1, s2);
+
+      return variableAD(0.0);
+    } else throw new Error(`${[t1, t2]} not supported for contains2`);
+
+  },
+
   smallerThan: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     // s1 is smaller than s2
     const offset = scalar(0.4).mul(s2.r.contents); // take 0.4 as param
@@ -352,6 +371,23 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
   return z;
 };
 
+const max = (v: VarAD, w: VarAD): VarAD => {
+  const z = variableAD(Math.max(v.val, w.val), "max");
+
+  const vFn = (arg: "unit"): number => v.val > w.val ? 1.0 : 0.0;
+  const wFn = (arg: "unit"): number => v.val > w.val ? 0.0 : 1.0;
+
+  // NOTE: this adds a conditional to the computational graph itself, so the sensitivities change based on the input values
+  // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
+  v.parents.push({ node: z, sensitivity: vFn("unit"), sensitivityFn: vFn, });
+  w.parents.push({ node: z, sensitivity: wFn("unit"), sensitivityFn: wFn, });
+
+  z.children.push({ node: v, sensitivity: vFn("unit"), sensitivityFn: vFn, });
+  z.children.push({ node: w, sensitivity: wFn("unit"), sensitivityFn: wFn, });
+
+  return z;
+};
+
 // --- Unary ops
 
 const sin = (v: VarAD): VarAD => {
@@ -383,13 +419,41 @@ const squared = (v: VarAD): VarAD => {
   return z;
 };
 
+const sqrt = (v: VarAD): VarAD => {
+  // NOTE: Watch out for negative numbers in sqrt
+  // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
+  // TODO: rename all the other fns to dz_dv
+  const z = variableAD(Math.sqrt(v.val), "sqrt");
+  const EPSD = 10e-6;
+
+  const dzDv = (arg: "unit"): number => {
+    if (v.val <= 0) { throw Error(`non-positive arg ${v.val} in sqrt`); }
+    return 1.0 / (2.0 * Math.sqrt(v.val + EPSD))
+  };
+
+  v.parents.push({ node: z, sensitivity: dzDv("unit"), sensitivityFn: dzDv, });
+
+  z.children.push({ node: v, sensitivity: dzDv("unit"), sensitivityFn: dzDv, });
+
+  return z;
+};
+
+// ADDING A NEW OP: (TODO: document furtehr)
+// Add it above
+// Add it to the opMap
+
 const opMap = {
   "+": (x: number, y: number): number => x + y,
   "*": (x: number, y: number): number => x * y,
   "-": (x: number, y: number): number => x - y,
+  "max": (x: number, y: number): number => Math.max(x, y),
   "sin": (x: number): number => Math.sin(x),
   "- (unary)": (x: number): number => -x,
   "^2": (x: number): number => x * x,
+  "sqrt": (x: number): number => {
+    if (x <= 0) { throw Error(`non-positive arg ${x} in sqrt`); }
+    return Math.sqrt(x);
+  },
 }
 
 // ----- Codegen
@@ -632,6 +696,14 @@ export const ops = {
 
   vsum: (v: VarAD[]): VarAD => {
     return _.reduce(v, add, variableAD(0.0));
+  }
+
+};
+
+export const fns = {
+
+  toPenalty: (x: VarAD): VarAD => {
+    return squared(max(x, variableAD(0.0)));
   }
 
 };

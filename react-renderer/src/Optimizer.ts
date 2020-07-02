@@ -29,6 +29,7 @@ import {
   variableAD,
   isCustom,
   ops,
+  fns,
   add,
   mul
 } from "./Constraints";
@@ -367,6 +368,12 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
   return newState;
 };
 
+const awLineSearch2 = () => {
+  // TODO
+  return 0.01;
+
+};
+
 const minimizeBasic = (
   f: (...arg: DiffVar[]) => DiffVar,
   xs: number[],
@@ -377,6 +384,7 @@ const minimizeBasic = (
   // const numSteps = 1;
   const numSteps = 1000;
   // const numSteps = 10000; // Value for speed testing
+  // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
   // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem, with no line search, and not sure about mem use)
   // this is just a factor of 5 slowdown over the compiled energy function
@@ -461,8 +469,7 @@ export const evalEnergyOn = (state: State, inlined = false) => {
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
     const objEngs: DiffVar[] = objEvaled.map((o) => applyFn(o, objDict));
-    // TODO: toPenalty needs to use the new ops
-    const constrEngs: DiffVar[] = constrEvaled.map((c) => toPenalty(applyFn(c, constrDict)));
+    const constrEngs: DiffVar[] = constrEvaled.map((c) => fns.toPenalty(applyFn(c, constrDict)));
 
     // TODO: Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
     // NOTE: The energies are in the val field of the results (w/o grads)

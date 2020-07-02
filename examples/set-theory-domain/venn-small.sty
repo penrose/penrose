@@ -8,8 +8,8 @@ forall Set x {
         string : x.label
     }
 
-    -- ensure contains(x.shape, x.text)
-    encourage sameCenter(x.text, x.shape)
+    ensure contains2(x.shape, x.text) -- NEW
+    encourage sameCenter(x.text, x.shape) -- OLD
     -- ensure minSize(x.shape)
     -- ensure maxSize(x.shape)
 }
