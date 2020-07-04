@@ -47,6 +47,8 @@ export class Protocol {
     packet.contents[1].paramsr.energyGraph = {};
     packet.contents[1].paramsr.xsVars = [];
     packet.contents[1].paramsr.mutableUOstate = [];
+    packet.contents[1].paramsr.constrWeightNode = undefined;
+    packet.contents[1].paramsr.epWeightNode = undefined;
   };
 
   public sendPacket = async (packet: any, id?: string) => {

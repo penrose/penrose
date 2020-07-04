@@ -243,6 +243,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
   let xs: number[] = state.varyingValues;
 
+  console.log("===============");
   console.log("step BASIC | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
   console.log("params: ", optParams);
   // console.log("state: ", state);
@@ -256,18 +257,20 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       // `overallEnergy` is a partially applied function, waiting for an input. 
       // When applied, it will interpret the energy via lookups on the computational graph
       // TODO: Could save the interpreted energy graph across amples
-      const overallObjective = evalEnergyOn(state, false);
+      const overallObjective = evalEnergyOnCustom(state, false);
       const xsVars: VarAD[] = makeADInputVars(xs);
-      const energyGraph = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+      const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
       // `energyGraph` is a VarAD that is a handle to the top of the graph
 
-      console.log("interpreted energy graph", energyGraph);
+      console.log("interpreted energy graph", res.energyGraph);
 
       const newParams: Params = {
         ...state.params,
         mutableUOstate: xsVars, // TODO: Unused; remove
         xsVars,
-        energyGraph,
+        energyGraph: res.energyGraph,
+        constrWeightNode: res.constrWeightNode,
+        epWeightNode: res.epWeightNode,
         weight: initConstraintWeight,
         UOround: 0,
         EPround: 0,
@@ -287,8 +290,14 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       const f = state.overallObjective; // TODO: Remove this if unused
       const xsVars = state.params.xsVars;
       const energyGraph = state.params.energyGraph;
+      const weightInfo = {
+        constrWeightNode: state.params.constrWeightNode,
+        epWeightNode: state.params.epWeightNode,
+        constrWeight: constraintWeight,
+        epWeight: state.params.weight
+      };
 
-      const res = minimizeBasic(f, xs, xsVars, energyGraph); // NOTE: mutates xsVars
+      const res = minimizeBasic(f, xs, xsVars, energyGraph, weightInfo); // NOTE: mutates xsVars
       xs = res.xs;
       // the new `xs` is put into the `newState`, which is returned at end of function
       // we don't need the updated xsVars and energyGraph as they are always cleared on evaluation; only their structure matters
@@ -379,29 +388,36 @@ const minimizeBasic = (
   f: (...arg: DiffVar[]) => DiffVar,
   xs: number[],
   xsVars: DiffVar[],
-  energyGraph: VarAD
+  energyGraph: VarAD,
+  weightInfo: WeightInfo
 ) => {
+  console.log("-------------------------------------");
   console.log("minimizeBasic");
   // const numSteps = 1;
-  const numSteps = 3;
-  // const numSteps = 10000; // Value for speed testing
+  // const numSteps = 10;
+  const numSteps = 10000; // Value for speed testing
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
-  // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem, with no line search, and not sure about mem use)
+  // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
   // this is just a factor of 5 slowdown over the compiled energy function
 
-  const t = 0.01;
+  const t = 0.0001;
   let xs2 = [...xs]; // Don't use xs
   let gradres = [...xs];
-  let adRes = energyAndGradDynamic(xs2, xsVars, energyGraph);
+  let adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, weightInfo, false);
   let i = 0;
 
+  const DEBUG = false;
+
   while (i < numSteps) {
-    adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, false);
+    adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, weightInfo, false);
     gradres = adRes.gradVal;
 
-    console.log("res energy, grad:", adRes.energyVal, adRes.gradVal);
-    console.log("vars:", xs2, xsVars, energyGraph);
+    if (DEBUG) {
+      // TODO: Move debug flags into energyAndGradDynamic
+      console.log("res energy, grad:", adRes.energyVal, adRes.gradVal);
+      console.log("vars:", xs2, xsVars, energyGraph);
+    }
 
     // xs2' = xs2 - t * gradf(xs2)
     xs2 = xs2.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
@@ -452,6 +468,58 @@ const prettyPrintProperty = (arg: any) => {
   const varField = obj[1];
   const property = obj[2];
   return [varName, varField, property].join(".");
+};
+
+/**
+ * Generate an energy function from the current state (using VarADs only, unlike evalEnergyOn)
+ *
+ * @param {State} state
+ * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
+ */
+export const evalEnergyOnCustom = (state: State, inlined = false) => {
+  // TODO: types
+  return (...varyingValuesTF: VarAD[]): any => {
+    // TODO: Could this line be causing a memory leak?
+    const { objFns, constrFns, translation, varyingPaths } = state;
+
+    // construct a new varying map
+    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<VarAD>;
+
+    // NOTE: This will mutate the var inputs
+    const objEvaled = evalFns(objFns, translation, varyingMap);
+    const constrEvaled = evalFns(constrFns, translation, varyingMap);
+
+    const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
+    const constrEngs: VarAD[] = constrEvaled.map((c) => fns.toPenalty(applyFn(c, constrDict)));
+
+    // TODO: Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
+    // NOTE: The energies are in the val field of the results (w/o grads)
+    // console.log("objEngs", objFns, objEngs);
+    // console.log("vars", varyingValuesTF);
+
+    // TODO make this check more robust to empty lists of objectives/constraints
+    if (!objEngs[0] && !constrEngs[0]) { throw Error("no objectives and no constraints"); }
+    const useCustom = objEngs[0] ? isCustom(objEngs[0]) : isCustom(constrEngs[0]);
+
+    const constrWeightNode = varOf(constraintWeight, String(constraintWeight), "constraintWeight");
+    const epWeightNode = varOf(state.params.weight, String(state.params.weight), "epWeight");
+
+    const objEng: VarAD = ops.vsum(objEngs);
+    const constrEng: VarAD = ops.vsum(constrEngs);
+    const overallEng: VarAD = add(objEng,
+      mul(constrEng,
+        mul(constrWeightNode, epWeightNode)));
+
+    // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
+    overallEng.gradVal = { tag: "Just", contents: 1.0 };
+    // console.log("overall eng from custom AD", overallEng, overallEng.val);
+
+    return {
+      energyGraph: overallEng,
+      constrWeightNode,
+      epWeightNode
+    };
+  };
 };
 
 /**

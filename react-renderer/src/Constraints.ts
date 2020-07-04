@@ -3,6 +3,7 @@ import { canvasSize } from "./Canvas";
 import * as _ from "lodash";
 
 const TOL = 1e-4;
+const DEBUG_ENERGY = false;
 
 export const objDict = {
   equal: (x: DiffVar, y: DiffVar) => squaredDifference(x, y),
@@ -257,13 +258,14 @@ export const normalize = (v: DiffVar): DiffVar => v.div(v.norm().add(epsd));
 
 // ----- Core AD code
 
-export const varOf = (x: number, vname = ""): VarAD => variableAD(x, vname);
+export const varOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata);
 
-export const variableAD = (x: number, vname = ""): VarAD => {
+export const variableAD = (x: number, vname = "", metadata = ""): VarAD => {
   const opName = vname ? vname : String(x);
 
   return {
     tag: "custom",
+    metadata,
     op: opName,
     isInput: false,
     val: x,
@@ -800,12 +802,22 @@ export const randList = (n: number): number[] => {
 };
 
 // Mutates z (top node) to clear all vals and gradients of its children
-const clearGraph = (z: VarAD) => {
+// NOTE that this will zero all the nodes in the graph, including the leaves (such as the stepEP parameters)
+const clearGraphTopDown = (z: VarAD) => {
   z.val = 0;
   z.valDone = false; // This is necessary so we can cache energy values in comp graph
   z.gradVal = { tag: "Nothing" };
-  z.children.forEach(e => clearGraph(e.node));
+  z.children.forEach(e => clearGraphTopDown(e.node));
 }
+
+const clearGraphBottomUp = (xs: VarAD[]) => {
+  xs.forEach(x => {
+    x.val = 0;
+    x.valDone = false; // This is necessary so we can cache energy values in comp graph
+    x.gradVal = { tag: "Nothing" };
+    clearGraphBottomUp(x.parents.map(p => p.node));
+  });
+};
 
 // Mutates xsVars (leaf nodes) to set their values to the inputs in xs (and name them accordingly by value)
 // NOTE: the xsVars should already have been set as inputs via makeAdInputVars
@@ -826,7 +838,9 @@ const evalEnergyOnGraph = (z: VarAD) => {
   // Catch leaf nodes first, or nodes whose values have already been computed and set
   // TODO: Make this code more generic/neater over the # children
   if (z.valDone || !z.children || !z.children.length) {
-    console.log("z.result", z.val);
+    if (DEBUG_ENERGY) {
+      console.log("z.result", z.val);
+    }
     return z.val;
   }
 
@@ -840,7 +854,9 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.val = res;
     z.valDone = true;
 
-    console.log("z result:", z.op, childVal, "=", z.val);
+    if (DEBUG_ENERGY) {
+      console.log("z result:", z.op, childVal, "=", z.val);
+    }
     return z.val;
   } else if (z.children.length === 2) {
     const childVal0 = evalEnergyOnGraph(z.children[0].node);
@@ -849,24 +865,33 @@ const evalEnergyOnGraph = (z: VarAD) => {
     z.val = res;
     z.valDone = true;
 
-    console.log("z result:", z.op, childVal0, childVal1, "=", z.val);
+    if (DEBUG_ENERGY) {
+      console.log("z result:", z.op, childVal0, childVal1, "=", z.val);
+    }
     return z.val;
   } else throw Error(`invalid # children: ${z.children.length}`);
 };
 
+const setWeights = (info: WeightInfo) => {
+  info.constrWeightNode.val = info.constrWeight;
+  info.constrWeightNode.op = String(info.constrWeight);
+
+  info.epWeightNode.val = info.epWeight;
+  info.epWeightNode.op = String(info.epWeight);
+};
+
 // Given an energyGraph of f, clears the graph and returns the energy and gradient of f at xs (by walking the graph and mutating values)
 // The returned energyGraph will have intermediate values set
-export const energyAndGradDynamic = (xs: number[], xsVars: DiffVar[], energyGraph: VarAD, debug = false) => {
+export const energyAndGradDynamic = (xs: number[], xsVars: DiffVar[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
 
   // Zero xsvars vals, gradients, and caching setting
-  // TODO: The graph should only be cleared from bottom-up
-  clearGraph(energyGraph);
+  clearGraphBottomUp(xsVars);
+
+  // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
+  setWeights(weightInfo);
 
   // Set the leaves of the graph to have the new input values
   setInputs(xsVars, xs);
-
-  console.log("xsVars", xsVars);
-  console.error("stop");
 
   // Evaluate energy at the new xs, setting the values of the intermediate nodes
   const energyVal = evalEnergyOnGraph(energyGraph);
@@ -876,7 +901,9 @@ export const energyAndGradDynamic = (xs: number[], xsVars: DiffVar[], energyGrap
   // Evaluate gradient of f at xs on the energy graph
   const gradVal = gradAll(energyGraph, xsVars);
 
-  console.error("generated energy function", genEnergyFn(energyGraph), genEnergyFn(energyGraph)(xs));
+  if (DEBUG_ENERGY) {
+    console.error("generated energy function", genEnergyFn(energyGraph), genEnergyFn(energyGraph)(xs));
+  }
 
   if (debug) {
     console.log("====== Test results for energyAndGradDynamic (vs. hardcoded energy) ======");
@@ -965,7 +992,7 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
   console.error("ROUND 2");
 
   // Zero xsvars vals and gradients
-  clearGraph(z);
+  clearGraphBottomUp(xsVars);
   console.log("cleared", z);
 
   // Evaluate energy with a different xsvars/vals setting (with z=1)

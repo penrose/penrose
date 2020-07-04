@@ -524,12 +524,23 @@ interface IParams {
   xsVars: VarAD[]; // Using this instead of mutableUOstate for testing custom AD; TODO phase out one of them
   // `xsVars` are all the leaves of the energy graph
   energyGraph: VarAD; // This is the top of the energy graph (parent node)
+  constrWeightNode: VarAD; // Handle to node for constraint weight (so it can be set as the weight changes)
+  epWeightNode: VarAD; // similar to constrWeightNode
 
   _lastUOstate: number[];
   _lastUOenergy: number;
   _lastEPstate: number[];
   _lastEPenergy: number;
 }
+
+type WeightInfo = IWeightInfo;
+
+interface IWeightInfo {
+  constrWeightNode: VarAD,
+  epWeightNode: VarAD,
+  constrWeight: number,
+  epWeight: number
+};
 
 // ------------ Types for reverse-mode autodiff
 
@@ -574,6 +585,7 @@ type EdgeAD = IEdgeAD;
 
 interface IVarAD {
   tag: "custom";
+  metadata: string; // Used for storing the kind of weight
   op: string;
   val: number;
   valDone: boolean; // TODO: really should be `val: MaybeVal<number>` but just don't want to refactor the graph-building code now
