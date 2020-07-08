@@ -7,12 +7,12 @@ forall Set x {
         strokeWidth : 0
     }
 
-    -- x.text = Text {
-    --     string : x.label
-    -- }
+    x.text = Text {
+        string : x.label
+    }
 
     -- ensure contains(x.shape, x.text) -- NEW
-    -- encourage sameCenter(x.text, x.shape) -- OLD
+    encourage sameCenter(x.text, x.shape) -- OLD
 
     -- ensure minSize(x.shape)
     -- ensure maxSize(x.shape)
@@ -25,6 +25,6 @@ where IsSubset(x, y) {
 --     ensure outsideOf(y.text, x.shape)
 
     -- ensure contains(y.shape, x.shape, 5.0) -- NEW
-    ensure contains(y.shape, x.shape) -- NEW
+    -- ensure contains(y.shape, x.shape) -- NEWEST
     x.shape above y.shape
 }

@@ -87,7 +87,7 @@ const unconstrainedConverged2 = (normGrad: number): boolean => {
 
 const epConverged2 = (xs0: number[], xs1: number[], fxs0: number, fxs1: number): boolean => {
   // TODO: These dx and dfx should really be scaled to account for magnitudes
-  const stateChange = normList(vecSub(xs1, xs0));
+  const stateChange = normList(subv(xs1, xs0));
   const energyChange = Math.abs(fxs1 - fxs0);
   console.log("epConverged?: stateChange: ", stateChange, " | energyChange: ", energyChange);
 
@@ -378,10 +378,156 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
   return newState;
 };
 
-const awLineSearch2 = () => {
-  // TODO
-  return 0.01;
+const awLineSearch2 = (
+  xs: number[],
+  xsVars: VarAD[],
+  energyGraph: VarAD,
+  weightInfo: WeightInfo,
+  gradfxs: number[],
+  fxs: number,
+  maxSteps = 100
+) => {
 
+  const descentDir = negv(gradfxs); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
+
+  // TODO: Port this to make minimal calls to energyAndGradDynamic, rather than separating them
+  // (Also maybe move out of this function as a closure?)
+  // Things are named `zs` just to not clash with `xs` (and avoid confusion with the usual meaning of `ys`)
+  const f = (zs: number[]) => {
+    const res = energyAndGradDynamic(zs, xsVars, energyGraph, weightInfo, false).energyVal;
+    console.log("f", zs, "=", res);
+    return res;
+  };
+
+  const gradf = (zs: number[]) => {
+    const res = energyAndGradDynamic(zs, xsVars, energyGraph, weightInfo, false).gradVal;
+    console.log("grad(f)", zs, "=", res);
+    return res;
+  };
+
+  const duf = (u: number[]) => {
+    return (zs: number[]) => {
+      return dot(u, gradf(zs));
+    };
+  };
+
+  const dufDescent = duf(descentDir);
+  const dufAtx0 = dufDescent(xs);
+  const minInterval = 10e-10;
+
+  // HS (Haskell?): duf, TS: dufDescent
+  // HS: x0, TS: xs
+
+  // Hyperparameters
+  const c1 = 0.001; // Armijo
+  const c2 = 0.9; // Wolfe
+
+  // Armijo condition
+  // f(x0 + t * descentDir) <= (f(x0) + c1 * t * <grad(f)(x0), x0>)
+  const armijo = (ti: number): boolean => {
+    const cond1 = f(addv(xs, scalev(ti, descentDir)));
+    const cond2 = fxs + c1 * ti * dufAtx0;
+    return cond1 <= cond2;
+  };
+
+  // D(u) := <grad f, u>
+  // D(u, f, x) = <grad f(x), u>
+  // u is the descentDir (i.e. -grad(f)(x))
+
+  // Strong Wolfe condition
+  // |<grad(f)(x0 + t * descentDir), u>| <= c2 * |<grad f(x0), u>|
+  const strongWolfe = (ti: number) => {
+    const cond1 = Math.abs(dufDescent(addv(xs, scalev(ti, descentDir))));
+    const cond2 = c2 * Math.abs(dufAtx0);
+    return cond1 <= cond2;
+  };
+
+  // Weak Wolfe condition
+  // <grad(f)(x0 + t * descentDir), u> >= c2 * <grad f(x0), u>
+  const weakWolfe = (ti: number) => {
+    const cond1 = dufDescent(addv(xs, scalev(ti, descentDir)));
+    const cond2 = c2 * dufAtx0;
+    return cond1 >= cond2;
+  };
+
+  const wolfe = weakWolfe; // TODO: Set this if using strongWolfe instead
+
+  // Interval check
+  const shouldStop = (numUpdates: number, ai: number, bi: number) => {
+    const intervalTooSmall = Math.abs(bi - ai) < minInterval;
+    const tooManySteps = numUpdates > maxSteps;
+
+    if (intervalTooSmall) { console.log("interval too small"); }
+    if (tooManySteps) { console.log("too many steps"); }
+
+    return intervalTooSmall || tooManySteps;
+  }
+
+  // Consts / initial values
+  // TODO: port comments from original
+
+  // const t = 0.002; // for venn_simple.sty
+  // const t = 0.1; // for tree.sty
+
+  let a = 0;
+  let b = Infinity;
+  let t = 1.0;
+  let i = 0;
+  const DEBUG_LINE_SEARCH = false;
+
+  if (DEBUG_LINE_SEARCH) {
+    console.log("line search", xs, gradfxs, duf(xs)(xs));
+  }
+
+  // Main loop + update check
+  while (true) {
+    const needToStop = shouldStop(i, a, b);
+
+    if (needToStop) {
+      console.error("stopping early: (i, a, b, t) = ", i, a, b, t);
+      break;
+    }
+
+    const isArmijo = armijo(t);
+    const isWolfe = wolfe(t);
+    if (DEBUG_LINE_SEARCH) {
+      console.log("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
+    }
+
+    if (!isArmijo) {
+      if (DEBUG_LINE_SEARCH) {
+        console.log("not armijo");
+      }
+      b = t;
+    } else if (!isWolfe) {
+      if (DEBUG_LINE_SEARCH) {
+        console.log("not wolfe");
+      }
+      a = t;
+    } else {
+      if (DEBUG_LINE_SEARCH) {
+        console.log("found good interval");
+        console.log("stopping: (i, a, b, t) = ", i, a, b, t);
+      }
+      break;
+    }
+
+    if (b < Infinity) {
+      if (DEBUG_LINE_SEARCH) {
+        console.log("already found armijo");
+      }
+      t = (a + b) / 2.0;
+    } else {
+      if (DEBUG_LINE_SEARCH) {
+        console.log("did not find armijo");
+      }
+      t = 2.0 * a;
+    }
+
+    i++;
+  }
+
+  return t;
 };
 
 const minimizeBasic = (
@@ -393,30 +539,37 @@ const minimizeBasic = (
 ) => {
   console.log("-------------------------------------");
   console.log("minimizeBasic");
-  // const numSteps = 1;
+  const numSteps = 1;
   // const numSteps = 10;
-  const numSteps = 10000; // Value for speed testing
+  // const numSteps = 10000; // Value for speed testing
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
-  // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
+  // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`DC, with no line search, and not sure about mem use)
   // this is just a factor of 5 slowdown over the compiled energy function
 
-  const t = 0.0001;
   let xs2 = [...xs]; // Don't use xs
   let gradres = [...xs];
   let adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, weightInfo, false);
   let i = 0;
+  let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
 
-  const DEBUG = false;
+  const DEBUG_GRAD_DESCENT = true;
+  const USE_LINE_SEARCH = true;
 
   while (i < numSteps) {
     adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, weightInfo, false);
     gradres = adRes.gradVal;
 
-    if (DEBUG) {
+    if (USE_LINE_SEARCH) {
+      t = awLineSearch2(xs2, xsVars, energyGraph, weightInfo, gradres, adRes.energyVal);
+    }
+
+    if (DEBUG_GRAD_DESCENT) {
       // TODO: Move debug flags into energyAndGradDynamic
+      console.log("num steps per display cycle", numSteps);
       console.log("res energy, grad:", adRes.energyVal, adRes.gradVal);
       console.log("vars:", xs2, xsVars, energyGraph);
+      console.log("t", t, "use line search", USE_LINE_SEARCH);
     }
 
     // xs2' = xs2 - t * gradf(xs2)
@@ -891,5 +1044,39 @@ export const minimize = (
 // ---------- Vector utils 
 // TODO: factor out
 
-const vecSub = (xs: number[], ys: number[]): number[] =>
-  _.zipWith([xs, ys], e => e[1] - e[0]);
+const scalev = (c: number, xs: number[]): number[] =>
+  _.map(xs, x => c * x);
+
+const addv = (xs: number[], ys: number[]): number[] => {
+  if (xs.length !== ys.length) {
+    console.error("xs", xs, "ys", ys);
+    throw Error("can't add vectors of different length");
+  }
+
+  return _.zipWith(xs, ys, (x, y) => x + y);
+}
+
+const subv = (xs: number[], ys: number[]): number[] => {
+  if (xs.length !== ys.length) {
+    console.error("xs", xs, "ys", ys);
+    throw Error("can't sub vectors of different length");
+  }
+
+  return _.zipWith(xs, ys, (x, y) => x - y);
+};
+
+const negv = (xs: number[]): number[] =>
+  _.map(xs, e => -e);
+
+const dot = (xs: number[], ys: number[]): number => {
+  if (xs.length !== ys.length) {
+    console.error("xs", xs, "ys", ys);
+    throw Error("can't dot vectors of different length");
+  }
+
+  let acc = 0;
+  for (let i = 0; i < xs.length; i++) {
+    acc += xs[i] * ys[i];
+  }
+  return acc;
+};

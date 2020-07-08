@@ -882,7 +882,7 @@ const setWeights = (info: WeightInfo) => {
 
 // Given an energyGraph of f, clears the graph and returns the energy and gradient of f at xs (by walking the graph and mutating values)
 // The returned energyGraph will have intermediate values set
-export const energyAndGradDynamic = (xs: number[], xsVars: DiffVar[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
+export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
 
   // Zero xsvars vals, gradients, and caching setting
   clearGraphBottomUp(xsVars);
