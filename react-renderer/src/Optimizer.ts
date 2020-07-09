@@ -394,15 +394,11 @@ const awLineSearch2 = (
   // (Also maybe move out of this function as a closure?)
   // Things are named `zs` just to not clash with `xs` (and avoid confusion with the usual meaning of `ys`)
   const f = (zs: number[]) => {
-    const res = energyAndGradDynamic(zs, xsVars, energyGraph, weightInfo, false).energyVal;
-    console.log("f", zs, "=", res);
-    return res;
+    return energyAndGradDynamic(zs, xsVars, energyGraph, weightInfo, false).energyVal;
   };
 
   const gradf = (zs: number[]) => {
-    const res = energyAndGradDynamic(zs, xsVars, energyGraph, weightInfo, false).gradVal;
-    console.log("grad(f)", zs, "=", res);
-    return res;
+    return energyAndGradDynamic(zs, xsVars, energyGraph, weightInfo, false).gradVal;
   };
 
   const duf = (u: number[]) => {
@@ -539,8 +535,8 @@ const minimizeBasic = (
 ) => {
   console.log("-------------------------------------");
   console.log("minimizeBasic");
-  const numSteps = 1;
-  // const numSteps = 10;
+  // const numSteps = 1;
+  const numSteps = 100;
   // const numSteps = 10000; // Value for speed testing
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
@@ -553,7 +549,7 @@ const minimizeBasic = (
   let i = 0;
   let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
 
-  const DEBUG_GRAD_DESCENT = true;
+  const DEBUG_GRAD_DESCENT = false;
   const USE_LINE_SEARCH = true;
 
   while (i < numSteps) {

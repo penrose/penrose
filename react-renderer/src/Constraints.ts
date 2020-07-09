@@ -40,6 +40,17 @@ export const objDict = {
 
 export const constrDict = {
   maxSize: ([shapeType, props]: [string, any]) => {
+    const limit = Math.max(...canvasSize) / 6;
+    switch (shapeType) {
+      case "Circle":
+        return sub(props.r.contents, varOf(limit));
+      default:
+        // HACK: report errors systematically
+        throw new Error(`${shapeType} doesn't have a maxSize`);
+    }
+  },
+
+  maxSizeOld: ([shapeType, props]: [string, any]) => {
     const limit = scalar(Math.max(...canvasSize) / 6);
     switch (shapeType) {
       case "Circle":
@@ -51,6 +62,17 @@ export const constrDict = {
   },
 
   minSize: ([shapeType, props]: [string, any]) => {
+    const limit = 20;
+    switch (shapeType) {
+      case "Circle":
+        return sub(varOf(limit), props.r.contents);
+      default:
+        // HACK: report errors systematically
+        throw new Error(`${shapeType} doesn't have a minSize`);
+    }
+  },
+
+  minSizeOld: ([shapeType, props]: [string, any]) => {
     const limit = scalar(20);
     switch (shapeType) {
       case "Circle":
@@ -95,8 +117,7 @@ export const constrDict = {
         ? sub(sub(s1.r.contents, s2.r.contents), offset)
         : sub(s1.r.contents, s2.r.contents);
       const res = sub(d, o);
-
-      console.error("contains circle circle res", res, res.val);
+      // console.error("contains circle circle res", res, res.val);
 
       return res;
 
@@ -131,11 +152,31 @@ export const constrDict = {
 
   smallerThan: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     // s1 is smaller than s2
+    const offset = mul(varOf(0.4), s2.r.contents);
+    return sub(sub(s1.r.contents, s2.r.contents), offset);
+  },
+
+  smallerThanOld: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    // s1 is smaller than s2
     const offset = scalar(0.4).mul(s2.r.contents); // take 0.4 as param
     return s1.r.contents.sub(s2.r.contents).sub(offset);
   },
 
   outsideOf: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    padding = 10
+  ) => {
+    if (t1 === "Text" && t2 === "Circle") {
+      const textR = max(s1.w.contents, s1.h.contents);
+      const d = ops.vdist(centerList(s1), centerList(s2));
+      return sub(add(add(s2.r.contents, textR),
+        varOf(padding)),
+        d);
+    } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
+  },
+
+  outsideOfOld: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
     padding = 10
@@ -457,8 +498,8 @@ const sqrt = (v: VarAD): VarAD => {
   const EPSD = 10e-6;
 
   const dzDv = (arg: "unit"): number => {
-    if (v.val <= 0) { throw Error(`non-positive arg ${v.val} in sqrt`); }
-    return 1.0 / (2.0 * Math.sqrt(v.val + EPSD))
+    if (v.val < 0) { console.error(`negative arg ${v.val} in sqrt`); }
+    return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPSD))
   };
 
   v.parents.push({ node: z, sensitivity: dzDv("unit"), sensitivityFn: dzDv, });
@@ -482,8 +523,8 @@ const opMap = {
   "- (unary)": (x: number): number => -x,
   "squared": (x: number): number => x * x,
   "sqrt": (x: number): number => {
-    if (x <= 0) { throw Error(`non-positive arg ${x} in sqrt`); }
-    return Math.sqrt(x);
+    if (x < 0) { console.error(`negative arg ${x} in sqrt`); }
+    return Math.sqrt(Math.max(0, x));
   },
 }
 
@@ -882,6 +923,7 @@ const setWeights = (info: WeightInfo) => {
 
 // Given an energyGraph of f, clears the graph and returns the energy and gradient of f at xs (by walking the graph and mutating values)
 // The returned energyGraph will have intermediate values set
+// xsVars are the leaves, energyGraph is the topmost parent of the computational graph
 export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
 
   // Zero xsvars vals, gradients, and caching setting

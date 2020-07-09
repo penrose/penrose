@@ -11,20 +11,18 @@ forall Set x {
         string : x.label
     }
 
-    -- ensure contains(x.shape, x.text) -- NEW
+    ensure contains(x.shape, x.text) -- NEW
     encourage sameCenter(x.text, x.shape) -- OLD
 
-    -- ensure minSize(x.shape)
-    -- ensure maxSize(x.shape)
+    ensure minSize(x.shape)
+    ensure maxSize(x.shape)
 }
 
 forall Set x; Set y
 where IsSubset(x, y) {
+    ensure smallerThan(x.shape, y.shape)
+    ensure outsideOf(y.text, x.shape)
 
---     ensure smallerThan(x.shape, y.shape)
---     ensure outsideOf(y.text, x.shape)
-
-    -- ensure contains(y.shape, x.shape, 5.0) -- NEW
-    -- ensure contains(y.shape, x.shape) -- NEWEST
+    ensure contains(y.shape, x.shape, 5.0) -- NEW
     x.shape above y.shape
 }
