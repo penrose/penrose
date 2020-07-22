@@ -1,12 +1,4 @@
--- Point p
-
-Set A
-Set B
--- Set C
--- Set D
-
--- IsSubset(A,B)
---Intersecting(C,B)
+Set A, B
+B ⊂ A
 
 AutoLabel All
--- Label A $\int_0^{\infty} \alpha$
