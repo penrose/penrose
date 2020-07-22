@@ -10,6 +10,7 @@ forall Set x {
     ensure minSize(x.shape)
     ensure maxSize(x.shape)
     encourage sameCenter(x.text, x.shape)
+    x.textLayering = x.text above x.shape
 }
 
 forall Set x; Set y
