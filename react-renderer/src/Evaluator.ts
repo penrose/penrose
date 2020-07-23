@@ -48,9 +48,13 @@ export const evalTranslation = (s: State): State => {
     [[], trans]
   );
 
+  // Sort the shapes by ordering - note the null assertion
+  const sortedShapesEvaled = s.shapeOrdering.map((name) =>
+  shapesEvaled.find(({ properties }) => properties.name.contents === name)!);
+
   // Update the state with the new list of shapes and translation
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
-  return { ...s, shapes: shapesEvaled, translation: transEvaled };
+  return { ...s, shapes: sortedShapesEvaled, translation: transEvaled };
 };
 
 const doneFloat = (n: number): TagExpr<number> => ({

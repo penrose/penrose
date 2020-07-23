@@ -18,12 +18,13 @@ export const objDict = {
   },
   // distsq (getX lab, getY lab) (end `plus2` offset)
 
-  // Stella function for testing (TODO: Replace w/ most recent version)
+  below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) => 
+    square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
+    // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
+
+
   centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): Tensor => {
-
-    // The tensors seem to have different disposed values, but their numeric values all seem to be available, so this is fine?
-
-    if (typesAre([t1, t2], ["Arrow", "Text"])) {
+    if (typesAre([t1,t2], ["Arrow", "Text"])) {
       const mx = arr.startX.contents.add(arr.endX.contents).div(scalar(2.0));
       const my = arr.startY.contents.add(arr.endY.contents).div(scalar(2.0));
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
@@ -58,10 +59,12 @@ export const objDict = {
 
 export const constrDict = {
   maxSize: ([shapeType, props]: [string, any]) => {
-    const limit = scalar(Math.max(...canvasSize) / 6);
+    const limit = scalar(Math.max(...canvasSize));
     switch (shapeType) {
       case "Circle":
-        return stack([props.r.contents, limit.neg()]).sum();
+        return stack([props.r.contents, limit.div(scalar(6.0)).neg()]).sum();
+      case "Square":
+        return stack([props.side.contents, limit.div(scalar(3.0)).neg()]).sum();
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a maxSize`);
@@ -73,6 +76,8 @@ export const constrDict = {
     switch (shapeType) {
       case "Circle":
         return stack([limit, props.r.contents.neg()]).sum();
+      case "Square":
+        return stack([limit, props.side.contents.neg()]).sum();
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a minSize`);
@@ -103,13 +108,12 @@ export const constrDict = {
       const d = dist(center(s1), center(s2));
       const textR = maximum(s2.w.contents, s2.h.contents);
       return d.sub(s1.r.contents).add(textR);
-    } else {
-      console.error(`${[t1, t2]} not supported for contains`);
-      return scalar(0.0);
-
-      // TODO revert
-      // throw new Error(`${[t1, t2]} not supported for contains`);
-    }
+    } else if (t1 === "Square" && t2 === "Circle"){
+      // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
+      const sq = stack([s1.x.contents, s1.y.contents]);
+      const d = dist(sq, center(s2));
+      return d.sub(scalar(0.5).mul(s1.side.contents).sub(s2.r.contents));
+    } else throw new Error(`${[t1, t2]} not supported for contains`);
   },
 
   disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
@@ -129,7 +133,7 @@ export const constrDict = {
   outsideOf: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    padding = 10
+    padding = 10.0
   ) => {
     if (t1 === "Text" && t2 === "Circle") {
       const textR = maximum(s1.w.contents, s1.h.contents);
@@ -207,6 +211,7 @@ export const distsq = (p1: Tensor, p2: Tensor): Tensor => {
   const dp = p1.sub(p2);
   return dp.dot(dp);
 }
+
 
 // with epsilon to avoid NaNs
 export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));
