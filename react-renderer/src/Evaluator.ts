@@ -13,7 +13,7 @@ import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
 import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs";
-import { scalarValue, differentiable, evalEnergyOn } from "./Optimizer";
+import { sc, scalarValue, differentiable, evalEnergyOn } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -50,7 +50,7 @@ export const evalTranslation = (s: State): State => {
 
   // Sort the shapes by ordering - note the null assertion
   const sortedShapesEvaled = s.shapeOrdering.map((name) =>
-  shapesEvaled.find(({ properties }) => properties.name.contents === name)!);
+    shapesEvaled.find(({ properties }) => properties.name.contents === name)!);
 
   // Update the state with the new list of shapes and translation
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
@@ -146,6 +146,13 @@ const compDict = {
   len: ([type, props]: [string, any]) => {
     const [p1, p2] = arrowPts(props);
     return { tag: "FloatV", contents: dist(p1, p2) };
+  },
+
+  orientedSquare: (arr1: any, arr2: any, pt: any, len: number) => {
+    console.log("orientedSquare", arr1, arr2, pt, len);
+
+    return { tag: "PathDataV", contents: [] };
+    // throw Error("test");
   },
 
   sampleColor: (alpha: number, colorType: string) => {
@@ -378,6 +385,8 @@ export const resolvePath = (
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
   let varyingVal = varyingMap?.get(JSON.stringify(path));
   if (varyingVal) {
+    // When we look up a varying value, it will always be an autodiff-type, so convert autodiff-types to numbers if autodiff is off (in case a rendered value depends on some arithmetic that relies on a varying value)
+    if (!autodiff) { return floatVal(sc(varyingVal)); }
     return floatVal(varyingVal);
   } else {
     const gpiOrExpr = findExpr(trans, path);
@@ -415,7 +424,9 @@ export const resolvePath = (
         const expr: TagExpr<number> = gpiOrExpr;
         if (expr.tag === "OptEval") {
           return evalExpr(expr.contents, trans, varyingMap, autodiff);
-        } else return { tag: "Val", contents: expr.contents };
+        } else {
+          return { tag: "Val", contents: expr.contents }
+        };
     }
   }
 };
@@ -469,6 +480,7 @@ export const evalBinOp = (
         } else if (!(typeof v1.contents === "number") && !(typeof v2.contents === "number")) {
           res = v1.contents.subStrict(v2.contents);
         } else {
+          console.error("v1, v2", v1, v2);
           throw Error("Types don't match for v1, v2");
         }
         break;
