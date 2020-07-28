@@ -1,5 +1,4 @@
 import {
-  toPairs,
   values,
   pickBy,
   range,
@@ -12,7 +11,7 @@ import {
 import { mapValues } from "lodash";
 import { dist, randFloat } from "./Util";
 import seedrandom from "seedrandom";
-import { Tensor, Variable, scalar, pad2d } from "@tensorflow/tfjs";
+import { Tensor, Variable, scalar, pad2d, stack } from "@tensorflow/tfjs";
 import { sc, scalarValue, differentiable, evalEnergyOn } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,6 +154,11 @@ const compDict = {
     // throw Error("test");
   },
 
+  dot: (v: any, w: any) => {
+    const [tv, tw] = [stack(v), stack(w)];
+    return { tag: "FloatV", contents: tv.dot(tw) };
+  },
+
   sampleColor: (alpha: number, colorType: string) => {
     if (colorType === "rgb") {
       const rgb = range(3).map((_) => randFloat(0.1, 0.9));
@@ -209,7 +213,7 @@ export const evalShape = (
   // Make sure all props are evaluated to values instead of shapes
   const props = mapValues(propExprs, (prop: TagExpr<number>) =>
     prop.tag === "OptEval"
-      ? (evalExpr(prop.contents, trans, varyingVars) as IVal<number>).contents
+      ? (evalExpr(prop.contents, trans, varyingVars, false) as IVal<number>).contents
       : prop.contents
   );
 
@@ -339,7 +343,7 @@ export const evalExpr = (
       const [fnName, argExprs] = e.contents;
       // eval all args
       // TODO: how should computations be written? TF numbers?
-      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<number>[];
+      const args = evalExprs(argExprs, trans, varyingVars, autodiff) as ArgVal<number>[];
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
       // retrieve comp function from a global dict and call the function

@@ -86,7 +86,7 @@ class ShapeView extends React.Component<IViewProps, IState> {
 		      // size of bbox of arrow
 		      [w, h] = [Math.max(Math.abs(ex - sx), padding), Math.max(Math.abs(ey - sy), padding)];
 		  } else if (shapeType === "Curve") {
-                      console.error("TODO: Curve bbox");
+                      console.log("TODO: Curve bbox");
 		      // size of bbox of arrow
 		      [w, h] = [100, 100];
 		  } else {
