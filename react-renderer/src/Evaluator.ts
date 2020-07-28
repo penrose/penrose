@@ -149,9 +149,14 @@ const compDict = {
 
   orientedSquare: (arr1: any, arr2: any, pt: any, len: number) => {
     console.log("orientedSquare", arr1, arr2, pt, len);
+    // TODO/NOTE: For now, this function is written in numbers only, since in the example, this functiondoes not appear downstream from the optimization
+    // But really the right thing to do is to write this in tensors and write a curve tensor-to-number conversion function (Where does that need to happen, anyway?)
 
-    return { tag: "PathDataV", contents: [] };
-    // throw Error("test");
+    const elems = [{ tag: "Pt", contents: [100, 100] },
+    { tag: "Pt", contents: [200, 200] },
+    { tag: "Pt", contents: [300, 150] }];
+    const path = { tag: "Open", contents: elems };
+    return { tag: "PathDataV", contents: [path] };
   },
 
   dot: (v: any, w: any) => {
@@ -394,23 +399,19 @@ export const resolvePath = (
     return floatVal(varyingVal);
   } else {
     const gpiOrExpr = findExpr(trans, path);
+
     switch (gpiOrExpr.tag) {
-      case "FGPI":
+      case "FGPI": {
         const [type, props] = gpiOrExpr.contents;
         // TODO: cache results
         const evaledProps = mapValues(props, (p, propName) => {
           if (p.tag === "OptEval") {
-            return (evalExpr(p.contents, trans, varyingMap, autodiff) as IVal<
-              number | Tensor
-            >).contents;
+            return (evalExpr(p.contents, trans, varyingMap, autodiff) as IVal<number | Tensor>).contents;
           } else {
             const propPath: IPropertyPath = {
               tag: "PropertyPath",
-              contents: concat(path.contents, propName) as [
-                BindingForm,
-                string,
-                string
-              ], // TODO: check if this is true
+              contents: concat(path.contents, propName) as [BindingForm, string, string],
+              // TODO: check if this is true
             };
             varyingVal = varyingMap?.get(JSON.stringify(propPath));
             if (varyingVal) {
@@ -420,17 +421,23 @@ export const resolvePath = (
             }
           }
         });
+
         return {
           tag: "GPI",
           contents: [type, evaledProps] as GPI<number | Tensor>,
         };
-      default:
+      }
+
+      default: {
         const expr: TagExpr<number> = gpiOrExpr;
         if (expr.tag === "OptEval") {
           return evalExpr(expr.contents, trans, varyingMap, autodiff);
         } else {
+          // TODO: Should exprs be converted from tensors to numbers here?
           return { tag: "Val", contents: expr.contents }
         };
+      }
+
     }
   }
 };
