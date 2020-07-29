@@ -382,22 +382,18 @@ const gradAD = (v: VarAD): number => {
 };
 
 const gradADSymbolic = (v: VarAD): VarAD => {
-
   // Already computed/cached the gradient
   if (v.gradNode.tag === "Just") {
     return v.gradNode.contents;
   }
 
-  // build subgraph
-  // const res = _.sum(v.parents.map(parent => parent.sensitivityFn("unit") * gradAD(parent.node)));
-  // TODO: Fill this in / check it, make sure it's right
+  // Build subgraph
   const res = addN(v.parents.map(parent => mul(parent.sensitivityNode, gradADSymbolic(parent.node))));
 
-  // mark node as done
+  // Mark node as done
   v.gradNode = { tag: "Just", contents: res };
 
   return res;
-
 };
 
 // (Don't use this, you probably want energyAndGradDynamic)
@@ -408,6 +404,13 @@ const gradAll = (energyGraph: VarAD, xsVars: VarAD[]): number[] => {
   energyGraph.gradVal = { tag: "Just", contents: 1.0 };
   const dxs = xsVars.map(gradAD); // Computes it per variable, mutating the graph to set cached results and reuse them
   const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
+  return gradxs;
+};
+
+const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
+  energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
+  const dxs = xsVars.map(gradADSymbolic); // Computes it per variable, mutating the graph to set cached results and reuse them
+  const gradxs = xsVars.map((x: DiffVar) => fromJust2(x.gradNode));
   return gradxs;
 };
 
@@ -443,7 +446,7 @@ export const add = (v: VarAD, w: VarAD): VarAD => {
 export const addN = (xs: VarAD[]): VarAD => { // N-way add
   const z = variableAD(_.sum(_.map(xs, x => x.val)), "+ list");
 
-  for (let x of xs) {
+  for (const x of xs) {
     x.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
     z.children.push({ node: x, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
   }
@@ -473,21 +476,36 @@ const sub = (v: VarAD, w: VarAD): VarAD => {
   return z;
 };
 
+const div = (v: VarAD, w: VarAD): VarAD => {
+  const z = variableAD(v.val / w.val, "/");
+
+  // grad(v/w) = [1/w, -v/w^2]
+  v.parents.push({ node: z, sensitivity: 1.0 / w.val, sensitivityFn: () => 1.0 / w.val, sensitivityNode: div(variableAD(1.0), w) });
+  w.parents.push({ node: z, sensitivity: -1.0, sensitivityFn: () => -1.0, sensitivityNode: neg(div(v, squared(w))) });
+
+  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: div(variableAD(1.0), w) });
+  z.children.push({ node: w, sensitivity: -1.0, sensitivityFn: () => -1.0, sensitivityNode: neg(div(v, squared(w))) });
+
+  return z;
+};
+
 const max = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(Math.max(v.val, w.val), "max");
 
   const vFn = (arg: "unit"): number => v.val > w.val ? 1.0 : 0.0;
   const wFn = (arg: "unit"): number => v.val > w.val ? 0.0 : 1.0;
 
+  const vNode = ifCond(gt(v, w), variableAD(1.0), variableAD(0.0));
+  const wNode = ifCond(gt(v, w), variableAD(0.0), variableAD(1.0));
   // NOTE: this adds a conditional to the computational graph itself, so the sensitivities change based on the input values
   // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
 
   // TODO: Come back to this. Should the graph then have an evaluable If node?
-  v.parents.push({ node: z, sensitivity: vFn("unit"), sensitivityFn: vFn, });
-  w.parents.push({ node: z, sensitivity: wFn("unit"), sensitivityFn: wFn, });
+  v.parents.push({ node: z, sensitivity: vFn("unit"), sensitivityFn: vFn, sensitivityNode: vNode });
+  w.parents.push({ node: z, sensitivity: wFn("unit"), sensitivityFn: wFn, sensitivityNode: wNode });
 
-  z.children.push({ node: v, sensitivity: vFn("unit"), sensitivityFn: vFn, });
-  z.children.push({ node: w, sensitivity: wFn("unit"), sensitivityFn: wFn, });
+  z.children.push({ node: v, sensitivity: vFn("unit"), sensitivityFn: vFn, sensitivityNode: vNode });
+  z.children.push({ node: w, sensitivity: wFn("unit"), sensitivityFn: wFn, sensitivityNode: wNode });
 
   return z;
 };
@@ -545,12 +563,44 @@ const sqrt = (v: VarAD): VarAD => {
     return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPSD))
   };
 
-  // TODO: add division as an op
-  // const dzDvGraph: VarAD = 
+  // TODO: How to do the checks in this graph? I guess sqrt should have a special evaluation/gradient rule?
+  const sensitivityNode = div(variableAD(1.0), mul(variableAD(2.0), sqrt(v)));
 
-  v.parents.push({ node: z, sensitivity: dzDv("unit"), sensitivityFn: dzDv, });
+  v.parents.push({ node: z, sensitivity: dzDv("unit"), sensitivityFn: dzDv, sensitivityNode });
 
-  z.children.push({ node: v, sensitivity: dzDv("unit"), sensitivityFn: dzDv, });
+  z.children.push({ node: v, sensitivity: dzDv("unit"), sensitivityFn: dzDv, sensitivityNode });
+
+  return z;
+};
+
+const noGrad: VarAD = variableAD(1.0, "noGrad");
+
+const gt = (v: VarAD, w: VarAD): VarAD => {
+  // returns a boolean, which is converted to number
+  // TODO: check that this all is right
+
+  const z = variableAD(v.val > w.val ? 1.0 : 0.0, "gt");
+  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  z.children.push({ node: w, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+
+  v.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  w.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+
+  return z;
+};
+
+const ifCond = (cond: VarAD, v: VarAD, w: VarAD): VarAD => {
+  // TODO: check that this all is right
+  // When the computation graph is evaluated, depending on whether cond is nonnegative, either v or w is evaluated (and returned?)
+
+  const z = variableAD(0.0, "ifCond"); // No value?
+  z.children.push({ node: cond, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  z.children.push({ node: w, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+
+  cond.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  v.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  w.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
 
   return z;
 };
@@ -565,6 +615,7 @@ const opMap = {
   "+ list": (xs: number[]): number => _.sum(xs),
   "*": (x: number, y: number): number => x * y,
   "-": (x: number, y: number): number => x - y,
+  "/": (x: number, y: number): number => x / y,
   "max": (x: number, y: number): number => Math.max(x, y),
   "sin": (x: number): number => Math.sin(x),
   "cos": (x: number): number => Math.cos(x),
@@ -702,6 +753,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
 
 // ----- Helper functions
 
+// TODO: Make this parametric
 const fromJust = (n: MaybeVal<number>): number => {
   if (n.tag === "Just") {
     return n.contents;
@@ -709,6 +761,15 @@ const fromJust = (n: MaybeVal<number>): number => {
 
   console.error("expected value in fromJust but got Nothing");
   return 0;
+}
+
+const fromJust2 = (n: MaybeVal<VarAD>): VarAD => {
+  if (n.tag === "Just") {
+    return n.contents;
+  }
+
+  console.error("expected value in fromJust but got Nothing");
+  return variableAD(0);
 }
 
 const assert = (b: boolean, s: any[]) => {
@@ -990,6 +1051,12 @@ export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph:
 
   // Evaluate gradient of f at xs on the energy graph
   const gradVal = gradAll(energyGraph, xsVars);
+
+  // Build symbolic gradient of f at xs on the energy graph
+  const gradGraph = gradAllSymbolic(energyGraph, xsVars);
+
+  // TODO: Clean this up
+  console.log("GRAD GRAPH", gradGraph);
 
   if (DEBUG_ENERGY) {
     console.error("generated energy function", genEnergyFn(energyGraph), genEnergyFn(energyGraph)(xs));
