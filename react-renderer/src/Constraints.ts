@@ -299,9 +299,12 @@ export const normalize = (v: DiffVar): DiffVar => v.div(v.norm().add(epsd));
 
 // ----- Core AD code
 
+// Grad var, level 1
+export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata, true);
+
 export const varOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata);
 
-export const variableAD = (x: number, vname = "", metadata = ""): VarAD => {
+export const variableAD = (x: number, vname = "", metadata = "", isGradNode = false): VarAD => {
   const opName = vname ? vname : String(x);
 
   return {
@@ -310,6 +313,7 @@ export const variableAD = (x: number, vname = "", metadata = ""): VarAD => {
     op: opName,
     isInput: false,
     val: x,
+    isGradNode,
     valDone: true,
     parents: [],
     children: [],
@@ -359,26 +363,21 @@ export const makeADInputVars = (xs: number[]): VarAD[] => {
 // grad(v) means ds/dv (s is the single output seed)
 
 const gradAD = (v: VarAD): number => {
-  // console.log("grad", v.op);
-
+  throw Error("Don't use old gradAD");
   // Already computed/cached the gradient
-  if (v.gradVal.tag === "Just") {
-    // console.log("return cached", v.gradVal.contents);
-    return v.gradVal.contents;
-  }
+  // if (v.gradVal.tag === "Just") {
+  //   return v.gradVal.contents;
+  // }
 
-  // TODO: What's the most efficient way to do this recursion?
-  // parent.sensitivity = dzi/dv (in expression above)
-  // grad(parent.node) = ds/dzi
+  // // parent.sensitivity = dzi/dv (in expression above)
+  // // grad(parent.node) = ds/dzi
 
-  // console.log("sum parents", v.parents, v.parents.map(parent => parent.sensitivity));
-  const res = _.sum(v.parents.map(parent => parent.sensitivityFn("unit") * gradAD(parent.node)));
+  // const res = _.sum(v.parents.map(parent => parent.sensitivityFn("unit") * gradAD(parent.node)));
 
-  // console.log("return calculated", res);
-  // Note we both set the gradVal and return it
-  v.gradVal = { tag: "Just", contents: res };
+  // // Note we both set the gradVal and return it
+  // v.gradVal = { tag: "Just", contents: res };
 
-  return res;
+  // return res;
 };
 
 const gradADSymbolic = (v: VarAD): VarAD => {
@@ -388,6 +387,7 @@ const gradADSymbolic = (v: VarAD): VarAD => {
   }
 
   // Build subgraph
+  // const res = addN(v.parents.map(parent => mul(fromJust2(parent.sensitivityNode), gradADSymbolic(parent.node))));
   const res = addN(v.parents.map(parent => mul(parent.sensitivityNode, gradADSymbolic(parent.node))));
 
   // Mark node as done
@@ -431,14 +431,23 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
 // TODO: Put these in ops dict
 // NOTE: The names of these ops matter for opMap, don't change them
 
+// TODO: regexp-replace ` sensitivityNode: .* })` => ` })`
+// The point of making the sensitivity nodes here is that when the gradient is computed, each child needs to know what its partial derivative was, which depends on its position (e.g. either the first or second arg in x * y has a different sensitivity). This can't be looked up in, say, a dict
+// You have to build it inline bc it involves references to the variables
+
 export const add = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val + w.val, "+");
-  v.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
-  w.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
+
+  v.parents.push({ node: z, sensitivityNode: variableAD(1.0) });
+  w.parents.push({ node: z, sensitivityNode: variableAD(1.0) });
 
   // TODO: Check if the sensitivities are right
-  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
-  z.children.push({ node: w, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
+  z.children.push({ node: v, sensitivityNode: variableAD(1.0) });
+  z.children.push({ node: w, sensitivityNode: variableAD(1.0) });
+
+  // if (isGradNode) {
+
+  // }
 
   return z;
 };
@@ -447,8 +456,8 @@ export const addN = (xs: VarAD[]): VarAD => { // N-way add
   const z = variableAD(_.sum(_.map(xs, x => x.val)), "+ list");
 
   for (const x of xs) {
-    x.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
-    z.children.push({ node: x, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
+    x.parents.push({ node: z, sensitivityNode: variableAD(1.0) });
+    z.children.push({ node: x, sensitivityNode: variableAD(1.0) });
   }
 
   return z;
@@ -456,22 +465,22 @@ export const addN = (xs: VarAD[]): VarAD => { // N-way add
 
 export const mul = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val * w.val, "*");
-  v.parents.push({ node: z, sensitivity: w.val, sensitivityFn: () => w.val, sensitivityNode: w });
-  w.parents.push({ node: z, sensitivity: v.val, sensitivityFn: () => v.val, sensitivityNode: v });
+  v.parents.push({ node: z, sensitivityNode: w });
+  w.parents.push({ node: z, sensitivityNode: v });
 
-  z.children.push({ node: v, sensitivity: w.val, sensitivityFn: () => w.val, sensitivityNode: w });
-  z.children.push({ node: w, sensitivity: v.val, sensitivityFn: () => v.val, sensitivityNode: v });
+  z.children.push({ node: v, sensitivityNode: w });
+  z.children.push({ node: w, sensitivityNode: v });
 
   return z;
 };
 
 const sub = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val - w.val, "-");
-  v.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
-  w.parents.push({ node: z, sensitivity: -1.0, sensitivityFn: () => -1.0, sensitivityNode: variableAD(-1.0) });
+  v.parents.push({ node: z, sensitivityNode: variableAD(1.0) });
+  w.parents.push({ node: z, sensitivityNode: variableAD(-1.0) });
 
-  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: variableAD(1.0) });
-  z.children.push({ node: w, sensitivity: -1.0, sensitivityFn: () => -1.0, sensitivityNode: variableAD(-1.0) });
+  z.children.push({ node: v, sensitivityNode: variableAD(1.0) });
+  z.children.push({ node: w, sensitivityNode: variableAD(-1.0) });
 
   return z;
 };
@@ -480,11 +489,11 @@ const div = (v: VarAD, w: VarAD): VarAD => {
   const z = variableAD(v.val / w.val, "/");
 
   // grad(v/w) = [1/w, -v/w^2]
-  v.parents.push({ node: z, sensitivity: 1.0 / w.val, sensitivityFn: () => 1.0 / w.val, sensitivityNode: div(variableAD(1.0), w) });
-  w.parents.push({ node: z, sensitivity: -1.0, sensitivityFn: () => -1.0, sensitivityNode: neg(div(v, squared(w))) });
+  v.parents.push({ node: z, sensitivityNode: div(variableAD(1.0), w) });
+  w.parents.push({ node: z, sensitivityNode: neg(div(v, squared(w))) });
 
-  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: div(variableAD(1.0), w) });
-  z.children.push({ node: w, sensitivity: -1.0, sensitivityFn: () => -1.0, sensitivityNode: neg(div(v, squared(w))) });
+  z.children.push({ node: v, sensitivityNode: div(variableAD(1.0), w) });
+  z.children.push({ node: w, sensitivityNode: neg(div(v, squared(w))) });
 
   return z;
 };
@@ -501,11 +510,11 @@ const max = (v: VarAD, w: VarAD): VarAD => {
   // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
 
   // TODO: Come back to this. Should the graph then have an evaluable If node?
-  v.parents.push({ node: z, sensitivity: vFn("unit"), sensitivityFn: vFn, sensitivityNode: vNode });
-  w.parents.push({ node: z, sensitivity: wFn("unit"), sensitivityFn: wFn, sensitivityNode: wNode });
+  v.parents.push({ node: z, sensitivityNode: vNode });
+  w.parents.push({ node: z, sensitivityNode: wNode });
 
-  z.children.push({ node: v, sensitivity: vFn("unit"), sensitivityFn: vFn, sensitivityNode: vNode });
-  z.children.push({ node: w, sensitivity: wFn("unit"), sensitivityFn: wFn, sensitivityNode: wNode });
+  z.children.push({ node: v, sensitivityNode: vNode });
+  z.children.push({ node: w, sensitivityNode: wNode });
 
   return z;
 };
@@ -514,29 +523,29 @@ const max = (v: VarAD, w: VarAD): VarAD => {
 
 const sin = (v: VarAD): VarAD => {
   const z = variableAD(Math.sin(v.val), "sin");
-  v.parents.push({ node: z, sensitivity: Math.cos(v.val), sensitivityFn: () => Math.cos(v.val), sensitivityNode: cos(v) });
+  v.parents.push({ node: z, sensitivityNode: cos(v) });
 
   // TODO: cache values
-  z.children.push({ node: v, sensitivity: Math.cos(v.val), sensitivityFn: () => Math.cos(v.val), sensitivityNode: cos(v) });
+  z.children.push({ node: v, sensitivityNode: cos(v) });
 
   return z;
 };
 
 const cos = (v: VarAD): VarAD => {
   const z = variableAD(Math.cos(v.val), "cos");
-  v.parents.push({ node: z, sensitivity: -Math.sin(v.val), sensitivityFn: () => -Math.sin(v.val), sensitivityNode: neg(sin(v)) });
+  v.parents.push({ node: z, sensitivityNode: neg(sin(v)) });
 
   // TODO: cache values
-  z.children.push({ node: v, sensitivity: -Math.sin(v.val), sensitivityFn: () => -Math.sin(v.val), sensitivityNode: neg(sin(v)) });
+  z.children.push({ node: v, sensitivityNode: neg(sin(v)) });
 
   return z;
 };
 
 const neg = (v: VarAD): VarAD => {
   const z = variableAD(-v.val, "- (unary)");
-  v.parents.push({ node: z, sensitivity: -1.0, sensitivityFn: () => -1.0, sensitivityNode: variableAD(-1.0) });
+  v.parents.push({ node: z, sensitivityNode: variableAD(-1.0) });
 
-  z.children.push({ node: v, sensitivity: -1.0, sensitivityFn: () => -1.0, sensitivityNode: variableAD(-1.0) });
+  z.children.push({ node: v, sensitivityNode: variableAD(-1.0) });
 
   return z;
 };
@@ -544,9 +553,9 @@ const neg = (v: VarAD): VarAD => {
 // TODO: rename to `square` after tf.js dependency is removed
 const squared = (v: VarAD): VarAD => {
   const z = variableAD(v.val * v.val, "squared");
-  v.parents.push({ node: z, sensitivity: 2.0 * v.val, sensitivityFn: () => 2.0 * v.val, sensitivityNode: mul(variableAD(2.0), v) });
+  v.parents.push({ node: z, sensitivityNode: mul(variableAD(2.0), v) });
 
-  z.children.push({ node: v, sensitivity: 2.0 * v.val, sensitivityFn: () => 2.0 * v.val, sensitivityNode: mul(variableAD(2.0), v) });
+  z.children.push({ node: v, sensitivityNode: mul(variableAD(2.0), v) });
 
   return z;
 };
@@ -566,9 +575,9 @@ const sqrt = (v: VarAD): VarAD => {
   // TODO: How to do the checks in this graph? I guess sqrt should have a special evaluation/gradient rule?
   const sensitivityNode = div(variableAD(1.0), mul(variableAD(2.0), sqrt(v)));
 
-  v.parents.push({ node: z, sensitivity: dzDv("unit"), sensitivityFn: dzDv, sensitivityNode });
+  v.parents.push({ node: z, sensitivityNode });
 
-  z.children.push({ node: v, sensitivity: dzDv("unit"), sensitivityFn: dzDv, sensitivityNode });
+  z.children.push({ node: v, sensitivityNode });
 
   return z;
 };
@@ -580,11 +589,11 @@ const gt = (v: VarAD, w: VarAD): VarAD => {
   // TODO: check that this all is right
 
   const z = variableAD(v.val > w.val ? 1.0 : 0.0, "gt");
-  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
-  z.children.push({ node: w, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  z.children.push({ node: v, sensitivityNode: noGrad });
+  z.children.push({ node: w, sensitivityNode: noGrad });
 
-  v.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
-  w.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  v.parents.push({ node: z, sensitivityNode: noGrad });
+  w.parents.push({ node: z, sensitivityNode: noGrad });
 
   return z;
 };
@@ -594,13 +603,13 @@ const ifCond = (cond: VarAD, v: VarAD, w: VarAD): VarAD => {
   // When the computation graph is evaluated, depending on whether cond is nonnegative, either v or w is evaluated (and returned?)
 
   const z = variableAD(0.0, "ifCond"); // No value?
-  z.children.push({ node: cond, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
-  z.children.push({ node: v, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
-  z.children.push({ node: w, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  z.children.push({ node: cond, sensitivityNode: noGrad });
+  z.children.push({ node: v, sensitivityNode: noGrad });
+  z.children.push({ node: w, sensitivityNode: noGrad });
 
-  cond.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
-  v.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
-  w.parents.push({ node: z, sensitivity: 1.0, sensitivityFn: () => 1.0, sensitivityNode: noGrad });
+  cond.parents.push({ node: z, sensitivityNode: noGrad });
+  v.parents.push({ node: z, sensitivityNode: noGrad });
+  w.parents.push({ node: z, sensitivityNode: noGrad });
 
   return z;
 };
@@ -611,16 +620,38 @@ const ifCond = (cond: VarAD, v: VarAD, w: VarAD): VarAD => {
 // Add its js mapping (code) to traverseGraph
 
 const opMap = {
-  "+": (x: number, y: number): number => x + y,
-  "+ list": (xs: number[]): number => _.sum(xs),
-  "*": (x: number, y: number): number => x * y,
-  "-": (x: number, y: number): number => x - y,
-  "/": (x: number, y: number): number => x / y,
-  "max": (x: number, y: number): number => Math.max(x, y),
-  "sin": (x: number): number => Math.sin(x),
-  "cos": (x: number): number => Math.cos(x),
-  "- (unary)": (x: number): number => -x,
-  "squared": (x: number): number => x * x,
+  "+": {
+    fn: (x: number, y: number): number => x + y,
+    gradGraph: variableAD(1.0),
+  },
+  "+ list": {
+    fn: (xs: number[]): number => _.sum(xs),
+    gradGraph: variableAD(1.0),
+  },
+  "*": {
+    fn: (x: number, y: number): number => x * y,
+  },
+  "-": {
+    fn: (x: number, y: number): number => x - y,
+  },
+  "/": {
+    fn: (x: number, y: number): number => x / y,
+  },
+  "max": {
+    fn: (x: number, y: number): number => Math.max(x, y),
+  },
+  "sin": {
+    fn: (x: number): number => Math.sin(x),
+  },
+  "cos": {
+    fn: (x: number): number => Math.cos(x),
+  },
+  "- (unary)": {
+    fn: (x: number): number => -x,
+  },
+  "squared": {
+    fn: (x: number): number => x * x,
+  },
   "sqrt": (x: number): number => {
     if (x < 0) { console.error(`negative arg ${x} in sqrt`); }
     return Math.sqrt(Math.max(0, x));
@@ -759,8 +790,7 @@ const fromJust = (n: MaybeVal<number>): number => {
     return n.contents;
   }
 
-  console.error("expected value in fromJust but got Nothing");
-  return 0;
+  throw Error("expected value in fromJust but got Nothing");
 }
 
 const fromJust2 = (n: MaybeVal<VarAD>): VarAD => {
@@ -768,8 +798,7 @@ const fromJust2 = (n: MaybeVal<VarAD>): VarAD => {
     return n.contents;
   }
 
-  console.error("expected value in fromJust but got Nothing");
-  return variableAD(0);
+  throw Error("expected value in fromJust2 but got Nothing");
 }
 
 const assert = (b: boolean, s: any[]) => {
@@ -983,7 +1012,7 @@ const setInputs = (xsVars: VarAD[], xs: number[]) => {
 // Mutates graph (defined by z, the head) to evaluate the comp graph from top down, setting all values in children (intermediate node). Returns energy.
 // We have to do this in the graph, not the compiled energy, because we need the values of the intermediate nodes to compute the gradient.
 const evalEnergyOnGraph = (z: VarAD) => {
-  const zFn = opMap[z.op];
+  const zFn = opMap[z.op].fn;
 
   // Catch leaf nodes first, or nodes whose values have already been computed and set
   // TODO: Make this code more generic/neater over the # children
