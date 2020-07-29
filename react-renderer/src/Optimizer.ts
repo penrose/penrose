@@ -533,12 +533,13 @@ const minimizeBasic = (
   energyGraph: VarAD,
   weightInfo: WeightInfo
 ) => {
-  console.log("-------------------------------------");
-  console.log("minimizeBasic");
   // const numSteps = 1;
   const numSteps = 100;
   // const numSteps = 10000; // Value for speed testing
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
+
+  console.log("-------------------------------------");
+  console.log("minimizeBasic, num steps", numSteps);
 
   // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`DC, with no line search, and not sure about mem use)
   // this is just a factor of 5 slowdown over the compiled energy function
