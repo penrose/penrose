@@ -573,13 +573,13 @@ type MaybeVal<T> =
 // (var and node are used interchangeably)
 
 interface IEdgeAD {
-  node: IVarAD;
-  sensitivity: number; // Value "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
+  node: VarAD;
+  // sensitivity: number; // Value "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
   // Aka how sensitive the output is to this input
 
   // closure of the sensitivity with the relevant variables, so it can be called when the energy is updated
-  sensitivityFn(arg: "unit"): number;
-  sensitivityNode: IVarAD;
+  // sensitivityFn(arg: "unit"): number;
+  sensitivityNode: MaybeVal<VarAD>;
 };
 
 type EdgeAD = IEdgeAD;
@@ -589,11 +589,14 @@ interface IVarAD {
   metadata: string; // Used for storing the kind of weight
   op: string;
   val: number;
+  isCompNode: boolean; // comp node (normal computational graph) or grad node (node in computational graph for gradient)
   valDone: boolean; // TODO: really should be `val: MaybeVal<number>` but just don't want to refactor the graph-building code now
   // It's used to cache energy values in the computational graph, evalEnergyOnGraph
   isInput: boolean; // These inputs need to be distinguished as bindings in the function (e.g. \x y -> x + y)
   parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
   children: EdgeAD[];
+  parentsGrad: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  childrenGrad: EdgeAD[];
   gradVal: MaybeVal<number>;
   gradNode: MaybeVal<VarAD>;
   index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats

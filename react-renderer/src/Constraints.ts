@@ -13,7 +13,9 @@ export const objDict = {
     square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
 
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
-    distsq(center(s1), center(s2)),
+    squared(s1.x.contents),
+  // BUG: TODO REVERT (Also revert the style program to the full one)
+  // distsq(center(s1), center(s2)),
 
   // Generic repel function for two GPIs with centers
   repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
@@ -300,11 +302,11 @@ export const normalize = (v: DiffVar): DiffVar => v.div(v.norm().add(epsd));
 // ----- Core AD code
 
 // Grad var, level 1
-export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata, true);
+export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata, false);
 
 export const varOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata);
 
-export const variableAD = (x: number, vname = "", metadata = "", isGradNode = false): VarAD => {
+export const variableAD = (x: number, vname = "", metadata = "", isCompNode = true): VarAD => {
   const opName = vname ? vname : String(x);
 
   return {
@@ -313,10 +315,12 @@ export const variableAD = (x: number, vname = "", metadata = "", isGradNode = fa
     op: opName,
     isInput: false,
     val: x,
-    isGradNode,
+    isCompNode,
     valDone: true,
     parents: [],
     children: [],
+    parentsGrad: [],
+    childrenGrad: [],
     gradVal: { tag: "Nothing" },
     gradNode: { tag: "Nothing" },
     index: -1
@@ -382,17 +386,28 @@ const gradAD = (v: VarAD): number => {
 
 const gradADSymbolic = (v: VarAD): VarAD => {
   // Already computed/cached the gradient
+  // TODO: Does this caching work?
   if (v.gradNode.tag === "Just") {
     return v.gradNode.contents;
   }
 
   // Build subgraph
-  // const res = addN(v.parents.map(parent => mul(fromJust2(parent.sensitivityNode), gradADSymbolic(parent.node))));
-  const res = addN(v.parents.map(parent => mul(parent.sensitivityNode, gradADSymbolic(parent.node))));
+  console.log("gradADSymbolic, v", v, v.parents, v.parents.map(p => p.sensitivityNode));
+
+  // TODO: Should this use parentsGrad, childrenGrad? Or add to it...?
+  // All of the sensitivityNode edges live in parents/childrenGrad...?
+  // So, the final function synthesis should be walking around parents/childrenGrad as needed
+
+  const res = addN(v.parents.map(parent =>
+    mul(fromJust2(parent.sensitivityNode), gradADSymbolic(parent.node), false)),
+    false);
+
+  // TODO: The result is built via pointers to subgraphs that are already built in child nodes of the original comp graph
 
   // Mark node as done
   v.gradNode = { tag: "Just", contents: res };
 
+  // Note that it does not return v
   return res;
 };
 
@@ -409,7 +424,20 @@ const gradAll = (energyGraph: VarAD, xsVars: VarAD[]): number[] => {
 
 const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
   energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
+  console.log("before dxs", xsVars);
+
+  console.log("before ref");
+  const ref = variableAD(100.0);
+  const head = squared(ref);
+  head.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+  const dHead = gradADSymbolic(ref);
+  // TODO: Synthesize this code?
+  // f(x) = x^2, where x is 100
+  // Result: (2 * 100) * 1 <-- this comes from the parent node
+  console.error("custom fn", ref, head, dHead);
+
   const dxs = xsVars.map(gradADSymbolic); // Computes it per variable, mutating the graph to set cached results and reuse them
+  console.log("before gradxs");
   const gradxs = xsVars.map((x: DiffVar) => fromJust2(x.gradNode));
   return gradxs;
 };
@@ -435,181 +463,302 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
 // The point of making the sensitivity nodes here is that when the gradient is computed, each child needs to know what its partial derivative was, which depends on its position (e.g. either the first or second arg in x * y has a different sensitivity). This can't be looked up in, say, a dict
 // You have to build it inline bc it involves references to the variables
 
-export const add = (v: VarAD, w: VarAD): VarAD => {
-  const z = variableAD(v.val + w.val, "+");
-
-  v.parents.push({ node: z, sensitivityNode: variableAD(1.0) });
-  w.parents.push({ node: z, sensitivityNode: variableAD(1.0) });
-
-  // TODO: Check if the sensitivities are right
-  z.children.push({ node: v, sensitivityNode: variableAD(1.0) });
-  z.children.push({ node: w, sensitivityNode: variableAD(1.0) });
-
-  // if (isGradNode) {
-
-  // }
-
-  return z;
+const just = (v: VarAD): MaybeVal<VarAD> => {
+  return { tag: "Just", contents: v };
 };
 
-export const addN = (xs: VarAD[]): VarAD => { // N-way add
-  const z = variableAD(_.sum(_.map(xs, x => x.val)), "+ list");
+const none: MaybeVal<VarAD> = { tag: "Nothing" };
 
-  for (const x of xs) {
-    x.parents.push({ node: z, sensitivityNode: variableAD(1.0) });
-    z.children.push({ node: x, sensitivityNode: variableAD(1.0) });
+const check = (isCompNode: boolean, sensitivityNode: VarAD): MaybeVal<VarAD> => {
+  return isCompNode ? just(sensitivityNode) : none;
+};
+
+export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
+  const z = variableAD(v.val + w.val, "+");
+
+  if (isCompNode) {
+    v.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
+    w.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
+
+    z.children.push({ node: v, sensitivityNode: just(gvarOf(1.0)) });
+    z.children.push({ node: w, sensitivityNode: just(gvarOf(1.0)) });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+    w.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+    z.childrenGrad.push({ node: w, sensitivityNode: none });
   }
 
   return z;
 };
 
-export const mul = (v: VarAD, w: VarAD): VarAD => {
+export const addN = (xs: VarAD[], isCompNode = true): VarAD => { // N-way add
+  const z = variableAD(_.sum(_.map(xs, x => x.val)), "+ list");
+
+  if (isCompNode) {
+    for (const x of xs) {
+      x.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
+      z.children.push({ node: x, sensitivityNode: just(gvarOf(1.0)) });
+    }
+  } else {
+    for (const x of xs) {
+      x.parentsGrad.push({ node: z, sensitivityNode: none });
+      z.childrenGrad.push({ node: x, sensitivityNode: none });
+    }
+  }
+
+  return z;
+};
+
+export const mul = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val * w.val, "*");
-  v.parents.push({ node: z, sensitivityNode: w });
-  w.parents.push({ node: z, sensitivityNode: v });
 
-  z.children.push({ node: v, sensitivityNode: w });
-  z.children.push({ node: w, sensitivityNode: v });
+  console.log("mul isCompNode", isCompNode, v, w);
+  // throw Error("false");
+
+  if (isCompNode) {
+    v.parents.push({ node: z, sensitivityNode: just(w) });
+    w.parents.push({ node: z, sensitivityNode: just(v) });
+
+    z.children.push({ node: v, sensitivityNode: just(w) });
+    z.children.push({ node: w, sensitivityNode: just(v) });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+    w.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+    z.childrenGrad.push({ node: w, sensitivityNode: none });
+  }
 
   return z;
 };
 
-const sub = (v: VarAD, w: VarAD): VarAD => {
+const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val - w.val, "-");
-  v.parents.push({ node: z, sensitivityNode: variableAD(1.0) });
-  w.parents.push({ node: z, sensitivityNode: variableAD(-1.0) });
 
-  z.children.push({ node: v, sensitivityNode: variableAD(1.0) });
-  z.children.push({ node: w, sensitivityNode: variableAD(-1.0) });
+  if (isCompNode) {
+    v.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
+    w.parents.push({ node: z, sensitivityNode: just(gvarOf(-1.0)) });
+
+    z.children.push({ node: v, sensitivityNode: just(gvarOf(1.0)) });
+    z.children.push({ node: w, sensitivityNode: just(gvarOf(-1.0)) });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+    w.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+    z.childrenGrad.push({ node: w, sensitivityNode: none });
+  }
 
   return z;
 };
 
-const div = (v: VarAD, w: VarAD): VarAD => {
+const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val / w.val, "/");
 
   // grad(v/w) = [1/w, -v/w^2]
-  v.parents.push({ node: z, sensitivityNode: div(variableAD(1.0), w) });
-  w.parents.push({ node: z, sensitivityNode: neg(div(v, squared(w))) });
+  if (isCompNode) {
+    const vnode = just(div(gvarOf(1.0), w, false));
+    const wnode = just(neg(div(v, squared(w, false), false), false));
 
-  z.children.push({ node: v, sensitivityNode: div(variableAD(1.0), w) });
-  z.children.push({ node: w, sensitivityNode: neg(div(v, squared(w))) });
+    v.parents.push({ node: z, sensitivityNode: vnode });
+    w.parents.push({ node: z, sensitivityNode: wnode });
+
+    z.children.push({ node: v, sensitivityNode: vnode });
+    z.children.push({ node: w, sensitivityNode: wnode });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+    w.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+    z.childrenGrad.push({ node: w, sensitivityNode: none });
+  }
 
   return z;
 };
 
-const max = (v: VarAD, w: VarAD): VarAD => {
+const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.max(v.val, w.val), "max");
 
-  const vFn = (arg: "unit"): number => v.val > w.val ? 1.0 : 0.0;
-  const wFn = (arg: "unit"): number => v.val > w.val ? 0.0 : 1.0;
+  // const vFn = (arg: "unit"): number => v.val > w.val ? 1.0 : 0.0;
+  // const wFn = (arg: "unit"): number => v.val > w.val ? 0.0 : 1.0;
 
-  const vNode = ifCond(gt(v, w), variableAD(1.0), variableAD(0.0));
-  const wNode = ifCond(gt(v, w), variableAD(0.0), variableAD(1.0));
+  const vNode = ifCond(gt(v, w, false), gvarOf(1.0), gvarOf(0.0), false);
+  const wNode = ifCond(gt(v, w, false), gvarOf(0.0), gvarOf(1.0), false);
   // NOTE: this adds a conditional to the computational graph itself, so the sensitivities change based on the input values
   // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
 
   // TODO: Come back to this. Should the graph then have an evaluable If node?
-  v.parents.push({ node: z, sensitivityNode: vNode });
-  w.parents.push({ node: z, sensitivityNode: wNode });
+  if (isCompNode) {
+    v.parents.push({ node: z, sensitivityNode: just(vNode) });
+    w.parents.push({ node: z, sensitivityNode: just(wNode) });
 
-  z.children.push({ node: v, sensitivityNode: vNode });
-  z.children.push({ node: w, sensitivityNode: wNode });
+    z.children.push({ node: v, sensitivityNode: just(vNode) });
+    z.children.push({ node: w, sensitivityNode: just(wNode) });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+    w.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+    z.childrenGrad.push({ node: w, sensitivityNode: none });
+  }
 
   return z;
 };
 
 // --- Unary ops
 
-const sin = (v: VarAD): VarAD => {
+const sin = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.sin(v.val), "sin");
-  v.parents.push({ node: z, sensitivityNode: cos(v) });
 
-  // TODO: cache values
-  z.children.push({ node: v, sensitivityNode: cos(v) });
+  if (isCompNode) {
+    const node = just(cos(v, false));
+    v.parents.push({ node: z, sensitivityNode: node });
+
+    z.children.push({ node: v, sensitivityNode: node });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+  }
 
   return z;
 };
 
-const cos = (v: VarAD): VarAD => {
+const cos = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(Math.cos(v.val), "cos");
-  v.parents.push({ node: z, sensitivityNode: neg(sin(v)) });
 
-  // TODO: cache values
-  z.children.push({ node: v, sensitivityNode: neg(sin(v)) });
+  if (isCompNode) {
+    const node = just(neg(sin(v, false), false));
+    v.parents.push({ node: z, sensitivityNode: node });
+
+    z.children.push({ node: v, sensitivityNode: node });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+  }
 
   return z;
 };
 
-const neg = (v: VarAD): VarAD => {
+const neg = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(-v.val, "- (unary)");
-  v.parents.push({ node: z, sensitivityNode: variableAD(-1.0) });
 
-  z.children.push({ node: v, sensitivityNode: variableAD(-1.0) });
+  if (isCompNode) {
+    v.parents.push({ node: z, sensitivityNode: just(gvarOf(-1.0)) });
+
+    z.children.push({ node: v, sensitivityNode: just(gvarOf(-1.0)) });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+  }
 
   return z;
 };
 
 // TODO: rename to `square` after tf.js dependency is removed
-const squared = (v: VarAD): VarAD => {
+const squared = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val * v.val, "squared");
-  v.parents.push({ node: z, sensitivityNode: mul(variableAD(2.0), v) });
 
-  z.children.push({ node: v, sensitivityNode: mul(variableAD(2.0), v) });
+  if (isCompNode) {
+    // TODO: The problem is that both the grad and the non-grad are pushing pointers to the same place
+    // Either you make a new graph (node types?), or you just carry more info
+    // But then how does the algo work?
+
+    // TODO: The problem here is that this evaluates mul TWICE, this is a function with mutable effects on v, not a data structure!
+    // TODO: Test gradient graph for smaller fragments, also visualize both comp and gradient graphs
+    const node = just(mul(gvarOf(2.0), v, false));
+    v.parents.push({ node: z, sensitivityNode: node });
+
+    z.children.push({ node: v, sensitivityNode: node });
+  } else {
+    // TODO/BUG: Change all of these to refer to Grad
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+  }
 
   return z;
 };
 
-const sqrt = (v: VarAD): VarAD => {
+const sqrt = (v: VarAD, isCompNode = true): VarAD => {
   // NOTE: Watch out for negative numbers in sqrt
   // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
   // TODO: rename all the other fns to dz_dv
   const z = variableAD(Math.sqrt(v.val), "sqrt");
-  const EPSD = 10e-6;
 
+  const EPSD = 10e-6;
   const dzDv = (arg: "unit"): number => {
     if (v.val < 0) { console.error(`negative arg ${v.val} in sqrt`); }
     return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPSD))
   };
 
   // TODO: How to do the checks in this graph? I guess sqrt should have a special evaluation/gradient rule?
-  const sensitivityNode = div(variableAD(1.0), mul(variableAD(2.0), sqrt(v)));
 
-  v.parents.push({ node: z, sensitivityNode });
-
-  z.children.push({ node: v, sensitivityNode });
+  // It's important to only construct gradNode if this is a compnode, otherwise it will make recursive calls to the function ops and blow the stack
+  if (isCompNode) {
+    const gradNode = div(gvarOf(1.0), mul(gvarOf(2.0), sqrt(v, false), false), false);
+    v.parents.push({ node: z, sensitivityNode: just(gradNode) });
+    z.children.push({ node: v, sensitivityNode: just(gradNode) });
+  } else {
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+  }
 
   return z;
 };
 
-const noGrad: VarAD = variableAD(1.0, "noGrad");
+const noGrad: VarAD = gvarOf(1.0, "noGrad");
 
-const gt = (v: VarAD, w: VarAD): VarAD => {
+const gt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // returns a boolean, which is converted to number
   // TODO: check that this all is right
 
   const z = variableAD(v.val > w.val ? 1.0 : 0.0, "gt");
-  z.children.push({ node: v, sensitivityNode: noGrad });
-  z.children.push({ node: w, sensitivityNode: noGrad });
 
-  v.parents.push({ node: z, sensitivityNode: noGrad });
-  w.parents.push({ node: z, sensitivityNode: noGrad });
+  if (isCompNode) {
+    z.children.push({ node: v, sensitivityNode: just(noGrad) });
+    z.children.push({ node: w, sensitivityNode: just(noGrad) });
+
+    v.parents.push({ node: z, sensitivityNode: just(noGrad) });
+    w.parents.push({ node: z, sensitivityNode: just(noGrad) });
+  } else {
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+    z.childrenGrad.push({ node: w, sensitivityNode: none });
+
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+    w.parentsGrad.push({ node: z, sensitivityNode: none });
+  }
 
   return z;
 };
 
-const ifCond = (cond: VarAD, v: VarAD, w: VarAD): VarAD => {
+const ifCond = (cond: VarAD, v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // TODO: check that this all is right
   // When the computation graph is evaluated, depending on whether cond is nonnegative, either v or w is evaluated (and returned?)
 
   const z = variableAD(0.0, "ifCond"); // No value?
-  z.children.push({ node: cond, sensitivityNode: noGrad });
-  z.children.push({ node: v, sensitivityNode: noGrad });
-  z.children.push({ node: w, sensitivityNode: noGrad });
 
-  cond.parents.push({ node: z, sensitivityNode: noGrad });
-  v.parents.push({ node: z, sensitivityNode: noGrad });
-  w.parents.push({ node: z, sensitivityNode: noGrad });
+  if (isCompNode) {
+    z.children.push({ node: cond, sensitivityNode: just(noGrad) });
+    z.children.push({ node: v, sensitivityNode: just(noGrad) });
+    z.children.push({ node: w, sensitivityNode: just(noGrad) });
+
+    cond.parents.push({ node: z, sensitivityNode: just(noGrad) });
+    v.parents.push({ node: z, sensitivityNode: just(noGrad) });
+    w.parents.push({ node: z, sensitivityNode: just(noGrad) });
+  } else {
+    z.childrenGrad.push({ node: cond, sensitivityNode: none });
+    z.childrenGrad.push({ node: v, sensitivityNode: none });
+    z.childrenGrad.push({ node: w, sensitivityNode: none });
+
+    cond.parentsGrad.push({ node: z, sensitivityNode: none });
+    v.parentsGrad.push({ node: z, sensitivityNode: none });
+    w.parentsGrad.push({ node: z, sensitivityNode: none });
+  }
 
   return z;
 };
@@ -652,9 +801,18 @@ const opMap = {
   "squared": {
     fn: (x: number): number => x * x,
   },
-  "sqrt": (x: number): number => {
-    if (x < 0) { console.error(`negative arg ${x} in sqrt`); }
-    return Math.sqrt(Math.max(0, x));
+  "sqrt": {
+    fn: (x: number): number => {
+      if (x < 0) { console.error(`negative arg ${x} in sqrt`); }
+      return Math.sqrt(Math.max(0, x));
+    },
+  },
+  // Note that these functions treat booleans as numbers: 1.0 = True, 0.0 = False
+  "gt": {
+    fn: (x: number, y: number): number => x > y ? 1.0 : 0.0,
+  },
+  "ifCond": {
+    fn: (cond: number, x: number, y: number): number => (cond > 0.0) ? x : y,
   },
 }
 
@@ -901,6 +1059,7 @@ const objDict2 = {};
 const constrDict2 = {};
 
 // Note that these ops MUST use the custom var ops for grads
+// Note that these ops are hardcoded to assume they are not applied to grad nodes
 export const ops = {
   vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
     const res = _.zipWith(v1, v2, sub);
@@ -909,7 +1068,7 @@ export const ops = {
 
   vnormsq: (v: VarAD[]): VarAD => {
     const res = v.map(e => squared(e));
-    return _.reduce(res, add, variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?        
+    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?        
     // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
   },
 
@@ -925,11 +1084,11 @@ export const ops = {
   // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
   vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
     const res = _.zipWith(v1, v2, mul);
-    return _.reduce(res, add, variableAD(0.0));
+    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
   },
 
   vsum: (v: VarAD[]): VarAD => {
-    return _.reduce(v, add, variableAD(0.0));
+    return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
   }
 
 };
@@ -1012,8 +1171,6 @@ const setInputs = (xsVars: VarAD[], xs: number[]) => {
 // Mutates graph (defined by z, the head) to evaluate the comp graph from top down, setting all values in children (intermediate node). Returns energy.
 // We have to do this in the graph, not the compiled energy, because we need the values of the intermediate nodes to compute the gradient.
 const evalEnergyOnGraph = (z: VarAD) => {
-  const zFn = opMap[z.op].fn;
-
   // Catch leaf nodes first, or nodes whose values have already been computed and set
   // TODO: Make this code more generic/neater over the # children
   if (z.valDone || !z.children || !z.children.length) {
@@ -1022,6 +1179,8 @@ const evalEnergyOnGraph = (z: VarAD) => {
     }
     return z.val;
   }
+
+  const zFn = opMap[z.op].fn;
 
   // TODO: Fix how leaf nodes are stored as numbers, not strings (for the second check)
   // TODO: Check that leaf nodes (numbers) don't have children (this also fails if the leaf val is 0...)
@@ -1079,13 +1238,16 @@ export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph:
   // (If you just want the energy, you can use the compiled energy function)
 
   // Evaluate gradient of f at xs on the energy graph
-  const gradVal = gradAll(energyGraph, xsVars);
+  // const gradVal = gradAll(energyGraph, xsVars);
+  const gradVal = [];
+  console.error("Skipping old gradAD");
 
   // Build symbolic gradient of f at xs on the energy graph
   const gradGraph = gradAllSymbolic(energyGraph, xsVars);
 
   // TODO: Clean this up
   console.log("GRAD GRAPH", gradGraph);
+  throw Error("test");
 
   if (DEBUG_ENERGY) {
     console.error("generated energy function", genEnergyFn(energyGraph), genEnergyFn(energyGraph)(xs));
