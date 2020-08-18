@@ -1,5 +1,6 @@
 import * as React from "react";
 import {toHex, toScreen} from "../../../Util";
+import * as _ from "lodash";
 
 interface IProps {
     inputProps: IInputProps,
@@ -105,46 +106,47 @@ class LabeledInput extends React.Component<IProps> {
     // todo - maybe make toCanvas definable in JSON? range doesn't cover all possible use cases for toCanvas
     public makeRange = () => {  
         const {inputProps, eAttr} = this.props;
-        return (<input id={eAttr} type= "range" value={this.state.eValue.contents} 
-            onChange={this.handleChange} min= {toCanvas(inputProps.min!)} max={toCanvas(inputProps.max!)}/>)
+        return (<input id={eAttr} type= "range" onChange={this.handleChange} min= {toCanvas(inputProps.min!)} max={toCanvas(inputProps.max!)
+        } value={_.round(this.props.eValue.contents)} />)
     }
     public makeText = () => {
         const {eAttr} = this.props;
         // set up to only trigger on enter
         // known bug: setting customizable Text/Label string ppty will not work
-        // I think this is bc labels are collected during optimization. may be pulled from static style file not canvas state?
-        // todo investigate
-        return (<input type="text" id={eAttr} defaultValue={this.state.eValue.contents} onKeyDown={this.keyDown}/>)
+        // This is because MathJax is only run once, according to Katherine.
+        // don't think this can be fixed here.
+        return (<input type="text" id={eAttr} defaultValue={this.props.eValue.contents} onKeyDown={this.keyDown}/>)
     }
     // can be used in images
     public makeURL = () => {
         const {eAttr} = this.props;
         // set up to only trigger on enter
-        return (<input type="url" id={eAttr} defaultValue={this.state.eValue.contents} onKeyDown={this.keyDown}/>)
+        return (<input type="url" id={eAttr} defaultValue={this.props.eValue.contents} onKeyDown={this.keyDown}/>)
     }
     public makeNumber = () => {
         const {inputProps, eAttr} = this.props;
-        return (<input type="number" id={eAttr} value={this.state.eValue.contents} onChange={this.handleChange} 
-        min={(inputProps.min) ? toCanvas(inputProps.min) : ""} max={(inputProps.max) ? toCanvas(inputProps.max) : ""}/>)
+        return (<input type="number" id={eAttr}  onChange={this.handleChange} min={(inputProps.min) ? toCanvas(inputProps.min) : ""}
+         max={(inputProps.max) ? toCanvas(inputProps.max) : ""} value={this.props.eValue.contents}/>)
     }
     public makeCheckbox = () => {
         const {eAttr} = this.props;
-        return (<input type="checkbox" id={eAttr} checked={this.state.eValue.contents} onChange={this.handleCheck}/>)
+        return (<input type="checkbox" id={eAttr} checked={this.props.eValue.contents} onChange={this.handleCheck}/>)
     }
     public makeColor = () => {
         const {eAttr} = this.props;
-        return (<input type= "color" id={eAttr} value={toHex(this.state.eValue.contents)} onChange={this.handleColor} />)
+        return (<input type= "color" id={eAttr} value={toHex(this.props.eValue.contents)} onChange={this.handleColor} />)
     }
     public makeSelect = () => {
         const {inputProps, eAttr} = this.props;
         if (!inputProps.hasOwnProperty("options")) throw new Error("Select input type must have enumerated options.")
-        return (<select value={this.state.eValue.contents} id={eAttr} onChange={this.handleChange}>
-            {inputProps.options!.map((option: string) => (<option key={option} value={option}>{option}</option>))}</select>)
+        return (<select id={eAttr} onChange={this.handleChange}>
+            {inputProps.options!.map((option: string) => (<option key={option} value={option}>{option}</option>))} value={this.props.eValue.contents} </select>)
     }
     // does necessary conversions to display value
     public getSpan = () => {
         const {inputType} = this.props.inputProps;
-        if (inputType === "color") return toHex(this.state.eValue.contents);
+        if (inputType === "color") return toHex(this.state.eValue.contents)
+        else if (inputType === "range") return _.round(this.state.eValue.contents)
         else return this.state.eValue.contents.toString();
     }
     public makeSpan = () => {
