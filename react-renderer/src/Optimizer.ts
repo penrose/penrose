@@ -94,10 +94,11 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
   const xs: Variable[] = optParams.mutableUOstate; // also a reference
 
+  console.log("-------------------");
   console.log("step EP | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
   console.log("params: ", optParams);
   // console.log("state: ", state);
-  console.log("number of varying variables", state.varyingValues, state.varyingValues.length);
+  console.log("number of varying variables", state.varyingValues.length); // Log these values with scalarValue if needed, but it may block/slow down optimization
 
   switch (optStatus.tag) {
     case "NewIter": {
@@ -106,7 +107,8 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 
       const newParams: Params = {
         ...state.params,
-        mutableUOstate: state.varyingValues.map(differentiable),
+        // These are made into variables when received by the frontend, in `processData`
+        mutableUOstate: state.varyingValues,
         weight: initConstraintWeight,
         UOround: 0,
         EPround: 0,
@@ -190,13 +192,13 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 
   // return the state with a new set of shapes
   if (evaluate) {
-    const varyingValues = xs.map((x) => scalarValue(x as Scalar));
-    // console.log("evaluating state with varying values", varyingValues);
-    // console.log("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
+    // Note: after we finish one evaluation, we "destroy" the AD variables (by making them into scalars) and remake them
+    // TODO: Is this the right thing to do?
+    const varyingValues = xs.map((x) => scalarValue(x as Scalar)).map(differentiable);
 
     newState.translation = insertVaryings(
       state.translation,
-      zip(state.varyingPaths, varyingValues) as [Path, number][]
+      zip(state.varyingPaths, varyingValues) as [Path, Tensor][]
     );
 
     newState.varyingValues = varyingValues;
@@ -246,19 +248,22 @@ export const evalEnergyOn = (state: State) => {
   };
 };
 
+// TODO: This is an old function and should be phased out; may no longer compile
 export const step = (state: State, steps: number) => {
   const f = evalEnergyOn(state);
   const fgrad = gradF(f);
-  const xs = state.varyingValues.map(differentiable);
+  const xs = state.varyingValues;
   // const xs = state.varyingState; // NOTE: use cached varying values
   // NOTE: minimize will mutates xs
   const { energy } = minimize(f, fgrad, xs, steps);
   // insert the resulting variables back into the translation for rendering
   // NOTE: this is a synchronous operation on all varying values; may block
-  const varyingValues = xs.map((x) => scalarValue(x as Scalar));
+  // Note: after we finish one evaluation, we "destroy" the AD variables (by making them into scalars) and remake them
+  // TODO: Is this the right thing to do?
+  const varyingValues = xs.map((x) => scalarValue(x as Scalar)).map(differentiable);
   const trans = insertVaryings(
     state.translation,
-    zip(state.varyingPaths, varyingValues) as [Path, number][]
+    zip(state.varyingPaths, varyingValues) as [Path, Tensor][]
   );
   const newState = { ...state, translation: trans, varyingValues };
   if (scalarValue(energy) > 10) {

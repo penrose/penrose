@@ -179,14 +179,14 @@ export const hsvToRGB = (
   return h < 60
     ? hsv2rgb(c, x, 0, m)
     : h < 120
-    ? hsv2rgb(x, c, 0, m)
-    : h < 180
-    ? hsv2rgb(0, c, x, m)
-    : h < 240
-    ? hsv2rgb(0, x, c, m)
-    : h < 300
-    ? hsv2rgb(x, 0, c, m)
-    : hsv2rgb(c, 0, x, m);
+      ? hsv2rgb(x, c, 0, m)
+      : h < 180
+        ? hsv2rgb(0, c, x, m)
+        : h < 240
+          ? hsv2rgb(0, x, c, m)
+          : h < 300
+            ? hsv2rgb(x, 0, c, m)
+            : hsv2rgb(c, 0, x, m);
 };
 
 export const toHex = (color: any): string => {
@@ -275,3 +275,9 @@ export const roundTo = (n: number, digits: number) => {
 
   return n3;
 };
+
+// https://stackoverflow.com/questions/31084619/map-a-javascript-es6-map
+// Basically Haskell's mapByValue (?)
+export function mapMap(map: Map<any, any>, fn: any) {
+  return new Map(Array.from(map, ([key, value]) => [key, fn(value, key, map)]));
+}

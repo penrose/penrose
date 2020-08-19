@@ -15,11 +15,10 @@ class Circle extends React.Component<IGPIProps> {
     const thickness = shape.strokeWidth.contents;
 
     let dashArray = "7,5";
-    if( "strokeDashArray" in shape )
-    {
-       if( shape.strokeDashArray ) {
-          dashArray = shape.strokeDashArray.contents;
-       }
+    if ("strokeDashArray" in shape) {
+      if (shape.strokeDashArray) {
+        dashArray = shape.strokeDashArray.contents;
+      }
     }
 
     return (
