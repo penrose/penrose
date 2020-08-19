@@ -14,6 +14,14 @@ class Circle extends React.Component<IGPIProps> {
     const strokeAlpha = shape.strokeColor.contents.contents[3];
     const thickness = shape.strokeWidth.contents;
 
+    let dashArray = "7,5";
+    if( "strokeDashArray" in shape )
+    {
+       if( shape.strokeDashArray ) {
+          dashArray = shape.strokeDashArray.contents;
+       }
+    }
+
     return (
       <circle
         cx={x}
@@ -23,7 +31,7 @@ class Circle extends React.Component<IGPIProps> {
         fillOpacity={fillAlpha}
         stroke={strokeColor}
         strokeOpacity={strokeAlpha}
-        strokeDasharray={shape.strokeStyle.contents === "dashed" ? "7, 5" : ""}
+        strokeDasharray={shape.strokeStyle.contents === "dashed" ? dashArray : ""}
         strokeWidth={thickness}
       >
         <title>{shape.name.contents}</title>
