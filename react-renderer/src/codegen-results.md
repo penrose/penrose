@@ -24,7 +24,8 @@ return x1;
 
 Generated gradient:
 
-`generated f ƒ anonymous(x1
+```
+generated f ƒ anonymous(x1
 ) {
 const x0 = 2;
 const x2 = x0 * x1;
@@ -32,7 +33,8 @@ const x3 = 1;
 const x4 = x2 * x3;
 const x5 = x4;
 return x5;
-}`
+}
+```
 
 `evaluated: f'(5) = 10`
 
