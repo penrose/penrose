@@ -428,6 +428,13 @@ const gradAll = (energyGraph: VarAD, xsVars: VarAD[]): number[] => {
     return gradxs;
 };
 
+const EPSG = 10e-3;
+// dfx with finite differences about x
+// TODO: Make this n-dimensional
+const fnum = (f: (x: number) => number, x: number) => {
+    return (f(x + EPSG / 2) - f(x - EPSG / 2)) / EPSG;
+};
+
 const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
 
     // TEST CASE 1
@@ -446,12 +453,15 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
     console.error("custom fn", ref, head, dRef);
 
     // Synthesize energy code + evaluate it
-    const synEnergy0 = genEnergyFn(head);
-    console.log("f(5)", synEnergy0([5.0]));
+    const f0 = genEnergyFn(head);
+    console.log("f(5)", f0([5.0]));
+    clearVisitedNodes(head);
 
-    // Synthesize gradient code + evaluate it (TODO)
-    const synGrad0 = 0.0;
-    // TODO: Note that the energy code needs to be TURNED OFF before synthesizing the gradient, because it marks the energy nodes as true
+    console.log("estimated gradient at 5", fnum(f0, 5.0));
+
+    // Synthesize gradient code + evaluate it
+    const df0 = genEnergyFn(dRef);
+    console.log("f'(5)", df0([5.0]));
 
     // TODO: The graph does contain circular references, e.g. dx0 may refer to x0 which refers to its gradNode, dx0. So maybe delete the gradNode property? Why is it needed?
 
@@ -467,8 +477,8 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
     const x1 = markInput(variableAD(6.0), 1);
     const a = sub(x0, x1);
     const b = squared(a);
-    // const c = sin(a);
-    const c = add(a, variableAD(3.0)); // const?
+    const c = sin(a);
+    // const c = add(a, variableAD(3.0)); // const?
     const z = mul(b, c);
 
     // Build gradient graph
@@ -477,17 +487,24 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
     const dx1 = gradADSymbolic(x1);
 
     // Print results
-    // f(x) = TODO
-    // Result: TODO
     console.error("x0, x1, z", x0, x1, z);
     console.error("dx0, dx1", dx0, dx1);
 
     // Synthesize energy code + evaluate it
-    const synEnergy = genEnergyFn(z);
-    console.log("f(3, 2)", synEnergy([3.0, -2.0]));
+    const f1 = genEnergyFn(z);
+    console.log("f(3, 2)", f1([3.0, -2.0]));
+    clearVisitedNodes(z);
 
-    // Synthesize gradient code + evaluate it (TODO)
-    const synGrad = 0.0;
+    // TODO: Check full gradient via finite differences
+    console.log("estimated gradient at 5", fnum((v0: number) => f1([v0, 6.0]), 5.0));
+
+    // Synthesize gradient code + evaluate it
+    // TODO: Do this (both synthesis and evaluation) over all gradient nodes dx0, dx1... in a differently-named function
+    // Note that the inputs are still the original x0, x1 variables, which are correctly marked as the only inputs to the gradient
+    const df1 = genEnergyFn(dx0);
+    console.log("df/dx0(5)", df1([5.0, 6.0]));
+
+    // TODO: Document the results for this one
 
     // TODO: Visualize both of them
 
@@ -915,6 +932,7 @@ const genEnergyFn = (z: IVarAD): any => {
 // NOTE: Mutates z to store that the node was visited, and what its name is
 const traverseGraph = (i: number, z: IVarAD): any => {
     const c = "x";
+    const childType = z.isCompNode ? "children" : "childrenGrad";
 
     // If this node was already visited, return its name (cached), and counter should not increment
     if (z.nodeVisited) {
@@ -928,7 +946,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     }
 
     // Parents do the work of incrementing
-    if (z.children.length === 0) {
+    if (z[childType].length === 0) {
         const leafName = c + String(i);
 
         // Mark node as visited, with its name as reference for its computed/cached value
@@ -957,8 +975,8 @@ const traverseGraph = (i: number, z: IVarAD): any => {
             references: []
         };
 
-    } else if (z.children.length === 1) { // Unary op
-        const child = z.children[0].node;
+    } else if (z[childType].length === 1) { // Unary op
+        const child = z[childType][0].node;
         const res = traverseGraph(i, child);
 
         let childName;
@@ -988,6 +1006,11 @@ const traverseGraph = (i: number, z: IVarAD): any => {
             stmt = `const ${parName} = Math.sqrt(${childName});`;
         } else if (z.op === "sin") {
             stmt = `const ${parName} = Math.sin(${childName});`;
+        } else if (z.op === "cos") {
+            stmt = `const ${parName} = Math.cos(${childName});`;
+        } else if (z.op === "+ list") {
+            // TODO: Get rid of unary +
+            stmt = `const ${parName} = ${childName};`;
         } else {
             stmt = `const ${parName} = (${op})(${childName});`;
         }
@@ -1000,9 +1023,9 @@ const traverseGraph = (i: number, z: IVarAD): any => {
             references: []
         };
 
-    } else if (z.children.length === 2) { // Binary op
-        const child0 = z.children[0].node;
-        const child1 = z.children[1].node;
+    } else if (z[childType].length === 2) { // Binary op
+        const child0 = z[childType][0].node;
+        const child1 = z[childType][1].node;
 
         const res0 = traverseGraph(i, child0);
         let childName0;
@@ -1020,7 +1043,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
         let parCounter;
         if (res1.references[0]) {
             // Just refer to child if the node was already visited
-            childName1 = res1.references[1];
+            childName1 = res1.references[0];
             parCounter = res1.counter;
         } else {
             childName1 = c + String(res1.counter);
@@ -1037,6 +1060,8 @@ const traverseGraph = (i: number, z: IVarAD): any => {
         let stmt;
         if (op === "max") {
             stmt = `const ${parName} = Math.max(${childName0}, ${childName1});`;
+        } else if (z.op === "+ list") {
+            stmt = `const ${parName} = ${childName0} + ${childName1};`;
         } else {
             stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
         }
@@ -1254,6 +1279,14 @@ export const repeatList = (e: any, n: number): any[] => {
 export const randList = (n: number): number[] => {
     return repeatList(0, n).map(e => Math.random());
 };
+
+// Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
+const clearVisitedNodes = (z: VarAD) => {
+    z.nodeVisited = false;
+    z.name = "";
+    z.children.forEach(e => clearVisitedNodes(e.node));
+    // NOTE: This does NOT clear it for z.childrenGrad
+}
 
 // Mutates z (top node) to clear all vals and gradients of its children
 // NOTE that this will zero all the nodes in the graph, including the leaves (such as the stepEP parameters)
