@@ -83,7 +83,8 @@ return x5;
 ```
 
 `f(3, 2) = -23.973106866578462`
-`estimated gradient around [5.0 + eps, 6.0] = 2.22323449499765`
+`estimated gradient at [5, 8] = [-8.063212420845733, 8.063212420845733]`
+(Using finite differences, EPSG = 10e-5)
 
 Generated gradient:
 
@@ -107,8 +108,13 @@ const x15 = x11 * x14;
 const x16 = x10 + x15;
 const x17 = x0 * x16;
 const x18 = x17;
-return x18;
+const x19 = -1;
+const x20 = x19 * x16;
+const x21 = x20;
+return [x18, x21];
 })
 ```
 
 `grad f [5.0, 6.0] = 2.2232442754839328`
+
+`df/dx at [5, 8] = [-8.063212421044806, 8.063212421044806]`

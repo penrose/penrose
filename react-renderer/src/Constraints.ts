@@ -428,11 +428,22 @@ const gradAll = (energyGraph: VarAD, xsVars: VarAD[]): number[] => {
     return gradxs;
 };
 
-const EPSG = 10e-3;
-// dfx with finite differences about x
-// TODO: Make this n-dimensional
-const fnum = (f: (x: number) => number, x: number) => {
-    return (f(x + EPSG / 2) - f(x - EPSG / 2)) / EPSG;
+// df/f[x] with finite differences about xi
+const gradFiniteDiff = (f: (xs: number[]) => number, xs: number[]): number[] => {
+    const EPSG = 10e-5;
+
+    // Scalar estimate (in 1D)
+    // const dfxi = (f, x) => (f(x + EPSG / 2.) - f(x - EPSG / 2.)) / EPSG;
+
+    const xsDiff = xs.map((e, i) => {
+        const xsLeft = [...xs];
+        xsLeft[i] = xsLeft[i] - EPSG / 2.;
+        const xsRight = [...xs];
+        xsRight[i] = xsRight[i] + EPSG / 2.;
+        return (f(xsRight) - f(xsLeft)) / EPSG;
+    });
+
+    return xsDiff;
 };
 
 const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
@@ -457,11 +468,12 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
     console.log("f(5)", f0([5.0]));
     clearVisitedNodes(head);
 
-    console.log("estimated gradient at 5", fnum(f0, 5.0));
+    const xTest = [5.0];
+    console.log("estimated gradient at", xTest, "=", gradFiniteDiff(f0, xTest));
 
     // Synthesize gradient code + evaluate it
-    const df0 = genEnergyFn(dRef);
-    console.log("f'(5)", df0([5.0]));
+    const df0 = genCode([dRef], "grad");
+    console.log("f'(5)", df0(xTest));
 
     // TODO: The graph does contain circular references, e.g. dx0 may refer to x0 which refers to its gradNode, dx0. So maybe delete the gradNode property? Why is it needed?
 
@@ -495,16 +507,15 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
     console.log("f(3, 2)", f1([3.0, -2.0]));
     clearVisitedNodes(z);
 
-    // TODO: Check full gradient via finite differences
-    console.log("estimated gradient at 5", fnum((v0: number) => f1([v0, 6.0]), 5.0));
+    const xsTest = [5.0, 8.0];
+    console.log("estimated gradient at", xsTest, "=", gradFiniteDiff(f1, xsTest));
 
     // Synthesize gradient code + evaluate it
-    // TODO: Do this (both synthesis and evaluation) over all gradient nodes dx0, dx1... in a differently-named function
     // Note that the inputs are still the original x0, x1 variables, which are correctly marked as the only inputs to the gradient
-    const df1 = genEnergyFn(dx0);
-    console.log("df/dx0(5)", df1([5.0, 6.0]));
+    const dfdx = genCode([dx0, dx1], "grad");
+    console.log("df/dx at", xsTest, "=", dfdx(xsTest));
 
-    // TODO: Document the results for this one
+    console.log("test gradFiniteDiff", gradFiniteDiff(xs => xs[0] * xs[0] + xs[1] * xs[1], [1.0, -3.0]));
 
     // TODO: Visualize both of them
 
@@ -908,18 +919,47 @@ const opMap = {
 
 // (Returns `3`)
 
-const genEnergyFn = (z: IVarAD): any => {
+// Wrapper since energy only has one output
+const genEnergyFn = (z: IVarAD): any => genCode([z], "energy");
 
-    // Initial parameters for generating var names
-    // Start with 0, children name themselves with the passed-in index (so you know the child's name) and pass their counter back up. Parents do the work of incrementing
-    const res = traverseGraph(0, z);
-    const returnStmt = `return ${res.output};`;
+const genCode = (outputs: IVarAD[], setting: string): any => {
 
-    const progStr = res.prog.concat([returnStmt]).join("\n");
-    // Have to sort the inputs to match the order of the initial variable list of xs
-    const progInputs = _.sortBy(res.inputs, e => e.index).map(e => e.name);
+    let counter = 0;
+    let progInputs: string[] = [];
+    let progStmts: string[] = [];
+    let progOutputs: string[] = [];
 
-    // console.error("progInputs", progInputs);
+    // For each output, traverse the graph and combine the results sequentially
+    for (const z of outputs) {
+        const res = traverseGraph(counter, z);
+
+        // TODO: do subsequent outputs still generate inputs...? Need to test this line w/ diff comp graph with unused input
+        // Sort inputs to match order of initial var list (xs)
+        const resInputsSorted = _.sortBy(res.inputs, e => e.index).map(e => e.name);
+
+        progInputs = progInputs.concat(resInputsSorted); // TODO: Is this the right order?
+        progStmts = progStmts.concat(res.prog);
+        progOutputs = progOutputs.concat(res.output);
+
+        // For any code generated for the next output, start on fresh index
+        counter = res.counter + 1;
+
+        // console.error("res inputs", resInputsSorted);
+        // console.error("res stmts", res.prog);
+        // console.error("res output", res.output);
+    }
+
+    let returnStmt: string = "";
+
+    if (setting === "energy") { // Return single scalar
+        if (!progOutputs || !progOutputs[0]) { throw Error("not enough energy outputs -- need exactly 1"); }
+        returnStmt = `return ${progOutputs[0]};`;
+    } else if (setting === "grad") { // Return list of scalars
+        const outputNamesStr = progOutputs.join(", ");
+        returnStmt = `return [${outputNamesStr}];`;
+    }
+
+    const progStr = progStmts.concat([returnStmt]).join("\n");
     // console.error("progStr", progStr);
 
     const f = new Function(...progInputs, progStr);
@@ -930,6 +970,8 @@ const genEnergyFn = (z: IVarAD): any => {
 };
 
 // NOTE: Mutates z to store that the node was visited, and what its name is
+// `i` is the counter, the initial parameter for generating var names
+// `i` starts with 0 for the frst call, children name themselves with the passed-in index (so you know the child's name) and pass their counter back up. Parents do the work of incrementing
 const traverseGraph = (i: number, z: IVarAD): any => {
     const c = "x";
     const childType = z.isCompNode ? "children" : "childrenGrad";
