@@ -410,6 +410,9 @@ const gradADSymbolic = (v: VarAD): VarAD => {
     // Mark node as done
     v.gradNode = { tag: "Just", contents: res };
 
+    // Result is a gradient
+    res.isCompNode = false;
+
     // Note that it does not return v
     return res;
 };
@@ -426,46 +429,39 @@ const gradAll = (energyGraph: VarAD, xsVars: VarAD[]): number[] => {
 };
 
 const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
-    /*
-        // TEST CASE 1
-        // Build energy graph
-        energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
-        const ref = markInput(variableAD(100.0), 0); // TODO: Should use makeADInputVars
-        const head = squared(ref);
-    
-        // Build gradient graph
-        head.gradNode = { tag: "Just", contents: gvarOf(1.0) };
-        const dHead = gradADSymbolic(ref);
-    
-        // Print results
-        // f(x) = x^2, where x is 100
-        // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-        console.error("custom fn", ref, head, dHead);
-    
-        // Synthesize energy code + evaluate it
-        const synEnergy = genEnergyFn(head);
-        console.log("f(5)", synEnergy([5.0]));
-    
-        // Synthesize gradient code + evaluate it (TODO)
-        const synGrad = 0.0;
-    
-        // TODO: Visualize both of them
-    
-        console.error("done with test1");
-    */
+
+    // TEST CASE 1
+    // Build energy graph
+    energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
+    const ref = markInput(variableAD(100.0), 0); // TODO: Should use makeADInputVars
+    const head = squared(ref);
+
+    // Build gradient graph
+    head.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+    const dRef = gradADSymbolic(ref);
+
+    // Print results
+    // f(x) = x^2, where x is 100
+    // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
+    console.error("custom fn", ref, head, dRef);
+
+    // Synthesize energy code + evaluate it
+    const synEnergy0 = genEnergyFn(head);
+    console.log("f(5)", synEnergy0([5.0]));
+
+    // Synthesize gradient code + evaluate it (TODO)
+    const synGrad0 = 0.0;
+    // TODO: Note that the energy code needs to be TURNED OFF before synthesizing the gradient, because it marks the energy nodes as true
+
+    // TODO: The graph does contain circular references, e.g. dx0 may refer to x0 which refers to its gradNode, dx0. So maybe delete the gradNode property? Why is it needed?
+
+    // TODO: Visualize both of them
+
+    console.error("done with test1");
     // --------------------------------
 
     // TEST CASE 2
     // Build energy graph
-    // generated f ƒ anonymous(x0,x1
-    // ) {
-    // const x2 = x0 - x1;
-    // const x3 = Math.pow(x2, 2);
-    // const x4 = 3;
-    // const x5 = x2 + x4;
-    // const x6 = x3 * x5;
-    // return x6;
-    // }
     energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
     const x0 = markInput(variableAD(-5.0), 0);
     const x1 = markInput(variableAD(6.0), 1);
@@ -538,6 +534,7 @@ const check = (isCompNode: boolean, sensitivityNode: VarAD): MaybeVal<VarAD> => 
 
 export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(v.val + w.val, "+");
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         v.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
@@ -558,6 +555,7 @@ export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 
 export const addN = (xs: VarAD[], isCompNode = true): VarAD => { // N-way add
     const z = variableAD(_.sum(_.map(xs, x => x.val)), "+ list");
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         for (const x of xs) {
@@ -576,8 +574,7 @@ export const addN = (xs: VarAD[], isCompNode = true): VarAD => { // N-way add
 
 export const mul = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(v.val * w.val, "*");
-
-    // console.log("mul isCompNode", isCompNode, v, w);
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         v.parents.push({ node: z, sensitivityNode: just(w) });
@@ -598,6 +595,7 @@ export const mul = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 
 const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(v.val - w.val, "-");
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         v.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
@@ -618,6 +616,7 @@ const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 
 const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(v.val / w.val, "/");
+    z.isCompNode = isCompNode;
 
     // grad(v/w) = [1/w, -v/w^2]
     if (isCompNode) {
@@ -642,6 +641,7 @@ const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 
 const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(Math.max(v.val, w.val), "max");
+    z.isCompNode = isCompNode;
 
     // const vFn = (arg: "unit"): number => v.val > w.val ? 1.0 : 0.0;
     // const wFn = (arg: "unit"): number => v.val > w.val ? 0.0 : 1.0;
@@ -673,6 +673,7 @@ const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 
 const sin = (v: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(Math.sin(v.val), "sin");
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         const node = just(cos(v, false));
@@ -690,6 +691,7 @@ const sin = (v: VarAD, isCompNode = true): VarAD => {
 
 const cos = (v: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(Math.cos(v.val), "cos");
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         const node = just(neg(sin(v, false), false));
@@ -707,6 +709,7 @@ const cos = (v: VarAD, isCompNode = true): VarAD => {
 
 const neg = (v: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(-v.val, "- (unary)");
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         v.parents.push({ node: z, sensitivityNode: just(gvarOf(-1.0)) });
@@ -724,6 +727,7 @@ const neg = (v: VarAD, isCompNode = true): VarAD => {
 // TODO: rename to `square` after tf.js dependency is removed
 const squared = (v: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(v.val * v.val, "squared");
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         const node = just(mul(gvarOf(2.0), v, false));
@@ -744,6 +748,7 @@ const sqrt = (v: VarAD, isCompNode = true): VarAD => {
     // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
     // TODO: rename all the other fns to dz_dv
     const z = variableAD(Math.sqrt(v.val), "sqrt");
+    z.isCompNode = isCompNode;
 
     const EPSD = 10e-6;
     const dzDv = (arg: "unit"): number => {
@@ -773,6 +778,7 @@ const gt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     // TODO: check that this all is right
 
     const z = variableAD(v.val > w.val ? 1.0 : 0.0, "gt");
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         z.children.push({ node: v, sensitivityNode: just(noGrad) });
@@ -796,6 +802,7 @@ const ifCond = (cond: VarAD, v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     // When the computation graph is evaluated, depending on whether cond is nonnegative, either v or w is evaluated (and returned?)
 
     const z = variableAD(0.0, "ifCond"); // No value?
+    z.isCompNode = isCompNode;
 
     if (isCompNode) {
         z.children.push({ node: cond, sensitivityNode: just(noGrad) });
