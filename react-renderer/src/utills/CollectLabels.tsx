@@ -16,38 +16,18 @@ const tex = new TeX({ packages: AllPackages });
 const svg = new SVG({ fontCache: "none" });
 const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
-/**
- * Find bounding box of an SVG element.
- * NOTE: this is a wrapper around `getBBox`, which is known to have problems in certain browsers
- *
- * @param svgEl rendered SvG element
- */
-export function svgBBox(svgEl: SVGSVGElement) {
-  const tempDiv = document.createElement("div");
-  tempDiv.setAttribute(
-    "style",
-    "position:absolute; visibility:hidden; width:0; height:0"
-  );
-  document.body.appendChild(tempDiv);
-  const tempSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  const tempG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  tempSvg.appendChild(tempG);
-  tempDiv.appendChild(tempSvg);
-  const tempEl = svgEl.cloneNode(true) as SVGSVGElement;
-  tempG.appendChild(tempEl);
-  const bb = tempG.getBBox();
-  document.body.removeChild(tempDiv);
-  return bb;
-}
+// to re-scale baseline
+const EX_CONSTANT = 10;
 
 const convert = (input: string, fontSize: string) => {
-  const node = html.convert(input, {});
+  // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
+  const node = html.convert(input, { ex: EX_CONSTANT });
   // Not sure if this call does anything:
+  // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
   adaptor.setStyle(node, "font-size", fontSize);
   const inner = adaptor.innerHTML(node);
   const doc = new DOMParser().parseFromString(inner, "text/html").body
     .firstChild as any;
-  doc.style.fontSize = fontSize;
   return doc as SVGSVGElement;
 };
 
@@ -66,10 +46,15 @@ const tex2svg = memoize(
           resolve({ output: undefined, width: 0, height: 0 });
           return;
         }
-        const { width, height } = svgBBox(output);
+        const { width, height } = output.viewBox.baseVal;
 
-        const body = output;
-        resolve({ body, width, height });
+        // rescaling according to
+        // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
+        const vAlignFloat =
+          parseFloat(output.style.verticalAlign) * EX_CONSTANT;
+        const constHeight = 15 - vAlignFloat;
+        const scaledWidth = (constHeight / height) * width;
+        resolve({ body: output, width: scaledWidth, height: constHeight });
       } else {
         resolve({ output: undefined, width: 0, height: 0 });
       }
