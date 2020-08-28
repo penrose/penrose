@@ -4,6 +4,7 @@ import * as _ from "lodash";
 
 const TOL = 1e-4;
 const DEBUG_ENERGY = false;
+const DEBUG_GRADIENT = true;
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 const PRINT_TEST_RESULTS = true;
 
@@ -15,7 +16,7 @@ export const objDict = {
         square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
 
     sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
-        squared(s1.x.contents),
+        sin(s1.x.contents),
     // BUG: TODO REVERT (Also revert the style program to the full one)
     // distsq(center(s1), center(s2)),
 
@@ -399,7 +400,7 @@ const gradADSymbolic = (v: VarAD): VarAD => {
     let res;
     if (v.parents.length === 0) {
         // node has no parents, so setting grad to 0 (it doesn't influence the output)
-        res = gvarOf(0, "no gradient");
+        res = gvarOf(0, "0", "no gradient");
     } else { // normal reverse-mode AD chain rule
         // The result is built via pointers to subgraphs that are already built in child nodes of the original comp graph
         res = addN(v.parents.map(parent =>
@@ -858,31 +859,47 @@ const opMap = {
 // (Returns `3`)
 
 // Wrapper since energy only has one output
-const genEnergyFn = (z: IVarAD): any => genCode([z], "energy");
+const genEnergyFn = (xs: VarAD[], z: IVarAD): any => genCode(xs, [z], "energy");
 
 // Generate code for multi-output function, given its computational graph and a setting for its outputs
 // NOTE: Modifies the input computational graph `outputs` to set and clear visited nodes
-const genCode = (outputs: IVarAD[], setting: string): any => {
+const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string): any => {
     let counter = 0;
     let progInputs: string[] = [];
     let progStmts: string[] = [];
     let progOutputs: string[] = [];
 
+    console.log("genCode inputs, outputs, setting", inputs, outputs, setting);
+    // throw Error("genCode");
+
+    // Just traverse + name the inputs first, then work backward from the outputs
+    // The inputs are ALWAYS the original xsVars, no matter whether it's gradient or energy
+    for (const x of inputs) {
+        const res = traverseGraph(counter, x);
+
+        const resInputsSorted = _.sortBy(res.inputs, e => e.index).map(e => e.name);
+        progInputs = progInputs.concat(resInputsSorted);
+        progStmts = progStmts.concat(res.prog);
+        progOutputs = progOutputs.concat(res.output);
+
+        // For any code generated for the next output, start on fresh index
+        counter = res.counter + 1;
+    }
+
     // For each output, traverse the graph and combine the results sequentially
     for (const z of outputs) {
         const res = traverseGraph(counter, z);
 
-        // TODO: do subsequent outputs still generate inputs...? Need to test this line w/ diff comp graph with unused input
-        // Sort inputs to match order of initial var list (xs)
-        const resInputsSorted = _.sortBy(res.inputs, e => e.index).map(e => e.name);
+        // const resInputsSorted = _.sortBy(res.inputs, e => e.index).map(e => e.name);
+        // progInputs = progInputs.concat(resInputsSorted); // TODO: Is this the right order?
 
-        progInputs = progInputs.concat(resInputsSorted); // TODO: Is this the right order?
         progStmts = progStmts.concat(res.prog);
         progOutputs = progOutputs.concat(res.output);
 
         // For any code generated for the next output, start on fresh index
         counter = res.counter + 1;
 
+        // console.error("output node traversed", z);
         // console.error("res inputs", resInputsSorted);
         // console.error("res stmts", res.prog);
         // console.error("res output", res.output);
@@ -899,14 +916,18 @@ const genCode = (outputs: IVarAD[], setting: string): any => {
     }
 
     const progStr = progStmts.concat([returnStmt]).join("\n");
-    // console.error("progStr", progStr);
+    console.error("progStr", progStr);
 
     const f = new Function(...progInputs, progStr);
     console.log('generated f\n', f)
     const g = (xs: number[]) => f(...xs); // So you can call the function without spread
 
+    for (const x of inputs) {
+        clearVisitedNodesInput(x);
+    }
+
     for (const z of outputs) {
-        clearVisitedNodes(z);
+        clearVisitedNodesOutput(z);
     }
 
     return g;
@@ -961,6 +982,8 @@ const traverseGraph = (i: number, z: IVarAD): any => {
         };
 
     } else if (z[childType].length === 1) { // Unary op
+        // debugger;
+
         const child = z[childType][0].node;
         const res = traverseGraph(i, child);
 
@@ -1062,6 +1085,13 @@ const traverseGraph = (i: number, z: IVarAD): any => {
         };
 
     } else {
+        console.error("node", z, childType, z.isCompNode, z[childType].length);
+        // TODO: Deal with ifCond nodes (ternary)
+        // (eval c; eval d; eval e; const xNUM = c ? d : e;)
+        // This doesn't short-circuit -- it actually evaluates both branches of the `if` first
+
+        // TODO: Deal with gt nodes (binary)
+        // eval a; eval b; bool xNUM = a > b;
         throw Error("Ops that are not nullary, unary, or binary are not supported");
     }
 };
@@ -1269,11 +1299,21 @@ export const randList = (n: number): number[] => {
 };
 
 // Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
-const clearVisitedNodes = (z: VarAD) => {
+// Top-down
+const clearVisitedNodesOutput = (z: VarAD) => {
     z.nodeVisited = false;
-    z.name = "";
-    z.children.forEach(e => clearVisitedNodes(e.node));
+    // z.name = "";
+    z.children.forEach(e => clearVisitedNodesOutput(e.node));
+    z.childrenGrad.forEach(e => clearVisitedNodesOutput(e.node));
     // NOTE: This does NOT clear it for z.childrenGrad
+}
+
+// Bottom-up
+const clearVisitedNodesInput = (x: VarAD) => {
+    x.nodeVisited = false;
+    // x.name = "";
+    x.parents.forEach(e => clearVisitedNodesInput(e.node));
+    x.parentsGrad.forEach(e => clearVisitedNodesInput(e.node));
 }
 
 // Mutates z (top node) to clear all vals and gradients of its children
@@ -1360,12 +1400,9 @@ const setWeights = (info: WeightInfo) => {
 // xsVars are the leaves, energyGraph is the topmost parent of the computational graph
 export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
 
-    // TODO: remove this and rename function
-    testGradSymbolicAll();
-    throw Error("done with test grad symbolic");
-
     // Zero xsvars vals, gradients, and caching setting
     clearGraphBottomUp(xsVars);
+    clearVisitedNodesOutput(energyGraph); // TODO: Do we need this line?
 
     // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
     setWeights(weightInfo);
@@ -1373,25 +1410,33 @@ export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph:
     // Set the leaves of the graph to have the new input values
     setInputs(xsVars, xs);
 
-    // Evaluate energy at the new xs, setting the values of the intermediate nodes
-    const energyVal = evalEnergyOnGraph(energyGraph);
-    // (NOTE: It's only necessary to evaluate the energy on the graph first if you're taking the gradient afterward)
-    // (If you just want the energy, you can use the compiled energy function)
-
-    // Evaluate gradient of f at xs on the energy graph
-    // const gradVal = gradAll(energyGraph, xsVars);
-    const gradVal = [];
-    console.error("Skipping old gradAD");
-
     // Build symbolic gradient of f at xs on the energy graph
     const gradGraph = gradAllSymbolic(energyGraph, xsVars);
 
-    // TODO: Clean this up
-    console.log("GRAD GRAPH", gradGraph);
-    throw Error("test full grad");
+    const graphs = {
+        inputs: xsVars,
+        energyOutput: energyGraph,
+        gradOutputs: gradGraph
+    };
+
+    // Synthesize energy and gradient code
+    const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput);
+    const gradGen = genCode(graphs.inputs, graphs.gradOutputs, "grad");
+    // TODO: This is called twice (and evaluated; why do the inputs disappear the second time...?
+
+    // Evaluate energy and gradient at the point
+    const energyVal = f0(xs);
+    const gradVal = gradGen(xs);
 
     if (DEBUG_ENERGY) {
-        console.error("generated energy function", genEnergyFn(energyGraph), genEnergyFn(energyGraph)(xs));
+        console.error("generated energy function", genEnergyFn(xsVars, energyGraph));
+    }
+
+    if (DEBUG_GRADIENT) {
+        testGradSymbolicAll();
+        console.log("Programmatic graphs used for testing real gradient", graphs);
+        testGradSymbolic(0, graphs);
+        throw Error("done with testing full grad");
     }
 
     // Return the energy and grad on the input, as well as updated energy graph
@@ -1439,7 +1484,7 @@ export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[],
     // from bottom up. (No grads, just energy)
     console.log("z (with children)", z);
     console.log("traverse graph");
-    const newF = genEnergyFn(z);
+    const newF = genEnergyFn(xsVars, z);
 
     console.log("normal f result", z.val);
     // TODO: Use g?
@@ -1585,7 +1630,7 @@ export const energyAndGradADOld = (f: (...arg: DiffVar[]) => DiffVar, xs: number
     // Z = X + Y = A^2 + (A - B) ==> Grad Z(A, B) = [2A + 1, -1]
 
     console.log("traverse graph");
-    const newF = genEnergyFn(z);
+    const newF = genEnergyFn(xsVars, z);
 
     console.log("normal f result", z.val);
     // TODO: Use g?
@@ -1695,6 +1740,44 @@ const testGradFiniteDiff = () => {
         ["all tests passed? test results:", testResults]);
 };
 
+// Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }
+// Compile the gradient and check it against numeric gradients
+// TODO: Encode the type of `graphs`
+const testGradSymbolic = (testNum: number, graphs: any): boolean => {
+    console.log(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
+    // Synthesize energy and gradient code
+    const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput);
+    const gradGen = genCode(graphs.inputs, graphs.gradOutputs, "grad");
+
+    // Test the gradient at several points via evaluation
+    const gradEst = gradFiniteDiff(f0);
+    const testResults = [];
+
+    for (let i = 0; i < NUM_SAMPLES; i++) {
+        const xTest = randList(graphs.inputs.length);
+        const energyRes = f0(xTest);
+        const gradEstRes = gradEst(xTest);
+        const gradGenRes = gradGen(xTest);
+
+        console.log("----");
+        console.log("test", i);
+        console.log("energy at x", xTest, "=", energyRes);
+        console.log("estimated gradient at", xTest, "=", gradEstRes);
+        console.log("analytic gradient at", xTest, "=", gradGenRes);
+
+        const testRes = assert(eqList(gradEstRes, gradGenRes), ["estimated, analytic gradients:", gradEstRes, gradGenRes]);
+        testResults.push(testRes);
+    }
+
+    const testOverall = assert(all(testResults),
+        ["all tests passed? test results:", testResults]);
+
+    // TODO: Visualize both of them
+    console.log(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
+
+    return testOverall;
+};
+
 const gradGraph0 = () => {
     // Build energy graph
 
@@ -1714,8 +1797,8 @@ const gradGraph0 = () => {
     // dRef = ref.gradNode.contents
     return {
         inputs: [ref],
-        output: head,
-        gradNodes: [dRef]
+        energyOutput: head,
+        gradOutputs: [dRef]
     };
 }
 
@@ -1737,8 +1820,8 @@ const gradGraph1 = () => {
 
     return {
         inputs: [x0, x1],
-        output: z,
-        gradNodes: [dx0, dx1]
+        energyOutput: z,
+        gradOutputs: [dx0, dx1]
     };
 }
 
@@ -1759,51 +1842,60 @@ const gradGraph2 = () => {
 
     return {
         inputs: [x0, x1],
-        output: z,
-        gradNodes: [dx0, dx1]
+        energyOutput: z,
+        gradOutputs: [dx0, dx1]
     };
 }
 
-const testGradSymbolic = (testNum: number, graphs: any): boolean => {
-    console.log(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
-    // Synthesize energy and gradient code
-    const f0 = genEnergyFn(graphs.output);
-    const gradGen = genCode(graphs.gradNodes, "grad");
+// Test vars w/ no grad
+const gradGraph3 = () => {
+    // Build energy graph
 
-    // Test the gradient at several points via evaluation
-    const gradEst = gradFiniteDiff(f0);
-    const testResults = [];
+    const x0 = markInput(variableAD(100.0), 0);
+    const x1 = markInput(variableAD(-100.0), 0);
+    const inputs = [x0, x1];
+    const head = squared(x0);
 
-    for (let i = 0; i < NUM_SAMPLES; i++) {
-        const xTest = randList(graphs.inputs.length);
-        const energyRes = f0(xTest);
-        const gradEstRes = gradEst(xTest);
-        const gradGenRes = gradGen(xTest);
+    // Build gradient graph
+    const dxs = gradAllSymbolic(head, inputs);
 
-        console.log("test", i);
-        console.log("energy at x", xTest, "=", energyRes);
-        console.log("estimated gradient at", xTest, "=", gradEstRes);
-        console.log("analytic gradient at", xTest, "=", gradGenRes);
+    return {
+        inputs,
+        energyOutput: head,
+        gradOutputs: dxs
+    };
+}
 
-        const testRes = assert(eqList(gradEstRes, gradGenRes), ["estimated, analytic gradients:", gradEstRes, gradGenRes]);
-        testResults.push(testRes);
-    }
+// Test toPenalty
+const gradGraph4 = () => {
+    // Build energy graph
 
-    const testOverall = assert(all(testResults),
-        ["all tests passed? test results:", testResults]);
+    const x0 = markInput(variableAD(100.0), 0);
+    const inputs = [x0];
+    const head = fns.toPenalty(x0);
 
-    // TODO: Visualize both of them
-    console.log(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
+    // Build gradient graph
+    const dxs = gradAllSymbolic(head, inputs);
 
-    return testOverall;
-};
+    return {
+        inputs,
+        energyOutput: head,
+        gradOutputs: dxs
+    };
+}
 
 export const testGradSymbolicAll = () => {
     console.log("testing symbolic gradients");
 
     testGradFiniteDiff();
 
-    const graphs = [gradGraph0(), gradGraph1(), gradGraph2()];
+    const graphs: any[] = [
+        gradGraph0(),
+        gradGraph1(),
+        gradGraph2(),
+        gradGraph3(),
+        // gradGraph4()
+    ];
     const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
 
     console.error(`All grad symbolic tests passed?: ${all(testResults)}`);

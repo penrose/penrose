@@ -87,25 +87,26 @@ return x5;
 Generated gradient:
 
 ```
-(function anonymous(x2,x3
+(function anonymous(x0,x1
 ) {
-const x0 = 1;
-const x1 = 2;
-const x4 = x2 - x3;
-const x5 = x1 * x4;
-const x6 = Math.sin(x4);
-const x7 = 1;
-const x8 = x6 * x7;
-const x9 = x5 * x8;
-const x10 = Math.cos(x4);
-const x11 = Math.pow(x4, 2);
-const x12 = x11 * x7;
-const x13 = x10 * x12;
-const x14 = x9 + x13;
-const x15 = x0 * x14;
-const x16 = -1;
-const x17 = x16 * x14;
-return [x15, x17];
+const x2 = 1;
+const x3 = 2;
+const x4 = x0 - x1;
+const x5 = x3 * x4;
+const x6 = 3;
+const x7 = x4 + x6;
+const x8 = 1;
+const x9 = x7 * x8;
+const x10 = x5 * x9;
+const x11 = 1;
+const x12 = Math.pow(x4, 2);
+const x13 = x12 * x8;
+const x14 = x11 * x13;
+const x15 = x10 + x14;
+const x16 = x2 * x15;
+const x17 = -1;
+const x18 = x17 * x15;
+return [x16, x18];
 })
 ```
 
@@ -114,21 +115,3 @@ return [x15, x17];
 `df/dx at [5, 8] = [-8.063212421044806, 8.063212421044806]`
 
 **Correct**: estimated gradient matches analytic gradient
-
-## TODO
-
-- Generalize tests
-  - Test at a couple of different points
-  - Factor out graph building code from test1
-- Convert test2 to check grad results programmatically
-- Check the tests
-
-======
-
-- Look at more concise generated code
-
-- Check grad results for programmatic function
-  remove throw Error in `energyAndGradDynamic`
-      also rename this function
-
-- Write more hardcoded tests
