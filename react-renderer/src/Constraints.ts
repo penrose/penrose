@@ -4,6 +4,8 @@ import * as _ from "lodash";
 
 const TOL = 1e-4;
 const DEBUG_ENERGY = false;
+const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
+const PRINT_TEST_RESULTS = true;
 
 export const objDict = {
     equal: (x: DiffVar, y: DiffVar) => squaredDifference(x, y),
@@ -389,23 +391,21 @@ const gradAD = (v: VarAD): number => {
 
 const gradADSymbolic = (v: VarAD): VarAD => {
     // Already computed/cached the gradient
-    // TODO: Does this caching work?
     if (v.gradNode.tag === "Just") {
         return v.gradNode.contents;
     }
 
     // Build subgraph
-    console.log("gradADSymbolic, v", v, v.parents, v.parents.map(p => p.sensitivityNode));
-
-    // TODO: Should this use parentsGrad, childrenGrad? Or add to it...?
-    // All of the sensitivityNode edges live in parents/childrenGrad...?
-    // So, the final function synthesis should be walking around parents/childrenGrad as needed
-
-    const res = addN(v.parents.map(parent =>
-        mul(fromJust2(parent.sensitivityNode), gradADSymbolic(parent.node), false)),
-        false);
-
-    // TODO: The result is built via pointers to subgraphs that are already built in child nodes of the original comp graph
+    let res;
+    if (v.parents.length === 0) {
+        // node has no parents, so setting grad to 0 (it doesn't influence the output)
+        res = gvarOf(0, "no gradient");
+    } else { // normal reverse-mode AD chain rule
+        // The result is built via pointers to subgraphs that are already built in child nodes of the original comp graph
+        res = addN(v.parents.map(parent =>
+            mul(fromJust2(parent.sensitivityNode), gradADSymbolic(parent.node), false)),
+            false);
+    }
 
     // Mark node as done
     v.gradNode = { tag: "Just", contents: res };
@@ -429,102 +429,30 @@ const gradAll = (energyGraph: VarAD, xsVars: VarAD[]): number[] => {
 };
 
 // df/f[x] with finite differences about xi
-const gradFiniteDiff = (f: (xs: number[]) => number, xs: number[]): number[] => {
-    const EPSG = 10e-5;
+const gradFiniteDiff = (f: (args: number[]) => number) => {
+    return (xs: number[]): number[] => {
+        const EPSG = 10e-5;
 
-    // Scalar estimate (in 1D)
-    // const dfxi = (f, x) => (f(x + EPSG / 2.) - f(x - EPSG / 2.)) / EPSG;
+        // Scalar estimate (in 1D)
+        // const dfxi = (f, x) => (f(x + EPSG / 2.) - f(x - EPSG / 2.)) / EPSG;
 
-    const xsDiff = xs.map((e, i) => {
-        const xsLeft = [...xs];
-        xsLeft[i] = xsLeft[i] - EPSG / 2.;
-        const xsRight = [...xs];
-        xsRight[i] = xsRight[i] + EPSG / 2.;
-        return (f(xsRight) - f(xsLeft)) / EPSG;
-    });
+        const xsDiff = xs.map((e, i) => {
+            const xsLeft = [...xs];
+            xsLeft[i] = xsLeft[i] - EPSG / 2.;
+            const xsRight = [...xs];
+            xsRight[i] = xsRight[i] + EPSG / 2.;
+            return (f(xsRight) - f(xsLeft)) / EPSG;
+        });
 
-    return xsDiff;
+        return xsDiff;
+    };
 };
 
+
 const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
-
-    // TEST CASE 1
-    // Build energy graph
-    energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
-    const ref = markInput(variableAD(100.0), 0); // TODO: Should use makeADInputVars
-    const head = squared(ref);
-
-    // Build gradient graph
-    head.gradNode = { tag: "Just", contents: gvarOf(1.0) };
-    const dRef = gradADSymbolic(ref);
-
-    // Print results
-    // f(x) = x^2, where x is 100
-    // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
-    console.error("custom fn", ref, head, dRef);
-
-    // Synthesize energy code + evaluate it
-    const f0 = genEnergyFn(head);
-    console.log("f(5)", f0([5.0]));
-    clearVisitedNodes(head);
-
-    const xTest = [5.0];
-    console.log("estimated gradient at", xTest, "=", gradFiniteDiff(f0, xTest));
-
-    // Synthesize gradient code + evaluate it
-    const df0 = genCode([dRef], "grad");
-    console.log("f'(5)", df0(xTest));
-
-    // TODO: The graph does contain circular references, e.g. dx0 may refer to x0 which refers to its gradNode, dx0. So maybe delete the gradNode property? Why is it needed?
-
-    // TODO: Visualize both of them
-
-    console.error("done with test1");
-    // --------------------------------
-
-    // TEST CASE 2
-    // Build energy graph
-    energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
-    const x0 = markInput(variableAD(-5.0), 0);
-    const x1 = markInput(variableAD(6.0), 1);
-    const a = sub(x0, x1);
-    const b = squared(a);
-    const c = sin(a);
-    // const c = add(a, variableAD(3.0)); // const?
-    const z = mul(b, c);
-
-    // Build gradient graph
-    z.gradNode = { tag: "Just", contents: gvarOf(1.0) };
-    const dx0 = gradADSymbolic(x0);
-    const dx1 = gradADSymbolic(x1);
-
-    // Print results
-    console.error("x0, x1, z", x0, x1, z);
-    console.error("dx0, dx1", dx0, dx1);
-
-    // Synthesize energy code + evaluate it
-    const f1 = genEnergyFn(z);
-    console.log("f(3, 2)", f1([3.0, -2.0]));
-    clearVisitedNodes(z);
-
-    const xsTest = [5.0, 8.0];
-    console.log("estimated gradient at", xsTest, "=", gradFiniteDiff(f1, xsTest));
-
-    // Synthesize gradient code + evaluate it
-    // Note that the inputs are still the original x0, x1 variables, which are correctly marked as the only inputs to the gradient
-    const dfdx = genCode([dx0, dx1], "grad");
-    console.log("df/dx at", xsTest, "=", dfdx(xsTest));
-
-    console.log("test gradFiniteDiff", gradFiniteDiff(xs => xs[0] * xs[0] + xs[1] * xs[1], [1.0, -3.0]));
-
-    // TODO: Visualize both of them
-
-    throw Error("done with test2");
-
-    // --------------------------------
     // TODO: Test the below (fully)
+    energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
     const dxs = xsVars.map(gradADSymbolic); // Computes it per variable, mutating the graph to set cached results and reuse them
-    console.log("before gradxs");
     const gradxs = xsVars.map((x: DiffVar) => fromJust2(x.gradNode));
     return gradxs;
 };
@@ -582,22 +510,32 @@ export const add = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 export const addN = (xs: VarAD[], isCompNode = true): VarAD => { // N-way add
-    const z = variableAD(_.sum(_.map(xs, x => x.val)), "+ list");
-    z.isCompNode = isCompNode;
-
-    if (isCompNode) {
-        for (const x of xs) {
-            x.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
-            z.children.push({ node: x, sensitivityNode: just(gvarOf(1.0)) });
-        }
+    // TODO: Do argument list length checking for other ops generically
+    if (xs.length === 0) {
+        console.error("node", xs);
+        throw Error("argument list to addN is empty; expected 1+ elements");
+    } else if (xs.length === 1) {
+        return xs[0];
+    } else if (xs.length === 2) {
+        return add(xs[0], xs[1], isCompNode);
     } else {
-        for (const x of xs) {
-            x.parentsGrad.push({ node: z, sensitivityNode: none });
-            z.childrenGrad.push({ node: x, sensitivityNode: none });
-        }
-    }
+        const z = variableAD(_.sum(_.map(xs, x => x.val)), "+ list");
+        z.isCompNode = isCompNode;
 
-    return z;
+        if (isCompNode) {
+            for (const x of xs) {
+                x.parents.push({ node: z, sensitivityNode: just(gvarOf(1.0)) });
+                z.children.push({ node: x, sensitivityNode: just(gvarOf(1.0)) });
+            }
+        } else {
+            for (const x of xs) {
+                x.parentsGrad.push({ node: z, sensitivityNode: none });
+                z.childrenGrad.push({ node: x, sensitivityNode: none });
+            }
+        }
+
+        return z;
+    }
 };
 
 export const mul = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
@@ -922,8 +860,9 @@ const opMap = {
 // Wrapper since energy only has one output
 const genEnergyFn = (z: IVarAD): any => genCode([z], "energy");
 
+// Generate code for multi-output function, given its computational graph and a setting for its outputs
+// NOTE: Modifies the input computational graph `outputs` to set and clear visited nodes
 const genCode = (outputs: IVarAD[], setting: string): any => {
-
     let counter = 0;
     let progInputs: string[] = [];
     let progStmts: string[] = [];
@@ -963,8 +902,12 @@ const genCode = (outputs: IVarAD[], setting: string): any => {
     // console.error("progStr", progStr);
 
     const f = new Function(...progInputs, progStr);
-    console.log('generated f', f)
+    console.log('generated f\n', f)
     const g = (xs: number[]) => f(...xs); // So you can call the function without spread
+
+    for (const z of outputs) {
+        clearVisitedNodes(z);
+    }
 
     return g;
 };
@@ -1144,8 +1087,11 @@ const fromJust2 = (n: MaybeVal<VarAD>): VarAD => {
 
 const assert = (b: boolean, s: any[]) => {
     const res = b ? "passed" : "failed";
-    console.assert(b);
-    console.log("Assertion", res, ...s);
+    if (PRINT_TEST_RESULTS) {
+        console.assert(b);
+        console.log("Assertion", res, ": ", ...s);
+    }
+    return b;
 }
 
 const close = (x: number, y: number) => {
@@ -1414,6 +1360,10 @@ const setWeights = (info: WeightInfo) => {
 // xsVars are the leaves, energyGraph is the topmost parent of the computational graph
 export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
 
+    // TODO: remove this and rename function
+    testGradSymbolicAll();
+    throw Error("done with test grad symbolic");
+
     // Zero xsvars vals, gradients, and caching setting
     clearGraphBottomUp(xsVars);
 
@@ -1442,23 +1392,6 @@ export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph:
 
     if (DEBUG_ENERGY) {
         console.error("generated energy function", genEnergyFn(energyGraph), genEnergyFn(energyGraph)(xs));
-    }
-
-    if (debug) {
-        console.log("====== Test results for energyAndGradDynamic (vs. hardcoded energy) ======");
-        // TODO: This needs to change when we build a more general energy
-        const testResult = energyAndGradADHardcoded(xs);
-
-        // TEST: Check correctness of energy vs. the hardcoded sum-of-squares energy
-        console.log("correct energy?", eqNum(energyVal, testResult.energyVal));
-        console.log("custom energy val", energyVal);
-        console.log("hardcoded (golden) energy val", testResult.energyVal);
-
-        // TEST: Check correctness of gradient vs. the gradient of hardcoded sum-of-squares energy
-        console.log("correct gradient?", eqList(gradVal, testResult.gradVal));
-        console.log("custom grad val", gradVal);
-        console.log("hardcoded (golden) grad val", testResult.gradVal);
-        console.log("xsVars with grads (backward)", xsVars);
     }
 
     // Return the energy and grad on the input, as well as updated energy graph
@@ -1730,8 +1663,6 @@ const energyAndGradADHardcoded = (state: number[]) => {
     return { energyVal: energyZ, gradVal: gradxs };
 };
 
-// Main
-
 export const testReverseAD = () => {
     console.log("testing reverse AD");
 
@@ -1740,6 +1671,142 @@ export const testReverseAD = () => {
     testAD1();
     testAD2();
     testAD3();
+};
+
+// ----- Functions for testing numeric and symbolic gradients
+
+const testGradFiniteDiff = () => {
+    // Only tests with hardcoded functions
+    const f = (ys: number[]) => _.sum(_.map(ys, (e: number) => e * e));
+    const df = (ys: number[]) => _.map(ys, (e: number) => 2 * e);
+
+    const testResults = [];
+
+    for (let i = 0; i < NUM_SAMPLES; i++) {
+        const xs = randList(4);
+        const gradEstRes = gradFiniteDiff(f)(xs);
+        const expectedRes = df(xs);
+        const testRes = assert(eqList(gradEstRes, expectedRes),
+            ["test grad finite diff (grad res, expected res)", gradEstRes, expectedRes]);
+        testResults.push(testRes);
+    }
+
+    const testOverall = assert(all(testResults),
+        ["all tests passed? test results:", testResults]);
+};
+
+const gradGraph0 = () => {
+    // Build energy graph
+
+    // f(x) = x^2, where x is 100
+    // Result: (2 * 100) * 1 <-- this comes from the (new) parent node, dx/dx = 1
+    const ref = markInput(variableAD(100.0), 0); // TODO: Should use makeADInputVars
+    const head = squared(ref);
+
+    // Build gradient graph
+    head.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+    const dRef = gradADSymbolic(ref);
+    // TODO: The graph does contain circular references, e.g. dx0 may refer to x0 which refers to its gradNode, dx0. So maybe delete the gradNode property? Why is it needed?
+
+    // Print results
+    console.log("computational graphs for test 1 (input, output, gradient)", ref, head, dRef);
+
+    // dRef = ref.gradNode.contents
+    return {
+        inputs: [ref],
+        output: head,
+        gradNodes: [dRef]
+    };
+}
+
+// See codegen-results.md for description
+const gradGraph1 = () => {
+    // Build energy graph
+    const x0 = markInput(variableAD(-5.0), 0);
+    const x1 = markInput(variableAD(6.0), 1);
+    const a = sub(x0, x1);
+    const b = squared(a);
+    const c = sin(a);
+    // const c = add(a, variableAD(3.0)); // const?
+    const z = mul(b, c);
+
+    // Build gradient graph
+    z.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+    const dx0 = gradADSymbolic(x0);
+    const dx1 = gradADSymbolic(x1);
+
+    return {
+        inputs: [x0, x1],
+        output: z,
+        gradNodes: [dx0, dx1]
+    };
+}
+
+// Test addition of consts to graph (`c`)
+const gradGraph2 = () => {
+    // Build energy graph
+    const x0 = markInput(variableAD(-5.0), 0);
+    const x1 = markInput(variableAD(6.0), 1);
+    const a = sub(x0, x1);
+    const b = squared(a);
+    const c = add(a, variableAD(3.0));
+    const z = mul(b, c);
+
+    // Build gradient graph
+    z.gradNode = { tag: "Just", contents: gvarOf(1.0) };
+    const dx0 = gradADSymbolic(x0);
+    const dx1 = gradADSymbolic(x1);
+
+    return {
+        inputs: [x0, x1],
+        output: z,
+        gradNodes: [dx0, dx1]
+    };
+}
+
+const testGradSymbolic = (testNum: number, graphs: any): boolean => {
+    console.log(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
+    // Synthesize energy and gradient code
+    const f0 = genEnergyFn(graphs.output);
+    const gradGen = genCode(graphs.gradNodes, "grad");
+
+    // Test the gradient at several points via evaluation
+    const gradEst = gradFiniteDiff(f0);
+    const testResults = [];
+
+    for (let i = 0; i < NUM_SAMPLES; i++) {
+        const xTest = randList(graphs.inputs.length);
+        const energyRes = f0(xTest);
+        const gradEstRes = gradEst(xTest);
+        const gradGenRes = gradGen(xTest);
+
+        console.log("test", i);
+        console.log("energy at x", xTest, "=", energyRes);
+        console.log("estimated gradient at", xTest, "=", gradEstRes);
+        console.log("analytic gradient at", xTest, "=", gradGenRes);
+
+        const testRes = assert(eqList(gradEstRes, gradGenRes), ["estimated, analytic gradients:", gradEstRes, gradGenRes]);
+        testResults.push(testRes);
+    }
+
+    const testOverall = assert(all(testResults),
+        ["all tests passed? test results:", testResults]);
+
+    // TODO: Visualize both of them
+    console.log(`======= DONE WITH TEST GRAD SYMBOLIC ${testNum} ======`);
+
+    return testOverall;
+};
+
+export const testGradSymbolicAll = () => {
+    console.log("testing symbolic gradients");
+
+    testGradFiniteDiff();
+
+    const graphs = [gradGraph0(), gradGraph1(), gradGraph2()];
+    const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
+
+    console.error(`All grad symbolic tests passed?: ${all(testResults)}`);
 };
 
 // ------ Hardcoded energy and its grad (for testing only)
@@ -1784,3 +1851,19 @@ export const gradfHardcoded = (zs: number[]) =>
 
 export const normList = (xs: number[]) =>
     Math.sqrt(_.sum(xs.map(e => e * e)));
+
+// TODO: Move these utils elsewhere
+
+export function repeat<T>(i: number, x: T) {
+    const xs = [];
+
+    for (let j = 0; j < i; j++) {
+        xs.push(x);
+    };
+
+    return xs;
+};
+
+export const all = (xs: boolean[]) =>
+    xs.reduce((prev, curr) => prev && curr, true);
+

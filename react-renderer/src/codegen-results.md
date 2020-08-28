@@ -96,20 +96,16 @@ const x5 = x1 * x4;
 const x6 = Math.sin(x4);
 const x7 = 1;
 const x8 = x6 * x7;
-const x9 = x8;
-const x10 = x5 * x9;
-const x11 = Math.cos(x4);
-const x12 = Math.pow(x4, 2);
-const x13 = x12 * x7;
-const x14 = x13;
-const x15 = x11 * x14;
-const x16 = x10 + x15;
-const x17 = x0 * x16;
-const x18 = x17;
-const x19 = -1;
-const x20 = x19 * x16;
-const x21 = x20;
-return [x18, x21];
+const x9 = x5 * x8;
+const x10 = Math.cos(x4);
+const x11 = Math.pow(x4, 2);
+const x12 = x11 * x7;
+const x13 = x10 * x12;
+const x14 = x9 + x13;
+const x15 = x0 * x14;
+const x16 = -1;
+const x17 = x16 * x14;
+return [x15, x17];
 })
 ```
 
@@ -118,3 +114,21 @@ return [x18, x21];
 `df/dx at [5, 8] = [-8.063212421044806, 8.063212421044806]`
 
 **Correct**: estimated gradient matches analytic gradient
+
+## TODO
+
+- Generalize tests
+  - Test at a couple of different points
+  - Factor out graph building code from test1
+- Convert test2 to check grad results programmatically
+- Check the tests
+
+======
+
+- Look at more concise generated code
+
+- Check grad results for programmatic function
+  remove throw Error in `energyAndGradDynamic`
+      also rename this function
+
+- Write more hardcoded tests
