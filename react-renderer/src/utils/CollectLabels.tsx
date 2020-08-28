@@ -53,7 +53,7 @@ const tex2svg = memoize(
         // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
         const vAlignFloat =
           parseFloat(output.style.verticalAlign) * EX_CONSTANT;
-        const constHeight = 15 - vAlignFloat;
+        const constHeight = parseFloat(fontSize) - vAlignFloat;
         const scaledWidth = (constHeight / height) * width;
         resolve({ body: output, width: scaledWidth, height: constHeight });
       } else {
