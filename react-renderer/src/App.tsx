@@ -6,10 +6,10 @@ import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
 import { step, stepEP } from "./Optimizer";
-import { collectLabels } from "./utills/CollectLabels";
+import { collectLabels } from "./utils/CollectLabels";
 import * as tf from "@tensorflow/tfjs";
 import SplitPane from "react-split-pane";
-import Inspector from './inspector/Inspector';
+import Inspector from "./inspector/Inspector";
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
@@ -44,7 +44,7 @@ class App extends React.Component<any, ICanvasState> {
     autostep: false,
     processedInitial: false, // TODO: clarify the semantics of this flag
     penroseVersion: "",
-    showInspector: true
+    showInspector: true,
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
@@ -85,18 +85,15 @@ class App extends React.Component<any, ICanvasState> {
       this.step();
     }
   };
-  public protocol: Protocol = new Protocol(
-    socketAddress,
-    [
-      {
-        onConnectionStatus: this.onConnectionStatus,
-        onVersion: this.onVersion,
-        onCanvasState: this.onCanvasState,
-        onError: console.warn,
-        kind: "renderer"
-      }
-    ],
-  );
+  public protocol: Protocol = new Protocol(socketAddress, [
+    {
+      onConnectionStatus: this.onConnectionStatus,
+      onVersion: this.onVersion,
+      onCanvasState: this.onCanvasState,
+      onError: console.warn,
+      kind: "renderer",
+    },
+  ]);
   public step = () => {
     // this.protocol.sendPacket(Step(1, this.state.data));
     stepState(this.state.data!, this.onCanvasState);
@@ -107,16 +104,17 @@ class App extends React.Component<any, ICanvasState> {
     await this.setState({ processedInitial: false });
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };
-  
 
   public async componentDidMount() {
-    this.protocol = new Protocol(socketAddress, [{
-      onConnectionStatus: this.onConnectionStatus,
-      onVersion: this.onVersion,
-      onCanvasState: this.onCanvasState,
-      onError: console.warn,
-      kind: "renderer",
-    }]);
+    this.protocol = new Protocol(socketAddress, [
+      {
+        onConnectionStatus: this.onConnectionStatus,
+        onVersion: this.onVersion,
+        onCanvasState: this.onCanvasState,
+        onError: console.warn,
+        kind: "renderer",
+      },
+    ]);
 
     this.protocol.setupSockets();
   }
@@ -144,7 +142,7 @@ class App extends React.Component<any, ICanvasState> {
       autostep,
       penroseVersion,
       showInspector,
-      history
+      history,
     } = this.state;
     return (
       <div
@@ -153,7 +151,7 @@ class App extends React.Component<any, ICanvasState> {
           height: "100%",
           display: "flex",
           flexFlow: "column",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
         <div style={{ flexShrink: 0 }}>
@@ -186,7 +184,9 @@ class App extends React.Component<any, ICanvasState> {
               ref={this.canvas}
               penroseVersion={penroseVersion}
             />
-            {showInspector && <Inspector history={history} onClose={this.toggleInspector} />}
+            {showInspector && (
+              <Inspector history={history} onClose={this.toggleInspector} />
+            )}
           </SplitPane>
         </div>
       </div>

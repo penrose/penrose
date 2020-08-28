@@ -4,7 +4,7 @@ import { interactiveMap, staticMap } from "./componentMap";
 import Log from "./Log";
 import { loadImages } from "./Util";
 import { insertPending } from "./PropagateUpdate";
-import { collectLabels } from "./utills/CollectLabels";
+import { collectLabels } from "./utils/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
 
 interface ICanvasProps {
@@ -114,13 +114,7 @@ class Canvas extends React.Component<ICanvasProps> {
           ]),
         ];
       default:
-        return [
-          type,
-          this.moveProperties(properties, [
-            ["x", dx],
-            ["y", dy],
-          ]),
-        ];
+        return [type, this.moveProperties(properties, [["x", dx], ["y", dy]])];
     }
   };
 
@@ -265,7 +259,7 @@ class Canvas extends React.Component<ICanvasProps> {
       ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null,
     });
   };
-  
+
   public render() {
     const {
       substanceMetadata,
