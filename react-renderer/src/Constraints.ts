@@ -7,6 +7,7 @@ const DEBUG_ENERGY = false;
 const DEBUG_GRADIENT = true;
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 const PRINT_TEST_RESULTS = true;
+const RAND_RANGE = 100;
 
 export const objDict = {
     equal: (x: DiffVar, y: DiffVar) => squaredDifference(x, y),
@@ -16,9 +17,9 @@ export const objDict = {
         square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
 
     sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
-        sin(s1.x.contents),
-    // BUG: TODO REVERT (Also revert the style program to the full one)
-    // distsq(center(s1), center(s2)),
+        // TODO: Remove after web-perf done
+        // squared(s1.x.contents), 
+        distsq(center(s1), center(s2)),
 
     // Generic repel function for two GPIs with centers
     repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
@@ -869,8 +870,7 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string): any => {
     let progStmts: string[] = [];
     let progOutputs: string[] = [];
 
-    console.log("genCode inputs, outputs, setting", inputs, outputs, setting);
-    // throw Error("genCode");
+    // console.log("genCode inputs, outputs, setting", inputs, outputs, setting);
 
     // Just traverse + name the inputs first, then work backward from the outputs
     // The inputs are ALWAYS the original xsVars, no matter whether it's gradient or energy
@@ -1032,6 +1032,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
         };
 
     } else if (z[childType].length === 2) { // Binary op
+        // TODO: refactor repeated code below into the for loop as in ternary
         const child0 = z[childType][0].node;
         const child1 = z[childType][1].node;
 
@@ -1068,6 +1069,8 @@ const traverseGraph = (i: number, z: IVarAD): any => {
         let stmt;
         if (op === "max") {
             stmt = `const ${parName} = Math.max(${childName0}, ${childName1});`;
+        } else if (z.op === "gt") {
+            stmt = `const ${parName} = ${childName0} > ${childName1};`;
         } else if (z.op === "+ list") {
             stmt = `const ${parName} = ${childName0} + ${childName1};`;
         } else {
@@ -1084,15 +1087,64 @@ const traverseGraph = (i: number, z: IVarAD): any => {
             references: []
         };
 
-    } else {
+    } else { // N-ary node
         console.error("node", z, childType, z.isCompNode, z[childType].length);
+        const childNodes = z[childType].map(e => e.node);
+
+        const childNames = [];
+        let prog: string[] = [];
+        let inputs: string[] = [];
+        let counter = i;
+
+        // Evaluate each child and get its generated code, inputs, and name first
+        for (const childNode of childNodes) {
+            const res = traverseGraph(counter, childNode);
+            prog = prog.concat(res.prog);
+            inputs = inputs.concat(res.inputs);
+
+            // Child was already visited; don't generate code again, just a reference
+            if (res.references[0]) {
+                childNames.push(res.references[0]);
+                counter = res.counter;
+            } else {
+                childNames.push(c + String(res.counter));
+                counter = res.counter + 1;
+            }
+        }
+
+        const parName = c + String(counter);
+
+        // Mark node as visited with name as reference
+        // TODO: factor out these 2 lines from all cases
+        z.nodeVisited = true;
+        z.name = parName;
+
+        const op = z.op;
+        let stmt;
+
         // TODO: Deal with ifCond nodes (ternary)
         // (eval c; eval d; eval e; const xNUM = c ? d : e;)
         // This doesn't short-circuit -- it actually evaluates both branches of the `if` first
 
-        // TODO: Deal with gt nodes (binary)
-        // eval a; eval b; bool xNUM = a > b;
-        throw Error("Ops that are not nullary, unary, or binary are not supported");
+        if (op === "ifCond") {
+            if (childNames.length !== 3) {
+                console.error("args", childNames);
+                throw Error("expected three args to if cond");
+            }
+
+            stmt = `const ${parName} = ${childNames[0]} ? ${childNames[1]} : ${childNames[2]};`;
+        } else {
+            console.error("node", z, z.op);
+            throw Error("unknown n-ary operation");
+        }
+
+        return {
+            counter,
+            prog: prog.concat([stmt]),
+            inputs,
+            output: parName,
+            references: []
+        };
     }
 };
 
@@ -1295,7 +1347,7 @@ export const repeatList = (e: any, n: number): any[] => {
 };
 
 export const randList = (n: number): number[] => {
-    return repeatList(0, n).map(e => Math.random());
+    return repeatList(0, n).map(e => RAND_RANGE * (Math.random() - 0.5));
 };
 
 // Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
@@ -1398,7 +1450,7 @@ const setWeights = (info: WeightInfo) => {
 // Given an energyGraph of f, clears the graph and returns the energy and gradient of f at xs (by walking the graph and mutating values)
 // The returned energyGraph will have intermediate values set
 // xsVars are the leaves, energyGraph is the topmost parent of the computational graph
-export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
+export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
 
     // Zero xsvars vals, gradients, and caching setting
     clearGraphBottomUp(xsVars);
@@ -1413,7 +1465,7 @@ export const energyAndGradDynamic = (xs: number[], xsVars: VarAD[], energyGraph:
     // Build symbolic gradient of f at xs on the energy graph
     const gradGraph = gradAllSymbolic(energyGraph, xsVars);
 
-    const graphs = {
+    const graphs: GradGraphs = {
         inputs: xsVars,
         energyOutput: energyGraph,
         gradOutputs: gradGraph
@@ -1743,7 +1795,7 @@ const testGradFiniteDiff = () => {
 // Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }
 // Compile the gradient and check it against numeric gradients
 // TODO: Encode the type of `graphs`
-const testGradSymbolic = (testNum: number, graphs: any): boolean => {
+const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
     console.log(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
     // Synthesize energy and gradient code
     const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput);
@@ -1778,7 +1830,7 @@ const testGradSymbolic = (testNum: number, graphs: any): boolean => {
     return testOverall;
 };
 
-const gradGraph0 = () => {
+const gradGraph0 = (): GradGraphs => {
     // Build energy graph
 
     // f(x) = x^2, where x is 100
@@ -1803,7 +1855,7 @@ const gradGraph0 = () => {
 }
 
 // See codegen-results.md for description
-const gradGraph1 = () => {
+const gradGraph1 = (): GradGraphs => {
     // Build energy graph
     const x0 = markInput(variableAD(-5.0), 0);
     const x1 = markInput(variableAD(6.0), 1);
@@ -1826,7 +1878,7 @@ const gradGraph1 = () => {
 }
 
 // Test addition of consts to graph (`c`)
-const gradGraph2 = () => {
+const gradGraph2 = (): GradGraphs => {
     // Build energy graph
     const x0 = markInput(variableAD(-5.0), 0);
     const x1 = markInput(variableAD(6.0), 1);
@@ -1848,7 +1900,7 @@ const gradGraph2 = () => {
 }
 
 // Test vars w/ no grad
-const gradGraph3 = () => {
+const gradGraph3 = (): GradGraphs => {
     // Build energy graph
 
     const x0 = markInput(variableAD(100.0), 0);
@@ -1867,7 +1919,7 @@ const gradGraph3 = () => {
 }
 
 // Test toPenalty
-const gradGraph4 = () => {
+const gradGraph4 = (): GradGraphs => {
     // Build energy graph
 
     const x0 = markInput(variableAD(100.0), 0);
@@ -1889,12 +1941,12 @@ export const testGradSymbolicAll = () => {
 
     testGradFiniteDiff();
 
-    const graphs: any[] = [
+    const graphs: GradGraphs[] = [
         gradGraph0(),
         gradGraph1(),
         gradGraph2(),
         gradGraph3(),
-        // gradGraph4()
+        gradGraph4()
     ];
     const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
 

@@ -25,7 +25,7 @@ import {
     makeADInputVars,
     // energyAndGradADHardcoded,
     energyAndGradAD,
-    energyAndGradDynamic,
+    energyAndGradCompiled,
     variableAD,
     isCustom,
     ops,
@@ -394,11 +394,11 @@ const awLineSearch2 = (
     // (Also maybe move out of this function as a closure?)
     // Things are named `zs` just to not clash with `xs` (and avoid confusion with the usual meaning of `ys`)
     const f = (zs: number[]) => {
-        return energyAndGradDynamic(zs, xsVars, energyGraph, weightInfo, false).energyVal;
+        return energyAndGradCompiled(zs, xsVars, energyGraph, weightInfo, false).energyVal;
     };
 
     const gradf = (zs: number[]) => {
-        return energyAndGradDynamic(zs, xsVars, energyGraph, weightInfo, false).gradVal;
+        return energyAndGradCompiled(zs, xsVars, energyGraph, weightInfo, false).gradVal;
     };
 
     const duf = (u: number[]) => {
@@ -546,7 +546,7 @@ const minimizeBasic = (
 
     let xs2 = [...xs]; // Don't use xs
     let gradres = [...xs];
-    let adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, weightInfo, false);
+    let adRes = energyAndGradCompiled(xs2, xsVars, energyGraph, weightInfo, false);
     let i = 0;
     let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
 
@@ -554,7 +554,7 @@ const minimizeBasic = (
     const USE_LINE_SEARCH = true;
 
     while (i < numSteps) {
-        adRes = energyAndGradDynamic(xs2, xsVars, energyGraph, weightInfo, false);
+        adRes = energyAndGradCompiled(xs2, xsVars, energyGraph, weightInfo, false);
         gradres = adRes.gradVal;
 
         if (USE_LINE_SEARCH) {
@@ -650,17 +650,14 @@ export const evalEnergyOnCustom = (state: State, inlined = false) => {
         // TODO make this check more robust to empty lists of objectives/constraints
         if (!objEngs[0] && !constrEngs[0]) { throw Error("no objectives and no constraints"); }
 
-        const overallEng: VarAD = objEngs[0];
-
         const constrWeightNode = varOf(constraintWeight, String(constraintWeight), "constraintWeight");
         const epWeightNode = varOf(state.params.weight, String(state.params.weight), "epWeight");
 
-        // TODO: Put this back in
-        // const objEng: VarAD = ops.vsum(objEngs);
-        // const constrEng: VarAD = ops.vsum(constrEngs);
-        // const overallEng: VarAD = add(objEng,
-        //   mul(constrEng,
-        //     mul(constrWeightNode, epWeightNode)));
+        const objEng: VarAD = ops.vsum(objEngs);
+        const constrEng: VarAD = ops.vsum(constrEngs);
+        const overallEng: VarAD = add(objEng,
+            mul(constrEng,
+                mul(constrWeightNode, epWeightNode)));
 
         // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
         overallEng.gradVal = { tag: "Just", contents: 1.0 };

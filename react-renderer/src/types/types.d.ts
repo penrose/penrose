@@ -624,3 +624,11 @@ interface IVecAD {
 type VecAD = IVecAD;
 
 type DiffVar = VarAD | Tensor;
+
+type GradGraphs = IGradGraphs;
+
+interface IGradGraphs {
+    inputs: VarAD[],
+    energyOutput: VarAD,
+    gradOutputs: VarAD[]
+}
