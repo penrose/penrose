@@ -18,8 +18,6 @@
     Is there a problem with evalEnergyOnCustom?
     for grad of max, needs to support IfCond generation / evaluation
 
-======
-
 >>> Also revert the sameCenter thing, test fully
 >>> Also revert the objfn stuff, test fully
 
@@ -28,6 +26,15 @@
       also rename this function
 
 - Write more hardcoded tests
+
 - Lay out diagram
   - Only compile gradient and energy once, in the beginning, and store it
+  - Profile this
   - Use it in the opt and line search
+
+======
+
+- account for the weights of the optimization as parameters to the function, and partially apply it
+- add back the constraints in venn-small.sty
+  - fix n-ary problem
+- lay out and benchmark

@@ -5,6 +5,7 @@ import * as _ from "lodash";
 const TOL = 1e-4;
 const DEBUG_ENERGY = false;
 const DEBUG_GRADIENT = true;
+const DEBUG_GRADIENT_UNIT_TESTS = false;
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 const PRINT_TEST_RESULTS = true;
 const RAND_RANGE = 100;
@@ -1447,8 +1448,7 @@ const setWeights = (info: WeightInfo) => {
     info.epWeightNode.op = String(info.epWeight);
 };
 
-// Given an energyGraph of f, clears the graph and returns the energy and gradient of f at xs (by walking the graph and mutating values)
-// The returned energyGraph will have intermediate values set
+// Given an energyGraph of f, clears the graph and returns the compiled energy and gradient of f as functions
 // xsVars are the leaves, energyGraph is the topmost parent of the computational graph
 export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph: VarAD, weightInfo: WeightInfo, debug = false) => {
 
@@ -1457,6 +1457,7 @@ export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph
     clearVisitedNodesOutput(energyGraph); // TODO: Do we need this line?
 
     // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
+    // TODO: Figure out what to do with this and compilation
     setWeights(weightInfo);
 
     // Set the leaves of the graph to have the new input values
@@ -1477,25 +1478,28 @@ export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph
     // TODO: This is called twice (and evaluated; why do the inputs disappear the second time...?
 
     // Evaluate energy and gradient at the point
-    const energyVal = f0(xs);
-    const gradVal = gradGen(xs);
+    // const energyVal = f0(xs);
+    // const gradVal = gradGen(xs);
 
     if (DEBUG_ENERGY) {
         console.error("generated energy function", genEnergyFn(xsVars, energyGraph));
     }
 
-    if (DEBUG_GRADIENT) {
+    if (DEBUG_GRADIENT_UNIT_TESTS) {
+        console.log("Running gradient unit tests", graphs);
         testGradSymbolicAll();
-        console.log("Programmatic graphs used for testing real gradient", graphs);
+    }
+
+    if (DEBUG_GRADIENT) {
+        console.log("Testing real gradient on these graphs", graphs);
         testGradSymbolic(0, graphs);
-        throw Error("done with testing full grad");
     }
 
     // Return the energy and grad on the input, as well as updated energy graph
     return {
-        energyVal,
-        gradVal,
-        energyGraph
+        graphs,
+        f: f0,
+        gradf: gradGen
     };
 };
 

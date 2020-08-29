@@ -47,6 +47,8 @@ interface IState {
     shapeOrdering: string[];
     shapes: Shape[];
     varyingMap: VaryMap;
+
+    // TODO: Remove this
     overallObjective(...xs: DiffVar[]): DiffVar;
 }
 type State = IState; // TODO
@@ -522,6 +524,12 @@ interface IParams {
     // ------- Forked vars for new AD
 
     xsVars: VarAD[]; // Using this instead of mutableUOstate for testing custom AD; TODO phase out one of them
+
+    // For energy/gradient compilation
+    graphs: GradGraphs
+    compiledObjective(xs: number[]): number;
+    compiledGradient(xs: number[]): number[];
+
     // `xsVars` are all the leaves of the energy graph
     energyGraph: VarAD; // This is the top of the energy graph (parent node)
     constrWeightNode: VarAD; // Handle to node for constraint weight (so it can be set as the weight changes)

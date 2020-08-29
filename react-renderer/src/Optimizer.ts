@@ -264,10 +264,24 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
             console.log("interpreted energy graph", res.energyGraph);
 
+            const weightInfo = { // TODO: factor out
+                constrWeightNode: res.constrWeightNode,
+                epWeightNode: res.epWeightNode,
+                constrWeight: constraintWeight,
+                epWeight: initConstraintWeight
+            };
+
+            const { graphs, f, gradf } = energyAndGradCompiled(xs, xsVars, res.energyGraph, weightInfo);
+
             const newParams: Params = {
                 ...state.params,
                 mutableUOstate: xsVars, // TODO: Unused; remove
                 xsVars,
+
+                graphs,
+                compiledObjective: f,
+                compiledGradient: gradf,
+
                 energyGraph: res.energyGraph,
                 constrWeightNode: res.constrWeightNode,
                 epWeightNode: res.epWeightNode,
@@ -287,18 +301,12 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
             console.log("stepBasic step, xs", xs);
 
             // TODO: Slowly port the rest of stepEP here
-            const f = state.overallObjective; // TODO: Remove this if unused
-            const xsVars = state.params.xsVars;
-            const energyGraph = state.params.energyGraph;
-            const weightInfo = {
-                constrWeightNode: state.params.constrWeightNode,
-                epWeightNode: state.params.epWeightNode,
-                constrWeight: constraintWeight,
-                epWeight: state.params.weight
-            };
 
-            const res = minimizeBasic(f, xs, xsVars, energyGraph, weightInfo); // NOTE: mutates xsVars
+            const res = minimizeBasic(xs,
+                state.params.compiledObjective,
+                state.params.compiledGradient);
             xs = res.xs;
+
             // the new `xs` is put into the `newState`, which is returned at end of function
             // we don't need the updated xsVars and energyGraph as they are always cleared on evaluation; only their structure matters
             const { energyVal, normGrad } = res;
@@ -342,6 +350,8 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
                 // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
                 console.log("stepBasic: EP did not converge; starting next round");
                 optParams.optStatus.tag = "UnconstrainedRunning";
+
+                console.error("TODO: increase EP weight (currently unimplemented)");
                 optParams.weight = weightGrowthFactor * weight;
                 optParams.EPround = optParams.EPround + 1;
                 optParams.UOround = 0;
@@ -379,27 +389,16 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 };
 
 const awLineSearch2 = (
-    xs: number[],
-    xsVars: VarAD[],
-    energyGraph: VarAD,
-    weightInfo: WeightInfo,
-    gradfxs: number[],
-    fxs: number,
+    xs0: number[],
+    f: (zs: number[]) => number,
+    gradf: (zs: number[]) => number[],
+
+    gradfxs0: number[],
+    fxs0: number,
     maxSteps = 100
 ) => {
 
-    const descentDir = negv(gradfxs); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
-
-    // TODO: Port this to make minimal calls to energyAndGradDynamic, rather than separating them
-    // (Also maybe move out of this function as a closure?)
-    // Things are named `zs` just to not clash with `xs` (and avoid confusion with the usual meaning of `ys`)
-    const f = (zs: number[]) => {
-        return energyAndGradCompiled(zs, xsVars, energyGraph, weightInfo, false).energyVal;
-    };
-
-    const gradf = (zs: number[]) => {
-        return energyAndGradCompiled(zs, xsVars, energyGraph, weightInfo, false).gradVal;
-    };
+    const descentDir = negv(gradfxs0); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
 
     const duf = (u: number[]) => {
         return (zs: number[]) => {
@@ -408,7 +407,7 @@ const awLineSearch2 = (
     };
 
     const dufDescent = duf(descentDir);
-    const dufAtx0 = dufDescent(xs);
+    const dufAtx0 = dufDescent(xs0);
     const minInterval = 10e-10;
 
     // HS (Haskell?): duf, TS: dufDescent
@@ -421,8 +420,8 @@ const awLineSearch2 = (
     // Armijo condition
     // f(x0 + t * descentDir) <= (f(x0) + c1 * t * <grad(f)(x0), x0>)
     const armijo = (ti: number): boolean => {
-        const cond1 = f(addv(xs, scalev(ti, descentDir)));
-        const cond2 = fxs + c1 * ti * dufAtx0;
+        const cond1 = f(addv(xs0, scalev(ti, descentDir)));
+        const cond2 = fxs0 + c1 * ti * dufAtx0;
         return cond1 <= cond2;
     };
 
@@ -433,7 +432,7 @@ const awLineSearch2 = (
     // Strong Wolfe condition
     // |<grad(f)(x0 + t * descentDir), u>| <= c2 * |<grad f(x0), u>|
     const strongWolfe = (ti: number) => {
-        const cond1 = Math.abs(dufDescent(addv(xs, scalev(ti, descentDir))));
+        const cond1 = Math.abs(dufDescent(addv(xs0, scalev(ti, descentDir))));
         const cond2 = c2 * Math.abs(dufAtx0);
         return cond1 <= cond2;
     };
@@ -441,7 +440,7 @@ const awLineSearch2 = (
     // Weak Wolfe condition
     // <grad(f)(x0 + t * descentDir), u> >= c2 * <grad f(x0), u>
     const weakWolfe = (ti: number) => {
-        const cond1 = dufDescent(addv(xs, scalev(ti, descentDir)));
+        const cond1 = dufDescent(addv(xs0, scalev(ti, descentDir)));
         const cond2 = c2 * dufAtx0;
         return cond1 >= cond2;
     };
@@ -472,7 +471,7 @@ const awLineSearch2 = (
     const DEBUG_LINE_SEARCH = false;
 
     if (DEBUG_LINE_SEARCH) {
-        console.log("line search", xs, gradfxs, duf(xs)(xs));
+        console.log("line search", xs0, gradfxs0, duf(xs0)(xs0));
     }
 
     // Main loop + update check
@@ -527,63 +526,63 @@ const awLineSearch2 = (
 };
 
 const minimizeBasic = (
-    f: (...arg: DiffVar[]) => DiffVar,
-    xs: number[],
-    xsVars: DiffVar[],
-    energyGraph: VarAD,
-    weightInfo: WeightInfo
+    xs0: number[],
+    f: (zs: number[]) => number,
+    gradf: (zs: number[]) => number[],
 ) => {
     // const numSteps = 1;
-    const numSteps = 100;
-    // const numSteps = 10000; // Value for speed testing
+    // const numSteps = 100;
+    const numSteps = 10000; // Value for speed testing
     // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
     console.log("-------------------------------------");
     console.log("minimizeBasic, num steps", numSteps);
 
-    // (10,000 steps / 100ms) * (10 ms / s) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`DC, with no line search, and not sure about mem use)
+    // (10,000 steps / 100ms) * (10 ms / s) (???) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
     // this is just a factor of 5 slowdown over the compiled energy function
 
-    let xs2 = [...xs]; // Don't use xs
-    let gradres = [...xs];
-    let adRes = energyAndGradCompiled(xs2, xsVars, energyGraph, weightInfo, false);
+    let xs = [...xs0]; // Don't use xs
+    let fxs = 0.0;
+    let gradfxs = [...xs0];
+    let normGradfxs = 0.0;
     let i = 0;
     let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
 
     const DEBUG_GRAD_DESCENT = false;
-    const USE_LINE_SEARCH = true;
+    const USE_LINE_SEARCH = false;
 
     while (i < numSteps) {
-        adRes = energyAndGradCompiled(xs2, xsVars, energyGraph, weightInfo, false);
-        gradres = adRes.gradVal;
+        fxs = f(xs);
+        gradfxs = gradf(xs);
+        normGradfxs = normList(gradfxs);
 
         if (USE_LINE_SEARCH) {
-            t = awLineSearch2(xs2, xsVars, energyGraph, weightInfo, gradres, adRes.energyVal);
+            t = awLineSearch2(xs, f, gradf, gradfxs, fxs);
         }
 
         if (DEBUG_GRAD_DESCENT) {
             // TODO: Move debug flags into energyAndGradDynamic
+            console.log("-----");
+            console.log("i", i);
             console.log("num steps per display cycle", numSteps);
-            console.log("res energy, grad:", adRes.energyVal, adRes.gradVal);
-            console.log("vars:", xs2, xsVars, energyGraph);
-            console.log("t", t, "use line search", USE_LINE_SEARCH);
+            console.log("input (xs):", xs);
+            console.log("energy (f(xs)):", fxs);
+            console.log("grad (grad(f)(xs)):", gradfxs);
+            console.log("|grad f(x)|:", normList(gradfxs));
+            console.log("t", t, "use line search:", USE_LINE_SEARCH);
         }
 
         // xs2' = xs2 - t * gradf(xs2)
-        xs2 = xs2.map((x, j) => x - t * gradres[j]); // TODO: use vector op / is this access constant-time?
+        xs = xs.map((x, j) => x - t * gradfxs[j]);
         i++;
     }
 
-    const energyVal = adRes.energyVal;
-    const normGrad = normList(gradres);
-
-    console.log("f(x)");
-    console.log("|grad f(x)|:", normGrad);
+    // TODO: Log stats for last one?
 
     return {
-        xs: xs2,
-        energyVal,
-        normGrad
+        xs,
+        energyVal: fxs,
+        normGrad: normGradfxs
     };
 };
 
@@ -650,11 +649,14 @@ export const evalEnergyOnCustom = (state: State, inlined = false) => {
         // TODO make this check more robust to empty lists of objectives/constraints
         if (!objEngs[0] && !constrEngs[0]) { throw Error("no objectives and no constraints"); }
 
+        // This is fixed during the whole optimization
         const constrWeightNode = varOf(constraintWeight, String(constraintWeight), "constraintWeight");
+        // This changes with the EP round, gets bigger to weight the constraints
         const epWeightNode = varOf(state.params.weight, String(state.params.weight), "epWeight");
 
         const objEng: VarAD = ops.vsum(objEngs);
         const constrEng: VarAD = ops.vsum(constrEngs);
+        // F(x) = o(x) + c0 * penalty * c(x)
         const overallEng: VarAD = add(objEng,
             mul(constrEng,
                 mul(constrWeightNode, epWeightNode)));
