@@ -38,3 +38,7 @@
 - add back the constraints in venn-small.sty
   - fix n-ary problem
 - lay out and benchmark
+
+- figure out why line search is behaving oddly on venn-small.sty
+
+- make this work for resampling

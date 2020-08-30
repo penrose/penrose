@@ -333,9 +333,9 @@ return [x10, x27, x35, x37, x39, x40, x52, x60, x62, x64];
 
 Passes tests
 
-## Performance for two `sameCenters`, 10 DOF
+### Performance for two `sameCenters`, 10 DOF
 
-### Without line search
+#### Without line search
 
 **10k steps in 44 ms = 227,272 steps/second**
 
@@ -343,9 +343,17 @@ does not converge (but that's fine since no line search)
 ||grad f(x)|| = 29.296048379727498
 energy = 107.2823063334168
 
-### With line search
+#### With line search
 
 10k steps in 155ms
 converges with energy 0
 
 (10k steps / 155ms) = 64.5 steps/ms = 64516 steps/second
+
+## Real test 2 (full `venn-small.sty` with ~10 objectives and constraints, 10 DOF)
+
+(Note: tolerance for passing tests is `1e-3`, has failed with `tol=1e-4`)
+
+Passes tests 
+
+With line search on, runs into a lot of "interval too small" errors, but it does converge to very high precision. Noticeable halt in stepping but that may be because it's told to run for 1k steps?

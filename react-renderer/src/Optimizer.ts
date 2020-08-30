@@ -531,8 +531,8 @@ const minimizeBasic = (
     gradf: (zs: number[]) => number[],
 ) => {
     // const numSteps = 1;
-    // const numSteps = 100;
-    const numSteps = 10000; // Value for speed testing
+    const numSteps = 1e2;
+    // const numSteps = 10000; // Value for speed testing
     // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
     console.log("-------------------------------------");
@@ -549,7 +549,7 @@ const minimizeBasic = (
     let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
 
     const DEBUG_GRAD_DESCENT = false;
-    const USE_LINE_SEARCH = false;
+    const USE_LINE_SEARCH = true;
 
     while (i < numSteps) {
         fxs = f(xs);

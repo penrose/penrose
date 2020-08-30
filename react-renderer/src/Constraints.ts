@@ -2,7 +2,7 @@ import { Tensor, stack, scalar, maximum, norm, abs, square, squaredDifference } 
 import { canvasSize } from "./Canvas";
 import * as _ from "lodash";
 
-const TOL = 1e-4;
+const TOL = 1e-3;
 const DEBUG_ENERGY = false;
 const DEBUG_GRADIENT = true;
 const DEBUG_GRADIENT_UNIT_TESTS = false;
@@ -1134,6 +1134,9 @@ const traverseGraph = (i: number, z: IVarAD): any => {
             }
 
             stmt = `const ${parName} = ${childNames[0]} ? ${childNames[1]} : ${childNames[2]};`;
+        } else if (op === "+ list") {
+            const childList = "[".concat(childNames.join(", ")).concat("]");
+            stmt = `const ${parName} = ${childList}.reduce((x, y) => x + y);`;
         } else {
             console.error("node", z, z.op);
             throw Error("unknown n-ary operation");
