@@ -544,8 +544,8 @@ interface IParams {
 type WeightInfo = IWeightInfo;
 
 interface IWeightInfo {
-    constrWeightNode: VarAD,
-    epWeightNode: VarAD,
+    constrWeightNode: VarAD, // Constant
+    epWeightNode: VarAD, // Changes (input in optimization, but we do NOT need the gradient WRT it)
     constrWeight: number,
     epWeight: number
 };
@@ -636,7 +636,9 @@ type DiffVar = VarAD | Tensor;
 type GradGraphs = IGradGraphs;
 
 interface IGradGraphs {
-    inputs: VarAD[],
+    energyInputs: VarAD[],
     energyOutput: VarAD,
+    gradInputs: VarAD[],
+    // The energy inputs may be different from the grad inputs bc the former may contain the EP weight (but for the latter, we do not want the derivative WRT the EP weight)
     gradOutputs: VarAD[]
 }

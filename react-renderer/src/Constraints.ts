@@ -5,7 +5,7 @@ import * as _ from "lodash";
 const TOL = 1e-3;
 const DEBUG_ENERGY = false;
 const DEBUG_GRADIENT = true;
-const DEBUG_GRADIENT_UNIT_TESTS = false;
+const DEBUG_GRADIENT_UNIT_TESTS = true;
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 const PRINT_TEST_RESULTS = true;
 const RAND_RANGE = 100;
@@ -19,8 +19,9 @@ export const objDict = {
 
     sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
         // TODO: Remove after web-perf done
-        // squared(s1.x.contents), 
-        distsq(center(s1), center(s2)),
+        sin(s1.x.contents),
+    // squared(s1.x.contents), 
+    // distsq(center(s1), center(s2)),
 
     // Generic repel function for two GPIs with centers
     repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
@@ -328,14 +329,14 @@ export const variableAD = (x: number, vname = "", metadata = "", isCompNode = tr
         childrenGrad: [],
         gradVal: { tag: "Nothing" },
         gradNode: { tag: "Nothing" },
-        index: -1,
+        index: -100,
 
         nodeVisited: false,
         name: "",
     };
 };
 
-const markInput = (v: VarAD, i: number) => {
+export const markInput = (v: VarAD, i: number) => {
     v.isInput = true;
     v.index = i;
     return v;
@@ -861,20 +862,20 @@ const opMap = {
 // (Returns `3`)
 
 // Wrapper since energy only has one output
-const genEnergyFn = (xs: VarAD[], z: IVarAD): any => genCode(xs, [z], "energy");
+const genEnergyFn = (xs: VarAD[], z: IVarAD, hasWeight = false): any => genCode(xs, [z], "energy", hasWeight);
 
 // Generate code for multi-output function, given its computational graph and a setting for its outputs
 // NOTE: Modifies the input computational graph `outputs` to set and clear visited nodes
-const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string): any => {
+const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, hasWeight = false): any => {
     let counter = 0;
     let progInputs: string[] = [];
     let progStmts: string[] = [];
     let progOutputs: string[] = [];
 
-    // console.log("genCode inputs, outputs, setting", inputs, outputs, setting);
+    console.log("genCode inputs, outputs, setting", inputs, outputs, setting);
 
     // Just traverse + name the inputs first, then work backward from the outputs
-    // The inputs are ALWAYS the original xsVars, no matter whether it's gradient or energy
+    // The inputs are the EP weight + original xsVars (if it's energy) or just the xsVars (if it's gradient)
     for (const x of inputs) {
         const res = traverseGraph(counter, x);
 
@@ -917,11 +918,27 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string): any => {
     }
 
     const progStr = progStmts.concat([returnStmt]).join("\n");
-    console.error("progStr", progStr);
+    console.error("progInputs", "progStr", progInputs, progStr);
 
     const f = new Function(...progInputs, progStr);
     console.log('generated f\n', f)
-    const g = (xs: number[]) => f(...xs); // So you can call the function without spread
+
+    let g;
+    console.log("has weight?", hasWeight);
+    if (!hasWeight) {
+        // So you can call the function without spread
+        // hasWeight is for "normal" functions that aren't wrapped in the EP cycle (such as the symbolic gradient unit tests)
+        g = (xs: number[]) => f(...xs);
+    } else {
+        // Curry the function so it can be partially applied with the EP weight later, without regenerating the function
+        g = (weight: number[]) => {
+            return (xs: number[]) => {
+                const xs2 = [weight].concat(xs);
+                return f(...xs2);
+            };
+        };
+    }
+    console.log("overall function generated (g):", g);
 
     for (const x of inputs) {
         clearVisitedNodesInput(x);
@@ -1466,36 +1483,38 @@ export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph
     // Set the leaves of the graph to have the new input values
     setInputs(xsVars, xs);
 
+    const xsVarsWithWeight = [weightInfo.epWeightNode].concat(xsVars);
+
     // Build symbolic gradient of f at xs on the energy graph
+    // Note that this does NOT include the weight (i.e. is called on `xsVars`, not `xsVarsWithWeight`! Because the EP weight is not a degree of freedom
     const gradGraph = gradAllSymbolic(energyGraph, xsVars);
 
     const graphs: GradGraphs = {
-        inputs: xsVars,
+        energyInputs: xsVarsWithWeight,
         energyOutput: energyGraph,
+        gradInputs: xsVars,
         gradOutputs: gradGraph
     };
 
     // Synthesize energy and gradient code
-    const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput);
-    const gradGen = genCode(graphs.inputs, graphs.gradOutputs, "grad");
+    const f0 = genEnergyFn(graphs.energyInputs, graphs.energyOutput, true);
+    const gradGen = genCode(graphs.gradInputs, graphs.gradOutputs, "grad", true);
     // TODO: This is called twice (and evaluated; why do the inputs disappear the second time...?
 
     // Evaluate energy and gradient at the point
     // const energyVal = f0(xs);
     // const gradVal = gradGen(xs);
 
-    if (DEBUG_ENERGY) {
-        console.error("generated energy function", genEnergyFn(xsVars, energyGraph));
-    }
-
     if (DEBUG_GRADIENT_UNIT_TESTS) {
         console.log("Running gradient unit tests", graphs);
         testGradSymbolicAll();
+        // throw Error("done with gradient unit tests");
     }
 
     if (DEBUG_GRADIENT) {
         console.log("Testing real gradient on these graphs", graphs);
-        testGradSymbolic(0, graphs);
+        testGradSymbolic(0, graphs, true);
+        throw Error("done with testGradSymbolic");
     }
 
     // Return the energy and grad on the input, as well as updated energy graph
@@ -1802,19 +1821,33 @@ const testGradFiniteDiff = () => {
 // Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }
 // Compile the gradient and check it against numeric gradients
 // TODO: Encode the type of `graphs`
-const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
+const testGradSymbolic = (testNum: number, graphs: GradGraphs, hasWeight = false): boolean => {
     console.log(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
     // Synthesize energy and gradient code
-    const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput);
-    const gradGen = genCode(graphs.inputs, graphs.gradOutputs, "grad");
+    const f0 = genEnergyFn(graphs.energyInputs, graphs.energyOutput, hasWeight);
+    const gradGen0 = genCode(graphs.gradInputs, graphs.gradOutputs, "grad", hasWeight);
+
+    const weight = 10000; // TODO: Test with several weights
+    let f;
+    let gradGen;
+    console.log("testGradSymbolic has weight", hasWeight);
+
+    if (hasWeight) { // Partially apply with weight
+        f = f0(weight);
+        gradGen = gradGen0(weight);
+    } else {
+        f = f0;
+        gradGen = gradGen0;
+    }
 
     // Test the gradient at several points via evaluation
-    const gradEst = gradFiniteDiff(f0);
+    const gradEst = gradFiniteDiff(f);
     const testResults = [];
 
     for (let i = 0; i < NUM_SAMPLES; i++) {
-        const xTest = randList(graphs.inputs.length);
-        const energyRes = f0(xTest);
+        const energyInputTest = randList(graphs.energyInputs.length);
+        const gradInputTest = randList(graphs.gradInputs.length);
+        const energyRes = f(xTest);
         const gradEstRes = gradEst(xTest);
         const gradGenRes = gradGen(xTest);
 
@@ -1955,6 +1988,7 @@ export const testGradSymbolicAll = () => {
         gradGraph3(),
         gradGraph4()
     ];
+
     const testResults = graphs.map((graph, i) => testGradSymbolic(i, graph));
 
     console.error(`All grad symbolic tests passed?: ${all(testResults)}`);

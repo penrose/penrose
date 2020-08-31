@@ -42,3 +42,39 @@
 - figure out why line search is behaving oddly on venn-small.sty
 
 - make this work for resampling
+
+===
+
+revert sameCenter and venn-small.sty again
+swap default hasWeight from false to true
+
+TODO: fix the design for hyperparameters
+
+- types:
+  GradGraphs should have a field for hyperparameters, 
+  weight: Maybe<VarAD>
+
+- to generate fns: IF there is a weight,
+  hyperparameters are just treated as inputs that come before all the other ones
+      f0(x0, x1...xn) <-- x0 might be a hyperparameter, 
+        { x_{n+1} = ... x0 + x1 ... } <-- the body of the function might refer to the hyperparameter just like a normal input
+      similar for grads:
+      gradf0(x0, x1...) <-- x0 might be a hyperparameter, etc.
+
+  then, each function is curried with its first argument only
+      f(x0)(x1,...) = f0(x0, x1,...)
+      gradf(x0)(x1,...) = f0(x0, x1,...)
+
+  if no weight, just gen the fn w/ no currying
+
+- to use: IF there is a weight,
+  hyperparameters are treated as partial applications for both the energy and the gradient
+  f(hs0)(xs0): number
+  gradf(hs0)(xs0): number[]
+
+  can (and should) be applied with different hyperparameters across EP runs
+
+  f(hs1)(xs1)
+  gradf(hs1)(xs1)
+
+  if no weight, just apply the fn w/ no partial application

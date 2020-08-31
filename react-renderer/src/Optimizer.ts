@@ -32,7 +32,8 @@ import {
     fns,
     add,
     mul,
-    varOf
+    varOf,
+    markInput
 } from "./Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -652,7 +653,8 @@ export const evalEnergyOnCustom = (state: State, inlined = false) => {
         // This is fixed during the whole optimization
         const constrWeightNode = varOf(constraintWeight, String(constraintWeight), "constraintWeight");
         // This changes with the EP round, gets bigger to weight the constraints
-        const epWeightNode = varOf(state.params.weight, String(state.params.weight), "epWeight");
+        // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight (-1 is an index; means it appears as the first argument)
+        const epWeightNode = markInput(varOf(state.params.weight, String(state.params.weight), "epWeight"), -1);
 
         const objEng: VarAD = ops.vsum(objEngs);
         const constrEng: VarAD = ops.vsum(constrEngs);
