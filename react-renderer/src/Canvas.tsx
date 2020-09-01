@@ -6,6 +6,9 @@ import { loadImages } from "./Util";
 import { insertPending } from "./PropagateUpdate";
 import { collectLabels } from "./utils/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
+import { walkTranslationConvert } from "./EngineUtils";
+import { scalar } from "@tensorflow/tfjs";
+import { differentiable } from "./Optimizer";
 
 interface ICanvasProps {
   lock: boolean;
@@ -44,20 +47,32 @@ class Canvas extends React.Component<ICanvasProps> {
    */
   public static processData = async (data: any) => {
     const state: State = decodeState(data);
-    const stateEvaled: State = evalTranslation(state);
-    // TODO: return types
+
+    // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
+    // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)
+    const translationAD = walkTranslationConvert(state.translation);
+    const stateAD = {
+      ...state,
+      translation: translationAD,
+      varyingValues: state.varyingValues.map(e => differentiable(e))
+    };
+
+    // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
+    // The results of the pending values are then stored back in the translation as autodiff types
+    const stateEvaled: State = evalTranslation(stateAD);
+    // TODO: add return types
     const labeledShapes: any = await collectLabels(stateEvaled.shapes);
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);
     const sortedShapes: any = await Canvas.sortShapes(
       labeledShapesWithImgs,
       data.shapeOrdering
     );
-
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
     const processed = await insertPending({
       ...stateEvaled,
       shapes: nonEmpties,
     });
+
     return processed;
   };
 
@@ -290,12 +305,12 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-          } on ${new Date()
-            .toISOString()
-            .slice(
-              0,
-              10
-            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+            } on ${new Date()
+              .toISOString()
+              .slice(
+                0,
+                10
+              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}

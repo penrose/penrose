@@ -1,0 +1,52 @@
+Global {
+   Global.width = 800.0
+   Global.height = 700.0
+   Global.pointSize = Global.width/100.0
+   Global.thinStroke = Global.width/200.0
+   Global.planeSize = 0.9*Global.height
+}
+
+Colors {
+   Colors.black = rgba( 0.0, 0.0, 0.0, 1.0 )
+   Colors.blue = rgba( 0.8, 0.7, 1.0, 0.2 )
+}
+
+forall HyperbolicPlane H {
+   H.diskShape = Circle {
+      x : 0.0
+      y : 0.0
+      r : Global.planeSize/2.0
+      color : Colors.blue
+      strokeWidth : Global.thinStroke
+      strokeColor : Colors.black
+      strokeStyle : "dashed"
+      strokeDashArray : "20,10,5,5,5,10"
+   }
+}
+
+forall Point p; HyperbolicPlane H
+where In( p, H ) {
+   p.dotShape = Circle {
+      r : Global.pointSize/2.0
+      strokeWidth : 0.0
+      color : Colors.black
+   }
+
+   ensure contains( H.diskShape, p.dotShape )
+}
+
+
+-- TODO: Fix that we can't add new functions with new names w/o backend complaining
+
+forall IdealPoint p; HyperbolicPlane H
+where In( p, H ) {
+   p.angle = ?
+
+   p.dotShape = Circle {
+      x : 630.0*cos(p.angle)/2.0
+      y : 630.0*sin(p.angle)/2.0
+      r : Global.pointSize
+      strokeWidth : 0.0
+      color : Colors.black
+   }
+}
