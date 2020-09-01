@@ -59,6 +59,10 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
+// Logging flags
+const DEBUG_GRAD_DESCENT = false;
+const USE_LINE_SEARCH = true;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // TODO. These checks should really just be on numbers now
@@ -82,7 +86,9 @@ const unconstrainedConverged = (normGrad: Scalar): boolean => {
 };
 
 const unconstrainedConverged2 = (normGrad: number): boolean => {
-    console.log("UO convergence check: ||grad f(x)||", normGrad);
+    if (DEBUG_GRAD_DESCENT) {
+        console.log("UO convergence check: ||grad f(x)||", normGrad);
+    }
     return normGrad < uoStop;
 };
 
@@ -255,44 +261,72 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
         case "NewIter": {
             console.log("stepBasic newIter, xs", xs);
 
-            // `overallEnergy` is a partially applied function, waiting for an input. 
-            // When applied, it will interpret the energy via lookups on the computational graph
-            // TODO: Could save the interpreted energy graph across amples
-            const overallObjective = evalEnergyOnCustom(state, false);
-            const xsVars: VarAD[] = makeADInputVars(xs);
-            const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
-            // `energyGraph` is a VarAD that is a handle to the top of the graph
+            if (!state.params.functionsCompiled) {
+                // Compile objective and gradient
+                console.log("Compiling objective and gradient");
 
-            console.log("interpreted energy graph", res.energyGraph);
+                // `overallEnergy` is a partially applied function, waiting for an input. 
+                // When applied, it will interpret the energy via lookups on the computational graph
+                // TODO: Could save the interpreted energy graph across amples
+                const overallObjective = evalEnergyOnCustom(state, false);
+                const xsVars: VarAD[] = makeADInputVars(xs);
+                const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
+                // `energyGraph` is a VarAD that is a handle to the top of the graph
 
-            const weightInfo = { // TODO: factor out
-                constrWeightNode: res.constrWeightNode,
-                epWeightNode: res.epWeightNode,
-                constrWeight: constraintWeight,
-                epWeight: initConstraintWeight
-            };
+                console.log("interpreted energy graph", res.energyGraph);
 
-            const { graphs, f, gradf } = energyAndGradCompiled(xs, xsVars, res.energyGraph, weightInfo);
+                const weightInfo = { // TODO: factor out
+                    constrWeightNode: res.constrWeightNode,
+                    epWeightNode: res.epWeightNode,
+                    constrWeight: constraintWeight,
+                    epWeight: initConstraintWeight
+                };
 
-            const newParams: Params = {
-                ...state.params,
-                mutableUOstate: xsVars, // TODO: Unused; remove
-                xsVars,
+                const { graphs, f, gradf } = energyAndGradCompiled(xs, xsVars, res.energyGraph, weightInfo);
 
-                graphs,
-                compiledObjective: f,
-                compiledGradient: gradf,
+                const newParams: Params = {
+                    ...state.params,
+                    mutableUOstate: xsVars, // TODO: Unused; remove
+                    xsVars,
 
-                energyGraph: res.energyGraph,
-                constrWeightNode: res.constrWeightNode,
-                epWeightNode: res.epWeightNode,
-                weight: initConstraintWeight,
-                UOround: 0,
-                EPround: 0,
-                optStatus: { tag: "UnconstrainedRunning" },
-            };
+                    graphs,
+                    objective: f,
+                    gradient: gradf,
 
-            return { ...state, params: newParams, overallObjective };
+                    functionsCompiled: true,
+
+                    currObjective: f(initConstraintWeight),
+                    currGradient: gradf(initConstraintWeight),
+
+                    energyGraph: res.energyGraph,
+                    constrWeightNode: res.constrWeightNode,
+                    epWeightNode: res.epWeightNode,
+                    weight: initConstraintWeight,
+                    UOround: 0,
+                    EPround: 0,
+                    optStatus: { tag: "UnconstrainedRunning" },
+                };
+
+                return { ...state, params: newParams, overallObjective };
+            } else {
+                // Reuse compiled functions for resample; set other initialization params accordingly
+                // The computational graph gets destroyed in resample (just for now, because it can't get serialized)
+                // But it's not needed for the optimization
+                console.log("Reusing compiled objective and gradients");
+                const params = state.params;
+
+                const newParams: Params = {
+                    ...params,
+                    currObjective: params.objective(initConstraintWeight),
+                    currGradient: params.gradient(initConstraintWeight),
+                    weight: initConstraintWeight,
+                    UOround: 0,
+                    EPround: 0,
+                    optStatus: { tag: "UnconstrainedRunning" },
+                };
+
+                return { ...state, params: newParams };
+            }
         }
 
         case "UnconstrainedRunning": {
@@ -304,8 +338,8 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
             // TODO: Slowly port the rest of stepEP here
 
             const res = minimizeBasic(xs,
-                state.params.compiledObjective,
-                state.params.compiledGradient);
+                state.params.currObjective,
+                state.params.currGradient);
             xs = res.xs;
 
             // the new `xs` is put into the `newState`, which is returned at end of function
@@ -352,10 +386,14 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
                 console.log("stepBasic: EP did not converge; starting next round");
                 optParams.optStatus.tag = "UnconstrainedRunning";
 
-                console.error("TODO: increase EP weight (currently unimplemented)");
                 optParams.weight = weightGrowthFactor * weight;
                 optParams.EPround = optParams.EPround + 1;
                 optParams.UOround = 0;
+
+                optParams.currObjective = optParams.objective(optParams.weight);
+                optParams.currGradient = optParams.gradient(optParams.weight);
+
+                console.log("increased EP weight to", optParams.weight, "in compiled energy and gradient");
             }
 
             // Done with EP check, so save the curr EP state as the last EP state for the future.
@@ -532,8 +570,8 @@ const minimizeBasic = (
     gradf: (zs: number[]) => number[],
 ) => {
     // const numSteps = 1;
-    const numSteps = 1e2;
-    // const numSteps = 10000; // Value for speed testing
+    // const numSteps = 1e2;
+    const numSteps = 10000; // Value for speed testing
     // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
     console.log("-------------------------------------");
@@ -549,13 +587,15 @@ const minimizeBasic = (
     let i = 0;
     let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
 
-    const DEBUG_GRAD_DESCENT = false;
-    const USE_LINE_SEARCH = true;
-
     while (i < numSteps) {
         fxs = f(xs);
         gradfxs = gradf(xs);
         normGradfxs = normList(gradfxs);
+
+        if (unconstrainedConverged2(normGradfxs)) {
+            console.log("descent converged early, on step", i, "of", numSteps, "(per display cycle); stopping early");
+            break;
+        }
 
         if (USE_LINE_SEARCH) {
             t = awLineSearch2(xs, f, gradf, gradfxs, fxs);

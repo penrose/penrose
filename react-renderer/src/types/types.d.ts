@@ -526,9 +526,17 @@ interface IParams {
     xsVars: VarAD[]; // Using this instead of mutableUOstate for testing custom AD; TODO phase out one of them
 
     // For energy/gradient compilation
-    graphs: GradGraphs
-    compiledObjective(xs: number[]): number;
-    compiledGradient(xs: number[]): number[];
+    graphs: GradGraphs;
+
+    functionsCompiled: boolean;
+
+    // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
+    objective: any; // number -> (number[] -> number)
+    gradient: any; // number -> (number[] -> number[])
+
+    // Applied with weight (or hyperparameters in general) -- may change with the EP round
+    currObjective(xs: number[]): number;
+    currGradient(xs: number[]): number[];
 
     // `xsVars` are all the leaves of the energy graph
     energyGraph: VarAD; // This is the top of the energy graph (parent node)
@@ -636,9 +644,9 @@ type DiffVar = VarAD | Tensor;
 type GradGraphs = IGradGraphs;
 
 interface IGradGraphs {
-    energyInputs: VarAD[],
+    inputs: VarAD[],
     energyOutput: VarAD,
-    gradInputs: VarAD[],
     // The energy inputs may be different from the grad inputs bc the former may contain the EP weight (but for the latter, we do not want the derivative WRT the EP weight)
     gradOutputs: VarAD[]
+    weight: MaybeVal<VarAD>, // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
 }

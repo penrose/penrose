@@ -78,3 +78,36 @@ TODO: fix the design for hyperparameters
   gradf(hs1)(xs1)
 
   if no weight, just apply the fn w/ no partial application
+
+---
+
+- make sure genCode deals with weight type
+  get rid of hasWeight
+  should it actually take graphs...
+  and make a 'genGradient' wrapper?
+- optimizer: store the partially applied fn in state
+  - reapply with new weight in EP
+
+---
+
+works with `sameCenter`
+works with `contains`, just doesn't satisfy `maxSize`
+
+TODO: some combination of them results in a NaN
+
+does work instantly to lay it out
+
+TODO: Don't resynthesize code on resample
+
+TODO: Check for convergence in inner loop
+
+TODO: narrow down the NaN
+
+we are in stepBasic not stepEP; rename functions to make it clearer
+
+TODO: Re-profile this
+TODO: Put in example synthesized code
+TODO: Fix failing constraint tests -- due to number magnitude
+TODO: Post results
+
+TODO: Port tree.sty

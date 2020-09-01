@@ -42,13 +42,17 @@ export class Protocol {
   };
 
   public clearPacket = (packet: any) => {
+    // TODO: Remove these hacks when we sample shapes in the frontend
     // TODO: Make this more principled (clear it in the right place, rather than right before the point of failure)
+    // This should probably be done in encodeState
+    const params = packet.contents[1].paramsr;
     console.error("clearing AD state from packet", packet);
-    packet.contents[1].paramsr.energyGraph = {};
-    packet.contents[1].paramsr.xsVars = [];
-    packet.contents[1].paramsr.mutableUOstate = [];
-    packet.contents[1].paramsr.constrWeightNode = undefined;
-    packet.contents[1].paramsr.epWeightNode = undefined;
+    params.energyGraph = {};
+    params.xsVars = [];
+    params.mutableUOstate = [];
+    params.constrWeightNode = undefined;
+    params.epWeightNode = undefined;
+    params.graphs = undefined;
   };
 
   public sendPacket = async (packet: any, id?: string) => {
