@@ -156,6 +156,24 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
   },
 
+  orthogonalCircles: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
+    if (t1 === "Circle" && t2 === "Circle") {
+       // Two circles of radii r1,r2 at a distance d will be
+       // orthogonal iff d^2 = r1^2 + r2^2.
+      const d = dist(center(s1), center(s2));
+      const d2 = d.mul(d);
+      const r1 = s1.r.contents;
+      const r2 = s2.r.contents;
+      const r12 = r1.mul(r1);
+      const r22 = r2.mul(r2);
+      const e = d2.sub(r12.add(r22));
+      return e.abs();
+    } else throw new Error(`${[t1, t2]} not supported for orthogonalCircles`);
+  },
+
   // tangentTo: (
   //   [t1, s1]: [string, any],
   //   [t2, s2]: [string, any]

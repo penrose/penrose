@@ -10,6 +10,7 @@ Colors {
   Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
    Colors.black = rgba( 0.0, 0.0, 0.0, 1.0 )
    Colors.blue = rgba( 0.8, 0.7, 1.0, 0.2 )
+   Colors.darkBlue = rgba( 0.2, 0.3, 0.6, 0.5 )
    Colors.red = rgba( 1.0, 0.0, 0.0, 0.5 )
 }
 
@@ -22,7 +23,7 @@ forall HyperbolicPlane H {
       strokeWidth : Global.thinStroke
       strokeColor : Colors.black
       strokeStyle : "dashed"
-      strokeDashArray : "20,10,5,5,5,10"
+      strokeDashArray : "10,10"
    }
 }
 
@@ -77,5 +78,16 @@ where IsCenter( p, h ); In( p, H ) {
 
    ensure tangentTo( H.diskShape, h.circleShape )
    layer h.circleShape above H.diskShape
+}
+
+forall Geodesic g; HyperbolicPlane `H` {
+   g.shape = Circle {
+      color : rgba( 1.0, 1.0, 1.0, 0.0 )
+      strokeColor: Colors.darkBlue
+      strokeWidth: Global.thinStroke
+   }
+
+   ensure orthogonalCircles( g.shape, H.diskShape )
+   --ensure inRange( g.shape.r, Global.planeSize*0.2, Global.planeSize*0.4 )
 }
 
