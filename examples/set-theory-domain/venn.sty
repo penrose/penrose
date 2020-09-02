@@ -63,6 +63,7 @@ forall Set x {
 
 forall Set x; Set y
 where IsSubset(x, y) {
+      -- TODO / NOTE: This version of `repel` doesn't yet work in the new runtime
     encourage repel(x.hue, y.hue, 1.0, "angle")
 
     ensure contains(y.shape, x.shape, 5.0)

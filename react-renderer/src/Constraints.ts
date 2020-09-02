@@ -13,14 +13,13 @@ export const objDict = {
     return distsq(center(s1), center(s2));
   },
 
-
-  below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) => 
+  below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) =>
     square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
-    // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
+  // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
 
 
   centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): Tensor => {
-    if (typesAre([t1,t2], ["Arrow", "Text"])) {
+    if (typesAre([t1, t2], ["Arrow", "Text"])) {
       const mx = arr.startX.contents.add(arr.endX.contents).div(scalar(2.0));
       const my = arr.startY.contents.add(arr.endY.contents).div(scalar(2.0));
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
@@ -108,7 +107,7 @@ export const constrDict = {
       const d = dist(center(s1), center(s2));
       const textR = maximum(s2.w.contents, s2.h.contents);
       return d.sub(s1.r.contents).add(textR);
-    } else if (t1 === "Square" && t2 === "Circle"){
+    } else if (t1 === "Square" && t2 === "Circle") {
       // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
       const sq = stack([s1.x.contents, s1.y.contents]);
       const d = dist(sq, center(s2));
@@ -156,6 +155,21 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for overlapping`);
   },
 
+  tangentTo: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
+    // Inner tangency -- assuming circle1 contains circle2
+    if (t1 === "Circle" && t2 === "Circle") {
+      const d = dist(center(s1), center(s2));
+      const r1 = s1.r.contents;
+      const r2 = s2.r.contents;
+      // Should we bring back the polygon code?
+      // ||c_a - c_b|| - (r1 - r2)
+      // Outer tangency would be `||c_a - c_b|| - (r1 + r2)`
+      return d.sub(r1.sub(r2));
+    } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
+  },
 };
 
 // -------- Helpers for writing objectives
@@ -199,8 +213,9 @@ export const looseIntersect = (center1: Tensor, r1: Tensor, center2: Tensor, r2:
   dist(center1, center2).sub(r1.add(r2).sub(scalar(padding)));
 // dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
+// HACK: need to annotate the types of x and y to be Tensor
 export const center = (props: any): Tensor =>
-  stack([props.x.contents, props.y.contents]); // HACK: need to annotate the types of x and y to be Tensor
+  stack([props.x.contents, props.y.contents]);
 
 export const dist = (p1: Tensor, p2: Tensor): Tensor => p1.sub(p2).norm();
 
@@ -210,7 +225,6 @@ export const distsq = (p1: Tensor, p2: Tensor): Tensor => {
   const dp = p1.sub(p2);
   return dp.dot(dp);
 }
-
 
 // with epsilon to avoid NaNs
 export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));
