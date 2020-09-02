@@ -1,6 +1,6 @@
 import { range } from "lodash";
 import { randFloat } from "./Util";
-import { Tensor, scalar, stack, cos, sin } from "@tensorflow/tfjs";
+import { Tensor, scalar, stack, cos, sin, sqrt } from "@tensorflow/tfjs";
 import { dist } from "./Constraints"
 
 /**
@@ -32,19 +32,48 @@ export const compDict = {
   },
 
   // Accepts degrees; converts to radians
+  // XXX This is bad.  Principle of least surprise: cos should behave as described in ISO/IEC 9899:2011
   cos: (d: Tensor): Value<Tensor> => {
     return { tag: "FloatV", contents: cos(d.mul(scalar(Math.PI)).div(scalar(180))) };
   },
 
   // Accepts degrees; converts to radians
+  // XXX This is bad.  Principle of least surprise: sin should behave as described in ISO/IEC 9899:2011
   sin: (d: any) => {
     return { tag: "FloatV", contents: sin(d.mul(scalar(Math.PI)).div(scalar(180))) };
+  },
+
+  // square root
+  sqrt: (x: any) => {
+    return { tag: "FloatV", contents: sqrt(x) };
   },
 
   dot: (v: any, w: any) => {
     const [tv, tw] = [stack(v), stack(w)];
     return { tag: "FloatV", contents: tv.dot(tw) };
   },
+
+  // sub: (v: any, w: any) => {
+  //   const [tv, tw] = [stack(v), stack(w)];
+  //   const diff = tv.sub(tw).arraySync();
+  //   return { tag: "TupV", contents: [tf.scalar(diff[0]), tf.scalar(diff[1])] };
+  // },
+
+  // get: (v: any, i: any) => {
+  //    return { tag: "FloatV", contents: v[i] };
+  // },
+
+  // div: (u: any, a: any) => {
+  //   return { tag: "TupV", contents: u.div(a) };
+  // },
+
+  // scale: (u: any, a: any) => {
+  //   return { tag: "TupV", contents: u.mul(a) };
+  // },
+
+  // norm: (u: any) => {
+  //    return { tag: "FloatV", contents: u.norm() }
+  // },
 
   lineLength: ([type, props]: [string, any]) => {
     const [p1, p2] = arrowPts(props);

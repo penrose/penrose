@@ -20,3 +20,18 @@ Should allow local scoping, i.e., variables defined within a scope should be ref
 Substance should support Unicode characters
 
 Should be possible to use arbitrary Unicode characters in notation
+
+Should a linter check whether values that are set explicitly also have constraints/objectives on them?
+E.g., if I say "x = 1.23" and also say "ensure (some predicate about x)" it feels like someone should tell me that.
+
+Compiler should definitely complain if a Style program tries to override something that was not previously set.
+
+Should be possible to do something like:
+```
+local x = 1.23
+local u = ( x, x )
+```
+I.e., (i) declare a local variable with a syntax nicer than "LOCAL.", and (ii) refer to this local variable in the same scope without prepending a LOCAL. or local keyword to it.
+
+Need better syntax for vector operations in Style!
+

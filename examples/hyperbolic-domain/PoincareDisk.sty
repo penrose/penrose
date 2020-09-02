@@ -34,7 +34,24 @@ where In( p, H ) {
       color : Colors.black
    }
 
-   ensure contains( H.diskShape, p.dotShape )
+   p.inDiskConstraint = ensure contains( H.diskShape, p.dotShape )
+}
+
+-- TODO: Fix that we can't add new functions with new names w/o backend complaining
+
+forall IdealPoint p; HyperbolicPlane H
+where In( p, H ) {
+   p.angle = ?
+
+   p.dotShape = Circle {
+      x : H.diskShape.r * cos(p.angle)
+      y : H.diskShape.r * sin(p.angle)
+      r : Global.pointSize
+      strokeWidth : 0.0
+      color : Colors.black
+   }
+
+   delete p.inDiskConstraint
 }
 
 forall Horocycle h; IdealPoint p; HyperbolicPlane H
@@ -46,35 +63,19 @@ where IsCenter( p, h ); In( p, H ) {
       strokeWidth : Global.thinStroke
    }
 
-   ensure tangentTo( h.circleShape, H.diskShape )
+   -- u = (h.center - H.center)/norm( h.center - H.center)
+   LOCAL.R = H.diskShape.r
+   LOCAL.c0x = H.diskShape.x
+   LOCAL.c0y = H.diskShape.y
+   LOCAL.c1x = h.circleShape.x
+   LOCAL.c1y = h.circleShape.y
+   LOCAL.ux = LOCAL.c1x - LOCAL.c0x
+   LOCAL.uy = LOCAL.c1y - LOCAL.c0y
+   LOCAL.m = sqrt( LOCAL.ux*LOCAL.ux + LOCAL.uy*LOCAL.uy )
+   override p.dotShape.x = LOCAL.R * LOCAL.ux / LOCAL.m
+   override p.dotShape.y = LOCAL.R * LOCAL.uy / LOCAL.m
+
+   ensure tangentTo( H.diskShape, h.circleShape )
    layer h.circleShape above H.diskShape
 }
 
--- TODO: Fix that we can't add new functions with new names w/o backend complaining
-
-forall IdealPoint p; HyperbolicPlane H
-where In( p, H ) {
-   p.angle = ?
-
-   p.dotShape = Circle {
-      x : 630.0*cos(p.angle)/2.0
-      y : 630.0*sin(p.angle)/2.0
-      r : Global.pointSize
-      strokeWidth : 0.0
-      color : Colors.black
-   }
-}
-
-forall Horocycle h; HyperbolicPlane H {
-  h.circleShape = Circle {
-    -- r : 50.0
-    color : Colors.none
-    strokeWidth : 2.0
-    strokeColor : Colors.black
-  }
-
-  ensure minSize(h.circleShape)
-  ensure maxSize(h.circleShape)
-  ensure contains(H.diskShape, h.circleShape)
-  ensure tangentTo(H.diskShape, h.circleShape)
-}

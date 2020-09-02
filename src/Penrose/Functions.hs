@@ -117,6 +117,7 @@ compDict =
     , ("atan2", constComp arctangent2)
     , ("cos", constComp cosine)
     , ("sin", constComp sine)
+    , ("sqrt", constComp squareRoot)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngle", constComp calcVectorsAngle)
     , ("calcVectorsAngleWithOrigin", constComp calcVectorsAngleWithOrigin)
@@ -653,6 +654,9 @@ cosine :: ConstCompFn
 cosine [Val (FloatV d)] = Val (FloatV $ cos (d * pi / 180))
 sine :: ConstCompFn
 sine [Val (FloatV d)] = Val (FloatV $ sin (d * pi / 180))
+
+squareRoot :: ConstCompFn
+squareRoot [Val (FloatV x)] = Val (FloatV $ sqrt x)
 
 calcVectorsAngle :: ConstCompFn
 calcVectorsAngle [Val (FloatV sx1), Val (FloatV sy1), Val (FloatV ex1), Val (FloatV ey1), Val (FloatV sx2), Val (FloatV sy2), Val (FloatV ex2), Val (FloatV ey2)] =
@@ -2008,7 +2012,7 @@ lessThanSq [Val (FloatV x), Val (FloatV y)] =
 
 tangentTo :: ConstrFn
 tangentTo [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
-  dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o1 "r" + getNum o2 "r")
+  dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o1 "r" - getNum o2 "r")
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =

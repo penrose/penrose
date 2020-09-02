@@ -16,6 +16,17 @@ First, add the function definitions here:
 
 Next, rebuild Penrose by typing `stack build` in `penrose/`
 
+Note: constraints are treated as inequality constraints f(x) ≥ 0; to get equality, you must have two inequality constraints.
+
+# Adding new functions
+
+In Computations.ts, copy-paste something like cosine, and modify for whatever function you want
+
+In Functions.hs, find the compDict list, and make a corresponding function
+Also in Functions.hs, copy-paste the definition of cosine, and modify it to match the new function (name of course should match what you added to the compDict list).
+
+Finally, Rebuild the Penrose backend
+
 # Setup
 
 Clone Penrose repo https://github.com/penrose/penrose.git
@@ -58,3 +69,10 @@ Penrose IDE (use.penrose): [ can we put more of this in a build script? ]
      npm start
    Stuff that shows up is determined by penrose/penrose/tree/master/examples/*Library.json
   NOTE: Penrose IDE didn't connect to the server
+
+# To rebuild the frontend
+
+npm install
+npm run build-lib
+npm start
+
