@@ -7,8 +7,10 @@ Global {
 }
 
 Colors {
+  Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
    Colors.black = rgba( 0.0, 0.0, 0.0, 1.0 )
    Colors.blue = rgba( 0.8, 0.7, 1.0, 0.2 )
+   Colors.red = rgba( 1.0, 0.0, 0.0, 0.5 )
 }
 
 forall HyperbolicPlane H {
@@ -48,4 +50,18 @@ where In( p, H ) {
       strokeWidth : 0.0
       color : Colors.black
    }
+}
+
+forall Horocycle h; HyperbolicPlane H {
+  h.circleShape = Circle {
+    -- r : 50.0
+    color : Colors.none
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+  }
+
+  ensure minSize(h.circleShape)
+  ensure maxSize(h.circleShape)
+  ensure contains(H.diskShape, h.circleShape)
+  ensure tangentTo(H.diskShape, h.circleShape)
 }

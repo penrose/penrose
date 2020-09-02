@@ -143,6 +143,21 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for overlapping`);
   },
 
+  tangentTo: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
+    // Inner tangency -- assuming circle1 contains circle2
+    if (t1 === "Circle" && t2 === "Circle") {
+      const d = dist(center(s1), center(s2));
+      const r1 = s1.r.contents;
+      const r2 = s2.r.contents;
+      // Should we bring back the polygon code?
+      // ||c_a - c_b|| - (r1 - r2)
+      // Outer tangency would be `||c_a - c_b|| - (r1 + r2)`
+      return d.sub(r1.sub(r2));
+    } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
+  },
 };
 
 // -------- Helpers for writing objectives

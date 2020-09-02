@@ -1267,8 +1267,10 @@ genOptProblemAndState trans optConfig
         (objfns ++ defaultObjFns, constrfns ++ defaultConstrs)
     -- Evaluate all expressions once to get the initial shapes
       initVaryingMap = M.empty -- No optimization has happened. Sampled varying vals are in transInit
-      (initialGPIs, transEvaled, _) =
-        evalShapes evalIterRange shapePaths transInit initVaryingMap g'' -- NOTE: intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
+      (initialGPIs, transEvaled, _) = ([], transInit, g'')
+      -- NOTE: Temp hack for web-runtime function names (see issue #352), don't evaluate shapes in backend but in frontend. This will avoid evaluating the translation, so the system won't look for function names here
+        -- Previously: `evalShapes evalIterRange shapePaths transInit initVaryingMap g''`
+   -- NOTE: intentially discarding the new random feed, since we want the computation result to be consistent within one optimization session
       initState = lookupPaths varyingPaths transEvaled
     -- This is the final Style compiler output
   in State

@@ -6,6 +6,7 @@ import seedrandom from "seedrandom";
 import { Tensor, Variable, scalar } from "@tensorflow/tfjs";
 import { sc, differentiable, evalEnergyOn } from "./Optimizer";
 import { compDict, checkComp } from "./Computations";
+import { mapTranslation } from "./EngineUtils";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -540,9 +541,9 @@ export const decodeState = (json: any): State => {
 export const encodeState = (state: State): any => {
   const json = {
     ...state,
-    varyingState: state.varyingValues,
+    varyingState: state.varyingValues.map(e => sc(e)),
     paramsr: state.params, // TODO: careful about the list of variables
-    transr: state.translation,
+    transr: mapTranslation(sc, state.translation), // Only send numbers to backend
     // NOTE: clean up all additional props and turn objects into lists
     shapesr: state.shapes
       .map(values)

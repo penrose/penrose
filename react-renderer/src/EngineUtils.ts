@@ -278,7 +278,6 @@ export function mapTranslation<T, S>(
   };
 };
 
-// TODO: Did this actually fix the original problem with color conversion?
 export const walkTranslationConvert = (trans: Translation): Translation => {
   return mapTranslation(scalar, trans);
 };

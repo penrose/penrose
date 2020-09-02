@@ -20,6 +20,9 @@ import { constrDict, objDict } from "./Constraints";
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
 
+// Printing flags
+const DEBUG_OPT = false;
+
 // growth factor for constraint weights
 const weightGrowthFactor = 10;
 // weight for constraints
@@ -36,9 +39,11 @@ const epStop = 1e-3;
 
 // Unconstrained method convergence criteria
 // TODO. This should REALLY be 10e-10
-const uoStop = 1e-2;
-// const uoStop = 1e-5;
+// const uoStop = 1e-2;
+const uoStop = 1e-5;
 // const uoStop = 10;
+
+const EPS = uoStop;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -533,22 +538,31 @@ export const minimizeTF = (
   // values to be returned
   let energy;
   let i = 0;
-  while (i < maxSteps) {
+  let normGrad;
+  let gradfx;
+  let vals;
+
+  while ((i < maxSteps) || (sc(normGrad) > EPS)) {
     energy = optimizer.minimize(() => f(...xs) as any, true);
+    gradfx = gradf(xs);
+    normGrad = tf.stack(gradfx).norm();
 
     // note: this printing could tank the performance
-    // vals = xs.map(v => v.dataSync()[0]);
-    // console.log("i=", i);
-    // console.log("state", tups2obj(names, vals));
-    // console.log(`f(xs): ${energy}`);
-    // console.log("f'(xs)", tfsStr(gradfx));
-    // console.log("||f'(xs)||", norm_grad);
-    // console.log("cond", norm_grad > EPS, i < MAX_STEPS);
+    if (DEBUG_OPT) {
+      vals = xs.map(v => v.dataSync()[0]);
+
+      console.log("i=", i);
+      console.log(`f(xs): ${energy}`);
+      console.log("f'(xs)", tfsStr(gradfx));
+      console.log("||f'(xs)||", sc(normGrad));
+      console.log("stopping conditions", i < maxSteps, "or", sc(normGrad) > EPS);
+    }
+
     i++;
   }
   // find the current
-  const gradfx = gradf(xs);
-  const normGrad = tf.stack(gradfx).norm();
+  gradfx = gradf(xs);
+  normGrad = tf.stack(gradfx).norm();
   return { energy: energy as Scalar, normGrad: normGrad as Scalar, i };
 };
 
