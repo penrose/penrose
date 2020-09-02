@@ -542,10 +542,14 @@ export const minimizeTF = (
   let gradfx;
   let vals;
 
-  while ((i < maxSteps) || (sc(normGrad) > EPS)) {
+  while( 1 ) {
     energy = optimizer.minimize(() => f(...xs) as any, true);
     gradfx = gradf(xs);
     normGrad = tf.stack(gradfx).norm();
+
+    if( i >= maxSteps || (sc(normGrad) < EPS) ) {
+       break;
+    }
 
     // note: this printing could tank the performance
     if (DEBUG_OPT) {
