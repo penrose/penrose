@@ -457,6 +457,7 @@ constrFuncDict = M.fromList $ map toPenalty flist
       , ("sameHeight", sameHeight)
       , ("nearHead", nearHead)
       , ("smallerThan", smallerThan)
+      , ("tangentTo", tangentTo)
       , ("minSize", minSize)
       , ("maxSize", maxSize)
       , ("outsideOf", outsideOf)
@@ -502,6 +503,7 @@ constrSignatures =
     , ("contains", [GPIType "Circle", GPIType "Rectangle"])
     , ("contains", [GPIType "Rectangle", GPIType "Rectangle"])
     , ("contains", [GPIType "Rectangle", GPIType "Circle"])
+    , ("tangentTo", [GPIType "Circle", GPIType "Circle"])
     , ("overlapping", [GPIType "Circle", GPIType "Circle"])
     , ("overlapping", [GPIType "Square", GPIType "Circle"])
     , ("overlapping", [GPIType "Circle", GPIType "Square"])
@@ -2003,6 +2005,10 @@ lessThanSq :: ConstrFn
 lessThanSq [Val (FloatV x), Val (FloatV y)] = 
            if x < y then 0 else (x - y)^2
            -- in trace ("lessThan, x: " ++ show x ++ ", y: " ++ show y ++ ", res: " ++ show res) res
+
+tangentTo :: ConstrFn
+tangentTo [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
+  dist (getX o1, getY o1) (getX o2, getY o2) - (getNum o1 "r" + getNum o2 "r")
 
 contains :: ConstrFn
 contains [GPI o1@("Circle", _), GPI o2@("Circle", _)] =
