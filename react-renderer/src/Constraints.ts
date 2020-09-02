@@ -80,6 +80,18 @@ export const constrDict = {
     }
   },
 
+  tangentTo: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
+    if (t1 === "Circle" && t2 === "Circle") {
+      const d = dist(center(s1), center(s2));
+      const r1 = s1.r.contents;
+      const r2 = s2.r.contents;
+      return d.sub(r1.add(r2));
+    } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
+  },
+
   contains: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
