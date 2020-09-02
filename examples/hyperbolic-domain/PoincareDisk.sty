@@ -35,15 +35,17 @@ where In( p, H ) {
    --ensure contains( H.diskShape, p.dotShape )
 }
 
---forall IdealPoint p; HyperbolicPlane H
---where In( p, H ) {
---   p.angle = ?
---   p.dotShape = Circle {
---      x : 630.0*cos(p.angle)/2.0
---      y : 630.0*sin(p.angle)/2.0
---      r : Global.pointSize
---      strokeWidth : 0.0
---      color : Colors.black
---   }
---}
+-- TODO: Fix that we can't add new functions with new names w/o backend complaining
 
+forall IdealPoint p; HyperbolicPlane H
+where In( p, H ) {
+   p.angle = ?
+
+   p.dotShape = Circle {
+      x : 630.0*cos(p.angle)/2.0
+      y : 630.0*sin(p.angle)/2.0
+      r : Global.pointSize
+      strokeWidth : 0.0
+      color : Colors.black
+   }
+}
