@@ -1,7 +1,6 @@
 forall Set x {
     x.shape = Circle {
         strokeWidth : 0
-        r : 100.0
     }
 
     x.text = Text {
@@ -23,12 +22,19 @@ where IsSubset(x, y) {
     x.shape above y.shape
 }
 
+-- TODO: Fix that the resample hack breaks on switching examples since it saves the cached functions...
+-- TOOD: Also breaks if you resample without generating the function on first sample. Clearly this should be part of the state
+
+---
+
 forall Set x; Set y
 where Not(Intersecting(x, y)) {
     ensure disjoint(x.shape, y.shape)
 }
 
---------- NEW
+-- --------- NEW
+
+-- TODO: The code below hasn't been ported to web-perf yet
 
 forall Set x; Set y
 where Intersecting(x, y) {

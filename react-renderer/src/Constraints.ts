@@ -4,9 +4,9 @@ import * as _ from "lodash";
 
 // Logging flags
 const DEBUG_ENERGY = false;
-const DEBUG_GRADIENT = false;
+const DEBUG_GRADIENT = true;
 const DEBUG_GRADIENT_UNIT_TESTS = false;
-const PRINT_TEST_RESULTS = false;
+const PRINT_TEST_RESULTS = true;
 
 // Consts
 const TOL = 1e-3;
@@ -149,6 +149,14 @@ export const constrDict = {
     },
 
     disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+        if (t1 === "Circle" && t2 === "Circle") {
+            const d = ops.vdist(centerList(s1), centerList(s2));
+            const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
+            return sub(addN(o), d);
+        } else throw new Error(`${[t1, t2]} not supported for disjoint`);
+    },
+
+      disjointOld: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
         if (t1 === "Circle" && t2 === "Circle") {
             const d = dist(center(s1), center(s2));
             const o = stack([s1.r.contents, s2.r.contents, 10]);

@@ -111,3 +111,17 @@ TODO: Fix failing constraint tests -- due to number magnitude
 TODO: Post results
 
 TODO: Port tree.sty
+
+---
+
+works with `runpenrose set-theory-domain/tree.sub set-theory-domain/venn-opt-test.sty set-theory-domain/setTheory.dsl`
+
+TODO: Fix that the resample hack breaks on switching examples since it saves the cached functions...
+TODO: Also breaks if you resample without generating the function on first sample. Clearly this should be part of the state
+TODO: The code below (the line) hasn't been ported to web-perf yet
+
+TODO: (for tree.sty)
+- repel (with padding)
+- centerArrow
+- above
+- equal
