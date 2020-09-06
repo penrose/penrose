@@ -12,11 +12,21 @@ const PRINT_TEST_RESULTS = true;
 const TOL = 1e-3;
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
 const RAND_RANGE = 100;
+const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
 export const objDict = {
-    equal: (x: DiffVar, y: DiffVar) => squaredDifference(x, y),
+    // (x - y)^2
+    equal: (x: VarAD, y: VarAD) => squared(sub(x, y)),
+
+    equalOld: (x: DiffVar, y: DiffVar) => squaredDifference(x, y),
 
     above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
+        // (getY top - getY bottom - offset) ^ 2
+        squared(
+            sub(sub(top.y.contents, bottom.y.contents),
+                varOf(offset))),
+
+    aboveOld: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
         // (getY top - getY bottom - offset) ^ 2
         square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
 
@@ -26,8 +36,16 @@ export const objDict = {
         // squared(s1.x.contents), 
         distsq(center(s1), center(s2)),
 
-    // Generic repel function for two GPIs with centers
     repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+        // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
+        // TODO: find this out programmatically
+        const repelWeight = 10e6;
+        // 1 / (d^2(cx, cy) + eps)
+        return mul(inverse(ops.vdistsq(centerList(s1), centerList(s2))), varOf(repelWeight));
+    },
+
+    // Generic repel function for two GPIs with centers
+    repelOld: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
         // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
         // TODO: find this out programmatically
         const repelWeight = 10e6;
@@ -36,12 +54,25 @@ export const objDict = {
     },
 
     centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): DiffVar => {
+        const spacing = varOf(1.1); // arbitrary
+
+        if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
+            // HACK: Arbitrarily pick the height of the text
+            // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
+            return centerArrow2(arr, centerList(text1), centerList(text2),
+                [mul(spacing, (text1.h.contents)),
+                neg(mul(text2.h.contents, spacing))]);
+
+        } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
+    },
+
+    centerArrowOld: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): DiffVar => {
         const spacing = scalar(1.1); // arbitrary
 
         if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
             // HACK: Arbitrarily pick the height of the text
             // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-            return centerArrow2(arr, center(text1), center(text2),
+            return centerArrow2Old(arr, center(text1), center(text2),
                 [spacing.mul(text1.h.contents),
                 text2.h.contents.mul(spacing).mul(scalar(1.0)).neg()]);
         } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
@@ -156,7 +187,7 @@ export const constrDict = {
         } else throw new Error(`${[t1, t2]} not supported for disjoint`);
     },
 
-      disjointOld: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+    disjointOld: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
         if (t1 === "Circle" && t2 === "Circle") {
             const d = dist(center(s1), center(s2));
             const o = stack([s1.r.contents, s2.r.contents, 10]);
@@ -225,7 +256,28 @@ const typesAre = (inputs: string[], expected: string[]) =>
 
 // -------- (Hidden) helpers for objective/constraints/computations
 
-const centerArrow2 = (arr: any, center1: DiffVar, center2: DiffVar, [o1, o2]: DiffVar[]): DiffVar => {
+const centerArrow2 = (arr: any, center1: VarAD[], center2: VarAD[], [o1, o2]: VarAD[]): VarAD => {
+    const vec = ops.vsub(center2, center1); // direction the arrow should point to
+    const dir = ops.vnormalize(vec);
+
+    let start = center1;
+    let end = center2;
+
+    // TODO: take in spacing, use the right text dimension/distance?, note on arrow directionality
+
+    // TODO: add abs
+    if (gt(ops.vnorm(vec), add(o1, absVal(o2)))) {
+        start = ops.vadd(center1, ops.vmul(o1, dir));
+        end = ops.vadd(center2, ops.vmul(o2, dir));
+    }
+
+    const fromPt = [arr.startX.contents, arr.startY.contents];
+    const toPt = [arr.endX.contents, arr.endY.contents];
+
+    return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
+}
+
+const centerArrow2Old = (arr: any, center1: DiffVar, center2: DiffVar, [o1, o2]: DiffVar[]): DiffVar => {
     const vec = center2.sub(center1); // direction the arrow should point to
     const dir = normalize(vec);
 
@@ -259,6 +311,7 @@ export const looseIntersect = (center1: DiffVar, r1: DiffVar, center2: DiffVar, 
     dist(center1, center2).sub(r1.add(r2).sub(scalar(padding)));
 // dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
+// TODO: Phase out tensor version of `distsq` and `center`
 export const center = (props: any): VecAD | Tensor => {
     const [x, y] = [props.x.contents, props.y.contents];
 
@@ -726,10 +779,9 @@ const sqrt = (v: VarAD, isCompNode = true): VarAD => {
     const z = variableAD(Math.sqrt(v.val), "sqrt");
     z.isCompNode = isCompNode;
 
-    const EPSD = 10e-6;
     const dzDv = (arg: "unit"): number => {
         if (v.val < 0) { console.error(`negative arg ${v.val} in sqrt`); }
-        return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPSD))
+        return 1.0 / (2.0 * Math.sqrt(Math.max(0, v.val) + EPS_DENOM))
     };
 
     // TODO: How to do the checks in this graph? I guess sqrt should have a special evaluation/gradient rule?
@@ -746,6 +798,61 @@ const sqrt = (v: VarAD, isCompNode = true): VarAD => {
 
     return z;
 };
+
+// TODO: Avoid numerical instability
+const inverse = (v: VarAD, isCompNode = true): VarAD => {
+    const z = variableAD(1 / (v.val + EPS_DENOM), "inverse");
+    z.isCompNode = isCompNode;
+
+    // -1/(x^2 + epsilon) -- This takes care of the divide-by-zero gradient problem
+    if (isCompNode) {
+        const node = just(
+            neg(
+                inverse(
+                    add(
+                        squared(v, false),
+                        gvarOf(EPS_DENOM), false),
+                    false),
+                false)
+        );
+        v.parents.push({ node: z, sensitivityNode: node });
+
+        z.children.push({ node: v, sensitivityNode: node });
+    } else {
+        v.parentsGrad.push({ node: z, sensitivityNode: none });
+
+        z.childrenGrad.push({ node: v, sensitivityNode: none });
+    }
+
+    return z;
+};
+
+const absVal = (v: VarAD, isCompNode = true): VarAD => {
+    const z = variableAD(Math.abs(v.val), "abs");
+    z.isCompNode = isCompNode;
+
+    if (isCompNode) {
+        // x / (|x| + epsilon)
+        const node = just(
+            div(v,
+                add(
+                    absVal(v, false),
+                    gvarOf(EPS_DENOM),
+                    false),
+                false)
+        );
+        v.parents.push({ node: z, sensitivityNode: node });
+
+        z.children.push({ node: v, sensitivityNode: node });
+    } else {
+        v.parentsGrad.push({ node: z, sensitivityNode: none });
+
+        z.childrenGrad.push({ node: v, sensitivityNode: none });
+    }
+
+    return z;
+};
+// ------- Discontinuous / noGrad ops
 
 const noGrad: VarAD = gvarOf(1.0, "noGrad");
 
@@ -843,6 +950,16 @@ const opMap = {
         fn: (x: number): number => {
             if (x < 0) { console.error(`negative arg ${x} in sqrt`); }
             return Math.sqrt(Math.max(0, x));
+        },
+    },
+    "inverse": {
+        fn: (x: number): number => {
+            return 1 / (x + EPS_DENOM);
+        },
+    },
+    "abs": {
+        fn: (x: number): number => {
+            return x / Math.abs(x + EPS_DENOM);
         },
     },
     // Note that these functions treat booleans as numbers: 1.0 = True, 0.0 = False
@@ -1004,8 +1121,13 @@ const traverseGraph = (i: number, z: IVarAD): any => {
             };
         }
 
+        let stmt;
         // Otherwise bind const in body
-        const stmt = `const ${leafName} = ${z.op};`;
+        if (z.op === "noGrad") {
+            stmt = `const ${leafName} = 1.0;`;
+        } else {
+            stmt = `const ${leafName} = ${z.op};`;
+        }
 
         return {
             counter: i,
@@ -1053,6 +1175,12 @@ const traverseGraph = (i: number, z: IVarAD): any => {
         } else if (z.op === "+ list") {
             // TODO: Get rid of unary +
             stmt = `const ${parName} = ${childName};`;
+        } else if (z.op === "inverse") {
+            stmt = `const ${parName} = 1.0 / (${childName} + ${EPS_DENOM});`;
+        } else if (z.op === "- (unary)") {
+            stmt = `const ${parName} = -${childName};`;
+        } else if (z.op === "abs") {
+            stmt = `const ${parName} = Math.abs(${childName});`;
         } else {
             stmt = `const ${parName} = (${op})(${childName});`;
         }
@@ -1308,6 +1436,11 @@ const constrDict2 = {};
 // Note that these ops MUST use the custom var ops for grads
 // Note that these ops are hardcoded to assume they are not applied to grad nodes
 export const ops = {
+    vadd: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+        const res = _.zipWith(v1, v2, add);
+        return res;
+    },
+
     vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
         const res = _.zipWith(v1, v2, sub);
         return res;
@@ -1324,8 +1457,26 @@ export const ops = {
         return sqrt(res);
     },
 
+    vmul: (c: VarAD, v: VarAD[]): VarAD[] => {
+        return v.map(e => mul(c, e));
+    },
+
+    vdiv: (v: VarAD[], c: VarAD): VarAD[] => {
+        return v.map(e => div(e, c));
+    },
+
+    vnormalize: (v: VarAD[]): VarAD[] => {
+        // TODO: Need to account for divide by zero?
+        const vsize = add(ops.vnorm(v), varOf(EPS_DENOM));
+        return ops.vdiv(v, vsize);
+    },
+
     vdist: (v: VarAD[], w: VarAD[]): VarAD => {
         return ops.vnorm(ops.vsub(v, w));
+    },
+
+    vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
+        return ops.vnormsq(ops.vsub(v, w));
     },
 
     // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
