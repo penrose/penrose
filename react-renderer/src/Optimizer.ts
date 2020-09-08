@@ -1,4 +1,5 @@
 import * as tf from "@tensorflow/tfjs";
+import * as la from "linear-algebra-js";
 import {
   Tensor,
   stack,
@@ -59,9 +60,9 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-// Logging flags
 const DEBUG_GRAD_DESCENT = false;
 const USE_LINE_SEARCH = true;
+const BREAK_EARLY = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -592,7 +593,7 @@ const minimizeBasic = (
     gradfxs = gradf(xs);
     normGradfxs = normList(gradfxs);
 
-    if (unconstrainedConverged2(normGradfxs)) {
+    if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
       console.log("descent converged early, on step", i, "of", numSteps, "(per display cycle); stopping early");
       break;
     }

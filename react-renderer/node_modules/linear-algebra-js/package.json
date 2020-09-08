@@ -1,0 +1,24 @@
+{
+   "name": "linear-algebra-js",
+   "version": "1.0.0",
+   "description": "linear-algebra-js is an optimized linear algebra library in pure Javascript. It supports both sparse and dense matrices, with routines to compute Cholesky, LU, and QR factorizations.",
+   "main": "node/linear-algebra.js",
+   "scripts": {
+      "test": "mocha tests/test-node.js"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/rohan-sawhney/linear-algebra-js.git"
+   },
+   "author": "Rohan Sawhney",
+   "license": "MIT",
+   "bugs": {
+      "url": "https://github.com/rohan-sawhney/linear-algebra-js/issues"
+   },
+   "homepage": "https://github.com/rohan-sawhney/linear-algebra-js#readme",
+   "dependencies": {},
+   "devDependencies": {
+      "chai": "^4.1.2",
+      "mocha": "^5.2.0"
+   }
+}

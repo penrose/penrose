@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <!-- Begin Jekyll SEO tag v2.3.0 -->
+    <title>About | linear-algebra-js</title>
+    <meta property="og:title" content="About" />
+    <meta property="og:locale" content="en_US" />
+    <link rel="canonical" href="https://rohan-sawhney.github.io/linear-algebra-js/" />
+    <meta property="og:url" content="https://rohan-sawhney.github.io/linear-algebra-js/" />
+    <meta property="og:site_name" content="linear-algebra-js" />
+    <script type="application/ld+json">
+        {
+            "name": "linear-algebra-js",
+            "description": null,
+            "author": null,
+            "@type": "WebSite",
+            "url": "https://rohan-sawhney.github.io/linear-algebra-js/",
+            "image": null,
+            "publisher": null,
+            "headline": "About",
+            "dateModified": null,
+            "datePublished": null,
+            "sameAs": null,
+            "mainEntityOfPage": null,
+            "@context": "http://schema.org"
+        }
+    </script>
+    <!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/linear-algebra-js/assets/css/style.css?v=3910c66c9c36537efdad554b5c789ebe0852eeaa">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <img src="lajs-logo.png" height="140" width="309.037">
+            <h1>linear-algebra-js</h1>
+            <p></p>
+
+            <p class="view"><a href="https://github.com/rohan-sawhney/linear-algebra-js">View the Project on GitHub <small></small></a></p>
+
+
+
+
+
+        </header>
+        <section>
+
+            <h1 id="about">About</h1>
+
+            <p>linear-algebra-js is an optimized linear algebra library in pure Javascript. It supports both sparse and dense matrices, with routines to compute Cholesky, LU, and QR factorizations.</p>
+
+            <p>linear-algebra-js is implemented in <a href="http://asmjs.org">asm.js</a> to obtain the best possible performance for a Javascript program, and was compiled from a wrapper around the C++ library <a href="https://eigen.tuxfamily.org">Eigen</a>                with <a href="http://emscripten.org">emscripten</a>. Future updates will compile the more optimized sparse matrix library <a href="http://faculty.cse.tamu.edu/davis/suitesparse.html">Suitesparse</a> to asm.js.</p>
+
+            <p>Detailed documentation and unit tests can be found in the docs and tests directories of this <a href="https://github.com/rohan-sawhney/linear-algebra-js">repository</a>.</p>
+
+            <h2 id="code-snippet">Code Snippet</h2>
+
+            <div class="highlighter-rouge">
+                <div class="highlight"><pre class="highlight"><code>// solve the linear system Ax = b, where A is a square sparse matrix
+let A = SparseMatrix.identity(5, 5);
+let b = DenseMatrix.ones(5, 1);
+
+let lu = A.lu();
+let x = lu.solveSquare(b);
+
+b.scaleBy(5);
+x = lu.solveSquare(b); // factorization is reused
+</code></pre></div>
+            </div>
+
+            <h2 id="getting-started">Getting started</h2>
+
+            <ol>
+                <li>Clone this repository
+                    <div class="highlighter-rouge">
+                        <div class="highlight"><pre class="highlight"><code>git clone https://github.com/rohan-sawhney/linear-algebra-js.git
+</code></pre></div>
+                    </div>
+                </li>
+                <li>Include the files in the src directory in your browser or node js code.</li>
+            </ol>
+
+            <h2 id="author">Author</h2>
+
+            <p><a href="http://rohansawhney.io">Rohan Sawhney</a></p>
+
+            <h2 id="license">License</h2>
+
+            <p><a href="https://opensource.org/licenses/MIT">MIT</a></p>
+
+
+        </section>
+        <footer>
+
+            <p>This project is maintained by <a href="https://github.com/rohan-sawhney">rohan-sawhney</a></p>
+
+            <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        </footer>
+    </div>
+    <script src="/linear-algebra-js/assets/js/scale.fix.js"></script>
+
+
+
+</body>
+
+</html>
