@@ -1,5 +1,7 @@
 import * as tf from "@tensorflow/tfjs";
-import * as la from "linear-algebra-js";
+// import * as la from "linear-algebra-js.DenseMatrix";
+const la = require('../node_modules/linear-algebra-js/node/dense-matrix');
+
 import {
   Tensor,
   stack,
@@ -53,6 +55,7 @@ const optimizer = tf.train.adam(learningRate, 0.9, 0.999);
 // EP method convergence criteria
 const epStop = 1e-3;
 // const epStop = 1e-5;
+const defaultLbfgsMemSize = 17;
 
 // Unconstrained method convergence criteria
 // TODO. This should REALLY be 10e-10
@@ -244,6 +247,17 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   return newState;
 };
 
+const defaultLbfgsParams: LbfgsParams =
+{
+  lastState: { tag: "Nothing" },
+  lastGrad: { tag: "Nothing" },
+  invH: { tag: "Nothing" },
+  s_list: [],
+  y_list: [],
+  numUnconstrSteps: 0,
+  memSize: defaultLbfgsMemSize
+};
+
 export const stepBasic = (state: State, steps: number, evaluate = true) => {
   console.log("stepBasic");
   const { optStatus, weight } = state.params;
@@ -308,6 +322,8 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
           UOround: 0,
           EPround: 0,
           optStatus: { tag: "UnconstrainedRunning" },
+
+          lbfgsInfo: defaultLbfgsParams,
         };
 
         return { ...state, params: newParams, overallObjective };
@@ -326,6 +342,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
           UOround: 0,
           EPround: 0,
           optStatus: { tag: "UnconstrainedRunning" },
+          lbfgsInfo: defaultLbfgsParams,
         };
 
         return { ...state, params: newParams };
@@ -342,25 +359,29 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
       const res = minimizeBasic(xs,
         state.params.currObjective,
-        state.params.currGradient);
+        state.params.currGradient,
+        state.params.lbfgsInfo);
       xs = res.xs;
 
       // the new `xs` is put into the `newState`, which is returned at end of function
       // we don't need the updated xsVars and energyGraph as they are always cleared on evaluation; only their structure matters
-      const { energyVal, normGrad } = res;
+      const { energyVal, normGrad, newLbfgsInfo } = res;
 
       optParams._lastUOstate = xs;
       optParams._lastUOenergy = energyVal;
       optParams.UOround = optParams.UOround + 1;
+      optParams.lbfgsInfo = newLbfgsInfo;
 
       // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
       // TODO. In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
       if (unconstrainedConverged2(normGrad)) {
-        optParams.optStatus.tag = "UnconstrainedConverged"; // TODO. reset bfgs params to default
+        optParams.optStatus.tag = "UnconstrainedConverged";
+        optParams.lbfgsInfo = defaultLbfgsParams;
         console.log("Unconstrained converged with energy", energyVal, "gradient norm", normGrad);
       } else {
         optParams.optStatus.tag = "UnconstrainedRunning";
+        // Note that lbfgs prams have already been updated
         console.log(`Took ${steps} steps. Current energy`, energyVal, "gradient norm", normGrad);
       }
 
@@ -373,6 +394,8 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
       // Do EP convergence check on the last EP state (and its energy), and curr EP state (and its energy)
       // (There is no EP state or energy on the first round)
+      // Note that lbfgs params have already been reset to default
+
       // TODO. Make a diagram to clarify vocabulary
       console.log("stepBasic: unconstrained converged", optParams);
 
@@ -386,7 +409,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       } else {
         // If EP has not converged, increase weight and continue.
         // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
-        console.log("stepBasic: EP did not converge; starting next round");
+        console.log("stepBasic: UO converged but EP did not converge; starting next round");
         optParams.optStatus.tag = "UnconstrainedRunning";
 
         optParams.weight = weightGrowthFactor * weight;
@@ -567,10 +590,74 @@ const awLineSearch2 = (
   return t;
 };
 
+const printVec = (xs: any) => {
+  // Prints a col vector (nx1)
+  const res = [];
+  for (let i = 0; i < xs.nRows(); i++) {
+    res.push(xs.get(i, 0));
+  }
+  // console.log("xs (matrix)", res);
+};
+
+const vecOf = (xs: number[]): any => {
+  // Return a col vector (nx1)
+  // TODO: Should it be a row (transposed)?
+
+  const m = la.zeros(xs.length, 1); // rows x cols
+  xs.forEach((e, i) => m.set(e, i, 0));
+  // console.log("original xs", xs);
+  // printVec(m);
+  return m;
+};
+
+const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
+  // Precondition the gradient:
+  // Approximate the inverse of the Hessian times the gradient
+  // Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
+  // See Optimizer.hs for any add'l comments
+
+  // Comments for normal BFGS:
+  // For x_{k+1}, to compute H_k, we need the (k-1) info
+  // Our convention is that we are always working "at" k to compute k+1
+  // x_0 doesn't require any H; x_1 (the first step) with k = 0 requires H_0
+  // x_2 (the NEXT step) with k=1 requires H_1. For example>
+  // x_2 = x_1 - alpha_1 H_1 grad f(x_1)   [GD step]
+  // H_1 = V_0 H_0 V_0 + rho_0 s_0 s_0^T   [This is confusing because the book adds an extra +1 to the H index]
+  // V_0 = I - rho_0 y_0 s_0^T
+  // rho_0 = 1 / y_0^T s_0
+  // s_0 = x_1 - x_0
+  // y_0 = grad f(x_1) - grad f(x_0)
+
+  if (lbfgsInfo.numUnconstrSteps === 0) {
+    // Initialize state
+    // Perform normal gradient descent on first step
+    // Store x_k, grad f(x_k) so we can compute s_k, y_k on next step
+
+    // TODO: Store vecs/mtrs instead in the params type
+    return {
+      newGrad: gradfxs,
+      updatedLbfgsInfo: {
+        ...lbfgsInfo,
+        lastState: { tag: "Just", contents: vecOf(xs) },
+        lastGrad: { tag: "Just", contents: vecOf(gradfxs) },
+        s_list: [],
+        y_list: [],
+        numUnconstrSteps: 1
+      }
+    };
+  } else {
+    // Our current step is k; the last step is km1 (k_minus_1)
+
+    throw Error("lbfgs 2");
+
+  }
+};
+
 const minimizeBasic = (
   xs0: number[],
   f: (zs: number[]) => number,
   gradf: (zs: number[]) => number[],
+  lbfgsInfo: LbfgsParams
 ) => {
   // const numSteps = 1;
   // const numSteps = 1e2;
@@ -590,10 +677,17 @@ const minimizeBasic = (
   let i = 0;
   let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
 
+  let newLbfgsInfo = lbfgsInfo;
+
   while (i < numSteps) {
     fxs = f(xs);
     gradfxs = gradf(xs);
     normGradfxs = normList(gradfxs);
+
+    const { newGrad, updatedLbfgsInfo } = lbfgs(xs, gradfxs, newLbfgsInfo);
+    newLbfgsInfo = updatedLbfgsInfo;
+
+    throw Error("lbfgs 3");
 
     if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
       console.log("descent converged early, on step", i, "of", numSteps, "(per display cycle); stopping early");
@@ -625,7 +719,8 @@ const minimizeBasic = (
   return {
     xs,
     energyVal: fxs,
-    normGrad: normGradfxs
+    normGrad: normGradfxs,
+    newLbfgsInfo
   };
 };
 
