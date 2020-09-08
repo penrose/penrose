@@ -13,9 +13,9 @@ import * as tf from "@tensorflow/tfjs";
 
 // Cache compiled functions after first sample
 // TODO: Hack -- remove! Global state in frontend -- what's the right way to do this?
-let resampled = false;
-let objective: any;
-let gradient: any;
+// let resampled = false;
+// let objective: any;
+// let gradient: any;
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
@@ -41,13 +41,13 @@ const stepState = async (state: State, onUpdate: any) => {
   // const newState = stepEP(state!, numSteps);
 
   // TODO: Hack -- remove!
-  state.params.functionsCompiled = resampled;
-  if (resampled) {
-    state.params.objective = objective;
-    state.params.gradient = gradient;
-  }
+  // state.params.functionsCompiled = resampled;
+  // if (resampled) {
+  //   state.params.objective = objective;
+  //   state.params.gradient = gradient;
+  // }
 
-  console.log("functionsCompiled", state.params.functionsCompiled);
+  // console.log("functionsCompiled", state.params.functionsCompiled);
   const newState = stepBasic(state!, numSteps);
 
   // onUpdate(newState);
@@ -55,8 +55,8 @@ const stepState = async (state: State, onUpdate: any) => {
   onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update
 
   // TODO: Hack -- remove! sets it every step
-  objective = state.params.objective;
-  gradient = state.params.gradient;
+  // objective = state.params.objective;
+  // gradient = state.params.gradient;
 };
 
 class App extends React.Component<any, ICanvasState> {
@@ -115,7 +115,7 @@ class App extends React.Component<any, ICanvasState> {
 
   public resample = async () => {
     const NUM_SAMPLES = 50;
-    resampled = true;
+    // resampled = true;
     await this.setState({ processedInitial: false });
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };

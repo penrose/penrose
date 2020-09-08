@@ -262,7 +262,9 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
     case "NewIter": {
       console.log("stepBasic newIter, xs", xs);
 
-      if (!state.params.functionsCompiled) {
+      // if (!state.params.functionsCompiled) {
+      // TODO: Don't reuse compiled function for now (since caching function in App currently does not work)
+      if (true) {
         // Compile objective and gradient
         console.log("Compiling objective and gradient");
 
@@ -613,7 +615,6 @@ const minimizeBasic = (
       console.log("|grad f(x)|:", normList(gradfxs));
       console.log("t", t, "use line search:", USE_LINE_SEARCH);
     }
-
     // xs2' = xs2 - t * gradf(xs2)
     xs = xs.map((x, j) => x - t * gradfxs[j]);
     i++;

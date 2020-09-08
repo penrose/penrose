@@ -121,7 +121,26 @@ TODO: Also breaks if you resample without generating the function on first sampl
 TODO: The code below (the line) hasn't been ported to web-perf yet
 
 TODO: (for tree.sty)
-- repel (with padding)
+- repel (with padding) X
 - centerArrow
 - above
 - equal
+
+---
+
+TODO: Document new available functions
+
+Tree repel
+    Need inverse
+
+TODO: Document what I need to do to add a new operation
+// ADDING A NEW OP: (TODO: document further)
+// Add its definition above
+// Add it to the opMap
+// Add its js mapping (code) to traverseGraph
+
+---
+
+Tree works instantly. TODO: Document the GIF 
+TODO: Also finds another symmetric result which TF didn't find earlier: https://www.dropbox.com/s/ef6gzkmra1zsa9q/Screen%20Shot%202020-09-05%20at%2011.38.49%20PM.png?dl=0
+(does this satisfy the style program?)
