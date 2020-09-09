@@ -599,9 +599,10 @@ const printVec = (xs: any) => {
   // console.log("xs (matrix)", res);
 };
 
-const vecOf = (xs: number[]): any => {
+const colVec = (xs: number[]): any => {
   // Return a col vector (nx1)
   // TODO: Should it be a row (transposed)?
+  // TODO: What is the performance of this?
 
   const m = la.zeros(xs.length, 1); // rows x cols
   xs.forEach((e, i) => m.set(e, i, 0));
@@ -610,12 +611,19 @@ const vecOf = (xs: number[]): any => {
   return m;
 };
 
-const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
-  // Precondition the gradient:
-  // Approximate the inverse of the Hessian times the gradient
-  // Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
-  // See Optimizer.hs for any add'l comments
+// Precondition the gradient:
+// Approximate the inverse of the Hessian times the gradient
+// Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
 
+// `any` here is a column vector type
+const lbfgsInner = (grad_fx_k: any, ss_km1: any[], ys_km1: any[]): any => {
+  const gradP = grad_fx_k; // TODO
+  return gradP;
+};
+
+// Outer loop of lbfgs
+// See Optimizer.hs for any add'l comments
+const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
   // Comments for normal BFGS:
   // For x_{k+1}, to compute H_k, we need the (k-1) info
   // Our convention is that we are always working "at" k to compute k+1
@@ -638,18 +646,44 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
       newGrad: gradfxs,
       updatedLbfgsInfo: {
         ...lbfgsInfo,
-        lastState: { tag: "Just", contents: vecOf(xs) },
-        lastGrad: { tag: "Just", contents: vecOf(gradfxs) },
+        lastState: { tag: "Just", contents: colVec(xs) },
+        lastGrad: { tag: "Just", contents: colVec(gradfxs) },
         s_list: [],
         y_list: [],
         numUnconstrSteps: 1
       }
     };
-  } else {
+  } else if (lbfgsInfo.lastState.tag === "Just" && lbfgsInfo.lastGrad.tag === "Just" && lbfgsInfo.invH.tag === "Just") {
     // Our current step is k; the last step is km1 (k_minus_1)
+    const x_k = colVec(xs);
+    const grad_fx_k = colVec(gradfxs);
+
+    const grad_fx_km1 = lbfgsInfo.lastGrad;
+    const x_km1 = lbfgsInfo.lastState;
+    const ss_km2 = lbfgsInfo.s_list;
+    const ys_km2 = lbfgsInfo.y_list;
+
+    // Compute s_{k-1} = x_k - x_{k-1} and y_{k-1} = (analogous with grads)
+    // Unlike Nocedal, compute the difference vectors first instead of last (same result, just a loop rewrite)
+    // Use the updated {s_i} and {y_i}. (If k < m, this reduces to normal BFGS, i.e. we use all the vectors so far)
+    // Newest vectors added to front
+    const s_km1 = x_k.minus(x_km1);
+    const y_km1 = grad_fx_k.minus(grad_fx_km1);
+
+    // The limited-memory part: drop stale vectors
+    // Haskell `ss` -> JS `ss_km2`; Haskell `ss'` -> JS `ss_km1`
+    const ss_km1 = _.take([s_km1].concat(ss_km2), lbfgsInfo.memSize);
+    const ys_km1 = _.take([y_km1].concat(ys_km2), lbfgsInfo.memSize);
+    const gradPreconditioned = lbfgsInner(grad_fx_k, ss_km1, ys_km1);
+
+    // TODO: Check this in the book
+    // const descentDirCheck = 
 
     throw Error("lbfgs 2");
 
+  } else {
+    console.error("State:", lbfgsInfo);
+    throw Error("Invalid L-BFGS state");
   }
 };
 

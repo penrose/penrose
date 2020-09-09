@@ -491,13 +491,14 @@ interface IEPConverged {
 
 type LbfgsParams = ILbfgsParams;
 
+// `n` is the size of the varying state
 interface ILbfgsParams {
   // TODO: Store as matrix types
-  lastState: Maybe<number[]>;
-  lastGrad: Maybe<number[]>;
-  invH: Maybe<number[][]>;
-  s_list: number[][];
-  y_list: number[][];
+  lastState: Maybe<any>; // nx1 (col vec)
+  lastGrad: Maybe<any>; // nx1 (col vec)
+  invH: Maybe<any>; // nxn matrix
+  s_list: any[]; // list of nx1 col vecs
+  y_list: any[]; // list of nx1 col vecs
   numUnconstrSteps: number;
   memSize: number;
 }
