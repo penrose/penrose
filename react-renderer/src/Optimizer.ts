@@ -1,6 +1,5 @@
 import * as tf from "@tensorflow/tfjs";
-// import * as la from "linear-algebra-js.DenseMatrix";
-const la = require('../node_modules/linear-algebra-js/node/dense-matrix');
+import { LinearAlgebra, DenseMatrix as la, Vector as vec, memoryManager } from "linear-algebra-js";
 
 import {
   Tensor,
@@ -56,6 +55,7 @@ const optimizer = tf.train.adam(learningRate, 0.9, 0.999);
 const epStop = 1e-3;
 // const epStop = 1e-5;
 const defaultLbfgsMemSize = 17;
+const ALMOST_ZERO = 1e-11;
 
 // Unconstrained method convergence criteria
 // TODO. This should REALLY be 10e-10
@@ -251,7 +251,6 @@ const defaultLbfgsParams: LbfgsParams =
 {
   lastState: { tag: "Nothing" },
   lastGrad: { tag: "Nothing" },
-  invH: { tag: "Nothing" },
   s_list: [],
   y_list: [],
   numUnconstrSteps: 0,
@@ -300,6 +299,8 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
         };
 
         const { graphs, f, gradf } = energyAndGradCompiled(xs, xsVars, res.energyGraph, weightInfo);
+
+        memoryManager.deleteExcept([]); // Clear allocated matrix, vector objects in L-BFGS params
 
         const newParams: Params = {
           ...state.params,
@@ -377,6 +378,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       // TODO. In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
       if (unconstrainedConverged2(normGrad)) {
         optParams.optStatus.tag = "UnconstrainedConverged";
+        memoryManager.deleteExcept([]); // Clear allocated matrix, vector objects in L-BFGS params
         optParams.lbfgsInfo = defaultLbfgsParams;
         console.log("Unconstrained converged with energy", energyVal, "gradient norm", normGrad);
       } else {
@@ -596,7 +598,8 @@ const printVec = (xs: any) => {
   for (let i = 0; i < xs.nRows(); i++) {
     res.push(xs.get(i, 0));
   }
-  // console.log("xs (matrix)", res);
+
+  console.log("xs (matrix)", res);
 };
 
 const colVec = (xs: number[]): any => {
@@ -606,8 +609,10 @@ const colVec = (xs: number[]): any => {
 
   const m = la.zeros(xs.length, 1); // rows x cols
   xs.forEach((e, i) => m.set(e, i, 0));
-  // console.log("original xs", xs);
-  // printVec(m);
+
+  console.log("original xs", xs);
+  printVec(m);
+
   return m;
 };
 
@@ -641,9 +646,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // Perform normal gradient descent on first step
     // Store x_k, grad f(x_k) so we can compute s_k, y_k on next step
 
-    // TODO: Store vecs/mtrs instead in the params type
     return {
-      newGrad: gradfxs,
+      gradfxsPreconditioned: gradfxs,
       updatedLbfgsInfo: {
         ...lbfgsInfo,
         lastState: { tag: "Just", contents: colVec(xs) },
@@ -653,11 +657,12 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
         numUnconstrSteps: 1
       }
     };
-  } else if (lbfgsInfo.lastState.tag === "Just" && lbfgsInfo.lastGrad.tag === "Just" && lbfgsInfo.invH.tag === "Just") {
+  } else if (lbfgsInfo.lastState.tag === "Just" && lbfgsInfo.lastGrad.tag === "Just") {
     // Our current step is k; the last step is km1 (k_minus_1)
     const x_k = colVec(xs);
     const grad_fx_k = colVec(gradfxs);
 
+    const km1 = lbfgsInfo.numUnconstrSteps;
     const grad_fx_km1 = lbfgsInfo.lastGrad;
     const x_km1 = lbfgsInfo.lastState;
     const ss_km2 = lbfgsInfo.s_list;
@@ -676,10 +681,42 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     const ys_km1 = _.take([y_km1].concat(ys_km2), lbfgsInfo.memSize);
     const gradPreconditioned = lbfgsInner(grad_fx_k, ss_km1, ys_km1);
 
-    // TODO: Check this in the book
-    // const descentDirCheck = 
+    // Reset L-BFGS if the result is not a descent direction, and use steepest descent direction
+    // https://github.com/JuliaNLSolvers/Optim.jl/issues/143 
+    // https://github.com/JuliaNLSolvers/Optim.jl/pull/144
+    // A descent direction is a vector p s.t. <p `dot` grad_fx_k> < 0
+    // If P is a positive definite matrix, then p = -P grad f(x) is a descent dir at x
+    const descentDirCheck = -1.0 * gradPreconditioned.transpose().timesDense(grad_fx_k);
 
-    throw Error("lbfgs 2");
+    if (descentDirCheck > 0.0) {
+      console.error("L-BFGS did not find a descent direction. Resetting correction vectors.", lbfgsInfo);
+      return {
+        gradfxsPreconditioned: gradfxs,
+        updatedLbfgsInfo: {
+          ...lbfgsInfo,
+          lastState: { tag: "Just", contents: x_k },
+          lastGrad: { tag: "Just", contents: grad_fx_k },
+          s_list: [],
+          y_list: [],
+          numUnconstrSteps: 1
+        }
+      };
+    }
+
+    // Found a direction; update the state
+    // TODO: check the curvature condition y_k^T s_k > 0 (8.7) (Nocedal 201)
+    // https://github.com/JuliaNLSolvers/Optim.jl/issues/26
+    return {
+      gradfxsPreconditioned: gradPreconditioned,
+      updatedLbfgsInfo: {
+        ...lbfgsInfo,
+        lastState: { tag: "Just", contents: x_k },
+        lastGrad: { tag: "Just", contents: grad_fx_k },
+        s_list: ss_km1,
+        y_list: ys_km1,
+        numUnconstrSteps: km1 + 1
+      }
+    };
 
   } else {
     console.error("State:", lbfgsInfo);
@@ -718,22 +755,21 @@ const minimizeBasic = (
     gradfxs = gradf(xs);
     normGradfxs = normList(gradfxs);
 
-    const { newGrad, updatedLbfgsInfo } = lbfgs(xs, gradfxs, newLbfgsInfo);
+    const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(xs, gradfxs, newLbfgsInfo);
     newLbfgsInfo = updatedLbfgsInfo;
 
     throw Error("lbfgs 3");
 
-    if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) {
+    if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) { // This is on the original gradient, not the preconditioned one
       console.log("descent converged early, on step", i, "of", numSteps, "(per display cycle); stopping early");
       break;
     }
 
     if (USE_LINE_SEARCH) {
-      t = awLineSearch2(xs, f, gradf, gradfxs, fxs);
+      t = awLineSearch2(xs, f, gradf, gradfxsPreconditioned, fxs); // The search direction is conditioned (here, by an approximation of the inverse of the Hessian at the point)
     }
 
     if (DEBUG_GRAD_DESCENT) {
-      // TODO: Move debug flags into energyAndGradDynamic
       console.log("-----");
       console.log("i", i);
       console.log("num steps per display cycle", numSteps);
@@ -743,8 +779,8 @@ const minimizeBasic = (
       console.log("|grad f(x)|:", normList(gradfxs));
       console.log("t", t, "use line search:", USE_LINE_SEARCH);
     }
-    // xs2' = xs2 - t * gradf(xs2)
-    xs = xs.map((x, j) => x - t * gradfxs[j]);
+
+    xs = xs.map((x, j) => x - t * gradfxsPreconditioned[j]); // The GD update uses the conditioned search direction, as well as the timestep found by moving along it
     i++;
   }
 

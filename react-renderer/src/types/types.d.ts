@@ -496,7 +496,7 @@ interface ILbfgsParams {
   // TODO: Store as matrix types
   lastState: Maybe<any>; // nx1 (col vec)
   lastGrad: Maybe<any>; // nx1 (col vec)
-  invH: Maybe<any>; // nxn matrix
+  // invH: Maybe<any>; // nxn matrix
   s_list: any[]; // list of nx1 col vecs
   y_list: any[]; // list of nx1 col vecs
   numUnconstrSteps: number;
