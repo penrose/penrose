@@ -1,18 +1,13 @@
-https://github.com/penrose/penrose/issues/372
-https://github.com/penrose/penrose/issues/375
+Changes made in new Style program:
 
 # Types in blocks
 
-
-
 # Allow local variables
-
-
 
 # Vectors should be first-class type in Style
 
-https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Vectors
-https://en.wikibooks.org/wiki/GLSL_Programming/Vector_and_Matrix_Operations
+* https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Vectors
+* https://en.wikibooks.org/wiki/GLSL_Programming/Vector_and_Matrix_Operations
 
 # Inline function declarations
 
@@ -22,13 +17,11 @@ Where are these typed, where are these declared?
 
 # Getting and setting derived properties
 
-TODO
-
 # Style modules
 
-TODO
+---
 
-## Design
+# Design questions
 
 - Initialization
 - Casting
@@ -39,15 +32,16 @@ TODO
 - Operators
 - Built-in functions
 - Example code
-
-SIGGRAPH paper fig 12 needs an overhaul
--- Maybe euclidean.sty?
-
-Do we also want matrices? --> Transforms
-
-How to keep this backward-compatible? (If at all?)
-
-What is the priority of this?
+  - SIGGRAPH paper, Fig. 12
+  - Maybe also euclidean.sty?
+- Do we also want matrices? 
+- How to keep this backward-compatible? (If at all?)
+- What is the priority of this?
 
 ## Implementation
+
+# Related issues
+
+* https://github.com/penrose/penrose/issues/372
+* https://github.com/penrose/penrose/issues/375
 
