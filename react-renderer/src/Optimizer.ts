@@ -55,7 +55,7 @@ const optimizer = tf.train.adam(learningRate, 0.9, 0.999);
 const epStop = 1e-3;
 // const epStop = 1e-5;
 const defaultLbfgsMemSize = 17;
-const ALMOST_ZERO = 1e-11;
+const EPSD = 1e-11;
 
 // Unconstrained method convergence criteria
 // TODO. This should REALLY be 10e-10
@@ -66,7 +66,7 @@ const uoStop = 1e-2;
 const DEBUG_GRAD_DESCENT = false;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
-const DEBUG_LBFGS = true;
+const DEBUG_LBFGS = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -593,60 +593,93 @@ const awLineSearch2 = (
   return t;
 };
 
-const printVec = (xs: any) => {
+const vecList = (xs: any): number[] => {
   // Prints a col vector (nx1)
   const res = [];
   for (let i = 0; i < xs.nRows(); i++) {
     res.push(xs.get(i, 0));
   }
+  return res;
+};
 
-  console.log("xs (matrix)", res);
+const printVec = (xs: any) => {
+  // Prints a col vector (nx1)
+  console.log("xs (matrix)", vecList(xs));
 };
 
 const colVec = (xs: number[]): any => {
   // Return a col vector (nx1)
-  // TODO: Should it be a row (transposed)?
   // TODO: What is the performance of this?
-
   const m = la.zeros(xs.length, 1); // rows x cols
   xs.forEach((e, i) => m.set(e, i, 0));
 
-  console.log("original xs", xs);
-  printVec(m);
-
+  // console.log("original xs", xs);
+  // printVec(m);
   return m;
 };
+
+// v is a col vec, w is a col vec, they need to be the same size, returns v dot w (removed from its container)
+const dotVec = (v: any, w: any): number => v.transpose().timesDense(w).get(0, 0);
 
 // Precondition the gradient:
 // Approximate the inverse of the Hessian times the gradient
 // Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
 
 // `any` here is a column vector type
-const lbfgsInner = (grad_fx_k: any, ss_km1: any[], ys_km1: any[]): any => {
+const lbfgsInner = (grad_fx_k: any, ss: any[], ys: any[]): any => {
+  // TODO: See if using the mutation methods in linear-algebra-js (instead of the return-a-new-matrix ones) yield any speedup
+  // Also see if rewriting outside the functional style yields speedup (e.g. less copying of matrix objects -> less garbage collection)
 
   // Helper functions
-  const calculate_rho = () => {
-
+  const calculate_rho = (s: any, y: any): number => {
+    return 1.0 / (dotVec(y, s) + EPSD);
   };
 
-  const pull_q_back = () => {
+  // `any` = column vec
+  const pull_q_back = (acc: [any, number[]], curr: [number, any, any]): [any, number[]] => {
+    const [q_i_plus_1, alphas2] = acc; // alphas2 is the same stuff as alphas, just renamed to avoid shadowing
+    const [rho_i, s_i, y_i] = curr;
 
+    const alpha_i: number = rho_i * dotVec(s_i, q_i_plus_1);
+    const q_i: any = q_i_plus_1.minus(y_i.timesReal(alpha_i));
+
+    return [q_i, alphas2.concat([alpha_i])]; // alphas, left to right
   };
 
-  const estimate_hess = () => {
-
+  // takes two column vectors (nx1), returns a square matrix (nxn)
+  const estimate_hess = (y_km1: any, s_km1: any): any => {
+    const gamma_k = dotVec(s_km1, y_km1) / (dotVec(y_km1, y_km1) + EPSD);
+    const n = y_km1.nRows();
+    return la.identity(n, n).timesReal(gamma_k);
   };
 
-  const push_r_forward = () => {
-
+  // `any` = column vec
+  const push_r_forward = (r_i: any, curr: [[number, number], [any, any]]): any => {
+    const [[rho_i, alpha_i], [s_i, y_i]] = curr;
+    const beta_i: number = rho_i * dotVec(y_i, r_i);
+    const r_i_plus_1 = r_i.plus(s_i.timesReal(alpha_i - beta_i));
+    return r_i_plus_1;
   };
 
-  const rhos = undefined;
+  // BACKWARD: for i = k-1 ... k-m
+  // The length of any list should be the number of stored vectors
+  const rhos = _.zip(ss, ys).map(([s, y]) => calculate_rho(s, y));
   const q_k = grad_fx_k;
-  const [q_k_minus_m, alphas] = undefined;
-  const h_0_k = undefined;
-  const r_k = undefined;
+  // Note the order of alphas will be from k-1 through k-m for the push_r_forward loop  
+  // (Note that `reduce` is a left fold)
+  const [q_k_minus_m, alphas] = _.zip(rhos, ss, ys).reduce(pull_q_back, [q_k, []]);
 
+  const h_0_k = estimate_hess(ys[0], ss[0]); // nxn matrix, according to Nocedal p226, eqn 9.6
+
+  // FORWARD: for i = k-m .. k-1 (TODO: optimize out the reverses)
+  // below: [nxn matrix * nx1 (col) vec] -> nx1 (col) vec
+  const r_k_minus_m = h_0_k.timesDense(q_k_minus_m);
+  // Note that rhos, alphas, ss, and ys are all in order from `k-1` to `k-m` so we just reverse all of them together to go from `k-m` to `k-1`
+  // NOTE: `reverse` mutates the array in-place, which is fine because we don't need it later
+  const inputs = _.zip(_.zip(rhos, alphas), _.zip(ss, ys)).reverse();
+  const r_k = inputs.reduce(push_r_forward, r_k_minus_m);
+
+  // result r_k is H_k * grad f(x_k)
   return r_k;
 };
 
@@ -691,8 +724,8 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     const grad_fx_k = colVec(gradfxs);
 
     const km1 = lbfgsInfo.numUnconstrSteps;
-    const grad_fx_km1 = lbfgsInfo.lastGrad;
-    const x_km1 = lbfgsInfo.lastState;
+    const x_km1 = lbfgsInfo.lastState.contents;
+    const grad_fx_km1 = lbfgsInfo.lastGrad.contents;
     const ss_km2 = lbfgsInfo.s_list;
     const ys_km2 = lbfgsInfo.y_list;
 
@@ -700,6 +733,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // Unlike Nocedal, compute the difference vectors first instead of last (same result, just a loop rewrite)
     // Use the updated {s_i} and {y_i}. (If k < m, this reduces to normal BFGS, i.e. we use all the vectors so far)
     // Newest vectors added to front
+
     const s_km1 = x_k.minus(x_km1);
     const y_km1 = grad_fx_k.minus(grad_fx_km1);
 
@@ -714,7 +748,7 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // https://github.com/JuliaNLSolvers/Optim.jl/pull/144
     // A descent direction is a vector p s.t. <p `dot` grad_fx_k> < 0
     // If P is a positive definite matrix, then p = -P grad f(x) is a descent dir at x
-    const descentDirCheck = -1.0 * gradPreconditioned.transpose().timesDense(grad_fx_k);
+    const descentDirCheck = -1.0 * dotVec(gradPreconditioned, grad_fx_k);
 
     if (descentDirCheck > 0.0) {
       console.error("L-BFGS did not find a descent direction. Resetting correction vectors.", lbfgsInfo);
@@ -734,8 +768,12 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
     // Found a direction; update the state
     // TODO: check the curvature condition y_k^T s_k > 0 (8.7) (Nocedal 201)
     // https://github.com/JuliaNLSolvers/Optim.jl/issues/26
+    if (DEBUG_LBFGS) {
+      console.log("Descent direction found.", vecList(gradPreconditioned));
+    }
+
     return {
-      gradfxsPreconditioned: gradPreconditioned,
+      gradfxsPreconditioned: vecList(gradPreconditioned),
       updatedLbfgsInfo: {
         ...lbfgsInfo,
         lastState: { tag: "Just", contents: x_k },
@@ -776,7 +814,7 @@ const minimizeBasic = (
   let i = 0;
   let t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
 
-  let newLbfgsInfo = lbfgsInfo;
+  let newLbfgsInfo = { ...lbfgsInfo };
 
   while (i < numSteps) {
     fxs = f(xs);
