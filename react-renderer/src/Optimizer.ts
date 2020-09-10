@@ -66,6 +66,7 @@ const uoStop = 1e-2;
 const DEBUG_GRAD_DESCENT = false;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
+const DEBUG_LBFGS = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -622,8 +623,31 @@ const colVec = (xs: number[]): any => {
 
 // `any` here is a column vector type
 const lbfgsInner = (grad_fx_k: any, ss_km1: any[], ys_km1: any[]): any => {
-  const gradP = grad_fx_k; // TODO
-  return gradP;
+
+  // Helper functions
+  const calculate_rho = () => {
+
+  };
+
+  const pull_q_back = () => {
+
+  };
+
+  const estimate_hess = () => {
+
+  };
+
+  const push_r_forward = () => {
+
+  };
+
+  const rhos = undefined;
+  const q_k = grad_fx_k;
+  const [q_k_minus_m, alphas] = undefined;
+  const h_0_k = undefined;
+  const r_k = undefined;
+
+  return r_k;
 };
 
 // Outer loop of lbfgs
@@ -640,6 +664,10 @@ const lbfgs = (xs: number[], gradfxs: number[], lbfgsInfo: LbfgsParams) => {
   // rho_0 = 1 / y_0^T s_0
   // s_0 = x_1 - x_0
   // y_0 = grad f(x_1) - grad f(x_0)
+
+  if (DEBUG_LBFGS) {
+    console.log("Starting lbfgs calculation with xs", xs, "gradfxs", gradfxs, "lbfgs params", lbfgsInfo);
+  }
 
   if (lbfgsInfo.numUnconstrSteps === 0) {
     // Initialize state
@@ -757,8 +785,6 @@ const minimizeBasic = (
 
     const { gradfxsPreconditioned, updatedLbfgsInfo } = lbfgs(xs, gradfxs, newLbfgsInfo);
     newLbfgsInfo = updatedLbfgsInfo;
-
-    throw Error("lbfgs 3");
 
     if (BREAK_EARLY && unconstrainedConverged2(normGradfxs)) { // This is on the original gradient, not the preconditioned one
       console.log("descent converged early, on step", i, "of", numSteps, "(per display cycle); stopping early");
