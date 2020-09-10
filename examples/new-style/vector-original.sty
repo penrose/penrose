@@ -1,74 +1,84 @@
--- ORIGINAL
+-- REVISED
+
+import module Colors
 
 -- Global constants and sizes
-const {
-  const.vectorSpaceSize = 350.0
-  const.axisSize = const.vectorSpaceSize * 0.5
-  const.scaleRatio = 200.0
-  const.perpLen = 25.0
-  const.repelWeight = 0.7
-  const.arrowheadSize = 0.6
-  -- For unit mark
-  const.markerPadding = 15.0
-  const.barSize = 5.0
-}
-
--- Global RGB colors in common use
-Colors {
-    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
-    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
-    Colors.lightGray = ...
-    Colors.mediumBlue = ...
-    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+const { -- Since it's a namespace, can implicitly refer to members like `const.barSize`
+  float lineThickness = 1.5
+  float strokeWidth = 2.0
 }
 
 forall VectorSpace U {               -- LinearAlgebra.sty
-   U.originX = ? -- to be determined via optimization
-   U.originY = ? -- to be determined via optimization
-   U.origin = (U.originX, U.originY)
-   U.xAxis = Arrow { -- draw an arrow along the x-axis
-          startX : U.originX - 1 
-          startY : U.originY
-          endX   : U.originX + 1
-          endY   : U.originY 
-      thickness   : 1.5 
+   float axisSize = 1.0 -- This is a local var
+   vec2 U.origin = (?, ?) -- This is a globally-accessible var
+   
+   shape U.xAxis = Arrow { -- draw an arrow along the x-axis 
+          start : (U.origin.x - axisSize, U.origin.y)
+          end   : (U.origin.x + axisSize, U.origin.y)
+      thickness   : const.lineThickness
           style   : "solid"
           color   : Colors.lightGray 
    } -- (similar declarations omitted for the y-axis)
 }
+
 forall Vector u, VectorSpace U -- match any vector
 where In(u, U) {             -- in some vector space
-   u.arrow = Arrow { 
-      startX : U.originX 
-      startY : U.originY
-        endX : ? 
-        endY : ?
+   shape u.arrow = Arrow { 
+      start : U.origin
+        end : (?, ?)  
       color : Colors.mediumBlue
-   } 
-   u.text = Text {
+   }
+   
+   shape u.text = Text {
         string : u.label -- label from Substance code
          color : u.arrow.color  -- use arrow's color
-             x : ? 
-             y : ?
+        center : (?, ?)
    }
-   u.start = (u.arrow.startX, u.arrow.startY)
-   u.end = (u.arrow.endX, u.arrow.endY)
-   u.vector = minus(u.arrow.end, u.arrow.start) 
+
+-- Local vars
+   vec2 u.start = u.arrow.start
+   vec2 u.end = u.arrow.end
+   vec2 u.vector = u.arrow.end - u.arrow.start
    encourage near(u.text, u.end) 
    ensure contained(u.end, U.shape)
 }
+
 forall Vector u, Vector v 
 where Orthogonal(u, v) { 
    local.perpMark = Curve { 
         pathData : orientedSquare(u.shape, v.shape, 
                                   U.origin, const.perpLen)
-        strokeWidth : 2.0
+        strokeWidth : const.strokeWidth
         color : Colors.black
         fill : Colors.white
    } 
      ensure equals(dot(u.vector, v.vector), 0.0) 
 }
+
 ... -- (similar rule omitted for Unit)
+
 Vector `x2`  {
    override `x2`.shape.color = Colors.green; 
+}
+
+-- Local functions. Written in typescript; Looks very similar to Computations.ts
+functions = {
+
+  // Shape type is [string, any] <-- type, then props
+  orientedSquare: (arr1: any, arr2: any, pt: any, len: number) => {
+
+    // Can still log, etc for debugging
+    console.log("orientedSquare", arr1, arr2, pt, len);
+
+    // Need to build up path -- this is just a placeholder, not the actual math
+    const elems = [{ tag: "Pt", contents: [100, 100].map(varAD) },
+    { tag: "Pt", contents: [200, 200].map(varAD) },
+    { tag: "Pt", contents: [300, 150].map(varAD) }];
+    const path = { tag: "Open", contents: elems };
+
+
+    // Need to tag return type
+    return { tag: "PathDataV", contents: [path] };
+  },
+
 }
