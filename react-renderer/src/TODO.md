@@ -144,3 +144,20 @@ TODO: Document what I need to do to add a new operation
 Tree works instantly. TODO: Document the GIF 
 TODO: Also finds another symmetric result which TF didn't find earlier: https://www.dropbox.com/s/ef6gzkmra1zsa9q/Screen%20Shot%202020-09-05%20at%2011.38.49%20PM.png?dl=0
 (does this satisfy the style program?)
+
+---
+
+9/14/20
+
+euclidean.sty
+
+Constraints
+- atDist
+- contains (rect, circle/rect, padding)
+- perpendicular (3 tups)
+
+Objectives
+- repel (line, rect, weight)
+- repel (circle, circle, weight)
+- repel (line, rect, weight)
+- repel (path, rect, weight)
