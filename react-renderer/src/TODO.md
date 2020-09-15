@@ -170,4 +170,10 @@ Objectives
 
 ---
 
-- Cannot evaluate lists
+- Need to evaluate lists, tuples
+
+- Need to write evalExprs as a fold
+  - nvm, evalExpr doesn't update the translation, and this is now run only once anyway
+
+- Is the NaN problem that variable names don't work for fields?
+  `variables:  (2) ["a.x.", "a.y."]`

@@ -45,6 +45,8 @@ export const evalTranslation = (s: State): State => {
     [[], trans]
   );
 
+  console.log("transEvaled", transEvaled);
+
   // Update the state with the new list of shapes and translation
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
   return { ...s, shapes: shapesEvaled, translation: transEvaled };
@@ -105,7 +107,10 @@ const evalFn = (
  */
 const compDict = {
   // Assuming lists only hold floats
-  get: (xs: any, i: any): IFloatV<any> => xs[i],
+  get: (xs: any, i: any): IFloatV<any> => {
+    console.log("xs", xs, i, xs[i]);
+    return xs[i];
+  },
 
   rgba: (r: number, g: number, b: number, a: number): IColorV<number> => {
     return {
@@ -317,7 +322,9 @@ export const evalExpr = (
       };
     };
     case "List": {
+      console.log("eval list", e.contents);
       const argVals = evalExprs(e.contents, trans, varyingVars, autodiff);
+      console.log("eval list results", e.contents, argVals.map(toFloatVal));
       return {
         tag: "Val",
         contents: {
