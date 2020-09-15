@@ -49,9 +49,6 @@ export const evalTranslation = (s: State): State => {
   const sortedShapesEvaled = s.shapeOrdering.map((name) =>
     shapesEvaled.find(({ properties }) => properties.name.contents === name)!);
 
-  console.log("transEvaled", transEvaled);
-  console.log("shapesEvaled", shapesEvaled);
-
   // Update the state with the new list of shapes and translation
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
   return { ...s, shapes: sortedShapesEvaled, translation: transEvaled };
@@ -277,8 +274,6 @@ export const evalExpr = (
   autodiff = false
 ): ArgVal<number | DiffVar> => {
 
-  console.log("evalExpr autodiff", autodiff);
-
   switch (e.tag) {
     case "IntLit":
       return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
@@ -337,9 +332,7 @@ export const evalExpr = (
       };
     };
     case "List": {
-      console.log("eval list", e.contents);
       const argVals = evalExprs(e.contents, trans, varyingVars, autodiff);
-      console.log("eval list results", e.contents, argVals.map(toFloatVal));
       return {
         tag: "Val",
         contents: {
@@ -517,12 +510,18 @@ export const findExpr = (
   trans: Translation,
   path: Path
 ): TagExpr<number> | IFGPI<number> => {
+
   let name, field, prop;
   switch (path.tag) {
     case "FieldPath":
       [name, field] = path.contents;
       // Type cast to field expression
       const fieldExpr = trans.trMap[name.contents][field];
+
+      if (!fieldExpr) {
+        throw Error(`Could not find field '${JSON.stringify(path)}' in translation`);
+      }
+
       switch (fieldExpr.tag) {
         case "FGPI":
           return fieldExpr;
@@ -534,6 +533,11 @@ export const findExpr = (
       [name, field, prop] = path.contents;
       // Type cast to FGPI and get the properties
       const gpi = trans.trMap[name.contents][field];
+
+      if (!gpi) {
+        throw Error(`Could not find GPI '${JSON.stringify(path)}' in translation`);
+      }
+
       switch (gpi.tag) {
         case "FExpr":
           throw new Error("field path leads to an expression, not a GPI");

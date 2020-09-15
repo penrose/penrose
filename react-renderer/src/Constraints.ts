@@ -40,6 +40,11 @@ export const objDict = {
         // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
         // TODO: find this out programmatically
         const repelWeight = 10e6;
+
+        console.log("shapes", s1, s2);
+
+        // TODO: this only works for shapes with a center (x,y)
+      
         // 1 / (d^2(cx, cy) + eps)
         return mul(inverse(ops.vdistsq(centerList(s1), centerList(s2))), varOf(repelWeight));
     },
@@ -175,6 +180,30 @@ export const constrDict = {
             const res = add(sub(d, s1.r.contents), textR);
 
             return res;
+        } else if (t1 === "Rectangle" && t2 === "Circle") {
+          // contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
+          // -- HACK: reusing test impl, revert later
+          //    let r_l = min (getNum r "w") (getNum r "h") / 2
+          //        diff = r_l - getNum c "r"
+          //    in dist (getX r, getY r) (getX c, getY c) - diff + padding
+
+          // TODO: `rL` is probably a hack for dimensions
+          const rL = min(s1.w.contents, div(s1.h.contents, varOf(2.0)));
+          const diff = sub(rL, s2.r.contents);
+          const d = ops.vdist(centerList(s1), centerList(s2));
+          return add(sub(d, diff), offset);
+
+        } else if (t1 === "Rectangle" && t2 === "Text") {
+          // contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
+          // TODO: implement precisely, max (w, h)? How about diagonal case?
+          // dist (getX l, getY l) (getX r, getY r) - getNum r "w" / 2 +
+          //   getNum l "w" / 2 + padding
+
+          const a1 = ops.vdist(centerList(s1), centerList(s2));
+          const a2 = div(s1.w.contents, varOf(2.0));
+          const a3 = div(s2.w.contents, varOf(2.0));
+          return add(add(sub(a1, a2), a3), offset);
+
         } else throw new Error(`${[t1, t2]} not supported for contains2`);
 
     },
@@ -698,6 +727,35 @@ const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     return z;
 };
 
+const min = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
+    const z = variableAD(Math.min(v.val, w.val), "min");
+    z.isCompNode = isCompNode;
+
+    // const vFn = (arg: "unit"): number =< v.val < w.val ? 1.0 : 0.0;
+    // const wFn = (arg: "unit"): number =< v.val < w.val ? 0.0 : 1.0;
+
+    const vNode = ifCond(lt(v, w, false), gvarOf(1.0), gvarOf(0.0), false);
+    const wNode = ifCond(lt(v, w, false), gvarOf(0.0), gvarOf(1.0), false);
+    // NOTE: this adds a conditional to the computational graph itself, so the sensitivities change based on the input values
+    // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
+
+    if (isCompNode) {
+        v.parents.push({ node: z, sensitivityNode: just(vNode) });
+        w.parents.push({ node: z, sensitivityNode: just(wNode) });
+
+        z.children.push({ node: v, sensitivityNode: just(vNode) });
+        z.children.push({ node: w, sensitivityNode: just(wNode) });
+    } else {
+        v.parentsGrad.push({ node: z, sensitivityNode: none });
+        w.parentsGrad.push({ node: z, sensitivityNode: none });
+
+        z.childrenGrad.push({ node: v, sensitivityNode: none });
+        z.childrenGrad.push({ node: w, sensitivityNode: none });
+    }
+
+    return z;
+};
+
 // --- Unary ops
 
 const sin = (v: VarAD, isCompNode = true): VarAD => {
@@ -880,6 +938,28 @@ const gt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     return z;
 };
 
+const lt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
+    // returns a boolean, which is converted to number
+    const z = variableAD(v.val < w.val ? 1.0 : 0.0, "lt");
+    z.isCompNode = isCompNode;
+
+    if (isCompNode) {
+        z.children.push({ node: v, sensitivityNode: just(noGrad) });
+        z.children.push({ node: w, sensitivityNode: just(noGrad) });
+
+        v.parents.push({ node: z, sensitivityNode: just(noGrad) });
+        w.parents.push({ node: z, sensitivityNode: just(noGrad) });
+    } else {
+        z.childrenGrad.push({ node: v, sensitivityNode: none });
+        z.childrenGrad.push({ node: w, sensitivityNode: none });
+
+        v.parentsGrad.push({ node: z, sensitivityNode: none });
+        w.parentsGrad.push({ node: z, sensitivityNode: none });
+    }
+
+    return z;
+};
+
 const ifCond = (cond: VarAD, v: VarAD, w: VarAD, isCompNode = true): VarAD => {
     // TODO: check that this all is right
     // When the computation graph is evaluated, depending on whether cond is nonnegative, either v or w is evaluated (and returned?)
@@ -934,6 +1014,9 @@ const opMap = {
     "max": {
         fn: (x: number, y: number): number => Math.max(x, y),
     },
+    "min": {
+        fn: (x: number, y: number): number => Math.min(x, y),
+    },
     "sin": {
         fn: (x: number): number => Math.sin(x),
     },
@@ -965,6 +1048,9 @@ const opMap = {
     // Note that these functions treat booleans as numbers: 1.0 = True, 0.0 = False
     "gt": {
         fn: (x: number, y: number): number => x > y ? 1.0 : 0.0,
+    },
+    "lt": {
+        fn: (x: number, y: number): number => x < y ? 1.0 : 0.0,
     },
     "ifCond": {
         fn: (cond: number, x: number, y: number): number => (cond > 0.0) ? x : y,
@@ -1231,8 +1317,12 @@ const traverseGraph = (i: number, z: IVarAD): any => {
         let stmt;
         if (op === "max") {
             stmt = `const ${parName} = Math.max(${childName0}, ${childName1});`;
+        } else if (op === "min") {
+            stmt = `const ${parName} = Math.min(${childName0}, ${childName1});`;
         } else if (z.op === "gt") {
             stmt = `const ${parName} = ${childName0} > ${childName1};`;
+        } else if (z.op === "lt") {
+            stmt = `const ${parName} = ${childName0} < ${childName1};`;
         } else if (z.op === "+ list") {
             stmt = `const ${parName} = ${childName0} + ${childName1};`;
         } else {

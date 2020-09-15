@@ -177,3 +177,14 @@ Objectives
 
 - Is the NaN problem that variable names don't work for fields?
   `variables:  (2) ["a.x.", "a.y."]`
+No, actually the variable names don't matter because we only use JSON.stringify
+
+Why didn't it catch the error in `get`'s type?
+
+TODO: How to set up tide electric indent (C-j)? Enter seems to work, when all lines at end of ~/.emacs are commented out
+
+- Write min X
+- Write lt  X
+- Write contains on rect-circ X
+- Write atDist on labels
+- Write repel on labels

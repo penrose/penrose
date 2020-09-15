@@ -1,14 +1,12 @@
-Point a
+Point a, b, c
 
--- Point a, b, c
+Segment s1
+s1 := MkSegment(a, b)
 
--- Segment s1
--- s1 := MkSegment(a, b)
+Segment s2
+s2 := MkSegment(b, c)
 
--- Segment s2
--- s2 := MkSegment(b, c)
-
--- Segment s3
--- s3 := MkSegment(c, a)
+Segment s3
+s3 := MkSegment(c, a)
 
 AutoLabel All

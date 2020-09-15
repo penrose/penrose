@@ -92,16 +92,7 @@ const {
 	    h : const.dim
     }
 
-    const.temp = Circle {
-    x : 0.0
-    y : 0.0
-    r : 100.0
-    angle : 0.0
-    color : Colors.red
-    }
-
    const.textLayering = const.text above const.plane
-      const.layering0 = const.temp above const.plane
 }
 
 Point p {
@@ -119,29 +110,26 @@ Point p {
 	 strokeColor : Colors.black
        }
 
-       -- p.text = Text {
-       --   x : ?
-       --   y : ?
-       --   string : p.label
-       --   rotation : 0.0
-       --   color : Colors.black
-       --   fontSize : const.fontSize
-       -- }
+       p.text = Text {
+         x : ?
+         y : ?
+         string : p.label
+         rotation : 0.0
+         color : Colors.black
+         fontSize : const.fontSize
+       }
 
        -- TODO: put these constraints back in
        -- p.labelFnMargin = ensure atDist(p.shape, p.text, const.textPadding)
 
        -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
        -- There's a choice of whether to put padding on the point or the text for containment
-       -- p.posFn = ensure contains(const.plane, p.shape, const.containPadding)
+       
+       p.posFn = ensure contains(const.plane, p.shape, const.containPadding)
+       p.labelFn = ensure contains(const.plane, p.text, 0.0)
 
-       p.posFn = ensure contains(const.temp, p.shape, const.containPadding)
-
-       -- p.labelFn = ensure contains(const.plane, p.text, 0.0)
-
-       p.layering0 = p.shape above const.temp
        p.layering1 = p.shape above const.plane
-       -- p.layering2 = p.text above const.plane
+       p.layering2 = p.text above const.plane
 }
 
 Segment e
@@ -165,8 +153,9 @@ with Point p; Point q {
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
 
-     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, const.repelWeight)
-     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, const.repelWeight)
+     -- TODO: Put these back in
+     -- LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, const.repelWeight)
+     -- LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, const.repelWeight)
 
      e.layering = e.shape above const.plane
 }
