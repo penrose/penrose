@@ -147,9 +147,15 @@ TODO: Also finds another symmetric result which TF didn't find earlier: https://
 
 ---
 
-9/14/20
+TODO 9/14/20
 
-euclidean.sty
+- Port euclidean.sty
+- Clean up web-perf code
+- Look at what it takes to merge with web-runtime
+
+## Port euclidean.sty
+
+- Have to do it incrementally
 
 Constraints
 - atDist
@@ -161,3 +167,7 @@ Objectives
 - repel (circle, circle, weight)
 - repel (line, rect, weight)
 - repel (path, rect, weight)
+
+---
+
+- Cannot evaluate lists

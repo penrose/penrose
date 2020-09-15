@@ -104,6 +104,9 @@ const evalFn = (
  * TODO: think about user extension of computation dict and evaluation of functions in there
  */
 const compDict = {
+  // Assuming lists only hold floats
+  get: (xs: any, i: any): IFloatV<any> => xs[i],
+
   rgba: (r: number, g: number, b: number, a: number): IColorV<number> => {
     return {
       tag: "ColorV",
@@ -221,6 +224,21 @@ export const evalExprs = (
 ): ArgVal<number | DiffVar>[] =>
   es.map((e) => evalExpr(e, trans, varyingVars, autodiff));
 
+const toFloatVal = (a: ArgVal<number | DiffVar>): number | DiffVar => {
+  if (a.tag === "Val") {
+    const res = a.contents;
+    if (res.tag === "FloatV") {
+      return res.contents;
+    } else {
+      console.log("res", res);
+      throw Error("Expected floating type in list");
+    }
+  } else {
+    console.log("res", a);
+    throw Error("Expected value (non-GPI) type in list");
+  }
+};
+
 /**
  * Evaluate the input expression to a value.
  * @param e the expression to be evaluated.
@@ -284,6 +302,33 @@ export const evalExpr = (
           val2.contents as Value<number>
         ),
       };
+    case "Tuple": {
+      const argVals = evalExprs(e.contents, trans, varyingVars, autodiff);
+      if (argVals.length !== 2) {
+        console.log(argVals);
+        throw Error("Expected tuple of length 2");
+      }
+      return {
+        tag: "Val",
+        contents: {
+          tag: "TupV",
+          contents: [toFloatVal(argVals[0]), toFloatVal(argVals[1])]
+        }
+      };
+    };
+    case "List": {
+      const argVals = evalExprs(e.contents, trans, varyingVars, autodiff);
+      return {
+        tag: "Val",
+        contents: {
+          tag: "ListV",
+          contents: argVals.map(toFloatVal)
+        }
+      };
+    };
+    case "ListAccess": {
+      throw Error("List access expression not (yet) supported");
+    };
     case "EPath":
       return resolvePath(e.contents, trans, varyingVars, autodiff);
     case "CompApp":

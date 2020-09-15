@@ -1,0 +1,496 @@
+/* # TODO
+
+- make the diagram the right size for the PDF
+
+# OBJECTS TODO
+
+- ray head is contained in box and is not fixed length
+  - Add a rect-point constraint (or just use inRange?)
+- rays don't overlap other rays (or segments)
+- Maybe it would make more sense to sample in range of the box, rather than the canvas, and then optimize?? Can that be customizable in Style?
+
+# LABELS TODO
+
+- make `m` and `s` labels better (esp placing above segment)
+- labels don't pairwise overlap
+  - nothing overlaps the E^2 label (no other labels or primitives)
+- sometimes the labels end up on TOP of the points due to the distance objective not being signed -- fix that
+- account for label size in rect-label constraint (doesn't deal w/ non-square labels)
+
+*/
+
+Colors {
+    -- Keenan palette
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+
+    Colors.darkpurple = rgba(0.549,0.565,0.757, 1.0)
+    Colors.purple2 = rgba(0.106, 0.122, 0.54, 0.2)
+    Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
+
+    Colors.verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
+    Colors.purple3 = rgba(0.557, 0.627, 0.769, 1.0)
+
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.mediumgray = rgba(0.5, 0.5, 0.5, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+const {
+    const.pi = 3.14159
+    const.arrowheadSize = 0.65
+    const.strokeWidth = 1.75
+    const.textPadding = 7.0
+    const.textPadding2 = 25.0
+    const.repelWeight = 0.0
+    const.repelWeight2 = 0.0
+    const.fontSize = "18pt"
+    const.containPadding = 50.0
+    const.rayLength = 100.0
+    const.pointSize = 4.0
+    const.pointStroke = 0.0
+    const.thetaRadius = 40.0
+
+    const.label = "E^2"
+    const.text = Text {
+	x : (const.dim / 2.0) - const.textPadding2
+	y : (const.dim / 2.0) - const.textPadding2
+	string : const.label
+	fontSize : const.fontSize
+    }
+
+    const.dim = 400.0
+
+    -- inner: #f3f4f9, outer: #8e93c4
+    const.plane = Rectangle {
+    	    angle : 0.0
+	    color : Colors.verylightpurple
+	    strokeColor : Colors.purple3
+	    strokeWidth : 2.0
+	    x : 0.0
+	    y : 0.0
+	    w : const.dim
+	    h : const.dim
+    }
+
+   const.textLayering = const.text above const.plane
+}
+
+Point p {
+      p.x = ?
+      p.y = ?
+      p.vec = [p.x, p.y]
+      p.tup = (p.x, p.y)
+
+       p.shape = Circle {
+         x : get(p.vec, 0)
+	 y : get(p.vec, 1)
+         r : const.pointSize
+	 color : Colors.black
+	 strokeWidth : 0.0
+	 strokeColor : Colors.black
+       }
+
+       p.text = Text {
+         x : ?
+	 y : ?
+	 string : p.label
+	 rotation : 0.0
+	 color : Colors.black
+	 fontSize : const.fontSize
+       }
+
+       p.labelFnMargin = ensure atDist(p.shape, p.text, const.textPadding)
+       -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
+       -- There's a choice of whether to put padding on the point or the text for containment
+       p.posFn = ensure contains(const.plane, p.shape, const.containPadding)
+       p.labelFn = ensure contains(const.plane, p.text, 0.0)
+
+       p.layering1 = p.shape above const.plane
+       p.layering2 = p.text above const.plane
+}
+
+Segment e
+where e := MkSegment(p, q)
+with Point p; Point q {
+     e.vec = [q.x - p.x, q.y - p.y]
+
+     e.color = Colors.black
+
+     e.shape = Line {
+     	     startX : p.shape.x
+     	     startY : p.shape.y
+     	     endX : q.shape.x
+     	     endY : q.shape.y
+	     color : e.color
+	     thickness : const.strokeWidth
+	     stroke : "none"
+	     style : "solid"
+     }
+
+     e.layering1 = p.shape above e.shape
+     e.layering2 = q.shape above e.shape
+
+     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, const.repelWeight)
+     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, const.repelWeight)
+
+     e.layering = e.shape above const.plane
+}
+
+-- -- TODO: Take the altitude at a particular angle that happens to be right
+-- -- Might not need to specify the angle if we know the triangle's right
+-- Segment e
+-- where e := Altitude(t, theta); Right(theta); theta := InteriorAngle(q, p, r) -- `p` is the point of the angle
+-- with Triangle t; Angle theta; Point p; Point q; Point r {
+
+--      e.color = Colors.black
+--      e.proj_pt = project(q.tup, p.tup, r.tup)
+
+--      e.shape = Line {
+--      	     startX : p.x
+--      	     startY : p.y
+--      	     endX : get(e.proj_pt, 0)
+--      	     endY : get(e.proj_pt, 1)
+-- 	     style : "dashed"
+-- 	     color : e.color
+-- 	     thickness : const.strokeWidth
+-- 	     stroke : "none"
+--      }
+
+--      -- TODO: layering
+-- }
+
+-- -- Set the location of an endpoint of an altitude to be the result of the altitude on the edge
+-- Point p
+-- with Segment e; Triangle t; Angle theta
+-- where p := Endpoint(e); e := Altitude(t, theta) {
+
+--       override p.x = get(e.proj_pt, 0)
+--       override p.y = get(e.proj_pt, 1)
+-- }
+
+-- -- Special case for KL
+-- Point p
+-- with Segment ba; Segment cp; Point a; Point b; Point c
+-- where ba := MkSegment(b, a); On(p, ba); cp := MkSegment(c, p); Perpendicular(cp, ba) {
+
+--       -- BA is the existing segment; C is an existing point that defines the angle
+--       -- p's location is really another altitude of the angle ACB
+--       override p.tup = project(a.tup, c.tup, b.tup) 
+--       override p.x = get(p.tup, 0)
+--       override p.y = get(p.tup, 1)
+-- }
+
+-- Triangle t
+-- where t := MkTriangle(p, q, r)
+-- with Point p; Point q; Point r {
+--      t.color = setOpacity(Colors.darkpurple, 0.4)
+
+--      -- TODO: layer all labels on top of filled shapes
+--      t.shape = Curve {
+--      	     pathData : triangle(p.shape.x, p.shape.y, q.shape.x, q.shape.y, r.shape.x, r.shape.y)
+-- 	     strokeWidth : 0.0
+-- 	     fill : t.color
+-- 	     color : Colors.black
+-- 	     rotation : 0.0
+--      }
+
+--      t.layering = t.shape above const.plane
+-- }
+
+-- -- Should the rectangle be constructed from the points, or vice versa?
+-- Rectangle R
+-- where R := MkRectangle(p, q, r, s) 
+-- with Point p; Point q; Point r; Point s {
+--      R.color = setOpacity(Colors.blue, 0.2)
+
+--      R.shape = Curve {
+--      	     pathData : rectangle(p.x, p.y, q.x, q.y, r.x, r.y, s.x, s.y)
+-- 	     strokeWidth : const.strokeWidth
+-- 	     fill : R.color
+-- 	     color : Colors.black
+-- 	     rotation : 0.0
+--      }
+
+--      R.layering = R.shape above const.plane
+-- }
+
+-- -- We don't know if the points in the triangle actually include the points in the square or not
+-- -- TODO: this doesn't seem to match -- and the matches take way too long!!
+
+-- -- Square S
+-- -- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(a, b, c)
+-- -- with Point p; Point q; Point r; Point s; Triangle T; Point a; Point b; Point c {
+
+-- -- Need overrides because Square <: Rectangle
+
+-- Square S
+-- where S := MkSquare(p, q, r, s)
+-- with Point p; Point q; Point r; Point s {
+
+--      -- Assuming (p,q) are the segment of a triangle
+--      -- TODO: this should really do that match in Style...
+--      -- and r,s are the other two points of the square
+
+--     override S.color = setOpacity(Colors.midnightblue, 0.4)
+
+--     S.path = squareAt(p.tup, q.tup)
+
+--     override S.shape = Curve {
+-- 	    pathData : polygonFromPoints(S.path)
+-- 	    -- Assumes that the last two points are the new corners (r, s) that need to be set
+-- 	    strokeWidth : const.strokeWidth
+-- 	    fill : S.color
+-- 	    color : Colors.black
+-- 	    rotation : 0.0
+--     }
+
+--     -- Position the points at the corner of the square
+--     override r.tup = get(S.path, 2)
+--     override r.x = get(r.tup, 0)
+--     override r.y = get(r.tup, 1)
+
+--     override s.tup = get(S.path, 3)
+--     override s.x = get(s.tup, 0)
+--     override s.y = get(s.tup, 1)
+-- }
+
+-- -- These more specific matches are so we can figure out which third point of the triangle to push the square away from
+-- -- Note: order of the variables really matters!
+
+-- Square S
+-- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(c, q, p)
+-- with Point p; Point q; Point r; Point s; Triangle T; Point c {
+
+--     override S.path = squareAt(p.tup, q.tup, c.tup)
+-- }
+
+-- Square S
+-- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(q, p, c)
+-- with Point p; Point q; Point r; Point s; Triangle T; Point c {
+
+--     override S.path = squareAt(p.tup, q.tup, c.tup)
+-- }
+
+-- Square S
+-- where S := MkSquare(p, q, r, s); Disjoint(S, T); T := MkTriangle(p, c, q)
+-- with Point p; Point q; Point r; Point s; Triangle T; Point c {
+
+--     override S.path = squareAt(p.tup, q.tup, c.tup)
+-- }
+
+-- Angle theta
+-- where theta := InteriorAngle(q, p, r)
+-- with Point p; Point q; Point r {
+
+--      theta.radius = const.thetaRadius
+--      -- TODO: always take the acute angle, not the obtuse angle
+--      theta.arcPath = arcPathEuclidean(p.vec, q.vec, r.vec, theta.radius, "Closed")
+
+--      theta.shape = Curve {
+--      		 pathData : polygonFromPoints(theta.arcPath)
+-- 		 strokeWidth : const.strokeWidth
+-- 		 color : Colors.darkpurple
+-- 		 fill : setOpacity(Colors.white, 0.5)
+--      }
+
+--      theta.layering1 = theta.shape above const.plane
+--      theta.layering2 = theta.shape below p.shape
+--      theta.layering3 = theta.shape below q.shape
+--      theta.layering4 = theta.shape below r.shape
+
+--      -- TODO: or could be minimum constraint function
+--      theta.sizeFn = encourage repel(q.shape, r.shape, 100.0)
+-- }
+
+-- Angle theta
+-- where theta := InteriorAngle(q, p, r); Right(theta)
+-- with Point p; Point q; Point r {
+
+--       theta.perpSize = 13.0
+
+--       override theta.shape = Curve {
+--       		 pathData : perpPath(q.tup, p.tup, r.tup, theta.perpSize)
+--       		 strokeWidth : 1.25
+--       		 color : Colors.black
+--       		 fill : setOpacity(Colors.white, 0.5)
+--       }
+
+--       theta.perpFn = ensure perpendicular(q.tup, p.tup, r.tup)
+
+-- }
+
+-- Ray r {
+--     r.length = const.rayLength
+-- }
+
+-- Point p
+-- where p := Midpoint(s)
+-- with Segment s {
+--      override p.shape.x = midpointX(s.shape)
+--      override p.shape.y = midpointY(s.shape)
+
+--      override p.shape.strokeWidth = 1.0
+--      override p.shape.color = Colors.white
+--      override p.shape.r = 3.2
+--      p.midLayering = p.shape above s.shape
+-- }
+
+-- Ray r
+-- with Angle theta; Point x; Point y; Point z
+-- where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
+
+--       r.tail = [x.x, x.y]
+--       r.head = angleBisectorEuclidean(x.vec, y.vec, z.vec, r.length)
+
+--       r.shape = Line {
+--       	      startX : x.x
+-- 	      startY : x.y
+-- 	      -- TODO: figure out how long this should be
+-- 	      -- TODO: calculate this location properly; WRT the angle and the non-origin endpoints; this is just a heuristic
+-- 	      endX : get(r.head, 0)
+-- 	      endY : get(r.head, 1)
+-- 	      thickness : const.strokeWidth
+-- 	      color : Colors.darkpurple
+--       	      rightArrowhead : True
+-- 	      arrowheadSize : const.arrowheadSize
+--       }
+
+--       -- Bisect the arc twice more to get the bisector mark locations
+--       -- Throw away z coordinate for each
+--       theta.bisectpt1 = angleBisectorEuclidean(x.vec, y.vec, r.head, theta.radius)
+--       theta.bisectpt2 = angleBisectorEuclidean(x.vec, z.vec, r.head, theta.radius)
+--       theta.markLen = 10.0
+
+--       -- Angle bisector marks: two tick marks
+--       theta.bisectMark1 = Curve {
+--       	      pathData : makeBisectorMark(theta.bisectpt1, x.vec, theta.markLen)
+--       	      strokeWidth : const.strokeWidth
+--       	      fill : Colors.none
+--       	      color : Colors.darkpurple
+--       	      rotation : 0.0
+--       	      rightArrowhead : False
+--       	      arrowheadSize : 0.0
+--       }
+
+--       theta.bisectMark2 = Curve {
+--       	      pathData : makeBisectorMark(theta.bisectpt2, x.vec, theta.markLen)
+--       	      strokeWidth : const.strokeWidth
+--       	      fill : Colors.none
+--       	      color : Colors.darkpurple
+--       	      rotation : 0.0
+--       	      rightArrowhead : False
+--       	      arrowheadSize : 0.0
+--       }
+
+--       theta.layeringMark1 = theta.bisectMark1 above theta.shape
+--       theta.layeringMark2 = theta.bisectMark2 above theta.shape
+--       r.layering = r.shape above const.plane
+-- }
+
+-- Ray r
+-- with Linelike s; Point m
+-- where r := PerpendicularBisector(s); m := Midpoint(s) {
+
+--       r.shape = Line {
+--       	      startX : midpointX(s.shape)
+-- 	      startY : midpointY(s.shape)
+-- 	      endX : perpX(s.shape, r.shape.startX, r.shape.startY, r.length)
+-- 	      endY : perpY(s.shape, r.shape.startX, r.shape.startY, r.length)
+-- 	      thickness : const.strokeWidth
+-- 	      color : Colors.darkpurple
+-- 	      style : "dotted"
+--       	      rightArrowhead : True
+-- 	      arrowheadSize : const.arrowheadSize
+--       }
+
+--       r.perpSize = 10.0
+
+--       r.perpMark = Curve {
+--       		 pathData : perpPath(r.shape, s.shape, (r.shape.startX, r.shape.startY), r.perpSize)
+-- 		 strokeWidth : 1.25
+-- 		 color : Colors.black
+-- 		 fill : setOpacity(Colors.white, 0.5)
+--       }
+
+--       r.layering1 = r.shape above const.plane
+--       r.layering2 = r.perpMark above const.plane
+
+--       r.markLayering1 = r.perpMark below s.shape
+--       r.markLayering2 = r.perpMark below r.shape
+--       -- r.markLayering3 = r.perpMark above const.sphere
+--       r.markLayering4 = r.perpMark below p.shape
+--       r.markLayering5 = r.perpMark below q.shape
+--       r.markLayering6 = r.perpMark below r.shape
+--       r.markLayering7 = r.perpMark below m.shape
+
+--      LOCAL.labelAvoidFn_Mark = encourage repel(r.shape, m.text, const.repelWeight)
+--      LOCAL.labelAvoidFn_Ray = encourage repel(r.perpMark, m.text, const.repelWeight)
+--      LOCAL.labelAvoidFn_Seg = encourage repel(s.shape, m.text, const.repelWeight)
+-- }
+
+-- -- TODO: trying to just add a repel function on the point that's not in a segment... this might be too many repels for the ones that are in a segment though
+
+-- -- TODO: should we use const.repelWeight below?
+
+-- Ray r; Point p {
+--     LOCAL.labelAvoidFn = encourage repel(r.shape, p.text, const.repelWeight)
+--     LOCAL.layering = r.shape below p.shape
+-- }
+
+-- Segment s; Point p {
+--      -- TODO: Maybe the optimization would be faster if I used lines instead of curves for the segments?	
+--      LOCAL.labelAvoidFn_p = encourage repel(s.shape, p.text, const.repelWeight)
+-- }
+
+-- Triangle t; Point p {
+--     LOCAL.layering1 = t.shape below p.shape
+--     LOCAL.layering2 = t.shape below p.text
+-- }
+
+-- Square s; Point p {
+--     LOCAL.layering1 = s.shape below p.shape
+--     LOCAL.layering2 = s.shape below p.text
+-- }
+
+-- Rectangle r; Point p {
+--     LOCAL.layering1 = r.shape below p.shape
+--     LOCAL.layering2 = r.shape below p.text
+-- }
+
+-- Triangle t; Segment e {
+--     LOCAL.layering1 = t.shape below e.shape
+-- }
+
+-- Square s; Segment e {
+--     LOCAL.layering1 = s.shape below e.shape
+-- }
+
+-- Rectangle r; Segment e {
+--     LOCAL.layering1 = r.shape below e.shape
+-- }
+
+-- Triangle t; Angle theta {
+-- 	 LOCAL.layering = theta.shape above t.shape
+-- }
+
+-- TODO: Appendices removed for now
