@@ -187,4 +187,13 @@ TODO: How to set up tide electric indent (C-j)? Enter seems to work, when all li
 - Write lt  X
 - Write contains on rect-circ X
 - Write atDist on labels
+  Have to get polygon of text
+
 - Write repel on labels
+
+TODO 9/15/20
+
+- can we even render beziers now?
+- This style all requires inline computations
+- Ok, I should merge w/ web-runtime
+- will require implementing tensor-to-number conversion for paths 

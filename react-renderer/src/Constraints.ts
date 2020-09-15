@@ -49,6 +49,26 @@ export const objDict = {
         return mul(inverse(ops.vdistsq(centerList(s1), centerList(s2))), varOf(repelWeight));
     },
 
+    atDist: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: any) => {
+        // Place the latter at a distance from the center of the point
+        // TODO: Account for the size/radius of the initial point, rather than just the center
+
+        if (t2 === "Text") {
+            // TODO: What type is the offset?
+
+            // Get polygon of text (box)
+            // TODO: Make this a GPI property
+            // TODO: Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
+
+            // If the point is inside the box, push it outside w/ `noIntersect`
+
+            // If the point is outside the box, try to get the distance from the point to equal the desired distance
+
+        } else {
+            throw Error(`unsupported shapes for 'atDist': ${t1}, ${t2}`);
+        }
+    },
+
     // Generic repel function for two GPIs with centers
     repelOld: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
         // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
