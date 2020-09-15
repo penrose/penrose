@@ -101,6 +101,7 @@ const {
     }
 
    const.textLayering = const.text above const.plane
+      const.layering0 = const.temp above const.plane
 }
 
 Point p {
@@ -112,8 +113,6 @@ Point p {
        p.shape = Circle {
          x : get(p.vec, 0)
 	 y : get(p.vec, 1)
-         -- x : ?
-	 -- y : ?
          r : const.pointSize
 	 color : Colors.black
 	 strokeWidth : 0.0
@@ -140,6 +139,7 @@ Point p {
 
        -- p.labelFn = ensure contains(const.plane, p.text, 0.0)
 
+       p.layering0 = p.shape above const.temp
        p.layering1 = p.shape above const.plane
        -- p.layering2 = p.text above const.plane
 }

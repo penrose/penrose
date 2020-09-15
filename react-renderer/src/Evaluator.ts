@@ -46,6 +46,7 @@ export const evalTranslation = (s: State): State => {
   );
 
   console.log("transEvaled", transEvaled);
+  console.log("shapesEvaled", shapesEvaled);
 
   // Update the state with the new list of shapes and translation
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
@@ -108,8 +109,18 @@ const evalFn = (
 const compDict = {
   // Assuming lists only hold floats
   get: (xs: any, i: any): IFloatV<any> => {
-    console.log("xs", xs, i, xs[i]);
-    return xs[i];
+    const res = xs[i];
+
+    // TODO: Do the type annotations better
+    if (typeof xs === "number") {
+      console.log("xs", xs, i, res);
+      return res;
+    } else {
+      return {
+        tag: "FloatV",
+        contents: res
+      };
+    }
   },
 
   rgba: (r: number, g: number, b: number, a: number): IColorV<number> => {
@@ -384,6 +395,7 @@ export const resolvePath = (
   });
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
   let varyingVal = varyingMap?.get(JSON.stringify(path));
+
   if (varyingVal) {
     return floatVal(varyingVal);
   } else {
