@@ -53,9 +53,10 @@ class Canvas extends React.Component<ICanvasProps> {
     const translationAD = walkTranslationConvert(state.translation);
     const stateAD = {
       ...state,
-      translation: translationAD,
-      varyingValues: state.varyingValues.map(e => differentiable(e))
+      translation: translationAD
     };
+
+    console.log("processData varyingValues", state.varyingValues);
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
     // The results of the pending values are then stored back in the translation as autodiff types

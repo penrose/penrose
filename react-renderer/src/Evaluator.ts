@@ -10,15 +10,8 @@ import { mapMap } from "./Util";
 import { valueAutodiffToNumber } from "./EngineUtils";
 import seedrandom from "seedrandom";
 
-// >> web-perf
-// import { Variable } from "@tensorflow/tfjs";
-import { differentiable, differentiable2 } from "./Optimizer";
-import { variableAD } from "./Constraints";
-
-// >> web-runtime
-// TODO: >> Fix this merge
-import { Tensor, Variable, scalar } from "@tensorflow/tfjs";
-import { sc, evalEnergyOn } from "./Optimizer";
+import { differentiable } from "./Optimizer";
+import { varOf, constOf } from "./Constraints";
 import { compDict, checkComp } from "./Computations";
 import { mapTranslation } from "./EngineUtils";
 
@@ -38,20 +31,23 @@ import { mapTranslation } from "./EngineUtils";
  */
 export const evalTranslation = (s: State): State => {
   // Update the stale varyingMap from the translation. TODO: Where is the right place to do this?
-  s.varyingMap = genVaryMap(s.varyingPaths, s.varyingValues);
-  const varyingMapList = zip(s.varyingPaths, s.varyingValues) as [Path, Tensor][];
+
+  // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
+  const varyingValuesDiff = s.varyingValues.map(differentiable);
+  s.varyingMap = genVaryMap(s.varyingPaths, varyingValuesDiff);
+  const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [Path, VarAD][];
 
   // Insert all varying vals
   const trans = insertVaryings(s.translation, varyingMapList);
 
   // Find out all the GPI expressions in the translation
   const shapeExprs = s.shapePaths.map(
-    (p: Path) => findExpr(trans, p) as IFGPI<Tensor>
+    (p: Path) => findExpr(trans, p) as IFGPI<VarAD>
   );
 
   // Evaluate each of the shapes
   const [shapesEvaled, transEvaled] = shapeExprs.reduce(
-    ([currShapes, tr]: [Shape[], Translation], e: IFGPI<Tensor>) =>
+    ([currShapes, tr]: [Shape[], Translation], e: IFGPI<VarAD>) =>
       evalShape(e, tr, s.varyingMap, currShapes),
     [[], trans]
   );
@@ -65,7 +61,7 @@ export const evalTranslation = (s: State): State => {
   return { ...s, shapes: sortedShapesEvaled, translation: transEvaled };
 };
 
-const doneFloat = (n: Tensor): TagExpr<Tensor> => ({
+const doneFloat = (n: VarAD): TagExpr<VarAD> => ({
   tag: "Done",
   contents: { tag: "FloatV", contents: n },
 });
@@ -79,10 +75,10 @@ const doneFloat = (n: Tensor): TagExpr<Tensor> => ({
  */
 export const insertVaryings = (
   trans: Translation,
-  varyingMap: [Path, Tensor][]
+  varyingMap: [Path, VarAD][]
 ): Translation => {
   return varyingMap.reduce(
-    (tr: Translation, [path, val]: [Path, Tensor]) =>
+    (tr: Translation, [path, val]: [Path, VarAD]) =>
       insertExpr(path, doneFloat(val), tr),
     trans
   );
@@ -97,18 +93,18 @@ export const insertVaryings = (
 export const evalFns = (
   fns: Fn[],
   trans: Translation,
-  varyingMap: VaryMap<DiffVar>
-): FnDone<DiffVar>[] => fns.map((f) => evalFn(f, trans, varyingMap));
+  varyingMap: VaryMap<VarAD>
+): FnDone<VarAD>[] => fns.map((f) => evalFn(f, trans, varyingMap));
 
 const evalFn = (
   fn: Fn,
   trans: Translation,
-  varyingMap: VaryMap<DiffVar>
-): FnDone<DiffVar> => {
+  varyingMap: VaryMap<VarAD>
+): FnDone<VarAD> => {
   // TODO: Turned on differentiable variables (below) -- is this right?
   return {
     name: fn.fname,
-    args: evalExprs(fn.fargs, trans, varyingMap) as ArgVal<DiffVar>[],
+    args: evalExprs(fn.fargs, trans, varyingMap) as ArgVal<VarAD>[],
     optType: fn.optType,
   };
 };
@@ -123,7 +119,7 @@ const evalFn = (
  * TODO: update trans
  */
 export const evalShape = (
-  shapeExpr: IFGPI<Tensor>, // <number>?
+  shapeExpr: IFGPI<VarAD>, // <number>?
   trans: Translation,
   varyingVars: VaryMap,
   shapes: Shape[]
@@ -132,11 +128,11 @@ export const evalShape = (
   const [shapeType, propExprs] = shapeExpr.contents;
 
   // Make sure all props are evaluated to values instead of shapes
-  const props = mapValues(propExprs, (prop: TagExpr<Tensor>): Value<number> => {
+  const props = mapValues(propExprs, (prop: TagExpr<VarAD>): Value<number> => {
     if (prop.tag === "OptEval") {
       // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
       // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
-      const res: Value<Tensor> = (evalExpr(prop.contents, trans, varyingVars) as IVal<Tensor>).contents;
+      const res: Value<VarAD> = (evalExpr(prop.contents, trans, varyingVars) as IVal<VarAD>).contents;
       const resDisplay: Value<number> = valueAutodiffToNumber(res);
       return resDisplay;
     } else if (prop.tag === "Done") {
@@ -162,11 +158,11 @@ export const evalShape = (
 export const evalExprs = (
   es: Expr[],
   trans: Translation,
-  varyingVars?: VaryMap<DiffVar>
-): ArgVal<DiffVar>[] =>
+  varyingVars?: VaryMap<VarAD>
+): ArgVal<VarAD>[] =>
   es.map((e) => evalExpr(e, trans, varyingVars));
 
-const toFloatVal = (a: ArgVal<number | DiffVar>): number | DiffVar => {
+function toFloatVal<T>(a: ArgVal<T>): T {
   if (a.tag === "Val") {
     const res = a.contents;
     if (res.tag === "FloatV") {
@@ -195,8 +191,8 @@ const toFloatVal = (a: ArgVal<number | DiffVar>): number | DiffVar => {
 export const evalExpr = (
   e: Expr,
   trans: Translation,
-  varyingVars?: VaryMap<DiffVar>
-): ArgVal<DiffVar> => {
+  varyingVars?: VaryMap<VarAD>
+): ArgVal<VarAD> => {
 
   switch (e.tag) {
     case "IntLit": {
@@ -222,7 +218,7 @@ export const evalExpr = (
           // Fixed number is stored in translation as number, made differentiable when encountered
           contents: {
             tag: "FloatV",
-            contents: scalar(val),
+            contents: constOf(val),
           },
         };
       }
@@ -235,7 +231,7 @@ export const evalExpr = (
       // TODO: Is there a neater way to do this check? (`checkListElemType` in GenOptProblem.hs)
       if (val1.tag === "Val" && val2.tag === "Val") {
         if (val1.contents.tag === "FloatV" && val2.contents.tag === "FloatV") {
-          return { // Value<number | Tensor>
+          return { // Value<number | VarAD>
             tag: "Val",
             contents:
             {
@@ -261,7 +257,7 @@ export const evalExpr = (
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalUOp(uOp, arg as IFloatV<Tensor> | IIntV<Tensor>),
+        contents: evalUOp(uOp, arg as IFloatV<VarAD> | IIntV<VarAD>),
       }
     } break;
 
@@ -271,10 +267,10 @@ export const evalExpr = (
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalBinOp( // TODO. Why doesn't this return a Value<DiffVar>?
+        contents: evalBinOp( // TODO. Why doesn't this return a Value<VarAD>?
           binOp,
-          val1.contents as Value<Tensor>,
-          val2.contents as Value<Tensor>
+          val1.contents as Value<VarAD>,
+          val2.contents as Value<VarAD>
         ),
       };
     };
@@ -318,7 +314,7 @@ export const evalExpr = (
       const [fnName, argExprs] = e.contents;
       // eval all args
       // TODO: how should computations be written? TF numbers?
-      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<DiffVar>[];
+      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<VarAD>[];
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
       // retrieve comp function from a global dict and call the function
@@ -343,9 +339,9 @@ export const evalExpr = (
 export const resolvePath = (
   path: Path,
   trans: Translation,
-  varyingMap?: VaryMap<DiffVar>
-): ArgVal<DiffVar> => {
-  const floatVal = (v: DiffVar): ArgVal<DiffVar> => ({
+  varyingMap?: VaryMap<VarAD>
+): ArgVal<VarAD> => {
+  const floatVal = (v: VarAD): ArgVal<VarAD> => ({
     tag: "Val",
     contents: {
       tag: "FloatV",
@@ -366,7 +362,7 @@ export const resolvePath = (
         // TODO: cache results
         const evaledProps = mapValues(props, (p, propName) => {
           if (p.tag === "OptEval") {
-            return (evalExpr(p.contents, trans, varyingMap) as IVal<DiffVar>).contents;
+            return (evalExpr(p.contents, trans, varyingMap) as IVal<VarAD>).contents;
           } else {
             const propPath: IPropertyPath = {
               tag: "PropertyPath",
@@ -384,12 +380,12 @@ export const resolvePath = (
 
         return {
           tag: "GPI",
-          contents: [type, evaledProps] as GPI<DiffVar>,
+          contents: [type, evaledProps] as GPI<VarAD>,
         };
       }
 
       default: {
-        const expr: TagExpr<Tensor> = gpiOrExpr;
+        const expr: TagExpr<VarAD> = gpiOrExpr;
         if (expr.tag === "OptEval") {
           return evalExpr(expr.contents, trans, varyingMap);
         } else {
@@ -403,7 +399,7 @@ export const resolvePath = (
 };
 
 // HACK: remove the type wrapper for the argument
-export const argValue = (e: ArgVal<DiffVar>) => {
+export const argValue = (e: ArgVal<VarAD>) => {
   switch (e.tag) {
     case "GPI": // strip the `GPI` tag
       return e.contents;
@@ -419,9 +415,9 @@ export const argValue = (e: ArgVal<DiffVar>) => {
  */
 export const evalBinOp = (
   op: BinaryOp,
-  v1: Value<Tensor>,
-  v2: Value<Tensor>
-): Value<Tensor> => {
+  v1: Value<VarAD>,
+  v2: Value<VarAD>
+): Value<VarAD> => {
 
   let returnType: "FloatV" | "IntV";
   // TODO: deal with Int ops/conversion for binops
@@ -474,8 +470,8 @@ export const evalBinOp = (
  */
 export const evalUOp = (
   op: UnaryOp,
-  arg: IFloatV<Tensor> | IIntV<Tensor>
-): Value<Tensor> => {
+  arg: IFloatV<VarAD> | IIntV<VarAD>
+): Value<VarAD> => {
 
   if (arg.tag === "FloatV") {
     switch (op) {
@@ -506,7 +502,7 @@ export const evalUOp = (
 export const findExpr = (
   trans: Translation,
   path: Path
-): TagExpr<DiffVar> | IFGPI<DiffVar> => {
+): TagExpr<VarAD> | IFGPI<VarAD> => {
   let name, field, prop;
 
   switch (path.tag) {
@@ -556,7 +552,7 @@ export const findExpr = (
 // TODO: Is it inefficient (space/time) to copy the whole translation every time an expression is inserted?
 export const insertExpr = (
   path: Path,
-  expr: TagExpr<Tensor>,
+  expr: TagExpr<VarAD>,
   initTrans: Translation
 ): Translation => {
   const trans = { ...initTrans };
@@ -570,7 +566,7 @@ export const insertExpr = (
     case "PropertyPath":
       // TODO: why do I need to typecast this path? Maybe arrays are not checked properly in TS?
       [name, field, prop] = (path as IPropertyPath).contents;
-      const gpi = trans.trMap[name.contents][field] as IFGPI<Tensor>;
+      const gpi = trans.trMap[name.contents][field] as IFGPI<VarAD>;
       const [, properties] = gpi.contents;
       properties[prop] = expr;
       return trans;
@@ -632,7 +628,7 @@ export const encodeState = (state: State): any => {
 
 export const genVaryMap = (
   varyingPaths: Path[],
-  varyingValues: DiffVar[] // TODO: Distinguish between VarAD variables (tf Variable) and constants (tf Tensor)?
+  varyingValues: VarAD[] // TODO: Distinguish between VarAD variables (tf Variable) and constants (tf Tensor)?
 ) => {
   if (varyingValues.length !== varyingPaths.length) {
     console.log(varyingPaths, varyingValues);

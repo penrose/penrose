@@ -1,7 +1,7 @@
 import { range } from "lodash";
 import { randFloat } from "./Util";
 import { Tensor, scalar, stack, cos, sin } from "@tensorflow/tfjs";
-import { dist } from "./Constraints"
+import { ops } from "./Constraints"
 
 /**
  * Static dictionary of computation functions
@@ -65,12 +65,12 @@ export const compDict = {
 
   lineLength: ([type, props]: [string, any]) => {
     const [p1, p2] = arrowPts(props);
-    return { tag: "FloatV", contents: dist(p1, p2) };
+    return { tag: "FloatV", contents: ops.vdist(p1, p2) };
   },
 
   len: ([type, props]: [string, any]) => {
     const [p1, p2] = arrowPts(props);
-    return { tag: "FloatV", contents: dist(p1, p2) };
+    return { tag: "FloatV", contents: ops.vdist(p1, p2) };
   },
 
   // TODO: The functions below need to be written in terms of autodiff types
@@ -112,9 +112,9 @@ export const compDict = {
 
 };
 
-const arrowPts = ({ startX, startY, endX, endY }: any): [Tensor, Tensor] =>
-  [stack([startX.contents, startY.contents]), stack([endX.contents, endY.contents])]
+const arrowPts = ({ startX, startY, endX, endY }: any): [VarAD[], VarAD[]] =>
+  [[startX.contents, startY.contents], [endX.contents, endY.contents]]
 
-export const checkComp = (fn: string, args: ArgVal<Tensor>[]) => {
+export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
 };

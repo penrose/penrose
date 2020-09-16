@@ -204,3 +204,10 @@ Merge:
 - Need to fix the linear-algebra-js dependency as suggested on slack
 
 - Is numOf even necessary? I thought that the compiled stuff is just going to set the varying state as NUMBERS not variables
+- Evaluator needs to use `VarAD` everywhere, not tensors
+
+    // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
+
+Check type of input in walkTranslationCovnert in EngineUtils
+
+Distinguish all uses of varOf with constOf

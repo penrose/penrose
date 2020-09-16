@@ -1,7 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 import { varOf, numOf } from "./Constraints";
-import { sc } from "./Optimizer";
 import { Tensor, scalar } from "@tensorflow/tfjs";
 import { mapValues } from 'lodash';
 
@@ -254,8 +253,8 @@ export function mapGPIExpr<T, S>(
 
 export function mapTranslation<T, S>(
   f: (arg: T) => S,
-  trans: Translation
-): Translation {
+  trans: ITrans<T>
+): ITrans<S> {
   const newTrMap = Object.entries(trans.trMap)
     .map(([name, fdict]) => {
 
@@ -279,6 +278,7 @@ export function mapTranslation<T, S>(
   };
 };
 
-export const walkTranslationConvert = (trans: Translation): Translation => {
+// TODO: Check these types?
+export const walkTranslationConvert = (trans: any): Translation => {
   return mapTranslation(varOf, trans);
 };

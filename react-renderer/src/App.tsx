@@ -5,7 +5,7 @@ import ButtonBar from "./ButtonBar";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
-import { step, stepEP, stepBasic } from "./Optimizer";
+import { stepBasic } from "./Optimizer";
 import { unwatchFile } from "fs";
 import { collectLabels } from "./utils/CollectLabels";
 import * as tf from "@tensorflow/tfjs";

@@ -7,7 +7,7 @@ interface LabelData {
   height: number;
 }
 
-type VaryMap<T = Tensor> = Map<string, T>;
+type VaryMap<T = VarAD> = Map<string, T>;
 
 type FnDone<T> = IFnDone<T>;
 interface IFnDone<T> {
@@ -40,7 +40,7 @@ interface IState {
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];
-  varyingValues: Tensor[];
+  varyingValues: number[];
   translation: Translation;
   shapeOrdering: string[];
   shapes: Shape[];
@@ -93,7 +93,7 @@ interface IVal<T> {
 }
 
 // type Translation<T> = ITrans<T>;
-type Translation = ITrans<Tensor>;
+type Translation = ITrans<VarAD>;
 
 interface ITrans<T> {
   // TODO: compGraph
@@ -622,7 +622,7 @@ type VarAD = IVarAD;
 // ----- Types for generalizing our system autodiff
 
 // Tag is for distinguishing between tf var and custom var (use `if (x.tag)`)
-// NOTE: Variable is a subtype of Tensor, so it can be used here with no problem
+// NOTE: Variable is a subtype of VarAD, so it can be used here with no problem
 
 // TODO: Should VarAD provide a mutable API??
 
@@ -633,7 +633,7 @@ interface IVecAD {
 
 type VecAD = IVecAD;
 
-type DiffVar = VarAD | Tensor;
+type DiffVar = VarAD | VarAD;
 
 type GradGraphs = IGradGraphs;
 

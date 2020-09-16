@@ -111,7 +111,7 @@ const epConverged2 = (xs0: number[], xs1: number[], fxs0: number, fxs1: number):
   return stateChange < epStop || energyChange < epStop;
 }
 
-const applyFn = (f: FnDone<DiffVar>, dict: any) => {
+const applyFn = (f: FnDone<VarAD>, dict: any) => {
   if (dict[f.name]) {
     return dict[f.name](...f.args.map(argValue));
   } else {
@@ -143,7 +143,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   const { optStatus, weight } = state.params;
   let newState = { ...state };
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
-  const xs: DiffVar[] = optParams.mutableUOstate; // also a reference
+  const xs: VarAD[] = optParams.mutableUOstate; // also a reference
 
   console.log("-------------------");
   console.log("step EP | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
@@ -250,7 +250,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 
     newState.translation = insertVaryings(
       state.translation,
-      _.zip(state.varyingPaths, varyingValues) as [Path, DiffVar][]
+      _.zip(state.varyingPaths, varyingValues) as [Path, VarAD][]
     );
 
     newState.varyingValues = varyingValues;
@@ -461,7 +461,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
       // TODO: Merge this properly
       // _.zip(state.varyingPaths, varyingValues) as [Path, number][]
       // zip(state.varyingPaths, varyingValues) as [Path, Tensor][]
-      _.zip(state.varyingPaths, varyingValues) as [Path, DiffVar][]
+      _.zip(state.varyingPaths, varyingValues) as [Path, VarAD][]
     );
 
     newState.varyingValues = varyingValues;
@@ -965,30 +965,23 @@ export const evalEnergyOnCustom = (state: State, inlined = false) => {
  * Generate an energy function from the current state
  *
  * @param {State} state
- * @returns a function that takes in a list of `DiffVar`s and return a `Scalar`
+ * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
  */
-export const evalEnergyOn = (state: State, inlined = false) => {
+export const evalEnergyOn = (state: State) => {
   // TODO: types
-  return (...varyingValuesTF: DiffVar[]): DiffVar => {
+  return (...varyingValuesTF: VarAD[]): VarAD => {
     // TODO: Could this line be causing a memory leak?
     const { objFns, constrFns, translation, varyingPaths } = state;
 
     // construct a new varying map
-    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<DiffVar>;
-
-    if (inlined) {
-      console.log("returning inlined function for `tree-small.sub` and `venn-small.sub`");
-      // TODO: Put inlined function here
-      const res = stack(varyingValuesTF).sum();
-      return res.mul(scalar(0));
-    }
+    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<VarAD>;
 
     // NOTE: This will mutate the var inputs
     const objEvaled = evalFns(objFns, translation, varyingMap);
     const constrEvaled = evalFns(constrFns, translation, varyingMap);
 
-    const objEngs: DiffVar[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: DiffVar[] = constrEvaled.map((c) => fns.toPenalty(applyFn(c, constrDict)));
+    const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
+    const constrEngs: VarAD[] = constrEvaled.map((c) => fns.toPenalty(applyFn(c, constrDict)));
 
     // TODO: Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
     // NOTE: The energies are in the val field of the results (w/o grads)
@@ -997,341 +990,28 @@ export const evalEnergyOn = (state: State, inlined = false) => {
 
     // TODO make this check more robust to empty lists of objectives/constraints
     if (!objEngs[0] && !constrEngs[0]) { throw Error("no objectives and no constraints"); }
-    const useCustom = objEngs[0] ? isCustom(objEngs[0]) : isCustom(constrEngs[0]);
+    // const useCustom = objEngs[0] ? isCustom(objEngs[0]) : isCustom(constrEngs[0]);
 
-    if (useCustom) {
-      const objEng: VarAD = ops.vsum(objEngs);
-      const constrEng: VarAD = ops.vsum(constrEngs);
-      const overallEng: VarAD = add(objEng,
-        mul(constrEng,
-          variableAD(constraintWeight * state.params.weight)));
+    const objEng: VarAD = ops.vsum(objEngs);
+    const constrEng: VarAD = ops.vsum(constrEngs);
+    const overallEng: VarAD = add(objEng,
+      mul(constrEng,
+        variableAD(constraintWeight * state.params.weight)));
 
-      // console.error("weight", constraintWeight, state.params.weight, constraintWeight * state.params.weight);
-      // throw Error("stop");
+    // console.error("weight", constraintWeight, state.params.weight, constraintWeight * state.params.weight);
+    // throw Error("stop");
 
-      // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
-      overallEng.gradVal = { tag: "Just", contents: 1.0 };
-      // console.log("overall eng from custom AD", overallEng, overallEng.val);
-      return overallEng;
-    }
-
-    const objEng2: Tensor =
-      objEngs.length === 0 ? differentiable(0) : stack(objEngs).sum();
-    const constrEng2: Tensor =
-      constrEngs.length === 0 ? differentiable(0) : stack(constrEngs).sum();
-    const overallEng2 = objEng2.add(
-      constrEng2.mul(scalar(constraintWeight * state.params.weight))
-    );
-
-    // NOTE: the current version of tfjs requires all input variables to have gradients (i.e. actually involved when computing the overall energy). See https://github.com/tensorflow/tfjs-core/blob/8c2d9e05643988fa7f4575c30a5ad3e732d189b2/tfjs-core/src/engine.ts#L726
-    // HACK: therefore, we try to work around it by using all varying values without affecting the value and gradients of the energy function
-    const dummyVal = stack(varyingValuesTF).sum();
-    return overallEng2.add(dummyVal.mul(scalar(0)));
+    // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
+    overallEng.gradVal = { tag: "Just", contents: 1.0 };
+    // console.log("overall eng from custom AD", overallEng, overallEng.val);
+    return overallEng;
   };
 };
 
-// TODO: This is an old function and should be phased out; may no longer compile
-export const step = (state: State, steps: number) => {
-  const f = evalEnergyOn(state);
-  const fgrad = gradF(f);
-  const xs = state.varyingValues;
-  // const xs = state.varyingState; // NOTE: use cached varying values
-  // NOTE: minimize will mutates xs
-  const { energy } = minimize(f, fgrad, xs, steps);
-  // insert the resulting variables back into the translation for rendering
-  // NOTE: this is a synchronous operation on all varying values; may block
-  // Note: after we finish one evaluation, we "destroy" the AD variables (by making them into scalars) and remake them
-  // TODO: Is this the right thing to do?
-  const varyingValues = xs.map((x) => scalarValue(x as Scalar)).map(differentiable);
-  const trans = insertVaryings(
-    state.translation,
-    // TODO: Merge this properly
-    // _.zip(state.varyingPaths, varyingValues) as [Path, number][]
-    // zip(state.varyingPaths, varyingValues) as [Path, Tensor][]
-    _.zip(state.varyingPaths, varyingValues) as [Path, DiffVar][]
-  );
-  const newState = { ...state, translation: trans, varyingValues };
-  if (scalarValue(energy) > 10) {
-    // const newState = { ...state, varyingState: xs };
-    newState.params.optStatus.tag = "UnconstrainedRunning";
-    console.log(`Took ${steps} steps. Current energy`, scalarValue(energy));
-    // return newState;
-  } else {
-    // const varyingValues = xs.map((x) => tfStr(x));
-    // const trans = insertVaryings(
-    //   state.translation,
-    //   zip(state.varyingPaths, varyingValues) as [Path, number][]
-    // );
-    // const newState = { ...state, translation: trans, varyingValues };
-    newState.params.optStatus.tag = "EPConverged";
-    console.log("Converged with energy", scalarValue(energy));
-    // return evalTranslation(newState);
-  }
-  // return the state with a new set of shapes
-  return evalTranslation(newState);
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// All TFjs related functions
-
-export const gradF = (fn: any, inlined = false) => {
-  if (inlined) {
-    // gradf: (arg: Tensor[]) => Tensor[],
-    // TODO: Where do I have access to the state?
-    return (args: Scalar[]) => [tf.scalar(0.0),
-    tf.scalar(0.0),
-    tf.scalar(0.0),
-    tf.scalar(0.0),
-    tf.scalar(0.0),
-    tf.scalar(0.0),
-    tf.scalar(0.0),
-    tf.scalar(0.0),
-    tf.scalar(0.0),
-    tf.scalar(0.0)
-    ];
-  }
-
-  return tf.grads(fn);
-}
-
-// TODO: types
-export const sc = (x: any): number => x.dataSync()[0];
-export const scalarValue = (x: Scalar): number => x.dataSync()[0];
-export const tfsStr = (xs: any[]) => xs.map((e) => scalarValue(e));
-
-// export const differentiable = (e: number): Variable => tf.scalar(e).variable();
-export const differentiable2 = (e: number): VarAD => varOf(e);
-
-// TODO: permissive typing for now on DiffVar; it really should be VarAD
-export const differentiable = (e: number): DiffVar => {
+export const differentiable = (e: number): VarAD => {
   console.error("making it differentiable", e);
   return varOf(e);
 }
-
-export const flatten = (t: Tensor): Tensor => tf.reshape(t, [-1]); // flattens something like Tensor [[1], [2], [3]] (3x1 tensor) into Tensor [1, 2, 3] (1x3)
-export const flatten2 = (t: Tensor[]): Tensor => flatten(tf.stack(t));
-
-export const unflatten = (t: Tensor): Tensor[] => tf.reshape(t, [t.size, 1]).unstack().map(e => e.asScalar());
-// unflatten Tensor [1,2,3] (1x3) into [Tensor 1, Tensor 2, Tensor 3] (3x1) -- since this is the type that f and gradf require as input and output
-// The problem is that our data representation assumes a Tensor of size zero (i.e. scalar(3) = Tensor 3), not of size 1 (i.e. Tensor [3])
-
-// TODO. This should be ported to work on scalars
-const awLineSearch = (
-  f: (...arg: Tensor[]) => Scalar,
-  gradf: (arg: Tensor[]) => Tensor[],
-  xs: Tensor,
-  gradfx: Tensor, // not nested
-  maxSteps = 100
-) => {
-
-  // TODO: Do console logs with a debug flag
-
-  const descentDir = tf.neg(gradfx); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
-
-  const fFlat = (ys: Tensor) => f(...unflatten(ys));
-  const gradfxsFlat = (ys: Tensor) => flatten2(gradf(unflatten(ys)));
-
-  const duf = (u: Tensor) => {
-    return (ys: Tensor) => {
-      const res = u.dot(gradfxsFlat(ys));
-      // console.log("u,xs2", u.arraySync(), xs2.arraySync());
-      // console.log("input", unflatten(xs2));
-      // console.log("e", f(...unflatten(xs2)));
-      // console.log("gu", gradf(unflatten(xs2)));
-      // console.log("gu2", flatten2(gradf(unflatten(xs2))));
-      return res;
-    }
-  };
-
-  const dufDescent = duf(descentDir);
-  const dufAtx0 = dufDescent(xs);
-  const fAtx0 = fFlat(xs);
-  const minInterval = 10e-10;
-
-  // HS: duf, TS: dufDescent
-  // HS: x0, TS: xs
-
-  // Hyperparameters
-  const c1 = 0.001; // Armijo
-  const c2 = 0.9; // Wolfe
-  // TODO: Will it cause precision issues to use both tf.scalar and `number`?
-
-  // Armijo condition
-  // f(x0 + t * descentDir) <= (f(x0) + c1 * t * <grad(f)(x0), x0>)
-  // TODO: Check that these inner lines behave as expected with tf.js
-  const armijo = (ti: number) => {
-    // TODO: Use addStrict (etc.) everywhere?
-    const cond1 = fFlat(xs.addStrict(descentDir.mul(ti)));
-    const cond2 = fAtx0.add(dufAtx0.mul(ti * c1));
-    // console.log("armijo", cond1.arraySync(), cond2.arraySync());
-    return sc(tf.lessEqualStrict(cond1, cond2));
-  };
-
-  // D(u) := <grad f, u>
-  // D(u, f, x) = <grad f(x), u>
-  // u is the descentDir (i.e. -grad(f)(x))
-
-  // Strong Wolfe condition
-  // |<grad(f)(x0 + t * descentDir), u>| <= c2 * |<grad f(x0), u>|
-  const strongWolfe = (ti: number) => {
-    const cond1 = tf.abs(dufDescent(xs.addStrict(descentDir.mul(ti))));
-    const cond2 = tf.abs(dufAtx0).mul(c2);
-    return sc(tf.lessEqualStrict(cond1, cond2));
-  };
-
-  // Weak Wolfe condition
-  // <grad(f)(x0 + t * descentDir), u> >= c2 * <grad f(x0), u>
-  const weakWolfe = (ti: number) => {
-    const cond1 = dufDescent(xs.addStrict(descentDir.mul(ti)));
-    const cond2 = dufAtx0.mul(c2);
-    // console.log("weakWolfe", cond1.arraySync(), cond2.arraySync());
-    return sc(tf.greaterEqualStrict(cond1, cond2));
-  };
-
-  const wolfe = weakWolfe; // TODO: Set this if using strongWolfe instead
-
-  // Interval check
-  const shouldStop = (numUpdates: number, ai: number, bi: number) => {
-    const intervalTooSmall = Math.abs(bi - ai) < minInterval;
-    const tooManySteps = numUpdates > maxSteps;
-
-    if (intervalTooSmall) { console.log("interval too small"); }
-    if (tooManySteps) { console.log("too many steps"); }
-
-    return intervalTooSmall || tooManySteps;
-  }
-
-  // Consts / initial values
-  // TODO: port comments from original
-
-  // const t = 0.002; // for venn_simple.sty
-  // const t = 0.1; // for tree.sty
-
-  let a = 0;
-  let b = Infinity;
-  let t = 1.0;
-  let i = 0;
-
-  // console.log("line search", xs.arraySync(), gradfx.arraySync(), duf(xs)(xs).arraySync());
-
-  // Main loop + update check
-  while (true) {
-    const needToStop = shouldStop(i, a, b);
-
-    if (needToStop) {
-      console.log("stopping early: (i, a, b, t) = ", i, a, b, t);
-      break;
-    }
-
-    const isArmijo = armijo(t);
-    const isWolfe = wolfe(t);
-    // console.log("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
-
-    if (!isArmijo) {
-      // console.log("not armijo"); 
-      b = t;
-    } else if (!isWolfe) {
-      // console.log("not wolfe"); 
-      a = t;
-    } else {
-      // console.log("found good interval");
-      // console.log("stopping: (i, a, b, t) = ", i, a, b, t);
-      break;
-    }
-
-    if (b < Infinity) {
-      // console.log("already found armijo"); 
-      t = (a + b) / 2.0;
-    } else {
-      // console.log("did not find armijo"); 
-      t = 2.0 * a;
-    }
-
-    i++;
-  }
-
-  return t;
-};
-
-/**
- * Use included tf.js optimizer to minimize f over xs (note: xs is mutable)
- *
- * @param {(...arg: tf.Tensor[]) => tf.Tensor} f overall energy function
- * @param {(...arg: tf.Tensor[]) => tf.Tensor[]} gradf gradient function
- * @param {tf.Tensor[]} xs varying state
- * @param {*} names // TODO: what is this
- * @returns // TODO: document
- */
-export const minimizePenrose = (
-  f: (...arg: Variable[]) => Scalar,
-  gradf: (arg: Tensor[]) => Tensor[],
-  xs: DiffVar[],
-  maxSteps = 100
-): {
-  energy: Scalar;
-  normGrad: Scalar;
-  i: number;
-} => {
-  // values to be returned
-  let energy;
-  let i = 0;
-  let gradfx = tf.stack(gradf(xs));;
-  let normGrad;
-
-  // TODO: Check that the way this loop is being called (and with # steps) satisfies the requirements of EP (e.g. minimizing an unconstrained problem)
-
-  while (i < maxSteps) {
-    // TFJS optimizer
-    // energy = optimizer.minimize(() => f(...xs) as any, true);
-
-    // custom optimizer (TODO: factor out)
-    // right now, just does vanilla gradient descent with line search
-    // Note: tf.clone can clone a variable into a tensor, and after that, the two are unrelated
-    // TODO: figure out the best way to dispose/tidy the intermediate tensors
-
-    // TODO: clean this up with the `flatten` function
-    // TODO: On iteration, can we save time/space by not reshaping/assigning all these tensors??
-
-    gradfx = tf.stack(gradf(xs));
-    // TODO: Put inlined gradient here. Or just use JS lists (vectors? Is there a better data structure?) and inlined gradient, idk
-
-    // const xsCopy = flatten2(xs);
-    // const stepSize = awLineSearch(f, gradf, xsCopy, flatten(gradfx));
-    const stepSize = 0.001;
-    // console.log("stepSize via line search:", stepSize);
-
-    // xs' = xs - dt * grad(f(xs))
-    // `stack` makes a new immutable tensor of the vars: Tensor [ v1, v2, v3 ] (where each var is a single-elem list [x])
-    // TODO: Can we do this without the arraySync call?
-    const xsNew = tf.stack(xs).sub(gradfx.mul(stepSize)).arraySync();
-    // Set each variable to the result
-    xs.forEach((e, j) => e.assign(tf.tensor(xsNew[j])));
-    energy = f(...xs);
-    // normGrad = gradfx.norm();
-
-    // note: this printing could tank the performance
-    // console.log("i = ", i);
-    // const vals = xs.map(v => v.dataSync()[0]);
-    console.log(`f(xs): ${energy}`);
-    // console.log("f'(xs)", tfsStr(gradfx));
-    // console.log("||f'(xs)||", sc(normGrad));
-
-    i++;
-  }
-
-  // const gradfxLast = gradf(xs);
-  // Note that tf.stack(gradfx) gives a Tensor of single-element tensors, e.g. Tensor [[-2], [2]]
-  // const normGradLast = tf.stack(gradfxLast).norm();
-
-  energy = f(...xs);
-  normGrad = gradfx.norm();
-
-  return {
-    energy: energy as Scalar,
-    normGrad: normGrad as Scalar,
-    i
-  };
-};
 
 // ---------- Vector utils 
 // TODO: factor out
