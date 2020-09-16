@@ -1,0 +1,7 @@
+Set A, B
+Intersecting(A, B)
+Set C := Intersection(A, B)
+
+Label A $\text{Circles}$
+Label B $\text{Diagrams}$
+Label C $\text{Venn Diagrams}$

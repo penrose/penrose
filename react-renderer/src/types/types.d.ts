@@ -7,9 +7,7 @@ interface LabelData {
   height: number;
 }
 
-type Translation = ITrans<number>; // TODO: number type might be different
-// type VaryMap<T = number> = [Path, T][];
-type VaryMap<T = number> = Map<string, T>;
+type VaryMap<T = Tensor> = Map<string, T>;
 
 type FnDone<T> = IFnDone<T>;
 interface IFnDone<T> {
@@ -42,7 +40,7 @@ interface IState {
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];
-  varyingValues: number[];
+  varyingValues: Tensor[];
   translation: Translation;
   shapeOrdering: string[];
   shapes: Shape[];
@@ -68,6 +66,7 @@ interface CompNode<T> {
   value: Value<T> | undefined;
 }
 
+// These are numbers, not autodiff types, since shapes are only for display (unlike GPIs)
 type Properties = { [k: string]: Value<number> };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -94,6 +93,7 @@ interface IVal<T> {
 }
 
 // type Translation<T> = ITrans<T>;
+type Translation = ITrans<Tensor>;
 
 interface ITrans<T> {
   // TODO: compGraph
@@ -130,15 +130,6 @@ interface IPending<T> {
   tag: "Pending";
   contents: Value<T>;
 }
-
-// interface Expr {
-//   tag: string;
-//   contents: any;
-// }
-
-// interface IIntLit extends Expr {
-//   tag: "IntLit";
-// }
 
 type Expr =
   | IIntLit
@@ -310,8 +301,8 @@ type Value<T> =
   | IPtV<T>
   | IPathDataV<T>
   | IPtListV<T>
-  | IPaletteV<T>
   | IColorV<T>
+  | IPaletteV<T>
   | IFileV<T>
   | IStyleV<T>
   | IListV<T>
@@ -357,12 +348,12 @@ interface IPtListV<T> {
 
 interface IPaletteV<T> {
   tag: "PaletteV";
-  contents: Color[];
+  contents: Color<T>[];
 }
 
 interface IColorV<T> {
   tag: "ColorV";
-  contents: Color;
+  contents: Color<T>;
 }
 
 interface IFileV<T> {
@@ -397,7 +388,8 @@ interface IHMatrixV<T> {
 
 interface IPolygonV<T> {
   tag: "PolygonV";
-  contents: [[T, T][][], [T, T][][], [[T, T], [T, T]], [T, T][]];
+  contents: [[T, T][][], [T, T][][],
+    [[T, T], [T, T]], [T, T][]];
 }
 
 type SubPath<T> = IClosed<T> | IOpen<T>;
@@ -423,16 +415,16 @@ interface IHMatrix<T> {
   dy: T;
 }
 
-type Color = IRGBA | IHSVA;
+type Color<T> = IRGBA<T> | IHSVA<T>;
 
-interface IRGBA {
+interface IRGBA<T> {
   tag: "RGBA";
-  contents: [number, number, number, number];
+  contents: [T, T, T, T];
 }
 
-interface IHSVA {
+interface IHSVA<T> {
   tag: "HSVA";
-  contents: [number, number, number, number];
+  contents: [T, T, T, T];
 }
 
 type Elem<T> =

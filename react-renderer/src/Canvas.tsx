@@ -3,15 +3,15 @@ import * as ReactDOM from "react-dom";
 import { interactiveMap, staticMap } from "./componentMap";
 import Log from "./Log";
 import { loadImages } from "./Util";
-import { ILayer, ILayerProps } from "./types";
-import { layerMap } from "./layers/layerMap";
 import { insertPending } from "./PropagateUpdate";
-import { collectLabels } from "./utills/CollectLabels";
+import { collectLabels } from "./utils/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
+import { walkTranslationConvert } from "./EngineUtils";
+import { scalar } from "@tensorflow/tfjs";
+import { differentiable } from "./Optimizer";
 
 interface ICanvasProps {
   lock: boolean;
-  layers?: ILayer[];
   substanceMetadata?: string;
   styleMetadata?: string;
   elementMetadata?: string;
@@ -47,20 +47,32 @@ class Canvas extends React.Component<ICanvasProps> {
    */
   public static processData = async (data: any) => {
     const state: State = decodeState(data);
-    const stateEvaled: State = evalTranslation(state);
-    // TODO: return types
+
+    // Make sure that the state decoded from backend conforms to the types in types.d.ts, otherwise the typescript checking is just not valid for e.g. Tensors
+    // convert all TagExprs (tagged Done or Pending) in the translation to Tensors (autodiff types)
+    const translationAD = walkTranslationConvert(state.translation);
+    const stateAD = {
+      ...state,
+      translation: translationAD,
+      varyingValues: state.varyingValues.map(e => differentiable(e))
+    };
+
+    // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
+    // The results of the pending values are then stored back in the translation as autodiff types
+    const stateEvaled: State = evalTranslation(stateAD);
+    // TODO: add return types
     const labeledShapes: any = await collectLabels(stateEvaled.shapes);
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);
     const sortedShapes: any = await Canvas.sortShapes(
       labeledShapesWithImgs,
       data.shapeOrdering
     );
-
     const nonEmpties = await sortedShapes.filter(Canvas.notEmptyLabel);
     const processed = await insertPending({
       ...stateEvaled,
       shapes: nonEmpties,
     });
+
     return processed;
   };
 
@@ -117,13 +129,7 @@ class Canvas extends React.Component<ICanvasProps> {
           ]),
         ];
       default:
-        return [
-          type,
-          this.moveProperties(properties, [
-            ["x", dx],
-            ["y", dy],
-          ]),
-        ];
+        return [type, this.moveProperties(properties, [["x", dx], ["y", dy]])];
     }
   };
 
@@ -247,7 +253,7 @@ class Canvas extends React.Component<ICanvasProps> {
     frame.remove();
   };
 
-  public renderEntity = ({ shapeType, properties }: Shape, key: number) => {
+  public renderGPI = ({ shapeType, properties }: Shape, key: number) => {
     const component = this.props.lock
       ? staticMap[shapeType]
       : interactiveMap[shapeType];
@@ -268,35 +274,9 @@ class Canvas extends React.Component<ICanvasProps> {
       ctm: !this.props.lock ? (this.svg.current as any).getScreenCTM() : null,
     });
   };
-  public renderLayer = (
-    shapes: Shape[],
-    debugData: any[],
-    component: React.ComponentClass<ILayerProps>,
-    key: number
-  ) => {
-    if (shapes.length === 0) {
-      return <g key={key} />;
-    }
-    if (this.svg.current === null) {
-      Log.error("SVG ref is null");
-      return <g key={key} />;
-    }
-    const ctm = this.svg.current.getScreenCTM();
-    if (ctm === null) {
-      Log.error("Cannot get CTM");
-      return <g key={key} />;
-    }
-    return React.createElement(component, {
-      key,
-      ctm,
-      shapes,
-      debugData,
-      canvasSize,
-    });
-  };
+
   public render() {
     const {
-      layers,
       substanceMetadata,
       styleMetadata,
       elementMetadata,
@@ -325,35 +305,18 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-          } on ${new Date()
-            .toISOString()
-            .slice(
-              0,
-              10
-            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+            } on ${new Date()
+              .toISOString()
+              .slice(
+                0,
+                10
+              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}
           {otherMetadata && `${otherMetadata}`}
         </desc>
-        {shapes.map(this.renderEntity)}
-        {layers &&
-          layers.map(({ layer, enabled }: ILayer, key: number) => {
-            if (layerMap[layer] === undefined) {
-              Log.error(`Layer does not exist in deck: ${layer}`);
-              return null;
-            }
-            if (enabled) {
-              // TODO: what does data refer to here? Why is it a list?
-              return this.renderLayer(
-                shapes,
-                data as any,
-                layerMap[layer],
-                key
-              );
-            }
-            return null;
-          })}
+        {shapes.map(this.renderGPI)}
       </svg>
     );
   }

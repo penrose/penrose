@@ -1,10 +1,13 @@
+import { Tensor } from "@tensorflow/tfjs";
 import { insertExpr } from "./Evaluator";
+import { valueNumberToAutodiff } from "./EngineUtils";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.
  * @param shapes a list of shapes
  * @param path a path to a property value in one of the shapes
  */
+// the `any` is to accomodate `collectLabels` storing updated property values in a new property that's not in the type system
 const findShapeProperty = (shapes: any, path: Path): Value<number> | any => {
   if (path.tag === "FieldPath") {
     throw new Error("pending paths must be property paths");
@@ -33,12 +36,14 @@ export const insertPending = (state: State) => {
     ...state,
     // clear up pending paths now that they are updated properly
     pendingPaths: [],
-    // for each of the pending path, update the translation using the updated shapes with new label dimensions etc.
+    // for each of the pending paths, update the translation using the updated shapes with new label dimensions etc.
+
     translation: state.pendingPaths
       .map((p: Path) => [p, findShapeProperty(state.shapes, p).updated])
+      // .updated is from `collectLabels` updating pending properties
       .reduce(
         (trans: Translation, [path, v]: [Path, Value<number>]) =>
-          insertExpr(path, { tag: "Done", contents: v }, trans),
+          insertExpr(path, { tag: "Done", contents: valueNumberToAutodiff(v) }, trans),
         state.translation
       ),
   };

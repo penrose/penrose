@@ -197,3 +197,10 @@ TODO 9/15/20
 - This style all requires inline computations
 - Ok, I should merge w/ web-runtime
 - will require implementing tensor-to-number conversion for paths 
+
+Merge:
+- Need to combine web-perf's use of DiffVar (but really, just VarAD) with web-runtime's factoring-out of numbers/autodiff from evaluations
+- Probably need to change use of `scalar`, etc. (number <-> Tensor conversion) to number <-> varAD conversion
+- Need to fix the linear-algebra-js dependency as suggested on slack
+
+- Is numOf even necessary? I thought that the compiled stuff is just going to set the varying state as NUMBERS not variables

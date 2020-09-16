@@ -23,6 +23,7 @@
             "allow-snake-case",
             "allow-pascal-case"
          ]
-    }
+    },
+    "member-ordering": false
   }
 }

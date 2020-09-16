@@ -41,6 +41,9 @@ import {
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
 
+// Printing flags
+const DEBUG_OPT = false;
+
 // growth factor for constraint weights
 const weightGrowthFactor = 10;
 // weight for constraints
@@ -59,14 +62,16 @@ const EPSD = 1e-11;
 
 // Unconstrained method convergence criteria
 // TODO. This should REALLY be 10e-10
-const uoStop = 1e-2;
-// const uoStop = 1e-5;
+// const uoStop = 1e-2;
+const uoStop = 1e-5;
 // const uoStop = 10;
 
 const DEBUG_GRAD_DESCENT = false;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
+
+const EPS = uoStop;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -140,6 +145,7 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
   const xs: DiffVar[] = optParams.mutableUOstate; // also a reference
 
+  console.log("-------------------");
   console.log("step EP | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
   console.log("params: ", optParams);
   console.log("state: ", state);
@@ -153,7 +159,8 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 
       const newParams: Params = {
         ...state.params,
-        mutableUOstate: state.varyingValues.map(differentiable),
+        // These are made into variables when received by the frontend, in `processData`
+        mutableUOstate: state.varyingValues,
         weight: initConstraintWeight,
         UOround: 0,
         EPround: 0,
@@ -165,6 +172,11 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
     }
 
     case "UnconstrainedRunning": {
+      if (!state.varyingValues.length) {
+        console.error("NOTE: empty state; skipping optimization to evaluate state:", evaluate); // Empty state, so don't optimize
+        break;
+      }
+
       // NOTE: use cached varying values
       // TODO. we should be using `varyingValues` below in place of `xs`, not the `xs` from optStatus
       // (basically use the last UO state, not last EP state)
@@ -232,13 +244,13 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 
   // return the state with a new set of shapes
   if (evaluate) {
-    const varyingValues = xs.map((x) => scalarValue(x as Scalar));
-    // console.log("evaluating state with varying values", varyingValues);
-    // console.log("varyingMap", zip(state.varyingPaths, varyingValues) as [Path, number][]);
+    // Note: after we finish one evaluation, we "destroy" the AD variables (by making them into scalars) and remake them
+    // TODO: Is this the right thing to do?
+    const varyingValues = xs.map((x) => scalarValue(x as Scalar)).map(differentiable);
 
     newState.translation = insertVaryings(
       state.translation,
-      _.zip(state.varyingPaths, varyingValues) as [Path, number][]
+      _.zip(state.varyingPaths, varyingValues) as [Path, DiffVar][]
     );
 
     newState.varyingValues = varyingValues;
@@ -446,7 +458,10 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
 
     newState.translation = insertVaryings(
       state.translation,
-      _.zip(state.varyingPaths, varyingValues) as [Path, number][]
+      // TODO: Merge this properly
+      // _.zip(state.varyingPaths, varyingValues) as [Path, number][]
+      // zip(state.varyingPaths, varyingValues) as [Path, Tensor][]
+      _.zip(state.varyingPaths, varyingValues) as [Path, DiffVar][]
     );
 
     newState.varyingValues = varyingValues;
@@ -1015,19 +1030,25 @@ export const evalEnergyOn = (state: State, inlined = false) => {
   };
 };
 
+// TODO: This is an old function and should be phased out; may no longer compile
 export const step = (state: State, steps: number) => {
   const f = evalEnergyOn(state);
   const fgrad = gradF(f);
-  const xs = state.varyingValues.map(differentiable);
+  const xs = state.varyingValues;
   // const xs = state.varyingState; // NOTE: use cached varying values
   // NOTE: minimize will mutates xs
   const { energy } = minimize(f, fgrad, xs, steps);
   // insert the resulting variables back into the translation for rendering
   // NOTE: this is a synchronous operation on all varying values; may block
-  const varyingValues = xs.map((x) => scalarValue(x as Scalar));
+  // Note: after we finish one evaluation, we "destroy" the AD variables (by making them into scalars) and remake them
+  // TODO: Is this the right thing to do?
+  const varyingValues = xs.map((x) => scalarValue(x as Scalar)).map(differentiable);
   const trans = insertVaryings(
     state.translation,
-    _.zip(state.varyingPaths, varyingValues) as [Path, number][]
+    // TODO: Merge this properly
+    // _.zip(state.varyingPaths, varyingValues) as [Path, number][]
+    // zip(state.varyingPaths, varyingValues) as [Path, Tensor][]
+    _.zip(state.varyingPaths, varyingValues) as [Path, DiffVar][]
   );
   const newState = { ...state, translation: trans, varyingValues };
   if (scalarValue(energy) > 10) {
@@ -1241,8 +1262,8 @@ const awLineSearch = (
  * @param {*} names // TODO: what is this
  * @returns // TODO: document
  */
-export const minimize = (
-  f: (...arg: DiffVar[]) => Scalar,
+export const minimizePenrose = (
+  f: (...arg: Variable[]) => Scalar,
   gradf: (arg: Tensor[]) => Tensor[],
   xs: DiffVar[],
   maxSteps = 100
@@ -1351,3 +1372,59 @@ const dot = (xs: number[], ys: number[]): number => {
   }
   return acc;
 };
+
+/**
+ * Use included tf.js optimizer to minimize f over xs (note: xs is mutable)
+ *
+ * @param {(...arg: tf.Tensor[]) => tf.Tensor} f overall energy function
+ * @param {(...arg: tf.Tensor[]) => tf.Tensor[]} gradf gradient function
+ * @param {tf.Tensor[]} xs varying state
+ * @param {*} names // TODO: what is this
+ * @returns // TODO: document
+ */
+export const minimizeTF = (
+  f: (...arg: Variable[]) => Scalar,
+  gradf: (arg: Tensor[]) => Tensor[],
+  xs: Variable[],
+  maxSteps = 100
+): {
+  energy: Scalar;
+  normGrad: Scalar;
+  i: number;
+} => {
+  // values to be returned
+  let energy;
+  let i = 0;
+  let normGrad;
+  let gradfx;
+  let vals;
+
+  while (1) {
+    energy = optimizer.minimize(() => f(...xs) as any, true);
+    gradfx = gradf(xs);
+    normGrad = tf.stack(gradfx).norm();
+
+    if (i >= maxSteps || (sc(normGrad) < EPS)) {
+      break;
+    }
+
+    // note: this printing could tank the performance
+    if (DEBUG_OPT) {
+      vals = xs.map(v => v.dataSync()[0]);
+
+      console.log("i=", i);
+      console.log(`f(xs): ${energy}`);
+      console.log("f'(xs)", tfsStr(gradfx));
+      console.log("||f'(xs)||", sc(normGrad));
+      console.log("stopping conditions", i < maxSteps, "or", sc(normGrad) > EPS);
+    }
+
+    i++;
+  }
+  // find the current
+  gradfx = gradf(xs);
+  normGrad = tf.stack(gradfx).norm();
+  return { energy: energy as Scalar, normGrad: normGrad as Scalar, i };
+};
+
+export const minimize = minimizeTF;

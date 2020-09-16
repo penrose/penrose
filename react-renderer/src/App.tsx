@@ -2,14 +2,15 @@ import * as React from "react";
 import Log from "./Log";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
-import { ILayer } from "./types";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "./Evaluator";
 import { step, stepEP, stepBasic } from "./Optimizer";
 import { unwatchFile } from "fs";
-import { collectLabels } from "./utills/CollectLabels";
+import { collectLabels } from "./utils/CollectLabels";
 import * as tf from "@tensorflow/tfjs";
+import SplitPane from "react-split-pane";
+import Inspector from "./inspector/Inspector";
 
 // Cache compiled functions after first sample
 // TODO: Hack -- remove! Global state in frontend -- what's the right way to do this?
@@ -20,9 +21,10 @@ import * as tf from "@tensorflow/tfjs";
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
   autostep: boolean;
-  layers: ILayer[];
   processedInitial: boolean;
   penroseVersion: string;
+  history: State[];
+  showInspector: boolean;
 }
 
 const socketAddress = "ws://localhost:9160";
@@ -62,17 +64,15 @@ const stepState = async (state: State, onUpdate: any) => {
 class App extends React.Component<any, ICanvasState> {
   public readonly state: ICanvasState = {
     data: undefined,
+    history: [],
     autostep: false,
     processedInitial: false, // TODO: clarify the semantics of this flag
-    layers: [
-      { layer: "polygon", enabled: false },
-      { layer: "bbox", enabled: false },
-    ],
     penroseVersion: "",
+    showInspector: true,
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
-  public protocol: Protocol;
+
   public onConnectionStatus = (conn: ConnectionStatus) => {
     Log.info(`Connection status: ${conn}`);
   };
@@ -85,6 +85,7 @@ class App extends React.Component<any, ICanvasState> {
 
     await this.setState({
       data: canvasState,
+      history: [...this.state.history, canvasState],
       processedInitial: true,
     });
     const { autostep } = this.state;
@@ -108,6 +109,15 @@ class App extends React.Component<any, ICanvasState> {
       this.step();
     }
   };
+  public protocol: Protocol = new Protocol(socketAddress, [
+    {
+      onConnectionStatus: this.onConnectionStatus,
+      onVersion: this.onVersion,
+      onCanvasState: this.onCanvasState,
+      onError: console.warn,
+      kind: "renderer",
+    },
+  ]);
   public step = () => {
     // this.protocol.sendPacket(Step(1, this.state.data));
     stepState(this.state.data!, this.onCanvasState);
@@ -120,25 +130,16 @@ class App extends React.Component<any, ICanvasState> {
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };
 
-  public toggleLayer = (layerName: string) => {
-    this.setState({
-      layers: this.state.layers.map(({ layer, enabled }: ILayer) => {
-        if (layerName === layer) {
-          return { layer, enabled: !enabled };
-        }
-        return { layer, enabled };
-      }),
-    });
-  };
-
   public async componentDidMount() {
-    this.protocol = new Protocol(socketAddress, {
-      onConnectionStatus: this.onConnectionStatus,
-      onVersion: this.onVersion,
-      onCanvasState: this.onCanvasState,
-      onError: console.warn,
-      kind: "renderer",
-    });
+    this.protocol = new Protocol(socketAddress, [
+      {
+        onConnectionStatus: this.onConnectionStatus,
+        onVersion: this.onVersion,
+        onCanvasState: this.onCanvasState,
+        onError: console.warn,
+        kind: "renderer",
+      },
+    ]);
 
     this.protocol.setupSockets();
   }
@@ -149,32 +150,70 @@ class App extends React.Component<any, ICanvasState> {
       stepState(data, this.state.autostep);
     }
   };
+  public setInspector = async (showInspector: boolean) => {
+    await this.setState({ showInspector });
+    // localStorage.setItem("showInspector", showInspector ? "true" : "false");
+  };
+  public toggleInspector = async () => {
+    await this.setInspector(!this.state.showInspector);
+  };
+  public hideInspector = async () => {
+    await this.setInspector(false);
+  };
 
   public render() {
-    const { data, layers, autostep, penroseVersion } = this.state;
+    const {
+      data,
+      autostep,
+      penroseVersion,
+      showInspector,
+      history,
+    } = this.state;
     return (
-      <div className="App" style={{ height: "100vh" }}>
-        <ButtonBar
-          downloadPDF={this.downloadPDF}
-          downloadSVG={this.downloadSVG}
-          autostep={autostep}
-          step={this.step}
-          autoStepToggle={this.autoStepToggle}
-          resample={this.resample}
-          converged={data ? converged(data) : false} // TODO: what should be the default value here?
-          initial={data ? initial(data) : false}
-          toggleLayer={this.toggleLayer}
-          layers={layers}
-          ref={this.buttons}
-        />
-        <Canvas
-          data={data}
-          updateData={this.updateData}
-          lock={false}
-          layers={layers}
-          ref={this.canvas}
-          penroseVersion={penroseVersion}
-        />
+      <div
+        className="App"
+        style={{
+          height: "100%",
+          display: "flex",
+          flexFlow: "column",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ flexShrink: 0 }}>
+          <ButtonBar
+            downloadPDF={this.downloadPDF}
+            downloadSVG={this.downloadSVG}
+            autostep={autostep}
+            step={this.step}
+            autoStepToggle={this.autoStepToggle}
+            resample={this.resample}
+            converged={data ? converged(data) : false}
+            initial={data ? initial(data) : false}
+            toggleInspector={this.toggleInspector}
+            showInspector={showInspector}
+            ref={this.buttons}
+          />
+        </div>
+        <div style={{ flexGrow: 1, position: "relative", overflow: "hidden" }}>
+          <SplitPane
+            split="horizontal"
+            defaultSize={400}
+            style={{ position: "inherit" }}
+            className={this.state.showInspector ? "" : "soloPane1"}
+            pane2Style={{ overflow: "hidden" }}
+          >
+            <Canvas
+              data={data}
+              updateData={this.updateData}
+              lock={false}
+              ref={this.canvas}
+              penroseVersion={penroseVersion}
+            />
+            {showInspector && (
+              <Inspector history={history} onClose={this.toggleInspector} />
+            )}
+          </SplitPane>
+        </div>
       </div>
     );
   }
