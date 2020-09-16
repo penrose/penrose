@@ -211,3 +211,14 @@ Merge:
 Check type of input in walkTranslationCovnert in EngineUtils
 
 Distinguish all uses of varOf with constOf
+
+TODO: throw Error("Pow op unimplemented");
+
+Need to rename stepBasic, minimizeBasic, converged2, etc. to the right names
+
+Delete or convert all the *old functions in constraints
+
+Now:
+- Tree works
+- Venn steps but line search gets stuck
+- Geometry doesn't render, stuck on undefined 

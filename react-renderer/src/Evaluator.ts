@@ -11,10 +11,32 @@ import { valueAutodiffToNumber } from "./EngineUtils";
 import seedrandom from "seedrandom";
 
 import { differentiable } from "./Optimizer";
-import { varOf, constOf } from "./Constraints";
 import { compDict, checkComp } from "./Computations";
 import { mapTranslation } from "./EngineUtils";
 
+import {
+  varOf,
+  constOf,
+  numOf,
+  add,
+  addN,
+  mul,
+  sub,
+  div,
+  max,
+  min,
+  sin,
+  cos,
+  neg,
+  squared,
+  sqrt,
+  inverse,
+  absVal,
+  gt,
+  lt,
+  ifCond,
+  ops
+} from "./Autodiff";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -429,23 +451,24 @@ export const evalBinOp = (
 
     switch (op) {
       case "BPlus":
-        res = v1.contents.addStrict(v2.contents);
+        res = add(v1.contents, v2.contents);
         break;
 
       case "BMinus":
-        res = v1.contents.subStrict(v2.contents);
+        res = sub(v1.contents, v2.contents);
         break;
 
       case "Multiply":
-        res = v1.contents.mulStrict(v2.contents);
+        res = mul(v1.contents, v2.contents);
         break;
 
       case "Divide":
-        res = v1.contents.divStrict(v2.contents);
+        res = div(v1.contents, v2.contents);
         break;
 
       case "Exp":
-        res = v1.contents.powStrict(v2.contents);
+        throw Error("Pow op unimplemented");
+        // res = v1.contents.powStrict(v2.contents);
         break;
     }
 
@@ -478,7 +501,7 @@ export const evalUOp = (
       case "UPlus":
         throw new Error("unary plus is undefined");
       case "UMinus":
-        return { ...arg, contents: arg.contents.neg() };
+        return { ...arg, contents: neg(arg.contents) };
     }
   } else { // IntV
     switch (op) {
@@ -582,7 +605,7 @@ export const decodeState = (json: any): State => {
   const state = {
     ...json,
     varyingValues: json.varyingState,
-    varyingState: json.varyingState.map(differentiable),
+    varyingState: json.varyingState,
     // translation: decodeTranslation(json.transr),
     translation: json.transr,
     shapes: json.shapesr.map(([n, props]: any) => {
@@ -609,9 +632,9 @@ export const decodeState = (json: any): State => {
 export const encodeState = (state: State): any => {
   const json = {
     ...state,
-    varyingState: state.varyingValues.map(e => sc(e)),
+    varyingState: state.varyingValues,
     paramsr: state.params, // TODO: careful about the list of variables
-    transr: mapTranslation(sc, state.translation), // Only send numbers to backend
+    transr: mapTranslation(numOf, state.translation), // Only send numbers to backend
     // NOTE: clean up all additional props and turn objects into lists
     shapesr: state.shapes
       .map(values)

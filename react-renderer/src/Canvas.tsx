@@ -8,7 +8,6 @@ import { collectLabels } from "./utils/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
 import { walkTranslationConvert } from "./EngineUtils";
 import { scalar } from "@tensorflow/tfjs";
-import { differentiable } from "./Optimizer";
 
 interface ICanvasProps {
   lock: boolean;

@@ -1,7 +1,7 @@
 import { range } from "lodash";
 import { randFloat } from "./Util";
 import { Tensor, scalar, stack, cos, sin } from "@tensorflow/tfjs";
-import { ops } from "./Constraints"
+import { ops } from "./Autodiff"
 
 /**
  * Static dictionary of computation functions
