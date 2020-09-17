@@ -1,5 +1,8 @@
 import * as _ from "lodash";
 
+const RAND_RANGE = 100;
+const TOL = 1e-3;
+
 export const normList = (xs: number[]) =>
   Math.sqrt(_.sum(xs.map(e => e * e)));
 
@@ -88,3 +91,53 @@ export const prettyPrintProperty = (arg: any) => {
 };
 
 export const prettyPrintFns = (state: any) => state.objFns.concat(state.constrFns).map(prettyPrintFn);
+
+// ----- Helper functions
+
+export function fromJust<T>(n: MaybeVal<T>): T {
+  if (n.tag === "Just") {
+    return n.contents;
+  }
+
+  throw Error("expected value in fromJust but got Nothing");
+}
+
+export const close = (x: number, y: number) => {
+  const EPS = 1e-15;
+  console.log("x, y", x, y); // TODO make the assert better
+  return Math.abs(x - y) < EPS;
+};
+
+export const eqNum = (x: number, y: number): boolean => {
+  return Math.abs(x - y) < TOL;
+};
+
+export const eqList = (xs: number[], ys: number[]): boolean => {
+  if (xs == null || ys == null) return false;
+  if (xs.length !== ys.length) return false;
+
+  //   _.every(_.zip(xs, ys), e => eqNum(e[0], e[1]));
+
+  // let xys = _.zip(xs, ys);
+  // return xys?.every(e => e ? Math.abs(e[1] - e[0]) < TOL : false) ?? false;
+  // Typescript won't pass this code no matter how many undefined-esque checks I put in??
+
+  for (let i = 0; i < xs.length; i++) {
+    if (!eqNum(xs[i], ys[i])) return false;
+  }
+
+  return true;
+};
+
+export const repeatList = (e: any, n: number): any[] => {
+  const xs = [];
+  for (let i = 0; i < n; i++) {
+    xs.push(e);
+  }
+  return xs;
+};
+
+export const randList = (n: number): number[] => {
+  return repeatList(0, n).map(e => RAND_RANGE * (Math.random() - 0.5));
+};
+

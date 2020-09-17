@@ -245,3 +245,7 @@ tree-debug.sub + modified venn-opt-test.sty
 Not sure why `contains` is acting up? Or just the combination of them?
 
 Could it be uoStop? Yes (but doesn't rule out line search acting up in the future, for harder problems)
+
+---
+
+Still need to clean up Autodiff, Constraints, Evaluator, Optimizer

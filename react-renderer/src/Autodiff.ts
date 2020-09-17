@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { all, repeat } from "./OtherUtils";
+import { all, fromJust, randList, eqList } from "./OtherUtils";
 
 // Logging flags
 const PRINT_TEST_RESULTS = true;
@@ -8,9 +8,7 @@ const DEBUG_GRADIENT = true;
 const DEBUG_GRADIENT_UNIT_TESTS = false;
 
 // Consts
-const TOL = 1e-3;
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
-const RAND_RANGE = 100;
 const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
 // Reverse-mode AD
@@ -78,8 +76,6 @@ export const makeADInputVars = (xs: number[]): VarAD[] => {
   return xsVars;
 };
 
-// TODO: Do we need to "flush" the cached vals and reseed after computing the grad once? 
-
 // This should only be applied to a leaf node (TODO: fix API) 
 // It moves forward from the leaf in question, then recursively arrives at the seed node (one output parent), caching each gradient value for an intermediate note
 // (However, it doesn't calculate gradient for any other leaf nodes, though they do use the cached intermediate values)
@@ -99,24 +95,6 @@ export const makeADInputVars = (xs: number[]): VarAD[] => {
 
 // grad(v) means ds/dv (s is the single output seed)
 
-const gradAD = (v: VarAD): number => {
-  throw Error("Don't use old gradAD");
-  // Already computed/cached the gradient
-  // if (v.gradVal.tag === "Just") {
-  //   return v.gradVal.contents;
-  // }
-
-  // // parent.sensitivity = dzi/dv (in expression above)
-  // // grad(parent.node) = ds/dzi
-
-  // const res = _.sum(v.parents.map(parent => parent.sensitivityFn("unit") * gradAD(parent.node)));
-
-  // // Note we both set the gradVal and return it
-  // v.gradVal = { tag: "Just", contents: res };
-
-  // return res;
-};
-
 const gradADSymbolic = (v: VarAD): VarAD => {
   // Already computed/cached the gradient
   if (v.gradNode.tag === "Just") {
@@ -131,7 +109,7 @@ const gradADSymbolic = (v: VarAD): VarAD => {
   } else { // normal reverse-mode AD chain rule
     // The result is built via pointers to subgraphs that are already built in child nodes of the original comp graph
     res = addN(v.parents.map(parent =>
-      mul(fromJust2(parent.sensitivityNode), gradADSymbolic(parent.node), false)),
+      mul(fromJust(parent.sensitivityNode), gradADSymbolic(parent.node), false)),
       false);
   }
 
@@ -143,17 +121,6 @@ const gradADSymbolic = (v: VarAD): VarAD => {
 
   // Note that it does not return v
   return res;
-};
-
-// (Don't use this, you probably want energyAndGradDynamic)
-// Computes the gradient for each (mutable) variable, and sets the results in the computational graph.
-// The variables passed in should be all the leaves of the graph.
-// Returns a vector of the same length
-const gradAll = (energyGraph: VarAD, xsVars: VarAD[]): number[] => {
-  energyGraph.gradVal = { tag: "Just", contents: 1.0 };
-  const dxs = xsVars.map(gradAD); // Computes it per variable, mutating the graph to set cached results and reuse them
-  const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
-  return gradxs;
 };
 
 // df/f[x] with finite differences about xi
@@ -181,7 +148,7 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
   // TODO: Test the below (fully)
   energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
   const dxs = xsVars.map(gradADSymbolic); // Computes it per variable, mutating the graph to set cached results and reuse them
-  const gradxs = xsVars.map((x: DiffVar) => fromJust2(x.gradNode));
+  const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradNode));
   return gradxs;
 };
 
@@ -700,6 +667,83 @@ export const zero: VarAD = varOf(0);
 // to prevent 1/0 (infinity). put it in the denominator
 export const epsd: VarAD = varOf(10e-10);
 
+// ----------------- Other ops 
+
+// Note that these ops MUST use the custom var ops for grads
+// Note that these ops are hardcoded to assume they are not applied to grad nodes
+export const ops = {
+  norm: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
+
+  dist: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
+
+  vadd: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+    const res = _.zipWith(v1, v2, add);
+    return res;
+  },
+
+  vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
+    const res = _.zipWith(v1, v2, sub);
+    return res;
+  },
+
+  vnormsq: (v: VarAD[]): VarAD => {
+    const res = v.map(e => squared(e));
+    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?        
+    // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
+  },
+
+  vnorm: (v: VarAD[]): VarAD => {
+    const res = ops.vnormsq(v);
+    return sqrt(res);
+  },
+
+  vmul: (c: VarAD, v: VarAD[]): VarAD[] => {
+    return v.map(e => mul(c, e));
+  },
+
+  vdiv: (v: VarAD[], c: VarAD): VarAD[] => {
+    return v.map(e => div(e, c));
+  },
+
+  vnormalize: (v: VarAD[]): VarAD[] => {
+    // TODO: Need to account for divide by zero?
+    const vsize = add(ops.vnorm(v), varOf(EPS_DENOM));
+    return ops.vdiv(v, vsize);
+  },
+
+  vdist: (v: VarAD[], w: VarAD[]): VarAD => {
+    return ops.vnorm(ops.vsub(v, w));
+  },
+
+  vdistsq:
+    (v: VarAD[], w: VarAD[]): VarAD => {
+      return ops.vnormsq(ops.vsub(v, w));
+    },
+
+  // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
+  vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
+    const res = _.zipWith(v1, v2, mul);
+    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
+  },
+
+  vsum: (v: VarAD[]): VarAD => {
+    return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
+  }
+
+};
+
+export const fns = {
+
+  toPenalty: (x: VarAD): VarAD => {
+    return squared(max(x, variableAD(0.0)));
+  },
+
+  center: (props: any): VarAD[] => {
+    return [props.x.contents, props.y.contents];
+  },
+
+};
+
 // ----- Codegen
 
 // Traverses the computational graph of ops obtained by interpreting the energy function, and generates code corresponding to just the ops (in plain js), which is then turned into an evaluable js function via the Function constructor
@@ -1045,235 +1089,6 @@ const traverseGraph = (i: number, z: IVarAD): any => {
   }
 };
 
-// ----- Helper functions
-
-// TODO: Make this parametric
-const fromJust = (n: MaybeVal<number>): number => {
-  if (n.tag === "Just") {
-    return n.contents;
-  }
-
-  throw Error("expected value in fromJust but got Nothing");
-}
-
-const fromJust2 = (n: MaybeVal<VarAD>): VarAD => {
-  if (n.tag === "Just") {
-    return n.contents;
-  }
-
-  throw Error("expected value in fromJust2 but got Nothing");
-}
-
-const assert = (b: boolean, s: any[]) => {
-  const res = b ? "passed" : "failed";
-  if (PRINT_TEST_RESULTS) {
-    console.assert(b);
-    console.log("Assertion", res, ": ", ...s);
-  }
-  return b;
-}
-
-const close = (x: number, y: number) => {
-  const EPS = 1e-15;
-  console.log("x, y", x, y); // TODO make the assert better
-  return Math.abs(x - y) < EPS;
-};
-
-// ----- Tests
-
-const testAD1 = () => {
-  console.log("Testing z := x + y");
-  const x = variableAD(0.5);
-  const y = variableAD(4.2);
-  const z = add(x, y);
-
-  z.gradVal = { tag: "Just", contents: 1.0 }; // seed: dz/d(x_i) (there's only one output)
-  const dx = gradAD(x);
-  const dy = gradAD(y);
-  console.log("z, x, y", z, x, y);
-  console.log("dx, dy", dx, dy);
-
-  const vals = [z, x, y];
-  assert(close(z.val, x.val + y.val), ["z = x + y", vals]);
-  assert(close(fromJust(x.gradVal), 1.0), ["dz/dx = 1", vals]);
-  assert(close(fromJust(y.gradVal), 1.0), ["dz/dy = 1", vals]);
-};
-
-// From https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
-const testAD2 = () => {
-  console.log("Testing z := (x * y) + sin(x)");
-  const x = variableAD(0.5);
-  const y = variableAD(4.2);
-  const z = add(mul(x, y), sin(x)); // x * y + sin(x)
-
-  z.gradVal = { tag: "Just", contents: 1.0 };
-  const dx = gradAD(x);
-  const dy = gradAD(y);
-  console.log("z, x, y", z, x, y);
-  console.log("dx, dy", dx, dy);
-
-  const vals = [z, x, y, dx, dy];
-  assert(close(z.val, (x.val * y.val) + Math.sin(x.val)), ["z := (x * y) + sin(x)", vals]);
-  assert(close(fromJust(x.gradVal), (y.val + Math.cos(x.val))), ["dz/dx", vals]);
-  assert(close(fromJust(y.gradVal), x.val), ["dz/dy", vals]);
-};
-
-// TODO: Test for numerical instability
-
-const testAD3 = () => {
-  console.log("Testing z := (x - y)^2"); // x^2 - 2xy + y^2
-  const x = variableAD(0.5);
-  const y = variableAD(4.2);
-  const z = squared(sub(x, y));
-
-  z.gradVal = { tag: "Just", contents: 1.0 };
-  const dx = gradAD(x);
-  const dy = gradAD(y);
-  console.log("z, x, y", z, x, y);
-  console.log("dx, dy", dx, dy);
-
-  const vals = [z, x, y, dx, dy];
-  assert(close(z.val, Math.pow(x.val - y.val, 2.0)), ["z := (x - y)^2", vals]);
-  assert(close(fromJust(x.gradVal), (2.0 * x.val - 2.0 * y.val)), ["dz/dx", vals]);
-  assert(close(fromJust(y.gradVal), (2.0 * y.val - 2.0 * x.val)), ["dz/dy", vals]);
-};
-
-// Helpers for programmatic testing
-
-// TODO: Probably the right thing to do is make the objectives/constraints/computations agnostic to the choice of number, autodiff library, and representation -- i.e. make it swappable with a flag -- esp since most energy evaluations don't need a gradient (so don't use vars for that)
-
-// TODO: Another next step is to make the evaluator work with these vars instead, so the system can use the existing infra for programmatically composing an energy fn (which doesn't seem to matter for speed, since it's just the bare ops)
-
-// TODO: Use type like in evalExprs: varyingVars?: VaryMap<number | Tensor>`
-
-// Functions for new kinds of vars (TODO: get rid of tensors everywhere)
-
-// TODO: Write a variation on evalEnergyOn that works on State and IVarAD, then write a variation on stepEP
-// --> requires variation on evalFns, evalFn, evalExprs, evalExpr, compDict?, 
-// --> requires variation on evalFn
-// Remove Tensor and Scalar types from types.d.ts
-
-// NOTE: Only when you apply a special operation, it mutates the variable(s) (IVarAD reference(s)) to add a reference to its parent (the result of the op) to both. That means the rest of the code doesn't matter, only the ops do (except for keeping the objfn's form constant between iterations). 
-// You just need to hold onto the references to your vars
-
-// TODO: You will need to zero grads on all the bottom nodes (varying vars) because they will still have the parent refs and grad vals attached (Unless that's done automatically by the grad function)
-
-// NOTE: `evalFn` calls `evalExpr` with `autodiff = true`. It makes everything (base vals) differentiable when encountered
-
-// TODO: How to modify this grad code to deal with non-variable constants?? I guess it depends on how the code handles constants (are there special ops for "c * x" or do you convert "c" into a variable and not take the gradient with respect to it?)
-
-const objDict2 = {};
-
-const constrDict2 = {};
-
-// Note that these ops MUST use the custom var ops for grads
-// Note that these ops are hardcoded to assume they are not applied to grad nodes
-export const ops = {
-  norm: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
-
-  dist: (c1: VarAD, c2: VarAD) => ops.vnorm([c1, c2]),
-
-  vadd: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
-    const res = _.zipWith(v1, v2, add);
-    return res;
-  },
-
-  vsub: (v1: VarAD[], v2: VarAD[]): VarAD[] => {
-    const res = _.zipWith(v1, v2, sub);
-    return res;
-  },
-
-  vnormsq: (v: VarAD[]): VarAD => {
-    const res = v.map(e => squared(e));
-    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0)); // TODO: Will this one (var(0)) have its memory freed?        
-    // Note (performance): the use of 0 adds an extra +0 to the comp graph, but lets us prevent undefined if the list is empty
-  },
-
-  vnorm: (v: VarAD[]): VarAD => {
-    const res = ops.vnormsq(v);
-    return sqrt(res);
-  },
-
-  vmul: (c: VarAD, v: VarAD[]): VarAD[] => {
-    return v.map(e => mul(c, e));
-  },
-
-  vdiv: (v: VarAD[], c: VarAD): VarAD[] => {
-    return v.map(e => div(e, c));
-  },
-
-  vnormalize: (v: VarAD[]): VarAD[] => {
-    // TODO: Need to account for divide by zero?
-    const vsize = add(ops.vnorm(v), varOf(EPS_DENOM));
-    return ops.vdiv(v, vsize);
-  },
-
-  vdist: (v: VarAD[], w: VarAD[]): VarAD => {
-    return ops.vnorm(ops.vsub(v, w));
-  },
-
-  vdistsq:
-    (v: VarAD[], w: VarAD[]): VarAD => {
-      return ops.vnormsq(ops.vsub(v, w));
-    },
-
-  // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
-  vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
-    const res = _.zipWith(v1, v2, mul);
-    return _.reduce(res, (x, y) => add(x, y, true), variableAD(0.0));
-  },
-
-  vsum: (v: VarAD[]): VarAD => {
-    return _.reduce(v, (x, y) => add(x, y, true), variableAD(0.0));
-  }
-
-};
-
-export const fns = {
-
-  toPenalty: (x: VarAD): VarAD => {
-    return squared(max(x, variableAD(0.0)));
-  },
-
-  center: (props: any): VarAD[] => {
-    return [props.x.contents, props.y.contents];
-  },
-
-};
-
-export const eqNum = (x: number, y: number): boolean => {
-  return Math.abs(x - y) < TOL;
-};
-
-export const eqList = (xs: number[], ys: number[]): boolean => {
-  if (xs == null || ys == null) return false;
-  if (xs.length !== ys.length) return false;
-
-  //   _.every(_.zip(xs, ys), e => eqNum(e[0], e[1]));
-
-  // let xys = _.zip(xs, ys);
-  // return xys?.every(e => e ? Math.abs(e[1] - e[0]) < TOL : false) ?? false;
-  // Typescript won't pass this code no matter how many undefined-esque checks I put in??
-
-  for (let i = 0; i < xs.length; i++) {
-    if (!eqNum(xs[i], ys[i])) return false;
-  }
-
-  return true;
-};
-
-export const repeatList = (e: any, n: number): any[] => {
-  const xs = [];
-  for (let i = 0; i < n; i++) {
-    xs.push(e);
-  }
-  return xs;
-};
-
-export const randList = (n: number): number[] => {
-  return repeatList(0, n).map(e => RAND_RANGE * (Math.random() - 0.5));
-};
-
 // Use this function after synthesizing an energy function, if you want to synthesize the gradient as well, since they both rely on mutating the computational graph to mark the visited nodes and their generated names
 // Top-down
 const clearVisitedNodesOutput = (z: VarAD) => {
@@ -1426,278 +1241,16 @@ export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph
   };
 };
 
-export const energyAndGradAD = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
-  // NOTE: mutates xsVars
-  console.log("energy and grad NEW with vars", xs, xsVarsInit);
-
-  const xsToUse = randList(xs.length); // TODO: use xs; this is just for testing
-  const xsVars = makeADInputVars(xsToUse);
-
-  // ---- FORWARD
-  // TEST A
-  // This makes a NEW computational graph by interpreting `f` on xsVars
-  const z = f(...xsVars);
-
-  // TODO: Make proper unit tests
-  // TEST B
-  // const [v0, v1] = [inputVarAD(1.0, 0), inputVarAD(2.0, 1)];
-  // const z = sub(v0, v1);
-
-  // const dxs01 = [v0, v1].map(gradAD);
-  // console.log("z", z);
-  // console.log("xsVars with grads (backward one)", dxs01);
-  // throw Error("after dxs01");
-
-  // TEST C
-  // const z = add(
-  //   squared(sub(inputVarAD(1.0, 0), inputVarAD(2.0, 1))),
-  //   squared(sub(inputVarAD(3.0, 2), inputVarAD(4.0, 3))),
-  // );
-
-  z.gradVal = { tag: "Just", contents: 1.0 }; // just in case, but it's also auto-set in `f`
-  const energyZ = z.val;
-
-  console.log("xsVars with ops (forward only)", xsVars);
-
-  // ----- TRAVERSE/PRINT GRAPH AS CODE 
-  // from bottom up. (No grads, just energy)
-  console.log("z (with children)", z);
-  console.log("traverse graph");
-  const newF = genEnergyFn(xsVars, z, noWeight);
-
-  console.log("normal f result", z.val);
-  // TODO: Use g?
-  // const xsIn = [1.0, 2.0, 3.0, 4.0];
-  console.log("generated f result", newF, xs, newF(xsToUse));
-
-  // ---- BACKWARD
-  // This will take the grad of all of them, mutating xsVars to store grad values (OR lookup if already cached -- TODO note this!)
-  const dxs = xsVars.map(gradAD);
-  console.log("xsVars with grads (backward)", xsVars);
-
-  const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
-  console.log("xsVars grad values", gradxs);
-
-  const testResult = energyAndGradADHardcoded(xsToUse);
-
-  console.log("correct gradient?", eqList(gradxs, testResult.gradVal));
-  console.log("custom grad val", gradxs);
-  console.log("hardcoded (golden) grad val", testResult.gradVal);
-
-  // ------------- ROUND 2
-  console.error("ROUND 2");
-
-  // Zero xsvars vals and gradients
-  clearGraphBottomUp(xsVars);
-  console.log("cleared", z);
-
-  // Evaluate energy with a different xsvars/vals setting (with z=1)
-  const xs2 = randList(xs.length);
-  setInputs(xsVars, xs2);
-  console.log("set inputs", xsVars, xs2);
-
-  const energyVal2 = evalEnergyOnGraph(z);
-  // It's only necessary to evaluate the energy on the graph first if you're taking the gradient afterward
-  // If you just want the energy, you can use the compiled energy function
-
-  // Check correctness of energy
-  const testResult2 = energyAndGradADHardcoded(xs2);
-  console.log("NEW correct energy?", eqNum(energyVal2, testResult2.energyVal));
-  console.log("NEW custom energy val", energyVal2);
-  console.log("NEW hardcoded (golden) energy val", testResult2.energyVal);
-
-  // Evaluate gradient
-  z.gradVal = { tag: "Just", contents: 1.0 };
-  const dxs2 = xsVars.map(gradAD);
-  console.log("NEW xsVars with grads (backward)", xsVars);
-  const gradxs2 = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
-  console.log("xsVars grad values", gradxs);
-
-  // Check correctness of gradient
-  console.log("NEW correct gradient?", eqList(gradxs2, testResult2.gradVal));
-  console.log("NEW custom grad val", gradxs2);
-  console.log("NEW hardcoded (golden) grad val", testResult2.gradVal);
-
-  throw Error("after backward of general xs");
-
-  return { energyVal: energyZ, gradVal: gradxs };
-};
-
-// API:
-// Interpret energy: xs -> list of xs vars
-// Compile energy: the var result (z) -> function ([x] -> x)
-// Grad (f, xs): takes the list of xs vars, (which carry f) as well as a list of scalars
-//   zeroes the whole graph's sensitivities, vals, gradVals --- I guess this should be stored as a function?
-//   evaluates the computational graph on the values
-//     TODO: I guess then the sensitivity has to be stored as an op to be applied anyway! So then you evaluate the computational graph and then transform it into the gradient expression graph?
-//   computes the gradient on the computational graph for each var
-// What gets evaluated more, the energy or the grad?
-// Don't I still have to port the line search, etc to this new format?
-// Is there some way to instead construct the computational graph for the gradient instead, and then compile it?
-
-export const energyAndGradADOld = (f: (...arg: DiffVar[]) => DiffVar, xs: number[], xsVarsInit: DiffVar[]) => {
-  // NOTE: mutates xsVars
-  console.log("energy and grad with vars", xs, xsVarsInit);
-
-  // Questions/assumptions: TODO 
-  // Who calls the energy?
-  // 1) Who sets the seed??
-  // 2) What if someone has already called energy? (vars will already exist) -- I guess just re-evaluates and makes a new comp graph. Does the memory get cleared right?
-  // 3) what if someone has already called the grad? (vals will be cached)
-  // Who zeroes the variables? 
-  // Who zeroes the gradients?
-
-  // TODO: Why is the grad twice the right value when using xsVarsInit? Each var seems to have 3 parents when it should just have one--maybe due to extra calls
-
-  // For now, just make the vars from scratch
-  // const xsCopy = [...xs];
-  // const xsVars = xsCopy.map(x => variableAD(x));
-  const xsVars = makeADInputVars(xs);
-
-  // ---- FORWARD
-  // const z = f(...xsVars);
-
-  // TODO: Make proper unit tests
-  const [v0, v1] = [inputVarAD(1.0, 0), inputVarAD(2.0, 1)];
-  const z = sub(v0, v1);
-
-  // const z = add(
-  //   squared(sub(inputVarAD(1.0, 0), inputVarAD(2.0, 1))),
-  //   squared(sub(inputVarAD(3.0, 2), inputVarAD(4.0, 3))),
-  // );
-
-  z.gradVal = { tag: "Just", contents: 1.0 }; // just in case, but it's also auto-set in `f`
-  const energyZ = z.val;
-
-  const dxs01 = [v0, v1].map(gradAD);
-  console.log("z", z);
-  console.log("xsVars with grads (backward one)", dxs01);
-
-  console.log("xsVars with ops (forward only)", xsVars);
-  // Note that chrome seems to print by reference, so if the grad is calculated, this will actually show it unless you throw the error directly after
-  // throw Error("test");
-
-  // ----- TRAVERSE/PRINT GRAPH AS CODE 
-  // from bottom up. (No grads, just energy)
-  // Depth-first or breadth-first?
-
-  // The graph is built from top-down though. Should we also have nodes store their children?
-  console.log("z (with children)", z);
-
-  // Example:
-  //       Z (+)
-  //      / \
-  //     v   v
-  //  X (^2)  Y (-)
-  //     \   / \
-  //      v v   v
-  //       A    B
-  // That generates the code:
-  // TODO: name vars correctly in example
-  // Z := X + Y
-  // X := A^2
-  // Y := A - B
-  // A := 5.0
-  // B := 2.4
-
-  // TODO: What does this *gradient expression graph* look like? How/when is it created? (On evaluating the existing computational graph?) What information is needed to create it? What information does it need to provide? (To compile it into gradient code)
-
-  // TODO: Should the generated gradient code be interleaved with the generated energy code?
-  // Basically what should be generated is the unrolled version of gradAD, right? How long is that function?
-  // TODO: Problem: How to do the caching of gradient values??
-  // Grad Z(A, B) = [dZ/dA, dZ/dB]
-  // Z = X + Y = A^2 + (A - B) ==> Grad Z(A, B) = [2A + 1, -1]
-
-  console.log("traverse graph");
-  const newF = genEnergyFn(xsVars, z, noWeight);
-
-  console.log("normal f result", z.val);
-  // TODO: Use g?
-  // const xsIn = [1.0, 2.0, 3.0, 4.0];
-  console.log("generated f result", newF, xs, newF(xs));
-
-  // -------------- PERF
-
-  // const t0 = performance.now();
-
-  // let fRes;
-  // for (let i = 0; i < 10000000; i++) {
-  //   fRes = newF(xs);
-  // }
-
-  // const t1 = performance.now();
-  // console.error("Call to fns took " + (t1 - t0) + " milliseconds.")
-
-  // 10 000 000 calls / 24,281 ms = 411.8 calls/ms = 411845 calls/s
-  // = ~500k calls/s (for a small energy function)
-  // (Earlier we could do maybe 5k calls/second? since we did 5k steps/s)
-
-  // ---- BACKWARD
-  // This will take the grad of all of them, mutating xsVars to store grad values (OR lookup if already cached -- TODO note this!)
-  const dxs = xsVars.map(gradAD);
-  console.log("xsVars with grads (backward)", xsVars);
-
-  const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradVal));
-  console.log("xsVars grad values", gradxs);
-
-  throw Error("test");
-
-  return { energyVal: energyZ, gradVal: gradxs };
-};
-
-const energyAndGradADHardcoded = (state: number[]) => {
-  // TODO: You probably want to hold onto the vars at the top level
-
-  const stateCopy = [...state];
-  const xs = stateCopy.map(x => variableAD(x));
-
-  // This `z` expression will do two things:
-  // 1) Evaluate the expression (forward), resulting in the value of z
-  // 2) Dynamically build the computational graph: mutate the `xs` and automatically create anonymous intermediate nodes (parents) that the leaf nodes `xs` hold references to
-
-  // TODO: Use an n-ary add to save intermediate nodes!
-
-  const z =
-    add(
-      add(
-        squared(sub(xs[2], xs[0])),
-        squared(sub(xs[3], xs[1]))
-      ),
-      add(
-        squared(sub(xs[6], xs[4])),
-        squared(sub(xs[7], xs[5]))
-      )
-    );
-
-  z.gradVal = { tag: "Just", contents: 1.0 };
-  // This will evaluate the energy
-  const energyZ = z.val;
-  // console.log("energyZ", energyZ);
-
-  // This will take the grad of all of them, TODO note cache / mutability
-  const dxs = xs.map(gradAD);
-  const gradxs = xs.map(x => fromJust(x.gradVal));
-
-  // console.log("xs", xs);
-  // console.log("gradxs", gradxs);
-
-  // TODO: check correctness against analytic energy/gradient
-
-  // TODO: Need to free the memory of this comp graph on later runs?
-  return { energyVal: energyZ, gradVal: gradxs };
-};
-
-export const testReverseAD = () => {
-  console.log("testing reverse AD");
-
-  // TODO: Generalize these tests to be parametrized/fuzzed etc
-  // TODO: Have nodes store their names/ops?
-  testAD1();
-  testAD2();
-  testAD3();
-};
-
 // ----- Functions for testing numeric and symbolic gradients
+
+const assert = (b: boolean, s: any[]) => {
+  const res = b ? "passed" : "failed";
+  if (PRINT_TEST_RESULTS) {
+    console.assert(b);
+    console.log("Assertion", res, ": ", ...s);
+  }
+  return b;
+}
 
 const testGradFiniteDiff = () => {
   // Only tests with hardcoded functions
@@ -1899,42 +1452,74 @@ export const testGradSymbolicAll = () => {
   console.error(`All grad symbolic tests passed?: ${all(testResults)}`);
 };
 
-// ------ Hardcoded energy and its grad (for testing only)
+// --------------------- Comments graveyard (maybe useful for documentation, TODO)
 
-// FNS: ["sameCenter(A.text, A.shape)", "sameCenter(B.text, B.shape)"] => [f(s1, s2), f(s3, s4)]
-// VARS: [
-// "A.shape.x" (0), "A.shape.y" (1), 
-// "A.text.x" (2), "A.text.y" (3), 
-// "B.shape.x" (4), "B.shape.y" (5), 
-// "B.text.x" (6), "B.text.y" (7)]
+// Helpers for programmatic testing
 
-// GRAD:
-// (In general, df(s1, s2)/d(s1x) = d((a-b)^2)/da = 2(a-b) = basically a-b
-// [ A.shape.x - A.text.x, A.shape.y - A.text.y,
-//   A.text.x - A.shape.x, A.text.y - A.shape.y, 
-//   B.shape.x - B.text.x, B.shape.y - B.text.y,
-//   B.text.x - B.shape.x, B.text.y - B.shape.y ]
-// [ xs[0] - xs[2], xs[1] - xs[3],
-//   xs[2] - xs[0], xs[3] - xs[1],
-//   xs[4] - xs[6], xs[5] - xs[7],
-//   xs[6] - xs[4], xs[7] - xs[5] ] 
-// Pretty sure you could implement this as a matrix
+// TODO: Probably the right thing to do is make the objectives/constraints/computations agnostic to the choice of number, autodiff library, and representation -- i.e. make it swappable with a flag -- esp since most energy evaluations don't need a gradient (so don't use vars for that)
 
-// 1) Inlined energy
-// distsq(center(A.text), center(A.shape)) + distsq(center(B.text), center(B.shape))
-// distsq([zs[2], zs[3]], [zs[0], zs[1]]) + distsq([zs[6], zs[7]], [zs[4], zs[5]])
-// (zs[2] - zs[0])^2 + (zs[3] - zs[1])^2 + (zs[6] - zs[4])^2 + (zs[7] - zs[5])^2
-export const energyHardcoded = (zs: number[]) => {
-  const res1 = zs[2] - zs[0];
-  const res2 = zs[3] - zs[1];
-  const res3 = zs[6] - zs[4];
-  const res4 = zs[7] - zs[5];
-  return res1 * res1 + res2 * res2 + res3 * res3 + res4 * res4;
-};
+// TODO: Another next step is to make the evaluator work with these vars instead, so the system can use the existing infra for programmatically composing an energy fn (which doesn't seem to matter for speed, since it's just the bare ops)
 
-// 2) Inlined gradient
-export const gradfHardcoded = (zs: number[]) =>
-  [zs[0] - zs[2], zs[1] - zs[3],
-  zs[2] - zs[0], zs[3] - zs[1],
-  zs[4] - zs[6], zs[5] - zs[7],
-  zs[6] - zs[4], zs[7] - zs[5]].map(x => x * 2.0);
+// TODO: Use type like in evalExprs: varyingVars?: VaryMap<number | Tensor>`
+
+// Functions for new kinds of vars (TODO: get rid of tensors everywhere)
+
+// TODO: Write a variation on evalEnergyOn that works on State and IVarAD, then write a variation on stepEP
+// --> requires variation on evalFns, evalFn, evalExprs, evalExpr, compDict?, 
+// --> requires variation on evalFn
+// Remove Tensor and Scalar types from types.d.ts
+
+// NOTE: Only when you apply a special operation, it mutates the variable(s) (IVarAD reference(s)) to add a reference to its parent (the result of the op) to both. That means the rest of the code doesn't matter, only the ops do (except for keeping the objfn's form constant between iterations). 
+// You just need to hold onto the references to your vars
+
+// TODO: You will need to zero grads on all the bottom nodes (varying vars) because they will still have the parent refs and grad vals attached (Unless that's done automatically by the grad function)
+
+// NOTE: `evalFn` calls `evalExpr` with `autodiff = true`. It makes everything (base vals) differentiable when encountered
+
+// TODO: How to modify this grad code to deal with non-variable constants?? I guess it depends on how the code handles constants (are there special ops for "c * x" or do you convert "c" into a variable and not take the gradient with respect to it?)
+
+// --------------------- From energyAndGradADOld
+
+// API:
+// Interpret energy: xs -> list of xs vars
+// Compile energy: the var result (z) -> function ([x] -> x)
+// Grad (f, xs): takes the list of xs vars, (which carry f) as well as a list of scalars
+//   zeroes the whole graph's sensitivities, vals, gradVals --- I guess this should be stored as a function?
+//   evaluates the computational graph on the values
+//     TODO: I guess then the sensitivity has to be stored as an op to be applied anyway! So then you evaluate the computational graph and then transform it into the gradient expression graph?
+//   computes the gradient on the computational graph for each var
+// What gets evaluated more, the energy or the grad?
+// Don't I still have to port the line search, etc to this new format?
+// Is there some way to instead construct the computational graph for the gradient instead, and then compile it?
+
+  // Questions/assumptions: TODO 
+  // Who calls the energy?
+  // 1) Who sets the seed??
+  // 2) What if someone has already called energy? (vars will already exist) -- I guess just re-evaluates and makes a new comp graph. Does the memory get cleared right?
+  // 3) what if someone has already called the grad? (vals will be cached)
+  // Who zeroes the variables? 
+  // Who zeroes the gradients?
+
+  // Example:
+  //       Z (+)
+  //      / \
+  //     v   v
+  //  X (^2)  Y (-)
+  //     \   / \
+  //      v v   v
+  //       A    B
+  // That generates the code:
+  // TODO: name vars correctly in example
+  // Z := X + Y
+  // X := A^2
+  // Y := A - B
+  // A := 5.0
+  // B := 2.4
+
+  // TODO: What does this *gradient expression graph* look like? How/when is it created? (On evaluating the existing computational graph?) What information is needed to create it? What information does it need to provide? (To compile it into gradient code)
+
+  // TODO: Should the generated gradient code be interleaved with the generated energy code?
+  // Basically what should be generated is the unrolled version of gradAD, right? How long is that function?
+  // TODO: Problem: How to do the caching of gradient values??
+  // Grad Z(A, B) = [dZ/dA, dZ/dB]
+  // Z = X + Y = A^2 + (A - B) ==> Grad Z(A, B) = [2A + 1, -1]
