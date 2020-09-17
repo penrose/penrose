@@ -18,13 +18,13 @@ import {
   gt,
   lt,
   ifCond,
-  ops
+  ops,
+  fns
 } from "./Autodiff";
 
 import { Tensor, stack, scalar, maximum, norm, abs, square, squaredDifference } from "@tensorflow/tfjs";
 
 import { canvasSize } from "./Canvas";
-import * as ad from "./Autodiff";
 import * as _ from "lodash";
 
 export const objDict = {
@@ -44,7 +44,7 @@ export const objDict = {
   //     square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
 
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
-    distsq(center(s1), center(s2)),
+    ops.vdistsq(fns.center(s1), fns.center(s2)),
 
   repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
@@ -56,7 +56,7 @@ export const objDict = {
     // TODO: this only works for shapes with a center (x,y)
 
     // 1 / (d^2(cx, cy) + eps)
-    return mul(inverse(ops.vdistsq(centerList(s1), centerList(s2))), varOf(repelWeight));
+    return mul(inverse(ops.vdistsq(fns.center(s1), fns.center(s2))), varOf(repelWeight));
   },
 
   atDist: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: any) => {
@@ -88,13 +88,13 @@ export const objDict = {
   //     return distsq(center(s1), center(s2)).add(epsd2).reciprocal().mul(repelWeight);
   // },
 
-  centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): DiffVar => {
+  centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): VarAD => {
     const spacing = varOf(1.1); // arbitrary
 
     if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, centerList(text1), centerList(text2),
+      return centerArrow2(arr, fns.center(text1), fns.center(text2),
         [mul(spacing, (text1.h.contents)),
         neg(mul(text2.h.contents, spacing))]);
 
@@ -105,7 +105,7 @@ export const objDict = {
     square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
   // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
 
-  // centerArrowOld: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): DiffVar => {
+  // centerArrowOld: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): VarAD => {
   //     const spacing = scalar(1.1); // arbitrary
 
   //     if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
@@ -178,7 +178,7 @@ export const constrDict = {
   // containsOld: (
   //     [t1, s1]: [string, any],
   //     [t2, s2]: [string, any],
-  //     offset: DiffVar
+  //     offset: VarAD
   // ) => {
   //     if (t1 === "Circle" && t2 === "Circle") {
   //         const d = distOld(center(s1), center(s2));
@@ -194,23 +194,18 @@ export const constrDict = {
   //     } else throw new Error(`${[t1, t2]} not supported for contains`);
   // },
 
-  // TODO: Had to rename due to needing to match funciton names in backend
   contains: (
     [t1, s1]: [string, any],
     [t2, s2]: [string, any],
-    offset: DiffVar
+    offset: VarAD
   ) => {
 
     if (t1 === "Circle" && t2 === "Circle") {
-      console.error("circle, circle", s1, s2, offset);
-
-      const d = ops.vdist(centerList(s1), centerList(s2));
+      const d = ops.vdist(fns.center(s1), fns.center(s2));
       const o = offset
         ? sub(sub(s1.r.contents, s2.r.contents), offset)
         : sub(s1.r.contents, s2.r.contents);
       const res = sub(d, o);
-      // console.error("contains circle circle res", res, res.val);
-
       return res;
 
     } else if (t1 === "Circle" && t2 === "Text") {
@@ -220,7 +215,7 @@ export const constrDict = {
 
       // The problem is that: when a GPI is passed in here, is one of its properties varying? If so, was it looked up from varyingMap? Looks like it gets looked up in varyingMap first; if so, then non-varying properties should be var-ified beforehand so the objective function doesn't have to deal with var-ifying constants
       // TODO: Check the gradients for 'contains' as well (automatically, e.g. manual diff?)
-      const d = ops.vdist(centerList(s1), centerList(s2));
+      const d = ops.vdist(fns.center(s1), fns.center(s2));
       const textR = max((s2.w.contents), s2.h.contents);
       const res = add(sub(d, s1.r.contents), textR);
 
@@ -235,7 +230,7 @@ export const constrDict = {
       // TODO: `rL` is probably a hack for dimensions
       const rL = min(s1.w.contents, div(s1.h.contents, varOf(2.0)));
       const diff = sub(rL, s2.r.contents);
-      const d = ops.vdist(centerList(s1), centerList(s2));
+      const d = ops.vdist(fns.center(s1), fns.center(s2));
       return add(sub(d, diff), offset);
 
     } else if (t1 === "Rectangle" && t2 === "Text") {
@@ -244,7 +239,7 @@ export const constrDict = {
       // dist (getX l, getY l) (getX r, getY r) - getNum r "w" / 2 +
       //   getNum l "w" / 2 + padding
 
-      const a1 = ops.vdist(centerList(s1), centerList(s2));
+      const a1 = ops.vdist(fns.center(s1), fns.center(s2));
       const a2 = div(s1.w.contents, varOf(2.0));
       const a3 = div(s2.w.contents, varOf(2.0));
       return add(add(sub(a1, a2), a3), offset);
@@ -255,7 +250,7 @@ export const constrDict = {
 
   disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     if (t1 === "Circle" && t2 === "Circle") {
-      const d = ops.vdist(centerList(s1), centerList(s2));
+      const d = ops.vdist(fns.center(s1), fns.center(s2));
       const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
       return sub(addN(o), d);
     } else throw new Error(`${[t1, t2]} not supported for disjoint`);
@@ -288,7 +283,7 @@ export const constrDict = {
   ) => {
     if (t1 === "Text" && t2 === "Circle") {
       const textR = max(s1.w.contents, s1.h.contents);
-      const d = ops.vdist(centerList(s1), centerList(s2));
+      const d = ops.vdist(fns.center(s1), fns.center(s2));
       return sub(add(add(s2.r.contents, textR),
         varOf(padding)),
         d);
@@ -366,7 +361,7 @@ const centerArrow2 = (arr: any, center1: VarAD[], center2: VarAD[], [o1, o2]: Va
   return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
 }
 
-// const centerArrow2Old = (arr: any, center1: DiffVar, center2: DiffVar, [o1, o2]: DiffVar[]): DiffVar => {
+// const centerArrow2Old = (arr: any, center1: VarAD, center2: VarAD, [o1, o2]: VarAD[]): VarAD => {
 //     const vec = center2.sub(center1); // direction the arrow should point to
 //     const dir = normalize(vec);
 
@@ -388,8 +383,6 @@ const centerArrow2 = (arr: any, center1: VarAD[], center2: VarAD[], [o1, o2]: Va
 
 // -------- Utils for objective/constraints/computations
 
-const sc = (x: any): number => x.dataSync()[0];
-
 export const epsd2: Tensor = scalar(10e-10);
 
 export const looseIntersectOld = (center1: Tensor, r1: Tensor, center2: Tensor, r2: Tensor, padding: number) =>
@@ -401,22 +394,7 @@ export const centerOld = (props: any): Tensor => {
   return stack([props.x.contents, props.y.contents]);
 };
 
-export const center = (props: any): VarAD[] => {
-  return [props.x.contents, props.y.contents];
-};
-
-export const centerList = (props: any): VarAD[] => {
-  return [props.x.contents, props.y.contents];
-};
-
 const distOld = (p1: Tensor, p2: Tensor): Tensor => p1.sub(p2).norm();
-
-// Be careful not to use element-wise operations. This should return a scalar.
-export const distsq = (p1: VarAD[], p2: VarAD[]): VarAD => {
-  const dv = ops.vsub(p1, p2);
-  const res = ops.vnormsq(dv);
-  return res;
-};
 
 export const distsqOld = (p1: Tensor, p2: Tensor): Tensor => {
   const dp = p1.sub(p2);

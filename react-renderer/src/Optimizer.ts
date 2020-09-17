@@ -1,28 +1,17 @@
 import * as tf from "@tensorflow/tfjs";
 import { LinearAlgebra, DenseMatrix as la, Vector as vec, memoryManager } from "linear-algebra-js";
 import {
-  energyHardcoded,
-  gradfHardcoded,
   makeADInputVars,
-  energyAndGradAD,
   energyAndGradCompiled,
-  variableAD,
   ops,
   fns,
   add,
   mul,
   varOf,
-  markInput
+  markInput,
+  differentiable
 } from "./Autodiff";
 import { normList } from "./OtherUtils";
-import {
-  Tensor,
-  stack,
-  scalar,
-  Variable,
-  Scalar,
-  // maximum,
-} from "@tensorflow/tfjs";
 import {
   argValue,
   evalTranslation,
@@ -30,12 +19,12 @@ import {
   genVaryMap,
   evalFns,
 } from "./Evaluator";
-// import { zip } from "lodash";
 import * as _ from "lodash";
 import {
   constrDict,
   objDict,
 } from "./Constraints";
+import { scalev, addv, subv, negv, dot, prettyPrintFns, prettyPrintProperty } from "./OtherUtils";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -61,8 +50,9 @@ const EPSD = 1e-11;
 
 // Unconstrained method convergence criteria
 // TODO. This should REALLY be 10e-10
-// const uoStop = 1e-2;
-const uoStop = 1e-5;
+// NOTE: The new autodiff + line search seems to be really sensitive to this parameter (`uoStop`). It works for 1e-2, but the line search ends up with too-small intervals with 1e-5
+const uoStop = 1e-2;
+// const uoStop = 1e-5;
 // const uoStop = 10;
 
 const DEBUG_GRAD_DESCENT = false;
@@ -154,7 +144,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
         // `overallEnergy` is a partially applied function, waiting for an input. 
         // When applied, it will interpret the energy via lookups on the computational graph
         // TODO: Could save the interpreted energy graph across amples
-        const overallObjective = evalEnergyOnCustom(state, false);
+        const overallObjective = evalEnergyOnCustom(state);
         const xsVars: VarAD[] = makeADInputVars(xs);
         const res = overallObjective(...xsVars); // Note: `overallObjective` mutates `xsVars`
         // `energyGraph` is a VarAD that is a handle to the top of the graph
@@ -332,7 +322,7 @@ const awLineSearch2 = (
 
   gradfxs0: number[],
   fxs0: number,
-  maxSteps = 100
+  maxSteps = 25
 ) => {
 
   const descentDir = negv(gradfxs0); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
@@ -727,46 +717,13 @@ const minimizeBasic = (
   };
 };
 
-// TODO: move these fns to utils
-const prettyPrintExpr = (arg: any) => {
-  // TODO: only handles paths and floats for now; generalize to other exprs
-  if (arg.tag === "EPath") {
-    const obj = arg.contents.contents;
-    const varName = obj[0].contents;
-    const varField = obj[1];
-    return [varName, varField].join(".");
-  } else if (arg.tag === "AFloat") {
-    const val = arg.contents.contents;
-    return String(val);
-  } else {
-    throw Error(`argument of type ${arg.tag} not yet handled in pretty-printer`);
-  }
-};
-
-const prettyPrintFn = (fn: any) => {
-  const name = fn.fname;
-  const args = fn.fargs.map(prettyPrintExpr).join(", ");
-  return [name, "(", args, ")"].join("");
-};
-
-const prettyPrintFns = (state: any) => state.objFns.concat(state.constrFns).map(prettyPrintFn);
-
-// TODO: only handles property paths for now
-const prettyPrintProperty = (arg: any) => {
-  const obj = arg.contents;
-  const varName = obj[0].contents;
-  const varField = obj[1];
-  const property = obj[2];
-  return [varName, varField, property].join(".");
-};
-
 /**
  * Generate an energy function from the current state (using VarADs only, unlike evalEnergyOn)
  *
  * @param {State} state
  * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
  */
-export const evalEnergyOnCustom = (state: State, inlined = false) => {
+export const evalEnergyOnCustom = (state: State) => {
   // TODO: types
   return (...varyingValuesTF: VarAD[]): any => {
     // TODO: Could this line be causing a memory leak?
@@ -813,96 +770,4 @@ export const evalEnergyOnCustom = (state: State, inlined = false) => {
       epWeightNode
     };
   };
-};
-
-/**
- * Generate an energy function from the current state
- *
- * @param {State} state
- * @returns a function that takes in a list of `VarAD`s and return a `Scalar`
- */
-export const evalEnergyOn = (state: State) => {
-  // TODO: types
-  return (...varyingValuesTF: VarAD[]): VarAD => {
-    // TODO: Could this line be causing a memory leak?
-    const { objFns, constrFns, translation, varyingPaths } = state;
-
-    // construct a new varying map
-    const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<VarAD>;
-
-    // NOTE: This will mutate the var inputs
-    const objEvaled = evalFns(objFns, translation, varyingMap);
-    const constrEvaled = evalFns(constrFns, translation, varyingMap);
-
-    const objEngs: VarAD[] = objEvaled.map((o) => applyFn(o, objDict));
-    const constrEngs: VarAD[] = constrEvaled.map((c) => fns.toPenalty(applyFn(c, constrDict)));
-
-    // TODO: Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
-    // NOTE: The energies are in the val field of the results (w/o grads)
-    // console.log("objEngs", objFns, objEngs);
-    // console.log("vars", varyingValuesTF);
-
-    // TODO make this check more robust to empty lists of objectives/constraints
-    if (!objEngs[0] && !constrEngs[0]) { throw Error("no objectives and no constraints"); }
-    // const useCustom = objEngs[0] ? isCustom(objEngs[0]) : isCustom(constrEngs[0]);
-
-    const objEng: VarAD = ops.vsum(objEngs);
-    const constrEng: VarAD = ops.vsum(constrEngs);
-    const overallEng: VarAD = add(objEng,
-      mul(constrEng,
-        variableAD(constraintWeight * state.params.weight)));
-
-    // console.error("weight", constraintWeight, state.params.weight, constraintWeight * state.params.weight);
-    // throw Error("stop");
-
-    // NOTE: This is necessary because we have to state the seed for the autodiff, which is the last output
-    overallEng.gradVal = { tag: "Just", contents: 1.0 };
-    // console.log("overall eng from custom AD", overallEng, overallEng.val);
-    return overallEng;
-  };
-};
-
-export const differentiable = (e: number): VarAD => {
-  console.error("making it differentiable", e);
-  return varOf(e);
-}
-
-// ---------- Vector utils 
-// TODO: factor out
-
-const scalev = (c: number, xs: number[]): number[] =>
-  _.map(xs, x => c * x);
-
-const addv = (xs: number[], ys: number[]): number[] => {
-  if (xs.length !== ys.length) {
-    console.error("xs", xs, "ys", ys);
-    throw Error("can't add vectors of different length");
-  }
-
-  return _.zipWith(xs, ys, (x, y) => x + y);
-}
-
-const subv = (xs: number[], ys: number[]): number[] => {
-  if (xs.length !== ys.length) {
-    console.error("xs", xs, "ys", ys);
-    throw Error("can't sub vectors of different length");
-  }
-
-  return _.zipWith(xs, ys, (x, y) => x - y);
-};
-
-const negv = (xs: number[]): number[] =>
-  _.map(xs, e => -e);
-
-const dot = (xs: number[], ys: number[]): number => {
-  if (xs.length !== ys.length) {
-    console.error("xs", xs, "ys", ys);
-    throw Error("can't dot vectors of different length");
-  }
-
-  let acc = 0;
-  for (let i = 0; i < xs.length; i++) {
-    acc += xs[i] * ys[i];
-  }
-  return acc;
 };

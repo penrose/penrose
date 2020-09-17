@@ -220,5 +220,28 @@ Delete or convert all the *old functions in constraints
 
 Now:
 - Tree works
+- Geometry works
+
+  TODO: there is a linalg error, maybe when the frontend is running but the running example (backend) changes
+      > Unhandled Rejection (BindingError): Cannot pass deleted object as a pointer of type DenseMatrix*
+
 - Venn steps but line search gets stuck
-- Geometry doesn't render, stuck on undefined 
+  step by step, you can see the line search ends w/ "stopping early"
+  grad norm is still small 
+  autostep: the browser is locked up, so much that the promise fails? why?
+      > tslib.es6.js:94 Uncaught (in promise) 2130705432 - Exception catching is disabled, this exception cannot be caught. Compile with -s DISABLE_EXCEPTION_CATCHING=0 or DISABLE_EXCEPTION_CATCHING=2 to catch.
+
+Did some objective/constraint become contradictory?
+
+Overall, are there other obvious things that I missed in the merge?
+
+venn-small doesn't work
+
+could it be a state problem w/ the frontend?
+works ok with the small sets example
+
+tree-debug.sub + modified venn-opt-test.sty
+
+Not sure why `contains` is acting up? Or just the combination of them?
+
+Could it be uoStop? Yes (but doesn't rule out line search acting up in the future, for harder problems)

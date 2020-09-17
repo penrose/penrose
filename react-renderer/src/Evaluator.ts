@@ -10,13 +10,13 @@ import { mapMap } from "./Util";
 import { valueAutodiffToNumber } from "./EngineUtils";
 import seedrandom from "seedrandom";
 
-import { differentiable } from "./Optimizer";
 import { compDict, checkComp } from "./Computations";
 import { mapTranslation } from "./EngineUtils";
 
 import {
   varOf,
   constOf,
+  differentiable,
   numOf,
   add,
   addN,

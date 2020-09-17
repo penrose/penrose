@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import { all, repeat } from "./OtherUtils";
 
 // Logging flags
-const PRINT_TEST_RESULTS = false;
+const PRINT_TEST_RESULTS = true;
 const DEBUG_ENERGY = false;
 const DEBUG_GRADIENT = true;
 const DEBUG_GRADIENT_UNIT_TESTS = false;
@@ -27,9 +27,14 @@ export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => variableA
 export const varOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata);
 
 // TODO: Use this consistently
-export const constOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, "const");
+export const constOf = (x: number, vname = ""): VarAD => variableAD(x, vname, "const");
 
 export const numOf = (x: VarAD): number => x.val;
+
+export const differentiable = (e: number): VarAD => {
+  // console.error("making it differentiable", e);
+  return varOf(e);
+}
 
 export const variableAD = (x: number, vname = "", metadata = "", isCompNode = true): VarAD => {
   const opName = vname ? vname : String(x);
@@ -1207,9 +1212,10 @@ export const ops = {
     return ops.vnorm(ops.vsub(v, w));
   },
 
-  vdistsq: (v: VarAD[], w: VarAD[]): VarAD => {
-    return ops.vnormsq(ops.vsub(v, w));
-  },
+  vdistsq:
+    (v: VarAD[], w: VarAD[]): VarAD => {
+      return ops.vnormsq(ops.vsub(v, w));
+    },
 
   // Note: if you want to compute a normsq, use that instead, it generates a smaller computational graph
   vdot: (v1: VarAD[], v2: VarAD[]): VarAD => {
@@ -1227,7 +1233,11 @@ export const fns = {
 
   toPenalty: (x: VarAD): VarAD => {
     return squared(max(x, variableAD(0.0)));
-  }
+  },
+
+  center: (props: any): VarAD[] => {
+    return [props.x.contents, props.y.contents];
+  },
 
 };
 
