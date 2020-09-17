@@ -411,7 +411,6 @@ export const resolvePath = (
         if (expr.tag === "OptEval") {
           return evalExpr(expr.contents, trans, varyingMap);
         } else {
-          // TODO: Should exprs be converted from tensors to numbers here?
           return { tag: "Val", contents: expr.contents }
         };
       }

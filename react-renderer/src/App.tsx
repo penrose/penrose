@@ -8,7 +8,6 @@ import { evalTranslation, decodeState } from "./Evaluator";
 import { stepBasic } from "./Optimizer";
 import { unwatchFile } from "fs";
 import { collectLabels } from "./utils/CollectLabels";
-import * as tf from "@tensorflow/tfjs";
 import SplitPane from "react-split-pane";
 import Inspector from "./inspector/Inspector";
 

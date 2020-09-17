@@ -7,7 +7,6 @@ import { insertPending } from "./PropagateUpdate";
 import { collectLabels } from "./utils/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
 import { walkTranslationConvert } from "./EngineUtils";
-import { scalar } from "@tensorflow/tfjs";
 
 interface ICanvasProps {
   lock: boolean;

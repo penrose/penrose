@@ -3,6 +3,8 @@ import { randFloat } from "./Util";
 import { Tensor, scalar, stack, cos, sin } from "@tensorflow/tfjs";
 import { ops } from "./Autodiff"
 
+// TODO: Rewrite computations to use `VarAD`
+
 /**
  * Static dictionary of computation functions
  * TODO: consider using `Dictionary` type so all runtime lookups are type-safe, like here https://codeburst.io/five-tips-i-wish-i-knew-when-i-started-with-typescript-c9e8609029db

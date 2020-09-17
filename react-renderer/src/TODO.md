@@ -249,3 +249,9 @@ Could it be uoStop? Yes (but doesn't rule out line search acting up in the futur
 ---
 
 Still need to clean up Autodiff, Constraints, Evaluator, Optimizer
+
+---
+
+TODO: Does the new autodiff work on function calls and inline computations in Style??
+TODO: Clean up Computations.ts
+TODO: Port an example that "pushes back" thru a computation?

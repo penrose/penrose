@@ -1,4 +1,3 @@
-import * as tf from "@tensorflow/tfjs";
 import { LinearAlgebra, DenseMatrix as la, Vector as vec, memoryManager } from "linear-algebra-js";
 import {
   makeADInputVars,
@@ -34,18 +33,19 @@ const DEBUG_OPT = false;
 
 // growth factor for constraint weights
 const weightGrowthFactor = 10;
+
 // weight for constraints
 const constraintWeight = 10e4; // HACK: constant constraint weight
+
 // Intial weight for constraints
 const initConstraintWeight = 10e-3;
-// learning rate for the tfjs optimizer
-// const learningRate = 50; // TODO: Behaves terribly with tree.sub / tree.sty
-const learningRate = 30;
-const optimizer = tf.train.adam(learningRate, 0.9, 0.999);
+
 // EP method convergence criteria
 const epStop = 1e-3;
 // const epStop = 1e-5;
+
 const defaultLbfgsMemSize = 17;
+
 const EPSD = 1e-11;
 
 // Unconstrained method convergence criteria

@@ -1,8 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
 import { varOf, numOf } from "./Autodiff";
-import { Tensor, scalar } from "@tensorflow/tfjs";
-import { mapValues } from 'lodash';
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
