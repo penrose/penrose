@@ -1,4 +1,4 @@
-import { LinearAlgebra, DenseMatrix as la, Vector as vec, memoryManager } from "linear-algebra-js";
+import { LinearAlgebra, DenseMatrix as la, Vector as vec, memoryManager } from "@penrose/linear-algebra";
 import {
   makeADInputVars,
   energyAndGradCompiled,

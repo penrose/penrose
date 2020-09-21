@@ -6,6 +6,7 @@
   "types": "build/dist/types.js",
   "private": true,
   "dependencies": {
+    "@penrose/linear-algebra": "^1.0.0",
     "@reach/tabs": "^0.9.0",
     "@tensorflow/tfjs": "^1.7.3",
     "@tensorflow/tfjs-node": "^1.7.3",
