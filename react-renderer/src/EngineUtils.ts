@@ -6,7 +6,7 @@ import { varOf, numOf } from "./Autodiff";
 
 // Generic utils for mapping over values
 
-function mapTup2<T, S>(
+export function mapTup2<T, S>(
   f: (arg: T) => S,
   t: [T, T]
 ): [S, S] {

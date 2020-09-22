@@ -10,7 +10,7 @@ import { mapMap } from "./Util";
 import { valueAutodiffToNumber } from "./EngineUtils";
 import seedrandom from "seedrandom";
 
-import { compDict, checkComp } from "./Computations";
+import { compDict, checkComp } from "./Functions";
 import { mapTranslation } from "./EngineUtils";
 
 import {

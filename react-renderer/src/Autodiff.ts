@@ -25,7 +25,7 @@ export const gvarOf = (x: number, vname = "", metadata = ""): VarAD => variableA
 export const varOf = (x: number, vname = "", metadata = ""): VarAD => variableAD(x, vname, metadata);
 
 // TODO: Use this consistently
-export const constOf = (x: number, vname = ""): VarAD => variableAD(x, vname, "const");
+export const constOf = (x: number): VarAD => variableAD(x, String(x), "const");
 
 export const numOf = (x: VarAD): number => x.val;
 

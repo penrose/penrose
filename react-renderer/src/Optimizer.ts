@@ -1,4 +1,4 @@
-import { LinearAlgebra, DenseMatrix as la, Vector as vec, memoryManager } from "@penrose/linear-algebra";
+import { DenseMatrix as la, memoryManager } from "@penrose/linear-algebra";
 import {
   makeADInputVars,
   energyAndGradCompiled,
