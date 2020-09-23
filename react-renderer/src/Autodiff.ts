@@ -27,6 +27,12 @@ export const varOf = (x: number, vname = "", metadata = ""): VarAD => variableAD
 // TODO: Use this consistently
 export const constOf = (x: number): VarAD => variableAD(x, String(x), "const");
 
+export const constOfIf = (x: number | VarAD): VarAD => {
+  if (typeof x === "number") { return variableAD(x, String(x), "const"); }
+
+  return x;
+};
+
 export const numOf = (x: VarAD): number => x.val;
 
 export const differentiable = (e: number): VarAD => {

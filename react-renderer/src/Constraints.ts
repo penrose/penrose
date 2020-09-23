@@ -1,6 +1,7 @@
 import {
   varOf,
   constOf,
+  constOfIf,
   add,
   addN,
   mul,
@@ -84,24 +85,21 @@ export const objDict = {
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
 
-  // TODO: Port to new AD
-
-  // below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) =>
-  //   square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
   // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
+  below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) =>
+    squared(sub(sub(top.y.contents, bottom.y.contents), constOfIf(offset))),
 
-  // TODO: Port to new AD
+  centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): VarAD => {
+    if (typesAre([t1, t2], ["Arrow", "Text"])) {
+      const mx = div(add(arr.startX.contents, arr.endX.contents), constOf(2.0));
+      const my = div(add(arr.startY.contents, arr.endY.contents), constOf(2.0));
 
-  // centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): Tensor => {
-  //   if (typesAre([t1, t2], ["Arrow", "Text"])) {
-  //     const mx = arr.startX.contents.add(arr.endX.contents).div(scalar(2.0));
-  //     const my = arr.startY.contents.add(arr.endY.contents).div(scalar(2.0));
-  //     // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
-  //     const lh = mx.sub(text1.x.contents).square();
-  //     const rh = my.add(text1.h.contents.mul(scalar(1.1))).sub(text1.y.contents).square();
-  //     return lh.add(rh).mul(w);
-  //   } else throw new Error(`${[t1, t2]} not supported for centerLabel`)
-  // },
+      // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
+      const lh = squared(sub(mx, text1.x.contents));
+      const rh = squared(sub(add(my, mul(text1.h.contents, constOf(1.1))), text1.y.contents));
+      return mul(add(lh, rh), constOfIf(w));
+    } else throw new Error(`${[t1, t2]} not supported for centerLabel`)
+  },
 
 };
 
@@ -110,7 +108,9 @@ export const constrDict = {
     const limit = Math.max(...canvasSize) / 6;
     switch (shapeType) {
       case "Circle":
-        return sub(props.r.contents, varOf(limit));
+        return sub(props.r.contents, constOf(limit));
+      case "Square":
+        return sub(props.side.contents, constOf(limit / 3.0));
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a maxSize`);
@@ -121,7 +121,9 @@ export const constrDict = {
     const limit = 20;
     switch (shapeType) {
       case "Circle":
-        return sub(varOf(limit), props.r.contents);
+        return sub(constOf(limit), props.r.contents);
+      case "Square":
+        return sub(constOf(limit), props.side.contents);
       default:
         // HACK: report errors systematically
         throw new Error(`${shapeType} doesn't have a minSize`);
@@ -167,6 +169,12 @@ export const constrDict = {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       return add(sub(d, diff), offset);
 
+    } else if (t1 === "Square" && t2 === "Circle") {
+      // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
+      const sq = [s1.x.contents, s1.y.contents];
+      const d = ops.vdist(sq, fns.center(s2));
+      return sub(d, sub(mul(constOf(0.5), s1.side.contents), s2.r.contents));
+
     } else if (t1 === "Rectangle" && t2 === "Text") {
       // contains [GPI r@("Rectangle", _), GPI l@("Text", _), Val (FloatV padding)] =
       // TODO: implement precisely, max (w, h)? How about diagonal case?
@@ -178,7 +186,7 @@ export const constrDict = {
       const a3 = div(s2.w.contents, varOf(2.0));
       return add(add(sub(a1, a2), a3), offset);
 
-    } else throw new Error(`${[t1, t2]} not supported for contains2`);
+    } else throw new Error(`${[t1, t2]} not supported for contains`);
 
   },
 
@@ -205,41 +213,37 @@ export const constrDict = {
       const textR = max(s1.w.contents, s1.h.contents);
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       return sub(add(add(s2.r.contents, textR),
-        varOf(padding)),
+        constOfIf(padding)),
         d);
     } else throw new Error(`${[t1, t2]} not supported for outsideOf`);
   },
 
-  // TODO: Port to new AD
+  overlapping: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any],
+    padding = 10
+  ) => {
+    if (t1 === "Circle" && t2 === "Circle") {
+      return looseIntersect(fns.center(s1), s1.r.contents,
+        fns.center(s2), s2.r.contents, constOfIf(padding));
+    } else throw new Error(`${[t1, t2]} not supported for overlapping`);
+  },
 
-  // overlapping: (
-  //   [t1, s1]: [string, any],
-  //   [t2, s2]: [string, any],
-  //   padding = 10
-  // ) => {
-  //   if (t1 === "Circle" && t2 === "Circle") {
-  //     return looseIntersectOld(centerOld(s1), s1.r.contents,
-  //       centerOld(s2), s2.r.contents, padding);
-  //   } else throw new Error(`${[t1, t2]} not supported for overlapping`);
-  // },
-
-  // TODO: Port to new AD
-
-  // tangentTo: (
-  //   [t1, s1]: [string, any],
-  //   [t2, s2]: [string, any]
-  // ) => {
-  //   // Inner tangency -- assuming circle1 contains circle2
-  //   if (t1 === "Circle" && t2 === "Circle") {
-  //     const d = distOld(centerOld(s1), centerOld(s2));
-  //     const r1 = s1.r.contents;
-  //     const r2 = s2.r.contents;
-  //     // Should we bring back the polygon code?
-  //     // ||c_a - c_b|| - (r1 - r2)
-  //     // Outer tangency would be `||c_a - c_b|| - (r1 + r2)`
-  //     return d.sub(r1.sub(r2));
-  //   } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
-  // },
+  tangentTo: (
+    [t1, s1]: [string, any],
+    [t2, s2]: [string, any]
+  ) => {
+    // Inner tangency -- assuming circle1 contains circle2
+    if (t1 === "Circle" && t2 === "Circle") {
+      const d = ops.vdist(fns.center(s1), fns.center(s2));
+      const r1 = s1.r.contents;
+      const r2 = s2.r.contents;
+      // Should we bring back the polygon code?
+      // ||c_a - c_b|| - (r1 - r2)
+      // Outer tangency would be `||c_a - c_b|| - (r1 + r2)`
+      return sub(d, sub(r1, r2));
+    } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
+  },
 
 };
 
@@ -249,6 +253,12 @@ const typesAre = (inputs: string[], expected: string[]) =>
   (inputs.length === expected.length) && _.zip(inputs, expected).map(([i, e]) => i === e);
 
 // -------- (Hidden) helpers for objective/constraints/computations
+
+const looseIntersect = (center1: VarAD[], r1: VarAD, center2: VarAD[], r2: VarAD, padding: VarAD): VarAD => {
+  // looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
+  const res = sub(add(r1, r2), padding);
+  return sub(ops.vdist(center1, center2), res);
+};
 
 const centerArrow2 = (arr: any, center1: VarAD[], center2: VarAD[], [o1, o2]: VarAD[]): VarAD => {
   const vec = ops.vsub(center2, center1); // direction the arrow should point to
