@@ -105,10 +105,10 @@ export const objDict = {
 
 export const constrDict = {
   maxSize: ([shapeType, props]: [string, any]) => {
-    const limit = Math.max(...canvasSize) / 6;
+    const limit = Math.max(...canvasSize);
     switch (shapeType) {
       case "Circle":
-        return sub(props.r.contents, constOf(limit));
+        return sub(props.r.contents, constOf(limit / 6.0));
       case "Square":
         return sub(props.side.contents, constOf(limit / 3.0));
       default:
@@ -233,15 +233,12 @@ export const constrDict = {
     [t1, s1]: [string, any],
     [t2, s2]: [string, any]
   ) => {
-    // Inner tangency -- assuming circle1 contains circle2
     if (t1 === "Circle" && t2 === "Circle") {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       const r1 = s1.r.contents;
       const r2 = s2.r.contents;
-      // Should we bring back the polygon code?
-      // ||c_a - c_b|| - (r1 - r2)
-      // Outer tangency would be `||c_a - c_b|| - (r1 + r2)`
-      return sub(d, sub(r1, r2));
+      // Since we want equality
+      return absVal(sub(d, sub(r1, r2)));
     } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
   },
 
