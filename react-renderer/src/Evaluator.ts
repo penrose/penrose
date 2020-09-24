@@ -7,11 +7,11 @@ import {
 } from "lodash";
 import { mapValues } from "lodash";
 import { mapMap } from "./Util";
-import { valueAutodiffToNumber } from "./EngineUtils";
+import { valueAutodiffToNumber, mapTranslation } from "./EngineUtils";
+import { floatVal } from "./OtherUtils";
 import seedrandom from "seedrandom";
 
 import { compDict, checkComp } from "./Functions";
-import { mapTranslation } from "./EngineUtils";
 
 import {
   varOf,
@@ -38,6 +38,9 @@ import {
   ops
 } from "./Autodiff";
 
+// For deep-cloning the translation
+const clone = require('rfdc')({ proto: false, circles: true });
+
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
 /**
@@ -51,7 +54,7 @@ import {
  *
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
-export const evalTranslation = (s: State): State => {
+export const evalShapes = (s: State): State => {
   // Update the stale varyingMap from the translation. TODO: Where is the right place to do this?
 
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
@@ -60,14 +63,17 @@ export const evalTranslation = (s: State): State => {
   const varyingMapList = zip(s.varyingPaths, varyingValuesDiff) as [Path, VarAD][];
 
   // Insert all varying vals
-  const trans = insertVaryings(s.translation, varyingMapList);
+  const transWithVarying = insertVaryings(s.translation, varyingMapList);
+
+  // Clone translation to use in this top-level call, because it mutates the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
+  const trans = clone(transWithVarying);
 
   // Find out all the GPI expressions in the translation
   const shapeExprs = s.shapePaths.map(
     (p: Path) => findExpr(trans, p) as IFGPI<VarAD>
   );
 
-  // Evaluate each of the shapes
+  // Evaluate each of the shapes (note: the translation is mutated, not returned)
   const [shapesEvaled, transEvaled] = shapeExprs.reduce(
     ([currShapes, tr]: [Shape[], Translation], e: IFGPI<VarAD>) =>
       evalShape(e, tr, s.varyingMap, currShapes),
@@ -78,9 +84,9 @@ export const evalTranslation = (s: State): State => {
   const sortedShapesEvaled = s.shapeOrdering.map((name) =>
     shapesEvaled.find(({ properties }) => properties.name.contents === name)!);
 
-  // Update the state with the new list of shapes and translation
+  // Update the state with the new list of shapes
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
-  return { ...s, shapes: sortedShapesEvaled, translation: transEvaled };
+  return { ...s, shapes: sortedShapesEvaled };
 };
 
 const doneFloat = (n: VarAD): TagExpr<VarAD> => ({
@@ -123,7 +129,6 @@ const evalFn = (
   trans: Translation,
   varyingMap: VaryMap<VarAD>
 ): FnDone<VarAD> => {
-  // TODO: Turned on differentiable variables (below) -- is this right?
   return {
     name: fn.fname,
     args: evalExprs(fn.fargs, trans, varyingMap) as ArgVal<VarAD>[],
@@ -151,6 +156,8 @@ export const evalShape = (
 
   // Make sure all props are evaluated to values instead of shapes
   const props = mapValues(propExprs, (prop: TagExpr<VarAD>): Value<number> => {
+
+    // TODO: Refactor these cases to be more concise
     if (prop.tag === "OptEval") {
       // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
       // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
@@ -363,13 +370,6 @@ export const resolvePath = (
   trans: Translation,
   varyingMap?: VaryMap<VarAD>
 ): ArgVal<VarAD> => {
-  const floatVal = (v: VarAD): ArgVal<VarAD> => ({
-    tag: "Val",
-    contents: {
-      tag: "FloatV",
-      contents: v,
-    },
-  });
   // HACK: this is a temporary way to consistently compare paths. We will need to make varymap much more efficient
   let varyingVal = varyingMap?.get(JSON.stringify(path));
 
@@ -381,17 +381,25 @@ export const resolvePath = (
     switch (gpiOrExpr.tag) {
       case "FGPI": {
         const [type, props] = gpiOrExpr.contents;
-        // TODO: cache results
+
+        // Evaluate GPI (i.e. each property path in GPI -- NOT necessarily the path's expression)
         const evaledProps = mapValues(props, (p, propName) => {
+          const propertyPath: IPropertyPath = {
+            tag: "PropertyPath",
+            contents: concat(path.contents, propName) as [BindingForm, string, string],
+          };
+
           if (p.tag === "OptEval") {
-            return (evalExpr(p.contents, trans, varyingMap) as IVal<VarAD>).contents;
+            // Evaluate each property path and cache the results (so, e.g. the next lookup just returns a Value)
+            // `resolve path A.val.x = f(z, y)` ===> `f(z, y) evaluates to c` ===> 
+            // `set A.val.x = r` ===> `next lookup of A.val.x yields c instead of computing f(z, y)`
+            const propertyPathExpr = { tag: "EPath", contents: propertyPath } as IEPath;
+            const val: Value<VarAD> = (evalExpr(propertyPathExpr, trans, varyingMap) as IVal<VarAD>).contents;
+            const transNew = insertExpr(propertyPath, { tag: "Done", contents: val }, trans);
+            return val;
           } else {
-            const propPath: IPropertyPath = {
-              tag: "PropertyPath",
-              contents: concat(path.contents, propName) as [BindingForm, string, string],
-              // TODO: check if this is true
-            };
-            varyingVal = varyingMap?.get(JSON.stringify(propPath));
+            // Look up in varyingMap to see if there is a fresh value
+            varyingVal = varyingMap?.get(JSON.stringify(propertyPath));
             if (varyingVal) {
               return { tag: "FloatV", contents: varyingVal };
             } else {
@@ -400,19 +408,35 @@ export const resolvePath = (
           }
         });
 
+        // No need to cache evaluated GPI as each of its individual properties should have been cached on evaluation
         return {
           tag: "GPI",
           contents: [type, evaledProps] as GPI<VarAD>,
         };
       }
 
+      // Otherwise, either evaluate or return the expression
       default: {
         const expr: TagExpr<VarAD> = gpiOrExpr;
+
         if (expr.tag === "OptEval") {
-          return evalExpr(expr.contents, trans, varyingMap);
+          // Evaluate the expression and cache the results (so, e.g. the next lookup just returns a Value)
+          const res: ArgVal<VarAD> = evalExpr(expr.contents, trans, varyingMap);
+
+          if (res.tag === "Val") {
+            const transNew = insertExpr(path, { tag: "Done", contents: res.contents }, trans);
+            return res;
+          } else if (res.tag === "GPI") {
+            throw Error("Field expression evaluated to GPI when this case was eliminated");
+          } else {
+            throw Error("Unknown tag");
+          }
+        } else if (expr.tag === "Done" || expr.tag === "Pending") {
+          // Already done, just return results of lookup -- this is a cache hit
+          return { tag: "Val", contents: expr.contents };
         } else {
-          return { tag: "Val", contents: expr.contents }
-        };
+          throw Error("Unexpected tag");
+        }
       }
 
     }
@@ -564,20 +588,18 @@ export const findExpr = (
 };
 
 /**
- * Insert an expression into the translation an return a new one.
+ * Insert an expression into the translation (mutating it), returning a reference to the mutated translation for convenience
  * @param path path to a field or property
  * @param expr new expression
  * @param initTrans initial translation
  *
- * TODO: make sure this function is a deep enough copy of `initTrans`
  */
-// TODO: Is it inefficient (space/time) to copy the whole translation every time an expression is inserted?
 export const insertExpr = (
   path: Path,
   expr: TagExpr<VarAD>,
   initTrans: Translation
 ): Translation => {
-  const trans = { ...initTrans };
+  const trans = initTrans;
   let name, field, prop;
   switch (path.tag) {
     case "FieldPath":

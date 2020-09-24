@@ -24,6 +24,7 @@
     "react-scripts-ts": "^4.0.8",
     "react-split-pane": "^0.1.89",
     "react-styled-flexboxgrid": "^3.2.1",
+    "rfdc": "^1.1.4",
     "seedrandom": "^3.0.5",
     "styled-components": "^5.0.1",
     "svg2pdf.js": "^1.5.0",

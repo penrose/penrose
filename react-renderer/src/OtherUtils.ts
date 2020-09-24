@@ -141,3 +141,11 @@ export const randList = (n: number): number[] => {
   return repeatList(0, n).map(e => RAND_RANGE * (Math.random() - 0.5));
 };
 
+// From Evaluator
+export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
+  tag: "Val",
+  contents: {
+    tag: "FloatV",
+    contents: v,
+  },
+});

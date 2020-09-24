@@ -13,7 +13,7 @@ import {
 import { normList } from "./OtherUtils";
 import {
   argValue,
-  evalTranslation,
+  evalShapes,
   insertVaryings,
   genVaryMap,
   evalFns,
@@ -24,6 +24,9 @@ import {
   objDict,
 } from "./Constraints";
 import { scalev, addv, subv, negv, dot, prettyPrintFns, prettyPrintProperty } from "./OtherUtils";
+
+// For deep-cloning the translation
+const clone = require('rfdc')({ proto: false, circles: true });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -309,7 +312,7 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
     );
 
     newState.varyingValues = varyingValues;
-    newState = evalTranslation(newState);
+    newState = evalShapes(newState);
   }
 
   return newState;
@@ -727,7 +730,10 @@ export const evalEnergyOnCustom = (state: State) => {
   // TODO: types
   return (...varyingValuesTF: VarAD[]): any => {
     // TODO: Could this line be causing a memory leak?
-    const { objFns, constrFns, translation, varyingPaths } = state;
+    const { objFns, constrFns, varyingPaths } = state;
+
+    // Clone this to use in the `evalFns` top-level calls, because they mutate the translation while interpreting the energy function in order to cache/reuse VarAD (computation) results
+    const translation = clone(state.translation);
 
     // construct a new varying map
     const varyingMap = genVaryMap(varyingPaths, varyingValuesTF) as VaryMap<VarAD>;

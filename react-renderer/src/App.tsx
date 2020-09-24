@@ -4,7 +4,7 @@ import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
-import { evalTranslation, decodeState } from "./Evaluator";
+import { decodeState } from "./Evaluator";
 import { stepBasic } from "./Optimizer";
 import { unwatchFile } from "fs";
 import { collectLabels } from "./utils/CollectLabels";

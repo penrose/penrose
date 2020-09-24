@@ -5,7 +5,7 @@ import Log from "./Log";
 import { loadImages } from "./Util";
 import { insertPending } from "./PropagateUpdate";
 import { collectLabels } from "./utils/CollectLabels";
-import { evalTranslation, decodeState } from "./Evaluator";
+import { evalShapes, decodeState } from "./Evaluator";
 import { walkTranslationConvert } from "./EngineUtils";
 
 interface ICanvasProps {
@@ -58,7 +58,7 @@ class Canvas extends React.Component<ICanvasProps> {
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
     // The results of the pending values are then stored back in the translation as autodiff types
-    const stateEvaled: State = evalTranslation(stateAD);
+    const stateEvaled: State = evalShapes(stateAD);
     // TODO: add return types
     const labeledShapes: any = await collectLabels(stateEvaled.shapes);
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);

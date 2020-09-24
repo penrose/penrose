@@ -94,6 +94,7 @@ interface IVal<T> {
 
 // type Translation<T> = ITrans<T>;
 type Translation = ITrans<VarAD>;
+// NOTE: To make a deep clone, use `clone` from `rfdc`
 
 interface ITrans<T> {
   // TODO: compGraph
