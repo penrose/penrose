@@ -61,8 +61,8 @@ const {
     const.strokeWidth = 1.75
     const.textPadding = 7.0
     const.textPadding2 = 25.0
-    const.repelWeight = 0.0
-    const.repelWeight2 = 0.0
+    const.repelWeight = 0.7 -- TODO: Reverted from 0.0
+    const.repelWeight2 = 0.5
     const.fontSize = "18pt"
     const.containPadding = 50.0
     const.rayLength = 100.0
@@ -120,7 +120,7 @@ Point p {
        }
 
        -- TODO: put these constraints back in
-       -- p.labelFnMargin = ensure atDist(p.shape, p.text, const.textPadding)
+       p.labelFnMargin = ensure atDist(p.shape, p.text, const.textPadding)
 
        -- TODO: the problem is that this ensures the padding is const? Or is > padding okay?
        -- There's a choice of whether to put padding on the point or the text for containment
@@ -153,12 +153,28 @@ with Point p; Point q {
      e.layering1 = p.shape above e.shape
      e.layering2 = q.shape above e.shape
 
-     -- TODO: Put these back in
-     -- LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, const.repelWeight)
-     -- LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, const.repelWeight)
+     LOCAL.labelAvoidFn_p = encourage repel(e.shape, p.text, const.repelWeight)
+     LOCAL.labelAvoidFn_q = encourage repel(e.shape, q.text, const.repelWeight)
 
      e.layering = e.shape above const.plane
 }
+
+Point `A` {
+      override `A`.shape.color = Colors.red
+      override `A`.text.color = Colors.red
+}
+
+Point `B` {
+      override `B`.shape.color = Colors.sky
+      override `B`.text.color = Colors.sky
+}
+
+Point `C` {
+      override `C`.shape.color = Colors.silver
+      override `C`.text.color = Colors.silver
+}
+
+-- -----------------------------------------------------------------------------
 
 -- -- TODO: Take the altitude at a particular angle that happens to be right
 -- -- Might not need to specify the angle if we know the triangle's right
@@ -326,22 +342,22 @@ with Point p; Point q {
 --      theta.sizeFn = encourage repel(q.shape, r.shape, 100.0)
 -- }
 
--- Angle theta
--- where theta := InteriorAngle(q, p, r); Right(theta)
--- with Point p; Point q; Point r {
+Angle theta
+where theta := InteriorAngle(q, p, r); Right(theta)
+with Point p; Point q; Point r {
 
---       theta.perpSize = 13.0
+      theta.perpSize = 13.0
 
---       override theta.shape = Curve {
---       		 pathData : perpPath(q.tup, p.tup, r.tup, theta.perpSize)
---       		 strokeWidth : 1.25
---       		 color : Colors.black
---       		 fill : setOpacity(Colors.white, 0.5)
---       }
+      -- override theta.shape = Curve {
+      -- 		 pathData : perpPath(q.tup, p.tup, r.tup, theta.perpSize)
+      -- 		 strokeWidth : 1.25
+      -- 		 color : Colors.black
+      -- 		 fill : setOpacity(Colors.white, 0.5)
+      -- }
 
---       theta.perpFn = ensure perpendicular(q.tup, p.tup, r.tup)
+      theta.perpFn = ensure perpendicular(q.tup, p.tup, r.tup)
 
--- }
+}
 
 -- Ray r {
 --     r.length = const.rayLength

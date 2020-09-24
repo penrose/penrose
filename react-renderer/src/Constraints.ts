@@ -22,7 +22,7 @@ import {
   ops,
   fns
 } from "./Autodiff";
-
+import { linePts } from "./OtherUtils";
 import { canvasSize } from "./Canvas";
 import * as _ from "lodash";
 
@@ -39,37 +39,26 @@ export const objDict = {
   sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =>
     ops.vdistsq(fns.center(s1), fns.center(s2)),
 
-  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+  repel: ([t1, s1]: [string, any], [t2, s2]: [string, any], weight = 10.0) => {
     // HACK: `repel` typically needs to have a weight multiplied since its magnitude is small
     // TODO: find this out programmatically
     const repelWeight = 10e6;
 
-    console.log("shapes", s1, s2);
+    let res;
 
-    // TODO: this only works for shapes with a center (x,y)
-
-    // 1 / (d^2(cx, cy) + eps)
-    return mul(inverse(ops.vdistsq(fns.center(s1), fns.center(s2))), varOf(repelWeight));
-  },
-
-  atDist: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: any) => {
-    // Place the latter at a distance from the center of the point
-    // TODO: Account for the size/radius of the initial point, rather than just the center
-
-    if (t2 === "Text") {
-      // TODO: What type is the offset?
-
-      // Get polygon of text (box)
-      // TODO: Make this a GPI property
-      // TODO: Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
-
-      // If the point is inside the box, push it outside w/ `noIntersect`
-
-      // If the point is outside the box, try to get the distance from the point to equal the desired distance
-
+    if (t1 === "Line") {
+      const line = s1;
+      const c2 = fns.center(s2);
+      const lineSamplePts = sampleSeg(linePts(line));
+      const allForces = addN(lineSamplePts.map(p => repelPt(constOfIf(weight), c2, p)));
+      // TODO: fix all the repel weights being zeroed for some reason
+      res = mul(constOfIf(weight), allForces);
     } else {
-      throw Error(`unsupported shapes for 'atDist': ${t1}, ${t2}`);
+      // 1 / (d^2(cx, cy) + eps)
+      res = inverse(ops.vdistsq(fns.center(s1), fns.center(s2)));
     }
+
+    return mul(res, constOf(repelWeight));
   },
 
   centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): VarAD => {
@@ -242,6 +231,54 @@ export const constrDict = {
     } else throw new Error(`${[t1, t2]} not supported for tangentTo`);
   },
 
+  atDist: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: VarAD) => {
+    // Place the latter at a distance from the center of the point
+    // TODO: Account for the size/radius of the initial point, rather than just the center
+
+    if (t2 === "Text") {
+      // Get polygon of text (box)
+      // TODO: Make this a GPI property
+      // TODO: Do this properly; Port the matrix stuff in `textPolygonFn` / `textPolygonFn2` in Shapes.hs
+      // I wrote a version simplified to work for rectangles
+
+      const text = s2;
+      // TODO: Simplify this code since I don't actually use `textPts`
+      const halfWidth = div(text.w.contents, constOf(2.0));
+      const halfHeight = div(text.h.contents, constOf(2.0));
+      const nhalfWidth = neg(halfWidth);
+      const nhalfHeight = neg(halfHeight);
+      const textCenter = fns.center(text);
+      // CCW: TR, TL, BL, BR
+      const textPts = [[halfWidth, halfHeight], [nhalfWidth, halfHeight],
+      [nhalfWidth, nhalfHeight], [halfWidth, nhalfHeight]].map(p => ops.vadd(textCenter, p));
+
+      const pt = { x: s1.x.contents, y: s1.y.contents };
+      const rect = {
+        minX: textPts[1][0], maxX: textPts[0][0],
+        minY: textPts[2][1], maxY: textPts[0][1]
+      };
+
+      // If the point is inside the box, push it outside w/ `noIntersect`
+      if (pointInBox(pt, rect)) {
+        return noIntersect(textCenter, text.w.contents, fns.center(s1), constOf(2.0));
+      } else {
+        // If the point is outside the box, try to get the distance from the point to equal the desired distance
+        const dsqRes = dsqBP(pt, rect);
+        return equalHard(dsqRes, squared(offset));
+      }
+
+    } else {
+      throw Error(`unsupported shapes for 'atDist': ${t1}, ${t2}`);
+    }
+  },
+
+  perpendicular: (q: ITupV<VarAD>, p: ITupV<VarAD>, r: ITupV<VarAD>): VarAD => {
+    const v1 = ops.vsub(q.contents, p.contents);
+    const v2 = ops.vsub(r.contents, p.contents);
+    const dotProd = ops.vdot(v1, v2);
+    return equalHard(dotProd, constOf(0.0));
+  },
+
 };
 
 // -------- Helpers for writing objectives
@@ -250,6 +287,20 @@ const typesAre = (inputs: string[], expected: string[]) =>
   (inputs.length === expected.length) && _.zip(inputs, expected).map(([i, e]) => i === e);
 
 // -------- (Hidden) helpers for objective/constraints/computations
+
+// This is an equality constraint (x = c) via two inequality constraints (x <= c and x >= c)
+const equalHard = (x: VarAD, y: VarAD) => {
+  const valMax = max(x, y);
+  const valMin = min(x, y);
+  // TODO: I guess you could also use an absolute value?
+  return sub(valMax, valMin);
+};
+
+const noIntersect = (center1: VarAD[], r1: VarAD, center2: VarAD[], r2: VarAD, padding = 10): VarAD => {
+  // noIntersect [[x1, y1, s1], [x2, y2, s2]] = - dist (x1, y1) (x2, y2) + (s1 + s2 + 10)
+  const res = add(add(r1, r2), constOfIf(padding));
+  return sub(res, ops.vdist(center1, center2));
+};
 
 const looseIntersect = (center1: VarAD[], r1: VarAD, center2: VarAD[], r2: VarAD, padding: VarAD): VarAD => {
   // looseIntersect [[x1, y1, s1], [x2, y2, s2]] = dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
@@ -278,9 +329,44 @@ const centerArrow2 = (arr: any, center1: VarAD[], center2: VarAD[], [o1, o2]: Va
   return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
 }
 
-// TODO: use it
-// const getConstraint = (name: string) => {
-//   if (!constrDict[name]) throw new Error(`Constraint "${name}" not found`);
-//   // TODO: types for args
-//   return (...args: any[]) => toPenalty(constrDict[name]);
-// };
+// TODO: Add epsd in denominator?
+const repelPt = (c: VarAD, a: VarAD[], b: VarAD[]) => div(c, ops.vdistsq(a, b));
+
+// ------- Polygon-related helpers
+
+// Assuming `rect` is an axis-aligned bounding box (AABB)
+const pointInBox = (p: any, rect: any): boolean => {
+  return p.x > rect.minX && p.x < rect.maxX && p.y > rect.minY && p.y < rect.maxY;
+};
+
+// Assuming `rect` is an axis-aligned bounding box (AABB)
+// Compute the positive distance squared from point to box (NOT the signed distance)
+// https://stackoverflow.com/questions/5254838/calculating-distance-between-a-point-and-a-rectangular-box-nearest-point
+const dsqBP = (p: any, rect: any): VarAD => {
+  const dx = max(max(sub(rect.minX, p.x), constOf(0.0)), sub(p.x, rect.maxX));
+  const dy = max(max(sub(rect.minY, p.y), constOf(0.0)), sub(p.y, rect.maxY));
+  return sqrt(add(squared(dx), squared(dy)));
+};
+
+// TODO: Rewrite the lerp code to be more concise
+
+// `k` is the fraction of interpolation
+const lerp = (l: VarAD, r: VarAD, k: VarAD): VarAD => {
+  return add(mul(l, sub(constOf(1.0), k)), mul(r, k));
+};
+
+const lerp2 = (l: VarAD[], r: VarAD[], k: VarAD): [VarAD, VarAD] => {
+  return [lerp(l[0], r[0], k), lerp(l[1], r[1], k)];
+};
+
+const sampleSeg = (line: VarAD[][]) => {
+  const NUM_SAMPLES = 15;
+  const NUM_SAMPLES2 = constOf(1 + NUM_SAMPLES);
+  // TODO: Check that this covers the whole line, i.e. no off-by-one error
+  const samples = _.range(1 + NUM_SAMPLES).map(i => {
+    const k = div(constOf(i), NUM_SAMPLES2);
+    return lerp2(line[0], line[1], k);
+  });
+
+  return samples;
+};

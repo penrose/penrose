@@ -149,3 +149,13 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
     contents: v,
   },
 });
+
+// TODO: use it
+// const getConstraint = (name: string) => {
+//   if (!constrDict[name]) throw new Error(`Constraint "${name}" not found`);
+//   // TODO: types for args
+//   return (...args: any[]) => toPenalty(constrDict[name]);
+// };
+
+export const linePts = ({ startX, startY, endX, endY }: any): [VarAD[], VarAD[]] =>
+  [[startX.contents, startY.contents], [endX.contents, endY.contents]]

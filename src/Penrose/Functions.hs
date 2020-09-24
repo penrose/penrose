@@ -2414,13 +2414,17 @@ pointOn [Val (FloatV px), Val (FloatV py), GPI rect@("Rectangle", _), Val (Float
 atDistFn :: (Autofloat a) => Pt2 a -> Shape a -> a -> a
 atDistFn oPt txt offset =
   -- TODO: also account for boundary/radius of `o`, rather than just using center
-  let ([textPts], _, textBbox, _) = getPolygon txt
-  in if isInB' textPts oPt -- The point is inside the box, so push it outside
-     then noIntersect [[getX txt, getY txt, getNum txt "w"], [fst oPt, snd oPt, 2.0]] -- TODO use better sizes for each object
-     else let dsq_res = dsqBP textPts oPt -- Note this does NOT use the signed distance
-              constrEnergy = equal' dsq_res (offset * offset)
-          in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
-                    "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
+  let (textPtss, _, textBbox, _) = getPolygon txt
+  in case textPtss of
+     [] -> 0.0
+     [textPts] -> 
+               if isInB' textPts oPt -- The point is inside the box, so push it outside
+               then noIntersect [[getX txt, getY txt, getNum txt "w"], [fst oPt, snd oPt, 2.0]]
+                                -- TODO use better sizes for each object
+               else let dsq_res = dsqBP textPts oPt -- Note this does NOT use the signed distance
+                        constrEnergy = equal' dsq_res (offset * offset)
+                    in {- trace ("\n\ndsq_res: " ++ show dsq_res ++
+                              "\nconstrEnergy: " ++ show constrEnergy) -} constrEnergy
 
 -- Uses the closest distance between object center and text bbox
 atDist :: ConstrFn

@@ -944,7 +944,7 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     let stmt;
 
     if (z.op === "squared") {
-      stmt = `const ${parName} = Math.pow(${childName}, 2);`;
+      stmt = `const ${parName} = ${childName} * ${childName};`;
     } else if (z.op === "sqrt") {
       stmt = `const ${parName} = Math.sqrt(${childName});`;
     } else if (z.op === "sin") {

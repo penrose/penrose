@@ -1,6 +1,7 @@
 import { range } from "lodash";
 import { randFloat } from "./Util";
 import { mapTup2 } from "./EngineUtils";
+import { linePts } from "./OtherUtils";
 import { ops, varOf, constOf, div, mul, cos, sin } from "./Autodiff";
 
 /**
@@ -67,7 +68,7 @@ export const compDict = {
   },
 
   lineLength: ([type, props]: [string, any]): IFloatV<VarAD> => {
-    const [p1, p2] = arrowPts(props);
+    const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
       contents: ops.vdist(p1, p2)
@@ -75,7 +76,7 @@ export const compDict = {
   },
 
   len: ([type, props]: [string, any]): IFloatV<VarAD> => {
-    const [p1, p2] = arrowPts(props);
+    const [p1, p2] = linePts(props);
     return {
       tag: "FloatV",
       contents: ops.vdist(p1, p2)
@@ -120,10 +121,18 @@ export const compDict = {
     } else throw new Error("unknown color type");
   },
 
-};
+  setOpacity: (color: Color<VarAD>, frac: VarAD): IColorV<VarAD> => {
+    const rgb = color.contents;
+    return {
+      tag: "ColorV",
+      contents: {
+        tag: "RGBA",
+        contents: [rgb[0], rgb[1], rgb[2], mul(frac, rgb[3])],
+      },
+    };
+  },
 
-const arrowPts = ({ startX, startY, endX, endY }: any): [VarAD[], VarAD[]] =>
-  [[startX.contents, startY.contents], [endX.contents, endY.contents]]
+};
 
 export const checkComp = (fn: string, args: ArgVal<VarAD>[]) => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
