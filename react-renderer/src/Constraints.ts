@@ -79,6 +79,7 @@ export const objDict = {
     squared(sub(sub(top.y.contents, bottom.y.contents), constOfIf(offset))),
 
   centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): VarAD => {
+
     if (typesAre([t1, t2], ["Arrow", "Text"])) {
       const mx = div(add(arr.startX.contents, arr.endX.contents), constOf(2.0));
       const my = div(add(arr.startY.contents, arr.endY.contents), constOf(2.0));
@@ -87,7 +88,26 @@ export const objDict = {
       const lh = squared(sub(mx, text1.x.contents));
       const rh = squared(sub(add(my, mul(text1.h.contents, constOf(1.1))), text1.y.contents));
       return mul(add(lh, rh), constOfIf(w));
+
+    } else if (typesAre([t1, t2], ["Rectangle", "Text"])) {
+      // TODO: Fill this in
+      return constOf(0.0);
+
     } else throw new Error(`${[t1, t2]} not supported for centerLabel`)
+  },
+
+  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: any) => {
+    // This only works for two objects with centers (x,y)
+    const res = constOfIf(offset);
+    // TODO: Fill this in
+    return constOf(0.0);
+  },
+
+  nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
+    // TODO: constOfIf(x), constOfIf(y)
+    // TODO: Fill this in
+    // TODO: Use it in the Style
+    return constOf(0.0);
   },
 
 };
@@ -184,6 +204,9 @@ export const constrDict = {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
       return sub(addN(o), d);
+    } else if (typesAre([t1, t2], ["Text", "Line"])) {
+      // TODO: Fill this in
+      return constOf(0.0);
     } else throw new Error(`${[t1, t2]} not supported for disjoint`);
   },
 
@@ -283,8 +306,8 @@ export const constrDict = {
 
 // -------- Helpers for writing objectives
 
-const typesAre = (inputs: string[], expected: string[]) =>
-  (inputs.length === expected.length) && _.zip(inputs, expected).map(([i, e]) => i === e);
+const typesAre = (inputs: string[], expected: string[]): boolean =>
+  (inputs.length === expected.length) && _.every(_.zip(inputs, expected).map(([i, e]) => i === e));
 
 // -------- (Hidden) helpers for objective/constraints/computations
 

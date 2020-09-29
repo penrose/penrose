@@ -20,6 +20,13 @@ export function mapTup2<T, S>(
   return [f(t[0]), f(t[1])];
 };
 
+function mapTup3<T, S>(
+  f: (arg: T) => S,
+  t: [T, T, T]
+): [S, S, S] {
+  return [f(t[0]), f(t[1]), f(t[2])];
+};
+
 function mapTup4<T, S>(
   f: (arg: T) => S,
   t: [T, T, T, T]
@@ -129,6 +136,50 @@ function mapPolygon<T, S>(
   };
 };
 
+function mapElem<T, S>(
+  f: (arg: T) => S,
+  e: Elem<T>
+): Elem<S> {
+  if (e.tag === "Pt" || e.tag === "QuadBezJoin") {
+    return {
+      tag: e.tag,
+      contents: mapTup2(f, e.contents)
+    };
+  } else if (e.tag === "CubicBezJoin" || e.tag === "QuadBez") {
+    return {
+      tag: e.tag,
+      contents: mapTup2(x => mapTup2(f, x), e.contents)
+    };
+  } else if (e.tag === "CubicBez") {
+    return {
+      tag: e.tag,
+      contents: mapTup3(x => mapTup2(f, x), e.contents)
+    };
+  } else {
+    throw Error("unknown tag in bezier curve type conversion");
+  }
+};
+
+function mapSubpath<T, S>(
+  f: (arg: T) => S,
+  s: SubPath<T>
+): SubPath<S> {
+  return {
+    tag: s.tag,
+    contents: s.contents.map(e => mapElem(f, e))
+  };
+};
+
+function mapPathData<T, S>(
+  f: (arg: T) => S,
+  v: IPathDataV<T>
+): IPathDataV<S> {
+  return {
+    tag: "PathDataV",
+    contents: v.contents.map(e => mapSubpath(f, e))
+  };
+};
+
 function mapColorInner<T, S>(
   f: (arg: T) => S,
   v: Color<T>
@@ -200,6 +251,8 @@ export function mapValueNumeric<T, S>(
     return mapColor(f, v);
   } else if (v.tag === "PaletteV") {
     return mapPalette(f, v);
+  } else if (v.tag === "PathDataV") {
+    return mapPathData(f, v);
   } else if (nonnumericValueTypes.includes(v.tag)) {
     return v as Value<S>;
   } else {

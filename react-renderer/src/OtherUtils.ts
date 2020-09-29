@@ -60,7 +60,7 @@ export const dot = (xs: number[], ys: number[]): number => {
 
 // ---------- Printing utils
 
-const prettyPrintExpr = (arg: any) => {
+const prettyPrintExpr = (arg: Expr): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
   if (arg.tag === "EPath") {
     const obj = arg.contents.contents;
@@ -68,10 +68,21 @@ const prettyPrintExpr = (arg: any) => {
     const varField = obj[1];
     return [varName, varField].join(".");
   } else if (arg.tag === "AFloat") {
-    const val = arg.contents.contents;
-    return String(val);
+    if (arg.contents.tag === "Fix") {
+      const val = arg.contents.contents;
+      return String(val);
+    } else {
+      throw Error("Should not be asked to pretty-print varying float; has it been replaced?");
+    }
+  } else if (arg.tag === "CompApp") {
+    const [fnName, fnArgs] = arg.contents;
+    return [fnName, "(", ...(fnArgs.map(prettyPrintExpr).join(", ")), ")"].join("");
   } else {
-    throw Error(`argument of type ${arg.tag} not yet handled in pretty-printer`);
+    // TODO: Finish writing pretty-printer for rest of expressions (UOp, BinOp)
+    const res = JSON.stringify(arg);
+    console.error("arg", arg);
+    console.error(`argument of type ${arg.tag} not yet handled in pretty-printer; returning stopgap`, res);
+    return res;
   }
 };
 

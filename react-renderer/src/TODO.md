@@ -255,3 +255,17 @@ Still need to clean up Autodiff, Constraints, Evaluator, Optimizer
 TODO: Does the new autodiff work on function calls and inline computations in Style??
 TODO: Clean up Computations.ts
 TODO: Port an example that "pushes back" thru a computation?
+
+9/29/20
+
+- Port DomainInterop.sty
+  - Port triangle fn O
+  - Port avg fn O
+    - Port Path type conversion X
+  - Support CompApp in pretty-printer X
+  - Port centerLabel for Rect, Text O
+  - Port near for 2 cases -- might need arg overload? O
+    - near
+    - nearPt
+  - Port disjoint(text, line)
+

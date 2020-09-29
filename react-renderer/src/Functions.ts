@@ -96,6 +96,34 @@ export const compDict = {
     return { tag: "PathDataV", contents: [path] };
   },
 
+  triangle: ([t1, l1]: any, [t2, l2]: any, [t3, l3]: any): IPathDataV<VarAD> => {
+    if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
+
+      // TODO: Fill this in
+      const elems: Elem<VarAD>[] =
+        [{ tag: "Pt", contents: mapTup2(constOf, [100, 100]) },
+        { tag: "Pt", contents: mapTup2(constOf, [200, 200]) },
+        { tag: "Pt", contents: mapTup2(constOf, [300, 150]) }];
+      const path: SubPath<VarAD> = { tag: "Open", contents: elems };
+
+      return { tag: "PathDataV", contents: [path] };
+
+
+    } else {
+      console.error([t1, l1], [t2, l2], [t3, l3]);
+      throw Error("Triangle function expected three lines");
+    }
+  },
+
+  // Only on lists for now, TODO add 2-arg version
+  average: (xs: any): IFloatV<VarAD> => {
+    // TODO: Fill this in
+    return {
+      tag: "FloatV",
+      contents: constOf(0.0)
+    };
+  },
+
   sampleColor: (alpha: VarAD, colorType: string): IColorV<VarAD> => {
     checkFloat(alpha);
 
