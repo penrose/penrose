@@ -542,13 +542,16 @@ export const minimizeTF = (
   let gradfx;
   let vals;
 
-  while( 1 ) {
+  while (1) {
     energy = optimizer.minimize(() => f(...xs) as any, true);
     gradfx = gradf(xs);
     normGrad = tf.stack(gradfx).norm();
 
-    if( i >= maxSteps || (sc(normGrad) < EPS) ) {
-       break;
+    if (i >= maxSteps || (sc(normGrad) < EPS)) {
+      if (i >= maxSteps) { console.log("maxSteps reached", maxSteps); }
+      if (sc(normGrad) < EPS) { console.log("unconstrained converged", sc(normGrad), EPS); }
+      console.log("Finished `minimize` early");
+      break;
     }
 
     // note: this printing could tank the performance

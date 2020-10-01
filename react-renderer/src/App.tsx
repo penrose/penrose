@@ -27,6 +27,8 @@ const stepState = async (state: State, onUpdate: any) => {
   tf.setBackend("cpu");
   tf.enableProdMode();
 
+  // const numSteps = 10000;
+  // const numSteps = 1000;
   const numSteps = 10;
   // const numSteps = 2;
 
