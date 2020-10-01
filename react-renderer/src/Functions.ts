@@ -99,17 +99,11 @@ export const compDict = {
   triangle: ([t1, l1]: any, [t2, l2]: any, [t3, l3]: any): IPathDataV<VarAD> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
 
-      // TODO: revert to the below elems
-      const elems: Elem<VarAD>[] =
-        [{ tag: "Pt", contents: mapTup2(constOf, [100, 100]) },
-        { tag: "Pt", contents: mapTup2(constOf, [200, 200]) },
-        { tag: "Pt", contents: mapTup2(constOf, [300, 150]) }];
-
       // As temp hack around furthestFrom, assumes triangle is drawn in a consistent order (first point of each line)
-      // const elems: Elem<VarAD>[] =
-      //   [{ tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
-      //   { tag: "Pt", contents: getStart(l2) as [VarAD, VarAD] },
-      //   { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] }];
+      const elems: Elem<VarAD>[] =
+        [{ tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
+        { tag: "Pt", contents: getStart(l2) as [VarAD, VarAD] },
+        { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] }];
 
       const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
 

@@ -32,7 +32,7 @@ const clone = require('rfdc')({ proto: false, circles: true });
 // Globals
 
 // Printing flags
-const DEBUG_OPT = false;
+// const DEBUG_OPT = false;
 
 // growth factor for constraint weights
 const weightGrowthFactor = 10;
@@ -60,7 +60,7 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-const DEBUG_GRAD_DESCENT = true;
+const DEBUG_GRAD_DESCENT = false;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;

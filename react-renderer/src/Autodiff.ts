@@ -9,7 +9,7 @@ const DEBUG_GRADIENT_UNIT_TESTS = false;
 
 // Consts
 const NUM_SAMPLES = 5; // Number of samples to evaluate gradient tests at
-const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
+export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
 // Reverse-mode AD
 // Implementation adapted from https://rufflewind.com/2016-12-30/reverse-mode-automatic-differentiation and https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
@@ -461,7 +461,7 @@ export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
 
   // It's important to only construct gradNode if this is a compnode, otherwise it will make recursive calls to the function ops and blow the stack
   if (isCompNode) {
-    const gradNode = div(gvarOf(1.0), mul(gvarOf(2.0), sqrt(v, false), false), false);
+    const gradNode = div(gvarOf(1.0), mul(gvarOf(2.0), max(gvarOf(0.0), sqrt(v, false), false), false), false);
     v.parents.push({ node: z, sensitivityNode: just(gradNode) });
     z.children.push({ node: v, sensitivityNode: just(gradNode) });
   } else {
@@ -1026,6 +1026,8 @@ const traverseGraph = (i: number, z: IVarAD): any => {
       stmt = `const ${parName} = ${childName0} < ${childName1};`;
     } else if (z.op === "+ list") {
       stmt = `const ${parName} = ${childName0} + ${childName1};`;
+    } else if (z.op === "div") {
+      stmt = `const ${parName} = ${childName0} / (${childName1} + ${EPS_DENOM});`;
     } else {
       stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
     }

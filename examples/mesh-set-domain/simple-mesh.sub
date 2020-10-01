@@ -1,8 +1,8 @@
 -- Clashing notations with \in symbol
 -- Vertex v1, v2, v3, v4 -- ∈ K (can't say this)
 
-SimplicialComplex K
-Vertex v1 ∈ K
+-- SimplicialComplex K
+-- Vertex v1 ∈ K
 -- Vertex v2 ∈ K
 -- Vertex v3 ∈ K
 -- Vertex v4 ∈ K
@@ -13,7 +13,7 @@ Vertex v1 ∈ K
 -- Edge e4 ∈ K
 -- Face f ∈ K
 
--- e1 := {v1, v2}
+-- -- e1 := {v1, v2}
 
 -- e1 := {v2, v3}
 -- e2 := {v3, v1}
@@ -21,9 +21,9 @@ Vertex v1 ∈ K
 -- e4 := {v3, v4}
 -- f := {e1, e2, e3}
 
-AutoLabel All
+-- AutoLabel All
 
-Label v1 $v_1$
+-- Label v1 $v_1$
 -- Label v2 $v_2$
 -- Label v3 $v_3$
 -- Label v4 $v_4$
@@ -35,54 +35,54 @@ Label v1 $v_1$
 
 ---------------------------------
 
--- Set A
--- Set B1, B2, B3, B4
--- Point p1, p2, p3, p4
--- B1 ⊂ A
--- B2 ⊂ A
--- B3 ⊂ A
+Set A
+Set B1, B2, B3, B4
+Point p1, p2, p3, p4
+B1 ⊂ A
+B2 ⊂ A
+B3 ⊂ A
 
--- p1 ∈ B2
--- p1 ∈ B3
--- p1 ∉ B1
--- p1 ∉ B4
+p1 ∈ B2
+p1 ∈ B3
+p1 ∉ B1
+p1 ∉ B4
 
--- p2 ∈ B3
--- p2 ∈ B1
--- p2 ∉ B2
--- p2 ∉ B4
+p2 ∈ B3
+p2 ∈ B1
+p2 ∉ B2
+p2 ∉ B4
 
--- p3 ∈ B1
--- p3 ∈ B2
--- p3 ∈ B4
--- p3 ∉ B3
+p3 ∈ B1
+p3 ∈ B2
+p3 ∈ B4
+p3 ∉ B3
 
--- p4 ∈ B4
--- p4 ∉ A
+p4 ∈ B4
+p4 ∉ A
 
--- Label p1 $v_1$
--- Label p2 $v_2$
--- Label p3 $v_3$
--- Label p4 $v_4$
--- Label B1 $e_1$
--- Label B2 $e_2$
--- Label B3 $e_3$
--- Label B4 $e_4$
--- Label A  $f$
+Label p1 $v_1$
+Label p2 $v_2$
+Label p3 $v_3$
+Label p4 $v_4$
+Label B1 $e_1$
+Label B2 $e_2$
+Label B3 $e_3$
+Label B4 $e_4$
+Label A  $f$
 
--- ---------------------------------
+---------------------------------
 
--- -- Identify points with vertices
--- Identified(p1,v1)
--- Identified(p2,v2)
--- Identified(p3,v3)
--- Identified(p4,v4)
+-- Identify points with vertices
+Identified(p1,v1)
+Identified(p2,v2)
+Identified(p3,v3)
+Identified(p4,v4)
 
--- -- Identify edges with sets
--- Identified(e1, B1)
--- Identified(e2, B2)
--- Identified(e3, B3)
--- Identified(e4, B4)
+-- Identify edges with sets
+Identified(e1, B1)
+Identified(e2, B2)
+Identified(e3, B3)
+Identified(e4, B4)
 
--- -- Also identify faces with sets
--- Identified(f, A)
+-- Also identify faces with sets
+Identified(f, A)
