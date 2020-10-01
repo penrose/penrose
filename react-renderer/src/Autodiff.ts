@@ -282,13 +282,17 @@ export const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 export const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
+  if (Math.abs(w.val) < 10e-10) { throw Error("divide by zero"); }
+
   const z = variableAD(v.val / w.val, "/");
   z.isCompNode = isCompNode;
 
   // grad(v/w) = [1/w, -v/w^2]
   if (isCompNode) {
     const vnode = just(div(gvarOf(1.0), w, false));
-    const wnode = just(neg(div(v, squared(w, false), false), false));
+    const w0node = squared(w, false);
+    // const w1node = max(epsdg, w0node, false); // TODO: Why does this make it get stuck?? w1node is not even used
+    const wnode = just(neg(div(v, w0node, false), false));
 
     v.parents.push({ node: z, sensitivityNode: vnode });
     w.parents.push({ node: z, sensitivityNode: wnode });
@@ -313,8 +317,10 @@ export const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // const vFn = (arg: "unit"): number => v.val > w.val ? 1.0 : 0.0;
   // const wFn = (arg: "unit"): number => v.val > w.val ? 0.0 : 1.0;
 
-  const vNode = ifCond(gt(v, w, false), gvarOf(1.0), gvarOf(0.0), false);
-  const wNode = ifCond(gt(v, w, false), gvarOf(0.0), gvarOf(1.0), false);
+  const cond = gt(v, w, false);
+
+  const vNode = ifCond(cond, gvarOf(1.0), gvarOf(0.0), false);
+  const wNode = ifCond(cond, gvarOf(0.0), gvarOf(1.0), false);
   // NOTE: this adds a conditional to the computational graph itself, so the sensitivities change based on the input values
   // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
 
@@ -668,10 +674,12 @@ const opMap = {
 
 // Useful constants
 
-export const zero: VarAD = varOf(0);
+export const zero: VarAD = constOf(0);
 
 // to prevent 1/0 (infinity). put it in the denominator
-export const epsd: VarAD = varOf(10e-10);
+export const epsd: VarAD = constOf(10e-10);
+
+export const epsdg: VarAD = gvarOf(10e-10);
 
 // ----------------- Other ops 
 
