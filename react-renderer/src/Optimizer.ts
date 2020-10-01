@@ -46,6 +46,7 @@ const initConstraintWeight = 10e-3;
 // EP method convergence criteria
 const epStop = 1e-3;
 // const epStop = 1e-5;
+// const epStop = 1e-7;
 
 const defaultLbfgsMemSize = 17;
 
@@ -55,6 +56,7 @@ const EPSD = 1e-11;
 // TODO. This should REALLY be 10e-10
 // NOTE: The new autodiff + line search seems to be really sensitive to this parameter (`uoStop`). It works for 1e-2, but the line search ends up with too-small intervals with 1e-5
 const uoStop = 1e-2;
+// const uoStop = 1e-3;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
@@ -318,6 +320,8 @@ export const stepBasic = (state: State, steps: number, evaluate = true) => {
   return newState;
 };
 
+// Note: line search seems to be quite sensitive to the maxSteps parameter; with maxSteps=25, the line search might 
+
 const awLineSearch2 = (
   xs0: number[],
   f: (zs: number[]) => number,
@@ -325,7 +329,7 @@ const awLineSearch2 = (
 
   gradfxs0: number[],
   fxs0: number,
-  maxSteps = 25
+  maxSteps = 10
 ) => {
 
   const descentDir = negv(gradfxs0); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
@@ -382,8 +386,8 @@ const awLineSearch2 = (
     const intervalTooSmall = Math.abs(bi - ai) < minInterval;
     const tooManySteps = numUpdates > maxSteps;
 
-    if (intervalTooSmall) { console.log("interval too small"); }
-    if (tooManySteps) { console.log("too many steps"); }
+    if (intervalTooSmall) { console.error("line search stopping: interval too small"); }
+    if (tooManySteps) { console.error("line search stopping: step count exceeded"); }
 
     return intervalTooSmall || tooManySteps;
   }
@@ -660,6 +664,8 @@ const minimizeBasic = (
 ) => {
   // const numSteps = 1;
   // const numSteps = 1e2;
+  // const numSteps = 100;
+  // const numSteps = 1000;
   const numSteps = 10000; // Value for speed testing
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 

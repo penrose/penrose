@@ -2,7 +2,7 @@ import { range } from "lodash";
 import { randFloat } from "./Util";
 import { mapTup2 } from "./EngineUtils";
 import { linePts } from "./OtherUtils";
-import { ops, varOf, constOf, div, mul, cos, sin } from "./Autodiff";
+import { ops, fns, varOf, constOf, add, addN, max, div, mul, cos, sin } from "./Autodiff";
 
 /**
  * Static dictionary of computation functions
@@ -115,12 +115,19 @@ export const compDict = {
     }
   },
 
-  // Only on lists for now, TODO add 2-arg version
-  average: (xs: any): IFloatV<VarAD> => {
+  average2: (x: VarAD, y: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: div(add(x, y), constOf(2.0))
+    };
+  },
+
+  average: (xs: VarAD[]): IFloatV<VarAD> => {
     // TODO: Fill this in
     return {
       tag: "FloatV",
-      contents: constOf(0.0)
+      contents: div(addN(xs), max(constOf(1.0), constOf(xs.length)))
+      // To avoid divide-by-0
     };
   },
 

@@ -135,6 +135,7 @@ compDict =
     , ("mirrorPosX", constComp mirrorPosX)
     , ("mirrorPosY", constComp mirrorPosY)
     , ("average", constComp average)
+    , ("average2", constComp average2)
     , ("len", constComp len)
     , ("lineLength", constComp lineLength)
     , ("lineLeft", constComp lineLeft)
@@ -350,6 +351,7 @@ objFuncDict :: forall a. (Autofloat a) => M.Map String (ObjFnOn a)
 objFuncDict =
   M.fromList
     [ ("near", near)
+    , ("nearPt", nearPt)
     , ("center", center)
     , ("centerX", centerX)
     , ("centerLabel", centerLabel)
@@ -756,6 +758,11 @@ midpointY [GPI l] =
     then let (y0, y1) = (getNum l "startY", getNum l "endY")
          in Val $ FloatV $ (y1 + y0) / 2
     else error "GPI type must be line-like"
+
+average2 :: ConstCompFn
+average2 [Val (FloatV x), Val (FloatV y)] =
+  let res = (x + y) / 2
+  in Val $ FloatV res
 
 average :: ConstCompFn
 average [Val (FloatV x), Val (FloatV y)] =
@@ -1708,6 +1715,10 @@ concat strs = toVal $ concatMap rawString strs
 
 --------------------------------------------------------------------------------
 -- Objective Functions
+
+nearPt :: ObjFn
+nearPt [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)
+
 -- TODO: this should take into account the boundaries / thicknesses of all the objects
 near :: ObjFn
 near [GPI o, Val (FloatV x), Val (FloatV y)] = distsq (getX o, getY o) (x, y)

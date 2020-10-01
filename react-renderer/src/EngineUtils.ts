@@ -316,6 +316,7 @@ export function mapTranslation<T, S>(
           } else if (val.tag === "FGPI") {
             return [prop, { tag: "FGPI", contents: mapGPIExpr(f, val.contents) }];
           } else {
+            console.log(prop, val);
             throw Error("unknown tag on field expr");
           }
         });

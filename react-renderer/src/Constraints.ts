@@ -78,9 +78,11 @@ export const objDict = {
   below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) =>
     squared(sub(sub(top.y.contents, bottom.y.contents), constOfIf(offset))),
 
-  centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): VarAD => {
+  centerLabel: ([t1, s1]: [string, any], [t2, s2]: [string, any], w: number): VarAD => {
 
     if (typesAre([t1, t2], ["Arrow", "Text"])) {
+      const arr = s1;
+      const text1 = s2;
       const mx = div(add(arr.startX.contents, arr.endX.contents), constOf(2.0));
       const my = div(add(arr.startY.contents, arr.endY.contents), constOf(2.0));
 
@@ -90,24 +92,20 @@ export const objDict = {
       return mul(add(lh, rh), constOfIf(w));
 
     } else if (typesAre([t1, t2], ["Rectangle", "Text"])) {
-      // TODO: Fill this in
-      return constOf(0.0);
+      // TODO: This should be applied generically on any two GPIs with a center
+      return objDict.sameCenter([t1, s1], [t2, s2]);
 
     } else throw new Error(`${[t1, t2]} not supported for centerLabel`)
   },
 
-  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset: any) => {
+  near: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 10.0) => {
     // This only works for two objects with centers (x,y)
-    const res = constOfIf(offset);
-    // TODO: Fill this in
-    return constOf(0.0);
+    const res = absVal(ops.vdistsq(fns.center(s1), fns.center(s2)));
+    return sub(res, squared(constOfIf(offset)));
   },
 
   nearPt: ([t1, s1]: [string, any], x: any, y: any) => {
-    // TODO: constOfIf(x), constOfIf(y)
-    // TODO: Fill this in
-    // TODO: Use it in the Style
-    return constOf(0.0);
+    return ops.vdistsq(fns.center(s1), [constOfIf(x), constOfIf(y)]);
   },
 
 };
@@ -173,7 +171,7 @@ export const constrDict = {
       //    in dist (getX r, getY r) (getX c, getY c) - diff + padding
 
       // TODO: `rL` is probably a hack for dimensions
-      const rL = min(s1.w.contents, div(s1.h.contents, varOf(2.0)));
+      const rL = div(min(s1.w.contents, s1.h.contents), varOf(2.0));
       const diff = sub(rL, s2.r.contents);
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       return add(sub(d, diff), offset);
@@ -199,14 +197,21 @@ export const constrDict = {
 
   },
 
-  disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+  disjoint: ([t1, s1]: [string, any], [t2, s2]: [string, any], offset = 5.0) => {
+
     if (t1 === "Circle" && t2 === "Circle") {
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       const o = [s1.r.contents, s2.r.contents, varOf(10.0)];
       return sub(addN(o), d);
+
     } else if (typesAre([t1, t2], ["Text", "Line"])) {
-      // TODO: Fill this in
-      return constOf(0.0);
+      const [text, seg] = [s1, s2];
+      const centerT = fns.center(text);
+      const endpts = linePts(seg);
+      const cp = closestPt_PtSeg(centerT, endpts);
+      const lenApprox = div(text.w.contents, constOf(2.0));
+      return sub(add(lenApprox, constOfIf(offset)), ops.vdist(centerT, cp));
+
     } else throw new Error(`${[t1, t2]} not supported for disjoint`);
   },
 
@@ -287,7 +292,8 @@ export const constrDict = {
       } else {
         // If the point is outside the box, try to get the distance from the point to equal the desired distance
         const dsqRes = dsqBP(pt, rect);
-        return equalHard(dsqRes, squared(offset));
+        const WEIGHT = 1;
+        return mul(constOf(WEIGHT), equalHard(dsqRes, squared(offset)));
       }
 
     } else {
@@ -393,3 +399,22 @@ const sampleSeg = (line: VarAD[][]) => {
 
   return samples;
 };
+
+const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
+  const EPS0 = varOf(10e-3);
+  const lensq = max(ops.vdistsq(start, end), EPS0); // Avoid a divide-by-0 if the line is too small
+
+  // If line seg looks like a point, the calculation just returns (something close to) `v`
+  const dir = ops.vsub(end, start);
+  // t = ((p -: v) `dotv` dir) / lensq -- project vector onto line seg and normalize
+  const t = div(ops.vdot(ops.vsub(pt, start), dir), lensq);
+  // const t1 = t; // TODO
+  const t1 = clamp([0.0, 1.0], t);
+
+  // v +: (t' *: dir) -- walk along vector of line seg
+  return ops.vadd(start, ops.vmul(t1, dir));
+};
+
+const clamp = ([l, r]: number[], x: VarAD): VarAD => {
+  return max(constOf(l), min(constOf(r), x));
+}

@@ -98,7 +98,9 @@ Set x; Point p {
 -- | Mesh Style program
 
 global {
-       global.labelPadding2 = 10.0
+    -- TODO: Behaves badly w/ padding=0.0, 1.0
+    global.labelPadding2 = 5.0
+    -- global.labelPadding2 = 10.0
     global.padding = 20.0
     global.stroke = 2.0
     global.spacing = 150.0
@@ -301,6 +303,15 @@ with SimplicialComplex K {
 }
 
 Vertex v; Edge e
+where InVS(v, K); InES(e, K)
+with SimplicialComplex K {
+     LOCAL.offset = 5.0
+     -- Make sure the label doesn't overlap with any edge
+     -- TODO: this is NaNing
+     -- LOCAL.edgeLabelFn = ensure disjoint(v.text, e.shape, LOCAL.offset)
+}
+
+Vertex v; Edge e
 where DeclaredV(v); InVS(v, K); InES(e, K)
 with SimplicialComplex K {
      LOCAL.offset = 5.0
@@ -329,7 +340,7 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
        color : Colors.black
      }
 
-     e.closeFn = encourage nearPt(e.text, average(v1.xpos, v2.xpos), average(v1.ypos, v2.ypos))
+     e.closeFn = encourage nearPt(e.text, average2(v1.xpos, v2.xpos), average2(v1.ypos, v2.ypos))
      e.nonoverlapFn = ensure disjoint(e.text, e.shape, 5.0)
 
      e.layering1 = v1.shape above e.shape
@@ -345,8 +356,8 @@ with Vertex v1; Vertex v2; SimplicialComplex K {
      override e.shape.color = global.closureColor
 
      e.text = Text {
-       x : average(e.shape.startX, e.shape.endX) + global.padding
-       y : average(e.shape.startY, e.shape.endY) + global.padding
+       x : average2(e.shape.startX, e.shape.endX) + global.padding
+       y : average2(e.shape.startY, e.shape.endY) + global.padding
        -- string : e.label
        string : "\\text{ }" 
        rotation : 0.0

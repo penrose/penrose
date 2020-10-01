@@ -260,12 +260,21 @@ TODO: Port an example that "pushes back" thru a computation?
 
 - Port DomainInterop.sty
   - Port triangle fn O
-  - Port avg fn O
+  - Port avg fn X
     - Port Path type conversion X
   - Support CompApp in pretty-printer X
-  - Port centerLabel for Rect, Text O
-  - Port near for 2 cases -- might need arg overload? O
-    - near
-    - nearPt
-  - Port disjoint(text, line)
+  - Port centerLabel for Rect, Text X
+  - Port near for 2 cases -- might need arg overload? X
+    - near X
+    - nearPt X
+  - Port disjoint(text, line) X
+
+---
+
+On penrose master, mesh-set-domain
+StepUntilConvergence
+- 28 sec
+- 28 sec
+- 37 sec
+
 
