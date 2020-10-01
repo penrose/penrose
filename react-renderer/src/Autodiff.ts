@@ -679,6 +679,15 @@ export const zero: VarAD = constOf(0);
 // to prevent 1/0 (infinity). put it in the denominator
 export const epsd: VarAD = constOf(10e-10);
 
+// Useful grad constants
+// TODO -- But it seems to be bad to use them...
+
+export const zeroG: VarAD = gvarOf(0.0);
+
+export const oneG: VarAD = gvarOf(1.0);
+
+export const negoneG: VarAD = gvarOf(1.0);
+
 export const epsdg: VarAD = gvarOf(10e-10);
 
 // ----------------- Other ops 
