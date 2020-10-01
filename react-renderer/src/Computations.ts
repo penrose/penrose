@@ -1,7 +1,8 @@
 import { range } from "lodash";
 import { randFloat } from "./Util";
 import { Tensor, scalar, stack, cos, sin } from "@tensorflow/tfjs";
-import { dist } from "./Constraints"
+import { dist } from "./Constraints";
+import { mapTup2 } from "./EngineUtils";
 
 /**
  * Static dictionary of computation functions
@@ -58,14 +59,14 @@ export const compDict = {
 
   // TODO: The functions below need to be written in terms of autodiff types
 
-  orientedSquare: (arr1: any, arr2: any, pt: any, len: number) => {
-    throw Error("need to rewrite this function in terms of autodiff types");
+  orientedSquare: (arr1: any, arr2: any, pt: any, len: Tensor): IPathDataV<Tensor> => {
+    // TODO: Write the full function; this is just a fixed path for testing
+    const elems: Elem<Tensor>[] =
+      [{ tag: "Pt", contents: mapTup2(scalar, [100, 100]) },
+      { tag: "Pt", contents: mapTup2(scalar, [200, 200]) },
+      { tag: "Pt", contents: mapTup2(scalar, [300, 150]) }];
+    const path: SubPath<Tensor> = { tag: "Open", contents: elems };
 
-    console.log("orientedSquare", arr1, arr2, pt, len);
-    const elems = [{ tag: "Pt", contents: [100, 100] },
-    { tag: "Pt", contents: [200, 200] },
-    { tag: "Pt", contents: [300, 150] }];
-    const path = { tag: "Open", contents: elems };
     return { tag: "PathDataV", contents: [path] };
   },
 
