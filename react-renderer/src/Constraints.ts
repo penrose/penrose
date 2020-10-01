@@ -20,7 +20,8 @@ import {
   lt,
   ifCond,
   ops,
-  fns
+  fns,
+  epsd
 } from "./Autodiff";
 import { linePts } from "./OtherUtils";
 import { canvasSize } from "./Canvas";
@@ -359,7 +360,7 @@ const centerArrow2 = (arr: any, center1: VarAD[], center2: VarAD[], [o1, o2]: Va
 }
 
 // TODO: Add epsd in denominator?
-const repelPt = (c: VarAD, a: VarAD[], b: VarAD[]) => div(c, ops.vdistsq(a, b));
+const repelPt = (c: VarAD, a: VarAD[], b: VarAD[]) => div(c, add(ops.vdistsq(a, b), epsd));
 
 // ------- Polygon-related helpers
 
@@ -407,7 +408,7 @@ const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
   // If line seg looks like a point, the calculation just returns (something close to) `v`
   const dir = ops.vsub(end, start);
   // t = ((p -: v) `dotv` dir) / lensq -- project vector onto line seg and normalize
-  const t = div(ops.vdot(ops.vsub(pt, start), dir), lensq);
+  const t = div(ops.vdot(ops.vsub(pt, start), dir), add(lensq, epsd));
   // const t1 = t; // TODO
   const t1 = clamp([0.0, 1.0], t);
 

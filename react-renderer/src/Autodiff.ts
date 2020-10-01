@@ -282,16 +282,16 @@ export const sub = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 export const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
-  if (w.val === 0) { throw Error("Divide by 0!"); }
+  if (Math.abs(w.val) < 10e-10) { throw Error("divide by zero"); }
 
   const z = variableAD(v.val / w.val, "/");
   z.isCompNode = isCompNode;
 
-  // grad(v/w) = [1/w, -v/(max(0,w^2)]
+  // grad(v/w) = [1/w, -v/w^2]
   if (isCompNode) {
     const vnode = just(div(gvarOf(1.0), w, false));
     const w0node = squared(w, false);
-    const w1node = max(epsd, w0node, false) // TODO: Hack to avoid NaNs (divide-by-0) -- but it seems to create a compile problem for mesh-set example sample #2
+    // const w1node = max(epsdg, w0node, false); // TODO: Why does this make it get stuck?? w1node is not even used
     const wnode = just(neg(div(v, w0node, false), false));
 
     v.parents.push({ node: z, sensitivityNode: vnode });
@@ -678,6 +678,8 @@ export const zero: VarAD = constOf(0);
 
 // to prevent 1/0 (infinity). put it in the denominator
 export const epsd: VarAD = constOf(10e-10);
+
+export const epsdg: VarAD = gvarOf(10e-10);
 
 // ----------------- Other ops 
 
