@@ -3,7 +3,7 @@ import Log from "./Log";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { ILayer } from "./types";
-import { Step, Resample, converged, initial } from "./packets";
+import { StepUntilConvergence, Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 
 interface IState {
@@ -61,6 +61,9 @@ class App extends React.Component<any, IState> {
   public step = () => {
     this.protocol.sendPacket(Step(1, this.state.data));
   };
+  public stepUntilConvergence = () => {
+    this.protocol.sendPacket(StepUntilConvergence(this.state.data));
+  };
   public resample = async () => {
     const NUM_SAMPLES = 50;
     await this.setState({ processedInitial: false });
@@ -105,6 +108,7 @@ class App extends React.Component<any, IState> {
           downloadSVG={this.downloadSVG}
           autostep={autostep}
           step={this.step}
+          stepUntilConvergence={this.stepUntilConvergence}
           autoStepToggle={this.autoStepToggle}
           resample={this.resample}
           converged={converged(data)}

@@ -12,6 +12,7 @@ interface IProps {
   downloadSVG(): void;
   autoStepToggle(): void;
   step(): void;
+  stepUntilConvergence(): void;
   resample(): void;
 
   toggleLayer(layer: string): void;
@@ -26,6 +27,7 @@ class ButtonBar extends React.Component<IProps> {
       downloadPDF,
       downloadSVG,
       step,
+      stepUntilConvergence,
       resample,
       toggleLayer,
       layers
@@ -36,6 +38,7 @@ class ButtonBar extends React.Component<IProps> {
           autostep {autostep ? "(on)" : "(off)"}
         </button>
         <button onClick={step}>step</button>
+        <button onClick={stepUntilConvergence}>step until convergence</button>
         <button
           onClick={resample}
           disabled={!converged && !initial && autostep}
@@ -62,8 +65,8 @@ class ButtonBar extends React.Component<IProps> {
               converged || !autostep
                 ? "#55de55"
                 : initial
-                ? "#4286f4"
-                : "#ff9d23"
+                  ? "#4286f4"
+                  : "#ff9d23"
           }}
         />
       </div>
