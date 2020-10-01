@@ -373,6 +373,7 @@ with Edge e1; Edge e2; Edge e3; SimplicialComplex K {
      f.color = Colors.silver
 
      f.shape = Curve { 
+        -- As temp hack around furthestFrom, web-runtime assumes triangle is drawn in a consistent order (first point of each line)
      	     pathData : triangle(e1.shape, e2.shape, e3.shape)
 	     strokeWidth : 0.0
 	     fill : setOpacity(f.color, 0.8)

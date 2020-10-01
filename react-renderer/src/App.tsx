@@ -28,6 +28,17 @@ interface ICanvasState {
 
 const socketAddress = "ws://localhost:9160";
 
+const stepUntilConvergence = async (state: State) => {
+  let newState;
+  // Step until convergence w/o rendering
+  while (true) {
+    newState = stepBasic(state!, 1, false);
+    if (newState.params.optStatus.tag === "EPConverged") {
+      break;
+    }
+  }
+};
+
 const stepState = async (state: State, onUpdate: any) => {
   // NOTE: this will greatly improve the performance of the optmizer
   // TODO: where's the right place to put this? Is there an "on start up" place?
@@ -89,6 +100,8 @@ class App extends React.Component<any, ICanvasState> {
     });
     const { autostep } = this.state;
     if (autostep && !converged(canvasState)) {
+      // TODO: Remove; just for profiling
+      // await stepUntilConvergence(this.state.data!);
       await this.step();
     }
   };

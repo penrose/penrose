@@ -1,8 +1,8 @@
-import { range } from "lodash";
+import { range, maxBy } from "lodash";
 import { randFloat } from "./Util";
 import { mapTup2 } from "./EngineUtils";
-import { linePts } from "./OtherUtils";
-import { ops, fns, varOf, constOf, add, addN, max, div, mul, cos, sin } from "./Autodiff";
+import { linePts, getStart, getEnd } from "./OtherUtils";
+import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin } from "./Autodiff";
 
 /**
  * Static dictionary of computation functions
@@ -99,15 +99,21 @@ export const compDict = {
   triangle: ([t1, l1]: any, [t2, l2]: any, [t3, l3]: any): IPathDataV<VarAD> => {
     if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
 
-      // TODO: Fill this in
+      // TODO: revert to the below elems
       const elems: Elem<VarAD>[] =
         [{ tag: "Pt", contents: mapTup2(constOf, [100, 100]) },
         { tag: "Pt", contents: mapTup2(constOf, [200, 200]) },
         { tag: "Pt", contents: mapTup2(constOf, [300, 150]) }];
-      const path: SubPath<VarAD> = { tag: "Open", contents: elems };
+
+      // As temp hack around furthestFrom, assumes triangle is drawn in a consistent order (first point of each line)
+      // const elems: Elem<VarAD>[] =
+      //   [{ tag: "Pt", contents: getStart(l1) as [VarAD, VarAD] },
+      //   { tag: "Pt", contents: getStart(l2) as [VarAD, VarAD] },
+      //   { tag: "Pt", contents: getStart(l3) as [VarAD, VarAD] }];
+
+      const path: SubPath<VarAD> = { tag: "Closed", contents: elems };
 
       return { tag: "PathDataV", contents: [path] };
-
 
     } else {
       console.error([t1, l1], [t2, l2], [t3, l3]);
@@ -123,7 +129,6 @@ export const compDict = {
   },
 
   average: (xs: VarAD[]): IFloatV<VarAD> => {
-    // TODO: Fill this in
     return {
       tag: "FloatV",
       contents: div(addN(xs), max(constOf(1.0), constOf(xs.length)))
@@ -180,3 +185,18 @@ const checkFloat = (x: any) => {
     throw Error("expected float converted to VarAD; got number (int?)");
   }
 }
+
+// returns the point in `candidates` farthest from the points in `pts` (by sum)
+// Note: With the current autodiff system you cannot make discrete choices -- TODO debug why this code doesn't terminate in objective/gradient compilation
+
+// Do not use!
+const furthestFrom = (pts: VarAD[][], candidates: VarAD[][]): VarAD[] => {
+  if (!pts || pts.length === 0) { throw Error("Expected nonempty point list"); }
+
+  const ptDists: [VarAD[], VarAD][] = pts.map((p: VarAD[]) => [p, ops.vsum(candidates.map(pt => ops.vdistsq(p, pt)))]);
+  const res = maxBy(ptDists, ([p, d]: [VarAD[], VarAD]) => numOf(d));
+
+  if (!res || res.length < 2) { throw Error("expected point"); }
+
+  return res[0] as VarAD[];
+};

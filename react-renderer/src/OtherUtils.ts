@@ -169,4 +169,10 @@ export const floatVal = (v: VarAD): ArgVal<VarAD> => ({
 // };
 
 export const linePts = ({ startX, startY, endX, endY }: any): [VarAD[], VarAD[]] =>
-  [[startX.contents, startY.contents], [endX.contents, endY.contents]]
+  [[startX.contents, startY.contents], [endX.contents, endY.contents]];
+
+export const getStart = ({ startX, startY }: any): VarAD[] =>
+  [startX.contents, startY.contents];
+
+export const getEnd = ({ endX, endY }: any): VarAD[] =>
+  [endX.contents, endY.contents];
