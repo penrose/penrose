@@ -60,7 +60,7 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
-const DEBUG_GRAD_DESCENT = false;
+const DEBUG_GRAD_DESCENT = true;
 const USE_LINE_SEARCH = true;
 const BREAK_EARLY = true;
 const DEBUG_LBFGS = false;
@@ -386,8 +386,8 @@ const awLineSearch2 = (
     const intervalTooSmall = Math.abs(bi - ai) < minInterval;
     const tooManySteps = numUpdates > maxSteps;
 
-    if (intervalTooSmall) { console.error("line search stopping: interval too small"); }
-    if (tooManySteps) { console.error("line search stopping: step count exceeded"); }
+    if (intervalTooSmall && DEBUG_LINE_SEARCH) { console.error("line search stopping: interval too small"); }
+    if (tooManySteps && DEBUG_LINE_SEARCH) { console.error("line search stopping: step count exceeded"); }
 
     return intervalTooSmall || tooManySteps;
   }
@@ -413,7 +413,9 @@ const awLineSearch2 = (
     const needToStop = shouldStop(i, a, b);
 
     if (needToStop) {
-      console.error("stopping early: (i, a, b, t) = ", i, a, b, t);
+      if (DEBUG_LINE_SEARCH) {
+        console.error("stopping early: (i, a, b, t) = ", i, a, b, t);
+      }
       break;
     }
 
@@ -666,7 +668,7 @@ const minimizeBasic = (
   // const numSteps = 1e2;
   // const numSteps = 100;
   // const numSteps = 1000;
-  const numSteps = 10000; // Value for speed testing
+  const numSteps = DEBUG_GRAD_DESCENT ? 2 : 10000; // Value for speed testing
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
   console.log("-------------------------------------");
@@ -701,6 +703,8 @@ const minimizeBasic = (
       t = awLineSearch2(xs, f, gradf, gradfxsPreconditioned, fxs); // The search direction is conditioned (here, by an approximation of the inverse of the Hessian at the point)
     }
 
+    const normGrad = normList(gradfxs);
+
     if (DEBUG_GRAD_DESCENT) {
       console.log("-----");
       console.log("i", i);
@@ -708,8 +712,20 @@ const minimizeBasic = (
       console.log("input (xs):", xs);
       console.log("energy (f(xs)):", fxs);
       console.log("grad (grad(f)(xs)):", gradfxs);
-      console.log("|grad f(x)|:", normList(gradfxs));
+      console.log("|grad f(x)|:", normGrad);
       console.log("t", t, "use line search:", USE_LINE_SEARCH);
+    }
+
+    if (isNaN(fxs) || isNaN(normGrad)) {
+      console.error("-----");
+      console.error("i", i);
+      console.error("num steps per display cycle", numSteps);
+      console.error("input (xs):", xs);
+      console.error("energy (f(xs)):", fxs);
+      console.error("grad (grad(f)(xs)):", gradfxs);
+      console.error("|grad f(x)|:", normGrad);
+      console.error("t", t, "use line search:", USE_LINE_SEARCH);
+      throw Error("NaN reached in optimization energy or gradient norm!");
     }
 
     xs = xs.map((x, j) => x - t * gradfxsPreconditioned[j]); // The GD update uses the conditioned search direction, as well as the timestep found by moving along it
