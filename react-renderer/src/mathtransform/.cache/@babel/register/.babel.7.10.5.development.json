@@ -1,0 +1,2107 @@
+{
+  "{\"sourceRoot\":\"/Users/stella/Desktop/parser/\",\"babelrc\":false,\"caller\":{\"name\":\"@babel/register\"},\"cwd\":\"/Users/stella/Desktop/parser\",\"filename\":\"/Users/stella/Desktop/parser/ptest.ts\",\"configFile\":false,\"passPerPreset\":false,\"envName\":\"development\",\"root\":\"/Users/stella/Desktop/parser\",\"plugins\":[{\"key\":\"proposal-class-properties\",\"visitor\":{\"PrivateName\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"_exploded\":true,\"_verified\":true,\"ClassExpression\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-nullish-coalescing-operator\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"LogicalExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-optional-chaining\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"OptionalCallExpression\":{\"enter\":[null]},\"OptionalMemberExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"transform-modules-commonjs\",\"visitor\":{\"CallExpression\":{\"enter\":[null]},\"Program\":{\"exit\":[null]},\"_exploded\":true,\"_verified\":true},\"options\":{}},{\"key\":\"transform-typescript\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"Identifier\":{\"enter\":[null]},\"RestElement\":{\"enter\":[null]},\"Program\":{\"enter\":[null]},\"ExportNamedDeclaration\":{\"enter\":[null]},\"ExportSpecifier\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"TSDeclareFunction\":{\"enter\":[null]},\"TSDeclareMethod\":{\"enter\":[null]},\"VariableDeclaration\":{\"enter\":[null]},\"VariableDeclarator\":{\"enter\":[null]},\"TSIndexSignature\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null,null]},\"TSModuleDeclaration\":{\"enter\":[null]},\"TSInterfaceDeclaration\":{\"enter\":[null]},\"TSTypeAliasDeclaration\":{\"enter\":[null]},\"TSEnumDeclaration\":{\"enter\":[null]},\"TSImportEqualsDeclaration\":{\"enter\":[null]},\"TSExportAssignment\":{\"enter\":[null]},\"TSTypeAssertion\":{\"enter\":[null]},\"TSAsExpression\":{\"enter\":[null]},\"TSNonNullExpression\":{\"enter\":[null]},\"CallExpression\":{\"enter\":[null]},\"OptionalCallExpression\":{\"enter\":[null]},\"NewExpression\":{\"enter\":[null]},\"JSXOpeningElement\":{\"enter\":[null]},\"TaggedTemplateExpression\":{\"enter\":[null]},\"AssignmentPattern\":{\"enter\":[null]},\"ArrayPattern\":{\"enter\":[null]},\"ObjectPattern\":{\"enter\":[null]},\"ClassExpression\":{\"enter\":[null]},\"FunctionDeclaration\":{\"enter\":[null]},\"FunctionExpression\":{\"enter\":[null]},\"ObjectMethod\":{\"enter\":[null]},\"ArrowFunctionExpression\":{\"enter\":[null]},\"ClassMethod\":{\"enter\":[null]},\"ClassPrivateMethod\":{\"enter\":[null]}},\"options\":{\"isTSX\":false}}],\"presets\":[]}:7.10.5": {
+    "metadata": {},
+    "options": {
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "babelrc": false,
+      "caller": {
+        "name": "@babel/register"
+      },
+      "cwd": "/Users/stella/Desktop/parser",
+      "filename": "/Users/stella/Desktop/parser/ptest.ts",
+      "configFile": false,
+      "envName": "development",
+      "root": "/Users/stella/Desktop/parser",
+      "sourceMaps": "both",
+      "ast": false,
+      "passPerPreset": false,
+      "plugins": [
+        {
+          "key": "proposal-class-properties",
+          "visitor": {
+            "PrivateName": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true,
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-nullish-coalescing-operator",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "LogicalExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-optional-chaining",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalMemberExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-modules-commonjs",
+          "visitor": {
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "exit": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-typescript",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "Identifier": {
+              "enter": [
+                null
+              ]
+            },
+            "RestElement": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportNamedDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportSpecifier": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareFunction": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclarator": {
+              "enter": [
+                null
+              ]
+            },
+            "TSIndexSignature": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null,
+                null
+              ]
+            },
+            "TSModuleDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSInterfaceDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAliasDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSEnumDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSImportEqualsDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSExportAssignment": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAssertion": {
+              "enter": [
+                null
+              ]
+            },
+            "TSAsExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "TSNonNullExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "NewExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "JSXOpeningElement": {
+              "enter": [
+                null
+              ]
+            },
+            "TaggedTemplateExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "AssignmentPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrayPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrowFunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassPrivateMethod": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {
+            "isTSX": false
+          }
+        }
+      ],
+      "presets": [],
+      "parserOpts": {
+        "sourceType": "module",
+        "sourceFileName": "/Users/stella/Desktop/parser/ptest.ts",
+        "plugins": [
+          "classProperties",
+          "classPrivateProperties",
+          "nullishCoalescingOperator",
+          "optionalChaining",
+          "typescript",
+          "classProperties",
+          "objectRestSpread"
+        ]
+      },
+      "generatorOpts": {
+        "filename": "/Users/stella/Desktop/parser/ptest.ts",
+        "comments": true,
+        "compact": "auto",
+        "sourceMaps": "both",
+        "sourceRoot": "/Users/stella/Desktop/parser/",
+        "sourceFileName": "ptest.ts"
+      }
+    },
+    "ast": null,
+    "code": "\"use strict\";\n\nmodule.exports = function (fileInfo, api) {\n  const TF2ADBOPS = {\n    \"add\": \"add\",\n    \"sub\": \"sub\",\n    \"mul\": \"mul\",\n    \"div\": \"div\"\n  }; // maps tfjs function to custom ad fn\n\n  const j = api.jscodeshift; // checks if the function passed returns a Tensor\n\n  const returnsTensor = node => {\n    return node.value.returnType && node.value.returnType.typeAnnotation.typeName.name === \"Tensor\";\n  }; // gets the name of a function\n\n\n  const getTfjsFnName = nodeval => {\n    if (nodeval.callee.property.name) return nodeval.callee.property.name;else throw new Error(\"Following node does not have callee.property.name properties: \\n\" + nodeval);\n  }; // is the function predefined as a TFJS method\n\n\n  const isTfjsFn = node => {\n    return node.value.callee.type === 'MemberExpression' && Object.keys(TF2ADBOPS).includes(getTfjsFnName(node.value));\n  }; // const objs = j(fileInfo.source)\n  // .find(j.ArrowFunctionExpression)\n  // .filter((fnNode: any) => returnsTensor(fnNode));\n  // // objs.forEach(function(path: any) {\n  // //     console.log(path.value.body)\n  // // });\n\n\n  const fns = j(fileInfo.source).find(j.CallExpression).filter(node => isTfjsFn(node)); // fns.forEach(function(path: any) {\n  //     console.log(path.value)\n  // });\n  // reorder and rename vars/fns in body of constraint/obj functoins\n\n  const res = fns.replaceWith(nodePath => {\n    const {\n      node\n    } = nodePath;\n    const newCallee = j.identifier(TF2ADBOPS[getTfjsFnName(node)]); // get new name of function\n\n    const newArgs = [node.callee.object, node.arguments[0]]; // reorder arguments\n\n    node.callee = newCallee;\n    node.arguments = newArgs;\n    return node;\n  });\n  return res.toSource();\n};\n\nmodule.exports.parser = 'ts';\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInB0ZXN0LnRzIl0sIm5hbWVzIjpbIm1vZHVsZSIsImV4cG9ydHMiLCJmaWxlSW5mbyIsImFwaSIsIlRGMkFEQk9QUyIsImoiLCJqc2NvZGVzaGlmdCIsInJldHVybnNUZW5zb3IiLCJub2RlIiwidmFsdWUiLCJyZXR1cm5UeXBlIiwidHlwZUFubm90YXRpb24iLCJ0eXBlTmFtZSIsIm5hbWUiLCJnZXRUZmpzRm5OYW1lIiwibm9kZXZhbCIsImNhbGxlZSIsInByb3BlcnR5IiwiRXJyb3IiLCJpc1RmanNGbiIsInR5cGUiLCJPYmplY3QiLCJrZXlzIiwiaW5jbHVkZXMiLCJmbnMiLCJzb3VyY2UiLCJmaW5kIiwiQ2FsbEV4cHJlc3Npb24iLCJmaWx0ZXIiLCJyZXMiLCJyZXBsYWNlV2l0aCIsIm5vZGVQYXRoIiwibmV3Q2FsbGVlIiwiaWRlbnRpZmllciIsIm5ld0FyZ3MiLCJvYmplY3QiLCJhcmd1bWVudHMiLCJ0b1NvdXJjZSIsInBhcnNlciJdLCJtYXBwaW5ncyI6Ijs7QUFBQUEsTUFBTSxDQUFDQyxPQUFQLEdBQWlCLFVBQVNDLFFBQVQsRUFBd0JDLEdBQXhCLEVBQWtDO0FBQy9DLFFBQU1DLFNBQWtDLEdBQUc7QUFDdkMsV0FBTyxLQURnQztBQUV2QyxXQUFPLEtBRmdDO0FBR3ZDLFdBQU8sS0FIZ0M7QUFJdkMsV0FBTztBQUpnQyxHQUEzQyxDQUQrQyxDQU01Qzs7QUFDSCxRQUFNQyxDQUFDLEdBQUdGLEdBQUcsQ0FBQ0csV0FBZCxDQVArQyxDQVEvQzs7QUFDQSxRQUFNQyxhQUFhLEdBQUlDLElBQUQsSUFBeUI7QUFDM0MsV0FBUUEsSUFBSSxDQUFDQyxLQUFMLENBQVdDLFVBQVosSUFBNEJGLElBQUksQ0FBQ0MsS0FBTCxDQUFXQyxVQUFYLENBQXNCQyxjQUF0QixDQUFxQ0MsUUFBckMsQ0FBOENDLElBQTlDLEtBQXVELFFBQTFGO0FBQ0gsR0FGRCxDQVQrQyxDQVkvQzs7O0FBQ0EsUUFBTUMsYUFBYSxHQUFJQyxPQUFELElBQTBCO0FBQzVDLFFBQUlBLE9BQU8sQ0FBQ0MsTUFBUixDQUFlQyxRQUFmLENBQXdCSixJQUE1QixFQUFrQyxPQUFPRSxPQUFPLENBQUNDLE1BQVIsQ0FBZUMsUUFBZixDQUF3QkosSUFBL0IsQ0FBbEMsS0FDSyxNQUFNLElBQUlLLEtBQUosQ0FBVSxxRUFBcUVILE9BQS9FLENBQU47QUFDUixHQUhELENBYitDLENBaUIvQzs7O0FBQ0EsUUFBTUksUUFBUSxHQUFJWCxJQUFELElBQXlCO0FBQ3RDLFdBQVFBLElBQUksQ0FBQ0MsS0FBTCxDQUFXTyxNQUFYLENBQWtCSSxJQUFsQixLQUEyQixrQkFBNUIsSUFBb0RDLE1BQU0sQ0FBQ0MsSUFBUCxDQUFZbEIsU0FBWixFQUF1Qm1CLFFBQXZCLENBQWdDVCxhQUFhLENBQUNOLElBQUksQ0FBQ0MsS0FBTixDQUE3QyxDQUEzRDtBQUNILEdBRkQsQ0FsQitDLENBc0IvQztBQUNBO0FBQ0E7QUFFQTtBQUNBO0FBQ0E7OztBQUVBLFFBQU1lLEdBQUcsR0FBR25CLENBQUMsQ0FBQ0gsUUFBUSxDQUFDdUIsTUFBVixDQUFELENBQ1hDLElBRFcsQ0FDTnJCLENBQUMsQ0FBQ3NCLGNBREksRUFFWEMsTUFGVyxDQUVIcEIsSUFBRCxJQUFlVyxRQUFRLENBQUNYLElBQUQsQ0FGbkIsQ0FBWixDQTlCK0MsQ0FrQy9DO0FBQ0E7QUFDQTtBQUVBOztBQUNBLFFBQU1xQixHQUFHLEdBQUdMLEdBQUcsQ0FBQ00sV0FBSixDQUFpQkMsUUFBRCxJQUFtQjtBQUMzQyxVQUFNO0FBQUN2QixNQUFBQTtBQUFELFFBQVN1QixRQUFmO0FBQ0EsVUFBTUMsU0FBUyxHQUFHM0IsQ0FBQyxDQUFDNEIsVUFBRixDQUFhN0IsU0FBUyxDQUFDVSxhQUFhLENBQUNOLElBQUQsQ0FBZCxDQUF0QixDQUFsQixDQUYyQyxDQUVxQjs7QUFDaEUsVUFBTTBCLE9BQU8sR0FBRyxDQUFDMUIsSUFBSSxDQUFDUSxNQUFMLENBQVltQixNQUFiLEVBQXFCM0IsSUFBSSxDQUFDNEIsU0FBTCxDQUFlLENBQWYsQ0FBckIsQ0FBaEIsQ0FIMkMsQ0FHaUI7O0FBQzVENUIsSUFBQUEsSUFBSSxDQUFDUSxNQUFMLEdBQWNnQixTQUFkO0FBQ0F4QixJQUFBQSxJQUFJLENBQUM0QixTQUFMLEdBQWlCRixPQUFqQjtBQUNBLFdBQU8xQixJQUFQO0FBQ0gsR0FQVyxDQUFaO0FBU0EsU0FBT3FCLEdBQUcsQ0FBQ1EsUUFBSixFQUFQO0FBQ0QsQ0FqREg7O0FBa0RBckMsTUFBTSxDQUFDQyxPQUFQLENBQWVxQyxNQUFmLEdBQXdCLElBQXhCIiwic291cmNlUm9vdCI6Ii9Vc2Vycy9zdGVsbGEvRGVza3RvcC9wYXJzZXIvIiwic291cmNlc0NvbnRlbnQiOlsibW9kdWxlLmV4cG9ydHMgPSBmdW5jdGlvbihmaWxlSW5mbzogYW55LCBhcGk6IGFueSkge1xuICAgIGNvbnN0IFRGMkFEQk9QUyA6IHtba2V5OnN0cmluZ106c3RyaW5nO30gPSB7XG4gICAgICAgIFwiYWRkXCI6IFwiYWRkXCIsXG4gICAgICAgIFwic3ViXCI6IFwic3ViXCIsXG4gICAgICAgIFwibXVsXCI6IFwibXVsXCIsXG4gICAgICAgIFwiZGl2XCI6IFwiZGl2XCJcbiAgICB9OyAvLyBtYXBzIHRmanMgZnVuY3Rpb24gdG8gY3VzdG9tIGFkIGZuXG4gICAgY29uc3QgaiA9IGFwaS5qc2NvZGVzaGlmdDtcbiAgICAvLyBjaGVja3MgaWYgdGhlIGZ1bmN0aW9uIHBhc3NlZCByZXR1cm5zIGEgVGVuc29yXG4gICAgY29uc3QgcmV0dXJuc1RlbnNvciA9IChub2RlOiBhbnkpIDogYm9vbGVhbiA9PiB7XG4gICAgICAgIHJldHVybiAobm9kZS52YWx1ZS5yZXR1cm5UeXBlKSAmJiAobm9kZS52YWx1ZS5yZXR1cm5UeXBlLnR5cGVBbm5vdGF0aW9uLnR5cGVOYW1lLm5hbWUgPT09IFwiVGVuc29yXCIpO1xuICAgIH1cbiAgICAvLyBnZXRzIHRoZSBuYW1lIG9mIGEgZnVuY3Rpb25cbiAgICBjb25zdCBnZXRUZmpzRm5OYW1lID0gKG5vZGV2YWw6IGFueSk6IHN0cmluZyA9PiB7XG4gICAgICAgIGlmIChub2RldmFsLmNhbGxlZS5wcm9wZXJ0eS5uYW1lKSByZXR1cm4gbm9kZXZhbC5jYWxsZWUucHJvcGVydHkubmFtZVxuICAgICAgICBlbHNlIHRocm93IG5ldyBFcnJvcihcIkZvbGxvd2luZyBub2RlIGRvZXMgbm90IGhhdmUgY2FsbGVlLnByb3BlcnR5Lm5hbWUgcHJvcGVydGllczogXFxuXCIgKyBub2RldmFsKTtcbiAgICB9O1xuICAgIC8vIGlzIHRoZSBmdW5jdGlvbiBwcmVkZWZpbmVkIGFzIGEgVEZKUyBtZXRob2RcbiAgICBjb25zdCBpc1RmanNGbiA9IChub2RlOiBhbnkpIDogYm9vbGVhbiA9PiB7XG4gICAgICAgIHJldHVybiAobm9kZS52YWx1ZS5jYWxsZWUudHlwZSA9PT0gJ01lbWJlckV4cHJlc3Npb24nKSAmJiAoT2JqZWN0LmtleXMoVEYyQURCT1BTKS5pbmNsdWRlcyhnZXRUZmpzRm5OYW1lKG5vZGUudmFsdWUpKSk7XG4gICAgfVxuXG4gICAgLy8gY29uc3Qgb2JqcyA9IGooZmlsZUluZm8uc291cmNlKVxuICAgIC8vIC5maW5kKGouQXJyb3dGdW5jdGlvbkV4cHJlc3Npb24pXG4gICAgLy8gLmZpbHRlcigoZm5Ob2RlOiBhbnkpID0+IHJldHVybnNUZW5zb3IoZm5Ob2RlKSk7XG5cbiAgICAvLyAvLyBvYmpzLmZvckVhY2goZnVuY3Rpb24ocGF0aDogYW55KSB7XG4gICAgLy8gLy8gICAgIGNvbnNvbGUubG9nKHBhdGgudmFsdWUuYm9keSlcbiAgICAvLyAvLyB9KTtcblxuICAgIGNvbnN0IGZucyA9IGooZmlsZUluZm8uc291cmNlKVxuICAgIC5maW5kKGouQ2FsbEV4cHJlc3Npb24pXG4gICAgLmZpbHRlcigobm9kZTogYW55KSA9PiBpc1RmanNGbihub2RlKSk7XG5cbiAgICAvLyBmbnMuZm9yRWFjaChmdW5jdGlvbihwYXRoOiBhbnkpIHtcbiAgICAvLyAgICAgY29uc29sZS5sb2cocGF0aC52YWx1ZSlcbiAgICAvLyB9KTtcblxuICAgIC8vIHJlb3JkZXIgYW5kIHJlbmFtZSB2YXJzL2ZucyBpbiBib2R5IG9mIGNvbnN0cmFpbnQvb2JqIGZ1bmN0b2luc1xuICAgIGNvbnN0IHJlcyA9IGZucy5yZXBsYWNlV2l0aCgobm9kZVBhdGg6IGFueSkgPT4ge1xuICAgICAgICBjb25zdCB7bm9kZX0gPSBub2RlUGF0aDtcbiAgICAgICAgY29uc3QgbmV3Q2FsbGVlID0gai5pZGVudGlmaWVyKFRGMkFEQk9QU1tnZXRUZmpzRm5OYW1lKG5vZGUpXSk7IC8vIGdldCBuZXcgbmFtZSBvZiBmdW5jdGlvblxuICAgICAgICBjb25zdCBuZXdBcmdzID0gW25vZGUuY2FsbGVlLm9iamVjdCwgbm9kZS5hcmd1bWVudHNbMF1dOyAgICAvLyByZW9yZGVyIGFyZ3VtZW50c1xuICAgICAgICBub2RlLmNhbGxlZSA9IG5ld0NhbGxlZTtcbiAgICAgICAgbm9kZS5hcmd1bWVudHMgPSBuZXdBcmdzO1xuICAgICAgICByZXR1cm4gbm9kZTtcbiAgICB9KVxuXG4gICAgcmV0dXJuIHJlcy50b1NvdXJjZSgpO1xuICB9O1xubW9kdWxlLmV4cG9ydHMucGFyc2VyID0gJ3RzJztcbiJdfQ==",
+    "map": {
+      "version": 3,
+      "sources": [
+        "ptest.ts"
+      ],
+      "names": [
+        "module",
+        "exports",
+        "fileInfo",
+        "api",
+        "TF2ADBOPS",
+        "j",
+        "jscodeshift",
+        "returnsTensor",
+        "node",
+        "value",
+        "returnType",
+        "typeAnnotation",
+        "typeName",
+        "name",
+        "getTfjsFnName",
+        "nodeval",
+        "callee",
+        "property",
+        "Error",
+        "isTfjsFn",
+        "type",
+        "Object",
+        "keys",
+        "includes",
+        "fns",
+        "source",
+        "find",
+        "CallExpression",
+        "filter",
+        "res",
+        "replaceWith",
+        "nodePath",
+        "newCallee",
+        "identifier",
+        "newArgs",
+        "object",
+        "arguments",
+        "toSource",
+        "parser"
+      ],
+      "mappings": ";;AAAAA,MAAM,CAACC,OAAP,GAAiB,UAASC,QAAT,EAAwBC,GAAxB,EAAkC;AAC/C,QAAMC,SAAkC,GAAG;AACvC,WAAO,KADgC;AAEvC,WAAO,KAFgC;AAGvC,WAAO,KAHgC;AAIvC,WAAO;AAJgC,GAA3C,CAD+C,CAM5C;;AACH,QAAMC,CAAC,GAAGF,GAAG,CAACG,WAAd,CAP+C,CAQ/C;;AACA,QAAMC,aAAa,GAAIC,IAAD,IAAyB;AAC3C,WAAQA,IAAI,CAACC,KAAL,CAAWC,UAAZ,IAA4BF,IAAI,CAACC,KAAL,CAAWC,UAAX,CAAsBC,cAAtB,CAAqCC,QAArC,CAA8CC,IAA9C,KAAuD,QAA1F;AACH,GAFD,CAT+C,CAY/C;;;AACA,QAAMC,aAAa,GAAIC,OAAD,IAA0B;AAC5C,QAAIA,OAAO,CAACC,MAAR,CAAeC,QAAf,CAAwBJ,IAA5B,EAAkC,OAAOE,OAAO,CAACC,MAAR,CAAeC,QAAf,CAAwBJ,IAA/B,CAAlC,KACK,MAAM,IAAIK,KAAJ,CAAU,qEAAqEH,OAA/E,CAAN;AACR,GAHD,CAb+C,CAiB/C;;;AACA,QAAMI,QAAQ,GAAIX,IAAD,IAAyB;AACtC,WAAQA,IAAI,CAACC,KAAL,CAAWO,MAAX,CAAkBI,IAAlB,KAA2B,kBAA5B,IAAoDC,MAAM,CAACC,IAAP,CAAYlB,SAAZ,EAAuBmB,QAAvB,CAAgCT,aAAa,CAACN,IAAI,CAACC,KAAN,CAA7C,CAA3D;AACH,GAFD,CAlB+C,CAsB/C;AACA;AACA;AAEA;AACA;AACA;;;AAEA,QAAMe,GAAG,GAAGnB,CAAC,CAACH,QAAQ,CAACuB,MAAV,CAAD,CACXC,IADW,CACNrB,CAAC,CAACsB,cADI,EAEXC,MAFW,CAEHpB,IAAD,IAAeW,QAAQ,CAACX,IAAD,CAFnB,CAAZ,CA9B+C,CAkC/C;AACA;AACA;AAEA;;AACA,QAAMqB,GAAG,GAAGL,GAAG,CAACM,WAAJ,CAAiBC,QAAD,IAAmB;AAC3C,UAAM;AAACvB,MAAAA;AAAD,QAASuB,QAAf;AACA,UAAMC,SAAS,GAAG3B,CAAC,CAAC4B,UAAF,CAAa7B,SAAS,CAACU,aAAa,CAACN,IAAD,CAAd,CAAtB,CAAlB,CAF2C,CAEqB;;AAChE,UAAM0B,OAAO,GAAG,CAAC1B,IAAI,CAACQ,MAAL,CAAYmB,MAAb,EAAqB3B,IAAI,CAAC4B,SAAL,CAAe,CAAf,CAArB,CAAhB,CAH2C,CAGiB;;AAC5D5B,IAAAA,IAAI,CAACQ,MAAL,GAAcgB,SAAd;AACAxB,IAAAA,IAAI,CAAC4B,SAAL,GAAiBF,OAAjB;AACA,WAAO1B,IAAP;AACH,GAPW,CAAZ;AASA,SAAOqB,GAAG,CAACQ,QAAJ,EAAP;AACD,CAjDH;;AAkDArC,MAAM,CAACC,OAAP,CAAeqC,MAAf,GAAwB,IAAxB",
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "sourcesContent": [
+        "module.exports = function(fileInfo: any, api: any) {\n    const TF2ADBOPS : {[key:string]:string;} = {\n        \"add\": \"add\",\n        \"sub\": \"sub\",\n        \"mul\": \"mul\",\n        \"div\": \"div\"\n    }; // maps tfjs function to custom ad fn\n    const j = api.jscodeshift;\n    // checks if the function passed returns a Tensor\n    const returnsTensor = (node: any) : boolean => {\n        return (node.value.returnType) && (node.value.returnType.typeAnnotation.typeName.name === \"Tensor\");\n    }\n    // gets the name of a function\n    const getTfjsFnName = (nodeval: any): string => {\n        if (nodeval.callee.property.name) return nodeval.callee.property.name\n        else throw new Error(\"Following node does not have callee.property.name properties: \\n\" + nodeval);\n    };\n    // is the function predefined as a TFJS method\n    const isTfjsFn = (node: any) : boolean => {\n        return (node.value.callee.type === 'MemberExpression') && (Object.keys(TF2ADBOPS).includes(getTfjsFnName(node.value)));\n    }\n\n    // const objs = j(fileInfo.source)\n    // .find(j.ArrowFunctionExpression)\n    // .filter((fnNode: any) => returnsTensor(fnNode));\n\n    // // objs.forEach(function(path: any) {\n    // //     console.log(path.value.body)\n    // // });\n\n    const fns = j(fileInfo.source)\n    .find(j.CallExpression)\n    .filter((node: any) => isTfjsFn(node));\n\n    // fns.forEach(function(path: any) {\n    //     console.log(path.value)\n    // });\n\n    // reorder and rename vars/fns in body of constraint/obj functoins\n    const res = fns.replaceWith((nodePath: any) => {\n        const {node} = nodePath;\n        const newCallee = j.identifier(TF2ADBOPS[getTfjsFnName(node)]); // get new name of function\n        const newArgs = [node.callee.object, node.arguments[0]];    // reorder arguments\n        node.callee = newCallee;\n        node.arguments = newArgs;\n        return node;\n    })\n\n    return res.toSource();\n  };\nmodule.exports.parser = 'ts';\n"
+      ]
+    },
+    "sourceType": "script",
+    "mtime": 1595983695887
+  },
+  "{\"sourceRoot\":\"/usr/local/lib/node_modules/jscodeshift/parser/\",\"babelrc\":false,\"caller\":{\"name\":\"@babel/register\"},\"cwd\":\"/Users/stella/Desktop/parser\",\"filename\":\"/usr/local/lib/node_modules/jscodeshift/parser/ts.js\",\"configFile\":false,\"passPerPreset\":false,\"envName\":\"development\",\"root\":\"/Users/stella/Desktop/parser\",\"plugins\":[{\"key\":\"proposal-class-properties\",\"visitor\":{\"PrivateName\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"_exploded\":true,\"_verified\":true,\"ClassExpression\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-nullish-coalescing-operator\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"LogicalExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-optional-chaining\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"OptionalCallExpression\":{\"enter\":[null]},\"OptionalMemberExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"transform-modules-commonjs\",\"visitor\":{\"CallExpression\":{\"enter\":[null]},\"Program\":{\"exit\":[null]},\"_exploded\":true,\"_verified\":true},\"options\":{}}],\"presets\":[]}:7.10.5": {
+    "metadata": {},
+    "options": {
+      "sourceRoot": "/usr/local/lib/node_modules/jscodeshift/parser/",
+      "babelrc": false,
+      "caller": {
+        "name": "@babel/register"
+      },
+      "cwd": "/Users/stella/Desktop/parser",
+      "filename": "/usr/local/lib/node_modules/jscodeshift/parser/ts.js",
+      "configFile": false,
+      "envName": "development",
+      "root": "/Users/stella/Desktop/parser",
+      "sourceMaps": "both",
+      "ast": false,
+      "passPerPreset": false,
+      "plugins": [
+        {
+          "key": "proposal-class-properties",
+          "visitor": {
+            "PrivateName": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true,
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-nullish-coalescing-operator",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "LogicalExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-optional-chaining",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalMemberExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-modules-commonjs",
+          "visitor": {
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "exit": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true
+          },
+          "options": {}
+        }
+      ],
+      "presets": [],
+      "parserOpts": {
+        "sourceType": "module",
+        "sourceFileName": "/usr/local/lib/node_modules/jscodeshift/parser/ts.js",
+        "plugins": [
+          "classProperties",
+          "classPrivateProperties",
+          "nullishCoalescingOperator",
+          "optionalChaining"
+        ]
+      },
+      "generatorOpts": {
+        "filename": "/usr/local/lib/node_modules/jscodeshift/parser/ts.js",
+        "comments": true,
+        "compact": "auto",
+        "sourceMaps": "both",
+        "sourceRoot": "/usr/local/lib/node_modules/jscodeshift/parser/",
+        "sourceFileName": "ts.js"
+      }
+    },
+    "ast": null,
+    "code": "/**\n * Copyright (c) Facebook, Inc. and its affiliates.\n *\n * This source code is licensed under the MIT license found in the\n * LICENSE file in the root directory of this source tree.\n */\n'use strict';\n\nconst babylon = require('@babel/parser');\n\nconst options = require('./tsOptions');\n/**\n * Doesn't accept custom options because babylon should be used directly in\n * that case.\n */\n\n\nmodule.exports = function () {\n  return {\n    parse(code) {\n      return babylon.parse(code, options);\n    }\n\n  };\n};\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInRzLmpzIl0sIm5hbWVzIjpbImJhYnlsb24iLCJyZXF1aXJlIiwib3B0aW9ucyIsIm1vZHVsZSIsImV4cG9ydHMiLCJwYXJzZSIsImNvZGUiXSwibWFwcGluZ3MiOiJBQUNBOzs7Ozs7QUFPQTs7QUFFQSxNQUFNQSxPQUFPLEdBQUdDLE9BQU8sQ0FBQyxlQUFELENBQXZCOztBQUNBLE1BQU1DLE9BQU8sR0FBR0QsT0FBTyxDQUFDLGFBQUQsQ0FBdkI7QUFFQTs7Ozs7O0FBSUFFLE1BQU0sQ0FBQ0MsT0FBUCxHQUFpQixZQUFXO0FBQzFCLFNBQU87QUFDTEMsSUFBQUEsS0FBSyxDQUFDQyxJQUFELEVBQU87QUFDVixhQUFPTixPQUFPLENBQUNLLEtBQVIsQ0FBY0MsSUFBZCxFQUFvQkosT0FBcEIsQ0FBUDtBQUNEOztBQUhJLEdBQVA7QUFLRCxDQU5EIiwic291cmNlUm9vdCI6Ii91c3IvbG9jYWwvbGliL25vZGVfbW9kdWxlcy9qc2NvZGVzaGlmdC9wYXJzZXIvIiwic291cmNlc0NvbnRlbnQiOlsiXG4vKipcbiAqIENvcHlyaWdodCAoYykgRmFjZWJvb2ssIEluYy4gYW5kIGl0cyBhZmZpbGlhdGVzLlxuICpcbiAqIFRoaXMgc291cmNlIGNvZGUgaXMgbGljZW5zZWQgdW5kZXIgdGhlIE1JVCBsaWNlbnNlIGZvdW5kIGluIHRoZVxuICogTElDRU5TRSBmaWxlIGluIHRoZSByb290IGRpcmVjdG9yeSBvZiB0aGlzIHNvdXJjZSB0cmVlLlxuICovXG5cbid1c2Ugc3RyaWN0JztcblxuY29uc3QgYmFieWxvbiA9IHJlcXVpcmUoJ0BiYWJlbC9wYXJzZXInKTtcbmNvbnN0IG9wdGlvbnMgPSByZXF1aXJlKCcuL3RzT3B0aW9ucycpO1xuXG4vKipcbiAqIERvZXNuJ3QgYWNjZXB0IGN1c3RvbSBvcHRpb25zIGJlY2F1c2UgYmFieWxvbiBzaG91bGQgYmUgdXNlZCBkaXJlY3RseSBpblxuICogdGhhdCBjYXNlLlxuICovXG5tb2R1bGUuZXhwb3J0cyA9IGZ1bmN0aW9uKCkge1xuICByZXR1cm4ge1xuICAgIHBhcnNlKGNvZGUpIHtcbiAgICAgIHJldHVybiBiYWJ5bG9uLnBhcnNlKGNvZGUsIG9wdGlvbnMpO1xuICAgIH0sXG4gIH07XG59O1xuIl19",
+    "map": {
+      "version": 3,
+      "sources": [
+        "ts.js"
+      ],
+      "names": [
+        "babylon",
+        "require",
+        "options",
+        "module",
+        "exports",
+        "parse",
+        "code"
+      ],
+      "mappings": "AACA;;;;;;AAOA;;AAEA,MAAMA,OAAO,GAAGC,OAAO,CAAC,eAAD,CAAvB;;AACA,MAAMC,OAAO,GAAGD,OAAO,CAAC,aAAD,CAAvB;AAEA;;;;;;AAIAE,MAAM,CAACC,OAAP,GAAiB,YAAW;AAC1B,SAAO;AACLC,IAAAA,KAAK,CAACC,IAAD,EAAO;AACV,aAAON,OAAO,CAACK,KAAR,CAAcC,IAAd,EAAoBJ,OAApB,CAAP;AACD;;AAHI,GAAP;AAKD,CAND",
+      "sourceRoot": "/usr/local/lib/node_modules/jscodeshift/parser/",
+      "sourcesContent": [
+        "\n/**\n * Copyright (c) Facebook, Inc. and its affiliates.\n *\n * This source code is licensed under the MIT license found in the\n * LICENSE file in the root directory of this source tree.\n */\n\n'use strict';\n\nconst babylon = require('@babel/parser');\nconst options = require('./tsOptions');\n\n/**\n * Doesn't accept custom options because babylon should be used directly in\n * that case.\n */\nmodule.exports = function() {\n  return {\n    parse(code) {\n      return babylon.parse(code, options);\n    },\n  };\n};\n"
+      ]
+    },
+    "sourceType": "script",
+    "mtime": 499162500000
+  },
+  "{\"sourceRoot\":\"/usr/local/lib/node_modules/jscodeshift/parser/\",\"babelrc\":false,\"caller\":{\"name\":\"@babel/register\"},\"cwd\":\"/Users/stella/Desktop/parser\",\"filename\":\"/usr/local/lib/node_modules/jscodeshift/parser/tsOptions.js\",\"configFile\":false,\"passPerPreset\":false,\"envName\":\"development\",\"root\":\"/Users/stella/Desktop/parser\",\"plugins\":[{\"key\":\"proposal-class-properties\",\"visitor\":{\"PrivateName\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"_exploded\":true,\"_verified\":true,\"ClassExpression\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-nullish-coalescing-operator\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"LogicalExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-optional-chaining\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"OptionalCallExpression\":{\"enter\":[null]},\"OptionalMemberExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"transform-modules-commonjs\",\"visitor\":{\"CallExpression\":{\"enter\":[null]},\"Program\":{\"exit\":[null]},\"_exploded\":true,\"_verified\":true},\"options\":{}}],\"presets\":[]}:7.10.5": {
+    "metadata": {},
+    "options": {
+      "sourceRoot": "/usr/local/lib/node_modules/jscodeshift/parser/",
+      "babelrc": false,
+      "caller": {
+        "name": "@babel/register"
+      },
+      "cwd": "/Users/stella/Desktop/parser",
+      "filename": "/usr/local/lib/node_modules/jscodeshift/parser/tsOptions.js",
+      "configFile": false,
+      "envName": "development",
+      "root": "/Users/stella/Desktop/parser",
+      "sourceMaps": "both",
+      "ast": false,
+      "passPerPreset": false,
+      "plugins": [
+        {
+          "key": "proposal-class-properties",
+          "visitor": {
+            "PrivateName": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true,
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-nullish-coalescing-operator",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "LogicalExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-optional-chaining",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalMemberExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-modules-commonjs",
+          "visitor": {
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "exit": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true
+          },
+          "options": {}
+        }
+      ],
+      "presets": [],
+      "parserOpts": {
+        "sourceType": "module",
+        "sourceFileName": "/usr/local/lib/node_modules/jscodeshift/parser/tsOptions.js",
+        "plugins": [
+          "classProperties",
+          "classPrivateProperties",
+          "nullishCoalescingOperator",
+          "optionalChaining"
+        ]
+      },
+      "generatorOpts": {
+        "filename": "/usr/local/lib/node_modules/jscodeshift/parser/tsOptions.js",
+        "comments": true,
+        "compact": "auto",
+        "sourceMaps": "both",
+        "sourceRoot": "/usr/local/lib/node_modules/jscodeshift/parser/",
+        "sourceFileName": "tsOptions.js"
+      }
+    },
+    "ast": null,
+    "code": "/**\n * Copyright (c) Facebook, Inc. and its affiliates.\n *\n * This source code is licensed under the MIT license found in the\n * LICENSE file in the root directory of this source tree.\n */\n'use strict';\n/**\n * Options shared by the TypeScript and TSX parsers.\n */\n\nmodule.exports = {\n  sourceType: 'module',\n  allowImportExportEverywhere: true,\n  allowReturnOutsideFunction: true,\n  startLine: 1,\n  tokens: true,\n  plugins: ['asyncGenerators', 'bigInt', 'classPrivateMethods', 'classPrivateProperties', 'classProperties', 'decorators-legacy', 'doExpressions', 'dynamicImport', 'exportDefaultFrom', 'exportExtensions', 'exportNamespaceFrom', 'functionBind', 'functionSent', 'importMeta', 'nullishCoalescingOperator', 'numericSeparator', 'objectRestSpread', 'optionalCatchBinding', 'optionalChaining', ['pipelineOperator', {\n    proposal: 'minimal'\n  }], 'throwExpressions', 'typescript']\n};\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInRzT3B0aW9ucy5qcyJdLCJuYW1lcyI6WyJtb2R1bGUiLCJleHBvcnRzIiwic291cmNlVHlwZSIsImFsbG93SW1wb3J0RXhwb3J0RXZlcnl3aGVyZSIsImFsbG93UmV0dXJuT3V0c2lkZUZ1bmN0aW9uIiwic3RhcnRMaW5lIiwidG9rZW5zIiwicGx1Z2lucyIsInByb3Bvc2FsIl0sIm1hcHBpbmdzIjoiQUFDQTs7Ozs7O0FBT0E7QUFFQTs7OztBQUdBQSxNQUFNLENBQUNDLE9BQVAsR0FBaUI7QUFDZkMsRUFBQUEsVUFBVSxFQUFFLFFBREc7QUFFZkMsRUFBQUEsMkJBQTJCLEVBQUUsSUFGZDtBQUdmQyxFQUFBQSwwQkFBMEIsRUFBRSxJQUhiO0FBSWZDLEVBQUFBLFNBQVMsRUFBRSxDQUpJO0FBS2ZDLEVBQUFBLE1BQU0sRUFBRSxJQUxPO0FBTWZDLEVBQUFBLE9BQU8sRUFBRSxDQUNQLGlCQURPLEVBRVAsUUFGTyxFQUdQLHFCQUhPLEVBSVAsd0JBSk8sRUFLUCxpQkFMTyxFQU1QLG1CQU5PLEVBT1AsZUFQTyxFQVFQLGVBUk8sRUFTUCxtQkFUTyxFQVVQLGtCQVZPLEVBV1AscUJBWE8sRUFZUCxjQVpPLEVBYVAsY0FiTyxFQWNQLFlBZE8sRUFlUCwyQkFmTyxFQWdCUCxrQkFoQk8sRUFpQlAsa0JBakJPLEVBa0JQLHNCQWxCTyxFQW1CUCxrQkFuQk8sRUFvQlAsQ0FBQyxrQkFBRCxFQUFxQjtBQUFFQyxJQUFBQSxRQUFRLEVBQUU7QUFBWixHQUFyQixDQXBCTyxFQXFCUCxrQkFyQk8sRUFzQlAsWUF0Qk87QUFOTSxDQUFqQiIsInNvdXJjZVJvb3QiOiIvdXNyL2xvY2FsL2xpYi9ub2RlX21vZHVsZXMvanNjb2Rlc2hpZnQvcGFyc2VyLyIsInNvdXJjZXNDb250ZW50IjpbIlxuLyoqXG4gKiBDb3B5cmlnaHQgKGMpIEZhY2Vib29rLCBJbmMuIGFuZCBpdHMgYWZmaWxpYXRlcy5cbiAqXG4gKiBUaGlzIHNvdXJjZSBjb2RlIGlzIGxpY2Vuc2VkIHVuZGVyIHRoZSBNSVQgbGljZW5zZSBmb3VuZCBpbiB0aGVcbiAqIExJQ0VOU0UgZmlsZSBpbiB0aGUgcm9vdCBkaXJlY3Rvcnkgb2YgdGhpcyBzb3VyY2UgdHJlZS5cbiAqL1xuXG4ndXNlIHN0cmljdCc7XG5cbi8qKlxuICogT3B0aW9ucyBzaGFyZWQgYnkgdGhlIFR5cGVTY3JpcHQgYW5kIFRTWCBwYXJzZXJzLlxuICovXG5tb2R1bGUuZXhwb3J0cyA9IHtcbiAgc291cmNlVHlwZTogJ21vZHVsZScsXG4gIGFsbG93SW1wb3J0RXhwb3J0RXZlcnl3aGVyZTogdHJ1ZSxcbiAgYWxsb3dSZXR1cm5PdXRzaWRlRnVuY3Rpb246IHRydWUsXG4gIHN0YXJ0TGluZTogMSxcbiAgdG9rZW5zOiB0cnVlLFxuICBwbHVnaW5zOiBbXG4gICAgJ2FzeW5jR2VuZXJhdG9ycycsXG4gICAgJ2JpZ0ludCcsXG4gICAgJ2NsYXNzUHJpdmF0ZU1ldGhvZHMnLFxuICAgICdjbGFzc1ByaXZhdGVQcm9wZXJ0aWVzJyxcbiAgICAnY2xhc3NQcm9wZXJ0aWVzJyxcbiAgICAnZGVjb3JhdG9ycy1sZWdhY3knLFxuICAgICdkb0V4cHJlc3Npb25zJyxcbiAgICAnZHluYW1pY0ltcG9ydCcsXG4gICAgJ2V4cG9ydERlZmF1bHRGcm9tJyxcbiAgICAnZXhwb3J0RXh0ZW5zaW9ucycsXG4gICAgJ2V4cG9ydE5hbWVzcGFjZUZyb20nLFxuICAgICdmdW5jdGlvbkJpbmQnLFxuICAgICdmdW5jdGlvblNlbnQnLFxuICAgICdpbXBvcnRNZXRhJyxcbiAgICAnbnVsbGlzaENvYWxlc2NpbmdPcGVyYXRvcicsXG4gICAgJ251bWVyaWNTZXBhcmF0b3InLFxuICAgICdvYmplY3RSZXN0U3ByZWFkJyxcbiAgICAnb3B0aW9uYWxDYXRjaEJpbmRpbmcnLFxuICAgICdvcHRpb25hbENoYWluaW5nJyxcbiAgICBbJ3BpcGVsaW5lT3BlcmF0b3InLCB7IHByb3Bvc2FsOiAnbWluaW1hbCcgfV0sXG4gICAgJ3Rocm93RXhwcmVzc2lvbnMnLFxuICAgICd0eXBlc2NyaXB0J1xuICBdLFxufTtcbiJdfQ==",
+    "map": {
+      "version": 3,
+      "sources": [
+        "tsOptions.js"
+      ],
+      "names": [
+        "module",
+        "exports",
+        "sourceType",
+        "allowImportExportEverywhere",
+        "allowReturnOutsideFunction",
+        "startLine",
+        "tokens",
+        "plugins",
+        "proposal"
+      ],
+      "mappings": "AACA;;;;;;AAOA;AAEA;;;;AAGAA,MAAM,CAACC,OAAP,GAAiB;AACfC,EAAAA,UAAU,EAAE,QADG;AAEfC,EAAAA,2BAA2B,EAAE,IAFd;AAGfC,EAAAA,0BAA0B,EAAE,IAHb;AAIfC,EAAAA,SAAS,EAAE,CAJI;AAKfC,EAAAA,MAAM,EAAE,IALO;AAMfC,EAAAA,OAAO,EAAE,CACP,iBADO,EAEP,QAFO,EAGP,qBAHO,EAIP,wBAJO,EAKP,iBALO,EAMP,mBANO,EAOP,eAPO,EAQP,eARO,EASP,mBATO,EAUP,kBAVO,EAWP,qBAXO,EAYP,cAZO,EAaP,cAbO,EAcP,YAdO,EAeP,2BAfO,EAgBP,kBAhBO,EAiBP,kBAjBO,EAkBP,sBAlBO,EAmBP,kBAnBO,EAoBP,CAAC,kBAAD,EAAqB;AAAEC,IAAAA,QAAQ,EAAE;AAAZ,GAArB,CApBO,EAqBP,kBArBO,EAsBP,YAtBO;AANM,CAAjB",
+      "sourceRoot": "/usr/local/lib/node_modules/jscodeshift/parser/",
+      "sourcesContent": [
+        "\n/**\n * Copyright (c) Facebook, Inc. and its affiliates.\n *\n * This source code is licensed under the MIT license found in the\n * LICENSE file in the root directory of this source tree.\n */\n\n'use strict';\n\n/**\n * Options shared by the TypeScript and TSX parsers.\n */\nmodule.exports = {\n  sourceType: 'module',\n  allowImportExportEverywhere: true,\n  allowReturnOutsideFunction: true,\n  startLine: 1,\n  tokens: true,\n  plugins: [\n    'asyncGenerators',\n    'bigInt',\n    'classPrivateMethods',\n    'classPrivateProperties',\n    'classProperties',\n    'decorators-legacy',\n    'doExpressions',\n    'dynamicImport',\n    'exportDefaultFrom',\n    'exportExtensions',\n    'exportNamespaceFrom',\n    'functionBind',\n    'functionSent',\n    'importMeta',\n    'nullishCoalescingOperator',\n    'numericSeparator',\n    'objectRestSpread',\n    'optionalCatchBinding',\n    'optionalChaining',\n    ['pipelineOperator', { proposal: 'minimal' }],\n    'throwExpressions',\n    'typescript'\n  ],\n};\n"
+      ]
+    },
+    "sourceType": "script",
+    "mtime": 499162500000
+  },
+  "{\"sourceRoot\":\"/Users/stella/Desktop/parser/\",\"babelrc\":false,\"caller\":{\"name\":\"@babel/register\"},\"cwd\":\"/Users/stella/Desktop/parser\",\"filename\":\"/Users/stella/Desktop/parser/toTFJS.ts\",\"configFile\":false,\"passPerPreset\":false,\"envName\":\"development\",\"root\":\"/Users/stella/Desktop/parser\",\"plugins\":[{\"key\":\"proposal-class-properties\",\"visitor\":{\"PrivateName\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"_exploded\":true,\"_verified\":true,\"ClassExpression\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-nullish-coalescing-operator\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"LogicalExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-optional-chaining\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"OptionalCallExpression\":{\"enter\":[null]},\"OptionalMemberExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"transform-modules-commonjs\",\"visitor\":{\"CallExpression\":{\"enter\":[null]},\"Program\":{\"exit\":[null]},\"_exploded\":true,\"_verified\":true},\"options\":{}},{\"key\":\"transform-typescript\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"Identifier\":{\"enter\":[null]},\"RestElement\":{\"enter\":[null]},\"Program\":{\"enter\":[null]},\"ExportNamedDeclaration\":{\"enter\":[null]},\"ExportSpecifier\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"TSDeclareFunction\":{\"enter\":[null]},\"TSDeclareMethod\":{\"enter\":[null]},\"VariableDeclaration\":{\"enter\":[null]},\"VariableDeclarator\":{\"enter\":[null]},\"TSIndexSignature\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null,null]},\"TSModuleDeclaration\":{\"enter\":[null]},\"TSInterfaceDeclaration\":{\"enter\":[null]},\"TSTypeAliasDeclaration\":{\"enter\":[null]},\"TSEnumDeclaration\":{\"enter\":[null]},\"TSImportEqualsDeclaration\":{\"enter\":[null]},\"TSExportAssignment\":{\"enter\":[null]},\"TSTypeAssertion\":{\"enter\":[null]},\"TSAsExpression\":{\"enter\":[null]},\"TSNonNullExpression\":{\"enter\":[null]},\"CallExpression\":{\"enter\":[null]},\"OptionalCallExpression\":{\"enter\":[null]},\"NewExpression\":{\"enter\":[null]},\"JSXOpeningElement\":{\"enter\":[null]},\"TaggedTemplateExpression\":{\"enter\":[null]},\"AssignmentPattern\":{\"enter\":[null]},\"ArrayPattern\":{\"enter\":[null]},\"ObjectPattern\":{\"enter\":[null]},\"ClassExpression\":{\"enter\":[null]},\"FunctionDeclaration\":{\"enter\":[null]},\"FunctionExpression\":{\"enter\":[null]},\"ObjectMethod\":{\"enter\":[null]},\"ArrowFunctionExpression\":{\"enter\":[null]},\"ClassMethod\":{\"enter\":[null]},\"ClassPrivateMethod\":{\"enter\":[null]}},\"options\":{\"isTSX\":false}}],\"presets\":[]}:7.10.5": {
+    "metadata": {},
+    "options": {
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "babelrc": false,
+      "caller": {
+        "name": "@babel/register"
+      },
+      "cwd": "/Users/stella/Desktop/parser",
+      "filename": "/Users/stella/Desktop/parser/toTFJS.ts",
+      "configFile": false,
+      "envName": "development",
+      "root": "/Users/stella/Desktop/parser",
+      "sourceMaps": "both",
+      "ast": false,
+      "passPerPreset": false,
+      "plugins": [
+        {
+          "key": "proposal-class-properties",
+          "visitor": {
+            "PrivateName": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true,
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-nullish-coalescing-operator",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "LogicalExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-optional-chaining",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalMemberExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-modules-commonjs",
+          "visitor": {
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "exit": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-typescript",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "Identifier": {
+              "enter": [
+                null
+              ]
+            },
+            "RestElement": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportNamedDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportSpecifier": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareFunction": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclarator": {
+              "enter": [
+                null
+              ]
+            },
+            "TSIndexSignature": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null,
+                null
+              ]
+            },
+            "TSModuleDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSInterfaceDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAliasDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSEnumDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSImportEqualsDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSExportAssignment": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAssertion": {
+              "enter": [
+                null
+              ]
+            },
+            "TSAsExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "TSNonNullExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "NewExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "JSXOpeningElement": {
+              "enter": [
+                null
+              ]
+            },
+            "TaggedTemplateExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "AssignmentPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrayPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrowFunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassPrivateMethod": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {
+            "isTSX": false
+          }
+        }
+      ],
+      "presets": [],
+      "parserOpts": {
+        "sourceType": "module",
+        "sourceFileName": "/Users/stella/Desktop/parser/toTFJS.ts",
+        "plugins": [
+          "classProperties",
+          "classPrivateProperties",
+          "nullishCoalescingOperator",
+          "optionalChaining",
+          "typescript",
+          "classProperties",
+          "objectRestSpread"
+        ]
+      },
+      "generatorOpts": {
+        "filename": "/Users/stella/Desktop/parser/toTFJS.ts",
+        "comments": true,
+        "compact": "auto",
+        "sourceMaps": "both",
+        "sourceRoot": "/Users/stella/Desktop/parser/",
+        "sourceFileName": "toTFJS.ts"
+      }
+    },
+    "ast": null,
+    "code": "\"use strict\";\n\nmodule.exports = function (fileInfo, api) {\n  const BOPS2TFJS = {\n    \"+\": \"add\",\n    \"-\": \"sub\",\n    \"*\": \"mul\",\n    \"/\": \"div\"\n  };\n  const j = api.jscodeshift; // checks if the function passed returns a number and has a transformable op\n\n  const needsTransform = node => {\n    console.log(node.value);\n    return node.value.returnType && node.value.returnType.typeAnnotation.type === \"TSNumberKeyword\" && j(node).find(j.BinaryExpression).size() !== 0;\n  };\n\n  const fns = j(fileInfo.source).find(j.ArrowFunctionExpression).filter(node => needsTransform(node)).find(j.BinaryExpression);\n  const res = fns.replaceWith(nodePath => {\n    const {\n      node\n    } = nodePath;\n    const newMObject = node.left;\n    const newMProp = j.identifier(BOPS2TFJS[node.operator]);\n    const newMExpression = j.memberExpression(newMObject, newMProp);\n    node.type = \"CallExpression\";\n    node.callee = newMExpression;\n    node.arguments = [nodePath.node.right];\n    return node;\n  });\n  return res.toSource();\n};\n\nmodule.exports.parser = 'ts';\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInRvVEZKUy50cyJdLCJuYW1lcyI6WyJtb2R1bGUiLCJleHBvcnRzIiwiZmlsZUluZm8iLCJhcGkiLCJCT1BTMlRGSlMiLCJqIiwianNjb2Rlc2hpZnQiLCJuZWVkc1RyYW5zZm9ybSIsIm5vZGUiLCJjb25zb2xlIiwibG9nIiwidmFsdWUiLCJyZXR1cm5UeXBlIiwidHlwZUFubm90YXRpb24iLCJ0eXBlIiwiZmluZCIsIkJpbmFyeUV4cHJlc3Npb24iLCJzaXplIiwiZm5zIiwic291cmNlIiwiQXJyb3dGdW5jdGlvbkV4cHJlc3Npb24iLCJmaWx0ZXIiLCJyZXMiLCJyZXBsYWNlV2l0aCIsIm5vZGVQYXRoIiwibmV3TU9iamVjdCIsImxlZnQiLCJuZXdNUHJvcCIsImlkZW50aWZpZXIiLCJvcGVyYXRvciIsIm5ld01FeHByZXNzaW9uIiwibWVtYmVyRXhwcmVzc2lvbiIsImNhbGxlZSIsImFyZ3VtZW50cyIsInJpZ2h0IiwidG9Tb3VyY2UiLCJwYXJzZXIiXSwibWFwcGluZ3MiOiI7O0FBQUFBLE1BQU0sQ0FBQ0MsT0FBUCxHQUFpQixVQUFTQyxRQUFULEVBQXdCQyxHQUF4QixFQUFrQztBQUMvQyxRQUFNQyxTQUFrQyxHQUFHO0FBQ3ZDLFNBQUssS0FEa0M7QUFFdkMsU0FBSyxLQUZrQztBQUd2QyxTQUFLLEtBSGtDO0FBSXZDLFNBQUs7QUFKa0MsR0FBM0M7QUFNQSxRQUFNQyxDQUFDLEdBQUdGLEdBQUcsQ0FBQ0csV0FBZCxDQVArQyxDQVEvQzs7QUFDQSxRQUFNQyxjQUFjLEdBQUlDLElBQUQsSUFBeUI7QUFDNUNDLElBQUFBLE9BQU8sQ0FBQ0MsR0FBUixDQUFZRixJQUFJLENBQUNHLEtBQWpCO0FBQ0EsV0FBUUgsSUFBSSxDQUFDRyxLQUFMLENBQVdDLFVBQVosSUFBNEJKLElBQUksQ0FBQ0csS0FBTCxDQUFXQyxVQUFYLENBQXNCQyxjQUF0QixDQUFxQ0MsSUFBckMsS0FBOEMsaUJBQTFFLElBQ05ULENBQUMsQ0FBQ0csSUFBRCxDQUFELENBQVFPLElBQVIsQ0FBYVYsQ0FBQyxDQUFDVyxnQkFBZixFQUFpQ0MsSUFBakMsT0FBNEMsQ0FEN0M7QUFFSCxHQUpEOztBQUtBLFFBQU1DLEdBQUcsR0FBR2IsQ0FBQyxDQUFDSCxRQUFRLENBQUNpQixNQUFWLENBQUQsQ0FDWEosSUFEVyxDQUNOVixDQUFDLENBQUNlLHVCQURJLEVBRVhDLE1BRlcsQ0FFSGIsSUFBRCxJQUFlRCxjQUFjLENBQUNDLElBQUQsQ0FGekIsRUFFaUNPLElBRmpDLENBRXNDVixDQUFDLENBQUNXLGdCQUZ4QyxDQUFaO0FBSUEsUUFBTU0sR0FBRyxHQUFHSixHQUFHLENBQUNLLFdBQUosQ0FBaUJDLFFBQUQsSUFBbUI7QUFDM0MsVUFBTTtBQUFDaEIsTUFBQUE7QUFBRCxRQUFTZ0IsUUFBZjtBQUNBLFVBQU1DLFVBQVUsR0FBR2pCLElBQUksQ0FBQ2tCLElBQXhCO0FBQ0EsVUFBTUMsUUFBUSxHQUFHdEIsQ0FBQyxDQUFDdUIsVUFBRixDQUFheEIsU0FBUyxDQUFDSSxJQUFJLENBQUNxQixRQUFOLENBQXRCLENBQWpCO0FBQ0EsVUFBTUMsY0FBYyxHQUFHekIsQ0FBQyxDQUFDMEIsZ0JBQUYsQ0FBbUJOLFVBQW5CLEVBQStCRSxRQUEvQixDQUF2QjtBQUNBbkIsSUFBQUEsSUFBSSxDQUFDTSxJQUFMLEdBQVksZ0JBQVo7QUFDQU4sSUFBQUEsSUFBSSxDQUFDd0IsTUFBTCxHQUFjRixjQUFkO0FBQ0F0QixJQUFBQSxJQUFJLENBQUN5QixTQUFMLEdBQWlCLENBQUNULFFBQVEsQ0FBQ2hCLElBQVQsQ0FBYzBCLEtBQWYsQ0FBakI7QUFDQSxXQUFPMUIsSUFBUDtBQUVILEdBVlcsQ0FBWjtBQVlBLFNBQU9jLEdBQUcsQ0FBQ2EsUUFBSixFQUFQO0FBQ0QsQ0EvQkg7O0FBZ0NBbkMsTUFBTSxDQUFDQyxPQUFQLENBQWVtQyxNQUFmLEdBQXdCLElBQXhCIiwic291cmNlUm9vdCI6Ii9Vc2Vycy9zdGVsbGEvRGVza3RvcC9wYXJzZXIvIiwic291cmNlc0NvbnRlbnQiOlsibW9kdWxlLmV4cG9ydHMgPSBmdW5jdGlvbihmaWxlSW5mbzogYW55LCBhcGk6IGFueSkge1xuICAgIGNvbnN0IEJPUFMyVEZKUyA6IHtba2V5OnN0cmluZ106c3RyaW5nO30gPSB7XG4gICAgICAgIFwiK1wiOiBcImFkZFwiLFxuICAgICAgICBcIi1cIjogXCJzdWJcIixcbiAgICAgICAgXCIqXCI6IFwibXVsXCIsXG4gICAgICAgIFwiL1wiOiBcImRpdlwiXG4gICAgfTsgXG4gICAgY29uc3QgaiA9IGFwaS5qc2NvZGVzaGlmdDtcbiAgICAvLyBjaGVja3MgaWYgdGhlIGZ1bmN0aW9uIHBhc3NlZCByZXR1cm5zIGEgbnVtYmVyIGFuZCBoYXMgYSB0cmFuc2Zvcm1hYmxlIG9wXG4gICAgY29uc3QgbmVlZHNUcmFuc2Zvcm0gPSAobm9kZTogYW55KSA6IGJvb2xlYW4gPT4ge1xuICAgICAgICBjb25zb2xlLmxvZyhub2RlLnZhbHVlKTtcbiAgICAgICAgcmV0dXJuIChub2RlLnZhbHVlLnJldHVyblR5cGUpICYmIChub2RlLnZhbHVlLnJldHVyblR5cGUudHlwZUFubm90YXRpb24udHlwZSA9PT0gXCJUU051bWJlcktleXdvcmRcIikgJiYgXG4gICAgICAgIChqKG5vZGUpLmZpbmQoai5CaW5hcnlFeHByZXNzaW9uKS5zaXplKCkgIT09IDApO1xuICAgIH1cbiAgICBjb25zdCBmbnMgPSBqKGZpbGVJbmZvLnNvdXJjZSlcbiAgICAuZmluZChqLkFycm93RnVuY3Rpb25FeHByZXNzaW9uKVxuICAgIC5maWx0ZXIoKG5vZGU6IGFueSkgPT4gbmVlZHNUcmFuc2Zvcm0obm9kZSkpLmZpbmQoai5CaW5hcnlFeHByZXNzaW9uKTtcbiAgICBcbiAgICBjb25zdCByZXMgPSBmbnMucmVwbGFjZVdpdGgoKG5vZGVQYXRoOiBhbnkpID0+IHtcbiAgICAgICAgY29uc3Qge25vZGV9ID0gbm9kZVBhdGg7XG4gICAgICAgIGNvbnN0IG5ld01PYmplY3QgPSBub2RlLmxlZnQ7XG4gICAgICAgIGNvbnN0IG5ld01Qcm9wID0gai5pZGVudGlmaWVyKEJPUFMyVEZKU1tub2RlLm9wZXJhdG9yXSk7XG4gICAgICAgIGNvbnN0IG5ld01FeHByZXNzaW9uID0gai5tZW1iZXJFeHByZXNzaW9uKG5ld01PYmplY3QsIG5ld01Qcm9wKTtcbiAgICAgICAgbm9kZS50eXBlID0gXCJDYWxsRXhwcmVzc2lvblwiXG4gICAgICAgIG5vZGUuY2FsbGVlID0gbmV3TUV4cHJlc3Npb247XG4gICAgICAgIG5vZGUuYXJndW1lbnRzID0gW25vZGVQYXRoLm5vZGUucmlnaHRdO1xuICAgICAgICByZXR1cm4gbm9kZTtcblxuICAgIH0pXG5cbiAgICByZXR1cm4gcmVzLnRvU291cmNlKCk7XG4gIH07XG5tb2R1bGUuZXhwb3J0cy5wYXJzZXIgPSAndHMnO1xuIl19",
+    "map": {
+      "version": 3,
+      "sources": [
+        "toTFJS.ts"
+      ],
+      "names": [
+        "module",
+        "exports",
+        "fileInfo",
+        "api",
+        "BOPS2TFJS",
+        "j",
+        "jscodeshift",
+        "needsTransform",
+        "node",
+        "console",
+        "log",
+        "value",
+        "returnType",
+        "typeAnnotation",
+        "type",
+        "find",
+        "BinaryExpression",
+        "size",
+        "fns",
+        "source",
+        "ArrowFunctionExpression",
+        "filter",
+        "res",
+        "replaceWith",
+        "nodePath",
+        "newMObject",
+        "left",
+        "newMProp",
+        "identifier",
+        "operator",
+        "newMExpression",
+        "memberExpression",
+        "callee",
+        "arguments",
+        "right",
+        "toSource",
+        "parser"
+      ],
+      "mappings": ";;AAAAA,MAAM,CAACC,OAAP,GAAiB,UAASC,QAAT,EAAwBC,GAAxB,EAAkC;AAC/C,QAAMC,SAAkC,GAAG;AACvC,SAAK,KADkC;AAEvC,SAAK,KAFkC;AAGvC,SAAK,KAHkC;AAIvC,SAAK;AAJkC,GAA3C;AAMA,QAAMC,CAAC,GAAGF,GAAG,CAACG,WAAd,CAP+C,CAQ/C;;AACA,QAAMC,cAAc,GAAIC,IAAD,IAAyB;AAC5CC,IAAAA,OAAO,CAACC,GAAR,CAAYF,IAAI,CAACG,KAAjB;AACA,WAAQH,IAAI,CAACG,KAAL,CAAWC,UAAZ,IAA4BJ,IAAI,CAACG,KAAL,CAAWC,UAAX,CAAsBC,cAAtB,CAAqCC,IAArC,KAA8C,iBAA1E,IACNT,CAAC,CAACG,IAAD,CAAD,CAAQO,IAAR,CAAaV,CAAC,CAACW,gBAAf,EAAiCC,IAAjC,OAA4C,CAD7C;AAEH,GAJD;;AAKA,QAAMC,GAAG,GAAGb,CAAC,CAACH,QAAQ,CAACiB,MAAV,CAAD,CACXJ,IADW,CACNV,CAAC,CAACe,uBADI,EAEXC,MAFW,CAEHb,IAAD,IAAeD,cAAc,CAACC,IAAD,CAFzB,EAEiCO,IAFjC,CAEsCV,CAAC,CAACW,gBAFxC,CAAZ;AAIA,QAAMM,GAAG,GAAGJ,GAAG,CAACK,WAAJ,CAAiBC,QAAD,IAAmB;AAC3C,UAAM;AAAChB,MAAAA;AAAD,QAASgB,QAAf;AACA,UAAMC,UAAU,GAAGjB,IAAI,CAACkB,IAAxB;AACA,UAAMC,QAAQ,GAAGtB,CAAC,CAACuB,UAAF,CAAaxB,SAAS,CAACI,IAAI,CAACqB,QAAN,CAAtB,CAAjB;AACA,UAAMC,cAAc,GAAGzB,CAAC,CAAC0B,gBAAF,CAAmBN,UAAnB,EAA+BE,QAA/B,CAAvB;AACAnB,IAAAA,IAAI,CAACM,IAAL,GAAY,gBAAZ;AACAN,IAAAA,IAAI,CAACwB,MAAL,GAAcF,cAAd;AACAtB,IAAAA,IAAI,CAACyB,SAAL,GAAiB,CAACT,QAAQ,CAAChB,IAAT,CAAc0B,KAAf,CAAjB;AACA,WAAO1B,IAAP;AAEH,GAVW,CAAZ;AAYA,SAAOc,GAAG,CAACa,QAAJ,EAAP;AACD,CA/BH;;AAgCAnC,MAAM,CAACC,OAAP,CAAemC,MAAf,GAAwB,IAAxB",
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "sourcesContent": [
+        "module.exports = function(fileInfo: any, api: any) {\n    const BOPS2TFJS : {[key:string]:string;} = {\n        \"+\": \"add\",\n        \"-\": \"sub\",\n        \"*\": \"mul\",\n        \"/\": \"div\"\n    }; \n    const j = api.jscodeshift;\n    // checks if the function passed returns a number and has a transformable op\n    const needsTransform = (node: any) : boolean => {\n        console.log(node.value);\n        return (node.value.returnType) && (node.value.returnType.typeAnnotation.type === \"TSNumberKeyword\") && \n        (j(node).find(j.BinaryExpression).size() !== 0);\n    }\n    const fns = j(fileInfo.source)\n    .find(j.ArrowFunctionExpression)\n    .filter((node: any) => needsTransform(node)).find(j.BinaryExpression);\n    \n    const res = fns.replaceWith((nodePath: any) => {\n        const {node} = nodePath;\n        const newMObject = node.left;\n        const newMProp = j.identifier(BOPS2TFJS[node.operator]);\n        const newMExpression = j.memberExpression(newMObject, newMProp);\n        node.type = \"CallExpression\"\n        node.callee = newMExpression;\n        node.arguments = [nodePath.node.right];\n        return node;\n\n    })\n\n    return res.toSource();\n  };\nmodule.exports.parser = 'ts';\n"
+      ]
+    },
+    "sourceType": "script",
+    "mtime": 1598558926217
+  },
+  "{\"sourceRoot\":\"/Users/stella/Desktop/parser/\",\"babelrc\":false,\"caller\":{\"name\":\"@babel/register\"},\"cwd\":\"/Users/stella/Desktop/parser\",\"filename\":\"/Users/stella/Desktop/parser/commenttest.ts\",\"configFile\":false,\"passPerPreset\":false,\"envName\":\"development\",\"root\":\"/Users/stella/Desktop/parser\",\"plugins\":[{\"key\":\"proposal-class-properties\",\"visitor\":{\"PrivateName\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"_exploded\":true,\"_verified\":true,\"ClassExpression\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-nullish-coalescing-operator\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"LogicalExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-optional-chaining\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"OptionalCallExpression\":{\"enter\":[null]},\"OptionalMemberExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"transform-modules-commonjs\",\"visitor\":{\"CallExpression\":{\"enter\":[null]},\"Program\":{\"exit\":[null]},\"_exploded\":true,\"_verified\":true},\"options\":{}},{\"key\":\"transform-typescript\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"Identifier\":{\"enter\":[null]},\"RestElement\":{\"enter\":[null]},\"Program\":{\"enter\":[null]},\"ExportNamedDeclaration\":{\"enter\":[null]},\"ExportSpecifier\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"TSDeclareFunction\":{\"enter\":[null]},\"TSDeclareMethod\":{\"enter\":[null]},\"VariableDeclaration\":{\"enter\":[null]},\"VariableDeclarator\":{\"enter\":[null]},\"TSIndexSignature\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null,null]},\"TSModuleDeclaration\":{\"enter\":[null]},\"TSInterfaceDeclaration\":{\"enter\":[null]},\"TSTypeAliasDeclaration\":{\"enter\":[null]},\"TSEnumDeclaration\":{\"enter\":[null]},\"TSImportEqualsDeclaration\":{\"enter\":[null]},\"TSExportAssignment\":{\"enter\":[null]},\"TSTypeAssertion\":{\"enter\":[null]},\"TSAsExpression\":{\"enter\":[null]},\"TSNonNullExpression\":{\"enter\":[null]},\"CallExpression\":{\"enter\":[null]},\"OptionalCallExpression\":{\"enter\":[null]},\"NewExpression\":{\"enter\":[null]},\"JSXOpeningElement\":{\"enter\":[null]},\"TaggedTemplateExpression\":{\"enter\":[null]},\"AssignmentPattern\":{\"enter\":[null]},\"ArrayPattern\":{\"enter\":[null]},\"ObjectPattern\":{\"enter\":[null]},\"ClassExpression\":{\"enter\":[null]},\"FunctionDeclaration\":{\"enter\":[null]},\"FunctionExpression\":{\"enter\":[null]},\"ObjectMethod\":{\"enter\":[null]},\"ArrowFunctionExpression\":{\"enter\":[null]},\"ClassMethod\":{\"enter\":[null]},\"ClassPrivateMethod\":{\"enter\":[null]}},\"options\":{\"isTSX\":false}}],\"presets\":[]}:7.10.5": {
+    "metadata": {},
+    "options": {
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "babelrc": false,
+      "caller": {
+        "name": "@babel/register"
+      },
+      "cwd": "/Users/stella/Desktop/parser",
+      "filename": "/Users/stella/Desktop/parser/commenttest.ts",
+      "configFile": false,
+      "envName": "development",
+      "root": "/Users/stella/Desktop/parser",
+      "sourceMaps": "both",
+      "ast": false,
+      "passPerPreset": false,
+      "plugins": [
+        {
+          "key": "proposal-class-properties",
+          "visitor": {
+            "PrivateName": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true,
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-nullish-coalescing-operator",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "LogicalExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-optional-chaining",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalMemberExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-modules-commonjs",
+          "visitor": {
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "exit": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-typescript",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "Identifier": {
+              "enter": [
+                null
+              ]
+            },
+            "RestElement": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportNamedDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportSpecifier": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareFunction": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclarator": {
+              "enter": [
+                null
+              ]
+            },
+            "TSIndexSignature": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null,
+                null
+              ]
+            },
+            "TSModuleDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSInterfaceDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAliasDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSEnumDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSImportEqualsDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSExportAssignment": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAssertion": {
+              "enter": [
+                null
+              ]
+            },
+            "TSAsExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "TSNonNullExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "NewExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "JSXOpeningElement": {
+              "enter": [
+                null
+              ]
+            },
+            "TaggedTemplateExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "AssignmentPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrayPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrowFunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassPrivateMethod": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {
+            "isTSX": false
+          }
+        }
+      ],
+      "presets": [],
+      "parserOpts": {
+        "sourceType": "module",
+        "sourceFileName": "/Users/stella/Desktop/parser/commenttest.ts",
+        "plugins": [
+          "classProperties",
+          "classPrivateProperties",
+          "nullishCoalescingOperator",
+          "optionalChaining",
+          "typescript",
+          "classProperties",
+          "objectRestSpread"
+        ]
+      },
+      "generatorOpts": {
+        "filename": "/Users/stella/Desktop/parser/commenttest.ts",
+        "comments": true,
+        "compact": "auto",
+        "sourceMaps": "both",
+        "sourceRoot": "/Users/stella/Desktop/parser/",
+        "sourceFileName": "commenttest.ts"
+      }
+    },
+    "ast": null,
+    "code": "\"use strict\";\n\nmodule.exports = function (fileInfo, api) {\n  const BOPS2TFJS = {\n    \"+\": \"add\",\n    \"-\": \"sub\",\n    \"*\": \"mul\",\n    \"/\": \"div\"\n  };\n  const j = api.jscodeshift; // checks if the function passed returns a number and has a transformable op\n\n  const isMarked = comment => comment.value.trim() === \"mtrans\";\n\n  const needsTransform = nodePath => {\n    return nodePath.value.leadingComments && nodePath.value.leadingComments.some(isMarked);\n  };\n\n  const xs = j(fileInfo.source).find(j.Node).filter(nodePath => needsTransform(nodePath));\n  xs.forEach(nodepath => console.log(nodepath.value));\n};\n\nmodule.exports.parser = 'ts';\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImNvbW1lbnR0ZXN0LnRzIl0sIm5hbWVzIjpbIm1vZHVsZSIsImV4cG9ydHMiLCJmaWxlSW5mbyIsImFwaSIsIkJPUFMyVEZKUyIsImoiLCJqc2NvZGVzaGlmdCIsImlzTWFya2VkIiwiY29tbWVudCIsInZhbHVlIiwidHJpbSIsIm5lZWRzVHJhbnNmb3JtIiwibm9kZVBhdGgiLCJsZWFkaW5nQ29tbWVudHMiLCJzb21lIiwieHMiLCJzb3VyY2UiLCJmaW5kIiwiTm9kZSIsImZpbHRlciIsImZvckVhY2giLCJub2RlcGF0aCIsImNvbnNvbGUiLCJsb2ciLCJwYXJzZXIiXSwibWFwcGluZ3MiOiI7O0FBQUFBLE1BQU0sQ0FBQ0MsT0FBUCxHQUFpQixVQUFTQyxRQUFULEVBQXdCQyxHQUF4QixFQUFrQztBQUMvQyxRQUFNQyxTQUFrQyxHQUFHO0FBQ3ZDLFNBQUssS0FEa0M7QUFFdkMsU0FBSyxLQUZrQztBQUd2QyxTQUFLLEtBSGtDO0FBSXZDLFNBQUs7QUFKa0MsR0FBM0M7QUFNQSxRQUFNQyxDQUFDLEdBQUdGLEdBQUcsQ0FBQ0csV0FBZCxDQVArQyxDQVEvQzs7QUFDQSxRQUFNQyxRQUFRLEdBQUlDLE9BQUQsSUFBa0JBLE9BQU8sQ0FBQ0MsS0FBUixDQUFjQyxJQUFkLE9BQXlCLFFBQTVEOztBQUNBLFFBQU1DLGNBQWMsR0FBSUMsUUFBRCxJQUE2QjtBQUNoRCxXQUFRQSxRQUFRLENBQUNILEtBQVQsQ0FBZUksZUFBaEIsSUFBcUNELFFBQVEsQ0FBQ0gsS0FBVCxDQUFlSSxlQUFmLENBQStCQyxJQUEvQixDQUFvQ1AsUUFBcEMsQ0FBNUM7QUFDSCxHQUZEOztBQUdBLFFBQU1RLEVBQUUsR0FBR1YsQ0FBQyxDQUFDSCxRQUFRLENBQUNjLE1BQVYsQ0FBRCxDQUFtQkMsSUFBbkIsQ0FBd0JaLENBQUMsQ0FBQ2EsSUFBMUIsRUFBZ0NDLE1BQWhDLENBQXdDUCxRQUFELElBQW1CRCxjQUFjLENBQUNDLFFBQUQsQ0FBeEUsQ0FBWDtBQUVBRyxFQUFBQSxFQUFFLENBQUNLLE9BQUgsQ0FBWUMsUUFBRCxJQUFtQkMsT0FBTyxDQUFDQyxHQUFSLENBQVlGLFFBQVEsQ0FBQ1osS0FBckIsQ0FBOUI7QUFDRCxDQWhCSDs7QUFpQkFULE1BQU0sQ0FBQ0MsT0FBUCxDQUFldUIsTUFBZixHQUF3QixJQUF4QiIsInNvdXJjZVJvb3QiOiIvVXNlcnMvc3RlbGxhL0Rlc2t0b3AvcGFyc2VyLyIsInNvdXJjZXNDb250ZW50IjpbIm1vZHVsZS5leHBvcnRzID0gZnVuY3Rpb24oZmlsZUluZm86IGFueSwgYXBpOiBhbnkpIHtcbiAgICBjb25zdCBCT1BTMlRGSlMgOiB7W2tleTpzdHJpbmddOnN0cmluZzt9ID0ge1xuICAgICAgICBcIitcIjogXCJhZGRcIixcbiAgICAgICAgXCItXCI6IFwic3ViXCIsXG4gICAgICAgIFwiKlwiOiBcIm11bFwiLFxuICAgICAgICBcIi9cIjogXCJkaXZcIlxuICAgIH07IFxuICAgIGNvbnN0IGogPSBhcGkuanNjb2Rlc2hpZnQ7XG4gICAgLy8gY2hlY2tzIGlmIHRoZSBmdW5jdGlvbiBwYXNzZWQgcmV0dXJucyBhIG51bWJlciBhbmQgaGFzIGEgdHJhbnNmb3JtYWJsZSBvcFxuICAgIGNvbnN0IGlzTWFya2VkID0gKGNvbW1lbnQ6IGFueSkgPT4gY29tbWVudC52YWx1ZS50cmltKCkgPT09IFwibXRyYW5zXCI7XG4gICAgY29uc3QgbmVlZHNUcmFuc2Zvcm0gPSAobm9kZVBhdGg6IGFueSkgOiBib29sZWFuID0+IHtcbiAgICAgICAgcmV0dXJuIChub2RlUGF0aC52YWx1ZS5sZWFkaW5nQ29tbWVudHMpICYmIChub2RlUGF0aC52YWx1ZS5sZWFkaW5nQ29tbWVudHMuc29tZShpc01hcmtlZCkpO1xuICAgIH1cbiAgICBjb25zdCB4cyA9IGooZmlsZUluZm8uc291cmNlKS5maW5kKGouTm9kZSkuZmlsdGVyKChub2RlUGF0aDogYW55KSA9PiBuZWVkc1RyYW5zZm9ybShub2RlUGF0aCkpO1xuXG4gICAgeHMuZm9yRWFjaCgobm9kZXBhdGg6IGFueSkgPT4gY29uc29sZS5sb2cobm9kZXBhdGgudmFsdWUpKTtcbiAgfTtcbm1vZHVsZS5leHBvcnRzLnBhcnNlciA9ICd0cyc7XG4iXX0=",
+    "map": {
+      "version": 3,
+      "sources": [
+        "commenttest.ts"
+      ],
+      "names": [
+        "module",
+        "exports",
+        "fileInfo",
+        "api",
+        "BOPS2TFJS",
+        "j",
+        "jscodeshift",
+        "isMarked",
+        "comment",
+        "value",
+        "trim",
+        "needsTransform",
+        "nodePath",
+        "leadingComments",
+        "some",
+        "xs",
+        "source",
+        "find",
+        "Node",
+        "filter",
+        "forEach",
+        "nodepath",
+        "console",
+        "log",
+        "parser"
+      ],
+      "mappings": ";;AAAAA,MAAM,CAACC,OAAP,GAAiB,UAASC,QAAT,EAAwBC,GAAxB,EAAkC;AAC/C,QAAMC,SAAkC,GAAG;AACvC,SAAK,KADkC;AAEvC,SAAK,KAFkC;AAGvC,SAAK,KAHkC;AAIvC,SAAK;AAJkC,GAA3C;AAMA,QAAMC,CAAC,GAAGF,GAAG,CAACG,WAAd,CAP+C,CAQ/C;;AACA,QAAMC,QAAQ,GAAIC,OAAD,IAAkBA,OAAO,CAACC,KAAR,CAAcC,IAAd,OAAyB,QAA5D;;AACA,QAAMC,cAAc,GAAIC,QAAD,IAA6B;AAChD,WAAQA,QAAQ,CAACH,KAAT,CAAeI,eAAhB,IAAqCD,QAAQ,CAACH,KAAT,CAAeI,eAAf,CAA+BC,IAA/B,CAAoCP,QAApC,CAA5C;AACH,GAFD;;AAGA,QAAMQ,EAAE,GAAGV,CAAC,CAACH,QAAQ,CAACc,MAAV,CAAD,CAAmBC,IAAnB,CAAwBZ,CAAC,CAACa,IAA1B,EAAgCC,MAAhC,CAAwCP,QAAD,IAAmBD,cAAc,CAACC,QAAD,CAAxE,CAAX;AAEAG,EAAAA,EAAE,CAACK,OAAH,CAAYC,QAAD,IAAmBC,OAAO,CAACC,GAAR,CAAYF,QAAQ,CAACZ,KAArB,CAA9B;AACD,CAhBH;;AAiBAT,MAAM,CAACC,OAAP,CAAeuB,MAAf,GAAwB,IAAxB",
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "sourcesContent": [
+        "module.exports = function(fileInfo: any, api: any) {\n    const BOPS2TFJS : {[key:string]:string;} = {\n        \"+\": \"add\",\n        \"-\": \"sub\",\n        \"*\": \"mul\",\n        \"/\": \"div\"\n    }; \n    const j = api.jscodeshift;\n    // checks if the function passed returns a number and has a transformable op\n    const isMarked = (comment: any) => comment.value.trim() === \"mtrans\";\n    const needsTransform = (nodePath: any) : boolean => {\n        return (nodePath.value.leadingComments) && (nodePath.value.leadingComments.some(isMarked));\n    }\n    const xs = j(fileInfo.source).find(j.Node).filter((nodePath: any) => needsTransform(nodePath));\n\n    xs.forEach((nodepath: any) => console.log(nodepath.value));\n  };\nmodule.exports.parser = 'ts';\n"
+      ]
+    },
+    "sourceType": "script",
+    "mtime": 1596068904573
+  },
+  "{\"sourceRoot\":\"/Users/stella/Desktop/parser/\",\"babelrc\":false,\"caller\":{\"name\":\"@babel/register\"},\"cwd\":\"/Users/stella/Desktop/parser\",\"filename\":\"/Users/stella/Desktop/parser/toCustomAD.ts\",\"configFile\":false,\"passPerPreset\":false,\"envName\":\"development\",\"root\":\"/Users/stella/Desktop/parser\",\"plugins\":[{\"key\":\"proposal-class-properties\",\"visitor\":{\"PrivateName\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"_exploded\":true,\"_verified\":true,\"ClassExpression\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-nullish-coalescing-operator\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"LogicalExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-optional-chaining\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"OptionalCallExpression\":{\"enter\":[null]},\"OptionalMemberExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"transform-modules-commonjs\",\"visitor\":{\"CallExpression\":{\"enter\":[null]},\"Program\":{\"exit\":[null]},\"_exploded\":true,\"_verified\":true},\"options\":{}},{\"key\":\"transform-typescript\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"Identifier\":{\"enter\":[null]},\"RestElement\":{\"enter\":[null]},\"Program\":{\"enter\":[null]},\"ExportNamedDeclaration\":{\"enter\":[null]},\"ExportSpecifier\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"TSDeclareFunction\":{\"enter\":[null]},\"TSDeclareMethod\":{\"enter\":[null]},\"VariableDeclaration\":{\"enter\":[null]},\"VariableDeclarator\":{\"enter\":[null]},\"TSIndexSignature\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null,null]},\"TSModuleDeclaration\":{\"enter\":[null]},\"TSInterfaceDeclaration\":{\"enter\":[null]},\"TSTypeAliasDeclaration\":{\"enter\":[null]},\"TSEnumDeclaration\":{\"enter\":[null]},\"TSImportEqualsDeclaration\":{\"enter\":[null]},\"TSExportAssignment\":{\"enter\":[null]},\"TSTypeAssertion\":{\"enter\":[null]},\"TSAsExpression\":{\"enter\":[null]},\"TSNonNullExpression\":{\"enter\":[null]},\"CallExpression\":{\"enter\":[null]},\"OptionalCallExpression\":{\"enter\":[null]},\"NewExpression\":{\"enter\":[null]},\"JSXOpeningElement\":{\"enter\":[null]},\"TaggedTemplateExpression\":{\"enter\":[null]},\"AssignmentPattern\":{\"enter\":[null]},\"ArrayPattern\":{\"enter\":[null]},\"ObjectPattern\":{\"enter\":[null]},\"ClassExpression\":{\"enter\":[null]},\"FunctionDeclaration\":{\"enter\":[null]},\"FunctionExpression\":{\"enter\":[null]},\"ObjectMethod\":{\"enter\":[null]},\"ArrowFunctionExpression\":{\"enter\":[null]},\"ClassMethod\":{\"enter\":[null]},\"ClassPrivateMethod\":{\"enter\":[null]}},\"options\":{\"isTSX\":false}}],\"presets\":[]}:7.10.5": {
+    "metadata": {},
+    "options": {
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "babelrc": false,
+      "caller": {
+        "name": "@babel/register"
+      },
+      "cwd": "/Users/stella/Desktop/parser",
+      "filename": "/Users/stella/Desktop/parser/toCustomAD.ts",
+      "configFile": false,
+      "envName": "development",
+      "root": "/Users/stella/Desktop/parser",
+      "sourceMaps": "both",
+      "ast": false,
+      "passPerPreset": false,
+      "plugins": [
+        {
+          "key": "proposal-class-properties",
+          "visitor": {
+            "PrivateName": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true,
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-nullish-coalescing-operator",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "LogicalExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-optional-chaining",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalMemberExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-modules-commonjs",
+          "visitor": {
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "exit": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-typescript",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "Identifier": {
+              "enter": [
+                null
+              ]
+            },
+            "RestElement": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportNamedDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportSpecifier": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareFunction": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclarator": {
+              "enter": [
+                null
+              ]
+            },
+            "TSIndexSignature": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null,
+                null
+              ]
+            },
+            "TSModuleDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSInterfaceDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAliasDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSEnumDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSImportEqualsDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSExportAssignment": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAssertion": {
+              "enter": [
+                null
+              ]
+            },
+            "TSAsExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "TSNonNullExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "NewExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "JSXOpeningElement": {
+              "enter": [
+                null
+              ]
+            },
+            "TaggedTemplateExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "AssignmentPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrayPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrowFunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassPrivateMethod": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {
+            "isTSX": false
+          }
+        }
+      ],
+      "presets": [],
+      "parserOpts": {
+        "sourceType": "module",
+        "sourceFileName": "/Users/stella/Desktop/parser/toCustomAD.ts",
+        "plugins": [
+          "classProperties",
+          "classPrivateProperties",
+          "nullishCoalescingOperator",
+          "optionalChaining",
+          "typescript",
+          "classProperties",
+          "objectRestSpread"
+        ]
+      },
+      "generatorOpts": {
+        "filename": "/Users/stella/Desktop/parser/toCustomAD.ts",
+        "comments": true,
+        "compact": "auto",
+        "sourceMaps": "both",
+        "sourceRoot": "/Users/stella/Desktop/parser/",
+        "sourceFileName": "toCustomAD.ts"
+      }
+    },
+    "ast": null,
+    "code": "\"use strict\";\n\nmodule.exports = function (fileInfo, api) {\n  const KWTYPS = [// Define all the simple keyword types.\n  \"TSAnyKeyword\", \"TSBigIntKeyword\", \"TSBooleanKeyword\", \"TSNeverKeyword\", \"TSNullKeyword\", \"TSNumberKeyword\", \"TSObjectKeyword\", \"TSStringKeyword\", \"TSSymbolKeyword\", \"TSUndefinedKeyword\", \"TSUnknownKeyword\", \"TSVoidKeyword\", \"TSThisType\"]; // from https://github.com/benjamn/ast-types/blob/90a8e63d77fc6134bfd5bfcca793146259219246/def/typescript.ts\n  // binary op to call expression\n\n  const BO2CE = (target, node) => {\n    const newCallee = j.identifier(target); // get new name of function\n\n    const newArgs = [node.left, node.right]; // reorder arguments\n\n    node.callee = newCallee;\n    node.arguments = newArgs;\n    node.type = \"CallExpression\";\n    return node;\n  }; // unary op to call expression\n\n\n  const UO2CE = (target, node) => {\n    const newCallee = j.identifier(target); // get new name of function\n\n    const newArgs = [node.argument]; // reorder arguments\n\n    node.callee = newCallee;\n    node.arguments = newArgs;\n    node.type = \"CallExpression\";\n    return node;\n  }; // type preset keyword (number, etc.) to type reference i.e. custom type OR custom type to custom type\n  // TS parser treats these differently, so it would have been prettier to separate the two, but for ease of future use I allowed them to be treated the same\n\n\n  const TYPSUB = (target, node) => {\n    const newTName = j.identifier(target);\n    node.type = \"TSTypeReference\";\n    node.typeName = newTName;\n    return node;\n  };\n\n  const BOPS = {\n    \"+\": [\"add\", BO2CE],\n    // [new name, structure to convert to]\n    \"-\": [\"sub\", BO2CE],\n    // supports custom structure transformations - e.g. not all bops get transformed to call expressions\n    \"*\": [\"mul\", BO2CE],\n    // if you don't want to transform a specific operation at all just write a basic function instead of bo2ce that returns the node\n    \"/\": [\"div\", BO2CE]\n  };\n  const UOPS = {\n    \"-\": [\"neg\", UO2CE]\n  };\n  const TYPS = {\n    \"Tensor\": [\"VarAD\", TYPSUB],\n    \"TSNumberKeyword\": [\"VarAD\", TYPSUB]\n  }; // const TMAP : {[key:string]: ({[key:string]:any[]})}= {\n  //     \"BinaryExpression\": BOPS,\n  //     \"UnaryExpression\": UOPS\n  // }\n\n  const transNodes = nodes => {\n    nodes.replaceWith(nodePath => {\n      const {\n        node\n      } = nodePath;\n      const transformData = getTransformData(node); // the below line is theoretically bad practice per https://stackoverflow.com/questions/1098040/checking-if-a-key-exists-in-a-javascript-object\n      // however, given that our opmaps are manually generated it is low-risk. \n\n      return transformData ? transformData[1](transformData[0], node) : node;\n    });\n  };\n\n  const MARKTAG = \"mtrans\";\n  const j = api.jscodeshift;\n\n  const isMarked = comment => comment.value.trim() === MARKTAG;\n\n  const needsTransform = nodePath => {\n    return nodePath.value.leadingComments && nodePath.value.leadingComments.some(isMarked);\n  }; // which operation to transform it to, and how to transform it - e.g. binary op to call expression? unary op to call expression? etc.\n\n\n  const getTransformData = node => {\n    if (node.type === \"BinaryExpression\") return BOPS[node.operator];else if (node.type === \"UnaryExpression\") return UOPS[node.operator];else if (node.type === \"TSTypeReference\") return TYPS[node.typeName.name];else if (node.type in TYPS) return TYPS[node.type];else throw new Error(\"Error: Following node does not have transformable property: \\n\" + node);\n  };\n\n  const root = j(fileInfo.source);\n  const tNodes = root.find(j.Node).filter(nodePath => needsTransform(nodePath)); // bops\n\n  const bopNodes = tNodes.find(j.BinaryExpression);\n  transNodes(bopNodes); // uops\n\n  const uopNodes = tNodes.find(j.UnaryExpression);\n  transNodes(uopNodes); // types\n\n  for (const typ in TYPS) {\n    let typNodes;\n\n    if (KWTYPS.includes(typ)) {\n      typNodes = tNodes.find(j[typ]);\n    } else typNodes = tNodes.find(j.TSTypeReference).filter(nodePath => nodePath.value.typeName.name === typ);\n\n    transNodes(typNodes);\n  }\n\n  return root.toSource();\n};\n\nmodule.exports.parser = 'ts';\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInRvQ3VzdG9tQUQudHMiXSwibmFtZXMiOlsibW9kdWxlIiwiZXhwb3J0cyIsImZpbGVJbmZvIiwiYXBpIiwiS1dUWVBTIiwiQk8yQ0UiLCJ0YXJnZXQiLCJub2RlIiwibmV3Q2FsbGVlIiwiaiIsImlkZW50aWZpZXIiLCJuZXdBcmdzIiwibGVmdCIsInJpZ2h0IiwiY2FsbGVlIiwiYXJndW1lbnRzIiwidHlwZSIsIlVPMkNFIiwiYXJndW1lbnQiLCJUWVBTVUIiLCJuZXdUTmFtZSIsInR5cGVOYW1lIiwiQk9QUyIsIlVPUFMiLCJUWVBTIiwidHJhbnNOb2RlcyIsIm5vZGVzIiwicmVwbGFjZVdpdGgiLCJub2RlUGF0aCIsInRyYW5zZm9ybURhdGEiLCJnZXRUcmFuc2Zvcm1EYXRhIiwiTUFSS1RBRyIsImpzY29kZXNoaWZ0IiwiaXNNYXJrZWQiLCJjb21tZW50IiwidmFsdWUiLCJ0cmltIiwibmVlZHNUcmFuc2Zvcm0iLCJsZWFkaW5nQ29tbWVudHMiLCJzb21lIiwib3BlcmF0b3IiLCJuYW1lIiwiRXJyb3IiLCJyb290Iiwic291cmNlIiwidE5vZGVzIiwiZmluZCIsIk5vZGUiLCJmaWx0ZXIiLCJib3BOb2RlcyIsIkJpbmFyeUV4cHJlc3Npb24iLCJ1b3BOb2RlcyIsIlVuYXJ5RXhwcmVzc2lvbiIsInR5cCIsInR5cE5vZGVzIiwiaW5jbHVkZXMiLCJUU1R5cGVSZWZlcmVuY2UiLCJ0b1NvdXJjZSIsInBhcnNlciJdLCJtYXBwaW5ncyI6Ijs7QUFDQUEsTUFBTSxDQUFDQyxPQUFQLEdBQWlCLFVBQVNDLFFBQVQsRUFBd0JDLEdBQXhCLEVBQWtDO0FBQy9DLFFBQU1DLE1BQU0sR0FBRyxDQUFFO0FBQ2IsZ0JBRFcsRUFFWCxpQkFGVyxFQUdYLGtCQUhXLEVBSVgsZ0JBSlcsRUFLWCxlQUxXLEVBTVgsaUJBTlcsRUFPWCxpQkFQVyxFQVFYLGlCQVJXLEVBU1gsaUJBVFcsRUFVWCxvQkFWVyxFQVdYLGtCQVhXLEVBWVgsZUFaVyxFQWFYLFlBYlcsQ0FBZixDQUQrQyxDQWUzQztBQUNKOztBQUNBLFFBQU1DLEtBQUssR0FBRyxDQUFDQyxNQUFELEVBQWlCQyxJQUFqQixLQUErQjtBQUN6QyxVQUFNQyxTQUFTLEdBQUdDLENBQUMsQ0FBQ0MsVUFBRixDQUFhSixNQUFiLENBQWxCLENBRHlDLENBQ0Q7O0FBQ3hDLFVBQU1LLE9BQU8sR0FBRyxDQUFDSixJQUFJLENBQUNLLElBQU4sRUFBWUwsSUFBSSxDQUFDTSxLQUFqQixDQUFoQixDQUZ5QyxDQUVHOztBQUM1Q04sSUFBQUEsSUFBSSxDQUFDTyxNQUFMLEdBQWNOLFNBQWQ7QUFDQUQsSUFBQUEsSUFBSSxDQUFDUSxTQUFMLEdBQWlCSixPQUFqQjtBQUNBSixJQUFBQSxJQUFJLENBQUNTLElBQUwsR0FBWSxnQkFBWjtBQUNBLFdBQU9ULElBQVA7QUFDSCxHQVBELENBakIrQyxDQXlCL0M7OztBQUNBLFFBQU1VLEtBQUssR0FBRyxDQUFDWCxNQUFELEVBQWlCQyxJQUFqQixLQUErQjtBQUN6QyxVQUFNQyxTQUFTLEdBQUdDLENBQUMsQ0FBQ0MsVUFBRixDQUFhSixNQUFiLENBQWxCLENBRHlDLENBQ0Q7O0FBQ3hDLFVBQU1LLE9BQU8sR0FBRyxDQUFDSixJQUFJLENBQUNXLFFBQU4sQ0FBaEIsQ0FGeUMsQ0FFTDs7QUFDcENYLElBQUFBLElBQUksQ0FBQ08sTUFBTCxHQUFjTixTQUFkO0FBQ0FELElBQUFBLElBQUksQ0FBQ1EsU0FBTCxHQUFpQkosT0FBakI7QUFDQUosSUFBQUEsSUFBSSxDQUFDUyxJQUFMLEdBQVksZ0JBQVo7QUFDQSxXQUFPVCxJQUFQO0FBQ0gsR0FQRCxDQTFCK0MsQ0FrQy9DO0FBQ0E7OztBQUNBLFFBQU1ZLE1BQU0sR0FBRyxDQUFDYixNQUFELEVBQWlCQyxJQUFqQixLQUErQjtBQUMxQyxVQUFNYSxRQUFRLEdBQUdYLENBQUMsQ0FBQ0MsVUFBRixDQUFhSixNQUFiLENBQWpCO0FBQ0FDLElBQUFBLElBQUksQ0FBQ1MsSUFBTCxHQUFZLGlCQUFaO0FBQ0FULElBQUFBLElBQUksQ0FBQ2MsUUFBTCxHQUFnQkQsUUFBaEI7QUFDQSxXQUFPYixJQUFQO0FBQ0gsR0FMRDs7QUFPQSxRQUFNZSxJQUEyQixHQUFHO0FBQ2hDLFNBQUssQ0FBQyxLQUFELEVBQVFqQixLQUFSLENBRDJCO0FBQ1I7QUFDeEIsU0FBSyxDQUFDLEtBQUQsRUFBUUEsS0FBUixDQUYyQjtBQUVSO0FBQ3hCLFNBQUssQ0FBQyxLQUFELEVBQVFBLEtBQVIsQ0FIMkI7QUFHUjtBQUN4QixTQUFLLENBQUMsS0FBRCxFQUFRQSxLQUFSO0FBSjJCLEdBQXBDO0FBTUEsUUFBTWtCLElBQTJCLEdBQUc7QUFDaEMsU0FBSyxDQUFDLEtBQUQsRUFBUU4sS0FBUjtBQUQyQixHQUFwQztBQUdBLFFBQU1PLElBQTJCLEdBQUc7QUFDaEMsY0FBVSxDQUFDLE9BQUQsRUFBVUwsTUFBVixDQURzQjtBQUVoQyx1QkFBbUIsQ0FBQyxPQUFELEVBQVVBLE1BQVY7QUFGYSxHQUFwQyxDQXBEK0MsQ0F5RC9DO0FBQ0E7QUFDQTtBQUNBOztBQUNBLFFBQU1NLFVBQVUsR0FBSUMsS0FBRCxJQUFnQjtBQUMvQkEsSUFBQUEsS0FBSyxDQUFDQyxXQUFOLENBQW1CQyxRQUFELElBQW1CO0FBQ2pDLFlBQU07QUFBQ3JCLFFBQUFBO0FBQUQsVUFBU3FCLFFBQWY7QUFDQSxZQUFNQyxhQUFhLEdBQUdDLGdCQUFnQixDQUFDdkIsSUFBRCxDQUF0QyxDQUZpQyxDQUlqQztBQUNBOztBQUNBLGFBQU9zQixhQUFhLEdBQUdBLGFBQWEsQ0FBQyxDQUFELENBQWIsQ0FBaUJBLGFBQWEsQ0FBQyxDQUFELENBQTlCLEVBQW1DdEIsSUFBbkMsQ0FBSCxHQUE4Q0EsSUFBbEU7QUFDSCxLQVBEO0FBUUgsR0FURDs7QUFVQSxRQUFNd0IsT0FBTyxHQUFHLFFBQWhCO0FBQ0EsUUFBTXRCLENBQUMsR0FBR04sR0FBRyxDQUFDNkIsV0FBZDs7QUFFQSxRQUFNQyxRQUFRLEdBQUlDLE9BQUQsSUFBa0JBLE9BQU8sQ0FBQ0MsS0FBUixDQUFjQyxJQUFkLE9BQXlCTCxPQUE1RDs7QUFDQSxRQUFNTSxjQUFjLEdBQUlULFFBQUQsSUFBNkI7QUFDaEQsV0FBUUEsUUFBUSxDQUFDTyxLQUFULENBQWVHLGVBQWhCLElBQXFDVixRQUFRLENBQUNPLEtBQVQsQ0FBZUcsZUFBZixDQUErQkMsSUFBL0IsQ0FBb0NOLFFBQXBDLENBQTVDO0FBQ0gsR0FGRCxDQTNFK0MsQ0E4RS9DOzs7QUFDQSxRQUFNSCxnQkFBZ0IsR0FBSXZCLElBQUQsSUFBc0I7QUFDM0MsUUFBSUEsSUFBSSxDQUFDUyxJQUFMLEtBQWMsa0JBQWxCLEVBQXNDLE9BQU9NLElBQUksQ0FBQ2YsSUFBSSxDQUFDaUMsUUFBTixDQUFYLENBQXRDLEtBQ0ssSUFBSWpDLElBQUksQ0FBQ1MsSUFBTCxLQUFjLGlCQUFsQixFQUFxQyxPQUFPTyxJQUFJLENBQUNoQixJQUFJLENBQUNpQyxRQUFOLENBQVgsQ0FBckMsS0FDQSxJQUFJakMsSUFBSSxDQUFDUyxJQUFMLEtBQWMsaUJBQWxCLEVBQXFDLE9BQU9RLElBQUksQ0FBQ2pCLElBQUksQ0FBQ2MsUUFBTCxDQUFjb0IsSUFBZixDQUFYLENBQXJDLEtBQ0EsSUFBSWxDLElBQUksQ0FBQ1MsSUFBTCxJQUFhUSxJQUFqQixFQUF1QixPQUFPQSxJQUFJLENBQUNqQixJQUFJLENBQUNTLElBQU4sQ0FBWCxDQUF2QixLQUNBLE1BQU0sSUFBSTBCLEtBQUosQ0FBVSxtRUFBbUVuQyxJQUE3RSxDQUFOO0FBQ1IsR0FORDs7QUFRQSxRQUFNb0MsSUFBSSxHQUFHbEMsQ0FBQyxDQUFDUCxRQUFRLENBQUMwQyxNQUFWLENBQWQ7QUFDQSxRQUFNQyxNQUFNLEdBQUdGLElBQUksQ0FBQ0csSUFBTCxDQUFVckMsQ0FBQyxDQUFDc0MsSUFBWixFQUFrQkMsTUFBbEIsQ0FBMEJwQixRQUFELElBQW1CUyxjQUFjLENBQUNULFFBQUQsQ0FBMUQsQ0FBZixDQXhGK0MsQ0EwRi9DOztBQUNBLFFBQU1xQixRQUFRLEdBQUdKLE1BQU0sQ0FBQ0MsSUFBUCxDQUFZckMsQ0FBQyxDQUFDeUMsZ0JBQWQsQ0FBakI7QUFDQXpCLEVBQUFBLFVBQVUsQ0FBQ3dCLFFBQUQsQ0FBVixDQTVGK0MsQ0E2Ri9DOztBQUNBLFFBQU1FLFFBQVEsR0FBR04sTUFBTSxDQUFDQyxJQUFQLENBQVlyQyxDQUFDLENBQUMyQyxlQUFkLENBQWpCO0FBQ0EzQixFQUFBQSxVQUFVLENBQUMwQixRQUFELENBQVYsQ0EvRitDLENBZ0cvQzs7QUFDQSxPQUFLLE1BQU1FLEdBQVgsSUFBa0I3QixJQUFsQixFQUF3QjtBQUNwQixRQUFJOEIsUUFBSjs7QUFDQSxRQUFJbEQsTUFBTSxDQUFDbUQsUUFBUCxDQUFnQkYsR0FBaEIsQ0FBSixFQUEwQjtBQUN0QkMsTUFBQUEsUUFBUSxHQUFHVCxNQUFNLENBQUNDLElBQVAsQ0FBWXJDLENBQUMsQ0FBQzRDLEdBQUQsQ0FBYixDQUFYO0FBQ0gsS0FGRCxNQUdLQyxRQUFRLEdBQUdULE1BQU0sQ0FBQ0MsSUFBUCxDQUFZckMsQ0FBQyxDQUFDK0MsZUFBZCxFQUErQlIsTUFBL0IsQ0FBdUNwQixRQUFELElBQWtCQSxRQUFRLENBQUNPLEtBQVQsQ0FBZWQsUUFBZixDQUF3Qm9CLElBQXhCLEtBQWlDWSxHQUF6RixDQUFYOztBQUNMNUIsSUFBQUEsVUFBVSxDQUFDNkIsUUFBRCxDQUFWO0FBQ0g7O0FBQ0QsU0FBT1gsSUFBSSxDQUFDYyxRQUFMLEVBQVA7QUFDRCxDQTFHSDs7QUEyR0F6RCxNQUFNLENBQUNDLE9BQVAsQ0FBZXlELE1BQWYsR0FBd0IsSUFBeEIiLCJzb3VyY2VSb290IjoiL1VzZXJzL3N0ZWxsYS9EZXNrdG9wL3BhcnNlci8iLCJzb3VyY2VzQ29udGVudCI6WyJcbm1vZHVsZS5leHBvcnRzID0gZnVuY3Rpb24oZmlsZUluZm86IGFueSwgYXBpOiBhbnkpIHtcbiAgICBjb25zdCBLV1RZUFMgPSBbIC8vIERlZmluZSBhbGwgdGhlIHNpbXBsZSBrZXl3b3JkIHR5cGVzLlxuICAgICAgICBcIlRTQW55S2V5d29yZFwiLFxuICAgICAgICBcIlRTQmlnSW50S2V5d29yZFwiLFxuICAgICAgICBcIlRTQm9vbGVhbktleXdvcmRcIixcbiAgICAgICAgXCJUU05ldmVyS2V5d29yZFwiLFxuICAgICAgICBcIlRTTnVsbEtleXdvcmRcIixcbiAgICAgICAgXCJUU051bWJlcktleXdvcmRcIixcbiAgICAgICAgXCJUU09iamVjdEtleXdvcmRcIixcbiAgICAgICAgXCJUU1N0cmluZ0tleXdvcmRcIixcbiAgICAgICAgXCJUU1N5bWJvbEtleXdvcmRcIixcbiAgICAgICAgXCJUU1VuZGVmaW5lZEtleXdvcmRcIixcbiAgICAgICAgXCJUU1Vua25vd25LZXl3b3JkXCIsXG4gICAgICAgIFwiVFNWb2lkS2V5d29yZFwiLFxuICAgICAgICBcIlRTVGhpc1R5cGVcIixcbiAgICAgIF0gLy8gZnJvbSBodHRwczovL2dpdGh1Yi5jb20vYmVuamFtbi9hc3QtdHlwZXMvYmxvYi85MGE4ZTYzZDc3ZmM2MTM0YmZkNWJmY2NhNzkzMTQ2MjU5MjE5MjQ2L2RlZi90eXBlc2NyaXB0LnRzXG4gICAgLy8gYmluYXJ5IG9wIHRvIGNhbGwgZXhwcmVzc2lvblxuICAgIGNvbnN0IEJPMkNFID0gKHRhcmdldDogc3RyaW5nLCBub2RlOiBhbnkpID0+IHtcbiAgICAgICAgY29uc3QgbmV3Q2FsbGVlID0gai5pZGVudGlmaWVyKHRhcmdldCk7IC8vIGdldCBuZXcgbmFtZSBvZiBmdW5jdGlvblxuICAgICAgICBjb25zdCBuZXdBcmdzID0gW25vZGUubGVmdCwgbm9kZS5yaWdodF07ICAgIC8vIHJlb3JkZXIgYXJndW1lbnRzXG4gICAgICAgIG5vZGUuY2FsbGVlID0gbmV3Q2FsbGVlO1xuICAgICAgICBub2RlLmFyZ3VtZW50cyA9IG5ld0FyZ3M7XG4gICAgICAgIG5vZGUudHlwZSA9IFwiQ2FsbEV4cHJlc3Npb25cIjtcbiAgICAgICAgcmV0dXJuIG5vZGU7XG4gICAgfTtcbiAgICAvLyB1bmFyeSBvcCB0byBjYWxsIGV4cHJlc3Npb25cbiAgICBjb25zdCBVTzJDRSA9ICh0YXJnZXQ6IHN0cmluZywgbm9kZTogYW55KSA9PiB7XG4gICAgICAgIGNvbnN0IG5ld0NhbGxlZSA9IGouaWRlbnRpZmllcih0YXJnZXQpOyAvLyBnZXQgbmV3IG5hbWUgb2YgZnVuY3Rpb25cbiAgICAgICAgY29uc3QgbmV3QXJncyA9IFtub2RlLmFyZ3VtZW50XTsgICAgLy8gcmVvcmRlciBhcmd1bWVudHNcbiAgICAgICAgbm9kZS5jYWxsZWUgPSBuZXdDYWxsZWU7XG4gICAgICAgIG5vZGUuYXJndW1lbnRzID0gbmV3QXJncztcbiAgICAgICAgbm9kZS50eXBlID0gXCJDYWxsRXhwcmVzc2lvblwiO1xuICAgICAgICByZXR1cm4gbm9kZTtcbiAgICB9O1xuICAgIC8vIHR5cGUgcHJlc2V0IGtleXdvcmQgKG51bWJlciwgZXRjLikgdG8gdHlwZSByZWZlcmVuY2UgaS5lLiBjdXN0b20gdHlwZSBPUiBjdXN0b20gdHlwZSB0byBjdXN0b20gdHlwZVxuICAgIC8vIFRTIHBhcnNlciB0cmVhdHMgdGhlc2UgZGlmZmVyZW50bHksIHNvIGl0IHdvdWxkIGhhdmUgYmVlbiBwcmV0dGllciB0byBzZXBhcmF0ZSB0aGUgdHdvLCBidXQgZm9yIGVhc2Ugb2YgZnV0dXJlIHVzZSBJIGFsbG93ZWQgdGhlbSB0byBiZSB0cmVhdGVkIHRoZSBzYW1lXG4gICAgY29uc3QgVFlQU1VCID0gKHRhcmdldDogc3RyaW5nLCBub2RlOiBhbnkpID0+IHtcbiAgICAgICAgY29uc3QgbmV3VE5hbWUgPSBqLmlkZW50aWZpZXIodGFyZ2V0KTtcbiAgICAgICAgbm9kZS50eXBlID0gXCJUU1R5cGVSZWZlcmVuY2VcIjtcbiAgICAgICAgbm9kZS50eXBlTmFtZSA9IG5ld1ROYW1lO1xuICAgICAgICByZXR1cm4gbm9kZTtcbiAgICB9XG5cbiAgICBjb25zdCBCT1BTIDoge1trZXk6c3RyaW5nXTphbnlbXX0gPSB7XG4gICAgICAgIFwiK1wiOiBbXCJhZGRcIiwgQk8yQ0VdLCAgICAvLyBbbmV3IG5hbWUsIHN0cnVjdHVyZSB0byBjb252ZXJ0IHRvXVxuICAgICAgICBcIi1cIjogW1wic3ViXCIsIEJPMkNFXSwgICAgLy8gc3VwcG9ydHMgY3VzdG9tIHN0cnVjdHVyZSB0cmFuc2Zvcm1hdGlvbnMgLSBlLmcuIG5vdCBhbGwgYm9wcyBnZXQgdHJhbnNmb3JtZWQgdG8gY2FsbCBleHByZXNzaW9uc1xuICAgICAgICBcIipcIjogW1wibXVsXCIsIEJPMkNFXSwgICAgLy8gaWYgeW91IGRvbid0IHdhbnQgdG8gdHJhbnNmb3JtIGEgc3BlY2lmaWMgb3BlcmF0aW9uIGF0IGFsbCBqdXN0IHdyaXRlIGEgYmFzaWMgZnVuY3Rpb24gaW5zdGVhZCBvZiBibzJjZSB0aGF0IHJldHVybnMgdGhlIG5vZGVcbiAgICAgICAgXCIvXCI6IFtcImRpdlwiLCBCTzJDRV1cbiAgICB9OyBcbiAgICBjb25zdCBVT1BTIDoge1trZXk6c3RyaW5nXTphbnlbXX0gPSB7XG4gICAgICAgIFwiLVwiOiBbXCJuZWdcIiwgVU8yQ0VdXG4gICAgfVxuICAgIGNvbnN0IFRZUFMgOiB7W2tleTpzdHJpbmddOmFueVtdfSA9IHtcbiAgICAgICAgXCJUZW5zb3JcIjogW1wiVmFyQURcIiwgVFlQU1VCXSxcbiAgICAgICAgXCJUU051bWJlcktleXdvcmRcIjogW1wiVmFyQURcIiwgVFlQU1VCXSxcbiAgICAgICAgXG4gICAgfVxuICAgIC8vIGNvbnN0IFRNQVAgOiB7W2tleTpzdHJpbmddOiAoe1trZXk6c3RyaW5nXTphbnlbXX0pfT0ge1xuICAgIC8vICAgICBcIkJpbmFyeUV4cHJlc3Npb25cIjogQk9QUyxcbiAgICAvLyAgICAgXCJVbmFyeUV4cHJlc3Npb25cIjogVU9QU1xuICAgIC8vIH1cbiAgICBjb25zdCB0cmFuc05vZGVzID0gKG5vZGVzOiBhbnkpID0+IHtcbiAgICAgICAgbm9kZXMucmVwbGFjZVdpdGgoKG5vZGVQYXRoOiBhbnkpID0+IHtcbiAgICAgICAgICAgIGNvbnN0IHtub2RlfSA9IG5vZGVQYXRoO1xuICAgICAgICAgICAgY29uc3QgdHJhbnNmb3JtRGF0YSA9IGdldFRyYW5zZm9ybURhdGEobm9kZSk7XG5cbiAgICAgICAgICAgIC8vIHRoZSBiZWxvdyBsaW5lIGlzIHRoZW9yZXRpY2FsbHkgYmFkIHByYWN0aWNlIHBlciBodHRwczovL3N0YWNrb3ZlcmZsb3cuY29tL3F1ZXN0aW9ucy8xMDk4MDQwL2NoZWNraW5nLWlmLWEta2V5LWV4aXN0cy1pbi1hLWphdmFzY3JpcHQtb2JqZWN0XG4gICAgICAgICAgICAvLyBob3dldmVyLCBnaXZlbiB0aGF0IG91ciBvcG1hcHMgYXJlIG1hbnVhbGx5IGdlbmVyYXRlZCBpdCBpcyBsb3ctcmlzay4gXG4gICAgICAgICAgICByZXR1cm4gdHJhbnNmb3JtRGF0YSA/IHRyYW5zZm9ybURhdGFbMV0odHJhbnNmb3JtRGF0YVswXSwgbm9kZSkgOiBub2RlO1xuICAgICAgICB9KVxuICAgIH07XG4gICAgY29uc3QgTUFSS1RBRyA9IFwibXRyYW5zXCI7XG4gICAgY29uc3QgaiA9IGFwaS5qc2NvZGVzaGlmdDtcbiAgICBcbiAgICBjb25zdCBpc01hcmtlZCA9IChjb21tZW50OiBhbnkpID0+IGNvbW1lbnQudmFsdWUudHJpbSgpID09PSBNQVJLVEFHO1xuICAgIGNvbnN0IG5lZWRzVHJhbnNmb3JtID0gKG5vZGVQYXRoOiBhbnkpIDogYm9vbGVhbiA9PiB7XG4gICAgICAgIHJldHVybiAobm9kZVBhdGgudmFsdWUubGVhZGluZ0NvbW1lbnRzKSAmJiAobm9kZVBhdGgudmFsdWUubGVhZGluZ0NvbW1lbnRzLnNvbWUoaXNNYXJrZWQpKTtcbiAgICB9XG4gICAgLy8gd2hpY2ggb3BlcmF0aW9uIHRvIHRyYW5zZm9ybSBpdCB0bywgYW5kIGhvdyB0byB0cmFuc2Zvcm0gaXQgLSBlLmcuIGJpbmFyeSBvcCB0byBjYWxsIGV4cHJlc3Npb24/IHVuYXJ5IG9wIHRvIGNhbGwgZXhwcmVzc2lvbj8gZXRjLlxuICAgIGNvbnN0IGdldFRyYW5zZm9ybURhdGEgPSAobm9kZTogYW55KTogYW55W10gPT4ge1xuICAgICAgICBpZiAobm9kZS50eXBlID09PSBcIkJpbmFyeUV4cHJlc3Npb25cIikgcmV0dXJuIEJPUFNbbm9kZS5vcGVyYXRvcl1cbiAgICAgICAgZWxzZSBpZiAobm9kZS50eXBlID09PSBcIlVuYXJ5RXhwcmVzc2lvblwiKSByZXR1cm4gVU9QU1tub2RlLm9wZXJhdG9yXVxuICAgICAgICBlbHNlIGlmIChub2RlLnR5cGUgPT09IFwiVFNUeXBlUmVmZXJlbmNlXCIpIHJldHVybiBUWVBTW25vZGUudHlwZU5hbWUubmFtZV1cbiAgICAgICAgZWxzZSBpZiAobm9kZS50eXBlIGluIFRZUFMpIHJldHVybiBUWVBTW25vZGUudHlwZV1cbiAgICAgICAgZWxzZSB0aHJvdyBuZXcgRXJyb3IoXCJFcnJvcjogRm9sbG93aW5nIG5vZGUgZG9lcyBub3QgaGF2ZSB0cmFuc2Zvcm1hYmxlIHByb3BlcnR5OiBcXG5cIiArIG5vZGUpO1xuICAgIH07XG5cbiAgICBjb25zdCByb290ID0gaihmaWxlSW5mby5zb3VyY2UpO1xuICAgIGNvbnN0IHROb2RlcyA9IHJvb3QuZmluZChqLk5vZGUpLmZpbHRlcigobm9kZVBhdGg6IGFueSkgPT4gbmVlZHNUcmFuc2Zvcm0obm9kZVBhdGgpKTtcbiAgICBcbiAgICAvLyBib3BzXG4gICAgY29uc3QgYm9wTm9kZXMgPSB0Tm9kZXMuZmluZChqLkJpbmFyeUV4cHJlc3Npb24pO1xuICAgIHRyYW5zTm9kZXMoYm9wTm9kZXMpO1xuICAgIC8vIHVvcHNcbiAgICBjb25zdCB1b3BOb2RlcyA9IHROb2Rlcy5maW5kKGouVW5hcnlFeHByZXNzaW9uKTtcbiAgICB0cmFuc05vZGVzKHVvcE5vZGVzKTtcbiAgICAvLyB0eXBlc1xuICAgIGZvciAoY29uc3QgdHlwIGluIFRZUFMpIHtcbiAgICAgICAgbGV0IHR5cE5vZGVzO1xuICAgICAgICBpZiAoS1dUWVBTLmluY2x1ZGVzKHR5cCkpIHtcbiAgICAgICAgICAgIHR5cE5vZGVzID0gdE5vZGVzLmZpbmQoalt0eXBdKVxuICAgICAgICB9XG4gICAgICAgIGVsc2UgdHlwTm9kZXMgPSB0Tm9kZXMuZmluZChqLlRTVHlwZVJlZmVyZW5jZSkuZmlsdGVyKChub2RlUGF0aDphbnkpID0+IG5vZGVQYXRoLnZhbHVlLnR5cGVOYW1lLm5hbWUgPT09IHR5cClcbiAgICAgICAgdHJhbnNOb2Rlcyh0eXBOb2Rlcyk7XG4gICAgfVxuICAgIHJldHVybiByb290LnRvU291cmNlKCk7XG4gIH07XG5tb2R1bGUuZXhwb3J0cy5wYXJzZXIgPSAndHMnO1xuIl19",
+    "map": {
+      "version": 3,
+      "sources": [
+        "toCustomAD.ts"
+      ],
+      "names": [
+        "module",
+        "exports",
+        "fileInfo",
+        "api",
+        "KWTYPS",
+        "BO2CE",
+        "target",
+        "node",
+        "newCallee",
+        "j",
+        "identifier",
+        "newArgs",
+        "left",
+        "right",
+        "callee",
+        "arguments",
+        "type",
+        "UO2CE",
+        "argument",
+        "TYPSUB",
+        "newTName",
+        "typeName",
+        "BOPS",
+        "UOPS",
+        "TYPS",
+        "transNodes",
+        "nodes",
+        "replaceWith",
+        "nodePath",
+        "transformData",
+        "getTransformData",
+        "MARKTAG",
+        "jscodeshift",
+        "isMarked",
+        "comment",
+        "value",
+        "trim",
+        "needsTransform",
+        "leadingComments",
+        "some",
+        "operator",
+        "name",
+        "Error",
+        "root",
+        "source",
+        "tNodes",
+        "find",
+        "Node",
+        "filter",
+        "bopNodes",
+        "BinaryExpression",
+        "uopNodes",
+        "UnaryExpression",
+        "typ",
+        "typNodes",
+        "includes",
+        "TSTypeReference",
+        "toSource",
+        "parser"
+      ],
+      "mappings": "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",
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "sourcesContent": [
+        "\nmodule.exports = function(fileInfo: any, api: any) {\n    const KWTYPS = [ // Define all the simple keyword types.\n        \"TSAnyKeyword\",\n        \"TSBigIntKeyword\",\n        \"TSBooleanKeyword\",\n        \"TSNeverKeyword\",\n        \"TSNullKeyword\",\n        \"TSNumberKeyword\",\n        \"TSObjectKeyword\",\n        \"TSStringKeyword\",\n        \"TSSymbolKeyword\",\n        \"TSUndefinedKeyword\",\n        \"TSUnknownKeyword\",\n        \"TSVoidKeyword\",\n        \"TSThisType\",\n      ] // from https://github.com/benjamn/ast-types/blob/90a8e63d77fc6134bfd5bfcca793146259219246/def/typescript.ts\n    // binary op to call expression\n    const BO2CE = (target: string, node: any) => {\n        const newCallee = j.identifier(target); // get new name of function\n        const newArgs = [node.left, node.right];    // reorder arguments\n        node.callee = newCallee;\n        node.arguments = newArgs;\n        node.type = \"CallExpression\";\n        return node;\n    };\n    // unary op to call expression\n    const UO2CE = (target: string, node: any) => {\n        const newCallee = j.identifier(target); // get new name of function\n        const newArgs = [node.argument];    // reorder arguments\n        node.callee = newCallee;\n        node.arguments = newArgs;\n        node.type = \"CallExpression\";\n        return node;\n    };\n    // type preset keyword (number, etc.) to type reference i.e. custom type OR custom type to custom type\n    // TS parser treats these differently, so it would have been prettier to separate the two, but for ease of future use I allowed them to be treated the same\n    const TYPSUB = (target: string, node: any) => {\n        const newTName = j.identifier(target);\n        node.type = \"TSTypeReference\";\n        node.typeName = newTName;\n        return node;\n    }\n\n    const BOPS : {[key:string]:any[]} = {\n        \"+\": [\"add\", BO2CE],    // [new name, structure to convert to]\n        \"-\": [\"sub\", BO2CE],    // supports custom structure transformations - e.g. not all bops get transformed to call expressions\n        \"*\": [\"mul\", BO2CE],    // if you don't want to transform a specific operation at all just write a basic function instead of bo2ce that returns the node\n        \"/\": [\"div\", BO2CE]\n    }; \n    const UOPS : {[key:string]:any[]} = {\n        \"-\": [\"neg\", UO2CE]\n    }\n    const TYPS : {[key:string]:any[]} = {\n        \"Tensor\": [\"VarAD\", TYPSUB],\n        \"TSNumberKeyword\": [\"VarAD\", TYPSUB],\n        \n    }\n    // const TMAP : {[key:string]: ({[key:string]:any[]})}= {\n    //     \"BinaryExpression\": BOPS,\n    //     \"UnaryExpression\": UOPS\n    // }\n    const transNodes = (nodes: any) => {\n        nodes.replaceWith((nodePath: any) => {\n            const {node} = nodePath;\n            const transformData = getTransformData(node);\n\n            // the below line is theoretically bad practice per https://stackoverflow.com/questions/1098040/checking-if-a-key-exists-in-a-javascript-object\n            // however, given that our opmaps are manually generated it is low-risk. \n            return transformData ? transformData[1](transformData[0], node) : node;\n        })\n    };\n    const MARKTAG = \"mtrans\";\n    const j = api.jscodeshift;\n    \n    const isMarked = (comment: any) => comment.value.trim() === MARKTAG;\n    const needsTransform = (nodePath: any) : boolean => {\n        return (nodePath.value.leadingComments) && (nodePath.value.leadingComments.some(isMarked));\n    }\n    // which operation to transform it to, and how to transform it - e.g. binary op to call expression? unary op to call expression? etc.\n    const getTransformData = (node: any): any[] => {\n        if (node.type === \"BinaryExpression\") return BOPS[node.operator]\n        else if (node.type === \"UnaryExpression\") return UOPS[node.operator]\n        else if (node.type === \"TSTypeReference\") return TYPS[node.typeName.name]\n        else if (node.type in TYPS) return TYPS[node.type]\n        else throw new Error(\"Error: Following node does not have transformable property: \\n\" + node);\n    };\n\n    const root = j(fileInfo.source);\n    const tNodes = root.find(j.Node).filter((nodePath: any) => needsTransform(nodePath));\n    \n    // bops\n    const bopNodes = tNodes.find(j.BinaryExpression);\n    transNodes(bopNodes);\n    // uops\n    const uopNodes = tNodes.find(j.UnaryExpression);\n    transNodes(uopNodes);\n    // types\n    for (const typ in TYPS) {\n        let typNodes;\n        if (KWTYPS.includes(typ)) {\n            typNodes = tNodes.find(j[typ])\n        }\n        else typNodes = tNodes.find(j.TSTypeReference).filter((nodePath:any) => nodePath.value.typeName.name === typ)\n        transNodes(typNodes);\n    }\n    return root.toSource();\n  };\nmodule.exports.parser = 'ts';\n"
+      ]
+    },
+    "sourceType": "script",
+    "mtime": 1601419857669
+  },
+  "{\"sourceRoot\":\"/Users/stella/Desktop/parser/\",\"babelrc\":false,\"caller\":{\"name\":\"@babel/register\"},\"cwd\":\"/Users/stella/Desktop/parser\",\"filename\":\"/Users/stella/Desktop/parser/jsbugtest.ts\",\"configFile\":false,\"passPerPreset\":false,\"envName\":\"development\",\"root\":\"/Users/stella/Desktop/parser\",\"plugins\":[{\"key\":\"proposal-class-properties\",\"visitor\":{\"PrivateName\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"_exploded\":true,\"_verified\":true,\"ClassExpression\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-nullish-coalescing-operator\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"LogicalExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"proposal-optional-chaining\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"OptionalCallExpression\":{\"enter\":[null]},\"OptionalMemberExpression\":{\"enter\":[null]}},\"options\":{}},{\"key\":\"transform-modules-commonjs\",\"visitor\":{\"CallExpression\":{\"enter\":[null]},\"Program\":{\"exit\":[null]},\"_exploded\":true,\"_verified\":true},\"options\":{}},{\"key\":\"transform-typescript\",\"visitor\":{\"_exploded\":{},\"_verified\":{},\"Identifier\":{\"enter\":[null]},\"RestElement\":{\"enter\":[null]},\"Program\":{\"enter\":[null]},\"ExportNamedDeclaration\":{\"enter\":[null]},\"ExportSpecifier\":{\"enter\":[null]},\"ExportDefaultDeclaration\":{\"enter\":[null]},\"TSDeclareFunction\":{\"enter\":[null]},\"TSDeclareMethod\":{\"enter\":[null]},\"VariableDeclaration\":{\"enter\":[null]},\"VariableDeclarator\":{\"enter\":[null]},\"TSIndexSignature\":{\"enter\":[null]},\"ClassDeclaration\":{\"enter\":[null,null]},\"TSModuleDeclaration\":{\"enter\":[null]},\"TSInterfaceDeclaration\":{\"enter\":[null]},\"TSTypeAliasDeclaration\":{\"enter\":[null]},\"TSEnumDeclaration\":{\"enter\":[null]},\"TSImportEqualsDeclaration\":{\"enter\":[null]},\"TSExportAssignment\":{\"enter\":[null]},\"TSTypeAssertion\":{\"enter\":[null]},\"TSAsExpression\":{\"enter\":[null]},\"TSNonNullExpression\":{\"enter\":[null]},\"CallExpression\":{\"enter\":[null]},\"OptionalCallExpression\":{\"enter\":[null]},\"NewExpression\":{\"enter\":[null]},\"JSXOpeningElement\":{\"enter\":[null]},\"TaggedTemplateExpression\":{\"enter\":[null]},\"AssignmentPattern\":{\"enter\":[null]},\"ArrayPattern\":{\"enter\":[null]},\"ObjectPattern\":{\"enter\":[null]},\"ClassExpression\":{\"enter\":[null]},\"FunctionDeclaration\":{\"enter\":[null]},\"FunctionExpression\":{\"enter\":[null]},\"ObjectMethod\":{\"enter\":[null]},\"ArrowFunctionExpression\":{\"enter\":[null]},\"ClassMethod\":{\"enter\":[null]},\"ClassPrivateMethod\":{\"enter\":[null]}},\"options\":{\"isTSX\":false}}],\"presets\":[]}:7.10.5": {
+    "metadata": {},
+    "options": {
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "babelrc": false,
+      "caller": {
+        "name": "@babel/register"
+      },
+      "cwd": "/Users/stella/Desktop/parser",
+      "filename": "/Users/stella/Desktop/parser/jsbugtest.ts",
+      "configFile": false,
+      "envName": "development",
+      "root": "/Users/stella/Desktop/parser",
+      "sourceMaps": "both",
+      "ast": false,
+      "passPerPreset": false,
+      "plugins": [
+        {
+          "key": "proposal-class-properties",
+          "visitor": {
+            "PrivateName": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true,
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-nullish-coalescing-operator",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "LogicalExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "proposal-optional-chaining",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalMemberExpression": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-modules-commonjs",
+          "visitor": {
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "exit": [
+                null
+              ]
+            },
+            "_exploded": true,
+            "_verified": true
+          },
+          "options": {}
+        },
+        {
+          "key": "transform-typescript",
+          "visitor": {
+            "_exploded": {},
+            "_verified": {},
+            "Identifier": {
+              "enter": [
+                null
+              ]
+            },
+            "RestElement": {
+              "enter": [
+                null
+              ]
+            },
+            "Program": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportNamedDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportSpecifier": {
+              "enter": [
+                null
+              ]
+            },
+            "ExportDefaultDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareFunction": {
+              "enter": [
+                null
+              ]
+            },
+            "TSDeclareMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "VariableDeclarator": {
+              "enter": [
+                null
+              ]
+            },
+            "TSIndexSignature": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassDeclaration": {
+              "enter": [
+                null,
+                null
+              ]
+            },
+            "TSModuleDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSInterfaceDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAliasDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSEnumDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSImportEqualsDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "TSExportAssignment": {
+              "enter": [
+                null
+              ]
+            },
+            "TSTypeAssertion": {
+              "enter": [
+                null
+              ]
+            },
+            "TSAsExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "TSNonNullExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "CallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "OptionalCallExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "NewExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "JSXOpeningElement": {
+              "enter": [
+                null
+              ]
+            },
+            "TaggedTemplateExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "AssignmentPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrayPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectPattern": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionDeclaration": {
+              "enter": [
+                null
+              ]
+            },
+            "FunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ObjectMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ArrowFunctionExpression": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassMethod": {
+              "enter": [
+                null
+              ]
+            },
+            "ClassPrivateMethod": {
+              "enter": [
+                null
+              ]
+            }
+          },
+          "options": {
+            "isTSX": false
+          }
+        }
+      ],
+      "presets": [],
+      "parserOpts": {
+        "sourceType": "module",
+        "sourceFileName": "/Users/stella/Desktop/parser/jsbugtest.ts",
+        "plugins": [
+          "classProperties",
+          "classPrivateProperties",
+          "nullishCoalescingOperator",
+          "optionalChaining",
+          "typescript",
+          "classProperties",
+          "objectRestSpread"
+        ]
+      },
+      "generatorOpts": {
+        "filename": "/Users/stella/Desktop/parser/jsbugtest.ts",
+        "comments": true,
+        "compact": "auto",
+        "sourceMaps": "both",
+        "sourceRoot": "/Users/stella/Desktop/parser/",
+        "sourceFileName": "jsbugtest.ts"
+      }
+    },
+    "ast": null,
+    "code": "\"use strict\";\n\nmodule.exports = function (fileInfo, api) {\n  const j = api.jscodeshift;\n  const root = j(fileInfo.source).find(j.Node);\n  console.log(\"x\");\n  root.filter(nodePath => nodePath.value.key && nodePath.value.key.name === \"above\").forEach(nodepath => console.log(nodepath.value.value.params[0].typeAnnotation.typeAnnotation.elementTypes));\n  const x = root.find(j.TSTypeReference);\n  x.forEach(np => console.log(np.value));\n  console.log(x.size());\n  return root.toSource();\n};\n\nmodule.exports.parser = 'ts';\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImpzYnVndGVzdC50cyJdLCJuYW1lcyI6WyJtb2R1bGUiLCJleHBvcnRzIiwiZmlsZUluZm8iLCJhcGkiLCJqIiwianNjb2Rlc2hpZnQiLCJyb290Iiwic291cmNlIiwiZmluZCIsIk5vZGUiLCJjb25zb2xlIiwibG9nIiwiZmlsdGVyIiwibm9kZVBhdGgiLCJ2YWx1ZSIsImtleSIsIm5hbWUiLCJmb3JFYWNoIiwibm9kZXBhdGgiLCJwYXJhbXMiLCJ0eXBlQW5ub3RhdGlvbiIsImVsZW1lbnRUeXBlcyIsIngiLCJUU1R5cGVSZWZlcmVuY2UiLCJucCIsInNpemUiLCJ0b1NvdXJjZSIsInBhcnNlciJdLCJtYXBwaW5ncyI6Ijs7QUFDQUEsTUFBTSxDQUFDQyxPQUFQLEdBQWlCLFVBQVNDLFFBQVQsRUFBd0JDLEdBQXhCLEVBQWtDO0FBQy9DLFFBQU1DLENBQUMsR0FBR0QsR0FBRyxDQUFDRSxXQUFkO0FBRUEsUUFBTUMsSUFBSSxHQUFHRixDQUFDLENBQUNGLFFBQVEsQ0FBQ0ssTUFBVixDQUFELENBQW1CQyxJQUFuQixDQUF3QkosQ0FBQyxDQUFDSyxJQUExQixDQUFiO0FBQ0FDLEVBQUFBLE9BQU8sQ0FBQ0MsR0FBUixDQUFZLEdBQVo7QUFDQUwsRUFBQUEsSUFBSSxDQUFDTSxNQUFMLENBQWFDLFFBQUQsSUFBaUJBLFFBQVEsQ0FBQ0MsS0FBVCxDQUFlQyxHQUFoQixJQUF5QkYsUUFBUSxDQUFDQyxLQUFULENBQWVDLEdBQWYsQ0FBbUJDLElBQW5CLEtBQTRCLE9BQWpGLEVBQTJGQyxPQUEzRixDQUFvR0MsUUFBRCxJQUFtQlIsT0FBTyxDQUFDQyxHQUFSLENBQVlPLFFBQVEsQ0FBQ0osS0FBVCxDQUFlQSxLQUFmLENBQXFCSyxNQUFyQixDQUE0QixDQUE1QixFQUErQkMsY0FBL0IsQ0FBOENBLGNBQTlDLENBQTZEQyxZQUF6RSxDQUF0SDtBQUNBLFFBQU1DLENBQUMsR0FBR2hCLElBQUksQ0FBQ0UsSUFBTCxDQUFVSixDQUFDLENBQUNtQixlQUFaLENBQVY7QUFDQUQsRUFBQUEsQ0FBQyxDQUFDTCxPQUFGLENBQVdPLEVBQUQsSUFBYWQsT0FBTyxDQUFDQyxHQUFSLENBQVlhLEVBQUUsQ0FBQ1YsS0FBZixDQUF2QjtBQUNBSixFQUFBQSxPQUFPLENBQUNDLEdBQVIsQ0FBWVcsQ0FBQyxDQUFDRyxJQUFGLEVBQVo7QUFDQSxTQUFPbkIsSUFBSSxDQUFDb0IsUUFBTCxFQUFQO0FBQ0QsQ0FWSDs7QUFXQTFCLE1BQU0sQ0FBQ0MsT0FBUCxDQUFlMEIsTUFBZixHQUF3QixJQUF4QiIsInNvdXJjZVJvb3QiOiIvVXNlcnMvc3RlbGxhL0Rlc2t0b3AvcGFyc2VyLyIsInNvdXJjZXNDb250ZW50IjpbIlxubW9kdWxlLmV4cG9ydHMgPSBmdW5jdGlvbihmaWxlSW5mbzogYW55LCBhcGk6IGFueSkge1xuICAgIGNvbnN0IGogPSBhcGkuanNjb2Rlc2hpZnQ7XG5cbiAgICBjb25zdCByb290ID0gaihmaWxlSW5mby5zb3VyY2UpLmZpbmQoai5Ob2RlKVxuICAgIGNvbnNvbGUubG9nKFwieFwiKVxuICAgIHJvb3QuZmlsdGVyKChub2RlUGF0aDphbnkpPT4obm9kZVBhdGgudmFsdWUua2V5KSAmJiAobm9kZVBhdGgudmFsdWUua2V5Lm5hbWUgPT09IFwiYWJvdmVcIikpLmZvckVhY2goKG5vZGVwYXRoOiBhbnkpID0+IGNvbnNvbGUubG9nKG5vZGVwYXRoLnZhbHVlLnZhbHVlLnBhcmFtc1swXS50eXBlQW5ub3RhdGlvbi50eXBlQW5ub3RhdGlvbi5lbGVtZW50VHlwZXMpKVxuICAgIGNvbnN0IHggPSByb290LmZpbmQoai5UU1R5cGVSZWZlcmVuY2UpO1xuICAgIHguZm9yRWFjaCgobnA6IGFueSkgPT4gY29uc29sZS5sb2cobnAudmFsdWUpKVxuICAgIGNvbnNvbGUubG9nKHguc2l6ZSgpKVxuICAgIHJldHVybiByb290LnRvU291cmNlKCk7XG4gIH07XG5tb2R1bGUuZXhwb3J0cy5wYXJzZXIgPSAndHMnO1xuIl19",
+    "map": {
+      "version": 3,
+      "sources": [
+        "jsbugtest.ts"
+      ],
+      "names": [
+        "module",
+        "exports",
+        "fileInfo",
+        "api",
+        "j",
+        "jscodeshift",
+        "root",
+        "source",
+        "find",
+        "Node",
+        "console",
+        "log",
+        "filter",
+        "nodePath",
+        "value",
+        "key",
+        "name",
+        "forEach",
+        "nodepath",
+        "params",
+        "typeAnnotation",
+        "elementTypes",
+        "x",
+        "TSTypeReference",
+        "np",
+        "size",
+        "toSource",
+        "parser"
+      ],
+      "mappings": ";;AACAA,MAAM,CAACC,OAAP,GAAiB,UAASC,QAAT,EAAwBC,GAAxB,EAAkC;AAC/C,QAAMC,CAAC,GAAGD,GAAG,CAACE,WAAd;AAEA,QAAMC,IAAI,GAAGF,CAAC,CAACF,QAAQ,CAACK,MAAV,CAAD,CAAmBC,IAAnB,CAAwBJ,CAAC,CAACK,IAA1B,CAAb;AACAC,EAAAA,OAAO,CAACC,GAAR,CAAY,GAAZ;AACAL,EAAAA,IAAI,CAACM,MAAL,CAAaC,QAAD,IAAiBA,QAAQ,CAACC,KAAT,CAAeC,GAAhB,IAAyBF,QAAQ,CAACC,KAAT,CAAeC,GAAf,CAAmBC,IAAnB,KAA4B,OAAjF,EAA2FC,OAA3F,CAAoGC,QAAD,IAAmBR,OAAO,CAACC,GAAR,CAAYO,QAAQ,CAACJ,KAAT,CAAeA,KAAf,CAAqBK,MAArB,CAA4B,CAA5B,EAA+BC,cAA/B,CAA8CA,cAA9C,CAA6DC,YAAzE,CAAtH;AACA,QAAMC,CAAC,GAAGhB,IAAI,CAACE,IAAL,CAAUJ,CAAC,CAACmB,eAAZ,CAAV;AACAD,EAAAA,CAAC,CAACL,OAAF,CAAWO,EAAD,IAAad,OAAO,CAACC,GAAR,CAAYa,EAAE,CAACV,KAAf,CAAvB;AACAJ,EAAAA,OAAO,CAACC,GAAR,CAAYW,CAAC,CAACG,IAAF,EAAZ;AACA,SAAOnB,IAAI,CAACoB,QAAL,EAAP;AACD,CAVH;;AAWA1B,MAAM,CAACC,OAAP,CAAe0B,MAAf,GAAwB,IAAxB",
+      "sourceRoot": "/Users/stella/Desktop/parser/",
+      "sourcesContent": [
+        "\nmodule.exports = function(fileInfo: any, api: any) {\n    const j = api.jscodeshift;\n\n    const root = j(fileInfo.source).find(j.Node)\n    console.log(\"x\")\n    root.filter((nodePath:any)=>(nodePath.value.key) && (nodePath.value.key.name === \"above\")).forEach((nodepath: any) => console.log(nodepath.value.value.params[0].typeAnnotation.typeAnnotation.elementTypes))\n    const x = root.find(j.TSTypeReference);\n    x.forEach((np: any) => console.log(np.value))\n    console.log(x.size())\n    return root.toSource();\n  };\nmodule.exports.parser = 'ts';\n"
+      ]
+    },
+    "sourceType": "script",
+    "mtime": 1598839367035
+  }
+}
