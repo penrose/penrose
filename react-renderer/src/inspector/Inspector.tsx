@@ -27,7 +27,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
     selectedView: "frames",
   };
   // public appendToConnectionLog = (status: ConnectionStatus | string) =>
-    // this.setState({ connectionLog: [...this.state.connectionLog, status] });
+  // this.setState({ connectionLog: [...this.state.connectionLog, status] });
 
   public selectFrame = (frame: number) => {
     this.setState({
@@ -59,7 +59,7 @@ class Inspector extends React.Component<IProps, IInspectState> {
           height: "100%",
           overflow: "hidden",
           boxSizing: "border-box",
-          paddingBottom: "1em"
+          paddingBottom: "1em",
         }}
       >
         <Timeline {...commonProps} />

@@ -3,6 +3,7 @@ import { toScreen, toHex } from "./Util";
 import { IGPIProps } from "./types";
 
 // TODO: use JSDOM
+// WARNING: this mutates the original! it's not pure at all
 const styleLabel = (
   label: HTMLElement,
   color: string,

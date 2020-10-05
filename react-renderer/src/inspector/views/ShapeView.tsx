@@ -91,6 +91,10 @@ class ShapeView extends React.Component<IViewProps, IState> {
 		      const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
 		      // size of bbox of arrow
 		      [w, h] = [Math.max(Math.abs(ex - sx), padding), Math.max(Math.abs(ey - sy), padding)];
+		  } else if (shapeType === "Curve") {
+                      console.log("TODO: Curve bbox");
+		      // size of bbox of arrow
+		      [w, h] = [100, 100];
 		  } else {
 		      [w, h] = [properties.w.contents as number, properties.h.contents as number];
 		  }
