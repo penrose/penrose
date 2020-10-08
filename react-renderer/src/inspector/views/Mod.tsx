@@ -105,7 +105,10 @@ class Mod extends React.Component<IViewProps, IState> {
 		      const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
 		      // size of bbox of arrow
 		      [w, h] = [Math.max(Math.abs(ex - sx), padding), Math.max(Math.abs(ey - sy), padding)];
-		  } else {
+      } else if (shapeType === "Curve") {
+          [w, h] = [20, 20] // todo find a better measure for this... check with max?
+      }
+      else {
 		      [w, h] = [properties.w.contents as number, properties.h.contents as number];
 		  }
 
@@ -142,6 +145,7 @@ class Mod extends React.Component<IViewProps, IState> {
             padding: "1em 1em 1em 1em",
             overflow: "auto",
             height: "100%",
+            flexBasis: 0,
             flexGrow: 1,
             boxSizing: "border-box"
           }}

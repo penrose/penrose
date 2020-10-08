@@ -6,6 +6,8 @@ import RectangleDef from "./shapedefs/rectangle.json"
 import ArrowDef from "./shapedefs/arrow.json"
 import ImageDef from "./shapedefs/image.json"
 import TextDef from "./shapedefs/text.json"
+import CurveDef from "./shapedefs/curve.json"
+
 const defMap = {
   Circle: CircDef,
   Line: LineDef,
@@ -14,6 +16,7 @@ const defMap = {
   Rectangle: RectangleDef,
   Arrow: ArrowDef,
   Image: ImageDef,
-  Text: TextDef
+  Text: TextDef,
+  Curve: CurveDef
 };
 export default defMap;
