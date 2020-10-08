@@ -1,6 +1,6 @@
 import * as React from "react";
-import { svgTransformString, toHex } from "./Util";
-import { IGPIProps } from "./types";
+import { svgTransformString, toHex } from "utils/Util";
+import { IGPIProps } from "types";
 
 const styleLabel = (label: HTMLElement, color: string) => {
   label.getElementsByTagName("g")[0].setAttribute("fill", color);
@@ -43,7 +43,7 @@ class LabelTransform extends React.Component<IGPIProps> {
         dangerouslySetInnerHTML={{
           __html: shape.rendered
             ? styleLabel(shape.rendered.contents, color)
-            : `<text>${shape.string.contents}</text>`
+            : `<text>${shape.string.contents}</text>`,
         }}
       />
     );

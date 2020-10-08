@@ -1,6 +1,6 @@
 import * as React from "react";
-import { toScreen, toHex } from "./Util";
-import { IGPIProps } from "./types";
+import { toScreen, toHex } from "utils/Util";
+import { IGPIProps } from "types";
 
 // TODO: use JSDOM
 // WARNING: this mutates the original! it's not pure at all

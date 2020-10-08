@@ -1,6 +1,6 @@
 import * as React from "react";
-import { toScreen } from "./Util";
-import { IGPIProps } from "./types";
+import { toScreen } from "utils/Util";
+import { IGPIProps } from "types";
 
 class Image extends React.Component<IGPIProps> {
   public render() {

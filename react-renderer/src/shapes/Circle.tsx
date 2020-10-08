@@ -1,6 +1,6 @@
 import * as React from "react";
-import { toScreen, toHex } from "./Util";
-import { IGPIProps } from "./types";
+import { toScreen, toHex } from "utils/Util";
+import { IGPIProps } from "types";
 
 class Circle extends React.Component<IGPIProps> {
   public render() {
@@ -30,7 +30,9 @@ class Circle extends React.Component<IGPIProps> {
         fillOpacity={fillAlpha}
         stroke={strokeColor}
         strokeOpacity={strokeAlpha}
-        strokeDasharray={shape.strokeStyle.contents === "dashed" ? dashArray : ""}
+        strokeDasharray={
+          shape.strokeStyle.contents === "dashed" ? dashArray : ""
+        }
         strokeWidth={thickness}
       >
         <title>{shape.name.contents}</title>

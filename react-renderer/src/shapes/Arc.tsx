@@ -1,6 +1,6 @@
 import * as React from "react";
-import { toScreen, toHex, Arrowhead } from "./Util";
-import { IGPIPropsDraggable, IGPIProps } from "./types";
+import { toScreen, toHex, Arrowhead } from "utils/Util";
+import { IGPIPropsDraggable, IGPIProps } from "types";
 
 const polarToCartesian = (
   centerX: number,
@@ -12,7 +12,7 @@ const polarToCartesian = (
 
   return {
     x: centerX + radius * Math.cos(angleInRadians),
-    y: centerY + radius * Math.sin(angleInRadians)
+    y: centerY + radius * Math.sin(angleInRadians),
   };
 };
 
@@ -40,7 +40,7 @@ const describeArc = (
     largeArcFlag,
     0,
     end.x,
-    end.y
+    end.y,
   ].join(" ");
 
   return d;
@@ -64,12 +64,12 @@ class Arc extends React.Component<IGPIProps> {
     // Move CCW (on top) instead of CW (on bottom)
     const [angle1, angle2] = [
       -shape.startAngle.contents,
-      -shape.endAngle.contents
+      -shape.endAngle.contents,
     ];
     // the describeArc code requires startAngle < endAngle, otherwise doesn't work
     const [startAngle, endAngle] = [
       Math.min(angle1, angle2),
-      Math.max(angle1, angle2)
+      Math.max(angle1, angle2),
     ];
 
     return (

@@ -1,7 +1,7 @@
 import * as React from "react";
-import { toScreen, toPointListString, penroseToSVG } from "../Util";
+import { toScreen, toPointListString, penroseToSVG } from "utils/Util";
 import memoize from "fast-memoize";
-import { ILayerProps } from "../types";
+import { ILayerProps } from "types";
 
 const toPointListStringOld = memoize(
   (ptList: any[], canvasSize: [number, number]) =>

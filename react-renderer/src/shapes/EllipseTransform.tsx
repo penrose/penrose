@@ -1,6 +1,6 @@
 import * as React from "react";
-import { toHex, svgTransformString } from "./Util";
-import { IGPIProps } from "./types";
+import { toHex, svgTransformString } from "utils/Util";
+import { IGPIProps } from "types";
 
 class EllipseTransform extends React.Component<IGPIProps> {
   public render() {

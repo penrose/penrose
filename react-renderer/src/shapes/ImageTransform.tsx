@@ -1,6 +1,6 @@
 import * as React from "react";
-import { svgTransformString } from "./Util";
-import { IGPIProps } from "./types";
+import { svgTransformString } from "utils/Util";
+import { IGPIProps } from "types";
 
 class ImageTransform extends React.Component<IGPIProps> {
   public render() {
@@ -8,7 +8,7 @@ class ImageTransform extends React.Component<IGPIProps> {
     const { canvasSize } = this.props;
     const [initWidth, initHeight] = [
       shape.initWidth.contents,
-      shape.initHeight.contents
+      shape.initHeight.contents,
     ];
     const path = shape.path.contents;
     const transformStr = svgTransformString(

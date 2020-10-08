@@ -1,12 +1,9 @@
-import { values, pickBy, concat, zip } from "lodash";
-import { mapValues } from "lodash";
-import { mapMap } from "./Util";
-import { valueAutodiffToNumber } from "./EngineUtils";
+import { scalar, Tensor, Variable } from "@tensorflow/tfjs";
+import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom from "seedrandom";
-import { Tensor, Variable, scalar } from "@tensorflow/tfjs";
-import { sc, differentiable, evalEnergyOn } from "./Optimizer";
-import { compDict, checkComp } from "./Computations";
-import { mapTranslation } from "./EngineUtils";
+import { checkComp, compDict } from "./Computations";
+import { mapTranslation, valueAutodiffToNumber } from "./EngineUtils";
+import { differentiable, sc } from "./Optimizer";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluator
@@ -24,7 +21,10 @@ import { mapTranslation } from "./EngineUtils";
 export const evalTranslation = (s: State): State => {
   // Update the stale varyingMap from the translation. TODO: Where is the right place to do this?
   s.varyingMap = genVaryMap(s.varyingPaths, s.varyingValues);
-  const varyingMapList = zip(s.varyingPaths, s.varyingValues) as [Path, Tensor][];
+  const varyingMapList = zip(s.varyingPaths, s.varyingValues) as [
+    Path,
+    Tensor
+  ][];
 
   // Insert all varying vals
   const trans = insertVaryings(s.translation, varyingMapList);
@@ -42,8 +42,10 @@ export const evalTranslation = (s: State): State => {
   );
 
   // Sort the shapes by ordering--note the null assertion
-  const sortedShapesEvaled = s.shapeOrdering.map((name) =>
-    shapesEvaled.find(({ properties }) => properties.name.contents === name)!);
+  const sortedShapesEvaled = s.shapeOrdering.map(
+    (name) =>
+      shapesEvaled.find(({ properties }) => properties.name.contents === name)!
+  );
 
   // Update the state with the new list of shapes and translation
   // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
@@ -112,23 +114,30 @@ export const evalShape = (
   varyingVars: VaryMap,
   shapes: Shape[]
 ): [Shape[], Translation] => {
-
   const [shapeType, propExprs] = shapeExpr.contents;
 
   // Make sure all props are evaluated to values instead of shapes
-  const props = mapValues(propExprs, (prop: TagExpr<Tensor>): Value<number> => {
-    if (prop.tag === "OptEval") {
-      // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
-      // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
-      const res: Value<Tensor> = (evalExpr(prop.contents, trans, varyingVars) as IVal<Tensor>).contents;
-      const resDisplay: Value<number> = valueAutodiffToNumber(res);
-      return resDisplay;
-    } else if (prop.tag === "Done") {
-      return valueAutodiffToNumber(prop.contents);
-    } else { // Pending expressions are just converted because they get converted back to numbers later
-      return valueAutodiffToNumber(prop.contents);
+  const props = mapValues(
+    propExprs,
+    (prop: TagExpr<Tensor>): Value<number> => {
+      if (prop.tag === "OptEval") {
+        // For display, evaluate expressions with autodiff types (incl. varying vars as AD types), then convert to numbers
+        // (The tradeoff for using autodiff types is that evaluating the display step will be a little slower, but then we won't have to write two versions of all computations)
+        const res: Value<Tensor> = (evalExpr(
+          prop.contents,
+          trans,
+          varyingVars
+        ) as IVal<Tensor>).contents;
+        const resDisplay: Value<number> = valueAutodiffToNumber(res);
+        return resDisplay;
+      } else if (prop.tag === "Done") {
+        return valueAutodiffToNumber(prop.contents);
+      } else {
+        // Pending expressions are just converted because they get converted back to numbers later
+        return valueAutodiffToNumber(prop.contents);
+      }
     }
-  });
+  );
 
   const shape: Shape = { shapeType, properties: props };
 
@@ -147,8 +156,7 @@ export const evalExprs = (
   es: Expr[],
   trans: Translation,
   varyingVars?: VaryMap<Tensor>
-): ArgVal<Tensor>[] =>
-  es.map((e) => evalExpr(e, trans, varyingVars));
+): ArgVal<Tensor>[] => es.map((e) => evalExpr(e, trans, varyingVars));
 
 /**
  * Evaluate the input expression to a value.
@@ -166,102 +174,123 @@ export const evalExpr = (
   trans: Translation,
   varyingVars?: VaryMap<Tensor>
 ): ArgVal<Tensor> => {
-
   switch (e.tag) {
-    case "IntLit": {
-      return { tag: "Val", contents: { tag: "IntV", contents: e.contents } }
-    } break;
-
-    case "StringLit": {
-      return { tag: "Val", contents: { tag: "StrV", contents: e.contents } }
-    } break;
-
-    case "BoolLit": {
-      return { tag: "Val", contents: { tag: "BoolV", contents: e.contents } }
-    } break;
-
-    case "AFloat": {
-      if (e.contents.tag === "Vary") {
-        throw new Error("encountered an unsubstituted varying value");
-      } else {
-        const val = e.contents.contents;
-
-        return {
-          tag: "Val",
-          // Fixed number is stored in translation as number, made differentiable when encountered
-          contents: {
-            tag: "FloatV",
-            contents: scalar(val),
-          },
-        };
+    case "IntLit":
+      {
+        return { tag: "Val", contents: { tag: "IntV", contents: e.contents } };
       }
-    } break;
+      break;
 
-    case "Tuple": {
-      const [e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+    case "StringLit":
+      {
+        return { tag: "Val", contents: { tag: "StrV", contents: e.contents } };
+      }
+      break;
 
-      // TODO: Is there a neater way to do this check? (`checkListElemType` in GenOptProblem.hs)
-      if (val1.tag === "Val" && val2.tag === "Val") {
-        if (val1.contents.tag === "FloatV" && val2.contents.tag === "FloatV") {
-          return { // Value<number | Tensor>
+    case "BoolLit":
+      {
+        return { tag: "Val", contents: { tag: "BoolV", contents: e.contents } };
+      }
+      break;
+
+    case "AFloat":
+      {
+        if (e.contents.tag === "Vary") {
+          throw new Error("encountered an unsubstituted varying value");
+        } else {
+          const val = e.contents.contents;
+
+          return {
             tag: "Val",
-            contents:
-            {
-              tag: "TupV",
-              contents: [val1.contents.contents,
-              val2.contents.contents]
-            }
+            // Fixed number is stored in translation as number, made differentiable when encountered
+            contents: {
+              tag: "FloatV",
+              contents: scalar(val),
+            },
+          };
+        }
+      }
+      break;
+
+    case "Tuple":
+      {
+        const [e1, e2] = e.contents;
+        const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+
+        // TODO: Is there a neater way to do this check? (`checkListElemType` in GenOptProblem.hs)
+        if (val1.tag === "Val" && val2.tag === "Val") {
+          if (
+            val1.contents.tag === "FloatV" &&
+            val2.contents.tag === "FloatV"
+          ) {
+            return {
+              // Value<number | Tensor>
+              tag: "Val",
+              contents: {
+                tag: "TupV",
+                contents: [val1.contents.contents, val2.contents.contents],
+              },
+            };
+          } else {
+            throw Error("Tuple needs to contain two Float elements");
           }
         } else {
-          throw Error("Tuple needs to contain two Float elements");
+          throw Error("Tuple needs to evaluate to two values (no GPI allowed)");
         }
-      } else {
-        throw Error("Tuple needs to evaluate to two values (no GPI allowed)");
       }
-    } break;
+      break;
 
-    case "UOp": {
-      const {
-        contents: [uOp, expr],
-      } = e as IUOp;
-      // TODO: use the type system to narrow down Value to Float and Int?
-      const arg = evalExpr(expr, trans, varyingVars).contents;
-      return {
-        tag: "Val",
-        // HACK: coerce the type for now to let the compiler finish
-        contents: evalUOp(uOp, arg as IFloatV<Tensor> | IIntV<Tensor>),
+    case "UOp":
+      {
+        const {
+          contents: [uOp, expr],
+        } = e as IUOp;
+        // TODO: use the type system to narrow down Value to Float and Int?
+        const arg = evalExpr(expr, trans, varyingVars).contents;
+        return {
+          tag: "Val",
+          // HACK: coerce the type for now to let the compiler finish
+          contents: evalUOp(uOp, arg as IFloatV<Tensor> | IIntV<Tensor>),
+        };
       }
-    } break;
+      break;
 
-    case "BinOp": {
-      const [binOp, e1, e2] = e.contents;
-      const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
-      return {
-        tag: "Val",
-        // HACK: coerce the type for now to let the compiler finish
-        contents: evalBinOp(
-          binOp,
-          val1.contents as Value<Tensor>,
-          val2.contents as Value<Tensor>
-        ),
+    case "BinOp":
+      {
+        const [binOp, e1, e2] = e.contents;
+        const [val1, val2] = evalExprs([e1, e2], trans, varyingVars);
+        return {
+          tag: "Val",
+          // HACK: coerce the type for now to let the compiler finish
+          contents: evalBinOp(
+            binOp,
+            val1.contents as Value<Tensor>,
+            val2.contents as Value<Tensor>
+          ),
+        };
       }
-    } break;
+      break;
 
-    case "EPath": {
-      return resolvePath(e.contents, trans, varyingVars);
-    } break;
+    case "EPath":
+      {
+        return resolvePath(e.contents, trans, varyingVars);
+      }
+      break;
 
-    case "CompApp": {
-      const [fnName, argExprs] = e.contents;
-      // eval all args
-      // TODO: how should computations be written? TF numbers?
-      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<Tensor>[];
-      const argValues = args.map((a) => argValue(a));
-      checkComp(fnName, args);
-      // retrieve comp function from a global dict and call the function
-      return { tag: "Val", contents: compDict[fnName](...argValues) };
-    } break;
+    case "CompApp":
+      {
+        const [fnName, argExprs] = e.contents;
+        // eval all args
+        // TODO: how should computations be written? TF numbers?
+        const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<
+          Tensor
+        >[];
+        const argValues = args.map((a) => argValue(a));
+        checkComp(fnName, args);
+        // retrieve comp function from a global dict and call the function
+        return { tag: "Val", contents: compDict[fnName](...argValues) };
+      }
+      break;
 
     default: {
       throw new Error(`cannot evaluate expression of type ${e.tag}`);
@@ -303,11 +332,16 @@ export const resolvePath = (
         // TODO: cache results
         const evaledProps = mapValues(props, (p, propName) => {
           if (p.tag === "OptEval") {
-            return (evalExpr(p.contents, trans, varyingMap) as IVal<Tensor>).contents;
+            return (evalExpr(p.contents, trans, varyingMap) as IVal<Tensor>)
+              .contents;
           } else {
             const propPath: IPropertyPath = {
               tag: "PropertyPath",
-              contents: concat(path.contents, propName) as [BindingForm, string, string],
+              contents: concat(path.contents, propName) as [
+                BindingForm,
+                string,
+                string
+              ],
               // TODO: check if this is true
             };
             varyingVal = varyingMap?.get(JSON.stringify(propPath));
@@ -331,10 +365,9 @@ export const resolvePath = (
           return evalExpr(expr.contents, trans, varyingMap);
         } else {
           // TODO: Should exprs be converted from tensors to numbers here?
-          return { tag: "Val", contents: expr.contents }
-        };
+          return { tag: "Val", contents: expr.contents };
+        }
       }
-
     }
   }
 };
@@ -359,7 +392,6 @@ export const evalBinOp = (
   v1: Value<Tensor>,
   v2: Value<Tensor>
 ): Value<Tensor> => {
-
   let returnType: "FloatV" | "IntV";
   // TODO: deal with Int ops/conversion for binops
   // res = returnType === "IntV" ? Math.floor(res) : res;
@@ -392,12 +424,9 @@ export const evalBinOp = (
 
     returnType = "FloatV";
     return { tag: returnType, contents: res };
-  }
-
-  else if (v1.tag === "IntV" && v2.tag === "IntV") {
+  } else if (v1.tag === "IntV" && v2.tag === "IntV") {
     returnType = "IntV";
-  }
-  else {
+  } else {
     throw new Error(`the types of two operands to ${op} must match`);
   }
 
@@ -413,7 +442,6 @@ export const evalUOp = (
   op: UnaryOp,
   arg: IFloatV<Tensor> | IIntV<Tensor>
 ): Value<Tensor> => {
-
   if (arg.tag === "FloatV") {
     switch (op) {
       case "UPlus":
@@ -421,7 +449,8 @@ export const evalUOp = (
       case "UMinus":
         return { ...arg, contents: arg.contents.neg() };
     }
-  } else { // IntV
+  } else {
+    // IntV
     switch (op) {
       case "UPlus":
         throw new Error("unary plus is undefined");
@@ -429,7 +458,6 @@ export const evalUOp = (
         return { ...arg, contents: -arg.contents };
     }
   }
-
 };
 
 /**
@@ -541,7 +569,7 @@ export const decodeState = (json: any): State => {
 export const encodeState = (state: State): any => {
   const json = {
     ...state,
-    varyingState: state.varyingValues.map(e => sc(e)),
+    varyingState: state.varyingValues.map((e) => sc(e)),
     paramsr: state.params, // TODO: careful about the list of variables
     transr: mapTranslation(sc, state.translation), // Only send numbers to backend
     // NOTE: clean up all additional props and turn objects into lists
@@ -558,10 +586,7 @@ export const encodeState = (state: State): any => {
   return json;
 };
 
-export const genVaryMap = (
-  varyingPaths: Path[],
-  varyingValues: Variable[]
-) => {
+export const genVaryMap = (varyingPaths: Path[], varyingValues: Variable[]) => {
   if (varyingValues.length !== varyingPaths.length) {
     console.log(varyingPaths, varyingValues);
     throw new Error("Different numbers of varying vars vs. paths");

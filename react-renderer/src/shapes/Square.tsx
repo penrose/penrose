@@ -1,29 +1,24 @@
 import * as React from "react";
-import { svgTransformString, toHex } from "./Util";
-import { IGPIProps } from "./types";
+import { toScreen, toHex } from "utils/Util";
+import { IGPIProps } from "types";
 
-class SquareTransform extends React.Component<IGPIProps> {
+class Square extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
-    // const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
+    const [x, y] = toScreen([shape.x.contents, shape.y.contents], canvasSize);
     const color = toHex(shape.color.contents);
     const alpha = shape.color.contents.contents[3];
     const strokeColor = toHex(shape.strokeColor.contents);
-    const side = 1.0; // shape.side.contents;
+    const side = shape.side.contents;
     const strokeWidth = shape.strokeWidth.contents;
-    const transformStr = svgTransformString(
-      shape.transformation.contents,
-      canvasSize
-    );
 
     return (
       <rect
-        x={-0.5}
-        y={-0.5}
+        x={x - side / 2}
+        y={y - side / 2}
         width={side}
         height={side}
-        transform={transformStr}
         fill={color}
         fillOpacity={alpha}
         strokeWidth={strokeWidth}
@@ -34,4 +29,4 @@ class SquareTransform extends React.Component<IGPIProps> {
     );
   }
 }
-export default SquareTransform;
+export default Square;

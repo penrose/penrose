@@ -1,8 +1,8 @@
 import * as React from "react";
-import { toHex, svgTransformString } from "./Util";
-import { IGPIProps } from "./types";
+import { toHex, svgTransformString } from "utils/Util";
+import { IGPIProps } from "types";
 
-class CircleTransform extends React.Component<IGPIProps> {
+class RectangleTransform extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
@@ -18,11 +18,14 @@ class CircleTransform extends React.Component<IGPIProps> {
       canvasSize
     );
 
+    // The default rectangle is an axis-aligned unit square centered at the origin
+    // Its position, size, angle, etc. is all set by the Penrose transform
     return (
-      <circle
-        cx={-0.0}
-        cy={-0.0}
-        r={1.0}
+      <rect
+        x={-0.5}
+        y={-0.5}
+        width={1.0}
+        height={1.0}
         fill={fillColor}
         fillOpacity={fillAlpha}
         stroke={strokeColor}
@@ -32,9 +35,8 @@ class CircleTransform extends React.Component<IGPIProps> {
         transform={transformStr}
       >
         <title>{shape.name.contents}</title>
-        <desc>Circle representing {shape.name.contents}</desc>
-      </circle>
+      </rect>
     );
   }
 }
-export default CircleTransform;
+export default RectangleTransform;

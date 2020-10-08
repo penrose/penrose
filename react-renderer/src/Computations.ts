@@ -1,8 +1,8 @@
 import { range } from "lodash";
-import { randFloat } from "./Util";
+import { randFloat } from "utils/Util";
 import { Tensor, scalar, stack, cos, sin } from "@tensorflow/tfjs";
-import { dist } from "./Constraints";
-import { mapTup2 } from "./EngineUtils";
+import { dist } from "Constraints";
+import { mapTup2 } from "EngineUtils";
 
 /**
  * Static dictionary of computation functions
@@ -34,12 +34,18 @@ export const compDict = {
 
   // Accepts degrees; converts to radians
   cos: (d: Tensor): Value<Tensor> => {
-    return { tag: "FloatV", contents: cos(d.mul(scalar(Math.PI)).div(scalar(180))) };
+    return {
+      tag: "FloatV",
+      contents: cos(d.mul(scalar(Math.PI)).div(scalar(180))),
+    };
   },
 
   // Accepts degrees; converts to radians
   sin: (d: any) => {
-    return { tag: "FloatV", contents: sin(d.mul(scalar(Math.PI)).div(scalar(180))) };
+    return {
+      tag: "FloatV",
+      contents: sin(d.mul(scalar(Math.PI)).div(scalar(180))),
+    };
   },
 
   dot: (v: any, w: any) => {
@@ -59,12 +65,18 @@ export const compDict = {
 
   // TODO: The functions below need to be written in terms of autodiff types
 
-  orientedSquare: (arr1: any, arr2: any, pt: any, len: Tensor): IPathDataV<Tensor> => {
+  orientedSquare: (
+    arr1: any,
+    arr2: any,
+    pt: any,
+    len: Tensor
+  ): IPathDataV<Tensor> => {
     // TODO: Write the full function; this is just a fixed path for testing
-    const elems: Elem<Tensor>[] =
-      [{ tag: "Pt", contents: mapTup2(scalar, [100, 100]) },
+    const elems: Elem<Tensor>[] = [
+      { tag: "Pt", contents: mapTup2(scalar, [100, 100]) },
       { tag: "Pt", contents: mapTup2(scalar, [200, 200]) },
-      { tag: "Pt", contents: mapTup2(scalar, [300, 150]) }];
+      { tag: "Pt", contents: mapTup2(scalar, [300, 150]) },
+    ];
     const path: SubPath<Tensor> = { tag: "Open", contents: elems };
 
     return { tag: "PathDataV", contents: [path] };
@@ -93,11 +105,12 @@ export const compDict = {
       };
     } else throw new Error("unknown color type");
   },
-
 };
 
-const arrowPts = ({ startX, startY, endX, endY }: any): [Tensor, Tensor] =>
-  [stack([startX.contents, startY.contents]), stack([endX.contents, endY.contents])]
+const arrowPts = ({ startX, startY, endX, endY }: any): [Tensor, Tensor] => [
+  stack([startX.contents, startY.contents]),
+  stack([endX.contents, endY.contents]),
+];
 
 export const checkComp = (fn: string, args: ArgVal<Tensor>[]) => {
   if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);

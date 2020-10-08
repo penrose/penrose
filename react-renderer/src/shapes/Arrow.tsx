@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { toScreen, toHex, Arrowhead, arrowheads } from "./Util";
-import { IGPIProps } from "./types";
+import { toScreen, toHex, Arrowhead, arrowheads } from "utils/Util";
+import { IGPIProps } from "types";
 
 class Arrow extends React.Component<IGPIProps> {
   public render() {
@@ -28,7 +28,7 @@ class Arrow extends React.Component<IGPIProps> {
     const slope = Math.atan2(ey - sy, ex - sx);
     const [offsetX, offsetY] = [
       Math.cos(slope) * (width - refX) * strokeWidth * arrowheadSize,
-      Math.sin(slope) * (width - refX) * strokeWidth * arrowheadSize
+      Math.sin(slope) * (width - refX) * strokeWidth * arrowheadSize,
     ];
 
     return (

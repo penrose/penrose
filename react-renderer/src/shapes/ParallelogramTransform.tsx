@@ -1,28 +1,31 @@
 import * as React from "react";
-import { toHex, toPointListString, svgTransformString } from "./Util";
-import { IGPIProps } from "./types";
+import { toHex, svgTransformString } from "utils/Util";
+import { IGPIProps } from "types";
 
-class Polygon extends React.Component<IGPIProps> {
+class ParallelogramTransform extends React.Component<IGPIProps> {
   public render() {
     const { shape } = this.props;
     const { canvasSize } = this.props;
 
-    const fillColor = toHex(shape.fillColor.contents);
-    const fillAlpha = shape.fillColor.contents[3];
+    const fillColor = toHex(shape.color.contents);
+    const fillAlpha = shape.color.contents.contents[3];
     const strokeColor = toHex(shape.strokeColor.contents);
-    const strokeAlpha = shape.strokeColor.contents[3];
+    const strokeAlpha = shape.strokeColor.contents.contents[3];
     const thickness = shape.strokeWidth.contents;
-
-    const ptListString = toPointListString(shape.points.contents, canvasSize);
 
     const transformStr = svgTransformString(
       shape.transformation.contents,
       canvasSize
     );
 
+    // The default parallelogram is an axis-aligned unit square centered at the origin
+    // Its position, size, angle, etc. is all set by the Penrose transform
     return (
-      <polygon
-        points={ptListString}
+      <rect
+        x={-0.5}
+        y={-0.5}
+        width={1.0}
+        height={1.0}
         fill={fillColor}
         fillOpacity={fillAlpha}
         stroke={strokeColor}
@@ -32,8 +35,8 @@ class Polygon extends React.Component<IGPIProps> {
         transform={transformStr}
       >
         <title>{shape.name.contents}</title>
-      </polygon>
+      </rect>
     );
   }
 }
-export default Polygon;
+export default ParallelogramTransform;

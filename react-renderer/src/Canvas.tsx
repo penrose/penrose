@@ -1,13 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { interactiveMap, staticMap } from "./componentMap";
-import Log from "./Log";
-import { loadImages } from "./Util";
+import { interactiveMap, staticMap } from "componentMap";
+import Log from "Log";
+import { loadImages } from "utils/Util";
 import { insertPending } from "./PropagateUpdate";
 import { collectLabels } from "./utils/CollectLabels";
 import { evalTranslation, decodeState } from "./Evaluator";
 import { walkTranslationConvert } from "./EngineUtils";
-import { scalar } from "@tensorflow/tfjs";
 import { differentiable } from "./Optimizer";
 
 interface ICanvasProps {
@@ -54,7 +53,7 @@ class Canvas extends React.Component<ICanvasProps> {
     const stateAD = {
       ...state,
       translation: translationAD,
-      varyingValues: state.varyingValues.map(e => differentiable(e))
+      varyingValues: state.varyingValues.map((e) => differentiable(e)),
     };
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
@@ -129,7 +128,13 @@ class Canvas extends React.Component<ICanvasProps> {
           ]),
         ];
       default:
-        return [type, this.moveProperties(properties, [["x", dx], ["y", dy]])];
+        return [
+          type,
+          this.moveProperties(properties, [
+            ["x", dx],
+            ["y", dy],
+          ]),
+        ];
     }
   };
 
@@ -305,12 +310,12 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-            } on ${new Date()
-              .toISOString()
-              .slice(
-                0,
-                10
-              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+          } on ${new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}
