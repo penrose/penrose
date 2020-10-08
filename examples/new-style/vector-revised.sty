@@ -3,19 +3,30 @@ import "Colors.sty"
 import "Keenan.sty"
 
 -- Local functions. Written in typescript; Looks very similar to Computations.ts
-functions = {
-  // Shape type is [string, any] <-- type, then props
-  orientedSquare: (arr1: any, arr2: any, pt: any, len: number) => {
-    // Can still log, etc for debugging
-    console.log("orientedSquare", arr1, arr2, pt, len);
-    // Need to build up path -- this is just a placeholder, not the actual math
-    const elems = [{ tag: "Pt", contents: [100, 100].map(varAD) },
-    { tag: "Pt", contents: [200, 200].map(varAD) },
-    { tag: "Pt", contents: [300, 150].map(varAD) }];
-    const path = { tag: "Open", contents: elems };
-    // Need to tag return type
-    return { tag: "PathDataV", contents: [path] };
-  },
+defs {
+
+  function << 
+      orientedSquare: (arr1: any, arr2: any, pt: any, len: VarAD): IPathDataV<VarAD> => {
+        // TODO: Write the full function; this is just a fixed path for testing
+        checkFloat(len);
+
+        const elems: Elem<VarAD>[] =
+          [{ tag: "Pt", contents: mapTup2(constOf, [100, 100]) },
+          { tag: "Pt", contents: mapTup2(constOf, [200, 200]) },
+          { tag: "Pt", contents: mapTup2(constOf, [300, 150]) }];
+        const path: SubPath<VarAD> = { tag: "Open", contents: elems };
+
+        return { tag: "PathDataV", contents: [path] };
+      }
+  >>
+
+  // Just for demonstration; not actually used in program
+  objective <<
+      sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
+        return distsq(center(s1), center(s2));
+      }
+  >>
+
 }
 
 -- Global constants and sizes
