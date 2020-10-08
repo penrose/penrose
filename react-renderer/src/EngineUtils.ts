@@ -260,9 +260,9 @@ export function mapValueNumeric<T, S>(
   }
 };
 
-export const valueAutodiffToNumber = (v: Value<DiffVar>): Value<number> => mapValueNumeric(numOf, v);
+export const valueAutodiffToNumber = (v: Value<VarAD>): Value<number> => mapValueNumeric(numOf, v);
 
-export const valueNumberToAutodiff = (v: Value<number>): Value<DiffVar> => mapValueNumeric(varOf, v);
+export const valueNumberToAutodiff = (v: Value<number>): Value<VarAD> => mapValueNumeric(varOf, v);
 
 // Walk translation to convert all TagExprs (tagged Done or Pending) in the state to VarADs
 // (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)

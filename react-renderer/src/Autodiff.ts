@@ -152,7 +152,7 @@ const gradFiniteDiff = (f: (args: number[]) => number) => {
 const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
   energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
   const dxs = xsVars.map(gradADSymbolic); // Computes it per variable, mutating the graph to set cached results and reuse them
-  const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradNode));
+  const gradxs = xsVars.map((x: VarAD) => fromJust(x.gradNode));
   return gradxs;
 };
 

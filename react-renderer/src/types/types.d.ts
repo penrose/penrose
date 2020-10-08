@@ -47,7 +47,7 @@ interface IState {
   varyingMap: VaryMap;
 
   // TODO: Remove this
-  overallObjective(...xs: DiffVar[]): DiffVar;
+  overallObjective(...xs: VarAD[]): VarAD;
 }
 type State = IState; // TODO
 
@@ -501,17 +501,17 @@ type Params = IParams;
 interface IParams {
   optStatus: OptStatus;
   weight: number; // Constraint weight for exterior point method
-  mutableUOstate: DiffVar[]; // Don't forget... it's mutable!
+  mutableUOstate: VarAD[]; // Don't forget... it's mutable!
 
   // Info for unconstrained optimization
   UOround: number;
-  lastUOstate: DiffVar;
-  lastUOenergy: DiffVar;
+  lastUOstate: VarAD;
+  lastUOenergy: VarAD;
 
   // Info for exterior point method
   EPround: number;
-  lastEPstate: DiffVar;
-  lastEPenergy: DiffVar;
+  lastEPstate: VarAD;
+  lastEPenergy: VarAD;
 
   // For L-BFGS (TODO)
   lbfgsInfo: LbfgsParams;
@@ -553,8 +553,6 @@ interface IWeightInfo {
   epWeight: number
 };
 
-// ------------ Types for reverse-mode autodiff
-
 // ----- Helper types
 
 interface Nothing<T> {
@@ -569,6 +567,8 @@ interface Just<T> {
 type MaybeVal<T> =
   | Nothing<T>
   | Just<T>;
+
+// ------------ Types for reverse-mode autodiff
 
 // ----- Core types
 
@@ -585,17 +585,19 @@ type MaybeVal<T> =
 
 interface IEdgeAD {
   node: VarAD;
-  // sensitivity: number; // Value "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
-  // Aka how sensitive the output is to this input
 
-  // closure of the sensitivity with the relevant variables, so it can be called when the energy is updated
-  // sensitivityFn(arg: "unit"): number;
+  // Function "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
+  // Aka how sensitive the output is to this input -- a function encoded as a computational graph fragment
   sensitivityNode: MaybeVal<VarAD>;
 };
 
 type EdgeAD = IEdgeAD;
 
 interface IVarAD {
+  val: number; // The value of this node at the time the computational graph was created. This is mostly unused, since most values are compiled out except for leaf nodes
+
+  valDone: boolean; // formerly used to cache energy values in the computational graph, evalEnergyOnGraph; TODO remove
+
   tag: "custom";
   metadata: string; // Used for storing the kind of weight
   op: string;
@@ -612,29 +614,19 @@ interface IVarAD {
   nodeVisited: boolean;
   // Now used to track whether this node (and its children) has already been computed in the codegen
   name: string; // Name of cached value for this node in codegen (e.g. `const x3 = x1 + x2;` <-- name of node is `x3`)
-
-  // Both unused, below. TODO: remove
-  val: number;
-  valDone: boolean; // formerly used to cache energy values in the computational graph, evalEnergyOnGraph
 }
 
 type VarAD = IVarAD;
 
 // ----- Types for generalizing our system autodiff
 
-// Tag is for distinguishing between tf var and custom var (use `if (x.tag)`)
-// NOTE: Variable is a subtype of VarAD, so it can be used here with no problem
-
-// TODO: Should VarAD provide a mutable API??
-
+// This (IVecAD) type is unused, but could be useful at some point
 interface IVecAD {
   tag: "VecAD";
   contents: VarAD[];
 }
 
 type VecAD = IVecAD;
-
-type DiffVar = VarAD | VarAD;
 
 type GradGraphs = IGradGraphs;
 
