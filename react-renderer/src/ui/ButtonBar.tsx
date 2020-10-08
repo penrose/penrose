@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ILayer } from "./types";
+import { ILayer } from "../types";
 
 interface IProps {
   converged: boolean;
@@ -14,7 +14,6 @@ interface IProps {
   autoStepToggle(): void;
   step(): void;
   resample(): void;
-
 }
 class ButtonBar extends React.Component<IProps> {
   public render() {
@@ -28,7 +27,7 @@ class ButtonBar extends React.Component<IProps> {
       step,
       resample,
       toggleInspector,
-      showInspector
+      showInspector,
     } = this.props;
     return (
       <div style={{ display: "flex", justifyContent: "middle" }}>
@@ -47,7 +46,6 @@ class ButtonBar extends React.Component<IProps> {
         <button onClick={toggleInspector}>
           {showInspector ? "hide" : "show"} inspector
         </button>
-        
 
         <div
           style={{
@@ -60,7 +58,7 @@ class ButtonBar extends React.Component<IProps> {
                 ? "#55de55"
                 : initial
                 ? "#4286f4"
-                : "#ff9d23"
+                : "#ff9d23",
           }}
         />
       </div>

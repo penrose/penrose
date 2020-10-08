@@ -1,6 +1,6 @@
 import * as React from "react";
 import IViewProps from "./IViewProps";
-import { staticMap } from "componentMap";
+import { staticMap } from "shapes/componentMap";
 import styled from "styled-components";
 import { ObjectInspector } from "react-inspector";
 

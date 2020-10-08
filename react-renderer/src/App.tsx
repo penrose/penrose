@@ -1,7 +1,7 @@
 import * as React from "react";
 import Log from "./utils/Log";
-import Canvas from "./Canvas";
-import ButtonBar from "./ButtonBar";
+import Canvas from "./ui/Canvas";
+import ButtonBar from "./ui/ButtonBar";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { evalTranslation, decodeState } from "engine/Evaluator";

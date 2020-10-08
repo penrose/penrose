@@ -1,3 +1,5 @@
+// TODO: rewrite all tests to not use tfjs
+
 import {
   minimize,
   gradF,

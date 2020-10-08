@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IGPIPropsDraggable, IGPIProps } from "./types";
+import { IGPIPropsDraggable, IGPIProps } from "../types";
 import isEqual from "react-fast-compare";
 interface IState {
   tempX: number;
@@ -24,7 +24,7 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
           dy: 0,
           tempX: 0,
           tempY: 0,
-          shapeSnapshot: props.shape
+          shapeSnapshot: props.shape,
         };
       }
       return null;
@@ -34,7 +34,7 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
       tempY: 0,
       dx: 0,
       dy: 0,
-      shapeSnapshot: {}
+      shapeSnapshot: {},
     };
     public getPosition = (x: number, y: number) => {
       const { ctm } = this.props;
@@ -61,7 +61,7 @@ const draggable = (Child: React.ComponentClass<IGPIProps, any>) => {
       const [x, y] = this.getPosition(e.clientX, e.clientY);
       this.setState({
         tempX: x + this.state.dx,
-        tempY: y - this.state.dy
+        tempY: y - this.state.dy,
       });
       // These listeners are applied to the document
       // because shape-specific listeners don't fire if there's overlapping issues

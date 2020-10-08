@@ -1,4 +1,4 @@
-import Canvas from "./Canvas";
+import Canvas from "./ui/Canvas";
 import * as Packets from "./packets";
 import { ILayer } from "./types";
 import {

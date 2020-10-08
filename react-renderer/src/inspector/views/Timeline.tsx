@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import styled from "styled-components";
-import Canvas from "Canvas";
+import Canvas from "ui/Canvas";
 import IViewProps from "./IViewProps";
 
 const TimelineStyled = styled.ul`

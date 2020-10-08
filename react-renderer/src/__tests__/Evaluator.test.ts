@@ -1,3 +1,5 @@
+// TODO: rewrite all tests to not use tfjs
+
 import {
   decodeState,
   findExpr,
@@ -174,7 +176,5 @@ describe("evaluation opt functions tests", () => {
       state.translation,
       state.varyingMap as any
     );
-    // objEvaled.map((f) => console.log(f));
-    // constrEvaled.map((f) => console.log(f));
   });
 });

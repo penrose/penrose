@@ -1,7 +1,7 @@
 import { range } from "lodash";
 import { randFloat } from "utils/Util";
 import { Tensor, scalar, stack, cos, sin } from "@tensorflow/tfjs";
-import { dist } from "Constraints";
+import { dist } from "contrib/Constraints";
 import { mapTup2 } from "engine/EngineUtils";
 
 /**

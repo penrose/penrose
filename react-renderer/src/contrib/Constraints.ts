@@ -1,11 +1,27 @@
-import { Tensor, Scalar, Rank, stack, scalar, maximum, tensor, norm, abs, square, squaredDifference } from "@tensorflow/tfjs";
-import { canvasSize } from "./Canvas";
+import {
+  Tensor,
+  Scalar,
+  Rank,
+  stack,
+  scalar,
+  maximum,
+  tensor,
+  norm,
+  abs,
+  square,
+  squaredDifference,
+} from "@tensorflow/tfjs";
+import { canvasSize } from "../ui/Canvas";
 import * as _ from "lodash";
 
 export const objDict = {
   equal: (x: Tensor, y: Tensor) => squaredDifference(x, y),
 
-  above: ([t1, top]: [string, any], [t2, bottom]: [string, any], offset = 100) =>
+  above: (
+    [t1, top]: [string, any],
+    [t2, bottom]: [string, any],
+    offset = 100
+  ) =>
     // (getY top - getY bottom - offset) ^ 2
     square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
 
@@ -13,20 +29,29 @@ export const objDict = {
     return distsq(center(s1), center(s2));
   },
 
-  below: ([t1, bottom]: [string, any], [t2, top]: [string, any], offset = 100) =>
-    square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
+  below: (
+    [t1, bottom]: [string, any],
+    [t2, top]: [string, any],
+    offset = 100
+  ) => square(top.y.contents.sub(bottom.y.contents).sub(scalar(offset))),
   // can this be made more efficient (code-wise) by calling "above" and swapping arguments? - stella
 
-
-  centerLabel: ([t1, arr]: [string, any], [t2, text1]: [string, any], w: number): Tensor => {
+  centerLabel: (
+    [t1, arr]: [string, any],
+    [t2, text1]: [string, any],
+    w: number
+  ): Tensor => {
     if (typesAre([t1, t2], ["Arrow", "Text"])) {
       const mx = arr.startX.contents.add(arr.endX.contents).div(scalar(2.0));
       const my = arr.startY.contents.add(arr.endY.contents).div(scalar(2.0));
       // entire equation is (mx - lx) ^ 2 + (my + 1.1 * text.h - ly) ^ 2 from Functions.hs - split it into two halves below for readability
       const lh = mx.sub(text1.x.contents).square();
-      const rh = my.add(text1.h.contents.mul(scalar(1.1))).sub(text1.y.contents).square();
+      const rh = my
+        .add(text1.h.contents.mul(scalar(1.1)))
+        .sub(text1.y.contents)
+        .square();
       return lh.add(rh).mul(w);
-    } else throw new Error(`${[t1, t2]} not supported for centerLabel`)
+    } else throw new Error(`${[t1, t2]} not supported for centerLabel`);
   },
 
   // Generic repel function for two GPIs with centers
@@ -35,21 +60,31 @@ export const objDict = {
     // TODO: find this out programmatically
     const repelWeight = 10e6;
     // 1 / (d^2(cx, cy) + eps)
-    return distsq(center(s1), center(s2)).add(epsd).reciprocal().mul(repelWeight);
+    return distsq(center(s1), center(s2))
+      .add(epsd)
+      .reciprocal()
+      .mul(repelWeight);
   },
 
-  centerArrow: ([t1, arr]: [string, any], [t2, text1]: [string, any], [t3, text2]: [string, any]): Tensor => {
+  centerArrow: (
+    [t1, arr]: [string, any],
+    [t2, text1]: [string, any],
+    [t3, text2]: [string, any]
+  ): Tensor => {
     const spacing = scalar(1.1); // arbitrary
 
     if (typesAre([t1, t2, t3], ["Arrow", "Text", "Text"])) {
       // HACK: Arbitrarily pick the height of the text
       // [spacing * getNum text1 "h", negate $ 2 * spacing * getNum text2 "h"]
-      return centerArrow2(arr, center(text1), center(text2),
-        [spacing.mul(text1.h.contents),
-        text2.h.contents.mul(spacing).mul(scalar(1.0)).neg()]);
+      return centerArrow2(arr, center(text1), center(text2), [
+        spacing.mul(text1.h.contents),
+        text2.h.contents
+          .mul(spacing)
+          .mul(scalar(1.0))
+          .neg(),
+      ]);
     } else throw new Error(`${[t1, t2, t3]} not supported for centerArrow`);
   },
-
 };
 
 export const constrDict = {
@@ -99,7 +134,11 @@ export const constrDict = {
       // dist (outerx, outery) (innerx, innery) - (0.5 * outer.side - inner.radius)
       const sq = stack([s1.x.contents, s1.y.contents]);
       const d = dist(sq, center(s2));
-      return d.sub(scalar(0.5).mul(s1.side.contents).sub(s2.r.contents));
+      return d.sub(
+        scalar(0.5)
+          .mul(s1.side.contents)
+          .sub(s2.r.contents)
+      );
     } else throw new Error(`${[t1, t2]} not supported for contains`);
   },
 
@@ -138,15 +177,17 @@ export const constrDict = {
     padding = 10
   ) => {
     if (t1 === "Circle" && t2 === "Circle") {
-      return looseIntersect(center(s1), s1.r.contents,
-        center(s2), s2.r.contents, padding);
+      return looseIntersect(
+        center(s1),
+        s1.r.contents,
+        center(s2),
+        s2.r.contents,
+        padding
+      );
     } else throw new Error(`${[t1, t2]} not supported for overlapping`);
   },
 
-  tangentTo: (
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any]
-  ) => {
+  tangentTo: ([t1, s1]: [string, any], [t2, s2]: [string, any]) => {
     // Inner tangency -- assuming circle1 contains circle2
     if (t1 === "Circle" && t2 === "Circle") {
       const d = dist(center(s1), center(s2));
@@ -163,11 +204,17 @@ export const constrDict = {
 // -------- Helpers for writing objectives
 
 const typesAre = (inputs: string[], expected: string[]) =>
-  (inputs.length === expected.length) && _.zip(inputs, expected).map(([i, e]) => i === e);
+  inputs.length === expected.length &&
+  _.zip(inputs, expected).map(([i, e]) => i === e);
 
 // -------- (Hidden) helpers for objective/constraints/computations
 
-const centerArrow2 = (arr: any, center1: Tensor, center2: Tensor, [o1, o2]: Tensor[]): Tensor => {
+const centerArrow2 = (
+  arr: any,
+  center1: Tensor,
+  center2: Tensor,
+  [o1, o2]: Tensor[]
+): Tensor => {
   const vec = center2.sub(center1); // direction the arrow should point to
   const dir = normalize(vec);
 
@@ -184,8 +231,7 @@ const centerArrow2 = (arr: any, center1: Tensor, center2: Tensor, [o1, o2]: Tens
   const toPt = stack([arr.endX.contents, arr.endY.contents]);
 
   return distsq(fromPt, start).add(distsq(toPt, end));
-}
-
+};
 
 // -------- Utils for objective/constraints/computations
 
@@ -197,8 +243,13 @@ export const zero: Tensor = scalar(0);
 // to prevent 1/0 (infinity). put it in the denominator
 export const epsd: Tensor = scalar(10e-10);
 
-export const looseIntersect = (center1: Tensor, r1: Tensor, center2: Tensor, r2: Tensor, padding: number) =>
-  dist(center1, center2).sub(r1.add(r2).sub(scalar(padding)));
+export const looseIntersect = (
+  center1: Tensor,
+  r1: Tensor,
+  center2: Tensor,
+  r2: Tensor,
+  padding: number
+) => dist(center1, center2).sub(r1.add(r2).sub(scalar(padding)));
 // dist (x1, y1) (x2, y2) - (s1 + s2 - 10)
 
 // HACK: need to annotate the types of x and y to be Tensor
@@ -212,7 +263,7 @@ export const dist = (p1: Tensor, p2: Tensor): Tensor => p1.sub(p2).norm();
 export const distsq = (p1: Tensor, p2: Tensor): Tensor => {
   const dp = p1.sub(p2);
   return dp.dot(dp);
-}
+};
 
 // with epsilon to avoid NaNs
 export const normalize = (v: Tensor): Tensor => v.div(v.norm().add(epsd));

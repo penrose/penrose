@@ -1,7 +1,7 @@
 import { scalar, Tensor, Variable } from "@tensorflow/tfjs";
 import { concat, mapValues, pickBy, values, zip } from "lodash";
 import seedrandom from "seedrandom";
-import { checkComp, compDict } from "../Computations";
+import { checkComp, compDict } from "../contrib/Computations";
 import { mapTranslation, valueAutodiffToNumber } from "./EngineUtils";
 import { differentiable, sc } from "./Optimizer";
 

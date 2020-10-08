@@ -1,10 +1,10 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { interactiveMap, staticMap } from "componentMap";
+import { interactiveMap, staticMap } from "shapes/componentMap";
 import Log from "utils/Log";
 import { loadImages } from "utils/Util";
-import { insertPending } from "./PropagateUpdate";
-import { collectLabels } from "./utils/CollectLabels";
+import { insertPending } from "../engine/PropagateUpdate";
+import { collectLabels } from "../utils/CollectLabels";
 import { evalTranslation, decodeState } from "engine/Evaluator";
 import { walkTranslationConvert } from "engine/EngineUtils";
 import { differentiable } from "engine/Optimizer";
