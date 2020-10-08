@@ -55,8 +55,7 @@ const clone = require('rfdc')({ proto: false, circles: true });
  * NOTE: need to manage the random seed. In the backend we delibrately discard the new random seed within each of the opt session for consistent results.
  */
 export const evalShapes = (s: State): State => {
-  // Update the stale varyingMap from the translation. TODO: Where is the right place to do this?
-
+  // Update the stale varyingMap from the translation
   // TODO: Evaluating the shapes for display is still done via interpretation on VarADs; not compiled
   const varyingValuesDiff = s.varyingValues.map(differentiable);
   s.varyingMap = genVaryMap(s.varyingPaths, varyingValuesDiff);
@@ -85,7 +84,7 @@ export const evalShapes = (s: State): State => {
     shapesEvaled.find(({ properties }) => properties.name.contents === name)!);
 
   // Update the state with the new list of shapes
-  // TODO: check how deep of a copy this is by, say, changing varyingValue of the returned state and see if the argument changes
+  // (This is a shallow copy of the state btw, not a deep copy)
   return { ...s, shapes: sortedShapesEvaled };
 };
 
@@ -139,11 +138,10 @@ const evalFn = (
 /**
  * Evaluate all properties in a shape.
  * @param shapeExpr unevaluated shape expression, where all props are expressions
- * @param trans current translation
+ * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
  * @param varyingVars varying variables and their values
  * @param shapes current list of shapes (for folding)
  *
- * TODO: update trans
  */
 export const evalShape = (
   shapeExpr: IFGPI<VarAD>, // <number>?
@@ -179,10 +177,9 @@ export const evalShape = (
 /**
  * Evaluate a list of expressions.
  * @param es a list of expressions
- * @param trans current translation
+ * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
  * @param varyingVars varying variables and their values
  *
- * TODO: cache translation in intermediate steps
  */
 export const evalExprs = (
   es: Expr[],
@@ -209,12 +206,11 @@ function toFloatVal<T>(a: ArgVal<T>): T {
 /**
  * Evaluate the input expression to a value.
  * @param e the expression to be evaluated.
- * @param trans the `Translation` so far
+ * @param trans the `Translation` so far (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
  * @param varyingVars pairs of (path, value) for all optimized/"varying" values.
  *
  * NOTE: This implementation needs the `Done` status of the values for optimizing evaluation and breaking cycles
  * TODO: maybe use a more OOP approach to encode current value and done status
- * TODO: deal with translation update
  * TODO: break cycles; optimize lookup
  */
 export const evalExpr = (
@@ -262,8 +258,7 @@ export const evalExpr = (
         if (val1.contents.tag === "FloatV" && val2.contents.tag === "FloatV") {
           return { // Value<number | VarAD>
             tag: "Val",
-            contents:
-            {
+            contents: {
               tag: "TupV",
               contents: [val1.contents.contents,
               val2.contents.contents]
@@ -296,7 +291,7 @@ export const evalExpr = (
       return {
         tag: "Val",
         // HACK: coerce the type for now to let the compiler finish
-        contents: evalBinOp( // TODO. Why doesn't this return a Value<VarAD>?
+        contents: evalBinOp(
           binOp,
           val1.contents as Value<VarAD>,
           val2.contents as Value<VarAD>
@@ -335,14 +330,6 @@ export const evalExpr = (
     case "CompApp": {
       const [fnName, argExprs] = e.contents;
       // eval all args
-      // TODO: how should computations be written? TF numbers?
-      const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<number>[];
-    };
-
-    case "CompApp": {
-      const [fnName, argExprs] = e.contents;
-      // eval all args
-      // TODO: how should computations be written? TF numbers?
       const args = evalExprs(argExprs, trans, varyingVars) as ArgVal<VarAD>[];
       const argValues = args.map((a) => argValue(a));
       checkComp(fnName, args);
@@ -359,11 +346,10 @@ export const evalExpr = (
 /**
  * Given a path to a field or property, resolve to a fully evaluated GPI (where all props are evaluated) or an evaluated value.
  * @param path path to a field (GPI or Expr) or a property (Expr only)
- * @param trans current computational graph
+ * @param trans current translation (is a deep copy for one evaluation pass only; is mutated to cache evaluated expressions)
  * @param varyingMap list of varying variables and their values
  *
- * TODO: lookup varying vars first?
- * TODO: cache done values somewhere, maybe by mutating the translation?
+ * Looks up varying vars first
  */
 export const resolvePath = (
   path: Path,
@@ -672,7 +658,7 @@ export const encodeState = (state: State): any => {
 
 export const genVaryMap = (
   varyingPaths: Path[],
-  varyingValues: VarAD[] // TODO: Distinguish between VarAD variables (tf Variable) and constants (tf Tensor)?
+  varyingValues: VarAD[] // TODO: Distinguish between VarAD variables and constants?
 ) => {
   if (varyingValues.length !== varyingPaths.length) {
     console.log(varyingPaths, varyingValues);

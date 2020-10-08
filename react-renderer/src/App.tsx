@@ -5,17 +5,11 @@ import ButtonBar from "./ButtonBar";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
 import { decodeState } from "./Evaluator";
-import { stepBasic } from "./Optimizer";
+import { step } from "./Optimizer";
 import { unwatchFile } from "fs";
 import { collectLabels } from "./utils/CollectLabels";
 import SplitPane from "react-split-pane";
 import Inspector from "./inspector/Inspector";
-
-// Cache compiled functions after first sample
-// TODO: Hack -- remove! Global state in frontend -- what's the right way to do this?
-// let resampled = false;
-// let objective: any;
-// let gradient: any;
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
@@ -32,7 +26,7 @@ const stepUntilConvergence = async (state: State) => {
   let newState;
   // Step until convergence w/o rendering
   while (true) {
-    newState = stepBasic(state!, 1, false);
+    newState = step(state!, 1, false);
     if (newState.params.optStatus.tag === "EPConverged") {
       break;
     }
@@ -40,35 +34,12 @@ const stepUntilConvergence = async (state: State) => {
 };
 
 const stepState = async (state: State, onUpdate: any) => {
-  // NOTE: this will greatly improve the performance of the optmizer
-  // TODO: where's the right place to put this? Is there an "on start up" place?
-  // tf.setBackend("cpu");
-  // tf.enableProdMode();
-
-  // TODO: Redo perf numbers for this extra factor of 10??
   const numSteps = 1;
-  // const numSteps = 2;
-
-  // const newState = step(state!, numSteps);
-  // const newState = stepEP(state!, numSteps);
-
-  // TODO: Hack -- remove!
-  // state.params.functionsCompiled = resampled;
-  // if (resampled) {
-  //   state.params.objective = objective;
-  //   state.params.gradient = gradient;
-  // }
-
-  // console.log("functionsCompiled", state.params.functionsCompiled);
-  const newState = stepBasic(state!, numSteps);
+  const newState = step(state!, numSteps);
 
   // onUpdate(newState);
   const labeledShapes: any = await collectLabels(newState.shapes);
   onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update
-
-  // TODO: Hack -- remove! sets it every step
-  // objective = state.params.objective;
-  // gradient = state.params.gradient;
 };
 
 class App extends React.Component<any, ICanvasState> {
@@ -100,8 +71,6 @@ class App extends React.Component<any, ICanvasState> {
     });
     const { autostep } = this.state;
     if (autostep && !converged(canvasState)) {
-      // TODO: Remove; just for profiling
-      // await stepUntilConvergence(this.state.data!);
       await this.step();
     }
   };

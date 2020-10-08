@@ -53,7 +53,6 @@ export const objDict = {
       const c2 = fns.center(s2);
       const lineSamplePts = sampleSeg(linePts(line));
       const allForces = addN(lineSamplePts.map(p => repelPt(constOfIf(weight), c2, p)));
-      // TODO: fix all the repel weights being zeroed for some reason
       res = mul(constOfIf(weight), allForces);
     } else {
       // 1 / (d^2(cx, cy) + eps)
@@ -154,17 +153,9 @@ export const constrDict = {
       return res;
 
     } else if (t1 === "Circle" && t2 === "Text") {
-      // Note: The print/debug output will be compiled out in the computational graph! (So it will not display)
-      // Note: The shapes' properties are still floats, so each time it's used, it's compiled to a NEW var here
-      // (TODO: One question is whether they should be shared root variables?)
-
-      // The problem is that: when a GPI is passed in here, is one of its properties varying? If so, was it looked up from varyingMap? Looks like it gets looked up in varyingMap first; if so, then non-varying properties should be var-ified beforehand so the objective function doesn't have to deal with var-ifying constants
-      // TODO: Check the gradients for 'contains' as well (automatically, e.g. manual diff?)
       const d = ops.vdist(fns.center(s1), fns.center(s2));
       const textR = max((s2.w.contents), s2.h.contents);
-      const res = add(sub(d, s1.r.contents), textR);
-
-      return res;
+      return add(sub(d, s1.r.contents), textR);
     } else if (t1 === "Rectangle" && t2 === "Circle") {
       // contains [GPI r@("Rectangle", _), GPI c@("Circle", _), Val (FloatV padding)] =
       // -- HACK: reusing test impl, revert later
@@ -360,7 +351,6 @@ const centerArrow2 = (arr: any, center1: VarAD[], center2: VarAD[], [o1, o2]: Va
   return add(ops.vdistsq(fromPt, start), ops.vdistsq(toPt, end));
 }
 
-// TODO: Add EPS_DENOM in denominator?
 const repelPt = (c: VarAD, a: VarAD[], b: VarAD[]) => div(c, add(ops.vdistsq(a, b), constOf(EPS_DENOM)));
 
 // ------- Polygon-related helpers
@@ -410,7 +400,6 @@ const closestPt_PtSeg = (pt: VarAD[], [start, end]: VarAD[][]): VarAD[] => {
   const dir = ops.vsub(end, start);
   // t = ((p -: v) `dotv` dir) / lensq -- project vector onto line seg and normalize
   const t = div(ops.vdot(ops.vsub(pt, start), dir), add(lensq, constOf(EPS_DENOM)));
-  // const t1 = t; // TODO
   const t1 = clamp([0.0, 1.0], t);
 
   // v +: (t' *: dir) -- walk along vector of line seg

@@ -223,7 +223,7 @@ function mapPalette<T, S>(
 
 // Utils for converting types of values
 
-// Expects `f` to be a function between numeric types (e.g. number -> Tensor, Tensor -> number, AD var -> Tensor ...)
+// Expects `f` to be a function between numeric types (e.g. number -> VarAD, VarAD -> number, AD var -> VarAD ...)
 // Coerces any non-numeric types
 export function mapValueNumeric<T, S>(
   f: (arg: T) => S,
@@ -264,9 +264,8 @@ export const valueAutodiffToNumber = (v: Value<DiffVar>): Value<number> => mapVa
 
 export const valueNumberToAutodiff = (v: Value<number>): Value<DiffVar> => mapValueNumeric(varOf, v);
 
-// Walk translation to convert all TagExprs (tagged Done or Pending) in the state to Tensors
-// (This is because, when decoded from backend, it's not yet in Tensor form -- although this code could be phased out if the translation becomes completely generated in the frontend)
-// TODO: Make this generic, to map over translation
+// Walk translation to convert all TagExprs (tagged Done or Pending) in the state to VarADs
+// (This is because, when decoded from backend, it's not yet in VarAD form -- although this code could be phased out if the translation becomes completely generated in the frontend)
 
 export function mapTagExpr<T, S>(
   f: (arg: T) => S,
@@ -330,7 +329,7 @@ export function mapTranslation<T, S>(
   };
 };
 
-// TODO: Check these types?
+// TODO: Check the input type?
 export const walkTranslationConvert = (trans: any): Translation => {
   return mapTranslation(varOf, trans);
 };

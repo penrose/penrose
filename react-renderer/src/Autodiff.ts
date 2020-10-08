@@ -14,7 +14,6 @@ export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 // Reverse-mode AD
 // Implementation adapted from https://rufflewind.com/2016-12-30/reverse-mode-automatic-differentiation and https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
 
-// TODO: Are there specific things that need to be done for consts, not vars?
 // NOTE: VARIABLES ARE MUTATED DURING AD CALCULATION
 
 // ----- Core AD code
@@ -82,7 +81,7 @@ export const makeADInputVars = (xs: number[]): VarAD[] => {
   return xsVars;
 };
 
-// This should only be applied to a leaf node (TODO: fix API) 
+// This should only be applied to a leaf node
 // It moves forward from the leaf in question, then recursively arrives at the seed node (one output parent), caching each gradient value for an intermediate note
 // (However, it doesn't calculate gradient for any other leaf nodes, though they do use the cached intermediate values)
 
@@ -151,7 +150,6 @@ const gradFiniteDiff = (f: (args: number[]) => number) => {
 
 
 const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
-  // TODO: Test the below (fully)
   energyGraph.gradNode = { tag: "Just", contents: variableAD(1.0) };
   const dxs = xsVars.map(gradADSymbolic); // Computes it per variable, mutating the graph to set cached results and reuse them
   const gradxs = xsVars.map((x: DiffVar) => fromJust(x.gradNode));
@@ -160,9 +158,7 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
 
 // ----- Ops (extensible)
 // NOTE: These all update the graph and return new variables that should be used to build the ops
-
 // NOTE: For the resulting var `z`, z's parents and grad are uninitialized
-
 // TODO: Factor out op helper to deal with graph-building boilerplate
 
 // --- Binary ops
@@ -175,7 +171,6 @@ const gradAllSymbolic = (energyGraph: VarAD, xsVars: VarAD[]): VarAD[] => {
 // TODO: Put these in ops dict
 // NOTE: The names of these ops matter for opMap, don't change them
 
-// TODO: regexp-replace ` sensitivityNode: .* })` => ` })`
 // The point of making the sensitivity nodes here is that when the gradient is computed, each child needs to know what its partial derivative was, which depends on its position (e.g. either the first or second arg in x * y has a different sensitivity). This can't be looked up in, say, a dict
 // You have to build it inline bc it involves references to the variables
 
@@ -291,7 +286,7 @@ export const div = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   if (isCompNode) {
     const vnode = just(div(gvarOf(1.0), w, false));
     const w0node = squared(w, false);
-    // const w1node = max(epsdg, w0node, false); // TODO: Why does this make it get stuck?? w1node is not even used
+    // const w1node = max(epsdg, w0node, false); // TODO: Why does this make it get stuck? w1node is not even used
     const wnode = just(neg(div(v, w0node, false), false));
 
     v.parents.push({ node: z, sensitivityNode: vnode });
@@ -324,7 +319,6 @@ export const max = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // NOTE: this adds a conditional to the computational graph itself, so the sensitivities change based on the input values
   // Note also the closure attached to each sensitivityFn, which has references to v and w (which have references to their values)
 
-  // TODO: Come back to this. Should the graph then have an evaluable If node?
   if (isCompNode) {
     v.parents.push({ node: z, sensitivityNode: just(vNode) });
     w.parents.push({ node: z, sensitivityNode: just(wNode) });
@@ -448,7 +442,6 @@ export const squared = (v: VarAD, isCompNode = true): VarAD => {
 export const sqrt = (v: VarAD, isCompNode = true): VarAD => {
   // NOTE: Watch out for negative numbers in sqrt
   // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
-  // TODO: rename all the other fns to dz_dv
   const z = variableAD(Math.sqrt(v.val), "sqrt");
   z.isCompNode = isCompNode;
 
@@ -531,7 +524,6 @@ const noGrad: VarAD = gvarOf(1.0, "noGrad");
 
 export const gt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
   // returns a boolean, which is converted to number
-  // TODO: check that this all is right
 
   const z = variableAD(v.val > w.val ? 1.0 : 0.0, "gt");
   z.isCompNode = isCompNode;
@@ -576,7 +568,6 @@ export const lt = (v: VarAD, w: VarAD, isCompNode = true): VarAD => {
 };
 
 export const ifCond = (cond: VarAD, v: VarAD, w: VarAD, isCompNode = true): VarAD => {
-  // TODO: check that this all is right
   // When the computation graph is evaluated, depending on whether cond is nonnegative, either v or w is evaluated (and returned?)
 
   const z = variableAD(0.0, "ifCond"); // No value?
@@ -602,11 +593,6 @@ export const ifCond = (cond: VarAD, v: VarAD, w: VarAD, isCompNode = true): VarA
 
   return z;
 };
-
-// ADDING A NEW OP: (TODO: document further)
-// Add its definition above
-// Add it to the opMap
-// Add its js mapping (code) to traverseGraph
 
 const opMap = {
   "+": {
@@ -729,7 +715,6 @@ export const ops = {
   },
 
   vnormalize: (v: VarAD[]): VarAD[] => {
-    // TODO: Need to account for divide by zero?
     const vsize = add(ops.vnorm(v), varOf(EPS_DENOM));
     return ops.vdiv(v, vsize);
   },
@@ -821,10 +806,6 @@ const genCode = (inputs: VarAD[], outputs: IVarAD[], setting: string, weightNode
   // For each output, traverse the graph and combine the results sequentially
   for (const z of outputs) {
     const res = traverseGraph(counter, z);
-
-    // const resInputsSorted = _.sortBy(res.inputs, e => e.index).map(e => e.name);
-    // progInputs = progInputs.concat(resInputsSorted); // TODO: Is this the right order?
-
     progStmts = progStmts.concat(res.prog);
     progOutputs = progOutputs.concat(res.output);
 
@@ -1040,7 +1021,6 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     } else {
       stmt = `const ${parName} = ${childName0} ${op} ${childName1};`;
     }
-    // TODO: Add the rest of the ops to codegen
 
     // Array efficiency?
     return {
@@ -1085,9 +1065,9 @@ const traverseGraph = (i: number, z: IVarAD): any => {
     const op = z.op;
     let stmt;
 
-    // TODO: Deal with ifCond nodes (ternary)
+    // Deals with ifCond nodes (ternary)
     // (eval c; eval d; eval e; const xNUM = c ? d : e;)
-    // This doesn't short-circuit -- it actually evaluates both branches of the `if` first
+    // codegen doesn't short-circuit -- it generates code for both branches of the `if` first
 
     if (op === "ifCond") {
       if (childNames.length !== 3) {
@@ -1163,6 +1143,8 @@ const setInputs = (xsVars: VarAD[], xs: number[]) => {
 
 // Mutates graph (defined by z, the head) to evaluate the comp graph from top down, setting all values in children (intermediate node). Returns energy.
 // We have to do this in the graph, not the compiled energy, because we need the values of the intermediate nodes to compute the gradient.
+// NOTE: This function is basically unused in our system; it's just for demonstration, to show how the computational graph can be dynamically evaluated. In practice, though, we compile the graph into code and run that.
+
 const evalEnergyOnGraph = (z: VarAD) => {
   // Catch leaf nodes first, or nodes whose values have already been computed and set
   // TODO: Make this code more generic/neater over the # children
@@ -1217,17 +1199,16 @@ export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph
 
   // Zero xsvars vals, gradients, and caching setting
   clearGraphBottomUp(xsVars);
-  clearVisitedNodesOutput(energyGraph); // TODO: Do we need this line?
+  clearVisitedNodesOutput(energyGraph);
 
   // Set the weight nodes to have the right weight values (may have been updated at some point during the opt)
-  // TODO: Figure out what to do with this and compilation
   setWeights(weightInfo);
 
   // Set the leaves of the graph to have the new input values
   setInputs(xsVars, xs);
 
   // Build symbolic gradient of f at xs on the energy graph
-  // Note that this does NOT include the weight (i.e. is called on `xsVars`, not `xsVarsWithWeight`! Because the EP weight is not a degree of freedom
+  // Note that this does NOT include the weight (i.e. is called on `xsVars`, not `xsVarsWithWeight`! Because the EP weight is not a degree of freedom)
   const gradGraph = gradAllSymbolic(energyGraph, xsVars);
 
   const graphs: GradGraphs = {
@@ -1240,11 +1221,6 @@ export const energyAndGradCompiled = (xs: number[], xsVars: VarAD[], energyGraph
   // Synthesize energy and gradient code
   const f0 = genEnergyFn(graphs.inputs, graphs.energyOutput, graphs.weight);
   const gradGen = genCode(graphs.inputs, graphs.gradOutputs, "grad", graphs.weight);
-  // TODO: This is called twice (and evaluated; why do the inputs disappear the second time...?
-
-  // Evaluate energy and gradient at the point
-  // const energyVal = f0(xs);
-  // const gradVal = gradGen(xs);
 
   if (DEBUG_GRADIENT_UNIT_TESTS) {
     console.log("Running gradient unit tests", graphs);
@@ -1299,7 +1275,6 @@ const testGradFiniteDiff = () => {
 
 // Given a graph with schema: { inputs: VarAD[], output: VarAD, gradOutputs: VarAD }
 // Compile the gradient and check it against numeric gradients
-// TODO: Encode the type of `graphs`
 const testGradSymbolic = (testNum: number, graphs: GradGraphs): boolean => {
   console.log(`======= START TEST GRAD SYMBOLIC ${testNum} ======`);
   // Synthesize energy and gradient code
@@ -1359,12 +1334,10 @@ const gradGraph0 = (): GradGraphs => {
   // Build gradient graph
   head.gradNode = { tag: "Just", contents: gvarOf(1.0) };
   const dRef = gradADSymbolic(ref);
-  // TODO: The graph does contain circular references, e.g. dx0 may refer to x0 which refers to its gradNode, dx0. So maybe delete the gradNode property? Why is it needed?
 
   // Print results
   console.log("computational graphs for test 1 (input, output, gradient)", ref, head, dRef);
 
-  // dRef = ref.gradNode.contents
   return {
     inputs: [ref],
     energyOutput: head,
@@ -1476,75 +1449,3 @@ export const testGradSymbolicAll = () => {
 
   console.error(`All grad symbolic tests passed?: ${all(testResults)}`);
 };
-
-// --------------------- Comments graveyard (maybe useful for documentation, TODO)
-
-// Helpers for programmatic testing
-
-// TODO: Probably the right thing to do is make the objectives/constraints/computations agnostic to the choice of number, autodiff library, and representation -- i.e. make it swappable with a flag -- esp since most energy evaluations don't need a gradient (so don't use vars for that)
-
-// TODO: Another next step is to make the evaluator work with these vars instead, so the system can use the existing infra for programmatically composing an energy fn (which doesn't seem to matter for speed, since it's just the bare ops)
-
-// TODO: Use type like in evalExprs: varyingVars?: VaryMap<number | Tensor>`
-
-// Functions for new kinds of vars (TODO: get rid of tensors everywhere)
-
-// TODO: Write a variation on evalEnergyOn that works on State and IVarAD, then write a variation on stepEP
-// --> requires variation on evalFns, evalFn, evalExprs, evalExpr, compDict?, 
-// --> requires variation on evalFn
-// Remove Tensor and Scalar types from types.d.ts
-
-// NOTE: Only when you apply a special operation, it mutates the variable(s) (IVarAD reference(s)) to add a reference to its parent (the result of the op) to both. That means the rest of the code doesn't matter, only the ops do (except for keeping the objfn's form constant between iterations). 
-// You just need to hold onto the references to your vars
-
-// TODO: You will need to zero grads on all the bottom nodes (varying vars) because they will still have the parent refs and grad vals attached (Unless that's done automatically by the grad function)
-
-// NOTE: `evalFn` calls `evalExpr` with `autodiff = true`. It makes everything (base vals) differentiable when encountered
-
-// TODO: How to modify this grad code to deal with non-variable constants?? I guess it depends on how the code handles constants (are there special ops for "c * x" or do you convert "c" into a variable and not take the gradient with respect to it?)
-
-// --------------------- From energyAndGradADOld
-
-// API:
-// Interpret energy: xs -> list of xs vars
-// Compile energy: the var result (z) -> function ([x] -> x)
-// Grad (f, xs): takes the list of xs vars, (which carry f) as well as a list of scalars
-//   zeroes the whole graph's sensitivities, vals, gradVals --- I guess this should be stored as a function?
-//   evaluates the computational graph on the values
-//     TODO: I guess then the sensitivity has to be stored as an op to be applied anyway! So then you evaluate the computational graph and then transform it into the gradient expression graph?
-//   computes the gradient on the computational graph for each var
-// What gets evaluated more, the energy or the grad?
-// Don't I still have to port the line search, etc to this new format?
-// Is there some way to instead construct the computational graph for the gradient instead, and then compile it?
-
-  // Questions/assumptions: TODO 
-  // Who calls the energy?
-  // 1) Who sets the seed??
-  // 2) What if someone has already called energy? (vars will already exist) -- I guess just re-evaluates and makes a new comp graph. Does the memory get cleared right?
-  // 3) what if someone has already called the grad? (vals will be cached)
-  // Who zeroes the variables? 
-  // Who zeroes the gradients?
-
-  // Example:
-  //       Z (+)
-  //      / \
-  //     v   v
-  //  X (^2)  Y (-)
-  //     \   / \
-  //      v v   v
-  //       A    B
-  // That generates the code:
-  // TODO: name vars correctly in example
-  // Z := X + Y
-  // X := A^2
-  // Y := A - B
-  // A := 5.0
-  // B := 2.4
-
-  // TODO: What does this *gradient expression graph* look like? How/when is it created? (On evaluating the existing computational graph?) What information is needed to create it? What information does it need to provide? (To compile it into gradient code)
-
-  // TODO: Should the generated gradient code be interleaved with the generated energy code?
-  // Basically what should be generated is the unrolled version of gradAD, right? How long is that function?
-  // TODO: Problem: How to do the caching of gradient values??
-  // Grad Z(A, B) = [dZ/dA, dZ/dB]
-  // Z = X + Y = A^2 + (A - B) ==> Grad Z(A, B) = [2A + 1, -1]
