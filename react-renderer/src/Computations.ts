@@ -2,7 +2,7 @@ import { range } from "lodash";
 import { randFloat } from "utils/Util";
 import { Tensor, scalar, stack, cos, sin } from "@tensorflow/tfjs";
 import { dist } from "Constraints";
-import { mapTup2 } from "EngineUtils";
+import { mapTup2 } from "engine/EngineUtils";
 
 /**
  * Static dictionary of computation functions

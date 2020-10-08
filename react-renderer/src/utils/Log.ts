@@ -6,6 +6,10 @@ class Log {
   private readonly debugInfo = Debug(`${BASE}:info`);
   private readonly debugWarn = Debug(`${BASE}:warn`);
   private readonly debugError = Debug(`${BASE}:error`);
+  private readonly debugTrace = Debug(`${BASE}:trace`);
+  public trace(message: string, source?: string) {
+    return this.generateMessage(this.debugTrace, message, source);
+  }
   public info(message: string, source?: string) {
     return this.generateMessage(this.debugInfo, message, source);
   }

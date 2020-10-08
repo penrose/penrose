@@ -1,13 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { interactiveMap, staticMap } from "componentMap";
-import Log from "Log";
+import Log from "utils/Log";
 import { loadImages } from "utils/Util";
 import { insertPending } from "./PropagateUpdate";
 import { collectLabels } from "./utils/CollectLabels";
-import { evalTranslation, decodeState } from "./Evaluator";
-import { walkTranslationConvert } from "./EngineUtils";
-import { differentiable } from "./Optimizer";
+import { evalTranslation, decodeState } from "engine/Evaluator";
+import { walkTranslationConvert } from "engine/EngineUtils";
+import { differentiable } from "engine/Optimizer";
 
 interface ICanvasProps {
   lock: boolean;

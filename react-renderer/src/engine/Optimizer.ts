@@ -14,8 +14,9 @@ import {
   genVaryMap,
   evalFns,
 } from "./Evaluator";
+import Log from "utils/Log";
 import { zip } from "lodash";
-import { constrDict, objDict } from "./Constraints";
+import { constrDict, objDict } from "../Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -51,17 +52,27 @@ const toPenalty = (x: Tensor): Tensor => {
   return tf.pow(tf.maximum(x, tf.scalar(0)), tf.scalar(2));
 };
 
-const epConverged = (x0: Tensor, x1: Tensor, fx0: Scalar, fx1: Scalar): boolean => {
+const epConverged = (
+  x0: Tensor,
+  x1: Tensor,
+  fx0: Scalar,
+  fx1: Scalar
+): boolean => {
   // TODO: These dx and dfx should really be scaled to account for magnitudes
   const stateChange = sc(x1.sub(x0).norm());
   const energyChange = sc(tf.abs(fx1.sub(fx0)));
-  console.log("epConverged?: stateChange: ", stateChange, " | energyChange: ", energyChange);
+  console.debug(
+    "epConverged?: stateChange: ",
+    stateChange,
+    " | energyChange: ",
+    energyChange
+  );
 
   return stateChange < epStop || energyChange < epStop;
-}
+};
 
 const unconstrainedConverged = (normGrad: Scalar): boolean => {
-  console.log("UO convergence check: ||grad f(x)||", scalarValue(normGrad));
+  console.debug("UO convergence check: ||grad f(x)||", scalarValue(normGrad));
   return scalarValue(normGrad) < uoStop;
 };
 
@@ -85,7 +96,7 @@ const applyFn = (f: FnDone<Tensor>, dict: any) => {
 
 // TODO. Annotate the return type: a new (copied?) state with the varyingState and opt params set?
 
-// NOTE: `stepEP` implements the exterior point method as described here: 
+// NOTE: `stepEP` implements the exterior point method as described here:
 // https://www.me.utexas.edu/~jensen/ORMM/supplements/units/nlp_methods/const_opt.pdf (p7)
 
 // Things that we should do programmatically improve the conditioning of the objective function:
@@ -99,11 +110,18 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   const optParams = newState.params; // this is just a reference, so updating this will update newState as well
   const xs: Variable[] = optParams.mutableUOstate; // also a reference
 
-  console.log("-------------------");
-  console.log("step EP | weight: ", weight, "| EP round: ", optParams.EPround, " | UO round: ", optParams.UOround);
-  console.log("params: ", optParams);
-  // console.log("state: ", state);
-  console.log("number of varying variables", state.varyingValues.length); // Log these values with scalarValue if needed, but it may block/slow down optimization
+  console.debug("-------------------");
+  console.debug(
+    "step EP | weight: ",
+    weight,
+    "| EP round: ",
+    optParams.EPround,
+    " | UO round: ",
+    optParams.UOround
+  );
+  console.debug("params: ", optParams);
+  // console.debug("state: ", state);
+  console.debug("number of varying variables", state.varyingValues.length); // Log these values with scalarValue if needed, but it may block/slow down optimization
 
   switch (optStatus.tag) {
     case "NewIter": {
@@ -126,7 +144,10 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
 
     case "UnconstrainedRunning": {
       if (!state.varyingValues.length) {
-        console.error("NOTE: empty state; skipping optimization to evaluate state:", evaluate); // Empty state, so don't optimize
+        console.error(
+          "NOTE: empty state; skipping optimization to evaluate state:",
+          evaluate
+        ); // Empty state, so don't optimize
         break;
       }
 
@@ -149,10 +170,16 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
       // TODO. In the original optimizer, we cheat by using the EP cond here, because the UO cond is sometimes too strong.
       if (unconstrainedConverged(normGrad)) {
         optParams.optStatus.tag = "UnconstrainedConverged"; // TODO. reset bfgs params to default
-        console.log("Unconstrained converged with energy", scalarValue(energy));
+        console.debug(
+          "Unconstrained converged with energy",
+          scalarValue(energy)
+        );
       } else {
         optParams.optStatus.tag = "UnconstrainedRunning";
-        console.log(`Took ${steps} steps. Current energy`, scalarValue(energy));
+        console.debug(
+          `Took ${steps} steps. Current energy`,
+          scalarValue(energy)
+        );
       }
 
       break;
@@ -165,19 +192,27 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
       // Do EP convergence check on the last EP state (and its energy), and curr EP state (and its energy)
       // (There is no EP state or energy on the first round)
       // TODO. Make a diagram to clarify vocabulary
-      console.log("case: unconstrained converged", optParams);
+      console.debug("case: unconstrained converged", optParams);
 
       // We force EP to run at least two rounds (State 0 -> State 1 -> State 2; the first check is only between States 1 and 2)
-      if (optParams.EPround > 1 &&
-        epConverged(optParams.lastEPstate, optParams.lastUOstate, optParams.lastEPenergy, optParams.lastUOenergy)) {
-
+      if (
+        optParams.EPround > 1 &&
+        epConverged(
+          optParams.lastEPstate,
+          optParams.lastUOstate,
+          optParams.lastEPenergy,
+          optParams.lastUOenergy
+        )
+      ) {
         optParams.optStatus.tag = "EPConverged";
-        console.log("EP converged with energy", scalarValue(optParams.lastUOenergy));
-
+        console.debug(
+          "EP converged with energy",
+          scalarValue(optParams.lastUOenergy)
+        );
       } else {
         // If EP has not converged, increase weight and continue.
         // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
-        console.log("EP did not converge; starting next round");
+        console.debug("EP did not converge; starting next round");
         optParams.optStatus.tag = "UnconstrainedRunning";
         optParams.weight = weightGrowthFactor * weight;
         optParams.EPround = optParams.EPround + 1;
@@ -199,7 +234,9 @@ export const stepEP = (state: State, steps: number, evaluate = true) => {
   if (evaluate) {
     // Note: after we finish one evaluation, we "destroy" the AD variables (by making them into scalars) and remake them
     // TODO: Is this the right thing to do?
-    const varyingValues = xs.map((x) => scalarValue(x as Scalar)).map(differentiable);
+    const varyingValues = xs
+      .map((x) => scalarValue(x as Scalar))
+      .map(differentiable);
 
     newState.translation = insertVaryings(
       state.translation,
@@ -236,7 +273,7 @@ export const evalEnergyOn = (state: State) => {
       toPenalty(applyFn(c, constrDict))
     );
 
-    // console.log("objEngs", objFns, objEngs, objEngs.map(o => o.dataSync()));
+    // console.debug("objEngs", objFns, objEngs, objEngs.map(o => o.dataSync()));
 
     const objEng: Tensor =
       objEngs.length === 0 ? differentiable(0) : stack(objEngs).sum();
@@ -265,7 +302,9 @@ export const step = (state: State, steps: number) => {
   // NOTE: this is a synchronous operation on all varying values; may block
   // Note: after we finish one evaluation, we "destroy" the AD variables (by making them into scalars) and remake them
   // TODO: Is this the right thing to do?
-  const varyingValues = xs.map((x) => scalarValue(x as Scalar)).map(differentiable);
+  const varyingValues = xs
+    .map((x) => scalarValue(x as Scalar))
+    .map(differentiable);
   const trans = insertVaryings(
     state.translation,
     zip(state.varyingPaths, varyingValues) as [Path, Tensor][]
@@ -274,7 +313,7 @@ export const step = (state: State, steps: number) => {
   if (scalarValue(energy) > 10) {
     // const newState = { ...state, varyingState: xs };
     newState.params.optStatus.tag = "UnconstrainedRunning";
-    console.log(`Took ${steps} steps. Current energy`, scalarValue(energy));
+    console.debug(`Took ${steps} steps. Current energy`, scalarValue(energy));
     // return newState;
   } else {
     // const varyingValues = xs.map((x) => tfStr(x));
@@ -284,7 +323,7 @@ export const step = (state: State, steps: number) => {
     // );
     // const newState = { ...state, translation: trans, varyingValues };
     newState.params.optStatus.tag = "EPConverged";
-    console.log("Converged with energy", scalarValue(energy));
+    console.debug("Converged with energy", scalarValue(energy));
     // return evalTranslation(newState);
   }
   // return the state with a new set of shapes
@@ -303,7 +342,11 @@ export const gradF = (fn: any) => tf.grads(fn);
 export const flatten = (t: Tensor): Tensor => tf.reshape(t, [-1]); // flattens something like Tensor [[1], [2], [3]] (3x1 tensor) into Tensor [1, 2, 3] (1x3)
 export const flatten2 = (t: Tensor[]): Tensor => flatten(tf.stack(t));
 
-export const unflatten = (t: Tensor): Tensor[] => tf.reshape(t, [t.size, 1]).unstack().map(e => e.asScalar());
+export const unflatten = (t: Tensor): Tensor[] =>
+  tf
+    .reshape(t, [t.size, 1])
+    .unstack()
+    .map((e) => e.asScalar());
 // unflatten Tensor [1,2,3] (1x3) into [Tensor 1, Tensor 2, Tensor 3] (3x1) -- since this is the type that f and gradf require as input and output
 // The problem is that our data representation assumes a Tensor of size zero (i.e. scalar(3) = Tensor 3), not of size 1 (i.e. Tensor [3])
 
@@ -314,7 +357,6 @@ const awLineSearch = (
   gradfx: Tensor, // not nested
   maxSteps = 100
 ) => {
-
   // TODO: Do console logs with a debug flag
 
   const descentDir = tf.neg(gradfx); // TODO: THIS SHOULD BE PRECONDITIONED BY L-BFGS
@@ -325,13 +367,13 @@ const awLineSearch = (
   const duf = (u: Tensor) => {
     return (ys: Tensor) => {
       const res = u.dot(gradfxsFlat(ys));
-      // console.log("u,xs2", u.arraySync(), xs2.arraySync());
-      // console.log("input", unflatten(xs2));
-      // console.log("e", f(...unflatten(xs2)));
-      // console.log("gu", gradf(unflatten(xs2)));
-      // console.log("gu2", flatten2(gradf(unflatten(xs2))));
+      // console.debug("u,xs2", u.arraySync(), xs2.arraySync());
+      // console.debug("input", unflatten(xs2));
+      // console.debug("e", f(...unflatten(xs2)));
+      // console.debug("gu", gradf(unflatten(xs2)));
+      // console.debug("gu2", flatten2(gradf(unflatten(xs2))));
       return res;
-    }
+    };
   };
 
   const dufDescent = duf(descentDir);
@@ -354,7 +396,7 @@ const awLineSearch = (
     // TODO: Use addStrict (etc.) everywhere?
     const cond1 = fFlat(xs.addStrict(descentDir.mul(ti)));
     const cond2 = fAtx0.add(dufAtx0.mul(ti * c1));
-    // console.log("armijo", cond1.arraySync(), cond2.arraySync());
+    // console.debug("armijo", cond1.arraySync(), cond2.arraySync());
     return sc(tf.lessEqualStrict(cond1, cond2));
   };
 
@@ -375,7 +417,7 @@ const awLineSearch = (
   const weakWolfe = (ti: number) => {
     const cond1 = dufDescent(xs.addStrict(descentDir.mul(ti)));
     const cond2 = dufAtx0.mul(c2);
-    // console.log("weakWolfe", cond1.arraySync(), cond2.arraySync());
+    // console.debug("weakWolfe", cond1.arraySync(), cond2.arraySync());
     return sc(tf.greaterEqualStrict(cond1, cond2));
   };
 
@@ -386,11 +428,15 @@ const awLineSearch = (
     const intervalTooSmall = Math.abs(bi - ai) < minInterval;
     const tooManySteps = numUpdates > maxSteps;
 
-    if (intervalTooSmall) { console.log("interval too small"); }
-    if (tooManySteps) { console.log("too many steps"); }
+    if (intervalTooSmall) {
+      console.debug("interval too small");
+    }
+    if (tooManySteps) {
+      console.debug("too many steps");
+    }
 
     return intervalTooSmall || tooManySteps;
-  }
+  };
 
   // Consts / initial values
   // TODO: port comments from original
@@ -403,38 +449,38 @@ const awLineSearch = (
   let t = 1.0;
   let i = 0;
 
-  // console.log("line search", xs.arraySync(), gradfx.arraySync(), duf(xs)(xs).arraySync());
+  // console.debug("line search", xs.arraySync(), gradfx.arraySync(), duf(xs)(xs).arraySync());
 
   // Main loop + update check
   while (true) {
     const needToStop = shouldStop(i, a, b);
 
     if (needToStop) {
-      console.log("stopping early: (i, a, b, t) = ", i, a, b, t);
+      console.debug("stopping early: (i, a, b, t) = ", i, a, b, t);
       break;
     }
 
     const isArmijo = armijo(t);
     const isWolfe = wolfe(t);
-    // console.log("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
+    // console.debug("(i, a, b, t), armijo, wolfe", i, a, b, t, isArmijo, isWolfe);
 
     if (!isArmijo) {
-      // console.log("not armijo"); 
+      // console.debug("not armijo");
       b = t;
     } else if (!isWolfe) {
-      // console.log("not wolfe"); 
+      // console.debug("not wolfe");
       a = t;
     } else {
-      // console.log("found good interval");
-      // console.log("stopping: (i, a, b, t) = ", i, a, b, t);
+      // console.debug("found good interval");
+      // console.debug("stopping: (i, a, b, t) = ", i, a, b, t);
       break;
     }
 
     if (b < Infinity) {
-      // console.log("already found armijo"); 
+      // console.debug("already found armijo");
       t = (a + b) / 2.0;
     } else {
-      // console.log("did not find armijo"); 
+      // console.debug("did not find armijo");
       t = 2.0 * a;
     }
 
@@ -488,12 +534,15 @@ export const minimizePenrose = (
     const xsCopy = flatten2(xs);
     // const stepSize = awLineSearch(f, gradf, xsCopy, flatten(gradfx));
     const stepSize = 0.002;
-    console.log("stepSize via line search:", stepSize);
+    console.debug("stepSize via line search:", stepSize);
 
     // xs' = xs - dt * grad(f(xs))
     // `stack` makes a new immutable tensor of the vars: Tensor [ v1, v2, v3 ] (where each var is a single-elem list [x])
     // TODO: Can we do this without the arraySync call?
-    const xsNew = tf.stack(xs).sub(gradfx.mul(stepSize)).arraySync();
+    const xsNew = tf
+      .stack(xs)
+      .sub(gradfx.mul(stepSize))
+      .arraySync();
     // Set each variable to the result
     xs.forEach((e, j) => e.assign(tf.tensor(xsNew[j])));
     energy = f(...xs);
@@ -501,10 +550,10 @@ export const minimizePenrose = (
 
     // note: this printing could tank the performance
     // const vals = xs.map(v => v.dataSync()[0]);
-    console.log("i = ", i);
-    // console.log(`f(xs): ${energy}`);
-    // console.log("f'(xs)", tfsStr(gradfx));
-    // console.log("||f'(xs)||", sc(normGrad));
+    console.debug("i = ", i);
+    // console.debug(`f(xs): ${energy}`);
+    // console.debug("f'(xs)", tfsStr(gradfx));
+    // console.debug("||f'(xs)||", sc(normGrad));
 
     i++;
   }
@@ -547,22 +596,31 @@ export const minimizeTF = (
     gradfx = gradf(xs);
     normGrad = tf.stack(gradfx).norm();
 
-    if (i >= maxSteps || (sc(normGrad) < EPS)) {
-      if (i >= maxSteps) { console.log("maxSteps reached", maxSteps); }
-      if (sc(normGrad) < EPS) { console.log("unconstrained converged", sc(normGrad), EPS); }
-      console.log("Finished `minimize` early");
+    if (i >= maxSteps || sc(normGrad) < EPS) {
+      if (i >= maxSteps) {
+        console.debug("maxSteps reached", maxSteps);
+      }
+      if (sc(normGrad) < EPS) {
+        console.debug("unconstrained converged", sc(normGrad), EPS);
+      }
+      console.debug("Finished `minimize` early");
       break;
     }
 
     // note: this printing could tank the performance
     if (DEBUG_OPT) {
-      vals = xs.map(v => v.dataSync()[0]);
+      vals = xs.map((v) => v.dataSync()[0]);
 
-      console.log("i=", i);
-      console.log(`f(xs): ${energy}`);
-      console.log("f'(xs)", tfsStr(gradfx));
-      console.log("||f'(xs)||", sc(normGrad));
-      console.log("stopping conditions", i < maxSteps, "or", sc(normGrad) > EPS);
+      console.debug("i=", i);
+      console.debug(`f(xs): ${energy}`);
+      console.debug("f'(xs)", tfsStr(gradfx));
+      console.debug("||f'(xs)||", sc(normGrad));
+      console.debug(
+        "stopping conditions",
+        i < maxSteps,
+        "or",
+        sc(normGrad) > EPS
+      );
     }
 
     i++;

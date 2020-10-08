@@ -1,11 +1,11 @@
 import * as React from "react";
-import Log from "./Log";
+import Log from "./utils/Log";
 import Canvas from "./Canvas";
 import ButtonBar from "./ButtonBar";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
-import { evalTranslation, decodeState } from "./Evaluator";
-import { step, stepEP } from "./Optimizer";
+import { evalTranslation, decodeState } from "engine/Evaluator";
+import { step, stepEP } from "engine/Optimizer";
 import { collectLabels } from "./utils/CollectLabels";
 import * as tf from "@tensorflow/tfjs";
 import SplitPane from "react-split-pane";

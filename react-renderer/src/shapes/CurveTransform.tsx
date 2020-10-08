@@ -63,7 +63,6 @@ class CurveTransform extends React.Component<IGPIProps> {
     const { canvasSize } = this.props;
     const strokeWidth = shape.strokeWidth.contents;
     const strokeColor = toHex(shape.color.contents);
-    console.log("strokeColor", shape.color.contents, strokeColor);
     const fillColor = toHex(shape.fill.contents);
     const strokeOpacity = shape.color.contents.contents[3];
     const fillOpacity = shape.fill.contents[3];
@@ -77,11 +76,6 @@ class CurveTransform extends React.Component<IGPIProps> {
     const transformStr = svgTransformString(
       shape.transformation.contents,
       canvasSize
-    );
-
-    console.log(
-      "path string",
-      toPathString(shape.pathData.contents, canvasSize)
     );
 
     return (

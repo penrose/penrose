@@ -1,6 +1,6 @@
 import { Tensor } from "@tensorflow/tfjs";
-import { insertExpr } from "./Evaluator";
-import { valueNumberToAutodiff } from "./EngineUtils";
+import { insertExpr } from "engine/Evaluator";
+import { valueNumberToAutodiff } from "engine/EngineUtils";
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.
@@ -43,7 +43,11 @@ export const insertPending = (state: State) => {
       // .updated is from `collectLabels` updating pending properties
       .reduce(
         (trans: Translation, [path, v]: [Path, Value<number>]) =>
-          insertExpr(path, { tag: "Done", contents: valueNumberToAutodiff(v) }, trans),
+          insertExpr(
+            path,
+            { tag: "Done", contents: valueNumberToAutodiff(v) },
+            trans
+          ),
         state.translation
       ),
   };
