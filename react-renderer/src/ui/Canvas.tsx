@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+<<<<<<< HEAD:react-renderer/src/ui/Canvas.tsx
 import { interactiveMap, staticMap } from "shapes/componentMap";
 import Log from "utils/Log";
 import { loadImages } from "utils/Util";
@@ -8,6 +9,15 @@ import { collectLabels } from "../utils/CollectLabels";
 import { evalTranslation, decodeState } from "engine/Evaluator";
 import { walkTranslationConvert } from "engine/EngineUtils";
 import { differentiable } from "engine/Optimizer";
+=======
+import { interactiveMap, staticMap } from "./componentMap";
+import Log from "./Log";
+import { loadImages } from "./Util";
+import { insertPending } from "./PropagateUpdate";
+import { collectLabels } from "./utils/CollectLabels";
+import { evalShapes, decodeState } from "./Evaluator";
+import { walkTranslationConvert } from "./EngineUtils";
+>>>>>>> web-perf:react-renderer/src/Canvas.tsx
 
 interface ICanvasProps {
   lock: boolean;
@@ -52,13 +62,19 @@ class Canvas extends React.Component<ICanvasProps> {
     const translationAD = walkTranslationConvert(state.translation);
     const stateAD = {
       ...state,
+<<<<<<< HEAD:react-renderer/src/ui/Canvas.tsx
       translation: translationAD,
       varyingValues: state.varyingValues.map((e) => differentiable(e)),
+=======
+      translation: translationAD
+>>>>>>> web-perf:react-renderer/src/Canvas.tsx
     };
+
+    console.log("processData varyingValues", state.varyingValues);
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
     // The results of the pending values are then stored back in the translation as autodiff types
-    const stateEvaled: State = evalTranslation(stateAD);
+    const stateEvaled: State = evalShapes(stateAD);
     // TODO: add return types
     const labeledShapes: any = await collectLabels(stateEvaled.shapes);
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);

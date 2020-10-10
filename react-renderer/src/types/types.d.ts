@@ -7,7 +7,7 @@ interface LabelData {
   height: number;
 }
 
-type VaryMap<T = Tensor> = Map<string, T>;
+type VaryMap<T = VarAD> = Map<string, T>;
 
 type FnDone<T> = IFnDone<T>;
 interface IFnDone<T> {
@@ -40,12 +40,14 @@ interface IState {
   policyParams: any; // TODO: types
   oConfig: any; // TODO: types
   pendingPaths: Path[];
-  varyingValues: Tensor[];
+  varyingValues: number[];
   translation: Translation;
   shapeOrdering: string[];
   shapes: Shape[];
   varyingMap: VaryMap;
-  overallObjective(...xs: Variable[]): Scalar;
+
+  // TODO: Remove this
+  overallObjective(...xs: VarAD[]): VarAD;
 }
 type State = IState; // TODO
 
@@ -91,7 +93,8 @@ interface IVal<T> {
 }
 
 // type Translation<T> = ITrans<T>;
-type Translation = ITrans<Tensor>;
+type Translation = ITrans<VarAD>;
+// NOTE: To make a deep clone, use `clone` from `rfdc`
 
 interface ITrans<T> {
   // TODO: compGraph
@@ -479,14 +482,16 @@ interface IEPConverged {
   tag: "EPConverged";
 }
 
-type BfgsParams = IBfgsParams;
+type LbfgsParams = ILbfgsParams;
 
-interface IBfgsParams {
-  lastState?: number[];
-  lastGrad?: number[];
-  invH?: number[][];
-  s_list: number[][];
-  y_list: number[][];
+// `n` is the size of the varying state
+interface ILbfgsParams {
+  // TODO: Store as matrix types
+  lastState: Maybe<any>; // nx1 (col vec)
+  lastGrad: Maybe<any>; // nx1 (col vec)
+  // invH: Maybe<any>; // nxn matrix
+  s_list: any[]; // list of nx1 col vecs
+  y_list: any[]; // list of nx1 col vecs
   numUnconstrSteps: number;
   memSize: number;
 }
@@ -496,18 +501,139 @@ type Params = IParams;
 interface IParams {
   optStatus: OptStatus;
   weight: number; // Constraint weight for exterior point method
-  mutableUOstate: Variable[]; // Don't forget... it's mutable!
+  mutableUOstate: VarAD[]; // Don't forget... it's mutable!
 
   // Info for unconstrained optimization
   UOround: number;
-  lastUOstate: Tensor;
-  lastUOenergy: Scalar;
+  lastUOstate: VarAD;
+  lastUOenergy: VarAD;
 
   // Info for exterior point method
   EPround: number;
-  lastEPstate: Tensor;
-  lastEPenergy: Scalar;
+  lastEPstate: VarAD;
+  lastEPenergy: VarAD;
 
   // For L-BFGS (TODO)
-  bfgsInfo: BfgsParams;
+  lbfgsInfo: LbfgsParams;
+
+  // ------- Forked vars for new AD
+
+  xsVars: VarAD[]; // Using this instead of mutableUOstate for testing custom AD; TODO phase out one of them
+
+  // For energy/gradient compilation
+  graphs: GradGraphs;
+
+  functionsCompiled: boolean;
+
+  // Higher-order functions (not yet applied with hyperparameters, in this case, just the EP weight)
+  objective: any; // number -> (number[] -> number)
+  gradient: any; // number -> (number[] -> number[])
+
+  // Applied with weight (or hyperparameters in general) -- may change with the EP round
+  currObjective(xs: number[]): number;
+  currGradient(xs: number[]): number[];
+
+  // `xsVars` are all the leaves of the energy graph
+  energyGraph: VarAD; // This is the top of the energy graph (parent node)
+  constrWeightNode: VarAD; // Handle to node for constraint weight (so it can be set as the weight changes)
+  epWeightNode: VarAD; // similar to constrWeightNode
+
+  _lastUOstate: number[];
+  _lastUOenergy: number;
+  _lastEPstate: number[];
+  _lastEPenergy: number;
+}
+
+type WeightInfo = IWeightInfo;
+
+interface IWeightInfo {
+  constrWeightNode: VarAD, // Constant
+  epWeightNode: VarAD, // Changes (input in optimization, but we do NOT need the gradient WRT it)
+  constrWeight: number,
+  epWeight: number
+};
+
+// ----- Helper types
+
+interface Nothing<T> {
+  tag: "Nothing";
+}
+
+interface Just<T> {
+  tag: "Just";
+  contents: T;
+}
+
+type MaybeVal<T> =
+  | Nothing<T>
+  | Just<T>;
+
+// ------------ Types for reverse-mode autodiff
+
+// ----- Core types
+
+//      s ("single output" node)
+//     ... 
+//     PARENT node (z) -- has refs to its parents
+//      ^
+//      | sensitivity (dz/dv)
+//      |
+//     var (v)         -- has refs to its parents
+// (carries gradVal: ds/dv)
+
+// (var and node are used interchangeably)
+
+interface IEdgeAD {
+  node: VarAD;
+
+  // Function "flowing down" from parent z (output, which is the node stored here) to child v (input), dz/dv
+  // Aka how sensitive the output is to this input -- a function encoded as a computational graph fragment
+  sensitivityNode: MaybeVal<VarAD>;
+};
+
+type EdgeAD = IEdgeAD;
+
+interface IVarAD {
+  val: number; // The value of this node at the time the computational graph was created. This is mostly unused, since most values are compiled out except for leaf nodes
+
+  valDone: boolean; // formerly used to cache energy values in the computational graph in evalEnergyOnGraph; TODO: can be removed if evalEnergyOnGraph is removed
+
+  tag: "custom";
+  metadata: string; // Used for storing the kind of weight
+  op: string;
+  isCompNode: boolean; // comp node (normal computational graph) or grad node (node in computational graph for gradient)
+  isInput: boolean; // These inputs need to be distinguished as bindings in the function (e.g. \x y -> x + y)
+  parents: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  children: EdgeAD[];
+  parentsGrad: EdgeAD[]; // The resulting values from an expression. e.g. in `z := x + y`, `z` is a parent of `x` and of `y`
+  childrenGrad: EdgeAD[];
+  gradVal: MaybeVal<number>;
+  gradNode: MaybeVal<VarAD>;
+  index: number; // -1 if not a leaf node, 0-n for leaf nodes (order in the leaf node list) so we know how to pass in the floats
+
+  nodeVisited: boolean;
+  // Now used to track whether this node (and its children) has already been computed in the codegen
+  name: string; // Name of cached value for this node in codegen (e.g. `const x3 = x1 + x2;` <-- name of node is `x3`)
+}
+
+type VarAD = IVarAD;
+
+// ----- Types for generalizing our system autodiff
+
+// This (IVecAD) type is unused, but could be useful at some point
+interface IVecAD {
+  tag: "VecAD";
+  contents: VarAD[];
+}
+
+type VecAD = IVecAD;
+
+type GradGraphs = IGradGraphs;
+
+interface IGradGraphs {
+  inputs: VarAD[],
+  energyOutput: VarAD,
+  // The energy inputs may be different from the grad inputs bc the former may contain the EP weight (but for the latter, we do not want the derivative WRT the EP weight)
+  gradOutputs: VarAD[]
+  weight: MaybeVal<VarAD>, // EP weight, a hyperparameter to both energy and gradient; TODO: generalize to multiple hyperparameters
 }

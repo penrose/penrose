@@ -18,6 +18,12 @@
     "no-var-requires": false,
     "array-type": false,
     "one-variable-per-declaration": false,
+    "variable-name": {
+        "options": [
+            "allow-snake-case",
+            "allow-pascal-case"
+         ]
+    },
     "member-ordering": false
   }
 }

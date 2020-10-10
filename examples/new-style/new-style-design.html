@@ -1,0 +1,276 @@
+<h1 id="style-1.1-design">Style 1.1 design</h1>
+<h1 id="motivation">Motivation</h1>
+<p>After writing some sample Style programs, it became clear that certain &quot;convenience features&quot; could greatly improve the quality-of-life of Style writers, particularly with respect to graphics programming and concision. This RFC describes the new features we plan to add to Style, as well as how they will interact. These are the features we plan to add before the codesign study. We are not aiming for backward compatibility -- features are mostly a superset of Style 1.0, so they will break existing programs (e.g. if they are missing type annotations).</p>
+<h2 id="example-programs">Example programs</h2>
+<p>See <a href="https://github.com/penrose/penrose/blob/new-style/examples/new-style/vector-revised.sty">vector-revised.sty</a>.</p>
+<h1 id="features">Features</h1>
+<h2 id="variables-have-types">Variables have types</h2>
+<p>Example:</p>
+<pre><code>Set A {
+    scalar c = 0.0
+    vec2 v = A.shape.start
+    shape A.shape = Circle { ... }
+    ...
+}</code></pre>
+<p>The full list of types is:</p>
+<p>(Existing)</p>
+<ul>
+<li>scalar</li>
+<li>int</li>
+<li>bool</li>
+<li>string</li>
+<li>path (in the SVG path sense)</li>
+<li>color</li>
+<li>file (synonym for string path, like <code>&quot;/assets/vec.svg&quot;</code>)</li>
+<li>style (synonym for string category, like <code>&quot;dotted&quot;</code>)</li>
+</ul>
+<p>(polymorphic)</p>
+<ul>
+<li>list of elements (heterogeneous, untyped)</li>
+<li>typed lists of only vec2, vec3, or color (palette)</li>
+</ul>
+<p>(new)</p>
+<ul>
+<li>shape (any GPI)</li>
+<li>vec2</li>
+<li>vec3</li>
+<li>mat2x2</li>
+<li>mat3x3</li>
+</ul>
+<p>(Deprecated/unused)</p>
+<ul>
+<li>homogeneous matrix</li>
+<li>polygon</li>
+</ul>
+<p>(Polymorphic types like tuples and lists are left out of the Style 1.1 spec.)</p>
+<h3 id="variables-must-be-declared-with-their-types">Variables must be declared with their types</h3>
+<p>Variables continue to only be declarable in blocks, and when declared, their type must be given (i.e. we don't do type inference). Otherwise, a variable in a statement can be overridden as before.</p>
+<pre><code>Set X {
+    scalar c = 1.0
+}
+
+Set `A` {
+    override `A`.c = 2.0
+}</code></pre>
+<h3 id="type-parsing-conversions">Type parsing, conversions</h3>
+<ul>
+<li>Scalars should support more syntax (e.g. <code>1e-10</code>, <code>0.</code>)</li>
+<li>Types can't be cast manually</li>
+<li>Values of type <code>int</code> should be promoted to type <code>scalar</code> when used in an operation with another <code>scalar</code></li>
+</ul>
+<h3 id="there-are-new-graphics-types">There are new &quot;graphics types&quot;</h3>
+<p>2D and 3D vector and matrix types are modeled off GLSL:</p>
+<ul>
+<li>https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)##Vectors</li>
+<li>https://en.wikibooks.org/wiki/GLSL_Programming/Vector_and_Matrix_Operations</li>
+</ul>
+<h4 id="initialization">Initialization</h4>
+<p>They only contain scalars. A vector is constructed as in the following example: <code>vec2 U.origin = (?, 0.0)</code></p>
+<p>Vector coordinates are initialized from however <code>?</code> (varying) variables are initialized, currently from the canvas size.</p>
+<h4 id="functions">Functions</h4>
+<p>Vectors should support various convenience functions automatically:</p>
+<ul>
+<li>setters and getters for the relevant coordinates (<code>v[0]</code> or <code>v.x</code>, <code>v[1]</code> or <code>v.y</code>, <code>v[2]</code> or <code>v.z</code>)</li>
+</ul>
+<p>Matrices should also support indexing to get and set elements, e.g. <code>m[1][2] = n[0][1]</code>.</p>
+<p>(Swizzling is left out of the Style 1.1 spec, as it can get a little complicated WRT checking that the same coordinate isn't used, etc.)</p>
+<p>The system can support use of homogeneous coordinates (for 2D) if the user uses 3D vectors and does all the conversions themselves.</p>
+<p>The system will also provide convenience functions for vectors, such as <code>dot</code>, and convenience constructors for matrices, such as <code>mat2x2 m = translate(1.0, 2.0)</code>.</p>
+<p>The following convenience functions for vectors will have syntactic sugar:</p>
+<ul>
+<li><code>+</code>, <code>-</code>, <code>*.</code> (vectors of same size; the last one is <code>dot</code>)</li>
+<li><code>*</code>, <code>/</code> (scalar-vector ops)</li>
+</ul>
+<p>Other functions, like matrix-vector multiplication, will have functions provided, but not special syntax.</p>
+<p>2d vectors will also be used natively as the representation for shapes' coordinates (<code>A.shape.start</code> and <code>A.shape.end</code>), with the appropriate getters and setters (e.g. <code>A.shape.end.x</code>). Example:</p>
+<pre><code>forall VectorSpace U {               -- LinearAlgebra.sty
+   scalar axisSize = 1.0 -- This is a local var
+   vec2 U.origin = (?, ?) -- This is a globally-accessible var
+   vec3 U.blah = (?, ?, ?)
+   shorthand o = U.origin
+   shape U.xAxis = Arrow { -- draw an arrow along the x-axis 
+          start : (o.x - axisSize, o.y)
+            end : (o.x + axisSize, o.y)
+    }
+}
+</code></pre>
+<p>Colors will also have the appropriate getters and setters, e.g. <code>x.r</code> (and so on). The policy for colors is that they are all gotten and set as RGBA, though internally they may be represented as HSVA.</p>
+<h2 id="changes-in-statements-in-blocks-of-rules">Changes in statements (in blocks of rules)</h2>
+<h3 id="allow-local-variables">Allow local variables</h3>
+<p>Now, variables can be declared locally, as in <code>pi</code> below, i.e. they only live in the scope of the block, must be declared with a type, and can have names reused in following blocks.</p>
+<p>A local variable is not attached to a Substance object, and so cannot be referred to by any other block that brings a Substance object in scope.</p>
+<p>Within the scope of a block, local variables are immutable references (like <code>const</code> in JS) and can't be redefined.</p>
+<p>Local variables can refer to anything in scope, e.g. things in other namespaces.</p>
+<pre><code>Colors {
+    color red = rgba(1, 0, 0, 1)
+}
+
+Set X {
+    scalar pi = 3.14
+    // pi = 2 * pi // &lt;-- this is a compiler error
+
+    color myRed = lighten(Colors.red) // this is fine
+
+    scalar X.x = 2
+    X.x = 3 // &lt;-- This is fine, as fields and properties can be redefined
+
+    shape X.shape = Circle {
+        x : X.x
+        r : pi * 100
+        color : myRed
+    }
+}
+
+Set `A` {
+    // `A`.pi does not exist, so it doesn&#39;t make sense to write &quot;override `A`.pi = ...&quot;
+    scalar pi = 6.28; // can define its own
+    ...
+
+    override `A`.shape.r = pi * 100 // Yields a different value
+}
+</code></pre>
+<h3 id="shorthand-can-be-used-in-blocks">Shorthand can be used in blocks</h3>
+<p><code>Shorthand</code> is a convenience keyword, in block scope, for defining an immutable reference to anything in namespace or block scope (including through a selector). <code>Shorthand</code> behaves just like <code>local</code>.</p>
+<pre><code>myFunctions {
+   function f = {{ x =&gt; cos(x)/x*x }}
+}
+
+Set A {
+   shorthand f = myFunctions.f
+   A.x = (f(1) + f(2))/f(3)
+}</code></pre>
+<p>In the future, we might give <code>shorthand</code> file scope (so shorthands can be reused across blocks in the same Style module), but for now, it only has block scope.</p>
+<h2 id="changes-in-namespaces-and-modules">Changes in namespaces and modules</h2>
+<h3 id="namespaces">Namespaces</h3>
+<p>Namespaces are extended with three special behaviors:</p>
+<ol style="list-style-type: decimal">
+<li>Variables defined in namespaces are accessible in the namespace's scope from anywhere in the current Style module or any module that imports it. However, when declared, they don't need to be prepended with the namespace's name.</li>
+<li>Namespaces can contain objective/function/constraint definitions.</li>
+</ol>
+<p>Example for 1-2:</p>
+<pre><code>myNamespace = {
+   color red = rgba( 1, 0, 0, 1 ) // No namespace needed, i.e. not `color myNamespace.red`
+   function &lt;&lt;...your typescript here...&gt;&gt;
+   objective myO = &lt;&lt;...your typescript here...&gt;&gt;
+   constraint myC = &lt;&lt;...your typescript here...&gt;&gt; -- Still has to be written as an energy
+}
+
+Set A {
+    shape A.shape = Circle {
+        color : myNamespace.red
+    }
+}</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Namespaces with the same name will have their contents combined if they have different names or overridden if any of the contents have the same name (with the appropriate compiler warning if the override keyword isn't used). Example:</li>
+</ol>
+<pre><code>namespace myColors {
+   color red = rgba(1,0,0,1)
+}
+
+// some code here, maybe a module import
+
+namespace myColors {
+   color green = rgba(0,1,0,1) // now `myColors` contains `red` and `green`
+}</code></pre>
+<h3 id="functions-can-be-declared-in-typescript-in-any-namespace">Functions can be declared in Typescript in any namespace</h3>
+<p>They have namespace scope only, and can be referred to in the same way as anything else in a namespace, including by shorthand. Functions/objectives/constraints need to live in <code>keyword &lt;&lt; ... &gt;&gt;</code> syntax (where <code>keyword</code> is the kind of definition).</p>
+<p>Each must have a Typescript definition that uses valid Style types (as defined in the Penrose system's Typescript <code>types.d.ts</code>). They must be written in a differentiable manner. Objectives/constraints should return an energy, and functions should return the appropriate Style type.</p>
+<p>Example:</p>
+<pre><code>defs {
+
+  function &lt;&lt; 
+      orientedSquare: (arr1: any, arr2: any, pt: any, len: VarAD): IPathDataV&lt;VarAD&gt; =&gt; {
+        // TODO: Write the full function; this is just a fixed path for testing
+        checkFloat(len);
+
+        const elems: Elem&lt;VarAD&gt;[] =
+          [{ tag: &quot;Pt&quot;, contents: mapTup2(constOf, [100, 100]) },
+          { tag: &quot;Pt&quot;, contents: mapTup2(constOf, [200, 200]) },
+          { tag: &quot;Pt&quot;, contents: mapTup2(constOf, [300, 150]) }];
+        const path: SubPath&lt;VarAD&gt; = { tag: &quot;Open&quot;, contents: elems };
+
+        return { tag: &quot;PathDataV&quot;, contents: [path] };
+      }
+  &gt;&gt;
+
+  // Just for demonstration; not actually used in program
+  objective &lt;&lt;
+      sameCenter: ([t1, s1]: [string, any], [t2, s2]: [string, any]) =&gt; {
+        return distsq(center(s1), center(s2));
+      }
+  &gt;&gt;
+
+}
+
+Vector v
+where In(v,V)
+with VectorSpace V {
+
+    shorthand square = defs.orientedSquare
+
+    shape v.shape = Curve {
+        pathData: square(V.axis1, V.axis2, intersection(V.axis1, V.axis2), 100.0)
+    }
+
+    encourage defs.sameCenter(...) // some args here
+}
+</code></pre>
+<p>Currently we don't allow function definitions in blocks of rules, nor can they refer to Style variables, so neither of the below examples will be valid.</p>
+<pre><code>Set A { // Not OK
+  function f = ``x =&gt; x + 1``
+  A.z = f(1)
+}}
+
+Set A { // Not OK
+  A.r = 0.0
+  function f = ``x =&gt; x + A.r``
+  A.z = f(1)
+}</code></pre>
+<h3 id="style-modules">Style modules</h3>
+<p>Styles can now be imported as modules as such:</p>
+<pre><code>import &quot;Colors.sty&#39;
+import &quot;Keenan.sty&quot;</code></pre>
+<p>One Style may import multiple modules. Multiple modules are brought into scope sequentially, with the current Style module coming last. The compiler looks for modules in the folder specified in the <code>runpenrose</code> command:</p>
+<p><code>runpenrose dir=/absolute/path/here my.sub my.sty my.dsl</code></p>
+<p>The policy for potential name clashes between imported modules is:</p>
+<ul>
+<li>the Style compiler continues to enforce 1 layer of namespaces (i.e. every statement must be in a namespace)</li>
+<li>the programmer is responsible for avoiding naming conflicts between namespaces</li>
+</ul>
+<p>Currently, we do not check for circular dependencies in the import graph.</p>
+<h1 id="formalization">Formalization</h1>
+<p>Coming soon, after discussion of RFC is done.</p>
+<h2 id="syntax">Syntax</h2>
+<p>TODO</p>
+<h2 id="grammar">Grammar</h2>
+<p>TODO</p>
+<h2 id="semantics">Semantics</h2>
+<p>TODO</p>
+<h1 id="implementation">Implementation</h1>
+<p>Coming soon, after discussion of RFC is done.</p>
+<h2 id="parsinglexing">Parsing/lexing</h2>
+<p>TODO: Likely to be tricky: JS lexing</p>
+<h2 id="checking">Checking</h2>
+<p>TODO: How will typechecking work?</p>
+<p>Circular references</p>
+<h2 id="compiling">Compiling</h2>
+<p>TODO</p>
+<h1 id="usability">Usability</h1>
+<p>TODO</p>
+<h2 id="warnings-errors-and-gotchas">Warnings, errors, and gotchas</h2>
+<p>TODO</p>
+<h2 id="debugging">Debugging</h2>
+<p>TODO</p>
+<h1 id="related-languages">Related languages</h1>
+<ul>
+<li>GLSL</li>
+<li>CSS</li>
+<li>Various CSS extensions, like SASS</li>
+</ul>
+<h1 id="related-issues">Related issues</h1>
+<ul>
+<li>https://github.com/penrose/penrose/issues/372</li>
+<li>https://github.com/penrose/penrose/issues/375</li>
+<li>Anything tagged <code>dealbreaker</code> or <code>style-1.1</code></li>
+<li>Discussion in #language-design</li>
+</ul>

@@ -1,6 +1,11 @@
+<<<<<<< HEAD:react-renderer/src/engine/PropagateUpdate.ts
 import { Tensor } from "@tensorflow/tfjs";
 import { insertExpr } from "engine/Evaluator";
 import { valueNumberToAutodiff } from "engine/EngineUtils";
+=======
+import { insertExpr } from "./Evaluator";
+import { valueNumberToAutodiff } from "./EngineUtils";
+>>>>>>> web-perf:react-renderer/src/PropagateUpdate.ts
 
 /**
  * Find the value of a property in a list of fully evaluated shapes.
