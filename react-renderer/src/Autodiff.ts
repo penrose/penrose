@@ -420,7 +420,6 @@ export const neg = (v: VarAD, isCompNode = true): VarAD => {
   return z;
 };
 
-// TODO: rename to `square` after tf.js dependency is removed
 export const squared = (v: VarAD, isCompNode = true): VarAD => {
   const z = variableAD(v.val * v.val, "squared");
   z.isCompNode = isCompNode;
