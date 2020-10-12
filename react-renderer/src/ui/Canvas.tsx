@@ -1,13 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+
 import { interactiveMap, staticMap } from "shapes/componentMap";
 import Log from "utils/Log";
 import { loadImages } from "utils/Util";
 import { insertPending } from "engine/PropagateUpdate";
 import { collectLabels } from "utils/CollectLabels";
-import { evalTranslation, decodeState } from "engine/Evaluator";
+import { evalShapes, decodeState } from "engine/Evaluator";
 import { walkTranslationConvert } from "engine/EngineUtils";
-import { differentiable } from "engine/Optimizer";
 
 interface ICanvasProps {
   lock: boolean;
@@ -52,13 +52,14 @@ class Canvas extends React.Component<ICanvasProps> {
     const translationAD = walkTranslationConvert(state.translation);
     const stateAD = {
       ...state,
-      translation: translationAD,
-      varyingValues: state.varyingValues.map((e) => differentiable(e)),
+      translation: translationAD
     };
+
+    console.log("processData varyingValues", state.varyingValues);
 
     // After the pending values load, they only use the evaluated shapes (all in terms of numbers)
     // The results of the pending values are then stored back in the translation as autodiff types
-    const stateEvaled: State = evalTranslation(stateAD);
+    const stateEvaled: State = evalShapes(stateAD);
     // TODO: add return types
     const labeledShapes: any = await collectLabels(stateEvaled.shapes);
     const labeledShapesWithImgs: any = await loadImages(labeledShapes);
@@ -310,12 +311,12 @@ class Canvas extends React.Component<ICanvasProps> {
         <desc>
           {`This diagram was created with Penrose (https://penrose.ink)${
             penroseVersion ? " version " + penroseVersion : ""
-          } on ${new Date()
-            .toISOString()
-            .slice(
-              0,
-              10
-            )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
+            } on ${new Date()
+              .toISOString()
+              .slice(
+                0,
+                10
+              )}. If you have any suggestions on making this diagram more accessible, please contact us.\n`}
           {substanceMetadata && `${substanceMetadata}\n`}
           {styleMetadata && `${styleMetadata}\n`}
           {elementMetadata && `${elementMetadata}\n`}

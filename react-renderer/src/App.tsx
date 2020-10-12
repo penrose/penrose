@@ -4,9 +4,10 @@ import Canvas from "ui/Canvas";
 import ButtonBar from "ui/ButtonBar";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
-import { step, stepEP } from "engine/Optimizer";
+import { decodeState } from "engine/Evaluator";
+import { step } from "engine/Optimizer";
+import { unwatchFile } from "fs";
 import { collectLabels } from "utils/CollectLabels";
-import * as tf from "@tensorflow/tfjs";
 import SplitPane from "react-split-pane";
 import Inspector from "inspector/Inspector";
 
@@ -18,21 +19,24 @@ interface ICanvasState {
   history: State[];
   showInspector: boolean;
 }
+
 const socketAddress = "ws://localhost:9160";
 
+const stepUntilConvergence = async (state: State) => {
+  let newState;
+  // Step until convergence w/o rendering
+  while (true) {
+    newState = step(state!, 1, false);
+    if (newState.params.optStatus.tag === "EPConverged") {
+      break;
+    }
+  }
+};
+
 const stepState = async (state: State, onUpdate: any) => {
-  // NOTE: this will greatly improve the performance of the optmizer
-  // TODO: where's the right place to put this? Is there an "on start up" place?
-  tf.setBackend("cpu");
-  tf.enableProdMode();
+  const numSteps = 1;
+  const newState = step(state!, numSteps);
 
-  // const numSteps = 10000;
-  // const numSteps = 1000;
-  const numSteps = 10;
-  // const numSteps = 2;
-
-  // const newState = step(state!, numSteps);
-  const newState = stepEP(state!, numSteps);
   // onUpdate(newState);
   const labeledShapes: any = await collectLabels(newState.shapes);
   onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update
@@ -102,6 +106,7 @@ class App extends React.Component<any, ICanvasState> {
 
   public resample = async () => {
     const NUM_SAMPLES = 50;
+    // resampled = true;
     await this.setState({ processedInitial: false });
     this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
   };
