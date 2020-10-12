@@ -11,7 +11,7 @@ import {
   square,
   squaredDifference,
 } from "@tensorflow/tfjs";
-import { canvasSize } from "../ui/Canvas";
+import { canvasSize } from "ui/Canvas";
 import * as _ from "lodash";
 
 export const objDict = {

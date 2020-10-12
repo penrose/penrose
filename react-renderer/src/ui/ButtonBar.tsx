@@ -1,5 +1,4 @@
 import * as React from "react";
-import { ILayer } from "../types";
 
 interface IProps {
   converged: boolean;

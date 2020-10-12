@@ -16,7 +16,7 @@ import {
 } from "./Evaluator";
 import Log from "utils/Log";
 import { zip } from "lodash";
-import { constrDict, objDict } from "../contrib/Constraints";
+import { constrDict, objDict } from "contrib/Constraints";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals

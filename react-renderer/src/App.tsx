@@ -1,15 +1,14 @@
 import * as React from "react";
-import Log from "./utils/Log";
-import Canvas from "./ui/Canvas";
-import ButtonBar from "./ui/ButtonBar";
+import Log from "utils/Log";
+import Canvas from "ui/Canvas";
+import ButtonBar from "ui/ButtonBar";
 import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
-import { evalTranslation, decodeState } from "engine/Evaluator";
 import { step, stepEP } from "engine/Optimizer";
-import { collectLabels } from "./utils/CollectLabels";
+import { collectLabels } from "utils/CollectLabels";
 import * as tf from "@tensorflow/tfjs";
 import SplitPane from "react-split-pane";
-import Inspector from "./inspector/Inspector";
+import Inspector from "inspector/Inspector";
 
 interface ICanvasState {
   data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field

@@ -10,7 +10,7 @@ import {
   evalTranslation,
   encodeState,
   evalFns,
-} from "../Evaluator";
+} from "engine/Evaluator";
 import * as stateJSON from "./state.json";
 import { find, keys } from "lodash";
 

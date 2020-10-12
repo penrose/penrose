@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IGPIPropsDraggable, IGPIProps } from "../types";
+import { IGPIPropsDraggable, IGPIProps } from "types";
 import isEqual from "react-fast-compare";
 interface IState {
   tempX: number;
