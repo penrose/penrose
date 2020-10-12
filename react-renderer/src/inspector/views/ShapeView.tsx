@@ -63,38 +63,31 @@ class ShapeView extends React.Component<IViewProps, IState> {
                 let [w, h] = [0, 0];
 
                 if (shapeType === "Circle") {
-                  [w, h] = [
-                    (properties.r.contents as number) * 2,
-                    (properties.r.contents as number) * 2,
-                  ];
+                  [w, h] =
+                    [(properties.r.contents as number) * 2,
+                      (properties.r.contents as number) * 2];
                 } else if (shapeType === "Square") {
-                  [w, h] = [
-                    properties.side.contents as number,
-                    properties.side.contents as number,
-                  ];
-                } else if (shapeType === "Arrow") {
-                  const [sx, sy, ex, ey] = [
-                    properties.startX.contents as number,
-                    properties.startY.contents as number,
-                    properties.endX.contents as number,
-                    properties.endY.contents as number,
-                  ];
+                  [w, h] =
+                    [properties.side.contents as number,
+                      properties.side.contents as number];
+                } else if (shapeType === "Arrow" || shapeType === "Line") {
+                  const [sx, sy, ex, ey] = [properties.startX.contents as number,
+                  properties.startY.contents as number,
+                  properties.endX.contents as number,
+                  properties.endY.contents as number];
 
-                  const padding = 50; // Because arrow may be horizontal or vertical, and we don't want the size to be zero in that case
-                  // size of bbox of arrow
-                  [w, h] = [
-                    Math.max(Math.abs(ex - sx), padding),
-                    Math.max(Math.abs(ey - sy), padding),
-                  ];
+                  const padding = 50; // Because arrow/line may be horizontal or vertical, and we don't want the size to be zero in that case
+                  // size of bbox of arrow/line
+                  [w, h] = [Math.max(Math.abs(ex - sx), padding), Math.max(Math.abs(ey - sy), padding)];
                 } else if (shapeType === "Curve") {
                   console.log("TODO: Curve bbox");
                   // size of bbox of arrow
                   [w, h] = [100, 100];
+                } else if (shapeType === "Rectangle" || shapeType === "Text") {
+                  [w, h] = [properties.w.contents as number, properties.h.contents as number];
                 } else {
-                  [w, h] = [
-                    properties.w.contents as number,
-                    properties.h.contents as number,
-                  ];
+                  console.error("Shape type", shapeType, "not defined in ShapeInspector; defaulting to `w` and `h`");
+                  [w, h] = [properties.w.contents as number, properties.h.contents as number];
                 }
 
                 return (

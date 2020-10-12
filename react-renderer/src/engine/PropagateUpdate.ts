@@ -1,4 +1,3 @@
-import { Tensor } from "@tensorflow/tfjs";
 import { insertExpr } from "engine/Evaluator";
 import { valueNumberToAutodiff } from "engine/EngineUtils";
 
