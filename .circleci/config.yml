@@ -1,5 +1,24 @@
 version: 2.1
 jobs:
+  docs-deploy:
+    docker:
+      - image: circleci/node:11.10.1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: docs/
+      - run:
+        name: Install deps
+        command: |
+          npm install -g --silent gh-pages
+          git config user.email "ci-build@penrose.ink"
+          git config user.name "ci-build"
+      - add_ssh_keys:
+          fingerprints:
+            - "77:b3:c0:c3:cd:6a:68:6e:95:89:9d:0e:92:ea:0a:be"
+      - run:
+        name: Deploy to gh-pages
+        command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
   build_frontend:
     docker:
       - image: circleci/node:11.10.1
@@ -142,6 +161,11 @@ workflows:
                 - master
   build_master_deploy:
     jobs:
+      - docs-deploy
+      # - docs-deploy:
+      # filters:
+      # branches:
+      #     only: master
       - build_frontend:
           filters:
             branches:

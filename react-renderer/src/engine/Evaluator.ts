@@ -639,7 +639,7 @@ export const encodeState = (state: State): any => {
     shapesr: state.shapes
       .map(values)
       .map(([n, props]) => [n, pickBy(props, (p: any) => !p.omit)]),
-  };
+  } as any;
   delete json.varyingMap;
   delete json.translation;
   delete json.varyingValues;

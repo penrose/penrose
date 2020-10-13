@@ -64,6 +64,7 @@
     "inputFiles": ["./src"],
     "mode": "modules",
     "out": "doc",
-    "exclude": ["**/*.test.tsx"]
+    "exclude": ["**/*.test.tsx", "**/*__*/**", "**/node_modules/**"],
+    "includeDeclarations": true
   }
 }

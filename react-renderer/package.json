@@ -32,10 +32,9 @@
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "build-lib": "tsc",
-    "docs": "npx typedoc src",
+    "docs": "typedoc --out docs src",
     "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject",
-    "docs": "typedoc --out docs src"
+    "eject": "react-scripts-ts eject"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",
