@@ -1,7 +1,4 @@
 version: 2.1
-orbs:
-  aws-ecr: circleci/aws-ecr@3.0.0
-  aws-ecs: circleci/aws-ecs@0.0.6
 jobs:
   build_frontend:
     docker:
@@ -159,27 +156,3 @@ workflows:
           filters:
             branches:
               only: master
-      - aws-ecr/build_and_push_image:
-          filters:
-            branches:
-              only: master
-          requires:
-            - build
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: AWS_REGION
-          repo: penrose
-          dockerfile: Dockerfile.circleci
-          attach-workspace: true
-#       - aws-ecs/deploy-service-update:
-#           requires:
-#             - aws-ecr/build_and_push_image
-#           family: penrose-service
-#           cluster-name: penrose-cluster
-#           aws-access-key-id: $AWS_ACCESS_KEY
-#           aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-#           aws-region: $AWS_REGION
-#           filters:
-#             branches:
-#               only: master
