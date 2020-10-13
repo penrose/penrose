@@ -16,7 +16,7 @@ jobs:
             git config user.name "ci-build"
       - add_ssh_keys:
           fingerprints:
-            - "77:b3:c0:c3:cd:6a:68:6e:95:89:9d:0e:92:ea:0a:be"
+            - "e0:22:08:03:8f:eb:1c:b7:59:4e:48:00:6d:2d:a7:be"
       - run:
           name: Generate docs
           command: npm run docs
