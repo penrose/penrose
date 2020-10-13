@@ -19,7 +19,8 @@
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
     // "noUnusedLocals": true
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "skipLibCheck": true
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
@@ -52,5 +53,11 @@
     "webpack",
     "jest",
     "src/setupTests.ts"
-  ]
+  ],
+  "typedocOptions": {
+    "inputFiles": ["./src"],
+    "mode": "modules",
+    "out": "doc",
+    "exclude": ["**/*.test.tsx"]
+  }
 }

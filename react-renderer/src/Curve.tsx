@@ -99,7 +99,7 @@ class Curve extends React.Component<IGPIProps> {
             size={arrowheadSize}
           />
         ) : null}
-        <Shadow id={shadowId} />>
+        <Shadow id={shadowId} />
         <path
           stroke={strokeColor}
           fill={fillColor}

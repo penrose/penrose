@@ -14,14 +14,16 @@
     "react-dom": "^16.8.6",
     "react-fast-compare": "^2.0.4",
     "react-scripts-ts": "^4.0.8",
-    "svg2pdf.js": "^1.5.0"
+    "svg2pdf.js": "^1.5.0",
+    "tslib": "^2.0.3"
   },
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "build-lib": "tsc",
     "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
+    "eject": "react-scripts-ts eject",
+    "docs": "typedoc --out docs src"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",
@@ -31,6 +33,7 @@
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
     "prettier": "^1.16.4",
+    "typedoc": "^0.19.2",
     "typescript": "^4.0.3"
   },
   "browserslist": [
