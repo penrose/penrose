@@ -69,8 +69,8 @@ processRequests client@(_, conn, _) = do
   logDebug client "Waiting for Commands"
   msg_json <- WS.receiveData conn
   logDebug client $ "Message received from frontend: \n" ++ show msg_json
-  case decode msg_json of
-    Just Request {requestSession = session, requestCall = call} ->
+  case eitherDecode msg_json of
+    Right Request {requestSession = session, requestCall = call} ->
       case call of
         Step steps s -> sendSafe session "state" $ step s steps
         Resample samples s -> sendSafe session "state" $ resample s samples
@@ -83,8 +83,8 @@ processRequests client@(_, conn, _) = do
         GetEnv sub elm -> sendSafe session "varEnv" $ getEnv sub elm
         EnergyValues s -> send session "energies" $ energyValues s
         GetVersion -> send session "version" getVersion
-    Nothing -> do
-      logError client "Error reading JSON"
+    Left err -> do
+      logError client $ "Error reading JSON: " ++ err
       processRequests client
   logDebug client "Messege received and decoded successfully."
   processRequests client

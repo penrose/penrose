@@ -1,7 +1,7 @@
 import * as React from "react";
-import { toScreen, toPointListString, penroseToSVG } from "../Util";
+import { toScreen, toPointListString, penroseToSVG } from "utils/Util";
 import memoize from "fast-memoize";
-import { ILayerProps } from "../types";
+import { ILayerProps } from "types";
 
 const toPointListStringOld = memoize(
   (ptList: any[], canvasSize: [number, number]) =>
@@ -15,47 +15,48 @@ const toPointListStringOld = memoize(
 
 class PolygonLayer extends React.Component<ILayerProps> {
   public render() {
-      const {shapes, canvasSize} = this.props;
-      const polygonColor = "red";
+    const { shapes, canvasSize } = this.props;
+    const polygonColor = "red";
 
     return (
       <g>
-        {shapes.map(([name, shape]: [string, any], key: number) => {
+        {shapes.map(({ shapeType, properties }: Shape, key: number) => {
+          // This will show both polyline and polygon for curves w/ both
+          // console.log(
+          //   "shape",
+          //   shapeType,
+          //   properties,
+          //   properties.hasOwnProperty("polygon")
+          // );
 
-	     // This will show both polyline and polygon for curves w/ both
-	     console.log("shape", name, shape, shape.hasOwnProperty("polygon"));
+          // This code only returns ONE group per shape
+          // Note: this does not distinguish open and closed curves! So a polyline may show as a polygon
 
-	     // This code only returns ONE group per shape
-	     // Note: this does not distinguish open and closed curves! So a polyline may show as a polygon
+          // Note: the debug polygon already has the Penrose transform applied so we only apply the transform to SVG space
+          // TODO: so far we only draw the first positive shape in the polygon, not other pieces or holes
+          if (properties.hasOwnProperty("polygon")) {
+            const positiveShape0 = properties.polygon.contents[0][0];
 
-	    // Note: the debug polygon already has the Penrose transform applied so we only apply the transform to SVG space
-	    // TODO: so far we only draw the first positive shape in the polygon, not other pieces or holes
-	    if (shape.hasOwnProperty("polygon")) {
-		const positiveShape0 = shape.polygon.contents[0][0];
+            const ptListString = toPointListString(positiveShape0, canvasSize);
 
-	       const ptListString = toPointListString(
-		   positiveShape0,
-		   canvasSize
-	       );
+            console.log("Polygon string", properties, ptListString);
 
-		console.log("Polygon string", shape, ptListString);
-
-		return (
+            return (
               <g key={key}>
                 <polygon
                   points={ptListString}
-		  fillOpacity="0"
-		  stroke={polygonColor}
-		  transform={penroseToSVG(canvasSize)}
-		/>
-	      </g>
-		);
-	    }
+                  fillOpacity="0"
+                  stroke={polygonColor}
+                  transform={penroseToSVG(canvasSize)}
+                />
+              </g>
+            );
+          }
 
-	    // TODO: show control points of bezier curve
-          if (name === "Curve") {
+          // TODO: show control points of bezier curve
+          if (shapeType === "Curve") {
             const ptListString = toPointListStringOld(
-              shape.polyline.contents,
+              (properties.polyline as IPtListV<number>).contents,
               canvasSize
             );
             return (
@@ -69,7 +70,7 @@ class PolygonLayer extends React.Component<ILayerProps> {
             );
           }
 
-          return <g key={key}/>;
+          return <g key={key} />;
         })}
       </g>
     );

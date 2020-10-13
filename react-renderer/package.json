@@ -6,38 +6,65 @@
   "types": "build/dist/types.js",
   "private": true,
   "dependencies": {
+    "@penrose/linear-algebra": "^1.0.0",
+    "@reach/tabs": "^0.9.0",
+    "@types/seedrandom": "^2.4.28",
+    "console-feed": "^2.8.11",
     "debug": "^4.1.1",
-    "fast-memoize": "^2.5.1",
-    "lodash": "^4.17.13",
+    "fast-memoize": "^2.5.2",
+    "lodash": "^4.17.15",
     "mathjax-full": "^3.0.1",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "node-pre-gyp": "^0.14.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-fast-compare": "^2.0.4",
+    "react-inspector": "^4.0.1",
     "react-scripts-ts": "^4.0.8",
-    "svg2pdf.js": "^1.5.0"
+    "react-split-pane": "^0.1.89",
+    "react-styled-flexboxgrid": "^3.2.1",
+    "rfdc": "^1.1.4",
+    "seedrandom": "^3.0.5",
+    "styled-components": "^5.0.1",
+    "svg2pdf.js": "^1.5.0",
+    "tslib": "^1.11.1"
   },
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "build-lib": "tsc",
+    "docs": "npx typedoc src",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
   "devDependencies": {
     "@types/debug": "0.0.31",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^23.3.14",
-    "@types/lodash": "^4.14.134",
-    "@types/node": "^10.14.8",
-    "@types/react": "^16.8.19",
-    "@types/react-dom": "^16.8.4",
-    "prettier": "^1.16.4",
-    "tslint": "^5.17.0",
-    "typescript": "^3.5.1"
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^10.17.21",
+    "@types/react": "^16.9.32",
+    "@types/react-dom": "^16.9.6",
+    "@types/react-inspector": "^4.0.0",
+    "@types/styled-components": "^5.1.0",
+    "canvas": "^2.6.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "enzyme-to-json": "^3.4.4",
+    "prettier": "^1.19.1",
+    "tslint": "^5.20.1",
+    "typedoc": "^0.17.4",
+    "typescript": "^3.8.3"
   },
   "browserslist": [
     ">0.2%",
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "jest": {
+    "snapshotSerializers": [
+      "enzyme-to-json"
+    ]
+  }
 }

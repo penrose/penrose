@@ -1,4 +1,4 @@
-Set x {
+ Set x {
     x.shape = Text { string : x.label }
 }
 
@@ -6,6 +6,8 @@ Set x; Set y {
    -- Try to make sure no labels overlap
    LOCAL.genRepelFn = encourage repel(x.shape, y.shape, 5.0)
 }
+
+-- TODO: Phase this back in
 
 Set x; Set y
 where IsSubset(x, y) {

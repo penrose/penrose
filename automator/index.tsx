@@ -5,7 +5,6 @@ const mathjax = require("mathjax-node");
 const { propagateUpdate } = require("../react-renderer/src/PropagateUpdate");
 const Canvas = require("../react-renderer/src/Canvas");
 const Packets = require("../react-renderer/src/packets");
-// const { loadImages } = require("../react-renderer/src/Util"); // TODO: implement image import
 const ReactDOMServer = require("react-dom/server");
 const { spawn } = require("child_process");
 const chalk = require("chalk");
@@ -33,7 +32,7 @@ const nonZeroConstraints = (
 ) => {
   const constrFns = state.constrFns;
   const fnsWithVals = constrFns.map((f, i) => [f, constrVals[i]]);
-  const nonzeroConstr = fnsWithVals.filter(c => +c[1] > threshold);
+  const nonzeroConstr = fnsWithVals.filter((c) => +c[1] > threshold);
   return nonzeroConstr;
 };
 
@@ -47,10 +46,10 @@ const runPenrose = (packet: object) =>
     penrose.stdin.setEncoding("utf-8");
     penrose.stdin.write(JSON.stringify(packet) + "\n");
     let data = "";
-    penrose.stdout.on("data", async d => {
+    penrose.stdout.on("data", async (d) => {
       data += d.toString();
     });
-    penrose.stdout.on("close", async cl => {
+    penrose.stdout.on("close", async (cl) => {
       resolve(data);
     });
 
@@ -79,7 +78,7 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
           svgNode: true,
           useFontCache: false,
           useGlobalCache: false,
-          ex: 12
+          ex: 12,
         });
         if (data.errors) {
           console.error(
@@ -107,7 +106,7 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
 
         if (includeRendered) {
           textGPI.rendered = {
-            contents: data.svgNode
+            contents: data.svgNode,
           };
         }
         return [type, textGPI];
@@ -121,7 +120,7 @@ const collectLabels = async (state: any, includeRendered: boolean) => {
     state.shapeOrdering
   );
   // update the state with newly generated labels and label dimensions
-  const updated = await propagateUpdate({ ...state, shapesr: sortedShapes });
+  const updated = await propagateUpdate({ ...state, shapes: sortedShapes });
   return updated;
 };
 
@@ -139,11 +138,11 @@ const singleProcess = async (
     substanceName: sub,
     styleName: sty,
     domainName: dsl,
-    id: uniqid("instance-")
+    id: uniqid("instance-"),
   }
 ) => {
   // Fetch Substance, Style, and Domain files
-  const trio = [sub, sty, dsl].map(arg =>
+  const trio = [sub, sty, dsl].map((arg) =>
     fs.readFileSync(`${prefix}/${arg}`, "utf8").toString()
   );
   console.log(`Compiling for ${out}/${sub} ...`);
@@ -205,15 +204,15 @@ const singleProcess = async (
         compilation: convertHrtime(compileEnd).milliseconds,
         labelling: convertHrtime(labelEnd).milliseconds,
         optimization: convertHrtime(convergeEnd).milliseconds,
-        rendering: convertHrtime(reactRenderEnd).milliseconds
+        rendering: convertHrtime(reactRenderEnd).milliseconds,
       },
       violatingConstraints: constrs,
       nonzeroConstraints: constrs.length > 0,
       selectorMatches: optimizedState.selectorMatches,
       optProblem: {
         constraintCount: optimizedState.constrFns.length,
-        objectiveCount: optimizedState.objFns.length
-      }
+        objectiveCount: optimizedState.objFns.length,
+      },
     };
     if (!fs.existsSync(out)) {
       fs.mkdirSync(out);
@@ -290,7 +289,7 @@ const batchProcess = async (
         substanceName: name,
         styleName,
         domainName,
-        id
+        id,
       }
     );
     if (folders) {

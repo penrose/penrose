@@ -1,12 +1,12 @@
 import { Canvas, Packets, ILayer } from "src/module";
 import {
   Protocol,
-  IRendererEvents,
+  IRendererEvents as RendererEvents,
   ConnectionStatus,
-  IEditorEvents
+  IEditorEvents as EditorEvents,
 } from "src/Protocol";
 
 declare module "mathjax";
-export type IRendererEvents = IRendererEvents;
-export type IEditorEvents = IEditorEvents;
+export type IRendererEvents = RendererEvents;
+export type IEditorEvents = EditorEvents;
 export { Canvas, Packets, Protocol, ILayer, ConnectionStatus };

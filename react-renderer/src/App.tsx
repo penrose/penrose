@@ -1,42 +1,74 @@
 import * as React from "react";
-import Log from "./Log";
-import Canvas from "./Canvas";
-import ButtonBar from "./ButtonBar";
-import { ILayer } from "./types";
-import { StepUntilConvergence, Step, Resample, converged, initial } from "./packets";
+import Log from "utils/Log";
+import Canvas from "ui/Canvas";
+import ButtonBar from "ui/ButtonBar";
+import { Step, Resample, converged, initial } from "./packets";
 import { Protocol, ConnectionStatus } from "./Protocol";
+import { decodeState } from "engine/Evaluator";
+import { step } from "engine/Optimizer";
+import { unwatchFile } from "fs";
+import { collectLabels } from "utils/CollectLabels";
+import SplitPane from "react-split-pane";
+import Inspector from "inspector/Inspector";
 
-interface IState {
-  data: any;
+interface ICanvasState {
+  data: State | undefined; // NOTE: if the backend is not connected, data will be undefined, TODO: rename this field
   autostep: boolean;
-  layers: ILayer[];
   processedInitial: boolean;
   penroseVersion: string;
+  history: State[];
+  showInspector: boolean;
 }
+
 const socketAddress = "ws://localhost:9160";
 
-class App extends React.Component<any, IState> {
-  public readonly state = {
-    data: {} as any,
+const stepUntilConvergence = async (state: State) => {
+  let newState;
+  // Step until convergence w/o rendering
+  while (true) {
+    newState = step(state!, 1, false);
+    if (newState.params.optStatus.tag === "EPConverged") {
+      break;
+    }
+  }
+};
+
+const stepState = async (state: State, onUpdate: any) => {
+  const numSteps = 1;
+  const newState = step(state!, numSteps);
+
+  // onUpdate(newState);
+  const labeledShapes: any = await collectLabels(newState.shapes);
+  onUpdate({ ...newState, shapes: labeledShapes }); // callback for React state update
+};
+
+class App extends React.Component<any, ICanvasState> {
+  public readonly state: ICanvasState = {
+    data: undefined,
+    history: [],
     autostep: false,
-    processedInitial: false,
-    layers: [
-      { layer: "polygon", enabled: false },
-      { layer: "bbox", enabled: false }
-    ],
-    penroseVersion: ""
+    processedInitial: false, // TODO: clarify the semantics of this flag
+    penroseVersion: "",
+    showInspector: true,
   };
   public readonly canvas = React.createRef<Canvas>();
   public readonly buttons = React.createRef<ButtonBar>();
-  public protocol: Protocol;
+
   public onConnectionStatus = (conn: ConnectionStatus) => {
     Log.info(`Connection status: ${conn}`);
   };
   public onVersion = (version: string) => {
     this.setState({ penroseVersion: version });
   };
-  public onCanvasState = async (canvasState: any, _: any) => {
-    await this.setState({ data: canvasState, processedInitial: true });
+  public onCanvasState = async (canvasState: State, _: any) => {
+    // HACK: this will enable the "animation" that we normally expect
+    await new Promise((r) => setTimeout(r, 1));
+
+    await this.setState({
+      data: canvasState,
+      history: [...this.state.history, canvasState],
+      processedInitial: true,
+    });
     const { autostep } = this.state;
     if (autostep && !converged(canvasState)) {
       await this.step();
@@ -58,36 +90,36 @@ class App extends React.Component<any, IState> {
       this.step();
     }
   };
-  public step = () => {
-    this.protocol.sendPacket(Step(1, this.state.data));
-  };
-  public stepUntilConvergence = () => {
-    this.protocol.sendPacket(StepUntilConvergence(this.state.data));
-  };
-  public resample = async () => {
-    const NUM_SAMPLES = 50;
-    await this.setState({ processedInitial: false });
-    this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
-  };
-  public toggleLayer = (layerName: string) => {
-    this.setState({
-      layers: this.state.layers.map(({ layer, enabled }: ILayer) => {
-        if (layerName === layer) {
-          return { layer, enabled: !enabled };
-        }
-        return { layer, enabled };
-      })
-    });
-  };
-
-  public async componentDidMount() {
-    this.protocol = new Protocol(socketAddress, {
+  public protocol: Protocol = new Protocol(socketAddress, [
+    {
       onConnectionStatus: this.onConnectionStatus,
       onVersion: this.onVersion,
       onCanvasState: this.onCanvasState,
       onError: console.warn,
-      kind: "renderer"
-    });
+      kind: "renderer",
+    },
+  ]);
+  public step = () => {
+    // this.protocol.sendPacket(Step(1, this.state.data));
+    stepState(this.state.data!, this.onCanvasState);
+  };
+  public resample = async () => {
+    const NUM_SAMPLES = 50;
+    // resampled = true;
+    await this.setState({ processedInitial: false });
+    this.protocol.sendPacket(Resample(NUM_SAMPLES, this.state.data));
+  };
+
+  public async componentDidMount() {
+    this.protocol = new Protocol(socketAddress, [
+      {
+        onConnectionStatus: this.onConnectionStatus,
+        onVersion: this.onVersion,
+        onCanvasState: this.onCanvasState,
+        onError: console.warn,
+        kind: "renderer",
+      },
+    ]);
 
     this.protocol.setupSockets();
   }
@@ -95,36 +127,74 @@ class App extends React.Component<any, IState> {
   public updateData = async (data: any) => {
     await this.setState({ data: { ...data } });
     if (this.state.autostep) {
-      this.step();
+      stepState(data, this.state.autostep);
     }
+  };
+  public setInspector = async (showInspector: boolean) => {
+    await this.setState({ showInspector });
+    // localStorage.setItem("showInspector", showInspector ? "true" : "false");
+  };
+  public toggleInspector = async () => {
+    await this.setInspector(!this.state.showInspector);
+  };
+  public hideInspector = async () => {
+    await this.setInspector(false);
   };
 
   public render() {
-    const { data, layers, autostep, penroseVersion } = this.state;
+    const {
+      data,
+      autostep,
+      penroseVersion,
+      showInspector,
+      history,
+    } = this.state;
     return (
-      <div className="App" style={{ height: "100vh" }}>
-        <ButtonBar
-          downloadPDF={this.downloadPDF}
-          downloadSVG={this.downloadSVG}
-          autostep={autostep}
-          step={this.step}
-          stepUntilConvergence={this.stepUntilConvergence}
-          autoStepToggle={this.autoStepToggle}
-          resample={this.resample}
-          converged={converged(data)}
-          initial={initial(data)}
-          toggleLayer={this.toggleLayer}
-          layers={layers}
-          ref={this.buttons}
-        />
-        <Canvas
-          data={data}
-          updateData={this.updateData}
-          lock={false}
-          layers={layers}
-          ref={this.canvas}
-          penroseVersion={penroseVersion}
-        />
+      <div
+        className="App"
+        style={{
+          height: "100%",
+          display: "flex",
+          flexFlow: "column",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ flexShrink: 0 }}>
+          <ButtonBar
+            downloadPDF={this.downloadPDF}
+            downloadSVG={this.downloadSVG}
+            // stepUntilConvergence={stepUntilConvergence}
+            autostep={autostep}
+            step={this.step}
+            autoStepToggle={this.autoStepToggle}
+            resample={this.resample}
+            converged={data ? converged(data) : false}
+            initial={data ? initial(data) : false}
+            toggleInspector={this.toggleInspector}
+            showInspector={showInspector}
+            ref={this.buttons}
+          />
+        </div>
+        <div style={{ flexGrow: 1, position: "relative", overflow: "hidden" }}>
+          <SplitPane
+            split="horizontal"
+            defaultSize={400}
+            style={{ position: "inherit" }}
+            className={this.state.showInspector ? "" : "soloPane1"}
+            pane2Style={{ overflow: "hidden" }}
+          >
+            <Canvas
+              data={data}
+              updateData={this.updateData}
+              lock={false}
+              ref={this.canvas}
+              penroseVersion={penroseVersion}
+            />
+            {showInspector && (
+              <Inspector history={history} onClose={this.toggleInspector} />
+            )}
+          </SplitPane>
+        </div>
       </div>
     );
   }

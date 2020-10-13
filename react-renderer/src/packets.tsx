@@ -1,26 +1,26 @@
 // import memoize from "fast-memoize";
 
-import { pickBy } from "lodash";
+import { encodeState } from "engine/Evaluator";
 // const memoized = (p: any) =>
 // memoize((...args: any) => JSON.stringify(p(...args)));
 export const Step = (steps: number, data: any) => ({
   tag: "Step",
-  contents: [steps, transformValidJSON(data)]
+  contents: [steps, encodeState(data)],
 });
 
 export const StepUntilConvergence = (data: any) => ({
   tag: "StepUntilConvergence",
-  contents: transformValidJSON(data)
+  contents: encodeState(data),
 });
 
 export const EnergyValues = (data: any) => ({
   tag: "EnergyValues",
-  contents: transformValidJSON(data)
+  contents: encodeState(data),
 });
 
 export const Resample = (samples: number, data: any) => ({
   tag: "Resample",
-  contents: [samples, transformValidJSON(data)]
+  contents: [samples, encodeState(data)],
 });
 
 export const CompileTrio = (
@@ -29,7 +29,7 @@ export const CompileTrio = (
   element: string
 ) => ({
   tag: "CompileTrio",
-  contents: [substance, style, element]
+  contents: [substance, style, element],
 });
 
 export const ReconcileNext = (
@@ -39,30 +39,21 @@ export const ReconcileNext = (
   state: any
 ) => ({
   tag: "ReconcileNext",
-  contents: [transformValidJSON(state), substance, style, element]
+  contents: [encodeState(state), substance, style, element],
 });
 
 export const GetVersion = () => ({ tag: "GetVersion" });
 
 export const GetEnv = (substance: string, element: string) => ({
   tag: "GetEnv",
-  contents: [substance, element]
+  contents: [substance, element],
 });
 
-export const transformValidJSON = (data: any) => ({
-  ...data,
-  shapesr: data.shapesr.map(([name, shape]: [string, any]) => [
-    name,
+export const converged = (state: State) =>
+  state.params.optStatus.tag === "EPConverged";
+export const initial = (state: State) =>
+  state.params.optStatus.tag === "NewIter";
 
-    pickBy(shape, (k: any) => !k.omit)
-  ])
-});
-export const converged = (state: any) =>
-  state.paramsr && state.paramsr.optStatus.tag === "EPConverged";
-export const initial = (state: any) =>
-  state.paramsr && state.paramsr.optStatus.tag === "NewIter";
-
-export const running = (state: any) =>
-  state.paramsr &&
-  (state.paramsr.optStatus.tag === "UnconstrainedConverged" ||
-    state.paramsr.optStatus.tag === "UnconstrainedRunning");
+export const running = (state: State) =>
+  state.params.optStatus.tag === "UnconstrainedRunning" ||
+  state.params.optStatus.tag === "UnconstrainedConverged";

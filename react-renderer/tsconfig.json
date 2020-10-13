@@ -4,22 +4,27 @@
     "outDir": "build/dist",
     "module": "esnext",
     "target": "es5",
-    "lib": ["es5", "es6", "es7", "dom"],
+    "lib": ["es5", "es6", "es7", "esnext", "dom"],
     "sourceMap": true,
     "allowJs": true,
     "jsx": "react",
     "moduleResolution": "node",
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
     "importHelpers": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
-    // "noUnusedLocals": true
-    "noUnusedLocals": false
+    "resolveJsonModule": true,
+    "noUnusedLocals": false,
+    "skipLibCheck": true, // for Tensorflow JS
+    "downlevelIteration": true,
+    "types": ["react", "jest", "node", "tslib"],
+    "paths": {
+      "*": ["src/*"]
+    }
   },
   "formatCodeOptions": {
     "baseIndentSize": 0,
@@ -46,11 +51,17 @@
   "exclude": [
     "node_modules",
     "build",
+    "docs",
     "dist",
+    "src/__tests__",
     "scripts",
     "acceptance-tests",
     "webpack",
     "jest",
     "src/setupTests.ts"
-  ]
+  ],
+  "typedocOptions": {
+    "mode": "modules",
+    "out": "docs"
+  }
 }
