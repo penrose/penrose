@@ -3,10 +3,10 @@ jobs:
   docs-deploy:
     docker:
       - image: circleci/node:11.10.1
+    working_directory: ~/penrose/react-renderer
     steps:
-      - checkout
-      - attach_workspace:
-          at: react-renderer
+      - checkout:
+          path: ~/penrose
       - run:
           name: Install deps
           command: |
