@@ -1,8 +1,8 @@
 Usage:
   penrose --version
+  penrose runAPI 
   penrose [--port=PORT --domain=NAME --config=PATH] <input>...
   penrose [--port=PORT --domain=NAME] editor [-v]
-  penrose runAPI 
 
 Options:
   --port=PORT      Port number of the websocket connection that the backend
