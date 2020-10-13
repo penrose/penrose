@@ -22,6 +22,7 @@
     "skipLibCheck": true, // for Tensorflow JS
     "downlevelIteration": true,
     "types": ["react", "jest", "node", "tslib"],
+    "typeRoots": ["src/types"],
     "paths": {
       "*": ["src/*"]
     }
