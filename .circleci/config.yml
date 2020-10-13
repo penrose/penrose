@@ -6,19 +6,23 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: docs/
+          at: react-renderer
       - run:
-        name: Install deps
-        command: |
-          npm install -g --silent gh-pages
-          git config user.email "ci-build@penrose.ink"
-          git config user.name "ci-build"
+          name: Install deps
+          command: |
+            npm install -g --silent gh-pages
+            npm install
+            git config user.email "ci-build@penrose.ink"
+            git config user.name "ci-build"
       - add_ssh_keys:
           fingerprints:
             - "77:b3:c0:c3:cd:6a:68:6e:95:89:9d:0e:92:ea:0a:be"
       - run:
-        name: Deploy to gh-pages
-        command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
+          name: Generate docs
+          command: npm run docs
+      - run:
+          name: Deploy to gh-pages
+          command: gh-pages --dotfiles --message "[skip ci] Updates" --dist docs/
   build_frontend:
     docker:
       - image: circleci/node:11.10.1
