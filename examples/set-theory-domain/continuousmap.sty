@@ -23,7 +23,6 @@ Set x {
       rotation : 0.0
     }
 
-    -- TODO
     x.labelFn = ensure contains(x.shape, x.text)
     LOCAL.layering = x.shape below x.text
 }
@@ -61,6 +60,8 @@ with Set X; Set Y; Set R1; Set R2 {
     }
 
     f.labelFn  = encourage centerLabel(f.shape, f.text, 5.0)
+
+    -- Unused?
     -- f.centerFn = encourage centerArrow(f.shape, R1.shape, R2.shape)
 }
 
@@ -91,6 +92,7 @@ Set `Rn` {
 
     delete `Rn`.labelFn
     delete `Rn`.outsideFn
+
     `Rn`.minSizeFn = ensure minSize(`Rn`.shape)
     `Rn`.maxSizeFn = ensure maxSize(`Rn`.shape)
 }
@@ -116,6 +118,7 @@ with Set `Rn` {
 
     -- This doesn't seem to work
     --    `Rm`.posFn = encourage topRightOf(`Rm`.text, `Rm`.shape)
+
     `Rm`.minSizeFn = ensure minSize(`Rm`.shape)
     `Rm`.maxSizeFn = ensure maxSize(`Rm`.shape)
 }

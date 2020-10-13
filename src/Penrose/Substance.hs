@@ -38,6 +38,7 @@ data SubOut =
   SubOut SubProg
          (VarEnv, SubEnv)
          LabelMap
+
 instance Show SubOut where
   show (SubOut subProg (subEnv, eqEnv) labelMap) =
     "Parsed Substance program:\n" ++
@@ -49,7 +50,6 @@ instance Show SubOut where
 
 --------------------------------------------------------------------------------
 -- Substance AST
-
 -- | Program is a sequence of statements
 type SubProg = [SubStmt]
 
@@ -116,9 +116,7 @@ newtype PredicateName =
   PredicateConst String
   deriving (Show, Eq, Typeable)
 
-newtype Field =
-  FieldConst String
-  deriving (Show, Eq, Typeable)
+type Field = String
 
 data Func = Func
   { nameFunc :: String
@@ -168,8 +166,6 @@ instance Show Predicate where
       nString = show predicateName
       aString = show predicateArgs
 
-
-
 -- | 'substanceParser' is the top-level parser function. The parser contains a list of functions
 --    that parse small parts of the language. When parsing a source program, these functions are invoked in a top-down manner.
 substanceParser :: VarEnv -> BaseParser [SubStmt']
@@ -182,7 +178,8 @@ subProg' = subStmt' `sepEndBy` newline'
 
 subStmt', declBind, declList :: Parser SubStmt'
 -- NOTE: order matters here. We first parse label statements _and then_ decl list to avoid consuming regular decls
-subStmt' = tryChoice [declBind, CoreStmt <$> labelStmt, declList, CoreStmt <$> subStmt]
+subStmt' =
+  tryChoice [declBind, CoreStmt <$> labelStmt, declList, CoreStmt <$> subStmt]
 
 declList = DeclList <$> tParser <*> var `sepBy2` comma
 
@@ -192,9 +189,11 @@ declBind = do
   rword ":="
   DeclBind t v <$> expr
 
-subStmt, labelStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel :: Parser SubStmt
-subStmt = tryChoice [ equalE, equalQ, bind, decl, applyP ]
-labelStmt = tryChoice [ labelDecl, autoLabel, noLabel ]
+subStmt, labelStmt, decl, bind, applyP, labelDecl, autoLabel, noLabel ::
+     Parser SubStmt
+subStmt = tryChoice [equalE, equalQ, bind, decl, applyP]
+
+labelStmt = tryChoice [labelDecl, autoLabel, noLabel]
 
 decl = Decl <$> tParser <*> var
 
@@ -236,10 +235,16 @@ function = do
   return Func {nameFunc = n, argFunc = args}
 
 field :: Parser Field
-field = FieldConst <$> identifier
+field = identifier
 
 expr, valConsOrFunc, deconstructorE :: Parser Expr
-expr = tryChoice [deconstructorE, valConsOrFunc, VarE <$> var, StringLit <$> doubleQuotedString]
+expr =
+  tryChoice
+    [ deconstructorE
+    , valConsOrFunc
+    , VarE <$> var
+    , StringLit <$> doubleQuotedString
+    ]
 
 deconstructorE = do
   v <- var
@@ -448,14 +453,13 @@ checkExpression varEnv (DeconstructorE d) --checkVarE varEnv (varDeconstructor d
   in case t of
        Just t' -> checkField varEnv (fieldDeconstructor d) t'
        Nothing -> (err, Nothing)
-checkExpression varEnv (StringLit v)    = ("", Nothing)
-
+checkExpression varEnv (StringLit v) = ("", Nothing)
 
 -- Type checking for fields in value deconstructor, check that there is a
 -- matched value deconstructor with a matching field a retrieve the type,
 -- otherwise, return an error
 checkField :: VarEnv -> Field -> T -> (String, Maybe T)
-checkField varEnv (FieldConst f) t =
+checkField varEnv f t =
   case M.lookup t (typeValConstructor varEnv) of
     Nothing ->
       ("No matching value constructor for the type " ++ show t, Nothing)
@@ -776,7 +780,6 @@ parseSubstance subFile subIn varEnv =
       let subDynEnv = loadSubEnv subProg'
       let labelMap = getLabelMap subProg' subTypeEnv
       Right $ SubOut subProg' (subTypeEnv, subDynEnv) labelMap
-
 -- --------------------------------------- Test Driver -------------------------
 -- | For testing: run this function in GHCI
 -- testSubstance :: String -> String -> IO ()

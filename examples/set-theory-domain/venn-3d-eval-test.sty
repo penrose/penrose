@@ -1,0 +1,118 @@
+Colors {
+    -- Keenan palette
+    Colors.black = rgba(0.0, 0.0, 0.0, 1.0)
+
+    Colors.darkpurple = rgba(0.549,0.565,0.757, 1.0)
+    Colors.purple2 = rgba(0.106, 0.122, 0.54, 0.2)
+    Colors.lightpurple = rgba(0.816,0.824, 0.902, 1.0)
+
+    Colors.verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
+    Colors.purple3 = rgba(0.557, 0.627, 0.769, 1.0)
+
+    Colors.midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    Colors.lightslategray = rgba(0.50, 0.51, 0.69, 1.0)
+    Colors.silver = rgba(0.71, 0.72, 0.79, 1.0)
+    Colors.gainsboro = rgba(0.87, 0.87, 0.87, 1.0)
+
+    Colors.darkgray = rgba(0.1, 0.1, 0.1, 1.0)
+    Colors.mediumgray = rgba(0.5, 0.5, 0.5, 1.0)
+    Colors.gray = rgba(0.8, 0.8, 0.8, 1.0)
+    Colors.red = rgba(1.0, 0.0, 0.0, 1.0)
+    Colors.pink = rgba(1.0, 0.4, 0.7, 1.0)
+    Colors.yellow = rgba(1.0, 1.0, 0.0, 1.0)
+    Colors.orange = rgba(1.0, 0.6, 0.0, 1.0)
+    Colors.lightorange = rgba(1.0, 0.6, 0.0, 0.25)
+    Colors.green = rgba(0.0, 1.0, 0.0, 1.0)
+    Colors.blue = rgba(0.0, 0.0, 1.0, 1.0)
+    Colors.sky = rgba(0.325, 0.718, 0.769, 1.0)
+    Colors.lightsky = rgba(0.325, 0.718, 0.769, 0.25)
+    Colors.lightblue = rgba(0.0, 0.0, 1.0, 0.25)
+    Colors.cyan = rgba(0.0, 1.0, 1.0, 1.0)
+    Colors.purple = rgba(0.5, 0.0, 0.5, 1.0)
+    Colors.white = rgba(1.0, 1.0, 1.0, 1.0)
+    Colors.none = rgba(0.0, 0.0, 0.0, 0.0)
+    Colors.bluegreen = rgba(0.44, 0.68, 0.60, 1.0)
+}
+
+const {
+    const.num = 1.0
+}
+
+Set x {
+    x.shape = Circle {
+        strokeWidth : -0
+    }
+
+    x.shading = Image {
+        x : x.shape.x 
+        y : x.shape.y
+        w : x.shape.r * 2.0
+        h : x.shape.r * 2.0
+        path : "shading.svg"
+    }
+
+    x.shadow = Image {
+        path : "shadow.svg"
+        w : x.shape.r * 2.15
+        h : x.shape.r * 2.22
+        x : x.shape.x + 0.03 * x.shading.w
+        y : x.shape.y - 0.051 * x.shading.h
+    }
+
+    x.text = Text {
+        string : x.label
+        color: rgba(1.0, 1.0, 1.0, 1.0)
+        w: 0.5 * x.shape.r
+        h: 0.5 * x.shape.r
+    }
+
+    x.labelFn = ensure contains(x.shape, x.text)
+    x.minSizeFn = ensure minSize(x.shape)
+    x.maxSizeFn = ensure maxSize(x.shape)
+    x.labelPosFn = encourage sameCenter(x.text, x.shape)
+    LOCAL.layering  = x.shape below x.text
+    LOCAL.shadeLayering  = x.shading below x.shape
+    LOCAL.shadowLayering  = x.shadow below x.shading
+}
+
+-- Set x {
+--     x.newPath = x.shape
+--     x.testFn = encourage center(x.newPath)
+-- }
+
+Set x; Set y
+where IsSubset(x, y) {
+    LOCAL.containFn = ensure contains(y.shape, x.shape, 10.0)
+    LOCAL.sizeFn    = ensure smallerThan(x.shape, y.shape)
+    LOCAL.outsideFn = ensure outsideOf(y.text, x.shape)
+    LOCAL.layering  = x.shape above y.shape
+    LOCAL.layering1  = y.text below x.shape
+    LOCAL.layering2  = x.shadow above y.shape
+}
+
+Set x; Set y
+where Not(Intersecting(x, y)) {
+    LOCAL.notIntersectFn = ensure disjoint(x.shape, y.shape)
+}
+
+Set x; Set y
+where Intersecting(x, y) {
+    LOCAL.overlapFn = ensure overlapping(x.shape, y.shape)
+    LOCAL.labelFn1  = ensure outsideOf(y.text, x.shape)
+    LOCAL.labelFn2  = ensure outsideOf(x.text, y.shape)
+}
+
+Point p {
+    p.offset = 10.0
+    p.shape = Circle {
+        strokeWidth : 0
+        color : rgba(0.0, 0.0, 0.0, 1.0)
+        r : 3.0
+    }
+
+    p.text = Text {
+        string : p.label
+        x : p.shape.x + p.offset
+        y : p.shape.y + p.offset
+    }
+}

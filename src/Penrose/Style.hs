@@ -82,7 +82,7 @@ stringLiteral = doubleQuotedString
 -------------------- Style Program grammar
 
 -- | A variable in Style
-newtype StyVar  = StyVar' String
+newtype StyVar  = StyVar String
     deriving (Show, Eq, Ord, Typeable)
 
 -- | A header of a block is either a selector or a namespace declaration
@@ -266,7 +266,7 @@ selector = do
           withAndWhere = runPermutation $ (,) <$> toPermutationWithDefault [] wth <*> toPermutationWithDefault [] whr
 
 styVar :: Parser StyVar
-styVar = StyVar' <$> identifier
+styVar = StyVar <$> identifier
 
 declPattern :: Parser [DeclPattern]
 declPattern = do
@@ -541,7 +541,7 @@ mergeEnv varEnv selEnv = foldl mergeMapping varEnv (M.assocs $ sTypeVarMap selEn
                -- G || (x : |T) |-> G
                mergeMapping varEnv (BSubVar var, styType) = varEnv
                -- G || (y : |T) |-> G[y : T] (shadowing any existing Sub vars)
-               mergeMapping varEnv (BStyVar (StyVar' var), styType) =
+               mergeMapping varEnv (BStyVar (StyVar var), styType) =
                             varEnv { varMap = M.insert (VarConst var) (toSubType styType) (varMap varEnv) }
 
 ----------- Converting Style values to Env/Substance values for two reasons:
@@ -550,7 +550,7 @@ mergeEnv varEnv selEnv = foldl mergeMapping varEnv (M.assocs $ sTypeVarMap selEn
 -- | All Style variables "y" are converted to Substance vars "`x`"
 toSubVar :: BindingForm -> Var
 toSubVar (BSubVar subv)           = subv
-toSubVar (BStyVar (StyVar' styv)) = VarConst styv
+toSubVar (BStyVar (StyVar styv)) = VarConst styv
 
 toSubTArg :: SArg -> Arg
 toSubTArg (SAVar bVar) = AVar $ toSubVar bVar
@@ -637,7 +637,7 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
              let selEnv' = addErr errT selEnv in
              case bVar of
              -- rule Decl-Sty-Context
-             bsv@(BStyVar (StyVar' styVar)) ->
+             bsv@(BStyVar (StyVar styVar)) ->
                      -- NOTE: this does not aggregate *all* possible error May just return first error.
                      -- y \not\in dom(g)
                      if M.member bsv (sTypeVarMap selEnv')
@@ -657,7 +657,7 @@ checkDeclPatterns varEnv selEnv decls = foldl (checkDeclPattern varEnv) selEnv d
                      then let err = "Style pattern statement " ++ show stmt ++
                                     " declares Substance variable '" ++ sVar ++ "' twice"
                           in addErr err selEnv'
-                     else if M.member (BStyVar (StyVar' sVar)) (sTypeVarMap selEnv')
+                     else if M.member (BStyVar (StyVar sVar)) (sTypeVarMap selEnv')
                      then let err = "Style pattern statement " ++ show stmt ++
                                     " declares Substance variable '" ++ sVar  ++ "'" ++
                                     " in the same selector as a Style variable of the same name"
@@ -713,7 +713,7 @@ checkSels varEnv prog =
           else error $ intercalate "\n" errors
           where checkPair :: VarEnv -> (Header, Block) -> SelEnv
                 checkPair varEnv (Select sel, _) = checkSel varEnv sel
-                checkPair varEnv (Namespace (StyVar' name), _) = checkNamespace name varEnv
+                checkPair varEnv (Namespace (StyVar name), _) = checkNamespace name varEnv
                 -- TODO: for now, namespace has no local context
 
 -- TODO: namespaces are implicitly converted to Substance variables somewhere (not sure where)
@@ -767,8 +767,8 @@ fullSubst selEnv subst =
         res = sort selStyVars == sort substStyVars in
     -- Equal up to permutation (M.keys ensures that there are no dups)
     trM1 ("fullSubst: \nselEnv: " ++ ppShow selEnv ++ "\nsubst: " ++ ppShow subst ++ "\nres: " ++ ppShow res ++ "\n") res
-    where styVarToString  (BStyVar (StyVar' v)) = v
-          styVarToString' (StyVar' v) = v
+    where styVarToString  (BStyVar (StyVar v)) = v
+          styVarToString' (StyVar v) = v
 
 -- Check that there are no duplicate keys or vals in the substitution
 uniqueKeysAndVals :: Subst -> Bool
@@ -791,7 +791,7 @@ substituteBform _ subst sv@(BSubVar _) = sv
 
 -- If the Style variable is "LOCAL", then resolve it to a unique id for the block and selector
 -- Otherwise, look up the substitution for the Style variable and return a Substance variable
-substituteBform lv subst sv@(BStyVar sv'@(StyVar' vn)) =
+substituteBform lv subst sv@(BStyVar sv'@(StyVar vn)) =
    if vn == localKeyword
    then case lv of
         -- lv = Nothing: substituting into selector, so local vars don't matter
@@ -1096,11 +1096,12 @@ data FieldExpr a = FExpr (TagExpr a)
     deriving (Show, Eq, Typeable)
 
 type Warning = String
-data Name = Sub String   -- Sub obj name
-            | Gen String -- randomly generated name
-    deriving (Show, Eq, Ord, Typeable)
+type Name = String
+-- data Name = Sub String   -- Sub obj name
+--             | Gen String -- randomly generated name
+--     deriving (Show, Eq, Ord, Typeable)
 
-data Translation a = Trans { trMap    :: M.Map Name (FieldDict a),
+data Translation a = Trans { trMap    :: M.Map String (FieldDict a),
                              warnings :: [Warning] }
     deriving (Show, Eq, Typeable)
 
@@ -1119,13 +1120,9 @@ initTrans = Trans { trMap = M.empty, warnings = [] }
 
 -- Convert Sub bvar name to Sub name in Translation
 trName :: BindingForm -> Name
-trName (BSubVar (VarConst nm)) = Sub nm
-trName (BStyVar (StyVar' nm))  = Sub nm
+trName (BSubVar (VarConst nm)) = nm
+trName (BStyVar (StyVar nm))  = nm
        -- error ("Style variable '" ++ show bv ++ "' in block! Was a non-full substitution applied?") -- TODO/URGENT fix for namespaces
-
-nameStr :: Name -> String
-nameStr (Sub s) = s
-nameStr (Gen s) = s
 
 mkPropertyDict :: (Autofloat a) => [PropertyDecl] -> PropertyDict a
 mkPropertyDict propertyDecls = foldl addPropertyDecl M.empty propertyDecls
@@ -1149,10 +1146,10 @@ pathStr (FieldPath bvar field) = intercalate "." [show bvar, field]
 pathStr (PropertyPath bvar field property) = intercalate "." [show bvar, field, property]
 
 pathStr2 :: Name -> Field -> String
-pathStr2 name field = intercalate "." [nameStr name, field]
+pathStr2 name field = intercalate "." [name, field]
 
 pathStr3 :: Name -> Field -> Property -> String
-pathStr3 name field property = intercalate "." [nameStr name, field, property]
+pathStr3 name field property = intercalate "." [name, field, property]
 
 ----- Main operations on translations (add and delete)
 
@@ -1162,11 +1159,11 @@ deleteField trans name field =
     let trn = trMap trans in
     case M.lookup name trn of
     Nothing ->
-        let err = "Err: Sub obj '" ++ nameStr name ++ "' has no fields; can't delete field '" ++ field ++ "'" in
+        let err = "Err: Sub obj '" ++ name ++ "' has no fields; can't delete field '" ++ field ++ "'" in
         addWarn trans err
     Just fieldDict ->
         if field `M.notMember` fieldDict
-        then let warn = "Warn: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field ++ "'" in
+        then let warn = "Warn: Sub obj '" ++ name ++ "' already lacks field '" ++ field ++ "'" in
              addWarn trans warn
         else let fieldDict' = M.delete field fieldDict
                  trn'       = M.insert name fieldDict' trn in
@@ -1178,11 +1175,11 @@ deleteProperty trans name field property =
         path = pathStr3 name field property in
     case M.lookup name trn of
     Nothing ->
-        let err = "Err: Sub obj '" ++ nameStr name ++ "' has no fields; can't delete path '" ++ path ++ "'" in
+        let err = "Err: Sub obj '" ++ name ++ "' has no fields; can't delete path '" ++ path ++ "'" in
         addWarn trans err
     Just fieldDict ->
         case M.lookup field fieldDict of
-        Nothing -> let err = "Err: Sub obj '" ++ nameStr name ++ "' already lacks field '" ++ field
+        Nothing -> let err = "Err: Sub obj '" ++ name ++ "' already lacks field '" ++ field
                               ++ "'; can't delete path " ++ path in
                    addWarn trans err
         -- Deal with path aliasing as in `addProperty`
@@ -1194,7 +1191,7 @@ deleteProperty trans name field property =
                             then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
                                  in addWarn trans err
                             else deleteProperty trans newName newField property
-             res -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
+             res -> let err = "Error: Sub obj '" ++ name ++ "' does not have GPI '"
                               ++ field ++ "'; cannot delete property '" ++ property ++ "'" in
                     addWarn trans err
         Just (FGPI ctor properties) ->
@@ -1220,11 +1217,11 @@ addField override trans name field texpr =
                     Just fdict -> fdict in
      -- Warn using override if x doesn't exist
     let warn1 = if fieldDict == M.empty && override
-                then Just $ "Warning: Sub obj '" ++ nameStr name ++ "' has no fields, but override was declared"
+                then Just $ "Warning: Sub obj '" ++ name ++ "' has no fields, but override was declared"
                 else Nothing in
      -- Warn using override if x.n already exists
     let warn2 = if (field `M.member` fieldDict) && (not override)
-                then Just $ "Warning: Sub obj '" ++ nameStr name ++ "''s field '" ++ field
+                then Just $ "Warning: Sub obj '" ++ name ++ "''s field '" ++ field
                             ++ "' is overridden, but was not declared an override"
                 else Nothing in
      -- Warn using override if x.n doesn't exist
@@ -1247,11 +1244,11 @@ addProperty override trans name field property texpr =
     -- Setting a field's property should require that field to already exist and be a GPI
     -- TODO: distinguish b/t errors and warns
     case M.lookup name trn of
-    Nothing -> let err = "Error: Sub obj '" ++ nameStr name ++ "' has no fields; cannot add property" in
+    Nothing -> let err = "Error: Sub obj '" ++ name ++ "' has no fields; cannot add property" in
                addWarn trans err
     Just fieldDict ->
         case M.lookup field fieldDict of
-        Nothing -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have field '"
+        Nothing -> let err = "Error: Sub obj '" ++ name ++ "' does not have field '"
                               ++ field ++ "'; cannot add property '" ++ property ++ "'" in
                    addWarn trans err
         -- If looking up "f.domain" yields a *different* path (i.e. that path was an alias)
@@ -1265,7 +1262,7 @@ addProperty override trans name field property texpr =
                             then let err = "Error: path '" ++ pathStr p ++ "' was aliased to itself"
                                  in addWarn trans err
                             else addProperty override trans newName newField property texpr
-             res -> let err = "Error: Sub obj '" ++ nameStr name ++ "' does not have GPI '"
+             res -> let err = "Error: Sub obj '" ++ name ++ "' does not have GPI '"
                               ++ field ++ "'; found expr '" ++ show res ++ "'; cannot add property '" ++ property ++ "'" in
                     addWarn trans err
         Just (FGPI ctor properties) ->
@@ -1378,7 +1375,7 @@ insertLabels trans labels =
         toFieldStr s = FExpr $ Done $ StrV s
 
         insertLabel :: Eq a => Name -> FieldDict a -> FieldDict a
-        insertLabel (Sub s) fieldDict = 
+        insertLabel s fieldDict = 
             let labelField = "label" in
             case M.lookup s labels of
                 Nothing ->  fieldDict
@@ -1387,8 +1384,6 @@ insertLabels trans labels =
                                  -- If "NoLabel", default to an empty string *and* delete any Text GPIs that use it
                 Just Nothing  -> let fd' = M.insert labelField (toFieldStr "") fieldDict in
                                  M.filter (not . usesLabelText s) fd'
-        -- only insert labels for Substance objects
-        insertLabel (Gen _) fieldDict = fieldDict
 
         -- Return True if it's a Text GPI that uses the label
         -- TODO: should probably do something with other GPIs/fields that use the label (delete/filter/modify them?)
@@ -1407,10 +1402,9 @@ insertLabels trans labels =
 insertNames :: (Autofloat a, Eq a) => Translation a -> Translation a
 insertNames trans = trans { trMap = M.mapWithKey insertName $ trMap trans }
             where insertName :: Name -> FieldDict a -> FieldDict a -- I guess we don't need to insert names for namespaces
-                  insertName (Sub name) fieldDict = 
+                  insertName name fieldDict = 
                              let nameField = "name" in
                              M.insert nameField (FExpr $ Done $ StrV name) fieldDict
-                  insertName (Gen _) fieldDict = fieldDict
                           
 {- Find plugin accessor expressions
 Evaluates a plugin accessor’s subexpressions (the primary and secondary key)
@@ -1424,9 +1418,8 @@ evalPluginAccess valMap trans =
                  trans { trMap = M.mapWithKey (evalFieldAccesses valMap) $ trMap trans }
 
             where evalFieldAccesses :: (Autofloat a) => StyValMap a -> Name -> FieldDict a -> FieldDict a
-                  evalFieldAccesses vmap (Sub name) fieldDict = 
+                  evalFieldAccesses vmap name fieldDict = 
                        M.mapWithKey (evalFieldAccess vmap) fieldDict
-                  evalFieldAccesses vmap (Gen _) fieldDict = fieldDict
 
                   evalFieldAccess :: (Autofloat a) => StyValMap a -> Field -> FieldExpr a -> FieldExpr a
                   evalFieldAccess vmap field (FExpr te) = FExpr $ evalTExpr vmap te
@@ -1518,7 +1511,7 @@ nameAnonStatements p = map (\(h, b) -> (h, nameAnonBlock b)) p
                          nameAnonStatement :: (Int, Block) -> Stmt -> (Int, Block)
                          -- Assign the path "local.ANON_$counter" and increment counter
                          nameAnonStatement (i, b) (AnonAssign e) = 
-                                           let path = FieldPath (BStyVar (StyVar' localKeyword)) (anonKeyword ++ "_" ++ show i)
+                                           let path = FieldPath (BStyVar (StyVar localKeyword)) (anonKeyword ++ "_" ++ show i)
                                                stmt = Assign path e in
                                            (i + 1, b ++ [stmt])
                          nameAnonStatement (i, b) s = (i, b ++ [s])
