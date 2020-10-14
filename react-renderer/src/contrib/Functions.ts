@@ -2,7 +2,7 @@ import { range, maxBy } from "lodash";
 import { randFloat } from "utils/Util";
 import { mapTup2 } from "engine/EngineUtils";
 import { linePts, getStart, getEnd } from "utils/OtherUtils";
-import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin } from "engine/Autodiff";
+import { ops, fns, varOf, numOf, constOf, add, addN, max, div, mul, cos, sin, sqrt } from "engine/Autodiff";
 
 /**
  * Static dictionary of computation functions
@@ -59,6 +59,13 @@ export const compDict = {
     return {
       tag: "FloatV",
       contents: sin(div(mul(d, constOf(Math.PI)), constOf(180.0)))
+    };
+  },
+
+  sqrt: (d: VarAD): IFloatV<VarAD> => {
+    return {
+      tag: "FloatV",
+      contents: sqrt(d)
     };
   },
 
